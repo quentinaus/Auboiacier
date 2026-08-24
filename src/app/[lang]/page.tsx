@@ -29,7 +29,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
             <div className="absolute inset-0 opacity-90">
               <HeroShaderBackground />
             </div>
-            <div className="relative">
+            <div className="relative z-10">
               <span className="font-mono text-xs uppercase tracking-widest text-white/60">
                 {t.lightingLabel}
               </span>

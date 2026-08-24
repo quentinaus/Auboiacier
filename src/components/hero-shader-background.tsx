@@ -13,13 +13,16 @@ const ShaderGradient = dynamic(
 
 export function HeroShaderBackground() {
   return (
-    <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-      <ShaderGradientCanvas pixelDensity={1} fov={45}>
+    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+      <ShaderGradientCanvas
+        pixelDensity={1}
+        fov={45}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+      >
         <ShaderGradient
           control="props"
           type="plane"
           animate="on"
-          shader="defaults"
           uAmplitude={1}
           uDensity={1.3}
           uFrequency={5.5}

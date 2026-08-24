@@ -17,7 +17,7 @@ export default async function ToilesTenduesPage({
       {/* Hero */}
       <section className="relative flex min-h-[85vh] flex-col justify-center overflow-hidden">
         <HeroShaderBackground />
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6">
+        <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-6 px-6">
           <h1 className="max-w-2xl text-4xl font-medium tracking-tight text-white md:text-5xl">
             {t.heroTitle}
           </h1>
