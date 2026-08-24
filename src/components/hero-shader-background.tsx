@@ -3,38 +3,30 @@
 import { useEffect, useRef } from "react";
 
 /* ------------------------------------------------------------------ *
- *  RÉGLAGES DU DÉGRADÉ — modifie uniquement ce bloc
+ *  RÉGLAGES — mêmes noms que sur shadergradient.co/customize
+ *  Copie-colle les valeurs depuis leur éditeur, elles s'appliquent ici.
  * ------------------------------------------------------------------ */
 export const SHADER_CONFIG = {
-  /** color1 / color2 / color3 de ShaderGradient. */
-  colors: ["#ff4aba", "#db9f88", "#6e72e1"],
+  color1: "#ff4aba",
+  color2: "#db9f88",
+  color3: "#6e72e1",
 
-  /** uSpeed — vitesse de l'ondulation. */
   uSpeed: 0.6,
-
-  /** uDensity — finesse du relief. Haut = plis serrés. */
   uDensity: 1.3,
-
-  /** uFrequency — nombre de bandes diagonales. */
-  uFrequency: 5.5,
-
-  /** uStrength — profondeur du relief, donc contraste des bandes. */
   uStrength: 4,
 
-  /** uAmplitude — amplitude de la houle. */
-  uAmplitude: 1,
-
-  /** rotationZ — inclinaison des bandes, en degrés. */
-  rotationZ: 50,
-
-  /** brightness — luminosité générale. */
   brightness: 1.3,
+  grain: "on" as "on" | "off",
 
-  /** grain — intensité du grain. 0 = lisse, 0.12 = très marqué. */
-  grain: 0.09,
-
-  /** cameraZoom — échelle. Bas = plages larges, haut = motif resserré. */
+  cDistance: 3.6,
   cameraZoom: 1,
+  fov: 45,
+
+  positionX: -1.4,
+  positionY: 0,
+
+  rotationY: 10,
+  rotationZ: 50,
 };
 /* ------------------------------------------------------------------ */
 
@@ -43,95 +35,156 @@ attribute vec2 aPos;
 void main() { gl_Position = vec4(aPos, 0.0, 1.0); }
 `;
 
+/**
+ * Portage du shader « defaults » de ShaderGradient (type plane).
+ *
+ * L'original déplace les sommets d'un plan 10×10 le long de leur normale,
+ * puis colore chaque fragment ainsi :
+ *
+ *   mix(mix(color1, color2, smoothstep(-3.0, 3.0, vPos.x)), color3, vPos.z)
+ *
+ * Comme la caméra regarde le plan de face (cPolarAngle 90, cAzimuthAngle 180),
+ * on peut retrouver le point du plan visé par chaque pixel sans passer par une
+ * scène 3D : c'est ce qui rend ce rendu insensible au défilement, là où la
+ * librairie d'origine cessait de dessiner.
+ *
+ * cnoise est le bruit de Perlin classique repris tel quel de leur source.
+ */
 const FRAG = `
 precision highp float;
 
 uniform vec2  uResolution;
 uniform float uTime;
-uniform vec3  uColors[3];
+uniform vec3  uColor1;
+uniform vec3  uColor2;
+uniform vec3  uColor3;
 uniform float uDensity;
-uniform float uFrequency;
 uniform float uStrength;
-uniform float uAmplitude;
-uniform float uRotation;
-uniform float uZoom;
-uniform float uGrain;
 uniform float uBrightness;
+uniform float uGrain;
+uniform float uHalfHeight;
+uniform vec2  uOffset;
+uniform float uRotZ;
+uniform float uRotY;
 
-// Bruit simplex 2D (Ashima Arts, domaine public) — sert de relief à la houle.
 vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-vec3 permute(vec3 x) { return mod289(((x * 34.0) + 1.0) * x); }
+vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+vec4 permute(vec4 x) { return mod289(((x * 34.0) + 1.0) * x); }
+vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+vec3 fade(vec3 t) { return t * t * t * (t * (t * 6.0 - 15.0) + 10.0); }
 
-float snoise(vec2 v) {
-  const vec4 C = vec4(0.211324865405187, 0.366025403784439,
-                     -0.577350269189626, 0.024390243902439);
-  vec2 i  = floor(v + dot(v, C.yy));
-  vec2 x0 = v - i + dot(i, C.xx);
-  vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-  vec4 x12 = x0.xyxy + C.xxzz;
-  x12.xy -= i1;
-  i = mod289(i);
-  vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0))
-                 + i.x + vec3(0.0, i1.x, 1.0));
-  vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy),
-                          dot(x12.zw, x12.zw)), 0.0);
-  m = m * m; m = m * m;
-  vec3 x = 2.0 * fract(p * C.www) - 1.0;
-  vec3 h = abs(x) - 0.5;
-  vec3 ox = floor(x + 0.5);
-  vec3 a0 = x - ox;
-  m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
-  vec3 g;
-  g.x  = a0.x  * x0.x  + h.x  * x0.y;
-  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-  return 130.0 * dot(m, g);
+float cnoise(vec3 P) {
+  vec3 Pi0 = floor(P);
+  vec3 Pi1 = Pi0 + vec3(1.0);
+  Pi0 = mod289(Pi0);
+  Pi1 = mod289(Pi1);
+  vec3 Pf0 = fract(P);
+  vec3 Pf1 = Pf0 - vec3(1.0);
+  vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
+  vec4 iy = vec4(Pi0.yy, Pi1.yy);
+  vec4 iz0 = Pi0.zzzz;
+  vec4 iz1 = Pi1.zzzz;
+
+  vec4 ixy = permute(permute(ix) + iy);
+  vec4 ixy0 = permute(ixy + iz0);
+  vec4 ixy1 = permute(ixy + iz1);
+
+  vec4 gx0 = ixy0 * (1.0 / 7.0);
+  vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;
+  gx0 = fract(gx0);
+  vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);
+  vec4 sz0 = step(gz0, vec4(0.0));
+  gx0 -= sz0 * (step(0.0, gx0) - 0.5);
+  gy0 -= sz0 * (step(0.0, gy0) - 0.5);
+
+  vec4 gx1 = ixy1 * (1.0 / 7.0);
+  vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;
+  gx1 = fract(gx1);
+  vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);
+  vec4 sz1 = step(gz1, vec4(0.0));
+  gx1 -= sz1 * (step(0.0, gx1) - 0.5);
+  gy1 -= sz1 * (step(0.0, gy1) - 0.5);
+
+  vec3 g000 = vec3(gx0.x, gy0.x, gz0.x);
+  vec3 g100 = vec3(gx0.y, gy0.y, gz0.y);
+  vec3 g010 = vec3(gx0.z, gy0.z, gz0.z);
+  vec3 g110 = vec3(gx0.w, gy0.w, gz0.w);
+  vec3 g001 = vec3(gx1.x, gy1.x, gz1.x);
+  vec3 g101 = vec3(gx1.y, gy1.y, gz1.y);
+  vec3 g011 = vec3(gx1.z, gy1.z, gz1.z);
+  vec3 g111 = vec3(gx1.w, gy1.w, gz1.w);
+
+  vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));
+  g000 *= norm0.x; g010 *= norm0.y; g100 *= norm0.z; g110 *= norm0.w;
+  vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));
+  g001 *= norm1.x; g011 *= norm1.y; g101 *= norm1.z; g111 *= norm1.w;
+
+  float n000 = dot(g000, Pf0);
+  float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));
+  float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));
+  float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));
+  float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));
+  float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));
+  float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));
+  float n111 = dot(g111, Pf1);
+
+  vec3 fade_xyz = fade(Pf0);
+  vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
+  vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
+  float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
+  return 2.2 * n_xyz;
 }
 
 float grainAt(vec2 uv) {
   return fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
-/** Rampe cyclique sur les trois couleurs : c'est elle qui crée les bandes. */
-vec3 ramp(float x) {
-  float f = fract(x) * 3.0;
-  if (f < 1.0) return mix(uColors[0], uColors[1], smoothstep(0.0, 1.0, f));
-  if (f < 2.0) return mix(uColors[1], uColors[2], smoothstep(0.0, 1.0, f - 1.0));
-  return mix(uColors[2], uColors[0], smoothstep(0.0, 1.0, f - 2.0));
+// three.js mélange les couleurs en espace linéaire puis réencode en sRGB.
+// Sans ces deux conversions, le mélange dérive vers des teintes parasites.
+vec3 toLinear(vec3 c) { return pow(c, vec3(2.2)); }
+vec3 toSRGB(vec3 c) { return pow(c, vec3(1.0 / 2.2)); }
+
+/** Déplacement du sommet, repris à l'identique du vertex shader d'origine. */
+float displacement(vec2 planePos, float t) {
+  vec3 n = vec3(0.43 * uDensity * planePos.x + t,
+                0.43 * uDensity * planePos.y + t,
+                t);
+  return 0.75 * cnoise(n) * uStrength;
 }
 
 void main() {
   vec2 uv = gl_FragCoord.xy / uResolution;
   float aspect = uResolution.x / max(uResolution.y, 1.0);
-  vec2 p = vec2((uv.x - 0.5) * aspect, uv.y - 0.5) / max(uZoom, 0.05);
+
+  // Pixel écran -> point du monde sur le plan de la caméra.
+  vec2 world = vec2((uv.x - 0.5) * 2.0 * uHalfHeight * aspect,
+                    (uv.y - 0.5) * 2.0 * uHalfHeight);
+
+  // Monde -> repère local du plan : on annule sa position puis ses rotations.
+  vec2 local = world - uOffset;
+  float cz = cos(-uRotZ), sz = sin(-uRotZ);
+  local = mat2(cz, -sz, sz, cz) * local;
+  local.x /= max(cos(uRotY), 0.15); // rotationY : raccourci en perspective
 
   float t = uTime;
+  float z = displacement(local, t);
 
-  // Inclinaison des bandes (équivalent de rotationZ sur le plan 3D).
-  float a = radians(uRotation);
-  vec2 rp = mat2(cos(a), -sin(a), sin(a), cos(a)) * p;
+  // La formule de couleur d'origine, mot pour mot, mais en espace linéaire.
+  vec3 c1 = toLinear(uColor1);
+  vec3 c2 = toLinear(uColor2);
+  vec3 c3 = toLinear(uColor3);
+  // z couvre environ [-3, 3] : tel quel il extrapole le mélange bien au-delà
+  // de la palette. Chez ShaderGradient c'est l'éclairage du matériau qui
+  // ramène ces valeurs ; ici on borne le facteur en douceur, ce qui donne le
+  // même équilibre entre les trois couleurs sans teinte parasite.
+  float mixZ = smoothstep(-2.2, 2.2, z);
+  vec3 col = mix(mix(c1, c2, smoothstep(-3.0, 3.0, local.x)), c3, mixZ);
 
-  // Relief de la houle : deux octaves de bruit, comme le déplacement des
-  // sommets du plan chez ShaderGradient.
-  float n1 = snoise(rp * uDensity * 0.55 + vec2(0.0, t * 0.45));
-  float n2 = snoise(rp * uDensity * 1.20 + vec2(t * 0.28, -t * 0.22));
-  float relief = n1 * 0.74 + n2 * 0.26;
+  col = toSRGB(col) * uBrightness;
 
-  // La direction diagonale domine, le relief ne fait qu'onduler les bandes :
-  // c'est ce rapport qui distingue des bandes franches d'un nuage informe.
-  float bands = rp.x * uFrequency * 0.30
-              + relief * uStrength * 0.055
-              + sin(rp.y * uFrequency * 0.16 + t * 0.4) * uAmplitude * 0.05
-              + t * 0.04;
-
-  vec3 col = ramp(bands);
-
-  // Éclairage : les crêtes s'illuminent, les creux s'assombrissent. C'est ce
-  // qui donne le volume et la saturation vive du rendu d'origine.
-  float light = 0.80 + 0.42 * relief;
-  col *= light * uBrightness;
-
-  col += (grainAt(gl_FragCoord.xy) - 0.5) * uGrain;
+  if (uGrain > 0.0) {
+    col += (grainAt(gl_FragCoord.xy) - 0.5) * uGrain;
+  }
 
   gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
 }
@@ -203,21 +256,26 @@ export function HeroShaderBackground() {
     gl.enableVertexAttribArray(aPos);
     gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
-    const uResolution = gl.getUniformLocation(program, "uResolution");
-    const uTime = gl.getUniformLocation(program, "uTime");
+    const c = SHADER_CONFIG;
+    const loc = (n: string) => gl.getUniformLocation(program, n);
+    const uResolution = loc("uResolution");
+    const uTime = loc("uTime");
 
-    const flat = SHADER_CONFIG.colors.slice(0, 3).flatMap(hexToRgb);
-    gl.uniform3fv(gl.getUniformLocation(program, "uColors"), flat);
-    const setF = (name: string, value: number) =>
-      gl.uniform1f(gl.getUniformLocation(program, name), value);
-    setF("uDensity", SHADER_CONFIG.uDensity);
-    setF("uFrequency", SHADER_CONFIG.uFrequency);
-    setF("uStrength", SHADER_CONFIG.uStrength);
-    setF("uAmplitude", SHADER_CONFIG.uAmplitude);
-    setF("uRotation", SHADER_CONFIG.rotationZ);
-    setF("uZoom", SHADER_CONFIG.cameraZoom);
-    setF("uGrain", SHADER_CONFIG.grain);
-    setF("uBrightness", SHADER_CONFIG.brightness);
+    gl.uniform3fv(loc("uColor1"), hexToRgb(c.color1));
+    gl.uniform3fv(loc("uColor2"), hexToRgb(c.color2));
+    gl.uniform3fv(loc("uColor3"), hexToRgb(c.color3));
+    gl.uniform1f(loc("uDensity"), c.uDensity);
+    gl.uniform1f(loc("uStrength"), c.uStrength);
+    gl.uniform1f(loc("uBrightness"), c.brightness);
+    gl.uniform1f(loc("uGrain"), c.grain === "on" ? 0.07 : 0);
+
+    // Demi-hauteur visible du plan, d'après la caméra (fov + distance + zoom).
+    const halfHeight =
+      (c.cDistance * Math.tan((c.fov * Math.PI) / 360)) / Math.max(c.cameraZoom, 0.05);
+    gl.uniform1f(loc("uHalfHeight"), halfHeight);
+    gl.uniform2f(loc("uOffset"), c.positionX, c.positionY);
+    gl.uniform1f(loc("uRotZ"), (c.rotationZ * Math.PI) / 180);
+    gl.uniform1f(loc("uRotY"), (c.rotationY * Math.PI) / 180);
 
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
@@ -248,7 +306,7 @@ export function HeroShaderBackground() {
       if (!gl) return;
       resize();
       const seconds = (now - start) / 1000;
-      gl.uniform1f(uTime, reduceMotion ? 0 : seconds * SHADER_CONFIG.uSpeed);
+      gl.uniform1f(uTime, reduceMotion ? 0 : seconds * c.uSpeed);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       raf = requestAnimationFrame(frame);
     }
