@@ -7,10 +7,13 @@ import { useEffect, useRef } from "react";
  * ------------------------------------------------------------------ */
 export const SHADER_CONFIG = {
   /** Les trois couleurs mélangées, en hexadécimal. */
-  colors: ["#ff5005", "#dbba95", "#d0bce1"],
+  colors: ["#ff4aba", "#db9f88", "#6e72e1"],
 
   /** Vitesse du mouvement. 0 = figé, 0.15 = lent, 0.6 = rapide. */
-  speed: 0.22,
+  speed: 0.33,
+
+  /** Luminosité générale. 1 = neutre, 1.3 = éclatant, 0.8 = assourdi. */
+  brightness: 1.3,
 
   /** Douceur des transitions. Bas = zones franches, haut = fondu très doux.
    *  Plage utile : 0.6 (contrasté) à 2.5 (très fondu). */
@@ -43,6 +46,7 @@ uniform float uSoftness;
 uniform float uScale;
 uniform float uGrain;
 uniform float uWaviness;
+uniform float uBrightness;
 
 // Bruit simplex 2D (Ashima Arts, domaine public) — sert uniquement à faire
 // onduler doucement les centres de couleur, jamais à texturer directement.
@@ -107,6 +111,7 @@ void main() {
 
   vec3 col = (uColors[0] * w0 + uColors[1] * w1 + uColors[2] * w2) / sum;
 
+  col *= uBrightness;
   col += (grainAt(gl_FragCoord.xy) - 0.5) * uGrain;
 
   gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
@@ -188,6 +193,7 @@ export function HeroShaderBackground() {
     gl.uniform1f(gl.getUniformLocation(program, "uScale"), SHADER_CONFIG.scale);
     gl.uniform1f(gl.getUniformLocation(program, "uGrain"), SHADER_CONFIG.grain);
     gl.uniform1f(gl.getUniformLocation(program, "uWaviness"), SHADER_CONFIG.waviness);
+    gl.uniform1f(gl.getUniformLocation(program, "uBrightness"), SHADER_CONFIG.brightness);
 
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
