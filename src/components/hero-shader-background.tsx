@@ -6,28 +6,35 @@ import { useEffect, useRef } from "react";
  *  RÉGLAGES DU DÉGRADÉ — modifie uniquement ce bloc
  * ------------------------------------------------------------------ */
 export const SHADER_CONFIG = {
-  /** Les trois couleurs mélangées, en hexadécimal. */
+  /** color1 / color2 / color3 de ShaderGradient. */
   colors: ["#ff4aba", "#db9f88", "#6e72e1"],
 
-  /** Vitesse du mouvement. 0 = figé, 0.15 = lent, 0.6 = rapide. */
-  speed: 0.33,
+  /** uSpeed — vitesse de l'ondulation. */
+  uSpeed: 0.6,
 
-  /** Luminosité générale. 1 = neutre, 1.3 = éclatant, 0.8 = assourdi. */
+  /** uDensity — finesse du relief. Haut = plis serrés. */
+  uDensity: 1.3,
+
+  /** uFrequency — nombre de bandes diagonales. */
+  uFrequency: 5.5,
+
+  /** uStrength — profondeur du relief, donc contraste des bandes. */
+  uStrength: 4,
+
+  /** uAmplitude — amplitude de la houle. */
+  uAmplitude: 1,
+
+  /** rotationZ — inclinaison des bandes, en degrés. */
+  rotationZ: 50,
+
+  /** brightness — luminosité générale. */
   brightness: 1.3,
 
-  /** Douceur des transitions. Bas = zones franches, haut = fondu très doux.
-   *  Plage utile : 0.6 (contrasté) à 2.5 (très fondu). */
-  softness: 1.35,
+  /** grain — intensité du grain. 0 = lisse, 0.12 = très marqué. */
+  grain: 0.09,
 
-  /** Taille des zones de couleur. Bas = grandes plages, haut = plus de zones.
-   *  Plage utile : 0.6 à 2.0. */
-  scale: 1.0,
-
-  /** Intensité du grain. 0 = lisse, 0.12 = très granuleux. */
-  grain: 0.055,
-
-  /** Amplitude de l'ondulation. 0 = dégradé net, 0.5 = très ondulé. */
-  waviness: 0.22,
+  /** cameraZoom — échelle. Bas = plages larges, haut = motif resserré. */
+  cameraZoom: 1,
 };
 /* ------------------------------------------------------------------ */
 
@@ -42,14 +49,16 @@ precision highp float;
 uniform vec2  uResolution;
 uniform float uTime;
 uniform vec3  uColors[3];
-uniform float uSoftness;
-uniform float uScale;
+uniform float uDensity;
+uniform float uFrequency;
+uniform float uStrength;
+uniform float uAmplitude;
+uniform float uRotation;
+uniform float uZoom;
 uniform float uGrain;
-uniform float uWaviness;
 uniform float uBrightness;
 
-// Bruit simplex 2D (Ashima Arts, domaine public) — sert uniquement à faire
-// onduler doucement les centres de couleur, jamais à texturer directement.
+// Bruit simplex 2D (Ashima Arts, domaine public) — sert de relief à la houle.
 vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
 vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
 vec3 permute(vec3 x) { return mod289(((x * 34.0) + 1.0) * x); }
@@ -83,35 +92,45 @@ float grainAt(vec2 uv) {
   return fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
+/** Rampe cyclique sur les trois couleurs : c'est elle qui crée les bandes. */
+vec3 ramp(float x) {
+  float f = fract(x) * 3.0;
+  if (f < 1.0) return mix(uColors[0], uColors[1], smoothstep(0.0, 1.0, f));
+  if (f < 2.0) return mix(uColors[1], uColors[2], smoothstep(0.0, 1.0, f - 1.0));
+  return mix(uColors[2], uColors[0], smoothstep(0.0, 1.0, f - 2.0));
+}
+
 void main() {
   vec2 uv = gl_FragCoord.xy / uResolution;
   float aspect = uResolution.x / max(uResolution.y, 1.0);
-  vec2 p = vec2((uv.x - 0.5) * aspect, uv.y - 0.5) * uScale;
+  vec2 p = vec2((uv.x - 0.5) * aspect, uv.y - 0.5) / max(uZoom, 0.05);
 
   float t = uTime;
 
-  // Ondulation douce du point observé : le dégradé respire sans se marbrer.
-  p += uWaviness * vec2(snoise(p * 0.7 + t * 0.20),
-                        snoise(p * 0.7 + vec2(4.3, 1.9) - t * 0.17));
+  // Inclinaison des bandes (équivalent de rotationZ sur le plan 3D).
+  float a = radians(uRotation);
+  vec2 rp = mat2(cos(a), -sin(a), sin(a), cos(a)) * p;
 
-  // Trois foyers de couleur en déplacement lent sur des trajectoires ouvertes.
-  vec2 c0 = vec2(-0.45 + 0.30 * sin(t * 0.51),
-                  0.32 + 0.22 * cos(t * 0.43));
-  vec2 c1 = vec2( 0.48 + 0.26 * cos(t * 0.37),
-                  0.18 + 0.30 * sin(t * 0.59));
-  vec2 c2 = vec2( 0.05 + 0.34 * sin(t * 0.29 + 1.7),
-                 -0.42 + 0.24 * cos(t * 0.47 + 0.8));
+  // Relief de la houle : deux octaves de bruit, comme le déplacement des
+  // sommets du plan chez ShaderGradient.
+  float n1 = snoise(rp * uDensity * 0.55 + vec2(0.0, t * 0.45));
+  float n2 = snoise(rp * uDensity * 1.20 + vec2(t * 0.28, -t * 0.22));
+  float relief = n1 * 0.74 + n2 * 0.26;
 
-  // Pondération par distance inverse : un mélange continu, sans frontière.
-  float e = 2.0 * uSoftness;
-  float w0 = 1.0 / (pow(dot(p - c0, p - c0), e * 0.5) + 0.012);
-  float w1 = 1.0 / (pow(dot(p - c1, p - c1), e * 0.5) + 0.012);
-  float w2 = 1.0 / (pow(dot(p - c2, p - c2), e * 0.5) + 0.012);
-  float sum = w0 + w1 + w2;
+  // La direction diagonale domine, le relief ne fait qu'onduler les bandes :
+  // c'est ce rapport qui distingue des bandes franches d'un nuage informe.
+  float bands = rp.x * uFrequency * 0.30
+              + relief * uStrength * 0.055
+              + sin(rp.y * uFrequency * 0.16 + t * 0.4) * uAmplitude * 0.05
+              + t * 0.04;
 
-  vec3 col = (uColors[0] * w0 + uColors[1] * w1 + uColors[2] * w2) / sum;
+  vec3 col = ramp(bands);
 
-  col *= uBrightness;
+  // Éclairage : les crêtes s'illuminent, les creux s'assombrissent. C'est ce
+  // qui donne le volume et la saturation vive du rendu d'origine.
+  float light = 0.80 + 0.42 * relief;
+  col *= light * uBrightness;
+
   col += (grainAt(gl_FragCoord.xy) - 0.5) * uGrain;
 
   gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
@@ -189,11 +208,16 @@ export function HeroShaderBackground() {
 
     const flat = SHADER_CONFIG.colors.slice(0, 3).flatMap(hexToRgb);
     gl.uniform3fv(gl.getUniformLocation(program, "uColors"), flat);
-    gl.uniform1f(gl.getUniformLocation(program, "uSoftness"), SHADER_CONFIG.softness);
-    gl.uniform1f(gl.getUniformLocation(program, "uScale"), SHADER_CONFIG.scale);
-    gl.uniform1f(gl.getUniformLocation(program, "uGrain"), SHADER_CONFIG.grain);
-    gl.uniform1f(gl.getUniformLocation(program, "uWaviness"), SHADER_CONFIG.waviness);
-    gl.uniform1f(gl.getUniformLocation(program, "uBrightness"), SHADER_CONFIG.brightness);
+    const setF = (name: string, value: number) =>
+      gl.uniform1f(gl.getUniformLocation(program, name), value);
+    setF("uDensity", SHADER_CONFIG.uDensity);
+    setF("uFrequency", SHADER_CONFIG.uFrequency);
+    setF("uStrength", SHADER_CONFIG.uStrength);
+    setF("uAmplitude", SHADER_CONFIG.uAmplitude);
+    setF("uRotation", SHADER_CONFIG.rotationZ);
+    setF("uZoom", SHADER_CONFIG.cameraZoom);
+    setF("uGrain", SHADER_CONFIG.grain);
+    setF("uBrightness", SHADER_CONFIG.brightness);
 
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
@@ -224,7 +248,7 @@ export function HeroShaderBackground() {
       if (!gl) return;
       resize();
       const seconds = (now - start) / 1000;
-      gl.uniform1f(uTime, reduceMotion ? 0 : seconds * SHADER_CONFIG.speed);
+      gl.uniform1f(uTime, reduceMotion ? 0 : seconds * SHADER_CONFIG.uSpeed);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       raf = requestAnimationFrame(frame);
     }
