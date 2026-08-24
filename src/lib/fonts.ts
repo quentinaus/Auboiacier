@@ -1,8 +1,4 @@
-import { Fraunces } from "next/font/google";
-
-export const serif = Fraunces({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
-  display: "swap",
-});
+// Police d'affichage servie localement : aucun téléchargement au build,
+// contrairement à next/font/google qui bloque quand le réseau est filtré.
+// La famille est définie dans globals.css (.font-display).
+export const serif = { className: "font-display" };
