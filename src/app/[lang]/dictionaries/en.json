@@ -1,0 +1,101 @@
+{
+  "meta": {
+    "siteName": "Auboiacier",
+    "tagline": "Custom stretch-ceiling lighting"
+  },
+  "nav": {
+    "home": "Home",
+    "realisations": "Projects",
+    "produits": "Products",
+    "devis": "Quote",
+    "apropos": "About",
+    "contact": "Contact",
+    "cta": "Get a quote",
+    "catalogue": "Catalogue",
+    "backToHub": "Auboiacier"
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "siret": "Business ID coming soon"
+  },
+  "hub": {
+    "title": "Two crafts, one hand.",
+    "subtitle": "Choose what brings you to Auboiacier.",
+    "lightingLabel": "Light & stretch ceilings",
+    "lightingTitle": "Custom light ceilings",
+    "lightingSubtitle": "Welded aluminium frame, stretched membrane, integrated LED lighting. Always custom, always a quote.",
+    "lightingCta": "Discover",
+    "craftLabel": "Handmade furniture",
+    "craftTitle": "Wood & steel furniture",
+    "craftSubtitle": "Tables, chairs and pieces made by hand. Fixed price, order online.",
+    "craftCta": "Discover"
+  },
+  "home": {
+    "heroTitle": "Your ceiling, made to measure.",
+    "heroSubtitle": "Welded aluminium frame, stretched membrane, integrated LED lighting — designed and hand-built for your project.",
+    "heroCtaPrimary": "Get a quote",
+    "heroCtaSecondary": "See our projects",
+    "realisationsTitle": "Recent projects",
+    "realisationsPlaceholder": "Placeholder for 3-6 recent project photos, linking to the Projects page.",
+    "gammesTitle": "Our ranges & craft",
+    "gammesPlaceholder": "Placeholder for the main families: light ceilings, welding/metalwork, wood-steel furniture.",
+    "pourquoiTitle": "Why Auboiacier",
+    "pourquoiPlaceholder": "Placeholder for 3-4 key arguments (craftsmanship, custom-made, materials, warranty).",
+    "ctaTitle": "Got a project in mind?",
+    "ctaSubtitle": "Tell us about your room, we'll take it from there.",
+    "ctaButton": "Start my quote"
+  },
+  "realisations": {
+    "title": "Projects",
+    "subtitle": "A selection of residential and commercial work.",
+    "filterAll": "All",
+    "filterResidential": "Residential",
+    "filterCommercial": "Commercial",
+    "gridPlaceholder": "Placeholder for the filterable photo grid."
+  },
+  "artisanat": {
+    "title": "Handmade furniture",
+    "subtitle": "Wood & steel furniture, designed and welded by hand. Small batches, fixed price.",
+    "catalogueTitle": "The catalogue",
+    "addToCart": "Add to cart",
+    "added": "Added",
+    "from": "From",
+    "sizeLabel": "Size",
+    "materialLabel": "Finish",
+    "sectionDesign": "The design",
+    "sectionDesignBody": "Placeholder for the piece's description, inspiration and proportions.",
+    "sectionSavoirFaire": "Handmade craft",
+    "sectionSavoirFaireBody": "Placeholder: TIG welding, solid wood assembly, hand finishing — to detail piece by piece.",
+    "sectionSpecs": "Specifications",
+    "specsPlaceholder": "Placeholder for exact dimensions, materials, weight, care.",
+    "sectionFaq": "Frequently asked questions",
+    "faqDeliveryQ": "What are the making and delivery times?",
+    "faqDeliveryA": "Placeholder for the answer.",
+    "faqCareQ": "How do I care for this piece?",
+    "faqCareA": "Placeholder for the answer.",
+    "relatedTitle": "Other pieces",
+    "backToCatalogue": "← Back to catalogue"
+  },
+  "devis": {
+    "title": "Request a quote",
+    "subtitle": "Describe your project, we'll get back to you with an estimate.",
+    "formPlaceholder": "Placeholder for the detailed form (room type, dimensions, finishes, photos/plans)."
+  },
+  "apropos": {
+    "title": "About",
+    "histoireTitle": "Our story",
+    "histoirePlaceholder": "Placeholder for the story of Auboiacier and its founder.",
+    "savoirFaireTitle": "Our craft",
+    "savoirFairePlaceholder": "Placeholder detailing the techniques (TIG, MAG, SMAW) and the making process.",
+    "valeursTitle": "Our values",
+    "valeursPlaceholder": "Placeholder for 3-4 key company values."
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Got a question? Write to us.",
+    "formPlaceholder": "Placeholder for the contact form.",
+    "detailsTitle": "Details",
+    "email": "contact@auboiacier.fr",
+    "location": "France"
+  }
+}

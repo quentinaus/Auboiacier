@@ -1,0 +1,101 @@
+{
+  "meta": {
+    "siteName": "Auboiacier",
+    "tagline": "Plafonds lumineux tendus, sur-mesure"
+  },
+  "nav": {
+    "home": "Accueil",
+    "realisations": "Réalisations",
+    "produits": "Nos produits",
+    "devis": "Devis",
+    "apropos": "À propos",
+    "contact": "Contact",
+    "cta": "Demander un devis",
+    "catalogue": "Catalogue",
+    "backToHub": "Auboiacier"
+  },
+  "footer": {
+    "rights": "Tous droits réservés.",
+    "siret": "SIRET à venir"
+  },
+  "hub": {
+    "title": "Deux savoir-faire, une seule main.",
+    "subtitle": "Choisissez ce qui vous amène chez Auboiacier.",
+    "lightingLabel": "Lumière & toile tendue",
+    "lightingTitle": "Plafonds lumineux sur-mesure",
+    "lightingSubtitle": "Ossature aluminium soudée, membrane tendue, éclairage LED intégré. Toujours du sur-mesure, toujours un devis.",
+    "lightingCta": "Découvrir",
+    "craftLabel": "Fabrication artisanale",
+    "craftTitle": "Mobilier bois & acier",
+    "craftSubtitle": "Tables, chaises et pièces façonnées à la main. Prix fixe, commande en ligne.",
+    "craftCta": "Découvrir"
+  },
+  "home": {
+    "heroTitle": "Votre plafond, une pièce sur-mesure.",
+    "heroSubtitle": "Ossature aluminium soudée, membrane tendue, éclairage LED intégré — conçu et fabriqué à la main pour votre projet.",
+    "heroCtaPrimary": "Demander un devis",
+    "heroCtaSecondary": "Voir nos réalisations",
+    "realisationsTitle": "Réalisations récentes",
+    "realisationsPlaceholder": "Emplacement réservé pour 3 à 6 photos de chantiers récents, avec lien vers la page Réalisations.",
+    "gammesTitle": "Nos gammes & savoir-faire",
+    "gammesPlaceholder": "Emplacement réservé pour présenter les grandes familles : plafonds lumineux, soudure/métallerie, mobilier bois-acier.",
+    "pourquoiTitle": "Pourquoi Auboiacier",
+    "pourquoiPlaceholder": "Emplacement réservé pour 3-4 arguments clés (savoir-faire, sur-mesure, matériaux, garantie).",
+    "ctaTitle": "Un projet en tête ?",
+    "ctaSubtitle": "Décrivez-nous votre pièce, on s'occupe du reste.",
+    "ctaButton": "Démarrer mon devis"
+  },
+  "realisations": {
+    "title": "Réalisations",
+    "subtitle": "Une sélection de chantiers résidentiels et professionnels.",
+    "filterAll": "Tout",
+    "filterResidential": "Résidentiel",
+    "filterCommercial": "Professionnel",
+    "gridPlaceholder": "Emplacement réservé pour la grille photo filtrable."
+  },
+  "artisanat": {
+    "title": "Fabrication artisanale",
+    "subtitle": "Mobilier bois & acier, pensé et soudé à la main. Petites séries, prix fixe.",
+    "catalogueTitle": "Le catalogue",
+    "addToCart": "Ajouter au panier",
+    "added": "Ajouté",
+    "from": "À partir de",
+    "sizeLabel": "Taille",
+    "materialLabel": "Finition",
+    "sectionDesign": "Le design",
+    "sectionDesignBody": "Emplacement réservé pour la description de la pièce, son inspiration et ses proportions.",
+    "sectionSavoirFaire": "Savoir-faire artisanal",
+    "sectionSavoirFaireBody": "Emplacement réservé : soudure TIG, assemblage bois massif, finitions à la main — à détailler pièce par pièce.",
+    "sectionSpecs": "Caractéristiques",
+    "specsPlaceholder": "Emplacement réservé pour dimensions précises, matériaux, poids, entretien.",
+    "sectionFaq": "Questions fréquentes",
+    "faqDeliveryQ": "Quels sont les délais de fabrication et de livraison ?",
+    "faqDeliveryA": "Emplacement réservé pour la réponse.",
+    "faqCareQ": "Comment entretenir cette pièce ?",
+    "faqCareA": "Emplacement réservé pour la réponse.",
+    "relatedTitle": "Autres pièces",
+    "backToCatalogue": "← Retour au catalogue"
+  },
+  "devis": {
+    "title": "Demander un devis",
+    "subtitle": "Décrivez votre projet, on revient vers vous avec une estimation.",
+    "formPlaceholder": "Emplacement réservé pour le formulaire détaillé (type de pièce, dimensions, finitions, photos/plans)."
+  },
+  "apropos": {
+    "title": "À propos",
+    "histoireTitle": "Notre histoire",
+    "histoirePlaceholder": "Emplacement réservé pour l'histoire d'Auboiacier et de son fondateur.",
+    "savoirFaireTitle": "Notre savoir-faire",
+    "savoirFairePlaceholder": "Emplacement réservé pour détailler les techniques (TIG, MAG, SMAW) et le processus de fabrication.",
+    "valeursTitle": "Nos valeurs",
+    "valeursPlaceholder": "Emplacement réservé pour 3-4 valeurs clés de l'entreprise."
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Une question ? Écrivez-nous.",
+    "formPlaceholder": "Emplacement réservé pour le formulaire de contact.",
+    "detailsTitle": "Coordonnées",
+    "email": "contact@auboiacier.fr",
+    "location": "France"
+  }
+}
