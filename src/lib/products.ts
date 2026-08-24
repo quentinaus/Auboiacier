@@ -1,5 +1,15 @@
 export type ProductSize = { id: string; label: string; price: number };
-export type ProductSwatch = { id: string; label: string; swatch: string };
+
+export type ProductSwatch = {
+  id: string;
+  label: string;
+  /** Couleur de repli, et teinte moyenne de l'essence. */
+  swatch: string;
+  /** Fil du bois, en CSS : superposé à `swatch` dans la pastille. */
+  grain?: string;
+  /** Écart de prix par rapport à l'essence de référence, en euros. */
+  priceDelta?: number;
+};
 export type ProductSection = { title: string; body: string };
 export type ProductSpec = { label: string; value: string };
 
@@ -18,6 +28,60 @@ export type Product = {
   testimonial?: { quote: string; author: string };
 };
 
+/* ------------------------------------------------------------------ *
+ *  Essences de bois
+ *  Le fil est dessiné en CSS plutôt que photographié : la pastille reste
+ *  nette à toute taille et ne coûte aucun téléchargement.
+ *  `deltas` donne l'écart de prix par produit — un même bois ne pèse pas
+ *  pareil sur une chaise et sur un escalier.
+ * ------------------------------------------------------------------ */
+type WoodId = "pin" | "hetre" | "chene" | "noyer";
+
+const WOOD_GRAIN: Record<WoodId, { label: string; swatch: string; grain: string }> = {
+  pin: {
+    label: "Pin massif",
+    swatch: "#e0bd85",
+    grain: `repeating-linear-gradient(96deg, rgba(120,80,35,0.16) 0 1px, transparent 1px 6px),
+            repeating-linear-gradient(94deg, rgba(120,80,35,0.09) 0 2px, transparent 2px 11px),
+            radial-gradient(ellipse 34% 12% at 62% 34%, rgba(122,80,38,0.34), transparent 70%),
+            linear-gradient(100deg, #ecca94 0%, #dcb376 45%, #e7c489 72%, #d5aa6c 100%)`,
+  },
+  hetre: {
+    label: "Hêtre massif",
+    swatch: "#dcc0a0",
+    grain: `repeating-linear-gradient(93deg, rgba(120,82,52,0.13) 0 1px, transparent 1px 4px),
+            repeating-linear-gradient(93deg, rgba(120,82,52,0.07) 0 1px, transparent 1px 9px),
+            linear-gradient(100deg, #e6cdb0 0%, #d7b895 50%, #e0c4a4 100%)`,
+  },
+  chene: {
+    label: "Chêne massif",
+    swatch: "#c19a5e",
+    grain: `repeating-linear-gradient(95deg, rgba(92,58,26,0.20) 0 1px, transparent 1px 7px),
+            repeating-linear-gradient(95deg, rgba(92,58,26,0.11) 0 2px, transparent 2px 15px),
+            repeating-linear-gradient(95deg, rgba(255,236,205,0.16) 0 1px, transparent 1px 23px),
+            linear-gradient(100deg, #cd9f63 0%, #b9884c 40%, #c99a5f 68%, #ad7d45 100%)`,
+  },
+  noyer: {
+    label: "Noyer massif",
+    swatch: "#6b452c",
+    grain: `repeating-linear-gradient(95deg, rgba(28,16,8,0.30) 0 1px, transparent 1px 6px),
+            repeating-linear-gradient(95deg, rgba(28,16,8,0.16) 0 2px, transparent 2px 13px),
+            radial-gradient(ellipse 40% 16% at 35% 62%, rgba(150,96,54,0.34), transparent 72%),
+            linear-gradient(100deg, #7a5033 0%, #5d3a22 46%, #6f472c 74%, #4e2f1b 100%)`,
+  },
+};
+
+/** Construit la liste d'essences d'un produit avec ses écarts de prix. */
+function woods(deltas: Partial<Record<WoodId, number>>): ProductSwatch[] {
+  return (Object.keys(deltas) as WoodId[]).map((id) => ({
+    id,
+    label: WOOD_GRAIN[id].label,
+    swatch: WOOD_GRAIN[id].swatch,
+    grain: WOOD_GRAIN[id].grain,
+    priceDelta: deltas[id] ?? 0,
+  }));
+}
+
 export const products: Product[] = [
   {
     slug: "table-mikado",
@@ -32,10 +96,7 @@ export const products: Product[] = [
       { id: "m", label: "220 × 100 cm", price: 1690 },
       { id: "l", label: "240 × 110 cm", price: 1990 },
     ],
-    woods: [
-      { id: "chene", label: "Chêne massif", swatch: "#b98a5a" },
-      { id: "noyer", label: "Noyer massif", swatch: "#6f4a2f" },
-    ],
+    woods: woods({ pin: -260, hetre: -140, chene: 0, noyer: 190 }),
     metals: [
       { id: "noir", label: "Noir mat", swatch: "#1c1a18" },
       { id: "brut", label: "Acier brut verni", swatch: "#8a8578" },
@@ -78,10 +139,7 @@ export const products: Product[] = [
       { id: "quart", label: "Quart tournant — 14 marches", price: 8400 },
       { id: "demi", label: "Demi-tournant — 16 marches", price: 9800 },
     ],
-    woods: [
-      { id: "chene", label: "Chêne massif", swatch: "#b98a5a" },
-      { id: "noyer", label: "Noyer massif", swatch: "#6f4a2f" },
-    ],
+    woods: woods({ pin: -950, hetre: -520, chene: 0, noyer: 640 }),
     metals: [
       { id: "noir", label: "Noir mat", swatch: "#1c1a18" },
       { id: "brut", label: "Acier brut verni", swatch: "#8a8578" },
@@ -119,7 +177,7 @@ export const products: Product[] = [
     tagline: "Structure acier fine, assise bois massif sculptée.",
     images: [],
     sizes: [{ id: "standard", label: "Taille unique", price: 320 }],
-    woods: [{ id: "chene", label: "Chêne massif", swatch: "#b98a5a" }],
+    woods: woods({ pin: -55, hetre: -30, chene: 0, noyer: 45 }),
     metals: [
       { id: "noir", label: "Noir mat", swatch: "#1c1a18" },
       { id: "brut", label: "Acier brut verni", swatch: "#8a8578" },
@@ -145,7 +203,7 @@ export const products: Product[] = [
       { id: "s", label: "100 × 35 cm", price: 890 },
       { id: "m", label: "140 × 35 cm", price: 1050 },
     ],
-    woods: [{ id: "chene", label: "Chêne massif", swatch: "#b98a5a" }],
+    woods: woods({ pin: -140, hetre: -80, chene: 0, noyer: 110 }),
     metals: [{ id: "noir", label: "Noir mat", swatch: "#1c1a18" }],
     sections: [
       {
@@ -165,6 +223,11 @@ export function getProduct(slug: string) {
   return products.find((p) => p.slug === slug);
 }
 
+/** Prix plancher réel : plus petite dimension dans l'essence la moins chère. */
 export function priceFrom(product: Product) {
-  return Math.min(...product.sizes.map((s) => s.price));
+  const cheapestSize = Math.min(...product.sizes.map((s) => s.price));
+  const cheapestWood = product.woods.length
+    ? Math.min(...product.woods.map((w) => w.priceDelta ?? 0))
+    : 0;
+  return cheapestSize + cheapestWood;
 }

@@ -1,46 +1,82 @@
 "use client";
 
 import { useState } from "react";
-import type { Product } from "@/lib/products";
+import type { Product, ProductSwatch } from "@/lib/products";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 
 const ACCENT = "#6d2c2c";
+
+function formatDelta(delta: number, locale: "fr" | "en") {
+  if (!delta) return locale === "fr" ? "Inclus" : "Included";
+  const sign = delta > 0 ? "+" : "−";
+  return `${sign}${Math.abs(delta).toLocaleString("fr-FR")} €`;
+}
 
 function SwatchGroup({
   label,
   options,
   selected,
   onSelect,
+  locale,
+  showDelta = false,
 }: {
   label: string;
-  options: { id: string; label: string; swatch: string }[];
+  options: ProductSwatch[];
   selected: string;
   onSelect: (id: string) => void;
+  locale: "fr" | "en";
+  showDelta?: boolean;
 }) {
   const current = options.find((o) => o.id === selected);
   return (
     <div>
       <span className="text-xs font-medium uppercase tracking-widest text-[#8a7a6f]">
         {label}
-        {current && <span className="ml-2 normal-case tracking-normal text-[#2a2116]">{current.label}</span>}
+        {current && (
+          <span className="ml-2 normal-case tracking-normal text-[#2a2116]">
+            {current.label}
+          </span>
+        )}
       </span>
       <div className="mt-2 flex flex-wrap gap-3">
-        {options.map((o) => (
-          <button
-            key={o.id}
-            type="button"
-            onClick={() => onSelect(o.id)}
-            title={o.label}
-            aria-pressed={o.id === selected}
-            className="h-9 w-9 rounded-full border-2 transition-colors"
-            style={{ borderColor: o.id === selected ? ACCENT : "transparent" }}
-          >
-            <span
-              className="block h-full w-full rounded-full border border-black/10"
-              style={{ backgroundColor: o.swatch }}
-            />
-          </button>
-        ))}
+        {options.map((o) => {
+          const isSelected = o.id === selected;
+          return (
+            <button
+              key={o.id}
+              type="button"
+              onClick={() => onSelect(o.id)}
+              aria-pressed={isSelected}
+              aria-label={o.label}
+              className="group flex flex-col items-center gap-1.5"
+            >
+              <span
+                className="block rounded-full border-2 p-0.5 transition-colors"
+                style={{ borderColor: isSelected ? ACCENT : "transparent" }}
+              >
+                <span
+                  className={`block overflow-hidden rounded-full border border-black/15 shadow-inner ${
+                    showDelta ? "h-11 w-11" : "h-9 w-9"
+                  }`}
+                  style={{
+                    backgroundColor: o.swatch,
+                    backgroundImage: o.grain,
+                    backgroundSize: "cover",
+                  }}
+                />
+              </span>
+              {showDelta && (
+                <span
+                  className={`text-[10px] tabular-nums ${
+                    isSelected ? "text-[#2a2116]" : "text-[#8a7a6f]"
+                  }`}
+                >
+                  {formatDelta(o.priceDelta ?? 0, locale)}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -56,17 +92,23 @@ export function ProductOptions({
   locale: "fr" | "en";
 }) {
   const [sizeId, setSizeId] = useState(product.sizes[0].id);
-  const [woodId, setWoodId] = useState(product.woods[0]?.id ?? "");
+  // Essence de référence par défaut (écart nul), pas la première de la liste.
+  const [woodId, setWoodId] = useState(
+    (product.woods.find((w) => !w.priceDelta) ?? product.woods[0])?.id ?? ""
+  );
   const [metalId, setMetalId] = useState(product.metals[0]?.id ?? "");
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
   const size = product.sizes.find((s) => s.id === sizeId) ?? product.sizes[0];
+  const wood = product.woods.find((w) => w.id === woodId);
+  const woodDelta = wood?.priceDelta ?? 0;
+  const total = size.price + woodDelta;
 
   return (
     <div className="flex flex-col gap-6">
       <p className="text-2xl font-medium" style={{ color: ACCENT }}>
-        {size.price.toLocaleString("fr-FR")} €
+        {total.toLocaleString("fr-FR")} €
       </p>
 
       <div>
@@ -87,14 +129,23 @@ export function ProductOptions({
               }`}
             >
               <span>{s.label}</span>
-              <span className="font-medium">{s.price.toLocaleString("fr-FR")} €</span>
+              <span className="font-medium tabular-nums">
+                {(s.price + woodDelta).toLocaleString("fr-FR")} €
+              </span>
             </button>
           ))}
         </div>
       </div>
 
       {product.woods.length > 0 && (
-        <SwatchGroup label={t.woodLabel} options={product.woods} selected={woodId} onSelect={setWoodId} />
+        <SwatchGroup
+          label={t.woodLabel}
+          options={product.woods}
+          selected={woodId}
+          onSelect={setWoodId}
+          locale={locale}
+          showDelta
+        />
       )}
       {product.metals.length > 0 && (
         <SwatchGroup
@@ -102,6 +153,7 @@ export function ProductOptions({
           options={product.metals}
           selected={metalId}
           onSelect={setMetalId}
+          locale={locale}
         />
       )}
 
