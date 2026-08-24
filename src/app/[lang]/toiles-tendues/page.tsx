@@ -1,8 +1,14 @@
 import Link from "next/link";
+import Image from "next/image";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
 import { PlaceholderBlock } from "@/components/placeholder-block";
 import { HeroShaderBackground } from "@/components/hero-shader-background";
+
+const realisationPhotos = [
+  { src: "/images/plafond-salle.jpg", alt: "Plafond lumineux tendu — salle épurée" },
+  { src: "/images/plafond-garage.png", alt: "Plafond lumineux LED — garage aménagé" },
+];
 
 export default async function ToilesTenduesPage({
   params,
@@ -43,7 +49,19 @@ export default async function ToilesTenduesPage({
         {/* Aperçu réalisations */}
         <section className="flex flex-col gap-6 py-16">
           <h2 className="text-2xl font-medium">{t.realisationsTitle}</h2>
-          <PlaceholderBlock label={t.realisationsPlaceholder} tone="dark" />
+          <div className="grid gap-6 md:grid-cols-2">
+            {realisationPhotos.map((photo) => (
+              <div key={photo.src} className="relative aspect-[16/10] overflow-hidden rounded-2xl">
+                <Image
+                  src={photo.src}
+                  alt={photo.alt}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover"
+                />
+              </div>
+            ))}
+          </div>
         </section>
 
         {/* Gammes / savoir-faire */}

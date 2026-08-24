@@ -1,9 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../../dictionaries";
 import { getProduct, products, priceFrom } from "@/lib/products";
 import { ProductOptions } from "@/components/product-options";
+import { serif } from "@/lib/fonts";
 
 export function generateStaticParams() {
   return products.map((p) => ({ slug: p.slug }));
@@ -21,27 +23,55 @@ export default async function ProductPage({
   if (!product) notFound();
 
   const related = products.filter((p) => p.slug !== product.slug).slice(0, 2);
+  const [mainImage, ...thumbs] = product.images;
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <Link href={`/${locale}/artisanat`} className="text-sm text-[#8a7a5f] hover:text-[#2a2116]">
-        {t.backToCatalogue}
-      </Link>
+    <div className="mx-auto max-w-6xl px-6 py-10">
+      {/* Breadcrumb façon artmeta */}
+      <nav className="text-xs text-[#8a7a6f]">
+        <Link href={`/${locale}/artisanat`} className="hover:text-[#2a2116]">
+          {t.breadcrumbShop}
+        </Link>
+        <span className="mx-1.5">/</span>
+        <Link href={`/${locale}/artisanat`} className="hover:text-[#2a2116]">
+          {t.breadcrumbCategory}
+        </Link>
+        <span className="mx-1.5">/</span>
+        <span className="text-[#2a2116]">{product.name}</span>
+      </nav>
 
-      <div className="mt-6 grid gap-12 md:grid-cols-2">
+      <div className="mt-8 grid gap-12 md:grid-cols-2">
         {/* Gallery */}
         <div className="flex flex-col gap-3">
-          <div className="aspect-square rounded-xl border border-[#e7dccb] bg-[#f1e6d3]" />
+          <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-white">
+            {mainImage ? (
+              <Image
+                src={mainImage.src}
+                alt={mainImage.alt}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-contain p-6"
+                priority
+              />
+            ) : (
+              <div className="h-full w-full bg-[#f1ece4]" />
+            )}
+          </div>
           <div className="grid grid-cols-4 gap-3">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="aspect-square rounded-lg border border-[#e7dccb] bg-[#f1e6d3]" />
+            {thumbs.map((img) => (
+              <div key={img.src} className="relative aspect-square overflow-hidden rounded-lg bg-white">
+                <Image src={img.src} alt={img.alt} fill sizes="150px" className="object-cover" />
+              </div>
+            ))}
+            {Array.from({ length: Math.max(0, 4 - thumbs.length) }).map((_, i) => (
+              <div key={i} className="aspect-square rounded-lg bg-[#f1ece4]" />
             ))}
           </div>
         </div>
 
         {/* Options */}
         <div>
-          <h1 className="text-2xl font-medium">{product.name}</h1>
+          <h1 className={`${serif.className} text-3xl text-[#2a2116]`}>{product.name}</h1>
           <p className="mt-2 text-[#5c5140]">{product.tagline}</p>
           <div className="mt-6">
             <ProductOptions product={product} t={t} />
@@ -49,53 +79,67 @@ export default async function ProductPage({
         </div>
       </div>
 
-      {/* Description sections */}
+      {/* Sections descriptives */}
       <div className="mt-20 grid gap-10 md:grid-cols-2">
         <section>
-          <h2 className="text-lg font-medium">{t.sectionDesign}</h2>
-          <p className="mt-2 text-sm text-[#5c5140]">{t.sectionDesignBody}</p>
+          <h2 className={`${serif.className} text-xl text-[#2a2116]`}>{t.sectionDesign}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-[#5c5140]">{t.sectionDesignBody}</p>
         </section>
         <section>
-          <h2 className="text-lg font-medium">{t.sectionSavoirFaire}</h2>
-          <p className="mt-2 text-sm text-[#5c5140]">{t.sectionSavoirFaireBody}</p>
-        </section>
-        <section>
-          <h2 className="text-lg font-medium">{t.sectionSpecs}</h2>
-          <p className="mt-2 text-sm text-[#5c5140]">{t.specsPlaceholder}</p>
-        </section>
-        <section>
-          <h2 className="text-lg font-medium">{t.sectionFaq}</h2>
-          <div className="mt-2 flex flex-col gap-4 text-sm">
-            <div>
-              <p className="font-medium">{t.faqDeliveryQ}</p>
-              <p className="mt-1 text-[#5c5140]">{t.faqDeliveryA}</p>
-            </div>
-            <div>
-              <p className="font-medium">{t.faqCareQ}</p>
-              <p className="mt-1 text-[#5c5140]">{t.faqCareA}</p>
-            </div>
-          </div>
+          <h2 className={`${serif.className} text-xl text-[#2a2116]`}>{t.sectionSavoirFaire}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-[#5c5140]">{t.sectionSavoirFaireBody}</p>
         </section>
       </div>
 
-      {/* Related */}
+      {/* Descriptif */}
+      <section className="mt-14 border-t border-[#e5ddd3] pt-10">
+        <h2 className={`${serif.className} text-xl text-[#2a2116]`}>{t.descriptifTitle}</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#5c5140]">{t.specsPlaceholder}</p>
+      </section>
+
+      {/* FAQ */}
+      <section className="mt-14 border-t border-[#e5ddd3] pt-10">
+        <h2 className={`${serif.className} text-xl text-[#2a2116]`}>{t.sectionFaq}</h2>
+        <div className="mt-4 flex max-w-2xl flex-col divide-y divide-[#e5ddd3]">
+          <details className="group py-4">
+            <summary className="cursor-pointer list-none text-sm font-medium text-[#2a2116]">
+              {t.faqDeliveryQ}
+            </summary>
+            <p className="mt-2 text-sm text-[#5c5140]">{t.faqDeliveryA}</p>
+          </details>
+          <details className="group py-4">
+            <summary className="cursor-pointer list-none text-sm font-medium text-[#2a2116]">
+              {t.faqCareQ}
+            </summary>
+            <p className="mt-2 text-sm text-[#5c5140]">{t.faqCareA}</p>
+          </details>
+        </div>
+      </section>
+
+      {/* Autres pièces */}
       {related.length > 0 && (
-        <div className="mt-20">
-          <h2 className="text-sm font-medium uppercase tracking-widest text-[#8a7a5f]">
-            {t.relatedTitle}
-          </h2>
+        <div className="mt-20 border-t border-[#e5ddd3] pt-10">
+          <h2 className={`${serif.className} text-xl text-[#2a2116]`}>{t.relatedTitle}</h2>
           <div className="mt-6 grid gap-8 sm:grid-cols-2">
             {related.map((p) => (
-              <Link
-                key={p.slug}
-                href={`/${locale}/artisanat/${p.slug}`}
-                className="group flex flex-col gap-3"
-              >
-                <div className="aspect-[4/5] rounded-xl border border-[#e7dccb] bg-[#f1e6d3]" />
+              <Link key={p.slug} href={`/${locale}/artisanat/${p.slug}`} className="group flex flex-col gap-3">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-white">
+                  {p.images[0] ? (
+                    <Image
+                      src={p.images[0].src}
+                      alt={p.images[0].alt}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 50vw"
+                      className="object-contain p-4"
+                    />
+                  ) : (
+                    <div className="h-full w-full bg-[#f1ece4]" />
+                  )}
+                </div>
                 <div>
-                  <h3 className="text-base font-medium">{p.name}</h3>
-                  <p className="mt-1 text-sm text-[#8a7a5f]">
-                    {t.from} {priceFrom(p)} €
+                  <h3 className="text-base font-medium text-[#2a2116]">{p.name}</h3>
+                  <p className="mt-1 text-sm text-[#8a7a6f]">
+                    {t.from} {priceFrom(p).toLocaleString("fr-FR")} €
                   </p>
                 </div>
               </Link>

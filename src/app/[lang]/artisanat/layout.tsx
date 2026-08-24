@@ -11,7 +11,7 @@ export default async function ArtisanatLayout({
   const dict = await getDictionary(locale);
 
   return (
-    <div className="min-h-screen bg-[#faf6ef] text-[#2a2116]">
+    <div className="min-h-screen bg-[#fbfaf8] text-[#2a2116]">
       <ArtisanatHeader locale={locale} dict={dict} />
       {children}
     </div>

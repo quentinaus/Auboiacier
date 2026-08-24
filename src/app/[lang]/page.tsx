@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "./dictionaries";
 import { GlobalHeader } from "@/components/global-header";
@@ -44,9 +45,18 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           {/* Fabrication artisanale */}
           <Link
             href={`/${locale}/artisanat`}
-            className="group relative flex min-h-96 flex-col justify-end overflow-hidden rounded-2xl bg-[#f1e6d3] p-8"
+            className="group relative flex min-h-96 flex-col justify-end overflow-hidden rounded-2xl bg-[#f1ece4] p-8"
           >
-            <div className="relative">
+            <div className="absolute inset-x-6 top-6 bottom-32">
+              <Image
+                src="/images/table-mikado-full.jpg"
+                alt="Table Mikado — bois massif et acier"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-contain transition-transform duration-300 group-hover:scale-[1.03]"
+              />
+            </div>
+            <div className="relative z-10">
               <span className="font-mono text-xs uppercase tracking-widest text-[#8a7a5f]">
                 {t.craftLabel}
               </span>

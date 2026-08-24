@@ -11,7 +11,7 @@ export function ArtisanatHeader({
   dict: Dictionary;
 }) {
   return (
-    <header className="border-b border-[#e7dccb] bg-[#faf6ef]">
+    <header className="border-b border-[#e5ddd3] bg-[#fbfaf8]">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Link href={`/${locale}`} className="font-mono text-xs tracking-widest text-[#8a7a5f] hover:text-[#2a2116]">
           ← {dict.nav.backToHub}
