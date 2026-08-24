@@ -6,8 +6,11 @@ import { HeroShaderBackground } from "@/components/hero-shader-background";
 import { serif } from "@/lib/fonts";
 
 const realisationPhotos = [
+  {
+    src: "/images/interieur-ensemble.jpg",
+    alt: "Plafond lumineux tendu au-dessus d'une salle à manger, avec escalier et table sur mesure",
+  },
   { src: "/images/plafond-salle.jpg", alt: "Plafond lumineux tendu — salle épurée" },
-  { src: "/images/plafond-garage.png", alt: "Plafond lumineux LED — garage aménagé" },
 ];
 
 export default async function ToilesTenduesPage({

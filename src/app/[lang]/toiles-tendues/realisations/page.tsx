@@ -4,6 +4,10 @@ import { getDictionary } from "../../dictionaries";
 import { serif } from "@/lib/fonts";
 
 const photos = [
+  {
+    src: "/images/interieur-ensemble.jpg",
+    alt: "Plafond lumineux tendu au-dessus d'une salle à manger, avec escalier et table sur mesure",
+  },
   { src: "/images/plafond-salle.jpg", alt: "Plafond lumineux tendu — salle épurée" },
   { src: "/images/plafond-garage.png", alt: "Plafond lumineux LED — garage aménagé" },
 ];

@@ -90,6 +90,7 @@ export const products: Product[] = [
     images: [
       { src: "/images/table-mikado-full.jpg", alt: "Table Mikado — vue d'ensemble" },
       { src: "/images/table-mikado-detail.jpg", alt: "Table Mikado — détail plateau chêne et piétement acier" },
+      { src: "/images/interieur-ensemble.jpg", alt: "Table Mikado, escalier et plafond lumineux dans une pièce à vivre" },
     ],
     sizes: [
       { id: "s", label: "180 × 90 cm", price: 1450 },
@@ -133,6 +134,7 @@ export const products: Product[] = [
         src: "/images/escalier-limon-central.jpg",
         alt: "Escalier à limon central acier et marches en chêne massif",
       },
+      { src: "/images/interieur-ensemble.jpg", alt: "Table Mikado, escalier et plafond lumineux dans une pièce à vivre" },
     ],
     sizes: [
       { id: "droit", label: "Droit — 13 marches", price: 6900 },
@@ -175,7 +177,9 @@ export const products: Product[] = [
     slug: "chaise-acier-bois",
     name: "Chaise Acier & Bois",
     tagline: "Structure acier fine, assise bois massif sculptée.",
-    images: [],
+    images: [
+      { src: "/images/interieur-ensemble.jpg", alt: "Table Mikado, escalier et plafond lumineux dans une pièce à vivre" },
+    ],
     sizes: [{ id: "standard", label: "Taille unique", price: 320 }],
     woods: woods({ pin: -55, hetre: -30, chene: 0, noyer: 45 }),
     metals: [
