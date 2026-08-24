@@ -1,7 +1,7 @@
 {
   "meta": {
     "siteName": "Auboiacier",
-    "tagline": "Plafonds lumineux tendus, sur-mesure"
+    "tagline": "Bois, acier & lumière — fabrication artisanale française"
   },
   "nav": {
     "home": "Accueil",
@@ -11,11 +11,14 @@
     "apropos": "À propos",
     "contact": "Contact",
     "cta": "Demander un devis",
-    "catalogue": "Catalogue",
+    "catalogue": "Boutique",
     "backToHub": "Auboiacier"
   },
   "footer": {
     "rights": "Tous droits réservés.",
+    "tagline": "Atelier de métallerie et d'ébénisterie — plafonds lumineux tendus et mobilier bois-acier.",
+    "navTitle": "Navigation",
+    "contactTitle": "Contact",
     "siret": "SIRET à venir"
   },
   "hub": {
@@ -36,11 +39,36 @@
     "heroCtaPrimary": "Demander un devis",
     "heroCtaSecondary": "Voir nos réalisations",
     "realisationsTitle": "Réalisations récentes",
-    "realisationsPlaceholder": "Emplacement réservé pour 3 à 6 photos de chantiers récents, avec lien vers la page Réalisations.",
-    "gammesTitle": "Nos gammes & savoir-faire",
-    "gammesPlaceholder": "Emplacement réservé pour présenter les grandes familles : plafonds lumineux, soudure/métallerie, mobilier bois-acier.",
+    "gammesTitle": "Ce qu'un plafond tendu change",
+    "gammes": [
+      {
+        "title": "Une lumière sans ombre",
+        "body": "La membrane diffuse l'éclairage LED sur toute sa surface : pas de spots agressifs, pas de zones sombres, une lumière homogène qui remplit la pièce."
+      },
+      {
+        "title": "Des couleurs pilotables",
+        "body": "Blanc chaud pour la vie de tous les jours, couleurs dynamiques pour une ambiance — l'intensité et la teinte se contrôlent depuis votre téléphone."
+      },
+      {
+        "title": "Une pose propre et rapide",
+        "body": "L'ossature aluminium se fixe au plafond existant, la toile se tend en une journée. Pas de gros œuvre, pas de poussière."
+      }
+    ],
     "pourquoiTitle": "Pourquoi Auboiacier",
-    "pourquoiPlaceholder": "Emplacement réservé pour 3-4 arguments clés (savoir-faire, sur-mesure, matériaux, garantie).",
+    "pourquoi": [
+      {
+        "title": "Soudé à l'atelier",
+        "body": "Chaque ossature est soudée TIG à l'atelier, ajustée aux dimensions exactes de votre pièce."
+      },
+      {
+        "title": "Un seul interlocuteur",
+        "body": "Du relevé de cotes à la pose, vous parlez au fabricant — pas à un revendeur."
+      },
+      {
+        "title": "Du 100 % sur-mesure",
+        "body": "Formes, dimensions, températures de lumière : le plafond est dessiné pour votre espace, jamais l'inverse."
+      }
+    ],
     "ctaTitle": "Un projet en tête ?",
     "ctaSubtitle": "Décrivez-nous votre pièce, on s'occupe du reste.",
     "ctaButton": "Démarrer mon devis"
@@ -51,12 +79,12 @@
     "filterAll": "Tout",
     "filterResidential": "Résidentiel",
     "filterCommercial": "Professionnel",
-    "gridPlaceholder": "Emplacement réservé pour la grille photo filtrable."
+    "moreSoon": "D'autres chantiers seront ajoutés au fil des poses."
   },
   "artisanat": {
     "title": "Fabrication artisanale",
-    "subtitle": "Mobilier bois & acier, pensé et soudé à la main. Petites séries, prix fixe.",
-    "catalogueTitle": "Le catalogue",
+    "subtitle": "Mobilier bois & acier, pensé et soudé à la main dans notre atelier. Petites séries, prix fixe, livraison partout en France.",
+    "catalogueTitle": "La collection",
     "breadcrumbShop": "Boutique",
     "breadcrumbCategory": "Mobilier",
     "addToCart": "Ajouter au panier",
@@ -67,39 +95,40 @@
     "woodLabel": "Bois massif",
     "metalLabel": "Couleur des pieds",
     "madeInFrance": "Fabriqué à la main en France",
+    "craftBandTitle": "Artisanat français",
+    "craftBandBody": "Chaque pièce sort de notre atelier : le bois est choisi à la planche, l'acier est soudé TIG puis thermolaqué, et le montage final se fait à la main. Pas de série industrielle — votre meuble est fabriqué pour vous, à la commande.",
     "descriptifTitle": "Descriptif",
-    "sectionDesign": "Le design",
-    "sectionDesignBody": "Emplacement réservé pour la description de la pièce, son inspiration et ses proportions.",
-    "sectionSavoirFaire": "Savoir-faire artisanal",
-    "sectionSavoirFaireBody": "Emplacement réservé : soudure TIG, assemblage bois massif, finitions à la main — à détailler pièce par pièce.",
-    "sectionSpecs": "Caractéristiques",
-    "specsPlaceholder": "Emplacement réservé pour dimensions précises, matériaux, poids, entretien.",
     "sectionFaq": "Questions fréquentes",
     "faqDeliveryQ": "Quels sont les délais de fabrication et de livraison ?",
-    "faqDeliveryA": "Emplacement réservé pour la réponse.",
-    "faqCareQ": "Comment entretenir cette pièce ?",
-    "faqCareA": "Emplacement réservé pour la réponse.",
-    "relatedTitle": "Autres pièces",
-    "backToCatalogue": "← Retour au catalogue"
+    "faqDeliveryA": "Chaque meuble est fabriqué à la commande : comptez 4 à 8 semaines selon la pièce, puis une livraison en France métropolitaine avec montage compris. Un créneau précis vous est proposé dès que votre meuble est prêt.",
+    "faqCareQ": "Comment entretenir une pièce bois & acier ?",
+    "faqCareA": "Un chiffon doux et sec au quotidien. Pour le bois huilé, une ré-application d'huile-cire une fois par an suffit ; une rayure se rattrape d'un ponçage léger. L'acier thermolaqué se nettoie à l'éponge humide, sans produit abrasif.",
+    "relatedTitle": "Autres pièces de l'atelier",
+    "backToCatalogue": "← Retour à la boutique"
   },
   "devis": {
     "title": "Demander un devis",
-    "subtitle": "Décrivez votre projet, on revient vers vous avec une estimation.",
-    "formPlaceholder": "Emplacement réservé pour le formulaire détaillé (type de pièce, dimensions, finitions, photos/plans)."
+    "subtitle": "Décrivez votre projet, on revient vers vous avec une estimation sous 48 h.",
+    "formIntro": "Le formulaire détaillé (type de pièce, dimensions, finitions, photos et plans) arrive très bientôt. En attendant, écrivez-nous directement :",
+    "formCta": "contact@auboiacier.fr"
   },
   "apropos": {
     "title": "À propos",
     "histoireTitle": "Notre histoire",
-    "histoirePlaceholder": "Emplacement réservé pour l'histoire d'Auboiacier et de son fondateur.",
+    "histoireBody": "Auboiacier, c'est la contraction d'Aumercier, du bois et de l'acier. Derrière l'atelier, un soudeur-métallier passé par plus de cinq ans de chantiers et d'ateliers, en France puis en Australie chez un spécialiste du plafond tendu lumineux. De retour en France, l'atelier réunit ces deux mondes : la précision du métal, la chaleur du bois et de la lumière.",
     "savoirFaireTitle": "Notre savoir-faire",
-    "savoirFairePlaceholder": "Emplacement réservé pour détailler les techniques (TIG, MAG, SMAW) et le processus de fabrication.",
+    "savoirFaireBody": "Soudure TIG, MAG et SMAW, ossatures aluminium ajustées au millimètre, membranes tendues, ébénisterie de plateau : chaque étape est réalisée à l'atelier, de la découpe à la finition. C'est ce qui permet de garantir les pièces que nous livrons.",
     "valeursTitle": "Nos valeurs",
-    "valeursPlaceholder": "Emplacement réservé pour 3-4 valeurs clés de l'entreprise."
+    "valeurs": [
+      { "title": "Le sur-mesure d'abord", "body": "Chaque pièce part de votre espace et de votre usage — jamais d'un catalogue." },
+      { "title": "La matière honnête", "body": "Bois massif, acier plein, soudures assumées : rien n'est plaqué, rien n'est caché." },
+      { "title": "Le travail garanti", "body": "Fabriqué et posé par la même main, et suivi dans le temps." }
+    ]
   },
   "contact": {
     "title": "Contact",
-    "subtitle": "Une question ? Écrivez-nous.",
-    "formPlaceholder": "Emplacement réservé pour le formulaire de contact.",
+    "subtitle": "Une question, un projet ? Écrivez-nous, réponse sous 48 h.",
+    "formSoon": "Le formulaire de contact arrive bientôt — en attendant, contactez-nous par e-mail.",
     "detailsTitle": "Coordonnées",
     "email": "contact@auboiacier.fr",
     "location": "France"

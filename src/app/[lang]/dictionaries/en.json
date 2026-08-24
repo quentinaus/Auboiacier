@@ -1,7 +1,7 @@
 {
   "meta": {
     "siteName": "Auboiacier",
-    "tagline": "Custom stretch-ceiling lighting"
+    "tagline": "Wood, steel & light — French handcraft"
   },
   "nav": {
     "home": "Home",
@@ -11,11 +11,14 @@
     "apropos": "About",
     "contact": "Contact",
     "cta": "Get a quote",
-    "catalogue": "Catalogue",
+    "catalogue": "Shop",
     "backToHub": "Auboiacier"
   },
   "footer": {
     "rights": "All rights reserved.",
+    "tagline": "Metalwork and woodwork studio — backlit stretch ceilings and wood-steel furniture.",
+    "navTitle": "Navigation",
+    "contactTitle": "Contact",
     "siret": "Business ID coming soon"
   },
   "hub": {
@@ -36,11 +39,36 @@
     "heroCtaPrimary": "Get a quote",
     "heroCtaSecondary": "See our projects",
     "realisationsTitle": "Recent projects",
-    "realisationsPlaceholder": "Placeholder for 3-6 recent project photos, linking to the Projects page.",
-    "gammesTitle": "Our ranges & craft",
-    "gammesPlaceholder": "Placeholder for the main families: light ceilings, welding/metalwork, wood-steel furniture.",
+    "gammesTitle": "What a stretch ceiling changes",
+    "gammes": [
+      {
+        "title": "Light without shadows",
+        "body": "The membrane diffuses the LED light across its whole surface: no harsh spots, no dark corners, an even glow that fills the room."
+      },
+      {
+        "title": "Colours you control",
+        "body": "Warm white for everyday life, dynamic colours for a mood — brightness and hue are driven from your phone."
+      },
+      {
+        "title": "A clean, fast install",
+        "body": "The aluminium frame mounts to your existing ceiling and the membrane is stretched in a day. No demolition, no dust."
+      }
+    ],
     "pourquoiTitle": "Why Auboiacier",
-    "pourquoiPlaceholder": "Placeholder for 3-4 key arguments (craftsmanship, custom-made, materials, warranty).",
+    "pourquoi": [
+      {
+        "title": "Welded in our workshop",
+        "body": "Every frame is TIG-welded in the workshop, fitted to your room's exact dimensions."
+      },
+      {
+        "title": "One point of contact",
+        "body": "From measurements to installation, you talk to the maker — not a reseller."
+      },
+      {
+        "title": "Truly custom",
+        "body": "Shapes, sizes, light temperatures: the ceiling is designed for your space, never the other way round."
+      }
+    ],
     "ctaTitle": "Got a project in mind?",
     "ctaSubtitle": "Tell us about your room, we'll take it from there.",
     "ctaButton": "Start my quote"
@@ -51,12 +79,12 @@
     "filterAll": "All",
     "filterResidential": "Residential",
     "filterCommercial": "Commercial",
-    "gridPlaceholder": "Placeholder for the filterable photo grid."
+    "moreSoon": "More projects will be added as installs are completed."
   },
   "artisanat": {
     "title": "Handmade furniture",
-    "subtitle": "Wood & steel furniture, designed and welded by hand. Small batches, fixed price.",
-    "catalogueTitle": "The catalogue",
+    "subtitle": "Wood & steel furniture, designed and welded by hand in our workshop. Small batches, fixed prices, delivered across France.",
+    "catalogueTitle": "The collection",
     "breadcrumbShop": "Shop",
     "breadcrumbCategory": "Furniture",
     "addToCart": "Add to cart",
@@ -67,39 +95,40 @@
     "woodLabel": "Solid wood",
     "metalLabel": "Leg colour",
     "madeInFrance": "Handmade in France",
+    "craftBandTitle": "French craftsmanship",
+    "craftBandBody": "Every piece leaves our own workshop: the wood is picked board by board, the steel is TIG-welded then powder-coated, and final assembly is done by hand. No industrial runs — your furniture is made for you, to order.",
     "descriptifTitle": "Details",
-    "sectionDesign": "The design",
-    "sectionDesignBody": "Placeholder for the piece's description, inspiration and proportions.",
-    "sectionSavoirFaire": "Handmade craft",
-    "sectionSavoirFaireBody": "Placeholder: TIG welding, solid wood assembly, hand finishing — to detail piece by piece.",
-    "sectionSpecs": "Specifications",
-    "specsPlaceholder": "Placeholder for exact dimensions, materials, weight, care.",
     "sectionFaq": "Frequently asked questions",
     "faqDeliveryQ": "What are the making and delivery times?",
-    "faqDeliveryA": "Placeholder for the answer.",
-    "faqCareQ": "How do I care for this piece?",
-    "faqCareA": "Placeholder for the answer.",
-    "relatedTitle": "Other pieces",
-    "backToCatalogue": "← Back to catalogue"
+    "faqDeliveryA": "Each piece is made to order: allow 4 to 8 weeks depending on the item, then delivery across mainland France with assembly included. We propose a precise slot as soon as your piece is ready.",
+    "faqCareQ": "How do I care for a wood & steel piece?",
+    "faqCareA": "A soft dry cloth day to day. For oiled wood, re-apply hardwax oil once a year; scratches sand out lightly. Powder-coated steel wipes clean with a damp sponge — no abrasives.",
+    "relatedTitle": "More from the workshop",
+    "backToCatalogue": "← Back to the shop"
   },
   "devis": {
     "title": "Request a quote",
-    "subtitle": "Describe your project, we'll get back to you with an estimate.",
-    "formPlaceholder": "Placeholder for the detailed form (room type, dimensions, finishes, photos/plans)."
+    "subtitle": "Describe your project — we come back with an estimate within 48 h.",
+    "formIntro": "The detailed form (room type, dimensions, finishes, photos and plans) is coming very soon. In the meantime, write to us directly:",
+    "formCta": "contact@auboiacier.fr"
   },
   "apropos": {
     "title": "About",
     "histoireTitle": "Our story",
-    "histoirePlaceholder": "Placeholder for the story of Auboiacier and its founder.",
+    "histoireBody": "Auboiacier contracts Aumercier, bois (wood) and acier (steel). Behind the workshop is a welder-metalworker with over five years across sites and workshops, in France and then in Australia with a specialist in backlit stretch ceilings. Back in France, the workshop brings both worlds together: the precision of metal, the warmth of wood and light.",
     "savoirFaireTitle": "Our craft",
-    "savoirFairePlaceholder": "Placeholder detailing the techniques (TIG, MAG, SMAW) and the making process.",
+    "savoirFaireBody": "TIG, MAG and SMAW welding, aluminium frames fitted to the millimetre, stretched membranes, solid-wood tops: every step happens in the workshop, from cutting to finishing. That is what lets us stand behind every piece we deliver.",
     "valeursTitle": "Our values",
-    "valeursPlaceholder": "Placeholder for 3-4 key company values."
+    "valeurs": [
+      { "title": "Custom first", "body": "Every piece starts from your space and your use — never from a catalogue." },
+      { "title": "Honest materials", "body": "Solid wood, solid steel, visible welds: nothing veneered, nothing hidden." },
+      { "title": "Work we stand behind", "body": "Made and installed by the same hands, and supported over time." }
+    ]
   },
   "contact": {
     "title": "Contact",
-    "subtitle": "Got a question? Write to us.",
-    "formPlaceholder": "Placeholder for the contact form.",
+    "subtitle": "A question, a project? Write to us — we reply within 48 h.",
+    "formSoon": "The contact form is coming soon — in the meantime, reach us by e-mail.",
     "detailsTitle": "Details",
     "email": "contact@auboiacier.fr",
     "location": "France"

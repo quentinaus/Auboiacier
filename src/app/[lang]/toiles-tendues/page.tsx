@@ -2,8 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
-import { PlaceholderBlock } from "@/components/placeholder-block";
 import { HeroShaderBackground } from "@/components/hero-shader-background";
+import { serif } from "@/lib/fonts";
 
 const realisationPhotos = [
   { src: "/images/plafond-salle.jpg", alt: "Plafond lumineux tendu — salle épurée" },
@@ -48,7 +48,9 @@ export default async function ToilesTenduesPage({
       <div className="mx-auto max-w-6xl px-6">
         {/* Aperçu réalisations */}
         <section className="flex flex-col gap-6 py-16">
-          <h2 className="text-2xl font-medium">{t.realisationsTitle}</h2>
+          <h2 className={`${serif.className} text-2xl font-medium md:text-3xl`}>
+            {t.realisationsTitle}
+          </h2>
           <div className="grid gap-6 md:grid-cols-2">
             {realisationPhotos.map((photo) => (
               <div key={photo.src} className="relative aspect-[16/10] overflow-hidden rounded-2xl">
@@ -65,20 +67,47 @@ export default async function ToilesTenduesPage({
         </section>
 
         {/* Gammes / savoir-faire */}
-        <section className="flex flex-col gap-6 py-16">
-          <h2 className="text-2xl font-medium">{t.gammesTitle}</h2>
-          <PlaceholderBlock label={t.gammesPlaceholder} tone="dark" />
+        <section className="flex flex-col gap-10 py-16">
+          <h2 className={`${serif.className} text-2xl font-medium md:text-3xl`}>
+            {t.gammesTitle}
+          </h2>
+          <div className="grid gap-10 md:grid-cols-3">
+            {t.gammes.map((gamme) => (
+              <div key={gamme.title} className="border-t border-white/15 pt-6">
+                <h3 className={`${serif.className} text-lg text-[#AD8148]`}>
+                  {gamme.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-white/70">{gamme.body}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         {/* Pourquoi nous */}
-        <section className="flex flex-col gap-6 py-16">
-          <h2 className="text-2xl font-medium">{t.pourquoiTitle}</h2>
-          <PlaceholderBlock label={t.pourquoiPlaceholder} tone="dark" />
+        <section className="flex flex-col gap-10 py-16">
+          <h2 className={`${serif.className} text-2xl font-medium md:text-3xl`}>
+            {t.pourquoiTitle}
+          </h2>
+          <div className="grid gap-10 md:grid-cols-3">
+            {t.pourquoi.map((item, index) => (
+              <div key={item.title}>
+                <span className="font-mono text-sm text-[#AD8148]">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <h3 className={`${serif.className} mt-3 text-lg text-white`}>
+                  {item.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-white/70">{item.body}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         {/* CTA devis */}
         <section className="flex flex-col items-start gap-4 py-20">
-          <h2 className="text-2xl font-medium">{t.ctaTitle}</h2>
+          <h2 className={`${serif.className} text-2xl font-medium md:text-3xl`}>
+            {t.ctaTitle}
+          </h2>
           <p className="text-white/60">{t.ctaSubtitle}</p>
           <Link
             href={`/${locale}/toiles-tendues/devis`}

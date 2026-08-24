@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "../globals.css";
 import { locales, isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "./dictionaries";
-import { SiteFooter } from "@/components/site-footer";
 import { notFound } from "next/navigation";
 
 export function generateStaticParams() {
@@ -28,13 +27,10 @@ export default async function RootLayout({
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
 
-  const dict = await getDictionary(lang);
-
   return (
     <html lang={lang}>
       <body className="antialiased">
         <main>{children}</main>
-        <SiteFooter locale={lang} dict={dict} />
       </body>
     </html>
   );

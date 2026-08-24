@@ -1,5 +1,7 @@
 export type ProductSize = { id: string; label: string; price: number };
 export type ProductSwatch = { id: string; label: string; swatch: string };
+export type ProductSection = { title: string; body: string };
+export type ProductSpec = { label: string; value: string };
 
 export type Product = {
   slug: string;
@@ -9,6 +11,9 @@ export type Product = {
   sizes: ProductSize[];
   woods: ProductSwatch[];
   metals: ProductSwatch[];
+  sections: ProductSection[];
+  specs: ProductSpec[];
+  testimonial?: { quote: string; author: string };
 };
 
 export const products: Product[] = [
@@ -34,11 +39,32 @@ export const products: Product[] = [
       { id: "brut", label: "Acier brut verni", swatch: "#8a8578" },
       { id: "blanc", label: "Blanc texturé", swatch: "#e8e6e1" },
     ],
+    sections: [
+      {
+        title: "Un piétement sculptural",
+        body: "Des lames d'acier plein se croisent sous le plateau comme un jeu de mikado : chaque appui semble posé au hasard, mais l'équilibre est calculé au millimètre. Le piétement est soudé d'une seule pièce à l'atelier — aucune vis apparente, aucun raccord.",
+      },
+      {
+        title: "Un plateau qui traverse les années",
+        body: "Le plateau en chêne massif de 40 mm est aboutés en lames larges, poncé puis protégé par une huile-cire qui laisse le bois respirer. Les marques du temps se réparent d'un simple ponçage léger — c'est une table faite pour servir tous les jours.",
+      },
+    ],
+    specs: [
+      { label: "Plateau", value: "Chêne ou noyer massif, épaisseur 40 mm, finition huile-cire" },
+      { label: "Piétement", value: "Acier plein S235, soudure TIG, thermolaquage mat" },
+      { label: "Capacité", value: "6 à 10 couverts selon dimension" },
+      { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
+      { label: "Livraison", value: "France entière, montage compris" },
+    ],
+    testimonial: {
+      quote: "On cherchait une table unique, on a eu une pièce d'atelier. Les soudures sont invisibles, le plateau est magnifique.",
+      author: "Client particulier — exemple d'avis",
+    },
   },
   {
     slug: "chaise-acier-bois",
     name: "Chaise Acier & Bois",
-    tagline: "Structure acier, assise bois massif.",
+    tagline: "Structure acier fine, assise bois massif sculptée.",
     images: [],
     sizes: [{ id: "standard", label: "Taille unique", price: 320 }],
     woods: [{ id: "chene", label: "Chêne massif", swatch: "#b98a5a" }],
@@ -46,11 +72,22 @@ export const products: Product[] = [
       { id: "noir", label: "Noir mat", swatch: "#1c1a18" },
       { id: "brut", label: "Acier brut verni", swatch: "#8a8578" },
     ],
+    sections: [
+      {
+        title: "Légère à l'œil, solide à l'usage",
+        body: "Un cadre en tube d'acier fin souligné par une assise en chêne massif galbée. La chaise accompagne naturellement la table Mikado, seule ou en série.",
+      },
+    ],
+    specs: [
+      { label: "Assise", value: "Chêne massif, finition huile-cire" },
+      { label: "Structure", value: "Tube acier, soudure TIG, thermolaquage mat" },
+      { label: "Fabrication", value: "Sur commande — comptez 4 semaines" },
+    ],
   },
   {
     slug: "console-metallier",
     name: "Console Métallier",
-    tagline: "Console d'entrée, soudure apparente, ligne fine.",
+    tagline: "Console d'entrée, soudure apparente assumée, ligne fine.",
     images: [],
     sizes: [
       { id: "s", label: "100 × 35 cm", price: 890 },
@@ -58,6 +95,17 @@ export const products: Product[] = [
     ],
     woods: [{ id: "chene", label: "Chêne massif", swatch: "#b98a5a" }],
     metals: [{ id: "noir", label: "Noir mat", swatch: "#1c1a18" }],
+    sections: [
+      {
+        title: "L'atelier dans l'entrée",
+        body: "Ici, les cordons de soudure restent visibles : c'est la signature de la pièce. Un cadre d'acier fin, un plateau de chêne, rien de plus.",
+      },
+    ],
+    specs: [
+      { label: "Plateau", value: "Chêne massif, épaisseur 30 mm" },
+      { label: "Structure", value: "Acier plein, soudure apparente vernie" },
+      { label: "Fabrication", value: "Sur commande — comptez 4 semaines" },
+    ],
   },
 ];
 
