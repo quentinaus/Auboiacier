@@ -49,9 +49,11 @@ function SwatchGroup({
 export function ProductOptions({
   product,
   t,
+  locale,
 }: {
   product: Product;
   t: Dictionary["artisanat"];
+  locale: "fr" | "en";
 }) {
   const [sizeId, setSizeId] = useState(product.sizes[0].id);
   const [woodId, setWoodId] = useState(product.woods[0]?.id ?? "");
@@ -95,7 +97,12 @@ export function ProductOptions({
         <SwatchGroup label={t.woodLabel} options={product.woods} selected={woodId} onSelect={setWoodId} />
       )}
       {product.metals.length > 0 && (
-        <SwatchGroup label={t.metalLabel} options={product.metals} selected={metalId} onSelect={setMetalId} />
+        <SwatchGroup
+          label={product.metalLabel ? product.metalLabel[locale] : t.metalLabel}
+          options={product.metals}
+          selected={metalId}
+          onSelect={setMetalId}
+        />
       )}
 
       <div className="flex items-end gap-4">

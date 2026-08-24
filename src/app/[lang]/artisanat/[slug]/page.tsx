@@ -76,7 +76,7 @@ export default async function ProductPage({
             <h1 className={`${serif.className} text-3xl text-[#2b2320]`}>{product.name}</h1>
             <p className="mt-2 text-[#5c5140]">{product.tagline}</p>
             <div className="mt-6">
-              <ProductOptions product={product} t={t} />
+              <ProductOptions product={product} t={t} locale={locale} />
             </div>
           </div>
         </div>
