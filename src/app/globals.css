@@ -39,7 +39,12 @@ body {
  *  Focus au clavier
  *  Filet de sécurité : tout ce qui se clique montre un contour quand on
  *  y arrive à la tabulation, même si un composant a oublié de le prévoir.
+ *  Dans la couche « base » : un composant qui dessine son propre contour
+ *  (classes focus-visible:…) passe devant — sans ça, hors couche, ce
+ *  filet gagnait toujours et l'on voyait deux ou trois contours emboîtés
+ *  sur les cases à remplir.
  * ------------------------------------------------------------------ */
+@layer base {
 a:focus-visible,
 button:focus-visible,
 summary:focus-visible,
@@ -66,6 +71,7 @@ textarea:focus-visible,
   box-shadow:
     0 0 0 5px #2b2320,
     0 0 0 7px rgba(255, 255, 255, 0.5);
+}
 }
 
 /* ------------------------------------------------------------------ *

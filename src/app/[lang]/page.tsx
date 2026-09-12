@@ -87,6 +87,7 @@ function CategoryTile({
   alt,
   label,
   objectPosition,
+  entiere = false,
   clip,
   clipBox,
 }: {
@@ -95,13 +96,15 @@ function CategoryTile({
   alt: string;
   label: string;
   objectPosition?: string;
+  /** La photo en entier sur fond blanc, sans recadrage : pour une pièce détourée. */
+  entiere?: boolean;
   /** Contour de la dalle lumineuse : la photo s'anime alors dedans. */
   clip?: string;
   clipBox?: { left: string; top: string; width: string; height: string };
 }) {
   return (
     <Link href={href} className="flex flex-col items-center gap-3">
-      <div className={`relative aspect-[4/5] w-full overflow-hidden ${hoverZoom}`}>
+      <div className={`relative aspect-[4/5] w-full overflow-hidden ${entiere ? "bg-white" : ""} ${hoverZoom}`}>
         {clip && clipBox ? (
           <PhotoPlafondAnime
             src={src}
@@ -117,7 +120,7 @@ function CategoryTile({
             fill
             sizes="(max-width: 768px) 50vw, 280px"
             style={{ objectPosition }}
-            className="object-cover"
+            className={entiere ? "object-contain" : "object-cover"}
           />
         )}
       </div>
@@ -150,9 +153,11 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
   const categories = [
     {
       href: `/${locale}/artisanat#table-interieur`,
-      src: "/images/mikado/coupe/noir.jpg",
+      // La photo détourée, rognée au plus près : la table prend toute la largeur.
+      src: "/images/accueil/table-mikado-laiton.jpg",
       alt: t.altTables,
       label: t.catTables,
+      entiere: true,
     },
     {
       href: `/${locale}/artisanat#table-exterieur`,
@@ -190,10 +195,11 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
     },
     {
       href: `/${locale}/artisanat#garde-corps`,
-      src: "/images/garde-corps/fenetre-pose.jpg",
+      // La pièce détourée, en entier, plutôt que la photo de pose.
+      src: "/images/accueil/garde-corps-fenetre.jpg",
       alt: t.altGardeCorps,
       label: t.catGardeCorps,
-      objectPosition: "50% 42%",
+      entiere: true,
     },
     {
       href: `/${locale}/artisanat/verrieres`,
@@ -260,9 +266,6 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           >
             {t.h1}
           </h1>
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-[#5c5140] md:text-[15px]">
-            {t.h1Body}
-          </p>
         </div>
       </section>
 

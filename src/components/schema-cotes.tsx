@@ -1,89 +1,184 @@
 "use client";
 
+import { useState } from "react";
+
 /**
- * Le croquis coté du bloc « à vos cotes ».
- *
- * La pièce vue de trois quarts, comme sur les photos : le plateau de bois sur
- * ses pieds — ou le caisson lumineux seul, quand il n'y a pas de pieds. C'est
- * un plan d'atelier, pas une illustration : son seul travail est de montrer
- * où se prend chaque cote.
+ * Le croquis coté du bloc « à vos cotes » : le plateau seul, vu de trois
+ * quarts, comme une planche posée sur l'établi. Pas de piétement — il
+ * n'apprend rien sur les cotes, et c'est le plateau qui fait le prix.
  *
  * Chaque cote porte un numéro, le même que devant sa case. La cote qu'on
  * remplit s'allume, la valeur tapée s'écrit à côté de son numéro, et cliquer
- * un numéro amène le curseur dans la case.
+ * une cote amène le curseur dans la case.
  */
 
-const TRAIT = "#a3968a";
-const ACCENT = "#6d2c2c";
 const ENCRE = "#2a2116";
+const ACCENT = "#6d2c2c";
+/** Les cotes au repos : lisibles, mais derrière le plateau. */
+const REPOS = "#7a6e61";
+/** Les traits d'attache, plus légers que les cotes. */
+const ATTACHE = "#bdb2a3";
 
 type Point = [number, number];
 const r = (n: number) => Math.round(n * 100) / 100;
+const p = (pt: Point) => `${r(pt[0])},${r(pt[1])}`;
 
 export type CoteActive = "principale" | "secondaire" | "epaisseur" | "hauteur" | null;
-export type CoteSchema = Exclude<CoteActive, null>;
+/** Les cotes dessinées. La hauteur finie d'une table n'en est pas : le croquis ne montre que le plateau. */
+export type CoteSchema = "principale" | "secondaire" | "epaisseur";
 
-/* Le plateau, vu de biais : la face du dessus, le chant avant, le petit côté. */
-const A: Point = [86, 44]; // dessus, arrière gauche
-const B: Point = [262, 44]; // dessus, arrière droit
-const C: Point = [300, 92]; // dessus, avant droit
-const D: Point = [124, 92]; // dessus, avant gauche
-const EP = 13; // épaisseur dessinée du chant
-const SOL = 196; // le sol, quand la pièce a des pieds
+type Etat = "repos" | "survol" | "actif";
 
-/** La pastille numérotée, cliquable : la même que devant la case. */
-function Pastille({
+/* Le plateau rectangulaire, vu de biais : le chant avant est horizontal, la
+   profondeur file vers l'arrière droit. Les quatre coins du dessus : */
+const FUITE: Point = [84, -56];
+const D: Point = [96, 92]; // avant gauche
+const C: Point = [328, 92]; // avant droit
+const B: Point = [C[0] + FUITE[0], C[1] + FUITE[1]]; // arrière droit
+const A: Point = [D[0] + FUITE[0], D[1] + FUITE[1]]; // arrière gauche
+/** L'épaisseur dessinée du chant. */
+const EP = 17;
+
+/* Le disque, pour les pièces rondes. */
+const O: Point = [222, 96];
+const RX = 120;
+const RY = 42;
+
+const bas = (pt: Point): Point => [pt[0], pt[1] + EP];
+
+/** La pointe pleine d'une cote : un petit triangle, tourné dans le sens de la ligne. */
+function pointe(tip: Point, angle: number) {
+  const l = 7;
+  const w = 2.4;
+  const bx = tip[0] - l * Math.cos(angle);
+  const by = tip[1] - l * Math.sin(angle);
+  const nx = -Math.sin(angle) * w;
+  const ny = Math.cos(angle) * w;
+  return `${p(tip)} ${p([bx + nx, by + ny])} ${p([bx - nx, by - ny])}`;
+}
+
+/**
+ * Une cote complète : ses traits d'attache, sa ligne à deux pointes, sa
+ * pastille numérotée et la valeur tapée. Tout le groupe se clique.
+ */
+function Cote({
   n,
-  cx,
-  cy,
-  actif,
+  de,
+  a,
+  attaches,
+  etat,
   label,
   valeur,
+  pastille,
+  valeurA,
+  exterieur = false,
   onChoisir,
-  cote,
-  ancre = "middle",
+  onSurvol,
 }: {
   n: number;
-  cx: number;
-  cy: number;
-  actif: boolean;
+  de: Point;
+  a: Point;
+  attaches: [Point, Point][];
+  etat: Etat;
   label: string;
-  /** La cote tapée, écrite à côté du numéro. */
   valeur?: string;
-  onChoisir?: (cote: CoteSchema) => void;
-  cote: CoteSchema;
-  /** Où s'écrit la valeur par rapport à la pastille. */
-  ancre?: "start" | "middle" | "end";
+  /** Où pose la pastille. */
+  pastille: Point;
+  /** Où s'écrit la valeur : sur la ligne, à droite de la pastille, ou dessous. */
+  valeurA: "droite" | "dessous";
+  /** Les pointes à l'extérieur, pour une cote trop courte pour les loger. */
+  exterieur?: boolean;
+  onChoisir?: () => void;
+  onSurvol?: (dedans: boolean) => void;
 }) {
-  const x = ancre === "start" ? cx + 15 : ancre === "end" ? cx - 15 : cx;
-  const y = ancre === "middle" ? cy + 22 : cy + 4;
+  const actif = etat === "actif";
+  const couleur = actif ? ACCENT : etat === "survol" ? ENCRE : REPOS;
+  const angle = Math.atan2(a[1] - de[1], a[0] - de[0]);
+  const ux = Math.cos(angle);
+  const uy = Math.sin(angle);
+  // Les pointes tournées vers l'extérieur ; quand la cote est courte, la
+  // ligne déborde et les pointes visent l'intérieur depuis dehors.
+  const debord = exterieur ? 12 : 0;
+  const ligne: [Point, Point] = exterieur
+    ? [
+        [de[0] - ux * debord, de[1] - uy * debord],
+        [a[0] + ux * debord, a[1] + uy * debord],
+      ]
+    : [de, a];
+  const pointes = exterieur
+    ? [pointe(de, angle), pointe(a, angle + Math.PI)]
+    : [pointe(de, angle + Math.PI), pointe(a, angle)];
+
+  const [vx, vy] = valeurA === "droite" ? [pastille[0] + 16, pastille[1] + 4] : [pastille[0], pastille[1] + 24];
+
   return (
     <g
       role="button"
       tabIndex={0}
       aria-label={`${n}. ${label}${valeur ? ` — ${valeur}` : ""}`}
-      onClick={() => onChoisir?.(cote)}
+      onClick={onChoisir}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          onChoisir?.(cote);
+          onChoisir?.();
         }
       }}
-      style={{ cursor: "pointer" }}
+      onMouseEnter={() => onSurvol?.(true)}
+      onMouseLeave={() => onSurvol?.(false)}
+      style={{ cursor: "pointer", outline: "none" }}
     >
-      <circle cx={cx} cy={cy} r={10.5} fill={actif ? ACCENT : "#ffffff"} stroke={actif ? ACCENT : ENCRE} strokeWidth={1.3} />
-      <text x={cx} y={cy + 4.2} textAnchor="middle" fontSize={12} fontWeight={700} fill={actif ? "#ffffff" : ENCRE}>
+      {/* La zone cliquable : plus large que le trait, pour le doigt. */}
+      <line x1={ligne[0][0]} y1={ligne[0][1]} x2={ligne[1][0]} y2={ligne[1][1]} stroke="transparent" strokeWidth={22} />
+      {attaches.map(([p1, p2], i) => (
+        <line key={i} x1={p1[0]} y1={p1[1]} x2={p2[0]} y2={p2[1]} stroke={actif ? ACCENT : ATTACHE} strokeWidth={0.9} opacity={actif ? 0.55 : 1} />
+      ))}
+      <line
+        x1={ligne[0][0]}
+        y1={ligne[0][1]}
+        x2={ligne[1][0]}
+        y2={ligne[1][1]}
+        stroke={couleur}
+        strokeWidth={actif ? 1.6 : 1.1}
+        strokeLinecap="round"
+      />
+      {pointes.map((d, i) => (
+        <polygon key={i} points={d} fill={couleur} />
+      ))}
+
+      {/* La pastille, posée sur la ligne : blanche au repos, pleine quand la case est active. */}
+      <circle
+        cx={pastille[0]}
+        cy={pastille[1]}
+        r={11}
+        fill={actif ? ACCENT : "#ffffff"}
+        stroke={actif ? ACCENT : etat === "survol" ? ENCRE : REPOS}
+        strokeWidth={etat === "repos" ? 1.2 : 1.6}
+      />
+      <text
+        x={pastille[0]}
+        y={pastille[1] + 4.3}
+        textAnchor="middle"
+        fontSize={12}
+        fontWeight={700}
+        fill={actif ? "#ffffff" : ENCRE}
+        style={{ userSelect: "none" }}
+      >
         {n}
       </text>
+
       {valeur && (
         <text
-          x={x}
-          y={y}
-          textAnchor={ancre}
-          fontSize={10.5}
+          x={vx}
+          y={vy}
+          textAnchor={valeurA === "droite" ? "start" : "middle"}
+          fontSize={11}
           fontWeight={600}
           fill={actif ? ACCENT : ENCRE}
-          style={{ fontVariantNumeric: "tabular-nums" }}
+          stroke="#ffffff"
+          strokeWidth={4}
+          paintOrder="stroke"
+          strokeLinejoin="round"
+          style={{ fontVariantNumeric: "tabular-nums", userSelect: "none" }}
         >
           {valeur}
         </text>
@@ -92,44 +187,12 @@ function Pastille({
   );
 }
 
-/** Une cote : ses traits d'attache et sa ligne à deux pointes. */
-function Fleche({ de, a, attaches = [], actif }: { de: Point; a: Point; attaches?: [Point, Point][]; actif: boolean }) {
-  const couleur = actif ? ACCENT : "#5c5140";
-  const angle = Math.atan2(a[1] - de[1], a[0] - de[0]);
-  const pointe = (p: Point, sens: 0 | 1) => {
-    const l = 5.5;
-    const o = 0.42;
-    const base = angle + sens * Math.PI;
-    return `M${p[0]} ${p[1]} l${r(l * Math.cos(base + o))} ${r(l * Math.sin(base + o))} M${p[0]} ${p[1]} l${r(l * Math.cos(base - o))} ${r(l * Math.sin(base - o))}`;
-  };
-  return (
-    <g>
-      {attaches.map(([p1, p2], i) => (
-        <line key={i} x1={p1[0]} y1={p1[1]} x2={p2[0]} y2={p2[1]} stroke={TRAIT} strokeWidth={0.8} strokeDasharray="2.5 2.5" />
-      ))}
-      <path
-        d={`M${de[0]} ${de[1]} L${a[0]} ${a[1]} ${pointe(de, 0)} ${pointe(a, 1)}`}
-        stroke={couleur}
-        strokeWidth={actif ? 1.8 : 1.2}
-        fill="none"
-        strokeLinecap="round"
-      />
-    </g>
-  );
-}
-
-/** Les pieds : deux panneaux plats sous le plateau, et l'ombre au sol. */
-function Pieds({ gauche, droite, haut }: { gauche: number; droite: number; haut: number }) {
-  const acier = "#2b2320";
-  return (
-    <g>
-      <ellipse cx={(gauche + droite) / 2} cy={SOL + 3} rx={(droite - gauche) / 2 + 26} ry={7} fill="#2a2116" opacity={0.08} />
-      <rect x={gauche} y={haut} width={11} height={SOL - haut} fill={acier} rx={1} />
-      <rect x={droite - 11} y={haut} width={11} height={SOL - haut} fill={acier} rx={1} />
-      <rect x={gauche - 8} y={SOL - 3} width={27} height={3} fill={acier} />
-      <rect x={droite - 19} y={SOL - 3} width={27} height={3} fill={acier} />
-    </g>
-  );
+/** Une veine du bois : une ligne ondulée, dessinée sur toute la largeur puis rognée à la face. */
+function veine(y: number, amplitude: number, decalage: number) {
+  const pas = 46;
+  let d = `M${-pas + decalage} ${y} q${pas / 2} ${-amplitude} ${pas} 0`;
+  for (let i = 0; i < 14; i += 1) d += ` t${pas} 0`;
+  return d;
 }
 
 export function SchemaCotes({
@@ -144,189 +207,229 @@ export function SchemaCotes({
   forme: "rect" | "rond";
   /** La description lue par les lecteurs d'écran suit la langue de la page. */
   locale?: "fr" | "en";
-  /** Un plateau de bois sur ses pieds, ou un caisson lumineux à cadre thermolaqué. */
+  /** Un plateau de bois, ou un caisson lumineux à cadre thermolaqué. */
   matiere?: "bois" | "lumiere";
-  /** Les intitulés viennent du produit : longueur/largeur, ou largeur/hauteur. `hauteur` : la hauteur finie d'une table. */
-  labels: { principale: string; secondaire?: string; epaisseur: string; hauteur?: string };
+  /** Les intitulés viennent du produit : longueur/largeur, ou largeur/hauteur. */
+  labels: { principale: string; secondaire?: string; epaisseur: string };
   /** Les cotes en cours de saisie, écrites sur le dessin. */
-  valeurs?: { principale?: string; secondaire?: string; epaisseur?: string; hauteur?: string };
+  valeurs?: { principale?: string; secondaire?: string; epaisseur?: string };
   actif: CoteActive;
-  /** Cliquer un numéro amène le curseur dans sa case. */
+  /** Cliquer une cote amène le curseur dans sa case. */
   onChoisir?: (cote: CoteSchema) => void;
 }) {
   const rond = forme === "rond";
   const lumiere = matiere === "lumiere";
-  const pieds = !lumiere && Boolean(labels.hauteur);
+  const [survol, setSurvol] = useState<CoteSchema | null>(null);
 
   // Les numéros suivent l'ordre des cases : ① la grande cote, ② la seconde
-  // (pas sur un rond), ③ l'épaisseur, ④ la hauteur (les tables seulement).
-  const ordre = (
-    ["principale", rond ? null : "secondaire", "epaisseur", pieds ? "hauteur" : null] as (CoteSchema | null)[]
-  ).filter((c): c is CoteSchema => c !== null);
+  // (pas sur un rond), ③ l'épaisseur.
+  const ordre = (["principale", rond ? null : "secondaire", "epaisseur"] as (CoteSchema | null)[]).filter(
+    (c): c is CoteSchema => c !== null
+  );
   const n = (cote: CoteSchema) => ordre.indexOf(cote) + 1;
+  const etat = (cote: CoteSchema): Etat => (actif === cote ? "actif" : survol === cote ? "survol" : "repos");
 
-  // La toile est blanche dans son cadre noir, le bois est un chêne clair dont
-  // le chant est un ton en dessous : les mêmes matières que sur les photos.
-  const dessus = lumiere ? "#faf8f4" : "url(#bois-dessus)";
-  const chant = lumiere ? "#302b26" : "#bd9256";
-  const cote = lumiere ? "#211d19" : "#a67f47";
+  // Le bois est un chêne clair dont le chant est un ton en dessous ; la toile
+  // est blanche dans son cadre sombre : les mêmes matières que sur les photos.
+  const dessus = lumiere ? "url(#toile)" : "url(#bois-dessus)";
+  const chant = lumiere ? "#332d28" : "url(#bois-chant)";
+  const bout = lumiere ? "#241f1b" : "url(#bois-bout)";
 
-  const legende = locale === "en" ? "Dimensioned sketch: " : "Croquis coté : ";
-  const hauteurBox = pieds ? 232 : rond ? 132 : 150;
+  const legende =
+    locale === "en"
+      ? `Dimensioned sketch of the ${lumiere ? "housing" : "top"}: `
+      : `Croquis coté du ${lumiere ? "caisson" : "plateau"} : `;
+  const hauteurBox = rond ? 176 : 180;
+  const largeurBox = 460;
 
-  /* Le disque, pour les pièces rondes. */
-  const cx = 193;
-  const cy = 62;
-  const rx = 104;
-  const ry = 34;
-
-  const pastille = (cote: CoteSchema, cx: number, cy: number, label: string, ancre?: "start" | "middle" | "end") => (
-    <Pastille
-      n={n(cote)}
-      cote={cote}
-      cx={cx}
-      cy={cy}
-      actif={actif === cote}
-      label={label}
-      valeur={valeurs?.[cote]}
-      onChoisir={onChoisir}
-      ancre={ancre}
+  const cote = (
+    c: CoteSchema,
+    props: Omit<Parameters<typeof Cote>[0], "n" | "etat" | "label" | "valeur" | "onChoisir" | "onSurvol">
+  ) => (
+    <Cote
+      n={n(c)}
+      etat={etat(c)}
+      label={c === "principale" ? labels.principale : c === "secondaire" ? labels.secondaire ?? "" : labels.epaisseur}
+      valeur={valeurs?.[c]}
+      onChoisir={onChoisir ? () => onChoisir(c) : undefined}
+      onSurvol={(dedans) => setSurvol((s) => (dedans ? c : s === c ? null : s))}
+      {...props}
     />
   );
 
+  /** L'arête qui s'allume avec sa cote. */
+  const arete = (c: CoteSchema, d: string) =>
+    actif === c ? <path d={d} fill="none" stroke={ACCENT} strokeWidth={2} strokeLinecap="round" /> : null;
+
   return (
     <svg
-      viewBox={`0 0 400 ${hauteurBox}`}
-      role="img"
-      aria-label={`${legende}${ordre.map((c) => labels[c]).join(", ")}`}
-      className="mx-auto h-auto w-full max-w-[440px]"
+      viewBox={`0 0 ${largeurBox} ${hauteurBox}`}
+      role="group"
+      aria-label={`${legende}${ordre.map((c) => (c === "secondaire" ? labels.secondaire : labels[c])).join(", ")}`}
+      className="mx-auto h-auto w-full max-w-[520px] select-none"
+      fontFamily="inherit"
     >
       <defs>
-        <linearGradient id="bois-dessus" x1="0" y1="0" x2="1" y2="0.3">
-          <stop offset="0" stopColor="#e6c592" />
-          <stop offset="0.55" stopColor="#dcb782" />
-          <stop offset="1" stopColor="#e3bf8b" />
+        <linearGradient id="bois-dessus" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#efd9ac" />
+          <stop offset="0.5" stopColor="#e4c48f" />
+          <stop offset="1" stopColor="#d9b67e" />
         </linearGradient>
-        <pattern id="fil" width="26" height="6" patternUnits="userSpaceOnUse" patternTransform="skewX(-38)">
-          <path d="M0 3 H26" stroke="#a67f47" strokeWidth="0.6" opacity="0.25" />
-        </pattern>
+        <linearGradient id="bois-chant" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#c99f66" />
+          <stop offset="1" stopColor="#b98f58" />
+        </linearGradient>
+        <linearGradient id="bois-bout" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#b3894f" />
+          <stop offset="1" stopColor="#a27a45" />
+        </linearGradient>
+        <radialGradient id="toile" cx="0.5" cy="0.5" r="0.6">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="1" stopColor="#f1ede6" />
+        </radialGradient>
+        <filter id="ombre" x="-20%" y="-60%" width="140%" height="260%">
+          <feGaussianBlur stdDeviation="5" />
+        </filter>
+        {rond ? (
+          <clipPath id="face">
+            <ellipse cx={O[0]} cy={O[1]} rx={RX} ry={RY} />
+          </clipPath>
+        ) : (
+          <clipPath id="face">
+            <polygon points={`${p(A)} ${p(B)} ${p(C)} ${p(D)}`} />
+          </clipPath>
+        )}
       </defs>
 
       {rond ? (
         <>
-          {pieds && <Pieds gauche={cx - 62} droite={cx + 62} haut={cy + EP + 8} />}
+          {/* L'ombre portée, douce, qui pose le disque. */}
+          <ellipse cx={O[0] + 10} cy={O[1] + EP + 12} rx={RX} ry={RY * 0.85} fill={ENCRE} opacity={0.16} filter="url(#ombre)" />
+
+          {/* Le chant : la moitié avant du cylindre. */}
           <path
-            d={`M${cx - rx} ${cy} A${rx} ${ry} 0 0 0 ${cx + rx} ${cy} L${cx + rx} ${cy + EP} A${rx} ${ry} 0 0 1 ${cx - rx} ${cy + EP} Z`}
+            d={`M${O[0] - RX} ${O[1]} A${RX} ${RY} 0 0 0 ${O[0] + RX} ${O[1]} L${O[0] + RX} ${O[1] + EP} A${RX} ${RY} 0 0 1 ${O[0] - RX} ${O[1] + EP} Z`}
             fill={chant}
           />
-          <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill={dessus} />
-          {!lumiere && <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="url(#fil)" />}
-          <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="none" stroke={ENCRE} strokeWidth={0.9} opacity={0.32} />
+          <ellipse cx={O[0]} cy={O[1]} rx={RX} ry={RY} fill={dessus} />
+          {!lumiere && (
+            <g clipPath="url(#face)" fill="none" stroke="#a67f47" strokeWidth={0.8}>
+              {[-30, -20, -11, -3, 5, 13, 22, 31].map((dy, i) => (
+                <path key={i} d={veine(O[1] + dy, 1.6 + (i % 3) * 0.6, (i * 17) % 46)} opacity={0.16 + (i % 2) * 0.08} />
+              ))}
+            </g>
+          )}
+          <g fill="none" stroke={ENCRE} strokeWidth={1} opacity={0.42}>
+            <ellipse cx={O[0]} cy={O[1]} rx={RX} ry={RY} />
+            <path
+              d={`M${O[0] - RX} ${O[1]} L${O[0] - RX} ${O[1] + EP} A${RX} ${RY} 0 0 0 ${O[0] + RX} ${O[1] + EP} L${O[0] + RX} ${O[1]}`}
+            />
+          </g>
+          {arete("principale", `M${O[0] - RX} ${O[1]} A${RX} ${RY} 0 0 1 ${O[0] + RX} ${O[1]}`)}
+          {arete("epaisseur", `M${O[0] - RX} ${O[1]} L${O[0] - RX} ${O[1] + EP}`)}
 
           {/* ① Le diamètre, au-dessus. */}
-          <Fleche
-            de={[cx - rx, cy - 44]}
-            a={[cx + rx, cy - 44]}
-            actif={actif === "principale"}
-            attaches={[
-              [[cx - rx, cy - 2], [cx - rx, cy - 48]],
-              [[cx + rx, cy - 2], [cx + rx, cy - 48]],
-            ]}
-          />
-          {pastille("principale", cx, cy - 44, labels.principale)}
+          {cote("principale", {
+            de: [O[0] - RX, 30],
+            a: [O[0] + RX, 30],
+            attaches: [
+              [[O[0] - RX, O[1] - 3], [O[0] - RX, 24]],
+              [[O[0] + RX, O[1] - 3], [O[0] + RX, 24]],
+            ],
+            pastille: [O[0], 30],
+            valeurA: "droite",
+          })}
 
-          {/* L'épaisseur, à gauche du chant. */}
-          <Fleche
-            de={[cx - rx - 22, cy]}
-            a={[cx - rx - 22, cy + EP]}
-            actif={actif === "epaisseur"}
-            attaches={[
-              [[cx - rx, cy], [cx - rx - 26, cy]],
-              [[cx - rx, cy + EP], [cx - rx - 26, cy + EP]],
-            ]}
-          />
-          {pastille("epaisseur", cx - rx - 42, cy + EP / 2, labels.epaisseur, "end")}
-
-          {/* La hauteur finie, à droite : du sol au dessus du plateau. */}
-          {pieds && (
-            <>
-              <Fleche
-                de={[cx + rx + 26, SOL]}
-                a={[cx + rx + 26, cy]}
-                actif={actif === "hauteur"}
-                attaches={[
-                  [[cx + rx, cy], [cx + rx + 30, cy]],
-                  [[cx + 70, SOL], [cx + rx + 30, SOL]],
-                ]}
-              />
-              {pastille("hauteur", cx + rx + 46, (cy + SOL) / 2, labels.hauteur ?? "", "start")}
-            </>
-          )}
+          {/* ② L'épaisseur, à gauche du chant. */}
+          {cote("epaisseur", {
+            de: [O[0] - RX - 30, O[1]],
+            a: [O[0] - RX - 30, O[1] + EP],
+            attaches: [
+              [[O[0] - RX - 3, O[1]], [O[0] - RX - 36, O[1]]],
+              [[O[0] - RX - 3, O[1] + EP], [O[0] - RX - 36, O[1] + EP]],
+            ],
+            pastille: [O[0] - RX - 52, O[1] + EP / 2],
+            valeurA: "dessous",
+            exterieur: true,
+          })}
         </>
       ) : (
         <>
-          {pieds && <Pieds gauche={D[0] + 22} droite={C[0] - 22} haut={D[1] + EP} />}
-          {/* Le pavé : chant avant, petit côté, puis la face du dessus. */}
-          <polygon points={`${D[0]},${D[1]} ${C[0]},${C[1]} ${C[0]},${C[1] + EP} ${D[0]},${D[1] + EP}`} fill={chant} />
-          <polygon points={`${B[0]},${B[1]} ${C[0]},${C[1]} ${C[0]},${C[1] + EP} ${B[0]},${B[1] + EP}`} fill={cote} />
-          <polygon points={`${A[0]},${A[1]} ${B[0]},${B[1]} ${C[0]},${C[1]} ${D[0]},${D[1]}`} fill={dessus} />
-          {!lumiere && <polygon points={`${A[0]},${A[1]} ${B[0]},${B[1]} ${C[0]},${C[1]} ${D[0]},${D[1]}`} fill="url(#fil)" />}
-          <g fill="none" stroke={ENCRE} strokeWidth={0.9} opacity={0.32}>
-            <polygon points={`${A[0]},${A[1]} ${B[0]},${B[1]} ${C[0]},${C[1]} ${D[0]},${D[1]}`} />
-            <path d={`M${D[0]} ${D[1]} L${D[0]} ${D[1] + EP} L${C[0]} ${C[1] + EP} L${C[0]} ${C[1]} M${C[0]} ${C[1] + EP} L${B[0]} ${B[1] + EP} L${B[0]} ${B[1]}`} />
-          </g>
-
-          {/* ① La grande cote, le long du bord arrière, au-dessus. */}
-          <Fleche
-            de={[A[0], A[1] - 22]}
-            a={[B[0], B[1] - 22]}
-            actif={actif === "principale"}
-            attaches={[
-              [[A[0], A[1] - 2], [A[0], A[1] - 26]],
-              [[B[0], B[1] - 2], [B[0], B[1] - 26]],
-            ]}
+          {/* L'ombre portée, douce, qui pose le plateau. */}
+          <polygon
+            points={`${p([A[0] + 14, A[1] + EP + 12])} ${p([B[0] + 14, B[1] + EP + 12])} ${p([C[0] + 14, C[1] + EP + 12])} ${p([D[0] + 14, D[1] + EP + 12])}`}
+            fill={ENCRE}
+            opacity={0.16}
+            filter="url(#ombre)"
           />
-          {pastille("principale", (A[0] + B[0]) / 2, A[1] - 22, labels.principale)}
 
-          {/* ② La seconde cote, dans la profondeur, le long du petit côté. */}
-          <Fleche
-            de={[C[0] + 20, C[1] - 6]}
-            a={[B[0] + 20, B[1] - 6]}
-            actif={actif === "secondaire"}
-            attaches={[
-              [[C[0] + 2, C[1] - 1], [C[0] + 24, C[1] - 7]],
-              [[B[0] + 2, B[1] - 1], [B[0] + 24, B[1] - 7]],
-            ]}
-          />
-          {pastille("secondaire", (C[0] + B[0]) / 2 + 38, (C[1] + B[1]) / 2 - 6, labels.secondaire ?? "", "start")}
-
-          {/* ③ L'épaisseur, à gauche du chant. */}
-          <Fleche
-            de={[D[0] - 20, D[1]]}
-            a={[D[0] - 20, D[1] + EP]}
-            actif={actif === "epaisseur"}
-            attaches={[
-              [[D[0], D[1]], [D[0] - 24, D[1]]],
-              [[D[0], D[1] + EP], [D[0] - 24, D[1] + EP]],
-            ]}
-          />
-          {pastille("epaisseur", D[0] - 40, D[1] + EP / 2, labels.epaisseur, "end")}
-
-          {/* ④ La hauteur finie, à droite : du sol au dessus du plateau. */}
-          {pieds && (
+          {/* Le pavé : chant avant, bout droit, puis la face du dessus. */}
+          <polygon points={`${p(D)} ${p(C)} ${p(bas(C))} ${p(bas(D))}`} fill={chant} />
+          <polygon points={`${p(C)} ${p(B)} ${p(bas(B))} ${p(bas(C))}`} fill={bout} />
+          <polygon points={`${p(A)} ${p(B)} ${p(C)} ${p(D)}`} fill={dessus} />
+          {!lumiere && (
             <>
-              <Fleche
-                de={[C[0] + 44, SOL]}
-                a={[C[0] + 44, C[1]]}
-                actif={actif === "hauteur"}
-                attaches={[
-                  [[C[0] + 2, C[1] + 1], [C[0] + 48, C[1] + 1]],
-                  [[C[0] - 14, SOL], [C[0] + 48, SOL]],
-                ]}
-              />
-              {pastille("hauteur", C[0] + 64, (C[1] + SOL) / 2, labels.hauteur ?? "", "start")}
+              <g clipPath="url(#face)" fill="none" stroke="#a67f47" strokeWidth={0.8}>
+                {[-50, -42, -35, -27, -20, -13, -6].map((dy, i) => (
+                  <path key={i} d={veine(D[1] + dy, 1.4 + (i % 3) * 0.7, (i * 19) % 46)} opacity={0.14 + (i % 2) * 0.1} />
+                ))}
+              </g>
+              {/* Le fil sur le chant, dans le sens de la longueur. */}
+              <g fill="none" stroke="#8f6a38" strokeWidth={0.7} opacity={0.22}>
+                {[4.5, 9, 13].map((dy) => (
+                  <line key={dy} x1={D[0]} y1={D[1] + dy} x2={C[0]} y2={C[1] + dy} />
+                ))}
+              </g>
             </>
           )}
+          {lumiere && (
+            /* Le cadre thermolaqué, en fine bande autour de la toile. */
+            <polygon points={`${p(A)} ${p(B)} ${p(C)} ${p(D)}`} fill="none" stroke="#332d28" strokeWidth={3} clipPath="url(#face)" />
+          )}
+          <g fill="none" stroke={ENCRE} strokeWidth={1} opacity={0.42} strokeLinejoin="round">
+            <polygon points={`${p(A)} ${p(B)} ${p(C)} ${p(D)}`} />
+            <path d={`M${p(D)} L${p(bas(D))} L${p(bas(C))} L${p(C)} M${p(bas(C))} L${p(bas(B))} L${p(B)}`} />
+          </g>
+          {arete("principale", `M${p(D)} L${p(C)}`)}
+          {arete("secondaire", `M${p(C)} L${p(B)}`)}
+          {arete("epaisseur", `M${p(D)} L${p(bas(D))}`)}
+
+          {/* ① La grande cote, sous le chant avant. */}
+          {cote("principale", {
+            de: [D[0], D[1] + EP + 30],
+            a: [C[0], C[1] + EP + 30],
+            attaches: [
+              [[D[0], D[1] + EP + 4], [D[0], D[1] + EP + 36]],
+              [[C[0], C[1] + EP + 4], [C[0], C[1] + EP + 36]],
+            ],
+            pastille: [(D[0] + C[0]) / 2, D[1] + EP + 30],
+            valeurA: "droite",
+          })}
+
+          {/* ② La seconde cote, dans la profondeur, le long du bout droit. */}
+          {cote("secondaire", {
+            de: [C[0] + 34, C[1]],
+            a: [B[0] + 34, B[1]],
+            attaches: [
+              [[C[0] + 4, C[1]], [C[0] + 40, C[1]]],
+              [[B[0] + 4, B[1]], [B[0] + 40, B[1]]],
+            ],
+            pastille: [(C[0] + B[0]) / 2 + 34, (C[1] + B[1]) / 2],
+            valeurA: "dessous",
+          })}
+
+          {/* ③ L'épaisseur, au coin avant gauche. */}
+          {cote("epaisseur", {
+            de: [D[0] - 30, D[1]],
+            a: [D[0] - 30, D[1] + EP],
+            attaches: [
+              [[D[0] - 4, D[1]], [D[0] - 36, D[1]]],
+              [[D[0] - 4, D[1] + EP], [D[0] - 36, D[1] + EP]],
+            ],
+            pastille: [D[0] - 52, D[1] + EP / 2],
+            valeurA: "dessous",
+            exterieur: true,
+          })}
         </>
       )}
     </svg>

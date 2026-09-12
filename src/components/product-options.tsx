@@ -182,9 +182,10 @@ function Cote({
         )}
         {label}
       </span>
-      {/* Le contour de focus est porté par le cadre : l'intérieur du champ
-          reste net, mais on voit où l'on est au clavier. */}
-      <span className="flex items-center gap-1 rounded-xl border border-[#e5ddd3] bg-white px-3 py-2.5 focus-within:border-[#6d2c2c] focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#6d2c2c]">
+      {/* Le focus est porté par le cadre seul — bordure bordeaux et halo léger.
+          Le filet de sécurité global (input:focus-visible) est coupé sur la case,
+          sinon on avait trois contours emboîtés. */}
+      <span className="flex items-center gap-1 rounded-xl border border-[#e5ddd3] bg-white px-3 py-2.5 transition-[border-color,box-shadow] focus-within:border-[#6d2c2c] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
         <input
           id={id}
           inputMode="decimal"
@@ -195,7 +196,7 @@ function Cote({
           placeholder={placeholder}
           aria-describedby={erreurId}
           aria-invalid={erreurId ? true : undefined}
-          className="w-full min-w-0 bg-transparent text-base tabular-nums text-[#2a2116] outline-none sm:text-sm"
+          className="w-full min-w-0 bg-transparent text-base tabular-nums text-[#2a2116] outline-none focus-visible:shadow-none focus-visible:outline-none sm:text-sm"
         />
         <span className="text-xs text-[#6f6357]">{unite}</span>
       </span>
@@ -240,7 +241,10 @@ export function ProductOptions({
   /** Tout est converti en millimètres : l'unité n'est qu'une aide à la saisie. */
   // Une table se donne en centimètres, un caisson lumineux en millimètres ;
   // l'unité reste au choix du client.
-  const [unite, setUnite] = useState<"mm" | "cm" | "m">(product.surMesure?.axes === "plan" ? "cm" : "mm");
+  // Une table se saisit en centimètres, comme on la mesure ; le reste en millimètres, l'unité de l'atelier.
+  const [unite, setUnite] = useState<"mm" | "cm" | "m">(
+    product.surMesure?.axes === "plan" && product.category !== "lumiere" ? "cm" : "mm"
+  );
   const [largeurSaisie, setLargeurSaisie] = useState("");
   const [hauteurSaisie, setHauteurSaisie] = useState("");
   /** La hauteur finie d'une table, du sol au dessus du plateau : 75 cm si on ne dit rien. */
@@ -305,6 +309,8 @@ export function ProductOptions({
   const rond = bareme?.forme === "rond";
   /** Un meuble se mesure en longueur × largeur, un panneau en largeur × hauteur. */
   const plan = bareme?.axes === "plan";
+  /** Une table : un plateau de bois, avec sa hauteur finie. Un plafond lumineux se mesure à plat aussi, mais n'en est pas une. */
+  const table = plan && product.category !== "lumiere";
   /** Une table se mesure en longueur × largeur, un panneau en largeur × hauteur. */
   const labelPrincipale = rond ? t.customDiameter : plan ? t.customLength : t.customWidth;
   const labelSecondaire = plan ? t.customWidth : t.customHeight;
@@ -642,7 +648,7 @@ export function ProductOptions({
           product.releve === "garde-corps-fenetre"
             ? noteGardeCorps(cotesGardeCorps, t) || undefined
             : // Une table à vos cotes : sa hauteur finie part avec, quand elle n'est pas celle d'usage.
-              plan && sizeIdEff === SUR_MESURE && Number.isFinite(hauteurTableMm) && hauteurTableMm !== HAUTEUR_TABLE_MM
+              table && sizeIdEff === SUR_MESURE && Number.isFinite(hauteurTableMm) && hauteurTableMm !== HAUTEUR_TABLE_MM
               ? t.customTableHeightNote.replace("{h}", (hauteurTableMm / 10).toLocaleString(locale === "en" ? "en-GB" : "fr-FR"))
               : undefined,
         woodId: woodId || undefined,
@@ -773,7 +779,7 @@ export function ProductOptions({
             <div className="@container mt-3 overflow-hidden rounded-2xl border border-[#e0d5c7] bg-[#fbfaf8]">
               <div className="px-4 pb-4 pt-3.5 md:px-5 md:pt-4">
                 <p className="text-xs leading-relaxed text-[#6f6357]">
-                  {plan ? t.customHelpPlan : t.customHelp}
+                  {table ? t.customHelpPlan : t.customHelp}
                 </p>
 
                 {/* Croquis à gauche, cases à droite : deux colonnes dès qu'il y a
@@ -783,20 +789,18 @@ export function ProductOptions({
                   <SchemaCotes
                     forme={bareme.forme}
                     locale={locale}
-                    matiere={plan ? "bois" : "lumiere"}
+                    matiere={table ? "bois" : "lumiere"}
                     actif={coteActive}
                     onChoisir={allerA}
                     labels={{
                       principale: labelPrincipale,
                       secondaire: labelSecondaire,
                       epaisseur: t.customThickness,
-                      hauteur: plan ? t.customTableHeight : undefined,
                     }}
                     valeurs={{
                       principale: largeurSaisie && Number.isFinite(largeurMm) ? enUnite(largeurMm) : undefined,
                       secondaire: !rond && hauteurSaisie && Number.isFinite(hauteurMm) ? enUnite(hauteurMm) : undefined,
                       epaisseur: Number.isFinite(epaisseurMm) ? enUnite(epaisseurMm, "mm") : undefined,
-                      hauteur: plan && Number.isFinite(hauteurTableMm) ? enUnite(hauteurTableMm) : undefined,
                     }}
                   />
                 </div>
@@ -881,10 +885,10 @@ export function ProductOptions({
                           : undefined
                     }
                   />
-                  {/* La hauteur finie d'une table : 75 cm sauf demande, sans effet sur le prix. */}
-                  {plan && (
+                  {/* La hauteur finie d'une table : 75 cm sauf demande, sans effet
+                      sur le prix. Pas de numéro : le croquis ne montre que le plateau. */}
+                  {table && (
                     <Cote
-                      n={rond ? 3 : 4}
                       id={`${idTailles}-hauteur`}
                       label={t.customTableHeight}
                       valeur={hauteurTableSaisie}
@@ -898,9 +902,10 @@ export function ProductOptions({
                   )}
                 </div>
 
-                <p className="mt-3 text-[11px] leading-relaxed text-[#6f6357]">
-                  {plan ? t.customThicknessNote : t.customThicknessNoteLight}
-                </p>
+                {/* Pour une lumière seulement : la table n'a pas besoin de mot sur le prix ici. */}
+                {!table && (
+                  <p className="mt-3 text-[11px] leading-relaxed text-[#6f6357]">{t.customThicknessNoteLight}</p>
+                )}
                 </div>
                 </div>
               </div>
