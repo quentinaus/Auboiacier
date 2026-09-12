@@ -7,16 +7,18 @@ import { useEffect, useRef } from "react";
  *  Copie-colle les valeurs depuis leur éditeur, elles s'appliquent ici.
  * ------------------------------------------------------------------ */
 export const SHADER_CONFIG = {
-  color1: "#ff4aba",
-  color2: "#db9f88",
-  color3: "#6e72e1",
+  // Teintes d'une vraie toile allumée : un blanc chaud qui glisse vers un
+  // blanc froid, sans virer au rose ni au violet.
+  color1: "#ffab4d",
+  color2: "#fff0d2",
+  color3: "#7fa8ff",
 
-  uSpeed: 0.6,
+  uSpeed: 0.35,
   uDensity: 1.3,
   uStrength: 4,
 
-  brightness: 1.3,
-  grain: "on" as "on" | "off",
+  brightness: 1,
+  grain: "off" as "on" | "off",
 
   cDistance: 3.6,
   cameraZoom: 1,
@@ -216,18 +218,41 @@ function compile(gl: WebGLRenderingContext, type: number, src: string) {
   return shader;
 }
 
+/**
+ * Ce que l'on affiche quand WebGL n'est pas disponible (vieux téléphone,
+ * accélération désactivée, contexte perdu) : un dégradé fixe aux mêmes
+ * couleurs. Il est posé sous le canvas, qui le recouvre dès qu'il dessine.
+ * Sans lui la toile restait noire et le produit avait l'air en panne.
+ */
+const DEGRADE_FIXE = `linear-gradient(135deg, ${SHADER_CONFIG.color1} 0%, ${SHADER_CONFIG.color2} 48%, ${SHADER_CONFIG.color3} 100%)`;
+
+/** Nombre d'images par seconde : inutile de chauffer le téléphone à 60. */
+const IMAGES_PAR_SECONDE = 30;
+
+/**
+ * Plafond de pixels calculés par toile.
+ * Ce dégradé n'a aucun détail fin : de grands aplats doux. Le calculer à la
+ * définition de l'écran ne se voit pas, mais se paie — surtout quand la toile
+ * déborde très largement de sa découpe, comme dans les membranes de plafond
+ * lumineux, où elle faisait plus de vingt fois la surface montrée.
+ */
+const PIXELS_MAX = 720_000;
+
 export function HeroShaderBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const conteneurRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const conteneur = conteneurRef.current;
+    if (!canvas || !conteneur) return;
 
     const gl = canvas.getContext("webgl", {
       antialias: false,
       alpha: false,
       powerPreference: "low-power",
     });
+    // Pas de WebGL : on laisse voir le dégradé fixe posé dessous.
     if (!gl) return;
 
     const vs = compile(gl, gl.VERTEX_SHADER, VERT);
@@ -277,70 +302,161 @@ export function HeroShaderBackground() {
     gl.uniform1f(loc("uRotZ"), (c.rotationZ * Math.PI) / 180);
     gl.uniform1f(loc("uRotY"), (c.rotationY * Math.PI) / 180);
 
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
+    /* --- Quand faut-il dessiner ? ---------------------------------- *
+     * Cinq de ces dégradés vivent sur la même page. Chacun ne travaille
+     * que s'il est réellement à l'écran, dans un onglet au premier plan,
+     * et si le visiteur n'a pas demandé « moins d'animations ».        */
+    const reglageAnimations = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let animationsReduites = reglageAnimations.matches;
+    let aLEcran = false;
+    let ongletVisible = !document.hidden;
 
     let width = 0;
     let height = 0;
 
     function resize() {
-      if (!canvas || !gl) return;
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      if (!canvas || !gl) return false;
+      let dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       const rect = canvas.getBoundingClientRect();
+      // On garde la même image, calculée sur moins de pixels quand la toile est
+      // grande : l'œil ne fait pas la différence sur un dégradé, la carte
+      // graphique si.
+      const pixels = rect.width * rect.height * dpr * dpr;
+      if (pixels > PIXELS_MAX) dpr *= Math.sqrt(PIXELS_MAX / pixels);
       const w = Math.max(1, Math.round(rect.width * dpr));
       const h = Math.max(1, Math.round(rect.height * dpr));
-      if (w === width && h === height) return;
+      if (w === width && h === height) return false;
       width = w;
       height = h;
       canvas.width = w;
       canvas.height = h;
       gl.viewport(0, 0, w, h);
       gl.uniform2f(uResolution, w, h);
+      return true;
     }
 
     let raf = 0;
+    let dernierRendu = 0;
     const start = performance.now();
+    /** Temps de la dernière image : la reprise repart d'où l'on s'était arrêté. */
+    let tempsAnime = 0;
+
+    function dessiner(secondes: number) {
+      if (!gl) return;
+      // Surtout pas de resize() ici : il lit getBoundingClientRect(), ce qui
+      // force le navigateur à recalculer toute la mise en page. À 30 images par
+      // seconde et cinq toiles sur la page des plafonds, cela faisait
+      // 150 recalculs complets par seconde pendant le défilement. Un
+      // ResizeObserver s'en charge, uniquement quand la taille change vraiment.
+      gl.uniform1f(uTime, secondes * c.uSpeed);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
 
     function frame(now: number) {
-      if (!gl) return;
-      resize();
-      const seconds = (now - start) / 1000;
-      gl.uniform1f(uTime, reduceMotion ? 0 : seconds * c.uSpeed);
-      gl.drawArrays(gl.TRIANGLES, 0, 3);
       raf = requestAnimationFrame(frame);
+      // On plafonne à 30 images par seconde : l'œil n'y voit rien, la
+      // batterie et le processeur graphique, si.
+      if (now - dernierRendu < 1000 / IMAGES_PAR_SECONDE) return;
+      dernierRendu = now;
+      tempsAnime = (now - start) / 1000;
+      dessiner(tempsAnime);
+    }
+
+    /** Démarre ou arrête la boucle selon l'état du moment. */
+    function reglerLaBoucle() {
+      const doitTourner = aLEcran && ongletVisible && !animationsReduites;
+      if (doitTourner) {
+        if (!raf) raf = requestAnimationFrame(frame);
+        return;
+      }
+      if (raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      }
+      // Arrêté mais visible : on laisse une belle image fixe, pas du noir.
+      if (aLEcran) dessiner(animationsReduites ? 0 : tempsAnime);
+    }
+
+    const observateur = new IntersectionObserver(
+      (entrees) => {
+        aLEcran = entrees.some((e) => e.isIntersecting);
+        reglerLaBoucle();
+      },
+      // On repart un peu avant que la toile n'entre à l'écran.
+      { rootMargin: "120px" }
+    );
+    observateur.observe(conteneur);
+
+    function onVisibilite() {
+      ongletVisible = !document.hidden;
+      reglerLaBoucle();
+    }
+    function onReglageAnimations(e: MediaQueryListEvent) {
+      animationsReduites = e.matches;
+      reglerLaBoucle();
+    }
+    function onResize() {
+      // Redessiner une fois même à l'arrêt : sinon la toile reste étirée.
+      if (resize() && !raf && aLEcran) dessiner(animationsReduites ? 0 : tempsAnime);
     }
 
     function onLost(e: Event) {
       e.preventDefault();
-      cancelAnimationFrame(raf);
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
     }
     function onRestored() {
       width = 0;
       height = 0;
-      raf = requestAnimationFrame(frame);
+      reglerLaBoucle();
     }
+
+    const observateurTaille = new ResizeObserver(() => {
+      if (resize() && !raf) dessiner(tempsAnime);
+    });
+    observateurTaille.observe(canvas);
 
     canvas.addEventListener("webglcontextlost", onLost);
     canvas.addEventListener("webglcontextrestored", onRestored);
-    window.addEventListener("resize", resize);
+    window.addEventListener("resize", onResize);
+    document.addEventListener("visibilitychange", onVisibilite);
+    reglageAnimations.addEventListener("change", onReglageAnimations);
 
     resize();
-    raf = requestAnimationFrame(frame);
+    // Première image tout de suite : la toile est éclairée dès l'affichage.
+    dessiner(0);
+    reglerLaBoucle();
 
-    // Ne jamais détruire le contexte ici : un canvas n'en fournit qu'un seul,
-    // et React remonte les composants en développement — l'écran resterait noir.
+    // En production, on rend le contexte 3D au navigateur : il n'en accepte
+    // qu'une quinzaine par onglet, et la page des plafonds en ouvre cinq. Sans
+    // cela, un visiteur qui va et vient entre les pages finissait par en
+    // accumuler assez pour que le navigateur tue les plus anciens — écran noir
+    // sur des toiles encore à l'écran. En développement on n'y touche pas :
+    // React remonte les composants, et un canvas ne redonne jamais un contexte
+    // neuf une fois le sien perdu.
     return () => {
-      cancelAnimationFrame(raf);
+      if (raf) cancelAnimationFrame(raf);
+      observateurTaille.disconnect();
+      observateur.disconnect();
       canvas.removeEventListener("webglcontextlost", onLost);
       canvas.removeEventListener("webglcontextrestored", onRestored);
-      window.removeEventListener("resize", resize);
+      window.removeEventListener("resize", onResize);
+      document.removeEventListener("visibilitychange", onVisibilite);
+      reglageAnimations.removeEventListener("change", onReglageAnimations);
+      if (process.env.NODE_ENV === "production") {
+        gl.getExtension("WEBGL_lose_context")?.loseContext();
+      }
     };
   }, []);
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-      <canvas ref={canvasRef} className="h-full w-full" />
+    <div
+      ref={conteneurRef}
+      className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+    >
+      {/* Le filet de sécurité : visible tant que le canvas n'a rien dessiné. */}
+      <div aria-hidden className="absolute inset-0" style={{ backgroundImage: DEGRADE_FIXE }} />
+      <canvas ref={canvasRef} className="relative h-full w-full" />
     </div>
   );
 }

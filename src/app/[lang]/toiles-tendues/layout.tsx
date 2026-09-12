@@ -1,6 +1,6 @@
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
-import { TTHeader } from "@/components/tt-header";
+import { LumiereHeader } from "@/components/lumiere-header";
 import { SiteFooter } from "@/components/site-footer";
 
 export default async function ToilesTenduesLayout({
@@ -12,10 +12,12 @@ export default async function ToilesTenduesLayout({
   const dict = await getDictionary(locale);
 
   return (
-    <div className="min-h-screen bg-[#0b0a09] text-white">
-      <TTHeader locale={locale} dict={dict} />
+    <div className="min-h-screen bg-[#fbf9f6] text-[#2b2320]">
+      <LumiereHeader locale={locale} dict={dict} />
+      <main id="contenu">
       {children}
-      <SiteFooter locale={locale} dict={dict} tone="dark" />
+      </main>
+      <SiteFooter locale={locale} dict={dict} tone="light" />
     </div>
   );
 }

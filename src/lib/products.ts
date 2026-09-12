@@ -1,4 +1,14 @@
-export type ProductSize = { id: string; label: string; price: number };
+import type { Locale } from "@/lib/i18n";
+
+export type ProductSize = {
+  id: string;
+  label: string;
+  price: number;
+  /** Cotes en millimètres. Une commande sur mesure à ces cotes reprend ce prix. */
+  dimsMm?: [number, number];
+  /** Dimension proposée d'entrée sur la fiche produit. */
+  default?: boolean;
+};
 
 export type ProductSwatch = {
   id: string;
@@ -9,23 +19,197 @@ export type ProductSwatch = {
   grain?: string;
   /** Écart de prix par rapport à l'essence de référence, en euros. */
   priceDelta?: number;
+  /** Même libellé en anglais, servi par `productLocalise`. */
+  labelEn?: string;
+  /** Photo du produit dans ce coloris, affichée quand on le sélectionne. */
+  image?: string;
 };
-export type ProductSection = { title: string; body: string };
+export type ProductSection = {
+  title: string;
+  body: string;
+  /** Photo imposée pour ce bloc ; sinon on pioche dans la galerie. */
+  image?: string;
+};
+
+/**
+ * Épaisseur minimale d'un plateau en bois massif selon sa portée.
+ * Les paliers sont lus dans l'ordre : le premier dont `jusquaMm` couvre la
+ * longueur donne l'épaisseur mini. Le dernier sert au-delà.
+ */
+export type PalierEpaisseur = { jusquaMm: number; miniMm: number };
+
+/**
+ * Fabrication à la dimension exacte du client.
+ * Tout est en millimètres : c'est l'unité de l'atelier, et celle qui évite les
+ * malentendus (un « 2,4 » peut être 2,4 m ou 24 cm ; 2400 mm, non).
+ */
+export type SurMesure = {
+  forme: "rect" | "rond";
+  /** « plan » : un meuble (longueur × largeur). « panneau » : une surface murale. */
+  axes?: "plan" | "panneau";
+  /** Part fixe : cadre, toile, alimentation, montage. */
+  forfait: number;
+  /** Prix du mètre carré de surface lumineuse. */
+  parM2: number;
+  minMm: number;
+  maxLargeurMm: number;
+  maxHauteurMm: number;
+  /**
+   * Cotes de la pièce « à partir de », pour une pièce qui n'a aucune taille au
+   * catalogue : c'est le prix de ces cotes-là que la boutique annonce.
+   */
+  departMm?: [number, number];
+  /** Épaisseur : le plateau d'une table, la profondeur du caisson d'une lumière. */
+  epaisseur: {
+    minMm: number;
+    maxMm: number;
+    /** Épaisseur de référence, celle des tailles du catalogue. */
+    refMm: number;
+    /** Table : chaque millimètre de plateau EN PLUS change le prix du m². */
+    parM2ParMm?: number;
+    /** Lumière : seule la bande d'aluminium du pourtour s'allonge. */
+    parM2Bande?: number;
+    /** Bois massif : épaisseur minimale imposée par la longueur de la pièce. */
+    miniParLongueur?: PalierEpaisseur[];
+  };
+};
 export type ProductSpec = { label: string; value: string };
+
+/**
+ * La famille d'une pièce : c'est la section où on la trouve dans la boutique
+ * (« Tables d'intérieur », « Garde-corps »…), une par métier. Les modèles
+ * d'une même famille se retrouvent côte à côte, et une pièce peut renvoyer
+ * vers « les autres modèles » de sa famille.
+ */
+export type Famille =
+  | "table-interieur"
+  | "table-exterieur"
+  | "chaise"
+  | "chaise-exterieur"
+  | "console"
+  | "escalier"
+  | "garde-corps"
+  | "plafond";
+
+/**
+ * Le remplissage d'un garde-corps : ce qu'il y a entre le cadre et la main
+ * courante. Les croix sont celles du modèle ; le verre feuilleté remplace les
+ * croix quand la hauteur demandée laisserait des vides hors norme.
+ */
+export type Remplissage = {
+  id: string;
+  label: string;
+  labelEn?: string;
+  /** Supplément : un forfait, plus un prix au m² de garde-corps. */
+  forfait: number;
+  parM2: number;
+  /**
+   * Au-delà de cette hauteur de garde-corps, les vides de ce remplissage ne
+   * respectent plus la norme (NF P01-012 : une sphère de 110 mm ne doit pas
+   * passer). Sans borne, le remplissage est plein : toujours conforme.
+   */
+  hauteurMaxConformeMm?: number;
+};
 
 export type Product = {
   slug: string;
   name: string;
   tagline: string;
-  images: { src: string; alt: string }[];
+  famille: Famille;
+  /**
+   * Cette pièce se relève avant d'être chiffrée : la fiche affiche alors le
+   * bloc de cotes correspondant. « escalier » demande la hauteur à monter, le
+   * recul, la trémie, et calcule les marches. « garde-corps-fenetre » demande
+   * la largeur entre tableaux et la hauteur d'allège, et déduit la hauteur que
+   * la règle impose — de quoi fabriquer au millimètre sans se déplacer.
+   */
+  releve?: "escalier" | "garde-corps-fenetre";
+  /**
+   * L'atelier peut venir prendre les cotes à la place du client. Le client
+   * donne son code postal ; le déplacement est offert près de Saumur, forfait
+   * au-delà (voir src/lib/deplacement.ts).
+   */
+  priseDeCotes?: boolean;
+  /**
+   * Prix de lot : à partir de `desPieces` exemplaires dans la même commande —
+   * toutes cotes confondues, une fenêtre après l'autre — chaque exemplaire
+   * est remisé de `taux`. Appliqué par le serveur (voir remiseLot).
+   */
+  remiseLot?: { desPieces: number; taux: number };
+  /**
+   * Deux ou trois mots de métier pour le titre affiché par Google.
+   * Le nom d'un modèle — « Brindille », « Halo » — n'est tapé par personne :
+   * ce sont « table acier chêne » et « plafond lumineux » que l'on cherche.
+   */
+  seoMots?: string;
+  /** "cart" : achetable en ligne. "quote" : uniquement sur devis (relevé de cotes, pose…). */
+  orderMode: "cart" | "quote";
+  /** Univers séparés : rien ne doit passer de l'un à l'autre. */
+  category: "interieur" | "exterieur" | "lumiere";
+  /** `bg` : couleur de fond de la photo, relevée sur ses bords. Le cadre de la
+   *  galerie s'y accorde pour qu'on ne voie pas le contour du rectangle. */
+  images: {
+    src: string;
+    alt: string;
+    bg?: string;
+    fit?: "cover" | "contain";
+    /** Même prise de vue dans une autre teinte de pieds, par identifiant d'acier. */
+    variants?: Record<string, string>;
+    /** Teinte de pieds montrée par cette vignette : la cliquer la sélectionne. */
+    metal?: string;
+    /** Coloris de velours montré par cette vignette : la cliquer le sélectionne. */
+    fabric?: string;
+    /** Membrane à éclairer : le dégradé animé s'anime dans ce contour. */
+    glow?: {
+      box: { left: string; top: string; width: string; height: string };
+      clip: string;
+    };
+  }[];
   sizes: ProductSize[];
   woods: ProductSwatch[];
   metals: ProductSwatch[];
+  /** Coloris de velours, pour les assises garnies. */
+  fabrics?: ProductSwatch[];
+  /** Les remplissages possibles d'un garde-corps, le premier étant celui du modèle. */
+  remplissages?: Remplissage[];
+  /** Remplace « Coloris du velours » quand `fabrics` sert à autre chose (les rosaces d'un garde-corps). */
+  fabricLabel?: { fr: string; en: string };
   /** Remplace « Couleur des pieds » quand la pièce n'a pas de pieds. */
   metalLabel?: { fr: string; en: string };
+  /**
+   * Intitulé du choix de taille, quand « Sur mesure, à vos cotes » ne veut rien
+   * dire — sur l'escalier, ce menu choisit la FORME, pas les dimensions.
+   */
+  sizeLabel?: { fr: string; en: string };
   sections: ProductSection[];
   specs: ProductSpec[];
   testimonial?: { quote: string; author: string };
+  /** Photos réservées aux blocs descriptifs, absentes de la galerie. */
+  photosDescriptif?: { src: string; alt: string }[];
+  /** Barème de la fabrication aux cotes exactes du client. */
+  surMesure?: SurMesure;
+  /** Traduction anglaise. Le français reste la version d'origine. */
+  en?: ProductEn;
+};
+
+/**
+ * Tout ce qui se lit sur une fiche produit, en anglais.
+ * Les listes suivent l'ordre du produit français ; les tailles sont repérées
+ * par leur identifiant, qui ne change pas d'une langue à l'autre.
+ */
+export type ProductEn = {
+  name?: string;
+  tagline?: string;
+  /** Les deux ou trois mots de métier du titre, en anglais. */
+  seoMots?: string;
+  /** Description (alt) de chaque photo, dans l'ordre de `images`. */
+  images?: string[];
+  /** Libellé de chaque taille, par identifiant. */
+  sizes?: Record<string, string>;
+  sections?: { title: string; body: string }[];
+  specs?: ProductSpec[];
+  /** Description (alt) des photos réservées aux blocs descriptifs. */
+  photosDescriptif?: string[];
 };
 
 /* ------------------------------------------------------------------ *
@@ -37,9 +221,13 @@ export type Product = {
  * ------------------------------------------------------------------ */
 type WoodId = "pin" | "hetre" | "chene" | "noyer";
 
-const WOOD_GRAIN: Record<WoodId, { label: string; swatch: string; grain: string }> = {
+const WOOD_GRAIN: Record<
+  WoodId,
+  { label: string; labelEn: string; swatch: string; grain: string }
+> = {
   pin: {
     label: "Pin massif",
+    labelEn: "Solid pine",
     swatch: "#e0bd85",
     grain: `repeating-linear-gradient(96deg, rgba(120,80,35,0.16) 0 1px, transparent 1px 6px),
             repeating-linear-gradient(94deg, rgba(120,80,35,0.09) 0 2px, transparent 2px 11px),
@@ -48,6 +236,7 @@ const WOOD_GRAIN: Record<WoodId, { label: string; swatch: string; grain: string 
   },
   hetre: {
     label: "Hêtre massif",
+    labelEn: "Solid beech",
     swatch: "#dcc0a0",
     grain: `repeating-linear-gradient(93deg, rgba(120,82,52,0.13) 0 1px, transparent 1px 4px),
             repeating-linear-gradient(93deg, rgba(120,82,52,0.07) 0 1px, transparent 1px 9px),
@@ -55,6 +244,7 @@ const WOOD_GRAIN: Record<WoodId, { label: string; swatch: string; grain: string 
   },
   chene: {
     label: "Chêne massif",
+    labelEn: "Solid oak",
     swatch: "#c19a5e",
     grain: `repeating-linear-gradient(95deg, rgba(92,58,26,0.20) 0 1px, transparent 1px 7px),
             repeating-linear-gradient(95deg, rgba(92,58,26,0.11) 0 2px, transparent 2px 15px),
@@ -63,6 +253,7 @@ const WOOD_GRAIN: Record<WoodId, { label: string; swatch: string; grain: string 
   },
   noyer: {
     label: "Noyer massif",
+    labelEn: "Solid walnut",
     swatch: "#6b452c",
     grain: `repeating-linear-gradient(95deg, rgba(28,16,8,0.30) 0 1px, transparent 1px 6px),
             repeating-linear-gradient(95deg, rgba(28,16,8,0.16) 0 2px, transparent 2px 13px),
@@ -76,78 +267,671 @@ function woods(deltas: Partial<Record<WoodId, number>>): ProductSwatch[] {
   return (Object.keys(deltas) as WoodId[]).map((id) => ({
     id,
     label: WOOD_GRAIN[id].label,
+    labelEn: WOOD_GRAIN[id].labelEn,
     swatch: WOOD_GRAIN[id].swatch,
     grain: WOOD_GRAIN[id].grain,
     priceDelta: deltas[id] ?? 0,
   }));
 }
 
+/* ------------------------------------------------------------------ *
+ *  Finitions de l'acier
+ *  Même principe que le bois : la matière est dessinée en CSS pour que
+ *  la pastille reste nette et gratuite à charger.
+ * ------------------------------------------------------------------ */
+type MetalId =
+  | "noir"
+  | "gris"
+  | "chocolat"
+  | "laiton"
+  | "lin"
+  | "blanc"
+  | "brut";
+
+/** Poudre thermolaquée : un grain fin, un reflet en biais, une ombre en bas. */
+function laque(clair: string, base: string, sombre: string, reflet = 0.14): string {
+  return `repeating-linear-gradient(118deg, rgba(255,255,255,${reflet}) 0 1px, transparent 1px 5px),
+            radial-gradient(circle at 32% 26%, rgba(255,255,255,${reflet * 1.8}), transparent 58%),
+            linear-gradient(150deg, ${clair} 0%, ${base} 48%, ${sombre} 100%)`;
+}
+
+const METAL_FINISH: Record<
+  MetalId,
+  { label: string; labelEn: string; swatch: string; grain: string }
+> = {
+  noir: {
+    label: "Noir charbon",
+    labelEn: "Charcoal black",
+    swatch: "#1c1a18",
+    grain: laque("#3a3734", "#201e1c", "#111010", 0.05),
+  },
+  gris: {
+    label: "Gris acier",
+    labelEn: "Steel grey",
+    swatch: "#46453f",
+    grain: laque("#66645c", "#46453f", "#2c2b27", 0.08),
+  },
+  chocolat: {
+    label: "Chocolat",
+    labelEn: "Chocolate",
+    swatch: "#463831",
+    grain: laque("#655047", "#463831", "#2a211c", 0.08),
+  },
+  laiton: {
+    label: "Laiton",
+    labelEn: "Brass",
+    swatch: "#8c7c3f",
+    grain: laque("#b7a35a", "#8c7c3f", "#5f5427", 0.16),
+  },
+  lin: {
+    label: "Lin clair",
+    labelEn: "Pale linen",
+    swatch: "#cfc9b6",
+    grain: laque("#e6e1d1", "#cfc9b6", "#aaa48f", 0.12),
+  },
+  blanc: {
+    label: "Blanc",
+    labelEn: "White",
+    swatch: "#f0efeb",
+    grain: laque("#ffffff", "#f0efeb", "#d3d0c8", 0.1),
+  },
+  brut: {
+    label: "Acier brut verni",
+    labelEn: "Varnished raw steel",
+    swatch: "#8a8578",
+    grain: `repeating-linear-gradient(118deg, rgba(255,255,255,0.22) 0 1px, transparent 1px 4px),
+            repeating-linear-gradient(118deg, rgba(40,38,34,0.16) 0 1px, transparent 1px 9px),
+            linear-gradient(150deg, #cbc7bd 0%, #97938a 45%, #b4b0a6 72%, #7d7a71 100%)`,
+  },
+};
+
+/** Les teintes de pieds proposées sur les tables et les assises. */
+const PIEDS: MetalId[] = [
+  "noir",
+  "gris",
+  "chocolat",
+  "laiton",
+  "lin",
+  "blanc",
+];
+
+/** Nuancier de pieds d'un meuble ; `images` donne la photo de chaque teinte. */
+function pieds(images: Partial<Record<MetalId, string>> = {}): ProductSwatch[] {
+  return PIEDS.map((id) => ({ id, ...METAL_FINISH[id], image: images[id] }));
+}
+
+/** Construit la liste des finitions acier d'un produit. */
+function metals(...ids: MetalId[]): ProductSwatch[] {
+  return ids.map((id) => ({ id, ...METAL_FINISH[id] }));
+}
+
+/* ------------------------------------------------------------------ *
+ *  Velours d'ameublement
+ *  Les références correspondent au nuancier du tissu utilisé en atelier.
+ * ------------------------------------------------------------------ */
+function velvet(base: string, light: string, dark: string): string {
+  return `repeating-linear-gradient(48deg, rgba(255,255,255,0.11) 0 1px, rgba(255,255,255,0) 1px 3px),
+          repeating-linear-gradient(132deg, rgba(0,0,0,0.13) 0 1px, rgba(0,0,0,0) 1px 3px),
+          repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0 1px, rgba(255,255,255,0) 1px 5px),
+          radial-gradient(circle at 30% 24%, ${light}, rgba(255,255,255,0) 55%),
+          radial-gradient(circle at 74% 86%, ${dark}, rgba(0,0,0,0) 52%),
+          linear-gradient(150deg, ${light} 0%, ${base} 48%, ${dark} 100%)`;
+}
+
+export const fabrics: ProductSwatch[] = [
+  {
+    id: "bleu-roi",
+    label: "Bleu roi 660",
+    labelEn: "Royal blue 660",
+    swatch: "#304d78",
+    grain: velvet("#304d78", "#4873b4", "#1a2a42"),
+    image: "/images/chaises/bleu-roi.jpg",
+  },
+  {
+    id: "sacramento",
+    label: "Sacramento 795",
+    labelEn: "Sacramento 795",
+    swatch: "#365055",
+    grain: velvet("#365055", "#51787f", "#1d2c2e"),
+    image: "/images/chaises/sacramento.jpg",
+  },
+  {
+    id: "vert-bouteille",
+    label: "Vert bouteille 775",
+    labelEn: "Bottle green 775",
+    swatch: "#706e3b",
+    grain: velvet("#706e3b", "#a8a558", "#3d3c20"),
+    image: "/images/chaises/vert-bouteille.jpg",
+  },
+  {
+    id: "endive",
+    label: "Endive 720",
+    labelEn: "Endive 720",
+    swatch: "#cec68d",
+    grain: velvet("#cec68d", "#ffffd3", "#716c4d"),
+    image: "/images/chaises/endive.jpg",
+  },
+  {
+    id: "paon",
+    label: "Paon 710",
+    labelEn: "Peacock 710",
+    swatch: "#1f5c64",
+    grain: velvet("#1f5c64", "#2e8a96", "#113237"),
+    image: "/images/chaises/paon.jpg",
+  },
+  {
+    id: "minuit",
+    label: "Minuit 690",
+    labelEn: "Midnight 690",
+    swatch: "#3d4563",
+    grain: velvet("#3d4563", "#5b6794", "#212536"),
+    image: "/images/chaises/minuit.jpg",
+  },
+  {
+    id: "prune",
+    label: "Prune 580",
+    labelEn: "Plum 580",
+    swatch: "#693d4d",
+    grain: velvet("#693d4d", "#9d5b73", "#39212a"),
+    image: "/images/chaises/prune.jpg",
+  },
+  {
+    id: "vieux-rose",
+    label: "Vieux rose 510",
+    labelEn: "Old rose 510",
+    swatch: "#915f57",
+    grain: velvet("#915f57", "#d98e82", "#4f342f"),
+    image: "/images/chaises/vieux-rose.jpg",
+  },
+  {
+    id: "terre-de-sienne",
+    label: "Terre de Sienne 390",
+    labelEn: "Burnt sienna 390",
+    swatch: "#844c2c",
+    grain: velvet("#844c2c", "#c67242", "#482918"),
+    image: "/images/chaises/terre-de-sienne.jpg",
+  },
+  {
+    id: "ocre",
+    label: "Ocre 350",
+    labelEn: "Ochre 350",
+    swatch: "#a0722c",
+    grain: velvet("#a0722c", "#f0ab42", "#583e18"),
+    image: "/images/chaises/ocre.jpg",
+  },
+  {
+    id: "champagne",
+    label: "Champagne 215",
+    labelEn: "Champagne 215",
+    swatch: "#bfa37b",
+    grain: velvet("#bfa37b", "#fff4b8", "#695943"),
+    image: "/images/chaises/champagne.jpg",
+  },
+  {
+    id: "noir",
+    label: "Noir 199",
+    labelEn: "Black 199",
+    swatch: "#454544",
+    grain: velvet("#454544", "#676766", "#252525"),
+    image: "/images/chaises/noir.jpg",
+  },
+  {
+    id: "onyx",
+    label: "Onyx 190",
+    labelEn: "Onyx 190",
+    // L'onyx tire vers le gris-bleu, le Noir 199 reste neutre : les deux
+    // pastilles étaient à deux points l'une de l'autre, donc identiques à l'œil.
+    swatch: "#4a4b52",
+    grain: velvet("#4a4b52", "#6d6e78", "#26272c"),
+    image: "/images/chaises/onyx.jpg",
+  },
+  {
+    id: "dune",
+    label: "Dune 165",
+    labelEn: "Dune 165",
+    swatch: "#b99971",
+    grain: velvet("#b99971", "#ffe5a9", "#65543e"),
+    image: "/images/chaises/dune.jpg",
+  },
+  {
+    id: "cendre",
+    label: "Cendre 130",
+    labelEn: "Ash 130",
+    swatch: "#746a67",
+    grain: velvet("#746a67", "#ae9f9a", "#3f3a38"),
+    image: "/images/chaises/cendre.jpg",
+  },
+];
+
+/* ------------------------------------------------------------------ *
+ *  Épaisseur minimale d'un plateau en bois massif
+ *  Plus la pièce est longue, plus le plateau doit être épais : c'est la
+ *  portée entre les appuis qui fait fléchir puis fendre le bois. 25 mm
+ *  tiennent sur 1,60 m ; à 3,50 m il faut 40 mm de chêne. Ces seuils sont
+ *  ceux de l'atelier, et ils gardent valables toutes les tailles du
+ *  catalogue, qui sont toutes en plateau de 40 mm.
+ * ------------------------------------------------------------------ */
+const PLATEAU_MASSIF: PalierEpaisseur[] = [
+  { jusquaMm: 1600, miniMm: 25 },
+  { jusquaMm: 2400, miniMm: 30 },
+  { jusquaMm: 3000, miniMm: 35 },
+  { jusquaMm: 4000, miniMm: 40 },
+];
+
 export const products: Product[] = [
   {
     slug: "table-mikado",
+    famille: "table-interieur",
+    seoMots: "table acier & chêne",
+    category: "interieur",
+    orderMode: "cart",
     name: "Table Mikado",
-    tagline: "Piétement acier croisé soudé main, plateau chêne massif.",
+    tagline: "Des lames d'acier plein jetées en croix sous le plateau, soudées d'une seule pièce.",
     images: [
-      { src: "/images/table-mikado-full.jpg", alt: "Table Mikado — vue d'ensemble" },
-      { src: "/images/table-mikado-detail.jpg", alt: "Table Mikado — détail plateau chêne et piétement acier" },
-      { src: "/images/interieur-ensemble.jpg", alt: "Table Mikado, escalier et plafond lumineux dans une pièce à vivre" },
+      {
+        src: "/images/mikado/devant/noir.jpg",
+        alt: "Table Mikado — vue de face, pieds noir charbon",
+        bg: "#ffffff",
+        fit: "contain",
+        metal: "noir",
+        variants: {
+          noir: "/images/mikado/devant/noir.jpg",
+          gris: "/images/mikado/devant/gris.jpg",
+          chocolat: "/images/mikado/devant/chocolat.jpg",
+          laiton: "/images/mikado/devant/laiton.jpg",
+          lin: "/images/mikado/devant/lin.jpg",
+          blanc: "/images/mikado/devant/blanc.jpg",
+        },
+      },
+      {
+        src: "/images/mikado/coupe/gris.jpg",
+        alt: "Table Mikado — détail du plateau et des pieds gris acier",
+        bg: "#ffffff",
+        fit: "cover",
+        metal: "gris",
+        variants: {
+          noir: "/images/mikado/coupe/noir.jpg",
+          gris: "/images/mikado/coupe/gris.jpg",
+          chocolat: "/images/mikado/coupe/chocolat.jpg",
+          laiton: "/images/mikado/coupe/laiton.jpg",
+          lin: "/images/mikado/coupe/lin.jpg",
+          blanc: "/images/mikado/coupe/blanc.jpg",
+        },
+      },
+      {
+        src: "/images/mikado/devant/laiton.jpg",
+        alt: "Table Mikado — vue de face, pieds laiton",
+        bg: "#ffffff",
+        fit: "contain",
+        metal: "laiton",
+        variants: {
+          noir: "/images/mikado/devant/noir.jpg",
+          gris: "/images/mikado/devant/gris.jpg",
+          chocolat: "/images/mikado/devant/chocolat.jpg",
+          laiton: "/images/mikado/devant/laiton.jpg",
+          lin: "/images/mikado/devant/lin.jpg",
+          blanc: "/images/mikado/devant/blanc.jpg",
+        },
+      },
+      {
+        src: "/images/mikado/coupe/blanc.jpg",
+        alt: "Table Mikado — détail du plateau et des pieds blancs",
+        bg: "#ffffff",
+        fit: "cover",
+        metal: "blanc",
+        variants: {
+          noir: "/images/mikado/coupe/noir.jpg",
+          gris: "/images/mikado/coupe/gris.jpg",
+          chocolat: "/images/mikado/coupe/chocolat.jpg",
+          laiton: "/images/mikado/coupe/laiton.jpg",
+          lin: "/images/mikado/coupe/lin.jpg",
+          blanc: "/images/mikado/coupe/blanc.jpg",
+        },
+      },
     ],
     sizes: [
-      { id: "s", label: "180 × 90 cm", price: 1450 },
-      { id: "m", label: "220 × 100 cm", price: 1690 },
-      { id: "l", label: "240 × 110 cm", price: 1990 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 2310 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 2870 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 3670 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 4310 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 5190 },
     ],
-    woods: woods({ pin: -260, hetre: -140, chene: 0, noyer: 190 }),
-    metals: [
-      { id: "noir", label: "Noir mat", swatch: "#1c1a18" },
-      { id: "brut", label: "Acier brut verni", swatch: "#8a8578" },
-      { id: "blanc", label: "Blanc texturé", swatch: "#e8e6e1" },
+    surMesure: {
+      // Forfait de piétement, puis le mètre carré de plateau. Le prix au m²
+      // est calé pour qu'une table aux cotes du client ne tombe jamais sous
+      // le prix d'une table du catalogue plus petite.
+      forme: "rect",
+      axes: "plan",
+      forfait: 760,
+      parM2: 1220,
+      minMm: 800,
+      maxLargeurMm: 4000,
+      maxHauteurMm: 1400,
+      epaisseur: {
+        // Bornes du bois massif : en dessous de 25 mm le plateau casse,
+        // au-delà de 80 mm la table n'est plus ni fabricable ni transportable.
+        minMm: 25,
+        maxMm: 80,
+        refMm: 40,
+        // Chaque millimètre AU-DESSUS de 40 mm se paie au mètre carré.
+        parM2ParMm: 25,
+        // Et le plateau doit s'épaissir avec la longueur.
+        miniParLongueur: PLATEAU_MASSIF,
+      },
+    },
+    woods: woods({ pin: -550, hetre: -310, chene: 0, noyer: 710 }),
+    metals: pieds(),
+    // La table chez quelqu'un : la photo d'ambiance du bloc descriptif.
+    photosDescriptif: [
+      {
+        src: "/images/mikado/ambiance.jpg",
+        alt: "Table Mikado en noyer et chaises en velours vert dans une salle à manger aux murs de pierre",
+      },
     ],
     sections: [
       {
         title: "Un piétement sculptural",
+        image: "/images/mikado/ambiance.jpg",
         body: "Des lames d'acier plein se croisent sous le plateau comme un jeu de mikado : chaque appui semble posé au hasard, mais l'équilibre est calculé au millimètre. Le piétement est soudé d'une seule pièce à l'atelier — aucune vis apparente, aucun raccord.",
       },
       {
-        title: "Un plateau qui traverse les années",
-        body: "Le plateau en chêne massif de 40 mm est aboutés en lames larges, poncé puis protégé par une huile-cire qui laisse le bois respirer. Les marques du temps se réparent d'un simple ponçage léger — c'est une table faite pour servir tous les jours.",
+        title: "Un plateau collé lame par lame",
+        body: "Le plateau de 40 mm est monté en lames larges, collées sur chant, puis poncé et protégé à l'huile-cire — une finition qui pénètre le bois au lieu de le recouvrir. Une rayure se rattrape au papier fin, sur la zone touchée, sans reprendre tout le plateau.",
       },
     ],
     specs: [
-      { label: "Plateau", value: "Chêne ou noyer massif, épaisseur 40 mm, finition huile-cire" },
+      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif au choix, épaisseur 40 mm, finition huile-cire" },
       { label: "Piétement", value: "Acier plein S235, soudure TIG, thermolaquage mat" },
-      { label: "Capacité", value: "6 à 10 couverts selon dimension" },
+      { label: "Capacité", value: "6 à 14 couverts selon dimension" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
       { label: "Livraison", value: "France entière, montage compris" },
     ],
-    testimonial: {
-      quote: "On cherchait une table unique, on a eu une pièce d'atelier. Les soudures sont invisibles, le plateau est magnifique.",
-      author: "Client particulier — exemple d'avis",
+    // Traduction anglaise de la fiche.
+    en: {
+      name: "Mikado Table",
+      seoMots: "steel & oak table",
+      tagline: "Solid steel blades thrown across each other under the top, welded in one piece.",
+      images: [
+        "Mikado table — front view, charcoal black legs",
+        "Mikado table — close-up of the top and steel grey legs",
+        "Mikado table — front view, brass legs",
+        "Mikado table — close-up of the top and white legs",
+      ],
+      photosDescriptif: [
+        "Mikado table in walnut with green velvet chairs in a stone-walled dining room",
+      ],
+      sizes: {
+        p6: "Seats 6 — 150 × 90 × H 75 cm",
+        p8: "Seats 8 — 200 × 100 × H 75 cm",
+        p10: "Seats 10 — 240 × 100 × H 75 cm",
+        p12: "Seats 12 — 300 × 100 × H 75 cm",
+        p14: "Seats 14 — 350 × 110 × H 75 cm",
+      },
+      sections: [
+        {
+          title: "A sculptural base",
+          body: "Bars of solid steel cross under the top like a game of pick-up sticks: every leg looks dropped at random, but the balance is worked out to the millimetre. The base is welded in one piece in the workshop — no screws in sight, no joints.",
+        },
+        {
+          title: "A top glued board by board",
+          body: "The 40 mm top is built from wide boards glued edge to edge, then sanded and protected with an oil-wax finish that soaks into the wood instead of sitting on top of it. A scratch comes out with fine paper, on that spot alone, without redoing the whole top.",
+        },
+      ],
+      specs: [
+        { label: "Top", value: "Pine, beech, oak or walnut to choose from, 40 mm thick, oil-wax finish" },
+        { label: "Base", value: "Solid S235 steel, TIG welded, matt powder coating" },
+        { label: "Seats", value: "6 to 14 people depending on size" },
+        { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
+        { label: "Delivery", value: "Anywhere in France, assembly included" },
+      ],
+    },
+  },
+  {
+    slug: "table-croix",
+    famille: "table-interieur",
+    seoMots: "table acier & chêne",
+    category: "interieur",
+    orderMode: "cart",
+    name: "Table Croix",
+    tagline: "Deux lames d'acier plein en X, d'un bout à l'autre du plateau : les jambes passent.",
+    images: [
+      {
+        src: "/images/table-croix.jpg",
+        alt: "Table Croix : plateau en chêne massif sur deux piétements acier en X, vue de trois quarts",
+        bg: "#ffffff",
+        fit: "contain",
+      },
+    ],
+    sizes: [
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 2230 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 2790 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 3590 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 4230 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 5110 },
+    ],
+    surMesure: {
+      // Forfait de piétement, puis le mètre carré de plateau. Le prix au m²
+      // est calé pour qu'une table aux cotes du client ne tombe jamais sous
+      // le prix d'une table du catalogue plus petite.
+      forme: "rect",
+      axes: "plan",
+      forfait: 680,
+      parM2: 1220,
+      minMm: 800,
+      maxLargeurMm: 4000,
+      maxHauteurMm: 1400,
+      epaisseur: {
+        // Bornes du bois massif : en dessous de 25 mm le plateau casse,
+        // au-delà de 80 mm la table n'est plus ni fabricable ni transportable.
+        minMm: 25,
+        maxMm: 80,
+        refMm: 40,
+        // Chaque millimètre AU-DESSUS de 40 mm se paie au mètre carré.
+        parM2ParMm: 25,
+        // Et le plateau doit s'épaissir avec la longueur.
+        miniParLongueur: PLATEAU_MASSIF,
+      },
+    },
+    woods: woods({ pin: -550, hetre: -310, chene: 0, noyer: 710 }),
+    metals: pieds(),
+    sections: [
+      {
+        title: "Un X franc, rien à cacher",
+        body: "Deux larges lames d'acier plein se croisent d'un bout à l'autre du plateau et se rejoignent au sol en une seule pièce. La croix est soudée à plat puis meulée : le raccord disparaît, il ne reste qu'un trait net sous la table.",
+      },
+      {
+        title: "De la place pour les jambes",
+        body: "Les appuis sont repoussés vers les extrémités : on s'assoit au milieu sans buter dans un pied. C'est la table des tablées longues, celle qui accepte une chaise de plus au dernier moment.",
+      },
+    ],
+    specs: [
+      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif au choix, épaisseur 40 mm, finition huile-cire" },
+      { label: "Piétement", value: "Lames d'acier plein S235, soudure TIG, thermolaquage mat" },
+      { label: "Capacité", value: "6 à 14 couverts selon dimension" },
+      { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
+      { label: "Livraison", value: "France entière, montage compris" },
+    ],
+    // Traduction anglaise de la fiche.
+    en: {
+      name: "Croix Table",
+      seoMots: "steel & oak table",
+      tagline: "Two solid steel blades in an X, right across the top: your legs go under.",
+      images: [
+        "Croix table: solid oak top on two steel X bases, three-quarter view",
+      ],
+      sizes: {
+        p6: "Seats 6 — 150 × 90 × H 75 cm",
+        p8: "Seats 8 — 200 × 100 × H 75 cm",
+        p10: "Seats 10 — 240 × 100 × H 75 cm",
+        p12: "Seats 12 — 300 × 100 × H 75 cm",
+        p14: "Seats 14 — 350 × 110 × H 75 cm",
+      },
+      sections: [
+        {
+          title: "A plain X, nothing hidden",
+          body: "Two wide blades of solid steel run right across the table and meet the floor as a single piece. The cross is welded flat then ground back: the joint disappears and all that is left is a clean line under the table.",
+        },
+        {
+          title: "Room for your legs",
+          body: "The feet are pushed out to the ends: you sit in the middle without knocking into anything. This is the table for long gatherings, the one that takes one more chair at the last minute.",
+        },
+      ],
+      specs: [
+        { label: "Top", value: "Pine, beech, oak or walnut to choose from, 40 mm thick, oil-wax finish" },
+        { label: "Base", value: "Solid S235 steel blades, TIG welded, matt powder coating" },
+        { label: "Seats", value: "6 to 14 people depending on size" },
+        { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
+        { label: "Delivery", value: "Anywhere in France, assembly included" },
+      ],
+    },
+  },
+  {
+    slug: "table-brindille",
+    famille: "table-interieur",
+    seoMots: "table acier & chêne",
+    category: "interieur",
+    orderMode: "cart",
+    name: "Table Brindille",
+    tagline: "Un bouquet de tiges d'acier cintrées une à une, sous un plateau qui semble flotter.",
+    images: [
+      {
+        src: "/images/table-brindille-ambiance.jpg",
+        alt: "Table Brindille, piétement en fines tiges d'acier, sur un tapis",
+        bg: "#8f8b86",
+        fit: "cover",
+      },
+      {
+        src: "/images/salle-plafond-mikado.jpg",
+        alt: "Table Brindille dans une pièce à vivre, sous un plafond lumineux tendu",
+        bg: "#776c5c",
+        fit: "cover",
+      },
+    ],
+    sizes: [
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 2150 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 2710 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 3510 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 4150 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 5030 },
+    ],
+    surMesure: {
+      // Forfait de piétement, puis le mètre carré de plateau. Le prix au m²
+      // est calé pour qu'une table aux cotes du client ne tombe jamais sous
+      // le prix d'une table du catalogue plus petite.
+      forme: "rect",
+      axes: "plan",
+      forfait: 600,
+      parM2: 1220,
+      minMm: 800,
+      maxLargeurMm: 4000,
+      maxHauteurMm: 1400,
+      epaisseur: {
+        // Bornes du bois massif : en dessous de 25 mm le plateau casse,
+        // au-delà de 80 mm la table n'est plus ni fabricable ni transportable.
+        minMm: 25,
+        maxMm: 80,
+        refMm: 40,
+        // Chaque millimètre AU-DESSUS de 40 mm se paie au mètre carré.
+        parM2ParMm: 25,
+        // Et le plateau doit s'épaissir avec la longueur.
+        miniParLongueur: PLATEAU_MASSIF,
+      },
+    },
+    woods: woods({ pin: -550, hetre: -310, chene: 0, noyer: 710 }),
+    metals: pieds(),
+    sections: [
+      {
+        title: "Un piétement qui se fait oublier",
+        body: "Des tiges d'acier fines partent du sol et se rejoignent sous le plateau comme un bouquet de brindilles. De loin le plateau paraît flotter ; de près on voit chaque soudure, faite une par une à l'atelier.",
+      },
+      {
+        title: "Léger à l'œil, stable au sol",
+        body: "La multitude d'appuis répartit la charge : la table ne bouge pas, même chargée. Chaque tige est cintrée puis ajustée à la main, ce qui fait qu'aucun piétement n'est tout à fait identique à un autre.",
+      },
+    ],
+    specs: [
+      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif au choix, épaisseur 40 mm, finition huile-cire" },
+      { label: "Piétement", value: "Tiges d'acier plein, soudure TIG, thermolaquage mat" },
+      { label: "Capacité", value: "6 à 14 couverts selon dimension" },
+      { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
+      { label: "Livraison", value: "France entière, montage compris" },
+    ],
+    // Traduction anglaise de la fiche.
+    en: {
+      name: "Brindille Table",
+      seoMots: "steel & oak table",
+      tagline: "A bunch of steel rods bent one by one, under a top that seems to float.",
+      images: [
+        "Brindille table, base of slender steel rods, on a rug",
+        "Brindille table in a living room, under a stretched-fabric light ceiling",
+      ],
+      sizes: {
+        p6: "Seats 6 — 150 × 90 × H 75 cm",
+        p8: "Seats 8 — 200 × 100 × H 75 cm",
+        p10: "Seats 10 — 240 × 100 × H 75 cm",
+        p12: "Seats 12 — 300 × 100 × H 75 cm",
+        p14: "Seats 14 — 350 × 110 × H 75 cm",
+      },
+      sections: [
+        {
+          title: "A base you forget about",
+          body: "Slender steel rods rise from the floor and gather under the top like a bunch of twigs. From across the room the top seems to float; up close you can see every weld, made one at a time in the workshop.",
+        },
+        {
+          title: "Light to the eye, steady on the floor",
+          body: "All those points of contact spread the load: the table does not budge, even fully laid. Each rod is bent and fitted by hand, so no two bases are quite alike.",
+        },
+      ],
+      specs: [
+        { label: "Top", value: "Pine, beech, oak or walnut to choose from, 40 mm thick, oil-wax finish" },
+        { label: "Base", value: "Solid steel rods, TIG welded, matt powder coating" },
+        { label: "Seats", value: "6 to 14 people depending on size" },
+        { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
+        { label: "Delivery", value: "Anywhere in France, assembly included" },
+      ],
     },
   },
   {
     slug: "escalier-limon-central",
+    famille: "escalier",
+    seoMots: "escalier acier",
+    releve: "escalier",
+    category: "interieur",
+    // Sur devis, toujours — mais l'atelier peut venir prendre les cotes,
+    // comme pour le garde-corps : la visite se paie en ligne, le devis suit.
+    orderMode: "quote",
+    priseDeCotes: true,
     name: "Escalier Limon Central",
     tagline: "Limon acier cintré, marches chêne massif, garde-corps à câbles.",
     images: [
       {
         src: "/images/escalier-limon-central.jpg",
         alt: "Escalier à limon central acier et marches en chêne massif",
+        bg: "#a9a096",
+        fit: "cover",
       },
-      { src: "/images/interieur-ensemble.jpg", alt: "Table Mikado, escalier et plafond lumineux dans une pièce à vivre" },
+      {
+        src: "/images/escalier/limon-droit.jpg",
+        alt: "Escalier droit à limon central acier, marches en chêne massif et garde-corps à barreaux fins, dans une pièce aux murs chaulés",
+        bg: "#e6e0d6",
+        fit: "cover",
+      },
+      {
+        src: "/images/escalier/marche-detail.jpg",
+        alt: "Détail des premières marches en chêne massif sur le limon acier, platine au sol boulonnée",
+        bg: "#d9cfc2",
+        fit: "cover",
+      },
     ],
     sizes: [
       { id: "droit", label: "Droit — 13 marches", price: 6900 },
       { id: "quart", label: "Quart tournant — 14 marches", price: 8400 },
       { id: "demi", label: "Demi-tournant — 16 marches", price: 9800 },
     ],
-    woods: woods({ pin: -950, hetre: -520, chene: 0, noyer: 640 }),
-    metals: [
-      { id: "noir", label: "Noir mat", swatch: "#1c1a18" },
-      { id: "brut", label: "Acier brut verni", swatch: "#8a8578" },
-      { id: "blanc", label: "Blanc texturé", swatch: "#e8e6e1" },
-    ],
+    woods: woods({ pin: -1290, hetre: -690, chene: 0, noyer: 1690 }),
+    metals: metals("noir", "brut", "blanc"),
     metalLabel: { fr: "Couleur du limon", en: "Stringer colour" },
+    sizeLabel: { fr: "Forme de l'escalier", en: "Staircase shape" },
     sections: [
       {
         title: "Une seule ligne, du sol à l'étage",
@@ -160,66 +944,839 @@ export const products: Product[] = [
     ],
     specs: [
       { label: "Limon", value: "Acier plein cintré, soudure TIG, thermolaquage mat" },
-      { label: "Marches", value: "Chêne ou noyer massif, épaisseur 50 mm, finition huile-cire" },
+      { label: "Marches", value: "Pin, hêtre, chêne ou noyer massif au choix, épaisseur 50 mm, finition huile-cire" },
       { label: "Garde-corps", value: "Câbles inox tendus, main courante bois cintré" },
       { label: "Hauteur", value: "Sur-mesure, adaptée à votre trémie (relevé de cotes sur place)" },
       { label: "Normes", value: "Conforme NF P01-012 — garde-corps et hauteur de marche" },
       { label: "Fabrication", value: "Sur commande — comptez 10 à 12 semaines" },
       { label: "Pose", value: "Comprise, par nos soins, en 1 à 2 jours" },
     ],
-    testimonial: {
-      quote:
-        "On a gagné une pièce maîtresse au milieu de la maison. La courbe du limon change tout, et la lumière passe toujours.",
-      author: "Client particulier — exemple d'avis",
+    // Traduction anglaise de la fiche.
+    en: {
+      name: "Central Stringer Staircase",
+      seoMots: "steel staircase",
+      tagline: "Curved steel stringer, solid oak treads, cable balustrade.",
+      images: [
+        "Staircase with a central steel stringer and solid oak treads",
+        "Straight staircase with a central steel stringer, solid oak treads and a slim bar balustrade, in a limewashed room",
+        "Close-up of the first solid oak treads on the steel stringer, bolted floor plate",
+      ],
+      sizes: {
+        droit: "Straight — 13 treads",
+        quart: "Quarter turn — 14 treads",
+        demi: "Half turn — 16 treads",
+      },
+      sections: [
+        {
+          title: "One single line, from floor to landing",
+          body: "The central stringer is bent in one piece then welded in the workshop: the staircase shows no joint, only a continuous curve carrying the treads. It is the most demanding piece we build, and the one that gives an entrance its shape.",
+        },
+        {
+          title: "Treads that seem to float",
+          body: "Each 50 mm solid oak tread sits on hidden plates, fixed underneath. The stainless steel cables and the bent timber handrail carry the line on without closing the space or cutting the light.",
+        },
+      ],
+      specs: [
+        { label: "Stringer", value: "Bent solid steel, TIG welded, matt powder coating" },
+        { label: "Treads", value: "Pine, beech, oak or walnut to choose from, 50 mm thick, oil-wax finish" },
+        { label: "Balustrade", value: "Tensioned stainless steel cables, bent timber handrail" },
+        { label: "Height", value: "Made to measure, fitted to your opening (measured on site)" },
+        { label: "Standards", value: "Complies with NF P01-012 — balustrades and rise" },
+        { label: "Lead time", value: "Made to order — allow 10 to 12 weeks" },
+        { label: "Fitting", value: "Included, by us, in one or two days" },
+      ],
+    },
+  },
+  {
+    slug: "garde-corps",
+    famille: "garde-corps",
+    // « barre d'appui » : c'est le mot que tapent les gens pour une fenêtre.
+    seoMots: "barre d'appui",
+    releve: "garde-corps-fenetre",
+    category: "interieur",
+    // Se commande en ligne, aux cotes que le client relève lui-même : aucune
+    // taille au catalogue, tout passe par le barème au m². L'atelier peut
+    // aussi venir mesurer (priseDeCotes).
+    // Ce modèle est fait pour la FENÊTRE seulement : d'autres modèles
+    // viendront pour l'escalier, le balcon ou la mezzanine, avec leurs
+    // propres photos.
+    orderMode: "cart",
+    priseDeCotes: true,
+    // Plusieurs fenêtres : −10 % sur chaque garde-corps dès le deuxième,
+    // même avec des cotes différentes. Un seul déplacement, un seul emballage.
+    remiseLot: { desPieces: 2, taux: 0.1 },
+    name: "Garde-corps de fenêtre Rosace",
+    tagline: "Croix de Saint-André en acier plein, rosaces en fonte, main courante en chêne. Fabriqué au millimètre, encastré dans votre fenêtre.",
+    images: [
+      {
+        src: "/images/garde-corps/fenetre-pose.jpg",
+        alt: "Garde-corps de fenêtre en acier noir à croix de Saint-André, rosaces en fonte et main courante en chêne, posé en tableau",
+        bg: "#d9d3c8",
+        fit: "cover",
+      },
+      {
+        src: "/images/garde-corps/fenetre.jpg",
+        alt: "Le même garde-corps vu de face : cadre acier thermolaqué noir, deux rosaces, main courante chêne",
+        bg: "#ffffff",
+        fit: "contain",
+      },
+    ],
+    sizes: [],
+    surMesure: {
+      // 100 € de forfait (rosaces, fixations, finition, emballage) + 330 €/m²
+      // de garde-corps : le modèle de la photo, 1 180 × 350 mm, tombe à 240 €,
+      // le prix donné par Quentin (« autour de 240 € max »). Une petite
+      // fenêtre de 800 × 350 fait 200 €, un 2 000 × 600 fait 500 €.
+      forme: "rect",
+      axes: "panneau",
+      forfait: 100,
+      parM2: 330,
+      minMm: 200,
+      maxLargeurMm: 3000,
+      maxHauteurMm: 1200,
+      // Le « à partir de » : une petite fenêtre de 80 cm, à la hauteur du modèle.
+      departMm: [800, 350],
+      // Pas d'épaisseur à choisir : c'est la main courante, 40 mm, point.
+      epaisseur: { minMm: 40, maxMm: 40, refMm: 40 },
+    },
+    woods: woods({ pin: -40, hetre: -20, chene: 0, noyer: 60 }),
+    metals: metals("noir", "brut", "blanc"),
+    metalLabel: { fr: "Couleur de l'acier", en: "Steel colour" },
+    // La rosace au croisement des barres : quatre modèles de fonderie, en
+    // photo dans la pastille. Le supplément est par garde-corps, quel que
+    // soit le nombre de croix. À VALIDER par Quentin : les suppléments.
+    fabricLabel: { fr: "Rosace au centre des croix", en: "Rosette at the centre of the crosses" },
+    fabrics: [
+      {
+        id: "fleur",
+        label: "Fleur, aluminium moulé Ø100",
+        labelEn: "Flower, cast aluminium Ø100",
+        swatch: "#2b2320",
+        grain: "url(/images/garde-corps/rosaces/fleur.jpg)",
+        priceDelta: 0,
+      },
+      {
+        id: "fonte",
+        label: "Médaillon fleur, fonte Ø100",
+        labelEn: "Flower medallion, cast iron Ø100",
+        swatch: "#2b2320",
+        grain: "url(/images/garde-corps/rosaces/fonte.jpg)",
+        priceDelta: 15,
+      },
+      {
+        id: "acier",
+        label: "Médaillon, acier Ø85",
+        labelEn: "Medallion, steel Ø85",
+        swatch: "#2b2320",
+        grain: "url(/images/garde-corps/rosaces/acier.jpg)",
+        priceDelta: 15,
+      },
+      {
+        id: "medaillon",
+        label: "Grand médaillon, fonte Ø170",
+        labelEn: "Large medallion, cast iron Ø170",
+        swatch: "#2b2320",
+        grain: "url(/images/garde-corps/rosaces/medaillon.jpg)",
+        priceDelta: 40,
+      },
+    ],
+    remplissages: [
+      {
+        // Le modèle : une rangée de croix, une par panneau d'environ 60 cm.
+        // Au-delà de 450 mm de haut, les triangles entre les croix laissent
+        // passer la sphère de 110 mm de la norme : on ne le vend plus à ces
+        // cotes — on propose le verre, ou un autre modèle.
+        // À VALIDER par Quentin : la hauteur limite (450) et le tarif du verre.
+        id: "croix",
+        label: "Croix de Saint-André et rosaces",
+        labelEn: "Saint Andrew's crosses and rosettes",
+        forfait: 0,
+        parM2: 0,
+        hauteurMaxConformeMm: 450,
+      },
+      {
+        // Verre feuilleté de sécurité 44.2 dans le cadre acier, à la place des
+        // croix : aucun vide, conforme à toute hauteur. Le verre, la découpe,
+        // les fixations et le joint : 180 € + 350 €/m².
+        id: "verre",
+        label: "Panneau de verre feuilleté, à la place des croix",
+        labelEn: "Laminated glass panel, instead of the crosses",
+        forfait: 180,
+        parM2: 350,
+      },
+    ],
+    sections: [
+      {
+        title: "Une croix qui tient, une rosace qui signe",
+        body: "Le cadre et les croisillons sont en acier plein, soudés à l'atelier puis thermolaqués au four. Au croisement, une rosace en fonte, comme sur les balcons anciens de Saumur : c'est elle qui donne au garde-corps son âge, et elle se choisit avec vous.",
+      },
+      {
+        title: "Une main courante qu'on a envie de toucher",
+        body: "Le dessus est une pièce de bois massif de 40 mm, arrondie, poncée et huilée : la main s'y pose sans accrocher, l'été comme l'hiver. Pin, hêtre, chêne ou noyer, au choix — le chêne est celui de la photo.",
+      },
+      {
+        title: "Trois mesures, et nous faisons le reste",
+        body: "Vous relevez trois cotes au mètre — la largeur de la fenêtre entre les murs, la hauteur du sol au bas de la fenêtre, et la hauteur de la fenêtre — et nous calculons la hauteur du garde-corps pour qu'il soit aux normes. Il est fabriqué pile à votre fenêtre : il vient s'encastrer dans l'ouverture, fixé dans l'épaisseur des murs. Si une cote nous étonne, on vous appelle avant de couper. Et si vous préférez, l'atelier vient mesurer.",
+      },
+      {
+        title: "La bonne hauteur, celle de la règle",
+        body: "En étage, une fenêtre dont l'appui est à moins de 90 cm du sol doit recevoir une protection qui monte à un mètre du sol : c'est le Code de la construction. Nous faisons le calcul à partir de la hauteur du sol au bas de votre fenêtre, et nous ne descendons jamais sous 35 cm — la hauteur du modèle en photo — pour une vraie barre d'appui qui ne mange pas la vue.",
+      },
+    ],
+    specs: [
+      { label: "Structure", value: "Acier plein, soudure TIG, thermolaquage cuit au four" },
+      { label: "Motif", value: "Croix de Saint-André, rosaces en fonte" },
+      { label: "Main courante", value: "Pin, hêtre, chêne ou noyer massif au choix, 40 mm, finition huile-cire" },
+      { label: "Pose", value: "Encastré dans le tableau de la fenêtre, fixations fournies — vous mesurez, nous fabriquons" },
+      { label: "Prise de cotes", value: "Par vous, au mètre — ou par l'atelier, dès 19,99 € jusqu'à 30 km de Saumur, déduits de la commande" },
+      { label: "Normes", value: "Hauteur calculée selon l'art. R111-15 du Code de la construction et la NF P01-012" },
+      { label: "Fabrication", value: "Sur commande — comptez 4 à 6 semaines" },
+      { label: "Livraison", value: "France entière, fixations et notice de pose comprises" },
+    ],
+    // Traduction anglaise de la fiche.
+    en: {
+      name: "Rosette Window Railing",
+      seoMots: "window railing",
+      tagline: "Solid steel Saint Andrew's cross, cast-iron rosettes, oak handrail. Made to the millimetre, fitted into your window.",
+      images: [
+        "Black steel window railing with a Saint Andrew's cross, cast-iron rosettes and an oak handrail, fitted in the reveal",
+        "The same railing seen head-on: powder-coated black steel frame, two rosettes, oak handrail",
+      ],
+      sizes: {},
+      sections: [
+        {
+          title: "A cross that holds, a rosette that signs",
+          body: "The frame and the braces are solid steel, welded in the workshop then oven powder-coated. Where they cross sits a cast-iron rosette, like on the old balconies of Saumur: it is what gives the railing its age, and you choose it with us.",
+        },
+        {
+          title: "A handrail you want to touch",
+          body: "The top is a 40 mm piece of solid wood, rounded, sanded and oiled: the hand rests on it without catching, summer or winter. Pine, beech, oak or walnut — oak is the one in the photo.",
+        },
+        {
+          title: "Three measurements, and we do the rest",
+          body: "You take three tape measurements — the window width between the walls, the height from the floor to the bottom of the window, and the window height — and we work out the railing height so that it meets the rules. It is made exactly to your window: it fits into the opening, fixed into the thickness of the walls. If a measurement surprises us, we call you before cutting. And if you prefer, the workshop comes to measure.",
+        },
+        {
+          title: "The right height, the one the rule sets",
+          body: "Upstairs, a window whose sill is less than 90 cm from the floor must have a guard rising to one metre from the floor: that is the French building code. We do the sum from the height between your floor and the bottom of the window, and we never go below 35 cm — the height of the model in the photo — for a real handrail that does not eat the view.",
+        },
+      ],
+      specs: [
+        { label: "Frame", value: "Solid steel, TIG welded, oven-cured powder coating" },
+        { label: "Pattern", value: "Saint Andrew's cross, cast-iron rosettes" },
+        { label: "Handrail", value: "Pine, beech, oak or walnut to choose from, 40 mm, oil-wax finish" },
+        { label: "Fitting", value: "Fits into the window reveal, fixings supplied — you measure, we build" },
+        { label: "Survey", value: "By you, with a tape — or by the workshop, from €19.99 within 30 km of Saumur, deducted from the order" },
+        { label: "Standards", value: "Height set by art. R111-15 of the French building code and NF P01-012" },
+        { label: "Lead time", value: "Made to order — allow 4 to 6 weeks" },
+        { label: "Delivery", value: "All of France, fixings and fitting guide included" },
+      ],
     },
   },
   {
     slug: "chaise-acier-bois",
-    name: "Chaise Acier & Bois",
-    tagline: "Structure acier fine, assise bois massif sculptée.",
+    famille: "chaise",
+    seoMots: "chaise en velours",
+    category: "interieur",
+    orderMode: "cart",
+    name: "Chaise Velours & Acier",
+    tagline: "Piétement acier fin, assise garnie en velours — quinze coloris.",
     images: [
-      { src: "/images/interieur-ensemble.jpg", alt: "Table Mikado, escalier et plafond lumineux dans une pièce à vivre" },
+      {
+        src: "/images/chaises/vert-bouteille.jpg",
+        alt: "Chaise en velours vert bouteille sur piétement acier noir",
+        bg: "#f3f3f3",
+        fit: "contain",
+        fabric: "vert-bouteille",
+      },
+      {
+        src: "/images/chaises/bleu-roi.jpg",
+        alt: "Chaise en velours bleu roi sur piétement acier noir",
+        bg: "#f3f3f3",
+        fit: "contain",
+        fabric: "bleu-roi",
+      },
+      {
+        src: "/images/chaises/terre-de-sienne.jpg",
+        alt: "Chaise en velours terre de Sienne sur piétement acier noir",
+        bg: "#f3f3f3",
+        fit: "contain",
+        fabric: "terre-de-sienne",
+      },
+      {
+        src: "/images/chaises/detail-piedement.jpg",
+        alt: "Détail de la liaison entre l'assise en velours et le piétement acier",
+        bg: "#f5f5f5",
+        fit: "cover",
+      },
     ],
-    sizes: [{ id: "standard", label: "Taille unique", price: 320 }],
-    woods: woods({ pin: -55, hetre: -30, chene: 0, noyer: 45 }),
-    metals: [
-      { id: "noir", label: "Noir mat", swatch: "#1c1a18" },
-      { id: "brut", label: "Acier brut verni", swatch: "#8a8578" },
-    ],
+    sizes: [{ id: "standard", label: "Taille unique — L 48 × P 55 × H 88 cm", price: 290 }],
+    woods: [],
+    metals: pieds(),
+    fabrics,
     sections: [
       {
-        title: "Légère à l'œil, solide à l'usage",
-        body: "Un cadre en tube d'acier fin souligné par une assise en chêne massif galbée. La chaise accompagne naturellement la table Mikado, seule ou en série.",
+        title: "Quatre ronds d'acier, cintrés un à un",
+        body: "Quatre ronds pleins d'acier de faible section, cintrés puis soudés un à un, portent une assise enveloppante garnie de mousse haute densité. Elle se commande à l'unité comme par six, et se marie aux tables Mikado, Croix et Brindille.",
+      },
+      {
+        title: "Quinze velours au choix",
+        body: "Du bleu roi au champagne, chaque coloris est disponible sans supplément. Le velours est un tissu d'ameublement résistant, qui se nettoie à la brosse douce et vieillit joliment.",
       },
     ],
     specs: [
-      { label: "Assise", value: "Chêne massif, finition huile-cire" },
-      { label: "Structure", value: "Tube acier, soudure TIG, thermolaquage mat" },
+      { label: "Assise", value: "Mousse haute densité, velours d'ameublement, quinze coloris" },
+      { label: "Structure", value: "Rond plein acier, soudure TIG, thermolaquage mat" },
       { label: "Fabrication", value: "Sur commande — comptez 4 semaines" },
     ],
+    // Traduction anglaise de la fiche.
+    en: {
+      name: "Velvet & Steel Chair",
+      seoMots: "velvet chair",
+      tagline: "Slender steel base, padded velvet seat — fifteen colours.",
+      images: [
+        "Chair in bottle green velvet on a black steel base",
+        "Chair in royal blue velvet on a black steel base",
+        "Chair in burnt sienna velvet on a black steel base",
+        "Close-up of the joint between the velvet seat and the steel base",
+      ],
+      sizes: {
+        standard: "One size — W 48 × D 55 × H 88 cm",
+      },
+      sections: [
+        {
+          title: "Four steel rods, bent one by one",
+          body: "Four slender solid steel rods, bent and then welded one by one, carry a wrapped seat padded with high-density foam. Order a single chair or a set of six; it goes with the Mikado, Croix and Brindille tables.",
+        },
+        {
+          title: "Fifteen velvets to choose from",
+          body: "From royal blue to champagne, every colour comes at the same price. Velvet is a hard-wearing upholstery fabric: it cleans with a soft brush and ages nicely.",
+        },
+      ],
+      specs: [
+        { label: "Seat", value: "High-density foam, upholstery velvet, fifteen colours" },
+        { label: "Frame", value: "Solid steel rod, TIG welded, matt powder coating" },
+        { label: "Lead time", value: "Made to order — allow 4 weeks" },
+      ],
+    },
+  },
+  {
+    slug: "table-mikado-exterieur",
+    famille: "table-exterieur",
+    seoMots: "table de jardin",
+    category: "exterieur",
+    orderMode: "cart",
+    name: "Table Mikado Extérieur",
+    tagline: "Plateau à lattes en chêne traité, piétement Mikado thermolaqué — faite pour rester dehors.",
+    images: [
+      {
+        src: "/images/table-exterieur-lattes.jpg",
+        alt: "Table d'extérieur Mikado, plateau à lattes de chêne et piétement acier noir",
+        bg: "#ffffff",
+        fit: "cover",
+      },
+    ],
+    sizes: [
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 1200 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1480 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1880 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 2200 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 2640 },
+    ],
+    surMesure: {
+      // Le même piétement que la table d'intérieur, mais un plateau à lattes.
+      // 600 € de forfait + 535 €/m² : le couple est calé pour passer au-dessus
+      // des cinq prix du catalogue (de 1 200 € à 1,35 m² jusqu'à 2 640 € à
+      // 3,85 m²), sinon une table sur mesure d'un millimètre de moins qu'une
+      // taille du catalogue serait revenue moins cher qu'elle. C'était la seule
+      // table qu'on ne pouvait pas commander à ses cotes, alors que ses cotes
+      // en millimètres étaient déjà renseignées.
+      forme: "rect",
+      axes: "plan",
+      forfait: 600,
+      parM2: 535,
+      minMm: 800,
+      maxLargeurMm: 4000,
+      maxHauteurMm: 1400,
+      epaisseur: {
+        // Un plateau à lattes est plus fin qu'un plateau plein : au-delà de
+        // 60 mm, la latte devient une poutre et la table ne se porte plus.
+        minMm: 25,
+        maxMm: 60,
+        refMm: 40,
+        parM2ParMm: 15,
+        miniParLongueur: PLATEAU_MASSIF,
+      },
+    },
+    woods: [],
+    metals: pieds(),
+    sections: [
+      {
+        title: "Un plateau qui respire",
+        body: "Le plateau est monté en lattes espacées : la pluie traverse au lieu de stagner, le bois sèche vite et ne travaille pas. Chaque latte est arrondie sur ses arêtes et poncée à la main.",
+      },
+      {
+        title: "Le même piétement, traité pour dehors",
+        body: "C'est le piétement Mikado de la table d'intérieur, cette fois protégé par un thermolaquage extérieur cuit au four : la couche résiste à la pluie, au sel et aux UV sans s'écailler.",
+      },
+    ],
+    specs: [
+      { label: "Plateau", value: "Chêne massif traité classe 4, lattes espacées, finition huile extérieure" },
+      { label: "Piétement", value: "Acier plein, soudure TIG, thermolaquage extérieur" },
+      { label: "Capacité", value: "6 à 14 couverts selon dimension" },
+      { label: "Entretien", value: "Une huile par an ; laisser griser si l'on préfère la patine" },
+      { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
+      { label: "Livraison", value: "France entière, montage compris" },
+    ],
+    // Traduction anglaise de la fiche.
+    en: {
+      name: "Mikado Outdoor Table",
+      seoMots: "garden table",
+      tagline: "Slatted treated-oak top, powder-coated Mikado base — made to stay outside.",
+      images: [
+        "Mikado outdoor table, slatted oak top and black steel base",
+      ],
+      sizes: {
+        p6: "Seats 6 — 150 × 90 × H 75 cm",
+        p8: "Seats 8 — 200 × 100 × H 75 cm",
+        p10: "Seats 10 — 240 × 100 × H 75 cm",
+        p12: "Seats 12 — 300 × 100 × H 75 cm",
+        p14: "Seats 14 — 350 × 110 × H 75 cm",
+      },
+      sections: [
+        {
+          title: "A top that breathes",
+          body: "The top is built from spaced slats: rain runs straight through instead of sitting on the wood, which dries quickly and stays flat. Every slat has its edges rounded and sanded by hand.",
+        },
+        {
+          title: "The same base, treated for outdoors",
+          body: "It is the Mikado base of the indoor table, this time protected by an oven-cured outdoor powder coating: the layer stands up to rain, salt and sunlight without flaking.",
+        },
+      ],
+      specs: [
+        { label: "Top", value: "Class 4 treated solid oak, spaced slats, outdoor oil finish" },
+        { label: "Base", value: "Solid steel, TIG welded, outdoor powder coating" },
+        { label: "Seats", value: "6 to 14 people depending on size" },
+        { label: "Care", value: "One coat of oil a year; leave it to silver if you prefer the patina" },
+        { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
+        { label: "Delivery", value: "Anywhere in France, assembly included" },
+      ],
+    },
+  },
+  {
+    slug: "fauteuil-terrasse",
+    famille: "chaise-exterieur",
+    seoMots: "fauteuil d'extérieur",
+    category: "exterieur",
+    orderMode: "cart",
+    name: "Fauteuil Terrasse",
+    tagline: "Structure acier thermolaqué, coussins déperlants — pensé pour rester dehors.",
+    images: [
+      {
+        src: "/images/chaise-exterieur.jpg",
+        alt: "Fauteuil de terrasse en acier thermolaqué gris avec coussins",
+        bg: "#d5d5d5",
+        fit: "cover",
+      },
+    ],
+    sizes: [{ id: "standard", label: "Taille unique — L 62 × P 68 × H 82 cm", price: 390 }],
+    woods: [],
+    metals: pieds(),
+    sections: [
+      {
+        title: "Il passe l'hiver dehors",
+        body: "La structure est en acier thermolaqué : la laque est cuite au four, elle tient à la pluie et au sel sans s'écailler. Accoudoirs et dossier sont soudés d'une pièce — il n'y a pas un boulon à resserrer au fil des saisons.",
+      },
+      {
+        title: "Des coussins qui sèchent vite",
+        body: "Assise et dossier reposent sur des coussins en mousse à cellules ouvertes, habillés d'un tissu d'extérieur déperlant : l'eau traverse et s'évacue, la housse se retire pour le lavage.",
+      },
+    ],
+    specs: [
+      { label: "Structure", value: "Acier thermolaqué, soudure TIG, traitement extérieur" },
+      { label: "Coussins", value: "Mousse à cellules ouvertes, tissu d'extérieur déperlant, housses amovibles" },
+      { label: "Fabrication", value: "Sur commande — comptez 4 semaines" },
+      { label: "Livraison", value: "France entière" },
+    ],
+    // Traduction anglaise de la fiche.
+    en: {
+      name: "Terrace Armchair",
+      seoMots: "outdoor armchair",
+      tagline: "Powder-coated steel frame, water-repellent cushions — made to stay outside.",
+      images: [
+        "Terrace armchair in grey powder-coated steel with cushions",
+      ],
+      sizes: {
+        standard: "One size — W 62 × D 68 × H 82 cm",
+      },
+      sections: [
+        {
+          title: "It stays out all winter",
+          body: "The frame is powder-coated steel: the coat is oven-cured, and it takes rain and salt without flaking. Arms and back are welded in one piece — there is not a single bolt to tighten season after season.",
+        },
+        {
+          title: "Cushions that dry fast",
+          body: "Seat and back rest on open-cell foam cushions covered in a water-repellent outdoor fabric: water runs through and drains away, and the covers come off for washing.",
+        },
+      ],
+      specs: [
+        { label: "Frame", value: "Powder-coated steel, TIG welded, outdoor treatment" },
+        { label: "Cushions", value: "Open-cell foam, removable water-repellent outdoor fabric" },
+        { label: "Lead time", value: "Made to order — allow 4 weeks" },
+        { label: "Delivery", value: "Anywhere in France" },
+      ],
+    },
+  },
+  {
+    slug: "plafond-lumineux-lucarne",
+    famille: "plafond",
+    seoMots: "plafond lumineux tendu",
+    category: "lumiere",
+    orderMode: "cart",
+    name: "Lucarne",
+    tagline: "Toile tendue rétroéclairée, cadre aluminium thermolaqué.",
+    metalLabel: { fr: "Couleur du cadre", en: "Frame colour" },
+    images: [
+      {
+        src: "/images/lumiere/panneau-dessous-carre.jpg",
+        alt: "Lucarne : plafond lumineux à toile tendue vu de dessous, cadre aluminium noir",
+        bg: "#ffffff",
+        fit: "cover",
+        // Membrane relevée sur la photo : sa lumière est réellement animée.
+        glow: {
+          box: { left: "11.9%", top: "29.1%", width: "80.3%", height: "46.3%" },
+          clip: "polygon(66.6% 0%, 100% 47.4%, 34.2% 100%, 0% 66.9%)",
+        },
+      },
+      {
+        src: "/images/lumiere/panneau-angle.jpg",
+        alt: "Détail de l'angle du cadre aluminium thermolaqué et de la toile tendue",
+        bg: "#8f8f8f",
+        fit: "cover",
+      },
+    ],
+    sizes: [
+      { id: "l60", dimsMm: [600, 600], label: "60 × 60 cm — 0,36 m² — 25 W", price: 330 },
+      { id: "l120", default: true, dimsMm: [1200, 600], label: "120 × 60 cm — 0,72 m² — 50 W", price: 370 },
+      { id: "l1212", dimsMm: [1200, 1200], label: "120 × 120 cm — 1,44 m² — 95 W", price: 460 },
+      { id: "l180", dimsMm: [1800, 900], label: "180 × 90 cm — 1,62 m² — 105 W", price: 490 },
+      { id: "l240", dimsMm: [2400, 1200], label: "240 × 120 cm — 2,88 m² — 190 W", price: 640 },
+      { id: "l300", dimsMm: [3000, 1500], label: "300 × 150 cm — 4,5 m² — 290 W", price: 850 },
+      { id: "l302", dimsMm: [3000, 2000], label: "300 × 200 cm — 6 m² — 390 W", price: 1030 },
+      { id: "l400", dimsMm: [4000, 2000], label: "400 × 200 cm — 8 m² — 520 W", price: 1280 },
+      { id: "l425", dimsMm: [4000, 2500], label: "400 × 250 cm — 10 m² — 650 W", price: 1530 },
+      { id: "l430", dimsMm: [4000, 3000], label: "400 × 300 cm — 12 m² — 780 W", price: 1780 },
+    ],
+    surMesure: {
+      forme: "rect",
+      // Un plafond se mesure à plat : longueur × largeur, comme une table.
+      axes: "plan",
+      // 280 € de forfait + 125 €/m² : ce couple retombe exactement sur les dix
+      // prix du catalogue, de 330 € à 1 780 €. Ne changer l'un sans l'autre.
+      forfait: 280,
+      parM2: 125,
+      minMm: 300,
+      maxLargeurMm: 4000,
+      maxHauteurMm: 3000,
+      epaisseur: {
+        // Seule la bande d'aluminium du pourtour change : l'écart reste léger.
+        minMm: 180,
+        maxMm: 600,
+        refMm: 180,
+        parM2Bande: 60,
+      },
+    },
+    woods: [],
+    metals: pieds(),
+    sections: [
+      {
+        title: "Une lumière sans point chaud",
+        body: "La toile tendue diffuse la lumière sur toute sa surface : pas de spot visible, pas d'ombre dure sur la table. Le rétroéclairage est monté au fond du caisson, la membrane l'égalise et ne laisse passer qu'une lumière douce, du même blanc d'un bord à l'autre.",
+      },
+      {
+        title: "Un cadre en aluminium thermolaqué",
+        body: "Le cadre est assemblé en profilé d'aluminium, coupé en onglet et thermolaqué au four : la teinte est cuite dans le métal, elle ne jaunit pas et ne s'écaille pas. La toile se clipse dans une gorge périphérique — on la retire et on la remet sans outil, pour le nettoyage comme pour l'entretien.",
+      },
+      {
+        title: "Posé, suspendu ou encastré",
+        body: "La Lucarne se fixe au plafond, se suspend par câbles ou s'encastre dans un faux plafond selon la pièce. L'alimentation est fournie, en 220 V, avec une variation possible sur demande.",
+      },
+    ],
+    specs: [
+      { label: "Toile", value: "Membrane translucide tendue, blanc diffusant" },
+      { label: "Cadre", value: "Profilé aluminium thermolaqué, coupe d'onglet, caisson de 180 à 600 mm" },
+      { label: "Éclairage", value: "LED 220 V, blanc 3000 K ou 4000 K, variation en option" },
+      { label: "Fabrication", value: "Sur commande — comptez 3 à 5 semaines" },
+      { label: "Dimensions", value: "Jusqu'à 400 × 300 cm d'un seul tenant, au centimètre près" },
+      { label: "Pose", value: "Plafonnier, suspendu par câbles ou encastré" },
+    ],
+    // Traduction anglaise de la fiche.
+    en: {
+      name: "Lucarne",
+      seoMots: "backlit ceiling panel",
+      tagline: "Backlit stretched fabric, powder-coated aluminium frame.",
+      images: [
+        "Lucarne: stretched-fabric light ceiling seen from below, black aluminium frame",
+        "Close-up of the powder-coated aluminium corner and the stretched fabric",
+      ],
+      sizes: {
+        l60: "60 × 60 cm — 0.36 m² — 25 W",
+        l120: "120 × 60 cm — 0.72 m² — 50 W",
+        l1212: "120 × 120 cm — 1.44 m² — 95 W",
+        l180: "180 × 90 cm — 1.62 m² — 105 W",
+        l240: "240 × 120 cm — 2.88 m² — 190 W",
+        l300: "300 × 150 cm — 4.5 m² — 290 W",
+        l302: "300 × 200 cm — 6 m² — 390 W",
+        l400: "400 × 200 cm — 8 m² — 520 W",
+        l425: "400 × 250 cm — 10 m² — 650 W",
+        l430: "400 × 300 cm — 12 m² — 780 W",
+      },
+      sections: [
+        {
+          title: "Light with no hot spot",
+          body: "The stretched fabric spreads the light over its whole surface: no bulb in sight, no hard shadow on the table. The LEDs sit at the back of the box, the membrane evens them out and lets nothing through but a soft light, the same white from one edge to the other.",
+        },
+        {
+          title: "A powder-coated aluminium frame",
+          body: "The frame is built from aluminium profile, cut at a mitre and powder-coated in the oven: the colour is baked into the metal, so it neither yellows nor flakes. The fabric clips into a groove all around — it comes out and goes back without a tool, for cleaning as much as for upkeep.",
+        },
+        {
+          title: "Surface-mounted, suspended or recessed",
+          body: "The Lucarne fixes to the ceiling, hangs on cables or drops into a false ceiling, whichever the room calls for. The 220 V supply comes with it, and dimming is available on request.",
+        },
+      ],
+      specs: [
+        { label: "Fabric", value: "Stretched translucent membrane, diffusing white" },
+        { label: "Frame", value: "Powder-coated aluminium profile, mitred corners, box 180 to 600 mm deep" },
+        { label: "Lighting", value: "220 V LED, 3000 K or 4000 K white, dimming optional" },
+        { label: "Lead time", value: "Made to order — allow 3 to 5 weeks" },
+        { label: "Sizes", value: "Up to 400 × 300 cm in one piece, to the centimetre" },
+        { label: "Fitting", value: "Surface-mounted, hung on cables or recessed" },
+      ],
+    },
+  },
+  {
+    slug: "plafond-lumineux-halo",
+    famille: "plafond",
+    seoMots: "plafond lumineux rond",
+    category: "lumiere",
+    orderMode: "cart",
+    name: "Halo",
+    tagline: "Cercle de toile tendue rétroéclairée, cadre aluminium thermolaqué.",
+    metalLabel: { fr: "Couleur du cadre", en: "Frame colour" },
+    images: [
+      {
+        src: "/images/lumiere/rond-dessous-carre.jpg",
+        alt: "Halo : plafond lumineux rond à toile tendue, cadre aluminium noir",
+        bg: "#ffffff",
+        fit: "cover",
+        // Membrane relevée sur la photo : sa lumière est réellement animée.
+        glow: {
+          box: { left: "16.4%", top: "33.4%", width: "67.5%", height: "33.9%" },
+          clip: "ellipse(50% 50% at 50% 50%)",
+        },
+      },
+      {
+        src: "/images/lumiere/rond-allume.jpg",
+        alt: "Halo allumé, posé au plafond",
+        bg: "#e8e8e8",
+        fit: "cover",
+      },
+      {
+        src: "/images/lumiere/rond-angle.jpg",
+        alt: "Détail du cadre aluminium cintré et de la toile tendue allumée",
+        bg: "#6f6f6f",
+        fit: "cover",
+      },
+    ],
+    sizes: [
+      { id: "d60", dimsMm: [600, 600], label: "Ø 60 cm — 0,28 m² — 20 W", price: 350 },
+      { id: "d90", dimsMm: [900, 900], label: "Ø 90 cm — 0,64 m² — 40 W", price: 400 },
+      { id: "d120", default: true, dimsMm: [1200, 1200], label: "Ø 120 cm — 1,13 m² — 75 W", price: 470 },
+      { id: "d150", dimsMm: [1500, 1500], label: "Ø 150 cm — 1,77 m² — 115 W", price: 560 },
+      { id: "d200", dimsMm: [2000, 2000], label: "Ø 200 cm — 3,14 m² — 205 W", price: 760 },
+      { id: "d250", dimsMm: [2500, 2500], label: "Ø 250 cm — 4,91 m² — 320 W", price: 1010 },
+      { id: "d300", dimsMm: [3000, 3000], label: "Ø 300 cm — 7,07 m² — 460 W", price: 1320 },
+      { id: "d350", dimsMm: [3500, 3500], label: "Ø 350 cm — 9,62 m² — 625 W", price: 1690 },
+      { id: "d400", dimsMm: [4000, 4000], label: "Ø 400 cm — 12,57 m² — 815 W", price: 2110 },
+    ],
+    surMesure: {
+      // Le cercle demande le cintrage du profilé et une toile taillée en rond :
+      // le mètre carré est plus cher que sur un rectangle.
+      forme: "rond",
+      // 300 € de forfait + 144 €/m² : retombe exactement sur les neuf prix du
+      // catalogue, de 350 € à 2 110 €. Le mètre carré est plus cher qu'en
+      // rectangle : il faut cintrer le profilé et la toile ronde fait de la chute.
+      forfait: 300,
+      parM2: 144,
+      minMm: 300,
+      maxLargeurMm: 4000,
+      maxHauteurMm: 4000,
+      epaisseur: {
+        minMm: 180,
+        maxMm: 600,
+        refMm: 180,
+        parM2Bande: 60,
+      },
+    },
+    woods: [],
+    metals: pieds(),
+    sections: [
+      {
+        title: "Un disque de lumière pleine",
+        body: "Le cercle est roulé d'une seule pièce : pas d'angle, pas de raccord visible sur le pourtour. La toile s'y tend en une seule surface et diffuse la même lumière du centre jusqu'au bord.",
+      },
+      {
+        title: "Le même cadre, roulé",
+        body: "Profilé d'aluminium cintré puis thermolaqué au four : la teinte est cuite dans le métal, elle ne jaunit pas et ne s'écaille pas. La toile se clipse dans la gorge périphérique et se retire sans outil.",
+      },
+      {
+        title: "Un grand disque tient toute une salle",
+        body: "Passé le mètre cinquante de diamètre, le panneau ne complète plus l'éclairage : il le remplace. Un seul disque suffit à éclairer une salle de réunion, un plateau de bureaux ou une grande pièce à vivre, sans plafonnier ni spot ajouté — et sans ombre portée sur les visages, ce qu'aucune rampe de spots ne sait faire.",
+        image: "/images/lumiere/salle-ronde.jpg",
+      },
+      {
+        title: "Au-dessus d'une table ronde, d'un îlot, d'un escalier",
+        body: "Le disque se pose au plafond ou se suspend par câbles. Jusqu'à 400 cm de diamètre d'un seul tenant ; l'alimentation 220 V est fournie, la variation est possible sur demande.",
+      },
+    ],
+    specs: [
+      { label: "Toile", value: "Membrane translucide tendue, blanc diffusant" },
+      { label: "Cadre", value: "Profilé aluminium cintré et thermolaqué, caisson de 180 à 600 mm" },
+      { label: "Éclairage", value: "LED 220 V, blanc 3000 K ou 4000 K, variation en option" },
+      { label: "Diamètre", value: "Jusqu'à 400 cm d'un seul tenant, au centimètre près" },
+      { label: "Fabrication", value: "Sur commande — comptez 3 à 5 semaines" },
+    ],
+    // Traduction anglaise de la fiche.
+    en: {
+      name: "Halo",
+      seoMots: "round light ceiling",
+      tagline: "A circle of backlit stretched fabric, powder-coated aluminium frame.",
+      images: [
+        "Halo: round stretched-fabric light ceiling, black aluminium frame",
+        "Halo lit up, fitted to the ceiling",
+        "Close-up of the curved aluminium frame and the lit stretched fabric",
+      ],
+      sizes: {
+        d60: "Ø 60 cm — 0.28 m² — 20 W",
+        d90: "Ø 90 cm — 0.64 m² — 40 W",
+        d120: "Ø 120 cm — 1.13 m² — 75 W",
+        d150: "Ø 150 cm — 1.77 m² — 115 W",
+        d200: "Ø 200 cm — 3.14 m² — 205 W",
+        d250: "Ø 250 cm — 4.91 m² — 320 W",
+        d300: "Ø 300 cm — 7.07 m² — 460 W",
+        d350: "Ø 350 cm — 9.62 m² — 625 W",
+        d400: "Ø 400 cm — 12.57 m² — 815 W",
+      },
+      sections: [
+        {
+          title: "A full disc of light",
+          body: "The circle is rolled in one piece: no corner, no joint showing anywhere on the rim. The fabric is stretched across it as a single surface and gives the same light from the centre out to the edge.",
+        },
+        {
+          title: "The same frame, rolled",
+          body: "Aluminium profile curved and then powder-coated in the oven: the colour is baked into the metal, so it neither yellows nor flakes. The fabric clips into the groove all around and comes out without a tool.",
+        },
+        {
+          title: "One large disc lights a whole room",
+          body: "Past a metre and a half across, the panel no longer adds to the lighting: it replaces it. A single disc lights a meeting room, an open-plan office or a large living room with nothing else added — and with no shadow cast on faces, which no row of spotlights can manage.",
+        },
+        {
+          title: "Above a round table, an island, a stairwell",
+          body: "The disc fixes to the ceiling or hangs on cables. Up to 400 cm across in one piece; the 220 V supply comes with it and dimming is available on request.",
+        },
+      ],
+      specs: [
+        { label: "Fabric", value: "Stretched translucent membrane, diffusing white" },
+        { label: "Frame", value: "Curved and powder-coated aluminium profile, box 180 to 600 mm deep" },
+        { label: "Lighting", value: "220 V LED, 3000 K or 4000 K white, dimming optional" },
+        { label: "Diameter", value: "Up to 400 cm in one piece, to the centimetre" },
+        { label: "Lead time", value: "Made to order — allow 3 to 5 weeks" },
+      ],
+    },
   },
   {
     slug: "console-metallier",
+    famille: "console",
+    seoMots: "console acier & bois",
+    category: "interieur",
+    orderMode: "cart",
     name: "Console Métallier",
-    tagline: "Console d'entrée, soudure apparente assumée, ligne fine.",
-    images: [],
-    sizes: [
-      { id: "s", label: "100 × 35 cm", price: 890 },
-      { id: "m", label: "140 × 35 cm", price: 1050 },
+    tagline: "Cadre d'acier fin, plateau de bois massif de 30 mm, cordons de soudure laissés visibles.",
+    images: [
+      { src: "/images/console-metallier.jpg", alt: "Console en chêne massif le long d'un mur clair", bg: "#b6b2ad", fit: "cover" },
     ],
-    woods: woods({ pin: -140, hetre: -80, chene: 0, noyer: 110 }),
-    metals: [{ id: "noir", label: "Noir mat", swatch: "#1c1a18" }],
+    sizes: [
+      { id: "s", dimsMm: [1000, 350], label: "100 × 35 × H 80 cm", price: 890 },
+      { id: "m", dimsMm: [1400, 350], label: "140 × 35 × H 80 cm", price: 1090 },
+    ],
+    surMesure: {
+      // Barème propre à la console : ni la portée ni le piétement d'une table.
+      // 400 € de forfait + 1 400 €/m² retombent pile sur les deux tailles du
+      // catalogue : 0,35 m² → 890 €, 0,49 m² → 1 090 €.
+      forme: "rect",
+      axes: "plan",
+      forfait: 400,
+      parM2: 1400,
+      // Une console ne fait que 35 cm de profondeur : le minimum des tables
+      // (800 mm) interdisait de commander la console elle-même.
+      minMm: 300,
+      maxLargeurMm: 2400,
+      maxHauteurMm: 600,
+      epaisseur: {
+        // Plateau de 30 mm au catalogue ; 25 mm sur les petites longueurs.
+        minMm: 25,
+        maxMm: 60,
+        refMm: 30,
+        parM2ParMm: 25,
+        miniParLongueur: PLATEAU_MASSIF,
+      },
+    },
+    woods: woods({ pin: -170, hetre: -90, chene: 0, noyer: 220 }),
+    metals: pieds(),
     sections: [
       {
-        title: "L'atelier dans l'entrée",
-        body: "Ici, les cordons de soudure restent visibles : c'est la signature de la pièce. Un cadre d'acier fin, un plateau de chêne, rien de plus.",
+        title: "Le cordon de soudure, laissé tel quel",
+        body: "Aux angles, on ne meule pas : le cordon reste apparent, puis il est verni pour qu'il ne pique pas et ne rouille pas. C'est la marque du poste à souder, pas un défaut à cacher.",
+      },
+      {
+        title: "Trente millimètres de bois sur un cadre fin",
+        body: "Le plateau fait 30 mm d'épaisseur — pin, hêtre, chêne ou noyer massif — posé sur un cadre en acier plein qui ne prend que quelques millimètres à l'œil. Deux longueurs au catalogue ; au-delà, l'atelier chiffre à vos cotes.",
       },
     ],
     specs: [
-      { label: "Plateau", value: "Chêne massif, épaisseur 30 mm" },
+      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif au choix, épaisseur 30 mm" },
       { label: "Structure", value: "Acier plein, soudure apparente vernie" },
       { label: "Fabrication", value: "Sur commande — comptez 4 semaines" },
     ],
+    // Traduction anglaise de la fiche.
+    en: {
+      name: "Metalworker's Console",
+      seoMots: "steel & oak console",
+      tagline: "Slender steel frame, 30 mm solid-wood top, weld beads left in plain sight.",
+      images: [
+        "Solid oak console along a pale wall",
+      ],
+      sizes: {
+        s: "100 × 35 × H 80 cm",
+        m: "140 × 35 × H 80 cm",
+      },
+      sections: [
+        {
+          title: "The weld bead, left as it is",
+          body: "At the corners we do not grind: the bead stays in plain sight, then it is varnished so it neither catches nor rusts. That is the mark of the welding torch, not a fault to hide.",
+        },
+        {
+          title: "Thirty millimetres of wood on a slender frame",
+          body: "The top is 30 mm thick — pine, beech, oak or walnut — sitting on a solid steel frame that takes up only a few millimetres to the eye. Two lengths in the catalogue; beyond that, the workshop quotes your own dimensions.",
+        },
+      ],
+      specs: [
+        { label: "Top", value: "Pine, beech, oak or walnut to choose from, 30 mm thick" },
+        { label: "Frame", value: "Solid steel, welds left showing and varnished" },
+        { label: "Lead time", value: "Made to order — allow 4 weeks" },
+      ],
+    },
   },
 ];
 
@@ -227,11 +1784,581 @@ export function getProduct(slug: string) {
   return products.find((p) => p.slug === slug);
 }
 
-/** Prix plancher réel : plus petite dimension dans l'essence la moins chère. */
-export function priceFrom(product: Product) {
-  const cheapestSize = Math.min(...product.sizes.map((s) => s.price));
-  const cheapestWood = product.woods.length
-    ? Math.min(...product.woods.map((w) => w.priceDelta ?? 0))
-    : 0;
-  return cheapestSize + cheapestWood;
+/**
+ * L'essence servie par défaut : celle dont le supplément est nul (le chêne).
+ * C'est elle qui est montrée sur la fiche et qui fait le prix affiché.
+ */
+export function essenceDeReference(product: Product): ProductSwatch | undefined {
+  if (product.woods.length === 0) return undefined;
+  return (
+    product.woods.find((bois) => !bois.priceDelta) ??
+    // Aucune essence à écart nul : faute de mieux, la moins chère.
+    product.woods.reduce((a, b) => ((a.priceDelta ?? 0) <= (b.priceDelta ?? 0) ? a : b))
+  );
+}
+
+/**
+ * Prix « à partir de » : la plus petite dimension, dans l'essence de référence.
+ * Surtout pas dans l'essence la moins chère : le pin est un rabais, pas le prix
+ * de la pièce. Annoncer 2 200 € au-dessus d'une table affichée 3 590 € — et
+ * l'envoyer tel quel à Google — donnait un prix que personne ne pouvait payer.
+ */
+export function priceFrom(product: Product): number | null {
+  // Une pièce sans taille au catalogue : soit elle a un barème et des cotes de
+  // départ (le garde-corps), soit elle est sur devis et on n'annonce rien —
+  // jamais un chiffre inventé.
+  if (product.sizes.length === 0) {
+    const bareme = product.surMesure;
+    if (!bareme?.departMm) return null;
+    const devis = devisSurMesure(product, bareme.departMm[0], bareme.departMm[1]);
+    return devis.ok ? devis.prix + (essenceDeReference(product)?.priceDelta ?? 0) : null;
+  }
+  const petiteTaille = Math.min(...product.sizes.map((s) => s.price));
+  return petiteTaille + (essenceDeReference(product)?.priceDelta ?? 0);
+}
+
+/* ------------------------------------------------------------------ *
+ *  Résolution d'une ligne de commande
+ *  Utilisé côté serveur : le prix ne vient JAMAIS du navigateur, il est
+ *  recalculé à partir du catalogue avant tout paiement.
+ * ------------------------------------------------------------------ */
+
+export type Selection = {
+  slug: string;
+  sizeId?: string;
+  woodId?: string;
+  metalId?: string;
+  fabricId?: string;
+  /** Le remplissage d'un garde-corps : imposé dès que la pièce en propose. */
+  remplissageId?: string;
+  /** Dimensions demandées, en millimètres, quand sizeId vaut « sur-mesure ». */
+  largeurMm?: number;
+  hauteurMm?: number;
+  epaisseurMm?: number;
+  /** Langue du libellé de la ligne. N'influence aucun prix. */
+  locale?: Locale;
+};
+
+/** Identifiant réservé à une pièce fabriquée aux cotes du client. */
+export const SUR_MESURE = "sur-mesure";
+
+export type ResolvedLine = {
+  product: Product;
+  size: ProductSize;
+  wood?: ProductSwatch;
+  metal?: ProductSwatch;
+  fabric?: ProductSwatch;
+  remplissage?: Remplissage;
+  /** Prix unitaire en euros, options comprises. */
+  unitPrice: number;
+  /** Résumé lisible des options, pour l'e-mail et le panier. */
+  optionsLabel: string;
+  image?: string;
+};
+
+export type ResolveFailure =
+  | "unknown_slug"
+  | "not_orderable"
+  | "unknown_size"
+  | "unknown_wood"
+  | "unknown_metal"
+  | "unknown_fabric"
+  | "unknown_remplissage"
+  /** Le remplissage demandé laisse des vides hors norme à cette hauteur. */
+  | "non_conforme"
+  | "invalid_price";
+
+export type ResolveResult =
+  | { ok: true; line: ResolvedLine }
+  | { ok: false; reason: ResolveFailure };
+
+/**
+ * Choisit une option dans une liste, en REFUSANT tout ce qui ne correspond pas.
+ * Pas de repli sur la première option : un identifiant absent ou inconnu ferait
+ * payer le pin (−260 € sur la table, −950 € sur l'escalier) à la place du chêne.
+ */
+function pickOption(
+  list: ProductSwatch[] | undefined,
+  id: string | undefined
+): { ok: boolean; value?: ProductSwatch } {
+  const options = list ?? [];
+  if (options.length === 0) {
+    // Produit sans cette famille d'options : un identifiant fourni est suspect.
+    return { ok: !id };
+  }
+  if (!id) return { ok: false };
+  const value = options.find((option) => option.id === id);
+  return { ok: Boolean(value), value };
+}
+
+/**
+ * Le remplissage demandé, en REFUSANT tout ce qui ne correspond pas — comme
+ * pickOption. Un produit sans remplissage n'en accepte aucun.
+ */
+function remplissageDemande(
+  product: Product,
+  id: string | undefined
+): { ok: boolean; value?: Remplissage } {
+  const options = product.remplissages ?? [];
+  if (options.length === 0) return { ok: !id };
+  if (!id) return { ok: false };
+  const value = options.find((option) => option.id === id);
+  return { ok: Boolean(value), value };
+}
+
+/** Le supplément d'un remplissage, à la dizaine d'euros, pour un garde-corps l × h. */
+export function supplementRemplissage(remplissage: Remplissage, largeurMm: number, hauteurMm: number) {
+  if (!remplissage.forfait && !remplissage.parM2) return 0;
+  const surface = surfaceM2("rect", largeurMm, hauteurMm);
+  return Math.ceil((remplissage.forfait + remplissage.parM2 * surface) / 10) * 10;
+}
+
+/**
+ * Ce remplissage respecte-t-il la norme à cette hauteur de garde-corps ?
+ * Les croix ont une hauteur limite ; le verre n'en a pas.
+ */
+export function remplissageConforme(remplissage: Remplissage, hauteurMm: number) {
+  return remplissage.hauteurMaxConformeMm === undefined || hauteurMm <= remplissage.hauteurMaxConformeMm;
+}
+
+/** Surface lumineuse en m², à partir de cotes en millimètres. */
+export function surfaceM2(forme: SurMesure["forme"], largeurMm: number, hauteurMm: number) {
+  return forme === "rond"
+    ? (Math.PI * (largeurMm / 2) ** 2) / 1_000_000
+    : (largeurMm * hauteurMm) / 1_000_000;
+}
+
+export type DevisRefus =
+  | "pas_sur_mesure"
+  | "cotes_invalides"
+  | "trop_petit"
+  | "trop_grand"
+  | "epaisseur_hors_bornes"
+  /** Plateau trop fin pour la longueur demandée : il plierait puis fendrait. */
+  | "epaisseur_trop_fine"
+  /** Caisson lumineux plus profond que le panneau n'est large. */
+  | "caisson_trop_profond";
+
+export type DevisSurMesure =
+  | {
+      ok: false;
+      reason: DevisRefus;
+      /** Phrase toute prête, en français d'atelier, pour l'afficher au client. */
+      message: string;
+      /** Épaisseur minimale attendue, quand c'est elle qui coince. */
+      epaisseurMiniMm?: number;
+    }
+  | { ok: true; prix: number; surface: number; label: string };
+
+/**
+ * Épaisseur minimale d'un plateau pour la portée demandée.
+ * Sans paliers (les plafonds lumineux, dont l'« épaisseur » est la profondeur
+ * du caisson), c'est simplement la borne basse du barème.
+ */
+export function epaisseurMiniMm(bareme: SurMesure, longueurMm: number): number {
+  const paliers = bareme.epaisseur.miniParLongueur;
+  if (!paliers || paliers.length === 0) return bareme.epaisseur.minMm;
+  const palier = paliers.find((p) => longueurMm <= p.jusquaMm) ?? paliers[paliers.length - 1];
+  return Math.max(bareme.epaisseur.minMm, palier.miniMm);
+}
+
+/**
+ * Le prix de la plus petite taille du catalogue qui englobe les cotes
+ * demandées, dans les deux sens (une table de 90 × 190 est une 190 × 90
+ * tournée). C'est le plafond du sur-mesure.
+ *
+ * Sans lui, une table d'un millimètre plus courte qu'une taille du catalogue
+ * repassait au barème et coûtait jusqu'à 330 € DE PLUS qu'une table plus
+ * grande : le client payait sa remise en moins. Personne ne doit jamais payer
+ * davantage pour une pièce plus petite.
+ */
+function plafondCatalogue(product: Product, largeur: number, hauteur: number): number | null {
+  const prix = product.sizes
+    .filter((taille) => {
+      const dims = taille.dimsMm;
+      if (!dims) return false;
+      return (
+        (dims[0] >= largeur && dims[1] >= hauteur) || (dims[0] >= hauteur && dims[1] >= largeur)
+      );
+    })
+    .map((taille) => taille.price);
+  return prix.length ? Math.min(...prix) : null;
+}
+
+/**
+ * Épaisseur maximale utilisable pour ces cotes.
+ * Sur un plateau de bois, c'est simplement la borne du barème. Sur un caisson
+ * lumineux, il ne peut pas être plus profond que le panneau n'est étroit :
+ * la toile ne se tendrait plus et l'objet ressemblerait à une boîte.
+ */
+export function epaisseurMaxMm(bareme: SurMesure, largeurMm: number, hauteurMm: number): number {
+  if (bareme.epaisseur.parM2Bande === undefined) return bareme.epaisseur.maxMm;
+  return Math.min(bareme.epaisseur.maxMm, Math.min(largeurMm, hauteurMm));
+}
+
+/**
+ * Prix d'une pièce aux cotes du client. Même fonction dans le navigateur et
+ * sur le serveur : le prix affiché est celui qui sera facturé.
+ */
+export function devisSurMesure(
+  product: Product,
+  largeurMm: number,
+  hauteurMm: number,
+  epaisseurMm?: number,
+  /** Langue du libellé rendu. Les prix et les refus, eux, ne changent jamais. */
+  locale: Locale = "fr"
+): DevisSurMesure {
+  const bareme = product.surMesure;
+  if (!bareme) {
+    return {
+      ok: false,
+      reason: "pas_sur_mesure",
+      message: "Cette pièce ne se fabrique pas aux cotes du client.",
+    };
+  }
+  const rond = bareme.forme === "rond";
+
+  const largeur = Math.round(largeurMm);
+  // Un rond n'a qu'une cote : son diamètre.
+  const hauteur = rond ? largeur : Math.round(hauteurMm);
+  if (!Number.isFinite(largeur) || !Number.isFinite(hauteur)) {
+    return {
+      ok: false,
+      reason: "cotes_invalides",
+      message: "Les cotes saisies ne sont pas des mesures valables.",
+    };
+  }
+  if (largeur < bareme.minMm || hauteur < bareme.minMm) {
+    return {
+      ok: false,
+      reason: "trop_petit",
+      message: rond
+        ? `Le plus petit diamètre que nous fabriquons est de ${bareme.minMm} mm.`
+        : `La plus petite cote que nous fabriquons est de ${bareme.minMm} mm.`,
+    };
+  }
+  if (largeur > bareme.maxLargeurMm || hauteur > bareme.maxHauteurMm) {
+    return {
+      ok: false,
+      reason: "trop_grand",
+      message: rond
+        ? `Nous ne dépassons pas Ø ${bareme.maxLargeurMm} mm d'un seul tenant.`
+        : `Nous ne dépassons pas ${bareme.maxLargeurMm} × ${bareme.maxHauteurMm} mm d'un seul tenant.`,
+    };
+  }
+
+  const epaisseur = Math.round(epaisseurMm ?? bareme.epaisseur.refMm);
+  if (
+    !Number.isFinite(epaisseur) ||
+    epaisseur < bareme.epaisseur.minMm ||
+    epaisseur > bareme.epaisseur.maxMm
+  ) {
+    return {
+      ok: false,
+      reason: "epaisseur_hors_bornes",
+      message: `L'épaisseur doit rester entre ${bareme.epaisseur.minMm} et ${bareme.epaisseur.maxMm} mm.`,
+    };
+  }
+
+  // Un caisson lumineux ne peut pas être plus profond que le panneau n'est
+  // étroit : la toile ne se tend plus proprement et l'objet devient une boîte.
+  // Sans ce garde-fou, un panneau de 30 × 30 cm acceptait 60 cm de profondeur.
+  const maxCaisson = epaisseurMaxMm(bareme, largeur, hauteur);
+  if (epaisseur > maxCaisson) {
+    return {
+      ok: false,
+      reason: "caisson_trop_profond",
+      message: `Sur un panneau de ${Math.min(largeur, hauteur)} mm, le caisson ne peut pas être plus profond que large : ${maxCaisson} mm au maximum.`,
+    };
+  }
+
+  // Un plateau de bois massif doit s'épaissir avec sa portée : c'est la plus
+  // grande cote qui décide. 25 mm sur 4 m de long, le plateau plie puis fend.
+  const portee = Math.max(largeur, hauteur);
+  const mini = epaisseurMiniMm(bareme, portee);
+  if (epaisseur < mini) {
+    return {
+      ok: false,
+      reason: "epaisseur_trop_fine",
+      epaisseurMiniMm: mini,
+      message: `Sur ${portee} mm de long, un plateau de ${epaisseur} mm plierait puis fendrait : il faut ${mini} mm au minimum.`,
+    };
+  }
+
+  // Mêmes cotes ET même épaisseur qu'une taille du catalogue = même prix.
+  const duCatalogue = product.sizes.find(
+    (taille) =>
+      taille.dimsMm?.[0] === largeur &&
+      taille.dimsMm?.[1] === hauteur &&
+      epaisseur === bareme.epaisseur.refMm
+  );
+  if (duCatalogue) {
+    return {
+      ok: true,
+      prix: duCatalogue.price,
+      surface: surfaceM2(bareme.forme, largeur, hauteur),
+      label: duCatalogue.label,
+    };
+  }
+
+  const surface = surfaceM2(bareme.forme, largeur, hauteur);
+  // Le supplément ne compte QUE l'épaisseur au-dessus de la référence. Un
+  // plateau plus fin ne coûte pas moins cher à fabriquer — même piétement,
+  // mêmes usinages, même finition — et une remise ferait passer une grande
+  // table sur mesure sous le prix d'une plus petite du catalogue.
+  const ecart = Math.max(0, epaisseur - bareme.epaisseur.refMm);
+
+  // Le plateau : chaque millimètre de bois en plus se paie au mètre carré.
+  const parM2 = bareme.parM2 + (bareme.epaisseur.parM2ParMm ?? 0) * ecart;
+  // Le caisson : seule la bande d'aluminium du pourtour s'allonge.
+  const perimetre = rond ? (Math.PI * largeur) / 1000 : (2 * (largeur + hauteur)) / 1000;
+  const bande = ((bareme.epaisseur.parM2Bande ?? 0) * perimetre * ecart) / 1000;
+
+  // Arrondi à la dizaine d'euros supérieure : un prix rond, jamais sous-évalué.
+  const auBareme = Math.ceil((bareme.forfait + parM2 * surface + bande) / 10) * 10;
+  // Mais jamais plus cher que la taille du catalogue qui l'englobe. Le
+  // supplément d'épaisseur, lui, reste dû : il correspond à de la matière.
+  const plafond = plafondCatalogue(product, largeur, hauteur);
+  const supplement = (bareme.epaisseur.parM2ParMm ?? 0) * ecart * surface + bande;
+  const prix =
+    plafond === null
+      ? auBareme
+      : Math.min(auBareme, Math.ceil((plafond + supplement) / 10) * 10);
+  // Le libellé part tel quel dans le panier, sur la page de paiement Stripe et
+  // sur la facture : il doit être écrit dans la langue du client, séparateur
+  // décimal compris. Un anglophone qui lit « 2,40 m² » comprend 240 m².
+  const langue = locale === "en" ? "en-GB" : "fr-FR";
+  const cotes = rond
+    ? `Ø ${largeur.toLocaleString(langue)} mm`
+    : `${largeur.toLocaleString(langue)} × ${hauteur.toLocaleString(langue)} mm`;
+  const m2 = locale === "en" ? surface.toFixed(2) : surface.toFixed(2).replace(".", ",");
+  const prefixe = locale === "en" ? "Custom" : "Sur mesure";
+  // Quand l'épaisseur n'est pas un choix (le garde-corps : sa main courante
+  // fait 40 mm, point), la dire n'apprend rien — pas plus que la surface.
+  const epaisseurChoisie = bareme.epaisseur.minMm !== bareme.epaisseur.maxMm;
+  return {
+    ok: true,
+    prix,
+    surface,
+    label: epaisseurChoisie
+      ? `${prefixe} — ${cotes} × ${epaisseur} mm (${m2} m²)`
+      : `${prefixe} — ${cotes}`,
+  };
+}
+
+/**
+ * Prix unitaire d'une configuration, avec la MÊME sévérité que le serveur :
+ * une taille inconnue ou une essence inconnue rendent `null`, jamais un prix
+ * de repli. Avant, la fonction retombait en silence sur la première taille et
+ * sur des suppléments nuls : le client voyait un prix qui n'était pas le sien.
+ */
+export function computeUnitPrice(
+  product: Product,
+  selection: Omit<Selection, "slug">
+): number | null {
+  const size = tailleDemandee(product, selection);
+  if (!size) return null;
+
+  const wood = pickOption(product.woods, selection.woodId);
+  if (!wood.ok) return null;
+  const metal = pickOption(product.metals, selection.metalId);
+  if (!metal.ok) return null;
+  const fabric = pickOption(product.fabrics, selection.fabricId);
+  if (!fabric.ok) return null;
+  const remplissage = remplissageDemande(product, selection.remplissageId);
+  if (!remplissage.ok) return null;
+  if (
+    remplissage.value &&
+    size.id === SUR_MESURE &&
+    !remplissageConforme(remplissage.value, Number(selection.hauteurMm))
+  ) {
+    return null;
+  }
+
+  const prix =
+    size.price +
+    (wood.value?.priceDelta ?? 0) +
+    (metal.value?.priceDelta ?? 0) +
+    (fabric.value?.priceDelta ?? 0) +
+    (remplissage.value && size.id === SUR_MESURE
+      ? supplementRemplissage(remplissage.value, Number(selection.largeurMm), Number(selection.hauteurMm))
+      : 0);
+  return Number.isInteger(prix) && prix > 0 ? prix : null;
+}
+
+/**
+ * La taille demandée : une taille du catalogue, ou la pièce aux cotes du
+ * client. Aucun repli sur la première taille — sauf quand le produit n'en a
+ * qu'une, où le choix est implicite.
+ */
+function tailleDemandee(
+  product: Product,
+  selection: Omit<Selection, "slug">
+): ProductSize | undefined {
+  // Le sur-mesure passe même sans taille au catalogue ; le reste, non.
+  if (product.sizes.length === 0 && selection.sizeId !== SUR_MESURE) return undefined;
+  if (selection.sizeId === SUR_MESURE) {
+    const devis = devisSurMesure(
+      product,
+      Number(selection.largeurMm),
+      Number(selection.hauteurMm),
+      selection.epaisseurMm === undefined ? undefined : Number(selection.epaisseurMm),
+      selection.locale
+    );
+    return devis.ok ? { id: SUR_MESURE, label: devis.label, price: devis.prix } : undefined;
+  }
+  if (product.sizes.length === 1 && !selection.sizeId) return product.sizes[0];
+  return product.sizes.find((taille) => taille.id === selection.sizeId);
+}
+
+/**
+ * Vérifie une sélection et calcule son prix, côté serveur.
+ * Le navigateur n'envoie que des identifiants : tout montant reçu est ignoré.
+ */
+export function resolveSelection(selection: Selection): ResolveResult {
+  const product = getProduct(selection.slug);
+  if (!product) return { ok: false, reason: "unknown_slug" };
+  if (product.orderMode !== "cart") return { ok: false, reason: "not_orderable" };
+  // Sans taille au catalogue ni barème, il n'y a rien à vendre.
+  if (product.sizes.length === 0 && !product.surMesure) {
+    return { ok: false, reason: "unknown_size" };
+  }
+
+  // Taille imposée dès qu'il y a un choix ; sinon l'unique taille est implicite.
+  // Exactement la même résolution que dans le navigateur : aucune divergence.
+  const size = tailleDemandee(product, selection);
+  if (!size) return { ok: false, reason: "unknown_size" };
+
+  const wood = pickOption(product.woods, selection.woodId);
+  if (!wood.ok) return { ok: false, reason: "unknown_wood" };
+  const metal = pickOption(product.metals, selection.metalId);
+  if (!metal.ok) return { ok: false, reason: "unknown_metal" };
+  const fabric = pickOption(product.fabrics, selection.fabricId);
+  if (!fabric.ok) return { ok: false, reason: "unknown_fabric" };
+  const remplissage = remplissageDemande(product, selection.remplissageId);
+  if (!remplissage.ok) return { ok: false, reason: "unknown_remplissage" };
+  // Un garde-corps à croix trop haut pour la norme ne se vend pas : le
+  // navigateur l'a déjà dit au client, le serveur le redit à quiconque forge.
+  if (
+    remplissage.value &&
+    size.id === SUR_MESURE &&
+    !remplissageConforme(remplissage.value, Number(selection.hauteurMm))
+  ) {
+    return { ok: false, reason: "non_conforme" };
+  }
+
+  const unitPrice =
+    size.price +
+    (wood.value?.priceDelta ?? 0) +
+    (metal.value?.priceDelta ?? 0) +
+    (fabric.value?.priceDelta ?? 0) +
+    (remplissage.value && size.id === SUR_MESURE
+      ? supplementRemplissage(remplissage.value, Number(selection.largeurMm), Number(selection.hauteurMm))
+      : 0);
+  if (!Number.isInteger(unitPrice) || unitPrice <= 0) {
+    return { ok: false, reason: "invalid_price" };
+  }
+
+  const optionsLabel = [
+    product.sizes.length > 1 || size.id === SUR_MESURE ? size.label : null,
+    wood.value?.label,
+    metal.value?.label,
+    fabric.value?.label,
+    // Le remplissage du modèle va sans dire ; l'autre se lit sur le bon.
+    remplissage.value && remplissage.value !== product.remplissages?.[0] ? remplissage.value.label : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  return {
+    ok: true,
+    line: {
+      product,
+      size,
+      wood: wood.value,
+      metal: metal.value,
+      fabric: fabric.value,
+      remplissage: remplissage.value,
+      unitPrice,
+      optionsLabel,
+      image: fabric.value?.image ?? product.images[0]?.src,
+    },
+  };
+}
+
+/* ------------------------------------------------------------------ *
+ *  Le catalogue dans la langue du visiteur
+ *  Le français reste la version d'origine : on pose simplement la
+ *  traduction par-dessus, champ par champ. Ce qui n'est pas traduit
+ *  reste en français plutôt que de disparaître de la page.
+ * ------------------------------------------------------------------ */
+
+/** Libellé d'une matière (bois, acier, velours) dans la langue demandée. */
+function swatchLocalise(swatch: ProductSwatch, locale: Locale): ProductSwatch {
+  return locale === "en" && swatch.labelEn ? { ...swatch, label: swatch.labelEn } : swatch;
+}
+
+/**
+ * Le prix de lot, appliqué à une commande entière.
+ *
+ * On compte les exemplaires de chaque pièce à prix de lot (un garde-corps par
+ * fenêtre, avec ses propres cotes : ce sont bien des lignes différentes) ; dès
+ * que le seuil est atteint, chaque exemplaire de cette pièce est remisé. Le
+ * navigateur et /api/commande passent par ici : même arrondi, même résultat.
+ */
+export function remiseLot<L extends { product: Product; unitPrice: number; quantity: number }>(
+  lines: L[]
+): (L & { prixLot: number; remise: number })[] {
+  const parPiece = new Map<string, number>();
+  for (const line of lines) {
+    if (!line.product.remiseLot) continue;
+    parPiece.set(line.product.slug, (parPiece.get(line.product.slug) ?? 0) + line.quantity);
+  }
+  return lines.map((line) => {
+    const lot = line.product.remiseLot;
+    const nombre = parPiece.get(line.product.slug) ?? 0;
+    const remise = lot && nombre >= lot.desPieces ? lot.taux : 0;
+    return { ...line, remise, prixLot: prixRemise(line.unitPrice, remise) };
+  });
+}
+
+/** Un prix remisé, à l'euro : le catalogue est en euros entiers, le lot aussi. */
+export function prixRemise(unitPrice: number, taux: number) {
+  return Math.round(unitPrice * (1 - taux));
+}
+
+/**
+ * Un produit dont tous les textes visibles sont dans la langue demandée.
+ * En français, c'est le produit d'origine, tel quel.
+ */
+export function productLocalise(product: Product, locale: Locale): Product {
+  if (locale !== "en") return product;
+  const en = product.en;
+  return {
+    ...product,
+    name: en?.name ?? product.name,
+    tagline: en?.tagline ?? product.tagline,
+    seoMots: en?.seoMots ?? product.seoMots,
+    images: product.images.map((image, i) => ({ ...image, alt: en?.images?.[i] ?? image.alt })),
+    photosDescriptif: product.photosDescriptif?.map((photo, i) => ({
+      ...photo,
+      alt: en?.photosDescriptif?.[i] ?? photo.alt,
+    })),
+    sizes: product.sizes.map((taille) => ({
+      ...taille,
+      label: en?.sizes?.[taille.id] ?? taille.label,
+    })),
+    sections: product.sections.map((section, i) => ({
+      ...section,
+      title: en?.sections?.[i]?.title ?? section.title,
+      body: en?.sections?.[i]?.body ?? section.body,
+    })),
+    specs: product.specs.map((spec, i) => en?.specs?.[i] ?? spec),
+    woods: product.woods.map((bois) => swatchLocalise(bois, locale)),
+    metals: product.metals.map((acier) => swatchLocalise(acier, locale)),
+    fabrics: product.fabrics?.map((velours) => swatchLocalise(velours, locale)),
+    remplissages: product.remplissages?.map((remplissage) =>
+      locale === "en" && remplissage.labelEn ? { ...remplissage, label: remplissage.labelEn } : remplissage
+    ),
+  };
 }

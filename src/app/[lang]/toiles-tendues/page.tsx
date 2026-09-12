@@ -1,17 +1,61 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
-import { HeroShaderBackground } from "@/components/hero-shader-background";
+import { metadataPage } from "@/lib/seo";
+import { PlafondLumineux } from "@/components/plafond-lumineux";
+import { products, priceFrom, productLocalise } from "@/lib/products";
+import { MaterialBubble } from "@/components/material-bubble";
 import { serif } from "@/lib/fonts";
+import { hoverZoom, prixAffiche } from "@/lib/ui";
+import { PhotoPlafondAnime, MembraneAnimee } from "@/components/photo-plafond-anime";
 
-const realisationPhotos = [
+const realisationPhotos: {
+  src: string;
+  alt: string;
+  /** Même description, en anglais : elle est lue par les moteurs et les lecteurs d'écran. */
+  altEn: string;
+  clipBox?: { left: string; top: string; width: string; height: string };
+  clip?: string;
+}[] = [
   {
-    src: "/images/interieur-ensemble.jpg",
-    alt: "Plafond lumineux tendu au-dessus d'une salle à manger, avec escalier et table sur mesure",
+    src: "/images/salon-plafond-chaud.jpg",
+    alt: "Plafond lumineux tendu au-dessus d'un salon, lumière chaude",
+    altEn: "Stretched light ceiling above a living room, warm light",
   },
-  { src: "/images/plafond-salle.jpg", alt: "Plafond lumineux tendu — salle épurée" },
+  {
+    src: "/images/lumiere/salle-ronde.jpg",
+    alt: "Grand panneau lumineux rond au-dessus d'une salle de réunion",
+    altEn: "Large round light panel above a meeting room",
+    // Disque relevé sur la photo : sa lumière est réellement animée.
+    clipBox: { left: "33.8%", top: "3.2%", width: "29.9%", height: "20.9%" },
+    clip: "ellipse(50% 50% at 50% 50%)",
+  },
+  {
+    src: "/images/salle-plafond-large.jpg",
+    alt: "Plafond lumineux tendu au-dessus d'une table à manger",
+    altEn: "Stretched light ceiling above a dining table",
+    // Dalle relevée sur la photo : sa lumière est réellement animée.
+    clipBox: { left: "24.1%", top: "11.2%", width: "51.7%", height: "19.1%" },
+    clip: "polygon(0% 0%, 100% 0%, 78.8% 100%, 20.8% 100%)",
+  },
 ];
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/[lang]/toiles-tendues">): Promise<Metadata> {
+  const { lang } = await params;
+  const locale = isLocale(lang) ? lang : defaultLocale;
+  const dict = await getDictionary(locale);
+  return metadataPage({
+    locale,
+    chemin: "/toiles-tendues",
+    title: dict.seo.lumiere.title,
+    description: dict.seo.lumiere.description,
+    image: "/images/lumiere/salle-ronde.jpg",
+  });
+}
 
 export default async function ToilesTenduesPage({
   params,
@@ -20,106 +64,172 @@ export default async function ToilesTenduesPage({
   const locale = isLocale(lang) ? lang : defaultLocale;
   const dict = await getDictionary(locale);
   const t = dict.home;
+  const ta = dict.artisanat;
+
+  // Nom, description des photos et teintes de cadre dans la langue du visiteur.
+  const luminaires = products
+    .filter((product) => product.category === "lumiere")
+    .map((product) => productLocalise(product, locale));
 
   return (
     <div>
-      {/* Hero */}
-      <section className="relative flex min-h-[85vh] flex-col justify-center overflow-hidden">
-        <HeroShaderBackground />
-        <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-6 px-6">
-          <h1 className="max-w-2xl text-4xl font-medium tracking-tight text-white md:text-5xl">
-            {t.heroTitle}
-          </h1>
-          <p className="max-w-xl text-lg text-white/80">{t.heroSubtitle}</p>
-          <div className="flex flex-wrap items-center gap-4">
+      <div className="mx-auto max-w-6xl px-6 pb-24 pt-16">
+        <h1 className={`${serif.className} text-4xl text-[#2b2320] md:text-5xl`}>{t.heroTitle}</h1>
+        <p className="mt-4 max-w-xl leading-relaxed text-[#5c5140]">{t.heroSubtitle}</p>
+
+        {/* Le catalogue, exactement comme du côté mobilier */}
+        <section className="mt-16">
+          <h2 className="text-xs font-medium uppercase tracking-widest text-[#726757]">
+            {t.catalogueLumiere}
+          </h2>
+          <p className="mt-2 text-sm text-[#726757]">{t.catalogueLumiereNote}</p>
+
+          <div className="mt-6 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+            {luminaires.map((product) => (
+              <Link
+                key={product.slug}
+                href={`/${locale}/artisanat/${product.slug}`}
+                className="group flex flex-col gap-4"
+              >
+                {/* Vignette carrée : la photo garde ses proportions, donc la
+                    membrane animée reste calée sur la toile. */}
+                <div
+                  className={`relative aspect-square overflow-hidden rounded-xl ${hoverZoom}`}
+                  style={{ backgroundColor: product.images[0]?.bg ?? "#ffffff" }}
+                >
+                  {product.images[0] && (
+                    <Image
+                      src={product.images[0].src}
+                      alt={product.images[0].alt}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className={
+                        product.images[0].fit === "contain"
+                          ? "object-contain p-4"
+                          : "object-cover"
+                      }
+                    />
+                  )}
+                  {product.images[0]?.glow && (
+                    <MembraneAnimee
+                      box={product.images[0].glow.box}
+                      clip={product.images[0].glow.clip}
+                    />
+                  )}
+                </div>
+
+                <div>
+                  <h3
+                    className={`${serif.className} text-lg text-[#2b2320] transition-colors duration-300 group-hover:text-[#6d2c2c]`}
+                  >
+                    {product.name}
+                  </h3>
+                  <p className="mt-1.5 flex items-baseline gap-2 text-[#726757]">
+                    <span className="text-[11px] font-medium uppercase tracking-[0.14em]">
+                      {ta.from}
+                    </span>
+                    <span className="text-[15px] font-medium tabular-nums text-[#2b2320]">
+                      {prixAffiche(priceFrom(product) ?? 0, locale)}
+                    </span>
+                  </p>
+                  {/* Aperçu des teintes de cadre, mêmes pastilles que la fiche produit. */}
+                  <div className="mt-3 flex items-center gap-1.5">
+                    {product.metals.slice(0, 8).map((material) => (
+                      <MaterialBubble key={material.id} material={material} className="h-4 w-4" />
+                    ))}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Le sur-mesure : au-delà des tailles du catalogue */}
+        <section className="mt-20 grid items-center gap-10 rounded-2xl bg-[#0b0a09] p-8 md:grid-cols-[1fr_1.1fr] md:p-12">
+          <div>
+            <h2 className={`${serif.className} text-2xl text-white md:text-3xl`}>
+              {t.surMesureTitle}
+            </h2>
+            <p className="mt-4 leading-relaxed text-white/70">{t.surMesureBody}</p>
             <Link
               href={`/${locale}/toiles-tendues/devis`}
-              className="rounded-full bg-[#AD8148] px-6 py-3 text-sm font-medium text-white hover:bg-[#93703d]"
+              className="mt-8 inline-block rounded-full bg-white px-6 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] transition-opacity hover:opacity-90"
             >
-              {t.heroCtaPrimary}
-            </Link>
-            <Link
-              href={`/${locale}/toiles-tendues/realisations`}
-              className="text-sm font-medium text-white"
-            >
-              {t.heroCtaSecondary} →
+              {t.ctaButton}
             </Link>
           </div>
-        </div>
-      </section>
+          {/* La toile est réellement éclairée par le dégradé animé. */}
+          <PlafondLumineux alt={t.altPlafondDemo} className="drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)]" />
+        </section>
 
-      <div className="mx-auto max-w-6xl px-6">
-        {/* Aperçu réalisations */}
-        <section className="flex flex-col gap-6 py-16">
-          <h2 className={`${serif.className} text-2xl font-medium md:text-3xl`}>
+        {/* Réalisations */}
+        <section className="mt-20">
+          <h2 className="text-xs font-medium uppercase tracking-widest text-[#726757]">
             {t.realisationsTitle}
           </h2>
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="mt-6 grid gap-6 md:grid-cols-2">
             {realisationPhotos.map((photo) => (
-              <div key={photo.src} className="relative aspect-[16/10] overflow-hidden rounded-2xl">
-                <Image
-                  src={photo.src}
-                  alt={photo.alt}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover"
-                />
+              <div
+                key={photo.src}
+                className={`relative aspect-[16/10] overflow-hidden rounded-xl ${hoverZoom}`}
+              >
+                {photo.clip && photo.clipBox ? (
+                  <PhotoPlafondAnime
+                    src={photo.src}
+                    alt={locale === "en" ? photo.altEn : photo.alt}
+                    box={photo.clipBox}
+                    clip={photo.clip}
+                    sizes="(max-width: 768px) 100vw, 560px"
+                  />
+                ) : (
+                  <Image
+                    src={photo.src}
+                    alt={locale === "en" ? photo.altEn : photo.alt}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 560px"
+                    className="object-cover"
+                  />
+                )}
               </div>
             ))}
           </div>
-        </section>
-
-        {/* Gammes / savoir-faire */}
-        <section className="flex flex-col gap-10 py-16">
-          <h2 className={`${serif.className} text-2xl font-medium md:text-3xl`}>
-            {t.gammesTitle}
-          </h2>
-          <div className="grid gap-10 md:grid-cols-3">
-            {t.gammes.map((gamme) => (
-              <div key={gamme.title} className="border-t border-white/15 pt-6">
-                <h3 className={`${serif.className} text-lg text-[#AD8148]`}>
-                  {gamme.title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-white/70">{gamme.body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Pourquoi nous */}
-        <section className="flex flex-col gap-10 py-16">
-          <h2 className={`${serif.className} text-2xl font-medium md:text-3xl`}>
-            {t.pourquoiTitle}
-          </h2>
-          <div className="grid gap-10 md:grid-cols-3">
-            {t.pourquoi.map((item, index) => (
-              <div key={item.title}>
-                <span className="font-mono text-sm text-[#AD8148]">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <h3 className={`${serif.className} mt-3 text-lg text-white`}>
-                  {item.title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-white/70">{item.body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* CTA devis */}
-        <section className="flex flex-col items-start gap-4 py-20">
-          <h2 className={`${serif.className} text-2xl font-medium md:text-3xl`}>
-            {t.ctaTitle}
-          </h2>
-          <p className="text-white/60">{t.ctaSubtitle}</p>
           <Link
-            href={`/${locale}/toiles-tendues/devis`}
-            className="rounded-full bg-[#AD8148] px-6 py-3 text-sm font-medium text-white hover:bg-[#93703d]"
+            href={`/${locale}/toiles-tendues/realisations`}
+            className="mt-6 inline-block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6d2c2c] underline underline-offset-4"
           >
-            {t.ctaButton}
+            {t.heroCtaSecondary}
           </Link>
         </section>
+
+        {/* Ce que ça change */}
+        <section className="mt-20 grid gap-10 border-t border-[#e5ddd3] pt-10 md:grid-cols-3">
+          {t.pourquoi.map((item, index) => (
+            <div key={item.title}>
+              <span className="font-mono text-sm text-[#6f6357]">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <h3 className={`${serif.className} mt-3 text-lg text-[#2b2320]`}>{item.title}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-[#5c5140]">{item.body}</p>
+            </div>
+          ))}
+        </section>
       </div>
+
+      {/* Bandeau atelier, le même que sur la boutique */}
+      <section className="bg-[#6d2c2c] px-6 py-14 text-white">
+        <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 text-center">
+          <div>
+            <h2 className={`${serif.className} text-2xl`}>{ta.craftBandTitle}</h2>
+            <p className="mt-3 max-w-2xl leading-relaxed text-white/85">{ta.craftBandBody}</p>
+          </div>
+          <Link
+            href={`/${locale}/contact`}
+            className="rounded-full bg-white px-6 py-2.5 text-sm font-medium text-[#6d2c2c] transition-colors hover:bg-[#f5f1ea]"
+          >
+            {dict.nav.contact}
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

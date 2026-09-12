@@ -14,7 +14,9 @@ export default async function ArtisanatLayout({
   return (
     <div className="min-h-screen bg-[#fbf9f6] text-[#2b2320]">
       <ArtisanatHeader locale={locale} dict={dict} />
+      <main id="contenu">
       {children}
+      </main>
       <SiteFooter locale={locale} dict={dict} tone="light" />
     </div>
   );

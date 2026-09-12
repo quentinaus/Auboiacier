@@ -1,11 +1,145 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "./dictionaries";
+import { metadataPage } from "@/lib/seo";
 import { GlobalHeader } from "@/components/global-header";
-import { HeroShaderBackground } from "@/components/hero-shader-background";
 import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
+import { PhotoPlafondAnime } from "@/components/photo-plafond-anime";
+import { hoverZoom } from "@/lib/ui";
+
+const ACCENT = "#6d2c2c";
+
+/** Panneau cliquable : image plein cadre, titre centré, bouton. Pleine
+ *  largeur sur téléphone, une moitié d'écran à partir de la tablette. */
+function HeroPanel({
+  href,
+  src,
+  alt,
+  title,
+  subtitle,
+  cta,
+  objectPosition,
+  priority = false,
+  divider = false,
+}: {
+  href: string;
+  src: string;
+  alt: string;
+  title: string;
+  /** Une phrase pour choisir : prix fermes d'un côté, sur mesure de l'autre. */
+  subtitle?: string;
+  cta: string;
+  objectPosition?: string;
+  priority?: boolean;
+  divider?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`group relative flex min-h-[46vh] items-center justify-center overflow-hidden sm:min-h-[58vh] md:min-h-[78vh] ${
+        divider ? "border-t border-white/15 md:border-l md:border-t-0" : ""
+      }`}
+    >
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        priority={priority}
+        sizes="(max-width: 768px) 100vw, 50vw"
+        style={{ objectPosition }}
+        className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/55 transition-opacity duration-500 group-hover:opacity-90" />
+
+      <div className="relative z-10 flex flex-col items-center px-3 text-center sm:px-6">
+        {/* Ce n'est pas un titre de section mais l'intitulé d'un lien : en
+            faire un <h2> plaçait deux titres de niveau 2 AVANT le titre de la
+            page, et la structure se lisait à l'envers pour un lecteur d'écran
+            comme pour Google. */}
+        <p
+          className={`${serif.className} max-w-md text-3xl font-normal leading-tight text-white drop-shadow-lg sm:text-4xl md:text-5xl`}
+        >
+          {title}
+        </p>
+        {subtitle && (
+          <p className="mt-4 max-w-sm text-[13px] leading-relaxed text-white/90 drop-shadow-md sm:mt-5 sm:max-w-md sm:text-sm">
+            {subtitle}
+          </p>
+        )}
+        <span
+          className="mt-6 inline-block px-7 py-3 text-[11px] font-medium uppercase leading-tight tracking-[0.18em] text-white transition-colors duration-300 group-hover:bg-[#853737] sm:px-8 sm:py-3.5 md:mt-7 md:tracking-[0.2em]"
+          style={{ backgroundColor: ACCENT }}
+        >
+          {cta}
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+/** Tuile de catégorie : photo portrait qui grandit au survol, titre dessous. */
+function CategoryTile({
+  href,
+  src,
+  alt,
+  label,
+  objectPosition,
+  clip,
+  clipBox,
+}: {
+  href: string;
+  src: string;
+  alt: string;
+  label: string;
+  objectPosition?: string;
+  /** Contour de la dalle lumineuse : la photo s'anime alors dedans. */
+  clip?: string;
+  clipBox?: { left: string; top: string; width: string; height: string };
+}) {
+  return (
+    <Link href={href} className="flex flex-col items-center gap-3">
+      <div className={`relative aspect-[4/5] w-full overflow-hidden ${hoverZoom}`}>
+        {clip && clipBox ? (
+          <PhotoPlafondAnime
+            src={src}
+            alt={alt}
+            box={clipBox}
+            clip={clip}
+            sizes="(max-width: 768px) 50vw, 280px"
+          />
+        ) : (
+          <Image
+            src={src}
+            alt={alt}
+            fill
+            sizes="(max-width: 768px) 50vw, 280px"
+            style={{ objectPosition }}
+            className="object-cover"
+          />
+        )}
+      </div>
+      <span className={`${serif.className} text-[15px] text-[#2b2320] md:text-base`}>{label}</span>
+    </Link>
+  );
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/[lang]">): Promise<Metadata> {
+  const { lang } = await params;
+  const locale = isLocale(lang) ? lang : defaultLocale;
+  const dict = await getDictionary(locale);
+  return metadataPage({
+    locale,
+    chemin: "",
+    title: dict.seo.hub.title,
+    description: dict.seo.hub.description,
+    image: "/images/interieur-escalier-table.jpg",
+  });
+}
 
 export default async function HubPage({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
@@ -13,72 +147,249 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
   const dict = await getDictionary(locale);
   const t = dict.hub;
 
+  const categories = [
+    {
+      href: `/${locale}/artisanat#table-interieur`,
+      src: "/images/mikado/coupe/noir.jpg",
+      alt: t.altTables,
+      label: t.catTables,
+    },
+    {
+      href: `/${locale}/artisanat#table-exterieur`,
+      src: "/images/table-exterieur-lattes.jpg",
+      alt: t.altTablesExt,
+      label: t.catTablesExt,
+    },
+    {
+      href: `/${locale}/artisanat#chaise`,
+      src: "/images/chaises/vert-bouteille.jpg",
+      alt: t.altChaises,
+      label: t.catChaises,
+      objectPosition: "50% 55%",
+    },
+    {
+      href: `/${locale}/artisanat#chaise-exterieur`,
+      // Recadrage 3/4 du fauteuil, centré : la photo d'origine est en paysage.
+      src: "/images/chaise-exterieur-tuile.jpg",
+      alt: t.altChaisesExt,
+      label: t.catChaisesExt,
+    },
+    {
+      href: `/${locale}/artisanat/sculptures`,
+      src: "/images/sculpture-cheval.jpg",
+      alt: t.altSculptures,
+      label: t.catSculptures,
+      objectPosition: "50% 40%",
+    },
+    {
+      href: `/${locale}/artisanat#escalier`,
+      src: "/images/escalier-limon-central.jpg",
+      alt: t.altEscaliers,
+      label: t.catEscaliers,
+      objectPosition: "55% 50%",
+    },
+    {
+      href: `/${locale}/artisanat#garde-corps`,
+      src: "/images/garde-corps/fenetre-pose.jpg",
+      alt: t.altGardeCorps,
+      label: t.catGardeCorps,
+      objectPosition: "50% 42%",
+    },
+    {
+      href: `/${locale}/artisanat/verrieres`,
+      src: "/images/verriere-interieure.jpg",
+      alt: t.altVerrieres,
+      label: t.catVerrieres,
+      objectPosition: "50% 45%",
+    },
+    {
+      href: `/${locale}/toiles-tendues`,
+      src: "/images/salle-plafond-tuile.jpg",
+      alt: t.altPlafonds,
+      label: t.catPlafonds,
+      // La dalle relevée sur la photo : le dégradé s'anime exactement dedans.
+      clipBox: { left: "4.6%", top: "26.9%", width: "90.8%", height: "15.8%" },
+      clip: "polygon(0% 0%, 100% 0%, 78.7% 100%, 20.7% 100%)",
+    },
+  ];
+
+  /** Vrais témoignages clients — à remplir, rien d'inventé ici. */
+  const testimonials: { quote: string; author: string }[] = [];
+
   return (
     <div className="min-h-screen bg-[#fbf9f6] text-[#2b2320]">
-      <GlobalHeader locale={locale} dict={dict} />
+      <GlobalHeader locale={locale} dict={dict} overlay />
+      <main id="contenu">
 
-      <div className="mx-auto max-w-6xl px-6 py-16">
-        <h1
-          className={`${serif.className} max-w-xl text-3xl font-medium tracking-tight md:text-4xl`}
-        >
-          {t.title}
-        </h1>
-        <p className="mt-3 text-[#7a6e63]">{t.subtitle}</p>
+      {/* 1. Les deux univers, plein écran */}
+      {/* Sur téléphone les panneaux se superposent : côte à côte, ils ne font
+          que 180 px de large et le texte devient illisible. */}
+      <section className="grid grid-cols-1 md:grid-cols-2">
+        <HeroPanel
+          href={`/${locale}/toiles-tendues`}
+          src="/images/salle-plafond-mikado.jpg"
+          alt={t.altHeroLumiere}
+          title={t.lightingTitle}
+          subtitle={t.lightingSubtitle}
+          objectPosition="50% 26%"
+          cta={t.lightingCta}
+          priority
+        />
+        <HeroPanel
+          href={`/${locale}/artisanat`}
+          src="/images/mikado/ambiance.jpg"
+          alt={t.altHeroMobilier}
+          title={t.craftTitle}
+          subtitle={t.craftSubtitle}
+          cta={t.craftCta}
+          objectPosition="50% 55%"
+          priority
+          divider
+        />
+      </section>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
-          {/* Lumière & toile tendue */}
-          <Link
-            href={`/${locale}/toiles-tendues`}
-            className="group relative flex min-h-96 flex-col justify-end overflow-hidden rounded-2xl bg-[#0b0a09] p-8"
+      {/* 2. Ce que fait l'atelier, écrit noir sur blanc.
+          Le titre de niveau 1 était caché et ne contenait aucun des mots que
+          les gens tapent : ni métallier, ni Saumur, ni table, ni acier. Google
+          accorde très peu de poids à un titre invisible — et un visiteur qui
+          arrive du moteur veut savoir en une phrase où il est tombé. */}
+      <section className="border-t border-[#e5ddd3] bg-[#fbf9f6] px-6 py-7 md:py-9">
+        <div className="mx-auto max-w-3xl text-center">
+          <h1
+            className={`${serif.className} text-xl leading-snug text-[#2b2320] sm:text-2xl md:text-[1.75rem] md:leading-[1.2]`}
           >
-            <div className="absolute inset-0 opacity-90">
-              <HeroShaderBackground />
-            </div>
-            <div className="relative z-10">
-              <span className="font-mono text-xs uppercase tracking-widest text-white/60">
-                {t.lightingLabel}
-              </span>
-              <h2 className={`${serif.className} mt-2 text-2xl font-medium text-white`}>
-                {t.lightingTitle}
-              </h2>
-              <p className="mt-2 max-w-sm text-sm text-white/70">{t.lightingSubtitle}</p>
-              <span className="mt-4 inline-block text-sm font-medium text-white underline-offset-4 group-hover:underline">
-                {t.lightingCta} →
-              </span>
-            </div>
-          </Link>
+            {t.h1}
+          </h1>
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-[#5c5140] md:text-[15px]">
+            {t.h1Body}
+          </p>
+        </div>
+      </section>
 
-          {/* Fabrication artisanale */}
+      {/* 3. Bandeau atelier */}
+      <section>
+        <div className="relative flex aspect-[16/9] items-center justify-center overflow-hidden">
+          <Image
+            src="/images/atelier-soudeur.jpg"
+            alt={t.altAtelier}
+            fill
+            sizes="100vw"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-black/35" />
+          <div className="relative z-10 px-6 text-center">
+            <h2 className={`${serif.className} text-2xl text-white drop-shadow-lg sm:text-3xl md:text-4xl`}>{t.bandTitle}</h2>
+            <p className="mt-4 text-sm text-white/85 drop-shadow md:text-base">{t.bandSubtitle}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Les catégories */}
+      <section className="bg-[#f5f1ea] px-6 pb-16 pt-10 md:pb-24">
+        <div className="mx-auto max-w-6xl">
+          <h2 className="text-center text-[11px] font-medium uppercase tracking-[0.3em] text-[#6f6357]">
+            {t.categoriesTitle}
+          </h2>
+          {/* Quatre par rangée, plus petites ; la dernière rangée se centre. */}
+          <div className="mt-8 flex flex-wrap justify-center gap-4 sm:gap-6">
+            {categories.map((c) => (
+              <div key={c.href + c.label} className="basis-[calc(50%-0.5rem)] md:basis-[calc(25%-1.125rem)]">
+                <CategoryTile {...c} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Le mot de l'atelier */}
+      <section className="px-6 py-16 md:py-24">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className={`${serif.className} text-2xl leading-tight sm:text-3xl md:text-4xl`}>
+            {t.editorialTitle}
+          </h2>
+          <p className="mt-8 leading-relaxed text-[#4a4038]">{t.editorialBody1}</p>
+          <p className="mt-4 leading-relaxed text-[#4a4038]">{t.editorialBody2}</p>
           <Link
-            href={`/${locale}/artisanat`}
-            className="group relative flex min-h-96 flex-col justify-end overflow-hidden rounded-2xl bg-[#f5f1ea] p-8"
+            href={`/${locale}/a-propos`}
+            className="mt-10 inline-block px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-[#853737]"
+            style={{ backgroundColor: ACCENT }}
           >
-            <div className="absolute inset-x-6 top-6 bottom-32">
-              <Image
-                src="/images/table-mikado-full.jpg"
-                alt="Table Mikado — bois massif et acier"
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-contain transition-transform duration-300 group-hover:scale-[1.03]"
-              />
-            </div>
-            <div className="relative z-10">
-              <span className="font-mono text-xs uppercase tracking-widest text-[#7a6e63]">
-                {t.craftLabel}
-              </span>
-              <h2 className={`${serif.className} mt-2 text-2xl font-medium text-[#2b2320]`}>
-                {t.craftTitle}
-              </h2>
-              <p className="mt-2 max-w-sm text-sm text-[#5c5140]">{t.craftSubtitle}</p>
-              <span className="mt-4 inline-block text-sm font-medium text-[#2b2320] underline-offset-4 group-hover:underline">
-                {t.craftCta} →
-              </span>
-            </div>
+            {t.editorialCta}
           </Link>
         </div>
-      </div>
+      </section>
 
-      <SiteFooter locale={locale} dict={dict} tone="light" />
+      {/* 6. Les avis — remplir `testimonials` dès qu'il y a de vrais retours clients. */}
+      <section className="bg-[#f5f1ea] px-6 py-16 md:py-24">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="text-center text-[11px] font-medium uppercase tracking-[0.3em] text-[#6f6357]">
+            {t.testimonialsTitle}
+          </h2>
+
+          {testimonials.length > 0 ? (
+            <div className="mt-12 grid gap-12 md:grid-cols-3">
+              {testimonials.map((review) => (
+                <blockquote key={review.author} className="text-center">
+                  <p className={`${serif.className} text-lg italic leading-relaxed text-[#2b2320]`}>
+                    « {review.quote} »
+                  </p>
+                  <footer className="mt-5 text-[11px] uppercase tracking-[0.2em] text-[#6f6357]">
+                    {review.author}
+                  </footer>
+                </blockquote>
+              ))}
+            </div>
+          ) : (
+            <p className="mx-auto mt-8 max-w-xl text-center leading-relaxed text-[#726757]">
+              {t.testimonialsNote}
+            </p>
+          )}
+
+          {/* Les deux pages de fond (zone desservie, questions fréquentes)
+              se rejoignent d'ici : sans lien, personne ne les trouve. */}
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-center">
+            {[
+              { href: `/${locale}/toiles-tendues/realisations`, label: t.testimonialsCta },
+              { href: `/${locale}/zone-intervention`, label: dict.nav.zone },
+              { href: `/${locale}/faq`, label: dict.nav.faq },
+            ].map((lien) => (
+              <Link
+                key={lien.href}
+                href={lien.href}
+                className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-[#6d2c2c]"
+              >
+                {lien.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 7. La mission, sur une photo plein cadre */}
+      <section className="relative flex min-h-[55vh] items-center justify-center overflow-hidden md:min-h-[80vh]">
+        <Image
+          src="/images/vignes-coucher-soleil.jpg"
+          alt={t.altVignes}
+          fill
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-black/45" />
+        <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
+          <h2 className={`${serif.className} text-2xl text-white sm:text-3xl md:text-4xl`}>{t.missionTitle}</h2>
+          <p className="mx-auto mt-6 max-w-xl leading-relaxed text-white/85">{t.missionBody}</p>
+          <Link
+            href={`/${locale}/contact`}
+            className="mt-10 inline-block px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-[#853737]"
+            style={{ backgroundColor: ACCENT }}
+          >
+            {t.missionCta}
+          </Link>
+        </div>
+      </section>
+
+      </main>
+      <SiteFooter locale={locale} dict={dict} tone="dark" />
     </div>
   );
 }

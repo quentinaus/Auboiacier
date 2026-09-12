@@ -1,7 +1,7 @@
 {
   "meta": {
     "siteName": "Auboiacier",
-    "tagline": "Wood, steel & light — French handcraft"
+    "tagline": "Metalwork studio — backlit stretch ceilings and steel-and-solid-wood furniture."
   },
   "nav": {
     "home": "Home",
@@ -12,26 +12,72 @@
     "contact": "Contact",
     "cta": "Get a quote",
     "catalogue": "Shop",
-    "backToHub": "Auboiacier"
+    "backToHub": "Auboiacier",
+    "cart": "Cart",
+    "zone": "Where we work",
+    "faq": "Frequently asked questions",
+    "breadcrumb": "Breadcrumb",
+    "mainMenu": "Main menu"
   },
   "footer": {
     "rights": "All rights reserved.",
-    "tagline": "Metalwork and woodwork studio — backlit stretch ceilings and wood-steel furniture.",
+    "tagline": "Metalwork studio — backlit stretch ceilings and steel-and-solid-wood furniture.",
     "navTitle": "Navigation",
     "contactTitle": "Contact",
-    "siret": "Business ID coming soon"
+    "siret": "Business ID coming soon",
+    "cgv": "Terms of sale",
+    "legal": "Legal notice"
   },
   "hub": {
     "title": "Two crafts, one hand.",
     "subtitle": "Choose what brings you to Auboiacier.",
-    "lightingLabel": "Light & stretch ceilings",
-    "lightingTitle": "Custom light ceilings",
-    "lightingSubtitle": "Welded aluminium frame, stretched membrane, integrated LED lighting. Always custom, always a quote.",
-    "lightingCta": "Discover",
-    "craftLabel": "Handmade furniture",
-    "craftTitle": "Wood & steel furniture",
+    "h1": "Metalworker in Saumur, France — steel and solid-wood furniture, bespoke light ceilings",
+    "h1Body": "Auboiacier builds tables, chairs, staircases, steel partitions and backlit stretched-fabric ceilings by hand, in its workshop in Saumur, France. Made to the dimensions you give, delivered and fitted across the Loire Valley and the rest of France.",
+    "lightingLabel": "Light & stretched fabric",
+    "lightingTitle": "Backlit stretch ceilings",
+    "lightingSubtitle": "Welded aluminium frame, stretched membrane, integrated LED. Prices shown for catalogue sizes, and the calculator quotes your own dimensions to the millimetre.",
+    "lightingCta": "See the ceilings and prices",
+    "craftLabel": "Handmade in the workshop",
+    "craftTitle": "Handmade furniture",
     "craftSubtitle": "Tables, chairs and pieces made by hand. Fixed price, order online.",
-    "craftCta": "Discover"
+    "craftCta": "See the collection",
+    "bandTitle": "Nothing is held in stock",
+    "bandSubtitle": "The steel is cut and welded once the order comes in, and the boards are picked one by one for your piece.",
+    "categoriesTitle": "What we make",
+    "catTables": "Indoor tables",
+    "catChaises": "Indoor chairs",
+    "catChaisesExt": "Outdoor chairs",
+    "catConsoles": "Consoles",
+    "catEscaliers": "Staircases",
+    "catGardeCorps": "Railings",
+    "catPlafonds": "Backlit stretch ceilings",
+    "catLed": "LED lighting",
+    "editorialTitle": "A simple line, a piece that lasts",
+    "editorialBody1": "Auboiacier is a metalwork studio. The trade is steel: cut, welded, ground, powder-coated. Solid wood comes to sit on it — table tops, stair treads, shelves — glued, sanded and oiled right here.",
+    "editorialBody2": "No production runs: every piece is built to order, to the dimensions of your home, and made to last for years.",
+    "editorialCta": "Who makes your pieces",
+    "testimonialsTitle": "What our clients say",
+    "testimonialsNote": "First projects are under way: client reviews will be published here.",
+    "testimonialsCta": "See our work",
+    "missionTitle": "What we are trying to do",
+    "missionBody": "Build pieces in steel and solid wood that can still be sanded, re-welded and repainted in thirty years. Not furniture you replace.",
+    "missionCta": "Request a quote",
+    "catVerrieres": "Steel partitions",
+    "catSculptures": "Sculptures",
+    "catTablesExt": "Outdoor tables",
+    "altHeroLumiere": "Backlit stretch ceiling above a dining table",
+    "altHeroMobilier": "Mikado table in walnut with green velvet chairs in a stone-walled dining room",
+    "altAtelier": "Grinding a steel frame in the workshop, a shower of sparks",
+    "altVignes": "Hillside vineyards at sunset",
+    "altTables": "Close-up of the oak top and steel base of the Mikado table",
+    "altTablesExt": "Mikado outdoor table with a slatted oak top",
+    "altChaises": "Olive green velvet chair on a black steel base",
+    "altChaisesExt": "Grey powder-coated steel terrace armchair with cushions",
+    "altSculptures": "Rearing horse welded by hand from reclaimed steel",
+    "altEscaliers": "Staircase with a central steel spine and oak treads",
+    "altGardeCorps": "Black steel window railing with cast-iron rosettes and an oak handrail",
+    "altPlafonds": "Backlit stretch ceiling above a dining table",
+    "altVerrieres": "Black steel interior partition between a living room and a kitchen"
   },
   "home": {
     "heroTitle": "Your ceiling, made to measure.",
@@ -39,7 +85,7 @@
     "heroCtaPrimary": "Get a quote",
     "heroCtaSecondary": "See our projects",
     "realisationsTitle": "Recent projects",
-    "gammesTitle": "What a stretch ceiling changes",
+    "gammesTitle": "What a backlit stretch ceiling changes",
     "gammes": [
       {
         "title": "Light without shadows",
@@ -65,13 +111,18 @@
         "body": "From measurements to installation, you talk to the maker — not a reseller."
       },
       {
-        "title": "Truly custom",
+        "title": "No standard sizes",
         "body": "Shapes, sizes, light temperatures: the ceiling is designed for your space, never the other way round."
       }
     ],
     "ctaTitle": "Got a project in mind?",
     "ctaSubtitle": "Tell us about your room, we'll take it from there.",
-    "ctaButton": "Start my quote"
+    "ctaButton": "Describe my project",
+    "catalogueLumiere": "Backlit stretch ceilings",
+    "catalogueLumiereNote": "Backlit stretched fabric, powder-coated aluminium frame — from 60 cm to a whole ceiling.",
+    "surMesureTitle": "An oversized piece?",
+    "surMesureBody": "The largest single panel is 400 × 300 cm. Beyond that we butt several boxes together to cover a whole ceiling: we survey the space on site and quote.",
+    "altPlafondDemo": "Backlit stretched-fabric ceiling on a steel frame"
   },
   "realisations": {
     "title": "Projects",
@@ -79,11 +130,15 @@
     "filterAll": "All",
     "filterResidential": "Residential",
     "filterCommercial": "Commercial",
-    "moreSoon": "More projects will be added as installs are completed."
+    "moreSoon": "More projects will be added as installs are completed.",
+    "filterEmpty": "No project in this category has been published yet.",
+    "altSalon": "Backlit stretch ceiling above a living room, warm light",
+    "altReunion": "Large round light panel above a meeting room",
+    "altSalle": "Backlit stretch ceiling above a dining table"
   },
   "artisanat": {
     "title": "Handmade furniture",
-    "subtitle": "Wood & steel furniture, designed and welded by hand in our workshop. Small batches, fixed prices, delivered across France.",
+    "subtitle": "Wood and steel furniture, drawn and welded in the workshop in Saumur, France. Nothing in stock: the steel is cut when you order. Firm prices, delivery and assembly included.",
     "catalogueTitle": "The collection",
     "breadcrumbShop": "Shop",
     "breadcrumbCategory": "Furniture",
@@ -91,46 +146,621 @@
     "added": "Added to cart",
     "from": "From",
     "quantityLabel": "Quantity",
-    "sizeLabel": "Dimensions",
+    "sizeLabel": "Made to measure, your size",
     "woodLabel": "Solid wood",
     "metalLabel": "Leg colour",
     "madeInFrance": "Handmade in France",
     "craftBandTitle": "French craftsmanship",
     "craftBandBody": "Every piece leaves our own workshop: the wood is picked board by board, the steel is TIG-welded then powder-coated, and final assembly is done by hand. No industrial runs — your furniture is made for you, to order.",
-    "descriptifTitle": "Details",
+    "descriptifTitle": "The piece in detail",
     "sectionFaq": "Frequently asked questions",
     "faqDeliveryQ": "What are the making and delivery times?",
-    "faqDeliveryA": "Each piece is made to order: allow 4 to 8 weeks depending on the item, then delivery across mainland France with assembly included. We propose a precise slot as soon as your piece is ready.",
+    "faqDeliveryA": "Each piece is made to order. The time is shown on the piece's own page, on the “Lead time” line: from 3 to 12 weeks depending on the model — a chair leaves sooner than a staircase. Then comes delivery across mainland France with assembly included; we propose a precise slot as soon as your piece is ready.",
     "faqCareQ": "How do I care for a wood & steel piece?",
     "faqCareA": "A soft dry cloth day to day. For oiled wood, re-apply hardwax oil once a year; scratches sand out lightly. Powder-coated steel wipes clean with a damp sponge — no abrasives.",
     "relatedTitle": "More from the workshop",
-    "backToCatalogue": "← Back to the shop"
+    "backToCatalogue": "← Back to the shop",
+    "fabricLabel": "Velvet colour",
+    "moreInfo": "See the details",
+    "helpTitle": "A question about this piece?",
+    "helpCta": "Get in touch",
+    "deliveryTitle": "Careful delivery",
+    "deliveryBody": "We deliver anywhere in mainland France. Your furniture travels under blankets, with no throw-away packaging, and we agree a precise time slot with you. Assembly on site is included: the piece is ready to use when we leave.",
+    "delaiTitle": "Lead time",
+    "delaiBody": "You are ordering a piece made for you, not an item off a shelf. The production time is shown above, in the details, on the “Lead time” line: allow 3 to 12 weeks depending on the piece and the season. The exact time is confirmed when you order.",
+    "delaiCta": "Order",
+    "avisTitle": "What our clients say",
+    "avisNote": "First projects are under way: client reviews will be published here.",
+    "avisCta": "See our work",
+    "contactTitle": "Tell us about your project",
+    "contactBody": "A particular size, a specific timber, a colour outside the range? Tell us what you have in mind and we adapt.",
+    "contactCta": "Get in touch",
+    "faqCustomQ": "Can I order custom dimensions?",
+    "faqCustomA": "Yes. The sizes shown are our usual formats, but the workshop works piece by piece: length, width, height, shape of the top — all of it is open. Send us your measurements and we will quote.",
+    "faqShorterQ": "Can the lead time be shorter?",
+    "faqShorterA": "Some steps cannot be rushed: drying the timber, welding, powder coating, finishing. We can sometimes bring an order forward depending on the workshop schedule — call us and we will tell you where we stand.",
+    "faqPayQ": "How does payment work?",
+    "faqPayA": "Catalogue pieces are paid in full by card when you order, and your invoice is sent automatically. For bespoke work quoted individually (staircase, steel partition, sculpture), a 40% deposit starts production and the balance is paid on delivery. Backlit stretch ceilings, including at your own dimensions, are ordered and paid online like the rest of the shop.",
+    "requestQuote": "Request a quote",
+    "onQuote": "Price on request",
+    "quoteNote": "Made to measure: we survey the space on site before quoting, fitting included.",
+    "cartTotalLine": "that is",
+    "catalogueInterieur": "Indoors",
+    "catalogueExterieur": "Outdoors",
+    "catalogueInterieurNote": "Tables, chairs and consoles for the home.",
+    "catalogueExterieurNote": "Pieces treated to live outside all year round.",
+    "customCta": "Custom size",
+    "customTitle": "Built to your exact size",
+    "customHelp": "Your dimensions in millimetres — the workshop's unit. Priced per m².",
+    "customUnit": "Unit",
+    "customWidth": "Width",
+    "customHeight": "Height",
+    "customDiameter": "Diameter",
+    "customMax": "Maximum in one piece",
+    "customMin": "Minimum",
+    "customArea": "Area",
+    "customApply": "Use these dimensions",
+    "customApplied": "Dimensions set",
+    "customTooSmall": "Below the smallest size we can build.",
+    "customTooBig": "Beyond the largest single piece — get in touch, we butt several boxes together.",
+    "customInvalid": "Enter dimensions as numbers.",
+    "customReset": "Back to catalogue sizes",
+    "customLength": "Length",
+    "customHelpPlan": "Your sizes in centimetres — or millimetres if you prefer, the unit switches next to them. The top is priced per m², the base included.",
+    "customThickness": "Thickness",
+    "customThicknessNote": "The top: the single biggest part of the price.",
+    "customThicknessNoteLight": "Housing depth: only the aluminium band changes, so the price barely moves.",
+    "customRange": "{min} to {max} mm",
+    "customBadThickness": "Thickness out of range.",
+    "customThicknessMin": "Over a {portee} mm span, the top must be at least {mini} mm thick.",
+    "customBoxDepth": "On a {cote} mm panel, the box cannot be deeper than {max} mm.",
+    "delaiCtaDevis": "Request a quote",
+    "customOr": "Or a ready-made size",
+    "customAwait": "Enter your dimensions to see the price",
+    "inclusLivraison": "Delivery in mainland France and on-site assembly included — nothing is added at checkout.",
+    "inclusAtelier": "Made by hand in our workshop in Saumur, in the Loire Valley.",
+    "inclusPaiement": "Secure card payment: your card details never pass through our website.",
+    "releveTitle": "Your measurements, for a first estimate",
+    "releveIntro": "Three measurements are enough to draw the staircase. Take them with a tape, in millimetres — we check everything on site before building.",
+    "releveHauteur": "Floor-to-floor height",
+    "releveHauteurAide": "From the lower floor to the upper floor, finished surfaces in place.",
+    "releveRecul": "Available run",
+    "releveReculAide": "The floor space, from the foot of the stairs to directly below the top step.",
+    "releveTremieLongueur": "Opening — length",
+    "releveTremieLargeur": "Opening — width",
+    "releveTremieAide": "The hole in the upper floor. Leave blank if it is not cut yet.",
+    "relevePassage": "Tread width",
+    "relevePassageAide": "How wide the steps are. 80 to 90 cm is the usual comfort.",
+    "releveDepart": "Where the staircase starts",
+    "releveDepartOptions": [
+      "Against a wall",
+      "In a corner",
+      "In the middle of the room",
+      "Not decided yet"
+    ],
+    "releveResultTitle": "What that gives",
+    "releveAttente": "Enter the floor-to-floor height to see the number of steps.",
+    "releveMarches": "{n} steps of {h} cm",
+    "releveGiron": "going {g} cm",
+    "releveBlondel": "pace of {b} cm",
+    "releveConfortable": "Comfortable step.",
+    "releveUnPeuRaide": "Slightly tall step, still common.",
+    "releveRaide": "Tall step — this staircase climbs.",
+    "releveReculConseille": "For a comfortable pace, allow about {r} m of run.",
+    "releveReculJuste": "The pace falls right: height and going agree.",
+    "releveReculServe": "The pace is tight for that run — the staircase will feel steep coming down. We will talk it through on site.",
+    "releveNote": "Indicative figures. The on-site survey is what counts: that is where we find the wall that is not square and the beam in the way.",
+    "releveRecap": "Survey",
+    "releveCalcul": "Indicative calculation",
+    "releveReculLong": "You have more run than needed: we can ease the slope, or win back some floor space.",
+    "gcTitle": "Your measurements, for a railing made exactly to your window",
+    "gcIntro": "Three tape measurements, that's all: we work out the railing height so that it meets the rules, and we build it to the millimetre so that it fits into your window. Give the raw sizes, without taking anything off.",
+    "gcInfoLabel": "Explanation",
+    "gcEtage": "Where the window is",
+    "gcEtageOptions": [
+      "Upstairs",
+      "Ground floor"
+    ],
+    "gcEtageInfo": "Upstairs there is a drop behind the window: the rule requires a guard rising to 1 m from the floor. On the ground floor the handrail reaches 80 cm from the floor.",
+    "gcLargeur": "Window width, wall to wall",
+    "gcLargeurAide": "Inside the opening, from one wall to the other. Measure at the top and the bottom, note the smaller.",
+    "gcLargeurInfo": "Open the window and measure from wall to wall inside the opening, where the railing will fit. Raw size: do not take anything off, we allow for the fitting clearance.",
+    "gcAllege": "Height from the floor to the bottom of the window",
+    "gcAllegeAide": "From the floorboards or tiles up to the top of the sill.",
+    "gcAllegeInfo": "Standing in the room, measure from the finished floor (boards or tiles laid) up to the top of the window sill, the ledge you rest your hands on. That height tells us how tall to make the railing.",
+    "gcMur": "Wall type",
+    "gcMurOptions": [
+      "Stone",
+      "Solid brick",
+      "Hollow brick",
+      "Concrete block",
+      "Concrete",
+      "Aerated concrete",
+      "Plasterboard on studs",
+      "I don't know"
+    ],
+    "gcMurInfo": "What the railing will be fixed into, on each side of the window. It decides the plugs and screws we supply. If unsure, choose “I don't know”: we will ask for a photo.",
+    "gcQui": "Who takes the measurements",
+    "gcQuiInfo": "The workshop comes to your home to measure before building — €19.99 within 30 km of Saumur, then mileage and driving time, up to 200 km. Or you measure yourself, with a tape: simple and free.",
+    "gcQuiMoi": "I measure myself",
+    "gcQuiMoiNote": "Free. Three tape measurements following the sketch, and the price shows straight away.",
+    "gcQuiAtelier": "The workshop comes to measure",
+    "gcQuiAtelierNote": "From €19.99. We come to you, up to 200 km from Saumur, and send you the exact price of the railing.",
+    "gcCodePostal": "Postcode of the window",
+    "gcCodePostalInfo": "It decides the travel: €19.99 within 30 km of Saumur, then mileage and driving time. Beyond 200 km we do not travel. Charged once, even for several windows.",
+    "gcVisiteOfferte": "Travel free of charge — {dep}",
+    "gcVisiteForfait": "Travel: {prix}, deducted if you order",
+    "gcVisiteAttente": "Enter your postcode to see the travel cost.",
+    "gcVisiteInvalide": "That does not look like a French postcode.",
+    "gcVisiteHorsMetropole": "We do not travel overseas — but we gladly build and ship to your measurements.",
+    "gcResultTitle": "Your railing",
+    "gcAttente": "Enter the three measurements to see your railing and its price.",
+    "gcResume": "{l} × {h} mm",
+    "gcRegleOk": "Regulatory minimum upstairs: {n} mm — met.",
+    "gcRegleSous": "You chose {h} mm; upstairs the regulatory minimum is {n} mm. We will talk it through before building.",
+    "gcRegleLibreAllege": "Your sill is more than 90 cm from the floor: the rule imposes nothing, the height is up to you.",
+    "gcRegleLibreRdc": "On the ground floor the handrail reaches 80 cm from the floor: minimum height {n} mm — met.",
+    "gcNote": "Made to the millimetre, fitted into the reveal, fixings supplied. We call you before cutting if a measurement surprises us.",
+    "gcRecap": "Survey",
+    "gcFabrication": "Railing",
+    "gcSchemaLargeur": "Window width",
+    "gcSchemaAllege": "Floor to bottom of window",
+    "gcSchemaHauteur": "Railing height, worked out by the workshop",
+    "gcSchemaMetre": "{m} mm from the floor · upstairs rule: 1 m min",
+    "gcSchemaInterieur": "Seen from the room",
+    "gcVisiteCalcul": "Working out the travel…",
+    "gcVisiteOffre": "{commune} — {prix}, our offer within 30 km of Saumur: we come and measure at your home, and you receive a quote, fitting included.",
+    "gcVisitePrix": "{commune} — {prix}: we come and measure at your home, and you receive a quote, fitting included.",
+    "gcVisiteErreur": "We cannot work out the travel right now. Please try again in a moment.",
+    "gcVisiteDeduite": "This amount is deducted from your order if you order afterwards.",
+    "gcVisiteResume": "Home survey",
+    "gcCreneauTitre": "When can we come",
+    "gcCreneauInfo": "Pick a half-day. We confirm the exact time by phone the day before.",
+    "gcCreneauMatin": "Morning · 9 am – 12 pm",
+    "gcCreneauApresMidi": "Afternoon · 2 pm – 5 pm",
+    "gcCreneauAucun": "No free slot for now: write to us and we will find a date together.",
+    "gcCreneauChargement": "Loading availability…",
+    "gcCreneauChoisi": "Appointment: {date}.",
+    "gcCreneauManque": "Pick a half-day to add the visit to your basket.",
+    "gcQuiAtelierTag": "Easiest",
+    "gcVisiteTropLoin": "{commune} is {km} km from Saumur: we do not travel beyond 200 km. Measure yourself following the sketch — we build and ship to your measurements.",
+    "gcPieceApresVisite": "Exact price sent after the visit, fitting included",
+    "gcVisiteLigne": "Home survey: {prix}",
+    "gcVisiteLigneDepart": "Home survey: from €19.99",
+    "gcCalcule": "Height worked out by the workshop to meet the French standard — building code art. R111-15 and NF P01-012: the handrail reaches {m} mm from the floor.",
+    "gcMurFacultatif": "Optional — what the railing fixes into",
+    "gcConforme": "Meets French standards",
+    "gcPrixInclus": "Made to the millimetre, fixings and fitting guide included.",
+    "gcPromesseTitre": "Instant price, order online",
+    "gcPromesse": "Enter your three measurements: the exact price appears at once and you order straight away, no quote, no waiting. Or the workshop comes to measure at your home.",
+    "gcSchemaMetreRdc": "{m} mm from the floor · ground-floor rule: 80 cm min",
+    "gcPrixAttente": "The price shows as soon as your three measurements are in.",
+    "gcPrixCompris": "wood and steel included",
+    "gcLot": "Several windows? −{taux}% on every railing from the second one, even with different sizes.",
+    "gcLotTag": "multi-buy −{taux}%",
+    "gcLotAutre": "Add another railing, with other measurements",
+    "gcLotDeja": "{n} already in your basket: the multi-buy price applies to all.",
+    "inclusLivraisonPose": "Delivery in mainland France included, fixings and fitting guide supplied — nothing is added at checkout.",
+    "gcHorsBareme": "Beyond {l} mm wide or {h} mm high we still make it — in several parts, on quotation. Write to us with your sizes, we reply within 48 h.",
+    "gcHorsBaremeCourt": "Over {l} mm wide: on quotation",
+    "gcNonConforme": "At {h} mm high, the crosses of this model leave gaps too wide for the standard (NF P01-012: a 110 mm sphere must not pass). This model suits windows up to {max} mm of railing — not bay windows.",
+    "gcNonConformeCourt": "Outside the standard at this height — two options opposite",
+    "gcNonConformeTitre": "This model does not suit these sizes",
+    "gcVoirAutres": "See the other railings",
+    "gcPasserVerre": "Laminated glass panel: {prix}",
+    "gcPasserVerreNote": "Instead of the crosses: no gaps, compliant at any height. 44.2 safety glass, cutting, fixings and seal included.",
+    "gcSurVerre": "Laminated glass panel instead of the crosses — included in the price.",
+    "gcRevenirCroix": "Back to the crosses",
+    "gcRemplissage": "Infill",
+    "famillesNav": "Jump to",
+    "familleModeles": "{n} model",
+    "familleModelesPluriel": "{n} models",
+    "familleGardeCorpsNote": "One model per style, each made to the millimetre to your sizes. More models are on the way.",
+    "compatTitre": "For your window: {l} mm wide, {h} mm of railing",
+    "compatOk": "{n} model suits these sizes.",
+    "compatOkPluriel": "{n} models suit these sizes.",
+    "compatAucun": "No cross or bar model meets the standard at this height. The Rosace model is then made with a laminated glass panel instead of the crosses, priced instantly on its page.",
+    "compatBadge": "Suits your sizes",
+    "compatNon": "Not at these sizes",
+    "compatVerre": "With a glass panel",
+    "gcFenetre": "Window height, from the sill to the top",
+    "gcFenetreAide": "Inside the opening, from the sill up to the top of the reveal.",
+    "gcFenetreInfo": "The height of the opening the railing fits into: from the top of the sill to the top of the reveal, window open. It tells us whether the railing fits in your window.",
+    "gcSchemaFenetre": "Window height",
+    "gcJour": "Fitted {j} mm above the sill: a gap the standard allows (110 mm at most), and that much less height.",
+    "gcTropBasse": "Your window is too low for a recessed railing: the handrail must reach {m} mm from the floor, and the top of the opening is at {f} mm. We then make it face-fixed, in front of the window — on quotation.",
+    "gcTropBasseCourt": "Window too low for a recessed railing: on quotation",
+    "gcJourCourt": "fitted",
+    "gcQuiMoiTag": "Instant price",
+    "gcCotesExactes": "Give the exact sizes of your window opening, where your railing will sit, to the millimetre — the workshop takes care of the rest.",
+    "gcPromesseCourt": "Instant price",
+    "gcCotesExactesSouligne": "to the millimetre",
+    "releveQuiMoiNote": "Free. Your tape measurements in the boxes, and we send you a quote.",
+    "releveQuiAtelierNote": "From €19.99. We come to you, up to 200 km from Saumur, and you receive a quote, fitting included.",
+    "releveQuiMoiTag": "Free",
+    "releveCodePostal": "Postcode of the site",
+    "releveVisiteIntro": "The staircase is made on quotation only: the workshop comes to measure at your home, and you receive a quote, fitting included. The travel is deducted from the order.",
+    "customTableHeight": "Finished height",
+    "customTableHeightAide": "Recommended: 75 cm — from the floor to the top of the table.",
+    "customTableHeightNote": "finished height {h} cm"
   },
   "devis": {
     "title": "Request a quote",
-    "subtitle": "Describe your project — we come back with an estimate within 48 h.",
-    "formIntro": "The detailed form (room type, dimensions, finishes, photos and plans) is coming very soon. In the meantime, write to us directly:",
-    "formCta": "contact@auboiacier.fr"
+    "subtitle": "Describe your project — we come back with an estimate within 48 hours."
   },
   "apropos": {
     "title": "About",
     "histoireTitle": "Our story",
-    "histoireBody": "Auboiacier contracts Aumercier, bois (wood) and acier (steel). Behind the workshop is a welder-metalworker with over five years across sites and workshops, in France and then in Australia with a specialist in backlit stretch ceilings. Back in France, the workshop brings both worlds together: the precision of metal, the warmth of wood and light.",
+    "histoireBody": "Auboiacier is Aumercier, wood and steel in a single word. Behind the workshop there is a welder and metalworker: over five years on sites and in workshops, in France and then in Australia, with a specialist in backlit stretch ceilings. Back in Saumur, he built the workshop around those two crafts — welding steel, working solid wood — and around the light he learned out there.",
     "savoirFaireTitle": "Our craft",
-    "savoirFaireBody": "TIG, MAG and SMAW welding, aluminium frames fitted to the millimetre, stretched membranes, solid-wood tops: every step happens in the workshop, from cutting to finishing. That is what lets us stand behind every piece we deliver.",
+    "savoirFaireBody": "TIG, MIG-MAG and stick welding, aluminium frames mitred and fitted to the millimetre, stretched membranes, gluing and sanding of solid-wood tops. Everything happens here, from the cut to the finish. That is why a fault can be put right: we know whose hands made the piece, and we take it back.",
     "valeursTitle": "Our values",
     "valeurs": [
-      { "title": "Custom first", "body": "Every piece starts from your space and your use — never from a catalogue." },
-      { "title": "Honest materials", "body": "Solid wood, solid steel, visible welds: nothing veneered, nothing hidden." },
-      { "title": "Work we stand behind", "body": "Made and installed by the same hands, and supported over time." }
-    ]
+      {
+        "title": "Custom first",
+        "body": "Every piece starts from your space and your use — never from a catalogue."
+      },
+      {
+        "title": "Honest materials",
+        "body": "Solid wood, solid steel, visible welds: nothing veneered, nothing hidden."
+      },
+      {
+        "title": "Work we stand behind",
+        "body": "Made and installed by the same hands, and supported over time."
+      }
+    ],
+    "photoAlt": "Saumur at sunset — the town our workshop calls home"
   },
   "contact": {
     "title": "Contact",
-    "subtitle": "A question, a project? Write to us — we reply within 48 h.",
-    "formSoon": "The contact form is coming soon — in the meantime, reach us by e-mail.",
+    "subtitle": "A question, a project? Write to us — we reply within 48 hours.",
     "detailsTitle": "Details",
     "email": "contact@auboiacier.fr",
-    "location": "France"
+    "location": "Saumur (49400), Maine-et-Loire — France",
+    "form": {
+      "title": "Request a quote",
+      "intro": "Tell us what you have in mind — we get back to you within 48 hours with an estimate.",
+      "name": "Name",
+      "namePh": "First and last name",
+      "email": "Email",
+      "emailPh": "you@example.com",
+      "phone": "Phone (optional)",
+      "phonePh": "+33 6 12 34 56 78",
+      "project": "Project type",
+      "projects": [
+        "Backlit stretch ceiling",
+        "Wood & steel furniture",
+        "Staircase",
+        "Steel partition",
+        "Sculpture",
+        "Other"
+      ],
+      "message": "Your project",
+      "messagePh": "Dimensions, which room, timing…",
+      "files": "Photos or plans (optional)",
+      "filesHint": "JPG, PNG or PDF — 2 files max, 3 MB each.",
+      "submit": "Send request",
+      "sending": "Sending…",
+      "success": "Thank you, your request is on its way. We reply within 48 hours.",
+      "error": "Sending failed. Please try again, or email us directly.",
+      "required": "Please fill in your name, email and message.",
+      "notConfigured": "Automatic sending is not switched on yet. Please email us in the meantime.",
+      "tooBig": "Files too large: 2 files max, 3 MB each.",
+      "privacy": "Your details are only used to answer your request.",
+      "sendFailed": "Automatic sending failed. You can email us directly:",
+      "sendFailedCta": "Open my email app",
+      "tooMany": "Too many messages in a short time. Please try again in a few minutes.",
+      "badFile": "That file is neither a photo nor a PDF. Please send a JPG, a PNG or a PDF.",
+      "mailSubject": "Quote request",
+      "mailName": "Name",
+      "mailPhone": "Phone",
+      "city": "Your town",
+      "cityPh": "Saumur (49400), France"
+    },
+    "phoneLabel": "Phone",
+    "hoursLabel": "Opening hours"
+  },
+  "sculptures": {
+    "title": "Sculptures",
+    "tagline": "One-off pieces in reclaimed steel, welded by hand.",
+    "intro": "The rearing horse is made of hundreds of steel offcuts — spanners, chains, bolts, sheet metal — welded one by one until the animal's movement appears. It is not a production item: it is an artwork.",
+    "body": "Every sculpture is designed with you: the subject, the size, the materials, the base and the place it will stand. The work is done by hand in the workshop and takes several weeks depending on the piece. They live outdoors in the rain just as well as in a hallway.",
+    "priceTitle": "Price",
+    "priceBody": "On request — each piece being unique, the price depends on the subject, its size and the time it takes to build.",
+    "cta": "Talk about your project",
+    "photoAlt": "Rearing horse sculpture in reclaimed steel, welded by hand, in front of a stone house"
+  },
+  "verrieres": {
+    "title": "Interior steel partitions",
+    "tagline": "Slim steel, clear glass, made and fitted to measure.",
+    "intro": "A steel partition divides without closing: the kitchen stays open to the living room, light goes through, noise stops. We draw the frames as slim as possible so the glass takes up all the room.",
+    "body": "Every partition is measured at your home then welded in the workshop, in one piece whenever the room allows. You choose the number of bars, the steel finish — matt black, clear-lacquered raw steel or white — and the details: brass handles, pivot or sliding door, clear, frosted or smoked glass.",
+    "detailTitle": "The detail that makes it",
+    "detailBody": "Solid brass handles and hinges, bolted onto the frame: they take on a patina over time, like an old door.",
+    "priceTitle": "Price",
+    "priceBody": "On request — the price depends on size, number of doors and finish. Allow 4 to 8 weeks between measuring and fitting.",
+    "cta": "Request a quote",
+    "photoAlt": "Black steel interior partition between a living room and a kitchen",
+    "detailAlt": "Solid brass handle on the steel frame of a partition",
+    "panelTitle": "Solid panels where they earn their place",
+    "panelBody": "Lower down, glass can give way to steel sheet stiffened by a cross brace: the bottom of the door takes the knocks, and the partition gains character.",
+    "panelAlt": "Lower panel of a steel partition in black sheet steel with a cross brace"
+  },
+  "panier": {
+    "title": "Your cart",
+    "empty": "Your cart is empty.",
+    "backToShop": "Back to the shop",
+    "quantity": "Quantity",
+    "remove": "Remove",
+    "total": "Total",
+    "shippingNote": "Delivery in mainland France and assembly included. Made to order: the production time is shown on each piece's own page, from 3 to 12 weeks depending on the model.",
+    "cgvAccept": "I have read and accept the",
+    "cgvLink": "terms and conditions of sale",
+    "cgvRequired": "Please accept the terms and conditions of sale.",
+    "checkout": "Pay for my order",
+    "redirecting": "Opening secure payment…",
+    "securedBy": "Secure card payment. Your card details never pass through our website.",
+    "removedLine": "One piece is no longer available in this configuration: it was removed from your cart.",
+    "unavailable": "One item in your cart can no longer be ordered online. Remove it or request a quote.",
+    "notConfigured": "Online payment is not switched on yet.",
+    "error": "Payment could not start. Please try again, or write to us.",
+    "writeUs": "write to us",
+    "tooMany": "Too many payment attempts in a short time. Wait a few minutes and try again.",
+    "city": "Your town",
+    "cityPh": "Saumur (49400), France",
+    "cityNote": "So we know where the piece is going and can plan delivery. The full address comes next, at payment.",
+    "cityRequired": "Please tell us your town before paying.",
+    "badPostcode": "The survey postcode is not valid, or the slot is no longer free: remove the line and start again from the product page.",
+    "lot": "Multi-buy −{taux}%"
+  },
+  "commande": {
+    "title": "Order",
+    "thankTitle": "Thank you for your order",
+    "thankBody": "We have received your payment. A confirmation email is on its way, and your invoice is sent separately.",
+    "ref": "Reference",
+    "amount": "Amount paid",
+    "leadTime": "Your piece is made to order in our workshop: the production time is the one shown on its page, from 3 to 12 weeks depending on the model. We confirm the date by email and contact you to arrange delivery.",
+    "notPaidTitle": "Order not found",
+    "notPaidBody": "We cannot find a payment for this page. If you have been charged, write to us and we will find your order.",
+    "backToShop": "Back to the shop"
+  },
+  "cgv": {
+    "title": "Terms and conditions of sale",
+    "intro": "These terms govern sales made on auboiacier.fr. They are accepted by the customer before any payment.",
+    "sections": [
+      {
+        "title": "1. The seller",
+        "body": "Auboiacier, an artisan metal and wood workshop based in Saumur, Maine-et-Loire, France. Full company details and registration numbers: see the legal notice."
+      },
+      {
+        "title": "2. Products",
+        "body": "Pieces are made by hand, to order, in our workshop. Wood and steel are living materials: slight variations in tone, grain and finish are normal and are not defects."
+      },
+      {
+        "title": "3. Prices and VAT",
+        "body": "Prices are shown in euros and are the total amount payable: no tax and no fee is added at payment. The applicable price is the one displayed at the time of the order. For catalogue pieces, delivery in mainland France and on-site assembly are included. The workshop's VAT treatment is stated on the invoice."
+      },
+      {
+        "title": "4. Ordering and payment",
+        "body": "Catalogue pieces are paid in full by card at the time of the order. Payment is handled by our provider Stripe: no card data is stored by Auboiacier. For bespoke work quoted individually, a 40% deposit starts production and the balance is paid on delivery."
+      },
+      {
+        "title": "5. Production times",
+        "body": "Every piece is made to order: nothing is held in stock. The production time is shown on each piece's own page, on the “Lead time” line — from 3 to 12 weeks depending on the model, the finishes chosen and the season. For bespoke work, the time is stated on the quote.\n\nThat time starts on payment (or on the deposit) and is confirmed to you in writing when you order. Should we exceed it, we tell you: you may then ask us to deliver within a further reasonable period and, if that period is missed, cancel the order and be refunded under article 9."
+      },
+      {
+        "title": "6. Delivery",
+        "body": "Delivery is made in mainland France, on a date agreed with the customer. It is the customer's responsibility to check that the piece can be brought to the installation site (access, stairs, doorways)."
+      },
+      {
+        "title": "7. Right of withdrawal",
+        "body": "Under article L221-28 3° of the French Consumer Code, the fourteen-day right of withdrawal does not apply to goods made to the consumer's specifications or clearly personalised. As our pieces are made to order with dimensions, timbers and finishes chosen by the customer, they fall under this exception and cannot be returned or exchanged, unless we expressly agree.\n\nIf a piece were sold to you without personalisation and without being built to your measurements, the fourteen-day right of withdrawal would apply as usual: an email would be enough, and the refund would be made under article 9."
+      },
+      {
+        "title": "8. Warranties",
+        "body": "All our pieces are covered by the legal warranty of conformity (two years from delivery) and by the legal warranty against hidden defects (two years from the discovery of the defect). In plain terms: if the piece does not match what was agreed, or if a hidden defect appears, repair, replacement, a price reduction or a refund is at our expense.\n\nThe full wording of those rights is reproduced word for word in the official box at the end of these terms. Normal wear, and damage caused by misuse, unsuitable maintenance or modification of the piece, are excluded."
+      },
+      {
+        "title": "9. Claims, returns and refunds",
+        "body": "Any claim should be sent to us by email, with photographs where possible, as soon as the piece arrives. We reply within 48 working hours and agree the next step with you: repair, replacement, price reduction or refund.\n\nAny refund due is paid no later than fourteen days after the right to it arises (withdrawal accepted, order cancelled, sale rescinded). It is made to the payment method used for the order — usually back to your card through Stripe — at no cost to you."
+      },
+      {
+        "title": "10. Personal data",
+        "body": "We only collect what is needed to answer your request or handle your order: name, email, phone, delivery address, the content of your message, and the details and amount of the order. This information is never sold or passed on.\n\nHow long we keep it: three years after the last contact for a quote request; ten years for orders and invoices, as French accounting law requires.\n\nWho processes it with us: Stripe Payments Europe for online payment and invoices, Resend for delivering our emails. These providers act on our behalf and for those purposes only.\n\nYour rights: you can ask to see your data, to correct it, to have it erased, to receive it in a reusable file (portability), or object to its use. An email to contact@auboiacier.fr is enough, and we answer within a month.\n\nIf our answer does not satisfy you, you can refer the matter to the CNIL, the French data protection authority (www.cnil.fr)."
+      },
+      {
+        "title": "11. Consumer mediation",
+        "body": "Write to us first: most disagreements are settled in a few emails. If our answer does not satisfy you, you may call free of charge on a consumer mediator. The contact details of the mediator our workshop is registered with are given with our written reply and appear on our invoices. You may also file your dispute on the European online dispute resolution platform: ec.europa.eu/consumers/odr."
+      },
+      {
+        "title": "12. Governing law",
+        "body": "These terms are governed by French law. They are accepted by ticking the box in the cart, before payment. In the event of a dispute, an amicable solution is sought first (article 11); failing that, the French courts have jurisdiction."
+      }
+    ],
+    "garantieTitle": "Legal warranty of conformity and hidden defects — official wording",
+    "garantieIntro": "The text below is the wording required by French law. It is reproduced as it stands, unchanged.",
+    "garantieBody": "The consumer has two years from delivery of the goods to obtain the benefit of the legal warranty of conformity should a lack of conformity appear. During that period, the consumer need only establish that the lack of conformity exists, not the date on which it appeared.\n\nThe legal warranty of conformity entitles the consumer to repair or replacement of the goods within thirty days of the request, free of charge and without major inconvenience.\n\nIf the goods are repaired under the legal warranty of conformity, the consumer benefits from a six-month extension of the original warranty.\n\nIf the consumer asks for the goods to be repaired but the seller insists on replacement, the legal warranty of conformity is renewed for two years from the date of replacement.\n\nThe consumer may obtain a reduction in the purchase price and keep the goods, or end the contract and be refunded in full against return of the goods, if:\n1. The trader refuses to repair or replace the goods;\n2. The repair or replacement takes place after a period of thirty days;\n3. The repair or replacement causes major inconvenience to the consumer, in particular where the consumer definitively bears the cost of taking back or removing the non-conforming goods, or bears the cost of installing the repaired or replacement goods;\n4. The lack of conformity persists despite the seller's unsuccessful attempt to bring the goods into conformity.\n\nThe consumer is also entitled to a reduction in the price of the goods or to rescission of the contract where the lack of conformity is so serious that an immediate price reduction or rescission is justified. The consumer is then not required to ask for repair or replacement first.\n\nThe consumer is not entitled to rescission of the sale where the lack of conformity is minor.\n\nAny period during which the goods are unavailable for repair or replacement suspends the remaining warranty period until the repaired goods are delivered.\n\nThe rights set out above arise from articles L. 217-1 to L. 217-32 of the French Consumer Code.\n\nA seller who obstructs in bad faith the operation of the legal warranty of conformity incurs a civil fine of up to 300,000 euros, which may be raised to 10% of average annual turnover (article L. 241-5 of the French Consumer Code).\n\nThe consumer also benefits from the legal warranty against hidden defects under articles 1641 to 1649 of the French Civil Code, for two years from the discovery of the defect. That warranty gives a right to a price reduction if the goods are kept, or to a full refund against return of the goods.",
+    "mediateurLabel": "Consumer mediator our workshop is registered with",
+    "tvaLabel": "VAT treatment"
+  },
+  "mentionsLegales": {
+    "title": "Legal notice",
+    "sections": [
+      {
+        "title": "Site publisher",
+        "body": "Auboiacier — metal and wood workshop, in Saumur, Maine-et-Loire, France. Contact: contact@auboiacier.fr."
+      },
+      {
+        "title": "Publication director",
+        "body": "Quentin Aumercier."
+      },
+      {
+        "title": "Hosting",
+        "body": "Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, USA — vercel.com."
+      },
+      {
+        "title": "Payment and emails",
+        "body": "Online payments are processed by Stripe Payments Europe, Ltd. No card data is stored by Auboiacier. Confirmation and quote emails are delivered by Resend."
+      },
+      {
+        "title": "Intellectual property",
+        "body": "The texts, photographs and creations shown on this site belong to Auboiacier. Any reproduction without permission is forbidden."
+      },
+      {
+        "title": "Personal data",
+        "body": "Data sent through the forms or when ordering is used only to answer requests and process orders. You have the right to access, correct, erase and port your data, and to object to its use: write to contact@auboiacier.fr. Retention periods, the providers involved and how to refer a matter to the CNIL are set out in article 10 of the terms of sale."
+      }
+    ],
+    "identiteTitle": "The business",
+    "labelRaisonSociale": "Registered name",
+    "labelStatut": "Legal form",
+    "labelAdresse": "Registered address",
+    "labelSiret": "Business ID (SIRET)",
+    "labelTva": "VAT number",
+    "labelTelephone": "Phone"
+  },
+  "seo": {
+    "hub": {
+      "title": "Steel & oak furniture and light ceilings — Saumur",
+      "description": "Metal and wood workshop in Saumur, France. Tables, chairs, staircases, steel partitions, sculptures and backlit stretch ceilings, all handmade to order — workshop prices, shipping across France."
+    },
+    "artisanat": {
+      "title": "Handmade tables, chairs and staircases — Saumur",
+      "description": "Solid oak tables on welded steel bases, velvet chairs, consoles, staircases and steel partitions, handmade in our workshop in Saumur, Loire Valley. Prices shown, no middleman."
+    },
+    "produitSuffixe": "Handmade in Saumur, Loire Valley, France — shipped across France.",
+    "lumiere": {
+      "title": "Backlit stretch ceilings — bespoke LED panels",
+      "description": "Backlit stretch ceiling panels with a powder-coated aluminium frame: rectangular up to 400 × 300 cm, round up to Ø 400 cm. Handmade in Saumur, fitted across the Loire Valley."
+    },
+    "sculptures": {
+      "title": "Reclaimed steel sculptures — one-off pieces",
+      "description": "Sculptures welded by hand from reclaimed steel, designed with you: subject, size, base and setting. Workshop in Saumur, France."
+    },
+    "verrieres": {
+      "title": "Steel partitions & internal glazing — Saumur",
+      "description": "Crittall-style internal steel partitions, surveyed on site and fitted. Room dividers, kitchens, mezzanines — handmade in Saumur, Loire Valley."
+    },
+    "apropos": {
+      "title": "The Auboiacier workshop — metalworker and welder in Saumur, France",
+      "description": "One workshop, two materials: TIG-welded steel and solid timber chosen board by board. No production runs — every piece is built to order."
+    },
+    "contact": {
+      "title": "Contact & free quote — Auboiacier, Saumur, France",
+      "description": "A table, a staircase, a partition or a backlit stretch ceiling in mind? Tell us about it and we'll come back with a clear quote within days."
+    },
+    "realisations": {
+      "title": "Recent work — backlit stretch ceilings",
+      "description": "Our backlit stretch ceilings, installed for homes and businesses across the Loire Valley."
+    },
+    "devis": {
+      "title": "Quote for a backlit stretch ceiling",
+      "description": "Describe your room: dimensions, ceiling height, light temperature. We survey and quote, with no obligation."
+    },
+    "panier": {
+      "title": "Your basket",
+      "description": "The pieces you have selected from the workshop."
+    },
+    "cgv": {
+      "title": "Terms and conditions",
+      "description": "Ordering, making, delivery and cancellation terms."
+    },
+    "mentions": {
+      "title": "Legal notice",
+      "description": "Publisher, host and legal information for the Auboiacier website."
+    },
+    "zone": {
+      "title": "Where we work — Saumur, Maine-et-Loire and beyond",
+      "description": "Workshop in Saumur, France: measuring and fitting around Saumur, across the Maine-et-Loire, Indre-et-Loire, Deux-Sèvres and Vienne, with furniture delivered anywhere in mainland France."
+    },
+    "faq": {
+      "title": "Frequently asked questions — lead times and prices",
+      "description": "Production times, prices, custom dimensions, delivery and assembly, care, payment and warranties: straight answers from the Auboiacier workshop in Saumur, France."
+    },
+    "merci": {
+      "title": "Thank you for your order",
+      "description": "Confirmation of your order from the Auboiacier workshop."
+    }
+  },
+  "zone": {
+    "title": "Where we work",
+    "subtitle": "The workshop is in Saumur, in the Maine-et-Loire, France. That is where deliveries start, and where we set out from to measure up and install.",
+    "sections": [
+      {
+        "title": "Around Saumur",
+        "body": "Saumur and the nearby towns — Doué-en-Anjou, Longué-Jumelles, Montreuil-Bellay, Bourgueil, Chinon — are less than an hour's drive from the workshop. This is our everyday ground: we come and measure up at your place, we install, and we can easily come back if something needs adjusting."
+      },
+      {
+        "title": "The Maine-et-Loire and neighbouring departments",
+        "body": "Angers, Cholet, Tours, and more widely the Maine-et-Loire (49), Indre-et-Loire (37), Deux-Sèvres (79) and Vienne (86): we travel there regularly. Travel is priced into the quote, so you know what it costs before you commit."
+      },
+      {
+        "title": "Anywhere in mainland France",
+        "body": "Catalogue pieces are delivered anywhere in mainland France with assembly included: they travel under blankets, with no throw-away packaging, and we agree a time slot with you. For an installation further from home (backlit stretch ceiling, steel partition, staircase), write to us: we look at the job and the driving time, and we tell you honestly whether it works."
+      },
+      {
+        "title": "How a project runs",
+        "body": "1. You describe your project, through the form or by email.\n2. For bespoke work, we come and measure up — or we work from your drawings if you are far away.\n3. You receive a written quote, travel and installation included.\n4. Production starts once the deposit is paid.\n5. We deliver, we install, and we only leave once the piece is in use."
+      }
+    ],
+    "communesTitle": "Towns and departments we serve",
+    "ctaTitle": "Your town is not on the list?",
+    "ctaBody": "Write to us anyway: tell us where you are and what you want built, and we will give you a straight answer.",
+    "ctaLabel": "Get in touch",
+    "faqLink": "See the frequently asked questions"
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "subtitle": "The questions we are asked most often, answered plainly. If yours is not here, write to us.",
+    "items": [
+      {
+        "q": "How long will my piece take?",
+        "a": "Everything is made to order: nothing is held in stock. The time is shown on each piece's own page, on the “Lead time” line, and runs from 3 to 12 weeks depending on the model — a chair leaves sooner than a staircase. The exact time is confirmed to you in writing when you order."
+      },
+      {
+        "q": "Can the lead time be shorter?",
+        "a": "Some steps cannot be rushed: drying the timber, welding, powder coating, finishing. We can sometimes bring an order forward depending on the workshop schedule — write to us and we will tell you where we stand."
+      },
+      {
+        "q": "How are your prices set?",
+        "a": "The prices shown in the shop are firm: what you see is what you pay, delivery in mainland France and assembly included. They come from workshop hours and materials, with no middleman or reseller. For bespoke work (staircase, steel partition, sculpture), the price depends on size and finishes: it is quoted individually, free of charge."
+      },
+      {
+        "q": "Can I order custom dimensions?",
+        "a": "Yes. The sizes shown are our usual formats, but the workshop works piece by piece: length, width, height, shape of the top — all of it is open. On tables and light panels, a calculator gives you the price for your own dimensions, in millimetres. For anything else, send us your measurements and we will quote."
+      },
+      {
+        "q": "How does delivery work?",
+        "a": "We deliver anywhere in mainland France. Your furniture travels under blankets, with no throw-away packaging, and we agree a precise time slot with you. Assembly on site is included: the piece is ready to use when we leave."
+      },
+      {
+        "q": "Where do you work?",
+        "a": "The workshop is in Saumur, in the Maine-et-Loire. We regularly travel across the 49, the 37, the Deux-Sèvres and the Vienne to measure up and install, and we deliver furniture anywhere in mainland France. The detail is on the Where we work page."
+      },
+      {
+        "q": "How do I care for a wood & steel piece?",
+        "a": "A soft dry cloth day to day. For oiled wood, re-apply hardwax oil once a year; scratches sand out lightly. Powder-coated steel wipes clean with a damp sponge — no abrasives."
+      },
+      {
+        "q": "How does payment work?",
+        "a": "Catalogue pieces are paid in full by card when you order, and your invoice is sent automatically. For bespoke work quoted individually (staircase, steel partition, sculpture), a 40% deposit starts production and the balance is paid on delivery. Backlit stretch ceilings, including at your own dimensions, are ordered and paid online like the rest of the shop."
+      },
+      {
+        "q": "Can I cancel or return an order?",
+        "a": "Our pieces are built to your dimensions and your finishes: French law excludes the fourteen-day right of withdrawal for goods of that kind, so we cannot take them back once production has started. The legal warranty of conformity and the warranty against hidden defects do apply in full, however: if the piece does not match what was agreed, or has a hidden defect, we repair it, replace it or refund it. The detail is in our terms of sale."
+      },
+      {
+        "q": "How is a backlit stretch ceiling installed?",
+        "a": "The aluminium frame is fixed to your existing ceiling, then the fabric is stretched: no demolition, no dust, and the install usually takes a day. The largest single panel is 400 × 300 cm; beyond that we butt several boxes together to cover a whole ceiling."
+      },
+      {
+        "q": "Are quotes free?",
+        "a": "Yes, and with no obligation. Describe your project through the contact form: you get an answer within 48 hours and a written estimate."
+      }
+    ],
+    "ctaTitle": "Your question is not here?",
+    "ctaBody": "Ask it directly: we answer within 48 hours, and never with a canned reply.",
+    "ctaLabel": "Ask your question",
+    "zoneLink": "See where we work"
   }
 }

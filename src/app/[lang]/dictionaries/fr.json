@@ -1,7 +1,7 @@
 {
   "meta": {
     "siteName": "Auboiacier",
-    "tagline": "Bois, acier & lumière — fabrication artisanale française"
+    "tagline": "Atelier de métallerie — plafonds lumineux tendus et mobilier acier et bois massif."
   },
   "nav": {
     "home": "Accueil",
@@ -12,26 +12,72 @@
     "contact": "Contact",
     "cta": "Demander un devis",
     "catalogue": "Boutique",
-    "backToHub": "Auboiacier"
+    "backToHub": "Auboiacier",
+    "cart": "Panier",
+    "zone": "Zone d'intervention",
+    "faq": "Questions fréquentes",
+    "breadcrumb": "Fil d'Ariane",
+    "mainMenu": "Menu principal"
   },
   "footer": {
     "rights": "Tous droits réservés.",
-    "tagline": "Atelier de métallerie et d'ébénisterie — plafonds lumineux tendus et mobilier bois-acier.",
+    "tagline": "Atelier de métallerie — plafonds lumineux tendus et mobilier acier et bois massif.",
     "navTitle": "Navigation",
     "contactTitle": "Contact",
-    "siret": "SIRET à venir"
+    "siret": "SIRET à venir",
+    "cgv": "Conditions générales de vente",
+    "legal": "Mentions légales"
   },
   "hub": {
     "title": "Deux savoir-faire, une seule main.",
     "subtitle": "Choisissez ce qui vous amène chez Auboiacier.",
+    "h1": "Métallier à Saumur — mobilier acier et bois massif, plafonds lumineux sur mesure",
+    "h1Body": "Auboiacier fabrique à la main, dans son atelier de Saumur, des tables, des chaises, des escaliers, des verrières et des plafonds lumineux à toile tendue. Aux dimensions que vous donnez, livrés et montés en Maine-et-Loire et partout en France.",
     "lightingLabel": "Lumière & toile tendue",
-    "lightingTitle": "Plafonds lumineux sur-mesure",
-    "lightingSubtitle": "Ossature aluminium soudée, membrane tendue, éclairage LED intégré. Toujours du sur-mesure, toujours un devis.",
-    "lightingCta": "Découvrir",
+    "lightingTitle": "Plafonds lumineux",
+    "lightingSubtitle": "Ossature aluminium, membrane tendue, LED intégrée. Prix affichés pour les tailles du catalogue, et le calculateur chiffre vos cotes au millimètre.",
+    "lightingCta": "Voir les plafonds et les prix",
     "craftLabel": "Fabrication artisanale",
-    "craftTitle": "Mobilier bois & acier",
+    "craftTitle": "Mobilier artisanal",
     "craftSubtitle": "Tables, chaises et pièces façonnées à la main. Prix fixe, commande en ligne.",
-    "craftCta": "Découvrir"
+    "craftCta": "Voir la collection",
+    "bandTitle": "Rien n'est en stock",
+    "bandSubtitle": "L'acier est coupé et soudé quand la commande arrive, et le bois est choisi à la planche pour votre pièce.",
+    "categoriesTitle": "Ce que nous fabriquons",
+    "catTables": "Tables d'intérieur",
+    "catChaises": "Chaises d'intérieur",
+    "catChaisesExt": "Chaises d'extérieur",
+    "catConsoles": "Consoles",
+    "catEscaliers": "Escaliers",
+    "catGardeCorps": "Garde-corps",
+    "catPlafonds": "Plafonds lumineux",
+    "catLed": "Éclairage LED",
+    "editorialTitle": "Un dessin simple, une pièce qui dure",
+    "editorialBody1": "Auboiacier est un atelier de métallerie. Le métier, c'est l'acier : coupé, soudé, meulé, thermolaqué. Le bois massif vient s'y poser — plateaux de table, marches d'escalier, tablettes — collé, poncé et huilé ici même.",
+    "editorialBody2": "Pas de série industrielle : chaque pièce est fabriquée à la commande, aux dimensions de votre intérieur, et pensée pour traverser les années.",
+    "editorialCta": "Qui fabrique vos pièces",
+    "testimonialsTitle": "Ce qu'en disent nos clients",
+    "testimonialsNote": "Les premiers chantiers arrivent : les avis clients seront publiés ici.",
+    "testimonialsCta": "Voir les réalisations",
+    "missionTitle": "Ce qu'on cherche à faire",
+    "missionBody": "Fabriquer des pièces d'acier et de bois massif qu'on puisse reponcer, ressouder et repeindre dans trente ans. Pas des meubles qu'on remplace.",
+    "missionCta": "Demander un devis",
+    "catVerrieres": "Verrières",
+    "catSculptures": "Sculptures",
+    "catTablesExt": "Tables d'extérieur",
+    "altHeroLumiere": "Plafond lumineux tendu au-dessus d'une table à manger",
+    "altHeroMobilier": "Table Mikado en noyer et chaises en velours vert dans une salle à manger aux murs de pierre",
+    "altAtelier": "Meulage d'un châssis acier à l'atelier, gerbe d'étincelles",
+    "altVignes": "Vignes en coteaux au coucher du soleil",
+    "altTables": "Détail du plateau chêne et du piétement acier de la table Mikado",
+    "altTablesExt": "Table d'extérieur Mikado, plateau à lattes de chêne",
+    "altChaises": "Chaise en velours vert olive sur piétement acier noir",
+    "altChaisesExt": "Fauteuil de terrasse en acier thermolaqué gris avec coussins",
+    "altSculptures": "Cheval cabré en acier de récupération soudé à la main",
+    "altEscaliers": "Escalier à limon central acier et marches chêne",
+    "altGardeCorps": "Garde-corps de fenêtre en acier noir, rosaces en fonte et main courante en chêne",
+    "altPlafonds": "Plafond lumineux tendu au-dessus d'une table à manger",
+    "altVerrieres": "Verrière d'intérieur en acier noir séparant un salon d'une cuisine"
   },
   "home": {
     "heroTitle": "Votre plafond, une pièce sur-mesure.",
@@ -65,13 +111,18 @@
         "body": "Du relevé de cotes à la pose, vous parlez au fabricant — pas à un revendeur."
       },
       {
-        "title": "Du 100 % sur-mesure",
+        "title": "Aucune dimension standard",
         "body": "Formes, dimensions, températures de lumière : le plafond est dessiné pour votre espace, jamais l'inverse."
       }
     ],
     "ctaTitle": "Un projet en tête ?",
     "ctaSubtitle": "Décrivez-nous votre pièce, on s'occupe du reste.",
-    "ctaButton": "Démarrer mon devis"
+    "ctaButton": "Décrire mon projet",
+    "catalogueLumiere": "Plafonds lumineux tendus",
+    "catalogueLumiereNote": "Toile tendue rétroéclairée, cadre aluminium thermolaqué — du 60 cm au plafond entier.",
+    "surMesureTitle": "Une pièce hors format ?",
+    "surMesureBody": "Le plus grand panneau d'un seul tenant fait 400 × 300 cm. Au-delà, on assemble plusieurs caissons jointifs pour couvrir un plafond entier : on relève les cotes sur place et on chiffre.",
+    "altPlafondDemo": "Plafond lumineux tendu à ossature acier, membrane rétroéclairée"
   },
   "realisations": {
     "title": "Réalisations",
@@ -79,11 +130,15 @@
     "filterAll": "Tout",
     "filterResidential": "Résidentiel",
     "filterCommercial": "Professionnel",
-    "moreSoon": "D'autres chantiers seront ajoutés au fil des poses."
+    "moreSoon": "D'autres chantiers seront ajoutés au fil des poses.",
+    "filterEmpty": "Aucun chantier de cette catégorie n'est encore publié.",
+    "altSalon": "Plafond lumineux tendu au-dessus d'un salon, lumière chaude",
+    "altReunion": "Grand panneau lumineux rond au-dessus d'une salle de réunion",
+    "altSalle": "Plafond lumineux tendu au-dessus d'une table à manger"
   },
   "artisanat": {
     "title": "Fabrication artisanale",
-    "subtitle": "Mobilier bois & acier, pensé et soudé à la main dans notre atelier. Petites séries, prix fixe, livraison partout en France.",
+    "subtitle": "Mobilier bois et acier, dessiné et soudé à l'atelier, à Saumur. Rien en stock : l'acier est coupé quand vous commandez. Prix fermes, livraison et montage compris.",
     "catalogueTitle": "La collection",
     "breadcrumbShop": "Boutique",
     "breadcrumbCategory": "Mobilier",
@@ -91,46 +146,621 @@
     "added": "Ajouté au panier",
     "from": "À partir de",
     "quantityLabel": "Quantité",
-    "sizeLabel": "Dimensions",
+    "sizeLabel": "Sur mesure, à vos cotes",
     "woodLabel": "Bois massif",
     "metalLabel": "Couleur des pieds",
     "madeInFrance": "Fabriqué à la main en France",
     "craftBandTitle": "Artisanat français",
     "craftBandBody": "Chaque pièce sort de notre atelier : le bois est choisi à la planche, l'acier est soudé TIG puis thermolaqué, et le montage final se fait à la main. Pas de série industrielle — votre meuble est fabriqué pour vous, à la commande.",
-    "descriptifTitle": "Descriptif",
+    "descriptifTitle": "La pièce en détail",
     "sectionFaq": "Questions fréquentes",
     "faqDeliveryQ": "Quels sont les délais de fabrication et de livraison ?",
-    "faqDeliveryA": "Chaque meuble est fabriqué à la commande : comptez 4 à 8 semaines selon la pièce, puis une livraison en France métropolitaine avec montage compris. Un créneau précis vous est proposé dès que votre meuble est prêt.",
+    "faqDeliveryA": "Chaque meuble est fabriqué à la commande. Le délai est indiqué sur la fiche de la pièce, à la ligne « Fabrication » : de 3 à 12 semaines selon le modèle — une chaise part plus vite qu'un escalier. Vient ensuite la livraison en France métropolitaine, montage compris ; un créneau précis vous est proposé dès que votre meuble est prêt.",
     "faqCareQ": "Comment entretenir une pièce bois & acier ?",
     "faqCareA": "Un chiffon doux et sec au quotidien. Pour le bois huilé, une ré-application d'huile-cire une fois par an suffit ; une rayure se rattrape d'un ponçage léger. L'acier thermolaqué se nettoie à l'éponge humide, sans produit abrasif.",
     "relatedTitle": "Autres pièces de l'atelier",
-    "backToCatalogue": "← Retour à la boutique"
+    "backToCatalogue": "← Retour à la boutique",
+    "fabricLabel": "Coloris du velours",
+    "moreInfo": "Voir la fiche",
+    "helpTitle": "Une question sur cette pièce ?",
+    "helpCta": "Nous contacter",
+    "deliveryTitle": "Livraison soignée",
+    "deliveryBody": "Nous livrons partout en France métropolitaine. Votre meuble voyage protégé sous couvertures, sans emballage jetable, et nous convenons d'un créneau précis avec vous. Le montage sur place est compris : la pièce est prête à l'usage quand nous repartons.",
+    "delaiTitle": "Délai",
+    "delaiBody": "Vous commandez une pièce façonnée pour vous, pas un article en stock. Le délai de fabrication est indiqué plus haut, dans le descriptif, à la ligne « Fabrication » : comptez de 3 à 12 semaines selon le meuble et la saison. Le délai exact vous est confirmé à la commande.",
+    "delaiCta": "Commander",
+    "avisTitle": "Ce qu'en disent nos clients",
+    "avisNote": "Les premiers chantiers arrivent : les avis clients seront publiés ici.",
+    "avisCta": "Voir les réalisations",
+    "contactTitle": "Parlez-nous de votre projet",
+    "contactBody": "Une dimension particulière, une essence précise, une teinte hors nuancier ? Dites-nous ce que vous avez en tête, on adapte.",
+    "contactCta": "Nous contacter",
+    "faqCustomQ": "Peut-on commander des dimensions sur mesure ?",
+    "faqCustomA": "Oui. Les dimensions affichées sont nos formats courants, mais l'atelier travaille à la pièce : longueur, largeur, hauteur, forme du plateau, tout se discute. Envoyez-nous vos cotes et nous chiffrons.",
+    "faqShorterQ": "Le délai peut-il être plus court ?",
+    "faqShorterA": "Certaines étapes sont incompressibles : séchage du bois, soudure, thermolaquage, finition. Nous pouvons parfois avancer une commande selon le planning de l'atelier — appelez-nous, nous vous dirons où nous en sommes.",
+    "faqPayQ": "Comment se passe le paiement ?",
+    "faqPayA": "Pour les pièces du catalogue, le paiement se fait en une fois par carte bancaire au moment de la commande, et la facture vous est envoyée automatiquement. Pour le sur-mesure établi sur devis (escalier, verrière, sculpture), un acompte de 40 % lance la fabrication et le solde est réglé à la livraison. Les plafonds lumineux, y compris à vos dimensions, se commandent et se règlent directement en ligne comme le reste de la boutique.",
+    "requestQuote": "Demander un devis",
+    "onQuote": "Sur devis",
+    "quoteNote": "Pièce sur mesure : relevé de cotes sur place avant devis, pose comprise.",
+    "cartTotalLine": "soit",
+    "catalogueInterieur": "Intérieur",
+    "catalogueExterieur": "Extérieur",
+    "catalogueInterieurNote": "Tables, chaises et consoles pour la maison.",
+    "catalogueExterieurNote": "Pièces traitées pour vivre dehors toute l'année.",
+    "customCta": "Dimensions sur mesure",
+    "customTitle": "À vos cotes exactes",
+    "customHelp": "Vos cotes en millimètres — l'unité de l'atelier. Le prix se calcule au m².",
+    "customUnit": "Unité",
+    "customWidth": "Largeur",
+    "customHeight": "Hauteur",
+    "customDiameter": "Diamètre",
+    "customMax": "Maximum d'un seul tenant",
+    "customMin": "Minimum",
+    "customArea": "Surface",
+    "customApply": "Utiliser ces dimensions",
+    "customApplied": "Dimensions retenues",
+    "customTooSmall": "En dessous du minimum fabricable.",
+    "customTooBig": "Au-delà du maximum d'un seul tenant — écrivez-nous, on assemble plusieurs caissons.",
+    "customInvalid": "Entrez des cotes en chiffres.",
+    "customReset": "Revenir aux tailles du catalogue",
+    "customLength": "Longueur",
+    "customHelpPlan": "Vos cotes en centimètres — ou en millimètres si vous préférez, l'unité se change à côté. Le plateau est chiffré au m², le piétement compris.",
+    "customThickness": "Épaisseur",
+    "customThicknessNote": "Plateau : c'est le poste qui pèse le plus dans le prix.",
+    "customThicknessNoteLight": "Profondeur du caisson : l'écart de prix reste léger, c'est de l'aluminium.",
+    "customRange": "de {min} à {max} mm",
+    "customBadThickness": "Épaisseur hors bornes.",
+    "customThicknessMin": "Sur {portee} mm de portée, il faut au moins {mini} mm d'épaisseur.",
+    "customBoxDepth": "Sur un panneau de {cote} mm, le caisson ne peut pas dépasser {max} mm de profondeur.",
+    "delaiCtaDevis": "Demander un devis",
+    "customOr": "Ou une taille toute faite",
+    "customAwait": "Entrez vos cotes pour voir le prix",
+    "inclusLivraison": "Livraison en France métropolitaine et montage sur place compris — rien ne s'ajoute au paiement.",
+    "inclusAtelier": "Fabriqué à la main dans notre atelier de Saumur, en Maine-et-Loire.",
+    "inclusPaiement": "Paiement sécurisé par carte : vos coordonnées bancaires ne passent jamais par notre site.",
+    "releveTitle": "Vos cotes, pour un premier chiffrage",
+    "releveIntro": "Trois mesures suffisent à dessiner l'escalier. Prenez-les au mètre, en millimètres — on vérifiera tout sur place avant de fabriquer.",
+    "releveHauteur": "Hauteur à monter",
+    "releveHauteurAide": "Du sol du bas au sol de l'étage, revêtements posés.",
+    "releveRecul": "Recul disponible",
+    "releveReculAide": "L'espace au sol, du pied de l'escalier à l'aplomb de l'arrivée.",
+    "releveTremieLongueur": "Trémie — longueur",
+    "releveTremieLargeur": "Trémie — largeur",
+    "releveTremieAide": "L'ouverture dans le plancher de l'étage. Laissez vide si elle n'est pas encore percée.",
+    "relevePassage": "Largeur de passage",
+    "relevePassageAide": "La largeur des marches. 80 à 90 cm est le confort courant.",
+    "releveDepart": "D'où part l'escalier",
+    "releveDepartOptions": [
+      "Contre un mur",
+      "Dans un angle",
+      "En milieu de pièce",
+      "Je ne sais pas encore"
+    ],
+    "releveResultTitle": "Ce que ça donne",
+    "releveAttente": "Entrez la hauteur à monter pour voir le nombre de marches.",
+    "releveMarches": "{n} marches de {h} cm",
+    "releveGiron": "giron {g} cm",
+    "releveBlondel": "pas de {b} cm",
+    "releveConfortable": "Marche confortable.",
+    "releveUnPeuRaide": "Marche un peu haute, ça reste courant.",
+    "releveRaide": "Marche haute — c'est un escalier qui grimpe.",
+    "releveReculConseille": "Pour un pas confortable, comptez environ {r} m de recul.",
+    "releveReculJuste": "Le pas tombe juste : hauteur et giron s'accordent.",
+    "releveReculServe": "Le pas est serré pour ce recul — l'escalier sera raide à la descente. On en reparle au relevé.",
+    "releveNote": "Chiffres indicatifs. Le relevé sur place fait foi : c'est là qu'on voit le mur qui n'est pas d'équerre et la poutre qui traîne.",
+    "releveRecap": "Relevé",
+    "releveCalcul": "Calcul indicatif",
+    "releveReculLong": "Vous avez plus de recul qu'il n'en faut : on peut adoucir la pente, ou récupérer de la place au sol.",
+    "gcTitle": "Vos cotes, pour un garde-corps fait pile à votre fenêtre",
+    "gcIntro": "Trois mesures au mètre, et c'est tout : nous calculons la hauteur du garde-corps pour qu'il soit aux normes, et nous le fabriquons au millimètre pour qu'il s'encastre dans votre fenêtre. Donnez les cotes brutes, sans rien retirer.",
+    "gcInfoLabel": "Explication",
+    "gcEtage": "Où est la fenêtre",
+    "gcEtageOptions": [
+      "En étage",
+      "Au rez-de-chaussée"
+    ],
+    "gcEtageInfo": "En étage, il y a une chute derrière la fenêtre : la règle impose une protection qui monte à 1 m du sol. Au rez-de-chaussée, la main courante monte à 80 cm du sol.",
+    "gcLargeur": "Largeur de la fenêtre, entre les murs",
+    "gcLargeurAide": "Dans l'ouverture, d'un mur à l'autre. Mesurez en haut et en bas, notez la plus petite.",
+    "gcLargeurInfo": "Ouvrez la fenêtre et mesurez d'un mur à l'autre, dans l'ouverture, là où le garde-corps va s'encastrer. Cote brute : ne retirez rien, c'est nous qui prenons le jeu de pose.",
+    "gcAllege": "Hauteur du sol au bas de la fenêtre",
+    "gcAllegeAide": "Du parquet ou du carrelage jusqu'au dessus de l'appui.",
+    "gcAllegeInfo": "Debout dans la pièce, mesurez du sol fini (parquet ou carrelage posé) jusqu'au dessus de l'appui de fenêtre, la tablette sur laquelle on pose les mains. C'est cette hauteur qui nous dit à quelle hauteur faire le garde-corps.",
+    "gcMur": "Type de mur",
+    "gcMurOptions": [
+      "Pierre",
+      "Brique pleine",
+      "Brique creuse",
+      "Parpaing",
+      "Béton",
+      "Béton cellulaire",
+      "Placo sur ossature",
+      "Je ne sais pas"
+    ],
+    "gcMurInfo": "La matière dans laquelle on va fixer le garde-corps, de chaque côté de la fenêtre. Ça décide des chevilles et des vis que nous fournissons. En cas de doute, choisissez « Je ne sais pas » : on vous demandera une photo.",
+    "gcQui": "Qui prend les cotes",
+    "gcQuiInfo": "L'atelier vient chez vous mesurer avant de fabriquer — 19,99 € jusqu'à 30 km autour de Saumur, puis les kilomètres et le temps de route, jusqu'à 200 km. Ou vous mesurez vous-même, avec un mètre : c'est simple et gratuit.",
+    "gcQuiMoi": "Je mesure moi-même",
+    "gcQuiMoiNote": "Gratuit. Trois mesures au mètre en suivant le croquis, et le prix s'affiche tout de suite.",
+    "gcQuiAtelier": "L'atelier vient mesurer",
+    "gcQuiAtelierNote": "Dès 19,99 €. On vient chez vous, jusqu'à 200 km de Saumur, et on vous envoie le prix exact du garde-corps.",
+    "gcCodePostal": "Code postal de la fenêtre",
+    "gcCodePostalInfo": "Il décide du déplacement : 19,99 € jusqu'à 30 km autour de Saumur, puis les kilomètres et le temps de route. Au-delà de 200 km, nous ne nous déplaçons pas. Compté une seule fois, même pour plusieurs fenêtres.",
+    "gcVisiteOfferte": "Déplacement offert — {dep}",
+    "gcVisiteForfait": "Déplacement : {prix}, déduits si vous commandez",
+    "gcVisiteAttente": "Entrez votre code postal pour connaître le déplacement.",
+    "gcVisiteInvalide": "Ce code postal ne ressemble pas à un code postal français.",
+    "gcVisiteHorsMetropole": "Nous ne nous déplaçons pas outre-mer — mais nous fabriquons et expédions volontiers sur vos cotes.",
+    "gcResultTitle": "Votre garde-corps",
+    "gcAttente": "Entrez les trois mesures pour voir votre garde-corps et son prix.",
+    "gcResume": "{l} × {h} mm",
+    "gcRegleOk": "Minimum réglementaire en étage : {n} mm — respecté.",
+    "gcRegleSous": "Vous avez choisi {h} mm ; en étage, le minimum réglementaire est de {n} mm. On en reparle avant de fabriquer.",
+    "gcRegleLibreAllege": "Votre appui est à plus de 90 cm du sol : la règle n'impose rien, la hauteur est à votre goût.",
+    "gcRegleLibreRdc": "Au rez-de-chaussée, la main courante monte à 80 cm du sol : hauteur minimale {n} mm — respectée.",
+    "gcNote": "Fabriqué au millimètre, encastré dans le tableau, fixations fournies. Nous vous rappelons avant de couper si une cote nous étonne.",
+    "gcRecap": "Relevé",
+    "gcFabrication": "Garde-corps",
+    "gcSchemaLargeur": "Largeur de la fenêtre",
+    "gcSchemaAllege": "Hauteur du sol au bas de la fenêtre",
+    "gcSchemaHauteur": "Hauteur du garde-corps, calculée par l'atelier",
+    "gcSchemaMetre": "{m} mm du sol · règle en étage : 1 m mini",
+    "gcSchemaInterieur": "Vue depuis la pièce",
+    "gcVisiteCalcul": "Calcul du déplacement…",
+    "gcVisiteOffre": "{commune} — {prix}, notre offre jusqu'à 30 km autour de Saumur : on vient prendre les cotes chez vous, et vous recevez un devis, pose comprise.",
+    "gcVisitePrix": "{commune} — {prix} : on vient prendre les cotes chez vous, et vous recevez un devis, pose comprise.",
+    "gcVisiteErreur": "Impossible de calculer le déplacement pour l'instant. Réessayez dans un instant.",
+    "gcVisiteDeduite": "Ce montant est déduit de votre commande si vous commandez ensuite.",
+    "gcVisiteResume": "Prise de cotes à domicile",
+    "gcCreneauTitre": "Quand pouvons-nous venir",
+    "gcCreneauInfo": "Choisissez une demi-journée. On vous confirme l'heure exacte par téléphone la veille.",
+    "gcCreneauMatin": "Matin · 9 h – 12 h",
+    "gcCreneauApresMidi": "Après-midi · 14 h – 17 h",
+    "gcCreneauAucun": "Aucun créneau libre pour l'instant : écrivez-nous, on trouve une date ensemble.",
+    "gcCreneauChargement": "Chargement des disponibilités…",
+    "gcCreneauChoisi": "Rendez-vous : {date}.",
+    "gcCreneauManque": "Choisissez une demi-journée pour ajouter la visite au panier.",
+    "gcQuiAtelierTag": "Le plus simple",
+    "gcVisiteTropLoin": "{commune} est à {km} km de Saumur : nous ne nous déplaçons pas au-delà de 200 km. Mesurez vous-même en suivant le croquis — on fabrique et on expédie à vos cotes.",
+    "gcPieceApresVisite": "Prix exact envoyé après la visite, pose comprise",
+    "gcVisiteLigne": "Prise de cotes à domicile : {prix}",
+    "gcVisiteLigneDepart": "Prise de cotes à domicile : à partir de 19,99 €",
+    "gcCalcule": "Hauteur calculée par l'atelier pour respecter la norme française — Code de la construction, art. R111-15, et NF P01-012 : la main courante monte à {m} mm du sol.",
+    "gcMurFacultatif": "Facultatif — dans quoi se fixe le garde-corps",
+    "gcConforme": "Conforme aux normes françaises",
+    "gcPrixInclus": "Fabrication au millimètre, fixations et notice de pose comprises.",
+    "gcPromesseTitre": "Prix immédiat, commande en ligne",
+    "gcPromesse": "Entrez vos trois cotes : le prix exact s'affiche aussitôt et vous commandez directement, sans devis ni attente. Ou l'atelier vient mesurer chez vous.",
+    "gcSchemaMetreRdc": "{m} mm du sol · règle au rez-de-chaussée : 80 cm mini",
+    "gcPrixAttente": "Le prix s'affiche dès vos trois cotes.",
+    "gcPrixCompris": "bois et acier compris",
+    "gcLot": "Plusieurs fenêtres ? −{taux} % sur chaque garde-corps dès le deuxième, même avec des cotes différentes.",
+    "gcLotTag": "prix de lot −{taux} %",
+    "gcLotAutre": "Ajouter un autre garde-corps, à d'autres cotes",
+    "gcLotDeja": "{n} déjà au panier : le prix de lot s'applique à tous.",
+    "inclusLivraisonPose": "Livraison en France métropolitaine comprise, fixations et notice de pose fournies — rien ne s'ajoute au paiement.",
+    "gcHorsBareme": "Au-delà de {l} mm de large ou {h} mm de haut, on le fabrique aussi — en plusieurs parties, sur devis. Écrivez-nous avec vos cotes, on vous répond sous 48 h.",
+    "gcHorsBaremeCourt": "Plus de {l} mm de large : sur devis",
+    "gcNonConforme": "À {h} mm de haut, les croix de ce modèle laissent des vides trop grands pour la norme (NF P01-012 : une sphère de 110 mm ne doit pas passer). Ce modèle convient aux fenêtres jusqu'à {max} mm de garde-corps — pas aux baies.",
+    "gcNonConformeCourt": "Hors norme à cette hauteur — deux solutions ci-contre",
+    "gcNonConformeTitre": "Ce modèle ne convient pas à ces cotes",
+    "gcVoirAutres": "Voir les autres garde-corps",
+    "gcPasserVerre": "Panneau de verre feuilleté : {prix}",
+    "gcPasserVerreNote": "À la place des croix : aucun vide, conforme à toute hauteur. Verre de sécurité 44.2, découpe, fixations et joint compris.",
+    "gcSurVerre": "Panneau de verre feuilleté à la place des croix — compris dans le prix.",
+    "gcRevenirCroix": "Revenir aux croix",
+    "gcRemplissage": "Remplissage",
+    "famillesNav": "Aller à",
+    "familleModeles": "{n} modèle",
+    "familleModelesPluriel": "{n} modèles",
+    "familleGardeCorpsNote": "Un modèle par style, chacun fabriqué au millimètre à vos cotes. D'autres modèles arrivent.",
+    "compatTitre": "Pour votre fenêtre : {l} mm de large, {h} mm de garde-corps",
+    "compatOk": "{n} modèle convient à ces cotes.",
+    "compatOkPluriel": "{n} modèles conviennent à ces cotes.",
+    "compatAucun": "Aucun modèle à croix ou à barreaux ne respecte la norme à cette hauteur. Le modèle Rosace se fait alors avec un panneau de verre feuilleté à la place des croix, chiffré tout de suite sur sa fiche.",
+    "compatBadge": "Convient à vos cotes",
+    "compatNon": "Pas à ces cotes",
+    "compatVerre": "Avec panneau de verre",
+    "gcFenetre": "Hauteur de la fenêtre, de l'appui au haut",
+    "gcFenetreAide": "Dans l'ouverture, de l'appui jusqu'au haut du tableau.",
+    "gcFenetreInfo": "La hauteur de l'ouverture où le garde-corps s'encastre : du dessus de l'appui jusqu'au haut du tableau, fenêtre ouverte. Elle nous dit si le garde-corps tient dans votre fenêtre.",
+    "gcSchemaFenetre": "Hauteur de la fenêtre",
+    "gcJour": "Posé {j} mm au-dessus de l'appui : un jour que la norme autorise (110 mm au plus), et autant de hauteur en moins.",
+    "gcTropBasse": "Votre fenêtre est trop basse pour un garde-corps encastré : la main courante doit monter à {m} mm du sol, et le haut de l'ouverture est à {f} mm. On le fait alors en applique, devant la fenêtre — sur devis.",
+    "gcTropBasseCourt": "Fenêtre trop basse pour un encastré : sur devis",
+    "gcJourCourt": "posé à",
+    "gcQuiMoiTag": "Prix immédiat",
+    "gcCotesExactes": "Donnez les cotes exactes de l'encastrement de votre fenêtre, là où se trouvera votre garde-corps, au millimètre près — l'atelier se charge du reste.",
+    "gcPromesseCourt": "Prix immédiat",
+    "gcCotesExactesSouligne": "au millimètre près",
+    "releveQuiMoiNote": "Gratuit. Vos cotes au mètre en suivant les cases, et on vous envoie un devis.",
+    "releveQuiAtelierNote": "Dès 19,99 €. On vient chez vous, jusqu'à 200 km de Saumur, et vous recevez un devis, pose comprise.",
+    "releveQuiMoiTag": "Gratuit",
+    "releveCodePostal": "Code postal du chantier",
+    "releveVisiteIntro": "L'escalier se fait uniquement sur devis : l'atelier vient prendre les cotes chez vous, et vous recevez un devis, pose comprise. Le déplacement est déduit de la commande.",
+    "customTableHeight": "Hauteur finie",
+    "customTableHeightAide": "Conseillé : 75 cm — du sol au dessus du plateau.",
+    "customTableHeightNote": "hauteur finie {h} cm"
   },
   "devis": {
     "title": "Demander un devis",
-    "subtitle": "Décrivez votre projet, on revient vers vous avec une estimation sous 48 h.",
-    "formIntro": "Le formulaire détaillé (type de pièce, dimensions, finitions, photos et plans) arrive très bientôt. En attendant, écrivez-nous directement :",
-    "formCta": "contact@auboiacier.fr"
+    "subtitle": "Décrivez votre projet, on revient vers vous avec une estimation sous 48 h."
   },
   "apropos": {
     "title": "À propos",
     "histoireTitle": "Notre histoire",
-    "histoireBody": "Auboiacier, c'est la contraction d'Aumercier, du bois et de l'acier. Derrière l'atelier, un soudeur-métallier passé par plus de cinq ans de chantiers et d'ateliers, en France puis en Australie chez un spécialiste du plafond tendu lumineux. De retour en France, l'atelier réunit ces deux mondes : la précision du métal, la chaleur du bois et de la lumière.",
+    "histoireBody": "Auboiacier, c'est Aumercier, le bois et l'acier dans le même mot. Derrière l'atelier il y a un soudeur-métallier : plus de cinq ans de chantiers et d'ateliers, en France puis en Australie, chez un spécialiste du plafond tendu lumineux. Rentré à Saumur, il a monté l'atelier autour de ces deux gestes — souder l'acier, travailler le bois massif — et de la lumière apprise là-bas.",
     "savoirFaireTitle": "Notre savoir-faire",
-    "savoirFaireBody": "Soudure TIG, MAG et SMAW, ossatures aluminium ajustées au millimètre, membranes tendues, ébénisterie de plateau : chaque étape est réalisée à l'atelier, de la découpe à la finition. C'est ce qui permet de garantir les pièces que nous livrons.",
+    "savoirFaireBody": "Soudure TIG, MIG-MAG et à l'électrode enrobée, cadres aluminium coupés en onglet et ajustés au millimètre, membranes tendues, collage et ponçage des plateaux en bois massif. Tout se fait ici, de la découpe à la finition. C'est ce qui fait qu'un défaut se répare : on sait quelle main a fait la pièce, et on la reprend.",
     "valeursTitle": "Nos valeurs",
     "valeurs": [
-      { "title": "Le sur-mesure d'abord", "body": "Chaque pièce part de votre espace et de votre usage — jamais d'un catalogue." },
-      { "title": "La matière honnête", "body": "Bois massif, acier plein, soudures assumées : rien n'est plaqué, rien n'est caché." },
-      { "title": "Le travail garanti", "body": "Fabriqué et posé par la même main, et suivi dans le temps." }
-    ]
+      {
+        "title": "Le sur-mesure d'abord",
+        "body": "Chaque pièce part de votre espace et de votre usage — jamais d'un catalogue."
+      },
+      {
+        "title": "La matière honnête",
+        "body": "Bois massif, acier plein, soudures assumées : rien n'est plaqué, rien n'est caché."
+      },
+      {
+        "title": "Le travail garanti",
+        "body": "Fabriqué et posé par la même main, et suivi dans le temps."
+      }
+    ],
+    "photoAlt": "Saumur au coucher du soleil — la ville d'où part l'atelier"
   },
   "contact": {
     "title": "Contact",
     "subtitle": "Une question, un projet ? Écrivez-nous, réponse sous 48 h.",
-    "formSoon": "Le formulaire de contact arrive bientôt — en attendant, contactez-nous par e-mail.",
     "detailsTitle": "Coordonnées",
     "email": "contact@auboiacier.fr",
-    "location": "France"
+    "location": "Saumur (49400), Maine-et-Loire — France",
+    "form": {
+      "title": "Demande de devis",
+      "intro": "Dites-nous ce que vous avez en tête : nous revenons vers vous sous 48 h avec une estimation.",
+      "name": "Nom",
+      "namePh": "Prénom et nom",
+      "email": "E-mail",
+      "emailPh": "vous@exemple.fr",
+      "phone": "Téléphone (facultatif)",
+      "phonePh": "06 12 34 56 78",
+      "project": "Type de projet",
+      "projects": [
+        "Plafond lumineux tendu",
+        "Mobilier bois & acier",
+        "Escalier",
+        "Verrière",
+        "Sculpture",
+        "Autre"
+      ],
+      "message": "Votre projet",
+      "messagePh": "Dimensions, pièce concernée, délais souhaités…",
+      "files": "Photos ou plans (facultatif)",
+      "filesHint": "JPG, PNG ou PDF — 2 fichiers maximum, 3 Mo chacun.",
+      "submit": "Envoyer la demande",
+      "sending": "Envoi en cours…",
+      "success": "Merci, votre demande est bien partie. Réponse sous 48 h.",
+      "error": "L'envoi a échoué. Réessayez, ou écrivez-nous directement par e-mail.",
+      "required": "Merci de remplir le nom, l'e-mail et le message.",
+      "notConfigured": "L'envoi automatique n'est pas encore activé. Écrivez-nous par e-mail en attendant.",
+      "tooBig": "Fichiers trop lourds : 2 fichiers maximum, 3 Mo chacun.",
+      "privacy": "Vos informations servent uniquement à répondre à votre demande.",
+      "sendFailed": "L'envoi automatique a échoué. Vous pouvez nous écrire directement :",
+      "sendFailedCta": "Ouvrir ma messagerie",
+      "tooMany": "Trop d'envois en peu de temps. Réessayez dans quelques minutes.",
+      "badFile": "Ce fichier n'est ni une photo ni un PDF. Envoyez un JPG, un PNG ou un PDF.",
+      "mailSubject": "Demande de devis",
+      "mailName": "Nom",
+      "mailPhone": "Téléphone",
+      "city": "Votre ville",
+      "cityPh": "Saumur (49400)"
+    },
+    "phoneLabel": "Téléphone",
+    "hoursLabel": "Horaires"
+  },
+  "sculptures": {
+    "title": "Sculptures",
+    "tagline": "Pièces uniques en acier de récupération, soudées à la main.",
+    "intro": "Le cheval cabré est né de centaines de chutes d'acier — clés, chaînes, boulons, tôles — soudées une à une jusqu'à retrouver le mouvement d'un animal vivant. Ce n'est pas un produit de série : c'est une œuvre.",
+    "body": "Chaque sculpture est pensée avec vous : le sujet, la taille, la matière, le socle et l'endroit où elle sera posée. Le travail se fait à l'atelier, à la main, et demande plusieurs semaines selon la pièce. Elles vivent aussi bien dehors, sous la pluie, que dans une entrée.",
+    "priceTitle": "Prix",
+    "priceBody": "Sur devis — chaque pièce étant unique, le prix dépend du sujet, des dimensions et du temps de fabrication.",
+    "cta": "Parler de votre projet",
+    "photoAlt": "Cheval cabré en acier de récupération soudé à la main, devant une longère en pierre"
+  },
+  "verrieres": {
+    "title": "Verrières d'intérieur",
+    "tagline": "Acier fin, verre clair, fabrication et pose sur mesure.",
+    "intro": "Une verrière sépare sans fermer : la cuisine reste ouverte sur le salon, la lumière traverse, le bruit s'arrête. Nous dessinons les montants au plus fin pour que le verre prenne toute la place.",
+    "body": "Chaque verrière est mesurée chez vous puis soudée à l'atelier, d'un seul tenant quand la pièce le permet. Vous choisissez le nombre de traverses, la finition de l'acier — noir mat, brut verni ou blanc — et les détails : poignées en laiton, porte pivotante ou coulissante, verre clair, dépoli ou fumé.",
+    "detailTitle": "Le détail qui change tout",
+    "detailBody": "Poignées et pentures en laiton massif, vissées sur le montant : la patine se fait avec le temps, comme sur une porte ancienne.",
+    "priceTitle": "Prix",
+    "priceBody": "Sur devis — le prix dépend des dimensions, du nombre de portes et de la finition. Comptez 4 à 8 semaines entre la prise de mesures et la pose.",
+    "cta": "Demander un devis",
+    "photoAlt": "Verrière d'intérieur en acier noir séparant un salon d'une cuisine",
+    "detailAlt": "Poignée en laiton massif sur le montant acier d'une verrière",
+    "panelTitle": "Des panneaux pleins quand il faut",
+    "panelBody": "En partie basse, le verre peut céder la place à de la tôle d'acier raidie par une croix de Saint-André : le bas de porte encaisse les chocs et les coups de pied, et la verrière gagne en caractère.",
+    "panelAlt": "Panneau bas d'une verrière en tôle d'acier noire avec croix de Saint-André"
+  },
+  "panier": {
+    "title": "Votre panier",
+    "empty": "Votre panier est vide.",
+    "backToShop": "Retour à la boutique",
+    "quantity": "Quantité",
+    "remove": "Retirer",
+    "total": "Total",
+    "shippingNote": "Livraison en France métropolitaine et montage compris. Fabrication à la commande : le délai est indiqué sur la fiche de chaque pièce, de 3 à 12 semaines selon le modèle.",
+    "cgvAccept": "J'ai lu et j'accepte les",
+    "cgvLink": "conditions générales de vente",
+    "cgvRequired": "Merci d'accepter les conditions générales de vente.",
+    "checkout": "Payer ma commande",
+    "redirecting": "Ouverture du paiement sécurisé…",
+    "securedBy": "Paiement sécurisé par carte bancaire. Vos coordonnées bancaires ne transitent jamais par notre site.",
+    "removedLine": "Une pièce n'est plus disponible dans cette configuration : elle a été retirée du panier.",
+    "unavailable": "Une pièce du panier n'est plus commandable en ligne. Retirez-la ou demandez un devis.",
+    "notConfigured": "Le paiement en ligne n'est pas encore activé.",
+    "error": "Le paiement n'a pas pu démarrer. Réessayez, ou écrivez-nous.",
+    "writeUs": "nous écrire",
+    "tooMany": "Trop d'essais de paiement en peu de temps. Patientez quelques minutes, puis réessayez.",
+    "city": "Votre ville",
+    "cityPh": "Saumur (49400)",
+    "cityNote": "Pour savoir où va la pièce et organiser la livraison. L'adresse complète se donne juste après, au paiement.",
+    "cityRequired": "Merci d'indiquer votre ville avant de payer.",
+    "badPostcode": "Le code postal de la prise de cotes n'est pas valable, ou le créneau n'est plus libre : retirez la ligne et recommencez depuis la fiche.",
+    "lot": "Prix de lot −{taux} %"
+  },
+  "commande": {
+    "title": "Commande",
+    "thankTitle": "Merci pour votre commande",
+    "thankBody": "Nous avons bien reçu votre paiement. Vous allez recevoir un e-mail de confirmation, et votre facture vous parvient séparément.",
+    "ref": "Référence",
+    "amount": "Montant payé",
+    "leadTime": "Votre pièce est fabriquée à la commande dans notre atelier : le délai est celui indiqué sur sa fiche, de 3 à 12 semaines selon le modèle. Nous vous confirmons la date par e-mail et nous vous contactons pour convenir de la livraison.",
+    "notPaidTitle": "Commande introuvable",
+    "notPaidBody": "Nous ne trouvons pas de paiement pour cette page. Si vous avez été débité, écrivez-nous : nous retrouverons votre commande.",
+    "backToShop": "Retour à la boutique"
+  },
+  "cgv": {
+    "title": "Conditions générales de vente",
+    "intro": "Les présentes conditions régissent les ventes conclues sur auboiacier.fr. Elles sont acceptées par le client avant tout paiement.",
+    "sections": [
+      {
+        "title": "1. Le vendeur",
+        "body": "Auboiacier, entreprise artisanale de métallerie, atelier à Saumur (Maine-et-Loire). Coordonnées complètes et identifiants de l'entreprise : voir les mentions légales."
+      },
+      {
+        "title": "2. Produits",
+        "body": "Les pièces sont fabriquées à la main, à la commande, dans notre atelier. Le bois et l'acier étant des matières vivantes, de légères variations de teinte, de veinage et d'aspect sont normales et ne constituent pas un défaut."
+      },
+      {
+        "title": "3. Prix et TVA",
+        "body": "Les prix sont indiqués en euros et correspondent au montant total à payer : aucune taxe ni aucun frais ne s'ajoute au moment du paiement. Le prix applicable est celui affiché au moment de la commande. Pour les pièces du catalogue, la livraison en France métropolitaine et le montage sur place sont compris. Le régime de TVA de l'atelier est rappelé sur la facture."
+      },
+      {
+        "title": "4. Commande et paiement",
+        "body": "Les pièces du catalogue se règlent en une fois par carte bancaire au moment de la commande. Le paiement est traité par notre prestataire Stripe : aucune donnée bancaire n'est enregistrée par Auboiacier. Pour les réalisations sur mesure faisant l'objet d'un devis, un acompte de 40 % lance la fabrication et le solde est réglé à la livraison."
+      },
+      {
+        "title": "5. Délais de fabrication",
+        "body": "Chaque pièce est fabriquée à la commande : il n'y a pas de stock. Le délai de fabrication est indiqué sur la fiche de chaque pièce, à la ligne « Fabrication » — de 3 à 12 semaines selon le modèle, les finitions choisies et la saison. Pour une réalisation sur mesure, le délai figure sur le devis.\n\nCe délai commence au paiement (ou au versement de l'acompte) et vous est confirmé par écrit à la commande. Si nous devions le dépasser, nous vous prévenons : vous pouvez alors nous demander de livrer dans un nouveau délai raisonnable puis, si ce délai n'est pas tenu, annuler la commande et être remboursé dans les conditions de l'article 9."
+      },
+      {
+        "title": "6. Livraison",
+        "body": "La livraison est effectuée en France métropolitaine, sur rendez-vous convenu avec le client. Il appartient au client de s'assurer que la pièce peut être acheminée jusqu'au lieu de pose (accès, escaliers, ouvertures)."
+      },
+      {
+        "title": "7. Droit de rétractation",
+        "body": "Conformément à l'article L221-28 3° du code de la consommation, le droit de rétractation de quatorze jours ne s'applique pas aux biens confectionnés selon les spécifications du consommateur ou nettement personnalisés. Nos pièces étant fabriquées à la commande avec des dimensions, essences et finitions choisies par le client, elles entrent dans cette exception et ne sont ni reprises ni échangées, sauf accord exprès de notre part.\n\nSi une pièce vous était vendue sans personnalisation ni fabrication à vos cotes, le délai de rétractation de quatorze jours s'appliquerait normalement : un e-mail suffirait, et le remboursement serait fait dans les conditions de l'article 9."
+      },
+      {
+        "title": "8. Garanties",
+        "body": "Toutes nos pièces sont couvertes par la garantie légale de conformité (deux ans à compter de la livraison) et par la garantie légale des vices cachés (deux ans à compter de la découverte du défaut). En clair : si la pièce ne correspond pas à ce qui était convenu, ou si un défaut caché apparaît, la réparation, le remplacement, une réduction du prix ou le remboursement sont à notre charge.\n\nLe détail de ces droits est repris mot pour mot dans l'encadré officiel, à la fin de ces conditions. Sont exclues l'usure normale et les dégradations dues à un mauvais usage, à un entretien inadapté ou à une modification de la pièce."
+      },
+      {
+        "title": "9. Réclamations, retours et remboursements",
+        "body": "Toute réclamation nous est adressée par e-mail, avec des photos si possible, dès la réception de la pièce. Nous répondons sous 48 heures ouvrées et convenons avec vous de la suite : réparation, remplacement, réduction du prix ou remboursement.\n\nTout remboursement dû est effectué au plus tard quatorze jours après que le droit au remboursement est acquis (rétractation acceptée, commande annulée, vente résolue). Il est fait sur le moyen de paiement utilisé lors de la commande — le plus souvent un retour sur votre carte bancaire par Stripe — sans frais pour vous."
+      },
+      {
+        "title": "10. Données personnelles",
+        "body": "Nous ne recueillons que ce qui sert à répondre à votre demande ou à traiter votre commande : nom, e-mail, téléphone, adresse de livraison, contenu de votre message, détail et montant de la commande. Ces informations ne sont ni vendues ni cédées.\n\nCombien de temps nous les gardons : trois ans après le dernier contact pour une demande de devis ; dix ans pour les commandes et les factures, parce que la loi comptable nous y oblige.\n\nQui les traite avec nous : Stripe Payments Europe pour le paiement en ligne et les factures, Resend pour l'acheminement de nos e-mails. Ces prestataires agissent pour notre compte et pour ces seuls usages.\n\nVos droits : vous pouvez demander à consulter vos données, à les corriger, à les faire effacer, à les recevoir dans un fichier réutilisable (portabilité) ou vous opposer à leur utilisation. Un e-mail à contact@auboiacier.fr suffit, et nous répondons sous un mois.\n\nSi notre réponse ne vous convient pas, vous pouvez saisir la CNIL, l'autorité française de protection des données (www.cnil.fr)."
+      },
+      {
+        "title": "11. Médiation de la consommation",
+        "body": "Avant tout, écrivez-nous : la plupart des désaccords se règlent en quelques échanges. Si notre réponse ne vous convient pas, vous pouvez faire appel gratuitement à un médiateur de la consommation. Les coordonnées du médiateur auquel l'atelier adhère vous sont communiquées avec notre réponse écrite et figurent sur nos factures. Vous pouvez également déposer votre litige sur la plateforme européenne de règlement en ligne des litiges : ec.europa.eu/consumers/odr."
+      },
+      {
+        "title": "12. Droit applicable",
+        "body": "Les présentes conditions sont soumises au droit français. Elles sont acceptées en cochant la case prévue dans le panier, avant le paiement. En cas de litige, une solution amiable est recherchée en priorité (article 11) ; à défaut, les tribunaux français sont compétents."
+      }
+    ],
+    "garantieTitle": "Garantie légale de conformité et vices cachés — encadré officiel",
+    "garantieIntro": "Le texte ci-dessous est celui imposé par la loi française. Il est reproduit tel quel, sans rien y changer.",
+    "garantieBody": "Le consommateur dispose d'un délai de deux ans à compter de la délivrance du bien pour obtenir la mise en œuvre de la garantie légale de conformité en cas d'apparition d'un défaut de conformité. Durant ce délai, le consommateur n'est tenu d'établir que l'existence du défaut de conformité et non la date d'apparition de celui-ci.\n\nLa garantie légale de conformité donne au consommateur droit à la réparation ou au remplacement du bien dans un délai de trente jours suivant sa demande, sans frais et sans inconvénient majeur pour lui.\n\nSi le bien est réparé dans le cadre de la garantie légale de conformité, le consommateur bénéficie d'une extension de six mois de la garantie initiale.\n\nSi le consommateur demande la réparation du bien, mais que le vendeur impose le remplacement, la garantie légale de conformité est renouvelée pour une période de deux ans à compter de la date de remplacement du bien.\n\nLe consommateur peut obtenir une réduction du prix d'achat en conservant le bien ou mettre fin au contrat en se faisant rembourser intégralement contre restitution du bien, si :\n1° Le professionnel refuse de réparer ou de remplacer le bien ;\n2° La réparation ou le remplacement du bien intervient après un délai de trente jours ;\n3° La réparation ou le remplacement du bien occasionne un inconvénient majeur pour le consommateur, notamment lorsque le consommateur supporte définitivement les frais de reprise ou d'enlèvement du bien non conforme, ou s'il supporte les frais d'installation du bien réparé ou de remplacement ;\n4° La non-conformité du bien persiste en dépit de la tentative de mise en conformité du vendeur restée infructueuse.\n\nLe consommateur a également droit à une réduction du prix du bien ou à la résolution du contrat lorsque le défaut de conformité est si grave qu'il justifie que la réduction du prix ou la résolution du contrat soit immédiate. Le consommateur n'est alors pas tenu de demander la réparation ou le remplacement du bien au préalable.\n\nLe consommateur n'a pas droit à la résolution de la vente si le défaut de conformité est mineur.\n\nToute période d'immobilisation du bien en vue de sa réparation ou de son remplacement suspend la garantie qui restait à courir jusqu'à la délivrance du bien remis en état.\n\nLes droits mentionnés ci-dessus résultent de l'application des articles L. 217-1 à L. 217-32 du code de la consommation.\n\nLe vendeur qui fait obstacle de mauvaise foi à la mise en œuvre de la garantie légale de conformité encourt une amende civile d'un montant maximal de 300 000 euros, qui peut être porté jusqu'à 10 % du chiffre d'affaires moyen annuel (article L. 241-5 du code de la consommation).\n\nLe consommateur bénéficie également de la garantie légale des vices cachés en application des articles 1641 à 1649 du code civil, pendant une durée de deux ans à compter de la découverte du défaut. Cette garantie donne droit à une réduction de prix si le bien est conservé ou à un remboursement intégral contre restitution du bien.",
+    "mediateurLabel": "Médiateur de la consommation auquel l'atelier adhère",
+    "tvaLabel": "Régime de TVA"
+  },
+  "mentionsLegales": {
+    "title": "Mentions légales",
+    "sections": [
+      {
+        "title": "Éditeur du site",
+        "body": "Auboiacier — atelier de métallerie, à Saumur (Maine-et-Loire). Contact : contact@auboiacier.fr."
+      },
+      {
+        "title": "Directeur de la publication",
+        "body": "Quentin Aumercier."
+      },
+      {
+        "title": "Hébergeur",
+        "body": "Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, États-Unis — vercel.com."
+      },
+      {
+        "title": "Paiement et e-mails",
+        "body": "Les paiements en ligne sont traités par Stripe Payments Europe, Ltd. Aucune donnée bancaire n'est enregistrée par Auboiacier. Les e-mails de confirmation et de devis sont acheminés par Resend."
+      },
+      {
+        "title": "Propriété intellectuelle",
+        "body": "Les textes, photographies et créations présentés sur ce site sont la propriété d'Auboiacier. Toute reproduction sans autorisation est interdite."
+      },
+      {
+        "title": "Données personnelles",
+        "body": "Les données transmises par les formulaires ou lors d'une commande servent uniquement à répondre aux demandes et à traiter les commandes. Vous disposez d'un droit d'accès, de rectification, d'effacement, d'opposition et de portabilité : écrivez à contact@auboiacier.fr. Les durées de conservation, les prestataires concernés et le recours auprès de la CNIL sont détaillés à l'article 10 des conditions générales de vente."
+      }
+    ],
+    "identiteTitle": "L'entreprise",
+    "labelRaisonSociale": "Raison sociale",
+    "labelStatut": "Statut juridique",
+    "labelAdresse": "Adresse du siège",
+    "labelSiret": "SIRET",
+    "labelTva": "Numéro de TVA",
+    "labelTelephone": "Téléphone"
+  },
+  "seo": {
+    "hub": {
+      "title": "Auboiacier — Mobilier bois & acier et plafonds lumineux sur mesure à Saumur (49)",
+      "description": "Atelier de métallerie à Saumur, Maine-et-Loire. Tables, chaises, escaliers, verrières, sculptures et plafonds lumineux à toile tendue, fabriqués à la main sur mesure — prix d'atelier, livraison dans toute la France."
+    },
+    "artisanat": {
+      "title": "Mobilier sur mesure bois & acier — tables, chaises, escaliers | Saumur 49",
+      "description": "Tables en chêne massif à piétement acier, chaises en velours, consoles, escaliers et verrières fabriqués à la main dans notre atelier de Saumur. Prix affichés, sans intermédiaire, livraison France entière."
+    },
+    "produitSuffixe": "Fabriqué à la main à Saumur (Maine-et-Loire) — livraison France entière.",
+    "lumiere": {
+      "title": "Plafonds lumineux à toile tendue sur mesure — panneaux LED",
+      "description": "Panneaux lumineux à toile tendue rétroéclairée, cadre aluminium thermolaqué : rectangulaires jusqu'à 400 × 300 cm, ronds jusqu'à Ø 400 cm. Fabrication artisanale à Saumur, pose en Maine-et-Loire et alentours."
+    },
+    "sculptures": {
+      "title": "Sculptures en acier de récupération — pièces uniques",
+      "description": "Sculptures soudées à la main en acier de récupération, pièces uniques pensées avec vous : sujet, taille, socle et emplacement. Atelier à Saumur, Maine-et-Loire."
+    },
+    "verrieres": {
+      "title": "Verrières d'atelier en acier sur mesure — Saumur, Maine-et-Loire",
+      "description": "Verrières d'intérieur en acier fin, relevé de cotes sur place et pose comprise. Séparation de pièce, cuisine, mezzanine — fabrication artisanale à Saumur (49)."
+    },
+    "apropos": {
+      "title": "L'atelier Auboiacier — métallier-soudeur à Saumur (49)",
+      "description": "Un atelier, deux matières : l'acier soudé TIG et le bois massif choisi à la planche. Pas de série industrielle, chaque pièce est fabriquée à la commande à Saumur, en Maine-et-Loire."
+    },
+    "contact": {
+      "title": "Contact & devis gratuit — Auboiacier, Saumur (Maine-et-Loire)",
+      "description": "Un projet de table, d'escalier, de verrière ou de plafond lumineux ? Décrivez-le, on vous répond avec un devis clair sous quelques jours. Atelier à Saumur, déplacements dans le 49 et alentours."
+    },
+    "realisations": {
+      "title": "Réalisations — plafonds lumineux et toiles tendues",
+      "description": "Nos plafonds lumineux tendus posés chez des particuliers et des professionnels en Maine-et-Loire et dans les départements voisins."
+    },
+    "devis": {
+      "title": "Demander un devis plafond lumineux sur mesure",
+      "description": "Décrivez votre pièce : dimensions, hauteur sous plafond, température de lumière. On relève les cotes et on chiffre, sans engagement."
+    },
+    "panier": {
+      "title": "Votre panier",
+      "description": "Les pièces que vous avez sélectionnées à l'atelier."
+    },
+    "cgv": {
+      "title": "Conditions générales de vente",
+      "description": "Conditions de commande, de fabrication, de livraison et de rétractation."
+    },
+    "mentions": {
+      "title": "Mentions légales",
+      "description": "Éditeur, hébergeur et informations légales du site Auboiacier."
+    },
+    "zone": {
+      "title": "Zone d'intervention — Saumur, Maine-et-Loire et alentours",
+      "description": "Atelier à Saumur (49) : relevé de cotes et pose autour de Saumur, en Maine-et-Loire, Indre-et-Loire, Deux-Sèvres et Vienne, livraison du mobilier dans toute la France métropolitaine."
+    },
+    "faq": {
+      "title": "Questions fréquentes — délais, prix, sur-mesure, livraison",
+      "description": "Délais de fabrication, prix, dimensions sur mesure, livraison et montage, entretien, paiement, garanties : toutes les réponses de l'atelier Auboiacier, à Saumur (Maine-et-Loire)."
+    },
+    "merci": {
+      "title": "Merci pour votre commande",
+      "description": "Confirmation de votre commande à l'atelier Auboiacier."
+    }
+  },
+  "zone": {
+    "title": "Zone d'intervention",
+    "subtitle": "L'atelier est à Saumur, en Maine-et-Loire. C'est de là que partent les livraisons, et de là que nous nous déplaçons pour prendre les cotes et poser.",
+    "sections": [
+      {
+        "title": "Autour de Saumur",
+        "body": "Saumur et les communes voisines — Doué-en-Anjou, Longué-Jumelles, Montreuil-Bellay, Bourgueil, Chinon — sont à moins d'une heure de route de l'atelier. C'est notre terrain de tous les jours : nous venons relever les cotes chez vous, nous posons, et nous repassons facilement si un réglage s'impose."
+      },
+      {
+        "title": "Le Maine-et-Loire et les départements voisins",
+        "body": "Angers, Cholet, Tours, et plus largement le Maine-et-Loire (49), l'Indre-et-Loire (37), les Deux-Sèvres (79) et la Vienne (86) : nous nous y déplaçons couramment. Le déplacement est chiffré dans le devis, vous savez donc à l'avance ce qu'il coûte."
+      },
+      {
+        "title": "Partout en France métropolitaine",
+        "body": "Les pièces du catalogue sont livrées dans toute la France métropolitaine, montage compris : elles voyagent protégées sous couvertures, sans emballage jetable, et nous convenons d'un créneau avec vous. Pour une pose plus loin de chez nous (plafond lumineux, verrière, escalier), écrivez-nous : nous regardons le chantier et le temps de route, et nous vous disons franchement si c'est jouable."
+      },
+      {
+        "title": "Comment se passe un chantier",
+        "body": "1. Vous nous décrivez votre projet, par le formulaire ou par e-mail.\n2. Pour du sur-mesure, nous venons relever les cotes — ou nous travaillons sur vos plans si vous êtes loin.\n3. Vous recevez un devis écrit, déplacement et pose compris.\n4. La fabrication démarre au versement de l'acompte.\n5. Nous livrons, nous posons, et nous ne repartons qu'une fois la pièce en service."
+      }
+    ],
+    "communesTitle": "Communes et départements desservis",
+    "ctaTitle": "Votre commune n'est pas dans la liste ?",
+    "ctaBody": "Écrivez-nous quand même : dites-nous où vous êtes et ce que vous voulez faire, nous vous répondrons franchement.",
+    "ctaLabel": "Nous écrire",
+    "faqLink": "Voir les questions fréquentes"
+  },
+  "faq": {
+    "title": "Questions fréquentes",
+    "subtitle": "Les questions qu'on nous pose le plus souvent, avec des réponses claires. Si la vôtre n'y est pas, écrivez-nous.",
+    "items": [
+      {
+        "q": "Combien de temps faut-il pour recevoir ma pièce ?",
+        "a": "Tout est fabriqué à la commande : il n'y a pas de stock. Le délai est indiqué sur la fiche de chaque pièce, à la ligne « Fabrication », et va de 3 à 12 semaines selon le modèle — une chaise part plus vite qu'un escalier. Le délai exact vous est confirmé par écrit à la commande."
+      },
+      {
+        "q": "Le délai peut-il être plus court ?",
+        "a": "Certaines étapes sont incompressibles : séchage du bois, soudure, thermolaquage, finition. Nous pouvons parfois avancer une commande selon le planning de l'atelier — écrivez-nous, nous vous dirons où nous en sommes."
+      },
+      {
+        "q": "Comment sont fixés les prix ?",
+        "a": "Les prix affichés dans la boutique sont fermes : ce que vous voyez est ce que vous payez, livraison en France métropolitaine et montage compris. Ils viennent du temps d'atelier et de la matière, sans intermédiaire ni revendeur. Pour le sur-mesure (escalier, verrière, sculpture), le prix dépend des dimensions et des finitions : il est chiffré au devis, gratuitement."
+      },
+      {
+        "q": "Peut-on commander des dimensions sur mesure ?",
+        "a": "Oui. Les dimensions affichées sont nos formats courants, mais l'atelier travaille à la pièce : longueur, largeur, hauteur, forme du plateau, tout se discute. Sur les tables et les panneaux lumineux, un calculateur vous donne directement le prix à vos cotes, en millimètres. Pour le reste, envoyez-nous vos mesures et nous chiffrons."
+      },
+      {
+        "q": "Comment se passe la livraison ?",
+        "a": "Nous livrons partout en France métropolitaine. Votre meuble voyage protégé sous couvertures, sans emballage jetable, et nous convenons d'un créneau précis avec vous. Le montage sur place est compris : la pièce est prête à l'usage quand nous repartons."
+      },
+      {
+        "q": "Où intervenez-vous ?",
+        "a": "L'atelier est à Saumur, en Maine-et-Loire. Nous nous déplaçons couramment dans le 49, le 37, les Deux-Sèvres et la Vienne pour relever les cotes et poser, et nous livrons le mobilier dans toute la France métropolitaine. Le détail est sur la page Zone d'intervention."
+      },
+      {
+        "q": "Comment entretenir une pièce bois & acier ?",
+        "a": "Un chiffon doux et sec au quotidien. Pour le bois huilé, une ré-application d'huile-cire une fois par an suffit ; une rayure se rattrape d'un ponçage léger. L'acier thermolaqué se nettoie à l'éponge humide, sans produit abrasif."
+      },
+      {
+        "q": "Comment se passe le paiement ?",
+        "a": "Pour les pièces du catalogue, le paiement se fait en une fois par carte bancaire au moment de la commande, et la facture vous est envoyée automatiquement. Pour le sur-mesure établi sur devis (escalier, verrière, sculpture), un acompte de 40 % lance la fabrication et le solde est réglé à la livraison. Les plafonds lumineux, y compris à vos dimensions, se commandent et se règlent directement en ligne comme le reste de la boutique."
+      },
+      {
+        "q": "Puis-je annuler ou retourner une commande ?",
+        "a": "Nos pièces sont fabriquées à vos dimensions et à vos finitions : la loi exclut le droit de rétractation de quatorze jours pour ce type de bien, nous ne pouvons donc pas les reprendre une fois la fabrication lancée. En revanche, la garantie légale de conformité et la garantie des vices cachés s'appliquent pleinement : si la pièce ne correspond pas à ce qui était convenu ou présente un défaut caché, nous la réparons, la remplaçons ou la remboursons. Le détail est dans les conditions générales de vente."
+      },
+      {
+        "q": "Un plafond lumineux, ça s'installe comment ?",
+        "a": "L'ossature aluminium se fixe au plafond existant, puis la toile se tend : pas de gros œuvre, pas de poussière, et la pose se fait en général en une journée. Le plus grand panneau d'un seul tenant fait 400 × 300 cm ; au-delà, on assemble plusieurs caissons jointifs pour couvrir un plafond entier."
+      },
+      {
+        "q": "Les devis sont-ils gratuits ?",
+        "a": "Oui, et sans engagement. Décrivez votre projet par le formulaire de contact : vous recevez une réponse sous 48 h et une estimation écrite."
+      }
+    ],
+    "ctaTitle": "Votre question n'est pas là ?",
+    "ctaBody": "Posez-la directement : nous répondons sous 48 h, et jamais avec une réponse toute faite.",
+    "ctaLabel": "Poser ma question",
+    "zoneLink": "Voir la zone d'intervention"
   }
 }

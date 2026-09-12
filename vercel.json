@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/:chemin*",
+      "has": [{ "type": "host", "value": "www.auboiacier.fr" }],
+      "destination": "https://auboiacier.fr/:chemin*",
+      "permanent": true
+    }
+  ]
+}

@@ -3,6 +3,8 @@
 :root {
   --background: #fbf9f6;
   --foreground: #2b2320;
+  /* Le bordeaux de l'atelier : sert aussi de contour de focus au clavier. */
+  --accent: #6d2c2c;
 }
 
 @theme inline {
@@ -22,4 +24,80 @@ body {
     Georgia, "Times New Roman", serif;
   font-weight: 400;
   letter-spacing: -0.01em;
+}
+
+/* Bande de vignettes : on fait défiler à la souris ou au doigt, sans barre visible. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Focus au clavier
+ *  Filet de sécurité : tout ce qui se clique montre un contour quand on
+ *  y arrive à la tabulation, même si un composant a oublié de le prévoir.
+ * ------------------------------------------------------------------ */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible,
+[role="option"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+  /* Le bordeaux seul disparaissait sur les fonds noirs et sur les bandeaux
+     bordeaux du site (1,9 de contraste là où il en faut 3). Le halo blanc le
+     détache du sombre, le liseré noir le détache du clair : sur n'importe quel
+     fond, au moins l'un des trois se voit. */
+  box-shadow:
+    0 0 0 5px #ffffff,
+    0 0 0 7px rgba(0, 0, 0, 0.35);
+}
+
+/* Sur une photo sombre, on peut encore inverser les rôles. */
+.focus-clair:focus-visible {
+  outline-color: #ffffff;
+  box-shadow:
+    0 0 0 5px #2b2320,
+    0 0 0 7px rgba(255, 255, 255, 0.5);
+}
+
+/* ------------------------------------------------------------------ *
+ *  « Réduire les animations »
+ *  Quand le visiteur a coché ce réglage sur son téléphone ou son
+ *  ordinateur, le site se calme : plus de transitions, plus
+ *  d'agrandissement au survol, plus de défilement qui glisse tout seul.
+ * ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  /* Les vignettes et les photos ne grandissent plus sous la souris. */
+  *:hover,
+  *:hover *,
+  *:focus-visible {
+    scale: none !important;
+  }
+
+  /* Plus rien ne glisse tout seul : ni la page, ni les bandes de vignettes. */
+  html,
+  body,
+  .no-scrollbar,
+  [class*="overflow-x-auto"],
+  [class*="overflow-y-auto"] {
+    scroll-behavior: auto !important;
+  }
 }
