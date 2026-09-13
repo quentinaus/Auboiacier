@@ -274,6 +274,9 @@
     "gcAllegeAide": "From the floorboards or tiles up to the top of the sill.",
     "gcAllegeInfo": "Standing in the room, measure from the finished floor (boards or tiles laid) up to the top of the window sill, the ledge you rest your hands on. That height tells us how tall to make the railing.",
     "gcMur": "Wall type",
+    "gcConsigne": "Exact opening dimensions, in millimetres, nothing deducted: the workshop handles the rest.",
+    "gcFacultatif": "(optional)",
+    "gcMainCourante": "Handrail at {m} mm from the floor, fitted {j} mm above the sill.",
     "gcMurOptions": [
       "Stone",
       "Solid brick",
@@ -388,6 +391,7 @@
     "releveCodePostal": "Postcode of the site",
     "releveVisiteIntro": "The staircase is made on quotation only: the workshop comes to measure at your home, and you receive a quote, fitting included. The travel is deducted from the order.",
     "customTableHeight": "Finished height",
+    "customTableHeightEdit": "Change",
     "customTableHeightAide": "Recommended: 75 cm — from the floor to the top of the table.",
     "customTableHeightNote": "finished height {h} cm"
   },
@@ -882,7 +886,7 @@
     "badge": "Book online",
     "cta": "Book a slot",
     "formTitle": "Another project to measure?",
-    "formSubtitle": "Glass partition, sculpture, piece outside the catalogue: pick a slot and describe the project, we confirm within 24 to 72 hours.",
+    "formSubtitle": "Glass partition, sculpture, piece outside the catalogue: describe the project, we confirm within 24 to 72 hours.",
     "prefill": "Appointment for on-site measuring",
     "creneauLabel": "Your slot",
     "creneauManque": "Pick the day and half-day that suit you: we confirm by e-mail."

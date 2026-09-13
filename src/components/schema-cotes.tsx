@@ -72,6 +72,7 @@ function Cote({
   pastille,
   valeurA,
   exterieur = false,
+  compact = false,
   onChoisir,
   onSurvol,
 }: {
@@ -88,10 +89,14 @@ function Cote({
   valeurA: "droite" | "dessous";
   /** Les pointes à l'extérieur, pour une cote trop courte pour les loger. */
   exterieur?: boolean;
+  /** Dessin nu et plus lisible : pastilles plus grandes, traits plus francs. */
+  compact?: boolean;
   onChoisir?: () => void;
   onSurvol?: (dedans: boolean) => void;
 }) {
   const actif = etat === "actif";
+  const rayon = compact ? 14 : 11;
+  const corps = compact ? 14 : 12;
   const couleur = actif ? ACCENT : etat === "survol" ? ENCRE : REPOS;
   const angle = Math.atan2(a[1] - de[1], a[0] - de[0]);
   const ux = Math.cos(angle);
@@ -138,7 +143,7 @@ function Cote({
         x2={ligne[1][0]}
         y2={ligne[1][1]}
         stroke={couleur}
-        strokeWidth={actif ? 1.6 : 1.1}
+        strokeWidth={compact ? (actif ? 2 : 1.4) : actif ? 1.6 : 1.1}
         strokeLinecap="round"
       />
       {pointes.map((d, i) => (
@@ -149,16 +154,16 @@ function Cote({
       <circle
         cx={pastille[0]}
         cy={pastille[1]}
-        r={11}
+        r={rayon}
         fill={actif ? ACCENT : "#ffffff"}
         stroke={actif ? ACCENT : etat === "survol" ? ENCRE : REPOS}
         strokeWidth={etat === "repos" ? 1.2 : 1.6}
       />
       <text
         x={pastille[0]}
-        y={pastille[1] + 4.3}
+        y={pastille[1] + (compact ? 5 : 4.3)}
         textAnchor="middle"
-        fontSize={12}
+        fontSize={corps}
         fontWeight={700}
         fill={actif ? "#ffffff" : ENCRE}
         style={{ userSelect: "none" }}
@@ -203,8 +208,11 @@ export function SchemaCotes({
   actif,
   onChoisir,
   locale = "fr",
+  compact = false,
 }: {
   forme: "rect" | "rond";
+  /** Sans cadre ni valeurs écrites : les chiffres sont dans les lignes juste dessous. */
+  compact?: boolean;
   /** La description lue par les lecteurs d'écran suit la langue de la page. */
   locale?: "fr" | "en";
   /** Un plateau de bois, ou un caisson lumineux à cadre thermolaqué. */
@@ -247,10 +255,11 @@ export function SchemaCotes({
     props: Omit<Parameters<typeof Cote>[0], "n" | "etat" | "label" | "valeur" | "onChoisir" | "onSurvol">
   ) => (
     <Cote
+      compact={compact}
       n={n(c)}
       etat={etat(c)}
       label={c === "principale" ? labels.principale : c === "secondaire" ? labels.secondaire ?? "" : labels.epaisseur}
-      valeur={valeurs?.[c]}
+      valeur={compact ? undefined : valeurs?.[c]}
       onChoisir={onChoisir ? () => onChoisir(c) : undefined}
       onSurvol={(dedans) => setSurvol((s) => (dedans ? c : s === c ? null : s))}
       {...props}
@@ -266,7 +275,7 @@ export function SchemaCotes({
       viewBox={`0 0 ${largeurBox} ${hauteurBox}`}
       role="group"
       aria-label={`${legende}${ordre.map((c) => (c === "secondaire" ? labels.secondaire : labels[c])).join(", ")}`}
-      className="mx-auto h-auto w-full max-w-[520px] select-none"
+      className={compact ? "h-auto w-full select-none" : "mx-auto h-auto w-full max-w-[520px] select-none"}
       fontFamily="inherit"
     >
       <defs>

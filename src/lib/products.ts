@@ -231,8 +231,8 @@ export type ProductEn = {
 
 /* ------------------------------------------------------------------ *
  *  Essences de bois
- *  Le fil est dessiné en CSS plutôt que photographié : la pastille reste
- *  nette à toute taille et ne coûte aucun téléchargement.
+ *  La pastille est un disque de fil de bois calculé par
+ *  scripts/echantillons.py (public/images/echantillons/bois-*.png).
  *  `deltas` donne l'écart de prix par produit — un même bois ne pèse pas
  *  pareil sur une chaise et sur un escalier.
  * ------------------------------------------------------------------ */
@@ -246,36 +246,25 @@ const WOOD_GRAIN: Record<
     label: "Pin massif",
     labelEn: "Solid pine",
     swatch: "#e0bd85",
-    grain: `repeating-linear-gradient(96deg, rgba(120,80,35,0.16) 0 1px, transparent 1px 6px),
-            repeating-linear-gradient(94deg, rgba(120,80,35,0.09) 0 2px, transparent 2px 11px),
-            radial-gradient(ellipse 34% 12% at 62% 34%, rgba(122,80,38,0.34), transparent 70%),
-            linear-gradient(100deg, #ecca94 0%, #dcb376 45%, #e7c489 72%, #d5aa6c 100%)`,
+    grain: "url(/images/echantillons/bois-pin.png)",
   },
   hetre: {
     label: "Hêtre massif",
     labelEn: "Solid beech",
     swatch: "#dcc0a0",
-    grain: `repeating-linear-gradient(93deg, rgba(120,82,52,0.13) 0 1px, transparent 1px 4px),
-            repeating-linear-gradient(93deg, rgba(120,82,52,0.07) 0 1px, transparent 1px 9px),
-            linear-gradient(100deg, #e6cdb0 0%, #d7b895 50%, #e0c4a4 100%)`,
+    grain: "url(/images/echantillons/bois-hetre.png)",
   },
   chene: {
     label: "Chêne massif",
     labelEn: "Solid oak",
     swatch: "#c19a5e",
-    grain: `repeating-linear-gradient(95deg, rgba(92,58,26,0.20) 0 1px, transparent 1px 7px),
-            repeating-linear-gradient(95deg, rgba(92,58,26,0.11) 0 2px, transparent 2px 15px),
-            repeating-linear-gradient(95deg, rgba(255,236,205,0.16) 0 1px, transparent 1px 23px),
-            linear-gradient(100deg, #cd9f63 0%, #b9884c 40%, #c99a5f 68%, #ad7d45 100%)`,
+    grain: "url(/images/echantillons/bois-chene.png)",
   },
   noyer: {
     label: "Noyer massif",
     labelEn: "Solid walnut",
     swatch: "#6b452c",
-    grain: `repeating-linear-gradient(95deg, rgba(28,16,8,0.30) 0 1px, transparent 1px 6px),
-            repeating-linear-gradient(95deg, rgba(28,16,8,0.16) 0 2px, transparent 2px 13px),
-            radial-gradient(ellipse 40% 16% at 35% 62%, rgba(150,96,54,0.34), transparent 72%),
-            linear-gradient(100deg, #7a5033 0%, #5d3a22 46%, #6f472c 74%, #4e2f1b 100%)`,
+    grain: "url(/images/echantillons/bois-noyer.png)",
   },
 };
 
@@ -293,8 +282,8 @@ function woods(deltas: Partial<Record<WoodId, number>>): ProductSwatch[] {
 
 /* ------------------------------------------------------------------ *
  *  Finitions de l'acier
- *  Même principe que le bois : la matière est dessinée en CSS pour que
- *  la pastille reste nette et gratuite à charger.
+ *  Comme le bois, la pastille est une image calculée par
+ *  scripts/echantillons.py : une bille de poudre thermolaquée, éclairée.
  * ------------------------------------------------------------------ */
 type MetalId =
   | "noir"
@@ -305,13 +294,6 @@ type MetalId =
   | "blanc"
   | "brut";
 
-/** Poudre thermolaquée : un grain fin, un reflet en biais, une ombre en bas. */
-function laque(clair: string, base: string, sombre: string, reflet = 0.14): string {
-  return `repeating-linear-gradient(118deg, rgba(255,255,255,${reflet}) 0 1px, transparent 1px 5px),
-            radial-gradient(circle at 32% 26%, rgba(255,255,255,${reflet * 1.8}), transparent 58%),
-            linear-gradient(150deg, ${clair} 0%, ${base} 48%, ${sombre} 100%)`;
-}
-
 const METAL_FINISH: Record<
   MetalId,
   { label: string; labelEn: string; swatch: string; grain: string }
@@ -320,45 +302,43 @@ const METAL_FINISH: Record<
     label: "Noir charbon",
     labelEn: "Charcoal black",
     swatch: "#1c1a18",
-    grain: laque("#3a3734", "#201e1c", "#111010", 0.05),
+    grain: "url(/images/echantillons/metal-noir.png)",
   },
   gris: {
     label: "Gris acier",
     labelEn: "Steel grey",
     swatch: "#46453f",
-    grain: laque("#66645c", "#46453f", "#2c2b27", 0.08),
+    grain: "url(/images/echantillons/metal-gris.png)",
   },
   chocolat: {
     label: "Chocolat",
     labelEn: "Chocolate",
     swatch: "#463831",
-    grain: laque("#655047", "#463831", "#2a211c", 0.08),
+    grain: "url(/images/echantillons/metal-chocolat.png)",
   },
   laiton: {
     label: "Laiton",
     labelEn: "Brass",
     swatch: "#8c7c3f",
-    grain: laque("#b7a35a", "#8c7c3f", "#5f5427", 0.16),
+    grain: "url(/images/echantillons/metal-laiton.png)",
   },
   lin: {
     label: "Lin clair",
     labelEn: "Pale linen",
     swatch: "#cfc9b6",
-    grain: laque("#e6e1d1", "#cfc9b6", "#aaa48f", 0.12),
+    grain: "url(/images/echantillons/metal-lin.png)",
   },
   blanc: {
     label: "Blanc",
     labelEn: "White",
     swatch: "#f0efeb",
-    grain: laque("#ffffff", "#f0efeb", "#d3d0c8", 0.1),
+    grain: "url(/images/echantillons/metal-blanc.png)",
   },
   brut: {
     label: "Acier brut verni",
     labelEn: "Varnished raw steel",
     swatch: "#8a8578",
-    grain: `repeating-linear-gradient(118deg, rgba(255,255,255,0.22) 0 1px, transparent 1px 4px),
-            repeating-linear-gradient(118deg, rgba(40,38,34,0.16) 0 1px, transparent 1px 9px),
-            linear-gradient(150deg, #cbc7bd 0%, #97938a 45%, #b4b0a6 72%, #7d7a71 100%)`,
+    grain: "url(/images/echantillons/metal-acier-brut.png)",
   },
 };
 
@@ -386,14 +366,6 @@ function metals(...ids: MetalId[]): ProductSwatch[] {
  *  Velours d'ameublement
  *  Les références correspondent au nuancier du tissu utilisé en atelier.
  * ------------------------------------------------------------------ */
-function velvet(base: string, light: string, dark: string): string {
-  return `repeating-linear-gradient(48deg, rgba(255,255,255,0.11) 0 1px, rgba(255,255,255,0) 1px 3px),
-          repeating-linear-gradient(132deg, rgba(0,0,0,0.13) 0 1px, rgba(0,0,0,0) 1px 3px),
-          repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0 1px, rgba(255,255,255,0) 1px 5px),
-          radial-gradient(circle at 30% 24%, ${light}, rgba(255,255,255,0) 55%),
-          radial-gradient(circle at 74% 86%, ${dark}, rgba(0,0,0,0) 52%),
-          linear-gradient(150deg, ${light} 0%, ${base} 48%, ${dark} 100%)`;
-}
 
 export const fabrics: ProductSwatch[] = [
   {
@@ -401,7 +373,7 @@ export const fabrics: ProductSwatch[] = [
     label: "Bleu roi 660",
     labelEn: "Royal blue 660",
     swatch: "#304d78",
-    grain: velvet("#304d78", "#4873b4", "#1a2a42"),
+    grain: "url(/images/echantillons/velours-bleu-roi.png)",
     image: "/images/chaises/bleu-roi.jpg",
   },
   {
@@ -409,7 +381,7 @@ export const fabrics: ProductSwatch[] = [
     label: "Sacramento 795",
     labelEn: "Sacramento 795",
     swatch: "#365055",
-    grain: velvet("#365055", "#51787f", "#1d2c2e"),
+    grain: "url(/images/echantillons/velours-sacramento.png)",
     image: "/images/chaises/sacramento.jpg",
   },
   {
@@ -417,7 +389,7 @@ export const fabrics: ProductSwatch[] = [
     label: "Vert bouteille 775",
     labelEn: "Bottle green 775",
     swatch: "#706e3b",
-    grain: velvet("#706e3b", "#a8a558", "#3d3c20"),
+    grain: "url(/images/echantillons/velours-vert-bouteille.png)",
     image: "/images/chaises/vert-bouteille.jpg",
   },
   {
@@ -425,7 +397,7 @@ export const fabrics: ProductSwatch[] = [
     label: "Endive 720",
     labelEn: "Endive 720",
     swatch: "#cec68d",
-    grain: velvet("#cec68d", "#ffffd3", "#716c4d"),
+    grain: "url(/images/echantillons/velours-endive.png)",
     image: "/images/chaises/endive.jpg",
   },
   {
@@ -433,7 +405,7 @@ export const fabrics: ProductSwatch[] = [
     label: "Paon 710",
     labelEn: "Peacock 710",
     swatch: "#1f5c64",
-    grain: velvet("#1f5c64", "#2e8a96", "#113237"),
+    grain: "url(/images/echantillons/velours-paon.png)",
     image: "/images/chaises/paon.jpg",
   },
   {
@@ -441,7 +413,7 @@ export const fabrics: ProductSwatch[] = [
     label: "Minuit 690",
     labelEn: "Midnight 690",
     swatch: "#3d4563",
-    grain: velvet("#3d4563", "#5b6794", "#212536"),
+    grain: "url(/images/echantillons/velours-minuit.png)",
     image: "/images/chaises/minuit.jpg",
   },
   {
@@ -449,7 +421,7 @@ export const fabrics: ProductSwatch[] = [
     label: "Prune 580",
     labelEn: "Plum 580",
     swatch: "#693d4d",
-    grain: velvet("#693d4d", "#9d5b73", "#39212a"),
+    grain: "url(/images/echantillons/velours-prune.png)",
     image: "/images/chaises/prune.jpg",
   },
   {
@@ -457,7 +429,7 @@ export const fabrics: ProductSwatch[] = [
     label: "Vieux rose 510",
     labelEn: "Old rose 510",
     swatch: "#915f57",
-    grain: velvet("#915f57", "#d98e82", "#4f342f"),
+    grain: "url(/images/echantillons/velours-vieux-rose.png)",
     image: "/images/chaises/vieux-rose.jpg",
   },
   {
@@ -465,7 +437,7 @@ export const fabrics: ProductSwatch[] = [
     label: "Terre de Sienne 390",
     labelEn: "Burnt sienna 390",
     swatch: "#844c2c",
-    grain: velvet("#844c2c", "#c67242", "#482918"),
+    grain: "url(/images/echantillons/velours-terre-de-sienne.png)",
     image: "/images/chaises/terre-de-sienne.jpg",
   },
   {
@@ -473,7 +445,7 @@ export const fabrics: ProductSwatch[] = [
     label: "Ocre 350",
     labelEn: "Ochre 350",
     swatch: "#a0722c",
-    grain: velvet("#a0722c", "#f0ab42", "#583e18"),
+    grain: "url(/images/echantillons/velours-ocre.png)",
     image: "/images/chaises/ocre.jpg",
   },
   {
@@ -481,7 +453,7 @@ export const fabrics: ProductSwatch[] = [
     label: "Champagne 215",
     labelEn: "Champagne 215",
     swatch: "#bfa37b",
-    grain: velvet("#bfa37b", "#fff4b8", "#695943"),
+    grain: "url(/images/echantillons/velours-champagne.png)",
     image: "/images/chaises/champagne.jpg",
   },
   {
@@ -489,7 +461,7 @@ export const fabrics: ProductSwatch[] = [
     label: "Noir 199",
     labelEn: "Black 199",
     swatch: "#454544",
-    grain: velvet("#454544", "#676766", "#252525"),
+    grain: "url(/images/echantillons/velours-noir.png)",
     image: "/images/chaises/noir.jpg",
   },
   {
@@ -499,7 +471,7 @@ export const fabrics: ProductSwatch[] = [
     // L'onyx tire vers le gris-bleu, le Noir 199 reste neutre : les deux
     // pastilles étaient à deux points l'une de l'autre, donc identiques à l'œil.
     swatch: "#4a4b52",
-    grain: velvet("#4a4b52", "#6d6e78", "#26272c"),
+    grain: "url(/images/echantillons/velours-onyx.png)",
     image: "/images/chaises/onyx.jpg",
   },
   {
@@ -507,7 +479,7 @@ export const fabrics: ProductSwatch[] = [
     label: "Dune 165",
     labelEn: "Dune 165",
     swatch: "#b99971",
-    grain: velvet("#b99971", "#ffe5a9", "#65543e"),
+    grain: "url(/images/echantillons/velours-dune.png)",
     image: "/images/chaises/dune.jpg",
   },
   {
@@ -515,7 +487,7 @@ export const fabrics: ProductSwatch[] = [
     label: "Cendre 130",
     labelEn: "Ash 130",
     swatch: "#746a67",
-    grain: velvet("#746a67", "#ae9f9a", "#3f3a38"),
+    grain: "url(/images/echantillons/velours-cendre.png)",
     image: "/images/chaises/cendre.jpg",
   },
 ];

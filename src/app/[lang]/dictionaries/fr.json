@@ -274,6 +274,9 @@
     "gcAllegeAide": "Du parquet ou du carrelage jusqu'au dessus de l'appui.",
     "gcAllegeInfo": "Debout dans la pièce, mesurez du sol fini (parquet ou carrelage posé) jusqu'au dessus de l'appui de fenêtre, la tablette sur laquelle on pose les mains. C'est cette hauteur qui nous dit à quelle hauteur faire le garde-corps.",
     "gcMur": "Type de mur",
+    "gcConsigne": "Cotes exactes de l'ouverture, en millimètres, sans rien retirer : l'atelier se charge du reste.",
+    "gcFacultatif": "(facultatif)",
+    "gcMainCourante": "Main courante à {m} mm du sol, posée {j} mm au-dessus de l'appui.",
     "gcMurOptions": [
       "Pierre",
       "Brique pleine",
@@ -388,6 +391,7 @@
     "releveCodePostal": "Code postal du chantier",
     "releveVisiteIntro": "L'escalier se fait uniquement sur devis : l'atelier vient prendre les cotes chez vous, et vous recevez un devis, pose comprise. Le déplacement est déduit de la commande.",
     "customTableHeight": "Hauteur finie",
+    "customTableHeightEdit": "Modifier",
     "customTableHeightAide": "Conseillé : 75 cm — du sol au dessus du plateau.",
     "customTableHeightNote": "hauteur finie {h} cm"
   },
@@ -882,7 +886,7 @@
     "badge": "Rendez-vous en ligne",
     "cta": "Réserver un créneau",
     "formTitle": "Un autre projet à mesurer ?",
-    "formSubtitle": "Verrière, sculpture, pièce hors catalogue : choisissez un créneau et décrivez le projet, nous confirmons sous 24 à 72 h.",
+    "formSubtitle": "Verrière, sculpture, pièce hors catalogue : décrivez le projet, nous confirmons sous 24 à 72 h.",
     "prefill": "Rendez-vous pour une prise de cotes à domicile",
     "creneauLabel": "Votre créneau",
     "creneauManque": "Choisissez le jour et la demi-journée qui vous arrangent : nous confirmons par e-mail."

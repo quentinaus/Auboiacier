@@ -74,7 +74,7 @@ function SwatchGroup({
       </span>
       {/* Les pastilles en rangée, calées à gauche : d'un groupe à l'autre,
           elles tombent dans les mêmes colonnes. */}
-      <div role="group" aria-labelledby={idGroupe} className="mt-2 flex flex-wrap gap-x-2.5 gap-y-3 sm:gap-x-3">
+      <div role="group" aria-labelledby={idGroupe} className="mt-3 flex flex-wrap gap-x-4 gap-y-5 sm:gap-x-5">
         {options.map((o) => {
           const isSelected = o.id === selected;
           return (
@@ -91,15 +91,17 @@ function SwatchGroup({
               aria-label={
                 showDelta ? `${o.label} — ${formatDelta(o.priceDelta ?? 0, locale)}` : o.label
               }
-              className="group w-[3rem] shrink-0 rounded-xl text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] lg:w-[3.25rem]"
+              className="group w-[4.25rem] shrink-0 rounded-xl text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] lg:w-[4.75rem]"
             >
+              {/* La matière d'abord, grande et ronde ; son nom en dessous, sur
+                  deux lignes s'il le faut — comme un nuancier. */}
               <MaterialBubble
                 material={o}
                 selected={isSelected}
-                className="aspect-square w-full transition-transform duration-200 group-hover:scale-[1.06] group-focus-visible:scale-[1.06]"
+                className="mx-auto aspect-square w-[3.5rem] transition-transform duration-200 group-hover:scale-[1.05] group-focus-visible:scale-[1.05] lg:w-[4rem]"
               />
               <span
-                className={`mt-1 block text-[10px] leading-tight ${
+                className={`mt-2.5 block text-[11px] leading-snug ${
                   isSelected ? "font-medium text-[#2a2116]" : "text-[#5c5140]"
                 }`}
               >
@@ -107,7 +109,7 @@ function SwatchGroup({
               </span>
               {showDelta && (
                 <span
-                  className={`mt-0.5 block text-[10px] leading-tight tabular-nums ${
+                  className={`mt-0.5 block text-[11px] leading-snug tabular-nums ${
                     isSelected ? "text-[#2a2116]" : "text-[#6f6357]"
                   }`}
                 >
@@ -137,51 +139,57 @@ function cotesCourtes(label: string) {
     .trim();
 }
 
-/** Une case de cote : intitulé, saisie, unité collée, et les bornes en dessous. */
-function Cote({
+/** Le numéro d'une cote : le même sur le croquis et devant sa ligne. */
+function Pastille({ n }: { n: number }) {
+  return (
+    <span
+      aria-hidden
+      className="inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border border-[#2b2320] text-[10px] font-bold leading-none text-[#2b2320]"
+    >
+      {n}
+    </span>
+  );
+}
+
+/**
+ * Une ligne de cote : le numéro et l'intitulé à gauche, la saisie à droite.
+ * Les bornes ne sont plus écrites dessous : elles servent de texte d'attente
+ * dans le champ (et sont lues par les lecteurs d'écran).
+ */
+function Ligne({
   n,
   id,
   label,
   valeur,
   onChange,
   unite,
-  aide,
-  placeholder,
+  bornes,
   onFocus,
   onBlur,
   erreurId,
 }: {
-  /** Le numéro de la cote : le même que sur le croquis. */
-  n?: number;
-  id?: string;
+  n: number;
+  id: string;
   label: string;
   valeur: string;
   onChange: (valeur: string) => void;
   unite: string;
-  aide: string;
-  placeholder?: string;
+  bornes: string;
   onFocus?: () => void;
   onBlur?: () => void;
-  /** Le message de refus, quand il y en a un : la case le désigne. */
+  /** Le message de refus, quand il y en a un : la ligne le désigne. */
   erreurId?: string;
 }) {
+  const bornesId = `${id}-bornes`;
   return (
-    <label className="flex flex-col gap-1.5">
-      <span className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-[#6f6357]">
-        {n !== undefined && (
-          <span
-            aria-hidden
-            className="inline-flex h-[17px] w-[17px] shrink-0 items-center justify-center rounded-full border border-[#2a2116] text-[10px] font-bold leading-none text-[#2a2116]"
-          >
-            {n}
-          </span>
-        )}
+    <label className="flex items-center justify-between gap-4 py-3">
+      <span className="flex items-center gap-2.5 text-[15px] text-[#2b2320]">
+        <Pastille n={n} />
         {label}
       </span>
-      {/* Le focus est porté par le cadre seul — bordure bordeaux et halo léger.
-          Le filet de sécurité global (input:focus-visible) est coupé sur la case,
-          sinon on avait trois contours emboîtés. */}
-      <span className="flex items-center gap-1 rounded-xl border border-[#e5ddd3] bg-white px-3 py-2.5 transition-[border-color,box-shadow] focus-within:border-[#6d2c2c] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
+      {/* Le focus est porté par la pilule seule — bordure bordeaux et halo
+          léger ; le filet de sécurité global est coupé sur le champ. */}
+      <span className="flex h-10 w-[8.5rem] shrink-0 items-center gap-1 rounded-full border border-[#e5ddd3] bg-white px-3.5 transition-[border-color,box-shadow] focus-within:border-[#6d2c2c] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
         <input
           id={id}
           inputMode="decimal"
@@ -189,14 +197,16 @@ function Cote({
           onChange={(e) => onChange(e.target.value)}
           onFocus={onFocus}
           onBlur={onBlur}
-          placeholder={placeholder}
-          aria-describedby={erreurId}
+          placeholder={bornes}
+          aria-describedby={[bornesId, erreurId].filter(Boolean).join(" ")}
           aria-invalid={erreurId ? true : undefined}
-          className="w-full min-w-0 bg-transparent text-base tabular-nums text-[#2a2116] outline-none focus-visible:shadow-none focus-visible:outline-none sm:text-sm"
+          className="w-full min-w-0 bg-transparent text-right text-base tabular-nums text-[#2b2320] placeholder:text-[#c4b9ac] outline-none focus-visible:shadow-none focus-visible:outline-none sm:text-[15px]"
         />
         <span className="text-xs text-[#6f6357]">{unite}</span>
+        <span id={bornesId} className="sr-only">
+          {bornes} {unite}
+        </span>
       </span>
-      <span className="text-[10px] tabular-nums text-[#726757]">{aide}</span>
     </label>
   );
 }
@@ -252,6 +262,8 @@ export function ProductOptions({
   const [hauteurSaisie, setHauteurSaisie] = useState("");
   /** La hauteur finie d'une table, du sol au dessus du plateau : 75 cm si on ne dit rien. */
   const [hauteurTableSaisie, setHauteurTableSaisie] = useState("");
+  /** La hauteur finie se replie : une ligne « 75 cm · Modifier », le champ au clic. */
+  const [hauteurOuverte, setHauteurOuverte] = useState(false);
   const [epaisseurSaisie, setEpaisseurSaisie] = useState("");
   /** Cote en cours de saisie : c'est elle qui s'allume sur le croquis. */
   const [coteActive, setCoteActive] = useState<CoteActive>(null);
@@ -321,8 +333,10 @@ export function ProductOptions({
   const labelSecondaire = plan ? t.customWidth : t.customHeight;
   const facteur = unite === "mm" ? 1 : unite === "cm" ? 10 : 1000;
   /** Une cote en millimètres, écrite dans l'unité choisie : « 220 cm », « 2 200 mm », « 2,2 m ». */
-  const enUnite = (mm: number, u: "mm" | "cm" | "m" = unite) =>
-    `${(mm / (u === "mm" ? 1 : u === "cm" ? 10 : 1000)).toLocaleString(locale === "en" ? "en-GB" : "fr-FR", { maximumFractionDigits: 2 })} ${u}`;
+  /** Le nombre seul, dans l'unité choisie : « 80 », « 4 ». */
+  const chiffre = (mm: number, u: "mm" | "cm" | "m" = unite) =>
+    (mm / (u === "mm" ? 1 : u === "cm" ? 10 : 1000)).toLocaleString(locale === "en" ? "en-GB" : "fr-FR", { maximumFractionDigits: 2 });
+  const enUnite = (mm: number, u: "mm" | "cm" | "m" = unite) => `${chiffre(mm, u)} ${u}`;
   const enMm = (valeur: string) => {
     const nombre = Number(valeur.replace(",", "."));
     return Number.isFinite(nombre) ? Math.round(nombre * facteur) : NaN;
@@ -774,128 +788,101 @@ export function ProductOptions({
           taille toute faite n'est qu'un raccourci pour ceux qui n'ont pas de
           cotes en tête. */}
       {((bareme && !product.releve) || (product.sizes.length > 1 && orderable)) && (
-        <div className="mt-4 scroll-mt-28 border-t border-[#e5ddd3] pt-4" id="cotes">
-          <span className={GROUP_LABEL} id={`${idTailles}-titre`}>
-            {product.sizeLabel ? product.sizeLabel[locale] : t.sizeLabel}
-          </span>
+        <div className="mt-4 scroll-mt-28 border-t border-[#e5ddd3] pt-5" id="cotes">
+          {/* Le titre, et l'unité de saisie en face : rien d'autre à lire. */}
+          <div className="flex items-center justify-between gap-4">
+            <span className={GROUP_LABEL} id={`${idTailles}-titre`}>
+              {product.sizeLabel ? product.sizeLabel[locale] : t.sizeLabel}
+            </span>
+            {bareme && !product.releve && (
+              <div role="radiogroup" aria-label={t.customUnit} className="flex rounded-full border border-[#e5ddd3] bg-white p-0.5">
+                {(["mm", "cm", "m"] as const).map((u) => (
+                  <button
+                    key={u}
+                    type="button"
+                    role="radio"
+                    aria-checked={unite === u}
+                    onClick={() => setUnite(u)}
+                    className={`rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors ${
+                      unite === u ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"
+                    }`}
+                  >
+                    {u}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           {bareme && !product.releve && (
-            <div className="@container mt-3 overflow-hidden rounded-2xl border border-[#e0d5c7] bg-[#fbfaf8]">
-              <div className="px-4 pb-4 pt-3.5 md:px-5 md:pt-4">
-                <p className="text-xs leading-relaxed text-[#6f6357]">
-                  {table ? t.customHelpPlan : t.customHelp}
-                </p>
+            <>
+              {/* Le croquis, nu : c'est lui qui explique où mesurer. */}
+              <div className="mx-auto mt-4 max-w-[360px]">
+                <SchemaCotes
+                  compact
+                  forme={bareme.forme}
+                  locale={locale}
+                  matiere={table ? "bois" : "lumiere"}
+                  actif={coteActive}
+                  onChoisir={allerA}
+                  labels={{
+                    principale: labelPrincipale,
+                    secondaire: labelSecondaire,
+                    epaisseur: t.customThickness,
+                  }}
+                />
+              </div>
 
-                {/* Croquis à gauche, cases à droite : deux colonnes dès qu'il y a
-                    la place, ce qui économise un demi-écran de défilement. */}
-                <div className="mt-3 flex flex-col gap-4">
-                <div className="rounded-xl bg-white px-3 py-3">
-                  <SchemaCotes
-                    forme={bareme.forme}
-                    locale={locale}
-                    matiere={table ? "bois" : "lumiere"}
-                    actif={coteActive}
-                    onChoisir={allerA}
-                    labels={{
-                      principale: labelPrincipale,
-                      secondaire: labelSecondaire,
-                      epaisseur: t.customThickness,
-                    }}
-                    valeurs={{
-                      principale: largeurSaisie && Number.isFinite(largeurMm) ? enUnite(largeurMm) : undefined,
-                      secondaire: !rond && hauteurSaisie && Number.isFinite(hauteurMm) ? enUnite(hauteurMm) : undefined,
-                      epaisseur: Number.isFinite(epaisseurMm) ? enUnite(epaisseurMm, "mm") : undefined,
-                    }}
-                  />
-                </div>
-
-                <div>
-                {/* L'unité de saisie : millimètres par défaut. */}
-                <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-[#6f6357]">
-                    {t.customUnit}
-                  </span>
-                  <div className="flex rounded-full border border-[#e5ddd3] bg-white p-0.5">
-                    {(["mm", "cm", "m"] as const).map((u) => (
-                      <button
-                        key={u}
-                        type="button"
-                        onClick={() => setUnite(u)}
-                        aria-pressed={unite === u}
-                        className={`rounded-full px-4 py-2 text-xs font-medium transition-colors ${
-                          unite === u
-                            ? "bg-[#2a2116] text-white"
-                            : "text-[#726757] hover:text-[#2a2116]"
-                        }`}
-                      >
-                        {u}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Les cotes, une case par dimension. */}
-                <div className={`mt-4 grid gap-3 ${rond ? "grid-cols-2" : "grid-cols-2 @sm:grid-cols-3"}`}>
-                  <Cote
-                    n={1}
-                    id={`${idTailles}-principale`}
-                    label={labelPrincipale}
-                    valeur={largeurSaisie}
-                    onChange={setLargeurSaisie}
+              {/* Une ligne par cote, un filet entre deux. */}
+              <div className="mt-3 divide-y divide-[#e5ddd3]">
+                <Ligne
+                  n={1}
+                  id={`${idTailles}-principale`}
+                  label={labelPrincipale}
+                  valeur={largeurSaisie}
+                  onChange={setLargeurSaisie}
+                  unite={unite}
+                  bornes={`${chiffre(bareme.minMm)} – ${chiffre(bareme.maxLargeurMm)}`}
+                  onFocus={() => setCoteActive("principale")}
+                  onBlur={() => setCoteActive(null)}
+                  erreurId={
+                    devis && !devis.ok && !devis.reason.startsWith("epaisseur") ? `${idTailles}-erreur` : undefined
+                  }
+                />
+                {!rond && (
+                  <Ligne
+                    n={2}
+                    id={`${idTailles}-secondaire`}
+                    label={labelSecondaire}
+                    valeur={hauteurSaisie}
+                    onChange={setHauteurSaisie}
                     unite={unite}
-                    aide={`${enUnite(bareme.minMm)} – ${enUnite(bareme.maxLargeurMm)}`}
-                    onFocus={() => setCoteActive("principale")}
+                    bornes={`${chiffre(bareme.minMm)} – ${chiffre(bareme.maxHauteurMm)}`}
+                    onFocus={() => setCoteActive("secondaire")}
                     onBlur={() => setCoteActive(null)}
                     erreurId={
-                      devis && !devis.ok && !devis.reason.startsWith("epaisseur")
-                        ? `${idTailles}-erreur`
-                        : undefined
+                      devis && !devis.ok && !devis.reason.startsWith("epaisseur") ? `${idTailles}-erreur` : undefined
                     }
                   />
-                  {!rond && (
-                    <Cote
-                      n={2}
-                      id={`${idTailles}-secondaire`}
-                      label={labelSecondaire}
-                      valeur={hauteurSaisie}
-                      onChange={setHauteurSaisie}
-                      unite={unite}
-                      aide={`${enUnite(bareme.minMm)} – ${enUnite(bareme.maxHauteurMm)}`}
-                      onFocus={() => setCoteActive("secondaire")}
-                      onBlur={() => setCoteActive(null)}
-                      erreurId={
-                        devis && !devis.ok && !devis.reason.startsWith("epaisseur")
-                          ? `${idTailles}-erreur`
-                          : undefined
-                      }
-                    />
-                  )}
-                  {bareme.epaisseur.choixMm ? (
-                    /* Un plateau de table ne se coupe qu'à trois cotes : on
-                       choisit, on ne tape pas. Les cotes trop fines pour la
-                       longueur saisie restent visibles mais grisées. */
-                    <div
-                      className="flex flex-col gap-1.5"
-                      onFocus={() => setCoteActive("epaisseur")}
-                      onBlur={() => setCoteActive(null)}
-                    >
-                      <span
-                        id={`${idTailles}-epaisseur-titre`}
-                        className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-[#6f6357]"
-                      >
-                        <span
-                          aria-hidden
-                          className="inline-flex h-[17px] w-[17px] shrink-0 items-center justify-center rounded-full border border-[#2a2116] text-[10px] font-bold leading-none text-[#2a2116]"
-                        >
-                          {rond ? 2 : 3}
-                        </span>
-                        {t.customThickness}
-                      </span>
-                      <div className="flex items-center gap-2">
+                )}
+                {bareme.epaisseur.choixMm ? (
+                  /* Un plateau de table ne se coupe qu'à trois cotes : on
+                     choisit, on ne tape pas. Les cotes trop fines pour la
+                     longueur saisie restent visibles mais grisées. */
+                  <div
+                    className="flex items-center justify-between gap-4 py-3"
+                    onFocus={() => setCoteActive("epaisseur")}
+                    onBlur={() => setCoteActive(null)}
+                  >
+                    <span id={`${idTailles}-epaisseur-titre`} className="flex items-center gap-2.5 text-[15px] text-[#2b2320]">
+                      <Pastille n={rond ? 2 : 3} />
+                      {t.customThickness}
+                    </span>
+                    <span className="flex items-center gap-2">
                       <div
                         role="radiogroup"
                         aria-labelledby={`${idTailles}-epaisseur-titre`}
-                        className="flex w-fit rounded-full border border-[#e5ddd3] bg-white p-0.5"
+                        className="flex h-10 items-center rounded-full border border-[#e5ddd3] bg-white p-0.5"
                       >
                         {bareme.epaisseur.choixMm.map((mm) => {
                           const choisi = mm === epaisseurMm;
@@ -911,8 +898,8 @@ export function ProductOptions({
                               title={tropFin ? t.customThicknessTooThin.replace("{portee}", String(porteeMm)) : undefined}
                               onClick={() => setEpaisseurSaisie(String(mm))}
                               aria-label={`${mm} mm`}
-                              className={`whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium tabular-nums transition-colors disabled:cursor-not-allowed disabled:text-[#c4b9ac] ${
-                                choisi ? "bg-[#2a2116] text-white" : "text-[#726757] hover:text-[#2a2116]"
+                              className={`h-full rounded-full px-3.5 text-[13px] tabular-nums transition-colors disabled:cursor-not-allowed disabled:text-[#c4b9ac] ${
+                                choisi ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"
                               }`}
                             >
                               {mm}
@@ -920,97 +907,114 @@ export function ProductOptions({
                           );
                         })}
                       </div>
-                      <span className="text-xs text-[#6f6357]">mm</span>
-                      </div>
-                      <span className="text-[10px] tabular-nums text-[#726757]">
-                        {t.customThicknessChoice.replace("{choix}", bareme.epaisseur.choixMm.join(", "))}
+                      <span className="text-xs text-[#6f6357]" aria-hidden>
+                        mm
                       </span>
-                    </div>
-                  ) : (
-                    <Cote
-                      n={rond ? 2 : 3}
-                      id={`${idTailles}-epaisseur`}
-                      label={t.customThickness}
-                      valeur={epaisseurSaisie}
-                      onChange={setEpaisseurSaisie}
-                      unite="mm"
-                      placeholder={String(bareme.epaisseur.refMm)}
-                      aide={`${epaisseurMini} – ${epaisseurMaxi} mm`}
-                      onFocus={() => setCoteActive("epaisseur")}
-                      onBlur={() => setCoteActive(null)}
-                      erreurId={
-                        devis && !devis.ok && devis.reason.startsWith("epaisseur")
-                          ? `${idTailles}-erreur`
-                          : devis && !devis.ok && devis.reason === "caisson_trop_profond"
-                            ? `${idTailles}-erreur`
-                            : undefined
-                      }
-                    />
-                  )}
-                  {/* La hauteur finie d'une table : 75 cm sauf demande, sans effet
-                      sur le prix. Pas de numéro : le croquis ne montre que le plateau. */}
-                  {table && (
-                    <Cote
-                      id={`${idTailles}-hauteur`}
-                      label={t.customTableHeight}
-                      valeur={hauteurTableSaisie}
-                      onChange={setHauteurTableSaisie}
-                      unite={unite}
-                      placeholder={(HAUTEUR_TABLE_MM / facteur).toLocaleString(locale === "en" ? "en-GB" : "fr-FR")}
-                      aide={t.customTableHeightAide}
-                      onFocus={() => setCoteActive("hauteur")}
-                      onBlur={() => setCoteActive(null)}
-                    />
-                  )}
-                </div>
-
-                {/* Pour une lumière seulement : la table n'a pas besoin de mot sur le prix ici. */}
-                {!table && (
-                  <p className="mt-3 text-[11px] leading-relaxed text-[#6f6357]">{t.customThicknessNoteLight}</p>
+                    </span>
+                  </div>
+                ) : (
+                  <Ligne
+                    n={rond ? 2 : 3}
+                    id={`${idTailles}-epaisseur`}
+                    label={t.customThickness}
+                    valeur={epaisseurSaisie}
+                    onChange={setEpaisseurSaisie}
+                    unite="mm"
+                    bornes={`${epaisseurMini} – ${epaisseurMaxi}`}
+                    onFocus={() => setCoteActive("epaisseur")}
+                    onBlur={() => setCoteActive(null)}
+                    erreurId={
+                      devis && !devis.ok && (devis.reason.startsWith("epaisseur") || devis.reason === "caisson_trop_profond")
+                        ? `${idTailles}-erreur`
+                        : undefined
+                    }
+                  />
                 )}
-                </div>
-                </div>
+
+                {/* La hauteur finie d'une table : 75 cm sauf demande, sans effet
+                    sur le prix. Une ligne grise, sans numéro, qui ne montre son
+                    champ qu'au clic. */}
+                {table && (
+                  <div className="flex items-center justify-between gap-4 py-2.5 text-sm text-[#6f6357]">
+                    <span id={`${idTailles}-hauteur-titre`}>{t.customTableHeight}</span>
+                    {hauteurOuverte ? (
+                      <span className="flex h-10 w-[8.5rem] items-center gap-1 rounded-full border border-[#e5ddd3] bg-white px-3.5 focus-within:border-[#6d2c2c] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
+                        <input
+                          id={`${idTailles}-hauteur`}
+                          autoFocus
+                          inputMode="decimal"
+                          value={hauteurTableSaisie}
+                          onChange={(e) => setHauteurTableSaisie(e.target.value)}
+                          placeholder={(HAUTEUR_TABLE_MM / facteur).toLocaleString(locale === "en" ? "en-GB" : "fr-FR")}
+                          aria-labelledby={`${idTailles}-hauteur-titre`}
+                          aria-describedby={`${idTailles}-hauteur-aide`}
+                          onFocus={() => setCoteActive("hauteur")}
+                          onBlur={() => {
+                            setCoteActive(null);
+                            setHauteurOuverte(false);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === "Escape") setHauteurOuverte(false);
+                          }}
+                          className="w-full min-w-0 bg-transparent text-right text-base tabular-nums text-[#2b2320] outline-none focus-visible:shadow-none focus-visible:outline-none sm:text-[15px]"
+                        />
+                        <span className="text-xs">{unite}</span>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setHauteurOuverte(true)}
+                        aria-describedby={`${idTailles}-hauteur-aide`}
+                        className="inline-flex items-center gap-1.5 rounded-full py-1 text-sm hover:text-[#2b2320]"
+                      >
+                        <span className="tabular-nums text-[#2b2320]">
+                          {Number.isFinite(hauteurTableMm) ? enUnite(hauteurTableMm) : enUnite(HAUTEUR_TABLE_MM)}
+                        </span>
+                        <span aria-hidden>·</span>
+                        <span className="underline underline-offset-4">{t.customTableHeightEdit}</span>
+                      </button>
+                    )}
+                    <span id={`${idTailles}-hauteur-aide`} className="sr-only">
+                      {t.customTableHeightAide}
+                    </span>
+                  </div>
+                )}
               </div>
 
-              {/* Le devis, toujours affiché : à zéro tant qu'aucune cote n'est
-                  entrée, pour que le prix soit au même endroit du début à la fin. */}
-              <div className="border-t border-[#e0d5c7] bg-white px-4 py-3 md:px-5">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-baseline gap-3">
-                    <p
-                      className="text-2xl font-medium tabular-nums transition-colors"
-                      /* Le gris d'attente était à 2,3 de contraste : sur un
-                         téléphone en plein jour, le prix disparaissait. */
-                      style={{ color: devis?.ok ? ACCENT : "#726757" }}
-                    >
-                      {devis?.ok ? prixAffiche(prixSurMesure ?? devis.prix, locale) : "—"}
-                    </p>
-                    <p className="text-xs text-[#6f6357]">
-                      {devis?.ok
-                        ? `${surfaceAffichee(devis.surface, locale)} · ${epaisseurMm.toLocaleString(
-                            locale === "en" ? "en-GB" : "fr-FR"
-                          )} mm`
-                        : t.customAwait}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    disabled={!devis?.ok}
-                    onClick={() => {
-                      setCotes({ largeurMm, hauteurMm, epaisseurMm });
-                      setSizeId(SUR_MESURE);
-                    }}
-                    className="rounded-full px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-35"
-                    style={{ backgroundColor: ACCENT }}
+              {/* Le prix, en grand dès qu'il existe, et le geste en face. */}
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+                <div className="min-w-0">
+                  <p
+                    className="text-[28px] font-medium leading-none tabular-nums transition-colors"
+                    style={{ color: devis?.ok ? ACCENT : "#6f6357" }}
                   >
-                    {sizeId === SUR_MESURE ? t.customApplied : t.customApply}
-                  </button>
+                    {devis?.ok ? prixAffiche(prixSurMesure ?? devis.prix, locale) : "—"}
+                  </p>
+                  <p className="mt-1.5 text-xs text-[#6f6357]">
+                    {devis?.ok
+                      ? `${surfaceAffichee(devis.surface, locale)} · ${epaisseurMm.toLocaleString(
+                          locale === "en" ? "en-GB" : "fr-FR"
+                        )} mm`
+                      : t.customAwait}
+                  </p>
                 </div>
-
+                <button
+                  type="button"
+                  disabled={!devis?.ok}
+                  onClick={() => {
+                    setCotes({ largeurMm, hauteurMm, epaisseurMm });
+                    setSizeId(SUR_MESURE);
+                  }}
+                  className="w-full rounded-full bg-[#2b2320] px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-30 sm:w-auto"
+                >
+                  {sizeId === SUR_MESURE ? `✓ ${t.customApplied}` : t.customApply}
+                </button>
+              </div>
+              <div>
                 {/* Le refus doit s'entendre, pas seulement se voir : sans
                     role="alert" un lecteur d'écran ne disait rien et le client
                     continuait de taper devant un bouton grisé. */}
-                <p id={`${idTailles}-erreur`} role="alert" className="mt-3 text-xs text-[#6d2c2c]">
+                <p id={`${idTailles}-erreur`} role="alert" className="mt-2 min-h-4 text-xs leading-snug text-[#6d2c2c]">
                   {devis && !devis.ok
                     ? devis.reason === "trop_petit"
                       ? t.customTooSmall
@@ -1044,18 +1048,18 @@ export function ProductOptions({
                       setCotes(null);
                       setSizeId("");
                     }}
-                    className="mt-3 block text-xs text-[#6f6357] underline underline-offset-4"
+                    className="mt-2 block text-xs text-[#6f6357] underline underline-offset-4 hover:text-[#2b2320]"
                   >
                     {t.customReset}
                   </button>
                 )}
               </div>
-            </div>
+            </>
           )}
 
           {/* La taille toute faite, en second. */}
           {product.sizes.length > 1 && (
-            <div className={bareme && !product.releve ? "mt-6" : "mt-4"}>
+            <div className={bareme && !product.releve ? "mt-7" : "mt-4"}>
               {bareme && !product.releve && (
                 <span
                   className="mb-2 block text-[11px] uppercase tracking-[0.14em] text-[#6f6357]"

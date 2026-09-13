@@ -225,7 +225,7 @@ export default async function DevisPage({ params }: PageProps<"/[lang]/devis">) 
           <h2 className={`${serif.className} text-3xl text-[#2b2320] md:text-4xl`}>{t.formTitle}</h2>
           <p className="mt-3 leading-relaxed text-[#5c5140]">{t.formSubtitle}</p>
           <div className="mt-8">
-            <DevisForm t={dict.contact.form} email={dict.contact.email} locale={locale} redirectTo={`/${locale}/devis/merci`} />
+            <DevisForm t={dict.contact.form} email={dict.contact.email} locale={locale} />
           </div>
         </div>
       </section>

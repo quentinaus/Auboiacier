@@ -22,16 +22,22 @@ export function MaterialBubble({
   selected?: boolean;
   className?: string;
 }) {
+  /** Un échantillon calculé (bois, peinture, velours) porte déjà son volume ; une photo (rosace) garde un filet. */
+  const calcule = material.grain?.includes("/echantillons/") ?? false;
   return (
     <span
       className={`block overflow-hidden rounded-full ${className}`}
       style={{
-        backgroundColor: material.swatch,
+        backgroundColor: calcule ? "transparent" : material.swatch,
         backgroundImage: material.grain,
         backgroundSize: "cover",
+        // Une image calculée (bois, peinture) porte déjà son volume et son
+        // ombre : on ne lui ajoute qu'un anneau de sélection, fin et net.
         boxShadow: selected
-          ? `0 0 0 2px #fff, 0 0 0 4px ${ACCENT}, 0 12px 22px -14px rgba(0,0,0,0.55)`
-          : "0 0 0 1px rgba(0,0,0,0.10), 0 10px 20px -16px rgba(0,0,0,0.55)",
+          ? `0 0 0 2.5px #fbf9f6, 0 0 0 4px ${ACCENT}`
+          : calcule
+            ? "none"
+            : "0 0 0 1px rgba(0,0,0,0.10), 0 10px 20px -16px rgba(0,0,0,0.55)",
       }}
     >
       {/* Une photo (les rosaces) se montre telle quelle : pas de reflet de bille dessus. */}

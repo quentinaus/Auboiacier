@@ -3,8 +3,8 @@
 import { useId, useState } from "react";
 import Link from "next/link";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
-import { ChampCote } from "./champ-cote";
-import { Intitule, QuiMesure, VisiteAtelier } from "./prise-de-cotes";
+import { InfoBulle } from "./info-bulle";
+import { QuiMesure, VisiteAtelier } from "./prise-de-cotes";
 import { SchemaFenetre, NUMERO_COTE, type CoteFenetre } from "./schema-fenetre";
 import { calculerGardeCorpsFenetre, JOUR_MM, type CalculFenetre } from "@/lib/garde-corps";
 import type { Deplacement } from "@/lib/deplacement";
@@ -101,7 +101,7 @@ function Pastille({ n }: { n: number }) {
 }
 
 const SELECT =
-  "mt-1.5 w-full rounded-xl border border-[#e5ddd3] bg-white px-3 py-2.5 text-base text-[#2a2116] focus:border-[#6d2c2c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] sm:text-sm";
+  "h-10 w-[8.5rem] shrink-0 rounded-full border border-[#e5ddd3] bg-white px-3.5 text-base text-[#2b2320] focus:border-[#6d2c2c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] sm:text-[15px]";
 
 /**
  * Le relevé d'un garde-corps de fenêtre.
@@ -178,309 +178,256 @@ export function ReleveGardeCorps({
     document.getElementById(`${idChamps}-${cote}`)?.focus();
   };
 
-  const champ = (cote: "largeur" | "allege" | "fenetre", props: { label: string; aide?: string; info: string; placeholder: string }) => (
-    <ChampCote
-      id={`${idChamps}-${cote}`}
-      label={props.label}
-      aide={props.aide}
-      info={props.info}
-      infoLabel={t.gcInfoLabel}
-      avant={<Pastille n={NUMERO_COTE[cote]} />}
-      valeur={cotes[cote]}
-      onChange={set(cote)}
-      placeholder={props.placeholder}
-      onFocus={() => setCoteActive(cote)}
-      onBlur={() => setCoteActive(null)}
-    />
+  /**
+   * Une ligne de cote : le numéro, l'intitulé et son « i » à gauche, la
+   * saisie en pilule à droite. L'aide n'est plus écrite sous le champ : elle
+   * est dans la bulle.
+   */
+  const ligne = (cote: "largeur" | "allege" | "fenetre", props: { label: string; aide?: string; info: string; placeholder: string }) => (
+    <label className="flex items-center justify-between gap-4 py-3">
+      <span className="flex items-center gap-2.5 text-[15px] leading-snug text-[#2b2320]">
+        <Pastille n={NUMERO_COTE[cote]} />
+        <InfoBulle texte={props.aide ? `${props.info} ${props.aide}` : props.info} label={t.gcInfoLabel} />
+        {props.label}
+      </span>
+      <span className="flex h-10 w-[8.5rem] shrink-0 items-center gap-1 rounded-full border border-[#e5ddd3] bg-white px-3.5 transition-[border-color,box-shadow] focus-within:border-[#6d2c2c] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
+        <input
+          id={`${idChamps}-${cote}`}
+          inputMode="decimal"
+          value={cotes[cote]}
+          onChange={(e) => set(cote)(e.target.value)}
+          placeholder={props.placeholder}
+          onFocus={() => setCoteActive(cote)}
+          onBlur={() => setCoteActive(null)}
+          className="w-full min-w-0 bg-transparent text-right text-base tabular-nums text-[#2b2320] placeholder:text-[#c4b9ac] outline-none focus-visible:shadow-none focus-visible:outline-none sm:text-[15px]"
+        />
+        <span className="text-xs text-[#6f6357]">mm</span>
+      </span>
+    </label>
   );
 
   return (
-    <div className="@container mt-3 scroll-mt-28 border-t border-[#e5ddd3] pt-3" id="cotes">
-      <span
-        className="block text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]"
-        id={idTitre}
-      >
+    <div className="@container mt-4 scroll-mt-28 border-t border-[#e5ddd3] pt-5" id="cotes">
+      <span className="block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]" id={idTitre}>
         {t.gcTitle}
       </span>
 
-      <div className="mt-2.5 overflow-hidden rounded-2xl border border-[#e0d5c7] bg-[#fbfaf8]">
-        <div className="px-3.5 pb-3.5 pt-3 md:px-4">
-          {/* 1. Qui mesure ? C'est la première question, elle décide de la suite. */}
-          <QuiMesure
-            valeur={cotes.qui}
-            onChange={(qui) => onChange({ ...cotes, qui })}
-            t={t}
-            notes={{ moi: t.gcQuiMoiNote, atelier: t.gcQuiAtelierNote }}
-          />
+      {/* 1. Qui mesure ? C'est la première question, elle décide de la suite. */}
+      <div className="mt-3">
+        <QuiMesure
+          valeur={cotes.qui}
+          onChange={(qui) => onChange({ ...cotes, qui })}
+          t={t}
+          notes={{ moi: t.gcQuiMoiNote, atelier: t.gcQuiAtelierNote }}
+        />
+      </div>
 
-          {/* 2a. L'atelier vient : le code postal, le prix, la demi-journée. */}
-          {cotes.qui === "atelier" && (
-            <VisiteAtelier cotes={cotes} onChange={(visite) => onChange({ ...cotes, ...visite })} t={t} locale={locale} />
-          )}
+      {/* 2a. L'atelier vient : le code postal, le prix, la demi-journée. */}
+      {cotes.qui === "atelier" && (
+        <VisiteAtelier cotes={cotes} onChange={(visite) => onChange({ ...cotes, ...visite })} t={t} locale={locale} />
+      )}
 
-          {/* 2b. Le client mesure : le croquis et ses deux cases côte à côte,
-              pour qu'on voie en même temps où se prend la cote et où on l'écrit. */}
-          {cotes.qui === "moi" && (
-            <>
-              <p className="mt-4 text-xs leading-relaxed text-[#6f6357]">{t.gcIntro}</p>
+      {/* 2b. Le client mesure : le croquis, grand et nu, puis une ligne par
+          cote, puis le résultat et son prix. Le texte s'efface : le dessin
+          explique, les bulles « i » précisent. */}
+      {cotes.qui === "moi" && (
+        <>
+          <div className="relative mx-auto mt-4 aspect-[4/5] w-full max-w-[400px] overflow-hidden rounded-xl">
+            <SchemaFenetre
+              className="absolute inset-0 h-full w-full"
+              largeurMm={Number.isFinite(mm(cotes.largeur)) && mm(cotes.largeur) > 0 ? mm(cotes.largeur) : undefined}
+              allegeMm={Number.isFinite(mm(cotes.allege)) ? mm(cotes.allege) : undefined}
+              hauteurFenetreMm={Number.isFinite(mm(cotes.fenetre)) && mm(cotes.fenetre) > 0 ? mm(cotes.fenetre) : undefined}
+              hauteurMm={calcul?.hauteurRetenueMm}
+              jourMm={calcul?.jourMm ?? JOUR_MM}
+              rosaceMm={rosaceMm}
+              mainCouranteMm={calcul?.mainCouranteMm ?? (rdc ? 800 : 1000)}
+              remplissage={norme?.surVerre ? "verre" : "croix"}
+              actif={coteActive}
+              onChoisir={allerA}
+              locale={locale}
+              labels={{
+                largeur: t.gcSchemaLargeur,
+                allege: t.gcSchemaAllege,
+                fenetre: t.gcSchemaFenetre,
+                hauteur: t.gcSchemaHauteur,
+                metre: (rdc ? t.gcSchemaMetreRdc : t.gcSchemaMetre).replace(
+                  "{m}",
+                  (calcul?.mainCouranteMm ?? (rdc ? 800 : 1000)).toLocaleString(langue)
+                ),
+                interieur: t.gcSchemaInterieur,
+              }}
+            />
+          </div>
+          <p className="mt-2.5 text-xs leading-snug text-[#6f6357]">{t.gcConsigne}</p>
 
-              <div className="mt-3 grid gap-3 @md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] @md:items-start">
-                {/* Le croquis, carré : la fenêtre d'abord, un peu de mur et de
-                    sol autour, et le prix qui se lit dessus, en bas. Dessous,
-                    la consigne qui compte : des cotes exactes, en millimètres. */}
-                <div className="flex flex-col gap-2.5">
-                <div className="relative aspect-square min-h-0 overflow-hidden rounded-xl border border-[#e5ddd3] bg-[#efe9dd]">
-                  <SchemaFenetre
-                    className="absolute inset-0 h-full w-full"
-                    largeurMm={Number.isFinite(mm(cotes.largeur)) && mm(cotes.largeur) > 0 ? mm(cotes.largeur) : undefined}
-                    allegeMm={Number.isFinite(mm(cotes.allege)) ? mm(cotes.allege) : undefined}
-                    hauteurFenetreMm={Number.isFinite(mm(cotes.fenetre)) && mm(cotes.fenetre) > 0 ? mm(cotes.fenetre) : undefined}
-                    hauteurMm={calcul?.hauteurRetenueMm}
-                    jourMm={calcul?.jourMm ?? JOUR_MM}
-                    rosaceMm={rosaceMm}
-                    mainCouranteMm={calcul?.mainCouranteMm ?? (rdc ? 800 : 1000)}
-                    remplissage={norme?.surVerre ? "verre" : "croix"}
-                    actif={coteActive}
-                    onChoisir={allerA}
-                    locale={locale}
-                    labels={{
-                      largeur: t.gcSchemaLargeur,
-                      allege: t.gcSchemaAllege,
-                      fenetre: t.gcSchemaFenetre,
-                      hauteur: t.gcSchemaHauteur,
-                      metre: (rdc ? t.gcSchemaMetreRdc : t.gcSchemaMetre).replace(
-                        "{m}",
-                        (calcul?.mainCouranteMm ?? (rdc ? 800 : 1000)).toLocaleString(langue)
-                      ),
-                      interieur: t.gcSchemaInterieur,
-                    }}
-                  />
-                  <div className="absolute inset-x-2 bottom-2 rounded-lg border border-white/60 bg-white/90 px-3 py-1.5 shadow-[0_10px_30px_-16px_rgba(42,33,22,0.6)] backdrop-blur-sm">
-                    <p className="flex flex-wrap items-baseline gap-x-2">
-                      <span
-                        className="text-xl font-medium leading-none tabular-nums transition-colors"
-                        style={{ color: calcul && prixPiece !== null ? ACCENT : "#a3968a" }}
-                      >
-                        {horsBareme || tropBasse
-                          ? t.onQuote
-                          : calcul && prixPiece !== null && !norme?.nonConforme
-                            ? prixAffiche(prixPiece, locale)
-                            : "—"}
-                      </span>
-                      <span className="text-[11px] leading-snug text-[#5c5140]">
-                        {horsBareme
-                          ? t.gcHorsBaremeCourt.replace("{l}", horsBareme.largeurMaxMm.toLocaleString(langue))
-                          : tropBasse
-                            ? t.gcTropBasseCourt
-                          : norme?.nonConforme
-                            ? t.gcNonConformeCourt
-                          : calcul && prixPiece !== null
-                          ? `${t.gcResume
-                              .replace("{l}", calcul.largeurMm.toLocaleString(langue))
-                              .replace("{h}", calcul.hauteurRetenueMm.toLocaleString(langue))} · ${t.gcPrixCompris}`
-                          : t.gcPrixAttente}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-                <p className="rounded-xl border border-[#6d2c2c]/20 bg-[#6d2c2c]/[0.05] px-3.5 py-3 text-[15px] leading-snug text-[#2a2116]">
-                  <span className="mr-1.5 inline-block align-[-3px]" aria-hidden>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#6d2c2c" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-[18px] w-[18px]">
-                      <rect x="3" y="8" width="18" height="8" rx="1.5" />
-                      <path d="M7 8v3M11 8v4M15 8v3M19 8v4" />
-                    </svg>
-                  </span>
-                  {/* « au millimètre près » souligné, la fin en gras : c'est la consigne qui compte. */}
-                  {t.gcCotesExactes.split(" — ")[0].split(t.gcCotesExactesSouligne)[0]}
-                  <u className="decoration-[#6d2c2c] decoration-2 underline-offset-[3px]">{t.gcCotesExactesSouligne}</u>
-                  {t.gcCotesExactes.split(" — ")[0].split(t.gcCotesExactesSouligne)[1]}
-                  {" — "}
-                  <strong className="font-semibold text-[#6d2c2c]">{t.gcCotesExactes.split(" — ")[1]}</strong>
-                </p>
-                </div>
+          <div className="mt-1 divide-y divide-[#e5ddd3]">
+            {ligne("largeur", { label: t.gcLargeur, aide: t.gcLargeurAide, info: t.gcLargeurInfo, placeholder: "1180" })}
+            {ligne("allege", { label: t.gcAllege, aide: t.gcAllegeAide, info: t.gcAllegeInfo, placeholder: "850" })}
+            {ligne("fenetre", { label: t.gcFenetre, aide: t.gcFenetreAide, info: t.gcFenetreInfo, placeholder: "1200" })}
 
-                <div className="flex flex-col gap-2.5">
-                  {champ("largeur", {
-                    label: t.gcLargeur,
-                    aide: t.gcLargeurAide,
-                    info: t.gcLargeurInfo,
-                    placeholder: "1180",
-                  })}
-                  {champ("allege", {
-                    label: t.gcAllege,
-                    aide: t.gcAllegeAide,
-                    info: t.gcAllegeInfo,
-                    placeholder: "850",
-                  })}
-                  {champ("fenetre", {
-                    label: t.gcFenetre,
-                    aide: t.gcFenetreAide,
-                    info: t.gcFenetreInfo,
-                    placeholder: "1200",
-                  })}
-
-                  {/* En étage ou pas : deux boutons, c'est ce qui décide de la règle. */}
-                  <div>
-                    <Intitule info={t.gcEtageInfo} infoLabel={t.gcInfoLabel}>
-                      {t.gcEtage}
-                    </Intitule>
-                    <div className="mt-1.5 flex rounded-full border border-[#e5ddd3] bg-white p-0.5">
-                      {t.gcEtageOptions.map((option, i) => {
-                        const actifBouton = cotes.etage === option || (cotes.etage === "" && i === 0);
-                        return (
-                          <button
-                            key={option}
-                            type="button"
-                            aria-pressed={actifBouton}
-                            onClick={() => set("etage")(option)}
-                            className={`flex-1 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                              actifBouton ? "bg-[#2a2116] text-white" : "text-[#726757] hover:text-[#2a2116]"
-                            }`}
-                          >
-                            {option}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-              {/* ④ Ce que ça donne, calculé par nous : sous le croquis, sur
-                  toute la largeur — les cotes à gauche, l'explication à droite. */}
-              <div
-                className={`mt-3 grid gap-x-5 gap-y-2 rounded-xl border px-3.5 py-3 @sm:grid-cols-[auto_minmax(0,1fr)] @sm:items-start ${
-                  calcul ? "border-[#6d2c2c]/30 bg-[#6d2c2c]/[0.04]" : "border-[#e5ddd3] bg-white"
-                }`}
-                onMouseEnter={() => setCoteActive("hauteur")}
-                onMouseLeave={() => setCoteActive(null)}
-              >
-                <div>
-                  <span className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-[#6f6357]">
-                    <Pastille n={NUMERO_COTE.hauteur} />
-                    {t.gcResultTitle}
-                  </span>
-                  {/* Les cotes de la pièce ; le prix, lui, est sur le croquis. */}
-                  <p
-                    className="mt-1 text-lg font-medium leading-tight tabular-nums transition-colors"
-                    style={{ color: calcul ? ACCENT : "#a3968a" }}
-                  >
-                    {calcul
-                      ? t.gcResume
-                          .replace("{l}", calcul.largeurMm.toLocaleString(langue))
-                          .replace("{h}", calcul.hauteurRetenueMm.toLocaleString(langue))
-                      : "— × — mm"}
-                  </p>
-                </div>
-                <div className="@sm:pt-0.5">
-                {horsBareme && (
-                  <p className="mt-1.5 text-[11px] leading-snug text-[#6d2c2c]" role="alert">
-                    {t.gcHorsBareme
-                      .replace("{l}", horsBareme.largeurMaxMm.toLocaleString(langue))
-                      .replace("{h}", horsBareme.hauteurMaxMm.toLocaleString(langue))}{" "}
-                    {lienDevis && (
-                      <Link href={lienDevis} className="font-medium underline underline-offset-4">
-                        {t.requestQuote}
-                      </Link>
-                    )}
-                  </p>
-                )}
-                {tropBasse && calcul && (
-                  <p className="mt-1.5 text-[11px] leading-snug text-[#6d2c2c]" role="alert">
-                    {t.gcTropBasse
-                      .replace("{m}", calcul.mainCouranteMm.toLocaleString(langue))
-                      .replace("{f}", (mm(cotes.allege) + mm(cotes.fenetre)).toLocaleString(langue))}{" "}
-                    {lienDevis && (
-                      <Link href={lienDevis} className="font-medium underline underline-offset-4">
-                        {t.requestQuote}
-                      </Link>
-                    )}
-                  </p>
-                )}
-                {/* La norme dit non aux croix à cette hauteur : on le dit, et
-                    on donne les deux issues — le verre, chiffré, ou un autre modèle. */}
-                {calcul && !horsBareme && !tropBasse && norme?.nonConforme && (
-                  <div className="mt-1.5" role="alert">
-                    <p className="text-[11px] font-medium leading-snug text-[#6d2c2c]">{t.gcNonConformeTitre}</p>
-                    <p className="mt-1 text-[11px] leading-snug text-[#5c5140]">
-                      {t.gcNonConforme
-                        .replace("{h}", calcul.hauteurRetenueMm.toLocaleString(langue))
-                        .replace("{max}", norme.hauteurMaxMm.toLocaleString(langue))}
-                    </p>
-                    {norme.choisirVerre && norme.prixVerre !== null && (
-                      <button
-                        type="button"
-                        onClick={norme.choisirVerre}
-                        className="mt-2.5 block w-full rounded-xl border border-[#6d2c2c] bg-white px-3 py-2 text-left transition-colors hover:bg-[#6d2c2c] hover:text-white"
-                      >
-                        <span className="block text-xs font-medium">
-                          {t.gcPasserVerre.replace("{prix}", prixAffiche(norme.prixVerre, locale))}
-                        </span>
-                        <span className="mt-0.5 block text-[10px] leading-snug opacity-80">{t.gcPasserVerreNote}</span>
-                      </button>
-                    )}
-                    <Link
-                      href={norme.lienAutres}
-                      className="mt-2 block text-center text-[11px] font-medium text-[#6d2c2c] underline underline-offset-4"
+            {/* En étage ou pas : deux boutons, c'est ce qui décide de la règle. */}
+            <div className="flex items-center justify-between gap-4 py-3">
+              <span className="flex items-center gap-2.5 text-[15px] text-[#2b2320]">
+                <InfoBulle texte={t.gcEtageInfo} label={t.gcInfoLabel} />
+                {t.gcEtage}
+              </span>
+              <div className="flex shrink-0 rounded-full border border-[#e5ddd3] bg-white p-0.5">
+                {t.gcEtageOptions.map((option, i) => {
+                  const actifBouton = cotes.etage === option || (cotes.etage === "" && i === 0);
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      aria-pressed={actifBouton}
+                      onClick={() => set("etage")(option)}
+                      className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
+                        actifBouton ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"
+                      }`}
                     >
-                      {t.gcVoirAutres}
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Le mur, en option : ça décide des chevilles qu'on fournit. */}
+            <label className="flex items-center justify-between gap-4 py-3">
+              <span className="flex items-center gap-2.5 text-[15px] text-[#2b2320]">
+                <InfoBulle texte={t.gcMurInfo} label={t.gcInfoLabel} />
+                {t.gcMur}
+                <span className="text-xs text-[#6f6357]">{t.gcFacultatif}</span>
+              </span>
+              <select value={cotes.mur} onChange={(e) => set("mur")(e.target.value)} className={SELECT}>
+                <option value="">—</option>
+                {t.gcMurOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          {/* ④ Ce que ça donne, calculé par nous : les cotes, le prix, et la
+              règle en une ligne. */}
+          <div
+            className="mt-4 flex flex-wrap items-start justify-between gap-x-6 gap-y-3"
+            onMouseEnter={() => setCoteActive("hauteur")}
+            onMouseLeave={() => setCoteActive(null)}
+          >
+            <div className="min-w-0">
+              <span className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
+                <Pastille n={NUMERO_COTE.hauteur} />
+                {t.gcResultTitle}
+              </span>
+              <p
+                className="mt-2 text-[28px] font-medium leading-none tabular-nums transition-colors"
+                style={{ color: calcul && prixPiece !== null && !norme?.nonConforme && !horsBareme && !tropBasse ? ACCENT : "#6f6357" }}
+              >
+                {horsBareme || tropBasse
+                  ? t.onQuote
+                  : calcul && prixPiece !== null && !norme?.nonConforme
+                    ? prixAffiche(prixPiece, locale)
+                    : "—"}
+              </p>
+              <p className="mt-1.5 text-xs text-[#6f6357]">
+                {calcul
+                  ? `${t.gcResume
+                      .replace("{l}", calcul.largeurMm.toLocaleString(langue))
+                      .replace("{h}", calcul.hauteurRetenueMm.toLocaleString(langue))} · ${t.gcPrixCompris}`
+                  : t.gcAttente}
+              </p>
+            </div>
+
+            <div className="w-full text-xs leading-snug sm:max-w-[17rem]">
+              {horsBareme && (
+                <p className="text-[#6d2c2c]" role="alert">
+                  {t.gcHorsBareme
+                    .replace("{l}", horsBareme.largeurMaxMm.toLocaleString(langue))
+                    .replace("{h}", horsBareme.hauteurMaxMm.toLocaleString(langue))}{" "}
+                  {lienDevis && (
+                    <Link href={lienDevis} className="font-medium underline underline-offset-4">
+                      {t.requestQuote}
                     </Link>
-                  </div>
-                )}
-                {calcul && !horsBareme && !tropBasse && !norme?.nonConforme && (
-                  <p className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-[#2a6b3a]">
-                    <svg viewBox="0 0 20 20" aria-hidden fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
+                  )}
+                </p>
+              )}
+              {tropBasse && calcul && (
+                <p className="text-[#6d2c2c]" role="alert">
+                  {t.gcTropBasse
+                    .replace("{m}", calcul.mainCouranteMm.toLocaleString(langue))
+                    .replace("{f}", (mm(cotes.allege) + mm(cotes.fenetre)).toLocaleString(langue))}{" "}
+                  {lienDevis && (
+                    <Link href={lienDevis} className="font-medium underline underline-offset-4">
+                      {t.requestQuote}
+                    </Link>
+                  )}
+                </p>
+              )}
+              {/* La norme dit non aux croix à cette hauteur : on le dit, et
+                  on donne les deux issues — le verre, chiffré, ou un autre modèle. */}
+              {calcul && !horsBareme && !tropBasse && norme?.nonConforme && (
+                <div role="alert">
+                  <p className="font-medium text-[#6d2c2c]">{t.gcNonConformeTitre}</p>
+                  <p className="mt-1 text-[#5c5140]">
+                    {t.gcNonConforme
+                      .replace("{h}", calcul.hauteurRetenueMm.toLocaleString(langue))
+                      .replace("{max}", norme.hauteurMaxMm.toLocaleString(langue))}
+                  </p>
+                  {norme.choisirVerre && norme.prixVerre !== null && (
+                    <button
+                      type="button"
+                      onClick={norme.choisirVerre}
+                      className="mt-2.5 block w-full rounded-xl border border-[#6d2c2c] bg-white px-3 py-2 text-left transition-colors hover:bg-[#6d2c2c] hover:text-white"
+                    >
+                      <span className="block font-medium">{t.gcPasserVerre.replace("{prix}", prixAffiche(norme.prixVerre, locale))}</span>
+                      <span className="mt-0.5 block text-[10px] leading-snug opacity-80">{t.gcPasserVerreNote}</span>
+                    </button>
+                  )}
+                  <Link href={norme.lienAutres} className="mt-2 block text-center font-medium text-[#6d2c2c] underline underline-offset-4">
+                    {t.gcVoirAutres}
+                  </Link>
+                </div>
+              )}
+              {calcul && !horsBareme && !tropBasse && !norme?.nonConforme && (
+                <>
+                  <p className="flex items-center gap-1.5 font-medium text-[#2a6b3a]">
+                    <svg viewBox="0 0 20 20" aria-hidden fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5 shrink-0">
                       <path d="M4 10.5l4 4 8-9" />
                     </svg>
                     {t.gcConforme}
                   </p>
-                )}
-                {calcul && !horsBareme && !tropBasse && norme?.surVerre && (
-                  <p className="mt-1 text-[11px] leading-snug text-[#5c5140]">
-                    {t.gcSurVerre}{" "}
-                    {norme.croixConformes && (
-                      <button type="button" onClick={norme.revenirCroix} className="font-medium text-[#6d2c2c] underline underline-offset-4">
-                        {t.gcRevenirCroix}
-                      </button>
-                    )}
+                  <p className="mt-1 text-[#5c5140]">
+                    {t.gcMainCourante
+                      .replace("{m}", calcul.mainCouranteMm.toLocaleString(langue))
+                      .replace("{j}", calcul.jourMm.toLocaleString(langue))}
+                    {calcul.sousLaRegle ? ` ${remarque}` : ""}
                   </p>
-                )}
-                <p className="mt-1 text-[11px] leading-snug text-[#5c5140]">
-                  {horsBareme || tropBasse || norme?.nonConforme
-                    ? ""
-                    : calcul
-                    ? `${calcul.jourMm > 0 ? `${t.gcJour.replace("{j}", calcul.jourMm.toLocaleString(langue))} ` : ""}${t.gcCalcule.replace("{m}", calcul.mainCouranteMm.toLocaleString(langue))} ${remarque} ${t.gcPrixInclus}`
-                    : t.gcAttente}
-                </p>
-                <p role="status" aria-live="polite" className="sr-only">
-                  {calcul
-                    ? `${calcul.largeurMm} × ${calcul.hauteurRetenueMm} mm. ${t.gcCalcule.replace("{m}", String(calcul.mainCouranteMm))} ${remarque}`
-                    : ""}
-                </p>
-                </div>
-              </div>
+                  {norme?.surVerre && (
+                    <p className="mt-1 text-[#5c5140]">
+                      {t.gcSurVerre}{" "}
+                      {norme.croixConformes && (
+                        <button type="button" onClick={norme.revenirCroix} className="font-medium text-[#6d2c2c] underline underline-offset-4">
+                          {t.gcRevenirCroix}
+                        </button>
+                      )}
+                    </p>
+                  )}
+                </>
+              )}
+              <p role="status" aria-live="polite" className="sr-only">
+                {calcul
+                  ? `${calcul.largeurMm} × ${calcul.hauteurRetenueMm} mm. ${t.gcCalcule.replace("{m}", String(calcul.mainCouranteMm))} ${remarque}`
+                  : ""}
+              </p>
+            </div>
+          </div>
 
-              {/* Le mur, en option : ça décide des chevilles qu'on fournit. */}
-              <label className="mt-3 block">
-                <Intitule info={t.gcMurInfo} infoLabel={t.gcInfoLabel}>
-                  {t.gcMurFacultatif}
-                </Intitule>
-                <select value={cotes.mur} onChange={(e) => set("mur")(e.target.value)} className={SELECT}>
-                  <option value="">—</option>
-                  {t.gcMurOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <p className="mt-2 text-[10px] leading-snug text-[#726757]">{t.gcNote}</p>
-            </>
-          )}
-        </div>
-
-      </div>
+          <p className="mt-4 text-[11px] leading-snug text-[#726757]">{t.gcNote}</p>
+        </>
+      )}
     </div>
   );
 }
