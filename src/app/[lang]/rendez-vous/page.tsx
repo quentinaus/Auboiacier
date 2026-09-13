@@ -131,6 +131,7 @@ export default async function RendezVousPage({ params }: PageProps<"/[lang]/rend
                 locale={locale}
                 prefill={`${t.prefill}\n\n`}
                 redirectTo={`/${locale}/rendez-vous/merci`}
+                creneau={{ t: dict.artisanat, label: t.creneauLabel, manque: t.creneauManque }}
               />
             </div>
           </div>

@@ -537,7 +537,8 @@
       "mailName": "Name",
       "mailPhone": "Phone",
       "city": "Your town",
-      "cityPh": "Saumur (49400), France"
+      "cityPh": "Saumur (49400), France",
+      "slotRequired": "Choose a slot for the appointment."
     },
     "phoneLabel": "Phone",
     "hoursLabel": "Opening hours"
@@ -881,8 +882,10 @@
     "badge": "Book online",
     "cta": "Book a slot",
     "formTitle": "Another project to measure?",
-    "formSubtitle": "Glass partition, sculpture, piece outside the catalogue: describe it and we propose a slot within 24 to 72 hours.",
-    "prefill": "Appointment for on-site measuring"
+    "formSubtitle": "Glass partition, sculpture, piece outside the catalogue: pick a slot and describe the project, we confirm within 24 to 72 hours.",
+    "prefill": "Appointment for on-site measuring",
+    "creneauLabel": "Your slot",
+    "creneauManque": "Pick the day and half-day that suit you: we confirm by e-mail."
   },
   "merciDemande": {
     "title": "Thank you, your request has been sent.",

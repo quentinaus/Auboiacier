@@ -112,6 +112,8 @@ export async function POST(request: Request) {
   const phone = borne(String(form.get("phone") ?? "").trim(), MAX_TEXTE.phone);
   const city = borne(String(form.get("city") ?? "").trim(), MAX_TEXTE.city);
   const project = borne(String(form.get("project") ?? "").trim(), MAX_TEXTE.project);
+  /** La demi-journée souhaitée pour une prise de cotes, en clair, si le formulaire en avait une. */
+  const creneau = borne(String(form.get("creneau") ?? "").trim(), MAX_TEXTE.project);
   // Le message garde ses retours à la ligne : c'est le corps, pas un en-tête.
   const message = borne(
     String(form.get("message") ?? "").trim(),
@@ -161,6 +163,7 @@ export async function POST(request: Request) {
     phone && `Téléphone : ${phone}`,
     `Ville : ${city}`,
     project && `Type de projet : ${project}`,
+    creneau && `Créneau souhaité : ${creneau}`,
     // Pour répondre dans la langue du prospect sans avoir à la deviner.
     `Langue : ${locale.toUpperCase()}`,
     "",

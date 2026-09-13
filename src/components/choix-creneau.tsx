@@ -16,11 +16,14 @@ export function ChoixCreneau({
   onChange,
   t,
   locale,
+  texteManque,
 }: {
   valeur: string;
   onChange: (cle: string) => void;
   t: Dictionary["artisanat"];
   locale: "fr" | "en";
+  /** La consigne tant que rien n'est choisi, si ce n'est pas celle du panier. */
+  texteManque?: string;
 }) {
   const [creneaux, setCreneaux] = useState<Creneau[] | null>(null);
   const [erreur, setErreur] = useState(false);
@@ -95,7 +98,7 @@ export function ChoixCreneau({
       <p role="status" aria-live="polite" className="mt-2 text-xs leading-relaxed text-[#5c5140]">
         {choisi
           ? t.gcCreneauChoisi.replace("{date}", libelleCreneau(choisi, locale))
-          : t.gcCreneauManque}
+          : (texteManque ?? t.gcCreneauManque)}
       </p>
     </div>
   );

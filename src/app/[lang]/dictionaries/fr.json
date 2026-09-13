@@ -537,7 +537,8 @@
       "mailName": "Nom",
       "mailPhone": "Téléphone",
       "city": "Votre ville",
-      "cityPh": "Saumur (49400)"
+      "cityPh": "Saumur (49400)",
+      "slotRequired": "Choisissez un créneau pour le rendez-vous."
     },
     "phoneLabel": "Téléphone",
     "hoursLabel": "Horaires"
@@ -881,8 +882,10 @@
     "badge": "Rendez-vous en ligne",
     "cta": "Réserver un créneau",
     "formTitle": "Un autre projet à mesurer ?",
-    "formSubtitle": "Verrière, sculpture, pièce hors catalogue : décrivez-le, nous proposons un créneau sous 24 à 72 h.",
-    "prefill": "Rendez-vous pour une prise de cotes à domicile"
+    "formSubtitle": "Verrière, sculpture, pièce hors catalogue : choisissez un créneau et décrivez le projet, nous confirmons sous 24 à 72 h.",
+    "prefill": "Rendez-vous pour une prise de cotes à domicile",
+    "creneauLabel": "Votre créneau",
+    "creneauManque": "Choisissez le jour et la demi-journée qui vous arrangent : nous confirmons par e-mail."
   },
   "merciDemande": {
     "title": "Merci, votre demande est bien partie.",

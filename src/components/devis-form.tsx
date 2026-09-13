@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ChoixCreneau } from "@/components/choix-creneau";
+import { libelleCreneau, lireCreneau } from "@/lib/agenda";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 
 const ACCENT = "#6d2c2c";
@@ -18,7 +20,8 @@ type Status =
   | "too_big"
   | "too_many"
   | "bad_file"
-  | "invalid";
+  | "invalid"
+  | "no_slot";
 
 export function DevisForm({
   t,
@@ -26,6 +29,7 @@ export function DevisForm({
   locale,
   prefill = "",
   redirectTo,
+  creneau,
 }: {
   t: Dictionary["contact"]["form"];
   email: string;
@@ -38,9 +42,17 @@ export function DevisForm({
    * elle que Google Ads compte comme une demande aboutie.
    */
   redirectTo?: string;
+  /**
+   * Un calendrier dans le formulaire : le client choisit une demi-journée
+   * parmi celles de l'agenda, et elle part avec la demande. Il faut les
+   * textes de l'artisanat, où vivent ceux du calendrier.
+   */
+  creneau?: { t: Dictionary["artisanat"]; label: string; manque: string };
 }) {
   const router = useRouter();
   const [status, setStatus] = useState<Status>("idle");
+  const [creneauCle, setCreneauCle] = useState("");
+  const creneauChoisi = lireCreneau(creneauCle);
   const [draft, setDraft] = useState({ name: "", phone: "", message: "" });
   /** Le message de fin : on y amène le focus, sinon on repart en haut de page
       sans savoir si la demande est partie. */
@@ -53,6 +65,10 @@ export function DevisForm({
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
+    if (creneau && !creneauChoisi) {
+      setStatus("no_slot");
+      return;
+    }
     setStatus("sending");
 
     try {
@@ -112,6 +128,8 @@ export function DevisForm({
             ? t.badFile
           : status === "invalid"
             ? t.required
+            : status === "no_slot"
+              ? t.slotRequired
             : status === "error"
               ? t.error
               : null;
@@ -161,6 +179,16 @@ export function DevisForm({
           </select>
         </label>
       </div>
+
+      {creneau && (
+        <div className="mt-5">
+          <span className={LABEL}>{creneau.label}</span>
+          <div className="mt-2">
+            <ChoixCreneau valeur={creneauCle} onChange={setCreneauCle} t={creneau.t} locale={locale} texteManque={creneau.manque} />
+          </div>
+          <input type="hidden" name="creneau" value={creneauChoisi ? libelleCreneau(creneauChoisi, locale) : ""} />
+        </div>
+      )}
 
       <label className="mt-5 block">
         <span className={LABEL}>{t.message}</span>
