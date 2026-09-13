@@ -24,7 +24,7 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? DOMAINE)
 export const ATELIER = {
   nom: "Auboiacier",
   legal: "Auboiacier — atelier de métallerie",
-  email: "contact@auboiacier.fr",
+  email: "auboiacier@gmail.com",
   rue: "",
   ville: "Saumur",
   codePostal: "49400",

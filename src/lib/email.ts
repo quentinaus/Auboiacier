@@ -29,7 +29,7 @@ export function isEmailConfigured() {
 
 /** Adresse qui reçoit les demandes de devis ET les bons de commande. */
 export function ownerEmail() {
-  return process.env.DEVIS_TO_EMAIL ?? "contact@auboiacier.fr";
+  return process.env.DEVIS_TO_EMAIL ?? "auboiacier@gmail.com";
 }
 
 function fromEmail() {
