@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isEmailConfigured, ownerEmail, sendEmail } from "@/lib/email";
+import { canNotifyOwner, ownerEmail, sendEmail } from "@/lib/email";
 import { creerLimite } from "@/lib/limite-debit";
 
 export const runtime = "nodejs";
@@ -137,7 +137,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "too_big" }, { status: 413 });
   }
 
-  if (!isEmailConfigured()) {
+  if (!canNotifyOwner()) {
     return NextResponse.json({ error: "not_configured" }, { status: 503 });
   }
 

@@ -27,6 +27,17 @@ export function isEmailConfigured() {
   return Boolean(process.env.RESEND_API_KEY && from && !from.includes("resend.dev"));
 }
 
+/**
+ * Suffisant pour prévenir l'atelier d'une demande de devis : l'adresse de
+ * démonstration de Resend a le droit d'écrire au titulaire du compte, et
+ * c'est lui qui reçoit. Seul l'accusé de réception au prospect peut manquer,
+ * ce qui n'empêche pas de lui répondre. Le paiement, lui, garde la règle
+ * stricte ci-dessus.
+ */
+export function canNotifyOwner() {
+  return Boolean(process.env.RESEND_API_KEY && process.env.DEVIS_FROM_EMAIL?.trim());
+}
+
 /** Adresse qui reçoit les demandes de devis ET les bons de commande. */
 export function ownerEmail() {
   return process.env.DEVIS_TO_EMAIL ?? "auboiacier@gmail.com";
