@@ -762,6 +762,14 @@
     "merci": {
       "title": "Thank you for your order",
       "description": "Confirmation of your order from the Auboiacier workshop."
+    },
+    "rdv": {
+      "title": "On-site measuring, from €19.99",
+      "description": "The workshop comes to measure at your home, up to 200 km from Saumur: window railings, staircases, glass partitions. Slot booked online, exact price after."
+    },
+    "merciDemande": {
+      "title": "Request sent",
+      "description": "Your request has been sent."
     }
   },
   "zone": {
@@ -844,5 +852,42 @@
     "ctaBody": "Ask it directly: we answer within 48 hours, and never with a canned reply.",
     "ctaLabel": "Ask your question",
     "zoneLink": "See where we work"
+  },
+  "rdv": {
+    "eyebrow": "On-site measuring",
+    "h1": "The workshop comes to measure at your home.",
+    "lead": "From €19.99, up to 200 km from Saumur. You pick the slot, the metalworker takes the measurements and sends you the exact price of your piece.",
+    "ctaPieces": "Choose the piece",
+    "ctaPiecesNote": "Slot booked online",
+    "ctaAutre": "Request an appointment",
+    "ctaAutreNote": "Reply within 24 to 72 hours",
+    "etapesTitle": "How it works",
+    "etapes": [
+      {
+        "titre": "Choose the piece",
+        "texte": "Window railing or staircase: the product page offers “The workshop comes to measure”."
+      },
+      {
+        "titre": "Book a slot",
+        "texte": "Your postcode sets the travel price; you choose the day and time."
+      },
+      {
+        "titre": "The exact price arrives",
+        "texte": "The metalworker measures on site and sends you the price of the piece, making and fitting included."
+      }
+    ],
+    "piecesTitle": "Pieces measured on site",
+    "piecesSubtitle": "For these works, the measuring visit is booked straight from the product page.",
+    "badge": "Book online",
+    "cta": "Book a slot",
+    "formTitle": "Another project to measure?",
+    "formSubtitle": "Glass partition, sculpture, piece outside the catalogue: describe it and we propose a slot within 24 to 72 hours.",
+    "prefill": "Appointment for on-site measuring"
+  },
+  "merciDemande": {
+    "title": "Thank you, your request has been sent.",
+    "texte": "We reply within 24 to 72 hours to the address you gave. Remember to check your spam folder.",
+    "retour": "Back to the home page",
+    "devis": "See the instant-quote pieces"
   }
 }

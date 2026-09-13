@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 
 const ACCENT = "#6d2c2c";
@@ -24,6 +25,7 @@ export function DevisForm({
   email,
   locale,
   prefill = "",
+  redirectTo,
 }: {
   t: Dictionary["contact"]["form"];
   email: string;
@@ -31,7 +33,13 @@ export function DevisForm({
   locale: "fr" | "en";
   /** Message pré-rempli, quand on arrive depuis « Demander un devis ». */
   prefill?: string;
+  /**
+   * Une page de confirmation à part, plutôt que le message en place : c'est
+   * elle que Google Ads compte comme une demande aboutie.
+   */
+  redirectTo?: string;
 }) {
+  const router = useRouter();
   const [status, setStatus] = useState<Status>("idle");
   const [draft, setDraft] = useState({ name: "", phone: "", message: "" });
   /** Le message de fin : on y amène le focus, sinon on repart en haut de page
@@ -58,6 +66,7 @@ export function DevisForm({
       if (response.ok) {
         form.reset();
         setStatus("sent");
+        if (redirectTo) router.push(redirectTo);
         return;
       }
 

@@ -12,6 +12,7 @@ const PAGES: { chemin: string; priorite: number; frequence: "weekly" | "monthly"
   { chemin: "/artisanat/verrieres", priorite: 0.7, frequence: "monthly" },
   { chemin: "/toiles-tendues/realisations", priorite: 0.6, frequence: "monthly" },
   { chemin: "/devis", priorite: 0.9, frequence: "monthly" },
+  { chemin: "/rendez-vous", priorite: 0.8, frequence: "monthly" },
   { chemin: "/a-propos", priorite: 0.6, frequence: "monthly" },
   // Les deux pages écrites pour le référencement local : Google doit les voir vite.
   { chemin: "/zone-intervention", priorite: 0.7, frequence: "monthly" },

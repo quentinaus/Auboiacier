@@ -762,6 +762,14 @@
     "merci": {
       "title": "Merci pour votre commande",
       "description": "Confirmation de votre commande à l'atelier Auboiacier."
+    },
+    "rdv": {
+      "title": "Prise de cotes à domicile, dès 19,99 €",
+      "description": "L'atelier vient mesurer chez vous, jusqu'à 200 km de Saumur : garde-corps de fenêtre, escalier, verrière. Créneau réservé en ligne, prix exact ensuite."
+    },
+    "merciDemande": {
+      "title": "Demande envoyée",
+      "description": "Votre demande est bien partie."
     }
   },
   "zone": {
@@ -844,5 +852,42 @@
     "ctaBody": "Posez-la directement : nous répondons sous 48 h, et jamais avec une réponse toute faite.",
     "ctaLabel": "Poser ma question",
     "zoneLink": "Voir la zone d'intervention"
+  },
+  "rdv": {
+    "eyebrow": "Prise de cotes à domicile",
+    "h1": "L'atelier vient mesurer chez vous.",
+    "lead": "Dès 19,99 €, jusqu'à 200 km de Saumur. Vous choisissez le créneau, le métallier relève les cotes et vous envoie le prix exact de votre pièce.",
+    "ctaPieces": "Choisir la pièce",
+    "ctaPiecesNote": "Créneau réservé en ligne",
+    "ctaAutre": "Demander un rendez-vous",
+    "ctaAutreNote": "Réponse entre 24 et 72 h",
+    "etapesTitle": "Comment ça marche",
+    "etapes": [
+      {
+        "titre": "Choisissez la pièce",
+        "texte": "Garde-corps de fenêtre ou escalier : la fiche propose « L'atelier vient mesurer »."
+      },
+      {
+        "titre": "Réservez un créneau",
+        "texte": "Votre code postal donne le prix du déplacement ; vous choisissez le jour et l'heure."
+      },
+      {
+        "titre": "Le prix exact arrive",
+        "texte": "Le métallier relève les cotes sur place et vous envoie le prix de la pièce, fabrication et pose comprises."
+      }
+    ],
+    "piecesTitle": "Les pièces mesurées sur place",
+    "piecesSubtitle": "Pour ces ouvrages, le relevé de cotes se réserve directement sur la fiche.",
+    "badge": "Rendez-vous en ligne",
+    "cta": "Réserver un créneau",
+    "formTitle": "Un autre projet à mesurer ?",
+    "formSubtitle": "Verrière, sculpture, pièce hors catalogue : décrivez-le, nous proposons un créneau sous 24 à 72 h.",
+    "prefill": "Rendez-vous pour une prise de cotes à domicile"
+  },
+  "merciDemande": {
+    "title": "Merci, votre demande est bien partie.",
+    "texte": "Nous vous répondons entre 24 et 72 h, à l'adresse indiquée. Pensez à vérifier vos courriers indésirables.",
+    "retour": "Retour à l'accueil",
+    "devis": "Voir les pièces à devis instantané"
   }
 }
