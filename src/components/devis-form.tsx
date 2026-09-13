@@ -58,8 +58,17 @@ export function DevisForm({
       sans savoir si la demande est partie. */
   const confirmationRef = useRef<HTMLDivElement>(null);
 
+  // À l'envoi, le formulaire (haut) laisse place à la confirmation (basse) :
+  // sans précaution, la page se rétracte d'un coup et le regard est perdu.
+  // On garde la hauteur du formulaire, on amène doucement la confirmation à
+  // l'écran, puis on lui donne le focus sans provoquer un second saut.
+  const [hauteurForm, setHauteurForm] = useState<number>();
   useEffect(() => {
-    if (status === "sent") confirmationRef.current?.focus();
+    if (status !== "sent") return;
+    const el = confirmationRef.current;
+    if (!el) return;
+    el.focus({ preventScroll: true });
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [status]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -80,6 +89,7 @@ export function DevisForm({
       });
 
       if (response.ok) {
+        setHauteurForm(form.offsetHeight);
         form.reset();
         setStatus("sent");
         if (redirectTo) router.push(redirectTo);
@@ -110,9 +120,10 @@ export function DevisForm({
         tabIndex={-1}
         role="status"
         aria-live="polite"
-        className="rounded-2xl border border-[#e8e1d8] bg-white p-8 text-center"
+        className="flex items-center justify-center rounded-2xl border border-[#e8e1d8] bg-white p-8 text-center outline-none"
+        style={hauteurForm ? { minHeight: Math.min(hauteurForm, 480) } : undefined}
       >
-        <p className="leading-relaxed text-[#2b2320]">{t.success}</p>
+        <p className="max-w-md leading-relaxed text-[#2b2320]">{t.success}</p>
       </div>
     );
   }
