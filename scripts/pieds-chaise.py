@@ -1,165 +1,283 @@
 """
 Calques de pieds pour la chaise velours.
 
-Les quinze rendus de la chaise ont exactement la même géométrie : seul le
-velours change. On relève donc UNE fois le piétement (noir, sur les fonds
-clairs où il se détache le mieux), et on en tire un calque PNG transparent
-par teinte de pieds, ombré comme l'original. Le site pose ce calque sur la
-photo du coloris choisi : le client voit sa chaise, avec ses pieds.
+Le site pose ces PNG transparents sur la photo du coloris (product-view.tsx) :
+le client voit sa chaise avec la teinte de pieds choisie.
 
-    python3 scripts/pieds-chaise.py   →  public/images/chaises/pieds-<teinte>.png
+Les quinze rendus ont exactement la même géométrie ; seul le velours change.
+On s'en sert deux fois :
+  1. DÉTOURAGE : pour chaque pixel, la pente de régression de sa luminance
+     contre celle du velours (à travers les 15 rendus) vaut ~0 sur le métal
+     et le fond, ~1 sur le velours, ~0.2 sur les ombres portées sur le
+     velours. Le métal = pente ≈ 0 et sombre, reflets bordés de noir bouchés
+     par fermeture, d'un seul tenant avec le sol. Les lisières sont estimées
+     en couverture (mélange fond/tube) puis nettoyées à ×2 et redescendues en
+     LANCZOS.
+  2. MODELÉ : tube mat = cylindre lambertien à faible amplitude, éclairage
+     enveloppant (source large), occlusion sous l'assise lue dans le rendu ;
+     on y superpose, très atténué, le résidu haute fréquence du rendu noir
+     pour que les jonctions gardent leur structure réelle.
+
+    python3 scripts/pieds-chaise.py            →  public/images/chaises/pieds-v2-<teinte>.png
+    python3 scripts/pieds-chaise.py --apercus  →  … plus deux montages de contrôle dans /tmp
+
+Dépendances : python3, numpy, Pillow (rien d'autre).
 """
+import os, sys, time
 import numpy as np
 from PIL import Image, ImageFilter
 
-DOSSIER = "public/images/chaises/"
-# Les chaises claires : le noir des pieds y est sans ambiguïté.
-REFERENCES = ["endive", "champagne", "dune", "cendre", "ocre"]
-# Les velours francs : ce qui reste gris sur chacun n'est pas du velours.
-SATUREES = ["endive", "ocre", "bleu-roi", "vert-bouteille", "prune", "paon"]
-# Les teintes du nuancier (products.ts, METAL_FINISH.swatch).
+DOSSIER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "public", "images", "chaises") + "/"
+SORTIE = DOSSIER
+VELOURS = ["bleu-roi", "cendre", "champagne", "dune", "endive", "minuit", "noir", "ocre",
+           "onyx", "paon", "prune", "sacramento", "terre-de-sienne", "vert-bouteille", "vieux-rose"]
 TEINTES = {
     "noir": (28, 26, 24), "gris": (70, 69, 63), "chocolat": (70, 56, 49),
     "laiton": (140, 124, 63), "lin": (207, 201, 182), "blanc": (240, 239, 235),
     "brut": (138, 133, 120),
 }
+HAUT = 340          # rien de métallique au-dessus
+SOL = 560           # les pieds touchent le sol en dessous
+RAYON = 5.6         # demi-largeur du tube, px
+# « -vN » : à chaque nouvelle génération, N augmente (et products.ts suit),
+# sinon l'optimiseur d'images resservirait l'ancien calque sous le même nom.
+PREFIXE = "pieds-v2-"
 
+# ----------------------------------------------------------------- outils
 def charger(nom):
     return np.asarray(Image.open(f"{DOSSIER}{nom}.jpg").convert("RGB")).astype(np.float32)
 
-def composantes_reliees_au_sol(coeur):
-    """Ne garde du masque que ce qui touche les pieds au sol : les ombres
-    profondes d'une couture du velours, sombres elles aussi, sont ailleurs."""
-    graine = np.zeros_like(coeur)
-    graine[560:, :] = coeur[560:, :]
-    graine_img = Image.fromarray((graine * 255).astype(np.uint8))
-    coeur_img = Image.fromarray((coeur * 255).astype(np.uint8))
-    for _ in range(400):
-        suivant = Image.fromarray(np.minimum(np.asarray(graine_img.filter(ImageFilter.MaxFilter(3))), np.asarray(coeur_img)))
-        if np.array_equal(np.asarray(suivant), np.asarray(graine_img)):
-            break
-        graine_img = suivant
-    return np.asarray(graine_img).astype(np.float32) / 255
+def u8(m):
+    return Image.fromarray((np.clip(m, 0, 1) * 255).astype(np.uint8))
 
-def masque_pieds(refs, saturees):
-    """Alpha des pieds : sombre ET peu saturé sur chaque référence claire,
-    plus le reflet clair du tube (gris sur tous les velours francs, collé au
-    noir), d'un seul tenant avec le sol, plein à l'intérieur, au contour
-    lissé (le grain JPEG dentelle le bord brut)."""
-    m = np.ones(refs[0].shape[:2], np.float32)
-    for a in refs:
-        lum = a.mean(2); sat = a.max(2) - a.min(2)
-        sombre = np.clip((130 - lum) / 60, 0, 1)      # noir → 1, gris moyen → 0
-        neutre = np.clip((60 - sat) / 30, 0, 1)       # velours foncé mais coloré → 0
-        m = np.minimum(m, sombre * neutre)
-    m[:330, :] = 0
-    coeur = (m > 0.45)
-    # Le reflet sur le dessus du tube : gris (pas velours), pas fond (trop
-    # clair), et à moins de 4 px du noir.
-    gris = np.ones_like(m, bool)
-    for a in saturees:
-        gris &= (a.max(2) - a.min(2)) < 45
-    gris &= refs[0].mean(2) < 205
-    pres = np.asarray(Image.fromarray((coeur * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(9))) > 0
-    coeur = (coeur | (gris & pres)).astype(np.float32)
-    coeur = composantes_reliees_au_sol(coeur)
-    # Fermeture : ce qui reste de reflet au milieu d'un tube redevient du tube.
-    img = Image.fromarray((coeur * 255).astype(np.uint8))
-    plein = np.asarray(img.filter(ImageFilter.MaxFilter(5)).filter(ImageFilter.MinFilter(5))).astype(np.float32) / 255
-    plein = np.maximum(plein, coeur)
-    # Contour lissé : flou puis seuil doux, ~2 px d'anti-crénelage.
-    lisse = flou(plein * 255, 1.7) / 255
-    return np.clip((lisse - 0.38) / 0.24, 0, 1)
+def maxf(m, k):
+    return np.asarray(u8(m).filter(ImageFilter.MaxFilter(k))).astype(np.float32) / 255
+
+def minf(m, k):
+    return np.asarray(u8(m).filter(ImageFilter.MinFilter(k))).astype(np.float32) / 255
 
 def flou(a, r):
-    """Flou gaussien d'un tableau float (une couche)."""
-    return np.asarray(Image.fromarray(np.clip(a, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(r))).astype(np.float32)
+    """Flou gaussien séparable d'une couche float (sigma = r px), numpy pur."""
+    if r <= 0: return a.astype(np.float32)
+    K = int(np.ceil(3 * r)); x = np.arange(-K, K + 1)
+    k = np.exp(-x ** 2 / (2 * r * r)); k /= k.sum()
+    def axe(v, ax):
+        p = np.pad(v, [(K, K) if i == ax else (0, 0) for i in range(2)], mode="edge")
+        out = np.zeros_like(v)
+        for i, w in enumerate(k):
+            sl = [slice(None)] * 2; sl[ax] = slice(i, i + v.shape[ax])
+            out += w * p[tuple(sl)]
+        return out
+    return axe(axe(a.astype(np.float32), 0), 1)
 
-def plus_proche(points, candidats, valeurs=None):
-    """Pour chaque point (N×2), l'indice du candidat (M×2) le plus proche —
-    par paquets, en numpy pur (pas de scipy sur cette machine)."""
-    idx = np.empty(len(points), np.int64); dist = np.empty(len(points), np.float32)
-    for i in range(0, len(points), 2000):
-        p = points[i:i + 2000]
-        d2 = ((p[:, None, 0] - candidats[None, :, 0]) ** 2 + (p[:, None, 1] - candidats[None, :, 1]) ** 2)
-        j = d2.argmin(1)
-        idx[i:i + 2000] = j; dist[i:i + 2000] = np.sqrt(d2[np.arange(len(p)), j])
-    return idx, dist
+def flou_masque(a, m, r):
+    """Flou normalisé : ne mélange que les pixels où m > 0 (pas de bavure
+    du fond dans le tube)."""
+    num = flou(a * m, r); den = flou(m, r)
+    return np.where(den > 1e-3, num / np.maximum(den, 1e-3), 0)
 
-def profondeur(alpha):
-    """Distance euclidienne au bord du tube, en pixels : 0 sur la lisière,
-    le rayon au centre. Lisse, donc les normales le sont aussi."""
-    coeur = alpha > 0.5
-    dedans = np.argwhere(coeur)
-    ext = np.zeros_like(coeur)
-    ext[1:, :] |= coeur[:-1, :] & ~coeur[1:, :]; ext[:-1, :] |= coeur[1:, :] & ~coeur[:-1, :]
-    ext[:, 1:] |= coeur[:, :-1] & ~coeur[:, 1:]; ext[:, :-1] |= coeur[:, 1:] & ~coeur[:, :-1]
-    bord = np.argwhere(ext)                                  # juste dehors
-    _, dist = plus_proche(dedans, bord)
-    d = np.zeros(alpha.shape, np.float32)
-    d[dedans[:, 0], dedans[:, 1]] = dist
-    return d
+def voisins3(a, f):
+    """Applique f (np.minimum / np.maximum / somme) sur le voisinage 3×3."""
+    p = np.pad(a, 1, mode="edge")
+    out = a.copy()
+    for dy in (-1, 0, 1):
+        for dx in (-1, 0, 1):
+            if dy == 0 and dx == 0: continue
+            out = f(out, p[1 + dy:1 + dy + a.shape[0], 1 + dx:1 + dx + a.shape[1]])
+    return out
 
-def modele_cylindre(alpha, base):
-    """Le relief d'un tube peint : on le recalcule proprement à partir de la
-    forme (le rendu noir est trop bruité pour en tirer un modelé propre).
-    Normale = pente de la distance au bord ; lumière en haut à gauche, devant."""
-    d = profondeur(alpha)
-    d = flou(d * 24, 2.0) / 24
-    r = 5.5
-    h = np.clip(d / r, 0, 1)
-    gy, gx = np.gradient(d)
+def connexe(masque, graine):
+    g = graine & masque
+    for _ in range(2000):
+        n = (maxf(g.astype(np.float32), 3) > 0.5) & masque
+        if np.array_equal(n, g): break
+        g = n
+    return g
+
+def remplir_depuis_dehors(valeurs, connu, iterations):
+    """Propage vers l'intérieur la valeur des pixels connus les plus proches
+    (moyenne 3×3 des voisins connus) : 'ce qu'il y a derrière le tube'."""
+    v = np.where(connu[..., None] if valeurs.ndim == 3 else connu, valeurs, 0).astype(np.float32)
+    w = connu.astype(np.float32)
+    for _ in range(iterations):
+        if valeurs.ndim == 3:
+            sv = np.stack([voisins3(v[..., k], np.add) for k in range(3)], -1)
+        else:
+            sv = voisins3(v, np.add)
+        sw = voisins3(w, np.add)
+        nouveau = (w == 0) & (sw > 0)
+        if valeurs.ndim == 3:
+            v[nouveau] = sv[nouveau] / sw[nouveau][:, None]
+        else:
+            v[nouveau] = sv[nouveau] / sw[nouveau]
+        w[nouveau] = 1
+    return v
+
+def distance_au_bord(dedans, iterations=10):
+    """Distance chanfrein (1, √2) au premier pixel hors du tube, en px,
+    pour les pixels dedans. 0 dehors."""
+    inf = 1e4
+    d = np.where(dedans, inf, 0.0).astype(np.float32)
+    for _ in range(iterations):
+        p = np.pad(d, 1, mode="constant", constant_values=0)
+        H, W = d.shape
+        n = d.copy()
+        for dy, dx, c in ((-1, 0, 1), (1, 0, 1), (0, -1, 1), (0, 1, 1),
+                          (-1, -1, 1.4142), (-1, 1, 1.4142), (1, -1, 1.4142), (1, 1, 1.4142)):
+            n = np.minimum(n, p[1 + dy:1 + dy + H, 1 + dx:1 + dx + W] + c)
+        d = np.where(dedans, n, 0)
+    # le centre d'un pixel de bord est à ½ px de la frontière
+    return np.where(dedans, np.minimum(d, 999) + 0.5, 0)
+
+# ------------------------------------------------------------- détourage
+def analyser(renders):
+    """Luminance médiane (robuste au bruit JPEG) et pente de chaque pixel
+    contre la luminance du velours, à travers les rendus."""
+    L = renders.mean(-1)                               # N×H×W
+    velours = renders[:, 380:450, 600:800].mean((1, 2, 3))
+    v = velours - velours.mean()
+    pente = (L * v[:, None, None]).sum(0) / (v ** 2).sum()
+    med = np.median(renders, 0)
+    return med, med.mean(-1), pente
+
+def masque_pieds(lum, pente):
+    metal = pente < 0.12
+    sombre = metal & (lum < 120)
+    sombre[:HAUT, :] = False
+    # reflets gris (jusqu'à presque blanc) collés au noir du tube
+    gris = metal & (lum < 190) & (maxf(sombre.astype(np.float32), 5) > 0.5)
+    m = sombre | gris
+    # fermeture : le reflet spéculaire (jusqu'à 225 !) est toujours bordé de noir
+    plein = (minf(maxf(m.astype(np.float32), 5), 5) > 0.5) | m
+    plein[:HAUT, :] = False
+    graine = np.zeros_like(plein); graine[SOL:, :] = True
+    plein = connexe(plein, graine)
+    # --- lisière : couverture estimée dans une bande de 2 px dehors / 1 px dedans
+    dil = maxf(plein.astype(np.float32), 5) > 0.5
+    ero = minf(plein.astype(np.float32), 3) > 0.5
+    bande = dil & ~ero
+    dehors = ~dil
+    lum_derriere = remplir_depuis_dehors(lum, dehors, 4)
+    pente_derriere = remplir_depuis_dehors(pente, dehors, 4)
+    cov_lum = np.clip((lum_derriere - lum) / np.maximum(lum_derriere - 40, 20), 0, 1)
+    cov_pente = np.clip(1 - pente / np.maximum(pente_derriere, 0.05), 0, 1)
+    w = np.clip((pente_derriere - 0.2) / 0.4, 0, 1)          # velours derrière
+    cov = (1 - w) * cov_lum + w * (0.5 * cov_lum + 0.5 * cov_pente)
+    cov = np.where(plein, np.maximum(cov, 0.5), cov)          # reflet touchant le bord
+    alpha0 = np.where(bande, cov, ero.astype(np.float32))
+    # --- ×2 : seuil, léger lissage, seuil, puis LANCZOS ×1 : bord net et régulier
+    H, W = alpha0.shape
+    haut = np.asarray(Image.fromarray(alpha0).resize((W * 2, H * 2), Image.BICUBIC))
+    b = (haut > 0.5).astype(np.float32)
+    b = (flou(b, 1.2) > 0.5).astype(np.float32)
+    alpha = np.asarray(Image.fromarray(b).resize((W, H), Image.LANCZOS)).astype(np.float32)
+    alpha = np.clip(alpha, 0, 1)
+    alpha[alpha < 0.02] = 0
+    return alpha, dehors, lum_derriere, pente_derriere
+
+# --------------------------------------------------------------- modelé
+def modele(alpha, lum):
+    dedans = alpha > 0.5
+    d = distance_au_bord(dedans)
+    d = flou(d, 0.9)
+    h = np.clip(d / RAYON, 0, 1)                  # 0 lisière → 1 axe du tube
+    gy, gx = np.gradient(flou(d, 1.4))
     n = np.sqrt(gx ** 2 + gy ** 2) + 1e-6
-    incl = np.sqrt(np.clip(1 - h ** 2, 0, 1))         # 1 sur la lisière, 0 au sommet
-    nx, ny = -gx / n * incl, -gy / n * incl
+    lat = 1 - h                                   # composante latérale de la normale d'un cylindre
+    nx, ny = -gx / n * lat, -gy / n * lat
     nz = np.sqrt(np.clip(1 - nx ** 2 - ny ** 2, 0, 1))
-    lx, ly, lz = -0.40, -0.50, 0.77
-    diffus = np.clip(nx * lx + ny * ly + nz * lz, 0, 1)
-    spec = np.clip(nx * -0.3 + ny * -0.6 + nz * 0.74, 0, 1) ** 12
-    # Sous l'assise, le tube est dans l'ombre : on le lit dans le rendu.
-    lum = flou(base.mean(2), 6)
-    occlusion = np.clip((lum - 18) / 50, 0.55, 1)
-    return diffus, spec, occlusion
+    # lumière principale : haut-gauche, devant ; source large → éclairage enveloppant
+    lx, ly, lz = -0.55, -0.45, 0.70
+    ndl = nx * lx + ny * ly + nz * lz
+    enveloppe = 0.25
+    diffus = np.clip((ndl + enveloppe) / (1 + enveloppe), 0, 1)
+    # ciel de studio : plus clair vers le haut
+    ciel = 0.5 + 0.5 * nz + 0.15 * (-ny)
+    # le tube dans l'ombre de l'assise : on le lit dans le rendu noir
+    expo = flou_masque(lum, dedans.astype(np.float32), 8)
+    occlusion = np.clip((expo - 10) / 30, 0, 1)
+    occlusion = 0.62 + 0.38 * occlusion
+    # résidu haute fréquence du rendu noir : la structure réelle, sans son brillant
+    lisse = flou_masque(lum, dedans.astype(np.float32), 3)
+    residu = np.where(dedans, lum - lisse, 0)
+    detail = np.clip(residu * 0.3, -18, 8)
+    detail = flou_masque(detail, dedans.astype(np.float32), 0.7)
+    # ... mais seulement aux jonctions (là où la forme est plus large qu'un
+    # tube) : sur un tube droit, le résidu n'apporte que le filet brillant du
+    # noir laqué et des tirets périodiques (blocs JPEG) — du « bambou ».
+    jonction = maxf((d > 0.85 * RAYON).astype(np.float32), 9)
+    jonction = flou(jonction, 2.5)
+    detail = detail * jonction
+    # liseré d'occlusion : le dernier px (contact, grazing) perd ~12 %
+    lisere = 1 - 0.14 * np.clip(1 - d / 2.0, 0, 1)
+    return dict(diffus=diffus, ciel=ciel, nz=nz, occlusion=occlusion, detail=detail, lisere=lisere, lat=lat)
 
-def derriere_le_tube(alpha, base):
-    """Ce qu'il y a derrière la lisière du tube (fond ou velours) : la couleur
-    du pixel hors masque le plus proche. Sert à recomposer le bord."""
-    lisiere = np.argwhere((alpha > 0.03) & (alpha < 0.97))
-    dehors = np.argwhere(alpha < 0.03)
-    # Seuls les pixels dehors à moins de 4 px de la lisière comptent.
-    voisin = np.asarray(Image.fromarray(((alpha > 0.03) * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(9))) > 0
-    dehors = dehors[voisin[dehors[:, 0], dehors[:, 1]]]
-    idx, _ = plus_proche(lisiere, dehors)
-    out = base.copy()
-    out[lisiere[:, 0], lisiere[:, 1]] = base[dehors[idx, 0], dehors[idx, 1]]
-    return flou_rgb(out, 1.0)
-
-def flou_rgb(a, r):
-    return np.dstack([flou(a[..., k], r) for k in range(3)])
-
-def calque(base, alpha, teinte):
-    """Le pied dans sa teinte, avec un modelé de tube peint en poudre."""
-    diffus, spec, occlusion = modele_cylindre(alpha, base)
+def couleur_tube(teinte, M):
     c = np.array(teinte, np.float32)
-    clair = c.mean() > 150
-    if clair:
-        facteur = (0.70 + 0.34 * diffus) * (0.75 + 0.25 * occlusion)
-    else:
-        facteur = (0.55 + 0.50 * diffus) * occlusion
-    couleur = c[None, None, :] * facteur[..., None] + 255 * (0.10 if clair else 0.18) * spec[..., None]
-    couleur = np.clip(couleur, 0, 255)
-    # Sur le liseré anti-crénelé, la teinte se remélange avec ce qu'il y a
-    # derrière le tube : sans cela, un pied clair garde un cerne noir.
+    L = c.mean()
+    # ombrage lambertien doux ; l'amplitude reste celle d'une peinture mate
+    ombrage = 0.45 + 0.16 * M["ciel"] + 0.40 * M["diffus"]
+    ombrage = ombrage * M["occlusion"] * M["lisere"]
+    # une peinture mate foncée ne se lit que par un léger velouté sur les flancs
+    sheen = (M["lat"] ** 2) * np.clip(M["diffus"], 0, 1) * (14 * (1 - L / 255) + 3)
+    rgb = c[None, None, :] * ombrage[..., None] + sheen[..., None]
+    # détail réel, dosé selon la clarté (une teinte claire l'absorbe moins)
+    rgb = rgb + M["detail"][..., None] * (0.35 + 0.65 * L / 255)
+    return np.clip(rgb, 0, 255)
+
+# ------------------------------------------------------------ composition
+def calque(alpha, rgb, derriere, velours_derriere):
+    """PNG RGBA. Sur le fond (identique dans tous les rendus) la lisière est
+    recomposée opaque avec la couleur du fond : exact. Sur le velours (qui
+    change), on garde alpha = couverture et on pré-compense en couleur ce
+    que le noir du tube d'origine laisse sous le calque."""
     a = alpha[..., None]
-    pixel = a * couleur + (1 - a) * derriere_le_tube(alpha, base)
-    opaque = np.where(alpha > 0.03, 255, 0).astype(np.float32)
-    out = np.dstack([pixel, opaque[..., None]]).astype(np.uint8)
+    vel = velours_derriere[..., None]
+    # fond : opaque + mélange
+    c_fond = a * rgb + (1 - a) * derriere
+    a_fond = np.where(alpha > 0, 1.0, 0.0)[..., None]
+    # velours : alpha' = a, couleur compensée (c' = rgb + (1-a)·derrière_médian)
+    c_vel = np.clip(rgb + (1 - a) * derriere, 0, 255)
+    a_vel = a
+    c = np.where(vel > 0.5, c_vel, c_fond)
+    aa = np.where(vel > 0.5, a_vel, a_fond)
+    aa = np.where(alpha >= 0.995, 1.0, aa[..., 0])[..., None]
+    c = np.where(alpha[..., None] >= 0.995, rgb, c)
+    out = np.dstack([c, aa * 255]).astype(np.uint8)
     return Image.fromarray(out)
 
+# ---------------------------------------------------------------- montages
+def apercus(sortie):
+    def composer(velours, teinte):
+        b = Image.open(f"{DOSSIER}{velours}.jpg").convert("RGBA")
+        b.alpha_composite(Image.open(f"{sortie}{PREFIXE}{teinte}.png"))
+        return b.convert("RGB")
+    combos = [("bleu-roi", "blanc"), ("vert-bouteille", "laiton"), ("noir", "lin"),
+              ("prune", "gris"), ("endive", "chocolat"), ("cendre", "brut")]
+    site = Image.new("RGB", (3 * 560, 2 * 560), "white")
+    for i, (v, t) in enumerate(combos):
+        vig = composer(v, t).crop((298, 0, 1066, 768)).resize((560, 560), Image.LANCZOS)
+        site.paste(vig, ((i % 3) * 560, (i // 3) * 560))
+    site.save("/tmp/pieds-apercu-site.png")
+    zoom = Image.new("RGB", (1000, 1600), "white")
+    for i, (v, t) in enumerate(combos[:2]):
+        z = composer(v, t).crop((450, 330, 950, 730)).resize((1000, 800), Image.LANCZOS)
+        zoom.paste(z, (0, i * 800))
+    zoom.save("/tmp/pieds-apercu-zoom.png")
+
 if __name__ == "__main__":
-    refs = [charger(n) for n in REFERENCES]
-    alpha = masque_pieds(refs, [charger(n) for n in SATUREES])
-    base = refs[0]
-    for nom, rgb in TEINTES.items():
-        calque(base, alpha, rgb).save(f"{DOSSIER}pieds-{nom}.png", optimize=True)
+    t0 = time.time()
+    renders = np.stack([charger(n) for n in VELOURS])
+    med, lum, pente = analyser(renders)
+    alpha, dehors, lum_derriere, pente_derriere = masque_pieds(lum, pente)
+    derriere = remplir_depuis_dehors(med, dehors, 6)
+    velours_derriere = (remplir_depuis_dehors(pente, dehors, 6) > 0.3).astype(np.float32)
+    M = modele(alpha, lum)
+    print("analyse %.1f s" % (time.time() - t0))
+    for nom, teinte in TEINTES.items():
+        rgb = couleur_tube(teinte, M)
+        calque(alpha, rgb, derriere, velours_derriere).save(f"{SORTIE}{PREFIXE}{nom}.png", optimize=True)
         print("pieds-" + nom)
+    if "--apercus" in sys.argv:
+        apercus(SORTIE)
+    print("total %.1f s" % (time.time() - t0))

@@ -192,7 +192,7 @@ export type Product = {
   /** Remplace « Coloris du velours » quand `fabrics` sert à autre chose (les rosaces d'un garde-corps). */
   fabricLabel?: { fr: string; en: string };
   /**
-   * Préfixe des calques de pieds (« /images/chaises/pieds- ») : un PNG
+   * Préfixe des calques de pieds (« /images/chaises/pieds-v2- ») : un PNG
    * transparent par teinte d'acier, posé sur la photo du coloris pour montrer
    * la chaise avec les pieds choisis. Générés par scripts/pieds-chaise.py.
    */
@@ -1355,7 +1355,7 @@ export const products: Product[] = [
     sizes: [{ id: "standard", label: "Taille unique — L 48 × P 55 × H 88 cm", price: 290 }],
     woods: [],
     metals: pieds(),
-    piedsCalque: "/images/chaises/pieds-",
+    piedsCalque: "/images/chaises/pieds-v2-",
     fabrics,
     sections: [
       {
