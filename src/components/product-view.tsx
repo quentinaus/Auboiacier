@@ -314,6 +314,17 @@ export function ProductView({
                       style={{ objectPosition: img.position }}
                       className={(img.fit ?? "cover") === "contain" ? "object-contain p-1" : "object-cover"}
                     />
+                    {img.fabric && calquePieds(true) && (
+                      <Image
+                        src={calquePieds(true)!}
+                        alt=""
+                        aria-hidden
+                        fill
+                        sizes="150px"
+                        style={{ objectPosition: img.position }}
+                        className={(img.fit ?? "cover") === "contain" ? "object-contain p-1" : "object-cover"}
+                      />
+                    )}
                   </button>
                 );
               })}
