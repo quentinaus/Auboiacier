@@ -16,20 +16,21 @@ import {
   HAUTEUR_PROTECTION_MM,
   HAUTEUR_PROTECTION_RDC_MM,
   JOUR_MAX_MM,
+  JOUR_MM,
 } from "../src/lib/garde-corps.ts";
 
 test("en étage, la main courante remonte à un mètre du sol", () => {
   for (let allege = 300; allege < ALLEGE_SANS_OBLIGATION_MM; allege += 10) {
     const calcul = calculerGardeCorpsFenetre({ largeurMm: 1200, allegeMm: allege, enEtage: true })!;
     assert.ok(calcul.obligatoire, `${allege} mm d'allège : la règle devrait s'appliquer`);
-    // Le garde-corps, posé au plus 110 mm au-dessus de l'appui, atteint le mètre.
+    // Le garde-corps, posé 100 mm au-dessus de l'appui, atteint le mètre.
     assert.ok(
       allege + calcul.jourMm + calcul.hauteurRetenueMm >= HAUTEUR_PROTECTION_MM,
       `${allege} mm d'allège + ${calcul.jourMm} de jour + ${calcul.hauteurRetenueMm} mm ne font pas un mètre`
     );
-    // Et le jour seul ne suffit jamais : la règle ne compte que sur le garde-corps au-dessus de lui.
-    assert.ok(allege + JOUR_MAX_MM + calcul.hauteurNormeMm >= HAUTEUR_PROTECTION_MM);
-    assert.ok(calcul.jourMm >= 0 && calcul.jourMm <= JOUR_MAX_MM);
+    // Le jour est toujours le même, et reste sous ce que la norme tolère.
+    assert.equal(calcul.jourMm, JOUR_MM);
+    assert.ok(JOUR_MM <= JOUR_MAX_MM);
     // Et la hauteur qu'on fabrique ne descend jamais sous la règle.
     assert.ok(calcul.mainCouranteMm >= HAUTEUR_PROTECTION_MM);
     assert.equal(calcul.sousLaRegle, false);
@@ -51,8 +52,8 @@ test("au rez-de-chaussée, la main courante monte à 80 cm du sol", () => {
     assert.ok(calcul.mainCouranteMm >= HAUTEUR_PROTECTION_RDC_MM, `${allege} mm d'allège : la main courante n'arrive pas à 80 cm`);
     assert.equal(calcul.sousLaRegle, false);
   }
-  // 450 mm d'allège : 350 mm de garde-corps, la main courante tombe pile à 800 — la hauteur du modèle.
-  const modele = calculerGardeCorpsFenetre({ largeurMm: 1180, allegeMm: 450, enEtage: false })!;
+  // 350 mm d'allège, 100 de jour, 350 de garde-corps : la main courante tombe pile à 800 — la hauteur du modèle.
+  const modele = calculerGardeCorpsFenetre({ largeurMm: 1180, allegeMm: 350, enEtage: false })!;
   assert.equal(modele.hauteurRetenueMm, HAUTEUR_CONSEILLEE_MM);
   assert.equal(modele.mainCouranteMm, HAUTEUR_PROTECTION_RDC_MM);
 });
@@ -64,17 +65,17 @@ test("au rez-de-chaussée, une allège déjà haute garde la hauteur du modèle"
 
 test("une allège basse en étage donne un garde-corps haut, arrondi à la dizaine, posé avec un jour", () => {
   const calcul = calculerGardeCorpsFenetre({ largeurMm: 900, allegeMm: 415, enEtage: true })!;
-  assert.equal(calcul.hauteurNormeMm, 480); // 1000 − 415 − 110 = 475 → 480
-  assert.equal(calcul.hauteurRetenueMm, 480);
-  assert.equal(calcul.jourMm, 105); // ce qui manque pour arriver pile au mètre
-  assert.equal(calcul.mainCouranteMm, 1000);
+  assert.equal(calcul.hauteurNormeMm, 490); // 1000 − 415 − 100 = 485 → 490
+  assert.equal(calcul.hauteurRetenueMm, 490);
+  assert.equal(calcul.jourMm, JOUR_MM);
+  assert.equal(calcul.mainCouranteMm, 1005);
 });
 
-test("un garde-corps déjà assez haut se pose sur l'appui, sans jour", () => {
-  // 850 d'allège : 350 de garde-corps suffisent largement, aucun jour n'est utile.
+test("un garde-corps déjà assez haut garde le même jour, et monte d'autant", () => {
+  // 850 d'allège : 350 de garde-corps suffisent largement, le jour reste à 100.
   const calcul = calculerGardeCorpsFenetre({ largeurMm: 900, allegeMm: 850, enEtage: true })!;
-  assert.equal(calcul.jourMm, 0);
-  assert.equal(calcul.mainCouranteMm, 1200);
+  assert.equal(calcul.jourMm, JOUR_MM);
+  assert.equal(calcul.mainCouranteMm, 1300);
 });
 
 test("la hauteur de la fenêtre dit si le garde-corps tient dans l'ouverture", () => {
@@ -94,7 +95,7 @@ test("le client peut choisir plus haut que la règle, et c'est son choix qu'on g
     enEtage: true,
     hauteurSouhaiteeMm: 450,
   })!;
-  assert.equal(calcul.hauteurNormeMm, HAUTEUR_MINI_FABRICATION_MM); // 1000 − 850 = 150, relevé au plancher de fabrication
+  assert.equal(calcul.hauteurNormeMm, HAUTEUR_MINI_FABRICATION_MM); // 1000 − 850 − 100 = 50, relevé au plancher de fabrication
   assert.equal(calcul.hauteurRetenueMm, 450);
   assert.equal(calcul.sousLaRegle, false);
 });
@@ -106,7 +107,7 @@ test("le client peut choisir plus bas que la règle : on le dit, on ne refuse pa
     enEtage: true,
     hauteurSouhaiteeMm: 300,
   })!;
-  assert.equal(calcul.hauteurNormeMm, 390); // 1000 − 500 − 110
+  assert.equal(calcul.hauteurNormeMm, 400); // 1000 − 500 − 100
   assert.equal(calcul.hauteurRetenueMm, 300);
   assert.equal(calcul.sousLaRegle, true);
 });

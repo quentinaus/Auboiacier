@@ -21,7 +21,7 @@ export async function generateMetadata({
     chemin: "/artisanat/sculptures",
     title: dict.seo.sculptures.title,
     description: dict.seo.sculptures.description,
-    image: "/images/sculpture-cheval.jpg",
+    image: "/images/sculpture-cheval-v2.jpg",
   });
 }
 
@@ -60,7 +60,7 @@ export default async function SculpturesPage({
         {/* La pièce */}
         <div className={`relative aspect-[4/5] overflow-hidden rounded-xl bg-white ${hoverZoomSubtle}`}>
           <Image
-            src="/images/sculpture-cheval.jpg"
+            src="/images/sculpture-cheval-v2.jpg"
             alt={t.photoAlt}
             fill
             sizes="(max-width: 768px) 100vw, 560px"

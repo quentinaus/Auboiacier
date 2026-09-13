@@ -399,9 +399,13 @@ test("le prix monte quand le plateau épaissit", () => {
     // s'il est plus élevé.
     const depart = Math.max(refMm, epaisseurMiniMm(bareme, Math.max(largeurMm, hauteurMm)));
 
+    // Un plateau de table ne se coupe qu'à certaines cotes : on les parcourt
+    // toutes à partir du départ, au lieu d'interpoler entre les bornes.
+    const epaisseurs = bareme.epaisseur.choixMm
+      ? bareme.epaisseur.choixMm.filter((mm) => mm >= depart && mm <= maxMm)
+      : [0, 0.25, 0.5, 0.75, 1].map((part) => Math.round(depart + part * (maxMm - depart)));
     let precedent = 0;
-    for (const part of [0, 0.25, 0.5, 0.75, 1]) {
-      const epaisseur = Math.round(depart + part * (maxMm - depart));
+    for (const epaisseur of epaisseurs) {
       const devis = devisSurMesure(product, largeurMm, hauteurMm, epaisseur);
       assert.ok(devis.ok, `${product.slug} : épaisseur ${epaisseur} mm refusée`);
       if (precedent) {
@@ -418,6 +422,27 @@ test("le prix monte quand le plateau épaissit", () => {
         }
       }
       precedent = devis.prix;
+    }
+  }
+});
+
+test("un plateau de table ne se coupe qu'aux épaisseurs de l'atelier", () => {
+  const tables = surMesurables.filter((p) => p.surMesure!.epaisseur.choixMm);
+  assert.ok(tables.length >= 3, "les tables devraient proposer un choix d'épaisseurs");
+  for (const product of tables) {
+    const bareme = product.surMesure!;
+    const choix = bareme.epaisseur.choixMm!;
+    assert.deepEqual(choix, [25, 35, 45], `${product.slug} : 25, 35 ou 45 mm, rien d'autre`);
+    assert.ok(choix.includes(bareme.epaisseur.refMm), `${product.slug} : la référence doit être un des choix`);
+    const { largeurMm, hauteurMm } = cotesHorsCatalogue(bareme, 0.5);
+    for (const mm of choix) {
+      const devis = devisSurMesure(product, largeurMm, hauteurMm, mm);
+      const mini = epaisseurMiniMm(bareme, Math.max(largeurMm, hauteurMm));
+      assert.equal(devis.ok, mm >= mini, `${product.slug} : ${mm} mm`);
+    }
+    for (const mm of [30, 38, 40, 44]) {
+      const devis = devisSurMesure(product, largeurMm, hauteurMm, mm);
+      assert.ok(!devis.ok && devis.reason === "epaisseur_hors_bornes", `${product.slug} : ${mm} mm devrait être refusé`);
     }
   }
 });

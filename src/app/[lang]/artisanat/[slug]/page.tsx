@@ -126,6 +126,9 @@ export default async function ProductPage({
   const sectionImages: {
     src: string;
     alt: string;
+    /** Fond uni de studio : la photo se montre entière, sur ce fond. */
+    bg?: string;
+    fit?: "cover" | "contain";
     glow?: { box: { left: string; top: string; width: string; height: string }; clip: string };
   }[] = [
     ...product.images,
@@ -232,13 +235,22 @@ export default async function ProductPage({
             hasImages ? (
               <div key={section.title} className="grid items-center gap-10 md:grid-cols-2 md:gap-16">
                 <div className={i % 2 === 1 ? "md:order-2" : ""}>
-                  <div className={`relative aspect-[4/3] overflow-hidden rounded-xl bg-white ${hoverZoomSubtle}`}>
+                  {/* Une photo de studio (fond uni) se montre entière dans le
+                      cadre ; une photo d'ambiance le remplit. */}
+                  <div
+                    className={`relative aspect-[4/3] overflow-hidden rounded-xl ${hoverZoomSubtle}`}
+                    style={{ backgroundColor: section.image ? "#ffffff" : (sectionImages[(i + 1) % sectionImages.length].bg ?? "#ffffff") }}
+                  >
                     <Image
                       src={section.image ?? sectionImages[(i + 1) % sectionImages.length].src}
                       alt={section.image ? section.title : sectionImages[(i + 1) % sectionImages.length].alt}
                       fill
                       sizes="(max-width: 768px) 100vw, 560px"
-                      className="object-cover"
+                      className={
+                        !section.image && sectionImages[(i + 1) % sectionImages.length].fit === "contain"
+                          ? "object-contain p-4"
+                          : "object-cover"
+                      }
                     />
                     {(() => {
                       if (section.image) return null;

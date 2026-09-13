@@ -71,6 +71,12 @@ export type SurMesure = {
     parM2Bande?: number;
     /** Bois massif : épaisseur minimale imposée par la longueur de la pièce. */
     miniParLongueur?: PalierEpaisseur[];
+    /**
+     * Les seules épaisseurs fabriquées, quand l'atelier ne coupe qu'à
+     * certaines cotes (les plateaux de table : 25, 35 ou 45 mm). Sans cette
+     * liste, tout entier entre minMm et maxMm est accepté.
+     */
+    choixMm?: number[];
   };
 };
 export type ProductSpec = { label: string; value: string };
@@ -86,7 +92,6 @@ export type Famille =
   | "table-exterieur"
   | "chaise"
   | "chaise-exterieur"
-  | "console"
   | "escalier"
   | "garde-corps"
   | "plafond";
@@ -153,8 +158,20 @@ export type Product = {
     alt: string;
     bg?: string;
     fit?: "cover" | "contain";
+    /** Le point de la photo à garder au centre quand elle est recadrée (object-position). */
+    position?: string;
     /** Même prise de vue dans une autre teinte de pieds, par identifiant d'acier. */
     variants?: Record<string, string>;
+    /**
+     * Même prise de vue dans une autre essence de plateau, par identifiant de
+     * bois — puis par teinte de pieds quand la photo en a plusieurs. Le chêne,
+     * celui des photos d'origine, n'y figure pas. Les fichiers sortent de
+     * scripts/recolor.py, qui ne reteinte que le plateau.
+     */
+    parBois?: Record<string, string | Record<string, string>>;
+    /* Ces fichiers portent « -vN » : à chaque nouvelle génération des photos,
+       N augmente. L'optimiseur d'images garde une photo un an (voir
+       next.config.mjs) : sous le même nom, il resservirait l'ancienne. */
     /** Teinte de pieds montrée par cette vignette : la cliquer la sélectionne. */
     metal?: string;
     /** Coloris de velours montré par cette vignette : la cliquer le sélectionne. */
@@ -504,18 +521,19 @@ export const fabrics: ProductSwatch[] = [
 ];
 
 /* ------------------------------------------------------------------ *
- *  Épaisseur minimale d'un plateau en bois massif
- *  Plus la pièce est longue, plus le plateau doit être épais : c'est la
- *  portée entre les appuis qui fait fléchir puis fendre le bois. 25 mm
- *  tiennent sur 1,60 m ; à 3,50 m il faut 40 mm de chêne. Ces seuils sont
- *  ceux de l'atelier, et ils gardent valables toutes les tailles du
- *  catalogue, qui sont toutes en plateau de 40 mm.
+ *  Épaisseur d'un plateau de table en bois massif
+ *  L'atelier ne coupe qu'à trois cotes : 25, 35 ou 45 mm. Et plus la pièce
+ *  est longue, plus le plateau doit être épais : c'est la portée entre les
+ *  appuis qui fait fléchir puis fendre le bois. 25 mm ne tiennent que
+ *  jusqu'à 1,60 m ; au-delà, 35 mm — la cote de référence, celle de toutes
+ *  les tailles du catalogue, jusqu'à la plus longue. 45 mm reste un choix,
+ *  jamais une obligation. À VALIDER par Quentin : imposer 45 mm au-delà
+ *  d'une certaine longueur, si l'atelier le juge nécessaire.
  * ------------------------------------------------------------------ */
+const PLATEAU_CHOIX = [25, 35, 45];
 const PLATEAU_MASSIF: PalierEpaisseur[] = [
   { jusquaMm: 1600, miniMm: 25 },
-  { jusquaMm: 2400, miniMm: 30 },
-  { jusquaMm: 3000, miniMm: 35 },
-  { jusquaMm: 4000, miniMm: 40 },
+  { jusquaMm: 4000, miniMm: 35 },
 ];
 
 export const products: Product[] = [
@@ -542,6 +560,32 @@ export const products: Product[] = [
           lin: "/images/mikado/devant/lin.jpg",
           blanc: "/images/mikado/devant/blanc.jpg",
         },
+        parBois: {
+          pin: {
+            noir: "/images/mikado/devant/noir-pin-v5.jpg",
+            gris: "/images/mikado/devant/gris-pin-v5.jpg",
+            chocolat: "/images/mikado/devant/chocolat-pin-v5.jpg",
+            laiton: "/images/mikado/devant/laiton-pin-v5.jpg",
+            lin: "/images/mikado/devant/lin-pin-v5.jpg",
+            blanc: "/images/mikado/devant/blanc-pin-v5.jpg",
+          },
+          hetre: {
+            noir: "/images/mikado/devant/noir-hetre-v5.jpg",
+            gris: "/images/mikado/devant/gris-hetre-v5.jpg",
+            chocolat: "/images/mikado/devant/chocolat-hetre-v5.jpg",
+            laiton: "/images/mikado/devant/laiton-hetre-v5.jpg",
+            lin: "/images/mikado/devant/lin-hetre-v5.jpg",
+            blanc: "/images/mikado/devant/blanc-hetre-v5.jpg",
+          },
+          noyer: {
+            noir: "/images/mikado/devant/noir-noyer-v5.jpg",
+            gris: "/images/mikado/devant/gris-noyer-v5.jpg",
+            chocolat: "/images/mikado/devant/chocolat-noyer-v5.jpg",
+            laiton: "/images/mikado/devant/laiton-noyer-v5.jpg",
+            lin: "/images/mikado/devant/lin-noyer-v5.jpg",
+            blanc: "/images/mikado/devant/blanc-noyer-v5.jpg",
+          },
+        },
       },
       {
         src: "/images/mikado/coupe/gris.jpg",
@@ -556,6 +600,32 @@ export const products: Product[] = [
           laiton: "/images/mikado/coupe/laiton.jpg",
           lin: "/images/mikado/coupe/lin.jpg",
           blanc: "/images/mikado/coupe/blanc.jpg",
+        },
+        parBois: {
+          pin: {
+            noir: "/images/mikado/coupe/noir-pin-v5.jpg",
+            gris: "/images/mikado/coupe/gris-pin-v5.jpg",
+            chocolat: "/images/mikado/coupe/chocolat-pin-v5.jpg",
+            laiton: "/images/mikado/coupe/laiton-pin-v5.jpg",
+            lin: "/images/mikado/coupe/lin-pin-v5.jpg",
+            blanc: "/images/mikado/coupe/blanc-pin-v5.jpg",
+          },
+          hetre: {
+            noir: "/images/mikado/coupe/noir-hetre-v5.jpg",
+            gris: "/images/mikado/coupe/gris-hetre-v5.jpg",
+            chocolat: "/images/mikado/coupe/chocolat-hetre-v5.jpg",
+            laiton: "/images/mikado/coupe/laiton-hetre-v5.jpg",
+            lin: "/images/mikado/coupe/lin-hetre-v5.jpg",
+            blanc: "/images/mikado/coupe/blanc-hetre-v5.jpg",
+          },
+          noyer: {
+            noir: "/images/mikado/coupe/noir-noyer-v5.jpg",
+            gris: "/images/mikado/coupe/gris-noyer-v5.jpg",
+            chocolat: "/images/mikado/coupe/chocolat-noyer-v5.jpg",
+            laiton: "/images/mikado/coupe/laiton-noyer-v5.jpg",
+            lin: "/images/mikado/coupe/lin-noyer-v5.jpg",
+            blanc: "/images/mikado/coupe/blanc-noyer-v5.jpg",
+          },
         },
       },
       {
@@ -572,6 +642,32 @@ export const products: Product[] = [
           lin: "/images/mikado/devant/lin.jpg",
           blanc: "/images/mikado/devant/blanc.jpg",
         },
+        parBois: {
+          pin: {
+            noir: "/images/mikado/devant/noir-pin-v5.jpg",
+            gris: "/images/mikado/devant/gris-pin-v5.jpg",
+            chocolat: "/images/mikado/devant/chocolat-pin-v5.jpg",
+            laiton: "/images/mikado/devant/laiton-pin-v5.jpg",
+            lin: "/images/mikado/devant/lin-pin-v5.jpg",
+            blanc: "/images/mikado/devant/blanc-pin-v5.jpg",
+          },
+          hetre: {
+            noir: "/images/mikado/devant/noir-hetre-v5.jpg",
+            gris: "/images/mikado/devant/gris-hetre-v5.jpg",
+            chocolat: "/images/mikado/devant/chocolat-hetre-v5.jpg",
+            laiton: "/images/mikado/devant/laiton-hetre-v5.jpg",
+            lin: "/images/mikado/devant/lin-hetre-v5.jpg",
+            blanc: "/images/mikado/devant/blanc-hetre-v5.jpg",
+          },
+          noyer: {
+            noir: "/images/mikado/devant/noir-noyer-v5.jpg",
+            gris: "/images/mikado/devant/gris-noyer-v5.jpg",
+            chocolat: "/images/mikado/devant/chocolat-noyer-v5.jpg",
+            laiton: "/images/mikado/devant/laiton-noyer-v5.jpg",
+            lin: "/images/mikado/devant/lin-noyer-v5.jpg",
+            blanc: "/images/mikado/devant/blanc-noyer-v5.jpg",
+          },
+        },
       },
       {
         src: "/images/mikado/coupe/blanc.jpg",
@@ -586,6 +682,32 @@ export const products: Product[] = [
           laiton: "/images/mikado/coupe/laiton.jpg",
           lin: "/images/mikado/coupe/lin.jpg",
           blanc: "/images/mikado/coupe/blanc.jpg",
+        },
+        parBois: {
+          pin: {
+            noir: "/images/mikado/coupe/noir-pin-v5.jpg",
+            gris: "/images/mikado/coupe/gris-pin-v5.jpg",
+            chocolat: "/images/mikado/coupe/chocolat-pin-v5.jpg",
+            laiton: "/images/mikado/coupe/laiton-pin-v5.jpg",
+            lin: "/images/mikado/coupe/lin-pin-v5.jpg",
+            blanc: "/images/mikado/coupe/blanc-pin-v5.jpg",
+          },
+          hetre: {
+            noir: "/images/mikado/coupe/noir-hetre-v5.jpg",
+            gris: "/images/mikado/coupe/gris-hetre-v5.jpg",
+            chocolat: "/images/mikado/coupe/chocolat-hetre-v5.jpg",
+            laiton: "/images/mikado/coupe/laiton-hetre-v5.jpg",
+            lin: "/images/mikado/coupe/lin-hetre-v5.jpg",
+            blanc: "/images/mikado/coupe/blanc-hetre-v5.jpg",
+          },
+          noyer: {
+            noir: "/images/mikado/coupe/noir-noyer-v5.jpg",
+            gris: "/images/mikado/coupe/gris-noyer-v5.jpg",
+            chocolat: "/images/mikado/coupe/chocolat-noyer-v5.jpg",
+            laiton: "/images/mikado/coupe/laiton-noyer-v5.jpg",
+            lin: "/images/mikado/coupe/lin-noyer-v5.jpg",
+            blanc: "/images/mikado/coupe/blanc-noyer-v5.jpg",
+          },
         },
       },
     ],
@@ -608,12 +730,12 @@ export const products: Product[] = [
       maxLargeurMm: 4000,
       maxHauteurMm: 1400,
       epaisseur: {
-        // Bornes du bois massif : en dessous de 25 mm le plateau casse,
-        // au-delà de 80 mm la table n'est plus ni fabricable ni transportable.
+        // Trois épaisseurs au choix : 25, 35 ou 45 mm, 35 au catalogue.
         minMm: 25,
-        maxMm: 80,
-        refMm: 40,
-        // Chaque millimètre AU-DESSUS de 40 mm se paie au mètre carré.
+        maxMm: 45,
+        refMm: 35,
+        choixMm: PLATEAU_CHOIX,
+        // Chaque millimètre AU-DESSUS de 35 mm se paie au mètre carré.
         parM2ParMm: 25,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
@@ -636,11 +758,11 @@ export const products: Product[] = [
       },
       {
         title: "Un plateau collé lame par lame",
-        body: "Le plateau de 40 mm est monté en lames larges, collées sur chant, puis poncé et protégé à l'huile-cire — une finition qui pénètre le bois au lieu de le recouvrir. Une rayure se rattrape au papier fin, sur la zone touchée, sans reprendre tout le plateau.",
+        body: "Le plateau de 35 mm est monté en lames larges, collées sur chant, puis poncé et protégé à l'huile-cire — une finition qui pénètre le bois au lieu de le recouvrir. Une rayure se rattrape au papier fin, sur la zone touchée, sans reprendre tout le plateau.",
       },
     ],
     specs: [
-      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif au choix, épaisseur 40 mm, finition huile-cire" },
+      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif au choix, 35 mm (25 ou 45 mm au choix), finition huile-cire" },
       { label: "Piétement", value: "Acier plein S235, soudure TIG, thermolaquage mat" },
       { label: "Capacité", value: "6 à 14 couverts selon dimension" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
@@ -674,11 +796,11 @@ export const products: Product[] = [
         },
         {
           title: "A top glued board by board",
-          body: "The 40 mm top is built from wide boards glued edge to edge, then sanded and protected with an oil-wax finish that soaks into the wood instead of sitting on top of it. A scratch comes out with fine paper, on that spot alone, without redoing the whole top.",
+          body: "The 35 mm top is built from wide boards glued edge to edge, then sanded and protected with an oil-wax finish that soaks into the wood instead of sitting on top of it. A scratch comes out with fine paper, on that spot alone, without redoing the whole top.",
         },
       ],
       specs: [
-        { label: "Top", value: "Pine, beech, oak or walnut to choose from, 40 mm thick, oil-wax finish" },
+        { label: "Top", value: "Pine, beech, oak or walnut to choose from, 35 mm thick (25 or 45 mm to order), oil-wax finish" },
         { label: "Base", value: "Solid S235 steel, TIG welded, matt powder coating" },
         { label: "Seats", value: "6 to 14 people depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
@@ -696,10 +818,48 @@ export const products: Product[] = [
     tagline: "Deux lames d'acier plein en X, d'un bout à l'autre du plateau : les jambes passent.",
     images: [
       {
-        src: "/images/table-croix.jpg",
-        alt: "Table Croix : plateau en chêne massif sur deux piétements acier en X, vue de trois quarts",
+        src: "/images/table-croix-bout-v2.jpg",
+        alt: "Table Croix : plateau en chêne massif sur deux piétements acier noir en X, vue de bout",
         bg: "#ffffff",
         fit: "contain",
+        parBois: {
+          pin: "/images/table-croix-bout-v2-pin.jpg",
+          hetre: "/images/table-croix-bout-v2-hetre.jpg",
+          noyer: "/images/table-croix-bout-v2-noyer.jpg",
+        },
+      },
+      {
+        src: "/images/table-croix-cote-v2.jpg",
+        alt: "Table Croix vue de côté : les deux X d'acier noir sous le long plateau de chêne",
+        bg: "#ffffff",
+        fit: "contain",
+        parBois: {
+          pin: "/images/table-croix-cote-v2-pin.jpg",
+          hetre: "/images/table-croix-cote-v2-hetre.jpg",
+          noyer: "/images/table-croix-cote-v2-noyer.jpg",
+        },
+      },
+      {
+        src: "/images/table-croix-detail-v1.jpg",
+        alt: "Table Croix, détail : l'angle du plateau de chêne et le X d'acier noir qui le porte",
+        bg: "#ffffff",
+        fit: "contain",
+        parBois: {
+          pin: "/images/table-croix-detail-v1-pin.jpg",
+          hetre: "/images/table-croix-detail-v1-hetre.jpg",
+          noyer: "/images/table-croix-detail-v1-noyer.jpg",
+        },
+      },
+      {
+        src: "/images/table-croix-soudure-v1.jpg",
+        alt: "Table Croix, gros plan sur le X d'acier : le cordon de soudure au croisement des lames, sous le plateau",
+        bg: "#ffffff",
+        fit: "contain",
+        parBois: {
+          pin: "/images/table-croix-soudure-v1-pin.jpg",
+          hetre: "/images/table-croix-soudure-v1-hetre.jpg",
+          noyer: "/images/table-croix-soudure-v1-noyer.jpg",
+        },
       },
     ],
     sizes: [
@@ -721,12 +881,12 @@ export const products: Product[] = [
       maxLargeurMm: 4000,
       maxHauteurMm: 1400,
       epaisseur: {
-        // Bornes du bois massif : en dessous de 25 mm le plateau casse,
-        // au-delà de 80 mm la table n'est plus ni fabricable ni transportable.
+        // Trois épaisseurs au choix : 25, 35 ou 45 mm, 35 au catalogue.
         minMm: 25,
-        maxMm: 80,
-        refMm: 40,
-        // Chaque millimètre AU-DESSUS de 40 mm se paie au mètre carré.
+        maxMm: 45,
+        refMm: 35,
+        choixMm: PLATEAU_CHOIX,
+        // Chaque millimètre AU-DESSUS de 35 mm se paie au mètre carré.
         parM2ParMm: 25,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
@@ -745,7 +905,7 @@ export const products: Product[] = [
       },
     ],
     specs: [
-      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif au choix, épaisseur 40 mm, finition huile-cire" },
+      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif au choix, 35 mm (25 ou 45 mm au choix), finition huile-cire" },
       { label: "Piétement", value: "Lames d'acier plein S235, soudure TIG, thermolaquage mat" },
       { label: "Capacité", value: "6 à 14 couverts selon dimension" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
@@ -777,7 +937,7 @@ export const products: Product[] = [
         },
       ],
       specs: [
-        { label: "Top", value: "Pine, beech, oak or walnut to choose from, 40 mm thick, oil-wax finish" },
+        { label: "Top", value: "Pine, beech, oak or walnut to choose from, 35 mm thick (25 or 45 mm to order), oil-wax finish" },
         { label: "Base", value: "Solid S235 steel blades, TIG welded, matt powder coating" },
         { label: "Seats", value: "6 to 14 people depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
@@ -795,10 +955,10 @@ export const products: Product[] = [
     tagline: "Un bouquet de tiges d'acier cintrées une à une, sous un plateau qui semble flotter.",
     images: [
       {
-        src: "/images/table-brindille-ambiance.jpg",
-        alt: "Table Brindille, piétement en fines tiges d'acier, sur un tapis",
-        bg: "#8f8b86",
-        fit: "cover",
+        src: "/images/table-brindille.jpg",
+        alt: "Table Brindille : plateau en chêne massif sur un bouquet de tiges d'acier cintrées, vue de face",
+        bg: "#ffffff",
+        fit: "contain",
       },
       {
         src: "/images/salle-plafond-mikado.jpg",
@@ -808,30 +968,32 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 2150 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 2710 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 3510 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 4150 },
-      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 5030 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 2270 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 2830 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 3630 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 4270 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 5150 },
     ],
     surMesure: {
       // Forfait de piétement, puis le mètre carré de plateau. Le prix au m²
       // est calé pour qu'une table aux cotes du client ne tombe jamais sous
-      // le prix d'une table du catalogue plus petite.
+      // le prix d'une table du catalogue plus petite. Le bouquet de tiges
+      // demande bien plus d'heures qu'un autre piétement : 120 € de plus au
+      // forfait, quelle que soit la taille du plateau.
       forme: "rect",
       axes: "plan",
-      forfait: 600,
+      forfait: 720,
       parM2: 1220,
       minMm: 800,
       maxLargeurMm: 4000,
       maxHauteurMm: 1400,
       epaisseur: {
-        // Bornes du bois massif : en dessous de 25 mm le plateau casse,
-        // au-delà de 80 mm la table n'est plus ni fabricable ni transportable.
+        // Trois épaisseurs au choix : 25, 35 ou 45 mm, 35 au catalogue.
         minMm: 25,
-        maxMm: 80,
-        refMm: 40,
-        // Chaque millimètre AU-DESSUS de 40 mm se paie au mètre carré.
+        maxMm: 45,
+        refMm: 35,
+        choixMm: PLATEAU_CHOIX,
+        // Chaque millimètre AU-DESSUS de 35 mm se paie au mètre carré.
         parM2ParMm: 25,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
@@ -850,7 +1012,7 @@ export const products: Product[] = [
       },
     ],
     specs: [
-      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif au choix, épaisseur 40 mm, finition huile-cire" },
+      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif au choix, 35 mm (25 ou 45 mm au choix), finition huile-cire" },
       { label: "Piétement", value: "Tiges d'acier plein, soudure TIG, thermolaquage mat" },
       { label: "Capacité", value: "6 à 14 couverts selon dimension" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
@@ -862,7 +1024,7 @@ export const products: Product[] = [
       seoMots: "steel & oak table",
       tagline: "A bunch of steel rods bent one by one, under a top that seems to float.",
       images: [
-        "Brindille table, base of slender steel rods, on a rug",
+        "Brindille table: solid oak top on a bouquet of bent steel rods, front view",
         "Brindille table in a living room, under a stretched-fabric light ceiling",
       ],
       sizes: {
@@ -883,7 +1045,7 @@ export const products: Product[] = [
         },
       ],
       specs: [
-        { label: "Top", value: "Pine, beech, oak or walnut to choose from, 40 mm thick, oil-wax finish" },
+        { label: "Top", value: "Pine, beech, oak or walnut to choose from, 35 mm thick (25 or 45 mm to order), oil-wax finish" },
         { label: "Base", value: "Solid steel rods, TIG welded, matt powder coating" },
         { label: "Seats", value: "6 to 14 people depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
@@ -905,16 +1067,12 @@ export const products: Product[] = [
     tagline: "Limon acier cintré, marches chêne massif, garde-corps à câbles.",
     images: [
       {
-        src: "/images/escalier-limon-central.jpg",
-        alt: "Escalier à limon central acier et marches en chêne massif",
-        bg: "#a9a096",
-        fit: "cover",
-      },
-      {
         src: "/images/escalier/limon-droit.jpg",
         alt: "Escalier droit à limon central acier, marches en chêne massif et garde-corps à barreaux fins, dans une pièce aux murs chaulés",
         bg: "#e6e0d6",
         fit: "cover",
+        // L'escalier est à droite de la photo : le recadrage le garde au centre.
+        position: "88% 50%",
       },
       {
         src: "/images/escalier/marche-detail.jpg",
@@ -1009,15 +1167,21 @@ export const products: Product[] = [
     tagline: "Croix de Saint-André en acier plein, rosaces en fonte, main courante en chêne. Fabriqué au millimètre, encastré dans votre fenêtre.",
     images: [
       {
-        src: "/images/garde-corps/fenetre-pose.jpg",
-        alt: "Garde-corps de fenêtre en acier noir à croix de Saint-André, rosaces en fonte et main courante en chêne, posé en tableau",
-        bg: "#d9d3c8",
-        fit: "cover",
+        src: "/images/garde-corps/fenetre.jpg",
+        alt: "Garde-corps de fenêtre vu de face : cadre acier thermolaqué noir à croix de Saint-André, deux rosaces en fonte, main courante en chêne",
+        bg: "#ffffff",
+        fit: "contain",
       },
       {
-        src: "/images/garde-corps/fenetre.jpg",
-        alt: "Le même garde-corps vu de face : cadre acier thermolaqué noir, deux rosaces, main courante chêne",
-        bg: "#ffffff",
+        src: "/images/garde-corps/fenetre-pose.jpg",
+        alt: "Le même garde-corps posé en tableau, vu depuis la pièce : la fenêtre entière, l'appui et le jour sous le cadre",
+        bg: "#e9e6e0",
+        fit: "contain",
+      },
+      {
+        src: "/images/garde-corps/fenetre-rue.jpg",
+        alt: "Le garde-corps vu de la rue, entre les volets : posé sur l'appui en tuffeau, la fenêtre ouverte derrière",
+        bg: "#e6e1d6",
         fit: "contain",
       },
     ],
@@ -1299,11 +1463,11 @@ export const products: Product[] = [
       maxLargeurMm: 4000,
       maxHauteurMm: 1400,
       epaisseur: {
-        // Un plateau à lattes est plus fin qu'un plateau plein : au-delà de
-        // 60 mm, la latte devient une poutre et la table ne se porte plus.
+        // Les mêmes trois épaisseurs que les tables d'intérieur : 25, 35 ou 45 mm.
         minMm: 25,
-        maxMm: 60,
-        refMm: 40,
+        maxMm: 45,
+        refMm: 35,
+        choixMm: PLATEAU_CHOIX,
         parM2ParMm: 15,
         miniParLongueur: PLATEAU_MASSIF,
       },
@@ -1500,6 +1664,8 @@ export const products: Product[] = [
       {
         title: "Posé, suspendu ou encastré",
         body: "La Lucarne se fixe au plafond, se suspend par câbles ou s'encastre dans un faux plafond selon la pièce. L'alimentation est fournie, en 220 V, avec une variation possible sur demande.",
+        // Une pose réelle, encastrée, la toile en couleur.
+        image: "/images/lumiere/lucarne-rgb.jpg",
       },
     ],
     specs: [
@@ -1692,89 +1858,6 @@ export const products: Product[] = [
         { label: "Lighting", value: "220 V LED, 3000 K or 4000 K white, dimming optional" },
         { label: "Diameter", value: "Up to 400 cm in one piece, to the centimetre" },
         { label: "Lead time", value: "Made to order — allow 3 to 5 weeks" },
-      ],
-    },
-  },
-  {
-    slug: "console-metallier",
-    famille: "console",
-    seoMots: "console acier & bois",
-    category: "interieur",
-    orderMode: "cart",
-    name: "Console Métallier",
-    tagline: "Cadre d'acier fin, plateau de bois massif de 30 mm, cordons de soudure laissés visibles.",
-    images: [
-      { src: "/images/console-metallier.jpg", alt: "Console en chêne massif le long d'un mur clair", bg: "#b6b2ad", fit: "cover" },
-    ],
-    sizes: [
-      { id: "s", dimsMm: [1000, 350], label: "100 × 35 × H 80 cm", price: 890 },
-      { id: "m", dimsMm: [1400, 350], label: "140 × 35 × H 80 cm", price: 1090 },
-    ],
-    surMesure: {
-      // Barème propre à la console : ni la portée ni le piétement d'une table.
-      // 400 € de forfait + 1 400 €/m² retombent pile sur les deux tailles du
-      // catalogue : 0,35 m² → 890 €, 0,49 m² → 1 090 €.
-      forme: "rect",
-      axes: "plan",
-      forfait: 400,
-      parM2: 1400,
-      // Une console ne fait que 35 cm de profondeur : le minimum des tables
-      // (800 mm) interdisait de commander la console elle-même.
-      minMm: 300,
-      maxLargeurMm: 2400,
-      maxHauteurMm: 600,
-      epaisseur: {
-        // Plateau de 30 mm au catalogue ; 25 mm sur les petites longueurs.
-        minMm: 25,
-        maxMm: 60,
-        refMm: 30,
-        parM2ParMm: 25,
-        miniParLongueur: PLATEAU_MASSIF,
-      },
-    },
-    woods: woods({ pin: -170, hetre: -90, chene: 0, noyer: 220 }),
-    metals: pieds(),
-    sections: [
-      {
-        title: "Le cordon de soudure, laissé tel quel",
-        body: "Aux angles, on ne meule pas : le cordon reste apparent, puis il est verni pour qu'il ne pique pas et ne rouille pas. C'est la marque du poste à souder, pas un défaut à cacher.",
-      },
-      {
-        title: "Trente millimètres de bois sur un cadre fin",
-        body: "Le plateau fait 30 mm d'épaisseur — pin, hêtre, chêne ou noyer massif — posé sur un cadre en acier plein qui ne prend que quelques millimètres à l'œil. Deux longueurs au catalogue ; au-delà, l'atelier chiffre à vos cotes.",
-      },
-    ],
-    specs: [
-      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif au choix, épaisseur 30 mm" },
-      { label: "Structure", value: "Acier plein, soudure apparente vernie" },
-      { label: "Fabrication", value: "Sur commande — comptez 4 semaines" },
-    ],
-    // Traduction anglaise de la fiche.
-    en: {
-      name: "Metalworker's Console",
-      seoMots: "steel & oak console",
-      tagline: "Slender steel frame, 30 mm solid-wood top, weld beads left in plain sight.",
-      images: [
-        "Solid oak console along a pale wall",
-      ],
-      sizes: {
-        s: "100 × 35 × H 80 cm",
-        m: "140 × 35 × H 80 cm",
-      },
-      sections: [
-        {
-          title: "The weld bead, left as it is",
-          body: "At the corners we do not grind: the bead stays in plain sight, then it is varnished so it neither catches nor rusts. That is the mark of the welding torch, not a fault to hide.",
-        },
-        {
-          title: "Thirty millimetres of wood on a slender frame",
-          body: "The top is 30 mm thick — pine, beech, oak or walnut — sitting on a solid steel frame that takes up only a few millimetres to the eye. Two lengths in the catalogue; beyond that, the workshop quotes your own dimensions.",
-        },
-      ],
-      specs: [
-        { label: "Top", value: "Pine, beech, oak or walnut to choose from, 30 mm thick" },
-        { label: "Frame", value: "Solid steel, welds left showing and varnished" },
-        { label: "Lead time", value: "Made to order — allow 4 weeks" },
       ],
     },
   },
@@ -2057,6 +2140,15 @@ export function devisSurMesure(
       ok: false,
       reason: "epaisseur_hors_bornes",
       message: `L'épaisseur doit rester entre ${bareme.epaisseur.minMm} et ${bareme.epaisseur.maxMm} mm.`,
+    };
+  }
+  // Quand l'atelier ne coupe qu'à certaines cotes, rien entre les deux.
+  const choix = bareme.epaisseur.choixMm;
+  if (choix && !choix.includes(epaisseur)) {
+    return {
+      ok: false,
+      reason: "epaisseur_hors_bornes",
+      message: `L'épaisseur se choisit parmi ${choix.join(", ")} mm.`,
     };
   }
 

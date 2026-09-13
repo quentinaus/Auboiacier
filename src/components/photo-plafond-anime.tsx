@@ -22,11 +22,12 @@ export function MembraneAnimee({
   return (
     <div aria-hidden className="pointer-events-none absolute" style={box}>
       <div className="absolute inset-0 overflow-hidden" style={{ clipPath: clip }}>
-        {/* Le dégradé déborde largement : de grands aplats doux, pas une mosaïque. */}
-        <div className="absolute -inset-x-[120%] -inset-y-[260%]">
+        {/* Le dégradé déborde largement : de grands aplats doux, pas une mosaïque.
+            Le même dégradé que le bandeau d'accueil, mais franchement coloré
+            ici : une toile allumée, pas un blanc voilé. */}
+        <div className="absolute -inset-x-[120%] -inset-y-[260%]" style={{ filter: "saturate(2.6) contrast(1.08)" }}>
           <HeroShaderBackground />
         </div>
-        <div className="absolute inset-0 bg-white/60 mix-blend-screen" />
       </div>
     </div>
   );
@@ -38,6 +39,7 @@ export function PhotoPlafondAnime({
   box,
   clip,
   sizes,
+  entiere = false,
 }: {
   src: string;
   alt: string;
@@ -46,10 +48,12 @@ export function PhotoPlafondAnime({
   /** Contour de la dalle, en pourcentages de ce rectangle. */
   clip: string;
   sizes: string;
+  /** La photo entière dans le cadre (fond de studio), plutôt que recadrée. */
+  entiere?: boolean;
 }) {
   return (
     <>
-      <Image src={src} alt={alt} fill sizes={sizes} className="object-cover" />
+      <Image src={src} alt={alt} fill sizes={sizes} className={entiere ? "object-contain" : "object-cover"} />
       <MembraneAnimee box={box} clip={clip} />
     </>
   );

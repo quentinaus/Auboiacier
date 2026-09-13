@@ -46,9 +46,10 @@
     "catTables": "Indoor tables",
     "catChaises": "Indoor chairs",
     "catChaisesExt": "Outdoor chairs",
-    "catConsoles": "Consoles",
     "catEscaliers": "Staircases",
     "catGardeCorps": "Railings",
+    "catLucarne": "Rectangular light ceiling",
+    "catHalo": "Round light ceiling",
     "catPlafonds": "Backlit stretch ceilings",
     "catLed": "LED lighting",
     "editorialTitle": "A simple line, a piece that lasts",
@@ -66,6 +67,7 @@
     "catTablesExt": "Outdoor tables",
     "altHeroLumiere": "Backlit stretch ceiling above a dining table",
     "altHeroMobilier": "Mikado table in walnut with green velvet chairs in a stone-walled dining room",
+    "altDetailMarche": "Solid oak tread bolted to its steel stringer — a detail from one of the workshop's staircases",
     "altAtelier": "Grinding a steel frame in the workshop, a shower of sparks",
     "altVignes": "Hillside vineyards at sunset",
     "altTables": "Close-up of the oak top and steel base of the Mikado table",
@@ -75,6 +77,8 @@
     "altSculptures": "Rearing horse welded by hand from reclaimed steel",
     "altEscaliers": "Staircase with a central steel spine and oak treads",
     "altGardeCorps": "Black steel window railing with cast-iron rosettes and an oak handrail",
+    "altLucarne": "Lucarne: rectangular backlit stretch ceiling, black aluminium frame, seen from below",
+    "altHalo": "Halo: round backlit stretch ceiling, black aluminium frame, seen from below",
     "altPlafonds": "Backlit stretch ceiling above a dining table",
     "altVerrieres": "Black steel interior partition between a living room and a kitchen"
   },
@@ -148,6 +152,7 @@
     "sizeLabel": "Made to measure, your size",
     "woodLabel": "Solid wood",
     "metalLabel": "Leg colour",
+    "altBandeauLumiere": "Corner of a light ceiling: the powder-coated aluminium frame and the stretched membrane",
     "madeInFrance": "Handmade in France",
     "craftBandTitle": "French craftsmanship",
     "craftBandBody": "Every piece leaves our own workshop: the wood is picked board by board, the steel is TIG-welded then powder-coated, and final assembly is done by hand. No industrial runs — your furniture is made for you, to order.",
@@ -186,7 +191,7 @@
     "cartTotalLine": "that is",
     "catalogueInterieur": "Indoors",
     "catalogueExterieur": "Outdoors",
-    "catalogueInterieurNote": "Tables, chairs and consoles for the home.",
+    "catalogueInterieurNote": "Tables and chairs for the home.",
     "catalogueExterieurNote": "Pieces treated to live outside all year round.",
     "customCta": "Custom size",
     "customTitle": "Built to your exact size",
@@ -206,6 +211,8 @@
     "customReset": "Back to catalogue sizes",
     "customLength": "Length",
     "customHelpPlan": "Your sizes in centimetres — or millimetres if you prefer, the unit switches next to them. The top is priced per m², the base included.",
+    "customThicknessChoice": "{choix} mm to choose from",
+    "customThicknessTooThin": "Too thin for a {portee} mm span",
     "customThickness": "Thickness",
     "customThicknessNoteLight": "Housing depth: only the aluminium band changes, so the price barely moves.",
     "customRange": "{min} to {max} mm",
@@ -333,6 +340,8 @@
     "gcPromesse": "Enter your three measurements: the exact price appears at once and you order straight away, no quote, no waiting. Or the workshop comes to measure at your home.",
     "gcSchemaMetreRdc": "{m} mm from the floor · ground-floor rule: 80 cm min",
     "gcPrixAttente": "The price shows as soon as your three measurements are in.",
+    "prixAttenteCotes": "The price shows as soon as your dimensions are in, or when you pick a catalogue size.",
+    "sizeChoose": "Choose a catalogue size",
     "gcPrixCompris": "wood and steel included",
     "gcLot": "Several windows? −{taux}% on every railing from the second one, even with different sizes.",
     "gcLotTag": "multi-buy −{taux}%",
@@ -365,7 +374,7 @@
     "gcFenetreAide": "Inside the opening, from the sill up to the top of the reveal.",
     "gcFenetreInfo": "The height of the opening the railing fits into: from the top of the sill to the top of the reveal, window open. It tells us whether the railing fits in your window.",
     "gcSchemaFenetre": "Window height",
-    "gcJour": "Fitted {j} mm above the sill: a gap the standard allows (110 mm at most), and that much less height.",
+    "gcJour": "Fitted {j} mm above the sill, as on the sketch: the gap the standard allows (110 mm at most), and that much less height.",
     "gcTropBasse": "Your window is too low for a recessed railing: the handrail must reach {m} mm from the floor, and the top of the opening is at {f} mm. We then make it face-fixed, in front of the window — on quotation.",
     "gcTropBasseCourt": "Window too low for a recessed railing: on quotation",
     "gcJourCourt": "fitted",
@@ -384,7 +393,82 @@
   },
   "devis": {
     "title": "Request a quote",
-    "subtitle": "Describe your project — we come back with an estimate within 48 hours."
+    "subtitle": "Describe your project and we come back to you with an estimate within 48 hours.",
+    "eyebrow": "Instant quote",
+    "h1": "Your made-to-measure piece, priced in one minute.",
+    "lead": "Pick a model, enter your dimensions: the price appears at once, delivery and fitting included. No account, no waiting, no commitment.",
+    "ctaModeles": "Choose a model",
+    "ctaAutre": "Describe another project",
+    "ctaModelesNote": "Answer in one minute",
+    "ctaAutreNote": "Reply within 24 to 72 hours",
+    "etapesTitle": "How it works",
+    "etapes": [
+      {
+        "titre": "Choose the model",
+        "texte": "Table, window railing or light ceiling: every product page has its own calculator."
+      },
+      {
+        "titre": "Enter your dimensions",
+        "texte": "In centimetres or millimetres, guided by a dimensioned sketch. Three measurements are enough for a railing."
+      },
+      {
+        "titre": "The price appears",
+        "texte": "A firm price, delivery and fitting included. Order online, or book a workshop visit to take the measurements."
+      }
+    ],
+    "instantTitle": "Pieces with an instant quote",
+    "instantSubtitle": "Tables, railings and light ceilings price themselves to your dimensions. Open a page, enter your measurements, the price is there.",
+    "badge": "Instant price",
+    "from": "From",
+    "cta": "Enter my dimensions",
+    "familles": {
+      "table-interieur": "Indoor tables",
+      "table-exterieur": "Outdoor tables",
+      "garde-corps": "Window railings",
+      "plafond": "Light ceilings"
+    },
+    "saisie": {
+      "table": "Top length and width, 25, 35 or 45 mm thick",
+      "gardeCorps": "Three window measurements, taken with a tape",
+      "plafondRect": "Frame length and width, to the centimetre",
+      "plafondRond": "Frame diameter, to the centimetre"
+    },
+    "surDevisTitle": "On quotation, with on-site measuring",
+    "surDevisSubtitle": "For these works the workshop comes to measure and sends you a detailed price.",
+    "surDevis": [
+      {
+        "titre": "Central stringer staircase",
+        "texte": "Floor height and footprint: the workshop works out the rise, measures on site and quotes."
+      },
+      {
+        "titre": "Glass partitions",
+        "texte": "Steel-framed glazed partitions, sized to the opening."
+      },
+      {
+        "titre": "Sculptures",
+        "texte": "One-off pieces in reclaimed steel, by project."
+      }
+    ],
+    "formTitle": "Another project? Tell us about it.",
+    "formSubtitle": "A piece outside the catalogue, a particular constraint: write to us, reply within 48 hours with an estimate.",
+    "reassurance": [
+      {
+        "titre": "Workshop in Saumur",
+        "texte": "One pair of hands, from cutting to fitting."
+      },
+      {
+        "titre": "Delivery and fitting included",
+        "texte": "Mainland France, in the displayed price."
+      },
+      {
+        "titre": "Made to order",
+        "texte": "The lead time is stated before you pay."
+      },
+      {
+        "titre": "Secure online payment",
+        "texte": "By card, no account needed."
+      }
+    ]
   },
   "apropos": {
     "title": "About",
@@ -624,7 +708,7 @@
     },
     "artisanat": {
       "title": "Handmade tables, chairs and staircases — Saumur",
-      "description": "Solid oak tables on welded steel bases, velvet chairs, consoles, staircases and steel partitions, handmade in our workshop in Saumur, Loire Valley. Prices shown, no middleman."
+      "description": "Solid oak tables on welded steel bases, velvet chairs, staircases and steel partitions, handmade in our workshop in Saumur, Loire Valley. Prices shown, no middleman."
     },
     "produitSuffixe": "Handmade in Saumur, Loire Valley, France — shipped across France.",
     "lumiere": {
@@ -652,8 +736,8 @@
       "description": "Our backlit stretch ceilings, installed for homes and businesses across the Loire Valley."
     },
     "devis": {
-      "title": "Quote for a backlit stretch ceiling",
-      "description": "Describe your room: dimensions, ceiling height, light temperature. We survey and quote, with no obligation."
+      "title": "Instant quote, priced in one minute",
+      "description": "Enter your dimensions and see the price in one minute: steel and wood tables, window railings, stretched light ceilings. Delivery and fitting included."
     },
     "panier": {
       "title": "Your basket",

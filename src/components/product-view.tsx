@@ -49,6 +49,10 @@ export function ProductView({
    * elles, restent sur la version noire pour ne pas encombrer la bande.
    */
   const [metalId, setMetalId] = useState(product.metals[0]?.id ?? "");
+  /** L'essence du plateau : la photo se reteinte quand elle change. */
+  const [woodId, setWoodId] = useState(
+    (product.woods.find((w) => !w.priceDelta) ?? product.woods[0])?.id ?? ""
+  );
   /** Photo choisie en cliquant une vignette. Null = on suit le coloris. */
   const [pickedSrc, setPickedSrc] = useState<string | null>(null);
   /** La photo en grand. Un <dialog> natif : Échap referme, sans bibliothèque. */
@@ -109,8 +113,10 @@ export function ProductView({
   const mainImage = (pickedSrc && images.find((img) => img.src === pickedSrc)) || images[0];
   // Les rendus de coloris ont leur propre fond gris : on remplit le cadre avec.
   const isColorShot = Boolean(coloris?.image && mainImage?.src === coloris.image);
-  /** La même prise de vue, dans la teinte de pieds choisie. */
-  const mainSrc = mainImage?.variants?.[metalId] ?? mainImage?.src;
+  /** La même prise de vue, dans l'essence de plateau puis la teinte de pieds choisies. */
+  const enBois = mainImage?.parBois?.[woodId];
+  const mainSrc =
+    (typeof enBois === "string" ? enBois : enBois?.[metalId]) ?? mainImage?.variants?.[metalId] ?? mainImage?.src;
 
   /**
    * `fit` est relevé sur la photo elle-même (voir products.ts) : fond uni de
@@ -159,6 +165,7 @@ export function ProductView({
               alt={mainImage.alt}
               fill
               sizes="(max-width: 768px) 100vw, 560px"
+              style={{ objectPosition: mainImage.position }}
               className={remplitLeCadre ? "object-cover" : "object-contain p-6"}
               priority
             />
@@ -239,11 +246,19 @@ export function ProductView({
                 aria-label={img.alt}
                 aria-pressed={pickedSrc === img.src}
                 onClick={() => selectImage(img.src)}
-                className={`relative aspect-square w-24 shrink-0 snap-start overflow-hidden rounded-lg bg-white transition-opacity hover:opacity-80 ${
+                className={`relative aspect-square w-24 shrink-0 snap-start overflow-hidden rounded-lg transition-opacity hover:opacity-80 ${
                   pickedSrc === img.src ? "ring-2 ring-inset ring-[#6d2c2c]" : ""
                 }`}
+                style={{ backgroundColor: img.bg ?? "#ffffff" }}
               >
-                <Image src={img.src} alt={img.alt} fill sizes="120px" className="object-cover" />
+                <Image
+                  src={img.src}
+                  alt={img.alt}
+                  fill
+                  sizes="120px"
+                  style={{ objectPosition: img.position }}
+                  className={(img.fit ?? "cover") === "contain" ? "object-contain p-1" : "object-cover"}
+                />
               </button>
             ))}
           </div>
@@ -263,16 +278,53 @@ export function ProductView({
                     aria-label={img.alt}
                     aria-pressed={isCurrent}
                     onClick={() => selectImage(img.src)}
-                    className={`relative aspect-square overflow-hidden rounded-lg bg-white transition-opacity hover:opacity-80 ${
+                    className={`relative aspect-square overflow-hidden rounded-lg transition-opacity hover:opacity-80 ${
                       isCurrent ? "ring-2 ring-inset ring-[#6d2c2c]" : hoverZoom
                     }`}
+                    style={{ backgroundColor: img.bg ?? "#ffffff" }}
                   >
-                    <Image src={img.src} alt={img.alt} fill sizes="150px" className="object-cover" />
+                    {/* Une photo de studio se montre entière, comme en grand :
+                        recadrée au carré, une table longue perdait ses pieds. */}
+                    <Image
+                      src={img.src}
+                      alt={img.alt}
+                      fill
+                      sizes="150px"
+                      style={{ objectPosition: img.position }}
+                      className={(img.fit ?? "cover") === "contain" ? "object-contain p-1" : "object-cover"}
+                    />
                   </button>
                 );
               })}
             </div>
           )
+        )}
+
+        {/* Le mot de présentation, sous la galerie plutôt qu'en tête des
+            options : la colonne de droite gagne la place, et ce coin-là
+            restait vide. */}
+        <div className="mt-2">
+          <p className="text-[#5c5140]">{product.tagline}</p>
+          <a
+            href="#descriptif"
+            className="mt-3 inline-block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6d2c2c] underline underline-offset-4"
+          >
+            {t.moreInfo}
+          </a>
+        </div>
+
+        {/* Le garde-corps : la promesse, sous la galerie. Le prix, lui, est
+            en tête de la colonne des options, comme sur les autres fiches. */}
+        {product.releve === "garde-corps-fenetre" && (
+          <div className="mt-4 rounded-2xl border border-[#6d2c2c]/20 bg-[#6d2c2c]/[0.04] px-4 py-3.5">
+            <p className="flex items-center gap-2.5 text-lg font-medium leading-tight text-[#6d2c2c]">
+              <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 shrink-0">
+                <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" />
+              </svg>
+              {t.gcPromesseTitre}
+            </p>
+            <p className="mt-1.5 text-sm leading-relaxed text-[#5c5140]">{t.gcPromesse}</p>
+          </div>
         )}
 
         {/* La photo en grand, par-dessus la page. Le <dialog> du navigateur
@@ -310,18 +362,10 @@ export function ProductView({
       <div>
         <h1 className={`${serif.className} text-3xl text-[#2b2320] md:text-4xl`}>{product.name}</h1>
         {/* Plus de « à partir de » ici : juste en dessous, la colonne d'options
-            affiche le prix RÉEL de la configuration montrée. Les deux chiffres
-            ne concordaient pas, et rien n'expliquait l'écart au moment précis
-            où le client hésite. Le « à partir de » garde tout son sens sur les
-            cartes de la boutique, où il n'y a pas de configurateur. */}
-        <p className="mt-4 text-[#5c5140]">{product.tagline}</p>
-        <a
-          href="#descriptif"
-          className="mt-3 inline-block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6d2c2c] underline underline-offset-4"
-        >
-          {t.moreInfo}
-        </a>
-        <div className="mt-6">
+            affiche le prix RÉEL de la configuration montrée. Le mot de
+            présentation, lui, est sous la galerie : la colonne des choix
+            commence plus haut. */}
+        <div className="mt-5">
           <ProductOptions
             product={product}
             t={t}
@@ -330,6 +374,8 @@ export function ProductView({
             onFabricChange={selectFabric}
             metalId={metalId}
             onMetalChange={selectMetal}
+            woodId={woodId}
+            onWoodChange={setWoodId}
           />
 
           <p className="mt-6 border-t border-[#e5ddd3] pt-6 text-sm text-[#726757]">

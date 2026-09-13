@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
+import { BandeauDetail } from "@/components/bandeau-detail";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
 import { metadataPage } from "@/lib/seo";
@@ -20,6 +21,11 @@ const realisationPhotos: {
   clip?: string;
 }[] = [
   {
+    src: "/images/lumiere/lucarne-rgb.jpg",
+    alt: "Plafond lumineux Lucarne posé, toile éclairée en dégradé rose et bleu",
+    altEn: "Lucarne light ceiling installed, membrane lit in a pink-to-blue gradient",
+  },
+  {
     src: "/images/salon-plafond-chaud.jpg",
     alt: "Plafond lumineux tendu au-dessus d'un salon, lumière chaude",
     altEn: "Stretched light ceiling above a living room, warm light",
@@ -28,17 +34,11 @@ const realisationPhotos: {
     src: "/images/lumiere/salle-ronde.jpg",
     alt: "Grand panneau lumineux rond au-dessus d'une salle de réunion",
     altEn: "Large round light panel above a meeting room",
-    // Disque relevé sur la photo : sa lumière est réellement animée.
-    clipBox: { left: "33.8%", top: "3.2%", width: "29.9%", height: "20.9%" },
-    clip: "ellipse(50% 50% at 50% 50%)",
   },
   {
     src: "/images/salle-plafond-large.jpg",
     alt: "Plafond lumineux tendu au-dessus d'une table à manger",
     altEn: "Stretched light ceiling above a dining table",
-    // Dalle relevée sur la photo : sa lumière est réellement animée.
-    clipBox: { left: "24.1%", top: "11.2%", width: "51.7%", height: "19.1%" },
-    clip: "polygon(0% 0%, 100% 0%, 78.8% 100%, 20.8% 100%)",
   },
 ];
 
@@ -152,7 +152,7 @@ export default async function ToilesTenduesPage({
             </h2>
             <p className="mt-4 leading-relaxed text-white/70">{t.surMesureBody}</p>
             <Link
-              href={`/${locale}/toiles-tendues/devis`}
+              href={`/${locale}/devis`}
               className="mt-8 inline-block rounded-full bg-white px-6 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] transition-opacity hover:opacity-90"
             >
               {t.ctaButton}
@@ -215,21 +215,14 @@ export default async function ToilesTenduesPage({
         </section>
       </div>
 
-      {/* Bandeau atelier, le même que sur la boutique */}
-      <section className="bg-[#6d2c2c] px-6 py-14 text-white">
-        <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 text-center">
-          <div>
-            <h2 className={`${serif.className} text-2xl`}>{ta.craftBandTitle}</h2>
-            <p className="mt-3 max-w-2xl leading-relaxed text-white/85">{ta.craftBandBody}</p>
-          </div>
-          <Link
-            href={`/${locale}/contact`}
-            className="rounded-full bg-white px-6 py-2.5 text-sm font-medium text-[#6d2c2c] transition-colors hover:bg-[#f5f1ea]"
-          >
-            {dict.nav.contact}
-          </Link>
-        </div>
-      </section>
+      {/* Bandeau atelier : panneau sombre et photo, le même dessin partout. */}
+      <BandeauDetail
+        titre={ta.craftBandTitle}
+        corps={ta.craftBandBody}
+        cta={{ href: `/${locale}/contact`, label: dict.nav.contact }}
+        mention={dict.artisanat.madeInFrance}
+        photo={{ src: "/images/lumiere/panneau-angle.jpg", alt: dict.artisanat.altBandeauLumiere }}
+      />
     </div>
   );
 }

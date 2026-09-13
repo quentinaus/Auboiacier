@@ -40,7 +40,7 @@ const VOIR_PANIER = {
 
 /** Style commun à tous les intitulés d'option (dimensions, bois, acier…). */
 const GROUP_LABEL =
-  "block text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]";
+  "block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]";
 
 function formatDelta(delta: number, locale: "fr" | "en") {
   if (!delta) return locale === "fr" ? "Inclus" : "Included";
@@ -72,13 +72,9 @@ function SwatchGroup({
       <span className={GROUP_LABEL} id={idGroupe}>
         {label}
       </span>
-      <div
-        role="group"
-        aria-labelledby={idGroupe}
-        className={`mt-2 grid justify-items-center gap-x-2.5 gap-y-3 sm:flex sm:flex-wrap sm:justify-center sm:gap-x-3 sm:gap-y-3 ${
-          options.length > 6 ? "grid-cols-3" : "grid-cols-2"
-        }`}
-      >
+      {/* Les pastilles en rangée, calées à gauche : d'un groupe à l'autre,
+          elles tombent dans les mêmes colonnes. */}
+      <div role="group" aria-labelledby={idGroupe} className="mt-2 flex flex-wrap gap-x-2.5 gap-y-3 sm:gap-x-3">
         {options.map((o) => {
           const isSelected = o.id === selected;
           return (
@@ -95,7 +91,7 @@ function SwatchGroup({
               aria-label={
                 showDelta ? `${o.label} — ${formatDelta(o.priceDelta ?? 0, locale)}` : o.label
               }
-              className="group w-[2.9rem] shrink-0 rounded-xl text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] lg:w-[3.25rem]"
+              className="group w-[3rem] shrink-0 rounded-xl text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] lg:w-[3.25rem]"
             >
               <MaterialBubble
                 material={o}
@@ -213,6 +209,8 @@ export function ProductOptions({
   onFabricChange,
   metalId: metalIdProp,
   onMetalChange,
+  woodId: woodIdProp,
+  onWoodChange,
 }: {
   product: Product;
   t: Dictionary["artisanat"];
@@ -223,12 +221,17 @@ export function ProductOptions({
   /** Teinte des pieds pilotée par la galerie quand chaque teinte a sa photo. */
   metalId?: string;
   onMetalChange?: (id: string) => void;
+  /** Essence du plateau pilotée par la galerie quand la photo se reteinte. */
+  woodId?: string;
+  onWoodChange?: (id: string) => void;
 }) {
-  // Dimension proposée d'entrée : celle marquée par défaut (la 8 places sur les
-  // tables), sinon la première de la liste.
-  const [sizeId, setSizeId] = useState(
-    (product.sizes.find((s) => s.default) ?? product.sizes[0])?.id ?? ""
-  );
+  /** La taille à laquelle la fiche s'ouvre, s'il y en a une. */
+  const tailleInitiale = (product.sizes.find((s) => s.default) ?? product.sizes[0])?.id ?? "";
+  // Une pièce qui a un barème s'ouvre sans taille ni prix : le chiffre vient
+  // avec les cotes du client (ou une taille du catalogue, s'il en choisit une).
+  // Les autres s'ouvrent sur leur taille par défaut (la 8 places sur les
+  // chaises vendues par lot, par exemple).
+  const [sizeId, setSizeId] = useState(product.surMesure ? "" : tailleInitiale);
   /** Le détail des dimensions et de leurs tarifs ne s'ouvre qu'au clic. */
   const [sizesOpen, setSizesOpen] = useState(false);
   /**
@@ -257,9 +260,11 @@ export function ProductOptions({
   >(null);
   const sizesRef = useRef<HTMLDivElement>(null);
   // Essence de référence par défaut (écart nul), pas la première de la liste.
-  const [woodId, setWoodId] = useState(
+  const [ownWoodId, setOwnWoodId] = useState(
     (product.woods.find((w) => !w.priceDelta) ?? product.woods[0])?.id ?? ""
   );
+  const woodId = woodIdProp ?? ownWoodId;
+  const setWoodId = onWoodChange ?? setOwnWoodId;
   const [ownMetalId, setOwnMetalId] = useState(product.metals[0]?.id ?? "");
   const metalId = metalIdProp ?? ownMetalId;
   const setMetalId = onMetalChange ?? setOwnMetalId;
@@ -366,8 +371,9 @@ export function ProductOptions({
    * n'affiche alors ni prix ni dimension, juste « Sur devis » — un garde-corps
    * se chiffre à l'ouverture, pas au catalogue.
    */
-  const size: ProductSize | undefined =
-    product.sizes.find((s) => s.id === sizeId) ?? product.sizes[0];
+  const size: ProductSize | undefined = product.surMesure
+    ? product.sizes.find((s) => s.id === sizeId)
+    : (product.sizes.find((s) => s.id === sizeId) ?? product.sizes[0]);
 
   /**
    * Sur une pièce qui se relève (le garde-corps de fenêtre), ce sont les cotes
@@ -503,7 +509,7 @@ export function ProductOptions({
     sizeIdEff === SUR_MESURE && labelTaille?.ok
       ? labelTaille.label
       : product.sizes.length > 1
-        ? size.label
+        ? (size?.label ?? null)
         : null,
     wood?.label,
     metal?.label,
@@ -669,18 +675,18 @@ export function ProductOptions({
     /* pb-24 sur téléphone : la barre d'achat fixe ne doit pas recouvrir la fin
        de la colonne. */
     <div className="flex flex-col pb-24 md:pb-0">
-      {product.releve === "garde-corps-fenetre" && total === null ? (
-        /* Pas encore de cotes : pas de prix à annoncer, mais la promesse qui
-           compte — le prix exact s'affiche tout de suite, et on commande. */
-        <div className="rounded-2xl border border-[#6d2c2c]/20 bg-[#6d2c2c]/[0.04] px-4 py-3.5">
-          <p className="flex items-center gap-2.5 text-lg font-medium leading-tight" style={{ color: ACCENT }}>
-            <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 shrink-0">
-              <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" />
-            </svg>
-            {t.gcPromesseTitre}
-          </p>
-          <p className="mt-1.5 text-sm leading-relaxed text-[#5c5140]">{t.gcPromesse}</p>
-        </div>
+      {bareme && total === null && !modeVisite ? (
+        /* Pas encore de cotes : le prix reste à sa place, en tête, avec un
+           tiret. Sur le garde-corps, la promesse est sous la galerie (voir
+           product-view) ; sur une table, on dit où taper. */
+        <p className="flex flex-wrap items-baseline gap-x-3">
+          <span className="text-3xl font-medium tabular-nums" style={{ color: ACCENT }}>
+            — €
+          </span>
+          <span className="text-sm text-[#6f6357]">
+            {product.releve === "garde-corps-fenetre" ? t.gcPrixAttente : t.prixAttenteCotes}
+          </span>
+        </p>
       ) : (
         <>
           <p className="flex flex-wrap items-baseline gap-x-3">
@@ -721,11 +727,12 @@ export function ProductOptions({
         </div>
       )}
 
-      {/* Les matières, côte à côte dès que la colonne est assez large : le bois
-          et la couleur des pieds se voient alors sans faire défiler la page. */}
+      {/* Les matières côte à côte, chaque groupe juste aussi large que ses
+          pastilles : l'acier, le bois et la rosace tiennent sur une ou deux
+          rangées au lieu de trois blocs centrés l'un sous l'autre. */}
       {(product.woods.length > 0 || product.metals.length > 0) && (
-        <div className="@container mt-3 border-t border-[#e5ddd3] pt-3">
-          <div className="grid gap-3 @lg:grid-cols-2 @lg:gap-4">
+        <div className="mt-3 border-t border-[#e5ddd3] pt-3">
+          <div className="flex flex-wrap gap-x-8 gap-y-4">
             {product.metals.length > 0 && (
               <SwatchGroup
                 label={product.metalLabel ? product.metalLabel[locale] : t.metalLabel}
@@ -747,22 +754,19 @@ export function ProductOptions({
                 showDelta={orderable && product.woods.some((bois) => bois.priceDelta)}
               />
             )}
+            {/* Les rosaces d'un garde-corps, avec les matières — et pas sous un
+                panneau de verre, où il n'y a plus de croix. */}
+            {product.fabrics && product.fabrics.length > 0 && product.fabricLabel && !sansRosace && (
+              <SwatchGroup
+                label={product.fabricLabel[locale]}
+                options={product.fabrics}
+                selected={fabricId}
+                onSelect={setFabricId}
+                locale={locale}
+                showDelta={product.fabrics.some((rosace) => rosace.priceDelta)}
+              />
+            )}
           </div>
-        </div>
-      )}
-
-      {/* Les rosaces d'un garde-corps, après les matières — et pas sous un
-          panneau de verre, où il n'y a plus de croix. */}
-      {product.fabrics && product.fabrics.length > 0 && product.fabricLabel && !sansRosace && (
-        <div className="mt-3 border-t border-[#e5ddd3] pt-3">
-          <SwatchGroup
-            label={product.fabricLabel[locale]}
-            options={product.fabrics}
-            selected={fabricId}
-            onSelect={setFabricId}
-            locale={locale}
-            showDelta={product.fabrics.some((rosace) => rosace.priceDelta)}
-          />
         </div>
       )}
 
@@ -770,7 +774,7 @@ export function ProductOptions({
           taille toute faite n'est qu'un raccourci pour ceux qui n'ont pas de
           cotes en tête. */}
       {((bareme && !product.releve) || (product.sizes.length > 1 && orderable)) && (
-        <div className="mt-4 border-t border-[#e5ddd3] pt-4">
+        <div className="mt-4 scroll-mt-28 border-t border-[#e5ddd3] pt-4" id="cotes">
           <span className={GROUP_LABEL} id={`${idTailles}-titre`}>
             {product.sizeLabel ? product.sizeLabel[locale] : t.sizeLabel}
           </span>
@@ -866,25 +870,83 @@ export function ProductOptions({
                       }
                     />
                   )}
-                  <Cote
-                    n={rond ? 2 : 3}
-                    id={`${idTailles}-epaisseur`}
-                    label={t.customThickness}
-                    valeur={epaisseurSaisie}
-                    onChange={setEpaisseurSaisie}
-                    unite="mm"
-                    placeholder={String(bareme.epaisseur.refMm)}
-                    aide={`${epaisseurMini} – ${epaisseurMaxi} mm`}
-                    onFocus={() => setCoteActive("epaisseur")}
-                    onBlur={() => setCoteActive(null)}
-                    erreurId={
-                      devis && !devis.ok && devis.reason.startsWith("epaisseur")
-                        ? `${idTailles}-erreur`
-                        : devis && !devis.ok && devis.reason === "caisson_trop_profond"
+                  {bareme.epaisseur.choixMm ? (
+                    /* Un plateau de table ne se coupe qu'à trois cotes : on
+                       choisit, on ne tape pas. Les cotes trop fines pour la
+                       longueur saisie restent visibles mais grisées. */
+                    <div
+                      className="flex flex-col gap-1.5"
+                      onFocus={() => setCoteActive("epaisseur")}
+                      onBlur={() => setCoteActive(null)}
+                    >
+                      <span
+                        id={`${idTailles}-epaisseur-titre`}
+                        className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-[#6f6357]"
+                      >
+                        <span
+                          aria-hidden
+                          className="inline-flex h-[17px] w-[17px] shrink-0 items-center justify-center rounded-full border border-[#2a2116] text-[10px] font-bold leading-none text-[#2a2116]"
+                        >
+                          {rond ? 2 : 3}
+                        </span>
+                        {t.customThickness}
+                      </span>
+                      <div className="flex items-center gap-2">
+                      <div
+                        role="radiogroup"
+                        aria-labelledby={`${idTailles}-epaisseur-titre`}
+                        className="flex w-fit rounded-full border border-[#e5ddd3] bg-white p-0.5"
+                      >
+                        {bareme.epaisseur.choixMm.map((mm) => {
+                          const choisi = mm === epaisseurMm;
+                          const tropFin = mm < epaisseurMini;
+                          return (
+                            <button
+                              key={mm}
+                              type="button"
+                              role="radio"
+                              aria-checked={choisi}
+                              id={choisi ? `${idTailles}-epaisseur` : undefined}
+                              disabled={tropFin}
+                              title={tropFin ? t.customThicknessTooThin.replace("{portee}", String(porteeMm)) : undefined}
+                              onClick={() => setEpaisseurSaisie(String(mm))}
+                              aria-label={`${mm} mm`}
+                              className={`whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium tabular-nums transition-colors disabled:cursor-not-allowed disabled:text-[#c4b9ac] ${
+                                choisi ? "bg-[#2a2116] text-white" : "text-[#726757] hover:text-[#2a2116]"
+                              }`}
+                            >
+                              {mm}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <span className="text-xs text-[#6f6357]">mm</span>
+                      </div>
+                      <span className="text-[10px] tabular-nums text-[#726757]">
+                        {t.customThicknessChoice.replace("{choix}", bareme.epaisseur.choixMm.join(", "))}
+                      </span>
+                    </div>
+                  ) : (
+                    <Cote
+                      n={rond ? 2 : 3}
+                      id={`${idTailles}-epaisseur`}
+                      label={t.customThickness}
+                      valeur={epaisseurSaisie}
+                      onChange={setEpaisseurSaisie}
+                      unite="mm"
+                      placeholder={String(bareme.epaisseur.refMm)}
+                      aide={`${epaisseurMini} – ${epaisseurMaxi} mm`}
+                      onFocus={() => setCoteActive("epaisseur")}
+                      onBlur={() => setCoteActive(null)}
+                      erreurId={
+                        devis && !devis.ok && devis.reason.startsWith("epaisseur")
                           ? `${idTailles}-erreur`
-                          : undefined
-                    }
-                  />
+                          : devis && !devis.ok && devis.reason === "caisson_trop_profond"
+                            ? `${idTailles}-erreur`
+                            : undefined
+                      }
+                    />
+                  )}
                   {/* La hauteur finie d'une table : 75 cm sauf demande, sans effet
                       sur le prix. Pas de numéro : le croquis ne montre que le plateau. */}
                   {table && (
@@ -980,9 +1042,7 @@ export function ProductOptions({
                     type="button"
                     onClick={() => {
                       setCotes(null);
-                      setSizeId(
-                        (product.sizes.find((taille) => taille.default) ?? product.sizes[0])?.id ?? ""
-                      );
+                      setSizeId("");
                     }}
                     className="mt-3 block text-xs text-[#6f6357] underline underline-offset-4"
                   >
@@ -1033,8 +1093,8 @@ export function ProductOptions({
               onKeyDown={clavierTailles}
               className="flex w-full items-center justify-between gap-4 rounded-xl border border-[#e5ddd3] px-5 py-3.5 text-left text-sm text-[#2a2116] transition-colors hover:border-[#6f6357]"
             >
-              <span>
-                {labelTaille?.ok ? labelTaille.label : (size?.label ?? "")}
+              <span className={labelTaille?.ok || size ? "" : "text-[#6f6357]"}>
+                {labelTaille?.ok ? labelTaille.label : (size?.label ?? t.sizeChoose)}
               </span>
               <span
                 aria-hidden
@@ -1312,11 +1372,13 @@ export function ProductOptions({
                 ? prixAffiche(total, locale)
                 : modeVisite
                   ? t.onQuote
-                  : prixDepart !== null
-                    ? `${t.from} ${prixAffiche(prixDepart, locale)}`
-                    : product.releve === "garde-corps-fenetre"
-                      ? t.gcPromesseCourt
-                      : t.onQuote}
+                  : product.releve === "garde-corps-fenetre"
+                    ? t.gcPromesseCourt
+                    : bareme
+                      ? "— €"
+                      : prixDepart !== null
+                        ? `${t.from} ${prixAffiche(prixDepart, locale)}`
+                        : t.onQuote}
             </p>
             <p className="truncate text-[11px] text-[#6f6357]">
               {cotesCourtes(

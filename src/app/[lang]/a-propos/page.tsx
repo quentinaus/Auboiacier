@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { BandeauDetail } from "@/components/bandeau-detail";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
 import { metadataPage } from "@/lib/seo";
@@ -56,11 +57,19 @@ export default async function AProposPage({
           <p className="mt-4 leading-relaxed text-[#4a4038]">{t.histoireBody}</p>
         </section>
 
-        <section className="mt-14 max-w-prose">
-          <h2 className={`${serif.className} text-2xl font-medium`}>{t.savoirFaireTitle}</h2>
-          <p className="mt-4 leading-relaxed text-[#4a4038]">{t.savoirFaireBody}</p>
-        </section>
+      </div>
 
+      {/* Le savoir-faire, en pleine largeur : l'atelier en photo, le propos sur fond sombre. */}
+      <BandeauDetail
+        className="mt-14"
+        titre={t.savoirFaireTitle}
+        corps={t.savoirFaireBody}
+        mention={dict.artisanat.madeInFrance}
+        photo={{ src: "/images/atelier-soudeur.jpg", alt: dict.hub.altAtelier }}
+        photoAGauche
+      />
+
+      <div className="mx-auto max-w-3xl px-6 pb-16">
         <section className="mt-14">
           <h2 className={`${serif.className} text-2xl font-medium`}>{t.valeursTitle}</h2>
           <div className="mt-6 grid gap-6 sm:grid-cols-3">

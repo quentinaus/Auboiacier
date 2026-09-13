@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
+import { BandeauDetail } from "@/components/bandeau-detail";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
 import { metadataPage } from "@/lib/seo";
@@ -71,7 +72,6 @@ export default async function ArtisanatPage({
   }[] = [
     { id: "table-interieur", titre: h.catTables },
     { id: "chaise", titre: h.catChaises },
-    { id: "console", titre: h.catConsoles },
     { id: "escalier", titre: h.catEscaliers },
     { id: "garde-corps", titre: h.catGardeCorps, note: t.familleGardeCorpsNote },
     {
@@ -92,7 +92,7 @@ export default async function ArtisanatPage({
       titre: h.catSculptures,
       page: {
         href: `/${locale}/artisanat/sculptures`,
-        src: "/images/sculpture-cheval.jpg",
+        src: "/images/sculpture-cheval-v2.jpg",
         alt: dict.sculptures.photoAlt,
         position: "50% 35%",
         titre: dict.sculptures.title,
@@ -285,21 +285,14 @@ export default async function ArtisanatPage({
         })}
       </div>
 
-      {/* Bandeau atelier */}
-      <section className="bg-[#6d2c2c] px-6 py-14 text-white">
-        <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 text-center">
-          <div>
-            <h2 className={`${serif.className} text-2xl`}>{t.craftBandTitle}</h2>
-            <p className="mt-3 max-w-2xl leading-relaxed text-white/85">{t.craftBandBody}</p>
-          </div>
-          <Link
-            href={`/${locale}/contact`}
-            className="rounded-full bg-white px-6 py-2.5 text-sm font-medium text-[#6d2c2c] transition-colors hover:bg-[#f5f1ea]"
-          >
-            {dict.nav.contact}
-          </Link>
-        </div>
-      </section>
+      {/* Bandeau atelier : panneau sombre et photo, le même dessin partout. */}
+      <BandeauDetail
+        titre={t.craftBandTitle}
+        corps={t.craftBandBody}
+        cta={{ href: `/${locale}/contact`, label: dict.nav.contact }}
+        mention={dict.artisanat.madeInFrance}
+        photo={{ src: "/images/mikado/ambiance.jpg", alt: dict.hub.altHeroMobilier }}
+      />
     </div>
   );
 }

@@ -6,7 +6,7 @@ import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { ChampCote } from "./champ-cote";
 import { Intitule, QuiMesure, VisiteAtelier } from "./prise-de-cotes";
 import { SchemaFenetre, NUMERO_COTE, type CoteFenetre } from "./schema-fenetre";
-import { calculerGardeCorpsFenetre, type CalculFenetre } from "@/lib/garde-corps";
+import { calculerGardeCorpsFenetre, JOUR_MM, type CalculFenetre } from "@/lib/garde-corps";
 import type { Deplacement } from "@/lib/deplacement";
 import { prixAffiche } from "@/lib/ui";
 
@@ -195,7 +195,7 @@ export function ReleveGardeCorps({
   );
 
   return (
-    <div className="@container mt-3 border-t border-[#e5ddd3] pt-3">
+    <div className="@container mt-3 scroll-mt-28 border-t border-[#e5ddd3] pt-3" id="cotes">
       <span
         className="block text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]"
         id={idTitre}
@@ -236,7 +236,7 @@ export function ReleveGardeCorps({
                     allegeMm={Number.isFinite(mm(cotes.allege)) ? mm(cotes.allege) : undefined}
                     hauteurFenetreMm={Number.isFinite(mm(cotes.fenetre)) && mm(cotes.fenetre) > 0 ? mm(cotes.fenetre) : undefined}
                     hauteurMm={calcul?.hauteurRetenueMm}
-                    jourMm={calcul?.jourMm ?? 0}
+                    jourMm={calcul?.jourMm ?? JOUR_MM}
                     rosaceMm={rosaceMm}
                     mainCouranteMm={calcul?.mainCouranteMm ?? (rdc ? 800 : 1000)}
                     remplissage={norme?.surVerre ? "verre" : "croix"}

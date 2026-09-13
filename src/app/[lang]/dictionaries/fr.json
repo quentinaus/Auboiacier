@@ -46,9 +46,10 @@
     "catTables": "Tables d'intérieur",
     "catChaises": "Chaises d'intérieur",
     "catChaisesExt": "Chaises d'extérieur",
-    "catConsoles": "Consoles",
     "catEscaliers": "Escaliers",
     "catGardeCorps": "Garde-corps",
+    "catLucarne": "Lumière rectangulaire",
+    "catHalo": "Lumière ronde",
     "catPlafonds": "Plafonds lumineux",
     "catLed": "Éclairage LED",
     "editorialTitle": "Un dessin simple, une pièce qui dure",
@@ -66,6 +67,7 @@
     "catTablesExt": "Tables d'extérieur",
     "altHeroLumiere": "Plafond lumineux tendu au-dessus d'une table à manger",
     "altHeroMobilier": "Table Mikado en noyer et chaises en velours vert dans une salle à manger aux murs de pierre",
+    "altDetailMarche": "Marche en chêne massif vissée sur son limon acier — le détail d'un escalier de l'atelier",
     "altAtelier": "Meulage d'un châssis acier à l'atelier, gerbe d'étincelles",
     "altVignes": "Vignes en coteaux au coucher du soleil",
     "altTables": "Détail du plateau chêne et du piétement acier de la table Mikado",
@@ -75,6 +77,8 @@
     "altSculptures": "Cheval cabré en acier de récupération soudé à la main",
     "altEscaliers": "Escalier à limon central acier et marches chêne",
     "altGardeCorps": "Garde-corps de fenêtre en acier noir, rosaces en fonte et main courante en chêne",
+    "altLucarne": "Lucarne : plafond lumineux rectangulaire à toile tendue, cadre aluminium noir, vu de dessous",
+    "altHalo": "Halo : plafond lumineux rond à toile tendue, cadre aluminium noir, vu de dessous",
     "altPlafonds": "Plafond lumineux tendu au-dessus d'une table à manger",
     "altVerrieres": "Verrière d'intérieur en acier noir séparant un salon d'une cuisine"
   },
@@ -148,6 +152,7 @@
     "sizeLabel": "Sur mesure, à vos cotes",
     "woodLabel": "Bois massif",
     "metalLabel": "Couleur des pieds",
+    "altBandeauLumiere": "Angle d'un plafond lumineux : le cadre aluminium thermolaqué et la toile tendue",
     "madeInFrance": "Fabriqué à la main en France",
     "craftBandTitle": "Artisanat français",
     "craftBandBody": "Chaque pièce sort de notre atelier : le bois est choisi à la planche, l'acier est soudé TIG puis thermolaqué, et le montage final se fait à la main. Pas de série industrielle — votre meuble est fabriqué pour vous, à la commande.",
@@ -186,7 +191,7 @@
     "cartTotalLine": "soit",
     "catalogueInterieur": "Intérieur",
     "catalogueExterieur": "Extérieur",
-    "catalogueInterieurNote": "Tables, chaises et consoles pour la maison.",
+    "catalogueInterieurNote": "Tables et chaises pour la maison.",
     "catalogueExterieurNote": "Pièces traitées pour vivre dehors toute l'année.",
     "customCta": "Dimensions sur mesure",
     "customTitle": "À vos cotes exactes",
@@ -206,6 +211,8 @@
     "customReset": "Revenir aux tailles du catalogue",
     "customLength": "Longueur",
     "customHelpPlan": "Vos cotes en centimètres — ou en millimètres si vous préférez, l'unité se change à côté. Le plateau est chiffré au m², le piétement compris.",
+    "customThicknessChoice": "{choix} mm au choix",
+    "customThicknessTooThin": "Trop fin pour {portee} mm de portée",
     "customThickness": "Épaisseur",
     "customThicknessNoteLight": "Profondeur du caisson : l'écart de prix reste léger, c'est de l'aluminium.",
     "customRange": "de {min} à {max} mm",
@@ -333,6 +340,8 @@
     "gcPromesse": "Entrez vos trois cotes : le prix exact s'affiche aussitôt et vous commandez directement, sans devis ni attente. Ou l'atelier vient mesurer chez vous.",
     "gcSchemaMetreRdc": "{m} mm du sol · règle au rez-de-chaussée : 80 cm mini",
     "gcPrixAttente": "Le prix s'affiche dès vos trois cotes.",
+    "prixAttenteCotes": "Le prix s'affiche dès vos cotes, ou au choix d'une taille du catalogue.",
+    "sizeChoose": "Choisir une taille du catalogue",
     "gcPrixCompris": "bois et acier compris",
     "gcLot": "Plusieurs fenêtres ? −{taux} % sur chaque garde-corps dès le deuxième, même avec des cotes différentes.",
     "gcLotTag": "prix de lot −{taux} %",
@@ -365,7 +374,7 @@
     "gcFenetreAide": "Dans l'ouverture, de l'appui jusqu'au haut du tableau.",
     "gcFenetreInfo": "La hauteur de l'ouverture où le garde-corps s'encastre : du dessus de l'appui jusqu'au haut du tableau, fenêtre ouverte. Elle nous dit si le garde-corps tient dans votre fenêtre.",
     "gcSchemaFenetre": "Hauteur de la fenêtre",
-    "gcJour": "Posé {j} mm au-dessus de l'appui : un jour que la norme autorise (110 mm au plus), et autant de hauteur en moins.",
+    "gcJour": "Posé {j} mm au-dessus de l'appui, comme sur le croquis : le jour que la norme autorise (110 mm au plus), et autant de hauteur en moins.",
     "gcTropBasse": "Votre fenêtre est trop basse pour un garde-corps encastré : la main courante doit monter à {m} mm du sol, et le haut de l'ouverture est à {f} mm. On le fait alors en applique, devant la fenêtre — sur devis.",
     "gcTropBasseCourt": "Fenêtre trop basse pour un encastré : sur devis",
     "gcJourCourt": "posé à",
@@ -384,7 +393,82 @@
   },
   "devis": {
     "title": "Demander un devis",
-    "subtitle": "Décrivez votre projet, on revient vers vous avec une estimation sous 48 h."
+    "subtitle": "Décrivez votre projet, nous revenons vers vous avec une estimation sous 48 h.",
+    "eyebrow": "Devis instantané",
+    "h1": "Votre pièce sur mesure, chiffrée en une minute.",
+    "lead": "Choisissez un modèle, entrez vos cotes : le prix s'affiche immédiatement, livraison et montage compris. Sans compte, sans attente, sans engagement.",
+    "ctaModeles": "Choisir un modèle",
+    "ctaAutre": "Décrire un autre projet",
+    "ctaModelesNote": "Réponse en une minute",
+    "ctaAutreNote": "Réponse entre 24 et 72 h",
+    "etapesTitle": "Comment ça marche",
+    "etapes": [
+      {
+        "titre": "Choisissez le modèle",
+        "texte": "Table, garde-corps de fenêtre ou plafond lumineux : chaque fiche a son calculateur."
+      },
+      {
+        "titre": "Entrez vos cotes",
+        "texte": "En centimètres ou en millimètres, guidé par un croquis coté. Trois mesures suffisent pour un garde-corps."
+      },
+      {
+        "titre": "Le prix s'affiche",
+        "texte": "Un prix ferme, livraison et montage compris. Commandez en ligne, ou demandez la visite de l'atelier pour relever les cotes."
+      }
+    ],
+    "instantTitle": "Les pièces à devis instantané",
+    "instantSubtitle": "Tables, garde-corps et plafonds lumineux se chiffrent seuls, à vos dimensions. Ouvrez une fiche, entrez vos cotes, le prix est là.",
+    "badge": "Prix immédiat",
+    "from": "À partir de",
+    "cta": "Entrer mes cotes",
+    "familles": {
+      "table-interieur": "Tables d'intérieur",
+      "table-exterieur": "Tables d'extérieur",
+      "garde-corps": "Garde-corps de fenêtre",
+      "plafond": "Plafonds lumineux"
+    },
+    "saisie": {
+      "table": "Longueur et largeur du plateau, épaisseur 25, 35 ou 45 mm",
+      "gardeCorps": "Trois mesures de la fenêtre, prises au mètre",
+      "plafondRect": "Longueur et largeur du caisson, au centimètre",
+      "plafondRond": "Diamètre du caisson, au centimètre"
+    },
+    "surDevisTitle": "Sur devis, avec relevé de cotes",
+    "surDevisSubtitle": "Pour ces ouvrages, l'atelier vient mesurer chez vous et vous envoie un prix détaillé.",
+    "surDevis": [
+      {
+        "titre": "Escalier à limon central",
+        "texte": "Hauteur d'étage et emprise au sol : l'atelier calcule le pas, relève les cotes et chiffre."
+      },
+      {
+        "titre": "Verrières",
+        "texte": "Cloison vitrée à profils acier, aux dimensions de l'ouverture."
+      },
+      {
+        "titre": "Sculptures",
+        "texte": "Pièces uniques en acier de récupération, sur projet."
+      }
+    ],
+    "formTitle": "Un autre projet ? Décrivez-le.",
+    "formSubtitle": "Une pièce hors catalogue, une contrainte particulière : écrivez-nous, réponse sous 48 h avec une estimation.",
+    "reassurance": [
+      {
+        "titre": "Atelier à Saumur",
+        "texte": "Une seule main, de la coupe à la pose."
+      },
+      {
+        "titre": "Livraison et montage compris",
+        "texte": "France entière, dans le prix affiché."
+      },
+      {
+        "titre": "Fabriqué à la commande",
+        "texte": "Le délai est annoncé avant de payer."
+      },
+      {
+        "titre": "Paiement en ligne sécurisé",
+        "texte": "Par carte, sans créer de compte."
+      }
+    ]
   },
   "apropos": {
     "title": "À propos",
@@ -624,7 +708,7 @@
     },
     "artisanat": {
       "title": "Mobilier sur mesure bois & acier — tables, chaises, escaliers | Saumur 49",
-      "description": "Tables en chêne massif à piétement acier, chaises en velours, consoles, escaliers et verrières fabriqués à la main dans notre atelier de Saumur. Prix affichés, sans intermédiaire, livraison France entière."
+      "description": "Tables en chêne massif à piétement acier, chaises en velours, escaliers et verrières fabriqués à la main dans notre atelier de Saumur. Prix affichés, sans intermédiaire, livraison France entière."
     },
     "produitSuffixe": "Fabriqué à la main à Saumur (Maine-et-Loire) — livraison France entière.",
     "lumiere": {
@@ -652,8 +736,8 @@
       "description": "Nos plafonds lumineux tendus posés chez des particuliers et des professionnels en Maine-et-Loire et dans les départements voisins."
     },
     "devis": {
-      "title": "Demander un devis plafond lumineux sur mesure",
-      "description": "Décrivez votre pièce : dimensions, hauteur sous plafond, température de lumière. On relève les cotes et on chiffre, sans engagement."
+      "title": "Devis instantané, prix en une minute",
+      "description": "Entrez vos cotes, le prix s'affiche en une minute : tables acier et bois massif, garde-corps de fenêtre, plafonds lumineux. Livraison et montage compris."
     },
     "panier": {
       "title": "Votre panier",

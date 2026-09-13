@@ -33,11 +33,13 @@ export const HAUTEUR_CONSEILLEE_MM = 350;
 export const HAUTEUR_MINI_FABRICATION_MM = 200;
 
 /**
- * Le jour qu'on peut laisser entre l'appui et le bas du garde-corps : la
- * norme (NF P01-012) ne laisse pas passer une sphère de 110 mm. Ce jour permet
- * de faire le garde-corps moins haut quand l'appui est bas.
+ * Le jour entre l'appui et le bas du garde-corps : la norme (NF P01-012) ne
+ * laisse pas passer une sphère de 110 mm sous la lisse basse. L'atelier pose
+ * toujours à 100 mm — dix millimètres de marge pour la pose, et autant de
+ * hauteur en moins à fabriquer.
  */
 export const JOUR_MAX_MM = 110;
+export const JOUR_MM = 100;
 
 export type ReleveFenetre = {
   /** Entre les deux tableaux, là où le garde-corps s'encastre. Cote brute. */
@@ -62,7 +64,7 @@ export type CalculFenetre = {
   hauteurNormeMm: number;
   /** La hauteur qu'on fabriquera : le souhait du client, sinon la règle, sinon le conseil. */
   hauteurRetenueMm: number;
-  /** Le jour laissé entre l'appui et le bas du garde-corps, 110 mm au plus. */
+  /** Le jour laissé entre l'appui et le bas du garde-corps : toujours 100 mm. */
   jourMm: number;
   /** Où arrive la main courante, mesurée depuis le sol. */
   mainCouranteMm: number;
@@ -97,11 +99,11 @@ export function calculerGardeCorpsFenetre(releve: ReleveFenetre): CalculFenetre 
 
   const obligatoire = releve.enEtage && allegeMm < ALLEGE_SANS_OBLIGATION_MM;
   const cibleMm = releve.enEtage ? HAUTEUR_PROTECTION_MM : HAUTEUR_PROTECTION_RDC_MM;
-  // On laisse le jour maximal sous le garde-corps : c'est autant de hauteur
-  // en moins à fabriquer, et la main courante arrive quand même à la cible.
+  // Le garde-corps se pose 100 mm au-dessus de l'appui : c'est autant de
+  // hauteur en moins à fabriquer, et la main courante arrive quand même à la cible.
   const hauteurNormeMm = Math.max(
     HAUTEUR_MINI_FABRICATION_MM,
-    dizaine(cibleMm - allegeMm - JOUR_MAX_MM)
+    dizaine(cibleMm - allegeMm - JOUR_MM)
   );
 
   const souhait =
@@ -117,9 +119,9 @@ export function calculerGardeCorpsFenetre(releve: ReleveFenetre): CalculFenetre 
       ? souhait
       : Math.max(hauteurNormeMm, HAUTEUR_CONSEILLEE_MM);
 
-  // Le jour : ce qui manque pour atteindre la cible, sans dépasser 110 mm,
-  // et jamais négatif — un garde-corps déjà assez haut se pose sur l'appui.
-  const jourMm = Math.min(JOUR_MAX_MM, Math.max(0, cibleMm - allegeMm - hauteurRetenueMm));
+  // Le jour ne bouge pas : un garde-corps plus haut que la règle monte
+  // d'autant, il ne descend pas sur l'appui.
+  const jourMm = JOUR_MM;
   const mainCouranteMm = allegeMm + jourMm + hauteurRetenueMm;
 
   return {

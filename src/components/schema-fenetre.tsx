@@ -8,7 +8,9 @@
  * prendre — ① la largeur de la fenêtre entre les murs, ② la hauteur du sol au
  * bas de la fenêtre — et une cote ③ que l'atelier calcule : la hauteur du
  * garde-corps, pour que sa main courante monte à la hauteur de la règle
- * (un mètre en étage, quatre-vingts centimètres au rez-de-chaussée).
+ * (un mètre en étage, quatre-vingts centimètres au rez-de-chaussée). Le
+ * garde-corps ne touche pas l'appui : il se pose 100 mm au-dessus, le jour
+ * que la norme tolère, et ce jour est coté sur le dessin.
  *
  * Sur le dessin, rien que des numéros : les noms et les valeurs sont dans
  * les cases, juste à côté. La cote qu'on remplit s'allume, et cliquer un
@@ -21,6 +23,8 @@
  * ou de parquet en bas — jamais la fenêtre ni ses cotes, qui tiennent dans la
  * bande du milieu.
  */
+
+import { JOUR_MM } from "@/lib/garde-corps";
 
 const ACCENT = "#6d2c2c";
 const ENCRE = "#2a2116";
@@ -43,11 +47,12 @@ type Point = [number, number];
 
 const LARGEUR = 330;
 const HAUTEUR = 660;
-/** Le pied du mur : là où le parquet commence. */
-const SOL_Y = 400;
+/** Le pied du mur : là où le parquet commence. Bas dans le cadre : c'est la
+ *  fenêtre qu'on veut voir, pas le parquet. */
+const SOL_Y = 430;
 /** La place pour la fenêtre entre les pastilles de gauche et de droite, et pour les hauteurs du sol au haut de la fenêtre. */
-const PLACE_LARGEUR = 190;
-const PLACE_HAUTEUR = 150;
+const PLACE_LARGEUR = 210;
+const PLACE_HAUTEUR = 230;
 /** Profondeur apparente du tableau, de chaque côté de l'ouverture. */
 const TABLEAU = 6;
 /** Les cotes du modèle en photo, dessinées tant que le client n'a rien tapé. */
@@ -220,7 +225,7 @@ export function SchemaFenetre({
   allegeMm,
   hauteurFenetreMm,
   hauteurMm,
-  jourMm = 0,
+  jourMm = JOUR_MM,
   mainCouranteMm,
   rosaceMm,
   labels,
@@ -240,7 +245,7 @@ export function SchemaFenetre({
   /** De l'appui au haut de l'ouverture. */
   hauteurFenetreMm?: number;
   hauteurMm?: number;
-  /** Le jour entre l'appui et le bas du garde-corps. */
+  /** Le jour entre l'appui et le bas du garde-corps : 100 mm, celui de l'atelier. */
   jourMm?: number;
   /** Où arrive la main courante, depuis le sol : c'est là que passe la ligne de la règle. */
   mainCouranteMm?: number;
@@ -267,10 +272,10 @@ export function SchemaFenetre({
   const allege = Math.max(3, r(A * echelle));
   const fenetre = Math.max(3, r(F * echelle));
   const hauteur = Math.max(3, r(H * echelle));
-  const jour = r(J * echelle);
+  const jour = J > 0 ? Math.max(7, r(J * echelle)) : 0;
   const appuiY = r(SOL_Y - allege); // dessus de l'appui : le bas de la fenêtre
   const HAUT_OUVERTURE_Y = r(appuiY - fenetre); // le haut du tableau
-  const basGardeCorpsY = r(appuiY - jour); // le bas du cadre, posé sur l'appui ou un peu au-dessus
+  const basGardeCorpsY = r(appuiY - jour); // le bas du cadre, 100 mm au-dessus de l'appui
   const hautGardeCorpsY = r(basGardeCorpsY - hauteur); // dessus de la main courante
   /** La ligne de la règle passe au ras de la main courante : c'est elle qu'on vérifie. */
   const regleY = hautGardeCorpsY;
@@ -396,7 +401,7 @@ export function SchemaFenetre({
       {(() => {
         const dessous = regleY - 16 < HAUT_OUVERTURE_Y - 6;
         const y = dessous ? regleY + 4 : regleY - 16;
-        const x = Math.max(46, Math.min(284 - cartouche, r(milieu - cartouche / 2)));
+        const x = Math.max(38, Math.min(292 - cartouche, r(milieu - cartouche / 2)));
         return (
           <g>
             <rect x={x} y={y} width={cartouche} height={13} rx={3} fill="#ffffff" opacity={0.94} />
@@ -417,25 +422,37 @@ export function SchemaFenetre({
 
       {/* ② Du sol au bas de la fenêtre, à gauche. */}
       <g {...attache}>
-        <line x1={G - 10} y1={appuiY} x2={52} y2={appuiY} />
+        <line x1={G - 10} y1={appuiY} x2={44} y2={appuiY} />
       </g>
-      <Fleche de={[58, SOL_Y]} a={[58, appuiY]} actif={actif === "allege"} />
-      <Pastille cote="allege" cx={32} cy={pastilleAllegeY} actif={actif === "allege"} onChoisir={onChoisir} label={labels.allege} />
+      <Fleche de={[50, SOL_Y]} a={[50, appuiY]} actif={actif === "allege"} />
+      <Pastille cote="allege" cx={24} cy={pastilleAllegeY} actif={actif === "allege"} onChoisir={onChoisir} label={labels.allege} />
 
       {/* ③ La hauteur de la fenêtre, de l'appui au haut du tableau, dans le prolongement de ②. */}
       <g {...attache}>
-        <line x1={G - TABLEAU} y1={HAUT_OUVERTURE_Y - TABLEAU} x2={52} y2={HAUT_OUVERTURE_Y - TABLEAU} />
+        <line x1={G - TABLEAU} y1={HAUT_OUVERTURE_Y - TABLEAU} x2={44} y2={HAUT_OUVERTURE_Y - TABLEAU} />
       </g>
-      <Fleche de={[58, appuiY - 2]} a={[58, HAUT_OUVERTURE_Y - TABLEAU]} actif={actif === "fenetre"} />
-      <Pastille cote="fenetre" cx={32} cy={pastilleFenetreY} actif={actif === "fenetre"} onChoisir={onChoisir} label={labels.fenetre} />
+      <Fleche de={[50, appuiY - 2]} a={[50, HAUT_OUVERTURE_Y - TABLEAU]} actif={actif === "fenetre"} />
+      <Pastille cote="fenetre" cx={24} cy={pastilleFenetreY} actif={actif === "fenetre"} onChoisir={onChoisir} label={labels.fenetre} />
 
       {/* ④ La hauteur du garde-corps, calculée : du bas du cadre au dessus de la main courante, à droite. */}
       <g {...attache}>
-        <line x1={D + 2} y1={basGardeCorpsY} x2={278} y2={basGardeCorpsY} />
-        <line x1={D + 2} y1={hautGardeCorpsY} x2={278} y2={hautGardeCorpsY} />
+        <line x1={D + 2} y1={basGardeCorpsY} x2={286} y2={basGardeCorpsY} />
+        <line x1={D + 2} y1={hautGardeCorpsY} x2={286} y2={hautGardeCorpsY} />
       </g>
-      <Fleche de={[272, basGardeCorpsY]} a={[272, hautGardeCorpsY]} actif={actif === "hauteur"} />
-      <Pastille cote="hauteur" cx={298} cy={r((basGardeCorpsY + hautGardeCorpsY) / 2)} actif={actif === "hauteur"} onChoisir={onChoisir} label={labels.hauteur} />
+      <Fleche de={[280, basGardeCorpsY]} a={[280, hautGardeCorpsY]} actif={actif === "hauteur"} />
+      <Pastille cote="hauteur" cx={306} cy={r((basGardeCorpsY + hautGardeCorpsY) / 2)} actif={actif === "hauteur"} onChoisir={onChoisir} label={labels.hauteur} />
+
+      {/* Le jour de 100 mm entre l'appui et le bas du cadre : coté sous ④,
+          sans numéro — ce n'est pas une mesure à prendre, c'est la pose. */}
+      {jour > 0 && (
+        <g>
+          <Fleche de={[280, appuiY]} a={[280, basGardeCorpsY]} actif={false} />
+          <rect x={284} y={r(appuiY + 2)} width={38} height={11} rx={2.5} fill="#ffffff" opacity={0.94} />
+          <text x={286} y={r(appuiY + 10.5)} fontSize={8} fontWeight={700} fill={ENCRE}>
+            {`${J} mm`}
+          </text>
+        </g>
+      )}
     </svg>
   );
 }
