@@ -125,6 +125,9 @@ export function ProductView({
    * contour rectangulaire à l'intérieur.
    */
   const fond = mainImage?.bg ?? "#ffffff";
+  /** Le calque des pieds dans la teinte choisie, sur les photos de coloris. */
+  const calquePieds = (surColoris: boolean) =>
+    product.piedsCalque && metalId && surColoris ? `${product.piedsCalque}${metalId}.png` : null;
   const remplitLeCadre = isColorShot || (mainImage?.fit ?? "cover") === "cover";
   // Toutes les teintes en vignettes : on fait défiler sans passer par les bulles.
   /**
@@ -171,6 +174,21 @@ export function ProductView({
             />
           ) : (
             <div className="h-full w-full bg-[#f1ece4]" />
+          )}
+
+          {/* Les pieds dans la teinte choisie, calés au pixel sur la photo. */}
+          {mainImage && calquePieds(isColorShot) && (
+            <Image
+              key={calquePieds(isColorShot)}
+              src={calquePieds(isColorShot)!}
+              alt=""
+              aria-hidden
+              fill
+              sizes="(max-width: 768px) 100vw, 560px"
+              style={{ objectPosition: mainImage.position }}
+              className={`pointer-events-none ${remplitLeCadre ? "object-cover" : "object-contain p-6"}`}
+              priority
+            />
           )}
 
           {/* La toile de la photo, réellement éclairée. */}
@@ -234,6 +252,9 @@ export function ProductView({
                   }`}
                 >
                   <Image src={f.image!} alt={f.label} fill sizes="120px" className="object-cover" />
+                  {calquePieds(true) && (
+                    <Image src={calquePieds(true)!} alt="" aria-hidden fill sizes="120px" className="object-cover" />
+                  )}
                 </button>
               );
             })}
