@@ -26,6 +26,8 @@
     "contactTitle": "Contact",
     "siret": "SIRET à venir",
     "cgv": "Conditions générales de vente",
+    "cgu": "Conditions d'utilisation",
+    "privacy": "Politique de confidentialité",
     "legal": "Mentions légales"
   },
   "hub": {
@@ -532,7 +534,8 @@
       "required": "Merci de remplir le nom, l'e-mail et le message.",
       "notConfigured": "L'envoi automatique n'est pas encore activé. Écrivez-nous par e-mail en attendant.",
       "tooBig": "Fichiers trop lourds : 2 fichiers maximum, 3 Mo chacun.",
-      "privacy": "Vos informations servent uniquement à répondre à votre demande.",
+      "privacy": "Vos informations servent uniquement à répondre à votre demande, et sont conservées trois ans au plus.",
+      "privacyLink": "Politique de confidentialité",
       "sendFailed": "L'envoi automatique a échoué. Vous pouvez nous écrire directement :",
       "sendFailedCta": "Ouvrir ma messagerie",
       "tooMany": "Trop d'envois en peu de temps. Réessayez dans quelques minutes.",
@@ -587,6 +590,8 @@
     "checkout": "Payer ma commande",
     "redirecting": "Ouverture du paiement sécurisé…",
     "securedBy": "Paiement sécurisé par carte bancaire. Vos coordonnées bancaires ne transitent jamais par notre site.",
+    "privacyNote": "Vos coordonnées et votre adresse sont saisies sur la page de Stripe et servent uniquement à la commande.",
+    "privacyLink": "Politique de confidentialité",
     "removedLine": "Une pièce n'est plus disponible dans cette configuration : elle a été retirée du panier.",
     "unavailable": "Une pièce du panier n'est plus commandable en ligne. Retirez-la ou demandez un devis.",
     "notConfigured": "Le paiement en ligne n'est pas encore activé.",
@@ -653,7 +658,7 @@
       },
       {
         "title": "10. Données personnelles",
-        "body": "Nous ne recueillons que ce qui sert à répondre à votre demande ou à traiter votre commande : nom, e-mail, téléphone, adresse de livraison, contenu de votre message, détail et montant de la commande. Ces informations ne sont ni vendues ni cédées.\n\nCombien de temps nous les gardons : trois ans après le dernier contact pour une demande de devis ; dix ans pour les commandes et les factures, parce que la loi comptable nous y oblige.\n\nQui les traite avec nous : Stripe Payments Europe pour le paiement en ligne et les factures, Resend pour l'acheminement de nos e-mails. Ces prestataires agissent pour notre compte et pour ces seuls usages.\n\nVos droits : vous pouvez demander à consulter vos données, à les corriger, à les faire effacer, à les recevoir dans un fichier réutilisable (portabilité) ou vous opposer à leur utilisation. Un e-mail à auboiacier@gmail.com suffit, et nous répondons sous un mois.\n\nSi notre réponse ne vous convient pas, vous pouvez saisir la CNIL, l'autorité française de protection des données (www.cnil.fr)."
+        "body": "Nous ne recueillons que ce qui sert à traiter votre commande : nom, e-mail, téléphone, ville et adresse de livraison, détail et montant de la commande. Le paiement est traité par Stripe Payments Europe, les e-mails sont acheminés par Resend, le site est hébergé par Vercel ; ces prestataires agissent pour notre compte. Les données de commande et de facture sont conservées dix ans (obligation comptable). Vous pouvez accéder à vos données, les corriger, les faire effacer ou vous opposer à leur usage en écrivant à auboiacier@gmail.com ; réponse sous un mois ; réclamation possible auprès de la CNIL (www.cnil.fr).\n\nL'ensemble — bases légales, transferts hors UE, cookies, droits détaillés — est décrit dans notre politique de confidentialité."
       },
       {
         "title": "11. Médiation de la consommation",
@@ -664,6 +669,7 @@
         "body": "Les présentes conditions sont soumises au droit français. Elles sont acceptées en cochant la case prévue dans le panier, avant le paiement. En cas de litige, une solution amiable est recherchée en priorité (article 11) ; à défaut, les tribunaux français sont compétents."
       }
     ],
+    "privacyCta": "Lire la politique de confidentialité",
     "garantieTitle": "Garantie légale de conformité et vices cachés — encadré officiel",
     "garantieIntro": "Le texte ci-dessous est celui imposé par la loi française. Il est reproduit tel quel, sans rien y changer.",
     "garantieBody": "Le consommateur dispose d'un délai de deux ans à compter de la délivrance du bien pour obtenir la mise en œuvre de la garantie légale de conformité en cas d'apparition d'un défaut de conformité. Durant ce délai, le consommateur n'est tenu d'établir que l'existence du défaut de conformité et non la date d'apparition de celui-ci.\n\nLa garantie légale de conformité donne au consommateur droit à la réparation ou au remplacement du bien dans un délai de trente jours suivant sa demande, sans frais et sans inconvénient majeur pour lui.\n\nSi le bien est réparé dans le cadre de la garantie légale de conformité, le consommateur bénéficie d'une extension de six mois de la garantie initiale.\n\nSi le consommateur demande la réparation du bien, mais que le vendeur impose le remplacement, la garantie légale de conformité est renouvelée pour une période de deux ans à compter de la date de remplacement du bien.\n\nLe consommateur peut obtenir une réduction du prix d'achat en conservant le bien ou mettre fin au contrat en se faisant rembourser intégralement contre restitution du bien, si :\n1° Le professionnel refuse de réparer ou de remplacer le bien ;\n2° La réparation ou le remplacement du bien intervient après un délai de trente jours ;\n3° La réparation ou le remplacement du bien occasionne un inconvénient majeur pour le consommateur, notamment lorsque le consommateur supporte définitivement les frais de reprise ou d'enlèvement du bien non conforme, ou s'il supporte les frais d'installation du bien réparé ou de remplacement ;\n4° La non-conformité du bien persiste en dépit de la tentative de mise en conformité du vendeur restée infructueuse.\n\nLe consommateur a également droit à une réduction du prix du bien ou à la résolution du contrat lorsque le défaut de conformité est si grave qu'il justifie que la réduction du prix ou la résolution du contrat soit immédiate. Le consommateur n'est alors pas tenu de demander la réparation ou le remplacement du bien au préalable.\n\nLe consommateur n'a pas droit à la résolution de la vente si le défaut de conformité est mineur.\n\nToute période d'immobilisation du bien en vue de sa réparation ou de son remplacement suspend la garantie qui restait à courir jusqu'à la délivrance du bien remis en état.\n\nLes droits mentionnés ci-dessus résultent de l'application des articles L. 217-1 à L. 217-32 du code de la consommation.\n\nLe vendeur qui fait obstacle de mauvaise foi à la mise en œuvre de la garantie légale de conformité encourt une amende civile d'un montant maximal de 300 000 euros, qui peut être porté jusqu'à 10 % du chiffre d'affaires moyen annuel (article L. 241-5 du code de la consommation).\n\nLe consommateur bénéficie également de la garantie légale des vices cachés en application des articles 1641 à 1649 du code civil, pendant une durée de deux ans à compter de la découverte du défaut. Cette garantie donne droit à une réduction de prix si le bien est conservé ou à un remboursement intégral contre restitution du bien.",
@@ -695,9 +701,11 @@
       },
       {
         "title": "Données personnelles",
-        "body": "Les données transmises par les formulaires ou lors d'une commande servent uniquement à répondre aux demandes et à traiter les commandes. Vous disposez d'un droit d'accès, de rectification, d'effacement, d'opposition et de portabilité : écrivez à auboiacier@gmail.com. Les durées de conservation, les prestataires concernés et le recours auprès de la CNIL sont détaillés à l'article 10 des conditions générales de vente."
+        "body": "Les données transmises par les formulaires ou lors d'une commande servent uniquement à répondre à votre demande et à traiter votre commande. Vous disposez de droits d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité : écrivez à auboiacier@gmail.com. Le détail — données recueillies, prestataires, durées, transferts, cookies, recours auprès de la CNIL — figure dans la politique de confidentialité."
       }
     ],
+    "privacyCta": "Lire la politique de confidentialité",
+    "cguCta": "Lire les conditions générales d'utilisation",
     "identiteTitle": "L'entreprise",
     "labelRaisonSociale": "Raison sociale",
     "labelStatut": "Statut juridique",
@@ -705,6 +713,102 @@
     "labelSiret": "SIRET",
     "labelTva": "Numéro de TVA",
     "labelTelephone": "Téléphone"
+  },
+  "confidentialite": {
+    "title": "Politique de confidentialité",
+    "intro": "Cette page explique quelles informations le site auboiacier.fr recueille sur vous, pourquoi, qui les reçoit, combien de temps nous les gardons et comment exercer vos droits. Elle s'applique aux demandes de devis et de contact, aux demandes de rendez-vous et aux commandes passées en ligne.",
+    "updated": "Dernière mise à jour : septembre 2026.",
+    "sections": [
+      {
+        "title": "1. Qui est responsable de vos données",
+        "body": "Le responsable du traitement est Auboiacier, atelier de métallerie à Saumur (49400, Maine-et-Loire), représenté par Quentin Aumercier. Les coordonnées complètes de l'entreprise (raison sociale, statut, SIRET, adresse du siège) figurent ci-dessous lorsqu'elles sont renseignées, et dans les mentions légales.\n\nPour toute question sur vos données : auboiacier@gmail.com. L'atelier n'a pas de délégué à la protection des données : sa taille et son activité ne l'y obligent pas."
+      },
+      {
+        "title": "2. Les données que nous recueillons, selon ce que vous faites",
+        "body": "Vous consultez le site sans rien remplir : nous ne recueillons aucune donnée personnelle. Votre panier est mémorisé dans votre navigateur uniquement (article 8). Les journaux techniques de l'hébergeur enregistrent votre adresse IP et le type de navigateur, quelques jours au plus, pour faire fonctionner et protéger le site.\n\nVous demandez un devis ou nous contactez : nom, adresse e-mail, téléphone (facultatif), ville, type de projet, votre message, et les photos ou plans que vous joignez (JPG, PNG ou PDF). La langue dans laquelle vous consultiez le site est transmise avec la demande, pour vous répondre dans cette langue.\n\nVous demandez un rendez-vous de prise de cotes : les mêmes informations, plus la demi-journée souhaitée. Si vous réservez et payez la visite en ligne, votre code postal sert à calculer le prix du déplacement, et la réservation est traitée comme une commande.\n\nVous commandez en ligne : la ville de livraison (demandée dans le panier), le détail de la commande (pièces, options, cotes, précisions que vous ajoutez), puis, sur la page de paiement de Stripe : nom, e-mail, téléphone, adresse de livraison et coordonnées bancaires. Vos coordonnées bancaires sont saisies chez Stripe et ne transitent jamais par notre site.\n\nNous ne recueillons rien d'autre : pas de compte client, pas de mot de passe, pas de profil, pas de données sensibles. Merci de ne pas en inscrire dans le champ libre de vos messages."
+      },
+      {
+        "title": "3. Pourquoi, et sur quelle base",
+        "body": "Répondre à votre demande de devis, de contact ou de rendez-vous, et vous envoyer un accusé de réception : mesures prises à votre demande avant un éventuel contrat (article 6.1.b du RGPD).\n\nTraiter votre commande, encaisser le paiement, organiser la fabrication, la livraison ou la visite, vous envoyer la confirmation et la facture, assurer les garanties et le service après-vente : exécution du contrat (article 6.1.b).\n\nConserver les factures et les pièces comptables : obligation légale (article 6.1.c ; code de commerce).\n\nProtéger le site contre les abus (limitation du nombre d'envois par adresse IP, champ anti-robot, journaux techniques) et mesurer sa fréquentation sans identifier personne : intérêt légitime (article 6.1.f), sans effet sur vos droits et libertés.\n\nNous ne faisons aucune prospection : pas de lettre d'information, pas de relance publicitaire, pas de revente ni de partage de vos données à des fins de marketing. Si nous proposions un jour une lettre d'information, elle reposerait sur votre consentement, libre et révocable à tout moment."
+      },
+      {
+        "title": "4. Qui reçoit vos données",
+        "body": "Vos données sont lues par l'artisan lui-même, et traitées par les prestataires ci-dessous, qui agissent pour notre compte, sur nos instructions et uniquement pour les usages indiqués :\n\n— Stripe Payments Europe, Ltd. (Dublin, Irlande) : page de paiement, encaissement, facture, remboursement, conservation des coordonnées et de l'adresse de livraison liées à la commande. Stripe traite aussi certaines données pour son propre compte (lutte contre la fraude, obligations réglementaires), selon sa propre politique de confidentialité : stripe.com/fr/privacy.\n\n— Resend, Inc. (États-Unis) : acheminement de nos e-mails (accusé de réception, confirmation de commande, bon de commande à l'atelier). Le message transite chez Resend le temps d'être remis.\n\n— Vercel Inc. (États-Unis) : hébergement du site et exécution des formulaires. Vercel voit l'adresse IP et les journaux techniques ; si l'envoi d'un bon de commande à l'atelier échoue, la référence, l'e-mail et le code postal de la commande sont inscrits dans ses journaux, quelques jours, pour que la commande ne se perde pas.\n\n— Google (Gmail, Google Ireland Ltd.) : notre boîte e-mail, où arrivent vos demandes et les bons de commande.\n\n— Base Adresse Nationale (service public, api-adresse.data.gouv.fr) : uniquement votre code postal, envoyé par notre serveur, pour calculer la distance d'une prise de cotes. Aucune autre information ne l'accompagne.\n\nNous ne vendons, ne louons et ne cédons vos données à personne. Elles peuvent être communiquées à une autorité si la loi nous l'impose."
+      },
+      {
+        "title": "5. Transferts hors de l'Union européenne",
+        "body": "Stripe Payments Europe est établie en Irlande ; elle peut transmettre des données à sa maison mère Stripe, Inc. (États-Unis) dans le cadre des règles d'entreprise contraignantes de Stripe, approuvées par les autorités européennes, et de clauses contractuelles types.\n\nResend et Vercel sont des sociétés américaines : les données qu'elles traitent peuvent être hébergées ou consultées aux États-Unis. Ces transferts sont encadrés par des accords de traitement des données incluant les clauses contractuelles types adoptées par la Commission européenne et, pour les prestataires qui y sont certifiés, par le cadre de protection des données UE–États-Unis (Data Privacy Framework). Lorsque le prestataire le permet, nous choisissons une exécution en Europe (fonctions du site à Paris, envoi des e-mails depuis l'Irlande).\n\nGoogle Ireland peut transférer des données vers Google LLC (États-Unis) sous les mêmes garanties.\n\nVous pouvez obtenir copie des garanties applicables en écrivant à auboiacier@gmail.com."
+      },
+      {
+        "title": "6. Combien de temps nous les gardons",
+        "body": "Demande de devis, de contact ou de rendez-vous sans commande : trois ans après notre dernier échange, puis suppression. Les photos et plans joints suivent la même règle.\n\nCommande et rendez-vous payé : les données de la commande et de la facture sont conservées dix ans à compter de la clôture de l'exercice, comme l'exige la loi comptable (article L123-22 du code de commerce). Pendant la garantie légale (deux ans après la livraison), elles servent aussi au service après-vente.\n\nJournaux techniques et compteurs anti-abus : de dix minutes à quelques jours, chez l'hébergeur.\n\nPanier : dans votre navigateur uniquement, jusqu'à ce que vous le vidiez, que la commande soit payée, ou que vous effaciez les données du site dans votre navigateur.\n\nStripe conserve de son côté ce que ses propres obligations légales lui imposent (voir sa politique de confidentialité)."
+      },
+      {
+        "title": "7. Vos droits",
+        "body": "Vous pouvez à tout moment demander à consulter les données que nous détenons sur vous, à les corriger, à les faire effacer, à en limiter l'utilisation, à vous opposer à un traitement fondé sur notre intérêt légitime, et à recevoir celles que vous nous avez fournies dans un fichier lisible par une machine (portabilité). Vous pouvez aussi nous indiquer ce que nous devons faire de vos données après votre décès.\n\nUn e-mail à auboiacier@gmail.com suffit, de préférence depuis l'adresse utilisée pour votre demande ou votre commande. Nous répondons dans le mois. En cas de doute sérieux sur votre identité, nous pourrons vous demander un élément de vérification, sans exiger de copie de pièce d'identité si un autre moyen suffit.\n\nL'effacement ne peut pas porter sur les factures et les données que la loi nous oblige à garder (article 6) : nous vous le dirons et les conserverons hors de tout autre usage.\n\nSi notre réponse ne vous convient pas, vous pouvez adresser une réclamation à la CNIL : www.cnil.fr/fr/plaintes, ou par courrier à CNIL, 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07."
+      },
+      {
+        "title": "8. Cookies et stockage dans votre navigateur",
+        "body": "Ce site ne dépose aucun cookie et n'embarque aucun traceur publicitaire, aucun bouton de réseau social, aucune vidéo ni carte de service tiers.\n\nIl utilise un seul espace de stockage local de votre navigateur (« auboiacier-panier-v1 ») pour mémoriser le contenu de votre panier d'une page à l'autre. Cette mémoire est strictement nécessaire au service que vous demandez : elle est dispensée de consentement (article 82 de la loi Informatique et Libertés). Elle reste sur votre appareil, ne nous est pas transmise telle quelle, et vous pouvez l'effacer en vidant le panier ou les données du site dans votre navigateur.\n\nMesure d'audience : nous ne mesurons pas la fréquentation du site. Si nous le faisions un jour, ce serait avec un outil sans cookie ni identifiant conservé, et cette page serait mise à jour.\n\nLa page de paiement est celle de Stripe (checkout.stripe.com) : Stripe y dépose ses propres cookies, nécessaires au paiement et à la lutte contre la fraude, régis par sa politique de cookies (stripe.com/fr/legal/cookies-policy)."
+      },
+      {
+        "title": "9. Sécurité",
+        "body": "Le site est servi exclusivement en HTTPS. Les coordonnées bancaires sont saisies et conservées chez Stripe, prestataire certifié PCI DSS ; nous n'y avons pas accès. L'accès à notre boîte e-mail, à Stripe et à l'hébergeur est protégé par mot de passe et validation en deux étapes. Les pièces jointes des formulaires sont contrôlées (photo ou PDF uniquement) avant d'être transmises, et le nombre d'envois par adresse est limité.\n\nEn cas de violation de données susceptible de vous porter atteinte, nous vous en informerions, ainsi que la CNIL, dans les délais prévus par le RGPD."
+      },
+      {
+        "title": "10. Mises à jour",
+        "body": "Cette politique peut évoluer si le site ou nos prestataires changent. La date en haut de page indique la version en vigueur ; une modification importante sera signalée sur le site."
+      }
+    ]
+  },
+  "cgu": {
+    "title": "Conditions générales d'utilisation",
+    "intro": "Ces conditions régissent la consultation et l'utilisation du site auboiacier.fr. En naviguant sur le site, vous les acceptez. Les ventes conclues sur le site relèvent, elles, des conditions générales de vente.",
+    "updated": "Dernière mise à jour : septembre 2026.",
+    "sections": [
+      {
+        "title": "1. Le site et son éditeur",
+        "body": "auboiacier.fr est le site de l'atelier Auboiacier, à Saumur (Maine-et-Loire). Il présente le travail de l'atelier, permet d'obtenir un prix immédiat pour certaines pièces, de demander un devis ou un rendez-vous, et de commander en ligne. L'identité complète de l'éditeur et de l'hébergeur figure dans les mentions légales."
+      },
+      {
+        "title": "2. Accès au site",
+        "body": "Le site est accessible gratuitement, sans création de compte, à toute personne disposant d'un accès à internet. Nous faisons notre possible pour le maintenir disponible, mais il peut être interrompu pour maintenance, mise à jour ou panne, sans préavis ni indemnité. Les frais de connexion restent à votre charge. Il est interdit d'entraver le fonctionnement du site, d'en extraire les contenus de façon automatisée ou d'en détourner les formulaires."
+      },
+      {
+        "title": "3. Prix, devis instantané et informations",
+        "body": "Les prix affichés par le devis instantané sont ceux auxquels la pièce peut être commandée en ligne, dans les conditions des CGV. Les fiches, photos et rendus d'options illustrent les pièces au mieux : le bois et l'acier étant des matières vivantes, les teintes et veinages réels varient légèrement. Une estimation donnée par e-mail à la suite du formulaire n'engage l'atelier qu'une fois transformée en devis écrit et accepté."
+      },
+      {
+        "title": "4. Propriété intellectuelle",
+        "body": "Le nom Auboiacier, les textes, photographies, dessins, rendus, vidéos, logos et la mise en page du site, ainsi que les modèles de mobilier, de garde-corps, de luminaires et de sculptures qui y sont présentés, sont la propriété d'Auboiacier ou font l'objet d'une autorisation d'usage. Ils sont protégés par le code de la propriété intellectuelle.\n\nVous pouvez consulter le site et en imprimer des pages pour un usage strictement privé. Toute autre reproduction, représentation, adaptation ou réutilisation — d'une photo, d'un texte, d'un modèle de pièce — sans accord écrit préalable est interdite et peut donner lieu à des poursuites. Les demandes d'autorisation s'adressent à auboiacier@gmail.com."
+      },
+      {
+        "title": "5. Ce que vous nous envoyez",
+        "body": "En joignant des photos ou des plans à une demande, vous garantissez en détenir les droits et vous nous autorisez à les utiliser pour étudier et réaliser votre projet, et pour rien d'autre. Vous vous engagez à ne transmettre aucun contenu illicite, ni de données concernant des tiers sans leur accord. Le site ne publie aucun contenu d'utilisateur."
+      },
+      {
+        "title": "6. Responsabilité",
+        "body": "Les informations du site sont fournies avec soin, mais peuvent comporter des erreurs ou des omissions ; nous les corrigeons dès que nous en avons connaissance. Auboiacier ne saurait être tenu responsable d'un dommage résultant de l'indisponibilité du site, d'une erreur d'affichage manifeste, d'un défaut de votre matériel ou de votre connexion, ou d'un usage du site non conforme à ces conditions. Rien dans ces conditions ne limite les droits que la loi accorde aux consommateurs."
+      },
+      {
+        "title": "7. Liens",
+        "body": "Le site renvoie vers des services tiers : la page de paiement de Stripe, la CNIL, la plateforme européenne de règlement des litiges, nos pages sur les réseaux sociaux. Ces sites ont leurs propres conditions et politiques ; nous n'en contrôlons pas le contenu et n'en sommes pas responsables.\n\nVous pouvez créer un lien vers la page d'accueil ou une page du site, à condition de ne pas l'afficher dans un cadre, de ne pas laisser croire à un partenariat et de ne pas l'associer à un contenu illicite ou dénigrant. Nous pouvons demander le retrait d'un lien à tout moment."
+      },
+      {
+        "title": "8. Données personnelles et cookies",
+        "body": "Le site ne dépose aucun cookie. La façon dont nous traitons vos données, les prestataires concernés et vos droits sont décrits dans la politique de confidentialité."
+      },
+      {
+        "title": "9. Modification",
+        "body": "Ces conditions peuvent être modifiées à tout moment ; la version applicable est celle en ligne au moment de votre visite. La date de dernière mise à jour figure en haut de page."
+      },
+      {
+        "title": "10. Droit applicable et litiges",
+        "body": "Ces conditions sont soumises au droit français. En cas de désaccord, écrivez-nous d'abord : une solution amiable est recherchée en priorité. À défaut, les tribunaux français sont compétents ; un consommateur peut saisir le tribunal de son lieu de résidence. Pour les achats, la médiation de la consommation est décrite dans les CGV."
+      }
+    ],
+    "privacyCta": "Lire la politique de confidentialité",
+    "cgvCta": "Lire les conditions générales de vente"
   },
   "seo": {
     "hub": {
@@ -755,6 +859,14 @@
     "mentions": {
       "title": "Mentions légales",
       "description": "Éditeur, hébergeur et informations légales du site Auboiacier."
+    },
+    "confidentialite": {
+      "title": "Politique de confidentialité",
+      "description": "Données recueillies par le site Auboiacier, prestataires, durées de conservation, vos droits et cookies."
+    },
+    "cgu": {
+      "title": "Conditions générales d'utilisation",
+      "description": "Règles d'utilisation du site Auboiacier : accès, propriété intellectuelle, responsabilité, liens."
     },
     "zone": {
       "title": "Zone d'intervention — Saumur, Maine-et-Loire et alentours",

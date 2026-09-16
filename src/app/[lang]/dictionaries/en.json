@@ -26,6 +26,8 @@
     "contactTitle": "Contact",
     "siret": "Business ID coming soon",
     "cgv": "Terms of sale",
+    "cgu": "Terms of use",
+    "privacy": "Privacy policy",
     "legal": "Legal notice"
   },
   "hub": {
@@ -532,7 +534,8 @@
       "required": "Please fill in your name, email and message.",
       "notConfigured": "Automatic sending is not switched on yet. Please email us in the meantime.",
       "tooBig": "Files too large: 2 files max, 3 MB each.",
-      "privacy": "Your details are only used to answer your request.",
+      "privacy": "Your details are used only to answer your request and kept for three years at most.",
+      "privacyLink": "Privacy policy",
       "sendFailed": "Automatic sending failed. You can email us directly:",
       "sendFailedCta": "Open my email app",
       "tooMany": "Too many messages in a short time. Please try again in a few minutes.",
@@ -587,6 +590,8 @@
     "checkout": "Pay for my order",
     "redirecting": "Opening secure payment…",
     "securedBy": "Secure card payment. Your card details never pass through our website.",
+    "privacyNote": "Your contact details and address are entered on Stripe's page and used only for the order.",
+    "privacyLink": "Privacy policy",
     "removedLine": "One piece is no longer available in this configuration: it was removed from your cart.",
     "unavailable": "One item in your cart can no longer be ordered online. Remove it or request a quote.",
     "notConfigured": "Online payment is not switched on yet.",
@@ -653,7 +658,7 @@
       },
       {
         "title": "10. Personal data",
-        "body": "We only collect what is needed to answer your request or handle your order: name, email, phone, delivery address, the content of your message, and the details and amount of the order. This information is never sold or passed on.\n\nHow long we keep it: three years after the last contact for a quote request; ten years for orders and invoices, as French accounting law requires.\n\nWho processes it with us: Stripe Payments Europe for online payment and invoices, Resend for delivering our emails. These providers act on our behalf and for those purposes only.\n\nYour rights: you can ask to see your data, to correct it, to have it erased, to receive it in a reusable file (portability), or object to its use. An email to auboiacier@gmail.com is enough, and we answer within a month.\n\nIf our answer does not satisfy you, you can refer the matter to the CNIL, the French data protection authority (www.cnil.fr)."
+        "body": "We only collect what is needed to handle your order: name, email, phone, city and delivery address, order details and amount. Payment is processed by Stripe Payments Europe, emails are delivered by Resend, the site is hosted by Vercel; these providers act on our behalf. Order and invoice data are kept for ten years (accounting obligation). You may access, correct or erase your data, or object to its use, by writing to auboiacier@gmail.com; we answer within a month; you may complain to the CNIL (www.cnil.fr).\n\nEverything else — legal bases, transfers outside the EU, cookies, detailed rights — is set out in our privacy policy."
       },
       {
         "title": "11. Consumer mediation",
@@ -664,6 +669,7 @@
         "body": "These terms are governed by French law. They are accepted by ticking the box in the cart, before payment. In the event of a dispute, an amicable solution is sought first (article 11); failing that, the French courts have jurisdiction."
       }
     ],
+    "privacyCta": "Read the privacy policy",
     "garantieTitle": "Legal warranty of conformity and hidden defects — official wording",
     "garantieIntro": "The text below is the wording required by French law. It is reproduced as it stands, unchanged.",
     "garantieBody": "The consumer has two years from delivery of the goods to obtain the benefit of the legal warranty of conformity should a lack of conformity appear. During that period, the consumer need only establish that the lack of conformity exists, not the date on which it appeared.\n\nThe legal warranty of conformity entitles the consumer to repair or replacement of the goods within thirty days of the request, free of charge and without major inconvenience.\n\nIf the goods are repaired under the legal warranty of conformity, the consumer benefits from a six-month extension of the original warranty.\n\nIf the consumer asks for the goods to be repaired but the seller insists on replacement, the legal warranty of conformity is renewed for two years from the date of replacement.\n\nThe consumer may obtain a reduction in the purchase price and keep the goods, or end the contract and be refunded in full against return of the goods, if:\n1. The trader refuses to repair or replace the goods;\n2. The repair or replacement takes place after a period of thirty days;\n3. The repair or replacement causes major inconvenience to the consumer, in particular where the consumer definitively bears the cost of taking back or removing the non-conforming goods, or bears the cost of installing the repaired or replacement goods;\n4. The lack of conformity persists despite the seller's unsuccessful attempt to bring the goods into conformity.\n\nThe consumer is also entitled to a reduction in the price of the goods or to rescission of the contract where the lack of conformity is so serious that an immediate price reduction or rescission is justified. The consumer is then not required to ask for repair or replacement first.\n\nThe consumer is not entitled to rescission of the sale where the lack of conformity is minor.\n\nAny period during which the goods are unavailable for repair or replacement suspends the remaining warranty period until the repaired goods are delivered.\n\nThe rights set out above arise from articles L. 217-1 to L. 217-32 of the French Consumer Code.\n\nA seller who obstructs in bad faith the operation of the legal warranty of conformity incurs a civil fine of up to 300,000 euros, which may be raised to 10% of average annual turnover (article L. 241-5 of the French Consumer Code).\n\nThe consumer also benefits from the legal warranty against hidden defects under articles 1641 to 1649 of the French Civil Code, for two years from the discovery of the defect. That warranty gives a right to a price reduction if the goods are kept, or to a full refund against return of the goods.",
@@ -695,9 +701,11 @@
       },
       {
         "title": "Personal data",
-        "body": "Data sent through the forms or when ordering is used only to answer requests and process orders. You have the right to access, correct, erase and port your data, and to object to its use: write to auboiacier@gmail.com. Retention periods, the providers involved and how to refer a matter to the CNIL are set out in article 10 of the terms of sale."
+        "body": "Data sent through the forms or when ordering is used only to answer your request and process your order. You have the right to access, correct, erase, restrict and port your data, and to object to its use: write to auboiacier@gmail.com. Full details — data collected, providers, retention, transfers, cookies, how to complain to the CNIL — are in the privacy policy."
       }
     ],
+    "privacyCta": "Read the privacy policy",
+    "cguCta": "Read the terms of use",
     "identiteTitle": "The business",
     "labelRaisonSociale": "Registered name",
     "labelStatut": "Legal form",
@@ -705,6 +713,102 @@
     "labelSiret": "Business ID (SIRET)",
     "labelTva": "VAT number",
     "labelTelephone": "Phone"
+  },
+  "confidentialite": {
+    "title": "Privacy policy",
+    "intro": "This page explains what information the auboiacier.fr website collects about you, why, who receives it, how long we keep it and how to exercise your rights. It applies to quote and contact requests, appointment requests and orders placed online.",
+    "updated": "Last updated: September 2026.",
+    "sections": [
+      {
+        "title": "1. Who is responsible for your data",
+        "body": "The data controller is Auboiacier, a metalwork studio in Saumur (49400, Maine-et-Loire, France), represented by Quentin Aumercier. The business's full details (registered name, legal form, SIRET, registered address) appear below where provided, and in the legal notice.\n\nFor any question about your data: auboiacier@gmail.com. The studio has no data protection officer: its size and activity do not require one."
+      },
+      {
+        "title": "2. The data we collect, depending on what you do",
+        "body": "You browse the site without filling anything in: we collect no personal data. Your cart is stored in your browser only (section 8). The host's technical logs record your IP address and browser type for a few days at most, to run and protect the site.\n\nYou request a quote or contact us: name, email address, phone (optional), town, type of project, your message, and the photos or plans you attach (JPG, PNG or PDF). The language you were browsing in is sent with the request, so we can reply in that language.\n\nYou request a measuring appointment: the same information, plus the half-day you would like. If you book and pay for the visit online, your postcode is used to calculate the travel price, and the booking is handled as an order.\n\nYou order online: the delivery town (asked in the cart), the order details (pieces, options, dimensions, notes you add), then, on Stripe's payment page: name, email, phone, delivery address and card details. Your card details are entered at Stripe and never pass through our site.\n\nWe collect nothing else: no customer account, no password, no profile, no sensitive data. Please do not include any in the free-text field of your messages."
+      },
+      {
+        "title": "3. Why, and on what legal basis",
+        "body": "Answering your quote, contact or appointment request and sending you an acknowledgement: steps taken at your request prior to a possible contract (Article 6(1)(b) GDPR).\n\nProcessing your order, taking payment, organising manufacture, delivery or the visit, sending you the confirmation and invoice, handling warranties and after-sales service: performance of the contract (Article 6(1)(b)).\n\nKeeping invoices and accounting records: legal obligation (Article 6(1)(c); French Commercial Code).\n\nProtecting the site against abuse (limit on submissions per IP address, anti-bot field, technical logs) and measuring traffic without identifying anyone: legitimate interest (Article 6(1)(f)), with no impact on your rights and freedoms.\n\nWe do no marketing: no newsletter, no promotional follow-up, no sale or sharing of your data for marketing purposes. If we ever offered a newsletter, it would rely on your consent, freely given and revocable at any time."
+      },
+      {
+        "title": "4. Who receives your data",
+        "body": "Your data is read by the craftsman himself, and processed by the providers below, who act on our behalf, on our instructions and only for the purposes stated:\n\n— Stripe Payments Europe, Ltd. (Dublin, Ireland): payment page, payment collection, invoice, refunds, storage of the contact details and delivery address linked to the order. Stripe also processes some data on its own account (fraud prevention, regulatory obligations), under its own privacy policy: stripe.com/privacy.\n\n— Resend, Inc. (United States): delivery of our emails (acknowledgement, order confirmation, order sheet to the studio). The message passes through Resend for as long as it takes to deliver.\n\n— Vercel Inc. (United States): hosting of the site and running of the forms. Vercel sees the IP address and technical logs; if sending an order sheet to the studio fails, the order reference, email and postcode are written to its logs for a few days so that the order is not lost.\n\n— Google (Gmail, Google Ireland Ltd.): our mailbox, where your requests and order sheets arrive.\n\n— Base Adresse Nationale (French public service, api-adresse.data.gouv.fr): only your postcode, sent by our server, to calculate the distance for a measuring visit. No other information goes with it.\n\nWe do not sell, rent or pass on your data to anyone. It may be disclosed to an authority where the law requires it."
+      },
+      {
+        "title": "5. Transfers outside the European Union",
+        "body": "Stripe Payments Europe is established in Ireland; it may transfer data to its parent company Stripe, Inc. (United States) under Stripe's Binding Corporate Rules, approved by the European authorities, and standard contractual clauses.\n\nResend and Vercel are US companies: the data they process may be hosted or accessed in the United States. These transfers are governed by data processing agreements including the standard contractual clauses adopted by the European Commission and, for providers certified under it, by the EU–US Data Privacy Framework. Where the provider allows it, we choose execution in Europe (site functions in Paris, emails sent from Ireland).\n\nGoogle Ireland may transfer data to Google LLC (United States) under the same safeguards.\n\nYou can obtain a copy of the applicable safeguards by writing to auboiacier@gmail.com."
+      },
+      {
+        "title": "6. How long we keep it",
+        "body": "Quote, contact or appointment request without an order: three years after our last exchange, then deletion. Attached photos and plans follow the same rule.\n\nOrders and paid appointments: order and invoice data are kept for ten years from the end of the financial year, as French accounting law requires (Article L123-22 of the Commercial Code). During the legal warranty period (two years after delivery), they also serve after-sales service.\n\nTechnical logs and anti-abuse counters: from ten minutes to a few days, at the host.\n\nCart: in your browser only, until you empty it, the order is paid, or you clear the site's data in your browser.\n\nStripe keeps, on its side, what its own legal obligations require (see its privacy policy)."
+      },
+      {
+        "title": "7. Your rights",
+        "body": "At any time you may ask to see the data we hold about you, to correct it, to have it erased, to restrict its use, to object to processing based on our legitimate interest, and to receive the data you gave us in a machine-readable file (portability). You may also tell us what to do with your data after your death (a right under French law).\n\nAn email to auboiacier@gmail.com is enough, preferably from the address used for your request or order. We reply within one month. If there is serious doubt about your identity, we may ask for a means of verification, without requiring a copy of an ID document if another means suffices.\n\nErasure cannot cover invoices and data the law requires us to keep (section 6): we will tell you so and keep them apart from any other use.\n\nIf you are not satisfied with our reply, you may lodge a complaint with the French data protection authority, the CNIL: www.cnil.fr/en/plaintes, or by post to CNIL, 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07, France. If you live in another EU country, you may also contact your local authority."
+      },
+      {
+        "title": "8. Cookies and browser storage",
+        "body": "This site sets no cookies and embeds no advertising tracker, no social network button, no third-party video or map.\n\nIt uses a single local storage entry in your browser (\"auboiacier-panier-v1\") to remember the contents of your cart from one page to the next. This storage is strictly necessary for the service you request and is exempt from consent (Article 82 of the French Data Protection Act). It stays on your device, is not sent to us as such, and you can clear it by emptying the cart or clearing the site's data in your browser.\n\nAudience measurement: we do not measure traffic on the site. If we ever did, it would be with a tool that uses no cookies or stored identifiers, and this page would be updated.\n\nThe payment page is Stripe's (checkout.stripe.com): Stripe sets its own cookies there, needed for payment and fraud prevention, governed by its cookie policy (stripe.com/legal/cookies-policy)."
+      },
+      {
+        "title": "9. Security",
+        "body": "The site is served over HTTPS only. Card details are entered and stored at Stripe, a PCI DSS certified provider; we have no access to them. Access to our mailbox, to Stripe and to the host is protected by password and two-step verification. Form attachments are checked (photo or PDF only) before being forwarded, and the number of submissions per address is limited.\n\nIn the event of a data breach likely to affect you, we would inform you and the CNIL within the time limits set by the GDPR."
+      },
+      {
+        "title": "10. Updates",
+        "body": "This policy may change if the site or our providers change. The date at the top of the page shows the version in force; a significant change will be announced on the site."
+      }
+    ]
+  },
+  "cgu": {
+    "title": "Terms of use",
+    "intro": "These terms govern browsing and use of the auboiacier.fr website. By using the site you accept them. Sales made through the site are governed separately by the terms of sale.",
+    "updated": "Last updated: September 2026.",
+    "sections": [
+      {
+        "title": "1. The site and its publisher",
+        "body": "auboiacier.fr is the website of the Auboiacier studio in Saumur (Maine-et-Loire, France). It presents the studio's work, gives an instant price for certain pieces, lets you request a quote or an appointment, and lets you order online. Full details of the publisher and host are in the legal notice."
+      },
+      {
+        "title": "2. Access to the site",
+        "body": "The site is free to use, with no account required, for anyone with internet access. We do our best to keep it available, but it may be interrupted for maintenance, updates or outages, without notice or compensation. Connection costs are yours. You must not disrupt the site, scrape its content automatically or misuse its forms."
+      },
+      {
+        "title": "3. Prices, instant quote and information",
+        "body": "Prices shown by the instant quote are those at which the piece can be ordered online, under the terms of sale. Product pages, photos and option renderings illustrate the pieces as faithfully as possible: wood and steel are living materials, so real shades and grain vary slightly. An estimate given by email following the form binds the studio only once it becomes a written, accepted quote."
+      },
+      {
+        "title": "4. Intellectual property",
+        "body": "The Auboiacier name, the texts, photographs, drawings, renderings, videos, logos and layout of the site, and the furniture, railing, lighting and sculpture designs shown on it, are the property of Auboiacier or used under licence. They are protected by French intellectual property law.\n\nYou may browse the site and print pages for strictly private use. Any other reproduction, display, adaptation or reuse — of a photo, a text, a piece's design — without prior written consent is prohibited and may lead to legal action. Requests for permission: auboiacier@gmail.com."
+      },
+      {
+        "title": "5. What you send us",
+        "body": "By attaching photos or plans to a request, you warrant that you hold the rights to them and you allow us to use them to study and carry out your project, and for nothing else. You undertake not to send unlawful content, nor data about third parties without their consent. The site publishes no user content."
+      },
+      {
+        "title": "6. Liability",
+        "body": "Information on the site is provided with care but may contain errors or omissions; we correct them as soon as we become aware of them. Auboiacier cannot be held liable for damage resulting from the site's unavailability, an obvious display error, a fault in your equipment or connection, or use of the site contrary to these terms. Nothing in these terms limits the rights the law grants to consumers."
+      },
+      {
+        "title": "7. Links",
+        "body": "The site links to third-party services: Stripe's payment page, the CNIL, the European online dispute resolution platform, our social media pages. Those sites have their own terms and policies; we do not control their content and are not responsible for it.\n\nYou may link to the home page or any page of the site, provided you do not display it in a frame, do not suggest a partnership and do not associate it with unlawful or disparaging content. We may ask for a link to be removed at any time."
+      },
+      {
+        "title": "8. Personal data and cookies",
+        "body": "The site sets no cookies. How we process your data, the providers involved and your rights are described in the privacy policy."
+      },
+      {
+        "title": "9. Changes",
+        "body": "These terms may be changed at any time; the applicable version is the one online at the time of your visit. The last update date appears at the top of the page."
+      },
+      {
+        "title": "10. Governing law and disputes",
+        "body": "These terms are governed by French law. In case of disagreement, write to us first: an amicable solution is sought as a priority. Failing that, the French courts have jurisdiction; a consumer may bring the matter before the court of their place of residence. For purchases, consumer mediation is described in the terms of sale."
+      }
+    ],
+    "privacyCta": "Read the privacy policy",
+    "cgvCta": "Read the terms of sale"
   },
   "seo": {
     "hub": {
@@ -755,6 +859,14 @@
     "mentions": {
       "title": "Legal notice",
       "description": "Publisher, host and legal information for the Auboiacier website."
+    },
+    "confidentialite": {
+      "title": "Privacy policy",
+      "description": "Data collected by the Auboiacier website, providers, retention periods, your rights and cookies."
+    },
+    "cgu": {
+      "title": "Terms of use",
+      "description": "Rules for using the Auboiacier website: access, intellectual property, liability, links."
     },
     "zone": {
       "title": "Where we work — Saumur, Maine-et-Loire and beyond",

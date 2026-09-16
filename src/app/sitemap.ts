@@ -18,9 +18,10 @@ const PAGES: { chemin: string; priorite: number; frequence: "weekly" | "monthly"
   { chemin: "/zone-intervention", priorite: 0.7, frequence: "monthly" },
   { chemin: "/faq", priorite: 0.7, frequence: "monthly" },
   { chemin: "/contact", priorite: 0.8, frequence: "monthly" },
-  // Ni /cgv ni /mentions-legales : ces deux pages se déclarent « ne m'indexe
-  // pas », et un plan de site qui annonce une page interdite d'indexation fait
-  // perdre à Google confiance dans le plan TOUT ENTIER.
+  // Ni /cgv, /cgu, /confidentialite ni /mentions-legales : ces quatre pages
+  // se déclarent « ne m'indexe pas », et un plan de site qui annonce une page
+  // interdite d'indexation fait perdre à Google confiance dans le plan TOUT
+  // ENTIER.
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

@@ -10,6 +10,7 @@ import { products, priceFrom, productLocalise, type Famille, type Product } from
 import { DevisForm } from "@/components/devis-form";
 import { BandeauDetail } from "@/components/bandeau-detail";
 import { GlobalHeader } from "@/components/global-header";
+import { SiteFooter } from "@/components/site-footer";
 
 /**
  * La page « Devis » : celle que la fiche Google Business met en avant.
@@ -239,6 +240,7 @@ export default async function DevisPage({ params }: PageProps<"/[lang]/devis">) 
         photoAGauche
       />
       </main>
+      <SiteFooter locale={locale} dict={dict} tone="light" />
     </div>
   );
 }

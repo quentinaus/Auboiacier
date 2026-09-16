@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { ChoixCreneau } from "@/components/choix-creneau";
 import { libelleCreneau, lireCreneau } from "@/lib/agenda";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
@@ -271,7 +272,14 @@ export function DevisForm({
         {status === "sending" ? t.sending : t.submit}
       </button>
 
-      <p className="mt-4 text-xs leading-relaxed text-[#6f6357]">{t.privacy}</p>
+      {/* L'information exigée au moment de la collecte (art. 13 RGPD) : une
+          phrase, et le lien vers la politique qui détaille le reste. */}
+      <p className="mt-4 text-xs leading-relaxed text-[#6f6357]">
+        {t.privacy}{" "}
+        <Link href={`/${locale}/confidentialite`} className="underline underline-offset-4 hover:text-[#6d2c2c]">
+          {t.privacyLink}
+        </Link>
+      </p>
     </form>
   );
 }

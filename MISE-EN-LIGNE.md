@@ -98,7 +98,9 @@ Le code est prêt et se tait tant que ces valeurs sont vides : rien ne s'affiche
 **Sans ça, on ne peut pas vendre**
 
 - [ ] Identité de l'entreprise : raison sociale, statut, SIRET, adresse du
-      siège, numéro de TVA → `src/app/[lang]/mentions-legales/page.tsx`.
+      siège, numéro de TVA → `src/lib/entreprise.ts`. Elle s'affiche sur les
+      mentions légales ET sur la politique de confidentialité : sans elle, le
+      « responsable du traitement » n'est pas identifiable (RGPD).
 - [ ] Régime de TVA → `TVA_MENTION` en haut de `src/app/[lang]/cgv/page.tsx`
       (franchise en base : « TVA non applicable, article 293 B du CGI » ;
       sinon : « Prix TTC, TVA 20 % incluse — n° TVA FR… »).
@@ -107,6 +109,43 @@ Le code est prêt et se tait tant que ces valeurs sont vides : rien ne s'affiche
 - [ ] Le domaine `auboiacier.fr` vérifié chez Resend, et `DEVIS_FROM_EMAIL`
       réglé dessus (voir plus haut : sans ça le site refuse d'encaisser).
 - [ ] Les cinq variables obligatoires dans Vercel.
+
+**Pour que la politique de confidentialité dise vrai**
+
+La page `/fr/confidentialite` annonce quatre choses que seul toi peux rendre
+vraies. Tant qu'un point n'est pas fait, le texte correspondant ment : à
+régler avant la mise en ligne, ou à retirer du texte (voir les remarques).
+
+- [ ] Stripe > Settings > Business > Public details (ou Branding) :
+      « Privacy policy » = `https://auboiacier.fr/fr/confidentialite` et
+      « Terms of service » = `https://auboiacier.fr/fr/cgv`. La page de
+      paiement Stripe affiche alors ces deux liens en bas. Ne PAS ajouter de
+      case « j'accepte les CGV » côté Stripe : elle est déjà cochée au panier.
+- [ ] Vercel : les fonctions s'exécutent à Paris. C'est déjà écrit dans
+      `vercel.json` (`"regions": ["cdg1"]`) ; vérifier après le premier
+      déploiement dans Project > Settings > Functions > Region que « Paris »
+      apparaît bien. C'est la moitié de la phrase « fonctions du site à
+      Paris » de l'article 5.
+- [ ] Resend > Domains : au moment d'ajouter `auboiacier.fr`, choisir la
+      région **eu-west-1 (Ireland)**. C'est l'autre moitié de la phrase
+      (« envoi des e-mails depuis l'Irlande »). Si tu ne le fais pas, supprime
+      la phrase « Lorsque le prestataire le permet, nous choisissons une
+      exécution en Europe (…) » de l'article 5, dans `fr.json` ET `en.json`.
+- [ ] Validation en deux étapes (2FA) activée sur Gmail, Stripe, Vercel et
+      Resend : l'article 9 l'annonce. Sinon, retirer « et validation en deux
+      étapes » / « and two-step verification » du texte.
+- [ ] Mesure d'audience : aujourd'hui il n'y en a AUCUNE, et l'article 8 le
+      dit. Si tu veux des statistiques de visite, prends **Vercel Web
+      Analytics** (sans cookie, donc sans bandeau) : Vercel > Project >
+      Analytics > Enable, `npm i @vercel/analytics`, `<Analytics />` dans
+      `src/app/[lang]/layout.tsx`, et le MÊME jour remplacer le paragraphe
+      « Mesure d'audience » de l'article 8 (les deux langues) par la version
+      qui décrit l'outil (voir la spécification juridique). Jamais Google
+      Analytics, Meta Pixel, YouTube ou Google Maps embarqués : chacun
+      réintroduit l'obligation d'un bandeau cookies.
+- [ ] Tenir, dans un document privé (pas sur le site), un registre des
+      traitements en trois lignes : devis / commande / journaux techniques.
+      L'article 30 du RGPD l'exige même pour une entreprise individuelle.
 
 **Pour les prises de cotes à domicile**
 

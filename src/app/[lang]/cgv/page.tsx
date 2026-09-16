@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
 import { metadataPage } from "@/lib/seo";
@@ -19,7 +20,7 @@ import { serif } from "@/lib/fonts";
  *     on remplit le nom, le site et l'adresse postale une fois l'adhésion faite.
  *  3. Les identifiants de l'entreprise (raison sociale, statut juridique,
  *     SIRET, n° de TVA, adresse du siège, téléphone) : ils se remplissent
- *     dans src/app/[lang]/mentions-legales/page.tsx.
+ *     dans src/lib/entreprise.ts.
  * ------------------------------------------------------------------ */
 
 /** Mention de TVA, dans les deux langues. Vide = rien ne s'affiche. */
@@ -85,6 +86,17 @@ export default async function CgvPage({ params }: PageProps<"/[lang]/cgv">) {
                   <span className="text-[#726757]">{t.tvaLabel} : </span>
                   {tva}
                 </p>
+              )}
+
+              {/* Données personnelles : l'article 10 résume, la politique
+                  de confidentialité détaille. */}
+              {i === 9 && (
+                <Link
+                  href={`/${locale}/confidentialite`}
+                  className="mt-3 inline-block text-sm underline underline-offset-4 hover:text-[#6d2c2c]"
+                >
+                  {t.privacyCta}
+                </Link>
               )}
 
               {/* Médiateur : sous l'article « Médiation », une fois rempli. */}

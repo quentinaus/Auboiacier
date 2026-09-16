@@ -3,6 +3,7 @@ import type { Locale } from "@/lib/i18n";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { serif } from "@/lib/fonts";
 import { GlobalHeader } from "@/components/global-header";
+import { SiteFooter } from "@/components/site-footer";
 
 /**
  * La page qui suit l'envoi d'une demande (devis ou rendez-vous). Une adresse
@@ -32,6 +33,7 @@ export function MerciDemande({ locale, dict }: { locale: Locale; dict: Dictionar
           </Link>
         </div>
       </main>
+      <SiteFooter locale={locale} dict={dict} tone="light" />
     </div>
   );
 }

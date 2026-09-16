@@ -481,6 +481,14 @@ export function CartView({
         {status === "loading" ? t.redirecting : t.checkout}
       </button>
       <p className="mt-4 text-center text-xs leading-relaxed text-[#6f6357]">{t.securedBy}</p>
+      {/* La politique s'informe, elle ne se consent pas : la base légale est
+          le contrat, donc un simple lien, pas une seconde case à cocher. */}
+      <p className="mt-2 text-center text-xs leading-relaxed text-[#6f6357]">
+        {t.privacyNote}{" "}
+        <Link href={`/${locale}/confidentialite`} className="underline underline-offset-4 hover:text-[#6d2c2c]">
+          {t.privacyLink}
+        </Link>
+      </p>
 
       {/* Ce que le panier vient de faire : le total qui change, la ligne
           retirée. Sans cette zone, le « + » ne produisait aucun son et le

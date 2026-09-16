@@ -9,6 +9,7 @@ import { hoverZoom } from "@/lib/ui";
 import { products, productLocalise } from "@/lib/products";
 import { DevisForm } from "@/components/devis-form";
 import { GlobalHeader } from "@/components/global-header";
+import { SiteFooter } from "@/components/site-footer";
 
 /**
  * La page « Rendez-vous » : la prise de cotes à domicile, pour Google Ads et
@@ -136,6 +137,7 @@ export default async function RendezVousPage({ params }: PageProps<"/[lang]/rend
           </div>
         </section>
       </main>
+      <SiteFooter locale={locale} dict={dict} tone="light" />
     </div>
   );
 }

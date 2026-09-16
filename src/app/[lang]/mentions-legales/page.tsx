@@ -1,34 +1,15 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
 import { metadataPage } from "@/lib/seo";
 import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
-
-/* ------------------------------------------------------------------ *
- *  À COMPLÉTER AVANT LA MISE EN VENTE — ces informations sont obligatoires
- *  sur un site marchand français. Tant qu'une ligne est vide, elle ne
- *  s'affiche pas : le client ne lit jamais de « à compléter ».
- *
- *  — raisonSociale : le nom exact déposé (ex. « Aumercier Quentin »).
- *  — statut        : entreprise individuelle, EURL, SASU…
- *  — adresse       : adresse complète du siège.
- *  — siret         : les 14 chiffres du SIRET.
- *  — tva           : n° de TVA intracommunautaire, ou vide en franchise en base.
- *  — telephone     : le numéro que le client peut appeler.
- *
- *  Rappel : le régime de TVA et le médiateur de la consommation se
- *  remplissent dans src/app/[lang]/cgv/page.tsx.
- * ------------------------------------------------------------------ */
-const ENTREPRISE = {
-  raisonSociale: "",
-  statut: "",
-  adresse: "",
-  siret: "",
-  tva: "",
-  telephone: "",
-};
+// Les identifiants de l'entreprise (raison sociale, SIRET, adresse…) se
+// remplissent dans src/lib/entreprise.ts : la politique de confidentialité
+// les affiche aussi, il fallait une seule source.
+import { ENTREPRISE } from "@/lib/entreprise";
 
 export async function generateMetadata({
   params,
@@ -88,12 +69,32 @@ export default async function MentionsLegalesPage({
         )}
 
         <div className="mt-12 flex flex-col gap-10">
-          {t.sections.map((section) => (
+          {t.sections.map((section, i) => (
             <section key={section.title}>
               <h2 className={`${serif.className} text-xl text-[#2b2320]`}>{section.title}</h2>
               <p className="mt-3 whitespace-pre-line leading-relaxed text-[#4a4038]">
                 {section.body}
               </p>
+
+              {/* Les deux pages qui détaillent ce que ces sections résument :
+                  les CGU sous « Propriété intellectuelle », la politique de
+                  confidentialité sous « Données personnelles ». */}
+              {i === 4 && (
+                <Link
+                  href={`/${locale}/cgu`}
+                  className="mt-3 inline-block text-sm underline underline-offset-4 hover:text-[#6d2c2c]"
+                >
+                  {t.cguCta}
+                </Link>
+              )}
+              {i === 5 && (
+                <Link
+                  href={`/${locale}/confidentialite`}
+                  className="mt-3 inline-block text-sm underline underline-offset-4 hover:text-[#6d2c2c]"
+                >
+                  {t.privacyCta}
+                </Link>
+              )}
             </section>
           ))}
         </div>

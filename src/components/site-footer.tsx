@@ -26,7 +26,11 @@ export function SiteFooter({
     { href: `/${locale}/zone-intervention`, label: dict.nav.zone },
     { href: `/${locale}/faq`, label: dict.nav.faq },
     { href: `/${locale}/contact`, label: dict.nav.contact },
+    // Les quatre textes juridiques, du plus engageant au plus administratif :
+    // CGV (la vente), CGU (la visite), politique (les données), mentions.
     { href: `/${locale}/cgv`, label: dict.footer.cgv },
+    { href: `/${locale}/cgu`, label: dict.footer.cgu },
+    { href: `/${locale}/confidentialite`, label: dict.footer.privacy },
     { href: `/${locale}/mentions-legales`, label: dict.footer.legal },
   ];
 
