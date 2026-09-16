@@ -43,9 +43,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: frequence,
       priority: priorite,
       alternates: {
-        languages: Object.fromEntries(
-          locales.map((l) => [l, `${SITE_URL}/${l}${chemin}`])
-        ),
+        languages: {
+          ...Object.fromEntries(locales.map((l) => [l, `${SITE_URL}/${l}${chemin}`])),
+          // Même « x-default » que dans les pages (alternatesPour, src/lib/seo.ts) :
+          // le plan de site et le HTML doivent raconter la même chose.
+          "x-default": `${SITE_URL}/fr${chemin}`,
+        },
       },
     }))
   );

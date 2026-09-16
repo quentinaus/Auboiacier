@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "../globals.css";
 import { locales, isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "./dictionaries";
@@ -17,6 +17,17 @@ import {
 export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
 }
+
+/**
+ * Couleur de la barre du navigateur sur téléphone (balise theme-color) :
+ * le bordeaux du site. Next 16 la veut ici, dans `viewport`, et refuse de la
+ * lire dans `metadata`.
+ */
+export const viewport: Viewport = {
+  themeColor: "#6d2c2c",
+  width: "device-width",
+  initialScale: 1,
+};
 
 export async function generateMetadata({
   params,
