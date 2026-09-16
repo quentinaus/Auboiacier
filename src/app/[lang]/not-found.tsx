@@ -7,6 +7,7 @@ import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
 import { ATELIER } from "@/lib/seo";
+import { TitreIntrouvable } from "@/components/titre-introuvable";
 
 /**
  * Page « introuvable » pour toute adresse inconnue sous /fr ou /en (fiche
@@ -24,13 +25,20 @@ async function langueDemandee(): Promise<Locale> {
   return isLocale(brut) ? brut : defaultLocale;
 }
 
+function titreComplet(titre: string): string {
+  return `${titre} — ${ATELIER.nom} ${ATELIER.ville}`;
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const dict = await getDictionary(await langueDemandee());
   return {
     // Titre absolu : le modèle du layout ajouterait un second « Auboiacier ».
-    title: { absolute: `${dict.introuvable.title} — ${ATELIER.nom} ${ATELIER.ville}` },
-    // Pas de `robots` ici : Next ajoute lui-même « noindex » à toute page
-    // introuvable — une erreur n'a rien à faire dans les résultats de recherche.
+    title: { absolute: titreComplet(dict.introuvable.title) },
+    // Next ajoute lui-même une balise « noindex » à toute page introuvable ;
+    // mais le layout en pose une seconde, « index, follow », héritée de ses
+    // métadonnées. Deux consignes contraires sur la même page : on remplace
+    // ici celle du layout pour que les deux disent la même chose.
+    robots: { index: false, follow: false },
   };
 }
 
@@ -44,6 +52,8 @@ export default async function NotFound() {
 
   return (
     <div className="min-h-screen bg-[#fbf9f6] text-[#2b2320]">
+      {/* Next remet le titre de l'accueil après l'hydratation : on le corrige. */}
+      <TitreIntrouvable titre={titreComplet(t.title)} />
       <GlobalHeader locale={locale} dict={dict} />
       <main id="contenu" className="mx-auto max-w-2xl px-6 py-20 text-center md:py-28">
         <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-[#6f6357]">{t.code}</p>
