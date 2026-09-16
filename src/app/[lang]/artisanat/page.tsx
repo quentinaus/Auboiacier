@@ -132,7 +132,7 @@ export default async function ArtisanatPage({
           ))}
         </nav>
 
-        {sections.map((famille) => {
+        {sections.map((famille, rang) => {
           const cible = pour === famille.id && cotes.l !== null && cotes.h !== null ? cotes : null;
           const compatibles = cible
             ? famille.pieces.filter((product) => convientAuxCotes(product, cible.h as number) === "oui").length
@@ -168,7 +168,7 @@ export default async function ArtisanatPage({
               )}
 
               <div className="mt-6 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-                {famille.pieces.map((product) => {
+                {famille.pieces.map((product, index) => {
                   const convient = cible ? convientAuxCotes(product, cible.h as number) : null;
                   return (
                   <Link
@@ -187,6 +187,11 @@ export default async function ArtisanatPage({
                           alt={product.images[0].alt}
                           fill
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          // Les trois premières cartes de la première famille sont
+                          // dans le premier écran : préchargées, elles ne sont plus
+                          // demandées après la mise en page (c'est l'élément LCP).
+                          // Pas plus de trois : sur téléphone une seule est visible.
+                          priority={rang === 0 && index < 3}
                           className={
                             product.images[0].fit === "contain"
                               ? "object-contain p-4"

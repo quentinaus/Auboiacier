@@ -85,7 +85,7 @@ export default async function ToilesTenduesPage({
           <p className="mt-2 text-sm text-[#726757]">{t.catalogueLumiereNote}</p>
 
           <div className="mt-6 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-            {luminaires.map((product) => (
+            {luminaires.map((product, index) => (
               <Link
                 key={product.slug}
                 href={`/${locale}/artisanat/${product.slug}`}
@@ -103,6 +103,9 @@ export default async function ToilesTenduesPage({
                       alt={product.images[0].alt}
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      // Première rangée du catalogue, sous le titre : préchargée
+                      // plutôt que chargée après la mise en page (élément LCP).
+                      priority={index < 3}
                       className={
                         product.images[0].fit === "contain"
                           ? "object-contain p-4"

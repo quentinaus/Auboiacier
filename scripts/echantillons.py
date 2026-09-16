@@ -8,7 +8,13 @@ de poudre), le bois est un fil dessiné par du bruit fractal, avec ses veines
 et ses variations de teinte. Le résultat ressemble aux nuanciers des grandes
 marques : une matière ronde, nette, sur fond transparent.
 
-    python3 scripts/echantillons.py            # écrit public/images/echantillons/*.png
+    python3 scripts/echantillons.py            # écrit public/images/echantillons/*.webp
+
+Format WebP, pas PNG : ces pastilles sont posées en CSS background-image
+(material-bubble.tsx), donc servies telles quelles, sans next/image. Un PNG
+de bruit à 320 px pèse 60–100 Ko, le WebP à qualité 85 pèse 3–9 Ko pour un
+rendu identique, transparence comprise. Ne pas descendre sous 80 : les
+veines du bois montrent des artefacts en 64 px Retina.
 """
 
 from __future__ import annotations
@@ -61,7 +67,7 @@ def masque_disque(taille: int, marge: float = 2.0) -> np.ndarray:
 
 def enregistrer(rgb: np.ndarray, alpha: np.ndarray, chemin: str) -> None:
     rgba = np.dstack([np.clip(rgb, 0, 1) * 255, np.clip(alpha, 0, 1) * 255]).astype(np.uint8)
-    Image.fromarray(rgba, "RGBA").save(chemin, optimize=True)
+    Image.fromarray(rgba, "RGBA").save(chemin, "WEBP", quality=85, method=6)
 
 
 # ---------------------------------------------------------------------------
@@ -295,7 +301,7 @@ def main(seulement: list[str]) -> None:
         if seulement and nom not in seulement:
             continue
         rgb, alpha = bille(**params) if genre == "bille" else velours(**params) if genre == "velours" else bois(**params)
-        chemin = os.path.join(SORTIE, f"{nom}.png")
+        chemin = os.path.join(SORTIE, f"{nom}.webp")
         enregistrer(rgb, alpha, chemin)
         print(nom, "->", os.path.relpath(chemin))
 

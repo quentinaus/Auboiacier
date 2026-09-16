@@ -18,7 +18,7 @@ On s'en sert deux fois :
      on y superpose, très atténué, le résidu haute fréquence du rendu noir
      pour que les jonctions gardent leur structure réelle.
 
-    python3 scripts/pieds-chaise.py            →  public/images/chaises/pieds-v2-<teinte>.png
+    python3 scripts/pieds-chaise.py            →  public/images/chaises/pieds-v3-<teinte>.png
     python3 scripts/pieds-chaise.py --apercus  →  … plus deux montages de contrôle dans /tmp
 
 Dépendances : python3, numpy, Pillow (rien d'autre).
@@ -41,7 +41,7 @@ SOL = 560           # les pieds touchent le sol en dessous
 RAYON = 5.6         # demi-largeur du tube, px
 # « -vN » : à chaque nouvelle génération, N augmente (et products.ts suit),
 # sinon l'optimiseur d'images resservirait l'ancien calque sous le même nom.
-PREFIXE = "pieds-v2-"
+PREFIXE = "pieds-v3-"
 
 # ----------------------------------------------------------------- outils
 def charger(nom):
@@ -243,6 +243,10 @@ def calque(alpha, rgb, derriere, velours_derriere):
     aa = np.where(vel > 0.5, a_vel, a_fond)
     aa = np.where(alpha >= 0.995, 1.0, aa[..., 0])[..., None]
     c = np.where(alpha[..., None] >= 0.995, rgb, c)
+    # Pixels invisibles (98 % du calque) : couleur nulle plutôt que celle du
+    # fond. Rendu strictement identique, mais le PNG se compresse dix fois
+    # mieux (455 Ko → ~40 Ko) : de grandes plages de zéros au lieu de bruit.
+    c = np.where(aa > 0, c, 0.0)
     out = np.dstack([c, aa * 255]).astype(np.uint8)
     return Image.fromarray(out)
 
