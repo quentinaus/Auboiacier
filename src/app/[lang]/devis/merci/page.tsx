@@ -11,8 +11,8 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/devis/merc
   return metadataPage({
     locale,
     chemin: "/devis/merci",
-    title: dict.seo.merciDemande.title,
-    description: dict.seo.merciDemande.description,
+    title: dict.seo.merciDevis.title,
+    description: dict.seo.merciDevis.description,
     noIndex: true,
   });
 }

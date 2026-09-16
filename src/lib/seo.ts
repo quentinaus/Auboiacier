@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import { locales, type Locale } from "./i18n";
+// Extension écrite en toutes lettres : c'est ce qui permet aux tests
+// (node --test, sans outil de construction) d'importer ce fichier tel quel.
+import { locales, type Locale } from "./i18n.ts";
 
 /**
  * Tout ce qui sert au référencement est rassemblé ici : adresse de l'atelier,
@@ -156,6 +158,13 @@ const IMAGE_PARTAGE = "/images/partage-auboiacier.jpg";
  */
 const DIMENSIONS_CONNUES: Record<string, { width: number; height: number }> = {
   [IMAGE_PARTAGE]: { width: 1200, height: 630 },
+  // Déclinaisons fabriquées au même format pour les pages dont la photo
+  // d'origine ne s'y prête pas (carrée, portrait ou très allongée) :
+  // voir scripts/images-partage.py.
+  "/images/partage/artisanat.jpg": { width: 1200, height: 630 },
+  "/images/partage/sculptures.jpg": { width: 1200, height: 630 },
+  "/images/partage/lucarne.jpg": { width: 1200, height: 630 },
+  "/images/partage/halo.jpg": { width: 1200, height: 630 },
 };
 
 /* ------------------------------------------------------------------ *
@@ -249,6 +258,35 @@ export function titreSeo(titre: string) {
   return `${court}${suffixe}`;
 }
 
+/* ------------------------------------------------------------------ *
+ *  Descriptions
+ *  Même logique que pour les titres : Google n'affiche qu'environ 155
+ *  signes sous le lien, et remplace la suite par « … ». Les textes des
+ *  dictionnaires sont écrits pour tenir ; ce garde-fou rattrape ceux qui
+ *  sont assemblés à la volée (fiche produit : accroche + prix + suffixe).
+ * ------------------------------------------------------------------ */
+
+/** Nombre de signes qu'un résultat de recherche affiche. */
+const LONGUEUR_DESCRIPTION = 155;
+
+/**
+ * Coupe une description trop longue sur une fin de phrase, sinon sur un mot,
+ * sans jamais dépasser 155 signes. Une description qui tient est rendue telle
+ * quelle, espaces normalisés.
+ */
+export function descriptionSeo(texte: string) {
+  const propre = texte.replace(/\s+/g, " ").trim();
+  if (propre.length <= LONGUEUR_DESCRIPTION) return propre;
+  const debut = propre.slice(0, LONGUEUR_DESCRIPTION);
+  // Une phrase entière vaut mieux qu'une phrase tronquée, à condition de ne
+  // pas jeter plus de la moitié du texte.
+  const phrase = Math.max(debut.lastIndexOf(". "), debut.lastIndexOf(" — "), debut.lastIndexOf("; "));
+  if (phrase > LONGUEUR_DESCRIPTION / 2) return propre.slice(0, phrase + 1).trim();
+  // Sinon sur le dernier mot entier (ou brut, s'il n'y a aucun espace).
+  const mot = debut.lastIndexOf(" ");
+  return debut.slice(0, mot > 0 ? mot : LONGUEUR_DESCRIPTION - 1).replace(/[\s,;:—–-]+$/, "") + "…";
+}
+
 function absolu(chemin: string) {
   return chemin.startsWith("http") ? chemin : `${SITE_URL}${chemin}`;
 }
@@ -286,10 +324,12 @@ export function metadataPage({
   // Le titre est fabriqué en entier ici (« absolute ») : le modèle du layout
   // ne vient donc pas rajouter une deuxième fois l'atelier et la ville.
   const titre = titreSeo(title);
+  // Même garde-fou pour la description : au-delà de 155 signes, Google coupe.
+  const desc = descriptionSeo(description);
   const dimensions = DIMENSIONS_CONNUES[image];
   return {
     title: { absolute: titre },
-    description,
+    description: desc,
     keywords: [...motsCles, ...MOTS_CLES[locale]],
     alternates: alternatesPour(locale, chemin),
     robots: noIndex
@@ -301,14 +341,14 @@ export function metadataPage({
       locale: locale === "fr" ? "fr_FR" : "en_GB",
       url,
       title: titre,
-      description,
+      description: desc,
       // Largeur et hauteur seulement si on les connaît vraiment (voir plus haut).
       images: [{ url: absolu(image), ...(dimensions ?? {}), alt: titre }],
     },
     twitter: {
       card: "summary_large_image",
       title: titre,
-      description,
+      description: desc,
       images: [absolu(image)],
     },
   };

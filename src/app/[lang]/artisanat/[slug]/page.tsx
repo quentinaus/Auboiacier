@@ -75,14 +75,21 @@ export async function generateMetadata({
   const title = product.seoMots
     ? `${product.name} — ${product.seoMots}`
     : `${product.name} — ${product.tagline}`;
-  const description = `${product.tagline} ${depuis} ${dict.seo.produitSuffixe}`;
+  // Une fiche dont l'accroche est trop longue pour tenir avec le prix et le
+  // suffixe donne sa propre description (voir Product.seoDescription) ; le
+  // prix, lui, vient toujours du catalogue.
+  const description = product.seoDescription
+    ? `${product.seoDescription} ${depuis}`
+    : `${product.tagline} ${depuis} ${dict.seo.produitSuffixe}`;
 
   return metadataPage({
     locale,
     chemin: `/artisanat/${product.slug}`,
     title,
     description,
-    image: product.images[0]?.src,
+    // Une photo carrée se ferait rogner d'un tiers dans un aperçu de partage :
+    // les fiches concernées ont leur déclinaison 1200 × 630.
+    image: product.imagePartage ?? product.images[0]?.src,
     motsCles: [
       `${product.name} ${ATELIER.ville}`,
       locale === "fr" ? `${product.name} sur mesure` : `made-to-measure ${product.name}`,
@@ -118,8 +125,10 @@ export default async function ProductPage({
   /** La lumière a sa propre boutique : le fil d'Ariane y ramène. */
   const boutique =
     product.category === "lumiere" ? `/${locale}/toiles-tendues` : `/${locale}/artisanat`;
+  // « Boutique », comme sur /artisanat/sculptures : un seul libellé pour la
+  // même page dans tout le site, sinon Google voit deux fils d'Ariane différents.
   const categorie =
-    product.category === "lumiere" ? dict.hub.lightingLabel : t.breadcrumbCategory;
+    product.category === "lumiere" ? dict.hub.lightingLabel : t.breadcrumbShop;
   const hasImages = product.images.length > 0;
 
   /** Images des blocs éditoriaux : on pioche dans les coloris pour ne pas répéter la même photo. */

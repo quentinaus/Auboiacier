@@ -815,19 +815,19 @@
   "seo": {
     "hub": {
       "title": "Steel & oak furniture and light ceilings — Saumur",
-      "description": "Metal and wood workshop in Saumur, France. Tables, chairs, staircases, steel partitions, sculptures and backlit stretch ceilings, all handmade to order — workshop prices, shipping across France."
+      "description": "Metal and wood workshop in Saumur, France: tables, chairs, staircases, steel partitions, sculptures and backlit stretch ceilings, handmade to order."
     },
     "artisanat": {
       "title": "Handmade tables, chairs and staircases — Saumur",
-      "description": "Solid oak tables on welded steel bases, velvet chairs, staircases and steel partitions, handmade in our workshop in Saumur, Loire Valley. Prices shown, no middleman."
+      "description": "Solid oak tables on welded steel bases, velvet chairs, staircases and steel partitions, handmade in Saumur, Loire Valley. Prices shown, no middleman."
     },
-    "produitSuffixe": "Handmade in Saumur, Loire Valley, France — shipped across France.",
+    "produitSuffixe": "Handmade in Saumur, France. Shipped nationwide.",
     "lumiere": {
-      "title": "Backlit stretch ceilings — bespoke LED panels",
-      "description": "Backlit stretch ceiling panels with a powder-coated aluminium frame: rectangular up to 400 × 300 cm, round up to Ø 400 cm. Handmade in Saumur, fitted across the Loire Valley."
+      "title": "Backlit stretch ceilings & LED panels",
+      "description": "Backlit stretch ceiling panels, powder-coated aluminium frame: rectangles up to 400 × 300 cm, rounds up to Ø 400 cm. Made in Saumur, fitted locally."
     },
     "sculptures": {
-      "title": "Reclaimed steel sculptures — one-off pieces",
+      "title": "One-off reclaimed steel sculptures",
       "description": "Sculptures welded by hand from reclaimed steel, designed with you: subject, size, base and setting. Workshop in Saumur, France."
     },
     "verrieres": {
@@ -835,7 +835,7 @@
       "description": "Crittall-style internal steel partitions, surveyed on site and fitted. Room dividers, kitchens, mezzanines — handmade in Saumur, Loire Valley."
     },
     "apropos": {
-      "title": "The Auboiacier workshop — metalworker and welder in Saumur, France",
+      "title": "Auboiacier workshop — metalworker in Saumur",
       "description": "One workshop, two materials: TIG-welded steel and solid timber chosen board by board. No production runs — every piece is built to order."
     },
     "contact": {
@@ -848,7 +848,7 @@
     },
     "devis": {
       "title": "Instant quote, priced in one minute",
-      "description": "Enter your dimensions and see the price in one minute: steel and wood tables, window railings, stretched light ceilings. Delivery and fitting included."
+      "description": "Enter your dimensions and see the price in one minute: steel and wood tables, window railings, light ceilings. Delivery and fitting included."
     },
     "panier": {
       "title": "Your basket",
@@ -871,12 +871,12 @@
       "description": "Rules for using the Auboiacier website: access, intellectual property, liability, links."
     },
     "zone": {
-      "title": "Where we work — Saumur, Maine-et-Loire and beyond",
-      "description": "Workshop in Saumur, France: measuring and fitting around Saumur, across the Maine-et-Loire, Indre-et-Loire, Deux-Sèvres and Vienne, with furniture delivered anywhere in mainland France."
+      "title": "Metalworker in Saumur & the Loire Valley",
+      "description": "Workshop in Saumur, France: measuring and fitting across Maine-et-Loire, Indre-et-Loire, Deux-Sèvres and Vienne. Furniture delivered across France."
     },
     "faq": {
-      "title": "Frequently asked questions — lead times and prices",
-      "description": "Production times, prices, custom dimensions, delivery and assembly, care, payment and warranties: straight answers from the Auboiacier workshop in Saumur, France."
+      "title": "FAQ — lead times, prices, delivery",
+      "description": "Production times, prices, custom sizes, delivery and assembly, care, payment and warranties: straight answers from the Auboiacier workshop in Saumur."
     },
     "merci": {
       "title": "Thank you for your order",
@@ -884,11 +884,15 @@
     },
     "rdv": {
       "title": "On-site measuring, from €19.99",
-      "description": "The workshop comes to measure at your home, up to 200 km from Saumur: window railings, staircases, glass partitions. Slot booked online, exact price after."
+      "description": "The workshop comes to measure at your home, up to 200 km from Saumur: window railings, staircases, partitions. Slot booked online, exact price after."
     },
-    "merciDemande": {
-      "title": "Request sent",
-      "description": "Your request has been sent."
+    "merciDevis": {
+      "title": "Quote request sent",
+      "description": "Your quote request is on its way: the workshop replies within a few days."
+    },
+    "merciRdv": {
+      "title": "Appointment request sent",
+      "description": "Your measuring slot is booked: confirmation by e-mail."
     }
   },
   "zone": {

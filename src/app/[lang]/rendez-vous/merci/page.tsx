@@ -11,8 +11,8 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/rendez-vou
   return metadataPage({
     locale,
     chemin: "/rendez-vous/merci",
-    title: dict.seo.merciDemande.title,
-    description: dict.seo.merciDemande.description,
+    title: dict.seo.merciRdv.title,
+    description: dict.seo.merciRdv.description,
     noIndex: true,
   });
 }
