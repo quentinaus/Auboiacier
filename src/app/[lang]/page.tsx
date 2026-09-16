@@ -70,10 +70,12 @@ function HeroPanel({
             {subtitle}
           </p>
         )}
-        <span
-          className="mt-6 inline-block px-7 py-3 text-[11px] font-medium uppercase leading-tight tracking-[0.18em] text-white transition-colors duration-300 group-hover:bg-[#853737] sm:px-8 sm:py-3.5 md:mt-7 md:tracking-[0.2em]"
-          style={{ backgroundColor: ACCENT }}
-        >
+        {/* En contour et non en plein : les deux tuiles sont côte à côte
+            dès md, deux boutons bordeaux se faisaient concurrence au premier
+            écran. Toute la tuile est le lien ; ce bouton n'est qu'une
+            invitation. Le seul plein bordeaux de l'accueil est « Demander un
+            devis », en bas de page : c'est lui qui convertit. */}
+        <span className="mt-6 inline-block border border-white/70 px-7 py-3 text-[11px] font-medium uppercase leading-tight tracking-[0.18em] text-white transition-colors duration-300 group-hover:bg-white group-hover:text-[#2b2320] sm:px-8 sm:py-3.5 md:mt-7 md:tracking-[0.2em]">
           {cta}
         </span>
       </div>

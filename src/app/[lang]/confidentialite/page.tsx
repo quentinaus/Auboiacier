@@ -21,8 +21,9 @@ import { ENTREPRISE } from "@/lib/entreprise";
  *  — l'article 5 annonce des fonctions exécutées à Paris (vercel.json,
  *    « regions ») et des e-mails envoyés depuis l'Irlande (région Resend) ;
  *  — l'article 9 annonce la validation en deux étapes sur nos comptes.
- * Et l'article 8 dit qu'il n'y a pas de mesure d'audience : si un outil
- * d'analytics est installé un jour, changer ce paragraphe le même jour.
+ * Et l'article 8 décrit la mesure d'audience en place (Vercel Web Analytics,
+ * posée dans src/components/analytics.tsx) : si l'outil change ou disparaît,
+ * changer ce paragraphe le même jour.
  */
 export async function generateMetadata({
   params,

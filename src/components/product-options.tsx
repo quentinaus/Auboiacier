@@ -1005,7 +1005,10 @@ export function ProductOptions({
                     setCotes({ largeurMm, hauteurMm, epaisseurMm });
                     setSizeId(SUR_MESURE);
                   }}
-                  className="w-full rounded-full bg-[#2b2320] px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                  // En contour : régler ses cotes prépare l'achat, ce n'est pas
+                  // l'action principale. Le seul bouton plein de la colonne
+                  // reste « Ajouter au panier » (ou « Demander un devis »).
+                  className="w-full rounded-full border border-[#2b2320] bg-transparent px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] text-[#2b2320] transition-colors hover:bg-[#2b2320] hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#2b2320] sm:w-auto"
                 >
                   {sizeId === SUR_MESURE ? `✓ ${t.customApplied}` : t.customApply}
                 </button>

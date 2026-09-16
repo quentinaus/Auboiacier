@@ -71,3 +71,29 @@ test("le site ne dépose aucun cookie de son cru (ce que dit l'article 8)", () =
   );
   assert.equal(sortie.trim(), "", `un cookie est posé quelque part :\n${sortie}`);
 });
+
+test("l'article 8 décrit l'outil de mesure d'audience réellement posé", () => {
+  // La mesure d'audience (Vercel Web Analytics) est posée dans le layout des
+  // pages publiques ; l'article 8 de la politique doit la nommer, dans les
+  // deux langues. Si l'outil est retiré, retirer aussi le paragraphe.
+  const layout = readFileSync(new URL("../src/app/[lang]/layout.tsx", import.meta.url), "utf8");
+  assert.match(layout, /<MesureAudience \/>/, "le composant de mesure n'est plus dans le layout");
+  for (const dict of [fr, en]) {
+    assert.ok(
+      dict.confidentialite.sections[7].body.includes("Vercel Web Analytics"),
+      `article 8 (${dict.confidentialite.title}) ne nomme pas l'outil de mesure`
+    );
+  }
+});
+
+test("le proxy laisse passer les envois de la mesure d'audience", () => {
+  // Le script envoie ses vues sur /_vercel/insights/view, sans point dans le
+  // chemin : sans exclusion explicite, le proxy le redirigerait vers /fr/…
+  // et aucune visite ne serait comptée.
+  const proxy = readFileSync(new URL("../src/proxy.ts", import.meta.url), "utf8");
+  const matcher = proxy.match(/matcher:\s*\["([^"]+)"\]/)?.[1];
+  assert.ok(matcher, "matcher introuvable dans src/proxy.ts");
+  const motif = new RegExp(`^${matcher.replace(/\\\\/g, "\\")}$`);
+  assert.equal(motif.test("/_vercel/insights/view"), false, "le proxy intercepte /_vercel/insights/view");
+  assert.equal(motif.test("/fr/artisanat"), true, "le proxy n'intercepte plus les pages");
+});

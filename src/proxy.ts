@@ -48,6 +48,10 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Les routes d'API et les fichiers gardent leur URL, seules les pages sont préfixées par la langue.
-  matcher: ["/((?!api|_next|favicon.ico|.*\\..*).*)"],
+  // Les routes d'API et les fichiers gardent leur URL, seules les pages sont
+  // préfixées par la langue. `_vercel` : la mesure d'audience envoie ses vues
+  // en POST sur /_vercel/insights/view (sans point dans le chemin) ; sans
+  // cette exclusion, le proxy la renverrait vers /fr/_vercel/… et rien ne
+  // serait compté.
+  matcher: ["/((?!api|_next|_vercel|favicon.ico|.*\\..*).*)"],
 };

@@ -4,6 +4,7 @@ import { locales, isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "./dictionaries";
 import { notFound } from "next/navigation";
 import { CartProvider } from "@/lib/cart";
+import { MesureAudience } from "@/components/analytics";
 import {
   SITE_URL,
   alternatesPour,
@@ -91,6 +92,11 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={scriptJsonLd(jsonLdSite(locale))}
         />
         <CartProvider>{children}</CartProvider>
+        {/* Après le contenu, hors du fournisseur de panier : le script de
+            mesure se charge en dernier et ne retarde pas l'affichage. Seules
+            les pages /fr et /en passent ici ; l'agenda privé de l'atelier
+            (hors [lang]) n'est pas mesuré, sa clé ne doit jamais sortir. */}
+        <MesureAudience />
       </body>
     </html>
   );

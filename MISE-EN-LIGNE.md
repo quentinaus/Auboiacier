@@ -134,15 +134,15 @@ régler avant la mise en ligne, ou à retirer du texte (voir les remarques).
 - [ ] Validation en deux étapes (2FA) activée sur Gmail, Stripe, Vercel et
       Resend : l'article 9 l'annonce. Sinon, retirer « et validation en deux
       étapes » / « and two-step verification » du texte.
-- [ ] Mesure d'audience : aujourd'hui il n'y en a AUCUNE, et l'article 8 le
-      dit. Si tu veux des statistiques de visite, prends **Vercel Web
-      Analytics** (sans cookie, donc sans bandeau) : Vercel > Project >
-      Analytics > Enable, `npm i @vercel/analytics`, `<Analytics />` dans
-      `src/app/[lang]/layout.tsx`, et le MÊME jour remplacer le paragraphe
-      « Mesure d'audience » de l'article 8 (les deux langues) par la version
-      qui décrit l'outil (voir la spécification juridique). Jamais Google
-      Analytics, Meta Pixel, YouTube ou Google Maps embarqués : chacun
-      réintroduit l'obligation d'un bandeau cookies.
+- [ ] Mesure d'audience : le site embarque **Vercel Web Analytics** (sans
+      cookie, donc sans bandeau ; `src/components/analytics.tsx`), et
+      l'article 8 le décrit. Pour que les chiffres arrivent : Vercel > Project
+      > onglet Analytics > Enable, puis redéployer (Deployments > … >
+      Redeploy). Ouvrir 2-3 pages du site en ligne et attendre une minute :
+      les vues apparaissent. Si un jour l'outil est retiré ou remplacé, changer
+      le paragraphe « Mesure d'audience » de l'article 8 (les deux langues) le
+      MÊME jour. Jamais Google Analytics, Meta Pixel, YouTube ou Google Maps
+      embarqués : chacun réintroduit l'obligation d'un bandeau cookies.
 - [ ] Tenir, dans un document privé (pas sur le site), un registre des
       traitements en trois lignes : devis / commande / journaux techniques.
       L'article 30 du RGPD l'exige même pour une entreprise individuelle.

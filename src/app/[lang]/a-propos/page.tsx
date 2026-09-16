@@ -59,11 +59,14 @@ export default async function AProposPage({
 
       </div>
 
-      {/* Le savoir-faire, en pleine largeur : l'atelier en photo, le propos sur fond sombre. */}
+      {/* Le savoir-faire, en pleine largeur : l'atelier en photo, le propos sur
+          fond sombre. Le bouton est le seul appel à l'action de la page : sans
+          lui, le visiteur devait repasser par le menu pour demander un devis. */}
       <BandeauDetail
         className="mt-14"
         titre={t.savoirFaireTitle}
         corps={t.savoirFaireBody}
+        cta={{ href: `/${locale}/devis`, label: dict.hub.missionCta }}
         mention={dict.artisanat.madeInFrance}
         photo={{ src: "/images/atelier-soudeur.jpg", alt: dict.hub.altAtelier }}
         photoAGauche
