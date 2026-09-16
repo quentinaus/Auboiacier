@@ -41,6 +41,8 @@ node --test tests/prix-sur-mesure.test.ts
 | `prix-sur-mesure.test.ts` | La fabrication aux cotes du client : surfaces, bornes de l'atelier, cohérence avec le catalogue, prix qui monte avec la taille et l'épaisseur. |
 | `fraude.test.ts` | Tout ce que le serveur doit refuser avant d'encaisser. |
 | `commande-frontiere.test.ts` | Les garde-fous de `/api/commande` : quantités et cotes en millimètres entiers. |
+| `catalogue-alt.test.ts` | Les descriptions des photos (alt) : un texte par photo en français, et sa traduction anglaise en face, dans le même ordre. |
+| `seo.test.ts` | Les titres et descriptions que Google affiche : dans les 60 et 155 signes une fois fabriqués par `src/lib/seo.ts`, sans mot perdu, sans doublon. |
 | `catalogue.ts` | Pas un test : la boîte à outils commune (parcourir le catalogue, fabriquer des cotes de test). |
 
 ## La règle du jeu quand on écrit un test ici

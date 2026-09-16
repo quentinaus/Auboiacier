@@ -147,6 +147,20 @@ export type Product = {
    * ce sont « table acier chêne » et « plafond lumineux » que l'on cherche.
    */
   seoMots?: string;
+  /**
+   * Description pour Google, quand l'accroche est trop longue pour être
+   * assemblée avec le prix et le suffixe de src/lib/seo.ts (155 signes
+   * affichés). Sans le prix : la fiche l'ajoute elle-même, à partir du
+   * catalogue, pour qu'il ne reste jamais faux ici. Absente, la fiche
+   * assemble accroche + prix + suffixe.
+   */
+  seoDescription?: string;
+  /**
+   * Image de partage (Facebook, WhatsApp, LinkedIn…) au format 1200 × 630,
+   * quand la première photo de la fiche ne s'y prête pas (carrée : elle se
+   * ferait rogner d'un tiers). Absente, c'est la première photo qui part.
+   */
+  imagePartage?: string;
   /** "cart" : achetable en ligne. "quote" : uniquement sur devis (relevé de cotes, pose…). */
   orderMode: "cart" | "quote";
   /** Univers séparés : rien ne doit passer de l'un à l'autre. */
@@ -225,6 +239,8 @@ export type ProductEn = {
   tagline?: string;
   /** Les deux ou trois mots de métier du titre, en anglais. */
   seoMots?: string;
+  /** Description pour Google, en anglais (voir Product.seoDescription). */
+  seoDescription?: string;
   /** Description (alt) de chaque photo, dans l'ordre de `images`. */
   images?: string[];
   /** Libellé de chaque taille, par identifiant. */
@@ -895,7 +911,10 @@ export const products: Product[] = [
       seoMots: "steel & oak table",
       tagline: "Two solid steel blades in an X, right across the top: your legs go under.",
       images: [
-        "Croix table: solid oak top on two steel X bases, three-quarter view",
+        "Croix table: solid oak top on two black steel X bases, end view",
+        "Croix table from the side: the two black steel Xs under the long oak top",
+        "Croix table, detail: the corner of the oak top and the black steel X that carries it",
+        "Croix table, close-up of the steel X: the weld seam where the blades cross, under the top",
       ],
       sizes: {
         p6: "Seats 6 — 150 × 90 × H 75 cm",
@@ -1093,7 +1112,6 @@ export const products: Product[] = [
       seoMots: "steel staircase",
       tagline: "Curved steel stringer, solid oak treads, cable balustrade.",
       images: [
-        "Staircase with a central steel stringer and solid oak treads",
         "Straight staircase with a central steel stringer, solid oak treads and a slim bar balustrade, in a limewashed room",
         "Close-up of the first solid oak treads on the steel stringer, bolted floor plate",
       ],
@@ -1128,6 +1146,10 @@ export const products: Product[] = [
     famille: "garde-corps",
     // « barre d'appui » : c'est le mot que tapent les gens pour une fenêtre.
     seoMots: "barre d'appui",
+    // L'accroche fait 131 signes : assemblée avec le prix et le suffixe, elle
+    // dépassait les 155 signes que Google affiche.
+    seoDescription:
+      "Garde-corps de fenêtre en acier plein à croix de Saint-André, rosaces en fonte et main courante chêne, fabriqué au millimètre à Saumur.",
     releve: "garde-corps-fenetre",
     category: "interieur",
     // Se commande en ligne, aux cotes que le client relève lui-même : aucune
@@ -1279,10 +1301,13 @@ export const products: Product[] = [
     en: {
       name: "Rosette Window Railing",
       seoMots: "window railing",
+      seoDescription:
+        "Solid steel window railing with a Saint Andrew's cross, cast-iron rosettes and an oak handrail, made to the millimetre in Saumur, France.",
       tagline: "Solid steel Saint Andrew's cross, cast-iron rosettes, oak handrail. Made to the millimetre, fitted into your window.",
       images: [
-        "Black steel window railing with a Saint Andrew's cross, cast-iron rosettes and an oak handrail, fitted in the reveal",
-        "The same railing seen head-on: powder-coated black steel frame, two rosettes, oak handrail",
+        "Window railing seen head-on: powder-coated black steel frame with a Saint Andrew's cross, two cast-iron rosettes, oak handrail",
+        "The same railing fitted in the reveal, seen from the room: the whole window, the sill and the daylight under the frame",
+        "The railing seen from the street, between the shutters: set on the tuffeau stone sill, the window open behind",
       ],
       sizes: {},
       sections: [
@@ -1407,6 +1432,9 @@ export const products: Product[] = [
     slug: "table-mikado-exterieur",
     famille: "table-exterieur",
     seoMots: "table de jardin",
+    // Même raison que le garde-corps : accroche + prix + suffixe dépassait.
+    seoDescription:
+      "Table de jardin à lattes de chêne traité, piétement Mikado en acier thermolaqué, faite pour rester dehors. Fabriquée à Saumur (49).",
     category: "exterieur",
     orderMode: "cart",
     name: "Table Mikado Extérieur",
@@ -1574,6 +1602,8 @@ export const products: Product[] = [
     slug: "plafond-lumineux-lucarne",
     famille: "plafond",
     seoMots: "plafond lumineux tendu",
+    // Les photos de la fiche sont carrées : déclinaison 1200 × 630 pour les réseaux.
+    imagePartage: "/images/partage/lucarne.jpg",
     category: "lumiere",
     orderMode: "cart",
     name: "Lucarne",
@@ -1704,6 +1734,8 @@ export const products: Product[] = [
     slug: "plafond-lumineux-halo",
     famille: "plafond",
     seoMots: "plafond lumineux rond",
+    // Photos carrées, là aussi : déclinaison 1200 × 630 pour les réseaux.
+    imagePartage: "/images/partage/halo.jpg",
     category: "lumiere",
     orderMode: "cart",
     name: "Halo",
@@ -1723,7 +1755,7 @@ export const products: Product[] = [
       },
       {
         src: "/images/lumiere/rond-allume.jpg",
-        alt: "Halo allumé, posé au plafond",
+        alt: "Halo allumé, plafond lumineux rond posé au plafond d'une pièce à vivre",
         bg: "#e8e8e8",
         fit: "cover",
       },
@@ -1799,7 +1831,7 @@ export const products: Product[] = [
       tagline: "A circle of backlit stretched fabric, powder-coated aluminium frame.",
       images: [
         "Halo: round stretched-fabric light ceiling, black aluminium frame",
-        "Halo lit up, fitted to the ceiling",
+        "Halo lit up: round light ceiling fitted to a living-room ceiling",
         "Close-up of the curved aluminium frame and the lit stretched fabric",
       ],
       sizes: {
@@ -2410,6 +2442,9 @@ export function productLocalise(product: Product, locale: Locale): Product {
     name: en?.name ?? product.name,
     tagline: en?.tagline ?? product.tagline,
     seoMots: en?.seoMots ?? product.seoMots,
+    // Pas de repli sur le français : sans traduction, la fiche anglaise
+    // assemble sa description à partir de l'accroche, déjà traduite.
+    seoDescription: en?.seoDescription,
     images: product.images.map((image, i) => ({ ...image, alt: en?.images?.[i] ?? image.alt })),
     photosDescriptif: product.photosDescriptif?.map((photo, i) => ({
       ...photo,
