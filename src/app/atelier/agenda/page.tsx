@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { HEURES, libelleCreneau, rendezVousPayes, type RendezVous } from "@/lib/agenda";
+import { HEURES, cleAgendaValide, libelleCreneau, rendezVousPayes, type RendezVous } from "@/lib/agenda";
 import { SITE_URL } from "@/lib/seo";
 import { serif } from "@/lib/fonts";
 
@@ -69,8 +69,7 @@ export default async function AgendaPage({
   searchParams: Promise<{ cle?: string | string[] }>;
 }) {
   const { cle } = await searchParams;
-  const attendue = process.env.AGENDA_CLE;
-  if (!attendue || typeof cle !== "string" || cle !== attendue) notFound();
+  if (!cleAgendaValide(cle)) notFound();
 
   const rendezVous = await rendezVousPayes();
   const aujourdhui = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Paris" }).format(new Date());

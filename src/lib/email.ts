@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Envoi d'e-mails via Resend.
  * Une seule porte de sortie pour tout le site : formulaire de devis et

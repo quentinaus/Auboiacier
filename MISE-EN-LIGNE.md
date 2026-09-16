@@ -149,14 +149,17 @@ régler avant la mise en ligne, ou à retirer du texte (voir les remarques).
 
 **Pour les prises de cotes à domicile**
 
-- [ ] `AGENDA_CLE` dans Vercel : une longue suite de lettres et de chiffres que
-      tu inventes. Elle ouvre ta page privée
+- [ ] `AGENDA_CLE` dans Vercel : au moins 30 caractères tirés au hasard — ne
+      l'invente pas, fais-la fabriquer par `openssl rand -base64 30` dans le
+      Terminal et colle le résultat. Elle ouvre ta page privée
       `https://auboiacier.fr/atelier/agenda?cle=TA_CLE` — la liste des
       rendez-vous payés, avec l'adresse et le téléphone du client — et le flux
       calendrier. Sur cette page, un lien « ouvrir l'abonnement » ajoute les
       rendez-vous dans Apple Calendrier ; pour Google Agenda, colle l'adresse
       du flux dans « Autres agendas → À partir de l'URL ». Chaque nouveau
-      rendez-vous apparaît ensuite tout seul sur ton téléphone.
+      rendez-vous apparaît ensuite tout seul sur ton téléphone. La clé voyage
+      dans l'adresse : si tu as partagé le lien par erreur, change-la dans
+      Vercel et réabonne ton calendrier.
 - [ ] `AGENDA_INDISPONIBLE` (facultatif) : les jours où tu ne veux pas de
       visite, séparés par des virgules (`2026-09-20, 2026-09-21`). Le site ne
       propose jamais le samedi, le dimanche, ni les trois prochains jours.

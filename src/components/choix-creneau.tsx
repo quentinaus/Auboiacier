@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
-import { cleCreneau, libelleCreneau, type Creneau } from "@/lib/agenda";
+import { cleCreneau, libelleCreneau, type Creneau } from "@/lib/creneau";
 
 const ACCENT = "#6d2c2c";
 

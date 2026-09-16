@@ -10,32 +10,32 @@
  * ou après-midi, à partir de trois jours — moins ceux déjà pris et ceux que
  * Quentin a bloqués (AGENDA_INDISPONIBLE, une liste de dates dans Vercel).
  */
+// Ce fichier parle à Stripe : il ne doit jamais partir dans le navigateur.
+// « server-only » fait échouer la compilation si un composant "use client"
+// l'importe — la partie pure (types, clés, libellés) est dans creneau.ts.
+import "server-only";
+import { timingSafeEqual } from "node:crypto";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
-
-export type DemiJournee = "matin" | "apres-midi";
-
-/** Un créneau : « 2026-09-23|matin ». C'est ce qui voyage et ce qui se stocke. */
-export type Creneau = { date: string; demi: DemiJournee };
+import { cleCreneau, lireCreneau, type Creneau, HEURES } from "./creneau";
+// Les fichiers serveur qui importent @/lib/agenda continuent de tout y trouver.
+export * from "./creneau";
 
 /** À partir de quand on peut venir, et jusqu'où on propose. */
 const DELAI_JOURS = 3;
 const HORIZON_JOURS = 42;
-/** Les heures des deux demi-journées, dans le calendrier de Quentin. */
-export const HEURES: Record<DemiJournee, [string, string]> = {
-  matin: ["09:00", "12:00"],
-  "apres-midi": ["14:00", "17:00"],
-};
 
-export function cleCreneau(c: Creneau) {
-  return `${c.date}|${c.demi}`;
-}
-
-export function lireCreneau(texte: string | undefined | null): Creneau | null {
-  if (!texte) return null;
-  const [date, demi] = texte.split("|");
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? "")) return null;
-  if (demi !== "matin" && demi !== "apres-midi") return null;
-  return { date, demi };
+/**
+ * La clé reçue ouvre-t-elle l'agenda privé (page et flux ICS) ? Comparée à
+ * AGENDA_CLE octet par octet en temps constant : un `!==` s'arrête au premier
+ * caractère différent, et ce temps de réponse trahit, lettre après lettre,
+ * la clé attendue. Sans clé configurée, rien n'ouvre.
+ */
+export function cleAgendaValide(recue: unknown): recue is string {
+  const attendue = process.env.AGENDA_CLE;
+  if (!attendue || typeof recue !== "string" || !recue) return false;
+  const a = Buffer.from(recue);
+  const b = Buffer.from(attendue);
+  return a.length === b.length && timingSafeEqual(a, b);
 }
 
 /** La date d'aujourd'hui, en Europe/Paris, au format AAAA-MM-JJ. */
@@ -64,13 +64,24 @@ function datesBloquees(): Set<string> {
 }
 
 /**
+ * La dernière lecture chez Stripe, gardée une minute : un rendez-vous se paie
+ * rarement deux fois dans la minute, et sans cela chaque visiteur du
+ * calendrier déclenchait une recherche Stripe — un robot pouvait épuiser la
+ * limite d'appels du compte. `frais = true` force la relecture : c'est ce que
+ * fait la vérification AU PAIEMENT, qui doit être exacte.
+ */
+let memoirePris: { a: number; valeur: Set<string> } | null = null;
+const MEMOIRE_MS = 60_000;
+
+/**
  * Les créneaux déjà payés, lus chez Stripe. Le rendez-vous est dans les
  * métadonnées du paiement (voir /api/commande). Sans Stripe, ou si la
  * recherche échoue, on n'en cache aucun : mieux vaut un doublon que Quentin
  * règle au téléphone qu'un agenda vide.
  */
-export async function creneauxPris(): Promise<Set<string>> {
+export async function creneauxPris(frais = false): Promise<Set<string>> {
   if (!isStripeConfigured()) return new Set();
+  if (!frais && memoirePris && Date.now() - memoirePris.a < MEMOIRE_MS) return memoirePris.valeur;
   try {
     const pris = new Set<string>();
     const stripe = getStripe();
@@ -80,6 +91,8 @@ export async function creneauxPris(): Promise<Set<string>> {
     })) {
       if (pi.metadata?.rdv) pris.add(pi.metadata.rdv);
     }
+    // On ne mémorise jamais un échec : en cas de doute, on ne cache aucun créneau.
+    memoirePris = { a: Date.now(), valeur: pris };
     return pris;
   } catch (error) {
     console.error("[agenda] créneaux pris illisibles :", error);
@@ -88,8 +101,8 @@ export async function creneauxPris(): Promise<Set<string>> {
 }
 
 /** Tous les créneaux qu'on peut proposer aujourd'hui, dans l'ordre. */
-export async function creneauxDisponibles(): Promise<Creneau[]> {
-  const pris = await creneauxPris();
+export async function creneauxDisponibles(frais = false): Promise<Creneau[]> {
+  const pris = await creneauxPris(frais);
   const bloquees = datesBloquees();
   const debut = ajouterJours(aujourdhui(), DELAI_JOURS);
   const liste: Creneau[] = [];
@@ -108,28 +121,9 @@ export async function creneauxDisponibles(): Promise<Creneau[]> {
 
 /** Ce créneau est-il encore proposable ? Vérifié au moment de payer. */
 export async function creneauValide(c: Creneau): Promise<boolean> {
-  const dispo = await creneauxDisponibles();
+  const dispo = await creneauxDisponibles(true);
   const cle = cleCreneau(c);
   return dispo.some((d) => cleCreneau(d) === cle);
-}
-
-/** « mardi 23 septembre, matin » — pour le client, le panier et le bon de commande. */
-export function libelleCreneau(c: Creneau, locale: "fr" | "en"): string {
-  const date = new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "fr-FR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    timeZone: "Europe/Paris",
-  }).format(new Date(`${c.date}T12:00:00Z`));
-  const demi =
-    locale === "en"
-      ? c.demi === "matin"
-        ? "morning"
-        : "afternoon"
-      : c.demi === "matin"
-        ? "matin"
-        : "après-midi";
-  return `${date}, ${demi}`;
 }
 
 /** Les rendez-vous payés, pour l'agenda de Quentin (flux et page privée). */

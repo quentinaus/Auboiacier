@@ -42,10 +42,15 @@ export default async function ContactPage({
     : typeof produit === "string"
       ? produit.replace(/-/g, " ")
       : "";
-  const configuration = typeof config === "string" ? config : "";
+  // Ces deux paramètres viennent de l'adresse : un lien forgé peut y mettre
+  // n'importe quoi. On borne la longueur et on retire les caractères de
+  // contrôle, en gardant les retours à la ligne et tabulations du relevé.
+  const propre = (valeur: unknown, max: number) =>
+    typeof valeur === "string" ? valeur.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "").slice(0, max) : "";
+  const configuration = propre(config, 200);
   // Le relevé de cotes fait par le client sur la fiche : il arrive ici déjà
   // écrit, sur ses propres lignes, pour qu'il n'ait pas à le retaper.
-  const cotes = typeof releve === "string" ? releve : "";
+  const cotes = propre(releve, 2000);
   const prefill = piece
     ? `${piece}${configuration ? ` — ${configuration}` : ""}\n${cotes ? `${cotes}\n` : ""}\n`
     : "";

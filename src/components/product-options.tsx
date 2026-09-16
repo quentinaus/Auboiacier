@@ -29,7 +29,7 @@ import {
 } from "./releve-garde-corps";
 import { PRISE_DE_COTES } from "@/lib/deplacement";
 import { VisiteAtelier } from "./prise-de-cotes";
-import { libelleCreneau, lireCreneau } from "@/lib/agenda";
+import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 
 const ACCENT = "#6d2c2c";
 

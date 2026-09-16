@@ -1,4 +1,4 @@
-import { fluxIcs, rendezVousPayes } from "@/lib/agenda";
+import { cleAgendaValide, fluxIcs, rendezVousPayes } from "@/lib/agenda";
 
 export const runtime = "nodejs";
 
@@ -8,9 +8,8 @@ export const runtime = "nodejs";
  * contient des coordonnées de clients.
  */
 export async function GET(request: Request) {
-  const cle = process.env.AGENDA_CLE;
   const donnee = new URL(request.url).searchParams.get("cle");
-  if (!cle || !donnee || donnee !== cle) {
+  if (!cleAgendaValide(donnee)) {
     return new Response("Not found", { status: 404 });
   }
   const flux = fluxIcs(await rendezVousPayes());

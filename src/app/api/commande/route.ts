@@ -3,6 +3,7 @@ import { remiseLot, resolveSelection, type Product } from "@/lib/products";
 import { isEmailConfigured } from "@/lib/email";
 import { getStripe, isStripeConfigured, newOrderRef, piedDeFacture, siteOrigin } from "@/lib/stripe";
 import { creerLimite } from "@/lib/limite-debit";
+import { origineEtrangere } from "@/lib/origine";
 import { productLocalise } from "@/lib/products";
 import { PRISE_DE_COTES, calculerDeplacement, libellePriseDeCotes } from "@/lib/deplacement";
 import { cleCreneau, creneauValide, libelleCreneau, lireCreneau } from "@/lib/agenda";
@@ -58,8 +59,13 @@ const asMm = (value: unknown) => {
  * entrée, tout est recalculé ici depuis le catalogue.
  */
 export async function POST(request: Request) {
+  // Un site tiers ne doit pas pouvoir ouvrir des paiements par le navigateur
+  // de ses visiteurs : refusé avant même de compter le passage.
+  if (origineEtrangere(request)) {
+    return NextResponse.json({ error: "origin" }, { status: 403 });
+  }
   if (tropDeDemandes(request, Date.now())) {
-    return NextResponse.json({ error: "too_many" }, { status: 429 });
+    return NextResponse.json({ error: "too_many" }, { status: 429, headers: { "retry-after": "600" } });
   }
 
   // Les trois clés (clé secrète Stripe, secret du webhook, clé Resend) doivent

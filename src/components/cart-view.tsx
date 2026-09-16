@@ -9,7 +9,7 @@ import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { serif } from "@/lib/fonts";
 import { prixAffiche } from "@/lib/ui";
 import { PRISE_DE_COTES, libellePriseDeCotes } from "@/lib/deplacement";
-import { libelleCreneau, lireCreneau } from "@/lib/agenda";
+import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 
 const ACCENT = "#6d2c2c";
 

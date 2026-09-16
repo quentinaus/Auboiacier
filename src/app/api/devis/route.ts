@@ -1,28 +1,16 @@
 import { NextResponse } from "next/server";
 import { canNotifyOwner, ownerEmail, sendEmail } from "@/lib/email";
 import { creerLimite } from "@/lib/limite-debit";
+import { origineEtrangere } from "@/lib/origine";
+import { EMAIL_VALIDE, MAX_TEXTE, envoiTropRapide, fichiersTropLourds } from "@/lib/devis-regles";
 
 export const runtime = "nodejs";
 /** Une demande avec pièces jointes prend quelques secondes, jamais plus. */
 export const maxDuration = 30;
 
-const MAX_FILES = 2;
-const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3 Mo par fichier
-const MAX_TOTAL_SIZE = 3.5 * 1024 * 1024; // 3,5 Mo au total : l'hébergeur refuse au-delà
-
-/**
- * Longueur maximale de chaque champ.
- * Sans borne, on peut coller un roman dans « Nom » : l'e-mail devient
- * illisible et le quota d'envoi part en fumée.
- */
-const MAX_TEXTE = {
-  name: 120,
-  email: 200,
-  phone: 40,
-  city: 80,
-  project: 80,
-  message: 8000,
-} as const;
+// Les bornes des champs et des pièces jointes (MAX_TEXTE, MAX_FICHIERS…) et
+// la règle de l'e-mail vivent dans src/lib/devis-regles.ts : le formulaire du
+// navigateur applique exactement les mêmes.
 
 /**
  * Coupe un champ trop long au lieu de refuser la demande, et le remet sur une
@@ -35,14 +23,6 @@ function borne(valeur: string, max: number, marque = "", uneSeuleLigne = true) {
   const propre = uneSeuleLigne ? valeur.replace(/[\r\n\t\u0000-\u001f]+/g, " ").trim() : valeur;
   return propre.length <= max ? propre : propre.slice(0, max) + marque;
 }
-
-/**
- * Une adresse e-mail plausible. Le contrôle d'avant se contentait d'un « @ » :
- * le site envoyait alors un accusé de réception à ce que le visiteur avait
- * tapé. Autrement dit, une machine à envoyer du courrier depuis le domaine de
- * l'atelier — le quota part en fumée et le domaine finit signalé comme spam.
- */
-const EMAIL_VALIDE = /^[^\s@,;:<>"'\\]+@[^\s@,;:<>"'\\]+\.[A-Za-z]{2,24}$/;
 
 /**
  * Formats acceptés en pièce jointe, reconnus à leurs premiers octets et non à
@@ -90,8 +70,13 @@ const tooManyRequests = creerLimite({ fenetreMs: 10 * 60 * 1000, maximum: 3 });
 
 /** Réception d'une demande de devis : validation puis envoi par e-mail. */
 export async function POST(request: Request) {
+  // Un site tiers ne doit pas pouvoir poster des demandes par le navigateur
+  // de ses visiteurs : refusé avant même de compter le passage.
+  if (origineEtrangere(request)) {
+    return NextResponse.json({ error: "origin" }, { status: 403 });
+  }
   if (tooManyRequests(request, Date.now())) {
-    return NextResponse.json({ error: "too_many" }, { status: 429 });
+    return NextResponse.json({ error: "too_many" }, { status: 429, headers: { "retry-after": "600" } });
   }
 
   let form: FormData;
@@ -105,6 +90,12 @@ export async function POST(request: Request) {
   // Champ piège : rempli uniquement par les robots.
   if (String(form.get("website") ?? "")) {
     return NextResponse.json({ ok: true });
+  }
+
+  // Piège temporel : le formulaire envoie le temps passé dessus. Un robot
+  // poste en moins d'une seconde, un humain met plus de trois (voir devis-regles.ts).
+  if (envoiTropRapide(form.get("dureeMs"))) {
+    return NextResponse.json({ ok: true }); // trop rapide pour un humain : on fait comme si
   }
 
   const name = borne(String(form.get("name") ?? "").trim(), MAX_TEXTE.name);
@@ -128,12 +119,7 @@ export async function POST(request: Request) {
   }
 
   const files = form.getAll("files").filter((f): f is File => f instanceof File && f.size > 0);
-  const totalSize = files.reduce((sum, file) => sum + file.size, 0);
-  if (
-    files.length > MAX_FILES ||
-    files.some((f) => f.size > MAX_FILE_SIZE) ||
-    totalSize > MAX_TOTAL_SIZE
-  ) {
+  if (fichiersTropLourds(files)) {
     return NextResponse.json({ error: "too_big" }, { status: 413 });
   }
 
