@@ -77,9 +77,15 @@ export default async function FaqPage({ params }: PageProps<"/[lang]/faq">) {
             </Link>
             <Link
               href={`/${locale}/zone-intervention`}
-              className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-[#6d2c2c]"
+              className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-[#6d2c2c]"
             >
               {t.zoneLink}
+            </Link>
+            <Link
+              href={`/${locale}/rendez-vous`}
+              className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-[#6d2c2c]"
+            >
+              {t.rdvLink}
             </Link>
           </div>
         </section>

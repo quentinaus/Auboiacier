@@ -407,6 +407,8 @@
     "ctaAutre": "Describe another project",
     "ctaModelesNote": "Answer in one minute",
     "ctaAutreNote": "Reply within 24 to 72 hours",
+    "ctaRdv": "Home measuring visit",
+    "ctaRdvNote": "From €19.99, slot booked online",
     "etapesTitle": "How it works",
     "etapes": [
       {
@@ -974,7 +976,8 @@
     "ctaTitle": "Your question is not here?",
     "ctaBody": "Ask it directly: we answer within 48 hours, and never with a canned reply.",
     "ctaLabel": "Ask your question",
-    "zoneLink": "See where we work"
+    "zoneLink": "See where we work",
+    "rdvLink": "Home measuring visit"
   },
   "rdv": {
     "eyebrow": "On-site measuring",
@@ -1014,5 +1017,13 @@
     "texte": "We reply within 24 to 72 hours to the address you gave. Remember to check your spam folder.",
     "retour": "Back to the home page",
     "devis": "See the instant-quote pieces"
+  },
+  "introuvable": {
+    "code": "Error 404",
+    "title": "This page does not exist",
+    "body": "The address may have changed, or the piece you were looking for is no longer in the catalogue. Start again from the home page, browse the furniture or request a quote.",
+    "home": "Back to home",
+    "craft": "Browse the furniture",
+    "quote": "Request a quote"
   }
 }

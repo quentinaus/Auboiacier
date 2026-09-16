@@ -101,7 +101,7 @@ function Pastille({ n }: { n: number }) {
 }
 
 const SELECT =
-  "h-10 w-[8.5rem] shrink-0 rounded-full border border-[#e5ddd3] bg-white px-3.5 text-base text-[#2b2320] focus:border-[#6d2c2c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] sm:text-[15px]";
+  "h-10 w-[8.5rem] shrink-0 rounded-full border border-[#9a8d80] bg-white px-3.5 text-base text-[#2b2320] focus:border-[#6d2c2c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] sm:text-[15px]";
 
 /**
  * Le relevé d'un garde-corps de fenêtre.
@@ -190,7 +190,7 @@ export function ReleveGardeCorps({
         <InfoBulle texte={props.aide ? `${props.info} ${props.aide}` : props.info} label={t.gcInfoLabel} />
         {props.label}
       </span>
-      <span className="flex h-10 w-[8.5rem] shrink-0 items-center gap-1 rounded-full border border-[#e5ddd3] bg-white px-3.5 transition-[border-color,box-shadow] focus-within:border-[#6d2c2c] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
+      <span className="flex h-10 w-[8.5rem] shrink-0 items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3.5 transition-[border-color,box-shadow] focus-within:border-[#6d2c2c] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
         <input
           id={`${idChamps}-${cote}`}
           inputMode="decimal"
@@ -199,7 +199,7 @@ export function ReleveGardeCorps({
           placeholder={props.placeholder}
           onFocus={() => setCoteActive(cote)}
           onBlur={() => setCoteActive(null)}
-          className="w-full min-w-0 bg-transparent text-right text-base tabular-nums text-[#2b2320] placeholder:text-[#c4b9ac] outline-none focus-visible:shadow-none focus-visible:outline-none sm:text-[15px]"
+          className="w-full min-w-0 bg-transparent text-right text-base tabular-nums text-[#2b2320] placeholder:text-[#726757] outline-none focus-visible:shadow-none focus-visible:outline-none sm:text-[15px]"
         />
         <span className="text-xs text-[#6f6357]">mm</span>
       </span>
@@ -272,7 +272,7 @@ export function ReleveGardeCorps({
                 <InfoBulle texte={t.gcEtageInfo} label={t.gcInfoLabel} />
                 {t.gcEtage}
               </span>
-              <div className="flex shrink-0 rounded-full border border-[#e5ddd3] bg-white p-0.5">
+              <div className="flex shrink-0 rounded-full border border-[#9a8d80] bg-white p-0.5">
                 {t.gcEtageOptions.map((option, i) => {
                   const actifBouton = cotes.etage === option || (cotes.etage === "" && i === 0);
                   return (

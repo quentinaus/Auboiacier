@@ -189,7 +189,7 @@ function Ligne({
       </span>
       {/* Le focus est porté par la pilule seule — bordure bordeaux et halo
           léger ; le filet de sécurité global est coupé sur le champ. */}
-      <span className="flex h-10 w-[8.5rem] shrink-0 items-center gap-1 rounded-full border border-[#e5ddd3] bg-white px-3.5 transition-[border-color,box-shadow] focus-within:border-[#6d2c2c] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
+      <span className="flex h-10 w-[8.5rem] shrink-0 items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3.5 transition-[border-color,box-shadow] focus-within:border-[#6d2c2c] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
         <input
           id={id}
           inputMode="decimal"
@@ -200,7 +200,7 @@ function Ligne({
           placeholder={bornes}
           aria-describedby={[bornesId, erreurId].filter(Boolean).join(" ")}
           aria-invalid={erreurId ? true : undefined}
-          className="w-full min-w-0 bg-transparent text-right text-base tabular-nums text-[#2b2320] placeholder:text-[#c4b9ac] outline-none focus-visible:shadow-none focus-visible:outline-none sm:text-[15px]"
+          className="w-full min-w-0 bg-transparent text-right text-base tabular-nums text-[#2b2320] placeholder:text-[#726757] outline-none focus-visible:shadow-none focus-visible:outline-none sm:text-[15px]"
         />
         <span className="text-xs text-[#6f6357]">{unite}</span>
         <span id={bornesId} className="sr-only">
@@ -795,7 +795,7 @@ export function ProductOptions({
               {product.sizeLabel ? product.sizeLabel[locale] : t.sizeLabel}
             </span>
             {bareme && !product.releve && (
-              <div role="radiogroup" aria-label={t.customUnit} className="flex rounded-full border border-[#e5ddd3] bg-white p-0.5">
+              <div role="radiogroup" aria-label={t.customUnit} className="flex rounded-full border border-[#9a8d80] bg-white p-0.5">
                 {(["mm", "cm", "m"] as const).map((u) => (
                   <button
                     key={u}
@@ -882,7 +882,7 @@ export function ProductOptions({
                       <div
                         role="radiogroup"
                         aria-labelledby={`${idTailles}-epaisseur-titre`}
-                        className="flex h-10 items-center rounded-full border border-[#e5ddd3] bg-white p-0.5"
+                        className="flex h-10 items-center rounded-full border border-[#9a8d80] bg-white p-0.5"
                       >
                         {bareme.epaisseur.choixMm.map((mm) => {
                           const choisi = mm === epaisseurMm;
@@ -898,7 +898,7 @@ export function ProductOptions({
                               title={tropFin ? t.customThicknessTooThin.replace("{portee}", String(porteeMm)) : undefined}
                               onClick={() => setEpaisseurSaisie(String(mm))}
                               aria-label={`${mm} mm`}
-                              className={`h-full rounded-full px-3.5 text-[13px] tabular-nums transition-colors disabled:cursor-not-allowed disabled:text-[#c4b9ac] ${
+                              className={`h-full rounded-full px-3.5 text-[13px] tabular-nums transition-colors disabled:cursor-not-allowed disabled:text-[#a3968a] ${
                                 choisi ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"
                               }`}
                             >
@@ -938,7 +938,7 @@ export function ProductOptions({
                   <div className="flex items-center justify-between gap-4 py-2.5 text-sm text-[#6f6357]">
                     <span id={`${idTailles}-hauteur-titre`}>{t.customTableHeight}</span>
                     {hauteurOuverte ? (
-                      <span className="flex h-10 w-[8.5rem] items-center gap-1 rounded-full border border-[#e5ddd3] bg-white px-3.5 focus-within:border-[#6d2c2c] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
+                      <span className="flex h-10 w-[8.5rem] items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3.5 focus-within:border-[#6d2c2c] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
                         <input
                           id={`${idTailles}-hauteur`}
                           autoFocus
@@ -1005,7 +1005,7 @@ export function ProductOptions({
                     setCotes({ largeurMm, hauteurMm, epaisseurMm });
                     setSizeId(SUR_MESURE);
                   }}
-                  className="w-full rounded-full bg-[#2b2320] px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-30 sm:w-auto"
+                  className="w-full rounded-full bg-[#2b2320] px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                 >
                   {sizeId === SUR_MESURE ? `✓ ${t.customApplied}` : t.customApply}
                 </button>
@@ -1149,7 +1149,10 @@ export function ProductOptions({
       {/* Les pièces qui se relèvent avant d'être chiffrées : l'escalier demande
           sa hauteur, son recul et sa trémie, et rend le calcul aussitôt. */}
       {product.releve === "escalier" && product.priseDeCotes && (
-        <div className="@container mt-4 border-t border-[#e5ddd3] pt-4">
+        // id="cotes" : la page Prise de cotes à domicile envoie ici (…#cotes),
+        // comme sur les tables et le garde-corps ; sans lui, le lien tombait en
+        // haut de la fiche. scroll-mt-28 laisse la place de l'en-tête fixe.
+        <div className="@container mt-4 scroll-mt-28 border-t border-[#e5ddd3] pt-4" id="cotes">
           <span className={GROUP_LABEL}>{t.gcVisiteResume}</span>
           {/* Uniquement sur devis : l'atelier vient prendre les cotes, et c'est
               la visite qu'on met au panier. Pas de cotes à taper soi-même. */}
@@ -1202,7 +1205,7 @@ export function ProductOptions({
       {orderable || modeVisite ? (
         <div className="mt-3">
           <div className="flex items-center gap-4">
-            <div className={`flex items-center rounded-full border border-[#e5ddd3] ${modeVisite ? "hidden" : ""}`}>
+            <div className={`flex items-center rounded-full border border-[#9a8d80] ${modeVisite ? "hidden" : ""}`}>
               <button
                 type="button"
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -1238,7 +1241,7 @@ export function ProductOptions({
           {quantity > 1 && total !== null && (
             <p className="mt-3 text-center text-sm tabular-nums text-[#5c5140]">
               {lotActif && prixLot !== total && (
-                <s className="mr-1.5 text-[#a3968a]">{prixAffiche(total, locale)}</s>
+                <s className="mr-1.5 text-[#6f6357]">{prixAffiche(total, locale)}</s>
               )}
               {prixAffiche(prixLot ?? total, locale)} × {quantity} {t.cartTotalLine}{" "}
               <span className="font-medium">{prixAffiche((prixLot ?? total) * quantity, locale)}</span>
@@ -1261,7 +1264,7 @@ export function ProductOptions({
                   </span>{" "}
                   {quantity === 1 && prixLot !== null && prixLot !== total && (
                     <span className="tabular-nums">
-                      <s className="text-[#a3968a]">{prixAffiche(total, locale)}</s>{" "}
+                      <s className="text-[#6f6357]">{prixAffiche(total, locale)}</s>{" "}
                       <span className="font-medium text-[#2a2116]">{prixAffiche(prixLot, locale)}</span>
                     </span>
                   )}
@@ -1366,7 +1369,7 @@ export function ProductOptions({
       {/* La barre d'achat du téléphone : elle n'apparaît que lorsque le vrai
           bouton est sorti de l'écran, et disparaît dès qu'il revient. */}
       {orderable && !boutonVisible && (
-        <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-[#e5ddd3] bg-[#fbf9f6]/95 px-4 py-3 backdrop-blur md:hidden">
+        <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-[#e5ddd3] bg-[#fbf9f6]/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur md:hidden">
           <div className="min-w-0">
             <p
               className="text-lg font-medium leading-tight tabular-nums"

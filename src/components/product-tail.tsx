@@ -63,7 +63,7 @@ export function ProductTail({
           <div className="mt-8 text-center">
             <Link
               href={`/${locale}/toiles-tendues/realisations`}
-              className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-[#6d2c2c]"
+              className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-[#6d2c2c]"
             >
               {t.avisCta}
             </Link>

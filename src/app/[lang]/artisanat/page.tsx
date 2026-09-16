@@ -174,10 +174,10 @@ export default async function ArtisanatPage({
                   <Link
                     key={product.slug}
                     href={`/${locale}/artisanat/${product.slug}`}
-                    className={`group flex flex-col gap-4 ${convient === "non" ? "opacity-60" : ""}`}
+                    className="group flex flex-col gap-4"
                   >
                     <div
-                      className={`relative aspect-[4/3] overflow-hidden rounded-xl ${hoverZoom}`}
+                      className={`relative aspect-[4/3] overflow-hidden rounded-xl ${hoverZoom} ${convient === "non" ? "opacity-60 grayscale" : ""}`}
                       // Le cadre prend la teinte du fond de la photo : son contour ne se voit plus.
                       style={{ backgroundColor: product.images[0]?.bg ?? "#ffffff" }}
                     >

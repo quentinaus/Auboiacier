@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { lang } from "next/root-params";
+import { isLocale, defaultLocale, type Locale } from "@/lib/i18n";
+import { getDictionary } from "./dictionaries";
+import { GlobalHeader } from "@/components/global-header";
+import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
 import { ATELIER } from "@/lib/seo";
 
@@ -9,50 +14,57 @@ import { ATELIER } from "@/lib/seo";
  * page grise par défaut, avec « 404: This page could not be found. » comme
  * titre — même sur le site français.
  *
- * Cette page ne reçoit pas la langue de l'adresse : elle parle donc les deux,
- * français d'abord, et renvoie vers l'accueil de chacune.
+ * not-found.tsx ne reçoit aucune prop : la langue de l'adresse se lit avec
+ * next/root-params (le segment [lang] au-dessus du layout racine). La page
+ * garde ainsi l'en-tête, le pied de page et la langue du visiteur, avec trois
+ * portes de sortie : l'accueil, le mobilier, le devis.
  */
-export const metadata: Metadata = {
-  title: { absolute: `Page introuvable — ${ATELIER.nom} ${ATELIER.ville}` },
-  // Pas de `robots` ici : Next ajoute lui-même « noindex » à toute page
-  // introuvable — une erreur n'a rien à faire dans les résultats de recherche.
-};
+async function langueDemandee(): Promise<Locale> {
+  const brut = (await lang()) ?? defaultLocale;
+  return isLocale(brut) ? brut : defaultLocale;
+}
 
-export default function NotFound() {
+export async function generateMetadata(): Promise<Metadata> {
+  const dict = await getDictionary(await langueDemandee());
+  return {
+    // Titre absolu : le modèle du layout ajouterait un second « Auboiacier ».
+    title: { absolute: `${dict.introuvable.title} — ${ATELIER.nom} ${ATELIER.ville}` },
+    // Pas de `robots` ici : Next ajoute lui-même « noindex » à toute page
+    // introuvable — une erreur n'a rien à faire dans les résultats de recherche.
+  };
+}
+
+export default async function NotFound() {
+  const locale = await langueDemandee();
+  const dict = await getDictionary(locale);
+  const t = dict.introuvable;
+
+  const secondaire =
+    "inline-flex items-center justify-center rounded-full border border-[#2b2320]/25 px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] transition-colors hover:border-[#6d2c2c] hover:text-[#6d2c2c]";
+
   return (
     <div className="min-h-screen bg-[#fbf9f6] text-[#2b2320]">
-      <main id="contenu" className="mx-auto max-w-2xl px-6 py-24 text-center md:py-32">
-        <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
-          {ATELIER.nom} — {ATELIER.ville}
-        </p>
-        <span aria-hidden className="mx-auto my-8 block h-px w-10 bg-[#6d2c2c]/60" />
-        <h1 className={`${serif.className} text-3xl md:text-4xl`} lang="fr">
-          Page introuvable
-        </h1>
-        <p className="mx-auto mt-5 max-w-md leading-relaxed text-[#5c5140]" lang="fr">
-          Cette adresse ne mène nulle part : la page a été déplacée, ou le lien est mal
-          recopié.
-        </p>
-        <p className="mx-auto mt-3 max-w-md leading-relaxed text-[#6f6357]" lang="en">
-          This page could not be found — it may have moved, or the link is broken.
-        </p>
-        <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+      <GlobalHeader locale={locale} dict={dict} />
+      <main id="contenu" className="mx-auto max-w-2xl px-6 py-20 text-center md:py-28">
+        <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-[#6f6357]">{t.code}</p>
+        <h1 className={`${serif.className} mt-4 text-3xl md:text-4xl`}>{t.title}</h1>
+        <p className="mx-auto mt-5 max-w-md leading-relaxed text-[#5c5140]">{t.body}</p>
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
           <Link
-            href="/fr"
-            lang="fr"
+            href={`/${locale}`}
             className="inline-flex items-center justify-center rounded-full bg-[#6d2c2c] px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors hover:bg-[#5a2323]"
           >
-            Retour à l’accueil
+            {t.home}
           </Link>
-          <Link
-            href="/en"
-            lang="en"
-            className="inline-flex items-center justify-center rounded-full border border-[#2b2320]/25 px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] transition-colors hover:border-[#6d2c2c] hover:text-[#6d2c2c]"
-          >
-            Back to the home page
+          <Link href={`/${locale}/artisanat`} className={secondaire}>
+            {t.craft}
+          </Link>
+          <Link href={`/${locale}/devis`} className={secondaire}>
+            {t.quote}
           </Link>
         </div>
       </main>
+      <SiteFooter locale={locale} dict={dict} />
     </div>
   );
 }

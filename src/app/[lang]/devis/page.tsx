@@ -100,6 +100,17 @@ export default async function DevisPage({ params }: PageProps<"/[lang]/devis">) 
               </a>
               <span className="text-xs text-[#6f6357]">{t.ctaAutreNote}</span>
             </div>
+            {/* Troisième porte : la prise de cotes à domicile. La page existait
+                (sitemap) mais aucun lien n'y menait ; personne ne la trouvait. */}
+            <div className="flex flex-col items-center gap-2">
+              <Link
+                href={`/${locale}/rendez-vous`}
+                className="inline-flex items-center justify-center rounded-full border border-[#2b2320]/25 px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] transition-colors hover:border-[#6d2c2c] hover:text-[#6d2c2c]"
+              >
+                {t.ctaRdv}
+              </Link>
+              <span className="text-xs text-[#6f6357]">{t.ctaRdvNote}</span>
+            </div>
           </div>
         </div>
 

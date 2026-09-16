@@ -407,6 +407,8 @@
     "ctaAutre": "Décrire un autre projet",
     "ctaModelesNote": "Réponse en une minute",
     "ctaAutreNote": "Réponse entre 24 et 72 h",
+    "ctaRdv": "Prise de cotes à domicile",
+    "ctaRdvNote": "Dès 19,99 €, créneau réservé en ligne",
     "etapesTitle": "Comment ça marche",
     "etapes": [
       {
@@ -974,7 +976,8 @@
     "ctaTitle": "Votre question n'est pas là ?",
     "ctaBody": "Posez-la directement : nous répondons sous 48 h, et jamais avec une réponse toute faite.",
     "ctaLabel": "Poser ma question",
-    "zoneLink": "Voir la zone d'intervention"
+    "zoneLink": "Voir la zone d'intervention",
+    "rdvLink": "Prise de cotes à domicile"
   },
   "rdv": {
     "eyebrow": "Prise de cotes à domicile",
@@ -1014,5 +1017,13 @@
     "texte": "Nous vous répondons entre 24 et 72 h, à l'adresse indiquée. Pensez à vérifier vos courriers indésirables.",
     "retour": "Retour à l'accueil",
     "devis": "Voir les pièces à devis instantané"
+  },
+  "introuvable": {
+    "code": "Erreur 404",
+    "title": "Cette page n'existe pas",
+    "body": "L'adresse a peut-être changé, ou la pièce que vous cherchiez n'est plus au catalogue. Repartez de l'accueil, parcourez le mobilier ou demandez un devis.",
+    "home": "Retour à l'accueil",
+    "craft": "Voir le mobilier",
+    "quote": "Demander un devis"
   }
 }

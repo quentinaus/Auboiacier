@@ -186,7 +186,7 @@ export function ReleveEscalier({
               placeholder="900"
             />
           </div>
-          <p className="mt-1.5 text-[10px] leading-snug text-[#726757]">{t.releveTremieAide}</p>
+          <p className="mt-1.5 text-[11px] leading-snug text-[#726757]">{t.releveTremieAide}</p>
 
           <label className="mt-4 block">
             <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#6f6357]">
@@ -195,7 +195,7 @@ export function ReleveEscalier({
             <select
               value={cotes.depart}
               onChange={(event) => set("depart")(event.target.value)}
-              className="mt-1.5 w-full rounded-xl border border-[#e5ddd3] bg-white px-3 py-2.5 text-base text-[#2a2116] focus:border-[#6d2c2c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] sm:text-sm"
+              className="mt-1.5 w-full rounded-xl border border-[#9a8d80] bg-white px-3 py-2.5 text-base text-[#2a2116] focus:border-[#6d2c2c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] sm:text-sm"
             >
               <option value="">—</option>
               {t.releveDepartOptions.map((option) => (
@@ -243,7 +243,7 @@ export function ReleveEscalier({
               : ""}
           </p>
 
-          <p className="mt-2 text-[10px] leading-snug text-[#726757]">{t.releveNote}</p>
+          <p className="mt-2 text-[11px] leading-snug text-[#726757]">{t.releveNote}</p>
         </div>
       </div>
     </div>

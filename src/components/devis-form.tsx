@@ -10,7 +10,7 @@ import type { Dictionary } from "@/app/[lang]/dictionaries";
 
 const ACCENT = "#6d2c2c";
 const FIELD =
-  "mt-2 w-full rounded-lg border border-[#e0d8cd] bg-white px-4 py-3 text-base text-[#2b2320] transition-colors placeholder:text-[#726757] focus:border-[#6d2c2c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] sm:text-sm";
+  "mt-2 w-full rounded-lg border border-[#9a8d80] bg-white px-4 py-3 text-base text-[#2b2320] transition-colors placeholder:text-[#726757] focus:border-[#6d2c2c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] sm:text-sm";
 const LABEL = "block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6f6357]";
 
 type Status =

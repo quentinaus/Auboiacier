@@ -385,7 +385,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               <Link
                 key={lien.href}
                 href={lien.href}
-                className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-[#6d2c2c]"
+                className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-[#6d2c2c]"
               >
                 {lien.label}
               </Link>

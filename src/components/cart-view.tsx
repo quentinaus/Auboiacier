@@ -319,7 +319,7 @@ export function CartView({
 
               <div className="mt-1 flex items-center gap-4">
                 {!line.visite && (
-                <div className="flex items-center rounded-full border border-[#e5ddd3]">
+                <div className="flex items-center rounded-full border border-[#9a8d80]">
                   {/* Un lecteur d'écran entend « moins », « plus », « retirer » :
                       sans le nom de la pièce, on ne sait pas laquelle on modifie. */}
                   <button
@@ -362,7 +362,7 @@ export function CartView({
                 {!line.visite && (
                   <span className="text-sm tabular-nums text-[#726757]">
                     {line.prixCatalogue !== undefined && (
-                      <s className="mr-1.5 text-[#a3968a]">{prixAffiche(line.prixCatalogue, locale)}</s>
+                      <s className="mr-1.5 text-[#6f6357]">{prixAffiche(line.prixCatalogue, locale)}</s>
                     )}
                     {prixAffiche(line.unitPrice, locale)} × {line.quantity}
                   </span>
@@ -388,7 +388,7 @@ export function CartView({
                       ? `${t.remove} ${line.name} du panier`
                       : `${t.remove} ${line.name} from the cart`
                   }
-                  className="ml-auto text-sm text-[#726757] underline underline-offset-4 hover:text-[#6d2c2c]"
+                  className="ml-auto py-1 -my-1 text-sm text-[#726757] underline underline-offset-4 hover:text-[#6d2c2c]"
                 >
                   {t.remove}
                 </button>
@@ -426,7 +426,7 @@ export function CartView({
           placeholder={t.cityPh}
           aria-invalid={showVilleError && !ville.trim()}
           aria-describedby={showVilleError && !ville.trim() ? idVilleErreur : undefined}
-          className="mt-2 w-full rounded-lg border border-[#e0d8cd] bg-white px-4 py-3 text-base text-[#2b2320] transition-colors placeholder:text-[#726757] focus:border-[#6d2c2c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] sm:max-w-sm sm:text-sm"
+          className="mt-2 w-full rounded-lg border border-[#9a8d80] bg-white px-4 py-3 text-base text-[#2b2320] transition-colors placeholder:text-[#726757] focus:border-[#6d2c2c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] sm:max-w-sm sm:text-sm"
         />
         <p className="mt-2 text-xs leading-relaxed text-[#726757]">{t.cityNote}</p>
         {showVilleError && !ville.trim() && (
