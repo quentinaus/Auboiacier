@@ -21,7 +21,9 @@ export async function generateMetadata({
     chemin: "/artisanat",
     title: dict.seo.artisanat.title,
     description: dict.seo.artisanat.description,
-    image: "/images/mikado/devant/noir.jpg",
+    // La photo de la Mikado est très allongée (2,5:1) : les réseaux la
+    // rognaient des deux côtés. Déclinaison fabriquée au format 1200 × 630.
+    image: "/images/partage/artisanat.jpg",
   });
 }
 

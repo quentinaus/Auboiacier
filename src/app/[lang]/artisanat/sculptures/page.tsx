@@ -21,7 +21,9 @@ export async function generateMetadata({
     chemin: "/artisanat/sculptures",
     title: dict.seo.sculptures.title,
     description: dict.seo.sculptures.description,
-    image: "/images/sculpture-cheval-v2.jpg",
+    // La photo du cheval est un portrait : les réseaux n'en montraient que
+    // les deux tiers. Déclinaison composée au format 1200 × 630.
+    image: "/images/partage/sculptures.jpg",
   });
 }
 
