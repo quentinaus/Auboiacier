@@ -18,9 +18,23 @@ body {
   font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* Police d'affichage des titres (voir src/lib/fonts.ts) */
+/* Police d'affichage des titres (voir src/lib/fonts.ts)
+   Hoefler Text dessine l'espace insécable (U+00A0) trois fois plus large
+   qu'une espace : « 400 × 300 cm » ou « pièce ? » s'écartaient dans les
+   titres. Ce seul caractère est donc pris dans Palatino, dont l'insécable a
+   la largeur d'une espace ; le reste du titre reste en Hoefler Text. Sans
+   Hoefler Text (Windows), la famille suivante prend le relais. */
+@font-face {
+  font-family: "Auboiacier Display";
+  src: local("Hoefler Text");
+}
+@font-face {
+  font-family: "Auboiacier Display";
+  src: local("Palatino");
+  unicode-range: U+00A0;
+}
 .font-display {
-  font-family: "Hoefler Text", "Iowan Old Style", Palatino, "Palatino Linotype",
+  font-family: "Auboiacier Display", "Iowan Old Style", Palatino, "Palatino Linotype",
     Georgia, "Times New Roman", serif;
   font-weight: 400;
   letter-spacing: -0.01em;

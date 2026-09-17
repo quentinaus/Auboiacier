@@ -746,21 +746,21 @@ export const products: Product[] = [
     ],
     sections: [
       {
-        title: "Un piétement sculptural",
+        title: "Un piétement soudé d'une seule pièce",
         image: "/images/mikado/ambiance.jpg",
-        body: "Des lames d'acier plein se croisent sous le plateau comme un jeu de mikado : chaque appui semble posé au hasard, mais l'équilibre est calculé au millimètre. Le piétement est soudé d'une seule pièce à l'atelier — aucune vis apparente, aucun raccord.",
+        body: "Des lames d'acier plein se croisent sous le plateau comme un jeu de mikado. Chaque appui semble posé au hasard ; l'équilibre est calculé au millimètre. Le piétement est soudé d'une seule pièce à l'atelier : aucune vis apparente, aucun raccord.",
       },
       {
         title: "Un plateau collé lame par lame",
-        body: "Le plateau de 35 mm est monté en lames larges, collées sur chant, puis poncé et protégé à l'huile-cire — une finition qui pénètre le bois au lieu de le recouvrir. Une rayure se rattrape au papier fin, sur la zone touchée, sans reprendre tout le plateau.",
+        body: "Le plateau de 35 mm est monté en lames larges, collées sur chant, puis poncé. L'huile-cire pénètre le bois au lieu de le recouvrir. Une rayure se rattrape au papier fin, sur la zone touchée, sans reprendre tout le plateau.",
       },
     ],
     specs: [
-      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif au choix, 35 mm (25 ou 45 mm au choix), finition huile-cire" },
+      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 25, 35 ou 45 mm (35 mm au catalogue), finition huile-cire" },
       { label: "Piétement", value: "Acier plein S235, soudure TIG, thermolaquage mat" },
       { label: "Capacité", value: "6 à 14 couverts selon dimension" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "France entière, montage compris" },
+      { label: "Livraison", value: "France métropolitaine, montage compris" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -785,20 +785,20 @@ export const products: Product[] = [
       },
       sections: [
         {
-          title: "A sculptural base",
-          body: "Bars of solid steel cross under the top like a game of pick-up sticks: every leg looks dropped at random, but the balance is worked out to the millimetre. The base is welded in one piece in the workshop — no screws in sight, no joints.",
+          title: "A base welded in one piece",
+          body: "Blades of solid steel cross under the top like a game of pick-up sticks. Every leg looks dropped at random; the balance is worked out to the millimetre. The base is welded in one piece in the workshop: no visible screw, no joint.",
         },
         {
           title: "A top glued board by board",
-          body: "The 35 mm top is built from wide boards glued edge to edge, then sanded and protected with an oil-wax finish that soaks into the wood instead of sitting on top of it. A scratch comes out with fine paper, on that spot alone, without redoing the whole top.",
+          body: "The 35 mm top is built from wide boards glued edge to edge, then sanded. The hardwax oil soaks into the wood instead of sitting on it. A scratch comes out with fine paper, on that spot alone, without redoing the whole top.",
         },
       ],
       specs: [
-        { label: "Top", value: "Pine, beech, oak or walnut to choose from, 35 mm thick (25 or 45 mm to order), oil-wax finish" },
+        { label: "Top", value: "Solid pine, beech, oak or walnut, 25, 35 or 45 mm thick (35 mm for catalogue sizes), hardwax oil finish" },
         { label: "Base", value: "Solid S235 steel, TIG welded, matt powder coating" },
         { label: "Seats", value: "6 to 14 people depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
-        { label: "Delivery", value: "Anywhere in France, assembly included" },
+        { label: "Delivery", value: "Mainland France, assembly included" },
       ],
     },
   },
@@ -809,7 +809,7 @@ export const products: Product[] = [
     category: "interieur",
     orderMode: "cart",
     name: "Table Croix",
-    tagline: "Deux lames d'acier plein en X, d'un bout à l'autre du plateau : les jambes passent.",
+    tagline: "Deux lames d'acier plein en X à chaque bout du plateau, et toute la place pour les jambes.",
     images: [
       {
         src: "/images/table-croix-bout-v2.jpg",
@@ -890,26 +890,26 @@ export const products: Product[] = [
     metals: pieds(),
     sections: [
       {
-        title: "Un X franc, rien à cacher",
-        body: "Deux larges lames d'acier plein se croisent d'un bout à l'autre du plateau et se rejoignent au sol en une seule pièce. La croix est soudée à plat puis meulée : le raccord disparaît, il ne reste qu'un trait net sous la table.",
+        title: "Un X soudé puis meulé",
+        body: "Deux larges lames d'acier plein se croisent sous chaque bout du plateau et rejoignent le sol d'une seule pièce. La croix est soudée à plat puis meulée : le raccord disparaît, il ne reste qu'un trait net sous la table.",
       },
       {
         title: "De la place pour les jambes",
-        body: "Les appuis sont repoussés vers les extrémités : on s'assoit au milieu sans buter dans un pied. C'est la table des tablées longues, celle qui accepte une chaise de plus au dernier moment.",
+        body: "Les appuis sont repoussés vers les extrémités : on s'assoit au milieu sans buter dans un pied. C'est la table des longues tablées, celle qui accepte une chaise de plus au dernier moment.",
       },
     ],
     specs: [
-      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif au choix, 35 mm (25 ou 45 mm au choix), finition huile-cire" },
+      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 25, 35 ou 45 mm (35 mm au catalogue), finition huile-cire" },
       { label: "Piétement", value: "Lames d'acier plein S235, soudure TIG, thermolaquage mat" },
       { label: "Capacité", value: "6 à 14 couverts selon dimension" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "France entière, montage compris" },
+      { label: "Livraison", value: "France métropolitaine, montage compris" },
     ],
     // Traduction anglaise de la fiche.
     en: {
       name: "Croix Table",
       seoMots: "steel & oak table",
-      tagline: "Two solid steel blades in an X, right across the top: your legs go under.",
+      tagline: "Two solid steel blades in an X at each end of the top, and room for everyone's legs.",
       images: [
         "Croix table: solid oak top on two black steel X bases, end view",
         "Croix table from the side: the two black steel Xs under the long oak top",
@@ -925,8 +925,8 @@ export const products: Product[] = [
       },
       sections: [
         {
-          title: "A plain X, nothing hidden",
-          body: "Two wide blades of solid steel run right across the table and meet the floor as a single piece. The cross is welded flat then ground back: the joint disappears and all that is left is a clean line under the table.",
+          title: "An X welded, then ground back",
+          body: "Two wide blades of solid steel cross under each end of the top and meet the floor as a single piece. The cross is welded flat, then ground back: the joint disappears and only a clean line remains under the table.",
         },
         {
           title: "Room for your legs",
@@ -934,11 +934,11 @@ export const products: Product[] = [
         },
       ],
       specs: [
-        { label: "Top", value: "Pine, beech, oak or walnut to choose from, 35 mm thick (25 or 45 mm to order), oil-wax finish" },
+        { label: "Top", value: "Solid pine, beech, oak or walnut, 25, 35 or 45 mm thick (35 mm for catalogue sizes), hardwax oil finish" },
         { label: "Base", value: "Solid S235 steel blades, TIG welded, matt powder coating" },
         { label: "Seats", value: "6 to 14 people depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
-        { label: "Delivery", value: "Anywhere in France, assembly included" },
+        { label: "Delivery", value: "Mainland France, assembly included" },
       ],
     },
   },
@@ -953,13 +953,13 @@ export const products: Product[] = [
     images: [
       {
         src: "/images/table-brindille.jpg",
-        alt: "Table Brindille : plateau en chêne massif sur un bouquet de tiges d'acier cintrées, vue de face",
+        alt: "Table Brindille : plateau en chêne massif sur un bouquet de tiges d'acier cintrées, vue de face",
         bg: "#ffffff",
         fit: "contain",
       },
       {
         src: "/images/salle-plafond-mikado.jpg",
-        alt: "Table Brindille dans une pièce à vivre, sous un plafond lumineux tendu",
+        alt: "Table Brindille dans une pièce à vivre, sous un plafond lumineux à toile tendue",
         bg: "#776c5c",
         fit: "cover",
       },
@@ -1000,20 +1000,20 @@ export const products: Product[] = [
     metals: pieds(),
     sections: [
       {
-        title: "Un piétement qui se fait oublier",
-        body: "Des tiges d'acier fines partent du sol et se rejoignent sous le plateau comme un bouquet de brindilles. De loin le plateau paraît flotter ; de près on voit chaque soudure, faite une par une à l'atelier.",
+        title: "Un bouquet de tiges sous le plateau",
+        body: "Des tiges d'acier fines partent du sol et se rejoignent sous le plateau comme un bouquet de brindilles. De loin, le plateau paraît flotter ; de près, on voit chaque soudure, faite une par une à l'atelier.",
       },
       {
         title: "Léger à l'œil, stable au sol",
-        body: "La multitude d'appuis répartit la charge : la table ne bouge pas, même chargée. Chaque tige est cintrée puis ajustée à la main, ce qui fait qu'aucun piétement n'est tout à fait identique à un autre.",
+        body: "Les appuis, nombreux, répartissent la charge : la table ne bouge pas, même chargée. Chaque tige est cintrée puis ajustée à la main ; aucun piétement n'est tout à fait identique à un autre.",
       },
     ],
     specs: [
-      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif au choix, 35 mm (25 ou 45 mm au choix), finition huile-cire" },
+      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 25, 35 ou 45 mm (35 mm au catalogue), finition huile-cire" },
       { label: "Piétement", value: "Tiges d'acier plein, soudure TIG, thermolaquage mat" },
       { label: "Capacité", value: "6 à 14 couverts selon dimension" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "France entière, montage compris" },
+      { label: "Livraison", value: "France métropolitaine, montage compris" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -1021,8 +1021,8 @@ export const products: Product[] = [
       seoMots: "steel & oak table",
       tagline: "A bunch of steel rods bent one by one, under a top that seems to float.",
       images: [
-        "Brindille table: solid oak top on a bouquet of bent steel rods, front view",
-        "Brindille table in a living room, under a stretched-fabric light ceiling",
+        "Brindille table: solid oak top on a bunch of bent steel rods, front view",
+        "Brindille table in a living room, under a backlit stretch ceiling",
       ],
       sizes: {
         p6: "Seats 6 — 150 × 90 × H 75 cm",
@@ -1033,20 +1033,20 @@ export const products: Product[] = [
       },
       sections: [
         {
-          title: "A base you forget about",
+          title: "A bunch of rods under the top",
           body: "Slender steel rods rise from the floor and gather under the top like a bunch of twigs. From across the room the top seems to float; up close you can see every weld, made one at a time in the workshop.",
         },
         {
           title: "Light to the eye, steady on the floor",
-          body: "All those points of contact spread the load: the table does not budge, even fully laid. Each rod is bent and fitted by hand, so no two bases are quite alike.",
+          body: "The many points of contact spread the load: the table does not budge, even fully laid. Each rod is bent and then fitted by hand; no two bases are quite alike.",
         },
       ],
       specs: [
-        { label: "Top", value: "Pine, beech, oak or walnut to choose from, 35 mm thick (25 or 45 mm to order), oil-wax finish" },
+        { label: "Top", value: "Solid pine, beech, oak or walnut, 25, 35 or 45 mm thick (35 mm for catalogue sizes), hardwax oil finish" },
         { label: "Base", value: "Solid steel rods, TIG welded, matt powder coating" },
         { label: "Seats", value: "6 to 14 people depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
-        { label: "Delivery", value: "Anywhere in France, assembly included" },
+        { label: "Delivery", value: "Mainland France, assembly included" },
       ],
     },
   },
@@ -1065,7 +1065,7 @@ export const products: Product[] = [
     images: [
       {
         src: "/images/escalier/limon-droit.jpg",
-        alt: "Escalier droit à limon central acier, marches en chêne massif et garde-corps à barreaux fins, dans une pièce aux murs chaulés",
+        alt: "Escalier droit à limon central acier, marches en chêne massif et garde-corps acier à lisses horizontales, dans une pièce aux murs chaulés",
         bg: "#e6e0d6",
         fit: "cover",
         // L'escalier est à droite de la photo : le recadrage le garde au centre.
@@ -1090,18 +1090,18 @@ export const products: Product[] = [
     sections: [
       {
         title: "Une seule ligne, du sol à l'étage",
-        body: "Le limon central est cintré d'une pièce puis soudé en atelier : l'escalier ne montre aucun raccord, seulement une courbe continue qui porte les marches en porte-à-faux. C'est la pièce technique la plus exigeante que nous fabriquions, et celle qui structure le plus une entrée.",
+        body: "Le limon central est cintré d'une pièce, puis soudé à l'atelier. L'escalier ne montre aucun raccord : une seule courbe porte les marches en porte-à-faux. C'est la pièce la plus exigeante que nous fabriquions.",
       },
       {
         title: "Des marches qui semblent flotter",
-        body: "Chaque marche en chêne massif de 50 mm est fixée sur des platines invisibles, sous la marche. Le garde-corps à câbles inox et la main courante en bois cintré prolongent le geste sans jamais fermer l'espace ni couper la lumière.",
+        body: "Chaque marche en bois massif de 50 mm est fixée sur des platines cachées sous la marche. Le garde-corps à câbles inox et la main courante en bois cintré laissent passer la lumière.",
       },
     ],
     specs: [
       { label: "Limon", value: "Acier plein cintré, soudure TIG, thermolaquage mat" },
       { label: "Marches", value: "Pin, hêtre, chêne ou noyer massif au choix, épaisseur 50 mm, finition huile-cire" },
       { label: "Garde-corps", value: "Câbles inox tendus, main courante bois cintré" },
-      { label: "Hauteur", value: "Sur-mesure, adaptée à votre trémie (relevé de cotes sur place)" },
+      { label: "Hauteur", value: "Sur mesure, adaptée à votre trémie (prise de cotes à domicile)" },
       { label: "Normes", value: "Conforme NF P01-012 — garde-corps et hauteur de marche" },
       { label: "Fabrication", value: "Sur commande — comptez 10 à 12 semaines" },
       { label: "Pose", value: "Comprise, par nos soins, en 1 à 2 jours" },
@@ -1112,7 +1112,7 @@ export const products: Product[] = [
       seoMots: "steel staircase",
       tagline: "Curved steel stringer, solid oak treads, cable balustrade.",
       images: [
-        "Straight staircase with a central steel stringer, solid oak treads and a slim bar balustrade, in a limewashed room",
+        "Straight staircase with a central steel stringer, solid oak treads and a steel balustrade with slim horizontal rails, in a limewashed room",
         "Close-up of the first solid oak treads on the steel stringer, bolted floor plate",
       ],
       sizes: {
@@ -1123,18 +1123,18 @@ export const products: Product[] = [
       sections: [
         {
           title: "One single line, from floor to landing",
-          body: "The central stringer is bent in one piece then welded in the workshop: the staircase shows no joint, only a continuous curve carrying the treads. It is the most demanding piece we build, and the one that gives an entrance its shape.",
+          body: "The central stringer is curved in one piece, then welded in the workshop. The staircase shows no joint: a single curve carries the cantilevered treads. It is the most demanding piece we make.",
         },
         {
           title: "Treads that seem to float",
-          body: "Each 50 mm solid oak tread sits on hidden plates, fixed underneath. The stainless steel cables and the bent timber handrail carry the line on without closing the space or cutting the light.",
+          body: "Each 50 mm solid wood tread is fixed on plates hidden under the tread. The stainless steel cable balustrade and the curved timber handrail let the light through.",
         },
       ],
       specs: [
         { label: "Stringer", value: "Bent solid steel, TIG welded, matt powder coating" },
         { label: "Treads", value: "Pine, beech, oak or walnut to choose from, 50 mm thick, oil-wax finish" },
         { label: "Balustrade", value: "Tensioned stainless steel cables, bent timber handrail" },
-        { label: "Height", value: "Made to measure, fitted to your opening (measured on site)" },
+        { label: "Height", value: "Made to measure, fitted to your stairwell opening (measuring visit at your home)" },
         { label: "Standards", value: "Complies with NF P01-012 — balustrades and rise" },
         { label: "Lead time", value: "Made to order — allow 10 to 12 weeks" },
         { label: "Fitting", value: "Included, by us, in one or two days" },
@@ -1149,7 +1149,7 @@ export const products: Product[] = [
     // L'accroche fait 131 signes : assemblée avec le prix et le suffixe, elle
     // dépassait les 155 signes que Google affiche.
     seoDescription:
-      "Garde-corps de fenêtre en acier plein à croix de Saint-André, rosaces en fonte et main courante chêne, fabriqué au millimètre à Saumur.",
+      "Garde-corps de fenêtre en acier plein, croix de Saint-André, rosaces de fonderie, main courante chêne. Fabriqué à vos cotes à Saumur (49).",
     releve: "garde-corps-fenetre",
     category: "interieur",
     // Se commande en ligne, aux cotes que le client relève lui-même : aucune
@@ -1164,11 +1164,11 @@ export const products: Product[] = [
     // même avec des cotes différentes. Un seul déplacement, un seul emballage.
     remiseLot: { desPieces: 2, taux: 0.1 },
     name: "Garde-corps de fenêtre Rosace",
-    tagline: "Croix de Saint-André en acier plein, rosaces en fonte, main courante en chêne. Fabriqué au millimètre, encastré dans votre fenêtre.",
+    tagline: "Croix de Saint-André en acier plein, rosaces de fonderie, main courante en chêne. Fabriqué au millimètre, encastré dans votre fenêtre.",
     images: [
       {
         src: "/images/garde-corps/fenetre.jpg",
-        alt: "Garde-corps de fenêtre vu de face : cadre acier thermolaqué noir à croix de Saint-André, deux rosaces en fonte, main courante en chêne",
+        alt: "Garde-corps de fenêtre vu de face : cadre acier thermolaqué noir à croix de Saint-André, deux rosaces de fonderie, main courante en chêne",
         bg: "#ffffff",
         fit: "contain",
       },
@@ -1271,72 +1271,72 @@ export const products: Product[] = [
     ],
     sections: [
       {
-        title: "Une croix qui tient, une rosace qui signe",
-        body: "Le cadre et les croisillons sont en acier plein, soudés à l'atelier puis thermolaqués au four. Au croisement, une rosace en fonte, comme sur les balcons anciens de Saumur : c'est elle qui donne au garde-corps son âge, et elle se choisit avec vous.",
+        title: "Un cadre en acier plein, une rosace de fonderie",
+        body: "Le cadre et les croisillons sont en acier plein, soudés à l'atelier puis thermolaqués au four. Au croisement, une rosace de fonderie, comme sur les balcons anciens de Saumur. Quatre modèles sont proposés, en aluminium moulé, en fonte ou en acier ; vous choisissez le vôtre à la commande.",
       },
       {
-        title: "Une main courante qu'on a envie de toucher",
-        body: "Le dessus est une pièce de bois massif de 40 mm, arrondie, poncée et huilée : la main s'y pose sans accrocher, l'été comme l'hiver. Pin, hêtre, chêne ou noyer, au choix — le chêne est celui de la photo.",
+        title: "Une main courante en bois massif de 40 mm",
+        body: "Le dessus est une pièce de bois massif de 40 mm, arrondie, poncée et huilée. La main s'y pose sans accrocher, l'été comme l'hiver. Pin, hêtre, chêne ou noyer au choix ; le chêne est celui de la photo.",
       },
       {
-        title: "Trois mesures, et nous faisons le reste",
-        body: "Vous relevez trois cotes au mètre — la largeur de la fenêtre entre les murs, la hauteur du sol au bas de la fenêtre, et la hauteur de la fenêtre — et nous calculons la hauteur du garde-corps pour qu'il soit aux normes. Il est fabriqué pile à votre fenêtre : il vient s'encastrer dans l'ouverture, fixé dans l'épaisseur des murs. Si une cote nous étonne, on vous appelle avant de couper. Et si vous préférez, l'atelier vient mesurer.",
+        title: "Trois cotes à relever",
+        body: "Vous relevez trois cotes au mètre : la largeur entre les murs, la hauteur du sol à l'appui, et la hauteur de la fenêtre. Nous calculons la hauteur du garde-corps pour qu'il respecte la règle. Il vient s'encastrer dans le tableau, fixé dans l'épaisseur des murs. Si une cote nous étonne, nous vous appelons avant de couper. Si vous préférez, l'atelier vient prendre les cotes.",
       },
       {
-        title: "La bonne hauteur, celle de la règle",
-        body: "En étage, une fenêtre dont l'appui est à moins de 90 cm du sol doit recevoir une protection qui monte à un mètre du sol : c'est le Code de la construction. Nous faisons le calcul à partir de la hauteur du sol au bas de votre fenêtre, et nous ne descendons jamais sous 35 cm — la hauteur du modèle en photo — pour une vraie barre d'appui qui ne mange pas la vue.",
+        title: "Une hauteur calculée selon la règle",
+        body: "En étage, une fenêtre dont l'appui est à moins de 90 cm du sol doit être protégée jusqu'à 1 m du sol. C'est le Code de la construction. Nous faisons le calcul à partir de votre hauteur d'allège. Le garde-corps ne descend jamais sous 35 cm, la hauteur du modèle en photo : une barre d'appui qui laisse la vue.",
       },
     ],
     specs: [
       { label: "Structure", value: "Acier plein, soudure TIG, thermolaquage cuit au four" },
-      { label: "Motif", value: "Croix de Saint-André, rosaces en fonte" },
+      { label: "Motif", value: "Croix de Saint-André, rosaces de fonderie" },
       { label: "Main courante", value: "Pin, hêtre, chêne ou noyer massif au choix, 40 mm, finition huile-cire" },
       { label: "Pose", value: "Encastré dans le tableau de la fenêtre, fixations fournies — vous mesurez, nous fabriquons" },
       { label: "Prise de cotes", value: "Par vous, au mètre — ou par l'atelier, dès 19,99 € jusqu'à 30 km de Saumur, déduits de la commande" },
       { label: "Normes", value: "Hauteur calculée selon l'art. R111-15 du Code de la construction et la NF P01-012" },
       { label: "Fabrication", value: "Sur commande — comptez 4 à 6 semaines" },
-      { label: "Livraison", value: "France entière, fixations et notice de pose comprises" },
+      { label: "Livraison", value: "France métropolitaine, fixations et notice de pose comprises" },
     ],
     // Traduction anglaise de la fiche.
     en: {
       name: "Rosette Window Railing",
       seoMots: "window railing",
       seoDescription:
-        "Solid steel window railing with a Saint Andrew's cross, cast-iron rosettes and an oak handrail, made to the millimetre in Saumur, France.",
-      tagline: "Solid steel Saint Andrew's cross, cast-iron rosettes, oak handrail. Made to the millimetre, fitted into your window.",
+        "Solid steel window railing with a Saint Andrew's cross, cast rosettes and an oak handrail, made to the millimetre in Saumur, France.",
+      tagline: "Solid steel Saint Andrew's cross, cast rosettes, oak handrail. Made to the millimetre, fitted into your window.",
       images: [
-        "Window railing seen head-on: powder-coated black steel frame with a Saint Andrew's cross, two cast-iron rosettes, oak handrail",
+        "Window railing seen head-on: powder-coated black steel frame with a Saint Andrew's cross, two cast rosettes, oak handrail",
         "The same railing fitted in the reveal, seen from the room: the whole window, the sill and the daylight under the frame",
         "The railing seen from the street, between the shutters: set on the tuffeau stone sill, the window open behind",
       ],
       sizes: {},
       sections: [
         {
-          title: "A cross that holds, a rosette that signs",
-          body: "The frame and the braces are solid steel, welded in the workshop then oven powder-coated. Where they cross sits a cast-iron rosette, like on the old balconies of Saumur: it is what gives the railing its age, and you choose it with us.",
+          title: "A solid steel frame, a cast rosette",
+          body: "The frame and the braces are solid steel, welded in the workshop then oven-baked powder-coated. Where the bars cross sits a cast rosette, as on the old balconies of Saumur. Four models are offered, in cast aluminium, cast iron or steel; you choose yours with the order.",
         },
         {
-          title: "A handrail you want to touch",
-          body: "The top is a 40 mm piece of solid wood, rounded, sanded and oiled: the hand rests on it without catching, summer or winter. Pine, beech, oak or walnut — oak is the one in the photo.",
+          title: "A 40 mm solid wood handrail",
+          body: "The top is a 40 mm piece of solid wood, rounded, sanded and oiled. The hand rests on it without catching, summer or winter. Pine, beech, oak or walnut; oak is the one in the photo.",
         },
         {
-          title: "Three measurements, and we do the rest",
-          body: "You take three tape measurements — the window width between the walls, the height from the floor to the bottom of the window, and the window height — and we work out the railing height so that it meets the rules. It is made exactly to your window: it fits into the opening, fixed into the thickness of the walls. If a measurement surprises us, we call you before cutting. And if you prefer, the workshop comes to measure.",
+          title: "Three measurements to take",
+          body: "You take three tape measurements: the width between the walls, the height from the floor to the sill, and the window height. We work out the railing height so that it meets the rule. The railing fits into the reveal, fixed into the thickness of the walls. If a measurement surprises us, we call you before cutting. If you prefer, the workshop comes to measure up.",
         },
         {
-          title: "The right height, the one the rule sets",
-          body: "Upstairs, a window whose sill is less than 90 cm from the floor must have a guard rising to one metre from the floor: that is the French building code. We do the sum from the height between your floor and the bottom of the window, and we never go below 35 cm — the height of the model in the photo — for a real handrail that does not eat the view.",
+          title: "A height set by the rule",
+          body: "Upstairs, a window whose sill is less than 90 cm from the floor must be guarded up to 1 m from the floor. That is the French building code. We do the sum from your sill height. The railing never goes below 35 cm, the height of the model in the photo: a handrail that leaves the view open.",
         },
       ],
       specs: [
-        { label: "Frame", value: "Solid steel, TIG welded, oven-cured powder coating" },
-        { label: "Pattern", value: "Saint Andrew's cross, cast-iron rosettes" },
+        { label: "Frame", value: "Solid steel, TIG welded, oven-baked powder coating" },
+        { label: "Pattern", value: "Saint Andrew's cross, cast rosettes" },
         { label: "Handrail", value: "Pine, beech, oak or walnut to choose from, 40 mm, oil-wax finish" },
         { label: "Fitting", value: "Fits into the window reveal, fixings supplied — you measure, we build" },
         { label: "Survey", value: "By you, with a tape — or by the workshop, from €19.99 within 30 km of Saumur, deducted from the order" },
         { label: "Standards", value: "Height set by art. R111-15 of the French building code and NF P01-012" },
         { label: "Lead time", value: "Made to order — allow 4 to 6 weeks" },
-        { label: "Delivery", value: "All of France, fixings and fitting guide included" },
+        { label: "Delivery", value: "Mainland France, fixings and fitting guide included" },
       ],
     },
   },
@@ -1385,11 +1385,11 @@ export const products: Product[] = [
     sections: [
       {
         title: "Quatre ronds d'acier, cintrés un à un",
-        body: "Quatre ronds pleins d'acier de faible section, cintrés puis soudés un à un, portent une assise enveloppante garnie de mousse haute densité. Elle se commande à l'unité comme par six, et se marie aux tables Mikado, Croix et Brindille.",
+        body: "Quatre ronds d'acier plein de faible section, cintrés puis soudés un à un, portent l'assise. Elle est garnie de mousse haute densité. La chaise se commande à l'unité comme par six ; elle accompagne les tables Mikado, Croix et Brindille.",
       },
       {
         title: "Quinze velours au choix",
-        body: "Du bleu roi au champagne, chaque coloris est disponible sans supplément. Le velours est un tissu d'ameublement résistant, qui se nettoie à la brosse douce et vieillit joliment.",
+        body: "Du bleu roi au champagne, chaque coloris est au même prix. Le velours est un tissu d'ameublement résistant ; il se nettoie à la brosse douce.",
       },
     ],
     specs: [
@@ -1414,11 +1414,11 @@ export const products: Product[] = [
       sections: [
         {
           title: "Four steel rods, bent one by one",
-          body: "Four slender solid steel rods, bent and then welded one by one, carry a wrapped seat padded with high-density foam. Order a single chair or a set of six; it goes with the Mikado, Croix and Brindille tables.",
+          body: "Four slender solid steel rods, bent then welded one by one, carry the seat. It is padded with high-density foam. The chair comes singly or by the six; it goes with the Mikado, Croix and Brindille tables.",
         },
         {
           title: "Fifteen velvets to choose from",
-          body: "From royal blue to champagne, every colour comes at the same price. Velvet is a hard-wearing upholstery fabric: it cleans with a soft brush and ages nicely.",
+          body: "From royal blue to champagne, every colour comes at the same price. Velvet is a hard-wearing upholstery fabric; it cleans with a soft brush.",
         },
       ],
       specs: [
@@ -1483,12 +1483,12 @@ export const products: Product[] = [
     metals: pieds(),
     sections: [
       {
-        title: "Un plateau qui respire",
-        body: "Le plateau est monté en lattes espacées : la pluie traverse au lieu de stagner, le bois sèche vite et ne travaille pas. Chaque latte est arrondie sur ses arêtes et poncée à la main.",
+        title: "Un plateau à lattes espacées",
+        body: "Le plateau est monté en lattes espacées : la pluie traverse au lieu de stagner. Le bois sèche vite et travaille peu. Chaque latte est arrondie sur ses arêtes, puis poncée.",
       },
       {
         title: "Le même piétement, traité pour dehors",
-        body: "C'est le piétement Mikado de la table d'intérieur, cette fois protégé par un thermolaquage extérieur cuit au four : la couche résiste à la pluie, au sel et aux UV sans s'écailler.",
+        body: "C'est le piétement Mikado de la table d'intérieur, protégé par un thermolaquage extérieur cuit au four. La couche tient à la pluie, au sel et aux UV sans s'écailler.",
       },
     ],
     specs: [
@@ -1497,12 +1497,15 @@ export const products: Product[] = [
       { label: "Capacité", value: "6 à 14 couverts selon dimension" },
       { label: "Entretien", value: "Une huile par an ; laisser griser si l'on préfère la patine" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "France entière, montage compris" },
+      { label: "Livraison", value: "France métropolitaine, montage compris" },
     ],
     // Traduction anglaise de la fiche.
     en: {
       name: "Mikado Outdoor Table",
       seoMots: "garden table",
+      // Même raison qu'en français : accroche + prix + suffixe dépassait.
+      seoDescription:
+        "Garden table with a slatted treated-oak top and a powder-coated steel Mikado base, made to stay outside. Made in Saumur, France.",
       tagline: "Slatted treated-oak top, powder-coated Mikado base — made to stay outside.",
       images: [
         "Mikado outdoor table, slatted oak top and black steel base",
@@ -1516,12 +1519,12 @@ export const products: Product[] = [
       },
       sections: [
         {
-          title: "A top that breathes",
-          body: "The top is built from spaced slats: rain runs straight through instead of sitting on the wood, which dries quickly and stays flat. Every slat has its edges rounded and sanded by hand.",
+          title: "A top of spaced slats",
+          body: "The top is built from spaced slats: rain runs through instead of sitting on the wood. The wood dries quickly and moves little. Every slat has its edges rounded, then sanded.",
         },
         {
           title: "The same base, treated for outdoors",
-          body: "It is the Mikado base of the indoor table, this time protected by an oven-cured outdoor powder coating: the layer stands up to rain, salt and sunlight without flaking.",
+          body: "It is the Mikado base of the indoor table, protected by an oven-baked outdoor powder coating. The coat stands up to rain, salt and sunlight without flaking.",
         },
       ],
       specs: [
@@ -1530,7 +1533,7 @@ export const products: Product[] = [
         { label: "Seats", value: "6 to 14 people depending on size" },
         { label: "Care", value: "One coat of oil a year; leave it to silver if you prefer the patina" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
-        { label: "Delivery", value: "Anywhere in France, assembly included" },
+        { label: "Delivery", value: "Mainland France, assembly included" },
       ],
     },
   },
@@ -1541,7 +1544,7 @@ export const products: Product[] = [
     category: "exterieur",
     orderMode: "cart",
     name: "Fauteuil Terrasse",
-    tagline: "Structure acier thermolaqué, coussins déperlants — pensé pour rester dehors.",
+    tagline: "Structure acier thermolaqué, coussins déperlants — fait pour rester dehors.",
     images: [
       {
         src: "/images/chaise-exterieur.jpg",
@@ -1556,18 +1559,18 @@ export const products: Product[] = [
     sections: [
       {
         title: "Il passe l'hiver dehors",
-        body: "La structure est en acier thermolaqué : la laque est cuite au four, elle tient à la pluie et au sel sans s'écailler. Accoudoirs et dossier sont soudés d'une pièce — il n'y a pas un boulon à resserrer au fil des saisons.",
+        body: "La structure est en acier thermolaqué, cuit au four : la laque tient à la pluie et au sel sans s'écailler. Accoudoirs et dossier sont soudés d'une pièce ; aucun boulon à resserrer au fil des saisons.",
       },
       {
         title: "Des coussins qui sèchent vite",
-        body: "Assise et dossier reposent sur des coussins en mousse à cellules ouvertes, habillés d'un tissu d'extérieur déperlant : l'eau traverse et s'évacue, la housse se retire pour le lavage.",
+        body: "Assise et dossier reposent sur des coussins en mousse à cellules ouvertes, habillés d'un tissu d'extérieur déperlant. L'eau traverse et s'évacue ; la housse se retire pour le lavage.",
       },
     ],
     specs: [
       { label: "Structure", value: "Acier thermolaqué, soudure TIG, traitement extérieur" },
       { label: "Coussins", value: "Mousse à cellules ouvertes, tissu d'extérieur déperlant, housses amovibles" },
       { label: "Fabrication", value: "Sur commande — comptez 4 semaines" },
-      { label: "Livraison", value: "France entière" },
+      { label: "Livraison", value: "France métropolitaine" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -1583,25 +1586,25 @@ export const products: Product[] = [
       sections: [
         {
           title: "It stays out all winter",
-          body: "The frame is powder-coated steel: the coat is oven-cured, and it takes rain and salt without flaking. Arms and back are welded in one piece — there is not a single bolt to tighten season after season.",
+          body: "The frame is oven-baked powder-coated steel: the coat takes rain and salt without flaking. Arms and back are welded in one piece; there is no bolt to tighten season after season.",
         },
         {
           title: "Cushions that dry fast",
-          body: "Seat and back rest on open-cell foam cushions covered in a water-repellent outdoor fabric: water runs through and drains away, and the covers come off for washing.",
+          body: "Seat and back rest on open-cell foam cushions covered in a water-repellent outdoor fabric. Water runs through and drains away; the covers come off for washing.",
         },
       ],
       specs: [
         { label: "Frame", value: "Powder-coated steel, TIG welded, outdoor treatment" },
         { label: "Cushions", value: "Open-cell foam, removable water-repellent outdoor fabric" },
         { label: "Lead time", value: "Made to order — allow 4 weeks" },
-        { label: "Delivery", value: "Anywhere in France" },
+        { label: "Delivery", value: "Mainland France" },
       ],
     },
   },
   {
     slug: "plafond-lumineux-lucarne",
     famille: "plafond",
-    seoMots: "plafond lumineux tendu",
+    seoMots: "plafond lumineux toile tendue",
     // Les photos de la fiche sont carrées : déclinaison 1200 × 630 pour les réseaux.
     imagePartage: "/images/partage/lucarne.jpg",
     category: "lumiere",
@@ -1612,7 +1615,7 @@ export const products: Product[] = [
     images: [
       {
         src: "/images/lumiere/panneau-dessous-carre.jpg",
-        alt: "Lucarne : plafond lumineux à toile tendue vu de dessous, cadre aluminium noir",
+        alt: "Lucarne : plafond lumineux à toile tendue vu de dessous, cadre aluminium noir",
         bg: "#ffffff",
         fit: "cover",
         // Membrane relevée sur la photo : sa lumière est réellement animée.
@@ -1664,15 +1667,15 @@ export const products: Product[] = [
     sections: [
       {
         title: "Une lumière sans point chaud",
-        body: "La toile tendue diffuse la lumière sur toute sa surface : pas de spot visible, pas d'ombre dure sur la table. Le rétroéclairage est monté au fond du caisson, la membrane l'égalise et ne laisse passer qu'une lumière douce, du même blanc d'un bord à l'autre.",
+        body: "La toile tendue diffuse la lumière sur toute sa surface : pas de spot visible, pas d'ombre dure sur la table. Les LED sont montées au fond du caisson ; la toile égalise leur lumière, du même blanc d'un bord à l'autre.",
       },
       {
         title: "Un cadre en aluminium thermolaqué",
-        body: "Le cadre est assemblé en profilé d'aluminium, coupé en onglet et thermolaqué au four : la teinte est cuite dans le métal, elle ne jaunit pas et ne s'écaille pas. La toile se clipse dans une gorge périphérique — on la retire et on la remet sans outil, pour le nettoyage comme pour l'entretien.",
+        body: "Le cadre est assemblé en profilé d'aluminium, coupé en onglet et thermolaqué au four. La teinte est cuite dans le métal : elle ne jaunit pas et ne s'écaille pas. La toile se clipse dans une gorge périphérique ; elle se retire et se remet sans outil pour le nettoyage.",
       },
       {
-        title: "Posé, suspendu ou encastré",
-        body: "La Lucarne se fixe au plafond, se suspend par câbles ou s'encastre dans un faux plafond selon la pièce. L'alimentation est fournie, en 220 V, avec une variation possible sur demande.",
+        title: "En applique, suspendu ou encastré",
+        body: "La Lucarne se pose en applique au plafond, se suspend par câbles ou s'encastre dans un faux plafond. L'alimentation 220 V est fournie ; la variation est possible sur demande.",
         // Une pose réelle, encastrée, la toile en couleur.
         image: "/images/lumiere/lucarne-rgb.jpg",
       },
@@ -1683,15 +1686,15 @@ export const products: Product[] = [
       { label: "Éclairage", value: "LED 220 V, blanc 3000 K ou 4000 K, variation en option" },
       { label: "Fabrication", value: "Sur commande — comptez 3 à 5 semaines" },
       { label: "Dimensions", value: "Jusqu'à 400 × 300 cm d'un seul tenant, au centimètre près" },
-      { label: "Pose", value: "Plafonnier, suspendu par câbles ou encastré" },
+      { label: "Pose", value: "En applique, suspendu par câbles ou encastré" },
     ],
     // Traduction anglaise de la fiche.
     en: {
       name: "Lucarne",
-      seoMots: "backlit ceiling panel",
+      seoMots: "backlit stretch ceiling",
       tagline: "Backlit stretched fabric, powder-coated aluminium frame.",
       images: [
-        "Lucarne: stretched-fabric light ceiling seen from below, black aluminium frame",
+        "Lucarne: backlit stretch ceiling seen from below, black aluminium frame",
         "Close-up of the powder-coated aluminium corner and the stretched fabric",
       ],
       sizes: {
@@ -1709,15 +1712,15 @@ export const products: Product[] = [
       sections: [
         {
           title: "Light with no hot spot",
-          body: "The stretched fabric spreads the light over its whole surface: no bulb in sight, no hard shadow on the table. The LEDs sit at the back of the box, the membrane evens them out and lets nothing through but a soft light, the same white from one edge to the other.",
+          body: "The stretched fabric spreads the light over its whole surface: no visible spotlight, no hard shadow on the table. The LEDs sit at the back of the box; the fabric evens out their light, the same white from one edge to the other.",
         },
         {
           title: "A powder-coated aluminium frame",
-          body: "The frame is built from aluminium profile, cut at a mitre and powder-coated in the oven: the colour is baked into the metal, so it neither yellows nor flakes. The fabric clips into a groove all around — it comes out and goes back without a tool, for cleaning as much as for upkeep.",
+          body: "The frame is built from aluminium profile, mitred and powder-coated in the oven. The colour is baked into the metal: it neither yellows nor flakes. The fabric clips into a groove all around; it comes out and goes back without a tool for cleaning.",
         },
         {
           title: "Surface-mounted, suspended or recessed",
-          body: "The Lucarne fixes to the ceiling, hangs on cables or drops into a false ceiling, whichever the room calls for. The 220 V supply comes with it, and dimming is available on request.",
+          body: "The Lucarne is surface-mounted on the ceiling, hung on cables or recessed into a false ceiling. The 220 V supply comes with it; dimming is available on request.",
         },
       ],
       specs: [
@@ -1801,20 +1804,20 @@ export const products: Product[] = [
     sections: [
       {
         title: "Un disque de lumière pleine",
-        body: "Le cercle est roulé d'une seule pièce : pas d'angle, pas de raccord visible sur le pourtour. La toile s'y tend en une seule surface et diffuse la même lumière du centre jusqu'au bord.",
+        body: "Le cercle est roulé d'une seule pièce : pas d'angle, pas de raccord visible sur le pourtour. La toile s'y tend en une seule surface et diffuse la même lumière du centre jusqu'au bord.",
       },
       {
         title: "Le même cadre, roulé",
-        body: "Profilé d'aluminium cintré puis thermolaqué au four : la teinte est cuite dans le métal, elle ne jaunit pas et ne s'écaille pas. La toile se clipse dans la gorge périphérique et se retire sans outil.",
+        body: "Le profilé d'aluminium est cintré puis thermolaqué au four. La teinte est cuite dans le métal : elle ne jaunit pas et ne s'écaille pas. La toile se clipse dans la gorge périphérique et se retire sans outil.",
       },
       {
-        title: "Un grand disque tient toute une salle",
-        body: "Passé le mètre cinquante de diamètre, le panneau ne complète plus l'éclairage : il le remplace. Un seul disque suffit à éclairer une salle de réunion, un plateau de bureaux ou une grande pièce à vivre, sans plafonnier ni spot ajouté — et sans ombre portée sur les visages, ce qu'aucune rampe de spots ne sait faire.",
+        title: "Un grand disque éclaire toute une salle",
+        body: "Au-delà de 1,50 m de diamètre, le disque ne complète plus l'éclairage : il le remplace. Un seul suffit pour une salle de réunion, un plateau de bureaux ou une grande pièce à vivre, sans autre spot. La lumière diffuse ne porte pas d'ombre dure sur les visages.",
         image: "/images/lumiere/salle-ronde.jpg",
       },
       {
-        title: "Au-dessus d'une table ronde, d'un îlot, d'un escalier",
-        body: "Le disque se pose au plafond ou se suspend par câbles. Jusqu'à 400 cm de diamètre d'un seul tenant ; l'alimentation 220 V est fournie, la variation est possible sur demande.",
+        title: "Posé au plafond ou suspendu",
+        body: "Le disque se pose au plafond ou se suspend par câbles. Jusqu'à 400 cm de diamètre d'un seul tenant ; l'alimentation 220 V est fournie, la variation est possible sur demande.",
       },
     ],
     specs: [
@@ -1827,7 +1830,7 @@ export const products: Product[] = [
     // Traduction anglaise de la fiche.
     en: {
       name: "Halo",
-      seoMots: "round light ceiling",
+      seoMots: "round backlit stretch ceiling",
       tagline: "A circle of backlit stretched fabric, powder-coated aluminium frame.",
       images: [
         "Halo: round stretched-fabric light ceiling, black aluminium frame",
@@ -1852,14 +1855,14 @@ export const products: Product[] = [
         },
         {
           title: "The same frame, rolled",
-          body: "Aluminium profile curved and then powder-coated in the oven: the colour is baked into the metal, so it neither yellows nor flakes. The fabric clips into the groove all around and comes out without a tool.",
+          body: "The aluminium profile is curved, then powder-coated in the oven. The colour is baked into the metal: it neither yellows nor flakes. The fabric clips into the groove all around and comes out without a tool.",
         },
         {
           title: "One large disc lights a whole room",
-          body: "Past a metre and a half across, the panel no longer adds to the lighting: it replaces it. A single disc lights a meeting room, an open-plan office or a large living room with nothing else added — and with no shadow cast on faces, which no row of spotlights can manage.",
+          body: "Past 1.50 m across, the disc no longer adds to the lighting: it replaces it. One is enough for a meeting room, an open-plan office or a large living room, with no other spotlight. The diffused light casts no hard shadow on faces.",
         },
         {
-          title: "Above a round table, an island, a stairwell",
+          title: "Fixed to the ceiling or suspended",
           body: "The disc fixes to the ceiling or hangs on cables. Up to 400 cm across in one piece; the 220 V supply comes with it and dimming is available on request.",
         },
       ],

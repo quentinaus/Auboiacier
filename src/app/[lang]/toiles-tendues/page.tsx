@@ -22,23 +22,23 @@ const realisationPhotos: {
 }[] = [
   {
     src: "/images/lumiere/lucarne-rgb.jpg",
-    alt: "Plafond lumineux Lucarne posé, toile éclairée en dégradé rose et bleu",
-    altEn: "Lucarne light ceiling installed, membrane lit in a pink-to-blue gradient",
+    alt: "Plafond lumineux Lucarne posé, toile tendue éclairée en dégradé rose et bleu",
+    altEn: "Lucarne backlit stretch ceiling installed, fabric lit in a pink-to-blue gradient",
   },
   {
     src: "/images/salon-plafond-chaud.jpg",
-    alt: "Plafond lumineux tendu au-dessus d'un salon, lumière chaude",
-    altEn: "Stretched light ceiling above a living room, warm light",
+    alt: "Plafond lumineux au-dessus d'un salon, lumière chaude",
+    altEn: "Backlit stretch ceiling above a living room, warm light",
   },
   {
     src: "/images/lumiere/salle-ronde.jpg",
-    alt: "Grand panneau lumineux rond au-dessus d'une salle de réunion",
-    altEn: "Large round light panel above a meeting room",
+    alt: "Grand plafond lumineux rond au-dessus d'une salle de réunion",
+    altEn: "Large round backlit stretch ceiling above a meeting room",
   },
   {
     src: "/images/salle-plafond-large.jpg",
-    alt: "Plafond lumineux tendu au-dessus d'une table à manger",
-    altEn: "Stretched light ceiling above a dining table",
+    alt: "Plafond lumineux au-dessus d'une table à manger",
+    altEn: "Backlit stretch ceiling above a dining table",
   },
 ];
 
