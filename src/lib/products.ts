@@ -221,6 +221,8 @@ export type Product = {
    * le noyer d'une table de 3 m coûte plus que celui d'une table de 1,50 m.
    */
   boisAuM2?: boolean;
+  /** Le poids du colis, en kilos, pour les pièces à poids fixe (une chaise). Les autres sont estimées par poidsColisKg. */
+  colisKg?: number;
   /**
    * Intitulé du choix de taille, quand « Sur mesure, à vos cotes » ne veut rien
    * dire — sur l'escalier, ce menu choisit la FORME, pas les dimensions.
@@ -1180,6 +1182,7 @@ export const products: Product[] = [
   },
   {
     slug: "garde-corps",
+    poseOption: true,
     famille: "garde-corps",
     // « barre d'appui » : c'est le mot que tapent les gens pour une fenêtre.
     seoMots: "barre d'appui",
@@ -1379,6 +1382,8 @@ export const products: Product[] = [
   },
   {
     slug: "chaise-acier-bois",
+    poseOption: true,
+    colisKg: 9,
     famille: "chaise",
     seoMots: "chaise en velours",
     category: "interieur",
@@ -1577,6 +1582,8 @@ export const products: Product[] = [
   },
   {
     slug: "fauteuil-terrasse",
+    poseOption: true,
+    colisKg: 14,
     famille: "chaise-exterieur",
     seoMots: "fauteuil d'extérieur",
     category: "exterieur",
@@ -1641,6 +1648,7 @@ export const products: Product[] = [
   },
   {
     slug: "plafond-lumineux-lucarne",
+    poseOption: true,
     famille: "plafond",
     seoMots: "plafond lumineux toile tendue",
     // Les photos de la fiche sont carrées : déclinaison 1200 × 630 pour les réseaux.
@@ -1773,6 +1781,7 @@ export const products: Product[] = [
   },
   {
     slug: "plafond-lumineux-halo",
+    poseOption: true,
     famille: "plafond",
     seoMots: "plafond lumineux rond",
     // Photos carrées, là aussi : déclinaison 1200 × 630 pour les réseaux.
@@ -1917,6 +1926,31 @@ export const products: Product[] = [
 
 export function getProduct(slug: string) {
   return products.find((p) => p.slug === slug);
+}
+
+/**
+ * Le poids du colis d'une pièce, en kilos, pour chiffrer la livraison : un
+ * plateau de chêne au volume (700 kg/m³) plus son piétement, un plafond
+ * lumineux à la surface, un garde-corps au mètre, une chaise à poids fixe.
+ * Estimation, jamais une pesée : à valider contre un vrai colis.
+ */
+export function poidsColisKg(product: Product, cotes: { largeurMm?: number; hauteurMm?: number; epaisseurMm?: number }): number {
+  if (product.colisKg) return product.colisKg;
+  const bareme = product.surMesure;
+  const L = (cotes.largeurMm && cotes.largeurMm > 0 ? cotes.largeurMm : bareme?.departMm?.[0] ?? 2000) / 1000;
+  const W = (cotes.hauteurMm && cotes.hauteurMm > 0 ? cotes.hauteurMm : bareme?.departMm?.[1] ?? 1000) / 1000;
+  const T = (cotes.epaisseurMm && cotes.epaisseurMm > 0 ? cotes.epaisseurMm : bareme?.epaisseur.refMm ?? 36) / 1000;
+  if (product.category === "lumiere") {
+    // Cadre aluminium, LED et toile : léger, et un peu de fixations.
+    const surface = bareme?.forme === "rond" ? Math.PI * (L / 2) ** 2 : L * W;
+    return Math.max(4, Math.round(surface * 6 + 4));
+  }
+  if (product.famille === "garde-corps") {
+    // Acier plein et main courante en chêne : au mètre de largeur.
+    return Math.max(8, Math.round(L * 12 + 3));
+  }
+  // Une table : le plateau au volume du chêne, le piétement soudé à part.
+  return Math.round(L * W * T * 700 + 25);
 }
 
 /** La surface pour laquelle les écarts d'essence du catalogue sont écrits : 200 × 100. */

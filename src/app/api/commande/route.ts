@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { remiseLot, resolveSelection, type Product } from "@/lib/products";
+import { getProduct, poidsColisKg, remiseLot, resolveSelection, type Product } from "@/lib/products";
 import { isEmailConfigured } from "@/lib/email";
 import { getStripe, isStripeConfigured, newOrderRef, piedDeFacture, siteOrigin } from "@/lib/stripe";
 import { creerLimite } from "@/lib/limite-debit";
@@ -46,6 +46,7 @@ type IncomingLine = {
   priseDeCotesCp?: unknown;
   poseCp?: unknown;
   livraisonCp?: unknown;
+  livraisonSlug?: unknown;
   rdv?: unknown;
   note?: unknown;
 };
@@ -161,13 +162,15 @@ export async function POST(request: Request) {
     if (line.slug === LIVRAISON) {
       if (livraison || pose) return NextResponse.json({ error: "invalid" }, { status: 400 });
       const cp = asNote(line.livraisonCp, 10);
-      const cote = (valeur: unknown, defaut: number) =>
-        typeof valeur === "number" && Number.isFinite(valeur) && valeur > 0 && valeur <= 10000 ? Math.round(valeur) : defaut;
-      const calcul = await calculerLivraison(cp, {
-        longueurMm: cote(line.largeurMm, 2000),
-        largeurMm: cote(line.hauteurMm, 1000),
-        epaisseurMm: cote(line.epaisseurMm, 35),
-      });
+      // Le poids vient de la pièce livrée (son slug, ses cotes), jamais du navigateur.
+      const piece = getProduct(asNote(line.livraisonSlug, 60));
+      if (!piece) return NextResponse.json({ error: "invalid" }, { status: 400 });
+      const cote = (valeur: unknown) =>
+        typeof valeur === "number" && Number.isFinite(valeur) && valeur > 0 && valeur <= 10000 ? Math.round(valeur) : undefined;
+      const calcul = await calculerLivraison(
+        cp,
+        poidsColisKg(piece, { largeurMm: cote(line.largeurMm), hauteurMm: cote(line.hauteurMm), epaisseurMm: cote(line.epaisseurMm) })
+      );
       if (!calcul.ok) return NextResponse.json({ error: "code_postal" }, { status: 400 });
       livraison = { cp, commune: calcul.deplacement.commune };
       items.push({

@@ -255,6 +255,7 @@ export function CartView({
             priseDeCotesCp: item.priseDeCotesCp,
             poseCp: item.poseCp,
             livraisonCp: item.livraisonCp,
+            livraisonSlug: item.livraisonSlug,
             rdv: item.rdv,
             note: item.note,
           })),

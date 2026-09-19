@@ -712,9 +712,10 @@ export function ProductOptions({
           : {
               slug: LIVRAISON,
               livraisonCp: cp,
+              livraisonSlug: product.slug,
               // Les cotes du colis : le serveur recalcule le poids avec elles.
-              largeurMm: cotesEff?.largeurMm,
-              hauteurMm: cotesEff?.hauteurMm,
+              largeurMm: cotesEff?.largeurMm ?? size?.dimsMm?.[0],
+              hauteurMm: cotesEff?.hauteurMm ?? size?.dimsMm?.[1],
               epaisseurMm: cotesEff?.epaisseurMm,
               name: t.livraisonResume,
               optionsLabel: pose.deplacement.commune,
@@ -1242,14 +1243,16 @@ export function ProductOptions({
         </div>
       )}
 
-      {product.poseOption && orderable && (
+      {product.poseOption && orderable && !modeVisite && (
         <PoseDomicile
           choix={pose}
           onChange={setPose}
+          demontee={Boolean(product.boisAuM2)}
           colis={{
-            longueurMm: cotesEff?.largeurMm ?? 2000,
-            largeurMm: cotesEff?.hauteurMm ?? 1000,
-            epaisseurMm: cotesEff?.epaisseurMm ?? 36,
+            slug: product.slug,
+            largeurMm: cotesEff?.largeurMm ?? size?.dimsMm?.[0],
+            hauteurMm: cotesEff?.hauteurMm ?? size?.dimsMm?.[1],
+            epaisseurMm: cotesEff?.epaisseurMm,
           }}
           t={t}
           locale={locale}
@@ -1420,10 +1423,10 @@ export function ProductOptions({
           : [
               delai,
               // Le garde-corps se pose soi-même, fixations fournies : pas de montage sur place.
-              product.releve === "garde-corps-fenetre"
-                ? t.inclusLivraisonPose
-                : product.poseOption
-                  ? t.inclusLivraisonTable
+              product.poseOption
+                ? t.inclusLivraisonTable
+                : product.releve === "garde-corps-fenetre"
+                  ? t.inclusLivraisonPose
                   : t.inclusLivraison,
               t.inclusAtelier,
               orderable ? t.inclusPaiement : null,

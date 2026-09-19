@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import type { Colis, Deplacement } from "@/lib/deplacement";
+import type { Deplacement } from "@/lib/deplacement";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { prixAffiche } from "@/lib/ui";
 
@@ -29,13 +29,16 @@ export function PoseDomicile({
   choix,
   onChange,
   colis,
+  demontee = false,
   t,
   locale,
 }: {
   choix: ChoixPose;
   onChange: (choix: ChoixPose) => void;
-  /** Les cotes du plateau, pour le poids du colis (livraison seule). */
-  colis: Colis;
+  /** La pièce et ses cotes : le serveur en déduit le poids du colis (livraison seule). */
+  colis: { slug: string; largeurMm?: number; hauteurMm?: number; epaisseurMm?: number };
+  /** Une table part démontée ; une autre pièce arrive prête à poser. */
+  demontee?: boolean;
   t: Dictionary["artisanat"];
   locale: "fr" | "en";
 }) {
@@ -51,7 +54,7 @@ export function PoseDomicile({
 
   const codePostal = choix.codePostal.replace(/\s+/g, "");
   const cpComplet = /^\d{5}$/.test(codePostal);
-  const cleColis = `${colis.longueurMm}x${colis.largeurMm}x${colis.epaisseurMm}`;
+  const cleColis = `${colis.slug}:${colis.largeurMm ?? ""}x${colis.hauteurMm ?? ""}x${colis.epaisseurMm ?? ""}`;
 
   /* Le prix, demandé au serveur dès qu'un code postal complet est tapé, et
      redemandé si le choix ou les cotes changent. Une réponse en retard pour
@@ -63,7 +66,7 @@ export function PoseDomicile({
       setReponse({ cp: codePostal, voulue: choix.voulue, etat: "calcul" });
       const requete = choix.voulue
         ? `/api/deplacement?cp=${codePostal}&pour=pose`
-        : `/api/deplacement?cp=${codePostal}&pour=livraison&l=${colis.longueurMm}&w=${colis.largeurMm}&t=${colis.epaisseurMm}`;
+        : `/api/deplacement?cp=${codePostal}&pour=livraison&slug=${encodeURIComponent(colis.slug)}${colis.largeurMm ? `&l=${colis.largeurMm}` : ""}${colis.hauteurMm ? `&w=${colis.hauteurMm}` : ""}${colis.epaisseurMm ? `&t=${colis.epaisseurMm}` : ""}`;
       fetch(requete)
         .then(async (r) => {
           const json = await r.json().catch(() => ({}));
@@ -157,7 +160,7 @@ export function PoseDomicile({
         {t.poseTitle}
       </span>
       <div role="radiogroup" aria-labelledby={idGroupe} className="mt-4 flex gap-3">
-        {carte(false, t.poseSeul, t.poseSeulInfo)}
+        {carte(false, t.poseSeul, demontee ? t.poseSeulInfo : t.poseSeulInfoPiece)}
         {carte(true, t.poseAtelier, t.poseAtelierInfo)}
       </div>
 

@@ -412,11 +412,12 @@
     "customTableHeightEdit": "Modifier",
     "customTableHeightAide": "Conseillé : 75 cm — du sol au dessus du plateau.",
     "customTableHeightNote": "hauteur finie {h} cm",
-    "livraisonPrix": "{commune} — {prix} : livraison par transporteur, table démontée, comptée une fois pour toute la commande.",
+    "livraisonPrix": "{commune} — {prix} : livraison par transporteur, comptée une fois pour toute la commande.",
     "livraisonResume": "Livraison par transporteur",
     "livraisonHors": "Nous ne livrons qu'en France métropolitaine.",
-    "inclusLivraisonTable": "Livraison en France métropolitaine, prix selon votre ville ; pose à domicile en option.",
-    "customTooBigTable": "Au-delà du plus grand plateau d'un seul tenant (450 × 125 cm) : choisissez une autre dimension."
+    "inclusLivraisonTable": "Livraison en France métropolitaine, prix selon votre ville ; pose par l'atelier en option.",
+    "customTooBigTable": "Au-delà du plus grand plateau d'un seul tenant (450 × 125 cm) : choisissez une autre dimension.",
+    "poseSeulInfoPiece": "Prix selon votre ville, le poids et les dimensions. La pièce arrive prête à poser, avec sa notice."
   },
   "devis": {
     "title": "Demander un devis",

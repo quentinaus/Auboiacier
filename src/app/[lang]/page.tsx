@@ -226,12 +226,6 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
       clip: "polygon(66.6% 0%, 100% 47.4%, 34.2% 100%, 0% 66.9%)",
     },
     {
-      href: `/${locale}/toiles-tendues`,
-      src: "/images/salle-plafond-tuile.jpg",
-      alt: t.altPlafonds,
-      label: t.catPlafonds,
-    },
-    {
       // Le plafond rond, seul sur fond blanc.
       href: `/${locale}/artisanat/plafond-lumineux-halo`,
       src: "/images/lumiere/rond-dessous-carre.jpg",

@@ -412,11 +412,12 @@
     "customTableHeightEdit": "Change",
     "customTableHeightAide": "Recommended: 75 cm — from the floor to the top of the table.",
     "customTableHeightNote": "finished height {h} cm",
-    "livraisonPrix": "{commune} — {prix}: delivery by carrier, table dismantled, charged once for the whole order.",
+    "livraisonPrix": "{commune} — {prix}: delivery by carrier, charged once for the whole order.",
     "livraisonResume": "Delivery by carrier",
     "livraisonHors": "We only deliver to mainland France.",
-    "inclusLivraisonTable": "Delivery in mainland France, priced by your town; home fitting optional.",
-    "customTooBigTable": "Beyond the largest single-piece top (450 × 125 cm): please choose another size."
+    "inclusLivraisonTable": "Delivery in mainland France, priced by your town; fitting by the workshop optional.",
+    "customTooBigTable": "Beyond the largest single-piece top (450 × 125 cm): please choose another size.",
+    "poseSeulInfoPiece": "Price depends on your town, weight and size. The piece arrives ready to fit, with its notes."
   },
   "devis": {
     "title": "Request a quote",

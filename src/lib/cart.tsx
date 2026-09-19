@@ -37,6 +37,8 @@ export type CartItem = {
   poseCp?: string;
   /** Une ligne « livraison par transporteur » (slug LIVRAISON) : code postal et colis décident du prix. */
   livraisonCp?: string;
+  /** La pièce livrée, dont le serveur déduit le poids du colis. */
+  livraisonSlug?: string;
   /** Le créneau choisi : « 2026-09-23|matin ». */
   rdv?: string;
   /** Ce que le client précise (type de mur, pièce voulue…), transmis tel quel à l'atelier. */
@@ -70,6 +72,7 @@ function lineId(line: CartLine) {
     line.priseDeCotesCp,
     line.poseCp,
     line.livraisonCp,
+    line.livraisonSlug,
     line.rdv,
     line.note,
   ]

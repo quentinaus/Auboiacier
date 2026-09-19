@@ -167,7 +167,18 @@ export function ProductView({
           // autour d'une photo qui n'est pas exactement blanche.
           style={{ backgroundColor: isColorShot ? "#f2f2f1" : fond }}
         >
-          {mainImage ? (
+          {mainImage && mainImage.glow ? (
+            /* Une photo dont la toile s'éclaire : l'image et son halo vivent
+               dans un carré (le format des photos de plafond) posé au milieu
+               du cadre, pour que les repères en % du halo tombent juste,
+               quel que soit le format de l'écran. */
+            <div className="relative aspect-square h-full max-w-full p-6 md:p-12">
+              <div className="relative h-full w-full">
+                <Image key={mainSrc} src={mainSrc!} alt={mainImage.alt} fill sizes="(max-width: 768px) 100vw, 66vw" className="object-contain" priority />
+                <MembraneAnimee box={mainImage.glow.box} clip={mainImage.glow.clip} />
+              </div>
+            </div>
+          ) : mainImage ? (
             <Image
               key={mainSrc}
               src={mainSrc!}
@@ -180,11 +191,6 @@ export function ProductView({
             />
           ) : (
             <div className="h-full w-full bg-[#f1ece4]" />
-          )}
-
-          {/* La toile de la photo, réellement éclairée. */}
-          {mainImage?.glow && (
-            <MembraneAnimee box={mainImage.glow.box} clip={mainImage.glow.clip} />
           )}
 
           {/* Toute la photo est cliquable : un meuble à 3 000 €, on veut voir

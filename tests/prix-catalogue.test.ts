@@ -12,10 +12,8 @@ import assert from "node:assert/strict";
 import {
   products,
   computeUnitPrice,
-  essenceDeReference,
   resolveSelection,
   priceFrom,
-  devisSurMesure,
   SUR_MESURE,
 } from "../src/lib/products.ts";
 import {

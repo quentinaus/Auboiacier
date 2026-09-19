@@ -5,7 +5,6 @@ import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../../dictionaries";
 import { metadataPage, jsonLdFilAriane, scriptJsonLd } from "@/lib/seo";
 import { serif } from "@/lib/fonts";
-import { hoverZoomSubtle } from "@/lib/ui";
 import { ProductTail } from "@/components/product-tail";
 
 
