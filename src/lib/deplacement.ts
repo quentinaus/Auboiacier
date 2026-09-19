@@ -134,6 +134,61 @@ export function tarifPose(distanceKm: number): Omit<Deplacement, "commune" | "pr
   };
 }
 
+/* ------------------------------------------------------------------ *
+ *  La livraison seule
+ *  La table part par transporteur, démontée : le plateau d'un côté, le
+ *  piétement soudé de l'autre, la visserie avec. Le prix imite ce qu'un
+ *  transporteur facture pour une palette : une prise en charge, puis le
+ *  poids et les kilomètres. Un plateau de 200 × 100 × 35 mm en chêne pèse
+ *  ~50 kg, le piétement ~25 kg. Les chiffres restent à valider par Quentin
+ *  contre un vrai devis de messagerie.
+ * ------------------------------------------------------------------ */
+
+/** Prise en charge, emballage et manutention. */
+const LIVRAISON_BASE_CENTS = 4500;
+/** Par kilo, sur le poids total. */
+const LIVRAISON_PAR_KG = 0.55;
+/** Par kilomètre de route, un seul sens. */
+const LIVRAISON_PAR_KM = 0.1;
+/** Masse volumique du chêne, en kg/m³ ; le piétement en acier, forfait. */
+const CHENE_KG_M3 = 700;
+const PIETEMENT_KG = 25;
+
+/** Le colis d'une table : ses cotes en millimètres. */
+export type Colis = { longueurMm: number; largeurMm: number; epaisseurMm: number };
+
+/** Le poids estimé d'une table démontée, en kilos. */
+export function poidsTableKg(colis: Colis): number {
+  const plateau = (colis.longueurMm / 1000) * (colis.largeurMm / 1000) * (colis.epaisseurMm / 1000) * CHENE_KG_M3;
+  return Math.round(plateau + PIETEMENT_KG);
+}
+
+export function tarifLivraison(distanceKm: number, colis: Colis): Omit<Deplacement, "commune" | "precision"> {
+  const route = distanceKm * COEF_ROUTE;
+  const kg = poidsTableKg(colis);
+  const euros = Math.ceil(LIVRAISON_BASE_CENTS / 100 + kg * LIVRAISON_PAR_KG + route * LIVRAISON_PAR_KM);
+  return {
+    montantCents: euros * 100,
+    distanceKm: Math.round(distanceKm),
+    routeAllerRetourKm: Math.round(route * 2),
+    heures: 0,
+    offre: false,
+  };
+}
+
+/** Livraison par transporteur : partout en France métropolitaine. */
+export async function calculerLivraison(codePostal: string, colis: Colis): Promise<ResultatDeplacement> {
+  return calculer(codePostal, (km) => tarifLivraison(km, colis), Infinity);
+}
+
+/** Libellé de la ligne « livraison », dans la langue du client. */
+export function libelleLivraison(codePostal: string, locale: "fr" | "en"): string {
+  return locale === "en" ? `Delivery by carrier — ${codePostal}` : `Livraison par transporteur — ${codePostal}`;
+}
+
+/** Le « produit » livraison, dans le panier : une ligne à part, au code postal du client. */
+export const LIVRAISON = "livraison";
+
 /** Libellé de la ligne « pose », dans la langue du client. */
 export function libellePose(codePostal: string, locale: "fr" | "en"): string {
   return locale === "en"

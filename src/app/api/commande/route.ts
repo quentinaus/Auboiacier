@@ -5,7 +5,17 @@ import { getStripe, isStripeConfigured, newOrderRef, piedDeFacture, siteOrigin }
 import { creerLimite } from "@/lib/limite-debit";
 import { origineEtrangere } from "@/lib/origine";
 import { productLocalise } from "@/lib/products";
-import { POSE, PRISE_DE_COTES, calculerDeplacement, calculerPose, libellePose, libellePriseDeCotes } from "@/lib/deplacement";
+import {
+  LIVRAISON,
+  POSE,
+  PRISE_DE_COTES,
+  calculerDeplacement,
+  calculerLivraison,
+  calculerPose,
+  libelleLivraison,
+  libellePose,
+  libellePriseDeCotes,
+} from "@/lib/deplacement";
 import { cleCreneau, creneauValide, libelleCreneau, lireCreneau } from "@/lib/agenda";
 
 export const runtime = "nodejs";
@@ -35,6 +45,7 @@ type IncomingLine = {
   quantity?: unknown;
   priseDeCotesCp?: unknown;
   poseCp?: unknown;
+  livraisonCp?: unknown;
   rdv?: unknown;
   note?: unknown;
 };
@@ -128,6 +139,8 @@ export async function POST(request: Request) {
   let visite: { rdv: string; cp: string; commune: string; note: string } | null = null;
   /** Une seule pose par commande : tout part sur le même trajet. */
   let pose: { cp: string; commune: string } | null = null;
+  /** Une seule livraison par transporteur, et pas en plus d'une pose. */
+  let livraison: { cp: string; commune: string } | null = null;
   /**
    * Les pièces, gardées de côté jusqu'à la fin : le prix de lot (plusieurs
    * garde-corps dans la même commande) ne se connaît qu'une fois toutes les
@@ -142,11 +155,37 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "invalid" }, { status: 400 });
     }
 
+    // La livraison par transporteur : une ligne à part, au code postal du
+    // client et aux cotes du colis, recalculée ici. Une seule par commande,
+    // et jamais avec une pose (qui livre déjà).
+    if (line.slug === LIVRAISON) {
+      if (livraison || pose) return NextResponse.json({ error: "invalid" }, { status: 400 });
+      const cp = asNote(line.livraisonCp, 10);
+      const cote = (valeur: unknown, defaut: number) =>
+        typeof valeur === "number" && Number.isFinite(valeur) && valeur > 0 && valeur <= 10000 ? Math.round(valeur) : defaut;
+      const calcul = await calculerLivraison(cp, {
+        longueurMm: cote(line.largeurMm, 2000),
+        largeurMm: cote(line.hauteurMm, 1000),
+        epaisseurMm: cote(line.epaisseurMm, 35),
+      });
+      if (!calcul.ok) return NextResponse.json({ error: "code_postal" }, { status: 400 });
+      livraison = { cp, commune: calcul.deplacement.commune };
+      items.push({
+        price_data: {
+          currency: "eur",
+          unit_amount: calcul.deplacement.montantCents,
+          product_data: { name: `${libelleLivraison(cp, locale)} (${calcul.deplacement.commune})` },
+        },
+        quantity: 1,
+      });
+      continue;
+    }
+
     // La livraison et pose à domicile : une ligne à part, au code postal du
     // client, recalculée ici — le navigateur n'a envoyé aucun montant. Une
     // seule par commande : l'atelier fait un trajet, pas un par table.
     if (line.slug === POSE) {
-      if (pose) return NextResponse.json({ error: "invalid" }, { status: 400 });
+      if (pose || livraison) return NextResponse.json({ error: "invalid" }, { status: 400 });
       const cp = asNote(line.poseCp, 10);
       const calcul = await calculerPose(cp);
       if (!calcul.ok) return NextResponse.json({ error: "code_postal" }, { status: 400 });
@@ -324,6 +363,7 @@ export async function POST(request: Request) {
         ville,
         ...(visite ? { rdv: visite.rdv, rdv_cp: visite.cp } : {}),
         ...(pose ? { pose_cp: pose.cp, pose_commune: pose.commune } : {}),
+        ...(livraison ? { livraison_cp: livraison.cp, livraison_commune: livraison.commune } : {}),
         ...(acompte ? { acompte: "1", total_cents: String(totalCents), solde_cents: String(totalCents - acompteCents) } : {}),
         // Trace de l'acceptation des conditions de vente avant paiement.
         cgv_accepted: "1",

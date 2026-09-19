@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { calculerDeplacement, calculerPose } from "@/lib/deplacement";
+import { calculerDeplacement, calculerLivraison, calculerPose } from "@/lib/deplacement";
 import { creerLimite } from "@/lib/limite-debit";
 
 export const runtime = "nodejs";
@@ -19,9 +19,23 @@ export async function GET(request: Request) {
   }
   const params = new URL(request.url).searchParams;
   const cp = params.get("cp") ?? "";
-  // Même route pour la prise de cotes et pour la pose : seul le barème change.
+  // Même route pour la prise de cotes, la pose et la livraison : seul le
+  // barème change. La livraison a besoin des cotes du colis (en mm).
+  const pour = params.get("pour");
+  const entier = (cle: string, defaut: number) => {
+    const n = Number(params.get(cle));
+    return Number.isFinite(n) && n > 0 && n <= 10000 ? Math.round(n) : defaut;
+  };
   const resultat =
-    params.get("pour") === "pose" ? await calculerPose(cp.slice(0, 10)) : await calculerDeplacement(cp.slice(0, 10));
+    pour === "pose"
+      ? await calculerPose(cp.slice(0, 10))
+      : pour === "livraison"
+        ? await calculerLivraison(cp.slice(0, 10), {
+            longueurMm: entier("l", 2000),
+            largeurMm: entier("w", 1000),
+            epaisseurMm: entier("t", 35),
+          })
+        : await calculerDeplacement(cp.slice(0, 10));
   if (!resultat.ok) {
     // « Trop loin » dit aussi où, et à combien : le client comprend le refus.
     return NextResponse.json(

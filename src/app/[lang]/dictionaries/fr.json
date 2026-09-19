@@ -40,7 +40,7 @@
     "lightingCta": "Voir les plafonds",
     "craftLabel": "Mobilier acier & bois",
     "craftTitle": "Mobilier acier & bois",
-    "craftSubtitle": "Tables, chaises, garde-corps, escaliers : soudés à l'atelier, à vos cotes. Prix ferme, livraison comprise.",
+    "craftSubtitle": "Tables, chaises, garde-corps, escaliers : soudés à l'atelier, à vos cotes. Prix ferme, livraison partout en France.",
     "craftCta": "Voir la collection",
     "bandTitle": "Rien n'est en stock",
     "bandSubtitle": "L'acier est coupé et soudé à la commande, et le bois est choisi à la planche pour votre pièce.",
@@ -143,7 +143,7 @@
   },
   "artisanat": {
     "title": "La collection",
-    "subtitle": "Mobilier bois et acier, dessiné et soudé à l'atelier, à Saumur. Rien en stock : l'acier est coupé quand vous commandez. Prix fermes, livraison comprise.",
+    "subtitle": "Mobilier bois et acier, dessiné et soudé à l'atelier, à Saumur. Rien en stock : l'acier est coupé quand vous commandez. Prix fermes, livraison partout en France.",
     "catalogueTitle": "La collection",
     "breadcrumbShop": "La collection",
     "breadcrumbCategory": "Mobilier",
@@ -170,8 +170,8 @@
     "moreInfo": "Voir la fiche",
     "helpTitle": "Une question sur cette pièce ?",
     "helpCta": "Nous contacter",
-    "deliveryTitle": "Livraison comprise, pose en option",
-    "deliveryBody": "Nous livrons partout en France métropolitaine. La pièce voyage sous couvertures, sans emballage jetable, et nous convenons d'un créneau précis avec vous. La pièce arrive prête, avec sa notice. Si vous préférez que l'atelier vienne la livrer et la poser lui-même, choisissez-le sur la fiche : le prix dépend de la distance depuis Saumur, et tout se fait sur un seul trajet.",
+    "deliveryTitle": "Livraison partout en France, pose en option",
+    "deliveryBody": "Nous livrons partout en France métropolitaine, par transporteur : le prix dépend de votre ville, du poids et des dimensions, et s'affiche sur la fiche dès votre code postal. La pièce voyage sous couvertures, sans emballage jetable, et nous convenons d'un créneau précis avec vous. La pièce arrive prête, avec sa notice. Si vous préférez que l'atelier vienne la livrer et la poser lui-même, choisissez-le sur la fiche : le prix dépend de la distance depuis Saumur, et tout se fait sur un seul trajet.",
     "delaiTitle": "Délai de fabrication",
     "delaiBody": "Rien n'est en stock : votre pièce est fabriquée pour vous, à la commande. Son délai figure ci-dessus, à la ligne « Fabrication ». Il vous est confirmé à la commande.",
     "delaiCta": "Commander",
@@ -226,12 +226,12 @@
     "customAwait": "Entrez vos cotes pour voir le prix",
     "inclusLivraison": "Livraison en France métropolitaine comprise — rien ne s'ajoute au paiement.",
     "poseTitle": "Livraison et pose",
-    "poseSeul": "Livraison seule",
-    "poseSeulInfo": "Comprise. La pièce arrive prête, avec sa notice de montage.",
+    "poseSeul": "Livraison par transporteur",
+    "poseSeulInfo": "Prix selon votre ville, le poids et les dimensions. La table arrive démontée : plateau, piétement soudé et visserie, avec sa notice.",
     "poseAtelier": "L'atelier livre et pose",
     "poseAtelierInfo": "Nous venons livrer et installer la pièce chez vous, sur un seul trajet. Prix selon la distance depuis Saumur.",
     "poseCodePostal": "Code postal de livraison",
-    "poseAttente": "Entrez votre code postal pour connaître le prix de la pose.",
+    "poseAttente": "Entrez votre code postal pour connaître le prix.",
     "poseCalcul": "Calcul en cours…",
     "posePrix": "{commune} — {prix} : livraison et pose à domicile, comptées une fois pour toute la commande.",
     "poseLoin": "{commune} est hors de France métropolitaine : nous ne posons pas outre-mer. La livraison seule reste comprise.",
@@ -411,14 +411,18 @@
     "customTableHeight": "Hauteur finie",
     "customTableHeightEdit": "Modifier",
     "customTableHeightAide": "Conseillé : 75 cm — du sol au dessus du plateau.",
-    "customTableHeightNote": "hauteur finie {h} cm"
+    "customTableHeightNote": "hauteur finie {h} cm",
+    "livraisonPrix": "{commune} — {prix} : livraison par transporteur, table démontée, comptée une fois pour toute la commande.",
+    "livraisonResume": "Livraison par transporteur",
+    "livraisonHors": "Nous ne livrons qu'en France métropolitaine.",
+    "inclusLivraisonTable": "Livraison en France métropolitaine, prix selon votre ville ; pose à domicile en option."
   },
   "devis": {
     "title": "Demander un devis",
     "subtitle": "Décrivez votre projet, nous revenons vers vous avec une estimation sous 48 h.",
     "eyebrow": "Devis instantané",
     "h1": "Votre pièce sur mesure, chiffrée en une minute",
-    "lead": "Choisissez un modèle, entrez vos cotes : le prix s'affiche immédiatement, livraison comprise. Aucun compte à créer, aucun engagement.",
+    "lead": "Choisissez un modèle, entrez vos cotes : le prix s'affiche immédiatement, livraison chiffrée à votre ville. Aucun compte à créer, aucun engagement.",
     "ctaModeles": "Choisir un modèle",
     "ctaAutre": "Décrire un autre projet",
     "ctaModelesNote": "Prix en une minute",
@@ -437,7 +441,7 @@
       },
       {
         "titre": "Le prix s'affiche",
-        "texte": "Un prix ferme, livraison comprise. Commandez en ligne, ou demandez la visite de l'atelier pour relever les cotes."
+        "texte": "Un prix ferme, livraison chiffrée à votre ville. Commandez en ligne, ou demandez la visite de l'atelier pour relever les cotes."
       }
     ],
     "instantTitle": "Les pièces à devis instantané",
@@ -481,8 +485,8 @@
         "texte": "Une seule main, de la coupe à la pose."
       },
       {
-        "titre": "Livraison comprise, pose en option",
-        "texte": "France métropolitaine, dans le prix affiché."
+        "titre": "Livraison partout en France, pose en option",
+        "texte": "France métropolitaine, prix selon votre ville."
       },
       {
         "titre": "Fabriqué à la commande",
@@ -603,7 +607,7 @@
     "quantity": "Quantité",
     "remove": "Retirer",
     "total": "Total",
-    "shippingNote": "Livraison comprise en France métropolitaine. Fabrication à la commande : le délai est indiqué sur la fiche de chaque pièce.",
+    "shippingNote": "Fabrication à la commande : le délai est indiqué sur la fiche de chaque pièce.",
     "cgvAccept": "J'ai lu et j'accepte les",
     "cgvLink": "conditions générales de vente",
     "cgvRequired": "Merci d'accepter les conditions générales de vente.",
@@ -633,7 +637,9 @@
     "acompteInfo": "Le solde ({solde}) est prélevé sur la même carte le jour de la livraison ou de la pose. En cochant, vous autorisez ce prélèvement (voir les conditions de vente, article 4).",
     "acompteToday": "À régler aujourd'hui",
     "acompteBalance": "Solde à la livraison ou à la pose",
-    "checkoutAcompte": "Payer l'acompte de {montant}"
+    "checkoutAcompte": "Payer l'acompte de {montant}",
+    "deliveryWithPose": "Dans la pose",
+    "acompteLien": "Régler seulement un acompte de 40 % ?"
   },
   "commande": {
     "title": "Commande",
@@ -672,7 +678,7 @@
       },
       {
         "title": "6. Livraison",
-        "body": "La livraison est comprise dans le prix des pièces du catalogue, en France métropolitaine, sur rendez-vous convenu avec le client. Le client peut choisir, sur la fiche de la pièce, que l'atelier vienne livrer et poser lui-même : cette prestation est facturée selon la distance depuis Saumur, au tarif affiché avant la commande, et comptée une seule fois par commande. Il appartient au client de s'assurer que la pièce peut être acheminée jusqu'au lieu de pose (accès, escaliers, ouvertures)."
+        "body": "La livraison est assurée en France métropolitaine par transporteur, à un prix calculé selon la ville, le poids et les dimensions, affiché avant la commande et compté une fois par commande ; les pièces sans option de livraison sur leur fiche sont livrées sans supplément. Elle a lieu sur rendez-vous convenu avec le client. Le client peut choisir, sur la fiche de la pièce, que l'atelier vienne livrer et poser lui-même : cette prestation est facturée selon la distance depuis Saumur, au tarif affiché avant la commande, et comptée une seule fois par commande. Il appartient au client de s'assurer que la pièce peut être acheminée jusqu'au lieu de pose (accès, escaliers, ouvertures)."
       },
       {
         "title": "7. Droit de rétractation",
@@ -843,7 +849,7 @@
   "seo": {
     "hub": {
       "title": "Mobilier acier & bois, plafonds lumineux",
-      "description": "Atelier de métallerie à Saumur (49) : tables, chaises, escaliers, garde-corps, verrières et plafonds lumineux sur mesure. Prix ferme, livraison comprise."
+      "description": "Atelier de métallerie à Saumur (49) : tables, chaises, escaliers, garde-corps, verrières et plafonds lumineux sur mesure. Livrés partout en France."
     },
     "artisanat": {
       "title": "Mobilier sur mesure bois & acier",
@@ -876,7 +882,7 @@
     },
     "devis": {
       "title": "Devis instantané, prix en une minute",
-      "description": "Entrez vos cotes, le prix s'affiche en une minute : tables acier et bois massif, garde-corps de fenêtre, plafonds lumineux. Livraison comprise."
+      "description": "Entrez vos cotes, le prix s'affiche en une minute : tables acier et bois massif, garde-corps de fenêtre, plafonds lumineux. Livraison partout en France."
     },
     "panier": {
       "title": "Votre panier",
@@ -937,7 +943,7 @@
       },
       {
         "title": "Partout en France métropolitaine",
-        "body": "Les pièces de la collection sont livrées dans toute la France métropolitaine, livraison comprise : elles voyagent sous couvertures, sans emballage jetable, et nous convenons d'un créneau avec vous. Pour une pose plus loin (plafond lumineux, verrière, escalier), écrivez-nous : nous regardons le chantier et le temps de route, et nous vous répondons franchement."
+        "body": "Les pièces de la collection sont livrées dans toute la France métropolitaine, par transporteur, au prix de votre ville : elles voyagent sous couvertures, sans emballage jetable, et nous convenons d'un créneau avec vous. Pour une pose plus loin (plafond lumineux, verrière, escalier), écrivez-nous : nous regardons le chantier et le temps de route, et nous vous répondons franchement."
       },
       {
         "title": "Comment se passe un chantier",
@@ -964,7 +970,7 @@
       },
       {
         "q": "Comment sont fixés les prix ?",
-        "a": "Les prix affichés dans la collection sont fermes : ce que vous voyez est ce que vous payez, livraison en France métropolitaine comprise. Ils viennent du temps d'atelier et de la matière, sans intermédiaire. Pour le sur-mesure (escalier, verrière, sculpture), le prix dépend des dimensions et des finitions : il est chiffré au devis, gratuitement."
+        "a": "Les prix affichés dans la collection sont fermes : ce que vous voyez est ce que vous payez, livraison chiffrée à part selon votre ville. Ils viennent du temps d'atelier et de la matière, sans intermédiaire. Pour le sur-mesure (escalier, verrière, sculpture), le prix dépend des dimensions et des finitions : il est chiffré au devis, gratuitement."
       },
       {
         "q": "Puis-je commander d'autres dimensions ?",
@@ -972,7 +978,7 @@
       },
       {
         "q": "Comment se passe la livraison ?",
-        "a": "Nous livrons partout en France métropolitaine. Votre pièce voyage sous couvertures, sans emballage jetable, et nous convenons d'un créneau précis avec vous. La pièce arrive prête, avec sa notice. Si vous préférez que l'atelier vienne la livrer et la poser lui-même, choisissez-le sur la fiche : le prix dépend de la distance depuis Saumur, et tout se fait sur un seul trajet."
+        "a": "Nous livrons partout en France métropolitaine, par transporteur : le prix dépend de votre ville, du poids et des dimensions, et s'affiche sur la fiche dès votre code postal. Votre pièce voyage sous couvertures, sans emballage jetable, et nous convenons d'un créneau précis avec vous. La pièce arrive prête, avec sa notice. Si vous préférez que l'atelier vienne la livrer et la poser lui-même, choisissez-le sur la fiche : le prix dépend de la distance depuis Saumur, et tout se fait sur un seul trajet."
       },
       {
         "q": "Où intervenez-vous ?",

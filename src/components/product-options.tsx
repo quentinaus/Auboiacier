@@ -27,7 +27,7 @@ import {
   COTES_GARDE_CORPS_VIDES,
   type CotesGardeCorps,
 } from "./releve-garde-corps";
-import { POSE, PRISE_DE_COTES } from "@/lib/deplacement";
+import { LIVRAISON, POSE, PRISE_DE_COTES } from "@/lib/deplacement";
 import { VisiteAtelier } from "./prise-de-cotes";
 import { POSE_INITIALE, PoseDomicile, type ChoixPose } from "./pose-domicile";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
@@ -685,18 +685,32 @@ export function ProductOptions({
       },
       quantity
     );
-    // La pose : une ligne à part, une seule par panier (un seul trajet). Si
-    // une autre table l'avait déjà demandée, on la remplace par celle-ci.
-    if (product.poseOption && pose.voulue && pose.deplacement) {
-      panier.filter((ligne) => ligne.slug === POSE).forEach((ligne) => remove(ligne.id));
+    // La livraison (par transporteur ou avec pose) : une ligne à part, une
+    // seule par panier — un seul trajet, un seul colis. Si une autre table
+    // l'avait déjà demandée, on la remplace par celle-ci.
+    if (product.poseOption && pose.deplacement) {
+      panier.filter((ligne) => ligne.slug === POSE || ligne.slug === LIVRAISON).forEach((ligne) => remove(ligne.id));
+      const cp = pose.codePostal.replace(/\s+/g, "");
       add(
-        {
-          slug: POSE,
-          poseCp: pose.codePostal.replace(/\s+/g, ""),
-          name: t.poseResume,
-          optionsLabel: pose.deplacement.commune,
-          unitPrice: pose.deplacement.montantCents / 100,
-        },
+        pose.voulue
+          ? {
+              slug: POSE,
+              poseCp: cp,
+              name: t.poseResume,
+              optionsLabel: pose.deplacement.commune,
+              unitPrice: pose.deplacement.montantCents / 100,
+            }
+          : {
+              slug: LIVRAISON,
+              livraisonCp: cp,
+              // Les cotes du colis : le serveur recalcule le poids avec elles.
+              largeurMm: cotesEff?.largeurMm,
+              hauteurMm: cotesEff?.hauteurMm,
+              epaisseurMm: cotesEff?.epaisseurMm,
+              name: t.livraisonResume,
+              optionsLabel: pose.deplacement.commune,
+              unitPrice: pose.deplacement.montantCents / 100,
+            },
         1
       );
     }
@@ -1218,7 +1232,17 @@ export function ProductOptions({
       )}
 
       {product.poseOption && orderable && (
-        <PoseDomicile choix={pose} onChange={setPose} t={t} locale={locale} />
+        <PoseDomicile
+          choix={pose}
+          onChange={setPose}
+          colis={{
+            longueurMm: cotesEff?.largeurMm ?? 2000,
+            largeurMm: cotesEff?.hauteurMm ?? 1000,
+            epaisseurMm: cotesEff?.epaisseurMm ?? 35,
+          }}
+          t={t}
+          locale={locale}
+        />
       )}
 
       {orderable || modeVisite ? (
@@ -1271,7 +1295,7 @@ export function ProductOptions({
               ref={boutonPanierRef}
               type="button"
               onClick={addToCart}
-              disabled={total === null || (modeVisite && !visitePrete) || (pose.voulue && !pose.deplacement)}
+              disabled={total === null || (modeVisite && !visitePrete) || (product.poseOption && !pose.deplacement)}
               className="shrink-0 rounded-full px-5 py-3.5 text-[11px] font-medium uppercase tracking-[0.14em] transition-colors enabled:bg-[#2b2320] enabled:text-white enabled:hover:bg-[#2b2320] disabled:cursor-not-allowed disabled:bg-[#ece6dd] disabled:text-[#7a6f64]"
             >
               {t.addToCart}
@@ -1385,8 +1409,11 @@ export function ProductOptions({
           : [
               delai,
               // Le garde-corps se pose soi-même, fixations fournies : pas de montage sur place.
-              product.releve === "garde-corps-fenetre" ? t.inclusLivraisonPose : t.inclusLivraison,
-              product.poseOption ? t.inclusPose : null,
+              product.releve === "garde-corps-fenetre"
+                ? t.inclusLivraisonPose
+                : product.poseOption
+                  ? t.inclusLivraisonTable
+                  : t.inclusLivraison,
               t.inclusAtelier,
               orderable ? t.inclusPaiement : null,
             ]

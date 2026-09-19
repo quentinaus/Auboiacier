@@ -8,7 +8,7 @@ import { productLocalise, remiseLot, resolveSelection, SUR_MESURE, type Product 
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { serif } from "@/lib/fonts";
 import { prixAffiche } from "@/lib/ui";
-import { POSE, PRISE_DE_COTES, libellePose, libellePriseDeCotes } from "@/lib/deplacement";
+import { LIVRAISON, POSE, PRISE_DE_COTES, libelleLivraison, libellePose, libellePriseDeCotes } from "@/lib/deplacement";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 
 const ACCENT = "#2b2320";
@@ -71,6 +71,8 @@ export function CartView({
       visite?: boolean;
       /** La ligne de pose, pour le récapitulatif et son icône. */
       pose?: boolean;
+      /** La ligne de livraison par transporteur. */
+      livraison?: boolean;
       /** La pièce du catalogue, pour le prix de lot. */
       product?: Product;
       /** Le prix catalogue avant remise de lot, et la remise appliquée. */
@@ -83,6 +85,23 @@ export function CartView({
       // La prise de cotes n'est pas une pièce du catalogue : son prix a été
       // calculé par le serveur (/api/deplacement) quand le client a choisi, et
       // /api/commande le recalcule avant d'encaisser. On l'affiche tel quel.
+      // La livraison par transporteur : prix venu du serveur au moment du choix.
+      if (item.slug === LIVRAISON) {
+        if (!item.livraisonCp) {
+          stale.push(item.id);
+          continue;
+        }
+        lines.push({
+          id: item.id,
+          quantity: 1,
+          name: libelleLivraison(item.livraisonCp, locale),
+          options: item.optionsLabel,
+          unitPrice: item.unitPrice,
+          visite: true,
+          livraison: true,
+        });
+        continue;
+      }
       // La pose à domicile : même logique, sans créneau — l'atelier appelle
       // pour convenir du jour quand la pièce est prête.
       if (item.slug === POSE) {
@@ -198,6 +217,7 @@ export function CartView({
   const total = lines.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
   const totalPieces = lines.filter((l) => !l.visite).reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
   const lignePose = lines.find((l) => l.pose);
+  const ligneLivraison = lines.find((l) => l.livraison);
   // Le même arrondi que le serveur : 40 % de chaque ligne, au centime.
   const montantAcompte = lines.reduce((sum, line) => sum + (Math.round(line.unitPrice * 40) / 100) * line.quantity, 0);
   const solde = total - montantAcompte;
@@ -234,6 +254,7 @@ export function CartView({
             quantity: item.quantity,
             priseDeCotesCp: item.priseDeCotesCp,
             poseCp: item.poseCp,
+            livraisonCp: item.livraisonCp,
             rdv: item.rdv,
             note: item.note,
           })),
@@ -329,7 +350,7 @@ export function CartView({
                     strokeLinejoin="round"
                     className="h-full w-full p-5"
                   >
-                    {line.pose ? (
+                    {line.pose || line.livraison ? (
                       <>
                         <path d="M3 16V8a1 1 0 0 1 1-1h9v9" />
                         <path d="M13 10h4l3 3v3h-7" />
@@ -428,9 +449,17 @@ export function CartView({
                 <dt className="text-[#5c5140]">{t.pieces}</dt>
                 <dd className="tabular-nums text-[#2b2320]">{prixAffiche(totalPieces, locale)}</dd>
               </div>
+              {/* Livraison par transporteur : son prix ; avec une pose : comprise
+                  dans la pose ; sinon (chaise, garde-corps…) : comprise. */}
               <div className="flex justify-between gap-4">
                 <dt className="text-[#5c5140]">{t.delivery}</dt>
-                <dd className="text-[#2b2320]">{t.deliveryIncluded}</dd>
+                <dd className="tabular-nums text-[#2b2320]">
+                  {ligneLivraison
+                    ? prixAffiche(ligneLivraison.unitPrice, locale)
+                    : lignePose
+                      ? t.deliveryWithPose
+                      : t.deliveryIncluded}
+                </dd>
               </div>
               {lignePose && (
                 <div className="flex justify-between gap-4">
@@ -485,24 +514,6 @@ export function CartView({
               )}
             </div>
 
-            {/* L'acompte : proposé sans insister, une case et deux lignes. */}
-            <label className="mt-5 flex items-start gap-3 text-sm text-[#4a4038]">
-              <input
-                type="checkbox"
-                checked={acompte}
-                onChange={(event) => setAcompte(event.target.checked)}
-                className="mt-1 h-4 w-4 accent-[#2b2320]"
-              />
-              <span>
-                {t.acompteToggle}
-                {acompte && (
-                  <span className="mt-1 block text-xs leading-relaxed text-[#726757]">
-                    {t.acompteInfo.replace("{solde}", prixAffiche(solde, locale))}
-                  </span>
-                )}
-              </span>
-            </label>
-
             <label className="mt-4 flex items-start gap-3 text-sm text-[#4a4038]">
               <input
                 type="checkbox"
@@ -551,6 +562,35 @@ export function CartView({
                   : t.checkout}
             </button>
             <p className="mt-4 text-center text-xs leading-relaxed text-[#6f6357]">{t.securedBy}</p>
+
+            {/* L'acompte : un lien discret sous le bouton, qui s'ouvre en une
+                case ; il ne se voit pas avant qu'on le cherche. */}
+            {!acompte ? (
+              <p className="mt-3 text-center text-xs">
+                <button
+                  type="button"
+                  onClick={() => setAcompte(true)}
+                  className="text-[#7a6f64] underline underline-offset-4 hover:text-black"
+                >
+                  {t.acompteLien}
+                </button>
+              </p>
+            ) : (
+              <label className="mt-4 flex items-start gap-3 rounded-xl border border-[#e8e1d8] px-4 py-3 text-sm text-[#4a4038]">
+                <input
+                  type="checkbox"
+                  checked={acompte}
+                  onChange={(event) => setAcompte(event.target.checked)}
+                  className="mt-1 h-4 w-4 accent-[#2b2320]"
+                />
+                <span>
+                  {t.acompteToggle}
+                  <span className="mt-1 block text-xs leading-relaxed text-[#726757]">
+                    {t.acompteInfo.replace("{solde}", prixAffiche(solde, locale))}
+                  </span>
+                </span>
+              </label>
+            )}
             {/* La politique s'informe, elle ne se consent pas : la base légale est
                 le contrat, donc un simple lien, pas une seconde case à cocher. */}
             <p className="mt-2 text-center text-xs leading-relaxed text-[#6f6357]">

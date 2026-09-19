@@ -40,7 +40,7 @@
     "lightingCta": "See the ceilings",
     "craftLabel": "Steel & wood furniture",
     "craftTitle": "Steel & wood furniture",
-    "craftSubtitle": "Tables, chairs, railings, staircases: welded in the workshop, to your measurements. Firm price, delivery included.",
+    "craftSubtitle": "Tables, chairs, railings, staircases: welded in the workshop, to your measurements. Firm price, delivery anywhere in France.",
     "craftCta": "See the collection",
     "bandTitle": "Nothing is held in stock",
     "bandSubtitle": "The steel is cut and welded to order, and the boards are picked one by one for your piece.",
@@ -143,7 +143,7 @@
   },
   "artisanat": {
     "title": "The collection",
-    "subtitle": "Wood and steel furniture, drawn and welded in the workshop in Saumur, France. Nothing in stock: the steel is cut when you order. Firm prices, delivery included.",
+    "subtitle": "Wood and steel furniture, drawn and welded in the workshop in Saumur, France. Nothing in stock: the steel is cut when you order. Firm prices, delivery anywhere in France.",
     "catalogueTitle": "The collection",
     "breadcrumbShop": "The collection",
     "breadcrumbCategory": "Furniture",
@@ -170,8 +170,8 @@
     "moreInfo": "See the details",
     "helpTitle": "A question about this piece?",
     "helpCta": "Get in touch",
-    "deliveryTitle": "Delivery included, fitting optional",
-    "deliveryBody": "We deliver anywhere in mainland France. The piece travels under blankets, with no throw-away packaging, and we agree a precise time slot with you. The piece arrives ready, with its notes. If you would rather the workshop delivered and fitted it itself, choose that on the product page: the price depends on the distance from Saumur, and it all happens in a single trip.",
+    "deliveryTitle": "Delivery anywhere in France, fitting optional",
+    "deliveryBody": "We deliver anywhere in mainland France by carrier: the price depends on your town, the weight and the size, and appears on the product page as soon as you enter your postcode. The piece travels under blankets, with no throw-away packaging, and we agree a precise time slot with you. The piece arrives ready, with its notes. If you would rather the workshop delivered and fitted it itself, choose that on the product page: the price depends on the distance from Saumur, and it all happens in a single trip.",
     "delaiTitle": "Lead time",
     "delaiBody": "Nothing is kept in stock: your piece is made for you, to order. Its lead time is shown above, on the “Lead time” line, and confirmed when you order.",
     "delaiCta": "Order",
@@ -226,12 +226,12 @@
     "customAwait": "Enter your dimensions to see the price",
     "inclusLivraison": "Delivery in mainland France included — nothing is added at checkout.",
     "poseTitle": "Delivery and fitting",
-    "poseSeul": "Delivery only",
-    "poseSeulInfo": "Included. The piece arrives ready, with its assembly notes.",
+    "poseSeul": "Delivery by carrier",
+    "poseSeulInfo": "Price depends on your town, weight and size. The table arrives dismantled: top, welded base and fixings, with its notes.",
     "poseAtelier": "The workshop delivers and fits",
     "poseAtelierInfo": "We deliver and install the piece at your home, in a single trip. Price depends on the distance from Saumur.",
     "poseCodePostal": "Delivery postcode",
-    "poseAttente": "Enter your postcode to see the fitting price.",
+    "poseAttente": "Enter your postcode to see the price.",
     "poseCalcul": "Calculating…",
     "posePrix": "{commune} — {prix}: delivery and fitting at home, charged once for the whole order.",
     "poseLoin": "{commune} is outside mainland France: we do not fit overseas. Delivery alone remains included.",
@@ -411,14 +411,18 @@
     "customTableHeight": "Finished height",
     "customTableHeightEdit": "Change",
     "customTableHeightAide": "Recommended: 75 cm — from the floor to the top of the table.",
-    "customTableHeightNote": "finished height {h} cm"
+    "customTableHeightNote": "finished height {h} cm",
+    "livraisonPrix": "{commune} — {prix}: delivery by carrier, table dismantled, charged once for the whole order.",
+    "livraisonResume": "Delivery by carrier",
+    "livraisonHors": "We only deliver to mainland France.",
+    "inclusLivraisonTable": "Delivery in mainland France, priced by your town; home fitting optional."
   },
   "devis": {
     "title": "Request a quote",
     "subtitle": "Describe your project and we come back to you with an estimate within 48 hours.",
     "eyebrow": "Instant quote",
     "h1": "Your made-to-measure piece, priced in one minute",
-    "lead": "Pick a model, enter your dimensions: the price appears at once, delivery included. No account to create, no commitment.",
+    "lead": "Pick a model, enter your dimensions: the price appears at once, delivery priced to your town. No account to create, no commitment.",
     "ctaModeles": "Choose a model",
     "ctaAutre": "Describe another project",
     "ctaModelesNote": "Price in one minute",
@@ -437,7 +441,7 @@
       },
       {
         "titre": "The price appears",
-        "texte": "A firm price, delivery included. Order online, or book a workshop visit to take the measurements."
+        "texte": "A firm price, delivery priced to your town. Order online, or book a workshop visit to take the measurements."
       }
     ],
     "instantTitle": "Pieces with an instant quote",
@@ -481,8 +485,8 @@
         "texte": "One pair of hands, from cutting to fitting."
       },
       {
-        "titre": "Delivery included, fitting optional",
-        "texte": "Mainland France, in the displayed price."
+        "titre": "Delivery anywhere in France, fitting optional",
+        "texte": "Mainland France, priced by your town."
       },
       {
         "titre": "Made to order",
@@ -603,7 +607,7 @@
     "quantity": "Quantity",
     "remove": "Remove",
     "total": "Total",
-    "shippingNote": "Delivery included in mainland France. Made to order: the production time is shown on each piece's page.",
+    "shippingNote": "Made to order: the production time is shown on each piece's page.",
     "cgvAccept": "I have read and accept the",
     "cgvLink": "terms and conditions of sale",
     "cgvRequired": "Please accept the terms and conditions of sale.",
@@ -633,7 +637,9 @@
     "acompteInfo": "The balance ({solde}) is charged to the same card on the day of delivery or fitting. By ticking, you authorise that charge (see the terms of sale, article 4).",
     "acompteToday": "Due today",
     "acompteBalance": "Balance on delivery or fitting",
-    "checkoutAcompte": "Pay the {montant} deposit"
+    "checkoutAcompte": "Pay the {montant} deposit",
+    "deliveryWithPose": "In the fitting",
+    "acompteLien": "Pay only a 40% deposit?"
   },
   "commande": {
     "title": "Order",
@@ -672,7 +678,7 @@
       },
       {
         "title": "6. Delivery",
-        "body": "Delivery is included in the price of catalogue pieces, in mainland France, on a date agreed with the customer. On the product page, the customer may ask the workshop to deliver and fit the piece itself: this service is charged according to the distance from Saumur, at the price shown before ordering, and counted once per order. It is the customer's responsibility to check that the piece can be brought to the installation site (access, stairs, doorways)."
+        "body": "Delivery in mainland France is made by carrier, at a price calculated from the town, weight and size, shown before ordering and counted once per order; pieces without a delivery option on their page are delivered at no extra charge. It takes place on a date agreed with the customer. On the product page, the customer may ask the workshop to deliver and fit the piece itself: this service is charged according to the distance from Saumur, at the price shown before ordering, and counted once per order. It is the customer's responsibility to check that the piece can be brought to the installation site (access, stairs, doorways)."
       },
       {
         "title": "7. Right of withdrawal",
@@ -876,7 +882,7 @@
     },
     "devis": {
       "title": "Instant quote, priced in one minute",
-      "description": "Enter your dimensions and see the price in one minute: steel and wood tables, window railings, light ceilings. Delivery included."
+      "description": "Enter your dimensions and see the price in one minute: steel and wood tables, window railings, light ceilings. Delivery anywhere in France."
     },
     "panier": {
       "title": "Your basket",
@@ -937,7 +943,7 @@
       },
       {
         "title": "Anywhere in mainland France",
-        "body": "Pieces from the collection are delivered anywhere in mainland France, delivery included: they travel under blankets, with no throw-away packaging, and we agree a time slot with you. For fitting further afield (backlit stretch ceiling, steel partition, staircase), write to us: we look at the job and the driving time, and we give you a straight answer."
+        "body": "Pieces from the collection are delivered anywhere in mainland France by carrier, priced by your town: they travel under blankets, with no throw-away packaging, and we agree a time slot with you. For fitting further afield (backlit stretch ceiling, steel partition, staircase), write to us: we look at the job and the driving time, and we give you a straight answer."
       },
       {
         "title": "How a project runs",
@@ -964,7 +970,7 @@
       },
       {
         "q": "How are your prices set?",
-        "a": "The prices shown in the collection are firm: what you see is what you pay, delivery in mainland France included. They come from workshop hours and materials, with no middleman. For made-to-measure work (staircase, steel partition, sculpture), the price depends on dimensions and finishes: it is set out in a quote, free of charge."
+        "a": "The prices shown in the collection are firm: what you see is what you pay, delivery priced separately by your town. They come from workshop hours and materials, with no middleman. For made-to-measure work (staircase, steel partition, sculpture), the price depends on dimensions and finishes: it is set out in a quote, free of charge."
       },
       {
         "q": "Can I order other dimensions?",
@@ -972,7 +978,7 @@
       },
       {
         "q": "How does delivery work?",
-        "a": "We deliver anywhere in mainland France. Your piece travels under blankets, with no throw-away packaging, and we agree a precise time slot with you. The piece arrives ready, with its notes. If you would rather the workshop delivered and fitted it itself, choose that on the product page: the price depends on the distance from Saumur, and it all happens in a single trip."
+        "a": "We deliver anywhere in mainland France by carrier: the price depends on your town, the weight and the size, and appears on the product page as soon as you enter your postcode. Your piece travels under blankets, with no throw-away packaging, and we agree a precise time slot with you. The piece arrives ready, with its notes. If you would rather the workshop delivered and fitted it itself, choose that on the product page: the price depends on the distance from Saumur, and it all happens in a single trip."
       },
       {
         "q": "Where do you work?",
