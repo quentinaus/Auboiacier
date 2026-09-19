@@ -121,3 +121,20 @@ textarea:focus-visible,
     scroll-behavior: auto !important;
   }
 }
+
+/* La lumière d'une toile tendue (MembraneAnimee) : le dégradé glisse
+   lentement d'un coin à l'autre, sans jamais s'arrêter net. */
+.membrane-lumiere {
+  background-position: 0% 0%;
+  animation: membrane-derive 24s ease-in-out infinite alternate;
+}
+@keyframes membrane-derive {
+  to {
+    background-position: 100% 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .membrane-lumiere {
+    animation: none;
+  }
+}

@@ -647,6 +647,56 @@ export function ProductOptions({
     }
   }
 
+  /**
+   * Le devis en PDF de cette configuration (/api/devis-pdf), dès que tout est
+   * choisi : une taille ou des cotes valides, et — quand la fiche le demande —
+   * un code postal chiffré. Le lien ne porte que des identifiants et des
+   * cotes ; le serveur recalcule chaque prix.
+   */
+  const urlDevis = (() => {
+    if (total === null || modeVisite) return null;
+    if (product.poseOption && orderable && !pose.deplacement) return null;
+    const p = new URLSearchParams({ slug: product.slug, lang: locale, qty: String(quantity) });
+    if (sizeIdEff) p.set("size", sizeIdEff);
+    if (cotesEff?.largeurMm) p.set("l", String(cotesEff.largeurMm));
+    if (cotesEff?.hauteurMm) p.set("w", String(cotesEff.hauteurMm));
+    if (cotesEff?.epaisseurMm) p.set("t", String(cotesEff.epaisseurMm));
+    if (table && sizeIdEff === SUR_MESURE && Number.isFinite(hauteurTableMm) && hauteurTableMm !== HAUTEUR_TABLE_MM) {
+      p.set("h", String(hauteurTableMm));
+    }
+    if (woodId) p.set("wood", woodId);
+    if (metalId) p.set("metal", metalId);
+    if (fabricId) p.set("fabric", fabricId);
+    if (remplissageId) p.set("remplissage", remplissageId);
+    if (product.releve === "garde-corps-fenetre") {
+      const note = noteGardeCorps(cotesGardeCorps, t);
+      if (note) p.set("note", note);
+    }
+    if (product.poseOption && orderable && pose.deplacement) {
+      p.set("mode", pose.voulue ? "pose" : "transporteur");
+      p.set("cp", pose.codePostal.replace(/\s+/g, ""));
+    }
+    return `/api/devis-pdf?${p.toString()}`;
+  })();
+
+  /** Le lien vers le devis, sous la barre d'achat ou sous « Demander un devis ». */
+  const lienDevis = urlDevis && (
+    <p className="mt-3 text-center">
+      <a
+        href={urlDevis}
+        target="_blank"
+        rel="noopener"
+        className="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[#2b2320] underline-offset-4 hover:underline"
+      >
+        <svg aria-hidden="true" viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.4">
+          <path d="M5 2.5h6.5L15 6v11.5H5z" strokeLinejoin="round" />
+          <path d="M11.5 2.5V6H15M7.5 10h5M7.5 13h5" strokeLinecap="round" />
+        </svg>
+        {orderable ? t.devisPdf : t.estimationPdf}
+      </a>
+    </p>
+  );
+
   function addToCart() {
     // Pas de cotes, pas de pièce : le bouton est grisé, ceci n'est qu'un filet.
     if (total === null) return;
@@ -1320,6 +1370,7 @@ export function ProductOptions({
           {optionsLabel && !modeVisite && total !== null && (
             <p className="mt-2 text-[11px] text-[#5c5140]">{optionsLabel}</p>
           )}
+          {lienDevis}
 
           {/* Le grand prix reste unitaire : on affiche le total dès qu'on en commande plusieurs. */}
           {quantity > 1 && total !== null && (
@@ -1411,6 +1462,7 @@ export function ProductOptions({
             {t.requestQuote}
           </Link>
           <p className="mt-3 text-center text-sm leading-relaxed text-[#726757]">{t.quoteNote}</p>
+          {lienDevis}
         </div>
       )}
 

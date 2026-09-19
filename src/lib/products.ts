@@ -778,7 +778,7 @@ export const products: Product[] = [
       { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, finition peinte mate" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "France métropolitaine comprise ; pose à domicile en option" },
+      { label: "Livraison", value: "Partout en France, par transporteur, prix selon votre ville ; ou livrée et posée par l'atelier" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -816,7 +816,7 @@ export const products: Product[] = [
         { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, matt painted finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
-        { label: "Delivery", value: "Mainland France included; home fitting optional" },
+        { label: "Delivery", value: "Anywhere in mainland France by carrier, priced by town; or delivered and fitted by the workshop" },
       ],
     },
   },
@@ -927,7 +927,7 @@ export const products: Product[] = [
       { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, finition peinte mate" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "France métropolitaine comprise ; pose à domicile en option" },
+      { label: "Livraison", value: "Partout en France, par transporteur, prix selon votre ville ; ou livrée et posée par l'atelier" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -966,7 +966,7 @@ export const products: Product[] = [
         { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, matt painted finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
-        { label: "Delivery", value: "Mainland France included; home fitting optional" },
+        { label: "Delivery", value: "Anywhere in mainland France by carrier, priced by town; or delivered and fitted by the workshop" },
       ],
     },
   },
@@ -1047,7 +1047,7 @@ export const products: Product[] = [
       { label: "Piétement", value: "Tiges d'acier soudées une à une, finition peinte mate" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "France métropolitaine comprise ; pose à domicile en option" },
+      { label: "Livraison", value: "Partout en France, par transporteur, prix selon votre ville ; ou livrée et posée par l'atelier" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -1084,7 +1084,7 @@ export const products: Product[] = [
         { label: "Base", value: "Steel rods welded one by one, matt painted finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
-        { label: "Delivery", value: "Mainland France included; home fitting optional" },
+        { label: "Delivery", value: "Anywhere in mainland France by carrier, priced by town; or delivered and fitted by the workshop" },
       ],
     },
   },
@@ -1540,7 +1540,7 @@ export const products: Product[] = [
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Entretien", value: "Une huile par an ; laisser griser si l'on préfère la patine" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "France métropolitaine comprise ; pose à domicile en option" },
+      { label: "Livraison", value: "Partout en France, par transporteur, prix selon votre ville ; ou livrée et posée par l'atelier" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -1576,7 +1576,7 @@ export const products: Product[] = [
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Care", value: "One coat of oil a year; leave it to silver if you prefer the patina" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
-        { label: "Delivery", value: "Mainland France included; home fitting optional" },
+        { label: "Delivery", value: "Anywhere in mainland France by carrier, priced by town; or delivered and fitted by the workshop" },
       ],
     },
   },
@@ -1671,9 +1671,9 @@ export const products: Product[] = [
         },
       },
       {
-        src: "/images/lumiere/panneau-angle.jpg",
-        alt: "Détail de l'angle du cadre aluminium laqué et de la toile tendue",
-        bg: "#8f8f8f",
+        // La Lucarne chez quelqu'un : la même photo que l'accueil.
+        src: "/images/salle-plafond-mikado.jpg",
+        alt: "Lucarne : plafond lumineux à toile tendue au-dessus d'une table de salle à manger",
         fit: "cover",
       },
     ],
@@ -1714,6 +1714,7 @@ export const products: Product[] = [
       {
         title: "Une lumière sans point chaud",
         body: "La toile tendue diffuse la lumière sur toute sa surface : pas de spot visible, pas d'ombre dure sur la table. Les LED sont montées au fond du caisson ; la toile égalise leur lumière, du même blanc d'un bord à l'autre.",
+        image: "/images/salle-plafond-mikado.jpg",
       },
       {
         title: "Un cadre en aluminium laqué",
@@ -1741,7 +1742,7 @@ export const products: Product[] = [
       tagline: "Backlit stretched fabric, lacquered aluminium frame.",
       images: [
         "Lucarne: backlit stretch ceiling seen from below, black aluminium frame",
-        "Close-up of the lacquered aluminium corner and the stretched fabric",
+        "Lucarne: backlit stretch ceiling above a dining table",
       ],
       sizes: {
         l60: "60 × 60 cm — 0.36 m² — 25 W",

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ChoixCreneau } from "@/components/choix-creneau";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 import { EMAIL_MOTIF, MAX_TEXTE, TELEPHONE_MOTIF, fichiersTropLourds } from "@/lib/devis-regles";
+import { preparerFichiers } from "@/lib/photos-client";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 
 /**
@@ -19,6 +20,14 @@ const LABEL = "block text-[11px] font-medium uppercase tracking-[0.16em] text-[#
 /** Le type de projet : une rangée de pastilles, comme les options d'une fiche. */
 const PILL =
   "cursor-pointer rounded-full border border-[#e5ddd3] px-4 py-2 text-sm text-[#2b2320] transition-colors hover:border-[#9a8d80] has-checked:border-[#2b2320] has-checked:bg-[#2b2320] has-checked:text-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-[#2b2320]";
+
+/** « 480 Ko », « 2,1 Mo » — « 480 KB », « 2.1 MB » en anglais. */
+function poidsLisible(octets: number, locale: "fr" | "en") {
+  const mo = (octets / (1024 * 1024)).toFixed(1);
+  return octets >= 1024 * 1024
+    ? `${locale === "en" ? mo : mo.replace(".", ",")}\u00a0${locale === "en" ? "MB" : "Mo"}`
+    : `${Math.max(1, Math.round(octets / 1024))}\u00a0${locale === "en" ? "KB" : "Ko"}`;
+}
 
 type Status =
   | "idle"
@@ -63,8 +72,10 @@ export function DevisForm({
   const [creneauCle, setCreneauCle] = useState("");
   const creneauChoisi = lireCreneau(creneauCle);
   const [draft, setDraft] = useState({ name: "", phone: "", message: "" });
-  /** Les fichiers choisis, nommés sous la zone : le champ natif est caché. */
+  /** Les fichiers choisis — photos déjà réduites — nommés sous la zone : le champ natif est caché. */
   const [fichiers, setFichiers] = useState<File[]>([]);
+  /** Le temps de réduire les photos : le bouton d'envoi attend. */
+  const [preparation, setPreparation] = useState(false);
   /** Trop de fichiers ou trop lourds : dit tout de suite, sous le champ, avant l'envoi. */
   const fichiersRefuses = fichiersTropLourds(fichiers);
   const idFichiersAide = useId();
@@ -111,6 +122,9 @@ export function DevisForm({
 
     try {
       const donnees = new FormData(form);
+      // Ce sont les photos réduites qui partent, pas les originaux du champ.
+      donnees.delete("files");
+      for (const fichier of fichiers) donnees.append("files", fichier, fichier.name);
       donnees.append("locale", locale);
       donnees.append("dureeMs", String(ouvertA.current ? Date.now() - ouvertA.current : 0));
       const response = await fetch("/api/devis", {
@@ -265,16 +279,18 @@ export function DevisForm({
         </div>
       )}
 
+      {/* Le message : un vrai cadre, pas un simple trait — c'est ici qu'on
+          écrit, et ça doit se voir au premier regard. */}
       <label className="mt-9 block">
         <span className={LABEL}>{t.message}</span>
         <textarea
           name="message"
           required
           maxLength={MAX_TEXTE.message}
-          rows={5}
+          rows={7}
           defaultValue={prefill}
           placeholder={t.messagePh}
-          className={`${FIELD} resize-y leading-relaxed`}
+          className="mt-3 w-full resize-y rounded-xl border border-[#9a8d80] bg-white px-4 py-3.5 text-base leading-relaxed text-[#2b2320] transition-colors placeholder:text-[#726757] focus:border-[#2b2320] focus:outline-none focus:shadow-[inset_0_0_0_1px_#2b2320] sm:text-[15px]"
         />
       </label>
 
@@ -295,18 +311,28 @@ export function DevisForm({
             name="files"
             type="file"
             multiple
-            accept="image/jpeg,image/png,application/pdf"
+            accept="image/*,application/pdf"
             aria-describedby={idFichiersAide}
             aria-invalid={fichiersRefuses || undefined}
-            onChange={(e) => setFichiers(Array.from(e.target.files ?? []))}
+            onChange={async (e) => {
+              const choisis = Array.from(e.target.files ?? []);
+              setPreparation(true);
+              try {
+                setFichiers(await preparerFichiers(choisis));
+              } finally {
+                setPreparation(false);
+              }
+            }}
             className="sr-only"
           />
         </label>
-        {fichiers.length > 0 && (
+        {preparation && <p className="mt-2 text-xs text-[#6f6357]">{t.filesPreparing}</p>}
+        {fichiers.length > 0 && !preparation && (
           <ul className="mt-2 flex flex-col gap-1 text-sm text-[#2b2320]">
             {fichiers.map((f) => (
-              <li key={`${f.name}-${f.size}`} className="truncate">
-                {f.name}
+              <li key={`${f.name}-${f.size}`} className="flex justify-between gap-4">
+                <span className="truncate">{f.name}</span>
+                <span className="shrink-0 tabular-nums text-[#6f6357]">{poidsLisible(f.size, locale)}</span>
               </li>
             ))}
           </ul>
@@ -360,8 +386,8 @@ export function DevisForm({
 
       <button
         type="submit"
-        disabled={status === "sending"}
-        aria-busy={status === "sending"}
+        disabled={status === "sending" || preparation}
+        aria-busy={status === "sending" || preparation}
         className="mt-10 w-full rounded-full bg-[#2b2320] px-8 py-4 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors hover:bg-black disabled:opacity-60"
       >
         {status === "sending" ? t.sending : t.submit}

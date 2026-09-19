@@ -7,7 +7,6 @@ import { metadataPage } from "@/lib/seo";
 import { serif } from "@/lib/fonts";
 import { hoverZoom, prixAffiche } from "@/lib/ui";
 import { products, priceFrom, productLocalise, type Famille, type Product } from "@/lib/products";
-import { DevisForm } from "@/components/devis-form";
 import { BandeauDetail } from "@/components/bandeau-detail";
 import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -91,25 +90,15 @@ export default async function DevisPage({ params }: PageProps<"/[lang]/devis">) 
               </a>
               <span className="text-xs text-[#6f6357]">{t.ctaModelesNote}</span>
             </div>
+            {/* Ce qui n'entre dans aucune fiche : le formulaire de la page contact. */}
             <div className="flex flex-col items-center gap-2">
-              <a
-                href="#formulaire"
+              <Link
+                href={`/${locale}/contact`}
                 className="inline-flex items-center justify-center rounded-full border border-[#2b2320]/25 px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] transition-colors hover:border-black hover:text-black"
               >
                 {t.ctaAutre}
-              </a>
-              <span className="text-xs text-[#6f6357]">{t.ctaAutreNote}</span>
-            </div>
-            {/* Troisième porte : la prise de cotes à domicile. La page existait
-                (sitemap) mais aucun lien n'y menait ; personne ne la trouvait. */}
-            <div className="flex flex-col items-center gap-2">
-              <Link
-                href={`/${locale}/rendez-vous`}
-                className="inline-flex items-center justify-center rounded-full border border-[#2b2320]/25 px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] transition-colors hover:border-black hover:text-black"
-              >
-                {t.ctaRdv}
               </Link>
-              <span className="text-xs text-[#6f6357]">{t.ctaRdvNote}</span>
+              <span className="text-xs text-[#6f6357]">{t.ctaAutreNote}</span>
             </div>
           </div>
         </div>
@@ -231,18 +220,7 @@ export default async function DevisPage({ params }: PageProps<"/[lang]/devis">) 
         </div>
       </section>
 
-      {/* 5. Le formulaire, pour ce qui n'entre dans aucune case. */}
-      <section id="formulaire" className="scroll-mt-24 px-6 py-16 md:py-24">
-        <div className="mx-auto max-w-3xl">
-          <h2 className={`${serif.className} text-3xl text-[#2b2320] md:text-4xl`}>{t.formTitle}</h2>
-          <p className="mt-3 leading-relaxed text-[#5c5140]">{t.formSubtitle}</p>
-          <div className="mt-8">
-            <DevisForm t={dict.contact.form} email={dict.contact.email} locale={locale} />
-          </div>
-        </div>
-      </section>
-
-      {/* 6. Ce qui est compris, dit une fois, sur la photo de l'atelier. */}
+      {/* 5. Ce qui est compris, dit une fois, sur la photo de l'atelier. */}
       <BandeauDetail
         titre={t.reassurance[0].titre}
         corps={t.reassurance.slice(1).map((r) => `${r.titre} — ${r.texte}`)}

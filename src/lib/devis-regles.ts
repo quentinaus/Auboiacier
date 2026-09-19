@@ -25,10 +25,15 @@ export const MAX_TEXTE = {
   message: 8000,
 } as const;
 
-/** Pièces jointes : deux fichiers, 3 Mo chacun, 3,5 Mo au total — l'hébergeur refuse au-delà. */
-export const MAX_FICHIERS = 2;
-export const MAX_FICHIER_OCTETS = 3 * 1024 * 1024;
-export const MAX_TOTAL_OCTETS = 3.5 * 1024 * 1024;
+/**
+ * Pièces jointes : jusqu'à dix fichiers, 4 Mo au total — l'hébergeur refuse
+ * toute requête au-delà de 4,5 Mo. Ce total tient parce que le navigateur
+ * réduit chaque photo avant l'envoi (src/lib/photos-client.ts) : une photo
+ * de téléphone de 8 Mo part en 300 à 500 Ko. Un PDF, lui, part tel quel.
+ */
+export const MAX_FICHIERS = 10;
+export const MAX_FICHIER_OCTETS = 4 * 1024 * 1024;
+export const MAX_TOTAL_OCTETS = 4 * 1024 * 1024;
 
 /**
  * Une adresse e-mail plausible. Le contrôle d'avant se contentait d'un « @ » :

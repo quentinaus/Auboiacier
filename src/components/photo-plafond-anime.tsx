@@ -1,7 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { HeroShaderBackground } from "./hero-shader-background";
+
+/**
+ * La lumière de la toile : pêche, rose, lavande — le dégradé pastel que
+ * Quentin a retenu, tel quel, sans filtre de saturation.
+ */
+const LUMIERE = "linear-gradient(135deg, #f9cfa0 0%, #f6c6d6 50%, #cbc2f5 100%)";
 
 /**
  * Une photo d'intérieur dont la dalle lumineuse est réellement éclairée par le
@@ -11,7 +16,16 @@ import { HeroShaderBackground } from "./hero-shader-background";
  * photo : sinon on n'en voyait qu'une tranche, comme un shader rogné. Le
  * polygone est donc donné en pourcentages de cette boîte.
  */
-/** Le dégradé animé, découpé dans une membrane. Réutilisé par la galerie produit. */
+/**
+ * La lumière de la toile, découpée dans la membrane. Réutilisé par la galerie produit.
+ *
+ * Un dégradé CSS, pas le shader WebGL du bandeau d'accueil : sur une dalle,
+ * le bruit du shader faisait des taches et un contour flou, alors que ce
+ * dégradé fixe donne une toile uniformément allumée, du chaud au froid, au
+ * contour net. Il dérive très
+ * lentement pour que la lumière vive un peu ; pas du tout si le visiteur a
+ * demandé moins d'animations.
+ */
 export function MembraneAnimee({
   box,
   clip,
@@ -22,12 +36,10 @@ export function MembraneAnimee({
   return (
     <div aria-hidden className="pointer-events-none absolute" style={box}>
       <div className="absolute inset-0 overflow-hidden" style={{ clipPath: clip }}>
-        {/* Le dégradé déborde largement : de grands aplats doux, pas une mosaïque.
-            Le même dégradé que le bandeau d'accueil, mais franchement coloré
-            ici : une toile allumée, pas un blanc voilé. */}
-        <div className="absolute -inset-x-[120%] -inset-y-[260%]" style={{ filter: "saturate(2.6) contrast(1.08)" }}>
-          <HeroShaderBackground />
-        </div>
+        <div
+          className="membrane-lumiere absolute inset-0"
+          style={{ backgroundImage: LUMIERE, backgroundSize: "125% 125%" }}
+        />
       </div>
     </div>
   );

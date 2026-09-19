@@ -90,17 +90,19 @@ test("piège temporel : absent, vide, nul ou illisible, on laisse passer", () =>
 
 // ── Les pièces jointes ───────────────────────────────────────────────────────
 
-test("fichiers : deux photos de 3 Mo tiennent tout juste… mais pas ensemble", () => {
+test("fichiers : un PDF de 4 Mo tient tout juste… mais pas deux", () => {
   assert.equal(fichiersTropLourds([]), false);
   assert.equal(fichiersTropLourds([{ size: MAX_FICHIER_OCTETS }]), false);
   assert.equal(fichiersTropLourds([{ size: MAX_FICHIER_OCTETS + 1 }]), true);
-  // Chacun passe seul, mais 6 Mo dépassent les 3,5 Mo que l'hébergeur accepte.
+  // Chacun passe seul, mais 8 Mo dépassent ce que l'hébergeur accepte (4,5 Mo).
   assert.equal(fichiersTropLourds([{ size: MAX_FICHIER_OCTETS }, { size: MAX_FICHIER_OCTETS }]), true);
-  assert.equal(fichiersTropLourds([{ size: 2 * 1024 * 1024 }, { size: 1.5 * 1024 * 1024 }]), false);
+  // Dix photos réduites par le navigateur (400 Ko chacune) passent ensemble.
+  assert.equal(fichiersTropLourds(Array.from({ length: MAX_FICHIERS }, () => ({ size: 400 * 1024 }))), false);
+  assert.ok(MAX_TOTAL_OCTETS <= 4.5 * 1024 * 1024, "l'hébergeur coupe à 4,5 Mo");
   assert.ok(MAX_TOTAL_OCTETS < 2 * MAX_FICHIER_OCTETS);
 });
 
-test("fichiers : pas plus de deux, même minuscules", () => {
+test("fichiers : pas plus de dix, même minuscules", () => {
   const petits = Array.from({ length: MAX_FICHIERS + 1 }, () => ({ size: 10 }));
   assert.equal(fichiersTropLourds(petits), true);
   assert.equal(fichiersTropLourds(petits.slice(0, MAX_FICHIERS)), false);

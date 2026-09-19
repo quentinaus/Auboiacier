@@ -224,7 +224,7 @@ export default async function ToilesTenduesPage({
         corps={ta.craftBandBody}
         cta={{ href: `/${locale}/contact`, label: dict.nav.contact }}
         mention={dict.artisanat.madeInFrance}
-        photo={{ src: "/images/lumiere/panneau-angle.jpg", alt: dict.artisanat.altBandeauLumiere }}
+        photo={{ src: "/images/salle-plafond-mikado.jpg", alt: dict.artisanat.altBandeauLumiere }}
       />
     </div>
   );

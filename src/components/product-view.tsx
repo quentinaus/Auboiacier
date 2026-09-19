@@ -162,17 +162,20 @@ export function ProductView({
       {/* Galerie — reste visible pendant qu'on parcourt les options */}
       <div ref={galleryRef} className="relative md:sticky md:top-0 md:h-screen md:self-start">
         <div
-          className="relative flex h-[78vw] max-h-[80vh] cursor-zoom-in items-center justify-center overflow-hidden md:h-full md:max-h-none"
+          className="relative flex h-[78vw] max-h-[80vh] cursor-zoom-in items-center justify-center overflow-hidden [container-type:size] md:h-full md:max-h-none"
           // Le cadre prend la teinte du fond de la photo : plus de liseré blanc
           // autour d'une photo qui n'est pas exactement blanche.
           style={{ backgroundColor: isColorShot ? "#f2f2f1" : fond }}
         >
           {mainImage && mainImage.glow ? (
             /* Une photo dont la toile s'éclaire : l'image et son halo vivent
-               dans un carré (le format des photos de plafond) posé au milieu
-               du cadre, pour que les repères en % du halo tombent juste,
-               quel que soit le format de l'écran. */
-            <div className="relative aspect-square h-full max-w-full p-6 md:p-12">
+               dans un carré (le format des photos de plafond) qui tient dans
+               le cadre en hauteur COMME en largeur, pour que les repères en %
+               du halo tombent juste quel que soit le format de l'écran. Avec
+               « h-full max-w-full », un cadre plus haut que large donnait un
+               rectangle : la photo se centrait dedans et la lumière débordait
+               du cadre aluminium. */
+            <div className="relative aspect-square w-[min(100cqw,100cqh)] p-6 md:p-12">
               <div className="relative h-full w-full">
                 <Image key={mainSrc} src={mainSrc!} alt={mainImage.alt} fill sizes="(max-width: 768px) 100vw, 66vw" className="object-contain" priority />
                 <MembraneAnimee box={mainImage.glow.box} clip={mainImage.glow.clip} />

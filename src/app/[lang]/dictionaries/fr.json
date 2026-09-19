@@ -417,7 +417,9 @@
     "livraisonHors": "Nous ne livrons qu'en France métropolitaine.",
     "inclusLivraisonTable": "Livraison en France métropolitaine, prix selon votre ville ; pose par l'atelier en option.",
     "customTooBigTable": "Au-delà du plus grand plateau d'un seul tenant (450 × 125 cm) : choisissez une autre dimension.",
-    "poseSeulInfoPiece": "Prix selon votre ville, le poids et les dimensions. La pièce arrive prête à poser, avec sa notice."
+    "poseSeulInfoPiece": "Prix selon votre ville, le poids et les dimensions. La pièce arrive prête à poser, avec sa notice.",
+    "devisPdf": "Voir mon devis (PDF)",
+    "estimationPdf": "Voir mon estimation (PDF)"
   },
   "devis": {
     "title": "Demander un devis",
@@ -429,8 +431,6 @@
     "ctaAutre": "Décrire un autre projet",
     "ctaModelesNote": "Prix en une minute",
     "ctaAutreNote": "Réponse entre 24 et 72 h",
-    "ctaRdv": "Prise de cotes à domicile",
-    "ctaRdvNote": "Dès 19,99 €, créneau réservé en ligne",
     "etapesTitle": "Les trois étapes",
     "etapes": [
       {
@@ -479,8 +479,6 @@
         "texte": "Pièces uniques en acier de récupération, sur projet."
       }
     ],
-    "formTitle": "Décrivez un autre projet",
-    "formSubtitle": "Une pièce hors catalogue, une contrainte particulière : écrivez-nous, réponse sous 48 h avec une estimation.",
     "reassurance": [
       {
         "titre": "Atelier à Saumur",
@@ -503,9 +501,12 @@
   "apropos": {
     "title": "À propos",
     "histoireTitle": "Notre histoire",
-    "histoireBody": "Auboiacier, c'est Aumercier, le bois et l'acier dans le même mot. Derrière l'atelier, un soudeur-métallier : plus de cinq ans de chantiers et d'ateliers, en France puis en Australie, chez un spécialiste du plafond lumineux. Rentré à Saumur, il a monté l'atelier autour de ces deux gestes — souder l'acier, travailler le bois massif — et de la lumière apprise là-bas.",
+    "histoireBody": "Auboiacier est un atelier de métallerie installé à Saumur, en Maine-et-Loire. À sa tête, Quentin Aumercier, soudeur-métallier formé sur les chantiers et dans les ateliers, en France puis en Australie, où il a travaillé plusieurs années chez un fabricant de plafonds lumineux. Il en a rapporté une méthode : mesurer juste, souder propre, finir sans compromis. De retour en Anjou, il a ouvert l'atelier pour fabriquer des tables, des escaliers, des garde-corps et des plafonds lumineux — pièce par pièce, à la commande, pour des clients qui savent ce qu'ils veulent.",
     "savoirFaireTitle": "Notre savoir-faire",
-    "savoirFaireBody": "Soudure TIG, MIG-MAG et à l'électrode enrobée, cadres aluminium coupés en onglet et ajustés au millimètre, toiles tendues, collage et ponçage des plateaux en bois massif. Tout se fait ici, de la découpe à la finition. Un défaut se répare donc : nous savons quelle main a fait la pièce, et nous la reprenons.",
+    "savoirFaireBody": [
+      "Tout est fabriqué ici, à Saumur. L'acier est coupé, soudé au TIG et meulé à l'atelier ; le bois massif est débité, collé, poncé et huilé sur le même établi ; les cadres aluminium des plafonds lumineux sont coupés en onglet et ajustés au millimètre. Rien n'est sous-traité, rien n'est importé.",
+      "Ce que cela change pour vous : des cotes tenues au millimètre, des soudures pleines que l'on peut regarder de près, des finitions qui vieillissent bien. Et une pièce que nous connaissons par cœur — s'il faut la reprendre dans dix ans, nous savons exactement comment elle est faite."
+    ],
     "valeursTitle": "Nos valeurs",
     "valeurs": [
       {
@@ -556,17 +557,18 @@
         "Autre"
       ],
       "message": "Votre projet",
-      "messagePh": "Dimensions, pièce concernée, délais souhaités…",
+      "messagePh": "Décrivez votre projet ici : la pièce, ses dimensions, le lieu, les délais souhaités…",
       "files": "Photos ou plans (facultatif)",
       "filesCta": "Ajouter des photos ou des plans",
-      "filesHint": "JPG, PNG ou PDF — 2 fichiers maximum, 3 Mo chacun.",
+      "filesHint": "Photos, plans, PDF — jusqu'à 10 fichiers. Les photos sont réduites automatiquement avant l'envoi.",
+      "filesPreparing": "Préparation des photos…",
       "submit": "Envoyer la demande",
       "sending": "Envoi en cours…",
       "success": "Merci, votre demande est bien partie. Réponse sous 48 h.",
       "error": "L'envoi a échoué. Réessayez, ou écrivez-nous directement par e-mail.",
       "required": "Merci de remplir le nom, l'e-mail, la ville et le message.",
       "notConfigured": "L'envoi automatique n'est pas encore activé. Écrivez-nous par e-mail en attendant.",
-      "tooBig": "Fichiers trop lourds : 2 fichiers maximum, 3 Mo chacun.",
+      "tooBig": "Pièces jointes trop lourdes : 10 fichiers au plus, 4 Mo en tout (un PDF n'est pas réduit).",
       "privacy": "Vos informations servent uniquement à répondre à votre demande, et sont conservées trois ans au plus.",
       "privacyLink": "Politique de confidentialité",
       "sendFailed": "L'envoi automatique a échoué. Vous pouvez nous écrire directement :",
@@ -675,7 +677,7 @@
       },
       {
         "title": "3. Prix et TVA",
-        "body": "Les prix sont indiqués en euros et correspondent au montant total à payer : aucune taxe ni aucun frais ne s'ajoute au moment du paiement. Le prix applicable est celui affiché au moment de la commande. Pour les pièces du catalogue, la livraison en France métropolitaine et le montage sur place sont compris. Le régime de TVA de l'atelier est rappelé sur la facture."
+        "body": "Les prix sont indiqués en euros et correspondent au montant total à payer : aucune taxe ni aucun frais ne s'ajoute au moment du paiement. Le prix applicable est celui affiché au moment de la commande. La livraison et, le cas échéant, la pose sont chiffrées avant la commande, selon la ville du client (article 6). Le régime de TVA de l'atelier est rappelé sur la facture."
       },
       {
         "title": "4. Commande et paiement",

@@ -417,7 +417,9 @@
     "livraisonHors": "We only deliver to mainland France.",
     "inclusLivraisonTable": "Delivery in mainland France, priced by your town; fitting by the workshop optional.",
     "customTooBigTable": "Beyond the largest single-piece top (450 × 125 cm): please choose another size.",
-    "poseSeulInfoPiece": "Price depends on your town, weight and size. The piece arrives ready to fit, with its notes."
+    "poseSeulInfoPiece": "Price depends on your town, weight and size. The piece arrives ready to fit, with its notes.",
+    "devisPdf": "View my quote (PDF)",
+    "estimationPdf": "View my estimate (PDF)"
   },
   "devis": {
     "title": "Request a quote",
@@ -429,8 +431,6 @@
     "ctaAutre": "Describe another project",
     "ctaModelesNote": "Price in one minute",
     "ctaAutreNote": "Reply within 24 to 72 hours",
-    "ctaRdv": "Home measuring visit",
-    "ctaRdvNote": "From €19.99, slot booked online",
     "etapesTitle": "Three steps",
     "etapes": [
       {
@@ -479,8 +479,6 @@
         "texte": "One-off pieces in reclaimed steel, by project."
       }
     ],
-    "formTitle": "Describe another project",
-    "formSubtitle": "A piece outside the catalogue, a particular constraint: write to us, reply within 48 hours with an estimate.",
     "reassurance": [
       {
         "titre": "Workshop in Saumur",
@@ -503,9 +501,12 @@
   "apropos": {
     "title": "About",
     "histoireTitle": "Our story",
-    "histoireBody": "Auboiacier is Aumercier, wood and steel in a single word. Behind the workshop, a welder and metalworker: over five years on sites and in workshops, in France and then in Australia, with a specialist in backlit stretch ceilings. Back in Saumur, he built the workshop around those two crafts — welding steel, working solid wood — and around the light he learned out there.",
+    "histoireBody": "Auboiacier is a metalwork workshop in Saumur, in the Loire Valley. It is run by Quentin Aumercier, a welder and metalworker trained on building sites and in workshops, in France and then in Australia, where he spent several years with a maker of backlit stretch ceilings. He brought back a method: measure right, weld clean, finish without compromise. Back in Anjou, he opened the workshop to make tables, staircases, railings and light ceilings — one piece at a time, to order, for customers who know what they want.",
     "savoirFaireTitle": "Our craft",
-    "savoirFaireBody": "TIG, MIG-MAG and stick welding, aluminium frames mitred and fitted to the millimetre, stretched fabric, gluing and sanding of solid-wood tops. Everything is done here, from the cut to the finish. So a fault can be put right: we know whose hands made the piece, and we take it back in.",
+    "savoirFaireBody": [
+      "Everything is made here, in Saumur. The steel is cut, TIG-welded and ground in the workshop; the solid wood is cut, glued, sanded and oiled on the same bench; the aluminium frames of the light ceilings are mitred and fitted to the millimetre. Nothing is subcontracted, nothing is imported.",
+      "What that means for you: dimensions held to the millimetre, full welds that stand up to a close look, finishes that age well. And a piece we know by heart — if it needs attention in ten years, we know exactly how it was made."
+    ],
     "valeursTitle": "Our values",
     "valeurs": [
       {
@@ -556,17 +557,18 @@
         "Other"
       ],
       "message": "Your project",
-      "messagePh": "Dimensions, which room, timing…",
+      "messagePh": "Describe your project here: the piece, its dimensions, the room, your timing…",
       "files": "Photos or plans (optional)",
       "filesCta": "Add photos or plans",
-      "filesHint": "JPG, PNG or PDF — 2 files max, 3 MB each.",
+      "filesHint": "Photos, plans, PDF — up to 10 files. Photos are shrunk automatically before sending.",
+      "filesPreparing": "Preparing photos…",
       "submit": "Send request",
       "sending": "Sending…",
       "success": "Thank you, your request is on its way. We reply within 48 hours.",
       "error": "Sending failed. Please try again, or email us directly.",
       "required": "Please fill in your name, email, city and message.",
       "notConfigured": "Automatic sending is not switched on yet. Please email us in the meantime.",
-      "tooBig": "Files too large: 2 files max, 3 MB each.",
+      "tooBig": "Attachments too heavy: 10 files at most, 4 MB in total (a PDF is not shrunk).",
       "privacy": "Your details are used only to answer your request and kept for three years at most.",
       "privacyLink": "Privacy policy",
       "sendFailed": "Automatic sending failed. You can email us directly:",
@@ -675,7 +677,7 @@
       },
       {
         "title": "3. Prices and VAT",
-        "body": "Prices are shown in euros and are the total amount payable: no tax and no fee is added at payment. The applicable price is the one displayed at the time of the order. For catalogue pieces, delivery in mainland France and on-site assembly are included. The workshop's VAT treatment is stated on the invoice."
+        "body": "Prices are shown in euros and are the total amount payable: no tax and no fee is added at payment. The applicable price is the one displayed at the time of the order. Delivery and, where chosen, installation are priced before the order, according to the customer's town (article 6). The workshop's VAT treatment is stated on the invoice."
       },
       {
         "title": "4. Ordering and payment",
