@@ -33,45 +33,44 @@ type Etat = "repos" | "survol" | "actif";
 const LARGEUR_BOX = 460;
 const HAUTEUR_BOX = 180;
 
-/**
- * Direction de la profondeur : vers l'arrière droit. Le vecteur mesure 0,55,
- * pas 1 : en perspective cavalière, la profondeur se dessine raccourcie,
- * sinon un plateau carré paraît plus profond que large.
- */
-const FUITE_U: Point = [0.46, -0.30];
-
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
 /**
- * La géométrie du plateau, proportionnée aux cotes tapées : une table de
- * 300 × 100 se dessine longue et étroite, une de 120 × 120 carrée. Les
- * proportions sont bornées pour que le dessin reste lisible (une table de
- * 400 × 80 ne devient pas un trait), et l'épaisseur est exagérée : à
- * l'échelle, 35 mm sur 2 m feraient trois pixels.
+ * Le plateau en isométrie : la longueur monte vers la droite, la largeur vers
+ * la gauche, toutes deux à 30° et à la MÊME échelle. C'est la seule vue où
+ * un plateau carré se lit carré et un 300 × 100 trois fois plus long que
+ * large. Les proportions sont bornées pour rester lisibles (un 400 × 80 ne
+ * devient pas un trait), et l'épaisseur est exagérée : à l'échelle, 35 mm sur
+ * 2 m feraient trois pixels.
  */
+const ISO: Point = [Math.cos(Math.PI / 6), Math.sin(Math.PI / 6)]; // (0,866, 0,5)
+
 function geometrieRect(mm: { principale?: number; secondaire?: number; epaisseur?: number }) {
   const L = mm.principale && mm.principale > 0 ? mm.principale : 2000;
   const W = mm.secondaire && mm.secondaire > 0 ? mm.secondaire : 1000;
   const T = mm.epaisseur && mm.epaisseur > 0 ? mm.epaisseur : 35;
-  const ratio = clamp(L / W, 0.6, 3.6); // longueur / largeur
-  // La place disponible : les cotes prennent 64 px à gauche et 74 à droite,
-  // 30 px sous le chant et 12 px au-dessus du coin arrière.
-  const largeurUtile = LARGEUR_BOX - 64 - 74;
-  const hauteurUtile = HAUTEUR_BOX - 12 - 30;
+  const ratio = clamp(L / W, 0.5, 4); // longueur / largeur
+  // La place disponible : les cotes prennent 46 px de chaque côté et 34 px
+  // sous la pointe avant ; 10 px libres au-dessus du coin arrière.
+  const largeurUtile = LARGEUR_BOX - 2 * 46;
+  const hauteurUtile = HAUTEUR_BOX - 10 - 34;
   const ep = clamp(Math.round(6 + (T / 35) * 10), 8, 26);
-  // Longueur dessinée L·k, profondeur W·k (raccourcie par FUITE_U) : on
-  // cherche le plus grand k qui tienne dans la boîte.
-  let k = largeurUtile / (ratio + FUITE_U[0]);
-  k = Math.min(k, (hauteurUtile - ep) / -FUITE_U[1]);
+  // Longueur dessinée L·k, largeur W·k : le losange fait 0,866·(L+W)·k de
+  // large et 0,5·(L+W)·k + ep de haut. On prend le plus grand k qui tienne.
+  const somme = ratio + 1;
+  const k = Math.min(largeurUtile / (ISO[0] * somme), (hauteurUtile - ep) / (ISO[1] * somme));
   const lPx = ratio * k;
   const wPx = k;
-  const fuite: Point = [FUITE_U[0] * wPx, FUITE_U[1] * wPx];
-  const gauche = 64 + (largeurUtile - (lPx + fuite[0])) / 2;
-  const base = 12 - fuite[1] + (hauteurUtile - ep - -fuite[1]) / 2;
-  const D: Point = [gauche, base]; // avant gauche
-  const C: Point = [gauche + lPx, base]; // avant droit
-  const B: Point = [C[0] + fuite[0], C[1] + fuite[1]]; // arrière droit
-  const A: Point = [D[0] + fuite[0], D[1] + fuite[1]]; // arrière gauche
+  const largeur = ISO[0] * (lPx + wPx);
+  const hauteur = ISO[1] * (lPx + wPx) + ep;
+  const gauche = (LARGEUR_BOX - largeur) / 2;
+  const haut = 10 + (hauteurUtile - hauteur) / 2;
+  // La pointe avant (D) est en bas ; C au bout de la longueur, A au bout de
+  // la largeur, B au fond.
+  const D: Point = [gauche + ISO[0] * wPx, haut + ISO[1] * (lPx + wPx)];
+  const C: Point = [D[0] + ISO[0] * lPx, D[1] - ISO[1] * lPx];
+  const A: Point = [D[0] - ISO[0] * wPx, D[1] - ISO[1] * wPx];
+  const B: Point = [C[0] - ISO[0] * wPx, C[1] - ISO[1] * wPx];
   return { A, B, C, D, EP: ep };
 }
 
@@ -411,27 +410,40 @@ export function SchemaCotes({
         <>
           {/* L'ombre portée, douce, qui pose le plateau. */}
           <polygon
-            points={`${p([A[0] + 14, A[1] + EP + 12])} ${p([B[0] + 14, B[1] + EP + 12])} ${p([C[0] + 14, C[1] + EP + 12])} ${p([D[0] + 14, D[1] + EP + 12])}`}
+            points={`${p([A[0] + 6, A[1] + EP + 10])} ${p([B[0] + 6, B[1] + EP + 10])} ${p([C[0] + 6, C[1] + EP + 10])} ${p([D[0] + 6, D[1] + EP + 10])}`}
             fill={ENCRE}
-            opacity={0.16}
+            opacity={0.14}
             filter="url(#ombre)"
           />
 
-          {/* Le pavé : chant avant, bout droit, puis la face du dessus. */}
+          {/* Le pavé : les deux chants visibles (longueur à droite, largeur à
+              gauche), puis la face du dessus. */}
           <polygon points={`${p(D)} ${p(C)} ${p(bas(C))} ${p(bas(D))}`} fill={chant} />
-          <polygon points={`${p(C)} ${p(B)} ${p(bas(B))} ${p(bas(C))}`} fill={bout} />
+          <polygon points={`${p(A)} ${p(D)} ${p(bas(D))} ${p(bas(A))}`} fill={bout} />
           <polygon points={`${p(A)} ${p(B)} ${p(C)} ${p(D)}`} fill={dessus} />
           {!lumiere && (
             <>
+              {/* Les veines suivent la longueur : des lignes parallèles à D→C. */}
               <g clipPath="url(#face)" fill="none" stroke="#a67f47" strokeWidth={0.8}>
-                {[-50, -42, -35, -27, -20, -13, -6].map((dy, i) => (
-                  <path key={i} d={veine(D[1] + dy, 1.4 + (i % 3) * 0.7, (i * 19) % 46)} opacity={0.14 + (i % 2) * 0.1} />
-                ))}
+                {[0.12, 0.24, 0.36, 0.5, 0.62, 0.76, 0.88].map((f, i) => {
+                  const x1 = D[0] + (A[0] - D[0]) * f;
+                  const y1 = D[1] + (A[1] - D[1]) * f;
+                  return (
+                    <line
+                      key={i}
+                      x1={x1 - ISO[0] * 20}
+                      y1={y1 + ISO[1] * 20}
+                      x2={x1 + (C[0] - D[0]) + ISO[0] * 20}
+                      y2={y1 + (C[1] - D[1]) - ISO[1] * 20}
+                      opacity={0.14 + (i % 2) * 0.1}
+                    />
+                  );
+                })}
               </g>
               {/* Le fil sur le chant, dans le sens de la longueur. */}
               <g fill="none" stroke="#8f6a38" strokeWidth={0.7} opacity={0.22}>
-                {[4.5, 9, 13].map((dy) => (
-                  <line key={dy} x1={D[0]} y1={D[1] + dy} x2={C[0]} y2={C[1] + dy} />
+                {[0.3, 0.6].map((f) => (
+                  <line key={f} x1={D[0]} y1={D[1] + EP * f} x2={C[0]} y2={C[1] + EP * f} />
                 ))}
               </g>
             </>
@@ -442,45 +454,45 @@ export function SchemaCotes({
           )}
           <g fill="none" stroke={ENCRE} strokeWidth={1} opacity={0.42} strokeLinejoin="round">
             <polygon points={`${p(A)} ${p(B)} ${p(C)} ${p(D)}`} />
-            <path d={`M${p(D)} L${p(bas(D))} L${p(bas(C))} L${p(C)} M${p(bas(C))} L${p(bas(B))} L${p(B)}`} />
+            <path d={`M${p(A)} L${p(bas(A))} L${p(bas(D))} L${p(bas(C))} L${p(C)} M${p(D)} L${p(bas(D))}`} />
           </g>
           {arete("principale", `M${p(D)} L${p(C)}`)}
-          {arete("secondaire", `M${p(C)} L${p(B)}`)}
+          {arete("secondaire", `M${p(D)} L${p(A)}`)}
           {arete("epaisseur", `M${p(D)} L${p(bas(D))}`)}
 
-          {/* ① La grande cote, sous le chant avant. */}
+          {/* ① La longueur, le long du chant de droite, décalée vers l'extérieur. */}
           {cote("principale", {
-            de: [D[0], D[1] + EP + 30],
-            a: [C[0], C[1] + EP + 30],
+            de: [bas(D)[0] + ISO[1] * 26, bas(D)[1] + ISO[0] * 26],
+            a: [bas(C)[0] + ISO[1] * 26, bas(C)[1] + ISO[0] * 26],
             attaches: [
-              [[D[0], D[1] + EP + 4], [D[0], D[1] + EP + 36]],
-              [[C[0], C[1] + EP + 4], [C[0], C[1] + EP + 36]],
+              [[bas(D)[0] + ISO[1] * 4, bas(D)[1] + ISO[0] * 4], [bas(D)[0] + ISO[1] * 32, bas(D)[1] + ISO[0] * 32]],
+              [[bas(C)[0] + ISO[1] * 4, bas(C)[1] + ISO[0] * 4], [bas(C)[0] + ISO[1] * 32, bas(C)[1] + ISO[0] * 32]],
             ],
-            pastille: [(D[0] + C[0]) / 2, D[1] + EP + 30],
-            valeurA: "droite",
-          })}
-
-          {/* ② La seconde cote, dans la profondeur, le long du bout droit. */}
-          {cote("secondaire", {
-            de: [C[0] + 34, C[1]],
-            a: [B[0] + 34, B[1]],
-            attaches: [
-              [[C[0] + 4, C[1]], [C[0] + 40, C[1]]],
-              [[B[0] + 4, B[1]], [B[0] + 40, B[1]]],
-            ],
-            pastille: [(C[0] + B[0]) / 2 + 34, (C[1] + B[1]) / 2],
+            pastille: [(bas(D)[0] + bas(C)[0]) / 2 + ISO[1] * 26, (bas(D)[1] + bas(C)[1]) / 2 + ISO[0] * 26],
             valeurA: "dessous",
           })}
 
-          {/* ③ L'épaisseur, au coin avant gauche. */}
-          {cote("epaisseur", {
-            de: [D[0] - 30, D[1]],
-            a: [D[0] - 30, D[1] + EP],
+          {/* ② La largeur, le long du chant de gauche. */}
+          {cote("secondaire", {
+            de: [bas(A)[0] - ISO[1] * 26, bas(A)[1] + ISO[0] * 26],
+            a: [bas(D)[0] - ISO[1] * 26, bas(D)[1] + ISO[0] * 26],
             attaches: [
-              [[D[0] - 4, D[1]], [D[0] - 36, D[1]]],
-              [[D[0] - 4, D[1] + EP], [D[0] - 36, D[1] + EP]],
+              [[bas(A)[0] - ISO[1] * 4, bas(A)[1] + ISO[0] * 4], [bas(A)[0] - ISO[1] * 32, bas(A)[1] + ISO[0] * 32]],
+              [[bas(D)[0] - ISO[1] * 4, bas(D)[1] + ISO[0] * 4], [bas(D)[0] - ISO[1] * 32, bas(D)[1] + ISO[0] * 32]],
             ],
-            pastille: [D[0] - 52, D[1] + EP / 2],
+            pastille: [(bas(A)[0] + bas(D)[0]) / 2 - ISO[1] * 26, (bas(A)[1] + bas(D)[1]) / 2 + ISO[0] * 26],
+            valeurA: "dessous",
+          })}
+
+          {/* ③ L'épaisseur, au bout droit, à côté du chant. */}
+          {cote("epaisseur", {
+            de: [C[0] + 26, C[1]],
+            a: [C[0] + 26, C[1] + EP],
+            attaches: [
+              [[C[0] + 4, C[1]], [C[0] + 32, C[1]]],
+              [[bas(C)[0] + 4, bas(C)[1]], [bas(C)[0] + 32, bas(C)[1]]],
+            ],
+            pastille: [C[0] + 44, C[1] + EP / 2],
             valeurA: "dessous",
             exterieur: true,
           })}
