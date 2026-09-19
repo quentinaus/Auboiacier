@@ -1971,7 +1971,8 @@ export function surfaceTailleM2(size: ProductSize | undefined, largeurMm?: numbe
 export function deltaBois(product: Product, wood: ProductSwatch | undefined, surfaceM2: number): number {
   const delta = wood?.priceDelta ?? 0;
   if (!product.boisAuM2 || !delta) return delta;
-  return Math.round((delta * surfaceM2) / SURFACE_REFERENCE_M2);
+  // Arrondi à la dizaine d'euros : un écart de −371 € n'est pas un prix d'atelier.
+  return Math.round((delta * surfaceM2) / SURFACE_REFERENCE_M2 / 10) * 10;
 }
 
 /**
