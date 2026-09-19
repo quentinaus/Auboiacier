@@ -94,54 +94,41 @@ test("le « à partir de » est un prix qu'on peut vraiment payer", () => {
       `${product.slug} : « à partir de » non facturable`
     );
 
-    // La plus petite taille, dans l'essence servie par défaut : c'est ce que le
-    // client voit d'abord sur la fiche, et c'est ce que doit annoncer le prix.
-    // Sans taille au catalogue, c'est la pièce sur mesure à ses cotes de départ.
+    // La configuration la moins chère de la pièce : la plus petite taille,
+    // l'essence, la teinte et le tissu au plus bas. C'est ce que le client
+    // paie s'il choisit tout au minimum — et rien ne doit coûter moins.
     const petiteTaille = product.sizes.length
       ? [...product.sizes].sort((a, b) => a.price - b.price)[0].id
       : SUR_MESURE;
-    const reference = essenceDeReference(product);
-
     const prixReels = combinaisonsValides(product)
-      .filter((options) => options.sizeId === petiteTaille && options.woodId === reference?.id)
+      .filter((options) => options.sizeId === petiteTaille)
       .map((options) => {
         const resolu = resolveSelection({ slug: product.slug, ...options });
-        assert.ok(resolu.ok, `${product.slug} : configuration par défaut refusée`);
+        assert.ok(resolu.ok, `${product.slug} ${JSON.stringify(options)} : configuration refusée`);
         return resolu.line.unitPrice;
       });
 
-    assert.ok(prixReels.length > 0, `${product.slug} : aucune configuration par défaut`);
+    assert.ok(prixReels.length > 0, `${product.slug} : aucune configuration`);
     assert.equal(
       annonce,
       Math.min(...prixReels),
-      `${product.slug} : le « à partir de » ne correspond à aucune commande réelle dans l'essence par défaut`
+      `${product.slug} : le « à partir de » n'est pas le prix de la configuration la moins chère`
     );
   }
 });
 
-test("le « à partir de » n'affiche pas le rabais d'une essence moins chère", () => {
-  // Annoncer le prix du pin au-dessus d'une table montrée en chêne donne un
-  // prix que personne ne peut payer tel quel : le « à partir de » doit rester
-  // celui de l'essence servie par défaut, quitte à être plus élevé.
+test("aucune configuration ne coûte moins que le « à partir de »", () => {
   for (const product of achetables) {
-    const reference = essenceDeReference(product);
-    if (!reference) continue;
-    const moinsChere = [...product.woods].sort(
-      (a, b) => (a.priceDelta ?? 0) - (b.priceDelta ?? 0)
-    )[0];
-    if (moinsChere.id === reference.id) continue;
-    // Le prix de la plus petite pièce sans aucune essence : catalogue, ou barème.
-    const base = product.sizes.length
-      ? Math.min(...product.sizes.map((t) => t.price))
-      : (() => {
-          const depart = product.surMesure!.departMm!;
-          const devis = devisSurMesure(product, depart[0], depart[1]);
-          return devis.ok ? devis.prix : Number.POSITIVE_INFINITY;
-        })();
-    assert.ok(
-      (priceFrom(product) ?? 0) > base + (moinsChere.priceDelta ?? 0),
-      `${product.slug} : le « à partir de » annonce le prix d'une essence qui n'est pas celle montrée`
-    );
+    const annonce = priceFrom(product);
+    assert.ok(annonce !== null);
+    for (const options of combinaisonsValides(product)) {
+      const resolu = resolveSelection({ slug: product.slug, ...options });
+      if (!resolu.ok) continue;
+      assert.ok(
+        resolu.line.unitPrice >= annonce,
+        `${product.slug} ${JSON.stringify(options)} : ${resolu.line.unitPrice} € sous le « à partir de » ${annonce} €`
+      );
+    }
   }
 });
 

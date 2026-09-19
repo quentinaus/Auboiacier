@@ -8,7 +8,6 @@ import { serif } from "@/lib/fonts";
 import { hoverZoomSubtle } from "@/lib/ui";
 import { ProductTail } from "@/components/product-tail";
 
-const ACCENT = "#2b2320";
 
 export async function generateMetadata({
   params,
@@ -35,7 +34,7 @@ export default async function VerrieresPage({
 
   return (
     <>
-      <div className="mx-auto max-w-6xl px-6 py-10">
+      <div>
       {/* Le chemin de navigation, déclaré aux moteurs : c'est lui qui fait
           apparaître « auboiacier.fr › Boutique › ... » sous le lien. */}
       <script
@@ -48,50 +47,57 @@ export default async function VerrieresPage({
           ])
         )}
       />
-      <nav aria-label={dict.nav.breadcrumb} className="text-xs text-[#726757]">
-        <Link href={`/${locale}/artisanat`} className="hover:text-[#2b2320]">
-          {dict.artisanat.breadcrumbShop}
-        </Link>
-        <span className="mx-1.5">/</span>
-        <span className="text-[#2b2320]">{t.title}</span>
-      </nav>
+      </div>
 
-      <div className="mt-8 grid gap-12 md:grid-cols-2">
-        <div className={`relative aspect-[4/3] overflow-hidden rounded-xl bg-white ${hoverZoomSubtle}`}>
+      {/* Le même gabarit que les fiches : la photo pleine hauteur à gauche,
+          la colonne étroite à droite. */}
+      <div className="grid md:grid-cols-[minmax(0,1fr)_minmax(380px,36%)] lg:grid-cols-[minmax(0,1fr)_460px]">
+        <div className="relative h-[78vw] max-h-[80vh] md:sticky md:top-0 md:h-screen md:max-h-none md:self-start">
           <Image
             src="/images/verriere-interieure.jpg"
             alt={t.photoAlt}
             fill
-            sizes="(max-width: 768px) 100vw, 560px"
+            sizes="(max-width: 768px) 100vw, 66vw"
             className="object-cover"
             priority
           />
         </div>
 
-        <div>
-          <h1 className={`${serif.className} text-3xl text-[#2b2320] md:text-4xl`}>{t.title}</h1>
-          <p className="mt-2 text-[#5c5140]">{t.tagline}</p>
+        <div className="px-6 py-8 md:px-8 md:py-10 lg:px-12">
+          <nav aria-label={dict.nav.breadcrumb} className="flex flex-wrap justify-end text-[11px] text-[#7a6f64]">
+            <Link href={`/${locale}`} className="hover:text-[#2b2320]">
+              {dict.nav.home}
+            </Link>
+            <span className="mx-1.5">/</span>
+            <Link href={`/${locale}/artisanat`} className="hover:text-[#2b2320]">
+              {dict.artisanat.breadcrumbShop}
+            </Link>
+            <span className="mx-1.5">/</span>
+            <span className="text-[#2b2320]">{t.title}</span>
+          </nav>
+          <h1 className={`${serif.className} mt-6 text-3xl text-[#2b2320] md:text-[2rem]`}>{t.title}</h1>
+          <p className="mt-3 text-[15px] leading-relaxed text-[#5c5140]">{t.tagline}</p>
 
-          <p className="mt-8 leading-relaxed text-[#4a4038]">{t.intro}</p>
-          <p className="mt-4 leading-relaxed text-[#4a4038]">{t.body}</p>
+          <p className="mt-8 text-sm leading-relaxed text-[#4a4038]">{t.intro}</p>
+          <p className="mt-4 text-sm leading-relaxed text-[#4a4038]">{t.body}</p>
 
-          <div className="mt-10 border-t border-[#e8e1d8] pt-8">
-            <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
+          <div className="mt-8 border-t border-[#e8e1d8] pt-6">
+            <span className="block text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
               {t.priceTitle}
             </span>
-            <p className="mt-3 leading-relaxed text-[#4a4038]">{t.priceBody}</p>
+            <p className="mt-3 text-sm leading-relaxed text-[#4a4038]">{t.priceBody}</p>
+          </div>
 
+          <div className="mt-6 md:sticky md:bottom-0 md:-mx-8 md:border-t md:border-[#e5ddd3] md:bg-white md:px-8 md:py-4 lg:-mx-12 lg:px-12">
             <Link
               href={`/${locale}/contact`}
-              className="mt-8 inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-opacity hover:opacity-90"
-              style={{ backgroundColor: ACCENT }}
+              className="block rounded-full bg-[#2b2320] px-8 py-3.5 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors hover:bg-black"
             >
               {t.cta}
             </Link>
           </div>
+          <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{dict.artisanat.madeInFrance}</p>
         </div>
-      </div>
-
       </div>
 
       {/* Le détail laiton, en pleine largeur */}

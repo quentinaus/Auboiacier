@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import {
   computeUnitPrice,
+  deltaBois,
+  surfaceTailleM2,
   devisSurMesure,
   epaisseurMaxMm,
   epaisseurMiniMm,
@@ -426,7 +428,14 @@ export function ProductOptions({
       : null;
 
   const wood = product.woods.find((w) => w.id === woodId);
-  const woodDelta = wood?.priceDelta ?? 0;
+  /* La surface qui fait l'écart des essences : les cotes tapées, sinon la
+     taille choisie, sinon celle de la table d'origine (200 × 100). */
+  const surfaceBois = surfaceTailleM2(
+    sizeIdEff === SUR_MESURE ? undefined : size,
+    sizeIdEff === SUR_MESURE ? cotesEff?.largeurMm : undefined,
+    sizeIdEff === SUR_MESURE ? cotesEff?.hauteurMm : undefined
+  );
+  const woodsAffiches = product.woods.map((bois) => ({ ...bois, priceDelta: deltaBois(product, bois, surfaceBois) }));
   const metal = product.metals.find((m) => m.id === metalId);
   const fabric = product.fabrics?.find((f) => f.id === fabricId);
   // Même calcul que /api/commande : aucune divergence possible.
@@ -779,7 +788,7 @@ export function ProductOptions({
             {product.woods.length > 0 && (
               <SwatchGroup
                 label={product.woodLabel ? product.woodLabel[locale] : t.woodLabel}
-                options={product.woods}
+                options={woodsAffiches}
                 selected={woodId}
                 onSelect={setWoodId}
                 locale={locale}
@@ -1048,7 +1057,9 @@ export function ProductOptions({
                     ? devis.reason === "trop_petit"
                       ? t.customTooSmall
                       : devis.reason === "trop_grand"
-                        ? t.customTooBig
+                        ? table
+                          ? t.customTooBigTable
+                          : t.customTooBig
                         : devis.reason === "epaisseur_trop_fine"
                           ? t.customThicknessMin
                               .replace("{portee}", String(porteeMm))
@@ -1162,7 +1173,7 @@ export function ProductOptions({
                     {/* Sur devis, pas de prix dans la liste : le chiffre viendrait avant le relevé. */}
                     {orderable && (
                       <span className="font-medium tabular-nums">
-                        {prixAffiche(s.price + woodDelta, locale)}
+                        {prixAffiche(s.price + deltaBois(product, wood, surfaceTailleM2(s)), locale)}
                       </span>
                     )}
                   </div>
@@ -1238,7 +1249,7 @@ export function ProductOptions({
           colis={{
             longueurMm: cotesEff?.largeurMm ?? 2000,
             largeurMm: cotesEff?.hauteurMm ?? 1000,
-            epaisseurMm: cotesEff?.epaisseurMm ?? 35,
+            epaisseurMm: cotesEff?.epaisseurMm ?? 36,
           }}
           t={t}
           locale={locale}

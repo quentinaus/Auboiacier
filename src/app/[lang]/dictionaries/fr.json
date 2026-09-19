@@ -219,7 +219,7 @@
     "customThicknessNoteLight": "Profondeur du caisson : l'écart de prix reste léger, c'est de l'aluminium.",
     "customRange": "de {min} à {max} mm",
     "customBadThickness": "Épaisseur hors bornes.",
-    "customThicknessMin": "Sur {portee} mm de portée, il faut au moins {mini} mm d'épaisseur.",
+    "customThicknessMin": "Sur {portee} mm de portée, il faut au moins {mini} mm d'épaisseur : choisissez cette épaisseur, ou une longueur plus courte.",
     "customBoxDepth": "Sur un panneau de {cote} mm, le caisson ne peut pas dépasser {max} mm de profondeur.",
     "delaiCtaDevis": "Demander un devis",
     "customOr": "Ou un format du catalogue",
@@ -415,7 +415,8 @@
     "livraisonPrix": "{commune} — {prix} : livraison par transporteur, table démontée, comptée une fois pour toute la commande.",
     "livraisonResume": "Livraison par transporteur",
     "livraisonHors": "Nous ne livrons qu'en France métropolitaine.",
-    "inclusLivraisonTable": "Livraison en France métropolitaine, prix selon votre ville ; pose à domicile en option."
+    "inclusLivraisonTable": "Livraison en France métropolitaine, prix selon votre ville ; pose à domicile en option.",
+    "customTooBigTable": "Au-delà du plus grand plateau d'un seul tenant (450 × 125 cm) : choisissez une autre dimension."
   },
   "devis": {
     "title": "Demander un devis",
@@ -456,7 +457,7 @@
       "plafond": "Plafonds lumineux"
     },
     "saisie": {
-      "table": "Longueur et largeur du plateau, épaisseur 25, 35 ou 45 mm",
+      "table": "Longueur et largeur du plateau, épaisseur 28, 36 ou 45 mm",
       "gardeCorps": "Trois mesures de la fenêtre, prises au mètre",
       "plafondRect": "Longueur et largeur du caisson, au centimètre",
       "plafondRond": "Diamètre du caisson, au centimètre"

@@ -222,8 +222,10 @@ test("les cotes minimales et maximales sont acceptées, un millimètre de plus o
 
     // La plus grande pièce fabricable passe.
     const hauteurMax = rond ? bareme.maxLargeurMm : bareme.maxHauteurMm;
+    // À l'épaisseur que sa longueur impose : un plateau de 4,50 m ne se
+    // fait pas en 36 mm, mais il se fait.
     assert.ok(
-      devisSurMesure(product, bareme.maxLargeurMm, hauteurMax).ok,
+      devisSurMesure(product, bareme.maxLargeurMm, hauteurMax, epaisseurMiniMm(bareme, bareme.maxLargeurMm)).ok,
       `${nom} : la cote maximale devrait passer`
     );
     // Un millimètre de plus, non.
@@ -372,7 +374,7 @@ test("le prix monte quand la pièce grandit", () => {
         false,
         `${product.slug} : cote de test tombée sur une taille du catalogue`
       );
-      const devis = devisSurMesure(product, largeurMm, hauteurMm);
+      const devis = devisSurMesure(product, largeurMm, hauteurMm, epaisseurMiniMm(bareme, largeurMm));
       assert.ok(devis.ok, `${product.slug} : ${largeurMm}×${hauteurMm} refusé`);
       if (precedent) {
         assert.ok(
@@ -432,7 +434,7 @@ test("un plateau de table ne se coupe qu'aux épaisseurs de l'atelier", () => {
   for (const product of tables) {
     const bareme = product.surMesure!;
     const choix = bareme.epaisseur.choixMm!;
-    assert.deepEqual(choix, [25, 35, 45], `${product.slug} : 25, 35 ou 45 mm, rien d'autre`);
+    assert.deepEqual(choix, [28, 36, 45], `${product.slug} : 28, 36 ou 45 mm, rien d'autre`);
     assert.ok(choix.includes(bareme.epaisseur.refMm), `${product.slug} : la référence doit être un des choix`);
     const { largeurMm, hauteurMm } = cotesHorsCatalogue(bareme, 0.5);
     for (const mm of choix) {

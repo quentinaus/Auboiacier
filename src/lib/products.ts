@@ -73,7 +73,7 @@ export type SurMesure = {
     miniParLongueur?: PalierEpaisseur[];
     /**
      * Les seules épaisseurs fabriquées, quand l'atelier ne coupe qu'à
-     * certaines cotes (les plateaux de table : 25, 35 ou 45 mm). Sans cette
+     * certaines cotes (les plateaux de table : 28, 36 ou 45 mm). Sans cette
      * liste, tout entier entre minMm et maxMm est accepté.
      */
     choixMm?: number[];
@@ -215,6 +215,12 @@ export type Product = {
    * La livraison seule reste comprise dans le prix de la pièce.
    */
   poseOption?: boolean;
+  /**
+   * Les écarts de prix des essences sont donnés pour un plateau de
+   * SURFACE_REFERENCE_M2 (la table de 200 × 100) et suivent la surface :
+   * le noyer d'une table de 3 m coûte plus que celui d'une table de 1,50 m.
+   */
+  boisAuM2?: boolean;
   /**
    * Intitulé du choix de taille, quand « Sur mesure, à vos cotes » ne veut rien
    * dire — sur l'escalier, ce menu choisit la FORME, pas les dimensions.
@@ -517,25 +523,32 @@ export const fabrics: ProductSwatch[] = [
 ];
 
 /* ------------------------------------------------------------------ *
- *  Épaisseur d'un plateau de table en bois massif
- *  L'atelier ne coupe qu'à trois cotes : 25, 35 ou 45 mm. Et plus la pièce
- *  est longue, plus le plateau doit être épais : c'est la portée entre les
- *  appuis qui fait fléchir puis fendre le bois. 25 mm ne tiennent que
- *  jusqu'à 1,60 m ; au-delà, 35 mm — la cote de référence, celle de toutes
- *  les tailles du catalogue, jusqu'à la plus longue. 45 mm reste un choix,
- *  jamais une obligation. À VALIDER par Quentin : imposer 45 mm au-delà
- *  d'une certaine longueur, si l'atelier le juge nécessaire.
+ *  Épaisseur d'un plateau de table en chêne massif
+ *  Le plateau vient d'un panneau de chêne premier choix, fabriqué à la
+ *  commande en 28, 36 ou 45 mm, jusqu'à 4 500 × 1 250 mm d'un seul tenant
+ *  quelle que soit l'épaisseur (c'est le fournisseur qui fixe ces bornes).
+ *  Et plus la pièce est longue, plus le plateau doit être épais : c'est la
+ *  portée entre les appuis qui fait fléchir le bois. 28 mm jusqu'à 1,60 m ;
+ *  36 mm — la cote de référence, celle des tailles du catalogue — jusqu'à
+ *  3,60 m ; 45 mm au-delà. Quand une cote ne va pas avec l'épaisseur choisie,
+ *  la fiche le dit et propose de changer l'une ou l'autre. Paliers à
+ *  VALIDER par Quentin.
  * ------------------------------------------------------------------ */
-const PLATEAU_CHOIX = [25, 35, 45];
+const PLATEAU_CHOIX = [28, 36, 45];
 const PLATEAU_MASSIF: PalierEpaisseur[] = [
-  { jusquaMm: 1600, miniMm: 25 },
-  { jusquaMm: 4000, miniMm: 35 },
+  { jusquaMm: 1600, miniMm: 28 },
+  { jusquaMm: 3600, miniMm: 36 },
+  { jusquaMm: 4500, miniMm: 45 },
 ];
+/** Le plus grand panneau d'un seul tenant chez le fournisseur, en mm. */
+const PLATEAU_MAX_LONGUEUR_MM = 4500;
+const PLATEAU_MAX_LARGEUR_MM = 1250;
 
 export const products: Product[] = [
   {
     slug: "table-mikado",
     poseOption: true,
+    boisAuM2: true,
     famille: "table-interieur",
     seoMots: "table acier & chêne",
     category: "interieur",
@@ -724,15 +737,15 @@ export const products: Product[] = [
       forfait: 650,
       parM2: 1040,
       minMm: 800,
-      maxLargeurMm: 4000,
-      maxHauteurMm: 1400,
+      maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
+      maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
       epaisseur: {
-        // Trois épaisseurs au choix : 25, 35 ou 45 mm, 35 au catalogue.
-        minMm: 25,
+        // Trois épaisseurs au choix : 28, 36 ou 45 mm, 36 au catalogue.
+        minMm: 28,
         maxMm: 45,
-        refMm: 35,
+        refMm: 36,
         choixMm: PLATEAU_CHOIX,
-        // Chaque millimètre AU-DESSUS de 35 mm se paie au mètre carré.
+        // Chaque millimètre AU-DESSUS de 36 mm se paie au mètre carré.
         parM2ParMm: 21,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
@@ -759,7 +772,7 @@ export const products: Product[] = [
       },
     ],
     specs: [
-      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 25, 35 ou 45 mm (35 mm au catalogue), finition huile-cire" },
+      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 28, 36 ou 45 mm (36 mm au catalogue), finition huile-cire" },
       { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, finition peinte mate" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
@@ -797,7 +810,7 @@ export const products: Product[] = [
         },
       ],
       specs: [
-        { label: "Top", value: "Solid pine, beech, oak or walnut, 25, 35 or 45 mm thick (35 mm for catalogue sizes), hardwax oil finish" },
+        { label: "Top", value: "Solid pine, beech, oak or walnut, 28, 36 or 45 mm thick (36 mm for catalogue sizes), hardwax oil finish" },
         { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, matt painted finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
@@ -808,6 +821,7 @@ export const products: Product[] = [
   {
     slug: "table-croix",
     poseOption: true,
+    boisAuM2: true,
     famille: "table-interieur",
     seoMots: "table acier & chêne",
     category: "interieur",
@@ -876,15 +890,15 @@ export const products: Product[] = [
       forfait: 580,
       parM2: 1040,
       minMm: 800,
-      maxLargeurMm: 4000,
-      maxHauteurMm: 1400,
+      maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
+      maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
       epaisseur: {
-        // Trois épaisseurs au choix : 25, 35 ou 45 mm, 35 au catalogue.
-        minMm: 25,
+        // Trois épaisseurs au choix : 28, 36 ou 45 mm, 36 au catalogue.
+        minMm: 28,
         maxMm: 45,
-        refMm: 35,
+        refMm: 36,
         choixMm: PLATEAU_CHOIX,
-        // Chaque millimètre AU-DESSUS de 35 mm se paie au mètre carré.
+        // Chaque millimètre AU-DESSUS de 36 mm se paie au mètre carré.
         parM2ParMm: 21,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
@@ -907,7 +921,7 @@ export const products: Product[] = [
       },
     ],
     specs: [
-      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 25, 35 ou 45 mm (35 mm au catalogue), finition huile-cire" },
+      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 28, 36 ou 45 mm (36 mm au catalogue), finition huile-cire" },
       { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, finition peinte mate" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
@@ -946,7 +960,7 @@ export const products: Product[] = [
         },
       ],
       specs: [
-        { label: "Top", value: "Solid pine, beech, oak or walnut, 25, 35 or 45 mm thick (35 mm for catalogue sizes), hardwax oil finish" },
+        { label: "Top", value: "Solid pine, beech, oak or walnut, 28, 36 or 45 mm thick (36 mm for catalogue sizes), hardwax oil finish" },
         { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, matt painted finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
@@ -957,6 +971,7 @@ export const products: Product[] = [
   {
     slug: "table-brindille",
     poseOption: true,
+    boisAuM2: true,
     famille: "table-interieur",
     seoMots: "table acier & chêne",
     category: "interieur",
@@ -995,15 +1010,15 @@ export const products: Product[] = [
       forfait: 610,
       parM2: 1040,
       minMm: 800,
-      maxLargeurMm: 4000,
-      maxHauteurMm: 1400,
+      maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
+      maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
       epaisseur: {
-        // Trois épaisseurs au choix : 25, 35 ou 45 mm, 35 au catalogue.
-        minMm: 25,
+        // Trois épaisseurs au choix : 28, 36 ou 45 mm, 36 au catalogue.
+        minMm: 28,
         maxMm: 45,
-        refMm: 35,
+        refMm: 36,
         choixMm: PLATEAU_CHOIX,
-        // Chaque millimètre AU-DESSUS de 35 mm se paie au mètre carré.
+        // Chaque millimètre AU-DESSUS de 36 mm se paie au mètre carré.
         parM2ParMm: 21,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
@@ -1026,7 +1041,7 @@ export const products: Product[] = [
       },
     ],
     specs: [
-      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 25, 35 ou 45 mm (35 mm au catalogue), finition huile-cire" },
+      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 28, 36 ou 45 mm (36 mm au catalogue), finition huile-cire" },
       { label: "Piétement", value: "Tiges d'acier soudées une à une, finition peinte mate" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
@@ -1063,7 +1078,7 @@ export const products: Product[] = [
         },
       ],
       specs: [
-        { label: "Top", value: "Solid pine, beech, oak or walnut, 25, 35 or 45 mm thick (35 mm for catalogue sizes), hardwax oil finish" },
+        { label: "Top", value: "Solid pine, beech, oak or walnut, 28, 36 or 45 mm thick (36 mm for catalogue sizes), hardwax oil finish" },
         { label: "Base", value: "Steel rods welded one by one, matt painted finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
@@ -1452,6 +1467,7 @@ export const products: Product[] = [
   {
     slug: "table-mikado-exterieur",
     poseOption: true,
+    boisAuM2: true,
     famille: "table-exterieur",
     seoMots: "table de jardin",
     // Même raison que le garde-corps : accroche + prix + suffixe dépassait.
@@ -1489,13 +1505,13 @@ export const products: Product[] = [
       forfait: 520,
       parM2: 450,
       minMm: 800,
-      maxLargeurMm: 4000,
-      maxHauteurMm: 1400,
+      maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
+      maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
       epaisseur: {
-        // Les mêmes trois épaisseurs que les tables d'intérieur : 25, 35 ou 45 mm.
-        minMm: 25,
+        // Les mêmes trois épaisseurs que les tables d'intérieur : 28, 36 ou 45 mm.
+        minMm: 28,
         maxMm: 45,
-        refMm: 35,
+        refMm: 36,
         choixMm: PLATEAU_CHOIX,
         parM2ParMm: 13,
         miniParLongueur: PLATEAU_MASSIF,
@@ -1903,6 +1919,27 @@ export function getProduct(slug: string) {
   return products.find((p) => p.slug === slug);
 }
 
+/** La surface pour laquelle les écarts d'essence du catalogue sont écrits : 200 × 100. */
+export const SURFACE_REFERENCE_M2 = 2;
+
+/** La surface d'une taille, en m² ; une taille sans cotes vaut la référence. */
+export function surfaceTailleM2(size: ProductSize | undefined, largeurMm?: number, hauteurMm?: number): number {
+  if (size?.dimsMm) return (size.dimsMm[0] * size.dimsMm[1]) / 1e6;
+  if (largeurMm && hauteurMm && largeurMm > 0 && hauteurMm > 0) return (largeurMm * hauteurMm) / 1e6;
+  return SURFACE_REFERENCE_M2;
+}
+
+/**
+ * L'écart de prix d'une essence, pour ce produit et cette surface : fixe
+ * sur un escalier, proportionnel à la surface du plateau sur une table.
+ * Arrondi à l'euro, le même dans le navigateur et sur le serveur.
+ */
+export function deltaBois(product: Product, wood: ProductSwatch | undefined, surfaceM2: number): number {
+  const delta = wood?.priceDelta ?? 0;
+  if (!product.boisAuM2 || !delta) return delta;
+  return Math.round((delta * surfaceM2) / SURFACE_REFERENCE_M2);
+}
+
 /**
  * L'essence servie par défaut : celle dont le supplément est nul (le chêne).
  * C'est elle qui est montrée sur la fiche et qui fait le prix affiché.
@@ -1917,12 +1954,19 @@ export function essenceDeReference(product: Product): ProductSwatch | undefined 
 }
 
 /**
- * Prix « à partir de » : la plus petite dimension, dans l'essence de référence.
- * Surtout pas dans l'essence la moins chère : le pin est un rabais, pas le prix
- * de la pièce. Annoncer 2 200 € au-dessus d'une table affichée 3 590 € — et
- * l'envoyer tel quel à Google — donnait un prix que personne ne pouvait payer.
+ * Prix « à partir de » : la configuration la moins chère — la plus petite
+ * dimension, dans l'essence, la teinte et le tissu les moins chers. C'est
+ * ce que le client verra s'il choisit tout au plus bas ; jamais un chiffre
+ * qu'aucune configuration ne peut atteindre.
  */
 export function priceFrom(product: Product): number | null {
+  const moinsCher = (options: ProductSwatch[] | undefined) =>
+    options && options.length > 0 ? Math.min(...options.map((o) => o.priceDelta ?? 0)) : 0;
+  const boisMoinsCher =
+    product.woods.length > 0
+      ? product.woods.reduce((a, b) => ((a.priceDelta ?? 0) <= (b.priceDelta ?? 0) ? a : b))
+      : undefined;
+  const autres = moinsCher(product.metals) + moinsCher(product.fabrics);
   // Une pièce sans taille au catalogue : soit elle a un barème et des cotes de
   // départ (le garde-corps), soit elle est sur devis et on n'annonce rien —
   // jamais un chiffre inventé.
@@ -1930,10 +1974,12 @@ export function priceFrom(product: Product): number | null {
     const bareme = product.surMesure;
     if (!bareme?.departMm) return null;
     const devis = devisSurMesure(product, bareme.departMm[0], bareme.departMm[1]);
-    return devis.ok ? devis.prix + (essenceDeReference(product)?.priceDelta ?? 0) : null;
+    if (!devis.ok) return null;
+    const surface = surfaceTailleM2(undefined, bareme.departMm[0], bareme.departMm[1]);
+    return devis.prix + deltaBois(product, boisMoinsCher, surface) + autres;
   }
-  const petiteTaille = Math.min(...product.sizes.map((s) => s.price));
-  return petiteTaille + (essenceDeReference(product)?.priceDelta ?? 0);
+  const petite = product.sizes.reduce((a, b) => (a.price <= b.price ? a : b));
+  return petite.price + deltaBois(product, boisMoinsCher, surfaceTailleM2(petite)) + autres;
 }
 
 /* ------------------------------------------------------------------ *
@@ -2305,7 +2351,7 @@ export function computeUnitPrice(
 
   const prix =
     size.price +
-    (wood.value?.priceDelta ?? 0) +
+    deltaBois(product, wood.value, surfaceTailleM2(size, Number(selection.largeurMm), Number(selection.hauteurMm))) +
     (metal.value?.priceDelta ?? 0) +
     (fabric.value?.priceDelta ?? 0) +
     (remplissage.value && size.id === SUR_MESURE
@@ -2333,7 +2379,9 @@ function tailleDemandee(
       selection.epaisseurMm === undefined ? undefined : Number(selection.epaisseurMm),
       selection.locale
     );
-    return devis.ok ? { id: SUR_MESURE, label: devis.label, price: devis.prix } : undefined;
+    return devis.ok
+      ? { id: SUR_MESURE, label: devis.label, price: devis.prix, dimsMm: [Number(selection.largeurMm), Number(selection.hauteurMm)] }
+      : undefined;
   }
   if (product.sizes.length === 1 && !selection.sizeId) return product.sizes[0];
   return product.sizes.find((taille) => taille.id === selection.sizeId);
@@ -2377,7 +2425,7 @@ export function resolveSelection(selection: Selection): ResolveResult {
 
   const unitPrice =
     size.price +
-    (wood.value?.priceDelta ?? 0) +
+    deltaBois(product, wood.value, surfaceTailleM2(size, Number(selection.largeurMm), Number(selection.hauteurMm))) +
     (metal.value?.priceDelta ?? 0) +
     (fabric.value?.priceDelta ?? 0) +
     (remplissage.value && size.id === SUR_MESURE

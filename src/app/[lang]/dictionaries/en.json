@@ -219,7 +219,7 @@
     "customThicknessNoteLight": "Box depth: only the aluminium band changes, so the price barely moves.",
     "customRange": "{min} to {max} mm",
     "customBadThickness": "Thickness out of range.",
-    "customThicknessMin": "Over a {portee} mm span, the top must be at least {mini} mm thick.",
+    "customThicknessMin": "Over a {portee} mm span the top needs at least {mini} mm: choose that thickness, or a shorter length.",
     "customBoxDepth": "On a {cote} mm panel, the box cannot be deeper than {max} mm.",
     "delaiCtaDevis": "Request a quote",
     "customOr": "Or a catalogue size",
@@ -415,7 +415,8 @@
     "livraisonPrix": "{commune} — {prix}: delivery by carrier, table dismantled, charged once for the whole order.",
     "livraisonResume": "Delivery by carrier",
     "livraisonHors": "We only deliver to mainland France.",
-    "inclusLivraisonTable": "Delivery in mainland France, priced by your town; home fitting optional."
+    "inclusLivraisonTable": "Delivery in mainland France, priced by your town; home fitting optional.",
+    "customTooBigTable": "Beyond the largest single-piece top (450 × 125 cm): please choose another size."
   },
   "devis": {
     "title": "Request a quote",
@@ -456,7 +457,7 @@
       "plafond": "Backlit stretch ceilings"
     },
     "saisie": {
-      "table": "Top length and width, 25, 35 or 45 mm thick",
+      "table": "Top length and width, 28, 36 or 45 mm thick",
       "gardeCorps": "Three window measurements, taken with a tape",
       "plafondRect": "Frame length and width, to the centimetre",
       "plafondRond": "Frame diameter, to the centimetre"
