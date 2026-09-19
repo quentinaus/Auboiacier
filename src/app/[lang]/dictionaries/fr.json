@@ -234,7 +234,7 @@
     "poseAttente": "Entrez votre code postal pour connaître le prix de la pose.",
     "poseCalcul": "Calcul en cours…",
     "posePrix": "{commune} — {prix} : livraison et pose à domicile, comptées une fois pour toute la commande.",
-    "poseLoin": "{commune} est à {km} km de Saumur : au-delà de 200 km, nous ne posons pas. La livraison seule reste comprise.",
+    "poseLoin": "{commune} est hors de France métropolitaine : nous ne posons pas outre-mer. La livraison seule reste comprise.",
     "poseHors": "Nous ne posons qu'en France métropolitaine. La livraison seule reste comprise.",
     "poseInvalide": "Ce code postal ne ressemble pas à un code postal français.",
     "poseErreur": "Impossible de calculer la pose pour l'instant. Réessayez dans un instant.",
@@ -603,7 +603,7 @@
     "quantity": "Quantité",
     "remove": "Retirer",
     "total": "Total",
-    "shippingNote": "Livraison en France métropolitaine comprise ; la pose à domicile, si vous l'avez choisie, apparaît sur sa propre ligne. Fabrication à la commande : le délai est indiqué sur la fiche de chaque pièce, de 3 à 12 semaines selon le modèle.",
+    "shippingNote": "Livraison comprise en France métropolitaine. Fabrication à la commande : le délai est indiqué sur la fiche de chaque pièce.",
     "cgvAccept": "J'ai lu et j'accepte les",
     "cgvLink": "conditions générales de vente",
     "cgvRequired": "Merci d'accepter les conditions générales de vente.",
@@ -623,7 +623,17 @@
     "cityNote": "Pour savoir où va la pièce et organiser la livraison. L'adresse complète se donne juste après, au paiement.",
     "cityRequired": "Merci d'indiquer votre ville avant de payer.",
     "badPostcode": "Le code postal de la prise de cotes n'est pas valable, ou le créneau n'est plus libre : retirez la ligne et recommencez depuis la fiche.",
-    "lot": "Prix de lot −{taux} %"
+    "lot": "Prix de lot −{taux} %",
+    "recap": "Récapitulatif",
+    "pieces": "Pièces",
+    "delivery": "Livraison",
+    "deliveryIncluded": "Comprise",
+    "poseLine": "Pose à domicile",
+    "acompteToggle": "Régler un acompte de 40 % aujourd'hui",
+    "acompteInfo": "Le solde ({solde}) est prélevé sur la même carte le jour de la livraison ou de la pose. En cochant, vous autorisez ce prélèvement (voir les conditions de vente, article 4).",
+    "acompteToday": "À régler aujourd'hui",
+    "acompteBalance": "Solde à la livraison ou à la pose",
+    "checkoutAcompte": "Payer l'acompte de {montant}"
   },
   "commande": {
     "title": "Commande",
@@ -654,7 +664,7 @@
       },
       {
         "title": "4. Commande et paiement",
-        "body": "Les pièces du catalogue se règlent en une fois par carte bancaire au moment de la commande. Le paiement est traité par notre prestataire Stripe : aucune donnée bancaire n'est enregistrée par Auboiacier. Pour les réalisations sur mesure faisant l'objet d'un devis, un acompte de 40 % lance la fabrication et le solde est réglé à la livraison."
+        "body": "Les pièces du catalogue se règlent par carte bancaire au moment de la commande, en une fois. Le client peut choisir, au panier, de ne régler qu'un acompte de 40 % du total : sa carte est alors enregistrée par notre prestataire de paiement Stripe, et le solde de 60 % est prélevé sur cette même carte le jour de la livraison ou de la pose, sans nouvelle saisie. En choisissant cette option, le client autorise expressément ce prélèvement ; il en est informé par e-mail à la commande, puis prévenu avant le prélèvement. Si le prélèvement du solde échoue, la pièce est conservée à l'atelier jusqu'à régularisation. Aucune donnée bancaire n'est enregistrée par Auboiacier. Pour les réalisations sur mesure faisant l'objet d'un devis, un acompte de 40 % lance la fabrication et le solde est réglé à la livraison."
       },
       {
         "title": "5. Délais de fabrication",
@@ -662,7 +672,7 @@
       },
       {
         "title": "6. Livraison",
-        "body": "La livraison est effectuée en France métropolitaine, sur rendez-vous convenu avec le client. Il appartient au client de s'assurer que la pièce peut être acheminée jusqu'au lieu de pose (accès, escaliers, ouvertures)."
+        "body": "La livraison est comprise dans le prix des pièces du catalogue, en France métropolitaine, sur rendez-vous convenu avec le client. Le client peut choisir, sur la fiche de la pièce, que l'atelier vienne livrer et poser lui-même : cette prestation est facturée selon la distance depuis Saumur, au tarif affiché avant la commande, et comptée une seule fois par commande. Il appartient au client de s'assurer que la pièce peut être acheminée jusqu'au lieu de pose (accès, escaliers, ouvertures)."
       },
       {
         "title": "7. Droit de rétractation",
@@ -974,7 +984,7 @@
       },
       {
         "q": "Comment se passe le paiement ?",
-        "a": "Pour les pièces de la collection, le paiement se fait en une fois par carte bancaire à la commande, et la facture vous est envoyée automatiquement. Pour le sur-mesure établi sur devis (escalier, verrière, sculpture), un acompte de 40 % lance la fabrication et le solde est réglé à la livraison. Les plafonds lumineux, y compris à vos dimensions, se commandent et se règlent en ligne comme le reste de la collection."
+        "a": "Pour les pièces de la collection, le paiement se fait par carte bancaire à la commande, et la facture vous est envoyée automatiquement. Si vous préférez, vous pouvez ne régler qu'un acompte de 40 % au panier : le solde est prélevé sur la même carte le jour de la livraison ou de la pose. Pour le sur-mesure établi sur devis (escalier, verrière, sculpture), un acompte de 40 % lance la fabrication et le solde est réglé à la livraison."
       },
       {
         "q": "Puis-je annuler ou retourner une commande ?",

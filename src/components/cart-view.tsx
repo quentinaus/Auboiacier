@@ -48,6 +48,8 @@ export function CartView({
    * client abandonne la page de paiement.
    */
   const [ville, setVille] = useState("");
+  /** Payer 40 % aujourd'hui, le solde à la livraison ou à la pose. */
+  const [acompte, setAcompte] = useState(false);
   const [showVilleError, setShowVilleError] = useState(false);
   const idVille = useId();
   const idVilleErreur = useId();
@@ -65,8 +67,10 @@ export function CartView({
       options: string;
       unitPrice: number;
       image?: string;
-      /** Une visite : quantité figée à un, prix venu du serveur au moment du choix. */
+      /** Une visite ou une pose : quantité figée à un, prix venu du serveur au moment du choix. */
       visite?: boolean;
+      /** La ligne de pose, pour le récapitulatif et son icône. */
+      pose?: boolean;
       /** La pièce du catalogue, pour le prix de lot. */
       product?: Product;
       /** Le prix catalogue avant remise de lot, et la remise appliquée. */
@@ -93,6 +97,7 @@ export function CartView({
           options: item.optionsLabel,
           unitPrice: item.unitPrice,
           visite: true,
+          pose: true,
         });
         continue;
       }
@@ -171,8 +176,11 @@ export function CartView({
         (line) => [line.id, line]
       )
     );
+    // Les pièces d'abord, la pose et la visite en dernier : elles
+    // accompagnent la commande, elles ne la font pas.
+    const ordonnees = [...lines.filter((l) => !l.visite), ...lines.filter((l) => l.visite)];
     return {
-      lines: lines.map((line) => {
+      lines: ordonnees.map((line) => {
         const remisee = lot.get(line.id);
         return remisee && remisee.remise > 0
           ? { ...line, unitPrice: remisee.prixLot, prixCatalogue: line.unitPrice, remise: remisee.remise }
@@ -188,6 +196,11 @@ export function CartView({
   }, [stale, remove]);
 
   const total = lines.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
+  const totalPieces = lines.filter((l) => !l.visite).reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
+  const lignePose = lines.find((l) => l.pose);
+  // Le même arrondi que le serveur : 40 % de chaque ligne, au centime.
+  const montantAcompte = lines.reduce((sum, line) => sum + (Math.round(line.unitPrice * 40) / 100) * line.quantity, 0);
+  const solde = total - montantAcompte;
 
   async function checkout() {
     if (!ville.trim()) {
@@ -206,6 +219,7 @@ export function CartView({
         body: JSON.stringify({
           locale,
           cgvAccepted: true,
+          acompte,
           ville: ville.trim().slice(0, VILLE_MAX),
           lines: items.map((item) => ({
             slug: item.slug,
@@ -288,225 +302,266 @@ export function CartView({
   return (
     <div>
       {stale.length > 0 && (
-        <p
-          role="status"
-          className="mb-6 rounded-xl border border-[#e8e1d8] bg-white px-5 py-4 text-sm text-[#2b2320]"
-        >
+        <p role="status" className="mb-6 rounded-xl border border-[#e8e1d8] px-5 py-4 text-sm text-[#2b2320]">
           {t.removedLine}
         </p>
       )}
 
-      <ul className="divide-y divide-[#e8e1d8] border-y border-[#e8e1d8]">
-        {lines.map((line) => (
-          <li key={line.id} className="flex gap-5 py-6">
-            <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-[#f2f2f1]">
-              {line.image && (
-                <Image src={line.image} alt={line.name} fill sizes="96px" className="object-cover" />
-              )}
-              {line.visite && (
-                /* Un petit calendrier, à la place de la photo qu'une visite n'a pas. */
-                <svg
-                  aria-hidden
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#a3968a"
-                  strokeWidth="1.4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-full w-full p-6"
-                >
-                  <rect x="3" y="5" width="18" height="16" rx="2" />
-                  <path d="M3 10h18M8 3v4M16 3v4" />
-                  <path d="M8 15h3" stroke="#2b2320" strokeWidth="2" />
-                </svg>
-              )}
-            </div>
-
-            <div className="flex flex-1 flex-col gap-2">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h2 className={`${serif.className} text-lg text-[#2b2320]`}>{line.name}</h2>
-                  {line.options && (
-                    <p className="mt-1 text-sm text-[#726757]">{line.options}</p>
-                  )}
-                </div>
-                <p className="whitespace-nowrap font-medium tabular-nums text-[#2b2320]">
-                  {prixAffiche(line.unitPrice * line.quantity, locale)}
-                </p>
+      {/* Deux colonnes : les lignes à gauche, le récapitulatif et le paiement
+          à droite, comme un comptoir. Sur téléphone, l'un sous l'autre. */}
+      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-16">
+        <ul className="divide-y divide-[#e8e1d8] border-t border-[#e8e1d8]">
+          {lines.map((line) => (
+            <li key={line.id} className="flex gap-5 py-6">
+              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-[#f2f2f1]">
+                {line.image && (
+                  <Image src={line.image} alt={line.name} fill sizes="80px" className="object-cover" />
+                )}
+                {line.visite && (
+                  /* Une visite : un calendrier ; une pose : la route. */
+                  <svg
+                    aria-hidden
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#7a6f64"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-full w-full p-5"
+                  >
+                    {line.pose ? (
+                      <>
+                        <path d="M3 16V8a1 1 0 0 1 1-1h9v9" />
+                        <path d="M13 10h4l3 3v3h-7" />
+                        <circle cx="7" cy="17" r="1.6" />
+                        <circle cx="17" cy="17" r="1.6" />
+                      </>
+                    ) : (
+                      <>
+                        <rect x="3" y="5" width="18" height="16" rx="2" />
+                        <path d="M3 10h18M8 3v4M16 3v4" />
+                      </>
+                    )}
+                  </svg>
+                )}
               </div>
 
-              <div className="mt-1 flex items-center gap-4">
-                {!line.visite && (
-                <div className="flex items-center rounded-full border border-[#9a8d80]">
-                  {/* Un lecteur d'écran entend « moins », « plus », « retirer » :
-                      sans le nom de la pièce, on ne sait pas laquelle on modifie. */}
+              <div className="flex min-w-0 flex-1 flex-col">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <h2 className={`${serif.className} text-lg leading-snug text-[#2b2320]`}>{line.name}</h2>
+                    {line.options && <p className="mt-1 text-sm text-[#726757]">{line.options}</p>}
+                  </div>
+                  <p className="whitespace-nowrap font-medium tabular-nums text-[#2b2320]">
+                    {prixAffiche(line.unitPrice * line.quantity, locale)}
+                  </p>
+                </div>
+
+                <div className="mt-3 flex items-center gap-4">
+                  {!line.visite && (
+                    <div className="flex items-center rounded-full border border-[#9a8d80]">
+                      {/* Un lecteur d'écran entend « moins », « plus », « retirer » :
+                          sans le nom de la pièce, on ne sait pas laquelle on modifie. */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setQuantity(line.id, line.quantity - 1);
+                          if (line.quantity <= 1) {
+                            setAnnonce(fr ? `${line.name} retiré du panier` : `${line.name} removed from the cart`);
+                          }
+                        }}
+                        className="px-3 py-1.5 text-[#5c5140] hover:text-[#2a2116]"
+                        aria-label={fr ? `Diminuer la quantité — ${line.name}` : `Decrease quantity — ${line.name}`}
+                      >
+                        −
+                      </button>
+                      <span className="min-w-6 text-center text-sm tabular-nums">{line.quantity}</span>
+                      <button
+                        type="button"
+                        onClick={() => setQuantity(line.id, line.quantity + 1)}
+                        className="px-3 py-1.5 text-[#5c5140] hover:text-[#2a2116]"
+                        aria-label={fr ? `Augmenter la quantité — ${line.name}` : `Increase quantity — ${line.name}`}
+                      >
+                        +
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Le prix unitaire ne se répète que s'il y en a plusieurs. */}
+                  {!line.visite && line.quantity > 1 && (
+                    <span className="text-sm tabular-nums text-[#726757]">
+                      {line.prixCatalogue !== undefined && (
+                        <s className="mr-1.5 text-[#6f6357]">{prixAffiche(line.prixCatalogue, locale)}</s>
+                      )}
+                      {prixAffiche(line.unitPrice, locale)} × {line.quantity}
+                    </span>
+                  )}
+                  {line.remise !== undefined && (
+                    <span className="rounded-full bg-[#2b2320]/[0.08] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#2b2320]">
+                      {t.lot.replace("{taux}", String(Math.round(line.remise * 100)))}
+                    </span>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => {
-                      setQuantity(line.id, line.quantity - 1);
-                      if (line.quantity <= 1) {
-                        setAnnonce(
-                          fr
-                            ? `${line.name} retiré du panier`
-                            : `${line.name} removed from the cart`
-                        );
-                      }
+                      remove(line.id);
+                      setAnnonce(fr ? `${line.name} retiré du panier` : `${line.name} removed from the cart`);
                     }}
-                    className="px-3 py-2 text-[#5c5140] hover:text-[#2a2116]"
-                    aria-label={
-                      fr
-                        ? `Diminuer la quantité — ${line.name}`
-                        : `Decrease quantity — ${line.name}`
-                    }
+                    aria-label={fr ? `${t.remove} ${line.name} du panier` : `${t.remove} ${line.name} from the cart`}
+                    className="ml-auto -my-1 py-1 text-xs text-[#726757] underline underline-offset-4 hover:text-black"
                   >
-                    −
-                  </button>
-                  <span className="min-w-6 text-center text-sm tabular-nums">{line.quantity}</span>
-                  <button
-                    type="button"
-                    onClick={() => setQuantity(line.id, line.quantity + 1)}
-                    className="px-3 py-2 text-[#5c5140] hover:text-[#2a2116]"
-                    aria-label={
-                      fr
-                        ? `Augmenter la quantité — ${line.name}`
-                        : `Increase quantity — ${line.name}`
-                    }
-                  >
-                    +
+                    {t.remove}
                   </button>
                 </div>
-                )}
-
-                {!line.visite && (
-                  <span className="text-sm tabular-nums text-[#726757]">
-                    {line.prixCatalogue !== undefined && (
-                      <s className="mr-1.5 text-[#6f6357]">{prixAffiche(line.prixCatalogue, locale)}</s>
-                    )}
-                    {prixAffiche(line.unitPrice, locale)} × {line.quantity}
-                  </span>
-                )}
-                {line.remise !== undefined && (
-                  <span className="rounded-full bg-[#2b2320]/[0.08] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#2b2320]">
-                    {t.lot.replace("{taux}", String(Math.round(line.remise * 100)))}
-                  </span>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    remove(line.id);
-                    setAnnonce(
-                      fr
-                        ? `${line.name} retiré du panier`
-                        : `${line.name} removed from the cart`
-                    );
-                  }}
-                  aria-label={
-                    fr
-                      ? `${t.remove} ${line.name} du panier`
-                      : `${t.remove} ${line.name} from the cart`
-                  }
-                  className="ml-auto py-1 -my-1 text-sm text-[#726757] underline underline-offset-4 hover:text-black"
-                >
-                  {t.remove}
-                </button>
               </div>
+            </li>
+          ))}
+        </ul>
+
+        {/* Le récapitulatif, collé en haut quand la liste défile. */}
+        <aside className="lg:sticky lg:top-8 lg:self-start">
+          <div className="rounded-2xl border border-[#e8e1d8] p-6">
+            <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{t.recap}</h2>
+            <dl className="mt-4 space-y-2.5 text-sm">
+              <div className="flex justify-between gap-4">
+                <dt className="text-[#5c5140]">{t.pieces}</dt>
+                <dd className="tabular-nums text-[#2b2320]">{prixAffiche(totalPieces, locale)}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-[#5c5140]">{t.delivery}</dt>
+                <dd className="text-[#2b2320]">{t.deliveryIncluded}</dd>
+              </div>
+              {lignePose && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-[#5c5140]">{t.poseLine}</dt>
+                  <dd className="tabular-nums text-[#2b2320]">{prixAffiche(lignePose.unitPrice, locale)}</dd>
+                </div>
+              )}
+              <div className="flex items-baseline justify-between gap-4 border-t border-[#e8e1d8] pt-3">
+                <dt className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{t.total}</dt>
+                <dd className="text-2xl font-medium tabular-nums text-[#2b2320]">{prixAffiche(total, locale)}</dd>
+              </div>
+              {acompte && (
+                <>
+                  <div className="flex justify-between gap-4">
+                    <dt className="text-[#5c5140]">{t.acompteToday}</dt>
+                    <dd className="tabular-nums text-[#2b2320]">{prixAffiche(montantAcompte, locale)}</dd>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <dt className="text-[#5c5140]">{t.acompteBalance}</dt>
+                    <dd className="tabular-nums text-[#2b2320]">{prixAffiche(solde, locale)}</dd>
+                  </div>
+                </>
+              )}
+            </dl>
+            <p className="mt-3 text-xs leading-relaxed text-[#726757]">{t.shippingNote}</p>
+
+            {/* La ville, avant tout le reste : c'est la première chose que Quentin
+                regarde en recevant une commande. */}
+            <div className="mt-6">
+              <label htmlFor={idVille} className="block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6f6357]">
+                {t.city}
+              </label>
+              <input
+                id={idVille}
+                value={ville}
+                onChange={(event) => {
+                  setVille(event.target.value);
+                  if (event.target.value.trim()) setShowVilleError(false);
+                }}
+                maxLength={VILLE_MAX}
+                autoComplete="address-level2"
+                placeholder={t.cityPh}
+                aria-invalid={showVilleError && !ville.trim()}
+                aria-describedby={showVilleError && !ville.trim() ? idVilleErreur : undefined}
+                className="mt-2 w-full rounded-full border border-[#9a8d80] bg-white px-4 py-2.5 text-sm text-[#2b2320] transition-colors placeholder:text-[#726757] focus:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
+              />
+              <p className="mt-2 text-xs leading-relaxed text-[#726757]">{t.cityNote}</p>
+              {showVilleError && !ville.trim() && (
+                <p id={idVilleErreur} role="alert" className="mt-2 text-sm text-[#2b2320]">
+                  {t.cityRequired}
+                </p>
+              )}
             </div>
-          </li>
-        ))}
-      </ul>
 
-      <div className="mt-8 flex items-baseline justify-between">
-        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
-          {t.total}
-        </span>
-        <span className="text-2xl font-medium tabular-nums" style={{ color: ACCENT }}>
-          {prixAffiche(total, locale)}
-        </span>
+            {/* L'acompte : proposé sans insister, une case et deux lignes. */}
+            <label className="mt-5 flex items-start gap-3 text-sm text-[#4a4038]">
+              <input
+                type="checkbox"
+                checked={acompte}
+                onChange={(event) => setAcompte(event.target.checked)}
+                className="mt-1 h-4 w-4 accent-[#2b2320]"
+              />
+              <span>
+                {t.acompteToggle}
+                {acompte && (
+                  <span className="mt-1 block text-xs leading-relaxed text-[#726757]">
+                    {t.acompteInfo.replace("{solde}", prixAffiche(solde, locale))}
+                  </span>
+                )}
+              </span>
+            </label>
+
+            <label className="mt-4 flex items-start gap-3 text-sm text-[#4a4038]">
+              <input
+                type="checkbox"
+                checked={accepted}
+                onChange={(event) => {
+                  setAccepted(event.target.checked);
+                  if (event.target.checked) setShowCgvError(false);
+                }}
+                aria-invalid={showCgvError && !accepted}
+                aria-describedby={showCgvError && !accepted ? idCgvErreur : undefined}
+                className="mt-1 h-4 w-4 accent-[#2b2320]"
+              />
+              <span>
+                {t.cgvAccept}{" "}
+                <Link href={`/${locale}/cgv`} className="underline underline-offset-4 hover:text-black">
+                  {t.cgvLink}
+                </Link>
+                .
+              </span>
+            </label>
+            {showCgvError && !accepted && (
+              <p id={idCgvErreur} role="alert" className="mt-2 text-sm text-[#2b2320]">
+                {t.cgvRequired}
+              </p>
+            )}
+
+            {problem && (
+              <p role="alert" className="mt-5 text-sm leading-relaxed text-[#2b2320]">
+                {problem}{" "}
+                <a href={`mailto:${contactEmail}`} className="underline underline-offset-4">
+                  {t.writeUs}
+                </a>
+              </p>
+            )}
+
+            <button
+              type="button"
+              onClick={checkout}
+              disabled={status === "loading"}
+              className="mt-6 w-full rounded-full bg-[#2b2320] px-8 py-4 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors hover:bg-black disabled:opacity-60"
+            >
+              {status === "loading"
+                ? t.redirecting
+                : acompte
+                  ? t.checkoutAcompte.replace("{montant}", prixAffiche(montantAcompte, locale))
+                  : t.checkout}
+            </button>
+            <p className="mt-4 text-center text-xs leading-relaxed text-[#6f6357]">{t.securedBy}</p>
+            {/* La politique s'informe, elle ne se consent pas : la base légale est
+                le contrat, donc un simple lien, pas une seconde case à cocher. */}
+            <p className="mt-2 text-center text-xs leading-relaxed text-[#6f6357]">
+              {t.privacyNote}{" "}
+              <Link href={`/${locale}/confidentialite`} className="underline underline-offset-4 hover:text-black">
+                {t.privacyLink}
+              </Link>
+            </p>
+          </div>
+        </aside>
       </div>
-      <p className="mt-2 text-sm leading-relaxed text-[#726757]">{t.shippingNote}</p>
-
-      {/* La ville, avant tout le reste : c'est la première chose que Quentin
-          regarde en recevant une commande. */}
-      <div className="mt-8">
-        <label htmlFor={idVille} className="block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6f6357]">
-          {t.city}
-        </label>
-        <input
-          id={idVille}
-          value={ville}
-          onChange={(event) => {
-            setVille(event.target.value);
-            if (event.target.value.trim()) setShowVilleError(false);
-          }}
-          maxLength={VILLE_MAX}
-          autoComplete="address-level2"
-          placeholder={t.cityPh}
-          aria-invalid={showVilleError && !ville.trim()}
-          aria-describedby={showVilleError && !ville.trim() ? idVilleErreur : undefined}
-          className="mt-2 w-full rounded-lg border border-[#9a8d80] bg-white px-4 py-3 text-base text-[#2b2320] transition-colors placeholder:text-[#726757] focus:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] sm:max-w-sm sm:text-sm"
-        />
-        <p className="mt-2 text-xs leading-relaxed text-[#726757]">{t.cityNote}</p>
-        {showVilleError && !ville.trim() && (
-          <p id={idVilleErreur} role="alert" className="mt-2 text-sm text-[#2b2320]">
-            {t.cityRequired}
-          </p>
-        )}
-      </div>
-
-      <label className="mt-6 flex items-start gap-3 text-sm text-[#4a4038]">
-        <input
-          type="checkbox"
-          checked={accepted}
-          onChange={(event) => {
-            setAccepted(event.target.checked);
-            if (event.target.checked) setShowCgvError(false);
-          }}
-          aria-invalid={showCgvError && !accepted}
-          aria-describedby={showCgvError && !accepted ? idCgvErreur : undefined}
-          className="mt-1 h-4 w-4 accent-[#2b2320]"
-        />
-        <span>
-          {t.cgvAccept}{" "}
-          <Link href={`/${locale}/cgv`} className="underline underline-offset-4 hover:text-black">
-            {t.cgvLink}
-          </Link>
-          .
-        </span>
-      </label>
-      {showCgvError && !accepted && (
-        <p id={idCgvErreur} role="alert" className="mt-2 text-sm text-[#2b2320]">
-          {t.cgvRequired}
-        </p>
-      )}
-
-      {problem && (
-        <p role="alert" className="mt-6 text-sm leading-relaxed text-[#2b2320]">
-          {problem}{" "}
-          <a href={`mailto:${contactEmail}`} className="underline underline-offset-4">
-            {t.writeUs}
-          </a>
-        </p>
-      )}
-
-      <button
-        type="button"
-        onClick={checkout}
-        disabled={status === "loading"}
-        className="mt-6 w-full rounded-full px-8 py-4 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-        style={{ backgroundColor: ACCENT }}
-      >
-        {status === "loading" ? t.redirecting : t.checkout}
-      </button>
-      <p className="mt-4 text-center text-xs leading-relaxed text-[#6f6357]">{t.securedBy}</p>
-      {/* La politique s'informe, elle ne se consent pas : la base légale est
-          le contrat, donc un simple lien, pas une seconde case à cocher. */}
-      <p className="mt-2 text-center text-xs leading-relaxed text-[#6f6357]">
-        {t.privacyNote}{" "}
-        <Link href={`/${locale}/confidentialite`} className="underline underline-offset-4 hover:text-black">
-          {t.privacyLink}
-        </Link>
-      </p>
 
       {/* Ce que le panier vient de faire : le total qui change, la ligne
           retirée. Sans cette zone, le « + » ne produisait aucun son et le

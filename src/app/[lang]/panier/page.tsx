@@ -33,7 +33,7 @@ export default async function PanierPage({ params }: PageProps<"/[lang]/panier">
       <ArtisanatHeader locale={locale} dict={dict} />
       <main id="contenu">
 
-      <div className="mx-auto max-w-3xl px-6 py-16">
+      <div className="mx-auto max-w-6xl px-6 py-12 md:py-16">
         <h1 className={`${serif.className} text-3xl font-medium tracking-tight md:text-4xl`}>
           {t.title}
         </h1>

@@ -231,14 +231,19 @@ export async function calculerDeplacement(codePostal: string): Promise<ResultatD
   return calculer(codePostal, tarifDeplacement);
 }
 
-/** Même trajet, autre motif : la pose. Le prix suit le barème de la pose. */
+/**
+ * Même trajet, autre motif : la pose. Le prix suit le barème de la pose, et
+ * l'atelier va partout en France métropolitaine : pas de rayon, le prix
+ * grandit simplement avec la route.
+ */
 export async function calculerPose(codePostal: string): Promise<ResultatDeplacement> {
-  return calculer(codePostal, tarifPose);
+  return calculer(codePostal, tarifPose, Infinity);
 }
 
 async function calculer(
   codePostal: string,
-  tarif: (distanceKm: number) => Omit<Deplacement, "commune" | "precision">
+  tarif: (distanceKm: number) => Omit<Deplacement, "commune" | "precision">,
+  rayonMaxKm: number = RAYON_MAX_KM
 ): Promise<ResultatDeplacement> {
   const cp = codePostal.replace(/\s+/g, "");
   const departement = departementDe(cp);
@@ -249,7 +254,7 @@ async function calculer(
   const [lat, lon, prefecture] = PREFECTURES[departement];
   const point = fin ?? { lat, lon, commune: `${prefecture} (${departement})` };
   const distance = haversineKm(SAUMUR, point);
-  if (distance > RAYON_MAX_KM) {
+  if (distance > rayonMaxKm) {
     return { ok: false, reason: "trop_loin", distanceKm: Math.round(distance), commune: point.commune };
   }
   return {
