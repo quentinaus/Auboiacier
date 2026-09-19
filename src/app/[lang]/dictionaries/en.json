@@ -55,7 +55,7 @@
     "catPlafonds": "Backlit stretch ceilings",
     "catLed": "LED lighting",
     "editorialTitle": "A simple line, a piece that lasts",
-    "editorialBody1": "Auboiacier is a metalwork workshop. Steel is cut, welded, ground, then powder-coated here. Solid wood comes to sit on it — table tops, stair treads, shelves — glued, sanded and oiled in the same place.",
+    "editorialBody1": "Auboiacier is a metalwork workshop. Steel is cut, welded, ground, then painted here. Solid wood comes to sit on it — table tops, stair treads, shelves — glued, sanded and oiled in the same place.",
     "editorialBody2": "No production runs: every piece is made to order, to the dimensions of your home, and can be sanded or re-welded rather than replaced.",
     "editorialCta": "See the workshop",
     "testimonialsTitle": "What our clients say",
@@ -75,7 +75,7 @@
     "altTables": "Close-up of the oak top and steel base of the Mikado table",
     "altTablesExt": "Mikado outdoor table with a slatted oak top",
     "altChaises": "Olive green velvet chair on a black steel base",
-    "altChaisesExt": "Grey powder-coated steel terrace armchair with cushions",
+    "altChaisesExt": "Grey painted steel terrace armchair with cushions",
     "altSculptures": "Rearing horse welded by hand from reclaimed steel",
     "altEscaliers": "Staircase with a central steel spine and oak treads",
     "altGardeCorps": "Black steel window railing with cast rosettes and an oak handrail",
@@ -124,7 +124,7 @@
     "ctaSubtitle": "Describe your room: we measure up, we quote, we fit.",
     "ctaButton": "Describe my project",
     "catalogueLumiere": "Backlit stretch ceilings",
-    "catalogueLumiereNote": "Backlit stretched fabric, powder-coated aluminium frame, from 60 cm to a whole ceiling.",
+    "catalogueLumiereNote": "Backlit stretched fabric, lacquered aluminium frame, from 60 cm to a whole ceiling.",
     "surMesureTitle": "Beyond 400 × 300 cm",
     "surMesureBody": "The largest single panel is 400 × 300 cm. Beyond that we butt several boxes together to cover a whole ceiling: the workshop measures up at your home, then quotes.",
     "altPlafondDemo": "Backlit stretched-fabric ceiling on an aluminium frame"
@@ -154,16 +154,16 @@
     "sizeLabel": "Made to measure, your size",
     "woodLabel": "Top timber",
     "metalLabel": "Base colour",
-    "altBandeauLumiere": "Corner of a backlit stretch ceiling: the powder-coated aluminium frame and the stretched fabric",
+    "altBandeauLumiere": "Corner of a backlit stretch ceiling: the lacquered aluminium frame and the stretched fabric",
     "madeInFrance": "Made in France, in Saumur",
     "craftBandTitle": "French craftsmanship",
-    "craftBandBody": "Every piece leaves our own workshop: the wood is picked board by board, the steel is TIG-welded then powder-coated and oven-baked, and final assembly is done by hand. No production runs: your piece is made for you, to order.",
+    "craftBandBody": "Every piece leaves our own workshop: the wood is picked board by board, the steel is TIG-welded then painted, and final assembly is done by hand. No production runs: your piece is made for you, to order.",
     "descriptifTitle": "The piece in detail",
     "sectionFaq": "Frequently asked questions",
     "faqDeliveryQ": "What are the lead and delivery times?",
     "faqDeliveryA": "Each piece is made to order. The time is shown on the piece's own page, on the “Lead time” line: from 3 to 12 weeks depending on the model — a chair leaves sooner than a staircase. Then comes delivery across mainland France with assembly included; we propose a precise slot as soon as your piece is ready.",
     "faqCareQ": "How do I care for a wood & steel piece?",
-    "faqCareA": "A soft dry cloth day to day. For oiled wood, re-apply hardwax oil once a year; scratches sand out lightly. Powder-coated steel wipes clean with a damp sponge — no abrasives.",
+    "faqCareA": "A soft dry cloth day to day. For oiled wood, re-apply hardwax oil once a year; scratches sand out lightly. Painted steel wipes clean with a damp sponge — no abrasives.",
     "relatedTitle": "More from the workshop",
     "backToCatalogue": "← Back to the collection",
     "fabricLabel": "Velvet colour",
@@ -184,7 +184,7 @@
     "faqCustomQ": "Can I order custom dimensions?",
     "faqCustomA": "Yes. For tables and railings, enter your dimensions on the product page: the price appears at once and you can order online. For a particular shape, a timber outside our range or a piece priced on quote, write to us: we adapt the model and price it.",
     "faqShorterQ": "Can the lead time be shorter?",
-    "faqShorterA": "Some steps cannot be rushed: drying the timber, welding, powder coating, finishing. We can sometimes bring an order forward depending on the workshop schedule — call us and we will tell you where we stand.",
+    "faqShorterA": "Some steps cannot be rushed: drying the timber, welding, painting, finishing. We can sometimes bring an order forward depending on the workshop schedule — call us and we will tell you where we stand.",
     "faqPayQ": "How does payment work?",
     "faqPayA": "Pieces from the collection are paid in full by card when you order, and your invoice is sent automatically. For made-to-measure work quoted individually (staircase, steel partition, sculpture), a 40% deposit starts production and the balance is paid on delivery. Backlit stretch ceilings, including at your own dimensions, are ordered and paid online like the rest of the collection.",
     "requestQuote": "Request a quote",
@@ -852,7 +852,7 @@
     "produitSuffixe": "Handmade in Saumur, France. Shipped nationwide.",
     "lumiere": {
       "title": "Backlit stretch ceilings & LED panels",
-      "description": "Backlit stretch ceilings, powder-coated aluminium frame: rectangles up to 400 × 300 cm, discs up to Ø 400 cm. Made and fitted from Saumur, France."
+      "description": "Backlit stretch ceilings, lacquered aluminium frame: rectangles up to 400 × 300 cm, discs up to Ø 400 cm. Made and fitted from Saumur, France."
     },
     "sculptures": {
       "title": "One-off reclaimed steel sculptures",
@@ -960,7 +960,7 @@
       },
       {
         "q": "Can the lead time be shorter?",
-        "a": "Some steps cannot be rushed: drying the timber, welding, powder coating, finishing. We can sometimes bring an order forward depending on the workshop schedule — write to us and we will tell you where we stand."
+        "a": "Some steps cannot be rushed: drying the timber, welding, painting, finishing. We can sometimes bring an order forward depending on the workshop schedule — write to us and we will tell you where we stand."
       },
       {
         "q": "How are your prices set?",
@@ -980,7 +980,7 @@
       },
       {
         "q": "How do I care for a wood & steel piece?",
-        "a": "A soft dry cloth day to day. For oiled wood, one coat of hardwax oil a year is enough; a scratch sands out lightly. Powder-coated steel wipes clean with a damp sponge, without abrasives."
+        "a": "A soft dry cloth day to day. For oiled wood, one coat of hardwax oil a year is enough; a scratch sands out lightly. Painted steel wipes clean with a damp sponge, without abrasives."
       },
       {
         "q": "How does payment work?",

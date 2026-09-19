@@ -307,7 +307,7 @@ function woods(deltas: Partial<Record<WoodId, number>>): ProductSwatch[] {
 /* ------------------------------------------------------------------ *
  *  Finitions de l'acier
  *  Comme le bois, la pastille est une image calculée par
- *  scripts/echantillons.py : une bille de poudre thermolaquée, éclairée.
+ *  scripts/echantillons.py : une bille de peinture, éclairée.
  * ------------------------------------------------------------------ */
 type MetalId =
   | "noir"
@@ -751,7 +751,7 @@ export const products: Product[] = [
       {
         title: "Un piétement en tube d'acier 80 × 80 mm",
         image: "/images/mikado/ambiance.jpg",
-        body: "Des tubes d'acier de 80 × 80 mm, paroi 3 mm, se croisent sous le plateau comme un jeu de mikado. Chaque appui semble posé au hasard ; l'équilibre est calculé. Le piétement est soudé d'une seule pièce à l'atelier, non démontable, sans vis apparente, puis thermolaqué et cuit au four dans la teinte de votre choix.",
+        body: "Des tubes d'acier de 80 × 80 mm, paroi 3 mm, se croisent sous le plateau comme un jeu de mikado. Chaque appui semble posé au hasard ; l'équilibre est calculé. Le piétement est soudé d'une seule pièce à l'atelier, non démontable, sans vis apparente, puis peint dans la teinte de votre choix.",
       },
       {
         title: "Un plateau de chêne premier choix",
@@ -760,7 +760,7 @@ export const products: Product[] = [
     ],
     specs: [
       { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 25, 35 ou 45 mm (35 mm au catalogue), finition huile-cire" },
-      { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, thermolaquage mat cuit au four" },
+      { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, finition peinte mate" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
       { label: "Livraison", value: "France métropolitaine comprise ; pose à domicile en option" },
@@ -789,7 +789,7 @@ export const products: Product[] = [
       sections: [
         {
           title: "A base in 80 × 80 mm steel tube",
-          body: "Steel tubes of 80 × 80 mm, 3 mm wall, cross under the top like a game of pick-up sticks. Every leg looks dropped at random; the balance is worked out. The base is welded in one piece in the workshop, not dismountable, with no visible screw, then powder-coated and oven-baked in the colour of your choice.",
+          body: "Steel tubes of 80 × 80 mm, 3 mm wall, cross under the top like a game of pick-up sticks. Every leg looks dropped at random; the balance is worked out. The base is welded in one piece in the workshop, not dismountable, with no visible screw, then painted in the colour of your choice.",
         },
         {
           title: "A first-grade oak top",
@@ -798,7 +798,7 @@ export const products: Product[] = [
       ],
       specs: [
         { label: "Top", value: "Solid pine, beech, oak or walnut, 25, 35 or 45 mm thick (35 mm for catalogue sizes), hardwax oil finish" },
-        { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, oven-baked matt powder coating" },
+        { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, matt painted finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
         { label: "Delivery", value: "Mainland France included; home fitting optional" },
@@ -908,7 +908,7 @@ export const products: Product[] = [
     ],
     specs: [
       { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 25, 35 ou 45 mm (35 mm au catalogue), finition huile-cire" },
-      { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, thermolaquage mat cuit au four" },
+      { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, finition peinte mate" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
       { label: "Livraison", value: "France métropolitaine comprise ; pose à domicile en option" },
@@ -947,7 +947,7 @@ export const products: Product[] = [
       ],
       specs: [
         { label: "Top", value: "Solid pine, beech, oak or walnut, 25, 35 or 45 mm thick (35 mm for catalogue sizes), hardwax oil finish" },
-        { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, oven-baked matt powder coating" },
+        { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, matt painted finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
         { label: "Delivery", value: "Mainland France included; home fitting optional" },
@@ -1027,7 +1027,7 @@ export const products: Product[] = [
     ],
     specs: [
       { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 25, 35 ou 45 mm (35 mm au catalogue), finition huile-cire" },
-      { label: "Piétement", value: "Tiges d'acier soudées une à une, thermolaquage mat cuit au four" },
+      { label: "Piétement", value: "Tiges d'acier soudées une à une, finition peinte mate" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
       { label: "Livraison", value: "France métropolitaine comprise ; pose à domicile en option" },
@@ -1064,7 +1064,7 @@ export const products: Product[] = [
       ],
       specs: [
         { label: "Top", value: "Solid pine, beech, oak or walnut, 25, 35 or 45 mm thick (35 mm for catalogue sizes), hardwax oil finish" },
-        { label: "Base", value: "Steel rods welded one by one, oven-baked matt powder coating" },
+        { label: "Base", value: "Steel rods welded one by one, matt painted finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
         { label: "Delivery", value: "Mainland France included; home fitting optional" },
@@ -1120,7 +1120,7 @@ export const products: Product[] = [
       },
     ],
     specs: [
-      { label: "Limon", value: "Tube d'acier de forte section, cintré, soudure TIG, thermolaquage mat" },
+      { label: "Limon", value: "Tube d'acier de forte section, cintré, soudure TIG, finition peinte mate" },
       { label: "Marches", value: "Pin, hêtre, chêne ou noyer massif au choix, épaisseur 50 mm, finition huile-cire" },
       { label: "Garde-corps", value: "Câbles inox tendus, main courante bois cintré" },
       { label: "Hauteur", value: "Sur mesure, adaptée à votre trémie (prise de cotes à domicile)" },
@@ -1153,7 +1153,7 @@ export const products: Product[] = [
         },
       ],
       specs: [
-        { label: "Stringer", value: "Heavy-section steel tube, bent, TIG welded, matt powder coating" },
+        { label: "Stringer", value: "Heavy-section steel tube, bent, TIG welded, matt painted finish" },
         { label: "Treads", value: "Pine, beech, oak or walnut to choose from, 50 mm thick, oil-wax finish" },
         { label: "Balustrade", value: "Tensioned stainless steel cables, bent timber handrail" },
         { label: "Height", value: "Made to measure, fitted to your stairwell opening (measuring visit at your home)" },
@@ -1190,7 +1190,7 @@ export const products: Product[] = [
     images: [
       {
         src: "/images/garde-corps/fenetre.jpg",
-        alt: "Garde-corps de fenêtre vu de face : cadre acier thermolaqué noir à croix de Saint-André, deux rosaces de fonderie, main courante en chêne",
+        alt: "Garde-corps de fenêtre vu de face : cadre acier peint noir à croix de Saint-André, deux rosaces de fonderie, main courante en chêne",
         bg: "#ffffff",
         fit: "contain",
       },
@@ -1294,7 +1294,7 @@ export const products: Product[] = [
     sections: [
       {
         title: "Un cadre en acier plein, une rosace de fonderie",
-        body: "Le cadre et les croisillons sont en acier plein, soudés à l'atelier puis thermolaqués au four. Au croisement, une rosace de fonderie, comme sur les balcons anciens de Saumur. Quatre modèles sont proposés, en aluminium moulé, en fonte ou en acier ; vous choisissez le vôtre à la commande.",
+        body: "Le cadre et les croisillons sont en acier plein, soudés puis peints à l'atelier. Au croisement, une rosace de fonderie, comme sur les balcons anciens de Saumur. Quatre modèles sont proposés, en aluminium moulé, en fonte ou en acier ; vous choisissez le vôtre à la commande.",
       },
       {
         title: "Une main courante en bois massif de 40 mm",
@@ -1310,7 +1310,7 @@ export const products: Product[] = [
       },
     ],
     specs: [
-      { label: "Structure", value: "Acier plein, soudure TIG, thermolaquage cuit au four" },
+      { label: "Structure", value: "Acier plein, soudure TIG, finition peinte" },
       { label: "Motif", value: "Croix de Saint-André, rosaces de fonderie" },
       { label: "Main courante", value: "Pin, hêtre, chêne ou noyer massif au choix, 40 mm, finition huile-cire" },
       { label: "Pose", value: "Encastré dans le tableau de la fenêtre, fixations fournies — vous mesurez, nous fabriquons" },
@@ -1327,7 +1327,7 @@ export const products: Product[] = [
         "Solid steel window railing with a Saint Andrew's cross, cast rosettes and an oak handrail, made to the millimetre in Saumur, France.",
       tagline: "Solid steel Saint Andrew's cross, cast rosettes, oak handrail. Made to the millimetre, fitted into your window.",
       images: [
-        "Window railing seen head-on: powder-coated black steel frame with a Saint Andrew's cross, two cast rosettes, oak handrail",
+        "Window railing seen head-on: painted black steel frame with a Saint Andrew's cross, two cast rosettes, oak handrail",
         "The same railing fitted in the reveal, seen from the room: the whole window, the sill and the daylight under the frame",
         "The railing seen from the street, between the shutters: set on the tuffeau stone sill, the window open behind",
       ],
@@ -1335,7 +1335,7 @@ export const products: Product[] = [
       sections: [
         {
           title: "A solid steel frame, a cast rosette",
-          body: "The frame and the braces are solid steel, welded in the workshop then oven-baked powder-coated. Where the bars cross sits a cast rosette, as on the old balconies of Saumur. Four models are offered, in cast aluminium, cast iron or steel; you choose yours with the order.",
+          body: "The frame and the braces are solid steel, welded then painted in the workshop. Where the bars cross sits a cast rosette, as on the old balconies of Saumur. Four models are offered, in cast aluminium, cast iron or steel; you choose yours with the order.",
         },
         {
           title: "A 40 mm solid wood handrail",
@@ -1351,7 +1351,7 @@ export const products: Product[] = [
         },
       ],
       specs: [
-        { label: "Frame", value: "Solid steel, TIG welded, oven-baked powder coating" },
+        { label: "Frame", value: "Solid steel, TIG welded, painted finish" },
         { label: "Pattern", value: "Saint Andrew's cross, cast rosettes" },
         { label: "Handrail", value: "Pine, beech, oak or walnut to choose from, 40 mm, oil-wax finish" },
         { label: "Fitting", value: "Fits into the window reveal, fixings supplied — you measure, we build" },
@@ -1415,7 +1415,7 @@ export const products: Product[] = [
     ],
     specs: [
       { label: "Assise", value: "Mousse haute densité, velours d'ameublement, quinze coloris" },
-      { label: "Structure", value: "Rond plein acier, soudure TIG, thermolaquage mat" },
+      { label: "Structure", value: "Rond plein acier, soudure TIG, finition peinte mate" },
       { label: "Fabrication", value: "Sur commande — comptez 4 semaines" },
     ],
     // Traduction anglaise de la fiche.
@@ -1444,7 +1444,7 @@ export const products: Product[] = [
       ],
       specs: [
         { label: "Seat", value: "High-density foam, upholstery velvet, fifteen colours" },
-        { label: "Frame", value: "Solid steel rod, TIG welded, matt powder coating" },
+        { label: "Frame", value: "Solid steel rod, TIG welded, matt painted finish" },
         { label: "Lead time", value: "Made to order — allow 4 weeks" },
       ],
     },
@@ -1456,11 +1456,11 @@ export const products: Product[] = [
     seoMots: "table de jardin",
     // Même raison que le garde-corps : accroche + prix + suffixe dépassait.
     seoDescription:
-      "Table de jardin à lattes de chêne traité, piétement Mikado en acier thermolaqué, faite pour rester dehors. Fabriquée à Saumur (49).",
+      "Table de jardin à lattes de chêne traité, piétement Mikado en acier peint, faite pour rester dehors. Fabriquée à Saumur (49).",
     category: "exterieur",
     orderMode: "cart",
     name: "Table Mikado Extérieur",
-    tagline: "Plateau à lattes en chêne traité, piétement Mikado thermolaqué — faite pour rester dehors.",
+    tagline: "Plateau à lattes en chêne traité, piétement Mikado peint pour l'extérieur — faite pour rester dehors.",
     images: [
       {
         src: "/images/table-exterieur-lattes.jpg",
@@ -1510,12 +1510,12 @@ export const products: Product[] = [
       },
       {
         title: "Le même piétement, traité pour dehors",
-        body: "C'est le piétement Mikado de la table d'intérieur, protégé par un thermolaquage extérieur cuit au four. La couche tient à la pluie, au sel et aux UV sans s'écailler.",
+        body: "C'est le piétement Mikado de la table d'intérieur, protégé par une peinture pour l'extérieur. La couche tient à la pluie, au sel et aux UV sans s'écailler.",
       },
     ],
     specs: [
       { label: "Plateau", value: "Chêne massif traité classe 4, lattes espacées, finition huile extérieure" },
-      { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, thermolaquage extérieur" },
+      { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, finition peinte pour l'extérieur" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Entretien", value: "Une huile par an ; laisser griser si l'on préfère la patine" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
@@ -1527,8 +1527,8 @@ export const products: Product[] = [
       seoMots: "garden table",
       // Même raison qu'en français : accroche + prix + suffixe dépassait.
       seoDescription:
-        "Garden table with a slatted treated-oak top and a powder-coated steel Mikado base, made to stay outside. Made in Saumur, France.",
-      tagline: "Slatted treated-oak top, powder-coated Mikado base — made to stay outside.",
+        "Garden table with a slatted treated-oak top and a painted steel Mikado base, made to stay outside. Made in Saumur, France.",
+      tagline: "Slatted treated-oak top, Mikado base painted for outdoors — made to stay outside.",
       images: [
         "Mikado outdoor table, slatted oak top and black steel base",
       ],
@@ -1546,12 +1546,12 @@ export const products: Product[] = [
         },
         {
           title: "The same base, treated for outdoors",
-          body: "It is the Mikado base of the indoor table, protected by an oven-baked outdoor powder coating. The coat stands up to rain, salt and sunlight without flaking.",
+          body: "It is the Mikado base of the indoor table, protected by an outdoor paint finish. The coat stands up to rain, salt and sunlight without flaking.",
         },
       ],
       specs: [
         { label: "Top", value: "Class 4 treated solid oak, spaced slats, outdoor oil finish" },
-        { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, outdoor powder coating" },
+        { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, outdoor painted finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Care", value: "One coat of oil a year; leave it to silver if you prefer the patina" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
@@ -1566,11 +1566,11 @@ export const products: Product[] = [
     category: "exterieur",
     orderMode: "cart",
     name: "Fauteuil Terrasse",
-    tagline: "Structure acier thermolaqué, coussins déperlants — fait pour rester dehors.",
+    tagline: "Structure acier peint, coussins déperlants — fait pour rester dehors.",
     images: [
       {
         src: "/images/chaise-exterieur.jpg",
-        alt: "Fauteuil de terrasse en acier thermolaqué gris avec coussins",
+        alt: "Fauteuil de terrasse en acier peint gris avec coussins",
         bg: "#d5d5d5",
         fit: "cover",
       },
@@ -1581,7 +1581,7 @@ export const products: Product[] = [
     sections: [
       {
         title: "Il passe l'hiver dehors",
-        body: "La structure est en acier thermolaqué, cuit au four : la laque tient à la pluie et au sel sans s'écailler. Accoudoirs et dossier sont soudés d'une pièce ; aucun boulon à resserrer au fil des saisons.",
+        body: "La structure est en acier peint pour l'extérieur : la peinture tient à la pluie et au sel sans s'écailler. Accoudoirs et dossier sont soudés d'une pièce ; aucun boulon à resserrer au fil des saisons.",
       },
       {
         title: "Des coussins qui sèchent vite",
@@ -1589,7 +1589,7 @@ export const products: Product[] = [
       },
     ],
     specs: [
-      { label: "Structure", value: "Acier thermolaqué, soudure TIG, traitement extérieur" },
+      { label: "Structure", value: "Acier peint, soudure TIG, traitement extérieur" },
       { label: "Coussins", value: "Mousse à cellules ouvertes, tissu d'extérieur déperlant, housses amovibles" },
       { label: "Fabrication", value: "Sur commande — comptez 4 semaines" },
       { label: "Livraison", value: "France métropolitaine" },
@@ -1598,9 +1598,9 @@ export const products: Product[] = [
     en: {
       name: "Terrace Armchair",
       seoMots: "outdoor armchair",
-      tagline: "Powder-coated steel frame, water-repellent cushions — made to stay outside.",
+      tagline: "Painted steel frame, water-repellent cushions — made to stay outside.",
       images: [
-        "Terrace armchair in grey powder-coated steel with cushions",
+        "Terrace armchair in grey painted steel with cushions",
       ],
       sizes: {
         standard: "One size — W 62 × D 68 × H 82 cm",
@@ -1608,7 +1608,7 @@ export const products: Product[] = [
       sections: [
         {
           title: "It stays out all winter",
-          body: "The frame is oven-baked powder-coated steel: the coat takes rain and salt without flaking. Arms and back are welded in one piece; there is no bolt to tighten season after season.",
+          body: "The frame is steel painted for outdoors: the coat takes rain and salt without flaking. Arms and back are welded in one piece; there is no bolt to tighten season after season.",
         },
         {
           title: "Cushions that dry fast",
@@ -1616,7 +1616,7 @@ export const products: Product[] = [
         },
       ],
       specs: [
-        { label: "Frame", value: "Powder-coated steel, TIG welded, outdoor treatment" },
+        { label: "Frame", value: "Painted steel, TIG welded, outdoor treatment" },
         { label: "Cushions", value: "Open-cell foam, removable water-repellent outdoor fabric" },
         { label: "Lead time", value: "Made to order — allow 4 weeks" },
         { label: "Delivery", value: "Mainland France" },
@@ -1632,7 +1632,7 @@ export const products: Product[] = [
     category: "lumiere",
     orderMode: "cart",
     name: "Lucarne",
-    tagline: "Toile tendue rétroéclairée, cadre aluminium thermolaqué.",
+    tagline: "Toile tendue rétroéclairée, cadre aluminium laqué.",
     metalLabel: { fr: "Couleur du cadre", en: "Frame colour" },
     images: [
       {
@@ -1648,7 +1648,7 @@ export const products: Product[] = [
       },
       {
         src: "/images/lumiere/panneau-angle.jpg",
-        alt: "Détail de l'angle du cadre aluminium thermolaqué et de la toile tendue",
+        alt: "Détail de l'angle du cadre aluminium laqué et de la toile tendue",
         bg: "#8f8f8f",
         fit: "cover",
       },
@@ -1692,8 +1692,8 @@ export const products: Product[] = [
         body: "La toile tendue diffuse la lumière sur toute sa surface : pas de spot visible, pas d'ombre dure sur la table. Les LED sont montées au fond du caisson ; la toile égalise leur lumière, du même blanc d'un bord à l'autre.",
       },
       {
-        title: "Un cadre en aluminium thermolaqué",
-        body: "Le cadre est assemblé en profilé d'aluminium, coupé en onglet et thermolaqué au four. La teinte est cuite dans le métal : elle ne jaunit pas et ne s'écaille pas. La toile se clipse dans une gorge périphérique ; elle se retire et se remet sans outil pour le nettoyage.",
+        title: "Un cadre en aluminium laqué",
+        body: "Le cadre est assemblé en profilé d'aluminium, coupé en onglet et laqué. La teinte ne jaunit pas et ne s'écaille pas. La toile se clipse dans une gorge périphérique ; elle se retire et se remet sans outil pour le nettoyage.",
       },
       {
         title: "En applique, suspendu ou encastré",
@@ -1704,7 +1704,7 @@ export const products: Product[] = [
     ],
     specs: [
       { label: "Toile", value: "Membrane translucide tendue, blanc diffusant" },
-      { label: "Cadre", value: "Profilé aluminium thermolaqué, coupe d'onglet, caisson de 180 à 600 mm" },
+      { label: "Cadre", value: "Profilé aluminium laqué, coupe d'onglet, caisson de 180 à 600 mm" },
       { label: "Éclairage", value: "LED 220 V, blanc 3000 K ou 4000 K, variation en option" },
       { label: "Fabrication", value: "Sur commande — comptez 3 à 5 semaines" },
       { label: "Dimensions", value: "Jusqu'à 400 × 300 cm d'un seul tenant, au centimètre près" },
@@ -1714,10 +1714,10 @@ export const products: Product[] = [
     en: {
       name: "Lucarne",
       seoMots: "backlit stretch ceiling",
-      tagline: "Backlit stretched fabric, powder-coated aluminium frame.",
+      tagline: "Backlit stretched fabric, lacquered aluminium frame.",
       images: [
         "Lucarne: backlit stretch ceiling seen from below, black aluminium frame",
-        "Close-up of the powder-coated aluminium corner and the stretched fabric",
+        "Close-up of the lacquered aluminium corner and the stretched fabric",
       ],
       sizes: {
         l60: "60 × 60 cm — 0.36 m² — 25 W",
@@ -1737,8 +1737,8 @@ export const products: Product[] = [
           body: "The stretched fabric spreads the light over its whole surface: no visible spotlight, no hard shadow on the table. The LEDs sit at the back of the box; the fabric evens out their light, the same white from one edge to the other.",
         },
         {
-          title: "A powder-coated aluminium frame",
-          body: "The frame is built from aluminium profile, mitred and powder-coated in the oven. The colour is baked into the metal: it neither yellows nor flakes. The fabric clips into a groove all around; it comes out and goes back without a tool for cleaning.",
+          title: "A lacquered aluminium frame",
+          body: "The frame is built from aluminium profile, mitred and lacquered. The colour neither yellows nor flakes. The fabric clips into a groove all around; it comes out and goes back without a tool for cleaning.",
         },
         {
           title: "Surface-mounted, suspended or recessed",
@@ -1747,7 +1747,7 @@ export const products: Product[] = [
       ],
       specs: [
         { label: "Fabric", value: "Stretched translucent membrane, diffusing white" },
-        { label: "Frame", value: "Powder-coated aluminium profile, mitred corners, box 180 to 600 mm deep" },
+        { label: "Frame", value: "Lacquered aluminium profile, mitred corners, box 180 to 600 mm deep" },
         { label: "Lighting", value: "220 V LED, 3000 K or 4000 K white, dimming optional" },
         { label: "Lead time", value: "Made to order — allow 3 to 5 weeks" },
         { label: "Sizes", value: "Up to 400 × 300 cm in one piece, to the centimetre" },
@@ -1764,7 +1764,7 @@ export const products: Product[] = [
     category: "lumiere",
     orderMode: "cart",
     name: "Halo",
-    tagline: "Cercle de toile tendue rétroéclairée, cadre aluminium thermolaqué.",
+    tagline: "Cercle de toile tendue rétroéclairée, cadre aluminium laqué.",
     metalLabel: { fr: "Couleur du cadre", en: "Frame colour" },
     images: [
       {
@@ -1830,7 +1830,7 @@ export const products: Product[] = [
       },
       {
         title: "Le même cadre, roulé",
-        body: "Le profilé d'aluminium est cintré puis thermolaqué au four. La teinte est cuite dans le métal : elle ne jaunit pas et ne s'écaille pas. La toile se clipse dans la gorge périphérique et se retire sans outil.",
+        body: "Le profilé d'aluminium est cintré puis laqué. La teinte ne jaunit pas et ne s'écaille pas. La toile se clipse dans la gorge périphérique et se retire sans outil.",
       },
       {
         title: "Un grand disque éclaire toute une salle",
@@ -1844,7 +1844,7 @@ export const products: Product[] = [
     ],
     specs: [
       { label: "Toile", value: "Membrane translucide tendue, blanc diffusant" },
-      { label: "Cadre", value: "Profilé aluminium cintré et thermolaqué, caisson de 180 à 600 mm" },
+      { label: "Cadre", value: "Profilé aluminium cintré et laqué, caisson de 180 à 600 mm" },
       { label: "Éclairage", value: "LED 220 V, blanc 3000 K ou 4000 K, variation en option" },
       { label: "Diamètre", value: "Jusqu'à 400 cm d'un seul tenant, au centimètre près" },
       { label: "Fabrication", value: "Sur commande — comptez 3 à 5 semaines" },
@@ -1853,7 +1853,7 @@ export const products: Product[] = [
     en: {
       name: "Halo",
       seoMots: "round backlit stretch ceiling",
-      tagline: "A circle of backlit stretched fabric, powder-coated aluminium frame.",
+      tagline: "A circle of backlit stretched fabric, lacquered aluminium frame.",
       images: [
         "Halo: round stretched-fabric light ceiling, black aluminium frame",
         "Halo lit up: round light ceiling fitted to a living-room ceiling",
@@ -1877,7 +1877,7 @@ export const products: Product[] = [
         },
         {
           title: "The same frame, rolled",
-          body: "The aluminium profile is curved, then powder-coated in the oven. The colour is baked into the metal: it neither yellows nor flakes. The fabric clips into the groove all around and comes out without a tool.",
+          body: "The aluminium profile is curved, then lacquered. The colour neither yellows nor flakes. The fabric clips into the groove all around and comes out without a tool.",
         },
         {
           title: "One large disc lights a whole room",
@@ -1890,7 +1890,7 @@ export const products: Product[] = [
       ],
       specs: [
         { label: "Fabric", value: "Stretched translucent membrane, diffusing white" },
-        { label: "Frame", value: "Curved and powder-coated aluminium profile, box 180 to 600 mm deep" },
+        { label: "Frame", value: "Curved and lacquered aluminium profile, box 180 to 600 mm deep" },
         { label: "Lighting", value: "220 V LED, 3000 K or 4000 K white, dimming optional" },
         { label: "Diameter", value: "Up to 400 cm in one piece, to the centimetre" },
         { label: "Lead time", value: "Made to order — allow 3 to 5 weeks" },

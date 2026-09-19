@@ -257,7 +257,7 @@ export function SchemaCotes({
   compact?: boolean;
   /** La description lue par les lecteurs d'écran suit la langue de la page. */
   locale?: "fr" | "en";
-  /** Un plateau de bois, ou un caisson lumineux à cadre thermolaqué. */
+  /** Un plateau de bois, ou un caisson lumineux à cadre laqué. */
   matiere?: "bois" | "lumiere";
   /** Les intitulés viennent du produit : longueur/largeur, ou largeur/hauteur. */
   labels: { principale: string; secondaire?: string; epaisseur: string };
@@ -437,7 +437,7 @@ export function SchemaCotes({
             </>
           )}
           {lumiere && (
-            /* Le cadre thermolaqué, en fine bande autour de la toile. */
+            /* Le cadre laqué, en fine bande autour de la toile. */
             <polygon points={`${p(A)} ${p(B)} ${p(C)} ${p(D)}`} fill="none" stroke="#332d28" strokeWidth={3} clipPath="url(#face)" />
           )}
           <g fill="none" stroke={ENCRE} strokeWidth={1} opacity={0.42} strokeLinejoin="round">

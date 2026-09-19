@@ -55,7 +55,7 @@
     "catPlafonds": "Plafonds lumineux",
     "catLed": "Éclairage LED",
     "editorialTitle": "Un dessin simple, une pièce qui dure",
-    "editorialBody1": "Auboiacier est un atelier de métallerie. L'acier y est coupé, soudé, meulé, puis thermolaqué. Le bois massif vient s'y poser — plateaux de table, marches d'escalier, tablettes — collé, poncé et huilé ici même.",
+    "editorialBody1": "Auboiacier est un atelier de métallerie. L'acier y est coupé, soudé, meulé, puis peint. Le bois massif vient s'y poser — plateaux de table, marches d'escalier, tablettes — collé, poncé et huilé ici même.",
     "editorialBody2": "Aucune série : chaque pièce est fabriquée à la commande, aux dimensions de votre intérieur, et se reponce ou se ressoude plutôt que de se remplacer.",
     "editorialCta": "Voir l'atelier",
     "testimonialsTitle": "Ce qu'en disent nos clients",
@@ -75,7 +75,7 @@
     "altTables": "Détail du plateau chêne et du piétement acier de la table Mikado",
     "altTablesExt": "Table d'extérieur Mikado, plateau à lattes de chêne",
     "altChaises": "Chaise en velours vert olive sur piétement acier noir",
-    "altChaisesExt": "Fauteuil de terrasse en acier thermolaqué gris avec coussins",
+    "altChaisesExt": "Fauteuil de terrasse en acier peint gris avec coussins",
     "altSculptures": "Cheval cabré en acier de récupération soudé à la main",
     "altEscaliers": "Escalier à limon central acier et marches chêne",
     "altGardeCorps": "Garde-corps de fenêtre en acier noir, rosaces de fonderie et main courante en chêne",
@@ -124,7 +124,7 @@
     "ctaSubtitle": "Décrivez votre pièce : nous relevons les cotes, nous chiffrons, nous posons.",
     "ctaButton": "Décrire mon projet",
     "catalogueLumiere": "Plafonds lumineux",
-    "catalogueLumiereNote": "Toile tendue rétroéclairée, cadre aluminium thermolaqué, de 60 cm au plafond entier.",
+    "catalogueLumiereNote": "Toile tendue rétroéclairée, cadre aluminium laqué, de 60 cm au plafond entier.",
     "surMesureTitle": "Au-delà de 400 × 300 cm",
     "surMesureBody": "Le plus grand panneau d'un seul tenant fait 400 × 300 cm. Au-delà, nous assemblons plusieurs caissons jointifs pour couvrir un plafond entier : l'atelier relève les cotes chez vous, puis chiffre.",
     "altPlafondDemo": "Plafond lumineux à cadre aluminium, toile tendue rétroéclairée"
@@ -154,16 +154,16 @@
     "sizeLabel": "Sur mesure, à vos cotes",
     "woodLabel": "Essence du plateau",
     "metalLabel": "Couleur du piétement",
-    "altBandeauLumiere": "Angle d'un plafond lumineux : le cadre aluminium thermolaqué et la toile tendue",
+    "altBandeauLumiere": "Angle d'un plafond lumineux : le cadre aluminium laqué et la toile tendue",
     "madeInFrance": "Fabriqué en France, à Saumur",
     "craftBandTitle": "Artisanat français",
-    "craftBandBody": "Chaque pièce sort de notre atelier : le bois est choisi planche par planche, l'acier est soudé TIG puis thermolaqué, cuit au four, et le montage final se fait à la main. Pas de série : votre pièce est fabriquée pour vous, à la commande.",
+    "craftBandBody": "Chaque pièce sort de notre atelier : le bois est choisi planche par planche, l'acier est soudé TIG puis peint, et le montage final se fait à la main. Pas de série : votre pièce est fabriquée pour vous, à la commande.",
     "descriptifTitle": "La pièce en détail",
     "sectionFaq": "Questions fréquentes",
     "faqDeliveryQ": "Quels sont les délais de fabrication et de livraison ?",
     "faqDeliveryA": "Chaque pièce est fabriquée à la commande. Le délai est indiqué sur la fiche de la pièce, à la ligne « Fabrication » : de 3 à 12 semaines selon le modèle — une chaise part plus vite qu'un escalier. Vient ensuite la livraison en France métropolitaine, montage compris ; un créneau précis vous est proposé dès que votre pièce est prête.",
     "faqCareQ": "Comment entretenir une pièce bois & acier ?",
-    "faqCareA": "Un chiffon doux et sec au quotidien. Pour le bois huilé, une réapplication d'huile-cire une fois par an suffit ; une rayure se rattrape d'un ponçage léger. L'acier thermolaqué se nettoie à l'éponge humide, sans produit abrasif.",
+    "faqCareA": "Un chiffon doux et sec au quotidien. Pour le bois huilé, une réapplication d'huile-cire une fois par an suffit ; une rayure se rattrape d'un ponçage léger. L'acier peint se nettoie à l'éponge humide, sans produit abrasif.",
     "relatedTitle": "Autres pièces de l'atelier",
     "backToCatalogue": "← Retour à la collection",
     "fabricLabel": "Coloris du velours",
@@ -184,7 +184,7 @@
     "faqCustomQ": "Peut-on commander des dimensions sur mesure ?",
     "faqCustomA": "Oui. Pour les tables et les garde-corps, entrez vos cotes sur la fiche : le prix s'affiche aussitôt et la commande se passe en ligne. Pour une forme particulière, une essence hors nuancier ou une pièce sur devis, écrivez-nous : nous adaptons le modèle et nous chiffrons.",
     "faqShorterQ": "Le délai peut-il être plus court ?",
-    "faqShorterA": "Certaines étapes sont incompressibles : séchage du bois, soudure, thermolaquage, finition. Nous pouvons parfois avancer une commande selon le planning de l'atelier — appelez-nous, nous vous dirons où nous en sommes.",
+    "faqShorterA": "Certaines étapes sont incompressibles : séchage du bois, soudure, peinture, finition. Nous pouvons parfois avancer une commande selon le planning de l'atelier — appelez-nous, nous vous dirons où nous en sommes.",
     "faqPayQ": "Comment se passe le paiement ?",
     "faqPayA": "Pour les pièces de la collection, le paiement se fait en une fois par carte bancaire au moment de la commande, et la facture vous est envoyée automatiquement. Pour le sur-mesure établi sur devis (escalier, verrière, sculpture), un acompte de 40 % lance la fabrication et le solde est réglé à la livraison. Les plafonds lumineux, y compris à vos dimensions, se commandent et se règlent directement en ligne comme le reste de la collection.",
     "requestQuote": "Demander un devis",
@@ -960,7 +960,7 @@
       },
       {
         "q": "Le délai peut-il être plus court ?",
-        "a": "Certaines étapes sont incompressibles : séchage du bois, soudure, thermolaquage, finition. Nous pouvons parfois avancer une commande selon le planning de l'atelier — écrivez-nous, nous vous dirons où nous en sommes."
+        "a": "Certaines étapes sont incompressibles : séchage du bois, soudure, peinture, finition. Nous pouvons parfois avancer une commande selon le planning de l'atelier — écrivez-nous, nous vous dirons où nous en sommes."
       },
       {
         "q": "Comment sont fixés les prix ?",
@@ -980,7 +980,7 @@
       },
       {
         "q": "Comment entretenir une pièce bois & acier ?",
-        "a": "Un chiffon doux et sec au quotidien. Pour le bois huilé, une réapplication d'huile-cire une fois par an suffit ; une rayure se rattrape d'un ponçage léger. L'acier thermolaqué se nettoie à l'éponge humide, sans produit abrasif."
+        "a": "Un chiffon doux et sec au quotidien. Pour le bois huilé, une réapplication d'huile-cire une fois par an suffit ; une rayure se rattrape d'un ponçage léger. L'acier peint se nettoie à l'éponge humide, sans produit abrasif."
       },
       {
         "q": "Comment se passe le paiement ?",
