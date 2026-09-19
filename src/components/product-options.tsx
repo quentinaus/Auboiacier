@@ -68,13 +68,13 @@ function SwatchGroup({
      bois, de la couleur des pieds ou du velours. */
   const idGroupe = useId();
   return (
-    <div>
-      <span className={GROUP_LABEL} id={idGroupe}>
+    <div className="w-full">
+      <span className={`${GROUP_LABEL} text-center`} id={idGroupe}>
         {label}
       </span>
-      {/* Les pastilles en rangée, calées à gauche : d'un groupe à l'autre,
-          elles tombent dans les mêmes colonnes. */}
-      <div role="group" aria-labelledby={idGroupe} className="mt-3 flex flex-wrap gap-x-4 gap-y-5 sm:gap-x-5">
+      {/* Les pastilles en rangée, centrées sous leur intitulé : la colonne est
+          étroite, chaque groupe se lit comme un nuancier. */}
+      <div role="group" aria-labelledby={idGroupe} className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-5 sm:gap-x-5">
         {options.map((o) => {
           const isSelected = o.id === selected;
           return (
@@ -689,48 +689,26 @@ export function ProductOptions({
     /* pb-24 sur téléphone : la barre d'achat fixe ne doit pas recouvrir la fin
        de la colonne. */
     <div className="flex flex-col pb-24 md:pb-0">
-      {bareme && total === null && !modeVisite ? (
-        /* Pas encore de cotes : le prix reste à sa place, en tête, avec un
-           tiret. Sur le garde-corps, la promesse est sous la galerie (voir
-           product-view) ; sur une table, on dit où taper. */
-        <p className="flex flex-wrap items-baseline gap-x-3">
-          <span className="text-3xl font-medium tabular-nums" style={{ color: ACCENT }}>
-            — €
-          </span>
-          <span className="text-sm text-[#6f6357]">
-            {product.releve === "garde-corps-fenetre" ? t.gcPrixAttente : t.prixAttenteCotes}
-          </span>
+      {/* En tête, seulement le prix de départ : le prix réel de la
+          configuration est dans la barre d'achat, en bas de la colonne, et
+          suit chaque choix. */}
+      {modeVisite ? (
+        <p className="text-sm text-[#6f6357]">{t.onQuote}</p>
+      ) : orderable && prixDepart !== null ? (
+        <p className="text-sm text-[#6f6357]">
+          <span className="tabular-nums">{t.from} {prixAffiche(prixDepart, locale)}</span>
+          {bareme && total === null && (
+            <span className="block mt-1">
+              {product.releve === "garde-corps-fenetre" ? t.gcPrixAttente : t.prixAttenteCotes}
+            </span>
+          )}
         </p>
       ) : (
-        <>
-          <p className="flex flex-wrap items-baseline gap-x-3">
-            <span className="text-3xl font-medium tabular-nums" style={{ color: ACCENT }}>
-              {modeVisite
-                ? t.onQuote
-                : total !== null
-                  ? prixAffiche(total, locale)
-                  : orderable && prixDepart !== null
-                    ? `${t.from} ${prixAffiche(prixDepart, locale)}`
-                    : t.onQuote}
-            </span>
-            {/* La taille à laquelle ce prix correspond : sans elle, le grand prix
-                n'apprend rien tant qu'on n'a pas déroulé les dimensions. */}
-            {size && !modeVisite && orderable && (
-              <span className="text-sm text-[#6f6357]">
-                {cotesCourtes(
-                  sizeIdEff === SUR_MESURE && labelTaille?.ok ? labelTaille.label : size.label
-                )}
-              </span>
-            )}
-          </p>
-          {/* Ce que ce prix-là comprend. Sans cette ligne, cliquer « Noyer massif »
-              faisait bondir le grand chiffre de 710 € sans un mot d'explication. */}
-          {optionsLabel && <p className="mt-1.5 text-sm text-[#5c5140]">{optionsLabel}</p>}
-        </>
+        <p className="text-sm text-[#6f6357]">{t.onQuote}</p>
       )}
 
       {product.fabrics && product.fabrics.length > 0 && !product.fabricLabel && (
-        <div className="mt-3 border-t border-[#e5ddd3] pt-3">
+        <div className="mt-5 border-t border-[#e5ddd3] pt-5">
           <SwatchGroup
             label={t.fabricLabel}
             options={product.fabrics}
@@ -745,8 +723,8 @@ export function ProductOptions({
           pastilles : l'acier, le bois et la rosace tiennent sur une ou deux
           rangées au lieu de trois blocs centrés l'un sous l'autre. */}
       {(product.woods.length > 0 || product.metals.length > 0) && (
-        <div className="mt-3 border-t border-[#e5ddd3] pt-3">
-          <div className="flex flex-wrap gap-x-8 gap-y-4">
+        <div className="mt-5 border-t border-[#e5ddd3] pt-5">
+          <div className="flex flex-col gap-7">
             {product.metals.length > 0 && (
               <SwatchGroup
                 label={product.metalLabel ? product.metalLabel[locale] : t.metalLabel}
@@ -1206,9 +1184,32 @@ export function ProductOptions({
       )}
 
       {orderable || modeVisite ? (
-        <div className="mt-3">
-          <div className="flex items-center gap-4">
-            <div className={`flex items-center rounded-full border border-[#9a8d80] ${modeVisite ? "hidden" : ""}`}>
+        /* La barre d'achat reste au bas de la colonne pendant qu'on choisit :
+           sur grand écran elle se colle au bord inférieur, débordant du
+           gabarit de la colonne pour aller d'un bord à l'autre. */
+        <div className="mt-5 md:sticky md:bottom-0 md:z-20 md:-mx-8 md:border-t md:border-[#e5ddd3] md:bg-[#fbf9f6]/95 md:px-8 md:py-4 md:backdrop-blur lg:-mx-12 lg:px-12">
+          <div className="flex items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-xl font-medium leading-tight tabular-nums" style={{ color: ACCENT }}>
+                {modeVisite
+                  ? t.onQuote
+                  : total !== null
+                    ? prixAffiche(total, locale)
+                    : bareme
+                      ? "— €"
+                      : prixDepart !== null
+                        ? `${t.from} ${prixAffiche(prixDepart, locale)}`
+                        : t.onQuote}
+              </p>
+              {size && !modeVisite && orderable && total !== null && (
+                <p className="truncate text-[11px] text-[#6f6357]">
+                  {cotesCourtes(
+                    sizeIdEff === SUR_MESURE && labelTaille?.ok ? labelTaille.label : size.label
+                  )}
+                </p>
+              )}
+            </div>
+            <div className={`flex shrink-0 items-center rounded-full border border-[#9a8d80] ${modeVisite ? "hidden" : ""}`}>
               <button
                 type="button"
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -1233,12 +1234,17 @@ export function ProductOptions({
               type="button"
               onClick={addToCart}
               disabled={total === null || (modeVisite && !visitePrete)}
-              className="flex-1 rounded-full px-6 py-3.5 text-sm font-medium uppercase tracking-[0.12em] text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+              className="shrink-0 rounded-full px-5 py-3.5 text-[11px] font-medium uppercase tracking-[0.14em] text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
               style={{ backgroundColor: ACCENT }}
             >
               {t.addToCart}
             </button>
           </div>
+          {/* Ce que ce prix-là comprend : sans cette ligne, cliquer « Noyer »
+              faisait bondir le chiffre de 710 € sans un mot d'explication. */}
+          {optionsLabel && !modeVisite && total !== null && (
+            <p className="mt-2 text-[11px] text-[#5c5140]">{optionsLabel}</p>
+          )}
 
           {/* Le grand prix reste unitaire : on affiche le total dès qu'on en commande plusieurs. */}
           {quantity > 1 && total !== null && (

@@ -34,10 +34,15 @@ export function ProductView({
   product,
   t,
   locale,
+  filAriane,
 }: {
   product: Product;
   t: Dictionary["artisanat"];
   locale: "fr" | "en";
+  /** Le fil d'Ariane : il ouvre la colonne des options. Des données plutôt
+      qu'un élément tout fait — un élément venu du serveur perd le marquage
+      « enfants statiques » et React réclame des clés. */
+  filAriane?: { label: string; etapes: { nom: string; href: string }[] };
 }) {
   // Coloris de départ : celui de la photo principale du produit.
   const defaultFabric =
@@ -152,11 +157,15 @@ export function ProductView({
   }
 
   return (
-    <div className="mt-6 grid gap-10 md:grid-cols-2">
+    /* Le gabarit d'une fiche : la photo occupe toute la hauteur de l'écran
+       à gauche et reste en place ; la colonne de droite, étroite, défile avec
+       les choix. Sur téléphone, la photo prend d'abord tout l'écran, puis les
+       options suivent. */
+    <div className="grid md:grid-cols-[minmax(0,1fr)_minmax(380px,36%)] lg:grid-cols-[minmax(0,1fr)_460px]">
       {/* Galerie — reste visible pendant qu'on parcourt les options */}
-      <div ref={galleryRef} className="flex flex-col gap-3 md:sticky md:top-6 md:self-start">
+      <div ref={galleryRef} className="relative md:sticky md:top-0 md:h-screen md:self-start">
         <div
-          className="relative flex aspect-square cursor-zoom-in items-center justify-center overflow-hidden rounded-xl"
+          className="relative flex h-[78vw] max-h-[80vh] cursor-zoom-in items-center justify-center overflow-hidden md:h-full md:max-h-none"
           // Le cadre prend la teinte du fond de la photo : plus de liseré blanc
           // autour d'une photo qui n'est pas exactement blanche.
           style={{ backgroundColor: isColorShot ? "#f2f2f1" : fond }}
@@ -167,9 +176,9 @@ export function ProductView({
               src={mainSrc!}
               alt={mainImage.alt}
               fill
-              sizes="(max-width: 768px) 100vw, 560px"
+              sizes="(max-width: 768px) 100vw, 66vw"
               style={{ objectPosition: mainImage.position }}
-              className={remplitLeCadre ? "object-cover" : "object-contain p-6"}
+              className={remplitLeCadre ? "object-cover" : "object-contain p-8 md:p-14 lg:p-20"}
               priority
             />
           ) : (
@@ -184,9 +193,9 @@ export function ProductView({
               alt=""
               aria-hidden
               fill
-              sizes="(max-width: 768px) 100vw, 560px"
+              sizes="(max-width: 768px) 100vw, 66vw"
               style={{ objectPosition: mainImage.position }}
-              className={`pointer-events-none ${remplitLeCadre ? "object-cover" : "object-contain p-6"}`}
+              className={`pointer-events-none ${remplitLeCadre ? "object-cover" : "object-contain p-8 md:p-14 lg:p-20"}`}
               priority
             />
           )}
@@ -215,7 +224,7 @@ export function ProductView({
                 type="button"
                 aria-label={fleches.precedent}
                 onClick={() => step(-1)}
-                className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-lg text-[#2b2320] backdrop-blur transition-colors hover:bg-white"
+                className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-lg text-[#2b2320] shadow-sm backdrop-blur transition-colors hover:bg-white"
               >
                 ‹
               </button>
@@ -223,18 +232,20 @@ export function ProductView({
                 type="button"
                 aria-label={fleches.suivant}
                 onClick={() => step(1)}
-                className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-lg text-[#2b2320] backdrop-blur transition-colors hover:bg-white"
+                className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-lg text-[#2b2320] shadow-sm backdrop-blur transition-colors hover:bg-white"
               >
                 ›
               </button>
             </>
           )}
         </div>
-        {/* Vignettes : coloris puis autres photos. Un clic les passe en grand. */}
+        {/* Vignettes : coloris puis autres photos, posées en bas de la photo.
+            Un clic les passe en grand. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-4 z-10 flex justify-center px-4 md:bottom-6">
         {colorThumbs.length > 0 ? (
           <div
             ref={stripRef}
-            className="no-scrollbar -mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 py-1"
+            className="no-scrollbar pointer-events-auto flex max-w-full snap-x snap-mandatory gap-2 overflow-x-auto rounded-xl bg-white/70 p-1.5 backdrop-blur"
           >
             {colorThumbs.map((f) => {
               const isCurrent = f.id === fabricId && !pickedSrc;
@@ -247,7 +258,7 @@ export function ProductView({
                   aria-label={f.label}
                   aria-pressed={isCurrent}
                   onClick={() => selectFabric(f.id)}
-                  className={`relative aspect-square w-24 shrink-0 snap-start overflow-hidden rounded-lg bg-[#f2f2f1] transition-opacity hover:opacity-80 ${
+                  className={`relative aspect-square w-12 shrink-0 snap-start overflow-hidden rounded-md bg-[#f2f2f1] transition-opacity hover:opacity-80 md:w-14 ${
                     isCurrent ? "ring-2 ring-inset ring-[#6d2c2c]" : ""
                   }`}
                 >
@@ -267,7 +278,7 @@ export function ProductView({
                 aria-label={img.alt}
                 aria-pressed={pickedSrc === img.src}
                 onClick={() => selectImage(img.src)}
-                className={`relative aspect-square w-24 shrink-0 snap-start overflow-hidden rounded-lg transition-opacity hover:opacity-80 ${
+                className={`relative aspect-square w-12 shrink-0 snap-start overflow-hidden rounded-md transition-opacity hover:opacity-80 md:w-14 ${
                   pickedSrc === img.src ? "ring-2 ring-inset ring-[#6d2c2c]" : ""
                 }`}
                 style={{ backgroundColor: img.bg ?? "#ffffff" }}
@@ -285,7 +296,7 @@ export function ProductView({
           </div>
         ) : (
           vignettes.length > 1 && (
-            <div className="grid grid-cols-4 gap-3">
+            <div className="pointer-events-auto flex gap-2 rounded-xl bg-white/70 p-1.5 backdrop-blur">
               {vignettes.slice(0, 4).map((img) => {
                 const isCurrent =
                   img.fabric
@@ -299,7 +310,7 @@ export function ProductView({
                     aria-label={img.alt}
                     aria-pressed={isCurrent}
                     onClick={() => selectImage(img.src)}
-                    className={`relative aspect-square overflow-hidden rounded-lg transition-opacity hover:opacity-80 ${
+                    className={`relative aspect-square w-12 overflow-hidden rounded-md transition-opacity hover:opacity-80 md:w-14 ${
                       isCurrent ? "ring-2 ring-inset ring-[#6d2c2c]" : hoverZoom
                     }`}
                     style={{ backgroundColor: img.bg ?? "#ffffff" }}
@@ -331,33 +342,7 @@ export function ProductView({
             </div>
           )
         )}
-
-        {/* Le mot de présentation, sous la galerie plutôt qu'en tête des
-            options : la colonne de droite gagne la place, et ce coin-là
-            restait vide. */}
-        <div className="mt-2">
-          <p className="text-[#5c5140]">{product.tagline}</p>
-          <a
-            href="#descriptif"
-            className="mt-3 inline-block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6d2c2c] underline underline-offset-4"
-          >
-            {t.moreInfo}
-          </a>
         </div>
-
-        {/* Le garde-corps : la promesse, sous la galerie. Le prix, lui, est
-            en tête de la colonne des options, comme sur les autres fiches. */}
-        {product.releve === "garde-corps-fenetre" && (
-          <div className="mt-4 rounded-2xl border border-[#6d2c2c]/20 bg-[#6d2c2c]/[0.04] px-4 py-3.5">
-            <p className="flex items-center gap-2.5 text-lg font-medium leading-tight text-[#6d2c2c]">
-              <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 shrink-0">
-                <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" />
-              </svg>
-              {t.gcPromesseTitre}
-            </p>
-            <p className="mt-1.5 text-sm leading-relaxed text-[#5c5140]">{t.gcPromesse}</p>
-          </div>
-        )}
 
         {/* La photo en grand, par-dessus la page. Le <dialog> du navigateur
             gère seul la touche Échap et le piège à focus. */}
@@ -390,14 +375,44 @@ export function ProductView({
         </dialog>
       </div>
 
-      {/* Options */}
-      <div>
-        <h1 className={`${serif.className} text-3xl text-[#2b2320] md:text-4xl`}>{product.name}</h1>
-        {/* Plus de « à partir de » ici : juste en dessous, la colonne d'options
-            affiche le prix RÉEL de la configuration montrée. Le mot de
-            présentation, lui, est sous la galerie : la colonne des choix
-            commence plus haut. */}
-        <div className="mt-5">
+      {/* Options : une colonne étroite, comme la fiche d'un configurateur. */}
+      <div className="px-6 py-8 md:px-8 md:py-10 lg:px-12">
+        {filAriane && (
+          <nav aria-label={filAriane.label} className="text-xs text-[#726757]">
+            {filAriane.etapes.map((etape) => (
+              <span key={etape.href}>
+                <Link href={etape.href} className="hover:text-[#2b2320]">
+                  {etape.nom}
+                </Link>
+                <span className="mx-1.5">/</span>
+              </span>
+            ))}
+            <span className="text-[#2b2320]">{product.name}</span>
+          </nav>
+        )}
+        <h1 className={`${serif.className} mt-4 text-3xl text-[#2b2320] md:text-[2rem]`}>{product.name}</h1>
+        {/* Le mot de présentation, puis le prix de départ dans les options. */}
+        <p className="mt-3 text-[15px] leading-relaxed text-[#5c5140]">{product.tagline}</p>
+        <a
+          href="#descriptif"
+          className="mt-3 inline-block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6d2c2c] underline underline-offset-4"
+        >
+          {t.moreInfo}
+        </a>
+
+        {/* Le garde-corps : la promesse, avant les cotes. */}
+        {product.releve === "garde-corps-fenetre" && (
+          <div className="mt-5 rounded-2xl border border-[#6d2c2c]/20 bg-[#6d2c2c]/[0.04] px-4 py-3.5">
+            <p className="flex items-center gap-2.5 text-lg font-medium leading-tight text-[#6d2c2c]">
+              <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 shrink-0">
+                <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" />
+              </svg>
+              {t.gcPromesseTitre}
+            </p>
+            <p className="mt-1.5 text-sm leading-relaxed text-[#5c5140]">{t.gcPromesse}</p>
+          </div>
+        )}
+        <div className="mt-6">
           <ProductOptions
             product={product}
             t={t}

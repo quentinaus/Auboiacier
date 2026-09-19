@@ -1114,7 +1114,7 @@ export const products: Product[] = [
       },
     ],
     specs: [
-      { label: "Limon", value: "Acier plein cintré, soudure TIG, thermolaquage mat" },
+      { label: "Limon", value: "Tube d'acier de forte section, cintré, soudure TIG, thermolaquage mat" },
       { label: "Marches", value: "Pin, hêtre, chêne ou noyer massif au choix, épaisseur 50 mm, finition huile-cire" },
       { label: "Garde-corps", value: "Câbles inox tendus, main courante bois cintré" },
       { label: "Hauteur", value: "Sur mesure, adaptée à votre trémie (prise de cotes à domicile)" },
@@ -1147,7 +1147,7 @@ export const products: Product[] = [
         },
       ],
       specs: [
-        { label: "Stringer", value: "Bent solid steel, TIG welded, matt powder coating" },
+        { label: "Stringer", value: "Heavy-section steel tube, bent, TIG welded, matt powder coating" },
         { label: "Treads", value: "Pine, beech, oak or walnut to choose from, 50 mm thick, oil-wax finish" },
         { label: "Balustrade", value: "Tensioned stainless steel cables, bent timber handrail" },
         { label: "Height", value: "Made to measure, fitted to your stairwell opening (measuring visit at your home)" },

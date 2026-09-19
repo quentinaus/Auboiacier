@@ -219,27 +219,26 @@ export default async function ProductPage({
         )}
       />
 
-      {/* 1. Fiche : galerie + options */}
+      {/* 1. Fiche : galerie pleine hauteur + colonne d'options, bord à bord.
+          Ancre « acheter » : c'est ici que remonte le bouton du bas de page. */}
+      <div id="acheter" className="scroll-mt-0">
+        <ProductView
+          product={product}
+          t={t}
+          locale={locale}
+          filAriane={{
+            label: dict.nav.breadcrumb,
+            etapes: [
+              { nom: dict.nav.home, href: `/${locale}` },
+              { nom: categorie, href: boutique },
+            ],
+          }}
+        />
+      </div>
+
       <div className="mx-auto max-w-6xl px-6 py-6 md:py-8">
-        <nav aria-label={dict.nav.breadcrumb} className="text-xs text-[#726757]">
-          <Link href={`/${locale}`} className="hover:text-[#2b2320]">
-            {dict.nav.home}
-          </Link>
-          <span className="mx-1.5">/</span>
-          <Link href={boutique} className="hover:text-[#2b2320]">
-            {categorie}
-          </Link>
-          <span className="mx-1.5">/</span>
-          <span className="text-[#2b2320]">{product.name}</span>
-        </nav>
-
-        {/* Ancre « acheter » : c'est ici que remonte le bouton du bas de page. */}
-        <div id="acheter" className="scroll-mt-24">
-          <ProductView product={product} t={t} locale={locale} />
-        </div>
-
         {/* 2. Blocs éditoriaux */}
-        <div className="mt-24 flex flex-col gap-16 md:gap-24">
+        <div className="mt-16 flex flex-col gap-16 md:mt-24 md:gap-24">
           {product.sections.map((section, i) =>
             hasImages ? (
               <div key={section.title} className="grid items-center gap-10 md:grid-cols-2 md:gap-16">
