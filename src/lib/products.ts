@@ -213,6 +213,8 @@ export type Product = {
   piedsCalque?: string;
   /** Remplace « Couleur des pieds » quand la pièce n'a pas de pieds. */
   metalLabel?: { fr: string; en: string };
+  /** Intitulé du groupe des essences quand « plateau » ne convient pas (marches d'escalier). */
+  woodLabel?: { fr: string; en: string };
   /**
    * Intitulé du choix de taille, quand « Sur mesure, à vos cotes » ne veut rien
    * dire — sur l'escalier, ce menu choisit la FORME, pas les dimensions.
@@ -1102,6 +1104,7 @@ export const products: Product[] = [
     woods: woods({ pin: -1290, hetre: -690, chene: 0, noyer: 1690 }),
     metals: metals("noir", "brut", "blanc"),
     metalLabel: { fr: "Couleur du limon", en: "Stringer colour" },
+    woodLabel: { fr: "Essence des marches", en: "Tread timber" },
     sizeLabel: { fr: "Forme de l'escalier", en: "Staircase shape" },
     sections: [
       {

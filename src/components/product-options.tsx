@@ -694,15 +694,20 @@ export function ProductOptions({
           suit chaque choix. */}
       {modeVisite ? (
         <p className="text-sm text-[#6f6357]">{t.onQuote}</p>
-      ) : orderable && prixDepart !== null ? (
+      ) : bareme && total === null ? (
+        /* Pas encore de cotes : le prix de départ s'il existe, et où taper. */
         <p className="text-sm text-[#6f6357]">
-          <span className="tabular-nums">{t.from} {prixAffiche(prixDepart, locale)}</span>
-          {bareme && total === null && (
-            <span className="block mt-1">
-              {product.releve === "garde-corps-fenetre" ? t.gcPrixAttente : t.prixAttenteCotes}
-            </span>
+          {prixDepart !== null && (
+            <span className="block tabular-nums">{t.from} {prixAffiche(prixDepart, locale)}</span>
           )}
+          <span className="block mt-1">
+            {product.releve === "garde-corps-fenetre" ? t.gcPrixAttente : t.prixAttenteCotes}
+          </span>
         </p>
+      ) : orderable ? (
+        prixDepart !== null && (
+          <p className="text-sm tabular-nums text-[#6f6357]">{t.from} {prixAffiche(prixDepart, locale)}</p>
+        )
       ) : (
         <p className="text-sm text-[#6f6357]">{t.onQuote}</p>
       )}
@@ -736,7 +741,7 @@ export function ProductOptions({
             )}
             {product.woods.length > 0 && (
               <SwatchGroup
-                label={t.woodLabel}
+                label={product.woodLabel ? product.woodLabel[locale] : t.woodLabel}
                 options={product.woods}
                 selected={woodId}
                 onSelect={setWoodId}
