@@ -531,8 +531,8 @@ export const fabrics: ProductSwatch[] = [
  *  quelle que soit l'épaisseur (c'est le fournisseur qui fixe ces bornes).
  *  Et plus la pièce est longue, plus le plateau doit être épais : c'est la
  *  portée entre les appuis qui fait fléchir le bois. 28 mm jusqu'à 1,60 m ;
- *  36 mm — la cote de référence, celle des tailles du catalogue — jusqu'à
- *  3,60 m ; 45 mm au-delà. Quand une cote ne va pas avec l'épaisseur choisie,
+ *  36 mm jusqu'à 3,60 m ; 45 mm — la cote de référence, celle des tailles du
+ *  catalogue — au-delà. Quand une cote ne va pas avec l'épaisseur choisie,
  *  la fiche le dit et propose de changer l'une ou l'autre. Paliers à
  *  VALIDER par Quentin.
  * ------------------------------------------------------------------ */
@@ -742,12 +742,12 @@ export const products: Product[] = [
       maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
       maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
       epaisseur: {
-        // Trois épaisseurs au choix : 28, 36 ou 45 mm, 36 au catalogue.
+        // Trois épaisseurs au choix : 28, 36 ou 45 mm, 45 au catalogue.
         minMm: 28,
         maxMm: 45,
-        refMm: 36,
+        refMm: 45,
         choixMm: PLATEAU_CHOIX,
-        // Chaque millimètre AU-DESSUS de 36 mm se paie au mètre carré.
+        // Chaque millimètre AU-DESSUS de 45 mm se paierait au mètre carré (rien, 45 étant le maximum).
         parM2ParMm: 21,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
@@ -774,7 +774,7 @@ export const products: Product[] = [
       },
     ],
     specs: [
-      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 28, 36 ou 45 mm (36 mm au catalogue), finition huile-cire" },
+      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 28, 36 ou 45 mm (45 mm au catalogue), finition huile-cire" },
       { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, finition peinte mate" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
@@ -812,7 +812,7 @@ export const products: Product[] = [
         },
       ],
       specs: [
-        { label: "Top", value: "Solid pine, beech, oak or walnut, 28, 36 or 45 mm thick (36 mm for catalogue sizes), hardwax oil finish" },
+        { label: "Top", value: "Solid pine, beech, oak or walnut, 28, 36 or 45 mm thick (45 mm for catalogue sizes), hardwax oil finish" },
         { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, matt painted finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
@@ -895,12 +895,12 @@ export const products: Product[] = [
       maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
       maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
       epaisseur: {
-        // Trois épaisseurs au choix : 28, 36 ou 45 mm, 36 au catalogue.
+        // Trois épaisseurs au choix : 28, 36 ou 45 mm, 45 au catalogue.
         minMm: 28,
         maxMm: 45,
-        refMm: 36,
+        refMm: 45,
         choixMm: PLATEAU_CHOIX,
-        // Chaque millimètre AU-DESSUS de 36 mm se paie au mètre carré.
+        // Chaque millimètre AU-DESSUS de 45 mm se paierait au mètre carré (rien, 45 étant le maximum).
         parM2ParMm: 21,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
@@ -923,7 +923,7 @@ export const products: Product[] = [
       },
     ],
     specs: [
-      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 28, 36 ou 45 mm (36 mm au catalogue), finition huile-cire" },
+      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 28, 36 ou 45 mm (45 mm au catalogue), finition huile-cire" },
       { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, finition peinte mate" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
@@ -962,7 +962,7 @@ export const products: Product[] = [
         },
       ],
       specs: [
-        { label: "Top", value: "Solid pine, beech, oak or walnut, 28, 36 or 45 mm thick (36 mm for catalogue sizes), hardwax oil finish" },
+        { label: "Top", value: "Solid pine, beech, oak or walnut, 28, 36 or 45 mm thick (45 mm for catalogue sizes), hardwax oil finish" },
         { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, matt painted finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
@@ -1015,12 +1015,12 @@ export const products: Product[] = [
       maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
       maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
       epaisseur: {
-        // Trois épaisseurs au choix : 28, 36 ou 45 mm, 36 au catalogue.
+        // Trois épaisseurs au choix : 28, 36 ou 45 mm, 45 au catalogue.
         minMm: 28,
         maxMm: 45,
-        refMm: 36,
+        refMm: 45,
         choixMm: PLATEAU_CHOIX,
-        // Chaque millimètre AU-DESSUS de 36 mm se paie au mètre carré.
+        // Chaque millimètre AU-DESSUS de 45 mm se paierait au mètre carré (rien, 45 étant le maximum).
         parM2ParMm: 21,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
@@ -1043,7 +1043,7 @@ export const products: Product[] = [
       },
     ],
     specs: [
-      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 28, 36 ou 45 mm (36 mm au catalogue), finition huile-cire" },
+      { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 28, 36 ou 45 mm (45 mm au catalogue), finition huile-cire" },
       { label: "Piétement", value: "Tiges d'acier soudées une à une, finition peinte mate" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
@@ -1080,7 +1080,7 @@ export const products: Product[] = [
         },
       ],
       specs: [
-        { label: "Top", value: "Solid pine, beech, oak or walnut, 28, 36 or 45 mm thick (36 mm for catalogue sizes), hardwax oil finish" },
+        { label: "Top", value: "Solid pine, beech, oak or walnut, 28, 36 or 45 mm thick (45 mm for catalogue sizes), hardwax oil finish" },
         { label: "Base", value: "Steel rods welded one by one, matt painted finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
@@ -1516,7 +1516,7 @@ export const products: Product[] = [
         // Les mêmes trois épaisseurs que les tables d'intérieur : 28, 36 ou 45 mm.
         minMm: 28,
         maxMm: 45,
-        refMm: 36,
+        refMm: 45,
         choixMm: PLATEAU_CHOIX,
         parM2ParMm: 13,
         miniParLongueur: PLATEAU_MASSIF,

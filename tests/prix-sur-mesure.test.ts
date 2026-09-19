@@ -462,7 +462,12 @@ test("un plateau plus fin que la référence ne fait pas baisser la facture", ()
 
     const reference = devisSurMesure(product, largeurMm, hauteurMm, refMm);
     assert.ok(reference.ok);
-    for (const epaisseur of [mini, Math.round((mini + refMm) / 2)]) {
+    // Quand l'atelier ne coupe qu'à certaines cotes, ce sont celles sous la
+    // référence qu'on essaie ; sinon la plus fine possible et une intermédiaire.
+    const plusFines = bareme.epaisseur.choixMm
+      ? bareme.epaisseur.choixMm.filter((e) => e >= mini && e < refMm)
+      : [mini, Math.round((mini + refMm) / 2)];
+    for (const epaisseur of plusFines) {
       const plusFin = devisSurMesure(product, largeurMm, hauteurMm, epaisseur);
       assert.ok(plusFin.ok, `${product.slug} : ${epaisseur} mm refusé`);
       assert.equal(

@@ -525,7 +525,13 @@
   },
   "contact": {
     "title": "Contact",
-    "subtitle": "A question, a project? Write to us — we reply within 48 hours.",
+    "headline": "Let's talk about your project",
+    "subtitle": "A table, a staircase, a glass partition, a light ceiling: describe it in a few lines and we will get back to you within 48 h with a first estimate.",
+    "points": [
+      "Reply within 48 h",
+      "Free, no-obligation estimate",
+      "Workshop in Saumur, delivery and installation across France"
+    ],
     "detailsTitle": "Details",
     "email": "auboiacier@gmail.com",
     "location": "Saumur (49400), Maine-et-Loire — France",
@@ -552,6 +558,7 @@
       "message": "Your project",
       "messagePh": "Dimensions, which room, timing…",
       "files": "Photos or plans (optional)",
+      "filesCta": "Add photos or plans",
       "filesHint": "JPG, PNG or PDF — 2 files max, 3 MB each.",
       "submit": "Send request",
       "sending": "Sending…",

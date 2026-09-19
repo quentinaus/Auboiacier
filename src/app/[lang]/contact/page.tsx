@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
 import { metadataPage, CONTACT_PUBLIC, horairesLisibles, telephoneLisible } from "@/lib/seo";
@@ -55,52 +56,67 @@ export default async function ContactPage({
     ? `${piece}${configuration ? ` — ${configuration}` : ""}\n${cotes ? `${cotes}\n` : ""}\n`
     : "";
 
+  // Les coordonnées : sous le titre sur grand écran, sous le formulaire sur
+  // téléphone, pour qu'il ne descende pas trop bas.
+  const coordonnees = (
+    <dl className="border-t border-[#e5ddd3] pt-8 text-sm">
+      <dt className="text-[11px] font-medium uppercase tracking-[0.16em] text-[#6f6357]">{t.detailsTitle}</dt>
+      <dd className="mt-3 flex flex-col gap-1.5 text-[#2b2320]">
+        <a href={`mailto:${t.email}`} className="w-fit underline-offset-4 hover:underline">
+          {t.email}
+        </a>
+        {telephoneLisible() && (
+          <a href={`tel:${CONTACT_PUBLIC.telephone}`} className="w-fit underline-offset-4 hover:underline">
+            {telephoneLisible()}
+          </a>
+        )}
+        {horairesLisibles(locale) && <span className="text-[#5c5140]">{horairesLisibles(locale)}</span>}
+        <span className="text-[#5c5140]">{t.location}</span>
+      </dd>
+    </dl>
+  );
+
   return (
     <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
       <GlobalHeader locale={locale} dict={dict} />
       <main id="contenu">
 
-      <div className="mx-auto max-w-3xl px-6 py-16">
-        <h1 className={`${serif.className} text-3xl font-medium tracking-tight md:text-4xl`}>
-          {t.title}
-        </h1>
-        <p className="mt-3 text-[#726757]">{t.subtitle}</p>
+      {/* Le même gabarit que les fiches : à gauche ce qui rassure et reste
+          à l'écran, à droite le formulaire qui défile. */}
+      <div className="mx-auto max-w-7xl px-6 py-14 md:px-8 md:py-20 lg:px-12">
+        <div className="grid gap-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-24">
+          <aside className="lg:sticky lg:top-24 lg:self-start">
+            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{t.form.title}</p>
+            <h1 className={`${serif.className} mt-4 text-4xl font-medium leading-[1.05] tracking-tight md:text-5xl`}>
+              {t.headline}
+            </h1>
+            <p className="mt-6 max-w-md leading-relaxed text-[#5c5140]">{t.subtitle}</p>
 
-        <div className="mt-10 grid gap-10 md:grid-cols-[1.6fr_1fr]">
-          <div>
-            <h2 className={`${serif.className} text-xl font-medium`}>{t.form.title}</h2>
-            <div className="mt-4">
-              <DevisForm t={t.form} email={t.email} locale={locale} prefill={prefill} />
-            </div>
-          </div>
-
-          <div>
-            <h2 className={`${serif.className} text-lg font-medium`}>{t.detailsTitle}</h2>
-            <ul className="mt-3 flex flex-col gap-2 text-sm text-[#4a4038]">
-              <li>
-                <a href={`mailto:${t.email}`} className="underline-offset-4 hover:underline">
-                  {t.email}
-                </a>
-              </li>
-              {telephoneLisible() && (
-                <li>
-                  <span className="text-[#726757]">{t.phoneLabel} : </span>
-                  <a
-                    href={`tel:${CONTACT_PUBLIC.telephone}`}
-                    className="underline-offset-4 hover:underline"
-                  >
-                    {telephoneLisible()}
-                  </a>
+            <ul className="mt-8 flex flex-col gap-3 text-sm text-[#2b2320]">
+              {t.points.map((point) => (
+                <li key={point} className="flex items-start gap-3">
+                  <span aria-hidden="true" className="mt-[0.6em] h-px w-5 shrink-0 bg-[#2b2320]" />
+                  {point}
                 </li>
-              )}
-              {horairesLisibles(locale) && (
-                <li>
-                  <span className="text-[#726757]">{t.hoursLabel} : </span>
-                  {horairesLisibles(locale)}
-                </li>
-              )}
-              <li>{t.location}</li>
+              ))}
             </ul>
+
+            <div className="mt-12 hidden lg:block">{coordonnees}</div>
+
+            <div className="relative mt-10 hidden aspect-[4/3] overflow-hidden lg:block">
+              <Image
+                src="/images/atelier-soudeur.jpg"
+                alt={dict.hub.altAtelier}
+                fill
+                sizes="(min-width: 1024px) 34vw, 0px"
+                className="object-cover"
+              />
+            </div>
+          </aside>
+
+          <div className="lg:pt-2">
+            <DevisForm t={t.form} email={t.email} locale={locale} prefill={prefill} />
+            <div className="mt-14 lg:hidden">{coordonnees}</div>
           </div>
         </div>
       </div>

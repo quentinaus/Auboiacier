@@ -525,7 +525,13 @@
   },
   "contact": {
     "title": "Contact",
-    "subtitle": "Une question, un projet ? Écrivez-nous, réponse sous 48 h.",
+    "headline": "Parlons de votre projet",
+    "subtitle": "Une table, un escalier, une verrière, un plafond lumineux : décrivez-le en quelques lignes, nous revenons vers vous sous 48 h avec une première estimation.",
+    "points": [
+      "Réponse sous 48 h",
+      "Estimation gratuite, sans engagement",
+      "Atelier à Saumur, livraison et pose partout en France"
+    ],
     "detailsTitle": "Coordonnées",
     "email": "auboiacier@gmail.com",
     "location": "Saumur (49400), Maine-et-Loire — France",
@@ -552,6 +558,7 @@
       "message": "Votre projet",
       "messagePh": "Dimensions, pièce concernée, délais souhaités…",
       "files": "Photos ou plans (facultatif)",
+      "filesCta": "Ajouter des photos ou des plans",
       "filesHint": "JPG, PNG ou PDF — 2 fichiers maximum, 3 Mo chacun.",
       "submit": "Envoyer la demande",
       "sending": "Envoi en cours…",

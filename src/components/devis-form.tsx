@@ -8,10 +8,17 @@ import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 import { EMAIL_MOTIF, MAX_TEXTE, TELEPHONE_MOTIF, fichiersTropLourds } from "@/lib/devis-regles";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 
-const ACCENT = "#2b2320";
+/**
+ * Un champ sans cadre : un simple trait dessous, qui noircit au focus (l'ombre
+ * ajoute le second pixel sans faire bouger la ligne). Même gris de repos que
+ * les champs des fiches produit, lisible à 3:1 sur blanc.
+ */
 const FIELD =
-  "mt-2 w-full rounded-lg border border-[#9a8d80] bg-white px-4 py-3 text-base text-[#2b2320] transition-colors placeholder:text-[#726757] focus:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] sm:text-sm";
+  "mt-1 w-full rounded-none border-0 border-b border-[#9a8d80] bg-transparent px-0 py-3 text-base text-[#2b2320] transition-[border-color,box-shadow] placeholder:text-[#726757] focus:border-[#2b2320] focus:shadow-[0_1px_0_0_#2b2320] focus:outline-none sm:text-[15px]";
 const LABEL = "block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6f6357]";
+/** Le type de projet : une rangée de pastilles, comme les options d'une fiche. */
+const PILL =
+  "cursor-pointer rounded-full border border-[#e5ddd3] px-4 py-2 text-sm text-[#2b2320] transition-colors hover:border-[#9a8d80] has-checked:border-[#2b2320] has-checked:bg-[#2b2320] has-checked:text-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-[#2b2320]";
 
 type Status =
   | "idle"
@@ -56,9 +63,12 @@ export function DevisForm({
   const [creneauCle, setCreneauCle] = useState("");
   const creneauChoisi = lireCreneau(creneauCle);
   const [draft, setDraft] = useState({ name: "", phone: "", message: "" });
+  /** Les fichiers choisis, nommés sous la zone : le champ natif est caché. */
+  const [fichiers, setFichiers] = useState<File[]>([]);
   /** Trop de fichiers ou trop lourds : dit tout de suite, sous le champ, avant l'envoi. */
-  const [fichiersRefuses, setFichiersRefuses] = useState(false);
+  const fichiersRefuses = fichiersTropLourds(fichiers);
   const idFichiersAide = useId();
+  const idProjet = useId();
   /**
    * Piège temporel : l'instant où le formulaire est apparu. La durée part avec
    * la demande ; un envoi en moins de trois secondes n'est pas celui d'une
@@ -111,6 +121,7 @@ export function DevisForm({
       if (response.ok) {
         setHauteurForm(form.offsetHeight);
         form.reset();
+        setFichiers([]);
         setStatus("sent");
         if (redirectTo) router.push(redirectTo);
         return;
@@ -143,10 +154,14 @@ export function DevisForm({
         tabIndex={-1}
         role="status"
         aria-live="polite"
-        className="flex items-center justify-center rounded-2xl border border-[#e8e1d8] bg-white p-8 text-center outline-none"
+        className="flex flex-col items-center justify-center border-y border-[#e5ddd3] py-16 text-center outline-none"
         style={hauteurForm ? { minHeight: Math.min(hauteurForm, 480) } : undefined}
       >
-        <p className="max-w-md leading-relaxed text-[#2b2320]">{t.success}</p>
+        <svg aria-hidden="true" viewBox="0 0 24 24" className="h-8 w-8 text-[#2b2320]" fill="none" stroke="currentColor" strokeWidth="1.25">
+          <circle cx="12" cy="12" r="11" />
+          <path d="M7 12.5l3.2 3.2L17 9" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        <p className="mt-5 max-w-md leading-relaxed text-[#2b2320]">{t.success}</p>
       </div>
     );
   }
@@ -169,11 +184,9 @@ export function DevisForm({
               : null;
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl border border-[#e8e1d8] bg-white p-6 md:p-8">
-      <p className="text-sm leading-relaxed text-[#5c5140]">{t.intro}</p>
-
-      <div className="mt-6 grid gap-5 sm:grid-cols-2">
-        <label>
+    <form onSubmit={handleSubmit}>
+      <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2">
+        <label className="block">
           <span className={LABEL}>{t.name}</span>
           <input
             name="name"
@@ -184,7 +197,7 @@ export function DevisForm({
             className={FIELD}
           />
         </label>
-        <label>
+        <label className="block">
           <span className={LABEL}>{t.email}</span>
           <input
             name="email"
@@ -198,7 +211,7 @@ export function DevisForm({
             className={FIELD}
           />
         </label>
-        <label>
+        <label className="block">
           <span className={LABEL}>{t.phone}</span>
           <input
             name="phone"
@@ -212,7 +225,7 @@ export function DevisForm({
             className={FIELD}
           />
         </label>
-        <label>
+        <label className="block">
           <span className={LABEL}>{t.city}</span>
           <input
             name="city"
@@ -223,29 +236,36 @@ export function DevisForm({
             className={FIELD}
           />
         </label>
-        <label>
-          <span className={LABEL}>{t.project}</span>
-          <select name="project" defaultValue={t.projects[0]} className={FIELD}>
-            {t.projects.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </label>
       </div>
 
+      {/* Le type de projet : des pastilles plutôt qu'une liste déroulante, on
+          voit d'un coup d'œil ce que l'atelier fait. Un seul choix, le premier
+          coché d'avance. */}
+      <fieldset className="mt-9">
+        <legend id={idProjet} className={LABEL}>
+          {t.project}
+        </legend>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {t.projects.map((option, i) => (
+            <label key={option} className={PILL}>
+              <input type="radio" name="project" value={option} defaultChecked={i === 0} className="sr-only" />
+              {option}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
       {creneau && (
-        <div className="mt-5">
+        <div className="mt-9">
           <span className={LABEL}>{creneau.label}</span>
-          <div className="mt-2">
+          <div className="mt-3">
             <ChoixCreneau valeur={creneauCle} onChange={setCreneauCle} t={creneau.t} locale={locale} texteManque={creneau.manque} />
           </div>
           <input type="hidden" name="creneau" value={creneauChoisi ? libelleCreneau(creneauChoisi, locale) : ""} />
         </div>
       )}
 
-      <label className="mt-5 block">
+      <label className="mt-9 block">
         <span className={LABEL}>{t.message}</span>
         <textarea
           name="message"
@@ -254,31 +274,52 @@ export function DevisForm({
           rows={5}
           defaultValue={prefill}
           placeholder={t.messagePh}
-          className={FIELD}
+          className={`${FIELD} resize-y leading-relaxed`}
         />
       </label>
 
-      <label className="mt-5 block">
+      {/* Les pièces jointes : une zone à cliquer, le champ natif reste caché
+          mais focusable au clavier, et les fichiers choisis sont nommés dessous. */}
+      <div className="mt-9">
         <span className={LABEL}>{t.files}</span>
-        <input
-          name="files"
-          type="file"
-          multiple
-          accept="image/jpeg,image/png,application/pdf"
-          aria-describedby={idFichiersAide}
-          aria-invalid={fichiersRefuses || undefined}
-          onChange={(e) => setFichiersRefuses(fichiersTropLourds(Array.from(e.target.files ?? [])))}
-          className="mt-2 w-full text-sm text-[#5c5140] file:mr-4 file:rounded-full file:border-0 file:bg-[#f1ece4] file:px-4 file:py-2 file:text-sm file:text-[#5c5140] hover:file:bg-[#e8e1d8]"
-        />
-        <span id={idFichiersAide} className="mt-1 block text-xs text-[#6f6357]">
+        <label
+          className={`mt-3 flex cursor-pointer items-center justify-between gap-4 border border-dashed px-5 py-4 transition-colors hover:border-[#2b2320] has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-[#2b2320] ${
+            fichiersRefuses ? "border-[#b4533a]" : "border-[#9a8d80]"
+          }`}
+        >
+          <span className="text-sm text-[#2b2320]">{t.filesCta}</span>
+          <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4 shrink-0 text-[#2b2320]" fill="none" stroke="currentColor" strokeWidth="1.25">
+            <path d="M10 4v12M4 10h12" strokeLinecap="round" />
+          </svg>
+          <input
+            name="files"
+            type="file"
+            multiple
+            accept="image/jpeg,image/png,application/pdf"
+            aria-describedby={idFichiersAide}
+            aria-invalid={fichiersRefuses || undefined}
+            onChange={(e) => setFichiers(Array.from(e.target.files ?? []))}
+            className="sr-only"
+          />
+        </label>
+        {fichiers.length > 0 && (
+          <ul className="mt-2 flex flex-col gap-1 text-sm text-[#2b2320]">
+            {fichiers.map((f) => (
+              <li key={`${f.name}-${f.size}`} className="truncate">
+                {f.name}
+              </li>
+            ))}
+          </ul>
+        )}
+        <span id={idFichiersAide} className="mt-2 block text-xs text-[#6f6357]">
           {t.filesHint}
         </span>
         {fichiersRefuses && (
-          <p role="alert" className="mt-1 text-xs text-[#2b2320]">
+          <p role="alert" className="mt-1 text-xs text-[#b4533a]">
             {t.tooBig}
           </p>
         )}
-      </label>
+      </div>
 
       {/* Champ piège anti-robots : invisible pour un visiteur. */}
       <input
@@ -290,7 +331,7 @@ export function DevisForm({
       />
 
       {problem && (
-        <div role="alert" className="mt-6 text-sm leading-relaxed text-[#2b2320]">
+        <div role="alert" className="mt-8 border-l-2 border-[#2b2320] pl-4 text-sm leading-relaxed text-[#2b2320]">
           <p>
             {problem}{" "}
             <a href={`mailto:${email}`} className="underline underline-offset-4">
@@ -321,15 +362,14 @@ export function DevisForm({
         type="submit"
         disabled={status === "sending"}
         aria-busy={status === "sending"}
-        className="mt-6 w-full rounded-full px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-opacity hover:opacity-90 disabled:opacity-60 sm:w-auto sm:px-10"
-        style={{ backgroundColor: ACCENT }}
+        className="mt-10 w-full rounded-full bg-[#2b2320] px-8 py-4 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors hover:bg-black disabled:opacity-60"
       >
         {status === "sending" ? t.sending : t.submit}
       </button>
 
       {/* L'information exigée au moment de la collecte (art. 13 RGPD) : une
           phrase, et le lien vers la politique qui détaille le reste. */}
-      <p className="mt-4 text-xs leading-relaxed text-[#6f6357]">
+      <p className="mt-4 text-center text-xs leading-relaxed text-[#6f6357]">
         {t.privacy}{" "}
         <Link href={`/${locale}/confidentialite`} className="underline underline-offset-4 hover:text-black">
           {t.privacyLink}
