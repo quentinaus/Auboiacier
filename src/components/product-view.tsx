@@ -346,7 +346,7 @@ export function ProductView({
       {/* Options : une colonne étroite, comme la fiche d'un configurateur. */}
       <div className="px-6 py-8 md:px-8 md:py-10 lg:px-12">
         {filAriane && (
-          <nav aria-label={filAriane.label} className="flex flex-wrap justify-end text-[11px] text-[#8a7f74]">
+          <nav aria-label={filAriane.label} className="flex flex-wrap justify-end text-[11px] text-[#7a6f64]">
             {filAriane.etapes.map((etape) => (
               <span key={etape.href}>
                 <Link href={etape.href} className="hover:text-[#2b2320]">
@@ -363,7 +363,7 @@ export function ProductView({
             descriptif est plus bas, derrière ce lien. */}
         <a
           href="#descriptif"
-          className="mt-2 inline-block text-[11px] font-medium uppercase tracking-[0.16em] text-[#8a7f74] underline underline-offset-4 hover:text-[#6d2c2c]"
+          className="mt-2 inline-block text-[11px] font-medium uppercase tracking-[0.16em] text-[#7a6f64] underline underline-offset-4 hover:text-[#6d2c2c]"
         >
           {t.moreInfo}
         </a>

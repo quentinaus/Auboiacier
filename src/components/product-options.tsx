@@ -703,7 +703,7 @@ export function ProductOptions({
               {t.from} <span className="text-[#2b2320]">{prixAffiche(prixDepart, locale)}</span>
             </span>
           )}
-          <span className="mt-1 block text-xs text-[#8a7f74]">
+          <span className="mt-1 block text-xs text-[#7a6f64]">
             {product.releve === "garde-corps-fenetre" ? t.gcPrixAttente : t.prixAttenteCotes}
           </span>
         </p>
