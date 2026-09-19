@@ -25,7 +25,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 LARGEUR, HAUTEUR = 1200, 630
 QUALITE = 82
-BORDEAUX = (0x6D, 0x2C, 0x2C)
+BORDEAUX = (43, 35, 32)  # l'anthracite du site (le bordeaux a été abandonné)
 FOND = (0xFB, 0xF9, 0xF6)
 ENCRE = (0x2B, 0x23, 0x20)
 GRIS = (0x6F, 0x63, 0x57)

@@ -125,7 +125,7 @@ export default async function ArtisanatPage({
             <a
               key={famille.id}
               href={`#${famille.id}`}
-              className="rounded-full border border-[#e5ddd3] bg-white px-3.5 py-1.5 text-xs text-[#5c5140] transition-colors hover:border-[#6d2c2c] hover:text-[#6d2c2c]"
+              className="rounded-full border border-[#e5ddd3] bg-white px-3.5 py-1.5 text-xs text-[#5c5140] transition-colors hover:border-black hover:text-black"
             >
               {famille.titre}
             </a>
@@ -152,9 +152,9 @@ export default async function ArtisanatPage({
               {cible && (
                 <div
                   role="status"
-                  className="mt-4 rounded-2xl border border-[#6d2c2c]/20 bg-[#6d2c2c]/[0.04] px-5 py-4 text-sm leading-relaxed text-[#2a2116]"
+                  className="mt-4 rounded-2xl border border-[#2b2320]/20 bg-[#2b2320]/[0.04] px-5 py-4 text-sm leading-relaxed text-[#2a2116]"
                 >
-                  <p className="font-medium" style={{ color: "#6d2c2c" }}>
+                  <p className="font-medium" style={{ color: "#2b2320" }}>
                     {t.compatTitre
                       .replace("{l}", cible.l!.toLocaleString(locale === "en" ? "en-GB" : "fr-FR"))
                       .replace("{h}", cible.h!.toLocaleString(locale === "en" ? "en-GB" : "fr-FR"))}
@@ -210,7 +210,7 @@ export default async function ArtisanatPage({
                       {convient && (
                         <span
                           className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] ${
-                            convient === "non" ? "bg-white/90 text-[#726757]" : "bg-[#6d2c2c] text-white"
+                            convient === "non" ? "bg-white/90 text-[#726757]" : "bg-[#2b2320] text-white"
                           }`}
                         >
                           {convient === "oui" ? t.compatBadge : convient === "verre" ? t.compatVerre : t.compatNon}
@@ -220,7 +220,7 @@ export default async function ArtisanatPage({
 
                     <div>
                       <h3
-                        className={`${serif.className} text-lg text-[#2b2320] transition-colors duration-300 group-hover:text-[#6d2c2c]`}
+                        className={`${serif.className} text-lg text-[#2b2320] transition-colors duration-300 group-hover:text-black`}
                       >
                         {product.name}
                       </h3>
@@ -276,7 +276,7 @@ export default async function ArtisanatPage({
 
                     <div>
                       <h3
-                        className={`${serif.className} text-lg text-[#2b2320] transition-colors duration-300 group-hover:text-[#6d2c2c]`}
+                        className={`${serif.className} text-lg text-[#2b2320] transition-colors duration-300 group-hover:text-black`}
                       >
                         {famille.page.titre}
                       </h3>

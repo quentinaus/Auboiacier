@@ -11,7 +11,7 @@ import { serif } from "@/lib/fonts";
 import { PhotoPlafondAnime } from "@/components/photo-plafond-anime";
 import { hoverZoom } from "@/lib/ui";
 
-const ACCENT = "#6d2c2c";
+const ACCENT = "#2b2320";
 
 /** Panneau cliquable : image plein cadre, titre centré, bouton. Pleine
  *  largeur sur téléphone, une moitié d'écran à partir de la tablette. */
@@ -247,7 +247,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
   const testimonials: { quote: string; author: string }[] = [];
 
   return (
-    <div className="min-h-screen bg-[#fbf9f6] text-[#2b2320]">
+    <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
       <GlobalHeader locale={locale} dict={dict} overlay />
       <main id="contenu">
 
@@ -283,7 +283,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           les gens tapent : ni métallier, ni Saumur, ni table, ni acier. Google
           accorde très peu de poids à un titre invisible — et un visiteur qui
           arrive du moteur veut savoir en une phrase où il est tombé. */}
-      <section className="border-t border-[#e5ddd3] bg-[#fbf9f6] px-6 py-8 md:py-10">
+      <section className="border-t border-[#e5ddd3] bg-[#ffffff] px-6 py-8 md:py-10">
         <div className="mx-auto max-w-2xl text-center">
           {/* Le titre garde toute sa phrase pour le référencement, mais se
               lit en deux temps : le métier et la ville en lettrine, le
@@ -301,7 +301,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               </h1>
             );
           })()}
-          <span aria-hidden className="mx-auto mt-5 block h-px w-10 bg-[#6d2c2c]/60" />
+          <span aria-hidden className="mx-auto mt-5 block h-px w-10 bg-[#2b2320]/60" />
         </div>
       </section>
 
@@ -387,7 +387,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               <Link
                 key={lien.href}
                 href={lien.href}
-                className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-[#6d2c2c]"
+                className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"
               >
                 {lien.label}
               </Link>

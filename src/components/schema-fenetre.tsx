@@ -26,7 +26,7 @@
 
 import { JOUR_MM } from "@/lib/garde-corps";
 
-const ACCENT = "#6d2c2c";
+const ACCENT = "#2b2320";
 const ENCRE = "#2a2116";
 const VITRE = "#dfe9ef";
 const ACIER = "#2b2320";

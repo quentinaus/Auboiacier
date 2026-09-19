@@ -10,7 +10,7 @@ import { calculerGardeCorpsFenetre, JOUR_MM, type CalculFenetre } from "@/lib/ga
 import type { Deplacement } from "@/lib/deplacement";
 import { prixAffiche } from "@/lib/ui";
 
-const ACCENT = "#6d2c2c";
+const ACCENT = "#2b2320";
 
 /** Tout ce que le client décide sur sa fenêtre, tel qu'il le tape. */
 export type CotesGardeCorps = {
@@ -101,7 +101,7 @@ function Pastille({ n }: { n: number }) {
 }
 
 const SELECT =
-  "h-10 w-[8.5rem] shrink-0 rounded-full border border-[#9a8d80] bg-white px-3.5 text-base text-[#2b2320] focus:border-[#6d2c2c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] sm:text-[15px]";
+  "h-10 w-[8.5rem] shrink-0 rounded-full border border-[#9a8d80] bg-white px-3.5 text-base text-[#2b2320] focus:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] sm:text-[15px]";
 
 /**
  * Le relevé d'un garde-corps de fenêtre.
@@ -190,7 +190,7 @@ export function ReleveGardeCorps({
         <InfoBulle texte={props.aide ? `${props.info} ${props.aide}` : props.info} label={t.gcInfoLabel} />
         {props.label}
       </span>
-      <span className="flex h-10 w-[8.5rem] shrink-0 items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3.5 transition-[border-color,box-shadow] focus-within:border-[#6d2c2c] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
+      <span className="flex h-10 w-[8.5rem] shrink-0 items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3.5 transition-[border-color,box-shadow] focus-within:border-[#2b2320] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
         <input
           id={`${idChamps}-${cote}`}
           inputMode="decimal"
@@ -343,7 +343,7 @@ export function ReleveGardeCorps({
 
             <div className="w-full text-xs leading-snug sm:max-w-[17rem]">
               {horsBareme && (
-                <p className="text-[#6d2c2c]" role="alert">
+                <p className="text-[#2b2320]" role="alert">
                   {t.gcHorsBareme
                     .replace("{l}", horsBareme.largeurMaxMm.toLocaleString(langue))
                     .replace("{h}", horsBareme.hauteurMaxMm.toLocaleString(langue))}{" "}
@@ -355,7 +355,7 @@ export function ReleveGardeCorps({
                 </p>
               )}
               {tropBasse && calcul && (
-                <p className="text-[#6d2c2c]" role="alert">
+                <p className="text-[#2b2320]" role="alert">
                   {t.gcTropBasse
                     .replace("{m}", calcul.mainCouranteMm.toLocaleString(langue))
                     .replace("{f}", (mm(cotes.allege) + mm(cotes.fenetre)).toLocaleString(langue))}{" "}
@@ -370,7 +370,7 @@ export function ReleveGardeCorps({
                   on donne les deux issues — le verre, chiffré, ou un autre modèle. */}
               {calcul && !horsBareme && !tropBasse && norme?.nonConforme && (
                 <div role="alert">
-                  <p className="font-medium text-[#6d2c2c]">{t.gcNonConformeTitre}</p>
+                  <p className="font-medium text-[#2b2320]">{t.gcNonConformeTitre}</p>
                   <p className="mt-1 text-[#5c5140]">
                     {t.gcNonConforme
                       .replace("{h}", calcul.hauteurRetenueMm.toLocaleString(langue))
@@ -380,13 +380,13 @@ export function ReleveGardeCorps({
                     <button
                       type="button"
                       onClick={norme.choisirVerre}
-                      className="mt-2.5 block w-full rounded-xl border border-[#6d2c2c] bg-white px-3 py-2 text-left transition-colors hover:bg-[#6d2c2c] hover:text-white"
+                      className="mt-2.5 block w-full rounded-xl border border-[#2b2320] bg-white px-3 py-2 text-left transition-colors hover:bg-[#2b2320] hover:text-white"
                     >
                       <span className="block font-medium">{t.gcPasserVerre.replace("{prix}", prixAffiche(norme.prixVerre, locale))}</span>
                       <span className="mt-0.5 block text-[10px] leading-snug opacity-80">{t.gcPasserVerreNote}</span>
                     </button>
                   )}
-                  <Link href={norme.lienAutres} className="mt-2 block text-center font-medium text-[#6d2c2c] underline underline-offset-4">
+                  <Link href={norme.lienAutres} className="mt-2 block text-center font-medium text-[#2b2320] underline underline-offset-4">
                     {t.gcVoirAutres}
                   </Link>
                 </div>
@@ -409,7 +409,7 @@ export function ReleveGardeCorps({
                     <p className="mt-1 text-[#5c5140]">
                       {t.gcSurVerre}{" "}
                       {norme.croixConformes && (
-                        <button type="button" onClick={norme.revenirCroix} className="font-medium text-[#6d2c2c] underline underline-offset-4">
+                        <button type="button" onClick={norme.revenirCroix} className="font-medium text-[#2b2320] underline underline-offset-4">
                           {t.gcRevenirCroix}
                         </button>
                       )}

@@ -37,7 +37,7 @@ export function amenerAlEcran(
 
 /** Contour de focus visible, à ajouter aux boutons qui n'en ont pas d'eux-mêmes. */
 export const focusVisible =
-  "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#6d2c2c]";
+  "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2b2320]";
 
 /**
  * Un prix, écrit comme on l'écrit dans la langue du visiteur.

@@ -32,7 +32,7 @@ export default async function AProposPage({
   const t = dict.apropos;
 
   return (
-    <div className="min-h-screen bg-[#fbf9f6] text-[#2b2320]">
+    <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
       <GlobalHeader locale={locale} dict={dict} />
       <main id="contenu">
 

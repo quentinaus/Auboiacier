@@ -13,7 +13,7 @@ import { useState } from "react";
  */
 
 const ENCRE = "#2a2116";
-const ACCENT = "#6d2c2c";
+const ACCENT = "#2b2320";
 /** Les cotes au repos : lisibles, mais derrière le plateau. */
 const REPOS = "#7a6e61";
 /** Les traits d'attache, plus légers que les cotes. */

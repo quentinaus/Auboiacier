@@ -6,7 +6,7 @@
  * rend un prix ou une consigne illisible sur téléphone au soleil — et rien
  * ne le signale. Ces tests calculent le contraste WCAG de chaque couleur de
  * texte trouvée dans src contre les deux fonds du site (le fond de page
- * #fbf9f6 et le blanc des cartes et des champs) et refusent tout ce qui passe
+ * blanc de la page et des cartes) et refusent tout ce qui passe
  * sous 4,5:1, le minimum pour du texte courant. Les états désactivés sont
  * exemptés par la norme, et le sont ici aussi.
  *
@@ -42,13 +42,13 @@ export function contraste(a: string, b: string): number {
   return (clair + 0.05) / (sombre + 0.05);
 }
 
-const FONDS = { "fond de page #fbf9f6": "fbf9f6", "blanc": "ffffff" };
+const FONDS = { "fond de page blanc": "ffffff", "blanc": "ffffff" };
 const SOURCES = fichiersSource("src").map((f) => [f, readFileSync(f, "utf8")] as const);
 
 test("la formule de contraste retrouve les valeurs de référence", () => {
   assert.equal(contraste("000000", "ffffff"), 21);
   assert.equal(contraste("ffffff", "ffffff"), 1);
-  assert.ok(Math.abs(contraste("6f6357", "fbf9f6") - 5.55) < 0.01);
+  assert.ok(Math.abs(contraste("6f6357", "ffffff") - 5.84) < 0.01);
 });
 
 test("toute couleur de texte de src lit à 4,5:1 au moins sur les fonds clairs", () => {

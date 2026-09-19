@@ -8,7 +8,7 @@ import { serif } from "@/lib/fonts";
 import { hoverZoomSubtle } from "@/lib/ui";
 import { ProductTail } from "@/components/product-tail";
 
-const ACCENT = "#6d2c2c";
+const ACCENT = "#2b2320";
 
 export async function generateMetadata({
   params,

@@ -241,7 +241,7 @@ export function ProductView({
                   aria-pressed={isCurrent}
                   onClick={() => selectFabric(f.id)}
                   className={`relative aspect-square w-12 shrink-0 snap-start overflow-hidden rounded-md bg-[#f2f2f1] transition-opacity hover:opacity-80 md:w-14 ${
-                    isCurrent ? "ring-2 ring-inset ring-[#6d2c2c]" : ""
+                    isCurrent ? "ring-2 ring-inset ring-[#2b2320]" : ""
                   }`}
                 >
                   <Image src={f.image!} alt={f.label} fill sizes="120px" className="object-cover" />
@@ -258,7 +258,7 @@ export function ProductView({
                 aria-pressed={pickedSrc === img.src}
                 onClick={() => selectImage(img.src)}
                 className={`relative aspect-square w-12 shrink-0 snap-start overflow-hidden rounded-md transition-opacity hover:opacity-80 md:w-14 ${
-                  pickedSrc === img.src ? "ring-2 ring-inset ring-[#6d2c2c]" : ""
+                  pickedSrc === img.src ? "ring-2 ring-inset ring-[#2b2320]" : ""
                 }`}
                 style={{ backgroundColor: img.bg ?? "#ffffff" }}
               >
@@ -290,7 +290,7 @@ export function ProductView({
                     aria-pressed={isCurrent}
                     onClick={() => selectImage(img.src)}
                     className={`relative aspect-square w-12 overflow-hidden rounded-md transition-opacity hover:opacity-80 md:w-14 ${
-                      isCurrent ? "ring-2 ring-inset ring-[#6d2c2c]" : hoverZoom
+                      isCurrent ? "ring-2 ring-inset ring-[#2b2320]" : hoverZoom
                     }`}
                     style={{ backgroundColor: img.bg ?? "#ffffff" }}
                   >
@@ -363,15 +363,15 @@ export function ProductView({
             descriptif est plus bas, derrière ce lien. */}
         <a
           href="#descriptif"
-          className="mt-2 inline-block text-[11px] font-medium uppercase tracking-[0.16em] text-[#7a6f64] underline underline-offset-4 hover:text-[#6d2c2c]"
+          className="mt-2 inline-block text-[11px] font-medium uppercase tracking-[0.16em] text-[#7a6f64] underline underline-offset-4 hover:text-black"
         >
           {t.moreInfo}
         </a>
 
         {/* Le garde-corps : la promesse, avant les cotes. */}
         {product.releve === "garde-corps-fenetre" && (
-          <div className="mt-5 rounded-2xl border border-[#6d2c2c]/20 bg-[#6d2c2c]/[0.04] px-4 py-3.5">
-            <p className="flex items-center gap-2.5 text-lg font-medium leading-tight text-[#6d2c2c]">
+          <div className="mt-5 rounded-2xl border border-[#2b2320]/20 bg-[#2b2320]/[0.04] px-4 py-3.5">
+            <p className="flex items-center gap-2.5 text-lg font-medium leading-tight text-[#2b2320]">
               <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 shrink-0">
                 <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" />
               </svg>
@@ -397,7 +397,7 @@ export function ProductView({
             {t.helpTitle}{" "}
             <Link
               href={`/${locale}/contact`}
-              className="text-[#6d2c2c] underline underline-offset-4"
+              className="text-[#2b2320] underline underline-offset-4"
             >
               {t.helpCta}
             </Link>

@@ -10,7 +10,7 @@ import { getStripe, isStripeConfigured } from "@/lib/stripe";
 import { serif } from "@/lib/fonts";
 import { prixAffiche } from "@/lib/ui";
 
-const ACCENT = "#6d2c2c";
+const ACCENT = "#2b2320";
 
 /**
  * Cette page ne se visite qu'au retour du paiement, avec un numéro de commande
@@ -61,7 +61,7 @@ export default async function MerciPage({
   }
 
   return (
-    <div className="min-h-screen bg-[#fbf9f6] text-[#2b2320]">
+    <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
       <ArtisanatHeader locale={locale} dict={dict} />
       <main id="contenu">
 

@@ -827,6 +827,17 @@ export const products: Product[] = [
         },
       },
       {
+        src: "/images/table-croix-soudure-v1.jpg",
+        alt: "Table Croix, gros plan sur le X d'acier : le cordon de soudure au croisement des lames, sous le plateau",
+        bg: "#ffffff",
+        fit: "contain",
+        parBois: {
+          pin: "/images/table-croix-soudure-v1-pin.jpg",
+          hetre: "/images/table-croix-soudure-v1-hetre.jpg",
+          noyer: "/images/table-croix-soudure-v1-noyer.jpg",
+        },
+      },
+      {
         src: "/images/table-croix-cote-v2.jpg",
         alt: "Table Croix vue de côté : les deux X d'acier noir sous le long plateau de chêne",
         bg: "#ffffff",
@@ -846,17 +857,6 @@ export const products: Product[] = [
           pin: "/images/table-croix-detail-v1-pin.jpg",
           hetre: "/images/table-croix-detail-v1-hetre.jpg",
           noyer: "/images/table-croix-detail-v1-noyer.jpg",
-        },
-      },
-      {
-        src: "/images/table-croix-soudure-v1.jpg",
-        alt: "Table Croix, gros plan sur le X d'acier : le cordon de soudure au croisement des lames, sous le plateau",
-        bg: "#ffffff",
-        fit: "contain",
-        parBois: {
-          pin: "/images/table-croix-soudure-v1-pin.jpg",
-          hetre: "/images/table-croix-soudure-v1-hetre.jpg",
-          noyer: "/images/table-croix-soudure-v1-noyer.jpg",
         },
       },
     ],
@@ -920,9 +920,9 @@ export const products: Product[] = [
       tagline: "Two steel tubes in an X at each end of the top, and room for everyone's legs.",
       images: [
         "Croix table: solid oak top on two black steel X bases, end view",
+        "Croix table, close-up of the steel X: the weld seam where the blades cross, under the top",
         "Croix table from the side: the two black steel Xs under the long oak top",
         "Croix table, detail: the corner of the oak top and the black steel X that carries it",
-        "Croix table, close-up of the steel X: the weld seam where the blades cross, under the top",
       ],
       sizes: {
         p6: "Seats 6 — 150 × 90 × H 75 cm",

@@ -48,10 +48,10 @@ export default async function NotFound() {
   const t = dict.introuvable;
 
   const secondaire =
-    "inline-flex items-center justify-center rounded-full border border-[#2b2320]/25 px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] transition-colors hover:border-[#6d2c2c] hover:text-[#6d2c2c]";
+    "inline-flex items-center justify-center rounded-full border border-[#2b2320]/25 px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] transition-colors hover:border-black hover:text-black";
 
   return (
-    <div className="min-h-screen bg-[#fbf9f6] text-[#2b2320]">
+    <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
       {/* Next remet le titre de l'accueil après l'hydratation : on le corrige. */}
       <TitreIntrouvable titre={titreComplet(t.title)} />
       <GlobalHeader locale={locale} dict={dict} />
@@ -62,7 +62,7 @@ export default async function NotFound() {
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
           <Link
             href={`/${locale}`}
-            className="inline-flex items-center justify-center rounded-full bg-[#6d2c2c] px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors hover:bg-[#5a2323]"
+            className="inline-flex items-center justify-center rounded-full bg-[#2b2320] px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors hover:bg-black"
           >
             {t.home}
           </Link>

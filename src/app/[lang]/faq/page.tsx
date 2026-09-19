@@ -7,7 +7,7 @@ import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
 
-const ACCENT = "#6d2c2c";
+const ACCENT = "#2b2320";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/faq">): Promise<Metadata> {
   const { lang } = await params;
@@ -28,7 +28,7 @@ export default async function FaqPage({ params }: PageProps<"/[lang]/faq">) {
   const t = dict.faq;
 
   return (
-    <div className="min-h-screen bg-[#fbf9f6] text-[#2b2320]">
+    <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
       {/* Les questions sont toutes visibles à l'écran, sans repli : c'est la
           condition pour que Google ait le droit de les afficher. */}
       <script
@@ -77,13 +77,13 @@ export default async function FaqPage({ params }: PageProps<"/[lang]/faq">) {
             </Link>
             <Link
               href={`/${locale}/zone-intervention`}
-              className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-[#6d2c2c]"
+              className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"
             >
               {t.zoneLink}
             </Link>
             <Link
               href={`/${locale}/rendez-vous`}
-              className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-[#6d2c2c]"
+              className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"
             >
               {t.rdvLink}
             </Link>

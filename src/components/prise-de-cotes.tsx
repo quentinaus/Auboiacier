@@ -8,7 +8,7 @@ import { ChoixCreneau } from "./choix-creneau";
 import type { Deplacement } from "@/lib/deplacement";
 import { prixAffiche } from "@/lib/ui";
 
-const ACCENT = "#6d2c2c";
+const ACCENT = "#2b2320";
 
 /**
  * Ce qu'il faut à une visite de l'atelier, quelle que soit la pièce : qui
@@ -78,14 +78,14 @@ export function QuiMesure({
               onClick={() => onChange(choix.id)}
               className={`relative rounded-2xl border p-3.5 text-left transition-all ${
                 actif
-                  ? "border-[#6d2c2c] bg-white shadow-[0_10px_30px_-18px_rgba(109,44,44,0.45)] ring-1 ring-[#6d2c2c]"
+                  ? "border-[#2b2320] bg-white shadow-[0_10px_30px_-18px_rgba(109,44,44,0.45)] ring-1 ring-[#2b2320]"
                   : "border-[#e5ddd3] bg-white hover:border-[#a3968a]"
               }`}
             >
               {choix.tag && (
                 <span
                   className={`absolute right-3 top-3 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] ${
-                    actif ? "bg-[#6d2c2c] text-white" : "bg-[#f1ece4] text-[#6d2c2c]"
+                    actif ? "bg-[#2b2320] text-white" : "bg-[#f1ece4] text-[#2b2320]"
                   }`}
                 >
                   {choix.tag}
@@ -93,7 +93,7 @@ export function QuiMesure({
               )}
               <span
                 className={`flex h-9 w-9 items-center justify-center rounded-full ${
-                  actif ? "bg-[#6d2c2c] text-white" : "bg-[#f5f1ea] text-[#6d2c2c]"
+                  actif ? "bg-[#2b2320] text-white" : "bg-[#f5f1ea] text-[#2b2320]"
                 }`}
                 aria-hidden
               >

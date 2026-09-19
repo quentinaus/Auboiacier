@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { cleCreneau, libelleCreneau, type Creneau } from "@/lib/creneau";
 
-const ACCENT = "#6d2c2c";
+const ACCENT = "#2b2320";
 
 /**
  * Le choix d'une demi-journée pour la prise de cotes.
@@ -43,9 +43,9 @@ export function ChoixCreneau({
     };
   }, []);
 
-  if (erreur) return <p className="text-xs text-[#6d2c2c]">{t.gcCreneauAucun}</p>;
+  if (erreur) return <p className="text-xs text-[#2b2320]">{t.gcCreneauAucun}</p>;
   if (!creneaux) return <p className="text-xs text-[#6f6357]">{t.gcCreneauChargement}</p>;
-  if (creneaux.length === 0) return <p className="text-xs text-[#6d2c2c]">{t.gcCreneauAucun}</p>;
+  if (creneaux.length === 0) return <p className="text-xs text-[#2b2320]">{t.gcCreneauAucun}</p>;
 
   // Un jour par ligne, ses demi-journées en boutons.
   const parJour = new Map<string, Creneau[]>();
@@ -81,7 +81,7 @@ export function ChoixCreneau({
                       onClick={() => onChange(actif ? "" : cle)}
                       className={`rounded-full border px-3 py-1.5 text-[11px] font-medium transition-colors ${
                         actif
-                          ? "border-[#6d2c2c] text-white"
+                          ? "border-[#2b2320] text-white"
                           : "border-[#e5ddd3] text-[#5c5140] hover:border-[#a3968a]"
                       }`}
                       style={actif ? { backgroundColor: ACCENT } : undefined}

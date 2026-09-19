@@ -23,7 +23,7 @@ export function InfoBulle({ texte, label }: { texte: string; label: string }) {
         aria-describedby={ouvert ? id : undefined}
         onClick={() => setOuvert((o) => !o)}
         onBlur={() => setOuvert(false)}
-        className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-[#8f8275] font-serif text-[11px] font-semibold italic leading-none text-[#6f6357] transition-colors hover:border-[#6d2c2c] hover:text-[#6d2c2c] focus-visible:border-[#6d2c2c]"
+        className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-[#8f8275] font-serif text-[11px] font-semibold italic leading-none text-[#6f6357] transition-colors hover:border-black hover:text-black focus-visible:border-[#2b2320]"
       >
         i
       </button>

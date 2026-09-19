@@ -44,7 +44,7 @@ export function ChampCote({
         {info && <InfoBulle texte={info} label={infoLabel ?? label} />}
         {label}
       </span>
-      <span className="flex items-center gap-1 rounded-xl border border-[#9a8d80] bg-white px-3 py-2.5 transition-[border-color,box-shadow] focus-within:border-[#6d2c2c] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
+      <span className="flex items-center gap-1 rounded-xl border border-[#9a8d80] bg-white px-3 py-2.5 transition-[border-color,box-shadow] focus-within:border-[#2b2320] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
         <input
           id={id}
           inputMode="decimal"

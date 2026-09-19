@@ -123,7 +123,7 @@ export default async function ToilesTenduesPage({
 
                 <div>
                   <h3
-                    className={`${serif.className} text-lg text-[#2b2320] transition-colors duration-300 group-hover:text-[#6d2c2c]`}
+                    className={`${serif.className} text-lg text-[#2b2320] transition-colors duration-300 group-hover:text-black`}
                   >
                     {product.name}
                   </h3>
@@ -198,7 +198,7 @@ export default async function ToilesTenduesPage({
           </div>
           <Link
             href={`/${locale}/toiles-tendues/realisations`}
-            className="mt-6 inline-block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6d2c2c] underline underline-offset-4"
+            className="mt-6 inline-block text-[11px] font-medium uppercase tracking-[0.16em] text-[#2b2320] underline underline-offset-4"
           >
             {t.heroCtaSecondary}
           </Link>

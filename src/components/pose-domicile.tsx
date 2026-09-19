@@ -128,7 +128,7 @@ export function PoseDomicile({
         role="radio"
         aria-checked={active}
         onClick={() => onChange({ ...choix, voulue, deplacement: voulue ? choix.deplacement : null })}
-        className={`flex-1 rounded-xl border px-4 py-3 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] ${
+        className={`flex-1 rounded-xl border px-4 py-3 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${
           active ? "border-[#2b2320] bg-white" : "border-[#e5ddd3] bg-transparent hover:border-[#9a8d80]"
         }`}
       >
@@ -153,7 +153,7 @@ export function PoseDomicile({
           <label htmlFor={idCp} className="flex items-center justify-between gap-4">
             <span className="text-[15px] text-[#2b2320]">{t.poseCodePostal}</span>
             <span
-              className={`flex h-10 w-[8.5rem] shrink-0 items-center rounded-full border bg-white px-3.5 transition-colors focus-within:border-[#6d2c2c] ${
+              className={`flex h-10 w-[8.5rem] shrink-0 items-center rounded-full border bg-white px-3.5 transition-colors focus-within:border-[#2b2320] ${
                 etat === "invalide" || etat === "hors" || etat === "loin" ? "border-[#b4533a]" : "border-[#9a8d80]"
               }`}
             >

@@ -11,7 +11,7 @@ import { prixAffiche } from "@/lib/ui";
 import { POSE, PRISE_DE_COTES, libellePose, libellePriseDeCotes } from "@/lib/deplacement";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 
-const ACCENT = "#6d2c2c";
+const ACCENT = "#2b2320";
 
 type Status =
   | "idle"
@@ -290,7 +290,7 @@ export function CartView({
       {stale.length > 0 && (
         <p
           role="status"
-          className="mb-6 rounded-xl border border-[#e8e1d8] bg-white px-5 py-4 text-sm text-[#6d2c2c]"
+          className="mb-6 rounded-xl border border-[#e8e1d8] bg-white px-5 py-4 text-sm text-[#2b2320]"
         >
           {t.removedLine}
         </p>
@@ -317,7 +317,7 @@ export function CartView({
                 >
                   <rect x="3" y="5" width="18" height="16" rx="2" />
                   <path d="M3 10h18M8 3v4M16 3v4" />
-                  <path d="M8 15h3" stroke="#6d2c2c" strokeWidth="2" />
+                  <path d="M8 15h3" stroke="#2b2320" strokeWidth="2" />
                 </svg>
               )}
             </div>
@@ -386,7 +386,7 @@ export function CartView({
                   </span>
                 )}
                 {line.remise !== undefined && (
-                  <span className="rounded-full bg-[#6d2c2c]/[0.08] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#6d2c2c]">
+                  <span className="rounded-full bg-[#2b2320]/[0.08] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#2b2320]">
                     {t.lot.replace("{taux}", String(Math.round(line.remise * 100)))}
                   </span>
                 )}
@@ -406,7 +406,7 @@ export function CartView({
                       ? `${t.remove} ${line.name} du panier`
                       : `${t.remove} ${line.name} from the cart`
                   }
-                  className="ml-auto py-1 -my-1 text-sm text-[#726757] underline underline-offset-4 hover:text-[#6d2c2c]"
+                  className="ml-auto py-1 -my-1 text-sm text-[#726757] underline underline-offset-4 hover:text-black"
                 >
                   {t.remove}
                 </button>
@@ -444,11 +444,11 @@ export function CartView({
           placeholder={t.cityPh}
           aria-invalid={showVilleError && !ville.trim()}
           aria-describedby={showVilleError && !ville.trim() ? idVilleErreur : undefined}
-          className="mt-2 w-full rounded-lg border border-[#9a8d80] bg-white px-4 py-3 text-base text-[#2b2320] transition-colors placeholder:text-[#726757] focus:border-[#6d2c2c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] sm:max-w-sm sm:text-sm"
+          className="mt-2 w-full rounded-lg border border-[#9a8d80] bg-white px-4 py-3 text-base text-[#2b2320] transition-colors placeholder:text-[#726757] focus:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] sm:max-w-sm sm:text-sm"
         />
         <p className="mt-2 text-xs leading-relaxed text-[#726757]">{t.cityNote}</p>
         {showVilleError && !ville.trim() && (
-          <p id={idVilleErreur} role="alert" className="mt-2 text-sm text-[#6d2c2c]">
+          <p id={idVilleErreur} role="alert" className="mt-2 text-sm text-[#2b2320]">
             {t.cityRequired}
           </p>
         )}
@@ -464,24 +464,24 @@ export function CartView({
           }}
           aria-invalid={showCgvError && !accepted}
           aria-describedby={showCgvError && !accepted ? idCgvErreur : undefined}
-          className="mt-1 h-4 w-4 accent-[#6d2c2c]"
+          className="mt-1 h-4 w-4 accent-[#2b2320]"
         />
         <span>
           {t.cgvAccept}{" "}
-          <Link href={`/${locale}/cgv`} className="underline underline-offset-4 hover:text-[#6d2c2c]">
+          <Link href={`/${locale}/cgv`} className="underline underline-offset-4 hover:text-black">
             {t.cgvLink}
           </Link>
           .
         </span>
       </label>
       {showCgvError && !accepted && (
-        <p id={idCgvErreur} role="alert" className="mt-2 text-sm text-[#6d2c2c]">
+        <p id={idCgvErreur} role="alert" className="mt-2 text-sm text-[#2b2320]">
           {t.cgvRequired}
         </p>
       )}
 
       {problem && (
-        <p role="alert" className="mt-6 text-sm leading-relaxed text-[#6d2c2c]">
+        <p role="alert" className="mt-6 text-sm leading-relaxed text-[#2b2320]">
           {problem}{" "}
           <a href={`mailto:${contactEmail}`} className="underline underline-offset-4">
             {t.writeUs}
@@ -503,7 +503,7 @@ export function CartView({
           le contrat, donc un simple lien, pas une seconde case à cocher. */}
       <p className="mt-2 text-center text-xs leading-relaxed text-[#6f6357]">
         {t.privacyNote}{" "}
-        <Link href={`/${locale}/confidentialite`} className="underline underline-offset-4 hover:text-[#6d2c2c]">
+        <Link href={`/${locale}/confidentialite`} className="underline underline-offset-4 hover:text-black">
           {t.privacyLink}
         </Link>
       </p>

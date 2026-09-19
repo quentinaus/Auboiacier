@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fbf9f6;
+  --background: #ffffff;
   --foreground: #2b2320;
   /* Le bordeaux de l'atelier : sert aussi de contour de focus au clavier. */
-  --accent: #6d2c2c;
+  --accent: #2b2320;
 }
 
 @theme inline {

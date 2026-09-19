@@ -29,7 +29,7 @@ export default async function PanierPage({ params }: PageProps<"/[lang]/panier">
   const t = dict.panier;
 
   return (
-    <div className="min-h-screen bg-[#fbf9f6] text-[#2b2320]">
+    <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
       <ArtisanatHeader locale={locale} dict={dict} />
       <main id="contenu">
 

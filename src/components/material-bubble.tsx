@@ -1,6 +1,6 @@
 import type { ProductSwatch } from "@/lib/products";
 
-const ACCENT = "#6d2c2c";
+const ACCENT = "#2b2320";
 
 /** Reflet + ombre interne : donne le volume de bille à toutes les pastilles. */
 const GLOSS =
@@ -34,7 +34,7 @@ export function MaterialBubble({
         // Une image calculée (bois, peinture) porte déjà son volume et son
         // ombre : on ne lui ajoute qu'un anneau de sélection, fin et net.
         boxShadow: selected
-          ? `0 0 0 2.5px #fbf9f6, 0 0 0 4px ${ACCENT}`
+          ? `0 0 0 2.5px #ffffff, 0 0 0 4px ${ACCENT}`
           : calcule
             ? "none"
             : "0 0 0 1px rgba(0,0,0,0.10), 0 10px 20px -16px rgba(0,0,0,0.55)",

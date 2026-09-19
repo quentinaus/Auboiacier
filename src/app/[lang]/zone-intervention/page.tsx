@@ -7,7 +7,7 @@ import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
 
-const ACCENT = "#6d2c2c";
+const ACCENT = "#2b2320";
 
 export async function generateMetadata({
   params,
@@ -33,7 +33,7 @@ export default async function ZonePage({ params }: PageProps<"/[lang]/zone-inter
   const t = dict.zone;
 
   return (
-    <div className="min-h-screen bg-[#fbf9f6] text-[#2b2320]">
+    <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={scriptJsonLd(
@@ -94,7 +94,7 @@ export default async function ZonePage({ params }: PageProps<"/[lang]/zone-inter
             </Link>
             <Link
               href={`/${locale}/faq`}
-              className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-[#6d2c2c]"
+              className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"
             >
               {t.faqLink}
             </Link>

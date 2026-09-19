@@ -63,7 +63,7 @@ export function ProductTail({
           <div className="mt-8 text-center">
             <Link
               href={`/${locale}/toiles-tendues/realisations`}
-              className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-[#6d2c2c]"
+              className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"
             >
               {t.avisCta}
             </Link>
@@ -89,7 +89,7 @@ export function ProductTail({
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     aria-hidden
-                    className="h-4 w-4 shrink-0 text-[#6d2c2c] transition-transform duration-200 group-open:rotate-180"
+                    className="h-4 w-4 shrink-0 text-[#2b2320] transition-transform duration-200 group-open:rotate-180"
                   >
                     <path d="M6 9l6 6 6-6" />
                   </svg>
@@ -131,7 +131,7 @@ export function ProductTail({
         <p className="mx-auto mt-4 max-w-xl leading-relaxed text-[#4a4038]">{t.contactBody}</p>
         <Link
           href={`/${locale}/contact`}
-          className="mt-8 inline-block rounded-full border border-[#6d2c2c] px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-[#6d2c2c] transition-colors hover:bg-[#6d2c2c] hover:text-white"
+          className="mt-8 inline-block rounded-full border border-[#2b2320] px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] transition-colors hover:bg-[#2b2320] hover:text-white"
         >
           {t.contactCta}
         </Link>

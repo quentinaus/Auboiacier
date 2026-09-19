@@ -88,8 +88,8 @@ export default async function RealisationsPage({
               aria-current={actif ? "page" : undefined}
               className={
                 actif
-                  ? "rounded-full bg-[#6d2c2c] px-4 py-2 text-white"
-                  : "rounded-full border border-[#e5ddd3] px-4 py-2 text-[#5c5140] transition-colors hover:border-[#6d2c2c] hover:text-[#2b2320]"
+                  ? "rounded-full bg-[#2b2320] px-4 py-2 text-white"
+                  : "rounded-full border border-[#e5ddd3] px-4 py-2 text-[#5c5140] transition-colors hover:border-black hover:text-[#2b2320]"
               }
             >
               {choix.label}

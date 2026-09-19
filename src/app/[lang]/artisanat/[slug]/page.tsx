@@ -25,7 +25,7 @@ import {
 import { serif } from "@/lib/fonts";
 import { hoverZoom, hoverZoomSubtle, prixAffiche } from "@/lib/ui";
 
-const ACCENT = "#6d2c2c";
+const ACCENT = "#2b2320";
 
 /**
  * Les photos à membrane sont carrées ; les blocs éditoriaux les affichent dans
@@ -286,7 +286,7 @@ export default async function ProductPage({
       </div>
 
       {/* 3. Artisanat français */}
-      <section className="mt-24 bg-[#6d2c2c] px-6 py-20 text-white">
+      <section className="mt-24 bg-[#2b2320] px-6 py-20 text-white">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className={`${serif.className} text-3xl`}>{t.craftBandTitle}</h2>
           <p className="mt-5 leading-relaxed text-white/85">{t.craftBandBody}</p>

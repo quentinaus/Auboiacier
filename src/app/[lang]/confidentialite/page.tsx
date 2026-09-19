@@ -59,12 +59,12 @@ export default async function ConfidentialitePage({
     { label: labels.labelTelephone, value: ENTREPRISE.telephone },
   ].filter((ligne) => ligne.value !== "");
 
-  const lienInline = "text-sm underline underline-offset-4 hover:text-[#6d2c2c]";
+  const lienInline = "text-sm underline underline-offset-4 hover:text-black";
   const lien = `mt-3 inline-block ${lienInline}`;
   const derniere = t.sections.length - 1;
 
   return (
-    <div className="min-h-screen bg-[#fbf9f6] text-[#2b2320]">
+    <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
       <GlobalHeader locale={locale} dict={dict} />
       <main id="contenu">
 

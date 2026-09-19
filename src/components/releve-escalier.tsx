@@ -5,7 +5,7 @@ import { calculerEscalier, type CalculEscalier } from "@/lib/escalier";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { ChampCote } from "./champ-cote";
 
-const ACCENT = "#6d2c2c";
+const ACCENT = "#2b2320";
 
 /** Les cotes que le client relève chez lui, telles qu'il les tape. */
 export type CotesEscalier = {
@@ -195,7 +195,7 @@ export function ReleveEscalier({
             <select
               value={cotes.depart}
               onChange={(event) => set("depart")(event.target.value)}
-              className="mt-1.5 w-full rounded-xl border border-[#9a8d80] bg-white px-3 py-2.5 text-base text-[#2a2116] focus:border-[#6d2c2c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] sm:text-sm"
+              className="mt-1.5 w-full rounded-xl border border-[#9a8d80] bg-white px-3 py-2.5 text-base text-[#2a2116] focus:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] sm:text-sm"
             >
               <option value="">—</option>
               {t.releveDepartOptions.map((option) => (

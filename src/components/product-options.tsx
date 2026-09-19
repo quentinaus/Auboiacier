@@ -32,7 +32,7 @@ import { VisiteAtelier } from "./prise-de-cotes";
 import { POSE_INITIALE, PoseDomicile, type ChoixPose } from "./pose-domicile";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 
-const ACCENT = "#6d2c2c";
+const ACCENT = "#2b2320";
 
 const VOIR_PANIER = {
   fr: "Voir mon panier",
@@ -92,7 +92,7 @@ function SwatchGroup({
               aria-label={
                 showDelta ? `${o.label} — ${formatDelta(o.priceDelta ?? 0, locale)}` : o.label
               }
-              className="group w-[4.25rem] shrink-0 rounded-xl text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6d2c2c] lg:w-[4.75rem]"
+              className="group w-[4.25rem] shrink-0 rounded-xl text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] lg:w-[4.75rem]"
             >
               {/* La matière d'abord, grande et ronde ; son nom en dessous, sur
                   deux lignes s'il le faut — comme un nuancier. */}
@@ -190,7 +190,7 @@ function Ligne({
       </span>
       {/* Le focus est porté par la pilule seule — bordure bordeaux et halo
           léger ; le filet de sécurité global est coupé sur le champ. */}
-      <span className="flex h-10 w-[8.5rem] shrink-0 items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3.5 transition-[border-color,box-shadow] focus-within:border-[#6d2c2c] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
+      <span className="flex h-10 w-[8.5rem] shrink-0 items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3.5 transition-[border-color,box-shadow] focus-within:border-[#2b2320] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
         <input
           id={id}
           inputMode="decimal"
@@ -950,7 +950,7 @@ export function ProductOptions({
                   <div className="flex items-center justify-between gap-4 py-2.5 text-sm text-[#6f6357]">
                     <span id={`${idTailles}-hauteur-titre`}>{t.customTableHeight}</span>
                     {hauteurOuverte ? (
-                      <span className="flex h-10 w-[8.5rem] items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3.5 focus-within:border-[#6d2c2c] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
+                      <span className="flex h-10 w-[8.5rem] items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3.5 focus-within:border-[#2b2320] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
                         <input
                           id={`${idTailles}-hauteur`}
                           autoFocus
@@ -1029,7 +1029,7 @@ export function ProductOptions({
                 {/* Le refus doit s'entendre, pas seulement se voir : sans
                     role="alert" un lecteur d'écran ne disait rien et le client
                     continuait de taper devant un bouton grisé. */}
-                <p id={`${idTailles}-erreur`} role="alert" className="mt-2 min-h-4 text-xs leading-snug text-[#6d2c2c]">
+                <p id={`${idTailles}-erreur`} role="alert" className="mt-2 min-h-4 text-xs leading-snug text-[#2b2320]">
                   {devis && !devis.ok
                     ? devis.reason === "trop_petit"
                       ? t.customTooSmall
@@ -1140,9 +1140,9 @@ export function ProductOptions({
                     onMouseEnter={() => setLigneClavier(index)}
                     className={`flex w-full cursor-pointer items-center justify-between gap-4 px-5 py-3.5 text-left text-sm transition-colors ${
                       s.id === sizeId
-                        ? "bg-[#6d2c2c]/5 text-[#2a2116]"
+                        ? "bg-[#2b2320]/5 text-[#2a2116]"
                         : "text-[#5c5140] hover:bg-[#f5f1ea]"
-                    } ${index === ligneClavier ? "ring-2 ring-inset ring-[#6d2c2c]" : ""}`}
+                    } ${index === ligneClavier ? "ring-2 ring-inset ring-[#2b2320]" : ""}`}
                   >
                     <span>{s.label}</span>
                     {/* Sur devis, pas de prix dans la liste : le chiffre viendrait avant le relevé. */}
@@ -1272,7 +1272,7 @@ export function ProductOptions({
               type="button"
               onClick={addToCart}
               disabled={total === null || (modeVisite && !visitePrete) || (pose.voulue && !pose.deplacement)}
-              className="shrink-0 rounded-full px-5 py-3.5 text-[11px] font-medium uppercase tracking-[0.14em] transition-colors enabled:bg-[#2b2320] enabled:text-white enabled:hover:bg-[#6d2c2c] disabled:cursor-not-allowed disabled:bg-[#ece6dd] disabled:text-[#7a6f64]"
+              className="shrink-0 rounded-full px-5 py-3.5 text-[11px] font-medium uppercase tracking-[0.14em] transition-colors enabled:bg-[#2b2320] enabled:text-white enabled:hover:bg-[#2b2320] disabled:cursor-not-allowed disabled:bg-[#ece6dd] disabled:text-[#7a6f64]"
             >
               {t.addToCart}
             </button>
@@ -1292,7 +1292,7 @@ export function ProductOptions({
               {prixAffiche(prixLot ?? total, locale)} × {quantity} {t.cartTotalLine}{" "}
               <span className="font-medium">{prixAffiche((prixLot ?? total) * quantity, locale)}</span>
               {lotActif && (
-                <span className="ml-2 rounded-full bg-[#6d2c2c]/[0.08] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#6d2c2c]">
+                <span className="ml-2 rounded-full bg-[#2b2320]/[0.08] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#2b2320]">
                   {t.gcLotTag.replace("{taux}", String(Math.round((lot?.taux ?? 0) * 100)))}
                 </span>
               )}
@@ -1305,7 +1305,7 @@ export function ProductOptions({
             <p className="mt-3 text-center text-xs leading-relaxed text-[#6f6357]">
               {dejaAuPanier > 0 && total !== null && lotActif ? (
                 <>
-                  <span className="font-medium text-[#6d2c2c]">
+                  <span className="font-medium text-[#2b2320]">
                     {t.gcLotDeja.replace("{n}", String(dejaAuPanier))}
                   </span>{" "}
                   {quantity === 1 && prixLot !== null && prixLot !== total && (
@@ -1328,7 +1328,7 @@ export function ProductOptions({
               <div className="mt-3 flex flex-wrap justify-center gap-2">
                 <Link
                   href={`/${locale}/panier`}
-                  className="inline-block rounded-full border border-[#6d2c2c] px-6 py-2.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#6d2c2c] transition-colors hover:bg-[#6d2c2c] hover:text-white"
+                  className="inline-block rounded-full border border-[#2b2320] px-6 py-2.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#2b2320] transition-colors hover:bg-[#2b2320] hover:text-white"
                 >
                   {VOIR_PANIER[locale]}
                 </Link>
@@ -1345,7 +1345,7 @@ export function ProductOptions({
                       premiere?.focus();
                       premiere?.scrollIntoView({ block: "center", behavior: "smooth" });
                     }}
-                    className="inline-block rounded-full border border-[#e5ddd3] bg-white px-6 py-2.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#2a2116] transition-colors hover:border-[#6d2c2c] hover:text-[#6d2c2c]"
+                    className="inline-block rounded-full border border-[#e5ddd3] bg-white px-6 py-2.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#2a2116] transition-colors hover:border-black hover:text-black"
                   >
                     {t.gcLotAutre}
                   </button>
@@ -1402,7 +1402,7 @@ export function ProductOptions({
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="mt-[2px] h-3.5 w-3.5 shrink-0 text-[#6d2c2c]"
+                className="mt-[2px] h-3.5 w-3.5 shrink-0 text-[#2b2320]"
               >
                 <path d="M4 10.5l4 4 8-9" />
               </svg>
@@ -1416,7 +1416,7 @@ export function ProductOptions({
       {/* La barre d'achat du téléphone : elle n'apparaît que lorsque le vrai
           bouton est sorti de l'écran, et disparaît dès qu'il revient. */}
       {orderable && !boutonVisible && (
-        <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-[#e5ddd3] bg-[#fbf9f6]/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur md:hidden">
+        <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-[#e5ddd3] bg-[#ffffff]/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur md:hidden">
           <div className="min-w-0">
             <p
               className="text-lg font-medium leading-tight tabular-nums"

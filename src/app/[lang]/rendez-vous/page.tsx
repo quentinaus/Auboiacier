@@ -41,23 +41,23 @@ export default async function RendezVousPage({ params }: PageProps<"/[lang]/rend
   const bouton = "inline-flex items-center justify-center rounded-full px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] transition-colors";
 
   return (
-    <div className="min-h-screen bg-[#fbf9f6] text-[#2b2320]">
+    <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
       <GlobalHeader locale={locale} dict={dict} />
       <main id="contenu">
         <section className="border-b border-[#e5ddd3] px-6 pb-14 pt-16 md:pb-20 md:pt-24">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#6d2c2c]">{t.eyebrow}</p>
+            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#2b2320]">{t.eyebrow}</p>
             <h1 className={`${serif.className} mt-4 text-3xl leading-tight sm:text-4xl md:text-[3rem] md:leading-[1.1]`}>{t.h1}</h1>
             <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-[#5c5140] md:text-lg">{t.lead}</p>
             <div className="mt-9 flex flex-col items-center justify-center gap-5 sm:flex-row sm:items-start sm:gap-4">
               <div className="flex flex-col items-center gap-2">
-                <a href="#pieces" className={`${bouton} bg-[#6d2c2c] text-white hover:bg-[#5a2323]`}>
+                <a href="#pieces" className={`${bouton} bg-[#2b2320] text-white hover:bg-black`}>
                   {t.ctaPieces}
                 </a>
                 <span className="text-xs text-[#6f6357]">{t.ctaPiecesNote}</span>
               </div>
               <div className="flex flex-col items-center gap-2">
-                <a href="#formulaire" className={`${bouton} border border-[#2b2320]/25 text-[#2b2320] hover:border-[#6d2c2c] hover:text-[#6d2c2c]`}>
+                <a href="#formulaire" className={`${bouton} border border-[#2b2320]/25 text-[#2b2320] hover:border-black hover:text-black`}>
                   {t.ctaAutre}
                 </a>
                 <span className="text-xs text-[#6f6357]">{t.ctaAutreNote}</span>
@@ -103,14 +103,14 @@ export default async function RendezVousPage({ params }: PageProps<"/[lang]/rend
                           style={image.position ? { objectPosition: image.position } : undefined}
                         />
                       )}
-                      <span className="absolute left-3 top-3 rounded-full bg-[#6d2c2c] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-white">
+                      <span className="absolute left-3 top-3 rounded-full bg-[#2b2320] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-white">
                         {t.badge}
                       </span>
                     </div>
                     <div>
-                      <h3 className={`${serif.className} text-lg transition-colors duration-300 group-hover:text-[#6d2c2c]`}>{product.name}</h3>
+                      <h3 className={`${serif.className} text-lg transition-colors duration-300 group-hover:text-black`}>{product.name}</h3>
                       <p className="mt-1 text-sm text-[#6f6357]">{product.tagline}</p>
-                      <span className="mt-3 inline-block border-b border-[#6d2c2c] pb-0.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#6d2c2c]">
+                      <span className="mt-3 inline-block border-b border-[#2b2320] pb-0.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#2b2320]">
                         {t.cta}
                       </span>
                     </div>

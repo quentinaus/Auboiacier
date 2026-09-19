@@ -35,10 +35,10 @@ export default async function CguPage({ params }: PageProps<"/[lang]/cgu">) {
   const dict = await getDictionary(locale);
   const t = dict.cgu;
 
-  const lien = "mt-3 inline-block text-sm underline underline-offset-4 hover:text-[#6d2c2c]";
+  const lien = "mt-3 inline-block text-sm underline underline-offset-4 hover:text-black";
 
   return (
-    <div className="min-h-screen bg-[#fbf9f6] text-[#2b2320]">
+    <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
       <GlobalHeader locale={locale} dict={dict} />
       <main id="contenu">
 
