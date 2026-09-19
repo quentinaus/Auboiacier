@@ -538,7 +538,7 @@ export const products: Product[] = [
     category: "interieur",
     orderMode: "cart",
     name: "Table Mikado",
-    tagline: "Des lames d'acier plein croisées comme un jeu de mikado, sous un plateau de chêne massif.",
+    tagline: "Des tubes d'acier croisés comme un jeu de mikado, sous un plateau de chêne massif.",
     images: [
       {
         src: "/images/mikado/devant/noir.jpg",
@@ -746,9 +746,9 @@ export const products: Product[] = [
     ],
     sections: [
       {
-        title: "Un piétement soudé d'une seule pièce",
+        title: "Un piétement en tube d'acier 80 × 80 mm",
         image: "/images/mikado/ambiance.jpg",
-        body: "Des lames d'acier plein se croisent sous le plateau comme un jeu de mikado. Chaque appui semble posé au hasard ; l'équilibre est calculé au millimètre. Le piétement est soudé d'une seule pièce à l'atelier : aucune vis apparente, aucun raccord.",
+        body: "Des tubes d'acier de 80 × 80 mm, paroi 3 mm, se croisent sous le plateau comme un jeu de mikado. Chaque appui semble posé au hasard ; l'équilibre est calculé. Le piétement est soudé d'une seule pièce à l'atelier, non démontable, sans vis apparente, puis thermolaqué et cuit au four dans la teinte de votre choix.",
       },
       {
         title: "Un plateau de chêne premier choix",
@@ -757,7 +757,7 @@ export const products: Product[] = [
     ],
     specs: [
       { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 25, 35 ou 45 mm (35 mm au catalogue), finition huile-cire" },
-      { label: "Piétement", value: "Acier plein S235, soudure TIG, thermolaquage mat" },
+      { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, thermolaquage mat cuit au four" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
       { label: "Livraison", value: "France métropolitaine, montage compris" },
@@ -766,7 +766,7 @@ export const products: Product[] = [
     en: {
       name: "Mikado Table",
       seoMots: "steel & oak table",
-      tagline: "Blades of solid steel crossed like pick-up sticks, under a solid oak top.",
+      tagline: "Steel tubes crossed like pick-up sticks, under a solid oak top.",
       images: [
         "Mikado table — front view, charcoal black legs",
         "Mikado table — close-up of the top and steel grey legs",
@@ -785,8 +785,8 @@ export const products: Product[] = [
       },
       sections: [
         {
-          title: "A base welded in one piece",
-          body: "Blades of solid steel cross under the top like a game of pick-up sticks. Every leg looks dropped at random; the balance is worked out to the millimetre. The base is welded in one piece in the workshop: no visible screw, no joint.",
+          title: "A base in 80 × 80 mm steel tube",
+          body: "Steel tubes of 80 × 80 mm, 3 mm wall, cross under the top like a game of pick-up sticks. Every leg looks dropped at random; the balance is worked out. The base is welded in one piece in the workshop, not dismountable, with no visible screw, then powder-coated and oven-baked in the colour of your choice.",
         },
         {
           title: "A first-grade oak top",
@@ -795,7 +795,7 @@ export const products: Product[] = [
       ],
       specs: [
         { label: "Top", value: "Solid pine, beech, oak or walnut, 25, 35 or 45 mm thick (35 mm for catalogue sizes), hardwax oil finish" },
-        { label: "Base", value: "Solid S235 steel, TIG welded, matt powder coating" },
+        { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, oven-baked matt powder coating" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
         { label: "Delivery", value: "Mainland France, assembly included" },
@@ -809,7 +809,7 @@ export const products: Product[] = [
     category: "interieur",
     orderMode: "cart",
     name: "Table Croix",
-    tagline: "Deux lames d'acier plein en X à chaque bout du plateau, et toute la place pour les jambes.",
+    tagline: "Deux tubes d'acier en X à chaque bout du plateau, et toute la place pour les jambes.",
     images: [
       {
         src: "/images/table-croix-bout-v2.jpg",
@@ -891,7 +891,7 @@ export const products: Product[] = [
     sections: [
       {
         title: "Un X soudé puis meulé",
-        body: "Deux larges lames d'acier plein se croisent sous chaque bout du plateau et rejoignent le sol d'une seule pièce. La croix est soudée à plat puis meulée : le raccord disparaît, il ne reste qu'un trait net sous la table.",
+        body: "Deux tubes d'acier de 80 × 80 mm, paroi 3 mm, se croisent sous chaque bout du plateau et rejoignent le sol d'une seule pièce. La croix est soudée à plat puis meulée : le raccord disparaît, il ne reste qu'un trait net sous la table.",
       },
       {
         title: "De la place pour les jambes",
@@ -904,7 +904,7 @@ export const products: Product[] = [
     ],
     specs: [
       { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 25, 35 ou 45 mm (35 mm au catalogue), finition huile-cire" },
-      { label: "Piétement", value: "Lames d'acier plein S235, soudure TIG, thermolaquage mat" },
+      { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, thermolaquage mat cuit au four" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
       { label: "Livraison", value: "France métropolitaine, montage compris" },
@@ -913,7 +913,7 @@ export const products: Product[] = [
     en: {
       name: "Croix Table",
       seoMots: "steel & oak table",
-      tagline: "Two solid steel blades in an X at each end of the top, and room for everyone's legs.",
+      tagline: "Two steel tubes in an X at each end of the top, and room for everyone's legs.",
       images: [
         "Croix table: solid oak top on two black steel X bases, end view",
         "Croix table from the side: the two black steel Xs under the long oak top",
@@ -930,7 +930,7 @@ export const products: Product[] = [
       sections: [
         {
           title: "An X welded, then ground back",
-          body: "Two wide blades of solid steel cross under each end of the top and meet the floor as a single piece. The cross is welded flat, then ground back: the joint disappears and only a clean line remains under the table.",
+          body: "Two steel tubes of 80 × 80 mm, 3 mm wall, cross under each end of the top and meet the floor as a single piece. The cross is welded flat, then ground back: the joint disappears and only a clean line remains under the table.",
         },
         {
           title: "Room for your legs",
@@ -943,7 +943,7 @@ export const products: Product[] = [
       ],
       specs: [
         { label: "Top", value: "Solid pine, beech, oak or walnut, 25, 35 or 45 mm thick (35 mm for catalogue sizes), hardwax oil finish" },
-        { label: "Base", value: "Solid S235 steel blades, TIG welded, matt powder coating" },
+        { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, oven-baked matt powder coating" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
         { label: "Delivery", value: "Mainland France, assembly included" },
@@ -1022,7 +1022,7 @@ export const products: Product[] = [
     ],
     specs: [
       { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 25, 35 ou 45 mm (35 mm au catalogue), finition huile-cire" },
-      { label: "Piétement", value: "Tiges d'acier plein, soudure TIG, thermolaquage mat" },
+      { label: "Piétement", value: "Tiges d'acier soudées une à une, thermolaquage mat cuit au four" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
       { label: "Livraison", value: "France métropolitaine, montage compris" },
@@ -1059,7 +1059,7 @@ export const products: Product[] = [
       ],
       specs: [
         { label: "Top", value: "Solid pine, beech, oak or walnut, 25, 35 or 45 mm thick (35 mm for catalogue sizes), hardwax oil finish" },
-        { label: "Base", value: "Solid steel rods, TIG welded, matt powder coating" },
+        { label: "Base", value: "Steel rods welded one by one, oven-baked matt powder coating" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
         { label: "Delivery", value: "Mainland France, assembly included" },
@@ -1509,7 +1509,7 @@ export const products: Product[] = [
     ],
     specs: [
       { label: "Plateau", value: "Chêne massif traité classe 4, lattes espacées, finition huile extérieure" },
-      { label: "Piétement", value: "Acier plein, soudure TIG, thermolaquage extérieur" },
+      { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, thermolaquage extérieur" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Entretien", value: "Une huile par an ; laisser griser si l'on préfère la patine" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
@@ -1545,7 +1545,7 @@ export const products: Product[] = [
       ],
       specs: [
         { label: "Top", value: "Class 4 treated solid oak, spaced slats, outdoor oil finish" },
-        { label: "Base", value: "Solid steel, TIG welded, outdoor powder coating" },
+        { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, outdoor powder coating" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Care", value: "One coat of oil a year; leave it to silver if you prefer the patina" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
