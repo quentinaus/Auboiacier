@@ -130,9 +130,6 @@ export function ProductView({
    * contour rectangulaire à l'intérieur.
    */
   const fond = mainImage?.bg ?? "#ffffff";
-  /** Le calque des pieds dans la teinte choisie, sur les photos de coloris. */
-  const calquePieds = (surColoris: boolean) =>
-    product.piedsCalque && metalId && surColoris ? `${product.piedsCalque}${metalId}.png` : null;
   const remplitLeCadre = isColorShot || (mainImage?.fit ?? "cover") === "cover";
   // Toutes les teintes en vignettes : on fait défiler sans passer par les bulles.
   /**
@@ -183,21 +180,6 @@ export function ProductView({
             />
           ) : (
             <div className="h-full w-full bg-[#f1ece4]" />
-          )}
-
-          {/* Les pieds dans la teinte choisie, calés au pixel sur la photo. */}
-          {mainImage && calquePieds(isColorShot) && (
-            <Image
-              key={calquePieds(isColorShot)}
-              src={calquePieds(isColorShot)!}
-              alt=""
-              aria-hidden
-              fill
-              sizes="(max-width: 768px) 100vw, 66vw"
-              style={{ objectPosition: mainImage.position }}
-              className={`pointer-events-none ${remplitLeCadre ? "object-cover" : "object-contain p-8 md:p-14 lg:p-20"}`}
-              priority
-            />
           )}
 
           {/* La toile de la photo, réellement éclairée. */}
@@ -263,9 +245,6 @@ export function ProductView({
                   }`}
                 >
                   <Image src={f.image!} alt={f.label} fill sizes="120px" className="object-cover" />
-                  {calquePieds(true) && (
-                    <Image src={calquePieds(true)!} alt="" aria-hidden fill sizes="120px" className="object-cover" />
-                  )}
                 </button>
               );
             })}
@@ -325,17 +304,6 @@ export function ProductView({
                       style={{ objectPosition: img.position }}
                       className={(img.fit ?? "cover") === "contain" ? "object-contain p-1" : "object-cover"}
                     />
-                    {img.fabric && calquePieds(true) && (
-                      <Image
-                        src={calquePieds(true)!}
-                        alt=""
-                        aria-hidden
-                        fill
-                        sizes="150px"
-                        style={{ objectPosition: img.position }}
-                        className={(img.fit ?? "cover") === "contain" ? "object-contain p-1" : "object-cover"}
-                      />
-                    )}
                   </button>
                 );
               })}
@@ -378,7 +346,7 @@ export function ProductView({
       {/* Options : une colonne étroite, comme la fiche d'un configurateur. */}
       <div className="px-6 py-8 md:px-8 md:py-10 lg:px-12">
         {filAriane && (
-          <nav aria-label={filAriane.label} className="text-xs text-[#726757]">
+          <nav aria-label={filAriane.label} className="flex flex-wrap justify-end text-[11px] text-[#8a7f74]">
             {filAriane.etapes.map((etape) => (
               <span key={etape.href}>
                 <Link href={etape.href} className="hover:text-[#2b2320]">
@@ -390,12 +358,12 @@ export function ProductView({
             <span className="text-[#2b2320]">{product.name}</span>
           </nav>
         )}
-        <h1 className={`${serif.className} mt-4 text-3xl text-[#2b2320] md:text-[2rem]`}>{product.name}</h1>
-        {/* Le mot de présentation, puis le prix de départ dans les options. */}
-        <p className="mt-3 text-[15px] leading-relaxed text-[#5c5140]">{product.tagline}</p>
+        <h1 className={`${serif.className} mt-6 text-3xl text-[#2b2320] md:text-[2rem]`}>{product.name}</h1>
+        {/* Pas de mot de présentation ici : la colonne va à l'essentiel, le
+            descriptif est plus bas, derrière ce lien. */}
         <a
           href="#descriptif"
-          className="mt-3 inline-block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6d2c2c] underline underline-offset-4"
+          className="mt-2 inline-block text-[11px] font-medium uppercase tracking-[0.16em] text-[#8a7f74] underline underline-offset-4 hover:text-[#6d2c2c]"
         >
           {t.moreInfo}
         </a>
@@ -412,7 +380,7 @@ export function ProductView({
             <p className="mt-1.5 text-sm leading-relaxed text-[#5c5140]">{t.gcPromesse}</p>
           </div>
         )}
-        <div className="mt-6">
+        <div className="mt-5">
           <ProductOptions
             product={product}
             t={t}

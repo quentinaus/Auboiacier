@@ -34,7 +34,7 @@ Ce que ce script NE FAIT PAS, volontairement :
   - public/images/chaises/*.jpg : ce sont les SOURCES de scripts/pieds-chaise.py
     (détourage par régression sur les quinze rendus) ; toute recompression
     fausserait le calcul des calques. Interdit.
-  - Les PNG à transparence (plafond-cadre.png, chaises/pieds-v*-*.png) : ils
+  - Les PNG à transparence (plafond-cadre.png) : ils
     passent par next/image, qui les sert en AVIF de quelques Ko. Leur poids
     sur disque relève du script qui les produit, pas d'une recompression.
   - Les 120 et quelques JPG du catalogue : voir plus haut.

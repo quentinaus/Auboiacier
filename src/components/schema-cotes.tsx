@@ -29,22 +29,56 @@ export type CoteSchema = "principale" | "secondaire" | "epaisseur";
 
 type Etat = "repos" | "survol" | "actif";
 
-/* Le plateau rectangulaire, vu de biais : le chant avant est horizontal, la
-   profondeur file vers l'arrière droit. Les quatre coins du dessus : */
-const FUITE: Point = [84, -56];
-const D: Point = [96, 92]; // avant gauche
-const C: Point = [328, 92]; // avant droit
-const B: Point = [C[0] + FUITE[0], C[1] + FUITE[1]]; // arrière droit
-const A: Point = [D[0] + FUITE[0], D[1] + FUITE[1]]; // arrière gauche
-/** L'épaisseur dessinée du chant. */
-const EP = 17;
+/** La boîte du dessin, en unités SVG. */
+const LARGEUR_BOX = 460;
+const HAUTEUR_BOX = 180;
 
-/* Le disque, pour les pièces rondes. */
-const O: Point = [222, 96];
-const RX = 120;
-const RY = 42;
+/** Direction de la profondeur : vers l'arrière droit, un peu aplatie. */
+const FUITE_U: Point = [0.83, -0.55];
 
-const bas = (pt: Point): Point => [pt[0], pt[1] + EP];
+const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+
+/**
+ * La géométrie du plateau, proportionnée aux cotes tapées : une table de
+ * 300 × 100 se dessine longue et étroite, une de 120 × 120 carrée. Les
+ * proportions sont bornées pour que le dessin reste lisible (une table de
+ * 400 × 80 ne devient pas un trait), et l'épaisseur est exagérée : à
+ * l'échelle, 35 mm sur 2 m feraient trois pixels.
+ */
+function geometrieRect(mm: { principale?: number; secondaire?: number; epaisseur?: number }) {
+  const L = mm.principale && mm.principale > 0 ? mm.principale : 2000;
+  const W = mm.secondaire && mm.secondaire > 0 ? mm.secondaire : 1000;
+  const T = mm.epaisseur && mm.epaisseur > 0 ? mm.epaisseur : 35;
+  const ratio = clamp(L / W, 0.6, 3.6); // longueur / largeur
+  // La place disponible : les cotes prennent 64 px à gauche et 74 à droite,
+  // 30 px sous le chant et 12 px au-dessus du coin arrière.
+  const largeurUtile = LARGEUR_BOX - 64 - 74;
+  const hauteurUtile = HAUTEUR_BOX - 12 - 30;
+  const ep = clamp(Math.round(6 + (T / 35) * 10), 8, 26);
+  // Longueur dessinée L·k, profondeur W·k : on cherche le plus grand k.
+  let k = largeurUtile / (ratio + FUITE_U[0]);
+  k = Math.min(k, (hauteurUtile - ep) / -FUITE_U[1]);
+  const lPx = ratio * k;
+  const wPx = k;
+  const fuite: Point = [FUITE_U[0] * wPx, FUITE_U[1] * wPx];
+  const gauche = 64 + (largeurUtile - (lPx + fuite[0])) / 2;
+  const base = 12 - fuite[1] + (hauteurUtile - ep - -fuite[1]) / 2;
+  const D: Point = [gauche, base]; // avant gauche
+  const C: Point = [gauche + lPx, base]; // avant droit
+  const B: Point = [C[0] + fuite[0], C[1] + fuite[1]]; // arrière droit
+  const A: Point = [D[0] + fuite[0], D[1] + fuite[1]]; // arrière gauche
+  return { A, B, C, D, EP: ep };
+}
+
+/** Le disque : son diamètre remplit la place, l'épaisseur suit la même règle. */
+function geometrieRond(mm: { principale?: number; epaisseur?: number }) {
+  const T = mm.epaisseur && mm.epaisseur > 0 ? mm.epaisseur : 35;
+  const ep = clamp(Math.round(6 + (T / 35) * 10), 8, 26);
+  const RX = 120;
+  const RY = 42;
+  const O: Point = [222, 96];
+  return { O, RX, RY, EP: ep };
+}
 
 /** La pointe pleine d'une cote : un petit triangle, tourné dans le sens de la ligne. */
 function pointe(tip: Point, angle: number) {
@@ -209,8 +243,11 @@ export function SchemaCotes({
   onChoisir,
   locale = "fr",
   compact = false,
+  proportions,
 }: {
   forme: "rect" | "rond";
+  /** Les cotes en millimètres, pour dessiner le plateau à leurs proportions. */
+  proportions?: { principale?: number; secondaire?: number; epaisseur?: number };
   /** Sans cadre ni valeurs écrites : les chiffres sont dans les lignes juste dessous. */
   compact?: boolean;
   /** La description lue par les lecteurs d'écran suit la langue de la page. */
@@ -247,8 +284,11 @@ export function SchemaCotes({
     locale === "en"
       ? `Dimensioned sketch of the ${lumiere ? "housing" : "top"}: `
       : `Croquis coté du ${lumiere ? "caisson" : "plateau"} : `;
-  const hauteurBox = rond ? 176 : 180;
-  const largeurBox = 460;
+  const hauteurBox = rond ? 176 : HAUTEUR_BOX;
+  const largeurBox = LARGEUR_BOX;
+  const { A, B, C, D, EP } = geometrieRect(proportions ?? {});
+  const { O, RX, RY } = geometrieRond(proportions ?? {});
+  const bas = (pt: Point): Point => [pt[0], pt[1] + EP];
 
   const cote = (
     c: CoteSchema,

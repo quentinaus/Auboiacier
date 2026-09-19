@@ -693,23 +693,28 @@ export function ProductOptions({
           configuration est dans la barre d'achat, en bas de la colonne, et
           suit chaque choix. */}
       {modeVisite ? (
-        <p className="text-sm text-[#6f6357]">{t.onQuote}</p>
+        <p className="text-[13px] text-[#6f6357]">{t.onQuote}</p>
       ) : bareme && total === null ? (
-        /* Pas encore de cotes : le prix de départ s'il existe, et où taper. */
-        <p className="text-sm text-[#6f6357]">
+        /* Pas encore de cotes : le prix de départ s'il existe, et où taper,
+           en deux lignes discrètes. */
+        <p className="text-[13px] leading-snug text-[#6f6357]">
           {prixDepart !== null && (
-            <span className="block tabular-nums">{t.from} {prixAffiche(prixDepart, locale)}</span>
+            <span className="block tabular-nums">
+              {t.from} <span className="text-[#2b2320]">{prixAffiche(prixDepart, locale)}</span>
+            </span>
           )}
-          <span className="block mt-1">
+          <span className="mt-1 block text-xs text-[#8a7f74]">
             {product.releve === "garde-corps-fenetre" ? t.gcPrixAttente : t.prixAttenteCotes}
           </span>
         </p>
       ) : orderable ? (
         prixDepart !== null && (
-          <p className="text-sm tabular-nums text-[#6f6357]">{t.from} {prixAffiche(prixDepart, locale)}</p>
+          <p className="text-[13px] tabular-nums text-[#6f6357]">
+            {t.from} <span className="text-[#2b2320]">{prixAffiche(prixDepart, locale)}</span>
+          </p>
         )
       ) : (
-        <p className="text-sm text-[#6f6357]">{t.onQuote}</p>
+        <p className="text-[13px] text-[#6f6357]">{t.onQuote}</p>
       )}
 
       {product.fabrics && product.fabrics.length > 0 && !product.fabricLabel && (
@@ -808,6 +813,12 @@ export function ProductOptions({
                   matiere={table ? "bois" : "lumiere"}
                   actif={coteActive}
                   onChoisir={allerA}
+                  /* Le plateau se dessine aux proportions des cotes tapées. */
+                  proportions={{
+                    principale: Number.isFinite(largeurMm) ? largeurMm : undefined,
+                    secondaire: Number.isFinite(hauteurMm) ? hauteurMm : undefined,
+                    epaisseur: Number.isFinite(epaisseurMm) ? epaisseurMm : undefined,
+                  }}
                   labels={{
                     principale: labelPrincipale,
                     secondaire: labelSecondaire,

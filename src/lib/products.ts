@@ -205,12 +205,6 @@ export type Product = {
   remplissages?: Remplissage[];
   /** Remplace « Coloris du velours » quand `fabrics` sert à autre chose (les rosaces d'un garde-corps). */
   fabricLabel?: { fr: string; en: string };
-  /**
-   * Préfixe des calques de pieds (« /images/chaises/pieds-v3- ») : un PNG
-   * transparent par teinte d'acier, posé sur la photo du coloris pour montrer
-   * la chaise avec les pieds choisis. Générés par scripts/pieds-chaise.py.
-   */
-  piedsCalque?: string;
   /** Remplace « Couleur des pieds » quand la pièce n'a pas de pieds. */
   metalLabel?: { fr: string; en: string };
   /** Intitulé du groupe des essences quand « plateau » ne convient pas (marches d'escalier). */
@@ -1399,7 +1393,6 @@ export const products: Product[] = [
     sizes: [{ id: "standard", label: "Taille unique — L 48 × P 55 × H 88 cm", price: 290 }],
     woods: [],
     metals: pieds(),
-    piedsCalque: "/images/chaises/pieds-v3-",
     fabrics,
     sections: [
       {
