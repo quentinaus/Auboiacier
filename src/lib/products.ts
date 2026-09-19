@@ -265,26 +265,26 @@ const WOOD_GRAIN: Record<
   { label: string; labelEn: string; swatch: string; grain: string }
 > = {
   pin: {
-    label: "Pin massif",
-    labelEn: "Solid pine",
+    label: "Pin",
+    labelEn: "Pine",
     swatch: "#e0bd85",
     grain: "url(/images/echantillons/bois-pin.webp)",
   },
   hetre: {
-    label: "Hêtre massif",
-    labelEn: "Solid beech",
+    label: "Hêtre",
+    labelEn: "Beech",
     swatch: "#dcc0a0",
     grain: "url(/images/echantillons/bois-hetre.webp)",
   },
   chene: {
-    label: "Chêne massif",
-    labelEn: "Solid oak",
+    label: "Chêne",
+    labelEn: "Oak",
     swatch: "#c19a5e",
     grain: "url(/images/echantillons/bois-chene.webp)",
   },
   noyer: {
-    label: "Noyer massif",
-    labelEn: "Solid walnut",
+    label: "Noyer",
+    labelEn: "Walnut",
     swatch: "#6b452c",
     grain: "url(/images/echantillons/bois-noyer.webp)",
   },
@@ -538,7 +538,7 @@ export const products: Product[] = [
     category: "interieur",
     orderMode: "cart",
     name: "Table Mikado",
-    tagline: "Des lames d'acier plein jetées en croix sous le plateau, soudées d'une seule pièce.",
+    tagline: "Des lames d'acier plein croisées comme un jeu de mikado, sous un plateau de chêne massif.",
     images: [
       {
         src: "/images/mikado/devant/noir.jpg",
@@ -758,7 +758,7 @@ export const products: Product[] = [
     specs: [
       { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 25, 35 ou 45 mm (35 mm au catalogue), finition huile-cire" },
       { label: "Piétement", value: "Acier plein S235, soudure TIG, thermolaquage mat" },
-      { label: "Capacité", value: "6 à 14 couverts selon dimension" },
+      { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
       { label: "Livraison", value: "France métropolitaine, montage compris" },
     ],
@@ -766,7 +766,7 @@ export const products: Product[] = [
     en: {
       name: "Mikado Table",
       seoMots: "steel & oak table",
-      tagline: "Solid steel blades thrown across each other under the top, welded in one piece.",
+      tagline: "Blades of solid steel crossed like pick-up sticks, under a solid oak top.",
       images: [
         "Mikado table — front view, charcoal black legs",
         "Mikado table — close-up of the top and steel grey legs",
@@ -796,7 +796,7 @@ export const products: Product[] = [
       specs: [
         { label: "Top", value: "Solid pine, beech, oak or walnut, 25, 35 or 45 mm thick (35 mm for catalogue sizes), hardwax oil finish" },
         { label: "Base", value: "Solid S235 steel, TIG welded, matt powder coating" },
-        { label: "Seats", value: "6 to 14 people depending on size" },
+        { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
         { label: "Delivery", value: "Mainland France, assembly included" },
       ],
@@ -905,7 +905,7 @@ export const products: Product[] = [
     specs: [
       { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 25, 35 ou 45 mm (35 mm au catalogue), finition huile-cire" },
       { label: "Piétement", value: "Lames d'acier plein S235, soudure TIG, thermolaquage mat" },
-      { label: "Capacité", value: "6 à 14 couverts selon dimension" },
+      { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
       { label: "Livraison", value: "France métropolitaine, montage compris" },
     ],
@@ -944,7 +944,7 @@ export const products: Product[] = [
       specs: [
         { label: "Top", value: "Solid pine, beech, oak or walnut, 25, 35 or 45 mm thick (35 mm for catalogue sizes), hardwax oil finish" },
         { label: "Base", value: "Solid S235 steel blades, TIG welded, matt powder coating" },
-        { label: "Seats", value: "6 to 14 people depending on size" },
+        { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
         { label: "Delivery", value: "Mainland France, assembly included" },
       ],
@@ -1023,7 +1023,7 @@ export const products: Product[] = [
     specs: [
       { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 25, 35 ou 45 mm (35 mm au catalogue), finition huile-cire" },
       { label: "Piétement", value: "Tiges d'acier plein, soudure TIG, thermolaquage mat" },
-      { label: "Capacité", value: "6 à 14 couverts selon dimension" },
+      { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
       { label: "Livraison", value: "France métropolitaine, montage compris" },
     ],
@@ -1060,7 +1060,7 @@ export const products: Product[] = [
       specs: [
         { label: "Top", value: "Solid pine, beech, oak or walnut, 25, 35 or 45 mm thick (35 mm for catalogue sizes), hardwax oil finish" },
         { label: "Base", value: "Solid steel rods, TIG welded, matt powder coating" },
-        { label: "Seats", value: "6 to 14 people depending on size" },
+        { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
         { label: "Delivery", value: "Mainland France, assembly included" },
       ],
@@ -1510,7 +1510,7 @@ export const products: Product[] = [
     specs: [
       { label: "Plateau", value: "Chêne massif traité classe 4, lattes espacées, finition huile extérieure" },
       { label: "Piétement", value: "Acier plein, soudure TIG, thermolaquage extérieur" },
-      { label: "Capacité", value: "6 à 14 couverts selon dimension" },
+      { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Entretien", value: "Une huile par an ; laisser griser si l'on préfère la patine" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
       { label: "Livraison", value: "France métropolitaine, montage compris" },
@@ -1546,7 +1546,7 @@ export const products: Product[] = [
       specs: [
         { label: "Top", value: "Class 4 treated solid oak, spaced slats, outdoor oil finish" },
         { label: "Base", value: "Solid steel, TIG welded, outdoor powder coating" },
-        { label: "Seats", value: "6 to 14 people depending on size" },
+        { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Care", value: "One coat of oil a year; leave it to silver if you prefer the patina" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
         { label: "Delivery", value: "Mainland France, assembly included" },
