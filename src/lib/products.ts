@@ -709,11 +709,11 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 2310 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 2870 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 3670 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 4310 },
-      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 5190 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 1960 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 2440 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 3120 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 3660 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 4410 },
     ],
     surMesure: {
       // Forfait de piétement, puis le mètre carré de plateau. Le prix au m²
@@ -721,8 +721,8 @@ export const products: Product[] = [
       // le prix d'une table du catalogue plus petite.
       forme: "rect",
       axes: "plan",
-      forfait: 760,
-      parM2: 1220,
+      forfait: 650,
+      parM2: 1040,
       minMm: 800,
       maxLargeurMm: 4000,
       maxHauteurMm: 1400,
@@ -733,7 +733,7 @@ export const products: Product[] = [
         refMm: 35,
         choixMm: PLATEAU_CHOIX,
         // Chaque millimètre AU-DESSUS de 35 mm se paie au mètre carré.
-        parM2ParMm: 25,
+        parM2ParMm: 21,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
       },
@@ -861,11 +861,11 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 2230 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 2790 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 3590 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 4230 },
-      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 5110 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 1900 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 2370 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 3050 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 3600 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 4340 },
     ],
     surMesure: {
       // Forfait de piétement, puis le mètre carré de plateau. Le prix au m²
@@ -873,8 +873,8 @@ export const products: Product[] = [
       // le prix d'une table du catalogue plus petite.
       forme: "rect",
       axes: "plan",
-      forfait: 680,
-      parM2: 1220,
+      forfait: 580,
+      parM2: 1040,
       minMm: 800,
       maxLargeurMm: 4000,
       maxHauteurMm: 1400,
@@ -885,7 +885,7 @@ export const products: Product[] = [
         refMm: 35,
         choixMm: PLATEAU_CHOIX,
         // Chaque millimètre AU-DESSUS de 35 mm se paie au mètre carré.
-        parM2ParMm: 25,
+        parM2ParMm: 21,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
       },
@@ -978,11 +978,11 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 2270 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 2830 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 3630 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 4270 },
-      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 5150 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 1930 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 2410 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 3090 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 3630 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 4380 },
     ],
     surMesure: {
       // Forfait de piétement, puis le mètre carré de plateau. Le prix au m²
@@ -992,8 +992,8 @@ export const products: Product[] = [
       // forfait, quelle que soit la taille du plateau.
       forme: "rect",
       axes: "plan",
-      forfait: 720,
-      parM2: 1220,
+      forfait: 610,
+      parM2: 1040,
       minMm: 800,
       maxLargeurMm: 4000,
       maxHauteurMm: 1400,
@@ -1004,7 +1004,7 @@ export const products: Product[] = [
         refMm: 35,
         choixMm: PLATEAU_CHOIX,
         // Chaque millimètre AU-DESSUS de 35 mm se paie au mètre carré.
-        parM2ParMm: 25,
+        parM2ParMm: 21,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
       },
@@ -1470,11 +1470,11 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 1200 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1480 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1880 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 2200 },
-      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 2640 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 1020 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1260 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1600 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 1870 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 2240 },
     ],
     surMesure: {
       // Le même piétement que la table d'intérieur, mais un plateau à lattes.
@@ -1486,8 +1486,8 @@ export const products: Product[] = [
       // en millimètres étaient déjà renseignées.
       forme: "rect",
       axes: "plan",
-      forfait: 600,
-      parM2: 535,
+      forfait: 520,
+      parM2: 450,
       minMm: 800,
       maxLargeurMm: 4000,
       maxHauteurMm: 1400,
@@ -1497,7 +1497,7 @@ export const products: Product[] = [
         maxMm: 45,
         refMm: 35,
         choixMm: PLATEAU_CHOIX,
-        parM2ParMm: 15,
+        parM2ParMm: 13,
         miniParLongueur: PLATEAU_MASSIF,
       },
     },
