@@ -270,25 +270,25 @@ const WOOD_GRAIN: Record<
     label: "Pin",
     labelEn: "Pine",
     swatch: "#e0bd85",
-    grain: "url(/images/echantillons/bois-pin.webp)",
+    grain: "url(/images/echantillons/bois-pin-v2.webp)",
   },
   hetre: {
     label: "Hêtre",
     labelEn: "Beech",
     swatch: "#dcc0a0",
-    grain: "url(/images/echantillons/bois-hetre.webp)",
+    grain: "url(/images/echantillons/bois-hetre-v2.webp)",
   },
   chene: {
     label: "Chêne",
     labelEn: "Oak",
     swatch: "#c19a5e",
-    grain: "url(/images/echantillons/bois-chene.webp)",
+    grain: "url(/images/echantillons/bois-chene-v2.webp)",
   },
   noyer: {
     label: "Noyer",
     labelEn: "Walnut",
     swatch: "#6b452c",
-    grain: "url(/images/echantillons/bois-noyer.webp)",
+    grain: "url(/images/echantillons/bois-noyer-v2.webp)",
   },
 };
 

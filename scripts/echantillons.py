@@ -168,29 +168,39 @@ def bois(
     contraste: float = 1.0,
     noeuds: int = 0,
     graine: int = 1,
+    angle: float = 0.0,
+    finesse: float = 0.07,
+    figure: float = 0.0,
 ) -> tuple[np.ndarray, np.ndarray]:
     """
-    Le fil du bois : des cernes verticales (des sinus), déformées par un bruit
-    fractal, avec des variations de teinte plus larges (les planches, les
-    zones de duramen) et, pour le chêne rustique, des nœuds.
+    Le fil du bois, comme sur un disque d'échantillon photographié à plat :
+    des cernes presque droites (des sinus à peine déformés), fines et peu
+    contrastées, une teinte qui varie doucement d'une zone à l'autre, des
+    nœuds pour le pin, une « figure » flammée pour le noyer. `angle` incline
+    le fil (en degrés), `finesse` règle l'épaisseur des lignes, `figure`
+    l'ampleur des flammes.
     """
     n = TAILLE
     y, x = np.mgrid[0:n, 0:n]
-    u = x / n
-    v = y / n
+    # Le fil suit un angle : on tourne le repère avant de dessiner les cernes.
+    a = np.deg2rad(angle)
+    u = ((x - n / 2) * np.cos(a) + (y - n / 2) * np.sin(a)) / n + 0.5
+    v = (-(x - n / 2) * np.sin(a) + (y - n / 2) * np.cos(a)) / n + 0.5
 
     # Les cernes : leur écartement varie lentement (les années grasses et les
     # maigres), et le fil ondule à grande échelle — c'est ce qui dessine les
     # « cathédrales » d'une planche sur dosse.
-    espacement = 0.7 + 0.6 * fbm(n, graine + 300, octaves=2, base=260.0)
+    espacement = 0.8 + 0.4 * fbm(n, graine + 300, octaves=2, base=260.0)
     deformation = (fbm(n, graine, octaves=3, base=230.0) - 0.5) * ondulation
-    fin = (fbm(n, graine + 50, octaves=4, base=50.0) - 0.5) * 0.35
-    phase = u * veines * espacement + deformation + fin + v * 0.2
+    fin = (fbm(n, graine + 50, octaves=4, base=50.0) - 0.5) * 0.18
+    # La figure : de grandes flammes, comme sur une planche de noyer.
+    flammes = (fbm(n, graine + 400, octaves=2, base=150.0) - 0.5) * figure * np.abs(v - 0.5) * 4
+    phase = u * veines * espacement + deformation + fin + flammes + v * 0.05
     f = phase - np.floor(phase)
     # Le bois d'été : une ligne fine et sombre ; autour, un dégradé doux.
-    ligne = np.exp(-((f - 0.5) ** 2) / (2 * 0.07 ** 2))
-    doux = np.exp(-((f - 0.5) ** 2) / (2 * 0.22 ** 2))
-    cernes = np.clip(0.6 * ligne + 0.45 * doux, 0, 1)
+    ligne = np.exp(-((f - 0.5) ** 2) / (2 * finesse ** 2))
+    doux = np.exp(-((f - 0.5) ** 2) / (2 * 0.24 ** 2))
+    cernes = np.clip(0.55 * ligne + 0.4 * doux, 0, 1)
     # Les fibres : un bruit très fin, étiré verticalement.
     fibres = np.asarray(
         Image.fromarray((np.random.default_rng(graine + 9).random((n, n // 5)) * 255).astype(np.uint8)).resize((n, n), Image.BILINEAR),
@@ -200,7 +210,7 @@ def bois(
     teinte = fbm(n, graine + 200, octaves=3, base=200.0)  # les grandes zones de couleur
 
     c_clair, c_moyen, c_sombre = hexa(clair), hexa(moyen), hexa(sombre)
-    t = np.clip(0.5 * cernes * contraste + 0.22 * (fibres - 0.5) * contraste + 0.5 * (teinte - 0.5) + 0.3, 0, 1)
+    t = np.clip(0.4 * cernes * contraste + 0.2 * (fibres - 0.5) * contraste + 0.45 * (teinte - 0.5) + 0.32, 0, 1)
     rgb = np.where(
         (t < 0.5)[:, :, None],
         c_clair[None, None, :] * (1 - t * 2)[:, :, None] + c_moyen[None, None, :] * (t * 2)[:, :, None],
@@ -211,22 +221,25 @@ def bois(
         rng = np.random.default_rng(graine + 77)
         for _ in range(noeuds):
             kx, ky = rng.uniform(0.25, 0.75, size=2) * n
-            rayon = rng.uniform(0.06, 0.11) * n
-            d = np.hypot(x - kx, (y - ky) * 0.75)
-            anneaux = 0.5 + 0.5 * np.sin(d / rayon * 9.0)
+            rayon = rng.uniform(0.045, 0.07) * n
+            d = np.hypot((x - kx) * 0.85, (y - ky) * 1.15)
+            anneaux = 0.5 + 0.5 * np.sin(d / rayon * 14.0)
             noyau = np.clip(1 - d / rayon, 0, 1)
-            assombri = (0.55 + 0.25 * anneaux) * noyau ** 0.6 + (1 - noyau ** 0.6)
-            rgb = rgb * assombri[:, :, None] * (1 - 0.12 * noyau)[:, :, None] + c_sombre[None, None, :] * (0.2 * noyau ** 3)[:, :, None]
+            # Le nœud : sombre au cœur, cerné de fines auréoles, fondu vite dans le fil.
+            assombri = 1 - noyau ** 1.5 * (0.45 + 0.2 * anneaux)
+            rgb = rgb * assombri[:, :, None] + c_sombre[None, None, :] * (0.35 * noyau ** 4)[:, :, None]
 
-    # Un éclairage doux : plus clair en haut à gauche, comme la bille.
-    eclairage = 1.0 + 0.10 * (0.5 - v) + 0.06 * (0.5 - u)
+    # Un éclairage doux, venu du haut à gauche, sans vernis : le bois est huilé, mat.
+    yy = y / n
+    xx = x / n
+    eclairage = 1.0 + 0.07 * (0.5 - yy) + 0.04 * (0.5 - xx)
     rgb = rgb * eclairage[:, :, None]
-    # Un vernis discret : un très léger reflet en haut.
-    rgb += (0.06 * np.clip(0.35 - v, 0, 1) / 0.35)[:, :, None]
-    # Le bord du disque légèrement ombré pour donner l'épaisseur d'un échantillon.
+    # Le chant du disque : un liseré à peine plus sombre sur le pourtour, plus
+    # marqué en bas à droite, là où la lumière ne va pas.
     cx = cy = (n - 1) / 2.0
     dist = np.hypot(x - cx, y - cy) / (n / 2.0)
-    rgb *= (1.0 - 0.18 * np.clip(dist - 0.86, 0, 1) / 0.14)[:, :, None]
+    cote = np.clip((x - cx) / n + (y - cy) / n + 0.35, 0, 1)
+    rgb *= (1.0 - (0.10 + 0.14 * cote) * np.clip(dist - 0.9, 0, 1) / 0.1)[:, :, None]
     return rgb, masque_disque(n)
 
 
@@ -276,6 +289,8 @@ VELOURS = {
     "onyx": "#4a4b52", "dune": "#b99971", "cendre": "#746a67",
 }
 
+# Les fichiers portent « -vN » quand leur dessin change : l'optimiseur d'images
+# garde une image un an sous le même nom (voir next.config.mjs).
 ECHANTILLONS: dict[str, tuple] = {
     # Peintures thermolaquées mates (les pieds) — et l'acier brut verni.
     "metal-noir": ("bille", dict(couleur="#26241f", grain=0.06, brillance=0.30, graine=1)),
@@ -286,10 +301,14 @@ ECHANTILLONS: dict[str, tuple] = {
     "metal-blanc": ("bille", dict(couleur="#f2f0ea", grain=0.05, brillance=0.20, graine=6)),
     "metal-acier-brut": ("bille", dict(couleur="#8a8a86", metal=0.5, grain=0.02, brillance=0.45, brosse=0.10, graine=7)),
     # Les essences.
-    "bois-pin": ("bois", dict(clair="#f1dcae", moyen="#dcb878", sombre="#b48546", veines=6.0, ondulation=2.6, contraste=0.9, graine=11)),
-    "bois-hetre": ("bois", dict(clair="#ecd5b8", moyen="#dbbc99", sombre="#bd946d", veines=10.0, ondulation=1.6, contraste=0.5, graine=12)),
-    "bois-chene": ("bois", dict(clair="#dcb983", moyen="#c3985d", sombre="#8b6032", veines=7.0, ondulation=3.2, contraste=1.0, graine=13)),
-    "bois-noyer": ("bois", dict(clair="#80593a", moyen="#5b3b25", sombre="#2f1d0e", veines=7.5, ondulation=3.0, contraste=1.05, graine=14)),
+    # Le pin : jaune chaud, fil en biais, lignes marquées, deux nœuds.
+    "bois-pin-v2": ("bois", dict(clair="#e9cf92", moyen="#d7b26c", sombre="#a97c3c", veines=14.0, ondulation=1.2, contraste=0.9, noeuds=2, graine=11, angle=28, finesse=0.045)),
+    # Le hêtre : rosé, presque uni, un fil droit à peine visible.
+    "bois-hetre-v2": ("bois", dict(clair="#ecd2b6", moyen="#e1c1a1", sombre="#cba483", veines=24.0, ondulation=0.5, contraste=0.3, graine=12, angle=6, finesse=0.04)),
+    # Le chêne : doré, fil droit et fin, quelques lignes plus sombres.
+    "bois-chene-v2": ("bois", dict(clair="#d9b57f", moyen="#c69d66", sombre="#93693a", veines=19.0, ondulation=0.8, contraste=0.75, graine=13, angle=4, finesse=0.035)),
+    # Le noyer : chocolat, flammé, fort contraste.
+    "bois-noyer-v2": ("bois", dict(clair="#8a6547", moyen="#5c3d29", sombre="#2e1b10", veines=12.0, ondulation=1.8, contraste=1.15, graine=14, angle=8, finesse=0.07, figure=3.2)),
     # Les velours des chaises.
     **{f"velours-{nom}": ("velours", dict(couleur=c, graine=20 + i)) for i, (nom, c) in enumerate(VELOURS.items())},
 }
