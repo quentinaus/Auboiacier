@@ -210,6 +210,12 @@ export type Product = {
   /** Intitulé du groupe des essences quand « plateau » ne convient pas (marches d'escalier). */
   woodLabel?: { fr: string; en: string };
   /**
+   * La pièce peut être livrée ET posée par l'atelier, sur un seul trajet :
+   * la fiche propose le choix, prix selon le code postal (src/lib/deplacement.ts).
+   * La livraison seule reste comprise dans le prix de la pièce.
+   */
+  poseOption?: boolean;
+  /**
    * Intitulé du choix de taille, quand « Sur mesure, à vos cotes » ne veut rien
    * dire — sur l'escalier, ce menu choisit la FORME, pas les dimensions.
    */
@@ -529,6 +535,7 @@ const PLATEAU_MASSIF: PalierEpaisseur[] = [
 export const products: Product[] = [
   {
     slug: "table-mikado",
+    poseOption: true,
     famille: "table-interieur",
     seoMots: "table acier & chêne",
     category: "interieur",
@@ -756,7 +763,7 @@ export const products: Product[] = [
       { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, thermolaquage mat cuit au four" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "France métropolitaine, montage compris" },
+      { label: "Livraison", value: "France métropolitaine comprise ; pose à domicile en option" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -794,12 +801,13 @@ export const products: Product[] = [
         { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, oven-baked matt powder coating" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
-        { label: "Delivery", value: "Mainland France, assembly included" },
+        { label: "Delivery", value: "Mainland France included; home fitting optional" },
       ],
     },
   },
   {
     slug: "table-croix",
+    poseOption: true,
     famille: "table-interieur",
     seoMots: "table acier & chêne",
     category: "interieur",
@@ -903,7 +911,7 @@ export const products: Product[] = [
       { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, thermolaquage mat cuit au four" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "France métropolitaine, montage compris" },
+      { label: "Livraison", value: "France métropolitaine comprise ; pose à domicile en option" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -942,12 +950,13 @@ export const products: Product[] = [
         { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, oven-baked matt powder coating" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
-        { label: "Delivery", value: "Mainland France, assembly included" },
+        { label: "Delivery", value: "Mainland France included; home fitting optional" },
       ],
     },
   },
   {
     slug: "table-brindille",
+    poseOption: true,
     famille: "table-interieur",
     seoMots: "table acier & chêne",
     category: "interieur",
@@ -1021,7 +1030,7 @@ export const products: Product[] = [
       { label: "Piétement", value: "Tiges d'acier soudées une à une, thermolaquage mat cuit au four" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "France métropolitaine, montage compris" },
+      { label: "Livraison", value: "France métropolitaine comprise ; pose à domicile en option" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -1058,7 +1067,7 @@ export const products: Product[] = [
         { label: "Base", value: "Steel rods welded one by one, oven-baked matt powder coating" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
-        { label: "Delivery", value: "Mainland France, assembly included" },
+        { label: "Delivery", value: "Mainland France included; home fitting optional" },
       ],
     },
   },
@@ -1442,6 +1451,7 @@ export const products: Product[] = [
   },
   {
     slug: "table-mikado-exterieur",
+    poseOption: true,
     famille: "table-exterieur",
     seoMots: "table de jardin",
     // Même raison que le garde-corps : accroche + prix + suffixe dépassait.
@@ -1509,7 +1519,7 @@ export const products: Product[] = [
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Entretien", value: "Une huile par an ; laisser griser si l'on préfère la patine" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "France métropolitaine, montage compris" },
+      { label: "Livraison", value: "France métropolitaine comprise ; pose à domicile en option" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -1545,7 +1555,7 @@ export const products: Product[] = [
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Care", value: "One coat of oil a year; leave it to silver if you prefer the patina" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
-        { label: "Delivery", value: "Mainland France, assembly included" },
+        { label: "Delivery", value: "Mainland France included; home fitting optional" },
       ],
     },
   },

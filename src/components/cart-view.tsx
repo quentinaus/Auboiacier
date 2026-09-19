@@ -8,7 +8,7 @@ import { productLocalise, remiseLot, resolveSelection, SUR_MESURE, type Product 
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { serif } from "@/lib/fonts";
 import { prixAffiche } from "@/lib/ui";
-import { PRISE_DE_COTES, libellePriseDeCotes } from "@/lib/deplacement";
+import { POSE, PRISE_DE_COTES, libellePose, libellePriseDeCotes } from "@/lib/deplacement";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 
 const ACCENT = "#6d2c2c";
@@ -79,6 +79,23 @@ export function CartView({
       // La prise de cotes n'est pas une pièce du catalogue : son prix a été
       // calculé par le serveur (/api/deplacement) quand le client a choisi, et
       // /api/commande le recalcule avant d'encaisser. On l'affiche tel quel.
+      // La pose à domicile : même logique, sans créneau — l'atelier appelle
+      // pour convenir du jour quand la pièce est prête.
+      if (item.slug === POSE) {
+        if (!item.poseCp) {
+          stale.push(item.id);
+          continue;
+        }
+        lines.push({
+          id: item.id,
+          quantity: 1,
+          name: libellePose(item.poseCp, locale),
+          options: item.optionsLabel,
+          unitPrice: item.unitPrice,
+          visite: true,
+        });
+        continue;
+      }
       if (item.slug === PRISE_DE_COTES) {
         const creneau = lireCreneau(item.rdv);
         if (!item.priseDeCotesCp || !creneau) {
@@ -202,6 +219,7 @@ export function CartView({
             remplissageId: item.remplissageId,
             quantity: item.quantity,
             priseDeCotesCp: item.priseDeCotesCp,
+            poseCp: item.poseCp,
             rdv: item.rdv,
             note: item.note,
           })),

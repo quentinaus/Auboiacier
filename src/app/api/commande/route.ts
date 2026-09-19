@@ -5,7 +5,7 @@ import { getStripe, isStripeConfigured, newOrderRef, piedDeFacture, siteOrigin }
 import { creerLimite } from "@/lib/limite-debit";
 import { origineEtrangere } from "@/lib/origine";
 import { productLocalise } from "@/lib/products";
-import { PRISE_DE_COTES, calculerDeplacement, libellePriseDeCotes } from "@/lib/deplacement";
+import { POSE, PRISE_DE_COTES, calculerDeplacement, calculerPose, libellePose, libellePriseDeCotes } from "@/lib/deplacement";
 import { cleCreneau, creneauValide, libelleCreneau, lireCreneau } from "@/lib/agenda";
 
 export const runtime = "nodejs";
@@ -34,6 +34,7 @@ type IncomingLine = {
   epaisseurMm?: unknown;
   quantity?: unknown;
   priseDeCotesCp?: unknown;
+  poseCp?: unknown;
   rdv?: unknown;
   note?: unknown;
 };
@@ -116,6 +117,8 @@ export async function POST(request: Request) {
 
   /** Le rendez-vous de la commande, s'il y en a un : il part dans le paiement. */
   let visite: { rdv: string; cp: string; commune: string; note: string } | null = null;
+  /** Une seule pose par commande : tout part sur le même trajet. */
+  let pose: { cp: string; commune: string } | null = null;
   /**
    * Les pièces, gardées de côté jusqu'à la fin : le prix de lot (plusieurs
    * garde-corps dans la même commande) ne se connaît qu'une fois toutes les
@@ -128,6 +131,26 @@ export async function POST(request: Request) {
     // bloc try : le visiteur recevait une page d'erreur du serveur.
     if (!line || typeof line !== "object") {
       return NextResponse.json({ error: "invalid" }, { status: 400 });
+    }
+
+    // La livraison et pose à domicile : une ligne à part, au code postal du
+    // client, recalculée ici — le navigateur n'a envoyé aucun montant. Une
+    // seule par commande : l'atelier fait un trajet, pas un par table.
+    if (line.slug === POSE) {
+      if (pose) return NextResponse.json({ error: "invalid" }, { status: 400 });
+      const cp = asNote(line.poseCp, 10);
+      const calcul = await calculerPose(cp);
+      if (!calcul.ok) return NextResponse.json({ error: "code_postal" }, { status: 400 });
+      pose = { cp, commune: calcul.deplacement.commune };
+      items.push({
+        price_data: {
+          currency: "eur",
+          unit_amount: calcul.deplacement.montantCents,
+          product_data: { name: `${libellePose(cp, locale)} (${calcul.deplacement.commune})` },
+        },
+        quantity: 1,
+      });
+      continue;
     }
 
     // La prise de cotes à domicile : ni catalogue ni barème. Le prix vient du
@@ -276,6 +299,7 @@ export async function POST(request: Request) {
         locale,
         ville,
         ...(visite ? { rdv: visite.rdv, rdv_cp: visite.cp } : {}),
+        ...(pose ? { pose_cp: pose.cp, pose_commune: pose.commune } : {}),
         // Trace de l'acceptation des conditions de vente avant paiement.
         cgv_accepted: "1",
       },

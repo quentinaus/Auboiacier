@@ -27,8 +27,9 @@ import {
   COTES_GARDE_CORPS_VIDES,
   type CotesGardeCorps,
 } from "./releve-garde-corps";
-import { PRISE_DE_COTES } from "@/lib/deplacement";
+import { POSE, PRISE_DE_COTES } from "@/lib/deplacement";
 import { VisiteAtelier } from "./prise-de-cotes";
+import { POSE_INITIALE, PoseDomicile, type ChoixPose } from "./pose-domicile";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 
 const ACCENT = "#6d2c2c";
@@ -293,6 +294,8 @@ export function ProductOptions({
   const [quantity, setQuantity] = useState(1);
   /** Configuration pour laquelle la confirmation d'ajout a été affichée. */
   const [ajoutee, setAjoutee] = useState<string | null>(null);
+  /** Livraison seule, ou livrée et posée par l'atelier (tables). */
+  const [pose, setPose] = useState<ChoixPose>(POSE_INITIALE);
   /**
    * Sur téléphone, cette colonne fait plus de deux écrans de haut : le prix et
    * le bouton disparaissent dès qu'on descend choisir un bois ou taper ses
@@ -310,7 +313,7 @@ export function ProductOptions({
   const releveRef = useRef<HTMLDivElement>(null);
   const [boutonVisible, setBoutonVisible] = useState(true);
 
-  const { add, items: panier } = useCart();
+  const { add, remove, items: panier } = useCart();
 
   useEffect(() => {
     const bouton = boutonPanierRef.current;
@@ -682,6 +685,21 @@ export function ProductOptions({
       },
       quantity
     );
+    // La pose : une ligne à part, une seule par panier (un seul trajet). Si
+    // une autre table l'avait déjà demandée, on la remplace par celle-ci.
+    if (product.poseOption && pose.voulue && pose.deplacement) {
+      panier.filter((ligne) => ligne.slug === POSE).forEach((ligne) => remove(ligne.id));
+      add(
+        {
+          slug: POSE,
+          poseCp: pose.codePostal.replace(/\s+/g, ""),
+          name: t.poseResume,
+          optionsLabel: pose.deplacement.commune,
+          unitPrice: pose.deplacement.montantCents / 100,
+        },
+        1
+      );
+    }
     setAjoutee(configuration);
   }
 
@@ -1110,7 +1128,7 @@ export function ProductOptions({
                 id={`${idTailles}-liste`}
                 role="listbox"
                 aria-labelledby={bareme ? `${idTailles}-ou` : `${idTailles}-titre`}
-                className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-xl border border-[#e5ddd3] bg-white shadow-lg"
+                className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-xl border border-[#e5ddd3] bg-white shadow-lg"
               >
                 {product.sizes.map((s, index) => (
                   <div
@@ -1199,11 +1217,15 @@ export function ProductOptions({
         </div>
       )}
 
+      {product.poseOption && orderable && (
+        <PoseDomicile choix={pose} onChange={setPose} t={t} locale={locale} />
+      )}
+
       {orderable || modeVisite ? (
         /* La barre d'achat reste au bas de la colonne pendant qu'on choisit :
            sur grand écran elle se colle au bord inférieur, débordant du
            gabarit de la colonne pour aller d'un bord à l'autre. */
-        <div className="mt-5 md:sticky md:bottom-0 md:z-20 md:-mx-8 md:border-t md:border-[#e5ddd3] md:bg-[#fbf9f6]/95 md:px-8 md:py-4 md:backdrop-blur lg:-mx-12 lg:px-12">
+        <div className="mt-5 md:sticky md:bottom-0 md:z-20 md:-mx-8 md:border-t md:border-[#e5ddd3] md:bg-white md:px-8 md:py-4 lg:-mx-12 lg:px-12">
           <div className="flex items-center gap-3">
             <div className="min-w-0 flex-1">
               <p className="text-xl font-medium leading-tight tabular-nums" style={{ color: ACCENT }}>
@@ -1249,9 +1271,8 @@ export function ProductOptions({
               ref={boutonPanierRef}
               type="button"
               onClick={addToCart}
-              disabled={total === null || (modeVisite && !visitePrete)}
-              className="shrink-0 rounded-full px-5 py-3.5 text-[11px] font-medium uppercase tracking-[0.14em] text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-              style={{ backgroundColor: ACCENT }}
+              disabled={total === null || (modeVisite && !visitePrete) || (pose.voulue && !pose.deplacement)}
+              className="shrink-0 rounded-full px-5 py-3.5 text-[11px] font-medium uppercase tracking-[0.14em] transition-colors enabled:bg-[#2b2320] enabled:text-white enabled:hover:bg-[#6d2c2c] disabled:cursor-not-allowed disabled:bg-[#ece6dd] disabled:text-[#7a6f64]"
             >
               {t.addToCart}
             </button>
@@ -1365,6 +1386,7 @@ export function ProductOptions({
               delai,
               // Le garde-corps se pose soi-même, fixations fournies : pas de montage sur place.
               product.releve === "garde-corps-fenetre" ? t.inclusLivraisonPose : t.inclusLivraison,
+              product.poseOption ? t.inclusPose : null,
               t.inclusAtelier,
               orderable ? t.inclusPaiement : null,
             ]

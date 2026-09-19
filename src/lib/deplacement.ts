@@ -107,6 +107,47 @@ export function tarifDeplacement(distanceKm: number): Omit<Deplacement, "commune
 }
 
 /* ------------------------------------------------------------------ *
+ *  La pose à domicile
+ *  L'atelier livre et installe lui-même, sur un seul trajet : la livraison
+ *  et la pose se paient ensemble, une fois. Le prix : un forfait de
+ *  main-d'œuvre sur place (déballage, montage, mise à niveau), plus la route
+ *  aller-retour et le temps de trajet, au même taux que la prise de cotes.
+ *  Pas d'offre à 19,99 € ici : c'est un service, pas un rendez-vous d'avant-
+ *  vente. Les chiffres restent à valider par Quentin.
+ * ------------------------------------------------------------------ */
+
+/** Main-d'œuvre sur place, forfait. */
+export const FORFAIT_POSE_CENTS = 9000;
+/** Le temps compté chez le client pour poser une table. */
+const HEURES_POSE = 1.5;
+
+export function tarifPose(distanceKm: number): Omit<Deplacement, "commune" | "precision"> {
+  const route = distanceKm * COEF_ROUTE * 2;
+  const heuresRoute = route / VITESSE_KMH;
+  const euros = Math.ceil(route * EURO_PAR_KM + heuresRoute * TAUX_HORAIRE_DEPLACEMENT);
+  return {
+    montantCents: FORFAIT_POSE_CENTS + euros * 100,
+    distanceKm: Math.round(distanceKm),
+    routeAllerRetourKm: Math.round(route),
+    heures: Math.round((heuresRoute + HEURES_POSE) * 10) / 10,
+    offre: false,
+  };
+}
+
+/** Libellé de la ligne « pose », dans la langue du client. */
+export function libellePose(codePostal: string, locale: "fr" | "en"): string {
+  return locale === "en"
+    ? `Delivery and fitting at home — Saumur → ${codePostal}`
+    : `Livraison et pose à domicile — Saumur → ${codePostal}`;
+}
+
+/**
+ * Le « produit » pose, tel qu'il circule dans le panier : une ligne à part,
+ * au code postal du client, recalculée par /api/commande avant d'encaisser.
+ */
+export const POSE = "pose-a-domicile";
+
+/* ------------------------------------------------------------------ *
  *  Le repli : la préfecture de chaque département de métropole.
  *  Approximatif par nature ; ne sert que si l'annuaire ne répond pas.
  * ------------------------------------------------------------------ */
@@ -187,6 +228,18 @@ async function geocoder(codePostal: string): Promise<{ lat: number; lon: number;
  * postal, et l'outre-mer : on ne prend pas l'avion pour mesurer une fenêtre.
  */
 export async function calculerDeplacement(codePostal: string): Promise<ResultatDeplacement> {
+  return calculer(codePostal, tarifDeplacement);
+}
+
+/** Même trajet, autre motif : la pose. Le prix suit le barème de la pose. */
+export async function calculerPose(codePostal: string): Promise<ResultatDeplacement> {
+  return calculer(codePostal, tarifPose);
+}
+
+async function calculer(
+  codePostal: string,
+  tarif: (distanceKm: number) => Omit<Deplacement, "commune" | "precision">
+): Promise<ResultatDeplacement> {
   const cp = codePostal.replace(/\s+/g, "");
   const departement = departementDe(cp);
   if (!departement) return { ok: false, reason: "code_postal_invalide" };
@@ -202,7 +255,7 @@ export async function calculerDeplacement(codePostal: string): Promise<ResultatD
   return {
     ok: true,
     deplacement: {
-      ...tarifDeplacement(distance),
+      ...tarif(distance),
       commune: point.commune,
       precision: fin ? "adresse" : "departement",
     },

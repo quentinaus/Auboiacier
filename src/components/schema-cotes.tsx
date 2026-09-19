@@ -33,8 +33,12 @@ type Etat = "repos" | "survol" | "actif";
 const LARGEUR_BOX = 460;
 const HAUTEUR_BOX = 180;
 
-/** Direction de la profondeur : vers l'arrière droit, un peu aplatie. */
-const FUITE_U: Point = [0.83, -0.55];
+/**
+ * Direction de la profondeur : vers l'arrière droit. Le vecteur mesure 0,55,
+ * pas 1 : en perspective cavalière, la profondeur se dessine raccourcie,
+ * sinon un plateau carré paraît plus profond que large.
+ */
+const FUITE_U: Point = [0.46, -0.30];
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
@@ -55,7 +59,8 @@ function geometrieRect(mm: { principale?: number; secondaire?: number; epaisseur
   const largeurUtile = LARGEUR_BOX - 64 - 74;
   const hauteurUtile = HAUTEUR_BOX - 12 - 30;
   const ep = clamp(Math.round(6 + (T / 35) * 10), 8, 26);
-  // Longueur dessinée L·k, profondeur W·k : on cherche le plus grand k.
+  // Longueur dessinée L·k, profondeur W·k (raccourcie par FUITE_U) : on
+  // cherche le plus grand k qui tienne dans la boîte.
   let k = largeurUtile / (ratio + FUITE_U[0]);
   k = Math.min(k, (hauteurUtile - ep) / -FUITE_U[1]);
   const lPx = ratio * k;

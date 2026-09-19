@@ -33,6 +33,8 @@ export type CartItem = {
    * sont recalculés et revérifiés par le serveur avant d'encaisser.
    */
   priseDeCotesCp?: string;
+  /** Une ligne « livraison et pose à domicile » (slug POSE) : le code postal décide du prix. */
+  poseCp?: string;
   /** Le créneau choisi : « 2026-09-23|matin ». */
   rdv?: string;
   /** Ce que le client précise (type de mur, pièce voulue…), transmis tel quel à l'atelier. */
@@ -64,6 +66,7 @@ function lineId(line: CartLine) {
     line.hauteurMm,
     line.epaisseurMm,
     line.priseDeCotesCp,
+    line.poseCp,
     line.rdv,
     line.note,
   ]

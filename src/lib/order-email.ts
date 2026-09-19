@@ -123,6 +123,10 @@ export async function notifyOwner(
     // La ville, donnée au panier avant le paiement : elle est là même si le
     // client s'est arrêté avant de saisir son adresse complète.
     session.metadata?.ville ? `Ville : ${session.metadata.ville}` : "",
+    // La pose à domicile : où aller, en clair, pour caler le trajet.
+    session.metadata?.pose_cp
+      ? `POSE À DOMICILE : ${session.metadata.pose_cp}${session.metadata.pose_commune ? ` (${session.metadata.pose_commune})` : ""} — appeler le client pour convenir du jour.`
+      : "",
     "",
     formatLines(lines),
     "",
