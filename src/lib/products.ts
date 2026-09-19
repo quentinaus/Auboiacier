@@ -751,8 +751,8 @@ export const products: Product[] = [
         body: "Des lames d'acier plein se croisent sous le plateau comme un jeu de mikado. Chaque appui semble posé au hasard ; l'équilibre est calculé au millimètre. Le piétement est soudé d'une seule pièce à l'atelier : aucune vis apparente, aucun raccord.",
       },
       {
-        title: "Un plateau collé lame par lame",
-        body: "Le plateau de 35 mm est monté en lames larges, collées sur chant, puis poncé. L'huile-cire pénètre le bois au lieu de le recouvrir. Une rayure se rattrape au papier fin, sur la zone touchée, sans reprendre tout le plateau.",
+        title: "Un plateau de chêne premier choix",
+        body: "Notre plateau de référence est en chêne français premier choix, issu de forêts gérées durablement. Des lames larges, d'une seule pièce sur toute la longueur, choisies et assemblées à la main pour que le veinage et la teinte se répondent : ni nœud, ni aubier. Huilé plutôt que verni, le bois garde son toucher et se patine avec les années ; une marque se rattrape au papier fin, sur la zone touchée seulement. Hêtre, noyer et pin suivent la même exigence.",
       },
     ],
     specs: [
@@ -789,8 +789,8 @@ export const products: Product[] = [
           body: "Blades of solid steel cross under the top like a game of pick-up sticks. Every leg looks dropped at random; the balance is worked out to the millimetre. The base is welded in one piece in the workshop: no visible screw, no joint.",
         },
         {
-          title: "A top glued board by board",
-          body: "The 35 mm top is built from wide boards glued edge to edge, then sanded. The hardwax oil soaks into the wood instead of sitting on it. A scratch comes out with fine paper, on that spot alone, without redoing the whole top.",
+          title: "A first-grade oak top",
+          body: "Our reference top is French first-grade oak from sustainably managed forests. Wide boards, each running the full length in a single piece, are selected and matched by hand so grain and colour answer each other: no knots, no sapwood. Oiled rather than varnished, the wood keeps its touch and gains a patina over the years; a mark comes out with fine paper, on that spot alone. Beech, walnut and pine are made to the same standard.",
         },
       ],
       specs: [
@@ -897,6 +897,10 @@ export const products: Product[] = [
         title: "De la place pour les jambes",
         body: "Les appuis sont repoussés vers les extrémités : on s'assoit au milieu sans buter dans un pied. C'est la table des longues tablées, celle qui accepte une chaise de plus au dernier moment.",
       },
+      {
+        title: "Un plateau de chêne premier choix",
+        body: "Notre plateau de référence est en chêne français premier choix, issu de forêts gérées durablement. Des lames larges, d'une seule pièce sur toute la longueur, choisies et assemblées à la main pour que le veinage et la teinte se répondent : ni nœud, ni aubier. Huilé plutôt que verni, le bois garde son toucher et se patine avec les années ; une marque se rattrape au papier fin, sur la zone touchée seulement. Hêtre, noyer et pin suivent la même exigence.",
+      },
     ],
     specs: [
       { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 25, 35 ou 45 mm (35 mm au catalogue), finition huile-cire" },
@@ -931,6 +935,10 @@ export const products: Product[] = [
         {
           title: "Room for your legs",
           body: "The feet are pushed out to the ends: you sit in the middle without knocking into anything. This is the table for long gatherings, the one that takes one more chair at the last minute.",
+        },
+        {
+          title: "A first-grade oak top",
+          body: "Our reference top is French first-grade oak from sustainably managed forests. Wide boards, each running the full length in a single piece, are selected and matched by hand so grain and colour answer each other: no knots, no sapwood. Oiled rather than varnished, the wood keeps its touch and gains a patina over the years; a mark comes out with fine paper, on that spot alone. Beech, walnut and pine are made to the same standard.",
         },
       ],
       specs: [
@@ -1007,6 +1015,10 @@ export const products: Product[] = [
         title: "Léger à l'œil, stable au sol",
         body: "Les appuis, nombreux, répartissent la charge : la table ne bouge pas, même chargée. Chaque tige est cintrée puis ajustée à la main ; aucun piétement n'est tout à fait identique à un autre.",
       },
+      {
+        title: "Un plateau de chêne premier choix",
+        body: "Notre plateau de référence est en chêne français premier choix, issu de forêts gérées durablement. Des lames larges, d'une seule pièce sur toute la longueur, choisies et assemblées à la main pour que le veinage et la teinte se répondent : ni nœud, ni aubier. Huilé plutôt que verni, le bois garde son toucher et se patine avec les années ; une marque se rattrape au papier fin, sur la zone touchée seulement. Hêtre, noyer et pin suivent la même exigence.",
+      },
     ],
     specs: [
       { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 25, 35 ou 45 mm (35 mm au catalogue), finition huile-cire" },
@@ -1039,6 +1051,10 @@ export const products: Product[] = [
         {
           title: "Light to the eye, steady on the floor",
           body: "The many points of contact spread the load: the table does not budge, even fully laid. Each rod is bent and then fitted by hand; no two bases are quite alike.",
+        },
+        {
+          title: "A first-grade oak top",
+          body: "Our reference top is French first-grade oak from sustainably managed forests. Wide boards, each running the full length in a single piece, are selected and matched by hand so grain and colour answer each other: no knots, no sapwood. Oiled rather than varnished, the wood keeps its touch and gains a patina over the years; a mark comes out with fine paper, on that spot alone. Beech, walnut and pine are made to the same standard.",
         },
       ],
       specs: [
