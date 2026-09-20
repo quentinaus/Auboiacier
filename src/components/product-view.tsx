@@ -163,8 +163,12 @@ export function ProductView({
        les choix. Sur téléphone, la photo prend d'abord tout l'écran, puis les
        options suivent. */
     <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(380px,36%)] lg:grid-cols-[minmax(0,1fr)_460px]">
-      {/* Galerie — reste visible pendant qu'on parcourt les options */}
-      <div ref={galleryRef} className="relative md:sticky md:top-0 md:h-screen md:self-start">
+      {/* Galerie — reste visible pendant qu'on parcourt les options. Sa
+          hauteur retire celle de l'en-tête (non collant, lui) : en
+          « h-screen » plein, le bas de la photo — et sa bande de vignettes —
+          tombait juste sous le premier écran, un petit défilement à faire
+          rien que pour les voir. */}
+      <div ref={galleryRef} className="relative md:sticky md:top-0 md:h-[calc(100vh-69px)] md:self-start">
         <div
           /* Sur téléphone, la photo prend moins de hauteur qu'avant : le
              titre et le choix des matières (remontés en haut de la colonne)
