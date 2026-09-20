@@ -408,7 +408,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               se rejoignent d'ici : sans lien, personne ne les trouve. */}
           <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-center">
             {[
-              { href: `/${locale}/toiles-tendues/realisations`, label: t.testimonialsCta },
+              { href: `/${locale}/realisations`, label: t.testimonialsCta },
               { href: `/${locale}/zone-intervention`, label: dict.nav.zone },
               { href: `/${locale}/faq`, label: dict.nav.faq },
             ].map((lien) => (

@@ -137,14 +137,29 @@
   },
   "realisations": {
     "title": "Projects",
-    "subtitle": "Backlit stretch ceilings fitted for homes and businesses.",
+    "subtitle": "Tables, guardrails, staircases, glass partitions and backlit ceilings, fitted for homes and businesses.",
     "filterAll": "All",
-    "filterResidential": "Residential",
-    "filterCommercial": "Commercial",
+    "filterTable": "Tables",
+    "filterGardeCorps": "Guardrails",
+    "filterEscalier": "Staircases",
+    "filterPlafond": "Backlit ceilings",
+    "filterVerriere": "Glass partitions",
+    "filterSculpture": "Sculptures",
     "moreSoon": "More projects will be added as installs are completed.",
-    "filterEmpty": "No project in this category has been published yet.",
+    "filterEmpty": "No project in this family has been published yet.",
+    "altTableMikado": "Walnut Mikado table and green velvet chairs, in a dining room with stone walls",
+    "altGardeCorpsInterieur": "Window guardrail fitted into the reveal, seen from the room",
+    "altGardeCorpsRue": "The same guardrail seen from the street, resting on a tuffeau stone sill",
+    "altEscalierSalle": "Central-stringer staircase, in a room with limewashed walls",
+    "altEscalierMarche": "Detail of a step: solid oak resting on its steel stringer",
+    "altSalle": "Backlit stretch ceiling above a dining table",
+    "altPlafondBeton": "Square backlit ceiling above a dining table, exposed concrete wall",
+    "altLucarneCouleur": "Recessed Lucarne, fabric lit in a pink-to-blue gradient",
+    "altHaloSalle": "Halo, round backlit ceiling, fitted in a living space",
     "altReunion": "Large round backlit stretch ceiling above a meeting room",
-    "altSalle": "Backlit stretch ceiling above a dining table"
+    "altVerriereSalon": "Workshop-style glass partition separating a living room from a kitchen",
+    "altVerriereCroisillon": "Detail of a partition's lower panel, steel cross-bracing",
+    "altSculptureCheval": "Rearing steel horse sculpture, in front of a stone farmhouse"
   },
   "artisanat": {
     "title": "The collection",
@@ -900,8 +915,8 @@
       "description": "Table, staircase, steel partition or backlit stretch ceiling: describe your project, estimate within 48 hours by email. Workshop in Saumur, France."
     },
     "realisations": {
-      "title": "Backlit stretch ceilings, recent work",
-      "description": "Backlit stretch ceilings fitted for homes and businesses across the Loire Valley, from our workshop in Saumur, France."
+      "title": "Our projects: furniture & fittings",
+      "description": "Tables, guardrails, staircases, glass partitions and backlit ceilings for homes and businesses in the Loire Valley, from our Saumur workshop."
     },
     "devis": {
       "title": "Instant quote, priced in one minute",

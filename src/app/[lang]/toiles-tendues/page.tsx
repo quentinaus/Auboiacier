@@ -192,7 +192,7 @@ export default async function ToilesTenduesPage({
             ))}
           </div>
           <Link
-            href={`/${locale}/toiles-tendues/realisations`}
+            href={`/${locale}/realisations?famille=plafond`}
             className="mt-6 inline-block text-[11px] font-medium uppercase tracking-[0.16em] text-[#2b2320] underline underline-offset-4"
           >
             {t.heroCtaSecondary}

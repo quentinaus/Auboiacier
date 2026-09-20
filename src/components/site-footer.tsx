@@ -21,6 +21,7 @@ export function SiteFooter({
     { href: `/${locale}/artisanat`, label: dict.hub.craftLabel },
     { href: `/${locale}/artisanat/verrieres`, label: dict.verrieres.title },
     { href: `/${locale}/artisanat/sculptures`, label: dict.sculptures.title },
+    { href: `/${locale}/realisations`, label: dict.nav.realisations },
     { href: `/${locale}/devis`, label: dict.nav.devis },
     { href: `/${locale}/a-propos`, label: dict.nav.apropos },
     { href: `/${locale}/zone-intervention`, label: dict.nav.zone },

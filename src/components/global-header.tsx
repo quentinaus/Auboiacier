@@ -18,6 +18,7 @@ export function GlobalHeader({
   const links = [
     { href: `/${locale}/toiles-tendues`, label: dict.hub.lightingLabel },
     { href: `/${locale}/artisanat`, label: dict.hub.craftLabel },
+    { href: `/${locale}/realisations`, label: dict.nav.realisations },
     { href: `/${locale}/devis`, label: dict.nav.devis },
     { href: `/${locale}/a-propos`, label: dict.nav.apropos },
     { href: `/${locale}/contact`, label: dict.nav.contact },

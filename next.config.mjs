@@ -47,6 +47,18 @@ const nextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: enTetesDeSecurite }];
   },
+  async redirects() {
+    return [
+      // La page des réalisations ne parle plus que des plafonds lumineux :
+      // elle a déménagé sous /realisations. Redirection permanente pour ne
+      // pas perdre le lien envoyé aux moteurs de recherche.
+      {
+        source: "/:lang(fr|en)/toiles-tendues/realisations",
+        destination: "/:lang/realisations",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

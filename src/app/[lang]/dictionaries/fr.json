@@ -137,14 +137,29 @@
   },
   "realisations": {
     "title": "Réalisations",
-    "subtitle": "Plafonds lumineux posés chez des particuliers et des professionnels.",
+    "subtitle": "Tables, garde-corps, escaliers, verrières et plafonds lumineux, posés chez des particuliers et des professionnels.",
     "filterAll": "Tout",
-    "filterResidential": "Résidentiel",
-    "filterCommercial": "Professionnel",
+    "filterTable": "Tables",
+    "filterGardeCorps": "Garde-corps",
+    "filterEscalier": "Escaliers",
+    "filterPlafond": "Plafonds lumineux",
+    "filterVerriere": "Verrières",
+    "filterSculpture": "Sculptures",
     "moreSoon": "D'autres chantiers seront ajoutés au fil des poses.",
-    "filterEmpty": "Aucun chantier de cette catégorie n'est encore publié.",
+    "filterEmpty": "Aucun chantier de cette famille n'est encore publié.",
+    "altTableMikado": "Table Mikado en noyer et chaises en velours vert, dans une salle à manger aux murs de pierre",
+    "altGardeCorpsInterieur": "Garde-corps de fenêtre posé en tableau, vu depuis la pièce",
+    "altGardeCorpsRue": "Le même garde-corps vu de la rue, posé sur un appui en tuffeau",
+    "altEscalierSalle": "Escalier à limon central, dans une pièce aux murs chaulés",
+    "altEscalierMarche": "Détail d'une marche : chêne massif posé sur son limon en acier",
+    "altSalle": "Plafond lumineux tendu au-dessus d'une table à manger",
+    "altPlafondBeton": "Plafond lumineux carré au-dessus d'une table à manger, mur en béton brut",
+    "altLucarneCouleur": "Lucarne encastrée, toile tendue éclairée en dégradé rose et bleu",
+    "altHaloSalle": "Halo, plafond lumineux rond, posé dans une pièce à vivre",
     "altReunion": "Grand plafond lumineux rond au-dessus d'une salle de réunion",
-    "altSalle": "Plafond lumineux tendu au-dessus d'une table à manger"
+    "altVerriereSalon": "Verrière d'atelier séparant un salon d'une cuisine",
+    "altVerriereCroisillon": "Détail du bas d'une verrière, panneau en acier à croisillon",
+    "altSculptureCheval": "Cheval cabré en acier, devant une longère en pierre"
   },
   "artisanat": {
     "title": "La collection",
@@ -900,8 +915,8 @@
       "description": "Table, escalier, verrière ou plafond lumineux : décrivez votre projet, estimation sous 48 h par e-mail. Atelier à Saumur (49), prise de cotes à domicile."
     },
     "realisations": {
-      "title": "Réalisations, plafonds lumineux posés",
-      "description": "Plafonds lumineux posés chez des particuliers et des professionnels en Maine-et-Loire et dans les départements voisins, depuis l'atelier de Saumur (49)."
+      "title": "Réalisations récentes de l'atelier",
+      "description": "Tables, garde-corps, escaliers, verrières et plafonds lumineux posés chez des particuliers et des professionnels, depuis l'atelier de Saumur (49)."
     },
     "devis": {
       "title": "Devis instantané, prix en une minute",
