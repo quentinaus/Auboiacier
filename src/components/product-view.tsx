@@ -8,7 +8,7 @@ import { ProductOptions } from "./product-options";
 import Link from "next/link";
 import { serif } from "@/lib/fonts";
 import { amenerAlEcran, hoverZoom } from "@/lib/ui";
-import { MembraneAnimee } from "./photo-plafond-anime";
+import { PhotoPlafondMesuree } from "./photo-plafond-anime";
 
 /**
  * Les flèches de la galerie ne portent pas de texte : seul un lecteur d'écran
@@ -180,18 +180,20 @@ export function ProductView({
           style={{ backgroundColor: isColorShot ? "#f2f2f1" : fond }}
         >
           {mainImage && mainImage.glow ? (
-            /* Une photo dont la toile s'éclaire : l'image et son halo vivent
-               dans un carré (le format des photos de plafond) qui tient dans
-               le cadre en hauteur COMME en largeur, pour que les repères en %
-               du halo tombent juste quel que soit le format de l'écran. Avec
-               « h-full max-w-full », un cadre plus haut que large donnait un
-               rectangle : la photo se centrait dedans et la lumière débordait
-               du cadre aluminium. */
-            <div className="relative aspect-square w-[min(100cqw,100cqh)] p-6 md:p-12">
-              <div className="relative h-full w-full">
-                <Image key={mainSrc} src={mainSrc!} alt={mainImage.alt} fill sizes="(max-width: 768px) 100vw, 66vw" className="object-contain" priority />
-                <MembraneAnimee box={mainImage.glow.box} clip={mainImage.glow.clip} />
-              </div>
+            /* Une photo dont la toile s'éclaire : le halo se cale sur le
+               rectangle réellement dessiné par la photo (voir
+               `PhotoPlafondMesuree`), pas sur un conteneur carré recalculé —
+               ce calcul-là se décalait sur certains navigateurs mobiles. */
+            <div className="relative h-full w-full">
+              <PhotoPlafondMesuree
+                key={mainSrc}
+                src={mainSrc!}
+                alt={mainImage.alt}
+                glow={mainImage.glow}
+                sizes="(max-width: 768px) 100vw, 66vw"
+                className="object-contain p-6 md:p-12"
+                priority
+              />
             </div>
           ) : mainImage ? (
             <Image
