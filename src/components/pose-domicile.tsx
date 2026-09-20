@@ -37,8 +37,8 @@ export function PoseDomicile({
 }: {
   choix: ChoixPose;
   onChange: (choix: ChoixPose) => void;
-  /** La pièce et ses cotes : le serveur en déduit le poids du colis (livraison seule). */
-  colis: { slug: string; largeurMm?: number; hauteurMm?: number; epaisseurMm?: number };
+  /** La pièce, ses cotes et sa quantité : le serveur en déduit le poids du colis (livraison seule). */
+  colis: { slug: string; largeurMm?: number; hauteurMm?: number; epaisseurMm?: number; quantity?: number };
   /** Une table part démontée ; une autre pièce arrive prête à poser. */
   demontee?: boolean;
   /** La pièce ne se pose pas : pas de choix, la livraison par transporteur est la seule façon. */
@@ -60,7 +60,7 @@ export function PoseDomicile({
 
   const codePostal = choix.codePostal.replace(/\s+/g, "");
   const cpComplet = /^\d{5}$/.test(codePostal);
-  const cleColis = `${colis.slug}:${colis.largeurMm ?? ""}x${colis.hauteurMm ?? ""}x${colis.epaisseurMm ?? ""}`;
+  const cleColis = `${colis.slug}:${colis.largeurMm ?? ""}x${colis.hauteurMm ?? ""}x${colis.epaisseurMm ?? ""}:${colis.quantity ?? 1}`;
 
   /* Le prix, demandé au serveur dès qu'un code postal complet est tapé, et
      redemandé si le choix ou les cotes changent. Une réponse en retard pour
@@ -72,7 +72,7 @@ export function PoseDomicile({
       setReponse({ cp: codePostal, voulue: choix.voulue, etat: "calcul" });
       const requete = choix.voulue
         ? `/api/deplacement?cp=${codePostal}&pour=pose`
-        : `/api/deplacement?cp=${codePostal}&pour=livraison&slug=${encodeURIComponent(colis.slug)}${colis.largeurMm ? `&l=${colis.largeurMm}` : ""}${colis.hauteurMm ? `&w=${colis.hauteurMm}` : ""}${colis.epaisseurMm ? `&t=${colis.epaisseurMm}` : ""}`;
+        : `/api/deplacement?cp=${codePostal}&pour=livraison&slug=${encodeURIComponent(colis.slug)}${colis.largeurMm ? `&l=${colis.largeurMm}` : ""}${colis.hauteurMm ? `&w=${colis.hauteurMm}` : ""}${colis.epaisseurMm ? `&t=${colis.epaisseurMm}` : ""}&qty=${colis.quantity ?? 1}`;
       fetch(requete)
         .then(async (r) => {
           const json = await r.json().catch(() => ({}));

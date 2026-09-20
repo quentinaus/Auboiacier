@@ -952,10 +952,11 @@ export function ProductOptions({
               slug: LIVRAISON,
               livraisonCp: cp,
               livraisonSlug: product.slug,
-              // Les cotes du colis : le serveur recalcule le poids avec elles.
+              // Les cotes et la quantité du colis : le serveur recalcule le poids avec elles.
               largeurMm: cotesEff?.largeurMm ?? size?.dimsMm?.[0],
               hauteurMm: cotesEff?.hauteurMm ?? size?.dimsMm?.[1],
               epaisseurMm: cotesEff?.epaisseurMm,
+              livraisonQty: quantity,
               name: t.livraisonResume,
               optionsLabel: pose.deplacement.commune,
               unitPrice: pose.deplacement.montantCents / 100,
@@ -1554,6 +1555,7 @@ export function ProductOptions({
             largeurMm: cotesEff?.largeurMm ?? size?.dimsMm?.[0],
             hauteurMm: cotesEff?.hauteurMm ?? size?.dimsMm?.[1],
             epaisseurMm: cotesEff?.epaisseurMm,
+            quantity,
           }}
           t={t}
           locale={locale}

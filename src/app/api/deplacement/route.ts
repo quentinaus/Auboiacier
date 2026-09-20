@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 /** Quarante codes postaux par adresse et par dix minutes : de quoi hésiter, pas de quoi moissonner. */
 const tropDeDemandes = creerLimite({ fenetreMs: 10 * 60 * 1000, maximum: 40 });
 
-/** Le poids du colis, d'après la pièce (slug) et ses cotes : jamais d'après un chiffre envoyé. */
+/** Le poids du colis, d'après la pièce (slug), ses cotes et sa quantité : jamais d'après un chiffre envoyé. */
 function poidsDemande(params: URLSearchParams): number {
   const produit = getProduct(params.get("slug") ?? "");
   if (!produit) return 30;
@@ -16,7 +16,10 @@ function poidsDemande(params: URLSearchParams): number {
     const n = Number(params.get(cle));
     return Number.isFinite(n) && n > 0 && n <= 10000 ? Math.round(n) : undefined;
   };
-  return poidsColisKg(produit, { largeurMm: entier("l"), hauteurMm: entier("w"), epaisseurMm: entier("t") });
+  // Même borne que le panier (MAX_QUANTITY) : au-delà, ce n'est plus une quantité plausible.
+  const qty = Number(params.get("qty"));
+  const quantite = Number.isInteger(qty) && qty >= 1 && qty <= 10 ? qty : 1;
+  return poidsColisKg(produit, { largeurMm: entier("l"), hauteurMm: entier("w"), epaisseurMm: entier("t") }) * quantite;
 }
 
 /**

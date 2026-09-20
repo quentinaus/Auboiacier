@@ -39,6 +39,8 @@ export type CartItem = {
   livraisonCp?: string;
   /** La pièce livrée, dont le serveur déduit le poids du colis. */
   livraisonSlug?: string;
+  /** Combien de cette pièce partent dans le même colis : le poids facturé suit. */
+  livraisonQty?: number;
   /** Le créneau choisi : « 2026-09-23|matin ». */
   rdv?: string;
   /** Ce que le client précise (type de mur, pièce voulue…), transmis tel quel à l'atelier. */

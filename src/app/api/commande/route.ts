@@ -47,6 +47,7 @@ type IncomingLine = {
   poseCp?: unknown;
   livraisonCp?: unknown;
   livraisonSlug?: unknown;
+  livraisonQty?: unknown;
   rdv?: unknown;
   note?: unknown;
 };
@@ -167,9 +168,13 @@ export async function POST(request: Request) {
       if (!piece) return NextResponse.json({ error: "invalid" }, { status: 400 });
       const cote = (valeur: unknown) =>
         typeof valeur === "number" && Number.isFinite(valeur) && valeur > 0 && valeur <= 10000 ? Math.round(valeur) : undefined;
+      // Le colis pèse pour chaque exemplaire livré, pas pour un seul : 5 chaises, 5 fois le poids.
+      const qty = Number(line.livraisonQty);
+      const livraisonQuantite = Number.isInteger(qty) && qty >= 1 && qty <= MAX_QUANTITY ? qty : 1;
       const calcul = await calculerLivraison(
         cp,
-        poidsColisKg(piece, { largeurMm: cote(line.largeurMm), hauteurMm: cote(line.hauteurMm), epaisseurMm: cote(line.epaisseurMm) })
+        poidsColisKg(piece, { largeurMm: cote(line.largeurMm), hauteurMm: cote(line.hauteurMm), epaisseurMm: cote(line.epaisseurMm) }) *
+          livraisonQuantite
       );
       if (!calcul.ok) return NextResponse.json({ error: "code_postal" }, { status: 400 });
       livraison = { cp, commune: calcul.deplacement.commune };
