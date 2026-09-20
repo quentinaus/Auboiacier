@@ -205,12 +205,9 @@
     "customMax": "Maximum d'un seul tenant",
     "customMin": "Minimum",
     "customArea": "Surface",
-    "customApply": "Utiliser ces dimensions",
-    "customApplied": "Dimensions retenues",
     "customTooSmall": "En dessous du minimum fabricable.",
     "customTooBig": "Au-delà du maximum d'un seul tenant : écrivez-nous, nous assemblons plusieurs caissons.",
     "customInvalid": "Entrez des cotes en chiffres.",
-    "customReset": "Tailles du catalogue",
     "customLength": "Longueur",
     "customHelpPlan": "Vos cotes en centimètres — ou en millimètres si vous préférez, l'unité se change à côté. Le plateau est chiffré au m², le piétement compris.",
     "customThicknessChoice": "{choix} mm au choix",
@@ -223,7 +220,6 @@
     "customBoxDepth": "Sur un panneau de {cote} mm, le caisson ne peut pas dépasser {max} mm de profondeur.",
     "delaiCtaDevis": "Demander un devis",
     "customOr": "Ou un format du catalogue",
-    "customAwait": "Entrez vos cotes pour voir le prix",
     "inclusLivraison": "Livraison en France métropolitaine comprise — rien ne s'ajoute au paiement.",
     "poseTitle": "Livraison et pose",
     "poseSeul": "Livraison par transporteur",
@@ -419,7 +415,11 @@
     "customTooBigTable": "Au-delà du plus grand plateau d'un seul tenant (450 × 125 cm) : choisissez une autre dimension.",
     "poseSeulInfoPiece": "Prix selon votre ville, le poids et les dimensions. La pièce arrive prête à poser, avec sa notice.",
     "devisPdf": "Voir mon devis (PDF)",
-    "estimationPdf": "Voir mon estimation (PDF)"
+    "estimationPdf": "Voir mon estimation (PDF)",
+    "catalogueLabel": "Format du catalogue",
+    "customOrCustom": "Ou à vos cotes",
+    "poseSeulCourt": "Prix selon votre ville, le poids et les dimensions.",
+    "poseAtelierCourt": "Un seul trajet depuis Saumur, prix selon la distance."
   },
   "devis": {
     "title": "Demander un devis",

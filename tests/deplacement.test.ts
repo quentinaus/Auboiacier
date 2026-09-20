@@ -7,6 +7,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  POSE_MAX_CENTS,
+  tarifPose,
   tarifDeplacement,
   calculerDeplacement,
   PRIX_OFFRE_CENTS,
@@ -65,3 +67,13 @@ test("au-delà de 200 km à vol d'oiseau, l'atelier ne se déplace pas", async (
   const nantes = await calculerDeplacement("44000");
   assert.ok(nantes.ok, "Nantes devrait passer");
 });
+
+test("la pose ne dépasse jamais son plafond, même à l'autre bout de la France", () => {
+  // Chambéry est à quelque 560 km à vol d'oiseau : route et heures dépassaient 1 400 €.
+  assert.equal(tarifPose(560).montantCents, POSE_MAX_CENTS);
+  assert.equal(POSE_MAX_CENTS, 80000);
+  // Près de Saumur, le forfait et la route se comptent normalement, sous le plafond.
+  assert.ok(tarifPose(112).montantCents < POSE_MAX_CENTS);
+  assert.ok(tarifPose(112).montantCents > tarifPose(30).montantCents);
+});
+

@@ -120,13 +120,19 @@ export function tarifDeplacement(distanceKm: number): Omit<Deplacement, "commune
 export const FORFAIT_POSE_CENTS = 9000;
 /** Le temps compté chez le client pour poser une table. */
 const HEURES_POSE = 1.5;
+/**
+ * Le plafond, forfait compris : au-delà d'environ 300 km, la route et les
+ * heures dépassaient 1 400 € pour Chambéry. Quentin ne veut pas facturer
+ * plus de 800 € un long trajet — il le groupe avec d'autres livraisons.
+ */
+export const POSE_MAX_CENTS = 80000;
 
 export function tarifPose(distanceKm: number): Omit<Deplacement, "commune" | "precision"> {
   const route = distanceKm * COEF_ROUTE * 2;
   const heuresRoute = route / VITESSE_KMH;
   const euros = Math.ceil(route * EURO_PAR_KM + heuresRoute * TAUX_HORAIRE_DEPLACEMENT);
   return {
-    montantCents: FORFAIT_POSE_CENTS + euros * 100,
+    montantCents: Math.min(POSE_MAX_CENTS, FORFAIT_POSE_CENTS + euros * 100),
     distanceKm: Math.round(distanceKm),
     routeAllerRetourKm: Math.round(route),
     heures: Math.round((heuresRoute + HEURES_POSE) * 10) / 10,

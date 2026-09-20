@@ -144,6 +144,15 @@ const styles = StyleSheet.create({
     textAlign: "right",
     color: ENCRE,
   },
+  titrePiece: {
+    marginTop: 4,
+    fontSize: 8,
+    letterSpacing: 1.6,
+    textTransform: "uppercase",
+    color: GRIS,
+    textAlign: "right",
+    lineHeight: "11pt",
+  },
   meta: {
     marginTop: 8,
     flexDirection: "row",
@@ -170,7 +179,11 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     lineHeight: "10pt",
   },
-  nomEmetteur: { fontSize: 10, fontFamily: "Helvetica-Bold", lineHeight: "14pt" },
+  nomEmetteur: {
+    fontSize: 10,
+    fontFamily: "Helvetica-Bold",
+    lineHeight: "14pt",
+  },
   ligneGrise: { fontSize: 8.5, color: GRIS, lineHeight: "12.5pt" },
   clientVide: {
     marginTop: 2,
@@ -188,7 +201,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     lineHeight: "22pt",
   },
-  pieceAccroche: { marginTop: 3, fontSize: 8.5, color: GRIS, lineHeight: "12.5pt" },
+  pieceAccroche: {
+    marginTop: 3,
+    fontSize: 8.5,
+    color: GRIS,
+    lineHeight: "12.5pt",
+  },
   caracteristiques: { marginTop: 10 },
   carac: {
     flexDirection: "row",
@@ -217,18 +235,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderBottomColor: TRAIT,
   },
-  celDesignation: { flex: 1, paddingRight: 10 },
+  ligneTitre: { paddingTop: 9, paddingBottom: 3 },
+  designationTitre: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 9.5,
+    lineHeight: "14pt",
+  },
+  celDesignation: { flex: 1, paddingRight: 10, paddingLeft: 10 },
   celQte: { width: 34, textAlign: "right", lineHeight: "13pt" },
   celPrix: { width: 82, textAlign: "right", lineHeight: "13pt" },
   celTotal: { width: 82, textAlign: "right", lineHeight: "13pt" },
   designation: { fontSize: 9.5, lineHeight: "14pt" },
   detail: { marginTop: 2, fontSize: 8, color: GRIS, lineHeight: "12pt" },
-  barre: {
-    fontSize: 8,
-    color: GRIS,
-    textDecoration: "line-through",
-    lineHeight: "12pt",
-  },
   totaux: { marginTop: 10, alignItems: "flex-end" },
   totalLigne: {
     flexDirection: "row",
@@ -238,7 +256,12 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   totalLabel: { fontSize: 8.5, color: GRIS, lineHeight: "13pt" },
-  totalValeur: { width: 82, textAlign: "right", fontSize: 9, lineHeight: "13pt" },
+  totalValeur: {
+    width: 82,
+    textAlign: "right",
+    fontSize: 9,
+    lineHeight: "13pt",
+  },
   totalDu: { fontFamily: "Helvetica-Bold", fontSize: 12.5 },
   encart: {
     marginTop: 14,
@@ -260,7 +283,11 @@ const styles = StyleSheet.create({
     padding: 10,
     minHeight: 78,
   },
-  accordTitre: { fontFamily: "Helvetica-Bold", fontSize: 8.5, lineHeight: "12pt" },
+  accordTitre: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 8.5,
+    lineHeight: "12pt",
+  },
   accordTexte: { marginTop: 2, fontSize: 7.5, color: GRIS, lineHeight: "11pt" },
   commander: { flex: 1, justifyContent: "flex-end" },
   lien: {
@@ -297,11 +324,13 @@ const styles = StyleSheet.create({
 function DocumentDevis({ devis }: { devis: Devis }) {
   const t = TEXTES[devis.locale];
   const prix = (euros: number) =>
-    prixAffiche(euros, devis.locale).replace(/\u202f/g, "\u00a0");
+    prixAffiche(euros, devis.locale)
+      .replace(/\u202f/g, "\u00a0")
+      .replace(/\u2212/g, "-");
   const titre = devis.nature === "estimation" ? t.estimation : t.devis;
   return (
     <Document
-      title={`${titre} ${devis.numero} — ${devis.piece.nom} — Auboiacier`}
+      title={`${titre} Auboiacier — ${devis.piece.nom} — ${devis.numero}`}
       author="Auboiacier"
       subject={devis.piece.nom}
       language={devis.locale}
@@ -316,6 +345,7 @@ function DocumentDevis({ devis }: { devis: Devis }) {
             </View>
             <View>
               <Text style={styles.titre}>{titre}</Text>
+              <Text style={styles.titrePiece}>{devis.piece.nom}</Text>
               <View style={styles.meta}>
                 <Text style={styles.metaLabel}>{t.numero}</Text>
                 <Text style={styles.metaValeur}>{devis.numero}</Text>
@@ -418,26 +448,38 @@ function DocumentDevis({ devis }: { devis: Devis }) {
                 {t.total}
               </Text>
             </View>
-            {devis.lignes.map((ligne) => (
-              <View key={ligne.designation} style={styles.ligne} wrap={false}>
-                <View style={styles.celDesignation}>
-                  <Text style={styles.designation}>{ligne.designation}</Text>
+            {devis.lignes.map((ligne) =>
+              ligne.titre ? (
+                <View
+                  key={ligne.designation}
+                  style={styles.ligneTitre}
+                  wrap={false}
+                >
+                  <Text style={styles.designationTitre}>
+                    {ligne.designation}
+                  </Text>
                   {ligne.details.map((d) => (
                     <Text key={d} style={styles.detail}>
                       {d}
                     </Text>
                   ))}
                 </View>
-                <Text style={styles.celQte}>{ligne.quantite}</Text>
-                <View style={styles.celPrix}>
-                  {ligne.avantRemise !== undefined && (
-                    <Text style={styles.barre}>{prix(ligne.avantRemise)}</Text>
-                  )}
-                  <Text>{prix(ligne.unitaire)}</Text>
+              ) : (
+                <View key={ligne.designation} style={styles.ligne} wrap={false}>
+                  <View style={styles.celDesignation}>
+                    <Text style={styles.designation}>{ligne.designation}</Text>
+                    {ligne.details.map((d) => (
+                      <Text key={d} style={styles.detail}>
+                        {d}
+                      </Text>
+                    ))}
+                  </View>
+                  <Text style={styles.celQte}>{ligne.quantite}</Text>
+                  <Text style={styles.celPrix}>{prix(ligne.unitaire)}</Text>
+                  <Text style={styles.celTotal}>{prix(ligne.total)}</Text>
                 </View>
-                <Text style={styles.celTotal}>{prix(ligne.total)}</Text>
-              </View>
-            ))}
+              ),
+            )}
           </View>
           <View style={styles.totaux} wrap={false}>
             <View style={styles.totalLigne}>
@@ -519,7 +561,9 @@ function DocumentDevis({ devis }: { devis: Devis }) {
  */
 function sansEspacesFines(devis: Devis): Devis {
   return JSON.parse(
-    JSON.stringify(devis).replaceAll("\u202f", "\u00a0"),
+    JSON.stringify(devis)
+      .replaceAll("\u202f", "\u00a0")
+      .replaceAll("\u2212", "-"),
   ) as Devis;
 }
 

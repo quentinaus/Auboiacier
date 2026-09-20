@@ -205,12 +205,9 @@
     "customMax": "Maximum in one piece",
     "customMin": "Minimum",
     "customArea": "Area",
-    "customApply": "Use these dimensions",
-    "customApplied": "Dimensions set",
     "customTooSmall": "Below the smallest size we can build.",
     "customTooBig": "Beyond the largest single piece: write to us, we join several boxes together.",
     "customInvalid": "Enter dimensions as numbers.",
-    "customReset": "Catalogue sizes",
     "customLength": "Length",
     "customHelpPlan": "Your sizes in centimetres — or millimetres if you prefer, the unit switches next to them. The top is priced per m², the base included.",
     "customThicknessChoice": "{choix} mm to choose from",
@@ -223,7 +220,6 @@
     "customBoxDepth": "On a {cote} mm panel, the box cannot be deeper than {max} mm.",
     "delaiCtaDevis": "Request a quote",
     "customOr": "Or a catalogue size",
-    "customAwait": "Enter your dimensions to see the price",
     "inclusLivraison": "Delivery in mainland France included — nothing is added at checkout.",
     "poseTitle": "Delivery and fitting",
     "poseSeul": "Delivery by carrier",
@@ -419,7 +415,11 @@
     "customTooBigTable": "Beyond the largest single-piece top (450 × 125 cm): please choose another size.",
     "poseSeulInfoPiece": "Price depends on your town, weight and size. The piece arrives ready to fit, with its notes.",
     "devisPdf": "View my quote (PDF)",
-    "estimationPdf": "View my estimate (PDF)"
+    "estimationPdf": "View my estimate (PDF)",
+    "catalogueLabel": "Catalogue size",
+    "customOrCustom": "Or your own dimensions",
+    "poseSeulCourt": "Price depends on your town, weight and size.",
+    "poseAtelierCourt": "A single trip from Saumur, priced by distance."
   },
   "devis": {
     "title": "Request a quote",

@@ -134,7 +134,12 @@ export function PoseDomicile({
                       .replace("{prix}", prixAffiche(dep.montantCents / 100, locale))
                   : t.poseCalcul;
 
-  const carte = (voulue: boolean, titre: string, info: string) => {
+  /**
+   * Une carte par façon de livrer : le titre et une ligne, rien de plus. Le
+   * détail de l'option retenue se lit une fois, sous les deux cartes — deux
+   * paragraphes côte à côte faisaient un bloc de texte que personne ne lisait.
+   */
+  const carte = (voulue: boolean, titre: string, court: string) => {
     const active = choix.voulue === voulue;
     return (
       <button
@@ -142,12 +147,22 @@ export function PoseDomicile({
         role="radio"
         aria-checked={active}
         onClick={() => onChange({ ...choix, voulue, deplacement: null })}
-        className={`flex-1 rounded-xl border px-4 py-3 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${
+        className={`flex flex-1 items-start gap-3 rounded-2xl border px-4 py-3.5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${
           active ? "border-[#2b2320] bg-white" : "border-[#e5ddd3] bg-transparent hover:border-[#9a8d80]"
         }`}
       >
-        <span className={`block text-sm ${active ? "font-medium text-[#2b2320]" : "text-[#2b2320]"}`}>{titre}</span>
-        <span className="mt-1 block text-xs leading-snug text-[#6f6357]">{info}</span>
+        <span
+          aria-hidden="true"
+          className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
+            active ? "border-[#2b2320]" : "border-[#9a8d80]"
+          }`}
+        >
+          <span className={`h-2 w-2 rounded-full bg-[#2b2320] transition-opacity ${active ? "opacity-100" : "opacity-0"}`} />
+        </span>
+        <span className="min-w-0">
+          <span className="block text-sm font-medium leading-snug text-[#2b2320]">{titre}</span>
+          <span className="mt-1 block text-xs leading-snug text-[#6f6357]">{court}</span>
+        </span>
       </button>
     );
   };
@@ -156,13 +171,17 @@ export function PoseDomicile({
 
   return (
     <div className="mt-5 border-t border-[#e5ddd3] pt-5">
-      <span id={idGroupe} className="block text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
+      <span id={idGroupe} className="block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
         {t.poseTitle}
       </span>
-      <div role="radiogroup" aria-labelledby={idGroupe} className="mt-4 flex gap-3">
-        {carte(false, t.poseSeul, demontee ? t.poseSeulInfo : t.poseSeulInfoPiece)}
-        {carte(true, t.poseAtelier, t.poseAtelierInfo)}
+      <div role="radiogroup" aria-labelledby={idGroupe} className="mt-3 flex flex-col gap-2 sm:flex-row">
+        {carte(false, t.poseSeul, t.poseSeulCourt)}
+        {carte(true, t.poseAtelier, t.poseAtelierCourt)}
       </div>
+      {/* Ce que l'option retenue veut dire, une fois. */}
+      <p className="mt-3 text-xs leading-relaxed text-[#6f6357]">
+        {choix.voulue ? t.poseAtelierInfo : demontee ? t.poseSeulInfo : t.poseSeulInfoPiece}
+      </p>
 
       <div className="mt-4">
         <label htmlFor={idCp} className="flex items-center justify-between gap-4">

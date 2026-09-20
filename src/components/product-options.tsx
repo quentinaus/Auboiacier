@@ -77,7 +77,11 @@ function SwatchGroup({
       </span>
       {/* Les pastilles en rangée, centrées sous leur intitulé : la colonne est
           étroite, chaque groupe se lit comme un nuancier. */}
-      <div role="group" aria-labelledby={idGroupe} className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-5 sm:gap-x-5">
+      <div
+        role="group"
+        aria-labelledby={idGroupe}
+        className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-5 sm:gap-x-5"
+      >
         {options.map((o) => {
           const isSelected = o.id === selected;
           return (
@@ -92,7 +96,9 @@ function SwatchGroup({
                  aria-label remplace tout le contenu du bouton, il doit donc le
                  redire, sinon le « +710 € » du noyer n'est jamais prononcé. */
               aria-label={
-                showDelta ? `${o.label} — ${formatDelta(o.priceDelta ?? 0, locale)}` : o.label
+                showDelta
+                  ? `${o.label} — ${formatDelta(o.priceDelta ?? 0, locale)}`
+                  : o.label
               }
               className="group w-[4.25rem] shrink-0 rounded-xl text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] lg:w-[4.75rem]"
             >
@@ -239,12 +245,13 @@ export function ProductOptions({
   onWoodChange?: (id: string) => void;
 }) {
   /** La taille à laquelle la fiche s'ouvre, s'il y en a une. */
-  const tailleInitiale = (product.sizes.find((s) => s.default) ?? product.sizes[0])?.id ?? "";
+  const tailleInitiale =
+    (product.sizes.find((s) => s.default) ?? product.sizes[0])?.id ?? "";
   // Une pièce qui a un barème s'ouvre sans taille ni prix : le chiffre vient
   // avec les cotes du client (ou une taille du catalogue, s'il en choisit une).
   // Les autres s'ouvrent sur leur taille par défaut (la 8 places sur les
   // chaises vendues par lot, par exemple).
-  const [sizeId, setSizeId] = useState(product.surMesure ? "" : tailleInitiale);
+  const [sizeIdChoisi, setSizeId] = useState(product.surMesure ? "" : tailleInitiale);
   /** Le détail des dimensions et de leurs tarifs ne s'ouvre qu'au clic. */
   const [sizesOpen, setSizesOpen] = useState(false);
   /**
@@ -259,7 +266,9 @@ export function ProductOptions({
   // l'unité reste au choix du client.
   // Une table se saisit en centimètres, comme on la mesure ; le reste en millimètres, l'unité de l'atelier.
   const [unite, setUnite] = useState<"mm" | "cm" | "m">(
-    product.surMesure?.axes === "plan" && product.category !== "lumiere" ? "cm" : "mm"
+    product.surMesure?.axes === "plan" && product.category !== "lumiere"
+      ? "cm"
+      : "mm",
   );
   const [largeurSaisie, setLargeurSaisie] = useState("");
   const [hauteurSaisie, setHauteurSaisie] = useState("");
@@ -270,29 +279,36 @@ export function ProductOptions({
   const [epaisseurSaisie, setEpaisseurSaisie] = useState("");
   /** Cote en cours de saisie : c'est elle qui s'allume sur le croquis. */
   const [coteActive, setCoteActive] = useState<CoteActive>(null);
-  const [cotes, setCotes] = useState<
-    { largeurMm: number; hauteurMm: number; epaisseurMm: number } | null
-  >(null);
   const sizesRef = useRef<HTMLDivElement>(null);
   // Essence de référence par défaut (écart nul), pas la première de la liste.
   const [ownWoodId, setOwnWoodId] = useState(
-    (product.woods.find((w) => !w.priceDelta) ?? product.woods[0])?.id ?? ""
+    (product.woods.find((w) => !w.priceDelta) ?? product.woods[0])?.id ?? "",
   );
   const woodId = woodIdProp ?? ownWoodId;
   const setWoodId = onWoodChange ?? setOwnWoodId;
   const [ownMetalId, setOwnMetalId] = useState(product.metals[0]?.id ?? "");
   const metalId = metalIdProp ?? ownMetalId;
   const setMetalId = onMetalChange ?? setOwnMetalId;
-  const [ownFabricId, setOwnFabricId] = useState(product.fabrics?.[0]?.id ?? "");
+  const [ownFabricId, setOwnFabricId] = useState(
+    product.fabrics?.[0]?.id ?? "",
+  );
   /** Le remplissage d'un garde-corps : celui du modèle, sauf si la norme oblige à passer au verre. */
-  const [remplissageId, setRemplissageId] = useState(product.remplissages?.[0]?.id ?? "");
+  const [remplissageId, setRemplissageId] = useState(
+    product.remplissages?.[0]?.id ?? "",
+  );
   const fabricIdChoisi = fabricIdProp ?? ownFabricId;
   const setFabricId = onFabricChange ?? setOwnFabricId;
   /** Sous un panneau de verre, il n'y a plus de croix : plus de rosace à choisir ni à payer. */
   const sansRosace =
     product.fabricLabel !== undefined &&
-    product.remplissages?.some((option) => option.id === remplissageId && option.hauteurMaxConformeMm === undefined) === true;
-  const fabricId = sansRosace ? (product.fabrics?.[0]?.id ?? "") : fabricIdChoisi;
+    product.remplissages?.some(
+      (option) =>
+        option.id === remplissageId &&
+        option.hauteurMaxConformeMm === undefined,
+    ) === true;
+  const fabricId = sansRosace
+    ? (product.fabrics?.[0]?.id ?? "")
+    : fabricIdChoisi;
   const [quantity, setQuantity] = useState(1);
   /** Configuration pour laquelle la confirmation d'ajout a été affichée. */
   const [ajoutee, setAjoutee] = useState<string | null>(null);
@@ -305,11 +321,12 @@ export function ProductOptions({
    * sort de l'écran.
    */
   /** Les cotes relevées chez le client (garde-corps), et la visite de l'atelier. */
-  const [cotesGardeCorps, setCotesGardeCorps] =
-    useState<CotesGardeCorps>(
-      // Une pièce sur devis ne se mesure pas soi-même : c'est l'atelier qui vient.
-      product.orderMode === "quote" ? { ...COTES_GARDE_CORPS_VIDES, qui: "atelier" } : COTES_GARDE_CORPS_VIDES
-    );
+  const [cotesGardeCorps, setCotesGardeCorps] = useState<CotesGardeCorps>(
+    // Une pièce sur devis ne se mesure pas soi-même : c'est l'atelier qui vient.
+    product.orderMode === "quote"
+      ? { ...COTES_GARDE_CORPS_VIDES, qui: "atelier" }
+      : COTES_GARDE_CORPS_VIDES,
+  );
   const boutonPanierRef = useRef<HTMLButtonElement>(null);
   /** Le bloc de relevé : pour y ramener le curseur quand on ajoute une autre fenêtre. */
   const releveRef = useRef<HTMLDivElement>(null);
@@ -321,7 +338,7 @@ export function ProductOptions({
     const bouton = boutonPanierRef.current;
     if (!bouton) return;
     const observateur = new IntersectionObserver(([entree]) =>
-      setBoutonVisible(entree.isIntersecting)
+      setBoutonVisible(entree.isIntersecting),
     );
     observateur.observe(bouton);
     return () => observateur.disconnect();
@@ -334,21 +351,50 @@ export function ProductOptions({
   /** Une table : un plateau de bois, avec sa hauteur finie. Un plafond lumineux se mesure à plat aussi, mais n'en est pas une. */
   const table = plan && product.category !== "lumiere";
   /** Une table se mesure en longueur × largeur, un panneau en largeur × hauteur. */
-  const labelPrincipale = rond ? t.customDiameter : plan ? t.customLength : t.customWidth;
+  const labelPrincipale = rond
+    ? t.customDiameter
+    : plan
+      ? t.customLength
+      : t.customWidth;
   const labelSecondaire = plan ? t.customWidth : t.customHeight;
   const facteur = unite === "mm" ? 1 : unite === "cm" ? 10 : 1000;
   /** Une cote en millimètres, écrite dans l'unité choisie : « 220 cm », « 2 200 mm », « 2,2 m ». */
   /** Le nombre seul, dans l'unité choisie : « 80 », « 4 ». */
   const chiffre = (mm: number, u: "mm" | "cm" | "m" = unite) =>
-    (mm / (u === "mm" ? 1 : u === "cm" ? 10 : 1000)).toLocaleString(locale === "en" ? "en-GB" : "fr-FR", { maximumFractionDigits: 2 });
-  const enUnite = (mm: number, u: "mm" | "cm" | "m" = unite) => `${chiffre(mm, u)} ${u}`;
+    (mm / (u === "mm" ? 1 : u === "cm" ? 10 : 1000)).toLocaleString(
+      locale === "en" ? "en-GB" : "fr-FR",
+      { maximumFractionDigits: 2 },
+    );
+  const enUnite = (mm: number, u: "mm" | "cm" | "m" = unite) =>
+    `${chiffre(mm, u)} ${u}`;
   const enMm = (valeur: string) => {
     const nombre = Number(valeur.replace(",", "."));
     return Number.isFinite(nombre) ? Math.round(nombre * facteur) : NaN;
   };
   /** La hauteur finie d'une table, en millimètres : 750 tant que rien n'est tapé. */
   const HAUTEUR_TABLE_MM = 750;
-  const hauteurTableMm = hauteurTableSaisie === "" ? HAUTEUR_TABLE_MM : enMm(hauteurTableSaisie);
+  const hauteurTableMm =
+    hauteurTableSaisie === "" ? HAUTEUR_TABLE_MM : enMm(hauteurTableSaisie);
+  /**
+   * Changer d'unité convertit les cotes déjà tapées : « 220 » cm devient
+   * « 2 200 » mm, jamais 220 mm. Sinon le prix, le lien du devis et ce que
+   * le panier vend changeaient en silence à chaque bascule.
+   */
+  function changerUnite(nouvelle: "mm" | "cm" | "m") {
+    const de = unite === "mm" ? 1 : unite === "cm" ? 10 : 1000;
+    const vers = nouvelle === "mm" ? 1 : nouvelle === "cm" ? 10 : 1000;
+    const convertir = (valeur: string) => {
+      const nombre = Number(valeur.replace(",", "."));
+      if (valeur === "" || !Number.isFinite(nombre)) return valeur;
+      const mm = Math.round(nombre * de);
+      return String(Math.round((mm / vers) * 1000) / 1000).replace(".", locale === "en" ? "." : ",");
+    };
+    setLargeurSaisie(convertir(largeurSaisie));
+    setHauteurSaisie(convertir(hauteurSaisie));
+    setHauteurTableSaisie(convertir(hauteurTableSaisie));
+    setUnite(nouvelle);
+  }
+
   /** Cliquer un numéro sur le croquis amène le curseur dans sa case. */
   const allerA = (cote: CoteSchema) => {
     setCoteActive(cote);
@@ -367,13 +413,21 @@ export function ProductOptions({
       ? devisSurMesure(product, largeurMm, hauteurMm, epaisseurMm, locale)
       : null;
 
+  /* Dès que les cotes tapées sont valides, la pièce est « sur mesure » à ces
+     cotes — le prix suit la frappe, sans bouton à presser. Effacées ou
+     refusées, le sur-mesure se retire et le format choisi au catalogue
+     reprend (choisirTaille vide les cases). */
+  const cotesTapees =
+    bareme && !product.releve && devis?.ok ? { largeurMm, hauteurMm, epaisseurMm } : null;
+  const sizeId = cotesTapees ? SUR_MESURE : sizeIdChoisi;
+
   /* Les bornes d'épaisseur ne sont pas fixes : un plateau s'épaissit avec sa
      portée, un caisson lumineux ne peut pas être plus profond que son panneau
      n'est étroit. L'aide sous la case annonçait « 25 – 80 mm » même sur une
      table de 3,50 m, où 25 mm est refusé. */
   const porteeMm = Math.max(
     Number.isFinite(largeurMm) ? largeurMm : 0,
-    Number.isFinite(hauteurMm) ? hauteurMm : 0
+    Number.isFinite(hauteurMm) ? hauteurMm : 0,
   );
   const epaisseurMini = bareme
     ? porteeMm > 0
@@ -381,7 +435,10 @@ export function ProductOptions({
       : bareme.epaisseur.minMm
     : 0;
   const epaisseurMaxi =
-    bareme && porteeMm > 0 && Number.isFinite(largeurMm) && Number.isFinite(hauteurMm)
+    bareme &&
+    porteeMm > 0 &&
+    Number.isFinite(largeurMm) &&
+    Number.isFinite(hauteurMm)
       ? epaisseurMaxMm(bareme, largeurMm, hauteurMm)
       : (bareme?.epaisseur.maxMm ?? 0);
 
@@ -400,7 +457,9 @@ export function ProductOptions({
    * mesure » à ces cotes-là, sans bouton à presser — le prix suit la frappe.
    */
   const calculFenetre =
-    product.releve === "garde-corps-fenetre" ? calculDepuisCotes(cotesGardeCorps, t) : null;
+    product.releve === "garde-corps-fenetre"
+      ? calculDepuisCotes(cotesGardeCorps, t)
+      : null;
   /** La fenêtre est trop basse pour encastrer : pas de prix, une demande de devis. */
   const fenetreTropBasse = calculFenetre?.tientDansLaFenetre === false;
   const cotesEff =
@@ -412,9 +471,13 @@ export function ProductOptions({
         }
       : product.releve === "garde-corps-fenetre"
         ? null
-        : cotes;
+        : cotesTapees;
   const sizeIdEff =
-    product.releve === "garde-corps-fenetre" ? (calculFenetre ? SUR_MESURE : "") : sizeId;
+    product.releve === "garde-corps-fenetre"
+      ? calculFenetre
+        ? SUR_MESURE
+        : ""
+      : sizeId;
   /**
    * Une fenêtre plus large que le barème : le bouton se grise, mais il faut le
    * dire — sans ce mot, 4 555 mm tapés laissaient un bouton mort et personne
@@ -423,7 +486,13 @@ export function ProductOptions({
   const horsBareme =
     calculFenetre &&
     bareme &&
-    !devisSurMesure(product, calculFenetre.largeurMm, calculFenetre.hauteurRetenueMm, bareme.epaisseur.refMm, locale).ok
+    !devisSurMesure(
+      product,
+      calculFenetre.largeurMm,
+      calculFenetre.hauteurRetenueMm,
+      bareme.epaisseur.refMm,
+      locale,
+    ).ok
       ? { largeurMaxMm: bareme.maxLargeurMm, hauteurMaxMm: bareme.maxHauteurMm }
       : null;
 
@@ -433,9 +502,12 @@ export function ProductOptions({
   const surfaceBois = surfaceTailleM2(
     sizeIdEff === SUR_MESURE ? undefined : size,
     sizeIdEff === SUR_MESURE ? cotesEff?.largeurMm : undefined,
-    sizeIdEff === SUR_MESURE ? cotesEff?.hauteurMm : undefined
+    sizeIdEff === SUR_MESURE ? cotesEff?.hauteurMm : undefined,
   );
-  const woodsAffiches = product.woods.map((bois) => ({ ...bois, priceDelta: deltaBois(product, bois, surfaceBois) }));
+  const woodsAffiches = product.woods.map((bois) => ({
+    ...bois,
+    priceDelta: deltaBois(product, bois, surfaceBois),
+  }));
   const metal = product.metals.find((m) => m.id === metalId);
   const fabric = product.fabrics?.find((f) => f.id === fabricId);
   // Même calcul que /api/commande : aucune divergence possible.
@@ -449,20 +521,30 @@ export function ProductOptions({
       largeurMm: cotesEff?.largeurMm,
       hauteurMm: cotesEff?.hauteurMm,
       epaisseurMm: cotesEff?.epaisseurMm,
-    }) ?? size?.price ?? null;
+    }) ??
+    size?.price ??
+    null;
 
   /**
    * La norme, sur le remplissage : à partir d'une certaine hauteur, les croix
    * du modèle laissent des vides trop grands. On ne vend pas ça — on montre le
    * verre feuilleté (chiffré tout de suite) et les autres modèles.
    */
-  const remplissage = product.remplissages?.find((option) => option.id === remplissageId);
+  const remplissage = product.remplissages?.find(
+    (option) => option.id === remplissageId,
+  );
   const remplissageModele = product.remplissages?.[0];
   const nonConforme =
-    calculFenetre !== null && remplissage !== undefined && !remplissageConforme(remplissage, calculFenetre.hauteurRetenueMm);
+    calculFenetre !== null &&
+    remplissage !== undefined &&
+    !remplissageConforme(remplissage, calculFenetre.hauteurRetenueMm);
   const croixConformes =
-    calculFenetre !== null && remplissageModele !== undefined && remplissageConforme(remplissageModele, calculFenetre.hauteurRetenueMm);
-  const verre = product.remplissages?.find((option) => option.hauteurMaxConformeMm === undefined);
+    calculFenetre !== null &&
+    remplissageModele !== undefined &&
+    remplissageConforme(remplissageModele, calculFenetre.hauteurRetenueMm);
+  const verre = product.remplissages?.find(
+    (option) => option.hauteurMaxConformeMm === undefined,
+  );
   const prixVerre =
     verre && calculFenetre && cotesEff
       ? computeUnitPrice(product, {
@@ -479,7 +561,13 @@ export function ProductOptions({
   /** Ce qui s'affiche dans le sélecteur : une taille du catalogue ou les cotes. */
   const labelTaille =
     sizeIdEff === SUR_MESURE && cotesEff
-      ? devisSurMesure(product, cotesEff.largeurMm, cotesEff.hauteurMm, cotesEff.epaisseurMm, locale)
+      ? devisSurMesure(
+          product,
+          cotesEff.largeurMm,
+          cotesEff.hauteurMm,
+          cotesEff.epaisseurMm,
+          locale,
+        )
       : null;
 
   /**
@@ -487,10 +575,17 @@ export function ProductOptions({
    * garde-corps. Son prix vient du serveur (le code postal), son créneau de
    * l'agenda ; il faut les deux avant de pouvoir l'ajouter.
    */
-  const modeVisite = product.priseDeCotes === true && cotesGardeCorps.qui === "atelier";
+  const modeVisite =
+    product.priseDeCotes === true && cotesGardeCorps.qui === "atelier";
   const creneauVisite = modeVisite ? lireCreneau(cotesGardeCorps.rdv) : null;
-  const visitePrete = modeVisite && cotesGardeCorps.deplacement !== null && creneauVisite !== null;
-  const prixVisite = modeVisite && cotesGardeCorps.deplacement ? cotesGardeCorps.deplacement.montantCents / 100 : null;
+  const visitePrete =
+    modeVisite &&
+    cotesGardeCorps.deplacement !== null &&
+    creneauVisite !== null;
+  const prixVisite =
+    modeVisite && cotesGardeCorps.deplacement
+      ? cotesGardeCorps.deplacement.montantCents / 100
+      : null;
   /** Ce qui s'affiche en grand et part au panier : la visite, sinon la pièce. */
   const total = modeVisite ? prixVisite : totalPiece;
   /**
@@ -499,18 +594,17 @@ export function ProductOptions({
    * s'annonçait 3 500 € et se facturait 4 210 €, le supplément d'essence
    * n'ayant jamais été ajouté. C'est le même calcul que le serveur.
    */
-  const prixSurMesure =
-    devis?.ok
-      ? computeUnitPrice(product, {
-          sizeId: SUR_MESURE,
-          woodId,
-          metalId,
-          fabricId,
-          largeurMm,
-          hauteurMm,
-          epaisseurMm,
-        })
-      : null;
+  const prixSurMesure = devis?.ok
+    ? computeUnitPrice(product, {
+        sizeId: SUR_MESURE,
+        woodId,
+        metalId,
+        fabricId,
+        largeurMm,
+        hauteurMm,
+        epaisseurMm,
+      })
+    : null;
   const orderable = product.orderMode === "cart";
   /**
    * Le prix d'appel, montré tant que la pièce n'a pas encore ses cotes. Pas
@@ -524,12 +618,20 @@ export function ProductOptions({
    */
   const lot = product.remiseLot;
   const dejaAuPanier = lot
-    ? panier.filter((ligne) => ligne.slug === product.slug).reduce((somme, ligne) => somme + ligne.quantity, 0)
+    ? panier
+        .filter((ligne) => ligne.slug === product.slug)
+        .reduce((somme, ligne) => somme + ligne.quantity, 0)
     : 0;
-  const lotActif = lot !== undefined && !modeVisite && dejaAuPanier + quantity >= lot.desPieces;
-  const prixLot = lotActif && total !== null ? prixRemise(total, lot.taux) : total;
+  const lotActif =
+    lot !== undefined &&
+    !modeVisite &&
+    dejaAuPanier + quantity >= lot.desPieces;
+  const prixLot =
+    lotActif && total !== null ? prixRemise(total, lot.taux) : total;
   /** Le délai, lu dans les caractéristiques : « Fabrication » / « Lead time ». */
-  const delai = product.specs.find((spec) => /fabrication|lead time/i.test(spec.label))?.value;
+  const delai = product.specs.find((spec) =>
+    /fabrication|lead time/i.test(spec.label),
+  )?.value;
 
   const optionsPiece = [
     sizeIdEff === SUR_MESURE && labelTaille?.ok
@@ -584,7 +686,9 @@ export function ProductOptions({
   function ouvrirFermerTailles() {
     setSizesOpen((ouvert) => {
       if (!ouvert) {
-        const courant = product.sizes.findIndex((taille) => taille.id === sizeId);
+        const courant = product.sizes.findIndex(
+          (taille) => taille.id === sizeId,
+        );
         setLigneClavier(courant < 0 ? 0 : courant);
       }
       return !ouvert;
@@ -593,8 +697,10 @@ export function ProductOptions({
 
   function choisirTaille(id: string) {
     setSizeId(id);
-    // On quitte le sur-mesure : les cotes ne comptent plus.
-    setCotes(null);
+    // On quitte le sur-mesure : les cotes ne comptent plus, et les cases se
+    // vident, sinon elles reprendraient la main à la frappe suivante.
+    setLargeurSaisie("");
+    setHauteurSaisie("");
     setSizesOpen(false);
     const index = product.sizes.findIndex((taille) => taille.id === id);
     setLigneClavier(index < 0 ? 0 : index);
@@ -654,14 +760,26 @@ export function ProductOptions({
    * cotes ; le serveur recalcule chaque prix.
    */
   const urlDevis = (() => {
-    if (total === null || modeVisite) return null;
+    // Une pièce sur devis (l'escalier) s'estime d'après sa configuration,
+    // même quand la fiche est en mode « visite de l'atelier » : c'est la
+    // pièce qu'on estime, pas le rendez-vous.
+    if (orderable ? total === null || modeVisite : totalPiece === null) return null;
     if (product.poseOption && orderable && !pose.deplacement) return null;
-    const p = new URLSearchParams({ slug: product.slug, lang: locale, qty: String(quantity) });
+    const p = new URLSearchParams({
+      slug: product.slug,
+      lang: locale,
+      qty: String(quantity),
+    });
     if (sizeIdEff) p.set("size", sizeIdEff);
     if (cotesEff?.largeurMm) p.set("l", String(cotesEff.largeurMm));
     if (cotesEff?.hauteurMm) p.set("w", String(cotesEff.hauteurMm));
     if (cotesEff?.epaisseurMm) p.set("t", String(cotesEff.epaisseurMm));
-    if (table && sizeIdEff === SUR_MESURE && Number.isFinite(hauteurTableMm) && hauteurTableMm !== HAUTEUR_TABLE_MM) {
+    if (
+      table &&
+      sizeIdEff === SUR_MESURE &&
+      Number.isFinite(hauteurTableMm) &&
+      hauteurTableMm !== HAUTEUR_TABLE_MM
+    ) {
       p.set("h", String(hauteurTableMm));
     }
     if (woodId) p.set("wood", woodId);
@@ -681,20 +799,25 @@ export function ProductOptions({
 
   /** Le lien vers le devis, sous la barre d'achat ou sous « Demander un devis ». */
   const lienDevis = urlDevis && (
-    <p className="mt-3 text-center">
-      <a
-        href={urlDevis}
-        target="_blank"
-        rel="noopener"
-        className="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[#2b2320] underline-offset-4 hover:underline"
+    <a
+      href={urlDevis}
+      target="_blank"
+      rel="noopener"
+      className="mt-3 flex w-full items-center justify-center gap-2.5 rounded-full border border-[#2b2320] px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] text-[#2b2320] transition-colors hover:bg-[#2b2320] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
+    >
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 20 20"
+        className="h-4 w-4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.3"
       >
-        <svg aria-hidden="true" viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.4">
-          <path d="M5 2.5h6.5L15 6v11.5H5z" strokeLinejoin="round" />
-          <path d="M11.5 2.5V6H15M7.5 10h5M7.5 13h5" strokeLinecap="round" />
-        </svg>
-        {orderable ? t.devisPdf : t.estimationPdf}
-      </a>
-    </p>
+        <path d="M5 2.5h6.5L15 6v11.5H5z" strokeLinejoin="round" />
+        <path d="M11.5 2.5V6H15M7.5 10h5M7.5 13h5" strokeLinecap="round" />
+      </svg>
+      {orderable ? t.devisPdf : t.estimationPdf}
+    </a>
   );
 
   function addToCart() {
@@ -708,12 +831,14 @@ export function ProductOptions({
           priseDeCotesCp: cotesGardeCorps.codePostal.replace(/\s+/g, ""),
           rdv: cotesGardeCorps.rdv,
           // Ce que le client a en tête, pour que Quentin arrive avec la bonne idée.
-          note: [product.name, wood?.label, metal?.label].filter(Boolean).join(" · "),
+          note: [product.name, wood?.label, metal?.label]
+            .filter(Boolean)
+            .join(" · "),
           name: t.gcVisiteResume,
           optionsLabel,
           unitPrice: cotesGardeCorps.deplacement.montantCents / 100,
         },
-        1
+        1,
       );
       setAjoutee(configuration);
       return;
@@ -730,8 +855,16 @@ export function ProductOptions({
           product.releve === "garde-corps-fenetre"
             ? noteGardeCorps(cotesGardeCorps, t) || undefined
             : // Une table à vos cotes : sa hauteur finie part avec, quand elle n'est pas celle d'usage.
-              table && sizeIdEff === SUR_MESURE && Number.isFinite(hauteurTableMm) && hauteurTableMm !== HAUTEUR_TABLE_MM
-              ? t.customTableHeightNote.replace("{h}", (hauteurTableMm / 10).toLocaleString(locale === "en" ? "en-GB" : "fr-FR"))
+              table &&
+                sizeIdEff === SUR_MESURE &&
+                Number.isFinite(hauteurTableMm) &&
+                hauteurTableMm !== HAUTEUR_TABLE_MM
+              ? t.customTableHeightNote.replace(
+                  "{h}",
+                  (hauteurTableMm / 10).toLocaleString(
+                    locale === "en" ? "en-GB" : "fr-FR",
+                  ),
+                )
               : undefined,
         woodId: woodId || undefined,
         metalId: metalId || undefined,
@@ -742,13 +875,15 @@ export function ProductOptions({
         unitPrice: total ?? 0,
         image: fabric?.image ?? product.images[0]?.src,
       },
-      quantity
+      quantity,
     );
     // La livraison (par transporteur ou avec pose) : une ligne à part, une
     // seule par panier — un seul trajet, un seul colis. Si une autre table
     // l'avait déjà demandée, on la remplace par celle-ci.
     if (product.poseOption && pose.deplacement) {
-      panier.filter((ligne) => ligne.slug === POSE || ligne.slug === LIVRAISON).forEach((ligne) => remove(ligne.id));
+      panier
+        .filter((ligne) => ligne.slug === POSE || ligne.slug === LIVRAISON)
+        .forEach((ligne) => remove(ligne.id));
       const cp = pose.codePostal.replace(/\s+/g, "");
       add(
         pose.voulue
@@ -771,7 +906,7 @@ export function ProductOptions({
               optionsLabel: pose.deplacement.commune,
               unitPrice: pose.deplacement.montantCents / 100,
             },
-        1
+        1,
       );
     }
     setAjoutee(configuration);
@@ -792,34 +927,44 @@ export function ProductOptions({
         <p className="text-[13px] leading-snug text-[#6f6357]">
           {prixDepart !== null && (
             <span className="block tabular-nums">
-              {t.from} <span className="text-[#2b2320]">{prixAffiche(prixDepart, locale)}</span>
+              {t.from}{" "}
+              <span className="text-[#2b2320]">
+                {prixAffiche(prixDepart, locale)}
+              </span>
             </span>
           )}
           <span className="mt-1 block text-xs text-[#7a6f64]">
-            {product.releve === "garde-corps-fenetre" ? t.gcPrixAttente : t.prixAttenteCotes}
+            {product.releve === "garde-corps-fenetre"
+              ? t.gcPrixAttente
+              : t.prixAttenteCotes}
           </span>
         </p>
       ) : orderable ? (
         prixDepart !== null && (
           <p className="text-[13px] tabular-nums text-[#6f6357]">
-            {t.from} <span className="text-[#2b2320]">{prixAffiche(prixDepart, locale)}</span>
+            {t.from}{" "}
+            <span className="text-[#2b2320]">
+              {prixAffiche(prixDepart, locale)}
+            </span>
           </p>
         )
       ) : (
         <p className="text-[13px] text-[#6f6357]">{t.onQuote}</p>
       )}
 
-      {product.fabrics && product.fabrics.length > 0 && !product.fabricLabel && (
-        <div className="mt-5 border-t border-[#e5ddd3] pt-5">
-          <SwatchGroup
-            label={t.fabricLabel}
-            options={product.fabrics}
-            selected={fabricId}
-            onSelect={setFabricId}
-            locale={locale}
-          />
-        </div>
-      )}
+      {product.fabrics &&
+        product.fabrics.length > 0 &&
+        !product.fabricLabel && (
+          <div className="mt-5 border-t border-[#e5ddd3] pt-5">
+            <SwatchGroup
+              label={t.fabricLabel}
+              options={product.fabrics}
+              selected={fabricId}
+              onSelect={setFabricId}
+              locale={locale}
+            />
+          </div>
+        )}
 
       {/* Les matières côte à côte, chaque groupe juste aussi large que ses
           pastilles : l'acier, le bois et la rosace tiennent sur une ou deux
@@ -829,7 +974,9 @@ export function ProductOptions({
           <div className="flex flex-col gap-7">
             {product.metals.length > 0 && (
               <SwatchGroup
-                label={product.metalLabel ? product.metalLabel[locale] : t.metalLabel}
+                label={
+                  product.metalLabel ? product.metalLabel[locale] : t.metalLabel
+                }
                 options={product.metals}
                 selected={metalId}
                 onSelect={setMetalId}
@@ -838,64 +985,179 @@ export function ProductOptions({
             )}
             {product.woods.length > 0 && (
               <SwatchGroup
-                label={product.woodLabel ? product.woodLabel[locale] : t.woodLabel}
+                label={
+                  product.woodLabel ? product.woodLabel[locale] : t.woodLabel
+                }
                 options={woodsAffiches}
                 selected={woodId}
                 onSelect={setWoodId}
                 locale={locale}
                 /* Les écarts ne se montrent que s'il y en a : sur une pièce sur
                    devis sans prix, quatre « Inclus » n'apprendraient rien. */
-                showDelta={orderable && product.woods.some((bois) => bois.priceDelta)}
+                showDelta={
+                  orderable && product.woods.some((bois) => bois.priceDelta)
+                }
               />
             )}
             {/* Les rosaces d'un garde-corps, avec les matières — et pas sous un
                 panneau de verre, où il n'y a plus de croix. */}
-            {product.fabrics && product.fabrics.length > 0 && product.fabricLabel && !sansRosace && (
-              <SwatchGroup
-                label={product.fabricLabel[locale]}
-                options={product.fabrics}
-                selected={fabricId}
-                onSelect={setFabricId}
-                locale={locale}
-                showDelta={product.fabrics.some((rosace) => rosace.priceDelta)}
-              />
-            )}
+            {product.fabrics &&
+              product.fabrics.length > 0 &&
+              product.fabricLabel &&
+              !sansRosace && (
+                <SwatchGroup
+                  label={product.fabricLabel[locale]}
+                  options={product.fabrics}
+                  selected={fabricId}
+                  onSelect={setFabricId}
+                  locale={locale}
+                  showDelta={product.fabrics.some(
+                    (rosace) => rosace.priceDelta,
+                  )}
+                />
+              )}
           </div>
         </div>
       )}
 
-      {/* DIMENSIONS — le sur-mesure d'abord : c'est le cœur du métier, et la
-          taille toute faite n'est qu'un raccourci pour ceux qui n'ont pas de
-          cotes en tête. */}
-      {((bareme && !product.releve) || (product.sizes.length > 1 && orderable)) && (
-        <div className="mt-4 scroll-mt-28 border-t border-[#e5ddd3] pt-5" id="cotes">
-          {/* Le titre, et l'unité de saisie en face : rien d'autre à lire. */}
-          <div className="flex items-center justify-between gap-4">
-            <span className={GROUP_LABEL} id={`${idTailles}-titre`}>
-              {product.sizeLabel ? product.sizeLabel[locale] : t.sizeLabel}
-            </span>
-            {bareme && !product.releve && (
-              <div role="radiogroup" aria-label={t.customUnit} className="flex rounded-full border border-[#9a8d80] bg-white p-0.5">
-                {(["mm", "cm", "m"] as const).map((u) => (
-                  <button
-                    key={u}
-                    type="button"
-                    role="radio"
-                    aria-checked={unite === u}
-                    onClick={() => setUnite(u)}
-                    className={`rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors ${
-                      unite === u ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"
-                    }`}
+      {/* DIMENSIONS — le format du catalogue d'abord, en un clic ; puis les
+          cotes du client, qui prennent la main dès qu'elles sont valides. */}
+      {((bareme && !product.releve) ||
+        (product.sizes.length > 1 && orderable)) && (
+        <div
+          className="mt-4 scroll-mt-28 border-t border-[#e5ddd3] pt-5"
+          id="cotes"
+        >
+          {product.sizes.length > 1 && (
+            <div>
+              <span className={GROUP_LABEL} id={`${idTailles}-titre`}>
+                {product.sizeLabel
+                  ? product.sizeLabel[locale]
+                  : bareme && !product.releve
+                    ? t.catalogueLabel
+                    : t.sizeLabel}
+              </span>
+              {/* Une seule ligne visible : les autres dimensions et leurs tarifs
+            s'affichent au clic, comme dans une boutique. Le tout s'annonce
+            comme une liste de choix et se parcourt aux flèches. */}
+              <div
+                ref={sizesRef}
+                className="relative mt-4"
+                onBlur={(e) => {
+                  if (!sizesRef.current?.contains(e.relatedTarget as Node))
+                    setSizesOpen(false);
+                }}
+              >
+                <button
+                  type="button"
+                  id={`${idTailles}-bouton`}
+                  role="combobox"
+                  aria-haspopup="listbox"
+                  aria-expanded={sizesOpen}
+                  aria-controls={`${idTailles}-liste`}
+                  aria-labelledby={`${idTailles}-titre ${idTailles}-bouton`}
+                  aria-activedescendant={
+                    sizesOpen
+                      ? `${idTailles}-${product.sizes[ligneClavier]?.id}`
+                      : undefined
+                  }
+                  onClick={() => ouvrirFermerTailles()}
+                  onKeyDown={clavierTailles}
+                  className="flex w-full items-center justify-between gap-4 rounded-full border border-[#9a8d80] bg-white px-5 py-3 text-left text-[15px] text-[#2b2320] transition-colors hover:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
+                >
+                  <span
+                    className={labelTaille?.ok || size ? "" : "text-[#6f6357]"}
                   >
-                    {u}
-                  </button>
-                ))}
+                    {labelTaille?.ok
+                      ? labelTaille.label
+                      : (size?.label ?? t.sizeChoose)}
+                  </span>
+                  <span
+                    aria-hidden
+                    className={`text-[#6f6357] transition-transform ${sizesOpen ? "rotate-180" : ""}`}
+                  >
+                    ⌄
+                  </span>
+                </button>
+
+                {sizesOpen && (
+                  <div
+                    id={`${idTailles}-liste`}
+                    role="listbox"
+                    // Les options ne prennent pas le focus : sans ceci, le
+                    // clic faisait d'abord perdre le focus au bouton, la
+                    // liste se fermait (onBlur) et l'option n'était jamais
+                    // cliquée. À la souris, on ne choisissait rien.
+                    onMouseDown={(event) => event.preventDefault()}
+                    aria-labelledby={`${idTailles}-titre`}
+                    className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-[#e5ddd3] bg-white shadow-[0_12px_40px_-12px_rgba(43,35,32,0.25)]"
+                  >
+                    {product.sizes.map((s, index) => (
+                      <div
+                        key={s.id}
+                        id={`${idTailles}-${s.id}`}
+                        role="option"
+                        aria-selected={s.id === sizeId}
+                        onClick={() => choisirTaille(s.id)}
+                        onMouseEnter={() => setLigneClavier(index)}
+                        className={`flex w-full cursor-pointer items-center justify-between gap-4 px-5 py-3 text-left text-sm transition-colors ${
+                          s.id === sizeId
+                            ? "bg-[#f5f1ea] text-[#2b2320]"
+                            : "text-[#5c5140] hover:bg-[#faf8f5] hover:text-[#2b2320]"
+                        } ${index === ligneClavier ? "bg-[#faf8f5] text-[#2b2320]" : ""}`}
+                      >
+                        <span>{s.label}</span>
+                        {/* Sur devis, pas de prix dans la liste : le chiffre viendrait avant le relevé. */}
+                        {orderable && (
+                          <span className="font-medium tabular-nums">
+                            {prixAffiche(
+                              s.price +
+                                deltaBois(product, wood, surfaceTailleM2(s)),
+                              locale,
+                            )}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {bareme && !product.releve && (
-            <>
+            <div className={product.sizes.length > 1 ? "mt-7" : ""}>
+              {/* Le titre, et l'unité de saisie en face : rien d'autre à lire. */}
+              <div className="flex items-center justify-between gap-4">
+                <span className={GROUP_LABEL} id={`${idTailles}-ou`}>
+                  {product.sizes.length > 1 ? t.customOrCustom : t.sizeLabel}
+                </span>
+                {bareme && !product.releve && (
+                  <div
+                    role="radiogroup"
+                    aria-label={t.customUnit}
+                    className="flex rounded-full border border-[#9a8d80] bg-white p-0.5"
+                  >
+                    {(["mm", "cm", "m"] as const).map((u) => (
+                      <button
+                        key={u}
+                        type="button"
+                        role="radio"
+                        aria-checked={unite === u}
+                        onClick={() => changerUnite(u)}
+                        className={`rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors ${
+                          unite === u
+                            ? "bg-[#2b2320] text-white"
+                            : "text-[#6f6357] hover:text-[#2b2320]"
+                        }`}
+                      >
+                        {u}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* Le croquis, nu : c'est lui qui explique où mesurer. */}
               <div className="mx-auto mt-4 max-w-[360px]">
                 <SchemaCotes
@@ -907,9 +1169,15 @@ export function ProductOptions({
                   onChoisir={allerA}
                   /* Le plateau se dessine aux proportions des cotes tapées. */
                   proportions={{
-                    principale: Number.isFinite(largeurMm) ? largeurMm : undefined,
-                    secondaire: Number.isFinite(hauteurMm) ? hauteurMm : undefined,
-                    epaisseur: Number.isFinite(epaisseurMm) ? epaisseurMm : undefined,
+                    principale: Number.isFinite(largeurMm)
+                      ? largeurMm
+                      : undefined,
+                    secondaire: Number.isFinite(hauteurMm)
+                      ? hauteurMm
+                      : undefined,
+                    epaisseur: Number.isFinite(epaisseurMm)
+                      ? epaisseurMm
+                      : undefined,
                   }}
                   labels={{
                     principale: labelPrincipale,
@@ -932,7 +1200,9 @@ export function ProductOptions({
                   onFocus={() => setCoteActive("principale")}
                   onBlur={() => setCoteActive(null)}
                   erreurId={
-                    devis && !devis.ok && !devis.reason.startsWith("epaisseur") ? `${idTailles}-erreur` : undefined
+                    devis && !devis.ok && !devis.reason.startsWith("epaisseur")
+                      ? `${idTailles}-erreur`
+                      : undefined
                   }
                 />
                 {!rond && (
@@ -947,7 +1217,11 @@ export function ProductOptions({
                     onFocus={() => setCoteActive("secondaire")}
                     onBlur={() => setCoteActive(null)}
                     erreurId={
-                      devis && !devis.ok && !devis.reason.startsWith("epaisseur") ? `${idTailles}-erreur` : undefined
+                      devis &&
+                      !devis.ok &&
+                      !devis.reason.startsWith("epaisseur")
+                        ? `${idTailles}-erreur`
+                        : undefined
                     }
                   />
                 )}
@@ -960,7 +1234,10 @@ export function ProductOptions({
                     onFocus={() => setCoteActive("epaisseur")}
                     onBlur={() => setCoteActive(null)}
                   >
-                    <span id={`${idTailles}-epaisseur-titre`} className="flex items-center gap-2.5 text-[15px] text-[#2b2320]">
+                    <span
+                      id={`${idTailles}-epaisseur-titre`}
+                      className="flex items-center gap-2.5 text-[15px] text-[#2b2320]"
+                    >
                       <Pastille n={rond ? 2 : 3} />
                       {t.customThickness}
                     </span>
@@ -981,11 +1258,20 @@ export function ProductOptions({
                               aria-checked={choisi}
                               id={choisi ? `${idTailles}-epaisseur` : undefined}
                               disabled={tropFin}
-                              title={tropFin ? t.customThicknessTooThin.replace("{portee}", String(porteeMm)) : undefined}
+                              title={
+                                tropFin
+                                  ? t.customThicknessTooThin.replace(
+                                      "{portee}",
+                                      String(porteeMm),
+                                    )
+                                  : undefined
+                              }
                               onClick={() => setEpaisseurSaisie(String(mm))}
                               aria-label={`${mm} mm`}
                               className={`h-full rounded-full px-3.5 text-[13px] tabular-nums transition-colors disabled:cursor-not-allowed disabled:text-[#a3968a] ${
-                                choisi ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"
+                                choisi
+                                  ? "bg-[#2b2320] text-white"
+                                  : "text-[#6f6357] hover:text-[#2b2320]"
                               }`}
                             >
                               {mm}
@@ -1010,7 +1296,10 @@ export function ProductOptions({
                     onFocus={() => setCoteActive("epaisseur")}
                     onBlur={() => setCoteActive(null)}
                     erreurId={
-                      devis && !devis.ok && (devis.reason.startsWith("epaisseur") || devis.reason === "caisson_trop_profond")
+                      devis &&
+                      !devis.ok &&
+                      (devis.reason.startsWith("epaisseur") ||
+                        devis.reason === "caisson_trop_profond")
                         ? `${idTailles}-erreur`
                         : undefined
                     }
@@ -1022,7 +1311,9 @@ export function ProductOptions({
                     champ qu'au clic. */}
                 {table && (
                   <div className="flex items-center justify-between gap-4 py-2.5 text-sm text-[#6f6357]">
-                    <span id={`${idTailles}-hauteur-titre`}>{t.customTableHeight}</span>
+                    <span id={`${idTailles}-hauteur-titre`}>
+                      {t.customTableHeight}
+                    </span>
                     {hauteurOuverte ? (
                       <span className="flex h-10 w-[8.5rem] items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3.5 focus-within:border-[#2b2320] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
                         <input
@@ -1030,8 +1321,12 @@ export function ProductOptions({
                           autoFocus
                           inputMode="decimal"
                           value={hauteurTableSaisie}
-                          onChange={(e) => setHauteurTableSaisie(e.target.value)}
-                          placeholder={(HAUTEUR_TABLE_MM / facteur).toLocaleString(locale === "en" ? "en-GB" : "fr-FR")}
+                          onChange={(e) =>
+                            setHauteurTableSaisie(e.target.value)
+                          }
+                          placeholder={(
+                            HAUTEUR_TABLE_MM / facteur
+                          ).toLocaleString(locale === "en" ? "en-GB" : "fr-FR")}
                           aria-labelledby={`${idTailles}-hauteur-titre`}
                           aria-describedby={`${idTailles}-hauteur-aide`}
                           onFocus={() => setCoteActive("hauteur")}
@@ -1040,7 +1335,8 @@ export function ProductOptions({
                             setHauteurOuverte(false);
                           }}
                           onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === "Escape") setHauteurOuverte(false);
+                            if (e.key === "Enter" || e.key === "Escape")
+                              setHauteurOuverte(false);
                           }}
                           className="w-full min-w-0 bg-transparent text-right text-base tabular-nums text-[#2b2320] outline-none focus-visible:shadow-none focus-visible:outline-none sm:text-[15px]"
                         />
@@ -1054,10 +1350,14 @@ export function ProductOptions({
                         className="inline-flex items-center gap-1.5 rounded-full py-1 text-sm hover:text-[#2b2320]"
                       >
                         <span className="tabular-nums text-[#2b2320]">
-                          {Number.isFinite(hauteurTableMm) ? enUnite(hauteurTableMm) : enUnite(HAUTEUR_TABLE_MM)}
+                          {Number.isFinite(hauteurTableMm)
+                            ? enUnite(hauteurTableMm)
+                            : enUnite(HAUTEUR_TABLE_MM)}
                         </span>
                         <span aria-hidden>·</span>
-                        <span className="underline underline-offset-4">{t.customTableHeightEdit}</span>
+                        <span className="underline underline-offset-4">
+                          {t.customTableHeightEdit}
+                        </span>
                       </button>
                     )}
                     <span id={`${idTailles}-hauteur-aide`} className="sr-only">
@@ -1067,171 +1367,47 @@ export function ProductOptions({
                 )}
               </div>
 
-              {/* Le prix, en grand dès qu'il existe, et le geste en face. */}
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-                <div className="min-w-0">
-                  <p
-                    className="text-[28px] font-medium leading-none tabular-nums transition-colors"
-                    style={{ color: devis?.ok ? ACCENT : "#6f6357" }}
-                  >
-                    {devis?.ok ? prixAffiche(prixSurMesure ?? devis.prix, locale) : "—"}
-                  </p>
-                  <p className="mt-1.5 text-xs text-[#6f6357]">
-                    {devis?.ok
-                      ? `${surfaceAffichee(devis.surface, locale)} · ${epaisseurMm.toLocaleString(
-                          locale === "en" ? "en-GB" : "fr-FR"
-                        )} mm`
-                      : t.customAwait}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  disabled={!devis?.ok}
-                  onClick={() => {
-                    setCotes({ largeurMm, hauteurMm, epaisseurMm });
-                    setSizeId(SUR_MESURE);
-                  }}
-                  // En contour : régler ses cotes prépare l'achat, ce n'est pas
-                  // l'action principale. Le seul bouton plein de la colonne
-                  // reste « Ajouter au panier » (ou « Demander un devis »).
-                  className="w-full rounded-full border border-[#2b2320] bg-transparent px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] text-[#2b2320] transition-colors hover:bg-[#2b2320] hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#2b2320] sm:w-auto"
-                >
-                  {sizeId === SUR_MESURE ? `✓ ${t.customApplied}` : t.customApply}
-                </button>
-              </div>
-              <div>
-                {/* Le refus doit s'entendre, pas seulement se voir : sans
-                    role="alert" un lecteur d'écran ne disait rien et le client
-                    continuait de taper devant un bouton grisé. */}
-                <p id={`${idTailles}-erreur`} role="alert" className="mt-2 min-h-4 text-xs leading-snug text-[#2b2320]">
-                  {devis && !devis.ok
-                    ? devis.reason === "trop_petit"
-                      ? t.customTooSmall
-                      : devis.reason === "trop_grand"
-                        ? table
-                          ? t.customTooBigTable
-                          : t.customTooBig
-                        : devis.reason === "epaisseur_trop_fine"
-                          ? t.customThicknessMin
-                              .replace("{portee}", String(porteeMm))
-                              .replace("{mini}", String(devis.epaisseurMiniMm ?? epaisseurMini))
-                          : devis.reason === "caisson_trop_profond"
-                            ? t.customBoxDepth
-                                .replace("{cote}", String(Math.min(largeurMm, hauteurMm)))
-                                .replace("{max}", String(epaisseurMaxi))
-                            : devis.reason === "epaisseur_hors_bornes"
-                              ? t.customBadThickness
-                              : t.customInvalid
-                    : ""}
-                </p>
-
-                {/* Et le prix, lui, se dit dès qu'il change. */}
-                <p role="status" aria-live="polite" className="sr-only">
-                  {devis?.ok
-                    ? `${prixAffiche(prixSurMesure ?? devis.prix, locale)} — ${surfaceAffichee(devis.surface, locale)}`
-                    : ""}
-                </p>
-
-                {sizeId === SUR_MESURE && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCotes(null);
-                      setSizeId("");
-                    }}
-                    className="mt-2 block text-xs text-[#6f6357] underline underline-offset-4 hover:text-[#2b2320]"
-                  >
-                    {t.customReset}
-                  </button>
-                )}
-              </div>
-            </>
-          )}
-
-          {/* La taille toute faite, en second. */}
-          {product.sizes.length > 1 && (
-            <div className={bareme && !product.releve ? "mt-7" : "mt-4"}>
-              {bareme && !product.releve && (
-                <span
-                  className="mb-2 block text-[11px] uppercase tracking-[0.14em] text-[#6f6357]"
-                  id={`${idTailles}-ou`}
-                >
-                  {t.customOr}
-                </span>
-              )}
-          {/* Une seule ligne visible : les autres dimensions et leurs tarifs
-              s'affichent au clic, comme dans une boutique. Le tout s'annonce
-              comme une liste de choix et se parcourt aux flèches. */}
-          <div
-            ref={sizesRef}
-            className="relative mt-4"
-            onBlur={(e) => {
-              if (!sizesRef.current?.contains(e.relatedTarget as Node)) setSizesOpen(false);
-            }}
-          >
-            <button
-              type="button"
-              id={`${idTailles}-bouton`}
-              role="combobox"
-              aria-haspopup="listbox"
-              aria-expanded={sizesOpen}
-              aria-controls={`${idTailles}-liste`}
-              aria-labelledby={
-                bareme
-                  ? `${idTailles}-ou ${idTailles}-bouton`
-                  : `${idTailles}-titre ${idTailles}-bouton`
-              }
-              aria-activedescendant={
-                sizesOpen ? `${idTailles}-${product.sizes[ligneClavier]?.id}` : undefined
-              }
-              onClick={() => ouvrirFermerTailles()}
-              onKeyDown={clavierTailles}
-              className="flex w-full items-center justify-between gap-4 rounded-xl border border-[#e5ddd3] px-5 py-3.5 text-left text-sm text-[#2a2116] transition-colors hover:border-[#6f6357]"
-            >
-              <span className={labelTaille?.ok || size ? "" : "text-[#6f6357]"}>
-                {labelTaille?.ok ? labelTaille.label : (size?.label ?? t.sizeChoose)}
-              </span>
-              <span
-                aria-hidden
-                className={`text-[#6f6357] transition-transform ${sizesOpen ? "rotate-180" : ""}`}
+              {/* Le refus doit s'entendre, pas seulement se voir : sans
+                      role="alert" un lecteur d'écran ne disait rien et le client
+                      continuait de taper devant un bouton grisé. */}
+              <p
+                id={`${idTailles}-erreur`}
+                role="alert"
+                className="mt-2 min-h-4 text-xs leading-snug text-[#2b2320]"
               >
-                ⌄
-              </span>
-            </button>
+                {devis && !devis.ok
+                  ? devis.reason === "trop_petit"
+                    ? t.customTooSmall
+                    : devis.reason === "trop_grand"
+                      ? table
+                        ? t.customTooBigTable
+                        : t.customTooBig
+                      : devis.reason === "epaisseur_trop_fine"
+                        ? t.customThicknessMin
+                            .replace("{portee}", String(porteeMm))
+                            .replace(
+                              "{mini}",
+                              String(devis.epaisseurMiniMm ?? epaisseurMini),
+                            )
+                        : devis.reason === "caisson_trop_profond"
+                          ? t.customBoxDepth
+                              .replace(
+                                "{cote}",
+                                String(Math.min(largeurMm, hauteurMm)),
+                              )
+                              .replace("{max}", String(epaisseurMaxi))
+                          : devis.reason === "epaisseur_hors_bornes"
+                            ? t.customBadThickness
+                            : t.customInvalid
+                  : ""}
+              </p>
 
-            {sizesOpen && (
-              <div
-                id={`${idTailles}-liste`}
-                role="listbox"
-                aria-labelledby={bareme ? `${idTailles}-ou` : `${idTailles}-titre`}
-                className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-xl border border-[#e5ddd3] bg-white shadow-lg"
-              >
-                {product.sizes.map((s, index) => (
-                  <div
-                    key={s.id}
-                    id={`${idTailles}-${s.id}`}
-                    role="option"
-                    aria-selected={s.id === sizeId}
-                    onClick={() => choisirTaille(s.id)}
-                    onMouseEnter={() => setLigneClavier(index)}
-                    className={`flex w-full cursor-pointer items-center justify-between gap-4 px-5 py-3.5 text-left text-sm transition-colors ${
-                      s.id === sizeId
-                        ? "bg-[#2b2320]/5 text-[#2a2116]"
-                        : "text-[#5c5140] hover:bg-[#f5f1ea]"
-                    } ${index === ligneClavier ? "ring-2 ring-inset ring-[#2b2320]" : ""}`}
-                  >
-                    <span>{s.label}</span>
-                    {/* Sur devis, pas de prix dans la liste : le chiffre viendrait avant le relevé. */}
-                    {orderable && (
-                      <span className="font-medium tabular-nums">
-                        {prixAffiche(s.price + deltaBois(product, wood, surfaceTailleM2(s)), locale)}
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+              {/* Et le prix, lui, se dit dès qu'il change. */}
+              <p role="status" aria-live="polite" className="sr-only">
+                {devis?.ok
+                  ? `${prixAffiche(prixSurMesure ?? devis.prix, locale)} — ${surfaceAffichee(devis.surface, locale)}`
+                  : ""}
+              </p>
             </div>
           )}
         </div>
@@ -1243,16 +1419,23 @@ export function ProductOptions({
         // id="cotes" : la page Prise de cotes à domicile envoie ici (…#cotes),
         // comme sur les tables et le garde-corps ; sans lui, le lien tombait en
         // haut de la fiche. scroll-mt-28 laisse la place de l'en-tête fixe.
-        <div className="@container mt-4 scroll-mt-28 border-t border-[#e5ddd3] pt-4" id="cotes">
+        <div
+          className="@container mt-4 scroll-mt-28 border-t border-[#e5ddd3] pt-4"
+          id="cotes"
+        >
           <span className={GROUP_LABEL}>{t.gcVisiteResume}</span>
           {/* Uniquement sur devis : l'atelier vient prendre les cotes, et c'est
               la visite qu'on met au panier. Pas de cotes à taper soi-même. */}
           <div className="mt-3 overflow-hidden rounded-2xl border border-[#e0d5c7] bg-[#fbfaf8]">
             <div className="px-3.5 pb-3.5 pt-3 md:px-4">
-              <p className="text-xs leading-relaxed text-[#6f6357]">{t.releveVisiteIntro}</p>
+              <p className="text-xs leading-relaxed text-[#6f6357]">
+                {t.releveVisiteIntro}
+              </p>
               <VisiteAtelier
                 cotes={cotesGardeCorps}
-                onChange={(visite) => setCotesGardeCorps({ ...cotesGardeCorps, ...visite })}
+                onChange={(visite) =>
+                  setCotesGardeCorps({ ...cotesGardeCorps, ...visite })
+                }
                 t={t}
                 locale={locale}
                 labelCodePostal={t.releveCodePostal}
@@ -1281,7 +1464,9 @@ export function ProductOptions({
                     surVerre: verre !== undefined && remplissageId === verre.id,
                     croixConformes,
                     prixVerre,
-                    choisirVerre: verre ? () => setRemplissageId(verre.id) : undefined,
+                    choisirVerre: verre
+                      ? () => setRemplissageId(verre.id)
+                      : undefined,
                     revenirCroix: () => setRemplissageId(remplissageModele.id),
                     lienAutres: calculFenetre
                       ? `/${locale}/artisanat?pour=${product.famille}&l=${calculFenetre.largeurMm}&h=${calculFenetre.hauteurRetenueMm}#${product.famille}`
@@ -1316,7 +1501,10 @@ export function ProductOptions({
         <div className="mt-5 md:sticky md:bottom-0 md:z-20 md:-mx-8 md:border-t md:border-[#e5ddd3] md:bg-white md:px-8 md:py-4 lg:-mx-12 lg:px-12">
           <div className="flex items-center gap-3">
             <div className="min-w-0 flex-1">
-              <p className="text-xl font-medium leading-tight tabular-nums" style={{ color: ACCENT }}>
+              <p
+                className="text-xl font-medium leading-tight tabular-nums"
+                style={{ color: ACCENT }}
+              >
                 {modeVisite
                   ? t.onQuote
                   : total !== null
@@ -1330,26 +1518,38 @@ export function ProductOptions({
               {size && !modeVisite && orderable && total !== null && (
                 <p className="truncate text-[11px] text-[#6f6357]">
                   {cotesCourtes(
-                    sizeIdEff === SUR_MESURE && labelTaille?.ok ? labelTaille.label : size.label
+                    sizeIdEff === SUR_MESURE && labelTaille?.ok
+                      ? labelTaille.label
+                      : size.label,
                   )}
                 </p>
               )}
             </div>
-            <div className={`flex shrink-0 items-center rounded-full border border-[#9a8d80] ${modeVisite ? "hidden" : ""}`}>
+            <div
+              className={`flex shrink-0 items-center rounded-full border border-[#9a8d80] ${modeVisite ? "hidden" : ""}`}
+            >
               <button
                 type="button"
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                 className="px-4 py-3 text-[#5c5140] hover:text-[#2a2116]"
-                aria-label={locale === "fr" ? "Diminuer la quantité" : "Decrease quantity"}
+                aria-label={
+                  locale === "fr" ? "Diminuer la quantité" : "Decrease quantity"
+                }
               >
                 −
               </button>
-              <span className="min-w-6 text-center text-sm tabular-nums">{quantity}</span>
+              <span className="min-w-6 text-center text-sm tabular-nums">
+                {quantity}
+              </span>
               <button
                 type="button"
                 onClick={() => setQuantity((q) => Math.min(10, q + 1))}
                 className="px-4 py-3 text-[#5c5140] hover:text-[#2a2116]"
-                aria-label={locale === "fr" ? "Augmenter la quantité" : "Increase quantity"}
+                aria-label={
+                  locale === "fr"
+                    ? "Augmenter la quantité"
+                    : "Increase quantity"
+                }
               >
                 +
               </button>
@@ -1359,7 +1559,11 @@ export function ProductOptions({
               ref={boutonPanierRef}
               type="button"
               onClick={addToCart}
-              disabled={total === null || (modeVisite && !visitePrete) || (product.poseOption && !pose.deplacement)}
+              disabled={
+                total === null ||
+                (modeVisite && !visitePrete) ||
+                (product.poseOption && !pose.deplacement)
+              }
               className="shrink-0 rounded-full px-5 py-3.5 text-[11px] font-medium uppercase tracking-[0.14em] transition-colors enabled:bg-[#2b2320] enabled:text-white enabled:hover:bg-[#2b2320] disabled:cursor-not-allowed disabled:bg-[#ece6dd] disabled:text-[#7a6f64]"
             >
               {t.addToCart}
@@ -1376,13 +1580,21 @@ export function ProductOptions({
           {quantity > 1 && total !== null && (
             <p className="mt-3 text-center text-sm tabular-nums text-[#5c5140]">
               {lotActif && prixLot !== total && (
-                <s className="mr-1.5 text-[#6f6357]">{prixAffiche(total, locale)}</s>
+                <s className="mr-1.5 text-[#6f6357]">
+                  {prixAffiche(total, locale)}
+                </s>
               )}
-              {prixAffiche(prixLot ?? total, locale)} × {quantity} {t.cartTotalLine}{" "}
-              <span className="font-medium">{prixAffiche((prixLot ?? total) * quantity, locale)}</span>
+              {prixAffiche(prixLot ?? total, locale)} × {quantity}{" "}
+              {t.cartTotalLine}{" "}
+              <span className="font-medium">
+                {prixAffiche((prixLot ?? total) * quantity, locale)}
+              </span>
               {lotActif && (
                 <span className="ml-2 rounded-full bg-[#2b2320]/[0.08] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#2b2320]">
-                  {t.gcLotTag.replace("{taux}", String(Math.round((lot?.taux ?? 0) * 100)))}
+                  {t.gcLotTag.replace(
+                    "{taux}",
+                    String(Math.round((lot?.taux ?? 0) * 100)),
+                  )}
                 </span>
               )}
             </p>
@@ -1399,8 +1611,12 @@ export function ProductOptions({
                   </span>{" "}
                   {quantity === 1 && prixLot !== null && prixLot !== total && (
                     <span className="tabular-nums">
-                      <s className="text-[#6f6357]">{prixAffiche(total, locale)}</s>{" "}
-                      <span className="font-medium text-[#2a2116]">{prixAffiche(prixLot, locale)}</span>
+                      <s className="text-[#6f6357]">
+                        {prixAffiche(total, locale)}
+                      </s>{" "}
+                      <span className="font-medium text-[#2a2116]">
+                        {prixAffiche(prixLot, locale)}
+                      </span>
                     </span>
                   )}
                 </>
@@ -1427,12 +1643,23 @@ export function ProductOptions({
                   <button
                     type="button"
                     onClick={() => {
-                      setCotesGardeCorps({ ...cotesGardeCorps, largeur: "", allege: "", fenetre: "" });
+                      setCotesGardeCorps({
+                        ...cotesGardeCorps,
+                        largeur: "",
+                        allege: "",
+                        fenetre: "",
+                      });
                       setQuantity(1);
                       setAjoutee(null);
-                      const premiere = releveRef.current?.querySelector<HTMLInputElement>("input[inputmode=decimal]");
+                      const premiere =
+                        releveRef.current?.querySelector<HTMLInputElement>(
+                          "input[inputmode=decimal]",
+                        );
                       premiere?.focus();
-                      premiere?.scrollIntoView({ block: "center", behavior: "smooth" });
+                      premiere?.scrollIntoView({
+                        block: "center",
+                        behavior: "smooth",
+                      });
                     }}
                     className="inline-block rounded-full border border-[#e5ddd3] bg-white px-6 py-2.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#2a2116] transition-colors hover:border-black hover:text-black"
                   >
@@ -1454,14 +1681,16 @@ export function ProductOptions({
         <div className="mt-3">
           <Link
             href={`/${locale}/contact?produit=${product.slug}&config=${encodeURIComponent(
-              optionsLabel
+              optionsLabel,
             )}`}
             className="block rounded-full px-6 py-3.5 text-center text-sm font-medium uppercase tracking-[0.12em] text-white transition-opacity hover:opacity-90"
             style={{ backgroundColor: ACCENT }}
           >
             {t.requestQuote}
           </Link>
-          <p className="mt-3 text-center text-sm leading-relaxed text-[#726757]">{t.quoteNote}</p>
+          <p className="mt-3 text-center text-sm leading-relaxed text-[#726757]">
+            {t.quoteNote}
+          </p>
           {lienDevis}
         </div>
       )}
@@ -1529,14 +1758,16 @@ export function ProductOptions({
             </p>
             <p className="truncate text-[11px] text-[#6f6357]">
               {cotesCourtes(
-                sizeIdEff === SUR_MESURE && labelTaille?.ok ? labelTaille.label : (size?.label ?? "")
+                sizeIdEff === SUR_MESURE && labelTaille?.ok
+                  ? labelTaille.label
+                  : (size?.label ?? ""),
               )}
             </p>
           </div>
           <button
             type="button"
             onClick={addToCart}
-            disabled={total === null || (modeVisite && !visitePrete)}
+            disabled={total === null || (modeVisite && !visitePrete) || (product.poseOption && !pose.deplacement)}
             className="ml-auto shrink-0 rounded-full px-5 py-3 text-xs font-medium uppercase tracking-[0.12em] text-white disabled:opacity-40"
             style={{ backgroundColor: ACCENT }}
           >

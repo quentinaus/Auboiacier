@@ -4,12 +4,16 @@ import type { Locale } from "./i18n.ts";
 import {
   SUR_MESURE,
   computeUnitPrice,
+  deltaBois,
   getProduct,
   poidsColisKg,
   productLocalise,
   remiseLot,
   resolveSelection,
+  supplementRemplissage,
   surfaceM2,
+  surfaceTailleM2,
+  type Famille,
   type Product,
   type ProductSize,
   type ProductSwatch,
@@ -47,11 +51,85 @@ export type LigneDevis = {
   /** Les précisions sous la désignation, une par ligne. */
   details: string[];
   quantite: number;
-  /** Prix unitaire en euros, remise de lot déjà comptée. */
+  /** Prix unitaire en euros. Négatif pour une remise. */
   unitaire: number;
-  /** Prix unitaire avant remise de lot, quand elle s'applique. */
-  avantRemise?: number;
   total: number;
+  /** Un titre de groupe (la pièce et ses options), sans montant. */
+  titre?: boolean;
+};
+
+/**
+ * Comment le prix d'une pièce se répartit entre ses postes, en centièmes —
+ * ce que le devis détaille ligne par ligne. Les écarts d'option (essence,
+ * teinte, velours, verre) s'ajoutent au poste concerné, le reste du prix se
+ * partage selon ces parts. À AJUSTER par Quentin : ce sont des parts
+ * indicatives, la somme des lignes vaut toujours exactement le prix affiché.
+ */
+type Poste =
+  | "plateau"
+  | "pietement"
+  | "peinture"
+  | "huile"
+  | "visserie"
+  | "structure"
+  | "assise"
+  | "coussins"
+  | "emballage"
+  | "cadre"
+  | "toile"
+  | "led"
+  | "fixations"
+  | "mainCourante"
+  | "limon"
+  | "marches"
+  | "gardeCorps"
+  | "pose";
+const POSTES: Record<Famille, { poste: Poste; part: number }[]> = {
+  "table-interieur": [
+    { poste: "plateau", part: 44 },
+    { poste: "pietement", part: 33 },
+    { poste: "peinture", part: 9 },
+    { poste: "huile", part: 6 },
+    { poste: "visserie", part: 8 },
+  ],
+  "table-exterieur": [
+    { poste: "plateau", part: 40 },
+    { poste: "pietement", part: 36 },
+    { poste: "peinture", part: 12 },
+    { poste: "huile", part: 5 },
+    { poste: "visserie", part: 7 },
+  ],
+  chaise: [
+    { poste: "structure", part: 40 },
+    { poste: "assise", part: 42 },
+    { poste: "peinture", part: 10 },
+    { poste: "emballage", part: 8 },
+  ],
+  "chaise-exterieur": [
+    { poste: "structure", part: 45 },
+    { poste: "coussins", part: 35 },
+    { poste: "peinture", part: 12 },
+    { poste: "emballage", part: 8 },
+  ],
+  plafond: [
+    { poste: "cadre", part: 35 },
+    { poste: "toile", part: 25 },
+    { poste: "led", part: 30 },
+    { poste: "fixations", part: 10 },
+  ],
+  "garde-corps": [
+    { poste: "structure", part: 55 },
+    { poste: "mainCourante", part: 15 },
+    { poste: "peinture", part: 15 },
+    { poste: "fixations", part: 15 },
+  ],
+  escalier: [
+    { poste: "limon", part: 40 },
+    { poste: "marches", part: 25 },
+    { poste: "gardeCorps", part: 15 },
+    { poste: "peinture", part: 10 },
+    { poste: "pose", part: 10 },
+  ],
 };
 
 export type LivraisonDevis = {
@@ -150,6 +228,35 @@ const TEXTES = {
     catalogue: "Format du catalogue",
     pieceLigne: "{nom} — {options}",
     lot: "Prix de lot : remise de {taux} % dès {n} pièces dans la même commande",
+    lotLigne: "Prix de lot — remise de {taux} % dès {n} pièces dans la même commande",
+    postes: {
+      plateau: "Plateau {essence} massif — {dims}, {ep} mm, débité, collé et poncé à l'atelier",
+      plateauExt: "Plateau à lattes en chêne traité classe 4 — {dims}, {ep} mm",
+      pietement: "Piétement acier — {spec}",
+      peinture: "Finition peinte de l'acier — teinte {teinte}",
+      finitionBrut: "Finition de l'acier — brut, vernis incolore de protection",
+      huile: "Finition huile-cire du plateau, satinée",
+      huileExt: "Finition huile d'extérieur du plateau",
+      visserie: "Visserie, notice de montage et emballage",
+      structureChaise: "Structure acier — rond plein, soudure TIG",
+      structureFauteuil: "Structure acier — soudure TIG, traitement pour l'extérieur",
+      assise: "Assise garnie — mousse haute densité, velours {coloris}",
+      coussins: "Coussins — mousse à cellules ouvertes, tissu déperlant, housses amovibles",
+      emballage: "Emballage et protection pour le transport",
+      cadre: "Cadre aluminium laqué {teinte} — {dims}, coupe d'onglet, caisson de {ep} mm",
+      toile: "Toile tendue blanc diffusant — {m2} m², clipsée dans le cadre",
+      led: "Éclairage LED 220 V — {w} W, alimentation comprise",
+      fixationsLumiere: "Fixations, câbles de suspension et emballage",
+      structureGc: "Structure acier plein — {dims} mm, croix de Saint-André et rosaces {rosace}, soudure TIG",
+      structureGcVerre: "Structure acier plein — {dims} mm, cadre soudé recevant le verre, soudure TIG",
+      verre: "Panneau de verre feuilleté, à la place des croix",
+      mainCourante: "Main courante {essence} massif 40 mm, finition huile-cire",
+      fixationsGc: "Fixations, notice de pose et emballage",
+      limon: "Limon central — tube d'acier de forte section, cintré, soudure TIG",
+      marches: "Marches {essence} massif 50 mm — {forme}, finition huile-cire",
+      gardeCorps: "Garde-corps — câbles inox tendus, main courante bois cintré",
+      pose: "Pose par l'atelier, en 1 à 2 jours, réglages compris",
+    },
     transporteur: "Livraison par transporteur — {commune} ({cp})",
     transporteurTable: "Livrée démontée : plateau, piétement soudé d'une pièce, visserie et notice de montage. Colis estimé à {kg} kg.",
     transporteurPiece: "Livrée prête à poser, emballée à l'atelier. Colis estimé à {kg} kg.",
@@ -222,6 +329,35 @@ const TEXTES = {
     catalogue: "Catalogue size",
     pieceLigne: "{nom} — {options}",
     lot: "Batch price: {taux}% off from {n} pieces in the same order",
+    lotLigne: "Batch price — {taux}% off from {n} pieces in the same order",
+    postes: {
+      plateau: "Solid {essence} top — {dims}, {ep} mm, cut, glued and sanded in the workshop",
+      plateauExt: "Slatted top in class-4 treated oak — {dims}, {ep} mm",
+      pietement: "Steel base — {spec}",
+      peinture: "Painted finish of the steel — {teinte}",
+      finitionBrut: "Steel finish — raw, clear protective varnish",
+      huile: "Hardwax-oil finish of the top, satin",
+      huileExt: "Exterior oil finish of the top",
+      visserie: "Hardware, assembly notes and packaging",
+      structureChaise: "Steel frame — solid round bar, TIG welded",
+      structureFauteuil: "Steel frame — TIG welded, treated for outdoor use",
+      assise: "Upholstered seat — high-density foam, {coloris} velvet",
+      coussins: "Cushions — open-cell foam, water-repellent fabric, removable covers",
+      emballage: "Packaging and protection for transport",
+      cadre: "Lacquered aluminium frame, {teinte} — {dims}, mitred corners, {ep} mm box",
+      toile: "Stretched white diffusing membrane — {m2} m², clipped into the frame",
+      led: "220 V LED lighting — {w} W, power supply included",
+      fixationsLumiere: "Fixings, suspension cables and packaging",
+      structureGc: "Solid steel structure — {dims} mm, Saint Andrew's crosses and {rosace} rosettes, TIG welded",
+      structureGcVerre: "Solid steel structure — {dims} mm, welded frame holding the glass, TIG welded",
+      verre: "Laminated glass panel, in place of the crosses",
+      mainCourante: "Solid {essence} handrail, 40 mm, hardwax-oil finish",
+      fixationsGc: "Fixings, fitting notes and packaging",
+      limon: "Central stringer — heavy-section steel tube, bent, TIG welded",
+      marches: "Solid {essence} treads, 50 mm — {forme}, hardwax-oil finish",
+      gardeCorps: "Balustrade — tensioned stainless cables, bent wooden handrail",
+      pose: "Installation by the workshop, 1 to 2 days, adjustments included",
+    },
     transporteur: "Carrier delivery — {commune} ({cp})",
     transporteurTable: "Shipped dismantled: top, one-piece welded base, hardware and assembly notes. Parcel estimated at {kg} kg.",
     transporteurPiece: "Shipped ready to install, packed at the workshop. Parcel estimated at {kg} kg.",
@@ -573,6 +709,134 @@ function caracteristiques(p: Pieces, entree: EntreeDevis): Caracteristique[] {
 }
 
 /* ------------------------------------------------------------------ *
+ *  Les postes d'une pièce
+ * ------------------------------------------------------------------ */
+
+/** Les cotes d'une pièce, en centimètres : « 200 × 100 cm », « Ø 90 cm ». */
+function cotesCm(size: ProductSize, rond: boolean, locale: Locale) {
+  const dims = size.dimsMm;
+  if (!dims) return "";
+  return rond ? `Ø ${cm(dims[0], locale)} cm` : `${cm(dims[0], locale)} × ${cm(dims[1], locale)} cm`;
+}
+
+/**
+ * Le prix d'une pièce, réparti entre ses postes (voir POSTES). Le prix de
+ * base — sans les écarts d'option — se partage selon les parts, à l'euro, le
+ * premier poste prenant le reste de l'arrondi ; puis chaque écart d'option
+ * rejoint son poste. Ainsi la somme des lignes vaut exactement `unitPrice`.
+ */
+function postesDeLaPiece(
+  p: Pieces,
+  selection: Selection,
+  unitPrice: number,
+  locale: Locale
+): { designation: string; details: string[]; unitaire: number }[] {
+  const { product, size, wood, metal, fabric, remplissage } = p;
+  const t = TEXTES[locale];
+  const tp = t.postes;
+  const rond = product.surMesure?.forme === "rond";
+  const surMesure = size.id === SUR_MESURE;
+  const dims = size.dimsMm;
+  const [L, W] = dims ?? [0, 0];
+
+  // Les écarts d'option, et le poste que chacun rejoint.
+  const ecartBois = deltaBois(product, wood, surfaceTailleM2(size, L, W));
+  const ecartMetal = metal?.priceDelta ?? 0;
+  const ecartTissu = fabric?.priceDelta ?? 0;
+  const verre = remplissage && surMesure && remplissage.id !== product.remplissages?.[0]?.id ? supplementRemplissage(remplissage, L, W) : 0;
+  // Un écart positif (noyer, laiton) s'ajoute à son poste ; un écart négatif
+  // (pin, hêtre) reste dans la base et fait baisser tous les postes : ôté
+  // d'un seul, la main courante d'un petit garde-corps passait sous zéro.
+  const positif = (n: number) => Math.max(0, n);
+  const base = unitPrice - positif(ecartBois) - positif(ecartMetal) - positif(ecartTissu) - verre;
+
+  const parts = POSTES[product.famille];
+  const montants = parts.map(({ part }) => Math.round((base * part) / 100));
+  montants[0] += base - montants.reduce((somme, m) => somme + m, 0);
+
+  const epaisseur = surMesure ? (selection.epaisseurMm ?? product.surMesure?.epaisseur.refMm) : product.surMesure?.epaisseur.refMm;
+  const essence = wood?.label.toLowerCase() ?? "";
+  const teinte = metal?.label.toLowerCase() ?? "";
+  const exterieur = product.famille === "table-exterieur";
+  const surface = dims ? surfaceM2(rond ? "rond" : "rect", L, W) : 0;
+  const watts = !surMesure ? Number(size.label.match(/(\d+)\s*W/)?.[1] ?? 0) || Math.round((surface * 65) / 5) * 5 : Math.round((surface * 65) / 5) * 5;
+
+  /** Le libellé d'un poste et l'écart d'option qui le rejoint. */
+  const libelle = (poste: Poste): { designation: string; ecart: number } => {
+    switch (poste) {
+      case "plateau":
+        return {
+          designation: remplir(exterieur ? tp.plateauExt : tp.plateau, { essence, dims: cotesCm(size, rond, locale), ep: epaisseur ?? "" }),
+          ecart: ecartBois,
+        };
+      case "pietement":
+        // La finition a sa propre ligne : on l'ôte de la fiche du piétement.
+        return {
+          designation: remplir(tp.pietement, {
+            spec: (spec(product, /^(Piétement|Base)$/) ?? "").replace(/,\s*[^,]*\b(finition|finish)\b[^,]*$/i, ""),
+          }),
+          ecart: 0,
+        };
+      case "peinture":
+        // L'acier brut verni n'est pas peint : sa ligne le dit.
+        return {
+          designation: metal?.id === "brut" ? tp.finitionBrut : remplir(tp.peinture, { teinte }),
+          ecart: ecartMetal,
+        };
+      case "huile":
+        return { designation: exterieur ? tp.huileExt : tp.huile, ecart: 0 };
+      case "visserie":
+        return { designation: tp.visserie, ecart: 0 };
+      case "structure":
+        return product.famille === "garde-corps"
+          ? {
+              designation:
+                remplissage?.id === "verre"
+                  ? remplir(tp.structureGcVerre, { dims: `${nombre(L, locale)} × ${nombre(W, locale)}` })
+                  : remplir(tp.structureGc, { dims: `${nombre(L, locale)} × ${nombre(W, locale)}`, rosace: fabric?.label.toLowerCase() ?? "" }),
+              ecart: ecartTissu,
+            }
+          : { designation: product.famille === "chaise-exterieur" ? tp.structureFauteuil : tp.structureChaise, ecart: 0 };
+      case "assise":
+        return { designation: remplir(tp.assise, { coloris: fabric?.label ?? "" }), ecart: ecartTissu };
+      case "coussins":
+        return { designation: tp.coussins, ecart: 0 };
+      case "emballage":
+        return { designation: tp.emballage, ecart: 0 };
+      case "cadre":
+        return {
+          designation: remplir(tp.cadre, { teinte, dims: cotesCm(size, rond, locale), ep: epaisseur ?? "" }),
+          ecart: ecartMetal,
+        };
+      case "toile":
+        return { designation: remplir(tp.toile, { m2: nombre(surface, locale, 2) }), ecart: 0 };
+      case "led":
+        return { designation: remplir(tp.led, { w: nombre(watts, locale) }), ecart: 0 };
+      case "fixations":
+        return { designation: product.famille === "garde-corps" ? tp.fixationsGc : tp.fixationsLumiere, ecart: 0 };
+      case "mainCourante":
+        return { designation: remplir(tp.mainCourante, { essence }), ecart: ecartBois };
+      case "limon":
+        return { designation: tp.limon, ecart: 0 };
+      case "marches":
+        return { designation: remplir(tp.marches, { essence, forme: size.label }), ecart: ecartBois };
+      case "gardeCorps":
+        return { designation: tp.gardeCorps, ecart: 0 };
+      case "pose":
+        return { designation: tp.pose, ecart: 0 };
+    }
+  };
+
+  const lignes = parts.map(({ poste }, i) => {
+    const { designation, ecart } = libelle(poste);
+    return { designation, details: [], unitaire: montants[i] + positif(ecart) };
+  });
+  // Le verre feuilleté d'un garde-corps : un supplément, sur sa propre ligne.
+  if (verre > 0) lignes.push({ designation: tp.verre, details: [], unitaire: verre });
+  return lignes;
+}
+
+/* ------------------------------------------------------------------ *
  *  La composition
  * ------------------------------------------------------------------ */
 
@@ -610,32 +874,54 @@ export function composerDevis(entree: EntreeDevis): ResultatDevis {
   const ligne = estimation ? resolu : resultat && resultat.ok ? resultat.line : null;
   if (!ligne) return { ok: false, reason: "unknown_size" };
 
-  const pieces: Pieces = {
-    product,
-    size: ligne.size,
-    wood: ligne.wood,
-    metal: ligne.metal,
-    fabric: ligne.fabric,
-    remplissage: ligne.remplissage,
-  };
+  // resolveSelection travaille sur le catalogue français : on relit chaque
+  // option dans la langue du devis, par identifiant. Le libellé d'une pièce
+  // sur mesure, lui, est déjà traduit (devisSurMesure reçoit la langue).
+  const size = product.sizes.find((s) => s.id === ligne.size.id) ?? ligne.size;
+  const wood = product.woods.find((w) => w.id === ligne.wood?.id);
+  const metal = product.metals.find((m) => m.id === ligne.metal?.id);
+  const fabric = product.fabrics?.find((f) => f.id === ligne.fabric?.id);
+  const remplissage = product.remplissages?.find((r) => r.id === ligne.remplissage?.id);
+  const optionsLabel = [
+    product.sizes.length > 1 || size.id === SUR_MESURE ? size.label : null,
+    wood?.label,
+    metal?.label,
+    fabric?.label,
+    remplissage && remplissage.id !== product.remplissages?.[0]?.id ? remplissage.label : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const pieces: Pieces = { product, size, wood, metal, fabric, remplissage };
 
   // Le prix de lot d'un garde-corps, exactement comme au panier.
   const [avecLot] = remiseLot([{ product, unitPrice: ligne.unitPrice, quantity }]);
-  const unitaire = avecLot.prixLot;
-  const details: string[] = [];
-  if (avecLot.remise > 0 && product.remiseLot) {
-    details.push(remplir(t.lot, { taux: Math.round(product.remiseLot.taux * 100), n: product.remiseLot.desPieces }));
-  }
+
+  // La pièce, poste par poste : la somme des lignes vaut son prix unitaire.
   const lignes: LigneDevis[] = [
     {
-      designation: ligne.optionsLabel ? remplir(t.pieceLigne, { nom: product.name, options: ligne.optionsLabel }) : product.name,
-      details,
+      designation: optionsLabel ? remplir(t.pieceLigne, { nom: product.name, options: optionsLabel }) : product.name,
+      details: [],
       quantite: quantity,
-      unitaire,
-      avantRemise: avecLot.remise > 0 ? ligne.unitPrice : undefined,
-      total: unitaire * quantity,
+      unitaire: 0,
+      total: 0,
+      titre: true,
     },
+    ...postesDeLaPiece(pieces, selection, ligne.unitPrice, entree.locale).map((poste) => ({
+      ...poste,
+      quantite: quantity,
+      total: poste.unitaire * quantity,
+    })),
   ];
+  if (avecLot.remise > 0 && product.remiseLot) {
+    const remise = avecLot.prixLot - ligne.unitPrice;
+    lignes.push({
+      designation: remplir(t.lotLigne, { taux: Math.round(product.remiseLot.taux * 100), n: product.remiseLot.desPieces }),
+      details: [],
+      quantite: quantity,
+      unitaire: remise,
+      total: remise * quantity,
+    });
+  }
 
   // La livraison : par transporteur (au poids du colis) ou avec la pose.
   const livraison = entree.livraison;

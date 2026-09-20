@@ -2096,6 +2096,18 @@ function pickOption(
  * Le remplissage demandé, en REFUSANT tout ce qui ne correspond pas — comme
  * pickOption. Un produit sans remplissage n'en accepte aucun.
  */
+/**
+ * Sous un panneau de verre, il n'y a plus de croix : plus de rosace à choisir
+ * ni à payer. La fiche impose alors la première rosace (écart nul) ; le
+ * serveur fait pareil, sinon un lien ou un panier forgé faisait payer un
+ * médaillon que la pièce n'a pas.
+ */
+function fabricSousRemplissage(product: Product, fabricId: string | undefined, remplissageId: string | undefined) {
+  if (!product.fabricLabel || !product.fabrics?.length) return fabricId;
+  const sansCroix = product.remplissages?.some((r) => r.id === remplissageId && r.hauteurMaxConformeMm === undefined);
+  return sansCroix ? product.fabrics[0].id : fabricId;
+}
+
 function remplissageDemande(
   product: Product,
   id: string | undefined
@@ -2373,7 +2385,7 @@ export function computeUnitPrice(
   if (!wood.ok) return null;
   const metal = pickOption(product.metals, selection.metalId);
   if (!metal.ok) return null;
-  const fabric = pickOption(product.fabrics, selection.fabricId);
+  const fabric = pickOption(product.fabrics, fabricSousRemplissage(product, selection.fabricId, selection.remplissageId));
   if (!fabric.ok) return null;
   const remplissage = remplissageDemande(product, selection.remplissageId);
   if (!remplissage.ok) return null;
@@ -2445,7 +2457,7 @@ export function resolveSelection(selection: Selection): ResolveResult {
   if (!wood.ok) return { ok: false, reason: "unknown_wood" };
   const metal = pickOption(product.metals, selection.metalId);
   if (!metal.ok) return { ok: false, reason: "unknown_metal" };
-  const fabric = pickOption(product.fabrics, selection.fabricId);
+  const fabric = pickOption(product.fabrics, fabricSousRemplissage(product, selection.fabricId, selection.remplissageId));
   if (!fabric.ok) return { ok: false, reason: "unknown_fabric" };
   const remplissage = remplissageDemande(product, selection.remplissageId);
   if (!remplissage.ok) return { ok: false, reason: "unknown_remplissage" };

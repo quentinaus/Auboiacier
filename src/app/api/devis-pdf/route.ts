@@ -99,7 +99,22 @@ export async function GET(request: Request) {
   if (!resultat.ok) return NextResponse.json({ error: resultat.reason }, { status: 400 });
 
   const pdf = await rendreDevisPdf(resultat.devis);
-  const nom = `${resultat.devis.nature === "estimation" ? "estimation" : "devis"}-auboiacier-${resultat.devis.numero}.pdf`;
+  // « Devis-Auboiacier-Table-Mikado-D-20260920-3KS01.pdf » : sans accent ni
+  // espace, pour que tous les navigateurs gardent le nom tel quel.
+  const nature =
+    locale === "en"
+      ? resultat.devis.nature === "estimation"
+        ? "Estimate"
+        : "Quote"
+      : resultat.devis.nature === "estimation"
+        ? "Estimation"
+        : "Devis";
+  const piece = resultat.devis.piece.nom
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^A-Za-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  const nom = `${nature}-Auboiacier-${piece}-${resultat.devis.numero}.pdf`;
   return new NextResponse(new Uint8Array(pdf), {
     headers: {
       "content-type": "application/pdf",
