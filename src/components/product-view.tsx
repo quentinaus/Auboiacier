@@ -343,9 +343,11 @@ export function ProductView({
             gère seul la touche Échap et le piège à focus. */}
         <dialog
           ref={zoomRef}
-          onClick={(event) => {
-            if (event.target === zoomRef.current) zoomRef.current?.close();
-          }}
+          // N'importe quel clic referme, sauf sur la photo elle-même (voir
+          // plus bas) : l'ancienne version ne fermait que sur le fond tout
+          // autour du cadre, pas sur les bandes vides que laisse une photo
+          // qui ne remplit pas tout l'écran (object-contain).
+          onClick={() => zoomRef.current?.close()}
           className="m-0 h-dvh max-h-none w-screen max-w-none bg-[#2b2320]/95 p-0 backdrop:bg-transparent"
         >
           <button
@@ -363,6 +365,39 @@ export function ProductView({
                 alt={mainImage.alt}
                 fill
                 sizes="100vw"
+                // En grand plan, la compression par défaut (75) se voit sur
+                // le bord net entre le bois et le fond blanc.
+                quality={92}
+                // « object-contain » ne rétrécit que l'image DESSINÉE : la
+                // balise, elle, garde toute la surface du cadre (fill), y
+                // compris les bandes vides au-dessus et en dessous d'une
+                // photo plus large que haute. Un simple stopPropagation ici
+                // aurait donc empêché de refermer en cliquant dans ces
+                // bandes, qui ne sont pourtant pas la photo. On calcule le
+                // rectangle réellement dessiné et on ne bloque la fermeture
+                // que si le clic tombe dedans.
+                onClick={(event) => {
+                  const img = event.currentTarget;
+                  const rect = img.getBoundingClientRect();
+                  const cs = getComputedStyle(img);
+                  const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+                  const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+                  const cw = rect.width - padX;
+                  const ch = rect.height - padY;
+                  const { naturalWidth: nw, naturalHeight: nh } = img;
+                  if (!nw || !nh || cw <= 0 || ch <= 0) return;
+                  const echelle = Math.min(cw / nw, ch / nh);
+                  const w = nw * echelle;
+                  const h = nh * echelle;
+                  const left = rect.left + parseFloat(cs.paddingLeft) + (cw - w) / 2;
+                  const top = rect.top + parseFloat(cs.paddingTop) + (ch - h) / 2;
+                  const dansLaPhoto =
+                    event.clientX >= left &&
+                    event.clientX <= left + w &&
+                    event.clientY >= top &&
+                    event.clientY <= top + h;
+                  if (dansLaPhoto) event.stopPropagation();
+                }}
                 className="object-contain p-4 md:p-10"
               />
             </div>
