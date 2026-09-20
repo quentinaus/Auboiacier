@@ -176,7 +176,9 @@ export function PoseDomicile({
   const invalide = etat === "invalide" || etat === "hors" || etat === "loin";
 
   return (
-    <div className="mt-5 border-t border-[#e5ddd3] pt-5">
+    // id="livraison" : le bouton d'achat y renvoie quand le code postal
+    // manque encore — scroll-mt-28 laisse la place de l'en-tête fixe.
+    <div className="mt-5 scroll-mt-28 border-t border-[#e5ddd3] pt-5" id="livraison">
       <span id={idGroupe} className="block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
         {livraisonSeule ? t.livraisonTitle : t.poseTitle}
       </span>

@@ -497,6 +497,32 @@ export function ProductOptions({
       : (bareme?.epaisseur.maxMm ?? 0);
 
   /**
+   * Pourquoi des cotes tapées sont refusées, en clair : repris par l'alerte
+   * sous les champs ET par le bouton d'achat plus bas, pour ne jamais le dire
+   * différemment aux deux endroits.
+   */
+  const raisonDevisTexte =
+    devis && !devis.ok
+      ? devis.reason === "trop_petit"
+        ? t.customTooSmall
+        : devis.reason === "trop_grand"
+          ? table
+            ? t.customTooBigTable
+            : t.customTooBig
+          : devis.reason === "epaisseur_trop_fine"
+            ? t.customThicknessMin
+                .replace("{portee}", String(porteeMm))
+                .replace("{mini}", String(devis.epaisseurMiniMm ?? epaisseurMini))
+            : devis.reason === "caisson_trop_profond"
+              ? t.customBoxDepth
+                  .replace("{cote}", String(Math.min(largeurMm, hauteurMm)))
+                  .replace("{max}", String(epaisseurMaxi))
+              : devis.reason === "epaisseur_hors_bornes"
+                ? t.customBadThickness
+                : t.customInvalid
+      : null;
+
+  /**
    * La taille courante. Une pièce sur devis peut n'en avoir aucune : la fiche
    * n'affiche alors ni prix ni dimension, juste « Sur devis » — un garde-corps
    * se chiffre à l'ouverture, pas au catalogue.
@@ -850,6 +876,29 @@ export function ProductOptions({
     }
     return `/api/devis-pdf?${p.toString()}`;
   })();
+
+  /**
+   * Pourquoi le bouton reste grisé, à dire au client — sans ce mot, une cote
+   * hors barème ou un code postal manquant laissaient un bouton mort et
+   * personne ne savait pourquoi. Chaque raison renvoie vers le bon endroit
+   * de la fiche (mêmes ancres que « Prise de cotes à domicile »).
+   */
+  const raisonIndisponible: { message: string; ancre: string } | null = modeVisite
+    ? !visitePrete
+      ? { message: t.raisonVisiteIncomplete, ancre: "#cotes" }
+      : null
+    : total === null
+      ? // Le même texte que l'alerte sous les champs (raisonDevisTexte) : une
+        // fois les deux cotes tapées hors barème, cotesTapees repasse à null
+        // et ne dit plus pourquoi tout seul.
+        raisonDevisTexte
+        ? { message: raisonDevisTexte, ancre: "#cotes" }
+        : bareme && !product.releve
+          ? { message: t.raisonCotesManquantes, ancre: "#cotes" }
+          : null
+      : product.poseOption && !pose.deplacement
+        ? { message: t.raisonCodePostalLivraison, ancre: "#livraison" }
+        : null;
 
   /** Le lien vers le devis, sous la barre d'achat ou sous « Demander un devis ». */
   const lienDevis = urlDevis && (
@@ -1343,31 +1392,7 @@ export function ProductOptions({
                 role="alert"
                 className="mt-2 min-h-4 text-xs leading-snug text-[#2b2320]"
               >
-                {devis && !devis.ok
-                  ? devis.reason === "trop_petit"
-                    ? t.customTooSmall
-                    : devis.reason === "trop_grand"
-                      ? table
-                        ? t.customTooBigTable
-                        : t.customTooBig
-                      : devis.reason === "epaisseur_trop_fine"
-                        ? t.customThicknessMin
-                            .replace("{portee}", String(porteeMm))
-                            .replace(
-                              "{mini}",
-                              String(devis.epaisseurMiniMm ?? epaisseurMini),
-                            )
-                        : devis.reason === "caisson_trop_profond"
-                          ? t.customBoxDepth
-                              .replace(
-                                "{cote}",
-                                String(Math.min(largeurMm, hauteurMm)),
-                              )
-                              .replace("{max}", String(epaisseurMaxi))
-                          : devis.reason === "epaisseur_hors_bornes"
-                            ? t.customBadThickness
-                            : t.customInvalid
-                  : ""}
+                {raisonDevisTexte ?? ""}
               </p>
 
               {/* Et le prix, lui, se dit dès qu'il change. */}
@@ -1637,6 +1662,18 @@ export function ProductOptions({
               {t.addToCart}
             </button>
           </div>
+          {/* Pourquoi le bouton est grisé : un lien vers l'endroit à compléter,
+              plutôt qu'un bouton mort sans explication. */}
+          {raisonIndisponible && (
+            <p className="mt-2 text-[11px] text-[#9a5b3f]">
+              <a
+                href={raisonIndisponible.ancre}
+                className="underline decoration-dotted underline-offset-2 hover:text-[#2b2320]"
+              >
+                {raisonIndisponible.message}
+              </a>
+            </p>
+          )}
           {/* Ce que ce prix-là comprend : sans cette ligne, cliquer « Noyer »
               faisait bondir le chiffre de 710 € sans un mot d'explication. */}
           {optionsLabel && !modeVisite && total !== null && (
