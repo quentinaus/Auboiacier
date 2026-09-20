@@ -240,6 +240,10 @@ export default async function ArtisanatPage({
                           </span>
                         </p>
                       )}
+                      {/* La pièce se configure en ligne : dit sur la carte, c'est ce qui la distingue. */}
+                      {product.surMesure && product.orderMode === "cart" && (
+                        <p className="mt-1 text-[11px] text-[#6f6357]">{t.configurable}</p>
+                      )}
                       {/* Aperçu des matières disponibles, mêmes pastilles que la fiche produit. */}
                       <div className="mt-3 flex items-center gap-1.5">
                         {[...product.woods, ...product.metals, ...(product.fabrics ?? [])]

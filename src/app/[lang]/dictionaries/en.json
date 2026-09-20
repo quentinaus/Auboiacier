@@ -82,7 +82,13 @@
     "altLucarne": "Lucarne: rectangular backlit stretch ceiling, black aluminium frame, seen from below",
     "altHalo": "Halo: round backlit stretch ceiling, black aluminium frame, seen from below",
     "altPlafonds": "Backlit stretch ceiling above a dining table",
-    "altVerrieres": "Black steel interior partition between a living room and a kitchen"
+    "altVerrieres": "Black steel interior partition between a living room and a kitchen",
+    "configLabel": "Online configurator",
+    "configTitle": "Configure your piece, the price appears",
+    "configText": "Table, window railing, light ceiling: enter your dimensions, choose the wood, the colour, the delivery. The price is worked out in front of you and your quote downloads as a PDF — no account, no commitment.",
+    "configTable": "Configure a table",
+    "configGardeCorps": "Configure a railing",
+    "configPlafond": "Configure a light ceiling"
   },
   "home": {
     "heroTitle": "Your ceiling, made to measure",
@@ -357,7 +363,7 @@
     "gcPromesse": "Enter your three measurements: the exact price appears at once and you order straight away, no quote, no waiting. Or the workshop comes to measure at your home.",
     "gcSchemaMetreRdc": "{m} mm from the floor · ground-floor rule: 80 cm min",
     "gcPrixAttente": "The price shows as soon as your three measurements are in.",
-    "prixAttenteCotes": "The price appears as soon as you enter your dimensions, or choose a catalogue size.",
+    "prixAttenteCotes": "Configure it: dimensions, materials, colour — the price appears, the quote downloads.",
     "sizeChoose": "Choose a catalogue size",
     "gcPrixCompris": "wood and steel included",
     "gcLot": "Several windows? −{taux}% on every railing from the second one, even with different sizes.",
@@ -419,7 +425,8 @@
     "catalogueLabel": "Catalogue size",
     "customOrCustom": "Or your own dimensions",
     "poseSeulCourt": "Price depends on your town, weight and size.",
-    "poseAtelierCourt": "A single trip from Saumur, priced by distance."
+    "poseAtelierCourt": "A single trip from Saumur, priced by distance.",
+    "configurable": "Configure it online"
   },
   "devis": {
     "title": "Request a quote",

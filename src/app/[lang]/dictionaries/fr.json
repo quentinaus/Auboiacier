@@ -82,7 +82,13 @@
     "altLucarne": "Lucarne : plafond lumineux rectangulaire à toile tendue, cadre aluminium noir, vu de dessous",
     "altHalo": "Halo : plafond lumineux rond à toile tendue, cadre aluminium noir, vu de dessous",
     "altPlafonds": "Plafond lumineux au-dessus d'une table à manger",
-    "altVerrieres": "Verrière d'intérieur en acier noir séparant un salon d'une cuisine"
+    "altVerrieres": "Verrière d'intérieur en acier noir séparant un salon d'une cuisine",
+    "configLabel": "Configurateur en ligne",
+    "configTitle": "Configurez votre pièce, le prix s'affiche",
+    "configText": "Table, garde-corps de fenêtre, plafond lumineux : entrez vos cotes, choisissez l'essence, la teinte, la livraison. Le prix se calcule sous vos yeux et votre devis se télécharge en PDF — sans compte, sans engagement.",
+    "configTable": "Configurer une table",
+    "configGardeCorps": "Configurer un garde-corps",
+    "configPlafond": "Configurer un plafond lumineux"
   },
   "home": {
     "heroTitle": "Votre plafond, une pièce sur mesure",
@@ -357,7 +363,7 @@
     "gcPromesse": "Entrez vos trois cotes : le prix exact s'affiche aussitôt et vous commandez directement, sans devis ni attente. Ou l'atelier vient mesurer chez vous.",
     "gcSchemaMetreRdc": "{m} mm du sol · règle au rez-de-chaussée : 80 cm mini",
     "gcPrixAttente": "Le prix s'affiche dès vos trois cotes.",
-    "prixAttenteCotes": "Le prix s'affiche dès vos cotes, ou au choix d'un format du catalogue.",
+    "prixAttenteCotes": "Configurez-la : cotes, matières, teinte — le prix s'affiche, le devis se télécharge.",
     "sizeChoose": "Choisir un format du catalogue",
     "gcPrixCompris": "bois et acier compris",
     "gcLot": "Plusieurs fenêtres ? −{taux} % sur chaque garde-corps dès le deuxième, même avec des cotes différentes.",
@@ -419,7 +425,8 @@
     "catalogueLabel": "Format du catalogue",
     "customOrCustom": "Ou à vos cotes",
     "poseSeulCourt": "Prix selon votre ville, le poids et les dimensions.",
-    "poseAtelierCourt": "Un seul trajet depuis Saumur, prix selon la distance."
+    "poseAtelierCourt": "Un seul trajet depuis Saumur, prix selon la distance.",
+    "configurable": "Se configure en ligne"
   },
   "devis": {
     "title": "Demander un devis",

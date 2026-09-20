@@ -299,6 +299,38 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
         </div>
       </section>
 
+      {/* 2 bis. Le configurateur : ce que peu d'artisans offrent, dit
+          clairement — on entre ses cotes, on voit le prix, on télécharge
+          son devis. Trois portes, une par famille configurable. */}
+      <section className="border-t border-[#e5ddd3] bg-[#f5f1ea] px-6 py-14 md:py-20">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-[#6f6357]">{t.configLabel}</p>
+          <h2 className={`${serif.className} mt-4 text-2xl text-[#2b2320] sm:text-3xl md:text-[2.4rem] md:leading-tight`}>
+            {t.configTitle}
+          </h2>
+          <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-[#5c5140] md:text-[0.95rem]">{t.configText}</p>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
+            {[
+              { href: `/${locale}/artisanat/table-mikado#cotes`, label: t.configTable, plein: true },
+              { href: `/${locale}/artisanat/garde-corps#cotes`, label: t.configGardeCorps, plein: false },
+              { href: `/${locale}/artisanat/plafond-lumineux-lucarne#cotes`, label: t.configPlafond, plein: false },
+            ].map((porte) => (
+              <Link
+                key={porte.href}
+                href={porte.href}
+                className={`inline-flex items-center justify-center rounded-full px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] transition-colors ${
+                  porte.plein
+                    ? "bg-[#2b2320] text-white hover:bg-black"
+                    : "border border-[#2b2320]/30 text-[#2b2320] hover:border-black hover:text-black"
+                }`}
+              >
+                {porte.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* 3. Bandeau atelier */}
       <section>
         <div className="relative flex h-[240px] items-center justify-center overflow-hidden sm:h-[280px] md:h-[340px]">
