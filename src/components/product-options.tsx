@@ -144,7 +144,12 @@ function SwatchGroup({
                   ? `${o.label} — ${formatDelta(o.priceDelta ?? 0, locale)}`
                   : o.label
               }
-              className={`group w-14 shrink-0 snap-start rounded-xl text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] sm:w-[4.25rem] lg:w-[4.75rem]`}
+              /* flex flex-col justify-start : un <button> centre son contenu
+                 verticalement par défaut, même en display:block. Sans ce mot,
+                 une pastille dont l'intitulé tient sur une ligne (« Bleu roi »)
+                 descendait par rapport à une autre à deux lignes
+                 (« Sacramento ») — la rangée n'était plus alignée. */
+              className={`group flex w-14 shrink-0 snap-start flex-col justify-start rounded-xl text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] sm:w-[4.25rem] lg:w-[4.75rem]`}
             >
               {/* La matière d'abord, grande et ronde ; son nom en dessous, sur
                   deux lignes s'il le faut — comme un nuancier. Plus petite sur
