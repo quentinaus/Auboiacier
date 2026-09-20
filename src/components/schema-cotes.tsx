@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { LUMIERE } from "./photo-plafond-anime";
 
 /**
  * Le croquis coté du bloc « à vos cotes » : le plateau seul, vu de trois
@@ -294,6 +295,19 @@ export function SchemaCotes({
   const { O, RX, RY } = geometrieRond(proportions ?? {});
   const bas = (pt: Point): Point => [pt[0], pt[1] + EP];
 
+  /* La toile d'un caisson lumineux est réellement éclairée : le même
+     dégradé animé que la photo (voir MembraneAnimee), posé sur la face du
+     dessus via son découpage déjà tracé (clipPath#face) — plutôt qu'une
+     toile blanche qui ne ressemble plus à une lumière allumée. */
+  const membraneAllumee = lumiere && (
+    <foreignObject x={0} y={0} width={largeurBox} height={hauteurBox} clipPath="url(#face)">
+      <div
+        className="membrane-lumiere h-full w-full"
+        style={{ backgroundImage: LUMIERE, backgroundSize: "125% 125%" }}
+      />
+    </foreignObject>
+  );
+
   const cote = (
     c: CoteSchema,
     props: Omit<Parameters<typeof Cote>[0], "n" | "etat" | "label" | "valeur" | "onChoisir" | "onSurvol">
@@ -365,6 +379,7 @@ export function SchemaCotes({
             fill={chant}
           />
           <ellipse cx={O[0]} cy={O[1]} rx={RX} ry={RY} fill={dessus} />
+          {membraneAllumee}
           {!lumiere && (
             <g clipPath="url(#face)" fill="none" stroke="#a67f47" strokeWidth={0.8}>
               {[-30, -20, -11, -3, 5, 13, 22, 31].map((dy, i) => (
@@ -421,6 +436,7 @@ export function SchemaCotes({
           <polygon points={`${p(D)} ${p(C)} ${p(bas(C))} ${p(bas(D))}`} fill={chant} />
           <polygon points={`${p(A)} ${p(D)} ${p(bas(D))} ${p(bas(A))}`} fill={bout} />
           <polygon points={`${p(A)} ${p(B)} ${p(C)} ${p(D)}`} fill={dessus} />
+          {membraneAllumee}
           {!lumiere && (
             <>
               {/* Les veines suivent la longueur : des lignes parallèles à D→C. */}

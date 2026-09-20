@@ -7,7 +7,7 @@ import Image from "next/image";
  * La lumière de la toile : pêche, rose, lavande — le dégradé pastel que
  * Quentin a retenu, tel quel, sans filtre de saturation.
  */
-const LUMIERE = "linear-gradient(135deg, #f9cfa0 0%, #f6c6d6 50%, #cbc2f5 100%)";
+export const LUMIERE = "linear-gradient(135deg, #f9cfa0 0%, #f6c6d6 50%, #cbc2f5 100%)";
 
 /**
  * Une photo d'intérieur dont la dalle lumineuse est réellement éclairée par le

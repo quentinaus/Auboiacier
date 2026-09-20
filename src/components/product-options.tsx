@@ -493,11 +493,14 @@ export function ProductOptions({
       ? epaisseurMiniMm(bareme, porteeMm)
       : bareme.epaisseur.minMm
     : 0;
+  /* Number("") vaut 0, pas NaN : une case encore vide n'est donc pas « non
+     finie ». Sans un test sur la saisie elle-même (saisieFaite, plus haut),
+     la largeur pas encore tapée valait 0 et le caisson lumineux (qui ne
+     peut pas être plus profond que son panneau n'est étroit) affichait
+     « 180 – 0 mm » — une borne haute sous la borne basse — pendant qu'on
+     remplissait la cote suivante. */
   const epaisseurMaxi =
-    bareme &&
-    porteeMm > 0 &&
-    Number.isFinite(largeurMm) &&
-    Number.isFinite(hauteurMm)
+    bareme && porteeMm > 0 && saisieFaite
       ? epaisseurMaxMm(bareme, largeurMm, hauteurMm)
       : (bareme?.epaisseur.maxMm ?? 0);
 
