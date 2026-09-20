@@ -1736,7 +1736,7 @@ export const products: Product[] = [
       },
       {
         title: "En applique, suspendu ou encastré",
-        body: "La Lucarne se pose en applique au plafond, se suspend par câbles ou s'encastre dans un faux plafond. L'alimentation 220 V est fournie ; la variation est possible sur demande.",
+        body: "La Lucarne se pose en applique au plafond, se suspend par câbles ou s'encastre dans un faux plafond. L'alimentation 220 V est fournie ; la variation est possible sur demande, et une application permet de régler la teinte — blanc, couleur ou animation lumineuse.",
         // Une pose réelle, encastrée, la toile en couleur.
         image: "/images/lumiere/lucarne-rgb.jpg",
       },
@@ -1744,7 +1744,7 @@ export const products: Product[] = [
     specs: [
       { label: "Toile", value: "Membrane translucide tendue, blanc diffusant" },
       { label: "Cadre", value: "Profilé aluminium laqué, coupe d'onglet, caisson de 180 à 600 mm" },
-      { label: "Éclairage", value: "LED 220 V, blanc 3000 K ou 4000 K, variation en option" },
+      { label: "Éclairage", value: "LED 220 V, blanc 3000 K ou 4000 K ou couleur réglable par application, variation en option" },
       { label: "Fabrication", value: "Sur commande — comptez 3 à 5 semaines" },
       { label: "Dimensions", value: "Jusqu'à 400 × 300 cm d'un seul tenant, au centimètre près" },
       { label: "Pose", value: "En applique, suspendu par câbles ou encastré" },
@@ -1781,13 +1781,13 @@ export const products: Product[] = [
         },
         {
           title: "Surface-mounted, suspended or recessed",
-          body: "The Lucarne is surface-mounted on the ceiling, hung on cables or recessed into a false ceiling. The 220 V supply comes with it; dimming is available on request.",
+          body: "The Lucarne is surface-mounted on the ceiling, hung on cables or recessed into a false ceiling. The 220 V supply comes with it; dimming is available on request, and an app lets you set the tone — white, solid colour or a light animation.",
         },
       ],
       specs: [
         { label: "Fabric", value: "Stretched translucent membrane, diffusing white" },
         { label: "Frame", value: "Lacquered aluminium profile, mitred corners, box 180 to 600 mm deep" },
-        { label: "Lighting", value: "220 V LED, 3000 K or 4000 K white, dimming optional" },
+        { label: "Lighting", value: "220 V LED, 3000 K or 4000 K white, or colour set from an app, dimming optional" },
         { label: "Lead time", value: "Made to order — allow 3 to 5 weeks" },
         { label: "Sizes", value: "Up to 400 × 300 cm in one piece, to the centimetre" },
         { label: "Fitting", value: "Surface-mounted, hung on cables or recessed" },
