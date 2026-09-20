@@ -1505,24 +1505,24 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 1020 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1260 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1600 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 1870 },
-      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 2240 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 530 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 650 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 830 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 970 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 1160 },
     ],
     surMesure: {
       // Le même piétement que la table d'intérieur, mais un plateau à lattes.
-      // 600 € de forfait + 535 €/m² : le couple est calé pour passer au-dessus
-      // des cinq prix du catalogue (de 1 200 € à 1,35 m² jusqu'à 2 640 € à
-      // 3,85 m²), sinon une table sur mesure d'un millimètre de moins qu'une
-      // taille du catalogue serait revenue moins cher qu'elle. C'était la seule
-      // table qu'on ne pouvait pas commander à ses cotes, alors que ses cotes
-      // en millimètres étaient déjà renseignées.
+      // Échelle de Quentin : la 200 × 100 (8 places, 45 mm) doit plafonner à
+      // 650 €. 150 € de forfait + 280 €/m² retombe dessus, et passe
+      // au-dessus des quatre autres prix du catalogue (de 530 € à 1,35 m²
+      // jusqu'à 1 160 € à 3,85 m²) — sinon une table sur mesure d'un
+      // millimètre de moins qu'une taille du catalogue serait revenue moins
+      // cher qu'elle.
       forme: "rect",
       axes: "plan",
-      forfait: 520,
-      parM2: 450,
+      forfait: 150,
+      parM2: 280,
       minMm: 800,
       maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
       maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
