@@ -1092,109 +1092,12 @@ export function ProductOptions({
           className="mt-4 scroll-mt-28 border-t border-[#e5ddd3] pt-5"
           id="cotes"
         >
-          {product.sizes.length > 1 && (
-            <div>
-              <span className={GROUP_LABEL} id={`${idTailles}-titre`}>
-                {product.sizeLabel
-                  ? product.sizeLabel[locale]
-                  : bareme && !product.releve
-                    ? t.catalogueLabel
-                    : t.sizeLabel}
-              </span>
-              {/* Une seule ligne visible : les autres dimensions et leurs tarifs
-            s'affichent au clic, comme dans une boutique. Le tout s'annonce
-            comme une liste de choix et se parcourt aux flèches. */}
-              <div
-                ref={sizesRef}
-                className="relative mt-4"
-                onBlur={(e) => {
-                  if (!sizesRef.current?.contains(e.relatedTarget as Node))
-                    setSizesOpen(false);
-                }}
-              >
-                <button
-                  type="button"
-                  id={`${idTailles}-bouton`}
-                  role="combobox"
-                  aria-haspopup="listbox"
-                  aria-expanded={sizesOpen}
-                  aria-controls={`${idTailles}-liste`}
-                  aria-labelledby={`${idTailles}-titre ${idTailles}-bouton`}
-                  aria-activedescendant={
-                    sizesOpen
-                      ? `${idTailles}-${product.sizes[ligneClavier]?.id}`
-                      : undefined
-                  }
-                  onClick={() => ouvrirFermerTailles()}
-                  onKeyDown={clavierTailles}
-                  className="flex w-full items-center justify-between gap-4 rounded-full border border-[#9a8d80] bg-white px-5 py-3 text-left text-[15px] text-[#2b2320] transition-colors hover:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
-                >
-                  <span
-                    className={labelTaille?.ok || size ? "" : "text-[#6f6357]"}
-                  >
-                    {labelTaille?.ok
-                      ? labelTaille.label
-                      : (size?.label ?? t.sizeChoose)}
-                  </span>
-                  <span
-                    aria-hidden
-                    className={`text-[#6f6357] transition-transform ${sizesOpen ? "rotate-180" : ""}`}
-                  >
-                    ⌄
-                  </span>
-                </button>
-
-                {sizesOpen && (
-                  <div
-                    id={`${idTailles}-liste`}
-                    role="listbox"
-                    // Les options ne prennent pas le focus : sans ceci, le
-                    // clic faisait d'abord perdre le focus au bouton, la
-                    // liste se fermait (onBlur) et l'option n'était jamais
-                    // cliquée. À la souris, on ne choisissait rien.
-                    onMouseDown={(event) => event.preventDefault()}
-                    aria-labelledby={`${idTailles}-titre`}
-                    className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-[#e5ddd3] bg-white shadow-[0_12px_40px_-12px_rgba(43,35,32,0.25)]"
-                  >
-                    {product.sizes.map((s, index) => (
-                      <div
-                        key={s.id}
-                        id={`${idTailles}-${s.id}`}
-                        role="option"
-                        aria-selected={s.id === sizeId}
-                        onClick={() => choisirTaille(s.id)}
-                        onMouseEnter={() => setLigneClavier(index)}
-                        className={`flex w-full cursor-pointer items-center justify-between gap-4 px-5 py-3 text-left text-sm transition-colors ${
-                          s.id === sizeId
-                            ? "bg-[#f5f1ea] text-[#2b2320]"
-                            : "text-[#5c5140] hover:bg-[#faf8f5] hover:text-[#2b2320]"
-                        } ${index === ligneClavier ? "bg-[#faf8f5] text-[#2b2320]" : ""}`}
-                      >
-                        <span>{s.label}</span>
-                        {/* Sur devis, pas de prix dans la liste : le chiffre viendrait avant le relevé. */}
-                        {orderable && (
-                          <span className="font-medium tabular-nums">
-                            {prixAffiche(
-                              s.price +
-                                deltaBois(product, wood, surfaceTailleM2(s)),
-                              locale,
-                            )}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
           {bareme && !product.releve && (
-            <div className={product.sizes.length > 1 ? "mt-7" : ""}>
+            <div>
               {/* Le titre, et l'unité de saisie en face : rien d'autre à lire. */}
               <div className="flex items-center justify-between gap-4">
                 <span className={GROUP_LABEL} id={`${idTailles}-ou`}>
-                  {product.sizes.length > 1 ? t.customOrCustom : t.sizeLabel}
+                  {t.sizeLabel}
                 </span>
                 {bareme && !product.releve && (
                   <div
@@ -1472,6 +1375,103 @@ export function ProductOptions({
                   ? `${prixAffiche(prixSurMesure ?? devis.prix, locale)} — ${surfaceAffichee(devis.surface, locale)}`
                   : ""}
               </p>
+            </div>
+          )}
+
+          {product.sizes.length > 1 && (
+            <div className={bareme && !product.releve ? "mt-7" : ""}>
+              <span className={GROUP_LABEL} id={`${idTailles}-titre`}>
+                {product.sizeLabel
+                  ? product.sizeLabel[locale]
+                  : bareme && !product.releve
+                    ? t.customOr
+                    : t.sizeLabel}
+              </span>
+              {/* Une seule ligne visible : les autres dimensions et leurs tarifs
+            s'affichent au clic, comme dans une boutique. Le tout s'annonce
+            comme une liste de choix et se parcourt aux flèches. */}
+              <div
+                ref={sizesRef}
+                className="relative mt-4"
+                onBlur={(e) => {
+                  if (!sizesRef.current?.contains(e.relatedTarget as Node))
+                    setSizesOpen(false);
+                }}
+              >
+                <button
+                  type="button"
+                  id={`${idTailles}-bouton`}
+                  role="combobox"
+                  aria-haspopup="listbox"
+                  aria-expanded={sizesOpen}
+                  aria-controls={`${idTailles}-liste`}
+                  aria-labelledby={`${idTailles}-titre ${idTailles}-bouton`}
+                  aria-activedescendant={
+                    sizesOpen
+                      ? `${idTailles}-${product.sizes[ligneClavier]?.id}`
+                      : undefined
+                  }
+                  onClick={() => ouvrirFermerTailles()}
+                  onKeyDown={clavierTailles}
+                  className="flex w-full items-center justify-between gap-4 rounded-full border border-[#9a8d80] bg-white px-5 py-3 text-left text-[15px] text-[#2b2320] transition-colors hover:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
+                >
+                  <span
+                    className={labelTaille?.ok || size ? "" : "text-[#6f6357]"}
+                  >
+                    {labelTaille?.ok
+                      ? labelTaille.label
+                      : (size?.label ?? t.sizeChoose)}
+                  </span>
+                  <span
+                    aria-hidden
+                    className={`text-[#6f6357] transition-transform ${sizesOpen ? "rotate-180" : ""}`}
+                  >
+                    ⌄
+                  </span>
+                </button>
+
+                {sizesOpen && (
+                  <div
+                    id={`${idTailles}-liste`}
+                    role="listbox"
+                    // Les options ne prennent pas le focus : sans ceci, le
+                    // clic faisait d'abord perdre le focus au bouton, la
+                    // liste se fermait (onBlur) et l'option n'était jamais
+                    // cliquée. À la souris, on ne choisissait rien.
+                    onMouseDown={(event) => event.preventDefault()}
+                    aria-labelledby={`${idTailles}-titre`}
+                    className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-[#e5ddd3] bg-white shadow-[0_12px_40px_-12px_rgba(43,35,32,0.25)]"
+                  >
+                    {product.sizes.map((s, index) => (
+                      <div
+                        key={s.id}
+                        id={`${idTailles}-${s.id}`}
+                        role="option"
+                        aria-selected={s.id === sizeId}
+                        onClick={() => choisirTaille(s.id)}
+                        onMouseEnter={() => setLigneClavier(index)}
+                        className={`flex w-full cursor-pointer items-center justify-between gap-4 px-5 py-3 text-left text-sm transition-colors ${
+                          s.id === sizeId
+                            ? "bg-[#f5f1ea] text-[#2b2320]"
+                            : "text-[#5c5140] hover:bg-[#faf8f5] hover:text-[#2b2320]"
+                        } ${index === ligneClavier ? "bg-[#faf8f5] text-[#2b2320]" : ""}`}
+                      >
+                        <span>{s.label}</span>
+                        {/* Sur devis, pas de prix dans la liste : le chiffre viendrait avant le relevé. */}
+                        {orderable && (
+                          <span className="font-medium tabular-nums">
+                            {prixAffiche(
+                              s.price +
+                                deltaBois(product, wood, surfaceTailleM2(s)),
+                              locale,
+                            )}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
