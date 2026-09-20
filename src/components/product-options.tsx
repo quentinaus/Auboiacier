@@ -71,17 +71,29 @@ function SwatchGroup({
      « enfoncé / non enfoncé » d'affilée sans jamais dire s'il s'agissait du
      bois, de la couleur des pieds ou du velours. */
   const idGroupe = useId();
+  /* Un nuancier de quelques teintes se lit d'un coup d'œil, posé en grille.
+     Au-delà, quinze rangées de velours prenaient toute la colonne : on les
+     fait défiler à l'horizontale, comme la bande de vignettes de la galerie —
+     sur téléphone comme sur grand écran, où la colonne reste étroite. */
+  const scrollable = options.length > 6;
   return (
     <div className="w-full">
-      <span className={`${GROUP_LABEL} text-center`} id={idGroupe}>
+      <span className={`${GROUP_LABEL} ${scrollable ? "" : "text-center"}`} id={idGroupe}>
         {label}
       </span>
       {/* Les pastilles en rangée, centrées sous leur intitulé : la colonne est
-          étroite, chaque groupe se lit comme un nuancier. */}
+          étroite, chaque groupe se lit comme un nuancier. Un grand nuancier
+          (le velours, quinze teintes) défile à l'horizontale plutôt que de
+          s'empiler sur plusieurs rangées — la dernière pastille, coupée au
+          bord, montre qu'il y en a d'autres. */}
       <div
         role="group"
         aria-labelledby={idGroupe}
-        className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-5 sm:gap-x-5"
+        className={
+          scrollable
+            ? "no-scrollbar mt-4 flex snap-x snap-mandatory gap-x-4 overflow-x-auto px-0.5 pb-1"
+            : "mt-4 flex flex-wrap justify-center gap-x-4 gap-y-5 sm:gap-x-5"
+        }
       >
         {options.map((o) => {
           const isSelected = o.id === selected;
@@ -101,7 +113,7 @@ function SwatchGroup({
                   ? `${o.label} — ${formatDelta(o.priceDelta ?? 0, locale)}`
                   : o.label
               }
-              className="group w-14 shrink-0 rounded-xl text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] sm:w-[4.25rem] lg:w-[4.75rem]"
+              className={`group w-14 shrink-0 snap-start rounded-xl text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] sm:w-[4.25rem] lg:w-[4.75rem]`}
             >
               {/* La matière d'abord, grande et ronde ; son nom en dessous, sur
                   deux lignes s'il le faut — comme un nuancier. Plus petite sur

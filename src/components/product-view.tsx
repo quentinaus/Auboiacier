@@ -155,7 +155,7 @@ export function ProductView({
        à gauche et reste en place ; la colonne de droite, étroite, défile avec
        les choix. Sur téléphone, la photo prend d'abord tout l'écran, puis les
        options suivent. */
-    <div className="grid md:grid-cols-[minmax(0,1fr)_minmax(380px,36%)] lg:grid-cols-[minmax(0,1fr)_460px]">
+    <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(380px,36%)] lg:grid-cols-[minmax(0,1fr)_460px]">
       {/* Galerie — reste visible pendant qu'on parcourt les options */}
       <div ref={galleryRef} className="relative md:sticky md:top-0 md:h-screen md:self-start">
         <div
