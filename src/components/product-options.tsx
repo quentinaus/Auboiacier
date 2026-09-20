@@ -1597,60 +1597,68 @@ export function ProductOptions({
            sur grand écran elle se colle au bord inférieur, débordant du
            gabarit de la colonne pour aller d'un bord à l'autre. */
         <div className="mt-5 md:sticky md:bottom-0 md:z-20 md:-mx-8 md:border-t md:border-[#e5ddd3] md:bg-white md:px-8 md:py-4 lg:-mx-12 lg:px-12">
-          <div className="flex items-center gap-3">
-            <div className="min-w-0 flex-1">
-              <p
-                className="text-xl font-medium leading-tight tabular-nums"
-                style={{ color: ACCENT }}
-              >
-                {modeVisite
-                  ? t.onQuote
-                  : total !== null
-                    ? prixAffiche(total, locale)
-                    : bareme
-                      ? "— €"
-                      : prixDepart !== null
-                        ? `${t.from} ${prixAffiche(prixDepart, locale)}`
-                        : t.onQuote}
-              </p>
-              {size && !modeVisite && orderable && total !== null && (
-                <p className="truncate text-[11px] text-[#6f6357]">
-                  {cotesCourtes(
-                    sizeIdEff === SUR_MESURE && labelTaille?.ok
-                      ? labelTaille.label
-                      : size.label,
-                  )}
+          {/* Le prix et la quantité tiennent toujours côte à côte (le
+              sélecteur ne fait que 109 px) ; le bouton, lui, passe sur sa
+              propre ligne pleine largeur — un prix à quatre chiffres
+              (« 2 940 € ») écrasait le prix ou le sélecteur quand les trois
+              devaient tenir sur la même ligne, dans la colonne étroite du
+              format tablette. */}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-3">
+              <div className="min-w-0 flex-1">
+                <p
+                  className="text-xl font-medium leading-tight tabular-nums"
+                  style={{ color: ACCENT }}
+                >
+                  {modeVisite
+                    ? t.onQuote
+                    : total !== null
+                      ? prixAffiche(total, locale)
+                      : bareme
+                        ? "— €"
+                        : prixDepart !== null
+                          ? `${t.from} ${prixAffiche(prixDepart, locale)}`
+                          : t.onQuote}
                 </p>
-              )}
-            </div>
-            <div
-              className={`flex shrink-0 items-center rounded-full border border-[#9a8d80] ${modeVisite ? "hidden" : ""}`}
-            >
-              <button
-                type="button"
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="px-4 py-3 text-[#5c5140] hover:text-[#2a2116]"
-                aria-label={
-                  locale === "fr" ? "Diminuer la quantité" : "Decrease quantity"
-                }
+                {size && !modeVisite && orderable && total !== null && (
+                  <p className="truncate text-[11px] text-[#6f6357]">
+                    {cotesCourtes(
+                      sizeIdEff === SUR_MESURE && labelTaille?.ok
+                        ? labelTaille.label
+                        : size.label,
+                    )}
+                  </p>
+                )}
+              </div>
+              <div
+                className={`flex shrink-0 items-center rounded-full border border-[#9a8d80] ${modeVisite ? "hidden" : ""}`}
               >
-                −
-              </button>
-              <span className="min-w-6 text-center text-sm tabular-nums">
-                {quantity}
-              </span>
-              <button
-                type="button"
-                onClick={() => setQuantity((q) => Math.min(10, q + 1))}
-                className="px-4 py-3 text-[#5c5140] hover:text-[#2a2116]"
-                aria-label={
-                  locale === "fr"
-                    ? "Augmenter la quantité"
-                    : "Increase quantity"
-                }
-              >
-                +
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  className="px-4 py-3 text-[#5c5140] hover:text-[#2a2116]"
+                  aria-label={
+                    locale === "fr" ? "Diminuer la quantité" : "Decrease quantity"
+                  }
+                >
+                  −
+                </button>
+                <span className="min-w-6 text-center text-sm tabular-nums">
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity((q) => Math.min(10, q + 1))}
+                  className="px-4 py-3 text-[#5c5140] hover:text-[#2a2116]"
+                  aria-label={
+                    locale === "fr"
+                      ? "Augmenter la quantité"
+                      : "Increase quantity"
+                  }
+                >
+                  +
+                </button>
+              </div>
             </div>
 
             <button
@@ -1662,7 +1670,7 @@ export function ProductOptions({
                 (modeVisite && !visitePrete) ||
                 (product.poseOption && !pose.deplacement)
               }
-              className="shrink-0 rounded-full px-5 py-3.5 text-[11px] font-medium uppercase tracking-[0.14em] transition-colors enabled:bg-[#2b2320] enabled:text-white enabled:hover:bg-[#2b2320] disabled:cursor-not-allowed disabled:bg-[#ece6dd] disabled:text-[#7a6f64]"
+              className="w-full rounded-full px-5 py-3.5 text-[11px] font-medium uppercase tracking-[0.14em] transition-colors enabled:bg-[#2b2320] enabled:text-white enabled:hover:bg-[#2b2320] disabled:cursor-not-allowed disabled:bg-[#ece6dd] disabled:text-[#7a6f64]"
             >
               {t.addToCart}
             </button>
