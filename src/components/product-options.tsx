@@ -122,7 +122,7 @@ function SwatchGroup({
           aria-labelledby={idGroupe}
           className={
             scrollable
-              ? "no-scrollbar mt-4 flex snap-x snap-mandatory gap-x-4 overflow-x-auto px-0.5 pb-1"
+              ? "no-scrollbar mt-4 flex snap-x snap-mandatory gap-x-4 overflow-x-auto px-0.5 pb-1 pt-1"
               : "mt-4 flex flex-wrap justify-center gap-x-4 gap-y-5 sm:gap-x-5"
           }
         >
