@@ -311,9 +311,11 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-[#5c5140] md:text-[0.95rem]">{t.configText}</p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
             {[
-              { href: `/${locale}/artisanat/table-mikado#cotes`, label: t.configTable, plein: true },
-              { href: `/${locale}/artisanat/garde-corps#cotes`, label: t.configGardeCorps, plein: false },
-              { href: `/${locale}/artisanat/plafond-lumineux-lucarne#cotes`, label: t.configPlafond, plein: false },
+              // Chaque porte mène aux modèles de sa famille — pas à un seul
+              // d'entre eux — pour qu'on choisisse lequel configurer.
+              { href: `/${locale}/artisanat#table-interieur`, label: t.configTable, plein: true },
+              { href: `/${locale}/artisanat#garde-corps`, label: t.configGardeCorps, plein: false },
+              { href: `/${locale}/toiles-tendues`, label: t.configPlafond, plein: false },
             ].map((porte) => (
               <Link
                 key={porte.href}
