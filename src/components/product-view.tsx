@@ -65,7 +65,10 @@ export function ProductView({
   const galleryRef = useRef<HTMLDivElement>(null);
   const stripRef = useRef<HTMLDivElement>(null);
 
-  /** Sur téléphone la photo est au-dessus des options : on y remonte au changement de coloris. */
+  /* Sur téléphone la photo est au-dessus des options. On ne remonte plus à
+     chaque teinte choisie — c'est la barre du bas qui montre le rendu
+     (voir `apercu`), et le client reste sur ses bulles. Seule une vignette
+     cliquée ramène à la photo, puisqu'on a demandé à la voir. */
   function selectFabric(id: string) {
     setFabricId(id);
     // Le coloris reprend la main sur une photo choisie à la vignette.
@@ -77,17 +80,11 @@ export function ProductView({
       inline: "center",
       block: "nearest",
     });
-    if (window.innerWidth < 768) {
-      amenerAlEcran(galleryRef.current, { block: "center" });
-    }
   }
 
   /** Changer la teinte des pieds ne change que la photo, pas la prise de vue. */
   function selectMetal(id: string) {
     setMetalId(id);
-    if (window.innerWidth < 768) {
-      amenerAlEcran(galleryRef.current, { block: "center" });
-    }
   }
 
   /** Une vignette cliquée passe en grand, avec sa teinte de pieds. */
@@ -232,7 +229,7 @@ export function ProductView({
         </div>
         {/* Vignettes : coloris puis autres photos, posées en bas de la photo.
             Un clic les passe en grand. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-4 z-10 flex justify-center px-4 md:bottom-6">
+        <div className="pointer-events-none absolute inset-x-0 bottom-2 z-10 flex justify-center px-4 md:bottom-6">
         {colorThumbs.length > 0 ? (
           <div
             ref={stripRef}
@@ -356,7 +353,7 @@ export function ProductView({
       {/* Sur téléphone, l'en-tête se serre : le fil d'Ariane disparaît (le
           bouton « retour » de l'en-tête suffit), le titre et le lien se
           rapprochent — l'écran va aux choix, pas au titre. */}
-      <div className="px-6 pb-8 pt-5 md:px-8 md:py-10 lg:px-12">
+      <div className="px-6 pb-8 pt-2 md:px-8 md:py-10 lg:px-12">
         {filAriane && (
           <nav aria-label={filAriane.label} className="hidden flex-wrap justify-end text-[11px] text-[#7a6f64] md:flex">
             {filAriane.etapes.map((etape) => (
@@ -370,12 +367,12 @@ export function ProductView({
             <span className="text-[#2b2320]">{product.name}</span>
           </nav>
         )}
-        <h1 className={`${serif.className} text-[1.7rem] leading-tight text-[#2b2320] md:mt-6 md:text-[2rem]`}>{product.name}</h1>
+        <h1 className={`${serif.className} text-2xl leading-tight text-[#2b2320] md:mt-6 md:text-[2rem]`}>{product.name}</h1>
         {/* Pas de mot de présentation ici : la colonne va à l'essentiel, le
             descriptif est plus bas, derrière ce lien. */}
         <a
           href="#descriptif"
-          className="mt-1.5 inline-block text-[11px] font-medium uppercase tracking-[0.16em] text-[#7a6f64] underline underline-offset-4 hover:text-black md:mt-2"
+          className="mt-1 inline-block text-[11px] font-medium uppercase tracking-[0.16em] text-[#7a6f64] underline underline-offset-4 hover:text-black md:mt-2"
         >
           {t.moreInfo}
         </a>
@@ -392,7 +389,7 @@ export function ProductView({
             <p className="mt-1.5 text-sm leading-relaxed text-[#5c5140]">{t.gcPromesse}</p>
           </div>
         )}
-        <div className="mt-3 md:mt-5">
+        <div className="mt-2 md:mt-5">
           <ProductOptions
             product={product}
             t={t}
@@ -403,6 +400,11 @@ export function ProductView({
             onMetalChange={selectMetal}
             woodId={woodId}
             onWoodChange={setWoodId}
+            apercu={
+              mainImage && mainSrc
+                ? { src: mainSrc, alt: mainImage.alt, onClick: () => amenerAlEcran(galleryRef.current, { block: "start" }) }
+                : undefined
+            }
           />
 
           <p className="mt-6 border-t border-[#e5ddd3] pt-6 text-sm text-[#726757]">

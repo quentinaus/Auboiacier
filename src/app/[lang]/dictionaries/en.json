@@ -426,7 +426,8 @@
     "customOrCustom": "Or your own dimensions",
     "poseSeulCourt": "Price depends on your town, weight and size.",
     "poseAtelierCourt": "A single trip from Saumur, priced by distance.",
-    "configurable": "Configure it online"
+    "configurable": "Configure it online",
+    "apercuPhoto": "See the photo of my configuration"
   },
   "devis": {
     "title": "Request a quote",

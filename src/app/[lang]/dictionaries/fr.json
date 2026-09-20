@@ -426,7 +426,8 @@
     "customOrCustom": "Ou à vos cotes",
     "poseSeulCourt": "Prix selon votre ville, le poids et les dimensions.",
     "poseAtelierCourt": "Un seul trajet depuis Saumur, prix selon la distance.",
-    "configurable": "Se configure en ligne"
+    "configurable": "Se configure en ligne",
+    "apercuPhoto": "Voir la photo de ma configuration"
   },
   "devis": {
     "title": "Demander un devis",

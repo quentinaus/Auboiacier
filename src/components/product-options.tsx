@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import {
@@ -230,6 +231,7 @@ export function ProductOptions({
   onMetalChange,
   woodId: woodIdProp,
   onWoodChange,
+  apercu,
 }: {
   product: Product;
   t: Dictionary["artisanat"];
@@ -243,6 +245,12 @@ export function ProductOptions({
   /** Essence du plateau pilotée par la galerie quand la photo se reteinte. */
   woodId?: string;
   onWoodChange?: (id: string) => void;
+  /**
+   * La photo de la pièce dans sa configuration, pour la barre du téléphone :
+   * on choisit une teinte ou un bois en bas de page, on voit le rendu en bas
+   * d'écran, sans remonter. Un appui ramène à la galerie.
+   */
+  apercu?: { src: string; alt: string; onClick: () => void };
 }) {
   /** La taille à laquelle la fiche s'ouvre, s'il y en a une. */
   const tailleInitiale =
@@ -933,7 +941,7 @@ export function ProductOptions({
               </span>
             </span>
           )}
-          <span className="mt-1 block text-xs text-[#7a6f64]">
+          <span className="mt-1 hidden text-xs text-[#7a6f64] md:block">
             {product.releve === "garde-corps-fenetre"
               ? t.gcPrixAttente
               : t.prixAttenteCotes}
@@ -1739,6 +1747,16 @@ export function ProductOptions({
           bouton est sorti de l'écran, et disparaît dès qu'il revient. */}
       {orderable && !boutonVisible && (
         <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-[#e5ddd3] bg-[#ffffff]/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur md:hidden">
+          {apercu && (
+            <button
+              type="button"
+              onClick={apercu.onClick}
+              aria-label={t.apercuPhoto}
+              className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-[#e5ddd3] bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
+            >
+              <Image key={apercu.src} src={apercu.src} alt={apercu.alt} fill sizes="56px" className="object-contain p-1" />
+            </button>
+          )}
           <div className="min-w-0">
             <p
               className="text-lg font-medium leading-tight tabular-nums"
