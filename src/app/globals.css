@@ -148,6 +148,13 @@ textarea:focus-visible,
   background: rgba(43, 35, 32, 0.88);
   border-color: rgba(255, 255, 255, 0.26);
 }
+/* Grisé, mais toujours du verre — pas une plaque beige opaque : la même
+   matière, juste éteinte. L'opacité seule dilue tout ensemble (fond,
+   liseré, texte) sans jamais réduire leur contraste entre eux. */
+.btn-verre:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
 
 /* La lumière d'une toile tendue (MembraneAnimee) : le dégradé glisse
    lentement d'un coin à l'autre, sans jamais s'arrêter net. */

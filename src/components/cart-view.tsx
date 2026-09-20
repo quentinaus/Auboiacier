@@ -554,7 +554,7 @@ export function CartView({
               type="button"
               onClick={checkout}
               disabled={status === "loading"}
-              className="btn-verre mt-6 w-full rounded-full px-8 py-4 text-[11px] font-medium uppercase tracking-[0.2em] text-white disabled:opacity-60"
+              className="btn-verre mt-6 w-full rounded-full px-8 py-4 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
             >
               {status === "loading"
                 ? t.redirecting

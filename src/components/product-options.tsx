@@ -1673,7 +1673,7 @@ export function ProductOptions({
                 (modeVisite && !visitePrete) ||
                 (product.poseOption && !pose.deplacement)
               }
-              className="btn-verre w-full rounded-full px-5 py-3.5 text-[11px] font-medium uppercase tracking-[0.14em] text-white transition-colors disabled:cursor-not-allowed disabled:border-transparent disabled:bg-[#ece6dd] disabled:text-[#7a6f64] disabled:shadow-none disabled:backdrop-blur-none"
+              className="btn-verre w-full rounded-full px-5 py-3.5 text-[11px] font-medium uppercase tracking-[0.14em] text-white"
             >
               {t.addToCart}
             </button>
@@ -1899,7 +1899,7 @@ export function ProductOptions({
             type="button"
             onClick={addToCart}
             disabled={total === null || (modeVisite && !visitePrete) || (product.poseOption && !pose.deplacement)}
-            className="btn-verre ml-auto shrink-0 rounded-full px-5 py-3 text-xs font-medium uppercase tracking-[0.12em] text-white disabled:opacity-40"
+            className="btn-verre ml-auto shrink-0 rounded-full px-5 py-3 text-xs font-medium uppercase tracking-[0.12em] text-white"
           >
             {t.addToCart}
           </button>
