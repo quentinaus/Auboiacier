@@ -16,12 +16,7 @@ type Categorie = "residentiel" | "professionnel";
  * Pour ajouter un chantier : une ligne ici, et la légende dans les deux
  * dictionnaires (realisations.altXxx), en français et en anglais.
  */
-const photos: { src: string; alt: "altSalon" | "altSalle" | "altReunion"; categorie: Categorie }[] = [
-  {
-    src: "/images/salon-plafond-chaud.jpg",
-    alt: "altSalon",
-    categorie: "residentiel",
-  },
+const photos: { src: string; alt: "altSalle" | "altReunion"; categorie: Categorie }[] = [
   {
     src: "/images/salle-plafond-mikado.jpg",
     alt: "altSalle",
@@ -40,7 +35,7 @@ export async function generateMetadata({
     chemin: "/toiles-tendues/realisations",
     title: dict.seo.realisations.title,
     description: dict.seo.realisations.description,
-    image: "/images/salon-plafond-chaud.jpg",
+    image: "/images/salle-plafond-mikado.jpg",
   });
 }
 

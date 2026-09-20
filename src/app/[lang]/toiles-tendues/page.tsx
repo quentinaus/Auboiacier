@@ -26,11 +26,6 @@ const realisationPhotos: {
     altEn: "Lucarne backlit stretch ceiling installed, fabric lit in a pink-to-blue gradient",
   },
   {
-    src: "/images/salon-plafond-chaud.jpg",
-    alt: "Plafond lumineux au-dessus d'un salon, lumière chaude",
-    altEn: "Backlit stretch ceiling above a living room, warm light",
-  },
-  {
     src: "/images/lumiere/salle-ronde.jpg",
     alt: "Grand plafond lumineux rond au-dessus d'une salle de réunion",
     altEn: "Large round backlit stretch ceiling above a meeting room",
