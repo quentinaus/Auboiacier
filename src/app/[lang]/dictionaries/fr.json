@@ -337,6 +337,7 @@
     "gcSchemaHauteur": "Hauteur du garde-corps, calculée par l'atelier",
     "gcSchemaMetre": "{m} mm du sol · règle en étage : 1 m mini",
     "gcSchemaInterieur": "Vue depuis la pièce",
+    "gcSchemaJour": "Jeu de pose",
     "gcVisiteCalcul": "Calcul du déplacement…",
     "gcVisiteOffre": "{commune} — {prix}, notre offre jusqu'à 30 km autour de Saumur : nous venons prendre les cotes chez vous, et vous recevez un devis, pose comprise.",
     "gcVisitePrix": "{commune} — {prix} : nous venons prendre les cotes chez vous, et vous recevez un devis, pose comprise.",

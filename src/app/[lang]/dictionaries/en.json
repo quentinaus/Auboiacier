@@ -337,6 +337,7 @@
     "gcSchemaHauteur": "Railing height, worked out by the workshop",
     "gcSchemaMetre": "{m} mm from the floor · upstairs rule: 1 m min",
     "gcSchemaInterieur": "Seen from the room",
+    "gcSchemaJour": "Fitting gap",
     "gcVisiteCalcul": "Working out the travel…",
     "gcVisiteOffre": "{commune} — {prix}, our offer within 30 km of Saumur: we come and measure at your home, and you receive a quote, fitting included.",
     "gcVisitePrix": "{commune} — {prix}: we come and measure at your home, and you receive a quote, fitting included.",

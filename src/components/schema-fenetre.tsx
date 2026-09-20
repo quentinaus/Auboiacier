@@ -249,7 +249,16 @@ export function SchemaFenetre({
   jourMm?: number;
   /** Où arrive la main courante, depuis le sol : c'est là que passe la ligne de la règle. */
   mainCouranteMm?: number;
-  labels: { largeur: string; allege: string; fenetre: string; hauteur: string; metre: string; interieur: string };
+  labels: {
+    largeur: string;
+    allege: string;
+    fenetre: string;
+    hauteur: string;
+    metre: string;
+    interieur: string;
+    /** Le jour de 100 mm, sans numéro : il faut dire ce qu'il est, pas juste sa valeur. */
+    jour: string;
+  };
   actif: CoteFenetre | null;
   /** Cliquer une cote amène à sa case. */
   onChoisir?: (cote: CoteFenetre) => void;
@@ -443,13 +452,18 @@ export function SchemaFenetre({
       <Pastille cote="hauteur" cx={306} cy={r((basGardeCorpsY + hautGardeCorpsY) / 2)} actif={actif === "hauteur"} onChoisir={onChoisir} label={labels.hauteur} />
 
       {/* Le jour de 100 mm entre l'appui et le bas du cadre : coté sous ④,
-          sans numéro — ce n'est pas une mesure à prendre, c'est la pose. */}
+          sans numéro — ce n'est pas une mesure à prendre, c'est la pose.
+          Un chiffre seul ne disait pas ce qu'il mesurait ; une deuxième
+          ligne, plus petite, le nomme directement sur le dessin. */}
       {jour > 0 && (
         <g>
           <Fleche de={[280, appuiY]} a={[280, basGardeCorpsY]} actif={false} />
-          <rect x={284} y={r(appuiY + 2)} width={38} height={11} rx={2.5} fill="#ffffff" opacity={0.94} />
-          <text x={286} y={r(appuiY + 10.5)} fontSize={8} fontWeight={700} fill={ENCRE}>
+          <rect x={284} y={r(appuiY + 2)} width={42} height={20} rx={2.5} fill="#ffffff" opacity={0.94} />
+          <text x={287} y={r(appuiY + 10.5)} fontSize={8} fontWeight={700} fill={ENCRE}>
             {`${J} mm`}
+          </text>
+          <text x={287} y={r(appuiY + 18.5)} fontSize={6} fill={ENCRE} opacity={0.75}>
+            {labels.jour}
           </text>
         </g>
       )}

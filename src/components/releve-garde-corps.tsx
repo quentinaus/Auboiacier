@@ -256,6 +256,7 @@ export function ReleveGardeCorps({
                   (calcul?.mainCouranteMm ?? (rdc ? 800 : 1000)).toLocaleString(langue)
                 ),
                 interieur: t.gcSchemaInterieur,
+                jour: t.gcSchemaJour,
               }}
             />
           </div>
