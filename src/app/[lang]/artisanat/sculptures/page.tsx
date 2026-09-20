@@ -92,7 +92,7 @@ export default async function SculpturesPage({
           <div className="mt-6 md:sticky md:bottom-0 md:-mx-8 md:border-t md:border-[#e5ddd3] md:bg-white md:px-8 md:py-4 lg:-mx-12 lg:px-12">
             <Link
               href={`/${locale}/contact`}
-              className="block rounded-full bg-[#2b2320] px-8 py-3.5 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors hover:bg-black"
+              className="btn-verre block rounded-full px-8 py-3.5 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-white"
             >
               {t.cta}
             </Link>

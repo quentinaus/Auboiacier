@@ -322,7 +322,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
                 href={porte.href}
                 className={`inline-flex items-center justify-center rounded-full px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] transition-colors ${
                   porte.plein
-                    ? "bg-[#2b2320] text-white hover:bg-black"
+                    ? "btn-verre text-white"
                     : "border border-[#2b2320]/30 text-[#2b2320] hover:border-black hover:text-black"
                 }`}
               >

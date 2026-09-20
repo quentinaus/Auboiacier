@@ -388,7 +388,7 @@ export function DevisForm({
         type="submit"
         disabled={status === "sending" || preparation}
         aria-busy={status === "sending" || preparation}
-        className="mt-10 w-full rounded-full bg-[#2b2320] px-8 py-4 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors hover:bg-black disabled:opacity-60"
+        className="btn-verre mt-10 w-full rounded-full px-8 py-4 text-[11px] font-medium uppercase tracking-[0.2em] text-white disabled:opacity-60"
       >
         {status === "sending" ? t.sending : t.submit}
       </button>

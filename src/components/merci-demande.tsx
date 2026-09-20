@@ -21,7 +21,7 @@ export function MerciDemande({ locale, dict }: { locale: Locale; dict: Dictionar
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href={`/${locale}/devis#modeles`}
-            className="inline-flex items-center justify-center rounded-full bg-[#2b2320] px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors hover:bg-black"
+            className="btn-verre inline-flex items-center justify-center rounded-full px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
           >
             {t.devis}
           </Link>

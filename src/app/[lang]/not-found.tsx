@@ -62,7 +62,7 @@ export default async function NotFound() {
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
           <Link
             href={`/${locale}`}
-            className="inline-flex items-center justify-center rounded-full bg-[#2b2320] px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors hover:bg-black"
+            className="btn-verre inline-flex items-center justify-center rounded-full px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
           >
             {t.home}
           </Link>

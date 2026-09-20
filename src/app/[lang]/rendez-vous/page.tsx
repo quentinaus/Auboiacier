@@ -51,7 +51,7 @@ export default async function RendezVousPage({ params }: PageProps<"/[lang]/rend
             <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-[#5c5140] md:text-lg">{t.lead}</p>
             <div className="mt-9 flex flex-col items-center justify-center gap-5 sm:flex-row sm:items-start sm:gap-4">
               <div className="flex flex-col items-center gap-2">
-                <a href="#pieces" className={`${bouton} bg-[#2b2320] text-white hover:bg-black`}>
+                <a href="#pieces" className={`${bouton} btn-verre text-white`}>
                   {t.ctaPieces}
                 </a>
                 <span className="text-xs text-[#6f6357]">{t.ctaPiecesNote}</span>
