@@ -101,14 +101,16 @@ function SwatchGroup({
                   ? `${o.label} — ${formatDelta(o.priceDelta ?? 0, locale)}`
                   : o.label
               }
-              className="group w-[4.25rem] shrink-0 rounded-xl text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] lg:w-[4.75rem]"
+              className="group w-14 shrink-0 rounded-xl text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] sm:w-[4.25rem] lg:w-[4.75rem]"
             >
               {/* La matière d'abord, grande et ronde ; son nom en dessous, sur
-                  deux lignes s'il le faut — comme un nuancier. */}
+                  deux lignes s'il le faut — comme un nuancier. Plus petite sur
+                  téléphone : ce choix passe maintenant tout en haut de la
+                  colonne, il ne doit pas y prendre tout l'écran. */}
               <MaterialBubble
                 material={o}
                 selected={isSelected}
-                className="mx-auto aspect-square w-[3.5rem] transition-transform duration-200 group-hover:scale-[1.05] group-focus-visible:scale-[1.05] lg:w-[4rem]"
+                className="mx-auto aspect-square w-11 transition-transform duration-200 group-hover:scale-[1.05] group-focus-visible:scale-[1.05] sm:w-[3.5rem] lg:w-[4rem]"
               />
               <span
                 className={`mt-2.5 block text-[11px] leading-snug ${
@@ -924,46 +926,14 @@ export function ProductOptions({
     /* pb-24 sur téléphone : la barre d'achat fixe ne doit pas recouvrir la fin
        de la colonne. */
     <div className="flex flex-col pb-24 md:pb-0">
-      {/* En tête, seulement le prix de départ : le prix réel de la
-          configuration est dans la barre d'achat, en bas de la colonne, et
-          suit chaque choix. */}
-      {modeVisite ? (
-        <p className="text-[13px] text-[#6f6357]">{t.onQuote}</p>
-      ) : bareme && total === null ? (
-        /* Pas encore de cotes : le prix de départ s'il existe, et où taper,
-           en deux lignes discrètes. */
-        <p className="text-[13px] leading-snug text-[#6f6357]">
-          {prixDepart !== null && (
-            <span className="block tabular-nums">
-              {t.from}{" "}
-              <span className="text-[#2b2320]">
-                {prixAffiche(prixDepart, locale)}
-              </span>
-            </span>
-          )}
-          <span className="mt-1 hidden text-xs text-[#7a6f64] md:block">
-            {product.releve === "garde-corps-fenetre"
-              ? t.gcPrixAttente
-              : t.prixAttenteCotes}
-          </span>
-        </p>
-      ) : orderable ? (
-        prixDepart !== null && (
-          <p className="text-[13px] tabular-nums text-[#6f6357]">
-            {t.from}{" "}
-            <span className="text-[#2b2320]">
-              {prixAffiche(prixDepart, locale)}
-            </span>
-          </p>
-        )
-      ) : (
-        <p className="text-[13px] text-[#6f6357]">{t.onQuote}</p>
-      )}
-
+      {/* Sur téléphone, le choix des matières vient en premier — c'est ce que
+          le client vient chercher — le prix de départ suit derrière. Sur
+          ordinateur, la colonne est assez large pour garder l'ordre naturel :
+          `md:order-*` remet le prix devant. */}
       {product.fabrics &&
         product.fabrics.length > 0 &&
         !product.fabricLabel && (
-          <div className="mt-5 border-t border-[#e5ddd3] pt-5">
+          <div className="md:mt-5 md:border-t md:border-[#e5ddd3] md:pt-5">
             <SwatchGroup
               label={t.fabricLabel}
               options={product.fabrics}
@@ -978,7 +948,7 @@ export function ProductOptions({
           pastilles : l'acier, le bois et la rosace tiennent sur une ou deux
           rangées au lieu de trois blocs centrés l'un sous l'autre. */}
       {(product.woods.length > 0 || product.metals.length > 0) && (
-        <div className="mt-5 border-t border-[#e5ddd3] pt-5">
+        <div className="md:mt-5 md:border-t md:border-[#e5ddd3] md:pt-5">
           <div className="flex flex-col gap-7">
             {product.metals.length > 0 && (
               <SwatchGroup
@@ -1026,6 +996,48 @@ export function ProductOptions({
               )}
           </div>
         </div>
+      )}
+
+      {/* Le prix de départ : sur téléphone il suit le choix des matières
+          plutôt que de le précéder (voir plus haut), sur ordinateur
+          `md:order-first` le remet en tête de colonne comme avant. Le prix réel
+          de la configuration est dans la barre d'achat, en bas de la
+          colonne, et suit chaque choix. */}
+      {modeVisite ? (
+        <p className="mt-5 border-t border-[#e5ddd3] pt-5 text-[13px] text-[#6f6357] md:order-first md:mt-0 md:border-t-0 md:pt-0">
+          {t.onQuote}
+        </p>
+      ) : bareme && total === null ? (
+        /* Pas encore de cotes : le prix de départ s'il existe, et où taper,
+           en deux lignes discrètes. */
+        <p className="mt-5 border-t border-[#e5ddd3] pt-5 text-[13px] leading-snug text-[#6f6357] md:order-first md:mt-0 md:border-t-0 md:pt-0">
+          {prixDepart !== null && (
+            <span className="block tabular-nums">
+              {t.from}{" "}
+              <span className="text-[#2b2320]">
+                {prixAffiche(prixDepart, locale)}
+              </span>
+            </span>
+          )}
+          <span className="mt-1 hidden text-xs text-[#7a6f64] md:block">
+            {product.releve === "garde-corps-fenetre"
+              ? t.gcPrixAttente
+              : t.prixAttenteCotes}
+          </span>
+        </p>
+      ) : orderable ? (
+        prixDepart !== null && (
+          <p className="mt-5 border-t border-[#e5ddd3] pt-5 text-[13px] tabular-nums text-[#6f6357] md:order-first md:mt-0 md:border-t-0 md:pt-0">
+            {t.from}{" "}
+            <span className="text-[#2b2320]">
+              {prixAffiche(prixDepart, locale)}
+            </span>
+          </p>
+        )
+      ) : (
+        <p className="mt-5 border-t border-[#e5ddd3] pt-5 text-[13px] text-[#6f6357] md:order-first md:mt-0 md:border-t-0 md:pt-0">
+          {t.onQuote}
+        </p>
       )}
 
       {/* DIMENSIONS — le format du catalogue d'abord, en un clic ; puis les

@@ -159,7 +159,11 @@ export function ProductView({
       {/* Galerie — reste visible pendant qu'on parcourt les options */}
       <div ref={galleryRef} className="relative md:sticky md:top-0 md:h-screen md:self-start">
         <div
-          className="relative flex h-[78vw] max-h-[80vh] cursor-zoom-in items-center justify-center overflow-hidden [container-type:size] md:h-full md:max-h-none"
+          /* Sur téléphone, la photo prend moins de hauteur qu'avant : le
+             titre et le choix des matières (remontés en haut de la colonne)
+             arrivent avec un tout petit défilement, plutôt qu'un écran entier
+             plus bas. */
+          className="relative flex h-[62vw] max-h-[54vh] cursor-zoom-in items-center justify-center overflow-hidden [container-type:size] md:h-full md:max-h-none"
           // Le cadre prend la teinte du fond de la photo : plus de liseré blanc
           // autour d'une photo qui n'est pas exactement blanche.
           style={{ backgroundColor: isColorShot ? "#f2f2f1" : fond }}

@@ -73,7 +73,12 @@ export default async function ArtisanatPage({
     page?: { href: string; src: string; alt: string; position?: string; titre: string };
   }[] = [
     { id: "table-interieur", titre: h.catTables },
+    // La table d'extérieur juste après ses cousines d'intérieur : un client
+    // qui parcourt les tables doit la croiser tout de suite, pas après
+    // l'escalier, les garde-corps et les verrières.
+    { id: "table-exterieur", titre: h.catTablesExt },
     { id: "chaise", titre: h.catChaises },
+    { id: "chaise-exterieur", titre: h.catChaisesExt },
     { id: "escalier", titre: h.catEscaliers },
     { id: "garde-corps", titre: h.catGardeCorps, note: t.familleGardeCorpsNote },
     {
@@ -87,8 +92,6 @@ export default async function ArtisanatPage({
         titre: dict.verrieres.title,
       },
     },
-    { id: "table-exterieur", titre: h.catTablesExt },
-    { id: "chaise-exterieur", titre: h.catChaisesExt },
     {
       id: "sculptures",
       titre: h.catSculptures,
