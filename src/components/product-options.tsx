@@ -76,9 +76,16 @@ function SwatchGroup({
      fait défiler à l'horizontale, comme la bande de vignettes de la galerie —
      sur téléphone comme sur grand écran, où la colonne reste étroite. */
   const scrollable = options.length > 6;
+  const rangeeRef = useRef<HTMLDivElement>(null);
+  /* À la souris, rien n'indique qu'on peut glisser la rangée (pas de doigt à
+     balayer) : deux flèches, comme sur la galerie, ce qui fait aussi glisser
+     le nuancier d'un coup d'œil animé plutôt que d'un bond sec. */
+  function glisser(sens: 1 | -1) {
+    rangeeRef.current?.scrollBy({ left: sens * 220, behavior: "smooth" });
+  }
   return (
     <div className="w-full">
-      <span className={`${GROUP_LABEL} ${scrollable ? "" : "text-center"}`} id={idGroupe}>
+      <span className={`${GROUP_LABEL} text-center`} id={idGroupe}>
         {label}
       </span>
       {/* Les pastilles en rangée, centrées sous leur intitulé : la colonne est
@@ -86,15 +93,39 @@ function SwatchGroup({
           (le velours, quinze teintes) défile à l'horizontale plutôt que de
           s'empiler sur plusieurs rangées — la dernière pastille, coupée au
           bord, montre qu'il y en a d'autres. */}
-      <div
-        role="group"
-        aria-labelledby={idGroupe}
-        className={
-          scrollable
-            ? "no-scrollbar mt-4 flex snap-x snap-mandatory gap-x-4 overflow-x-auto px-0.5 pb-1"
-            : "mt-4 flex flex-wrap justify-center gap-x-4 gap-y-5 sm:gap-x-5"
-        }
-      >
+      <div className={scrollable ? "relative" : undefined}>
+        {scrollable && (
+          <>
+            <button
+              type="button"
+              tabIndex={-1}
+              aria-hidden="true"
+              onClick={() => glisser(-1)}
+              className="absolute left-0 top-9 z-10 flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full border border-[#e5ddd3] bg-white text-sm text-[#2b2320] shadow-sm transition-colors hover:border-[#2b2320]"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              tabIndex={-1}
+              aria-hidden="true"
+              onClick={() => glisser(1)}
+              className="absolute right-0 top-9 z-10 flex h-7 w-7 translate-x-1/2 items-center justify-center rounded-full border border-[#e5ddd3] bg-white text-sm text-[#2b2320] shadow-sm transition-colors hover:border-[#2b2320]"
+            >
+              ›
+            </button>
+          </>
+        )}
+        <div
+          ref={rangeeRef}
+          role="group"
+          aria-labelledby={idGroupe}
+          className={
+            scrollable
+              ? "no-scrollbar mt-4 flex snap-x snap-mandatory gap-x-4 overflow-x-auto px-0.5 pb-1"
+              : "mt-4 flex flex-wrap justify-center gap-x-4 gap-y-5 sm:gap-x-5"
+          }
+        >
         {options.map((o) => {
           const isSelected = o.id === selected;
           return (
@@ -143,6 +174,7 @@ function SwatchGroup({
             </button>
           );
         })}
+        </div>
       </div>
     </div>
   );
@@ -1515,6 +1547,8 @@ export function ProductOptions({
           choix={pose}
           onChange={setPose}
           demontee={Boolean(product.boisAuM2)}
+          livraisonSeule={Boolean(product.livraisonSeule)}
+          infoSeul={product.livraisonInfo?.[locale]}
           colis={{
             slug: product.slug,
             largeurMm: cotesEff?.largeurMm ?? size?.dimsMm?.[0],

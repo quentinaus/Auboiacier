@@ -108,12 +108,19 @@ export function ProductView({
 
   const images: Product["images"] = coloris?.image
     ? [
-        { src: coloris.image, alt: `${product.name} — ${coloris.label}`, fit: "cover" as const },
+        {
+          src: coloris.image,
+          alt: `${product.name} — ${coloris.label}`,
+          // Les rendus de velours (la chaise) cadrent déjà serré : une marge
+          // en plus dans le cadre, sinon la pièce paraît trop grande.
+          fit: "contain" as const,
+          pad: "loose" as const,
+        },
         ...product.images.filter((img) => img.src !== coloris.image),
       ]
     : product.images;
   const mainImage = (pickedSrc && images.find((img) => img.src === pickedSrc)) || images[0];
-  // Les rendus de coloris ont leur propre fond gris : on remplit le cadre avec.
+  // Les rendus de coloris ont leur propre fond gris : le cadre en reprend la teinte.
   const isColorShot = Boolean(coloris?.image && mainImage?.src === coloris.image);
   /** La même prise de vue, dans l'essence de plateau puis la teinte de pieds choisies. */
   const enBois = mainImage?.parBois?.[woodId];
@@ -127,7 +134,7 @@ export function ProductView({
    * contour rectangulaire à l'intérieur.
    */
   const fond = mainImage?.bg ?? "#ffffff";
-  const remplitLeCadre = isColorShot || (mainImage?.fit ?? "cover") === "cover";
+  const remplitLeCadre = (mainImage?.fit ?? "cover") === "cover";
   // Toutes les teintes en vignettes : on fait défiler sans passer par les bulles.
   /**
    * Quand les vignettes sont choisies à la main sur le produit (trois coloris
@@ -190,7 +197,13 @@ export function ProductView({
               fill
               sizes="(max-width: 768px) 100vw, 66vw"
               style={{ objectPosition: mainImage.position }}
-              className={remplitLeCadre ? "object-cover" : "object-contain p-8 md:p-14 lg:p-20"}
+              className={
+                remplitLeCadre
+                  ? "object-cover"
+                  : mainImage?.pad === "loose"
+                    ? "object-contain p-14 md:p-20 lg:p-28"
+                    : "object-contain p-8 md:p-14 lg:p-20"
+              }
               priority
             />
           ) : (

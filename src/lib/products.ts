@@ -174,6 +174,8 @@ export type Product = {
     fit?: "cover" | "contain";
     /** Le point de la photo à garder au centre quand elle est recadrée (object-position). */
     position?: string;
+    /** La prise de vue serre déjà le sujet : une marge en plus dans le cadre, pour ne pas le montrer trop gros. */
+    pad?: "loose";
     /** Même prise de vue dans une autre teinte de pieds, par identifiant d'acier. */
     variants?: Record<string, string>;
     /**
@@ -215,6 +217,13 @@ export type Product = {
    * La livraison seule reste comprise dans le prix de la pièce.
    */
   poseOption?: boolean;
+  /**
+   * `poseOption` sans le choix « l'atelier livre et pose » : seule la
+   * livraison par transporteur est proposée (une chaise ne se pose pas).
+   */
+  livraisonSeule?: boolean;
+  /** Remplace le texte par défaut sous « Livraison par transporteur », quand la pièce arrive démontée d'une façon qui lui est propre. */
+  livraisonInfo?: { fr: string; en: string };
   /**
    * Les écarts de prix des essences sont donnés pour un plateau de
    * SURFACE_REFERENCE_M2 (la table de 200 × 100) et suivent la surface :
@@ -1383,6 +1392,11 @@ export const products: Product[] = [
   {
     slug: "chaise-acier-bois",
     poseOption: true,
+    livraisonSeule: true,
+    livraisonInfo: {
+      fr: "Prix selon votre ville, le poids et les dimensions. Le dossier et les pieds sont livrés démontés, avec la visserie, la clé de montage et la notice.",
+      en: "Price depends on your city, the weight and the dimensions. The backrest and legs are delivered unassembled, with the hardware, the allen key and the instructions.",
+    },
     colisKg: 9,
     famille: "chaise",
     seoMots: "chaise en velours",

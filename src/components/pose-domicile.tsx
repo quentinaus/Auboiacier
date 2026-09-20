@@ -30,6 +30,8 @@ export function PoseDomicile({
   onChange,
   colis,
   demontee = false,
+  livraisonSeule = false,
+  infoSeul,
   t,
   locale,
 }: {
@@ -39,6 +41,10 @@ export function PoseDomicile({
   colis: { slug: string; largeurMm?: number; hauteurMm?: number; epaisseurMm?: number };
   /** Une table part démontée ; une autre pièce arrive prête à poser. */
   demontee?: boolean;
+  /** La pièce ne se pose pas : pas de choix, la livraison par transporteur est la seule façon. */
+  livraisonSeule?: boolean;
+  /** Remplace le texte par défaut sous « Livraison par transporteur » (une pièce qui part démontée d'une façon qui lui est propre). */
+  infoSeul?: string;
   t: Dictionary["artisanat"];
   locale: "fr" | "en";
 }) {
@@ -172,15 +178,26 @@ export function PoseDomicile({
   return (
     <div className="mt-5 border-t border-[#e5ddd3] pt-5">
       <span id={idGroupe} className="block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
-        {t.poseTitle}
+        {livraisonSeule ? t.livraisonTitle : t.poseTitle}
       </span>
-      <div role="radiogroup" aria-labelledby={idGroupe} className="mt-3 flex flex-col gap-2 sm:flex-row">
-        {carte(false, t.poseSeul, t.poseSeulCourt)}
-        {carte(true, t.poseAtelier, t.poseAtelierCourt)}
-      </div>
+      {/* Une pièce qui ne se pose pas (une chaise) n'a rien à choisir : on
+          saute le radiogroup à deux cartes, il n'y a qu'une façon de la
+          recevoir. */}
+      {!livraisonSeule && (
+        <div role="radiogroup" aria-labelledby={idGroupe} className="mt-3 flex flex-col gap-2 sm:flex-row">
+          {carte(false, t.poseSeul, t.poseSeulCourt)}
+          {carte(true, t.poseAtelier, t.poseAtelierCourt)}
+        </div>
+      )}
       {/* Ce que l'option retenue veut dire, une fois. */}
       <p className="mt-3 text-xs leading-relaxed text-[#6f6357]">
-        {choix.voulue ? t.poseAtelierInfo : demontee ? t.poseSeulInfo : t.poseSeulInfoPiece}
+        {livraisonSeule
+          ? (infoSeul ?? t.poseSeulInfoPiece)
+          : choix.voulue
+            ? t.poseAtelierInfo
+            : demontee
+              ? t.poseSeulInfo
+              : t.poseSeulInfoPiece}
       </p>
 
       <div className="mt-4">
