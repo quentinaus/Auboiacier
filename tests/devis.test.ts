@@ -112,7 +112,7 @@ test("chaise par transporteur : le colis pèse la chaise fois la quantité, pas 
   const { devis } = resultat;
   const p = postes(devis);
   assert.ok(p.every((l) => l.quantite === 4 && l.total === 4 * l.unitaire));
-  assert.equal(p.reduce((somme, l) => somme + l.total, 0), 4 * 290);
+  assert.equal(p.reduce((somme, l) => somme + l.total, 0), 4 * 145);
   assert.match(p[1].designation, /^Assise garnie — mousse haute densité, velours Paon/);
   const livraison = devis.lignes[devis.lignes.length - 1];
   assert.match(livraison.details[0], /36 kg/); // 9 kg × 4
