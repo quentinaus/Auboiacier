@@ -435,18 +435,6 @@ export function ProductView({
           {t.moreInfo}
         </a>
 
-        {/* Le garde-corps : la promesse, avant les cotes. */}
-        {product.releve === "garde-corps-fenetre" && (
-          <div className="mt-5 rounded-2xl border border-[#2b2320]/20 bg-[#2b2320]/[0.04] px-4 py-3.5">
-            <p className="flex items-center gap-2.5 text-lg font-medium leading-tight text-[#2b2320]">
-              <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 shrink-0">
-                <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" />
-              </svg>
-              {t.gcPromesseTitre}
-            </p>
-            <p className="mt-1.5 text-sm leading-relaxed text-[#5c5140]">{t.gcPromesse}</p>
-          </div>
-        )}
         <div className="mt-2 md:mt-5">
           <ProductOptions
             product={product}

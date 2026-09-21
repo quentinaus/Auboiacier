@@ -156,12 +156,16 @@ export function tarifPose(distanceKm: number): Omit<Deplacement, "commune" | "pr
  *  messagerie.
  * ------------------------------------------------------------------ */
 
-/** Prise en charge, emballage et manutention. */
-const LIVRAISON_BASE_CENTS = 2000;
+/**
+ * Prise en charge, emballage et manutention. Relevé une deuxième fois à la
+ * hausse à la demande de Quentin : mieux vaut un prix un peu trop prudent
+ * qu'une livraison payée de sa poche.
+ */
+const LIVRAISON_BASE_CENTS = 3000;
 /** Par kilo, sur le poids total. */
-const LIVRAISON_PAR_KG = 0.85;
+const LIVRAISON_PAR_KG = 1.1;
 /** Par kilomètre de route, un seul sens. */
-const LIVRAISON_PAR_KM = 0.025;
+const LIVRAISON_PAR_KM = 0.04;
 /**
  * Au-delà de cette longueur ou de ce poids, la pièce ne tient plus dans le
  * réseau de colis standard : elle part en transport hors gabarit ou en
@@ -169,7 +173,7 @@ const LIVRAISON_PAR_KM = 0.025;
  */
 const LIVRAISON_LONGUEUR_HORS_GABARIT_MM = 2000;
 const LIVRAISON_POIDS_HORS_GABARIT_KG = 30;
-const LIVRAISON_SUPPLEMENT_HORS_GABARIT_CENTS = 5000;
+const LIVRAISON_SUPPLEMENT_HORS_GABARIT_CENTS = 9000;
 
 /** Le poids du colis vient du catalogue (poidsColisKg, dans products.ts) : ici on ne fait que le facturer. */
 export function tarifLivraison(distanceKm: number, kg: number, plusGrandeCoteMm = 0): Omit<Deplacement, "commune" | "precision"> {

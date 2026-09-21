@@ -25,6 +25,24 @@ export const POSE_INITIALE: ChoixPose = { voulue: false, codePostal: "", deplace
 
 type Etat = "attente" | "calcul" | "ok" | "invalide" | "hors" | "loin" | "erreur";
 
+/** Au-delà, on suggère la pose par l'atelier plutôt que le seul transporteur — même repère que le supplément hors gabarit. */
+const KG_SUGGERE_POSE = 30;
+
+/** Coupe un texte sur ses paires de « ** » (le poids du colis) et met le milieu en avant. */
+function texteAvecGras(texte: string) {
+  return texte
+    .split("**")
+    .map((morceau, i) =>
+      i % 2 === 1 ? (
+        <strong key={i} className="font-semibold text-[#2b2320]">
+          {morceau}
+        </strong>
+      ) : (
+        morceau
+      )
+    );
+}
+
 export function PoseDomicile({
   choix,
   onChange,
@@ -239,8 +257,14 @@ export function PoseDomicile({
           aria-live="polite"
           className={`mt-2 text-xs leading-relaxed ${etat === "ok" ? "text-[#2b2320]" : "text-[#6f6357]"}`}
         >
-          {message}
+          {texteAvecGras(message)}
         </p>
+        {/* Une pièce lourde ou encombrante coûte cher — voire refuse — en
+            simple colis : on le dit tout de suite, pas seulement au moment
+            de payer. */}
+        {etat === "ok" && !choix.voulue && (dep?.kg ?? 0) > KG_SUGGERE_POSE && (
+          <p className="mt-1.5 text-xs leading-relaxed text-[#9a5b3f]">{t.livraisonLourd}</p>
+        )}
       </div>
     </div>
   );
