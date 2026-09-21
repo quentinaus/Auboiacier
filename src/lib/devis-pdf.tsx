@@ -377,7 +377,7 @@ function DocumentDevis({ devis }: { devis: Devis }) {
             </View>
             <View style={styles.colonne}>
               <Text style={styles.etiquette}>{t.client}</Text>
-              {devis.client.nom || devis.client.adresse ? (
+              {devis.client.nom || devis.client.adresse || devis.client.email || devis.client.telephone ? (
                 <>
                   {devis.client.nom && (
                     <Text style={styles.nomEmetteur}>{devis.client.nom}</Text>
@@ -386,6 +386,12 @@ function DocumentDevis({ devis }: { devis: Devis }) {
                     <Text style={styles.ligneGrise}>
                       {devis.client.adresse}
                     </Text>
+                  )}
+                  {devis.client.email && (
+                    <Text style={styles.ligneGrise}>{devis.client.email}</Text>
+                  )}
+                  {devis.client.telephone && (
+                    <Text style={styles.ligneGrise}>{devis.client.telephone}</Text>
                   )}
                 </>
               ) : (

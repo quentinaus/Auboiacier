@@ -49,6 +49,8 @@ export type Deplacement = {
   commune: string;
   /** « adresse » : géocodé finement. « departement » : repli sur la préfecture. */
   precision: "adresse" | "departement";
+  /** Le poids estimé du colis, à dire au client — livraison par transporteur seulement. */
+  kg?: number;
 };
 
 export type ResultatDeplacement =
@@ -144,24 +146,41 @@ export function tarifPose(distanceKm: number): Omit<Deplacement, "commune" | "pr
  *  La livraison seule
  *  La pièce part par transporteur, démontée quand elle peut l'être (une
  *  table : le plateau d'un côté, le piétement soudé de l'autre, la visserie
- *  avec). Le prix imite ce qu'un vrai transporteur de colis facture : quasi
- *  fixe partout en France métropolitaine, surtout au poids — la distance y
- *  entre à peine, pas au kilomètre plein tarif comme pour un déplacement de
- *  l'atelier. Le poids est estimé pièce par pièce dans le catalogue
- *  (poidsColisKg). Les chiffres restent à valider par Quentin contre un vrai
- *  devis de messagerie.
+ *  avec). Le prix imite ce qu'un vrai transporteur de colis facture : une
+ *  prise en charge, un tarif au poids, un peu de route. Un colis long ou
+ *  lourd (un garde-corps de plus de 2 m, par exemple) sort du gabarit d'un
+ *  colis standard : il faut alors un transport « hors gabarit » ou en
+ *  palette, nettement plus cher qu'un simple colis — d'où le supplément.
+ *  Le poids est estimé pièce par pièce dans le catalogue (poidsColisKg). Les
+ *  chiffres restent à valider par Quentin contre un vrai devis de
+ *  messagerie.
  * ------------------------------------------------------------------ */
 
 /** Prise en charge, emballage et manutention. */
-const LIVRAISON_BASE_CENTS = 1500;
+const LIVRAISON_BASE_CENTS = 2000;
 /** Par kilo, sur le poids total. */
-const LIVRAISON_PAR_KG = 0.55;
-/** Par kilomètre de route, un seul sens — un supplément léger, pas le prix d'un aller. */
-const LIVRAISON_PAR_KM = 0.015;
+const LIVRAISON_PAR_KG = 0.85;
+/** Par kilomètre de route, un seul sens. */
+const LIVRAISON_PAR_KM = 0.025;
+/**
+ * Au-delà de cette longueur ou de ce poids, la pièce ne tient plus dans le
+ * réseau de colis standard : elle part en transport hors gabarit ou en
+ * palette, à un tarif à part — d'où ce supplément forfaitaire.
+ */
+const LIVRAISON_LONGUEUR_HORS_GABARIT_MM = 2000;
+const LIVRAISON_POIDS_HORS_GABARIT_KG = 30;
+const LIVRAISON_SUPPLEMENT_HORS_GABARIT_CENTS = 5000;
+
 /** Le poids du colis vient du catalogue (poidsColisKg, dans products.ts) : ici on ne fait que le facturer. */
-export function tarifLivraison(distanceKm: number, kg: number): Omit<Deplacement, "commune" | "precision"> {
+export function tarifLivraison(distanceKm: number, kg: number, plusGrandeCoteMm = 0): Omit<Deplacement, "commune" | "precision"> {
   const route = distanceKm * COEF_ROUTE;
-  const euros = Math.ceil(LIVRAISON_BASE_CENTS / 100 + kg * LIVRAISON_PAR_KG + route * LIVRAISON_PAR_KM);
+  const horsGabarit = plusGrandeCoteMm > LIVRAISON_LONGUEUR_HORS_GABARIT_MM || kg > LIVRAISON_POIDS_HORS_GABARIT_KG;
+  const euros = Math.ceil(
+    LIVRAISON_BASE_CENTS / 100 +
+      kg * LIVRAISON_PAR_KG +
+      route * LIVRAISON_PAR_KM +
+      (horsGabarit ? LIVRAISON_SUPPLEMENT_HORS_GABARIT_CENTS / 100 : 0)
+  );
   return {
     montantCents: euros * 100,
     distanceKm: Math.round(distanceKm),
@@ -172,8 +191,8 @@ export function tarifLivraison(distanceKm: number, kg: number): Omit<Deplacement
 }
 
 /** Livraison par transporteur : partout en France métropolitaine. */
-export async function calculerLivraison(codePostal: string, kg: number): Promise<ResultatDeplacement> {
-  return calculer(codePostal, (km) => tarifLivraison(km, kg), Infinity);
+export async function calculerLivraison(codePostal: string, kg: number, plusGrandeCoteMm = 0): Promise<ResultatDeplacement> {
+  return calculer(codePostal, (km) => tarifLivraison(km, kg, plusGrandeCoteMm), Infinity);
 }
 
 /** Libellé de la ligne « livraison », dans la langue du client. */

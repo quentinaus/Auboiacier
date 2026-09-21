@@ -146,7 +146,7 @@ export type EntreeDevis = {
   /** Ce que le client a précisé (relevé d'un garde-corps, d'un escalier). */
   note?: string;
   livraison?: LivraisonDevis | null;
-  client?: { nom?: string; adresse?: string };
+  client?: { nom?: string; adresse?: string; email?: string; telephone?: string };
   date: Date;
   locale: Locale;
   /** L'adresse du site, pour la photo de la pièce et le lien de commande. */
@@ -161,7 +161,7 @@ export type Devis = {
   validite: string;
   locale: Locale;
   emetteur: { nom: string; lignes: string[] };
-  client: { nom?: string; adresse?: string };
+  client: { nom?: string; adresse?: string; email?: string; telephone?: string };
   piece: {
     nom: string;
     accroche: string;
@@ -269,6 +269,7 @@ const TEXTES = {
     delaiInconnu: "Sur commande",
     emetteurLignes: ["Métallerie d'art — atelier à Saumur (49400), Maine-et-Loire", "auboiacier@gmail.com — auboiacier.fr"],
     conditions: {
+      gratuit: "Devis gratuit, établi sans engagement à partir des choix indiqués sur le site.",
       prix: "Prix en euros, montant total à payer ; le régime de TVA de l'atelier est rappelé sur la facture.",
       validite: `Devis valable ${VALIDITE_JOURS} jours à compter de sa date, pour la configuration décrite ci-dessus.`,
       paiement:
@@ -370,6 +371,7 @@ const TEXTES = {
     delaiInconnu: "Made to order",
     emetteurLignes: ["Art metalwork — workshop in Saumur (49400), Maine-et-Loire, France", "auboiacier@gmail.com — auboiacier.fr"],
     conditions: {
+      gratuit: "Free quote, issued without obligation from the choices entered on the website.",
       prix: "Prices in euros, total amount payable; the workshop's VAT status is stated on the invoice.",
       validite: `Quote valid for ${VALIDITE_JOURS} days from its date, for the configuration described above.`,
       paiement:
@@ -949,6 +951,8 @@ export function composerDevis(entree: EntreeDevis): ResultatDevis {
           largeurMm: ligne.size.dimsMm?.[0],
           hauteurMm: ligne.size.dimsMm?.[1],
           epaisseurMm: selection.epaisseurMm,
+          woodId: wood?.id,
+          remplissageId: remplissage?.id,
         }) * quantity;
       lignes.push({
         designation: remplir(t.transporteur, { commune: d.commune, cp: livraison.codePostal }),
@@ -975,6 +979,7 @@ export function composerDevis(entree: EntreeDevis): ResultatDevis {
   const conditions: string[] = estimation
     ? [c.estimation, c.prix, c.delai, c.garantie, c.cgv]
     : [
+        c.gratuit,
         c.prix,
         c.validite,
         c.paiement,
@@ -989,9 +994,10 @@ export function composerDevis(entree: EntreeDevis): ResultatDevis {
     nom: ENTREPRISE.raisonSociale ? `Auboiacier — ${ENTREPRISE.raisonSociale}` : "Auboiacier",
     lignes: [
       ...t.emetteurLignes,
-      ENTREPRISE.adresse,
+      [ENTREPRISE.adresse, ENTREPRISE.statut].filter(Boolean).join(" — "),
       ENTREPRISE.siret ? `SIRET ${ENTREPRISE.siret}` : "",
       ENTREPRISE.tva ? `TVA ${ENTREPRISE.tva}` : "",
+      ENTREPRISE.assurance,
       ENTREPRISE.telephone,
     ].filter(Boolean),
   };
@@ -1006,7 +1012,12 @@ export function composerDevis(entree: EntreeDevis): ResultatDevis {
       validite: dateLisible(validite, locale),
       locale,
       emetteur,
-      client: { nom: entree.client?.nom?.trim() || undefined, adresse: entree.client?.adresse?.trim() || undefined },
+      client: {
+        nom: entree.client?.nom?.trim() || undefined,
+        adresse: entree.client?.adresse?.trim() || undefined,
+        email: entree.client?.email?.trim() || undefined,
+        telephone: entree.client?.telephone?.trim() || undefined,
+      },
       piece: {
         nom: product.name,
         accroche: product.tagline,

@@ -1944,12 +1944,70 @@ export function getProduct(slug: string) {
 }
 
 /**
- * Le poids du colis d'une pièce, en kilos, pour chiffrer la livraison : un
- * plateau de chêne au volume (700 kg/m³) plus son piétement, un plafond
- * lumineux à la surface, un garde-corps au mètre, une chaise à poids fixe.
- * Estimation, jamais une pesée : à valider contre un vrai colis.
+ * Densité du bois massif, à l'humidité d'usage (12 % environ), en kg/m³.
+ * Chiffres de référence pour chaque essence du catalogue ; le chêne sert de
+ * repli quand l'essence n'est pas connue (les pièces sans bois, ou un
+ * identifiant inattendu).
  */
-export function poidsColisKg(product: Product, cotes: { largeurMm?: number; hauteurMm?: number; epaisseurMm?: number }): number {
+const DENSITE_BOIS_KG_M3: Record<string, number> = {
+  chene: 720,
+  hetre: 720,
+  pin: 500,
+  noyer: 650,
+};
+function densiteBoisKgM3(woodId?: string): number {
+  return (woodId && DENSITE_BOIS_KG_M3[woodId]) || DENSITE_BOIS_KG_M3.chene;
+}
+
+/** L'acier, plein, quelle que soit la pièce : 7 850 kg/m³. */
+const DENSITE_ACIER_KG_M3 = 7850;
+
+/**
+ * Le piétement soudé d'une table, en kilos par mètre de longueur du plateau —
+ * d'après le profil réellement écrit sur la fiche (« Piétement »). Un tube de
+ * 80 × 80 mm, paroi 3 mm, pèse (80² − 74²) mm² × 7 850 kg/m³ ≈ 7,25 kg le
+ * mètre ; un piétement soudé (deux appuis en diagonale, quelques traverses)
+ * en emploie environ 2,2 fois la longueur du plateau, d'où le repli ci-
+ * dessous. La table Brindille est plus fine : des tiges rondes d'environ
+ * 12 mm, plus nombreuses. À AJUSTER par Quentin selon le métrage réel de
+ * chaque piétement — ce ne sont que des estimations de plan.
+ */
+const PIETEMENT_KG_PAR_M: Record<string, number> = {
+  "table-brindille": 4.5,
+};
+const PIETEMENT_KG_PAR_M_DEFAUT = 16; // tube 80 × 80 mm, paroi 3 mm
+
+/** La part de la surface réellement occupée par le bois d'un plateau à lattes (le reste, ce sont les jours). */
+const COUVERTURE_LATTES = 0.7;
+
+/**
+ * L'acier plein d'un garde-corps de fenêtre : une barre carrée de 16 mm — un
+ * choix courant en ferronnerie d'art pour une croix de Saint-André, à
+ * confirmer par Quentin contre le profil réellement soudé. 16² mm² × 7 850
+ * kg/m³ ≈ 2,0 kg le mètre.
+ */
+const BARRE_GC_KG_PAR_M = 0.016 * 0.016 * DENSITE_ACIER_KG_M3;
+/** Une croix par panneau d'environ 60 cm (voir le remplissage « croix », plus haut). */
+const LARGEUR_PANNEAU_CROIX_M = 0.6;
+/** La main courante : 40 × 40 mm massif. */
+const SECTION_MAIN_COURANTE_M2 = 0.04 * 0.04;
+/** Une rosace de fonderie ou d'aluminium moulé, par croix. */
+const ROSACE_KG = 0.4;
+/** Un panneau de verre feuilleté de sécurité (environ 8 mm), au m². */
+const VERRE_KG_PAR_M2 = 20;
+
+/**
+ * Le poids du colis d'une pièce, en kilos, pour chiffrer la livraison : le
+ * plateau d'une table au volume réel de l'essence choisie, son piétement à
+ * son métrage de tube, un garde-corps à la vraie longueur de barre (cadre et
+ * croix de Saint-André, ou cadre et verre), un plafond lumineux à la
+ * surface, une chaise à poids fixe (colisKg). Estimation, jamais une pesée :
+ * à valider contre un vrai colis.
+ */
+export function poidsColisKg(
+  product: Product,
+  cotes: { largeurMm?: number; hauteurMm?: number; epaisseurMm?: number; woodId?: string; remplissageId?: string }
+): number {
   if (product.colisKg) return product.colisKg;
   const bareme = product.surMesure;
   const L = (cotes.largeurMm && cotes.largeurMm > 0 ? cotes.largeurMm : bareme?.departMm?.[0] ?? 2000) / 1000;
@@ -1961,11 +2019,27 @@ export function poidsColisKg(product: Product, cotes: { largeurMm?: number; haut
     return Math.max(4, Math.round(surface * 6 + 4));
   }
   if (product.famille === "garde-corps") {
-    // Acier plein et main courante en chêne : au mètre de largeur.
-    return Math.max(8, Math.round(L * 12 + 3));
+    const nbPanneaux = Math.max(1, Math.round(L / LARGEUR_PANNEAU_CROIX_M));
+    const perimetreM = 2 * (L + W);
+    const structureKg =
+      cotes.remplissageId === "verre"
+        ? // Un cadre soudé qui reçoit le verre : pas de croix, le poids du vitrage à la place.
+          perimetreM * BARRE_GC_KG_PAR_M + L * W * VERRE_KG_PAR_M2
+        : (() => {
+            const panneauLargeurM = L / nbPanneaux;
+            const diagonaleM = Math.sqrt(panneauLargeurM ** 2 + W ** 2);
+            return (perimetreM + nbPanneaux * 2 * diagonaleM) * BARRE_GC_KG_PAR_M + nbPanneaux * ROSACE_KG;
+          })();
+    const mainCouranteKg = L * SECTION_MAIN_COURANTE_M2 * densiteBoisKgM3(cotes.woodId);
+    return Math.max(8, Math.round(structureKg + mainCouranteKg));
   }
-  // Une table : le plateau au volume du chêne, le piétement soudé à part.
-  return Math.round(L * W * T * 700 + 25);
+  // Une table : le plateau au volume réel de l'essence choisie (à lattes,
+  // 70 % de bois pour un plateau extérieur), le piétement soudé à part, et
+  // quelques kilos d'emballage (carton, mousse, sangles).
+  const couverture = product.famille === "table-exterieur" ? COUVERTURE_LATTES : 1;
+  const plateauKg = L * W * T * densiteBoisKgM3(cotes.woodId) * couverture;
+  const pietementKg = (PIETEMENT_KG_PAR_M[product.slug] ?? PIETEMENT_KG_PAR_M_DEFAUT) * L;
+  return Math.round(plateauKg + pietementKg + 5);
 }
 
 /** La surface pour laquelle les écarts d'essence du catalogue sont écrits : 200 × 100. */

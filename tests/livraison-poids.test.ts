@@ -14,6 +14,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 import { tarifLivraison } from "../src/lib/deplacement.ts";
+import { getProduct, poidsColisKg } from "../src/lib/products.ts";
 
 test("le tarif de livraison monte nettement avec le poids du colis", () => {
   // Une chaise (9 kg) contre cinq (45 kg), même distance : la différence de
@@ -24,6 +25,42 @@ test("le tarif de livraison monte nettement avec le poids du colis", () => {
     cinqChaises > uneChaise + 1000,
     `45 kg (${cinqChaises}) devrait coûter nettement plus que 9 kg (${uneChaise})`
   );
+});
+
+test("un colis long ou lourd paie un supplément hors gabarit", () => {
+  // Même poids, même distance : seule la longueur change.
+  const standard = tarifLivraison(100, 15, 1200).montantCents;
+  const horsGabarit = tarifLivraison(100, 15, 3333).montantCents;
+  assert.ok(
+    horsGabarit > standard + 2000,
+    `un colis de 3 333 mm (${horsGabarit}) devrait coûter nettement plus qu'un colis de 1 200 mm (${standard})`
+  );
+  // Un colis très lourd sort aussi du gabarit standard, même court.
+  const lourdEtCourt = tarifLivraison(100, 45, 1200).montantCents;
+  assert.ok(lourdEtCourt > standard + 2000, "45 kg devrait aussi déclencher le supplément");
+});
+
+test("le poids d'un garde-corps grandit avec sa hauteur, pas seulement sa largeur", () => {
+  const gc = getProduct("garde-corps")!;
+  // Même largeur (1 200 mm), une allège basse (400 mm) contre une quasi
+  // pleine hauteur (1 200 mm) : le second doit peser nettement plus lourd —
+  // c'est le bug que Quentin a signalé (une largeur de 3 333 mm à 48 € de
+  // livraison, ce qui ignorait tout du reste de la structure).
+  const bas = poidsColisKg(gc, { largeurMm: 1200, hauteurMm: 400, woodId: "chene" });
+  const haut = poidsColisKg(gc, { largeurMm: 1200, hauteurMm: 1200, woodId: "chene" });
+  assert.ok(haut > bas * 1.3, `1 200 mm de haut (${haut} kg) devrait peser nettement plus que 400 mm (${bas} kg)`);
+});
+
+test("le poids du plateau d'une table suit la densité réelle de l'essence choisie", () => {
+  const mikado = getProduct("table-mikado")!;
+  const cotes = { largeurMm: 2000, hauteurMm: 1000, epaisseurMm: 45 };
+  const pin = poidsColisKg(mikado, { ...cotes, woodId: "pin" });
+  const chene = poidsColisKg(mikado, { ...cotes, woodId: "chene" });
+  const noyer = poidsColisKg(mikado, { ...cotes, woodId: "noyer" });
+  // Densités de référence : pin ≈ 500 kg/m³, noyer ≈ 650, chêne ≈ 720 —
+  // le pin doit toujours être le plus léger, le chêne le plus lourd.
+  assert.ok(pin < noyer, `un plateau pin (${pin} kg) doit peser moins qu'un noyer (${noyer} kg)`);
+  assert.ok(noyer < chene, `un plateau noyer (${noyer} kg) doit peser moins qu'un chêne (${chene} kg)`);
 });
 
 /** Récupère une constante numérique déclarée en tête d'un fichier. */

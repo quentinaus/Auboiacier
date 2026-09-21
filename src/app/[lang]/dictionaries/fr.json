@@ -433,7 +433,7 @@
     "customTableHeightEdit": "Modifier",
     "customTableHeightAide": "Conseillé : 75 cm — du sol au dessus du plateau.",
     "customTableHeightNote": "hauteur finie {h} cm",
-    "livraisonPrix": "{commune} — {prix} : livraison par transporteur, comptée une fois pour toute la commande.",
+    "livraisonPrix": "{commune} — {prix} : livraison par transporteur, colis estimé à {kg} kg, comptée une fois pour toute la commande.",
     "livraisonResume": "Livraison par transporteur",
     "livraisonHors": "Nous ne livrons qu'en France métropolitaine.",
     "inclusLivraisonTable": "Livraison en France métropolitaine, prix selon votre ville ; pose par l'atelier en option.",
@@ -446,7 +446,14 @@
     "poseSeulCourt": "Prix selon votre ville, le poids et les dimensions.",
     "poseAtelierCourt": "Un seul trajet depuis Saumur, prix selon la distance.",
     "configurable": "Se configure en ligne",
-    "apercuPhoto": "Voir la photo de ma configuration"
+    "apercuPhoto": "Voir la photo de ma configuration",
+    "coordonneesTitle": "Vos coordonnées (facultatif)",
+    "coordonneesNote": "Pour un devis à votre nom, prêt à signer.",
+    "coordonneesNom": "Nom et prénom",
+    "coordonneesAdresse": "Adresse",
+    "coordonneesEmail": "E-mail",
+    "coordonneesTelephone": "Téléphone",
+    "totalAvecLivraison": "Pièce et livraison :"
   },
   "devis": {
     "title": "Demander un devis",

@@ -4,6 +4,7 @@ import { calculerLivraison, calculerPose } from "@/lib/deplacement";
 import { composerDevis, type LivraisonDevis } from "@/lib/devis";
 import { rendreDevisPdf } from "@/lib/devis-pdf";
 import { creerLimite } from "@/lib/limite-debit";
+import { MAX_TEXTE } from "@/lib/devis-regles";
 import { isLocale } from "@/lib/i18n";
 
 export const runtime = "nodejs";
@@ -59,6 +60,8 @@ export async function GET(request: Request) {
   const largeurMm = surMesure ? entier(p.get("l"), 20000) : undefined;
   const hauteurMm = surMesure ? entier(p.get("w"), 20000) : undefined;
   const epaisseurMm = surMesure ? entier(p.get("t"), 1000) : undefined;
+  const woodId = identifiant(p.get("wood"));
+  const remplissageId = identifiant(p.get("remplissage"));
   const quantity = entier(p.get("qty"), 10) ?? 1;
 
   // La livraison : par transporteur (au poids de la pièce) ou avec la pose.
@@ -69,8 +72,9 @@ export async function GET(request: Request) {
     if (!/^\d{5}$/.test(cp)) return NextResponse.json({ error: "code_postal_invalide" }, { status: 400 });
     const dims = surMesure ? [largeurMm, hauteurMm] : (product.sizes.find((s) => s.id === sizeId) ?? product.sizes[0])?.dimsMm;
     const kg =
-      poidsColisKg(product, { largeurMm: dims?.[0], hauteurMm: dims?.[1], epaisseurMm }) * quantity;
-    const calcul = mode === "pose" ? await calculerPose(cp) : await calculerLivraison(cp, kg);
+      poidsColisKg(product, { largeurMm: dims?.[0], hauteurMm: dims?.[1], epaisseurMm, woodId, remplissageId }) * quantity;
+    const plusGrandeCoteMm = Math.max(dims?.[0] ?? 0, dims?.[1] ?? 0);
+    const calcul = mode === "pose" ? await calculerPose(cp) : await calculerLivraison(cp, kg, plusGrandeCoteMm);
     if (!calcul.ok) return NextResponse.json({ error: calcul.reason }, { status: 400 });
     livraison = { mode, codePostal: cp, deplacement: calcul.deplacement };
   }
@@ -79,10 +83,10 @@ export async function GET(request: Request) {
     selection: {
       slug: product.slug,
       sizeId,
-      woodId: identifiant(p.get("wood")),
+      woodId,
       metalId: identifiant(p.get("metal")),
       fabricId: identifiant(p.get("fabric")),
-      remplissageId: identifiant(p.get("remplissage")),
+      remplissageId,
       largeurMm,
       hauteurMm,
       epaisseurMm,
@@ -91,7 +95,12 @@ export async function GET(request: Request) {
     hauteurTableMm: entier(p.get("h"), 2000),
     note: texte(p.get("note"), 500),
     livraison,
-    client: { nom: texte(p.get("nom"), 120), adresse: texte(p.get("adresse"), 300) },
+    client: {
+      nom: texte(p.get("nom"), MAX_TEXTE.name),
+      adresse: texte(p.get("adresse"), 300),
+      email: texte(p.get("email"), MAX_TEXTE.email),
+      telephone: texte(p.get("telephone"), MAX_TEXTE.phone),
+    },
     date: new Date(),
     locale,
     origine: url.origin,

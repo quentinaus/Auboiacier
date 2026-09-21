@@ -32,6 +32,7 @@ import {
 } from "./releve-garde-corps";
 import { LIVRAISON, POSE, PRISE_DE_COTES } from "@/lib/deplacement";
 import { VisiteAtelier } from "./prise-de-cotes";
+import { MAX_TEXTE, EMAIL_MOTIF, TELEPHONE_MOTIF } from "@/lib/devis-regles";
 import { POSE_INITIALE, PoseDomicile, type ChoixPose } from "./pose-domicile";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 
@@ -373,6 +374,8 @@ export function ProductOptions({
   const [ajoutee, setAjoutee] = useState<string | null>(null);
   /** Livraison seule, ou livrée et posée par l'atelier (tables). */
   const [pose, setPose] = useState<ChoixPose>(POSE_INITIALE);
+  /** Les coordonnées facultatives du client, pour un devis PDF nominatif. */
+  const [coordonnees, setCoordonnees] = useState({ nom: "", adresse: "", email: "", telephone: "" });
   /**
    * Sur téléphone, cette colonne fait plus de deux écrans de haut : le prix et
    * le bouton disparaissent dès qu'on descend choisir un bois ou taper ses
@@ -882,6 +885,10 @@ export function ProductOptions({
       p.set("mode", pose.voulue ? "pose" : "transporteur");
       p.set("cp", pose.codePostal.replace(/\s+/g, ""));
     }
+    if (coordonnees.nom.trim()) p.set("nom", coordonnees.nom.trim());
+    if (coordonnees.adresse.trim()) p.set("adresse", coordonnees.adresse.trim());
+    if (coordonnees.email.trim()) p.set("email", coordonnees.email.trim());
+    if (coordonnees.telephone.trim()) p.set("telephone", coordonnees.telephone.trim());
     return `/api/devis-pdf?${p.toString()}`;
   })();
 
@@ -915,25 +922,100 @@ export function ProductOptions({
 
   /** Le lien vers le devis, sous la barre d'achat ou sous « Demander un devis ». */
   const lienDevis = urlDevis && (
-    <a
-      href={urlDevis}
-      target="_blank"
-      rel="noopener"
-      className="mt-3 flex w-full items-center justify-center gap-2.5 rounded-full border border-[#2b2320] px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] text-[#2b2320] transition-colors hover:bg-[#2b2320] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
-    >
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 20 20"
-        className="h-4 w-4"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.3"
+    <div className="mt-3">
+      {/* Facultatif, replié par défaut : remplir son nom ne doit jamais
+          retarder le client qui veut juste voir le prix. */}
+      <details className="group">
+        <summary className="flex cursor-pointer list-none items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.15em] text-[#6f6357] hover:text-[#2b2320]">
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 20 20"
+            className="h-3 w-3 shrink-0 transition-transform group-open:rotate-90"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          >
+            <path d="M7 4l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          {t.coordonneesTitle}
+        </summary>
+        <p className="mt-2 text-[11px] text-[#6f6357]">{t.coordonneesNote}</p>
+        <div className="mt-3 grid gap-x-6 gap-y-3 sm:grid-cols-2">
+          <label className="block">
+            <span className="block text-[10px] font-medium uppercase tracking-[0.14em] text-[#6f6357]">
+              {t.coordonneesNom}
+            </span>
+            <input
+              value={coordonnees.nom}
+              onChange={(e) => setCoordonnees((c) => ({ ...c, nom: e.target.value }))}
+              maxLength={MAX_TEXTE.name}
+              autoComplete="name"
+              className="mt-1 w-full rounded-none border-0 border-b border-[#9a8d80] bg-transparent px-0 py-1.5 text-sm text-[#2b2320] transition-[border-color,box-shadow] placeholder:text-[#726757] focus:border-[#2b2320] focus:shadow-[0_1px_0_0_#2b2320] focus:outline-none"
+            />
+          </label>
+          <label className="block">
+            <span className="block text-[10px] font-medium uppercase tracking-[0.14em] text-[#6f6357]">
+              {t.coordonneesAdresse}
+            </span>
+            <input
+              value={coordonnees.adresse}
+              onChange={(e) => setCoordonnees((c) => ({ ...c, adresse: e.target.value }))}
+              maxLength={300}
+              autoComplete="street-address"
+              className="mt-1 w-full rounded-none border-0 border-b border-[#9a8d80] bg-transparent px-0 py-1.5 text-sm text-[#2b2320] transition-[border-color,box-shadow] placeholder:text-[#726757] focus:border-[#2b2320] focus:shadow-[0_1px_0_0_#2b2320] focus:outline-none"
+            />
+          </label>
+          <label className="block">
+            <span className="block text-[10px] font-medium uppercase tracking-[0.14em] text-[#6f6357]">
+              {t.coordonneesEmail}
+            </span>
+            <input
+              type="email"
+              value={coordonnees.email}
+              onChange={(e) => setCoordonnees((c) => ({ ...c, email: e.target.value }))}
+              maxLength={MAX_TEXTE.email}
+              pattern={EMAIL_MOTIF}
+              autoComplete="email"
+              className="mt-1 w-full rounded-none border-0 border-b border-[#9a8d80] bg-transparent px-0 py-1.5 text-sm text-[#2b2320] transition-[border-color,box-shadow] placeholder:text-[#726757] focus:border-[#2b2320] focus:shadow-[0_1px_0_0_#2b2320] focus:outline-none"
+            />
+          </label>
+          <label className="block">
+            <span className="block text-[10px] font-medium uppercase tracking-[0.14em] text-[#6f6357]">
+              {t.coordonneesTelephone}
+            </span>
+            <input
+              type="tel"
+              inputMode="tel"
+              value={coordonnees.telephone}
+              onChange={(e) => setCoordonnees((c) => ({ ...c, telephone: e.target.value }))}
+              maxLength={MAX_TEXTE.phone}
+              pattern={TELEPHONE_MOTIF}
+              autoComplete="tel"
+              className="mt-1 w-full rounded-none border-0 border-b border-[#9a8d80] bg-transparent px-0 py-1.5 text-sm text-[#2b2320] transition-[border-color,box-shadow] placeholder:text-[#726757] focus:border-[#2b2320] focus:shadow-[0_1px_0_0_#2b2320] focus:outline-none"
+            />
+          </label>
+        </div>
+      </details>
+      <a
+        href={urlDevis}
+        target="_blank"
+        rel="noopener"
+        className="mt-3 flex w-full items-center justify-center gap-2.5 rounded-full border border-[#2b2320] px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] text-[#2b2320] transition-colors hover:bg-[#2b2320] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
       >
-        <path d="M5 2.5h6.5L15 6v11.5H5z" strokeLinejoin="round" />
-        <path d="M11.5 2.5V6H15M7.5 10h5M7.5 13h5" strokeLinecap="round" />
-      </svg>
-      {orderable ? t.devisPdf : t.estimationPdf}
-    </a>
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 20 20"
+          className="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.3"
+        >
+          <path d="M5 2.5h6.5L15 6v11.5H5z" strokeLinejoin="round" />
+          <path d="M11.5 2.5V6H15M7.5 10h5M7.5 13h5" strokeLinecap="round" />
+        </svg>
+        {orderable ? t.devisPdf : t.estimationPdf}
+      </a>
+    </div>
   );
 
   function addToCart() {
@@ -1014,10 +1096,12 @@ export function ProductOptions({
               slug: LIVRAISON,
               livraisonCp: cp,
               livraisonSlug: product.slug,
-              // Les cotes et la quantité du colis : le serveur recalcule le poids avec elles.
+              // Les cotes, l'essence et le remplissage : le serveur recalcule le vrai poids avec elles.
               largeurMm: cotesEff?.largeurMm ?? size?.dimsMm?.[0],
               hauteurMm: cotesEff?.hauteurMm ?? size?.dimsMm?.[1],
               epaisseurMm: cotesEff?.epaisseurMm,
+              woodId: woodId || undefined,
+              remplissageId: remplissageId || undefined,
               livraisonQty: quantity,
               name: t.livraisonResume,
               optionsLabel: pose.deplacement.commune,
@@ -1593,6 +1677,8 @@ export function ProductOptions({
             largeurMm: cotesEff?.largeurMm ?? size?.dimsMm?.[0],
             hauteurMm: cotesEff?.hauteurMm ?? size?.dimsMm?.[1],
             epaisseurMm: cotesEff?.epaisseurMm,
+            woodId: woodId || undefined,
+            remplissageId: remplissageId || undefined,
             quantity,
           }}
           t={t}
@@ -1723,6 +1809,22 @@ export function ProductOptions({
                   )}
                 </span>
               )}
+            </p>
+          )}
+
+          {/* Le prix affiché en grand reste celui de la pièce seule (il se
+              multiplie par la quantité) : la livraison, elle, ne se compte
+              qu'une fois par commande. Sans cette ligne, le client ne voyait
+              le coût réel qu'une fois arrivé au panier. */}
+          {!modeVisite && total !== null && pose.deplacement && (
+            <p className="mt-3 text-center text-sm tabular-nums text-[#5c5140]">
+              {t.totalAvecLivraison}{" "}
+              <span className="font-medium text-[#2a2116]">
+                {prixAffiche(
+                  (prixLot ?? total) * quantity + pose.deplacement.montantCents / 100,
+                  locale,
+                )}
+              </span>
             </p>
           )}
 

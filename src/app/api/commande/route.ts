@@ -171,10 +171,18 @@ export async function POST(request: Request) {
       // Le colis pèse pour chaque exemplaire livré, pas pour un seul : 5 chaises, 5 fois le poids.
       const qty = Number(line.livraisonQty);
       const livraisonQuantite = Number.isInteger(qty) && qty >= 1 && qty <= MAX_QUANTITY ? qty : 1;
+      const largeurMm = cote(line.largeurMm);
+      const hauteurMm = cote(line.hauteurMm);
       const calcul = await calculerLivraison(
         cp,
-        poidsColisKg(piece, { largeurMm: cote(line.largeurMm), hauteurMm: cote(line.hauteurMm), epaisseurMm: cote(line.epaisseurMm) }) *
-          livraisonQuantite
+        poidsColisKg(piece, {
+          largeurMm,
+          hauteurMm,
+          epaisseurMm: cote(line.epaisseurMm),
+          woodId: asId(line.woodId),
+          remplissageId: asId(line.remplissageId),
+        }) * livraisonQuantite,
+        Math.max(largeurMm ?? 0, hauteurMm ?? 0)
       );
       if (!calcul.ok) return NextResponse.json({ error: "code_postal" }, { status: 400 });
       livraison = { cp, commune: calcul.deplacement.commune };
