@@ -903,7 +903,12 @@ export function ProductOptions({
         ? { message: raisonDevisTexte, ancre: "#cotes" }
         : bareme && !product.releve
           ? { message: t.raisonCotesManquantes, ancre: "#cotes" }
-          : null
+          : // Le garde-corps de fenêtre releve ses propres cotes (largeur,
+            // allège, hauteur) : calculFenetre reste null tant qu'il en
+            // manque une, avant même de savoir si la fenêtre est conforme.
+            product.releve === "garde-corps-fenetre" && !calculFenetre
+            ? { message: t.raisonCotesManquantes, ancre: "#cotes" }
+            : null
       : product.poseOption && !pose.deplacement
         ? { message: t.raisonCodePostalLivraison, ancre: "#livraison" }
         : null;
