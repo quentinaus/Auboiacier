@@ -1809,8 +1809,7 @@ export function ProductOptions({
             href={`/${locale}/contact?produit=${product.slug}&config=${encodeURIComponent(
               optionsLabel,
             )}`}
-            className="block rounded-full px-6 py-3.5 text-center text-sm font-medium uppercase tracking-[0.12em] text-white transition-opacity hover:opacity-90"
-            style={{ backgroundColor: ACCENT }}
+            className="btn-verre block rounded-full px-6 py-3.5 text-center text-sm font-medium uppercase tracking-[0.12em] text-white"
           >
             {t.requestQuote}
           </Link>

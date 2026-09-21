@@ -11,8 +11,6 @@ import { prixAffiche } from "@/lib/ui";
 import { LIVRAISON, POSE, PRISE_DE_COTES, libelleLivraison, libellePose, libellePriseDeCotes } from "@/lib/deplacement";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 
-const ACCENT = "#2b2320";
-
 type Status =
   | "idle"
   | "loading"
@@ -299,8 +297,7 @@ export function CartView({
         <p className="text-[#5c5140]">{t.empty}</p>
         <Link
           href={`/${locale}/artisanat`}
-          className="mt-6 inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-opacity hover:opacity-90"
-          style={{ backgroundColor: ACCENT }}
+          className="btn-verre mt-6 inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
         >
           {t.backToShop}
         </Link>

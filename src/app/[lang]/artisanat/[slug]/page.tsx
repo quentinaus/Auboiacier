@@ -25,8 +25,6 @@ import {
 import { serif } from "@/lib/fonts";
 import { hoverZoom, hoverZoomSubtle, prixAffiche } from "@/lib/ui";
 
-const ACCENT = "#2b2320";
-
 /**
  * Les photos à membrane sont carrées ; les blocs éditoriaux les affichent dans
  * un cadre 4/3 en « cover », qui rogne 12,5 % en haut et en bas. On décale donc
@@ -326,8 +324,7 @@ export default async function ProductPage({
               vend que sur devis mène au formulaire de contact. */}
           <Link
             href={achetable ? "#acheter" : `/${locale}/contact?produit=${product.slug}`}
-            className="mt-8 inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-opacity hover:opacity-90"
-            style={{ backgroundColor: ACCENT }}
+            className="btn-verre mt-8 inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
           >
             {achetable ? t.delaiCta : t.delaiCtaDevis}
           </Link>

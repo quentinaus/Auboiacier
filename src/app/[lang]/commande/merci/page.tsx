@@ -10,8 +10,6 @@ import { getStripe, isStripeConfigured } from "@/lib/stripe";
 import { serif } from "@/lib/fonts";
 import { prixAffiche } from "@/lib/ui";
 
-const ACCENT = "#2b2320";
-
 /**
  * Cette page ne se visite qu'au retour du paiement, avec un numéro de commande
  * dans l'adresse : elle n'a rien à faire dans les résultats de recherche. Elle
@@ -95,8 +93,7 @@ export default async function MerciPage({
 
           <Link
             href={`/${locale}/artisanat`}
-            className="mt-8 inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-opacity hover:opacity-90"
-            style={{ backgroundColor: ACCENT }}
+            className="btn-verre mt-8 inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
           >
             {t.backToShop}
           </Link>

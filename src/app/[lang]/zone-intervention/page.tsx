@@ -7,8 +7,6 @@ import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
 
-const ACCENT = "#2b2320";
-
 export async function generateMetadata({
   params,
 }: PageProps<"/[lang]/zone-intervention">): Promise<Metadata> {
@@ -87,8 +85,7 @@ export default async function ZonePage({ params }: PageProps<"/[lang]/zone-inter
           <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4">
             <Link
               href={`/${locale}/contact`}
-              className="inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-opacity hover:opacity-90"
-              style={{ backgroundColor: ACCENT }}
+              className="btn-verre inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
             >
               {t.ctaLabel}
             </Link>

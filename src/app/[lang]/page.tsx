@@ -11,8 +11,6 @@ import { serif } from "@/lib/fonts";
 import { PhotoPlafondAnime } from "@/components/photo-plafond-anime";
 import { hoverZoom } from "@/lib/ui";
 
-const ACCENT = "#2b2320";
-
 /** Panneau cliquable : image plein cadre, titre centré, bouton. Pleine
  *  largeur sur téléphone, une moitié d'écran à partir de la tablette. */
 function HeroPanel({
@@ -439,8 +437,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           <p className="mx-auto mt-6 max-w-xl leading-relaxed text-white/85">{t.missionBody}</p>
           <Link
             href={`/${locale}/contact`}
-            className="mt-10 inline-block px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-[#853737]"
-            style={{ backgroundColor: ACCENT }}
+            className="btn-verre mt-10 inline-block px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
           >
             {t.missionCta}
           </Link>
