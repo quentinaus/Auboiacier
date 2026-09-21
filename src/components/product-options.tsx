@@ -1983,7 +1983,14 @@ export function ProductOptions({
           ))}
       </ul>
 
-      <p className={`${GROUP_LABEL} mt-4`}>{t.madeInFrance}</p>
+      <p className="mt-4 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
+        <svg viewBox="0 0 18 12" aria-hidden="true" className="h-3 w-[18px] shrink-0 rounded-[2px] shadow-[0_0_0_1px_rgba(43,35,32,0.15)]">
+          <rect width="6" height="12" x="0" fill="#1b3a6b" />
+          <rect width="6" height="12" x="6" fill="#f7f4ef" />
+          <rect width="6" height="12" x="12" fill="#a53a3a" />
+        </svg>
+        {t.madeInFrance}
+      </p>
 
       {/* La barre d'achat du téléphone : elle n'apparaît que lorsque le vrai
           bouton est sorti de l'écran, et disparaît dès qu'il revient. */}
