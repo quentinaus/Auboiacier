@@ -446,13 +446,14 @@
     "poseAtelierCourt": "A single trip from Saumur, priced by distance.",
     "configurable": "Configure it online",
     "apercuPhoto": "See the photo of my configuration",
-    "coordonneesTitle": "Your details (optional)",
+    "coordonneesTitle": "Your details",
     "coordonneesNote": "For a quote addressed to you, ready to sign.",
     "coordonneesNom": "Full name",
     "coordonneesAdresse": "Address",
-    "coordonneesEmail": "Email",
-    "coordonneesTelephone": "Phone",
-    "totalAvecLivraison": "Piece and delivery:"
+    "coordonneesEmail": "Email (optional)",
+    "coordonneesTelephone": "Phone (optional)",
+    "coordonneesAnnuler": "Cancel",
+    "livraisonIncluse": "Delivery included"
   },
   "devis": {
     "title": "Request a quote",

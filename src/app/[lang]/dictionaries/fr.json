@@ -446,13 +446,14 @@
     "poseAtelierCourt": "Un seul trajet depuis Saumur, prix selon la distance.",
     "configurable": "Se configure en ligne",
     "apercuPhoto": "Voir la photo de ma configuration",
-    "coordonneesTitle": "Vos coordonnées (facultatif)",
+    "coordonneesTitle": "Vos coordonnées",
     "coordonneesNote": "Pour un devis à votre nom, prêt à signer.",
     "coordonneesNom": "Nom et prénom",
     "coordonneesAdresse": "Adresse",
-    "coordonneesEmail": "E-mail",
-    "coordonneesTelephone": "Téléphone",
-    "totalAvecLivraison": "Pièce et livraison :"
+    "coordonneesEmail": "E-mail (facultatif)",
+    "coordonneesTelephone": "Téléphone (facultatif)",
+    "coordonneesAnnuler": "Annuler",
+    "livraisonIncluse": "Livraison incluse"
   },
   "devis": {
     "title": "Demander un devis",

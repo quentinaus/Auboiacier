@@ -247,6 +247,8 @@ const styles = StyleSheet.create({
   celTotal: { width: 82, textAlign: "right", lineHeight: "13pt" },
   designation: { fontSize: 9.5, lineHeight: "14pt" },
   detail: { marginTop: 2, fontSize: 8, color: GRIS, lineHeight: "12pt" },
+  /** Le poids du colis, dans un détail : à repérer d'un coup d'œil, pas noyé dans le gris. */
+  detailGras: { fontFamily: "Helvetica-Bold", color: ENCRE },
   totaux: { marginTop: 10, alignItems: "flex-end" },
   totalLigne: {
     flexDirection: "row",
@@ -320,6 +322,13 @@ const styles = StyleSheet.create({
     color: GRIS,
   },
 });
+
+/** Coupe un texte sur ses paires de « ** » (le poids du colis) et met le milieu en avant. */
+function avecGras(texte: string) {
+  return texte
+    .split("**")
+    .map((morceau, i) => (i % 2 === 1 ? <Text key={i} style={styles.detailGras}>{morceau}</Text> : morceau));
+}
 
 function DocumentDevis({ devis }: { devis: Devis }) {
   const t = TEXTES[devis.locale];
@@ -466,7 +475,7 @@ function DocumentDevis({ devis }: { devis: Devis }) {
                   </Text>
                   {ligne.details.map((d) => (
                     <Text key={d} style={styles.detail}>
-                      {d}
+                      {avecGras(d)}
                     </Text>
                   ))}
                 </View>
@@ -476,7 +485,7 @@ function DocumentDevis({ devis }: { devis: Devis }) {
                     <Text style={styles.designation}>{ligne.designation}</Text>
                     {ligne.details.map((d) => (
                       <Text key={d} style={styles.detail}>
-                        {d}
+                        {avecGras(d)}
                       </Text>
                     ))}
                   </View>

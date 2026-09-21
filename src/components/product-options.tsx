@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type ComponentProps } from "react";
 import {
   computeUnitPrice,
   deltaBois,
@@ -392,6 +392,8 @@ export function ProductOptions({
   const boutonPanierRef = useRef<HTMLButtonElement>(null);
   /** Le bloc de relevé : pour y ramener le curseur quand on ajoute une autre fenêtre. */
   const releveRef = useRef<HTMLDivElement>(null);
+  /** La fenêtre qui demande nom et adresse avant d'ouvrir le devis PDF. */
+  const devisDialogRef = useRef<HTMLDialogElement>(null);
   const [boutonVisible, setBoutonVisible] = useState(true);
 
   const { add, remove, items: panier } = useCart();
@@ -719,6 +721,16 @@ export function ProductOptions({
     dejaAuPanier + quantity >= lot.desPieces;
   const prixLot =
     lotActif && total !== null ? prixRemise(total, lot.taux) : total;
+  /**
+   * Le prix vraiment dû : la pièce (au tarif de lot s'il s'applique) fois la
+   * quantité, plus la livraison ou la pose — comptée une seule fois, jamais
+   * par pièce. C'est ce chiffre-là qui s'affiche en grand : le client ne
+   * doit pas découvrir le coût du transport seulement une fois au panier.
+   */
+  const prixFinal =
+    total !== null
+      ? (prixLot ?? total) * quantity + (pose.deplacement ? pose.deplacement.montantCents / 100 : 0)
+      : null;
   /** Le délai, lu dans les caractéristiques : « Fabrication » / « Lead time ». */
   const delai = product.specs.find((spec) =>
     /fabrication|lead time/i.test(spec.label),
@@ -921,100 +933,124 @@ export function ProductOptions({
         : null;
 
   /** Le lien vers le devis, sous la barre d'achat ou sous « Demander un devis ». */
+  const coordonneesCompletes = Boolean(coordonnees.nom.trim() && coordonnees.adresse.trim());
+  const devisIcone = (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 20 20"
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.3"
+    >
+      <path d="M5 2.5h6.5L15 6v11.5H5z" strokeLinejoin="round" />
+      <path d="M11.5 2.5V6H15M7.5 10h5M7.5 13h5" strokeLinecap="round" />
+    </svg>
+  );
+  /** Un bloqueur de popup peut refuser le nouvel onglet : on ouvre alors dans le même. */
+  function ouvrirPdf(url: string) {
+    const fenetre = window.open(url, "_blank", "noopener");
+    if (!fenetre) window.location.href = url;
+  }
+  /** Le nom et l'adresse manquent encore : on les demande avant d'ouvrir le PDF, pas après. */
+  function ouvrirDevis() {
+    if (!urlDevis) return;
+    if (coordonneesCompletes) {
+      ouvrirPdf(urlDevis);
+    } else {
+      devisDialogRef.current?.showModal();
+    }
+  }
+  const champCoordonnees = (
+    label: string,
+    cle: keyof typeof coordonnees,
+    props: Partial<ComponentProps<"input">> = {},
+  ) => (
+    <label className="block">
+      <span className="block text-[10px] font-medium uppercase tracking-[0.14em] text-[#6f6357]">
+        {label}
+      </span>
+      <input
+        value={coordonnees[cle]}
+        onChange={(e) => setCoordonnees((c) => ({ ...c, [cle]: e.target.value }))}
+        className="mt-1 w-full rounded-none border-0 border-b border-[#9a8d80] bg-transparent px-0 py-1.5 text-sm text-[#2b2320] transition-[border-color,box-shadow] placeholder:text-[#726757] focus:border-[#2b2320] focus:shadow-[0_1px_0_0_#2b2320] focus:outline-none"
+        {...props}
+      />
+    </label>
+  );
+  /** Le devis PDF, et la fenêtre qui demande nom et adresse avant de l'ouvrir. */
   const lienDevis = urlDevis && (
     <div className="mt-3">
-      {/* Facultatif, replié par défaut : remplir son nom ne doit jamais
-          retarder le client qui veut juste voir le prix. */}
-      <details className="group">
-        <summary className="flex cursor-pointer list-none items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.15em] text-[#6f6357] hover:text-[#2b2320]">
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 20 20"
-            className="h-3 w-3 shrink-0 transition-transform group-open:rotate-90"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-          >
-            <path d="M7 4l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          {t.coordonneesTitle}
-        </summary>
-        <p className="mt-2 text-[11px] text-[#6f6357]">{t.coordonneesNote}</p>
-        <div className="mt-3 grid gap-x-6 gap-y-3 sm:grid-cols-2">
-          <label className="block">
-            <span className="block text-[10px] font-medium uppercase tracking-[0.14em] text-[#6f6357]">
-              {t.coordonneesNom}
-            </span>
-            <input
-              value={coordonnees.nom}
-              onChange={(e) => setCoordonnees((c) => ({ ...c, nom: e.target.value }))}
-              maxLength={MAX_TEXTE.name}
-              autoComplete="name"
-              className="mt-1 w-full rounded-none border-0 border-b border-[#9a8d80] bg-transparent px-0 py-1.5 text-sm text-[#2b2320] transition-[border-color,box-shadow] placeholder:text-[#726757] focus:border-[#2b2320] focus:shadow-[0_1px_0_0_#2b2320] focus:outline-none"
-            />
-          </label>
-          <label className="block">
-            <span className="block text-[10px] font-medium uppercase tracking-[0.14em] text-[#6f6357]">
-              {t.coordonneesAdresse}
-            </span>
-            <input
-              value={coordonnees.adresse}
-              onChange={(e) => setCoordonnees((c) => ({ ...c, adresse: e.target.value }))}
-              maxLength={300}
-              autoComplete="street-address"
-              className="mt-1 w-full rounded-none border-0 border-b border-[#9a8d80] bg-transparent px-0 py-1.5 text-sm text-[#2b2320] transition-[border-color,box-shadow] placeholder:text-[#726757] focus:border-[#2b2320] focus:shadow-[0_1px_0_0_#2b2320] focus:outline-none"
-            />
-          </label>
-          <label className="block">
-            <span className="block text-[10px] font-medium uppercase tracking-[0.14em] text-[#6f6357]">
-              {t.coordonneesEmail}
-            </span>
-            <input
-              type="email"
-              value={coordonnees.email}
-              onChange={(e) => setCoordonnees((c) => ({ ...c, email: e.target.value }))}
-              maxLength={MAX_TEXTE.email}
-              pattern={EMAIL_MOTIF}
-              autoComplete="email"
-              className="mt-1 w-full rounded-none border-0 border-b border-[#9a8d80] bg-transparent px-0 py-1.5 text-sm text-[#2b2320] transition-[border-color,box-shadow] placeholder:text-[#726757] focus:border-[#2b2320] focus:shadow-[0_1px_0_0_#2b2320] focus:outline-none"
-            />
-          </label>
-          <label className="block">
-            <span className="block text-[10px] font-medium uppercase tracking-[0.14em] text-[#6f6357]">
-              {t.coordonneesTelephone}
-            </span>
-            <input
-              type="tel"
-              inputMode="tel"
-              value={coordonnees.telephone}
-              onChange={(e) => setCoordonnees((c) => ({ ...c, telephone: e.target.value }))}
-              maxLength={MAX_TEXTE.phone}
-              pattern={TELEPHONE_MOTIF}
-              autoComplete="tel"
-              className="mt-1 w-full rounded-none border-0 border-b border-[#9a8d80] bg-transparent px-0 py-1.5 text-sm text-[#2b2320] transition-[border-color,box-shadow] placeholder:text-[#726757] focus:border-[#2b2320] focus:shadow-[0_1px_0_0_#2b2320] focus:outline-none"
-            />
-          </label>
-        </div>
-      </details>
-      <a
-        href={urlDevis}
-        target="_blank"
-        rel="noopener"
-        className="mt-3 flex w-full items-center justify-center gap-2.5 rounded-full border border-[#2b2320] px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] text-[#2b2320] transition-colors hover:bg-[#2b2320] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
+      <button
+        type="button"
+        onClick={ouvrirDevis}
+        className="flex w-full items-center justify-center gap-2.5 rounded-full border border-[#2b2320] px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] text-[#2b2320] transition-colors hover:bg-[#2b2320] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
       >
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 20 20"
-          className="h-4 w-4"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.3"
-        >
-          <path d="M5 2.5h6.5L15 6v11.5H5z" strokeLinejoin="round" />
-          <path d="M11.5 2.5V6H15M7.5 10h5M7.5 13h5" strokeLinecap="round" />
-        </svg>
+        {devisIcone}
         {orderable ? t.devisPdf : t.estimationPdf}
-      </a>
+      </button>
+      {/* <dialog> natif : Échap et le clic sur le fond referment tout seuls,
+          sans bibliothèque — même choix que le zoom photo de la galerie. */}
+      <dialog
+        ref={devisDialogRef}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) devisDialogRef.current?.close();
+        }}
+        className="m-auto w-[min(26rem,calc(100vw-2rem))] rounded-2xl border border-[#e5ddd3] bg-white p-6 backdrop:bg-[#2b2320]/50"
+      >
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            devisDialogRef.current?.close();
+            if (urlDevis) ouvrirPdf(urlDevis);
+          }}
+        >
+          <p className="text-lg font-medium text-[#2b2320]">{t.coordonneesTitle}</p>
+          <p className="mt-1.5 text-[13px] leading-relaxed text-[#6f6357]">{t.coordonneesNote}</p>
+          <div className="mt-4 grid gap-4">
+            {champCoordonnees(t.coordonneesNom, "nom", {
+              required: true,
+              maxLength: MAX_TEXTE.name,
+              autoComplete: "name",
+              autoFocus: true,
+            })}
+            {champCoordonnees(t.coordonneesAdresse, "adresse", {
+              required: true,
+              maxLength: 300,
+              autoComplete: "street-address",
+            })}
+            {champCoordonnees(t.coordonneesEmail, "email", {
+              type: "email",
+              maxLength: MAX_TEXTE.email,
+              pattern: EMAIL_MOTIF,
+              autoComplete: "email",
+            })}
+            {champCoordonnees(t.coordonneesTelephone, "telephone", {
+              type: "tel",
+              inputMode: "tel",
+              maxLength: MAX_TEXTE.phone,
+              pattern: TELEPHONE_MOTIF,
+              autoComplete: "tel",
+            })}
+          </div>
+          <div className="mt-6 flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => devisDialogRef.current?.close()}
+              className="text-[11px] font-medium uppercase tracking-[0.15em] text-[#6f6357] hover:text-[#2b2320]"
+            >
+              {t.coordonneesAnnuler}
+            </button>
+            <button
+              type="submit"
+              className="btn-verre flex flex-1 items-center justify-center gap-2.5 rounded-full px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white"
+            >
+              {devisIcone}
+              {orderable ? t.devisPdf : t.estimationPdf}
+            </button>
+          </div>
+        </form>
+      </dialog>
     </div>
   );
 
@@ -1487,7 +1523,7 @@ export function ProductOptions({
               <p
                 id={`${idTailles}-erreur`}
                 role="alert"
-                className="mt-2 min-h-4 text-xs leading-snug text-[#2b2320]"
+                className={`mt-2 min-h-4 text-xs leading-snug ${raisonDevisTexte ? "font-medium text-[#9a5b3f]" : "text-[#2b2320]"}`}
               >
                 {raisonDevisTexte ?? ""}
               </p>
@@ -1706,14 +1742,17 @@ export function ProductOptions({
                 >
                   {modeVisite
                     ? t.onQuote
-                    : total !== null
-                      ? prixAffiche(total, locale)
+                    : prixFinal !== null
+                      ? prixAffiche(prixFinal, locale)
                       : bareme
                         ? "— €"
                         : prixDepart !== null
                           ? `${t.from} ${prixAffiche(prixDepart, locale)}`
                           : t.onQuote}
                 </p>
+                {!modeVisite && total !== null && pose.deplacement && (
+                  <p className="text-[11px] text-[#6f6357]">{t.livraisonIncluse}</p>
+                )}
                 {size && !modeVisite && orderable && total !== null && (
                   <p className="truncate text-[11px] text-[#6f6357]">
                     {cotesCourtes(
@@ -1799,7 +1838,7 @@ export function ProductOptions({
               {prixAffiche(prixLot ?? total, locale)} × {quantity}{" "}
               {t.cartTotalLine}{" "}
               <span className="font-medium">
-                {prixAffiche((prixLot ?? total) * quantity, locale)}
+                {prixAffiche(prixFinal ?? (prixLot ?? total) * quantity, locale)}
               </span>
               {lotActif && (
                 <span className="ml-2 rounded-full bg-[#2b2320]/[0.08] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#2b2320]">
@@ -1809,22 +1848,6 @@ export function ProductOptions({
                   )}
                 </span>
               )}
-            </p>
-          )}
-
-          {/* Le prix affiché en grand reste celui de la pièce seule (il se
-              multiplie par la quantité) : la livraison, elle, ne se compte
-              qu'une fois par commande. Sans cette ligne, le client ne voyait
-              le coût réel qu'une fois arrivé au panier. */}
-          {!modeVisite && total !== null && pose.deplacement && (
-            <p className="mt-3 text-center text-sm tabular-nums text-[#5c5140]">
-              {t.totalAvecLivraison}{" "}
-              <span className="font-medium text-[#2a2116]">
-                {prixAffiche(
-                  (prixLot ?? total) * quantity + pose.deplacement.montantCents / 100,
-                  locale,
-                )}
-              </span>
             </p>
           )}
 
@@ -1981,8 +2004,8 @@ export function ProductOptions({
               className="text-lg font-medium leading-tight tabular-nums"
               style={{ color: ACCENT }}
             >
-              {total !== null
-                ? prixAffiche(total, locale)
+              {prixFinal !== null
+                ? prixAffiche(prixFinal, locale)
                 : modeVisite
                   ? t.onQuote
                   : product.releve === "garde-corps-fenetre"
