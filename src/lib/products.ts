@@ -733,11 +733,11 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 860 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1060 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1360 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 1590 },
-      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 1920 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 920 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1130 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1460 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 1700 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 2050 },
     ],
     surMesure: {
       // Forfait de piétement, puis le mètre carré de plateau. Le prix au m²
@@ -748,12 +748,13 @@ export const products: Product[] = [
       // à la dizaine supérieure) — un prix qui n'est pas un multiple de 10
       // laisserait passer une pièce sur mesure plus chère que le catalogue.
       // Tous les prix de cette table ont été baissés de 30 % puis remontés
-      // de 10 % (net ×0,77), divisés par deux, puis relevés de 13 % quand la
-      // livraison est passée au forfait plafonné (voir LIVRAISON_MAX_CENTS).
+      // de 10 % (net ×0,77), divisés par deux, relevés de 13 % quand la
+      // livraison est passée au forfait plafonné (voir LIVRAISON_MAX_CENTS),
+      // puis de 7 % à la demande de Quentin.
       forme: "rect",
       axes: "plan",
-      forfait: 284,
-      parM2: 453,
+      forfait: 304,
+      parM2: 485,
       minMm: 800,
       maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
       maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
@@ -765,12 +766,12 @@ export const products: Product[] = [
         choixMm: PLATEAU_CHOIX,
         // Chaque millimètre d'écart avec 45 mm se paie au mètre carré, en plus
         // ou en moins : un plateau plus fin utilise vraiment moins de bois.
-        parM2ParMm: 9,
+        parM2ParMm: 10,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
       },
     },
-    woods: woods({ pin: -240, hetre: -136, chene: 0, noyer: 310 }),
+    woods: woods({ pin: -257, hetre: -146, chene: 0, noyer: 332 }),
     metals: pieds(),
     // La table chez quelqu'un : la photo d'ambiance du bloc descriptif.
     photosDescriptif: [
@@ -894,11 +895,11 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 820 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1030 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1330 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 1570 },
-      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 1890 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 880 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1100 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1420 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 1680 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 2020 },
     ],
     surMesure: {
       // Forfait de piétement, puis le mètre carré de plateau. Le prix au m²
@@ -906,12 +907,13 @@ export const products: Product[] = [
       // le prix d'une table du catalogue plus petite. Les prix du catalogue
       // doivent rester des multiples de 10 € (voir table-mikado).
       // Tous les prix de cette table ont été baissés de 30 % puis remontés
-      // de 10 % (net ×0,77), divisés par deux, puis relevés de 13 % quand la
-      // livraison est passée au forfait plafonné (voir LIVRAISON_MAX_CENTS).
+      // de 10 % (net ×0,77), divisés par deux, relevés de 13 % quand la
+      // livraison est passée au forfait plafonné (voir LIVRAISON_MAX_CENTS),
+      // puis de 7 % à la demande de Quentin.
       forme: "rect",
       axes: "plan",
-      forfait: 253,
-      parM2: 453,
+      forfait: 271,
+      parM2: 485,
       minMm: 800,
       maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
       maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
@@ -923,12 +925,12 @@ export const products: Product[] = [
         choixMm: PLATEAU_CHOIX,
         // Chaque millimètre d'écart avec 45 mm se paie au mètre carré, en plus
         // ou en moins : un plateau plus fin utilise vraiment moins de bois.
-        parM2ParMm: 9,
+        parM2ParMm: 10,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
       },
     },
-    woods: woods({ pin: -240, hetre: -136, chene: 0, noyer: 310 }),
+    woods: woods({ pin: -257, hetre: -146, chene: 0, noyer: 332 }),
     metals: pieds(),
     sections: [
       {
@@ -1017,11 +1019,11 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 850 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1050 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1340 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 1580 },
-      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 1910 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 910 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1120 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1430 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 1690 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 2040 },
     ],
     surMesure: {
       // Forfait de piétement, puis le mètre carré de plateau. Le prix au m²
@@ -1031,12 +1033,13 @@ export const products: Product[] = [
       // forfait, quelle que soit la taille du plateau. Les prix du catalogue
       // doivent rester des multiples de 10 € (voir table-mikado).
       // Tous les prix de cette table ont été baissés de 30 % puis remontés
-      // de 10 % (net ×0,77), divisés par deux, puis relevés de 13 % quand la
-      // livraison est passée au forfait plafonné (voir LIVRAISON_MAX_CENTS).
+      // de 10 % (net ×0,77), divisés par deux, relevés de 13 % quand la
+      // livraison est passée au forfait plafonné (voir LIVRAISON_MAX_CENTS),
+      // puis de 7 % à la demande de Quentin.
       forme: "rect",
       axes: "plan",
-      forfait: 266,
-      parM2: 453,
+      forfait: 285,
+      parM2: 485,
       minMm: 800,
       maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
       maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
@@ -1048,12 +1051,12 @@ export const products: Product[] = [
         choixMm: PLATEAU_CHOIX,
         // Chaque millimètre d'écart avec 45 mm se paie au mètre carré, en plus
         // ou en moins : un plateau plus fin utilise vraiment moins de bois.
-        parM2ParMm: 9,
+        parM2ParMm: 10,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
       },
     },
-    woods: woods({ pin: -240, hetre: -136, chene: 0, noyer: 310 }),
+    woods: woods({ pin: -257, hetre: -146, chene: 0, noyer: 332 }),
     metals: pieds(),
     sections: [
       {
@@ -1524,23 +1527,23 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 240 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 280 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 360 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 430 },
-      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 510 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 260 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 300 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 390 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 460 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 550 },
     ],
     surMesure: {
       // Le même piétement que la table d'intérieur, mais un plateau à lattes.
       // Échelle de Quentin (200 × 100, 8 places, 45 mm à 650 €), baissée de
       // 30 % puis remontée de 10 % (net ×0,77), divisée par deux, puis
-      // relevée de 13 % (livraison au forfait). Les prix du catalogue restent des multiples de
+      // relevée de 13 % (livraison au forfait) puis de 7 %. Les prix du catalogue restent des multiples de
       // 10 € : c'est ce qui leur sert de plafond exact pour le sur-mesure
       // (voir table-mikado).
       forme: "rect",
       axes: "plan",
-      forfait: 66,
-      parM2: 122,
+      forfait: 74,
+      parM2: 131,
       minMm: 800,
       maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
       maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
