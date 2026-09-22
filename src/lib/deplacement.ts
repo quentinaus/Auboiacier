@@ -112,19 +112,20 @@ export function tarifDeplacement(distanceKm: number): Omit<Deplacement, "commune
  *  La pose à domicile
  *  L'atelier livre et installe lui-même, sur un seul trajet : la livraison
  *  et la pose se paient ensemble, une fois. Le compte est celui de Quentin :
- *  une heure sur place à 50 € pour poser la table (déballage, montage, mise
- *  à niveau), et les heures de route, aller-retour, à 35 € — carburant et
+ *  une heure sur place à 56 € pour poser la table (déballage, montage, mise
+ *  à niveau), et les heures de route, aller-retour, à 39,20 € — carburant et
  *  usure du véhicule compris dans ce taux-là, il n'y a pas de prix au
- *  kilomètre en plus. Pas d'offre à 19,99 € ici : c'est un service, pas un
+ *  kilomètre en plus. (Les deux taux, d'abord posés à 50 € et 35 €, ont été
+ *  relevés de 12 % à la demande de Quentin.) Pas d'offre à 19,99 € ici : c'est un service, pas un
  *  rendez-vous d'avant-vente.
  * ------------------------------------------------------------------ */
 
 /** Le temps compté chez le client pour poser une table. */
 const HEURES_POSE = 1;
 /** L'heure de pose, main-d'œuvre d'atelier. */
-const EURO_HEURE_POSE = 50;
+const EURO_HEURE_POSE = 56;
 /** L'heure de route : le temps de conduite, carburant et usure compris. */
-const EURO_HEURE_ROUTE = 35;
+const EURO_HEURE_ROUTE = 39.2;
 /** Main-d'œuvre sur place, forfait — l'heure de pose. */
 export const FORFAIT_POSE_CENTS = HEURES_POSE * EURO_HEURE_POSE * 100;
 /**
