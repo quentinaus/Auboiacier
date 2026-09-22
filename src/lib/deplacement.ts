@@ -180,6 +180,17 @@ const LIVRAISON_PAR_KM = 0.04;
 const LIVRAISON_LONGUEUR_HORS_GABARIT_MM = 2000;
 const LIVRAISON_POIDS_HORS_GABARIT_KG = 30;
 const LIVRAISON_SUPPLEMENT_HORS_GABARIT_CENTS = 9000;
+/**
+ * Le plafond : quoi qu'il arrive, la livraison est annoncée 90 € au maximum,
+ * partout en France métropolitaine. Le calcul ci-dessus donne le coût réel
+ * d'une palette hors gabarit (jusqu'à 250 € pour une table de 2,50 m en
+ * chêne) — un chiffre qu'aucun client n'accepte à côté du prix d'une table,
+ * et que les concurrents ne montrent pas : ils le noient dans le prix du
+ * meuble. C'est le choix fait ici aussi (prix des tables relevés en
+ * conséquence). Une pièce légère, elle, reste sous le plafond et se paie
+ * toujours à son vrai prix.
+ */
+export const LIVRAISON_MAX_CENTS = 9000;
 
 /** Le poids du colis vient du catalogue (poidsColisKg, dans products.ts) : ici on ne fait que le facturer. */
 export function tarifLivraison(distanceKm: number, kg: number, plusGrandeCoteMm = 0): Omit<Deplacement, "commune" | "precision"> {
@@ -192,7 +203,7 @@ export function tarifLivraison(distanceKm: number, kg: number, plusGrandeCoteMm 
       (horsGabarit ? LIVRAISON_SUPPLEMENT_HORS_GABARIT_CENTS / 100 : 0)
   );
   return {
-    montantCents: euros * 100,
+    montantCents: Math.min(LIVRAISON_MAX_CENTS, euros * 100),
     distanceKm: Math.round(distanceKm),
     routeAllerRetourKm: Math.round(route * 2),
     heures: 0,

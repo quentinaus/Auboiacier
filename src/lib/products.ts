@@ -733,11 +733,11 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 760 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 940 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1200 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 1410 },
-      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 1700 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 860 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1060 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1360 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 1590 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 1920 },
     ],
     surMesure: {
       // Forfait de piétement, puis le mètre carré de plateau. Le prix au m²
@@ -748,11 +748,12 @@ export const products: Product[] = [
       // à la dizaine supérieure) — un prix qui n'est pas un multiple de 10
       // laisserait passer une pièce sur mesure plus chère que le catalogue.
       // Tous les prix de cette table ont été baissés de 30 % puis remontés
-      // de 10 % (net ×0,77), puis divisés par deux, à la demande de Quentin.
+      // de 10 % (net ×0,77), divisés par deux, puis relevés de 13 % quand la
+      // livraison est passée au forfait plafonné (voir LIVRAISON_MAX_CENTS).
       forme: "rect",
       axes: "plan",
-      forfait: 251,
-      parM2: 401,
+      forfait: 284,
+      parM2: 453,
       minMm: 800,
       maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
       maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
@@ -764,12 +765,12 @@ export const products: Product[] = [
         choixMm: PLATEAU_CHOIX,
         // Chaque millimètre d'écart avec 45 mm se paie au mètre carré, en plus
         // ou en moins : un plateau plus fin utilise vraiment moins de bois.
-        parM2ParMm: 8,
+        parM2ParMm: 9,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
       },
     },
-    woods: woods({ pin: -212, hetre: -120, chene: 0, noyer: 274 }),
+    woods: woods({ pin: -240, hetre: -136, chene: 0, noyer: 310 }),
     metals: pieds(),
     // La table chez quelqu'un : la photo d'ambiance du bloc descriptif.
     photosDescriptif: [
@@ -794,7 +795,7 @@ export const products: Product[] = [
       { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, finition peinte mate" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "Partout en France, par transporteur, prix selon votre ville ; ou livrée et posée par l'atelier" },
+      { label: "Livraison", value: "Partout en France, par transporteur, 90 € au maximum ; ou livrée et posée par l'atelier" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -832,7 +833,7 @@ export const products: Product[] = [
         { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, matt painted finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
-        { label: "Delivery", value: "Anywhere in mainland France by carrier, priced by town; or delivered and fitted by the workshop" },
+        { label: "Delivery", value: "Anywhere in mainland France by carrier, €90 at most; or delivered and fitted by the workshop" },
       ],
     },
   },
@@ -893,11 +894,11 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 730 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 910 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1180 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 1390 },
-      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 1670 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 820 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1030 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1330 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 1570 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 1890 },
     ],
     surMesure: {
       // Forfait de piétement, puis le mètre carré de plateau. Le prix au m²
@@ -905,11 +906,12 @@ export const products: Product[] = [
       // le prix d'une table du catalogue plus petite. Les prix du catalogue
       // doivent rester des multiples de 10 € (voir table-mikado).
       // Tous les prix de cette table ont été baissés de 30 % puis remontés
-      // de 10 % (net ×0,77), puis divisés par deux, à la demande de Quentin.
+      // de 10 % (net ×0,77), divisés par deux, puis relevés de 13 % quand la
+      // livraison est passée au forfait plafonné (voir LIVRAISON_MAX_CENTS).
       forme: "rect",
       axes: "plan",
-      forfait: 224,
-      parM2: 401,
+      forfait: 253,
+      parM2: 453,
       minMm: 800,
       maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
       maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
@@ -921,12 +923,12 @@ export const products: Product[] = [
         choixMm: PLATEAU_CHOIX,
         // Chaque millimètre d'écart avec 45 mm se paie au mètre carré, en plus
         // ou en moins : un plateau plus fin utilise vraiment moins de bois.
-        parM2ParMm: 8,
+        parM2ParMm: 9,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
       },
     },
-    woods: woods({ pin: -212, hetre: -120, chene: 0, noyer: 274 }),
+    woods: woods({ pin: -240, hetre: -136, chene: 0, noyer: 310 }),
     metals: pieds(),
     sections: [
       {
@@ -947,7 +949,7 @@ export const products: Product[] = [
       { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, finition peinte mate" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "Partout en France, par transporteur, prix selon votre ville ; ou livrée et posée par l'atelier" },
+      { label: "Livraison", value: "Partout en France, par transporteur, 90 € au maximum ; ou livrée et posée par l'atelier" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -986,7 +988,7 @@ export const products: Product[] = [
         { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, matt painted finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
-        { label: "Delivery", value: "Anywhere in mainland France by carrier, priced by town; or delivered and fitted by the workshop" },
+        { label: "Delivery", value: "Anywhere in mainland France by carrier, €90 at most; or delivered and fitted by the workshop" },
       ],
     },
   },
@@ -1015,11 +1017,11 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 750 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 930 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1190 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 1400 },
-      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 1690 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 850 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1050 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1340 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 1580 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 1910 },
     ],
     surMesure: {
       // Forfait de piétement, puis le mètre carré de plateau. Le prix au m²
@@ -1029,11 +1031,12 @@ export const products: Product[] = [
       // forfait, quelle que soit la taille du plateau. Les prix du catalogue
       // doivent rester des multiples de 10 € (voir table-mikado).
       // Tous les prix de cette table ont été baissés de 30 % puis remontés
-      // de 10 % (net ×0,77), puis divisés par deux, à la demande de Quentin.
+      // de 10 % (net ×0,77), divisés par deux, puis relevés de 13 % quand la
+      // livraison est passée au forfait plafonné (voir LIVRAISON_MAX_CENTS).
       forme: "rect",
       axes: "plan",
-      forfait: 235,
-      parM2: 401,
+      forfait: 266,
+      parM2: 453,
       minMm: 800,
       maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
       maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
@@ -1045,12 +1048,12 @@ export const products: Product[] = [
         choixMm: PLATEAU_CHOIX,
         // Chaque millimètre d'écart avec 45 mm se paie au mètre carré, en plus
         // ou en moins : un plateau plus fin utilise vraiment moins de bois.
-        parM2ParMm: 8,
+        parM2ParMm: 9,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
       },
     },
-    woods: woods({ pin: -212, hetre: -120, chene: 0, noyer: 274 }),
+    woods: woods({ pin: -240, hetre: -136, chene: 0, noyer: 310 }),
     metals: pieds(),
     sections: [
       {
@@ -1071,7 +1074,7 @@ export const products: Product[] = [
       { label: "Piétement", value: "Tiges d'acier soudées une à une, finition peinte mate" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "Partout en France, par transporteur, prix selon votre ville ; ou livrée et posée par l'atelier" },
+      { label: "Livraison", value: "Partout en France, par transporteur, 90 € au maximum ; ou livrée et posée par l'atelier" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -1108,7 +1111,7 @@ export const products: Product[] = [
         { label: "Base", value: "Steel rods welded one by one, matt painted finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
-        { label: "Delivery", value: "Anywhere in mainland France by carrier, priced by town; or delivered and fitted by the workshop" },
+        { label: "Delivery", value: "Anywhere in mainland France by carrier, €90 at most; or delivered and fitted by the workshop" },
       ],
     },
   },
@@ -1409,7 +1412,7 @@ export const products: Product[] = [
     poseOption: true,
     livraisonSeule: true,
     livraisonInfo: {
-      fr: "Prix selon votre ville, le poids et les dimensions. Le dossier et les pieds sont livrés démontés, avec la visserie, la clé de montage et la notice.",
+      fr: "Partout en France métropolitaine, 90 € au maximum. Le dossier et les pieds sont livrés démontés, avec la visserie, la clé de montage et la notice.",
       en: "Price depends on your city, the weight and the dimensions. The backrest and legs are delivered unassembled, with the hardware, the allen key and the instructions.",
     },
     colisKg: 9,
@@ -1521,23 +1524,23 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 210 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 250 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 320 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 380 },
-      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 450 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 240 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 280 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 360 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 430 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 510 },
     ],
     surMesure: {
       // Le même piétement que la table d'intérieur, mais un plateau à lattes.
       // Échelle de Quentin (200 × 100, 8 places, 45 mm à 650 €), baissée de
-      // 30 % puis remontée de 10 % (net ×0,77), puis divisée par deux à la
-      // demande de Quentin. Les prix du catalogue restent des multiples de
+      // 30 % puis remontée de 10 % (net ×0,77), divisée par deux, puis
+      // relevée de 13 % (livraison au forfait). Les prix du catalogue restent des multiples de
       // 10 € : c'est ce qui leur sert de plafond exact pour le sur-mesure
       // (voir table-mikado).
       forme: "rect",
       axes: "plan",
-      forfait: 58,
-      parM2: 108,
+      forfait: 66,
+      parM2: 122,
       minMm: 800,
       maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
       maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
@@ -1547,7 +1550,7 @@ export const products: Product[] = [
         maxMm: 45,
         refMm: 45,
         choixMm: PLATEAU_CHOIX,
-        parM2ParMm: 5,
+        parM2ParMm: 6,
         miniParLongueur: PLATEAU_MASSIF,
       },
     },
@@ -1569,7 +1572,7 @@ export const products: Product[] = [
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Entretien", value: "Une huile par an ; laisser griser si l'on préfère la patine" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "Partout en France, par transporteur, prix selon votre ville ; ou livrée et posée par l'atelier" },
+      { label: "Livraison", value: "Partout en France, par transporteur, 90 € au maximum ; ou livrée et posée par l'atelier" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -1605,7 +1608,7 @@ export const products: Product[] = [
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Care", value: "One coat of oil a year; leave it to silver if you prefer the patina" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
-        { label: "Delivery", value: "Anywhere in mainland France by carrier, priced by town; or delivered and fitted by the workshop" },
+        { label: "Delivery", value: "Anywhere in mainland France by carrier, €90 at most; or delivered and fitted by the workshop" },
       ],
     },
   },
