@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { InfoBulle } from "./info-bulle";
@@ -123,6 +124,7 @@ export function ReleveGardeCorps({
   lienDevis,
   norme,
   rosaceMm,
+  schemaSlot,
 }: {
   cotes: CotesGardeCorps;
   onChange: (cotes: CotesGardeCorps) => void;
@@ -137,6 +139,12 @@ export function ReleveGardeCorps({
   lienDevis?: string;
   /** Le diamètre de la rosace choisie, en millimètres, pour le croquis. */
   rosaceMm?: number;
+  /**
+   * L'emplacement du croquis, hors de la carte du configurateur : à côté
+   * d'elle, en grand (voir schemaSlot dans product-view.tsx). Sans lui, le
+   * croquis reste à sa place, au-dessus des cases.
+   */
+  schemaSlot?: HTMLDivElement | null;
   /** La norme sur le remplissage : les croix jusqu'à une hauteur, le verre au-delà. */
   norme?: {
     nonConforme: boolean;
@@ -207,7 +215,15 @@ export function ReleveGardeCorps({
   );
 
   return (
-    <div className="@container mt-4 scroll-mt-28 border-t border-[#e5ddd3] pt-5" id="cotes">
+    <div
+      /* Premier bloc de la carte du configurateur (schemaSlot) : pas de filet au-dessus. */
+      className={
+        schemaSlot
+          ? "@container scroll-mt-28"
+          : "@container mt-4 scroll-mt-28 border-t border-[#e5ddd3] pt-5"
+      }
+      id="cotes"
+    >
       <span className="block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]" id={idTitre}>
         {t.gcTitle}
       </span>
@@ -232,7 +248,8 @@ export function ReleveGardeCorps({
           explique, les bulles « i » précisent. */}
       {cotes.qui === "moi" && (
         <>
-          <div className="relative mx-auto mt-4 aspect-[4/5] w-full max-w-[400px] overflow-hidden rounded-xl">
+          {(() => {
+          const croquis = (
             <SchemaFenetre
               className="absolute inset-0 h-full w-full"
               largeurMm={Number.isFinite(mm(cotes.largeur)) && mm(cotes.largeur) > 0 ? mm(cotes.largeur) : undefined}
@@ -259,7 +276,20 @@ export function ReleveGardeCorps({
                 jour: t.gcSchemaJour,
               }}
             />
-          </div>
+          );
+          /* Dans la section « Configuration », le croquis va à côté de la
+             carte, en grand ; sinon il reste ici, au-dessus des cases. */
+          return schemaSlot
+            ? createPortal(
+                <div className="relative mx-auto aspect-[4/5] max-h-[34svh] w-auto max-w-[320px] overflow-hidden rounded-xl md:max-h-none md:w-full md:max-w-[420px]">
+                  {croquis}
+                </div>,
+                schemaSlot
+              )
+            : (
+              <div className="relative mx-auto mt-4 aspect-[4/5] w-full max-w-[400px] overflow-hidden rounded-xl">{croquis}</div>
+            );
+          })()}
           <p className="mt-2.5 text-xs leading-snug text-[#6f6357]">{t.gcConsigne}</p>
 
           <div className="mt-1 divide-y divide-[#e5ddd3]">

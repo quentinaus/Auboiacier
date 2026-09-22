@@ -52,11 +52,12 @@ const GROUP_LABEL =
 /**
  * Le configurateur en pleine page, sous la photo : une carte avec tous les
  * choix à gauche, le grand croquis coté à droite (voir product-view.tsx).
- * Les tables d'intérieur d'abord, le temps que Quentin valide, avant de
- * l'étendre aux garde-corps, à l'escalier et aux tables d'extérieur.
+ * Toute pièce qui se fabrique aux cotes du client y passe : les tables, le
+ * garde-corps de fenêtre (son croquis à lui, voir ReleveGardeCorps) et les
+ * plafonds lumineux. Les pièces à taille fixe gardent la colonne classique.
  */
 export function aLeConfigurateurPleinePage(product: Product): boolean {
-  return product.surMesure?.axes === "plan" && product.category === "interieur";
+  return Boolean(product.surMesure);
 }
 
 function formatDelta(delta: number, locale: "fr" | "en") {
@@ -553,11 +554,7 @@ export function ProductOptions({
   const plan = bareme?.axes === "plan";
   /** Une table : un plateau de bois, avec sa hauteur finie. Un plafond lumineux se mesure à plat aussi, mais n'en est pas une. */
   const table = plan && product.category !== "lumiere";
-  /**
-   * Le configurateur en pleine page (carte à gauche, grand croquis à droite,
-   * curseurs) : voir `aLeConfigurateurPleinePage`. Les tables d'intérieur
-   * d'abord, le temps que Quentin valide avant de l'étendre au reste.
-   */
+  /** Le configurateur en pleine page : voir `aLeConfigurateurPleinePage`. */
   const nouvelleMiseEnPage = aLeConfigurateurPleinePage(product);
   /** Une table se mesure en longueur × largeur, un panneau en largeur × hauteur. */
   const labelPrincipale = rond
@@ -1360,7 +1357,8 @@ export function ProductOptions({
           <SchemaCotes
             forme={bareme.forme}
             locale={locale}
-            matiere="bois"
+            /* Un plateau de bois, ou la toile tendue d'un caisson lumineux. */
+            matiere={table ? "bois" : "lumiere"}
             essence={woodId}
             actif={coteActive}
             onChoisir={allerA}
@@ -1951,6 +1949,7 @@ export function ProductOptions({
       {product.releve === "garde-corps-fenetre" && (
         <div ref={releveRef}>
           <ReleveGardeCorps
+            schemaSlot={nouvelleMiseEnPage ? schemaSlot : undefined}
             cotes={cotesGardeCorps}
             onChange={setCotesGardeCorps}
             t={t}
@@ -1982,43 +1981,45 @@ export function ProductOptions({
         </div>
       )}
 
-      {product.poseOption &&
-        orderable &&
-        !modeVisite &&
-        (() => {
-          const livraison = (
-            <PoseDomicile
-              choix={pose}
-              onChange={setPose}
-              compact={nouvelleMiseEnPage}
-              demontee={Boolean(product.boisAuM2)}
-              livraisonSeule={Boolean(product.livraisonSeule)}
-              infoSeul={product.livraisonInfo?.[locale]}
-              colis={{
-                slug: product.slug,
-                largeurMm: cotesEff?.largeurMm ?? size?.dimsMm?.[0],
-                hauteurMm: cotesEff?.hauteurMm ?? size?.dimsMm?.[1],
-                epaisseurMm: cotesEff?.epaisseurMm,
-                woodId: woodId || undefined,
-                remplissageId: remplissageId || undefined,
-                quantity,
-              }}
-              t={t}
-              locale={locale}
-            />
-          );
-          if (!nouvelleMiseEnPage) return livraison;
-          /* La carte du configurateur : trois sous-menus repliables, pour que
-             tout tienne dans le pop-up sans le faire déborder de l'écran —
-             la livraison, le poids et les détails, ce que comprend le prix. */
-          const resumeLivraison = pose.deplacement
-            ? `${pose.voulue ? t.poseCourt : t.livraisonCourt} · ${prixAffiche(pose.deplacement.montantCents / 100, locale)}`
-            : t.livraisonAChoisir;
-          const resumeDetails = `≈ ${poidsKg} kg`;
-          return (
-            <div className="mt-2">
-              <SousMenu
-                id="sous-menu-livraison"
+      {(() => {
+        /* La livraison et la pose : seulement pour une pièce que l'atelier
+           livre lui-même (une table). Un garde-corps part avec ses fixations,
+           un plafond lumineux dans son tube : rien à choisir ici. */
+        const livrable = product.poseOption && orderable && !modeVisite;
+        const livraison = livrable ? (
+              <PoseDomicile
+                choix={pose}
+                onChange={setPose}
+                compact={nouvelleMiseEnPage}
+                demontee={Boolean(product.boisAuM2)}
+                livraisonSeule={Boolean(product.livraisonSeule)}
+                infoSeul={product.livraisonInfo?.[locale]}
+                colis={{
+                  slug: product.slug,
+                  largeurMm: cotesEff?.largeurMm ?? size?.dimsMm?.[0],
+                  hauteurMm: cotesEff?.hauteurMm ?? size?.dimsMm?.[1],
+                  epaisseurMm: cotesEff?.epaisseurMm,
+                  woodId: woodId || undefined,
+                  remplissageId: remplissageId || undefined,
+                  quantity,
+                }}
+                t={t}
+                locale={locale}
+              />
+        ) : null;
+        if (!nouvelleMiseEnPage) return livraison;
+        /* La carte du configurateur : des sous-menus repliables, pour que
+           tout tienne dans la carte sans la faire déborder de l'écran — la
+           livraison, le poids et les détails, ce que comprend le prix. */
+        const resumeLivraison = pose.deplacement
+          ? `${pose.voulue ? t.poseCourt : t.livraisonCourt} · ${prixAffiche(pose.deplacement.montantCents / 100, locale)}`
+          : t.livraisonAChoisir;
+        const resumeDetails = `≈ ${poidsKg} kg`;
+        return (
+          <div className="mt-2">
+            {livraison && (
+                <SousMenu
+                  id="sous-menu-livraison"
                 titre={product.livraisonSeule ? t.livraisonTitle : t.poseTitle}
                 resume={resumeLivraison}
                 ouvert={Boolean(menusOuverts.livraison)}
@@ -2026,40 +2027,41 @@ export function ProductOptions({
               >
                 {livraison}
               </SousMenu>
-              <SousMenu
-                titre={t.sousMenuDetails}
-                resume={resumeDetails}
-                ouvert={Boolean(menusOuverts.details)}
-                onToggle={(o) => ouvrirMenu("details", o)}
-              >
-                <dl className="grid gap-1.5 text-xs leading-snug text-[#5c5140]">
-                  {(
-                    [
-                      [t.detailDimensions, cotesEff ? `${enUnite(cotesEff.largeurMm)} × ${enUnite(cotesEff.hauteurMm)} × ${cotesEff.epaisseurMm} mm` : size?.label ? cotesCourtes(size.label) : "—"],
-                      [t.detailSurface, devis?.ok ? surfaceAffichee(devis.surface, locale) : "—"],
-                      [t.customTableHeight, enUnite(hauteurTableMm)],
-                      [t.detailMatieres, [wood?.label, metal?.label].filter(Boolean).join(" · ") || "—"],
-                      [t.poidsEstime, `≈ ${poidsKg} kg${quantity > 1 ? ` × ${quantity}` : ""}`],
-                      [t.delaiTitle, delai ?? "—"],
-                    ] as [string, string][]
-                  ).map(([intitule, valeur]) => (
-                    <div key={intitule} className="flex items-baseline justify-between gap-3">
-                      <dt className="shrink-0 text-[#6f6357]">{intitule}</dt>
-                      <dd className="text-right tabular-nums text-[#2b2320]">{valeur}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </SousMenu>
-              <SousMenu
-                titre={t.sousMenuInclus}
-                ouvert={Boolean(menusOuverts.inclus)}
-                onToggle={(o) => ouvrirMenu("inclus", o)}
-              >
-                {listeInclus}
-              </SousMenu>
-            </div>
-          );
-        })()}
+            )}
+            <SousMenu
+              titre={t.sousMenuDetails}
+              resume={resumeDetails}
+              ouvert={Boolean(menusOuverts.details)}
+              onToggle={(o) => ouvrirMenu("details", o)}
+            >
+              <dl className="grid gap-1.5 text-xs leading-snug text-[#5c5140]">
+                {(
+                  [
+                    [t.detailDimensions, cotesEff ? `${enUnite(cotesEff.largeurMm)} × ${enUnite(cotesEff.hauteurMm)} × ${cotesEff.epaisseurMm} mm` : size?.label ? cotesCourtes(size.label) : "—"],
+                    [t.detailSurface, devis?.ok ? surfaceAffichee(devis.surface, locale) : "—"],
+                    [t.customTableHeight, enUnite(hauteurTableMm)],
+                    [t.detailMatieres, [wood?.label, metal?.label].filter(Boolean).join(" · ") || "—"],
+                    [t.poidsEstime, `≈ ${poidsKg} kg${quantity > 1 ? ` × ${quantity}` : ""}`],
+                    [t.delaiTitle, delai ?? "—"],
+                  ] as [string, string][]
+                ).map(([intitule, valeur]) => (
+                  <div key={intitule} className="flex items-baseline justify-between gap-3">
+                    <dt className="shrink-0 text-[#6f6357]">{intitule}</dt>
+                    <dd className="text-right tabular-nums text-[#2b2320]">{valeur}</dd>
+                  </div>
+                ))}
+              </dl>
+            </SousMenu>
+            <SousMenu
+              titre={t.sousMenuInclus}
+              ouvert={Boolean(menusOuverts.inclus)}
+              onToggle={(o) => ouvrirMenu("inclus", o)}
+            >
+              {listeInclus}
+            </SousMenu>
+          </div>
+        );
+      })()}
 
       {orderable || modeVisite ? (
         /* La barre d'achat reste au bas de la colonne pendant qu'on choisit :
