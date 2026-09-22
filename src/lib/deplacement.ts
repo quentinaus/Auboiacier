@@ -129,6 +129,13 @@ const EURO_HEURE_ROUTE = 39.2;
 /** Main-d'œuvre sur place, forfait — l'heure de pose. */
 export const FORFAIT_POSE_CENTS = HEURES_POSE * EURO_HEURE_POSE * 100;
 /**
+ * Le plancher : l'atelier ne se déplace pas pour moins de 100 €, même à deux
+ * pas. Sortir le camion, charger, sangler, décharger et remonter la table
+ * coûte une demi-journée, quelle que soit la distance. Au-delà d'environ
+ * 27 km, le barème (heure de pose + heures de route) passe tout seul devant.
+ */
+export const POSE_MIN_CENTS = 10000;
+/**
  * Le plafond, forfait compris : à l'autre bout de la France, les heures de
  * route dépassent 800 €. Quentin ne veut pas facturer plus — il groupe alors
  * le trajet avec d'autres livraisons.
@@ -140,7 +147,7 @@ export function tarifPose(distanceKm: number): Omit<Deplacement, "commune" | "pr
   const heuresRoute = route / VITESSE_KMH;
   const euros = HEURES_POSE * EURO_HEURE_POSE + Math.ceil(heuresRoute * EURO_HEURE_ROUTE);
   return {
-    montantCents: Math.min(POSE_MAX_CENTS, euros * 100),
+    montantCents: Math.min(POSE_MAX_CENTS, Math.max(POSE_MIN_CENTS, euros * 100)),
     distanceKm: Math.round(distanceKm),
     routeAllerRetourKm: Math.round(route),
     heures: Math.round((heuresRoute + HEURES_POSE) * 10) / 10,
