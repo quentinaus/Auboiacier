@@ -449,13 +449,13 @@ test("un plateau de table ne se coupe qu'aux épaisseurs de l'atelier", () => {
   }
 });
 
-test("un plateau plus fin que la référence ne fait pas baisser la facture", () => {
-  // Même piétement, mêmes usinages, même finition : un plateau plus fin ne
-  // coûte pas moins cher à fabriquer, et une remise ferait passer une grande
-  // table sur mesure sous le prix d'une plus petite du catalogue.
+test("un plateau plus fin que la référence coûte moins cher", () => {
+  // Un plateau plus fin utilise vraiment moins de bois : la facture baisse,
+  // sans jamais tomber à zéro ni sous le prix d'une plus petite pièce.
   for (const product of surMesurables) {
     const bareme = product.surMesure!;
-    const { refMm } = bareme.epaisseur;
+    const { refMm, parM2ParMm } = bareme.epaisseur;
+    if (!parM2ParMm) continue; // Cette pièce ne facture pas l'épaisseur.
     const { largeurMm, hauteurMm } = cotesHorsCatalogue(bareme, 0.5);
     const mini = epaisseurMiniMm(bareme, Math.max(largeurMm, hauteurMm));
     if (mini >= refMm) continue; // Aucune épaisseur sous la référence ici.
@@ -470,10 +470,9 @@ test("un plateau plus fin que la référence ne fait pas baisser la facture", ()
     for (const epaisseur of plusFines) {
       const plusFin = devisSurMesure(product, largeurMm, hauteurMm, epaisseur);
       assert.ok(plusFin.ok, `${product.slug} : ${epaisseur} mm refusé`);
-      assert.equal(
-        plusFin.prix,
-        reference.prix,
-        `${product.slug} : un plateau de ${epaisseur} mm est facturé moins cher que ${refMm} mm`
+      assert.ok(
+        plusFin.prix < reference.prix,
+        `${product.slug} : un plateau de ${epaisseur} mm n'est pas moins cher que ${refMm} mm (${plusFin.prix} € vs ${reference.prix} €)`
       );
       assert.ok(Number.isInteger(plusFin.prix) && plusFin.prix > 0);
     }
