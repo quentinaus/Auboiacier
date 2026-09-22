@@ -111,30 +111,35 @@ export function tarifDeplacement(distanceKm: number): Omit<Deplacement, "commune
 /* ------------------------------------------------------------------ *
  *  La pose à domicile
  *  L'atelier livre et installe lui-même, sur un seul trajet : la livraison
- *  et la pose se paient ensemble, une fois. Le prix : un forfait de
- *  main-d'œuvre sur place (déballage, montage, mise à niveau), plus la route
- *  aller-retour et le temps de trajet, au même taux que la prise de cotes.
- *  Pas d'offre à 19,99 € ici : c'est un service, pas un rendez-vous d'avant-
- *  vente. Les chiffres restent à valider par Quentin.
+ *  et la pose se paient ensemble, une fois. Le compte est celui de Quentin :
+ *  une heure sur place à 50 € pour poser la table (déballage, montage, mise
+ *  à niveau), et les heures de route, aller-retour, à 35 € — carburant et
+ *  usure du véhicule compris dans ce taux-là, il n'y a pas de prix au
+ *  kilomètre en plus. Pas d'offre à 19,99 € ici : c'est un service, pas un
+ *  rendez-vous d'avant-vente.
  * ------------------------------------------------------------------ */
 
-/** Main-d'œuvre sur place, forfait. */
-export const FORFAIT_POSE_CENTS = 9000;
 /** Le temps compté chez le client pour poser une table. */
-const HEURES_POSE = 1.5;
+const HEURES_POSE = 1;
+/** L'heure de pose, main-d'œuvre d'atelier. */
+const EURO_HEURE_POSE = 50;
+/** L'heure de route : le temps de conduite, carburant et usure compris. */
+const EURO_HEURE_ROUTE = 35;
+/** Main-d'œuvre sur place, forfait — l'heure de pose. */
+export const FORFAIT_POSE_CENTS = HEURES_POSE * EURO_HEURE_POSE * 100;
 /**
- * Le plafond, forfait compris : au-delà d'environ 300 km, la route et les
- * heures dépassaient 1 400 € pour Chambéry. Quentin ne veut pas facturer
- * plus de 800 € un long trajet — il le groupe avec d'autres livraisons.
+ * Le plafond, forfait compris : à l'autre bout de la France, les heures de
+ * route dépassent 800 €. Quentin ne veut pas facturer plus — il groupe alors
+ * le trajet avec d'autres livraisons.
  */
 export const POSE_MAX_CENTS = 80000;
 
 export function tarifPose(distanceKm: number): Omit<Deplacement, "commune" | "precision"> {
   const route = distanceKm * COEF_ROUTE * 2;
   const heuresRoute = route / VITESSE_KMH;
-  const euros = Math.ceil(route * EURO_PAR_KM + heuresRoute * TAUX_HORAIRE_DEPLACEMENT);
+  const euros = HEURES_POSE * EURO_HEURE_POSE + Math.ceil(heuresRoute * EURO_HEURE_ROUTE);
   return {
-    montantCents: Math.min(POSE_MAX_CENTS, FORFAIT_POSE_CENTS + euros * 100),
+    montantCents: Math.min(POSE_MAX_CENTS, euros * 100),
     distanceKm: Math.round(distanceKm),
     routeAllerRetourKm: Math.round(route),
     heures: Math.round((heuresRoute + HEURES_POSE) * 10) / 10,
