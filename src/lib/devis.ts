@@ -41,8 +41,6 @@ import { ENTREPRISE } from "./entreprise.ts";
 
 /** Combien de jours le prix reste garanti. */
 export const VALIDITE_JOURS = 30;
-/** La part encaissée à la commande quand le client choisit l'acompte (voir /api/commande). */
-export const TAUX_ACOMPTE = 0.4;
 
 export type Caracteristique = { label: string; value: string };
 
@@ -171,8 +169,6 @@ export type Devis = {
   };
   lignes: LigneDevis[];
   total: number;
-  acompte: number;
-  solde: number;
   delai: string;
   conditions: string[];
   /** Le lien vers la fiche, pour commander en ligne. */
@@ -273,8 +269,8 @@ const TEXTES = {
       prix: "Prix en euros, montant total à payer ; le régime de TVA de l'atelier est rappelé sur la facture.",
       validite: `Devis valable ${VALIDITE_JOURS} jours à compter de sa date, pour la configuration décrite ci-dessus.`,
       paiement:
-        "Paiement à la commande, par carte, sur auboiacier.fr — en une fois, ou par un acompte de 40 % suivi du solde de 60 % prélevé le jour de la livraison ou de la pose.",
-      delai: "Chaque pièce est fabriquée à la commande dans notre atelier : le délai indiqué court à compter du paiement ou de l'acompte.",
+        "Paiement à la commande, en une fois, par carte, sur auboiacier.fr.",
+      delai: "Chaque pièce est fabriquée à la commande dans notre atelier : le délai indiqué court à compter du paiement.",
       transporteur:
         "Livraison sur rendez-vous, au pied du camion, sans montage. Le prix de transport est estimé à la commande d'après le poids, les dimensions et la distance.",
       pose: "Livraison et pose sur rendez-vous, en un seul déplacement ; l'accès et l'emplacement doivent être dégagés le jour convenu.",
@@ -375,8 +371,8 @@ const TEXTES = {
       prix: "Prices in euros, total amount payable; the workshop's VAT status is stated on the invoice.",
       validite: `Quote valid for ${VALIDITE_JOURS} days from its date, for the configuration described above.`,
       paiement:
-        "Payment on order, by card, on auboiacier.fr — in full, or a 40% deposit followed by the 60% balance charged on the day of delivery or installation.",
-      delai: "Every piece is made to order in our workshop: the lead time runs from payment or deposit.",
+        "Payment on order, in full, by card, on auboiacier.fr.",
+      delai: "Every piece is made to order in our workshop: the lead time runs from payment.",
       transporteur:
         "Kerbside delivery by appointment, without assembly. The shipping price is estimated at order from weight, dimensions and distance.",
       pose: "Delivery and installation by appointment, in a single trip; access and location must be clear on the agreed day.",
@@ -970,9 +966,6 @@ export function composerDevis(entree: EntreeDevis): ResultatDevis {
   }
 
   const total = lignes.reduce((somme, l) => somme + l.total, 0);
-  // Même arrondi que /api/commande : l'acompte se calcule ligne par ligne, au centime.
-  const acompte = lignes.reduce((somme, l) => somme + (Math.round(l.unitaire * 100 * TAUX_ACOMPTE) / 100) * l.quantite, 0);
-  const solde = Math.round((total - acompte) * 100) / 100;
 
   const validite = new Date(entree.date.getTime() + VALIDITE_JOURS * 24 * 3600 * 1000);
   const c = t.conditions;
@@ -1026,8 +1019,6 @@ export function composerDevis(entree: EntreeDevis): ResultatDevis {
       },
       lignes,
       total: Math.round(total * 100) / 100,
-      acompte: Math.round(acompte * 100) / 100,
-      solde,
       delai: delaiDepuisSpecs(product, locale),
       conditions,
       lienFiche: `${entree.origine}/${locale}/artisanat/${product.slug}`,

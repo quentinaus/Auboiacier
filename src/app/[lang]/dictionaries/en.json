@@ -220,7 +220,7 @@
     "faqShorterQ": "Can the lead time be shorter?",
     "faqShorterA": "Some steps cannot be rushed: drying the timber, welding, painting, finishing. We can sometimes bring an order forward depending on the workshop schedule — call us and we will tell you where we stand.",
     "faqPayQ": "How does payment work?",
-    "faqPayA": "Pieces from the collection are paid in full by card when you order, and your invoice is sent automatically. For made-to-measure work quoted individually (staircase, steel partition, sculpture), a 40% deposit starts production and the balance is paid on delivery. Backlit stretch ceilings, including at your own dimensions, are ordered and paid online like the rest of the collection.",
+    "faqPayA": "Pieces from the collection are paid in full by card when you order, and your invoice is sent automatically. For made-to-measure work quoted individually (staircase, steel partition, sculpture), the payment terms are set out on the quote. Backlit stretch ceilings, including at your own dimensions, are ordered and paid online like the rest of the collection.",
     "requestQuote": "Request a quote",
     "onQuote": "Price on request",
     "quoteNote": "Made to measure: measuring visit at your home before the quote, fitting included.",
@@ -687,13 +687,7 @@
     "delivery": "Delivery",
     "deliveryIncluded": "Included",
     "poseLine": "Home fitting",
-    "acompteToggle": "Pay a 40% deposit today",
-    "acompteInfo": "The balance ({solde}) is charged to the same card on the day of delivery or fitting. By ticking, you authorise that charge (see the terms of sale, article 4).",
-    "acompteToday": "Due today",
-    "acompteBalance": "Balance on delivery or fitting",
-    "checkoutAcompte": "Pay the {montant} deposit",
-    "deliveryWithPose": "In the fitting",
-    "acompteLien": "Pay only a 40% deposit?"
+    "deliveryWithPose": "In the fitting"
   },
   "commande": {
     "title": "Order",
@@ -724,11 +718,11 @@
       },
       {
         "title": "4. Ordering and payment",
-        "body": "Catalogue pieces are paid by card at the time of the order, in full. In the basket, the customer may choose to pay only a 40% deposit: their card is then saved by our payment provider Stripe, and the remaining 60% is charged to that same card on the day of delivery or fitting, without re-entering it. By choosing this option the customer expressly authorises that charge; they are informed by email when ordering and notified before the charge. If the balance charge fails, the piece is kept at the workshop until payment is settled. No card data is stored by Auboiacier. For bespoke work quoted individually, a 40% deposit starts production and the balance is paid on delivery."
+        "body": "Catalogue pieces are paid by card at the time of the order, in full: the whole price is charged when ordering, and the invoice is sent automatically. Payment is handled by our provider Stripe; no card data is stored by Auboiacier. For bespoke work quoted individually, the payment terms are set out on that quote."
       },
       {
         "title": "5. Production times",
-        "body": "Every piece is made to order: nothing is held in stock. The production time is shown on each piece's own page, on the “Lead time” line — from 3 to 12 weeks depending on the model, the finishes chosen and the season. For bespoke work, the time is stated on the quote.\n\nThat time starts on payment (or on the deposit) and is confirmed to you in writing when you order. Should we exceed it, we tell you: you may then ask us to deliver within a further reasonable period and, if that period is missed, cancel the order and be refunded under article 9."
+        "body": "Every piece is made to order: nothing is held in stock. The production time is shown on each piece's own page, on the “Lead time” line — from 3 to 12 weeks depending on the model, the finishes chosen and the season. For bespoke work, the time is stated on the quote.\n\nThat time starts on payment and is confirmed to you in writing when you order. Should we exceed it, we tell you: you may then ask us to deliver within a further reasonable period and, if that period is missed, cancel the order and be refunded under article 9."
       },
       {
         "title": "6. Delivery",
@@ -1001,7 +995,7 @@
       },
       {
         "title": "How a project runs",
-        "body": "1. You describe your project, through the form or by email.\n2. For made-to-measure work, we come and measure up — or we work from your drawings if you are far away.\n3. You receive a written quote, travel and fitting included.\n4. Production starts once the deposit is paid.\n5. We deliver, we fit, and we only leave once the piece is in use."
+        "body": "1. You describe your project, through the form or by email.\n2. For made-to-measure work, we come and measure up — or we work from your drawings if you are far away.\n3. You receive a written quote, travel and fitting included.\n4. Production starts once payment is made.\n5. We deliver, we fit, and we only leave once the piece is in use."
       }
     ],
     "communesTitle": "Towns and departments we serve",
@@ -1044,7 +1038,7 @@
       },
       {
         "q": "How does payment work?",
-        "a": "Pieces from the collection are paid by card when you order, and your invoice is sent automatically. If you prefer, you can pay only a 40% deposit in the basket: the balance is charged to the same card on the day of delivery or fitting. For made-to-measure work on quotation (staircase, steel partition, sculpture), a 40% deposit starts production and the balance is paid on delivery."
+        "a": "Pieces from the collection are paid in full by card when you order, and your invoice is sent automatically. For made-to-measure work on quotation (staircase, steel partition, sculpture), the payment terms are set out on the quote."
       },
       {
         "q": "Can I cancel or return an order?",

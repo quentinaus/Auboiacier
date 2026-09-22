@@ -220,7 +220,7 @@
     "faqShorterQ": "Le délai peut-il être plus court ?",
     "faqShorterA": "Certaines étapes sont incompressibles : séchage du bois, soudure, peinture, finition. Nous pouvons parfois avancer une commande selon le planning de l'atelier — appelez-nous, nous vous dirons où nous en sommes.",
     "faqPayQ": "Comment se passe le paiement ?",
-    "faqPayA": "Pour les pièces de la collection, le paiement se fait en une fois par carte bancaire au moment de la commande, et la facture vous est envoyée automatiquement. Pour le sur-mesure établi sur devis (escalier, verrière, sculpture), un acompte de 40 % lance la fabrication et le solde est réglé à la livraison. Les plafonds lumineux, y compris à vos dimensions, se commandent et se règlent directement en ligne comme le reste de la collection.",
+    "faqPayA": "Pour les pièces de la collection, le paiement se fait en une fois par carte bancaire au moment de la commande, et la facture vous est envoyée automatiquement. Pour le sur-mesure établi sur devis (escalier, verrière, sculpture), les modalités de paiement sont précisées sur le devis. Les plafonds lumineux, y compris à vos dimensions, se commandent et se règlent directement en ligne comme le reste de la collection.",
     "requestQuote": "Demander un devis",
     "onQuote": "Sur devis",
     "quoteNote": "Pièce sur mesure : prise de cotes à domicile avant devis, pose comprise.",
@@ -687,13 +687,7 @@
     "delivery": "Livraison",
     "deliveryIncluded": "Comprise",
     "poseLine": "Pose à domicile",
-    "acompteToggle": "Régler un acompte de 40 % aujourd'hui",
-    "acompteInfo": "Le solde ({solde}) est prélevé sur la même carte le jour de la livraison ou de la pose. En cochant, vous autorisez ce prélèvement (voir les conditions de vente, article 4).",
-    "acompteToday": "À régler aujourd'hui",
-    "acompteBalance": "Solde à la livraison ou à la pose",
-    "checkoutAcompte": "Payer l'acompte de {montant}",
-    "deliveryWithPose": "Dans la pose",
-    "acompteLien": "Régler seulement un acompte de 40 % ?"
+    "deliveryWithPose": "Dans la pose"
   },
   "commande": {
     "title": "Commande",
@@ -724,11 +718,11 @@
       },
       {
         "title": "4. Commande et paiement",
-        "body": "Les pièces du catalogue se règlent par carte bancaire au moment de la commande, en une fois. Le client peut choisir, au panier, de ne régler qu'un acompte de 40 % du total : sa carte est alors enregistrée par notre prestataire de paiement Stripe, et le solde de 60 % est prélevé sur cette même carte le jour de la livraison ou de la pose, sans nouvelle saisie. En choisissant cette option, le client autorise expressément ce prélèvement ; il en est informé par e-mail à la commande, puis prévenu avant le prélèvement. Si le prélèvement du solde échoue, la pièce est conservée à l'atelier jusqu'à régularisation. Aucune donnée bancaire n'est enregistrée par Auboiacier. Pour les réalisations sur mesure faisant l'objet d'un devis, un acompte de 40 % lance la fabrication et le solde est réglé à la livraison."
+        "body": "Les pièces du catalogue se règlent par carte bancaire au moment de la commande, en une fois : la totalité du prix est encaissée à la commande, et la facture est envoyée automatiquement. Le paiement est traité par notre prestataire Stripe ; aucune donnée bancaire n'est enregistrée par Auboiacier. Pour les réalisations sur mesure faisant l'objet d'un devis, les modalités de paiement sont précisées sur ce devis."
       },
       {
         "title": "5. Délais de fabrication",
-        "body": "Chaque pièce est fabriquée à la commande : il n'y a pas de stock. Le délai de fabrication est indiqué sur la fiche de chaque pièce, à la ligne « Fabrication » — de 3 à 12 semaines selon le modèle, les finitions choisies et la saison. Pour une réalisation sur mesure, le délai figure sur le devis.\n\nCe délai commence au paiement (ou au versement de l'acompte) et vous est confirmé par écrit à la commande. Si nous devions le dépasser, nous vous prévenons : vous pouvez alors nous demander de livrer dans un nouveau délai raisonnable puis, si ce délai n'est pas tenu, annuler la commande et être remboursé dans les conditions de l'article 9."
+        "body": "Chaque pièce est fabriquée à la commande : il n'y a pas de stock. Le délai de fabrication est indiqué sur la fiche de chaque pièce, à la ligne « Fabrication » — de 3 à 12 semaines selon le modèle, les finitions choisies et la saison. Pour une réalisation sur mesure, le délai figure sur le devis.\n\nCe délai commence au paiement et vous est confirmé par écrit à la commande. Si nous devions le dépasser, nous vous prévenons : vous pouvez alors nous demander de livrer dans un nouveau délai raisonnable puis, si ce délai n'est pas tenu, annuler la commande et être remboursé dans les conditions de l'article 9."
       },
       {
         "title": "6. Livraison",
@@ -1001,7 +995,7 @@
       },
       {
         "title": "Comment se passe un chantier",
-        "body": "1. Vous nous décrivez votre projet, par le formulaire ou par e-mail.\n2. Pour du sur-mesure, nous venons relever les cotes — ou nous travaillons sur vos plans si vous êtes loin.\n3. Vous recevez un devis écrit, déplacement et pose compris.\n4. La fabrication démarre au versement de l'acompte.\n5. Nous livrons, nous posons, et nous ne repartons qu'une fois la pièce en service."
+        "body": "1. Vous nous décrivez votre projet, par le formulaire ou par e-mail.\n2. Pour du sur-mesure, nous venons relever les cotes — ou nous travaillons sur vos plans si vous êtes loin.\n3. Vous recevez un devis écrit, déplacement et pose compris.\n4. La fabrication démarre au paiement.\n5. Nous livrons, nous posons, et nous ne repartons qu'une fois la pièce en service."
       }
     ],
     "communesTitle": "Communes et départements desservis",
@@ -1044,7 +1038,7 @@
       },
       {
         "q": "Comment se passe le paiement ?",
-        "a": "Pour les pièces de la collection, le paiement se fait par carte bancaire à la commande, et la facture vous est envoyée automatiquement. Si vous préférez, vous pouvez ne régler qu'un acompte de 40 % au panier : le solde est prélevé sur la même carte le jour de la livraison ou de la pose. Pour le sur-mesure établi sur devis (escalier, verrière, sculpture), un acompte de 40 % lance la fabrication et le solde est réglé à la livraison."
+        "a": "Pour les pièces de la collection, le paiement se fait en une fois par carte bancaire à la commande, et la facture vous est envoyée automatiquement. Pour le sur-mesure établi sur devis (escalier, verrière, sculpture), les modalités de paiement sont précisées sur le devis."
       },
       {
         "q": "Puis-je annuler ou retourner une commande ?",

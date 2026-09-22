@@ -47,7 +47,6 @@ export function CartView({
    */
   const [ville, setVille] = useState("");
   /** Payer 40 % aujourd'hui, le solde à la livraison ou à la pose. */
-  const [acompte, setAcompte] = useState(false);
   const [showVilleError, setShowVilleError] = useState(false);
   const idVille = useId();
   const idVilleErreur = useId();
@@ -216,9 +215,6 @@ export function CartView({
   const totalPieces = lines.filter((l) => !l.visite).reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
   const lignePose = lines.find((l) => l.pose);
   const ligneLivraison = lines.find((l) => l.livraison);
-  // Le même arrondi que le serveur : 40 % de chaque ligne, au centime.
-  const montantAcompte = lines.reduce((sum, line) => sum + (Math.round(line.unitPrice * 40) / 100) * line.quantity, 0);
-  const solde = total - montantAcompte;
 
   async function checkout() {
     if (!ville.trim()) {
@@ -237,7 +233,6 @@ export function CartView({
         body: JSON.stringify({
           locale,
           cgvAccepted: true,
-          acompte,
           ville: ville.trim().slice(0, VILLE_MAX),
           lines: items.map((item) => ({
             slug: item.slug,
@@ -469,18 +464,6 @@ export function CartView({
                 <dt className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{t.total}</dt>
                 <dd className="text-2xl font-medium tabular-nums text-[#2b2320]">{prixAffiche(total, locale)}</dd>
               </div>
-              {acompte && (
-                <>
-                  <div className="flex justify-between gap-4">
-                    <dt className="text-[#5c5140]">{t.acompteToday}</dt>
-                    <dd className="tabular-nums text-[#2b2320]">{prixAffiche(montantAcompte, locale)}</dd>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <dt className="text-[#5c5140]">{t.acompteBalance}</dt>
-                    <dd className="tabular-nums text-[#2b2320]">{prixAffiche(solde, locale)}</dd>
-                  </div>
-                </>
-              )}
             </dl>
             <p className="mt-3 text-xs leading-relaxed text-[#726757]">{t.shippingNote}</p>
 
@@ -553,42 +536,10 @@ export function CartView({
               disabled={status === "loading"}
               className="btn-verre mt-6 w-full rounded-full px-8 py-4 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
             >
-              {status === "loading"
-                ? t.redirecting
-                : acompte
-                  ? t.checkoutAcompte.replace("{montant}", prixAffiche(montantAcompte, locale))
-                  : t.checkout}
+              {status === "loading" ? t.redirecting : t.checkout}
             </button>
             <p className="mt-4 text-center text-xs leading-relaxed text-[#6f6357]">{t.securedBy}</p>
 
-            {/* L'acompte : un lien discret sous le bouton, qui s'ouvre en une
-                case ; il ne se voit pas avant qu'on le cherche. */}
-            {!acompte ? (
-              <p className="mt-3 text-center text-xs">
-                <button
-                  type="button"
-                  onClick={() => setAcompte(true)}
-                  className="text-[#7a6f64] underline underline-offset-4 hover:text-black"
-                >
-                  {t.acompteLien}
-                </button>
-              </p>
-            ) : (
-              <label className="mt-4 flex items-start gap-3 rounded-xl border border-[#e8e1d8] px-4 py-3 text-sm text-[#4a4038]">
-                <input
-                  type="checkbox"
-                  checked={acompte}
-                  onChange={(event) => setAcompte(event.target.checked)}
-                  className="mt-1 h-4 w-4 accent-[#2b2320]"
-                />
-                <span>
-                  {t.acompteToggle}
-                  <span className="mt-1 block text-xs leading-relaxed text-[#726757]">
-                    {t.acompteInfo.replace("{solde}", prixAffiche(solde, locale))}
-                  </span>
-                </span>
-              </label>
-            )}
             {/* La politique s'informe, elle ne se consent pas : la base légale est
                 le contrat, donc un simple lien, pas une seconde case à cocher. */}
             <p className="mt-2 text-center text-xs leading-relaxed text-[#6f6357]">

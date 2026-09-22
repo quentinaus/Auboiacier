@@ -49,20 +49,6 @@ function formatAddress(address: Stripe.Address | null | undefined) {
  * /api/commande envoie aussi le nom anglais (productLocalise) dans les
  * métadonnées de la session.
  */
-/**
- * L'acompte, lu dans les métadonnées de la commande : ce qui a été payé
- * aujourd'hui, ce qui reste, dit en une ligne dans chaque e-mail.
- */
-function ligneAcompte(session: Stripe.Checkout.Session, locale: "fr" | "en") {
-  if (session.metadata?.acompte !== "1") return "";
-  const total = Number(session.metadata.total_cents);
-  const solde = Number(session.metadata.solde_cents);
-  if (!Number.isFinite(total) || !Number.isFinite(solde)) return "";
-  return locale === "en"
-    ? `DEPOSIT: ${euros(session.amount_total)} paid today of ${euros(total)}. Balance of ${euros(solde)} to be charged to the same card on delivery or fitting.`
-    : `ACOMPTE : ${euros(session.amount_total)} payés aujourd'hui sur ${euros(total)}. Solde de ${euros(solde)} à prélever sur la même carte à la livraison ou à la pose.`;
-}
-
 function formatLines(lines: Stripe.LineItem[], locale: "fr" | "en" = "fr") {
   if (lines.length === 0) return DETAIL_MANQUANT[locale];
   return lines
@@ -145,7 +131,6 @@ export async function notifyOwner(
     formatLines(lines),
     "",
     `TOTAL PAYÉ : ${euros(session.amount_total)}`,
-    ligneAcompte(session, "fr"),
     "",
     "CLIENT",
     `Nom : ${shipping?.name ?? customer?.name ?? "—"}`,
@@ -187,8 +172,7 @@ export async function notifyCustomer(
           formatLines(lines, "en"),
           "",
           `Total paid: ${euros(session.amount_total)}`,
-          ligneAcompte(session, "en"),
-          "",
+                "",
           `Your piece is made to order in our workshop: allow ${LEAD_TIME.en}. We will contact you to arrange delivery.`,
           "Your invoice is sent separately by our payment provider.",
           "",
@@ -200,8 +184,7 @@ export async function notifyCustomer(
           formatLines(lines),
           "",
           `Total payé : ${euros(session.amount_total)}`,
-          ligneAcompte(session, "fr"),
-          "",
+                "",
           `Votre pièce est fabriquée à la commande dans notre atelier : comptez ${LEAD_TIME.fr}. Nous vous contactons pour convenir de la livraison.`,
           "Votre facture vous est envoyée séparément par notre prestataire de paiement.",
           "",

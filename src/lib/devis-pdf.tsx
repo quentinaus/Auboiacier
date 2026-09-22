@@ -73,10 +73,8 @@ const TEXTES = {
     unitaire: "Prix unitaire",
     total: "Total",
     totalDu: "Total",
-    acompte: "Acompte de 40 % à la commande",
-    solde: "Solde de 60 % à la livraison ou à la pose",
     delai: "Délai de fabrication",
-    delaiSuite: "à compter du paiement ou de l'acompte",
+    delaiSuite: "à compter du paiement",
     conditions: "Conditions",
     accord: "Bon pour accord",
     signature: "Date et signature, précédées de « Bon pour accord »",
@@ -100,10 +98,8 @@ const TEXTES = {
     unitaire: "Unit price",
     total: "Total",
     totalDu: "Total",
-    acompte: "40% deposit on order",
-    solde: "60% balance on delivery or installation",
     delai: "Lead time",
-    delaiSuite: "from payment or deposit",
+    delaiSuite: "from payment",
     conditions: "Terms",
     accord: "Agreed and accepted",
     signature: "Date and signature, preceded by “Agreed and accepted”",
@@ -507,18 +503,6 @@ function DocumentDevis({ devis }: { devis: Devis }) {
                 {prix(devis.total)}
               </Text>
             </View>
-            {devis.nature === "devis" && (
-              <>
-                <View style={styles.totalLigne}>
-                  <Text style={styles.totalLabel}>{t.acompte}</Text>
-                  <Text style={styles.totalValeur}>{prix(devis.acompte)}</Text>
-                </View>
-                <View style={styles.totalLigne}>
-                  <Text style={styles.totalLabel}>{t.solde}</Text>
-                  <Text style={styles.totalValeur}>{prix(devis.solde)}</Text>
-                </View>
-              </>
-            )}
           </View>
 
           <View style={styles.encart} wrap={false}>

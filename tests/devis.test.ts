@@ -1,6 +1,6 @@
 /**
  * Le devis en PDF dit exactement ce que le panier facturera : même prix de
- * pièce, même prix de lot, même acompte. Et chaque famille de pièce y décrit
+ * pièce, même prix de lot. Et chaque famille de pièce y décrit
  * ce qui la concerne — l'épaisseur d'un plateau, la puissance d'une toile, la
  * hauteur d'un garde-corps — jamais les caractéristiques d'une autre.
  */
@@ -35,7 +35,7 @@ const labels = (devis: { piece: { caracteristiques: { label: string }[] } }) =>
 const postes = (devis: { lignes: { titre?: boolean; designation: string; quantite: number; unitaire: number; total: number }[] }) =>
   devis.lignes.filter((l) => !l.titre && !/^(Livraison|Carrier delivery|Delivery and installation)/.test(l.designation));
 
-test("table du catalogue : le prix du devis est celui du panier, l'acompte celui du paiement", () => {
+test("table du catalogue : le prix du devis est celui du panier", () => {
   const selection = { slug: "table-mikado", sizeId: "p8", woodId: "chene", metalId: "noir" };
   const resultat = composerDevis(entree({ selection }));
   assert.ok(resultat.ok);
@@ -57,8 +57,6 @@ test("table du catalogue : le prix du devis est celui du panier, l'acompte celui
   assert.equal(p.reduce((somme, l) => somme + l.unitaire, 0), attendu.line.unitPrice);
   assert.ok(p.every((l) => Number.isInteger(l.unitaire) && l.unitaire > 0));
   assert.equal(devis.total, attendu.line.unitPrice);
-  assert.equal(devis.acompte, Math.round(attendu.line.unitPrice * 0.4 * 100) / 100);
-  assert.equal(Math.round((devis.acompte + devis.solde) * 100) / 100, devis.total);
   // Ce qu'une table doit dire.
   const l = labels(devis);
   for (const attendu of ["Dimensions", "Surface du plateau", "Capacité", "Plateau", "Finition du bois", "Piétement"]) {
@@ -188,7 +186,7 @@ test("garde-corps × 1 : pas de remise, et la rosace se lit avec les croix", () 
   assert.ok(resultat.devis.piece.caracteristiques.some((c) => c.label === "Rosace"));
 });
 
-test("escalier : une estimation, sans acompte ni validité, avec sa réserve", () => {
+test("escalier : une estimation, sans validité, avec sa réserve", () => {
   const resultat = composerDevis(entree({ selection: { slug: "escalier-limon-central", sizeId: "quart", woodId: "chene", metalId: "noir" }, locale: "en" }));
   assert.ok(resultat.ok);
   const { devis } = resultat;

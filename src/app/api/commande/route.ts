@@ -52,8 +52,6 @@ type IncomingLine = {
   note?: unknown;
 };
 
-/** La part encaissée à la commande quand le client choisit l'acompte. */
-const TAUX_ACOMPTE = 0.4;
 
 /** Une ligne de texte libre du client, bornée et sans retour à la ligne. */
 const asNote = (value: unknown, max: number) =>
@@ -92,7 +90,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "not_configured" }, { status: 503 });
   }
 
-  let body: { locale?: unknown; lines?: unknown; cgvAccepted?: unknown; ville?: unknown; acompte?: unknown };
+  let body: { locale?: unknown; lines?: unknown; cgvAccepted?: unknown; ville?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -113,12 +111,6 @@ export async function POST(request: Request) {
   if (body.cgvAccepted !== true) {
     return NextResponse.json({ error: "cgv" }, { status: 400 });
   }
-  /**
-   * L'acompte : 40 % encaissés aujourd'hui, la carte enregistrée, le solde
-   * prélevé par l'atelier à la livraison ou à la pose. Le client l'a choisi
-   * d'une case explicite ; c'est aussi écrit dans les conditions de vente.
-   */
-  const acompte = body.acompte === true;
   const lines = Array.isArray(body.lines) ? (body.lines as IncomingLine[]) : [];
   if (lines.length === 0 || lines.length > MAX_LINES) {
     return NextResponse.json({ error: "invalid" }, { status: 400 });
@@ -331,22 +323,6 @@ export async function POST(request: Request) {
   // les variables FACTURE_… (voir .env.example et MISE-EN-LIGNE.md).
   const pied = piedDeFacture();
 
-  // Le total réel de la commande, avant tout acompte : c'est lui qui va sur
-  // le bon de commande, et c'est de lui que se déduit le solde.
-  const totalCents = items.reduce((somme, item) => somme + item.price_data.unit_amount * item.quantity, 0);
-  let acompteCents = 0;
-  if (acompte) {
-    // Chaque ligne est ramenée à 40 %, au centime près ; le solde, c'est le
-    // reste, calculé une fois pour que les arrondis ne fassent perdre rien.
-    for (const item of items) {
-      item.price_data.unit_amount = Math.round(item.price_data.unit_amount * TAUX_ACOMPTE);
-      item.price_data.product_data.name = `${item.price_data.product_data.name} — ${
-        locale === "en" ? "40% deposit" : "acompte de 40 %"
-      }`;
-    }
-    acompteCents = items.reduce((somme, item) => somme + item.price_data.unit_amount * item.quantity, 0);
-  }
-
   try {
     const session = await getStripe().checkout.sessions.create({
       mode: "payment",
@@ -361,13 +337,8 @@ export async function POST(request: Request) {
       },
       client_reference_id: orderRef,
       payment_intent_data: {
-        // Avec un acompte, la carte est gardée pour le solde : Stripe le dit
-        // au client sur sa page, et l'atelier prélève ensuite depuis son
-        // tableau de bord (client → moyen de paiement enregistré).
-        ...(acompte ? { setup_future_usage: "off_session" as const } : {}),
         metadata: {
           order_ref: orderRef,
-          ...(acompte ? { acompte: "1", total_cents: String(totalCents), solde_cents: String(totalCents - acompteCents) } : {}),
           ...(visite
             ? { type: PRISE_DE_COTES, rdv: visite.rdv, cp: visite.cp, commune: visite.commune, note: visite.note }
             : {}),
@@ -380,7 +351,6 @@ export async function POST(request: Request) {
         ...(visite ? { rdv: visite.rdv, rdv_cp: visite.cp } : {}),
         ...(pose ? { pose_cp: pose.cp, pose_commune: pose.commune } : {}),
         ...(livraison ? { livraison_cp: livraison.cp, livraison_commune: livraison.commune } : {}),
-        ...(acompte ? { acompte: "1", total_cents: String(totalCents), solde_cents: String(totalCents - acompteCents) } : {}),
         // Trace de l'acceptation des conditions de vente avant paiement.
         cgv_accepted: "1",
       },
