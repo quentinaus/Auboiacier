@@ -51,11 +51,13 @@ function geometrieRect(mm: { principale?: number; secondaire?: number; epaisseur
   const W = mm.secondaire && mm.secondaire > 0 ? mm.secondaire : 1000;
   const T = mm.epaisseur && mm.epaisseur > 0 ? mm.epaisseur : 35;
   const ratio = clamp(L / W, 0.5, 4); // longueur / largeur
-  // La place disponible : les cotes prennent 46 px de chaque côté et 34 px
-  // sous la pointe avant ; 10 px libres au-dessus du coin arrière.
+  // La place disponible : les cotes prennent 46 px de chaque côté et 44 px
+  // sous la pointe avant (la ligne, sa pastille et la valeur écrite dessous) ;
+  // 10 px libres au-dessus du coin arrière.
   const largeurUtile = LARGEUR_BOX - 2 * 46;
-  const hauteurUtile = HAUTEUR_BOX - 10 - 34;
-  const ep = clamp(Math.round(6 + (T / 35) * 10), 8, 26);
+  const hauteurUtile = HAUTEUR_BOX - 10 - 44;
+  // Un vrai plateau est mince : l'épaisseur reste lisible, sans faire un pavé.
+  const ep = clamp(Math.round(5 + (T / 45) * 7), 6, 14);
   // Longueur dessinée L·k, largeur W·k : le losange fait 0,866·(L+W)·k de
   // large et 0,5·(L+W)·k + ep de haut. On prend le plus grand k qui tienne.
   const somme = ratio + 1;
@@ -78,7 +80,7 @@ function geometrieRect(mm: { principale?: number; secondaire?: number; epaisseur
 /** Le disque : son diamètre remplit la place, l'épaisseur suit la même règle. */
 function geometrieRond(mm: { principale?: number; epaisseur?: number }) {
   const T = mm.epaisseur && mm.epaisseur > 0 ? mm.epaisseur : 35;
-  const ep = clamp(Math.round(6 + (T / 35) * 10), 8, 26);
+  const ep = clamp(Math.round(5 + (T / 45) * 7), 6, 14);
   const RX = 120;
   const RY = 42;
   const O: Point = [222, 96];
@@ -239,9 +241,16 @@ function veine(y: number, amplitude: number, decalage: number) {
   return d;
 }
 
+/** Les textures de bois calculées par scripts/textures-bois.py, une par essence. */
+const ESSENCES_TEXTURE = ["chene", "hetre", "noyer", "pin"] as const;
+const TEXTURE_L = 1600;
+const TEXTURE_H = 800;
+const TEXTURE_BOUT_H = 200;
+
 export function SchemaCotes({
   forme,
   matiere = "bois",
+  essence,
   labels,
   valeurs,
   actif,
@@ -251,6 +260,8 @@ export function SchemaCotes({
   proportions,
 }: {
   forme: "rect" | "rond";
+  /** L'essence choisie : le plateau se dessine dans ce bois-là (chêne si on ne sait pas). */
+  essence?: string;
   /** Les cotes en millimètres, pour dessiner le plateau à leurs proportions. */
   proportions?: { principale?: number; secondaire?: number; epaisseur?: number };
   /** Sans cadre ni valeurs écrites : les chiffres sont dans les lignes juste dessous. */
@@ -294,6 +305,26 @@ export function SchemaCotes({
   const { A, B, C, D, EP } = geometrieRect(proportions ?? {});
   const { O, RX, RY } = geometrieRond(proportions ?? {});
   const bas = (pt: Point): Point => [pt[0], pt[1] + EP];
+  /** Les deux axes du plateau à l'écran : la longueur (D→C) et la largeur (A→D). */
+  const u: Point = [ISO[0], -ISO[1]];
+  const v: Point = [ISO[0], ISO[1]];
+  const dep = (pt: Point, d: Point, k: number): Point => [pt[0] + d[0] * k, pt[1] + d[1] * k];
+  const milieu = (p1: Point, p2: Point): Point => [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
+
+  /* La vraie matière : une photo de bois calculée (scripts/textures-bois.py)
+     projetée sur chaque face. Sur le dessus, le fil (l'axe x de l'image)
+     suit la longueur D→C, la largeur de l'image suit D→A ; sur les chants,
+     une tranche de la même image, assombrie. Les dégradés dessinés dessous
+     restent en secours, le temps que l'image arrive. */
+  const essenceTexture = (ESSENCES_TEXTURE as readonly string[]).includes(essence ?? "") ? essence : "chene";
+  const texture = lumiere ? null : `/images/plateau/${essenceTexture}.jpg`;
+  /** Le bois de bout : des cernes en arcs, pas le fil de la face. */
+  const textureBout = lumiere ? null : `/images/plateau/${essenceTexture}-bout.jpg`;
+  const matrice = (o: Point, u: Point, v: Point, largeurImage: number, hauteurImage: number) =>
+    `matrix(${r(u[0] / largeurImage)} ${r(u[1] / largeurImage)} ${r(v[0] / hauteurImage)} ${r(v[1] / hauteurImage)} ${r(o[0])} ${r(o[1])})`;
+  const vecteur = (de: Point, a: Point): Point => [a[0] - de[0], a[1] - de[1]];
+  /** Le chant long : une tranche de la face (un huitième de sa hauteur). */
+  const TRANCHE = 8;
 
   /* La toile d'un caisson lumineux est réellement éclairée : le même
      dégradé animé que la photo (voir MembraneAnimee), posé sur la face du
@@ -333,38 +364,58 @@ export function SchemaCotes({
       viewBox={`0 0 ${largeurBox} ${hauteurBox}`}
       role="group"
       aria-label={`${legende}${ordre.map((c) => (c === "secondaire" ? labels.secondaire : labels[c])).join(", ")}`}
-      className={compact ? "h-auto w-full select-none" : "mx-auto h-auto w-full max-w-[520px] select-none"}
+      className={compact ? "h-auto w-full select-none" : "mx-auto h-auto w-full select-none"}
       fontFamily="inherit"
     >
       <defs>
+        {/* Un chêne huilé, comme sur les photos : clair sur le dessus, un ton
+            plus chaud sur les chants, un reflet qui glisse sur la face. */}
         <linearGradient id="bois-dessus" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#efd9ac" />
-          <stop offset="0.5" stopColor="#e4c48f" />
-          <stop offset="1" stopColor="#d9b67e" />
+          <stop offset="0" stopColor="#ead1a0" />
+          <stop offset="0.45" stopColor="#dcb978" />
+          <stop offset="1" stopColor="#cfa663" />
         </linearGradient>
         <linearGradient id="bois-chant" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#c99f66" />
-          <stop offset="1" stopColor="#b98f58" />
+          <stop offset="0" stopColor="#c99d62" />
+          <stop offset="1" stopColor="#b48752" />
         </linearGradient>
         <linearGradient id="bois-bout" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#b3894f" />
-          <stop offset="1" stopColor="#a27a45" />
+          <stop offset="0" stopColor="#b3874f" />
+          <stop offset="1" stopColor="#a0743f" />
         </linearGradient>
+        <linearGradient id="bois-jour" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" stopOpacity="0.16" />
+          <stop offset="0.55" stopColor="#ffffff" stopOpacity="0.03" />
+          <stop offset="1" stopColor="#2a2116" stopOpacity="0.07" />
+        </linearGradient>
+        <radialGradient id="noeud" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#6e4a27" />
+          <stop offset="0.55" stopColor="#8a6236" />
+          <stop offset="1" stopColor="#b48b57" stopOpacity="0" />
+        </radialGradient>
         <radialGradient id="toile" cx="0.5" cy="0.5" r="0.6">
           <stop offset="0" stopColor="#ffffff" />
           <stop offset="1" stopColor="#f1ede6" />
         </radialGradient>
         <filter id="ombre" x="-20%" y="-60%" width="140%" height="260%">
-          <feGaussianBlur stdDeviation="5" />
+          <feGaussianBlur stdDeviation="7" />
         </filter>
         {rond ? (
           <clipPath id="face">
             <ellipse cx={O[0]} cy={O[1]} rx={RX} ry={RY} />
           </clipPath>
         ) : (
-          <clipPath id="face">
-            <polygon points={`${p(A)} ${p(B)} ${p(C)} ${p(D)}`} />
-          </clipPath>
+          <>
+            <clipPath id="face">
+              <polygon points={`${p(A)} ${p(B)} ${p(C)} ${p(D)}`} />
+            </clipPath>
+            <clipPath id="chant-long">
+              <polygon points={`${p(D)} ${p(C)} ${p(bas(C))} ${p(bas(D))}`} />
+            </clipPath>
+            <clipPath id="chant-bout">
+              <polygon points={`${p(A)} ${p(D)} ${p(bas(D))} ${p(bas(A))}`} />
+            </clipPath>
+          </>
         )}
       </defs>
 
@@ -425,9 +476,9 @@ export function SchemaCotes({
         <>
           {/* L'ombre portée, douce, qui pose le plateau. */}
           <polygon
-            points={`${p([A[0] + 6, A[1] + EP + 10])} ${p([B[0] + 6, B[1] + EP + 10])} ${p([C[0] + 6, C[1] + EP + 10])} ${p([D[0] + 6, D[1] + EP + 10])}`}
+            points={`${p([A[0] + 8, A[1] + EP + 14])} ${p([B[0] + 8, B[1] + EP + 14])} ${p([C[0] + 8, C[1] + EP + 14])} ${p([D[0] + 8, D[1] + EP + 14])}`}
             fill={ENCRE}
-            opacity={0.14}
+            opacity={0.18}
             filter="url(#ombre)"
           />
 
@@ -436,12 +487,49 @@ export function SchemaCotes({
           <polygon points={`${p(D)} ${p(C)} ${p(bas(C))} ${p(bas(D))}`} fill={chant} />
           <polygon points={`${p(A)} ${p(D)} ${p(bas(D))} ${p(bas(A))}`} fill={bout} />
           <polygon points={`${p(A)} ${p(B)} ${p(C)} ${p(D)}`} fill={dessus} />
-          {membraneAllumee}
-          {!lumiere && (
+          {texture && (
             <>
-              {/* Les veines suivent la longueur : des lignes parallèles à D→C. */}
-              <g clipPath="url(#face)" fill="none" stroke="#a67f47" strokeWidth={0.8}>
-                {[0.12, 0.24, 0.36, 0.5, 0.62, 0.76, 0.88].map((f, i) => {
+              {/* Le chant de la longueur : le fil court le long de D→C. */}
+              <g clipPath="url(#chant-long)">
+                <image
+                  href={texture}
+                  width={TEXTURE_L}
+                  height={TEXTURE_H}
+                  preserveAspectRatio="none"
+                  transform={matrice(D, vecteur(D, C), [0, EP * TRANCHE], TEXTURE_L, TEXTURE_H)}
+                />
+                <polygon points={`${p(D)} ${p(C)} ${p(bas(C))} ${p(bas(D))}`} fill="#3a2410" opacity={0.22} />
+              </g>
+              {/* Le bout : le bois de bout, ses cernes en arcs, plus sombre encore. */}
+              <g clipPath="url(#chant-bout)">
+                <image
+                  href={textureBout ?? texture}
+                  width={TEXTURE_L}
+                  height={TEXTURE_BOUT_H}
+                  preserveAspectRatio="none"
+                  transform={matrice(A, vecteur(A, D), [0, EP], TEXTURE_L, TEXTURE_BOUT_H)}
+                />
+                <polygon points={`${p(A)} ${p(D)} ${p(bas(D))} ${p(bas(A))}`} fill="#2e1c0c" opacity={0.34} />
+              </g>
+              {/* Le dessus : toute la planche, le fil dans la longueur. */}
+              <g clipPath="url(#face)">
+                <image
+                  href={texture}
+                  width={TEXTURE_L}
+                  height={TEXTURE_H}
+                  preserveAspectRatio="none"
+                  transform={matrice(D, vecteur(D, C), vecteur(D, A), TEXTURE_L, TEXTURE_H)}
+                />
+              </g>
+            </>
+          )}
+          {membraneAllumee}
+          {!lumiere && !texture && (
+            <>
+              {/* Les veines suivent la longueur : des lignes parallèles à D→C,
+                  d'épaisseurs et de teintes inégales, comme sur une planche. */}
+              <g clipPath="url(#face)" fill="none" stroke="#a67f47" strokeLinecap="round">
+                {[0.08, 0.17, 0.24, 0.33, 0.41, 0.5, 0.57, 0.66, 0.74, 0.83, 0.91].map((f, i) => {
                   const x1 = D[0] + (A[0] - D[0]) * f;
                   const y1 = D[1] + (A[1] - D[1]) * f;
                   return (
@@ -451,8 +539,28 @@ export function SchemaCotes({
                       y1={y1 + ISO[1] * 20}
                       x2={x1 + (C[0] - D[0]) + ISO[0] * 20}
                       y2={y1 + (C[1] - D[1]) - ISO[1] * 20}
-                      opacity={0.14 + (i % 2) * 0.1}
+                      strokeWidth={0.6 + (i % 3) * 0.5}
+                      opacity={0.1 + (i % 3) * 0.07}
                     />
+                  );
+                })}
+              </g>
+              {/* Deux nœuds, là où le chêne en a. */}
+              <g clipPath="url(#face)">
+                {(
+                  [
+                    [0.3, 0.64, 6, 3.2],
+                    [0.71, 0.32, 4.6, 2.6],
+                  ] as [number, number, number, number][]
+                ).map(([f, g, rx, ry], i) => {
+                  const x = D[0] + (C[0] - D[0]) * f + (A[0] - D[0]) * g;
+                  const y = D[1] + (C[1] - D[1]) * f + (A[1] - D[1]) * g;
+                  return (
+                    <g key={i} transform={`translate(${r(x)} ${r(y)}) rotate(-30)`}>
+                      <ellipse rx={rx + 3} ry={ry + 2} fill="url(#noeud)" opacity={0.55} />
+                      <ellipse rx={rx} ry={ry} fill="#6e4a27" opacity={0.7} />
+                      <ellipse rx={rx * 0.45} ry={ry * 0.45} fill="#4d321a" opacity={0.8} />
+                    </g>
                   );
                 })}
               </g>
@@ -464,11 +572,21 @@ export function SchemaCotes({
               </g>
             </>
           )}
+          {!lumiere && (
+            /* La lumière de l'atelier : le fond du plateau reçoit le jour, la
+               pointe avant reste un ton en dessous. Un dégradé doux dans le
+               sens de la profondeur — pas une bande en travers. */
+            <polygon points={`${p(A)} ${p(B)} ${p(C)} ${p(D)}`} fill="url(#bois-jour)" />
+          )}
           {lumiere && (
             /* Le cadre laqué, en fine bande autour de la toile. */
             <polygon points={`${p(A)} ${p(B)} ${p(C)} ${p(D)}`} fill="none" stroke="#332d28" strokeWidth={3} clipPath="url(#face)" />
           )}
-          <g fill="none" stroke={ENCRE} strokeWidth={1} opacity={0.42} strokeLinejoin="round">
+          {/* L'arête vive du dessus attrape la lumière ; le reste se dessine d'un trait fin. */}
+          {!lumiere && (
+            <path d={`M${p(A)} L${p(D)} L${p(C)}`} fill="none" stroke="#ffffff" strokeWidth={0.9} opacity={0.5} strokeLinejoin="round" />
+          )}
+          <g fill="none" stroke={ENCRE} strokeWidth={0.9} opacity={0.4} strokeLinejoin="round">
             <polygon points={`${p(A)} ${p(B)} ${p(C)} ${p(D)}`} />
             <path d={`M${p(A)} L${p(bas(A))} L${p(bas(D))} L${p(bas(C))} L${p(C)} M${p(D)} L${p(bas(D))}`} />
           </g>
@@ -476,39 +594,44 @@ export function SchemaCotes({
           {arete("secondaire", `M${p(D)} L${p(A)}`)}
           {arete("epaisseur", `M${p(D)} L${p(bas(D))}`)}
 
-          {/* ① La longueur, le long du chant de droite, décalée vers l'extérieur. */}
+          {/* Les cotes sont posées DANS le plan du plateau, comme sur un
+              dessin d'atelier : la longueur décalée le long de la largeur, la
+              largeur décalée le long de la longueur, l'épaisseur dans le
+              prolongement de la longueur. Décalées « à l'écran », elles
+              flottaient de travers à côté de la planche. */}
+          {/* ① La longueur, devant le chant de droite. */}
           {cote("principale", {
-            de: [bas(D)[0] + ISO[1] * 26, bas(D)[1] + ISO[0] * 26],
-            a: [bas(C)[0] + ISO[1] * 26, bas(C)[1] + ISO[0] * 26],
+            de: dep(bas(D), v, 26),
+            a: dep(bas(C), v, 26),
             attaches: [
-              [[bas(D)[0] + ISO[1] * 4, bas(D)[1] + ISO[0] * 4], [bas(D)[0] + ISO[1] * 32, bas(D)[1] + ISO[0] * 32]],
-              [[bas(C)[0] + ISO[1] * 4, bas(C)[1] + ISO[0] * 4], [bas(C)[0] + ISO[1] * 32, bas(C)[1] + ISO[0] * 32]],
+              [dep(bas(D), v, 4), dep(bas(D), v, 32)],
+              [dep(bas(C), v, 4), dep(bas(C), v, 32)],
             ],
-            pastille: [(bas(D)[0] + bas(C)[0]) / 2 + ISO[1] * 26, (bas(D)[1] + bas(C)[1]) / 2 + ISO[0] * 26],
+            pastille: dep(milieu(bas(D), bas(C)), v, 26),
             valeurA: "dessous",
           })}
 
-          {/* ② La largeur, le long du chant de gauche. */}
+          {/* ② La largeur, devant le chant de gauche. */}
           {cote("secondaire", {
-            de: [bas(A)[0] - ISO[1] * 26, bas(A)[1] + ISO[0] * 26],
-            a: [bas(D)[0] - ISO[1] * 26, bas(D)[1] + ISO[0] * 26],
+            de: dep(bas(A), u, -26),
+            a: dep(bas(D), u, -26),
             attaches: [
-              [[bas(A)[0] - ISO[1] * 4, bas(A)[1] + ISO[0] * 4], [bas(A)[0] - ISO[1] * 32, bas(A)[1] + ISO[0] * 32]],
-              [[bas(D)[0] - ISO[1] * 4, bas(D)[1] + ISO[0] * 4], [bas(D)[0] - ISO[1] * 32, bas(D)[1] + ISO[0] * 32]],
+              [dep(bas(A), u, -4), dep(bas(A), u, -32)],
+              [dep(bas(D), u, -4), dep(bas(D), u, -32)],
             ],
-            pastille: [(bas(A)[0] + bas(D)[0]) / 2 - ISO[1] * 26, (bas(A)[1] + bas(D)[1]) / 2 + ISO[0] * 26],
+            pastille: dep(milieu(bas(A), bas(D)), u, -26),
             valeurA: "dessous",
           })}
 
-          {/* ③ L'épaisseur, au bout droit, à côté du chant. */}
+          {/* ③ L'épaisseur, dans le prolongement du bout droit. */}
           {cote("epaisseur", {
-            de: [C[0] + 26, C[1]],
-            a: [C[0] + 26, C[1] + EP],
+            de: dep(C, u, 26),
+            a: dep(bas(C), u, 26),
             attaches: [
-              [[C[0] + 4, C[1]], [C[0] + 32, C[1]]],
-              [[bas(C)[0] + 4, bas(C)[1]], [bas(C)[0] + 32, bas(C)[1]]],
+              [dep(C, u, 4), dep(C, u, 32)],
+              [dep(bas(C), u, 4), dep(bas(C), u, 32)],
             ],
-            pastille: [C[0] + 44, C[1] + EP / 2],
+            pastille: [dep(C, u, 40)[0], dep(C, u, 40)[1] + EP / 2 + 2],
             valeurA: "dessous",
             exterieur: true,
           })}

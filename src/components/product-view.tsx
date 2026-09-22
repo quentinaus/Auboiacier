@@ -2,12 +2,12 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import type { Product } from "@/lib/products";
+import { priceFrom, type Product } from "@/lib/products";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
-import { ProductOptions } from "./product-options";
+import { ProductOptions, aLeConfigurateurPleinePage } from "./product-options";
 import Link from "next/link";
 import { serif } from "@/lib/fonts";
-import { amenerAlEcran, hoverZoom } from "@/lib/ui";
+import { amenerAlEcran, hoverZoom, prixAffiche } from "@/lib/ui";
 import { PhotoPlafondMesuree } from "./photo-plafond-anime";
 
 /**
@@ -64,6 +64,17 @@ export function ProductView({
   const zoomRef = useRef<HTMLDialogElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
   const stripRef = useRef<HTMLDivElement>(null);
+  /**
+   * L'emplacement du grand croquis, en pleine largeur, sous la galerie et la
+   * colonne d'options — pas dedans. `ProductOptions` y dépose le croquis par
+   * portail : il garde la main sur les cotes (l'état ne bouge pas de place),
+   * seul l'endroit où ça s'affiche change. `useState` (pas `useRef`) parce
+   * qu'il faut un rendu de plus une fois le nœud DOM posé, pour que le
+   * portail sache où viser.
+   */
+  const [schemaSlot, setSchemaSlot] = useState<HTMLDivElement | null>(null);
+  /** Même mécanique pour le choix des matières : à côté de la photo, qu'elles font changer. */
+  const [matieresSlot, setMatieresSlot] = useState<HTMLDivElement | null>(null);
 
   /* Sur téléphone la photo est au-dessus des options. On ne remonte plus à
      chaque teinte choisie — c'est la barre du bas qui montre le rendu
@@ -157,11 +168,50 @@ export function ProductView({
     selectFabric(colorThumbs[next].id);
   }
 
+  /** Le configurateur en pleine page sous la photo (tables d'intérieur), ou la colonne étroite classique. */
+  const pleinePage = aLeConfigurateurPleinePage(product);
+  const prixDepart = product.releve ? null : priceFrom(product);
+  const aide = (
+    <p className={pleinePage ? "mt-3 text-xs text-[#726757]" : "mt-6 border-t border-[#e5ddd3] pt-6 text-sm text-[#726757]"}>
+      {t.helpTitle}{" "}
+      <Link
+        href={`/${locale}/contact`}
+        className="text-[#2b2320] underline underline-offset-4"
+      >
+        {t.helpCta}
+      </Link>
+    </p>
+  );
+  const options = (
+    <>
+      <ProductOptions
+        product={product}
+        t={t}
+        locale={locale}
+        fabricId={fabricId}
+        onFabricChange={selectFabric}
+        metalId={metalId}
+        onMetalChange={selectMetal}
+        woodId={woodId}
+        onWoodChange={setWoodId}
+        apercu={
+          mainImage && mainSrc
+            ? { src: mainSrc, alt: mainImage.alt, onClick: () => amenerAlEcran(galleryRef.current, { block: "start" }) }
+            : undefined
+        }
+        schemaSlot={schemaSlot}
+        matieresSlot={matieresSlot}
+      />
+      {!pleinePage && aide}
+    </>
+  );
+
   return (
-    /* Le gabarit d'une fiche : la photo occupe toute la hauteur de l'écran
+    <>
+    {/* Le gabarit d'une fiche : la photo occupe toute la hauteur de l'écran
        à gauche et reste en place ; la colonne de droite, étroite, défile avec
        les choix. Sur téléphone, la photo prend d'abord tout l'écran, puis les
-       options suivent. */
+       options suivent. */}
     <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(380px,36%)] lg:grid-cols-[minmax(0,1fr)_460px]">
       {/* Galerie — reste visible pendant qu'on parcourt les options. Sa
           hauteur retire celle de l'en-tête (non collant, lui) : en
@@ -435,35 +485,75 @@ export function ProductView({
           {t.moreInfo}
         </a>
 
-        <div className="mt-2 md:mt-5">
-          <ProductOptions
-            product={product}
-            t={t}
-            locale={locale}
-            fabricId={fabricId}
-            onFabricChange={selectFabric}
-            metalId={metalId}
-            onMetalChange={selectMetal}
-            woodId={woodId}
-            onWoodChange={setWoodId}
-            apercu={
-              mainImage && mainSrc
-                ? { src: mainSrc, alt: mainImage.alt, onClick: () => amenerAlEcran(galleryRef.current, { block: "start" }) }
-                : undefined
-            }
-          />
-
-          <p className="mt-6 border-t border-[#e5ddd3] pt-6 text-sm text-[#726757]">
-            {t.helpTitle}{" "}
-            <Link
-              href={`/${locale}/contact`}
-              className="text-[#2b2320] underline underline-offset-4"
+        {pleinePage ? (
+          /* À côté de la photo, rien que l'essentiel : l'accroche, le prix de
+             départ, et le chemin vers le configurateur, plus bas. */
+          <div className="mt-5 md:mt-8">
+            {/* Les matières d'abord : c'est ce qu'on vient voir, et la photo
+                suit chaque choix — elles restent donc juste sous le titre.
+                `ProductOptions` les dépose ici par portail (voir matieresSlot). */}
+            <div ref={setMatieresSlot} />
+            {/* L'accroche et le prix de départ suivent, avant le chemin vers
+                le configurateur. */}
+            <p className="mt-8 border-t border-[#e5ddd3] pt-7 text-[15px] leading-relaxed text-[#4a4038]">
+              {product.tagline}
+            </p>
+            {prixDepart !== null && (
+              <p className="mt-4 text-[13px] tabular-nums text-[#6f6357]">
+                {t.from} <span className="text-[#2b2320]">{prixAffiche(prixDepart, locale)}</span>
+              </p>
+            )}
+            <p className="mt-1 text-xs leading-snug text-[#7a6f64]">{t.prixAttenteCotes}</p>
+            <a
+              href="#configuration"
+              className="btn-verre mt-6 inline-block rounded-full px-7 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
             >
-              {t.helpCta}
-            </Link>
-          </p>
-        </div>
+              {t.configurationCta}
+            </a>
+          </div>
+        ) : (
+          <div className="mt-2 md:mt-5">{options}</div>
+        )}
       </div>
     </div>
+
+    {/* Le configurateur en pleine page, sous la photo — comme la section
+        « Configuration » d'un site de découpe de bois : à gauche une carte
+        avec tous les choix, à droite le grand croquis coté, qui reste en vue
+        pendant qu'on descend dans la carte. `ProductOptions` y dépose le
+        croquis par portail (voir schemaSlot). */}
+    {pleinePage && (
+      /* Sur téléphone, la section est un écran à elle seule : le titre, le
+         croquis et la carte se partagent la hauteur de l'écran, la carte
+         défilant à l'intérieur — le même agencement que sur ordinateur, où
+         le croquis est à côté d'elle. */
+      <section
+        id="configuration"
+        className="mx-auto flex h-[calc(100svh-3.5rem)] max-w-7xl scroll-mt-14 flex-col px-5 pb-3 pt-4 md:block md:h-auto md:px-10 md:py-14"
+      >
+        <h2 className={`${serif.className} text-xl text-[#2b2320] md:text-3xl`}>{t.configurationTitle}</h2>
+        <div className="mt-2 h-[3px] w-12 bg-[#2b2320] md:mt-3 md:w-14" aria-hidden />
+        <div className="mt-2 flex min-h-0 flex-1 flex-col gap-2 md:mt-8 md:grid md:grid-cols-[minmax(0,380px)_minmax(0,1fr)] md:gap-14 lg:gap-20">
+          {/* La carte grise : ses couleurs sont retournées dans globals.css
+              (.carte-sombre). Elle ne dépasse jamais la hauteur de l'écran,
+              titre compris : elle défile à l'intérieur, la barre d'achat
+              restant collée en bas. */}
+          {/* Pas de marge en bas : c'est la barre d'achat, collée au bord
+              inférieur, qui porte la sienne — sinon le contenu qui défile
+              reste visible dessous, entre la barre et le bord de la carte. */}
+          <div className="carte-sombre min-h-0 flex-1 overflow-x-hidden overflow-y-auto rounded-3xl px-5 pb-0 pt-4 md:max-h-[calc(100vh-13rem)] md:flex-none md:px-6 md:pt-5">
+            {options}
+          </div>
+          {/* Le croquis : au-dessus de la carte sur téléphone, à côté, au
+              milieu de sa hauteur, sur ordinateur. */}
+          <div className="order-first shrink-0 md:order-none md:flex md:items-center md:self-stretch">
+            <div ref={setSchemaSlot} className="mx-auto w-full" />
+          </div>
+          {/* Sous la carte, en petit : une question ? */}
+          <div className="shrink-0 px-1 md:-mt-6">{aide}</div>
+        </div>
+      </section>
+    )}
+    </>
   );
 }

@@ -172,3 +172,113 @@ textarea:focus-visible,
     animation: none;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ *  La carte grise du configurateur (tables d'intérieur, product-view.tsx)
+ *  Le configurateur (product-options.tsx) est écrit pour un fond clair.
+ *  Posé sur le gris, ses couleurs se retournent ici, sans le réécrire :
+ *  les textes passent en clair, les cases blanches restent blanches (avec
+ *  leur texte foncé), les filets s'éclaircissent, ce qui était foncé sur
+ *  clair (curseur rempli, bouton) devient clair sur gris. `[class~=…]`
+ *  vise le nom exact d'une classe Tailwind, pas ses variantes (hover:…).
+ *  La fenêtre de dialogue (coordonnées du devis) et la barre du téléphone
+ *  gardent leur fond blanc et leurs couleurs d'origine.
+ * ------------------------------------------------------------------ */
+.carte-sombre {
+  --carte: #3a3633;
+  --carte-texte: #f3eee7;
+  --carte-doux: #c3bab0;
+  --carte-filet: rgba(255, 255, 255, 0.14);
+  background-color: var(--carte);
+  color: var(--carte-texte);
+  /* Quand la carte défile à l'intérieur : une barre fine, discrète. */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+}
+.carte-sombre
+  :is([class~="text-[#2b2320]"], [class~="text-[#2a2116]"], [class~="text-[#5c5140]"], [class~="text-[#4a4038]"]):not(dialog *) {
+  color: var(--carte-texte);
+}
+.carte-sombre
+  :is([class~="text-[#6f6357]"], [class~="text-[#726757]"], [class~="text-[#7a6f64]"], [class~="text-[#9a8d80]"]):not(dialog *) {
+  color: var(--carte-doux);
+}
+.carte-sombre [class~="text-[#9a5b3f]"]:not(dialog *) {
+  color: #ecb69c;
+}
+.carte-sombre [class~="hover:text-[#2b2320]"]:not(dialog *):hover {
+  color: #ffffff;
+}
+.carte-sombre
+  :is([class~="border-[#e5ddd3]"], [class~="md:border-[#e5ddd3]"], [class~="border-[#e0d5c7]"]):not(dialog *) {
+  border-color: var(--carte-filet);
+}
+.carte-sombre [class~="divide-[#e5ddd3]"]:not(dialog *) > :not(:last-child) {
+  border-color: var(--carte-filet);
+}
+.carte-sombre [class~="border-[#2b2320]"]:not([class~="bg-white"]):not([class~="bg-white"] *):not(dialog *) {
+  border-color: var(--carte-texte);
+}
+/* La barre d'achat collée en bas de la carte : dans le gris, pas en blanc.
+   Un court fondu au-dessus, pour que le contenu qui défile derrière s'efface
+   au lieu d'être coupé net sur le filet. */
+.carte-sombre .barre-achat {
+  background-color: var(--carte);
+}
+.carte-sombre .barre-achat::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 100% 0;
+  height: 1.25rem;
+  pointer-events: none;
+  background: linear-gradient(to top, var(--carte), transparent);
+}
+/* Les cases de saisie et les choix : des boîtes claires, texte foncé. */
+.carte-sombre :is([class~="bg-white"], [class~="bg-[#fbfaf8]"], [class~="bg-[#faf8f5]"], [class~="bg-[#ffffff]/95"]) {
+  color: #2b2320;
+}
+.carte-sombre
+  :is([class~="bg-white"], [class~="bg-[#fbfaf8]"], [class~="bg-[#faf8f5]"], [class~="bg-[#ffffff]/95"])
+  :is([class~="text-[#2b2320]"], [class~="text-[#2a2116]"], [class~="text-[#5c5140]"]) {
+  color: #2b2320;
+}
+.carte-sombre
+  :is([class~="bg-white"], [class~="bg-[#fbfaf8]"], [class~="bg-[#faf8f5]"], [class~="bg-[#ffffff]/95"])
+  :is([class~="text-[#6f6357]"], [class~="text-[#726757]"], [class~="text-[#7a6f64]"]) {
+  color: #6f6357;
+}
+.carte-sombre :is([class~="bg-white"], [class~="bg-[#fbfaf8]"], [class~="bg-[#faf8f5]"]) [class~="border-[#e5ddd3]"] {
+  border-color: #e5ddd3;
+}
+/* Ce qui était foncé sur clair devient clair sur gris… */
+.carte-sombre [class~="bg-[#2b2320]"]:not(dialog *) {
+  background-color: var(--carte-texte);
+  color: #2b2320;
+}
+/* …sauf dans une boîte claire, où le choix sélectionné reste foncé. */
+.carte-sombre [class~="bg-white"] [class~="bg-[#2b2320]"] {
+  background-color: #2b2320;
+  color: #ffffff;
+}
+/* Le rail et le curseur des cotes. */
+.carte-sombre [class~="bg-[#e5ddd3]"] {
+  background-color: rgba(255, 255, 255, 0.18);
+}
+.carte-sombre input[type="range"]::-webkit-slider-thumb {
+  background-color: var(--carte-texte);
+  border-color: var(--carte);
+}
+.carte-sombre input[type="range"]::-moz-range-thumb {
+  background-color: var(--carte-texte);
+  border-color: var(--carte);
+}
+/* Le bouton d'achat : clair sur le gris, comme une plaque de lumière. */
+.carte-sombre .btn-verre:not(dialog *):not([class~="bg-[#ffffff]/95"] *) {
+  background: var(--carte-texte);
+  color: #2b2320;
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.7);
+}
+.carte-sombre .btn-verre:not(dialog *):not([class~="bg-[#ffffff]/95"] *):hover {
+  background: #ffffff;
+}

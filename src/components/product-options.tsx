@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useId, useRef, useState, type ComponentProps } from "react";
+import { useEffect, useId, useRef, useState, type ComponentProps, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import {
   computeUnitPrice,
   deltaBois,
@@ -10,6 +11,7 @@ import {
   devisSurMesure,
   epaisseurMaxMm,
   epaisseurMiniMm,
+  poidsColisKg,
   priceFrom,
   prixRemise,
   remplissageConforme,
@@ -46,6 +48,16 @@ const VOIR_PANIER = {
 /** Style commun à tous les intitulés d'option (dimensions, bois, acier…). */
 const GROUP_LABEL =
   "block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]";
+
+/**
+ * Le configurateur en pleine page, sous la photo : une carte avec tous les
+ * choix à gauche, le grand croquis coté à droite (voir product-view.tsx).
+ * Les tables d'intérieur d'abord, le temps que Quentin valide, avant de
+ * l'étendre aux garde-corps, à l'escalier et aux tables d'extérieur.
+ */
+export function aLeConfigurateurPleinePage(product: Product): boolean {
+  return product.surMesure?.axes === "plan" && product.category === "interieur";
+}
 
 function formatDelta(delta: number, locale: "fr" | "en") {
   if (!delta) return locale === "fr" ? "Inclus" : "Included";
@@ -201,6 +213,61 @@ function cotesCourtes(label: string) {
     .trim();
 }
 
+const clampCurseur = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
+
+/**
+ * Un sous-menu de la carte du configurateur : une ligne (titre, résumé,
+ * chevron) qui s'ouvre sur son contenu. Un <details> natif : ouvert ou fermé
+ * au clic sans script, lisible au clavier et au lecteur d'écran ; l'état est
+ * tenu par le parent pour pouvoir l'ouvrir de loin (le lien « indiquez votre
+ * code postal » ouvre celui de la livraison).
+ */
+function SousMenu({
+  id,
+  titre,
+  resume,
+  ouvert,
+  onToggle,
+  children,
+}: {
+  id?: string;
+  titre: string;
+  /** Ce qu'on retient quand c'est fermé : « 186 € », « ≈ 52 kg »… */
+  resume?: string;
+  ouvert: boolean;
+  onToggle: (ouvert: boolean) => void;
+  children: ReactNode;
+}) {
+  return (
+    <details
+      id={id}
+      open={ouvert}
+      onToggle={(event) => onToggle(event.currentTarget.open)}
+      className="scroll-mt-28 border-t border-[#e5ddd3]"
+    >
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-3 [&::-webkit-details-marker]:hidden">
+        <span className="shrink-0 whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{titre}</span>
+        <span className="flex min-w-0 items-center gap-2 text-xs text-[#6f6357]">
+          {resume && <span className="truncate">{resume}</span>}
+          <svg
+            viewBox="0 0 20 20"
+            aria-hidden
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={`h-3.5 w-3.5 shrink-0 transition-transform ${ouvert ? "rotate-180" : ""}`}
+          >
+            <path d="M5 8l5 5 5-5" />
+          </svg>
+        </span>
+      </summary>
+      <div className="pb-4">{children}</div>
+    </details>
+  );
+}
+
 /** Le numéro d'une cote : le même sur le croquis et devant sa ligne. */
 function Pastille({ n }: { n: number }) {
   return (
@@ -229,6 +296,8 @@ function Ligne({
   onFocus,
   onBlur,
   erreurId,
+  curseur,
+  serre = false,
 }: {
   n: number;
   id: string;
@@ -241,35 +310,88 @@ function Ligne({
   onBlur?: () => void;
   /** Le message de refus, quand il y en a un : la ligne le désigne. */
   erreurId?: string;
+  /**
+   * Un curseur sous la ligne, en plus de la case à taper : les deux pilotent
+   * la même cote, en millimètres. Glisser ou taper donnent le même résultat.
+   */
+  curseur?: {
+    minMm: number;
+    maxMm: number;
+    valeurMm: number;
+    onChangeMm: (mm: number) => void;
+    stepMm?: number;
+  };
+  /** Dans la carte du configurateur, sur téléphone : tout doit tenir dans l'écran. */
+  serre?: boolean;
 }) {
   const bornesId = `${id}-bornes`;
+  const pourcent = curseur
+    ? Math.round(
+        (clampCurseur(
+          Number.isFinite(curseur.valeurMm) ? curseur.valeurMm : curseur.minMm,
+          curseur.minMm,
+          curseur.maxMm
+        ) -
+          curseur.minMm) /
+          (curseur.maxMm - curseur.minMm || 1) *
+          100
+      )
+    : 0;
   return (
-    <label className="flex items-center justify-between gap-4 py-3">
-      <span className="flex items-center gap-2.5 text-[15px] text-[#2b2320]">
-        <Pastille n={n} />
-        {label}
-      </span>
-      {/* Le focus est porté par la pilule seule — bordure bordeaux et halo
-          léger ; le filet de sécurité global est coupé sur le champ. */}
-      <span className="flex h-10 w-[8.5rem] shrink-0 items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3.5 transition-[border-color,box-shadow] focus-within:border-[#2b2320] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
-        <input
-          id={id}
-          inputMode="decimal"
-          value={valeur}
-          onChange={(e) => onChange(e.target.value)}
-          onFocus={onFocus}
-          onBlur={onBlur}
-          placeholder={bornes}
-          aria-describedby={[bornesId, erreurId].filter(Boolean).join(" ")}
-          aria-invalid={erreurId ? true : undefined}
-          className="w-full min-w-0 bg-transparent text-right text-base tabular-nums text-[#2b2320] placeholder:text-[#726757] outline-none focus-visible:shadow-none focus-visible:outline-none sm:text-[15px]"
-        />
-        <span className="text-xs text-[#6f6357]">{unite}</span>
-        <span id={bornesId} className="sr-only">
-          {bornes} {unite}
+    <div className={serre ? "py-1.5 md:py-3" : "py-3"}>
+      <label className="flex items-center justify-between gap-3">
+        <span className={`flex items-center text-[#2b2320] ${serre ? "gap-2 text-[13.5px] md:gap-2.5 md:text-[15px]" : "gap-2.5 text-[15px]"}`}>
+          <Pastille n={n} />
+          {label}
         </span>
-      </span>
-    </label>
+        {/* Le focus est porté par la pilule seule — bordure bordeaux et halo
+            léger ; le filet de sécurité global est coupé sur le champ. */}
+        <span className={`flex shrink-0 items-center gap-1 rounded-full border border-[#9a8d80] bg-white transition-[border-color,box-shadow] focus-within:border-[#2b2320] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)] ${serre ? "h-9 w-[7.25rem] px-3 md:h-10 md:w-[8.5rem] md:px-3.5" : "h-10 w-[8.5rem] px-3.5"}`}>
+          <input
+            id={id}
+            inputMode="decimal"
+            value={valeur}
+            onChange={(e) => onChange(e.target.value)}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            placeholder={bornes}
+            aria-describedby={[bornesId, erreurId].filter(Boolean).join(" ")}
+            aria-invalid={erreurId ? true : undefined}
+            className={`w-full min-w-0 bg-transparent text-right tabular-nums text-[#2b2320] placeholder:text-[#726757] outline-none focus-visible:shadow-none focus-visible:outline-none ${serre ? "text-[15px] md:text-[15px]" : "text-base sm:text-[15px]"}`}
+          />
+          <span className="text-xs text-[#6f6357]">{unite}</span>
+          <span id={bornesId} className="sr-only">
+            {bornes} {unite}
+          </span>
+        </span>
+      </label>
+      {curseur && (
+        <div className={`relative flex w-full items-center ${serre ? "mt-1 h-4 md:mt-2.5 md:h-5" : "mt-2.5 h-5"}`}>
+          <div className="pointer-events-none absolute inset-x-0 h-1.5 rounded-full bg-[#e5ddd3]" />
+          <div
+            className="pointer-events-none absolute left-0 h-1.5 rounded-full bg-[#2b2320]"
+            style={{ width: `${pourcent}%` }}
+          />
+          <input
+            type="range"
+            aria-label={label}
+            aria-describedby={bornesId}
+            min={curseur.minMm}
+            max={curseur.maxMm}
+            step={curseur.stepMm ?? 10}
+            value={Number.isFinite(curseur.valeurMm) ? curseur.valeurMm : curseur.minMm}
+            onChange={(e) => curseur.onChangeMm(Number(e.target.value))}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            className="relative h-5 w-full cursor-pointer appearance-none bg-transparent
+              [&::-webkit-slider-runnable-track]:h-1.5 [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-transparent
+              [&::-moz-range-track]:h-1.5 [&::-moz-range-track]:rounded-full [&::-moz-range-track]:bg-transparent
+              [&::-webkit-slider-thumb]:mt-[-7px] [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-[#2b2320] [&::-webkit-slider-thumb]:shadow-[0_1px_3px_rgba(43,35,32,0.45)]
+              [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:bg-[#2b2320] [&::-moz-range-thumb]:shadow-[0_1px_3px_rgba(43,35,32,0.45)]"
+          />
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -284,6 +406,8 @@ export function ProductOptions({
   woodId: woodIdProp,
   onWoodChange,
   apercu,
+  schemaSlot,
+  matieresSlot,
 }: {
   product: Product;
   t: Dictionary["artisanat"];
@@ -303,6 +427,18 @@ export function ProductOptions({
    * d'écran, sans remonter. Un appui ramène à la galerie.
    */
   apercu?: { src: string; alt: string; onClick: () => void };
+  /**
+   * L'endroit, hors de cette colonne, où poser le grand croquis coté — en
+   * pleine largeur, sous la photo (voir product-view.tsx). Rien ne s'affiche
+   * ici tant que ce nœud n'est pas encore monté.
+   */
+  schemaSlot?: HTMLDivElement | null;
+  /**
+   * Où poser le choix des matières (teinte des pieds, essence du plateau)
+   * quand le configurateur est en pleine page : à côté de la photo, qu'elles
+   * font changer — pas dans la carte plus bas.
+   */
+  matieresSlot?: HTMLDivElement | null;
 }) {
   /** La taille à laquelle la fiche s'ouvre, s'il y en a une. */
   const tailleInitiale =
@@ -395,6 +531,9 @@ export function ProductOptions({
   /** La fenêtre qui demande nom et adresse avant d'ouvrir le devis PDF. */
   const devisDialogRef = useRef<HTMLDialogElement>(null);
   const [boutonVisible, setBoutonVisible] = useState(true);
+  /** Les sous-menus de la carte du configurateur (livraison, poids et détails, ce que comprend le prix). */
+  const [menusOuverts, setMenusOuverts] = useState<Record<string, boolean | undefined>>({});
+  const ouvrirMenu = (nom: string, ouvert: boolean) => setMenusOuverts((m) => ({ ...m, [nom]: ouvert }));
 
   const { add, remove, items: panier } = useCart();
 
@@ -414,6 +553,12 @@ export function ProductOptions({
   const plan = bareme?.axes === "plan";
   /** Une table : un plateau de bois, avec sa hauteur finie. Un plafond lumineux se mesure à plat aussi, mais n'en est pas une. */
   const table = plan && product.category !== "lumiere";
+  /**
+   * Le configurateur en pleine page (carte à gauche, grand croquis à droite,
+   * curseurs) : voir `aLeConfigurateurPleinePage`. Les tables d'intérieur
+   * d'abord, le temps que Quentin valide avant de l'étendre au reste.
+   */
+  const nouvelleMiseEnPage = aLeConfigurateurPleinePage(product);
   /** Une table se mesure en longueur × largeur, un panneau en largeur × hauteur. */
   const labelPrincipale = rond
     ? t.customDiameter
@@ -590,6 +735,14 @@ export function ProductOptions({
       : null;
 
   const wood = product.woods.find((w) => w.id === woodId);
+  /** Le poids du colis, estimé comme le fait le serveur (poidsColisKg) : dit au client dans la carte. */
+  const poidsKg = poidsColisKg(product, {
+    largeurMm: cotesEff?.largeurMm ?? size?.dimsMm?.[0],
+    hauteurMm: cotesEff?.hauteurMm ?? size?.dimsMm?.[1],
+    epaisseurMm: cotesEff?.epaisseurMm,
+    woodId: woodId || undefined,
+    remplissageId: remplissageId || undefined,
+  });
   /* La surface qui fait l'écart des essences : les cotes tapées, sinon la
      taille choisie, sinon celle de la table d'origine (200 × 100). */
   const surfaceBois = surfaceTailleM2(
@@ -1149,10 +1302,100 @@ export function ProductOptions({
     setAjoutee(configuration);
   }
 
+  /** Ce que le prix comprend : le délai, la livraison, l'atelier, le paiement — et le drapeau. */
+  const listeInclus = (
+    <>
+      <ul
+        className={
+          nouvelleMiseEnPage
+            ? "grid gap-1 text-[11px] leading-snug text-[#5c5140]"
+            : "mt-4 grid gap-1.5 border-t border-[#e5ddd3] pt-3 text-xs leading-relaxed text-[#5c5140]"
+        }
+      >
+        {/* Pour une visite, ni délai de fabrication ni livraison : seul le paiement sécurisé reste vrai. */}
+        {(modeVisite
+          ? [t.inclusAtelier, t.inclusPaiement]
+          : [
+              delai,
+              // Le garde-corps se pose soi-même, fixations fournies : pas de montage sur place.
+              product.poseOption
+                ? t.inclusLivraisonTable
+                : product.releve === "garde-corps-fenetre"
+                  ? t.inclusLivraisonPose
+                  : t.inclusLivraison,
+              t.inclusAtelier,
+              orderable ? t.inclusPaiement : null,
+            ]
+        )
+          .filter(Boolean)
+          .map((ligne) => (
+            <li key={ligne} className={nouvelleMiseEnPage ? "flex items-start gap-1.5" : "flex items-start gap-2.5"}>
+              <svg
+                viewBox="0 0 20 20"
+                aria-hidden
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={nouvelleMiseEnPage ? "mt-[1px] h-3 w-3 shrink-0 text-[#2b2320]" : "mt-[2px] h-3.5 w-3.5 shrink-0 text-[#2b2320]"}
+              >
+                <path d="M4 10.5l4 4 8-9" />
+              </svg>
+              <span>{ligne}</span>
+            </li>
+          ))}
+      </ul>
+      <p className={nouvelleMiseEnPage ? "mt-3 flex items-center gap-2 text-[10.5px] font-medium uppercase tracking-[0.2em] text-[#6f6357]" : "mt-4 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]"}>
+        <svg viewBox="0 0 18 12" aria-hidden="true" className="h-3 w-[18px] shrink-0 rounded-[2px] shadow-[0_0_0_1px_rgba(43,35,32,0.15)]">
+          <rect width="6" height="12" x="0" fill="#1b3a6b" />
+          <rect width="6" height="12" x="6" fill="#f7f4ef" />
+          <rect width="6" height="12" x="12" fill="#a53a3a" />
+        </svg>
+        {t.madeInFrance}
+      </p>
+    </>
+  );
+
   return (
     /* pb-24 sur téléphone : la barre d'achat fixe ne doit pas recouvrir la fin
        de la colonne. */
-    <div className="flex flex-col pb-24 md:pb-0">
+    <div className={nouvelleMiseEnPage ? "flex flex-col" : "flex flex-col pb-24 md:pb-0"}>
+      {/* Le grand croquis : posé par portail à droite de la carte, dans la
+          section « Configuration » (voir schemaSlot, product-view.tsx). Rien
+          ne bouge dans les cotes elles-mêmes : seul l'endroit où le dessin
+          s'affiche change. */}
+      {nouvelleMiseEnPage &&
+        bareme &&
+        !product.releve &&
+        schemaSlot &&
+        createPortal(
+          <SchemaCotes
+            forme={bareme.forme}
+            locale={locale}
+            matiere="bois"
+            essence={woodId}
+            actif={coteActive}
+            onChoisir={allerA}
+            proportions={{
+              principale: Number.isFinite(largeurMm) ? largeurMm : undefined,
+              secondaire: Number.isFinite(hauteurMm) ? hauteurMm : undefined,
+              epaisseur: Number.isFinite(epaisseurMm) ? epaisseurMm : undefined,
+            }}
+            labels={{
+              principale: labelPrincipale,
+              secondaire: labelSecondaire,
+              epaisseur: t.customThickness,
+            }}
+            valeurs={{
+              principale: largeurSaisie ? enUnite(largeurMm) : undefined,
+              secondaire: !rond && hauteurSaisie ? enUnite(hauteurMm) : undefined,
+              epaisseur: enUnite(epaisseurMm, "mm"),
+            }}
+          />,
+          schemaSlot
+        )}
+
       {/* Sur téléphone, le choix des matières vient en premier — c'est ce que
           le client vient chercher — le prix de départ suit derrière. Sur
           ordinateur, la colonne est assez large pour garder l'ordre naturel :
@@ -1174,63 +1417,74 @@ export function ProductOptions({
       {/* Les matières côte à côte, chaque groupe juste aussi large que ses
           pastilles : l'acier, le bois et la rosace tiennent sur une ou deux
           rangées au lieu de trois blocs centrés l'un sous l'autre. */}
-      {(product.woods.length > 0 || product.metals.length > 0) && (
-        <div className="md:mt-5 md:border-t md:border-[#e5ddd3] md:pt-5">
-          <div className="flex flex-col gap-7">
-            {product.metals.length > 0 && (
-              <SwatchGroup
-                label={
-                  product.metalLabel ? product.metalLabel[locale] : t.metalLabel
-                }
-                options={product.metals}
-                selected={metalId}
-                onSelect={setMetalId}
-                locale={locale}
-              />
-            )}
-            {product.woods.length > 0 && (
-              <SwatchGroup
-                label={
-                  product.woodLabel ? product.woodLabel[locale] : t.woodLabel
-                }
-                options={woodsAffiches}
-                selected={woodId}
-                onSelect={setWoodId}
-                locale={locale}
-                /* Les écarts ne se montrent que s'il y en a : sur une pièce sur
-                   devis sans prix, quatre « Inclus » n'apprendraient rien. */
-                showDelta={
-                  orderable && product.woods.some((bois) => bois.priceDelta)
-                }
-              />
-            )}
-            {/* Les rosaces d'un garde-corps, avec les matières — et pas sous un
-                panneau de verre, où il n'y a plus de croix. */}
-            {product.fabrics &&
-              product.fabrics.length > 0 &&
-              product.fabricLabel &&
-              !sansRosace && (
+      {(product.woods.length > 0 || product.metals.length > 0) &&
+        (() => {
+          const matieres = (
+            <div className="flex flex-col gap-7">
+              {product.metals.length > 0 && (
                 <SwatchGroup
-                  label={product.fabricLabel[locale]}
-                  options={product.fabrics}
-                  selected={fabricId}
-                  onSelect={setFabricId}
+                  label={
+                    product.metalLabel ? product.metalLabel[locale] : t.metalLabel
+                  }
+                  options={product.metals}
+                  selected={metalId}
+                  onSelect={setMetalId}
                   locale={locale}
-                  showDelta={product.fabrics.some(
-                    (rosace) => rosace.priceDelta,
-                  )}
                 />
               )}
-          </div>
-        </div>
-      )}
+              {product.woods.length > 0 && (
+                <SwatchGroup
+                  label={
+                    product.woodLabel ? product.woodLabel[locale] : t.woodLabel
+                  }
+                  options={woodsAffiches}
+                  selected={woodId}
+                  onSelect={setWoodId}
+                  locale={locale}
+                  /* Les écarts ne se montrent que s'il y en a : sur une pièce sur
+                     devis sans prix, quatre « Inclus » n'apprendraient rien. */
+                  showDelta={
+                    orderable && product.woods.some((bois) => bois.priceDelta)
+                  }
+                />
+              )}
+              {/* Les rosaces d'un garde-corps, avec les matières — et pas sous un
+                  panneau de verre, où il n'y a plus de croix. */}
+              {product.fabrics &&
+                product.fabrics.length > 0 &&
+                product.fabricLabel &&
+                !sansRosace && (
+                  <SwatchGroup
+                    label={product.fabricLabel[locale]}
+                    options={product.fabrics}
+                    selected={fabricId}
+                    onSelect={setFabricId}
+                    locale={locale}
+                    showDelta={product.fabrics.some(
+                      (rosace) => rosace.priceDelta,
+                    )}
+                  />
+                )}
+            </div>
+          );
+          /* Configurateur en pleine page : les matières font changer la photo,
+             elles restent à côté d'elle (portail, voir matieresSlot) — pas
+             dans la carte plus bas. */
+          if (nouvelleMiseEnPage) {
+            return matieresSlot ? createPortal(matieres, matieresSlot) : null;
+          }
+          return (
+            <div className="md:mt-5 md:border-t md:border-[#e5ddd3] md:pt-5">{matieres}</div>
+          );
+        })()}
 
       {/* Le prix de départ : sur téléphone il suit le choix des matières
           plutôt que de le précéder (voir plus haut), sur ordinateur
           `md:order-first` le remet en tête de colonne comme avant. Le prix réel
           de la configuration est dans la barre d'achat, en bas de la
-          colonne, et suit chaque choix. */}
-      {modeVisite ? (
+          colonne, et suit chaque choix. Dans le configurateur en pleine page,
+          il est écrit sous le titre, à côté de la photo (product-view.tsx). */}
+      {nouvelleMiseEnPage ? null : modeVisite ? (
         <p className="mt-5 border-t border-[#e5ddd3] pt-5 text-[13px] text-[#6f6357] md:order-first md:mt-0 md:border-t-0 md:pt-0">
           {t.onQuote}
         </p>
@@ -1272,21 +1526,31 @@ export function ProductOptions({
       {((bareme && !product.releve) ||
         (product.sizes.length > 1 && orderable)) && (
         <div
-          className="mt-4 scroll-mt-28 border-t border-[#e5ddd3] pt-5"
+          /* Premier bloc de la carte du configurateur : pas de filet au-dessus. */
+          className={nouvelleMiseEnPage ? "scroll-mt-28" : "mt-4 scroll-mt-28 border-t border-[#e5ddd3] pt-5"}
           id="cotes"
         >
           {bareme && !product.releve && (
             <div>
               {/* Le titre, et l'unité de saisie en face : rien d'autre à lire. */}
               <div className="flex items-center justify-between gap-4">
-                <span className={GROUP_LABEL} id={`${idTailles}-ou`}>
+                <span
+                  /* Dans la carte, plus étroite, l'intitulé se serre pour
+                     tenir sur une ligne à côté du choix de l'unité. */
+                  className={
+                    nouvelleMiseEnPage
+                      ? "block whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]"
+                      : GROUP_LABEL
+                  }
+                  id={`${idTailles}-ou`}
+                >
                   {t.sizeLabel}
                 </span>
                 {bareme && !product.releve && (
                   <div
                     role="radiogroup"
                     aria-label={t.customUnit}
-                    className="flex rounded-full border border-[#9a8d80] bg-white p-0.5"
+                    className={`flex rounded-full border border-[#9a8d80] bg-white p-0.5 ${nouvelleMiseEnPage ? "text-[10px] md:text-[11px]" : ""}`}
                   >
                     {(["mm", "cm", "m"] as const).map((u) => (
                       <button
@@ -1308,34 +1572,39 @@ export function ProductOptions({
                 )}
               </div>
 
-              {/* Le croquis, nu : c'est lui qui explique où mesurer. */}
-              <div className="mx-auto mt-4 max-w-[360px]">
-                <SchemaCotes
-                  compact
-                  forme={bareme.forme}
-                  locale={locale}
-                  matiere={table ? "bois" : "lumiere"}
-                  actif={coteActive}
-                  onChoisir={allerA}
-                  /* Le plateau se dessine aux proportions des cotes tapées. */
-                  proportions={{
-                    principale: Number.isFinite(largeurMm)
-                      ? largeurMm
-                      : undefined,
-                    secondaire: Number.isFinite(hauteurMm)
-                      ? hauteurMm
-                      : undefined,
-                    epaisseur: Number.isFinite(epaisseurMm)
-                      ? epaisseurMm
-                      : undefined,
-                  }}
-                  labels={{
-                    principale: labelPrincipale,
-                    secondaire: labelSecondaire,
-                    epaisseur: t.customThickness,
-                  }}
-                />
-              </div>
+              {/* Le croquis, nu : c'est lui qui explique où mesurer. Sur les
+                  tables d'intérieur, il est déjà affiché en grand sous la
+                  photo (voir plus haut) : pas besoin de le répéter ici. */}
+              {!nouvelleMiseEnPage && (
+                <div className="mx-auto mt-4 max-w-[360px]">
+                  <SchemaCotes
+                    compact
+                    forme={bareme.forme}
+                    locale={locale}
+                    matiere={table ? "bois" : "lumiere"}
+                    essence={woodId}
+                    actif={coteActive}
+                    onChoisir={allerA}
+                    /* Le plateau se dessine aux proportions des cotes tapées. */
+                    proportions={{
+                      principale: Number.isFinite(largeurMm)
+                        ? largeurMm
+                        : undefined,
+                      secondaire: Number.isFinite(hauteurMm)
+                        ? hauteurMm
+                        : undefined,
+                      epaisseur: Number.isFinite(epaisseurMm)
+                        ? epaisseurMm
+                        : undefined,
+                    }}
+                    labels={{
+                      principale: labelPrincipale,
+                      secondaire: labelSecondaire,
+                      epaisseur: t.customThickness,
+                    }}
+                  />
+                </div>
+              )}
 
               {/* Une ligne par cote, un filet entre deux. */}
               <div className="mt-3 divide-y divide-[#e5ddd3]">
@@ -1354,6 +1623,17 @@ export function ProductOptions({
                       ? `${idTailles}-erreur`
                       : undefined
                   }
+                  serre={nouvelleMiseEnPage}
+                  curseur={
+                    nouvelleMiseEnPage
+                      ? {
+                          minMm: bareme.minMm,
+                          maxMm: bareme.maxLargeurMm,
+                          valeurMm: largeurMm,
+                          onChangeMm: (mm) => setLargeurSaisie(chiffre(mm)),
+                        }
+                      : undefined
+                  }
                 />
                 {!rond && (
                   <Ligne
@@ -1366,6 +1646,17 @@ export function ProductOptions({
                     bornes={`${chiffre(bareme.minMm)} – ${chiffre(bareme.maxHauteurMm)}`}
                     onFocus={() => setCoteActive("secondaire")}
                     onBlur={() => setCoteActive(null)}
+                    serre={nouvelleMiseEnPage}
+                    curseur={
+                      nouvelleMiseEnPage
+                        ? {
+                            minMm: bareme.minMm,
+                            maxMm: bareme.maxHauteurMm,
+                            valeurMm: hauteurMm,
+                            onChangeMm: (mm) => setHauteurSaisie(chiffre(mm)),
+                          }
+                        : undefined
+                    }
                     erreurId={
                       devis &&
                       !devis.ok &&
@@ -1380,13 +1671,13 @@ export function ProductOptions({
                      choisit, on ne tape pas. Les cotes trop fines pour la
                      longueur saisie restent visibles mais grisées. */
                   <div
-                    className="flex items-center justify-between gap-4 py-3"
+                    className={`flex items-center justify-between gap-4 ${nouvelleMiseEnPage ? "py-2 md:py-3" : "py-3"}`}
                     onFocus={() => setCoteActive("epaisseur")}
                     onBlur={() => setCoteActive(null)}
                   >
                     <span
                       id={`${idTailles}-epaisseur-titre`}
-                      className="flex items-center gap-2.5 text-[15px] text-[#2b2320]"
+                      className={`flex items-center text-[#2b2320] ${nouvelleMiseEnPage ? "gap-2 text-[13.5px] md:gap-2.5 md:text-[15px]" : "gap-2.5 text-[15px]"}`}
                     >
                       <Pastille n={rond ? 2 : 3} />
                       {t.customThickness}
@@ -1395,7 +1686,7 @@ export function ProductOptions({
                       <div
                         role="radiogroup"
                         aria-labelledby={`${idTailles}-epaisseur-titre`}
-                        className="flex h-10 items-center rounded-full border border-[#9a8d80] bg-white p-0.5"
+                        className={`flex items-center rounded-full border border-[#9a8d80] bg-white p-0.5 ${nouvelleMiseEnPage ? "h-9 md:h-10" : "h-10"}`}
                       >
                         {bareme.epaisseur.choixMm.map((mm) => {
                           const choisi = mm === epaisseurMm;
@@ -1460,7 +1751,7 @@ export function ProductOptions({
                     sur le prix. Une ligne grise, sans numéro, qui ne montre son
                     champ qu'au clic. */}
                 {table && (
-                  <div className="flex items-center justify-between gap-4 py-2.5 text-sm text-[#6f6357]">
+                  <div className={`flex items-center justify-between gap-4 text-sm text-[#6f6357] ${nouvelleMiseEnPage ? "py-1.5 md:py-2.5" : "py-2.5"}`}>
                     <span id={`${idTailles}-hauteur-titre`}>
                       {t.customTableHeight}
                     </span>
@@ -1537,7 +1828,10 @@ export function ProductOptions({
             </div>
           )}
 
-          {product.sizes.length > 1 && (
+          {/* Dans le configurateur en pleine page, on ne choisit plus de format
+              du catalogue : les curseurs suffisent, et une cote qui tombe sur
+              un format garde son prix (voir devisSurMesure). */}
+          {product.sizes.length > 1 && !nouvelleMiseEnPage && (
             <div className={bareme && !product.releve ? "mt-7" : ""}>
               <span className={GROUP_LABEL} id={`${idTailles}-titre`}>
                 {product.sizeLabel
@@ -1701,44 +1995,112 @@ export function ProductOptions({
         </div>
       )}
 
-      {product.poseOption && orderable && !modeVisite && (
-        <PoseDomicile
-          choix={pose}
-          onChange={setPose}
-          demontee={Boolean(product.boisAuM2)}
-          livraisonSeule={Boolean(product.livraisonSeule)}
-          infoSeul={product.livraisonInfo?.[locale]}
-          colis={{
-            slug: product.slug,
-            largeurMm: cotesEff?.largeurMm ?? size?.dimsMm?.[0],
-            hauteurMm: cotesEff?.hauteurMm ?? size?.dimsMm?.[1],
-            epaisseurMm: cotesEff?.epaisseurMm,
-            woodId: woodId || undefined,
-            remplissageId: remplissageId || undefined,
-            quantity,
-          }}
-          t={t}
-          locale={locale}
-        />
-      )}
+      {product.poseOption &&
+        orderable &&
+        !modeVisite &&
+        (() => {
+          const livraison = (
+            <PoseDomicile
+              choix={pose}
+              onChange={setPose}
+              compact={nouvelleMiseEnPage}
+              demontee={Boolean(product.boisAuM2)}
+              livraisonSeule={Boolean(product.livraisonSeule)}
+              infoSeul={product.livraisonInfo?.[locale]}
+              colis={{
+                slug: product.slug,
+                largeurMm: cotesEff?.largeurMm ?? size?.dimsMm?.[0],
+                hauteurMm: cotesEff?.hauteurMm ?? size?.dimsMm?.[1],
+                epaisseurMm: cotesEff?.epaisseurMm,
+                woodId: woodId || undefined,
+                remplissageId: remplissageId || undefined,
+                quantity,
+              }}
+              t={t}
+              locale={locale}
+            />
+          );
+          if (!nouvelleMiseEnPage) return livraison;
+          /* La carte du configurateur : trois sous-menus repliables, pour que
+             tout tienne dans le pop-up sans le faire déborder de l'écran —
+             la livraison, le poids et les détails, ce que comprend le prix. */
+          const resumeLivraison = pose.deplacement
+            ? `${pose.voulue ? t.poseCourt : t.livraisonCourt} · ${prixAffiche(pose.deplacement.montantCents / 100, locale)}`
+            : t.livraisonAChoisir;
+          const resumeDetails = `≈ ${poidsKg} kg`;
+          return (
+            <div className="mt-2">
+              <SousMenu
+                id="sous-menu-livraison"
+                titre={product.livraisonSeule ? t.livraisonTitle : t.poseTitle}
+                resume={resumeLivraison}
+                ouvert={Boolean(menusOuverts.livraison)}
+                onToggle={(o) => ouvrirMenu("livraison", o)}
+              >
+                {livraison}
+              </SousMenu>
+              <SousMenu
+                titre={t.sousMenuDetails}
+                resume={resumeDetails}
+                ouvert={Boolean(menusOuverts.details)}
+                onToggle={(o) => ouvrirMenu("details", o)}
+              >
+                <dl className="grid gap-1.5 text-xs leading-snug text-[#5c5140]">
+                  {(
+                    [
+                      [t.detailDimensions, cotesEff ? `${enUnite(cotesEff.largeurMm)} × ${enUnite(cotesEff.hauteurMm)} × ${cotesEff.epaisseurMm} mm` : size?.label ? cotesCourtes(size.label) : "—"],
+                      [t.detailSurface, devis?.ok ? surfaceAffichee(devis.surface, locale) : "—"],
+                      [t.customTableHeight, enUnite(hauteurTableMm)],
+                      [t.detailMatieres, [wood?.label, metal?.label].filter(Boolean).join(" · ") || "—"],
+                      [t.poidsEstime, `≈ ${poidsKg} kg${quantity > 1 ? ` × ${quantity}` : ""}`],
+                      [t.delaiTitle, delai ?? "—"],
+                    ] as [string, string][]
+                  ).map(([intitule, valeur]) => (
+                    <div key={intitule} className="flex items-baseline justify-between gap-3">
+                      <dt className="shrink-0 text-[#6f6357]">{intitule}</dt>
+                      <dd className="text-right tabular-nums text-[#2b2320]">{valeur}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </SousMenu>
+              <SousMenu
+                titre={t.sousMenuInclus}
+                ouvert={Boolean(menusOuverts.inclus)}
+                onToggle={(o) => ouvrirMenu("inclus", o)}
+              >
+                {listeInclus}
+              </SousMenu>
+            </div>
+          );
+        })()}
 
       {orderable || modeVisite ? (
         /* La barre d'achat reste au bas de la colonne pendant qu'on choisit :
            sur grand écran elle se colle au bord inférieur, débordant du
            gabarit de la colonne pour aller d'un bord à l'autre. */
-        <div className="mt-5 md:sticky md:bottom-0 md:z-20 md:-mx-8 md:border-t md:border-[#e5ddd3] md:bg-white md:px-8 md:py-4 lg:-mx-12 lg:px-12">
+        <div
+          className={
+            nouvelleMiseEnPage
+              ? /* Dans la carte : collée en bas à toutes les tailles, d'un bord à
+                   l'autre de la carte (ses marges internes), dans son gris
+                   (voir .barre-achat, globals.css). */
+                "barre-achat relative sticky bottom-0 z-20 -mx-5 mt-4 border-t border-[#e5ddd3] px-5 pb-4 pt-3 md:-mx-6 md:px-6 md:pb-5 md:pt-4"
+              : "mt-5 md:sticky md:bottom-0 md:z-20 md:-mx-8 md:border-t md:border-[#e5ddd3] md:bg-white md:px-8 md:py-4 lg:-mx-12 lg:px-12"
+          }
+        >
           {/* Le prix et la quantité tiennent toujours côte à côte (le
               sélecteur ne fait que 109 px) ; le bouton, lui, passe sur sa
               propre ligne pleine largeur — un prix à quatre chiffres
               (« 2 940 € ») écrasait le prix ou le sélecteur quand les trois
               devaient tenir sur la même ligne, dans la colonne étroite du
               format tablette. */}
-          <div className="flex flex-col gap-3">
+          <div className={nouvelleMiseEnPage ? "flex flex-col gap-2 md:gap-3" : "flex flex-col gap-3"}>
             <div className="flex items-center gap-3">
               <div className="min-w-0 flex-1">
                 <p
                   className="text-xl font-medium leading-tight tabular-nums"
-                  style={{ color: ACCENT }}
+                  /* Sur la carte grise du configurateur, le prix s'écrit en clair. */
+                  style={{ color: nouvelleMiseEnPage ? "#f6f2ec" : ACCENT }}
                 >
                   {modeVisite
                     ? t.onQuote
@@ -1769,7 +2131,7 @@ export function ProductOptions({
                 <button
                   type="button"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="px-4 py-3 text-[#5c5140] hover:text-[#2a2116]"
+                  className={`text-[#5c5140] hover:text-[#2a2116] ${nouvelleMiseEnPage ? "px-3.5 py-2 md:py-3" : "px-4 py-3"}`}
                   aria-label={
                     locale === "fr" ? "Diminuer la quantité" : "Decrease quantity"
                   }
@@ -1782,7 +2144,7 @@ export function ProductOptions({
                 <button
                   type="button"
                   onClick={() => setQuantity((q) => Math.min(10, q + 1))}
-                  className="px-4 py-3 text-[#5c5140] hover:text-[#2a2116]"
+                  className={`text-[#5c5140] hover:text-[#2a2116] ${nouvelleMiseEnPage ? "px-3.5 py-2 md:py-3" : "px-4 py-3"}`}
                   aria-label={
                     locale === "fr"
                       ? "Augmenter la quantité"
@@ -1803,7 +2165,7 @@ export function ProductOptions({
                 (modeVisite && !visitePrete) ||
                 (product.poseOption && !pose.deplacement)
               }
-              className="btn-verre w-full rounded-full px-5 py-3.5 text-[11px] font-medium uppercase tracking-[0.14em] text-white"
+              className={`btn-verre w-full rounded-full px-5 text-[11px] font-medium uppercase tracking-[0.14em] text-white ${nouvelleMiseEnPage ? "py-3 md:py-3.5" : "py-3.5"}`}
             >
               {t.addToCart}
             </button>
@@ -1814,6 +2176,9 @@ export function ProductOptions({
             <p className="mt-2 text-[11px] text-[#9a5b3f]">
               <a
                 href={raisonIndisponible.ancre}
+                onClick={() => {
+                  if (raisonIndisponible.ancre === "#livraison") ouvrirMenu("livraison", true);
+                }}
                 className="underline decoration-dotted underline-offset-2 hover:text-[#2b2320]"
               >
                 {raisonIndisponible.message}
@@ -1945,56 +2310,13 @@ export function ProductOptions({
         </div>
       )}
 
-      {/* Ce que le prix comprend, juste sous le bouton, en petit : le délai,
-          la livraison, l'atelier, le paiement. */}
-      <ul className="mt-4 grid gap-1.5 border-t border-[#e5ddd3] pt-3 text-xs leading-relaxed text-[#5c5140]">
-        {/* Pour une visite, ni délai de fabrication ni livraison : seul le paiement sécurisé reste vrai. */}
-        {(modeVisite
-          ? [t.inclusAtelier, t.inclusPaiement]
-          : [
-              delai,
-              // Le garde-corps se pose soi-même, fixations fournies : pas de montage sur place.
-              product.poseOption
-                ? t.inclusLivraisonTable
-                : product.releve === "garde-corps-fenetre"
-                  ? t.inclusLivraisonPose
-                  : t.inclusLivraison,
-              t.inclusAtelier,
-              orderable ? t.inclusPaiement : null,
-            ]
-        )
-          .filter(Boolean)
-          .map((ligne) => (
-            <li key={ligne} className="flex items-start gap-2.5">
-              <svg
-                viewBox="0 0 20 20"
-                aria-hidden
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="mt-[2px] h-3.5 w-3.5 shrink-0 text-[#2b2320]"
-              >
-                <path d="M4 10.5l4 4 8-9" />
-              </svg>
-              <span>{ligne}</span>
-            </li>
-          ))}
-      </ul>
-
-      <p className="mt-4 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
-        <svg viewBox="0 0 18 12" aria-hidden="true" className="h-3 w-[18px] shrink-0 rounded-[2px] shadow-[0_0_0_1px_rgba(43,35,32,0.15)]">
-          <rect width="6" height="12" x="0" fill="#1b3a6b" />
-          <rect width="6" height="12" x="6" fill="#f7f4ef" />
-          <rect width="6" height="12" x="12" fill="#a53a3a" />
-        </svg>
-        {t.madeInFrance}
-      </p>
+      {/* Hors de la carte du configurateur, ces lignes suivent le bouton ;
+          dans la carte, elles sont dans le sous-menu « Ce que comprend le prix ». */}
+      {!nouvelleMiseEnPage && listeInclus}
 
       {/* La barre d'achat du téléphone : elle n'apparaît que lorsque le vrai
           bouton est sorti de l'écran, et disparaît dès qu'il revient. */}
-      {orderable && !boutonVisible && (
+      {orderable && !boutonVisible && !nouvelleMiseEnPage && (
         <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-[#e5ddd3] bg-[#ffffff]/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur md:hidden">
           {apercu && (
             <button

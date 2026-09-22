@@ -50,6 +50,7 @@ export function PoseDomicile({
   demontee = false,
   livraisonSeule = false,
   infoSeul,
+  compact = false,
   t,
   locale,
 }: {
@@ -71,6 +72,8 @@ export function PoseDomicile({
   livraisonSeule?: boolean;
   /** Remplace le texte par défaut sous « Livraison par transporteur » (une pièce qui part démontée d'une façon qui lui est propre). */
   infoSeul?: string;
+  /** Dans la carte du configurateur : serré, sans le paragraphe d'explication. */
+  compact?: boolean;
   t: Dictionary["artisanat"];
   locale: "fr" | "en";
 }) {
@@ -180,7 +183,7 @@ export function PoseDomicile({
         role="radio"
         aria-checked={active}
         onClick={() => onChange({ ...choix, voulue, deplacement: null })}
-        className={`flex flex-1 items-start gap-3 rounded-2xl border px-4 py-3.5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${
+        className={`flex flex-1 items-start gap-3 rounded-2xl border px-4 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${compact ? "py-2.5" : "py-3.5"} ${
           active ? "border-[#2b2320] bg-white" : "border-[#e5ddd3] bg-transparent hover:border-[#9a8d80]"
         }`}
       >
@@ -194,7 +197,8 @@ export function PoseDomicile({
         </span>
         <span className="min-w-0">
           <span className="block text-sm font-medium leading-snug text-[#2b2320]">{titre}</span>
-          <span className="mt-1 block text-xs leading-snug text-[#6f6357]">{court}</span>
+          {/* Serré : le titre suffit, le prix se lit sous le code postal. */}
+          {!compact && <span className="mt-1 block text-xs leading-snug text-[#6f6357]">{court}</span>}
         </span>
       </button>
     );
@@ -205,20 +209,22 @@ export function PoseDomicile({
   return (
     // id="livraison" : le bouton d'achat y renvoie quand le code postal
     // manque encore — scroll-mt-28 laisse la place de l'en-tête fixe.
-    <div className="mt-5 scroll-mt-28 border-t border-[#e5ddd3] pt-5" id="livraison">
-      <span id={idGroupe} className="block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
+    <div className={compact ? "scroll-mt-28" : "mt-5 scroll-mt-28 border-t border-[#e5ddd3] pt-5"} id="livraison">
+      {/* Serré (dans un sous-menu qui porte déjà ce titre) : le titre ne se lit qu'au lecteur d'écran. */}
+      <span id={idGroupe} className={compact ? "sr-only" : "block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]"}>
         {livraisonSeule ? t.livraisonTitle : t.poseTitle}
       </span>
       {/* Une pièce qui ne se pose pas (une chaise) n'a rien à choisir : on
           saute le radiogroup à deux cartes, il n'y a qu'une façon de la
           recevoir. */}
       {!livraisonSeule && (
-        <div role="radiogroup" aria-labelledby={idGroupe} className="mt-3 flex flex-col gap-2 sm:flex-row">
+        <div role="radiogroup" aria-labelledby={idGroupe} className={compact ? "flex flex-col gap-2 sm:flex-row" : "mt-3 flex flex-col gap-2 sm:flex-row"}>
           {carte(false, t.poseSeul, t.poseSeulCourt)}
           {carte(true, t.poseAtelier, t.poseAtelierCourt)}
         </div>
       )}
       {/* Ce que l'option retenue veut dire, une fois. */}
+      {!compact && (
       <p className="mt-3 text-xs leading-relaxed text-[#6f6357]">
         {livraisonSeule
           ? (infoSeul ?? t.poseSeulInfoPiece)
@@ -228,8 +234,9 @@ export function PoseDomicile({
               ? t.poseSeulInfo
               : t.poseSeulInfoPiece}
       </p>
+      )}
 
-      <div className="mt-4">
+      <div className={compact ? "mt-3" : "mt-4"}>
         <label htmlFor={idCp} className="flex items-center justify-between gap-4">
           <span className="text-[15px] text-[#2b2320]">{t.poseCodePostal}</span>
           <span
