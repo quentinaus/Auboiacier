@@ -458,11 +458,9 @@
     "configurable": "Configure it online",
     "apercuPhoto": "See the photo of my configuration",
     "coordonneesTitle": "Your details",
-    "coordonneesNote": "For a quote addressed to you, ready to sign.",
+    "coordonneesNote": "For a quote in your name, sent to your email address.",
     "coordonneesNom": "Full name",
-    "coordonneesAdresse": "Address",
-    "coordonneesEmail": "Email (optional)",
-    "coordonneesTelephone": "Phone (optional)",
+    "coordonneesEmail": "Email",
     "coordonneesAnnuler": "Cancel",
     "livraisonIncluse": "Delivery included"
   },

@@ -34,7 +34,7 @@ import {
 } from "./releve-garde-corps";
 import { LIVRAISON, POSE, PRISE_DE_COTES } from "@/lib/deplacement";
 import { VisiteAtelier } from "./prise-de-cotes";
-import { MAX_TEXTE, EMAIL_MOTIF, TELEPHONE_MOTIF } from "@/lib/devis-regles";
+import { MAX_TEXTE, EMAIL_MOTIF } from "@/lib/devis-regles";
 import { POSE_INITIALE, PoseDomicile, type ChoixPose } from "./pose-domicile";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 
@@ -511,7 +511,7 @@ export function ProductOptions({
   /** Livraison seule, ou livrée et posée par l'atelier (tables). */
   const [pose, setPose] = useState<ChoixPose>(POSE_INITIALE);
   /** Les coordonnées facultatives du client, pour un devis PDF nominatif. */
-  const [coordonnees, setCoordonnees] = useState({ nom: "", adresse: "", email: "", telephone: "" });
+  const [coordonnees, setCoordonnees] = useState({ nom: "", email: "" });
   /**
    * Sur téléphone, cette colonne fait plus de deux écrans de haut : le prix et
    * le bouton disparaissent dès qu'on descend choisir un bois ou taper ses
@@ -1051,9 +1051,7 @@ export function ProductOptions({
       p.set("cp", pose.codePostal.replace(/\s+/g, ""));
     }
     if (coordonnees.nom.trim()) p.set("nom", coordonnees.nom.trim());
-    if (coordonnees.adresse.trim()) p.set("adresse", coordonnees.adresse.trim());
     if (coordonnees.email.trim()) p.set("email", coordonnees.email.trim());
-    if (coordonnees.telephone.trim()) p.set("telephone", coordonnees.telephone.trim());
     return `/api/devis-pdf?${p.toString()}`;
   })();
 
@@ -1086,7 +1084,7 @@ export function ProductOptions({
         : null;
 
   /** Le lien vers le devis, sous la barre d'achat ou sous « Demander un devis ». */
-  const coordonneesCompletes = Boolean(coordonnees.nom.trim() && coordonnees.adresse.trim());
+  const coordonneesCompletes = Boolean(coordonnees.nom.trim() && coordonnees.email.trim());
   const devisIcone = (
     <svg
       aria-hidden="true"
@@ -1131,7 +1129,7 @@ export function ProductOptions({
       />
     </label>
   );
-  /** Le devis PDF, et la fenêtre qui demande nom et adresse avant de l'ouvrir. */
+  /** Le devis PDF, et la fenêtre qui demande le nom et l'e-mail avant de l'ouvrir. */
   const lienDevis = urlDevis && (
     <div className="mt-3">
       <button
@@ -1167,23 +1165,12 @@ export function ProductOptions({
               autoComplete: "name",
               autoFocus: true,
             })}
-            {champCoordonnees(t.coordonneesAdresse, "adresse", {
-              required: true,
-              maxLength: 300,
-              autoComplete: "street-address",
-            })}
             {champCoordonnees(t.coordonneesEmail, "email", {
+              required: true,
               type: "email",
               maxLength: MAX_TEXTE.email,
               pattern: EMAIL_MOTIF,
               autoComplete: "email",
-            })}
-            {champCoordonnees(t.coordonneesTelephone, "telephone", {
-              type: "tel",
-              inputMode: "tel",
-              maxLength: MAX_TEXTE.phone,
-              pattern: TELEPHONE_MOTIF,
-              autoComplete: "tel",
             })}
           </div>
           <div className="mt-6 flex items-center gap-4">

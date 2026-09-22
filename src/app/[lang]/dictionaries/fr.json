@@ -458,11 +458,9 @@
     "configurable": "Se configure en ligne",
     "apercuPhoto": "Voir la photo de ma configuration",
     "coordonneesTitle": "Vos coordonnées",
-    "coordonneesNote": "Pour un devis à votre nom, prêt à signer.",
+    "coordonneesNote": "Pour un devis à votre nom, envoyé à votre adresse e-mail.",
     "coordonneesNom": "Nom et prénom",
-    "coordonneesAdresse": "Adresse",
-    "coordonneesEmail": "E-mail (facultatif)",
-    "coordonneesTelephone": "Téléphone (facultatif)",
+    "coordonneesEmail": "E-mail",
     "coordonneesAnnuler": "Annuler",
     "livraisonIncluse": "Livraison incluse"
   },
