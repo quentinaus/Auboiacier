@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { composerConfirmation } from "./confirmation";
 import { rendreDevisPdf } from "./devis-pdf";
 import { ownerEmail, sendEmail } from "./email";
+import { libelleStatut, phraseStatut, type Statut } from "./statut-commande";
 import { siteOrigin } from "./stripe";
 
 /**
@@ -233,5 +234,47 @@ export async function notifyCustomer(
     text,
     replyTo: ownerEmail(),
     attachments: await confirmationJointe(session, lines, locale, ref),
+  });
+}
+
+/**
+ * « Votre pièce est entrée en fabrication. » L'e-mail que Quentin déclenche
+ * depuis son écran d'atelier, en cochant une case.
+ *
+ * Volontairement court : trois lignes, la référence, et de quoi répondre.
+ * Un client qui attend une table pendant six semaines veut savoir où elle en
+ * est, pas lire une lettre.
+ */
+export async function notifyStatut(commande: {
+  email: string;
+  reference: string;
+  locale: "fr" | "en";
+  statut: Statut;
+  pose: boolean;
+}): Promise<boolean> {
+  if (!commande.email) return false;
+  const { locale, pose, statut, reference } = commande;
+  const libelle = libelleStatut(statut, { pose, locale });
+
+  const text = [
+    phraseStatut(statut, { pose, locale }),
+    "",
+    locale === "en" ? `Order ${reference} — ${libelle}` : `Commande ${reference} — ${libelle}`,
+    "",
+    locale === "en"
+      ? "Reply to this e-mail if you have any question."
+      : "Répondez à cet e-mail si vous avez la moindre question.",
+    "",
+    locale === "en" ? "Auboiacier — wood, steel & light" : "Auboiacier — bois, acier & lumière",
+  ].join("\n");
+
+  return sendEmail({
+    to: commande.email,
+    subject:
+      locale === "en"
+        ? `Your Auboiacier order ${reference} — ${libelle}`
+        : `Votre commande Auboiacier ${reference} — ${libelle}`,
+    text,
+    replyTo: ownerEmail(),
   });
 }
