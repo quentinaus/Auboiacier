@@ -44,6 +44,8 @@ export default async function MerciPage({
   let paid = false;
   let reference = "";
   let amount = "";
+  /** L'adresse du PDF « Commande acceptée et payée », une fois le paiement confirmé. */
+  let confirmation = "";
 
   if (typeof sessionId === "string" && sessionId && isStripeConfigured()) {
     try {
@@ -52,6 +54,7 @@ export default async function MerciPage({
         paid = true;
         reference = session.metadata?.order_ref ?? session.id;
         amount = prixAffiche((session.amount_total ?? 0) / 100, locale);
+        confirmation = `/api/commande/confirmation?session_id=${encodeURIComponent(sessionId)}`;
       }
     } catch (error) {
       console.error("[merci] session introuvable :", error);
@@ -83,6 +86,18 @@ export default async function MerciPage({
               </dl>
 
               <p className="mt-6 text-sm leading-relaxed text-[#5c5140]">{t.leadTime}</p>
+
+              {/* Le même document que celui joint à l'e-mail de confirmation.
+                  Une balise <a>, pas un Link : c'est un PDF servi par une
+                  route, pas une page du site, et il s'ouvre à côté. */}
+              <a
+                href={confirmation}
+                target="_blank"
+                rel="noopener"
+                className="mt-6 inline-block rounded-full border border-[#9a8d80] px-6 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] transition-colors hover:bg-[#f7f4ef]"
+              >
+                {t.confirmationPdf}
+              </a>
             </>
           ) : (
             <>

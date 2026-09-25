@@ -78,6 +78,13 @@ const TEXTES = {
     conditions: "Conditions",
     accord: "Bon pour accord",
     signature: "Date et signature, précédées de « Bon pour accord »",
+    confirmation: "Confirmation de commande",
+    accepte: "Commande acceptée et payée",
+    accepteLe: "Le",
+    accepteCgv: "Conditions générales de vente acceptées avant le paiement.",
+    transaction: "Paiement :",
+    empreinte: "Empreinte du document :",
+    suivi: "Une question sur cette commande :",
     commander: "Pour commander en ligne, aux conditions de ce devis :",
     page: "Page",
     sur: "/",
@@ -103,6 +110,13 @@ const TEXTES = {
     conditions: "Terms",
     accord: "Agreed and accepted",
     signature: "Date and signature, preceded by “Agreed and accepted”",
+    confirmation: "Order confirmation",
+    accepte: "Order accepted and paid",
+    accepteLe: "On",
+    accepteCgv: "Terms of sale accepted before payment.",
+    transaction: "Payment:",
+    empreinte: "Document fingerprint:",
+    suivi: "Any question about this order:",
     commander: "To order online, on the terms of this quote:",
     page: "Page",
     sur: "/",
@@ -140,6 +154,12 @@ const styles = StyleSheet.create({
     textAlign: "right",
     color: ENCRE,
   },
+  /**
+   * « Confirmation de commande » fait trois fois la largeur de « Devis » : à
+   * 30 points il passait par-dessus l'adresse de l'atelier, à gauche. Les
+   * documents courts gardent leur grand titre, les longs rapetissent.
+   */
+  titreLong: { fontSize: 19, lineHeight: "21pt" },
   titrePiece: {
     marginTop: 4,
     fontSize: 8,
@@ -287,6 +307,13 @@ const styles = StyleSheet.create({
     lineHeight: "12pt",
   },
   accordTexte: { marginTop: 2, fontSize: 7.5, color: GRIS, lineHeight: "11pt" },
+  accordEmpreinte: {
+    marginTop: 4,
+    fontSize: 6,
+    color: GRIS,
+    letterSpacing: 0.3,
+    lineHeight: "8.5pt",
+  },
   commander: { flex: 1, justifyContent: "flex-end" },
   lien: {
     fontSize: 8,
@@ -332,12 +359,19 @@ function DocumentDevis({ devis }: { devis: Devis }) {
     prixAffiche(euros, devis.locale)
       .replace(/\u202f/g, "\u00a0")
       .replace(/\u2212/g, "-");
-  const titre = devis.nature === "estimation" ? t.estimation : t.devis;
+  const titre =
+    devis.nature === "confirmation"
+      ? t.confirmation
+      : devis.nature === "estimation"
+        ? t.estimation
+        : t.devis;
   return (
     <Document
-      title={`${titre} Auboiacier — ${devis.piece.nom} — ${devis.numero}`}
+      title={[titre, "Auboiacier", devis.piece.nom, devis.numero]
+        .filter(Boolean)
+        .join(" — ")}
       author="Auboiacier"
-      subject={devis.piece.nom}
+      subject={devis.piece.nom || devis.numero}
       language={devis.locale}
     >
       <Page size="A4" style={styles.page}>
@@ -349,8 +383,20 @@ function DocumentDevis({ devis }: { devis: Devis }) {
               <Text style={styles.marqueSous}>{devis.emetteur.lignes[0]}</Text>
             </View>
             <View>
-              <Text style={styles.titre}>{titre}</Text>
-              <Text style={styles.titrePiece}>{devis.piece.nom}</Text>
+              <Text
+                style={
+                  devis.nature === "confirmation"
+                    ? [styles.titre, styles.titreLong]
+                    : styles.titre
+                }
+              >
+                {titre}
+              </Text>
+              {/* Sur une commande à plusieurs pièces il n'y a pas de nom à
+                  écrire : le numéro juste en dessous dit déjà tout. */}
+              {devis.piece.nom !== "" && (
+                <Text style={styles.titrePiece}>{devis.piece.nom}</Text>
+              )}
               <View style={styles.meta}>
                 <Text style={styles.metaLabel}>{t.numero}</Text>
                 <Text style={styles.metaValeur}>{devis.numero}</Text>
@@ -408,28 +454,33 @@ function DocumentDevis({ devis }: { devis: Devis }) {
             </View>
           </View>
 
-          {/* La pièce, en photo et en détail. */}
-          <View style={styles.section}>
-            <Text style={styles.etiquette}>{t.piece}</Text>
-            <View style={styles.piece}>
-              {devis.piece.photo && (
-                // eslint-disable-next-line jsx-a11y/alt-text -- l'Image de react-pdf n'a pas d'attribut alt
-                <Image src={devis.piece.photo} style={styles.photo} />
-              )}
-              <View style={styles.pieceTexte}>
-                <Text style={styles.pieceNom}>{devis.piece.nom}</Text>
-                <Text style={styles.pieceAccroche}>{devis.piece.accroche}</Text>
-                <View style={styles.caracteristiques}>
-                  {devis.piece.caracteristiques.map((c) => (
-                    <View key={c.label} style={styles.carac} wrap={false}>
-                      <Text style={styles.caracLabel}>{c.label}</Text>
-                      <Text style={styles.caracValeur}>{c.value}</Text>
-                    </View>
-                  ))}
+          {/* La pièce, en photo et en détail — sauf sur une confirmation de
+              commande, où ni la photo ni les caractéristiques ne sont connues :
+              elles vivent dans le configurateur, pas chez Stripe. Un cadre à
+              moitié vide vaudrait moins que le tableau qui suit. */}
+          {(devis.piece.photo || devis.piece.caracteristiques.length > 0) && (
+            <View style={styles.section}>
+              <Text style={styles.etiquette}>{t.piece}</Text>
+              <View style={styles.piece}>
+                {devis.piece.photo && (
+                  // eslint-disable-next-line jsx-a11y/alt-text -- l'Image de react-pdf n'a pas d'attribut alt
+                  <Image src={devis.piece.photo} style={styles.photo} />
+                )}
+                <View style={styles.pieceTexte}>
+                  <Text style={styles.pieceNom}>{devis.piece.nom}</Text>
+                  <Text style={styles.pieceAccroche}>{devis.piece.accroche}</Text>
+                  <View style={styles.caracteristiques}>
+                    {devis.piece.caracteristiques.map((c) => (
+                      <View key={c.label} style={styles.carac} wrap={false}>
+                        <Text style={styles.caracLabel}>{c.label}</Text>
+                        <Text style={styles.caracValeur}>{c.value}</Text>
+                      </View>
+                    ))}
+                  </View>
                 </View>
               </View>
             </View>
-          </View>
+          )}
 
           {/* Les lignes et le total. */}
           <View style={styles.tableau}>
@@ -523,14 +574,33 @@ function DocumentDevis({ devis }: { devis: Devis }) {
           </View>
 
           <View style={styles.accord} wrap={false}>
-            {devis.nature === "devis" && (
+            {devis.acceptation ? (
+              /* La case n'est plus à remplir : elle l'est déjà. Tout ce qui
+                 s'y écrit vient de Stripe — l'heure de la commande, le numéro
+                 de la transaction — et l'empreinte scelle le contenu. */
+              <View style={styles.accordBoite}>
+                <Text style={styles.accordTitre}>{t.accepte}</Text>
+                <Text style={styles.accordTexte}>
+                  {t.accepteLe} {devis.acceptation.quand}
+                </Text>
+                <Text style={styles.accordTexte}>{t.accepteCgv}</Text>
+                <Text style={styles.accordTexte}>
+                  {t.transaction} {devis.acceptation.transaction}
+                </Text>
+                <Text style={styles.accordEmpreinte}>
+                  {t.empreinte} {devis.acceptation.empreinte}
+                </Text>
+              </View>
+            ) : devis.nature === "devis" ? (
               <View style={styles.accordBoite}>
                 <Text style={styles.accordTitre}>{t.accord}</Text>
                 <Text style={styles.accordTexte}>{t.signature}</Text>
               </View>
-            )}
+            ) : null}
             <View style={styles.commander}>
-              <Text style={styles.ligneGrise}>{t.commander}</Text>
+              <Text style={styles.ligneGrise}>
+                {devis.acceptation ? t.suivi : t.commander}
+              </Text>
               <Text style={styles.lien}>
                 {devis.lienFiche.replace(/^https?:\/\//, "")}
               </Text>

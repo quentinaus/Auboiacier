@@ -696,6 +696,7 @@
     "ref": "Reference",
     "amount": "Amount paid",
     "leadTime": "Your piece is made to order in our workshop: the production time is the one shown on its page, from 3 to 12 weeks depending on the model. We confirm the date by email and contact you to arrange delivery.",
+    "confirmationPdf": "Download your order confirmation (PDF)",
     "notPaidTitle": "Order not found",
     "notPaidBody": "We cannot find a payment for this page. If you have been charged, write to us and we will find your order.",
     "backToShop": "Back to the collection"

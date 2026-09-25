@@ -696,6 +696,7 @@
     "ref": "Référence",
     "amount": "Montant payé",
     "leadTime": "Votre pièce est fabriquée à la commande dans notre atelier : le délai est celui indiqué sur sa fiche, de 3 à 12 semaines selon le modèle. Nous vous confirmons la date par e-mail et nous vous contactons pour convenir de la livraison.",
+    "confirmationPdf": "Télécharger la confirmation de commande (PDF)",
     "notPaidTitle": "Commande introuvable",
     "notPaidBody": "Nous ne trouvons pas de paiement pour cette page. Si vous avez été débité, écrivez-nous : nous retrouverons votre commande.",
     "backToShop": "Retour à la collection"

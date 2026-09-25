@@ -151,9 +151,31 @@ export type EntreeDevis = {
   origine: string;
 };
 
+/**
+ * Ce qui remplace la case à signer quand la commande a été payée en ligne.
+ * Tout vient de Stripe, jamais du catalogue : le montant imprimé est celui
+ * qui a réellement quitté la carte du client. Un tarif modifié plus tard ne
+ * peut donc pas faire dire au document autre chose que ce qui a été payé.
+ */
+export type Acceptation = {
+  /** Date et heure de la commande, déjà écrites dans la langue du document. */
+  quand: string;
+  /** L'identifiant du paiement chez Stripe, qui permet de le retrouver. */
+  transaction: string;
+  /**
+   * L'empreinte SHA-256 du contenu, en groupes de quatre signes.
+   * Elle ne protège pas le fichier : elle permet de prouver, plus tard, que
+   * le document présenté est bien celui qui a été émis ce jour-là.
+   */
+  empreinte: string;
+};
+
 export type Devis = {
-  /** « Devis » pour une pièce achetable ; « Estimation » pour une pièce sur devis. */
-  nature: "devis" | "estimation";
+  /**
+   * « Devis » pour une pièce achetable, « estimation » pour une pièce sur
+   * devis, « confirmation » pour une commande déjà payée.
+   */
+  nature: "devis" | "estimation" | "confirmation";
   numero: string;
   date: string;
   validite: string;
@@ -173,6 +195,8 @@ export type Devis = {
   conditions: string[];
   /** Le lien vers la fiche, pour commander en ligne. */
   lienFiche: string;
+  /** Présent seulement sur une confirmation : la commande a été payée. */
+  acceptation?: Acceptation;
 };
 
 export type ResultatDevis = { ok: true; devis: Devis } | { ok: false; reason: string };
@@ -854,6 +878,25 @@ function resoudreEstimation(product: Product, selection: Selection) {
   return { product, size, wood, metal, fabric, remplissage: undefined, unitPrice, optionsLabel };
 }
 
+/**
+ * Qui vend. Partagé par le devis et par la confirmation de commande : les
+ * deux documents doivent présenter l'atelier exactement de la même façon,
+ * mentions légales comprises.
+ */
+export function emetteurDevis(locale: Locale) {
+  return {
+    nom: ENTREPRISE.raisonSociale ? `Auboiacier — ${ENTREPRISE.raisonSociale}` : "Auboiacier",
+    lignes: [
+      ...TEXTES[locale].emetteurLignes,
+      [ENTREPRISE.adresse, ENTREPRISE.statut].filter(Boolean).join(" — "),
+      ENTREPRISE.siret ? `SIRET ${ENTREPRISE.siret}` : "",
+      ENTREPRISE.tva ? `TVA ${ENTREPRISE.tva}` : "",
+      ENTREPRISE.assurance,
+      ENTREPRISE.telephone,
+    ].filter(Boolean),
+  };
+}
+
 export function composerDevis(entree: EntreeDevis): ResultatDevis {
   const brut = getProduct(entree.selection.slug);
   if (!brut) return { ok: false, reason: "unknown_slug" };
@@ -983,17 +1026,7 @@ export function composerDevis(entree: EntreeDevis): ResultatDevis {
         c.cgv,
       ];
 
-  const emetteur = {
-    nom: ENTREPRISE.raisonSociale ? `Auboiacier — ${ENTREPRISE.raisonSociale}` : "Auboiacier",
-    lignes: [
-      ...t.emetteurLignes,
-      [ENTREPRISE.adresse, ENTREPRISE.statut].filter(Boolean).join(" — "),
-      ENTREPRISE.siret ? `SIRET ${ENTREPRISE.siret}` : "",
-      ENTREPRISE.tva ? `TVA ${ENTREPRISE.tva}` : "",
-      ENTREPRISE.assurance,
-      ENTREPRISE.telephone,
-    ].filter(Boolean),
-  };
+  const emetteur = emetteurDevis(locale);
 
   const photo = photoConfiguration(product, selection);
   return {

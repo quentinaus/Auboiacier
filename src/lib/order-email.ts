@@ -1,6 +1,9 @@
 import "server-only";
 import type Stripe from "stripe";
+import { composerConfirmation } from "./confirmation";
+import { rendreDevisPdf } from "./devis-pdf";
 import { ownerEmail, sendEmail } from "./email";
+import { siteOrigin } from "./stripe";
 
 /**
  * Bons de commande.
@@ -153,6 +156,37 @@ export async function notifyOwner(
   });
 }
 
+/**
+ * Le document « Commande acceptée et payée », en pièce jointe de la
+ * confirmation. Il remplace la case « Bon pour accord » restée vide sur le
+ * devis : le client a accepté les conditions puis payé, le document le dit.
+ *
+ * Ne lève jamais. Un PDF qui ne sort pas ne doit pas priver l'acheteur de sa
+ * confirmation de commande — c'est l'e-mail qui compte, la pièce jointe est
+ * un plus.
+ */
+async function confirmationJointe(
+  session: Stripe.Checkout.Session,
+  lines: Stripe.LineItem[],
+  locale: "fr" | "en",
+  ref: string
+) {
+  try {
+    const pdf = await rendreDevisPdf(
+      composerConfirmation({ session, lignes: lines, origine: siteOrigin() })
+    );
+    return [
+      {
+        filename: `${locale === "en" ? "Order" : "Commande"} ${ref}.pdf`,
+        content: pdf.toString("base64"),
+      },
+    ];
+  } catch (error) {
+    console.error("[commande] confirmation PDF non produite :", ref, error);
+    return undefined;
+  }
+}
+
 /** Confirmation à l'acheteur. Au mieux : son échec ne bloque pas la commande. */
 export async function notifyCustomer(
   session: Stripe.Checkout.Session,
@@ -173,6 +207,7 @@ export async function notifyCustomer(
           "",
           `Total paid: ${euros(session.amount_total)}`,
                 "",
+          "Your order confirmation is attached to this e-mail.",
           `Your piece is made to order in our workshop: allow ${LEAD_TIME.en}. We will contact you to arrange delivery.`,
           "Your invoice is sent separately by our payment provider.",
           "",
@@ -185,6 +220,7 @@ export async function notifyCustomer(
           "",
           `Total payé : ${euros(session.amount_total)}`,
                 "",
+          "Votre confirmation de commande est jointe à cet e-mail.",
           `Votre pièce est fabriquée à la commande dans notre atelier : comptez ${LEAD_TIME.fr}. Nous vous contactons pour convenir de la livraison.`,
           "Votre facture vous est envoyée séparément par notre prestataire de paiement.",
           "",
@@ -196,5 +232,6 @@ export async function notifyCustomer(
     subject: locale === "en" ? `Your Auboiacier order ${ref}` : `Votre commande Auboiacier ${ref}`,
     text,
     replyTo: ownerEmail(),
+    attachments: await confirmationJointe(session, lines, locale, ref),
   });
 }
