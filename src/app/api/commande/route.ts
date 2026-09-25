@@ -17,6 +17,7 @@ import {
   libellePriseDeCotes,
 } from "@/lib/deplacement";
 import { cleCreneau, creneauValide, libelleCreneau, lireCreneau } from "@/lib/agenda";
+import { clientConnecte } from "@/lib/compte";
 
 export const runtime = "nodejs";
 /** Un départ en paiement ne doit jamais rester suspendu plus d'une demi-minute. */
@@ -319,6 +320,28 @@ export async function POST(request: Request) {
   }
 
   const orderRef = newOrderRef();
+
+  /**
+   * Un client connecté ne retape pas son adresse. On donne son client Stripe
+   * à la caisse, et Stripe lui représente ce qu'il avait saisi la fois
+   * précédente ; « customer_update » laisse Stripe réenregistrer ce qu'il
+   * modifie, faute de quoi une adresse corrigée serait perdue au paiement
+   * suivant. C'est la réponse à « mettre ses informations de livraison » :
+   * les coordonnées restent chez Stripe, où la politique de confidentialité
+   * dit déjà qu'elles sont, et où l'on peut les supprimer.
+   */
+  let clientStripe: string | null = null;
+  try {
+    const email = await clientConnecte();
+    if (email) {
+      const trouves = await getStripe().customers.list({ email, limit: 1 });
+      clientStripe = trouves.data[0]?.id ?? null;
+    }
+  } catch (error) {
+    // Un pré-remplissage raté ne doit pas empêcher d'acheter : on continue
+    // exactement comme pour un visiteur de passage.
+    console.error("[commande] pré-remplissage impossible :", error);
+  }
   // Mentions légales du bas de facture : vides tant que Quentin n'a pas rempli
   // les variables FACTURE_… (voir .env.example et MISE-EN-LIGNE.md).
   const pied = piedDeFacture();
@@ -330,7 +353,35 @@ export async function POST(request: Request) {
       line_items: items,
       shipping_address_collection: { allowed_countries: ["FR"] },
       phone_number_collection: { enabled: true },
-      customer_creation: "always",
+      // Les deux s'excluent : avec un client connu on le désigne, sinon
+      // Stripe en crée un — c'est lui qui permettra de retrouver la commande
+      // depuis l'espace client, plus tard, par l'adresse e-mail.
+      ...(clientStripe
+        ? {
+            customer: clientStripe,
+            customer_update: { shipping: "auto", address: "auto", name: "auto" as const },
+          }
+        : { customer_creation: "always" as const }),
+      /**
+       * Une table de 60 kg ne monte pas toute seule au deuxième étage. Ce
+       * champ est l'information qui manque vraiment aujourd'hui au bon de
+       * commande : elle remonte dans l'e-mail à l'atelier.
+       */
+      custom_fields: [
+        {
+          key: "acces",
+          label: {
+            type: "custom" as const,
+            custom:
+              locale === "en"
+                ? "Floor, door code, truck access"
+                : "Étage, code d'entrée, accès camion",
+          },
+          type: "text" as const,
+          optional: true,
+          text: { maximum_length: 200 },
+        },
+      ],
       invoice_creation: {
         enabled: true,
         ...(pied ? { invoice_data: { footer: pied } } : {}),

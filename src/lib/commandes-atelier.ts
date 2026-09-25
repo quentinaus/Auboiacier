@@ -4,7 +4,7 @@
 import "server-only";
 import type Stripe from "stripe";
 import { PRISE_DE_COTES } from "@/lib/deplacement";
-import { getStripe, isStripeConfigured } from "@/lib/stripe";
+import { accesLivraison, getStripe, isStripeConfigured } from "@/lib/stripe";
 import { STATUT_INITIAL, estStatut, type Statut } from "@/lib/statut-commande";
 
 /**
@@ -34,6 +34,8 @@ export type CommandeAtelier = {
   /** La ville saisie au panier : elle est là même sans adresse complète. */
   ville: string;
   adresse: string;
+  /** « Étage, code d'entrée, accès camion », si le client l'a rempli. */
+  acces: string;
   /** Les pièces commandées, telles qu'elles sont écrites chez Stripe. */
   pieces: string[];
   statut: Statut;
@@ -137,6 +139,7 @@ export async function commandesPayees(frais = false): Promise<CommandeAtelier[]>
         },
         ville: texte(session.metadata?.ville),
         adresse: adresseLisible(livraison?.address ?? client?.address),
+        acces: accesLivraison(session),
         pieces,
         statut: estStatut(statutBrut) ? statutBrut : STATUT_INITIAL,
         pose: Boolean(session.metadata?.pose_cp),

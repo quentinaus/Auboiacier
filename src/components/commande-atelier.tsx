@@ -95,6 +95,12 @@ export function CarteCommande({ commande, cle }: { commande: CommandeAtelier; cl
         )}
       </p>
 
+      {commande.acces && (
+        <p className="mt-3 rounded-xl bg-[#f7f4ef] px-3 py-2 text-sm text-[#4a4038]">
+          Accès : {commande.acces}
+        </p>
+      )}
+
       {commande.pieces.length > 0 && (
         <ul className="mt-3 border-t border-[#e8e1d8] pt-3 text-sm text-[#5c5140]">
           {commande.pieces.map((piece, i) => (

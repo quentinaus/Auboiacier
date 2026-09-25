@@ -1,5 +1,6 @@
 import "server-only";
 import type Stripe from "stripe";
+import { accesLivraison } from "./stripe";
 import { composerConfirmation } from "./confirmation";
 import { rendreDevisPdf } from "./devis-pdf";
 import { ownerEmail, sendEmail } from "./email";
@@ -143,6 +144,7 @@ export async function notifyOwner(
     "",
     "LIVRAISON",
     formatAddress(shipping?.address ?? customer?.address),
+    accesLivraison(session) ? `Accès : ${accesLivraison(session)}` : "",
     "",
     `Paiement Stripe : ${session.id}`,
     "Facture et remboursement : tableau de bord Stripe > Paiements.",

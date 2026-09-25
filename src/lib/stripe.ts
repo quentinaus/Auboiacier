@@ -76,3 +76,13 @@ const DOMAINE = "https://auboiacier.fr";
 export function siteOrigin() {
   return (process.env.NEXT_PUBLIC_SITE_URL?.trim() || DOMAINE).replace(/\/+$/, "");
 }
+
+/**
+ * Ce que le client a saisi dans « Étage, code d'entrée, accès camion » sur la
+ * page de paiement. Vide la plupart du temps ; quand il est rempli, c'est
+ * l'information qui décide d'un déplacement à deux.
+ */
+export function accesLivraison(session: Stripe.Checkout.Session): string {
+  const champ = session.custom_fields?.find((c) => c.key === "acces");
+  return champ?.text?.value?.trim() ?? "";
+}
