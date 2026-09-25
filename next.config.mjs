@@ -49,6 +49,22 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // Une seule adresse pour tout le site. Ces deux règles vivaient dans
+      // vercel.json, où Next.js ne les appliquait jamais : www servait le site
+      // en double, et Google voyait deux sites jumeaux. Ici elles partent bien.
+      {
+        source: "/:chemin*",
+        has: [{ type: "host", value: "www.auboiacier.fr" }],
+        destination: "https://auboiacier.fr/:chemin*",
+        permanent: true,
+      },
+      // Le .eu, pris en même temps que le .fr, ne sert qu'à ramener ici.
+      {
+        source: "/:chemin*",
+        has: [{ type: "host", value: "(www\\.)?auboiacier\\.eu" }],
+        destination: "https://auboiacier.fr/:chemin*",
+        permanent: true,
+      },
       // La page des réalisations ne parle plus que des plafonds lumineux :
       // elle a déménagé sous /realisations. Redirection permanente pour ne
       // pas perdre le lien envoyé aux moteurs de recherche.

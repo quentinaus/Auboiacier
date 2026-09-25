@@ -1,18 +1,4 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "regions": ["cdg1"],
-  "redirects": [
-    {
-      "source": "/:chemin*",
-      "has": [{ "type": "host", "value": "www.auboiacier.fr" }],
-      "destination": "https://auboiacier.fr/:chemin*",
-      "permanent": true
-    },
-    {
-      "source": "/:chemin*",
-      "has": [{ "type": "host", "value": "(www\\.)?auboiacier\\.eu" }],
-      "destination": "https://auboiacier.fr/:chemin*",
-      "permanent": true
-    }
-  ]
+  "regions": ["cdg1"]
 }
