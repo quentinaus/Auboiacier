@@ -17,7 +17,8 @@
     "zone": "Zone d'intervention",
     "faq": "Questions fréquentes",
     "breadcrumb": "Fil d'Ariane",
-    "mainMenu": "Menu principal"
+    "mainMenu": "Menu principal",
+    "compte": "Mon espace"
   },
   "footer": {
     "rights": "Tous droits réservés.",
@@ -834,7 +835,7 @@
       },
       {
         "title": "8. Cookies et stockage dans votre navigateur",
-        "body": "Ce site ne dépose aucun cookie et n'embarque aucun traceur publicitaire, aucun bouton de réseau social, aucune vidéo ni carte de service tiers.\n\nIl utilise un seul espace de stockage local de votre navigateur (« auboiacier-panier-v1 ») pour mémoriser le contenu de votre panier d'une page à l'autre. Cette mémoire est strictement nécessaire au service que vous demandez : elle est dispensée de consentement (article 82 de la loi Informatique et Libertés). Elle reste sur votre appareil, ne nous est pas transmise telle quelle, et vous pouvez l'effacer en vidant le panier ou les données du site dans votre navigateur.\n\nMesure d'audience : ce site utilise Vercel Web Analytics pour compter les visites et les pages consultées. Cet outil ne dépose aucun cookie et ne lit rien sur votre appareil. Il n'identifie pas les visiteurs : votre adresse IP et le nom de votre navigateur servent uniquement à fabriquer une empreinte anonyme, renouvelée chaque jour, et ne sont pas conservés. Les données collectées (page vue, pays, type d'appareil, navigateur, site d'origine) sont traitées pour notre compte par Vercel Inc., qui héberge le site, sur la base de notre intérêt légitime à connaître la fréquentation du site (article 6.1.f du RGPD) et ne sont pas croisées avec d'autres données. Aucun consentement n'est requis pour cette mesure ; vous pouvez la bloquer avec un bloqueur de contenu, sans effet sur le fonctionnement du site.\n\nLa page de paiement est celle de Stripe (checkout.stripe.com) : Stripe y dépose ses propres cookies, nécessaires au paiement et à la lutte contre la fraude, régis par sa politique de cookies (stripe.com/fr/legal/cookies-policy)."
+        "body": "Tant que vous n'ouvrez pas d'espace client, ce site ne dépose aucun cookie. Il n'embarque aucun traceur publicitaire, aucun bouton de réseau social, aucune vidéo ni carte de service tiers.\n\nSi vous ouvrez un espace client, le site dépose un cookie, « auboiacier_compte », qui vous garde connecté. Il contient votre adresse e-mail vérifiée et une date d'expiration, signées par le site ; rien d'autre, aucun identifiant publicitaire, et aucun profil. Il est strictement nécessaire au service que vous demandez — sans lui, vous seriez déconnecté à chaque page — et il est donc dispensé de consentement (article 82 de la loi Informatique et Libertés). Il vaut trente jours et s'efface dès que vous vous déconnectez, ou lorsque vous effacez les données du site dans votre navigateur. Pendant la connexion elle-même, un second cookie (« auboiacier_passage ») vit dix minutes : il sert uniquement à vérifier que c'est bien vous qui avez lancé la connexion, et disparaît aussitôt après.\n\nIl utilise par ailleurs un seul espace de stockage local de votre navigateur (« auboiacier-panier-v1 ») pour mémoriser le contenu de votre panier d'une page à l'autre. Cette mémoire est elle aussi strictement nécessaire au service que vous demandez : elle est dispensée de consentement. Elle reste sur votre appareil, ne nous est pas transmise telle quelle, et vous pouvez l'effacer en vidant le panier ou les données du site dans votre navigateur.\n\nMesure d'audience : ce site utilise Vercel Web Analytics pour compter les visites et les pages consultées. Cet outil ne dépose aucun cookie et ne lit rien sur votre appareil. Il n'identifie pas les visiteurs : votre adresse IP et le nom de votre navigateur servent uniquement à fabriquer une empreinte anonyme, renouvelée chaque jour, et ne sont pas conservés. Les données collectées (page vue, pays, type d'appareil, navigateur, site d'origine) sont traitées pour notre compte par Vercel Inc., qui héberge le site, sur la base de notre intérêt légitime à connaître la fréquentation du site (article 6.1.f du RGPD) et ne sont pas croisées avec d'autres données. Aucun consentement n'est requis pour cette mesure ; vous pouvez la bloquer avec un bloqueur de contenu, sans effet sur le fonctionnement du site.\n\nLa page de paiement est celle de Stripe (checkout.stripe.com) : Stripe y dépose ses propres cookies, nécessaires au paiement et à la lutte contre la fraude, régis par sa politique de cookies (stripe.com/fr/legal/cookies-policy)."
       },
       {
         "title": "9. Sécurité",
@@ -881,7 +882,7 @@
       },
       {
         "title": "8. Données personnelles et cookies",
-        "body": "Le site ne dépose aucun cookie. La façon dont nous traitons vos données, les prestataires concernés et vos droits sont décrits dans la politique de confidentialité."
+        "body": "Le site dépose un cookie uniquement si vous ouvrez un espace client, pour vous y garder connecté. La façon dont nous traitons vos données, les prestataires concernés et vos droits sont décrits dans la politique de confidentialité."
       },
       {
         "title": "9. Modification",
@@ -976,6 +977,14 @@
     "merciRdv": {
       "title": "Demande de rendez-vous envoyée",
       "description": "Votre créneau de prise de cotes est enregistré : confirmation par e-mail."
+    },
+    "compte": {
+      "title": "Votre espace client",
+      "description": "Suivez vos commandes Auboiacier, leur avancement à l'atelier, et retrouvez vos documents."
+    },
+    "compteConnexion": {
+      "title": "Se connecter",
+      "description": "Ouvrez votre espace client Auboiacier avec Google ou un lien reçu par e-mail, sans mot de passe."
     }
   },
   "zone": {
@@ -1106,5 +1115,44 @@
     "home": "Retour à l'accueil",
     "craft": "Voir le mobilier",
     "quote": "Demander un devis"
+  },
+  "compte": {
+    "title": "Votre espace",
+    "intro": "Suivez vos commandes, retrouvez vos documents.",
+    "connecteComme": "Connecté avec",
+    "deconnexion": "Se déconnecter",
+    "mesCommandes": "Vos commandes",
+    "voirToutes": "Voir toutes vos commandes",
+    "aucuneTitre": "Aucune commande pour l'instant",
+    "aucuneCorps": "Si vous avez payé avec une autre adresse e-mail, écrivez-nous à auboiacier@gmail.com en indiquant votre référence : nous rattacherons la commande.",
+    "voirCollection": "Voir la collection",
+    "ferme": "L'espace client n'est pas encore ouvert. Revenez bientôt.",
+    "connexionTitre": "Se connecter",
+    "connexionIntro": "Pas de mot de passe : votre compte se crée tout seul à la première connexion.",
+    "google": "Continuer avec Google",
+    "ou": "ou",
+    "emailLabel": "Votre adresse e-mail",
+    "emailPlaceholder": "vous@exemple.fr",
+    "envoyer": "Recevoir un lien de connexion",
+    "envoi": "Envoi…",
+    "envoyeTitre": "Regardez votre boîte mail",
+    "envoyeCorps": "Un lien vous attend, valable 15 minutes. Ouvrez-le dans votre navigateur. Rien reçu ? Vérifiez les indésirables.",
+    "erreurEmail": "Cette adresse ne semble pas valable.",
+    "erreurEnvoi": "L'envoi n'a pas abouti. Réessayez dans un instant.",
+    "erreurConnexion": "La connexion n'a pas abouti. Réessayez.",
+    "erreurLien": "Ce lien a expiré. Demandez-en un nouveau.",
+    "commandeRetour": "Retour à vos commandes",
+    "commandeDate": "Commandée le",
+    "commandeMontant": "Montant payé",
+    "commandeLivraison": "Livraison",
+    "commandePieces": "Votre commande",
+    "commandeSuivi": "Où en est votre commande",
+    "telecharger": "Télécharger la confirmation (PDF)",
+    "facture": "Voir la facture",
+    "ecrire": "Écrire à l'atelier",
+    "introuvable": "Commande introuvable",
+    "merciTitre": "Suivez votre commande",
+    "merciCorps": "Créez votre espace en un clic pour suivre la fabrication et retrouver vos documents.",
+    "merciBouton": "Créer mon espace"
   }
 }

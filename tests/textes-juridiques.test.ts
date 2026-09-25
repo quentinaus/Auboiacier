@@ -61,15 +61,40 @@ test("la politique cite la vraie clé du panier dans le navigateur", () => {
   }
 });
 
-test("le site ne dépose aucun cookie de son cru (ce que dit l'article 8)", () => {
-  // Aucun fichier du site ne pose de cookie : ni en-tête Set-Cookie, ni
-  // document.cookie, ni l'API cookies() de Next. Si l'un apparaît un jour,
-  // l'article 8 de la politique doit être réécrit le même jour.
+test("un seul fichier du site pose des témoins, et l'article 8 les décrit", () => {
+  // Le site n'a longtemps déposé AUCUN témoin. L'espace client en impose un
+  // (rester connecté d'une page à l'autre), et un second le temps de la
+  // connexion. Ils vivent tous les deux dans src/lib/compte.ts, et nulle part
+  // ailleurs : ce test tient la porte. Qu'un troisième apparaisse dans un
+  // autre fichier — ni en-tête Set-Cookie, ni document.cookie, ni l'API
+  // cookies() de Next — et l'article 8 doit être réécrit le même jour.
   const sortie = execSync(
-    "grep -rniE 'set-cookie|document\\.cookie|cookies\\(' src --include='*.ts' --include='*.tsx' || true",
+    "grep -rlniE 'set-cookie|document\\.cookie|cookies\\(' src --include='*.ts' --include='*.tsx' || true",
     { cwd: new URL("..", import.meta.url), encoding: "utf8" }
   );
-  assert.equal(sortie.trim(), "", `un cookie est posé quelque part :\n${sortie}`);
+  const fichiers = sortie.trim().split("\n").filter(Boolean).sort();
+  assert.deepEqual(fichiers, ["src/lib/compte.ts"], `un témoin est posé ailleurs :\n${sortie}`);
+
+  // Et l'article 8 nomme les deux, dans les deux langues : un témoin décrit
+  // nulle part est un témoin qu'on n'a pas le droit de poser.
+  for (const dict of [fr, en]) {
+    const article = dict.confidentialite.sections[7].body;
+    for (const temoin of ["auboiacier_compte", "auboiacier_passage"]) {
+      assert.ok(article.includes(temoin), `article 8 (${dict.confidentialite.title}) ne nomme pas ${temoin}`);
+    }
+  }
+});
+
+test("l'espace client apparaît dans la liste des destinataires", () => {
+  // « Se connecter avec Google » fait entrer Google dans le circuit : il doit
+  // figurer à l'article 4, dans les deux langues, sans quoi la politique ment.
+  for (const dict of [fr, en]) {
+    assert.match(
+      dict.confidentialite.sections[3].body,
+      /Google Ireland/,
+      `article 4 (${dict.confidentialite.title}) ne cite pas Google`
+    );
+  }
 });
 
 test("l'article 8 décrit l'outil de mesure d'audience réellement posé", () => {

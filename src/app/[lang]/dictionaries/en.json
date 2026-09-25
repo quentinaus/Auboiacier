@@ -17,7 +17,8 @@
     "zone": "Where we work",
     "faq": "Frequently asked questions",
     "breadcrumb": "Breadcrumb",
-    "mainMenu": "Main menu"
+    "mainMenu": "Main menu",
+    "compte": "My account"
   },
   "footer": {
     "rights": "All rights reserved.",
@@ -834,7 +835,7 @@
       },
       {
         "title": "8. Cookies and browser storage",
-        "body": "This site sets no cookies and embeds no advertising tracker, no social network button, no third-party video or map.\n\nIt uses a single local storage entry in your browser (\"auboiacier-panier-v1\") to remember the contents of your cart from one page to the next. This storage is strictly necessary for the service you request and is exempt from consent (Article 82 of the French Data Protection Act). It stays on your device, is not sent to us as such, and you can clear it by emptying the cart or clearing the site's data in your browser.\n\nAudience measurement: this site uses Vercel Web Analytics to count visits and page views. The tool sets no cookies and reads nothing on your device. It does not identify visitors: your IP address and browser name are used only to build an anonymous fingerprint, renewed every day, and are not stored. The data collected (page viewed, country, device type, browser, referring site) is processed on our behalf by Vercel Inc., which hosts the site, on the basis of our legitimate interest in knowing how the site is used (Article 6(1)(f) GDPR), and is not combined with any other data. No consent is required for this measurement; you can block it with a content blocker without affecting the site.\n\nThe payment page is Stripe's (checkout.stripe.com): Stripe sets its own cookies there, needed for payment and fraud prevention, governed by its cookie policy (stripe.com/legal/cookies-policy)."
+        "body": "Unless you open a customer account, this site sets no cookies. It embeds no advertising tracker, no social network button, no third-party video or map.\n\nIf you open a customer account, the site sets one cookie, “auboiacier_compte”, which keeps you signed in. It holds your verified e-mail address and an expiry date, signed by the site; nothing else, no advertising identifier and no profile. It is strictly necessary for the service you request — without it you would be signed out on every page — and is therefore exempt from consent (Article 82 of the French Data Protection Act). It lasts thirty days and is deleted as soon as you sign out, or when you clear the site's data in your browser. During the sign-in itself, a second cookie (“auboiacier_passage”) lives for ten minutes: it serves only to check that you are the one who started the sign-in, and disappears straight after.\n\nIt also uses a single local storage entry in your browser (“auboiacier-panier-v1”) to remember the contents of your cart from one page to the next. That storage is likewise strictly necessary for the service you request and is exempt from consent. It stays on your device, is not sent to us as such, and you can clear it by emptying the cart or clearing the site's data in your browser.\n\nAudience measurement: this site uses Vercel Web Analytics to count visits and page views. The tool sets no cookies and reads nothing on your device. It does not identify visitors: your IP address and browser name are used only to build an anonymous fingerprint, renewed every day, and are not stored. The data collected (page viewed, country, device type, browser, referring site) is processed on our behalf by Vercel Inc., which hosts the site, on the basis of our legitimate interest in knowing how the site is used (Article 6(1)(f) GDPR), and is not combined with any other data. No consent is required for this measurement; you can block it with a content blocker without affecting the site.\n\nThe payment page is Stripe's (checkout.stripe.com): Stripe sets its own cookies there, needed for payment and fraud prevention, governed by its cookie policy (stripe.com/legal/cookies-policy)."
       },
       {
         "title": "9. Security",
@@ -881,7 +882,7 @@
       },
       {
         "title": "8. Personal data and cookies",
-        "body": "The site sets no cookies. How we process your data, the providers involved and your rights are described in the privacy policy."
+        "body": "The site sets a cookie only if you open a customer account, to keep you signed in there. How we handle your data, the providers involved and your rights are described in the privacy policy."
       },
       {
         "title": "9. Changes",
@@ -976,6 +977,14 @@
     "merciRdv": {
       "title": "Appointment request sent",
       "description": "Your measuring slot is booked: confirmation by e-mail."
+    },
+    "compte": {
+      "title": "Your customer account",
+      "description": "Follow your Auboiacier orders, their progress in the workshop, and find your documents."
+    },
+    "compteConnexion": {
+      "title": "Sign in",
+      "description": "Open your Auboiacier customer account with Google or a link sent by e-mail, with no password."
     }
   },
   "zone": {
@@ -1106,5 +1115,44 @@
     "home": "Back to home",
     "craft": "Browse the furniture",
     "quote": "Request a quote"
+  },
+  "compte": {
+    "title": "Your account",
+    "intro": "Follow your orders, find your documents.",
+    "connecteComme": "Signed in as",
+    "deconnexion": "Sign out",
+    "mesCommandes": "Your orders",
+    "voirToutes": "See all your orders",
+    "aucuneTitre": "No order yet",
+    "aucuneCorps": "If you paid with another e-mail address, write to us at auboiacier@gmail.com with your reference and we will attach the order.",
+    "voirCollection": "See the collection",
+    "ferme": "The customer area is not open yet. Please come back soon.",
+    "connexionTitre": "Sign in",
+    "connexionIntro": "No password: your account is created on your first sign-in.",
+    "google": "Continue with Google",
+    "ou": "or",
+    "emailLabel": "Your e-mail address",
+    "emailPlaceholder": "you@example.com",
+    "envoyer": "Send me a sign-in link",
+    "envoi": "Sending…",
+    "envoyeTitre": "Check your inbox",
+    "envoyeCorps": "A link is waiting for you, valid for 15 minutes. Open it in your browser. Nothing received? Check your spam folder.",
+    "erreurEmail": "That address does not look valid.",
+    "erreurEnvoi": "The e-mail could not be sent. Please try again in a moment.",
+    "erreurConnexion": "Sign-in did not complete. Please try again.",
+    "erreurLien": "This link has expired. Please request a new one.",
+    "commandeRetour": "Back to your orders",
+    "commandeDate": "Ordered on",
+    "commandeMontant": "Amount paid",
+    "commandeLivraison": "Delivery",
+    "commandePieces": "Your order",
+    "commandeSuivi": "Where your order stands",
+    "telecharger": "Download the confirmation (PDF)",
+    "facture": "View the invoice",
+    "ecrire": "Write to the workshop",
+    "introuvable": "Order not found",
+    "merciTitre": "Follow your order",
+    "merciCorps": "Create your account in one click to follow the making and find your documents.",
+    "merciBouton": "Create my account"
   }
 }

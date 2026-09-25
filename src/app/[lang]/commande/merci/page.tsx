@@ -6,6 +6,8 @@ import { metadataPage } from "@/lib/seo";
 import { ArtisanatHeader } from "@/components/artisanat-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CartClear } from "@/components/cart-clear";
+import { clientConnecte } from "@/lib/compte";
+import { compteConfigure } from "@/lib/compte-jetons";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
 import { serif } from "@/lib/fonts";
 import { prixAffiche } from "@/lib/ui";
@@ -39,6 +41,10 @@ export default async function MerciPage({
   const locale = isLocale(lang) ? lang : defaultLocale;
   const dict = await getDictionary(locale);
   const t = dict.commande;
+  // L'espace client se propose ICI, jamais avant le paiement : obliger à
+  // créer un compte pour acheter fait fuir une partie des acheteurs, et c'est
+  // le seul moment où l'on connaît une adresse e-mail vérifiée par Stripe.
+  const proposerCompte = compteConfigure() && !(await clientConnecte());
 
   // On ne fait jamais confiance à l'URL : c'est Stripe qui confirme le paiement.
   let paid = false;
@@ -98,6 +104,21 @@ export default async function MerciPage({
               >
                 {t.confirmationPdf}
               </a>
+
+              {proposerCompte && (
+                <div className="mt-8 rounded-2xl border border-[#e8e1d8] bg-[#fbfaf8] p-6">
+                  <p className="text-base font-medium text-[#2b2320]">{dict.compte.merciTitre}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-[#5c5140]">
+                    {dict.compte.merciCorps}
+                  </p>
+                  <Link
+                    href={`/${locale}/compte/connexion`}
+                    className="btn-verre mt-5 inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
+                  >
+                    {dict.compte.merciBouton}
+                  </Link>
+                </div>
+              )}
             </>
           ) : (
             <>
