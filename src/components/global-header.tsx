@@ -4,6 +4,7 @@ import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { LocaleSwitcher } from "./locale-switcher";
 import { CartButton } from "./cart-button";
 import { CompteBouton } from "./compte-bouton";
+import { compteConfigure } from "@/lib/compte-jetons";
 import { MenuMobile } from "./mobile-menu";
 
 export function GlobalHeader({
@@ -68,7 +69,9 @@ export function GlobalHeader({
 
         <div className="flex shrink-0 items-center gap-1 sm:gap-3">
           <CartButton locale={locale} label={dict.nav.cart} variant={overlay ? "dark" : "light"} />
-          <CompteBouton locale={locale} label={dict.nav.compte} variant={overlay ? "dark" : "light"} />
+          {compteConfigure() && (
+            <CompteBouton locale={locale} label={dict.nav.compte} variant={overlay ? "dark" : "light"} />
+          )}
           {/* Sur téléphone, les langues sont au bas du panneau avec les liens :
               elles ne se battent plus avec le logo pour la place. */}
           <div className="hidden md:block">

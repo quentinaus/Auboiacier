@@ -4,6 +4,7 @@ import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { LocaleSwitcher } from "./locale-switcher";
 import { CartButton } from "./cart-button";
 import { CompteBouton } from "./compte-bouton";
+import { compteConfigure } from "@/lib/compte-jetons";
 import { MenuMobile } from "./mobile-menu";
 
 export function ArtisanatHeader({
@@ -49,7 +50,9 @@ export function ArtisanatHeader({
             {dict.nav.contact}
           </Link>
           <CartButton locale={locale} label={dict.nav.cart} />
-          <CompteBouton locale={locale} label={dict.nav.compte} />
+          {compteConfigure() && (
+            <CompteBouton locale={locale} label={dict.nav.compte} />
+          )}
           <div className="hidden md:block">
             <LocaleSwitcher locale={locale} />
           </div>
