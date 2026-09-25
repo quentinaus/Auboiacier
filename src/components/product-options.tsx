@@ -571,10 +571,32 @@ export function ProductOptions({
       locale === "en" ? "en-GB" : "fr-FR",
       { maximumFractionDigits: 2 },
     );
+  /**
+   * Le même nombre, mais SANS séparateur de milliers : c'est la forme qu'on
+   * écrit dans une case à taper. « 2 330 » (l'espace insécable de fr-FR) et
+   * « 2,330 » (la virgule de en-GB) sont faits pour être lus, pas relus : le
+   * curseur réécrivait une cote que enMm ne savait plus interpréter, la valeur
+   * retombait au minimum et le schéma affichait « NaN mm ».
+   */
+  const chiffreBrut = (mm: number, u: "mm" | "cm" | "m" = unite) => {
+    const valeur = mm / (u === "mm" ? 1 : u === "cm" ? 10 : 1000);
+    return String(Math.round(valeur * 1000) / 1000).replace(
+      ".",
+      locale === "en" ? "." : ","
+    );
+  };
   const enUnite = (mm: number, u: "mm" | "cm" | "m" = unite) =>
-    `${chiffre(mm, u)} ${u}`;
+    // Une cote qu'on n'a pas su lire s'écrit « — », jamais « NaN » : c'est le
+    // client qui lit ce texte, sur le schéma comme dans le tableau de détail.
+    Number.isFinite(mm) ? `${chiffre(mm, u)} ${u}` : "\u2014";
   const enMm = (valeur: string) => {
-    const nombre = Number(valeur.replace(",", "."));
+    // On accepte aussi une cote écrite avec ses séparateurs, tapée ou collée :
+    // « 2 330 ». En français la virgule sépare les décimales, en anglais elle
+    // sépare les milliers — les deux ne se nettoient pas de la même façon.
+    const sansEspaces = valeur.replace(/\s/g, "");
+    const nombre = Number(
+      locale === "en" ? sansEspaces.replace(/,/g, "") : sansEspaces.replace(",", ".")
+    );
     return Number.isFinite(nombre) ? Math.round(nombre * facteur) : NaN;
   };
   /** La hauteur finie d'une table, en millimètres : 750 tant que rien n'est tapé. */
@@ -587,13 +609,10 @@ export function ProductOptions({
    * le panier vend changeaient en silence à chaque bascule.
    */
   function changerUnite(nouvelle: "mm" | "cm" | "m") {
-    const de = unite === "mm" ? 1 : unite === "cm" ? 10 : 1000;
-    const vers = nouvelle === "mm" ? 1 : nouvelle === "cm" ? 10 : 1000;
     const convertir = (valeur: string) => {
-      const nombre = Number(valeur.replace(",", "."));
-      if (valeur === "" || !Number.isFinite(nombre)) return valeur;
-      const mm = Math.round(nombre * de);
-      return String(Math.round((mm / vers) * 1000) / 1000).replace(".", locale === "en" ? "." : ",");
+      if (valeur === "") return valeur;
+      const mm = enMm(valeur);
+      return Number.isFinite(mm) ? chiffreBrut(mm, nouvelle) : valeur;
     };
     setLargeurSaisie(convertir(largeurSaisie));
     setHauteurSaisie(convertir(hauteurSaisie));
@@ -1373,9 +1392,13 @@ export function ProductOptions({
               epaisseur: t.customThickness,
             }}
             valeurs={{
-              principale: largeurSaisie ? enUnite(largeurMm) : undefined,
-              secondaire: !rond && hauteurSaisie ? enUnite(hauteurMm) : undefined,
-              epaisseur: enUnite(epaisseurMm, "mm"),
+              principale:
+                largeurSaisie && Number.isFinite(largeurMm) ? enUnite(largeurMm) : undefined,
+              secondaire:
+                !rond && hauteurSaisie && Number.isFinite(hauteurMm)
+                  ? enUnite(hauteurMm)
+                  : undefined,
+              epaisseur: Number.isFinite(epaisseurMm) ? enUnite(epaisseurMm, "mm") : undefined,
             }}
           />,
           schemaSlot
@@ -1615,7 +1638,7 @@ export function ProductOptions({
                           minMm: bareme.minMm,
                           maxMm: bareme.maxLargeurMm,
                           valeurMm: largeurMm,
-                          onChangeMm: (mm) => setLargeurSaisie(chiffre(mm)),
+                          onChangeMm: (mm) => setLargeurSaisie(chiffreBrut(mm)),
                         }
                       : undefined
                   }
@@ -1638,7 +1661,7 @@ export function ProductOptions({
                             minMm: bareme.minMm,
                             maxMm: bareme.maxHauteurMm,
                             valeurMm: hauteurMm,
-                            onChangeMm: (mm) => setHauteurSaisie(chiffre(mm)),
+                            onChangeMm: (mm) => setHauteurSaisie(chiffreBrut(mm)),
                           }
                         : undefined
                     }

@@ -7,6 +7,12 @@
       "has": [{ "type": "host", "value": "www.auboiacier.fr" }],
       "destination": "https://auboiacier.fr/:chemin*",
       "permanent": true
+    },
+    {
+      "source": "/:chemin*",
+      "has": [{ "type": "host", "value": "(www\\.)?auboiacier\\.eu" }],
+      "destination": "https://auboiacier.fr/:chemin*",
+      "permanent": true
     }
   ]
 }
