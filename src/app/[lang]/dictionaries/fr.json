@@ -257,6 +257,7 @@
     "customOr": "Ou un format du catalogue",
     "inclusLivraison": "Livraison en France métropolitaine comprise — rien ne s'ajoute au paiement.",
     "poseTitle": "Livraison et pose",
+    "poseObligatoire": "Cette pièce est trop encombrante pour un transporteur : elle est livrée et posée par l'atelier.",
     "livraisonTitle": "Livraison",
     "poseSeul": "Livraison par transporteur",
     "poseSeulInfo": "Partout en France métropolitaine, 90 € au maximum, quelle que soit votre ville. La table arrive démontée : plateau, piétement soudé d'une pièce, visserie et notice de montage.",

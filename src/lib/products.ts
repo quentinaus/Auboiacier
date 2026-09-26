@@ -2026,6 +2026,52 @@ const VERRE_KG_PAR_M2 = 20;
  * surface, une chaise à poids fixe (colisKg). Estimation, jamais une pesée :
  * à valider contre un vrai colis.
  */
+/**
+ * Les cotes au-delà desquelles aucun transporteur ne prend le colis.
+ *
+ * Un plafond lumineux voyage DEBOUT : sa longueur repose au sol, sa largeur
+ * part à la verticale. Ce qui le limite n'est donc pas son poids mais son
+ * encombrement, et la hauteur plus encore que la longueur. La quasi-totalité
+ * des réseaux français s'arrêtent à 2,40 m de long et 2,20 m de haut ; le
+ * coffrage bois ajoutant une dizaine de centimètres dans chaque sens, la
+ * pièce nue ne doit pas dépasser 2,30 × 2,10 m.
+ *
+ * Ces valeurs sont volontairement prudentes : l'atelier n'a pas encore de
+ * transporteur attitré, et mieux vaut un seuil que tout le monde accepte
+ * qu'un colis refusé au départ. À remonter le jour où un transporteur est
+ * choisi et où ses cotes réelles sont connues.
+ */
+export const TRANSPORT_MAX_GRANDE_COTE_MM = 2300;
+export const TRANSPORT_MAX_PETITE_COTE_MM = 2100;
+
+/**
+ * Cette pièce peut-elle partir par transporteur, ou seule la pose est-elle
+ * possible ?
+ *
+ * La pièce se pose debout dans le sens le plus favorable : on compare donc la
+ * plus grande de ses deux cotes à la limite de longueur, et la plus petite à
+ * la limite de hauteur.
+ *
+ * Ne concerne que les plafonds lumineux. Les autres familles partent
+ * démontées ou à plat et n'ont pas cette contrainte — à revoir le jour où
+ * l'on relèvera leurs fiches de fabrication.
+ */
+export function livrableParTransporteur(
+  product: Product,
+  cotes: { largeurMm?: number; hauteurMm?: number }
+): boolean {
+  if (product.category !== "lumiere") return true;
+  const a = cotes.largeurMm ?? 0;
+  const b = cotes.hauteurMm ?? a;
+  // Sans cote saisie, on ne bloque rien : le client n'a encore rien choisi.
+  if (!a) return true;
+  const grande = Math.max(a, b);
+  const petite = Math.min(a, b) || grande;
+  return (
+    grande <= TRANSPORT_MAX_GRANDE_COTE_MM && petite <= TRANSPORT_MAX_PETITE_COTE_MM
+  );
+}
+
 export function poidsColisKg(
   product: Product,
   cotes: { largeurMm?: number; hauteurMm?: number; epaisseurMm?: number; woodId?: string; remplissageId?: string }

@@ -49,6 +49,7 @@ export function PoseDomicile({
   colis,
   demontee = false,
   livraisonSeule = false,
+  poseSeule = false,
   infoSeul,
   compact = false,
   t,
@@ -56,6 +57,12 @@ export function PoseDomicile({
 }: {
   choix: ChoixPose;
   onChange: (choix: ChoixPose) => void;
+  /**
+   * La pièce est trop encombrante pour un transporteur : la pose par
+   * l'atelier est le seul mode de livraison possible. On n'affiche alors pas
+   * un choix qui n'en est pas un.
+   */
+  poseSeule?: boolean;
   /** La pièce, ses cotes, son essence, son remplissage et sa quantité : le serveur en déduit le vrai poids du colis (livraison seule). */
   colis: {
     slug: string;
@@ -217,7 +224,14 @@ export function PoseDomicile({
       {/* Une pièce qui ne se pose pas (une chaise) n'a rien à choisir : on
           saute le radiogroup à deux cartes, il n'y a qu'une façon de la
           recevoir. */}
-      {!livraisonSeule && (
+      {/* Pas de choix à offrir quand il n'y en a pas : on dit pourquoi, une
+          fois, et on passe directement au code postal. */}
+      {poseSeule && !livraisonSeule && (
+        <p className={`text-xs leading-relaxed text-[#6f6357] ${compact ? "" : "mt-3"}`}>
+          {t.poseObligatoire}
+        </p>
+      )}
+      {!livraisonSeule && !poseSeule && (
         <div role="radiogroup" aria-labelledby={idGroupe} className={compact ? "flex flex-col gap-2 sm:flex-row" : "mt-3 flex flex-col gap-2 sm:flex-row"}>
           {carte(false, t.poseSeul, t.poseSeulCourt)}
           {carte(true, t.poseAtelier, t.poseAtelierCourt)}

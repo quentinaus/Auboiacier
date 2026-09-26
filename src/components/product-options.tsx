@@ -33,6 +33,7 @@ import {
   type CotesGardeCorps,
 } from "./releve-garde-corps";
 import { LIVRAISON, POSE, PRISE_DE_COTES } from "@/lib/deplacement";
+import { livrableParTransporteur } from "@/lib/products";
 import { VisiteAtelier } from "./prise-de-cotes";
 import { MAX_TEXTE, EMAIL_MOTIF } from "@/lib/devis-regles";
 import { POSE_INITIALE, PoseDomicile, type ChoixPose } from "./pose-domicile";
@@ -1031,6 +1032,16 @@ export function ProductOptions({
    * un code postal chiffré. Le lien ne porte que des identifiants et des
    * cotes ; le serveur recalcule chaque prix.
    */
+  /**
+   * Une pièce trop encombrante pour un transporteur ne se livre pas : elle
+   * est posée par l'atelier. Le configurateur cesse alors d'offrir un choix
+   * qui n'en est pas un (voir livrableParTransporteur, products.ts).
+   */
+  const poseObligatoire = !livrableParTransporteur(product, {
+    largeurMm: cotesEff?.largeurMm ?? size?.dimsMm?.[0],
+    hauteurMm: cotesEff?.hauteurMm ?? size?.dimsMm?.[1],
+  });
+
   const urlDevis = (() => {
     // Une pièce sur devis (l'escalier) s'estime d'après sa configuration,
     // même quand la fiche est en mode « visite de l'atelier » : c'est la
@@ -2011,11 +2022,17 @@ export function ProductOptions({
         const livrable = product.poseOption && orderable && !modeVisite;
         const livraison = livrable ? (
               <PoseDomicile
-                choix={pose}
+                /* Trop encombrante pour un transporteur : on impose la pose
+                   plutôt que de laisser cocher une livraison impossible. Le
+                   choix corrigé part dans le composant, dont le premier appel
+                   remet l'état en place — d'ici là le bouton d'achat reste
+                   grisé, faute de prix. */
+                choix={poseObligatoire && !pose.voulue ? { ...pose, voulue: true } : pose}
                 onChange={setPose}
                 compact={nouvelleMiseEnPage}
                 demontee={Boolean(product.boisAuM2)}
                 livraisonSeule={Boolean(product.livraisonSeule)}
+                poseSeule={poseObligatoire}
                 infoSeul={product.livraisonInfo?.[locale]}
                 colis={{
                   slug: product.slug,

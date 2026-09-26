@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getProduct, poidsColisKg, remiseLot, resolveSelection, type Product } from "@/lib/products";
+import { getProduct, livrableParTransporteur, poidsColisKg, remiseLot, resolveSelection, type Product } from "@/lib/products";
 import { isEmailConfigured } from "@/lib/email";
 import { getStripe, isStripeConfigured, newOrderRef, piedDeFacture, siteOrigin } from "@/lib/stripe";
 import { creerLimite } from "@/lib/limite-debit";
@@ -166,6 +166,13 @@ export async function POST(request: Request) {
       const livraisonQuantite = Number.isInteger(qty) && qty >= 1 && qty <= MAX_QUANTITY ? qty : 1;
       const largeurMm = cote(line.largeurMm);
       const hauteurMm = cote(line.hauteurMm);
+      // Trop encombrante pour un transporteur : seule la pose par l'atelier
+      // peut la livrer. Le configurateur ne propose déjà plus le choix, mais
+      // c'est ICI que ça se décide — une requête forgée ne doit pas pouvoir
+      // acheter une livraison qu'aucun transporteur n'acceptera.
+      if (!livrableParTransporteur(piece, { largeurMm, hauteurMm })) {
+        return NextResponse.json({ error: "pose_obligatoire" }, { status: 400 });
+      }
       const calcul = await calculerLivraison(
         cp,
         poidsColisKg(piece, {

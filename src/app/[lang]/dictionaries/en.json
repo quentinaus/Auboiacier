@@ -257,6 +257,7 @@
     "customOr": "Or a catalogue size",
     "inclusLivraison": "Delivery in mainland France included — nothing is added at checkout.",
     "poseTitle": "Delivery and fitting",
+    "poseObligatoire": "This piece is too large for a carrier: it is delivered and fitted by the workshop.",
     "livraisonTitle": "Delivery",
     "poseSeul": "Delivery by carrier",
     "poseSeulInfo": "Anywhere in mainland France, €90 at most, whatever your town. The table arrives flat-packed: top, base welded in one piece, screws and fitting instructions.",
