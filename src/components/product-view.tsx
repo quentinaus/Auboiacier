@@ -20,12 +20,6 @@ const COLORIS_FLECHES = {
   en: { precedent: "Previous colour", suivant: "Next colour" },
 } as const;
 
-/** Le plein écran de la photo : deux mots de service, dans les deux langues. */
-const ZOOM = {
-  fr: { ouvrir: "Voir la photo en plein écran", fermer: "Fermer" },
-  en: { ouvrir: "View photo full screen", fermer: "Close" },
-} as const;
-
 /**
  * Galerie + options d'un produit. La galerie suit le coloris sélectionné :
  * choisir un velours remplace la photo principale par celle de ce coloris.
@@ -63,8 +57,8 @@ export function ProductView({
   );
   /** Photo choisie en cliquant une vignette. Null = on suit le coloris. */
   const [pickedSrc, setPickedSrc] = useState<string | null>(null);
-  /** La photo en grand. Un <dialog> natif : Échap referme, sans bibliothèque. */
-  const zoomRef = useRef<HTMLDialogElement>(null);
+  /* Pas de plein écran sur la photo : l'atelier l'a retiré (septembre 2026).
+     Les vignettes et les flèches suffisent à passer d'une vue à l'autre. */
   const galleryRef = useRef<HTMLDivElement>(null);
   const stripRef = useRef<HTMLDivElement>(null);
   /**
@@ -228,7 +222,7 @@ export function ProductView({
              titre et le choix des matières (remontés en haut de la colonne)
              arrivent avec un tout petit défilement, plutôt qu'un écran entier
              plus bas. */
-          className="relative flex h-[62vw] max-h-[54vh] cursor-zoom-in items-center justify-center overflow-hidden [container-type:size] md:h-full md:max-h-none"
+          className="relative flex h-[62vw] max-h-[54vh] items-center justify-center overflow-hidden [container-type:size] md:h-full md:max-h-none"
           // Le cadre prend la teinte du fond de la photo : plus de liseré blanc
           // autour d'une photo qui n'est pas exactement blanche.
           style={{ backgroundColor: isColorShot ? "#f2f2f1" : fond }}
@@ -268,18 +262,6 @@ export function ProductView({
             />
           ) : (
             <div className="h-full w-full bg-[#f1ece4]" />
-          )}
-
-          {/* Toute la photo est cliquable : un meuble à 3 000 €, on veut voir
-              la soudure de près. Les flèches gardent leur z-10 et passent
-              devant ce bouton. */}
-          {mainImage && (
-            <button
-              type="button"
-              onClick={() => zoomRef.current?.showModal()}
-              aria-label={ZOOM[locale].ouvrir}
-              className="absolute inset-0 z-[5] h-full w-full"
-            />
           )}
 
           {/* Flèches : passer d'un coloris à l'autre sans quitter la photo. */}
@@ -395,70 +377,6 @@ export function ProductView({
         )}
         </div>
 
-        {/* La photo en grand, par-dessus la page. Le <dialog> du navigateur
-            gère seul la touche Échap et le piège à focus. */}
-        <dialog
-          ref={zoomRef}
-          // N'importe quel clic referme, sauf sur la photo elle-même (voir
-          // plus bas) : l'ancienne version ne fermait que sur le fond tout
-          // autour du cadre, pas sur les bandes vides que laisse une photo
-          // qui ne remplit pas tout l'écran (object-contain).
-          onClick={() => zoomRef.current?.close()}
-          className="m-0 h-dvh max-h-none w-screen max-w-none bg-[#2b2320]/95 p-0 backdrop:bg-transparent"
-        >
-          <button
-            type="button"
-            onClick={() => zoomRef.current?.close()}
-            aria-label={ZOOM[locale].fermer}
-            className="focus-clair absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/85 text-xl text-[#2b2320] transition-colors hover:bg-white"
-          >
-            ×
-          </button>
-          {mainImage && mainSrc && (
-            <div className="relative h-full w-full">
-              <Image
-                src={mainSrc}
-                alt={mainImage.alt}
-                fill
-                sizes="100vw"
-                // En grand plan, la compression par défaut (75) se voit sur
-                // le bord net entre le bois et le fond blanc.
-                quality={92}
-                // « object-contain » ne rétrécit que l'image DESSINÉE : la
-                // balise, elle, garde toute la surface du cadre (fill), y
-                // compris les bandes vides au-dessus et en dessous d'une
-                // photo plus large que haute. Un simple stopPropagation ici
-                // aurait donc empêché de refermer en cliquant dans ces
-                // bandes, qui ne sont pourtant pas la photo. On calcule le
-                // rectangle réellement dessiné et on ne bloque la fermeture
-                // que si le clic tombe dedans.
-                onClick={(event) => {
-                  const img = event.currentTarget;
-                  const rect = img.getBoundingClientRect();
-                  const cs = getComputedStyle(img);
-                  const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
-                  const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
-                  const cw = rect.width - padX;
-                  const ch = rect.height - padY;
-                  const { naturalWidth: nw, naturalHeight: nh } = img;
-                  if (!nw || !nh || cw <= 0 || ch <= 0) return;
-                  const echelle = Math.min(cw / nw, ch / nh);
-                  const w = nw * echelle;
-                  const h = nh * echelle;
-                  const left = rect.left + parseFloat(cs.paddingLeft) + (cw - w) / 2;
-                  const top = rect.top + parseFloat(cs.paddingTop) + (ch - h) / 2;
-                  const dansLaPhoto =
-                    event.clientX >= left &&
-                    event.clientX <= left + w &&
-                    event.clientY >= top &&
-                    event.clientY <= top + h;
-                  if (dansLaPhoto) event.stopPropagation();
-                }}
-                className="object-contain p-4 md:p-10"
-              />
-            </div>
-          )}
-        </dialog>
       </div>
 
       {/* Options : une colonne étroite, comme la fiche d'un configurateur. */}

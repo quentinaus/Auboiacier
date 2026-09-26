@@ -18,6 +18,10 @@ Restent trois familles servies brutes, et c'est là que ce script agit :
      (scripts/echantillons.py) écrit désormais directement du WebP ; ce
      script convertit ce qui resterait en PNG et supprime l'original, pour
      qu'il ne soit pas déployé pour rien.
+     SEPTEMBRE 2026 : le dossier et son générateur ont été retirés. Le
+     nuancier est fait d'aplats de couleur (material-bubble.tsx) ; les
+     images calculées — sphères éclairées, fausses veinures — faisaient
+     « image de synthèse ». Cette étape ne trouve donc plus rien à faire.
 
   2. Les images de partage (partage-auboiacier.jpg et partage/*.jpg) : lues
      brutes par Facebook, LinkedIn, WhatsApp. scripts/images-partage.py les
