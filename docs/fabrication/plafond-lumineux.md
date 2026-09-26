@@ -242,6 +242,56 @@ n'existe donc pas dans la pratique de l'atelier — mais **le site, lui, annonce
 toujours « jusqu'à 400 × 300 cm d'un seul tenant »**, ce qui n'est pas ce qui
 est réellement fabriqué ni livré.
 
+### Ce qui décide du prix du transport : la surface au sol, pas le poids
+
+**C'est le point le plus important de tout ce relevé, et il prend le contre-pied
+de ce que le site suppose aujourd'hui.**
+
+Un transporteur de fret français ne facture pas au kilo. Il facture le
+**mètre plancher** : la longueur de plancher de camion que la marchandise
+occupe sur toute la largeur utile (2,40 m). Un mètre plancher vaut, selon les
+barèmes, **1 750 à 1 850 kg de « poids taxable »**.
+
+Conséquence pour un plafond de 2 330 × 1 200 mm :
+
+| | |
+|---|---|
+| Poids réel | **46 kg** |
+| Emprise au sol | 2,33 m × 1,20 m, soit la moitié de la largeur utile |
+| Mètres plancher | 2,33 × 0,5 ≈ **1,17 m** |
+| **Poids facturé** | **≈ 2 000 kg** |
+
+L'atelier paie donc le transport d'environ **deux tonnes** pour expédier
+46 kilos. Le poids réel ne sert qu'à deux choses : savoir si la pièce se porte
+à deux, et remplir l'étiquette. **Le prix, lui, se calcule sur les cotes.**
+
+Cela veut dire qu'une future formule de prix de livraison doit partir de la
+LONGUEUR et de la LARGEUR de la pièce emballée, pas de ses kilos.
+
+### Le cadre légal de l'emballage
+
+Le **contrat type général** (décret n° 2017-461 du 31 mars 2017, annexe II à la
+partie 3 réglementaire du code des transports) s'applique automatiquement dès
+qu'il n'y a pas de contrat particulier. Il dit, en substance :
+
+- **Article 6.1** — la marchandise doit être « conditionnée, emballée, marquée
+  ou contremarquée de façon à supporter un transport exécuté dans des
+  conditions normales ». C'est la seule exigence de fond : **aucune mention
+  d'une palette normalisée**.
+- **Article 6.5** — les supports de charge (palettes, coffrages) « font partie
+  intégrante de l'envoi ». Le coffrage part donc avec la pièce et voyage comme
+  de la marchandise.
+- **Article 6.6** — ces supports ne donnent lieu à aucune consignation,
+  location, collecte ni retour. **Personne ne réclamera une palette Europe en
+  échange.**
+- **Article 6.4** — en revanche, c'est l'expéditeur qui assume les conséquences
+  d'un emballage défectueux. La qualité du coffrage est donc sa responsabilité
+  pleine et entière.
+
+Ce que le transporteur exige en pratique, en plus : prise possible aux fourches
+(patins ou chevrons dessous, quatre entrées de préférence), aucun débord de la
+marchandise hors du support, ensemble filmé ou cerclé, cotes et poids déclarés.
+
 ### L'emballage
 
 Pratique de l'atelier, apprise en Australie et identique à l'usage français :
@@ -250,6 +300,26 @@ Pratique de l'atelier, apprise en Australie et identique à l'usage français :
 2. Un **coffrage en bois** qui habille la pièce.
 3. Un **film noir** enroulé tout autour.
 4. Un **adhésif au nom de l'entreprise** qui ceinture l'ensemble.
+
+**Aucune palette normalisée ne dépasse 1 300 mm.** Les formats existants :
+
+| Format | Dimensions (mm) | Poids | Charge |
+|---|---|---|---|
+| EPAL 1 *(palette Europe)* | 1200 × 800 | 25 kg | 1 500 kg |
+| EPAL 2 | 1200 × 1000 | 35 kg | 1 250 kg |
+| EPAL 3 | 1000 × 1200 | 30 kg | 1 500 kg |
+| EPAL 6 *(demi-palette)* | 800 × 600 | 9,5 kg | 750 kg |
+| CP7 *(le plus grand, chimie)* | 1300 × 1100 | — | — |
+
+Et ce n'est pas un oubli : une palette normalisée doit tenir dans la largeur
+d'un camion pour se ranger par deux ou trois de front. Une palette de 4 m
+mangerait la largeur entière et casserait le système.
+
+Les supports longs existent, mais sous d'autres noms : **palette sur mesure**,
+**palette perdue**, **ber**, **chevalet** (types U, L, T), **palette à
+dosseret** pour le transport vertical, et **caisse-palette**. Des caissiers
+français en fabriquent jusqu'à 11,5 m de long, et des caisses bois sur mesure
+jusqu'à 3 000 × 2 200 × 2 800 mm.
 
 Cela s'appelle en France une **caisse sur palette perdue** — « perdue » voulant
 dire non consignée, non échangée. Aucune obligation d'utiliser une palette
