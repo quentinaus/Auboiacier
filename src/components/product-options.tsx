@@ -1205,7 +1205,9 @@ export function ProductOptions({
             // allège, hauteur) : calculFenetre reste null tant qu'il en
             // manque une, avant même de savoir si la fenêtre est conforme.
             product.releve === "garde-corps-fenetre" && !calculFenetre
-            ? { message: t.raisonCotesManquantes, ancre: "#cotes" }
+            ? // Pas « longueur, largeur, épaisseur » : ce sont les mots d'une
+              // table, et un garde-corps se mesure autrement.
+              { message: t.raisonCotesGardeCorps, ancre: "#cotes" }
             : null
       : product.poseOption && !pose.deplacement
         ? { message: t.raisonCodePostalLivraison, ancre: "#livraison" }
@@ -1356,7 +1358,7 @@ export function ProductOptions({
         {orderable ? t.devisPdf : t.estimationPdf}
       </button>
       {/* Pourquoi il est grisé — sans ce mot, le bouton a l'air cassé. */}
-      {!urlDevis && raisonIndisponible && (
+      {!urlDevis && raisonIndisponible && !nouvelleMiseEnPage && (
         <p id={idRaisonDevis} className="mt-2 text-center text-xs leading-relaxed text-[#6f6357]">
           {raisonIndisponible.message}
         </p>
@@ -2344,7 +2346,16 @@ export function ProductOptions({
       {orderable || modeVisite ? (
         /* La barre d'achat reste au bas de la colonne pendant qu'on choisit :
            sur grand écran elle se colle au bord inférieur, débordant du
-           gabarit de la colonne pour aller d'un bord à l'autre. */
+           gabarit de la colonne pour aller d'un bord à l'autre.
+
+           ELLE NE PORTE QUE L'ESSENTIEL : le prix, la quantité, le bouton,
+           et la raison s'il est grisé. Elle portait aussi le devis PDF, sa
+           raison répétée, « Mettre de côté » et le prix de lot : collée en
+           bas de la carte, elle en mangeait la moitié, et la configuration —
+           ce qu'on est venu faire — n'avait plus que l'autre moitié.
+           L'atelier l'a signalé. Le reste suit la barre, dans le flux : on le
+           trouve en arrivant au bas de la carte. */
+        <>
         <div
           className={
             nouvelleMiseEnPage
@@ -2438,9 +2449,10 @@ export function ProductOptions({
             </button>
           </div>
           {/* Pourquoi le bouton est grisé : un lien vers l'endroit à compléter,
-              plutôt qu'un bouton mort sans explication. */}
+              plutôt qu'un bouton mort sans explication. Dans la carte, c'est
+              aussi la raison du devis grisé (plus de phrase répétée dessous). */}
           {raisonIndisponible && (
-            <p className="mt-2 text-[11px] text-[#9a5b3f]">
+            <p id={nouvelleMiseEnPage ? idRaisonDevis : undefined} className="mt-2 text-[11px] leading-snug text-[#9a5b3f]">
               <a
                 href={raisonIndisponible.ancre}
                 onClick={(e) => {
@@ -2455,6 +2467,8 @@ export function ProductOptions({
               </a>
             </p>
           )}
+        </div>
+        <div className={nouvelleMiseEnPage ? "pb-5" : ""}>
           {/* Ce que ce prix-là comprend : sans cette ligne, cliquer « Noyer »
               faisait bondir le chiffre de 710 € sans un mot d'explication. */}
           {optionsLabel && !modeVisite && total !== null && (
@@ -2563,6 +2577,7 @@ export function ProductOptions({
               : ""}
           </p>
         </div>
+        </>
       ) : (
         <div className="mt-3">
           <Link

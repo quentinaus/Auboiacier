@@ -293,17 +293,24 @@ export function ReleveGardeCorps({
           <p className="mt-2.5 text-xs leading-snug text-[#6f6357]">{t.gcConsigne}</p>
 
           <div className="mt-1 divide-y divide-[#e5ddd3]">
-            {ligne("largeur", { label: t.gcLargeur, aide: t.gcLargeurAide, info: t.gcLargeurInfo, placeholder: "1180" })}
-            {ligne("allege", { label: t.gcAllege, aide: t.gcAllegeAide, info: t.gcAllegeInfo, placeholder: "850" })}
-            {ligne("fenetre", { label: t.gcFenetre, aide: t.gcFenetreAide, info: t.gcFenetreInfo, placeholder: "1200" })}
+            {/* Des intitulés courts : sur téléphone, « Largeur de la fenêtre,
+                entre les murs » tenait sur quatre lignes et chaque cote
+                prenait un écran. L'explication complète reste dans la bulle
+                « i », et le croquis numéroté juste au-dessus montre où mesurer. */}
+            {ligne("largeur", { label: t.gcLargeurCourt, aide: `${t.gcLargeur}. ${t.gcLargeurAide}`, info: t.gcLargeurInfo, placeholder: "1180" })}
+            {ligne("allege", { label: t.gcAllegeCourt, aide: `${t.gcAllege}. ${t.gcAllegeAide}`, info: t.gcAllegeInfo, placeholder: "850" })}
+            {ligne("fenetre", { label: t.gcFenetreCourt, aide: `${t.gcFenetre}. ${t.gcFenetreAide}`, info: t.gcFenetreInfo, placeholder: "1200" })}
 
-            {/* En étage ou pas : deux boutons, c'est ce qui décide de la règle. */}
-            <div className="flex items-center justify-between gap-4 py-3">
+            {/* En étage ou pas : deux boutons, c'est ce qui décide de la règle.
+                L'intitulé AU-DESSUS et les boutons en pleine largeur : côte à
+                côte, « Au rez-de-chaussée » débordait de la carte sur
+                téléphone et écrasait l'intitulé sur trois lignes. */}
+            <div className="py-3">
               <span className="flex items-center gap-2.5 text-[15px] text-[#2b2320]">
                 <InfoBulle texte={t.gcEtageInfo} label={t.gcInfoLabel} />
                 {t.gcEtage}
               </span>
-              <div className="flex shrink-0 rounded-full border border-[#9a8d80] bg-white p-0.5">
+              <div className="mt-2 grid grid-cols-2 rounded-full border border-[#9a8d80] bg-white p-0.5">
                 {t.gcEtageOptions.map((option, i) => {
                   const actifBouton = cotes.etage === option || (cotes.etage === "" && i === 0);
                   return (
@@ -312,7 +319,7 @@ export function ReleveGardeCorps({
                       type="button"
                       aria-pressed={actifBouton}
                       onClick={() => set("etage")(option)}
-                      className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
+                      className={`rounded-full px-2 py-2 text-[13px] font-medium transition-colors ${
                         actifBouton ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"
                       }`}
                     >
@@ -324,13 +331,13 @@ export function ReleveGardeCorps({
             </div>
 
             {/* Le mur, en option : ça décide des chevilles qu'on fournit. */}
-            <label className="flex items-center justify-between gap-4 py-3">
+            <label className="block py-3">
               <span className="flex items-center gap-2.5 text-[15px] text-[#2b2320]">
                 <InfoBulle texte={t.gcMurInfo} label={t.gcInfoLabel} />
                 {t.gcMur}
                 <span className="text-xs text-[#6f6357]">{t.gcFacultatif}</span>
               </span>
-              <select value={cotes.mur} onChange={(e) => set("mur")(e.target.value)} className={SELECT}>
+              <select value={cotes.mur} onChange={(e) => set("mur")(e.target.value)} className={`${SELECT.replace("w-[8.5rem]", "w-full")} mt-2`}>
                 <option value="">—</option>
                 {t.gcMurOptions.map((option) => (
                   <option key={option} value={option}>

@@ -468,7 +468,11 @@
     "coordonneesAnnuler": "Cancel",
     "livraisonIncluse": "Delivery included",
     "favoriBouton": "Save this piece",
-    "favoriBoutonFait": "Saved"
+    "favoriBoutonFait": "Saved",
+    "gcLargeurCourt": "Width",
+    "gcAllegeCourt": "Height below the window",
+    "gcFenetreCourt": "Window height",
+    "raisonCotesGardeCorps": "Enter your three measurements to add to basket."
   },
   "devis": {
     "title": "Request a quote",
