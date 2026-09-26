@@ -363,6 +363,68 @@ support manipulable au chariot, stable et correctement étiqueté.
 
 ---
 
+## Quand l'atelier livre lui-même
+
+**Règle de Quentin :** dès que le transporteur devient trop cher, la pièce part
+par ses propres moyens. Elle est alors **fixée sur un porte-verre monté sur son
+camion, ou posée sur son camion plateau** — toujours debout, comme dans la
+caisse.
+
+Conséquence : pour ces pièces-là, **il n'y a ni caisse ni palette à fabriquer**.
+On économise le bois, le temps de caissage, et les 100 à 300 kg d'emballage
+comptés ci-dessous. C'est un poste à ne pas oublier dans le chiffrage : le
+transport par l'atelier n'est pas seulement un coût de route, c'est aussi une
+économie d'emballage.
+
+---
+
+## Poids de la caisse — attention, c'est lourd
+
+Calcul pour une **caisse-claire** en pin d'emballage (assise sur chevrons
+80 × 80, ossature 60 × 40, bardage à claire-voie en planches de 22 mm à 40 %
+de couverture, calage contreplaqué), la pièce étant debout.
+
+| Pièce | Surface de caisse | **Caisse** | *Pièce seule* |
+|---|---|---|---|
+| 1,20 × 0,30 × 0,18 | 1,8 m² | **43 kg** | *8 kg* |
+| 2,33 × 1,20 × 0,20 | 8,3 m² | **111 kg** | *46 kg* |
+| 4,00 × 1,50 × 0,20 | 16,0 m² | **195 kg** | *≈ 80 kg* |
+| 4,00 × 2,50 × 0,20 | 25,0 m² | **258 kg** | *≈ 130 kg* |
+
+**La caisse pèse deux à trois fois la pièce qu'elle protège.** Ce n'est pas une
+erreur de calcul : le bois d'emballage pèse environ 10 kg par m² de surface de
+caisse, et une pièce plate a beaucoup de surface pour peu de matière.
+
+> ⚠️ **Ce modèle est à confirmer par Quentin**, qui fabrique ses caisses
+> lui-même. Il suffirait qu'il utilise du 15 mm au lieu du 22, ou 30 % de
+> couverture au lieu de 40, pour que ces chiffres baissent d'un tiers. **Son
+> chiffre réel vaut mieux que ce calcul.**
+
+Ce qu'il faut retenir quoi qu'il arrive : **le poids annoncé au transporteur
+n'est pas celui de la pièce**, c'est celui de la pièce + la caisse, soit trois
+à quatre fois plus.
+
+---
+
+## Prix des matières — à relever sur les factures
+
+La recherche en ligne ne donne que des **prix posés** (plafond tendu installé,
+70 à 200 €/m²) ou des **prix de détail** de panneaux imprimés. Aucun n'est
+utilisable pour un prix de revient d'atelier.
+
+| Matière | Ce qu'on trouve en ligne | Fiable ? |
+|---|---|---|
+| Toile PVC translucide | 30 à 60 €/m² *(fourniture, pose à chaud)* | ordre de grandeur seulement |
+| Panneau composite alu 5 mm | très dispersé, 40 à 115 €/m² selon la source | non |
+| Caisse bois sur mesure | devis au cas par cas | non |
+
+**La seule source fiable, ce sont les factures fournisseur de l'atelier.** À
+relever quand Quentin les aura sous la main : prix au m² du panneau composite,
+prix au m² de la toile, prix du tube alu 25 × 25 × 3 au mètre, prix de la tôle
+2,5 mm au m², prix du ruban LED au mètre, prix d'une alimentation ELG-150.
+
+---
+
 ## Recherche en cours au 26 septembre 2026
 
 Trois volets d'enquête sont lancés et n'ont pas encore rendu leurs résultats.
@@ -411,5 +473,8 @@ Ce qui en sortira viendra compléter cette fiche :
 - [ ] **Le site annonce « 400 × 300 cm d'un seul tenant »** alors que la pièce
       est fabriquée et livrée en modules. Ce texte est à revoir lors de la
       revue générale des textes.
-- [ ] **Poids de l'emballage** : une caisse sur palette perdue pour un module
-      de 4 × 1,5 m, ça pèse combien ?
+- [ ] **Confirmer le poids d'une caisse.** Le calcul donne 111 kg pour un
+      2,33 × 1,20 et 258 kg pour un 4 × 2,5. Quelle épaisseur de planche et
+      quelle section de chevron l'atelier utilise-t-il vraiment ?
+- [ ] **Les prix matière**, à relever sur les factures fournisseur (voir la
+      section « Prix des matières »).
