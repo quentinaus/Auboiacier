@@ -4,7 +4,7 @@ import { ArtisanatHeader } from "@/components/artisanat-header";
 import { CompteConnexion } from "@/components/compte-connexion";
 import { SiteFooter } from "@/components/site-footer";
 import { clientConnecte } from "@/lib/compte";
-import { compteConfigure, retourInterne } from "@/lib/compte-jetons";
+import { accueilApresConnexion, compteConfigure, retourInterne } from "@/lib/compte-jetons";
 import { serif } from "@/lib/fonts";
 import { googleConfigure } from "@/lib/google-oauth";
 import { defaultLocale, isLocale } from "@/lib/i18n";
@@ -40,7 +40,7 @@ export default async function ConnexionPage({
   const t = dict.compte;
 
   // Déjà connecté : on ne lui remontre pas un formulaire de connexion.
-  if (await clientConnecte()) redirect(`/${locale}/compte`);
+  if (await clientConnecte()) redirect(accueilApresConnexion(locale));
 
   const ouvert = compteConfigure();
 
@@ -53,7 +53,7 @@ export default async function ConnexionPage({
    * une adresse ABSOLUE pour un navigateur — accepté ici, il enverrait le
    * client hors du site à la sortie de Google.
    */
-  const retour = retourInterne(suite) ?? `/${locale}/compte`;
+  const retour = retourInterne(suite) ?? accueilApresConnexion(locale);
   const message =
     erreur === "lien" ? t.erreurLien : typeof erreur === "string" ? t.erreurConnexion : null;
 

@@ -170,3 +170,17 @@ export function retourInterne(valeur: unknown): string | null {
   if (!/^\/[A-Za-z0-9/_-]{1,120}$/.test(valeur)) return null;
   return valeur.startsWith("//") ? null : valeur;
 }
+
+/**
+ * Où atterrit un client qui vient de se connecter sans que rien n'indique
+ * d'où il venait : sur l'accueil, pas dans son espace.
+ *
+ * C'est le choix de l'atelier. Quelqu'un qui crée son compte n'a encore
+ * aucune commande à suivre : le déposer devant une liste vide serait un
+ * mauvais accueil, alors que l'accueil du site lui montre le travail. Quand
+ * il vient du configurateur, le paramètre « suite » l'emporte et le ramène
+ * sur sa pièce avec ses cotes (voir config-memo.ts).
+ */
+export function accueilApresConnexion(locale: string): string {
+  return `/${locale === "en" ? "en" : "fr"}`;
+}

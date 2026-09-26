@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   DUREE_LIEN_S,
   DUREE_SESSION_S,
+  accueilApresConnexion,
   compteConfigure,
   lireLien,
   lireSession,
@@ -166,4 +167,14 @@ test("une adresse de retour doit rester à l'intérieur du site", () => {
   ]) {
     assert.equal(retourInterne(mauvaise), null, `accepté à tort : ${JSON.stringify(mauvaise)}`);
   }
+});
+
+test("après une connexion venue de nulle part, on atterrit sur l'accueil", () => {
+  // Un compte tout neuf n'a aucune commande : le déposer devant une liste
+  // vide serait un mauvais accueil.
+  assert.equal(accueilApresConnexion("fr"), "/fr");
+  assert.equal(accueilApresConnexion("en"), "/en");
+  assert.equal(accueilApresConnexion("xx"), "/fr", "une langue inconnue retombe sur le français");
+  // Et cette adresse doit elle-même passer le filtre des adresses internes.
+  assert.equal(retourInterne(accueilApresConnexion("fr")), "/fr");
 });

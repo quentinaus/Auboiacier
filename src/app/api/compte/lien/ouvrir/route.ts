@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { ouvrirSession } from "@/lib/compte";
-import { lireLien, retourInterne } from "@/lib/compte-jetons";
+import { accueilApresConnexion, lireLien, retourInterne } from "@/lib/compte-jetons";
 
 export const runtime = "nodejs";
 
@@ -21,6 +21,6 @@ export async function GET(request: Request) {
   if (!jeton || !(await ouvrirSession(jeton.email))) {
     return NextResponse.redirect(new URL(`/${locale}/compte/connexion?erreur=lien`, request.url));
   }
-  const retour = retourInterne(parametres.get("s")) ?? `/${locale}/compte`;
+  const retour = retourInterne(parametres.get("s")) ?? accueilApresConnexion(locale);
   return NextResponse.redirect(new URL(retour, request.url));
 }
