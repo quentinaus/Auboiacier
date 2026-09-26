@@ -425,19 +425,97 @@ prix au m² de la toile, prix du tube alu 25 × 25 × 3 au mètre, prix de la t�
 
 ---
 
-## Recherche en cours au 26 septembre 2026
+## Ce que l'enquête transport a rendu
 
-Trois volets d'enquête sont lancés et n'ont pas encore rendu leurs résultats.
-Ce qui en sortira viendra compléter cette fiche :
+*Recherche menée le 26 septembre 2026 sur les règles des transporteurs
+français, l'emballage et les solutions modulaires.*
 
-- **Transporteurs** — cotes maximales acceptées par chaque réseau français
-  (Geodis, Schenker, Dachser, Heppner, XPO…), seuil de bascule entre messagerie
-  et affrètement, suppléments hors gabarit, limites d'indemnisation.
-- **Emballage** — NIMP 15 pour la France et l'export, calage d'un grand panneau
-  fragile, poids réel d'une caisse, mentions obligatoires et « non gerbable ».
-- **Solutions modulaires** — comment Barrisol, Newmat et Clipso traitent les
-  très grandes surfaces, et si la toile se tend sur place (auquel cas ce qui
-  voyage n'est qu'une ossature, bien moins fragile).
+### 1. Le film noir opaque est le défaut le plus coûteux de l'emballage actuel
+
+Emballée dans un film opaque, la pièce **ne peut pas être examinée à la
+livraison**. Le client signe sans réserve, découvre le dommage au déballage —
+et il est trop tard : **l'article L133-3 du code de commerce éteint le recours
+contre le transporteur en trois jours** si aucune réserve écrite et précise n'a
+été portée à la livraison.
+
+**À changer :** un film transparent, ou une fenêtre d'inspection, ou au minimum
+une consigne écrite au client (« vérifier avant de signer, et porter des
+réserves précises sur le bordereau »).
+
+### 2. L'adhésif ne tient rien — il faut du feuillard
+
+Un ruban adhésif, même large et au nom de l'entreprise, n'est pas un moyen
+d'assemblage. Il faut un **cerclage feuillard** (polyester ou acier) et de la
+visserie. Un transporteur est en droit de **refuser au chargement** un colis
+dont l'assemblage ne tient pas.
+
+### 3. « Non gerbable » est le mot le plus cher de la facture
+
+C'est la découverte la plus rentable de cette enquête.
+
+| Déclaration | Mode de facturation | Sur une caisse de 2,33 × 1,20 × 0,40 |
+|---|---|---|
+| **Gerbable** | au volume, ≈ 333 kg/m³ | ≈ **370 kg taxables** |
+| **Non gerbable** | au mètre plancher, ≈ 1 750 kg/m | ≈ **2 040 kg taxables** |
+
+**Un facteur 5 sur la facture, pour un seul mot.**
+
+Une toile tendue ne supporte évidemment pas 400 kg posés dessus. **Mais la
+caisse, elle, le peut** — si elle est conçue pour que la charge passe par
+l'ossature bois et jamais par la pièce : montants d'angle continus, chapeau
+raidi, semelles dans l'axe des montants.
+
+> **Piste à étudier sérieusement :** concevoir la caisse gerbable diviserait le
+> coût de transport par cinq. C'est probablement le meilleur retour sur temps
+> de fabrication de tout ce dossier.
+
+### 4. L'indemnisation est plafonnée à 1 000 € par colis
+
+Contrat type général, envoi de moins de 3 tonnes : **33 €/kg, mais plafonné à
+1 000 € par colis**. Pour une pièce de 46 kg comme pour une de 188 kg,
+l'indemnité maximale est la même : mille euros.
+
+Un plafond lumineux vaut bien davantage. **Il faut faire une déclaration de
+valeur** auprès du transporteur (payante, mais c'est le seul moyen d'être
+couvert au-delà).
+
+### 5. NIMP 15 : c'est tranché
+
+Le traitement thermique du bois d'emballage :
+
+| Destination | Obligatoire ? |
+|---|---|
+| France métropolitaine et Corse | **non** |
+| Union européenne continentale | **non** |
+| **DOM** (Guadeloupe, Martinique, Guyane, Réunion, Mayotte, Saint-Martin, Saint-Barthélemy) | **oui** — espaces phytosanitaires distincts depuis le 14/12/2019 |
+| Hors Union européenne | **oui** |
+
+### 6. Le gabarit de la messagerie est plus serré qu'on ne croit
+
+La plupart des réseaux s'arrêtent à **2,40 m de long et 2,20 m de haut**. Les
+deux ou trois qui montent à 4 m plafonnent la seconde dimension à 2,40 m.
+
+> ⚠️ **À vérifier d'urgence :** une pièce de 2 330 × 1 200, une fois coffrée,
+> atteint environ **2,45 m** et franchit donc la limite des 2,40 m. L'atelier
+> paie peut-être déjà des suppléments hors gabarit sans le savoir. **À
+> contrôler sur une facture de transport récente.**
+
+### 7. Le marquage manque
+
+Il faut sur la caisse : **pictogrammes ISO 780** (fragile, sens de manutention,
+craint l'humidité), **masse brute** en clair, et les **prises de fourches**
+conformes — semelles ou chevrons, quatre entrées de préférence. Un conducteur
+peut refuser une charge qu'il ne peut pas prendre au chariot.
+
+### 8. Le coffrage fait changer de catégorie de convoi
+
+Une pièce de 3 000 mm plus 40 à 80 mm de coffrage de chaque côté fait **3,08 à
+3,16 m hors tout**. On passe du convoi exceptionnel de 1re catégorie à celui de
+**2e catégorie** : voiture pilote, itinéraire imposé, délais. La limite légale
+sur route est de **2,55 m** (code de la route, art. R312-10).
+
+C'est une raison de plus pour la règle de l'atelier : au-delà de 4 × 2,5 m, on
+découpe, ou on livre soi-même.
 
 ---
 
