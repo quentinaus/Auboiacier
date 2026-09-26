@@ -34,7 +34,7 @@ import {
   type CotesGardeCorps,
 } from "./releve-garde-corps";
 import { LIVRAISON, POSE, PRISE_DE_COTES } from "@/lib/deplacement";
-import { memoriserConfig, reprendreConfig } from "@/lib/config-memo";
+import { memoriserConfig, reprendreConfig, type ConfigMemo } from "@/lib/config-memo";
 import { livrableParTransporteur } from "@/lib/products";
 import { VisiteAtelier } from "./prise-de-cotes";
 import { MAX_TEXTE, EMAIL_MOTIF } from "@/lib/devis-regles";
@@ -596,6 +596,9 @@ export function ProductOptions({
   /** La fenêtre qui demande nom et adresse avant d'ouvrir le devis PDF. */
   const devisDialogRef = useRef<HTMLDialogElement>(null);
   const [boutonVisible, setBoutonVisible] = useState(true);
+  /** La configuration mise de côté, et l'enregistrement en cours. */
+  const [misDeCote, setMisDeCote] = useState<string | null>(null);
+  const [favoriEnvoi, setFavoriEnvoi] = useState(false);
   /** Les sous-menus de la carte du configurateur (livraison, poids et détails, ce que comprend le prix). */
   const [menusOuverts, setMenusOuverts] = useState<Record<string, boolean | undefined>>({});
   const ouvrirMenu = (nom: string, ouvert: boolean) => setMenusOuverts((m) => ({ ...m, [nom]: ouvert }));
@@ -1045,6 +1048,11 @@ export function ProductOptions({
   ].join("|");
   const added = ajoutee === configuration;
 
+  /* Mise de côté : même principe que la confirmation d'ajout au panier —
+     elle vaut pour CETTE configuration, et s'efface dès qu'on change une
+     cote, puisque ce n'est plus la pièce qu'on a mise de côté. */
+  const favoriFait = misDeCote === configuration;
+
   /* --- La liste des dimensions au clavier --- */
   function ouvrirFermerTailles() {
     setSizesOpen((ouvert) => {
@@ -1227,8 +1235,8 @@ export function ProductOptions({
    * sur cette fiche : au retour, les cotes, l'essence et la teinte sont
    * toujours là.
    */
-  function allerCreerCompte() {
-    memoriserConfig({
+  function configActuelle(): ConfigMemo {
+    return {
       slug: product.slug,
       unite,
       largeur: largeurSaisie,
@@ -1243,9 +1251,56 @@ export function ProductOptions({
       quantity,
       codePostal: pose.codePostal,
       poseVoulue: pose.voulue,
-    });
-    const retour = `/${locale}/artisanat/${product.slug}`;
-    router.push(`/${locale}/compte/connexion?suite=${encodeURIComponent(retour)}`);
+    };
+  }
+  function allerCreerCompte() {
+    memoriserConfig(configActuelle());
+    router.push(
+      `/${locale}/compte/connexion?suite=${encodeURIComponent(`/${locale}/artisanat/${product.slug}`)}`
+    );
+  }
+
+  /**
+   * Mettre la pièce de côté, avec ses cotes et ses choix.
+   *
+   * On ne demande PAS au serveur, en rendant la page, si le visiteur est
+   * connecté : cette fiche est pré-calculée pour tout le monde, et lire un
+   * témoin la rendrait dynamique — donc plus lente, pour un bouton. On
+   * tente l'enregistrement, et c'est le 401 qui nous apprend qu'il faut
+   * d'abord se connecter. La configuration est alors mise de côté dans le
+   * navigateur, comme pour le devis : il la retrouvera au retour.
+   */
+  async function mettreDeCote() {
+    if (favoriEnvoi) return;
+    setFavoriEnvoi(true);
+    const config = configActuelle();
+    try {
+      const reponse = await fetch("/api/compte/favoris", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          slug: product.slug,
+          titre: product.name,
+          resume: optionsLabel,
+          prixCents: total !== null ? Math.round(total * 100) : null,
+          config,
+        }),
+      });
+      if (reponse.status === 401) {
+        memoriserConfig(config);
+        router.push(
+          `/${locale}/compte/connexion?suite=${encodeURIComponent(`/${locale}/artisanat/${product.slug}`)}`
+        );
+        return;
+      }
+      if (!reponse.ok) throw new Error("refus");
+      setMisDeCote(configuration);
+    } catch {
+      // Silencieux : le bouton reprend son libellé d'origine, et le client
+      // peut réessayer. Une pièce non mise de côté n'empêche pas d'acheter.
+    } finally {
+      setFavoriEnvoi(false);
+    }
   }
   /** Le nom et l'adresse manquent encore : on les demande avant d'ouvrir le PDF, pas après. */
   function ouvrirDevis() {
@@ -1301,6 +1356,35 @@ export function ProductOptions({
       {!urlDevis && raisonIndisponible && (
         <p id={idRaisonDevis} className="mt-2 text-center text-xs leading-relaxed text-[#6f6357]">
           {raisonIndisponible.message}
+        </p>
+      )}
+
+      {/* Mettre la pièce de côté : on garde les cotes et les choix, pas
+          seulement le nom de l'article. Discret, en dessous du devis — ce
+          n'est pas l'action principale, mais c'est celle qui ramène. */}
+      {compteOuvert && !modeVisite && (
+        <p className="mt-3 text-center">
+          <button
+            type="button"
+            onClick={mettreDeCote}
+            disabled={favoriEnvoi}
+            aria-pressed={favoriFait}
+            className="inline-flex items-center gap-2 text-[12px] font-medium text-[#2b2320] underline underline-offset-4 transition-colors hover:text-[#6d2c2c] disabled:opacity-60"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 20 20"
+              className="h-4 w-4"
+              fill={favoriFait ? "currentColor" : "none"}
+              stroke="currentColor"
+              strokeWidth="1.3"
+            >
+              {/* Un signet, pas un cœur : on met une pièce de côté pour y
+                  revenir, on ne la « like » pas. */}
+              <path d="M5.5 2.75h9v14.5L10 13.4l-4.5 3.85z" strokeLinejoin="round" />
+            </svg>
+            {favoriFait ? t.favoriBoutonFait : t.favoriBouton}
+          </button>
         </p>
       )}
       {/* <dialog> natif : Échap et le clic sur le fond referment tout seuls,
