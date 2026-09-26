@@ -327,6 +327,23 @@ Europe : la norme EPAL (1200 × 800, 1200 × 1000, 800 × 600) ne comporte de
 toute façon aucun format long et étroit, et les transporteurs acceptent tout
 support manipulable au chariot, stable et correctement étiqueté.
 
+
+---
+
+## Recherche en cours au 26 septembre 2026
+
+Trois volets d'enquête sont lancés et n'ont pas encore rendu leurs résultats.
+Ce qui en sortira viendra compléter cette fiche :
+
+- **Transporteurs** — cotes maximales acceptées par chaque réseau français
+  (Geodis, Schenker, Dachser, Heppner, XPO…), seuil de bascule entre messagerie
+  et affrètement, suppléments hors gabarit, limites d'indemnisation.
+- **Emballage** — NIMP 15 pour la France et l'export, calage d'un grand panneau
+  fragile, poids réel d'une caisse, mentions obligatoires et « non gerbable ».
+- **Solutions modulaires** — comment Barrisol, Newmat et Clipso traitent les
+  très grandes surfaces, et si la toile se tend sur place (auquel cas ce qui
+  voyage n'est qu'une ossature, bien moins fragile).
+
 ---
 
 ## Questions ouvertes
