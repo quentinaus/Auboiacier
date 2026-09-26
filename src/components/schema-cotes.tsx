@@ -241,16 +241,9 @@ function veine(y: number, amplitude: number, decalage: number) {
   return d;
 }
 
-/** Les textures de bois calculées par scripts/textures-bois.py, une par essence. */
-const ESSENCES_TEXTURE = ["chene", "hetre", "noyer", "pin"] as const;
-const TEXTURE_L = 1600;
-const TEXTURE_H = 800;
-const TEXTURE_BOUT_H = 200;
-
 export function SchemaCotes({
   forme,
   matiere = "bois",
-  essence,
   labels,
   valeurs,
   actif,
@@ -260,8 +253,6 @@ export function SchemaCotes({
   proportions,
 }: {
   forme: "rect" | "rond";
-  /** L'essence choisie : le plateau se dessine dans ce bois-là (chêne si on ne sait pas). */
-  essence?: string;
   /** Les cotes en millimètres, pour dessiner le plateau à leurs proportions. */
   proportions?: { principale?: number; secondaire?: number; epaisseur?: number };
   /** Sans cadre ni valeurs écrites : les chiffres sont dans les lignes juste dessous. */
@@ -290,8 +281,10 @@ export function SchemaCotes({
   const n = (cote: CoteSchema) => ordre.indexOf(cote) + 1;
   const etat = (cote: CoteSchema): Etat => (actif === cote ? "actif" : survol === cote ? "survol" : "repos");
 
-  // Le bois est un chêne clair dont le chant est un ton en dessous ; la toile
-  // est blanche dans son cadre sombre : les mêmes matières que sur les photos.
+  // Un bois clair dont le chant est un ton en dessous ; la toile est blanche
+  // dans son cadre sombre. Le croquis ne se reteinte pas selon l'essence
+  // choisie : c'est un dessin de cotes, et la couleur du noyer ou du chêne se
+  // regarde sur les photos, pas ici.
   const dessus = lumiere ? "url(#toile)" : "url(#bois-dessus)";
   const chant = lumiere ? "#332d28" : "url(#bois-chant)";
   const bout = lumiere ? "#241f1b" : "url(#bois-bout)";
@@ -311,20 +304,11 @@ export function SchemaCotes({
   const dep = (pt: Point, d: Point, k: number): Point => [pt[0] + d[0] * k, pt[1] + d[1] * k];
   const milieu = (p1: Point, p2: Point): Point => [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
 
-  /* La vraie matière : une photo de bois calculée (scripts/textures-bois.py)
-     projetée sur chaque face. Sur le dessus, le fil (l'axe x de l'image)
-     suit la longueur D→C, la largeur de l'image suit D→A ; sur les chants,
-     une tranche de la même image, assombrie. Les dégradés dessinés dessous
-     restent en secours, le temps que l'image arrive. */
-  const essenceTexture = (ESSENCES_TEXTURE as readonly string[]).includes(essence ?? "") ? essence : "chene";
-  const texture = lumiere ? null : `/images/plateau/${essenceTexture}.jpg`;
-  /** Le bois de bout : des cernes en arcs, pas le fil de la face. */
-  const textureBout = lumiere ? null : `/images/plateau/${essenceTexture}-bout.jpg`;
-  const matrice = (o: Point, u: Point, v: Point, largeurImage: number, hauteurImage: number) =>
-    `matrix(${r(u[0] / largeurImage)} ${r(u[1] / largeurImage)} ${r(v[0] / hauteurImage)} ${r(v[1] / hauteurImage)} ${r(o[0])} ${r(o[1])})`;
-  const vecteur = (de: Point, a: Point): Point => [a[0] - de[0], a[1] - de[1]];
-  /** Le chant long : une tranche de la face (un huitième de sa hauteur). */
-  const TRANCHE = 8;
+  /* Pas de photo de bois sur le croquis : c'est un dessin technique, et la
+     texture photographique faisait passer un plateau de chêne pour du bois
+     exotique verni. Le fil reste suggéré par des veines tracées, plus bas —
+     assez pour lire le sens des fibres, sans annoncer une teinte que la
+     pièce n'aura pas. La vraie matière se juge sur les photos de l'atelier. */
 
   /* La toile d'un caisson lumineux est réellement éclairée : le même
      dégradé animé que la photo (voir MembraneAnimee), posé sur la face du
@@ -409,12 +393,6 @@ export function SchemaCotes({
             <clipPath id="face">
               <polygon points={`${p(A)} ${p(B)} ${p(C)} ${p(D)}`} />
             </clipPath>
-            <clipPath id="chant-long">
-              <polygon points={`${p(D)} ${p(C)} ${p(bas(C))} ${p(bas(D))}`} />
-            </clipPath>
-            <clipPath id="chant-bout">
-              <polygon points={`${p(A)} ${p(D)} ${p(bas(D))} ${p(bas(A))}`} />
-            </clipPath>
           </>
         )}
       </defs>
@@ -487,44 +465,8 @@ export function SchemaCotes({
           <polygon points={`${p(D)} ${p(C)} ${p(bas(C))} ${p(bas(D))}`} fill={chant} />
           <polygon points={`${p(A)} ${p(D)} ${p(bas(D))} ${p(bas(A))}`} fill={bout} />
           <polygon points={`${p(A)} ${p(B)} ${p(C)} ${p(D)}`} fill={dessus} />
-          {texture && (
-            <>
-              {/* Le chant de la longueur : le fil court le long de D→C. */}
-              <g clipPath="url(#chant-long)">
-                <image
-                  href={texture}
-                  width={TEXTURE_L}
-                  height={TEXTURE_H}
-                  preserveAspectRatio="none"
-                  transform={matrice(D, vecteur(D, C), [0, EP * TRANCHE], TEXTURE_L, TEXTURE_H)}
-                />
-                <polygon points={`${p(D)} ${p(C)} ${p(bas(C))} ${p(bas(D))}`} fill="#3a2410" opacity={0.22} />
-              </g>
-              {/* Le bout : le bois de bout, ses cernes en arcs, plus sombre encore. */}
-              <g clipPath="url(#chant-bout)">
-                <image
-                  href={textureBout ?? texture}
-                  width={TEXTURE_L}
-                  height={TEXTURE_BOUT_H}
-                  preserveAspectRatio="none"
-                  transform={matrice(A, vecteur(A, D), [0, EP], TEXTURE_L, TEXTURE_BOUT_H)}
-                />
-                <polygon points={`${p(A)} ${p(D)} ${p(bas(D))} ${p(bas(A))}`} fill="#2e1c0c" opacity={0.34} />
-              </g>
-              {/* Le dessus : toute la planche, le fil dans la longueur. */}
-              <g clipPath="url(#face)">
-                <image
-                  href={texture}
-                  width={TEXTURE_L}
-                  height={TEXTURE_H}
-                  preserveAspectRatio="none"
-                  transform={matrice(D, vecteur(D, C), vecteur(D, A), TEXTURE_L, TEXTURE_H)}
-                />
-              </g>
-            </>
-          )}
           {membraneAllumee}
-          {!lumiere && !texture && (
+          {!lumiere && (
             <>
               {/* Les veines suivent la longueur : des lignes parallèles à D→C,
                   d'épaisseurs et de teintes inégales, comme sur une planche. */}

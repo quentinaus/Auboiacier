@@ -21,7 +21,7 @@ import {
   type ProductSize,
   type ProductSwatch,
 } from "@/lib/products";
-import { prixAffiche, surfaceAffichee } from "@/lib/ui";
+import { amenerAlEcran, prixAffiche, surfaceAffichee } from "@/lib/ui";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { useCart } from "@/lib/cart";
 import { MaterialBubble } from "./material-bubble";
@@ -599,6 +599,33 @@ export function ProductOptions({
   /** Les sous-menus de la carte du configurateur (livraison, poids et détails, ce que comprend le prix). */
   const [menusOuverts, setMenusOuverts] = useState<Record<string, boolean | undefined>>({});
   const ouvrirMenu = (nom: string, ouvert: boolean) => setMenusOuverts((m) => ({ ...m, [nom]: ouvert }));
+
+  /**
+   * Aller à l'endroit qui manque, en partant de la phrase qui le réclame.
+   *
+   * Une simple ancre (href="#livraison") ne suffisait pas : le navigateur
+   * saute AVANT que React ait déplié le menu, donc vers un bloc encore fermé
+   * de quelques pixels — la page bougeait à peine et on croyait à un défaut.
+   * On attend donc deux images : la première laisse React ouvrir le menu, la
+   * seconde laisse le navigateur mesurer la carte une fois dépliée.
+   *
+   * Et on pose le curseur dans la case : c'est elle qu'on est venu remplir.
+   * Sur téléphone, le clavier s'ouvre dans la foulée.
+   */
+  function allerAuChampManquant(ancre: string) {
+    if (ancre === "#livraison") ouvrirMenu("livraison", true);
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        const cible = document.querySelector(ancre);
+        if (!cible) return;
+        // « center » plutôt que « start » : la carte défile à l'intérieur
+        // d'elle-même, et un bloc collé tout en haut passe sous le titre.
+        amenerAlEcran(cible, { block: "center" });
+        const champ = cible.querySelector<HTMLInputElement>('input:not([type="hidden"])');
+        champ?.focus({ preventScroll: true });
+      })
+    );
+  }
 
   const { add, remove, items: panier } = useCart();
 
@@ -1515,7 +1542,6 @@ export function ProductOptions({
             locale={locale}
             /* Un plateau de bois, ou la toile tendue d'un caisson lumineux. */
             matiere={table ? "bois" : "lumiere"}
-            essence={woodId}
             actif={coteActive}
             onChoisir={allerA}
             proportions={{
@@ -1727,7 +1753,6 @@ export function ProductOptions({
                     forme={bareme.forme}
                     locale={locale}
                     matiere={table ? "bois" : "lumiere"}
-                    essence={woodId}
                     actif={coteActive}
                     onChoisir={allerA}
                     /* Le plateau se dessine aux proportions des cotes tapées. */
@@ -2331,8 +2356,11 @@ export function ProductOptions({
             <p className="mt-2 text-[11px] text-[#9a5b3f]">
               <a
                 href={raisonIndisponible.ancre}
-                onClick={() => {
-                  if (raisonIndisponible.ancre === "#livraison") ouvrirMenu("livraison", true);
+                onClick={(e) => {
+                  // On reprend la main sur le saut d'ancre du navigateur :
+                  // voir allerAuChampManquant.
+                  e.preventDefault();
+                  allerAuChampManquant(raisonIndisponible.ancre);
                 }}
                 className="underline decoration-dotted underline-offset-2 hover:text-[#2b2320]"
               >
