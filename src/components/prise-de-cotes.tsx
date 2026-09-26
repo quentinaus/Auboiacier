@@ -36,8 +36,13 @@ export function Intitule({ info, infoLabel, children }: { info: string; infoLabe
 }
 
 /**
- * La première question : qui prend les cotes ? Deux cartes, le client ou
- * l'atelier — chaque pièce donne ses propres notes sous les titres.
+ * La première question : qui prend les cotes ? Deux boutons côte à côte, et
+ * sous eux, UNE phrase — celle du choix en cours.
+ *
+ * C'étaient deux grandes cartes empilées, chacune avec son rond d'icône, son
+ * titre et deux lignes d'explication : près de la moitié d'un écran de
+ * téléphone pour une question à deux réponses, et le prix passait en dessous
+ * de la ligne de flottaison. L'atelier les a trouvées trop encombrantes.
  */
 export function QuiMesure({
   valeur,
@@ -51,10 +56,15 @@ export function QuiMesure({
   t: Dictionary["artisanat"];
   /** Ce que chaque choix implique pour cette pièce-là. */
   notes: { moi: string; atelier: string };
-  /** L'étiquette de la carte « je mesure » : « Prix immédiat » quand le prix tombe, « Gratuit » sinon. */
+  /** L'étiquette du bouton « je mesure » : « Prix immédiat » quand le prix tombe, « Gratuit » sinon. */
   tagMoi?: string;
 }) {
   const idQui = useId();
+  const idNote = useId();
+  const choix = [
+    { id: "moi", label: t.gcQuiMoi, tag: tagMoi ?? t.gcQuiMoiTag },
+    { id: "atelier", label: t.gcQuiAtelier, tag: t.gcQuiAtelierTag },
+  ] as const;
   return (
     <>
       <span id={idQui}>
@@ -62,61 +72,65 @@ export function QuiMesure({
           {t.gcQui}
         </Intitule>
       </span>
-      <div role="group" aria-labelledby={idQui} className="mt-2 grid gap-2 @sm:grid-cols-2">
-        {(
-          [
-            { id: "moi", label: t.gcQuiMoi, note: notes.moi, tag: tagMoi ?? t.gcQuiMoiTag },
-            { id: "atelier", label: t.gcQuiAtelier, note: notes.atelier, tag: t.gcQuiAtelierTag },
-          ] as const
-        ).map((choix) => {
-          const actif = valeur === choix.id;
+      <div role="group" aria-labelledby={idQui} className="mt-2 grid grid-cols-2 gap-2">
+        {choix.map((c) => {
+          const actif = valeur === c.id;
           return (
             <button
-              key={choix.id}
+              key={c.id}
               type="button"
               aria-pressed={actif}
-              onClick={() => onChange(choix.id)}
-              className={`relative rounded-2xl border p-3.5 text-left transition-all ${
-                actif
-                  ? "border-[#2b2320] bg-white shadow-[0_10px_30px_-18px_rgba(109,44,44,0.45)] ring-1 ring-[#2b2320]"
-                  : "border-[#e5ddd3] bg-white hover:border-[#a3968a]"
+              aria-describedby={actif ? idNote : undefined}
+              onClick={() => onChange(c.id)}
+              className={`flex min-h-12 items-center gap-2 rounded-xl border bg-white px-3 py-2 text-left transition-colors ${
+                actif ? "border-[#2b2320] ring-1 ring-[#2b2320]" : "border-[#e5ddd3] hover:border-[#a3968a]"
               }`}
             >
-              {choix.tag && (
-                <span
-                  className={`absolute right-3 top-3 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] ${
-                    actif ? "bg-[#2b2320] text-white" : "bg-[#f1ece4] text-[#2b2320]"
-                  }`}
-                >
-                  {choix.tag}
-                </span>
-              )}
-              <span
-                className={`flex h-9 w-9 items-center justify-center rounded-full ${
-                  actif ? "bg-[#2b2320] text-white" : "bg-[#f5f1ea] text-[#2b2320]"
-                }`}
+              <svg
                 aria-hidden
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4 shrink-0 text-[#2b2320]"
               >
-                {choix.id === "atelier" ? (
+                {c.id === "atelier" ? (
                   /* Une épingle de carte : on vient chez vous. */
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                  <>
                     <path d="M12 21s-6-5.4-6-11a6 6 0 0 1 12 0c0 5.6-6 11-6 11z" />
                     <circle cx="12" cy="10" r="2.2" />
-                  </svg>
+                  </>
                 ) : (
                   /* Un mètre ruban : vous mesurez. */
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                  <>
                     <rect x="3" y="8" width="18" height="8" rx="1.5" />
                     <path d="M7 8v3M11 8v4M15 8v3M19 8v4" />
-                  </svg>
+                  </>
+                )}
+              </svg>
+              <span className="min-w-0">
+                <span className={`block text-[13px] leading-tight text-[#2a2116] ${actif ? "font-semibold" : "font-medium"}`}>
+                  {/* Trait d'union insécable : « moi-même » ne se coupe pas en deux
+                      lignes dans un bouton de la moitié d'une carte. */}
+                  {c.label.replace(/-/g, "\u2011")}
+                </span>
+                {c.tag && (
+                  <span className="mt-0.5 block text-[9px] font-semibold uppercase tracking-[0.12em] text-[#6f6357]">
+                    {c.tag}
+                  </span>
                 )}
               </span>
-              <span className="mt-3 block text-[15px] font-medium leading-snug text-[#2a2116]">{choix.label}</span>
-              <span className="mt-1.5 block text-[12px] leading-snug text-[#6f6357]">{choix.note}</span>
             </button>
           );
         })}
       </div>
+      {/* Une seule explication, celle du choix fait : deux paragraphes côte à
+          côte se lisaient comme un tableau à comparer, pas comme une réponse. */}
+      <p id={idNote} className="mt-2 text-[12px] leading-snug text-[#6f6357]">
+        {valeur === "atelier" ? notes.atelier : notes.moi}
+      </p>
     </>
   );
 }
