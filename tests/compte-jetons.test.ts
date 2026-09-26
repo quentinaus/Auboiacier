@@ -178,3 +178,39 @@ test("après une connexion venue de nulle part, on atterrit sur l'accueil", () =
   // Et cette adresse doit elle-même passer le filtre des adresses internes.
   assert.equal(retourInterne(accueilApresConnexion("fr")), "/fr");
 });
+
+test("le nom donné par Google voyage dans le jeton, sans rien écrire ailleurs", () => {
+  avecSecret(SECRET, () => {
+    const jeton = signerSession(EMAIL, T, "  Quentin   Aumercier ")!;
+    const lu = lireSession(jeton, T)!;
+    assert.equal(lu.email, EMAIL);
+    assert.equal(lu.nom, "Quentin Aumercier", "les espaces multiples sont ramenés à un");
+    // Il reste signé : on ne peut pas se renommer soi-même.
+    const [charge, signature] = jeton.split(".");
+    const truque = Buffer.from(
+      JSON.stringify({ email: EMAIL, exp: T + DUREE_SESSION_S, nom: "Quelqu'un d'autre" })
+    ).toString("base64url");
+    assert.equal(lireSession(`${truque}.${signature}`, T), null);
+    assert.ok(lireSession(`${charge}.${signature}`, T));
+  });
+});
+
+test("sans nom, le jeton reste exactement ce qu'il était", () => {
+  avecSecret(SECRET, () => {
+    // La connexion par lien e-mail n'a pas de nom à donner : sa session ne
+    // doit pas porter une clé « nom » vide.
+    const jeton = signerSession(EMAIL, T)!;
+    assert.deepEqual(lireSession(jeton, T), { email: EMAIL, exp: T + DUREE_SESSION_S });
+    for (const rien of ["", " ", "a", null, undefined, 42, {}]) {
+      const avec = signerSession(EMAIL, T, rien as string)!;
+      assert.deepEqual(lireSession(avec, T), { email: EMAIL, exp: T + DUREE_SESSION_S });
+    }
+  });
+});
+
+test("un nom démesuré est ramené à une ligne", () => {
+  avecSecret(SECRET, () => {
+    const jeton = signerSession(EMAIL, T, "z".repeat(500))!;
+    assert.equal(lireSession(jeton, T)!.nom!.length, 80);
+  });
+});

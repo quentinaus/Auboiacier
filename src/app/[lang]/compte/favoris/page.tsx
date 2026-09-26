@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArtisanatHeader } from "@/components/artisanat-header";
 import { FavorisListe } from "@/components/favoris-liste";
-import { SiteFooter } from "@/components/site-footer";
 import { clientConnecte } from "@/lib/compte";
 import { serif } from "@/lib/fonts";
 import { defaultLocale, isLocale } from "@/lib/i18n";
@@ -41,36 +38,24 @@ export default async function FavorisPage({ params }: PageProps<"/[lang]/compte/
   const { favoris } = await ficheDuClient(email);
 
   return (
-    <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
-      <ArtisanatHeader locale={locale} dict={dict} />
-      <main id="contenu">
-        <div className="mx-auto max-w-2xl px-6 py-14 md:py-20">
-          <p className="text-sm">
-            <Link href={`/${locale}/compte`} className="text-[#5c5140] underline underline-offset-4">
-              ← {t.retourEspace}
-            </Link>
-          </p>
+    <>
+      <h1 className={`${serif.className} text-3xl md:text-4xl`}>{t.favorisTitre}</h1>
+      <p className="mt-3 text-sm leading-relaxed text-[#5c5140]">{t.favorisIntro}</p>
 
-          <h1 className={`${serif.className} mt-6 text-3xl md:text-4xl`}>{t.favorisTitre}</h1>
-          <p className="mt-3 text-sm leading-relaxed text-[#5c5140]">{t.favorisIntro}</p>
-
-          <FavorisListe
-            favoris={favoris}
-            locale={locale}
-            lienCollection={`/${locale}/artisanat`}
-            t={{
-              reprendre: t.favorisReprendre,
-              retirer: t.favorisRetirer,
-              gardeLe: t.favorisGardeLe,
-              erreur: t.favorisErreur,
-              aucunTitre: t.favorisAucunTitre,
-              aucunCorps: t.favorisAucunCorps,
-              voirCollection: t.voirCollection,
-            }}
-          />
-        </div>
-      </main>
-      <SiteFooter locale={locale} dict={dict} tone="light" />
-    </div>
+      <FavorisListe
+        favoris={favoris}
+        locale={locale}
+        lienCollection={`/${locale}/artisanat`}
+        t={{
+          reprendre: t.favorisReprendre,
+          retirer: t.favorisRetirer,
+          gardeLe: t.favorisGardeLe,
+          erreur: t.favorisErreur,
+          aucunTitre: t.favorisAucunTitre,
+          aucunCorps: t.favorisAucunCorps,
+          voirCollection: t.voirCollection,
+        }}
+      />
+    </>
   );
 }

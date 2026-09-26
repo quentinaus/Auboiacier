@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { ArtisanatHeader } from "@/components/artisanat-header";
 import { CompteConnexion } from "@/components/compte-connexion";
-import { SiteFooter } from "@/components/site-footer";
 import { clientConnecte } from "@/lib/compte";
 import { accueilApresConnexion, compteConfigure, retourInterne } from "@/lib/compte-jetons";
 import { serif } from "@/lib/fonts";
@@ -58,40 +56,34 @@ export default async function ConnexionPage({
     erreur === "lien" ? t.erreurLien : typeof erreur === "string" ? t.erreurConnexion : null;
 
   return (
-    <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
-      <ArtisanatHeader locale={locale} dict={dict} />
-      <main id="contenu">
-        <div className="mx-auto max-w-xl px-6 py-16 md:py-24">
-          <h1 className={`${serif.className} text-center text-3xl md:text-4xl`}>
-            {t.connexionTitre}
-          </h1>
-          <p className="mx-auto mt-3 max-w-sm text-center text-sm leading-relaxed text-[#5c5140]">
-            {t.connexionIntro}
-          </p>
+    <>
+      <h1 className={`${serif.className} text-center text-3xl md:text-4xl`}>
+        {t.connexionTitre}
+      </h1>
+      <p className="mx-auto mt-3 max-w-sm text-center text-sm leading-relaxed text-[#5c5140]">
+        {t.connexionIntro}
+      </p>
 
-          {message && (
-            <p className="mx-auto mt-6 max-w-[380px] rounded-2xl border border-[#e8e1d8] bg-[#fbfaf8] px-5 py-3 text-center text-sm text-[#6d2c2c]">
-              {message}
-            </p>
-          )}
+      {message && (
+        <p className="mx-auto mt-6 max-w-[380px] rounded-2xl border border-[#e8e1d8] bg-[#fbfaf8] px-5 py-3 text-center text-sm text-[#6d2c2c]">
+          {message}
+        </p>
+      )}
 
-          <div className="mt-8">
-            {ouvert ? (
-              <CompteConnexion
-                t={t}
-                locale={locale}
-                google={googleConfigure()}
-                suite={retour}
-              />
-            ) : (
-              /* La clé n'est pas encore posée dans Vercel : on le dit, et le
-                 reste du site continue de fonctionner normalement. */
-              <p className="text-center text-sm text-[#5c5140]">{t.ferme}</p>
-            )}
-          </div>
-        </div>
-      </main>
-      <SiteFooter locale={locale} dict={dict} tone="light" />
-    </div>
+      <div className="mt-8">
+        {ouvert ? (
+          <CompteConnexion
+            t={t}
+            locale={locale}
+            google={googleConfigure()}
+            suite={retour}
+          />
+        ) : (
+          /* La clé n'est pas encore posée dans Vercel : on le dit, et le
+             reste du site continue de fonctionner normalement. */
+          <p className="text-center text-sm text-[#5c5140]">{t.ferme}</p>
+        )}
+      </div>
+    </>
   );
 }

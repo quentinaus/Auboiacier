@@ -1,7 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { effacerPassage, lirePassage, ouvrirSession } from "@/lib/compte";
-import { emailDepuisLeCode, lireEtat } from "@/lib/google-oauth";
+import { compteDepuisLeCode, lireEtat } from "@/lib/google-oauth";
 
 export const runtime = "nodejs";
 export const maxDuration = 20;
@@ -41,9 +41,13 @@ export async function GET(request: Request) {
   // L'utilisateur a pu refuser dans l'écran de Google : ce n'est pas une panne.
   if (!code) return retourEnErreur(request, suite, parametres.get("error") ? "refus" : "code");
 
-  const email = await emailDepuisLeCode(code);
-  if (!email) return retourEnErreur(request, suite, "google");
-  if (!(await ouvrirSession(email))) return retourEnErreur(request, suite, "ferme");
+  const compte = await compteDepuisLeCode(code);
+  if (!compte) return retourEnErreur(request, suite, "google");
+  // Le nom part dans le jeton de session, pas chez Stripe : se connecter ne
+  // doit rien écrire nulle part.
+  if (!(await ouvrirSession(compte.email, compte.nom ?? undefined))) {
+    return retourEnErreur(request, suite, "ferme");
+  }
 
   return NextResponse.redirect(new URL(suite, request.url));
 }

@@ -527,17 +527,21 @@ export function ProductView({
         pendant qu'on descend dans la carte. `ProductOptions` y dépose le
         croquis par portail (voir schemaSlot). */}
     {pleinePage && (
-      /* Sur téléphone, la section est un écran à elle seule : le titre, le
-         croquis et la carte se partagent la hauteur de l'écran, la carte
-         défilant à l'intérieur — le même agencement que sur ordinateur, où
-         le croquis est à côté d'elle. */
+      /* Sur téléphone, la page défile normalement : la carte prend la hauteur
+         qu'il lui faut. Elle a d'abord été enfermée dans la hauteur de
+         l'écran, croquis compris, pour que tout tienne d'un coup d'œil — mais
+         il ne restait alors qu'un tiers d'écran pour la carte, et on ne
+         pouvait plus voir les trois cotes ensemble sans faire défiler un
+         menu à l'intérieur d'un autre. Deux défilements imbriqués sur un
+         téléphone : personne ne s'y retrouve. Sur ordinateur, où la place ne
+         manque pas, la carte reste à côté du croquis et défile seule. */
       <section
         id="configuration"
-        className="mx-auto flex h-[calc(100svh-3.5rem)] max-w-7xl scroll-mt-14 flex-col px-5 pb-3 pt-4 md:block md:h-auto md:px-10 md:py-14"
+        className="mx-auto max-w-7xl scroll-mt-14 px-5 pb-3 pt-4 md:px-10 md:py-14"
       >
         <h2 className={`${serif.className} text-xl text-[#2b2320] md:text-3xl`}>{t.configurationTitle}</h2>
         <div className="mt-2 h-[3px] w-12 bg-[#2b2320] md:mt-3 md:w-14" aria-hidden />
-        <div className="mt-2 flex min-h-0 flex-1 flex-col gap-2 md:mt-8 md:grid md:grid-cols-[minmax(0,380px)_minmax(0,1fr)] md:gap-14 lg:gap-20">
+        <div className="mt-4 flex flex-col gap-5 md:mt-8 md:grid md:grid-cols-[minmax(0,380px)_minmax(0,1fr)] md:gap-14 lg:gap-20">
           {/* La carte grise : ses couleurs sont retournées dans globals.css
               (.carte-sombre). Elle ne dépasse jamais la hauteur de l'écran,
               titre compris : elle défile à l'intérieur, la barre d'achat
@@ -545,16 +549,16 @@ export function ProductView({
           {/* Pas de marge en bas : c'est la barre d'achat, collée au bord
               inférieur, qui porte la sienne — sinon le contenu qui défile
               reste visible dessous, entre la barre et le bord de la carte. */}
-          <div className="carte-sombre min-h-0 flex-1 overflow-x-hidden overflow-y-auto rounded-3xl px-5 pb-0 pt-4 md:max-h-[calc(100vh-13rem)] md:flex-none md:px-6 md:pt-5">
+          <div className="carte-sombre overflow-x-hidden rounded-3xl px-5 pb-0 pt-4 md:max-h-[calc(100vh-13rem)] md:overflow-y-auto md:px-6 md:pt-5">
             {options}
           </div>
           {/* Le croquis : au-dessus de la carte sur téléphone, à côté, au
               milieu de sa hauteur, sur ordinateur. */}
-          <div className="order-first shrink-0 md:order-none md:flex md:items-center md:self-stretch">
+          <div className="order-first md:order-none md:flex md:items-center md:self-stretch">
             <div ref={setSchemaSlot} className="mx-auto w-full" />
           </div>
           {/* Sous la carte, en petit : une question ? */}
-          <div className="shrink-0 px-1 md:-mt-6">{aide}</div>
+          <div className="px-1 md:-mt-6">{aide}</div>
         </div>
       </section>
     )}

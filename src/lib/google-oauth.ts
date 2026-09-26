@@ -1,5 +1,5 @@
 import "server-only";
-import { normaliserEmail } from "./compte-jetons";
+import { nomLisible, normaliserEmail } from "./compte-jetons";
 import { siteOrigin } from "./stripe";
 
 /**
@@ -22,8 +22,15 @@ import { siteOrigin } from "./stripe";
  * signature ne s'impose que si le jeton arrive par un chemin non authentifié
  * (le navigateur, par exemple).
  *
- * Ce qu'on garde de tout ça : une adresse e-mail, et le fait que Google la
- * dise vérifiée. Rien d'autre — ni nom, ni photo, ni identifiant Google.
+ * Ce qu'on garde de tout ça : une adresse e-mail que Google dit vérifiée, et
+ * le nom affiché. Ni photo, ni identifiant Google, ni rien d'autre.
+ *
+ * Le nom sert à une seule chose : pré-remplir « Prénom et nom » dans les
+ * coordonnées. Sans lui, quelqu'un qui vient de se connecter avec Google
+ * trouvait une case vide, alors que Google venait de nous le donner — il
+ * avait l'impression que sa connexion n'avait servi à rien. Il n'est écrit
+ * nulle part tant que le client n'a pas validé le formulaire : il voyage
+ * dans le jeton de session (voir compte-jetons.ts).
  */
 
 const AUTORISATION = "https://accounts.google.com/o/oauth2/v2/auth";
@@ -46,8 +53,9 @@ export function adresseDeDepart(passage: string, suite: string): string {
     client_id: process.env.GOOGLE_CLIENT_ID!.trim(),
     redirect_uri: adresseDeRetour(),
     response_type: "code",
-    // Le strict nécessaire : son adresse, et rien de son compte Google.
-    scope: "openid email",
+    // Son adresse, et son nom affiché. « profile » donne aussi la photo et
+    // la langue, que nous ne lisons pas — Google n'offre pas plus fin.
+    scope: "openid email profile",
     // Le jeton de passage porte AUSSI la page où revenir : au retour de
     // Google, on ne peut plus lire l'adresse d'où l'on venait.
     state: `${passage}.${Buffer.from(suite).toString("base64url")}`,
@@ -77,10 +85,13 @@ export function lireEtat(etat: unknown): { passage: string; suite: string } | nu
 }
 
 /**
- * Échange le code contre l'adresse e-mail du visiteur. Rend null pour toute
- * anomalie : refus de Google, adresse non vérifiée, réponse inattendue.
+ * Échange le code contre l'adresse e-mail du visiteur et son nom. Rend null
+ * pour toute anomalie : refus de Google, adresse non vérifiée, réponse
+ * inattendue.
  */
-export async function emailDepuisLeCode(code: string): Promise<string | null> {
+export async function compteDepuisLeCode(
+  code: string
+): Promise<{ email: string; nom: string | null } | null> {
   if (!googleConfigure()) return null;
   try {
     const reponse = await fetch(JETON, {
@@ -107,11 +118,21 @@ export async function emailDepuisLeCode(code: string): Promise<string | null> {
     const lu = JSON.parse(Buffer.from(charge, "base64url").toString("utf8")) as {
       email?: unknown;
       email_verified?: unknown;
+      name?: unknown;
+      given_name?: unknown;
+      family_name?: unknown;
     };
     // Une adresse que Google lui-même ne dit pas vérifiée ne prouve rien : on
     // ouvrirait les commandes de son titulaire à qui l'a simplement déclarée.
     if (lu.email_verified !== true && lu.email_verified !== "true") return null;
-    return normaliserEmail(lu.email);
+    const email = normaliserEmail(lu.email);
+    if (!email) return null;
+    // « name » est le nom affiché ; certains comptes n'ont que le prénom et
+    // le nom séparés, d'où le repli.
+    const nom =
+      nomLisible(lu.name) ??
+      nomLisible([lu.given_name, lu.family_name].filter((m) => typeof m === "string").join(" "));
+    return { email, nom };
   } catch (error) {
     console.error("[compte] échange impossible avec Google :", error);
     return null;

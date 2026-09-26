@@ -46,14 +46,24 @@ const REGLAGES = {
 
 /** L'adresse du client connecté, ou null. Jamais d'exception. */
 export async function clientConnecte(): Promise<string | null> {
+  return (await sessionClient())?.email ?? null;
+}
+
+/**
+ * La session entière : l'adresse, et le nom si la connexion est passée par
+ * Google. Ce nom ne sert qu'à pré-remplir le formulaire des coordonnées —
+ * il n'est enregistré nulle part tant que le client n'a rien validé.
+ */
+export async function sessionClient(): Promise<{ email: string; nom?: string } | null> {
   if (!compteConfigure()) return null;
   const jeton = (await cookies()).get(COOKIE_COMPTE)?.value;
-  return lireSession(jeton, maintenantS())?.email ?? null;
+  const lu = lireSession(jeton, maintenantS());
+  return lu ? { email: lu.email, ...(lu.nom ? { nom: lu.nom } : {}) } : null;
 }
 
 /** Connecte cette adresse. Rend false si l'espace client n'est pas configuré. */
-export async function ouvrirSession(email: string): Promise<boolean> {
-  const jeton = signerSession(email, maintenantS());
+export async function ouvrirSession(email: string, nom?: string): Promise<boolean> {
+  const jeton = signerSession(email, maintenantS(), nom);
   if (!jeton) return false;
   (await cookies()).set(COOKIE_COMPTE, jeton, { ...REGLAGES, maxAge: DUREE_SESSION_S });
   return true;

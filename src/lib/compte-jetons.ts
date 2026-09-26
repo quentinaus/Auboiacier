@@ -37,8 +37,16 @@ export const DUREE_SESSION_S = 30 * 24 * 60 * 60;
  */
 export const DUREE_LIEN_S = 15 * 60;
 
-/** Ce que porte un jeton : une adresse vérifiée, et jusqu'à quand. */
-export type Jeton = { email: string; exp: number };
+/**
+ * Ce que porte un jeton : une adresse vérifiée, jusqu'à quand — et, s'il
+ * vient de Google, le nom que Google a donné.
+ *
+ * Ce nom ne sert qu'à pré-remplir le formulaire des coordonnées : on ne
+ * l'enregistre nulle part tant que le client n'a rien validé. Le porter dans
+ * le jeton plutôt que de l'écrire chez Stripe évite de créer une fiche
+ * client à quelqu'un qui n'a fait que se connecter pour regarder.
+ */
+export type Jeton = { email: string; exp: number; nom?: string };
 
 /**
  * Deux usages, deux signatures. Sans cette étiquette dans le calcul, un lien
@@ -72,16 +80,33 @@ export function signerJeton(
   usage: Usage,
   email: string,
   maintenantS: number,
-  dureeS: number
+  dureeS: number,
+  nom?: string
 ): string | null {
   const cle = secret();
   if (!cle) return null;
   const normalise = normaliserEmail(email);
   if (!normalise) return null;
+  const propre = nomLisible(nom);
   const charge = base64url(
-    JSON.stringify({ email: normalise, exp: Math.floor(maintenantS) + dureeS })
+    JSON.stringify({
+      email: normalise,
+      exp: Math.floor(maintenantS) + dureeS,
+      ...(propre ? { nom: propre } : {}),
+    })
   );
   return `${charge}.${signature(usage, charge, cle)}`;
+}
+
+/**
+ * Un nom tel qu'on accepte de le transporter : court, sur une ligne. Il vient
+ * de Google, donc d'ailleurs — et il finira affiché dans une case de
+ * formulaire. Rien d'autre ne le contrôle.
+ */
+export function nomLisible(valeur: unknown): string | null {
+  if (typeof valeur !== "string") return null;
+  const propre = valeur.replace(/\s+/g, " ").trim().slice(0, 80);
+  return propre.length >= 2 ? propre : null;
 }
 
 /**
@@ -113,15 +138,19 @@ export function lireJeton(usage: Usage, jeton: unknown, maintenantS: number): Je
     return null;
   }
   if (!lu || typeof lu !== "object") return null;
-  const { email, exp } = lu as Record<string, unknown>;
+  const { email, exp, nom } = lu as Record<string, unknown>;
   if (typeof email !== "string" || typeof exp !== "number") return null;
   if (!Number.isFinite(exp) || exp <= maintenantS) return null;
   const normalise = normaliserEmail(email);
-  return normalise ? { email: normalise, exp } : null;
+  if (!normalise) return null;
+  const propre = nomLisible(nom);
+  // La clé « nom » n'apparaît que s'il y en a un : un jeton sans nom doit
+  // rester exactement ce qu'il était.
+  return propre ? { email: normalise, exp, nom: propre } : { email: normalise, exp };
 }
 
-export function signerSession(email: string, maintenantS: number): string | null {
-  return signerJeton("session", email, maintenantS, DUREE_SESSION_S);
+export function signerSession(email: string, maintenantS: number, nom?: string): string | null {
+  return signerJeton("session", email, maintenantS, DUREE_SESSION_S, nom);
 }
 
 export function lireSession(jeton: unknown, maintenantS: number): Jeton | null {
