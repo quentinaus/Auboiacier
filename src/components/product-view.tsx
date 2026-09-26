@@ -35,10 +35,13 @@ export function ProductView({
   t,
   locale,
   filAriane,
+  compteOuvert = false,
 }: {
   product: Product;
   t: Dictionary["artisanat"];
   locale: "fr" | "en";
+  /** L'espace client est-il ouvert ? On ne propose pas un compte qui n'existe pas encore. */
+  compteOuvert?: boolean;
   /** Le fil d'Ariane : il ouvre la colonne des options. Des données plutôt
       qu'un élément tout fait — un élément venu du serveur perd le marquage
       « enfants statiques » et React réclame des clés. */
@@ -188,6 +191,7 @@ export function ProductView({
         product={product}
         t={t}
         locale={locale}
+        compteOuvert={compteOuvert}
         fabricId={fabricId}
         onFabricChange={selectFabric}
         metalId={metalId}

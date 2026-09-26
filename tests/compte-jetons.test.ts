@@ -7,6 +7,7 @@ import {
   lireLien,
   lireSession,
   normaliserEmail,
+  retourInterne,
   signerLien,
   signerSession,
 } from "../src/lib/compte-jetons.ts";
@@ -140,4 +141,29 @@ test("une adresse refusée ne produit aucun jeton", () => {
     assert.equal(signerSession("pas-une-adresse", T), null);
     assert.equal(signerLien("", T), null);
   });
+});
+
+test("une adresse de retour doit rester à l'intérieur du site", () => {
+  for (const bonne of [
+    "/fr/artisanat/plafond-lumineux-lucarne",
+    "/en/compte",
+    "/fr/compte/commandes",
+  ]) {
+    assert.equal(retourInterne(bonne), bonne);
+  }
+  for (const mauvaise of [
+    "//ailleurs.fr/piege", // adresse ABSOLUE pour un navigateur
+    "https://ailleurs.fr",
+    "javascript:alert(1)",
+    "/fr/compte?x=1", // pas de paramètres : rien n'en a besoin
+    "fr/compte", // pas de barre initiale
+    "",
+    "/",
+    null,
+    undefined,
+    42,
+    `/${"a".repeat(200)}`,
+  ]) {
+    assert.equal(retourInterne(mauvaise), null, `accepté à tort : ${JSON.stringify(mauvaise)}`);
+  }
 });

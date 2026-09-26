@@ -461,6 +461,8 @@
     "apercuPhoto": "Voir la photo de ma configuration",
     "coordonneesTitle": "Vos coordonnées",
     "coordonneesNote": "Pour un devis à votre nom, envoyé à votre adresse e-mail.",
+    "coordonneesCompte": "ou créez votre compte",
+    "coordonneesCompteNote": "Vos cotes et vos choix vous attendront dans votre espace.",
     "coordonneesNom": "Nom et prénom",
     "coordonneesEmail": "E-mail",
     "coordonneesAnnuler": "Annuler",

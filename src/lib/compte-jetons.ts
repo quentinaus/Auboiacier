@@ -156,3 +156,17 @@ export function normaliserEmail(valeur: unknown): string | null {
   // dans le domaine, et aucun espace.
   return /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/.test(propre) ? propre : null;
 }
+
+/**
+ * Une adresse de retour interne, ou null.
+ *
+ * Elle doit commencer par UNE seule barre oblique : « //ailleurs.fr » est une
+ * adresse absolue pour un navigateur, et l'accepter enverrait le client hors
+ * du site à la sortie de Google. Pas de deux-points non plus, qui ouvrirait
+ * « javascript: ».
+ */
+export function retourInterne(valeur: unknown): string | null {
+  if (typeof valeur !== "string") return null;
+  if (!/^\/[A-Za-z0-9/_-]{1,120}$/.test(valeur)) return null;
+  return valeur.startsWith("//") ? null : valeur;
+}

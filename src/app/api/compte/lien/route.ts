@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { compteConfigure, normaliserEmail, signerLien } from "@/lib/compte-jetons";
+import { compteConfigure, normaliserEmail, retourInterne, signerLien } from "@/lib/compte-jetons";
 import { sendEmail } from "@/lib/email";
 import { creerLimite } from "@/lib/limite-debit";
 import { siteOrigin } from "@/lib/stripe";
@@ -30,14 +30,19 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
-  const { email, locale: langue } = (corps ?? {}) as Record<string, unknown>;
+  const { email, locale: langue, suite } = (corps ?? {}) as Record<string, unknown>;
   const locale = langue === "en" ? "en" : "fr";
   const adresse = normaliserEmail(email);
   if (!adresse) return NextResponse.json({ error: "bad_email" }, { status: 400 });
 
   const jeton = signerLien(adresse, Math.floor(Date.now() / 1000));
   if (!jeton) return NextResponse.json({ error: "not_configured" }, { status: 503 });
-  const lien = `${siteOrigin()}/api/compte/lien/ouvrir?j=${encodeURIComponent(jeton)}&l=${locale}`;
+  // L'adresse de retour suit le lien : le client doit revenir là d'où il est
+  // parti, sa configuration en place, et pas sur un espace client vide.
+  const retour = retourInterne(suite);
+  const lien =
+    `${siteOrigin()}/api/compte/lien/ouvrir?j=${encodeURIComponent(jeton)}&l=${locale}` +
+    (retour ? `&s=${encodeURIComponent(retour)}` : "");
 
   await sendEmail({
     to: adresse,

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ComponentProps, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import {
   computeUnitPrice,
   deltaBois,
@@ -33,6 +34,7 @@ import {
   type CotesGardeCorps,
 } from "./releve-garde-corps";
 import { LIVRAISON, POSE, PRISE_DE_COTES } from "@/lib/deplacement";
+import { memoriserConfig, reprendreConfig } from "@/lib/config-memo";
 import { livrableParTransporteur } from "@/lib/products";
 import { VisiteAtelier } from "./prise-de-cotes";
 import { MAX_TEXTE, EMAIL_MOTIF } from "@/lib/devis-regles";
@@ -410,7 +412,10 @@ export function ProductOptions({
   apercu,
   schemaSlot,
   matieresSlot,
+  compteOuvert = false,
 }: {
+  /** L'espace client est-il ouvert ? On ne propose pas de créer un compte qui n'existe pas encore. */
+  compteOuvert?: boolean;
   product: Product;
   t: Dictionary["artisanat"];
   locale: "fr" | "en";
@@ -525,8 +530,51 @@ export function ProductOptions({
   const [quantity, setQuantity] = useState(1);
   /** Configuration pour laquelle la confirmation d'ajout a été affichée. */
   const [ajoutee, setAjoutee] = useState<string | null>(null);
+  const router = useRouter();
   /** Livraison seule, ou livrée et posée par l'atelier (tables). */
   const [pose, setPose] = useState<ChoixPose>(POSE_INITIALE);
+
+  /**
+   * Au retour de la création de compte, on remet la configuration en place.
+   *
+   * Le client est parti chez Google depuis cette fiche : sans cela il
+   * retrouverait un formulaire vide et devrait resaisir ses cotes, son
+   * essence et sa teinte. La mémoire est relue UNE fois puis effacée (voir
+   * config-memo.ts) — elle ne doit pas ressurgir trois jours plus tard.
+   *
+   * Ça ne peut pas se faire à l'initialisation des états : le serveur
+   * pré-calcule cette page et ne connaît pas le stockage du navigateur ; les
+   * deux rendus ne concorderaient pas. C'est donc bien après le montage, et
+   * une seule fois.
+   */
+  const configReprise = useRef(false);
+  useEffect(() => {
+    if (configReprise.current) return;
+    configReprise.current = true;
+    const memo = reprendreConfig(product.slug);
+    if (!memo) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- relecture d'un stockage externe au montage, impossible à l'initialisation (voir ci-dessus)
+    if (memo.unite) setUnite(memo.unite);
+    if (memo.largeur !== undefined) setLargeurSaisie(memo.largeur);
+    if (memo.hauteur !== undefined) setHauteurSaisie(memo.hauteur);
+    if (memo.epaisseur !== undefined) setEpaisseurSaisie(memo.epaisseur);
+    if (memo.hauteurTable !== undefined) setHauteurTableSaisie(memo.hauteurTable);
+    if (memo.sizeId !== undefined) setSizeId(memo.sizeId);
+    if (memo.woodId) setWoodId(memo.woodId);
+    if (memo.metalId) setMetalId(memo.metalId);
+    if (memo.fabricId) setFabricId(memo.fabricId);
+    if (memo.remplissageId) setRemplissageId(memo.remplissageId);
+    if (memo.quantity) setQuantity(memo.quantity);
+    if (memo.codePostal || memo.poseVoulue !== undefined) {
+      setPose((p) => ({
+        ...p,
+        codePostal: memo.codePostal ?? p.codePostal,
+        voulue: memo.poseVoulue ?? p.voulue,
+        // Le prix se recalcule : celui d'avant l'aller-retour n'est plus sûr.
+        deplacement: null,
+      }));
+    }
+  }, [product.slug, setWoodId, setMetalId, setFabricId]);
   /** Les coordonnées facultatives du client, pour un devis PDF nominatif. */
   const [coordonnees, setCoordonnees] = useState({ nom: "", email: "" });
   /**
@@ -1127,6 +1175,7 @@ export function ProductOptions({
 
   /** Le lien vers le devis, sous la barre d'achat ou sous « Demander un devis ». */
   const coordonneesCompletes = Boolean(coordonnees.nom.trim() && coordonnees.email.trim());
+  const idRaisonDevis = `${idTailles}-devis-raison`;
   const devisIcone = (
     <svg
       aria-hidden="true"
@@ -1144,6 +1193,32 @@ export function ProductOptions({
   function ouvrirPdf(url: string) {
     const fenetre = window.open(url, "_blank", "noopener");
     if (!fenetre) window.location.href = url;
+  }
+  /**
+   * Partir créer son compte sans rien perdre. On met la configuration de côté
+   * AVANT de quitter la page (voir config-memo.ts), et on demande à revenir
+   * sur cette fiche : au retour, les cotes, l'essence et la teinte sont
+   * toujours là.
+   */
+  function allerCreerCompte() {
+    memoriserConfig({
+      slug: product.slug,
+      unite,
+      largeur: largeurSaisie,
+      hauteur: hauteurSaisie,
+      epaisseur: epaisseurSaisie,
+      hauteurTable: hauteurTableSaisie,
+      sizeId: sizeIdEff,
+      woodId,
+      metalId,
+      fabricId,
+      remplissageId,
+      quantity,
+      codePostal: pose.codePostal,
+      poseVoulue: pose.voulue,
+    });
+    const retour = `/${locale}/artisanat/${product.slug}`;
+    router.push(`/${locale}/compte/connexion?suite=${encodeURIComponent(retour)}`);
   }
   /** Le nom et l'adresse manquent encore : on les demande avant d'ouvrir le PDF, pas après. */
   function ouvrirDevis() {
@@ -1171,17 +1246,36 @@ export function ProductOptions({
       />
     </label>
   );
-  /** Le devis PDF, et la fenêtre qui demande le nom et l'e-mail avant de l'ouvrir. */
-  const lienDevis = urlDevis && (
+  /**
+   * Le devis PDF, et la fenêtre qui demande le nom et l'e-mail avant de
+   * l'ouvrir. Le bouton est TOUJOURS là, même quand il ne sert pas encore :
+   * un bouton qui apparaît en cours de route se remarque moins qu'un bouton
+   * grisé, et on ne sait pas qu'on aurait pu télécharger un devis. Grisé, il
+   * dit ce qu'il attend (raisonIndisponible, la même phrase que sous le
+   * bouton d'achat).
+   */
+  const lienDevis = (
     <div className="mt-3">
       <button
         type="button"
         onClick={ouvrirDevis}
-        className="flex w-full items-center justify-center gap-2.5 rounded-full border border-[#2b2320] px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] text-[#2b2320] transition-colors hover:bg-[#2b2320] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
+        disabled={!urlDevis}
+        aria-describedby={!urlDevis && raisonIndisponible ? idRaisonDevis : undefined}
+        className={`flex w-full items-center justify-center gap-2.5 rounded-full border px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${
+          urlDevis
+            ? "border-[#2b2320] text-[#2b2320] hover:bg-[#2b2320] hover:text-white"
+            : "cursor-not-allowed border-[#c9bfb2] text-[#6f6357]"
+        }`}
       >
         {devisIcone}
         {orderable ? t.devisPdf : t.estimationPdf}
       </button>
+      {/* Pourquoi il est grisé — sans ce mot, le bouton a l'air cassé. */}
+      {!urlDevis && raisonIndisponible && (
+        <p id={idRaisonDevis} className="mt-2 text-center text-xs leading-relaxed text-[#6f6357]">
+          {raisonIndisponible.message}
+        </p>
+      )}
       {/* <dialog> natif : Échap et le clic sur le fond referment tout seuls,
           sans bibliothèque — même choix que le zoom photo de la galerie. */}
       <dialog
@@ -1231,6 +1325,23 @@ export function ProductOptions({
               {orderable ? t.devisPdf : t.estimationPdf}
             </button>
           </div>
+          {/* L'autre chemin : créer un compte plutôt que de laisser ses
+              coordonnées pour un seul PDF. La configuration part en mémoire
+              avant la redirection, et revient avec le client. */}
+          {compteOuvert && (
+            <p className="mt-5 border-t border-[#e5ddd3] pt-4 text-center">
+              <button
+                type="button"
+                onClick={allerCreerCompte}
+                className="text-[13px] font-medium text-[#2b2320] underline underline-offset-4 hover:text-[#6d2c2c]"
+              >
+                {t.coordonneesCompte}
+              </button>
+              <span className="mt-1 block text-xs leading-relaxed text-[#6f6357]">
+                {t.coordonneesCompteNote}
+              </span>
+            </p>
+          )}
         </form>
       </dialog>
     </div>

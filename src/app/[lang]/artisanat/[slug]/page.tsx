@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { compteConfigure } from "@/lib/compte-jetons";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -221,6 +222,7 @@ export default async function ProductPage({
           Ancre « acheter » : c'est ici que remonte le bouton du bas de page. */}
       <div id="acheter" className="scroll-mt-0">
         <ProductView
+          compteOuvert={compteConfigure()}
           product={product}
           t={t}
           locale={locale}

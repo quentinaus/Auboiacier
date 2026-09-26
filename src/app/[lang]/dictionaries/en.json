@@ -461,6 +461,8 @@
     "apercuPhoto": "See the photo of my configuration",
     "coordonneesTitle": "Your details",
     "coordonneesNote": "For a quote in your name, sent to your email address.",
+    "coordonneesCompte": "or create your account",
+    "coordonneesCompteNote": "Your dimensions and choices will be waiting in your account.",
     "coordonneesNom": "Full name",
     "coordonneesEmail": "Email",
     "coordonneesAnnuler": "Cancel",

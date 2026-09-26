@@ -4,7 +4,7 @@ import { ArtisanatHeader } from "@/components/artisanat-header";
 import { CompteConnexion } from "@/components/compte-connexion";
 import { SiteFooter } from "@/components/site-footer";
 import { clientConnecte } from "@/lib/compte";
-import { compteConfigure } from "@/lib/compte-jetons";
+import { compteConfigure, retourInterne } from "@/lib/compte-jetons";
 import { serif } from "@/lib/fonts";
 import { googleConfigure } from "@/lib/google-oauth";
 import { defaultLocale, isLocale } from "@/lib/i18n";
@@ -34,7 +34,7 @@ export default async function ConnexionPage({
   searchParams,
 }: PageProps<"/[lang]/compte/connexion">) {
   const { lang } = await params;
-  const { erreur } = await searchParams;
+  const { erreur, suite } = await searchParams;
   const locale = isLocale(lang) ? lang : defaultLocale;
   const dict = await getDictionary(locale);
   const t = dict.compte;
@@ -43,6 +43,17 @@ export default async function ConnexionPage({
   if (await clientConnecte()) redirect(`/${locale}/compte`);
 
   const ouvert = compteConfigure();
+
+  /**
+   * Où revenir une fois connecté. Le configurateur s'en sert pour ramener le
+   * client sur SA fiche, avec ses cotes (voir config-memo.ts).
+   *
+   * Strictement une adresse interne : elle doit commencer par une seule barre
+   * oblique et ne contenir que des caractères d'adresse. « //ailleurs.fr » est
+   * une adresse ABSOLUE pour un navigateur — accepté ici, il enverrait le
+   * client hors du site à la sortie de Google.
+   */
+  const retour = retourInterne(suite) ?? `/${locale}/compte`;
   const message =
     erreur === "lien" ? t.erreurLien : typeof erreur === "string" ? t.erreurConnexion : null;
 
@@ -70,7 +81,7 @@ export default async function ConnexionPage({
                 t={t}
                 locale={locale}
                 google={googleConfigure()}
-                suite={`/${locale}/compte`}
+                suite={retour}
               />
             ) : (
               /* La clé n'est pas encore posée dans Vercel : on le dit, et le

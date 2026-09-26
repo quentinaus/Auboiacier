@@ -56,7 +56,7 @@ export function CompteConnexion({
       const reponse = await fetch("/api/compte/lien", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), locale }),
+        body: JSON.stringify({ email: email.trim(), locale, suite }),
       });
       if (!reponse.ok) throw new Error("refus");
       setEtat("envoye");
