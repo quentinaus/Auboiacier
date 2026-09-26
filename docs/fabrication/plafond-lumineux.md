@@ -221,12 +221,22 @@ posée sur place**, une fois les modules en place.
 À partir de cette taille, **la pose par l'atelier devient obligatoire** : la
 pièce ne peut pas être simplement livrée par un transporteur.
 
+**Seuil confirmé par Quentin le 26 septembre 2026 :**
+
 | | |
 |---|---|
-| **Longueur** | jusqu'à 3 à 4 m sans difficulté, d'un seul tenant |
-| **Largeur** | coupée en deux au-delà de **1,5 à 2 m** *(seuil exact à confirmer)* |
+| **D'un seul tenant** | jusqu'à **4 m de long et 2,5 m de large** |
+| **Au-delà** | la pièce est coupée en plusieurs parties |
+| **Ce qui tranche** | le tarif transporteur le plus avantageux, au cas par cas |
 | **Couverture** | tôle posée sur place, après assemblage |
-| **Pose** | obligatoire dès que la pièce est en modules |
+| **Toile** | **une seule toile**, tendue d'un seul tenant par-dessus les modules assemblés — la jonction ne se voit pas |
+| **Pose** | **dès que la pièce est en plusieurs parties, la pose est le seul mode de livraison possible** |
+
+> ⚠️ **2,5 m de large est déjà hors camion fermé.** La largeur intérieure utile
+> d'une semi-remorque est de 2,45 m : une pièce de 2,5 m n'entre pas dans une
+> caisse fermée. Elle reste sous la limite légale de 2,55 m, donc pas de convoi
+> exceptionnel, mais il faut un plateau ou une bâchée ouverte sur le côté. À
+> vérifier avec le transporteur avant d'annoncer cette cote à un client.
 
 ### Pourquoi c'est la bonne méthode
 
@@ -361,17 +371,19 @@ Ce qui en sortira viendra compléter cette fiche :
 
 ### Sur l'expédition
 
-- [ ] **À partir de quelle largeur exactement** la pièce est-elle coupée en
-      deux ? 1,50 m, 1,80 m, 2 m ?
+- [x] ~~Seuil de coupe~~ → **4 m de long × 2,5 m de large**, au-delà c'est en
+      plusieurs parties. Ce qui tranche : le tarif transporteur le plus
+      avantageux.
+- [x] ~~La toile~~ → **une seule**, tendue d'un seul tenant sur l'ensemble.
+- [x] ~~Pose obligatoire à partir de quelle cote~~ → **dès que la pièce est en
+      plusieurs parties**. Le site doit alors masquer « livraison seule ».
+- [ ] **Une pièce de 2,5 m de large passe-t-elle chez ton transporteur ?**
+      2,45 m d'intérieur en semi fermée : il faut un plateau ou une bâchée.
+
 - [ ] **Combien de modules au maximum ?** Un 4 × 3 m fait-il deux modules de
       4 × 1,5 m, ou peut-il y en avoir davantage ?
 - [ ] **Comment se raccordent les modules** entre eux — boulonnés, éclissés,
       soudés sur place ?
-- [ ] **La toile** : une seule toile tendue par-dessus les deux modules une
-      fois assemblés, ou une toile par module avec une jonction visible ?
-- [ ] **La pose devient obligatoire à partir de quelle cote ?** C'est cette
-      valeur qui doit piloter le site : au-delà, le bouton « livraison seule »
-      ne doit plus être proposé.
 - [ ] **Le site annonce « 400 × 300 cm d'un seul tenant »** alors que la pièce
       est fabriquée et livrée en modules. Ce texte est à revoir lors de la
       revue générale des textes.
