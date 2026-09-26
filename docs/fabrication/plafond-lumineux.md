@@ -208,6 +208,57 @@ lumières, ou leur appliquer un plafond de livraison distinct.
 
 ---
 
+## Expédition : la pièce voyage en modules
+
+*Relevé auprès de Quentin le 26 septembre 2026. À confirmer sur les points
+marqués d'un point d'interrogation.*
+
+L'atelier ne livre PAS un grand plafond d'un seul tenant. Au-delà d'une
+certaine largeur, **la pièce est coupée en deux dans le sens de la largeur**,
+et les modules sont assemblés chez le client. **La tôle de couverture est
+posée sur place**, une fois les modules en place.
+
+À partir de cette taille, **la pose par l'atelier devient obligatoire** : la
+pièce ne peut pas être simplement livrée par un transporteur.
+
+| | |
+|---|---|
+| **Longueur** | jusqu'à 3 à 4 m sans difficulté, d'un seul tenant |
+| **Largeur** | coupée en deux au-delà de **1,5 à 2 m** *(seuil exact à confirmer)* |
+| **Couverture** | tôle posée sur place, après assemblage |
+| **Pose** | obligatoire dès que la pièce est en modules |
+
+### Pourquoi c'est la bonne méthode
+
+Un camion français a une largeur intérieure utile d'environ **2,45 m** et une
+hauteur d'environ **2,70 m**. Une pièce de 3 m ne rentre donc **ni à plat, ni
+debout** : au-delà de 2,55 m de large, la réglementation française bascule en
+convoi exceptionnel — autorisation, itinéraire, parfois véhicule
+d'accompagnement.
+
+En coupant à 1,5 m de large, un plafond de 4 × 3 m devient deux modules de
+**4 × 1,5 m**, qui passent à plat dans n'importe quel camion. Le problème
+n'existe donc pas dans la pratique de l'atelier — mais **le site, lui, annonce
+toujours « jusqu'à 400 × 300 cm d'un seul tenant »**, ce qui n'est pas ce qui
+est réellement fabriqué ni livré.
+
+### L'emballage
+
+Pratique de l'atelier, apprise en Australie et identique à l'usage français :
+
+1. Une **palette fabriquée sur mesure**, aux cotes exactes de la pièce.
+2. Un **coffrage en bois** qui habille la pièce.
+3. Un **film noir** enroulé tout autour.
+4. Un **adhésif au nom de l'entreprise** qui ceinture l'ensemble.
+
+Cela s'appelle en France une **caisse sur palette perdue** — « perdue » voulant
+dire non consignée, non échangée. Aucune obligation d'utiliser une palette
+Europe : la norme EPAL (1200 × 800, 1200 × 1000, 800 × 600) ne comporte de
+toute façon aucun format long et étroit, et les transporteurs acceptent tout
+support manipulable au chariot, stable et correctement étiqueté.
+
+---
+
 ## Questions ouvertes
 
 - [ ] **Combien de boîtiers d'alimentation** sur un plafond de 2,33 × 1,20 m ?
@@ -220,3 +271,22 @@ lumières, ou leur appliquer un plafond de livraison distinct.
       annoncé au transporteur ? Le tableau ci-dessus donne la pièce nue.
 - [ ] **Un plafond fini a-t-il déjà été pesé ?** Même un ordre de grandeur
       vérifierait tout le modèle d'un coup.
+
+### Sur l'expédition
+
+- [ ] **À partir de quelle largeur exactement** la pièce est-elle coupée en
+      deux ? 1,50 m, 1,80 m, 2 m ?
+- [ ] **Combien de modules au maximum ?** Un 4 × 3 m fait-il deux modules de
+      4 × 1,5 m, ou peut-il y en avoir davantage ?
+- [ ] **Comment se raccordent les modules** entre eux — boulonnés, éclissés,
+      soudés sur place ?
+- [ ] **La toile** : une seule toile tendue par-dessus les deux modules une
+      fois assemblés, ou une toile par module avec une jonction visible ?
+- [ ] **La pose devient obligatoire à partir de quelle cote ?** C'est cette
+      valeur qui doit piloter le site : au-delà, le bouton « livraison seule »
+      ne doit plus être proposé.
+- [ ] **Le site annonce « 400 × 300 cm d'un seul tenant »** alors que la pièce
+      est fabriquée et livrée en modules. Ce texte est à revoir lors de la
+      revue générale des textes.
+- [ ] **Poids de l'emballage** : une caisse sur palette perdue pour un module
+      de 4 × 1,5 m, ça pèse combien ?
