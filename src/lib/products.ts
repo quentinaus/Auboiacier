@@ -59,6 +59,13 @@ export type SurMesure = {
    * catalogue : c'est le prix de ces cotes-là que la boutique annonce.
    */
   departMm?: [number, number];
+  /**
+   * Les cotes affichées d'entrée dans le configurateur. Un formulaire vide
+   * n'apprend rien : le client voit une pièce, son prix et son dessin, puis
+   * ajuste. Distinct de departMm, qui ne sert qu'au prix « à partir de ».
+   * Ordre : longueur, largeur, épaisseur.
+   */
+  cotesParDefautMm?: [number, number, number];
   /** Épaisseur : le plateau d'une table, la profondeur du caisson d'une lumière. */
   epaisseur: {
     minMm: number;
@@ -1726,6 +1733,7 @@ export const products: Product[] = [
       { id: "l430", dimsMm: [4000, 3000], label: "400 × 300 cm — 12 m² — 780 W", price: 1780 },
     ],
     surMesure: {
+      cotesParDefautMm: [1800, 1180, 200],
       forme: "rect",
       // Un plafond se mesure à plat : longueur × largeur, comme une table.
       axes: "plan",
@@ -1865,6 +1873,7 @@ export const products: Product[] = [
       { id: "d400", dimsMm: [4000, 4000], label: "Ø 400 cm — 12,57 m² — 815 W", price: 2110 },
     ],
     surMesure: {
+      cotesParDefautMm: [1800, 1800, 200],
       // Le cercle demande le cintrage du profilé et une toile taillée en rond :
       // le mètre carré est plus cher que sur un rectangle.
       forme: "rond",

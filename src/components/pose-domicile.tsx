@@ -224,12 +224,33 @@ export function PoseDomicile({
       {/* Une pièce qui ne se pose pas (une chaise) n'a rien à choisir : on
           saute le radiogroup à deux cartes, il n'y a qu'une façon de la
           recevoir. */}
-      {/* Pas de choix à offrir quand il n'y en a pas : on dit pourquoi, une
-          fois, et on passe directement au code postal. */}
+      {/* Pas de choix à offrir quand il n'y en a pas — mais on garde la MÊME
+          carte, pleine et cochée, plutôt qu'une ligne de texte perdue. Passer
+          de deux grands blocs à trois mots donnait l'impression que quelque
+          chose s'était cassé ; là, on voit ce qui a été décidé, et pourquoi. */}
       {poseSeule && !livraisonSeule && (
-        <p className={`text-xs leading-relaxed text-[#6f6357] ${compact ? "" : "mt-3"}`}>
-          {t.poseObligatoire}
-        </p>
+        <div className={compact ? "flex" : "mt-3 flex"}>
+          <div
+            className={`flex flex-1 items-start gap-3 rounded-2xl border border-[#2b2320] bg-white px-4 ${compact ? "py-2.5" : "py-3.5"}`}
+          >
+            <span
+              aria-hidden="true"
+              className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-[#2b2320]"
+            >
+              <span className="h-2 w-2 rounded-full bg-[#2b2320]" />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-medium leading-snug text-[#2b2320]">
+                {t.poseAtelier}
+              </span>
+              {/* La raison reste affichée même en mode serré : c'est elle qui
+                  explique la disparition du choix. */}
+              <span className="mt-1 block text-xs leading-snug text-[#6f6357]">
+                {t.poseObligatoire}
+              </span>
+            </span>
+          </div>
+        </div>
       )}
       {!livraisonSeule && !poseSeule && (
         <div role="radiogroup" aria-labelledby={idGroupe} className={compact ? "flex flex-col gap-2 sm:flex-row" : "mt-3 flex flex-col gap-2 sm:flex-row"}>

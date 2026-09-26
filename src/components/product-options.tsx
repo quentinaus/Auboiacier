@@ -463,18 +463,33 @@ export function ProductOptions({
   // Une table se donne en centimètres, un caisson lumineux en millimètres ;
   // l'unité reste au choix du client.
   // Une table se saisit en centimètres, comme on la mesure ; le reste en millimètres, l'unité de l'atelier.
-  const [unite, setUnite] = useState<"mm" | "cm" | "m">(
-    product.surMesure?.axes === "plan" && product.category !== "lumiere"
-      ? "cm"
-      : "mm",
-  );
-  const [largeurSaisie, setLargeurSaisie] = useState("");
-  const [hauteurSaisie, setHauteurSaisie] = useState("");
+  const uniteDepart: "mm" | "cm" | "m" =
+    product.surMesure?.axes === "plan" && product.category !== "lumiere" ? "cm" : "mm";
+  const [unite, setUnite] = useState<"mm" | "cm" | "m">(uniteDepart);
+  /**
+   * Les cotes d'entrée, quand la fiche en propose (cotesParDefautMm).
+   * Un configurateur vide n'apprend rien : mieux vaut montrer une pièce
+   * plausible, son prix et son dessin, que le client ajuste ensuite. Écrit
+   * dans l'unité d'affichage et sans séparateur de milliers, comme tout ce
+   * qui entre dans ces cases (voir chiffreBrut).
+   */
+  const coteDepart = (index: 0 | 1 | 2) => {
+    const mm = product.surMesure?.cotesParDefautMm?.[index];
+    if (!mm) return "";
+    // L'épaisseur se saisit toujours en millimètres : c'est une cote d'atelier.
+    const diviseur = index === 2 ? 1 : uniteDepart === "mm" ? 1 : uniteDepart === "cm" ? 10 : 1000;
+    return String(Math.round((mm / diviseur) * 1000) / 1000).replace(
+      ".",
+      locale === "en" ? "." : ","
+    );
+  };
+  const [largeurSaisie, setLargeurSaisie] = useState(() => coteDepart(0));
+  const [hauteurSaisie, setHauteurSaisie] = useState(() => coteDepart(1));
   /** La hauteur finie d'une table, du sol au dessus du plateau : 75 cm si on ne dit rien. */
   const [hauteurTableSaisie, setHauteurTableSaisie] = useState("");
   /** La hauteur finie se replie : une ligne « 75 cm · Modifier », le champ au clic. */
   const [hauteurOuverte, setHauteurOuverte] = useState(false);
-  const [epaisseurSaisie, setEpaisseurSaisie] = useState("");
+  const [epaisseurSaisie, setEpaisseurSaisie] = useState(() => coteDepart(2));
   /** Cote en cours de saisie : c'est elle qui s'allume sur le croquis. */
   const [coteActive, setCoteActive] = useState<CoteActive>(null);
   const sizesRef = useRef<HTMLDivElement>(null);
