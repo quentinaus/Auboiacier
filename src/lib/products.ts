@@ -279,8 +279,11 @@ export type ProductEn = {
 
 /* ------------------------------------------------------------------ *
  *  Essences de bois
- *  La pastille est un disque de fil de bois calculé par
- *  scripts/echantillons.py (public/images/echantillons/bois-*.webp).
+ *  Un aplat, et rien d'autre : la teinte moyenne de l'essence, comme la
+ *  plaquette d'un nuancier. Les images de fil qui servaient ici étaient
+ *  calculées, et leurs veines régulières au millimètre donnaient à du chêne
+ *  l'air d'un décor imprimé. La vraie matière se regarde sur les photos de
+ *  l'atelier, où elle est vraie.
  *  `deltas` donne l'écart de prix par produit — un même bois ne pèse pas
  *  pareil sur une chaise et sur un escalier.
  * ------------------------------------------------------------------ */
@@ -288,31 +291,27 @@ type WoodId = "pin" | "hetre" | "chene" | "noyer";
 
 const WOOD_GRAIN: Record<
   WoodId,
-  { label: string; labelEn: string; swatch: string; grain: string }
+  { label: string; labelEn: string; swatch: string }
 > = {
   pin: {
     label: "Pin",
     labelEn: "Pine",
     swatch: "#e0bd85",
-    grain: "url(/images/echantillons/bois-pin-v2.webp)",
   },
   hetre: {
     label: "Hêtre",
     labelEn: "Beech",
     swatch: "#dcc0a0",
-    grain: "url(/images/echantillons/bois-hetre-v2.webp)",
   },
   chene: {
     label: "Chêne",
     labelEn: "Oak",
     swatch: "#c19a5e",
-    grain: "url(/images/echantillons/bois-chene-v2.webp)",
   },
   noyer: {
     label: "Noyer",
     labelEn: "Walnut",
     swatch: "#6b452c",
-    grain: "url(/images/echantillons/bois-noyer-v2.webp)",
   },
 };
 
@@ -323,15 +322,16 @@ function woods(deltas: Partial<Record<WoodId, number>>): ProductSwatch[] {
     label: WOOD_GRAIN[id].label,
     labelEn: WOOD_GRAIN[id].labelEn,
     swatch: WOOD_GRAIN[id].swatch,
-    grain: WOOD_GRAIN[id].grain,
     priceDelta: deltas[id] ?? 0,
   }));
 }
 
 /* ------------------------------------------------------------------ *
  *  Finitions de l'acier
- *  Comme le bois, la pastille est une image calculée par
- *  scripts/echantillons.py : une bille de peinture, éclairée.
+ *  Un aplat de la couleur, et c'est tout : un thermolaquage mat EST un
+ *  aplat. Les images qui servaient ici étaient des sphères éclairées, avec
+ *  leur reflet cuit dedans — c'est précisément ce qui faisait « image de
+ *  synthèse » plutôt que « atelier ».
  * ------------------------------------------------------------------ */
 type MetalId =
   | "noir"
@@ -344,49 +344,42 @@ type MetalId =
 
 const METAL_FINISH: Record<
   MetalId,
-  { label: string; labelEn: string; swatch: string; grain: string }
+  { label: string; labelEn: string; swatch: string }
 > = {
   noir: {
     label: "Noir charbon",
     labelEn: "Charcoal black",
     swatch: "#1c1a18",
-    grain: "url(/images/echantillons/metal-noir.webp)",
   },
   gris: {
     label: "Gris acier",
     labelEn: "Steel grey",
     swatch: "#46453f",
-    grain: "url(/images/echantillons/metal-gris.webp)",
   },
   chocolat: {
     label: "Chocolat",
     labelEn: "Chocolate",
     swatch: "#463831",
-    grain: "url(/images/echantillons/metal-chocolat.webp)",
   },
   laiton: {
     label: "Laiton",
     labelEn: "Brass",
     swatch: "#8c7c3f",
-    grain: "url(/images/echantillons/metal-laiton.webp)",
   },
   lin: {
     label: "Lin clair",
     labelEn: "Pale linen",
     swatch: "#cfc9b6",
-    grain: "url(/images/echantillons/metal-lin.webp)",
   },
   blanc: {
     label: "Blanc",
     labelEn: "White",
     swatch: "#f0efeb",
-    grain: "url(/images/echantillons/metal-blanc.webp)",
   },
   brut: {
     label: "Acier brut verni",
     labelEn: "Varnished raw steel",
     swatch: "#8a8578",
-    grain: "url(/images/echantillons/metal-acier-brut.webp)",
   },
 };
 
@@ -413,6 +406,8 @@ function metals(...ids: MetalId[]): ProductSwatch[] {
 /* ------------------------------------------------------------------ *
  *  Velours d'ameublement
  *  Les références correspondent au nuancier du tissu utilisé en atelier.
+ *  La couleur seule, comme chez le tapissier : la photo du fauteuil, elle,
+ *  s'affiche en grand dès qu'on choisit un coloris.
  * ------------------------------------------------------------------ */
 
 export const fabrics: ProductSwatch[] = [
@@ -421,7 +416,6 @@ export const fabrics: ProductSwatch[] = [
     label: "Bleu roi 660",
     labelEn: "Royal blue 660",
     swatch: "#304d78",
-    grain: "url(/images/echantillons/velours-bleu-roi.webp)",
     image: "/images/chaises/bleu-roi.jpg",
   },
   {
@@ -429,7 +423,6 @@ export const fabrics: ProductSwatch[] = [
     label: "Sacramento 795",
     labelEn: "Sacramento 795",
     swatch: "#365055",
-    grain: "url(/images/echantillons/velours-sacramento.webp)",
     image: "/images/chaises/sacramento.jpg",
   },
   {
@@ -437,7 +430,6 @@ export const fabrics: ProductSwatch[] = [
     label: "Vert bouteille 775",
     labelEn: "Bottle green 775",
     swatch: "#706e3b",
-    grain: "url(/images/echantillons/velours-vert-bouteille.webp)",
     image: "/images/chaises/vert-bouteille.jpg",
   },
   {
@@ -445,7 +437,6 @@ export const fabrics: ProductSwatch[] = [
     label: "Endive 720",
     labelEn: "Endive 720",
     swatch: "#cec68d",
-    grain: "url(/images/echantillons/velours-endive.webp)",
     image: "/images/chaises/endive.jpg",
   },
   {
@@ -453,7 +444,6 @@ export const fabrics: ProductSwatch[] = [
     label: "Paon 710",
     labelEn: "Peacock 710",
     swatch: "#1f5c64",
-    grain: "url(/images/echantillons/velours-paon.webp)",
     image: "/images/chaises/paon.jpg",
   },
   {
@@ -461,7 +451,6 @@ export const fabrics: ProductSwatch[] = [
     label: "Minuit 690",
     labelEn: "Midnight 690",
     swatch: "#3d4563",
-    grain: "url(/images/echantillons/velours-minuit.webp)",
     image: "/images/chaises/minuit.jpg",
   },
   {
@@ -469,7 +458,6 @@ export const fabrics: ProductSwatch[] = [
     label: "Prune 580",
     labelEn: "Plum 580",
     swatch: "#693d4d",
-    grain: "url(/images/echantillons/velours-prune.webp)",
     image: "/images/chaises/prune.jpg",
   },
   {
@@ -477,7 +465,6 @@ export const fabrics: ProductSwatch[] = [
     label: "Vieux rose 510",
     labelEn: "Old rose 510",
     swatch: "#915f57",
-    grain: "url(/images/echantillons/velours-vieux-rose.webp)",
     image: "/images/chaises/vieux-rose.jpg",
   },
   {
@@ -485,7 +472,6 @@ export const fabrics: ProductSwatch[] = [
     label: "Terre de Sienne 390",
     labelEn: "Burnt sienna 390",
     swatch: "#844c2c",
-    grain: "url(/images/echantillons/velours-terre-de-sienne.webp)",
     image: "/images/chaises/terre-de-sienne.jpg",
   },
   {
@@ -493,7 +479,6 @@ export const fabrics: ProductSwatch[] = [
     label: "Ocre 350",
     labelEn: "Ochre 350",
     swatch: "#a0722c",
-    grain: "url(/images/echantillons/velours-ocre.webp)",
     image: "/images/chaises/ocre.jpg",
   },
   {
@@ -501,7 +486,6 @@ export const fabrics: ProductSwatch[] = [
     label: "Champagne 215",
     labelEn: "Champagne 215",
     swatch: "#bfa37b",
-    grain: "url(/images/echantillons/velours-champagne.webp)",
     image: "/images/chaises/champagne.jpg",
   },
   {
@@ -509,7 +493,6 @@ export const fabrics: ProductSwatch[] = [
     label: "Noir 199",
     labelEn: "Black 199",
     swatch: "#454544",
-    grain: "url(/images/echantillons/velours-noir.webp)",
     image: "/images/chaises/noir.jpg",
   },
   {
@@ -519,7 +502,6 @@ export const fabrics: ProductSwatch[] = [
     // L'onyx tire vers le gris-bleu, le Noir 199 reste neutre : les deux
     // pastilles étaient à deux points l'une de l'autre, donc identiques à l'œil.
     swatch: "#4a4b52",
-    grain: "url(/images/echantillons/velours-onyx.webp)",
     image: "/images/chaises/onyx.jpg",
   },
   {
@@ -527,7 +509,6 @@ export const fabrics: ProductSwatch[] = [
     label: "Dune 165",
     labelEn: "Dune 165",
     swatch: "#b99971",
-    grain: "url(/images/echantillons/velours-dune.webp)",
     image: "/images/chaises/dune.jpg",
   },
   {
@@ -535,7 +516,6 @@ export const fabrics: ProductSwatch[] = [
     label: "Cendre 130",
     labelEn: "Ash 130",
     swatch: "#746a67",
-    grain: "url(/images/echantillons/velours-cendre.webp)",
     image: "/images/chaises/cendre.jpg",
   },
 ];

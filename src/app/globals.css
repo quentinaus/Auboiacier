@@ -189,6 +189,10 @@ textarea:focus-visible,
   --carte-texte: #f3eee7;
   --carte-doux: #c3bab0;
   --carte-filet: rgba(255, 255, 255, 0.14);
+  /* Le chant des plaquettes du nuancier : un trait d'encre sur le papier,
+     un trait de lumière ici — sans lui, le Noir charbon se fondrait dans la
+     carte et n'aurait plus de bord du tout. */
+  --chant: rgba(255, 255, 255, 0.45);
   background-color: var(--carte);
   color: var(--carte-texte);
   /* Quand la carte défile à l'intérieur : une barre fine, discrète. */

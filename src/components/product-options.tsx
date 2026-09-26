@@ -168,14 +168,17 @@ function SwatchGroup({
                  (« Sacramento ») — la rangée n'était plus alignée. */
               className={`group flex w-14 shrink-0 snap-start flex-col justify-start rounded-xl text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] sm:w-[4.25rem] lg:w-[4.75rem]`}
             >
-              {/* La matière d'abord, grande et ronde ; son nom en dessous, sur
+              {/* La matière d'abord, posée à plat ; son nom en dessous, sur
                   deux lignes s'il le faut — comme un nuancier. Plus petite sur
                   téléphone : ce choix passe maintenant tout en haut de la
-                  colonne, il ne doit pas y prendre tout l'écran. */}
+                  colonne, il ne doit pas y prendre tout l'écran.
+                  Au survol la plaquette se soulève de deux points, au lieu de
+                  gonfler : on sort une lame du paquet, on ne gonfle pas une
+                  bulle. */}
               <MaterialBubble
                 material={o}
                 selected={isSelected}
-                className="mx-auto aspect-square w-11 transition-transform duration-200 group-hover:scale-[1.05] group-focus-visible:scale-[1.05] sm:w-[3.5rem] lg:w-[4rem]"
+                className="mx-auto aspect-[4/5] w-11 transition-transform duration-200 group-hover:-translate-y-[2px] group-focus-visible:-translate-y-[2px] sm:w-[3.25rem] lg:w-14"
               />
               <span
                 className={`mt-2.5 block text-[11px] leading-snug ${

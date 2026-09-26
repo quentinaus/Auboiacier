@@ -133,7 +133,7 @@ export default async function ToilesTenduesPage({
                   {/* Aperçu des teintes de cadre, mêmes pastilles que la fiche produit. */}
                   <div className="mt-3 flex items-center gap-1.5">
                     {product.metals.slice(0, 8).map((material) => (
-                      <MaterialBubble key={material.id} material={material} className="h-4 w-4" />
+                      <MaterialBubble key={material.id} material={material} taille="miniature" className="h-5 w-4" />
                     ))}
                   </div>
                 </div>

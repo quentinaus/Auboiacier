@@ -255,7 +255,8 @@ export default async function ArtisanatPage({
                             <MaterialBubble
                               key={`${material.id}-${material.label}`}
                               material={material}
-                              className="h-4 w-4"
+                              taille="miniature"
+                              className="h-5 w-4"
                             />
                           ))}
                       </div>
