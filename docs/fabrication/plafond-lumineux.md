@@ -232,11 +232,34 @@ pièce ne peut pas être simplement livrée par un transporteur.
 | **Toile** | **une seule toile**, tendue d'un seul tenant par-dessus les modules assemblés — la jonction ne se voit pas |
 | **Pose** | **dès que la pièce est en plusieurs parties, la pose est le seul mode de livraison possible** |
 
-> ⚠️ **2,5 m de large est déjà hors camion fermé.** La largeur intérieure utile
-> d'une semi-remorque est de 2,45 m : une pièce de 2,5 m n'entre pas dans une
-> caisse fermée. Elle reste sous la limite légale de 2,55 m, donc pas de convoi
-> exceptionnel, mais il faut un plateau ou une bâchée ouverte sur le côté. À
-> vérifier avec le transporteur avant d'annoncer cette cote à un client.
+### La pièce voyage DEBOUT, et c'est ce qui la rend expédiable
+
+La palette est fabriquée pour que la pièce tienne **sur chant** : la longueur
+repose au sol, la largeur part à la verticale.
+
+Cela résout deux problèmes d'un coup.
+
+**1. La largeur devient de la hauteur.** Une pièce de 2,5 m de large n'entre
+pas à plat dans un camion (2,45 m de largeur intérieure utile). Debout, ces
+2,5 m deviennent de la hauteur, et une semi bâchée fait 2,65 à 2,75 m
+d'intérieur : ça passe.
+
+> ⚠️ **Mais pas en porteur fourgon**, qui ne fait que 2,20 à 2,50 m de haut à
+> l'intérieur. À préciser à la commande du transport : « 2,5 m de haut, il me
+> faut une semi bâchée, pas un fourgon. »
+
+**2. L'emprise au sol s'effondre — donc la facture aussi.** Le transport se
+facturant au mètre plancher (voir plus haut), poser la pièce sur chant divise
+le coût par cinq ou six :
+
+| Pour une pièce de 4 × 2,5 m | Emprise au sol | Mètres plancher | Poids facturé |
+|---|---|---|---|
+| À plat | 4 m × 2,5 m | ≈ 4,2 | **≈ 7 000 kg** |
+| **Debout** *(méthode de l'atelier)* | 4 m × 0,4 m | ≈ 0,7 | **≈ 1 200 kg** |
+
+C'est donc un point à ne **jamais** perdre : la conception de la caisse (assise
+au sol, rigidité verticale, prise aux fourches par le petit côté) est ce qui
+rend le produit économiquement expédiable.
 
 ### Pourquoi c'est la bonne méthode
 
@@ -377,8 +400,9 @@ Ce qui en sortira viendra compléter cette fiche :
 - [x] ~~La toile~~ → **une seule**, tendue d'un seul tenant sur l'ensemble.
 - [x] ~~Pose obligatoire à partir de quelle cote~~ → **dès que la pièce est en
       plusieurs parties**. Le site doit alors masquer « livraison seule ».
-- [ ] **Une pièce de 2,5 m de large passe-t-elle chez ton transporteur ?**
-      2,45 m d'intérieur en semi fermée : il faut un plateau ou une bâchée.
+- [x] ~~Une pièce de 2,5 m de large passe-t-elle ?~~ → **oui, parce qu'elle
+      voyage debout** : les 2,5 m deviennent de la hauteur. Semi bâchée
+      obligatoire (2,65 à 2,75 m), pas un porteur fourgon (2,20 à 2,50 m).
 
 - [ ] **Combien de modules au maximum ?** Un 4 × 3 m fait-il deux modules de
       4 × 1,5 m, ou peut-il y en avoir davantage ?
