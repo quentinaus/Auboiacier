@@ -1298,7 +1298,7 @@ export const products: Product[] = [
         labelEn: "Large medallion, cast iron Ø170",
         swatch: "#2b2320",
         grain: "url(/images/garde-corps/rosaces/medaillon.jpg)",
-        priceDelta: 40,
+        priceDelta: 30,
       },
     ],
     remplissages: [

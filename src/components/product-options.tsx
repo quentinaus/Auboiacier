@@ -76,6 +76,7 @@ function SwatchGroup({
   onSelect,
   locale,
   showDelta = false,
+  agrandir = false,
 }: {
   label: string;
   options: ProductSwatch[];
@@ -83,7 +84,20 @@ function SwatchGroup({
   onSelect: (id: string) => void;
   locale: "fr" | "en";
   showDelta?: boolean;
+  /** Au clic, la pastille s'affiche aussi en grand (les rosaces : leur dessin
+   *  de fonderie est trop fin pour se lire dans une pastille). */
+  agrandir?: boolean;
 }) {
+  const [enGrand, setEnGrand] = useState<ProductSwatch | null>(null);
+  const photo = (o: ProductSwatch) => o.grain?.match(/url\((.+)\)/)?.[1];
+  useEffect(() => {
+    if (!enGrand) return;
+    const fermer = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setEnGrand(null);
+    };
+    window.addEventListener("keydown", fermer);
+    return () => window.removeEventListener("keydown", fermer);
+  }, [enGrand]);
   /* Sans nom de groupe, un lecteur d'écran énonçait quinze boutons
      « enfoncé / non enfoncé » d'affilée sans jamais dire s'il s'agissait du
      bois, de la couleur des pieds ou du velours. */
@@ -151,7 +165,10 @@ function SwatchGroup({
             <button
               key={o.id}
               type="button"
-              onClick={() => onSelect(o.id)}
+              onClick={() => {
+                onSelect(o.id);
+                if (agrandir && photo(o)) setEnGrand(o);
+              }}
               aria-pressed={isSelected}
               /* Le supplément est écrit à l'écran sous la pastille ; un
                  aria-label remplace tout le contenu du bouton, il doit donc le
@@ -201,6 +218,43 @@ function SwatchGroup({
         })}
         </div>
       </div>
+      {enGrand &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={enGrand.label}
+            onClick={() => setEnGrand(null)}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-[#2b2320]/70 p-4"
+          >
+            <figure
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-[26rem] rounded-2xl bg-white p-4 shadow-xl"
+            >
+              <button
+                type="button"
+                autoFocus
+                onClick={() => setEnGrand(null)}
+                aria-label={locale === "fr" ? "Fermer" : "Close"}
+                className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-[#e5ddd3] bg-white text-xl leading-none text-[#2b2320] shadow-sm transition-colors hover:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
+              >
+                ×
+              </button>
+              <Image
+                src={photo(enGrand)!}
+                alt={enGrand.label}
+                width={400}
+                height={400}
+                className="aspect-square w-full rounded-xl object-cover"
+              />
+              <figcaption className="mt-3 text-center text-sm text-[#2a2116]">
+                {enGrand.label}
+                {showDelta && ` · ${formatDelta(enGrand.priceDelta ?? 0, locale)}`}
+              </figcaption>
+            </figure>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
@@ -1723,6 +1777,7 @@ export function ProductOptions({
                     showDelta={product.fabrics.some(
                       (rosace) => rosace.priceDelta,
                     )}
+                    agrandir
                   />
                 )}
             </div>
