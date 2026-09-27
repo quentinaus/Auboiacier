@@ -1697,7 +1697,6 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "l60", dimsMm: [600, 600], label: "60 × 60 cm — 0,36 m² — 25 W", price: 980 },
       { id: "l120", default: true, dimsMm: [1200, 600], label: "120 × 60 cm — 0,72 m² — 50 W", price: 1290 },
       { id: "l1212", dimsMm: [1200, 1200], label: "120 × 120 cm — 1,44 m² — 95 W", price: 1710 },
       { id: "l180", dimsMm: [1800, 900], label: "180 × 90 cm — 1,62 m² — 105 W", price: 1870 },
@@ -1768,7 +1767,6 @@ export const products: Product[] = [
         "Lucarne: backlit stretch ceiling above a dining table",
       ],
       sizes: {
-        l60: "60 × 60 cm — 0.36 m² — 25 W",
         l120: "120 × 60 cm — 0.72 m² — 50 W",
         l1212: "120 × 120 cm — 1.44 m² — 95 W",
         l180: "180 × 90 cm — 1.62 m² — 105 W",
@@ -1841,7 +1839,6 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "d60", dimsMm: [600, 600], label: "Ø 60 cm — 0,28 m² — 20 W", price: 870 },
       { id: "d90", dimsMm: [900, 900], label: "Ø 90 cm — 0,64 m² — 40 W", price: 1190 },
       { id: "d120", default: true, dimsMm: [1200, 1200], label: "Ø 120 cm — 1,13 m² — 75 W", price: 1560 },
       { id: "d150", dimsMm: [1500, 1500], label: "Ø 150 cm — 1,77 m² — 115 W", price: 2050 },
@@ -1910,7 +1907,6 @@ export const products: Product[] = [
         "Close-up of the curved aluminium frame and the lit stretched fabric",
       ],
       sizes: {
-        d60: "Ø 60 cm — 0.28 m² — 20 W",
         d90: "Ø 90 cm — 0.64 m² — 40 W",
         d120: "Ø 120 cm — 1.13 m² — 75 W",
         d150: "Ø 150 cm — 1.77 m² — 115 W",
