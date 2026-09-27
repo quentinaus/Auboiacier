@@ -720,11 +720,11 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 920 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1130 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1460 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 1700 },
-      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 2050 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 1750 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1990 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 2150 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 2440 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 2760 },
     ],
     surMesure: {
       // Forfait de piétement, puis le mètre carré de plateau. Le prix au m²
@@ -734,14 +734,13 @@ export const products: Product[] = [
       // plafond exact pour le sur-mesure (devisSurMesure arrondit toujours
       // à la dizaine supérieure) — un prix qui n'est pas un multiple de 10
       // laisserait passer une pièce sur mesure plus chère que le catalogue.
-      // Tous les prix de cette table ont été baissés de 30 % puis remontés
-      // de 10 % (net ×0,77), divisés par deux, relevés de 13 % quand la
-      // livraison est passée au forfait plafonné (voir LIVRAISON_MAX_CENTS),
-      // puis de 7 % à la demande de Quentin.
+      // Prix conseillés du chiffrage du 27/09/2026 (prix des artisans
+      // comparables, même marge à toutes les tailles). La livraison et la pose
+      // restent facturées à part.
       forme: "rect",
       axes: "plan",
-      forfait: 304,
-      parM2: 485,
+      forfait: 1207,
+      parM2: 411,
       minMm: 800,
       maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
       maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
@@ -882,25 +881,24 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 880 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1100 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1420 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 1680 },
-      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 2020 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 1690 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1890 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 2020 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 2250 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 2520 },
     ],
     surMesure: {
       // Forfait de piétement, puis le mètre carré de plateau. Le prix au m²
       // est calé pour qu'une table aux cotes du client ne tombe jamais sous
       // le prix d'une table du catalogue plus petite. Les prix du catalogue
       // doivent rester des multiples de 10 € (voir table-mikado).
-      // Tous les prix de cette table ont été baissés de 30 % puis remontés
-      // de 10 % (net ×0,77), divisés par deux, relevés de 13 % quand la
-      // livraison est passée au forfait plafonné (voir LIVRAISON_MAX_CENTS),
-      // puis de 7 % à la demande de Quentin.
+      // Prix conseillés du chiffrage du 27/09/2026 (prix des artisans
+      // comparables, même marge à toutes les tailles). La livraison et la pose
+      // restent facturées à part.
       forme: "rect",
       axes: "plan",
-      forfait: 271,
-      parM2: 485,
+      forfait: 1242,
+      parM2: 336,
       minMm: 800,
       maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
       maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
@@ -1006,11 +1004,11 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 910 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1120 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1430 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 1690 },
-      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 2040 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 2050 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 2290 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 2440 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 2730 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 3040 },
     ],
     surMesure: {
       // Forfait de piétement, puis le mètre carré de plateau. Le prix au m²
@@ -1019,14 +1017,13 @@ export const products: Product[] = [
       // demande bien plus d'heures qu'un autre piétement : plus cher au
       // forfait, quelle que soit la taille du plateau. Les prix du catalogue
       // doivent rester des multiples de 10 € (voir table-mikado).
-      // Tous les prix de cette table ont été baissés de 30 % puis remontés
-      // de 10 % (net ×0,77), divisés par deux, relevés de 13 % quand la
-      // livraison est passée au forfait plafonné (voir LIVRAISON_MAX_CENTS),
-      // puis de 7 % à la demande de Quentin.
+      // Prix conseillés du chiffrage du 27/09/2026 (prix des artisans
+      // comparables, même marge à toutes les tailles). La livraison et la pose
+      // restent facturées à part.
       forme: "rect",
       axes: "plan",
-      forfait: 285,
-      parM2: 485,
+      forfait: 1521,
+      parM2: 403,
       minMm: 800,
       maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
       maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
@@ -1514,23 +1511,22 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 260 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 300 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 390 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 460 },
-      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 550 },
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 1460 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1670 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1800 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 2050 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 2330 },
     ],
     surMesure: {
       // Le même piétement que la table d'intérieur, mais un plateau à lattes.
-      // Échelle de Quentin (200 × 100, 8 places, 45 mm à 650 €), baissée de
-      // 30 % puis remontée de 10 % (net ×0,77), divisée par deux, puis
-      // relevée de 13 % (livraison au forfait) puis de 7 %. Les prix du catalogue restent des multiples de
+      // Prix conseillés du chiffrage du 27/09/2026 : le prix qui paie l'heure
+      // de Quentin 50 € (aucun concurrent relevé). Les prix du catalogue restent des multiples de
       // 10 € : c'est ce qui leur sert de plafond exact pour le sur-mesure
       // (voir table-mikado).
       forme: "rect",
       axes: "plan",
-      forfait: 74,
-      parM2: 131,
+      forfait: 991,
+      parM2: 353,
       minMm: 800,
       maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
       maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
@@ -1701,35 +1697,38 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "l60", dimsMm: [600, 600], label: "60 × 60 cm — 0,36 m² — 25 W", price: 330 },
-      { id: "l120", default: true, dimsMm: [1200, 600], label: "120 × 60 cm — 0,72 m² — 50 W", price: 370 },
-      { id: "l1212", dimsMm: [1200, 1200], label: "120 × 120 cm — 1,44 m² — 95 W", price: 460 },
-      { id: "l180", dimsMm: [1800, 900], label: "180 × 90 cm — 1,62 m² — 105 W", price: 490 },
-      { id: "l240", dimsMm: [2400, 1200], label: "240 × 120 cm — 2,88 m² — 190 W", price: 640 },
-      { id: "l300", dimsMm: [3000, 1500], label: "300 × 150 cm — 4,5 m² — 290 W", price: 850 },
-      { id: "l302", dimsMm: [3000, 2000], label: "300 × 200 cm — 6 m² — 390 W", price: 1030 },
-      { id: "l400", dimsMm: [4000, 2000], label: "400 × 200 cm — 8 m² — 520 W", price: 1280 },
-      { id: "l425", dimsMm: [4000, 2500], label: "400 × 250 cm — 10 m² — 650 W", price: 1530 },
-      { id: "l430", dimsMm: [4000, 3000], label: "400 × 300 cm — 12 m² — 780 W", price: 1780 },
+      { id: "l60", dimsMm: [600, 600], label: "60 × 60 cm — 0,36 m² — 25 W", price: 980 },
+      { id: "l120", default: true, dimsMm: [1200, 600], label: "120 × 60 cm — 0,72 m² — 50 W", price: 1290 },
+      { id: "l1212", dimsMm: [1200, 1200], label: "120 × 120 cm — 1,44 m² — 95 W", price: 1710 },
+      { id: "l180", dimsMm: [1800, 900], label: "180 × 90 cm — 1,62 m² — 105 W", price: 1870 },
+      { id: "l240", dimsMm: [2400, 1200], label: "240 × 120 cm — 2,88 m² — 190 W", price: 2550 },
+      { id: "l300", dimsMm: [3000, 1500], label: "300 × 150 cm — 4,5 m² — 290 W", price: 3450 },
+      { id: "l302", dimsMm: [3000, 2000], label: "300 × 200 cm — 6 m² — 390 W", price: 4080 },
+      { id: "l400", dimsMm: [4000, 2000], label: "400 × 200 cm — 8 m² — 520 W", price: 5060 },
+      { id: "l425", dimsMm: [4000, 2500], label: "400 × 250 cm — 10 m² — 650 W", price: 5910 },
+      { id: "l430", dimsMm: [4000, 3000], label: "400 × 300 cm — 12 m² — 780 W", price: 6720 },
     ],
     surMesure: {
       cotesParDefautMm: [1800, 1180, 200],
       forme: "rect",
       // Un plafond se mesure à plat : longueur × largeur, comme une table.
       axes: "plan",
-      // 280 € de forfait + 125 €/m² : ce couple retombe exactement sur les dix
-      // prix du catalogue, de 330 € à 1 780 €. Ne changer l'un sans l'autre.
-      forfait: 280,
-      parM2: 125,
+      // Prix conseillés du chiffrage (27/09/2026) : chaque taille du catalogue
+      // paie l'heure de Quentin 50 €. Le forfait et le prix au m² sont calés
+      // pour ne jamais passer sous une taille du catalogue ; entre deux tailles,
+      // la plus petite qui contient les cotes sert de plafond.
+      forfait: 1245,
+      parM2: 490,
       minMm: 300,
       maxLargeurMm: 4000,
       maxHauteurMm: 3000,
       epaisseur: {
-        // Seule la bande d'aluminium du pourtour change : l'écart reste léger.
+        // Seule la bande d'aluminium du pourtour change : 134 €/m² de bande,
+        // tiré du chiffrage (tôle, montants, caisse plus haute).
         minMm: 180,
         maxMm: 600,
         refMm: 180,
-        parM2Bande: 60,
+        parM2Bande: 134,
       },
     },
     woods: [],
@@ -1842,26 +1841,26 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "d60", dimsMm: [600, 600], label: "Ø 60 cm — 0,28 m² — 20 W", price: 350 },
-      { id: "d90", dimsMm: [900, 900], label: "Ø 90 cm — 0,64 m² — 40 W", price: 400 },
-      { id: "d120", default: true, dimsMm: [1200, 1200], label: "Ø 120 cm — 1,13 m² — 75 W", price: 470 },
-      { id: "d150", dimsMm: [1500, 1500], label: "Ø 150 cm — 1,77 m² — 115 W", price: 560 },
-      { id: "d200", dimsMm: [2000, 2000], label: "Ø 200 cm — 3,14 m² — 205 W", price: 760 },
-      { id: "d250", dimsMm: [2500, 2500], label: "Ø 250 cm — 4,91 m² — 320 W", price: 1010 },
-      { id: "d300", dimsMm: [3000, 3000], label: "Ø 300 cm — 7,07 m² — 460 W", price: 1320 },
-      { id: "d350", dimsMm: [3500, 3500], label: "Ø 350 cm — 9,62 m² — 625 W", price: 1690 },
-      { id: "d400", dimsMm: [4000, 4000], label: "Ø 400 cm — 12,57 m² — 815 W", price: 2110 },
+      { id: "d60", dimsMm: [600, 600], label: "Ø 60 cm — 0,28 m² — 20 W", price: 870 },
+      { id: "d90", dimsMm: [900, 900], label: "Ø 90 cm — 0,64 m² — 40 W", price: 1190 },
+      { id: "d120", default: true, dimsMm: [1200, 1200], label: "Ø 120 cm — 1,13 m² — 75 W", price: 1560 },
+      { id: "d150", dimsMm: [1500, 1500], label: "Ø 150 cm — 1,77 m² — 115 W", price: 2050 },
+      { id: "d200", dimsMm: [2000, 2000], label: "Ø 200 cm — 3,14 m² — 205 W", price: 2830 },
+      { id: "d250", dimsMm: [2500, 2500], label: "Ø 250 cm — 4,91 m² — 320 W", price: 3780 },
+      { id: "d300", dimsMm: [3000, 3000], label: "Ø 300 cm — 7,07 m² — 460 W", price: 4800 },
+      { id: "d350", dimsMm: [3500, 3500], label: "Ø 350 cm — 9,62 m² — 625 W", price: 5940 },
+      { id: "d400", dimsMm: [4000, 4000], label: "Ø 400 cm — 12,57 m² — 815 W", price: 7290 },
     ],
     surMesure: {
       cotesParDefautMm: [1800, 1800, 200],
       // Le cercle demande le cintrage du profilé et une toile taillée en rond :
       // le mètre carré est plus cher que sur un rectangle.
       forme: "rond",
-      // 300 € de forfait + 144 €/m² : retombe exactement sur les neuf prix du
-      // catalogue, de 350 € à 2 110 €. Le mètre carré est plus cher qu'en
-      // rectangle : il faut cintrer le profilé et la toile ronde fait de la chute.
-      forfait: 300,
-      parM2: 144,
+      // Prix conseillés du chiffrage (27/09/2026), calés comme la Lucarne. Le
+      // mètre carré est plus cher qu'en rectangle : il faut cintrer le profilé
+      // et la toile ronde fait de la chute.
+      forfait: 1252,
+      parM2: 515,
       minMm: 300,
       maxLargeurMm: 4000,
       maxHauteurMm: 4000,
@@ -1869,7 +1868,7 @@ export const products: Product[] = [
         minMm: 180,
         maxMm: 600,
         refMm: 180,
-        parM2Bande: 60,
+        parM2Bande: 134,
       },
     },
     woods: [],
