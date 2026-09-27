@@ -51,6 +51,12 @@ export type SurMesure = {
   forfait: number;
   /** Prix du mètre carré de surface lumineuse. */
   parM2: number;
+  /**
+   * Prix du mètre de pourtour (lumières) : le cadre, la tôle du tour, le
+   * profilé de la toile et une bonne part des heures suivent le tour, pas la
+   * surface. Sans lui, une petite lampe était trop chère et une grande pas assez.
+   */
+  parMetre?: number;
   minMm: number;
   maxLargeurMm: number;
   maxHauteurMm: number;
@@ -1713,11 +1719,12 @@ export const products: Product[] = [
       // Un plafond se mesure à plat : longueur × largeur, comme une table.
       axes: "plan",
       // Prix conseillés du chiffrage (27/09/2026) : chaque taille du catalogue
-      // paie l'heure de Quentin 50 €. Le forfait et le prix au m² sont calés
-      // pour ne jamais passer sous une taille du catalogue ; entre deux tailles,
-      // la plus petite qui contient les cotes sert de plafond.
-      forfait: 1245,
-      parM2: 490,
+      // paie l'heure de Quentin 50 €. Forfait + mètre carré + mètre de pourtour,
+      // calés sur le chiffrage et jamais sous une taille du catalogue ; entre
+      // deux tailles, la plus petite qui contient les cotes sert de plafond.
+      forfait: 487,
+      parM2: 333,
+      parMetre: 163,
       minMm: 300,
       maxLargeurMm: 4000,
       maxHauteurMm: 3000,
@@ -1856,8 +1863,9 @@ export const products: Product[] = [
       // Prix conseillés du chiffrage (27/09/2026), calés comme la Lucarne. Le
       // mètre carré est plus cher qu'en rectangle : il faut cintrer le profilé
       // et la toile ronde fait de la chute.
-      forfait: 1252,
-      parM2: 515,
+      forfait: 314,
+      parM2: 300,
+      parMetre: 256,
       minMm: 300,
       maxLargeurMm: 4000,
       maxHauteurMm: 4000,
@@ -2477,7 +2485,8 @@ export function devisSurMesure(
   const bande = ((bareme.epaisseur.parM2Bande ?? 0) * perimetre * ecart) / 1000;
 
   // Arrondi à la dizaine d'euros supérieure : un prix rond, jamais sous-évalué.
-  const auBareme = Math.ceil((bareme.forfait + parM2 * surface + bande) / 10) * 10;
+  const pourtour = (bareme.parMetre ?? 0) * perimetre;
+  const auBareme = Math.ceil((bareme.forfait + parM2 * surface + pourtour + bande) / 10) * 10;
   // Mais jamais plus cher que la taille du catalogue qui l'englobe. Le
   // supplément d'épaisseur, lui, reste dû : il correspond à de la matière.
   const plafond = plafondCatalogue(product, largeur, hauteur);
