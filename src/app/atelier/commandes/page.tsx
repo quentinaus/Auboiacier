@@ -52,6 +52,13 @@ export default async function CommandesPage({
         >
           Voir les prises de cotes
         </Link>
+        {" · "}
+        <a
+          href={`/atelier/plans?cle=${encodeURIComponent(cle)}`}
+          className="text-[#5c5140] underline underline-offset-4"
+        >
+          Plans et débit
+        </a>
       </p>
 
       <Liste titre={`À suivre (${enCours.length})`} liste={enCours} cle={cle} />
