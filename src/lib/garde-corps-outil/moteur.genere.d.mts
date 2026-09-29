@@ -1,0 +1,43 @@
+// FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : types du moteur (moteur.genere.mjs).
+export type ValeursGC = {
+  B: number; A: number; Hs: number; Hf: number; Xo: number; jour: number; j: number; s: number; nP: number; nb: number;
+  sbMode: string; ass: string; rosace: boolean; etage: boolean; mc: number; epMc: number; mcType: string; essence: string;
+  rainure: boolean; rnP: number; rnJ: number; dF: number; fF: number; eF: number; nF: number; trait: number;
+  debitAr: number; minSoud: number; remise: string; km: number; prixVente: number; _rapide?: boolean;
+  [autre: string]: unknown;
+};
+export type LigneDebitGC = { nom: string; qte: number; mat: string; long: number; coupes: string; note: string; dessin?: unknown };
+export type ResultatGC = {
+  vues: { face: unknown[]; cote: unknown[]; dessus: unknown[] };
+  debit: LigneDebitGC[];
+  alertes: string[];
+  oks: string[];
+  notes: string[];
+  resume: [string, string][];
+  kg?: number;
+  metres?: number;
+  hauteurGC?: number;
+  [autre: string]: unknown;
+};
+export type GeomGC = { Lc: number; cible: number; hNorme: number; Hr: number; Hc: number; h: number; w: number; sb: number; ok: boolean; dMax: number; limite: number; [autre: string]: unknown };
+export type VarianteGC = { w: ValeursGC; R: ResultatGC; change: number; score: number };
+export declare const DEFAUTS_GC: Readonly<ValeursGC>;
+export declare const BORNES_GC: Readonly<Record<"B" | "A" | "Hf", Readonly<{ min: number; max: number }>>>;
+export declare function calculerGC(v: ValeursGC): ResultatGC;
+export declare function geomGC(v: ValeursGC, n: number): GeomGC;
+export declare function variantesConformes(v: ValeursGC): VarianteGC[];
+export declare function decrireVariante(v: ValeursGC, c: { w: ValeursGC }): string[];
+export declare function fmt(x: number, d?: number): string;
+export declare function mmTxt(x: number): string;
+export declare const ALLEGE_LIBRE: number;
+export declare const CIBLE_MARGE: number;
+export declare const HAUT_ETAGE: number;
+export declare const LIMITE_ACIER: number;
+export declare const MINI_GC: number;
+export declare const ROSACE_R: number;
+export declare const SPHERE: number;
+export declare const SPHERE_HAUT: number;
+export declare const Z_ESCALADE: number;
+export declare const Z_SPHERE: number;
+export declare const EMPREINTE: string;
+export declare const EMPREINTE_SOURCE: string;

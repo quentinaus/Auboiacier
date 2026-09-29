@@ -44,6 +44,9 @@ node --test tests/prix-sur-mesure.test.ts
 | `catalogue-alt.test.ts` | Les descriptions des photos (alt) : un texte par photo en français, et sa traduction anglaise en face, dans le même ordre. |
 | `seo.test.ts` | Les titres et descriptions que Google affiche : dans les 60 et 155 signes une fois fabriqués par `src/lib/seo.ts`, sans mot perdu, sans doublon. |
 | `catalogue.ts` | Pas un test : la boîte à outils commune (parcourir le catalogue, fabriquer des cotes de test). |
+| `garde-corps-outil.test.ts` | Le garde-corps calculé par le site est celui de l'outil de plans, au caractère près : hauteur, croix, débit, dessins, prix, livraison, devis. Il compare au fichier `reference/garde-corps-outil.json`, que le script `npm run garde-corps:extraire` fabrique en faisant tourner l'outil lui-même. |
+| `prix-garde-corps.test.ts` | Les règles du garde-corps (décisions du 29/09) : hauteur à la norme, carré 16 et le moins de croix possible, « à étudier » quand rien ne passe, prix jamais sous le plancher, remise de plusieurs pièces, livraison, adresse de `/api/prix-garde-corps`. |
+| `frontiere-chiffrage.test.ts` | Les coûts de l'atelier ne sortent jamais du serveur : aucun composant du navigateur n'atteint le calcul, une seule porte (`prix-garde-corps.server.ts`), rien en clair dans le dépôt public, la clé hors de git. |
 
 ## La règle du jeu quand on écrit un test ici
 
@@ -52,6 +55,16 @@ node --test tests/prix-sur-mesure.test.ts
 règles : « le prix monte quand la table s'allonge », « le sur-mesure n'est
 jamais moins cher que le catalogue à cotes égales ». Les tarifs bougeront ; les
 règles, non.
+
+## La clé du chiffrage
+
+Trois fichiers de tests ont besoin de la clé qui déchiffre les coûts de
+l'atelier (`.env.chiffrage.local` à la racine du site, ignoré par git). Sans
+elle, ils échouent avec un message qui dit quoi faire : copier ce fichier
+depuis une autre copie du site. Ne jamais en fabriquer une nouvelle.
+
+Après `npm run build`, `npm run garde-corps:verifier-build` prouve qu'aucun
+coût n'est parti dans le JavaScript public (`.next/static`).
 
 ## Un point resté ouvert
 
@@ -66,3 +79,11 @@ Concrètement, demander une table de 2 401 mm au lieu de 2 400 mm peut faire
 baisser la facture. Il faudra soit réaccorder les tarifs du catalogue avec le
 barème, soit donner au barème un plancher au prix de la taille juste en
 dessous. C'est une décision de Quentin, pas un bug à corriger tout seul.
+
+Un second test `todo`, dans `prix-garde-corps.test.ts` : *« le prix du
+garde-corps ne baisse jamais quand la fenêtre s'élargit, même quand le carré
+change »*. Au passage du carré de 18 au carré de 20, il peut baisser (exemple :
+allège 300 mm, 1 425 mm de large = carré 18 et 4 croix, 850 € ; 1 430 mm =
+carré 20 et 3 croix, 780 €). Deux causes, dans l'outil de plans : l'acier y est
+compté au prix du carré de 16 quel que soit le carré, et le carré de 20 demande
+moins de croix. Décision de Quentin, elle aussi.
