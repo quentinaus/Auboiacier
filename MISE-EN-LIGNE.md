@@ -43,6 +43,10 @@ Vercel (l'hébergement) est le troisième, gratuit lui aussi pour démarrer.
    `RESEND_API_KEY`, `DEVIS_FROM_EMAIL`, `STRIPE_SECRET_KEY`,
    `STRIPE_WEBHOOK_SECRET` et `NEXT_PUBLIC_SITE_URL`. Tant qu'il en manque une,
    le site refuse d'ouvrir le paiement — c'est voulu.
+   Une sixième pour le garde-corps : `CHIFFRAGE_GARDE_CORPS_CLE`, la clé qui
+   ouvre le chiffrage de l'outil de plans. Sa valeur est dans le fichier
+   `.env.chiffrage.local` (jamais dans git, jamais dans un message). Sans
+   elle, le garde-corps n'affiche aucun prix — jamais un prix faux.
    `DEVIS_FROM_EMAIL` doit porter le domaine **vérifié** chez Resend
    (`Auboiacier <contact@auboiacier.fr>`). L'adresse de démonstration
    `onboarding@resend.dev` n'a le droit d'écrire qu'au titulaire du compte
@@ -109,6 +113,8 @@ Le code est prêt et se tait tant que ces valeurs sont vides : rien ne s'affiche
 - [ ] Le domaine `auboiacier.fr` vérifié chez Resend, et `DEVIS_FROM_EMAIL`
       réglé dessus (voir plus haut : sans ça le site refuse d'encaisser).
 - [ ] Les cinq variables obligatoires dans Vercel.
+- [ ] `CHIFFRAGE_GARDE_CORPS_CLE` dans Vercel (la valeur de
+      `.env.chiffrage.local`), sinon le garde-corps n'a pas de prix.
 
 **Pour que la politique de confidentialité dise vrai**
 

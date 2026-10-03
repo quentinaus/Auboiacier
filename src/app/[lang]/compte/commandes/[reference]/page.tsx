@@ -75,7 +75,7 @@ export default async function CommandePage({
           {t.commandeSuivi}
         </h2>
         <div className="mt-4 rounded-2xl border border-[#e8e1d8] bg-white p-5">
-          <SuiviCommande statut={commande.statut} pose={commande.pose} locale={locale} />
+          <SuiviCommande statut={commande.statut} pose={commande.pose} retrait={commande.retrait} locale={locale} />
         </div>
       </section>
 

@@ -189,6 +189,7 @@ function nettoyerConfig(valeur: unknown, slug: string): ConfigMemo {
       Number.isInteger(quantite) && quantite >= 1 && quantite <= 99 ? quantite : undefined,
     codePostal: mot(o.codePostal),
     poseVoulue: typeof o.poseVoulue === "boolean" ? o.poseVoulue : undefined,
+    modeLivraison: o.modeLivraison === "transporteur" || o.modeLivraison === "pose" || o.modeLivraison === "retrait" ? o.modeLivraison : undefined,
   };
 }
 

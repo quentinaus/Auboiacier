@@ -10,9 +10,10 @@ import {
   epaisseurMaxMm,
   getProduct,
   products,
-  priceFrom,
+  prixParOutil,
   productLocalise,
 } from "@/lib/products";
+import { fourchetteGC, prixDepart } from "@/lib/prix-garde-corps.server";
 import { ProductView } from "@/components/product-view";
 import { ProductTail } from "@/components/product-tail";
 import { MembraneAnimee } from "@/components/photo-plafond-anime";
@@ -69,9 +70,10 @@ export async function generateMetadata({
 
   // Le prix écrit de la même façon dans le résultat de recherche et sur la
   // page : Google affichait « From €2 870 » là où la page disait « 2 870 € ».
-  const prixDepart = priceFrom(product);
+  // Le garde-corps : celui de l'outil de plans, calculé sur le serveur.
+  const depart = prixDepart(product);
   const depuis =
-    prixDepart === null
+    depart === null
       ? // « Pose comprise » ne vaut que pour une pièce que l'atelier vient
         // mesurer chez le client avant de la poser (priseDeCotes). Une table
         // sur devis se livre, la pose y reste en option.
@@ -83,8 +85,8 @@ export async function generateMetadata({
           ? "Sur devis."
           : "Price on request."
       : locale === "fr"
-        ? `À partir de ${prixAffiche(prixDepart, locale)}.`
-        : `From ${prixAffiche(prixDepart, locale)}.`;
+        ? `À partir de ${prixAffiche(depart, locale)}.`
+        : `From ${prixAffiche(depart, locale)}.`;
   // Le titre porte la pièce, la matière et la ville : c'est ce que les gens
   // tapent. Surtout pas l'accroche commerciale, trop longue pour les soixante
   // signes que Google affiche — elle se faisait couper en plein milieu, et le
@@ -188,7 +190,7 @@ export default async function ProductPage({
         epaisseurMaxMm(bareme, bareme.maxLargeurMm, bareme.maxHauteurMm)
       )
     : null;
-  const prixDepartFiche = priceFrom(product);
+  const prixDepartFiche = prixDepart(product);
   const prixMin = Math.min(
     prixDepartFiche ?? Number.POSITIVE_INFINITY,
     devisMin?.ok ? devisMin.prix + boisMin : Number.POSITIVE_INFINITY
@@ -198,9 +200,13 @@ export default async function ProductPage({
     devisMax?.ok ? devisMax.prix + boisMax : 0
   );
   // Une pièce sur devis sans prix d'appel n'annonce aucune fourchette à
-  // Google : mieux vaut pas d'offre qu'une offre inventée.
-  const fourchette =
-    Number.isFinite(prixMin) && prixMax > 0 ? { prixMin, prixMax } : undefined;
+  // Google : mieux vaut pas d'offre qu'une offre inventée. Le garde-corps a
+  // la sienne, calculée par l'outil de plans.
+  const fourchette = prixParOutil(product)
+    ? (fourchetteGC() ?? undefined)
+    : Number.isFinite(prixMin) && prixMax > 0
+      ? { prixMin, prixMax }
+      : undefined;
 
   return (
     <div>
@@ -395,9 +401,9 @@ export default async function ProductPage({
                   <div>
                     <h3 className={`${serif.className} text-lg text-[#2b2320]`}>{p.name}</h3>
                     <p className="mt-1 text-sm text-[#726757]">
-                      {priceFrom(p) === null
+                      {prixDepart(p) === null
                         ? t.onQuote
-                        : `${t.from} ${prixAffiche(priceFrom(p) as number, locale)}`}
+                        : `${t.from} ${prixAffiche(prixDepart(p) as number, locale)}`}
                     </p>
                   </div>
                 </Link>

@@ -41,6 +41,8 @@ export type CommandeAtelier = {
   statut: Statut;
   /** L'atelier vient poser la pièce : le vocabulaire du suivi change. */
   pose: boolean;
+  /** Le client vient la chercher à l'atelier : le vocabulaire du suivi change aussi. */
+  retrait: boolean;
 };
 
 /**
@@ -143,6 +145,7 @@ export async function commandesPayees(frais = false): Promise<CommandeAtelier[]>
         pieces,
         statut: estStatut(statutBrut) ? statutBrut : STATUT_INITIAL,
         pose: Boolean(session.metadata?.pose_cp),
+        retrait: session.metadata?.retrait === "1",
       };
     })
   );

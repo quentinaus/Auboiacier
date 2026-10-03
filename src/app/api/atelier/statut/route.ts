@@ -48,6 +48,7 @@ export async function POST(request: Request) {
         locale: commande.locale,
         statut,
         pose: commande.pose,
+        retrait: commande.retrait,
       });
     }
   }

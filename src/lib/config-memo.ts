@@ -37,7 +37,10 @@ export type ConfigMemo = {
   remplissageId?: string;
   quantity?: number;
   codePostal?: string;
+  /** Ancienne forme du choix de livraison (avant le retrait à l'atelier) : true = pose. */
   poseVoulue?: boolean;
+  /** Comment recevoir la pièce : transporteur, pose, ou retrait à l'atelier. */
+  modeLivraison?: "transporteur" | "pose" | "retrait";
 };
 
 function texte(valeur: unknown): string | undefined {
@@ -102,5 +105,6 @@ export function reprendreConfig(slug: string): ConfigMemo | null {
     quantity: Number.isInteger(quantity) && quantity >= 1 && quantity <= 99 ? quantity : undefined,
     codePostal: texte(o.codePostal),
     poseVoulue: typeof o.poseVoulue === "boolean" ? o.poseVoulue : undefined,
+    modeLivraison: o.modeLivraison === "transporteur" || o.modeLivraison === "pose" || o.modeLivraison === "retrait" ? o.modeLivraison : undefined,
   };
 }

@@ -1,325 +1,301 @@
 /**
- * Le garde-corps de fenêtre.
+ * Le garde-corps de fenêtre, tel que le site le vend depuis les décisions de
+ * Quentin du 29/09 : les RÈGLES de l'outil de plans (hauteur à la norme,
+ * croix, barreaux en bas, solidité), son PRIX, une remise de plusieurs
+ * garde-corps qui ne passe jamais sous le plancher, et les suppléments des
+ * options que l'outil ne chiffre pas encore (rosace, teinte, verre).
  *
- * Ce qu'on vérifie : que la hauteur déduite de l'allège fait bien remonter la
- * main courante à un mètre du sol, que la règle ne s'applique qu'où elle
- * s'applique, et que rien de plausible n'est refusé — c'est un aide-mémoire.
+ * Les règles de l'outil elles-mêmes sont vérifiées dans prix-garde-corps.test.ts
+ * (sans montant figé) et garde-corps-outil.test.ts (égalité avec l'outil). Ici :
+ * ce que le site en fait, et ce qu'il ne fait plus (350 mm minimum, 80 cm au
+ * rez-de-chaussée, jour de 100, croix limitées à 450 mm, lot −10 %).
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 
 import {
-  calculerGardeCorpsFenetre,
   ALLEGE_SANS_OBLIGATION_MM,
-  HAUTEUR_CONSEILLEE_MM,
-  HAUTEUR_MINI_FABRICATION_MM,
-  HAUTEUR_PROTECTION_MM,
-  HAUTEUR_PROTECTION_RDC_MM,
-  JOUR_MAX_MM,
-  JOUR_MM,
+  BORNES_RELEVE_GC,
+  ESSENCES_GC,
+  JOUR_GC_MM,
+  RELEVE_DEPART_GC,
+  lireReponsePrixGC,
+  parametresPrixGC,
+  releveDansLesBornes,
+  type ReleveGC,
 } from "../src/lib/garde-corps.ts";
-
-test("en étage, la main courante remonte à un mètre du sol", () => {
-  for (let allege = 300; allege < ALLEGE_SANS_OBLIGATION_MM; allege += 10) {
-    const calcul = calculerGardeCorpsFenetre({ largeurMm: 1200, allegeMm: allege, enEtage: true })!;
-    assert.ok(calcul.obligatoire, `${allege} mm d'allège : la règle devrait s'appliquer`);
-    // Le garde-corps, posé 100 mm au-dessus de l'appui, atteint le mètre.
-    assert.ok(
-      allege + calcul.jourMm + calcul.hauteurRetenueMm >= HAUTEUR_PROTECTION_MM,
-      `${allege} mm d'allège + ${calcul.jourMm} de jour + ${calcul.hauteurRetenueMm} mm ne font pas un mètre`
-    );
-    // Le jour est toujours le même, et reste sous ce que la norme tolère.
-    assert.equal(calcul.jourMm, JOUR_MM);
-    assert.ok(JOUR_MM <= JOUR_MAX_MM);
-    // Et la hauteur qu'on fabrique ne descend jamais sous la règle.
-    assert.ok(calcul.mainCouranteMm >= HAUTEUR_PROTECTION_MM);
-    assert.equal(calcul.sousLaRegle, false);
-  }
-});
-
-test("une allège haute n'impose rien, on conseille la hauteur du modèle", () => {
-  const calcul = calculerGardeCorpsFenetre({ largeurMm: 1000, allegeMm: 950, enEtage: true })!;
-  assert.equal(calcul.obligatoire, false);
-  assert.equal(calcul.hauteurNormeMm, HAUTEUR_MINI_FABRICATION_MM);
-  assert.equal(calcul.hauteurRetenueMm, HAUTEUR_CONSEILLEE_MM);
-});
-
-test("au rez-de-chaussée, la main courante monte à 80 cm du sol", () => {
-  for (let allege = 300; allege < HAUTEUR_PROTECTION_RDC_MM; allege += 10) {
-    const calcul = calculerGardeCorpsFenetre({ largeurMm: 1000, allegeMm: allege, enEtage: false })!;
-    assert.equal(calcul.obligatoire, false);
-    assert.equal(calcul.cibleMm, HAUTEUR_PROTECTION_RDC_MM);
-    assert.ok(calcul.mainCouranteMm >= HAUTEUR_PROTECTION_RDC_MM, `${allege} mm d'allège : la main courante n'arrive pas à 80 cm`);
-    assert.equal(calcul.sousLaRegle, false);
-  }
-  // 350 mm d'allège, 100 de jour, 350 de garde-corps : la main courante tombe pile à 800 — la hauteur du modèle.
-  const modele = calculerGardeCorpsFenetre({ largeurMm: 1180, allegeMm: 350, enEtage: false })!;
-  assert.equal(modele.hauteurRetenueMm, HAUTEUR_CONSEILLEE_MM);
-  assert.equal(modele.mainCouranteMm, HAUTEUR_PROTECTION_RDC_MM);
-});
-
-test("au rez-de-chaussée, une allège déjà haute garde la hauteur du modèle", () => {
-  const calcul = calculerGardeCorpsFenetre({ largeurMm: 1000, allegeMm: 850, enEtage: false })!;
-  assert.equal(calcul.hauteurRetenueMm, HAUTEUR_CONSEILLEE_MM);
-});
-
-test("une allège basse en étage donne un garde-corps haut, arrondi à la dizaine, posé avec un jour", () => {
-  const calcul = calculerGardeCorpsFenetre({ largeurMm: 900, allegeMm: 415, enEtage: true })!;
-  assert.equal(calcul.hauteurNormeMm, 490); // 1000 − 415 − 100 = 485 → 490
-  assert.equal(calcul.hauteurRetenueMm, 490);
-  assert.equal(calcul.jourMm, JOUR_MM);
-  assert.equal(calcul.mainCouranteMm, 1005);
-});
-
-test("un garde-corps déjà assez haut garde le même jour, et monte d'autant", () => {
-  // 850 d'allège : 350 de garde-corps suffisent largement, le jour reste à 100.
-  const calcul = calculerGardeCorpsFenetre({ largeurMm: 900, allegeMm: 850, enEtage: true })!;
-  assert.equal(calcul.jourMm, JOUR_MM);
-  assert.equal(calcul.mainCouranteMm, 1300);
-});
-
-test("la hauteur de la fenêtre dit si le garde-corps tient dans l'ouverture", () => {
-  const sans = calculerGardeCorpsFenetre({ largeurMm: 900, allegeMm: 415, enEtage: true })!;
-  assert.equal(sans.tientDansLaFenetre, null);
-  const haute = calculerGardeCorpsFenetre({ largeurMm: 900, allegeMm: 415, hauteurFenetreMm: 1200, enEtage: true })!;
-  assert.equal(haute.tientDansLaFenetre, true);
-  // Une fenêtre de 40 cm de haut sur une allège de 41,5 cm : la main courante dépasserait.
-  const basse = calculerGardeCorpsFenetre({ largeurMm: 900, allegeMm: 415, hauteurFenetreMm: 400, enEtage: true })!;
-  assert.equal(basse.tientDansLaFenetre, false);
-});
-
-test("le client peut choisir plus haut que la règle, et c'est son choix qu'on garde", () => {
-  const calcul = calculerGardeCorpsFenetre({
-    largeurMm: 1180,
-    allegeMm: 850,
-    enEtage: true,
-    hauteurSouhaiteeMm: 450,
-  })!;
-  assert.equal(calcul.hauteurNormeMm, HAUTEUR_MINI_FABRICATION_MM); // 1000 − 850 − 100 = 50, relevé au plancher de fabrication
-  assert.equal(calcul.hauteurRetenueMm, 450);
-  assert.equal(calcul.sousLaRegle, false);
-});
-
-test("le client peut choisir plus bas que la règle : on le dit, on ne refuse pas", () => {
-  const calcul = calculerGardeCorpsFenetre({
-    largeurMm: 1180,
-    allegeMm: 500,
-    enEtage: true,
-    hauteurSouhaiteeMm: 300,
-  })!;
-  assert.equal(calcul.hauteurNormeMm, 400); // 1000 − 500 − 100
-  assert.equal(calcul.hauteurRetenueMm, 300);
-  assert.equal(calcul.sousLaRegle, true);
-});
-
-test("sans souhait, on ne fabrique jamais plus bas que le conseil d'atelier", () => {
-  // 850 mm d'allège : la règle demande 150 mm, ce qui ne ressemble à rien.
-  const calcul = calculerGardeCorpsFenetre({ largeurMm: 1180, allegeMm: 850, enEtage: true })!;
-  assert.equal(calcul.hauteurNormeMm, HAUTEUR_MINI_FABRICATION_MM);
-  assert.equal(calcul.hauteurRetenueMm, HAUTEUR_CONSEILLEE_MM);
-  assert.ok(calcul.hauteurRetenueMm >= HAUTEUR_MINI_FABRICATION_MM);
-});
-
-test("une largeur ou une allège illisible ne rend rien, tout le reste passe", () => {
-  assert.equal(calculerGardeCorpsFenetre({ largeurMm: Number.NaN, allegeMm: 800, enEtage: true }), null);
-  assert.equal(calculerGardeCorpsFenetre({ largeurMm: 1000, allegeMm: -5, enEtage: true }), null);
-  for (const largeur of [200, 600, 1200, 2400, 4000]) {
-    assert.ok(calculerGardeCorpsFenetre({ largeurMm: largeur, allegeMm: 800, enEtage: true }));
-  }
-});
-
-/* ---------------------------------------------------------------- *
- *  Le garde-corps en boutique : au barème, sans taille au catalogue.
- * ---------------------------------------------------------------- */
+import { ALLEGE_LIBRE, BORNES_GC, DEFAUTS_GC, MINI_GC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
+import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
+import { prixCommandeGC, prixGC, type ConfigGC } from "../src/lib/garde-corps-outil/calcul.ts";
 import {
-  computeUnitPrice,
-  devisSurMesure,
-  priceFrom,
-  resolveSelection,
-  SUR_MESURE,
-} from "../src/lib/products.ts";
-import { produit } from "./catalogue.ts";
+  configurationGC,
+  fourchetteGC,
+  ligneGC,
+  lireRequetePrixGC,
+  prixDepart,
+  prixReleveOutil,
+  reponsePrixGC,
+} from "../src/lib/garde-corps-outil/site.ts";
+import { computeUnitPrice, essenceDeReference, getProduct, priceFrom, prixParOutil, resolveSelection, SUR_MESURE, supplementRemplissage } from "../src/lib/products.ts";
 
-const gardeCorps = produit("garde-corps");
-/** Le modèle de la photo, celui dont Quentin a donné le prix. */
-const PHOTO = { largeurMm: 1180, hauteurMm: 350 };
+const gc = getProduct("garde-corps")!;
+const MODELE = { metalId: "noir", fabricId: "fleur", remplissageId: "croix" };
+const releve = (r: Partial<ReleveGC> = {}): ReleveGC => ({ largeurMm: 1180, allegeMm: 650, enEtage: true, fenetreMm: 0, ...r });
 
-test("le garde-corps se commande en ligne à ses cotes, sans taille au catalogue", () => {
-  assert.equal(gardeCorps.orderMode, "cart");
-  assert.equal(gardeCorps.sizes.length, 0);
-  assert.ok(gardeCorps.surMesure, "il lui faut un barème");
-  const devis = devisSurMesure(gardeCorps, PHOTO.largeurMm, PHOTO.hauteurMm);
-  assert.ok(devis.ok, "le modèle de la photo doit être chiffrable");
-  assert.ok(devis.prix > 0 && devis.prix % 10 === 0, "un prix rond, en dizaines d'euros");
+function chiffrageOuEchec() {
+  if (!chargerChiffrage().ok) assert.fail("Clé du chiffrage absente ou invalide : copier .env.chiffrage.local d'une autre copie du site (jamais par git).");
+}
+function config(r: Partial<ReleveGC> = {}, essence = "chene"): ConfigGC {
+  const c = configurationGC(releve(r), essence);
+  assert.ok(c?.ok, `${JSON.stringify(r)} devrait passer la norme`);
+  return c;
+}
+
+test("les constantes du site sont celles de l'outil de plans", () => {
+  assert.equal(JOUR_GC_MM, DEFAUTS_GC.jour, "le jour sous le cadre");
+  assert.equal(ALLEGE_SANS_OBLIGATION_MM, ALLEGE_LIBRE);
+  assert.deepEqual(
+    { largeurMm: { ...BORNES_RELEVE_GC.largeurMm }, allegeMm: { ...BORNES_RELEVE_GC.allegeMm }, fenetreMm: { ...BORNES_RELEVE_GC.fenetreMm } },
+    { largeurMm: { ...BORNES_GC.B }, allegeMm: { ...BORNES_GC.A }, fenetreMm: { ...BORNES_GC.Hf } }
+  );
+  assert.deepEqual([...ESSENCES_GC].sort(), gc.woods.map((w) => w.id).sort(), "les essences du catalogue sont celles de l'outil");
 });
 
-test("le prix affiché à la fenêtre est celui que le serveur facture, pour chaque bois", () => {
-  for (const bois of gardeCorps.woods) {
-    const selection = {
-      sizeId: SUR_MESURE,
-      ...PHOTO,
-      epaisseurMm: gardeCorps.surMesure!.epaisseur.refMm,
-      woodId: bois.id,
-      metalId: gardeCorps.metals[0].id,
-      fabricId: gardeCorps.fabrics?.[0]?.id,
-      remplissageId: gardeCorps.remplissages![0].id,
-    };
-    const montre = computeUnitPrice(gardeCorps, selection);
-    const resolu = resolveSelection({ slug: gardeCorps.slug, ...selection });
-    assert.ok(resolu.ok, `${bois.id} : refusé`);
-    assert.equal(montre, resolu.line.unitPrice, `${bois.id} : prix affiché ≠ facturé`);
+test("le garde-corps se chiffre sur le serveur seulement : le catalogue public n'en donne aucun prix", () => {
+  assert.ok(prixParOutil(gc));
+  assert.equal(gc.surMesure, undefined, "plus de barème au m² : le prix vient de l'outil");
+  const selection = { sizeId: SUR_MESURE, largeurMm: 1180, allegeMm: 650, enEtage: true, fenetreMm: 0, woodId: "chene", ...MODELE };
+  assert.equal(computeUnitPrice(gc, selection), null);
+  assert.equal(priceFrom(gc), null);
+  const sansServeur = resolveSelection({ slug: gc.slug, ...selection });
+  assert.equal(sansServeur.ok === false && sansServeur.reason, "prix_serveur");
+  // L'essence n'a plus d'écart fixe au catalogue (l'outil la chiffre à son volume) ; le chêne reste celui d'entrée.
+  assert.ok(gc.woods.every((w) => !w.priceDelta));
+  assert.equal(gc.boisParDefaut, "chene");
+  // Plus de prix de lot à −10 % : la remise vient des frais fixes de l'atelier.
+  assert.equal((gc as { remiseLot?: unknown }).remiseLot, undefined);
+});
+
+test("la hauteur est celle de l'outil : plus de 350 mm imposés, ni de 80 cm au rez-de-chaussée, ni de jour de 100", () => {
+  chiffrageOuEchec();
+  for (const allegeMm of [0, 250, 650, 800, 950, 1200]) {
+    const etage = config({ allegeMm });
+    const rdc = config({ allegeMm, enEtage: false });
+    // La règle de l'outil ne dépend pas de l'étage : la même hauteur partout.
+    assert.equal(rdc.hauteurMm, etage.hauteurMm, `allège ${allegeMm}`);
+    assert.equal(etage.jourMm, JOUR_GC_MM);
+    assert.equal(etage.mainCouranteMm, allegeMm + JOUR_GC_MM + etage.hauteurMm);
+    // Une allège haute : la hauteur minimale de l'outil (200), plus les 350 mm du modèle en photo.
+    if (allegeMm >= 950) assert.equal(etage.hauteurMm, MINI_GC);
+    // Seul l'étage sous 900 mm d'allège est « obligatoire » (la loi) : c'est ce que dit le devis.
+    assert.equal(etage.obligatoire, allegeMm < ALLEGE_LIBRE);
+    assert.equal(rdc.obligatoire, false);
   }
 });
 
-test("le bois de la main courante se paie dans l'ordre : pin, hêtre, chêne, noyer", () => {
-  const prix = (woodId: string) =>
-    computeUnitPrice(gardeCorps, {
-      sizeId: SUR_MESURE,
-      ...PHOTO,
-      epaisseurMm: gardeCorps.surMesure!.epaisseur.refMm,
-      woodId,
-      metalId: gardeCorps.metals[0].id,
-      fabricId: gardeCorps.fabrics?.[0]?.id,
-      remplissageId: gardeCorps.remplissages![0].id,
-    })!;
-  assert.ok(prix("pin") < prix("hetre"));
-  assert.ok(prix("hetre") < prix("chene"));
-  assert.ok(prix("chene") < prix("noyer"));
+test("les croix ne sont plus limitées à 450 mm : l'outil en met autant qu'il faut", () => {
+  chiffrageOuEchec();
+  // Une fenêtre au ras du sol : un garde-corps de près d'un mètre, en croix, conforme.
+  const haut = config({ allegeMm: 0 });
+  assert.ok(haut.hauteurMm > 450);
+  assert.ok(haut.croix >= 1);
+  const ligne = ligneGC(releve({ allegeMm: 0 }), { woodId: "chene", ...MODELE });
+  assert.ok(ligne.ok, "vendu en croix, sans passer par le verre");
+  assert.ok(ligne.line.optionsLabel.includes(`${haut.croix} croix`), ligne.line.optionsLabel);
+  // Le modèle de la photo (1 180 mm, allège 650) : 4 croix pour la norme, pas 2.
+  assert.equal(config().croix, 4);
 });
 
-test("le « à partir de » du garde-corps est une petite fenêtre, moins chère que la photo", () => {
-  const depart = priceFrom(gardeCorps);
-  assert.ok(depart !== null && depart > 0, "il faut un prix d'appel");
-  const photo = devisSurMesure(gardeCorps, PHOTO.largeurMm, PHOTO.hauteurMm);
-  assert.ok(photo.ok && depart <= photo.prix, "le prix d'appel dépasse le modèle de la photo");
-});
-
-test("plus la fenêtre est large ou le garde-corps haut, plus c'est cher", () => {
-  let precedent = 0;
-  for (const [l, h] of [
-    [600, 350],
-    [1000, 350],
-    [1180, 350],
-    [1500, 450],
-    [2000, 600],
-    [3000, 1000],
-  ]) {
-    const devis = devisSurMesure(gardeCorps, l, h);
-    assert.ok(devis.ok, `${l} × ${h} refusé`);
-    assert.ok(devis.prix > precedent, `${l} × ${h} : ${devis.prix} € ne dépasse pas ${precedent} €`);
-    precedent = devis.prix;
+test("le prix du site est le prix de l'outil, plus les suppléments des options du site", () => {
+  chiffrageOuEchec();
+  for (const r of [releve(), releve({ largeurMm: 800, allegeMm: 950 }), releve({ largeurMm: 1500, allegeMm: 300 })]) {
+    for (const essence of ESSENCES_GC) {
+      const c = configurationGC(r, essence);
+      if (!c?.ok) continue;
+      const modele = ligneGC(r, { woodId: essence, ...MODELE });
+      assert.ok(modele.ok);
+      assert.equal(modele.line.unitPrice, prixGC(c), "options du modèle : exactement l'outil");
+      assert.equal(modele.line.gc?.prixOutil, prixGC(c));
+      assert.deepEqual(modele.line.size.dimsMm, [r.largeurMm, c.hauteurMm]);
+      for (const fabric of gc.fabrics!) {
+        const avec = ligneGC(r, { woodId: essence, ...MODELE, fabricId: fabric.id });
+        assert.ok(avec.ok);
+        assert.equal(avec.line.unitPrice, prixGC(c) + (fabric.priceDelta ?? 0), `rosace ${fabric.id}`);
+      }
+      for (const metal of gc.metals) {
+        const avec = ligneGC(r, { woodId: essence, ...MODELE, metalId: metal.id });
+        assert.ok(avec.ok);
+        assert.equal(avec.line.unitPrice, prixGC(c) + (metal.priceDelta ?? 0), `teinte ${metal.id}`);
+      }
+      const verre = gc.remplissages!.find((x) => x.sansCroix)!;
+      const sousVerre = ligneGC(r, { woodId: essence, ...MODELE, remplissageId: verre.id, fabricId: "medaillon" });
+      assert.ok(sousVerre.ok);
+      assert.equal(sousVerre.line.unitPrice, prixGC(c) + supplementRemplissage(verre, r.largeurMm, c.hauteurMm), "le verre, et pas de rosace à payer");
+    }
   }
 });
 
-/* ---------------------------------------------------------------- *
- *  Le prix de lot : plusieurs fenêtres, une seule commande.
- * ---------------------------------------------------------------- */
-import { remiseLot, prixRemise } from "../src/lib/products.ts";
-
-const table = produit("table-brindille");
-
-test("un seul garde-corps se paie plein tarif, deux ou plus sont remisés — même à des cotes différentes", () => {
-  const lot = gardeCorps.remiseLot!;
-  assert.equal(lot.desPieces, 2);
-  const seul = remiseLot([{ product: gardeCorps, unitPrice: 490, quantity: 1 }]);
-  assert.equal(seul[0].remise, 0);
-  assert.equal(seul[0].prixLot, 490);
-
-  const deux = remiseLot([
-    { product: gardeCorps, unitPrice: 490, quantity: 1 },
-    { product: gardeCorps, unitPrice: 380, quantity: 1 },
-  ]);
-  assert.equal(deux[0].remise, lot.taux);
-  assert.equal(deux[0].prixLot, prixRemise(490, lot.taux));
-  assert.equal(deux[1].prixLot, prixRemise(380, lot.taux));
-  assert.ok(deux[0].prixLot < 490 && deux[1].prixLot < 380);
-
-  // Deux exemplaires sur la même ligne comptent aussi.
-  const paire = remiseLot([{ product: gardeCorps, unitPrice: 490, quantity: 2 }]);
-  assert.equal(paire[0].remise, lot.taux);
-});
-
-test("le prix de lot ne touche pas les autres pièces de la commande", () => {
-  const lignes = remiseLot([
-    { product: gardeCorps, unitPrice: 490, quantity: 2 },
-    { product: table, unitPrice: 2000, quantity: 1 },
-  ]);
-  assert.equal(lignes[1].remise, 0);
-  assert.equal(lignes[1].prixLot, 2000);
-});
-
-test("le prix remisé est un euro entier", () => {
-  for (const prix of [437, 490, 551, 1005]) {
-    assert.ok(Number.isInteger(prixRemise(prix, 0.1)));
+test("le prix encaissé est le prix affiché : la route, le panier et la commande font le même calcul", () => {
+  chiffrageOuEchec();
+  for (const r of [releve(), releve({ largeurMm: 450, allegeMm: 0, fenetreMm: 1600 }), releve({ enEtage: false, allegeMm: 300 })]) {
+    for (const options of [MODELE, { metalId: "brut", fabricId: "acier", remplissageId: "croix" }, { metalId: "blanc", fabricId: "fleur", remplissageId: "verre" }]) {
+      const route = reponsePrixGC({ releve: r, essence: "hetre", ...options, quantite: 1 });
+      const serveur = resolveSelection({ slug: gc.slug, sizeId: SUR_MESURE, ...r, woodId: "hetre", ...options }, prixReleveOutil);
+      assert.ok(route?.ok && serveur.ok);
+      assert.equal(route.prix, serveur.line.unitPrice);
+      assert.equal(route.hauteurMm, serveur.line.gc?.hauteurMm);
+      // Et la hauteur que le client a vue est vérifiée à la commande : une autre est refusée.
+      const autreHauteur = resolveSelection({ slug: gc.slug, sizeId: SUR_MESURE, ...r, hauteurMm: route.hauteurMm + 10, woodId: "hetre", ...options }, prixReleveOutil);
+      assert.equal(autreHauteur.ok === false && autreHauteur.reason, "hauteur");
+    }
   }
 });
 
-/* ---------------------------------------------------------------- *
- *  Le remplissage et la norme : les croix jusqu'à une hauteur, le verre au-delà.
- * ---------------------------------------------------------------- */
-import { remplissageConforme, supplementRemplissage } from "../src/lib/products.ts";
-
-const croix = gardeCorps.remplissages!.find((option) => option.id === "croix")!;
-const verre = gardeCorps.remplissages!.find((option) => option.id === "verre")!;
-const base = {
-  slug: gardeCorps.slug,
-  sizeId: SUR_MESURE,
-  epaisseurMm: gardeCorps.surMesure!.epaisseur.refMm,
-  woodId: "chene",
-  metalId: gardeCorps.metals[0].id,
-  fabricId: gardeCorps.fabrics?.[0]?.id,
-};
-
-test("la rosace se choisit, et se paie comme annoncé", () => {
-  const rosaces = gardeCorps.fabrics!;
-  assert.ok(rosaces.length >= 2, "plusieurs rosaces au choix");
-  const incluse = computeUnitPrice(gardeCorps, { ...base, ...PHOTO, remplissageId: "croix", fabricId: rosaces[0].id })!;
-  for (const rosace of rosaces) {
-    const prix = computeUnitPrice(gardeCorps, { ...base, ...PHOTO, remplissageId: "croix", fabricId: rosace.id });
-    assert.equal(prix, incluse + (rosace.priceDelta ?? 0), `${rosace.id} : l'écart affiché n'est pas facturé`);
-    assert.ok(rosace.grain?.startsWith("url("), `${rosace.id} : il lui faut sa photo dans la pastille`);
+test("à étudier avec l'atelier : pas de prix, pas de commande", () => {
+  chiffrageOuEchec();
+  for (const r of [releve({ largeurMm: 3000, allegeMm: 0 }), releve({ largeurMm: 1700 }), releve({ allegeMm: 300, fenetreMm: 500 })]) {
+    const reponse = reponsePrixGC({ releve: r, essence: "chene", quantite: 1 });
+    assert.ok(reponse && !reponse.ok, JSON.stringify(r));
+    assert.ok(!("prix" in reponse), "aucun prix pour un garde-corps à étudier");
+    const commande = resolveSelection({ slug: gc.slug, sizeId: SUR_MESURE, ...r, woodId: "chene", ...MODELE }, prixReleveOutil);
+    assert.equal(commande.ok === false && commande.reason, "a_etudier");
   }
-  assert.equal(resolveSelection({ ...base, ...PHOTO, remplissageId: "croix", fabricId: "rosace-inventee" }).ok, false);
+  // Hors des bornes des champs de l'outil : refusé avant tout calcul.
+  const etroit = resolveSelection({ slug: gc.slug, sizeId: SUR_MESURE, ...releve({ largeurMm: 250 }), woodId: "chene", ...MODELE }, prixReleveOutil);
+  assert.equal(etroit.ok === false && etroit.reason, "unknown_size");
+  assert.equal(releveDansLesBornes(releve({ largeurMm: 250 })), false);
+  assert.equal(releveDansLesBornes(releve({ allegeMm: 1300 })), false);
+  assert.equal(releveDansLesBornes(releve()), true);
 });
 
-test("les croix du modèle sont conformes à la hauteur de la photo, plus à celle d'une baie", () => {
-  assert.ok(remplissageConforme(croix, PHOTO.hauteurMm));
-  assert.ok(remplissageConforme(croix, croix.hauteurMaxConformeMm!));
-  assert.equal(remplissageConforme(croix, croix.hauteurMaxConformeMm! + 10), false);
-  // Le verre n'a pas de vide : conforme à toute hauteur.
-  assert.ok(remplissageConforme(verre, 1200));
+test("un relevé forgé ou incomplet ne se commande pas", () => {
+  chiffrageOuEchec();
+  const base = { slug: gc.slug, sizeId: SUR_MESURE, largeurMm: 1180, allegeMm: 650, enEtage: true, fenetreMm: 0, woodId: "chene", ...MODELE };
+  const refus = (selection: Record<string, unknown>) => {
+    const r = resolveSelection(selection as never, prixReleveOutil);
+    return r.ok ? null : r.reason;
+  };
+  assert.equal(refus(base), null);
+  assert.equal(refus({ ...base, allegeMm: undefined }), "unknown_size");
+  assert.equal(refus({ ...base, enEtage: "1" }), "unknown_size");
+  assert.equal(refus({ ...base, largeurMm: 1180.5 }), "unknown_size");
+  assert.equal(refus({ ...base, sizeId: "p8" }), "unknown_size");
+  assert.equal(refus({ ...base, woodId: "teck" }), "unknown_wood");
+  assert.equal(refus({ ...base, woodId: undefined }), "unknown_wood");
+  assert.equal(refus({ ...base, metalId: "or" }), "unknown_metal");
+  assert.equal(refus({ ...base, fabricId: "inventee" }), "unknown_fabric");
+  assert.equal(refus({ ...base, remplissageId: "barreaux" }), "unknown_remplissage");
+  assert.equal(refus({ ...base, remplissageId: undefined }), "unknown_remplissage");
 });
 
-test("un garde-corps à croix trop haut pour la norme est refusé par le serveur, le verre passe", () => {
-  const trop = croix.hauteurMaxConformeMm! + 100;
-  const refuse = resolveSelection({ ...base, largeurMm: 1180, hauteurMm: trop, remplissageId: "croix" });
-  assert.equal(refuse.ok, false);
-  if (!refuse.ok) assert.equal(refuse.reason, "non_conforme");
-  assert.equal(computeUnitPrice(gardeCorps, { ...base, largeurMm: 1180, hauteurMm: trop, remplissageId: "croix" }), null);
+test("plusieurs garde-corps : une remise, jamais sous le plancher, et une seule pièce se paie plein tarif", () => {
+  chiffrageOuEchec();
+  const c = config();
+  assert.equal(prixCommandeGC([{ config: c, quantite: 1 }]).remise, 0);
+  for (const quantite of [2, 3, 10]) {
+    const r = prixCommandeGC([{ config: c, quantite }]);
+    assert.ok(r.remise < 0, `${quantite} garde-corps : une vraie remise (frais fixes comptés une fois)`);
+    assert.equal(Math.abs(r.remise) % 10, 0, "une remise en dizaines d'euros");
+    assert.equal(r.prix, quantite * prixGC(c) + r.remise);
+  }
+  // À des cotes différentes aussi, et la route donne la même pour la quantité demandée.
+  const autre = config({ largeurMm: 800, allegeMm: 950 }, "pin");
+  assert.ok(prixCommandeGC([{ config: c, quantite: 1 }, { config: autre, quantite: 1 }]).remise < 0);
+  const route = reponsePrixGC({ releve: releve(), essence: "chene", quantite: 3 });
+  assert.ok(route?.ok && route.remise === prixCommandeGC([{ config: c, quantite: 3 }]).remise);
+});
 
-  const accepte = resolveSelection({ ...base, largeurMm: 1180, hauteurMm: trop, remplissageId: "verre" });
-  assert.ok(accepte.ok);
-  if (accepte.ok) {
-    assert.ok(/verre|glass/i.test(accepte.line.optionsLabel), "le bon de commande doit dire « verre »");
-    assert.equal(
-      accepte.line.unitPrice,
-      computeUnitPrice(gardeCorps, { ...base, largeurMm: 1180, hauteurMm: trop, remplissageId: "verre" })
-    );
+test("le « à partir de » est le prix du plus petit garde-corps, et aucun ne coûte moins", () => {
+  chiffrageOuEchec();
+  const depart = prixDepart(gc);
+  assert.ok(depart !== null && Number.isInteger(depart) && depart > 0);
+  const moinsCher = Math.min(...ESSENCES_GC.map((e) => prixGC(configurationGC(RELEVE_DEPART_GC, e) as ConfigGC)));
+  assert.equal(depart, moinsCher);
+  for (const largeurMm of [300, 450, 800, 1180, 1500]) {
+    for (const allegeMm of [0, 300, 650, 900, 1200]) {
+      for (const essence of ESSENCES_GC) {
+        const c = configurationGC(releve({ largeurMm, allegeMm }), essence);
+        if (c?.ok) assert.ok(prixGC(c) >= depart, `${largeurMm} × allège ${allegeMm} en ${essence} : ${prixGC(c)} € sous le « à partir de » ${depart} €`);
+      }
+    }
+  }
+  const fourchette = fourchetteGC();
+  assert.ok(fourchette && fourchette.prixMin === depart && fourchette.prixMax > fourchette.prixMin);
+  // Le prix de départ d'une autre pièce reste celui du catalogue.
+  const table = getProduct("table-mikado")!;
+  assert.equal(prixDepart(table), priceFrom(table));
+});
+
+test("la réponse de la route se relit dans le navigateur, et rien d'autre", () => {
+  chiffrageOuEchec();
+  for (const r of [releve(), releve({ largeurMm: 1700 }), releve({ allegeMm: 300, fenetreMm: 500 })]) {
+    const reponse = reponsePrixGC({ releve: r, essence: "noyer", quantite: 2 });
+    assert.ok(reponse);
+    // Telle que le réseau la transporte : du JSON.
+    assert.deepEqual(lireReponsePrixGC(JSON.parse(JSON.stringify(reponse))), reponse);
+  }
+  const ok = reponsePrixGC({ releve: releve(), essence: "noyer", quantite: 1 })!;
+  for (const faux of [null, "texte", {}, { ...ok, prix: "570" }, { ...ok, prix: -1 }, { ...ok, remise: 10 }, { ...ok, ok: "oui" }, { ...ok, hauteurMm: 0 }]) {
+    assert.equal(lireReponsePrixGC(faux), null, JSON.stringify(faux));
   }
 });
 
-test("le verre coûte plus que les croix, d'un supplément qui grandit avec la surface", () => {
-  const avecCroix = computeUnitPrice(gardeCorps, { ...base, ...PHOTO, remplissageId: "croix" })!;
-  const avecVerre = computeUnitPrice(gardeCorps, { ...base, ...PHOTO, remplissageId: "verre" })!;
-  assert.equal(avecVerre - avecCroix, supplementRemplissage(verre, PHOTO.largeurMm, PHOTO.hauteurMm));
-  assert.ok(avecVerre > avecCroix);
-  assert.ok(supplementRemplissage(verre, 2000, 600) > supplementRemplissage(verre, 1180, 350));
-  assert.equal(supplementRemplissage(croix, 1180, 350), 0);
+test("l'adresse que la fiche fabrique est celle que la route sait lire", () => {
+  for (const r of [releve(), releve({ enEtage: false, fenetreMm: 1400 })]) {
+    for (const quantite of [1, 4]) {
+      const p = parametresPrixGC(r, { woodId: "pin", metalId: "brut", fabricId: "fonte", remplissageId: "verre", quantite });
+      assert.deepEqual(lireRequetePrixGC(p), { releve: r, essence: "pin", metalId: "brut", fabricId: "fonte", remplissageId: "verre", quantite });
+    }
+  }
 });
 
-test("un remplissage inventé ou oublié est refusé", () => {
-  assert.equal(resolveSelection({ ...base, ...PHOTO, remplissageId: "bambou" }).ok, false);
-  assert.equal(resolveSelection({ ...base, ...PHOTO }).ok, false);
-  // Une pièce sans remplissage n'en accepte aucun.
-  assert.equal(resolveSelection({ slug: table.slug, sizeId: table.sizes[0].id, woodId: "chene", metalId: table.metals[0]?.id, remplissageId: "croix" }).ok, false);
+test("la fiche démarre sur le chêne de la photo, et appelle le bois « main courante »", () => {
+  // Toutes les essences sont à 0 € au catalogue (l'outil chiffre le bois) : la « première sans supplément » serait le pin.
+  assert.equal(essenceDeReference(gc)?.id, "chene");
+  assert.equal(gc.woods[0].id, "pin", "si le pin n'est plus le premier, ce test ne prouve plus rien");
+  // La galerie (product-view) et les options (product-options) partent de la même essence : celle de référence.
+  for (const fichier of ["product-view.tsx", "product-options.tsx"]) {
+    const source = readFileSync(new URL(`../src/components/${fichier}`, import.meta.url), "utf8");
+    assert.match(source, /useState\(\s*essenceDeReference\(product\)\?\.id \?\? ""/, `${fichier} : l'essence de départ`);
+    assert.doesNotMatch(source, /woods\.find\(\(w\) => !w\.priceDelta\)/, `${fichier} : l'ancienne règle (le pin pour le garde-corps)`);
+  }
+  // Le pin et le chêne n'ont pas le même prix : démarrer sur le mauvais montrait un prix qui n'était pas celui de la photo.
+  chiffrageOuEchec();
+  const chene = reponsePrixGC({ releve: releve(), essence: "chene", quantite: 1 });
+  const pin = reponsePrixGC({ releve: releve(), essence: "pin", quantite: 1 });
+  assert.ok(chene?.ok && pin?.ok && chene.prix !== pin.prix);
+  // Un garde-corps n'a pas de plateau.
+  assert.deepEqual(gc.woodLabel, { fr: "Bois de la main courante", en: "Handrail timber" });
+});
+
+test("une option absente est celle du modèle, partout : prix, devis, aperçu de la livraison", () => {
+  chiffrageOuEchec();
+  const sans = ligneGC(releve(), { woodId: "chene" });
+  const avec = ligneGC(releve(), { woodId: "chene", ...MODELE });
+  assert.ok(sans.ok && avec.ok);
+  assert.deepEqual([sans.line.metal?.id, sans.line.fabric?.id, sans.line.remplissage?.id], [MODELE.metalId, MODELE.fabricId, MODELE.remplissageId]);
+  assert.equal(sans.line.unitPrice, avec.line.unitPrice);
+  // Une option inconnue reste refusée : jamais remplacée en silence.
+  const inconnue = ligneGC(releve(), { woodId: "chene", metalId: "or" });
+  assert.equal(inconnue.ok === false && inconnue.reason, "unknown_metal");
+  assert.equal(reponsePrixGC({ releve: releve(), essence: "chene", quantite: 1 })?.ok, true);
+});
+
+test("les mots de la fiche disent ce qui se passe vraiment (devis, livraison)", () => {
+  const route = readFileSync(new URL("../src/app/api/devis-pdf/route.ts", import.meta.url), "utf8");
+  // Le devis PDF s'ouvre dans un onglet : la route n'envoie aucun e-mail…
+  assert.doesNotMatch(route, /sendEmail|@\/lib\/email/);
+  for (const langue of ["fr", "en"]) {
+    const t = JSON.parse(readFileSync(new URL(`../src/app/[lang]/dictionaries/${langue}.json`, import.meta.url), "utf8")).artisanat;
+    // … donc la fenêtre des coordonnées ne le promet pas.
+    assert.doesNotMatch(t.coordonneesNote, /e-?mail|envoy|sent/i, `${langue} : coordonneesNote promet un envoi`);
+    // Sous le prix : le montant de la livraison compté dedans, pas « livraison incluse » (lu « gratuite »).
+    for (const cle of ["livraisonIncluse", "poseIncluse"]) {
+      assert.match(t[cle], /\{prix\}/, `${langue} : ${cle} sans montant`);
+      assert.doesNotMatch(t[cle], /inclus|included|offert|free|gratuit/i, `${langue} : ${cle}`);
+    }
+  }
+  const options = readFileSync(new URL("../src/components/product-options.tsx", import.meta.url), "utf8");
+  assert.match(options, /\(pose\.mode === "pose" \? t\.poseIncluse : t\.livraisonIncluse\)\.replace\(\s*"\{prix\}",\s*prixAffiche\(montantLivraisonChoisie \?\? 0, locale\)/);
 });

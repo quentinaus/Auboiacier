@@ -7,10 +7,9 @@ import {
   deltaBois,
   getProduct,
   poidsColisKg,
+  prixParOutil,
   productLocalise,
-  remiseLot,
   resolveSelection,
-  supplementRemplissage,
   surfaceM2,
   surfaceTailleM2,
   type Famille,
@@ -30,8 +29,11 @@ import { ENTREPRISE } from "./entreprise.ts";
  *  un document qui dit exactement ce qu'il commande — la pièce, ses cotes,
  *  ses matières, sa livraison — et ce qu'il paiera. Tout est recalculé ici,
  *  côté serveur, avec les mêmes fonctions que le paiement (resolveSelection,
- *  poidsColisKg, remiseLot) : le devis ne peut pas dire autre chose que le
- *  panier.
+ *  poidsColisKg) : le devis ne peut pas dire autre chose que le panier.
+ *
+ *  Le garde-corps de fenêtre n'est pas ici : son devis est celui de l'outil
+ *  de plans (src/lib/garde-corps-outil/devis-site.ts), composé sur le
+ *  serveur avec ses prix.
  *
  *  Chaque famille de pièce a ses propres lignes de caractéristiques : on ne
  *  parle pas d'épaisseur de plateau pour une chaise, ni de puissance pour
@@ -59,9 +61,11 @@ export type LigneDevis = {
 /**
  * Comment le prix d'une pièce se répartit entre ses postes, en centièmes —
  * ce que le devis détaille ligne par ligne. Les écarts d'option (essence,
- * teinte, velours, verre) s'ajoutent au poste concerné, le reste du prix se
+ * teinte, velours) s'ajoutent au poste concerné, le reste du prix se
  * partage selon ces parts. À AJUSTER par Quentin : ce sont des parts
  * indicatives, la somme des lignes vaut toujours exactement le prix affiché.
+ * Le garde-corps n'est pas ici : ses postes sont ceux de l'outil de plans
+ * (src/lib/garde-corps-outil/devis-site.ts).
  */
 type Poste =
   | "plateau"
@@ -77,12 +81,12 @@ type Poste =
   | "toile"
   | "led"
   | "fixations"
-  | "mainCourante"
   | "limon"
   | "marches"
   | "gardeCorps"
   | "pose";
-const POSTES: Record<Famille, { poste: Poste; part: number }[]> = {
+type FamilleDevis = Exclude<Famille, "garde-corps">;
+const POSTES: Record<FamilleDevis, { poste: Poste; part: number }[]> = {
   "table-interieur": [
     { poste: "plateau", part: 44 },
     { poste: "pietement", part: 33 },
@@ -115,12 +119,6 @@ const POSTES: Record<Famille, { poste: Poste; part: number }[]> = {
     { poste: "led", part: 30 },
     { poste: "fixations", part: 10 },
   ],
-  "garde-corps": [
-    { poste: "structure", part: 55 },
-    { poste: "mainCourante", part: 15 },
-    { poste: "peinture", part: 15 },
-    { poste: "fixations", part: 15 },
-  ],
   escalier: [
     { poste: "limon", part: 40 },
     { poste: "marches", part: 25 },
@@ -130,11 +128,10 @@ const POSTES: Record<Famille, { poste: Poste; part: number }[]> = {
   ],
 };
 
-export type LivraisonDevis = {
-  mode: "transporteur" | "pose";
-  codePostal: string;
-  deplacement: Deplacement;
-};
+export type LivraisonDevis =
+  | { mode: "transporteur" | "pose"; codePostal: string; deplacement: Deplacement }
+  /** Retrait à l'atelier, à Saumur, sur rendez-vous : gratuit, pas de ligne, une condition. */
+  | { mode: "retrait" };
 
 export type EntreeDevis = {
   selection: Selection;
@@ -231,11 +228,6 @@ const TEXTES = {
     caisson: "Profondeur du caisson",
     surfaceLumineuse: "Surface lumineuse",
     pose: "Pose",
-    largeurTableau: "Largeur entre tableaux",
-    hauteurGc: "Hauteur du garde-corps",
-    remplissage: "Remplissage",
-    rosace: "Rosace",
-    mainCourante: "Main courante",
     normes: "Normes",
     releve: "Relevé du client",
     forme: "Forme",
@@ -247,8 +239,6 @@ const TEXTES = {
     surMesure: "Sur mesure, à vos cotes",
     catalogue: "Format du catalogue",
     pieceLigne: "{nom} — {options}",
-    lot: "Prix de lot : remise de {taux} % dès {n} pièces dans la même commande",
-    lotLigne: "Prix de lot — remise de {taux} % dès {n} pièces dans la même commande",
     postes: {
       plateau: "Plateau {essence} massif — {dims}, {ep} mm, débité, collé et poncé à l'atelier",
       plateauExt: "Plateau à lattes en chêne traité classe 4 — {dims}, {ep} mm",
@@ -267,11 +257,6 @@ const TEXTES = {
       toile: "Toile tendue blanc diffusant — {m2} m², clipsée dans le cadre",
       led: "Éclairage LED 220 V — {w} W, alimentation comprise",
       fixationsLumiere: "Fixations, câbles de suspension et emballage",
-      structureGc: "Structure acier plein — {dims} mm, croix de Saint-André et rosaces {rosace}, soudure TIG",
-      structureGcVerre: "Structure acier plein — {dims} mm, cadre soudé recevant le verre, soudure TIG",
-      verre: "Panneau de verre feuilleté, à la place des croix",
-      mainCourante: "Main courante {essence} massif 40 mm, finition huile-cire",
-      fixationsGc: "Fixations, notice de pose et emballage",
       limon: "Limon central — tube d'acier de forte section, cintré, soudure TIG",
       marches: "Marches {essence} massif 50 mm — {forme}, finition huile-cire",
       gardeCorps: "Garde-corps — câbles inox tendus, main courante bois cintré",
@@ -283,7 +268,6 @@ const TEXTES = {
     transporteurNote: "Prix estimé selon la ville, le poids et les dimensions, à {km} km de Saumur.",
     poseLigne: "Livraison et pose par l'atelier — {commune} ({cp})",
     poseDetail: "Un seul déplacement depuis Saumur ({km} km) : livraison, montage et mise à niveau sur place, par nos soins.",
-    poseDetailGc: "Un seul déplacement depuis Saumur ({km} km) : livraison et encastrement dans le tableau de la fenêtre, par nos soins.",
     poseDetailLumiere: "Un seul déplacement depuis Saumur ({km} km) : livraison, fixation et raccordement du plafond lumineux, par nos soins.",
     sansLivraison: "Livraison en France métropolitaine comprise, fixations et notice de pose fournies.",
     delaiInconnu: "Sur commande",
@@ -298,6 +282,7 @@ const TEXTES = {
       transporteur:
         "Livraison sur rendez-vous, au pied du camion, sans montage. Le prix de transport est estimé à la commande d'après le poids, les dimensions et la distance.",
       pose: "Livraison et pose sur rendez-vous, en un seul déplacement ; l'accès et l'emplacement doivent être dégagés le jour convenu.",
+      retrait: "Pièce à retirer à l'atelier, à Saumur, sur rendez-vous.",
       retractation:
         "Pièce fabriquée aux spécifications du client : le droit de rétractation de quatorze jours ne s'applique pas (art. L221-28 3° du code de la consommation).",
       garantie:
@@ -333,11 +318,6 @@ const TEXTES = {
     caisson: "Box depth",
     surfaceLumineuse: "Lit area",
     pose: "Installation",
-    largeurTableau: "Width between reveals",
-    hauteurGc: "Railing height",
-    remplissage: "Infill",
-    rosace: "Rosette",
-    mainCourante: "Handrail",
     normes: "Standards",
     releve: "Customer's survey",
     forme: "Shape",
@@ -349,8 +329,6 @@ const TEXTES = {
     surMesure: "Made to your dimensions",
     catalogue: "Catalogue size",
     pieceLigne: "{nom} — {options}",
-    lot: "Batch price: {taux}% off from {n} pieces in the same order",
-    lotLigne: "Batch price — {taux}% off from {n} pieces in the same order",
     postes: {
       plateau: "Solid {essence} top — {dims}, {ep} mm, cut, glued and sanded in the workshop",
       plateauExt: "Slatted top in class-4 treated oak — {dims}, {ep} mm",
@@ -369,11 +347,6 @@ const TEXTES = {
       toile: "Stretched white diffusing membrane — {m2} m², clipped into the frame",
       led: "220 V LED lighting — {w} W, power supply included",
       fixationsLumiere: "Fixings, suspension cables and packaging",
-      structureGc: "Solid steel structure — {dims} mm, Saint Andrew's crosses and {rosace} rosettes, TIG welded",
-      structureGcVerre: "Solid steel structure — {dims} mm, welded frame holding the glass, TIG welded",
-      verre: "Laminated glass panel, in place of the crosses",
-      mainCourante: "Solid {essence} handrail, 40 mm, hardwax-oil finish",
-      fixationsGc: "Fixings, fitting notes and packaging",
       limon: "Central stringer — heavy-section steel tube, bent, TIG welded",
       marches: "Solid {essence} treads, 50 mm — {forme}, hardwax-oil finish",
       gardeCorps: "Balustrade — tensioned stainless cables, bent wooden handrail",
@@ -385,7 +358,6 @@ const TEXTES = {
     transporteurNote: "Price estimated from the town, weight and dimensions, {km} km from Saumur.",
     poseLigne: "Delivery and installation by the workshop — {commune} ({cp})",
     poseDetail: "A single trip from Saumur ({km} km): delivery, assembly and levelling on site, by us.",
-    poseDetailGc: "A single trip from Saumur ({km} km): delivery and fitting into the window reveal, by us.",
     poseDetailLumiere: "A single trip from Saumur ({km} km): delivery, fixing and wiring of the light ceiling, by us.",
     sansLivraison: "Delivery within mainland France included, fixings and fitting notes supplied.",
     delaiInconnu: "Made to order",
@@ -400,6 +372,7 @@ const TEXTES = {
       transporteur:
         "Kerbside delivery by appointment, without assembly. The shipping price is estimated at order from weight, dimensions and distance.",
       pose: "Delivery and installation by appointment, in a single trip; access and location must be clear on the agreed day.",
+      retrait: "Piece to be collected from the workshop in Saumur, by appointment.",
       retractation:
         "Piece made to the customer's specifications: the fourteen-day right of withdrawal does not apply (art. L221-28 3° of the French Consumer Code).",
       garantie:
@@ -467,7 +440,13 @@ function empreinte(texte: string) {
  * Deux téléchargements du même devis le même jour portent le même numéro ;
  * changer une cote, une essence ou la ville en donne un autre.
  */
-export function numeroDevis(entree: Pick<EntreeDevis, "selection" | "quantity" | "livraison" | "hauteurTableMm" | "date">) {
+export function numeroDevis(entree: {
+  selection: Selection;
+  quantity: number;
+  livraison?: { mode: string; codePostal?: string } | null;
+  hauteurTableMm?: number;
+  date: Date;
+}) {
   const s = entree.selection;
   const cle = [
     s.slug,
@@ -483,6 +462,9 @@ export function numeroDevis(entree: Pick<EntreeDevis, "selection" | "quantity" |
     entree.quantity,
     entree.livraison?.mode,
     entree.livraison?.codePostal,
+    // Le relevé d'un garde-corps : une autre fenêtre, un autre devis. Absent
+    // pour les autres pièces, dont les numéros ne changent donc pas.
+    ...(s.allegeMm !== undefined ? [s.allegeMm, s.enEtage ? "etage" : "rdc", s.fenetreMm, ...(s.modeleGc ? [s.modeleGc] : [])] : []),
   ]
     .map((v) => v ?? "-")
     .join("|");
@@ -656,37 +638,6 @@ function caracteristiquesLumiere(p: Pieces, entree: EntreeDevis): Caracteristiqu
   return lignes;
 }
 
-function caracteristiquesGardeCorps(p: Pieces, entree: EntreeDevis): Caracteristique[] {
-  const { product, size, wood, metal, fabric, remplissage } = p;
-  const locale = entree.locale;
-  const t = TEXTES[locale];
-  const dims = size.dimsMm;
-  const lignes: Caracteristique[] = [];
-  if (dims) {
-    lignes.push({ label: t.largeurTableau, value: `${nombre(dims[0], locale)} mm` });
-    lignes.push({ label: t.hauteurGc, value: `${nombre(dims[1], locale)} mm` });
-  }
-  if (remplissage) lignes.push({ label: t.remplissage, value: remplissage.label });
-  // La rosace n'existe qu'avec les croix : derrière un verre, elle n'a pas de sens.
-  if (fabric && remplissage?.id !== "verre") lignes.push({ label: t.rosace, value: fabric.label });
-  lignes.push({
-    label: t.structure,
-    value: [spec(product, /^(Structure|Frame)$/), metal ? `${t.teinte.toLowerCase()} ${metal.label.toLowerCase()}` : null]
-      .filter(Boolean)
-      .join(" — "),
-  });
-  lignes.push({
-    label: t.mainCourante,
-    value: [wood?.label, locale === "en" ? "solid, 40 mm" : "massif, 40 mm", t.huileCire.toLowerCase()].filter(Boolean).join(", "),
-  });
-  const pose = spec(product, /^(Pose|Installation)$/);
-  if (pose) lignes.push({ label: t.pose, value: pose });
-  const normes = spec(product, /^(Normes|Standards)$/);
-  if (normes) lignes.push({ label: t.normes, value: normes });
-  if (entree.note) lignes.push({ label: t.releve, value: entree.note });
-  return lignes;
-}
-
 function caracteristiquesEscalier(p: Pieces, entree: EntreeDevis): Caracteristique[] {
   const { product, size, wood, metal } = p;
   const locale = entree.locale;
@@ -724,7 +675,8 @@ function caracteristiques(p: Pieces, entree: EntreeDevis): Caracteristique[] {
     case "plafond":
       return caracteristiquesLumiere(p, entree);
     case "garde-corps":
-      return caracteristiquesGardeCorps(p, entree);
+      // Son devis est celui de l'outil de plans (garde-corps-outil/devis-site.ts).
+      throw new Error("devis du garde-corps : composé par l'outil de plans, sur le serveur");
     case "escalier":
       return caracteristiquesEscalier(p, entree);
   }
@@ -753,7 +705,8 @@ function postesDeLaPiece(
   unitPrice: number,
   locale: Locale
 ): { designation: string; details: string[]; unitaire: number }[] {
-  const { product, size, wood, metal, fabric, remplissage } = p;
+  const { product, size, wood, metal, fabric } = p;
+  if (product.famille === "garde-corps") throw new Error("devis du garde-corps : composé par l'outil de plans, sur le serveur");
   const t = TEXTES[locale];
   const tp = t.postes;
   const rond = product.surMesure?.forme === "rond";
@@ -765,12 +718,11 @@ function postesDeLaPiece(
   const ecartBois = deltaBois(product, wood, surfaceTailleM2(size, L, W));
   const ecartMetal = metal?.priceDelta ?? 0;
   const ecartTissu = fabric?.priceDelta ?? 0;
-  const verre = remplissage && surMesure && remplissage.id !== product.remplissages?.[0]?.id ? supplementRemplissage(remplissage, L, W) : 0;
   // Un écart positif (noyer, laiton) s'ajoute à son poste ; un écart négatif
   // (pin, hêtre) reste dans la base et fait baisser tous les postes : ôté
-  // d'un seul, la main courante d'un petit garde-corps passait sous zéro.
+  // d'un seul, un petit poste passait sous zéro.
   const positif = (n: number) => Math.max(0, n);
-  const base = unitPrice - positif(ecartBois) - positif(ecartMetal) - positif(ecartTissu) - verre;
+  const base = unitPrice - positif(ecartBois) - positif(ecartMetal) - positif(ecartTissu);
 
   const parts = POSTES[product.famille];
   const montants = parts.map(({ part }) => Math.round((base * part) / 100));
@@ -810,15 +762,7 @@ function postesDeLaPiece(
       case "visserie":
         return { designation: tp.visserie, ecart: 0 };
       case "structure":
-        return product.famille === "garde-corps"
-          ? {
-              designation:
-                remplissage?.id === "verre"
-                  ? remplir(tp.structureGcVerre, { dims: `${nombre(L, locale)} × ${nombre(W, locale)}` })
-                  : remplir(tp.structureGc, { dims: `${nombre(L, locale)} × ${nombre(W, locale)}`, rosace: fabric?.label.toLowerCase() ?? "" }),
-              ecart: ecartTissu,
-            }
-          : { designation: product.famille === "chaise-exterieur" ? tp.structureFauteuil : tp.structureChaise, ecart: 0 };
+        return { designation: product.famille === "chaise-exterieur" ? tp.structureFauteuil : tp.structureChaise, ecart: 0 };
       case "assise":
         return { designation: remplir(tp.assise, { coloris: fabric?.label ?? "" }), ecart: ecartTissu };
       case "coussins":
@@ -835,9 +779,7 @@ function postesDeLaPiece(
       case "led":
         return { designation: remplir(tp.led, { w: nombre(watts, locale) }), ecart: 0 };
       case "fixations":
-        return { designation: product.famille === "garde-corps" ? tp.fixationsGc : tp.fixationsLumiere, ecart: 0 };
-      case "mainCourante":
-        return { designation: remplir(tp.mainCourante, { essence }), ecart: ecartBois };
+        return { designation: tp.fixationsLumiere, ecart: 0 };
       case "limon":
         return { designation: tp.limon, ecart: 0 };
       case "marches":
@@ -849,13 +791,10 @@ function postesDeLaPiece(
     }
   };
 
-  const lignes = parts.map(({ poste }, i) => {
+  return parts.map(({ poste }, i) => {
     const { designation, ecart } = libelle(poste);
     return { designation, details: [], unitaire: montants[i] + positif(ecart) };
   });
-  // Le verre feuilleté d'un garde-corps : un supplément, sur sa propre ligne.
-  if (verre > 0) lignes.push({ designation: tp.verre, details: [], unitaire: verre });
-  return lignes;
 }
 
 /* ------------------------------------------------------------------ *
@@ -900,6 +839,8 @@ export function emetteurDevis(locale: Locale) {
 export function composerDevis(entree: EntreeDevis): ResultatDevis {
   const brut = getProduct(entree.selection.slug);
   if (!brut) return { ok: false, reason: "unknown_slug" };
+  // Le garde-corps : le devis de l'outil de plans, composé sur le serveur avec ses prix.
+  if (prixParOutil(brut)) return { ok: false, reason: "prix_serveur" };
   const locale = entree.locale;
   const t = TEXTES[locale];
   const product = productLocalise(brut, locale);
@@ -934,9 +875,6 @@ export function composerDevis(entree: EntreeDevis): ResultatDevis {
     .join(" · ");
   const pieces: Pieces = { product, size, wood, metal, fabric, remplissage };
 
-  // Le prix de lot d'un garde-corps, exactement comme au panier.
-  const [avecLot] = remiseLot([{ product, unitPrice: ligne.unitPrice, quantity }]);
-
   // La pièce, poste par poste : la somme des lignes vaut son prix unitaire.
   const lignes: LigneDevis[] = [
     {
@@ -953,30 +891,15 @@ export function composerDevis(entree: EntreeDevis): ResultatDevis {
       total: poste.unitaire * quantity,
     })),
   ];
-  if (avecLot.remise > 0 && product.remiseLot) {
-    const remise = avecLot.prixLot - ligne.unitPrice;
-    lignes.push({
-      designation: remplir(t.lotLigne, { taux: Math.round(product.remiseLot.taux * 100), n: product.remiseLot.desPieces }),
-      details: [],
-      quantite: quantity,
-      unitaire: remise,
-      total: remise * quantity,
-    });
-  }
-
-  // La livraison : par transporteur (au poids du colis) ou avec la pose.
+  // La livraison : par transporteur (au poids du colis) ou avec la pose. Le
+  // retrait à l'atelier n'a pas de ligne (il est gratuit) : une condition le dit.
   const livraison = entree.livraison;
-  if (livraison) {
+  if (livraison && livraison.mode !== "retrait") {
     const d = livraison.deplacement;
     const km = nombre(Math.round(d.distanceKm), locale);
     const montant = d.montantCents / 100;
     if (livraison.mode === "pose") {
-      const detail =
-        product.famille === "garde-corps"
-          ? t.poseDetailGc
-          : product.category === "lumiere"
-            ? t.poseDetailLumiere
-            : t.poseDetail;
+      const detail = product.category === "lumiere" ? t.poseDetailLumiere : t.poseDetail;
       lignes.push({
         designation: remplir(t.poseLigne, { commune: d.commune, cp: livraison.codePostal }),
         details: [remplir(detail, { km })],
@@ -1004,7 +927,7 @@ export function composerDevis(entree: EntreeDevis): ResultatDevis {
         total: montant,
       });
     }
-  } else if (!estimation && !product.poseOption) {
+  } else if (!livraison && !estimation && !product.poseOption) {
     lignes[0].details.push(t.sansLivraison);
   }
 
@@ -1020,7 +943,7 @@ export function composerDevis(entree: EntreeDevis): ResultatDevis {
         c.validite,
         c.paiement,
         c.delai,
-        ...(livraison ? [livraison.mode === "pose" ? c.pose : c.transporteur] : []),
+        ...(livraison ? [livraison.mode === "pose" ? c.pose : livraison.mode === "retrait" ? c.retrait : c.transporteur] : []),
         c.retractation,
         c.garantie,
         c.cgv,

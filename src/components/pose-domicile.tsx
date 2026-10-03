@@ -1,29 +1,41 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import type { Deplacement } from "@/lib/deplacement";
+import type { Deplacement, ModeLivraison } from "@/lib/deplacement";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { prixAffiche } from "@/lib/ui";
 
 /**
- * Le choix « livraison par transporteur » ou « l'atelier livre et pose », sur
- * la fiche d'une table. Les deux se paient selon le code postal : dès qu'il
- * est complet, le serveur (/api/deplacement?pour=livraison|pose) renvoie le
- * prix — la livraison compte aussi le colis (cotes du plateau) — et le
- * parent ajoute la ligne correspondante au panier avec la pièce. Le
- * navigateur ne calcule jamais un montant : /api/commande refait le calcul.
+ * Comment recevoir la pièce, sur sa fiche : livraison par transporteur,
+ * livraison et pose par l'atelier, ou retrait à l'atelier (à Saumur, sur
+ * rendez-vous, gratuit — décision de Quentin du 29/09). Le transporteur et
+ * la pose se paient selon le code postal : dès qu'il est complet, le serveur
+ * (/api/deplacement?pour=livraison|pose) renvoie le prix — la livraison
+ * compte aussi le colis — et le parent ajoute la ligne correspondante au
+ * panier avec la pièce. Le navigateur ne calcule jamais un montant : le
+ * panier et /api/commande refont le calcul (src/lib/tarif-panier.ts).
  */
 export type ChoixPose = {
-  /** true : l'atelier livre et pose ; false : livraison par transporteur. */
-  voulue: boolean;
+  mode: ModeLivraison;
   codePostal: string;
-  /** La réponse du serveur pour ce code postal et ce choix, ou null tant qu'elle manque. */
+  /** La réponse du serveur pour ce code postal et ce choix, ou null tant qu'elle manque (et pour le retrait). */
   deplacement: Deplacement | null;
 };
 
-export const POSE_INITIALE: ChoixPose = { voulue: false, codePostal: "", deplacement: null };
+export const POSE_INITIALE: ChoixPose = { mode: "transporteur", codePostal: "", deplacement: null };
 
-type Etat = "attente" | "calcul" | "ok" | "invalide" | "hors" | "loin" | "erreur";
+/** Le choix est complet : un prix connu, ou le retrait à l'atelier. */
+export function livraisonPrete(choix: ChoixPose): boolean {
+  return choix.mode === "retrait" || choix.deplacement !== null;
+}
+
+/** Ce que coûte ce choix, en euros (0 pour le retrait), ou null tant que le prix manque. */
+export function montantLivraison(choix: ChoixPose): number | null {
+  if (choix.mode === "retrait") return 0;
+  return choix.deplacement ? choix.deplacement.montantCents / 100 : null;
+}
+
+type Etat = "attente" | "calcul" | "ok" | "invalide" | "hors" | "loin" | "erreur" | "piece";
 
 /** Au-delà, on suggère la pose par l'atelier plutôt que le seul transporteur — même repère que le supplément hors gabarit. */
 const KG_SUGGERE_POSE = 30;
@@ -59,20 +71,17 @@ export function PoseDomicile({
   onChange: (choix: ChoixPose) => void;
   /**
    * La pièce est trop encombrante pour un transporteur : la pose par
-   * l'atelier est le seul mode de livraison possible. On n'affiche alors pas
-   * un choix qui n'en est pas un.
+   * l'atelier (ou le retrait à l'atelier) est la seule façon de la recevoir.
+   * On n'affiche alors pas un choix qui n'en est pas un.
    */
   poseSeule?: boolean;
-  /** La pièce, ses cotes, son essence, son remplissage et sa quantité : le serveur en déduit le vrai poids du colis (livraison seule). */
-  colis: {
-    slug: string;
-    largeurMm?: number;
-    hauteurMm?: number;
-    epaisseurMm?: number;
-    woodId?: string;
-    remplissageId?: string;
-    quantity?: number;
-  };
+  /**
+   * La pièce, telle que /api/deplacement la pèse (livraison par
+   * transporteur) : les paramètres de l'adresse (slug, cotes ou relevé,
+   * essence, remplissage, quantité). null : la pièce n'a pas encore de prix
+   * (cotes incomplètes, garde-corps à étudier), le colis ne se pèse pas.
+   */
+  colis: string | null;
   /** Une table part démontée ; une autre pièce arrive prête à poser. */
   demontee?: boolean;
   /** La pièce ne se pose pas : pas de choix, la livraison par transporteur est la seule façon. */
@@ -88,7 +97,7 @@ export function PoseDomicile({
   const idCp = useId();
   const [reponse, setReponse] = useState<{
     cp: string;
-    voulue: boolean;
+    mode: ModeLivraison;
     etat: Etat;
     commune?: string;
     distanceKm?: number;
@@ -96,30 +105,33 @@ export function PoseDomicile({
 
   const codePostal = choix.codePostal.replace(/\s+/g, "");
   const cpComplet = /^\d{5}$/.test(codePostal);
-  const cleColis = `${colis.slug}:${colis.largeurMm ?? ""}x${colis.hauteurMm ?? ""}x${colis.epaisseurMm ?? ""}:${colis.woodId ?? ""}:${colis.remplissageId ?? ""}:${colis.quantity ?? 1}`;
+  const pose = choix.mode === "pose";
+  const retrait = choix.mode === "retrait";
+  /** Le transporteur a besoin du colis ; la pose et le retrait, non. */
+  const colisManquant = choix.mode === "transporteur" && colis === null;
 
   /* Le prix, demandé au serveur dès qu'un code postal complet est tapé, et
-     redemandé si le choix ou les cotes changent. Une réponse en retard pour
-     un autre code postal est ignorée. */
+     redemandé si le choix ou le colis changent. Une réponse en retard pour
+     un autre code postal est ignorée. Le retrait ne coûte rien : rien à demander. */
   useEffect(() => {
-    if (!cpComplet) return;
+    if (!cpComplet || retrait || colisManquant) return;
     let annule = false;
     const minuteur = setTimeout(() => {
-      setReponse({ cp: codePostal, voulue: choix.voulue, etat: "calcul" });
-      const requete = choix.voulue
+      setReponse({ cp: codePostal, mode: choix.mode, etat: "calcul" });
+      const requete = pose
         ? `/api/deplacement?cp=${codePostal}&pour=pose`
-        : `/api/deplacement?cp=${codePostal}&pour=livraison&slug=${encodeURIComponent(colis.slug)}${colis.largeurMm ? `&l=${colis.largeurMm}` : ""}${colis.hauteurMm ? `&w=${colis.hauteurMm}` : ""}${colis.epaisseurMm ? `&t=${colis.epaisseurMm}` : ""}${colis.woodId ? `&wood=${encodeURIComponent(colis.woodId)}` : ""}${colis.remplissageId ? `&remplissage=${encodeURIComponent(colis.remplissageId)}` : ""}&qty=${colis.quantity ?? 1}`;
+        : `/api/deplacement?cp=${codePostal}&pour=livraison&${colis}`;
       fetch(requete)
         .then(async (r) => {
           const json = await r.json().catch(() => ({}));
           if (annule) return;
           if (r.ok) {
-            setReponse({ cp: codePostal, voulue: choix.voulue, etat: "ok" });
+            setReponse({ cp: codePostal, mode: choix.mode, etat: "ok" });
             onChange({ ...choix, deplacement: json as Deplacement });
           } else {
             setReponse({
               cp: codePostal,
-              voulue: choix.voulue,
+              mode: choix.mode,
               etat:
                 json.error === "hors_metropole"
                   ? "hors"
@@ -135,7 +147,7 @@ export function PoseDomicile({
           }
         })
         .catch(() => {
-          if (!annule) setReponse({ cp: codePostal, voulue: choix.voulue, etat: "erreur" });
+          if (!annule) setReponse({ cp: codePostal, mode: choix.mode, etat: "erreur" });
         });
     }, 350);
     return () => {
@@ -144,52 +156,68 @@ export function PoseDomicile({
     };
     // Seuls le code postal, le choix et le colis déclenchent le calcul.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [codePostal, cpComplet, choix.voulue, cleColis]);
+  }, [codePostal, cpComplet, choix.mode, colis]);
 
-  const etat: Etat = !cpComplet
-    ? codePostal
-      ? "invalide"
-      : "attente"
-    : reponse?.cp === codePostal && reponse.voulue === choix.voulue
-      ? reponse.etat
-      : "calcul";
+  const etat: Etat = colisManquant
+    ? "piece"
+    : !cpComplet
+      ? codePostal
+        ? "invalide"
+        : "attente"
+      : reponse?.cp === codePostal && reponse.mode === choix.mode
+        ? reponse.etat
+        : "calcul";
 
   const dep = choix.deplacement;
   const message =
-    etat === "attente"
-      ? t.poseAttente
-      : etat === "calcul"
-        ? t.poseCalcul
-        : etat === "invalide"
-          ? t.poseInvalide
-          : etat === "hors"
-            ? choix.voulue
-              ? t.poseHors
-              : t.livraisonHors
-            : etat === "loin"
-              ? t.poseLoin.replace("{commune}", reponse?.commune ?? "").replace("{km}", String(reponse?.distanceKm ?? ""))
-              : etat === "erreur"
-                ? t.poseErreur
-                : dep
-                  ? (choix.voulue ? t.posePrix : t.livraisonPrix)
-                      .replace("{commune}", dep.commune)
-                      .replace("{prix}", prixAffiche(dep.montantCents / 100, locale))
-                      .replace("{kg}", String(dep.kg ?? ""))
-                  : t.poseCalcul;
+    etat === "piece"
+      ? t.livraisonAttentePiece
+      : etat === "attente"
+        ? t.poseAttente
+        : etat === "calcul"
+          ? t.poseCalcul
+          : etat === "invalide"
+            ? t.poseInvalide
+            : etat === "hors"
+              ? pose
+                ? t.poseHors
+                : t.livraisonHors
+              : etat === "loin"
+                ? t.poseLoin.replace("{commune}", reponse?.commune ?? "").replace("{km}", String(reponse?.distanceKm ?? ""))
+                : etat === "erreur"
+                  ? t.poseErreur
+                  : dep
+                    ? (pose ? t.posePrix : t.livraisonPrix)
+                        .replace("{commune}", dep.commune)
+                        .replace("{prix}", prixAffiche(dep.montantCents / 100, locale))
+                        .replace("{kg}", String(dep.kg ?? ""))
+                    : t.poseCalcul;
+
+  /** Les façons de recevoir cette pièce : le retrait à l'atelier est toujours possible. */
+  const modes: ModeLivraison[] = [
+    ...(poseSeule ? [] : (["transporteur"] as const)),
+    ...(livraisonSeule ? [] : (["pose"] as const)),
+    "retrait",
+  ];
+  const titreMode = (mode: ModeLivraison) => (mode === "transporteur" ? t.poseSeul : mode === "pose" ? t.poseAtelier : t.poseRetrait);
+  const courtMode = (mode: ModeLivraison) => (mode === "transporteur" ? t.poseSeulCourt : mode === "pose" ? t.poseAtelierCourt : t.poseRetraitCourt);
 
   /**
    * Une carte par façon de livrer : le titre et une ligne, rien de plus. Le
-   * détail de l'option retenue se lit une fois, sous les deux cartes — deux
+   * détail de l'option retenue se lit une fois, sous les cartes — des
    * paragraphes côte à côte faisaient un bloc de texte que personne ne lisait.
    */
-  const carte = (voulue: boolean, titre: string, court: string) => {
-    const active = choix.voulue === voulue;
+  const carte = (mode: ModeLivraison) => {
+    const active = choix.mode === mode;
+    const titre = titreMode(mode);
+    const court = courtMode(mode);
     return (
       <button
+        key={mode}
         type="button"
         role="radio"
         aria-checked={active}
-        onClick={() => onChange({ ...choix, voulue, deplacement: null })}
+        onClick={() => onChange({ ...choix, mode, deplacement: null })}
         className={`flex flex-1 items-start gap-3 rounded-2xl border px-4 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${compact ? "py-2.5" : "py-3.5"} ${
           active ? "border-[#2b2320] bg-white" : "border-[#e5ddd3] bg-transparent hover:border-[#9a8d80]"
         }`}
@@ -221,56 +249,35 @@ export function PoseDomicile({
       <span id={idGroupe} className={compact ? "sr-only" : "block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]"}>
         {livraisonSeule ? t.livraisonTitle : t.poseTitle}
       </span>
-      {/* Une pièce qui ne se pose pas (une chaise) n'a rien à choisir : on
-          saute le radiogroup à deux cartes, il n'y a qu'une façon de la
-          recevoir. */}
-      {/* Pas de choix à offrir quand il n'y en a pas — mais on garde la MÊME
-          carte, pleine et cochée, plutôt qu'une ligne de texte perdue. Passer
-          de deux grands blocs à trois mots donnait l'impression que quelque
-          chose s'était cassé ; là, on voit ce qui a été décidé, et pourquoi. */}
-      {poseSeule && !livraisonSeule && (
-        <div className={compact ? "flex" : "mt-3 flex"}>
-          <div
-            className={`flex flex-1 items-start gap-3 rounded-2xl border border-[#2b2320] bg-white px-4 ${compact ? "py-2.5" : "py-3.5"}`}
-          >
-            <span
-              aria-hidden="true"
-              className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-[#2b2320]"
-            >
-              <span className="h-2 w-2 rounded-full bg-[#2b2320]" />
-            </span>
-            <span className="min-w-0">
-              <span className="block text-sm font-medium leading-snug text-[#2b2320]">
-                {t.poseAtelier}
-              </span>
-              {/* La raison reste affichée même en mode serré : c'est elle qui
-                  explique la disparition du choix. */}
-              <span className="mt-1 block text-xs leading-snug text-[#6f6357]">
-                {t.poseObligatoire}
-              </span>
-            </span>
-          </div>
-        </div>
-      )}
-      {!livraisonSeule && !poseSeule && (
-        <div role="radiogroup" aria-labelledby={idGroupe} className={compact ? "flex flex-col gap-2 sm:flex-row" : "mt-3 flex flex-col gap-2 sm:flex-row"}>
-          {carte(false, t.poseSeul, t.poseSeulCourt)}
-          {carte(true, t.poseAtelier, t.poseAtelierCourt)}
-        </div>
-      )}
+      {/* Les façons de recevoir la pièce, une carte chacune : le retrait à
+          l'atelier est toujours là. Une pièce trop encombrante pour un
+          transporteur ne le propose pas, une chaise ne propose pas la pose. */}
+      <div
+        role="radiogroup"
+        aria-labelledby={idGroupe}
+        /* Trois cartes côte à côte ne tiennent pas dans la carte du configurateur : l'une sous l'autre. */
+        className={`flex flex-col gap-2 ${modes.length < 3 ? "sm:flex-row" : ""} ${compact ? "" : "mt-3"}`}
+      >
+        {modes.map((mode) => carte(mode))}
+      </div>
+      {/* Pourquoi le transporteur a disparu : la raison reste affichée même en mode serré. */}
+      {poseSeule && !livraisonSeule && <p className="mt-2 text-xs leading-snug text-[#6f6357]">{t.poseObligatoire}</p>}
       {/* Ce que l'option retenue veut dire, une fois. */}
-      {!compact && (
+      {(!compact || retrait) && (
       <p className="mt-3 text-xs leading-relaxed text-[#6f6357]">
-        {livraisonSeule
-          ? (infoSeul ?? t.poseSeulInfoPiece)
-          : choix.voulue
-            ? t.poseAtelierInfo
-            : demontee
-              ? t.poseSeulInfo
-              : t.poseSeulInfoPiece}
+        {retrait
+          ? t.poseRetraitInfo
+          : livraisonSeule
+            ? (infoSeul ?? t.poseSeulInfoPiece)
+            : pose
+              ? t.poseAtelierInfo
+              : demontee
+                ? t.poseSeulInfo
+                : t.poseSeulInfoPiece}
       </p>
       )}
 
+      {!retrait && (
       <div className={compact ? "mt-3" : "mt-4"}>
         <label htmlFor={idCp} className="flex items-center justify-between gap-4">
           <span className="text-[15px] text-[#2b2320]">{t.poseCodePostal}</span>
@@ -304,10 +311,11 @@ export function PoseDomicile({
         {/* Une pièce lourde ou encombrante coûte cher — voire refuse — en
             simple colis : on le dit tout de suite, pas seulement au moment
             de payer. */}
-        {etat === "ok" && !choix.voulue && (dep?.kg ?? 0) > KG_SUGGERE_POSE && (
+        {etat === "ok" && choix.mode === "transporteur" && (dep?.kg ?? 0) > KG_SUGGERE_POSE && !livraisonSeule && (
           <p className="mt-1.5 text-xs leading-relaxed text-[#9a5b3f]">{t.livraisonLourd}</p>
         )}
       </div>
+      )}
     </div>
   );
 }

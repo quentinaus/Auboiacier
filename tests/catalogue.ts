@@ -9,8 +9,8 @@
  * de Quentin bougeront ; les règles de vente, non.
  */
 import {
+  prixParOutil,
   products,
-  remplissageConforme,
   SUR_MESURE,
   type Product,
   type Selection,
@@ -20,8 +20,16 @@ import {
 /** Une sélection d'options, sans le produit : ce que l'acheteur choisit. */
 export type Options = Omit<Selection, "slug">;
 
-/** Les produits réellement achetables en ligne. */
-export const achetables = products.filter((p) => p.orderMode === "cart");
+/**
+ * Les produits achetables en ligne dont le prix se calcule dans le navigateur
+ * comme sur le serveur (le catalogue). Le garde-corps de fenêtre n'y est pas :
+ * son prix vient de l'outil de plans, sur le serveur seulement — ses règles
+ * sont vérifiées à part (prix-garde-corps.test.ts, garde-corps.test.ts).
+ */
+export const achetables = products.filter((p) => p.orderMode === "cart" && !prixParOutil(p));
+
+/** Les produits chiffrés par l'outil de plans (le garde-corps de fenêtre). */
+export const parLOutil = products.filter((p) => p.orderMode === "cart" && prixParOutil(p));
 
 /** Les produits fabriqués aux cotes du client. */
 export const surMesurables = products.filter((p) => p.surMesure);
@@ -51,8 +59,8 @@ export const sansSurMesure = achetables.find((p) => !p.surMesure);
 
 /**
  * Les « tailles » qu'on peut choisir sur un produit : celles du catalogue, ou,
- * pour une pièce qui n'en a aucune (le garde-corps, tout au barème), la pièce
- * sur mesure à ses cotes de départ. Chacune est un morceau de sélection.
+ * pour une pièce qui n'en a aucune, la pièce sur mesure à ses cotes de départ.
+ * Chacune est un morceau de sélection.
  */
 export function taillesChoisissables(product: Product): Partial<Options>[] {
   if (product.sizes.length > 0) return product.sizes.map((size) => ({ sizeId: size.id }));
@@ -69,14 +77,13 @@ export function taillesChoisissables(product: Product): Partial<Options>[] {
 }
 
 /**
- * Les remplissages qu'on peut choisir à cette hauteur : ceux qui respectent
- * la norme. Un produit sans remplissage n'en a qu'un, implicite.
+ * Les remplissages qu'on peut choisir (un garde-corps : les croix ou le
+ * verre). Un produit sans remplissage n'en a qu'un, implicite. La norme,
+ * elle, est l'affaire de l'outil de plans : il ajoute des croix.
  */
-export function remplissagesPour(product: Product, hauteurMm: number | undefined): (string | undefined)[] {
+export function remplissagesPour(product: Product): (string | undefined)[] {
   if (!product.remplissages?.length) return [undefined];
-  return product.remplissages
-    .filter((option) => hauteurMm === undefined || remplissageConforme(option, hauteurMm))
-    .map((option) => option.id);
+  return product.remplissages.map((option) => option.id);
 }
 
 /**
@@ -96,7 +103,7 @@ export function combinaisonsValides(product: Product): Options[] {
     for (const woodId of bois) {
       for (const metalId of pieds) {
         for (const fabricId of velours) {
-          for (const remplissageId of remplissagesPour(product, taille.hauteurMm)) {
+          for (const remplissageId of remplissagesPour(product)) {
             liste.push({ ...taille, woodId, metalId, fabricId, remplissageId });
           }
         }
@@ -121,8 +128,8 @@ export function optionsMoinsCheres(product: Product): Options {
     woodId: moinsCher(product.woods),
     metalId: moinsCher(product.metals),
     fabricId: moinsCher(product.fabrics ?? []),
-    // Le remplissage du modèle (le premier), s'il convient à cette hauteur.
-    remplissageId: remplissagesPour(product, taille?.hauteurMm)[0],
+    // Le remplissage du modèle (le premier).
+    remplissageId: remplissagesPour(product)[0],
   };
 }
 

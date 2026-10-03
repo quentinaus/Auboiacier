@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import { priceFrom, type Product } from "@/lib/products";
+import { essenceDeReference, priceFrom, type Product } from "@/lib/products";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { ProductOptions, aLeConfigurateurPleinePage } from "./product-options";
 import Link from "next/link";
@@ -51,10 +51,13 @@ export function ProductView({
    * elles, restent sur la version noire pour ne pas encombrer la bande.
    */
   const [metalId, setMetalId] = useState(product.metals[0]?.id ?? "");
-  /** L'essence du plateau : la photo se reteinte quand elle change. */
-  const [woodId, setWoodId] = useState(
-    (product.woods.find((w) => !w.priceDelta) ?? product.woods[0])?.id ?? ""
-  );
+  /**
+   * L'essence du plateau : la photo se reteinte quand elle change. Celle de
+   * départ est l'essence de référence, la même règle que ProductOptions : le
+   * garde-corps démarre sur le chêne de la photo (boisParDefaut), pas sur la
+   * première essence sans supplément (le pin, depuis qu'aucune n'en a).
+   */
+  const [woodId, setWoodId] = useState(essenceDeReference(product)?.id ?? "");
   /** Photo choisie en cliquant une vignette. Null = on suit le coloris. */
   const [pickedSrc, setPickedSrc] = useState<string | null>(null);
   /* Pas de plein écran sur la photo : l'atelier l'a retiré (septembre 2026).

@@ -490,12 +490,11 @@ test("le prix montré sur mesure est bien celui qui sera facturé", () => {
       const epaisseurs = [mini, Math.max(mini, bareme.epaisseur.refMm), maxi];
       for (const epaisseur of epaisseurs) {
         const cotes = { ...mesures, epaisseurMm: epaisseur };
-        // À cette hauteur, il faut un remplissage qui respecte la norme.
         const selection = {
           ...options,
           ...cotes,
           sizeId: SUR_MESURE,
-          remplissageId: remplissagesPour(product, mesures.hauteurMm)[0],
+          remplissageId: remplissagesPour(product)[0],
         };
 
         const montre = computeUnitPrice(product, selection);

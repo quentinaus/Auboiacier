@@ -12,6 +12,7 @@ import assert from "node:assert/strict";
 import {
   products,
   computeUnitPrice,
+  prixParOutil,
   resolveSelection,
   priceFrom,
   SUR_MESURE,
@@ -25,11 +26,11 @@ import {
 test("chaque prix du catalogue est un entier d'euros, strictement positif", () => {
   for (const product of products) {
     // Une pièce qu'on met au panier doit avoir un prix : des tailles au
-    // catalogue, ou un barème avec des cotes de départ. Seule une pièce sur
-    // devis a le droit de n'en afficher aucun.
+    // catalogue, un barème avec des cotes de départ, ou l'outil de plans (le
+    // garde-corps). Seule une pièce sur devis a le droit de n'en afficher aucun.
     if (product.orderMode === "cart") {
       assert.ok(
-        product.sizes.length > 0 || product.surMesure?.departMm,
+        product.sizes.length > 0 || product.surMesure?.departMm || prixParOutil(product),
         `${product.slug} : aucune taille ni cotes de départ`
       );
     }

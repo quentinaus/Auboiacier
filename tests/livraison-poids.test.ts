@@ -13,8 +13,18 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { tarifLivraison } from "../src/lib/deplacement.ts";
+import { LIVRAISON, tarifLivraison, type ResultatLieu } from "../src/lib/deplacement.ts";
 import { getProduct, poidsColisKg } from "../src/lib/products.ts";
+import { tarifer } from "../src/lib/tarif-panier.ts";
+import { CALCUL_GC, configurationGC, ligneGC } from "../src/lib/garde-corps-outil/site.ts";
+import { livraisonGC } from "../src/lib/garde-corps-outil/calcul.ts";
+import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
+
+/** Un code postal situé sans réseau : les tests ne dépendent pas de l'annuaire de l'État. */
+const aKm = (distanceKm: number) => async (): Promise<ResultatLieu> => ({ ok: true, lieu: { distanceKm, commune: "Nantes", precision: "adresse" } });
+function chiffrageOuEchec() {
+  if (!chargerChiffrage().ok) assert.fail("Clé du chiffrage absente ou invalide : copier .env.chiffrage.local d'une autre copie du site (jamais par git).");
+}
 
 test("le tarif de livraison monte nettement avec le poids du colis", () => {
   // Une chaise (9 kg) contre cinq (45 kg), même distance : la différence de
@@ -40,15 +50,23 @@ test("un colis long ou lourd paie un supplément hors gabarit", () => {
   assert.ok(lourdEtCourt > standard + 2000, "45 kg devrait aussi déclencher le supplément");
 });
 
-test("le poids d'un garde-corps grandit avec sa hauteur, pas seulement sa largeur", () => {
-  const gc = getProduct("garde-corps")!;
-  // Même largeur (1 200 mm), une allège basse (400 mm) contre une quasi
-  // pleine hauteur (1 200 mm) : le second doit peser nettement plus lourd —
-  // c'est le bug que Quentin a signalé (une largeur de 3 333 mm à 48 € de
-  // livraison, ce qui ignorait tout du reste de la structure).
-  const bas = poidsColisKg(gc, { largeurMm: 1200, hauteurMm: 400, woodId: "chene" });
-  const haut = poidsColisKg(gc, { largeurMm: 1200, hauteurMm: 1200, woodId: "chene" });
-  assert.ok(haut > bas * 1.3, `1 200 mm de haut (${haut} kg) devrait peser nettement plus que 400 mm (${bas} kg)`);
+test("le poids d'un garde-corps est celui de l'outil de plans, et grandit avec sa hauteur", () => {
+  chiffrageOuEchec();
+  // Même largeur (1 200 mm) : une allège haute (650 mm, garde-corps court)
+  // contre une fenêtre au ras du sol (garde-corps de près d'un mètre). Le
+  // second pèse nettement plus lourd — c'est le bug que Quentin avait signalé
+  // (une largeur de 3 333 mm à 48 € de livraison, qui ignorait la structure).
+  const modele = { woodId: "chene", metalId: "noir", fabricId: "fleur", remplissageId: "croix" };
+  const court = ligneGC({ largeurMm: 1200, allegeMm: 650, enEtage: true, fenetreMm: 0 }, modele);
+  const haut = ligneGC({ largeurMm: 1200, allegeMm: 0, enEtage: true, fenetreMm: 0 }, modele);
+  assert.ok(court.ok && haut.ok);
+  assert.ok(haut.line.gc!.kg > court.line.gc!.kg * 1.3, `${haut.line.gc!.kg} kg contre ${court.line.gc!.kg} kg`);
+  // Ce poids-là est exactement celui de l'outil (le débit réel de la pièce).
+  const c = configurationGC({ largeurMm: 1200, allegeMm: 650, enEtage: true, fenetreMm: 0 }, "chene");
+  assert.ok(c?.ok);
+  assert.equal(court.line.gc!.kg, c.kg);
+  // Le catalogue ne pèse pas le garde-corps : il n'en a pas le calcul.
+  assert.throws(() => poidsColisKg(getProduct("garde-corps")!, { largeurMm: 1200, hauteurMm: 400 }));
 });
 
 test("le poids du plateau d'une table suit la densité réelle de l'essence choisie", () => {
@@ -70,35 +88,44 @@ function constante(source: string, nom: string): number {
   return Number(trouve![1].replace(/_/g, ""));
 }
 
-test("/api/commande facture le poids de toutes les pièces livrées, pas d'une seule", () => {
-  const route = new URL("../src/app/api/commande/route.ts", import.meta.url);
-  const source = readFileSync(route, "utf8");
-  const maxQuantite = constante(source, "MAX_QUANTITY");
-
-  // Le poids envoyé à calculerLivraison doit être multiplié par la quantité.
-  assert.match(
-    source,
-    /poidsColisKg\(piece,[\s\S]*?\)\s*\*\s*livraisonQuantite/,
-    "le poids de la livraison doit être multiplié par livraisonQuantite"
-  );
-
-  const trouve = source.match(/const livraisonQuantite = ([\s\S]*?);/);
-  assert.ok(
-    trouve,
-    "le calcul de livraisonQuantite n'a pas été retrouvé dans /api/commande : mets ce test à jour."
-  );
-  const calc = new Function("qty", "MAX_QUANTITY", `return ${trouve![1]};`) as (
-    qty: number,
-    max: number
-  ) => number;
-
-  // Une quantité absente, invalide ou hors bornes retombe sur une seule pièce...
-  for (const brut of [undefined, null, 0, -1, 1.5, "beaucoup", maxQuantite + 1]) {
-    assert.equal(calc(Number(brut), maxQuantite), 1, `${brut} devrait retomber sur 1 pièce`);
+test("la commande facture le poids de TOUTES les pièces livrées, pas d'une seule", async () => {
+  const mikado = getProduct("table-mikado")!;
+  const taille = mikado.sizes[0];
+  const table = (quantity: number) => ({ slug: mikado.slug, sizeId: taille.id, woodId: "chene", metalId: mikado.metals[0].id, quantity });
+  const kgTable = poidsColisKg(mikado, { largeurMm: taille.dimsMm?.[0], hauteurMm: taille.dimsMm?.[1], woodId: "chene" });
+  for (const q of [1, 3]) {
+    const t = await tarifer([table(q), { slug: LIVRAISON, livraisonCp: "44000" }], { locale: "fr", gc: CALCUL_GC, localiser: aKm(120) });
+    assert.equal(t.probleme, null);
+    assert.ok(t.mode?.mode === "transporteur");
+    assert.equal(t.mode.kg, kgTable * q, `${q} tables : le colis pèse ${q} fois une table`);
+    assert.equal(t.mode.deplacement.montantCents, tarifLivraison(120, kgTable * q, Math.max(...taille.dimsMm!)).montantCents);
   }
-  // ...une quantité plausible se retrouve telle quelle.
-  for (const q of [1, 2, 5, maxQuantite]) {
-    assert.equal(calc(Number(q), maxQuantite), q, `${q} devrait rester ${q}`);
+  // Deux lignes différentes (une ancienne livraison ne comptait que la dernière ajoutée) : les deux pèsent.
+  const deux = await tarifer([table(1), { ...table(1), woodId: "pin" }, { slug: LIVRAISON, livraisonCp: "44000" }], { locale: "fr", gc: CALCUL_GC, localiser: aKm(120) });
+  const kgPin = poidsColisKg(mikado, { largeurMm: taille.dimsMm?.[0], hauteurMm: taille.dimsMm?.[1], woodId: "pin" });
+  assert.ok(deux.mode?.mode === "transporteur");
+  assert.equal(deux.mode.kg, kgTable + kgPin);
+});
+
+test("plusieurs garde-corps : la livraison de la commande est exactement celle de l'outil de plans", async () => {
+  chiffrageOuEchec();
+  const releves = [
+    { largeurMm: 1180, allegeMm: 650, enEtage: true, fenetreMm: 1400 },
+    { largeurMm: 900, allegeMm: 300, enEtage: true, fenetreMm: 0 },
+  ];
+  const lignes = releves.map((r, i) => ({ slug: "garde-corps", ...r, woodId: "chene", metalId: "noir", fabricId: "fleur", remplissageId: "croix", quantity: i + 1 }));
+  for (const km of [0, 42.7, 380]) {
+    for (const [slug, mode] of [[LIVRAISON, "transporteur"], ["pose-a-domicile", "pose"]] as const) {
+      const t = await tarifer([...lignes, { slug, livraisonCp: "44000", poseCp: "44000" }], { locale: "fr", gc: CALCUL_GC, localiser: aKm(km) });
+      assert.equal(t.probleme, null);
+      assert.ok(t.mode && t.mode.mode === mode);
+      const outil = livraisonGC(
+        releves.map((r, i) => ({ config: configurationGC(r, "chene") as never, quantite: i + 1 })),
+        mode,
+        km
+      );
+      assert.equal(t.mode.deplacement.montantCents, outil.prix * 100, `${mode} à ${km} km`);
+    }
   }
 });
 

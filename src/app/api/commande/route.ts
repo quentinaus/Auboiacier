@@ -1,31 +1,18 @@
 import { NextResponse } from "next/server";
-import { getProduct, livrableParTransporteur, poidsColisKg, remiseLot, resolveSelection, type Product } from "@/lib/products";
 import { isEmailConfigured } from "@/lib/email";
 import { getStripe, isStripeConfigured, newOrderRef, piedDeFacture, siteOrigin } from "@/lib/stripe";
 import { commandesOuvertes } from "@/lib/entreprise";
 import { creerLimite } from "@/lib/limite-debit";
 import { origineEtrangere } from "@/lib/origine";
-import { productLocalise } from "@/lib/products";
-import {
-  LIVRAISON,
-  POSE,
-  PRISE_DE_COTES,
-  calculerDeplacement,
-  calculerLivraison,
-  calculerPose,
-  libelleLivraison,
-  libellePose,
-  libellePriseDeCotes,
-} from "@/lib/deplacement";
-import { cleCreneau, creneauValide, libelleCreneau, lireCreneau } from "@/lib/agenda";
+import { PRISE_DE_COTES, libelleLivraison, libellePose, libellePriseDeCotes } from "@/lib/deplacement";
+import { cleCreneau, creneauValide, libelleCreneau } from "@/lib/agenda";
 import { clientConnecte } from "@/lib/compte";
+import { CALCUL_GC, ChiffrageIndisponible } from "@/lib/prix-garde-corps.server";
+import { libellePiece, tarifer, type Tarif } from "@/lib/tarif-panier";
 
 export const runtime = "nodejs";
 /** Un départ en paiement ne doit jamais rester suspendu plus d'une demi-minute. */
 export const maxDuration = 30;
-
-const MAX_LINES = 20;
-const MAX_QUANTITY = 10;
 
 /**
  * 8 départs en paiement par adresse et par dix minutes. Sans cela, un robot
@@ -33,42 +20,6 @@ const MAX_QUANTITY = 10;
  * bord devient illisible et Stripe finit par brider le compte.
  */
 const tropDeDemandes = creerLimite({ fenetreMs: 10 * 60 * 1000, maximum: 8 });
-
-type IncomingLine = {
-  slug?: unknown;
-  sizeId?: unknown;
-  woodId?: unknown;
-  metalId?: unknown;
-  fabricId?: unknown;
-  remplissageId?: unknown;
-  largeurMm?: unknown;
-  hauteurMm?: unknown;
-  epaisseurMm?: unknown;
-  quantity?: unknown;
-  priseDeCotesCp?: unknown;
-  poseCp?: unknown;
-  livraisonCp?: unknown;
-  livraisonSlug?: unknown;
-  livraisonQty?: unknown;
-  rdv?: unknown;
-  note?: unknown;
-};
-
-
-/** Une ligne de texte libre du client, bornée et sans retour à la ligne. */
-const asNote = (value: unknown, max: number) =>
-  typeof value === "string"
-    ? value.replace(/[\r\n\t\u0000-\u001f]+/g, " ").trim().slice(0, max)
-    : "";
-
-const asId = (value: unknown) =>
-  typeof value === "string" && value.trim() ? value.trim() : undefined;
-
-/** Une cote : un entier de millimètres, rien d'autre. Le reste est refusé. */
-const asMm = (value: unknown) => {
-  const mm = Number(value);
-  return Number.isInteger(mm) && mm > 0 && mm <= 10_000 ? mm : undefined;
-};
 
 /**
  * Crée une session de paiement Stripe.
@@ -119,9 +70,29 @@ export async function POST(request: Request) {
   if (body.cgvAccepted !== true) {
     return NextResponse.json({ error: "cgv" }, { status: 400 });
   }
-  const lines = Array.isArray(body.lines) ? (body.lines as IncomingLine[]) : [];
-  if (lines.length === 0 || lines.length > MAX_LINES) {
-    return NextResponse.json({ error: "invalid" }, { status: 400 });
+  // Le tarif de la commande : LA fonction que le panier appelle aussi pour
+  // s'afficher (/api/panier/tarif). Aucun montant n'est lu dans la requête :
+  // tout est recalculé ici — pièces, remise sur plusieurs garde-corps (l'outil
+  // de plans), livraison, pose ou retrait à l'atelier, prise de cotes.
+  let tarif: Tarif;
+  try {
+    tarif = await tarifer(body.lines, { locale, gc: CALCUL_GC });
+  } catch (erreur) {
+    if (erreur instanceof ChiffrageIndisponible) {
+      // Pas de clé du chiffrage sur ce serveur : pas de garde-corps vendu à un prix inventé.
+      console.error(`[commande] ${erreur.message} : définir CHIFFRAGE_GARDE_CORPS_CLE.`);
+      return NextResponse.json({ error: "unavailable" }, { status: 503 });
+    }
+    throw erreur;
+  }
+  if (tarif.refusees.length) {
+    console.error("[commande] lignes refusées :", tarif.refusees);
+    // La hauteur d'un garde-corps a changé depuis l'affichage du panier : il doit la revoir.
+    const changee = tarif.refusees.some((r) => r.raison === "hauteur");
+    return NextResponse.json({ error: changee ? "changed" : "unavailable" }, { status: 400 });
+  }
+  if (tarif.probleme) {
+    return NextResponse.json({ error: tarif.probleme }, { status: 400 });
   }
 
   // L'adresse du site ne se déduit jamais de la requête : une requête forgée
@@ -137,195 +108,55 @@ export async function POST(request: Request) {
     quantity: number;
   }[] = [];
 
-  /** Le rendez-vous de la commande, s'il y en a un : il part dans le paiement. */
-  let visite: { rdv: string; cp: string; commune: string; note: string } | null = null;
-  /** Une seule pose par commande : tout part sur le même trajet. */
-  let pose: { cp: string; commune: string } | null = null;
-  /** Une seule livraison par transporteur, et pas en plus d'une pose. */
-  let livraison: { cp: string; commune: string } | null = null;
-  /**
-   * Les pièces, gardées de côté jusqu'à la fin : le prix de lot (plusieurs
-   * garde-corps dans la même commande) ne se connaît qu'une fois toutes les
-   * lignes lues.
-   */
-  const pieces: { product: Product; unitPrice: number; quantity: number; name: string; image?: string }[] = [];
-
-  for (const line of lines) {
-    // {"lines":[null]} faisait planter la lecture juste en dessous, hors du
-    // bloc try : le visiteur recevait une page d'erreur du serveur.
-    if (!line || typeof line !== "object") {
-      return NextResponse.json({ error: "invalid" }, { status: 400 });
-    }
-
-    // La livraison par transporteur : une ligne à part, au code postal du
-    // client et aux cotes du colis, recalculée ici. Une seule par commande,
-    // et jamais avec une pose (qui livre déjà).
-    if (line.slug === LIVRAISON) {
-      if (livraison || pose) return NextResponse.json({ error: "invalid" }, { status: 400 });
-      const cp = asNote(line.livraisonCp, 10);
-      // Le poids vient de la pièce livrée (son slug, ses cotes), jamais du navigateur.
-      const piece = getProduct(asNote(line.livraisonSlug, 60));
-      if (!piece) return NextResponse.json({ error: "invalid" }, { status: 400 });
-      const cote = (valeur: unknown) =>
-        typeof valeur === "number" && Number.isFinite(valeur) && valeur > 0 && valeur <= 10000 ? Math.round(valeur) : undefined;
-      // Le colis pèse pour chaque exemplaire livré, pas pour un seul : 5 chaises, 5 fois le poids.
-      const qty = Number(line.livraisonQty);
-      const livraisonQuantite = Number.isInteger(qty) && qty >= 1 && qty <= MAX_QUANTITY ? qty : 1;
-      const largeurMm = cote(line.largeurMm);
-      const hauteurMm = cote(line.hauteurMm);
-      // Trop encombrante pour un transporteur : seule la pose par l'atelier
-      // peut la livrer. Le configurateur ne propose déjà plus le choix, mais
-      // c'est ICI que ça se décide — une requête forgée ne doit pas pouvoir
-      // acheter une livraison qu'aucun transporteur n'acceptera.
-      if (!livrableParTransporteur(piece, { largeurMm, hauteurMm })) {
-        return NextResponse.json({ error: "pose_obligatoire" }, { status: 400 });
-      }
-      const calcul = await calculerLivraison(
-        cp,
-        poidsColisKg(piece, {
-          largeurMm,
-          hauteurMm,
-          epaisseurMm: cote(line.epaisseurMm),
-          woodId: asId(line.woodId),
-          remplissageId: asId(line.remplissageId),
-        }) * livraisonQuantite,
-        Math.max(largeurMm ?? 0, hauteurMm ?? 0)
-      );
-      if (!calcul.ok) return NextResponse.json({ error: "code_postal" }, { status: 400 });
-      livraison = { cp, commune: calcul.deplacement.commune };
-      items.push({
-        price_data: {
-          currency: "eur",
-          unit_amount: calcul.deplacement.montantCents,
-          product_data: { name: `${libelleLivraison(cp, locale)} (${calcul.deplacement.commune})` },
-        },
-        quantity: 1,
-      });
-      continue;
-    }
-
-    // La livraison et pose à domicile : une ligne à part, au code postal du
-    // client, recalculée ici — le navigateur n'a envoyé aucun montant. Une
-    // seule par commande : l'atelier fait un trajet, pas un par table.
-    if (line.slug === POSE) {
-      if (pose || livraison) return NextResponse.json({ error: "invalid" }, { status: 400 });
-      const cp = asNote(line.poseCp, 10);
-      const calcul = await calculerPose(cp);
-      if (!calcul.ok) return NextResponse.json({ error: "code_postal" }, { status: 400 });
-      pose = { cp, commune: calcul.deplacement.commune };
-      items.push({
-        price_data: {
-          currency: "eur",
-          unit_amount: calcul.deplacement.montantCents,
-          product_data: { name: `${libellePose(cp, locale)} (${calcul.deplacement.commune})` },
-        },
-        quantity: 1,
-      });
-      continue;
-    }
-
-    // La prise de cotes à domicile : ni catalogue ni barème. Le prix vient du
-    // code postal, recalculé ici — le navigateur n'en a envoyé aucun — et le
-    // créneau doit être encore libre à l'instant où l'on paie.
-    if (line.slug === PRISE_DE_COTES) {
-      if (visite) return NextResponse.json({ error: "rdv" }, { status: 400 });
-      const cp = asNote(line.priseDeCotesCp, 10);
-      const creneau = lireCreneau(asNote(line.rdv, 30));
-      if (!creneau) return NextResponse.json({ error: "rdv" }, { status: 400 });
-      const deplacement = await calculerDeplacement(cp);
-      if (!deplacement.ok) return NextResponse.json({ error: "code_postal" }, { status: 400 });
-      if (!(await creneauValide(creneau))) {
-        return NextResponse.json({ error: "rdv" }, { status: 409 });
-      }
-      const note = asNote(line.note, 160);
-      visite = { rdv: cleCreneau(creneau), cp, commune: deplacement.deplacement.commune, note };
-      items.push({
-        price_data: {
-          currency: "eur",
-          unit_amount: deplacement.deplacement.montantCents,
-          product_data: {
-            name: `${libellePriseDeCotes(cp, locale)} — ${libelleCreneau(creneau, locale)}${note ? ` — ${note}` : ""}`,
-          },
-        },
-        quantity: 1,
-      });
-      continue;
-    }
-
-    const quantity = Number(line.quantity);
-    if (!Number.isInteger(quantity) || quantity < 1 || quantity > MAX_QUANTITY) {
-      return NextResponse.json({ error: "invalid" }, { status: 400 });
-    }
-
-    const resolved = resolveSelection({
-      slug: String(line.slug ?? ""),
-      sizeId: asId(line.sizeId),
-      woodId: asId(line.woodId),
-      metalId: asId(line.metalId),
-      fabricId: asId(line.fabricId),
-      remplissageId: asId(line.remplissageId),
-      largeurMm: asMm(line.largeurMm),
-      hauteurMm: asMm(line.hauteurMm),
-      epaisseurMm: asMm(line.epaisseurMm),
-      locale,
-    });
-
-    if (!resolved.ok) {
-      console.error("[commande] ligne refusée :", resolved.reason, line);
-      return NextResponse.json({ error: "unavailable" }, { status: 400 });
-    }
-
-    const { product, unitPrice, optionsLabel, image, size, wood, metal, fabric, remplissage } = resolved.line;
-    const precisions = asNote(line.note, 120);
-    // Ce libellé part sur la page de paiement, sur la facture Stripe et dans
-    // l'e-mail de confirmation : il doit être écrit dans la langue du client.
-    // Un Anglais payait « Escalier Limon Central — Chêne massif · Noir charbon ».
-    const fiche = productLocalise(product, locale);
-    const rangTaille = product.sizes.findIndex((taille) => taille.id === size.id);
-    const optionsTraduites =
-      [
-        product.sizes.length > 1 || size.id === "sur-mesure"
-          ? rangTaille >= 0
-            ? fiche.sizes[rangTaille].label
-            : size.label
-          : null,
-        fiche.woods.find((bois) => bois.id === wood?.id)?.label,
-        fiche.metals.find((acier) => acier.id === metal?.id)?.label,
-        fiche.fabrics?.find((velours) => velours.id === fabric?.id)?.label,
-        remplissage && remplissage.id !== fiche.remplissages?.[0]?.id
-          ? fiche.remplissages?.find((option) => option.id === remplissage.id)?.label
-          : null,
-      ]
-        .filter(Boolean)
-        .join(" · ") || optionsLabel;
-    pieces.push({
-      product,
-      unitPrice,
-      quantity,
-      // Les options sont dans le NOM : Stripe ne renvoie pas la description
-      // dans les lignes de commande, l'atelier saurait quoi fabriquer.
-      name: `${optionsTraduites ? `${fiche.name} — ${optionsTraduites}` : fiche.name}${
-        precisions ? ` — ${precisions}` : ""
-      }`,
-      image,
-    });
-  }
-
-  for (const piece of remiseLot(pieces)) {
+  for (const piece of tarif.pieces) {
     items.push({
       price_data: {
         currency: "eur",
-        // Les prix du catalogue sont des euros entiers, le prix de lot aussi :
-        // pas d'arrondi possible.
-        unit_amount: piece.prixLot * 100,
+        // Les prix du catalogue et de l'outil sont des euros entiers : pas d'arrondi possible.
+        unit_amount: Math.round(piece.line.unitPrice * 100),
         product_data: {
-          name: piece.remise
-            ? `${piece.name} — ${locale === "en" ? "multi-buy" : "prix de lot"} −${Math.round(piece.remise * 100)} %`
-            : piece.name,
-          images: piece.image ? [`${origin}${piece.image}`] : undefined,
+          // Les options sont dans le NOM : Stripe ne renvoie pas la description
+          // dans les lignes de commande, l'atelier saurait quoi fabriquer.
+          name: libellePiece(piece),
+          images: piece.line.image ? [`${origin}${piece.line.image}`] : undefined,
         },
       },
-      quantity: piece.quantity,
+      quantity: piece.quantite,
+    });
+  }
+
+  // La prise de cotes à domicile : le créneau doit être encore libre à l'instant où l'on paie.
+  const visite = tarif.visite;
+  if (visite) {
+    if (!(await creneauValide(visite.creneau))) {
+      return NextResponse.json({ error: "rdv" }, { status: 409 });
+    }
+    items.push({
+      price_data: {
+        currency: "eur",
+        unit_amount: visite.deplacement.montantCents,
+        product_data: {
+          name: `${libellePriseDeCotes(visite.codePostal, locale)} — ${libelleCreneau(visite.creneau, locale)}${visite.note ? ` — ${visite.note}` : ""}`,
+        },
+      },
+      quantity: 1,
+    });
+  }
+
+  // Une seule façon de recevoir la commande : le transporteur ou la pose ont
+  // leur ligne ; le retrait à l'atelier est gratuit, il n'en a pas — il est
+  // noté dans la commande (métadonnées), et dit dans la confirmation.
+  const mode = tarif.mode;
+  if (mode && mode.mode !== "retrait") {
+    items.push({
+      price_data: {
+        currency: "eur",
+        unit_amount: mode.deplacement.montantCents,
+        product_data: {
+          name: `${mode.mode === "pose" ? libellePose(mode.codePostal, locale) : libelleLivraison(mode.codePostal, locale)} (${mode.deplacement.commune})`,
+        },
+      },
+      quantity: 1,
     });
   }
 
@@ -360,11 +191,40 @@ export async function POST(request: Request) {
   // les variables FACTURE_… (voir .env.example et MISE-EN-LIGNE.md).
   const pied = piedDeFacture();
 
+  /**
+   * Plusieurs garde-corps : les frais fixes de l'atelier ne comptent qu'une
+   * fois (la remise du tarif, jamais sous le prix plancher). Stripe refuse une
+   * ligne négative : la remise part en bon de réduction d'un montant fixe,
+   * valable pour cette seule commande (une utilisation, périmé après le délai
+   * de la page de paiement). Elle se lit ainsi, en toutes lettres, sur la page
+   * de paiement et sur la facture.
+   */
+  let coupon: string | null = null;
+  if (tarif.remise < 0) {
+    try {
+      const bon = await getStripe().coupons.create({
+        amount_off: Math.round(-tarif.remise * 100),
+        currency: "eur",
+        duration: "once",
+        max_redemptions: 1,
+        // La page de paiement vit 24 heures : le bon, une de plus.
+        redeem_by: Math.floor(Date.now() / 1000) + 25 * 3600,
+        name: locale === "en" ? "Several railings" : "Plusieurs garde-corps",
+        metadata: { order_ref: orderRef, motif: "frais fixes de l'atelier comptés une fois" },
+      });
+      coupon = bon.id;
+    } catch (error) {
+      console.error("[commande] Stripe a refusé la remise :", error);
+      return NextResponse.json({ error: "error" }, { status: 502 });
+    }
+  }
+
   try {
     const session = await getStripe().checkout.sessions.create({
       mode: "payment",
       locale,
       line_items: items,
+      ...(coupon ? { discounts: [{ coupon }] } : {}),
       shipping_address_collection: { allowed_countries: ["FR"] },
       phone_number_collection: { enabled: true },
       // Les deux s'excluent : avec un client connu on le désigne, sinon
@@ -405,7 +265,13 @@ export async function POST(request: Request) {
         metadata: {
           order_ref: orderRef,
           ...(visite
-            ? { type: PRISE_DE_COTES, rdv: visite.rdv, cp: visite.cp, commune: visite.commune, note: visite.note }
+            ? {
+                type: PRISE_DE_COTES,
+                rdv: cleCreneau(visite.creneau),
+                cp: visite.codePostal,
+                commune: visite.deplacement.commune,
+                note: visite.note,
+              }
             : {}),
         },
       },
@@ -413,9 +279,14 @@ export async function POST(request: Request) {
         order_ref: orderRef,
         locale,
         ville,
-        ...(visite ? { rdv: visite.rdv, rdv_cp: visite.cp } : {}),
-        ...(pose ? { pose_cp: pose.cp, pose_commune: pose.commune } : {}),
-        ...(livraison ? { livraison_cp: livraison.cp, livraison_commune: livraison.commune } : {}),
+        ...(visite ? { rdv: cleCreneau(visite.creneau), rdv_cp: visite.codePostal } : {}),
+        // Comment la commande part : transporteur, pose ou retrait à l'atelier.
+        ...(mode ? { livraison_mode: mode.mode } : {}),
+        ...(mode?.mode === "pose" ? { pose_cp: mode.codePostal, pose_commune: mode.deplacement.commune } : {}),
+        ...(mode?.mode === "transporteur" ? { livraison_cp: mode.codePostal, livraison_commune: mode.deplacement.commune } : {}),
+        ...(mode?.mode === "retrait" ? { retrait: "1" } : {}),
+        // La remise sur plusieurs garde-corps, en euros : elle se lit aussi sur le bon de réduction.
+        ...(tarif.remise < 0 ? { remise_gc: String(-tarif.remise) } : {}),
         // Trace de l'acceptation des conditions de vente avant paiement.
         cgv_accepted: "1",
       },

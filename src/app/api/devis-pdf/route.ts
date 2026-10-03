@@ -1,7 +1,9 @@
+import { lireModeleGC } from "@/lib/garde-corps";
 import { NextResponse } from "next/server";
-import { SUR_MESURE, getProduct, poidsColisKg } from "@/lib/products";
-import { calculerLivraison, calculerPose } from "@/lib/deplacement";
-import { composerDevis, type LivraisonDevis } from "@/lib/devis";
+import { SUR_MESURE, getProduct, poidsColisKg, prixParOutil } from "@/lib/products";
+import { calculerLivraison, calculerPose, localiser } from "@/lib/deplacement";
+import { composerDevis, type Devis, type LivraisonDevis, type ResultatDevis } from "@/lib/devis";
+import { ChiffrageIndisponible, composerDevisGardeCorps, type LivraisonDevisGC } from "@/lib/prix-garde-corps.server";
 import { rendreDevisPdf } from "@/lib/devis-pdf";
 import { creerLimite } from "@/lib/limite-debit";
 import { MAX_TEXTE } from "@/lib/devis-regles";
@@ -20,6 +22,10 @@ export const maxDuration = 20;
  * le prix de la pièce vient de resolveSelection, celui de la livraison du
  * même géocodage que le panier. Un lien forgé ne peut donc pas produire un
  * devis à un prix qui n'existe pas.
+ *
+ * Le garde-corps de fenêtre a son propre devis : celui de l'outil de plans,
+ * avec les mêmes lignes et le même total (décision du 29/09), composé sur le
+ * serveur à partir du relevé (l, allege, etage, fenetre).
  */
 const tropDeDemandes = creerLimite({ fenetreMs: 10 * 60 * 1000, maximum: 30 });
 
@@ -55,6 +61,85 @@ export async function GET(request: Request) {
 
   const langue = p.get("lang") ?? "fr";
   const locale = isLocale(langue) ? langue : "fr";
+  const client = {
+    nom: texte(p.get("nom"), MAX_TEXTE.name),
+    adresse: texte(p.get("adresse"), 300),
+    email: texte(p.get("email"), MAX_TEXTE.email),
+    telephone: texte(p.get("telephone"), MAX_TEXTE.phone),
+  };
+  const mode = p.get("mode");
+  const cp = (p.get("cp") ?? "").replace(/\s+/g, "");
+
+  let resultat: ResultatDevis;
+  if (prixParOutil(product)) {
+    // Le garde-corps : le relevé, et une façon de le recevoir (transporteur, pose ou retrait).
+    const mm = (cle: string) => {
+      const t = p.get(cle);
+      return t !== null && /^\d{1,5}$/.test(t) ? Number(t) : undefined;
+    };
+    const largeurMm = mm("l");
+    const allegeMm = mm("allege");
+    const fenetreMm = mm("fenetre") ?? 0;
+    const etage = p.get("etage");
+    const woodId = identifiant(p.get("wood"));
+    if (largeurMm === undefined || allegeMm === undefined || (etage !== "1" && etage !== "0") || !woodId) {
+      return NextResponse.json({ error: "unknown_size" }, { status: 400 });
+    }
+    // Comme /api/prix-garde-corps : une option absente est celle du modèle
+    // (ligneGC), une option illisible est refusée — jamais remplacée en silence.
+    const option = (cle: string) => {
+      const t = p.get(cle);
+      return t === null ? undefined : (identifiant(t) ?? null);
+    };
+    const metalId = option("metal");
+    const fabricId = option("fabric");
+    const remplissageId = option("remplissage");
+    if (metalId === null || fabricId === null || remplissageId === null) {
+      return NextResponse.json({ error: "invalid" }, { status: 400 });
+    }
+    // Le modèle choisi : « 16-3 ». Illisible : refusé. Non conforme : le calcul le refuse plus bas.
+    const modele = p.get("modele");
+    if (modele !== null && !lireModeleGC(modele)) return NextResponse.json({ error: "invalid" }, { status: 400 });
+    let livraison: LivraisonDevisGC;
+    if (mode === "retrait") livraison = { mode: "retrait" };
+    else if (mode === "transporteur" || mode === "pose") {
+      if (!/^\d{5}$/.test(cp)) return NextResponse.json({ error: "code_postal_invalide" }, { status: 400 });
+      const situe = await localiser(cp);
+      if (!situe.ok) return NextResponse.json({ error: situe.reason }, { status: 400 });
+      livraison = { mode, codePostal: cp, lieu: situe.lieu };
+    } else return NextResponse.json({ error: "mode_livraison" }, { status: 400 });
+    try {
+      resultat = composerDevisGardeCorps({
+        releve: { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm, ...(modele ? { modele } : {}) },
+        options: { woodId, metalId, fabricId, remplissageId },
+        quantite: entier(p.get("qty"), 10) ?? 1,
+        livraison,
+        client,
+        date: new Date(),
+        locale,
+        origine: url.origin,
+      });
+    } catch (erreur) {
+      if (erreur instanceof ChiffrageIndisponible) return NextResponse.json({ error: "indisponible" }, { status: 503 });
+      throw erreur;
+    }
+  } else {
+    resultat = await devisCatalogue(p, product, locale, mode, cp, client, url.origin);
+  }
+  if (!resultat.ok) return NextResponse.json({ error: resultat.reason }, { status: 400 });
+  return pdfDuDevis(resultat.devis, locale);
+}
+
+/** Le devis d'une pièce du catalogue (table, chaise, lumière) : composerDevis. */
+async function devisCatalogue(
+  p: URLSearchParams,
+  product: NonNullable<ReturnType<typeof getProduct>>,
+  locale: "fr" | "en",
+  mode: string | null,
+  cp: string,
+  client: { nom?: string; adresse?: string; email?: string; telephone?: string },
+  origine: string
+): Promise<ResultatDevis> {
   const sizeId = identifiant(p.get("size"));
   const surMesure = sizeId === SUR_MESURE;
   const largeurMm = surMesure ? entier(p.get("l"), 20000) : undefined;
@@ -64,22 +149,22 @@ export async function GET(request: Request) {
   const remplissageId = identifiant(p.get("remplissage"));
   const quantity = entier(p.get("qty"), 10) ?? 1;
 
-  // La livraison : par transporteur (au poids de la pièce) ou avec la pose.
-  const mode = p.get("mode");
-  const cp = (p.get("cp") ?? "").replace(/\s+/g, "");
+  // La livraison : par transporteur (au poids de la pièce), avec la pose, ou retirée à l'atelier.
   let livraison: LivraisonDevis | null = null;
-  if ((mode === "transporteur" || mode === "pose") && product.poseOption) {
-    if (!/^\d{5}$/.test(cp)) return NextResponse.json({ error: "code_postal_invalide" }, { status: 400 });
+  if (mode === "retrait" && product.poseOption) {
+    livraison = { mode: "retrait" };
+  } else if ((mode === "transporteur" || mode === "pose") && product.poseOption) {
+    if (!/^\d{5}$/.test(cp)) return { ok: false, reason: "code_postal_invalide" };
     const dims = surMesure ? [largeurMm, hauteurMm] : (product.sizes.find((s) => s.id === sizeId) ?? product.sizes[0])?.dimsMm;
     const kg =
       poidsColisKg(product, { largeurMm: dims?.[0], hauteurMm: dims?.[1], epaisseurMm, woodId, remplissageId }) * quantity;
     const plusGrandeCoteMm = Math.max(dims?.[0] ?? 0, dims?.[1] ?? 0);
     const calcul = mode === "pose" ? await calculerPose(cp) : await calculerLivraison(cp, kg, plusGrandeCoteMm);
-    if (!calcul.ok) return NextResponse.json({ error: calcul.reason }, { status: 400 });
+    if (!calcul.ok) return { ok: false, reason: calcul.reason };
     livraison = { mode, codePostal: cp, deplacement: calcul.deplacement };
   }
 
-  const resultat = composerDevis({
+  return composerDevis({
     selection: {
       slug: product.slug,
       sizeId,
@@ -95,35 +180,31 @@ export async function GET(request: Request) {
     hauteurTableMm: entier(p.get("h"), 2000),
     note: texte(p.get("note"), 500),
     livraison,
-    client: {
-      nom: texte(p.get("nom"), MAX_TEXTE.name),
-      adresse: texte(p.get("adresse"), 300),
-      email: texte(p.get("email"), MAX_TEXTE.email),
-      telephone: texte(p.get("telephone"), MAX_TEXTE.phone),
-    },
+    client,
     date: new Date(),
     locale,
-    origine: url.origin,
+    origine,
   });
-  if (!resultat.ok) return NextResponse.json({ error: resultat.reason }, { status: 400 });
+}
 
-  const pdf = await rendreDevisPdf(resultat.devis);
+async function pdfDuDevis(devis: Devis, locale: "fr" | "en") {
+  const pdf = await rendreDevisPdf(devis);
   // « Devis-Auboiacier-Table-Mikado-D-20260920-3KS01.pdf » : sans accent ni
   // espace, pour que tous les navigateurs gardent le nom tel quel.
   const nature =
     locale === "en"
-      ? resultat.devis.nature === "estimation"
+      ? devis.nature === "estimation"
         ? "Estimate"
         : "Quote"
-      : resultat.devis.nature === "estimation"
+      : devis.nature === "estimation"
         ? "Estimation"
         : "Devis";
-  const piece = resultat.devis.piece.nom
+  const piece = devis.piece.nom
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^A-Za-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
-  const nom = `${nature}-Auboiacier-${piece}-${resultat.devis.numero}.pdf`;
+  const nom = `${nature}-Auboiacier-${piece}-${devis.numero}.pdf`;
   return new NextResponse(new Uint8Array(pdf), {
     headers: {
       "content-type": "application/pdf",

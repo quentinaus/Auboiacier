@@ -1,4 +1,5 @@
 import type { Locale } from "@/lib/i18n";
+import { lireModeleGC, type ReleveGC } from "./garde-corps.ts";
 
 export type ProductSize = {
   id: string;
@@ -111,8 +112,8 @@ export type Famille =
 
 /**
  * Le remplissage d'un garde-corps : ce qu'il y a entre le cadre et la main
- * courante. Les croix sont celles du modèle ; le verre feuilleté remplace les
- * croix quand la hauteur demandée laisserait des vides hors norme.
+ * courante. Les croix sont celles du modèle (leur nombre, calculé par l'outil
+ * de plans, suit la norme) ; le verre feuilleté peut les remplacer.
  */
 export type Remplissage = {
   id: string;
@@ -121,12 +122,8 @@ export type Remplissage = {
   /** Supplément : un forfait, plus un prix au m² de garde-corps. */
   forfait: number;
   parM2: number;
-  /**
-   * Au-delà de cette hauteur de garde-corps, les vides de ce remplissage ne
-   * respectent plus la norme (NF P01-012 : une sphère de 110 mm ne doit pas
-   * passer). Sans borne, le remplissage est plein : toujours conforme.
-   */
-  hauteurMaxConformeMm?: number;
+  /** Un panneau plein, sans croix : plus de rosace à choisir ni à payer. */
+  sansCroix?: boolean;
 };
 
 export type Product = {
@@ -138,8 +135,9 @@ export type Product = {
    * Cette pièce se relève avant d'être chiffrée : la fiche affiche alors le
    * bloc de cotes correspondant. « escalier » demande la hauteur à monter, le
    * recul, la trémie, et calcule les marches. « garde-corps-fenetre » demande
-   * la largeur entre tableaux et la hauteur d'allège, et déduit la hauteur que
-   * la règle impose — de quoi fabriquer au millimètre sans se déplacer.
+   * la largeur entre tableaux, la hauteur d'allège et celle de la fenêtre :
+   * sa forme (hauteur, croix, carré) et son prix viennent de l'outil de plans
+   * de l'atelier, calculés sur le serveur (voir prixParOutil).
    */
   releve?: "escalier" | "garde-corps-fenetre";
   /**
@@ -149,11 +147,10 @@ export type Product = {
    */
   priseDeCotes?: boolean;
   /**
-   * Prix de lot : à partir de `desPieces` exemplaires dans la même commande —
-   * toutes cotes confondues, une fenêtre après l'autre — chaque exemplaire
-   * est remisé de `taux`. Appliqué par le serveur (voir remiseLot).
+   * L'essence servie d'entrée quand aucune n'a d'écart nul à elle seule (le
+   * garde-corps : l'outil chiffre chaque essence au volume, sans écart fixe).
    */
-  remiseLot?: { desPieces: number; taux: number };
+  boisParDefaut?: string;
   /**
    * Deux ou trois mots de métier pour le titre affiché par Google.
    * Le nom d'un modèle — « Brindille », « Halo » — n'est tapé par personne :
@@ -231,9 +228,11 @@ export type Product = {
   /** Intitulé du groupe des essences quand « plateau » ne convient pas (marches d'escalier). */
   woodLabel?: { fr: string; en: string };
   /**
-   * La pièce peut être livrée ET posée par l'atelier, sur un seul trajet :
-   * la fiche propose le choix, prix selon le code postal (src/lib/deplacement.ts).
-   * La livraison seule reste comprise dans le prix de la pièce.
+   * La fiche propose de choisir comment recevoir la pièce : livraison par
+   * transporteur ou livraison et pose par l'atelier (prix selon le code
+   * postal, src/lib/deplacement.ts), ou retrait à l'atelier, à Saumur,
+   * gratuit. Une commande qui contient une telle pièce en choisit un, et un
+   * seul (vérifié par le serveur, src/lib/tarif-panier.ts).
    */
   poseOption?: boolean;
   /**
@@ -599,28 +598,28 @@ export const products: Product[] = [
         },
         parBois: {
           pin: {
-            noir: "/images/mikado/devant/noir-pin-v5.jpg",
-            gris: "/images/mikado/devant/gris-pin-v5.jpg",
-            chocolat: "/images/mikado/devant/chocolat-pin-v5.jpg",
-            laiton: "/images/mikado/devant/laiton-pin-v5.jpg",
-            lin: "/images/mikado/devant/lin-pin-v5.jpg",
-            blanc: "/images/mikado/devant/blanc-pin-v5.jpg",
+            noir: "/images/mikado/devant/noir-pin-v7.jpg",
+            gris: "/images/mikado/devant/gris-pin-v7.jpg",
+            chocolat: "/images/mikado/devant/chocolat-pin-v7.jpg",
+            laiton: "/images/mikado/devant/laiton-pin-v7.jpg",
+            lin: "/images/mikado/devant/lin-pin-v7.jpg",
+            blanc: "/images/mikado/devant/blanc-pin-v7.jpg",
           },
           hetre: {
-            noir: "/images/mikado/devant/noir-hetre-v5.jpg",
-            gris: "/images/mikado/devant/gris-hetre-v5.jpg",
-            chocolat: "/images/mikado/devant/chocolat-hetre-v5.jpg",
-            laiton: "/images/mikado/devant/laiton-hetre-v5.jpg",
-            lin: "/images/mikado/devant/lin-hetre-v5.jpg",
-            blanc: "/images/mikado/devant/blanc-hetre-v5.jpg",
+            noir: "/images/mikado/devant/noir-hetre-v7.jpg",
+            gris: "/images/mikado/devant/gris-hetre-v7.jpg",
+            chocolat: "/images/mikado/devant/chocolat-hetre-v7.jpg",
+            laiton: "/images/mikado/devant/laiton-hetre-v7.jpg",
+            lin: "/images/mikado/devant/lin-hetre-v7.jpg",
+            blanc: "/images/mikado/devant/blanc-hetre-v7.jpg",
           },
           noyer: {
-            noir: "/images/mikado/devant/noir-noyer-v5.jpg",
-            gris: "/images/mikado/devant/gris-noyer-v5.jpg",
-            chocolat: "/images/mikado/devant/chocolat-noyer-v5.jpg",
-            laiton: "/images/mikado/devant/laiton-noyer-v5.jpg",
-            lin: "/images/mikado/devant/lin-noyer-v5.jpg",
-            blanc: "/images/mikado/devant/blanc-noyer-v5.jpg",
+            noir: "/images/mikado/devant/noir-noyer-v7.jpg",
+            gris: "/images/mikado/devant/gris-noyer-v7.jpg",
+            chocolat: "/images/mikado/devant/chocolat-noyer-v7.jpg",
+            laiton: "/images/mikado/devant/laiton-noyer-v7.jpg",
+            lin: "/images/mikado/devant/lin-noyer-v7.jpg",
+            blanc: "/images/mikado/devant/blanc-noyer-v7.jpg",
           },
         },
       },
@@ -640,28 +639,28 @@ export const products: Product[] = [
         },
         parBois: {
           pin: {
-            noir: "/images/mikado/coupe/noir-pin-v5.jpg",
-            gris: "/images/mikado/coupe/gris-pin-v5.jpg",
-            chocolat: "/images/mikado/coupe/chocolat-pin-v5.jpg",
-            laiton: "/images/mikado/coupe/laiton-pin-v5.jpg",
-            lin: "/images/mikado/coupe/lin-pin-v5.jpg",
-            blanc: "/images/mikado/coupe/blanc-pin-v5.jpg",
+            noir: "/images/mikado/coupe/noir-pin-v7.jpg",
+            gris: "/images/mikado/coupe/gris-pin-v7.jpg",
+            chocolat: "/images/mikado/coupe/chocolat-pin-v7.jpg",
+            laiton: "/images/mikado/coupe/laiton-pin-v7.jpg",
+            lin: "/images/mikado/coupe/lin-pin-v7.jpg",
+            blanc: "/images/mikado/coupe/blanc-pin-v7.jpg",
           },
           hetre: {
-            noir: "/images/mikado/coupe/noir-hetre-v5.jpg",
-            gris: "/images/mikado/coupe/gris-hetre-v5.jpg",
-            chocolat: "/images/mikado/coupe/chocolat-hetre-v5.jpg",
-            laiton: "/images/mikado/coupe/laiton-hetre-v5.jpg",
-            lin: "/images/mikado/coupe/lin-hetre-v5.jpg",
-            blanc: "/images/mikado/coupe/blanc-hetre-v5.jpg",
+            noir: "/images/mikado/coupe/noir-hetre-v7.jpg",
+            gris: "/images/mikado/coupe/gris-hetre-v7.jpg",
+            chocolat: "/images/mikado/coupe/chocolat-hetre-v7.jpg",
+            laiton: "/images/mikado/coupe/laiton-hetre-v7.jpg",
+            lin: "/images/mikado/coupe/lin-hetre-v7.jpg",
+            blanc: "/images/mikado/coupe/blanc-hetre-v7.jpg",
           },
           noyer: {
-            noir: "/images/mikado/coupe/noir-noyer-v5.jpg",
-            gris: "/images/mikado/coupe/gris-noyer-v5.jpg",
-            chocolat: "/images/mikado/coupe/chocolat-noyer-v5.jpg",
-            laiton: "/images/mikado/coupe/laiton-noyer-v5.jpg",
-            lin: "/images/mikado/coupe/lin-noyer-v5.jpg",
-            blanc: "/images/mikado/coupe/blanc-noyer-v5.jpg",
+            noir: "/images/mikado/coupe/noir-noyer-v7.jpg",
+            gris: "/images/mikado/coupe/gris-noyer-v7.jpg",
+            chocolat: "/images/mikado/coupe/chocolat-noyer-v7.jpg",
+            laiton: "/images/mikado/coupe/laiton-noyer-v7.jpg",
+            lin: "/images/mikado/coupe/lin-noyer-v7.jpg",
+            blanc: "/images/mikado/coupe/blanc-noyer-v7.jpg",
           },
         },
       },
@@ -681,28 +680,28 @@ export const products: Product[] = [
         },
         parBois: {
           pin: {
-            noir: "/images/mikado/devant/noir-pin-v5.jpg",
-            gris: "/images/mikado/devant/gris-pin-v5.jpg",
-            chocolat: "/images/mikado/devant/chocolat-pin-v5.jpg",
-            laiton: "/images/mikado/devant/laiton-pin-v5.jpg",
-            lin: "/images/mikado/devant/lin-pin-v5.jpg",
-            blanc: "/images/mikado/devant/blanc-pin-v5.jpg",
+            noir: "/images/mikado/devant/noir-pin-v7.jpg",
+            gris: "/images/mikado/devant/gris-pin-v7.jpg",
+            chocolat: "/images/mikado/devant/chocolat-pin-v7.jpg",
+            laiton: "/images/mikado/devant/laiton-pin-v7.jpg",
+            lin: "/images/mikado/devant/lin-pin-v7.jpg",
+            blanc: "/images/mikado/devant/blanc-pin-v7.jpg",
           },
           hetre: {
-            noir: "/images/mikado/devant/noir-hetre-v5.jpg",
-            gris: "/images/mikado/devant/gris-hetre-v5.jpg",
-            chocolat: "/images/mikado/devant/chocolat-hetre-v5.jpg",
-            laiton: "/images/mikado/devant/laiton-hetre-v5.jpg",
-            lin: "/images/mikado/devant/lin-hetre-v5.jpg",
-            blanc: "/images/mikado/devant/blanc-hetre-v5.jpg",
+            noir: "/images/mikado/devant/noir-hetre-v7.jpg",
+            gris: "/images/mikado/devant/gris-hetre-v7.jpg",
+            chocolat: "/images/mikado/devant/chocolat-hetre-v7.jpg",
+            laiton: "/images/mikado/devant/laiton-hetre-v7.jpg",
+            lin: "/images/mikado/devant/lin-hetre-v7.jpg",
+            blanc: "/images/mikado/devant/blanc-hetre-v7.jpg",
           },
           noyer: {
-            noir: "/images/mikado/devant/noir-noyer-v5.jpg",
-            gris: "/images/mikado/devant/gris-noyer-v5.jpg",
-            chocolat: "/images/mikado/devant/chocolat-noyer-v5.jpg",
-            laiton: "/images/mikado/devant/laiton-noyer-v5.jpg",
-            lin: "/images/mikado/devant/lin-noyer-v5.jpg",
-            blanc: "/images/mikado/devant/blanc-noyer-v5.jpg",
+            noir: "/images/mikado/devant/noir-noyer-v7.jpg",
+            gris: "/images/mikado/devant/gris-noyer-v7.jpg",
+            chocolat: "/images/mikado/devant/chocolat-noyer-v7.jpg",
+            laiton: "/images/mikado/devant/laiton-noyer-v7.jpg",
+            lin: "/images/mikado/devant/lin-noyer-v7.jpg",
+            blanc: "/images/mikado/devant/blanc-noyer-v7.jpg",
           },
         },
       },
@@ -722,28 +721,28 @@ export const products: Product[] = [
         },
         parBois: {
           pin: {
-            noir: "/images/mikado/coupe/noir-pin-v5.jpg",
-            gris: "/images/mikado/coupe/gris-pin-v5.jpg",
-            chocolat: "/images/mikado/coupe/chocolat-pin-v5.jpg",
-            laiton: "/images/mikado/coupe/laiton-pin-v5.jpg",
-            lin: "/images/mikado/coupe/lin-pin-v5.jpg",
-            blanc: "/images/mikado/coupe/blanc-pin-v5.jpg",
+            noir: "/images/mikado/coupe/noir-pin-v7.jpg",
+            gris: "/images/mikado/coupe/gris-pin-v7.jpg",
+            chocolat: "/images/mikado/coupe/chocolat-pin-v7.jpg",
+            laiton: "/images/mikado/coupe/laiton-pin-v7.jpg",
+            lin: "/images/mikado/coupe/lin-pin-v7.jpg",
+            blanc: "/images/mikado/coupe/blanc-pin-v7.jpg",
           },
           hetre: {
-            noir: "/images/mikado/coupe/noir-hetre-v5.jpg",
-            gris: "/images/mikado/coupe/gris-hetre-v5.jpg",
-            chocolat: "/images/mikado/coupe/chocolat-hetre-v5.jpg",
-            laiton: "/images/mikado/coupe/laiton-hetre-v5.jpg",
-            lin: "/images/mikado/coupe/lin-hetre-v5.jpg",
-            blanc: "/images/mikado/coupe/blanc-hetre-v5.jpg",
+            noir: "/images/mikado/coupe/noir-hetre-v7.jpg",
+            gris: "/images/mikado/coupe/gris-hetre-v7.jpg",
+            chocolat: "/images/mikado/coupe/chocolat-hetre-v7.jpg",
+            laiton: "/images/mikado/coupe/laiton-hetre-v7.jpg",
+            lin: "/images/mikado/coupe/lin-hetre-v7.jpg",
+            blanc: "/images/mikado/coupe/blanc-hetre-v7.jpg",
           },
           noyer: {
-            noir: "/images/mikado/coupe/noir-noyer-v5.jpg",
-            gris: "/images/mikado/coupe/gris-noyer-v5.jpg",
-            chocolat: "/images/mikado/coupe/chocolat-noyer-v5.jpg",
-            laiton: "/images/mikado/coupe/laiton-noyer-v5.jpg",
-            lin: "/images/mikado/coupe/lin-noyer-v5.jpg",
-            blanc: "/images/mikado/coupe/blanc-noyer-v5.jpg",
+            noir: "/images/mikado/coupe/noir-noyer-v7.jpg",
+            gris: "/images/mikado/coupe/gris-noyer-v7.jpg",
+            chocolat: "/images/mikado/coupe/chocolat-noyer-v7.jpg",
+            laiton: "/images/mikado/coupe/laiton-noyer-v7.jpg",
+            lin: "/images/mikado/coupe/lin-noyer-v7.jpg",
+            blanc: "/images/mikado/coupe/blanc-noyer-v7.jpg",
           },
         },
       },
@@ -870,9 +869,9 @@ export const products: Product[] = [
         bg: "#ffffff",
         fit: "contain",
         parBois: {
-          pin: "/images/table-croix-bout-v2-pin.jpg",
-          hetre: "/images/table-croix-bout-v2-hetre.jpg",
-          noyer: "/images/table-croix-bout-v2-noyer.jpg",
+          pin: "/images/table-croix-bout-v2-pin-v7.jpg",
+          hetre: "/images/table-croix-bout-v2-hetre-v7.jpg",
+          noyer: "/images/table-croix-bout-v2-noyer-v7.jpg",
         },
       },
       {
@@ -881,9 +880,9 @@ export const products: Product[] = [
         bg: "#ffffff",
         fit: "contain",
         parBois: {
-          pin: "/images/table-croix-soudure-v1-pin.jpg",
-          hetre: "/images/table-croix-soudure-v1-hetre.jpg",
-          noyer: "/images/table-croix-soudure-v1-noyer.jpg",
+          pin: "/images/table-croix-soudure-v1-pin-v7.jpg",
+          hetre: "/images/table-croix-soudure-v1-hetre-v7.jpg",
+          noyer: "/images/table-croix-soudure-v1-noyer-v7.jpg",
         },
       },
       {
@@ -892,9 +891,9 @@ export const products: Product[] = [
         bg: "#ffffff",
         fit: "contain",
         parBois: {
-          pin: "/images/table-croix-cote-v2-pin.jpg",
-          hetre: "/images/table-croix-cote-v2-hetre.jpg",
-          noyer: "/images/table-croix-cote-v2-noyer.jpg",
+          pin: "/images/table-croix-cote-v2-pin-v7.jpg",
+          hetre: "/images/table-croix-cote-v2-hetre-v7.jpg",
+          noyer: "/images/table-croix-cote-v2-noyer-v7.jpg",
         },
       },
       {
@@ -903,9 +902,9 @@ export const products: Product[] = [
         bg: "#ffffff",
         fit: "contain",
         parBois: {
-          pin: "/images/table-croix-detail-v1-pin.jpg",
-          hetre: "/images/table-croix-detail-v1-hetre.jpg",
-          noyer: "/images/table-croix-detail-v1-noyer.jpg",
+          pin: "/images/table-croix-detail-v1-pin-v7.jpg",
+          hetre: "/images/table-croix-detail-v1-hetre-v7.jpg",
+          noyer: "/images/table-croix-detail-v1-noyer-v7.jpg",
         },
       },
     ],
@@ -1467,16 +1466,18 @@ export const products: Product[] = [
     releve: "garde-corps-fenetre",
     category: "interieur",
     // Se commande en ligne, aux cotes que le client relève lui-même : aucune
-    // taille au catalogue, tout passe par le barème au m². L'atelier peut
-    // aussi venir mesurer (priseDeCotes).
+    // taille au catalogue. La forme (hauteur à la norme, nombre de croix,
+    // carré, barreaux en partie basse) et le prix viennent de l'outil de plans
+    // de l'atelier, sur le serveur (src/lib/garde-corps-outil/, décisions de
+    // Quentin du 29/09) : aucun barème ici. Plusieurs garde-corps dans une
+    // commande : les frais fixes de l'atelier ne comptent qu'une fois (la
+    // remise, jamais sous le prix plancher). L'atelier peut aussi venir
+    // mesurer (priseDeCotes).
     // Ce modèle est fait pour la FENÊTRE seulement : d'autres modèles
     // viendront pour l'escalier, le balcon ou la mezzanine, avec leurs
     // propres photos.
     orderMode: "cart",
     priseDeCotes: true,
-    // Plusieurs fenêtres : −10 % sur chaque garde-corps dès le deuxième,
-    // même avec des cotes différentes. Un seul déplacement, un seul emballage.
-    remiseLot: { desPieces: 2, taux: 0.1 },
     name: "Garde-corps de fenêtre Rosace",
     tagline: "Croix de Saint-André en acier plein, rosaces de fonderie, main courante en chêne. Fabriqué au millimètre, encastré dans votre fenêtre.",
     images: [
@@ -1500,29 +1501,19 @@ export const products: Product[] = [
       },
     ],
     sizes: [],
-    surMesure: {
-      // 100 € de forfait (rosaces, fixations, finition, emballage) + 330 €/m²
-      // de garde-corps : le modèle de la photo, 1 180 × 350 mm, tombe à 240 €,
-      // le prix donné par Quentin (« autour de 240 € max »). Une petite
-      // fenêtre de 800 × 350 fait 200 €, un 2 000 × 600 fait 500 €.
-      forme: "rect",
-      axes: "panneau",
-      forfait: 100,
-      parM2: 330,
-      minMm: 200,
-      maxLargeurMm: 3000,
-      maxHauteurMm: 1200,
-      // Le « à partir de » : une petite fenêtre de 80 cm, à la hauteur du modèle.
-      departMm: [800, 350],
-      // Pas d'épaisseur à choisir : c'est la main courante, 40 mm, point.
-      epaisseur: { minMm: 40, maxMm: 40, refMm: 40 },
-    },
-    woods: woods({ pin: -40, hetre: -20, chene: 0, noyer: 60 }),
+    // L'outil chiffre le bois de la main courante à son volume, essence par
+    // essence : aucun écart fixe ici (il compterait le bois deux fois).
+    woods: woods({ pin: 0, hetre: 0, chene: 0, noyer: 0 }),
+    boisParDefaut: "chene",
+    // Un garde-corps n'a pas de plateau : le bois, c'est la main courante.
+    woodLabel: { fr: "Bois de la main courante", en: "Handrail timber" },
     metals: metals("noir", "brut", "blanc"),
     metalLabel: { fr: "Couleur de l'acier", en: "Steel colour" },
     // La rosace au croisement des barres : quatre modèles de fonderie, en
     // photo dans la pastille. Le supplément est par garde-corps, quel que
-    // soit le nombre de croix. À VALIDER par Quentin : les suppléments.
+    // soit le nombre de croix, AJOUTÉ au prix de l'outil (qui compte la
+    // fleur) : décision du 29/09, en attendant que l'outil chiffre chaque
+    // modèle. De même pour les teintes (0 €) et le verre.
     fabricLabel: { fr: "Rosace au centre des croix", en: "Rosette at the centre of the crosses" },
     fabrics: [
       {
@@ -1560,27 +1551,26 @@ export const products: Product[] = [
     ],
     remplissages: [
       {
-        // Le modèle : une rangée de croix, une par panneau d'environ 60 cm.
-        // Au-delà de 450 mm de haut, les triangles entre les croix laissent
-        // passer la sphère de 110 mm de la norme : on ne le vend plus à ces
-        // cotes — on propose le verre, ou un autre modèle.
-        // À VALIDER par Quentin : la hauteur limite (450) et le tarif du verre.
+        // Le modèle : une rangée de croix. Leur nombre est celui de l'outil de
+        // plans : le moins de croix qui passe la norme (NF P01-012 : une
+        // boule de 110 mm ne passe pas sous 800 mm du sol, de 180 au-dessus).
         id: "croix",
         label: "Croix de Saint-André et rosaces",
         labelEn: "Saint Andrew's crosses and rosettes",
         forfait: 0,
         parM2: 0,
-        hauteurMaxConformeMm: 450,
       },
       {
         // Verre feuilleté de sécurité 44.2 dans le cadre acier, à la place des
-        // croix : aucun vide, conforme à toute hauteur. Le verre, la découpe,
-        // les fixations et le joint : 180 € + 350 €/m².
+        // croix : aucun vide. Le verre, la découpe, les fixations et le joint :
+        // 180 € + 350 €/m², ajoutés au prix de l'outil (décision du 29/09).
+        // À VALIDER par Quentin : le tarif du verre.
         id: "verre",
         label: "Panneau de verre feuilleté, à la place des croix",
         labelEn: "Laminated glass panel, instead of the crosses",
         forfait: 180,
         parM2: 350,
+        sansCroix: true,
       },
     ],
     sections: [
@@ -1598,7 +1588,7 @@ export const products: Product[] = [
       },
       {
         title: "Une hauteur calculée selon la règle",
-        body: "En étage, une fenêtre dont l'appui est à moins de 90 cm du sol doit être protégée jusqu'à 1 m du sol. C'est le Code de la construction. Nous faisons le calcul à partir de votre hauteur d'allège. Le garde-corps ne descend jamais sous 35 cm, la hauteur du modèle en photo : une barre d'appui qui laisse la vue.",
+        body: "En étage, une fenêtre dont l'appui est à moins de 90 cm du sol doit être protégée : c'est le Code de la construction. La main courante monte à 1 m du sol, ou à 1 m au-dessus de l'appui quand il est entre 10 et 60 cm du sol (un enfant pourrait y monter), avec 2,5 cm de marge. Nous faisons le calcul à partir de votre hauteur d'allège, et nous mettons autant de croix qu'il en faut pour qu'aucun vide ne soit trop grand.",
       },
     ],
     specs: [
@@ -1609,7 +1599,7 @@ export const products: Product[] = [
       { label: "Prise de cotes", value: "Par vous, au mètre — ou par l'atelier, dès 19,99 € jusqu'à 30 km de Saumur, déduits de la commande" },
       { label: "Normes", value: "Hauteur calculée selon l'art. R111-15 du Code de la construction et la NF P01-012" },
       { label: "Fabrication", value: "Sur commande — comptez 4 à 6 semaines" },
-      { label: "Livraison", value: "France métropolitaine, fixations et notice de pose comprises" },
+      { label: "Livraison", value: "Par transporteur en France métropolitaine, livré et posé par l'atelier, ou retiré à l'atelier à Saumur — fixations et notice de pose comprises" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -1639,7 +1629,7 @@ export const products: Product[] = [
         },
         {
           title: "A height set by the rule",
-          body: "Upstairs, a window whose sill is less than 90 cm from the floor must be guarded up to 1 m from the floor. That is the French building code. We do the sum from your sill height. The railing never goes below 35 cm, the height of the model in the photo: a handrail that leaves the view open.",
+          body: "Upstairs, a window whose sill is less than 90 cm from the floor must be guarded: that is the French building code. The handrail rises to 1 m from the floor, or 1 m above the sill when the sill is between 10 and 60 cm from the floor (a child could climb onto it), with a 2.5 cm margin. We do the sum from your sill height, and we put in as many crosses as it takes for no gap to be too wide.",
         },
       ],
       specs: [
@@ -1650,7 +1640,7 @@ export const products: Product[] = [
         { label: "Survey", value: "By you, with a tape — or by the workshop, from €19.99 within 30 km of Saumur, deducted from the order" },
         { label: "Standards", value: "Height set by art. R111-15 of the French building code and NF P01-012" },
         { label: "Lead time", value: "Made to order — allow 4 to 6 weeks" },
-        { label: "Delivery", value: "Mainland France, fixings and fitting guide included" },
+        { label: "Delivery", value: "By carrier in mainland France, delivered and fitted by the workshop, or collected from the workshop in Saumur — fixings and fitting guide included" },
       ],
     },
   },
@@ -2239,9 +2229,6 @@ function densiteBoisKgM3(woodId?: string): number {
   return (woodId && DENSITE_BOIS_KG_M3[woodId]) || DENSITE_BOIS_KG_M3.chene;
 }
 
-/** L'acier, plein, quelle que soit la pièce : 7 850 kg/m³. */
-const DENSITE_ACIER_KG_M3 = 7850;
-
 /**
  * Le piétement soudé d'une table, en kilos par mètre de longueur du plateau —
  * d'après le profil réellement écrit sur la fiche (« Piétement »). Un tube de
@@ -2261,29 +2248,12 @@ const PIETEMENT_KG_PAR_M_DEFAUT = 16; // tube 80 × 80 mm, paroi 3 mm
 const COUVERTURE_LATTES = 0.7;
 
 /**
- * L'acier plein d'un garde-corps de fenêtre : une barre carrée de 16 mm — un
- * choix courant en ferronnerie d'art pour une croix de Saint-André, à
- * confirmer par Quentin contre le profil réellement soudé. 16² mm² × 7 850
- * kg/m³ ≈ 2,0 kg le mètre.
+ * Un panneau de verre feuilleté de sécurité (environ 8 mm), au m². L'outil de
+ * plans ne dessine pas encore le verre du garde-corps : son poids s'ajoute à
+ * celui que l'outil donne pour la pièce (voir resolveSelection).
  */
-const BARRE_GC_KG_PAR_M = 0.016 * 0.016 * DENSITE_ACIER_KG_M3;
-/** Une croix par panneau d'environ 60 cm (voir le remplissage « croix », plus haut). */
-const LARGEUR_PANNEAU_CROIX_M = 0.6;
-/** La main courante : 40 × 40 mm massif. */
-const SECTION_MAIN_COURANTE_M2 = 0.04 * 0.04;
-/** Une rosace de fonderie ou d'aluminium moulé, par croix. */
-const ROSACE_KG = 0.4;
-/** Un panneau de verre feuilleté de sécurité (environ 8 mm), au m². */
-const VERRE_KG_PAR_M2 = 20;
+export const VERRE_KG_PAR_M2 = 20;
 
-/**
- * Le poids du colis d'une pièce, en kilos, pour chiffrer la livraison : le
- * plateau d'une table au volume réel de l'essence choisie, son piétement à
- * son métrage de tube, un garde-corps à la vraie longueur de barre (cadre et
- * croix de Saint-André, ou cadre et verre), un plafond lumineux à la
- * surface, une chaise à poids fixe (colisKg). Estimation, jamais une pesée :
- * à valider contre un vrai colis.
- */
 /**
  * Les cotes au-delà desquelles aucun transporteur ne prend le colis.
  *
@@ -2330,10 +2300,19 @@ export function livrableParTransporteur(
   );
 }
 
+/**
+ * Le poids du colis d'une pièce, en kilos, pour chiffrer la livraison : le
+ * plateau d'une table au volume réel de l'essence choisie, son piétement à
+ * son métrage de tube, un plafond lumineux à la surface, une chaise à poids
+ * fixe (colisKg). Estimation, jamais une pesée : à valider contre un vrai
+ * colis. Le garde-corps n'est pas ici : son poids est celui de l'outil de
+ * plans (le débit réel de sa configuration), calculé sur le serveur.
+ */
 export function poidsColisKg(
   product: Product,
   cotes: { largeurMm?: number; hauteurMm?: number; epaisseurMm?: number; woodId?: string; remplissageId?: string }
 ): number {
+  if (prixParOutil(product)) throw new Error("poids du garde-corps : calculé par l'outil de plans, sur le serveur");
   if (product.colisKg) return product.colisKg;
   const bareme = product.surMesure;
   const L = (cotes.largeurMm && cotes.largeurMm > 0 ? cotes.largeurMm : bareme?.departMm?.[0] ?? 2000) / 1000;
@@ -2343,21 +2322,6 @@ export function poidsColisKg(
     // Cadre aluminium, LED et toile : léger, et un peu de fixations.
     const surface = bareme?.forme === "rond" ? Math.PI * (L / 2) ** 2 : L * W;
     return Math.max(4, Math.round(surface * 6 + 4));
-  }
-  if (product.famille === "garde-corps") {
-    const nbPanneaux = Math.max(1, Math.round(L / LARGEUR_PANNEAU_CROIX_M));
-    const perimetreM = 2 * (L + W);
-    const structureKg =
-      cotes.remplissageId === "verre"
-        ? // Un cadre soudé qui reçoit le verre : pas de croix, le poids du vitrage à la place.
-          perimetreM * BARRE_GC_KG_PAR_M + L * W * VERRE_KG_PAR_M2
-        : (() => {
-            const panneauLargeurM = L / nbPanneaux;
-            const diagonaleM = Math.sqrt(panneauLargeurM ** 2 + W ** 2);
-            return (perimetreM + nbPanneaux * 2 * diagonaleM) * BARRE_GC_KG_PAR_M + nbPanneaux * ROSACE_KG;
-          })();
-    const mainCouranteKg = L * SECTION_MAIN_COURANTE_M2 * densiteBoisKgM3(cotes.woodId);
-    return Math.max(8, Math.round(structureKg + mainCouranteKg));
   }
   // Une table : le plateau au volume réel de l'essence choisie (à lattes,
   // 70 % de bois pour un plateau extérieur), le piétement soudé à part, et
@@ -2397,6 +2361,7 @@ export function deltaBois(product: Product, wood: ProductSwatch | undefined, sur
 export function essenceDeReference(product: Product): ProductSwatch | undefined {
   if (product.woods.length === 0) return undefined;
   return (
+    product.woods.find((bois) => bois.id === product.boisParDefaut) ??
     product.woods.find((bois) => !bois.priceDelta) ??
     // Aucune essence à écart nul : faute de mieux, la moins chère.
     product.woods.reduce((a, b) => ((a.priceDelta ?? 0) <= (b.priceDelta ?? 0) ? a : b))
@@ -2410,6 +2375,9 @@ export function essenceDeReference(product: Product): ProductSwatch | undefined 
  * qu'aucune configuration ne peut atteindre.
  */
 export function priceFrom(product: Product): number | null {
+  // Le garde-corps : son « à partir de » vient de l'outil de plans, sur le
+  // serveur (prixDepart, src/lib/prix-garde-corps.server.ts). Ici, rien.
+  if (prixParOutil(product)) return null;
   const moinsCher = (options: ProductSwatch[] | undefined) =>
     options && options.length > 0 ? Math.min(...options.map((o) => o.priceDelta ?? 0)) : 0;
   const boisMoinsCher =
@@ -2418,8 +2386,8 @@ export function priceFrom(product: Product): number | null {
       : undefined;
   const autres = moinsCher(product.metals) + moinsCher(product.fabrics);
   // Une pièce sans taille au catalogue : soit elle a un barème et des cotes de
-  // départ (le garde-corps), soit elle est sur devis et on n'annonce rien —
-  // jamais un chiffre inventé.
+  // départ, soit elle est sur devis et on n'annonce rien — jamais un chiffre
+  // inventé.
   if (product.sizes.length === 0) {
     const bareme = product.surMesure;
     if (!bareme?.departMm) return null;
@@ -2450,6 +2418,17 @@ export type Selection = {
   largeurMm?: number;
   hauteurMm?: number;
   epaisseurMm?: number;
+  /**
+   * Le relevé d'un garde-corps de fenêtre (avec largeurMm) : l'allège, l'étage
+   * et la hauteur de la fenêtre. C'est avec eux que le serveur recalcule la
+   * forme et le prix ; hauteurMm, s'il est donné, doit être la hauteur que
+   * l'outil retient (sinon la ligne est refusée : le client a vu autre chose).
+   */
+  allegeMm?: number;
+  enEtage?: boolean;
+  fenetreMm?: number;
+  /** Garde-corps : le modèle choisi parmi ceux que la norme permet (« 16-3 »). Voir ReleveGC.modele. */
+  modeleGc?: string;
   /** Langue du libellé de la ligne. N'influence aucun prix. */
   locale?: Locale;
 };
@@ -2469,6 +2448,18 @@ export type ResolvedLine = {
   /** Résumé lisible des options, pour l'e-mail et le panier. */
   optionsLabel: string;
   image?: string;
+  /** Un garde-corps de fenêtre : la forme retenue par l'outil de plans, et son poids. */
+  gc?: {
+    releve: ReleveGC;
+    /** Le prix de l'outil seul, sans les suppléments d'option du site. */
+    prixOutil: number;
+    hauteurMm: number;
+    croix: number;
+    carre: number;
+    soubassement: boolean;
+    /** Le poids d'une pièce : celui de l'outil, plus le verre s'il remplace les croix. */
+    kg: number;
+  };
 };
 
 export type ResolveFailure =
@@ -2479,8 +2470,12 @@ export type ResolveFailure =
   | "unknown_metal"
   | "unknown_fabric"
   | "unknown_remplissage"
-  /** Le remplissage demandé laisse des vides hors norme à cette hauteur. */
-  | "non_conforme"
+  /** Un garde-corps de fenêtre que la norme ne laisse pas vendre tel quel : à étudier avec l'atelier. */
+  | "a_etudier"
+  /** La hauteur envoyée n'est pas celle que l'outil retient pour ce relevé. */
+  | "hauteur"
+  /** Le prix de cette pièce ne se calcule que sur le serveur (l'outil de plans). */
+  | "prix_serveur"
   | "invalid_price";
 
 export type ResolveResult =
@@ -2516,9 +2511,9 @@ function pickOption(
  * serveur fait pareil, sinon un lien ou un panier forgé faisait payer un
  * médaillon que la pièce n'a pas.
  */
-function fabricSousRemplissage(product: Product, fabricId: string | undefined, remplissageId: string | undefined) {
+export function fabricSousRemplissage(product: Product, fabricId: string | undefined, remplissageId: string | undefined) {
   if (!product.fabricLabel || !product.fabrics?.length) return fabricId;
-  const sansCroix = product.remplissages?.some((r) => r.id === remplissageId && r.hauteurMaxConformeMm === undefined);
+  const sansCroix = product.remplissages?.some((r) => r.id === remplissageId && r.sansCroix);
   return sansCroix ? product.fabrics[0].id : fabricId;
 }
 
@@ -2538,14 +2533,6 @@ export function supplementRemplissage(remplissage: Remplissage, largeurMm: numbe
   if (!remplissage.forfait && !remplissage.parM2) return 0;
   const surface = surfaceM2("rect", largeurMm, hauteurMm);
   return Math.ceil((remplissage.forfait + remplissage.parM2 * surface) / 10) * 10;
-}
-
-/**
- * Ce remplissage respecte-t-il la norme à cette hauteur de garde-corps ?
- * Les croix ont une hauteur limite ; le verre n'en a pas.
- */
-export function remplissageConforme(remplissage: Remplissage, hauteurMm: number) {
-  return remplissage.hauteurMaxConformeMm === undefined || hauteurMm <= remplissage.hauteurMaxConformeMm;
 }
 
 /** Surface lumineuse en m², à partir de cotes en millimètres. */
@@ -2793,6 +2780,8 @@ export function computeUnitPrice(
   product: Product,
   selection: Omit<Selection, "slug">
 ): number | null {
+  // Le garde-corps : son prix ne se calcule que sur le serveur (/api/prix-garde-corps).
+  if (prixParOutil(product)) return null;
   const size = tailleDemandee(product, selection);
   if (!size) return null;
 
@@ -2804,13 +2793,6 @@ export function computeUnitPrice(
   if (!fabric.ok) return null;
   const remplissage = remplissageDemande(product, selection.remplissageId);
   if (!remplissage.ok) return null;
-  if (
-    remplissage.value &&
-    size.id === SUR_MESURE &&
-    !remplissageConforme(remplissage.value, Number(selection.hauteurMm))
-  ) {
-    return null;
-  }
 
   const prix =
     size.price +
@@ -2853,11 +2835,16 @@ function tailleDemandee(
 /**
  * Vérifie une sélection et calcule son prix, côté serveur.
  * Le navigateur n'envoie que des identifiants : tout montant reçu est ignoré.
+ *
+ * Le garde-corps de fenêtre demande `prixReleve`, le calcul de l'outil de
+ * plans, que seul le serveur fournit (src/lib/prix-garde-corps.server.ts) :
+ * sans lui, sa ligne est refusée (« prix_serveur »), jamais chiffrée ici.
  */
-export function resolveSelection(selection: Selection): ResolveResult {
+export function resolveSelection(selection: Selection, prixReleve?: PrixReleve): ResolveResult {
   const product = getProduct(selection.slug);
   if (!product) return { ok: false, reason: "unknown_slug" };
   if (product.orderMode !== "cart") return { ok: false, reason: "not_orderable" };
+  if (prixParOutil(product)) return resoudreReleve(product, selection, prixReleve);
   // Sans taille au catalogue ni barème, il n'y a rien à vendre.
   if (product.sizes.length === 0 && !product.surMesure) {
     return { ok: false, reason: "unknown_size" };
@@ -2876,15 +2863,6 @@ export function resolveSelection(selection: Selection): ResolveResult {
   if (!fabric.ok) return { ok: false, reason: "unknown_fabric" };
   const remplissage = remplissageDemande(product, selection.remplissageId);
   if (!remplissage.ok) return { ok: false, reason: "unknown_remplissage" };
-  // Un garde-corps à croix trop haut pour la norme ne se vend pas : le
-  // navigateur l'a déjà dit au client, le serveur le redit à quiconque forge.
-  if (
-    remplissage.value &&
-    size.id === SUR_MESURE &&
-    !remplissageConforme(remplissage.value, Number(selection.hauteurMm))
-  ) {
-    return { ok: false, reason: "non_conforme" };
-  }
 
   const unitPrice =
     size.price +
@@ -2926,6 +2904,128 @@ export function resolveSelection(selection: Selection): ResolveResult {
 }
 
 /* ------------------------------------------------------------------ *
+ *  Le garde-corps de fenêtre : chiffré par l'outil de plans
+ *  Sa forme (hauteur à la norme, croix, carré, barreaux en partie basse)
+ *  et son prix sont ceux de l'outil de l'atelier (décisions de Quentin du
+ *  29/09). Ils se calculent sur le serveur seulement, parce que le calcul
+ *  contient les coûts de l'atelier : ce fichier-ci, que le navigateur
+ *  charge, n'en reçoit que le résultat, par `prixReleve`.
+ * ------------------------------------------------------------------ */
+
+/** Le prix de cette pièce vient-il de l'outil de plans (le garde-corps de fenêtre) ? */
+export function prixParOutil(product: Product): boolean {
+  return product.releve === "garde-corps-fenetre";
+}
+
+/** Ce que l'outil de plans répond pour un relevé et une essence (fourni par le serveur). */
+export type ReponseReleve =
+  | {
+      ok: true;
+      /** Le prix conseillé de l'outil, en euros entiers. */
+      prix: number;
+      hauteurMm: number;
+      croix: number;
+      carre: number;
+      soubassement: boolean;
+      /** Le poids d'une pièce, en kilos (celui de l'outil). */
+      kg: number;
+    }
+  | { ok: false; raison: "a-etudier" | "fenetre-trop-basse" | "hors-bornes" };
+export type PrixReleve = (releve: ReleveGC & { essence: string }) => ReponseReleve;
+
+/** Un entier de millimètres, ou rien. */
+const mmEntier = (x: unknown) => (typeof x === "number" && Number.isInteger(x) && x >= 0 ? x : undefined);
+
+/** « Sur mesure — 1 180 × 940 mm, 4 croix », dans la langue du client. */
+export function libelleGardeCorps(largeurMm: number, hauteurMm: number, croix: number | null, locale: Locale = "fr") {
+  const langue = locale === "en" ? "en-GB" : "fr-FR";
+  const cotes = `${largeurMm.toLocaleString(langue)} × ${hauteurMm.toLocaleString(langue)} mm`;
+  const prefixe = locale === "en" ? "Custom" : "Sur mesure";
+  if (croix === null) return `${prefixe} — ${cotes}`;
+  const mot = locale === "en" ? (croix > 1 ? "crosses" : "cross") : "croix";
+  return `${prefixe} — ${cotes}, ${croix} ${mot}`;
+}
+
+/**
+ * La ligne d'un garde-corps de fenêtre : les options vérifiées comme pour
+ * toute pièce, la forme et le prix de l'outil pour ce relevé, puis les
+ * suppléments du site que l'outil ne chiffre pas encore (rosace, teinte,
+ * verre : décision du 29/09). L'essence n'a pas d'écart : l'outil la chiffre.
+ */
+function resoudreReleve(product: Product, selection: Selection, prixReleve?: PrixReleve): ResolveResult {
+  if (selection.sizeId !== undefined && selection.sizeId !== SUR_MESURE) return { ok: false, reason: "unknown_size" };
+  const largeurMm = mmEntier(selection.largeurMm);
+  const allegeMm = mmEntier(selection.allegeMm);
+  const fenetreMm = selection.fenetreMm === undefined ? 0 : mmEntier(selection.fenetreMm);
+  if (largeurMm === undefined || allegeMm === undefined || fenetreMm === undefined || typeof selection.enEtage !== "boolean") {
+    return { ok: false, reason: "unknown_size" };
+  }
+
+  const wood = pickOption(product.woods, selection.woodId);
+  if (!wood.ok || !wood.value) return { ok: false, reason: "unknown_wood" };
+  const metal = pickOption(product.metals, selection.metalId);
+  if (!metal.ok) return { ok: false, reason: "unknown_metal" };
+  const fabric = pickOption(product.fabrics, fabricSousRemplissage(product, selection.fabricId, selection.remplissageId));
+  if (!fabric.ok) return { ok: false, reason: "unknown_fabric" };
+  const remplissage = remplissageDemande(product, selection.remplissageId);
+  if (!remplissage.ok) return { ok: false, reason: "unknown_remplissage" };
+
+  if (!prixReleve) return { ok: false, reason: "prix_serveur" };
+  if (selection.modeleGc !== undefined && !lireModeleGC(selection.modeleGc)) return { ok: false, reason: "unknown_size" };
+  const releve: ReleveGC = {
+    largeurMm, allegeMm, enEtage: selection.enEtage, fenetreMm,
+    ...(selection.modeleGc !== undefined ? { modele: selection.modeleGc } : {}),
+  };
+  const r = prixReleve({ ...releve, essence: wood.value.id });
+  if (!r.ok) return { ok: false, reason: r.raison === "hors-bornes" ? "unknown_size" : "a_etudier" };
+  if (selection.hauteurMm !== undefined && selection.hauteurMm !== r.hauteurMm) return { ok: false, reason: "hauteur" };
+
+  const verre = remplissage.value?.sansCroix === true;
+  const supplementVerre = verre && remplissage.value ? supplementRemplissage(remplissage.value, largeurMm, r.hauteurMm) : 0;
+  const unitPrice = r.prix + (metal.value?.priceDelta ?? 0) + (fabric.value?.priceDelta ?? 0) + supplementVerre;
+  if (!Number.isInteger(unitPrice) || unitPrice <= 0) return { ok: false, reason: "invalid_price" };
+
+  const size: ProductSize = {
+    id: SUR_MESURE,
+    label: libelleGardeCorps(largeurMm, r.hauteurMm, verre ? null : r.croix, selection.locale),
+    price: r.prix,
+    dimsMm: [largeurMm, r.hauteurMm],
+  };
+  const optionsLabel = [
+    size.label,
+    wood.value.label,
+    metal.value?.label,
+    verre ? null : fabric.value?.label,
+    remplissage.value && remplissage.value !== product.remplissages?.[0] ? remplissage.value.label : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  return {
+    ok: true,
+    line: {
+      product,
+      size,
+      wood: wood.value,
+      metal: metal.value,
+      fabric: fabric.value,
+      remplissage: remplissage.value,
+      unitPrice,
+      optionsLabel,
+      image: fabric.value?.image ?? product.images[0]?.src,
+      gc: {
+        releve,
+        prixOutil: r.prix,
+        hauteurMm: r.hauteurMm,
+        croix: r.croix,
+        carre: r.carre,
+        soubassement: r.soubassement,
+        kg: r.kg + (verre ? ((largeurMm * r.hauteurMm) / 1e6) * VERRE_KG_PAR_M2 : 0),
+      },
+    },
+  };
+}
+
+/* ------------------------------------------------------------------ *
  *  Le catalogue dans la langue du visiteur
  *  Le français reste la version d'origine : on pose simplement la
  *  traduction par-dessus, champ par champ. Ce qui n'est pas traduit
@@ -2935,35 +3035,6 @@ export function resolveSelection(selection: Selection): ResolveResult {
 /** Libellé d'une matière (bois, acier, velours) dans la langue demandée. */
 function swatchLocalise(swatch: ProductSwatch, locale: Locale): ProductSwatch {
   return locale === "en" && swatch.labelEn ? { ...swatch, label: swatch.labelEn } : swatch;
-}
-
-/**
- * Le prix de lot, appliqué à une commande entière.
- *
- * On compte les exemplaires de chaque pièce à prix de lot (un garde-corps par
- * fenêtre, avec ses propres cotes : ce sont bien des lignes différentes) ; dès
- * que le seuil est atteint, chaque exemplaire de cette pièce est remisé. Le
- * navigateur et /api/commande passent par ici : même arrondi, même résultat.
- */
-export function remiseLot<L extends { product: Product; unitPrice: number; quantity: number }>(
-  lines: L[]
-): (L & { prixLot: number; remise: number })[] {
-  const parPiece = new Map<string, number>();
-  for (const line of lines) {
-    if (!line.product.remiseLot) continue;
-    parPiece.set(line.product.slug, (parPiece.get(line.product.slug) ?? 0) + line.quantity);
-  }
-  return lines.map((line) => {
-    const lot = line.product.remiseLot;
-    const nombre = parPiece.get(line.product.slug) ?? 0;
-    const remise = lot && nombre >= lot.desPieces ? lot.taux : 0;
-    return { ...line, remise, prixLot: prixRemise(line.unitPrice, remise) };
-  });
-}
-
-/** Un prix remisé, à l'euro : le catalogue est en euros entiers, le lot aussi. */
-export function prixRemise(unitPrice: number, taux: number) {
-  return Math.round(unitPrice * (1 - taux));
 }
 
 /**

@@ -168,3 +168,25 @@ def apercu(photo, poly, chemin):
         cv2.circle(im, (int(round(x)), int(round(y))), 4, (255, 0, 0), -1)
     os.makedirs(os.path.dirname(chemin), exist_ok=True)
     cv2.imwrite(chemin, im)
+
+
+def nettoyer_dessus(photo, poly, largeur=18, rive=8):
+    """Rend le DESSUS du plateau net le long de ses bords arrière et de côté.
+    - Dans le contour droit, sur `rive` pixels sous le bord : le bois est prolongé depuis
+      l'intérieur. (Le contour est une droite ; le bord de la photo d'origine, lui, ondule de
+      quelques pixels : sans cela il resterait un filet de fond blanc ou l'arête sombre du chêne.)
+    - Hors du contour, sur `largeur` pixels au-dessus : le fond du studio, repris plus haut.
+      (Là, hors du contour, il n'y a que du fond : aucun pied, aucune ombre.)"""
+    H, W = photo.shape[:2]
+    dans = masque_poly(poly, photo.shape, 0.6) > 0.02
+    haut = np.where(dans.any(0), dans.argmax(0), H)             # première ligne du plateau, colonne par colonne
+    y = np.arange(H)[:, None]
+    lisere = dans & (y <= haut[None, :] + rive)
+    autour = cv2.dilate(lisere.astype(np.uint8), np.ones((9, 9), np.uint8)) > 0
+    bois = cv2.inpaint(np.clip(photo, 0, 255).astype(np.uint8), (lisere | (~dans & autour)).astype(np.uint8), 3, cv2.INPAINT_TELEA).astype(np.float32)
+    photo = np.where(lisere[..., None], bois, photo)
+    bande = cv2.dilate(dans.astype(np.uint8), np.ones((2 * largeur + 1, 2 * largeur + 1), np.uint8)) > 0
+    bande &= ~dans & (y <= haut[None, :])
+    plus_haut = np.roll(photo, largeur + 6, axis=0)
+    plus_haut[:largeur + 6] = photo[:1]
+    return np.where(bande[..., None], cv2.GaussianBlur(plus_haut, (0, 0), 3), photo)

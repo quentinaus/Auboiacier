@@ -1,0 +1,3930 @@
+{
+ "à lire": "Généré par scripts/extraire-moteur-garde-corps.mjs à partir de l'outil de plans (chargé tel quel dans node:vm). Aucun coût : des prix de vente, des poids, des hauteurs et des empreintes (sha256 tronqué) des réponses complètes. Ne pas modifier à la main.",
+ "outil": "2a6268a3f4535ee9527e6ddec08ec481b3ba10f3fa2d824689a8512a4cc739f4",
+ "empreintes": {
+  "moteur": "c101906683a3",
+  "devis": "b17e25d6781d",
+  "chiffrage": "83c978b1f393"
+ },
+ "defauts": "d8c0ef7d9c3293da",
+ "date": "2026-09-29T10:00:00.000Z",
+ "cas": [
+  {
+   "nom": "valeurs de départ de l'outil",
+   "valeurs": {},
+   "R": "eaeec6697050a919",
+   "hauteurGC": 290,
+   "kg": 11.612215647904575,
+   "alertes": 1,
+   "prix": 340,
+   "chiffrage": "990e558fe5fc734d",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-P19PT",
+    "total": 340,
+    "lignes": 5,
+    "donnees": "4fefecc2df2cf24b",
+    "html": "a304f7e3d23acb76"
+   },
+   "variantes": "71e1dcb0ea36f6b6"
+  },
+  {
+   "nom": "photo du site, 4 croix",
+   "valeurs": {
+    "nP": 4
+   },
+   "R": "2829f8478bbedeed",
+   "hauteurGC": 290,
+   "kg": 14.040998556145384,
+   "alertes": 0,
+   "prix": 570,
+   "chiffrage": "146511142c999023",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-RZVSH",
+    "total": 570,
+    "lignes": 5,
+    "donnees": "a75ddfc3f94177e1",
+    "html": "540719725208d15a"
+   }
+  },
+  {
+   "nom": "limite de solidité du carré 16",
+   "valeurs": {
+    "B": 1195,
+    "nP": 3
+   },
+   "R": "a9a767335bb34f7c",
+   "hauteurGC": 290,
+   "kg": 13.227166422730246,
+   "alertes": 1,
+   "prix": 490,
+   "chiffrage": "ab299c97da55690d",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-CMTT1",
+    "total": 490,
+    "lignes": 5,
+    "donnees": "54efa667afc3cb87",
+    "html": "3e94e67069ed2e42"
+   },
+   "variantes": "4600775da147af55"
+  },
+  {
+   "nom": "juste au-delà, carré 16",
+   "valeurs": {
+    "B": 1200,
+    "nP": 3
+   },
+   "R": "86e90da53eccc37b",
+   "hauteurGC": 290,
+   "kg": 13.269767948782295,
+   "alertes": 2,
+   "prix": 490,
+   "chiffrage": "215759b18f640e1c",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-G5786",
+    "total": 490,
+    "lignes": 5,
+    "donnees": "cd35fd16e15c3da2",
+    "html": "dfe24f672c35b170"
+   }
+  },
+  {
+   "nom": "juste au-delà, carré 18",
+   "valeurs": {
+    "B": 1200,
+    "s": 18,
+    "nP": 4
+   },
+   "R": "d356b93fa6befef0",
+   "hauteurGC": 290,
+   "kg": 17.458601566611243,
+   "alertes": 0,
+   "prix": 570,
+   "chiffrage": "a08db4f0d24267af",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-VD5TU",
+    "total": 570,
+    "lignes": 5,
+    "donnees": "102c8176835c09dc",
+    "html": "e0d9f3bfef6ace6d"
+   }
+  },
+  {
+   "nom": "appui bas et soubassement",
+   "valeurs": {
+    "B": 900,
+    "A": 300,
+    "nP": 2
+   },
+   "chantier": "12 rue des Lilas, 44000 Nantes",
+   "R": "7220577662415ed6",
+   "hauteurGC": 940,
+   "kg": 21.441991787559047,
+   "alertes": 0,
+   "prix": 580,
+   "chiffrage": "a1a44d90c1e11781",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-FR3FP",
+    "total": 580,
+    "lignes": 5,
+    "donnees": "447d9620b8bb4ed4",
+    "html": "557bf4a1323967a0"
+   }
+  },
+  {
+   "nom": "rez-de-chaussée, au sol",
+   "valeurs": {
+    "B": 800,
+    "A": 0,
+    "etage": false,
+    "nP": 2
+   },
+   "R": "645356375491c0c6",
+   "hauteurGC": 940,
+   "kg": 20.08107589916366,
+   "alertes": 1,
+   "prix": 560,
+   "chiffrage": "8a7f705f2780bf49",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-QZS1C",
+    "total": 560,
+    "lignes": 5,
+    "donnees": "174edd4195c4431a",
+    "html": "6336fd349d5d8982"
+   }
+  },
+  {
+   "nom": "allège 900, pas d'obligation",
+   "valeurs": {
+    "B": 300,
+    "A": 900
+   },
+   "R": "8859094579732720",
+   "hauteurGC": 200,
+   "kg": 3.2840222715711174,
+   "alertes": 0,
+   "prix": 310,
+   "chiffrage": "33ff1e31d74166cf",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-B3L6O",
+    "total": 310,
+    "lignes": 5,
+    "donnees": "ad789f201b4232ff",
+    "html": "eca1c415735252de"
+   }
+  },
+  {
+   "nom": "très large, carré 20",
+   "valeurs": {
+    "B": 3000,
+    "A": 500,
+    "s": 20,
+    "nP": 6
+   },
+   "R": "7a2fcc946dd31c46",
+   "hauteurGC": 940,
+   "kg": 92.11319446129188,
+   "alertes": 2,
+   "prix": 1340,
+   "chiffrage": "8c25021656a1f611",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-SFBP4",
+    "total": 1340,
+    "lignes": 5,
+    "donnees": "457494624d776a71",
+    "html": "52ae3173cce344be"
+   }
+  },
+  {
+   "nom": "plat d'acier, sans rosace",
+   "valeurs": {
+    "B": 1000,
+    "A": 725,
+    "mcType": "acier",
+    "rosace": false
+   },
+   "R": "75acec650383cb03",
+   "hauteurGC": 210,
+   "kg": 11.059826638549977,
+   "alertes": 0,
+   "prix": 310,
+   "chiffrage": "b40182da55012de1",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-E2A91",
+    "total": 310,
+    "lignes": 5,
+    "donnees": "c250ca82015153c6",
+    "html": "6da60e900c0dbfc0"
+   }
+  },
+  {
+   "nom": "main courante profilée, allège 599",
+   "valeurs": {
+    "B": 1400,
+    "A": 599,
+    "mcType": "profil"
+   },
+   "R": "89afa5bb407390ad",
+   "hauteurGC": 940,
+   "kg": 18.876033872462706,
+   "alertes": 2,
+   "prix": 380,
+   "chiffrage": "424bfc11cc4a39fc",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-8LNOG",
+    "total": 380,
+    "lignes": 5,
+    "donnees": "a7558868b2d50fa7",
+    "html": "6fae0713ef698123"
+   }
+  },
+  {
+   "nom": "fenêtre trop basse",
+   "valeurs": {
+    "B": 1000,
+    "A": 600,
+    "Hf": 300
+   },
+   "R": "d009cff616d06a01",
+   "hauteurGC": 340,
+   "kg": 10.256118003833661,
+   "alertes": 2,
+   "prix": 340,
+   "chiffrage": "f11473c44f90e9e8",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-N6ZDP",
+    "total": 340,
+    "lignes": 5,
+    "donnees": "d89a64f2e4c268af",
+    "html": "ed3bf1f70c273d02"
+   }
+  },
+  {
+   "nom": "meuble de 450, transporteur à 250 km",
+   "valeurs": {
+    "B": 1100,
+    "A": 100,
+    "Xo": 450,
+    "remise": "transporteur",
+    "km": 250
+   },
+   "chantier": "33000 Bordeaux",
+   "R": "2f838b4b1c808827",
+   "hauteurGC": 1290,
+   "kg": 28.41420227474638,
+   "alertes": 1,
+   "prix": 580,
+   "chiffrage": "5307dde9678d1ede",
+   "remise": {
+    "prix": 74,
+    "empreinte": "4c40277fe03f3ca6"
+   },
+   "devis": {
+    "numero": "D-20260929-VBRGU",
+    "total": 654,
+    "lignes": 6,
+    "donnees": "348507085e6e2dab",
+    "html": "dd23f412f58f6dd6"
+   }
+  },
+  {
+   "nom": "hors gabarit, pose à 120 km",
+   "valeurs": {
+    "B": 2100,
+    "A": 800,
+    "remise": "pose",
+    "km": 120,
+    "s": 20,
+    "nP": 6
+   },
+   "chantier": "Tours 37000",
+   "R": "f4f891f11d146ed5",
+   "hauteurGC": 200,
+   "kg": 31.239879987931168,
+   "alertes": 1,
+   "prix": 750,
+   "chiffrage": "d8cf212bfd6251ee",
+   "remise": {
+    "prix": 252,
+    "empreinte": "083de718c7ba0e9d"
+   },
+   "devis": {
+    "numero": "D-20260929-JB7VH",
+    "total": 1002,
+    "lignes": 6,
+    "donnees": "c4793ae0761ab524",
+    "html": "0e8504bd9a401a81"
+   }
+  },
+  {
+   "nom": "noyer, barreaux, onglets, sans rainure",
+   "valeurs": {
+    "B": 950,
+    "A": 400,
+    "sbMode": "toujours",
+    "nb": 1,
+    "ass": "onglet",
+    "essence": "noyer",
+    "rainure": false
+   },
+   "R": "130001da801f4a67",
+   "hauteurGC": 940,
+   "kg": 20.463248847052377,
+   "alertes": 1,
+   "prix": 540,
+   "chiffrage": "f15453981944dfb2",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-F2HHK",
+    "total": 540,
+    "lignes": 5,
+    "donnees": "3196a8a671500f4e",
+    "html": "04361601d2a93989"
+   }
+  },
+  {
+   "nom": "prix tapé 900 €",
+   "valeurs": {
+    "B": 1000,
+    "A": 650,
+    "prixVente": 900,
+    "remise": "transporteur",
+    "km": 60
+   },
+   "R": "20523f127f4b022b",
+   "hauteurGC": 290,
+   "kg": 9.992505796787606,
+   "alertes": 1,
+   "prix": 340,
+   "chiffrage": "0f337df8de4ae890",
+   "remise": {
+    "prix": 44,
+    "empreinte": "e7fbd5ebe4d330d7"
+   },
+   "devis": {
+    "numero": "D-20260929-AYJW6",
+    "total": 944,
+    "lignes": 6,
+    "donnees": "5db23cd28015c7d8",
+    "html": "14d7dd34cfe244f5"
+   }
+  },
+  {
+   "nom": "pin, pose à 10 km",
+   "valeurs": {
+    "B": 700,
+    "A": 850,
+    "essence": "pin",
+    "remise": "pose",
+    "km": 10,
+    "nP": 1
+   },
+   "R": "1b594b93ef5469c3",
+   "hauteurGC": 200,
+   "kg": 6.824974061142441,
+   "alertes": 0,
+   "prix": 320,
+   "chiffrage": "78e59c8dee28f8cc",
+   "remise": {
+    "prix": 100,
+    "empreinte": "0ad77eb380939717"
+   },
+   "devis": {
+    "numero": "D-20260929-3LO40",
+    "total": 420,
+    "lignes": 6,
+    "donnees": "891ad4b59e3f2581",
+    "html": "162b92cdf67d3969"
+   }
+  },
+  {
+   "nom": "hêtre, retrait, rez-de-chaussée",
+   "valeurs": {
+    "B": 1150,
+    "A": 250,
+    "etage": false,
+    "essence": "hetre",
+    "nP": 3
+   },
+   "R": "cb38a647b9fbfa04",
+   "hauteurGC": 940,
+   "kg": 28.02477398819588,
+   "alertes": 0,
+   "prix": 710,
+   "chiffrage": "9fa2a6c7813e07ac",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-KC9U1",
+    "total": 710,
+    "lignes": 5,
+    "donnees": "8b6445f71f069f13",
+    "html": "ed7eec9f7596e955"
+   }
+  },
+  {
+   "nom": "hasard 18",
+   "valeurs": {
+    "B": 1030,
+    "A": 570,
+    "etage": true,
+    "Hf": 0,
+    "essence": "noyer",
+    "remise": "retrait",
+    "km": 35,
+    "s": 16,
+    "nb": 2,
+    "nP": 4
+   },
+   "chantier": "49400 Saumur",
+   "R": "f713cf0b59aba808",
+   "hauteurGC": 940,
+   "kg": 42.757718737731636,
+   "alertes": 0,
+   "prix": 820,
+   "chiffrage": "661f77df78883038",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-6WV0I",
+    "total": 820,
+    "lignes": 5,
+    "donnees": "9ae9774061526d1b",
+    "html": "64b2d2fc699738bd"
+   }
+  },
+  {
+   "nom": "hasard 19",
+   "valeurs": {
+    "B": 665,
+    "A": 265,
+    "etage": false,
+    "Hf": 1460,
+    "essence": "hetre",
+    "remise": "retrait",
+    "km": 105,
+    "s": 16,
+    "ass": "onglet",
+    "nP": 6
+   },
+   "R": "13a04a7f0f0b43bc",
+   "hauteurGC": 940,
+   "kg": 27.348463676435042,
+   "alertes": 0,
+   "prix": 860,
+   "chiffrage": "a8b1489a4e48ccc6",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-I09M2",
+    "total": 860,
+    "lignes": 5,
+    "donnees": "4900d9121ce39469",
+    "html": "75f3aa854baacd33"
+   }
+  },
+  {
+   "nom": "hasard 20",
+   "valeurs": {
+    "B": 1760,
+    "A": 935,
+    "etage": true,
+    "Hf": 0,
+    "essence": "noyer",
+    "remise": "retrait",
+    "km": 120,
+    "s": 16,
+    "nP": 4
+   },
+   "R": "75d1a081757a6ea4",
+   "hauteurGC": 200,
+   "kg": 17.378751258203685,
+   "alertes": 1,
+   "prix": 590,
+   "chiffrage": "b9c9504d038c9a6c",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-ACHQK",
+    "total": 590,
+    "lignes": 5,
+    "donnees": "e0b95dbdadd9e87d",
+    "html": "3c6fcf6ce04771bc"
+   }
+  },
+  {
+   "nom": "hasard 21",
+   "valeurs": {
+    "B": 850,
+    "A": 435,
+    "etage": false,
+    "Hf": 900,
+    "essence": "noyer",
+    "remise": "retrait",
+    "km": 50,
+    "s": 16,
+    "Xo": 150,
+    "jour": 85,
+    "nP": 2
+   },
+   "chantier": "49400 Saumur",
+   "R": "3dbdf22c1560d8b0",
+   "hauteurGC": 940,
+   "kg": 20.21593792569457,
+   "alertes": 2,
+   "prix": 580,
+   "chiffrage": "447fed45a49bf8ee",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-3ZTKF",
+    "total": 580,
+    "lignes": 5,
+    "donnees": "8398049684f0970a",
+    "html": "fea65867079afc0f"
+   }
+  },
+  {
+   "nom": "hasard 22",
+   "valeurs": {
+    "B": 1320,
+    "A": 840,
+    "etage": true,
+    "Hf": 0,
+    "essence": "hetre",
+    "remise": "transporteur",
+    "km": 265,
+    "s": 16,
+    "rainure": false,
+    "nP": 6
+   },
+   "R": "021105283fabf632",
+   "hauteurGC": 200,
+   "kg": 14.116177402891116,
+   "alertes": 1,
+   "prix": 700,
+   "chiffrage": "c7ccb9c8735eb57b",
+   "remise": {
+    "prix": 59,
+    "empreinte": "0bf42eeed2501c71"
+   },
+   "devis": {
+    "numero": "D-20260929-VQAN0",
+    "total": 759,
+    "lignes": 6,
+    "donnees": "417f56e94e77ee5f",
+    "html": "220324dd45e1fad0"
+   }
+  },
+  {
+   "nom": "hasard 23",
+   "valeurs": {
+    "B": 620,
+    "A": 540,
+    "etage": true,
+    "Hf": 940,
+    "essence": "chene",
+    "remise": "pose",
+    "km": 285,
+    "s": 12,
+    "Hs": 490,
+    "rainure": false,
+    "nP": 2
+   },
+   "R": "ec2a52ea7c643bca",
+   "hauteurGC": 490,
+   "kg": 5.842248467224007,
+   "alertes": 3,
+   "prix": 400,
+   "chiffrage": "72aedc700b58a642",
+   "remise": {
+    "prix": 522,
+    "empreinte": "1a9d30f9bb1095e4"
+   },
+   "devis": {
+    "numero": "D-20260929-0CUGG",
+    "total": 922,
+    "lignes": 6,
+    "donnees": "39b6eec00fd6fcdf",
+    "html": "dd93593e4b747854"
+   }
+  },
+  {
+   "nom": "hasard 24",
+   "valeurs": {
+    "B": 1745,
+    "A": 15,
+    "etage": true,
+    "Hf": 1180,
+    "essence": "chene",
+    "remise": "pose",
+    "km": 345,
+    "s": 16,
+    "jour": 75,
+    "rainure": false,
+    "nP": 3
+   },
+   "R": "34eff0c3d73084e1",
+   "hauteurGC": 940,
+   "kg": 39.13697913979085,
+   "alertes": 2,
+   "prix": 840,
+   "chiffrage": "0ad3c063cd121fb8",
+   "remise": {
+    "prix": 620,
+    "empreinte": "7bf070b020ef0f4e"
+   },
+   "devis": {
+    "numero": "D-20260929-KBHVI",
+    "total": 1460,
+    "lignes": 6,
+    "donnees": "a33a3f58b5191140",
+    "html": "1a3661798107943b"
+   }
+  },
+  {
+   "nom": "hasard 25",
+   "valeurs": {
+    "B": 450,
+    "A": 365,
+    "etage": true,
+    "Hf": 930,
+    "essence": "noyer",
+    "remise": "pose",
+    "km": 60,
+    "s": 16,
+    "rosace": false,
+    "rainure": false,
+    "nP": 1
+   },
+   "R": "ba160078a399cd9a",
+   "hauteurGC": 940,
+   "kg": 11.273078136753828,
+   "alertes": 2,
+   "prix": 400,
+   "chiffrage": "9c28e178e256568d",
+   "remise": {
+    "prix": 154,
+    "empreinte": "d0c9e9947f33f4da"
+   },
+   "devis": {
+    "numero": "D-20260929-NIHUC",
+    "total": 554,
+    "lignes": 6,
+    "donnees": "5de83f7af6d9f888",
+    "html": "259f32106ca3d84f"
+   }
+  },
+  {
+   "nom": "hasard 26",
+   "valeurs": {
+    "B": 1125,
+    "A": 785,
+    "etage": false,
+    "Hf": 0,
+    "essence": "noyer",
+    "remise": "pose",
+    "km": 20,
+    "s": 12,
+    "nP": 1
+   },
+   "chantier": "49400 Saumur",
+   "R": "fa3eaa8542f4e44d",
+   "hauteurGC": 200,
+   "kg": 6.592583719078489,
+   "alertes": 2,
+   "prix": 340,
+   "chiffrage": "fc68464b3c867a23",
+   "remise": {
+    "prix": 100,
+    "empreinte": "94e279e2b4b59275"
+   },
+   "devis": {
+    "numero": "D-20260929-1OXXO",
+    "total": 440,
+    "lignes": 6,
+    "donnees": "25f39c361de27f07",
+    "html": "287fbe6a0c54edd9"
+   }
+  },
+  {
+   "nom": "hasard 27",
+   "valeurs": {
+    "B": 1635,
+    "A": 160,
+    "etage": true,
+    "Hf": 0,
+    "essence": "noyer",
+    "remise": "transporteur",
+    "km": 405,
+    "s": 16,
+    "jour": 75,
+    "nP": 3
+   },
+   "R": "b9f46f272db28a0a",
+   "hauteurGC": 950,
+   "kg": 38.19211730961192,
+   "alertes": 1,
+   "prix": 830,
+   "chiffrage": "b025cd47b81cb203",
+   "remise": {
+    "prix": 90,
+    "empreinte": "b6cc9d2215178cf0"
+   },
+   "devis": {
+    "numero": "D-20260929-53Q38",
+    "total": 920,
+    "lignes": 6,
+    "donnees": "804b022bb2111a45",
+    "html": "a1efe77270149ac9"
+   }
+  },
+  {
+   "nom": "hasard 28",
+   "valeurs": {
+    "B": 1570,
+    "A": 5,
+    "etage": true,
+    "Hf": 0,
+    "essence": "hetre",
+    "remise": "retrait",
+    "km": 75,
+    "s": 16,
+    "nP": 5
+   },
+   "chantier": "49400 Saumur",
+   "R": "77e0dc85a8c92a8b",
+   "hauteurGC": 930,
+   "kg": 39.67482948831191,
+   "alertes": 2,
+   "prix": 970,
+   "chiffrage": "fe8b15955d31e07b",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-NPG8A",
+    "total": 970,
+    "lignes": 5,
+    "donnees": "8cf3c02e189db578",
+    "html": "105e146cff081e6a"
+   }
+  },
+  {
+   "nom": "hasard 29",
+   "valeurs": {
+    "B": 1990,
+    "A": 35,
+    "etage": false,
+    "Hf": 1040,
+    "essence": "noyer",
+    "remise": "retrait",
+    "km": 175,
+    "s": 16,
+    "mcType": "acier",
+    "nP": 4
+   },
+   "R": "8a4a96f753bbdafb",
+   "hauteurGC": 900,
+   "kg": 48.108269568684236,
+   "alertes": 2,
+   "prix": 980,
+   "chiffrage": "82ecf7f5399b3c1b",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-RW8IP",
+    "total": 980,
+    "lignes": 5,
+    "donnees": "efdf1b1d25497afc",
+    "html": "2352ebb6327601f9"
+   }
+  },
+  {
+   "nom": "hasard 30",
+   "valeurs": {
+    "B": 1435,
+    "A": 950,
+    "etage": true,
+    "Hf": 660,
+    "essence": "chene",
+    "remise": "retrait",
+    "km": 295,
+    "s": 16,
+    "ass": "onglet",
+    "nP": 3
+   },
+   "chantier": "49400 Saumur",
+   "R": "a75518ccb78f5e5c",
+   "hauteurGC": 200,
+   "kg": 14.235938577440713,
+   "alertes": 1,
+   "prix": 500,
+   "chiffrage": "1f87e1ee16830e85",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-KX2A0",
+    "total": 500,
+    "lignes": 5,
+    "donnees": "480c7afb4a47ad1a",
+    "html": "9ef74f8593d08314"
+   }
+  },
+  {
+   "nom": "hasard 31",
+   "valeurs": {
+    "B": 1175,
+    "A": 140,
+    "etage": true,
+    "Hf": 2060,
+    "essence": "chene",
+    "remise": "pose",
+    "km": 445,
+    "s": 16,
+    "nP": 4
+   },
+   "R": "e73867ada19e1c0e",
+   "hauteurGC": 940,
+   "kg": 30.31478462550234,
+   "alertes": 0,
+   "prix": 800,
+   "chiffrage": "0848ef3f8e1d1b6c",
+   "remise": {
+    "prix": 783,
+    "empreinte": "db2bc0d9ff78a4f0"
+   },
+   "devis": {
+    "numero": "D-20260929-XUSUT",
+    "total": 1583,
+    "lignes": 6,
+    "donnees": "16d5719a8117d7d0",
+    "html": "b307cdfa8122080a"
+   }
+  },
+  {
+   "nom": "hasard 32",
+   "valeurs": {
+    "B": 675,
+    "A": 670,
+    "etage": true,
+    "Hf": 1030,
+    "essence": "noyer",
+    "remise": "pose",
+    "km": 350,
+    "s": 18,
+    "mcType": "acier",
+    "Hs": 660,
+    "nP": 5
+   },
+   "R": "b7a9ad2e908aee8a",
+   "hauteurGC": 660,
+   "kg": 29.80783741067726,
+   "alertes": 0,
+   "prix": 660,
+   "chiffrage": "a4fc9f5475b01d71",
+   "remise": {
+    "prix": 628,
+    "empreinte": "64567c408b719847"
+   },
+   "devis": {
+    "numero": "D-20260929-Y6UFD",
+    "total": 1288,
+    "lignes": 6,
+    "donnees": "1044b42e50872c0d",
+    "html": "f7dd444073e24a7f"
+   }
+  },
+  {
+   "nom": "hasard 33",
+   "valeurs": {
+    "B": 335,
+    "A": 555,
+    "etage": true,
+    "Hf": 1380,
+    "essence": "pin",
+    "remise": "pose",
+    "km": 190,
+    "s": 18,
+    "mcType": "acier",
+    "Hs": 750,
+    "ass": "onglet",
+    "nP": 2
+   },
+   "R": "a9daa079d2f455b5",
+   "hauteurGC": 750,
+   "kg": 15.190518612054175,
+   "alertes": 1,
+   "prix": 390,
+   "chiffrage": "9ef41453ed58f271",
+   "remise": {
+    "prix": 367,
+    "empreinte": "ce9f7dd2b93a8209"
+   },
+   "devis": {
+    "numero": "D-20260929-M5IQR",
+    "total": 757,
+    "lignes": 6,
+    "donnees": "2c3c5ea4102cc3e8",
+    "html": "35b60a7413acfa1b"
+   }
+  },
+  {
+   "nom": "hasard 34",
+   "valeurs": {
+    "B": 1665,
+    "A": 230,
+    "etage": true,
+    "Hf": 1110,
+    "essence": "pin",
+    "remise": "pose",
+    "km": 110,
+    "s": 16,
+    "mcType": "profil",
+    "rosace": false,
+    "sbMode": "toujours",
+    "Xo": 270,
+    "nP": 5
+   },
+   "R": "9bedd6554e037536",
+   "hauteurGC": 980,
+   "kg": 45.242255504801186,
+   "alertes": 1,
+   "prix": 990,
+   "chiffrage": "e42e5b60ebd5381a",
+   "remise": {
+    "prix": 236,
+    "empreinte": "e8323ec038d8d839"
+   },
+   "devis": {
+    "numero": "D-20260929-11MTA",
+    "total": 1226,
+    "lignes": 6,
+    "donnees": "fc20d6f68bce085f",
+    "html": "a54f3590ea10a5bb"
+   }
+  },
+  {
+   "nom": "hasard 35",
+   "valeurs": {
+    "B": 1190,
+    "A": 760,
+    "etage": true,
+    "Hf": 1010,
+    "essence": "pin",
+    "remise": "transporteur",
+    "km": 465,
+    "s": 16,
+    "sbMode": "toujours",
+    "nP": 5
+   },
+   "R": "7e9557473d5621fa",
+   "hauteurGC": 200,
+   "kg": 12.885192570926993,
+   "alertes": 0,
+   "prix": 630,
+   "chiffrage": "65826ae2aad8d7bb",
+   "remise": {
+    "prix": 68,
+    "empreinte": "3a9115c7208f51b5"
+   },
+   "devis": {
+    "numero": "D-20260929-8D0GI",
+    "total": 698,
+    "lignes": 6,
+    "donnees": "21bfb0fc89c4efb1",
+    "html": "88ea3bdbf4aa210a"
+   }
+  },
+  {
+   "nom": "hasard 36",
+   "valeurs": {
+    "B": 2045,
+    "A": 310,
+    "etage": true,
+    "Hf": 1290,
+    "essence": "noyer",
+    "remise": "pose",
+    "km": 115,
+    "s": 16,
+    "nb": 1,
+    "Xo": 680,
+    "Hs": 540,
+    "jour": 110,
+    "nP": 5
+   },
+   "R": "60ae437afc11b776",
+   "hauteurGC": 540,
+   "kg": 37.290110794057206,
+   "alertes": 4,
+   "prix": 1110,
+   "chiffrage": "8b2036b66807216b",
+   "remise": {
+    "prix": 244,
+    "empreinte": "7553402fffcc2afe"
+   },
+   "devis": {
+    "numero": "D-20260929-LJ8SR",
+    "total": 1354,
+    "lignes": 6,
+    "donnees": "7021c2f084e0fc17",
+    "html": "009b6558904f7ea5"
+   }
+  },
+  {
+   "nom": "hasard 37",
+   "valeurs": {
+    "B": 1030,
+    "A": 970,
+    "etage": true,
+    "Hf": 1370,
+    "essence": "noyer",
+    "remise": "retrait",
+    "km": 240,
+    "s": 16,
+    "nP": 5
+   },
+   "R": "15a359bbb35a6fe3",
+   "hauteurGC": 200,
+   "kg": 11.545838861073006,
+   "alertes": 0,
+   "prix": 630,
+   "chiffrage": "c6a215a6cef5d0d7",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-47RMX",
+    "total": 630,
+    "lignes": 5,
+    "donnees": "c3608b11df06a0ec",
+    "html": "8f3ca0948dde5320"
+   }
+  },
+  {
+   "nom": "hasard 38",
+   "valeurs": {
+    "B": 765,
+    "A": 395,
+    "etage": true,
+    "Hf": 1710,
+    "essence": "noyer",
+    "remise": "retrait",
+    "km": 485,
+    "s": 20,
+    "nb": 1,
+    "nP": 2
+   },
+   "R": "94237e099884e77e",
+   "hauteurGC": 940,
+   "kg": 32.39705044836882,
+   "alertes": 0,
+   "prix": 610,
+   "chiffrage": "bb22fbcda5613a49",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-3GONP",
+    "total": 610,
+    "lignes": 5,
+    "donnees": "67b1a00ef462235b",
+    "html": "a685b759ad74c109"
+   }
+  },
+  {
+   "nom": "hasard 39",
+   "valeurs": {
+    "B": 485,
+    "A": 220,
+    "etage": true,
+    "Hf": 0,
+    "essence": "noyer",
+    "remise": "retrait",
+    "km": 5,
+    "s": 16,
+    "nP": 6
+   },
+   "chantier": "49400 Saumur",
+   "R": "5fa73a76606b660c",
+   "hauteurGC": 940,
+   "kg": 23.635192615572112,
+   "alertes": 0,
+   "prix": 830,
+   "chiffrage": "0ae73fb3c9b20bb0",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-A2JDF",
+    "total": 830,
+    "lignes": 5,
+    "donnees": "e785dac0edd89f76",
+    "html": "d3f2b4b07a03be77"
+   }
+  }
+ ],
+ "site": [
+  {
+   "entree": {
+    "largeurMm": 1180,
+    "allegeMm": 650,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "chene"
+   },
+   "hauteur": 290,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     [],
+     []
+    ],
+    "18": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     [],
+     []
+    ],
+    "20": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     [],
+     []
+    ]
+   },
+   "choix": {
+    "carre": 16,
+    "croix": 4,
+    "R": "2829f8478bbedeed",
+    "hauteurGC": 290,
+    "kg": 14.040998556145384,
+    "prix": 570
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 300,
+    "allegeMm": 0,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "chene"
+   },
+   "hauteur": 940,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "trop-petit"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "trop-petit"
+     ]
+    ],
+    "16": [
+     [
+      "trous"
+     ],
+     [],
+     [],
+     [],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ]
+    ],
+    "18": [
+     [
+      "trous"
+     ],
+     [],
+     [],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ]
+    ],
+    "20": [
+     [
+      "trous"
+     ],
+     [],
+     [],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ]
+    ]
+   },
+   "choix": {
+    "carre": 16,
+    "croix": 2,
+    "R": "5fca2e34f53e4232",
+    "hauteurGC": 940,
+    "kg": 11.400889618574606,
+    "prix": 460
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 450,
+    "allegeMm": 900,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "pin"
+   },
+   "hauteur": 200,
+   "alertes": {
+    "12": [
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ]
+    ],
+    "14": [
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ]
+    ],
+    "16": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ],
+    "18": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     [
+      "trop-petit"
+     ]
+    ],
+    "20": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     [
+      "trop-petit"
+     ]
+    ]
+   },
+   "choix": {
+    "carre": 16,
+    "croix": 1,
+    "R": "044eab3656566817",
+    "hauteurGC": 200,
+    "kg": 4.596056924021047,
+    "prix": 310
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 600,
+    "allegeMm": 850,
+    "enEtage": false,
+    "fenetreMm": 0,
+    "essence": "hetre"
+   },
+   "hauteur": 200,
+   "alertes": {
+    "12": [
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ]
+    ],
+    "14": [
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ]
+    ],
+    "16": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ],
+    "18": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ],
+    "20": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ]
+   },
+   "choix": {
+    "carre": 16,
+    "croix": 1,
+    "R": "f526efb495ee2fcc",
+    "hauteurGC": 200,
+    "kg": 5.9301531643976695,
+    "prix": 320
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 800,
+    "allegeMm": 0,
+    "enEtage": false,
+    "fenetreMm": 1200,
+    "essence": "chene"
+   },
+   "hauteur": 940,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation"
+     ],
+     [
+      "trous",
+      "fixation"
+     ],
+     [
+      "trous",
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ]
+    ],
+    "16": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     [],
+     []
+    ],
+    "18": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     [],
+     []
+    ],
+    "20": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     [],
+     []
+    ]
+   },
+   "choix": {
+    "carre": 16,
+    "croix": 4,
+    "R": "d20a9aaba50b95c2",
+    "hauteurGC": 940,
+    "kg": 23.869678941460883,
+    "prix": 720
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 1000,
+    "allegeMm": 350,
+    "enEtage": true,
+    "fenetreMm": 1500,
+    "essence": "noyer"
+   },
+   "hauteur": 940,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     [],
+     [],
+     []
+    ],
+    "18": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     [],
+     [],
+     []
+    ],
+    "20": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     [],
+     [],
+     []
+    ]
+   },
+   "choix": {
+    "carre": 16,
+    "croix": 3,
+    "R": "244936a69f5dadbe",
+    "hauteurGC": 940,
+    "kg": 25.471729554964174,
+    "prix": 690
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 1000,
+    "allegeMm": 600,
+    "enEtage": true,
+    "fenetreMm": 300,
+    "essence": "chene"
+   },
+   "hauteur": 340,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
+     ]
+    ],
+    "16": [
+     [
+      "trous",
+      "fenetre"
+     ],
+     [
+      "trous",
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ]
+    ],
+    "18": [
+     [
+      "trous",
+      "fenetre"
+     ],
+     [
+      "trous",
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ]
+    ],
+    "20": [
+     [
+      "trous",
+      "fenetre"
+     ],
+     [
+      "trous",
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ]
+    ]
+   },
+   "choix": null
+  },
+  {
+   "entree": {
+    "largeurMm": 1195,
+    "allegeMm": 650,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "chene"
+   },
+   "hauteur": 290,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     [],
+     []
+    ],
+    "18": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     [],
+     []
+    ],
+    "20": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     [],
+     []
+    ]
+   },
+   "choix": {
+    "carre": 16,
+    "croix": 4,
+    "R": "c6042c271d591176",
+    "hauteurGC": 290,
+    "kg": 14.163970835369048,
+    "prix": 570
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 1200,
+    "allegeMm": 650,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "chene"
+   },
+   "hauteur": 290,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "18": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     [],
+     []
+    ],
+    "20": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     [],
+     []
+    ]
+   },
+   "choix": {
+    "carre": 18,
+    "croix": 4,
+    "R": "d356b93fa6befef0",
+    "hauteurGC": 290,
+    "kg": 17.458601566611243,
+    "prix": 570
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 1300,
+    "allegeMm": 100,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "pin"
+   },
+   "hauteur": 940,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "18": [
+     [
+      "trous"
+     ],
+     [],
+     [],
+     [],
+     [],
+     []
+    ],
+    "20": [
+     [
+      "trous"
+     ],
+     [],
+     [],
+     [],
+     [],
+     []
+    ]
+   },
+   "choix": {
+    "carre": 18,
+    "croix": 2,
+    "R": "eac16e170502124a",
+    "hauteurGC": 940,
+    "kg": 38.248714612427676,
+    "prix": 680
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 1400,
+    "allegeMm": 599,
+    "enEtage": true,
+    "fenetreMm": 1400,
+    "essence": "chene"
+   },
+   "hauteur": 940,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ]
+    ],
+    "18": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ]
+    ],
+    "20": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ]
+    ]
+   },
+   "choix": null
+  },
+  {
+   "entree": {
+    "largeurMm": 1500,
+    "allegeMm": 900,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "hetre"
+   },
+   "hauteur": 200,
+   "alertes": {
+    "12": [
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "18": [
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "20": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ]
+   },
+   "choix": {
+    "carre": 20,
+    "croix": 1,
+    "R": "a2de64e0c0d5a54e",
+    "hauteurGC": 200,
+    "kg": 20.790434047941176,
+    "prix": 360
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 1600,
+    "allegeMm": 650,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "noyer"
+   },
+   "hauteur": 290,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "18": [
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "20": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     []
+    ]
+   },
+   "choix": {
+    "carre": 20,
+    "croix": 5,
+    "R": "3e0724c2b9e76370",
+    "hauteurGC": 290,
+    "kg": 27.377325929770798,
+    "prix": 670
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 1700,
+    "allegeMm": 650,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "chene"
+   },
+   "hauteur": 290,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "18": [
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "20": [
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ]
+   },
+   "choix": null
+  },
+  {
+   "entree": {
+    "largeurMm": 2000,
+    "allegeMm": 300,
+    "enEtage": false,
+    "fenetreMm": 0,
+    "essence": "chene"
+   },
+   "hauteur": 940,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "18": [
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "20": [
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ]
+   },
+   "choix": null
+  },
+  {
+   "entree": {
+    "largeurMm": 3000,
+    "allegeMm": 1200,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "chene"
+   },
+   "hauteur": 200,
+   "alertes": {
+    "12": [
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "18": [
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "20": [
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ]
+   },
+   "choix": null
+  },
+  {
+   "entree": {
+    "largeurMm": 700,
+    "allegeMm": 99,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "chene"
+   },
+   "hauteur": 840,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation"
+     ],
+     [
+      "trous",
+      "fixation"
+     ],
+     [
+      "trous",
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation"
+     ],
+     [
+      "trous",
+      "fixation"
+     ],
+     [
+      "trous",
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ]
+    ],
+    "16": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     [],
+     []
+    ],
+    "18": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     [],
+     [],
+     []
+    ],
+    "20": [
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     [],
+     [],
+     []
+    ]
+   },
+   "choix": {
+    "carre": 16,
+    "croix": 4,
+    "R": "82de075ce6f25458",
+    "hauteurGC": 840,
+    "kg": 20.562933490440063,
+    "prix": 690
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 950,
+    "allegeMm": 1100,
+    "enEtage": false,
+    "fenetreMm": 0,
+    "essence": "pin"
+   },
+   "hauteur": 200,
+   "alertes": {
+    "12": [
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ]
+    ],
+    "16": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ],
+    "18": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ],
+    "20": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ]
+   },
+   "choix": {
+    "carre": 16,
+    "croix": 1,
+    "R": "255ce5ab2c7a18e2",
+    "hauteurGC": 200,
+    "kg": 9.071051670674349,
+    "prix": 330
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 740,
+    "allegeMm": 874,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "hetre"
+   },
+   "hauteur": 200,
+   "alertes": {
+    "12": [
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ]
+    ],
+    "14": [
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ]
+    ],
+    "16": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ],
+    "18": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ],
+    "20": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ]
+   },
+   "choix": {
+    "carre": 16,
+    "croix": 1,
+    "R": "e97b16d85477d5dd",
+    "hauteurGC": 200,
+    "kg": 7.183644412648477,
+    "prix": 320
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 1402,
+    "allegeMm": 991,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "chene"
+   },
+   "hauteur": 200,
+   "alertes": {
+    "12": [
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "18": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ],
+    "20": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ]
+   },
+   "choix": {
+    "carre": 18,
+    "croix": 1,
+    "R": "8c963ce1efcc597b",
+    "hauteurGC": 200,
+    "kg": 16.14784950507397,
+    "prix": 350
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 615,
+    "allegeMm": 895,
+    "enEtage": true,
+    "fenetreMm": 1494,
+    "essence": "pin"
+   },
+   "hauteur": 200,
+   "alertes": {
+    "12": [
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ]
+    ],
+    "14": [
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ]
+    ],
+    "16": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ],
+    "18": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ],
+    "20": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ]
+   },
+   "choix": {
+    "carre": 16,
+    "croix": 1,
+    "R": "8f1473b943aeb03f",
+    "hauteurGC": 200,
+    "kg": 6.064173105940221,
+    "prix": 320
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 1281,
+    "allegeMm": 920,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "hetre"
+   },
+   "hauteur": 200,
+   "alertes": {
+    "12": [
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "18": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ],
+    "20": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ]
+   },
+   "choix": {
+    "carre": 18,
+    "croix": 1,
+    "R": "4cef441466bcaf22",
+    "hauteurGC": 200,
+    "kg": 14.804592186583298,
+    "prix": 340
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 1062,
+    "allegeMm": 892,
+    "enEtage": false,
+    "fenetreMm": 1827,
+    "essence": "noyer"
+   },
+   "hauteur": 200,
+   "alertes": {
+    "12": [
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ],
+    "18": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ],
+    "20": [
+     [],
+     [],
+     [],
+     [],
+     [],
+     []
+    ]
+   },
+   "choix": {
+    "carre": 16,
+    "croix": 1,
+    "R": "661f79b12b34be8b",
+    "hauteurGC": 200,
+    "kg": 10.079649491593674,
+    "prix": 340
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 328,
+    "allegeMm": 904,
+    "enEtage": true,
+    "fenetreMm": 2423,
+    "essence": "hetre"
+   },
+   "hauteur": 200,
+   "alertes": {
+    "12": [
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ]
+    ],
+    "14": [
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "trop-petit"
+     ]
+    ],
+    "16": [
+     [],
+     [],
+     [],
+     [],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ]
+    ],
+    "18": [
+     [],
+     [],
+     [],
+     [],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ]
+    ],
+    "20": [
+     [],
+     [],
+     [],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ]
+    ]
+   },
+   "choix": {
+    "carre": 16,
+    "croix": 1,
+    "R": "07c5bc01307f1968",
+    "hauteurGC": 200,
+    "kg": 3.525982428008252,
+    "prix": 310
+   }
+  }
+ ]
+}

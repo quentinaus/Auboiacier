@@ -71,7 +71,7 @@ export function CarteCommande({ commande, cle }: { commande: CommandeAtelier; cl
       </div>
       <p className="mt-1 text-xs text-[#726757]">
         {DATE.format(new Date(commande.creeLe * 1000))}
-        {commande.pose ? " · pose à domicile" : ""}
+        {commande.pose ? " · pose à domicile" : commande.retrait ? " · retrait à l'atelier" : ""}
       </p>
 
       <p className="mt-3 text-sm text-[#2b2320]">
@@ -129,7 +129,7 @@ export function CarteCommande({ commande, cle }: { commande: CommandeAtelier; cl
                   : "border border-[#9a8d80] text-[#2b2320] hover:bg-[#f7f4ef]"
               }`}
             >
-              {libelleStatut(s, { pose: commande.pose })}
+              {libelleStatut(s, { pose: commande.pose, retrait: commande.retrait })}
             </button>
           );
         })}
