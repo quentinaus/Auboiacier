@@ -145,44 +145,47 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   return resultat;
 }
 
+/** Un dessin du catalogue, pour une fenêtre : conforme (avec sa configuration complète) ou non. */
+export type DessinGC =
+  | { conforme: true; config: ConfigGC }
+  | { conforme: false; carre: number; croix: number; barreauxBas: boolean; soubassementMm: number };
+
 /**
- * Les modèles que la norme permet pour cette fenêtre, dans l'ordre de
- * préférence de l'atelier (le carré de 16 d'abord, le moins de croix
- * d'abord) : au plus `max`. Le premier est celui que l'outil retient de
- * lui-même. Chacun est une configuration complète, chiffrée comme les autres.
+ * Le CATALOGUE des dessins pour cette fenêtre : de 1 à 6 croix, croix seules
+ * puis barreaux droits en bas. Chaque dessin est essayé dans chaque carré,
+ * dans l'ordre de l'atelier (16 d'abord) : le premier qui passe toute la
+ * norme est retenu et chiffré ; si aucun ne passe, le dessin est montré
+ * « hors norme » — visible, jamais vendu.
  */
-export function modelesConformesGC(e: EntreeSiteGC, max = 6): ConfigGC[] {
+export function catalogueGC(e: EntreeSiteGC): DessinGC[] {
   const { modele: _ignore, ...sansChoix } = e;
   void _ignore;
-  const trouves: ConfigGC[] = [];
-  const dessins = new Set<string>();
-  const ajouter = (s: number, n: number, b: boolean) => {
-    if (trouves.length >= max) return false;
-    if (calculerGC({ ...valeursGC(DEFAUTS_GC, sansChoix, s, n, b), _rapide: true }).alertes.length) return false;
-    const c = configurerGC({ ...sansChoix, modele: `${s}-${n}${b ? "-b" : ""}` });
-    if (!c.ok) return false;
-    // Le même dessin obtenu par deux chemins (les barreaux que la norme impose déjà) : une seule fois.
-    const dessin = [c.carre, c.croix, c.soubassementMm].join("|");
-    if (dessins.has(dessin)) return true;
-    dessins.add(dessin);
-    trouves.push(c);
-    return true;
-  };
-  // Les croix seules d'abord, puis les barreaux en bas. Dans chaque famille : le premier carré qui
-  // passe, avec le moins de croix puis une croix de plus (un dessin plus serré) ; ensuite les
-  // carrés plus forts, seulement s'ils demandent MOINS de croix.
+  const dessins: DessinGC[] = [];
+  const vus = new Set<string>();
   for (const b of [false, true]) {
-    let moinsDeCroix = Infinity;
-    for (const s of ORDRE_CARRES) {
-      for (let n = 1; n <= CROIX_MAX && n < moinsDeCroix; n++) {
-        if (!ajouter(s, n, b)) continue;
-        if (moinsDeCroix === Infinity && n < CROIX_MAX) ajouter(s, n + 1, b);
-        moinsDeCroix = n;
-        break;
+    for (let n = 1; n <= CROIX_MAX; n++) {
+      let trouve: ConfigGC | null = null;
+      for (const s of ORDRE_CARRES) {
+        if (calculerGC({ ...valeursGC(DEFAUTS_GC, sansChoix, s, n, b), _rapide: true }).alertes.length) continue;
+        const c = configurerGC({ ...sansChoix, modele: `${s}-${n}${b ? "-b" : ""}` });
+        if (c.ok) { trouve = c; break; }
+      }
+      if (trouve) {
+        // Le même dessin par deux chemins (les barreaux que la norme impose déjà) : une seule fois.
+        const cle = [trouve.croix, trouve.soubassementMm > 0].join("|");
+        if (vus.has(cle)) continue;
+        vus.add(cle);
+        dessins.push({ conforme: true, config: trouve });
+      } else {
+        const sb = Math.max(0, Math.round(geomGC(valeursGC(DEFAUTS_GC, sansChoix, 16, n, b), n).sb || 0));
+        const cle = [n, b || sb > 0].join("|");
+        if (vus.has(cle)) continue;
+        vus.add(cle);
+        dessins.push({ conforme: false, carre: 16, croix: n, barreauxBas: b, soubassementMm: sb });
       }
     }
   }
-  return trouves;
+  return dessins;
 }
 
 const prixMemo = new WeakMap<ConfigGC, number>();

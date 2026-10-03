@@ -52,10 +52,11 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
     // qui parcourt les tables doit la croiser tout de suite, pas après
     // l'escalier, les garde-corps et les verrières.
     { id: "table-exterieur", titre: h.catTablesExt },
+    // Le garde-corps de fenêtre remonte ici (demande du 03/10) : c'est le produit d'appel.
+    { id: "garde-corps", titre: h.catGardeCorps, note: t.familleGardeCorpsNote },
     { id: "chaise", titre: h.catChaises },
     { id: "chaise-exterieur", titre: h.catChaisesExt },
     { id: "escalier", titre: h.catEscaliers },
-    { id: "garde-corps", titre: h.catGardeCorps, note: t.familleGardeCorpsNote },
     {
       id: "verrieres",
       titre: h.catVerrieres,

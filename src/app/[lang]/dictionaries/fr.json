@@ -474,7 +474,7 @@
     "gcLargeurCourt": "Largeur",
     "gcAllegeCourt": "Hauteur sous la fenêtre",
     "gcFenetreCourt": "Hauteur de la fenêtre",
-    "raisonCotesGardeCorps": "Indiquez vos trois mesures pour ajouter au panier."
+    "raisonCotesGardeCorps": "Indiquez la largeur et la hauteur sous la fenêtre pour ajouter au panier."
   },
   "devis": {
     "title": "Demander un devis",

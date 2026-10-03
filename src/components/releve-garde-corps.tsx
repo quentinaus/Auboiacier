@@ -13,6 +13,7 @@ import {
   lireReponsePrixGC,
   noteReleveGC,
   parametresPrixGC,
+  type ModeleGC,
   type OptionsGC,
   type ReleveGC,
   type ReponsePrixGC,
@@ -66,7 +67,8 @@ const mm = (valeur: string) => {
 
 /** Ce que disent les cases : un relevé complet, ce qui manque, ou une cote hors de ce que l'atelier fabrique. */
 export type LectureReleve =
-  | { etat: "incomplet" }
+  /** `manque` : « etage » quand les cotes sont là mais que le client n'a pas dit où est la fenêtre. */
+  | { etat: "incomplet"; manque?: "etage" }
   | { etat: "hors-bornes"; raison: "trop-etroit" | "trop-large" | "allege" | "fenetre" }
   | { etat: "ok"; releve: ReleveGC };
 
@@ -85,6 +87,9 @@ export function lireReleve(cotes: CotesGardeCorps, t: Dictionary["artisanat"]): 
   if (!Number.isFinite(largeurMm) || largeurMm <= 0 || !Number.isFinite(allegeMm) || !Number.isFinite(fenetreMm)) {
     return { etat: "incomplet" };
   }
+  // En étage ou au rez-de-chaussée : JAMAIS présélectionné (décision du 03/10). La norme en dépend ;
+  // un choix fait d'avance passerait inaperçu, et le garde-corps serait calculé pour la mauvaise règle.
+  if (!t.gcEtageOptions.includes(cotes.etage)) return { etat: "incomplet", manque: "etage" };
   const B = BORNES_RELEVE_GC;
   if (largeurMm < B.largeurMm.min) return { etat: "hors-bornes", raison: "trop-etroit" };
   if (largeurMm > B.largeurMm.max) return { etat: "hors-bornes", raison: "trop-large" };
@@ -92,7 +97,7 @@ export function lireReleve(cotes: CotesGardeCorps, t: Dictionary["artisanat"]): 
   if (fenetreMm > B.fenetreMm.max) return { etat: "hors-bornes", raison: "fenetre" };
   return {
     etat: "ok",
-    releve: { largeurMm, allegeMm, enEtage: cotes.etage !== t.gcEtageOptions[1], fenetreMm, ...(lireModeleGC(cotes.modele) ? { modele: cotes.modele } : {}) },
+    releve: { largeurMm, allegeMm, enEtage: cotes.etage === t.gcEtageOptions[0], fenetreMm, ...(lireModeleGC(cotes.modele) ? { modele: cotes.modele } : {}) },
   };
 }
 
@@ -195,6 +200,7 @@ export function ReleveGardeCorps({
   lienDevis,
   rosaceMm,
   schemaSlot,
+  detailsSlot,
   verre,
 }: {
   cotes: CotesGardeCorps;
@@ -214,6 +220,11 @@ export function ReleveGardeCorps({
    * croquis reste à sa place, au-dessus des cases.
    */
   schemaSlot?: HTMLDivElement | null;
+  /**
+   * Où la fiche dépose « Poids et détails » et « Ce que comprend le prix » : dans le cadre du
+   * résultat, à côté de la carte (qui ne garde que les cotes et la livraison).
+   */
+  detailsSlot?: (element: HTMLDivElement | null) => void;
   /** Le verre feuilleté à la place des croix : une option, avec son supplément. */
   verre?: {
     surVerre: boolean;
@@ -226,6 +237,8 @@ export function ReleveGardeCorps({
   const idChamps = useId();
   const langue = locale === "en" ? "en-GB" : "fr-FR";
   const [coteActive, setCoteActive] = useState<CoteFenetre | null>(null);
+  /** Le catalogue entier, modèles hors norme compris : fermé d'abord (on ne montre que ce qui se commande). */
+  const [toutVoir, setToutVoir] = useState(false);
 
   const reponse = prix.statut === "pret" ? prix.reponse : null;
   /** Ce que le croquis dessine : la réponse, ou la dernière pendant qu'on recalcule. */
@@ -239,12 +252,135 @@ export function ReleveGardeCorps({
     if (modeleRefuse) onChange({ ...cotes, modele: "" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modeleRefuse]);
-  const fr = locale === "fr";
-  const modeles = conforme && !surVerre ? conforme.modeles : [];
-  // Le garde-corps de la photo : deux croix, sans barreaux. La norme en demande parfois plus.
-  const adapte = modeles.length > 0 && (modeles[0].soubassementMm > 0 || modeles[0].croix > 2 || modeles[0].carre !== 16);
   const nombre = (n: number) => n.toLocaleString(langue);
   const croixTexte = (n: number) => (n > 1 ? t.gcCroixPlusieurs.replace("{n}", String(n)) : t.gcCroixUne);
+  const fr = locale === "fr";
+  // Le catalogue : tous les dessins, chacun marqué « aux normes » ou non pour CETTE fenêtre.
+  const modeles = reponse && !surVerre ? reponse.modeles : [];
+  const hMax = Math.max(1, ...modeles.map((m) => m.hauteurMm));
+  // Le garde-corps de la photo : deux croix, sans barreaux. La norme en demande parfois plus.
+  // Le garde-corps de la photo : deux croix, sans barreaux. S'il n'est pas aux normes ici, on le dit.
+  const adapte = modeles.length > 0 && !modeles.some((m) => m.conforme && m.croix === 2 && m.soubassementMm === 0);
+  const choisi = modeles.find((m) => m.conforme && m.id === cotes.modele) ?? null;
+  const nbConformes = modeles.filter((m) => m.conforme).length;
+  const libelleModele = (m: { croix: number; soubassementMm: number }) =>
+    `${croixTexte(m.croix)}${m.soubassementMm > 0 ? (fr ? ", barreaux en bas" : ", bars below") : ""}`;
+  const pastille = (ok: boolean) => (
+    <span
+      aria-hidden
+      className={`absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full text-white shadow-sm ${ok ? "bg-[#2a7a3f]" : "bg-[#b5aca2]"}`}
+    >
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3">
+        {ok ? <path d="M4.5 10.5l3.5 3.5 7.5-8" /> : <path d="M5.5 5.5l9 9M14.5 5.5l-9 9" />}
+      </svg>
+    </span>
+  );
+  /**
+   * Les modèles, toujours visibles sous le croquis — en petit, pour laisser la place au croquis :
+   * avant les mesures (sans pastille), puis ceux qui sont aux normes pour la fenêtre ; un bouton
+   * ouvre le catalogue entier, modèles hors norme compris.
+   */
+  const libelleCourt = (m: { croix: number; soubassementMm: number }) =>
+    `${m.croix} ${fr ? "croix" : m.croix > 1 ? "crosses" : "cross"}${m.soubassementMm > 0 ? (fr ? " + barreaux" : " + bars") : ""}`;
+  const catalogue = (
+    <div id="modeles-gc" className="mt-3 scroll-mt-24 rounded-2xl border border-[#e0d6c8] bg-white/75 px-3 py-2.5 text-left">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <p className="text-[13px] font-medium leading-snug text-[#2b2320]">
+          {modeles.length === 0
+            ? fr
+              ? "Nos modèles"
+              : "Our models"
+            : nbConformes === 0
+              ? fr
+                ? "Aucun de nos modèles n'est aux normes pour ces mesures."
+                : "None of our models meets the standard for these measurements."
+              : adapte
+                ? fr
+                  ? "Le modèle de la photo n'est pas aux normes ici. Choisissez parmi ceux-ci :"
+                  : "The model in the photo is not to standard here. Choose among these:"
+                : fr
+                  ? "Choisissez votre modèle :"
+                  : "Choose your model:"}
+          {modeles.length === 0 && (
+            <span className="ml-2 text-xs font-normal text-[#6f6357]">
+              {fr ? "entrez vos mesures pour voir ceux qui sont aux normes" : "enter your measurements to see the ones to standard"}
+            </span>
+          )}
+        </p>
+        {modeles.length > 0 && nbConformes < modeles.length && (
+          <button
+            type="button"
+            onClick={() => setToutVoir((v) => !v)}
+            aria-expanded={toutVoir}
+            className="text-xs font-medium text-[#2b2320] underline underline-offset-4 hover:no-underline"
+          >
+            {toutVoir
+              ? fr
+                ? "Seulement ceux aux normes"
+                : "Only those to standard"
+              : fr
+                ? `Voir tout le catalogue (${modeles.length})`
+                : `See the whole catalogue (${modeles.length})`}
+          </button>
+        )}
+      </div>
+      <div role="group" aria-label={fr ? "Modèles de garde-corps" : "Railing models"} className="mt-2 flex flex-wrap gap-1.5">
+        {(modeles.length ? modeles.filter((m) => toutVoir || m.conforme) : MODELES_VITRINE).map((m) => {
+          const actif = choisi?.id === m.id;
+          const marque = modeles.length > 0;
+          return (
+            <button
+              key={`${m.croix}-${m.soubassementMm > 0}`}
+              type="button"
+              aria-pressed={marque ? actif : undefined}
+              aria-disabled={marque && !m.conforme}
+              aria-label={`${libelleModele(m)}${marque ? (m.conforme ? ` — ${prixAffiche(m.prix, locale)}` : fr ? " — pas aux normes pour cette fenêtre" : " — not to standard for this window") : ""}`}
+              title={marque && !m.conforme ? (fr ? "Pas aux normes pour cette fenêtre" : "Not to standard for this window") : libelleModele(m)}
+              onClick={() => {
+                if (!marque) document.getElementById(`${idChamps}-largeur`)?.focus();
+                else if (m.conforme) onChange({ ...cotes, modele: m.id });
+              }}
+              className={`relative flex w-[96px] flex-col rounded-lg border bg-white px-1.5 pb-1.5 pt-2 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${
+                actif ? "border-[#2b2320] ring-2 ring-[#2b2320]" : "border-[#e0d6c8]"
+              } ${marque && !m.conforme ? "cursor-not-allowed opacity-60" : "hover:border-[#2b2320]"}`}
+            >
+              {marque && pastille(m.conforme)}
+              <MiniGardeCorps
+                largeurMm={releve?.largeurMm ?? 1180}
+                hauteurMm={m.hauteurMm}
+                hMaxMm={marque ? hMax : 520}
+                soubassementMm={m.soubassementMm}
+                croix={m.croix}
+              />
+              <span className="mt-1 block text-[11px] font-medium leading-tight text-[#2b2320]">{libelleCourt(m)}</span>
+              {marque && (
+                <span className="block text-[11px] leading-tight tabular-nums text-[#6f6357]">
+                  {m.conforme ? prixAffiche(m.prix, locale) : fr ? "pas aux normes" : "not to standard"}
+                </span>
+              )}
+            </button>
+          );
+        })}
+        {/* Un garde-corps à son style : une photo, et l'atelier répond. Toujours là, en dernière case. */}
+        {lienDevis && (
+          <Link
+            href={lienDevis}
+            className="relative flex w-[96px] flex-col rounded-lg border-2 border-dashed border-[#9a8d80] bg-white/60 px-1.5 pb-1.5 pt-2 text-left transition-colors hover:border-[#2b2320] hover:bg-white"
+          >
+            <span className="flex h-[40px] w-full items-center justify-center text-[#2b2320]">
+              <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7">
+                <rect x="3" y="5" width="18" height="14" rx="2.5" />
+                <circle cx="9" cy="10" r="1.6" />
+                <path d="M4 17l5-4.5 3.5 3 3-2.5L20 17" />
+              </svg>
+            </span>
+            <span className="mt-1 block text-[11px] font-medium leading-tight text-[#2b2320]">{fr ? "Votre style" : "Your style"}</span>
+            <span className="block text-[10px] leading-tight text-[#6f6357]">{fr ? "une photo, réponse sous 24 à 72 h" : "a photo, reply in 24 to 72 h"}</span>
+          </Link>
+        )}
+      </div>
+    </div>
+  );
 
   const set = (champ: keyof CotesGardeCorps) => (valeur: string) =>
     onChange({ ...cotes, [champ]: valeur });
@@ -261,25 +397,27 @@ export function ReleveGardeCorps({
    * est dans la bulle.
    */
   const ligne = (cote: "largeur" | "allege" | "fenetre", props: { label: string; aide?: string; info: string; placeholder: string }) => (
-    <label className="flex flex-wrap items-center justify-between gap-x-4 py-3">
+    <div className="py-3">
+      <label className="flex items-center justify-between gap-4">
       <span className="flex items-center gap-2.5 text-[15px] leading-snug text-[#2b2320]">
-        <Pastille n={NUMERO_COTE[cote]} />
-        <InfoBulle texte={props.aide ? `${props.info} ${props.aide}` : props.info} label={t.gcInfoLabel} />
-        {props.label}
-      </span>
-      <span className="flex h-10 w-[8.5rem] shrink-0 items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3.5 transition-[border-color,box-shadow] focus-within:border-[#2b2320] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
-        <input
-          id={`${idChamps}-${cote}`}
-          inputMode="decimal"
-          value={cotes[cote]}
-          onChange={(e) => set(cote)(e.target.value)}
-          placeholder={props.placeholder}
-          onFocus={() => setCoteActive(cote)}
-          onBlur={() => setCoteActive(null)}
-          className="w-full min-w-0 bg-transparent text-right text-base tabular-nums text-[#2b2320] placeholder:text-[#726757] outline-none focus-visible:shadow-none focus-visible:outline-none sm:text-[15px]"
-        />
-        <span className="text-xs text-[#6f6357]">mm</span>
-      </span>
+          <Pastille n={NUMERO_COTE[cote]} />
+          <InfoBulle texte={props.aide ? `${props.info} ${props.aide}` : props.info} label={t.gcInfoLabel} />
+          {props.label}
+        </span>
+        <span className="flex h-10 w-[8.5rem] shrink-0 items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3.5 transition-[border-color,box-shadow] focus-within:border-[#2b2320] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
+          <input
+            id={`${idChamps}-${cote}`}
+            inputMode="decimal"
+            value={cotes[cote]}
+            onChange={(e) => set(cote)(e.target.value)}
+            placeholder={props.placeholder}
+            onFocus={() => setCoteActive(cote)}
+            onBlur={() => setCoteActive(null)}
+            className="w-full min-w-0 bg-transparent text-right text-base tabular-nums text-[#2b2320] placeholder:text-[#726757] outline-none focus-visible:shadow-none focus-visible:outline-none sm:text-[15px]"
+          />
+          <span className="text-xs text-[#6f6357]">mm</span>
+        </span>
+      </label>
       {/* Taper la cote, ou la faire glisser : le même curseur que sur les tables. */}
       <input
         type="range"
@@ -291,9 +429,9 @@ export function ReleveGardeCorps({
         onChange={(e) => set(cote)(e.target.value)}
         onFocus={() => setCoteActive(cote)}
         onBlur={() => setCoteActive(null)}
-        className="curseur-cote order-last mt-1 h-5 w-full basis-full cursor-pointer"
+        className="curseur-cote mt-2 block h-5 w-full cursor-pointer"
       />
-    </label>
+    </div>
   );
 
   /** Le grand chiffre : le prix, « à étudier », « sur devis », ou un tiret. */
@@ -381,9 +519,12 @@ export function ReleveGardeCorps({
              carte, en grand ; sinon il reste ici, au-dessus des cases. */
           return schemaSlot
             ? createPortal(
-                <div className="relative mx-auto aspect-[4/5] max-h-[34svh] w-auto max-w-[320px] overflow-hidden rounded-xl md:max-h-none md:w-full md:max-w-[420px]">
-                  {croquis}
-                </div>,
+                <>
+                  <div className="relative mx-auto aspect-[4/5] max-h-[34svh] w-auto max-w-[320px] overflow-hidden rounded-xl md:max-h-[62vh] md:w-auto md:max-w-[560px]">
+                    {croquis}
+                  </div>
+                  {catalogue}
+                </>,
                 schemaSlot
               )
             : (
@@ -409,10 +550,13 @@ export function ReleveGardeCorps({
               <span className="flex items-center gap-2.5 text-[15px] text-[#2b2320]">
                 <InfoBulle texte={t.gcEtageInfo} label={t.gcInfoLabel} />
                 {t.gcEtage}
+                {cotes.etage === "" && (
+                  <span className="rounded-full bg-[#fbeeda] px-2 py-0.5 text-[11px] font-medium text-[#7a4510]">{fr ? "à choisir" : "to choose"}</span>
+                )}
               </span>
-              <div className="mt-2 grid grid-cols-2 rounded-full border border-[#9a8d80] bg-white p-0.5">
-                {t.gcEtageOptions.map((option, i) => {
-                  const actifBouton = cotes.etage === option || (cotes.etage === "" && i === 0);
+              <div className={`mt-2 grid grid-cols-2 rounded-full border bg-white p-0.5 ${cotes.etage === "" ? "border-[#c98a3a]" : "border-[#9a8d80]"}`}>
+                {t.gcEtageOptions.map((option) => {
+                  const actifBouton = cotes.etage === option;
                   return (
                     <button
                       key={option}
@@ -448,6 +592,12 @@ export function ReleveGardeCorps({
             </label>
           </div>
 
+          {/* Le résultat : le prix, la norme, le modèle choisi. À côté de la carte, sous le catalogue
+              (la carte, à gauche, ne porte plus que les cotes et la livraison : elle était trop longue
+              et la colonne de droite restait vide) ; sur téléphone, il reste ici. */}
+          {(() => {
+            const resultat = (
+              <>
           {/* ④ Ce que ça donne, calculé par l'outil de l'atelier : les cotes,
               les croix, le prix, et la norme en une ligne. */}
           <div
@@ -460,12 +610,16 @@ export function ReleveGardeCorps({
                 <Pastille n={NUMERO_COTE.hauteur} />
                 {t.gcResultTitle}
               </span>
-              <p
-                className="mt-2 text-[28px] font-medium leading-none tabular-nums transition-colors"
-                style={{ color: conforme ? ACCENT : "#6f6357" }}
-              >
-                {grandChiffre}
-              </p>
+              {/* À côté de la carte, pas de prix en grand : il est déjà dans la barre d'achat, juste à gauche.
+                  (Sans prix — « à étudier », « sur devis » — le mot reste : c'est lui l'information.) */}
+              {!(schemaSlot && conforme) && (
+                <p
+                  className="mt-2 text-[28px] font-medium leading-none tabular-nums transition-colors"
+                  style={{ color: conforme ? ACCENT : "#6f6357" }}
+                >
+                  {grandChiffre}
+                </p>
+              )}
               <p className="mt-1.5 text-xs text-[#6f6357]">
                 {releve && dessin
                   ? [
@@ -562,80 +716,32 @@ export function ReleveGardeCorps({
             </div>
           </div>
 
-          {/* Les modèles que la norme permet pour CETTE fenêtre : le client choisit son dessin, puis commande. */}
-          {modeles.length > 0 && releve && (
-            <div id="modeles-gc" className="mt-5 scroll-mt-24 rounded-2xl border border-[#e0d6c8] bg-white/70 p-4">
-              <p className="text-[13px] font-medium leading-snug text-[#2b2320]">
-                {adapte
-                  ? fr
-                    ? "Avec les mesures de votre fenêtre, le modèle de la photo ne serait pas aux normes. Mais nous en proposons d'autres, dessinés pour vos cotes."
-                    : "With your window's measurements, the model in the photo would not meet the standard. But we offer others, drawn for your measurements."
-                  : fr
-                    ? "Les modèles aux normes pour votre fenêtre."
-                    : "The models that meet the standard for your window."}
-              </p>
-              <p className="mt-1 text-xs leading-snug text-[#5c5140]">
-                {fr ? "Cliquez sur un modèle pour le voir sur le croquis et le choisir." : "Click a model to see it on the sketch and choose it."}
-              </p>
-              <div role="group" aria-label={fr ? "Modèles aux normes" : "Compliant models"} className="mt-3 grid grid-cols-2 gap-2.5">
-                {modeles.map((m) => {
-                  const choisi = m.id === cotes.modele;
-                  return (
-                    <button
-                      key={m.id}
-                      type="button"
-                      aria-pressed={choisi}
-                      onClick={() => onChange({ ...cotes, modele: m.id })}
-                      className={`flex flex-col rounded-xl border p-2.5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${
-                        choisi ? "border-[#2b2320] bg-white shadow-sm ring-1 ring-[#2b2320]" : "border-[#e0d6c8] bg-white/60 hover:border-[#9a8d80]"
-                      }`}
-                    >
-                      <span className="flex h-[72px] items-end justify-center">
-                        <MiniGardeCorps largeurMm={releve.largeurMm} hauteurMm={m.hauteurMm} soubassementMm={m.soubassementMm} croix={m.croix} />
-                      </span>
-                      <span className="mt-2 block text-[13px] font-medium leading-snug text-[#2b2320]">
-                        {croixTexte(m.croix)}
-                        {m.soubassementMm > 0 ? (fr ? ", barreaux en bas" : ", bars below") : ""}
-                      </span>
-                      <span className="block text-[11px] leading-snug text-[#6f6357]">
-                        {fr ? `Hauteur ${nombre(m.hauteurMm)} mm · acier carré de ${m.carre}` : `Height ${nombre(m.hauteurMm)} mm · ${m.carre} mm square steel`}
-                      </span>
-                      <span className="mt-1 flex items-center justify-between gap-2">
-                        <span className="text-[13px] font-medium tabular-nums" style={{ color: ACCENT }}>
-                          {prixAffiche(m.prix, locale)}
-                        </span>
-                        <span className="rounded-full bg-[#e3efe4] px-2 py-0.5 text-[10px] font-medium text-[#2a6b3a]">{fr ? "Aux normes" : "To standard"}</span>
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-              {!cotes.modele && (
-                <p className="mt-2.5 text-xs font-medium text-[#8a4b12]" role="status">
-                  {fr ? "Choisissez un modèle pour pouvoir l'ajouter au panier." : "Choose a model to add it to your cart."}
-                </p>
+          {/* Le modèle : on le choisit dans le catalogue (à côté du croquis ; ici même sur téléphone). */}
+          {!schemaSlot && catalogue}
+          {conforme && !surVerre && (
+            <p className={`mt-4 rounded-xl px-3.5 py-2.5 text-[13px] leading-snug ${choisi ? "bg-[#e3efe4] text-[#1f5a2e]" : "bg-[#fbeeda] text-[#7a4510]"}`} role="status">
+              {choisi
+                ? `${fr ? "Modèle choisi" : "Chosen model"} : ${libelleModele(choisi)}${schemaSlot ? "" : ` — ${prixAffiche(choisi.prix, locale)}`}`
+                : fr
+                  ? "Dernière étape : choisissez votre modèle parmi ceux marqués « aux normes »."
+                  : "Last step: choose your model among those marked “to standard”."}{" "}
+              {!choisi && (
+                <a href="#modeles-gc" className="font-medium underline underline-offset-4">
+                  {fr ? "Voir les modèles" : "See the models"}
+                </a>
               )}
-            </div>
+            </p>
           )}
-          {/* Un autre dessin : la photo de la fenêtre, et l'atelier répond. */}
-          {lienDevis && (
-            <Link
-              href={lienDevis}
-              className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-[#e0d6c8] bg-white/70 px-4 py-3 transition-colors hover:border-[#2b2320]"
-            >
-              <span>
-                <span className="block text-[13px] font-medium text-[#2b2320]">{fr ? "Garde-corps personnalisé" : "Custom railing"}</span>
-                <span className="block text-xs leading-snug text-[#5c5140]">
-                  {fr
-                    ? "Envoyez une photo de votre fenêtre : sous 48 h, nous vous disons si c'est faisable et à quoi il ressemblerait, aux normes."
-                    : "Send a photo of your window: within 48 hours we tell you whether it can be done and what it would look like, to standard."}
-                </span>
-              </span>
-              <span aria-hidden className="text-lg text-[#2b2320]">›</span>
-            </Link>
-          )}
+          {/* « Poids et détails », « Ce que comprend le prix » : la fiche les dépose ici (voir detailsSlot). */}
+          {schemaSlot && detailsSlot && <div ref={detailsSlot} className="mt-3" />}
 
           <p className="mt-4 text-[11px] leading-snug text-[#726757]">{t.gcNote}</p>
+              </>
+            );
+            return schemaSlot
+              ? createPortal(<div className="mt-4 rounded-2xl border border-[#e0d6c8] bg-white/75 p-4 text-left md:p-5">{resultat}</div>, schemaSlot)
+              : resultat;
+          })()}
         </>
       )}
     </div>
@@ -650,35 +756,53 @@ const CURSEURS = {
   fenetre: { min: 0, max: BORNES_RELEVE_GC.fenetreMm.max, depart: 1200 },
 } as const;
 
-/** Le petit dessin d'un modèle, À L'ÉCHELLE de la fenêtre du client : le cadre, ses croix à rosace, les barreaux du bas. */
-function MiniGardeCorps({ largeurMm, hauteurMm, soubassementMm, croix }: { largeurMm: number; hauteurMm: number; soubassementMm: number; croix: number }) {
-  // Même échelle en largeur et en hauteur, dans une vignette de 130 × 72 au plus.
-  const k = Math.min(126 / largeurMm, 68 / hauteurMm);
-  const L = largeurMm * k, H = hauteurMm * k;
-  const mc = Math.max(2, 40 * k), haut = mc, bas = H - 1;
-  const lisse = soubassementMm > 0 ? bas - soubassementMm * k : bas;
+/** Les dessins montrés AVANT les mesures : de 1 à 6 croix, seules puis avec barreaux, sur une fenêtre type. */
+const MODELES_VITRINE: ModeleGC[] = [false, true].flatMap((b) =>
+  [1, 2, 3, 4, 5, 6].map((n) => ({
+    id: `16-${n}${b ? "-b" : ""}`,
+    conforme: false,
+    croix: n,
+    carre: 16,
+    soubassementMm: b ? 150 : 0,
+    hauteurMm: b ? 520 : 350,
+    prix: 0,
+    kg: 0,
+  }))
+);
+
+/**
+ * Le petit dessin d'un modèle, À L'ÉCHELLE de la fenêtre du client : le cadre,
+ * ses croix à rosace, les barreaux du bas. Tous les dessins du catalogue ont
+ * le même cadre de vue (largeur de la fenêtre × hauteur du plus haut modèle) :
+ * un garde-corps deux fois plus haut est dessiné deux fois plus haut.
+ */
+function MiniGardeCorps({ largeurMm, hauteurMm, hMaxMm, soubassementMm, croix }: { largeurMm: number; hauteurMm: number; hMaxMm: number; soubassementMm: number; croix: number }) {
+  const L = largeurMm, H = Math.max(hMaxMm, hauteurMm);
+  const y0 = H - hauteurMm, haut = y0 + 40, bas = H;
+  const lisse = soubassementMm > 0 ? bas - soubassementMm : bas;
   const pas = L / croix;
-  const nb = Math.max(2, Math.round(largeurMm / 110));
+  const nb = Math.max(2, Math.round(L / 110));
+  const trait = { vectorEffect: "non-scaling-stroke" as const };
   return (
-    <svg width={L + 4} height={H + 2} viewBox={`-2 0 ${L + 4} ${H + 2}`} aria-hidden className="block max-w-full" fill="none" stroke="#2b2320" strokeWidth="1.5" strokeLinecap="round">
-      <rect x="-1" y="0" width={L + 2} height={mc} rx="1" fill="#c9a36b" stroke="none" />
-      <rect x="0" y={haut} width={L} height={bas - haut} />
-      {soubassementMm > 0 && <line x1="0" y1={lisse} x2={L} y2={lisse} />}
+    <svg viewBox={`${-L * 0.02} ${-H * 0.03} ${L * 1.04} ${H * 1.06}`} preserveAspectRatio="xMidYMax meet" aria-hidden className="block h-[40px] w-full" fill="none" stroke="#2b2320" strokeWidth="1.5" strokeLinecap="round">
+      <rect x={-L * 0.01} y={y0} width={L * 1.02} height="40" fill="#c9a36b" stroke="none" />
+      <rect x="0" y={haut} width={L} height={bas - haut} {...trait} />
+      {soubassementMm > 0 && <line x1="0" y1={lisse} x2={L} y2={lisse} {...trait} />}
       {Array.from({ length: croix }, (_, i) => {
         const x0 = i * pas, x1 = x0 + pas;
         return (
           <g key={i}>
-            {i > 0 && <line x1={x0} y1={haut} x2={x0} y2={lisse} />}
-            <line x1={x0} y1={haut} x2={x1} y2={lisse} strokeWidth="1" />
-            <line x1={x0} y1={lisse} x2={x1} y2={haut} strokeWidth="1" />
-            <circle cx={(x0 + x1) / 2} cy={(haut + lisse) / 2} r={Math.max(1.5, Math.min(4, 50 * k))} fill="#2b2320" stroke="none" />
+            {i > 0 && <line x1={x0} y1={haut} x2={x0} y2={lisse} {...trait} />}
+            <line x1={x0} y1={haut} x2={x1} y2={lisse} strokeWidth="1" {...trait} />
+            <line x1={x0} y1={lisse} x2={x1} y2={haut} strokeWidth="1" {...trait} />
+            <circle cx={(x0 + x1) / 2} cy={(haut + lisse) / 2} r={Math.min(50, pas / 6, (lisse - haut) / 4)} fill="#2b2320" stroke="none" />
           </g>
         );
       })}
       {soubassementMm > 0 &&
         Array.from({ length: nb - 1 }, (_, i) => {
           const x = ((i + 1) * L) / nb;
-          return <line key={`b${i}`} x1={x} y1={lisse} x2={x} y2={bas} strokeWidth="0.9" />;
+          return <line key={`b${i}`} x1={x} y1={lisse} x2={x} y2={bas} strokeWidth="0.9" {...trait} />;
         })}
     </svg>
   );

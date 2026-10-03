@@ -474,7 +474,7 @@
     "gcLargeurCourt": "Width",
     "gcAllegeCourt": "Height below the window",
     "gcFenetreCourt": "Window height",
-    "raisonCotesGardeCorps": "Enter your three measurements to add to basket."
+    "raisonCotesGardeCorps": "Enter the width and the height below the window to add to your cart."
   },
   "devis": {
     "title": "Request a quote",

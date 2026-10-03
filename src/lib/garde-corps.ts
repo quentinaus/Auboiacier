@@ -69,6 +69,8 @@ export function lireModeleGC(m: unknown): { carre: number; croix: number; barrea
 export type ModeleGC = {
   /** « carré-croix », à renvoyer tel quel pour le choisir. */
   id: string;
+  /** Ce dessin passe-t-il la norme pour CETTE fenêtre ? Sinon : montré au catalogue, mais pas vendu (prix 0). */
+  conforme: boolean;
   croix: number;
   carre: number;
   /** Hauteur des barreaux droits en partie basse ; 0 : aucun. */
@@ -81,7 +83,7 @@ export type ModeleGC = {
 };
 
 /** Combien de modèles la route propose au plus. */
-export const MODELES_GC_MAX = 6;
+export const MODELES_GC_MAX = 12;
 
 /**
  * Le relevé qui fait le « à partir de » du garde-corps : le plus petit que
@@ -145,6 +147,8 @@ export type ReponsePrixGC =
       obligatoire: boolean;
       /** Ce qui bloque. */
       alertes: CodeAlerteGC[];
+      /** Le catalogue des dessins, tous hors norme pour cette fenêtre (ou vide : version ancienne du serveur). */
+      modeles: ModeleGC[];
     };
 
 /** Les options d'une pièce, telles que la fiche les envoie. */
@@ -198,17 +202,18 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
   const entier = (x: unknown, min = 0) => typeof x === "number" && Number.isInteger(x) && x >= min;
   if (!entier(o.hauteurMm, 1) || !entier(o.mainCouranteMm, 1) || !entier(o.jourMm) || typeof o.obligatoire !== "boolean") return null;
   const commun = { hauteurMm: o.hauteurMm as number, mainCouranteMm: o.mainCouranteMm as number, jourMm: o.jourMm as number, obligatoire: o.obligatoire };
+  const modeles: ModeleGC[] = [];
+  for (const m of Array.isArray(o.modeles) ? o.modeles.slice(0, MODELES_GC_MAX) : []) {
+    if (!m || typeof m !== "object") return null;
+    const x = m as Record<string, unknown>;
+    const lu = lireModeleGC(x.id);
+    if (!lu || x.croix !== lu.croix || x.carre !== lu.carre || typeof x.conforme !== "boolean") return null;
+    if (!entier(x.soubassementMm) || !entier(x.hauteurMm, 1) || !entier(x.prix, x.conforme ? 1 : 0) || !entier(x.kg)) return null;
+    modeles.push({ id: x.id as string, conforme: x.conforme, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, hauteurMm: x.hauteurMm as number, prix: x.prix as number, kg: x.kg as number });
+  }
   if (o.ok === true && o.conforme === true) {
     if (!entier(o.prix, 1) || !(typeof o.remise === "number" && Number.isInteger(o.remise) && o.remise <= 0)) return null;
     if (!entier(o.croix, 1) || !entier(o.carre, 1) || !entier(o.soubassementMm) || !entier(o.kg)) return null;
-    const modeles: ModeleGC[] = [];
-    for (const m of Array.isArray(o.modeles) ? o.modeles.slice(0, MODELES_GC_MAX) : []) {
-      if (!m || typeof m !== "object") return null;
-      const x = m as Record<string, unknown>;
-      const lu = lireModeleGC(x.id);
-      if (!lu || x.croix !== lu.croix || x.carre !== lu.carre || !entier(x.soubassementMm) || !entier(x.hauteurMm, 1) || !entier(x.prix, 1) || !entier(x.kg)) return null;
-      modeles.push({ id: x.id as string, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, hauteurMm: x.hauteurMm as number, prix: x.prix as number, kg: x.kg as number });
-    }
     return {
       ok: true,
       conforme: true,
@@ -224,7 +229,7 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
   }
   if (o.ok === false && o.conforme === false && (o.raison === "a-etudier" || o.raison === "fenetre-trop-basse")) {
     const alertes = Array.isArray(o.alertes) ? o.alertes.filter((a): a is CodeAlerteGC => CODES.includes(a as CodeAlerteGC)) : [];
-    return { ok: false, conforme: false, raison: o.raison, alertes, ...commun };
+    return { ok: false, conforme: false, raison: o.raison, alertes, modeles, ...commun };
   }
   return null;
 }

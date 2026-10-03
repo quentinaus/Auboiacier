@@ -326,8 +326,6 @@ export function SchemaFenetre({
 
   const legende = locale === "en" ? "Dimensioned sketch, seen from the room: " : "Croquis coté, vu depuis la pièce : ";
   const attache = { stroke: "#4a3f35", strokeWidth: 0.9, strokeDasharray: "3 3", opacity: 0.8 };
-  /** La largeur du cartouche derrière l'intitulé de la règle. */
-  const cartouche = labels.metre.length * 4.9 + 10;
 
   return (
     <svg
@@ -426,22 +424,8 @@ export function SchemaFenetre({
       {/* La ligne de la règle : c'est elle qu'on regarde. Elle affleure le
           dessus de la main courante. */}
       <line x1={0} y1={regleY} x2={LARGEUR} y2={regleY} stroke={ACCENT} strokeWidth={1.1} strokeDasharray="4 3" opacity={0.9} />
-      {/* Le cartouche, centré sur la fenêtre, juste au-dessus de la ligne —
-          ou juste en dessous quand la cote ① est trop près. Il reste entre
-          les pastilles de gauche et de droite, que le cadre ne rogne jamais. */}
-      {(() => {
-        const dessous = regleY - 16 < HAUT_OUVERTURE_Y - 6;
-        const y = dessous ? regleY + 4 : regleY - 16;
-        const x = Math.max(38, Math.min(292 - cartouche, r(milieu - cartouche / 2)));
-        return (
-          <g>
-            <rect x={x} y={y} width={cartouche} height={13} rx={3} fill="#ffffff" opacity={0.94} />
-            <text x={x + 5} y={y + 10} fontSize={9.5} fill={ACCENT} fontWeight={700}>
-              {labels.metre}
-            </text>
-          </g>
-        );
-      })()}
+      {/* Pas de cartouche chiffré sur la ligne (demande du 03/10) : la hauteur est dite dans le résultat,
+          à côté ; sur le dessin, elle se lisait mal et chargeait le croquis. */}
 
       {/* ① La largeur, entre les deux murs, au-dessus de la fenêtre. */}
       <g {...attache}>
@@ -473,22 +457,7 @@ export function SchemaFenetre({
       <Fleche de={[280, basGardeCorpsY]} a={[280, hautGardeCorpsY]} actif={actif === "hauteur"} />
       <Pastille cote="hauteur" cx={306} cy={r((basGardeCorpsY + hautGardeCorpsY) / 2)} actif={actif === "hauteur"} onChoisir={onChoisir} label={labels.hauteur} />
 
-      {/* Le jour entre l'appui et le bas du cadre : coté sous ④,
-          sans numéro — ce n'est pas une mesure à prendre, c'est la pose.
-          Un chiffre seul ne disait pas ce qu'il mesurait ; une deuxième
-          ligne, plus petite, le nomme directement sur le dessin. */}
-      {jour > 0 && (
-        <g>
-          <Fleche de={[280, appuiY]} a={[280, basGardeCorpsY]} actif={false} />
-          <rect x={284} y={r(appuiY + 2)} width={42} height={20} rx={2.5} fill="#ffffff" opacity={0.94} />
-          <text x={287} y={r(appuiY + 10.5)} fontSize={8} fontWeight={700} fill={ENCRE}>
-            {`${J} mm`}
-          </text>
-          <text x={287} y={r(appuiY + 18.5)} fontSize={6} fill={ENCRE} opacity={0.75}>
-            {labels.jour}
-          </text>
-        </g>
-      )}
+      {/* Le jour de pose n'est plus coté sur le dessin (demande du 03/10) : ce n'est pas une mesure à prendre. */}
     </svg>
   );
 }

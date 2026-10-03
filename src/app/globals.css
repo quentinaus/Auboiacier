@@ -200,7 +200,7 @@ textarea:focus-visible,
 /* Le croquis remplit sa colonne, sans jamais dépasser la hauteur de la plaque. */
 @media (min-width: 768px) {
   .schema-configuration svg {
-    max-height: calc(min(100vh - 6rem, 860px) - 9rem);
+    max-height: calc(min(100vh, 900px) - 11rem);
   }
 }
 .carte-verre {
@@ -322,9 +322,10 @@ textarea:focus-visible,
 }
 /* La barre d'achat collée en bas : le même verre, plus dense, pour que le contenu s'efface derrière. */
 .carte-verre .barre-achat {
-  background: rgba(248, 246, 242, 0.82);
-  -webkit-backdrop-filter: blur(18px) saturate(1.6);
-  backdrop-filter: blur(18px) saturate(1.6);
+  /* Opaque : translucide, on lisait à travers ce qui défile dessous, et tout se superposait. */
+  background: #f8f6f2;
+  box-shadow: 0 -10px 18px -14px rgba(43, 35, 32, 0.35);
+  border-radius: 0 0 26px 26px;
 }
 .carte-verre .barre-achat::before {
   content: "";
@@ -332,7 +333,7 @@ textarea:focus-visible,
   inset: auto 0 100% 0;
   height: 1.25rem;
   pointer-events: none;
-  background: linear-gradient(to top, rgba(248, 246, 242, 0.82), transparent);
+  background: linear-gradient(to top, #f8f6f2, rgba(248, 246, 242, 0));
 }
 
 /* ------------------------------------------------------------------ *

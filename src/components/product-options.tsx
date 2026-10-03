@@ -680,8 +680,15 @@ export function ProductOptions({
   const [misDeCote, setMisDeCote] = useState<string | null>(null);
   const [favoriEnvoi, setFavoriEnvoi] = useState(false);
   /** Les sous-menus de la carte du configurateur (livraison, poids et détails, ce que comprend le prix). */
-  const [menusOuverts, setMenusOuverts] = useState<Record<string, boolean | undefined>>({});
+  const [menusOuverts, setMenusOuverts] = useState<Record<string, boolean | undefined>>({
+    // Sur le garde-corps, la livraison est OUVERTE d'emblée : c'est là qu'on tape son code postal,
+    // sans lequel on ne peut rien ajouter au panier. Fermée, on ne comprenait pas pourquoi le bouton
+    // restait gris. (Les tables et les plafonds la gardent repliée : leur carte tient sur un écran.)
+    livraison: product.releve === "garde-corps-fenetre",
+  });
   const ouvrirMenu = (nom: string, ouvert: boolean) => setMenusOuverts((m) => ({ ...m, [nom]: ouvert }));
+  /** Garde-corps : l'emplacement, dans le cadre du résultat (à côté de la carte), du poids, des détails et de ce que comprend le prix. */
+  const [detailsSlot, setDetailsSlot] = useState<HTMLDivElement | null>(null);
 
   /**
    * Aller à l'endroit qui manque, en partant de la phrase qui le réclame.
@@ -1314,9 +1321,11 @@ export function ProductOptions({
             // allège, hauteur de la fenêtre), puis attend l'outil de plans.
             estGC
             ? lectureReleve?.etat === "incomplet"
-              ? // Pas « longueur, largeur, épaisseur » : ce sont les mots d'une
-                // table, et un garde-corps se mesure autrement.
-                { message: t.raisonCotesGardeCorps, ancre: "#cotes" }
+              ? lectureReleve.manque === "etage"
+                ? { message: locale === "fr" ? "Dites où est la fenêtre : en étage ou au rez-de-chaussée." : "Tell us where the window is: upstairs or on the ground floor.", ancre: "#cotes" }
+                : // Pas « longueur, largeur, épaisseur » : ce sont les mots d'une
+                  // table, et un garde-corps se mesure autrement.
+                  { message: t.raisonCotesGardeCorps, ancre: "#cotes" }
               : prixGC.statut === "calcul"
                 ? { message: t.gcCalcul, ancre: "#cotes" }
                 : prixGC.statut === "indisponible" || prixGC.statut === "erreur"
@@ -2403,6 +2412,7 @@ export function ProductOptions({
             prix={prixGC}
             rosaceMm={Number(fabric?.label.match(/Ø(\d+)/)?.[1]) || undefined}
             lienDevis={`/${locale}/contact?produit=${product.slug}&config=${encodeURIComponent(optionsPiece)}`}
+            detailsSlot={setDetailsSlot}
             verre={
               verre && remplissageModele
                 ? {
@@ -2465,6 +2475,9 @@ export function ProductOptions({
                 {livraison}
               </SousMenu>
             )}
+            {(() => {
+              const details = (
+                <>
             <SousMenu
               titre={t.sousMenuDetails}
               resume={resumeDetails}
@@ -2504,6 +2517,11 @@ export function ProductOptions({
             >
               {listeInclus}
             </SousMenu>
+                </>
+              );
+              // Le garde-corps : ces deux sous-menus vont dans le cadre du résultat, à côté de la carte.
+              return estGC && detailsSlot ? createPortal(details, detailsSlot) : details;
+            })()}
           </div>
         );
       })()}

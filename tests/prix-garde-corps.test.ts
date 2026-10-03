@@ -336,7 +336,7 @@ test("réponse de /api/prix-garde-corps : le prix et la forme, rien d'autre", ()
   assert.deepEqual(Object.keys(ok).sort(), ["carre", "conforme", "croix", "hauteurMm", "jourMm", "kg", "mainCouranteMm", "modeles", "obligatoire", "ok", "prix", "remise", "soubassementMm"]);
   const non = reponsePrixGC(requete({ largeurMm: BORNES_GC.B.max }));
   assert.ok(non);
-  assert.deepEqual(Object.keys(non).sort(), ["alertes", "conforme", "hauteurMm", "jourMm", "mainCouranteMm", "obligatoire", "ok", "raison"]);
+  assert.deepEqual(Object.keys(non).sort(), ["alertes", "conforme", "hauteurMm", "jourMm", "mainCouranteMm", "modeles", "obligatoire", "ok", "raison"]);
   for (const r of [ok, non]) for (const x of Object.values(r)) assert.ok(["number", "boolean", "string"].includes(typeof x) || Array.isArray(x));
 });
 
@@ -368,27 +368,29 @@ test("réponse de /api/prix-garde-corps : le prix de l'outil, plus les suppléme
 });
 
 
-test("modèles au choix : chacun passe la norme, a son prix, et un modèle forgé ne se vend pas", () => {
+test("catalogue des modèles : tous montrés, seuls les conformes ont un prix, un modèle hors norme ou forgé ne se vend pas", () => {
   chiffrageOuEchec();
   const releve = { largeurMm: 1190, allegeMm: 585, enEtage: true, fenetreMm: 1200 };
   const q = { releve, essence: "chene" as const, quantite: 1 };
   const r = reponsePrixGC(q);
   assert.ok(r && r.ok, "ce relevé a un prix");
-  assert.ok(r.modeles.length >= 1 && r.modeles.length <= 6);
-  // Le premier modèle proposé est celui que l'outil retient de lui-même, au même prix.
-  assert.equal(r.modeles[0].id.replace(/-b$/, ""), `${r.carre}-${r.croix}`);
-  assert.equal(r.modeles[0].prix, r.prix);
-  assert.deepEqual(Object.keys(r.modeles[0]).sort(), ["carre", "croix", "hauteurMm", "id", "kg", "prix", "soubassementMm"]);
-  for (const m of r.modeles) {
+  assert.ok(r.modeles.length >= 6 && r.modeles.length <= 12, "le catalogue entier est envoyé");
+  assert.deepEqual(Object.keys(r.modeles[0]).sort(), ["carre", "conforme", "croix", "hauteurMm", "id", "kg", "prix", "soubassementMm"]);
+  const conformes = r.modeles.filter((m) => m.conforme), hors = r.modeles.filter((m) => !m.conforme);
+  assert.ok(conformes.length >= 1 && hors.length >= 1);
+  // Le modèle que l'outil retient de lui-même est dans le catalogue, au même prix.
+  assert.equal(conformes.find((m) => m.id.replace(/-b$/, "") === `${r.carre}-${r.croix}`)?.prix, r.prix);
+  for (const m of conformes) {
     const choisi = reponsePrixGC({ ...q, releve: { ...releve, modele: m.id } });
     assert.ok(choisi && choisi.ok, `le modèle ${m.id} se commande`);
     assert.equal(choisi.prix, m.prix, `le modèle ${m.id} est encaissé au prix affiché`);
     assert.equal(`${choisi.carre}-${choisi.croix}`, m.id.replace(/-b$/, ""));
   }
-  // Un modèle qui ne passe pas la norme pour cette fenêtre (1 croix sur 1 190 mm, allège basse) : pas de prix.
-  const interdit = ["16-1", "12-1"].find((id) => !r.modeles.some((m) => m.id === id))!;
-  const forge = reponsePrixGC({ ...q, releve: { ...releve, modele: interdit } });
-  assert.ok(forge && !forge.ok, "un modèle hors norme ne donne aucun prix");
+  for (const m of hors) {
+    assert.equal(m.prix, 0, `le modèle hors norme ${m.id} n'a pas de prix`);
+    const forge = reponsePrixGC({ ...q, releve: { ...releve, modele: m.id } });
+    assert.ok(forge && !forge.ok, `le modèle hors norme ${m.id} ne se vend pas`);
+  }
   // Un modèle illisible : l'adresse est refusée.
   assert.equal(lireRequetePrixGC(new URLSearchParams("l=1190&allege=585&etage=1&fenetre=1200&wood=chene&modele=99-9")), null);
   assert.equal(lireRequetePrixGC(new URLSearchParams("l=1190&allege=585&etage=1&fenetre=1200&wood=chene&modele=16-3"))?.releve.modele, "16-3");

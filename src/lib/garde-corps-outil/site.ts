@@ -8,7 +8,7 @@
  * part vers le navigateur, sauf ce que reponsePrixGC construit champ par
  * champ : un prix de vente et une forme, jamais un coût.
  */
-import { configurerGC, modelesConformesGC, prixCommandeGC, prixGC, ChiffrageIndisponible, type ConfigAEtudierGC, type ConfigGC } from "./calcul.ts";
+import { catalogueGC, configurerGC, prixCommandeGC, prixGC, ChiffrageIndisponible, type ConfigAEtudierGC, type ConfigGC } from "./calcul.ts";
 import { ESSENCES_GC, type EntreeSiteGC, type EssenceGC } from "./entree.ts";
 import { getProduct, priceFrom, prixParOutil, resolveSelection, SUR_MESURE, type PrixReleve, type Product } from "../products.ts";
 import { BORNES_RELEVE_GC, MODELES_GC_MAX, RELEVE_DEPART_GC, lireModeleGC, releveDansLesBornes, type ModeleGC, type ReleveGC, type ReponsePrixGC } from "../garde-corps.ts";
@@ -149,6 +149,22 @@ export function lireRequetePrixGC(params: URLSearchParams): RequetePrixGC | null
   return { releve: { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm, ...(modele ? { modele } : {}) }, essence, metalId, fabricId, remplissageId, quantite };
 }
 
+/** Le catalogue des dessins, tel qu'il part vers le navigateur : chaque dessin conforme à son prix (le calcul du panier). */
+function catalogueSiteGC(q: RequetePrixGC, hauteurMm: number): ModeleGC[] {
+  const modeles: ModeleGC[] = [];
+  for (const d of catalogueGC(entreeGC(q.releve, q.essence))) {
+    if (!d.conforme) {
+      modeles.push({ id: `${d.carre}-${d.croix}${d.barreauxBas ? "-b" : ""}`, conforme: false, croix: d.croix, carre: d.carre, soubassementMm: d.soubassementMm, hauteurMm, prix: 0, kg: 0 });
+      continue;
+    }
+    const m = d.config;
+    const id = `${m.carre}-${m.croix}${m.barreauxBas ? "-b" : ""}`;
+    const l = ligneGC({ ...q.releve, modele: id }, { woodId: q.essence, metalId: q.metalId, fabricId: q.fabricId, remplissageId: q.remplissageId });
+    if (l.ok && l.line.gc) modeles.push({ id, conforme: true, croix: m.croix, carre: m.carre, soubassementMm: m.soubassementMm, hauteurMm: l.line.gc.hauteurMm, prix: l.line.unitPrice, kg: Math.round(l.line.gc.kg) });
+  }
+  return modeles.slice(0, MODELES_GC_MAX);
+}
+
 /**
  * La réponse de /api/prix-garde-corps, construite champ par champ : rien
  * d'autre ne peut partir vers le navigateur. null : une option inconnue
@@ -167,18 +183,13 @@ export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
       jourMm: c.jourMm,
       obligatoire: c.obligatoire,
       alertes: [...c.alertes],
+      modeles: catalogueSiteGC(q, c.hauteurMm),
     };
   }
   // Une option absente : celle du modèle (ligneGC).
   const r = ligneGC(q.releve, { woodId: q.essence, metalId: q.metalId, fabricId: q.fabricId, remplissageId: q.remplissageId });
   if (!r.ok || !r.line.gc) return null;
-  // Les autres modèles que la norme permet, chacun à son prix (même calcul que la ligne ci-dessus).
-  const modeles: ModeleGC[] = [];
-  for (const m of modelesConformesGC(entreeGC(q.releve, q.essence), MODELES_GC_MAX)) {
-    const id = `${m.carre}-${m.croix}${m.barreauxBas ? "-b" : ""}`;
-    const l = ligneGC({ ...q.releve, modele: id }, { woodId: q.essence, metalId: q.metalId, fabricId: q.fabricId, remplissageId: q.remplissageId });
-    if (l.ok && l.line.gc) modeles.push({ id, croix: m.croix, carre: m.carre, soubassementMm: m.soubassementMm, hauteurMm: l.line.gc.hauteurMm, prix: l.line.unitPrice, kg: Math.round(l.line.gc.kg) });
-  }
+  const modeles = catalogueSiteGC(q, c.hauteurMm);
   return {
     ok: true,
     conforme: true,

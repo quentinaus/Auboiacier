@@ -509,18 +509,30 @@ export function ProductView({
       >
         {/* Sur ordinateur, tout tient dans la hauteur de l'écran, titre compris : le titre
             est dans la plaque, la carte et le croquis se partagent la hauteur qui reste. */}
-        <div className="fond-configuration flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,372px)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)] md:gap-x-10 md:gap-y-4 md:h-[calc(100vh-6rem)] md:max-h-[860px] md:min-h-[540px] lg:gap-x-14">
+        <div className="fond-configuration flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,372px)_minmax(0,1fr)] md:items-start md:gap-x-10 md:gap-y-4 lg:gap-x-14">
           <div className="md:col-span-2">
             <h2 className={`${serif.className} text-xl text-[#2b2320] md:text-[28px] md:leading-none`}>{t.configurationTitle}</h2>
           </div>
           {/* Pas de marge en bas : c'est la barre d'achat, collée au bord
               inférieur, qui porte la sienne — sinon le contenu qui défile
               reste visible dessous, entre la barre et le bord de la carte. */}
-          <div className="carte-verre overflow-x-hidden rounded-[26px] px-5 pb-0 pt-4 md:h-full md:overflow-y-auto md:px-6 md:pt-5">
+          {/* La carte prend la hauteur qu'il lui faut et c'est la PAGE qui défile : un seul
+              défilement. (Elle défilait à l'intérieur d'elle-même : la molette faisait tantôt
+              bouger la carte, tantôt la page, on ne s'y retrouvait pas.) `clip`, pas `hidden` :
+              la barre d'achat doit rester collée au bas de l'écran. */}
+          <div className="carte-verre overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 md:px-6 md:pt-5">
             {options}
           </div>
           {/* Le croquis : au-dessus de la carte sur téléphone, à côté et en grand sur ordinateur. */}
-          <div className="order-first md:order-none md:flex md:min-h-0 md:items-center md:justify-center">
+          <div
+            className={`order-first md:order-none ${
+              /* Le croquis d'une table ou d'un plafond suit le regard pendant qu'on descend dans la
+                 carte. Le garde-corps a son catalogue de modèles sous le croquis : il ne se colle pas. */
+              product.releve === "garde-corps-fenetre"
+                ? ""
+                : "md:sticky md:top-20 md:flex md:h-[calc(100vh-9rem)] md:max-h-[720px] md:items-center md:justify-center"
+            }`}
+          >
             <div ref={setSchemaSlot} className="schema-configuration mx-auto w-full" />
           </div>
         </div>
