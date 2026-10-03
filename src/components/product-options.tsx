@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useId, useRef, useState, type ComponentProps, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore, type ComponentProps, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import {
@@ -474,6 +474,8 @@ export function ProductOptions({
   apercu,
   schemaSlot,
   matieresSlot,
+  resultatSlot,
+  achatSlot,
   compteOuvert = false,
 }: {
   /** L'espace client est-il ouvert ? On ne propose pas de créer un compte qui n'existe pas encore. */
@@ -502,6 +504,12 @@ export function ProductOptions({
    * ici tant que ce nœud n'est pas encore monté.
    */
   schemaSlot?: HTMLDivElement | null;
+  /**
+   * Garde-corps, grand écran (trois colonnes, voir product-view.tsx) : où poser le résultat, puis
+   * la livraison et la barre d'achat. Sous 1280 px ces emplacements sont cachés : on n'y dépose rien.
+   */
+  resultatSlot?: HTMLDivElement | null;
+  achatSlot?: HTMLDivElement | null;
   /**
    * Où poser le choix des matières (teinte des pieds, essence du plateau)
    * quand le configurateur est en pleine page : à côté de la photo, qu'elles
@@ -687,6 +695,16 @@ export function ProductOptions({
     livraison: product.releve === "garde-corps-fenetre",
   });
   const ouvrirMenu = (nom: string, ouvert: boolean) => setMenusOuverts((m) => ({ ...m, [nom]: ouvert }));
+  /** L'écran est-il assez large pour les trois colonnes du garde-corps (1280 px) ? */
+  const grandEcran = useSyncExternalStore(
+    (prevenir) => {
+      const mq = window.matchMedia("(min-width: 1280px)");
+      mq.addEventListener("change", prevenir);
+      return () => mq.removeEventListener("change", prevenir);
+    },
+    () => window.matchMedia("(min-width: 1280px)").matches,
+    () => false
+  );
   /** Garde-corps : l'emplacement, dans le cadre du résultat (à côté de la carte), du poids, des détails et de ce que comprend le prix. */
   const [detailsSlot, setDetailsSlot] = useState<HTMLDivElement | null>(null);
 
@@ -895,6 +913,9 @@ export function ProductOptions({
    * la commande et le devis : le prix affiché est le prix encaissé.
    */
   const estGC = prixParOutil(product);
+  /** Garde-corps sur grand écran : la livraison et la barre d'achat vont dans la troisième colonne. */
+  const colonneAchat = estGC && nouvelleMiseEnPage && grandEcran ? (achatSlot ?? null) : null;
+  const versColonneAchat = (noeud: ReactNode) => (colonneAchat ? createPortal(noeud, colonneAchat) : noeud);
   const lectureReleve = estGC ? lireReleve(cotesGardeCorps, t) : null;
   const releveGC = lectureReleve?.etat === "ok" ? lectureReleve.releve : null;
   const prixGC = usePrixGardeCorps(releveGC, {
@@ -2404,6 +2425,7 @@ export function ProductOptions({
         <div ref={releveRef}>
           <ReleveGardeCorps
             schemaSlot={nouvelleMiseEnPage ? schemaSlot : undefined}
+            resultatSlot={nouvelleMiseEnPage && grandEcran ? resultatSlot : undefined}
             cotes={cotesGardeCorps}
             onChange={setCotesGardeCorps}
             t={t}
@@ -2462,7 +2484,7 @@ export function ProductOptions({
               ? `${pose.mode === "pose" ? t.poseCourt : t.livraisonCourt} · ${prixAffiche(pose.deplacement.montantCents / 100, locale)}`
               : t.livraisonAChoisir;
         const resumeDetails = poidsKg !== null ? `≈ ${poidsKg} kg` : "—";
-        return (
+        const sousMenus = (
           <div className="mt-2">
             {livraison && (
                 <SousMenu
@@ -2524,6 +2546,7 @@ export function ProductOptions({
             })()}
           </div>
         );
+        return versColonneAchat(sousMenus);
       })()}
 
       {orderable || modeVisite ? (
@@ -2538,7 +2561,7 @@ export function ProductOptions({
            ce qu'on est venu faire — n'avait plus que l'autre moitié.
            L'atelier l'a signalé. Le reste suit la barre, dans le flux : on le
            trouve en arrivant au bas de la carte. */
-        <>
+        versColonneAchat(<>
         <div
           className={
             nouvelleMiseEnPage
@@ -2669,7 +2692,8 @@ export function ProductOptions({
         <div className={nouvelleMiseEnPage ? "pb-5" : ""}>
           {/* Ce que ce prix-là comprend : sans cette ligne, cliquer « Noyer »
               faisait bondir le chiffre de 710 € sans un mot d'explication. */}
-          {optionsLabel && !modeVisite && total !== null && (
+          {/* (Dans la troisième colonne du garde-corps, le résultat le dit déjà, juste au-dessus.) */}
+          {optionsLabel && !modeVisite && total !== null && !colonneAchat && (
             <p className="mt-2 text-[11px] text-[#5c5140]">{optionsLabel}</p>
           )}
           {lienDevis}
@@ -2694,7 +2718,8 @@ export function ProductOptions({
           {/* Plusieurs fenêtres : la remise (frais fixes de l'atelier comptés
               une fois), et le moyen d'ajouter un garde-corps après l'autre,
               chacun à ses cotes. */}
-          {estGC && !modeVisite && (
+          {/* Dans la troisième colonne : seulement quand il y a déjà un garde-corps au panier (la colonne doit tenir sur un écran). */}
+          {estGC && !modeVisite && (!colonneAchat || dejaAuPanier > 0) && (
             <p className="mt-3 text-center text-xs leading-relaxed text-[#6f6357]">
               {dejaAuPanier > 0 ? (
                 <span className="font-medium text-[#2b2320]">
@@ -2757,7 +2782,7 @@ export function ProductOptions({
               : ""}
           </p>
         </div>
-        </>
+        </>)
       ) : (
         <div className="mt-3">
           <Link

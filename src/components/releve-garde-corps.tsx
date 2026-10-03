@@ -200,6 +200,7 @@ export function ReleveGardeCorps({
   lienDevis,
   rosaceMm,
   schemaSlot,
+  resultatSlot,
   detailsSlot,
   verre,
 }: {
@@ -220,6 +221,8 @@ export function ReleveGardeCorps({
    * croquis reste à sa place, au-dessus des cases.
    */
   schemaSlot?: HTMLDivElement | null;
+  /** Grand écran, trois colonnes : le résultat va en tête de la troisième colonne (au lieu de sous le croquis). */
+  resultatSlot?: HTMLDivElement | null;
   /**
    * Où la fiche dépose « Poids et détails » et « Ce que comprend le prix » : dans le cadre du
    * résultat, à côté de la carte (qui ne garde que les cotes et la livraison).
@@ -403,7 +406,7 @@ export function ReleveGardeCorps({
    * est dans la bulle.
    */
   const ligne = (cote: "largeur" | "allege" | "fenetre", props: { label: string; aide?: string; info: string; placeholder: string }) => (
-    <div className="py-3">
+    <div className="py-2.5">
       <label className="flex items-center justify-between gap-4">
       <span className="flex items-center gap-2.5 text-[15px] leading-snug text-[#2b2320]">
           <Pastille n={NUMERO_COTE[cote]} />
@@ -435,7 +438,7 @@ export function ReleveGardeCorps({
         onChange={(e) => set(cote)(e.target.value)}
         onFocus={() => setCoteActive(cote)}
         onBlur={() => setCoteActive(null)}
-        className="curseur-cote mt-2 block h-5 w-full cursor-pointer"
+        className="curseur-cote mt-1.5 block h-5 w-full cursor-pointer"
       />
     </div>
   );
@@ -526,7 +529,7 @@ export function ReleveGardeCorps({
           return schemaSlot
             ? createPortal(
                 <>
-                  <div className="relative mx-auto aspect-[4/5] max-h-[34svh] w-auto max-w-[320px] overflow-hidden rounded-xl md:max-h-[62vh] md:w-auto md:max-w-[560px]">
+                  <div className="relative mx-auto aspect-[4/5] max-h-[34svh] w-auto max-w-[320px] overflow-hidden rounded-xl md:max-h-[62vh] md:w-auto md:max-w-[560px] xl:max-h-[calc(100vh-21rem)]">
                     {croquis}
                   </div>
                   {catalogue}
@@ -537,7 +540,7 @@ export function ReleveGardeCorps({
               <div className="relative mx-auto mt-4 aspect-[4/5] w-full max-w-[400px] overflow-hidden rounded-xl">{croquis}</div>
             );
           })()}
-          <p className="mt-2.5 text-xs leading-snug text-[#6f6357]">{t.gcConsigne}</p>
+          <p className="consigne-cotes mt-2.5 text-xs leading-snug text-[#6f6357]">{t.gcConsigne}</p>
 
           <div className="mt-1 divide-y divide-[#e5ddd3]">
             {/* Des intitulés courts : sur téléphone, « Largeur de la fenêtre,
@@ -683,7 +686,8 @@ export function ReleveGardeCorps({
                     </svg>
                     {t.gcConforme}
                   </p>
-                  <p className="mt-1 text-[#5c5140]">
+                  {/* En colonne étroite (grand écran), une ligne suffit : la hauteur de la main courante. */}
+                  <p className={`mt-1 text-[#5c5140] ${resultatSlot ? "line-clamp-2" : ""}`}>
                     {t.gcMainCourante
                       .replace("{m}", nombre(conforme.mainCouranteMm))
                       .replace("{j}", nombre(conforme.jourMm))}
@@ -724,29 +728,28 @@ export function ReleveGardeCorps({
 
           {/* Le modèle : on le choisit dans le catalogue (à côté du croquis ; ici même sur téléphone). */}
           {!schemaSlot && catalogue}
-          {conforme && !surVerre && (
-            <p className={`mt-4 rounded-xl px-3.5 py-2.5 text-[13px] leading-snug ${choisi ? "bg-[#e3efe4] text-[#1f5a2e]" : "bg-[#fbeeda] text-[#7a4510]"}`} role="status">
+          {/* (En colonne étroite, « choisissez votre modèle » est déjà dit sous le bouton du panier, juste en dessous.) */}
+          {conforme && !surVerre && (choisi || !resultatSlot) && (
+            <p className={`mt-3 rounded-xl px-3.5 py-2 text-[13px] leading-snug ${choisi ? "bg-[#e3efe4] text-[#1f5a2e]" : "bg-[#fbeeda] text-[#7a4510]"}`} role="status">
               {choisi
                 ? `${fr ? "Modèle choisi" : "Chosen model"} : ${libelleModele(choisi)}${schemaSlot ? "" : ` — ${prixAffiche(choisi.prix, locale)}`}`
                 : fr
-                  ? "Dernière étape : choisissez votre modèle parmi ceux marqués « aux normes »."
-                  : "Last step: choose your model among those marked “to standard”."}{" "}
-              {!choisi && (
-                <a href="#modeles-gc" className="font-medium underline underline-offset-4">
-                  {fr ? "Voir les modèles" : "See the models"}
-                </a>
-              )}
+                  ? "Dernière étape : choisissez votre modèle, sous le croquis."
+                  : "Last step: choose your model, under the sketch."}
             </p>
           )}
           {/* « Poids et détails », « Ce que comprend le prix » : la fiche les dépose ici (voir detailsSlot). */}
           {schemaSlot && detailsSlot && <div ref={detailsSlot} className="mt-3" />}
 
-          <p className="mt-4 text-[11px] leading-snug text-[#726757]">{t.gcNote}</p>
+          {/* La note de fabrication : pas dans la colonne étroite, qui doit tenir sur un écran. */}
+          {!resultatSlot && <p className="mt-4 text-[11px] leading-snug text-[#726757]">{t.gcNote}</p>}
               </>
             );
-            return schemaSlot
-              ? createPortal(<div className="mt-4 rounded-2xl border border-[#e0d6c8] bg-white/75 p-4 text-left md:p-5">{resultat}</div>, schemaSlot)
-              : resultat;
+            return resultatSlot
+              ? createPortal(<div className="resultat-colonne pb-1 text-left">{resultat}</div>, resultatSlot)
+              : schemaSlot
+                ? createPortal(<div className="mt-4 rounded-2xl border border-[#e0d6c8] bg-white/75 p-4 text-left md:p-5">{resultat}</div>, schemaSlot)
+                : resultat;
           })()}
         </>
       )}

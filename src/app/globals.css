@@ -496,3 +496,35 @@ textarea:focus-visible,
   background: #2b2320;
   box-shadow: 0 1px 3px rgba(43, 35, 32, 0.45);
 }
+
+/* ------------------------------------------------------------------ *
+ *  Le garde-corps sur grand écran : trois colonnes qui tiennent sur UN écran,
+ *  titre compris (product-view.tsx). On serre ce qui peut l'être, sans rien
+ *  retirer : les mêmes blocs, avec moins d'air.
+ * ------------------------------------------------------------------ */
+@media (min-width: 1280px) {
+  .colonne-cotes .consigne-cotes {
+    display: none; /* « sans rien retirer : l'atelier prend le jeu » est dit dans la bulle « i » de chaque cote */
+  }
+  .colonne-cotes .py-3 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  .colonne-achat #livraison [class~="rounded-2xl"] {
+    padding-top: 0.45rem;
+    padding-bottom: 0.45rem;
+  }
+  .colonne-achat details > summary {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  .colonne-achat .barre-achat {
+    padding-top: 0.6rem;
+    padding-bottom: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  .colonne-achat .barre-achat .btn-verre {
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
+  }
+}

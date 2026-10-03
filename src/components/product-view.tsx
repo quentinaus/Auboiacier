@@ -77,6 +77,9 @@ export function ProductView({
   const [schemaSlot, setSchemaSlot] = useState<HTMLDivElement | null>(null);
   /** Même mécanique pour le choix des matières : à côté de la photo, qu'elles font changer. */
   const [matieresSlot, setMatieresSlot] = useState<HTMLDivElement | null>(null);
+  /** Garde-corps, grand écran : la troisième colonne — le résultat, puis la livraison et la barre d'achat. */
+  const [resultatSlot, setResultatSlot] = useState<HTMLDivElement | null>(null);
+  const [achatSlot, setAchatSlot] = useState<HTMLDivElement | null>(null);
 
   /* Sur téléphone la photo est au-dessus des options. On ne remonte plus à
      chaque teinte choisie — c'est la barre du bas qui montre le rendu
@@ -207,6 +210,7 @@ export function ProductView({
   /** Le configurateur en pleine page sous la photo (tables d'intérieur), ou la colonne étroite classique. */
   const pleinePage = aLeConfigurateurPleinePage(product);
   const estTable = product.famille === "table-interieur" || product.famille === "table-exterieur";
+  const troisColonnes = product.releve === "garde-corps-fenetre";
   const prixDepart = product.releve ? null : priceFrom(product);
   const aide = (
     <p className={pleinePage ? "mt-3 text-xs text-[#726757]" : "mt-6 border-t border-[#e5ddd3] pt-6 text-sm text-[#726757]"}>
@@ -239,6 +243,8 @@ export function ProductView({
         }
         schemaSlot={schemaSlot}
         matieresSlot={matieresSlot}
+        resultatSlot={resultatSlot}
+        achatSlot={achatSlot}
       />
       {!pleinePage && aide}
     </>
@@ -505,12 +511,19 @@ export function ProductView({
          manque pas, la carte reste à côté du croquis et défile seule. */
       <section
         id="configuration"
-        className="mx-auto max-w-7xl scroll-mt-14 px-5 pb-3 pt-4 md:px-10 md:py-5"
+        className={`mx-auto scroll-mt-14 px-5 pb-3 pt-4 md:px-10 md:py-5 ${troisColonnes ? "max-w-[1480px] xl:scroll-mt-4 xl:py-3" : "max-w-7xl"}`}
       >
         {/* Sur ordinateur, tout tient dans la hauteur de l'écran, titre compris : le titre
             est dans la plaque, la carte et le croquis se partagent la hauteur qui reste. */}
-        <div className="fond-configuration flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,372px)_minmax(0,1fr)] md:items-start md:gap-x-10 md:gap-y-4 lg:gap-x-14">
-          <div className="md:col-span-2">
+        <div
+          className={`fond-configuration flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,372px)_minmax(0,1fr)] md:items-start md:gap-x-10 md:gap-y-4 lg:gap-x-14 ${
+            /* Le garde-corps, sur grand écran : TROIS colonnes — les cotes, le croquis et les modèles,
+               puis le résultat, la livraison et le panier. Tout tient sur un écran, titre compris,
+               sans faire défiler ni la page ni une carte. */
+            troisColonnes ? "xl:grid-cols-[330px_minmax(0,1fr)_340px] xl:gap-x-6 xl:gap-y-3" : ""
+          }`}
+        >
+          <div className={troisColonnes ? "md:col-span-2 xl:col-span-3" : "md:col-span-2"}>
             <h2 className={`${serif.className} text-xl text-[#2b2320] md:text-[28px] md:leading-none`}>{t.configurationTitle}</h2>
           </div>
           {/* Pas de marge en bas : c'est la barre d'achat, collée au bord
@@ -520,7 +533,7 @@ export function ProductView({
               défilement. (Elle défilait à l'intérieur d'elle-même : la molette faisait tantôt
               bouger la carte, tantôt la page, on ne s'y retrouvait pas.) `clip`, pas `hidden` :
               la barre d'achat doit rester collée au bas de l'écran. */}
-          <div className="carte-verre overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 md:px-6 md:pt-5">
+          <div className={`carte-verre overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 md:px-6 md:pt-5 ${troisColonnes ? "colonne-cotes xl:px-5 xl:pb-3 xl:pt-4" : ""}`}>
             {options}
           </div>
           {/* Le croquis : au-dessus de la carte sur téléphone, à côté et en grand sur ordinateur. */}
@@ -535,6 +548,15 @@ export function ProductView({
           >
             <div ref={setSchemaSlot} className="schema-configuration mx-auto w-full" />
           </div>
+          {/* La troisième colonne du garde-corps (grand écran) : `ProductOptions` y dépose le résultat,
+              puis la livraison et la barre d'achat. Vide et cachée en dessous de 1280 px : tout reste
+              alors dans la première carte. */}
+          {troisColonnes && (
+            <div className="carte-verre colonne-achat hidden overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 xl:block">
+              <div ref={setResultatSlot} />
+              <div ref={setAchatSlot} />
+            </div>
+          )}
         </div>
         {/* Sous la plaque, en petit : une question ? */}
         <div className="mt-3 px-1">{aide}</div>

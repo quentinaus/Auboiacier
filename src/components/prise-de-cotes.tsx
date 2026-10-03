@@ -86,9 +86,16 @@ export function QuiMesure({
               aria-pressed={actif}
               aria-describedby={actif ? idNote : undefined}
               onClick={() => onChange(c.id)}
+              /* CHOISI : plein sombre, comme tous les choix de la carte. Pas choisi : clair.
+                 « L'atelier s'occupe de tout », pas choisi, est mis en avant d'un fond chaud et d'un
+                 liseré — mais jamais en sombre : on croirait qu'il est déjà coché. */
               className={`flex min-h-14 items-center gap-2 rounded-xl border px-3 py-2 text-left transition-colors ${
-                c.id === "atelier" ? "bouton-atelier border-[#2b2320] bg-[#2b2320] text-white" : "bg-white"
-              } ${actif ? "border-[#2b2320] ring-2 ring-[#2b2320] ring-offset-2 ring-offset-[#f6f1ea]" : c.id === "atelier" ? "" : "border-[#e5ddd3] hover:border-[#a3968a]"}`}
+                actif
+                  ? "choix-qui-actif border-[#2b2320] bg-[#2b2320] text-white"
+                  : c.id === "atelier"
+                    ? "border-[#c98a3a] bg-[#fdf3e3] hover:border-[#2b2320]"
+                    : "border-[#e5ddd3] bg-white hover:border-[#a3968a]"
+              }`}
             >
               <svg
                 aria-hidden
@@ -98,7 +105,7 @@ export function QuiMesure({
                 strokeWidth="1.8"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className={`h-4 w-4 shrink-0 ${c.id === "atelier" ? "text-white" : "text-[#2b2320]"}`}
+                className={`h-4 w-4 shrink-0 ${actif ? "text-white" : "text-[#2b2320]"}`}
               >
                 {c.id === "atelier" ? (
                   /* Une épingle de carte : on vient chez vous. */
@@ -115,16 +122,16 @@ export function QuiMesure({
                 )}
               </svg>
               <span className="min-w-0">
-                <span className={`block text-[13px] leading-tight ${c.id === "atelier" ? "text-white" : "text-[#2a2116]"} ${actif ? "font-semibold" : "font-medium"}`}>
+                <span className={`block text-[13px] leading-tight ${actif ? "font-semibold text-white" : "font-medium text-[#2a2116]"}`}>
                   {/* Trait d'union insécable : « moi-même » ne se coupe pas en deux
                       lignes dans un bouton de la moitié d'une carte. */}
                   {c.label.replace(/-/g, "\u2011")}
                 </span>
                 {c.tag && (
                   <span
-                    className={`mt-0.5 block text-[9px] font-semibold uppercase tracking-[0.12em] ${c.id === "atelier" ? "" : "text-[#6f6357]"}`}
-                    /* La carte du configurateur reteinte les petits titres (globals.css) : sur le bouton sombre, on impose le clair. */
-                    style={c.id === "atelier" ? { color: "rgba(255,255,255,0.82)" } : undefined}
+                    className="mt-0.5 block text-[9px] font-semibold uppercase tracking-[0.12em] text-[#6f6357]"
+                    /* La carte du configurateur reteinte les petits titres (globals.css) : sur le bouton choisi, sombre, on impose le clair. */
+                    style={actif ? { color: "rgba(255,255,255,0.82)" } : undefined}
                   >
                     {c.tag}
                   </span>
