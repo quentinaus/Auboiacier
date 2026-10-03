@@ -66,7 +66,7 @@ export function QuiMesure({
   const choix = [
     // L'atelier d'abord, et en sombre : celui qui découvre la page voit tout de suite qu'il n'a rien
     // à mesurer s'il ne veut pas. Deux boutons, pas un de plus.
-    { id: "atelier", label: fr ? "L'atelier s'occupe de tout" : "The workshop handles everything", tag: fr ? "Nous venons mesurer" : "We come and measure" },
+    { id: "atelier", label: fr ? "L'atelier vient mesurer" : "The workshop measures", tag: fr ? "On s'occupe de tout" : "We handle everything" },
     { id: "moi", label: t.gcQuiMoi, tag: tagMoi ?? t.gcQuiMoiTag },
   ] as const;
   return (
@@ -76,7 +76,7 @@ export function QuiMesure({
           {t.gcQui}
         </Intitule>
       </span>
-      <div role="group" aria-labelledby={idQui} className="mt-2 grid grid-cols-2 gap-2">
+      <div role="group" aria-labelledby={idQui} className="mt-2 grid grid-cols-2 items-stretch gap-2">
         {choix.map((c) => {
           const actif = valeur === c.id;
           return (

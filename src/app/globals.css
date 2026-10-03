@@ -506,6 +506,14 @@ textarea:focus-visible,
   .colonne-cotes .consigne-cotes {
     display: none; /* « sans rien retirer : l'atelier prend le jeu » est dit dans la bulle « i » de chaque cote */
   }
+  /* La phrase sous « qui mesure » : en trop dans la colonne serrée (le bouton dit déjà « prix immédiat »). */
+  .colonne-cotes [id="cotes"] > div > p:not([role]) {
+    display: none;
+  }
+  .colonne-achat #livraison label,
+  .colonne-achat #livraison span {
+    font-size: 13px;
+  }
   .colonne-cotes .py-3 {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
@@ -526,5 +534,56 @@ textarea:focus-visible,
   .colonne-achat .barre-achat .btn-verre {
     padding-top: 0.7rem;
     padding-bottom: 0.7rem;
+  }
+}
+
+/* « L'atelier s'occupe de tout » (releve-garde-corps.tsx, Serenite) : un peu de mouvement, très doux. */
+.serenite-soleil {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: serenite-tourner 28s linear infinite;
+}
+.serenite-vapeur path {
+  animation: serenite-vapeur 3.2s ease-in-out infinite;
+}
+.serenite-vapeur path + path {
+  animation-delay: 1.1s;
+}
+.serenite-etape {
+  animation: serenite-arriver 0.55s ease both;
+}
+@keyframes serenite-tourner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes serenite-vapeur {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  40% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-7px);
+  }
+}
+@keyframes serenite-arriver {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .serenite-soleil,
+  .serenite-vapeur path,
+  .serenite-etape {
+    animation: none;
   }
 }

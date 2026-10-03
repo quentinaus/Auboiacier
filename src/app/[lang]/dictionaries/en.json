@@ -309,7 +309,7 @@
     "releveRecap": "Survey",
     "releveCalcul": "Indicative calculation",
     "releveReculLong": "You have more run than needed: we can ease the slope, or win back some floor space.",
-    "gcTitle": "Your measurements, for a railing made to your window",
+    "gcTitle": "Your measurements",
     "gcIntro": "Three tape measurements: we work out the railing height to meet the standard, and we build it to the millimetre so that it fits into your window. Give the raw sizes, without taking anything off.",
     "gcInfoLabel": "Explanation",
     "gcEtage": "Where the window is",
@@ -471,9 +471,9 @@
     "poseIncluse": "including {prix} delivery and fitting",
     "favoriBouton": "Save this piece",
     "favoriBoutonFait": "Saved",
-    "gcLargeurCourt": "Width",
-    "gcAllegeCourt": "Height below the window",
-    "gcFenetreCourt": "Window height",
+    "gcLargeurCourt": "Width, wall to wall",
+    "gcAllegeCourt": "Floor to the bottom of the window",
+    "gcFenetreCourt": "Bottom to top of the window",
     "raisonCotesGardeCorps": "Enter the width and the height below the window to add to your cart."
   },
   "devis": {

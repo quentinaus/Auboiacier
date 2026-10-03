@@ -407,13 +407,26 @@ export function ReleveGardeCorps({
    */
   const ligne = (cote: "largeur" | "allege" | "fenetre", props: { label: string; aide?: string; info: string; placeholder: string }) => (
     <div className="py-2.5">
-      <label className="flex items-center justify-between gap-4">
-      <span className="flex items-center gap-2.5 text-[15px] leading-snug text-[#2b2320]">
-          <Pastille n={NUMERO_COTE[cote]} />
-          <InfoBulle texte={props.aide ? `${props.info} ${props.aide}` : props.info} label={t.gcInfoLabel} />
-          {props.label}
-        </span>
-        <span className="flex h-10 w-[8.5rem] shrink-0 items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3.5 transition-[border-color,box-shadow] focus-within:border-[#2b2320] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
+      <label htmlFor={`${idChamps}-${cote}`} className="flex items-center gap-2 text-[13.5px] leading-snug text-[#2b2320]">
+        <Pastille n={NUMERO_COTE[cote]} />
+        <span className="min-w-0 flex-1">{props.label}</span>
+        <InfoBulle texte={props.aide ? `${props.info} ${props.aide}` : props.info} label={t.gcInfoLabel} />
+      </label>
+      {/* Faire glisser, ou taper la cote : le curseur et la case sur la même ligne. */}
+      <div className="mt-1.5 flex items-center gap-3">
+        <input
+          type="range"
+          aria-label={props.label}
+          min={CURSEURS[cote].min}
+          max={CURSEURS[cote].max}
+          step={5}
+          value={Number.isFinite(mm(cotes[cote])) ? Math.min(CURSEURS[cote].max, Math.max(CURSEURS[cote].min, mm(cotes[cote]))) : CURSEURS[cote].depart}
+          onChange={(e) => set(cote)(e.target.value)}
+          onFocus={() => setCoteActive(cote)}
+          onBlur={() => setCoteActive(null)}
+          className="curseur-cote block h-5 min-w-0 flex-1 cursor-pointer"
+        />
+        <span className="flex h-9 w-[6.75rem] shrink-0 items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3 transition-[border-color,box-shadow] focus-within:border-[#2b2320] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
           <input
             id={`${idChamps}-${cote}`}
             inputMode="decimal"
@@ -426,20 +439,7 @@ export function ReleveGardeCorps({
           />
           <span className="text-xs text-[#6f6357]">mm</span>
         </span>
-      </label>
-      {/* Taper la cote, ou la faire glisser : le même curseur que sur les tables. */}
-      <input
-        type="range"
-        aria-label={props.label}
-        min={CURSEURS[cote].min}
-        max={CURSEURS[cote].max}
-        step={5}
-        value={Number.isFinite(mm(cotes[cote])) ? Math.min(CURSEURS[cote].max, Math.max(CURSEURS[cote].min, mm(cotes[cote]))) : CURSEURS[cote].depart}
-        onChange={(e) => set(cote)(e.target.value)}
-        onFocus={() => setCoteActive(cote)}
-        onBlur={() => setCoteActive(null)}
-        className="curseur-cote mt-1.5 block h-5 w-full cursor-pointer"
-      />
+      </div>
     </div>
   );
 
@@ -487,7 +487,12 @@ export function ReleveGardeCorps({
 
       {/* 2a. L'atelier vient : le code postal, le prix, la demi-journée. */}
       {cotes.qui === "atelier" && (
-        <VisiteAtelier cotes={cotes} onChange={(visite) => onChange({ ...cotes, ...visite })} t={t} locale={locale} />
+        <>
+          {/* L'atelier s'occupe de tout : à la place du croquis (rien à mesurer), un panneau qui le dit
+              et qui détend — sur téléphone, il passe au-dessus du code postal. */}
+          {schemaSlot ? createPortal(<Serenite fr={fr} />, schemaSlot) : <Serenite fr={fr} petit />}
+          <VisiteAtelier cotes={cotes} onChange={(visite) => onChange({ ...cotes, ...visite })} t={t} locale={locale} />
+        </>
       )}
 
       {/* 2b. Le client mesure : le croquis, grand et nu, puis une ligne par
@@ -528,12 +533,13 @@ export function ReleveGardeCorps({
              carte, en grand ; sinon il reste ici, au-dessus des cases. */
           return schemaSlot
             ? createPortal(
-                <>
-                  <div className="relative mx-auto aspect-[4/5] max-h-[34svh] w-auto max-w-[320px] overflow-hidden rounded-xl md:max-h-[62vh] md:w-auto md:max-w-[560px] xl:max-h-[calc(100vh-21rem)]">
+                /* Une colonne à la largeur du croquis : la rangée des modèles s'aligne sur ses bords. */
+                <div className="mx-auto flex w-fit max-w-full flex-col">
+                  <div className="relative aspect-[4/5] h-[34svh] max-w-full overflow-hidden rounded-2xl md:h-[min(62vh,640px)] xl:h-[calc(100vh-23.5rem)] xl:max-h-[620px] xl:min-h-[300px]">
                     {croquis}
                   </div>
-                  {catalogue}
-                </>,
+                  <div className="w-0 min-w-full">{catalogue}</div>
+                </div>,
                 schemaSlot
               )
             : (
@@ -549,7 +555,7 @@ export function ReleveGardeCorps({
                 « i », et le croquis numéroté juste au-dessus montre où mesurer. */}
             {ligne("largeur", { label: t.gcLargeurCourt, aide: `${t.gcLargeur}. ${t.gcLargeurAide}`, info: t.gcLargeurInfo, placeholder: "1180" })}
             {ligne("allege", { label: t.gcAllegeCourt, aide: `${t.gcAllege}. ${t.gcAllegeAide}`, info: t.gcAllegeInfo, placeholder: "850" })}
-            {ligne("fenetre", { label: `${t.gcFenetreCourt} ${locale === "fr" ? "(facultatif)" : "(optional)"}`, aide: `${t.gcFenetre}. ${t.gcFenetreAide}`, info: t.gcFenetreInfo, placeholder: "1200" })}
+            {ligne("fenetre", { label: `${t.gcFenetreCourt} · ${locale === "fr" ? "facultatif" : "optional"}`, aide: `${t.gcFenetre}. ${t.gcFenetreAide}`, info: t.gcFenetreInfo, placeholder: "1200" })}
 
             {/* En étage ou pas : deux boutons. L'intitulé AU-DESSUS et les
                 boutons en pleine largeur : côte à côte, « Au rez-de-chaussée »
@@ -687,7 +693,16 @@ export function ReleveGardeCorps({
                     {t.gcConforme}
                   </p>
                   {/* En colonne étroite (grand écran), une ligne suffit : la hauteur de la main courante. */}
-                  <p className={`mt-1 text-[#5c5140] ${resultatSlot ? "line-clamp-2" : ""}`}>
+                  {/* L'appui est bas (moins de 60 cm) : la règle compte 1 m AU-DESSUS DE L'APPUI, pas du sol.
+                      C'est ce qui fait un garde-corps haut — on le dit, sinon on croit à une erreur. */}
+                  {releve && releve.enEtage && releve.allegeMm >= 100 && releve.allegeMm < 600 && (
+                    <p className="mt-1.5 rounded-lg bg-[#f3ede3] px-2.5 py-1.5 text-[#4a4038]">
+                      {fr
+                        ? `Pourquoi il est haut : le bas de votre fenêtre est à ${nombre(releve.allegeMm)} mm du sol. Sous 60 cm, un enfant peut y monter : la norme compte alors 1 m au-dessus du bas de la fenêtre, et non du sol.`
+                        : `Why it is tall: the bottom of your window is ${nombre(releve.allegeMm)} mm from the floor. Under 60 cm a child can climb on it: the standard then counts 1 m above the bottom of the window, not from the floor.`}
+                    </p>
+                  )}
+                  <p className={`mt-1 text-[#5c5140] ${resultatSlot ? "hidden" : ""}`}>
                     {t.gcMainCourante
                       .replace("{m}", nombre(conforme.mainCouranteMm))
                       .replace("{j}", nombre(conforme.jourMm))}
@@ -764,6 +779,64 @@ const CURSEURS = {
   allege: { min: 0, max: BORNES_RELEVE_GC.allegeMm.max, depart: 850 },
   fenetre: { min: 0, max: BORNES_RELEVE_GC.fenetreMm.max, depart: 1200 },
 } as const;
+
+/**
+ * « L'atelier s'occupe de tout » : le client n'a rien à mesurer. Un transat, un café qui fume, un
+ * soleil qui tourne doucement — et les trois étapes, qui arrivent l'une après l'autre.
+ * Les animations sont en CSS (globals.css, .serenite-…) et s'arrêtent si l'on a demandé moins de mouvement.
+ */
+function Serenite({ fr, petit = false }: { fr: boolean; petit?: boolean }) {
+  const etapes = fr
+    ? ["Nous venons mesurer chez vous", "Vous recevez le prix exact, sans engagement", "Nous fabriquons et nous posons"]
+    : ["We come and measure at your home", "You receive the exact price, no commitment", "We build and we fit"];
+  return (
+    <div className={`serenite mx-auto flex w-full max-w-[540px] flex-col items-center rounded-2xl border border-[#e0d6c8] bg-white/75 text-center ${petit ? "mt-3 px-4 py-4" : "px-6 py-7 md:px-8 md:py-9"}`}>
+      <svg viewBox="0 0 260 150" aria-hidden className={petit ? "h-[92px] w-auto" : "h-[150px] w-auto"} fill="none" stroke="#2b2320" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        {/* Le soleil, qui tourne tout doucement. */}
+        <g className="serenite-soleil">
+          <circle cx="208" cy="38" r="15" fill="#f1c56b" stroke="none" />
+          {Array.from({ length: 8 }, (_, i) => {
+            const a = (i * Math.PI) / 4;
+            return <line key={i} x1={208 + Math.cos(a) * 22} y1={38 + Math.sin(a) * 22} x2={208 + Math.cos(a) * 29} y2={38 + Math.sin(a) * 29} stroke="#e0a93a" strokeWidth="2.4" />;
+          })}
+        </g>
+        {/* Le sol. */}
+        <line x1="18" y1="132" x2="242" y2="132" stroke="#b7aa94" strokeWidth="1.5" />
+        {/* Le transat : deux piétements croisés, la toile tendue. */}
+        <line x1="52" y1="132" x2="118" y2="58" />
+        <line x1="70" y1="88" x2="150" y2="132" />
+        <path d="M112 62 Q104 104 150 118" stroke="#c9a36b" strokeWidth="7" />
+        <line x1="150" y1="118" x2="172" y2="132" />
+        {/* Le guéridon et la tasse, qui fume. */}
+        <line x1="186" y1="132" x2="186" y2="104" />
+        <line x1="174" y1="104" x2="198" y2="104" />
+        <path d="M180 104 v-9 h12 v9" fill="#ffffff" />
+        <path d="M192 97 q5 1 0 5" strokeWidth="1.5" />
+        <g className="serenite-vapeur" strokeWidth="1.5" stroke="#9a8d80">
+          <path d="M183 90 q-3 -5 0 -9 q3 -4 0 -8" />
+          <path d="M189 90 q-3 -5 0 -9 q3 -4 0 -8" />
+        </g>
+      </svg>
+      <p className={`mt-3 font-medium leading-snug text-[#2b2320] ${petit ? "text-[15px]" : "text-[20px]"}`}>
+        {fr ? "Installez-vous : vous n'avez rien à mesurer." : "Sit back: you have nothing to measure."}
+      </p>
+      <p className="mt-1 text-[13px] leading-snug text-[#5c5140]">
+        {fr ? "Choisissez un créneau, on s'occupe du reste." : "Pick a slot, we take care of the rest."}
+      </p>
+      <ol className={`w-full text-left ${petit ? "mt-3 space-y-1.5" : "mt-5 space-y-2.5"}`}>
+        {etapes.map((etape, i) => (
+          <li key={etape} className="serenite-etape flex items-center gap-3 rounded-xl bg-[#f6f1ea] px-3.5 py-2.5 text-[13.5px] text-[#2b2320]" style={{ animationDelay: `${0.25 + i * 0.35}s` }}>
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#2b2320] text-[12px] font-semibold text-white">{i + 1}</span>
+            {etape}
+          </li>
+        ))}
+      </ol>
+      <p className="mt-4 text-xs leading-snug text-[#6f6357]">
+        {fr ? "Le prix de la visite est déduit de votre commande." : "The price of the visit is deducted from your order."}
+      </p>
+    </div>
+  );
+}
 
 /** Les dessins montrés AVANT les mesures : de 1 à 6 croix, seules puis avec barreaux, sur une fenêtre type. */
 const MODELES_VITRINE: ModeleGC[] = [false, true].flatMap((b) =>

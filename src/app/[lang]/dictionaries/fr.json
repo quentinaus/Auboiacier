@@ -309,7 +309,7 @@
     "releveRecap": "Relevé",
     "releveCalcul": "Calcul indicatif",
     "releveReculLong": "Vous avez plus de recul qu'il n'en faut : nous pouvons adoucir la pente, ou récupérer de la place au sol.",
-    "gcTitle": "Vos cotes, pour un garde-corps fabriqué à votre fenêtre",
+    "gcTitle": "Vos mesures",
     "gcIntro": "Trois mesures au mètre : nous calculons la hauteur du garde-corps pour respecter la norme, et nous le fabriquons au millimètre pour qu'il s'encastre dans votre fenêtre. Donnez les cotes brutes, sans rien retirer.",
     "gcInfoLabel": "Explication",
     "gcEtage": "Où est la fenêtre",
@@ -471,9 +471,9 @@
     "poseIncluse": "dont {prix} de livraison et pose",
     "favoriBouton": "Mettre de côté",
     "favoriBoutonFait": "Mise de côté",
-    "gcLargeurCourt": "Largeur",
-    "gcAllegeCourt": "Hauteur sous la fenêtre",
-    "gcFenetreCourt": "Hauteur de la fenêtre",
+    "gcLargeurCourt": "Largeur, d'un mur à l'autre",
+    "gcAllegeCourt": "Du sol au bas de la fenêtre",
+    "gcFenetreCourt": "Du bas au haut de la fenêtre",
     "raisonCotesGardeCorps": "Indiquez la largeur et la hauteur sous la fenêtre pour ajouter au panier."
   },
   "devis": {

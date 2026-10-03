@@ -2500,38 +2500,40 @@ export function ProductOptions({
             {(() => {
               const details = (
                 <>
+            {!modeVisite && (
             <SousMenu
-              titre={t.sousMenuDetails}
-              resume={resumeDetails}
-              ouvert={Boolean(menusOuverts.details)}
-              onToggle={(o) => ouvrirMenu("details", o)}
-            >
-              <dl className="grid gap-1.5 text-xs leading-snug text-[#5c5140]">
-                {(
-                  [
+                titre={t.sousMenuDetails}
+                resume={resumeDetails}
+                ouvert={Boolean(menusOuverts.details)}
+                onToggle={(o) => ouvrirMenu("details", o)}
+              >
+                <dl className="grid gap-1.5 text-xs leading-snug text-[#5c5140]">
+                  {(
                     [
-                      t.detailDimensions,
-                      cotesEff
-                        ? `${enUnite(cotesEff.largeurMm)} × ${enUnite(cotesEff.hauteurMm)}${cotesEff.epaisseurMm !== undefined ? ` × ${cotesEff.epaisseurMm} mm` : ""}`
-                        : size?.label
-                          ? cotesCourtes(size.label)
-                          : "—",
-                    ],
-                    // Le garde-corps n'a ni surface ni hauteur finie de table : ses lignes n'apprendraient rien.
-                    estGC ? null : [t.detailSurface, devis?.ok ? surfaceAffichee(devis.surface, locale) : "—"],
-                    table ? [t.customTableHeight, enUnite(hauteurTableMm)] : null,
-                    [t.detailMatieres, [wood?.label, metal?.label].filter(Boolean).join(" · ") || "—"],
-                    [t.poidsEstime, poidsKg !== null ? `≈ ${poidsKg} kg${quantity > 1 ? ` × ${quantity}` : ""}` : "—"],
-                    [t.delaiTitle, delai ?? "—"],
-                  ].filter((ligne): ligne is [string, string] => ligne !== null)
-                ).map(([intitule, valeur]) => (
-                  <div key={intitule} className="flex items-baseline justify-between gap-3">
-                    <dt className="shrink-0 text-[#6f6357]">{intitule}</dt>
-                    <dd className="text-right tabular-nums text-[#2b2320]">{valeur}</dd>
-                  </div>
-                ))}
-              </dl>
-            </SousMenu>
+                      [
+                        t.detailDimensions,
+                        cotesEff
+                          ? `${enUnite(cotesEff.largeurMm)} × ${enUnite(cotesEff.hauteurMm)}${cotesEff.epaisseurMm !== undefined ? ` × ${cotesEff.epaisseurMm} mm` : ""}`
+                          : size?.label
+                            ? cotesCourtes(size.label)
+                            : "—",
+                      ],
+                      // Le garde-corps n'a ni surface ni hauteur finie de table : ses lignes n'apprendraient rien.
+                      estGC ? null : [t.detailSurface, devis?.ok ? surfaceAffichee(devis.surface, locale) : "—"],
+                      table ? [t.customTableHeight, enUnite(hauteurTableMm)] : null,
+                      [t.detailMatieres, [wood?.label, metal?.label].filter(Boolean).join(" · ") || "—"],
+                      [t.poidsEstime, poidsKg !== null ? `≈ ${poidsKg} kg${quantity > 1 ? ` × ${quantity}` : ""}` : "—"],
+                      [t.delaiTitle, delai ?? "—"],
+                    ].filter((ligne): ligne is [string, string] => ligne !== null)
+                  ).map(([intitule, valeur]) => (
+                    <div key={intitule} className="flex items-baseline justify-between gap-3">
+                      <dt className="shrink-0 text-[#6f6357]">{intitule}</dt>
+                      <dd className="text-right tabular-nums text-[#2b2320]">{valeur}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </SousMenu>
+            )}
             <SousMenu
               titre={t.sousMenuInclus}
               ouvert={Boolean(menusOuverts.inclus)}
