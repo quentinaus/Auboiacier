@@ -512,6 +512,16 @@ export function ProductOptions({
   // Les autres s'ouvrent sur leur taille par défaut (la 8 places sur les
   // chaises vendues par lot, par exemple).
   const [sizeIdChoisi, setSizeId] = useState(product.surMesure ? "" : tailleInitiale);
+  /**
+   * Une pièce sur devis qui n'a encore aucun prix (la table résine) : le
+   * client choisit quand même son format, sans tarif, et ce choix part avec
+   * sa demande de devis. Le sur-mesure y vaut SUR_MESURE ; ses cotes, le
+   * client les écrit dans son message.
+   */
+  const formatsDevis = product.orderMode === "cart" ? undefined : product.formatsDevis;
+  const [formatDevisId, setFormatDevisId] = useState(
+    (formatsDevis?.tailles.find((f) => f.default) ?? formatsDevis?.tailles[0])?.id ?? "",
+  );
   /** Le détail des dimensions et de leurs tarifs ne s'ouvre qu'au clic. */
   const [sizesOpen, setSizesOpen] = useState(false);
   /**
@@ -616,7 +626,16 @@ export function ProductOptions({
     if (memo.hauteur !== undefined) setHauteurSaisie(memo.hauteur);
     if (memo.epaisseur !== undefined) setEpaisseurSaisie(memo.epaisseur);
     if (memo.hauteurTable !== undefined) setHauteurTableSaisie(memo.hauteurTable);
-    if (memo.sizeId !== undefined) setSizeId(memo.sizeId);
+    if (memo.sizeId !== undefined) {
+      // Une pièce sur devis sans prix range son format au même endroit.
+      if (!formatsDevis) setSizeId(memo.sizeId);
+      else if (
+        memo.sizeId === SUR_MESURE ||
+        formatsDevis.tailles.some((f) => f.id === memo.sizeId)
+      ) {
+        setFormatDevisId(memo.sizeId);
+      }
+    }
     if (memo.woodId) setWoodId(memo.woodId);
     if (memo.metalId) setMetalId(memo.metalId);
     if (memo.fabricId) setFabricId(memo.fabricId);
@@ -631,7 +650,7 @@ export function ProductOptions({
         deplacement: null,
       }));
     }
-  }, [product.slug, setWoodId, setMetalId, setFabricId]);
+  }, [product.slug, formatsDevis, setWoodId, setMetalId, setFabricId]);
   /** Les coordonnées facultatives du client, pour un devis PDF nominatif. */
   const [coordonnees, setCoordonnees] = useState({ nom: "", email: "" });
   /**
@@ -1056,12 +1075,19 @@ export function ProductOptions({
     /fabrication|lead time/i.test(spec.label),
   )?.value;
 
+  /** Le format choisi sur une pièce sur devis sans prix, en toutes lettres. */
+  const formatDevisLabel = !formatsDevis
+    ? null
+    : formatDevisId === SUR_MESURE
+      ? t.sizeLabel
+      : (formatsDevis.tailles.find((f) => f.id === formatDevisId)?.label ?? null);
   const optionsPiece = [
-    sizeIdEff === SUR_MESURE && labelTaille?.ok
-      ? labelTaille.label
-      : product.sizes.length > 1
-        ? (size?.label ?? null)
-        : null,
+    formatDevisLabel ??
+      (sizeIdEff === SUR_MESURE && labelTaille?.ok
+        ? labelTaille.label
+        : product.sizes.length > 1
+          ? (size?.label ?? null)
+          : null),
     wood?.label,
     metal?.label,
     fabric?.label,
@@ -1102,6 +1128,7 @@ export function ProductOptions({
     cotesGardeCorps.mur,
     remplissageId,
     quantity,
+    formatDevisId,
   ].join("|");
   const added = ajoutee === configuration;
 
@@ -1302,7 +1329,8 @@ export function ProductOptions({
       hauteur: hauteurSaisie,
       epaisseur: epaisseurSaisie,
       hauteurTable: hauteurTableSaisie,
-      sizeId: sizeIdEff,
+      // Sur une pièce sur devis sans prix, c'est le format choisi (voir formatsDevis).
+      sizeId: formatsDevis ? formatDevisId : sizeIdEff,
       woodId,
       metalId,
       fabricId,
@@ -1388,8 +1416,16 @@ export function ProductOptions({
     </label>
   );
   /**
+   * Une pièce qui n'a encore aucun prix — ni taille chiffrée, ni barème (la
+   * table résine, sur devis en attendant ses tarifs) — n'a rien à estimer :
+   * son bouton PDF resterait grisé pour toujours, sans raison à donner. On
+   * ne le montre pas. Il revient de lui-même le jour où la pièce a ses prix.
+   */
+  const chiffrable = product.sizes.length > 0 || Boolean(bareme);
+  /**
    * Le devis PDF, et la fenêtre qui demande le nom et l'e-mail avant de
-   * l'ouvrir. Le bouton est TOUJOURS là, même quand il ne sert pas encore :
+   * l'ouvrir. Le bouton est TOUJOURS là (sauf sur une pièce sans aucun
+   * prix, voir `chiffrable`), même quand il ne sert pas encore :
    * un bouton qui apparaît en cours de route se remarque moins qu'un bouton
    * grisé, et on ne sait pas qu'on aurait pu télécharger un devis. Grisé, il
    * dit ce qu'il attend (raisonIndisponible, la même phrase que sous le
@@ -1397,22 +1433,24 @@ export function ProductOptions({
    */
   const lienDevis = (
     <div className="mt-3">
-      <button
-        type="button"
-        onClick={ouvrirDevis}
-        disabled={!urlDevis}
-        aria-describedby={!urlDevis && raisonIndisponible ? idRaisonDevis : undefined}
-        className={`flex w-full items-center justify-center gap-2.5 rounded-full border px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${
-          urlDevis
-            ? "border-[#2b2320] text-[#2b2320] hover:bg-[#2b2320] hover:text-white"
-            : "cursor-not-allowed border-[#c9bfb2] text-[#6f6357]"
-        }`}
-      >
-        {devisIcone}
-        {orderable ? t.devisPdf : t.estimationPdf}
-      </button>
+      {chiffrable && (
+        <button
+          type="button"
+          onClick={ouvrirDevis}
+          disabled={!urlDevis}
+          aria-describedby={!urlDevis && raisonIndisponible ? idRaisonDevis : undefined}
+          className={`flex w-full items-center justify-center gap-2.5 rounded-full border px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${
+            urlDevis
+              ? "border-[#2b2320] text-[#2b2320] hover:bg-[#2b2320] hover:text-white"
+              : "cursor-not-allowed border-[#c9bfb2] text-[#6f6357]"
+          }`}
+        >
+          {devisIcone}
+          {orderable ? t.devisPdf : t.estimationPdf}
+        </button>
+      )}
       {/* Pourquoi il est grisé — sans ce mot, le bouton a l'air cassé. */}
-      {!urlDevis && raisonIndisponible && !nouvelleMiseEnPage && (
+      {chiffrable && !urlDevis && raisonIndisponible && !nouvelleMiseEnPage && (
         <p id={idRaisonDevis} className="mt-2 text-center text-xs leading-relaxed text-[#6f6357]">
           {raisonIndisponible.message}
         </p>
@@ -2244,6 +2282,48 @@ export function ProductOptions({
         </div>
       )}
 
+      {/* Une pièce sur devis sans prix : le format, sans tarif — un des
+          formats du catalogue, ou le sur-mesure, dont on dit les bornes. Le
+          choix part dans la demande de devis (optionsPiece). Une liste
+          native : elle se pilote au clavier et au doigt sans rien de plus. */}
+      {formatsDevis && (
+        <div className="mt-4 border-t border-[#e5ddd3] pt-5">
+          <label htmlFor={`${idTailles}-format`} className={GROUP_LABEL}>
+            {t.detailDimensions}
+          </label>
+          <div className="relative mt-4">
+            <select
+              id={`${idTailles}-format`}
+              value={formatDevisId}
+              onChange={(e) => setFormatDevisId(e.target.value)}
+              /* 16 px sur téléphone : en dessous, l'iPhone zoome sur la page
+                 dès qu'on touche la liste. */
+              className="w-full cursor-pointer appearance-none rounded-full border border-[#9a8d80] bg-white py-3 pl-5 pr-12 text-base text-[#2b2320] transition-colors hover:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] md:text-[15px]"
+            >
+              {formatsDevis.tailles.map((format) => (
+                <option key={format.id} value={format.id}>
+                  {format.label}
+                </option>
+              ))}
+              {formatsDevis.surMesure && (
+                <option value={SUR_MESURE}>{t.sizeLabel}</option>
+              )}
+            </select>
+            <span
+              aria-hidden
+              className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-[#6f6357]"
+            >
+              ⌄
+            </span>
+          </div>
+          {formatDevisId === SUR_MESURE && formatsDevis.surMesure && (
+            <p className="mt-2 text-xs leading-relaxed text-[#6f6357]">
+              {formatsDevis.surMesure[locale]}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Les pièces qui se relèvent avant d'être chiffrées : l'escalier demande
           sa hauteur, son recul et sa trémie, et rend le calcul aussitôt. */}
       {product.releve === "escalier" && product.priseDeCotes && (
@@ -2433,7 +2513,7 @@ export function ProductOptions({
                 <p
                   className="text-xl font-medium leading-tight tabular-nums"
                   /* Sur la carte grise du configurateur, le prix s'écrit en clair. */
-                  style={{ color: nouvelleMiseEnPage ? "#f6f2ec" : ACCENT }}
+                  style={{ color: ACCENT }}
                 >
                   {modeVisite
                     ? t.onQuote
@@ -2644,7 +2724,9 @@ export function ProductOptions({
             {t.requestQuote}
           </Link>
           <p className="mt-3 text-center text-sm leading-relaxed text-[#726757]">
-            {t.quoteNote}
+            {/* « Prise de cotes à domicile, pose comprise » vaut pour
+                l'escalier ; une pièce qui se livre a sa propre phrase. */}
+            {product.noteDevis?.[locale] ?? t.quoteNote}
           </p>
           {lienDevis}
         </div>

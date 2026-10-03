@@ -22,6 +22,8 @@ const ATTACHE = "#bdb2a3";
 
 type Point = [number, number];
 const r = (n: number) => Math.round(n * 100) / 100;
+/** Pour les matrices des textures : un coefficient arrondi au centième décalerait l'image de plusieurs pixels. */
+const r5 = (n: number) => Math.round(n * 100000) / 100000;
 const p = (pt: Point) => `${r(pt[0])},${r(pt[1])}`;
 
 export type CoteActive = "principale" | "secondaire" | "epaisseur" | "hauteur" | null;
@@ -32,7 +34,8 @@ type Etat = "repos" | "survol" | "actif";
 
 /** La boîte du dessin, en unités SVG. */
 const LARGEUR_BOX = 460;
-const HAUTEUR_BOX = 180;
+/** Plus haute qu'avant (180) : le plateau peut grandir, le croquis occupe la place à côté de la carte. */
+const HAUTEUR_BOX = 250;
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
@@ -57,7 +60,7 @@ function geometrieRect(mm: { principale?: number; secondaire?: number; epaisseur
   const largeurUtile = LARGEUR_BOX - 2 * 46;
   const hauteurUtile = HAUTEUR_BOX - 10 - 44;
   // Un vrai plateau est mince : l'épaisseur reste lisible, sans faire un pavé.
-  const ep = clamp(Math.round(5 + (T / 45) * 7), 6, 14);
+  const ep = clamp(Math.round(8 + (T / 45) * 10), 9, 20);
   // Longueur dessinée L·k, largeur W·k : le losange fait 0,866·(L+W)·k de
   // large et 0,5·(L+W)·k + ep de haut. On prend le plus grand k qui tienne.
   const somme = ratio + 1;
@@ -468,50 +471,35 @@ export function SchemaCotes({
           {membraneAllumee}
           {!lumiere && (
             <>
-              {/* Les veines suivent la longueur : des lignes parallèles à D→C,
-                  d'épaisseurs et de teintes inégales, comme sur une planche. */}
-              <g clipPath="url(#face)" fill="none" stroke="#a67f47" strokeLinecap="round">
-                {[0.08, 0.17, 0.24, 0.33, 0.41, 0.5, 0.57, 0.66, 0.74, 0.83, 0.91].map((f, i) => {
-                  const x1 = D[0] + (A[0] - D[0]) * f;
-                  const y1 = D[1] + (A[1] - D[1]) * f;
-                  return (
-                    <line
-                      key={i}
-                      x1={x1 - ISO[0] * 20}
-                      y1={y1 + ISO[1] * 20}
-                      x2={x1 + (C[0] - D[0]) + ISO[0] * 20}
-                      y2={y1 + (C[1] - D[1]) - ISO[1] * 20}
-                      strokeWidth={0.6 + (i % 3) * 0.5}
-                      opacity={0.1 + (i % 3) * 0.07}
-                    />
-                  );
-                })}
-              </g>
-              {/* Deux nœuds, là où le chêne en a. */}
-              <g clipPath="url(#face)">
-                {(
-                  [
-                    [0.3, 0.64, 6, 3.2],
-                    [0.71, 0.32, 4.6, 2.6],
-                  ] as [number, number, number, number][]
-                ).map(([f, g, rx, ry], i) => {
-                  const x = D[0] + (C[0] - D[0]) * f + (A[0] - D[0]) * g;
-                  const y = D[1] + (C[1] - D[1]) * f + (A[1] - D[1]) * g;
-                  return (
-                    <g key={i} transform={`translate(${r(x)} ${r(y)}) rotate(-30)`}>
-                      <ellipse rx={rx + 3} ry={ry + 2} fill="url(#noeud)" opacity={0.55} />
-                      <ellipse rx={rx} ry={ry} fill="#6e4a27" opacity={0.7} />
-                      <ellipse rx={rx * 0.45} ry={ry * 0.45} fill="#4d321a" opacity={0.8} />
-                    </g>
-                  );
-                })}
-              </g>
-              {/* Le fil sur le chant, dans le sens de la longueur. */}
-              <g fill="none" stroke="#8f6a38" strokeWidth={0.7} opacity={0.22}>
-                {[0.3, 0.6].map((f) => (
-                  <line key={f} x1={D[0]} y1={D[1] + EP * f} x2={C[0]} y2={C[1] + EP * f} />
-                ))}
-              </g>
+              {/* Le vrai bois : le chêne d'une planche de l'atelier (photo de
+                  Quentin), redressé puis posé sur chaque face. Une face est
+                  un parallélogramme : l'image y est couchée par une matrice
+                  (origine, axe de la longueur, axe de la largeur). Le fil
+                  court droit dans le sens de la longueur, comme sur le plateau. */}
+              <image
+                href="/images/schema/chene-dessus.jpg"
+                width={1200}
+                height={360}
+                preserveAspectRatio="none"
+                transform={`matrix(${r5((C[0] - D[0]) / 1200)} ${r5((C[1] - D[1]) / 1200)} ${r5((A[0] - D[0]) / 360)} ${r5((A[1] - D[1]) / 360)} ${r5(D[0])} ${r5(D[1])})`}
+              />
+              <image
+                href="/images/schema/chene-chant.jpg"
+                width={1200}
+                height={64}
+                preserveAspectRatio="none"
+                transform={`matrix(${r5((C[0] - D[0]) / 1200)} ${r5((C[1] - D[1]) / 1200)} 0 ${r5(EP / 64)} ${r5(D[0])} ${r5(D[1])})`}
+              />
+              <image
+                href="/images/schema/chene-bout.jpg"
+                width={480}
+                height={64}
+                preserveAspectRatio="none"
+                transform={`matrix(${r5((D[0] - A[0]) / 480)} ${r5((D[1] - A[1]) / 480)} 0 ${r5(EP / 64)} ${r5(A[0])} ${r5(A[1])})`}
+              />
+              {/* Les deux chants sont à l'ombre : un voile, plus marqué sur le bout. */}
+              <polygon points={`${p(D)} ${p(C)} ${p(bas(C))} ${p(bas(D))}`} fill="#4a2f12" opacity={0.36} />
+              <polygon points={`${p(A)} ${p(D)} ${p(bas(D))} ${p(bas(A))}`} fill="#4a2f12" opacity={0.2} />
             </>
           )}
           {!lumiere && (
@@ -528,7 +516,7 @@ export function SchemaCotes({
           {!lumiere && (
             <path d={`M${p(A)} L${p(D)} L${p(C)}`} fill="none" stroke="#ffffff" strokeWidth={0.9} opacity={0.5} strokeLinejoin="round" />
           )}
-          <g fill="none" stroke={ENCRE} strokeWidth={0.9} opacity={0.4} strokeLinejoin="round">
+          <g fill="none" stroke={ENCRE} strokeWidth={1.1} opacity={0.62} strokeLinejoin="round">
             <polygon points={`${p(A)} ${p(B)} ${p(C)} ${p(D)}`} />
             <path d={`M${p(A)} L${p(bas(A))} L${p(bas(D))} L${p(bas(C))} L${p(C)} M${p(D)} L${p(bas(D))}`} />
           </g>

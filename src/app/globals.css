@@ -174,6 +174,168 @@ textarea:focus-visible,
 }
 
 /* ------------------------------------------------------------------ *
+ *  La carte de verre du configurateur (tables, product-view.tsx)
+ *  Demande de Quentin (03/10/2026) : un panneau clair « verre liquide »,
+ *  à la place de la carte grise. Le configurateur est écrit pour un fond
+ *  clair : ici rien n'est retourné, la carte est une plaque de verre dépoli
+ *  posée sur un halo chaud (les teintes du chêne et de l'acier).
+ * ------------------------------------------------------------------ */
+/* Le fond de la section Configuration : une plaque chaude derrière la carte de verre et le croquis.
+   Sans elle, le verre clair se confondait avec le blanc de la page. */
+.fond-configuration {
+  position: relative;
+  border-radius: 32px;
+  padding: 14px;
+  background:
+    radial-gradient(90% 120% at 0% 0%, rgba(212, 170, 115, 0.42), transparent 58%),
+    radial-gradient(80% 110% at 100% 100%, rgba(92, 104, 122, 0.3), transparent 60%),
+    linear-gradient(135deg, #e9e2d7, #dcd6cc);
+  box-shadow: inset 0 0 0 1px rgba(43, 35, 32, 0.05);
+}
+@media (min-width: 768px) {
+  .fond-configuration {
+    padding: 32px 36px;
+  }
+}
+/* Le croquis remplit sa colonne, sans jamais dépasser la hauteur de la plaque. */
+@media (min-width: 768px) {
+  .schema-configuration svg {
+    max-height: calc(min(100vh - 6rem, 860px) - 9rem);
+  }
+}
+.carte-verre {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.46));
+  -webkit-backdrop-filter: blur(28px) saturate(1.7);
+  backdrop-filter: blur(28px) saturate(1.7);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 0 rgba(43, 35, 32, 0.04),
+    0 0 0 1px rgba(43, 35, 32, 0.05),
+    0 24px 60px -28px rgba(43, 35, 32, 0.35),
+    0 6px 18px -10px rgba(43, 35, 32, 0.14);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(43, 35, 32, 0.2) transparent;
+}
+.carte-verre {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: -0.01em;
+}
+/* Les petits titres : en clair, pas en capitales espacées. */
+.carte-verre [class~="uppercase"]:not(.btn-verre):not(dialog *) {
+  text-transform: none;
+  letter-spacing: -0.005em;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(60, 60, 67, 0.78);
+}
+/* Contrôle segmenté : une rainure grise, la pastille choisie en blanc avec une ombre douce. */
+.carte-verre [role="radiogroup"][class~="rounded-full"]:not(dialog *) {
+  background: rgba(118, 118, 128, 0.16) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  padding: 2px;
+}
+.carte-verre [role="radiogroup"][class~="rounded-full"] [role="radio"] {
+  color: #1d1d1f;
+}
+.carte-verre [role="radiogroup"][class~="rounded-full"] [role="radio"][aria-checked="true"] {
+  background: #ffffff !important;
+  color: #1d1d1f !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04);
+}
+/* Champs de saisie et compteur : des cases pleines, sans bordure, aux coins doux. */
+.carte-verre [class~="border-[#9a8d80]"]:not([role="radiogroup"]):not([class~="h-4"]):not(input):not(dialog *) {
+  background: rgba(118, 118, 128, 0.12) !important;
+  border-color: transparent !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+.carte-verre [class~="border-[#9a8d80]"]:not([role="radiogroup"]):not(dialog *):focus-within {
+  background: #ffffff !important;
+  box-shadow: 0 0 0 3.5px rgba(43, 35, 32, 0.16) !important;
+}
+.carte-verre [class~="border-[#9a8d80]"] input:not(dialog *) {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+/* Les pastilles numérotées : pleines, discrètes. */
+.carte-verre [class~="h-[18px]"][class~="border-[#2b2320]"] {
+  border-color: transparent;
+  background: rgba(118, 118, 128, 0.16);
+  color: #1d1d1f;
+  font-weight: 600;
+}
+/* Le curseur : un rail fin, un pouce blanc qui porte une ombre. */
+.carte-verre input[type="range"]::-webkit-slider-thumb {
+  background-color: #ffffff !important;
+  border: 0.5px solid rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(0, 0, 0, 0.16);
+  width: 24px !important;
+  height: 24px !important;
+  margin-top: -9px !important;
+}
+.carte-verre input[type="range"]::-moz-range-thumb {
+  background-color: #ffffff !important;
+  border: 0.5px solid rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(0, 0, 0, 0.16);
+  width: 24px !important;
+  height: 24px !important;
+}
+/* Le bouton d'achat : une pastille pleine, texte en clair. */
+.carte-verre .btn-verre:not(dialog *) {
+  background: #1d1d1f;
+  border-color: transparent;
+  box-shadow: none;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  font-size: 15px;
+  font-weight: 600;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.carte-verre .btn-verre:not(dialog *):hover {
+  background: #000000;
+}
+.carte-verre .btn-verre:not(dialog *):disabled {
+  opacity: 1;
+  background: rgba(118, 118, 128, 0.2);
+  color: rgba(60, 60, 67, 0.55);
+}
+/* Les cases et les choix : des pastilles de verre plus clair, avec un liseré de lumière. */
+.carte-verre :is(input[type="text"], input[type="number"], input:not([type]), [class~="bg-white"], [class~="bg-[#fbfaf8]"], [class~="bg-[#faf8f5]"]):not(dialog *) {
+  background-color: rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(43, 35, 32, 0.06);
+}
+.carte-verre :is([class~="border-[#e5ddd3]"], [class~="md:border-[#e5ddd3]"], [class~="border-[#e0d5c7]"]):not(dialog *) {
+  border-color: rgba(43, 35, 32, 0.1);
+}
+.carte-verre [class~="divide-[#e5ddd3]"]:not(dialog *) > :not(:last-child) {
+  border-color: rgba(43, 35, 32, 0.1);
+}
+/* Le rail des cotes : un sillon dans le verre. */
+.carte-verre [class~="bg-[#e5ddd3]"] {
+  background-color: rgba(43, 35, 32, 0.1);
+}
+/* La barre d'achat collée en bas : le même verre, plus dense, pour que le contenu s'efface derrière. */
+.carte-verre .barre-achat {
+  background: rgba(248, 246, 242, 0.82);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  backdrop-filter: blur(18px) saturate(1.6);
+}
+.carte-verre .barre-achat::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 100% 0;
+  height: 1.25rem;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(248, 246, 242, 0.82), transparent);
+}
+
+/* ------------------------------------------------------------------ *
  *  La carte grise du configurateur (tables d'intérieur, product-view.tsx)
  *  Le configurateur (product-options.tsx) est écrit pour un fond clair.
  *  Posé sur le gris, ses couleurs se retournent ici, sans le réécrire :
@@ -285,4 +447,17 @@ textarea:focus-visible,
 }
 .carte-sombre .btn-verre:not(dialog *):not([class~="bg-[#ffffff]/95"] *):hover {
   background: #ffffff;
+}
+
+/* La colonne des choix d'une table, sur grand écran : un peu plus grosse
+   (titre, nuanciers, prix), pour que la photo d'à côté ne soit pas étirée. */
+@media (min-width: 1280px) {
+  .colonne-table {
+    zoom: 1.18;
+  }
+}
+@media (min-width: 1800px) {
+  .colonne-table {
+    zoom: 1.3;
+  }
 }

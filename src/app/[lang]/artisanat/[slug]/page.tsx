@@ -27,6 +27,17 @@ import { serif } from "@/lib/fonts";
 import { hoverZoom, hoverZoomSubtle, prixAffiche } from "@/lib/ui";
 
 /**
+ * Le bandeau « Livraison » d'une pièce qui n'a encore aucun prix (sur devis,
+ * sans visite de l'atelier) : le texte habituel promet un prix qui s'affiche
+ * sur la fiche dès le code postal, ce qui n'arrive pas ici. Même règle de
+ * livraison (90 € au maximum, voir src/lib/deplacement.ts), dite autrement.
+ */
+const LIVRAISON_SUR_DEVIS = {
+  fr: "Nous livrons partout en France métropolitaine, par transporteur, 90 € au maximum. Si vous préférez, l'atelier vient livrer et poser la pièce lui-même, sur un seul trajet depuis Saumur. Le prix de la livraison ou de la pose est écrit sur votre devis.",
+  en: "We deliver anywhere in mainland France by carrier, €90 at most. If you prefer, the workshop delivers and fits the piece itself, in a single trip from Saumur. The delivery or fitting price is written on your quote.",
+} as const;
+
+/**
  * Les photos à membrane sont carrées ; les blocs éditoriaux les affichent dans
  * un cadre 4/3 en « cover », qui rogne 12,5 % en haut et en bas. On décale donc
  * la membrane d'autant, sinon la lumière ne tomberait pas sur la toile.
@@ -61,9 +72,16 @@ export async function generateMetadata({
   const prixDepart = priceFrom(product);
   const depuis =
     prixDepart === null
-      ? locale === "fr"
-        ? "Sur devis, pose comprise."
-        : "Price on request, fitting included."
+      ? // « Pose comprise » ne vaut que pour une pièce que l'atelier vient
+        // mesurer chez le client avant de la poser (priseDeCotes). Une table
+        // sur devis se livre, la pose y reste en option.
+        product.priseDeCotes
+        ? locale === "fr"
+          ? "Sur devis, pose comprise."
+          : "Price on request, fitting included."
+        : locale === "fr"
+          ? "Sur devis."
+          : "Price on request."
       : locale === "fr"
         ? `À partir de ${prixAffiche(prixDepart, locale)}.`
         : `From ${prixAffiche(prixDepart, locale)}.`;
@@ -299,7 +317,11 @@ export default async function ProductPage({
           <h2 className={`${serif.className} text-2xl text-[#2b2320] md:text-3xl`}>
             {t.deliveryTitle}
           </h2>
-          <p className="mt-5 leading-relaxed text-[#4a4038]">{t.deliveryBody}</p>
+          <p className="mt-5 leading-relaxed text-[#4a4038]">
+            {prixDepartFiche === null && !product.priseDeCotes
+              ? LIVRAISON_SUR_DEVIS[locale]
+              : t.deliveryBody}
+          </p>
         </div>
       </section>
 

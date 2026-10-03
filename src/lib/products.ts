@@ -198,12 +198,18 @@ export type Product = {
      * scripts/recolor.py, qui ne reteinte que le plateau.
      */
     parBois?: Record<string, string | Record<string, string>>;
+    /**
+     * Même prise de vue pour chaque coloris (teinte de résine), par identifiant de
+     * coloris — puis par teinte de pieds. Ces photos sortent de
+     * scripts/table-resine.py : le plateau résine posé sur les pieds de la Table Mikado.
+     */
+    parColoris?: Record<string, string | Record<string, string>>;
     /* Ces fichiers portent « -vN » : à chaque nouvelle génération des photos,
        N augmente. L'optimiseur d'images garde une photo un an (voir
        next.config.mjs) : sous le même nom, il resservirait l'ancienne. */
     /** Teinte de pieds montrée par cette vignette : la cliquer la sélectionne. */
     metal?: string;
-    /** Coloris de velours montré par cette vignette : la cliquer le sélectionne. */
+    /** Coloris (velours, teinte de résine) montré par cette vignette : la cliquer le sélectionne. */
     fabric?: string;
     /** Membrane à éclairer : le dégradé animé s'anime dans ce contour. */
     glow?: {
@@ -214,11 +220,11 @@ export type Product = {
   sizes: ProductSize[];
   woods: ProductSwatch[];
   metals: ProductSwatch[];
-  /** Coloris de velours, pour les assises garnies. */
+  /** Coloris de velours, pour les assises garnies (ou teintes de résine, rosaces : voir fabricLabel). */
   fabrics?: ProductSwatch[];
   /** Les remplissages possibles d'un garde-corps, le premier étant celui du modèle. */
   remplissages?: Remplissage[];
-  /** Remplace « Coloris du velours » quand `fabrics` sert à autre chose (les rosaces d'un garde-corps). */
+  /** Remplace « Coloris du velours » quand `fabrics` sert à autre chose (les rosaces d'un garde-corps, la résine d'une table). */
   fabricLabel?: { fr: string; en: string };
   /** Remplace « Couleur des pieds » quand la pièce n'a pas de pieds. */
   metalLabel?: { fr: string; en: string };
@@ -237,6 +243,23 @@ export type Product = {
   livraisonSeule?: boolean;
   /** Remplace le texte par défaut sous « Livraison par transporteur », quand la pièce arrive démontée d'une façon qui lui est propre. */
   livraisonInfo?: { fr: string; en: string };
+  /**
+   * Remplace la phrase sous « Demander un devis » (« prise de cotes à
+   * domicile, pose comprise » : vrai pour l'escalier, pas pour une table).
+   */
+  noteDevis?: { fr: string; en: string };
+  /**
+   * Pièce sur devis SANS AUCUN PRIX : les formats proposés, sans tarif. Le
+   * client en choisit un — ou le sur-mesure — et son choix part avec sa
+   * demande de devis. Le jour où la pièce a ses prix, ces formats deviennent
+   * `sizes` (mêmes identifiants, plus un `price`) et ce champ disparaît.
+   * Leur libellé anglais est lu dans `en.sizes`, comme celui d'une taille.
+   */
+  formatsDevis?: {
+    tailles: Omit<ProductSize, "price">[];
+    /** Les bornes du sur-mesure, dites au client quand il le choisit. */
+    surMesure?: { fr: string; en: string };
+  };
   /**
    * Les écarts de prix des essences sont donnés pour un plateau de
    * SURFACE_REFERENCE_M2 (la table de 200 × 100) et suivent la surface :
@@ -275,7 +298,7 @@ export type ProductEn = {
   seoDescription?: string;
   /** Description (alt) de chaque photo, dans l'ordre de `images`. */
   images?: string[];
-  /** Libellé de chaque taille, par identifiant. */
+  /** Libellé de chaque taille (et de chaque format sur devis), par identifiant. */
   sizes?: Record<string, string>;
   sections?: { title: string; body: string }[];
   specs?: ProductSpec[];
@@ -1109,6 +1132,237 @@ export const products: Product[] = [
     },
   },
   {
+    slug: "table-resine-mikado",
+    /*
+     * PRIX : PAS ENCORE FIXÉS (« on verra les prix plus tard », Quentin,
+     * octobre 2026). En attendant, la table se fait SUR DEVIS : la fiche
+     * n'annonce aucun chiffre, et « Demander un devis » envoie au formulaire
+     * de contact la teinte, le format, le bois et le piétement choisis.
+     *
+     * LE JOUR DES PRIX, tout se change ici, dans cette fiche :
+     *   1. `formatsDevis.tailles` devient `sizes`, chaque format avec son
+     *      `price` (mêmes identifiants p6 … p14 : la traduction suit) ;
+     *   2. ajouter un `surMesure`, sur le modèle de la table Mikado, avec
+     *      ses propres chiffres ;
+     *   3. passer `orderMode` à "cart", retirer `formatsDevis` et `noteDevis`.
+     * Si une teinte de résine coûte plus cher, le devis PDF (src/lib/devis.ts)
+     * devra aussi apprendre à l'écrire : il ne connaît pas encore de ligne
+     * « résine ». `npm test` vérifie ensuite que chaque prix est facturable.
+     */
+    poseOption: true,
+    boisAuM2: true,
+    famille: "table-interieur",
+    seoMots: "chêne massif",
+    category: "interieur",
+    orderMode: "quote",
+    name: "Table Résine Époxy Mikado",
+    tagline: "Une rivière de résine époxy dans un plateau de chêne massif, sur le piétement Mikado.",
+    noteDevis: {
+      fr: "Cette table se fait sur devis : nous vous répondons avec le prix et le délai, pour la teinte et le format choisis.",
+      en: "This table is made on quotation: we reply with the price and lead time for the colour and size you choose.",
+    },
+    // Les quatre rendus ont le cadrage des photos « coupe » de la table
+    // Mikado : fond blanc de studio, la table remplit le cadre. Le recadrage
+    // garde la rivière et son chant en vue (position), même sur un écran
+    // presque carré. Chaque vignette sélectionne sa teinte de résine.
+    images: [
+      {
+        src: "/images/table-resine/devant/noir-rouge-v1.jpg",
+        alt: "Table résine époxy Mikado — vue de face : plateau de chêne massif traversé d'une rivière de résine, piétement Mikado",
+        bg: "#ffffff",
+        fit: "contain",
+        parColoris: {
+          "rouge": {
+            noir: "/images/table-resine/devant/noir-rouge-v1.jpg",
+            gris: "/images/table-resine/devant/gris-rouge-v1.jpg",
+            chocolat: "/images/table-resine/devant/chocolat-rouge-v1.jpg",
+            laiton: "/images/table-resine/devant/laiton-rouge-v1.jpg",
+            lin: "/images/table-resine/devant/lin-rouge-v1.jpg",
+            blanc: "/images/table-resine/devant/blanc-rouge-v1.jpg",
+          },
+          "or-nacre": {
+            noir: "/images/table-resine/devant/noir-or-nacre-v1.jpg",
+            gris: "/images/table-resine/devant/gris-or-nacre-v1.jpg",
+            chocolat: "/images/table-resine/devant/chocolat-or-nacre-v1.jpg",
+            laiton: "/images/table-resine/devant/laiton-or-nacre-v1.jpg",
+            lin: "/images/table-resine/devant/lin-or-nacre-v1.jpg",
+            blanc: "/images/table-resine/devant/blanc-or-nacre-v1.jpg",
+          },
+          "turquoise": {
+            noir: "/images/table-resine/devant/noir-turquoise-v1.jpg",
+            gris: "/images/table-resine/devant/gris-turquoise-v1.jpg",
+            chocolat: "/images/table-resine/devant/chocolat-turquoise-v1.jpg",
+            laiton: "/images/table-resine/devant/laiton-turquoise-v1.jpg",
+            lin: "/images/table-resine/devant/lin-turquoise-v1.jpg",
+            blanc: "/images/table-resine/devant/blanc-turquoise-v1.jpg",
+          },
+          "bleu-paillettes-or": {
+            noir: "/images/table-resine/devant/noir-bleu-paillettes-or-v1.jpg",
+            gris: "/images/table-resine/devant/gris-bleu-paillettes-or-v1.jpg",
+            chocolat: "/images/table-resine/devant/chocolat-bleu-paillettes-or-v1.jpg",
+            laiton: "/images/table-resine/devant/laiton-bleu-paillettes-or-v1.jpg",
+            lin: "/images/table-resine/devant/lin-bleu-paillettes-or-v1.jpg",
+            blanc: "/images/table-resine/devant/blanc-bleu-paillettes-or-v1.jpg",
+          },
+        },
+      },
+      {
+        src: "/images/table-resine/rouge-v1.jpg",
+        alt: "Table résine époxy Mikado : rivière de résine rouge dans un plateau de chêne massif, piétement acier noir",
+        bg: "#ffffff",
+        fit: "cover",
+        position: "65% 50%",
+        fabric: "rouge",
+      },
+      {
+        src: "/images/table-resine/or-nacre-v1.jpg",
+        alt: "Table résine époxy Mikado : rivière de résine or nacré semée de paillettes d'or, plateau de chêne massif",
+        bg: "#ffffff",
+        fit: "cover",
+        position: "65% 50%",
+        fabric: "or-nacre",
+      },
+      {
+        src: "/images/table-resine/turquoise-v1.jpg",
+        alt: "Table résine époxy Mikado : rivière de résine turquoise entre les bords naturels du chêne, piétement acier noir",
+        bg: "#ffffff",
+        fit: "cover",
+        position: "65% 50%",
+        fabric: "turquoise",
+      },
+      {
+        src: "/images/table-resine/bleu-paillettes-or-v1.jpg",
+        alt: "Table résine époxy Mikado : rivière de résine bleue semée de paillettes d'or, plateau de chêne massif",
+        bg: "#ffffff",
+        fit: "cover",
+        position: "65% 50%",
+        fabric: "bleu-paillettes-or",
+      },
+      {
+        src: "/images/table-resine/ambiance-bleu-blanc-v1.jpg",
+        alt: "Table résine époxy Mikado dans un salon : rivière de résine bleue, piétement blanc",
+        bg: "#d9d5cf",
+        fit: "cover",
+      },
+    ],
+    // Aucune taille à prix : voir « PRIX » plus haut. Les formats sont ceux
+    // de la table Mikado, proposés sans tarif.
+    sizes: [],
+    formatsDevis: {
+      tailles: [
+        { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm" },
+        { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm" },
+        { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm" },
+        { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm" },
+        { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm" },
+      ],
+      // Les bornes du plateau de la table Mikado (PLATEAU_MAX_…, plus haut).
+      surMesure: {
+        fr: "De 80 × 80 cm à 450 × 125 cm, d'un seul tenant : indiquez vos cotes dans votre message.",
+        en: "From 80 × 80 cm up to 450 × 125 cm in one piece: give your dimensions in your message.",
+      },
+    },
+    woods: woods({ chene: 0 }),
+    metals: pieds(),
+    fabricLabel: { fr: "Couleur de la résine", en: "Resin colour" },
+    // Couleurs relevées sur les photos, à l'œil : la pastille du nuancier.
+    fabrics: [
+      {
+        id: "rouge",
+        label: "Rouge",
+        labelEn: "Red",
+        swatch: "#6e1f27",
+        image: "/images/table-resine/rouge-v1.jpg",
+      },
+      {
+        id: "or-nacre",
+        label: "Or nacré",
+        labelEn: "Pearl gold",
+        swatch: "#d5c193",
+        image: "/images/table-resine/or-nacre-v1.jpg",
+      },
+      {
+        id: "turquoise",
+        label: "Turquoise",
+        labelEn: "Turquoise",
+        swatch: "#2f7d88",
+        image: "/images/table-resine/turquoise-v1.jpg",
+      },
+      {
+        id: "bleu-paillettes-or",
+        label: "Bleu et paillettes d'or",
+        labelEn: "Blue with gold flakes",
+        swatch: "#1d3a80",
+        image: "/images/table-resine/bleu-paillettes-or-v1.jpg",
+      },
+    ],
+    sections: [
+      {
+        title: "Une rivière de résine dans le chêne",
+        body: "Le plateau est en chêne massif. Une rivière de résine époxy le traverse d'un bout à l'autre, coulée à l'atelier dans la teinte de votre choix : rouge, or nacré, turquoise, ou bleu semé de paillettes d'or. Le fil du bois et les reflets de la résine changent d'une table à l'autre : chaque plateau est unique.",
+      },
+      {
+        title: "Le piétement Mikado, dans la teinte de votre choix",
+        body: "Le même piétement que notre table Mikado : des tubes d'acier de 80 × 80 mm, paroi 3 mm, croisés sous le plateau comme un jeu de mikado. Il est soudé d'une seule pièce à l'atelier, puis peint en noir charbon mat.",
+      },
+      {
+        title: "Sur devis, à vos mesures",
+        body: "Choisissez la teinte de la résine et le format — de 6 à 14 places, ou à vos cotes jusqu'à 450 × 125 cm — puis demandez votre devis. Nous vous répondons avec le prix, le délai de fabrication et la livraison.",
+      },
+    ],
+    specs: [
+      { label: "Plateau", value: "Chêne massif, traversé d'une rivière de résine époxy coulée à l'atelier" },
+      { label: "Résine", value: "Quatre teintes : rouge, or nacré, turquoise, bleu et paillettes d'or" },
+      { label: "Piétement", value: "Piétement Mikado : tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, peint mat — six teintes au choix" },
+      { label: "Dimensions", value: "6 à 14 places, de 150 × 90 à 350 × 110 cm (H 75 cm), ou sur mesure jusqu'à 450 × 125 cm" },
+      { label: "Fabrication", value: "Sur commande — délai confirmé avec le devis" },
+      { label: "Livraison", value: "Partout en France, par transporteur, 90 € au maximum ; ou livrée et posée par l'atelier" },
+    ],
+    // Traduction anglaise de la fiche.
+    en: {
+      name: "Mikado Epoxy Resin Table",
+      seoMots: "solid oak",
+      tagline: "A river of epoxy resin through a solid oak top, on the Mikado steel base.",
+      images: [
+        "Mikado epoxy resin table — front view: solid oak top with a river of resin, Mikado base",
+        "Mikado epoxy resin table: red resin river through a solid oak top, black steel base",
+        "Mikado epoxy resin table: pearl gold resin river scattered with gold flakes, solid oak top",
+        "Mikado epoxy resin table: turquoise resin river between the natural edges of the oak, black steel base",
+        "Mikado epoxy resin table: blue resin river scattered with gold flakes, solid oak top",
+        "Mikado epoxy resin table in a living room: blue resin river, white base",
+      ],
+      sizes: {
+        p6: "Seats 6 — 150 × 90 × H 75 cm",
+        p8: "Seats 8 — 200 × 100 × H 75 cm",
+        p10: "Seats 10 — 240 × 100 × H 75 cm",
+        p12: "Seats 12 — 300 × 100 × H 75 cm",
+        p14: "Seats 14 — 350 × 110 × H 75 cm",
+      },
+      sections: [
+        {
+          title: "A river of resin through the oak",
+          body: "The top is solid oak. A river of epoxy resin runs through it from end to end, poured in the workshop in the colour of your choice: red, pearl gold, turquoise, or blue scattered with gold flakes. The grain of the wood and the sheen of the resin change from one table to the next: every top is one of a kind.",
+        },
+        {
+          title: "The Mikado base, in the colour you choose",
+          body: "The same base as our Mikado table: 80 × 80 mm steel tubes, 3 mm wall, crossed under the top like a game of pick-up sticks. It is welded in one piece in the workshop, then painted matt charcoal black.",
+        },
+        {
+          title: "On quotation, to your size",
+          body: "Choose the resin colour and the size — seats 6 to 14, or your own dimensions up to 450 × 125 cm — then request your quote. We reply with the price, the lead time and the delivery.",
+        },
+      ],
+      specs: [
+        { label: "Top", value: "Solid oak with a river of epoxy resin poured in the workshop" },
+        { label: "Resin", value: "Four colours: red, pearl gold, turquoise, blue with gold flakes" },
+        { label: "Base", value: "Mikado base: 80 × 80 mm steel tube, 3 mm wall, welded in one piece, matt paint — six colours to choose from" },
+        { label: "Dimensions", value: "Seats 6 to 14, from 150 × 90 to 350 × 110 cm (H 75 cm), or made to measure up to 450 × 125 cm" },
+        { label: "Lead time", value: "Made to order — lead time confirmed with the quote" },
+        { label: "Delivery", value: "Anywhere in mainland France by carrier, €90 at most; or delivered and fitted by the workshop" },
+      ],
+    },
+  },
+  {
     slug: "escalier-limon-central",
     famille: "escalier",
     seoMots: "escalier acier",
@@ -1511,9 +1765,18 @@ export const products: Product[] = [
     images: [
       {
         src: "/images/table-exterieur-lattes.jpg",
-        alt: "Table d'extérieur Mikado, plateau à lattes de chêne et piétement acier noir",
+        alt: "Table d'extérieur Mikado, plateau à lattes de chêne — vue d'angle sur la finition du plateau",
         bg: "#ffffff",
         fit: "cover",
+        metal: "noir",
+        variants: {
+          noir: "/images/table-exterieur-lattes.jpg",
+          gris: "/images/mikado-exterieur/angle/gris-v3.jpg",
+          chocolat: "/images/mikado-exterieur/angle/chocolat-v3.jpg",
+          laiton: "/images/mikado-exterieur/angle/laiton-v3.jpg",
+          lin: "/images/mikado-exterieur/angle/lin-v3.jpg",
+          blanc: "/images/mikado-exterieur/angle/blanc-v3.jpg",
+        },
       },
     ],
     sizes: [
@@ -1575,7 +1838,7 @@ export const products: Product[] = [
         "Garden table with a slatted treated-oak top and a painted steel Mikado base, made to stay outside. Made in Saumur, France.",
       tagline: "Slatted treated-oak top, Mikado base painted for outdoors — made to stay outside.",
       images: [
-        "Mikado outdoor table, slatted oak top and black steel base",
+        "Mikado outdoor table, slatted oak top — angle view of the top finish",
       ],
       sizes: {
         p6: "Seats 6 — 150 × 90 × H 75 cm",
@@ -1846,14 +2109,14 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "d90", dimsMm: [900, 900], label: "Ø 90 cm — 0,64 m² — 40 W", price: 1190 },
-      { id: "d120", default: true, dimsMm: [1200, 1200], label: "Ø 120 cm — 1,13 m² — 75 W", price: 1560 },
-      { id: "d150", dimsMm: [1500, 1500], label: "Ø 150 cm — 1,77 m² — 115 W", price: 2050 },
-      { id: "d200", dimsMm: [2000, 2000], label: "Ø 200 cm — 3,14 m² — 205 W", price: 2830 },
-      { id: "d250", dimsMm: [2500, 2500], label: "Ø 250 cm — 4,91 m² — 320 W", price: 3780 },
-      { id: "d300", dimsMm: [3000, 3000], label: "Ø 300 cm — 7,07 m² — 460 W", price: 4800 },
-      { id: "d350", dimsMm: [3500, 3500], label: "Ø 350 cm — 9,62 m² — 625 W", price: 5940 },
-      { id: "d400", dimsMm: [4000, 4000], label: "Ø 400 cm — 12,57 m² — 815 W", price: 7290 },
+      { id: "d90", dimsMm: [900, 900], label: "Ø 90 cm — 0,64 m² — 40 W", price: 1600 },
+      { id: "d120", default: true, dimsMm: [1200, 1200], label: "Ø 120 cm — 1,13 m² — 75 W", price: 2100 },
+      { id: "d150", dimsMm: [1500, 1500], label: "Ø 150 cm — 1,77 m² — 115 W", price: 2730 },
+      { id: "d200", dimsMm: [2000, 2000], label: "Ø 200 cm — 3,14 m² — 205 W", price: 3720 },
+      { id: "d250", dimsMm: [2500, 2500], label: "Ø 250 cm — 4,91 m² — 320 W", price: 4850 },
+      { id: "d300", dimsMm: [3000, 3000], label: "Ø 300 cm — 7,07 m² — 460 W", price: 6050 },
+      { id: "d350", dimsMm: [3500, 3500], label: "Ø 350 cm — 9,62 m² — 625 W", price: 7380 },
+      { id: "d400", dimsMm: [4000, 4000], label: "Ø 400 cm — 12,57 m² — 815 W", price: 8910 },
     ],
     surMesure: {
       cotesParDefautMm: [1800, 1800, 200],
@@ -1863,9 +2126,12 @@ export const products: Product[] = [
       // Prix conseillés du chiffrage (27/09/2026), calés comme la Lucarne. Le
       // mètre carré est plus cher qu'en rectangle : il faut cintrer le profilé
       // et la toile ronde fait de la chute.
-      forfait: 314,
+      // Prix conseillés du chiffrage du 03/10/2026 : un rond demande bien plus
+      // de travail qu'un rectangle (cintrage, roulage), le pourtour pèse donc
+      // plus lourd dans le prix.
+      forfait: 396,
       parM2: 300,
-      parMetre: 256,
+      parMetre: 383,
       minMm: 300,
       maxLargeurMm: 4000,
       maxHauteurMm: 4000,
@@ -2724,6 +2990,13 @@ export function productLocalise(product: Product, locale: Locale): Product {
       ...taille,
       label: en?.sizes?.[taille.id] ?? taille.label,
     })),
+    formatsDevis: product.formatsDevis && {
+      ...product.formatsDevis,
+      tailles: product.formatsDevis.tailles.map((taille) => ({
+        ...taille,
+        label: en?.sizes?.[taille.id] ?? taille.label,
+      })),
+    },
     sections: product.sections.map((section, i) => ({
       ...section,
       title: en?.sections?.[i]?.title ?? section.title,

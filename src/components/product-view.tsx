@@ -59,6 +59,8 @@ export function ProductView({
   const [pickedSrc, setPickedSrc] = useState<string | null>(null);
   /* Pas de plein écran sur la photo : l'atelier l'a retiré (septembre 2026).
      Les vignettes et les flèches suffisent à passer d'une vue à l'autre. */
+  /** La galerie a une vue qui change avec le coloris ET la teinte de pieds (table résine). */
+  const aVueParColoris = product.images.some((img) => img.parColoris);
   const galleryRef = useRef<HTMLDivElement>(null);
   const stripRef = useRef<HTMLDivElement>(null);
   /**
@@ -79,8 +81,9 @@ export function ProductView({
      cliquée ramène à la photo, puisqu'on a demandé à la voir. */
   function selectFabric(id: string) {
     setFabricId(id);
-    // Le coloris reprend la main sur une photo choisie à la vignette.
-    setPickedSrc(null);
+    // Le coloris reprend la main sur une photo choisie à la vignette — sauf quand la
+    // galerie a une vue par coloris (table résine) : on reste sur la vue regardée.
+    if (!aVueParColoris) setPickedSrc(null);
     // La bande de vignettes suit le coloris choisi dans les bulles.
     // Le glissement doux passe en saut sec quand le visiteur a demandé
     // « moins d'animations » (voir src/lib/ui.ts).
@@ -103,7 +106,8 @@ export function ProductView({
     // Une vignette de coloris reprend la main sur la galerie.
     if (vue?.fabric) {
       setFabricId(vue.fabric);
-      setPickedSrc(null);
+      // Sans vue de face par coloris, la vignette de coloris reprend la main sur la galerie.
+      if (!aVueParColoris) setPickedSrc(null);
     }
     if (window.innerWidth < 768) {
       amenerAlEcran(galleryRef.current, { block: "center" });
@@ -114,9 +118,27 @@ export function ProductView({
   const fabric = product.fabrics?.find((f) => f.id === fabricId);
   const coloris = fabric;
 
-  const images: Product["images"] = coloris?.image
+  /**
+   * La photo du coloris telle que la galerie du produit la décrit, quand elle
+   * y figure en plein cadre (« cover ») : la table résine, prise en studio sur
+   * fond blanc, garde alors son fond, son cadrage et sa description. Les
+   * rendus de velours de la chaise (« contain ») suivent le traitement
+   * ci-dessous, comme avant.
+   */
+  const vueDuColoris = coloris?.image
+    ? product.images.find((img) => img.src === coloris.image && (img.fit ?? "cover") === "cover")
+    : undefined;
+  /** La vue de face qui suit le coloris et la teinte des pieds (table résine) : elle passe en premier. */
+  const vuesParColoris = product.images.filter((img) => img.parColoris);
+  const images: Product["images"] = aVueParColoris && vueDuColoris
     ? [
-        {
+        ...vuesParColoris,
+        vueDuColoris,
+        ...product.images.filter((img) => !img.parColoris && !img.fabric),
+      ]
+    : coloris?.image
+    ? [
+        vueDuColoris ?? {
           src: coloris.image,
           alt: `${product.name} — ${coloris.label}`,
           // Les rendus de velours (la chaise) cadrent déjà serré : une marge
@@ -127,13 +149,27 @@ export function ProductView({
         ...product.images.filter((img) => img.src !== coloris.image),
       ]
     : product.images;
-  const mainImage = (pickedSrc && images.find((img) => img.src === pickedSrc)) || images[0];
-  // Les rendus de coloris ont leur propre fond gris : le cadre en reprend la teinte.
-  const isColorShot = Boolean(coloris?.image && mainImage?.src === coloris.image);
+  /** Une vignette de coloris choisie (la vue d'angle) suit ensuite le coloris : on montre celle du coloris courant. */
+  const vueChoisie = pickedSrc ? product.images.find((img) => img.src === pickedSrc) : undefined;
+  const mainImage =
+    (aVueParColoris && vueChoisie?.fabric && vueDuColoris) ||
+    (pickedSrc && images.find((img) => img.src === pickedSrc)) ||
+    images[0];
+  // Les rendus de velours ont leur propre fond gris : le cadre en reprend la
+  // teinte. Une photo reprise de la galerie garde, elle, le fond de sa fiche.
+  const isColorShot = Boolean(coloris?.image && !vueDuColoris && mainImage?.src === coloris.image);
   /** La même prise de vue, dans l'essence de plateau puis la teinte de pieds choisies. */
   const enBois = mainImage?.parBois?.[woodId];
+  /** La même prise de vue, dans le coloris (teinte de résine) puis la teinte de pieds choisis. */
+  const srcParColoris = (img: Product["images"][number] | undefined) => {
+    const c = img?.parColoris?.[fabricId];
+    return typeof c === "string" ? c : c?.[metalId];
+  };
   const mainSrc =
-    (typeof enBois === "string" ? enBois : enBois?.[metalId]) ?? mainImage?.variants?.[metalId] ?? mainImage?.src;
+    srcParColoris(mainImage) ??
+    (typeof enBois === "string" ? enBois : enBois?.[metalId]) ??
+    mainImage?.variants?.[metalId] ??
+    mainImage?.src;
 
   /**
    * `fit` est relevé sur la photo elle-même (voir products.ts) : fond uni de
@@ -151,7 +187,7 @@ export function ProductView({
    */
   const vignettesChoisies = product.images.some((img) => img.fabric);
   /** La bande reste fixe quand elle est choisie à la main sur le produit. */
-  const vignettes = vignettesChoisies ? product.images : images;
+  const vignettes = aVueParColoris ? images : vignettesChoisies ? product.images : images;
   const colorThumbs = vignettesChoisies ? [] : (product.fabrics ?? []).filter((f) => f.image);
   const currentIndex = colorThumbs.findIndex((f) => f.id === fabricId);
   /** Photos qui ne sont pas des rendus de coloris : détails, mises en situation. */
@@ -167,6 +203,7 @@ export function ProductView({
 
   /** Le configurateur en pleine page sous la photo (tables d'intérieur), ou la colonne étroite classique. */
   const pleinePage = aLeConfigurateurPleinePage(product);
+  const estTable = product.famille === "table-interieur" || product.famille === "table-exterieur";
   const prixDepart = product.releve ? null : priceFrom(product);
   const aide = (
     <p className={pleinePage ? "mt-3 text-xs text-[#726757]" : "mt-6 border-t border-[#e5ddd3] pt-6 text-sm text-[#726757]"}>
@@ -210,7 +247,14 @@ export function ProductView({
        à gauche et reste en place ; la colonne de droite, étroite, défile avec
        les choix. Sur téléphone, la photo prend d'abord tout l'écran, puis les
        options suivent. */}
-    <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(380px,36%)] lg:grid-cols-[minmax(0,1fr)_460px]">
+    <div
+      className={`grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(380px,36%)] lg:grid-cols-[minmax(0,1fr)_460px] ${
+        /* Les tables, sur grand écran : la colonne des choix s'élargit et
+           grossit (voir .colonne-table), la photo rétrécit d'autant. Étirée
+           sur les deux tiers d'un grand écran, elle perdait en netteté. */
+        estTable ? "xl:grid-cols-[minmax(0,1fr)_minmax(560px,34%)]" : ""
+      }`}
+    >
       {/* Galerie — reste visible pendant qu'on parcourt les options. Sa
           hauteur retire celle de l'en-tête (non collant, lui) : en
           « h-screen » plein, le bas de la photo — et sa bande de vignettes —
@@ -256,7 +300,9 @@ export function ProductView({
                   ? "object-cover"
                   : mainImage?.pad === "loose"
                     ? "object-contain p-14 md:p-20 lg:p-28"
-                    : "object-contain p-8 md:p-14 lg:p-20"
+                    : estTable
+                      ? "object-contain p-8 md:p-14 lg:p-20 xl:px-[7%]"
+                      : "object-contain p-8 md:p-14 lg:p-20"
               }
               priority
             />
@@ -342,8 +388,9 @@ export function ProductView({
           vignettes.length > 1 && (
             <div className="pointer-events-auto flex gap-2 rounded-xl bg-white/70 p-1.5 backdrop-blur">
               {vignettes.slice(0, 4).map((img) => {
-                const isCurrent =
-                  img.fabric
+                const isCurrent = aVueParColoris
+                  ? mainImage?.src === img.src
+                  : img.fabric
                     ? img.fabric === fabricId && !pickedSrc
                     : mainImage?.src === img.src && (!img.metal || img.metal === metalId);
                 return (
@@ -362,7 +409,7 @@ export function ProductView({
                     {/* Une photo de studio se montre entière, comme en grand :
                         recadrée au carré, une table longue perdait ses pieds. */}
                     <Image
-                      src={img.src}
+                      src={srcParColoris(img) ?? img.src}
                       alt={img.alt}
                       fill
                       sizes="150px"
@@ -383,7 +430,7 @@ export function ProductView({
       {/* Sur téléphone, l'en-tête se serre : le fil d'Ariane disparaît (le
           bouton « retour » de l'en-tête suffit), le titre et le lien se
           rapprochent — l'écran va aux choix, pas au titre. */}
-      <div className="px-6 pb-8 pt-2 md:px-8 md:py-10 lg:px-12">
+      <div className={`px-6 pb-8 pt-2 md:px-8 md:py-10 lg:px-12 ${estTable ? "colonne-table" : ""}`}>
         {filAriane && (
           <nav aria-label={filAriane.label} className="hidden flex-wrap justify-end text-[11px] text-[#7a6f64] md:flex">
             {filAriane.etapes.map((etape) => (
@@ -455,29 +502,27 @@ export function ProductView({
          manque pas, la carte reste à côté du croquis et défile seule. */
       <section
         id="configuration"
-        className="mx-auto max-w-7xl scroll-mt-14 px-5 pb-3 pt-4 md:px-10 md:py-14"
+        className="mx-auto max-w-7xl scroll-mt-14 px-5 pb-3 pt-4 md:px-10 md:py-5"
       >
-        <h2 className={`${serif.className} text-xl text-[#2b2320] md:text-3xl`}>{t.configurationTitle}</h2>
-        <div className="mt-2 h-[3px] w-12 bg-[#2b2320] md:mt-3 md:w-14" aria-hidden />
-        <div className="mt-4 flex flex-col gap-5 md:mt-8 md:grid md:grid-cols-[minmax(0,380px)_minmax(0,1fr)] md:gap-14 lg:gap-20">
-          {/* La carte grise : ses couleurs sont retournées dans globals.css
-              (.carte-sombre). Elle ne dépasse jamais la hauteur de l'écran,
-              titre compris : elle défile à l'intérieur, la barre d'achat
-              restant collée en bas. */}
+        {/* Sur ordinateur, tout tient dans la hauteur de l'écran, titre compris : le titre
+            est dans la plaque, la carte et le croquis se partagent la hauteur qui reste. */}
+        <div className="fond-configuration flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,372px)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)] md:gap-x-10 md:gap-y-4 md:h-[calc(100vh-6rem)] md:max-h-[860px] md:min-h-[540px] lg:gap-x-14">
+          <div className="md:col-span-2">
+            <h2 className={`${serif.className} text-xl text-[#2b2320] md:text-[28px] md:leading-none`}>{t.configurationTitle}</h2>
+          </div>
           {/* Pas de marge en bas : c'est la barre d'achat, collée au bord
               inférieur, qui porte la sienne — sinon le contenu qui défile
               reste visible dessous, entre la barre et le bord de la carte. */}
-          <div className="carte-sombre overflow-x-hidden rounded-3xl px-5 pb-0 pt-4 md:max-h-[calc(100vh-13rem)] md:overflow-y-auto md:px-6 md:pt-5">
+          <div className="carte-verre overflow-x-hidden rounded-[26px] px-5 pb-0 pt-4 md:h-full md:overflow-y-auto md:px-6 md:pt-5">
             {options}
           </div>
-          {/* Le croquis : au-dessus de la carte sur téléphone, à côté, au
-              milieu de sa hauteur, sur ordinateur. */}
-          <div className="order-first md:order-none md:flex md:items-center md:self-stretch">
-            <div ref={setSchemaSlot} className="mx-auto w-full" />
+          {/* Le croquis : au-dessus de la carte sur téléphone, à côté et en grand sur ordinateur. */}
+          <div className="order-first md:order-none md:flex md:min-h-0 md:items-center md:justify-center">
+            <div ref={setSchemaSlot} className="schema-configuration mx-auto w-full" />
           </div>
-          {/* Sous la carte, en petit : une question ? */}
-          <div className="px-1 md:-mt-6">{aide}</div>
         </div>
+        {/* Sous la plaque, en petit : une question ? */}
+        <div className="mt-3 px-1">{aide}</div>
       </section>
     )}
     </>
