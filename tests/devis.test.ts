@@ -1,14 +1,16 @@
 /**
  * Le devis en PDF dit exactement ce que le panier facturera : même prix de
- * pièce, même prix de lot. Et chaque famille de pièce y décrit
- * ce qui la concerne — l'épaisseur d'un plateau, la puissance d'une toile, la
- * hauteur d'un garde-corps — jamais les caractéristiques d'une autre.
+ * pièce, même livraison. Et chaque famille de pièce y décrit ce qui la
+ * concerne — l'épaisseur d'un plateau, la puissance d'une toile — jamais les
+ * caractéristiques d'une autre. Le garde-corps a son propre devis, celui de
+ * l'outil de plans : voir devis-garde-corps.test.ts.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { composerDevis, numeroDevis, photoConfiguration, type EntreeDevis } from "../src/lib/devis.ts";
-import { SUR_MESURE, getProduct, prixRemise, resolveSelection } from "../src/lib/products.ts";
+import { SUR_MESURE, getProduct, resolveSelection } from "../src/lib/products.ts";
+import { achetables, combinaisonsValides } from "./catalogue.ts";
 import type { Deplacement } from "../src/lib/deplacement.ts";
 
 const DATE = new Date("2026-09-20T10:00:00+02:00");
@@ -136,54 +138,30 @@ test("plafond lumineux sur mesure : surface, puissance et profondeur du caisson"
   assert.ok(!("Plateau" in c));
 });
 
-test("garde-corps × 2 : le prix de lot du panier, la remise dite sur la ligne", () => {
-  const selection = {
-    slug: "garde-corps",
-    sizeId: SUR_MESURE,
-    largeurMm: 1200,
-    hauteurMm: 1000,
-    epaisseurMm: 40,
-    woodId: "chene",
-    metalId: "noir",
-    fabricId: "fonte",
-    remplissageId: "verre",
-  };
-  const resultat = composerDevis(entree({ selection, quantity: 2, note: "1er étage, mur pierre" }));
-  assert.ok(resultat.ok);
-  const { devis } = resultat;
-  const plein = resolveSelection(selection);
-  assert.ok(plein.ok);
-  const lot = getProduct("garde-corps")!.remiseLot!;
-  const p = postes(devis);
-  // Les postes au plein prix, dont le verre sur sa ligne ; la remise de lot en négatif.
-  const remise = p[p.length - 1];
-  assert.match(remise.designation, /^Prix de lot — remise de 10 %/);
-  assert.equal(remise.unitaire, prixRemise(plein.line.unitPrice, lot.taux) - plein.line.unitPrice);
-  assert.ok(remise.unitaire < 0);
-  assert.equal(p.slice(0, -1).reduce((somme, l) => somme + l.unitaire, 0), plein.line.unitPrice);
-  assert.match(p[0].designation, /cadre soudé recevant le verre/);
-  assert.ok(p.some((l) => /^Panneau de verre feuilleté/.test(l.designation)));
-  assert.equal(p.reduce((somme, l) => somme + l.total, 0), 2 * prixRemise(plein.line.unitPrice, lot.taux));
-  const c = Object.fromEntries(devis.piece.caracteristiques.map((x) => [x.label, x.value]));
-  // toLocaleString met une espace fine insécable entre les milliers.
-  assert.equal(c["Largeur entre tableaux"].replace(/\s/g, " "), "1 200 mm");
-  assert.equal(c["Relevé du client"], "1er étage, mur pierre");
-  // Derrière un verre, pas de rosace.
-  assert.ok(!("Rosace" in c));
+test("le garde-corps n'a pas de devis ici : c'est celui de l'outil de plans, sur le serveur", () => {
+  const resultat = composerDevis(
+    entree({ selection: { slug: "garde-corps", sizeId: SUR_MESURE, largeurMm: 1200, hauteurMm: 940, woodId: "chene", metalId: "noir", fabricId: "fleur", remplissageId: "croix" } })
+  );
+  assert.equal(resultat.ok, false);
+  assert.equal(resultat.ok === false && resultat.reason, "prix_serveur");
 });
 
-test("garde-corps × 1 : pas de remise, et la rosace se lit avec les croix", () => {
-  const resultat = composerDevis(
-    entree({
-      selection: { slug: "garde-corps", sizeId: SUR_MESURE, largeurMm: 1200, hauteurMm: 400, epaisseurMm: 40, woodId: "chene", metalId: "noir", fabricId: "fonte", remplissageId: "croix" },
-    })
-  );
+test("retrait à l'atelier : pas de ligne de livraison, et la condition du retrait", () => {
+  const resultat = composerDevis(entree({ selection: { slug: "table-mikado", sizeId: "p8", woodId: "chene", metalId: "noir" }, livraison: { mode: "retrait" } }));
   assert.ok(resultat.ok);
-  const p = postes(resultat.devis);
-  assert.ok(!p.some((l) => /Prix de lot/.test(l.designation)));
-  assert.match(p[0].designation, /croix de Saint-André et rosaces médaillon fleur, fonte ø100/i);
-  assert.ok(!p.some((l) => /verre/i.test(l.designation)));
-  assert.ok(resultat.devis.piece.caracteristiques.some((c) => c.label === "Rosace"));
+  const { devis } = resultat;
+  assert.ok(!devis.lignes.some((l) => /^Livraison/.test(l.designation)));
+  assert.equal(devis.total, postes(devis).reduce((somme, l) => somme + l.total, 0));
+  assert.ok(devis.conditions.includes("Pièce à retirer à l'atelier, à Saumur, sur rendez-vous."));
+  assert.ok(!devis.conditions.some((c) => /au pied du camion|pose sur rendez-vous/i.test(c)));
+  const en = composerDevis(entree({ selection: { slug: "table-mikado", sizeId: "p8", woodId: "chene", metalId: "noir" }, livraison: { mode: "retrait" }, locale: "en" }));
+  assert.ok(en.ok && en.devis.conditions.some((c) => /collected from the workshop/.test(c)));
+  // Et le numéro change avec la façon de recevoir la pièce.
+  const transporteur = composerDevis(
+    entree({ selection: { slug: "table-mikado", sizeId: "p8", woodId: "chene", metalId: "noir" }, livraison: { mode: "transporteur", codePostal: "44000", deplacement: nantes } })
+  );
+  assert.ok(transporteur.ok);
+  assert.notEqual(transporteur.devis.numero, devis.numero);
 });
 
 test("escalier : une estimation, sans validité, avec sa réserve", () => {
@@ -246,39 +224,19 @@ test("en anglais, les options aussi sont en anglais", () => {
 });
 
 test("un écart d'essence négatif ne fait jamais passer un poste sous zéro", () => {
-  for (const [largeurMm, hauteurMm] of [[1180, 350], [800, 350], [200, 200]] as const) {
-    for (const woodId of ["pin", "hetre"]) {
-      const resultat = composerDevis(
-        entree({ selection: { slug: "garde-corps", sizeId: SUR_MESURE, largeurMm, hauteurMm, epaisseurMm: 40, woodId, metalId: "noir", fabricId: "fleur", remplissageId: "croix" } })
-      );
-      assert.ok(resultat.ok);
+  // Le pin et le hêtre coûtent moins que le chêne : leur écart fait baisser
+  // tous les postes, sans qu'aucun passe sous zéro, et la somme reste le prix.
+  for (const product of achetables) {
+    for (const options of combinaisonsValides(product).filter((o) => (product.woods.find((w) => w.id === o.woodId)?.priceDelta ?? 0) < 0)) {
+      const selection = { slug: product.slug, ...options };
+      const resultat = composerDevis(entree({ selection }));
+      if (product.orderMode !== "cart") continue;
+      assert.ok(resultat.ok, `${product.slug} ${JSON.stringify(options)}`);
       const p = postes(resultat.devis);
-      assert.ok(p.every((l) => l.unitaire > 0), `${largeurMm} × ${hauteurMm} en ${woodId} : ${p.map((l) => l.unitaire).join(", ")}`);
-      const plein = resolveSelection({ slug: "garde-corps", sizeId: SUR_MESURE, largeurMm, hauteurMm, epaisseurMm: 40, woodId, metalId: "noir", fabricId: "fleur", remplissageId: "croix" });
+      assert.ok(p.every((l) => l.unitaire > 0), `${product.slug} ${JSON.stringify(options)} : ${p.map((l) => l.unitaire).join(", ")}`);
+      const plein = resolveSelection(selection);
       assert.ok(plein.ok);
       assert.equal(p.reduce((somme, l) => somme + l.unitaire, 0), plein.line.unitPrice);
     }
   }
 });
-
-test("l'acier brut verni n'a pas de ligne « finition peinte »", () => {
-  const resultat = composerDevis(
-    entree({ selection: { slug: "garde-corps", sizeId: SUR_MESURE, largeurMm: 1180, hauteurMm: 350, epaisseurMm: 40, woodId: "chene", metalId: "brut", fabricId: "fleur", remplissageId: "croix" } })
-  );
-  assert.ok(resultat.ok);
-  const p = postes(resultat.devis);
-  assert.ok(p.some((l) => /^Finition de l'acier — brut, vernis/.test(l.designation)));
-  assert.ok(!p.some((l) => /peinte/.test(l.designation)));
-});
-
-test("sous un panneau de verre, une rosace forgée ne se paie pas", () => {
-  const base = { slug: "garde-corps", sizeId: SUR_MESURE, largeurMm: 1180, hauteurMm: 350, epaisseurMm: 40, woodId: "chene", metalId: "noir", remplissageId: "verre" };
-  const fleur = resolveSelection({ ...base, fabricId: "fleur" });
-  const medaillon = resolveSelection({ ...base, fabricId: "medaillon" });
-  assert.ok(fleur.ok && medaillon.ok);
-  assert.equal(medaillon.line.unitPrice, fleur.line.unitPrice);
-  const devis = composerDevis(entree({ selection: { ...base, fabricId: "medaillon" } }));
-  assert.ok(devis.ok);
-  assert.ok(!/Médaillon/.test(devis.devis.lignes[0].designation));
-});
-

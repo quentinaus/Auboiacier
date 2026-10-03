@@ -26,27 +26,35 @@ export function estStatut(valeur: unknown): valeur is Statut {
   return typeof valeur === "string" && (STATUTS as readonly string[]).includes(valeur);
 }
 
+/** Comment la commande part : par transporteur, posée par l'atelier, ou retirée à l'atelier. */
+type Mode = "livraison" | "pose" | "retrait";
+
 /**
  * Les libellés. Une commande posée par l'atelier ne s'« expédie » pas et ne se
- * « livre » pas : elle est prête, puis posée. Le client lit son propre cas,
- * pas un vocabulaire de transporteur.
+ * « livre » pas : elle est prête, puis posée. Une commande retirée à
+ * l'atelier est prête, puis retirée. Le client lit son propre cas, pas un
+ * vocabulaire de transporteur.
  */
-const LIBELLES: Record<Statut, Record<"livraison" | "pose", Record<Locale, string>>> = {
+const LIBELLES: Record<Statut, Record<Mode, Record<Locale, string>>> = {
   recue: {
     livraison: { fr: "Commande reçue", en: "Order received" },
     pose: { fr: "Commande reçue", en: "Order received" },
+    retrait: { fr: "Commande reçue", en: "Order received" },
   },
   fabrication: {
     livraison: { fr: "En fabrication", en: "In the workshop" },
     pose: { fr: "En fabrication", en: "In the workshop" },
+    retrait: { fr: "En fabrication", en: "In the workshop" },
   },
   expediee: {
     livraison: { fr: "Expédiée", en: "Shipped" },
     pose: { fr: "Prête à poser", en: "Ready to fit" },
+    retrait: { fr: "Prête à retirer", en: "Ready to collect" },
   },
   livree: {
     livraison: { fr: "Livrée", en: "Delivered" },
     pose: { fr: "Posée", en: "Fitted" },
+    retrait: { fr: "Retirée", en: "Collected" },
   },
 };
 
@@ -55,13 +63,17 @@ const LIBELLES: Record<Statut, Record<"livraison" | "pose", Record<Locale, strin
  * mot : « Expédiée » seul n'apprend rien à quelqu'un qui attend une table
  * depuis six semaines.
  */
-const PHRASES: Record<Statut, Record<"livraison" | "pose", Record<Locale, string>>> = {
+const PHRASES: Record<Statut, Record<Mode, Record<Locale, string>>> = {
   recue: {
     livraison: {
       fr: "Nous avons bien reçu votre commande et votre paiement.",
       en: "We have received your order and your payment.",
     },
     pose: {
+      fr: "Nous avons bien reçu votre commande et votre paiement.",
+      en: "We have received your order and your payment.",
+    },
+    retrait: {
       fr: "Nous avons bien reçu votre commande et votre paiement.",
       en: "We have received your order and your payment.",
     },
@@ -72,6 +84,10 @@ const PHRASES: Record<Statut, Record<"livraison" | "pose", Record<Locale, string
       en: "Your piece is now being made in the workshop.",
     },
     pose: {
+      fr: "Votre pièce est entrée en fabrication à l'atelier.",
+      en: "Your piece is now being made in the workshop.",
+    },
+    retrait: {
       fr: "Votre pièce est entrée en fabrication à l'atelier.",
       en: "Your piece is now being made in the workshop.",
     },
@@ -85,6 +101,10 @@ const PHRASES: Record<Statut, Record<"livraison" | "pose", Record<Locale, string
       fr: "Votre pièce est terminée. Nous vous appelons pour convenir du jour de la pose.",
       en: "Your piece is finished. We will call you to arrange the fitting date.",
     },
+    retrait: {
+      fr: "Votre pièce est terminée. Nous vous appelons pour convenir du jour où vous venez la chercher à l'atelier, à Saumur.",
+      en: "Your piece is finished. We will call you to arrange a day to collect it from the workshop in Saumur.",
+    },
   },
   livree: {
     livraison: {
@@ -95,17 +115,24 @@ const PHRASES: Record<Statut, Record<"livraison" | "pose", Record<Locale, string
       fr: "Votre pièce est posée. Merci de votre confiance.",
       en: "Your piece has been fitted. Thank you for your trust.",
     },
+    retrait: {
+      fr: "Vous avez retiré votre pièce à l'atelier. Merci de votre confiance.",
+      en: "You have collected your piece from the workshop. Thank you for your trust.",
+    },
   },
 };
 
-export type Contexte = { pose?: boolean; locale?: Locale };
+/** Le cas de la commande : `retrait` (retrait à l'atelier) l'emporte, puis `pose` ; sinon, la livraison. */
+export type Contexte = { pose?: boolean; retrait?: boolean; locale?: Locale };
 
-export function libelleStatut(statut: Statut, { pose, locale = "fr" }: Contexte = {}) {
-  return LIBELLES[statut][pose ? "pose" : "livraison"][locale];
+const modeDe = ({ pose, retrait }: Contexte): Mode => (retrait ? "retrait" : pose ? "pose" : "livraison");
+
+export function libelleStatut(statut: Statut, contexte: Contexte = {}) {
+  return LIBELLES[statut][modeDe(contexte)][contexte.locale ?? "fr"];
 }
 
-export function phraseStatut(statut: Statut, { pose, locale = "fr" }: Contexte = {}) {
-  return PHRASES[statut][pose ? "pose" : "livraison"][locale];
+export function phraseStatut(statut: Statut, contexte: Contexte = {}) {
+  return PHRASES[statut][modeDe(contexte)][contexte.locale ?? "fr"];
 }
 
 /**

@@ -23,17 +23,28 @@ test("les quatre états sont dans l'ordre de la fabrication", () => {
   STATUTS.forEach((s, i) => assert.equal(etapeStatut(s), i));
 });
 
-test("tout état a un libellé et une phrase, dans les deux langues et les deux cas", () => {
+/** Les trois façons de recevoir une commande : transporteur, pose, retrait à l'atelier. */
+const CAS = [{}, { pose: true }, { retrait: true }] as const;
+
+test("tout état a un libellé et une phrase, dans les deux langues et les trois cas", () => {
   for (const statut of STATUTS) {
-    for (const pose of [false, true]) {
+    for (const cas of CAS) {
       for (const locale of ["fr", "en"] as const) {
-        const libelle = libelleStatut(statut, { pose, locale });
-        const phrase = phraseStatut(statut, { pose, locale });
-        assert.ok(libelle && libelle.length > 2, `libellé manquant : ${statut}/${pose}/${locale}`);
-        assert.ok(phrase && phrase.length > 15, `phrase manquante : ${statut}/${pose}/${locale}`);
+        const libelle = libelleStatut(statut, { ...cas, locale });
+        const phrase = phraseStatut(statut, { ...cas, locale });
+        assert.ok(libelle && libelle.length > 2, `libellé manquant : ${statut}/${JSON.stringify(cas)}/${locale}`);
+        assert.ok(phrase && phrase.length > 15, `phrase manquante : ${statut}/${JSON.stringify(cas)}/${locale}`);
       }
     }
   }
+});
+
+test("une pièce retirée à l'atelier ne s'expédie pas : elle est prête, puis retirée", () => {
+  assert.equal(libelleStatut("expediee", { retrait: true }), "Prête à retirer");
+  assert.equal(libelleStatut("livree", { retrait: true }), "Retirée");
+  assert.equal(libelleStatut("livree", { retrait: true, locale: "en" }), "Collected");
+  assert.ok(!phraseStatut("expediee", { retrait: true }).includes("transporteur"));
+  assert.ok(phraseStatut("expediee", { retrait: true }).includes("Saumur"));
 });
 
 test("une pièce posée par l'atelier ne s'expédie pas et ne se livre pas", () => {
@@ -60,8 +71,8 @@ test("on ne prévient le client que pour l'état qui l'intéresse vraiment", () 
 
 test("le français n'oublie pas ses espaces insécables devant la ponctuation double", () => {
   for (const statut of STATUTS) {
-    for (const pose of [false, true]) {
-      const phrase = phraseStatut(statut, { pose, locale: "fr" });
+    for (const cas of CAS) {
+      const phrase = phraseStatut(statut, { ...cas, locale: "fr" });
       assert.ok(
         !/ [:;?!]/.test(phrase),
         `espace ordinaire avant une ponctuation double : ${statut} — ${phrase}`
@@ -72,8 +83,8 @@ test("le français n'oublie pas ses espaces insécables devant la ponctuation do
 
 test("les libellés français tiennent sur un bouton de téléphone", () => {
   for (const statut of STATUTS) {
-    for (const pose of [false, true]) {
-      const libelle = libelleStatut(statut as Statut, { pose });
+    for (const cas of CAS) {
+      const libelle = libelleStatut(statut as Statut, cas);
       assert.ok(libelle.length <= 18, `trop long pour un bouton : « ${libelle} »`);
     }
   }

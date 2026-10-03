@@ -106,7 +106,7 @@ export default async function ComptePage({ params }: PageProps<"/[lang]/compte">
                 <span className="mt-3 flex items-center gap-2">
                   <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-[#2b2320]" />
                   <span className="text-sm font-medium text-[#2b2320]">
-                    {libelleStatut(commande.statut, { pose: commande.pose, locale })}
+                    {libelleStatut(commande.statut, { pose: commande.pose, retrait: commande.retrait, locale })}
                   </span>
                 </span>
               </Link>

@@ -54,16 +54,27 @@ function formatAddress(address: Stripe.Address | null | undefined) {
  * /api/commande envoie aussi le nom anglais (productLocalise) dans les
  * métadonnées de la session.
  */
-function formatLines(lines: Stripe.LineItem[], locale: "fr" | "en" = "fr") {
+function formatLines(lines: Stripe.LineItem[], locale: "fr" | "en" = "fr", session?: Stripe.Checkout.Session) {
   if (lines.length === 0) return DETAIL_MANQUANT[locale];
-  return lines
-    .map((item) => {
-      const quantity = item.quantity ?? 1;
-      return `• ${item.description ?? ""}\n  ${quantity} × ${euros(
-        item.price?.unit_amount
-      )} = ${euros(item.amount_total)}`;
-    })
-    .join("\n");
+  // Chaque ligne à son prix avant remise ; la remise a sa ligne, comme sur la facture.
+  const texte = lines.map((item) => {
+    const quantity = item.quantity ?? 1;
+    return `• ${item.description ?? ""}\n  ${quantity} × ${euros(
+      item.price?.unit_amount
+    )} = ${euros(item.amount_subtotal ?? item.amount_total)}`;
+  });
+  const remise = session?.total_details?.amount_discount ?? 0;
+  if (remise > 0) {
+    texte.push(
+      locale === "en"
+        ? `• Several-railings discount (the workshop's fixed costs counted once)\n  −${euros(remise)}`
+        : `• Remise plusieurs garde-corps (frais fixes de l'atelier comptés une fois)\n  −${euros(remise)}`
+    );
+  }
+  if (session?.metadata?.retrait === "1") {
+    texte.push(locale === "en" ? "• Collection from the workshop in Saumur, by appointment\n  0 €" : "• Retrait à l'atelier, à Saumur, sur rendez-vous\n  0 €");
+  }
+  return texte.join("\n");
 }
 
 /**
@@ -96,6 +107,9 @@ export function ligneDeJournal(
       prixUnitaire: euros(item.price?.unit_amount),
       total: euros(item.amount_total),
     })),
+    // La remise de plusieurs garde-corps, et le retrait à l'atelier, s'il y a lieu.
+    ...(session.total_details?.amount_discount ? { remise: euros(session.total_details.amount_discount) } : {}),
+    ...(session.metadata?.retrait === "1" ? { retraitAtelier: true } : {}),
     // Juste de quoi reconnaître la commande. Le nom, le téléphone et la rue
     // ne descendent PAS dans les journaux : ce sont des données personnelles,
     // les journaux Vercel se conservent, se lisent par toute l'équipe du
@@ -132,8 +146,10 @@ export async function notifyOwner(
     session.metadata?.pose_cp
       ? `POSE À DOMICILE : ${session.metadata.pose_cp}${session.metadata.pose_commune ? ` (${session.metadata.pose_commune})` : ""} — appeler le client pour convenir du jour.`
       : "",
+    // Le retrait à l'atelier : pas de colis à préparer pour un transporteur.
+    session.metadata?.retrait === "1" ? "RETRAIT À L'ATELIER : le client vient chercher sa commande à Saumur — l'appeler quand elle est prête." : "",
     "",
-    formatLines(lines),
+    formatLines(lines, "fr", session),
     "",
     `TOTAL PAYÉ : ${euros(session.amount_total)}`,
     "",
@@ -206,12 +222,12 @@ export async function notifyCustomer(
       ? [
           `Thank you for your order (${ref}).`,
           "",
-          formatLines(lines, "en"),
+          formatLines(lines, "en", session),
           "",
           `Total paid: ${euros(session.amount_total)}`,
                 "",
           "Your order confirmation is attached to this e-mail.",
-          `Your piece is made to order in our workshop: allow ${LEAD_TIME.en}. We will contact you to arrange delivery.`,
+          `Your piece is made to order in our workshop: allow ${LEAD_TIME.en}. ${session.metadata?.retrait === "1" ? "We will call you when it is ready, to arrange a day to collect it from the workshop in Saumur." : "We will contact you to arrange delivery."}`,
           "Your invoice is sent separately by our payment provider.",
           "",
           "Auboiacier — wood, steel & light",
@@ -219,12 +235,12 @@ export async function notifyCustomer(
       : [
           `Merci pour votre commande (${ref}).`,
           "",
-          formatLines(lines),
+          formatLines(lines, "fr", session),
           "",
           `Total payé : ${euros(session.amount_total)}`,
                 "",
           "Votre confirmation de commande est jointe à cet e-mail.",
-          `Votre pièce est fabriquée à la commande dans notre atelier : comptez ${LEAD_TIME.fr}. Nous vous contactons pour convenir de la livraison.`,
+          `Votre pièce est fabriquée à la commande dans notre atelier : comptez ${LEAD_TIME.fr}. ${session.metadata?.retrait === "1" ? "Nous vous appelons dès qu'elle est prête, pour convenir du jour où vous venez la chercher à l'atelier, à Saumur." : "Nous vous contactons pour convenir de la livraison."}`,
           "Votre facture vous est envoyée séparément par notre prestataire de paiement.",
           "",
           "Auboiacier — bois, acier & lumière",
@@ -253,13 +269,15 @@ export async function notifyStatut(commande: {
   locale: "fr" | "en";
   statut: Statut;
   pose: boolean;
+  /** Retrait à l'atelier : « prête à retirer », pas « expédiée ». */
+  retrait?: boolean;
 }): Promise<boolean> {
   if (!commande.email) return false;
-  const { locale, pose, statut, reference } = commande;
-  const libelle = libelleStatut(statut, { pose, locale });
+  const { locale, pose, retrait, statut, reference } = commande;
+  const libelle = libelleStatut(statut, { pose, retrait, locale });
 
   const text = [
-    phraseStatut(statut, { pose, locale }),
+    phraseStatut(statut, { pose, retrait, locale }),
     "",
     locale === "en" ? `Order ${reference} — ${libelle}` : `Commande ${reference} — ${libelle}`,
     "",

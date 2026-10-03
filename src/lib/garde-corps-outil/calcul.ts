@@ -10,7 +10,7 @@
  */
 import { ALLEGE_LIBRE, BORNES_GC, DEFAUTS_GC, calculerGC, geomGC, type ResultatGC, type ValeursGC } from "./moteur.genere.mjs";
 import { chiffrage } from "./chiffrage.ts";
-import { codeAlerte, CROIX_MAX, ESSENCES_GC, ORDRE_CARRES, valeursGC, type CodeAlerteGC, type EntreeSiteGC, type EssenceGC } from "./entree.ts";
+import { codeAlerte, CROIX_MAX, ESSENCES_GC, ORDRE_CARRES, valeursGC, type CodeAlerteGC, type EntreeSiteGC } from "./entree.ts";
 
 export { ChiffrageIndisponible } from "./chiffrage.ts";
 export type { CodeAlerteGC, EntreeSiteGC, EssenceGC } from "./entree.ts";
@@ -32,6 +32,10 @@ export type ConfigGC = Commun & {
   conforme: true;
   carre: number;
   croix: number;
+  /** Des barreaux droits en partie basse (le cadre commence dans la zone d'escalade, sous 600 mm du sol). */
+  soubassement: boolean;
+  /** Leur hauteur, du bas du cadre à la lisse qui les ferme (0 : aucun). */
+  soubassementMm: number;
   kg: number;
   v: Readonly<ValeursGC>;
   R: Readonly<ResultatGC>;
@@ -104,7 +108,8 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
         const v = valeursGC(DEFAUTS_GC, entree, s, n);
         const R = calculerGC(v);   // le calcul complet, exactement celui qu'affiche l'outil
         if (R.alertes.length || !(R.hauteurGC! > 0) || !(R.kg! > 0)) throw new Error("garde-corps : calcul complet incohérent avec le calcul rapide");
-        resultat = { ...commun, ok: true, conforme: true, carre: s, croix: n, kg: R.kg!, v: gelerProfond(v), R: gelerProfond(R) };
+        const soubassementMm = geomGC(v, n).sb;
+        resultat = { ...commun, ok: true, conforme: true, carre: s, croix: n, soubassement: soubassementMm > 0, soubassementMm, kg: R.kg!, v: gelerProfond(v), R: gelerProfond(R) };
         break recherche;
       }
       if (s === 16) {
@@ -184,87 +189,4 @@ export function livraisonGC(lignes: LigneCommandeGC[], mode: ModeRemiseGC, km: n
   const hauteurGC = Math.max(...lignes.map((l) => l.config.R.hauteurGC!));
   const { prix } = chiffrage().remiseGC({ kg, hauteurGC }, { B, remise: mode, km });
   return { prix, kg };
-}
-
-/** Réponse de /api/prix-garde-corps : le prix et la forme, JAMAIS un coût. */
-export type ReponsePrixGC =
-  | {
-      ok: true;
-      conforme: true;
-      prix: number;
-      hauteurMm: number;
-      mainCouranteMm: number;
-      jourMm: number;
-      croix: number;
-      carre: number;
-      obligatoire: boolean;
-    }
-  | {
-      ok: false;
-      conforme: false;
-      raison: "a-etudier" | "fenetre-trop-basse";
-      hauteurMm: number;
-      mainCouranteMm: number;
-      jourMm: number;
-      obligatoire: boolean;
-      alertes: CodeAlerteGC[];
-    };
-
-/** Construite champ par champ : rien d'autre ne peut partir vers le navigateur. */
-export function reponsePrixGC(e: EntreeSiteGC): ReponsePrixGC {
-  const c = configurerGC(e);
-  if (!c.ok) {
-    return {
-      ok: false,
-      conforme: false,
-      raison: c.raison,
-      hauteurMm: c.hauteurMm,
-      mainCouranteMm: c.mainCouranteMm,
-      jourMm: c.jourMm,
-      obligatoire: c.obligatoire,
-      alertes: [...c.alertes],
-    };
-  }
-  return {
-    ok: true,
-    conforme: true,
-    prix: prixGC(c),
-    hauteurMm: c.hauteurMm,
-    mainCouranteMm: c.mainCouranteMm,
-    jourMm: c.jourMm,
-    croix: c.croix,
-    carre: c.carre,
-    obligatoire: c.obligatoire,
-  };
-}
-
-/** Les paramètres acceptés par /api/prix-garde-corps. Tout autre paramètre = refus. */
-export const PARAMETRES_PRIX_GC = ["l", "allege", "etage", "fenetre", "wood"] as const;
-
-/**
- * Lit le relevé dans l'adresse (?l=1180&allege=650&etage=1&fenetre=1400&wood=chene).
- * Refuse tout ce qui n'est pas exactement attendu : entiers de millimètres
- * dans les bornes de l'outil, étage 1 ou 0, un bois connu, aucun paramètre
- * inconnu ou en double. « fenetre » peut manquer (0 = inconnue).
- */
-export function lireEntreeGC(params: URLSearchParams): EntreeSiteGC | null {
-  const cles = [...params.keys()];
-  if (new Set(cles).size !== cles.length) return null;
-  if (cles.some((k) => !(PARAMETRES_PRIX_GC as readonly string[]).includes(k))) return null;
-  const mm = (cle: string, b: { min: number; max: number }, defaut?: number) => {
-    const t = params.get(cle);
-    if (t === null) return defaut ?? null;
-    if (!/^\d{1,5}$/.test(t)) return null;
-    const n = Number(t);
-    return n >= b.min && n <= b.max ? n : null;
-  };
-  const largeurMm = mm("l", BORNES_GC.B);
-  const allegeMm = mm("allege", BORNES_GC.A);
-  const fenetreMm = mm("fenetre", BORNES_GC.Hf, 0);
-  const etage = params.get("etage");
-  const essence = params.get("wood");
-  if (largeurMm === null || allegeMm === null || fenetreMm === null) return null;
-  if (etage !== "1" && etage !== "0") return null;
-  if (!essence || !(ESSENCES_GC as readonly string[]).includes(essence)) return null;
-  return { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm, essence: essence as EssenceGC };
 }

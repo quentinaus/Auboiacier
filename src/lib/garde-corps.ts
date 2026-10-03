@@ -1,139 +1,182 @@
 /**
- * Le garde-corps de fenêtre, calculé à partir de ce que le client mesure chez
- * lui. Trois cotes suffisent : la largeur entre tableaux, la hauteur d'allège
- * et l'étage. Le reste se déduit — et c'est la règle qui décide de la hauteur.
+ * Le garde-corps de fenêtre, côté public : ce que le navigateur a le droit de
+ * savoir, et rien d'autre.
  *
- * La règle (Code de la construction, art. R111-15, et NF P01-012) : en étage,
- * une fenêtre dont l'appui est à moins de 0,90 m du sol doit recevoir une
- * barre d'appui et une protection qui monte à 1,00 m du sol au moins.
- * Au rez-de-chaussée, l'atelier vise 0,80 m du sol : la hauteur d'une barre
- * d'appui qui protège sans fermer la vue.
- * Le garde-corps fait donc, au minimum, la différence entre cette hauteur et
- * la hauteur d'allège. Ce fichier ne refuse rien : il calcule, nomme ce qu'il
- * voit, et laisse le client choisir plus haut s'il le souhaite.
+ * Les RÈGLES (hauteur à la norme, nombre de croix, barreaux en partie basse,
+ * solidité) et le PRIX viennent de l'outil de plans de l'atelier, extrait
+ * tel quel dans src/lib/garde-corps-outil/ : c'est le serveur qui les
+ * applique. Le navigateur envoie le relevé du client à /api/prix-garde-corps
+ * et reçoit la forme retenue et le prix — jamais un coût.
+ *
+ * Ce fichier ne contient donc aucune règle recopiée : seulement le contrat
+ * de la route (les types), les bornes des champs, la valeur de départ du jour
+ * sous le cadre pour le croquis, et de quoi fabriquer et relire l'adresse de
+ * la route. Chaque constante est comparée à celle de l'outil par un test
+ * (tests/garde-corps.test.ts) : elle ne peut pas diverger en silence.
+ *
+ * Ce que le client mesure : la largeur entre les tableaux, la hauteur du sol
+ * au-dessus de l'appui (l'allège), la hauteur de la fenêtre, et s'il est en
+ * étage ou au rez-de-chaussée.
  */
 
-/** En étage, la main courante doit atteindre 1,00 m du sol fini intérieur. */
-export const HAUTEUR_PROTECTION_MM = 1000;
+/** Les essences de la main courante (les mêmes identifiants que le catalogue et l'outil). */
+export const ESSENCES_GC = ["pin", "hetre", "chene", "noyer"] as const;
+export type EssenceGC = (typeof ESSENCES_GC)[number];
 
-/** Au rez-de-chaussée, la main courante monte à 0,80 m du sol. */
-export const HAUTEUR_PROTECTION_RDC_MM = 800;
+/** Les bornes des champs de l'outil, en millimètres (BORNES_GC du moteur). */
+export const BORNES_RELEVE_GC = {
+  largeurMm: { min: 300, max: 3000 },
+  allegeMm: { min: 0, max: 1200 },
+  fenetreMm: { min: 0, max: 3000 },
+} as const;
 
-/** À partir de 0,90 m d'allège, la règle n'impose plus rien. */
+/** Le jour laissé entre l'appui et le bas du cadre, par défaut dans l'outil (DEFAUTS_GC.jour). */
+export const JOUR_GC_MM = 90;
+
+/** En étage, à partir de cette allège, la loi n'impose plus de protection (ALLEGE_LIBRE du moteur). */
 export const ALLEGE_SANS_OBLIGATION_MM = 900;
 
-/**
- * Hauteur conseillée quand la règle ne tranche pas (rez-de-chaussée, allège
- * haute) : celle du modèle en photo, qui donne une vraie barre d'appui sans
- * manger la vue.
- */
-export const HAUTEUR_CONSEILLEE_MM = 350;
-
-/** En dessous, ce n'est plus un garde-corps mais une barre : on n'en fait pas. */
-export const HAUTEUR_MINI_FABRICATION_MM = 200;
-
-/**
- * Le jour entre l'appui et le bas du garde-corps : la norme (NF P01-012) ne
- * laisse pas passer une sphère de 110 mm sous la lisse basse. L'atelier pose
- * toujours à 100 mm — dix millimètres de marge pour la pose, et autant de
- * hauteur en moins à fabriquer.
- */
-export const JOUR_MAX_MM = 110;
-export const JOUR_MM = 100;
-
-export type ReleveFenetre = {
-  /** Entre les deux tableaux, là où le garde-corps s'encastre. Cote brute. */
+/** Ce que le client relève à sa fenêtre, en millimètres entiers. */
+export type ReleveGC = {
+  /** Largeur entre les tableaux (B dans l'outil). */
   largeurMm: number;
-  /** Du sol fini intérieur au-dessus de l'appui de fenêtre. */
+  /** Du sol fini au-dessus de l'appui (A dans l'outil). */
   allegeMm: number;
-  /** De l'appui au haut de l'ouverture : la hauteur du tableau où le garde-corps s'encastre. */
-  hauteurFenetreMm?: number;
-  /** En étage, il y a une chute derrière la fenêtre : la règle s'applique. */
+  /** En étage (true) ou au rez-de-chaussée (false). */
   enEtage: boolean;
-  /** La hauteur que le client préfère, s'il en a une. */
-  hauteurSouhaiteeMm?: number;
+  /** De l'appui au haut de l'ouverture ; 0 = inconnue (Hf dans l'outil). */
+  fenetreMm: number;
 };
-
-export type CalculFenetre = {
-  largeurMm: number;
-  /** La règle impose-t-elle une protection sur cette fenêtre ? (étage, allège < 90 cm) */
-  obligatoire: boolean;
-  /** Où la main courante doit arriver, depuis le sol : 1 000 mm en étage, 800 au rez-de-chaussée. */
-  cibleMm: number;
-  /** Hauteur minimale du garde-corps pour atteindre la cible : c'est elle que l'atelier applique. */
-  hauteurNormeMm: number;
-  /** La hauteur qu'on fabriquera : le souhait du client, sinon la règle, sinon le conseil. */
-  hauteurRetenueMm: number;
-  /** Le jour laissé entre l'appui et le bas du garde-corps : toujours 100 mm. */
-  jourMm: number;
-  /** Où arrive la main courante, mesurée depuis le sol. */
-  mainCouranteMm: number;
-  /** Le client a choisi plus bas que la règle : on le dit, on ne refuse pas. */
-  sousLaRegle: boolean;
-  /**
-   * Le garde-corps tient-il dans l'ouverture ? `null` tant qu'on n'a pas la
-   * hauteur de la fenêtre ; `false` si la main courante dépasserait le haut
-   * du tableau — une fenêtre trop basse pour un garde-corps encastré.
-   */
-  tientDansLaFenetre: boolean | null;
-};
-
-/** Arrondi à la dizaine supérieure : une cote d'atelier, pas un décimal. */
-const dizaine = (mm: number) => Math.ceil(mm / 10) * 10;
 
 /**
- * Calcule le garde-corps. Rend `null` seulement si la largeur ou l'allège
- * n'est pas une mesure utilisable — jamais parce que la fenêtre serait
- * « refusée ».
+ * Le relevé qui fait le « à partir de » du garde-corps : le plus petit que
+ * l'outil fabrique — la fenêtre la plus étroite (300 mm), en étage, avec un
+ * appui à 90 cm du sol (la loi n'impose alors rien : le garde-corps a sa
+ * hauteur minimale). Le prix annoncé est celui de l'outil pour ce relevé, dans
+ * l'essence la moins chère : aucun garde-corps ne coûte moins (un test le
+ * vérifie). À AJUSTER par Quentin s'il préfère annoncer une fenêtre courante.
  */
-export function calculerGardeCorpsFenetre(releve: ReleveFenetre): CalculFenetre | null {
-  const largeurMm = Math.round(releve.largeurMm);
-  const allegeMm = Math.round(releve.allegeMm);
-  if (!Number.isFinite(largeurMm) || largeurMm < 200) return null;
-  if (!Number.isFinite(allegeMm) || allegeMm < 0) return null;
+export const RELEVE_DEPART_GC: ReleveGC = { largeurMm: BORNES_RELEVE_GC.largeurMm.min, allegeMm: 900, enEtage: true, fenetreMm: 0 };
 
-  const hauteurFenetreMm =
-    releve.hauteurFenetreMm !== undefined && Number.isFinite(releve.hauteurFenetreMm)
-      ? Math.round(releve.hauteurFenetreMm)
-      : null;
+/** Les alertes de l'outil, réduites à un mot-clé que le site sait traduire. */
+export type CodeAlerteGC =
+  | "trous"
+  | "solidite"
+  | "fenetre"
+  | "hauteur"
+  | "soubassement"
+  | "fixation"
+  | "trop-petit"
+  | "jour"
+  | "main-courante"
+  | "autre";
 
-  const obligatoire = releve.enEtage && allegeMm < ALLEGE_SANS_OBLIGATION_MM;
-  const cibleMm = releve.enEtage ? HAUTEUR_PROTECTION_MM : HAUTEUR_PROTECTION_RDC_MM;
-  // Le garde-corps se pose 100 mm au-dessus de l'appui : c'est autant de
-  // hauteur en moins à fabriquer, et la main courante arrive quand même à la cible.
-  const hauteurNormeMm = Math.max(
-    HAUTEUR_MINI_FABRICATION_MM,
-    dizaine(cibleMm - allegeMm - JOUR_MM)
+/** Ce que rend /api/prix-garde-corps : le prix et la forme retenue, JAMAIS un coût. */
+export type ReponsePrixGC =
+  | {
+      ok: true;
+      conforme: true;
+      /** Le prix d'UNE pièce, options comprises (bois, teinte, rosace, remplissage), en euros. */
+      prix: number;
+      /** La remise sur la quantité demandée (0 ou négative) : frais fixes comptés une fois. */
+      remise: number;
+      /** Hauteur du garde-corps, main courante comprise. */
+      hauteurMm: number;
+      /** Hauteur de la main courante au-dessus du sol. */
+      mainCouranteMm: number;
+      /** Jour entre l'appui et le bas du cadre. */
+      jourMm: number;
+      /** Nombre de croix de Saint-André. */
+      croix: number;
+      /** Section du carré d'acier plein, en millimètres. */
+      carre: number;
+      /** La hauteur des barreaux droits en partie basse (le cadre commence sous 600 mm du sol) ; 0 : aucun. */
+      soubassementMm: number;
+      /** Poids d'une pièce, arrondi au kilo. */
+      kg: number;
+      /** En étage avec une allège sous 900 mm : la loi impose la protection. */
+      obligatoire: boolean;
+    }
+  | {
+      ok: false;
+      conforme: false;
+      /** « à étudier » : rien ne passe la norme avec les croix du modèle ; « fenêtre trop basse » : ne tient pas dans l'ouverture. */
+      raison: "a-etudier" | "fenetre-trop-basse";
+      hauteurMm: number;
+      mainCouranteMm: number;
+      jourMm: number;
+      obligatoire: boolean;
+      /** Ce qui bloque. */
+      alertes: CodeAlerteGC[];
+    };
+
+/** Les options d'une pièce, telles que la fiche les envoie. */
+export type OptionsGC = {
+  woodId: string;
+  metalId?: string;
+  fabricId?: string;
+  remplissageId?: string;
+  quantite?: number;
+};
+
+/** Le relevé est-il dans les bornes des champs de l'outil ? */
+export function releveDansLesBornes(r: ReleveGC): boolean {
+  const dans = (n: number, b: { min: number; max: number }) => Number.isInteger(n) && n >= b.min && n <= b.max;
+  return (
+    dans(r.largeurMm, BORNES_RELEVE_GC.largeurMm) &&
+    dans(r.allegeMm, BORNES_RELEVE_GC.allegeMm) &&
+    dans(r.fenetreMm, BORNES_RELEVE_GC.fenetreMm) &&
+    typeof r.enEtage === "boolean"
   );
+}
 
-  const souhait =
-    releve.hauteurSouhaiteeMm !== undefined && Number.isFinite(releve.hauteurSouhaiteeMm)
-      ? Math.round(releve.hauteurSouhaiteeMm)
-      : null;
+/** L'adresse de la route pour ce relevé et ces options : ?l=1180&allege=650&etage=1&fenetre=1400&wood=chene… */
+export function parametresPrixGC(r: ReleveGC, o: OptionsGC): URLSearchParams {
+  const p = new URLSearchParams({
+    l: String(r.largeurMm),
+    allege: String(r.allegeMm),
+    etage: r.enEtage ? "1" : "0",
+    fenetre: String(r.fenetreMm),
+    wood: o.woodId,
+  });
+  if (o.metalId) p.set("metal", o.metalId);
+  if (o.fabricId) p.set("fabric", o.fabricId);
+  if (o.remplissageId) p.set("remplissage", o.remplissageId);
+  if (o.quantite && o.quantite > 1) p.set("qty", String(o.quantite));
+  return p;
+}
 
-  // Le souhait du client d'abord ; sinon la règle, mais jamais plus bas que
-  // le conseil d'atelier — 150 mm de garde-corps au-dessus d'un appui à 85 cm
-  // est conforme, mais ça ne ressemble à rien ; sinon le conseil tout court.
-  const hauteurRetenueMm =
-    souhait !== null && souhait >= HAUTEUR_MINI_FABRICATION_MM
-      ? souhait
-      : Math.max(hauteurNormeMm, HAUTEUR_CONSEILLEE_MM);
+const CODES: readonly CodeAlerteGC[] = ["trous", "solidite", "fenetre", "hauteur", "soubassement", "fixation", "trop-petit", "jour", "main-courante", "autre"];
 
-  // Le jour ne bouge pas : un garde-corps plus haut que la règle monte
-  // d'autant, il ne descend pas sur l'appui.
-  const jourMm = JOUR_MM;
-  const mainCouranteMm = allegeMm + jourMm + hauteurRetenueMm;
-
-  return {
-    largeurMm,
-    obligatoire,
-    cibleMm,
-    hauteurNormeMm,
-    hauteurRetenueMm,
-    jourMm,
-    mainCouranteMm,
-    sousLaRegle: hauteurRetenueMm < hauteurNormeMm,
-    tientDansLaFenetre:
-      hauteurFenetreMm === null ? null : allegeMm + hauteurFenetreMm >= mainCouranteMm,
-  };
+/**
+ * Relit la réponse de la route, champ par champ : un format inattendu (une
+ * version plus ancienne du serveur, un intermédiaire qui répond à sa place)
+ * donne null, jamais un prix mal lu.
+ */
+export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
+  if (!json || typeof json !== "object") return null;
+  const o = json as Record<string, unknown>;
+  const entier = (x: unknown, min = 0) => typeof x === "number" && Number.isInteger(x) && x >= min;
+  if (!entier(o.hauteurMm, 1) || !entier(o.mainCouranteMm, 1) || !entier(o.jourMm) || typeof o.obligatoire !== "boolean") return null;
+  const commun = { hauteurMm: o.hauteurMm as number, mainCouranteMm: o.mainCouranteMm as number, jourMm: o.jourMm as number, obligatoire: o.obligatoire };
+  if (o.ok === true && o.conforme === true) {
+    if (!entier(o.prix, 1) || !(typeof o.remise === "number" && Number.isInteger(o.remise) && o.remise <= 0)) return null;
+    if (!entier(o.croix, 1) || !entier(o.carre, 1) || !entier(o.soubassementMm) || !entier(o.kg)) return null;
+    return {
+      ok: true,
+      conforme: true,
+      prix: o.prix as number,
+      remise: o.remise,
+      croix: o.croix as number,
+      carre: o.carre as number,
+      soubassementMm: o.soubassementMm as number,
+      kg: o.kg as number,
+      ...commun,
+    };
+  }
+  if (o.ok === false && o.conforme === false && (o.raison === "a-etudier" || o.raison === "fenetre-trop-basse")) {
+    const alertes = Array.isArray(o.alertes) ? o.alertes.filter((a): a is CodeAlerteGC => CODES.includes(a as CodeAlerteGC)) : [];
+    return { ok: false, conforme: false, raison: o.raison, alertes, ...commun };
+  }
+  return null;
 }

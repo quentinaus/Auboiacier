@@ -6,20 +6,13 @@
  * prix. Aucun coût ici, aucune règle recopiée : les règles restent dans le
  * moteur extrait de l'outil (moteur.genere.mjs).
  */
+import { ESSENCES_GC, type CodeAlerteGC, type EssenceGC, type ReleveGC } from "../garde-corps.ts";
 
-export const ESSENCES_GC = ["pin", "hetre", "chene", "noyer"] as const;
-export type EssenceGC = (typeof ESSENCES_GC)[number];
+export { ESSENCES_GC };
+export type { CodeAlerteGC, EssenceGC };
 
-/** Ce que le client relève à sa fenêtre, en millimètres. */
-export type EntreeSiteGC = {
-  /** Largeur entre les tableaux (B dans l'outil). */
-  largeurMm: number;
-  /** Hauteur du sol au-dessus de l'appui (A dans l'outil). */
-  allegeMm: number;
-  /** En étage (true) ou au rez-de-chaussée (false). */
-  enEtage: boolean;
-  /** Hauteur de la fenêtre, de l'appui au haut ; 0 = inconnue (Hf dans l'outil). */
-  fenetreMm: number;
+/** Ce que le client relève à sa fenêtre, en millimètres, et le bois de sa main courante. */
+export type EntreeSiteGC = ReleveGC & {
   /** Bois de la main courante. */
   essence: EssenceGC;
 };
@@ -57,19 +50,6 @@ export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: numb
     nP,
   };
 }
-
-/** Les alertes de l'outil, réduites à un mot-clé que le site sait traduire. */
-export type CodeAlerteGC =
-  | "trous"
-  | "solidite"
-  | "fenetre"
-  | "hauteur"
-  | "soubassement"
-  | "fixation"
-  | "trop-petit"
-  | "jour"
-  | "main-courante"
-  | "autre";
 
 // Le début du texte de l'alerte, suivi d'autre chose qu'une lettre (« \b » ne marche pas après un « é »).
 const CODES: [string, CodeAlerteGC][] = [

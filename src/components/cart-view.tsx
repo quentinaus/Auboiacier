@@ -3,13 +3,12 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useCart } from "@/lib/cart";
-import { productLocalise, remiseLot, resolveSelection, SUR_MESURE, type Product } from "@/lib/products";
+import { useCart, type CartItem } from "@/lib/cart";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { serif } from "@/lib/fonts";
 import { prixAffiche } from "@/lib/ui";
-import { LIVRAISON, POSE, PRISE_DE_COTES, libelleLivraison, libellePose, libellePriseDeCotes } from "@/lib/deplacement";
-import { libelleCreneau, lireCreneau } from "@/lib/creneau";
+import type { TarifAffiche } from "@/lib/tarif-panier";
+import { LIVRAISON, POSE, PRISE_DE_COTES, RETRAIT } from "@/lib/deplacement";
 
 type Status =
   | "idle"
@@ -18,7 +17,40 @@ type Status =
   | "not_configured"
   | "too_many"
   | "code_postal"
+  | "mode_livraison"
+  | "changed"
   | "error";
+
+/**
+ * Ce que le panier envoie au serveur pour une ligne : des identifiants et des
+ * cotes, jamais un prix. La hauteur d'un garde-corps n'est pas envoyée pour
+ * le tarif : c'est le serveur qui la calcule (l'outil de plans) ; au paiement,
+ * le panier renvoie celle qu'il a AFFICHÉE, et le serveur refuse si elle a
+ * changé entre-temps.
+ */
+function ligneEnvoyee(item: CartItem) {
+  const gardeCorps = item.allegeMm !== undefined;
+  return {
+    slug: item.slug,
+    sizeId: item.sizeId,
+    largeurMm: item.largeurMm,
+    hauteurMm: gardeCorps ? undefined : item.hauteurMm,
+    epaisseurMm: item.epaisseurMm,
+    allegeMm: item.allegeMm,
+    enEtage: item.enEtage,
+    fenetreMm: item.fenetreMm,
+    woodId: item.woodId,
+    metalId: item.metalId,
+    fabricId: item.fabricId,
+    remplissageId: item.remplissageId,
+    quantity: item.quantity,
+    priseDeCotesCp: item.priseDeCotesCp,
+    poseCp: item.poseCp,
+    livraisonCp: item.livraisonCp,
+    rdv: item.rdv,
+    note: item.note,
+  };
+}
 
 /** Longueur maximale de la ville : un nom de commune, pas un roman. */
 const VILLE_MAX = 80;
@@ -54,167 +86,126 @@ export function CartView({
   const [annonce, setAnnonce] = useState("");
   const idCgvErreur = useId();
 
-  // Les prix stockés dans le navigateur ne sont qu'une copie d'affichage :
-  // on recalcule tout depuis le catalogue à chaque rendu.
+  /**
+   * Le tarif du panier : demandé au serveur (/api/panier/tarif), qui le
+   * calcule avec LA fonction dont /api/commande se sert pour dire à Stripe
+   * quoi encaisser. Les prix stockés dans le navigateur ne sont qu'une copie
+   * d'affichage : ici, chaque montant vient du serveur — les pièces (le
+   * garde-corps par l'outil de plans), la remise sur plusieurs garde-corps,
+   * la livraison, la pose ou le retrait, la visite. Le prix vu est le prix payé.
+   */
+  const requete = useMemo(() => JSON.stringify(items.map(ligneEnvoyee)), [items]);
+  /** Redemander le tarif après un refus du paiement (un prix qui a changé). */
+  const [version, setVersion] = useState(0);
+  const [tarif, setTarif] = useState<
+    { requete: string; etat: "ok"; data: TarifAffiche } | { requete: string; etat: "erreur" | "indisponible" } | null
+  >(null);
+  useEffect(() => {
+    if (!ready || items.length === 0) return;
+    let annule = false;
+    const minuteur = setTimeout(async () => {
+      try {
+        const reponse = await fetch("/api/panier/tarif", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ locale, lines: JSON.parse(requete) }),
+        });
+        const json = (await reponse.json().catch(() => null)) as TarifAffiche | null;
+        if (annule) return;
+        if (reponse.ok && json && Array.isArray(json.lignes)) setTarif({ requete, etat: "ok", data: json });
+        else setTarif({ requete, etat: reponse.status === 503 ? "indisponible" : "erreur" });
+      } catch {
+        if (!annule) setTarif({ requete, etat: "erreur" });
+      }
+    }, 150);
+    return () => {
+      annule = true;
+      clearTimeout(minuteur);
+    };
+    // items est lu à travers requete : c'est elle qui change quand le panier change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requete, locale, ready, version]);
+
+  /** Le tarif qui correspond au panier tel qu'il est (pas une réponse en retard). */
+  const tarifCourant = tarif && tarif.requete === requete ? tarif : null;
+  const donnees = tarifCourant?.etat === "ok" ? tarifCourant.data : null;
+
+  // Ce que le panier affiche : les montants du serveur. Tant qu'ils ne sont
+  // pas arrivés, les lignes s'affichent avec leur nom, sans prix.
   const { lines, stale } = useMemo(() => {
     const lines: {
       id: string;
       quantity: number;
       name: string;
       options: string;
-      unitPrice: number;
+      /** Prix unitaire du serveur, ou null tant qu'il n'est pas arrivé. */
+      unitPrice: number | null;
       image?: string;
-      /** Une visite ou une pose : quantité figée à un, prix venu du serveur au moment du choix. */
+      /** Une visite, une livraison, une pose ou un retrait : quantité figée à un. */
       visite?: boolean;
       /** La ligne de pose, pour le récapitulatif et son icône. */
       pose?: boolean;
       /** La ligne de livraison par transporteur. */
       livraison?: boolean;
-      /** La pièce du catalogue, pour le prix de lot. */
-      product?: Product;
-      /** Le prix catalogue avant remise de lot, et la remise appliquée. */
-      prixCatalogue?: number;
-      remise?: number;
+      /** Le retrait à l'atelier : gratuit. */
+      retrait?: boolean;
+      /** La hauteur d'un garde-corps, telle que le serveur l'a calculée et que le client la voit. */
+      hauteurMm?: number;
     }[] = [];
     const stale: string[] = [];
-
-    for (const item of items) {
-      // La prise de cotes n'est pas une pièce du catalogue : son prix a été
-      // calculé par le serveur (/api/deplacement) quand le client a choisi, et
-      // /api/commande le recalcule avant d'encaisser. On l'affiche tel quel.
-      // La livraison par transporteur : prix venu du serveur au moment du choix.
-      if (item.slug === LIVRAISON) {
-        if (!item.livraisonCp) {
-          stale.push(item.id);
-          continue;
-        }
+    if (donnees) {
+      for (const i of donnees.refusees) if (items[i]) stale.push(items[i].id);
+      for (const ligne of donnees.lignes) {
+        const item = items[ligne.index];
+        if (!item) continue;
         lines.push({
           id: item.id,
-          quantity: 1,
-          name: libelleLivraison(item.livraisonCp, locale),
+          quantity: ligne.quantite,
+          name: ligne.nom,
+          options: ligne.options,
+          unitPrice: ligne.unitaire,
+          image: ligne.image,
+          visite: ligne.type !== "piece",
+          pose: ligne.type === "pose",
+          livraison: ligne.type === "livraison",
+          retrait: ligne.type === "retrait",
+          hauteurMm: ligne.hauteurMm,
+        });
+      }
+    } else {
+      for (const item of items) {
+        lines.push({
+          id: item.id,
+          quantity: item.quantity,
+          name: item.name,
           options: item.optionsLabel,
-          unitPrice: item.unitPrice,
-          visite: true,
-          livraison: true,
+          unitPrice: null,
+          image: item.image,
+          visite: [LIVRAISON, POSE, PRISE_DE_COTES, RETRAIT].includes(item.slug),
         });
-        continue;
       }
-      // La pose à domicile : même logique, sans créneau — l'atelier appelle
-      // pour convenir du jour quand la pièce est prête.
-      if (item.slug === POSE) {
-        if (!item.poseCp) {
-          stale.push(item.id);
-          continue;
-        }
-        lines.push({
-          id: item.id,
-          quantity: 1,
-          name: libellePose(item.poseCp, locale),
-          options: item.optionsLabel,
-          unitPrice: item.unitPrice,
-          visite: true,
-          pose: true,
-        });
-        continue;
-      }
-      if (item.slug === PRISE_DE_COTES) {
-        const creneau = lireCreneau(item.rdv);
-        if (!item.priseDeCotesCp || !creneau) {
-          stale.push(item.id);
-          continue;
-        }
-        lines.push({
-          id: item.id,
-          quantity: 1,
-          name: libellePriseDeCotes(item.priseDeCotesCp, locale),
-          options: [libelleCreneau(creneau, locale), item.note].filter(Boolean).join(" · "),
-          unitPrice: item.unitPrice,
-          visite: true,
-        });
-        continue;
-      }
-      const resolved = resolveSelection({
-        slug: item.slug,
-        sizeId: item.sizeId,
-        largeurMm: item.largeurMm,
-        hauteurMm: item.hauteurMm,
-        epaisseurMm: item.epaisseurMm,
-        woodId: item.woodId,
-        metalId: item.metalId,
-        fabricId: item.fabricId,
-        remplissageId: item.remplissageId,
-        locale,
-      });
-      if (!resolved.ok) {
-        stale.push(item.id);
-        continue;
-      }
-      // Le panier se relit dans le catalogue : on le relit donc dans la langue
-      // du visiteur. Le résumé des options est refait ici, parce que
-      // resolveSelection (le calcul du prix) ne connaît que le français.
-      const fiche = productLocalise(resolved.line.product, locale);
-      const { size, wood, metal, fabric, remplissage } = resolved.line;
-      // Les tailles gardent le même rang d'une langue à l'autre. Des cotes qui
-      // retombent pile sur une taille du catalogue en reprennent le nom.
-      const rangTaille = resolved.line.product.sizes.findIndex(
-        (taille) => taille.id === size.id || taille.label === size.label
-      );
-      const options = [
-        fiche.sizes.length > 1 || size.id === SUR_MESURE
-          ? rangTaille >= 0
-            ? fiche.sizes[rangTaille].label
-            : size.label
-          : null,
-        fiche.woods.find((bois) => bois.id === wood?.id)?.label,
-        fiche.metals.find((acier) => acier.id === metal?.id)?.label,
-        fiche.fabrics?.find((velours) => velours.id === fabric?.id)?.label,
-        remplissage && remplissage.id !== fiche.remplissages?.[0]?.id
-          ? fiche.remplissages?.find((option) => option.id === remplissage.id)?.label
-          : null,
-      ]
-        .filter(Boolean)
-        .join(" · ");
-
-      lines.push({
-        id: item.id,
-        quantity: item.quantity,
-        name: fiche.name,
-        options: [options, item.note].filter(Boolean).join(" · "),
-        unitPrice: resolved.line.unitPrice,
-        image: resolved.line.image,
-        product: resolved.line.product,
-      });
     }
-    // Le prix de lot : plusieurs garde-corps dans la même commande, même avec
-    // des cotes différentes. Même calcul que /api/commande.
-    const lot = new Map(
-      remiseLot(lines.filter((line): line is typeof line & { product: Product } => !!line.product)).map(
-        (line) => [line.id, line]
-      )
-    );
-    // Les pièces d'abord, la pose et la visite en dernier : elles
+    // Les pièces d'abord, la livraison et la visite en dernier : elles
     // accompagnent la commande, elles ne la font pas.
-    const ordonnees = [...lines.filter((l) => !l.visite), ...lines.filter((l) => l.visite)];
-    return {
-      lines: ordonnees.map((line) => {
-        const remisee = lot.get(line.id);
-        return remisee && remisee.remise > 0
-          ? { ...line, unitPrice: remisee.prixLot, prixCatalogue: line.unitPrice, remise: remisee.remise }
-          : line;
-      }),
-      stale,
-    };
-  }, [items, locale]);
+    return { lines: [...lines.filter((l) => !l.visite), ...lines.filter((l) => l.visite)], stale };
+  }, [items, donnees]);
 
-  // Une ligne qui ne se résout plus est retirée : le panier se répare seul.
+  // Une ligne que le serveur refuse (une pièce qui ne se vend plus telle
+  // quelle, une livraison sans pièce) est retirée : le panier se répare seul.
   useEffect(() => {
     stale.forEach((id) => remove(id));
   }, [stale, remove]);
 
-  const total = lines.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
-  const totalPieces = lines.filter((l) => !l.visite).reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
+  const prixConnus = donnees !== null;
+  const remise = donnees?.remise ?? 0;
+  const total = donnees?.total ?? 0;
+  const totalPieces = lines.filter((l) => !l.visite).reduce((sum, line) => sum + (line.unitPrice ?? 0) * line.quantity, 0);
   const lignePose = lines.find((l) => l.pose);
   const ligneLivraison = lines.find((l) => l.livraison);
+  const ligneRetrait = lines.find((l) => l.retrait);
+  const piecesAuPanier = lines.some((l) => !l.visite);
+  /** Ce qui empêche de payer, dit par le serveur (une livraison à choisir, un code postal…). */
+  const probleme = donnees?.probleme ?? null;
 
   async function checkout() {
     if (!ville.trim()) {
@@ -225,6 +216,7 @@ export function CartView({
       setShowCgvError(true);
       return;
     }
+    if (!prixConnus || probleme) return;
     setStatus("loading");
     try {
       const response = await fetch("/api/commande", {
@@ -234,24 +226,12 @@ export function CartView({
           locale,
           cgvAccepted: true,
           ville: ville.trim().slice(0, VILLE_MAX),
-          lines: items.map((item) => ({
-            slug: item.slug,
-            sizeId: item.sizeId,
-            largeurMm: item.largeurMm,
-            hauteurMm: item.hauteurMm,
-            epaisseurMm: item.epaisseurMm,
-            woodId: item.woodId,
-            metalId: item.metalId,
-            fabricId: item.fabricId,
-            remplissageId: item.remplissageId,
-            quantity: item.quantity,
-            priseDeCotesCp: item.priseDeCotesCp,
-            poseCp: item.poseCp,
-            livraisonCp: item.livraisonCp,
-            livraisonSlug: item.livraisonSlug,
-            rdv: item.rdv,
-            note: item.note,
-          })),
+          // Les mêmes lignes que pour le tarif affiché ; un garde-corps y joint
+          // la hauteur que le client a vue : si elle a changé, le serveur refuse.
+          lines: items.map((item) => {
+            const vue = lines.find((l) => l.id === item.id)?.hauteurMm;
+            return { ...ligneEnvoyee(item), ...(vue !== undefined ? { hauteurMm: vue } : {}) };
+          }),
         }),
       });
 
@@ -271,10 +251,16 @@ export function CartView({
             ? "too_many"
             : error === "unavailable"
             ? "unavailable"
-            : error === "code_postal"
+            : error === "code_postal" || error === "rdv"
               ? "code_postal"
-              : "error"
+              : error === "mode_livraison"
+                ? "mode_livraison"
+                : error === "changed"
+                  ? "changed"
+                  : "error"
       );
+      // Un prix ou une hauteur a changé : le panier redemande son tarif, le client le revoit.
+      if (error === "changed" || error === "unavailable") setVersion((v) => v + 1);
       if (error === "cgv") setShowCgvError(true);
       if (error === "ville") setShowVilleError(true);
     } catch {
@@ -309,30 +295,32 @@ export function CartView({
           ? t.tooMany
           : status === "code_postal"
             ? t.badPostcode
-            : status === "error"
-              ? t.error
-              : null;
+            : status === "mode_livraison"
+              ? t.modeManquant
+              : status === "changed"
+                ? t.prixChange
+                : status === "error"
+                  ? t.error
+                  : // Ce que le tarif dit avant même de payer.
+                    tarifCourant?.etat === "indisponible" || tarifCourant?.etat === "erreur"
+                    ? t.tarifIndisponible
+                    : probleme === "mode_livraison"
+                      ? t.modeManquant
+                      : probleme === "code_postal" || probleme === "rdv"
+                        ? t.badPostcode
+                        : probleme
+                          ? t.error
+                          : null;
 
-  return (
-    <div>
-      {stale.length > 0 && (
-        <p role="status" className="mb-6 rounded-xl border border-[#e8e1d8] px-5 py-4 text-sm text-[#2b2320]">
-          {t.removedLine}
-        </p>
-      )}
-
-      {/* Deux colonnes : les lignes à gauche, le récapitulatif et le paiement
-          à droite, comme un comptoir. Sur téléphone, l'un sous l'autre. */}
-      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-16">
-        <ul className="divide-y divide-[#e8e1d8] border-t border-[#e8e1d8]">
-          {lines.map((line) => (
+  /** Une ligne du panier : la pièce ou le service, son prix, et de quoi la modifier. */
+  const rangee = (line: (typeof lines)[number]) => (
             <li key={line.id} className="flex gap-5 py-6">
               <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-[#f2f2f1]">
                 {line.image && (
                   <Image src={line.image} alt={line.name} fill sizes="80px" className="object-cover" />
                 )}
                 {line.visite && (
-                  /* Une visite : un calendrier ; une pose : la route. */
+                  /* Une visite : un calendrier ; une pose ou une livraison : la route ; un retrait : l'atelier. */
                   <svg
                     aria-hidden
                     viewBox="0 0 24 24"
@@ -343,7 +331,12 @@ export function CartView({
                     strokeLinejoin="round"
                     className="h-full w-full p-5"
                   >
-                    {line.pose || line.livraison ? (
+                    {line.retrait ? (
+                      <>
+                        <path d="M4 20V10l8-5 8 5v10" />
+                        <path d="M9.5 20v-6h5v6" />
+                      </>
+                    ) : line.pose || line.livraison ? (
                       <>
                         <path d="M3 16V8a1 1 0 0 1 1-1h9v9" />
                         <path d="M13 10h4l3 3v3h-7" />
@@ -367,7 +360,7 @@ export function CartView({
                     {line.options && <p className="mt-1 text-sm text-[#726757]">{line.options}</p>}
                   </div>
                   <p className="whitespace-nowrap font-medium tabular-nums text-[#2b2320]">
-                    {prixAffiche(line.unitPrice * line.quantity, locale)}
+                    {line.unitPrice !== null ? prixAffiche(line.unitPrice * line.quantity, locale) : "…"}
                   </p>
                 </div>
 
@@ -402,20 +395,15 @@ export function CartView({
                   )}
 
                   {/* Le prix unitaire ne se répète que s'il y en a plusieurs. */}
-                  {!line.visite && line.quantity > 1 && (
+                  {!line.visite && line.quantity > 1 && line.unitPrice !== null && (
                     <span className="text-sm tabular-nums text-[#726757]">
-                      {line.prixCatalogue !== undefined && (
-                        <s className="mr-1.5 text-[#6f6357]">{prixAffiche(line.prixCatalogue, locale)}</s>
-                      )}
                       {prixAffiche(line.unitPrice, locale)} × {line.quantity}
                     </span>
                   )}
-                  {line.remise !== undefined && (
-                    <span className="rounded-full bg-[#2b2320]/[0.08] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#2b2320]">
-                      {t.lot.replace("{taux}", String(Math.round(line.remise * 100)))}
-                    </span>
-                  )}
 
+                  {/* La façon de recevoir la commande ne se retire pas tant qu'il y a des
+                      pièces : elle se change sur la fiche de la pièce. */}
+                  {!((line.livraison || line.pose || line.retrait) && piecesAuPanier) && (
                   <button
                     type="button"
                     onClick={() => {
@@ -427,10 +415,46 @@ export function CartView({
                   >
                     {t.remove}
                   </button>
+                  )}
                 </div>
               </div>
             </li>
-          ))}
+  );
+
+  return (
+    <div>
+      {stale.length > 0 && (
+        <p role="status" className="mb-6 rounded-xl border border-[#e8e1d8] px-5 py-4 text-sm text-[#2b2320]">
+          {t.removedLine}
+        </p>
+      )}
+
+      {/* Deux colonnes : les lignes à gauche, le récapitulatif et le paiement
+          à droite, comme un comptoir. Sur téléphone, l'un sous l'autre. */}
+      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-16">
+        <ul className="divide-y divide-[#e8e1d8] border-t border-[#e8e1d8]">
+          {[
+            ...lines.filter((l) => !l.visite).map(rangee),
+            // Plusieurs garde-corps : la remise, une ligne à elle, comme sur la page de paiement.
+            remise < 0 ? (
+              <li key="remise" className="flex gap-5 py-6">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-[#f2f2f1]" aria-hidden>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#7a6f64" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="h-full w-full p-5">
+                    <path d="M3 12V4h8l10 10-8 8z" />
+                    <circle cx="7.5" cy="8.5" r="1.4" />
+                  </svg>
+                </div>
+                <div className="flex min-w-0 flex-1 items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <h2 className={`${serif.className} text-lg leading-snug text-[#2b2320]`}>{t.lot}</h2>
+                    <p className="mt-1 text-sm text-[#726757]">{t.remiseNote}</p>
+                  </div>
+                  <p className="whitespace-nowrap font-medium tabular-nums text-[#2b2320]">{prixAffiche(remise, locale)}</p>
+                </div>
+              </li>
+            ) : null,
+            ...lines.filter((l) => l.visite).map(rangee),
+          ]}
         </ul>
 
         {/* Le récapitulatif, collé en haut quand la liste défile. */}
@@ -440,31 +464,45 @@ export function CartView({
             <dl className="mt-4 space-y-2.5 text-sm">
               <div className="flex justify-between gap-4">
                 <dt className="text-[#5c5140]">{t.pieces}</dt>
-                <dd className="tabular-nums text-[#2b2320]">{prixAffiche(totalPieces, locale)}</dd>
+                <dd className="tabular-nums text-[#2b2320]">{prixConnus ? prixAffiche(totalPieces, locale) : "…"}</dd>
               </div>
+              {remise < 0 && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-[#5c5140]">{t.lot}</dt>
+                  <dd className="tabular-nums text-[#2b2320]">{prixAffiche(remise, locale)}</dd>
+                </div>
+              )}
               {/* Livraison par transporteur : son prix ; avec une pose : comprise
-                  dans la pose ; sinon (chaise, garde-corps…) : comprise. */}
-              <div className="flex justify-between gap-4">
-                <dt className="text-[#5c5140]">{t.delivery}</dt>
-                <dd className="tabular-nums text-[#2b2320]">
-                  {ligneLivraison
-                    ? prixAffiche(ligneLivraison.unitPrice, locale)
-                    : lignePose
-                      ? t.deliveryWithPose
-                      : t.deliveryIncluded}
-                </dd>
-              </div>
+                  dans la pose ; retrait à l'atelier : gratuit. */}
+              {(piecesAuPanier || ligneLivraison || lignePose || ligneRetrait) && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-[#5c5140]">{t.delivery}</dt>
+                  <dd className="tabular-nums text-[#2b2320]">
+                    {ligneLivraison
+                      ? ligneLivraison.unitPrice !== null
+                        ? prixAffiche(ligneLivraison.unitPrice, locale)
+                        : "…"
+                      : lignePose
+                        ? t.deliveryWithPose
+                        : ligneRetrait
+                          ? t.retrait
+                          : "—"}
+                  </dd>
+                </div>
+              )}
               {lignePose && (
                 <div className="flex justify-between gap-4">
                   <dt className="text-[#5c5140]">{t.poseLine}</dt>
-                  <dd className="tabular-nums text-[#2b2320]">{prixAffiche(lignePose.unitPrice, locale)}</dd>
+                  <dd className="tabular-nums text-[#2b2320]">{lignePose.unitPrice !== null ? prixAffiche(lignePose.unitPrice, locale) : "…"}</dd>
                 </div>
               )}
               <div className="flex items-baseline justify-between gap-4 border-t border-[#e8e1d8] pt-3">
                 <dt className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{t.total}</dt>
-                <dd className="text-2xl font-medium tabular-nums text-[#2b2320]">{prixAffiche(total, locale)}</dd>
+                <dd className="text-2xl font-medium tabular-nums text-[#2b2320]">{prixConnus ? prixAffiche(total, locale) : "…"}</dd>
               </div>
             </dl>
+            {/* En attendant le serveur : les prix arrivent, rien ne se paie encore. */}
+            {!prixConnus && !tarifCourant && <p className="mt-3 text-xs text-[#726757]">{t.tarifCalcul}</p>}
             <p className="mt-3 text-xs leading-relaxed text-[#726757]">{t.shippingNote}</p>
 
             {/* La ville, avant tout le reste : c'est la première chose que Quentin
@@ -533,7 +571,7 @@ export function CartView({
             <button
               type="button"
               onClick={checkout}
-              disabled={status === "loading"}
+              disabled={status === "loading" || !prixConnus || probleme !== null}
               className="btn-verre mt-6 w-full rounded-full px-8 py-4 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
             >
               {status === "loading" ? t.redirecting : t.checkout}
@@ -557,7 +595,7 @@ export function CartView({
           bouton « Retirer » disparaissait sans un mot. */}
       <p role="status" aria-live="polite" className="sr-only">
         {annonce ? `${annonce}. ` : ""}
-        {`${t.total}${fr ? " : " : ": "}${prixAffiche(total, locale)}`}
+        {prixConnus ? `${t.total}${fr ? " : " : ": "}${prixAffiche(total, locale)}` : ""}
       </p>
     </div>
   );

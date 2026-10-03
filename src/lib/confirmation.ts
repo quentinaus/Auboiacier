@@ -31,6 +31,12 @@ import type { Locale } from "./i18n.ts";
 
 const TEXTES = {
   fr: {
+    remiseGc: "Remise plusieurs garde-corps",
+    remiseGcDetail: "Frais fixes de l'atelier comptés une seule fois",
+    remise: "Remise",
+    retrait: "Retrait à l'atelier",
+    retraitDetail: "À Saumur, sur rendez-vous",
+    retraitCondition: "Pièce à retirer à l'atelier, à Saumur, sur rendez-vous.",
     delai: "le délai indiqué sur la fiche de votre pièce (3 à 12 semaines)",
     conditions: [
       "Commande payée en totalité par carte bancaire, sur auboiacier.fr.",
@@ -40,6 +46,12 @@ const TEXTES = {
     ],
   },
   en: {
+    remiseGc: "Several-railings discount",
+    remiseGcDetail: "The workshop's fixed costs counted only once",
+    remise: "Discount",
+    retrait: "Collection from the workshop",
+    retraitDetail: "In Saumur, by appointment",
+    retraitCondition: "Piece to be collected from the workshop in Saumur, by appointment.",
     delai: "the lead time shown on your piece's page (3 to 12 weeks)",
     conditions: [
       "Order paid in full by card, on auboiacier.fr.",
@@ -127,6 +139,9 @@ export function composerConfirmation({ session, lignes, origine }: EntreeConfirm
   const client = session.customer_details;
   const livraison = session.collected_information?.shipping_details ?? null;
 
+  // Chaque ligne à son prix AVANT remise (amount_subtotal) : la remise a sa
+  // propre ligne, comme sur la page de paiement et sur la facture. Sans
+  // remise, les deux montants de Stripe sont les mêmes.
   const lignesDevis: LigneDevis[] = lignes.map((item) => {
     const { designation, details } = decouper(item.description ?? "");
     return {
@@ -134,17 +149,37 @@ export function composerConfirmation({ session, lignes, origine }: EntreeConfirm
       details,
       quantite: item.quantity ?? 1,
       unitaire: euros(item.price?.unit_amount),
-      total: euros(item.amount_total),
+      total: euros(item.amount_subtotal ?? item.amount_total),
     };
   });
+  // La remise de la commande (plusieurs garde-corps : les frais fixes de
+  // l'atelier comptés une fois), telle que Stripe l'a appliquée.
+  const remise = euros(session.total_details?.amount_discount);
+  if (remise > 0) {
+    const gc = Boolean(session.metadata?.remise_gc);
+    lignesDevis.push({
+      designation: gc ? t.remiseGc : t.remise,
+      details: gc ? [t.remiseGcDetail] : [],
+      quantite: 1,
+      unitaire: -remise,
+      total: -remise,
+    });
+  }
+  // Le retrait à l'atelier : gratuit, il n'a pas de ligne chez Stripe ; il
+  // est noté dans la commande, et dit ici.
+  const retrait = session.metadata?.retrait === "1";
+  if (retrait) {
+    lignesDevis.push({ designation: t.retrait, details: [t.retraitDetail], quantite: 1, unitaire: 0, total: 0 });
+  }
 
   // Le titre du document nomme la pièce quand il n'y en a qu'une, et rien du
   // tout quand il y en a plusieurs : le numéro de commande, juste en dessous,
   // le dirait une deuxième fois. Pas de bloc « Votre pièce » non plus — ses
   // caractéristiques (essence, cotes, teinte) ne sont pas chez Stripe, et un
   // encadré à moitié vide vaut moins que le tableau complet qui suit.
+  // (Les lignes de Stripe seules : le retrait ajouté plus haut n'est pas une pièce.)
   const nomPiece =
-    lignesDevis.length === 1 && lignesDevis[0].designation
+    lignes.length === 1 && lignesDevis[0].designation
       ? lignesDevis[0].designation
       : "";
 
@@ -167,7 +202,7 @@ export function composerConfirmation({ session, lignes, origine }: EntreeConfirm
     lignes: lignesDevis,
     total: euros(session.amount_total),
     delai: t.delai,
-    conditions: [...t.conditions],
+    conditions: retrait ? [...t.conditions, t.retraitCondition] : [...t.conditions],
     lienFiche: `${origine}/${locale}/contact`,
   };
 

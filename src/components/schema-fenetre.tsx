@@ -7,10 +7,12 @@
  * fenêtre avec son appui, et le garde-corps derrière la vitre. Deux cotes à
  * prendre — ① la largeur de la fenêtre entre les murs, ② la hauteur du sol au
  * bas de la fenêtre — et une cote ③ que l'atelier calcule : la hauteur du
- * garde-corps, pour que sa main courante monte à la hauteur de la règle
- * (un mètre en étage, quatre-vingts centimètres au rez-de-chaussée). Le
- * garde-corps ne touche pas l'appui : il se pose 100 mm au-dessus, le jour
- * que la norme tolère, et ce jour est coté sur le dessin.
+ * garde-corps, pour que sa main courante monte à la hauteur de la norme
+ * (un mètre au-dessus du sol, ou de l'appui quand on pourrait y monter).
+ * Le garde-corps ne touche pas l'appui : il se pose un peu au-dessus (le
+ * jour de l'outil de plans, 90 mm), et ce jour est coté sur le dessin.
+ * Les croix et les barreaux du bas sont ceux que l'outil retient, dès que
+ * le serveur a répondu.
  *
  * Sur le dessin, rien que des numéros : les noms et les valeurs sont dans
  * les cases, juste à côté. La cote qu'on remplit s'allume, et cliquer un
@@ -24,7 +26,7 @@
  * bande du milieu.
  */
 
-import { JOUR_MM } from "@/lib/garde-corps";
+import { JOUR_GC_MM } from "@/lib/garde-corps";
 
 const ACCENT = "#2b2320";
 const ENCRE = "#2a2116";
@@ -225,8 +227,10 @@ export function SchemaFenetre({
   allegeMm,
   hauteurFenetreMm,
   hauteurMm,
-  jourMm = JOUR_MM,
+  jourMm = JOUR_GC_MM,
   mainCouranteMm,
+  croix,
+  soubassementMm = 0,
   rosaceMm,
   labels,
   actif,
@@ -245,8 +249,12 @@ export function SchemaFenetre({
   /** De l'appui au haut de l'ouverture. */
   hauteurFenetreMm?: number;
   hauteurMm?: number;
-  /** Le jour entre l'appui et le bas du garde-corps : 100 mm, celui de l'atelier. */
+  /** Le jour entre l'appui et le bas du garde-corps : celui de l'outil de plans. */
   jourMm?: number;
+  /** Le nombre de croix retenu par l'outil ; sans lui, une croix par panneau d'environ 60 cm. */
+  croix?: number;
+  /** La hauteur des barreaux droits en partie basse (0 : aucun). */
+  soubassementMm?: number;
   /** Où arrive la main courante, depuis le sol : c'est là que passe la ligne de la règle. */
   mainCouranteMm?: number;
   labels: {
@@ -290,8 +298,8 @@ export function SchemaFenetre({
   const regleY = hautGardeCorpsY;
   const G = r(LARGEUR / 2 - largeur / 2); // tableau gauche
   const D = r(LARGEUR / 2 + largeur / 2); // tableau droit
-  /** Autant de croix que de panneaux d'environ 60 cm : la largeur se lit au premier coup d'œil. */
-  const panneaux = Math.max(1, Math.round(L / 600));
+  /** Les croix de l'outil ; en attendant sa réponse, une par panneau d'environ 60 cm. */
+  const panneaux = croix && croix > 0 ? croix : Math.max(1, Math.round(L / 600));
 
   /** L'appui, la main courante et les barres à l'échelle aussi : 50, 40 et 20 mm. */
   const EP_APPUI = Math.max(2, r(50 * echelle));
@@ -300,6 +308,10 @@ export function SchemaFenetre({
   const rosace = Math.max(1.5, r(((rosaceMm ?? 100) / 2) * echelle));
   const cadreHaut = r(hautGardeCorpsY + mainCouranteH);
   const cadreBas = r(basGardeCorpsY - Math.min(2, hauteur / 4));
+  /** Les barreaux du bas, quand la norme les demande : les croix commencent au-dessus. */
+  const soubassement = soubassementMm > 0 ? Math.min(r(soubassementMm * echelle), (cadreBas - cadreHaut) / 2) : 0;
+  const basCroix = r(cadreBas - soubassement);
+  const barreaux = soubassement > 0 ? Math.max(2, Math.round(L / 116)) : 0;
   const milieu = r((G + D) / 2);
 
   // Les pastilles ② et ③ se suivent sur la même verticale : quand une des
@@ -376,20 +388,30 @@ export function SchemaFenetre({
           </g>
         )}
         <rect x={G + 2} y={cadreHaut} width={D - G - 4} height={cadreBas - cadreHaut} fill="none" stroke={ACIER} strokeWidth={r(barre * 1.4)} />
+        {soubassement > 0 && (
+          /* Les barreaux droits du bas, sous une lisse : rien à quoi grimper sous 600 mm du sol. */
+          <g stroke={ACIER} strokeWidth={barre}>
+            <line x1={G + 2} y1={basCroix} x2={D - 2} y2={basCroix} strokeWidth={r(barre * 1.2)} />
+            {Array.from({ length: barreaux }, (_, i) => {
+              const x = r(G + 2 + ((D - G - 4) * (i + 1)) / (barreaux + 1));
+              return <line key={i} x1={x} y1={basCroix} x2={x} y2={cadreBas} />;
+            })}
+          </g>
+        )}
         {remplissage === "croix" && Array.from({ length: panneaux }, (_, i) => {
           const x0 = r(G + 2 + ((D - G - 4) * i) / panneaux);
           const x1 = r(G + 2 + ((D - G - 4) * (i + 1)) / panneaux);
           return (
             <g key={i}>
-              {i > 0 && <line x1={x0} y1={cadreHaut} x2={x0} y2={cadreBas} stroke={ACIER} strokeWidth={barre} />}
+              {i > 0 && <line x1={x0} y1={cadreHaut} x2={x0} y2={basCroix} stroke={ACIER} strokeWidth={barre} />}
               <g stroke={ACIER} strokeWidth={barre}>
-                <line x1={x0 + 2} y1={cadreHaut + 1} x2={x1 - 2} y2={cadreBas - 1} />
-                <line x1={x0 + 2} y1={cadreBas - 1} x2={x1 - 2} y2={cadreHaut + 1} />
+                <line x1={x0 + 2} y1={cadreHaut + 1} x2={x1 - 2} y2={basCroix - 1} />
+                <line x1={x0 + 2} y1={basCroix - 1} x2={x1 - 2} y2={cadreHaut + 1} />
               </g>
               <Rosace
                 cx={r((x0 + x1) / 2)}
-                cy={r((cadreHaut + cadreBas) / 2)}
-                taille={Math.min(rosace, (x1 - x0) / 2.2, (cadreBas - cadreHaut) / 2.2)}
+                cy={r((cadreHaut + basCroix) / 2)}
+                taille={Math.min(rosace, (x1 - x0) / 2.2, (basCroix - cadreHaut) / 2.2)}
               />
             </g>
           );
@@ -451,7 +473,7 @@ export function SchemaFenetre({
       <Fleche de={[280, basGardeCorpsY]} a={[280, hautGardeCorpsY]} actif={actif === "hauteur"} />
       <Pastille cote="hauteur" cx={306} cy={r((basGardeCorpsY + hautGardeCorpsY) / 2)} actif={actif === "hauteur"} onChoisir={onChoisir} label={labels.hauteur} />
 
-      {/* Le jour de 100 mm entre l'appui et le bas du cadre : coté sous ④,
+      {/* Le jour entre l'appui et le bas du cadre : coté sous ④,
           sans numéro — ce n'est pas une mesure à prendre, c'est la pose.
           Un chiffre seul ne disait pas ce qu'il mesurait ; une deuxième
           ligne, plus petite, le nomme directement sur le dessin. */}

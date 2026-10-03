@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ChiffrageIndisponible, lireEntreeGC, reponsePrixGC } from "@/lib/prix-garde-corps.server";
+import { ChiffrageIndisponible, lireRequetePrixGC, reponsePrixGC } from "@/lib/prix-garde-corps.server";
 import { creerLimite } from "@/lib/limite-debit";
 
 export const runtime = "nodejs";
@@ -16,19 +16,24 @@ let indisponibleSignale = false;
 
 /**
  * Le prix d'un garde-corps de fenêtre, calculé par l'outil de plans, pour un
- * relevé : ?l=1180&allege=650&etage=1&fenetre=1400&wood=chene (fenetre : 0 ou
- * absent = inconnue). Réponse : le prix et la forme retenue (hauteur, croix,
- * carré, conformité), ou « à étudier » avec ce qui bloque. Jamais un coût.
- * /api/commande et le devis PDF appelleront la même fonction.
+ * relevé et ses options : ?l=1180&allege=650&etage=1&fenetre=1400&wood=chene
+ * &metal=noir&fabric=fleur&remplissage=croix&qty=2 (fenetre : 0 ou absent =
+ * inconnue ; options absentes : celles du modèle). Réponse : le prix d'une
+ * pièce options comprises, la remise sur la quantité, et la forme retenue
+ * (hauteur, croix, carré, conformité), ou « à étudier » avec ce qui bloque.
+ * Jamais un coût. Le panier, /api/commande et le devis PDF passent par les
+ * mêmes fonctions (celles de src/lib/prix-garde-corps.server.ts).
  */
 export async function GET(request: Request) {
   if (tropDeDemandes(request, Date.now())) {
     return NextResponse.json({ error: "too_many" }, { status: 429 });
   }
-  const entree = lireEntreeGC(new URL(request.url).searchParams);
-  if (!entree) return NextResponse.json({ error: "invalid" }, { status: 400 });
+  const requete = lireRequetePrixGC(new URL(request.url).searchParams);
+  if (!requete) return NextResponse.json({ error: "invalid" }, { status: 400 });
   try {
-    return NextResponse.json(reponsePrixGC(entree), { headers: { "cache-control": "private, max-age=600" } });
+    const reponse = reponsePrixGC(requete);
+    if (!reponse) return NextResponse.json({ error: "invalid" }, { status: 400 });
+    return NextResponse.json(reponse, { headers: { "cache-control": "private, max-age=600" } });
   } catch (erreur) {
     if (erreur instanceof ChiffrageIndisponible) {
       // Clé absente ou fausse sur ce serveur : aucun prix plutôt qu'un prix faux.

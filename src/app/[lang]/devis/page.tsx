@@ -6,7 +6,8 @@ import { getDictionary } from "../dictionaries";
 import { metadataPage } from "@/lib/seo";
 import { serif } from "@/lib/fonts";
 import { hoverZoom, prixAffiche } from "@/lib/ui";
-import { products, priceFrom, productLocalise, type Famille, type Product } from "@/lib/products";
+import { products, prixParOutil, productLocalise, type Famille, type Product } from "@/lib/products";
+import { prixDepart } from "@/lib/prix-garde-corps.server";
 import { BandeauDetail } from "@/components/bandeau-detail";
 import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -50,11 +51,11 @@ export default async function DevisPage({ params }: PageProps<"/[lang]/devis">) 
   const dict = await getDictionary(locale);
   const t = dict.devis;
 
-  // Les pièces qui se chiffrent seules : un barème sur mesure, et une commande
-  // en ligne au bout. L'escalier a un barème mais se vend sur devis : il va
-  // dans la deuxième liste.
+  // Les pièces qui se chiffrent seules : un barème sur mesure (ou l'outil de
+  // plans, pour le garde-corps), et une commande en ligne au bout. L'escalier
+  // a un barème mais se vend sur devis : il va dans la deuxième liste.
   const instantanees = products
-    .filter((p) => p.surMesure && p.orderMode === "cart")
+    .filter((p) => (p.surMesure || prixParOutil(p)) && p.orderMode === "cart")
     .map((p) => productLocalise(p, locale));
   const parFamille = FAMILLES_INSTANT.map((famille) => ({
     famille,
@@ -137,7 +138,7 @@ export default async function DevisPage({ params }: PageProps<"/[lang]/devis">) 
               <div className="mt-5 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
                 {famille.pieces.map((product) => {
                   const image = product.images[0];
-                  const depart = priceFrom(product);
+                  const depart = prixDepart(product);
                   return (
                     <Link
                       key={product.slug}

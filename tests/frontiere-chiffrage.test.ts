@@ -96,7 +96,18 @@ test("la route /api/prix-garde-corps passe par la porte et limite le débit", ()
   assert.doesNotMatch(route, /garde-corps-outil/);
   assert.match(route, /creerLimite\(/);
   assert.match(route, /tropDeDemandes\(request/);
-  assert.match(route, /reponsePrixGC\(entree\)/, "la réponse est construite champ par champ par reponsePrixGC");
+  assert.match(route, /reponsePrixGC\(requete\)/, "la réponse est construite champ par champ par reponsePrixGC");
+});
+
+test("le tarif du panier ne rend que des prix de vente et des noms, construits champ par champ", () => {
+  const route = readFileSync(join(SRC, "app", "api", "panier", "tarif", "route.ts"), "utf8");
+  assert.match(route, /from "@\/lib\/prix-garde-corps\.server"/);
+  assert.match(route, /creerLimite\(/);
+  assert.match(route, /NextResponse\.json\(tarifAffiche\(tarif, locale\)/, "la réponse passe par tarifAffiche, jamais le tarif brut (qui porte les lignes résolues)");
+  // tarifAffiche : des champs nommés un à un, aucune ligne résolue recopiée telle quelle.
+  const tarif = readFileSync(join(SRC, "lib", "tarif-panier.ts"), "utf8");
+  const corps = tarif.slice(tarif.indexOf("export function tarifAffiche("));
+  assert.doesNotMatch(corps, /\.\.\.p\.line|\.\.\.t\.|line: p\.line|gc: p\.line\.gc\b/);
 });
 
 test("le chiffrage n'est dans le dépôt que chiffré", () => {

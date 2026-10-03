@@ -5,7 +5,8 @@ import { BandeauDetail } from "@/components/bandeau-detail";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
 import { metadataPage } from "@/lib/seo";
-import { products, priceFrom, productLocalise, remplissageConforme, type Famille, type Product } from "@/lib/products";
+import { products, prixParOutil, productLocalise, type Famille } from "@/lib/products";
+import { prixDepart } from "@/lib/prix-garde-corps.server";
 import { serif } from "@/lib/fonts";
 import { MaterialBubble } from "@/components/material-bubble";
 import { hoverZoom, prixAffiche } from "@/lib/ui";
@@ -27,38 +28,12 @@ export async function generateMetadata({
   });
 }
 
-/**
- * Un modèle est-il fait pour la fenêtre du client ? On arrive ici depuis une
- * fiche qui a dit non (les croix laissent des vides hors norme à cette
- * hauteur) : chaque modèle de la famille dit s'il convient, ou non.
- */
-function convientAuxCotes(product: Product, hauteurMm: number): "oui" | "non" | "verre" {
-  const modele = product.remplissages?.[0];
-  if (!modele) return "oui";
-  if (remplissageConforme(modele, hauteurMm)) return "oui";
-  return product.remplissages?.some((option) => remplissageConforme(option, hauteurMm)) ? "verre" : "non";
-}
-
-/** Un entier de millimètres lu dans l'adresse, ou rien. */
-function mm(valeur: string | string[] | undefined) {
-  const n = Number(Array.isArray(valeur) ? valeur[0] : valeur);
-  return Number.isInteger(n) && n > 0 && n <= 10_000 ? n : null;
-}
-
-export default async function ArtisanatPage({
-  params,
-  searchParams,
-}: PageProps<"/[lang]/artisanat">) {
+export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artisanat">) {
   const { lang } = await params;
   const locale = isLocale(lang) ? lang : defaultLocale;
   const dict = await getDictionary(locale);
   const t = dict.artisanat;
   const h = dict.hub;
-  // « ?pour=garde-corps&l=1180&h=940 » : une fiche renvoie ici avec les cotes
-  // du client, pour qu'on lui montre ce qui lui convient.
-  const query = await searchParams;
-  const pour = Array.isArray(query.pour) ? query.pour[0] : query.pour;
-  const cotes = { l: mm(query.l), h: mm(query.h) };
 
   /**
    * Une section par métier, dans l'ordre de la maison : d'abord ce qui se
@@ -136,10 +111,6 @@ export default async function ArtisanatPage({
         </nav>
 
         {sections.map((famille, rang) => {
-          const cible = pour === famille.id && cotes.l !== null && cotes.h !== null ? cotes : null;
-          const compatibles = cible
-            ? famille.pieces.filter((product) => convientAuxCotes(product, cible.h as number) === "oui").length
-            : 0;
           const nombre = famille.pieces.length + (famille.page ? 1 : 0);
           return (
             <section key={famille.id} id={famille.id} className="mt-16 scroll-mt-24">
@@ -151,28 +122,10 @@ export default async function ArtisanatPage({
               </div>
               {famille.note && <p className="mt-2 max-w-xl text-sm text-[#726757]">{famille.note}</p>}
 
-              {/* Les cotes du client, et ce qui leur convient. */}
-              {cible && (
-                <div
-                  role="status"
-                  className="mt-4 rounded-2xl border border-[#2b2320]/20 bg-[#2b2320]/[0.04] px-5 py-4 text-sm leading-relaxed text-[#2a2116]"
-                >
-                  <p className="font-medium" style={{ color: "#2b2320" }}>
-                    {t.compatTitre
-                      .replace("{l}", cible.l!.toLocaleString(locale === "en" ? "en-GB" : "fr-FR"))
-                      .replace("{h}", cible.h!.toLocaleString(locale === "en" ? "en-GB" : "fr-FR"))}
-                  </p>
-                  <p className="mt-1 text-[#5c5140]">
-                    {compatibles === 0
-                      ? t.compatAucun
-                      : (compatibles > 1 ? t.compatOkPluriel : t.compatOk).replace("{n}", String(compatibles))}
-                  </p>
-                </div>
-              )}
-
               <div className="mt-6 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
                 {famille.pieces.map((product, index) => {
-                  const convient = cible ? convientAuxCotes(product, cible.h as number) : null;
+                  // Le « à partir de » : celui du catalogue, ou de l'outil de plans pour le garde-corps.
+                  const depart = prixDepart(product);
                   return (
                   <Link
                     key={product.slug}
@@ -180,7 +133,7 @@ export default async function ArtisanatPage({
                     className="group flex flex-col gap-4"
                   >
                     <div
-                      className={`relative aspect-[4/3] overflow-hidden rounded-xl ${hoverZoom} ${convient === "non" ? "opacity-60 grayscale" : ""}`}
+                      className={`relative aspect-[4/3] overflow-hidden rounded-xl ${hoverZoom}`}
                       // Le cadre prend la teinte du fond de la photo : son contour ne se voit plus.
                       style={{ backgroundColor: product.images[0]?.bg ?? "#ffffff" }}
                     >
@@ -210,15 +163,6 @@ export default async function ArtisanatPage({
                           </span>
                         </div>
                       )}
-                      {convient && (
-                        <span
-                          className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] ${
-                            convient === "non" ? "bg-white/90 text-[#726757]" : "bg-[#2b2320] text-white"
-                          }`}
-                        >
-                          {convient === "oui" ? t.compatBadge : convient === "verre" ? t.compatVerre : t.compatNon}
-                        </span>
-                      )}
                     </div>
 
                     <div>
@@ -229,7 +173,7 @@ export default async function ArtisanatPage({
                       </h3>
                       {/* Le chiffre que le client cherche : il avait exactement
                           la taille et la couleur de la note grise du dessus. */}
-                      {priceFrom(product) === null ? (
+                      {depart === null ? (
                         <p className="mt-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-[#726757]">
                           {t.onQuote}
                         </p>
@@ -239,12 +183,12 @@ export default async function ArtisanatPage({
                             {t.from}
                           </span>
                           <span className="text-[15px] font-medium tabular-nums text-[#2b2320]">
-                            {prixAffiche(priceFrom(product) as number, locale)}
+                            {prixAffiche(depart, locale)}
                           </span>
                         </p>
                       )}
                       {/* La pièce se configure en ligne : dit sur la carte, c'est ce qui la distingue. */}
-                      {product.surMesure && product.orderMode === "cart" && (
+                      {(product.surMesure || prixParOutil(product)) && product.orderMode === "cart" && (
                         <p className="mt-1 text-[11px] text-[#6f6357]">{t.configurable}</p>
                       )}
                       {/* Aperçu des matières disponibles, mêmes pastilles que la fiche produit. */}

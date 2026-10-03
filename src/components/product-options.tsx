@@ -12,10 +12,12 @@ import {
   devisSurMesure,
   epaisseurMaxMm,
   epaisseurMiniMm,
+  essenceDeReference,
+  libelleGardeCorps,
   poidsColisKg,
   priceFrom,
-  prixRemise,
-  remplissageConforme,
+  prixParOutil,
+  supplementRemplissage,
   SUR_MESURE,
   type Product,
   type ProductSize,
@@ -28,17 +30,18 @@ import { MaterialBubble } from "./material-bubble";
 import { SchemaCotes, type CoteActive, type CoteSchema } from "./schema-cotes";
 import {
   ReleveGardeCorps,
-  calculDepuisCotes,
+  lireReleve,
   noteGardeCorps,
+  usePrixGardeCorps,
   COTES_GARDE_CORPS_VIDES,
   type CotesGardeCorps,
 } from "./releve-garde-corps";
-import { LIVRAISON, POSE, PRISE_DE_COTES } from "@/lib/deplacement";
+import { LIVRAISON, POSE, PRISE_DE_COTES, RETRAIT } from "@/lib/deplacement";
 import { memoriserConfig, reprendreConfig, type ConfigMemo } from "@/lib/config-memo";
 import { livrableParTransporteur } from "@/lib/products";
 import { VisiteAtelier } from "./prise-de-cotes";
 import { MAX_TEXTE, EMAIL_MOTIF } from "@/lib/devis-regles";
-import { POSE_INITIALE, PoseDomicile, type ChoixPose } from "./pose-domicile";
+import { POSE_INITIALE, PoseDomicile, livraisonPrete, montantLivraison, type ChoixPose } from "./pose-domicile";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 
 const ACCENT = "#2b2320";
@@ -555,9 +558,9 @@ export function ProductOptions({
   /** Cote en cours de saisie : c'est elle qui s'allume sur le croquis. */
   const [coteActive, setCoteActive] = useState<CoteActive>(null);
   const sizesRef = useRef<HTMLDivElement>(null);
-  // Essence de référence par défaut (écart nul), pas la première de la liste.
+  // Essence de référence par défaut (écart nul, ou celle de la fiche), pas la première de la liste.
   const [ownWoodId, setOwnWoodId] = useState(
-    (product.woods.find((w) => !w.priceDelta) ?? product.woods[0])?.id ?? "",
+    essenceDeReference(product)?.id ?? "",
   );
   const woodId = woodIdProp ?? ownWoodId;
   const setWoodId = onWoodChange ?? setOwnWoodId;
@@ -567,7 +570,7 @@ export function ProductOptions({
   const [ownFabricId, setOwnFabricId] = useState(
     product.fabrics?.[0]?.id ?? "",
   );
-  /** Le remplissage d'un garde-corps : celui du modèle, sauf si la norme oblige à passer au verre. */
+  /** Le remplissage d'un garde-corps : les croix du modèle, ou le verre feuilleté à leur place. */
   const [remplissageId, setRemplissageId] = useState(
     product.remplissages?.[0]?.id ?? "",
   );
@@ -577,9 +580,7 @@ export function ProductOptions({
   const sansRosace =
     product.fabricLabel !== undefined &&
     product.remplissages?.some(
-      (option) =>
-        option.id === remplissageId &&
-        option.hauteurMaxConformeMm === undefined,
+      (option) => option.id === remplissageId && option.sansCroix === true,
     ) === true;
   const fabricId = sansRosace
     ? (product.fabrics?.[0]?.id ?? "")
@@ -588,7 +589,7 @@ export function ProductOptions({
   /** Configuration pour laquelle la confirmation d'ajout a été affichée. */
   const [ajoutee, setAjoutee] = useState<string | null>(null);
   const router = useRouter();
-  /** Livraison seule, ou livrée et posée par l'atelier (tables). */
+  /** Comment recevoir la pièce : transporteur, livrée et posée par l'atelier, ou retirée à l'atelier. */
   const [pose, setPose] = useState<ChoixPose>(POSE_INITIALE);
 
   /**
@@ -622,11 +623,12 @@ export function ProductOptions({
     if (memo.fabricId) setFabricId(memo.fabricId);
     if (memo.remplissageId) setRemplissageId(memo.remplissageId);
     if (memo.quantity) setQuantity(memo.quantity);
-    if (memo.codePostal || memo.poseVoulue !== undefined) {
+    if (memo.codePostal || memo.poseVoulue !== undefined || memo.modeLivraison) {
       setPose((p) => ({
         ...p,
         codePostal: memo.codePostal ?? p.codePostal,
-        voulue: memo.poseVoulue ?? p.voulue,
+        // Une mémoire écrite avant le retrait à l'atelier ne connaît que « pose voulue ».
+        mode: memo.modeLivraison ?? (memo.poseVoulue === undefined ? p.mode : memo.poseVoulue ? "pose" : "transporteur"),
         // Le prix se recalcule : celui d'avant l'aller-retour n'est plus sûr.
         deplacement: null,
       }));
@@ -857,59 +859,47 @@ export function ProductOptions({
     : (product.sizes.find((s) => s.id === sizeId) ?? product.sizes[0]);
 
   /**
-   * Sur une pièce qui se relève (le garde-corps de fenêtre), ce sont les cotes
-   * du relevé qui font la pièce : dès qu'elles sont là, la sélection est « sur
-   * mesure » à ces cotes-là, sans bouton à presser — le prix suit la frappe.
+   * Le garde-corps de fenêtre : ce sont les cotes du relevé qui font la pièce.
+   * Sa forme (hauteur à la norme, croix, barreaux du bas) et son prix sont
+   * ceux de l'outil de plans de l'atelier, calculés sur le serveur
+   * (/api/prix-garde-corps) : la fiche les demande dès que la frappe marque
+   * une pause, et ne calcule rien elle-même. Le même calcul fait le panier,
+   * la commande et le devis : le prix affiché est le prix encaissé.
    */
-  const calculFenetre =
-    product.releve === "garde-corps-fenetre"
-      ? calculDepuisCotes(cotesGardeCorps, t)
-      : null;
-  /** La fenêtre est trop basse pour encastrer : pas de prix, une demande de devis. */
-  const fenetreTropBasse = calculFenetre?.tientDansLaFenetre === false;
-  const cotesEff =
-    calculFenetre && bareme && !fenetreTropBasse
-      ? {
-          largeurMm: calculFenetre.largeurMm,
-          hauteurMm: calculFenetre.hauteurRetenueMm,
-          epaisseurMm: bareme.epaisseur.refMm,
-        }
-      : product.releve === "garde-corps-fenetre"
-        ? null
-        : cotesTapees;
-  const sizeIdEff =
-    product.releve === "garde-corps-fenetre"
-      ? calculFenetre
-        ? SUR_MESURE
-        : ""
-      : sizeId;
-  /**
-   * Une fenêtre plus large que le barème : le bouton se grise, mais il faut le
-   * dire — sans ce mot, 4 555 mm tapés laissaient un bouton mort et personne
-   * ne savait pourquoi.
-   */
-  const horsBareme =
-    calculFenetre &&
-    bareme &&
-    !devisSurMesure(
-      product,
-      calculFenetre.largeurMm,
-      calculFenetre.hauteurRetenueMm,
-      bareme.epaisseur.refMm,
-      locale,
-    ).ok
-      ? { largeurMaxMm: bareme.maxLargeurMm, hauteurMaxMm: bareme.maxHauteurMm }
-      : null;
+  const estGC = prixParOutil(product);
+  const lectureReleve = estGC ? lireReleve(cotesGardeCorps, t) : null;
+  const releveGC = lectureReleve?.etat === "ok" ? lectureReleve.releve : null;
+  const prixGC = usePrixGardeCorps(releveGC, {
+    woodId,
+    metalId,
+    fabricId,
+    remplissageId: remplissageId || undefined,
+    quantite: quantity,
+  });
+  const reponseGC = prixGC.statut === "pret" ? prixGC.reponse : null;
+  /** La forme retenue et son prix : seulement quand l'outil dit oui (sinon « à étudier »). */
+  const configGC = reponseGC?.ok ? reponseGC : null;
+  const cotesEff: { largeurMm: number; hauteurMm: number; epaisseurMm?: number } | null = estGC
+    ? configGC && releveGC
+      ? { largeurMm: releveGC.largeurMm, hauteurMm: configGC.hauteurMm }
+      : null
+    : cotesTapees;
+  const sizeIdEff = estGC ? (configGC ? SUR_MESURE : "") : sizeId;
 
   const wood = product.woods.find((w) => w.id === woodId);
-  /** Le poids du colis, estimé comme le fait le serveur (poidsColisKg) : dit au client dans la carte. */
-  const poidsKg = poidsColisKg(product, {
-    largeurMm: cotesEff?.largeurMm ?? size?.dimsMm?.[0],
-    hauteurMm: cotesEff?.hauteurMm ?? size?.dimsMm?.[1],
-    epaisseurMm: cotesEff?.epaisseurMm,
-    woodId: woodId || undefined,
-    remplissageId: remplissageId || undefined,
-  });
+  /**
+   * Le poids du colis, dit au client dans la carte : celui de l'outil pour le
+   * garde-corps, estimé comme le fait le serveur (poidsColisKg) pour le reste.
+   */
+  const poidsKg: number | null = estGC
+    ? (configGC?.kg ?? null)
+    : poidsColisKg(product, {
+        largeurMm: cotesEff?.largeurMm ?? size?.dimsMm?.[0],
+        hauteurMm: cotesEff?.hauteurMm ?? size?.dimsMm?.[1],
+        epaisseurMm: cotesEff?.epaisseurMm,
+        woodId: woodId || undefined,
+        remplissageId: remplissageId || undefined,
+      });
   /* La surface qui fait l'écart des essences : les cotes tapées, sinon la
      taille choisie, sinon celle de la table d'origine (200 × 100). */
   const surfaceBois = surfaceTailleM2(
@@ -923,57 +913,50 @@ export function ProductOptions({
   }));
   const metal = product.metals.find((m) => m.id === metalId);
   const fabric = product.fabrics?.find((f) => f.id === fabricId);
-  // Même calcul que /api/commande : aucune divergence possible.
-  const totalPiece =
-    computeUnitPrice(product, {
-      sizeId: sizeIdEff,
-      woodId,
-      metalId,
-      fabricId,
-      remplissageId: remplissageId || undefined,
-      largeurMm: cotesEff?.largeurMm,
-      hauteurMm: cotesEff?.hauteurMm,
-      epaisseurMm: cotesEff?.epaisseurMm,
-    }) ??
-    size?.price ??
-    null;
+  // Même calcul que le panier et /api/commande : aucune divergence possible.
+  const totalPiece = estGC
+    ? (configGC?.prix ?? null)
+    : (computeUnitPrice(product, {
+        sizeId: sizeIdEff,
+        woodId,
+        metalId,
+        fabricId,
+        remplissageId: remplissageId || undefined,
+        largeurMm: cotesEff?.largeurMm,
+        hauteurMm: cotesEff?.hauteurMm,
+        epaisseurMm: cotesEff?.epaisseurMm,
+      }) ??
+      size?.price ??
+      null);
 
   /**
-   * La norme, sur le remplissage : à partir d'une certaine hauteur, les croix
-   * du modèle laissent des vides trop grands. On ne vend pas ça — on montre le
-   * verre feuilleté (chiffré tout de suite) et les autres modèles.
+   * Le remplissage d'un garde-corps : les croix du modèle (leur nombre est
+   * celui de l'outil), ou le verre feuilleté à leur place, avec son
+   * supplément (décision du 29/09 : ajouté au prix de l'outil).
    */
   const remplissage = product.remplissages?.find(
     (option) => option.id === remplissageId,
   );
   const remplissageModele = product.remplissages?.[0];
-  const nonConforme =
-    calculFenetre !== null &&
-    remplissage !== undefined &&
-    !remplissageConforme(remplissage, calculFenetre.hauteurRetenueMm);
-  const croixConformes =
-    calculFenetre !== null &&
-    remplissageModele !== undefined &&
-    remplissageConforme(remplissageModele, calculFenetre.hauteurRetenueMm);
-  const verre = product.remplissages?.find(
-    (option) => option.hauteurMaxConformeMm === undefined,
-  );
-  const prixVerre =
-    verre && calculFenetre && cotesEff
-      ? computeUnitPrice(product, {
-          sizeId: SUR_MESURE,
-          woodId,
-          metalId,
-          fabricId,
-          remplissageId: verre.id,
-          largeurMm: cotesEff.largeurMm,
-          hauteurMm: cotesEff.hauteurMm,
-          epaisseurMm: cotesEff.epaisseurMm,
-        })
+  const verre = product.remplissages?.find((option) => option.sansCroix);
+  const supplementVerre =
+    verre && configGC && releveGC
+      ? supplementRemplissage(verre, releveGC.largeurMm, configGC.hauteurMm)
       : null;
   /** Ce qui s'affiche dans le sélecteur : une taille du catalogue ou les cotes. */
-  const labelTaille =
-    sizeIdEff === SUR_MESURE && cotesEff
+  const labelTaille = estGC
+    ? configGC && releveGC
+      ? {
+          ok: true as const,
+          label: libelleGardeCorps(
+            releveGC.largeurMm,
+            configGC.hauteurMm,
+            remplissage?.sansCroix ? null : configGC.croix,
+            locale,
+          ),
+        }
+      : null
+    : sizeIdEff === SUR_MESURE && cotesEff
       ? devisSurMesure(
           product,
           cotesEff.largeurMm,
@@ -1026,30 +1009,28 @@ export function ProductOptions({
    */
   const prixDepart = product.releve ? null : priceFrom(product);
   /**
-   * Le prix de lot : plusieurs garde-corps dans la même commande, avec ceux
-   * déjà au panier. Même calcul que le panier et que le serveur.
+   * Plusieurs garde-corps : les frais fixes de l'atelier ne comptent qu'une
+   * fois (décision du 29/09) — la remise que le serveur donne pour cette
+   * quantité, jamais sous le prix plancher. Avec d'autres garde-corps déjà au
+   * panier, elle est recalculée au panier, sur tous.
    */
-  const lot = product.remiseLot;
-  const dejaAuPanier = lot
+  const dejaAuPanier = estGC
     ? panier
         .filter((ligne) => ligne.slug === product.slug)
         .reduce((somme, ligne) => somme + ligne.quantity, 0)
     : 0;
-  const lotActif =
-    lot !== undefined &&
-    !modeVisite &&
-    dejaAuPanier + quantity >= lot.desPieces;
-  const prixLot =
-    lotActif && total !== null ? prixRemise(total, lot.taux) : total;
+  const remiseGC = estGC && !modeVisite && configGC ? configGC.remise : 0;
+  /** Ce que coûte la façon de recevoir la pièce (0 pour le retrait), ou null tant que le prix manque. */
+  const montantLivraisonChoisie = montantLivraison(pose);
   /**
-   * Le prix vraiment dû : la pièce (au tarif de lot s'il s'applique) fois la
-   * quantité, plus la livraison ou la pose — comptée une seule fois, jamais
-   * par pièce. C'est ce chiffre-là qui s'affiche en grand : le client ne
-   * doit pas découvrir le coût du transport seulement une fois au panier.
+   * Le prix vraiment dû : la pièce fois la quantité, moins la remise de
+   * plusieurs garde-corps, plus la livraison ou la pose — comptée une seule
+   * fois, jamais par pièce. C'est ce chiffre-là qui s'affiche en grand : le
+   * client ne doit pas découvrir le coût du transport seulement au panier.
    */
   const prixFinal =
     total !== null
-      ? (prixLot ?? total) * quantity + (pose.deplacement ? pose.deplacement.montantCents / 100 : 0)
+      ? total * quantity + remiseGC + (!modeVisite && montantLivraisonChoisie !== null ? montantLivraisonChoisie : 0)
       : null;
   /** Le délai, lu dans les caractéristiques : « Fabrication » / « Lead time ». */
   const delai = product.specs.find((spec) =>
@@ -1064,7 +1045,8 @@ export function ProductOptions({
         : null,
     wood?.label,
     metal?.label,
-    fabric?.label,
+    // Sous le verre, plus de croix ni de rosace.
+    remplissage?.sansCroix ? null : fabric?.label,
     remplissage && remplissage !== remplissageModele ? remplissage.label : null,
   ]
     .filter(Boolean)
@@ -1100,8 +1082,13 @@ export function ProductOptions({
     cotesGardeCorps.codePostal,
     cotesGardeCorps.rdv,
     cotesGardeCorps.mur,
+    cotesGardeCorps.largeur,
+    cotesGardeCorps.allege,
+    cotesGardeCorps.fenetre,
+    cotesGardeCorps.etage,
     remplissageId,
     quantity,
+    pose.mode,
   ].join("|");
   const added = ajoutee === configuration;
 
@@ -1197,21 +1184,57 @@ export function ProductOptions({
     hauteurMm: cotesEff?.hauteurMm ?? size?.dimsMm?.[1],
   });
 
+  /**
+   * Le colis que /api/deplacement pèse pour la livraison par transporteur :
+   * la pièce, ses cotes (ou le relevé du garde-corps), son essence, son
+   * remplissage et sa quantité. null : la pièce n'a pas encore de prix (le
+   * garde-corps attend ses cotes ou l'outil), rien à peser.
+   */
+  const colisLivraison = (() => {
+    const q = new URLSearchParams({ slug: product.slug });
+    if (estGC) {
+      if (!configGC || !releveGC) return null;
+      q.set("l", String(releveGC.largeurMm));
+      q.set("allege", String(releveGC.allegeMm));
+      q.set("etage", releveGC.enEtage ? "1" : "0");
+      q.set("fenetre", String(releveGC.fenetreMm));
+    } else {
+      const l = cotesEff?.largeurMm ?? size?.dimsMm?.[0];
+      const w = cotesEff?.hauteurMm ?? size?.dimsMm?.[1];
+      if (l) q.set("l", String(l));
+      if (w) q.set("w", String(w));
+      if (cotesEff?.epaisseurMm) q.set("t", String(cotesEff.epaisseurMm));
+    }
+    if (woodId) q.set("wood", woodId);
+    if (remplissageId) q.set("remplissage", remplissageId);
+    q.set("qty", String(quantity));
+    return q.toString();
+  })();
+
   const urlDevis = (() => {
     // Une pièce sur devis (l'escalier) s'estime d'après sa configuration,
     // même quand la fiche est en mode « visite de l'atelier » : c'est la
     // pièce qu'on estime, pas le rendez-vous.
     if (orderable ? total === null || modeVisite : totalPiece === null) return null;
-    if (product.poseOption && orderable && !pose.deplacement) return null;
+    if (product.poseOption && orderable && !livraisonPrete(pose)) return null;
     const p = new URLSearchParams({
       slug: product.slug,
       lang: locale,
       qty: String(quantity),
     });
-    if (sizeIdEff) p.set("size", sizeIdEff);
-    if (cotesEff?.largeurMm) p.set("l", String(cotesEff.largeurMm));
-    if (cotesEff?.hauteurMm) p.set("w", String(cotesEff.hauteurMm));
-    if (cotesEff?.epaisseurMm) p.set("t", String(cotesEff.epaisseurMm));
+    if (estGC) {
+      // Le garde-corps : le relevé. Le serveur en tire la forme et le prix (l'outil de plans).
+      if (!releveGC) return null;
+      p.set("l", String(releveGC.largeurMm));
+      p.set("allege", String(releveGC.allegeMm));
+      p.set("etage", releveGC.enEtage ? "1" : "0");
+      p.set("fenetre", String(releveGC.fenetreMm));
+    } else {
+      if (sizeIdEff) p.set("size", sizeIdEff);
+      if (cotesEff?.largeurMm) p.set("l", String(cotesEff.largeurMm));
+      if (cotesEff?.hauteurMm) p.set("w", String(cotesEff.hauteurMm));
+      if (cotesEff?.epaisseurMm) p.set("t", String(cotesEff.epaisseurMm));
+    }
     if (
       table &&
       sizeIdEff === SUR_MESURE &&
@@ -1224,13 +1247,9 @@ export function ProductOptions({
     if (metalId) p.set("metal", metalId);
     if (fabricId) p.set("fabric", fabricId);
     if (remplissageId) p.set("remplissage", remplissageId);
-    if (product.releve === "garde-corps-fenetre") {
-      const note = noteGardeCorps(cotesGardeCorps, t);
-      if (note) p.set("note", note);
-    }
-    if (product.poseOption && orderable && pose.deplacement) {
-      p.set("mode", pose.voulue ? "pose" : "transporteur");
-      p.set("cp", pose.codePostal.replace(/\s+/g, ""));
+    if (product.poseOption && orderable && livraisonPrete(pose)) {
+      p.set("mode", pose.mode);
+      if (pose.mode !== "retrait") p.set("cp", pose.codePostal.replace(/\s+/g, ""));
     }
     if (coordonnees.nom.trim()) p.set("nom", coordonnees.nom.trim());
     if (coordonnees.email.trim()) p.set("email", coordonnees.email.trim());
@@ -1255,15 +1274,20 @@ export function ProductOptions({
         ? { message: raisonDevisTexte, ancre: "#cotes" }
         : bareme && !product.releve
           ? { message: t.raisonCotesManquantes, ancre: "#cotes" }
-          : // Le garde-corps de fenêtre releve ses propres cotes (largeur,
-            // allège, hauteur) : calculFenetre reste null tant qu'il en
-            // manque une, avant même de savoir si la fenêtre est conforme.
-            product.releve === "garde-corps-fenetre" && !calculFenetre
-            ? // Pas « longueur, largeur, épaisseur » : ce sont les mots d'une
-              // table, et un garde-corps se mesure autrement.
-              { message: t.raisonCotesGardeCorps, ancre: "#cotes" }
+          : // Le garde-corps de fenêtre relève ses propres cotes (largeur,
+            // allège, hauteur de la fenêtre), puis attend l'outil de plans.
+            estGC
+            ? lectureReleve?.etat === "incomplet"
+              ? // Pas « longueur, largeur, épaisseur » : ce sont les mots d'une
+                // table, et un garde-corps se mesure autrement.
+                { message: t.raisonCotesGardeCorps, ancre: "#cotes" }
+              : prixGC.statut === "calcul"
+                ? { message: t.gcCalcul, ancre: "#cotes" }
+                : prixGC.statut === "indisponible" || prixGC.statut === "erreur"
+                  ? { message: t.gcPrixIndisponible, ancre: "#cotes" }
+                  : { message: t.raisonGcAEtudier, ancre: "#cotes" }
             : null
-      : product.poseOption && !pose.deplacement
+      : product.poseOption && !livraisonPrete(pose)
         ? { message: t.raisonCodePostalLivraison, ancre: "#livraison" }
         : null;
 
@@ -1309,7 +1333,8 @@ export function ProductOptions({
       remplissageId,
       quantity,
       codePostal: pose.codePostal,
-      poseVoulue: pose.voulue,
+      poseVoulue: pose.mode === "pose",
+      modeLivraison: pose.mode,
     };
   }
   function allerCreerCompte() {
@@ -1547,10 +1572,15 @@ export function ProductOptions({
         largeurMm: cotesEff?.largeurMm,
         hauteurMm: cotesEff?.hauteurMm,
         epaisseurMm: cotesEff?.epaisseurMm,
-        // Le relevé du garde-corps : la note pour l'atelier (étage, mur, allège).
+        // Le relevé du garde-corps : c'est avec lui que le serveur recalcule la
+        // forme et le prix (la hauteur ci-dessus n'en est qu'une copie).
+        ...(estGC && releveGC
+          ? { allegeMm: releveGC.allegeMm, enEtage: releveGC.enEtage, fenetreMm: releveGC.fenetreMm }
+          : {}),
+        // Et la note pour l'atelier (étage, mur, allège, fenêtre).
         note:
-          product.releve === "garde-corps-fenetre"
-            ? noteGardeCorps(cotesGardeCorps, t) || undefined
+          estGC
+            ? noteGardeCorps(cotesGardeCorps, t, configGC) || undefined
             : // Une table à vos cotes : sa hauteur finie part avec, quand elle n'est pas celle d'usage.
               table &&
                 sizeIdEff === SUR_MESURE &&
@@ -1574,38 +1604,35 @@ export function ProductOptions({
       },
       quantity,
     );
-    // La livraison (par transporteur ou avec pose) : une ligne à part, une
-    // seule par panier — un seul trajet, un seul colis. Si une autre table
-    // l'avait déjà demandée, on la remplace par celle-ci.
-    if (product.poseOption && pose.deplacement) {
+    // Comment la commande part (transporteur, pose, ou retrait à l'atelier) :
+    // une ligne à part, une seule par panier — un seul trajet, un seul colis.
+    // Si une autre pièce l'avait déjà choisie, on la remplace par celle-ci.
+    // Son prix n'est qu'une copie : le panier le redemande au serveur, qui pèse
+    // TOUTES les pièces de la commande (src/lib/tarif-panier.ts).
+    const deplacement = pose.deplacement;
+    if (product.poseOption && (pose.mode === "retrait" || deplacement)) {
       panier
-        .filter((ligne) => ligne.slug === POSE || ligne.slug === LIVRAISON)
+        .filter((ligne) => ligne.slug === POSE || ligne.slug === LIVRAISON || ligne.slug === RETRAIT)
         .forEach((ligne) => remove(ligne.id));
       const cp = pose.codePostal.replace(/\s+/g, "");
       add(
-        pose.voulue
-          ? {
-              slug: POSE,
-              poseCp: cp,
-              name: t.poseResume,
-              optionsLabel: pose.deplacement.commune,
-              unitPrice: pose.deplacement.montantCents / 100,
-            }
-          : {
-              slug: LIVRAISON,
-              livraisonCp: cp,
-              livraisonSlug: product.slug,
-              // Les cotes, l'essence et le remplissage : le serveur recalcule le vrai poids avec elles.
-              largeurMm: cotesEff?.largeurMm ?? size?.dimsMm?.[0],
-              hauteurMm: cotesEff?.hauteurMm ?? size?.dimsMm?.[1],
-              epaisseurMm: cotesEff?.epaisseurMm,
-              woodId: woodId || undefined,
-              remplissageId: remplissageId || undefined,
-              livraisonQty: quantity,
-              name: t.livraisonResume,
-              optionsLabel: pose.deplacement.commune,
-              unitPrice: pose.deplacement.montantCents / 100,
-            },
+        pose.mode === "retrait" || !deplacement
+          ? { slug: RETRAIT, name: t.retraitResume, optionsLabel: "", unitPrice: 0 }
+          : pose.mode === "pose"
+            ? {
+                slug: POSE,
+                poseCp: cp,
+                name: t.poseResume,
+                optionsLabel: deplacement.commune,
+                unitPrice: deplacement.montantCents / 100,
+              }
+            : {
+                slug: LIVRAISON,
+                livraisonCp: cp,
+                name: t.livraisonResume,
+                optionsLabel: deplacement.commune,
+                unitPrice: deplacement.montantCents / 100,
+              },
         1,
       );
     }
@@ -2275,7 +2302,7 @@ export function ProductOptions({
           </div>
         </div>
       )}
-      {product.releve === "garde-corps-fenetre" && (
+      {estGC && lectureReleve && (
         <div ref={releveRef}>
           <ReleveGardeCorps
             schemaSlot={nouvelleMiseEnPage ? schemaSlot : undefined}
@@ -2283,26 +2310,17 @@ export function ProductOptions({
             onChange={setCotesGardeCorps}
             t={t}
             locale={locale}
-            prixPiece={totalPiece}
-            horsBareme={horsBareme}
-            tropBasse={fenetreTropBasse}
+            lecture={lectureReleve}
+            prix={prixGC}
             rosaceMm={Number(fabric?.label.match(/Ø(\d+)/)?.[1]) || undefined}
             lienDevis={`/${locale}/contact?produit=${product.slug}&config=${encodeURIComponent(optionsPiece)}`}
-            norme={
-              remplissage && remplissageModele
+            verre={
+              verre && remplissageModele
                 ? {
-                    nonConforme,
-                    hauteurMaxMm: remplissageModele.hauteurMaxConformeMm ?? 0,
-                    surVerre: verre !== undefined && remplissageId === verre.id,
-                    croixConformes,
-                    prixVerre,
-                    choisirVerre: verre
-                      ? () => setRemplissageId(verre.id)
-                      : undefined,
-                    revenirCroix: () => setRemplissageId(remplissageModele.id),
-                    lienAutres: calculFenetre
-                      ? `/${locale}/artisanat?pour=${product.famille}&l=${calculFenetre.largeurMm}&h=${calculFenetre.hauteurRetenueMm}#${product.famille}`
-                      : `/${locale}/artisanat#${product.famille}`,
+                    surVerre: remplissageId === verre.id,
+                    supplement: supplementVerre,
+                    choisir: () => setRemplissageId(verre.id),
+                    revenir: () => setRemplissageId(remplissageModele.id),
                   }
                 : undefined
             }
@@ -2322,22 +2340,14 @@ export function ProductOptions({
                    choix corrigé part dans le composant, dont le premier appel
                    remet l'état en place — d'ici là le bouton d'achat reste
                    grisé, faute de prix. */
-                choix={poseObligatoire && !pose.voulue ? { ...pose, voulue: true } : pose}
+                choix={poseObligatoire && pose.mode === "transporteur" ? { ...pose, mode: "pose" } : pose}
                 onChange={setPose}
                 compact={nouvelleMiseEnPage}
                 demontee={Boolean(product.boisAuM2)}
                 livraisonSeule={Boolean(product.livraisonSeule)}
                 poseSeule={poseObligatoire}
                 infoSeul={product.livraisonInfo?.[locale]}
-                colis={{
-                  slug: product.slug,
-                  largeurMm: cotesEff?.largeurMm ?? size?.dimsMm?.[0],
-                  hauteurMm: cotesEff?.hauteurMm ?? size?.dimsMm?.[1],
-                  epaisseurMm: cotesEff?.epaisseurMm,
-                  woodId: woodId || undefined,
-                  remplissageId: remplissageId || undefined,
-                  quantity,
-                }}
+                colis={colisLivraison}
                 t={t}
                 locale={locale}
               />
@@ -2346,10 +2356,13 @@ export function ProductOptions({
         /* La carte du configurateur : des sous-menus repliables, pour que
            tout tienne dans la carte sans la faire déborder de l'écran — la
            livraison, le poids et les détails, ce que comprend le prix. */
-        const resumeLivraison = pose.deplacement
-          ? `${pose.voulue ? t.poseCourt : t.livraisonCourt} · ${prixAffiche(pose.deplacement.montantCents / 100, locale)}`
-          : t.livraisonAChoisir;
-        const resumeDetails = `≈ ${poidsKg} kg`;
+        const resumeLivraison =
+          pose.mode === "retrait"
+            ? t.retraitCourt
+            : pose.deplacement
+              ? `${pose.mode === "pose" ? t.poseCourt : t.livraisonCourt} · ${prixAffiche(pose.deplacement.montantCents / 100, locale)}`
+              : t.livraisonAChoisir;
+        const resumeDetails = poidsKg !== null ? `≈ ${poidsKg} kg` : "—";
         return (
           <div className="mt-2">
             {livraison && (
@@ -2372,13 +2385,21 @@ export function ProductOptions({
               <dl className="grid gap-1.5 text-xs leading-snug text-[#5c5140]">
                 {(
                   [
-                    [t.detailDimensions, cotesEff ? `${enUnite(cotesEff.largeurMm)} × ${enUnite(cotesEff.hauteurMm)} × ${cotesEff.epaisseurMm} mm` : size?.label ? cotesCourtes(size.label) : "—"],
-                    [t.detailSurface, devis?.ok ? surfaceAffichee(devis.surface, locale) : "—"],
-                    [t.customTableHeight, enUnite(hauteurTableMm)],
+                    [
+                      t.detailDimensions,
+                      cotesEff
+                        ? `${enUnite(cotesEff.largeurMm)} × ${enUnite(cotesEff.hauteurMm)}${cotesEff.epaisseurMm !== undefined ? ` × ${cotesEff.epaisseurMm} mm` : ""}`
+                        : size?.label
+                          ? cotesCourtes(size.label)
+                          : "—",
+                    ],
+                    // Le garde-corps n'a ni surface ni hauteur finie de table : ses lignes n'apprendraient rien.
+                    estGC ? null : [t.detailSurface, devis?.ok ? surfaceAffichee(devis.surface, locale) : "—"],
+                    table ? [t.customTableHeight, enUnite(hauteurTableMm)] : null,
                     [t.detailMatieres, [wood?.label, metal?.label].filter(Boolean).join(" · ") || "—"],
-                    [t.poidsEstime, `≈ ${poidsKg} kg${quantity > 1 ? ` × ${quantity}` : ""}`],
+                    [t.poidsEstime, poidsKg !== null ? `≈ ${poidsKg} kg${quantity > 1 ? ` × ${quantity}` : ""}` : "—"],
                     [t.delaiTitle, delai ?? "—"],
-                  ] as [string, string][]
+                  ].filter((ligne): ligne is [string, string] => ligne !== null)
                 ).map(([intitule, valeur]) => (
                   <div key={intitule} className="flex items-baseline justify-between gap-3">
                     <dt className="shrink-0 text-[#6f6357]">{intitule}</dt>
@@ -2439,14 +2460,16 @@ export function ProductOptions({
                     ? t.onQuote
                     : prixFinal !== null
                       ? prixAffiche(prixFinal, locale)
-                      : bareme
+                      : bareme || estGC
                         ? "— €"
                         : prixDepart !== null
                           ? `${t.from} ${prixAffiche(prixDepart, locale)}`
                           : t.onQuote}
                 </p>
-                {!modeVisite && total !== null && pose.deplacement && (
-                  <p className="text-[11px] text-[#6f6357]">{t.livraisonIncluse}</p>
+                {!modeVisite && total !== null && livraisonPrete(pose) && (
+                  <p className="text-[11px] text-[#6f6357]">
+                    {pose.mode === "retrait" ? t.retraitCourt : t.livraisonIncluse}
+                  </p>
                 )}
                 {size && !modeVisite && orderable && total !== null && (
                   <p className="truncate text-[11px] text-[#6f6357]">
@@ -2496,7 +2519,8 @@ export function ProductOptions({
               disabled={
                 total === null ||
                 (modeVisite && !visitePrete) ||
-                (product.poseOption && !pose.deplacement)
+                // La visite de l'atelier n'a pas de livraison : seule la pièce en demande une.
+                (!modeVisite && product.poseOption && !livraisonPrete(pose))
               }
               className={`btn-verre w-full rounded-full px-5 text-[11px] font-medium uppercase tracking-[0.14em] text-white ${nouvelleMiseEnPage ? "py-3 md:py-3.5" : "py-3.5"}`}
             >
@@ -2531,52 +2555,34 @@ export function ProductOptions({
           )}
           {lienDevis}
 
-          {/* Le grand prix reste unitaire : on affiche le total dès qu'on en commande plusieurs. */}
+          {/* Le grand prix comprend la quantité : on détaille dès qu'on en commande plusieurs. */}
           {quantity > 1 && total !== null && (
             <p className="mt-3 text-center text-sm tabular-nums text-[#5c5140]">
-              {lotActif && prixLot !== total && (
-                <s className="mr-1.5 text-[#6f6357]">
-                  {prixAffiche(total, locale)}
-                </s>
-              )}
-              {prixAffiche(prixLot ?? total, locale)} × {quantity}{" "}
-              {t.cartTotalLine}{" "}
-              <span className="font-medium">
-                {prixAffiche(prixFinal ?? (prixLot ?? total) * quantity, locale)}
-              </span>
-              {lotActif && (
-                <span className="ml-2 rounded-full bg-[#2b2320]/[0.08] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#2b2320]">
-                  {t.gcLotTag.replace(
-                    "{taux}",
-                    String(Math.round((lot?.taux ?? 0) * 100)),
-                  )}
+              {prixAffiche(total, locale)} × {quantity}{" "}
+              {remiseGC < 0 && (
+                <span>
+                  {"− "}
+                  {prixAffiche(-remiseGC, locale)} ({t.gcRemiseCourt}){" "}
                 </span>
               )}
+              {t.cartTotalLine}{" "}
+              <span className="font-medium">
+                {prixAffiche(prixFinal ?? total * quantity + remiseGC, locale)}
+              </span>
             </p>
           )}
 
-          {/* Plusieurs fenêtres : le prix de lot, et le moyen d'ajouter un
-              garde-corps après l'autre, chacun à ses cotes. */}
-          {lot && !modeVisite && (
+          {/* Plusieurs fenêtres : la remise (frais fixes de l'atelier comptés
+              une fois), et le moyen d'ajouter un garde-corps après l'autre,
+              chacun à ses cotes. */}
+          {estGC && !modeVisite && (
             <p className="mt-3 text-center text-xs leading-relaxed text-[#6f6357]">
-              {dejaAuPanier > 0 && total !== null && lotActif ? (
-                <>
-                  <span className="font-medium text-[#2b2320]">
-                    {t.gcLotDeja.replace("{n}", String(dejaAuPanier))}
-                  </span>{" "}
-                  {quantity === 1 && prixLot !== null && prixLot !== total && (
-                    <span className="tabular-nums">
-                      <s className="text-[#6f6357]">
-                        {prixAffiche(total, locale)}
-                      </s>{" "}
-                      <span className="font-medium text-[#2a2116]">
-                        {prixAffiche(prixLot, locale)}
-                      </span>
-                    </span>
-                  )}
-                </>
+              {dejaAuPanier > 0 ? (
+                <span className="font-medium text-[#2b2320]">
+                  {t.gcLotDeja.replace("{n}", String(dejaAuPanier))}
+                </span>
               ) : (
-                t.gcLot.replace("{taux}", String(Math.round(lot.taux * 100)))
+                t.gcLot
               )}
             </p>
           )}
@@ -2594,7 +2600,7 @@ export function ProductOptions({
                 </Link>
                 {/* Une autre fenêtre : on vide les cotes, on garde le bois et
                     l'acier, et le curseur revient dans la première case. */}
-                {lot && !modeVisite && (
+                {estGC && !modeVisite && (
                   <button
                     type="button"
                     onClick={() => {
@@ -2696,7 +2702,7 @@ export function ProductOptions({
           <button
             type="button"
             onClick={addToCart}
-            disabled={total === null || (modeVisite && !visitePrete) || (product.poseOption && !pose.deplacement)}
+            disabled={total === null || (modeVisite && !visitePrete) || (!modeVisite && product.poseOption && !livraisonPrete(pose))}
             className="btn-verre ml-auto shrink-0 rounded-full px-5 py-3 text-xs font-medium uppercase tracking-[0.12em] text-white"
           >
             {t.addToCart}

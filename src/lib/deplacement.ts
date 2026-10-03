@@ -245,6 +245,24 @@ export function libellePose(codePostal: string, locale: "fr" | "en"): string {
 export const POSE = "pose-a-domicile";
 
 /* ------------------------------------------------------------------ *
+ *  Le retrait à l'atelier
+ *  Troisième façon de recevoir une pièce, à côté du transporteur et de la
+ *  pose (décision de Quentin du 29/09) : le client vient la chercher à
+ *  Saumur, sur rendez-vous. Gratuit : aucun code postal, aucun calcul.
+ * ------------------------------------------------------------------ */
+
+/** Le « produit » retrait, dans le panier : une ligne à 0 €, qui dit comment la commande part. */
+export const RETRAIT = "retrait-atelier";
+
+/** Libellé de la ligne « retrait », dans la langue du client. */
+export function libelleRetrait(locale: "fr" | "en"): string {
+  return locale === "en" ? "Collection from the workshop — Saumur, by appointment" : "Retrait à l'atelier — Saumur, sur rendez-vous";
+}
+
+/** Les trois façons de recevoir une pièce qui en propose le choix (Product.poseOption). */
+export type ModeLivraison = "transporteur" | "pose" | "retrait";
+
+/* ------------------------------------------------------------------ *
  *  Le repli : la préfecture de chaque département de métropole.
  *  Approximatif par nature ; ne sert que si l'annuaire ne répond pas.
  * ------------------------------------------------------------------ */
@@ -337,11 +355,18 @@ export async function calculerPose(codePostal: string): Promise<ResultatDeplacem
   return calculer(codePostal, tarifPose, Infinity);
 }
 
-async function calculer(
-  codePostal: string,
-  tarif: (distanceKm: number) => Omit<Deplacement, "commune" | "precision">,
-  rayonMaxKm: number = RAYON_MAX_KM
-): Promise<ResultatDeplacement> {
+/** Un code postal situé : sa distance EXACTE à Saumur (à vol d'oiseau), sa commune. */
+export type Lieu = { distanceKm: number; commune: string; precision: "adresse" | "departement" };
+export type ResultatLieu =
+  | { ok: true; lieu: Lieu }
+  | { ok: false; reason: "code_postal_invalide" | "hors_metropole" };
+
+/**
+ * Où est ce code postal, et à quelle distance de Saumur ? Sans arrondi :
+ * c'est cette distance que chaque tarif reçoit (tarifLivraison, tarifPose,
+ * et la livraison de l'outil de plans pour un garde-corps).
+ */
+export async function localiser(codePostal: string): Promise<ResultatLieu> {
   const cp = codePostal.replace(/\s+/g, "");
   const departement = departementDe(cp);
   if (!departement) return { ok: false, reason: "code_postal_invalide" };
@@ -350,18 +375,29 @@ async function calculer(
   const fin = await geocoder(cp);
   const [lat, lon, prefecture] = PREFECTURES[departement];
   const point = fin ?? { lat, lon, commune: `${prefecture} (${departement})` };
-  const distance = haversineKm(SAUMUR, point);
-  if (distance > rayonMaxKm) {
-    return { ok: false, reason: "trop_loin", distanceKm: Math.round(distance), commune: point.commune };
+  return { ok: true, lieu: { distanceKm: haversineKm(SAUMUR, point), commune: point.commune, precision: fin ? "adresse" : "departement" } };
+}
+
+/** Un tarif appliqué à un lieu déjà situé : le même résultat que calculerX, sans rappeler l'annuaire. */
+export function deplacementPour(
+  lieu: Lieu,
+  tarif: (distanceKm: number) => Omit<Deplacement, "commune" | "precision">,
+  rayonMaxKm: number = Infinity
+): ResultatDeplacement {
+  if (lieu.distanceKm > rayonMaxKm) {
+    return { ok: false, reason: "trop_loin", distanceKm: Math.round(lieu.distanceKm), commune: lieu.commune };
   }
-  return {
-    ok: true,
-    deplacement: {
-      ...tarif(distance),
-      commune: point.commune,
-      precision: fin ? "adresse" : "departement",
-    },
-  };
+  return { ok: true, deplacement: { ...tarif(lieu.distanceKm), commune: lieu.commune, precision: lieu.precision } };
+}
+
+async function calculer(
+  codePostal: string,
+  tarif: (distanceKm: number) => Omit<Deplacement, "commune" | "precision">,
+  rayonMaxKm: number = RAYON_MAX_KM
+): Promise<ResultatDeplacement> {
+  const situe = await localiser(codePostal);
+  if (!situe.ok) return situe;
+  return deplacementPour(situe.lieu, tarif, rayonMaxKm);
 }
 
 /** Libellé de la ligne « déplacement », dans la langue du client. */

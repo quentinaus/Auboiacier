@@ -166,3 +166,41 @@ test("sans référence de commande, l'identifiant Stripe fait office de numéro"
   });
   assert.equal(devis.numero, "cs_test_1");
 });
+
+test("plusieurs garde-corps : chaque ligne à son prix, la remise sur sa ligne, et le total payé", () => {
+  // Deux garde-corps à 570 €, une livraison à 64 € ; Stripe a appliqué le bon de réduction de 110 €
+  // (frais fixes de l'atelier comptés une fois) et réparti la remise sur les lignes.
+  const avecRemise = composerConfirmation({
+    session: session({
+      amount_total: 109_400,
+      total_details: { amount_discount: 11_000, amount_shipping: 0, amount_tax: 0 },
+      metadata: { order_ref: "AB-K7P2X9", locale: "fr", ville: "Saumur", remise_gc: "110", livraison_mode: "transporteur" },
+    }),
+    lignes: lignes([
+      { description: "Garde-corps de fenêtre Rosace — Sur mesure — 1 180 × 290 mm, 4 croix · Chêne", quantity: 2, amount_subtotal: 114_000, amount_total: 103_595, price: { unit_amount: 57_000 } } as never,
+      { description: "Livraison par transporteur — 44000 (Nantes)", quantity: 1, amount_subtotal: 6_400, amount_total: 5_805, price: { unit_amount: 6_400 } } as never,
+    ]),
+    origine: ORIGINE,
+  });
+  assert.equal(avecRemise.lignes[0].total, 1140, "la ligne à son prix avant remise, comme sur la facture");
+  assert.equal(avecRemise.lignes[1].total, 64);
+  const remise = avecRemise.lignes[2];
+  assert.equal(remise.designation, "Remise plusieurs garde-corps");
+  assert.equal(remise.total, -110);
+  assert.equal(avecRemise.total, 1094);
+  assert.equal(avecRemise.lignes.reduce((a, l) => a + l.total, 0), avecRemise.total, "les lignes font le total payé");
+});
+
+test("retrait à l'atelier : une ligne à 0 € et sa condition, et le document nomme toujours la pièce", () => {
+  const retrait = composerConfirmation({
+    session: session({ amount_total: 57_000, metadata: { order_ref: "AB-K7P2X9", locale: "en", ville: "Saumur", retrait: "1", livraison_mode: "retrait" } }),
+    lignes: lignes([{ description: "Rosette Window Railing — Custom — 1,180 × 290 mm, 4 crosses", quantity: 1, amount_total: 57_000, price: { unit_amount: 57_000 } } as never]),
+    origine: ORIGINE,
+  });
+  assert.equal(retrait.lignes.length, 2);
+  assert.equal(retrait.lignes[1].designation, "Collection from the workshop");
+  assert.equal(retrait.lignes[1].total, 0);
+  assert.equal(retrait.total, 570);
+  assert.ok(retrait.conditions.includes("Piece to be collected from the workshop in Saumur, by appointment."));
+  assert.equal(retrait.piece.nom, "Rosette Window Railing", "une seule pièce payée : le titre la nomme");
+});

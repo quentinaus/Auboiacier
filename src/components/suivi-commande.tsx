@@ -12,10 +12,13 @@ import type { Locale } from "@/lib/i18n";
 export function SuiviCommande({
   statut,
   pose,
+  retrait = false,
   locale,
 }: {
   statut: Statut;
   pose: boolean;
+  /** Retrait à l'atelier : « prête à retirer », puis « retirée ». */
+  retrait?: boolean;
   locale: Locale;
 }) {
   const atteinte = etapeStatut(statut);
@@ -37,7 +40,7 @@ export function SuiviCommande({
               />
             </span>
             <span className={`text-sm sm:mt-1 ${courante ? "font-medium text-[#2b2320]" : faite ? "text-[#5c5140]" : "text-[#726757]"}`}>
-              {libelleStatut(s, { pose, locale })}
+              {libelleStatut(s, { pose, retrait, locale })}
               {courante && (
                 <span className="sr-only">{locale === "en" ? " — current step" : " — étape en cours"}</span>
               )}

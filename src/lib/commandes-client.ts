@@ -30,6 +30,8 @@ export type CommandeClient = {
   pieces: string[];
   statut: Statut;
   pose: boolean;
+  /** Retrait à l'atelier : le suivi dit « prête à retirer », pas « expédiée ». */
+  retrait: boolean;
   adresse: string;
   /** La facture éditée par Stripe, quand elle existe. */
   factureUrl: string | null;
@@ -124,6 +126,7 @@ export async function commandesDuClient(email: string): Promise<CommandeClient[]
           pieces,
           statut: estStatut(statut) ? statut : STATUT_INITIAL,
           pose: Boolean(session.metadata?.pose_cp),
+          retrait: session.metadata?.retrait === "1",
           adresse: adresseLisible(livraison?.address ?? session.customer_details?.address),
           factureUrl: facture?.hosted_invoice_url ?? null,
         };

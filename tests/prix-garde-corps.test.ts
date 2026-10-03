@@ -21,14 +21,12 @@ import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
 import {
   configurerGC,
   entreeValide,
-  lireEntreeGC,
   livraisonGC,
-  PARAMETRES_PRIX_GC,
   prixCommandeGC,
   prixGC,
-  reponsePrixGC,
   type ConfigGC,
 } from "../src/lib/garde-corps-outil/calcul.ts";
+import { lireRequetePrixGC, PARAMETRES_PRIX_GC, reponsePrixGC, type RequetePrixGC } from "../src/lib/garde-corps-outil/site.ts";
 import { CROIX_MAX, ESSENCES_GC, ORDRE_CARRES, valeursGC, type EntreeSiteGC } from "../src/lib/garde-corps-outil/entree.ts";
 import { tarifLivraison, tarifPose } from "../src/lib/deplacement.ts";
 
@@ -280,9 +278,23 @@ test("livraison d'une commande : le poids de toutes les pièces ; pour une pièc
 });
 
 test("adresse de /api/prix-garde-corps : seuls des millimètres entiers dans les bornes de l'outil passent", () => {
-  const ok = (q: string) => lireEntreeGC(new URLSearchParams(q));
-  assert.deepEqual(ok("l=1180&allege=650&etage=1&fenetre=1400&wood=chene"), { largeurMm: 1180, allegeMm: 650, enEtage: true, fenetreMm: 1400, essence: "chene" });
-  assert.deepEqual(ok("l=1180&allege=650&etage=0&wood=pin"), { largeurMm: 1180, allegeMm: 650, enEtage: false, fenetreMm: 0, essence: "pin" });
+  const ok = (q: string) => lireRequetePrixGC(new URLSearchParams(q));
+  assert.deepEqual(ok("l=1180&allege=650&etage=1&fenetre=1400&wood=chene"), {
+    releve: { largeurMm: 1180, allegeMm: 650, enEtage: true, fenetreMm: 1400 },
+    essence: "chene",
+    metalId: undefined,
+    fabricId: undefined,
+    remplissageId: undefined,
+    quantite: 1,
+  });
+  assert.deepEqual(ok("l=1180&allege=650&etage=0&wood=pin&metal=blanc&fabric=fonte&remplissage=verre&qty=3"), {
+    releve: { largeurMm: 1180, allegeMm: 650, enEtage: false, fenetreMm: 0 },
+    essence: "pin",
+    metalId: "blanc",
+    fabricId: "fonte",
+    remplissageId: "verre",
+    quantite: 3,
+  });
   assert.ok(ok(`l=${BORNES_GC.B.min}&allege=${BORNES_GC.A.max}&etage=1&wood=noyer&fenetre=${BORNES_GC.Hf.max}`));
   for (const q of [
     "",
@@ -298,8 +310,11 @@ test("adresse de /api/prix-garde-corps : seuls des millimètres entiers dans les
     `l=1180&allege=650&etage=1&wood=chene&fenetre=${BORNES_GC.Hf.max + 1}`,
     "l=1180&allege=650&etage=1&wood=chene&prix=1",        // paramètre inconnu
     "l=1180&l=900&allege=650&etage=1&wood=chene",         // en double
+    "l=1180&allege=650&etage=1&wood=chene&qty=0",         // quantité de 1 à 10
+    "l=1180&allege=650&etage=1&wood=chene&qty=11",
+    "l=1180&allege=650&etage=1&wood=chene&metal=NOIR!",   // un identifiant d'option, rien d'autre
   ]) assert.equal(ok(q), null, q);
-  assert.deepEqual([...PARAMETRES_PRIX_GC].sort(), ["allege", "etage", "fenetre", "l", "wood"]);
+  assert.deepEqual([...PARAMETRES_PRIX_GC].sort(), ["allege", "etage", "fabric", "fenetre", "l", "metal", "qty", "remplissage", "wood"]);
 });
 
 test("un relevé hors des bornes de l'outil n'est jamais calculé", () => {
@@ -308,11 +323,45 @@ test("un relevé hors des bornes de l'outil n'est jamais calculé", () => {
   assert.throws(() => configurerGC(releve({ essence: "teck" as "pin" })), RangeError);
 });
 
+const requete = (e: Partial<EntreeSiteGC> = {}, q: Partial<RequetePrixGC> = {}): RequetePrixGC => {
+  const { essence, ...r } = releve(e);
+  return { releve: r, essence, quantite: 1, ...q };
+};
+
 test("réponse de /api/prix-garde-corps : le prix et la forme, rien d'autre", () => {
   chiffrageOuEchec();
-  const ok = reponsePrixGC(releve({ largeurMm: 1180 }));
-  assert.deepEqual(Object.keys(ok).sort(), ["carre", "conforme", "croix", "hauteurMm", "jourMm", "mainCouranteMm", "obligatoire", "ok", "prix"]);
-  const non = reponsePrixGC(releve({ largeurMm: BORNES_GC.B.max }));
+  const ok = reponsePrixGC(requete({ largeurMm: 1180 }));
+  assert.ok(ok);
+  assert.deepEqual(Object.keys(ok).sort(), ["carre", "conforme", "croix", "hauteurMm", "jourMm", "kg", "mainCouranteMm", "obligatoire", "ok", "prix", "remise", "soubassementMm"]);
+  const non = reponsePrixGC(requete({ largeurMm: BORNES_GC.B.max }));
+  assert.ok(non);
   assert.deepEqual(Object.keys(non).sort(), ["alertes", "conforme", "hauteurMm", "jourMm", "mainCouranteMm", "obligatoire", "ok", "raison"]);
   for (const r of [ok, non]) for (const x of Object.values(r)) assert.ok(["number", "boolean", "string"].includes(typeof x) || Array.isArray(x));
+});
+
+test("réponse de /api/prix-garde-corps : le prix de l'outil, plus les suppléments des options du site", () => {
+  chiffrageOuEchec();
+  const c = configOk({ largeurMm: 1180 });
+  const base = reponsePrixGC(requete({ largeurMm: 1180 }));
+  assert.ok(base?.ok);
+  // Les options du modèle (noir, fleur, croix) : exactement le prix de l'outil.
+  assert.equal(base.prix, prixGC(c));
+  assert.equal(base.remise, 0);
+  // Une rosace plus chère ajoute son supplément (décision 5 : inchangé, ajouté au prix de l'outil).
+  const medaillon = reponsePrixGC(requete({ largeurMm: 1180 }, { fabricId: "medaillon" }));
+  assert.ok(medaillon?.ok);
+  assert.ok(medaillon.prix > base.prix);
+  // Le verre remplace les croix : son supplément s'ajoute, la rosace ne se paie plus.
+  const verre = reponsePrixGC(requete({ largeurMm: 1180 }, { remplissageId: "verre", fabricId: "medaillon" }));
+  assert.ok(verre?.ok);
+  assert.ok(verre.prix > base.prix);
+  const verreFleur = reponsePrixGC(requete({ largeurMm: 1180 }, { remplissageId: "verre" }));
+  assert.equal(verre.prix, verreFleur?.ok ? verreFleur.prix : NaN, "sous le verre, pas de rosace à payer");
+  // Plusieurs pièces : la remise de la commande (frais fixes une fois), la même que prixCommandeGC.
+  const trois = reponsePrixGC(requete({ largeurMm: 1180 }, { quantite: 3 }));
+  assert.ok(trois?.ok);
+  assert.equal(trois.prix, base.prix);
+  assert.equal(trois.remise, prixCommandeGC([{ config: c, quantite: 3 }]).remise);
+  // Une option inconnue : pas de réponse (la route répond 400).
+  assert.equal(reponsePrixGC(requete({ largeurMm: 1180 }, { metalId: "or" })), null);
 });

@@ -10,8 +10,9 @@ import { useCallback, useMemo, useSyncExternalStore, type ReactNode } from "reac
  * serveur (panier vide) et l'affichage réel, et fonctionne entre onglets.
  *
  * On n'y stocke que la sélection (produit + options). Le prix mémorisé n'est
- * qu'une copie d'affichage : la page panier le recalcule depuis le catalogue et
- * /api/commande le recalcule côté serveur avant tout paiement.
+ * qu'une copie d'affichage : la page panier redemande le tarif au serveur
+ * (/api/panier/tarif) et /api/commande le recalcule, avec la même fonction,
+ * avant tout paiement.
  */
 export type CartItem = {
   /** Identifiant de ligne, dérivé des options : deux fois la même config = une seule ligne. */
@@ -28,6 +29,14 @@ export type CartItem = {
   hauteurMm?: number;
   epaisseurMm?: number;
   /**
+   * Le relevé d'un garde-corps de fenêtre (avec largeurMm) : c'est avec lui que
+   * le serveur recalcule sa forme et son prix (l'outil de plans). hauteurMm
+   * n'en est qu'une copie, pour l'affichage.
+   */
+  allegeMm?: number;
+  enEtage?: boolean;
+  fenetreMm?: number;
+  /**
    * Une ligne « prise de cotes à domicile » (slug PRISE_DE_COTES) : le code
    * postal du client décide du prix, le créneau vient de l'agenda. Les deux
    * sont recalculés et revérifiés par le serveur avant d'encaisser.
@@ -35,11 +44,14 @@ export type CartItem = {
   priseDeCotesCp?: string;
   /** Une ligne « livraison et pose à domicile » (slug POSE) : le code postal décide du prix. */
   poseCp?: string;
-  /** Une ligne « livraison par transporteur » (slug LIVRAISON) : code postal et colis décident du prix. */
+  /**
+   * Une ligne « livraison par transporteur » (slug LIVRAISON) : le code postal
+   * décide du prix, avec le poids de TOUTES les pièces de la commande, que le
+   * serveur pèse lui-même. (Une ligne RETRAIT, retrait à l'atelier, n'a rien.)
+   */
   livraisonCp?: string;
-  /** La pièce livrée, dont le serveur déduit le poids du colis. */
+  /** Anciennes lignes de livraison : la pièce et sa quantité. Le serveur ne les lit plus. */
   livraisonSlug?: string;
-  /** Combien de cette pièce partent dans le même colis : le poids facturé suit. */
   livraisonQty?: number;
   /** Le créneau choisi : « 2026-09-23|matin ». */
   rdv?: string;
@@ -77,6 +89,9 @@ function lineId(line: CartLine) {
     line.livraisonSlug,
     line.rdv,
     line.note,
+    // Le relevé d'un garde-corps : une autre fenêtre, une autre ligne. Absent
+    // des autres pièces, dont l'identifiant ne change donc pas.
+    ...(line.allegeMm !== undefined ? [line.allegeMm, line.enEtage ? "etage" : "rdc", line.fenetreMm] : []),
   ]
     .map((part) => part ?? "-")
     .join("|");
