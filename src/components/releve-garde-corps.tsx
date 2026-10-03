@@ -11,6 +11,7 @@ import {
   BORNES_RELEVE_GC,
   JOUR_GC_MM,
   lireReponsePrixGC,
+  noteReleveGC,
   parametresPrixGC,
   type OptionsGC,
   type ReleveGC,
@@ -137,18 +138,14 @@ export function usePrixGardeCorps(releve: ReleveGC | null, options: OptionsGC): 
 /**
  * Ce que le client précise et qui doit arriver tel quel à l'atelier, sur le
  * bon de commande : la fenêtre, le mur. Une ligne, courte. Le jour sous le
- * cadre est celui que l'outil a retenu (la réponse du serveur).
+ * cadre est celui que l'outil a retenu (la réponse du serveur). Le texte est
+ * composé par noteReleveGC (src/lib/garde-corps.ts), que les tests lisent.
  */
 export function noteGardeCorps(cotes: CotesGardeCorps, t: Dictionary["artisanat"], reponse?: ReponsePrixGC | null): string {
-  return [
-    cotes.etage,
-    cotes.mur && `${t.gcMur.toLowerCase()} : ${cotes.mur.toLowerCase()}`,
-    Number.isFinite(mm(cotes.allege)) && `${t.gcAllege.toLowerCase()} ${mm(cotes.allege)} mm`,
-    Number.isFinite(mm(cotes.fenetre)) && `${t.gcFenetre.toLowerCase()} ${mm(cotes.fenetre)} mm`,
-    reponse && reponse.jourMm > 0 && `${t.gcJourCourt} ${reponse.jourMm} mm`,
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  return noteReleveGC(
+    { etage: cotes.etage, mur: cotes.mur, allegeMm: mm(cotes.allege), fenetreMm: mm(cotes.fenetre), jourMm: reponse?.jourMm ?? 0 },
+    t,
+  );
 }
 
 /** La pastille numérotée devant une case : la même que sur le croquis. */

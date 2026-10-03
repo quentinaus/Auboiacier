@@ -50,6 +50,14 @@ import type { ReleveGC } from "./garde-corps.ts";
 /** Mêmes bornes que le panier (cart.tsx) : au-delà, la commande est refusée. */
 export const MAX_LIGNES = 20;
 export const MAX_QUANTITE = 10;
+/**
+ * Ce que le client précise sur une pièce (le relevé d'un garde-corps : étage,
+ * mur, allège, fenêtre, « posé à »), en signes. La note la plus longue que la
+ * fiche écrit en fait 174 (en anglais) : à 120, le panier et le bon de
+ * commande perdaient la hauteur de la fenêtre et « posé à ». Un test vérifie
+ * que la plus longue passe entière.
+ */
+export const MAX_PRECISIONS = 240;
 
 /** Le calcul du garde-corps par l'outil de plans : fourni par le serveur seulement. */
 export type CalculGC = {
@@ -232,7 +240,7 @@ export async function tarifer(
       quantite,
       nom,
       options,
-      precisions: texteBorne(line.note, 120),
+      precisions: texteBorne(line.note, MAX_PRECISIONS),
       epaisseurMm: resolu.line.size.id === SUR_MESURE ? coteMm(line.epaisseurMm) : undefined,
     });
   }
@@ -245,8 +253,10 @@ export async function tarifer(
   }
 
   const aChoisir = tarif.pieces.filter((p) => p.line.product.poseOption);
-  if (modeLu && aChoisir.length === 0 && tarif.refusees.length === 0) {
-    // Une livraison sans pièce à livrer (la pièce a été retirée du panier) : elle ne se paie pas.
+  if (modeLu && aChoisir.length === 0) {
+    // Une livraison sans pièce à livrer (la pièce a été retirée du panier, ou
+    // elle est refusée : un garde-corps « à étudier ») : elle ne se paie pas,
+    // et le total n'affiche jamais un montant sans pièce.
     tarif.refusees.push({ index: modeLu.index, raison: "orphelin" });
     modeLu = null;
   }

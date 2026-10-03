@@ -179,6 +179,13 @@ export type ModeRemiseGC = "transporteur" | "pose" | "retrait";
  * mêmes règles que src/lib/deplacement.ts) : le poids de toutes les pièces,
  * la plus grande cote pour le hors gabarit. Retrait à l'atelier : 0 €.
  * km : distance à vol d'oiseau depuis Saumur.
+ *
+ * POUR LES TESTS SEULEMENT : elle prouve que le panier livre au prix de
+ * l'outil. Elle pèse le garde-corps de l'outil, SANS le verre (l'outil ne le
+ * connaît pas) ; le site, lui, livre au poids de la ligne, verre compris
+ * (tarifer, src/lib/tarif-panier.ts, et livraisonDevisGC pour le devis). Elle
+ * n'est donc pas exportée par src/lib/prix-garde-corps.server.ts : aucune
+ * route ne peut l'utiliser (un test le vérifie).
  */
 export function livraisonGC(lignes: LigneCommandeGC[], mode: ModeRemiseGC, km: number): { prix: number; kg: number } {
   verifierLignes(lignes);

@@ -1251,6 +1251,8 @@ export const products: Product[] = [
     // essence : aucun écart fixe ici (il compterait le bois deux fois).
     woods: woods({ pin: 0, hetre: 0, chene: 0, noyer: 0 }),
     boisParDefaut: "chene",
+    // Un garde-corps n'a pas de plateau : le bois, c'est la main courante.
+    woodLabel: { fr: "Bois de la main courante", en: "Handrail timber" },
     metals: metals("noir", "brut", "blanc"),
     metalLabel: { fr: "Couleur de l'acier", en: "Steel colour" },
     // La rosace au croisement des barres : quatre modèles de fonderie, en

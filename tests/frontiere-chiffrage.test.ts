@@ -90,6 +90,17 @@ test("la porte commence par import \"server-only\"", () => {
   assert.match(texte, /^import "server-only";\n/);
 });
 
+test("la livraison n'a qu'un calcul sur le site : livraisonGC (sans le verre) ne passe pas la porte", () => {
+  // livraisonGC pèse le garde-corps de l'outil, sans le verre : elle ne sert qu'aux tests de parité.
+  // Le site livre au poids de la ligne, verre compris (tarifer ; livraisonDevisGC pour le devis).
+  const sansCommentaires = (f: string) => readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+  assert.doesNotMatch(sansCommentaires(PORTE), /\blivraisonGC\b/);
+  for (const f of SOURCES) {
+    if (f.startsWith(OUTIL + "/")) continue;
+    assert.doesNotMatch(sansCommentaires(f), /\blivraisonGC\b/, `${rel(f)} utilise livraisonGC`);
+  }
+});
+
 test("la route /api/prix-garde-corps passe par la porte et limite le débit", () => {
   const route = readFileSync(join(SRC, "app", "api", "prix-garde-corps", "route.ts"), "utf8");
   assert.match(route, /from "@\/lib\/prix-garde-corps\.server"/);

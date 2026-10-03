@@ -12,7 +12,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { tarifAffiche, tarifer } from "../src/lib/tarif-panier.ts";
+import { readFileSync } from "node:fs";
+
+import { libellePiece, MAX_PRECISIONS, tarifAffiche, tarifer } from "../src/lib/tarif-panier.ts";
+import { BORNES_RELEVE_GC, noteReleveGC } from "../src/lib/garde-corps.ts";
 import { CALCUL_GC, configurationGC, remiseCommandeGC } from "../src/lib/garde-corps-outil/site.ts";
 import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
 import { prixCommandeGC, prixGC, type ConfigGC } from "../src/lib/garde-corps-outil/calcul.ts";
@@ -112,17 +115,59 @@ test("plusieurs garde-corps, même à des cotes différentes : la remise de l'ou
 
 test("un garde-corps à étudier, ou dont la hauteur a changé depuis l'affichage, est refusé", async () => {
   chiffrageOuEchec();
+  // La pièce refusée part du panier, et la façon de la recevoir avec elle (plus rien à livrer).
   const etude = await tarif([garde({ largeurMm: 1700 }), { slug: RETRAIT }]);
-  assert.deepEqual(etude.refusees, [{ index: 0, raison: "a_etudier" }]);
+  assert.deepEqual(etude.refusees, [{ index: 0, raison: "a_etudier" }, { index: 1, raison: "orphelin" }]);
   const basse = await tarif([garde({ allegeMm: 300, fenetreMm: 500 }), { slug: RETRAIT }]);
-  assert.deepEqual(basse.refusees, [{ index: 0, raison: "a_etudier" }]);
+  assert.deepEqual(basse.refusees, [{ index: 0, raison: "a_etudier" }, { index: 1, raison: "orphelin" }]);
   // La hauteur que le panier a affichée est renvoyée à la commande : si elle n'est plus la bonne, refus.
   const bonne = cfg().hauteurMm;
   assert.deepEqual((await tarif([garde({ hauteurMm: bonne }), { slug: RETRAIT }])).refusees, []);
-  assert.deepEqual((await tarif([garde({ hauteurMm: bonne + 10 }), { slug: RETRAIT }])).refusees, [{ index: 0, raison: "hauteur" }]);
+  assert.deepEqual((await tarif([garde({ hauteurMm: bonne + 10 }), { slug: RETRAIT }])).refusees, [{ index: 0, raison: "hauteur" }, { index: 1, raison: "orphelin" }]);
   // Un relevé illisible : refusé, jamais chiffré au hasard.
-  assert.deepEqual((await tarif([garde({ allegeMm: "650" }), { slug: RETRAIT }])).refusees, [{ index: 0, raison: "unknown_size" }]);
-  assert.deepEqual((await tarif([garde({ enEtage: undefined }), { slug: RETRAIT }])).refusees, [{ index: 0, raison: "unknown_size" }]);
+  assert.deepEqual((await tarif([garde({ allegeMm: "650" }), { slug: RETRAIT }])).refusees, [{ index: 0, raison: "unknown_size" }, { index: 1, raison: "orphelin" }]);
+  assert.deepEqual((await tarif([garde({ enEtage: undefined }), { slug: RETRAIT }])).refusees, [{ index: 0, raison: "unknown_size" }, { index: 1, raison: "orphelin" }]);
+});
+
+test("un garde-corps refusé : jamais un montant de livraison ou de pose sans pièce", async () => {
+  chiffrageOuEchec();
+  for (const refuse of [garde({ largeurMm: 1700 }, 2), garde({ allegeMm: 300, fenetreMm: 500 })]) {
+    for (const mode of [{ slug: LIVRAISON, livraisonCp: "75001" }, { slug: POSE, poseCp: "49400" }, { slug: RETRAIT }]) {
+      const t = await tarif([refuse, mode]);
+      assert.deepEqual(t.refusees, [{ index: 0, raison: "a_etudier" }, { index: 1, raison: "orphelin" }], mode.slug);
+      assert.equal(t.mode, null, mode.slug);
+      assert.equal(t.total, 0, `${mode.slug} : aucun total sans pièce`);
+      const affiche = tarifAffiche(t, "fr");
+      assert.deepEqual(affiche.lignes, []);
+      assert.equal(affiche.total, 0);
+    }
+  }
+  // Avec une autre pièce qui, elle, se vend : la livraison reste, au poids de cette pièce seulement.
+  const mixte = await tarif([garde({ largeurMm: 1700 }), table(), { slug: LIVRAISON, livraisonCp: "44000" }]);
+  assert.deepEqual(mixte.refusees, [{ index: 0, raison: "a_etudier" }]);
+  assert.ok(mixte.mode?.mode === "transporteur");
+  assert.equal(mixte.total, mixte.pieces[0].line.unitPrice + mixte.mode.deplacement.montantCents / 100);
+});
+
+test("ce que le client précise sur un garde-corps arrive entier au panier et au bon de commande", async () => {
+  chiffrageOuEchec();
+  for (const langue of ["fr", "en"] as const) {
+    const t = JSON.parse(readFileSync(new URL(`../src/app/[lang]/dictionaries/${langue}.json`, import.meta.url), "utf8")).artisanat;
+    const plusLong = (liste: string[]) => liste.reduce((a, b) => (b.length > a.length ? b : a), "");
+    // La note la plus longue que la fiche peut écrire : les plus longs libellés, les plus grandes cotes de l'outil.
+    const note = noteReleveGC(
+      { etage: plusLong(t.gcEtageOptions), mur: plusLong(t.gcMurOptions), allegeMm: BORNES_RELEVE_GC.allegeMm.max, fenetreMm: BORNES_RELEVE_GC.fenetreMm.max, jourMm: 9999 },
+      t
+    );
+    assert.ok(note.length <= MAX_PRECISIONS, `${langue} : ${note.length} signes > ${MAX_PRECISIONS}`);
+    const tarifLu = await tarif([garde({ note }), { slug: RETRAIT }], langue);
+    assert.equal(tarifLu.pieces[0].precisions, note, `${langue} : la note est coupée`);
+    assert.ok(libellePiece(tarifLu.pieces[0]).endsWith(note), `${langue} : le libellé Stripe perd la fin de la note`);
+    assert.ok(tarifAffiche(tarifLu, langue).lignes[0].options.endsWith(note), `${langue} : le panier perd la fin de la note`);
+  }
+  // Le relevé du 30/09 : la hauteur de la fenêtre et « posé à » sont bien là.
+  const vu = await tarif([garde({ note: "En étage · type de mur : pierre · hauteur du sol au bas de la fenêtre 650 mm · hauteur de la fenêtre, de l'appui au haut 1400 mm · posé à 90 mm" }), { slug: RETRAIT }]);
+  assert.match(tarifAffiche(vu, "fr").lignes[0].options, /de l'appui au haut 1400 mm · posé à 90 mm$/);
 });
 
 test("la prise de cotes : son créneau est lu, son prix vient du code postal", async () => {

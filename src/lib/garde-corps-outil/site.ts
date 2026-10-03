@@ -54,12 +54,19 @@ export function remiseCommandeGC(lignes: { releve: ReleveGC; essence: string; qu
 /** Ce que le tarif du panier (src/lib/tarif-panier.ts) reçoit pour chiffrer un garde-corps. */
 export const CALCUL_GC: CalculGC = { prixReleve: prixReleveOutil, remise: remiseCommandeGC };
 
-/** La ligne d'un garde-corps, options comprises (le même calcul que le panier et la commande). */
+/**
+ * La ligne d'un garde-corps, options comprises (le même calcul que le panier
+ * et la commande). Une option ABSENTE est celle du modèle (noir, fleur,
+ * croix) : la même règle pour la route du prix, le devis PDF et l'aperçu de
+ * la livraison. Une option inconnue est refusée (unknown_metal…). Le panier,
+ * lui, envoie toujours les trois (resolveSelection les exige).
+ */
 export function ligneGC(
   releve: ReleveGC,
   options: { woodId: string; metalId?: string; fabricId?: string; remplissageId?: string },
   locale: "fr" | "en" = "fr"
 ) {
+  const modele = produitGC();
   return resolveSelection(
     {
       slug: SLUG_GC,
@@ -69,9 +76,9 @@ export function ligneGC(
       enEtage: releve.enEtage,
       fenetreMm: releve.fenetreMm,
       woodId: options.woodId,
-      metalId: options.metalId,
-      fabricId: options.fabricId,
-      remplissageId: options.remplissageId,
+      metalId: options.metalId ?? modele.metals[0]?.id,
+      fabricId: options.fabricId ?? modele.fabrics?.[0]?.id,
+      remplissageId: options.remplissageId ?? modele.remplissages?.[0]?.id,
       locale,
     },
     prixReleveOutil
@@ -153,13 +160,8 @@ export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
       alertes: [...c.alertes],
     };
   }
-  const produit = produitGC();
-  const r = ligneGC(q.releve, {
-    woodId: q.essence,
-    metalId: q.metalId ?? produit.metals[0]?.id,
-    fabricId: q.fabricId ?? produit.fabrics?.[0]?.id,
-    remplissageId: q.remplissageId ?? produit.remplissages?.[0]?.id,
-  });
+  // Une option absente : celle du modèle (ligneGC).
+  const r = ligneGC(q.releve, { woodId: q.essence, metalId: q.metalId, fabricId: q.fabricId, remplissageId: q.remplissageId });
   if (!r.ok || !r.line.gc) return null;
   return {
     ok: true,

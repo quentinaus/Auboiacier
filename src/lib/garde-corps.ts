@@ -180,3 +180,29 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
   }
   return null;
 }
+
+/** Les mots de la note, pris au dictionnaire de la fiche (fr.json / en.json, « artisanat »). */
+export type MotsNoteGC = { gcMur: string; gcAllege: string; gcFenetre: string; gcJourCourt: string };
+
+/**
+ * Ce que le client précise et qui doit arriver tel quel à l'atelier, sur le
+ * panier et le bon de commande : l'étage, le mur, l'allège, la hauteur de la
+ * fenêtre, et le jour sous le cadre retenu par l'outil (« posé à 90 mm »).
+ * Une cote inconnue (NaN) ou un jour nul est omis. Le panier garde ce texte
+ * jusqu'à MAX_PRECISIONS signes (src/lib/tarif-panier.ts) : un test vérifie
+ * que la note la plus longue, dans les deux langues, passe entière.
+ */
+export function noteReleveGC(
+  r: { etage: string; mur: string; allegeMm: number; fenetreMm: number; jourMm: number },
+  t: MotsNoteGC
+): string {
+  return [
+    r.etage,
+    r.mur && `${t.gcMur.toLowerCase()} : ${r.mur.toLowerCase()}`,
+    Number.isFinite(r.allegeMm) && `${t.gcAllege.toLowerCase()} ${r.allegeMm} mm`,
+    Number.isFinite(r.fenetreMm) && `${t.gcFenetre.toLowerCase()} ${r.fenetreMm} mm`,
+    r.jourMm > 0 && `${t.gcJourCourt} ${r.jourMm} mm`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}

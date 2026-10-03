@@ -8,8 +8,13 @@ import "server-only";
  * jamais dans le JavaScript public. Le navigateur demande son prix à
  * /api/prix-garde-corps (une pièce) et à /api/panier/tarif (le panier), qui
  * ne rendent que des prix de vente et la forme retenue.
+ *
+ * La livraison n'a qu'un calcul sur le site : celui du panier (tarifer,
+ * src/lib/tarif-panier.ts), que le devis reprend (livraisonDevisGC) ; il
+ * pèse le verre. livraisonGC (calcul.ts) ne sert qu'aux tests de parité avec
+ * l'outil : elle ne passe donc pas par cette porte.
  */
-export { ChiffrageIndisponible, configurerGC, entreeValide, livraisonGC, prixCommandeGC, prixGC } from "./garde-corps-outil/calcul.ts";
+export { ChiffrageIndisponible, configurerGC, entreeValide, prixCommandeGC, prixGC } from "./garde-corps-outil/calcul.ts";
 export {
   CALCUL_GC,
   configurationGC,

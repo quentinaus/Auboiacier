@@ -2468,7 +2468,14 @@ export function ProductOptions({
                 </p>
                 {!modeVisite && total !== null && livraisonPrete(pose) && (
                   <p className="text-[11px] text-[#6f6357]">
-                    {pose.mode === "retrait" ? t.retraitCourt : t.livraisonIncluse}
+                    {/* Ce que le prix compte, en chiffres : « Livraison incluse »
+                        se lisait « livraison gratuite ». */}
+                    {pose.mode === "retrait"
+                      ? t.retraitCourt
+                      : (pose.mode === "pose" ? t.poseIncluse : t.livraisonIncluse).replace(
+                          "{prix}",
+                          prixAffiche(montantLivraisonChoisie ?? 0, locale),
+                        )}
                   </p>
                 )}
                 {size && !modeVisite && orderable && total !== null && (

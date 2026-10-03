@@ -12,6 +12,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 
 import {
   ALLEGE_SANS_OBLIGATION_MM,
@@ -36,7 +37,7 @@ import {
   prixReleveOutil,
   reponsePrixGC,
 } from "../src/lib/garde-corps-outil/site.ts";
-import { computeUnitPrice, getProduct, priceFrom, prixParOutil, resolveSelection, SUR_MESURE, supplementRemplissage } from "../src/lib/products.ts";
+import { computeUnitPrice, essenceDeReference, getProduct, priceFrom, prixParOutil, resolveSelection, SUR_MESURE, supplementRemplissage } from "../src/lib/products.ts";
 
 const gc = getProduct("garde-corps")!;
 const MODELE = { metalId: "noir", fabricId: "fleur", remplissageId: "croix" };
@@ -247,4 +248,54 @@ test("l'adresse que la fiche fabrique est celle que la route sait lire", () => {
       assert.deepEqual(lireRequetePrixGC(p), { releve: r, essence: "pin", metalId: "brut", fabricId: "fonte", remplissageId: "verre", quantite });
     }
   }
+});
+
+test("la fiche démarre sur le chêne de la photo, et appelle le bois « main courante »", () => {
+  // Toutes les essences sont à 0 € au catalogue (l'outil chiffre le bois) : la « première sans supplément » serait le pin.
+  assert.equal(essenceDeReference(gc)?.id, "chene");
+  assert.equal(gc.woods[0].id, "pin", "si le pin n'est plus le premier, ce test ne prouve plus rien");
+  // La galerie (product-view) et les options (product-options) partent de la même essence : celle de référence.
+  for (const fichier of ["product-view.tsx", "product-options.tsx"]) {
+    const source = readFileSync(new URL(`../src/components/${fichier}`, import.meta.url), "utf8");
+    assert.match(source, /useState\(\s*essenceDeReference\(product\)\?\.id \?\? ""/, `${fichier} : l'essence de départ`);
+    assert.doesNotMatch(source, /woods\.find\(\(w\) => !w\.priceDelta\)/, `${fichier} : l'ancienne règle (le pin pour le garde-corps)`);
+  }
+  // Le pin et le chêne n'ont pas le même prix : démarrer sur le mauvais montrait un prix qui n'était pas celui de la photo.
+  chiffrageOuEchec();
+  const chene = reponsePrixGC({ releve: releve(), essence: "chene", quantite: 1 });
+  const pin = reponsePrixGC({ releve: releve(), essence: "pin", quantite: 1 });
+  assert.ok(chene?.ok && pin?.ok && chene.prix !== pin.prix);
+  // Un garde-corps n'a pas de plateau.
+  assert.deepEqual(gc.woodLabel, { fr: "Bois de la main courante", en: "Handrail timber" });
+});
+
+test("une option absente est celle du modèle, partout : prix, devis, aperçu de la livraison", () => {
+  chiffrageOuEchec();
+  const sans = ligneGC(releve(), { woodId: "chene" });
+  const avec = ligneGC(releve(), { woodId: "chene", ...MODELE });
+  assert.ok(sans.ok && avec.ok);
+  assert.deepEqual([sans.line.metal?.id, sans.line.fabric?.id, sans.line.remplissage?.id], [MODELE.metalId, MODELE.fabricId, MODELE.remplissageId]);
+  assert.equal(sans.line.unitPrice, avec.line.unitPrice);
+  // Une option inconnue reste refusée : jamais remplacée en silence.
+  const inconnue = ligneGC(releve(), { woodId: "chene", metalId: "or" });
+  assert.equal(inconnue.ok === false && inconnue.reason, "unknown_metal");
+  assert.equal(reponsePrixGC({ releve: releve(), essence: "chene", quantite: 1 })?.ok, true);
+});
+
+test("les mots de la fiche disent ce qui se passe vraiment (devis, livraison)", () => {
+  const route = readFileSync(new URL("../src/app/api/devis-pdf/route.ts", import.meta.url), "utf8");
+  // Le devis PDF s'ouvre dans un onglet : la route n'envoie aucun e-mail…
+  assert.doesNotMatch(route, /sendEmail|@\/lib\/email/);
+  for (const langue of ["fr", "en"]) {
+    const t = JSON.parse(readFileSync(new URL(`../src/app/[lang]/dictionaries/${langue}.json`, import.meta.url), "utf8")).artisanat;
+    // … donc la fenêtre des coordonnées ne le promet pas.
+    assert.doesNotMatch(t.coordonneesNote, /e-?mail|envoy|sent/i, `${langue} : coordonneesNote promet un envoi`);
+    // Sous le prix : le montant de la livraison compté dedans, pas « livraison incluse » (lu « gratuite »).
+    for (const cle of ["livraisonIncluse", "poseIncluse"]) {
+      assert.match(t[cle], /\{prix\}/, `${langue} : ${cle} sans montant`);
+      assert.doesNotMatch(t[cle], /inclus|included|offert|free|gratuit/i, `${langue} : ${cle}`);
+    }
+  }
+  const options = readFileSync(new URL("../src/components/product-options.tsx", import.meta.url), "utf8");
+  assert.match(options, /\(pose\.mode === "pose" \? t\.poseIncluse : t\.livraisonIncluse\)\.replace\(\s*"\{prix\}",\s*prixAffiche\(montantLivraisonChoisie \?\? 0, locale\)/);
 });

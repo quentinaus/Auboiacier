@@ -84,6 +84,18 @@ export async function GET(request: Request) {
     if (largeurMm === undefined || allegeMm === undefined || (etage !== "1" && etage !== "0") || !woodId) {
       return NextResponse.json({ error: "unknown_size" }, { status: 400 });
     }
+    // Comme /api/prix-garde-corps : une option absente est celle du modèle
+    // (ligneGC), une option illisible est refusée — jamais remplacée en silence.
+    const option = (cle: string) => {
+      const t = p.get(cle);
+      return t === null ? undefined : (identifiant(t) ?? null);
+    };
+    const metalId = option("metal");
+    const fabricId = option("fabric");
+    const remplissageId = option("remplissage");
+    if (metalId === null || fabricId === null || remplissageId === null) {
+      return NextResponse.json({ error: "invalid" }, { status: 400 });
+    }
     let livraison: LivraisonDevisGC;
     if (mode === "retrait") livraison = { mode: "retrait" };
     else if (mode === "transporteur" || mode === "pose") {
@@ -95,12 +107,7 @@ export async function GET(request: Request) {
     try {
       resultat = composerDevisGardeCorps({
         releve: { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm },
-        options: {
-          woodId,
-          metalId: identifiant(p.get("metal")),
-          fabricId: identifiant(p.get("fabric")),
-          remplissageId: identifiant(p.get("remplissage")),
-        },
+        options: { woodId, metalId, fabricId, remplissageId },
         quantite: entier(p.get("qty"), 10) ?? 1,
         livraison,
         client,

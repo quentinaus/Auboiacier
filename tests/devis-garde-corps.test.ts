@@ -13,6 +13,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 
 import { composerDevisGC, DS_GC } from "../src/lib/garde-corps-outil/devis.genere.mjs";
 import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
@@ -256,4 +257,20 @@ test("le numéro du devis change avec la fenêtre, les options, la quantité et 
   for (const autre of [numero({}, { allegeMm: 700 }), numero({}, { enEtage: false }), numero({}, { fenetreMm: 1500 }), numero({ quantite: 2 }), numero({ options: { woodId: "noyer", ...MODELE } }), numero({ livraison: { mode: "pose", codePostal: "44000", lieu: lieu(100) } })]) {
     assert.notEqual(autre, a);
   }
+});
+
+test("un lien de devis sans teinte, rosace ni remplissage : le devis du modèle, comme la route du prix", () => {
+  chiffrageOuEchec();
+  const r: ReleveGC = { largeurMm: 1180, allegeMm: 650, enEtage: true, fenetreMm: 1400 };
+  for (const livraison of livraisons(118.46)) {
+    const sans = devisOk(entree(r, { options: { woodId: "chene" }, quantite: 2, livraison }));
+    const avec = devisOk(entree(r, { quantite: 2, livraison }));
+    assert.deepEqual(sans.lignes, avec.lignes, livraison.mode);
+    assert.equal(sans.total, avec.total);
+    assert.equal(sans.numero, avec.numero);
+  }
+  // La route lit une option absente comme « celle du modèle », une option illisible comme un refus.
+  const route = readFileSync(new URL("../src/app/api/devis-pdf/route.ts", import.meta.url), "utf8");
+  assert.match(route, /t === null \? undefined : \(identifiant\(t\) \?\? null\)/);
+  assert.match(route, /options: \{ woodId, metalId, fabricId, remplissageId \}/);
 });
