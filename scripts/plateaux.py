@@ -66,6 +66,44 @@ def _polygone(masque, eps=1.5, dessous_droit=True):
     return cv2.approxPolyDP(hull.reshape(-1, 1, 2), eps, True).reshape(-1, 2).astype(np.float32)
 
 
+def _aire(p):
+    x, y = p[:, 0], p[:, 1]
+    return 0.5 * abs(float(np.dot(x, np.roll(y, -1)) - np.dot(y, np.roll(x, -1))))
+
+
+def coins_vifs(poly, part=0.006):
+    """Un plateau a des coins : là où le relevé a laissé un pan coupé (un petit côté entre deux
+    grands), on prolonge les deux grands côtés jusqu'à leur rencontre. On ne le fait que si le
+    triangle ajouté est minuscule (`part` de la surface) : un vrai côté n'est jamais supprimé.
+    Le dessous du plateau (où passent les pieds) n'est jamais touché."""
+    p = [np.asarray(q, np.float64) for q in poly]
+    total = _aire(np.array(p))
+    ys = [q[1] for q in p]
+    limite = min(ys) + 0.35 * (max(ys) - min(ys))               # seuls les coins du DESSUS (arrière) sont refaits
+    change = True
+    while change and len(p) > 4:
+        change = False
+        n = len(p)
+        for i in range(n):
+            a, b, c, d = p[i - 1], p[i], p[(i + 1) % n], p[(i + 2) % n]
+            u, v = b - a, c - d
+            det = u[0] * (-v[1]) - (-v[0]) * u[1]
+            if abs(det) < 1e-6:
+                continue
+            w = d - a
+            t = (w[0] * (-v[1]) - (-v[0]) * w[1]) / det       # a + t·u = d + s·v
+            sv = (u[0] * w[1] - u[1] * w[0]) / det
+            if t < 1 or sv < 1:
+                continue                                          # la rencontre doit être AU-DELÀ des deux côtés
+            x = a + t * u
+            if max(b[1], c[1], x[1]) <= limite and _aire(np.array([b, x, c])) <= part * total:
+                p[i] = x
+                del p[(i + 1) % n]
+                change = True
+                break
+    return np.array(p, np.float32)
+
+
 def polygone_bois(photo, autres=()):
     """Le plateau de chêne d'une photo. `autres` : la même vue dans ses autres teintes de pieds
     (elles départagent le bois du plateau d'un pied laiton ou chocolat)."""
@@ -181,7 +219,12 @@ def nettoyer_dessus(photo, poly, largeur=18, rive=8):
     dans = masque_poly(poly, photo.shape, 0.6) > 0.02
     haut = np.where(dans.any(0), dans.argmax(0), H)             # première ligne du plateau, colonne par colonne
     y = np.arange(H)[:, None]
-    lisere = dans & (y <= haut[None, :] + rive)
+    # … et, un peu plus bas, tout ce qui est encore du fond blanc à l'intérieur du contour (un coin
+    # que la photo d'origine arrondit) : le plateau va jusqu'au bout de ses lignes droites.
+    h_, s_, v_ = rc.hsv(photo)
+    blanc = (v_ > 0.86) & (s_ < 0.12)
+    blanc = cv2.dilate(blanc.astype(np.uint8), np.ones((5, 5), np.uint8)) > 0
+    lisere = dans & ((y <= haut[None, :] + rive) | (blanc & (y <= haut[None, :] + 40)))
     autour = cv2.dilate(lisere.astype(np.uint8), np.ones((9, 9), np.uint8)) > 0
     bois = cv2.inpaint(np.clip(photo, 0, 255).astype(np.uint8), (lisere | (~dans & autour)).astype(np.uint8), 3, cv2.INPAINT_TELEA).astype(np.float32)
     photo = np.where(lisere[..., None], bois, photo)

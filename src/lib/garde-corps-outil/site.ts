@@ -11,7 +11,7 @@
 import { configurerGC, modelesConformesGC, prixCommandeGC, prixGC, ChiffrageIndisponible, type ConfigAEtudierGC, type ConfigGC } from "./calcul.ts";
 import { ESSENCES_GC, type EntreeSiteGC, type EssenceGC } from "./entree.ts";
 import { getProduct, priceFrom, prixParOutil, resolveSelection, SUR_MESURE, type PrixReleve, type Product } from "../products.ts";
-import { BORNES_RELEVE_GC, RELEVE_DEPART_GC, lireModeleGC, releveDansLesBornes, type ModeleGC, type ReleveGC, type ReponsePrixGC } from "../garde-corps.ts";
+import { BORNES_RELEVE_GC, MODELES_GC_MAX, RELEVE_DEPART_GC, lireModeleGC, releveDansLesBornes, type ModeleGC, type ReleveGC, type ReponsePrixGC } from "../garde-corps.ts";
 import type { CalculGC } from "../tarif-panier.ts";
 
 /** L'identifiant du garde-corps de fenêtre au catalogue. */
@@ -174,10 +174,10 @@ export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
   if (!r.ok || !r.line.gc) return null;
   // Les autres modèles que la norme permet, chacun à son prix (même calcul que la ligne ci-dessus).
   const modeles: ModeleGC[] = [];
-  for (const m of modelesConformesGC(entreeGC(q.releve, q.essence))) {
+  for (const m of modelesConformesGC(entreeGC(q.releve, q.essence), MODELES_GC_MAX)) {
     const id = `${m.carre}-${m.croix}${m.barreauxBas ? "-b" : ""}`;
     const l = ligneGC({ ...q.releve, modele: id }, { woodId: q.essence, metalId: q.metalId, fabricId: q.fabricId, remplissageId: q.remplissageId });
-    if (l.ok && l.line.gc) modeles.push({ id, croix: m.croix, carre: m.carre, soubassementMm: m.soubassementMm, prix: l.line.unitPrice, kg: Math.round(l.line.gc.kg) });
+    if (l.ok && l.line.gc) modeles.push({ id, croix: m.croix, carre: m.carre, soubassementMm: m.soubassementMm, hauteurMm: l.line.gc.hauteurMm, prix: l.line.unitPrice, kg: Math.round(l.line.gc.kg) });
   }
   return {
     ok: true,

@@ -12,12 +12,12 @@ import recolor as rc
 
 ESSENCES = ["pin", "hetre", "noyer"]
 TEINTES = ["noir", "gris", "chocolat", "laiton", "lin", "blanc"]
-VERSION = "v7"
+VERSION = "v8"
 
 
 def contour(photo, autres, dessous_droit):
     m, _ = rc.masque_plateau([photo] + list(autres))
-    return P._polygone(m > 0.5, dessous_droit=dessous_droit)
+    return P.coins_vifs(P._polygone(m > 0.5, dessous_droit=dessous_droit))
 
 
 def faire(photo, poly, sortie):

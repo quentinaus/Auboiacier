@@ -81,6 +81,9 @@ function haversineKm(a: { lat: number; lon: number }, b: { lat: number; lon: num
   return 2 * r * Math.asin(Math.sqrt(h));
 }
 
+/** La prise de cotes seule est vendue aux trois quarts de son compte (voir tarifDeplacement). */
+export const COEF_PRISE_DE_COTES = 0.75;
+
 /**
  * Le prix à partir de la distance à vol d'oiseau. C'est la partie pure, celle
  * que les tests vérifient : le géocodage est ailleurs.
@@ -98,7 +101,9 @@ export function tarifDeplacement(distanceKm: number): Omit<Deplacement, "commune
   }
   const route = distanceKm * COEF_ROUTE * 2;
   const heures = route / VITESSE_KMH + HEURES_SUR_PLACE;
-  const euros = Math.ceil(route * EURO_PAR_KM + heures * TAUX_HORAIRE_DEPLACEMENT);
+  // Décision de Quentin (03/10/2026) : la simple prise de cotes est facturée 25 % sous le compte
+  // (route + temps) — elle doit donner envie, elle est déduite de la commande de toute façon.
+  const euros = Math.ceil((route * EURO_PAR_KM + heures * TAUX_HORAIRE_DEPLACEMENT) * COEF_PRISE_DE_COTES);
   return {
     montantCents: euros * 100,
     distanceKm: Math.round(distanceKm),

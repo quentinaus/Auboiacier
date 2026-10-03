@@ -1294,10 +1294,14 @@ export function ProductOptions({
    * personne ne savait pourquoi. Chaque raison renvoie vers le bon endroit
    * de la fiche (mêmes ancres que « Prise de cotes à domicile »).
    */
+  /** Le garde-corps a un prix, mais le client n'a pas encore choisi son modèle parmi ceux aux normes. */
+  const modeleAChoisir = estGC && !modeVisite && Boolean(configGC) && !cotesGardeCorps.modele;
   const raisonIndisponible: { message: string; ancre: string } | null = modeVisite
     ? !visitePrete
       ? { message: t.raisonVisiteIncomplete, ancre: "#cotes" }
       : null
+    : modeleAChoisir
+      ? { message: locale === "fr" ? "Choisissez votre modèle de garde-corps parmi ceux proposés." : "Choose your railing model among those offered.", ancre: "#modeles-gc" }
     : total === null
       ? // Le même texte que l'alerte sous les champs (raisonDevisTexte) : une
         // fois les deux cotes tapées hors barème, cotesTapees repasse à null
@@ -2542,7 +2546,12 @@ export function ProductOptions({
                   style={{ color: ACCENT }}
                 >
                   {modeVisite
-                    ? t.onQuote
+                    ? prixVisite !== null
+                      ? // La visite a un prix : c'est lui qui part au panier, on le montre.
+                        `${locale === "fr" ? "Visite" : "Visit"} : ${prixAffiche(prixVisite, locale)}`
+                      : locale === "fr"
+                        ? "Visite : votre code postal"
+                        : "Visit: your postcode"
                     : prixFinal !== null
                       ? prixAffiche(prixFinal, locale)
                       : bareme || estGC
@@ -2610,7 +2619,7 @@ export function ProductOptions({
               onClick={addToCart}
               disabled={
                 total === null ||
-                (modeVisite && !visitePrete) ||
+                (modeVisite && !visitePrete) || modeleAChoisir ||
                 // La visite de l'atelier n'a pas de livraison : seule la pièce en demande une.
                 (!modeVisite && product.poseOption && !livraisonPrete(pose))
               }
@@ -2796,7 +2805,7 @@ export function ProductOptions({
           <button
             type="button"
             onClick={addToCart}
-            disabled={total === null || (modeVisite && !visitePrete) || (!modeVisite && product.poseOption && !livraisonPrete(pose))}
+            disabled={total === null || (modeVisite && !visitePrete) || modeleAChoisir || (!modeVisite && product.poseOption && !livraisonPrete(pose))}
             className="btn-verre ml-auto shrink-0 rounded-full px-5 py-3 text-xs font-medium uppercase tracking-[0.12em] text-white"
           >
             {t.addToCart}

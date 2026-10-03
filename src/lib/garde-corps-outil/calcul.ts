@@ -151,26 +151,32 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
  * d'abord) : au plus `max`. Le premier est celui que l'outil retient de
  * lui-même. Chacun est une configuration complète, chiffrée comme les autres.
  */
-export function modelesConformesGC(e: EntreeSiteGC, max = 4): ConfigGC[] {
+export function modelesConformesGC(e: EntreeSiteGC, max = 6): ConfigGC[] {
   const { modele: _ignore, ...sansChoix } = e;
   void _ignore;
   const trouves: ConfigGC[] = [];
   const dessins = new Set<string>();
+  const ajouter = (s: number, n: number, b: boolean) => {
+    if (trouves.length >= max) return false;
+    if (calculerGC({ ...valeursGC(DEFAUTS_GC, sansChoix, s, n, b), _rapide: true }).alertes.length) return false;
+    const c = configurerGC({ ...sansChoix, modele: `${s}-${n}${b ? "-b" : ""}` });
+    if (!c.ok) return false;
+    // Le même dessin obtenu par deux chemins (les barreaux que la norme impose déjà) : une seule fois.
+    const dessin = [c.carre, c.croix, c.soubassementMm].join("|");
+    if (dessins.has(dessin)) return true;
+    dessins.add(dessin);
+    trouves.push(c);
+    return true;
+  };
+  // Les croix seules d'abord, puis les barreaux en bas. Dans chaque famille : le premier carré qui
+  // passe, avec le moins de croix puis une croix de plus (un dessin plus serré) ; ensuite les
+  // carrés plus forts, seulement s'ils demandent MOINS de croix.
   for (const b of [false, true]) {
     let moinsDeCroix = Infinity;
     for (const s of ORDRE_CARRES) {
-      for (let n = 1; n <= CROIX_MAX && n < moinsDeCroix && trouves.length < max; n++) {
-        const rapide = calculerGC({ ...valeursGC(DEFAUTS_GC, sansChoix, s, n, b), _rapide: true });
-        if (rapide.alertes.length) continue;
-        const c = configurerGC({ ...sansChoix, modele: `${s}-${n}${b ? "-b" : ""}` });
-        if (!c.ok) break;
-        // Le même dessin obtenu par deux chemins (les barreaux que la norme impose déjà) : une seule fois.
-        const dessin = [c.carre, c.croix, c.soubassementMm].join("|");
-        if (!dessins.has(dessin)) {
-          dessins.add(dessin);
-          trouves.push(c);
-        }
-        // Dans une section donnée, le moins de croix qui passe ; une autre section ne vaut que s'il en faut moins.
+      for (let n = 1; n <= CROIX_MAX && n < moinsDeCroix; n++) {
+        if (!ajouter(s, n, b)) continue;
+        if (moinsDeCroix === Infinity && n < CROIX_MAX) ajouter(s, n + 1, b);
         moinsDeCroix = n;
         break;
       }

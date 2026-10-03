@@ -73,10 +73,15 @@ export type ModeleGC = {
   carre: number;
   /** Hauteur des barreaux droits en partie basse ; 0 : aucun. */
   soubassementMm: number;
+  /** Hauteur du garde-corps dans ce modèle, main courante comprise (pour le dessiner à l'échelle). */
+  hauteurMm: number;
   /** Le prix d'UNE pièce dans ce modèle, options comprises. */
   prix: number;
   kg: number;
 };
+
+/** Combien de modèles la route propose au plus. */
+export const MODELES_GC_MAX = 6;
 
 /**
  * Le relevé qui fait le « à partir de » du garde-corps : le plus petit que
@@ -126,7 +131,7 @@ export type ReponsePrixGC =
       kg: number;
       /** En étage avec une allège sous 900 mm : la loi impose la protection. */
       obligatoire: boolean;
-      /** Tous les modèles que la norme permet pour cette fenêtre (au plus 4), celui-ci compris. */
+      /** Les modèles que la norme permet pour cette fenêtre (au plus MODELES_GC_MAX), celui-ci compris. */
       modeles: ModeleGC[];
     }
   | {
@@ -197,12 +202,12 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
     if (!entier(o.prix, 1) || !(typeof o.remise === "number" && Number.isInteger(o.remise) && o.remise <= 0)) return null;
     if (!entier(o.croix, 1) || !entier(o.carre, 1) || !entier(o.soubassementMm) || !entier(o.kg)) return null;
     const modeles: ModeleGC[] = [];
-    for (const m of Array.isArray(o.modeles) ? o.modeles.slice(0, 4) : []) {
+    for (const m of Array.isArray(o.modeles) ? o.modeles.slice(0, MODELES_GC_MAX) : []) {
       if (!m || typeof m !== "object") return null;
       const x = m as Record<string, unknown>;
       const lu = lireModeleGC(x.id);
-      if (!lu || x.croix !== lu.croix || x.carre !== lu.carre || !entier(x.soubassementMm) || !entier(x.prix, 1) || !entier(x.kg)) return null;
-      modeles.push({ id: x.id as string, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, prix: x.prix as number, kg: x.kg as number });
+      if (!lu || x.croix !== lu.croix || x.carre !== lu.carre || !entier(x.soubassementMm) || !entier(x.hauteurMm, 1) || !entier(x.prix, 1) || !entier(x.kg)) return null;
+      modeles.push({ id: x.id as string, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, hauteurMm: x.hauteurMm as number, prix: x.prix as number, kg: x.kg as number });
     }
     return {
       ok: true,

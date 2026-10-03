@@ -374,11 +374,11 @@ test("modèles au choix : chacun passe la norme, a son prix, et un modèle forg�
   const q = { releve, essence: "chene" as const, quantite: 1 };
   const r = reponsePrixGC(q);
   assert.ok(r && r.ok, "ce relevé a un prix");
-  assert.ok(r.modeles.length >= 1 && r.modeles.length <= 4);
+  assert.ok(r.modeles.length >= 1 && r.modeles.length <= 6);
   // Le premier modèle proposé est celui que l'outil retient de lui-même, au même prix.
   assert.equal(r.modeles[0].id.replace(/-b$/, ""), `${r.carre}-${r.croix}`);
   assert.equal(r.modeles[0].prix, r.prix);
-  assert.deepEqual(Object.keys(r.modeles[0]).sort(), ["carre", "croix", "id", "kg", "prix", "soubassementMm"]);
+  assert.deepEqual(Object.keys(r.modeles[0]).sort(), ["carre", "croix", "hauteurMm", "id", "kg", "prix", "soubassementMm"]);
   for (const m of r.modeles) {
     const choisi = reponsePrixGC({ ...q, releve: { ...releve, modele: m.id } });
     assert.ok(choisi && choisi.ok, `le modèle ${m.id} se commande`);

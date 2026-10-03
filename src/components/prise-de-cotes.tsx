@@ -61,6 +61,8 @@ export function QuiMesure({
 }) {
   const idQui = useId();
   const idNote = useId();
+  // La langue de la fiche, lue dans ses propres mots (le composant ne reçoit que le dictionnaire).
+  const fr = /moi/i.test(t.gcQuiMoi);
   const choix = [
     { id: "moi", label: t.gcQuiMoi, tag: tagMoi ?? t.gcQuiMoiTag },
     { id: "atelier", label: t.gcQuiAtelier, tag: t.gcQuiAtelierTag },
@@ -72,6 +74,31 @@ export function QuiMesure({
           {t.gcQui}
         </Intitule>
       </span>
+      {/* Pour celui qui ne veut rien mesurer : la première chose qu'il lit, avant toute cote.
+          Un visiteur qui découvre la page tombe sur « je mesure moi-même » et ses chiffres ;
+          il doit voir tout de suite que l'atelier peut se charger de tout. */}
+      {valeur === "moi" && (
+        <button
+          type="button"
+          onClick={() => onChange("atelier")}
+          className="mt-2 flex w-full items-center gap-3 rounded-2xl bg-[#2b2320] px-4 py-3 text-left text-white shadow-[0_6px_18px_-8px_rgba(43,35,32,0.7)] transition-transform hover:-translate-y-px"
+        >
+          <svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 shrink-0">
+            <path d="M12 21s-6-5.4-6-11a6 6 0 0 1 12 0c0 5.6-6 11-6 11z" />
+            <circle cx="12" cy="10" r="2.2" />
+          </svg>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[14px] font-semibold leading-snug">
+              {fr ? "Rien à mesurer : l'atelier s'occupe de tout" : "Nothing to measure: the workshop handles everything"}
+            </span>
+            <span className="block text-[12px] leading-snug text-white/80">
+              {fr ? "Nous venons chez vous prendre les cotes. " : "We come to you and take the measurements. "}
+              {notes.atelier.split(".")[0]}.
+            </span>
+          </span>
+          <span aria-hidden className="text-xl leading-none">›</span>
+        </button>
+      )}
       <div role="group" aria-labelledby={idQui} className="mt-2 grid grid-cols-2 gap-2">
         {choix.map((c) => {
           const actif = valeur === c.id;
