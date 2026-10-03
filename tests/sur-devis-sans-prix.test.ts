@@ -42,7 +42,7 @@ test("la table résine est au catalogue, sur devis, sans aucun prix", () => {
   // Les quatre teintes de résine des photos.
   assert.deepEqual(
     (table.fabrics ?? []).map((f) => f.id),
-    ["rouge", "or-nacre", "turquoise", "bleu-paillettes-or"]
+    ["bleu-paillettes-or", "rouge", "or-nacre", "turquoise"]
   );
 });
 

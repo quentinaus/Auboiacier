@@ -208,7 +208,7 @@ def apercu(photo, poly, chemin):
     cv2.imwrite(chemin, im)
 
 
-def nettoyer_dessus(photo, poly, largeur=18, rive=8):
+def nettoyer_dessus(photo, poly, largeur=18, rive=10, origine=None):
     """Rend le DESSUS du plateau net le long de ses bords arrière et de côté.
     - Dans le contour droit, sur `rive` pixels sous le bord : le bois est prolongé depuis
       l'intérieur. (Le contour est une droite ; le bord de la photo d'origine, lui, ondule de
@@ -221,7 +221,9 @@ def nettoyer_dessus(photo, poly, largeur=18, rive=8):
     y = np.arange(H)[:, None]
     # … et, un peu plus bas, tout ce qui est encore du fond blanc à l'intérieur du contour (un coin
     # que la photo d'origine arrondit) : le plateau va jusqu'au bout de ses lignes droites.
-    h_, s_, v_ = rc.hsv(photo)
+    # Le fond blanc se reconnaît sur la photo D'ORIGINE (le chêne) : un hêtre ou un pin reteinté est
+    # si clair qu'on le prendrait pour du fond.
+    h_, s_, v_ = rc.hsv(photo if origine is None else origine)
     blanc = (v_ > 0.86) & (s_ < 0.12)
     blanc = cv2.dilate(blanc.astype(np.uint8), np.ones((5, 5), np.uint8)) > 0
     lisere = dans & ((y <= haut[None, :] + rive) | (blanc & (y <= haut[None, :] + 40)))

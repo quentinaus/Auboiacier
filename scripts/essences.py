@@ -6,23 +6,26 @@ seul tenant, et le liseré de chêne qui dépasserait est effacé : la même tei
 """
 import os, sys
 import numpy as np
+import cv2
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import plateaux as P
 import recolor as rc
 
 ESSENCES = ["pin", "hetre", "noyer"]
 TEINTES = ["noir", "gris", "chocolat", "laiton", "lin", "blanc"]
-VERSION = "v8"
+VERSION = "v10"
 
 
 def contour(photo, autres, dessous_droit):
     m, _ = rc.masque_plateau([photo] + list(autres))
-    return P.coins_vifs(P._polygone(m > 0.5, dessous_droit=dessous_droit))
+    poly = P.coins_vifs(P._polygone(m > 0.5, dessous_droit=dessous_droit))
+    # Un bord = UNE droite : deux sommets presque alignés (1 ou 2 pixels d'écart) feraient une marche.
+    return P.coins_vifs(cv2.approxPolyDP(poly.reshape(-1, 1, 2), 2.5, True).reshape(-1, 2).astype(np.float32))
 
 
 def faire(photo, poly, sortie):
     for e in ESSENCES:
-        P.ecrire(P.nettoyer_dessus(P.reteinter(photo, poly, e), poly), sortie.format(e), 90)
+        P.ecrire(P.nettoyer_dessus(P.reteinter(photo, poly, e), poly, origine=photo), sortie.format(e), 90)
 
 
 if __name__ == "__main__":
