@@ -288,8 +288,8 @@ export function ReleveGardeCorps({
         <p className="text-[13px] font-medium leading-snug text-[#2b2320]">
           {modeles.length === 0
             ? fr
-              ? "Nos modèles"
-              : "Our models"
+              ? "Votre modèle"
+              : "Your model"
             : nbConformes === 0
               ? fr
                 ? "Aucun de nos modèles n'est aux normes pour ces mesures."
@@ -303,29 +303,35 @@ export function ReleveGardeCorps({
                   : "Choose your model:"}
           {modeles.length === 0 && (
             <span className="ml-2 text-xs font-normal text-[#6f6357]">
-              {fr ? "entrez vos mesures pour voir ceux qui sont aux normes" : "enter your measurements to see the ones to standard"}
+              {fr ? "entrez vos mesures : nous vous montrons ceux qui sont aux normes pour votre fenêtre" : "enter your measurements: we show you the ones to standard for your window"}
             </span>
           )}
         </p>
-        {modeles.length > 0 && nbConformes < modeles.length && (
+        {(modeles.length === 0 || nbConformes < modeles.length) && (
           <button
             type="button"
             onClick={() => setToutVoir((v) => !v)}
             aria-expanded={toutVoir}
-            className="text-xs font-medium text-[#2b2320] underline underline-offset-4 hover:no-underline"
+            className="rounded-full border border-[#9a8d80] bg-white px-3 py-1 text-xs font-medium text-[#2b2320] transition-colors hover:border-[#2b2320]"
           >
             {toutVoir
               ? fr
-                ? "Seulement ceux aux normes"
-                : "Only those to standard"
+                ? modeles.length
+                  ? "Seulement ceux aux normes"
+                  : "Fermer le catalogue"
+                : modeles.length
+                  ? "Only those to standard"
+                  : "Close the catalogue"
               : fr
-                ? `Voir tout le catalogue (${modeles.length})`
-                : `See the whole catalogue (${modeles.length})`}
+                ? "Voir les autres modèles du catalogue"
+                : "See the other models in the catalogue"}
           </button>
         )}
       </div>
       <div role="group" aria-label={fr ? "Modèles de garde-corps" : "Railing models"} className="mt-2 flex flex-wrap gap-1.5">
-        {(modeles.length ? modeles.filter((m) => toutVoir || m.conforme) : MODELES_VITRINE).map((m) => {
+        {/* Par défaut : UNIQUEMENT les modèles aux normes pour les cotes du client. Rien avant les cotes.
+            Le reste du catalogue ne s'ouvre que sur demande (bouton ci-dessus), avec sa pastille. */}
+        {(modeles.length ? modeles.filter((m) => toutVoir || m.conforme) : toutVoir ? MODELES_VITRINE : []).map((m) => {
           const actif = choisi?.id === m.id;
           const marque = modeles.length > 0;
           return (
