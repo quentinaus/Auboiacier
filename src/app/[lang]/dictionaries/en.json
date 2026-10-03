@@ -697,7 +697,19 @@
     "delivery": "Delivery",
     "deliveryIncluded": "Included",
     "poseLine": "Home fitting",
-    "deliveryWithPose": "In the fitting"
+    "deliveryWithPose": "In the fitting",
+    "prevenirTitre": "The workshop opens in late November 2026",
+    "prevenirTexte": "Auboiacier is being set up. Orders open in late November 2026. Leave your email and we will write to you as soon as we open, with your basket. No payment before then.",
+    "prevenirEmail": "Your email",
+    "prevenirEmailPh": "you@example.com",
+    "prevenirBouton": "Let me know when you open",
+    "prevenirEnvoi": "Sending…",
+    "prevenirOk": "Noted. We will write to you as soon as orders open.",
+    "prevenirInvalide": "Please check your email address.",
+    "prevenirErreur": "Sending failed. Please try again, or",
+    "prevenirNote": "Your email is only used to tell you when we open. We delete it afterwards.",
+    "prevenirDevis": "A question about your project?",
+    "prevenirDevisLien": "Request a quote"
   },
   "commande": {
     "title": "Order",
@@ -824,7 +836,7 @@
       },
       {
         "title": "3. Why, and on what legal basis",
-        "body": "Answering your quote, contact or appointment request and sending you an acknowledgement: steps taken at your request prior to a possible contract (Article 6(1)(b) GDPR).\n\nProcessing your order, taking payment, organising manufacture, delivery or the visit, sending you the confirmation and invoice, handling warranties and after-sales service: performance of the contract (Article 6(1)(b)).\n\nKeeping invoices and accounting records: legal obligation (Article 6(1)(c); French Commercial Code).\n\nProtecting the site against abuse (limit on submissions per IP address, anti-bot field, technical logs) and measuring traffic without identifying anyone: legitimate interest (Article 6(1)(f)), with no impact on your rights and freedoms.\n\nWe do no marketing: no newsletter, no promotional follow-up, no sale or sharing of your data for marketing purposes. If we ever offered a newsletter, it would rely on your consent, freely given and revocable at any time."
+        "body": "Answering your quote, contact or appointment request, telling you when orders open if you asked us to (your email is deleted afterwards), and sending you an acknowledgement: steps taken at your request prior to a possible contract (Article 6(1)(b) GDPR).\n\nProcessing your order, taking payment, organising manufacture, delivery or the visit, sending you the confirmation and invoice, handling warranties and after-sales service: performance of the contract (Article 6(1)(b)).\n\nKeeping invoices and accounting records: legal obligation (Article 6(1)(c); French Commercial Code).\n\nProtecting the site against abuse (limit on submissions per IP address, anti-bot field, technical logs) and measuring traffic without identifying anyone: legitimate interest (Article 6(1)(f)), with no impact on your rights and freedoms.\n\nWe do no marketing: no newsletter, no promotional follow-up, no sale or sharing of your data for marketing purposes. If we ever offered a newsletter, it would rely on your consent, freely given and revocable at any time."
       },
       {
         "title": "4. Who receives your data",

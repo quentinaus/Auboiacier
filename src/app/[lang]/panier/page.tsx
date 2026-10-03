@@ -6,6 +6,7 @@ import { ArtisanatHeader } from "@/components/artisanat-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CartView } from "@/components/cart-view";
 import { serif } from "@/lib/fonts";
+import { commandesOuvertes } from "@/lib/entreprise";
 
 export async function generateMetadata({
   params,
@@ -38,7 +39,7 @@ export default async function PanierPage({ params }: PageProps<"/[lang]/panier">
           {t.title}
         </h1>
         <div className="mt-10">
-          <CartView t={t} locale={locale} contactEmail={dict.contact.email} />
+          <CartView t={t} locale={locale} contactEmail={dict.contact.email} ouvert={commandesOuvertes()} />
         </div>
       </div>
 

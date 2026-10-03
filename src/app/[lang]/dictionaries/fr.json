@@ -697,7 +697,19 @@
     "delivery": "Livraison",
     "deliveryIncluded": "Comprise",
     "poseLine": "Pose à domicile",
-    "deliveryWithPose": "Dans la pose"
+    "deliveryWithPose": "Dans la pose",
+    "prevenirTitre": "L'atelier ouvre fin novembre 2026",
+    "prevenirTexte": "Auboiacier est en cours de création. Les commandes ouvrent fin novembre 2026. Laissez votre e-mail : nous vous écrivons dès l'ouverture, avec votre panier. Aucun paiement avant.",
+    "prevenirEmail": "Votre e-mail",
+    "prevenirEmailPh": "vous@exemple.fr",
+    "prevenirBouton": "Me prévenir à l'ouverture",
+    "prevenirEnvoi": "Envoi…",
+    "prevenirOk": "C'est noté. Nous vous écrivons dès l'ouverture des commandes.",
+    "prevenirInvalide": "Vérifiez votre adresse e-mail.",
+    "prevenirErreur": "L'envoi n'a pas marché. Réessayez, ou",
+    "prevenirNote": "Votre e-mail sert seulement à vous prévenir de l'ouverture. Nous l'effaçons ensuite.",
+    "prevenirDevis": "Une question sur votre projet ?",
+    "prevenirDevisLien": "Demander un devis"
   },
   "commande": {
     "title": "Commande",
@@ -824,7 +836,7 @@
       },
       {
         "title": "3. Pourquoi, et sur quelle base",
-        "body": "Répondre à votre demande de devis, de contact ou de rendez-vous, et vous envoyer un accusé de réception : mesures prises à votre demande avant un éventuel contrat (article 6.1.b du RGPD).\n\nTraiter votre commande, encaisser le paiement, organiser la fabrication, la livraison ou la visite, vous envoyer la confirmation et la facture, assurer les garanties et le service après-vente : exécution du contrat (article 6.1.b).\n\nConserver les factures et les pièces comptables : obligation légale (article 6.1.c ; code de commerce).\n\nProtéger le site contre les abus (limitation du nombre d'envois par adresse IP, champ anti-robot, journaux techniques) et mesurer sa fréquentation sans identifier personne : intérêt légitime (article 6.1.f), sans effet sur vos droits et libertés.\n\nNous ne faisons aucune prospection : pas de lettre d'information, pas de relance publicitaire, pas de revente ni de partage de vos données à des fins de marketing. Si nous proposions un jour une lettre d'information, elle reposerait sur votre consentement, libre et révocable à tout moment."
+        "body": "Répondre à votre demande de devis, de contact ou de rendez-vous, vous prévenir de l'ouverture des commandes si vous l'avez demandé (votre e-mail est effacé ensuite), et vous envoyer un accusé de réception : mesures prises à votre demande avant un éventuel contrat (article 6.1.b du RGPD).\n\nTraiter votre commande, encaisser le paiement, organiser la fabrication, la livraison ou la visite, vous envoyer la confirmation et la facture, assurer les garanties et le service après-vente : exécution du contrat (article 6.1.b).\n\nConserver les factures et les pièces comptables : obligation légale (article 6.1.c ; code de commerce).\n\nProtéger le site contre les abus (limitation du nombre d'envois par adresse IP, champ anti-robot, journaux techniques) et mesurer sa fréquentation sans identifier personne : intérêt légitime (article 6.1.f), sans effet sur vos droits et libertés.\n\nNous ne faisons aucune prospection : pas de lettre d'information, pas de relance publicitaire, pas de revente ni de partage de vos données à des fins de marketing. Si nous proposions un jour une lettre d'information, elle reposerait sur votre consentement, libre et révocable à tout moment."
       },
       {
         "title": "4. Qui reçoit vos données",

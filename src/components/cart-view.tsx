@@ -10,6 +10,7 @@ import { serif } from "@/lib/fonts";
 import { prixAffiche } from "@/lib/ui";
 import { LIVRAISON, POSE, PRISE_DE_COTES, libelleLivraison, libellePose, libellePriseDeCotes } from "@/lib/deplacement";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
+import { EMAIL_VALIDE } from "@/lib/devis-regles";
 
 type Status =
   | "idle"
@@ -23,14 +24,20 @@ type Status =
 /** Longueur maximale de la ville : un nom de commune, pas un roman. */
 const VILLE_MAX = 80;
 
+/** Avant l'ouverture des commandes : l'e-mail du client, pour le prévenir. */
+type Prevenir = "idle" | "loading" | "ok" | "invalide" | "too_many" | "erreur";
+
 export function CartView({
   t,
   locale,
   contactEmail,
+  ouvert,
 }: {
   t: Dictionary["panier"];
   locale: "fr" | "en";
   contactEmail: string;
+  /** Les commandes sont-elles ouvertes ? Non tant que l'entreprise n'a pas son numéro. */
+  ouvert: boolean;
 }) {
   const { items, ready, setQuantity, remove } = useCart();
   // Ces intitulés-là ne sont lus que par les lecteurs d'écran : ils ne sont pas
@@ -53,6 +60,14 @@ export function CartView({
   /** Ce qui vient de se passer dans le panier, dit à voix haute une seule fois. */
   const [annonce, setAnnonce] = useState("");
   const idCgvErreur = useId();
+  const [emailPrevenir, setEmailPrevenir] = useState("");
+  const [prevenirStatus, setPrevenirStatus] = useState<Prevenir>("idle");
+  /** Champ piège : invisible pour un humain, rempli par les robots. */
+  const [piege, setPiege] = useState("");
+  /** Depuis quand la page est ouverte : un robot poste en moins d'une seconde. */
+  const [ouvertDepuis] = useState(() => Date.now());
+  const idEmailPrevenir = useId();
+  const idPrevenirMessage = useId();
 
   // Les prix stockés dans le navigateur ne sont qu'une copie d'affichage :
   // on recalcule tout depuis le catalogue à chaque rendu.
@@ -215,6 +230,38 @@ export function CartView({
   const totalPieces = lines.filter((l) => !l.visite).reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
   const lignePose = lines.find((l) => l.pose);
   const ligneLivraison = lines.find((l) => l.livraison);
+
+  async function prevenir() {
+    const email = emailPrevenir.trim();
+    if (!EMAIL_VALIDE.test(email)) {
+      setPrevenirStatus("invalide");
+      return;
+    }
+    setPrevenirStatus("loading");
+    try {
+      const response = await fetch("/api/prevenir", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          locale,
+          website: piege,
+          dureeMs: Date.now() - ouvertDepuis,
+          panier: lines.map(
+            (line) =>
+              `${line.name}${line.options ? ` (${line.options})` : ""} × ${line.quantity} — ${prixAffiche(line.unitPrice * line.quantity, locale)}`
+          ),
+        }),
+      });
+      if (response.ok) {
+        setPrevenirStatus("ok");
+        return;
+      }
+      setPrevenirStatus(response.status === 429 ? "too_many" : response.status === 400 ? "invalide" : "erreur");
+    } catch {
+      setPrevenirStatus("erreur");
+    }
+  }
 
   async function checkout() {
     if (!ville.trim()) {
@@ -467,6 +514,8 @@ export function CartView({
             </dl>
             <p className="mt-3 text-xs leading-relaxed text-[#726757]">{t.shippingNote}</p>
 
+            {ouvert ? (
+              <>
             {/* La ville, avant tout le reste : c'est la première chose que Quentin
                 regarde en recevant une commande. */}
             <div className="mt-6">
@@ -548,6 +597,93 @@ export function CartView({
                 {t.privacyLink}
               </Link>
             </p>
+              </>
+            ) : (
+              <>
+            {/* Avant l'immatriculation, on n'encaisse pas : le client laisse son
+                e-mail et l'atelier le prévient le jour de l'ouverture. */}
+            <div className="mt-6 rounded-xl border border-[#e8e1d8] bg-[#faf8f5] p-5">
+              <p className="text-sm font-medium text-[#2b2320]">{t.prevenirTitre}</p>
+              <p className="mt-2 text-sm leading-relaxed text-[#4a4038]">{t.prevenirTexte}</p>
+              {prevenirStatus === "ok" ? (
+                <p role="status" className="mt-4 text-sm font-medium text-[#2b2320]">
+                  {t.prevenirOk}
+                </p>
+              ) : (
+                <form
+                  className="mt-4"
+                  noValidate
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    prevenir();
+                  }}
+                >
+                  <label htmlFor={idEmailPrevenir} className="block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6f6357]">
+                    {t.prevenirEmail}
+                  </label>
+                  <input
+                    id={idEmailPrevenir}
+                    type="email"
+                    value={emailPrevenir}
+                    onChange={(event) => {
+                      setEmailPrevenir(event.target.value);
+                      if (prevenirStatus === "invalide") setPrevenirStatus("idle");
+                    }}
+                    autoComplete="email"
+                    maxLength={254}
+                    placeholder={t.prevenirEmailPh}
+                    aria-invalid={prevenirStatus === "invalide"}
+                    aria-describedby={prevenirStatus === "invalide" || prevenirStatus === "erreur" || prevenirStatus === "too_many" ? idPrevenirMessage : undefined}
+                    className="mt-2 w-full rounded-full border border-[#9a8d80] bg-white px-4 py-2.5 text-sm text-[#2b2320] transition-colors placeholder:text-[#726757] focus:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
+                  />
+                  {/* Le piège à robots : hors de l'écran, sauté au clavier. */}
+                  <input
+                    type="text"
+                    name="website"
+                    value={piege}
+                    onChange={(event) => setPiege(event.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden="true"
+                    className="absolute -left-[9999px] h-px w-px opacity-0"
+                  />
+                  {prevenirStatus === "invalide" && (
+                    <p id={idPrevenirMessage} role="alert" className="mt-2 text-sm text-[#2b2320]">
+                      {t.prevenirInvalide}
+                    </p>
+                  )}
+                  {(prevenirStatus === "erreur" || prevenirStatus === "too_many") && (
+                    <p id={idPrevenirMessage} role="alert" className="mt-2 text-sm leading-relaxed text-[#2b2320]">
+                      {prevenirStatus === "too_many" ? t.tooMany : t.prevenirErreur}{" "}
+                      <a href={`mailto:${contactEmail}`} className="underline underline-offset-4">
+                        {t.writeUs}
+                      </a>
+                    </p>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={prevenirStatus === "loading"}
+                    className="btn-verre mt-4 w-full rounded-full px-8 py-4 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
+                  >
+                    {prevenirStatus === "loading" ? t.prevenirEnvoi : t.prevenirBouton}
+                  </button>
+                </form>
+              )}
+              <p className="mt-3 text-xs leading-relaxed text-[#6f6357]">
+                {t.prevenirNote}{" "}
+                <Link href={`/${locale}/confidentialite`} className="underline underline-offset-4 hover:text-black">
+                  {t.privacyLink}
+                </Link>
+              </p>
+            </div>
+            <p className="mt-4 text-center text-sm text-[#4a4038]">
+              {t.prevenirDevis}{" "}
+              <Link href={`/${locale}/devis`} className="underline underline-offset-4 hover:text-black">
+                {t.prevenirDevisLien}
+              </Link>
+            </p>
+              </>
+            )}
           </div>
         </aside>
       </div>

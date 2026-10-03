@@ -31,3 +31,18 @@ export const ENTREPRISE = {
   assurance: "",
   telephone: "",
 };
+
+/** Un SIRET, c'est 14 chiffres (on tolère les espaces à la saisie). */
+export function siretValide(siret: string) {
+  return /^\d{14}$/.test(siret.replace(/\s/g, ""));
+}
+
+/**
+ * Les commandes payées s'ouvrent quand l'entreprise existe. Sans numéro,
+ * encaisser serait vendre sans être immatriculé : tant que la ligne `siret`
+ * est vide, le panier propose « Me prévenir à l'ouverture » à la place du
+ * paiement, et /api/commande refuse de créer un paiement.
+ */
+export function commandesOuvertes() {
+  return siretValide(ENTREPRISE.siret);
+}

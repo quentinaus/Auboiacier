@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getProduct, livrableParTransporteur, poidsColisKg, remiseLot, resolveSelection, type Product } from "@/lib/products";
 import { isEmailConfigured } from "@/lib/email";
 import { getStripe, isStripeConfigured, newOrderRef, piedDeFacture, siteOrigin } from "@/lib/stripe";
+import { commandesOuvertes } from "@/lib/entreprise";
 import { creerLimite } from "@/lib/limite-debit";
 import { origineEtrangere } from "@/lib/origine";
 import { productLocalise } from "@/lib/products";
@@ -87,6 +88,12 @@ export async function POST(request: Request) {
   // Les trois clés (clé secrète Stripe, secret du webhook, clé Resend) doivent
   // être là. Il en manque une et on n'encaisse pas : une commande payée que
   // personne ne reçoit serait pire que pas de commande du tout.
+  // Pas de numéro d'entreprise, pas d'encaissement : même si les clés Stripe
+  // sont là, on ne vend pas avant l'immatriculation.
+  if (!commandesOuvertes()) {
+    return NextResponse.json({ error: "pas_ouvert" }, { status: 503 });
+  }
+
   if (!isStripeConfigured() || !isEmailConfigured()) {
     return NextResponse.json({ error: "not_configured" }, { status: 503 });
   }
