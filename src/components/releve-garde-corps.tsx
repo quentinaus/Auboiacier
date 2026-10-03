@@ -322,7 +322,7 @@ export function ReleveGardeCorps({
               {fr ? "Votre style, sur photo · 24 à 72 h" : "Your style, from a photo · 24 to 72 h"}
             </Link>
           )}
-          {(modeles.length === 0 || nbConformes < modeles.length) && (
+          {(modeles.length === 0 || nbConformes < modeles.length || nbConformes > 6) && (
             <button
               type="button"
               onClick={() => setToutVoir((v) => !v)}
@@ -337,11 +337,18 @@ export function ReleveGardeCorps({
       {/* Par défaut : UNIQUEMENT les modèles aux normes pour les cotes du client. Rien avant les cotes.
           Le reste du catalogue ne s'ouvre que sur demande (bouton ci-dessus), avec sa pastille. */}
       {(() => {
-        const liste = modeles.length ? modeles.filter((m) => toutVoir || m.conforme) : toutVoir ? MODELES_VITRINE : [];
+        // Une seule ligne par défaut : les six premiers modèles aux normes. Le bouton ouvre tout le catalogue.
+        const liste = modeles.length
+          ? toutVoir
+            ? modeles
+            : modeles.filter((m) => m.conforme).slice(0, 6)
+          : toutVoir
+            ? MODELES_VITRINE
+            : [];
         if (!liste.length) return null;
         const marque = modeles.length > 0;
         return (
-          <div role="group" aria-label={fr ? "Modèles de garde-corps" : "Railing models"} className="mt-2 flex flex-wrap gap-1.5">
+          <div role="group" aria-label={fr ? "Modèles de garde-corps" : "Railing models"} className="mt-2 grid grid-cols-6 gap-1.5">
             {liste.map((m) => {
               const actif = choisi?.id === m.id;
               return (
@@ -356,7 +363,7 @@ export function ReleveGardeCorps({
                     if (!marque) document.getElementById(`${idChamps}-largeur`)?.focus();
                     else if (m.conforme) onChange({ ...cotes, modele: m.id });
                   }}
-                  className={`relative flex w-[74px] flex-col rounded-lg border bg-white px-1 pb-1 pt-1.5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${
+                  className={`relative flex min-w-0 flex-col rounded-lg border bg-white px-1 pb-1 pt-1.5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${
                     actif ? "border-[#2b2320] ring-2 ring-[#2b2320]" : "border-[#e0d6c8]"
                   } ${marque && !m.conforme ? "cursor-not-allowed opacity-60" : "hover:border-[#2b2320]"}`}
                 >
@@ -527,7 +534,7 @@ export function ReleveGardeCorps({
             ? createPortal(
                 /* Une colonne à la largeur du croquis : la rangée des modèles s'aligne sur ses bords. */
                 <div className="mx-auto flex w-fit max-w-full flex-col">
-                  <div className="relative aspect-[4/5] h-[34svh] max-w-full overflow-hidden rounded-2xl md:h-[min(62vh,640px)] xl:h-[calc(100vh-20.5rem)] xl:max-h-[660px] xl:min-h-[300px]">
+                  <div className="relative aspect-[3/4] h-[40svh] max-w-full overflow-hidden rounded-2xl md:h-[min(62vh,640px)] xl:h-[calc(100vh-22rem)] xl:max-h-[660px] xl:min-h-[300px]">
                     {croquis}
                   </div>
                   <div className="w-0 min-w-full">{catalogue}</div>
@@ -535,7 +542,7 @@ export function ReleveGardeCorps({
                 schemaSlot
               )
             : (
-              <div className="relative mx-auto mt-4 aspect-[4/5] w-full max-w-[400px] overflow-hidden rounded-xl">{croquis}</div>
+              <div className="relative mx-auto mt-4 aspect-[3/4] w-full max-w-[400px] overflow-hidden rounded-xl">{croquis}</div>
             );
           })()}
           <p className="consigne-cotes mt-2.5 text-xs leading-snug text-[#6f6357]">{t.gcConsigne}</p>
@@ -614,7 +621,6 @@ export function ReleveGardeCorps({
           >
             <div className="min-w-0">
               <span className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
-                <Pastille n={NUMERO_COTE.hauteur} />
                 {t.gcResultTitle}
               </span>
               {/* À côté de la carte, pas de prix en grand : il est déjà dans la barre d'achat, juste à gauche.
@@ -684,16 +690,20 @@ export function ReleveGardeCorps({
                     </svg>
                     {t.gcConforme}
                   </p>
-                  {/* En colonne étroite (grand écran), une ligne suffit : la hauteur de la main courante. */}
-                  {/* L'appui est bas (moins de 60 cm) : la règle compte 1 m AU-DESSUS DE L'APPUI, pas du sol.
-                      C'est ce qui fait un garde-corps haut — on le dit, sinon on croit à une erreur. */}
-                  {releve && releve.enEtage && releve.allegeMm >= 100 && releve.allegeMm < 600 && (
-                    <p className="mt-1.5 rounded-lg bg-[#f3ede3] px-2.5 py-1.5 text-[#4a4038]">
-                      {fr
-                        ? `Pourquoi il est haut : le bas de votre fenêtre est à ${nombre(releve.allegeMm)} mm du sol. Sous 60 cm, un enfant peut y monter : la norme compte alors 1 m au-dessus du bas de la fenêtre, et non du sol.`
-                        : `Why it is tall: the bottom of your window is ${nombre(releve.allegeMm)} mm from the floor. Under 60 cm a child can climb on it: the standard then counts 1 m above the bottom of the window, not from the floor.`}
+                  {/* La loi n'impose rien ici (rez-de-chaussée, ou bas de fenêtre à 90 cm et plus) : on le dit,
+                      pour que le client ne croie pas qu'il lui en faut un. Il peut en vouloir un quand même. */}
+                  {!conforme.obligatoire && (
+                    <p className="mt-1.5 rounded-lg bg-[#eef3ea] px-2.5 py-1.5 text-[#33502f]">
+                      {releve && !releve.enEtage
+                        ? fr
+                          ? "Bon à savoir : au rez-de-chaussée, la loi n'impose pas de garde-corps. Vous pouvez en poser un pour le style."
+                          : "Good to know: on the ground floor, the law does not require a railing. You can have one for the look."
+                        : fr
+                          ? "Bon à savoir : le bas de votre fenêtre est à 90 cm du sol ou plus. La loi n'impose pas de garde-corps ici. Vous pouvez en poser un pour le style."
+                          : "Good to know: the bottom of your window is 90 cm or more above the floor. The law does not require a railing here. You can have one for the look."}
                     </p>
                   )}
+                  {/* En colonne étroite (grand écran), une ligne suffit : la hauteur de la main courante. */}
                   <p className={`mt-1 text-[#5c5140] ${resultatSlot ? "hidden" : ""}`}>
                     {t.gcMainCourante
                       .replace("{m}", nombre(conforme.mainCouranteMm))

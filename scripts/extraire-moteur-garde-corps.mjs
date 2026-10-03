@@ -478,7 +478,8 @@ function comparerAvecOutil(M, D, CH) {
     if (htmlO !== htmlE) ecarts.push(`${c.nom} : dsDevisHtml`);
     if (charge) {
       // Ce que l'outil affiche vraiment : le devis de l'onglet Contrôles (daté du jour) et son statut.
-      const duJour = D.composerDevisGC({ R: RE, v: vE, prix, rem: remE, infos: { client: "", chantier: "", email: "", telephone: "", date: null } });
+      // (L'outil passe son réglage de TVA sur les ventes au devis : sans TVA, l'émetteur porte la mention de franchise.)
+      const duJour = D.composerDevisGC({ R: RE, v: vE, prix, rem: remE, infos: { client: "", chantier: "", email: "", telephone: "", date: null }, tva: CH.REGLAGES.tvaVente });
       const zone = charge.els.prixDevis.innerHTML;
       if (duJour.ok ? !zone.includes(D.dsDevisHtml(duJour.devis)) : !zone.includes(duJour.raison)) ecarts.push(`${c.nom} : devis affiché par l'outil`);
       if ((charge.els.statut.textContent === "Conforme NF P01-012") !== (RE.alertes.length === 0)) ecarts.push(`${c.nom} : statut affiché`);

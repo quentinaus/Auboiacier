@@ -1485,7 +1485,8 @@ export function ProductOptions({
    * son bouton PDF resterait grisé pour toujours, sans raison à donner. On
    * ne le montre pas. Il revient de lui-même le jour où la pièce a ses prix.
    */
-  const chiffrable = product.sizes.length > 0 || Boolean(bareme);
+  // Le garde-corps n'a ni tailles ni barème (son prix vient de l'outil) : il a pourtant son devis PDF.
+  const chiffrable = product.sizes.length > 0 || Boolean(bareme) || estGC;
   /**
    * Le devis PDF, et la fenêtre qui demande le nom et l'e-mail avant de
    * l'ouvrir. Le bouton est TOUJOURS là (sauf sur une pièce sans aucun

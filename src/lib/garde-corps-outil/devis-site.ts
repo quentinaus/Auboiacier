@@ -214,7 +214,9 @@ function lignesSite(base: DevisGC, config: ConfigGC, line: ResolvedLine, quantit
     const remplissage = carac("Remplissage");
     remplissage.value = remplacer(remplissage.value, `${n} croix de Saint-André et ${n} ${n > 1 ? "rosaces" : "rosace"}`, verre.label);
     caracs = caracs.filter((c) => c.label !== "Rosace");
-    accroche = remplacer(accroche, "Croix de Saint-André en acier plein, rosaces de fonderie", "Panneau de verre feuilleté dans un cadre en acier plein");
+    // L'outil écrit « rosace » au singulier quand il n'y a qu'une croix.
+    const rosacesDeLOutil = n > 1 ? "rosaces de fonderie" : "rosace de fonderie";
+    accroche = remplacer(accroche, `Croix de Saint-André en acier plein, ${rosacesDeLOutil}`, "Panneau de verre feuilleté dans un cadre en acier plein");
   } else if (fabric.id !== rosaceModele.id) {
     titre = remplacer(titre, ` · ${DS_GC.rosace}`, ` · ${fabric.label}`);
     structure = remplacer(structure, minuscule(DS_GC.rosace), minuscule(fabric.label));

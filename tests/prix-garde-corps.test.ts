@@ -52,11 +52,13 @@ for (const largeurMm of [300, 900, 1180, 1250, 1450, 1700])
     GRILLE.push({ largeurMm, allegeMm, enEtage: true, fenetreMm: allegeMm % 200 === 0 ? 1300 : 0, essence: ESSENCES_GC[(largeurMm + allegeMm) % 4] });
 for (const e of GRILLE.filter((x) => x.largeurMm === 900 || x.largeurMm === 1450)) GRILLE.push({ ...e, enEtage: false });
 
-test("hauteur : la main courante atteint 1 000 mm au-dessus de l'appui (s'il fait 100 à 600 mm), visée 1 025", () => {
+// Décision de Quentin (03/10/2026) : la hauteur se mesure TOUJOURS depuis le sol (la loi : « jusqu'à 1 m du
+// plancher »). Le bas de la fenêtre, même bas, ne relève plus la visée : la main courante reste à la même hauteur,
+// c'est le garde-corps qui grandit ou rapetisse.
+test("hauteur : la main courante atteint 1 000 mm du sol, quel que soit le bas de la fenêtre, visée 1 025", () => {
   for (const e of GRILLE) {
     const c = configurerGC(e);
-    const appui = e.allegeMm >= 100 && e.allegeMm < 600 ? e.allegeMm : 0;
-    const cible = HAUT_ETAGE + appui + CIBLE_MARGE;
+    const cible = HAUT_ETAGE + CIBLE_MARGE;
     assert.equal(c.jourMm, DEFAUTS_GC.jour, "le jour sous le cadre est celui de l'outil");
     assert.equal(c.mainCouranteMm, e.allegeMm + c.jourMm + c.hauteurMm);
     assert.equal(c.hauteurMm % 10, 0, "hauteur arrondie à la dizaine");

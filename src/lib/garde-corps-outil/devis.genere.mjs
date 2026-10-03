@@ -1,15 +1,19 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Devis garde-corps au format du site (composerDevisGC, dsDevisHtml). SANS coûts : le prix est une entrée.
-// Source : l'outil de plans (plans-atelier.html), sha256 2a6268a3f4535ee9527e6ddec08ec481b3ba10f3fa2d824689a8512a4cc739f4
+// Source : l'outil de plans (plans-atelier.html), sha256 1a24f8591c7ead3b600344d266ed0e4e815fc03846dccd743c5342e7834b8a84
 /* eslint-disable */
+function kgColisGC(R) { return Math.max(8, Math.round((R && R.kg) || 0)); }
 const DS_VALIDITE_JOURS = 30;
 const DS_EMETTEUR = {
     nom: "Auboiacier",
     lignes: ["Métallerie d'art — atelier à Saumur (49400), Maine-et-Loire", "auboiacier@gmail.com — auboiacier.fr"],
+    franchiseTva: "TVA non applicable, art. 293 B du CGI",
   };
 const DS_PIED = "Auboiacier — métallerie d'art, Saumur — auboiacier.fr — auboiacier@gmail.com";
 const DS_GC = {
     nom: "Garde-corps de fenêtre Rosace",
+    nomSansRosace: "Garde-corps de fenêtre à croix",
+    nomBarreaux: "Garde-corps de fenêtre à barreaux droits",
     delai: "4 à 6 semaines",
     teinte: "noir charbon",
     rosace: "Fleur, aluminium moulé Ø100",
@@ -36,6 +40,10 @@ function dsDateCompacte(d) {
     const lire = (t) => (p.find((x) => x.type === t) || {}).value || "";
     return `${lire("year")}${lire("month")}${lire("day")}`;
   }
+function dsPlusJours(d, n) {
+    const c = dsDateCompacte(d);
+    return new Date(Date.UTC(+c.slice(0, 4), +c.slice(4, 6) - 1, +c.slice(6, 8) + n, 12));
+  }
 function dsEmpreinte(texte) {
     let h = 0x811c9dc5;
     for (let i = 0; i < texte.length; i += 1) { h ^= texte.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
@@ -48,16 +56,70 @@ function dsDate(d) {
   }
 function dsLieu(chantier) {
     const t = String(chantier || "").trim();
-    const m = t.match(/\b(\d{5})\b\s*([^,\d][^,]*)?/);
+    const groupes = [...t.matchAll(/\b(\d{5})\b\s*([^,\d][^,]*)?/g)]
+      .filter((g) => !/(?:^|[\s,])(?:BP|CS|TSA|lot|n°|n\.)\s*$/i.test(t.slice(0, g.index)));
+    const m = groupes[groupes.length - 1];
     if (!m) return t;
-    const commune = (m[2] || "").trim() || (t.slice(0, m.index).split(",").map((x) => x.trim()).filter(Boolean).pop() || "");
+    const nettoyer = (x) => x.replace(/\s+cedex(?:\s*\d+)?\s*$/i, "").trim();
+    const commune = nettoyer(m[2] || "") || nettoyer(t.slice(0, m.index).split(",").map((x) => x.trim()).filter(Boolean).pop() || "");
     return commune ? `${commune} (${m[1]})` : m[1];
   }
-function dsPhotoConvient(R, v, t) {
-    const ratio = v.B / R.hauteurGC, ref = 1180 / 350;
-    return t.n === 2 && t.rosace && v.mcType === "bois" && (v.essence || "chene") === "chene" && !t.sb && !t.barreaux && ratio > ref * 0.8 && ratio < ref * 1.2;
+function dsRemplissageGC(R, v) {
+    const lignes = (re) => (R.debit || []).filter((d) => re.test(d.nom));
+    const qte = (re) => lignes(re).reduce((a, d) => a + (Number(d.qte) || 0), 0);
+    const bas = qte(/^Barreaux du soubassement/);
+    const barreaux = lignes(/^Barreaux/).filter((d) => !/soubassement/i.test(d.nom));
+    const nBarreaux = barreaux.reduce((a, d) => a + (Number(d.qte) || 0), 0);
+    let n = qte(/^Diagonale entière/);
+    const modele = !n && nBarreaux ? "barreaux" : "croix";
+    if (modele === "croix" && !n) n = Math.max(1, Math.round(v.nP || 1));
+    const rosaces = qte(/^Rosaces/);
+    const traverse = modele === "croix" && qte(/^Demi-traverses/) > 0;
+    const barreauxCroix = modele === "croix" && nBarreaux ? Math.round(nBarreaux / n) : 0;
+    const barreauxDroits = modele === "barreaux" ? nBarreaux : 0;
+    const mVide = modele === "barreaux" && barreaux.length ? String(barreaux[0].coupes || "").match(/vides? égaux de ([\d\s\u00a0\u202f.,]+?)\s*mm/) : null;
+    const vide = mVide ? mVide[1].trim() : null;
+
+    const rosacesTxt = dsPluriel(rosaces, "rosace", "rosaces");
+    const chaque = n > 1 ? "chaque croix" : "la croix";
+    const enBas = bas ? `${dsPluriel(bas, "barreau droit", "barreaux droits")} en partie basse` : null;
+    const r = { modele, n: modele === "croix" ? n : 0, rosaces, traverse, barreauxCroix, barreauxDroits, vide, bas };
+    if (modele === "barreaux") {
+      const droits = `${dsPluriel(barreauxDroits, "barreau droit", "barreaux droits")}${vide ? `, vides de ${vide}\u00a0mm` : ""}`;
+      const suite = [enBas].filter(Boolean).map((x) => `, ${x}`).join("");
+      return Object.assign(r, {
+        nom: DS_GC.nomBarreaux,
+        accroche: `Barreaux droits en acier plein${bas ? ", barreaux en partie basse" : ""}`,
+        texte: droits + suite,
+        structure: droits + suite,
+        options: [dsPluriel(barreauxDroits, "barreau droit", "barreaux droits"), bas ? "barreaux en bas" : null].filter(Boolean),
+      });
+    }
+    const croix = dsPluriel(n, "croix de Saint-André", "croix de Saint-André");
+    const suite = [
+      traverse ? `traverse au milieu de ${chaque}` : null,
+      barreauxCroix ? `${dsPluriel(barreauxCroix, "barreau", "barreaux")} dans ${chaque}` : null,
+      enBas,
+    ].filter(Boolean).map((x) => `, ${x}`).join("");
+    return Object.assign(r, {
+      nom: rosaces ? DS_GC.nom : DS_GC.nomSansRosace,
+      accroche: `Croix de Saint-André en acier plein${traverse ? " avec traverse au milieu" : ""}${rosaces ? (rosaces > 1 ? ", rosaces de fonderie" : ", rosace de fonderie") : ""}${bas ? ", barreaux en partie basse" : ""}`,
+      texte: `${croix}${rosaces ? ` et ${rosacesTxt}` : ""}${suite}`,
+      structure: `${croix}${rosaces ? ` et ${rosacesTxt} ${dsMin(DS_GC.rosace)}` : ""}${suite}`,
+      options: [
+        `${n}\u00a0croix`,
+        traverse ? "traverse au milieu" : null,
+        barreauxCroix ? `${dsPluriel(barreauxCroix, "barreau", "barreaux")} par croix` : null,
+        bas ? "barreaux en bas" : null,
+      ].filter(Boolean),
+    });
   }
-function dsSchemaGC(R, v) {
+function dsPhotoConvient(R, v, rp, avecMc) {
+    const ratio = v.B / R.hauteurGC, ref = 1180 / 350;
+    return rp.modele === "croix" && rp.n === 2 && rp.rosaces === 2 && !rp.traverse && !rp.barreauxCroix && !rp.bas
+      && avecMc && v.mcType === "bois" && (v.essence || "chene") === "chene" && ratio > ref * 0.8 && ratio < ref * 1.2;
+  }
+function dsSchemaGC(R, v, avecMc = true) {
     const face = (R.vues && R.vues.face) || [];
     const pieces = face.filter((p) => p.piece && (p.t === "poly" || p.t === "cercle"));
     if (!pieces.length || !(R.hauteurGC > 0)) return "";
@@ -101,24 +163,20 @@ function dsSchemaGC(R, v) {
     s += verticale(c.xR2, 0, haut, B2 + wM + 0.2 * f, c.xR1 + tick, `${dsMm(haut)} du sol`);
     if (A > 0) s += verticale(c.xL, 0, A, -B2 - wM - 0.2 * f, -B2 - wM - 0.2 * f, dsMm(A));
     const vb = [c.x1, -c.y2, c.x2 - c.x1, c.y2 - c.y1].map((x) => x.toFixed(1)).join(" ");
-    const titre = `Schéma du garde-corps vu de l'intérieur : ${dsMm(v.B)} mm entre tableaux, ${dsMm(R.hauteurGC)} mm de haut, main courante à ${dsMm(haut)} mm du sol`;
+    const titre = `Schéma du garde-corps vu de l'intérieur : ${dsMm(v.B)} mm entre tableaux, ${dsMm(R.hauteurGC)} mm de haut, ${avecMc ? "main courante" : "haut du garde-corps"} à ${dsMm(haut)} mm du sol`;
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${dsEsc(titre)}">${s}</svg>`;
   }
-function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto" }) {
+function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto", tva = null }) {
     if (!R || !(R.hauteurGC > 0) || !R.debit || !R.debit.length) {
       return { ok: false, raison: "Pas de devis : le garde-corps est trop petit pour ce nombre de croix. Change les cotes ou le nombre de croix." };
     }
-    if (!(Number(prix) > 0)) return { ok: false, raison: "Pas de devis : le prix de vente est vide." };
-    prix = Number(prix);
+    prix = Math.round(Number(prix) * 100) / 100;
+    if (!(prix > 0)) return { ok: false, raison: "Pas de devis : le prix de vente est vide." };
     const date = dsDate(infos.date);
     const trouve = (re) => R.debit.find((d) => re.test(d.nom));
-    const diag = trouve(/^Diagonale entière/), mcD = R.debit.find((d) => d.nom === "Main courante"), vis = trouve(/^Vis ou goujons/);
-    const t = {
-      n: diag ? diag.qte : Math.max(1, Math.round(v.nP || 1)),
-      rosace: !!trouve(/^Rosaces/),
-      sb: R.debit.some((d) => /soubassement/i.test(d.nom)),
-      barreaux: v.nb > 0 && !!trouve(/^Barreaux$/),
-    };
+    const mcD = R.debit.find((d) => d.nom === "Main courante"), vis = trouve(/^Vis ou goujons/);
+    const rp = dsRemplissageGC(R, v);
+    const nom = rp.nom;
     const nVis = vis ? vis.qte : 2 * v.nF;
     const H = Math.round(R.hauteurGC), L = Math.round(v.B);
     const haut = (v.A || 0) + (v.jour || 0) + R.hauteurGC;
@@ -126,8 +184,6 @@ function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto" }) {
     const teinte = DS_GC.teinte;
     const remise = v.remise === "transporteur" || v.remise === "pose" ? v.remise : "retrait";
     const km = Math.max(0, Math.round(v.km || 0));
-    const croix = dsPluriel(t.n, "croix de Saint-André", "croix de Saint-André");
-    const rosaces = dsPluriel(t.n, "rosace", "rosaces");
     const obligatoire = v.etage && v.A < 900;
 
     const mc = !mcD ? null
@@ -140,7 +196,6 @@ function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto" }) {
         accroche: essence.toLowerCase(),
       };
 
-    const remplissage = `${croix}${t.rosace ? ` et ${rosaces}` : ""}${t.sb ? ", barreaux droits en partie basse" : ""}${t.barreaux ? `, ${dsPluriel(v.nb, "barreau", "barreaux")} dans chaque croix` : ""}`;
     const normes = R.alertes.length ? null
       : obligatoire ? `Hauteur ${v.Hs >= 200 ? "vérifiée" : "calculée"} selon l'art. R111-15 du Code de la construction et la NF P01-012`
       : `Remplissage conforme à la NF P01-012 ; ${v.etage ? "allège de 900 mm ou plus" : "au rez-de-chaussée"}, la loi n'impose pas de hauteur`;
@@ -150,13 +205,13 @@ function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto" }) {
       v.Hf > 0 ? `hauteur de la fenêtre, de l'appui au haut ${dsMm(v.Hf)}\u00a0mm` : "",
       v.Xo > 0 ? `meuble ou radiateur sous la fenêtre ${dsMm(v.Xo)}\u00a0mm` : "",
       v.jour > 0 ? `posé à ${dsMm(v.jour)}\u00a0mm au-dessus de l'appui` : "",
-      `main courante à ${dsMm(haut)}\u00a0mm du sol`,
+      `${mc ? "main courante" : "haut du garde-corps"} à ${dsMm(haut)}\u00a0mm du sol`,
     ].filter(Boolean).join(" · ");
     const caracteristiques = [
       { label: "Largeur entre tableaux", value: `${dsMm(L)}\u00a0mm` },
       { label: "Hauteur du garde-corps", value: `${dsMm(H)}\u00a0mm` },
-      { label: "Remplissage", value: dsMaj(remplissage) },
-      t.rosace ? { label: "Rosace", value: DS_GC.rosace } : null,
+      { label: "Remplissage", value: dsMaj(rp.texte) },
+      rp.rosaces ? { label: "Rosace", value: DS_GC.rosace } : null,
       { label: "Structure", value: `Acier plein ${dsMm(v.s)}\u00a0×\u00a0${dsMm(v.s)}\u00a0mm, soudure TIG, finition peinte — teinte de l'acier ${teinte}` },
       mc ? { label: "Main courante", value: mc.carac } : null,
       { label: "Pose", value: `Encastré dans le tableau de la fenêtre, ${remise === "pose" ? "posé par l'atelier" : "fixations fournies"} — ${nVis}\u00a0vis à tête fraisée et chevilles` },
@@ -165,13 +220,13 @@ function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto" }) {
     ].filter(Boolean);
 
     let img = null;
-    const photo = image === "photo" || (image === "auto" && dsPhotoConvient(R, v, t));
+    const photo = image === "photo" || (image === "auto" && dsPhotoConvient(R, v, rp, !!mcD));
     if (photo && DS_GC.photo.length > 40) img = { type: "photo", src: DS_GC.photo };
-    else { const svg = dsSchemaGC(R, v); if (svg) img = { type: "svg", svg }; }
+    else { const svg = dsSchemaGC(R, v, !!mcD); if (svg) img = { type: "svg", svg }; }
 
-    const options = [`Sur mesure — ${dsMm(L)}\u00a0×\u00a0${dsMm(H)}\u00a0mm`, `${t.n}\u00a0croix`, mc ? mc.option : null, dsMaj(teinte), t.rosace ? DS_GC.rosace : null].filter(Boolean).join(" · ");
+    const options = [`Sur mesure — ${dsMm(L)}\u00a0×\u00a0${dsMm(H)}\u00a0mm`, ...rp.options, mc ? mc.option : null, dsMaj(teinte), rp.rosaces ? DS_GC.rosace : null].filter(Boolean).join(" · ");
     const postes = [
-      { cle: "structure", designation: `Structure acier plein — ${dsMm(L)}\u00a0×\u00a0${dsMm(H)}\u00a0mm, ${croix}${t.rosace ? ` et ${rosaces} ${dsMin(DS_GC.rosace)}` : ""}${t.sb ? ", barreaux droits en partie basse" : ""}${t.barreaux ? `, ${dsPluriel(v.nb, "barreau", "barreaux")} dans chaque croix` : ""}, soudure TIG` },
+      { cle: "structure", designation: `Structure acier plein — ${dsMm(L)}\u00a0×\u00a0${dsMm(H)}\u00a0mm, ${rp.structure}, soudure TIG` },
       mc ? { cle: "mainCourante", designation: mc.poste } : null,
       { cle: "peinture", designation: `Finition peinte de l'acier — teinte ${teinte}` },
       { cle: "fixations", designation: remise === "transporteur" ? "Fixations, notice de pose et emballage" : "Fixations et notice de pose" },
@@ -179,14 +234,14 @@ function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto" }) {
     const parts = postes.map((p) => DS_GC.parts[p.cle] + (p.cle === "structure" && !mc ? DS_GC.parts.mainCourante : 0));
     const montants = parts.map((part) => Math.round((prix * part) / 100));
     montants[0] += prix - montants.reduce((a, m) => a + m, 0);
-    const lignes = [{ designation: `${DS_GC.nom} — ${options}`, details: [], quantite: 1, unitaire: 0, total: 0, titre: true }]
+    const lignes = [{ designation: `${nom} — ${options}`, details: [], quantite: 1, unitaire: 0, total: 0, titre: true }]
       .concat(postes.map((p, i) => ({ designation: p.designation, details: [], quantite: 1, unitaire: montants[i], total: montants[i] })));
 
     const lieu = dsLieu(infos.chantier);
     if (remise === "transporteur") {
       lignes.push({
         designation: `Livraison par transporteur${lieu ? ` — ${lieu}` : ""}`,
-        details: [`Livrée prête à poser, emballée à l'atelier. Colis estimé à **${dsNb(R.kg || 0)}\u00a0kg**.`, `Prix estimé selon la ville, le poids et les dimensions, à ${dsNb(km)}\u00a0km de Saumur.`],
+        details: [`Livrée prête à poser, emballée à l'atelier. Colis estimé à **${dsNb(kgColisGC(R))}\u00a0kg**.`, `Prix estimé selon la ville, le poids et les dimensions, à ${dsNb(km)}\u00a0km de Saumur.`],
         quantite: 1, unitaire: rem.prix, total: rem.prix,
       });
     } else if (remise === "pose") {
@@ -214,31 +269,29 @@ function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto" }) {
       "Les conditions générales de vente, disponibles sur auboiacier.fr/fr/cgv, s'appliquent à toute commande.",
     ];
 
-    const cle = ["gardeCorps", L, H, v.A, v.jour, t.n, t.rosace, t.sb, v.nb, v.mcType, v.mcType === "bois" ? v.essence : "", v.mc, v.epMc, v.s, v.nF, remise, remise === "retrait" ? "" : km, prix, infos.client, infos.chantier]
-      .map((x) => (x == null ? "-" : String(x))).join("|");
-    const numero = `D-${dsDateCompacte(date)}-${dsEmpreinte(cle)}`;
-    return {
-      ok: true,
-      devis: {
-        nature: "devis",
-        numero,
-        date: dsDateLisible(date),
-        validite: dsDateLisible(new Date(date.getTime() + DS_VALIDITE_JOURS * 24 * 3600 * 1000)),
-        emetteur: DS_EMETTEUR,
-        client: { nom: infos.client || undefined, adresse: infos.chantier || undefined, email: infos.email || undefined, telephone: infos.telephone || undefined },
-        piece: {
-          nom: DS_GC.nom,
-          accroche: `Croix de Saint-André en acier plein${t.rosace ? ", rosaces de fonderie" : ""}${mc ? `, main courante en ${mc.accroche}` : ""}. Fabriqué au millimètre, encastré dans votre fenêtre.`,
-          image: img,
-          caracteristiques,
-        },
-        lignes,
-        total,
-        delai: DS_GC.delai,
-        conditions,
-        lienFiche: null,
+    const emetteur = tva === 0 ? { nom: DS_EMETTEUR.nom, lignes: DS_EMETTEUR.lignes.concat(DS_EMETTEUR.franchiseTva) } : { nom: DS_EMETTEUR.nom, lignes: DS_EMETTEUR.lignes.slice() };
+    const devis = {
+      nature: "devis",
+      numero: "",
+      date: dsDateLisible(date),
+      validite: dsDateLisible(dsPlusJours(date, DS_VALIDITE_JOURS)),
+      emetteur,
+      client: { nom: infos.client || undefined, adresse: infos.chantier || undefined, email: infos.email || undefined, telephone: infos.telephone || undefined },
+      piece: {
+        nom,
+        accroche: `${rp.accroche}${mc ? `, main courante en ${mc.accroche}` : ""}. Fabriqué au millimètre, encastré dans votre fenêtre.`,
+        image: img,
+        caracteristiques,
       },
+      lignes,
+      total,
+      delai: DS_GC.delai,
+      conditions,
+      lienFiche: null,
     };
+    const imprime = { ...devis, date: undefined, validite: undefined, piece: { ...devis.piece, image: img ? (img.type === "svg" ? img.svg : "photo") : null } };
+    devis.numero = `D-${dsDateCompacte(date)}-${dsEmpreinte(JSON.stringify(imprime))}`;
+    return { ok: true, devis };
   }
 function dsDevisHtml(devis) {
     const e = dsEsc;
@@ -284,6 +337,6 @@ function dsDevisHtml(devis) {
 function dsPageHtml(corps, n, total) {
     return `<section class="ds-page"><div class="ds-corps">${corps}</div><div class="ds-pied"><span>${dsEsc(DS_PIED)}</span></div><div class="ds-num"><span>Page ${n} / ${total}</span></div></section>`;
   }
-export const EMPREINTE_SOURCE = "2a6268a3f4535ee9527e6ddec08ec481b3ba10f3fa2d824689a8512a4cc739f4";
+export const EMPREINTE_SOURCE = "1a24f8591c7ead3b600344d266ed0e4e815fc03846dccd743c5342e7834b8a84";
 export { DS_GC, DS_VALIDITE_JOURS, composerDevisGC, dsDevisHtml, dsPrix };
-export const EMPREINTE = "b17e25d6781d";
+export const EMPREINTE = "c4b4c4142c2f";

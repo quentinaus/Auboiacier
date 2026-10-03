@@ -207,10 +207,13 @@ export const LIVRAISON_MAX_CENTS = 9000;
 /** Le poids du colis vient du catalogue (poidsColisKg, dans products.ts) : ici on ne fait que le facturer. */
 export function tarifLivraison(distanceKm: number, kg: number, plusGrandeCoteMm = 0): Omit<Deplacement, "commune" | "precision"> {
   const route = distanceKm * COEF_ROUTE;
-  const horsGabarit = plusGrandeCoteMm > LIVRAISON_LONGUEUR_HORS_GABARIT_MM || kg > LIVRAISON_POIDS_HORS_GABARIT_KG;
+  // Le colis, comme dans l'outil de plans (kgColisGC) : son poids arrondi au kilo, 8 kg au moins
+  // (l'emballage). C'est le poids qu'on affiche au client : c'est aussi celui qu'on facture.
+  const poids = Math.max(8, Math.round(kg));
+  const horsGabarit = plusGrandeCoteMm > LIVRAISON_LONGUEUR_HORS_GABARIT_MM || poids > LIVRAISON_POIDS_HORS_GABARIT_KG;
   const euros = Math.ceil(
     LIVRAISON_BASE_CENTS / 100 +
-      kg * LIVRAISON_PAR_KG +
+      poids * LIVRAISON_PAR_KG +
       route * LIVRAISON_PAR_KM +
       (horsGabarit ? LIVRAISON_SUPPLEMENT_HORS_GABARIT_CENTS / 100 : 0)
   );

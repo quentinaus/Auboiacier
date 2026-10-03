@@ -48,13 +48,18 @@ export const NUMERO_COTE: Record<CoteFenetre, number> = { largeur: 1, allege: 2,
 type Point = [number, number];
 
 const LARGEUR = 330;
-const HAUTEUR = 660;
+const HAUTEUR = 440;
 /** Le pied du mur : là où le parquet commence. Bas dans le cadre : c'est la
  *  fenêtre qu'on veut voir, pas le parquet. */
-const SOL_Y = 430;
+const SOL_Y = 404;
 /** La place pour la fenêtre entre les pastilles de gauche et de droite, et pour les hauteurs du sol au haut de la fenêtre. */
-const PLACE_LARGEUR = 210;
-const PLACE_HAUTEUR = 230;
+const PLACE_LARGEUR = 232;
+const PLACE_HAUTEUR = 330;
+/** Le milieu de la fenêtre : décalé à droite, la gauche porte les cotes ② et ③ (il n'y a plus rien à droite). */
+const CENTRE = 186;
+/** La hauteur de la pièce dessinée, du sol au haut du cadre : tant que la fenêtre y tient, l'échelle ne bouge pas —
+ *  la ligne de la norme reste donc au même endroit, et c'est la fenêtre qui monte ou descend. */
+const PIECE_MM = 2500;
 /** Profondeur apparente du tableau, de chaque côté de l'ouverture. */
 const TABLEAU = 6;
 /** Les cotes du modèle en photo, dessinées tant que le client n'a rien tapé. */
@@ -277,14 +282,14 @@ export function SchemaFenetre({
   // 20 000 mm écrasait tout le dessin) — mais proportionnelles entre elles.
   const borne = (mm: number, min: number, max: number) => Math.min(Math.max(mm, min), max);
   const L = borne(largeurMm ?? MODELE.largeurMm, 200, 3000);
-  const H = borne(hauteurMm ?? MODELE.hauteurMm, 100, 1200);
-  // Sans allège, on dessine celle qui met la main courante pile sur la règle.
-  const A = borne(allegeMm ?? Math.max((mainCouranteMm ?? 1000) - H, 100), 0, 1500);
-  const F = borne(hauteurFenetreMm ?? MODELE.fenetreMm, 200, 3000);
   const J = Math.max(jourMm, 0);
+  const A = borne(allegeMm ?? 850, 0, 1500);
+  // Tant que le serveur n'a pas répondu : la hauteur que donne la règle (main courante à 1 025 mm du sol, 200 mm au moins).
+  const H = borne(hauteurMm ?? Math.max(200, Math.ceil((1025 - A - J) / 10) * 10), 100, 1200);
+  const F = borne(hauteurFenetreMm ?? MODELE.fenetreMm, 200, 3000);
   // Une seule échelle pour tout : la plus grande cote décide, et tout reste
   // dans la bande du milieu. Trois unités au moins, pour qu'une flèche se voie.
-  const echelle = Math.min(PLACE_LARGEUR / L, PLACE_HAUTEUR / (A + F));
+  const echelle = Math.min(PLACE_LARGEUR / L, PLACE_HAUTEUR / Math.max(PIECE_MM, A + F + 150));
   const largeur = r(L * echelle);
   const allege = Math.max(3, r(A * echelle));
   const fenetre = Math.max(3, r(F * echelle));
@@ -294,10 +299,11 @@ export function SchemaFenetre({
   const HAUT_OUVERTURE_Y = r(appuiY - fenetre); // le haut du tableau
   const basGardeCorpsY = r(appuiY - jour); // le bas du cadre, 100 mm au-dessus de l'appui
   const hautGardeCorpsY = r(basGardeCorpsY - hauteur); // dessus de la main courante
-  /** La ligne de la règle passe au ras de la main courante : c'est elle qu'on vérifie. */
-  const regleY = hautGardeCorpsY;
-  const G = r(LARGEUR / 2 - largeur / 2); // tableau gauche
-  const D = r(LARGEUR / 2 + largeur / 2); // tableau droit
+  // La ligne en pointillé : 1 m du sol, la hauteur que la loi demande. Elle ne bouge pas quand on change
+  // les cotes ; c'est la fenêtre et le garde-corps qui montent ou descendent par rapport à elle.
+  const regleY = r(SOL_Y - 1000 * echelle);
+  const G = r(CENTRE - largeur / 2); // tableau gauche
+  const D = r(CENTRE + largeur / 2); // tableau droit
   /** Les croix de l'outil ; en attendant sa réponse, une par panneau d'environ 60 cm. */
   const panneaux = croix && croix > 0 ? croix : Math.max(1, Math.round(L / 600));
 
@@ -449,14 +455,8 @@ export function SchemaFenetre({
       <Fleche de={[50, appuiY - 2]} a={[50, HAUT_OUVERTURE_Y - TABLEAU]} actif={actif === "fenetre"} />
       <Pastille cote="fenetre" cx={24} cy={pastilleFenetreY} actif={actif === "fenetre"} onChoisir={onChoisir} label={labels.fenetre} />
 
-      {/* ④ La hauteur du garde-corps, calculée : du bas du cadre au dessus de la main courante, à droite. */}
-      <g {...attache}>
-        <line x1={D + 2} y1={basGardeCorpsY} x2={286} y2={basGardeCorpsY} />
-        <line x1={D + 2} y1={hautGardeCorpsY} x2={286} y2={hautGardeCorpsY} />
-      </g>
-      <Fleche de={[280, basGardeCorpsY]} a={[280, hautGardeCorpsY]} actif={actif === "hauteur"} />
-      <Pastille cote="hauteur" cx={306} cy={r((basGardeCorpsY + hautGardeCorpsY) / 2)} actif={actif === "hauteur"} onChoisir={onChoisir} label={labels.hauteur} />
-
+      {/* Plus de cote ④ sur le dessin (demande du 04/10) : la hauteur du garde-corps est calculée, pas mesurée —
+          elle se lit dans le résultat, à côté. Le dessin ne porte que ce que le client mesure. */}
       {/* Le jour de pose n'est plus coté sur le dessin (demande du 03/10) : ce n'est pas une mesure à prendre. */}
     </svg>
   );

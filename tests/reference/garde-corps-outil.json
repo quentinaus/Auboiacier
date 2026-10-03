@@ -1,18 +1,18 @@
 {
  "à lire": "Généré par scripts/extraire-moteur-garde-corps.mjs à partir de l'outil de plans (chargé tel quel dans node:vm). Aucun coût : des prix de vente, des poids, des hauteurs et des empreintes (sha256 tronqué) des réponses complètes. Ne pas modifier à la main.",
- "outil": "2a6268a3f4535ee9527e6ddec08ec481b3ba10f3fa2d824689a8512a4cc739f4",
+ "outil": "1a24f8591c7ead3b600344d266ed0e4e815fc03846dccd743c5342e7834b8a84",
  "empreintes": {
-  "moteur": "c101906683a3",
-  "devis": "b17e25d6781d",
-  "chiffrage": "83c978b1f393"
+  "moteur": "664e3d5b1be7",
+  "devis": "c4b4c4142c2f",
+  "chiffrage": "400c81016ec1"
  },
- "defauts": "d8c0ef7d9c3293da",
+ "defauts": "04a70457d483d769",
  "date": "2026-09-29T10:00:00.000Z",
  "cas": [
   {
    "nom": "valeurs de départ de l'outil",
    "valeurs": {},
-   "R": "eaeec6697050a919",
+   "R": "a695ae47c5f96a68",
    "hauteurGC": 290,
    "kg": 11.612215647904575,
    "alertes": 1,
@@ -23,13 +23,13 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-P19PT",
+    "numero": "D-20260929-SQC6K",
     "total": 340,
     "lignes": 5,
-    "donnees": "4fefecc2df2cf24b",
-    "html": "a304f7e3d23acb76"
+    "donnees": "024a436691b73618",
+    "html": "1aace331c2c7d1dc"
    },
-   "variantes": "71e1dcb0ea36f6b6"
+   "variantes": "387cd59121855c8e"
   },
   {
    "nom": "photo du site, 4 croix",
@@ -47,11 +47,11 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-RZVSH",
+    "numero": "D-20260929-NJ1JX",
     "total": 570,
     "lignes": 5,
-    "donnees": "a75ddfc3f94177e1",
-    "html": "540719725208d15a"
+    "donnees": "b60e3fb9c825e936",
+    "html": "485e49ec7446b0c3"
    }
   },
   {
@@ -60,7 +60,7 @@
     "B": 1195,
     "nP": 3
    },
-   "R": "a9a767335bb34f7c",
+   "R": "998261378c8a833b",
    "hauteurGC": 290,
    "kg": 13.227166422730246,
    "alertes": 1,
@@ -71,13 +71,13 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-CMTT1",
+    "numero": "D-20260929-66MHR",
     "total": 490,
     "lignes": 5,
-    "donnees": "54efa667afc3cb87",
-    "html": "3e94e67069ed2e42"
+    "donnees": "74cf98c105aa35f8",
+    "html": "633d40812ecfd55e"
    },
-   "variantes": "4600775da147af55"
+   "variantes": "3ee250df411bc487"
   },
   {
    "nom": "juste au-delà, carré 16",
@@ -85,7 +85,7 @@
     "B": 1200,
     "nP": 3
    },
-   "R": "86e90da53eccc37b",
+   "R": "e6377eff7e7cfdbc",
    "hauteurGC": 290,
    "kg": 13.269767948782295,
    "alertes": 2,
@@ -96,11 +96,11 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-G5786",
+    "numero": "D-20260929-MJ5CS",
     "total": 490,
     "lignes": 5,
-    "donnees": "cd35fd16e15c3da2",
-    "html": "dfe24f672c35b170"
+    "donnees": "074997f269513c65",
+    "html": "3820a363c9332565"
    }
   },
   {
@@ -121,11 +121,11 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-VD5TU",
+    "numero": "D-20260929-U3GHV",
     "total": 570,
     "lignes": 5,
-    "donnees": "102c8176835c09dc",
-    "html": "e0d9f3bfef6ace6d"
+    "donnees": "c326a746c1f26c0e",
+    "html": "01afcf420d50a0c1"
    }
   },
   {
@@ -136,22 +136,22 @@
     "nP": 2
    },
    "chantier": "12 rue des Lilas, 44000 Nantes",
-   "R": "7220577662415ed6",
-   "hauteurGC": 940,
-   "kg": 21.441991787559047,
-   "alertes": 0,
-   "prix": 580,
-   "chiffrage": "a1a44d90c1e11781",
+   "R": "cd86249c6aa0d230",
+   "hauteurGC": 640,
+   "kg": 16.656542056586456,
+   "alertes": 1,
+   "prix": 560,
+   "chiffrage": "0dae5dfb091b2b6c",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-FR3FP",
-    "total": 580,
+    "numero": "D-20260929-1CNRB",
+    "total": 560,
     "lignes": 5,
-    "donnees": "447d9620b8bb4ed4",
-    "html": "557bf4a1323967a0"
+    "donnees": "4114459bb97240b4",
+    "html": "df0357c1ba22112c"
    }
   },
   {
@@ -173,11 +173,11 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-QZS1C",
+    "numero": "D-20260929-W1YX5",
     "total": 560,
     "lignes": 5,
-    "donnees": "174edd4195c4431a",
-    "html": "6336fd349d5d8982"
+    "donnees": "00f6997771b8f2ef",
+    "html": "e91f04787d1ff9a6"
    }
   },
   {
@@ -197,11 +197,11 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-B3L6O",
+    "numero": "D-20260929-T3M7M",
     "total": 310,
     "lignes": 5,
-    "donnees": "ad789f201b4232ff",
-    "html": "eca1c415735252de"
+    "donnees": "54eb7c749be5650f",
+    "html": "e3039933591f3cb4"
    }
   },
   {
@@ -212,22 +212,22 @@
     "s": 20,
     "nP": 6
    },
-   "R": "7a2fcc946dd31c46",
-   "hauteurGC": 940,
-   "kg": 92.11319446129188,
+   "R": "14dc0b41f9de1f0e",
+   "hauteurGC": 440,
+   "kg": 63.645428493825925,
    "alertes": 2,
-   "prix": 1340,
-   "chiffrage": "8c25021656a1f611",
+   "prix": 1250,
+   "chiffrage": "70f98964f97818f0",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-SFBP4",
-    "total": 1340,
+    "numero": "D-20260929-4UCUG",
+    "total": 1250,
     "lignes": 5,
-    "donnees": "457494624d776a71",
-    "html": "52ae3173cce344be"
+    "donnees": "31566db04ecdc099",
+    "html": "ed2f371b4d2f24e0"
    }
   },
   {
@@ -249,11 +249,11 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-E2A91",
+    "numero": "D-20260929-T29QU",
     "total": 310,
     "lignes": 5,
-    "donnees": "c250ca82015153c6",
-    "html": "6da60e900c0dbfc0"
+    "donnees": "0c0e5db88214fcca",
+    "html": "5b9e7ec34ba5944d"
    }
   },
   {
@@ -263,22 +263,22 @@
     "A": 599,
     "mcType": "profil"
    },
-   "R": "89afa5bb407390ad",
-   "hauteurGC": 940,
-   "kg": 18.876033872462706,
+   "R": "b37d7a6a6b5e5780",
+   "hauteurGC": 340,
+   "kg": 15.466908679429595,
    "alertes": 2,
-   "prix": 380,
-   "chiffrage": "424bfc11cc4a39fc",
+   "prix": 360,
+   "chiffrage": "b459cb3635f22865",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-8LNOG",
-    "total": 380,
+    "numero": "D-20260929-UUPN2",
+    "total": 360,
     "lignes": 5,
-    "donnees": "a7558868b2d50fa7",
-    "html": "6fae0713ef698123"
+    "donnees": "78336c5b4528bde6",
+    "html": "7da19859226ae105"
    }
   },
   {
@@ -299,11 +299,11 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-N6ZDP",
+    "numero": "D-20260929-ZXSTY",
     "total": 340,
     "lignes": 5,
-    "donnees": "d89a64f2e4c268af",
-    "html": "ed3bf1f70c273d02"
+    "donnees": "2f3a47000b03bffd",
+    "html": "a8bb3f114ecdd469"
    }
   },
   {
@@ -324,14 +324,14 @@
    "chiffrage": "5307dde9678d1ede",
    "remise": {
     "prix": 74,
-    "empreinte": "4c40277fe03f3ca6"
+    "empreinte": "639137065d4a279e"
    },
    "devis": {
-    "numero": "D-20260929-VBRGU",
+    "numero": "D-20260929-Y4MQN",
     "total": 654,
     "lignes": 6,
-    "donnees": "348507085e6e2dab",
-    "html": "dd23f412f58f6dd6"
+    "donnees": "7b88759356ec5440",
+    "html": "d4c68e1de7a6a854"
    }
   },
   {
@@ -356,11 +356,11 @@
     "empreinte": "083de718c7ba0e9d"
    },
    "devis": {
-    "numero": "D-20260929-JB7VH",
+    "numero": "D-20260929-TTF5M",
     "total": 1002,
     "lignes": 6,
-    "donnees": "c4793ae0761ab524",
-    "html": "0e8504bd9a401a81"
+    "donnees": "fa5becd5ad332016",
+    "html": "7c71731abbb0f78a"
    }
   },
   {
@@ -374,22 +374,22 @@
     "essence": "noyer",
     "rainure": false
    },
-   "R": "130001da801f4a67",
-   "hauteurGC": 940,
-   "kg": 20.463248847052377,
+   "R": "5936170069bfcecd",
+   "hauteurGC": 540,
+   "kg": 14.869223760897173,
    "alertes": 1,
-   "prix": 540,
-   "chiffrage": "f15453981944dfb2",
+   "prix": 520,
+   "chiffrage": "26cbd5b0c7d37586",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-F2HHK",
-    "total": 540,
+    "numero": "D-20260929-8A6N1",
+    "total": 520,
     "lignes": 5,
-    "donnees": "3196a8a671500f4e",
-    "html": "04361601d2a93989"
+    "donnees": "5c8c810d7e796380",
+    "html": "c496b128e11c04a4"
    }
   },
   {
@@ -401,7 +401,7 @@
     "remise": "transporteur",
     "km": 60
    },
-   "R": "20523f127f4b022b",
+   "R": "baab5a7153e64294",
    "hauteurGC": 290,
    "kg": 9.992505796787606,
    "alertes": 1,
@@ -409,14 +409,14 @@
    "chiffrage": "0f337df8de4ae890",
    "remise": {
     "prix": 44,
-    "empreinte": "e7fbd5ebe4d330d7"
+    "empreinte": "1cd5f680ed2631c9"
    },
    "devis": {
-    "numero": "D-20260929-AYJW6",
+    "numero": "D-20260929-YSVNC",
     "total": 944,
     "lignes": 6,
-    "donnees": "5db23cd28015c7d8",
-    "html": "14d7dd34cfe244f5"
+    "donnees": "ef5d0895faf2a7ac",
+    "html": "34307fabd9b3ad10"
    }
   },
   {
@@ -440,11 +440,11 @@
     "empreinte": "0ad77eb380939717"
    },
    "devis": {
-    "numero": "D-20260929-3LO40",
+    "numero": "D-20260929-FXT49",
     "total": 420,
     "lignes": 6,
-    "donnees": "891ad4b59e3f2581",
-    "html": "162b92cdf67d3969"
+    "donnees": "54390200ae9b7f3e",
+    "html": "e93c2f2c95f4ef97"
    }
   },
   {
@@ -456,22 +456,22 @@
     "essence": "hetre",
     "nP": 3
    },
-   "R": "cb38a647b9fbfa04",
-   "hauteurGC": 940,
-   "kg": 28.02477398819588,
-   "alertes": 0,
-   "prix": 710,
-   "chiffrage": "9fa2a6c7813e07ac",
+   "R": "83ab11fe5f192532",
+   "hauteurGC": 690,
+   "kg": 22.757393596992298,
+   "alertes": 1,
+   "prix": 690,
+   "chiffrage": "6868f47eaabfa970",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-KC9U1",
-    "total": 710,
+    "numero": "D-20260929-JS9R5",
+    "total": 690,
     "lignes": 5,
-    "donnees": "8b6445f71f069f13",
-    "html": "ed7eec9f7596e955"
+    "donnees": "b7a8e4073571fa73",
+    "html": "217aea4cdd913b6e"
    }
   },
   {
@@ -489,22 +489,22 @@
     "nP": 4
    },
    "chantier": "49400 Saumur",
-   "R": "f713cf0b59aba808",
-   "hauteurGC": 940,
-   "kg": 42.757718737731636,
+   "R": "133f7d55ba5cb455",
+   "hauteurGC": 370,
+   "kg": 19.607146158276787,
    "alertes": 0,
-   "prix": 820,
-   "chiffrage": "661f77df78883038",
+   "prix": 720,
+   "chiffrage": "caca94cba075b8b9",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-6WV0I",
-    "total": 820,
+    "numero": "D-20260929-YDQBX",
+    "total": 720,
     "lignes": 5,
-    "donnees": "9ae9774061526d1b",
-    "html": "64b2d2fc699738bd"
+    "donnees": "2264dd3390d53383",
+    "html": "9b68b432735e4043"
    }
   },
   {
@@ -521,22 +521,22 @@
     "ass": "onglet",
     "nP": 6
    },
-   "R": "13a04a7f0f0b43bc",
-   "hauteurGC": 940,
-   "kg": 27.348463676435042,
+   "R": "6ae37a2b229c6ab3",
+   "hauteurGC": 670,
+   "kg": 21.974615416185152,
    "alertes": 0,
-   "prix": 860,
-   "chiffrage": "a8b1489a4e48ccc6",
+   "prix": 830,
+   "chiffrage": "5caa089fb9c16429",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-I09M2",
-    "total": 860,
+    "numero": "D-20260929-J5H2W",
+    "total": 830,
     "lignes": 5,
-    "donnees": "4900d9121ce39469",
-    "html": "75f3aa854baacd33"
+    "donnees": "0e2f3decefe45b4f",
+    "html": "b00712b8f770f314"
    }
   },
   {
@@ -563,11 +563,11 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-ACHQK",
+    "numero": "D-20260929-L1C87",
     "total": 590,
     "lignes": 5,
-    "donnees": "e0b95dbdadd9e87d",
-    "html": "3c6fcf6ce04771bc"
+    "donnees": "01ababa347b4fd48",
+    "html": "f66806b2dd247955"
    }
   },
   {
@@ -586,22 +586,22 @@
     "nP": 2
    },
    "chantier": "49400 Saumur",
-   "R": "3dbdf22c1560d8b0",
-   "hauteurGC": 940,
-   "kg": 20.21593792569457,
-   "alertes": 2,
-   "prix": 580,
-   "chiffrage": "447fed45a49bf8ee",
+   "R": "9dda428d135fae3e",
+   "hauteurGC": 660,
+   "kg": 16.850434461421628,
+   "alertes": 0,
+   "prix": 570,
+   "chiffrage": "4c05557d1da0921e",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-3ZTKF",
-    "total": 580,
+    "numero": "D-20260929-F6Q1F",
+    "total": 570,
     "lignes": 5,
-    "donnees": "8398049684f0970a",
-    "html": "fea65867079afc0f"
+    "donnees": "ca12aacbaa852259",
+    "html": "eb89cdd8e9f6b770"
    }
   },
   {
@@ -626,14 +626,14 @@
    "chiffrage": "c7ccb9c8735eb57b",
    "remise": {
     "prix": 59,
-    "empreinte": "0bf42eeed2501c71"
+    "empreinte": "2789175897c20b34"
    },
    "devis": {
-    "numero": "D-20260929-VQAN0",
+    "numero": "D-20260929-ZEM6E",
     "total": 759,
     "lignes": 6,
-    "donnees": "417f56e94e77ee5f",
-    "html": "220324dd45e1fad0"
+    "donnees": "3ce22650c9c5dbb3",
+    "html": "a3b69be3624cab96"
    }
   },
   {
@@ -651,10 +651,10 @@
     "rainure": false,
     "nP": 2
    },
-   "R": "ec2a52ea7c643bca",
+   "R": "f9a07a3137bd5253",
    "hauteurGC": 490,
    "kg": 5.842248467224007,
-   "alertes": 3,
+   "alertes": 2,
    "prix": 400,
    "chiffrage": "72aedc700b58a642",
    "remise": {
@@ -662,11 +662,11 @@
     "empreinte": "1a9d30f9bb1095e4"
    },
    "devis": {
-    "numero": "D-20260929-0CUGG",
+    "numero": "D-20260929-I1B0D",
     "total": 922,
     "lignes": 6,
-    "donnees": "39b6eec00fd6fcdf",
-    "html": "dd93593e4b747854"
+    "donnees": "1e425ba34b48c4e5",
+    "html": "7790fbc701fcee8c"
    }
   },
   {
@@ -695,11 +695,11 @@
     "empreinte": "7bf070b020ef0f4e"
    },
    "devis": {
-    "numero": "D-20260929-KBHVI",
+    "numero": "D-20260929-VGGBZ",
     "total": 1460,
     "lignes": 6,
-    "donnees": "a33a3f58b5191140",
-    "html": "1a3661798107943b"
+    "donnees": "afc3ca472e2045be",
+    "html": "4b0b0ea3964bb233"
    }
   },
   {
@@ -717,22 +717,22 @@
     "rainure": false,
     "nP": 1
    },
-   "R": "ba160078a399cd9a",
-   "hauteurGC": 940,
-   "kg": 11.273078136753828,
-   "alertes": 2,
-   "prix": 400,
-   "chiffrage": "9c28e178e256568d",
+   "R": "f16c03810b34e894",
+   "hauteurGC": 570,
+   "kg": 8.08806858237536,
+   "alertes": 1,
+   "prix": 380,
+   "chiffrage": "98c36e405c13cfbb",
    "remise": {
     "prix": 154,
     "empreinte": "d0c9e9947f33f4da"
    },
    "devis": {
-    "numero": "D-20260929-NIHUC",
-    "total": 554,
+    "numero": "D-20260929-NLW33",
+    "total": 534,
     "lignes": 6,
-    "donnees": "5de83f7af6d9f888",
-    "html": "259f32106ca3d84f"
+    "donnees": "c3f6596399e23195",
+    "html": "4b47d045534c4678"
    }
   },
   {
@@ -760,11 +760,11 @@
     "empreinte": "94e279e2b4b59275"
    },
    "devis": {
-    "numero": "D-20260929-1OXXO",
+    "numero": "D-20260929-RDJK6",
     "total": 440,
     "lignes": 6,
-    "donnees": "25f39c361de27f07",
-    "html": "287fbe6a0c54edd9"
+    "donnees": "fe8422f8f5f46797",
+    "html": "a907bd375954b499"
    }
   },
   {
@@ -781,22 +781,22 @@
     "jour": 75,
     "nP": 3
    },
-   "R": "b9f46f272db28a0a",
-   "hauteurGC": 950,
-   "kg": 38.19211730961192,
-   "alertes": 1,
-   "prix": 830,
-   "chiffrage": "b025cd47b81cb203",
+   "R": "3c3ffb441d87496c",
+   "hauteurGC": 790,
+   "kg": 32.756014769588184,
+   "alertes": 2,
+   "prix": 800,
+   "chiffrage": "c779f555f69dae06",
    "remise": {
     "prix": 90,
-    "empreinte": "b6cc9d2215178cf0"
+    "empreinte": "1c515102ccbbca58"
    },
    "devis": {
-    "numero": "D-20260929-53Q38",
-    "total": 920,
+    "numero": "D-20260929-SAXNK",
+    "total": 890,
     "lignes": 6,
-    "donnees": "804b022bb2111a45",
-    "html": "a1efe77270149ac9"
+    "donnees": "43559bf47d000785",
+    "html": "d81dc64dfd605973"
    }
   },
   {
@@ -824,11 +824,11 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-NPG8A",
+    "numero": "D-20260929-F5COZ",
     "total": 970,
     "lignes": 5,
-    "donnees": "8cf3c02e189db578",
-    "html": "105e146cff081e6a"
+    "donnees": "d4f74844bb281e48",
+    "html": "b0a514bae52ca324"
    }
   },
   {
@@ -856,11 +856,11 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-RW8IP",
+    "numero": "D-20260929-OBY5H",
     "total": 980,
     "lignes": 5,
-    "donnees": "efdf1b1d25497afc",
-    "html": "2352ebb6327601f9"
+    "donnees": "b3f1c7f1a22574b8",
+    "html": "a40aaede55e7ba02"
    }
   },
   {
@@ -889,11 +889,11 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-KX2A0",
+    "numero": "D-20260929-Q2XCK",
     "total": 500,
     "lignes": 5,
-    "donnees": "480c7afb4a47ad1a",
-    "html": "9ef74f8593d08314"
+    "donnees": "f0bddefd25afd21b",
+    "html": "22bba16a84411e5a"
    }
   },
   {
@@ -909,22 +909,22 @@
     "s": 16,
     "nP": 4
    },
-   "R": "e73867ada19e1c0e",
-   "hauteurGC": 940,
-   "kg": 30.31478462550234,
-   "alertes": 0,
-   "prix": 800,
-   "chiffrage": "0848ef3f8e1d1b6c",
+   "R": "66dd6a6602351927",
+   "hauteurGC": 800,
+   "kg": 27.244178399879047,
+   "alertes": 1,
+   "prix": 780,
+   "chiffrage": "ba2ea104574eedae",
    "remise": {
     "prix": 783,
     "empreinte": "db2bc0d9ff78a4f0"
    },
    "devis": {
-    "numero": "D-20260929-XUSUT",
-    "total": 1583,
+    "numero": "D-20260929-0V5K3",
+    "total": 1563,
     "lignes": 6,
-    "donnees": "16d5719a8117d7d0",
-    "html": "b307cdfa8122080a"
+    "donnees": "47587e1f4ab8c74a",
+    "html": "beeaa469cae46a73"
    }
   },
   {
@@ -953,11 +953,11 @@
     "empreinte": "64567c408b719847"
    },
    "devis": {
-    "numero": "D-20260929-Y6UFD",
+    "numero": "D-20260929-X9476",
     "total": 1288,
     "lignes": 6,
-    "donnees": "1044b42e50872c0d",
-    "html": "f7dd444073e24a7f"
+    "donnees": "e22c27e6d28ea5aa",
+    "html": "084e293447b2fdab"
    }
   },
   {
@@ -976,10 +976,10 @@
     "ass": "onglet",
     "nP": 2
    },
-   "R": "a9daa079d2f455b5",
+   "R": "9b7393de0da46d4b",
    "hauteurGC": 750,
    "kg": 15.190518612054175,
-   "alertes": 1,
+   "alertes": 0,
    "prix": 390,
    "chiffrage": "9ef41453ed58f271",
    "remise": {
@@ -987,11 +987,11 @@
     "empreinte": "ce9f7dd2b93a8209"
    },
    "devis": {
-    "numero": "D-20260929-M5IQR",
+    "numero": "D-20260929-EVIGI",
     "total": 757,
     "lignes": 6,
-    "donnees": "2c3c5ea4102cc3e8",
-    "html": "35b60a7413acfa1b"
+    "donnees": "b6f50baff6fe4051",
+    "html": "79b44b89eb5c8129"
    }
   },
   {
@@ -1022,11 +1022,11 @@
     "empreinte": "e8323ec038d8d839"
    },
    "devis": {
-    "numero": "D-20260929-11MTA",
+    "numero": "D-20260929-JH50W",
     "total": 1226,
     "lignes": 6,
-    "donnees": "fc20d6f68bce085f",
-    "html": "a54f3590ea10a5bb"
+    "donnees": "3a67a858f4813c13",
+    "html": "4246c262684de0cf"
    }
   },
   {
@@ -1051,14 +1051,14 @@
    "chiffrage": "65826ae2aad8d7bb",
    "remise": {
     "prix": 68,
-    "empreinte": "3a9115c7208f51b5"
+    "empreinte": "2f61ba9a8dee9f1a"
    },
    "devis": {
-    "numero": "D-20260929-8D0GI",
+    "numero": "D-20260929-C1ZMP",
     "total": 698,
     "lignes": 6,
-    "donnees": "21bfb0fc89c4efb1",
-    "html": "88ea3bdbf4aa210a"
+    "donnees": "4faeb9b3d3daf979",
+    "html": "88d4d797ea4c8419"
    }
   },
   {
@@ -1078,7 +1078,7 @@
     "jour": 110,
     "nP": 5
    },
-   "R": "60ae437afc11b776",
+   "R": "e5981e97074ce9f6",
    "hauteurGC": 540,
    "kg": 37.290110794057206,
    "alertes": 4,
@@ -1089,11 +1089,11 @@
     "empreinte": "7553402fffcc2afe"
    },
    "devis": {
-    "numero": "D-20260929-LJ8SR",
+    "numero": "D-20260929-49ZFW",
     "total": 1354,
     "lignes": 6,
-    "donnees": "7021c2f084e0fc17",
-    "html": "009b6558904f7ea5"
+    "donnees": "3b2a1a45537a7c2c",
+    "html": "cd38471ddb041299"
    }
   },
   {
@@ -1120,11 +1120,11 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-47RMX",
+    "numero": "D-20260929-VE19C",
     "total": 630,
     "lignes": 5,
-    "donnees": "c3608b11df06a0ec",
-    "html": "8f3ca0948dde5320"
+    "donnees": "ca3ffef0d84fd85d",
+    "html": "4c4d5c1c601eeceb"
    }
   },
   {
@@ -1141,22 +1141,22 @@
     "nb": 1,
     "nP": 2
    },
-   "R": "94237e099884e77e",
-   "hauteurGC": 940,
-   "kg": 32.39705044836882,
-   "alertes": 0,
-   "prix": 610,
-   "chiffrage": "bb22fbcda5613a49",
+   "R": "6cd6ea49cf7b9e2d",
+   "hauteurGC": 540,
+   "kg": 22.26451836958298,
+   "alertes": 1,
+   "prix": 580,
+   "chiffrage": "3e9adb150f0ed36e",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-3GONP",
-    "total": 610,
+    "numero": "D-20260929-VMI9L",
+    "total": 580,
     "lignes": 5,
-    "donnees": "67b1a00ef462235b",
-    "html": "a685b759ad74c109"
+    "donnees": "7df3f54894000bec",
+    "html": "1373ae7e2a4e90a5"
    }
   },
   {
@@ -1173,22 +1173,22 @@
     "nP": 6
    },
    "chantier": "49400 Saumur",
-   "R": "5fa73a76606b660c",
-   "hauteurGC": 940,
-   "kg": 23.635192615572112,
+   "R": "1f69f63bd6637048",
+   "hauteurGC": 720,
+   "kg": 20.496554568180148,
    "alertes": 0,
-   "prix": 830,
-   "chiffrage": "0ae73fb3c9b20bb0",
+   "prix": 810,
+   "chiffrage": "20e3c0e973f6eb26",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-A2JDF",
-    "total": 830,
+    "numero": "D-20260929-524NV",
+    "total": 810,
     "lignes": 5,
-    "donnees": "e785dac0edd89f76",
-    "html": "d3f2b4b07a03be77"
+    "donnees": "03bf4d89941eb2a5",
+    "html": "1a18d2f0f7f7ec01"
    }
   }
  ],
@@ -1715,7 +1715,7 @@
     "fenetreMm": 1500,
     "essence": "noyer"
    },
-   "hauteur": 940,
+   "hauteur": 590,
    "alertes": {
     "12": [
      [
@@ -1729,10 +1729,12 @@
       "solidite"
      ],
      [
+      "trous",
       "fixation",
       "solidite"
      ],
      [
+      "trous",
       "fixation",
       "solidite"
      ],
@@ -1757,10 +1759,12 @@
       "solidite"
      ],
      [
+      "trous",
       "fixation",
       "solidite"
      ],
      [
+      "trous",
       "fixation",
       "solidite"
      ],
@@ -1780,8 +1784,12 @@
      [
       "trous"
      ],
-     [],
-     [],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
      [],
      []
     ],
@@ -1792,8 +1800,12 @@
      [
       "trous"
      ],
-     [],
-     [],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
      [],
      []
     ],
@@ -1804,19 +1816,23 @@
      [
       "trous"
      ],
-     [],
-     [],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
      [],
      []
     ]
    },
    "choix": {
     "carre": 16,
-    "croix": 3,
-    "R": "244936a69f5dadbe",
-    "hauteurGC": 940,
-    "kg": 25.471729554964174,
-    "prix": 690
+    "croix": 5,
+    "R": "8cfb39aa4db507cd",
+    "hauteurGC": 590,
+    "kg": 22.626438307062816,
+    "prix": 820
    }
   },
   {
@@ -2223,7 +2239,7 @@
     "fenetreMm": 0,
     "essence": "pin"
    },
-   "hauteur": 940,
+   "hauteur": 840,
    "alertes": {
     "12": [
      [
@@ -2232,22 +2248,27 @@
       "solidite"
      ],
      [
+      "trous",
       "fixation",
       "solidite"
      ],
      [
+      "trous",
       "fixation",
       "solidite"
      ],
      [
+      "trous",
       "fixation",
       "solidite"
      ],
      [
+      "trous",
       "fixation",
       "solidite"
      ],
      [
+      "trous",
       "fixation",
       "solidite"
      ]
@@ -2259,22 +2280,27 @@
       "solidite"
      ],
      [
+      "trous",
       "fixation",
       "solidite"
      ],
      [
+      "trous",
       "fixation",
       "solidite"
      ],
      [
+      "trous",
       "fixation",
       "solidite"
      ],
      [
+      "trous",
       "fixation",
       "solidite"
      ],
      [
+      "trous",
       "fixation",
       "solidite"
      ]
@@ -2285,15 +2311,19 @@
       "solidite"
      ],
      [
+      "trous",
       "solidite"
      ],
      [
+      "trous",
       "solidite"
      ],
      [
+      "trous",
       "solidite"
      ],
      [
+      "trous",
       "solidite"
      ],
      [
@@ -2304,30 +2334,46 @@
      [
       "trous"
      ],
-     [],
-     [],
-     [],
-     [],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
      []
     ],
     "20": [
      [
       "trous"
      ],
-     [],
-     [],
-     [],
-     [],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
      []
     ]
    },
    "choix": {
     "carre": 18,
-    "croix": 2,
-    "R": "eac16e170502124a",
-    "hauteurGC": 940,
-    "kg": 38.248714612427676,
-    "prix": 680
+    "croix": 6,
+    "R": "b87ad8d14f37cd21",
+    "hauteurGC": 840,
+    "kg": 42.2691825356555,
+    "prix": 970
    }
   },
   {
@@ -2338,7 +2384,7 @@
     "fenetreMm": 1400,
     "essence": "chene"
    },
-   "hauteur": 940,
+   "hauteur": 340,
    "alertes": {
     "12": [
      [
@@ -2362,12 +2408,10 @@
       "solidite"
      ],
      [
-      "trous",
       "fixation",
       "solidite"
      ],
      [
-      "trous",
       "fixation",
       "solidite"
      ]
@@ -2394,12 +2438,10 @@
       "solidite"
      ],
      [
-      "trous",
       "fixation",
       "solidite"
      ],
      [
-      "trous",
       "fixation",
       "solidite"
      ]
@@ -2422,11 +2464,9 @@
       "solidite"
      ],
      [
-      "trous",
       "solidite"
      ],
      [
-      "trous",
       "solidite"
      ]
     ],
@@ -2443,12 +2483,8 @@
      [
       "trous"
      ],
-     [
-      "trous"
-     ],
-     [
-      "trous"
-     ]
+     [],
+     []
     ],
     "20": [
      [
@@ -2463,15 +2499,18 @@
      [
       "trous"
      ],
-     [
-      "trous"
-     ],
-     [
-      "trous"
-     ]
+     [],
+     []
     ]
    },
-   "choix": null
+   "choix": {
+    "carre": 18,
+    "croix": 5,
+    "R": "672c2d55d1998e66",
+    "hauteurGC": 340,
+    "kg": 22.346063495878646,
+    "prix": 660
+   }
   },
   {
    "entree": {
@@ -2892,7 +2931,7 @@
     "fenetreMm": 0,
     "essence": "chene"
    },
-   "hauteur": 940,
+   "hauteur": 640,
    "alertes": {
     "12": [
      [
@@ -2916,10 +2955,12 @@
       "solidite"
      ],
      [
+      "trous",
       "fixation",
       "solidite"
      ],
      [
+      "trous",
       "fixation",
       "solidite"
      ]
@@ -2946,10 +2987,12 @@
       "solidite"
      ],
      [
+      "trous",
       "fixation",
       "solidite"
      ],
      [
+      "trous",
       "fixation",
       "solidite"
      ]
@@ -2972,9 +3015,11 @@
       "solidite"
      ],
      [
+      "trous",
       "solidite"
      ],
      [
+      "trous",
       "solidite"
      ]
     ],
@@ -2996,9 +3041,11 @@
       "solidite"
      ],
      [
+      "trous",
       "solidite"
      ],
      [
+      "trous",
       "solidite"
      ]
     ],
@@ -3020,9 +3067,11 @@
       "solidite"
      ],
      [
+      "trous",
       "solidite"
      ],
      [
+      "trous",
       "solidite"
      ]
     ]
