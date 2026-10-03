@@ -271,9 +271,9 @@ export function ReleveGardeCorps({
   const pastille = (ok: boolean) => (
     <span
       aria-hidden
-      className={`absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full text-white shadow-sm ${ok ? "bg-[#2a7a3f]" : "bg-[#b5aca2]"}`}
+      className={`absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full text-white shadow-sm ${ok ? "bg-[#2a7a3f]" : "bg-[#b5aca2]"}`}
     >
-      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" className="h-2.5 w-2.5">
         {ok ? <path d="M4.5 10.5l3.5 3.5 7.5-8" /> : <path d="M5.5 5.5l9 9M14.5 5.5l-9 9" />}
       </svg>
     </span>
@@ -286,108 +286,100 @@ export function ReleveGardeCorps({
   const libelleCourt = (m: { croix: number; soubassementMm: number }) =>
     `${m.croix} ${fr ? "croix" : m.croix > 1 ? "crosses" : "cross"}${m.soubassementMm > 0 ? (fr ? " + barreaux" : " + bars") : ""}`;
   const catalogue = (
-    <div id="modeles-gc" className="mt-3 scroll-mt-24 rounded-2xl border border-[#e0d6c8] bg-white/75 px-3 py-2.5 text-left">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <p className="text-[13px] font-medium leading-snug text-[#2b2320]">
+    /* Une bande fine sous le croquis : un mot, les modèles en petit, « votre style », et le bouton du catalogue. */
+    <div id="modeles-gc" className="mt-2.5 scroll-mt-24 rounded-xl border border-[#e0d6c8] bg-white/75 px-2.5 py-2 text-left">
+      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+        <p className="text-[12.5px] font-medium leading-snug text-[#2b2320]">
           {modeles.length === 0
             ? fr
-              ? "Votre modèle"
-              : "Your model"
+              ? "Votre modèle : entrez vos mesures."
+              : "Your model: enter your measurements."
             : nbConformes === 0
               ? fr
-                ? "Aucun de nos modèles n'est aux normes pour ces mesures."
-                : "None of our models meets the standard for these measurements."
+                ? "Aucun de nos modèles n'est aux normes ici."
+                : "None of our models is to standard here."
               : adapte
                 ? fr
-                  ? "Le modèle de la photo n'est pas aux normes ici. Choisissez parmi ceux-ci :"
-                  : "The model in the photo is not to standard here. Choose among these:"
+                  ? "Le modèle de la photo n'est pas aux normes ici. Choisissez :"
+                  : "The model in the photo is not to standard here. Choose:"
                 : fr
                   ? "Choisissez votre modèle :"
                   : "Choose your model:"}
-          {modeles.length === 0 && (
-            <span className="ml-2 text-xs font-normal text-[#6f6357]">
-              {fr ? "entrez vos mesures : nous vous montrons ceux qui sont aux normes pour votre fenêtre" : "enter your measurements: we show you the ones to standard for your window"}
-            </span>
-          )}
         </p>
-        {(modeles.length === 0 || nbConformes < modeles.length) && (
-          <button
-            type="button"
-            onClick={() => setToutVoir((v) => !v)}
-            aria-expanded={toutVoir}
-            className="rounded-full border border-[#9a8d80] bg-white px-3 py-1 text-xs font-medium text-[#2b2320] transition-colors hover:border-[#2b2320]"
-          >
-            {toutVoir
-              ? fr
-                ? modeles.length
-                  ? "Seulement ceux aux normes"
-                  : "Fermer le catalogue"
-                : modeles.length
-                  ? "Only those to standard"
-                  : "Close the catalogue"
-              : fr
-                ? "Voir les autres modèles du catalogue"
-                : "See the other models in the catalogue"}
-          </button>
-        )}
-      </div>
-      <div role="group" aria-label={fr ? "Modèles de garde-corps" : "Railing models"} className="mt-2 flex flex-wrap gap-1.5">
-        {/* Par défaut : UNIQUEMENT les modèles aux normes pour les cotes du client. Rien avant les cotes.
-            Le reste du catalogue ne s'ouvre que sur demande (bouton ci-dessus), avec sa pastille. */}
-        {(modeles.length ? modeles.filter((m) => toutVoir || m.conforme) : toutVoir ? MODELES_VITRINE : []).map((m) => {
-          const actif = choisi?.id === m.id;
-          const marque = modeles.length > 0;
-          return (
-            <button
-              key={`${m.croix}-${m.soubassementMm > 0}`}
-              type="button"
-              aria-pressed={marque ? actif : undefined}
-              aria-disabled={marque && !m.conforme}
-              aria-label={`${libelleModele(m)}${marque ? (m.conforme ? ` — ${prixAffiche(m.prix, locale)}` : fr ? " — pas aux normes pour cette fenêtre" : " — not to standard for this window") : ""}`}
-              title={marque && !m.conforme ? (fr ? "Pas aux normes pour cette fenêtre" : "Not to standard for this window") : libelleModele(m)}
-              onClick={() => {
-                if (!marque) document.getElementById(`${idChamps}-largeur`)?.focus();
-                else if (m.conforme) onChange({ ...cotes, modele: m.id });
-              }}
-              className={`relative flex w-[96px] flex-col rounded-lg border bg-white px-1.5 pb-1.5 pt-2 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${
-                actif ? "border-[#2b2320] ring-2 ring-[#2b2320]" : "border-[#e0d6c8]"
-              } ${marque && !m.conforme ? "cursor-not-allowed opacity-60" : "hover:border-[#2b2320]"}`}
+        <span className="ml-auto flex flex-wrap items-center gap-1.5">
+          {/* Un garde-corps à son style : une photo, et l'atelier répond. Toujours là. */}
+          {lienDevis && (
+            <Link
+              href={lienDevis}
+              title={fr ? "Envoyez une photo : réponse sous 24 à 72 h" : "Send a photo: reply within 24 to 72 h"}
+              className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-[#9a8d80] bg-white/70 px-2.5 py-1 text-[11.5px] font-medium text-[#2b2320] transition-colors hover:border-[#2b2320] hover:bg-white"
             >
-              {marque && pastille(m.conforme)}
-              <MiniGardeCorps
-                largeurMm={releve?.largeurMm ?? 1180}
-                hauteurMm={m.hauteurMm}
-                hMaxMm={marque ? hMax : 520}
-                soubassementMm={m.soubassementMm}
-                croix={m.croix}
-              />
-              <span className="mt-1 block text-[11px] font-medium leading-tight text-[#2b2320]">{libelleCourt(m)}</span>
-              {marque && (
-                <span className="block text-[11px] leading-tight tabular-nums text-[#6f6357]">
-                  {m.conforme ? prixAffiche(m.prix, locale) : fr ? "pas aux normes" : "not to standard"}
-                </span>
-              )}
-            </button>
-          );
-        })}
-        {/* Un garde-corps à son style : une photo, et l'atelier répond. Toujours là, en dernière case. */}
-        {lienDevis && (
-          <Link
-            href={lienDevis}
-            className="relative flex w-[96px] flex-col rounded-lg border-2 border-dashed border-[#9a8d80] bg-white/60 px-1.5 pb-1.5 pt-2 text-left transition-colors hover:border-[#2b2320] hover:bg-white"
-          >
-            <span className="flex h-[40px] w-full items-center justify-center text-[#2b2320]">
-              <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7">
+              <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
                 <rect x="3" y="5" width="18" height="14" rx="2.5" />
                 <circle cx="9" cy="10" r="1.6" />
                 <path d="M4 17l5-4.5 3.5 3 3-2.5L20 17" />
               </svg>
-            </span>
-            <span className="mt-1 block text-[11px] font-medium leading-tight text-[#2b2320]">{fr ? "Votre style" : "Your style"}</span>
-            <span className="block text-[10px] leading-tight text-[#6f6357]">{fr ? "une photo, réponse sous 24 à 72 h" : "a photo, reply in 24 to 72 h"}</span>
-          </Link>
-        )}
+              {fr ? "Votre style, sur photo · 24 à 72 h" : "Your style, from a photo · 24 to 72 h"}
+            </Link>
+          )}
+          {(modeles.length === 0 || nbConformes < modeles.length) && (
+            <button
+              type="button"
+              onClick={() => setToutVoir((v) => !v)}
+              aria-expanded={toutVoir}
+              className="rounded-full border border-[#9a8d80] bg-white px-2.5 py-1 text-[11.5px] font-medium text-[#2b2320] transition-colors hover:border-[#2b2320]"
+            >
+              {toutVoir ? (fr ? "Fermer le catalogue" : "Close the catalogue") : fr ? "Tout le catalogue" : "Whole catalogue"}
+            </button>
+          )}
+        </span>
       </div>
+      {/* Par défaut : UNIQUEMENT les modèles aux normes pour les cotes du client. Rien avant les cotes.
+          Le reste du catalogue ne s'ouvre que sur demande (bouton ci-dessus), avec sa pastille. */}
+      {(() => {
+        const liste = modeles.length ? modeles.filter((m) => toutVoir || m.conforme) : toutVoir ? MODELES_VITRINE : [];
+        if (!liste.length) return null;
+        const marque = modeles.length > 0;
+        return (
+          <div role="group" aria-label={fr ? "Modèles de garde-corps" : "Railing models"} className="mt-2 flex flex-wrap gap-1.5">
+            {liste.map((m) => {
+              const actif = choisi?.id === m.id;
+              return (
+                <button
+                  key={`${m.croix}-${m.soubassementMm > 0}`}
+                  type="button"
+                  aria-pressed={marque ? actif : undefined}
+                  aria-disabled={marque && !m.conforme}
+                  aria-label={`${libelleModele(m)}${marque ? (m.conforme ? ` — ${prixAffiche(m.prix, locale)}` : fr ? " — pas aux normes pour cette fenêtre" : " — not to standard for this window") : ""}`}
+                  title={marque && !m.conforme ? (fr ? "Pas aux normes pour cette fenêtre" : "Not to standard for this window") : libelleModele(m)}
+                  onClick={() => {
+                    if (!marque) document.getElementById(`${idChamps}-largeur`)?.focus();
+                    else if (m.conforme) onChange({ ...cotes, modele: m.id });
+                  }}
+                  className={`relative flex w-[74px] flex-col rounded-lg border bg-white px-1 pb-1 pt-1.5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${
+                    actif ? "border-[#2b2320] ring-2 ring-[#2b2320]" : "border-[#e0d6c8]"
+                  } ${marque && !m.conforme ? "cursor-not-allowed opacity-60" : "hover:border-[#2b2320]"}`}
+                >
+                  {marque && pastille(m.conforme)}
+                  <MiniGardeCorps
+                    largeurMm={releve?.largeurMm ?? 1180}
+                    hauteurMm={m.hauteurMm}
+                    hMaxMm={marque ? hMax : 520}
+                    soubassementMm={m.soubassementMm}
+                    croix={m.croix}
+                  />
+                  <span className="mt-0.5 block text-[10.5px] font-medium leading-tight text-[#2b2320]">{libelleCourt(m)}</span>
+                  {marque && (
+                    <span className="block text-[10.5px] leading-tight tabular-nums text-[#6f6357]">
+                      {m.conforme ? prixAffiche(m.prix, locale) : fr ? "pas aux normes" : "not to standard"}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        );
+      })()}
     </div>
   );
 
@@ -535,7 +527,7 @@ export function ReleveGardeCorps({
             ? createPortal(
                 /* Une colonne à la largeur du croquis : la rangée des modèles s'aligne sur ses bords. */
                 <div className="mx-auto flex w-fit max-w-full flex-col">
-                  <div className="relative aspect-[4/5] h-[34svh] max-w-full overflow-hidden rounded-2xl md:h-[min(62vh,640px)] xl:h-[calc(100vh-23.5rem)] xl:max-h-[620px] xl:min-h-[300px]">
+                  <div className="relative aspect-[4/5] h-[34svh] max-w-full overflow-hidden rounded-2xl md:h-[min(62vh,640px)] xl:h-[calc(100vh-20.5rem)] xl:max-h-[660px] xl:min-h-[300px]">
                     {croquis}
                   </div>
                   <div className="w-0 min-w-full">{catalogue}</div>
@@ -866,7 +858,7 @@ function MiniGardeCorps({ largeurMm, hauteurMm, hMaxMm, soubassementMm, croix }:
   const nb = Math.max(2, Math.round(L / 110));
   const trait = { vectorEffect: "non-scaling-stroke" as const };
   return (
-    <svg viewBox={`${-L * 0.02} ${-H * 0.03} ${L * 1.04} ${H * 1.06}`} preserveAspectRatio="xMidYMax meet" aria-hidden className="block h-[40px] w-full" fill="none" stroke="#2b2320" strokeWidth="1.5" strokeLinecap="round">
+    <svg viewBox={`${-L * 0.02} ${-H * 0.03} ${L * 1.04} ${H * 1.06}`} preserveAspectRatio="xMidYMax meet" aria-hidden className="block h-[26px] w-full" fill="none" stroke="#2b2320" strokeWidth="1.5" strokeLinecap="round">
       <rect x={-L * 0.01} y={y0} width={L * 1.02} height="40" fill="#c9a36b" stroke="none" />
       <rect x="0" y={haut} width={L} height={bas - haut} {...trait} />
       {soubassementMm > 0 && <line x1="0" y1={lisse} x2={L} y2={lisse} {...trait} />}
