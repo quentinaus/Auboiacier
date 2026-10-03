@@ -26,7 +26,7 @@
  * bande du milieu.
  */
 
-import { JOUR_GC_MM } from "@/lib/garde-corps";
+import { BARRE_APPUI_MM, JOUR_GC_MM, MAIN_COURANTE_MM, formeGC } from "@/lib/garde-corps";
 
 const ACCENT = "#2b2320";
 const ENCRE = "#2a2116";
@@ -49,9 +49,15 @@ type Point = [number, number];
 
 const LARGEUR = 330;
 const HAUTEUR = 440;
-/** Le pied du mur : là où le parquet commence. Bas dans le cadre : c'est la
- *  fenêtre qu'on veut voir, pas le parquet. */
-const SOL_Y = 404;
+/**
+ * LE HAUT DE LA MAIN COURANTE NE BOUGE JAMAIS (demande de Quentin, 04/10/2026) : il est dessiné à cette
+ * hauteur du cadre, toujours. Quand le client change le bas de sa fenêtre, c'est la fenêtre qui monte ou
+ * descend et le garde-corps qui grandit ou rapetisse ; le sol, lui, est placé sous la main courante, à la
+ * distance que donne la norme.
+ */
+const MAIN_COURANTE_Y = 268;
+/** Où la norme veut le haut de la main courante, depuis le sol : 1 000 mm, visés à 1 025 (l'outil de plans). */
+const NORME_MM = MAIN_COURANTE_MM;
 /** La place pour la fenêtre entre les pastilles de gauche et de droite, et pour les hauteurs du sol au haut de la fenêtre. */
 const PLACE_LARGEUR = 232;
 const PLACE_HAUTEUR = 330;
@@ -64,6 +70,8 @@ const PIECE_MM = 2500;
 const TABLEAU = 6;
 /** Les cotes du modèle en photo, dessinées tant que le client n'a rien tapé. */
 const MODELE = { largeurMm: 1180, hauteurMm: 350, fenetreMm: 1200 };
+/** Le bas de la fenêtre dessiné tant que le client n'a rien tapé : celui qui donne le garde-corps de la photo. */
+const ALLEGE_MODELE_MM = MAIN_COURANTE_MM - JOUR_GC_MM - MODELE.hauteurMm;
 
 const r = (n: number) => Math.round(n * 100) / 100;
 
@@ -231,12 +239,11 @@ export function SchemaFenetre({
   largeurMm,
   allegeMm,
   hauteurFenetreMm,
-  hauteurMm,
-  jourMm = JOUR_GC_MM,
-  mainCouranteMm,
   croix,
   soubassementMm = 0,
+  traverse = false,
   rosaceMm,
+  apercu = false,
   labels,
   actif,
   onChoisir,
@@ -246,6 +253,12 @@ export function SchemaFenetre({
 }: {
   /** Le diamètre de la rosace choisie, pour la dessiner à l'échelle. */
   rosaceMm?: number;
+  /**
+   * Le client a commencé ses mesures mais le serveur n'a pas encore proposé de modèle (il manque une cote) :
+   * les croix sont dessinées en filigrane. Sinon le modèle de la photo (deux croix), dessiné en plein sur une
+   * fenêtre basse, passait pour LE garde-corps proposé — et il n'a pas l'air aux normes.
+   */
+  apercu?: boolean;
   /** Les croix du modèle, ou un panneau de verre à leur place. */
   remplissage?: "croix" | "verre";
   /** Les cotes dessinées à l'échelle. Sans valeur, le croquis prend celles du modèle. */
@@ -253,15 +266,12 @@ export function SchemaFenetre({
   allegeMm?: number;
   /** De l'appui au haut de l'ouverture. */
   hauteurFenetreMm?: number;
-  hauteurMm?: number;
-  /** Le jour entre l'appui et le bas du garde-corps : celui de l'outil de plans. */
-  jourMm?: number;
   /** Le nombre de croix retenu par l'outil ; sans lui, une croix par panneau d'environ 60 cm. */
   croix?: number;
   /** La hauteur des barreaux droits en partie basse (0 : aucun). */
   soubassementMm?: number;
-  /** Où arrive la main courante, depuis le sol : c'est là que passe la ligne de la règle. */
-  mainCouranteMm?: number;
+  /** Une traverse au milieu de chaque croix. */
+  traverse?: boolean;
   labels: {
     largeur: string;
     allege: string;
@@ -282,23 +292,30 @@ export function SchemaFenetre({
   // 20 000 mm écrasait tout le dessin) — mais proportionnelles entre elles.
   const borne = (mm: number, min: number, max: number) => Math.min(Math.max(mm, min), max);
   const L = borne(largeurMm ?? MODELE.largeurMm, 200, 3000);
-  const J = Math.max(jourMm, 0);
-  const A = borne(allegeMm ?? 850, 0, 1500);
-  // Tant que le serveur n'a pas répondu : la hauteur que donne la règle (main courante à 1 025 mm du sol, 200 mm au moins).
-  const H = borne(hauteurMm ?? Math.max(200, Math.ceil((1025 - A - J) / 10) * 10), 100, 1200);
+  const A = borne(allegeMm ?? ALLEGE_MODELE_MM, 0, 1500);
+  // CE QU'ON DESSINE DANS LA FENÊTRE vient de la règle de l'outil (formeGC), calculée ici même : le croquis
+  // suit le curseur EN DIRECT, sans attendre le serveur (avant, il gardait la hauteur de l'ancienne réponse
+  // pendant tout le glissement, puis sautait). Un garde-corps tant qu'il en faut au moins 200 mm ; sinon une
+  // barre d'appui ; rien quand le bas de la fenêtre est déjà à la hauteur de la norme.
+  const forme = formeGC(A);
+  const mode = forme.mode;
+  const J = forme.jourMm;
+  // La hauteur du garde-corps, main courante comprise (une barre d'appui n'a que sa propre épaisseur).
+  const H = mode === "garde-corps" ? forme.hauteurMm : BARRE_APPUI_MM;
+  /** Où arrive le haut de la main courante, depuis le sol. */
+  const MC = mode === "garde-corps" ? A + J + H : NORME_MM;
   const F = borne(hauteurFenetreMm ?? MODELE.fenetreMm, 200, 3000);
-  // Une seule échelle pour tout : la plus grande cote décide, et tout reste
-  // dans la bande du milieu. Trois unités au moins, pour qu'une flèche se voie.
+  // Une seule échelle pour tout. Tant que la fenêtre tient dans la pièce dessinée, elle ne change pas.
   const echelle = Math.min(PLACE_LARGEUR / L, PLACE_HAUTEUR / Math.max(PIECE_MM, A + F + 150));
   const largeur = r(L * echelle);
-  const allege = Math.max(3, r(A * echelle));
   const fenetre = Math.max(3, r(F * echelle));
   const hauteur = Math.max(3, r(H * echelle));
-  const jour = J > 0 ? Math.max(7, r(J * echelle)) : 0;
-  const appuiY = r(SOL_Y - allege); // dessus de l'appui : le bas de la fenêtre
+  // La main courante est FIXE ; tout le reste se place par rapport à elle.
+  const hautGardeCorpsY = MAIN_COURANTE_Y; // dessus de la main courante
+  const solY = Math.min(HAUTEUR - 12, r(MAIN_COURANTE_Y + MC * echelle)); // le pied du mur
+  const appuiY = r(solY - Math.max(3, A * echelle)); // dessus de l'appui : le bas de la fenêtre
   const HAUT_OUVERTURE_Y = r(appuiY - fenetre); // le haut du tableau
-  const basGardeCorpsY = r(appuiY - jour); // le bas du cadre, 100 mm au-dessus de l'appui
-  const hautGardeCorpsY = r(basGardeCorpsY - hauteur); // dessus de la main courante
+  const basGardeCorpsY = r(Math.min(appuiY - 2, hautGardeCorpsY + hauteur)); // le bas du cadre, au-dessus de l'appui
   const G = r(CENTRE - largeur / 2); // tableau gauche
   const D = r(CENTRE + largeur / 2); // tableau droit
   /** Les croix de l'outil ; en attendant sa réponse, une par panneau d'environ 60 cm. */
@@ -306,7 +323,7 @@ export function SchemaFenetre({
 
   /** L'appui, la main courante et les barres à l'échelle aussi : 50, 40 et 20 mm. */
   const EP_APPUI = Math.max(2, r(50 * echelle));
-  const mainCouranteH = Math.max(1.5, Math.min(r(40 * echelle), hauteur / 2));
+  const mainCouranteH = mode === "garde-corps" ? Math.max(1.5, Math.min(r(40 * echelle), hauteur / 2)) : Math.max(2, r(40 * echelle));
   const barre = Math.max(1, r(20 * echelle));
   const rosace = Math.max(1.5, r(((rosaceMm ?? 100) / 2) * echelle));
   const cadreHaut = r(hautGardeCorpsY + mainCouranteH);
@@ -319,7 +336,7 @@ export function SchemaFenetre({
 
   // Les pastilles ② et ③ se suivent sur la même verticale : quand une des
   // deux cotes est courte, on les écarte pour qu'elles ne se recouvrent pas.
-  let pastilleAllegeY = r((SOL_Y + appuiY) / 2);
+  let pastilleAllegeY = r((solY + appuiY) / 2);
   let pastilleFenetreY = r((appuiY + HAUT_OUVERTURE_Y) / 2);
   if (pastilleAllegeY - pastilleFenetreY < 27) {
     const milieuGauche = (pastilleAllegeY + pastilleFenetreY) / 2;
@@ -356,9 +373,9 @@ export function SchemaFenetre({
       </defs>
 
       {/* Le mur, du plafond au pied du mur. */}
-      <MurDePierre bas={SOL_Y} echelle={echelle} />
+      <MurDePierre bas={solY} echelle={echelle} />
       {/* Le parquet, devant nous. */}
-      <Parquet haut={SOL_Y} bas={HAUTEUR} echelle={echelle} />
+      <Parquet haut={solY} bas={HAUTEUR} echelle={echelle} />
 
       {/* Le tableau : l'épaisseur du mur, de chaque côté de l'ouverture. C'est
           là que le garde-corps s'encastre. */}
@@ -380,6 +397,7 @@ export function SchemaFenetre({
 
       {/* Le garde-corps, derrière la vitre, posé sur l'appui : un cadre, une
           croix par panneau, une rosace à chaque croisement. */}
+      {mode === "garde-corps" && (
       <g>
         {remplissage === "verre" && (
           /* Le verre feuilleté : un panneau clair, un reflet, aucun vide. */
@@ -403,11 +421,13 @@ export function SchemaFenetre({
           const x0 = r(G + 2 + ((D - G - 4) * i) / panneaux);
           const x1 = r(G + 2 + ((D - G - 4) * (i + 1)) / panneaux);
           return (
-            <g key={i}>
+            <g key={i} opacity={apercu ? 0.22 : 1}>
               {i > 0 && <line x1={x0} y1={cadreHaut} x2={x0} y2={basCroix} stroke={ACIER} strokeWidth={barre} />}
               <g stroke={ACIER} strokeWidth={barre}>
                 <line x1={x0 + 2} y1={cadreHaut + 1} x2={x1 - 2} y2={basCroix - 1} />
                 <line x1={x0 + 2} y1={basCroix - 1} x2={x1 - 2} y2={cadreHaut + 1} />
+                {/* La traverse au milieu : d'un montant à l'autre, à mi-hauteur de la croix. */}
+                {traverse && <line x1={x0} y1={r((cadreHaut + basCroix) / 2)} x2={x1} y2={r((cadreHaut + basCroix) / 2)} />}
               </g>
               <Rosace
                 cx={r((x0 + x1) / 2)}
@@ -419,6 +439,15 @@ export function SchemaFenetre({
         })}
         <rect x={G - 2} y={hautGardeCorpsY} width={D - G + 4} height={mainCouranteH} rx={2.5} fill={BOIS} stroke="#b08a52" strokeWidth={0.8} />
       </g>
+      )}
+      {/* Une barre d'appui : le bas de la fenêtre est haut, il ne manque qu'une barre à la hauteur de la norme. */}
+      {mode === "barre" && (
+        <g>
+          <line x1={G} y1={r(hautGardeCorpsY + mainCouranteH + barre)} x2={D} y2={r(hautGardeCorpsY + mainCouranteH + barre)} stroke={ACIER} strokeWidth={r(barre * 1.4)} />
+          <rect x={G - 2} y={hautGardeCorpsY} width={D - G + 4} height={mainCouranteH} rx={2.5} fill={BOIS} stroke="#b08a52" strokeWidth={0.8} />
+        </g>
+      )}
+
 
       {/* L'appui de fenêtre, devant la vitre, qui déborde un peu du mur. */}
       <rect x={G - 10} y={appuiY} width={D - G + 20} height={EP_APPUI} fill="#e4dccd" stroke="#b7aa94" strokeWidth={0.7} />
@@ -440,7 +469,7 @@ export function SchemaFenetre({
       <g {...attache}>
         <line x1={G - 10} y1={appuiY} x2={44} y2={appuiY} />
       </g>
-      <Fleche de={[50, SOL_Y]} a={[50, appuiY]} actif={actif === "allege"} />
+      <Fleche de={[50, solY]} a={[50, appuiY]} actif={actif === "allege"} />
       <Pastille cote="allege" cx={24} cy={pastilleAllegeY} actif={actif === "allege"} onChoisir={onChoisir} label={labels.allege} />
 
       {/* ③ La hauteur de la fenêtre, de l'appui au haut du tableau, dans le prolongement de ②. */}

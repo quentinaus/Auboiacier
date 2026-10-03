@@ -1,7 +1,7 @@
 // Chemins relatifs, pas l'alias « @/ » : les tests (node --test) chargent ce
 // fichier directement, sans le compilateur de Next.
 import { createHash } from "node:crypto";
-import type { ConfigMemo } from "./config-memo.ts";
+import { lireReleveGcMemo, type ConfigMemo } from "./config-memo.ts";
 
 /**
  * Les pièces qu'un client a mises de côté, avec leurs cotes et leurs choix.
@@ -157,6 +157,13 @@ export function composerFavori(entree: {
     ajouteLe: Math.floor(entree.maintenantS),
   };
   favori.id = empreinteFavori(slug, config);
+  // Un garde-corps complet (relevé, mur, modèle, livraison) frôle la limite :
+  // on raccourcit alors le résumé, qui n'est qu'un affichage — jamais la
+  // configuration, qui est ce que le client veut retrouver.
+  const depassement = encoderFavori(favori).length - 480;
+  if (depassement > 0) {
+    favori.resume = favori.resume.slice(0, Math.max(0, favori.resume.length - depassement)).trim();
+  }
   // Une configuration démesurée ne rentrerait pas dans une métadonnée Stripe :
   // mieux vaut refuser que d'écrire une valeur tronquée, illisible au retour.
   return encoderFavori(favori).length <= 480 ? favori : null;
@@ -190,6 +197,9 @@ function nettoyerConfig(valeur: unknown, slug: string): ConfigMemo {
     codePostal: mot(o.codePostal),
     poseVoulue: typeof o.poseVoulue === "boolean" ? o.poseVoulue : undefined,
     modeLivraison: o.modeLivraison === "transporteur" || o.modeLivraison === "pose" || o.modeLivraison === "retrait" ? o.modeLivraison : undefined,
+    // Le relevé du garde-corps : c'est lui qui distingue deux fenêtres aux
+    // mêmes options, et il entre donc dans l'empreinte du favori.
+    ...lireReleveGcMemo(o),
   };
 }
 

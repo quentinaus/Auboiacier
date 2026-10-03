@@ -16,16 +16,20 @@ import { readFileSync } from "node:fs";
 
 import {
   ALLEGE_SANS_OBLIGATION_MM,
+  BARRE_APPUI_MM,
   BORNES_RELEVE_GC,
   ESSENCES_GC,
   JOUR_GC_MM,
+  MAIN_COURANTE_MM,
+  MINI_GC_MM,
   RELEVE_DEPART_GC,
+  formeGC,
   lireReponsePrixGC,
   parametresPrixGC,
   releveDansLesBornes,
   type ReleveGC,
 } from "../src/lib/garde-corps.ts";
-import { ALLEGE_LIBRE, BORNES_GC, DEFAUTS_GC, MINI_GC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
+import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, CIBLE_MARGE, DEFAUTS_GC, HAUT_ETAGE, MINI_GC, geomGC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
 import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
 import { prixCommandeGC, prixGC, type ConfigGC } from "../src/lib/garde-corps-outil/calcul.ts";
 import {
@@ -37,6 +41,7 @@ import {
   prixReleveOutil,
   reponsePrixGC,
 } from "../src/lib/garde-corps-outil/site.ts";
+import { valeursGC } from "../src/lib/garde-corps-outil/entree.ts";
 import { computeUnitPrice, essenceDeReference, getProduct, priceFrom, prixParOutil, resolveSelection, SUR_MESURE, supplementRemplissage } from "../src/lib/products.ts";
 
 const gc = getProduct("garde-corps")!;
@@ -55,6 +60,11 @@ function config(r: Partial<ReleveGC> = {}, essence = "chene"): ConfigGC {
 test("les constantes du site sont celles de l'outil de plans", () => {
   assert.equal(JOUR_GC_MM, DEFAUTS_GC.jour, "le jour sous le cadre");
   assert.equal(ALLEGE_SANS_OBLIGATION_MM, ALLEGE_LIBRE);
+  assert.equal(MAIN_COURANTE_MM, HAUT_ETAGE + CIBLE_MARGE, "la hauteur de la main courante, depuis le sol");
+  assert.equal(MINI_GC_MM, MINI_GC, "le plus petit garde-corps à croix");
+  assert.equal(BARRE_APPUI_MM, BARRE_APPUI, "l'épaisseur d'une barre d'appui");
+  // Le garde-corps de départ (le « à partir de ») est le plus petit qui se vend : juste avant la barre d'appui.
+  assert.equal(RELEVE_DEPART_GC.allegeMm, MAIN_COURANTE_MM - JOUR_GC_MM - MINI_GC_MM);
   assert.deepEqual(
     { largeurMm: { ...BORNES_RELEVE_GC.largeurMm }, allegeMm: { ...BORNES_RELEVE_GC.allegeMm }, fenetreMm: { ...BORNES_RELEVE_GC.fenetreMm } },
     { largeurMm: { ...BORNES_GC.B }, allegeMm: { ...BORNES_GC.A }, fenetreMm: { ...BORNES_GC.Hf } }
@@ -79,19 +89,66 @@ test("le garde-corps se chiffre sur le serveur seulement : le catalogue public n
 
 test("la hauteur est celle de l'outil : plus de 350 mm imposés, ni de 80 cm au rez-de-chaussée, ni de jour de 100", () => {
   chiffrageOuEchec();
-  for (const allegeMm of [0, 250, 650, 800, 950, 1200]) {
+  for (const allegeMm of [0, 250, 650, 733, 735]) {
     const etage = config({ allegeMm });
     const rdc = config({ allegeMm, enEtage: false });
     // La règle de l'outil ne dépend pas de l'étage : la même hauteur partout.
     assert.equal(rdc.hauteurMm, etage.hauteurMm, `allège ${allegeMm}`);
     assert.equal(etage.jourMm, JOUR_GC_MM);
     assert.equal(etage.mainCouranteMm, allegeMm + JOUR_GC_MM + etage.hauteurMm);
-    // Une allège haute : la hauteur minimale de l'outil (200), plus les 350 mm du modèle en photo.
-    if (allegeMm >= 950) assert.equal(etage.hauteurMm, MINI_GC);
+    // LA MAIN COURANTE NE BOUGE JAMAIS (04/10) : pile à la hauteur de la norme, au millimètre, en étage comme au rez-de-chaussée.
+    assert.equal(etage.mainCouranteMm, MAIN_COURANTE_MM, `allège ${allegeMm}`);
+    assert.equal(rdc.mainCouranteMm, MAIN_COURANTE_MM, `allège ${allegeMm}, rez-de-chaussée`);
+    // Le plus petit garde-corps de l'outil (200), plus les 350 mm du modèle en photo.
+    if (allegeMm === 735) assert.equal(etage.hauteurMm, MINI_GC);
     // Seul l'étage sous 900 mm d'allège est « obligatoire » (la loi) : c'est ce que dit le devis.
     assert.equal(etage.obligatoire, allegeMm < ALLEGE_LIBRE);
     assert.equal(rdc.obligatoire, false);
   }
+});
+
+test("le croquis suit le curseur sans le serveur : formeGC est la règle du moteur, à chaque millimètre", () => {
+  for (let allegeMm = BORNES_GC.A.min; allegeMm <= BORNES_GC.A.max; allegeMm++) {
+    const v = valeursGC(DEFAUTS_GC, { ...releve({ allegeMm }), essence: "chene" }, 16, 1);
+    const g = geomGC(v, 1);
+    const f = formeGC(allegeMm);
+    assert.equal(f.mode, g.appui === "barre" ? "barre" : g.appui === "rien" ? "aucun" : "garde-corps", `bas de fenêtre à ${allegeMm}`);
+    if (f.mode === "garde-corps") {
+      assert.equal(f.hauteurMm, g.Hr, `bas de fenêtre à ${allegeMm} : la hauteur du moteur`);
+      assert.equal(f.jourMm, v.jour);
+      assert.equal(allegeMm + f.jourMm + f.hauteurMm, MAIN_COURANTE_MM, "la main courante ne bouge pas");
+    }
+    if (f.mode === "barre") assert.equal(allegeMm + f.jourMm + f.hauteurMm, MAIN_COURANTE_MM, "la barre d'appui est à la hauteur de la norme");
+  }
+  // Ce que le serveur répond pour une barre d'appui, c'est ce que le croquis dessine.
+  chiffrageOuEchec();
+  const barre = configurationGC(releve({ allegeMm: 820 }), "chene")!;
+  assert.deepEqual([barre.hauteurMm, barre.jourMm], [formeGC(820).hauteurMm, formeGC(820).jourMm]);
+});
+
+test("la main courante ne bouge jamais : un bas de fenêtre haut donne une barre d'appui, jamais un garde-corps qui dépasse", () => {
+  chiffrageOuEchec();
+  const cas = (allegeMm: number, enEtage = true) => configurationGC(releve({ allegeMm, enEtage }), "chene")!;
+  // Il manque moins que le plus petit garde-corps à croix : une barre d'appui, sur devis, à la hauteur de la norme.
+  for (const allegeMm of [736, 800, 899, 900, 985]) {
+    for (const enEtage of [true, false]) {
+      const c = cas(allegeMm, enEtage);
+      assert.equal(c.ok, false, `allège ${allegeMm}`);
+      assert.equal(!c.ok && c.raison, "barre-appui", `allège ${allegeMm}`);
+      assert.equal(c.mainCouranteMm, MAIN_COURANTE_MM);
+      assert.equal(c.hauteurMm, BARRE_APPUI_MM);
+      assert.deepEqual(prixReleveOutil({ ...releve({ allegeMm, enEtage }), essence: "chene" }), { ok: false, raison: "a-etudier" }, "pas de prix automatique");
+      const route = reponsePrixGC({ releve: releve({ allegeMm, enEtage }), essence: "chene", quantite: 1 });
+      assert.ok(route && !route.ok && route.raison === "barre-appui" && route.modeles.length === 0, "aucun modèle à croix proposé");
+    }
+  }
+  // Le bas de la fenêtre est déjà à la hauteur de la norme : rien à poser.
+  for (const allegeMm of [986, 1025, 1200]) {
+    const c = cas(allegeMm);
+    assert.equal(!c.ok && c.raison, "sans-garde-corps", `allège ${allegeMm}`);
+  }
+  // Juste avant : le plus petit garde-corps, avec un prix.
+  assert.equal(cas(735).ok, true);
 });
 
 test("les croix ne sont plus limitées à 450 mm : l'outil en met autant qu'il faut", () => {
@@ -109,7 +166,7 @@ test("les croix ne sont plus limitées à 450 mm : l'outil en met autant qu'il f
 
 test("le prix du site est le prix de l'outil, plus les suppléments des options du site", () => {
   chiffrageOuEchec();
-  for (const r of [releve(), releve({ largeurMm: 800, allegeMm: 950 }), releve({ largeurMm: 1500, allegeMm: 300 })]) {
+  for (const r of [releve(), releve({ largeurMm: 800, allegeMm: 720 }), releve({ largeurMm: 1500, allegeMm: 300 })]) {
     for (const essence of ESSENCES_GC) {
       const c = configurationGC(r, essence);
       if (!c?.ok) continue;
@@ -200,7 +257,7 @@ test("plusieurs garde-corps : une remise, jamais sous le plancher, et une seule 
     assert.equal(r.prix, quantite * prixGC(c) + r.remise);
   }
   // À des cotes différentes aussi, et la route donne la même pour la quantité demandée.
-  const autre = config({ largeurMm: 800, allegeMm: 950 }, "pin");
+  const autre = config({ largeurMm: 800, allegeMm: 720 }, "pin");
   assert.ok(prixCommandeGC([{ config: c, quantite: 1 }, { config: autre, quantite: 1 }]).remise < 0);
   const route = reponsePrixGC({ releve: releve(), essence: "chene", quantite: 3 });
   assert.ok(route?.ok && route.remise === prixCommandeGC([{ config: c, quantite: 3 }]).remise);
@@ -262,8 +319,10 @@ test("la fiche démarre sur le chêne de la photo, et appelle le bois « main co
   }
   // Le pin et le chêne n'ont pas le même prix : démarrer sur le mauvais montrait un prix qui n'était pas celui de la photo.
   chiffrageOuEchec();
-  const chene = reponsePrixGC({ releve: releve(), essence: "chene", quantite: 1 });
-  const pin = reponsePrixGC({ releve: releve(), essence: "pin", quantite: 1 });
+  // (Sur un grand garde-corps : sur un petit, l'écart de bois disparaît dans l'arrondi à la dizaine.)
+  const grand = releve({ largeurMm: 800, allegeMm: 300 });
+  const chene = reponsePrixGC({ releve: grand, essence: "chene", quantite: 1 });
+  const pin = reponsePrixGC({ releve: grand, essence: "pin", quantite: 1 });
   assert.ok(chene?.ok && pin?.ok && chene.prix !== pin.prix);
   // Un garde-corps n'a pas de plateau.
   assert.deepEqual(gc.woodLabel, { fr: "Bois de la main courante", en: "Handrail timber" });

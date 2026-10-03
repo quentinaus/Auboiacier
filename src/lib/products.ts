@@ -1583,12 +1583,12 @@ export const products: Product[] = [
         body: "Le dessus est une pièce de bois massif de 40 mm, arrondie, poncée et huilée. La main s'y pose sans accrocher, l'été comme l'hiver. Pin, hêtre, chêne ou noyer au choix ; le chêne est celui de la photo.",
       },
       {
-        title: "Trois cotes à relever",
-        body: "Vous relevez trois cotes au mètre : la largeur entre les murs, la hauteur du sol à l'appui, et la hauteur de la fenêtre. Nous calculons la hauteur du garde-corps pour qu'il respecte la règle. Il vient s'encastrer dans le tableau, fixé dans l'épaisseur des murs. Si une cote nous étonne, nous vous appelons avant de couper. Si vous préférez, l'atelier vient prendre les cotes.",
+        title: "Deux mesures à relever",
+        body: "Vous relevez deux mesures au mètre : la largeur entre les murs, et la hauteur du sol au bas de la fenêtre (la hauteur de la fenêtre est facultative). Nous calculons la hauteur du garde-corps pour qu'il respecte la règle. Il vient s'encastrer dans le tableau, fixé dans l'épaisseur des murs. Si une cote nous étonne, nous vous appelons avant de couper. Si vous préférez, l'atelier vient prendre les cotes.",
       },
       {
         title: "Une hauteur calculée selon la règle",
-        body: "En étage, une fenêtre dont l'appui est à moins de 90 cm du sol doit être protégée : c'est le Code de la construction. La main courante monte à 1 m du sol, ou à 1 m au-dessus de l'appui quand il est entre 10 et 60 cm du sol (un enfant pourrait y monter), avec 2,5 cm de marge. Nous faisons le calcul à partir de votre hauteur d'allège, et nous mettons autant de croix qu'il en faut pour qu'aucun vide ne soit trop grand.",
+        body: "En étage, une fenêtre dont l'appui est à moins de 90 cm du sol doit être protégée : c'est le Code de la construction. Le haut de la main courante est toujours au même endroit : à 1 m du sol au moins (nous visons 1 025 mm). C'est le garde-corps qui grandit ou rapetisse selon votre fenêtre. Nous faisons le calcul à partir de vos mesures, et nous vous proposons les modèles dont aucun vide n'est trop grand.",
       },
     ],
     specs: [
@@ -1597,7 +1597,7 @@ export const products: Product[] = [
       { label: "Main courante", value: "Pin, hêtre, chêne ou noyer massif au choix, 40 mm, finition huile-cire" },
       { label: "Pose", value: "Encastré dans le tableau de la fenêtre, fixations fournies — vous mesurez, nous fabriquons" },
       { label: "Prise de cotes", value: "Par vous, au mètre — ou par l'atelier, dès 19,99 € jusqu'à 30 km de Saumur, déduits de la commande" },
-      { label: "Normes", value: "Hauteur calculée selon l'art. R111-15 du Code de la construction et la NF P01-012" },
+      { label: "Normes", value: "Hauteur calculée selon l'art. R134-59 du Code de la construction ; espaces entre les barres selon la NF P01-012" },
       { label: "Fabrication", value: "Sur commande — comptez 4 à 6 semaines" },
       { label: "Livraison", value: "Par transporteur en France métropolitaine, livré et posé par l'atelier, ou retiré à l'atelier à Saumur — fixations et notice de pose comprises" },
     ],
@@ -1624,12 +1624,12 @@ export const products: Product[] = [
           body: "The top is a 40 mm piece of solid wood, rounded, sanded and oiled. The hand rests on it without catching, summer or winter. Pine, beech, oak or walnut; oak is the one in the photo.",
         },
         {
-          title: "Three measurements to take",
-          body: "You take three tape measurements: the width between the walls, the height from the floor to the sill, and the window height. We work out the railing height so that it meets the rule. The railing fits into the reveal, fixed into the thickness of the walls. If a measurement surprises us, we call you before cutting. If you prefer, the workshop comes to measure up.",
+          title: "Two measurements to take",
+          body: "You take two tape measurements: the width between the walls, and the height from the floor to the bottom of the window (the window height is optional). We work out the railing height so that it meets the rule. The railing fits into the reveal, fixed into the thickness of the walls. If a measurement surprises us, we call you before cutting. If you prefer, the workshop comes to measure up.",
         },
         {
           title: "A height set by the rule",
-          body: "Upstairs, a window whose sill is less than 90 cm from the floor must be guarded: that is the French building code. The handrail rises to 1 m from the floor, or 1 m above the sill when the sill is between 10 and 60 cm from the floor (a child could climb onto it), with a 2.5 cm margin. We do the sum from your sill height, and we put in as many crosses as it takes for no gap to be too wide.",
+          body: "Upstairs, a window whose sill is less than 90 cm from the floor must be guarded: that is the French building code. The top of the handrail is always in the same place: at least 1 m from the floor (we aim for 1,025 mm). It is the railing that grows or shrinks with your window. We do the sum from your measurements, and we show you the models in which no gap is too wide.",
         },
       ],
       specs: [
@@ -1638,7 +1638,7 @@ export const products: Product[] = [
         { label: "Handrail", value: "Pine, beech, oak or walnut to choose from, 40 mm, oil-wax finish" },
         { label: "Fitting", value: "Fits into the window reveal, fixings supplied — you measure, we build" },
         { label: "Survey", value: "By you, with a tape — or by the workshop, from €19.99 within 30 km of Saumur, deducted from the order" },
-        { label: "Standards", value: "Height set by art. R111-15 of the French building code and NF P01-012" },
+        { label: "Standards", value: "Height set by art. R134-59 of the French building code; gaps between the bars to NF P01-012" },
         { label: "Lead time", value: "Made to order — allow 4 to 6 weeks" },
         { label: "Delivery", value: "By carrier in mainland France, delivered and fitted by the workshop, or collected from the workshop in Saumur — fixings and fitting guide included" },
       ],
@@ -2457,6 +2457,8 @@ export type ResolvedLine = {
     croix: number;
     carre: number;
     soubassement: boolean;
+    /** Une traverse au milieu de chaque croix. */
+    traverse: boolean;
     /** Le poids d'une pièce : celui de l'outil, plus le verre s'il remplace les croix. */
     kg: number;
   };
@@ -2927,6 +2929,8 @@ export type ReponseReleve =
       croix: number;
       carre: number;
       soubassement: boolean;
+      /** Une traverse au milieu de chaque croix. */
+      traverse: boolean;
       /** Le poids d'une pièce, en kilos (celui de l'outil). */
       kg: number;
     }
@@ -2936,14 +2940,28 @@ export type PrixReleve = (releve: ReleveGC & { essence: string }) => ReponseRele
 /** Un entier de millimètres, ou rien. */
 const mmEntier = (x: unknown) => (typeof x === "number" && Number.isInteger(x) && x >= 0 ? x : undefined);
 
-/** « Sur mesure — 1 180 × 940 mm, 4 croix », dans la langue du client. */
-export function libelleGardeCorps(largeurMm: number, hauteurMm: number, croix: number | null, locale: Locale = "fr") {
+/**
+ * « Sur mesure — 1 180 × 285 mm, 4 croix, traverse au milieu, barreaux en bas, acier carré de 16 », dans la langue du client.
+ * Le libellé part sur le bon de commande : il doit dire CE QUI EST VENDU. Deux modèles à des prix différents
+ * (avec ou sans barreaux en bas, carré de 16 ou de 18) portaient le même libellé : l'atelier ne pouvait les
+ * distinguer que par le prix.
+ */
+export function libelleGardeCorps(
+  largeurMm: number,
+  hauteurMm: number,
+  croix: number | null,
+  locale: Locale = "fr",
+  modele: { soubassement?: boolean; carre?: number; traverse?: boolean } = {}
+) {
   const langue = locale === "en" ? "en-GB" : "fr-FR";
   const cotes = `${largeurMm.toLocaleString(langue)} × ${hauteurMm.toLocaleString(langue)} mm`;
   const prefixe = locale === "en" ? "Custom" : "Sur mesure";
   if (croix === null) return `${prefixe} — ${cotes}`;
   const mot = locale === "en" ? (croix > 1 ? "crosses" : "cross") : "croix";
-  return `${prefixe} — ${cotes}, ${croix} ${mot}`;
+  const traverse = modele.traverse ? (locale === "en" ? ", middle rail" : ", traverse au milieu") : "";
+  const barreaux = modele.soubassement ? (locale === "en" ? ", bars below" : ", barreaux en bas") : "";
+  const carre = modele.carre ? (locale === "en" ? `, ${modele.carre} mm square bar` : `, acier carré de ${modele.carre}`) : "";
+  return `${prefixe} — ${cotes}, ${croix} ${mot}${traverse}${barreaux}${carre}`;
 }
 
 /**
@@ -2974,7 +2992,9 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
   if (selection.modeleGc !== undefined && !lireModeleGC(selection.modeleGc)) return { ok: false, reason: "unknown_size" };
   const releve: ReleveGC = {
     largeurMm, allegeMm, enEtage: selection.enEtage, fenetreMm,
-    ...(selection.modeleGc !== undefined ? { modele: selection.modeleGc } : {}),
+    // Sous un panneau de verre il n'y a plus de croix : le dessin choisi ne compte pas. (Sinon une requête
+    // forgée obtenait le verre au prix du dessin le moins cher — 680 € au lieu de 860 € sur une fenêtre de 1 180.)
+    ...(selection.modeleGc !== undefined && remplissage.value?.sansCroix !== true ? { modele: selection.modeleGc } : {}),
   };
   const r = prixReleve({ ...releve, essence: wood.value.id });
   if (!r.ok) return { ok: false, reason: r.raison === "hors-bornes" ? "unknown_size" : "a_etudier" };
@@ -2987,7 +3007,7 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
 
   const size: ProductSize = {
     id: SUR_MESURE,
-    label: libelleGardeCorps(largeurMm, r.hauteurMm, verre ? null : r.croix, selection.locale),
+    label: libelleGardeCorps(largeurMm, r.hauteurMm, verre ? null : r.croix, selection.locale, { soubassement: r.soubassement, carre: r.carre, traverse: r.traverse }),
     price: r.prix,
     dimsMm: [largeurMm, r.hauteurMm],
   };
@@ -3019,6 +3039,7 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
         croix: r.croix,
         carre: r.carre,
         soubassement: r.soubassement,
+        traverse: r.traverse,
         kg: r.kg + (verre ? ((largeurMm * r.hauteurMm) / 1e6) * VERRE_KG_PAR_M2 : 0),
       },
     },

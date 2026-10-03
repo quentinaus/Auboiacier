@@ -9,6 +9,7 @@ import { cleCreneau, creneauValide, libelleCreneau } from "@/lib/agenda";
 import { clientConnecte } from "@/lib/compte";
 import { CALCUL_GC, ChiffrageIndisponible } from "@/lib/prix-garde-corps.server";
 import { libellePiece, tarifer, type Tarif } from "@/lib/tarif-panier";
+import { nomsStripe } from "@/lib/libelle-stripe";
 
 export const runtime = "nodejs";
 /** Un départ en paiement ne doit jamais rester suspendu plus d'une demi-minute. */
@@ -164,6 +165,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid" }, { status: 400 });
   }
 
+  // Stripe refuse un nom de plus de 250 signes, et le paiement avec lui :
+  // chaque nom est borné, et le libellé entier d'une ligne coupée part dans
+  // les métadonnées, où le bon de commande le relit (libelle-stripe.ts).
+  const { noms, entiers } = nomsStripe(items.map((item) => item.price_data.product_data.name));
+  items.forEach((item, rang) => {
+    item.price_data.product_data.name = noms[rang];
+  });
+
   const orderRef = newOrderRef();
 
   /**
@@ -276,6 +285,8 @@ export async function POST(request: Request) {
         },
       },
       metadata: {
+        // Le libellé entier des lignes dont le nom a été coupé (au plus une clé par ligne).
+        ...entiers,
         order_ref: orderRef,
         locale,
         ville,

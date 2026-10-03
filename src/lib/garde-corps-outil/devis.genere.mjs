@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Devis garde-corps au format du site (composerDevisGC, dsDevisHtml). SANS coûts : le prix est une entrée.
-// Source : l'outil de plans (plans-atelier.html), sha256 1a24f8591c7ead3b600344d266ed0e4e815fc03846dccd743c5342e7834b8a84
+// Source : l'outil de plans (plans-atelier.html), sha256 d69ae73b2dd8d7c13fa51766dd91c228531745f0ab2f82bcc0cf8e8818108488
 /* eslint-disable */
 function kgColisGC(R) { return Math.max(8, Math.round((R && R.kg) || 0)); }
 const DS_VALIDITE_JOURS = 30;
@@ -197,7 +197,7 @@ function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto", tva = nu
       };
 
     const normes = R.alertes.length ? null
-      : obligatoire ? `Hauteur ${v.Hs >= 200 ? "vérifiée" : "calculée"} selon l'art. R111-15 du Code de la construction et la NF P01-012`
+      : obligatoire ? `Hauteur ${v.Hs >= 200 ? "vérifiée" : "calculée"} selon l'art. R134-59 du Code de la construction ; espaces entre les barres selon la NF P01-012`
       : `Remplissage conforme à la NF P01-012 ; ${v.etage ? "allège de 900 mm ou plus" : "au rez-de-chaussée"}, la loi n'impose pas de hauteur`;
     const releve = [
       v.etage ? "En étage" : "Au rez-de-chaussée",
@@ -337,6 +337,6 @@ function dsDevisHtml(devis) {
 function dsPageHtml(corps, n, total) {
     return `<section class="ds-page"><div class="ds-corps">${corps}</div><div class="ds-pied"><span>${dsEsc(DS_PIED)}</span></div><div class="ds-num"><span>Page ${n} / ${total}</span></div></section>`;
   }
-export const EMPREINTE_SOURCE = "1a24f8591c7ead3b600344d266ed0e4e815fc03846dccd743c5342e7834b8a84";
+export const EMPREINTE_SOURCE = "d69ae73b2dd8d7c13fa51766dd91c228531745f0ab2f82bcc0cf8e8818108488";
 export { DS_GC, DS_VALIDITE_JOURS, composerDevisGC, dsDevisHtml, dsPrix };
-export const EMPREINTE = "c4b4c4142c2f";
+export const EMPREINTE = "fa3ee815d349";

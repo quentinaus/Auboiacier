@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useEffectEvent, useId, useState } from "react";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { ChampCote } from "./champ-cote";
 import { InfoBulle } from "./info-bulle";
@@ -185,6 +185,16 @@ export function VisiteAtelier({
   /* Le déplacement : demandé au serveur dès qu'un code postal complet est tapé. */
   const codePostal = cotes.codePostal.replace(/\s+/g, "");
   const cpComplet = /^\d{5}$/.test(codePostal);
+  /**
+   * La réponse du serveur ne touche QU'AU déplacement. Elle arrive 350 ms et
+   * un aller-retour après la frappe : entre-temps le client a pu choisir son
+   * créneau. On part donc de l'état du moment (useEffectEvent lit les
+   * dernières valeurs), jamais de celui du lancement — sinon le créneau
+   * choisi s'effaçait.
+   */
+  const poserDeplacement = useEffectEvent((deplacement: Deplacement | null) => {
+    onChange({ ...cotes, deplacement });
+  });
   useEffect(() => {
     if (cotes.qui !== "atelier" || !cpComplet) return;
     let annule = false;
@@ -196,7 +206,7 @@ export function VisiteAtelier({
           if (annule) return;
           if (r.ok) {
             setReponse({ cp: codePostal, etat: "ok" });
-            onChange({ ...cotes, deplacement: json as Deplacement });
+            poserDeplacement(json as Deplacement);
           } else {
             setReponse({
               cp: codePostal,
@@ -211,7 +221,7 @@ export function VisiteAtelier({
               commune: json.commune,
               distanceKm: json.distanceKm,
             });
-            onChange({ ...cotes, deplacement: null });
+            poserDeplacement(null);
           }
         })
         .catch(() => {
@@ -223,7 +233,6 @@ export function VisiteAtelier({
       clearTimeout(minuteur);
     };
     // Seuls le code postal et le choix « qui mesure » déclenchent le calcul.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [codePostal, cpComplet, cotes.qui]);
 
   const visite: "attente" | "calcul" | "ok" | "invalide" | "hors" | "loin" | "erreur" = !cpComplet
@@ -269,7 +278,9 @@ export function VisiteAtelier({
           info={t.gcCodePostalInfo}
           infoLabel={t.gcInfoLabel}
           valeur={cotes.codePostal}
-          onChange={(v) => onChange({ ...cotes, codePostal: v, deplacement: null })}
+          // Le déplacement ne s'efface que si le code postal change vraiment : une espace tapée en plus laissait
+          // le même code, donc aucun nouveau calcul — et la visite restait sans prix.
+          onChange={(v) => onChange({ ...cotes, codePostal: v, deplacement: v.replace(/\s+/g, "") === cotes.codePostal.replace(/\s+/g, "") ? cotes.deplacement : null })}
           placeholder="49400"
           unite=""
         />

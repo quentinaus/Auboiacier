@@ -1,9 +1,9 @@
 {
  "à lire": "Généré par scripts/extraire-moteur-garde-corps.mjs à partir de l'outil de plans (chargé tel quel dans node:vm). Aucun coût : des prix de vente, des poids, des hauteurs et des empreintes (sha256 tronqué) des réponses complètes. Ne pas modifier à la main.",
- "outil": "1a24f8591c7ead3b600344d266ed0e4e815fc03846dccd743c5342e7834b8a84",
+ "outil": "d69ae73b2dd8d7c13fa51766dd91c228531745f0ab2f82bcc0cf8e8818108488",
  "empreintes": {
-  "moteur": "664e3d5b1be7",
-  "devis": "c4b4c4142c2f",
+  "moteur": "5681c916be9b",
+  "devis": "fa3ee815d349",
   "chiffrage": "400c81016ec1"
  },
  "defauts": "04a70457d483d769",
@@ -12,46 +12,46 @@
   {
    "nom": "valeurs de départ de l'outil",
    "valeurs": {},
-   "R": "a695ae47c5f96a68",
-   "hauteurGC": 290,
-   "kg": 11.612215647904575,
+   "R": "8f7369f0d5a19202",
+   "hauteurGC": 285,
+   "kg": 11.586496206695967,
    "alertes": 1,
    "prix": 340,
-   "chiffrage": "990e558fe5fc734d",
+   "chiffrage": "23309454f4e95a90",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-SQC6K",
+    "numero": "D-20260929-EB7D6",
     "total": 340,
     "lignes": 5,
-    "donnees": "024a436691b73618",
-    "html": "1aace331c2c7d1dc"
+    "donnees": "01fa52a13c2ee75f",
+    "html": "61482ac42d769a2e"
    },
-   "variantes": "387cd59121855c8e"
+   "variantes": "eb6be1607b1d61fe"
   },
   {
    "nom": "photo du site, 4 croix",
    "valeurs": {
     "nP": 4
    },
-   "R": "2829f8478bbedeed",
-   "hauteurGC": 290,
-   "kg": 14.040998556145384,
+   "R": "f8379e7417557f4b",
+   "hauteurGC": 285,
+   "kg": 13.93871978926249,
    "alertes": 0,
-   "prix": 570,
-   "chiffrage": "146511142c999023",
+   "prix": 560,
+   "chiffrage": "c157c5af9da89a03",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-NJ1JX",
-    "total": 570,
+    "numero": "D-20260929-T4XX2",
+    "total": 560,
     "lignes": 5,
-    "donnees": "b60e3fb9c825e936",
-    "html": "485e49ec7446b0c3"
+    "donnees": "fed8c7b8e7bfa59e",
+    "html": "a0c188e8276d34f3"
    }
   },
   {
@@ -60,24 +60,24 @@
     "B": 1195,
     "nP": 3
    },
-   "R": "998261378c8a833b",
-   "hauteurGC": 290,
-   "kg": 13.227166422730246,
+   "R": "03190e5d5a22a5f6",
+   "hauteurGC": 285,
+   "kg": 13.15452127255788,
    "alertes": 1,
    "prix": 490,
-   "chiffrage": "ab299c97da55690d",
+   "chiffrage": "dcac61da30b0b47c",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-66MHR",
+    "numero": "D-20260929-FOFVG",
     "total": 490,
     "lignes": 5,
-    "donnees": "74cf98c105aa35f8",
-    "html": "633d40812ecfd55e"
+    "donnees": "42a98ff6f2179ae4",
+    "html": "ed4327fca4603bd9"
    },
-   "variantes": "3ee250df411bc487"
+   "variantes": "60634a40a8e82acd"
   },
   {
    "nom": "juste au-delà, carré 16",
@@ -85,22 +85,22 @@
     "B": 1200,
     "nP": 3
    },
-   "R": "e6377eff7e7cfdbc",
-   "hauteurGC": 290,
-   "kg": 13.269767948782295,
+   "R": "df25c5af846137f9",
+   "hauteurGC": 285,
+   "kg": 13.197213301258028,
    "alertes": 2,
    "prix": 490,
-   "chiffrage": "215759b18f640e1c",
+   "chiffrage": "2011ed33ddd1f07b",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-MJ5CS",
+    "numero": "D-20260929-NIDMX",
     "total": 490,
     "lignes": 5,
-    "donnees": "074997f269513c65",
-    "html": "3820a363c9332565"
+    "donnees": "dfeada81a04c7c55",
+    "html": "0ee4094508452459"
    }
   },
   {
@@ -110,22 +110,22 @@
     "s": 18,
     "nP": 4
    },
-   "R": "d356b93fa6befef0",
-   "hauteurGC": 290,
-   "kg": 17.458601566611243,
+   "R": "ef72c22bbe672bf0",
+   "hauteurGC": 285,
+   "kg": 17.329978192330188,
    "alertes": 0,
    "prix": 570,
-   "chiffrage": "a08db4f0d24267af",
+   "chiffrage": "951dcd66fe8b3785",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-U3GHV",
+    "numero": "D-20260929-J8TTU",
     "total": 570,
     "lignes": 5,
-    "donnees": "c326a746c1f26c0e",
-    "html": "01afcf420d50a0c1"
+    "donnees": "411f1059e9696944",
+    "html": "b8ba8521414ce41f"
    }
   },
   {
@@ -136,22 +136,22 @@
     "nP": 2
    },
    "chantier": "12 rue des Lilas, 44000 Nantes",
-   "R": "cd86249c6aa0d230",
-   "hauteurGC": 640,
-   "kg": 16.656542056586456,
+   "R": "e81b805ff47eeaee",
+   "hauteurGC": 635,
+   "kg": 16.599922153974305,
    "alertes": 1,
    "prix": 560,
-   "chiffrage": "0dae5dfb091b2b6c",
+   "chiffrage": "3be33c370f8e91e6",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-1CNRB",
+    "numero": "D-20260929-05QEY",
     "total": 560,
     "lignes": 5,
-    "donnees": "4114459bb97240b4",
-    "html": "df0357c1ba22112c"
+    "donnees": "9bf158d36781805b",
+    "html": "0baa2866f514f67d"
    }
   },
   {
@@ -162,22 +162,22 @@
     "etage": false,
     "nP": 2
    },
-   "R": "645356375491c0c6",
-   "hauteurGC": 940,
-   "kg": 20.08107589916366,
+   "R": "04e0a5e5e66101a6",
+   "hauteurGC": 935,
+   "kg": 20.022727787429087,
    "alertes": 1,
    "prix": 560,
-   "chiffrage": "8a7f705f2780bf49",
+   "chiffrage": "52985cb746c6f7c8",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-W1YX5",
+    "numero": "D-20260929-D8BPK",
     "total": 560,
     "lignes": 5,
-    "donnees": "00f6997771b8f2ef",
-    "html": "e91f04787d1ff9a6"
+    "donnees": "ddde8a4b7b99581f",
+    "html": "2212bf8220bd24db"
    }
   },
   {
@@ -186,10 +186,10 @@
     "B": 300,
     "A": 900
    },
-   "R": "8859094579732720",
+   "R": "9963438b5f3f4bb9",
    "hauteurGC": 200,
    "kg": 3.2840222715711174,
-   "alertes": 0,
+   "alertes": 1,
    "prix": 310,
    "chiffrage": "33ff1e31d74166cf",
    "remise": {
@@ -197,11 +197,11 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-T3M7M",
+    "numero": "D-20260929-7OS1I",
     "total": 310,
     "lignes": 5,
-    "donnees": "54eb7c749be5650f",
-    "html": "e3039933591f3cb4"
+    "donnees": "ddbdfdacf673794b",
+    "html": "e4024a671849a03d"
    }
   },
   {
@@ -212,22 +212,22 @@
     "s": 20,
     "nP": 6
    },
-   "R": "14dc0b41f9de1f0e",
-   "hauteurGC": 440,
-   "kg": 63.645428493825925,
+   "R": "689fb0eb5c2b0d95",
+   "hauteurGC": 435,
+   "kg": 63.433907065313385,
    "alertes": 2,
    "prix": 1250,
-   "chiffrage": "70f98964f97818f0",
+   "chiffrage": "1611e06c8e32e9e4",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-4UCUG",
+    "numero": "D-20260929-2UYY7",
     "total": 1250,
     "lignes": 5,
-    "donnees": "31566db04ecdc099",
-    "html": "ed2f371b4d2f24e0"
+    "donnees": "35409f4ffcebdc06",
+    "html": "ff4d27eae40b460f"
    }
   },
   {
@@ -249,11 +249,11 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-T29QU",
+    "numero": "D-20260929-X49VV",
     "total": 310,
     "lignes": 5,
-    "donnees": "0c0e5db88214fcca",
-    "html": "5b9e7ec34ba5944d"
+    "donnees": "8a2c6f14cc81f056",
+    "html": "49397c8acc953b34"
    }
   },
   {
@@ -263,22 +263,22 @@
     "A": 599,
     "mcType": "profil"
    },
-   "R": "b37d7a6a6b5e5780",
-   "hauteurGC": 340,
-   "kg": 15.466908679429595,
+   "R": "f6ba218425ffdbdc",
+   "hauteurGC": 336,
+   "kg": 15.446454162072452,
    "alertes": 2,
    "prix": 360,
-   "chiffrage": "b459cb3635f22865",
+   "chiffrage": "13dd7bb9aa3589ad",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-UUPN2",
+    "numero": "D-20260929-Q7W6C",
     "total": 360,
     "lignes": 5,
-    "donnees": "78336c5b4528bde6",
-    "html": "7da19859226ae105"
+    "donnees": "8dd1e06559b102bf",
+    "html": "2cab3521315c4c3f"
    }
   },
   {
@@ -288,22 +288,22 @@
     "A": 600,
     "Hf": 300
    },
-   "R": "d009cff616d06a01",
-   "hauteurGC": 340,
-   "kg": 10.256118003833661,
+   "R": "675cf7010283bf53",
+   "hauteurGC": 335,
+   "kg": 10.229529947356024,
    "alertes": 2,
    "prix": 340,
-   "chiffrage": "f11473c44f90e9e8",
+   "chiffrage": "d5c144f986d17067",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-ZXSTY",
+    "numero": "D-20260929-Q42QQ",
     "total": 340,
     "lignes": 5,
-    "donnees": "2f3a47000b03bffd",
-    "html": "a8bb3f114ecdd469"
+    "donnees": "8b48045b0a150e1e",
+    "html": "1c182bd521f68439"
    }
   },
   {
@@ -316,22 +316,22 @@
     "km": 250
    },
    "chantier": "33000 Bordeaux",
-   "R": "2f838b4b1c808827",
-   "hauteurGC": 1290,
-   "kg": 28.41420227474638,
+   "R": "325e5ee87d8c51d3",
+   "hauteurGC": 1285,
+   "kg": 28.38386781054879,
    "alertes": 1,
    "prix": 580,
-   "chiffrage": "5307dde9678d1ede",
+   "chiffrage": "6570c22e1b2094a7",
    "remise": {
     "prix": 74,
     "empreinte": "639137065d4a279e"
    },
    "devis": {
-    "numero": "D-20260929-Y4MQN",
+    "numero": "D-20260929-HLRJM",
     "total": 654,
     "lignes": 6,
-    "donnees": "7b88759356ec5440",
-    "html": "d4c68e1de7a6a854"
+    "donnees": "ddb968216ed321f1",
+    "html": "babb7491c626b418"
    }
   },
   {
@@ -345,10 +345,10 @@
     "nP": 6
    },
    "chantier": "Tours 37000",
-   "R": "f4f891f11d146ed5",
+   "R": "0a2526915b2cac7b",
    "hauteurGC": 200,
    "kg": 31.239879987931168,
-   "alertes": 1,
+   "alertes": 2,
    "prix": 750,
    "chiffrage": "d8cf212bfd6251ee",
    "remise": {
@@ -374,22 +374,22 @@
     "essence": "noyer",
     "rainure": false
    },
-   "R": "5936170069bfcecd",
-   "hauteurGC": 540,
-   "kg": 14.869223760897173,
+   "R": "d825ef00ae23d681",
+   "hauteurGC": 535,
+   "kg": 14.831320160513556,
    "alertes": 1,
    "prix": 520,
-   "chiffrage": "26cbd5b0c7d37586",
+   "chiffrage": "42660d698b60d6f9",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-8A6N1",
+    "numero": "D-20260929-V4M37",
     "total": 520,
     "lignes": 5,
-    "donnees": "5c8c810d7e796380",
-    "html": "c496b128e11c04a4"
+    "donnees": "ae4bf4398b7e76cd",
+    "html": "2f7ece2ce903b680"
    }
   },
   {
@@ -401,22 +401,22 @@
     "remise": "transporteur",
     "km": 60
    },
-   "R": "baab5a7153e64294",
-   "hauteurGC": 290,
-   "kg": 9.992505796787606,
+   "R": "d78cbfc3b24b851b",
+   "hauteurGC": 285,
+   "kg": 9.966376430678451,
    "alertes": 1,
    "prix": 340,
-   "chiffrage": "0f337df8de4ae890",
+   "chiffrage": "5178091505d66007",
    "remise": {
     "prix": 44,
     "empreinte": "1cd5f680ed2631c9"
    },
    "devis": {
-    "numero": "D-20260929-YSVNC",
+    "numero": "D-20260929-TCO5B",
     "total": 944,
     "lignes": 6,
-    "donnees": "ef5d0895faf2a7ac",
-    "html": "34307fabd9b3ad10"
+    "donnees": "f4761104341b0013",
+    "html": "9d537fe6e23371ec"
    }
   },
   {
@@ -429,10 +429,10 @@
     "km": 10,
     "nP": 1
    },
-   "R": "1b594b93ef5469c3",
+   "R": "19e49a3785aca4ca",
    "hauteurGC": 200,
    "kg": 6.824974061142441,
-   "alertes": 0,
+   "alertes": 1,
    "prix": 320,
    "chiffrage": "78e59c8dee28f8cc",
    "remise": {
@@ -440,11 +440,11 @@
     "empreinte": "0ad77eb380939717"
    },
    "devis": {
-    "numero": "D-20260929-FXT49",
+    "numero": "D-20260929-G9MH1",
     "total": 420,
     "lignes": 6,
-    "donnees": "54390200ae9b7f3e",
-    "html": "e93c2f2c95f4ef97"
+    "donnees": "84284ec6997f7526",
+    "html": "6c7520f8e02fb4d5"
    }
   },
   {
@@ -456,22 +456,22 @@
     "essence": "hetre",
     "nP": 3
    },
-   "R": "83ab11fe5f192532",
-   "hauteurGC": 690,
-   "kg": 22.757393596992298,
+   "R": "5ce544f6c04b77b8",
+   "hauteurGC": 685,
+   "kg": 22.67414548872896,
    "alertes": 1,
    "prix": 690,
-   "chiffrage": "6868f47eaabfa970",
+   "chiffrage": "ddb1d9bc01e045b1",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-JS9R5",
+    "numero": "D-20260929-SBGIM",
     "total": 690,
     "lignes": 5,
-    "donnees": "b7a8e4073571fa73",
-    "html": "217aea4cdd913b6e"
+    "donnees": "19fccc4d88f69660",
+    "html": "7248ae755d876b87"
    }
   },
   {
@@ -489,22 +489,22 @@
     "nP": 4
    },
    "chantier": "49400 Saumur",
-   "R": "133f7d55ba5cb455",
-   "hauteurGC": 370,
-   "kg": 19.607146158276787,
+   "R": "a21c5e0ac01a3c12",
+   "hauteurGC": 365,
+   "kg": 19.413284913329715,
    "alertes": 0,
    "prix": 720,
-   "chiffrage": "caca94cba075b8b9",
+   "chiffrage": "ebbb949627c91eb2",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-YDQBX",
+    "numero": "D-20260929-NCQZW",
     "total": 720,
     "lignes": 5,
-    "donnees": "2264dd3390d53383",
-    "html": "9b68b432735e4043"
+    "donnees": "6312064acdecbf15",
+    "html": "49b1f8e641c25679"
    }
   },
   {
@@ -521,7 +521,7 @@
     "ass": "onglet",
     "nP": 6
    },
-   "R": "6ae37a2b229c6ab3",
+   "R": "d68bca74aaed892c",
    "hauteurGC": 670,
    "kg": 21.974615416185152,
    "alertes": 0,
@@ -552,10 +552,10 @@
     "s": 16,
     "nP": 4
    },
-   "R": "75d1a081757a6ea4",
+   "R": "56687216b6bf96ca",
    "hauteurGC": 200,
    "kg": 17.378751258203685,
-   "alertes": 1,
+   "alertes": 2,
    "prix": 590,
    "chiffrage": "b9c9504d038c9a6c",
    "remise": {
@@ -586,22 +586,22 @@
     "nP": 2
    },
    "chantier": "49400 Saumur",
-   "R": "9dda428d135fae3e",
-   "hauteurGC": 660,
-   "kg": 16.850434461421628,
+   "R": "14635133206fa1cf",
+   "hauteurGC": 655,
+   "kg": 16.794996600733104,
    "alertes": 0,
    "prix": 570,
-   "chiffrage": "4c05557d1da0921e",
+   "chiffrage": "05bdd3ba2b2785af",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-F6Q1F",
+    "numero": "D-20260929-FRTPL",
     "total": 570,
     "lignes": 5,
-    "donnees": "ca12aacbaa852259",
-    "html": "eb89cdd8e9f6b770"
+    "donnees": "13862f7b68e4a30d",
+    "html": "533177d21ca0d7ed"
    }
   },
   {
@@ -618,10 +618,10 @@
     "rainure": false,
     "nP": 6
    },
-   "R": "021105283fabf632",
+   "R": "ab2813cbc514ae96",
    "hauteurGC": 200,
    "kg": 14.116177402891116,
-   "alertes": 1,
+   "alertes": 2,
    "prix": 700,
    "chiffrage": "c7ccb9c8735eb57b",
    "remise": {
@@ -684,22 +684,22 @@
     "rainure": false,
     "nP": 3
    },
-   "R": "34eff0c3d73084e1",
-   "hauteurGC": 940,
-   "kg": 39.13697913979085,
+   "R": "787ac09ef44c221c",
+   "hauteurGC": 935,
+   "kg": 39.0638380574264,
    "alertes": 2,
    "prix": 840,
-   "chiffrage": "0ad3c063cd121fb8",
+   "chiffrage": "0babbba660384469",
    "remise": {
     "prix": 620,
     "empreinte": "7bf070b020ef0f4e"
    },
    "devis": {
-    "numero": "D-20260929-VGGBZ",
+    "numero": "D-20260929-G1K4L",
     "total": 1460,
     "lignes": 6,
-    "donnees": "afc3ca472e2045be",
-    "html": "4b0b0ea3964bb233"
+    "donnees": "9bb52eb09ac2e4b9",
+    "html": "6cdffe39fa00b244"
    }
   },
   {
@@ -717,7 +717,7 @@
     "rainure": false,
     "nP": 1
    },
-   "R": "f16c03810b34e894",
+   "R": "224f855d9cd67774",
    "hauteurGC": 570,
    "kg": 8.08806858237536,
    "alertes": 1,
@@ -749,10 +749,10 @@
     "nP": 1
    },
    "chantier": "49400 Saumur",
-   "R": "fa3eaa8542f4e44d",
+   "R": "ca70b0c3703b0189",
    "hauteurGC": 200,
    "kg": 6.592583719078489,
-   "alertes": 2,
+   "alertes": 3,
    "prix": 340,
    "chiffrage": "fc68464b3c867a23",
    "remise": {
@@ -781,7 +781,7 @@
     "jour": 75,
     "nP": 3
    },
-   "R": "3c3ffb441d87496c",
+   "R": "b3a5a113ce9f15c9",
    "hauteurGC": 790,
    "kg": 32.756014769588184,
    "alertes": 2,
@@ -878,10 +878,10 @@
     "nP": 3
    },
    "chantier": "49400 Saumur",
-   "R": "a75518ccb78f5e5c",
+   "R": "59288ddf64e9b6bd",
    "hauteurGC": 200,
    "kg": 14.235938577440713,
-   "alertes": 1,
+   "alertes": 2,
    "prix": 500,
    "chiffrage": "1f87e1ee16830e85",
    "remise": {
@@ -909,22 +909,22 @@
     "s": 16,
     "nP": 4
    },
-   "R": "66dd6a6602351927",
-   "hauteurGC": 800,
-   "kg": 27.244178399879047,
+   "R": "42cad49ecd6e9cd5",
+   "hauteurGC": 795,
+   "kg": 27.129860061863017,
    "alertes": 1,
    "prix": 780,
-   "chiffrage": "ba2ea104574eedae",
+   "chiffrage": "4ee8fabd94bf3e59",
    "remise": {
     "prix": 783,
     "empreinte": "db2bc0d9ff78a4f0"
    },
    "devis": {
-    "numero": "D-20260929-0V5K3",
+    "numero": "D-20260929-DVC44",
     "total": 1563,
     "lignes": 6,
-    "donnees": "47587e1f4ab8c74a",
-    "html": "beeaa469cae46a73"
+    "donnees": "ce85a49a5bdc16be",
+    "html": "480bf0615c1a7521"
    }
   },
   {
@@ -953,11 +953,11 @@
     "empreinte": "64567c408b719847"
    },
    "devis": {
-    "numero": "D-20260929-X9476",
+    "numero": "D-20260929-3QCU3",
     "total": 1288,
     "lignes": 6,
-    "donnees": "e22c27e6d28ea5aa",
-    "html": "084e293447b2fdab"
+    "donnees": "41f09cfc06c557d3",
+    "html": "d52db23c5c7d620d"
    }
   },
   {
@@ -987,11 +987,11 @@
     "empreinte": "ce9f7dd2b93a8209"
    },
    "devis": {
-    "numero": "D-20260929-EVIGI",
+    "numero": "D-20260929-SAHVL",
     "total": 757,
     "lignes": 6,
-    "donnees": "b6f50baff6fe4051",
-    "html": "79b44b89eb5c8129"
+    "donnees": "fe1a3cf3fc2927ab",
+    "html": "64c4553bc597ce78"
    }
   },
   {
@@ -1011,22 +1011,22 @@
     "Xo": 270,
     "nP": 5
    },
-   "R": "9bedd6554e037536",
-   "hauteurGC": 980,
-   "kg": 45.242255504801186,
+   "R": "d251e88b4538bfe4",
+   "hauteurGC": 975,
+   "kg": 45.09963681433301,
    "alertes": 1,
    "prix": 990,
-   "chiffrage": "e42e5b60ebd5381a",
+   "chiffrage": "5d89aa295ae3fec7",
    "remise": {
     "prix": 236,
     "empreinte": "e8323ec038d8d839"
    },
    "devis": {
-    "numero": "D-20260929-JH50W",
+    "numero": "D-20260929-4R0FJ",
     "total": 1226,
     "lignes": 6,
-    "donnees": "3a67a858f4813c13",
-    "html": "4246c262684de0cf"
+    "donnees": "976669785eca7056",
+    "html": "bcba0e537d9d4236"
    }
   },
   {
@@ -1043,10 +1043,10 @@
     "sbMode": "toujours",
     "nP": 5
    },
-   "R": "7e9557473d5621fa",
+   "R": "c2388d1522c9d3eb",
    "hauteurGC": 200,
    "kg": 12.885192570926993,
-   "alertes": 0,
+   "alertes": 1,
    "prix": 630,
    "chiffrage": "65826ae2aad8d7bb",
    "remise": {
@@ -1054,11 +1054,11 @@
     "empreinte": "2f61ba9a8dee9f1a"
    },
    "devis": {
-    "numero": "D-20260929-C1ZMP",
+    "numero": "D-20260929-5R9Y7",
     "total": 698,
     "lignes": 6,
-    "donnees": "4faeb9b3d3daf979",
-    "html": "88d4d797ea4c8419"
+    "donnees": "5f908499ba2780d4",
+    "html": "501d18c26f80d6b9"
    }
   },
   {
@@ -1109,10 +1109,10 @@
     "s": 16,
     "nP": 5
    },
-   "R": "15a359bbb35a6fe3",
+   "R": "20be57e206cc7b7b",
    "hauteurGC": 200,
    "kg": 11.545838861073006,
-   "alertes": 0,
+   "alertes": 1,
    "prix": 630,
    "chiffrage": "c6a215a6cef5d0d7",
    "remise": {
@@ -1120,11 +1120,11 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-VE19C",
+    "numero": "D-20260929-ZOXIS",
     "total": 630,
     "lignes": 5,
-    "donnees": "ca3ffef0d84fd85d",
-    "html": "4c4d5c1c601eeceb"
+    "donnees": "fbfe9666b50c5374",
+    "html": "e024f1cd032b1bdd"
    }
   },
   {
@@ -1141,7 +1141,7 @@
     "nb": 1,
     "nP": 2
    },
-   "R": "6cd6ea49cf7b9e2d",
+   "R": "bf53fdc4b9c38b37",
    "hauteurGC": 540,
    "kg": 22.26451836958298,
    "alertes": 1,
@@ -1173,22 +1173,22 @@
     "nP": 6
    },
    "chantier": "49400 Saumur",
-   "R": "1f69f63bd6637048",
-   "hauteurGC": 720,
-   "kg": 20.496554568180148,
+   "R": "46a9ea39e1841dd9",
+   "hauteurGC": 715,
+   "kg": 20.31486509007775,
    "alertes": 0,
    "prix": 810,
-   "chiffrage": "20e3c0e973f6eb26",
+   "chiffrage": "4a43cb232bb5041b",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-524NV",
+    "numero": "D-20260929-WHQPL",
     "total": 810,
     "lignes": 5,
-    "donnees": "03bf4d89941eb2a5",
-    "html": "1a18d2f0f7f7ec01"
+    "donnees": "8edc1037c7100f5c",
+    "html": "95d00e9a509a3dee"
    }
   }
  ],
@@ -1201,7 +1201,7 @@
     "fenetreMm": 0,
     "essence": "chene"
    },
-   "hauteur": 290,
+   "hauteur": 285,
    "alertes": {
     "12": [
      [
@@ -1307,10 +1307,10 @@
    "choix": {
     "carre": 16,
     "croix": 4,
-    "R": "2829f8478bbedeed",
-    "hauteurGC": 290,
-    "kg": 14.040998556145384,
-    "prix": 570
+    "R": "f8379e7417557f4b",
+    "hauteurGC": 285,
+    "kg": 13.93871978926249,
+    "prix": 560
    }
   },
   {
@@ -1321,7 +1321,7 @@
     "fenetreMm": 0,
     "essence": "chene"
    },
-   "hauteur": 940,
+   "hauteur": 935,
    "alertes": {
     "12": [
      [
@@ -1415,9 +1415,9 @@
    "choix": {
     "carre": 16,
     "croix": 2,
-    "R": "5fca2e34f53e4232",
-    "hauteurGC": 940,
-    "kg": 11.400889618574606,
+    "R": "9f9e69e54f793cd9",
+    "hauteurGC": 935,
+    "kg": 11.333822163985973,
     "prix": 460
    }
   },
@@ -1433,81 +1433,118 @@
    "alertes": {
     "12": [
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ]
     ],
     "14": [
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ]
     ],
     "16": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ],
     "18": [
-     [],
-     [],
-     [],
-     [],
-     [],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
      [
       "trop-petit"
      ]
     ],
     "20": [
-     [],
-     [],
-     [],
-     [],
-     [],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
      [
       "trop-petit"
      ]
     ]
    },
-   "choix": {
-    "carre": 16,
-    "croix": 1,
-    "R": "044eab3656566817",
-    "hauteurGC": 200,
-    "kg": 4.596056924021047,
-    "prix": 310
-   }
+   "choix": null
   },
   {
    "entree": {
@@ -1521,77 +1558,118 @@
    "alertes": {
     "12": [
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ]
     ],
     "14": [
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ]
     ],
     "16": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ],
     "18": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ],
     "20": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ]
    },
-   "choix": {
-    "carre": 16,
-    "croix": 1,
-    "R": "f526efb495ee2fcc",
-    "hauteurGC": 200,
-    "kg": 5.9301531643976695,
-    "prix": 320
-   }
+   "choix": null
   },
   {
    "entree": {
@@ -1601,7 +1679,7 @@
     "fenetreMm": 1200,
     "essence": "chene"
    },
-   "hauteur": 940,
+   "hauteur": 935,
    "alertes": {
     "12": [
      [
@@ -1701,9 +1779,9 @@
    "choix": {
     "carre": 16,
     "croix": 4,
-    "R": "d20a9aaba50b95c2",
-    "hauteurGC": 940,
-    "kg": 23.869678941460883,
+    "R": "ddef1997e8197fd2",
+    "hauteurGC": 935,
+    "kg": 23.748520019505396,
     "prix": 720
    }
   },
@@ -1715,7 +1793,7 @@
     "fenetreMm": 1500,
     "essence": "noyer"
    },
-   "hauteur": 590,
+   "hauteur": 585,
    "alertes": {
     "12": [
      [
@@ -1829,9 +1907,9 @@
    "choix": {
     "carre": 16,
     "croix": 5,
-    "R": "8cfb39aa4db507cd",
-    "hauteurGC": 590,
-    "kg": 22.626438307062816,
+    "R": "858e9a1cfe6059b0",
+    "hauteurGC": 585,
+    "kg": 22.47757047707461,
     "prix": 820
    }
   },
@@ -1843,7 +1921,7 @@
     "fenetreMm": 300,
     "essence": "chene"
    },
-   "hauteur": 340,
+   "hauteur": 335,
    "alertes": {
     "12": [
      [
@@ -1990,7 +2068,7 @@
     "fenetreMm": 0,
     "essence": "chene"
    },
-   "hauteur": 290,
+   "hauteur": 285,
    "alertes": {
     "12": [
      [
@@ -2096,9 +2174,9 @@
    "choix": {
     "carre": 16,
     "croix": 4,
-    "R": "c6042c271d591176",
-    "hauteurGC": 290,
-    "kg": 14.163970835369048,
+    "R": "10b5ac82bf251ed2",
+    "hauteurGC": 285,
+    "kg": 14.06206552516484,
     "prix": 570
    }
   },
@@ -2110,7 +2188,7 @@
     "fenetreMm": 0,
     "essence": "chene"
    },
-   "hauteur": 290,
+   "hauteur": 285,
    "alertes": {
     "12": [
      [
@@ -2225,9 +2303,9 @@
    "choix": {
     "carre": 18,
     "croix": 4,
-    "R": "d356b93fa6befef0",
-    "hauteurGC": 290,
-    "kg": 17.458601566611243,
+    "R": "ef72c22bbe672bf0",
+    "hauteurGC": 285,
+    "kg": 17.329978192330188,
     "prix": 570
    }
   },
@@ -2239,7 +2317,7 @@
     "fenetreMm": 0,
     "essence": "pin"
    },
-   "hauteur": 840,
+   "hauteur": 835,
    "alertes": {
     "12": [
      [
@@ -2300,7 +2378,6 @@
       "solidite"
      ],
      [
-      "trous",
       "fixation",
       "solidite"
      ]
@@ -2370,9 +2447,9 @@
    "choix": {
     "carre": 18,
     "croix": 6,
-    "R": "b87ad8d14f37cd21",
-    "hauteurGC": 840,
-    "kg": 42.2691825356555,
+    "R": "2dd9c1797a22c3c6",
+    "hauteurGC": 835,
+    "kg": 42.04810782983189,
     "prix": 970
    }
   },
@@ -2384,7 +2461,7 @@
     "fenetreMm": 1400,
     "essence": "chene"
    },
-   "hauteur": 340,
+   "hauteur": 336,
    "alertes": {
     "12": [
      [
@@ -2506,9 +2583,9 @@
    "choix": {
     "carre": 18,
     "croix": 5,
-    "R": "672c2d55d1998e66",
-    "hauteurGC": 340,
-    "kg": 22.346063495878646,
+    "R": "2dfad727f4d46680",
+    "hauteurGC": 336,
+    "kg": 22.210949601910364,
     "prix": 660
    }
   },
@@ -2524,113 +2601,142 @@
    "alertes": {
     "12": [
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ]
     ],
     "14": [
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ]
     ],
     "16": [
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ]
     ],
     "18": [
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ]
     ],
     "20": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ]
    },
-   "choix": {
-    "carre": 20,
-    "croix": 1,
-    "R": "a2de64e0c0d5a54e",
-    "hauteurGC": 200,
-    "kg": 20.790434047941176,
-    "prix": 360
-   }
+   "choix": null
   },
   {
    "entree": {
@@ -2640,7 +2746,7 @@
     "fenetreMm": 0,
     "essence": "noyer"
    },
-   "hauteur": 290,
+   "hauteur": 285,
    "alertes": {
     "12": [
      [
@@ -2770,9 +2876,9 @@
    "choix": {
     "carre": 20,
     "croix": 5,
-    "R": "3e0724c2b9e76370",
-    "hauteurGC": 290,
-    "kg": 27.377325929770798,
+    "R": "c8d389917710b05d",
+    "hauteurGC": 285,
+    "kg": 27.186942896571995,
     "prix": 670
    }
   },
@@ -2784,7 +2890,7 @@
     "fenetreMm": 0,
     "essence": "chene"
    },
-   "hauteur": 290,
+   "hauteur": 285,
    "alertes": {
     "12": [
      [
@@ -2839,7 +2945,6 @@
       "solidite"
      ],
      [
-      "trous",
       "fixation",
       "solidite"
      ],
@@ -2931,7 +3036,7 @@
     "fenetreMm": 0,
     "essence": "chene"
    },
-   "hauteur": 640,
+   "hauteur": 635,
    "alertes": {
     "12": [
      [
@@ -3090,113 +3195,143 @@
    "alertes": {
     "12": [
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ]
     ],
     "14": [
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ]
     ],
     "16": [
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ]
     ],
     "18": [
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ]
     ],
     "20": [
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ]
     ]
@@ -3211,7 +3346,7 @@
     "fenetreMm": 0,
     "essence": "chene"
    },
-   "hauteur": 840,
+   "hauteur": 836,
    "alertes": {
     "12": [
      [
@@ -3301,9 +3436,9 @@
    "choix": {
     "carre": 16,
     "croix": 4,
-    "R": "82de075ce6f25458",
-    "hauteurGC": 840,
-    "kg": 20.562933490440063,
+    "R": "7b4f215122201517",
+    "hauteurGC": 836,
+    "kg": 20.46480819174683,
     "prix": 690
    }
   },
@@ -3319,83 +3454,124 @@
    "alertes": {
     "12": [
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ]
     ],
     "14": [
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ]
     ],
     "16": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ],
     "18": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ],
     "20": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ]
    },
-   "choix": {
-    "carre": 16,
-    "croix": 1,
-    "R": "255ce5ab2c7a18e2",
-    "hauteurGC": 200,
-    "kg": 9.071051670674349,
-    "prix": 330
-   }
+   "choix": null
   },
   {
    "entree": {
@@ -3409,77 +3585,118 @@
    "alertes": {
     "12": [
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ]
     ],
     "14": [
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ]
     ],
     "16": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ],
     "18": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ],
     "20": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ]
    },
-   "choix": {
-    "carre": 16,
-    "croix": 1,
-    "R": "e97b16d85477d5dd",
-    "hauteurGC": 200,
-    "kg": 7.183644412648477,
-    "prix": 320
-   }
+   "choix": null
   },
   {
    "entree": {
@@ -3493,101 +3710,136 @@
    "alertes": {
     "12": [
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ]
     ],
     "14": [
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ]
     ],
     "16": [
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ]
     ],
     "18": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ],
     "20": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ]
    },
-   "choix": {
-    "carre": 18,
-    "croix": 1,
-    "R": "8c963ce1efcc597b",
-    "hauteurGC": 200,
-    "kg": 16.14784950507397,
-    "prix": 350
-   }
+   "choix": null
   },
   {
    "entree": {
@@ -3601,77 +3853,118 @@
    "alertes": {
     "12": [
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ]
     ],
     "14": [
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ]
     ],
     "16": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ],
     "18": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ],
     "20": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ]
    },
-   "choix": {
-    "carre": 16,
-    "croix": 1,
-    "R": "8f1473b943aeb03f",
-    "hauteurGC": 200,
-    "kg": 6.064173105940221,
-    "prix": 320
-   }
+   "choix": null
   },
   {
    "entree": {
@@ -3685,101 +3978,136 @@
    "alertes": {
     "12": [
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ]
     ],
     "14": [
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ]
     ],
     "16": [
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ],
      [
+      "barre-appui",
       "solidite"
      ]
     ],
     "18": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ],
     "20": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ]
    },
-   "choix": {
-    "carre": 18,
-    "croix": 1,
-    "R": "4cef441466bcaf22",
-    "hauteurGC": 200,
-    "kg": 14.804592186583298,
-    "prix": 340
-   }
+   "choix": null
   },
   {
    "entree": {
@@ -3793,89 +4121,130 @@
    "alertes": {
     "12": [
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ]
     ],
     "14": [
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ],
      [
+      "barre-appui",
       "fixation",
       "solidite"
      ]
     ],
     "16": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ],
     "18": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ],
     "20": [
-     [],
-     [],
-     [],
-     [],
-     [],
-     []
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ]
     ]
    },
-   "choix": {
-    "carre": 16,
-    "croix": 1,
-    "R": "661f79b12b34be8b",
-    "hauteurGC": 200,
-    "kg": 10.079649491593674,
-    "prix": 340
-   }
+   "choix": null
   },
   {
    "entree": {
@@ -3889,38 +4258,49 @@
    "alertes": {
     "12": [
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ]
     ],
     "14": [
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
+      "barre-appui",
       "fixation"
      ],
      [
@@ -3928,10 +4308,18 @@
      ]
     ],
     "16": [
-     [],
-     [],
-     [],
-     [],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
      [
       "trop-petit"
      ],
@@ -3940,10 +4328,18 @@
      ]
     ],
     "18": [
-     [],
-     [],
-     [],
-     [],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
      [
       "trop-petit"
      ],
@@ -3952,9 +4348,15 @@
      ]
     ],
     "20": [
-     [],
-     [],
-     [],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
      [
       "trop-petit"
      ],
@@ -3966,14 +4368,7 @@
      ]
     ]
    },
-   "choix": {
-    "carre": 16,
-    "croix": 1,
-    "R": "07c5bc01307f1968",
-    "hauteurGC": 200,
-    "kg": 3.525982428008252,
-    "prix": 310
-   }
+   "choix": null
   }
  ]
 }

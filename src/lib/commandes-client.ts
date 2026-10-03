@@ -2,6 +2,7 @@
 import "server-only";
 import type Stripe from "stripe";
 import { PRISE_DE_COTES } from "@/lib/deplacement";
+import { libelleEntier } from "@/lib/libelle-stripe";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
 import { STATUT_INITIAL, estStatut, type Statut } from "@/lib/statut-commande";
 
@@ -112,7 +113,7 @@ export async function commandesDuClient(email: string): Promise<CommandeClient[]
         let pieces: string[] = [];
         try {
           const lignes = await stripe.checkout.sessions.listLineItems(session.id, { limit: 100 });
-          pieces = lignes.data.map((ligne) => ligne.description ?? "");
+          pieces = lignes.data.map((ligne, rang) => libelleEntier(ligne.description, rang, session.metadata));
         } catch (error) {
           console.error("[compte] lignes illisibles :", session.id, error);
         }

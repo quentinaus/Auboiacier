@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Moteur garde-corps : norme NF P01-012, géométrie, débit, dessins. SANS coûts.
-// Source : l'outil de plans (plans-atelier.html), sha256 1a24f8591c7ead3b600344d266ed0e4e815fc03846dccd743c5342e7834b8a84
+// Source : l'outil de plans (plans-atelier.html), sha256 d69ae73b2dd8d7c13fa51766dd91c228531745f0ab2f82bcc0cf8e8818108488
 /* eslint-disable */
 const SPHERE = 110;
 const SPHERE_HAUT = 180;
@@ -16,6 +16,7 @@ const LIMITE_ACIER = 235;
 const HAUT_ETAGE = 1000;
 const ALLEGE_LIBRE = 900;
 const MINI_GC = 200;
+const BARRE_APPUI = 40;
 const DEG = 180 / Math.PI;
 const BARRE = 6000;
 const fmt = (x, d = 0) => Number(x).toLocaleString("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -241,8 +242,10 @@ function geomGC(v, n) {
     const Lc = v.B - v.j;
     const appuiA = 0, appuiX = v.Xo >= 100 && v.Xo < 600 ? v.Xo : 0;
     const cible = HAUT_ETAGE + Math.max(appuiA, appuiX) + CIBLE_MARGE;
-    const hNorme = Math.max(MINI_GC, Math.ceil((cible - v.A - v.jour) / 10) * 10);
+    const manque = Math.ceil(cible - v.A - v.jour);
+    const hNorme = Math.max(MINI_GC, manque);
     const Hr = v.Hs >= MINI_GC ? v.Hs : hNorme;
+    const appui = v.Hs >= MINI_GC || manque >= MINI_GC ? null : cible - v.A < BARRE_APPUI && (appuiX === 0 || v.A >= HAUT_ETAGE + appuiX) ? "rien" : "barre";
     const Hc = Hr - v.mc + (v.chev || 0);
     const zCadre = v.A + v.jour;
     const Hc0 = Hr - v.mc + (v.chev || 0), hautInt = zCadre + Hc0 - v.s;
@@ -268,7 +271,7 @@ function geomGC(v, n) {
       return { ...x, d, limite, ok: d < limite };
     });
     const pire = trous.reduce((m, x) => (!m || x.d / x.limite > m.d / m.limite ? x : m), null);
-    return { Lc, cible, hNorme, Hr, Hc, h, w, trous, pire, vide, zBas, sb, hb, nbS, videS, limiteS: zCadre + v.s < Z_SPHERE ? SPHERE : SPHERE_HAUT, dMax: pire ? pire.d : Infinity, limite: pire ? pire.limite : SPHERE, ok: trous.every((x) => x.ok) };
+    return { Lc, cible, manque, appui, hNorme, Hr, Hc, h, w, trous, pire, vide, zBas, sb, hb, nbS, videS, limiteS: zCadre + v.s < Z_SPHERE ? SPHERE : SPHERE_HAUT, dMax: pire ? pire.d : Infinity, limite: pire ? pire.limite : SPHERE, ok: trous.every((x) => x.ok) };
   }
 function sectionMainCourante(v) {
     if (v.profilMC) {
@@ -325,6 +328,13 @@ function calculerGC(v) {
     if (!(g.w > 3 * v.s) || !(g.h > 3 * v.s)) { R.alertes.push("Le garde-corps est trop petit pour ce nombre de croix : baisse le nombre de croix ou augmente la hauteur."); return R; }
     const s = v.s, x0 = -g.Lc / 2, y0 = v.A + v.jour, haut = y0 + g.Hr;
     const obligatoire = v.etage && v.A < ALLEGE_LIBRE;
+    if (g.appui === "rien") R.alertes.push(`Barre d'appui : rien à poser. Le bas de la fenêtre est à ${mmTxt(v.A)} mm du sol : il reste moins de ${BARRE_APPUI} mm jusqu'à ${mmTxt(g.cible)} mm${v.Xo >= 100 && v.Xo < 600 ? "" : `, et à partir de ${ALLEGE_LIBRE} mm la loi n'impose rien`}.`);
+    else if (g.appui) {
+      const videB = g.cible - BARRE_APPUI - v.A, limiteB = v.A < Z_SPHERE ? SPHERE : SPHERE_HAUT, jourB = g.cible - v.A - MINI_GC;
+      R.alertes.push(`Barre d'appui : il ne manque que ${mmTxt(g.cible - v.A)} mm entre le bas de la fenêtre et ${mmTxt(g.cible)} mm du sol. Un garde-corps à croix de ${MINI_GC} mm monterait à ${mmTxt(haut)} mm : la main courante ne serait plus à sa hauteur. ` +
+        (videB < limiteB ? `Une barre d'appui seule suffit (vide de ${mmTxt(videB)} mm dessous, boule de ${limiteB}).` : `Il faut une barre d'appui avec une lisse basse (une barre seule laisserait ${mmTxt(videB)} mm de vide, boule de ${limiteB}).`) +
+        (jourB >= 0 ? ` Ou garde un garde-corps de ${MINI_GC} mm en réduisant le jour sous le cadre à ${mmTxt(jourB)} mm.` : ""));
+    }
 
     let nMin = null;
     if (!v._rapide) for (let k = 1; k <= 12; k++) { const gk = geomGC(v, k); if (gk.w > 3 * s && gk.ok) { nMin = k; break; } }
@@ -351,6 +361,7 @@ function calculerGC(v) {
       else R.oks.push(`Main courante : rainure ${(Number.isInteger(v.lR) ? mmTxt(v.lR) : fmt(v.lR, 1))} × ${mmTxt(v.chev)}, il reste ${fmt(joue, 1)} mm de bois sur les côtés et ${mmTxt(dessus)} mm dessus.`);
       if (v.chev >= v.s) R.notes.push("Rainure aussi profonde que le carré : le bois descend jusqu'au bas de la lisse et touchera les cordons de soudure des diagonales. Garde 2 mm de moins que le carré.");
     }
+    if (!(v.j >= 0 && v.j <= 2)) R.alertes.push(`Jeu total : ${mmTxt(v.j)} mm entre les murs. Il doit rester entre 0 et 2 mm (le cadre fait alors ${mmTxt(v.B - Math.min(Math.max(v.j, 0), 2))} mm pour ${mmTxt(v.B)} mm entre tableaux).`);
     if (v.jour >= SPHERE) R.alertes.push(`Jour sous le cadre : ${mmTxt(v.jour)} mm. Il doit faire moins de ${SPHERE} mm.`);
     else if (v.jour > 90) R.notes.push(`Jour sous le cadre : ${mmTxt(v.jour)} mm. C'est permis (moins de ${SPHERE}), mais les fabricants conseillent 90 mm au plus, mesuré au point le plus creux de l'appui.`);
     else R.oks.push(`Jour sous le cadre : ${mmTxt(v.jour)} mm.`);
@@ -362,6 +373,7 @@ function calculerGC(v) {
       else if (haut < hMin + CIBLE_MARGE) R.notes.push(`Hauteur : ${mmTxt(haut)} mm, c'est juste (au moins ${mmTxt(hMin)}, aucune tolérance). Vise ${mmTxt(hMin + CIBLE_MARGE)} mm.`);
       else R.oks.push(`Hauteur : la main courante arrive à ${mmTxt(haut)} mm ${X ? raison : "du sol"} (au moins ${mmTxt(hMin)}).`);
     } else R.notes.push(v.etage ? `Allège de ${mmTxt(v.A)} mm : à partir de ${ALLEGE_LIBRE} mm, la loi n'impose pas de protection.` : "Rez-de-chaussée : la loi n'impose pas de protection.");
+    if (!appuiMeuble && v.A >= 100 && v.A < Z_ESCALADE && v.Hs < MINI_GC) R.notes.push(`Bas de fenêtre à ${mmTxt(v.A)} mm (entre 100 et ${Z_ESCALADE}) : main courante à ${mmTxt(HAUT_ETAGE)} mm du sol au moins, mesurée du sol.`);
     if (v.A >= 600 && v.A < 625) R.notes.push("Allège entre 600 et 625 mm : le seuil de 600 n'a pas de tolérance. Mesure bien.");
     if (g.sb) {
       R.notes.push(`Soubassement : ${v.A + v.jour < Z_ESCALADE ? `le cadre commence à ${mmTxt(v.A + v.jour)} mm du sol, dans la zone d'escalade (100 à 600 mm). ` : "choisi pour le style. "}Le bas est rempli de ${g.nbS} barreaux (vides de ${fmt(g.videS, 1)} mm), fermé par une lisse dont le dessus est à ${mmTxt(v.A + v.jour + g.sb + s)} mm du sol ; les croix commencent au-dessus.`);
@@ -551,6 +563,6 @@ function decrireVariante(v, c) {
   }
 export const DEFAUTS_GC = Object.freeze({"prixVente":0,"km":30,"debitAr":8,"minSoud":1.2,"rnP":14,"rnJ":1,"nF":2,"dF":6.5,"fF":13,"eF":40,"epMc":8,"L":2000,"l":1000,"H":750,"e":45,"a":80,"ep":3,"t":3,"pL":75,"pl":60,"pX":80,"rX":250,"tS":300,"tW":120,"pR":60,"bR":300,"lame":150,"latte":120,"jeu":8,"trait":3,"B":1180,"A":650,"Hs":0,"Hf":0,"s":16,"mc":40,"j":1,"jour":90,"nP":1,"nb":0,"Xo":0,"Hm":2600,"recul":0,"Wm":900,"lh":150,"lw":100,"le":5,"em":50,"nez":0,"hs":80,"tp":8,"plx":200,"ply":150,"tpp":10,"epl":200,"ass":"droit","etage":true,"rosace":true,"traverse":false,"mcType":"bois","sbMode":"auto","essence":"chene","remise":"retrait","essenceT":"chene","teinte":"noir","rainure":true});
 export const BORNES_GC = Object.freeze({ B: Object.freeze({"min":300,"max":3000}), A: Object.freeze({"min":0,"max":1200}), Hf: Object.freeze({"min":0,"max":3000}) });
-export const EMPREINTE_SOURCE = "1a24f8591c7ead3b600344d266ed0e4e815fc03846dccd743c5342e7834b8a84";
-export { ALLEGE_LIBRE, CIBLE_MARGE, HAUT_ETAGE, LIMITE_ACIER, MINI_GC, ROSACE_R, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, decrireVariante, fmt, geomGC, mmTxt, variantesConformes };
-export const EMPREINTE = "664e3d5b1be7";
+export const EMPREINTE_SOURCE = "d69ae73b2dd8d7c13fa51766dd91c228531745f0ab2f82bcc0cf8e8818108488";
+export { ALLEGE_LIBRE, BARRE_APPUI, CIBLE_MARGE, HAUT_ETAGE, LIMITE_ACIER, MINI_GC, ROSACE_R, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, decrireVariante, fmt, geomGC, mmTxt, variantesConformes };
+export const EMPREINTE = "5681c916be9b";

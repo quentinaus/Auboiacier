@@ -32,7 +32,7 @@ export const CROIX_MAX = 6;
  * avec rosaces, main courante en bois, hauteur calculée pour la norme, rien
  * sous la fenêtre, barreaux en bas seulement si la norme les demande).
  */
-export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: number, nP: number, barreauxBas = false) {
+export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: number, nP: number, barreauxBas = false, traverse = false) {
   return {
     ...defauts,
     B: e.largeurMm,
@@ -47,6 +47,8 @@ export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: numb
     nb: 0,
     // « toujours » : des barreaux droits en bas même quand la norme ne les impose pas (un des modèles au choix).
     sbMode: barreauxBas ? "toujours" : "auto",
+    // Une traverse au milieu de chaque croix (un des modèles au choix) : elle coupe les vides en deux.
+    traverse,
     s,
     nP,
   };
@@ -54,6 +56,7 @@ export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: numb
 
 // Le début du texte de l'alerte, suivi d'autre chose qu'une lettre (« \b » ne marche pas après un « é »).
 const CODES: [string, CodeAlerteGC][] = [
+  ["Barre d'appui", "barre-appui"],
   ["Trous", "trous"],
   ["Solidité", "solidite"],
   ["La fenêtre est trop basse", "fenetre"],
@@ -62,6 +65,7 @@ const CODES: [string, CodeAlerteGC][] = [
   ["Fixation", "fixation"],
   ["Le garde-corps est trop petit", "trop-petit"],
   ["Jour sous le cadre", "jour"],
+  ["Jeu total", "jeu"],
   ["Main courante", "main-courante"],
 ];
 

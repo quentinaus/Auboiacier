@@ -89,12 +89,14 @@ export function devisOutil(config: ConfigGC, line: ResolvedLine, quantite: numbe
 export function composerDevisGardeCorps(entree: EntreeDevisGC): ResultatDevis {
   const { releve, options, livraison, locale } = entree;
   const quantite = Math.max(1, Math.min(10, Math.floor(entree.quantite)));
-  const config = configurationGC(releve, options.woodId);
-  if (!config) return { ok: false, reason: "unknown_size" };
-  if (!config.ok) return { ok: false, reason: "a_etudier" };
   const resolu = ligneGC(releve, options, "fr");
   if (!resolu.ok) return { ok: false, reason: resolu.reason };
   const line = resolu.line;
+  // La configuration du relevé RÉELLEMENT chiffré par la ligne (sous verre, le dessin choisi ne compte pas) :
+  // le devis décrit exactement ce que le panier encaisse.
+  const config = configurationGC(line.gc!.releve, options.woodId);
+  if (!config) return { ok: false, reason: "unknown_size" };
+  if (!config.ok) return { ok: false, reason: "a_etudier" };
 
   const base = devisOutil(config, line, quantite, livraison, entree.date);
   const fr = lignesSite(base, config, line, quantite);
@@ -116,6 +118,8 @@ export function composerDevisGardeCorps(entree: EntreeDevisGC): ResultatDevis {
     allegeMm: releve.allegeMm,
     enEtage: releve.enEtage,
     fenetreMm: releve.fenetreMm,
+    // Le modèle choisi : deux devis de modèles différents ne portent pas le même numéro.
+    ...(releve.modele !== undefined ? { modeleGc: releve.modele } : {}),
   };
   const photo = photoConfiguration(produit, selection);
   const devis: Devis = {
@@ -138,7 +142,7 @@ export function composerDevisGardeCorps(entree: EntreeDevisGC): ResultatDevis {
     },
     piece: {
       nom: produit.name,
-      accroche: locale === "en" ? accrocheAnglaise(line) : fr.accroche,
+      accroche: locale === "en" ? accrocheAnglaise(line, config) : fr.accroche,
       photo: photo ? `${entree.origine}${photo}` : undefined,
       caracteristiques: locale === "en" ? caracteristiquesAnglaises(base, config, line, livraison) : fr.caracteristiques,
     },
@@ -208,15 +212,22 @@ function lignesSite(base: DevisGC, config: ConfigGC, line: ResolvedLine, quantit
   if (verre) {
     // Le verre à la place des croix : plus de croix ni de rosace, un cadre qui reçoit le panneau.
     titre = remplacer(remplacer(titre, ` · ${n} croix`, ""), ` · ${DS_GC.rosace}`, "");
+    // Ni de traverse au milieu des croix, quand le dessin retenu en avait une.
+    const traverseDeLOutil = `, traverse au milieu de ${n > 1 ? "chaque croix" : "la croix"}`;
+    if (config.traverse) {
+      titre = remplacer(titre, " · traverse au milieu", "");
+      structure = remplacer(structure, traverseDeLOutil, "");
+    }
     titre = `${titre} · ${verre.label}`;
     const croix = `${n} croix de Saint-André et ${n} ${n > 1 ? "rosaces" : "rosace"} ${minuscule(DS_GC.rosace)}`;
     structure = remplacer(structure, croix, "cadre soudé recevant le verre");
     const remplissage = carac("Remplissage");
+    if (config.traverse) remplissage.value = remplacer(remplissage.value, traverseDeLOutil, "");
     remplissage.value = remplacer(remplissage.value, `${n} croix de Saint-André et ${n} ${n > 1 ? "rosaces" : "rosace"}`, verre.label);
     caracs = caracs.filter((c) => c.label !== "Rosace");
     // L'outil écrit « rosace » au singulier quand il n'y a qu'une croix.
     const rosacesDeLOutil = n > 1 ? "rosaces de fonderie" : "rosace de fonderie";
-    accroche = remplacer(accroche, `Croix de Saint-André en acier plein, ${rosacesDeLOutil}`, "Panneau de verre feuilleté dans un cadre en acier plein");
+    accroche = remplacer(accroche, `Croix de Saint-André en acier plein${config.traverse ? " avec traverse au milieu" : ""}, ${rosacesDeLOutil}`, "Panneau de verre feuilleté dans un cadre en acier plein");
   } else if (fabric.id !== rosaceModele.id) {
     titre = remplacer(titre, ` · ${DS_GC.rosace}`, ` · ${fabric.label}`);
     structure = remplacer(structure, minuscule(DS_GC.rosace), minuscule(fabric.label));
@@ -278,6 +289,8 @@ function traits(config: ConfigGC) {
   return {
     n: diag ? diag.qte : Math.max(1, Math.round(v.nP || 1)),
     sb: R.debit.some((d) => /soubassement/i.test(d.nom)),
+    // La traverse au milieu des croix : lue dans le débit, comme le fait le devis de l'outil.
+    traverse: R.debit.some((d) => /^Demi-traverses/.test(d.nom)),
     nVis: vis ? vis.qte : 2 * v.nF,
     rainure: /^Rainure/.test(mcD?.coupes || ""),
   };
@@ -294,14 +307,16 @@ function lignesAnglaises(fr: LignesSite, config: ConfigGC, line: ResolvedLine, q
   const rosace = produit.fabrics!.find((f) => f.id === line.fabric?.id)!.label;
   const croix = `${t.n} Saint Andrew's ${t.n > 1 ? "crosses" : "cross"}`;
   const bas = t.sb ? ", straight bars in the lower part" : "";
-  const options = [`Custom — ${nb(L)} × ${nb(H)} mm`, verre ? null : `${t.n} ${t.n > 1 ? "crosses" : "cross"}`, bois, teinte, verre ? null : rosace, verre ? produit.remplissages?.find((r) => r.sansCroix)?.label : null]
+  const traverse = !verre && t.traverse ? `, a middle rail in ${t.n > 1 ? "each cross" : "the cross"}` : "";
+  // Le même ordre et les mêmes mots que le libellé de commande anglais (products.ts) : croix, traverse, barreaux.
+  const options = [`Custom — ${nb(L)} × ${nb(H)} mm`, verre ? null : `${t.n} ${t.n > 1 ? "crosses" : "cross"}`, !verre && t.traverse ? "middle rail" : null, t.sb ? "bars below" : null, bois, teinte, verre ? null : rosace, verre ? produit.remplissages?.find((r) => r.sansCroix)?.label : null]
     .filter(Boolean)
     .join(" · ");
   const designations = [
     `${produit.name} — ${options}`,
     verre
       ? `Solid steel structure — ${nb(L)} × ${nb(H)} mm, welded frame holding the glass${bas}, TIG welded`
-      : `Solid steel structure — ${nb(L)} × ${nb(H)} mm, ${croix} and ${t.n} ${minuscule(rosace)} ${t.n > 1 ? "rosettes" : "rosette"}${bas}, TIG welded`,
+      : `Solid steel structure — ${nb(L)} × ${nb(H)} mm, ${croix} and ${t.n} ${minuscule(rosace)} ${t.n > 1 ? "rosettes" : "rosette"}${traverse}${bas}, TIG welded`,
     `Solid ${bois.toLowerCase()} handrail ${nb(config.v.mc)} × ${nb(config.v.mc)} mm, hardwax-oil finish`,
     line.metal?.id === "brut" ? "Steel finish — raw, clear protective varnish" : `Painted finish of the steel — ${teinte.toLowerCase()}`,
     livraison.mode === "transporteur" ? "Fixings, fitting notes and packaging" : "Fixings and fitting notes",
@@ -332,11 +347,11 @@ function lignesAnglaises(fr: LignesSite, config: ConfigGC, line: ResolvedLine, q
   });
 }
 
-function accrocheAnglaise(line: ResolvedLine): string {
+function accrocheAnglaise(line: ResolvedLine, config: ConfigGC): string {
   const bois = productLocalise(line.product, "en").woods.find((w) => w.id === line.wood?.id)!.label.toLowerCase();
   return line.remplissage?.sansCroix
     ? `Laminated glass panel in a solid steel frame, ${bois} handrail. Made to the millimetre, fitted into your window.`
-    : `Solid steel Saint Andrew's crosses, cast rosettes, ${bois} handrail. Made to the millimetre, fitted into your window.`;
+    : `Solid steel Saint Andrew's crosses${traits(config).traverse ? " with a middle rail" : ""}, cast rosettes, ${bois} handrail. Made to the millimetre, fitted into your window.`;
 }
 
 function caracteristiquesAnglaises(base: DevisGC, config: ConfigGC, line: ResolvedLine, livraison: LivraisonDevisGC): Caracteristique[] {
@@ -352,7 +367,7 @@ function caracteristiquesAnglaises(base: DevisGC, config: ConfigGC, line: Resolv
   const bas = t.sb ? ", straight bars in the lower part" : "";
   const remplissage = verre
     ? `${produit.remplissages?.find((r) => r.sansCroix)?.label}${bas}`
-    : `${t.n} Saint Andrew's ${t.n > 1 ? "crosses" : "cross"} and ${t.n} ${t.n > 1 ? "rosettes" : "rosette"}${bas}`;
+    : `${t.n} Saint Andrew's ${t.n > 1 ? "crosses" : "cross"} and ${t.n} ${t.n > 1 ? "rosettes" : "rosette"}${t.traverse ? `, a middle rail in ${t.n > 1 ? "each cross" : "the cross"}` : ""}${bas}`;
   const releve = [
     v.etage ? "Upstairs" : "Ground floor",
     `floor to bottom of the window ${nb(v.A)} mm`,
@@ -380,7 +395,7 @@ function caracteristiquesAnglaises(base: DevisGC, config: ConfigGC, line: Resolv
       ? {
           label: "Standards",
           value: obligatoire
-            ? "Height calculated to art. R111-15 of the French building code and NF P01-012"
+            ? "Height calculated to art. R134-59 of the French building code; gaps between the bars to NF P01-012"
             : `Infill compliant with NF P01-012; ${v.etage ? "sill at 900 mm or more" : "ground floor"}, the law sets no height`,
         }
       : null,

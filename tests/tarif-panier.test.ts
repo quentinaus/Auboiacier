@@ -15,6 +15,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 import { libellePiece, MAX_PRECISIONS, tarifAffiche, tarifer } from "../src/lib/tarif-panier.ts";
+import { libelleEntier, MAX_METADONNEE_STRIPE, MAX_NOM_STRIPE, nomsStripe } from "../src/lib/libelle-stripe.ts";
 import { BORNES_RELEVE_GC, noteReleveGC } from "../src/lib/garde-corps.ts";
 import { CALCUL_GC, configurationGC, remiseCommandeGC } from "../src/lib/garde-corps-outil/site.ts";
 import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
@@ -92,18 +93,18 @@ test("transporteur et pose : le tarif du site, au code postal ; un code postal f
 
 test("plusieurs garde-corps, même à des cotes différentes : la remise de l'outil, une fois pour la commande", async () => {
   chiffrageOuEchec();
-  const lignes = [garde({}, 2), garde({ largeurMm: 800, allegeMm: 950, fenetreMm: 0, woodId: "pin" }), { slug: RETRAIT }];
+  const lignes = [garde({}, 2), garde({ largeurMm: 800, allegeMm: 720, fenetreMm: 0, woodId: "pin" }), { slug: RETRAIT }];
   const t = await tarif(lignes);
   assert.equal(t.probleme, null);
   const attendue = prixCommandeGC([
     { config: cfg(), quantite: 2 },
-    { config: cfg({ largeurMm: 800, allegeMm: 950, fenetreMm: 0 }, "pin"), quantite: 1 },
+    { config: cfg({ largeurMm: 800, allegeMm: 720, fenetreMm: 0 }, "pin"), quantite: 1 },
   ]).remise;
   assert.ok(attendue < 0);
   assert.equal(t.remise, attendue);
-  assert.equal(t.total, 2 * prixGC(cfg()) + prixGC(cfg({ largeurMm: 800, allegeMm: 950, fenetreMm: 0 }, "pin")) + attendue);
+  assert.equal(t.total, 2 * prixGC(cfg()) + prixGC(cfg({ largeurMm: 800, allegeMm: 720, fenetreMm: 0 }, "pin")) + attendue);
   // Les options du site ne changent pas la remise (elles s'ajoutent au prix de l'outil).
-  const avecOptions = await tarif([garde({ fabricId: "medaillon", metalId: "blanc" }, 2), garde({ largeurMm: 800, allegeMm: 950, fenetreMm: 0, woodId: "pin", remplissageId: "verre" }), { slug: RETRAIT }]);
+  const avecOptions = await tarif([garde({ fabricId: "medaillon", metalId: "blanc" }, 2), garde({ largeurMm: 800, allegeMm: 720, fenetreMm: 0, woodId: "pin", remplissageId: "verre" }), { slug: RETRAIT }]);
   assert.equal(avecOptions.remise, attendue);
   // Une table dans la même commande ne change rien à la remise des garde-corps.
   const mixte = await tarif([...lignes.slice(0, 2), table(), { slug: RETRAIT }]);
@@ -170,6 +171,35 @@ test("ce que le client précise sur un garde-corps arrive entier au panier et au
   assert.match(tarifAffiche(vu, "fr").lignes[0].options, /de l'appui au haut 1400 mm · posé à 90 mm$/);
 });
 
+test("le nom envoyé à Stripe tient en 250 signes ; le libellé entier, note comprise, se relit dans les métadonnées", async () => {
+  chiffrageOuEchec();
+  for (const langue of ["fr", "en"] as const) {
+    const t = JSON.parse(readFileSync(new URL(`../src/app/[lang]/dictionaries/${langue}.json`, import.meta.url), "utf8")).artisanat;
+    const plusLong = (liste: string[]) => liste.reduce((a, b) => (b.length > a.length ? b : a), "");
+    // Le garde-corps le plus bavard : la rosace au plus long libellé, la note la plus longue de la fiche.
+    const note = noteReleveGC(
+      { etage: plusLong(t.gcEtageOptions), mur: plusLong(t.gcMurOptions), allegeMm: BORNES_RELEVE_GC.allegeMm.max, fenetreMm: BORNES_RELEVE_GC.fenetreMm.max, jourMm: 9999 },
+      t
+    );
+    const lu = await tarif([garde({ note, fabricId: "medaillon" }), table(), garde({ note: "x".repeat(MAX_PRECISIONS), fabricId: "medaillon" }), { slug: RETRAIT }], langue);
+    const libelles = lu.pieces.map(libellePiece);
+    assert.ok(libelles[0].length > MAX_NOM_STRIPE, `${langue} : ce libellé dépassait la limite de Stripe (${libelles[0].length} signes)`);
+    const { noms, entiers } = nomsStripe(libelles);
+    for (const nom of noms) assert.ok(nom.length <= MAX_NOM_STRIPE, `${langue} : ${nom.length} signes, Stripe refuserait le paiement`);
+    for (const entier of Object.values(entiers)) assert.ok(entier.length <= MAX_METADONNEE_STRIPE, `${langue} : ${entier.length} signes dans une métadonnée`);
+    // Seules les lignes coupées prennent une clé ; la table, courte, garde son nom.
+    assert.deepEqual(Object.keys(entiers), ["libelle_0", "libelle_2"]);
+    assert.equal(noms[1], libelles[1]);
+    // Relu chez Stripe : chaque ligne retrouve son libellé entier, donc la note jusqu'au bout.
+    assert.deepEqual(noms.map((nom, rang) => libelleEntier(nom, rang, entiers)), libelles);
+    assert.ok(libelleEntier(noms[0], 0, entiers).endsWith(note), `${langue} : l'atelier perd la fin de la note`);
+    // Des lignes revenues dans un autre ordre : jamais le libellé d'une autre ligne.
+    assert.equal(libelleEntier(noms[2], 0, entiers), libelles[2]);
+    // Une commande d'avant la limite (sans métadonnée) : le nom, tel quel.
+    assert.equal(libelleEntier(noms[0], 0, { order_ref: "AB-1" }), noms[0]);
+  }
+});
+
 test("la prise de cotes : son créneau est lu, son prix vient du code postal", async () => {
   const sansCreneau = await tarif([{ slug: PRISE_DE_COTES, priseDeCotesCp: "49400", rdv: "demain" }]);
   assert.equal(sansCreneau.probleme, "rdv");
@@ -195,7 +225,7 @@ test("ce qui part vers le navigateur : des noms, des prix de vente, la hauteur r
   }
   const gc = affiche.lignes.find((l) => l.type === "piece" && l.hauteurMm !== undefined)!;
   assert.equal(gc.hauteurMm, cfg().hauteurMm);
-  assert.match(gc.options, /Custom — 1,180 × 290 mm, 4 crosses/);
+  assert.match(gc.options, /Custom — 1,180 × 285 mm, 4 crosses/);
   assert.equal(gc.nom, "Rosette Window Railing");
   assert.equal(affiche.total, t.total);
   assert.equal(

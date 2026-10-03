@@ -31,13 +31,14 @@ import { SchemaCotes, type CoteActive, type CoteSchema } from "./schema-cotes";
 import {
   ReleveGardeCorps,
   lireReleve,
+  texteManqueGC,
   noteGardeCorps,
   usePrixGardeCorps,
   COTES_GARDE_CORPS_VIDES,
   type CotesGardeCorps,
 } from "./releve-garde-corps";
 import { LIVRAISON, POSE, PRISE_DE_COTES, RETRAIT } from "@/lib/deplacement";
-import { memoriserConfig, reprendreConfig, type ConfigMemo } from "@/lib/config-memo";
+import { memoVersReleve, memoriserConfig, releveVersMemo, reprendreConfig, type ConfigMemo } from "@/lib/config-memo";
 import { livrableParTransporteur } from "@/lib/products";
 import { VisiteAtelier } from "./prise-de-cotes";
 import { MAX_TEXTE, EMAIL_MOTIF } from "@/lib/devis-regles";
@@ -611,6 +612,13 @@ export function ProductOptions({
   const router = useRouter();
   /** Comment recevoir la pièce : transporteur, livrée et posée par l'atelier, ou retirée à l'atelier. */
   const [pose, setPose] = useState<ChoixPose>(POSE_INITIALE);
+  /** Les cotes relevées chez le client (garde-corps), et la visite de l'atelier. */
+  const [cotesGardeCorps, setCotesGardeCorps] = useState<CotesGardeCorps>(
+    // Une pièce sur devis ne se mesure pas soi-même : c'est l'atelier qui vient.
+    product.orderMode === "quote"
+      ? { ...COTES_GARDE_CORPS_VIDES, qui: "atelier" }
+      : COTES_GARDE_CORPS_VIDES,
+  );
 
   /**
    * Au retour de la création de compte, on remet la configuration en place.
@@ -650,7 +658,9 @@ export function ProductOptions({
     if (memo.woodId) setWoodId(memo.woodId);
     if (memo.metalId) setMetalId(memo.metalId);
     if (memo.fabricId) setFabricId(memo.fabricId);
-    if (memo.remplissageId) setRemplissageId(memo.remplissageId);
+    // Un remplissage qui n'est plus proposé (le verre à la place des croix) n'est pas repris : la fiche ne
+    // montrerait aucun modèle à choisir, et le panier resterait bloqué.
+    if (memo.remplissageId && !product.remplissages?.find((r) => r.id === memo.remplissageId)?.sansCroix) setRemplissageId(memo.remplissageId);
     if (memo.quantity) setQuantity(memo.quantity);
     if (memo.codePostal || memo.poseVoulue !== undefined || memo.modeLivraison) {
       setPose((p) => ({
@@ -662,7 +672,12 @@ export function ProductOptions({
         deplacement: null,
       }));
     }
-  }, [product.slug, formatsDevis, setWoodId, setMetalId, setFabricId]);
+    // Le relevé du garde-corps : ses cotes, l'étage, le mur et le modèle. On
+    // ne remet que ce qui avait été rempli — l'étage d'une NOUVELLE fenêtre,
+    // lui, n'est jamais coché d'avance.
+    const releve = memoVersReleve(memo, t);
+    if (Object.keys(releve).length > 0) setCotesGardeCorps((cotes) => ({ ...cotes, ...releve }));
+  }, [product.slug, formatsDevis, setWoodId, setMetalId, setFabricId, t]);
   /** Les coordonnées facultatives du client, pour un devis PDF nominatif. */
   const [coordonnees, setCoordonnees] = useState({ nom: "", email: "" });
   /**
@@ -671,13 +686,6 @@ export function ProductOptions({
    * cotes. On suit donc le vrai bouton, et une barre prend le relais quand il
    * sort de l'écran.
    */
-  /** Les cotes relevées chez le client (garde-corps), et la visite de l'atelier. */
-  const [cotesGardeCorps, setCotesGardeCorps] = useState<CotesGardeCorps>(
-    // Une pièce sur devis ne se mesure pas soi-même : c'est l'atelier qui vient.
-    product.orderMode === "quote"
-      ? { ...COTES_GARDE_CORPS_VIDES, qui: "atelier" }
-      : COTES_GARDE_CORPS_VIDES,
-  );
   const boutonPanierRef = useRef<HTMLButtonElement>(null);
   /** Le bloc de relevé : pour y ramener le curseur quand on ajoute une autre fenêtre. */
   const releveRef = useRef<HTMLDivElement>(null);
@@ -1002,6 +1010,8 @@ export function ProductOptions({
             configGC.hauteurMm,
             remplissage?.sansCroix ? null : configGC.croix,
             locale,
+            // Le même libellé que celui du serveur (panier, commande) : la traverse, les barreaux, le carré.
+            { soubassement: configGC.soubassementMm > 0, carre: configGC.carre, traverse: configGC.traverse },
           ),
         }
       : null
@@ -1107,6 +1117,16 @@ export function ProductOptions({
   ]
     .filter(Boolean)
     .join(" · ");
+  /**
+   * Sans prix du serveur (barre d'appui, garde-corps à étudier), le libellé n'a pas les cotes : on les ajoute à
+   * la demande de devis (paramètre « releve » de la page contact). C'est là que l'atelier en a le plus besoin.
+   */
+  const cotesPourDevisGC =
+    estGC && releveGC && !configGC
+      ? locale === "fr"
+        ? `Fenêtre : ${releveGC.largeurMm} mm de large, bas à ${releveGC.allegeMm} mm du sol${releveGC.fenetreMm ? `, ${releveGC.fenetreMm} mm de haut` : ""}, ${releveGC.enEtage ? "en étage" : "au rez-de-chaussée"}${reponseGC && !reponseGC.ok && reponseGC.raison === "barre-appui" ? " — barre d'appui" : ""}`
+        : `Window: ${releveGC.largeurMm} mm wide, bottom ${releveGC.allegeMm} mm from the floor${releveGC.fenetreMm ? `, ${releveGC.fenetreMm} mm high` : ""}, ${releveGC.enEtage ? "upstairs" : "ground floor"}${reponseGC && !reponseGC.ok && reponseGC.raison === "barre-appui" ? " — support bar" : ""}`
+      : null;
   /** Sous le grand prix : la pièce configurée, ou la visite et son créneau. */
   const optionsLabel = modeVisite
     ? [
@@ -1288,7 +1308,10 @@ export function ProductOptions({
       p.set("allege", String(releveGC.allegeMm));
       p.set("etage", releveGC.enEtage ? "1" : "0");
       p.set("fenetre", String(releveGC.fenetreMm));
-      if (releveGC.modele) p.set("modele", releveGC.modele);
+      // Pas de devis sans modèle choisi, comme pour le panier : le serveur chiffrerait un modèle par défaut
+      // que le client n'a pas choisi.
+      if (!releveGC.modele) return null;
+      p.set("modele", releveGC.modele);
     } else {
       if (sizeIdEff) p.set("size", sizeIdEff);
       if (cotesEff?.largeurMm) p.set("l", String(cotesEff.largeurMm));
@@ -1342,16 +1365,19 @@ export function ProductOptions({
             // allège, hauteur de la fenêtre), puis attend l'outil de plans.
             estGC
             ? lectureReleve?.etat === "incomplet"
-              ? lectureReleve.manque === "etage"
-                ? { message: locale === "fr" ? "Dites où est la fenêtre : en étage ou au rez-de-chaussée." : "Tell us where the window is: upstairs or on the ground floor.", ancre: "#cotes" }
-                : // Pas « longueur, largeur, épaisseur » : ce sont les mots d'une
-                  // table, et un garde-corps se mesure autrement.
-                  { message: t.raisonCotesGardeCorps, ancre: "#cotes" }
+              ? // Ce qui manque, dit précisément : « la mesure ① », pas « indiquez la largeur et la hauteur ».
+                { message: texteManqueGC(lectureReleve, locale) ?? t.raisonCotesGardeCorps, ancre: "#cotes" }
+              : lectureReleve?.etat === "hors-bornes" && lectureReleve.raison === "allege"
+                ? { message: locale === "fr" ? "Votre fenêtre n'a pas besoin de garde-corps." : "Your window does not need a railing.", ancre: "#cotes" }
               : prixGC.statut === "calcul"
                 ? { message: t.gcCalcul, ancre: "#cotes" }
                 : prixGC.statut === "indisponible" || prixGC.statut === "erreur"
                   ? { message: t.gcPrixIndisponible, ancre: "#cotes" }
-                  : { message: t.raisonGcAEtudier, ancre: "#cotes" }
+                  : reponseGC && !reponseGC.ok && reponseGC.raison === "barre-appui"
+                    ? { message: locale === "fr" ? "Pour cette fenêtre : une barre d'appui, sur devis. Demandez-nous un devis." : "For this window: a support bar, on quotation. Ask us for a quote.", ancre: "#cotes" }
+                    : reponseGC && !reponseGC.ok && reponseGC.raison === "sans-garde-corps"
+                      ? { message: locale === "fr" ? "Votre fenêtre n'a pas besoin de garde-corps." : "Your window does not need a railing.", ancre: "#cotes" }
+                      : { message: t.raisonGcAEtudier, ancre: "#cotes" }
             : null
       : product.poseOption && !livraisonPrete(pose)
         ? { message: t.raisonCodePostalLivraison, ancre: "#livraison" }
@@ -1393,7 +1419,9 @@ export function ProductOptions({
       epaisseur: epaisseurSaisie,
       hauteurTable: hauteurTableSaisie,
       // Sur une pièce sur devis sans prix, c'est le format choisi (voir formatsDevis).
-      sizeId: formatsDevis ? formatDevisId : sizeIdEff,
+      // Le garde-corps est toujours « sur mesure » : son relevé l'identifie. (sizeIdEff dépend du prix : un favori
+      // mis de côté pendant le recalcul n'avait pas le même identifiant qu'une seconde plus tard — un doublon.)
+      sizeId: formatsDevis ? formatDevisId : estGC ? SUR_MESURE : sizeIdEff,
       woodId,
       metalId,
       fabricId,
@@ -1402,6 +1430,8 @@ export function ProductOptions({
       codePostal: pose.codePostal,
       poseVoulue: pose.mode === "pose",
       modeLivraison: pose.mode,
+      // Le garde-corps n'a pas de cotes de table : sa pièce, c'est son relevé.
+      ...(estGC ? releveVersMemo(cotesGardeCorps, t) : {}),
     };
   }
   function allerCreerCompte() {
@@ -1425,6 +1455,14 @@ export function ProductOptions({
     if (favoriEnvoi) return;
     setFavoriEnvoi(true);
     const config = configActuelle();
+    // Deux fenêtres aux mêmes options font deux favoris : la largeur, en tête
+    // du résumé, permet de les distinguer dans la liste.
+    const fenetre =
+      config.gcLargeurMm === undefined
+        ? null
+        : locale === "fr"
+          ? `Fenêtre de ${config.gcLargeurMm} mm`
+          : `${config.gcLargeurMm} mm window`;
     try {
       const reponse = await fetch("/api/compte/favoris", {
         method: "POST",
@@ -1432,7 +1470,7 @@ export function ProductOptions({
         body: JSON.stringify({
           slug: product.slug,
           titre: product.name,
-          resume: optionsLabel,
+          resume: [fenetre, optionsLabel].filter(Boolean).join(" · "),
           prixCents: total !== null ? Math.round(total * 100) : null,
           config,
         }),
@@ -2434,7 +2472,7 @@ export function ProductOptions({
             lecture={lectureReleve}
             prix={prixGC}
             rosaceMm={Number(fabric?.label.match(/Ø(\d+)/)?.[1]) || undefined}
-            lienDevis={`/${locale}/contact?produit=${product.slug}&config=${encodeURIComponent(optionsPiece)}`}
+            lienDevis={`/${locale}/contact?produit=${product.slug}&config=${encodeURIComponent(optionsPiece)}${cotesPourDevisGC ? `&releve=${encodeURIComponent(cotesPourDevisGC)}` : ""}`}
             detailsSlot={setDetailsSlot}
             verre={
               verre && remplissageModele
@@ -2751,11 +2789,15 @@ export function ProductOptions({
                   <button
                     type="button"
                     onClick={() => {
+                      // L'étage et le modèle aussi : ils dépendent de la fenêtre, et rien ne doit être
+                      // choisi d'avance (décision du 03/10) — le modèle d'avant validait le panier tout seul.
                       setCotesGardeCorps({
                         ...cotesGardeCorps,
                         largeur: "",
                         allege: "",
                         fenetre: "",
+                        etage: "",
+                        modele: "",
                       });
                       setQuantity(1);
                       setAjoutee(null);

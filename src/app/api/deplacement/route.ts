@@ -7,8 +7,12 @@ import { ChiffrageIndisponible, ligneGC } from "@/lib/prix-garde-corps.server";
 
 export const runtime = "nodejs";
 
-/** Quarante codes postaux par adresse et par dix minutes : de quoi hésiter, pas de quoi moissonner. */
-const tropDeDemandes = creerLimite({ fenetreMs: 10 * 60 * 1000, maximum: 40 });
+/**
+ * Cent vingt demandes par adresse et par dix minutes, comme /api/prix-garde-corps : la fiche garde-corps
+ * redemande la livraison à chaque nouveau prix (cote, modèle, bois). À quarante, un client qui ajustait ses
+ * curseurs voyait sa livraison « en erreur » et son bouton du panier grisé pendant dix minutes.
+ */
+const tropDeDemandes = creerLimite({ fenetreMs: 10 * 60 * 1000, maximum: 120 });
 
 /** Un identifiant d'option : lettres, chiffres et tirets seulement. */
 function identifiant(valeur: string | null): string | undefined {

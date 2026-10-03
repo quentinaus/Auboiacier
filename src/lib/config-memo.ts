@@ -1,5 +1,6 @@
 // Chemins relatifs, pas l'alias « @/ » : les tests (node --test) chargent ce
 // fichier directement, sans le compilateur de Next.
+import { BORNES_RELEVE_GC, lireModeleGC } from "./garde-corps.ts";
 
 /**
  * La configuration en cours, mise de côté le temps d'un aller-retour.
@@ -41,10 +42,106 @@ export type ConfigMemo = {
   poseVoulue?: boolean;
   /** Comment recevoir la pièce : transporteur, pose, ou retrait à l'atelier. */
   modeLivraison?: "transporteur" | "pose" | "retrait";
+  /**
+   * Le relevé du garde-corps de fenêtre. Sans lui, « Reprendre » rouvrait une
+   * fiche vide, et deux fenêtres différentes aux mêmes options ne faisaient
+   * qu'un seul favori. Les cotes sont des millimètres entiers, dans les bornes
+   * de l'atelier (BORNES_RELEVE_GC).
+   */
+  gcLargeurMm?: number;
+  gcAllegeMm?: number;
+  gcFenetreMm?: number;
+  /** true : en étage ; false : au rez-de-chaussée. Absent : le client ne l'a pas dit, et on ne le dit jamais à sa place. */
+  gcEnEtage?: boolean;
+  /** Le type de mur, tel qu'il est écrit dans la liste. */
+  gcMur?: string;
+  /** Le modèle choisi (« 16-5-b »), tel que lireModeleGC le reconnaît. */
+  gcModele?: string;
 };
+
+/** Les champs du relevé du garde-corps dans la mémoire. */
+export type ReleveGcMemo = Pick<
+  ConfigMemo,
+  "gcLargeurMm" | "gcAllegeMm" | "gcFenetreMm" | "gcEnEtage" | "gcMur" | "gcModele"
+>;
+
+/** Les cases du relevé, telles que le client les tape (CotesGardeCorps, releve-garde-corps.tsx). */
+type CasesReleveGc = {
+  etage: string;
+  largeur: string;
+  allege: string;
+  fenetre: string;
+  mur: string;
+  modele?: string;
+};
+
+/** Les mots du dictionnaire dont la mémoire a besoin. Le premier de gcEtageOptions est « en étage » (voir lireReleve). */
+type MotsReleveGc = { gcEtageOptions: readonly string[]; gcMurOptions: readonly string[] };
 
 function texte(valeur: unknown): string | undefined {
   return typeof valeur === "string" && valeur.length <= 40 ? valeur : undefined;
+}
+
+/**
+ * Le relevé du garde-corps, relu champ par champ : une cote qui n'est pas un
+ * entier dans les bornes de l'atelier, un modèle que l'outil ne connaît pas,
+ * et le champ est écarté. La même règle sert au retour dans le navigateur
+ * (reprendreConfig) et à l'enregistrement d'un favori sur le serveur
+ * (favoris.ts).
+ */
+export function lireReleveGcMemo(o: Record<string, unknown>): ReleveGcMemo {
+  // Un vrai nombre, pas « ce qui se convertit » : Number(null) vaut 0, et 0
+  // est une allège valable.
+  const mm = (v: unknown, borne: { min: number; max: number }) =>
+    typeof v === "number" && Number.isInteger(v) && v >= borne.min && v <= borne.max ? v : undefined;
+  return {
+    gcLargeurMm: mm(o.gcLargeurMm, BORNES_RELEVE_GC.largeurMm),
+    gcAllegeMm: mm(o.gcAllegeMm, BORNES_RELEVE_GC.allegeMm),
+    gcFenetreMm: mm(o.gcFenetreMm, BORNES_RELEVE_GC.fenetreMm),
+    gcEnEtage: typeof o.gcEnEtage === "boolean" ? o.gcEnEtage : undefined,
+    gcMur: texte(o.gcMur) || undefined,
+    gcModele: typeof o.gcModele === "string" && lireModeleGC(o.gcModele) ? o.gcModele : undefined,
+  };
+}
+
+/**
+ * Les cases du relevé, mises sous la forme que la mémoire garde : des
+ * millimètres entiers (la même lecture que lireReleve), et l'étage en oui/non
+ * plutôt que le mot affiché, qui change avec la langue.
+ */
+export function releveVersMemo(cases: CasesReleveGc, t: MotsReleveGc): ReleveGcMemo {
+  const mm = (saisie: string) => {
+    const nombre = Number(saisie.replace(",", "."));
+    return saisie.trim() !== "" && Number.isFinite(nombre) && nombre >= 0 ? Math.round(nombre) : undefined;
+  };
+  const etage = t.gcEtageOptions.indexOf(cases.etage);
+  return {
+    gcLargeurMm: mm(cases.largeur),
+    gcAllegeMm: mm(cases.allege),
+    gcFenetreMm: mm(cases.fenetre),
+    gcEnEtage: etage === 0 ? true : etage === 1 ? false : undefined,
+    gcMur: cases.mur || undefined,
+    gcModele: cases.modele || undefined,
+  };
+}
+
+/**
+ * Le chemin inverse : les cases à remettre en place à la reprise d'un favori
+ * ou au retour de la création de compte. Seulement ce qui avait été rempli.
+ * L'étage ne revient que s'il avait été choisi : sur une nouvelle fenêtre,
+ * rien n'est jamais coché d'avance (décision du 03/10). Le mur ne revient que
+ * s'il figure encore dans la liste, dans la langue de la page.
+ */
+export function memoVersReleve(memo: ReleveGcMemo, t: MotsReleveGc): Partial<CasesReleveGc> {
+  const cases: Partial<CasesReleveGc> = {};
+  if (memo.gcLargeurMm !== undefined) cases.largeur = String(memo.gcLargeurMm);
+  if (memo.gcAllegeMm !== undefined) cases.allege = String(memo.gcAllegeMm);
+  if (memo.gcFenetreMm !== undefined) cases.fenetre = String(memo.gcFenetreMm);
+  const etage = memo.gcEnEtage === undefined ? undefined : t.gcEtageOptions[memo.gcEnEtage ? 0 : 1];
+  if (etage !== undefined) cases.etage = etage;
+  if (memo.gcMur !== undefined && t.gcMurOptions.includes(memo.gcMur)) cases.mur = memo.gcMur;
+  if (memo.gcModele !== undefined) cases.modele = memo.gcModele;
+  return cases;
 }
 
 /**
@@ -106,5 +203,6 @@ export function reprendreConfig(slug: string): ConfigMemo | null {
     codePostal: texte(o.codePostal),
     poseVoulue: typeof o.poseVoulue === "boolean" ? o.poseVoulue : undefined,
     modeLivraison: o.modeLivraison === "transporteur" || o.modeLivraison === "pose" || o.modeLivraison === "retrait" ? o.modeLivraison : undefined,
+    ...lireReleveGcMemo(o),
   };
 }

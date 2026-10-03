@@ -4,6 +4,7 @@ import { accesLivraison } from "./stripe";
 import { composerConfirmation } from "./confirmation";
 import { rendreDevisPdf } from "./devis-pdf";
 import { ownerEmail, sendEmail } from "./email";
+import { libelleEntier } from "./libelle-stripe";
 import { libelleStatut, phraseStatut, type Statut } from "./statut-commande";
 import { siteOrigin } from "./stripe";
 
@@ -57,9 +58,10 @@ function formatAddress(address: Stripe.Address | null | undefined) {
 function formatLines(lines: Stripe.LineItem[], locale: "fr" | "en" = "fr", session?: Stripe.Checkout.Session) {
   if (lines.length === 0) return DETAIL_MANQUANT[locale];
   // Chaque ligne à son prix avant remise ; la remise a sa ligne, comme sur la facture.
-  const texte = lines.map((item) => {
+  const texte = lines.map((item, rang) => {
     const quantity = item.quantity ?? 1;
-    return `• ${item.description ?? ""}\n  ${quantity} × ${euros(
+    // Le libellé ENTIER : Stripe ne garde que 250 signes du nom (libelle-stripe.ts).
+    return `• ${libelleEntier(item.description, rang, session?.metadata)}\n  ${quantity} × ${euros(
       item.price?.unit_amount
     )} = ${euros(item.amount_subtotal ?? item.amount_total)}`;
   });
@@ -101,8 +103,8 @@ export function ligneDeJournal(
     totalPaye: euros(session.amount_total),
     langue: session.metadata?.locale ?? "fr",
     // Les options choisies sont dans le libellé de chaque ligne (voir /api/commande).
-    articles: lines.map((item) => ({
-      designation: item.description ?? "",
+    articles: lines.map((item, rang) => ({
+      designation: libelleEntier(item.description, rang, session.metadata),
       quantite: item.quantity ?? 1,
       prixUnitaire: euros(item.price?.unit_amount),
       total: euros(item.amount_total),

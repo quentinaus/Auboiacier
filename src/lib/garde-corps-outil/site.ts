@@ -11,7 +11,7 @@
 import { catalogueGC, configurerGC, prixCommandeGC, prixGC, ChiffrageIndisponible, type ConfigAEtudierGC, type ConfigGC } from "./calcul.ts";
 import { ESSENCES_GC, type EntreeSiteGC, type EssenceGC } from "./entree.ts";
 import { getProduct, priceFrom, prixParOutil, resolveSelection, SUR_MESURE, type PrixReleve, type Product } from "../products.ts";
-import { BORNES_RELEVE_GC, MODELES_GC_MAX, RELEVE_DEPART_GC, lireModeleGC, releveDansLesBornes, type ModeleGC, type ReleveGC, type ReponsePrixGC } from "../garde-corps.ts";
+import { BORNES_RELEVE_GC, MODELES_GC_MAX, RELEVE_DEPART_GC, idModeleGC, lireModeleGC, releveDansLesBornes, type ModeleGC, type ReleveGC, type ReponsePrixGC } from "../garde-corps.ts";
 import type { CalculGC } from "../tarif-panier.ts";
 
 /** L'identifiant du garde-corps de fenêtre au catalogue. */
@@ -42,8 +42,9 @@ export function configurationGC(releve: ReleveGC, essence: string): ConfigGC | C
 export const prixReleveOutil: PrixReleve = (e) => {
   const c = configurationGC(e, e.essence);
   if (!c) return { ok: false, raison: "hors-bornes" };
-  if (!c.ok) return { ok: false, raison: c.raison };
-  return { ok: true, prix: prixGC(c), hauteurMm: c.hauteurMm, croix: c.croix, carre: c.carre, soubassement: c.soubassement, kg: c.kg };
+  // Barre d'appui ou rien à poser : pour le panier, c'est « à étudier » (pas de prix, pas de commande).
+  if (!c.ok) return { ok: false, raison: c.raison === "fenetre-trop-basse" ? c.raison : "a-etudier" };
+  return { ok: true, prix: prixGC(c), hauteurMm: c.hauteurMm, croix: c.croix, carre: c.carre, soubassement: c.soubassement, traverse: c.traverse, kg: c.kg };
 };
 
 /** La remise d'une commande de plusieurs garde-corps : frais fixes une fois, jamais sous le plancher. */
@@ -154,13 +155,13 @@ function catalogueSiteGC(q: RequetePrixGC, hauteurMm: number): ModeleGC[] {
   const modeles: ModeleGC[] = [];
   for (const d of catalogueGC(entreeGC(q.releve, q.essence))) {
     if (!d.conforme) {
-      modeles.push({ id: `${d.carre}-${d.croix}${d.barreauxBas ? "-b" : ""}`, conforme: false, croix: d.croix, carre: d.carre, soubassementMm: d.soubassementMm, hauteurMm, prix: 0, kg: 0 });
+      modeles.push({ id: idModeleGC(d.carre, d.croix, d.barreauxBas, d.traverse), conforme: false, raisons: d.raisons, croix: d.croix, carre: d.carre, soubassementMm: d.soubassementMm, traverse: d.traverse, hauteurMm, prix: 0, kg: 0 });
       continue;
     }
     const m = d.config;
-    const id = `${m.carre}-${m.croix}${m.barreauxBas ? "-b" : ""}`;
+    const id = idModeleGC(m.carre, m.croix, m.barreauxBas, m.traverse);
     const l = ligneGC({ ...q.releve, modele: id }, { woodId: q.essence, metalId: q.metalId, fabricId: q.fabricId, remplissageId: q.remplissageId });
-    if (l.ok && l.line.gc) modeles.push({ id, conforme: true, croix: m.croix, carre: m.carre, soubassementMm: m.soubassementMm, hauteurMm: l.line.gc.hauteurMm, prix: l.line.unitPrice, kg: Math.round(l.line.gc.kg) });
+    if (l.ok && l.line.gc) modeles.push({ id, conforme: true, raisons: [], croix: m.croix, carre: m.carre, soubassementMm: m.soubassementMm, traverse: m.traverse, hauteurMm: l.line.gc.hauteurMm, prix: l.line.unitPrice, kg: Math.round(l.line.gc.kg) });
   }
   return modeles.slice(0, MODELES_GC_MAX);
 }
@@ -201,6 +202,7 @@ export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
     croix: c.croix,
     carre: c.carre,
     soubassementMm: c.soubassementMm,
+    traverse: c.traverse,
     kg: Math.round(r.line.gc.kg),
     obligatoire: c.obligatoire,
     modeles,

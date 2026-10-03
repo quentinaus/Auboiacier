@@ -170,7 +170,10 @@ export async function ajouterFavori(
     // laisserait le client cliquer un cœur qui ne répond pas.
     const actuels = favorisDepuisMetadata(metadata);
     for (const vieux of actuels.slice(FAVORIS_MAX - 1)) {
-      delete metadata[`${PREFIXE_FAVORI}${vieux.id}`];
+      // Chez Stripe, les métadonnées envoyées sont FUSIONNÉES avec celles qui existent : une clé absente de
+      // l'envoi reste. Elle ne s'efface qu'avec une valeur vide (comme dans retirerFavori) — sans cela le
+      // plafond n'était jamais appliqué, et au 50e favori Stripe refusait tout.
+      metadata[`${PREFIXE_FAVORI}${vieux.id}`] = "";
     }
   }
   metadata[cle] = encoderFavori(favori);

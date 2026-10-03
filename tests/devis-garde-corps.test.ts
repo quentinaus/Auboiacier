@@ -18,7 +18,7 @@ import { readFileSync } from "node:fs";
 import { composerDevisGC, DS_GC } from "../src/lib/garde-corps-outil/devis.genere.mjs";
 import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
 import { prixCommandeGC, prixGC, type ConfigGC } from "../src/lib/garde-corps-outil/calcul.ts";
-import { CALCUL_GC, configurationGC, ligneGC } from "../src/lib/garde-corps-outil/site.ts";
+import { CALCUL_GC, configurationGC, ligneGC, reponsePrixGC } from "../src/lib/garde-corps-outil/site.ts";
 import { composerDevisGardeCorps, type EntreeDevisGC, type LivraisonDevisGC } from "../src/lib/garde-corps-outil/devis-site.ts";
 import { tarifer } from "../src/lib/tarif-panier.ts";
 import { LIVRAISON, POSE, RETRAIT, type ResultatLieu } from "../src/lib/deplacement.ts";
@@ -257,6 +257,11 @@ test("le numéro du devis change avec la fenêtre, les options, la quantité et 
   for (const autre of [numero({}, { allegeMm: 700 }), numero({}, { enEtage: false }), numero({}, { fenetreMm: 1500 }), numero({ quantite: 2 }), numero({ options: { woodId: "noyer", ...MODELE } }), numero({ livraison: { mode: "pose", codePostal: "44000", lieu: lieu(100) } })]) {
     assert.notEqual(autre, a);
   }
+  // Deux modèles différents pour la même fenêtre : deux devis, deux numéros.
+  const modeles = reponsePrixGC({ releve, essence: "chene", quantite: 1 })!.modeles.filter((m) => m.conforme);
+  assert.ok(modeles.length >= 2);
+  const numeros = new Set(modeles.map((m) => numero({}, { modele: m.id })));
+  assert.equal(numeros.size, modeles.length, "un numéro par modèle");
 });
 
 test("un lien de devis sans teinte, rosace ni remplissage : le devis du modèle, comme la route du prix", () => {
@@ -273,4 +278,43 @@ test("un lien de devis sans teinte, rosace ni remplissage : le devis du modèle,
   const route = readFileSync(new URL("../src/app/api/devis-pdf/route.ts", import.meta.url), "utf8");
   assert.match(route, /t === null \? undefined : \(identifiant\(t\) \?\? null\)/);
   assert.match(route, /options: \{ woodId, metalId, fabricId, remplissageId \}/);
+});
+
+test("le devis d'un modèle à traverse : écrit dans les deux langues, et jamais d'erreur avec le verre", () => {
+  chiffrageOuEchec();
+  const fenetre = { largeurMm: 1180, allegeMm: 650, enEtage: true, fenetreMm: 0 };
+  const texte = (d: ReturnType<typeof devisOk>) => JSON.stringify([d.lignes.map((l) => l.designation), d.piece.accroche, d.piece.caracteristiques]);
+  // « 2 croix + traverse » : le français et l'anglais décrivent la même pièce, au même total.
+  const fr = devisOk(entree({ ...fenetre, modele: "16-2-t" }));
+  const en = devisOk(entree({ ...fenetre, modele: "16-2-t" }, { locale: "en" }));
+  assert.equal(en.total, fr.total);
+  assert.match(fr.lignes[0].designation, /2\scroix · traverse au milieu/);
+  assert.match(en.lignes[0].designation, /2 crosses · middle rail/);
+  assert.match(en.lignes[1].designation, /a middle rail in each cross/);
+  assert.match(en.piece.accroche, /crosses with a middle rail/);
+  assert.match(en.piece.caracteristiques.find((k) => k.label === "Infill")!.value, /a middle rail in each cross/);
+  assert.ok(!/traverse/i.test(texte(en)), "pas un mot de français dans le devis anglais");
+  // Barreaux en bas + traverse : le titre anglais dit les deux, dans l'ordre du français.
+  const tout = devisOk(entree({ ...fenetre, modele: "16-2-b-t" }, { locale: "en" }));
+  assert.match(tout.lignes[0].designation, /2 crosses · middle rail · bars below/);
+  // Sans traverse : pas de « middle rail ».
+  assert.ok(!/middle rail/.test(texte(devisOk(entree({ ...fenetre, modele: "16-4" }, { locale: "en" })))));
+
+  // Sous verre, le dessin choisi ne compte pas : même devis, même prix que sans modèle, dans les deux langues —
+  // et plus d'erreur quand le dessin avait une traverse (l'accroche de l'outil n'était plus reconnue).
+  const sousVerre = { woodId: "chene", ...MODELE, remplissageId: "verre" };
+  const reference = devisOk(entree(fenetre, { options: sousVerre }));
+  for (const modele of ["16-2-t", "16-1-t", "16-2-b-t", "16-6-b", "18-4"]) {
+    for (const locale of ["fr", "en"] as const) {
+      const d = devisOk(entree({ ...fenetre, modele }, { options: sousVerre, locale }));
+      assert.equal(d.total, reference.total, `verre + ${modele} (${locale}) : le prix du relevé seul`);
+      assert.ok(!/traverse|middle rail/i.test(texte(d)), `verre + ${modele} (${locale}) : plus de traverse`);
+    }
+    const ligne = ligneGC({ ...fenetre, modele }, sousVerre);
+    assert.ok(ligne.ok);
+    assert.equal(ligne.line.unitPrice, reference.total, `verre + ${modele} : le panier encaisse le même prix`);
+  }
+  // Même quand le dessin retenu d'office a une traverse (fenêtre où les croix seules ne passent pas).
+  const large = { largeurMm: 1180, allegeMm: 300, enEtage: true, fenetreMm: 0 };
+  for (const locale of ["fr", "en"] as const) assert.ok(devisOk(entree(large, { options: sousVerre, locale })).total > 0);
 });

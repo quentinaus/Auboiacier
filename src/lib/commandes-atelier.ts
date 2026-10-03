@@ -4,6 +4,7 @@
 import "server-only";
 import type Stripe from "stripe";
 import { PRISE_DE_COTES } from "@/lib/deplacement";
+import { libelleEntier } from "@/lib/libelle-stripe";
 import { accesLivraison, getStripe, isStripeConfigured } from "@/lib/stripe";
 import { STATUT_INITIAL, estStatut, type Statut } from "@/lib/statut-commande";
 
@@ -121,7 +122,7 @@ export async function commandesPayees(frais = false): Promise<CommandeAtelier[]>
       let pieces: string[] = [];
       try {
         const lignes = await stripe.checkout.sessions.listLineItems(session.id, { limit: 100 });
-        pieces = lignes.data.map((ligne) => texte(ligne.description));
+        pieces = lignes.data.map((ligne, rang) => texte(libelleEntier(ligne.description, rang, session.metadata)));
       } catch (error) {
         // Le détail manque : la commande reste pilotable, c'est l'essentiel.
         console.error("[atelier] lignes illisibles :", session.id, error);

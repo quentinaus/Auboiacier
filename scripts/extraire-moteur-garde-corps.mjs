@@ -52,7 +52,7 @@ const A = analyser(html);
 
 // ---------- 1. Ce qu'on prend : des racines, puis tout ce qu'elles utilisent ----------
 const RACINES = {
-  moteur: ["geomGC", "calculerGC", "variantesConformes", "decrireVariante", "HAUT_ETAGE", "ALLEGE_LIBRE", "MINI_GC", "SPHERE",
+  moteur: ["geomGC", "calculerGC", "variantesConformes", "decrireVariante", "HAUT_ETAGE", "ALLEGE_LIBRE", "MINI_GC", "BARRE_APPUI", "SPHERE",
     "SPHERE_HAUT", "Z_SPHERE", "Z_ESCALADE", "CIBLE_MARGE", "LIMITE_ACIER", "ROSACE_R", "fmt", "mmTxt"],
   devis: ["composerDevisGC", "dsDevisHtml", "dsPrix", "DS_GC", "DS_VALIDITE_JOURS"],
   chiffrage: ["chiffrerGC", "remiseGC", "REGLAGES"],
@@ -250,7 +250,7 @@ export type ResultatGC = {
   hauteurGC?: number;
   [autre: string]: unknown;
 };
-export type GeomGC = { Lc: number; cible: number; hNorme: number; Hr: number; Hc: number; h: number; w: number; sb: number; ok: boolean; dMax: number; limite: number; [autre: string]: unknown };
+export type GeomGC = { Lc: number; cible: number; manque: number; appui: "barre" | "rien" | null; hNorme: number; Hr: number; Hc: number; h: number; w: number; sb: number; ok: boolean; dMax: number; limite: number; [autre: string]: unknown };
 export type VarianteGC = { w: ValeursGC; R: ResultatGC; change: number; score: number };
 export declare const DEFAUTS_GC: Readonly<ValeursGC>;
 export declare const BORNES_GC: Readonly<Record<"B" | "A" | "Hf", Readonly<{ min: number; max: number }>>>;
@@ -261,6 +261,7 @@ export declare function decrireVariante(v: ValeursGC, c: { w: ValeursGC }): stri
 export declare function fmt(x: number, d?: number): string;
 export declare function mmTxt(x: number): string;
 export declare const ALLEGE_LIBRE: number;
+export declare const BARRE_APPUI: number;
 export declare const CIBLE_MARGE: number;
 export declare const HAUT_ETAGE: number;
 export declare const LIMITE_ACIER: number;

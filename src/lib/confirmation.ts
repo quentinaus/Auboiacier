@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import type Stripe from "stripe";
 import { emetteurDevis, type Acceptation, type Devis, type LigneDevis } from "./devis.ts";
 import type { Locale } from "./i18n.ts";
+import { libelleEntier } from "./libelle-stripe.ts";
 
 /**
  * La confirmation de commande : le document que l'acheteur reçoit APRÈS avoir
@@ -142,8 +143,9 @@ export function composerConfirmation({ session, lignes, origine }: EntreeConfirm
   // Chaque ligne à son prix AVANT remise (amount_subtotal) : la remise a sa
   // propre ligne, comme sur la page de paiement et sur la facture. Sans
   // remise, les deux montants de Stripe sont les mêmes.
-  const lignesDevis: LigneDevis[] = lignes.map((item) => {
-    const { designation, details } = decouper(item.description ?? "");
+  const lignesDevis: LigneDevis[] = lignes.map((item, rang) => {
+    // Le libellé ENTIER : Stripe ne garde que 250 signes du nom (libelle-stripe.ts).
+    const { designation, details } = decouper(libelleEntier(item.description, rang, session.metadata));
     return {
       designation,
       details,

@@ -181,7 +181,20 @@ test("relevés du site : la configuration retenue suit la règle du 29/09 et don
     }
     assert.deepEqual(attendu && { carre: attendu.carre, croix: attendu.croix }, r.choix && { carre: r.choix.carre, croix: r.choix.croix });
     const c = configurerGC(r.entree);
+    // La main courante ne bouge pas (04/10) : quand l'outil dit « barre d'appui » ou « rien à poser », le site
+    // ne vend pas de garde-corps à croix — et l'outil non plus (son alerte « Barre d'appui » sur chaque essai).
+    const appui = M.geomGC(valeursGC(M.DEFAUTS_GC, r.entree, 16, 1), 1).appui;
+    if (appui) {
+      assert.equal(r.choix, null, `${J(r.entree)} : l'outil ne retient aucun garde-corps à croix`);
+      for (const s of ORDRE_CARRES) for (const a of r.alertes[s]) assert.ok(a.includes("barre-appui") || a.includes("trop-petit"), `${J(r.entree)} carré ${s} : ${a}`);
+      assert.equal(c.ok, false);
+      assert.equal(!c.ok && c.raison, appui === "rien" ? "sans-garde-corps" : "barre-appui", J(r.entree));
+      assert.equal(c.mainCouranteMm, M.HAUT_ETAGE + M.CIBLE_MARGE);
+      assert.equal(c.hauteurMm, M.BARRE_APPUI);
+      continue;
+    }
     assert.equal(c.hauteurMm, r.hauteur, `${J(r.entree)} : hauteur`);
+    assert.equal(c.mainCouranteMm, M.HAUT_ETAGE + M.CIBLE_MARGE, `${J(r.entree)} : la main courante, pile à la norme`);
     if (!r.choix) {
       // Règle du 03/10 (« toujours une solution ») : quand les croix seules ne passent pas, le site
       // propose le même garde-corps avec des barreaux droits en bas — s'il passe toute la norme de l'outil.

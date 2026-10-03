@@ -306,7 +306,9 @@ textarea:focus-visible,
   color: rgba(60, 60, 67, 0.55);
 }
 /* Les cases et les choix : des pastilles de verre plus clair, avec un liseré de lumière. */
-.carte-verre :is(input[type="text"], input[type="number"], input:not([type]), [class~="bg-white"], [class~="bg-[#fbfaf8]"], [class~="bg-[#faf8f5]"]):not(dialog *) {
+/* (:not(dialog) : la fenêtre « Vos coordonnées » porte elle-même bg-white. Sans cette exception elle devenait
+   translucide : sur téléphone, on lisait le bouton du panier et les textes de la fiche à travers.) */
+.carte-verre :is(input[type="text"], input[type="number"], input:not([type]), [class~="bg-white"], [class~="bg-[#fbfaf8]"], [class~="bg-[#faf8f5]"]):not(dialog):not(dialog *) {
   background-color: rgba(255, 255, 255, 0.72);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(43, 35, 32, 0.06);
 }
@@ -495,6 +497,45 @@ textarea:focus-visible,
   border: 2px solid #fff;
   background: #2b2320;
   box-shadow: 0 1px 3px rgba(43, 35, 32, 0.45);
+}
+/* Une cote pas encore saisie : le pouce est estompé — il attend à une valeur d'exemple, il n'est pas « réglé ». */
+.curseur-cote.curseur-vide::-webkit-slider-thumb {
+  opacity: 0.45;
+}
+.curseur-cote.curseur-vide::-moz-range-thumb {
+  opacity: 0.45;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Les modèles de garde-corps (releve-garde-corps.tsx) : des tuiles de verre clair, comme les cases de la
+ *  carte des mesures ; la tuile choisie porte un liseré foncé, comme le choix de livraison.
+ * ------------------------------------------------------------------ */
+.tuile-modele {
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 0 0 1px rgba(43, 35, 32, 0.07),
+    0 1px 2px rgba(43, 35, 32, 0.06);
+  transition:
+    background-color 0.15s,
+    box-shadow 0.15s;
+}
+.tuile-modele:hover:not([aria-disabled="true"]) {
+  background: #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(43, 35, 32, 0.22),
+    0 8px 16px -10px rgba(43, 35, 32, 0.4);
+}
+.tuile-modele[aria-pressed="true"] {
+  background: #ffffff;
+  box-shadow:
+    0 0 0 2px #1d1d1f,
+    0 8px 16px -10px rgba(43, 35, 32, 0.4);
+}
+.tuile-modele[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 /* ------------------------------------------------------------------ *

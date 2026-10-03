@@ -16,7 +16,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { ALLEGE_LIBRE, BORNES_GC, CIBLE_MARGE, DEFAUTS_GC, HAUT_ETAGE, MINI_GC, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, geomGC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
+import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, CIBLE_MARGE, DEFAUTS_GC, HAUT_ETAGE, MINI_GC, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, geomGC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
 import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
 import {
   configurerGC,
@@ -26,7 +26,7 @@ import {
   prixGC,
   type ConfigGC,
 } from "../src/lib/garde-corps-outil/calcul.ts";
-import { lireRequetePrixGC, PARAMETRES_PRIX_GC, reponsePrixGC, type RequetePrixGC } from "../src/lib/garde-corps-outil/site.ts";
+import { ligneGC, lireRequetePrixGC, PARAMETRES_PRIX_GC, reponsePrixGC, type RequetePrixGC } from "../src/lib/garde-corps-outil/site.ts";
 import { CROIX_MAX, ESSENCES_GC, ORDRE_CARRES, valeursGC, type EntreeSiteGC } from "../src/lib/garde-corps-outil/entree.ts";
 import { tarifLivraison, tarifPose } from "../src/lib/deplacement.ts";
 
@@ -55,20 +55,44 @@ for (const e of GRILLE.filter((x) => x.largeurMm === 900 || x.largeurMm === 1450
 // Décision de Quentin (03/10/2026) : la hauteur se mesure TOUJOURS depuis le sol (la loi : « jusqu'à 1 m du
 // plancher »). Le bas de la fenêtre, même bas, ne relève plus la visée : la main courante reste à la même hauteur,
 // c'est le garde-corps qui grandit ou rapetisse.
-test("hauteur : la main courante atteint 1 000 mm du sol, quel que soit le bas de la fenêtre, visée 1 025", () => {
+// Décision du 04/10/2026 : LE HAUT DE LA MAIN COURANTE NE BOUGE JAMAIS. Il est pile à la visée (1 025 mm du sol),
+// au millimètre, sans arrondi. Quand il manque moins que le plus petit garde-corps à croix : une barre d'appui.
+test("hauteur : la main courante est pile à 1 025 mm du sol, quel que soit le bas de la fenêtre", () => {
+  const cible = HAUT_ETAGE + CIBLE_MARGE;
+  let gardeCorps = 0, barres = 0, rien = 0;
   for (const e of GRILLE) {
     const c = configurerGC(e);
-    const cible = HAUT_ETAGE + CIBLE_MARGE;
-    assert.equal(c.jourMm, DEFAUTS_GC.jour, "le jour sous le cadre est celui de l'outil");
-    assert.equal(c.mainCouranteMm, e.allegeMm + c.jourMm + c.hauteurMm);
-    assert.equal(c.hauteurMm % 10, 0, "hauteur arrondie à la dizaine");
-    assert.ok(c.hauteurMm >= MINI_GC, "jamais sous la hauteur minimale de l'outil");
-    if (c.hauteurMm > MINI_GC) {
-      assert.ok(c.mainCouranteMm >= cible, `${JSON.stringify(e)} : ${c.mainCouranteMm} mm pour ${cible} visés`);
-      assert.ok(c.mainCouranteMm < cible + 10, "pas plus haut que la dizaine au-dessus de la visée");
+    assert.equal(c.mainCouranteMm, cible, `${JSON.stringify(e)} : la main courante ne bouge pas`);
+    const manque = cible - e.allegeMm - DEFAUTS_GC.jour;
+    if (manque >= MINI_GC) {
+      gardeCorps++;
+      assert.equal(c.jourMm, DEFAUTS_GC.jour, "le jour sous le cadre est celui de l'outil");
+      assert.equal(c.hauteurMm, manque, "la hauteur qu'il faut, au millimètre");
+      assert.equal(c.mainCouranteMm, e.allegeMm + c.jourMm + c.hauteurMm);
+      if (!c.ok) assert.ok(c.raison === "a-etudier" || c.raison === "fenetre-trop-basse");
     } else {
-      assert.ok(c.mainCouranteMm >= cible, "au minimum de fabrication, la main courante dépasse déjà la visée");
+      assert.equal(c.ok, false, `${JSON.stringify(e)} : pas de garde-corps à croix qui dépasserait la norme`);
+      const sans = cible - e.allegeMm < BARRE_APPUI;
+      if (sans) rien++; else barres++;
+      assert.equal(!c.ok && c.raison, sans ? "sans-garde-corps" : "barre-appui");
+      assert.equal(c.hauteurMm, BARRE_APPUI);
+      assert.deepEqual(reponsePrixGC({ releve: e, essence: e.essence, quantite: 1 })?.modeles, []);
     }
+  }
+  assert.ok(gardeCorps > 0 && barres > 0 && rien > 0, "la grille couvre les trois cas");
+});
+
+// Au millimètre : la règle de l'outil (geomGC) sur tous les bas de fenêtre possibles.
+test("hauteur : à chaque millimètre de bas de fenêtre, un garde-corps pile à la norme, puis une barre d'appui, puis rien", () => {
+  const cible = HAUT_ETAGE + CIBLE_MARGE;
+  for (let A = BORNES_GC.A.min; A <= BORNES_GC.A.max; A++) {
+    const v = valeursGC(DEFAUTS_GC, releve({ allegeMm: A }), 16, 1);
+    const g = geomGC(v, 1);
+    assert.equal(g.cible, cible);
+    if (A <= cible - DEFAUTS_GC.jour - MINI_GC) {
+      assert.equal(g.appui, null, `bas de fenêtre à ${A}`);
+      assert.equal(A + v.jour + g.Hr, cible, `bas de fenêtre à ${A} : main courante pile à la norme`);
+    } else assert.equal(g.appui, A > cible - BARRE_APPUI ? "rien" : "barre", `bas de fenêtre à ${A}`);
   }
 });
 
@@ -82,8 +106,8 @@ test("hauteur : la même au rez-de-chaussée qu'en étage (règle de l'outil) ; 
 });
 
 test("plus de règle du site : ni 350 mm minimum, ni jour de 100 mm", () => {
-  const haute = configurerGC(releve({ allegeMm: 900 }));
-  assert.ok(haute.hauteurMm < 350, "une allège de 900 donne un garde-corps plus bas que l'ancien minimum de 350");
+  const haute = configurerGC(releve({ allegeMm: 700 }));
+  assert.ok(haute.ok && haute.hauteurMm < 350, "une allège de 700 donne un garde-corps plus bas que l'ancien minimum de 350");
   assert.notEqual(haute.jourMm, 100);
 });
 
@@ -142,6 +166,7 @@ test("configuration : trop large pour la lisse haute en carré 16 → un carré 
     vus++;
     const c = configurerGC(e);
     if (c.ok) assert.ok(c.carre > 16, `${JSON.stringify(e)} : carré ${c.carre}`);
+    else if (c.raison === "barre-appui" || c.raison === "sans-garde-corps") continue;   // pas de garde-corps à croix du tout
     else assert.ok(c.alertes.includes("solidite"));
   }
   assert.ok(vus > 0, "la grille doit contenir des largeurs trop grandes pour le carré 16");
@@ -221,8 +246,8 @@ test("commande : plusieurs pièces, frais fixes une seule fois, jamais sous le p
   const paniers = [
     [{ config: configOk({ largeurMm: 1180 }), quantite: 2 }],
     [{ config: configOk({ largeurMm: 1180 }), quantite: 3 }],
-    [{ config: configOk({ largeurMm: 800, allegeMm: 300 }), quantite: 1 }, { config: configOk({ largeurMm: 1400, allegeMm: 950, essence: "noyer" }), quantite: 2 }],
-    [{ config: configOk({ largeurMm: 450, allegeMm: 900, essence: "pin" }), quantite: 10 }],
+    [{ config: configOk({ largeurMm: 800, allegeMm: 300 }), quantite: 1 }, { config: configOk({ largeurMm: 1400, allegeMm: 700, essence: "noyer" }), quantite: 2 }],
+    [{ config: configOk({ largeurMm: 450, allegeMm: 735, essence: "pin" }), quantite: 10 }],
   ];
   for (const lignes of paniers) {
     const r = prixCommandeGC(lignes);
@@ -335,7 +360,7 @@ test("réponse de /api/prix-garde-corps : le prix et la forme, rien d'autre", ()
   chiffrageOuEchec();
   const ok = reponsePrixGC(requete({ largeurMm: 1180 }));
   assert.ok(ok);
-  assert.deepEqual(Object.keys(ok).sort(), ["carre", "conforme", "croix", "hauteurMm", "jourMm", "kg", "mainCouranteMm", "modeles", "obligatoire", "ok", "prix", "remise", "soubassementMm"]);
+  assert.deepEqual(Object.keys(ok).sort(), ["carre", "conforme", "croix", "hauteurMm", "jourMm", "kg", "mainCouranteMm", "modeles", "obligatoire", "ok", "prix", "remise", "soubassementMm", "traverse"]);
   const non = reponsePrixGC(requete({ largeurMm: BORNES_GC.B.max }));
   assert.ok(non);
   assert.deepEqual(Object.keys(non).sort(), ["alertes", "conforme", "hauteurMm", "jourMm", "mainCouranteMm", "modeles", "obligatoire", "ok", "raison"]);
@@ -376,24 +401,209 @@ test("catalogue des modèles : tous montrés, seuls les conformes ont un prix, u
   const q = { releve, essence: "chene" as const, quantite: 1 };
   const r = reponsePrixGC(q);
   assert.ok(r && r.ok, "ce relevé a un prix");
-  assert.ok(r.modeles.length >= 6 && r.modeles.length <= 12, "le catalogue entier est envoyé");
-  assert.deepEqual(Object.keys(r.modeles[0]).sort(), ["carre", "conforme", "croix", "hauteurMm", "id", "kg", "prix", "soubassementMm"]);
+  assert.ok(r.modeles.length >= 12 && r.modeles.length <= 24, "le catalogue entier est envoyé");
+  assert.deepEqual(Object.keys(r.modeles[0]).sort(), ["carre", "conforme", "croix", "hauteurMm", "id", "kg", "prix", "raisons", "soubassementMm", "traverse"]);
+  // Les quatre familles : croix seules, traverse au milieu, barreaux en bas, les deux.
+  assert.ok(r.modeles.some((m) => m.traverse) && r.modeles.some((m) => !m.traverse));
   const conformes = r.modeles.filter((m) => m.conforme), hors = r.modeles.filter((m) => !m.conforme);
   assert.ok(conformes.length >= 1 && hors.length >= 1);
   // Le modèle que l'outil retient de lui-même est dans le catalogue, au même prix.
-  assert.equal(conformes.find((m) => m.id.replace(/-b$/, "") === `${r.carre}-${r.croix}`)?.prix, r.prix);
+  assert.equal(conformes.find((m) => m.croix === r.croix && m.traverse === r.traverse && m.soubassementMm > 0 === r.soubassementMm > 0)?.prix, r.prix);
   for (const m of conformes) {
     const choisi = reponsePrixGC({ ...q, releve: { ...releve, modele: m.id } });
     assert.ok(choisi && choisi.ok, `le modèle ${m.id} se commande`);
     assert.equal(choisi.prix, m.prix, `le modèle ${m.id} est encaissé au prix affiché`);
-    assert.equal(`${choisi.carre}-${choisi.croix}`, m.id.replace(/-b$/, ""));
+    assert.deepEqual([choisi.carre, choisi.croix, choisi.traverse], [m.carre, m.croix, m.traverse]);
   }
   for (const m of hors) {
     assert.equal(m.prix, 0, `le modèle hors norme ${m.id} n'a pas de prix`);
     const forge = reponsePrixGC({ ...q, releve: { ...releve, modele: m.id } });
     assert.ok(forge && !forge.ok, `le modèle hors norme ${m.id} ne se vend pas`);
   }
+  // Le carré de l'identifiant est indicatif : c'est le DESSIN qui est choisi, le carré reste celui de l'atelier.
+  // Un identifiant forgé dans un autre carré ne donne ni un autre garde-corps ni un autre prix.
+  for (const m of conformes) {
+    const suite = m.id.replace(/^\d+-\d/, "");
+    for (const s of ORDRE_CARRES) {
+      const forge = reponsePrixGC({ ...q, releve: { ...releve, modele: `${s}-${m.croix}${suite}` } });
+      assert.ok(forge && forge.ok, `${s}-${m.croix}${suite} : le même dessin`);
+      assert.deepEqual([forge.carre, forge.croix, forge.soubassementMm, forge.traverse, forge.prix], [m.carre, m.croix, m.soubassementMm, m.traverse, m.prix], `${s}-${m.croix}${suite}`);
+    }
+  }
   // Un modèle illisible : l'adresse est refusée.
   assert.equal(lireRequetePrixGC(new URLSearchParams("l=1190&allege=585&etage=1&fenetre=1200&wood=chene&modele=99-9")), null);
   assert.equal(lireRequetePrixGC(new URLSearchParams("l=1190&allege=585&etage=1&fenetre=1200&wood=chene&modele=16-3"))?.releve.modele, "16-3");
+});
+
+test("le modèle choisi ne saute pas quand une cote fait changer de carré : c'est le dessin qui est choisi", () => {
+  chiffrageOuEchec();
+  // Pour chaque dessin conforme d'une fenêtre, on élargit la fenêtre pas à pas en renvoyant le MÊME identifiant
+  // (comme la fiche) : tant que le catalogue propose ce dessin, le serveur le vend — même dans un autre carré.
+  let changements = 0;
+  for (const allegeMm of [300, 650]) {
+    const depart = reponsePrixGC({ releve: { largeurMm: 700, allegeMm, enEtage: true, fenetreMm: 0 }, essence: "chene", quantite: 1 });
+    assert.ok(depart);
+    for (const choisi of depart.modeles.filter((m) => m.conforme)) {
+      for (let largeurMm = 700; largeurMm <= 1700; largeurMm += 100) {
+        const releve = { largeurMm, allegeMm, enEtage: true, fenetreMm: 0 };
+        const catalogue = reponsePrixGC({ releve, essence: "chene", quantite: 1 })!.modeles;
+        const propose = catalogue.find((m) => m.conforme && m.croix === choisi.croix && m.traverse === choisi.traverse && m.soubassementMm > 0 === choisi.soubassementMm > 0);
+        const r = reponsePrixGC({ releve: { ...releve, modele: choisi.id }, essence: "chene", quantite: 1 });
+        assert.ok(r);
+        if (propose && (propose.id.includes("-b") === choisi.id.includes("-b") || propose.soubassementMm > 0)) {
+          assert.ok(r.ok, `${choisi.id} à ${largeurMm} mm (allège ${allegeMm}) : le catalogue le propose (${propose.id}), il doit se vendre`);
+          assert.equal(r.prix, propose.prix, `${choisi.id} à ${largeurMm} mm : le prix du catalogue`);
+          if (propose.carre !== choisi.carre) changements++;
+        }
+      }
+    }
+  }
+  assert.ok(changements > 0, "la grille doit contenir des largeurs où le carré change");
+});
+
+test("le libellé de la commande dit ce qui est vendu : barreaux en bas, section du carré", () => {
+  chiffrageOuEchec();
+  const releve = { largeurMm: 1180, allegeMm: 650, enEtage: true, fenetreMm: 0 };
+  const r = reponsePrixGC({ releve, essence: "chene", quantite: 1 });
+  assert.ok(r);
+  const libelles = new Map<string, number>();
+  for (const m of r.modeles.filter((x) => x.conforme)) {
+    const l = ligneGC({ ...releve, modele: m.id }, { woodId: "chene" });
+    assert.ok(l.ok);
+    const libelle = l.line.size.label;
+    assert.match(libelle, new RegExp(`${m.croix} croix`));
+    assert.match(libelle, new RegExp(`acier carré de ${m.carre}$`));
+    assert.equal(libelle.includes("barreaux en bas"), m.soubassementMm > 0, libelle);
+    assert.equal(libelle.includes("traverse au milieu"), m.traverse, libelle);
+    // Deux modèles différents ne portent jamais le même libellé (l'atelier ne les distinguait que par le prix).
+    assert.equal(libelles.has(libelle), false, libelle);
+    libelles.set(libelle, m.prix);
+  }
+  assert.ok(libelles.size >= 2);
+  const en = ligneGC({ ...releve, modele: r.modeles.find((x) => x.conforme && x.soubassementMm > 0 && x.traverse)!.id }, { woodId: "chene" }, "en");
+  assert.ok(en.ok);
+  assert.match(en.line.size.label, /middle rail, bars below, \d+ mm square bar$/);
+});
+
+test("une traverse au milieu : la solution de l'outil quand le vide entre les barres est trop grand, proposée sur le site", () => {
+  chiffrageOuEchec();
+  // Le modèle de la photo (deux croix) sur une fenêtre de 1 180 mm : hors norme seul (trous), aux normes avec une traverse.
+  const fenetre = { largeurMm: 1180, allegeMm: 650, enEtage: true, fenetreMm: 0 };
+  const r = reponsePrixGC({ releve: fenetre, essence: "chene", quantite: 1 });
+  assert.ok(r && r.ok);
+  const seul = r.modeles.find((m) => m.croix === 2 && !m.traverse && m.soubassementMm === 0);
+  const avec = r.modeles.find((m) => m.croix === 2 && m.traverse && m.soubassementMm === 0);
+  assert.ok(seul && !seul.conforme && seul.raisons.includes("trous"), "deux croix seules : le vide est trop grand");
+  assert.ok(avec && avec.conforme && avec.prix > 0, "deux croix avec une traverse : aux normes, avec un prix");
+  assert.match(avec.id, /^\d+-2-t$/);
+  // C'est bien l'outil qui le dit : mêmes réglages, traverse cochée, aucune alerte ; décochée, l'alerte « Trous ».
+  const v = valeursGC(DEFAUTS_GC, releve({ largeurMm: 1180, allegeMm: 650 }), avec.carre, 2, false, true);
+  assert.equal(v.traverse, true);
+  assert.deepEqual(calculerGC({ ...v, _rapide: true }).alertes, []);
+  assert.ok(calculerGC({ ...v, traverse: false, _rapide: true }).alertes.some((a: string) => a.startsWith("Trous")));
+  // Le modèle choisi est vendu tel quel, la traverse est écrite sur la commande, et elle a un prix (plus d'acier).
+  const choisi = reponsePrixGC({ releve: { ...fenetre, modele: avec.id }, essence: "chene", quantite: 1 });
+  assert.ok(choisi && choisi.ok && choisi.traverse && choisi.croix === 2 && choisi.prix === avec.prix);
+  const l = ligneGC({ ...fenetre, modele: avec.id }, { woodId: "chene" });
+  assert.ok(l.ok && l.line.gc?.traverse);
+  assert.match(l.line.size.label, /2 croix, traverse au milieu, acier carré de \d+$/);
+  const sansTraverse = r.modeles.find((m) => m.conforme && !m.traverse && m.soubassementMm === 0);
+  assert.ok(sansTraverse);
+  // Sans choix du client, les croix seules restent proposées d'abord quand elles passent.
+  assert.equal(r.traverse, false);
+});
+
+test("la rigidité de la lisse ne dépend pas du dessin : un carré écarté pour un dessin l'est pour tous", () => {
+  // configurerGC s'appuie dessus pour ne pas refaire le calcul (calcul.ts, « rigide ») : si l'outil change, ce test le dit.
+  for (const allegeMm of [0, 400, 650, 735])
+    for (const largeurMm of [300, 900, 1180, 1400, 1500, 1700, 2000, 3000])
+      for (const s of ORDRE_CARRES) {
+        const vus = new Set<boolean>();
+        for (const b of [false, true])
+          for (const t of [false, true])
+            for (let n = 1; n <= CROIX_MAX; n++) {
+              const alertes: string[] = calculerGC({ ...valeursGC(DEFAUTS_GC, releve({ largeurMm, allegeMm }), s, n, b, t), _rapide: true }).alertes;
+              // « Trop petit pour ce nombre de croix » : l'outil s'arrête avant de contrôler la solidité.
+              if (alertes.some((a) => a.startsWith("Le garde-corps est trop petit"))) continue;
+              vus.add(alertes.some((a) => a.startsWith("Solidité")));
+            }
+        assert.ok(vus.size <= 1, `${largeurMm} × ${allegeMm}, carré ${s} : la solidité change avec le dessin`);
+      }
+});
+
+test("le calcul rapide est le calcul complet de l'outil quand rien ne bloque", () => {
+  // configurerGC garde le résultat du calcul rapide pour chiffrer (calcul.ts, « essayer ») : il doit être identique.
+  let compares = 0;
+  for (const allegeMm of [0, 300, 650, 735])
+    for (const largeurMm of [600, 1180, 1400])
+      for (const b of [false, true])
+        for (const t of [false, true])
+          for (let n = 1; n <= CROIX_MAX; n += 2)
+            for (const s of [16, 18, 20]) {
+              const v = valeursGC(DEFAUTS_GC, releve({ largeurMm, allegeMm }), s, n, b, t);
+              const rapide = calculerGC({ ...v, _rapide: true });
+              if (rapide.alertes.length) continue;
+              assert.equal(JSON.stringify(rapide), JSON.stringify(calculerGC(v)), `${largeurMm} × ${allegeMm}, ${s}-${n}`);
+              compares++;
+            }
+  assert.ok(compares > 50);
+});
+
+test("fenêtre trop basse : dit tout de suite, pour tout dessin — et un panier forgé ne coûte plus des secondes de calcul", () => {
+  chiffrageOuEchec();
+  // La bonne raison, même quand la fenêtre est aussi trop large pour le carré de 16 (avant : « pas assez rigide »).
+  for (const [largeurMm, allegeMm, fenetreMm] of [[1300, 300, 700], [1500, 100, 900], [800, 650, 200]]) {
+    const c = configurerGC(releve({ largeurMm, allegeMm, fenetreMm }));
+    assert.equal(!c.ok && c.raison, "fenetre-trop-basse", `${largeurMm} × ${allegeMm}, fenêtre ${fenetreMm}`);
+    assert.deepEqual(!c.ok && c.alertes, ["fenetre"]);
+    // Avec un modèle choisi aussi, quel que soit l'ordre des demandes.
+    for (const modele of ["16-6", "16-1-t", "20-3-b-t"]) {
+      const m = configurerGC(releve({ largeurMm, allegeMm, fenetreMm, modele }));
+      assert.equal(!m.ok && m.raison, "fenetre-trop-basse", modele);
+    }
+    const r = reponsePrixGC({ releve: { largeurMm, allegeMm, enEtage: true, fenetreMm }, essence: "chene", quantite: 1 });
+    assert.ok(r && !r.ok && r.modeles.every((m) => !m.conforme && m.raisons.includes("fenetre")));
+  }
+  // Une fenêtre assez haute : le même relevé se vend.
+  assert.ok(configurerGC(releve({ largeurMm: 800, allegeMm: 650, fenetreMm: 400 })).ok);
+  // Vingt relevés neufs à fenêtre trop basse (le panier forgé de la relecture : 2 400 calculs, 8 s) : un essai chacun.
+  const debut = performance.now();
+  for (let i = 0; i < 20; i++) {
+    const c = configurerGC(releve({ largeurMm: 640 - i, allegeMm: 340 + i, fenetreMm: 1 }));
+    assert.equal(!c.ok && c.raison, "fenetre-trop-basse");
+  }
+  assert.ok(performance.now() - debut < 2000, "vingt fenêtres trop basses : bien moins de deux secondes");
+});
+
+test("des barreaux en bas impossibles (garde-corps trop bas) : la bonne raison, et pas de jumeau dans le catalogue", () => {
+  chiffrageOuEchec();
+  // 1 000 mm de large, bas de fenêtre à 700 : un garde-corps de 235 mm, trop bas pour des barreaux sous les croix.
+  const fenetre = { largeurMm: 1000, allegeMm: 700, enEtage: true, fenetreMm: 0 };
+  const c = configurerGC(releve({ ...fenetre, modele: "16-2-b" }));
+  assert.equal(c.ok, false);
+  assert.deepEqual(!c.ok && c.alertes, ["trop-petit"], "ni « pas assez rigide », ni « fixation » : le garde-corps est trop bas pour ce dessin");
+  assert.ok(configurerGC(releve({ ...fenetre, modele: "16-2" })).ok, "le même dessin sans barreaux se vend");
+  const r = reponsePrixGC({ releve: fenetre, essence: "chene", quantite: 1 });
+  assert.ok(r && r.ok);
+  assert.ok(!r.modeles.some((m) => m.id.includes("-b")), "aucun dessin « barreaux en bas » : l'outil ne peut pas les dessiner ici");
+  const cles = r.modeles.map((m) => `${m.croix}|${m.soubassementMm > 0}|${m.traverse}`);
+  assert.equal(new Set(cles).size, cles.length, "chaque dessin une seule fois");
+  assert.equal(new Set(r.modeles.map((m) => m.id)).size, r.modeles.length);
+});
+
+test("ce qui écarte un carré entier (solidité, fixation) ne dépend pas du dessin", () => {
+  // configurerGC s'appuie dessus (calcul.ts, « ecarte ») : avec la vis de l'atelier, les carrés de 12 et 14 sortent toujours.
+  for (const allegeMm of [0, 400, 650, 735])
+    for (const largeurMm of [300, 900, 1180, 1500, 2000])
+      for (const s of ORDRE_CARRES) {
+        const vus = new Set<string>();
+        for (const b of [false, true])
+          for (const t of [false, true])
+            for (let n = 1; n <= CROIX_MAX; n++) {
+              const alertes: string[] = calculerGC({ ...valeursGC(DEFAUTS_GC, releve({ largeurMm, allegeMm }), s, n, b, t), _rapide: true }).alertes;
+              if (alertes.some((a) => a.startsWith("Le garde-corps est trop petit"))) continue;
+              vus.add(`${alertes.some((a) => a.startsWith("Solidité"))}|${alertes.some((a) => a.startsWith("Fixation"))}`);
+            }
+        assert.ok(vus.size <= 1, `${largeurMm} × ${allegeMm}, carré ${s} : ${[...vus].join(" / ")}`);
+      }
 });

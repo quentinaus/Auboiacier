@@ -36,6 +36,32 @@ export const JOUR_GC_MM = 90;
 /** En étage, à partir de cette allège, la loi n'impose plus de protection (ALLEGE_LIBRE du moteur). */
 export const ALLEGE_SANS_OBLIGATION_MM = 900;
 
+/**
+ * LA HAUTEUR DE LA MAIN COURANTE, DEPUIS LE SOL : elle ne bouge jamais (décision de Quentin, 04/10/2026).
+ * La loi demande 1 000 mm au moins ; l'atelier vise 1 025 (HAUT_ETAGE + CIBLE_MARGE du moteur), en étage
+ * comme au rez-de-chaussée. C'est le garde-corps qui grandit ou rapetisse avec le bas de la fenêtre.
+ */
+export const MAIN_COURANTE_MM = 1025;
+
+/** Un garde-corps à croix ne se fabrique pas plus bas (MINI_GC du moteur) : en dessous, une barre d'appui. */
+export const MINI_GC_MM = 200;
+
+/** L'épaisseur d'une barre d'appui (BARRE_APPUI du moteur). */
+export const BARRE_APPUI_MM = 40;
+
+/**
+ * Ce que la règle de l'outil donne pour un bas de fenêtre (geomGC : hNorme, appui) : un garde-corps dont la
+ * main courante arrive pile à MAIN_COURANTE_MM, une barre d'appui, ou rien. Le croquis s'en sert pour suivre
+ * le curseur EN DIRECT, sans attendre le serveur ; un test vérifie, millimètre par millimètre, que c'est bien
+ * la règle du moteur. Le prix, les croix et la norme, eux, ne viennent que du serveur.
+ */
+export function formeGC(allegeMm: number): { mode: "garde-corps" | "barre" | "aucun"; hauteurMm: number; jourMm: number } {
+  const manque = Math.ceil(MAIN_COURANTE_MM - allegeMm - JOUR_GC_MM);
+  if (manque >= MINI_GC_MM) return { mode: "garde-corps", hauteurMm: manque, jourMm: JOUR_GC_MM };
+  if (MAIN_COURANTE_MM - allegeMm >= BARRE_APPUI_MM) return { mode: "barre", hauteurMm: BARRE_APPUI_MM, jourMm: MAIN_COURANTE_MM - allegeMm - BARRE_APPUI_MM };
+  return { mode: "aucun", hauteurMm: 0, jourMm: 0 };
+}
+
 /** Ce que le client relève à sa fenêtre, en millimètres entiers. */
 export type ReleveGC = {
   /** Largeur entre les tableaux (B dans l'outil). */
@@ -50,20 +76,35 @@ export type ReleveGC = {
    * Le modèle choisi par le client parmi ceux que la norme permet pour sa
    * fenêtre : « carré-croix », par exemple « 16-3 » ; suivi de « -b » quand
    * des barreaux droits ferment le bas (« 16-5-b »). Absent : celui que
-   * l'outil retient de lui-même. Le serveur revérifie toujours qu'il passe
-   * la norme : un modèle forgé ne donne ni prix ni commande.
+   * l'outil retient de lui-même. C'est le DESSIN qui est choisi (croix,
+   * barreaux) : le carré de l'identifiant est indicatif, le serveur retient
+   * toujours le premier carré de l'atelier qui passe la norme. Il revérifie
+   * toujours le dessin : un modèle forgé ne donne ni prix ni commande.
    */
   modele?: string;
 };
 
-/** Un modèle : la section du carré (12 à 20), un tiret, le nombre de croix (1 à 6). */
-const MODELE_GC = /^(12|14|16|18|20)-([1-6])(-b)?$/;
+/**
+ * Un modèle : la section du carré (12 à 20), un tiret, le nombre de croix (1 à 6) ; puis « -b » (barreaux droits
+ * en bas) et « -t » (une traverse au milieu de chaque croix : la solution de l'outil quand le vide entre les
+ * barres est trop grand).
+ */
+const MODELE_GC = /^(12|14|16|18|20)-([1-6])(-b)?(-t)?$/;
 
-/** Lit « 16-3 » ; null si ce n'est pas un modèle. */
-export function lireModeleGC(m: unknown): { carre: number; croix: number; barreauxBas: boolean } | null {
+/** Lit « 16-3 », « 16-2-t », « 16-5-b-t » ; null si ce n'est pas un modèle. */
+export function lireModeleGC(m: unknown): { carre: number; croix: number; barreauxBas: boolean; traverse: boolean } | null {
   const r = typeof m === "string" ? MODELE_GC.exec(m) : null;
-  return r ? { carre: Number(r[1]), croix: Number(r[2]), barreauxBas: r[3] !== undefined } : null;
+  return r ? { carre: Number(r[1]), croix: Number(r[2]), barreauxBas: r[3] !== undefined, traverse: r[4] !== undefined } : null;
 }
+
+/** L'identifiant d'un dessin (le carré est indicatif : le serveur le choisit). */
+export function idModeleGC(carre: number, croix: number, barreauxBas: boolean, traverse: boolean): string {
+  return `${carre}-${croix}${barreauxBas ? "-b" : ""}${traverse ? "-t" : ""}`;
+}
+
+/** Pourquoi le serveur ne donne pas de prix pour un relevé. */
+export type RaisonSansPrixGC = "a-etudier" | "fenetre-trop-basse" | "barre-appui" | "sans-garde-corps";
+export const RAISONS_SANS_PRIX_GC: readonly RaisonSansPrixGC[] = ["a-etudier", "fenetre-trop-basse", "barre-appui", "sans-garde-corps"];
 
 /** Un modèle conforme proposé au client, tel que le serveur le donne : jamais un coût. */
 export type ModeleGC = {
@@ -71,10 +112,17 @@ export type ModeleGC = {
   id: string;
   /** Ce dessin passe-t-il la norme pour CETTE fenêtre ? Sinon : montré au catalogue, mais pas vendu (prix 0). */
   conforme: boolean;
+  /**
+   * Pourquoi ce dessin ne va pas AVEC CETTE FENÊTRE (vide entre les barres trop grand, lisse pas assez
+   * rigide sur cette largeur…) : le modèle n'est pas en cause, c'est l'association des deux. Vide s'il convient.
+   */
+  raisons: CodeAlerteGC[];
   croix: number;
   carre: number;
   /** Hauteur des barreaux droits en partie basse ; 0 : aucun. */
   soubassementMm: number;
+  /** Une traverse au milieu de chaque croix. */
+  traverse: boolean;
   /** Hauteur du garde-corps dans ce modèle, main courante comprise (pour le dessiner à l'échelle). */
   hauteurMm: number;
   /** Le prix d'UNE pièce dans ce modèle, options comprises. */
@@ -82,21 +130,23 @@ export type ModeleGC = {
   kg: number;
 };
 
-/** Combien de modèles la route propose au plus. */
-export const MODELES_GC_MAX = 12;
+/** Combien de modèles la route propose au plus : 6 croix × (croix seules, traverse, barreaux, barreaux + traverse). */
+export const MODELES_GC_MAX = 24;
 
 /**
  * Le relevé qui fait le « à partir de » du garde-corps : le plus petit que
  * l'outil fabrique — la fenêtre la plus étroite (300 mm), en étage, avec un
- * appui à 90 cm du sol (la loi n'impose alors rien : le garde-corps a sa
- * hauteur minimale). Le prix annoncé est celui de l'outil pour ce relevé, dans
+ * bas de fenêtre à 735 mm du sol (le garde-corps a alors sa hauteur minimale,
+ * 200 mm, et sa main courante arrive pile à la norme ; plus haut, une barre
+ * d'appui suffit). Le prix annoncé est celui de l'outil pour ce relevé, dans
  * l'essence la moins chère : aucun garde-corps ne coûte moins (un test le
  * vérifie). À AJUSTER par Quentin s'il préfère annoncer une fenêtre courante.
  */
-export const RELEVE_DEPART_GC: ReleveGC = { largeurMm: BORNES_RELEVE_GC.largeurMm.min, allegeMm: 900, enEtage: true, fenetreMm: 0 };
+export const RELEVE_DEPART_GC: ReleveGC = { largeurMm: BORNES_RELEVE_GC.largeurMm.min, allegeMm: 735, enEtage: true, fenetreMm: 0 };
 
 /** Les alertes de l'outil, réduites à un mot-clé que le site sait traduire. */
 export type CodeAlerteGC =
+  | "barre-appui"
   | "trous"
   | "solidite"
   | "fenetre"
@@ -105,6 +155,7 @@ export type CodeAlerteGC =
   | "fixation"
   | "trop-petit"
   | "jour"
+  | "jeu"
   | "main-courante"
   | "autre";
 
@@ -129,6 +180,8 @@ export type ReponsePrixGC =
       carre: number;
       /** La hauteur des barreaux droits en partie basse (le cadre commence sous 600 mm du sol) ; 0 : aucun. */
       soubassementMm: number;
+      /** Une traverse au milieu de chaque croix. */
+      traverse: boolean;
       /** Poids d'une pièce, arrondi au kilo. */
       kg: number;
       /** En étage avec une allège sous 900 mm : la loi impose la protection. */
@@ -139,8 +192,13 @@ export type ReponsePrixGC =
   | {
       ok: false;
       conforme: false;
-      /** « à étudier » : rien ne passe la norme avec les croix du modèle ; « fenêtre trop basse » : ne tient pas dans l'ouverture. */
-      raison: "a-etudier" | "fenetre-trop-basse";
+      /**
+       * « à étudier » : rien ne passe la norme avec les croix du modèle ; « fenêtre trop basse » : ne tient
+       * pas dans l'ouverture ; « barre d'appui » : le bas de la fenêtre est haut, il manque moins que la
+       * hauteur du plus petit garde-corps pour arriver à la norme — une simple barre suffit (sur devis) ;
+       * « sans garde-corps » : le bas de la fenêtre est déjà à la hauteur de la norme.
+       */
+      raison: RaisonSansPrixGC;
       hauteurMm: number;
       mainCouranteMm: number;
       jourMm: number;
@@ -189,7 +247,7 @@ export function parametresPrixGC(r: ReleveGC, o: OptionsGC): URLSearchParams {
   return p;
 }
 
-const CODES: readonly CodeAlerteGC[] = ["trous", "solidite", "fenetre", "hauteur", "soubassement", "fixation", "trop-petit", "jour", "main-courante", "autre"];
+const CODES: readonly CodeAlerteGC[] = ["barre-appui", "trous", "solidite", "fenetre", "hauteur", "soubassement", "fixation", "trop-petit", "jour", "jeu", "main-courante", "autre"];
 
 /**
  * Relit la réponse de la route, champ par champ : un format inattendu (une
@@ -209,11 +267,13 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
     const lu = lireModeleGC(x.id);
     if (!lu || x.croix !== lu.croix || x.carre !== lu.carre || typeof x.conforme !== "boolean") return null;
     if (!entier(x.soubassementMm) || !entier(x.hauteurMm, 1) || !entier(x.prix, x.conforme ? 1 : 0) || !entier(x.kg)) return null;
-    modeles.push({ id: x.id as string, conforme: x.conforme, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, hauteurMm: x.hauteurMm as number, prix: x.prix as number, kg: x.kg as number });
+    const raisons = Array.isArray(x.raisons) ? x.raisons.filter((a): a is CodeAlerteGC => CODES.includes(a as CodeAlerteGC)) : [];
+    if (x.traverse !== lu.traverse) return null;
+    modeles.push({ id: x.id as string, conforme: x.conforme, raisons, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, traverse: lu.traverse, hauteurMm: x.hauteurMm as number, prix: x.prix as number, kg: x.kg as number });
   }
   if (o.ok === true && o.conforme === true) {
     if (!entier(o.prix, 1) || !(typeof o.remise === "number" && Number.isInteger(o.remise) && o.remise <= 0)) return null;
-    if (!entier(o.croix, 1) || !entier(o.carre, 1) || !entier(o.soubassementMm) || !entier(o.kg)) return null;
+    if (!entier(o.croix, 1) || !entier(o.carre, 1) || !entier(o.soubassementMm) || !entier(o.kg) || typeof o.traverse !== "boolean") return null;
     return {
       ok: true,
       conforme: true,
@@ -222,14 +282,15 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
       croix: o.croix as number,
       carre: o.carre as number,
       soubassementMm: o.soubassementMm as number,
+      traverse: o.traverse,
       kg: o.kg as number,
       modeles,
       ...commun,
     };
   }
-  if (o.ok === false && o.conforme === false && (o.raison === "a-etudier" || o.raison === "fenetre-trop-basse")) {
+  if (o.ok === false && o.conforme === false && RAISONS_SANS_PRIX_GC.includes(o.raison as RaisonSansPrixGC)) {
     const alertes = Array.isArray(o.alertes) ? o.alertes.filter((a): a is CodeAlerteGC => CODES.includes(a as CodeAlerteGC)) : [];
-    return { ok: false, conforme: false, raison: o.raison, alertes, modeles, ...commun };
+    return { ok: false, conforme: false, raison: o.raison as RaisonSansPrixGC, alertes, modeles, ...commun };
   }
   return null;
 }
