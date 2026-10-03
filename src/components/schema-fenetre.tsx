@@ -299,9 +299,6 @@ export function SchemaFenetre({
   const HAUT_OUVERTURE_Y = r(appuiY - fenetre); // le haut du tableau
   const basGardeCorpsY = r(appuiY - jour); // le bas du cadre, 100 mm au-dessus de l'appui
   const hautGardeCorpsY = r(basGardeCorpsY - hauteur); // dessus de la main courante
-  // La ligne en pointillé : 1 m du sol, la hauteur que la loi demande. Elle ne bouge pas quand on change
-  // les cotes ; c'est la fenêtre et le garde-corps qui montent ou descendent par rapport à elle.
-  const regleY = r(SOL_Y - 1000 * echelle);
   const G = r(CENTRE - largeur / 2); // tableau gauche
   const D = r(CENTRE + largeur / 2); // tableau droit
   /** Les croix de l'outil ; en attendant sa réponse, une par panneau d'environ 60 cm. */
@@ -427,9 +424,7 @@ export function SchemaFenetre({
       <rect x={G - 10} y={appuiY} width={D - G + 20} height={EP_APPUI} fill="#e4dccd" stroke="#b7aa94" strokeWidth={0.7} />
       <rect x={G - 10} y={appuiY + EP_APPUI} width={D - G + 20} height={Math.max(1, EP_APPUI / 3)} fill="#5a4a35" opacity={0.18} />
 
-      {/* La ligne de la règle : c'est elle qu'on regarde. Elle affleure le
-          dessus de la main courante. */}
-      <line x1={0} y1={regleY} x2={LARGEUR} y2={regleY} stroke={ACCENT} strokeWidth={1.1} strokeDasharray="4 3" opacity={0.9} />
+      {/* Plus de ligne en pointillé en travers du dessin (demande du 04/10) : la main courante se lit toute seule. */}
       {/* Pas de cartouche chiffré sur la ligne (demande du 03/10) : la hauteur est dite dans le résultat,
           à côté ; sur le dessin, elle se lisait mal et chargeait le croquis. */}
 
