@@ -348,7 +348,7 @@ export function ReleveGardeCorps({
       ? fr
         ? "l'espace entre les barres serait trop grand"
         : "the gap between the bars would be too wide"
-      : raisons.includes("solidite")
+      : raisons.includes("solidite") || raisons.includes("charge-verticale")
         ? fr
           ? "sur cette largeur, il ne serait pas assez rigide"
           : "over this width it would not be stiff enough"
@@ -364,7 +364,11 @@ export function ReleveGardeCorps({
               ? fr
                 ? "le garde-corps serait trop bas pour ce dessin"
                 : "the railing would be too low for this design"
-              : "";
+              : raisons.includes("fixation")
+                ? fr
+                  ? "sur cette largeur, la fixation dans le mur est à étudier"
+                  : "over this width, the wall fixing needs a study"
+                : "";
   // « Ce n'est pas le modèle qui n'est pas aux normes, c'est l'ensemble modèle + fenêtre » (Quentin, 04/10).
   const pasAdapte = (m: { raisons: readonly string[] }) => {
     const mots = raisonEnMots(m.raisons);
@@ -661,6 +665,7 @@ export function ReleveGardeCorps({
               croix={dessin?.ok ? dessin.croix : undefined}
               soubassementMm={dessin?.ok ? dessin.soubassementMm : 0}
               traverse={dessin?.ok ? dessin.traverse : false}
+              renfort={dessin?.ok ? dessin.renfort : false}
               rosaceMm={rosaceMm}
               apercu={commence && !dessin?.ok}
               remplissage={surVerre ? "verre" : "croix"}
@@ -877,7 +882,7 @@ export function ReleveGardeCorps({
                 <div role="alert">
                   <p className="font-medium text-[#2b2320]">{t.gcAEtudierTitre}</p>
                   <p className="mt-1 text-[#5c5140]">
-                    {reponse.alertes.includes("solidite") ? t.gcAEtudierSolidite : t.gcAEtudier} {lienEtude}
+                    {reponse.alertes.includes("solidite") || reponse.alertes.includes("fixation") || reponse.alertes.includes("charge-verticale") ? t.gcAEtudierSolidite : t.gcAEtudier} {lienEtude}
                   </p>
                 </div>
               )}
@@ -909,6 +914,8 @@ export function ReleveGardeCorps({
                       .replace("{j}", nombre(conforme.jourMm))}
                     {conforme.soubassementMm > 0 ? ` ${t.gcSoubassement}` : ""}
                   </p>
+                  {/* Fenêtre large : le renfort est compris dans le prix ; on dit ce qu'il change, et que le mur compte. */}
+                  {conforme.renfort && <p className="mt-1.5 rounded-lg bg-[#f3ede3] px-2.5 py-1.5 text-[#4a3f33]">{t.gcRenfort}</p>}
                   {PROPOSER_VERRE && verre && (
                     <p className="mt-1 text-[#5c5140]">
                       {surVerre ? (
@@ -1058,6 +1065,7 @@ const MODELES_VITRINE: ModeleGC[] = ([[false, false], [false, true], [true, fals
     carre: 16,
     soubassementMm: b ? 150 : 0,
     traverse: t,
+    renfort: false,
     hauteurMm: b ? 520 : 350,
     prix: 0,
     kg: 0,

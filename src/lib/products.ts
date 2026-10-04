@@ -2459,6 +2459,8 @@ export type ResolvedLine = {
     soubassement: boolean;
     /** Une traverse au milieu de chaque croix. */
     traverse: boolean;
+    /** Fenêtre large : un fer plat caché sous la main courante raidit la lisse haute. */
+    renfort: boolean;
     /** Le poids d'une pièce : celui de l'outil, plus le verre s'il remplace les croix. */
     kg: number;
   };
@@ -2931,6 +2933,8 @@ export type ReponseReleve =
       soubassement: boolean;
       /** Une traverse au milieu de chaque croix. */
       traverse: boolean;
+      /** Fenêtre large : un fer plat caché sous la main courante raidit la lisse haute. */
+      renfort: boolean;
       /** Le poids d'une pièce, en kilos (celui de l'outil). */
       kg: number;
     }
@@ -2941,7 +2945,8 @@ export type PrixReleve = (releve: ReleveGC & { essence: string }) => ReponseRele
 const mmEntier = (x: unknown) => (typeof x === "number" && Number.isInteger(x) && x >= 0 ? x : undefined);
 
 /**
- * « Sur mesure — 1 180 × 285 mm, 4 croix, traverse au milieu, barreaux en bas, acier carré de 16 », dans la langue du client.
+ * « Sur mesure — 1 180 × 285 mm, 4 croix, traverse au milieu, barreaux en bas, acier carré de 16 », dans la langue du client
+ * (et « , lisse haute renforcée » quand la fenêtre est large : un fer plat caché sous la main courante).
  * Le libellé part sur le bon de commande : il doit dire CE QUI EST VENDU. Deux modèles à des prix différents
  * (avec ou sans barreaux en bas, carré de 16 ou de 18) portaient le même libellé : l'atelier ne pouvait les
  * distinguer que par le prix.
@@ -2951,17 +2956,18 @@ export function libelleGardeCorps(
   hauteurMm: number,
   croix: number | null,
   locale: Locale = "fr",
-  modele: { soubassement?: boolean; carre?: number; traverse?: boolean } = {}
+  modele: { soubassement?: boolean; carre?: number; traverse?: boolean; renfort?: boolean } = {}
 ) {
   const langue = locale === "en" ? "en-GB" : "fr-FR";
   const cotes = `${largeurMm.toLocaleString(langue)} × ${hauteurMm.toLocaleString(langue)} mm`;
   const prefixe = locale === "en" ? "Custom" : "Sur mesure";
-  if (croix === null) return `${prefixe} — ${cotes}`;
+  const renfort = modele.renfort ? (locale === "en" ? ", reinforced top rail" : ", lisse haute renforcée") : "";
+  if (croix === null) return `${prefixe} — ${cotes}${renfort}`;
   const mot = locale === "en" ? (croix > 1 ? "crosses" : "cross") : "croix";
   const traverse = modele.traverse ? (locale === "en" ? ", middle rail" : ", traverse au milieu") : "";
   const barreaux = modele.soubassement ? (locale === "en" ? ", bars below" : ", barreaux en bas") : "";
   const carre = modele.carre ? (locale === "en" ? `, ${modele.carre} mm square bar` : `, acier carré de ${modele.carre}`) : "";
-  return `${prefixe} — ${cotes}, ${croix} ${mot}${traverse}${barreaux}${carre}`;
+  return `${prefixe} — ${cotes}, ${croix} ${mot}${traverse}${barreaux}${carre}${renfort}`;
 }
 
 /**
@@ -3007,7 +3013,7 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
 
   const size: ProductSize = {
     id: SUR_MESURE,
-    label: libelleGardeCorps(largeurMm, r.hauteurMm, verre ? null : r.croix, selection.locale, { soubassement: r.soubassement, carre: r.carre, traverse: r.traverse }),
+    label: libelleGardeCorps(largeurMm, r.hauteurMm, verre ? null : r.croix, selection.locale, { soubassement: r.soubassement, carre: r.carre, traverse: r.traverse, renfort: r.renfort }),
     price: r.prix,
     dimsMm: [largeurMm, r.hauteurMm],
   };
@@ -3040,6 +3046,7 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
         carre: r.carre,
         soubassement: r.soubassement,
         traverse: r.traverse,
+        renfort: r.renfort,
         kg: r.kg + (verre ? ((largeurMm * r.hauteurMm) / 1e6) * VERRE_KG_PAR_M2 : 0),
       },
     },

@@ -123,6 +123,11 @@ export type ModeleGC = {
   soubassementMm: number;
   /** Une traverse au milieu de chaque croix. */
   traverse: boolean;
+  /**
+   * Fenêtre large : la lisse haute est renforcée par un fer plat soudé dessus, caché sous une main courante
+   * plus large (décision de Quentin, 04/10/2026). C'est le serveur qui le décide, jamais le client.
+   */
+  renfort: boolean;
   /** Hauteur du garde-corps dans ce modèle, main courante comprise (pour le dessiner à l'échelle). */
   hauteurMm: number;
   /** Le prix d'UNE pièce dans ce modèle, options comprises. */
@@ -157,6 +162,7 @@ export type CodeAlerteGC =
   | "jour"
   | "jeu"
   | "main-courante"
+  | "charge-verticale"
   | "autre";
 
 /** Ce que rend /api/prix-garde-corps : le prix et la forme retenue, JAMAIS un coût. */
@@ -182,6 +188,8 @@ export type ReponsePrixGC =
       soubassementMm: number;
       /** Une traverse au milieu de chaque croix. */
       traverse: boolean;
+      /** Fenêtre large : un fer plat caché sous la main courante raidit la lisse haute. */
+      renfort: boolean;
       /** Poids d'une pièce, arrondi au kilo. */
       kg: number;
       /** En étage avec une allège sous 900 mm : la loi impose la protection. */
@@ -247,7 +255,7 @@ export function parametresPrixGC(r: ReleveGC, o: OptionsGC): URLSearchParams {
   return p;
 }
 
-const CODES: readonly CodeAlerteGC[] = ["barre-appui", "trous", "solidite", "fenetre", "hauteur", "soubassement", "fixation", "trop-petit", "jour", "jeu", "main-courante", "autre"];
+const CODES: readonly CodeAlerteGC[] = ["barre-appui", "trous", "solidite", "fenetre", "hauteur", "soubassement", "fixation", "trop-petit", "jour", "jeu", "main-courante", "charge-verticale", "autre"];
 
 /**
  * Relit la réponse de la route, champ par champ : un format inattendu (une
@@ -269,7 +277,7 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
     if (!entier(x.soubassementMm) || !entier(x.hauteurMm, 1) || !entier(x.prix, x.conforme ? 1 : 0) || !entier(x.kg)) return null;
     const raisons = Array.isArray(x.raisons) ? x.raisons.filter((a): a is CodeAlerteGC => CODES.includes(a as CodeAlerteGC)) : [];
     if (x.traverse !== lu.traverse) return null;
-    modeles.push({ id: x.id as string, conforme: x.conforme, raisons, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, traverse: lu.traverse, hauteurMm: x.hauteurMm as number, prix: x.prix as number, kg: x.kg as number });
+    modeles.push({ id: x.id as string, conforme: x.conforme, raisons, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, traverse: lu.traverse, renfort: x.renfort === true, hauteurMm: x.hauteurMm as number, prix: x.prix as number, kg: x.kg as number });
   }
   if (o.ok === true && o.conforme === true) {
     if (!entier(o.prix, 1) || !(typeof o.remise === "number" && Number.isInteger(o.remise) && o.remise <= 0)) return null;
@@ -283,6 +291,7 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
       carre: o.carre as number,
       soubassementMm: o.soubassementMm as number,
       traverse: o.traverse,
+      renfort: o.renfort === true,
       kg: o.kg as number,
       modeles,
       ...commun,

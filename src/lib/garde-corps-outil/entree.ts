@@ -17,6 +17,9 @@ export type EntreeSiteGC = ReleveGC & {
   essence: EssenceGC;
 };
 
+/** Avec le fer plat de renfort, l'atelier garde son carré de 16 (décision de Quentin, 04/10/2026). */
+export const CARRE_RENFORT = 16;
+
 /**
  * Décision de Quentin (29/09) : le carré de 16 d'abord, avec le moins de
  * croix qui passe la norme ; si rien ne passe en 16, les autres carrés de 12
@@ -32,7 +35,7 @@ export const CROIX_MAX = 6;
  * avec rosaces, main courante en bois, hauteur calculée pour la norme, rien
  * sous la fenêtre, barreaux en bas seulement si la norme les demande).
  */
-export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: number, nP: number, barreauxBas = false, traverse = false) {
+export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: number, nP: number, barreauxBas = false, traverse = false, renfort = false) {
   return {
     ...defauts,
     B: e.largeurMm,
@@ -49,6 +52,9 @@ export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: numb
     sbMode: barreauxBas ? "toujours" : "auto",
     // Une traverse au milieu de chaque croix (un des modèles au choix) : elle coupe les vides en deux.
     traverse,
+    // Fenêtre large : un fer plat soudé sur la lisse haute, caché sous une main courante plus large. Le site ne
+    // l'ajoute que lorsqu'aucun carré de l'atelier n'est assez rigide seul (calcul.ts).
+    renfort: renfort ? "plat" : "sans",
     s,
     nP,
   };
@@ -67,6 +73,7 @@ const CODES: [string, CodeAlerteGC][] = [
   ["Jour sous le cadre", "jour"],
   ["Jeu total", "jeu"],
   ["Main courante", "main-courante"],
+  ["Charge verticale", "charge-verticale"],
 ];
 
 export function codeAlerte(texte: string): CodeAlerteGC {

@@ -1,21 +1,21 @@
 {
  "à lire": "Généré par scripts/extraire-moteur-garde-corps.mjs à partir de l'outil de plans (chargé tel quel dans node:vm). Aucun coût : des prix de vente, des poids, des hauteurs et des empreintes (sha256 tronqué) des réponses complètes. Ne pas modifier à la main.",
- "outil": "df33a7323b62d0e05330eba492ff37c83b10c1dba6eb57038b61e28e837ae8e6",
+ "outil": "7debafb735a47e76154fbc841e9948803aea1fa71bba4e3b4f1fe36508a02c2c",
  "empreintes": {
-  "moteur": "14f1f1abd92e",
-  "devis": "d1ecf8b7c488",
-  "chiffrage": "400c81016ec1"
+  "moteur": "43a8c467e10a",
+  "devis": "2a7f832fead7",
+  "chiffrage": "c19a9dfe21fc"
  },
- "defauts": "04a70457d483d769",
+ "defauts": "1689a0fa55c07397",
  "date": "2026-09-29T10:00:00.000Z",
  "cas": [
   {
    "nom": "valeurs de départ de l'outil",
    "valeurs": {},
-   "R": "8f7369f0d5a19202",
+   "R": "03684a2edc7d31c8",
    "hauteurGC": 285,
    "kg": 11.586496206695967,
-   "alertes": 1,
+   "alertes": 2,
    "prix": 340,
    "chiffrage": "23309454f4e95a90",
    "remise": {
@@ -29,14 +29,14 @@
     "donnees": "01fa52a13c2ee75f",
     "html": "61482ac42d769a2e"
    },
-   "variantes": "eb6be1607b1d61fe"
+   "variantes": "e5437b034595fb2a"
   },
   {
    "nom": "photo du site, 4 croix",
    "valeurs": {
     "nP": 4
    },
-   "R": "f8379e7417557f4b",
+   "R": "d85393eba5c033cf",
    "hauteurGC": 285,
    "kg": 13.93871978926249,
    "alertes": 0,
@@ -60,7 +60,7 @@
     "B": 1195,
     "nP": 3
    },
-   "R": "03190e5d5a22a5f6",
+   "R": "8ca69ad12f3d0699",
    "hauteurGC": 285,
    "kg": 13.15452127255788,
    "alertes": 1,
@@ -77,7 +77,7 @@
     "donnees": "42a98ff6f2179ae4",
     "html": "ed4327fca4603bd9"
    },
-   "variantes": "60634a40a8e82acd"
+   "variantes": "da4b8675998eaeba"
   },
   {
    "nom": "juste au-delà, carré 16",
@@ -85,7 +85,7 @@
     "B": 1200,
     "nP": 3
    },
-   "R": "df25c5af846137f9",
+   "R": "f421fb3d2610e6bb",
    "hauteurGC": 285,
    "kg": 13.197213301258028,
    "alertes": 2,
@@ -110,7 +110,7 @@
     "s": 18,
     "nP": 4
    },
-   "R": "ef72c22bbe672bf0",
+   "R": "f782f86463afe7af",
    "hauteurGC": 285,
    "kg": 17.329978192330188,
    "alertes": 0,
@@ -136,7 +136,7 @@
     "nP": 2
    },
    "chantier": "12 rue des Lilas, 44000 Nantes",
-   "R": "e81b805ff47eeaee",
+   "R": "5dd6cd1f6338d027",
    "hauteurGC": 635,
    "kg": 16.599922153974305,
    "alertes": 1,
@@ -162,7 +162,7 @@
     "etage": false,
     "nP": 2
    },
-   "R": "04e0a5e5e66101a6",
+   "R": "d2a1f1aaf0614442",
    "hauteurGC": 935,
    "kg": 20.022727787429087,
    "alertes": 1,
@@ -186,7 +186,7 @@
     "B": 300,
     "A": 900
    },
-   "R": "9963438b5f3f4bb9",
+   "R": "9758da4b66bebcf2",
    "hauteurGC": 200,
    "kg": 3.2840222715711174,
    "alertes": 1,
@@ -212,7 +212,7 @@
     "s": 20,
     "nP": 6
    },
-   "R": "689fb0eb5c2b0d95",
+   "R": "0aa5164fa03dbc63",
    "hauteurGC": 435,
    "kg": 63.433907065313385,
    "alertes": 2,
@@ -238,10 +238,10 @@
     "mcType": "acier",
     "rosace": false
    },
-   "R": "75acec650383cb03",
+   "R": "f035918c420fd0e1",
    "hauteurGC": 210,
    "kg": 11.059826638549977,
-   "alertes": 0,
+   "alertes": 1,
    "prix": 310,
    "chiffrage": "b40182da55012de1",
    "remise": {
@@ -249,11 +249,11 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-X49VV",
+    "numero": "D-20260929-1GSLM",
     "total": 310,
     "lignes": 5,
-    "donnees": "8a2c6f14cc81f056",
-    "html": "49397c8acc953b34"
+    "donnees": "986e05aed9ef752d",
+    "html": "610fb7b2478db82d"
    }
   },
   {
@@ -263,10 +263,10 @@
     "A": 599,
     "mcType": "profil"
    },
-   "R": "f6ba218425ffdbdc",
+   "R": "388bb35bfd0487fa",
    "hauteurGC": 336,
    "kg": 15.446454162072452,
-   "alertes": 2,
+   "alertes": 3,
    "prix": 360,
    "chiffrage": "13dd7bb9aa3589ad",
    "remise": {
@@ -288,10 +288,10 @@
     "A": 600,
     "Hf": 300
    },
-   "R": "675cf7010283bf53",
+   "R": "7d4ecb318294cfa3",
    "hauteurGC": 335,
    "kg": 10.229529947356024,
-   "alertes": 2,
+   "alertes": 3,
    "prix": 340,
    "chiffrage": "d5c144f986d17067",
    "remise": {
@@ -316,10 +316,10 @@
     "km": 250
    },
    "chantier": "33000 Bordeaux",
-   "R": "325e5ee87d8c51d3",
+   "R": "076c04efd7c27cf5",
    "hauteurGC": 1285,
    "kg": 28.38386781054879,
-   "alertes": 1,
+   "alertes": 2,
    "prix": 580,
    "chiffrage": "6570c22e1b2094a7",
    "remise": {
@@ -345,7 +345,7 @@
     "nP": 6
    },
    "chantier": "Tours 37000",
-   "R": "0a2526915b2cac7b",
+   "R": "074802b08d804383",
    "hauteurGC": 200,
    "kg": 31.239879987931168,
    "alertes": 2,
@@ -374,10 +374,10 @@
     "essence": "noyer",
     "rainure": false
    },
-   "R": "d825ef00ae23d681",
+   "R": "078ec8787b638727",
    "hauteurGC": 535,
    "kg": 14.831320160513556,
-   "alertes": 1,
+   "alertes": 2,
    "prix": 520,
    "chiffrage": "42660d698b60d6f9",
    "remise": {
@@ -401,10 +401,10 @@
     "remise": "transporteur",
     "km": 60
    },
-   "R": "d78cbfc3b24b851b",
+   "R": "e41820ce79161c1e",
    "hauteurGC": 285,
    "kg": 9.966376430678451,
-   "alertes": 1,
+   "alertes": 2,
    "prix": 340,
    "chiffrage": "5178091505d66007",
    "remise": {
@@ -429,10 +429,10 @@
     "km": 10,
     "nP": 1
    },
-   "R": "19e49a3785aca4ca",
+   "R": "1aee0611a2e04a7d",
    "hauteurGC": 200,
    "kg": 6.824974061142441,
-   "alertes": 1,
+   "alertes": 2,
    "prix": 320,
    "chiffrage": "78e59c8dee28f8cc",
    "remise": {
@@ -456,7 +456,7 @@
     "essence": "hetre",
     "nP": 3
    },
-   "R": "5ce544f6c04b77b8",
+   "R": "28998b04c704a506",
    "hauteurGC": 685,
    "kg": 22.67414548872896,
    "alertes": 1,
@@ -489,7 +489,7 @@
     "nP": 4
    },
    "chantier": "49400 Saumur",
-   "R": "a21c5e0ac01a3c12",
+   "R": "fcfe96ffef5d24a3",
    "hauteurGC": 365,
    "kg": 19.413284913329715,
    "alertes": 0,
@@ -521,7 +521,7 @@
     "ass": "onglet",
     "nP": 6
    },
-   "R": "d68bca74aaed892c",
+   "R": "aa955f4dcf17c336",
    "hauteurGC": 670,
    "kg": 21.974615416185152,
    "alertes": 0,
@@ -552,7 +552,7 @@
     "s": 16,
     "nP": 4
    },
-   "R": "56687216b6bf96ca",
+   "R": "2b403b5ce63c8058",
    "hauteurGC": 200,
    "kg": 17.378751258203685,
    "alertes": 2,
@@ -586,7 +586,7 @@
     "nP": 2
    },
    "chantier": "49400 Saumur",
-   "R": "14635133206fa1cf",
+   "R": "78c579921833fc7c",
    "hauteurGC": 655,
    "kg": 16.794996600733104,
    "alertes": 0,
@@ -618,7 +618,7 @@
     "rainure": false,
     "nP": 6
    },
-   "R": "ab2813cbc514ae96",
+   "R": "9cc6d82ef65f6844",
    "hauteurGC": 200,
    "kg": 14.116177402891116,
    "alertes": 2,
@@ -651,7 +651,7 @@
     "rainure": false,
     "nP": 2
    },
-   "R": "f9a07a3137bd5253",
+   "R": "e966263f4ab3fd30",
    "hauteurGC": 490,
    "kg": 5.842248467224007,
    "alertes": 2,
@@ -684,7 +684,7 @@
     "rainure": false,
     "nP": 3
    },
-   "R": "787ac09ef44c221c",
+   "R": "4833b1e657219a22",
    "hauteurGC": 935,
    "kg": 39.0638380574264,
    "alertes": 2,
@@ -717,7 +717,7 @@
     "rainure": false,
     "nP": 1
    },
-   "R": "224f855d9cd67774",
+   "R": "411c3aec629c68d7",
    "hauteurGC": 570,
    "kg": 8.08806858237536,
    "alertes": 1,
@@ -749,10 +749,10 @@
     "nP": 1
    },
    "chantier": "49400 Saumur",
-   "R": "ca70b0c3703b0189",
+   "R": "9a2be190ebe7736d",
    "hauteurGC": 200,
    "kg": 6.592583719078489,
-   "alertes": 3,
+   "alertes": 4,
    "prix": 340,
    "chiffrage": "fc68464b3c867a23",
    "remise": {
@@ -781,7 +781,7 @@
     "jour": 75,
     "nP": 3
    },
-   "R": "b3a5a113ce9f15c9",
+   "R": "b14cd4081ba2b3a0",
    "hauteurGC": 790,
    "kg": 32.756014769588184,
    "alertes": 2,
@@ -813,7 +813,7 @@
     "nP": 5
    },
    "chantier": "49400 Saumur",
-   "R": "77e0dc85a8c92a8b",
+   "R": "f32988f83cb64767",
    "hauteurGC": 930,
    "kg": 39.67482948831191,
    "alertes": 2,
@@ -845,7 +845,7 @@
     "mcType": "acier",
     "nP": 4
    },
-   "R": "8a4a96f753bbdafb",
+   "R": "81b62a18d2b4b8bb",
    "hauteurGC": 900,
    "kg": 48.108269568684236,
    "alertes": 2,
@@ -878,7 +878,7 @@
     "nP": 3
    },
    "chantier": "49400 Saumur",
-   "R": "59288ddf64e9b6bd",
+   "R": "949b5a61c69c5236",
    "hauteurGC": 200,
    "kg": 14.235938577440713,
    "alertes": 2,
@@ -909,7 +909,7 @@
     "s": 16,
     "nP": 4
    },
-   "R": "42cad49ecd6e9cd5",
+   "R": "525bde0a8691d82a",
    "hauteurGC": 795,
    "kg": 27.129860061863017,
    "alertes": 1,
@@ -942,7 +942,7 @@
     "Hs": 660,
     "nP": 5
    },
-   "R": "b7a9ad2e908aee8a",
+   "R": "0f22164a63187cce",
    "hauteurGC": 660,
    "kg": 29.80783741067726,
    "alertes": 0,
@@ -976,7 +976,7 @@
     "ass": "onglet",
     "nP": 2
    },
-   "R": "9b7393de0da46d4b",
+   "R": "132a7835eb916b2d",
    "hauteurGC": 750,
    "kg": 15.190518612054175,
    "alertes": 0,
@@ -1011,7 +1011,7 @@
     "Xo": 270,
     "nP": 5
    },
-   "R": "d251e88b4538bfe4",
+   "R": "2938ef13a9ea6c73",
    "hauteurGC": 975,
    "kg": 45.09963681433301,
    "alertes": 1,
@@ -1043,7 +1043,7 @@
     "sbMode": "toujours",
     "nP": 5
    },
-   "R": "c2388d1522c9d3eb",
+   "R": "4ca267a494102a74",
    "hauteurGC": 200,
    "kg": 12.885192570926993,
    "alertes": 1,
@@ -1078,7 +1078,7 @@
     "jour": 110,
     "nP": 5
    },
-   "R": "e5981e97074ce9f6",
+   "R": "3ee405fad92d805d",
    "hauteurGC": 540,
    "kg": 37.290110794057206,
    "alertes": 4,
@@ -1109,7 +1109,7 @@
     "s": 16,
     "nP": 5
    },
-   "R": "20be57e206cc7b7b",
+   "R": "e1694e12499ceeba",
    "hauteurGC": 200,
    "kg": 11.545838861073006,
    "alertes": 1,
@@ -1141,7 +1141,7 @@
     "nb": 1,
     "nP": 2
    },
-   "R": "bf53fdc4b9c38b37",
+   "R": "e87f3abaa4b3b4ac",
    "hauteurGC": 540,
    "kg": 22.26451836958298,
    "alertes": 1,
@@ -1173,7 +1173,7 @@
     "nP": 6
    },
    "chantier": "49400 Saumur",
-   "R": "46a9ea39e1841dd9",
+   "R": "5e5ec1d58a62713d",
    "hauteurGC": 715,
    "kg": 20.31486509007775,
    "alertes": 0,
@@ -1189,6 +1189,195 @@
     "lignes": 5,
     "donnees": "8edc1037c7100f5c",
     "html": "95d00e9a509a3dee"
+   }
+  },
+  {
+   "nom": "renfort, 1990 de large, 5 croix",
+   "valeurs": {
+    "B": 1990,
+    "A": 650,
+    "nP": 5,
+    "renfort": "plat"
+   },
+   "R": "60cc51d558b1361c",
+   "hauteurGC": 285,
+   "kg": 31.89925230305927,
+   "alertes": 0,
+   "prix": 860,
+   "chiffrage": "482caab76e1f33e7",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-8TODC",
+    "total": 860,
+    "lignes": 5,
+    "donnees": "4a89b52be523dc8c",
+    "html": "9614f6b636ccaa91"
+   }
+  },
+  {
+   "nom": "renfort, 2400 de large, traverse au milieu",
+   "valeurs": {
+    "B": 2400,
+    "A": 400,
+    "nP": 3,
+    "traverse": true,
+    "renfort": "plat"
+   },
+   "R": "3c3bd9e58c25f119",
+   "hauteurGC": 535,
+   "kg": 51.719109976145276,
+   "alertes": 1,
+   "prix": 1250,
+   "chiffrage": "111a1f608b6e7448",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-A8ZNG",
+    "total": 1250,
+    "lignes": 5,
+    "donnees": "b58aaa711d781300",
+    "html": "9eb227c8a4c132a5"
+   }
+  },
+  {
+   "nom": "renfort au-delà de 2400",
+   "valeurs": {
+    "B": 2500,
+    "A": 500,
+    "nP": 6,
+    "renfort": "plat"
+   },
+   "R": "0dffb099bca19686",
+   "hauteurGC": 435,
+   "kg": 49.57367050119775,
+   "alertes": 2,
+   "prix": 1380,
+   "chiffrage": "b39b18d8e29f0654",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-2IMU7",
+    "total": 1380,
+    "lignes": 5,
+    "donnees": "cb5160f08896509d",
+    "html": "6249e87390ac445b"
+   }
+  },
+  {
+   "nom": "renfort, bas de fenêtre haut",
+   "valeurs": {
+    "B": 1800,
+    "A": 720,
+    "nP": 5,
+    "renfort": "plat"
+   },
+   "R": "cab15ae16969291f",
+   "hauteurGC": 215,
+   "kg": 27.715290418821276,
+   "alertes": 1,
+   "prix": 830,
+   "chiffrage": "ed49debf9f329870",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-VLWLS",
+    "total": 830,
+    "lignes": 5,
+    "donnees": "8b274508f1e7e9a0",
+    "html": "62b8b52ebf6e492e"
+   }
+  },
+  {
+   "nom": "renfort pas nécessaire, noyer",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "nP": 4,
+    "renfort": "plat",
+    "essence": "noyer"
+   },
+   "R": "fdc092558fe20cb6",
+   "hauteurGC": 285,
+   "kg": 19.81855516431197,
+   "alertes": 0,
+   "prix": 690,
+   "chiffrage": "ae590ae8a9e0ba45",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-HVH9F",
+    "total": 690,
+    "lignes": 5,
+    "donnees": "5f0f5854f966c2df",
+    "html": "303b8b2d4aa2b63d"
+   }
+  },
+  {
+   "nom": "renfort demandé avec un plat d'acier",
+   "valeurs": {
+    "B": 1900,
+    "A": 600,
+    "nP": 5,
+    "renfort": "plat",
+    "mcType": "acier"
+   },
+   "R": "365771a9d1b92757",
+   "hauteurGC": 335,
+   "kg": 25.158329816994236,
+   "alertes": 2,
+   "prix": 670,
+   "chiffrage": "66c05e1aa58f94b2",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-SDGHG",
+    "total": 670,
+    "lignes": 5,
+    "donnees": "000353230ae703d2",
+    "html": "ee7367462933fa85"
+   }
+  },
+  {
+   "nom": "renfort, pin, transporteur",
+   "valeurs": {
+    "B": 2200,
+    "A": 300,
+    "nP": 6,
+    "renfort": "plat",
+    "essence": "pin",
+    "remise": "transporteur",
+    "km": 180
+   },
+   "chantier": "75011 Paris",
+   "R": "cf5a1561ddf64b75",
+   "hauteurGC": 635,
+   "kg": 51.825738581558376,
+   "alertes": 1,
+   "prix": 1310,
+   "chiffrage": "7abadb7b1d6c45e6",
+   "remise": {
+    "prix": 90,
+    "empreinte": "35692d18647d6e75"
+   },
+   "devis": {
+    "numero": "D-20260929-1DA9E",
+    "total": 1400,
+    "lignes": 6,
+    "donnees": "d4c49efae6f14486",
+    "html": "0c418e10b24bd43a"
    }
   }
  ],
@@ -1207,17 +1396,20 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "fixation",
@@ -1236,12 +1428,14 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -1263,7 +1457,8 @@
     ],
     "16": [
      [
-      "trous"
+      "trous",
+      "charge-verticale"
      ],
      [
       "trous"
@@ -1277,7 +1472,8 @@
     ],
     "18": [
      [
-      "trous"
+      "trous",
+      "charge-verticale"
      ],
      [
       "trous"
@@ -1304,10 +1500,22 @@
      []
     ]
    },
+   "renfort": [
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [],
+    [],
+    [],
+    []
+   ],
    "choix": {
     "carre": 16,
     "croix": 4,
-    "R": "f8379e7417557f4b",
+    "R": "d85393eba5c033cf",
     "hauteurGC": 285,
     "kg": 13.93871978926249,
     "prix": 560
@@ -1326,7 +1534,8 @@
     "12": [
      [
       "trous",
-      "fixation"
+      "fixation",
+      "charge-verticale"
      ],
      [
       "fixation"
@@ -1412,10 +1621,24 @@
      ]
     ]
    },
+   "renfort": [
+    [
+     "trous"
+    ],
+    [],
+    [],
+    [],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
+    ]
+   ],
    "choix": {
     "carre": 16,
     "croix": 2,
-    "R": "9f9e69e54f793cd9",
+    "R": "788ca99dd7ac9135",
     "hauteurGC": 935,
     "kg": 11.333822163985973,
     "prix": 460
@@ -1434,7 +1657,8 @@
     "12": [
      [
       "barre-appui",
-      "fixation"
+      "fixation",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -1460,7 +1684,8 @@
     "14": [
      [
       "barre-appui",
-      "fixation"
+      "fixation",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -1544,6 +1769,32 @@
      ]
     ]
    },
+   "renfort": [
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ]
+   ],
    "choix": null
   },
   {
@@ -1559,7 +1810,8 @@
     "12": [
      [
       "barre-appui",
-      "fixation"
+      "fixation",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -1585,7 +1837,8 @@
     "14": [
      [
       "barre-appui",
-      "fixation"
+      "fixation",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -1669,6 +1922,32 @@
      ]
     ]
    },
+   "renfort": [
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ]
+   ],
    "choix": null
   },
   {
@@ -1685,12 +1964,14 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -1713,7 +1994,8 @@
     "14": [
      [
       "trous",
-      "fixation"
+      "fixation",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -1735,7 +2017,8 @@
     ],
     "16": [
      [
-      "trous"
+      "trous",
+      "charge-verticale"
      ],
      [
       "trous"
@@ -1776,10 +2059,24 @@
      []
     ]
    },
+   "renfort": [
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [],
+    [],
+    []
+   ],
    "choix": {
     "carre": 16,
     "croix": 4,
-    "R": "ddef1997e8197fd2",
+    "R": "43ef49a92523c2be",
     "hauteurGC": 935,
     "kg": 23.748520019505396,
     "prix": 720
@@ -1799,12 +2096,14 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -1829,7 +2128,8 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -1857,7 +2157,8 @@
     ],
     "16": [
      [
-      "trous"
+      "trous",
+      "charge-verticale"
      ],
      [
       "trous"
@@ -1873,7 +2174,8 @@
     ],
     "18": [
      [
-      "trous"
+      "trous",
+      "charge-verticale"
      ],
      [
       "trous"
@@ -1904,10 +2206,26 @@
      []
     ]
    },
+   "renfort": [
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [],
+    []
+   ],
    "choix": {
     "carre": 16,
     "croix": 5,
-    "R": "858e9a1cfe6059b0",
+    "R": "721c58b50df01e42",
     "hauteurGC": 585,
     "kg": 22.47757047707461,
     "prix": 820
@@ -1928,12 +2246,14 @@
       "trous",
       "fixation",
       "solidite",
+      "charge-verticale",
       "fenetre"
      ],
      [
       "trous",
       "fixation",
       "solidite",
+      "charge-verticale",
       "fenetre"
      ],
      [
@@ -1962,6 +2282,7 @@
       "trous",
       "fixation",
       "solidite",
+      "charge-verticale",
       "fenetre"
      ],
      [
@@ -1994,6 +2315,7 @@
     "16": [
      [
       "trous",
+      "charge-verticale",
       "fenetre"
      ],
      [
@@ -2016,6 +2338,7 @@
     "18": [
      [
       "trous",
+      "charge-verticale",
       "fenetre"
      ],
      [
@@ -2058,6 +2381,28 @@
      ]
     ]
    },
+   "renfort": [
+    [
+     "trous",
+     "fenetre"
+    ],
+    [
+     "trous",
+     "fenetre"
+    ],
+    [
+     "fenetre"
+    ],
+    [
+     "fenetre"
+    ],
+    [
+     "fenetre"
+    ],
+    [
+     "fenetre"
+    ]
+   ],
    "choix": null
   },
   {
@@ -2074,17 +2419,20 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "fixation",
@@ -2103,12 +2451,14 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -2130,7 +2480,8 @@
     ],
     "16": [
      [
-      "trous"
+      "trous",
+      "charge-verticale"
      ],
      [
       "trous"
@@ -2144,7 +2495,8 @@
     ],
     "18": [
      [
-      "trous"
+      "trous",
+      "charge-verticale"
      ],
      [
       "trous"
@@ -2171,10 +2523,22 @@
      []
     ]
    },
+   "renfort": [
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [],
+    [],
+    [],
+    []
+   ],
    "choix": {
     "carre": 16,
     "croix": 4,
-    "R": "10b5ac82bf251ed2",
+    "R": "0448fc1a3a7e13ee",
     "hauteurGC": 285,
     "kg": 14.06206552516484,
     "prix": 570
@@ -2194,17 +2558,20 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "fixation",
@@ -2223,12 +2590,14 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -2251,7 +2620,8 @@
     "16": [
      [
       "trous",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -2273,7 +2643,8 @@
     ],
     "18": [
      [
-      "trous"
+      "trous",
+      "charge-verticale"
      ],
      [
       "trous"
@@ -2300,10 +2671,22 @@
      []
     ]
    },
+   "renfort": [
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [],
+    [],
+    [],
+    []
+   ],
    "choix": {
     "carre": 18,
     "croix": 4,
-    "R": "ef72c22bbe672bf0",
+    "R": "f782f86463afe7af",
     "hauteurGC": 285,
     "kg": 17.329978192330188,
     "prix": 570
@@ -2323,17 +2706,20 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -2355,12 +2741,14 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -2385,7 +2773,8 @@
     "16": [
      [
       "trous",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -2409,7 +2798,8 @@
     ],
     "18": [
      [
-      "trous"
+      "trous",
+      "charge-verticale"
      ],
      [
       "trous"
@@ -2427,7 +2817,8 @@
     ],
     "20": [
      [
-      "trous"
+      "trous",
+      "charge-verticale"
      ],
      [
       "trous"
@@ -2444,10 +2835,29 @@
      []
     ]
    },
+   "renfort": [
+    [
+     "trous",
+     "charge-verticale"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    []
+   ],
    "choix": {
     "carre": 18,
     "croix": 6,
-    "R": "2dd9c1797a22c3c6",
+    "R": "400692d994627b59",
     "hauteurGC": 835,
     "kg": 42.04810782983189,
     "prix": 970
@@ -2467,22 +2877,26 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "fixation",
@@ -2497,12 +2911,14 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -2526,7 +2942,8 @@
     "16": [
      [
       "trous",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -2549,7 +2966,8 @@
     ],
     "18": [
      [
-      "trous"
+      "trous",
+      "charge-verticale"
      ],
      [
       "trous"
@@ -2565,7 +2983,8 @@
     ],
     "20": [
      [
-      "trous"
+      "trous",
+      "charge-verticale"
      ],
      [
       "trous"
@@ -2580,10 +2999,27 @@
      []
     ]
    },
+   "renfort": [
+    [
+     "trous",
+     "charge-verticale"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [],
+    []
+   ],
    "choix": {
     "carre": 18,
     "croix": 5,
-    "R": "2dfad727f4d46680",
+    "R": "688427078dde78df",
     "hauteurGC": 336,
     "kg": 22.210949601910364,
     "prix": 660
@@ -2603,22 +3039,26 @@
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -2635,12 +3075,14 @@
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -2666,7 +3108,8 @@
     "16": [
      [
       "barre-appui",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -2692,7 +3135,8 @@
     "18": [
      [
       "barre-appui",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -2717,7 +3161,8 @@
     ],
     "20": [
      [
-      "barre-appui"
+      "barre-appui",
+      "charge-verticale"
      ],
      [
       "barre-appui"
@@ -2736,6 +3181,33 @@
      ]
     ]
    },
+   "renfort": [
+    [
+     "barre-appui",
+     "charge-verticale",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ]
+   ],
    "choix": null
   },
   {
@@ -2752,22 +3224,26 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "fixation",
@@ -2782,17 +3258,20 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -2811,11 +3290,13 @@
     "16": [
      [
       "trous",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -2835,7 +3316,8 @@
     "18": [
      [
       "trous",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -2858,7 +3340,8 @@
     ],
     "20": [
      [
-      "trous"
+      "trous",
+      "charge-verticale"
      ],
      [
       "trous"
@@ -2873,10 +3356,25 @@
      []
     ]
    },
+   "renfort": [
+    [
+     "trous",
+     "charge-verticale"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [],
+    [],
+    []
+   ],
    "choix": {
     "carre": 20,
     "croix": 5,
-    "R": "c8d389917710b05d",
+    "R": "66ad3ca2a3dc634c",
     "hauteurGC": 285,
     "kg": 27.186942896571995,
     "prix": 670
@@ -2896,27 +3394,32 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "fixation",
@@ -2927,17 +3430,20 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -2956,11 +3462,13 @@
     "16": [
      [
       "trous",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -2980,7 +3488,8 @@
     "18": [
      [
       "trous",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -3004,7 +3513,8 @@
     "20": [
      [
       "trous",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -3026,6 +3536,23 @@
      ]
     ]
    },
+   "renfort": [
+    [
+     "trous",
+     "charge-verticale"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [],
+    []
+   ],
    "choix": null
   },
   {
@@ -3042,27 +3569,32 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -3074,17 +3606,20 @@
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -3105,11 +3640,13 @@
     "16": [
      [
       "trous",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -3131,7 +3668,8 @@
     "18": [
      [
       "trous",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -3157,7 +3695,8 @@
     "20": [
      [
       "trous",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -3181,6 +3720,27 @@
      ]
     ]
    },
+   "renfort": [
+    [
+     "trous",
+     "charge-verticale"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ]
+   ],
    "choix": null
   },
   {
@@ -3197,59 +3757,70 @@
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ]
     ],
     "14": [
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -3260,15 +3831,18 @@
     "16": [
      [
       "barre-appui",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -3286,11 +3860,13 @@
     "18": [
      [
       "barre-appui",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -3312,7 +3888,8 @@
     "20": [
      [
       "barre-appui",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -3336,6 +3913,39 @@
      ]
     ]
    },
+   "renfort": [
+    [
+     "barre-appui",
+     "solidite",
+     "charge-verticale",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "solidite",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "solidite",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "solidite",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "solidite",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "solidite",
+     "fixation"
+    ]
+   ],
    "choix": null
   },
   {
@@ -3351,11 +3961,13 @@
     "12": [
      [
       "trous",
-      "fixation"
+      "fixation",
+      "charge-verticale"
      ],
      [
       "trous",
-      "fixation"
+      "fixation",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -3374,7 +3986,8 @@
     "14": [
      [
       "trous",
-      "fixation"
+      "fixation",
+      "charge-verticale"
      ],
      [
       "trous",
@@ -3396,7 +4009,8 @@
     ],
     "16": [
      [
-      "trous"
+      "trous",
+      "charge-verticale"
      ],
      [
       "trous"
@@ -3433,10 +4047,22 @@
      []
     ]
    },
+   "renfort": [
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [],
+    [],
+    [],
+    []
+   ],
    "choix": {
     "carre": 16,
     "croix": 4,
-    "R": "7b4f215122201517",
+    "R": "02aecb7b47a7eef1",
     "hauteurGC": 836,
     "kg": 20.46480819174683,
     "prix": 690
@@ -3456,12 +4082,14 @@
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -3487,7 +4115,8 @@
     "14": [
      [
       "barre-appui",
-      "fixation"
+      "fixation",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -3512,7 +4141,8 @@
     ],
     "16": [
      [
-      "barre-appui"
+      "barre-appui",
+      "charge-verticale"
      ],
      [
       "barre-appui"
@@ -3532,7 +4162,8 @@
     ],
     "18": [
      [
-      "barre-appui"
+      "barre-appui",
+      "charge-verticale"
      ],
      [
       "barre-appui"
@@ -3571,6 +4202,32 @@
      ]
     ]
    },
+   "renfort": [
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ]
+   ],
    "choix": null
   },
   {
@@ -3586,11 +4243,13 @@
     "12": [
      [
       "barre-appui",
-      "fixation"
+      "fixation",
+      "charge-verticale"
      ],
      [
       "barre-appui",
-      "fixation"
+      "fixation",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -3612,7 +4271,8 @@
     "14": [
      [
       "barre-appui",
-      "fixation"
+      "fixation",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -3637,7 +4297,8 @@
     ],
     "16": [
      [
-      "barre-appui"
+      "barre-appui",
+      "charge-verticale"
      ],
      [
       "barre-appui"
@@ -3696,6 +4357,32 @@
      ]
     ]
    },
+   "renfort": [
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ]
+   ],
    "choix": null
   },
   {
@@ -3712,22 +4399,26 @@
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -3744,12 +4435,14 @@
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -3775,7 +4468,8 @@
     "16": [
      [
       "barre-appui",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -3800,7 +4494,8 @@
     ],
     "18": [
      [
-      "barre-appui"
+      "barre-appui",
+      "charge-verticale"
      ],
      [
       "barre-appui"
@@ -3820,7 +4515,8 @@
     ],
     "20": [
      [
-      "barre-appui"
+      "barre-appui",
+      "charge-verticale"
      ],
      [
       "barre-appui"
@@ -3839,6 +4535,33 @@
      ]
     ]
    },
+   "renfort": [
+    [
+     "barre-appui",
+     "charge-verticale",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ]
+   ],
    "choix": null
   },
   {
@@ -3854,7 +4577,8 @@
     "12": [
      [
       "barre-appui",
-      "fixation"
+      "fixation",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -3880,7 +4604,8 @@
     "14": [
      [
       "barre-appui",
-      "fixation"
+      "fixation",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -3964,6 +4689,32 @@
      ]
     ]
    },
+   "renfort": [
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ]
+   ],
    "choix": null
   },
   {
@@ -3980,17 +4731,20 @@
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -4012,12 +4766,14 @@
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -4043,7 +4799,8 @@
     "16": [
      [
       "barre-appui",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -4068,7 +4825,8 @@
     ],
     "18": [
      [
-      "barre-appui"
+      "barre-appui",
+      "charge-verticale"
      ],
      [
       "barre-appui"
@@ -4088,7 +4846,8 @@
     ],
     "20": [
      [
-      "barre-appui"
+      "barre-appui",
+      "charge-verticale"
      ],
      [
       "barre-appui"
@@ -4107,6 +4866,33 @@
      ]
     ]
    },
+   "renfort": [
+    [
+     "barre-appui",
+     "charge-verticale",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ]
+   ],
    "choix": null
   },
   {
@@ -4123,17 +4909,20 @@
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -4155,7 +4944,8 @@
      [
       "barre-appui",
       "fixation",
-      "solidite"
+      "solidite",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -4185,7 +4975,8 @@
     ],
     "16": [
      [
-      "barre-appui"
+      "barre-appui",
+      "charge-verticale"
      ],
      [
       "barre-appui"
@@ -4205,7 +4996,8 @@
     ],
     "18": [
      [
-      "barre-appui"
+      "barre-appui",
+      "charge-verticale"
      ],
      [
       "barre-appui"
@@ -4244,6 +5036,32 @@
      ]
     ]
    },
+   "renfort": [
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ]
+   ],
    "choix": null
   },
   {
@@ -4259,7 +5077,8 @@
     "12": [
      [
       "barre-appui",
-      "fixation"
+      "fixation",
+      "charge-verticale"
      ],
      [
       "barre-appui",
@@ -4368,6 +5187,1684 @@
      ]
     ]
    },
+   "renfort": [
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
+    ]
+   ],
+   "choix": null
+  },
+  {
+   "entree": {
+    "largeurMm": 1669,
+    "allegeMm": 650,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "chene"
+   },
+   "hauteur": 285,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "18": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "20": [
+     [
+      "trous",
+      "charge-verticale"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [
+      "trous"
+     ],
+     [],
+     []
+    ]
+   },
+   "renfort": [
+    [
+     "trous",
+     "charge-verticale"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [],
+    []
+   ],
+   "choix": {
+    "carre": 20,
+    "croix": 5,
+    "R": "f6fd798acdf5977b",
+    "hauteurGC": 285,
+    "kg": 28.043882671817617,
+    "prix": 670
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 1990,
+    "allegeMm": 650,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "chene"
+   },
+   "hauteur": 285,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "18": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "20": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ]
+   },
+   "renfort": [
+    [
+     "trous",
+     "charge-verticale"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [],
+    []
+   ],
+   "choix": null
+  },
+  {
+   "entree": {
+    "largeurMm": 2400,
+    "allegeMm": 300,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "pin"
+   },
+   "hauteur": 635,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ]
+    ],
+    "18": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ]
+    ],
+    "20": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ]
+    ]
+   },
+   "renfort": [
+    [
+     "trous",
+     "charge-verticale"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ]
+   ],
+   "choix": null
+  },
+  {
+   "entree": {
+    "largeurMm": 2401,
+    "allegeMm": 500,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "chene"
+   },
+   "hauteur": 435,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ]
+    ],
+    "18": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ]
+    ],
+    "20": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ]
+    ]
+   },
+   "renfort": [
+    [
+     "trous",
+     "charge-verticale"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ]
+   ],
+   "choix": null
+  },
+  {
+   "entree": {
+    "largeurMm": 2200,
+    "allegeMm": 700,
+    "enEtage": true,
+    "fenetreMm": 1500,
+    "essence": "noyer"
+   },
+   "hauteur": 235,
+   "alertes": {
+    "12": [
+     [
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ]
+    ],
+    "14": [
+     [
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "18": [
+     [
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "20": [
+     [
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ]
+   },
+   "renfort": [
+    [
+     "charge-verticale",
+     "fixation"
+    ],
+    [
+     "fixation"
+    ],
+    [
+     "fixation"
+    ],
+    [
+     "fixation"
+    ],
+    [
+     "fixation"
+    ],
+    [
+     "fixation"
+    ]
+   ],
+   "choix": null
+  },
+  {
+   "entree": {
+    "largeurMm": 1850,
+    "allegeMm": 0,
+    "enEtage": false,
+    "fenetreMm": 0,
+    "essence": "hetre"
+   },
+   "hauteur": 935,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ]
+    ],
+    "18": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ]
+    ],
+    "20": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ]
+    ]
+   },
+   "renfort": [
+    [
+     "trous",
+     "charge-verticale"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ]
+   ],
+   "choix": null
+  },
+  {
+   "entree": {
+    "largeurMm": 2300,
+    "allegeMm": 640,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "noyer"
+   },
+   "hauteur": 295,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ]
+    ],
+    "18": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ]
+    ],
+    "20": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ]
+    ]
+   },
+   "renfort": [
+    [
+     "trous",
+     "charge-verticale"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ]
+   ],
+   "choix": null
+  },
+  {
+   "entree": {
+    "largeurMm": 1750,
+    "allegeMm": 560,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "pin"
+   },
+   "hauteur": 375,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "18": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ],
+    "20": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ]
+    ]
+   },
+   "renfort": [
+    [
+     "trous",
+     "charge-verticale"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    []
+   ],
+   "choix": null
+  },
+  {
+   "entree": {
+    "largeurMm": 2402,
+    "allegeMm": 650,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "chene"
+   },
+   "hauteur": 285,
+   "alertes": {
+    "12": [
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ]
+    ],
+    "14": [
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ]
+    ],
+    "16": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ]
+    ],
+    "18": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ]
+    ],
+    "20": [
+     [
+      "trous",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ]
+    ]
+   },
+   "renfort": [
+    [
+     "trous",
+     "solidite",
+     "charge-verticale"
+    ],
+    [
+     "trous",
+     "solidite"
+    ],
+    [
+     "trous",
+     "solidite"
+    ],
+    [
+     "trous",
+     "solidite"
+    ],
+    [
+     "trous",
+     "solidite"
+    ],
+    [
+     "solidite"
+    ]
+   ],
    "choix": null
   }
  ]

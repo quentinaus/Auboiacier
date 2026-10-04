@@ -117,7 +117,7 @@ test("plusieurs garde-corps, même à des cotes différentes : la remise de l'ou
 test("un garde-corps à étudier, ou dont la hauteur a changé depuis l'affichage, est refusé", async () => {
   chiffrageOuEchec();
   // La pièce refusée part du panier, et la façon de la recevoir avec elle (plus rien à livrer).
-  const etude = await tarif([garde({ largeurMm: 1700 }), { slug: RETRAIT }]);
+  const etude = await tarif([garde({ largeurMm: 2500 }), { slug: RETRAIT }]);
   assert.deepEqual(etude.refusees, [{ index: 0, raison: "a_etudier" }, { index: 1, raison: "orphelin" }]);
   const basse = await tarif([garde({ allegeMm: 300, fenetreMm: 500 }), { slug: RETRAIT }]);
   assert.deepEqual(basse.refusees, [{ index: 0, raison: "a_etudier" }, { index: 1, raison: "orphelin" }]);
@@ -132,7 +132,7 @@ test("un garde-corps à étudier, ou dont la hauteur a changé depuis l'affichag
 
 test("un garde-corps refusé : jamais un montant de livraison ou de pose sans pièce", async () => {
   chiffrageOuEchec();
-  for (const refuse of [garde({ largeurMm: 1700 }, 2), garde({ allegeMm: 300, fenetreMm: 500 })]) {
+  for (const refuse of [garde({ largeurMm: 2500 }, 2), garde({ allegeMm: 300, fenetreMm: 500 })]) {
     for (const mode of [{ slug: LIVRAISON, livraisonCp: "75001" }, { slug: POSE, poseCp: "49400" }, { slug: RETRAIT }]) {
       const t = await tarif([refuse, mode]);
       assert.deepEqual(t.refusees, [{ index: 0, raison: "a_etudier" }, { index: 1, raison: "orphelin" }], mode.slug);
@@ -144,7 +144,7 @@ test("un garde-corps refusé : jamais un montant de livraison ou de pose sans pi
     }
   }
   // Avec une autre pièce qui, elle, se vend : la livraison reste, au poids de cette pièce seulement.
-  const mixte = await tarif([garde({ largeurMm: 1700 }), table(), { slug: LIVRAISON, livraisonCp: "44000" }]);
+  const mixte = await tarif([garde({ largeurMm: 2500 }), table(), { slug: LIVRAISON, livraisonCp: "44000" }]);
   assert.deepEqual(mixte.refusees, [{ index: 0, raison: "a_etudier" }]);
   assert.ok(mixte.mode?.mode === "transporteur");
   assert.equal(mixte.total, mixte.pieces[0].line.unitPrice + mixte.mode.deplacement.montantCents / 100);

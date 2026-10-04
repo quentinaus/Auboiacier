@@ -27,7 +27,7 @@ import * as D from "../src/lib/garde-corps-outil/devis.genere.mjs";
 import * as CH from "../src/lib/garde-corps-outil/chiffrage.chiffre.mjs";
 import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
 import { configurerGC, prixGC } from "../src/lib/garde-corps-outil/calcul.ts";
-import { codeAlerte, CROIX_MAX, ORDRE_CARRES, valeursGC, type EntreeSiteGC } from "../src/lib/garde-corps-outil/entree.ts";
+import { CARRE_RENFORT, codeAlerte, CROIX_MAX, ORDRE_CARRES, valeursGC, type EntreeSiteGC } from "../src/lib/garde-corps-outil/entree.ts";
 import { controlerModule } from "../scripts/outil-plans/analyse.mjs";
 
 type CasRef = {
@@ -48,6 +48,8 @@ type ReleveRef = {
   entree: EntreeSiteGC;
   hauteur: number;
   alertes: Record<string, string[][]>;
+  /** Avec le fer plat de renfort, au carré de l'atelier, croix seules : les alertes pour 1 à 6 croix. */
+  renfort: string[][];
   choix: null | { carre: number; croix: number; R: string; hauteurGC: number; kg: number; prix: number };
 };
 const REF: {
@@ -171,6 +173,19 @@ test("relevés du site : pour chaque carré et chaque nombre de croix, les même
   }
 });
 
+test("relevés du site : avec le fer plat de renfort, les mêmes alertes que l'outil", () => {
+  let larges = 0;
+  for (const r of REF.site) {
+    for (let n = 1; n <= CROIX_MAX; n++) {
+      const codes = M.calculerGC({ ...valeursGC(M.DEFAUTS_GC, r.entree, CARRE_RENFORT, n, false, false, true), _rapide: true }).alertes.map(codeAlerte);
+      assert.deepEqual(codes, r.renfort[n - 1], `${J(r.entree)} avec renfort, ${n} croix`);
+      assert.ok(!codes.includes("autre"), `${J(r.entree)} : une alerte sans code`);
+    }
+    if (r.alertes[20].every((a) => a.includes("solidite")) && r.renfort.some((a) => a.length === 0)) larges++;
+  }
+  assert.ok(larges >= 3, "la référence contient des fenêtres larges que seul le fer plat permet de vendre");
+});
+
 test("relevés du site : la configuration retenue suit la règle du 29/09 et donne le prix de l'outil", () => {
   for (const r of REF.site) {
     // La règle, écrite ici indépendamment de calcul.ts : carré 16 d'abord, puis 12, 14, 18, 20 ; le moins de croix.
@@ -196,16 +211,35 @@ test("relevés du site : la configuration retenue suit la règle du 29/09 et don
     assert.equal(c.hauteurMm, r.hauteur, `${J(r.entree)} : hauteur`);
     assert.equal(c.mainCouranteMm, M.HAUT_ETAGE + M.CIBLE_MARGE, `${J(r.entree)} : la main courante, pile à la norme`);
     if (!r.choix) {
-      // Règle du 03/10 (« toujours une solution ») : quand les croix seules ne passent pas, le site
-      // propose le même garde-corps avec des barreaux droits en bas — s'il passe toute la norme de l'outil.
+      // FENÊTRE LARGE (décision du 04/10) : quand la lisse haute est trop souple même dans le plus gros carré,
+      // le site ajoute le fer plat caché sous la main courante, au carré de l'atelier. La règle, écrite ici
+      // indépendamment de calcul.ts : le moins de croix qui passe avec le plat (référence « renfort »).
+      const tropSouple = r.alertes[20].every((a) => a.includes("solidite"));
+      const nRenfort = r.renfort.findIndex((a) => a.length === 0);
+      if (tropSouple && nRenfort >= 0) {
+        assert.ok(c.ok, `${J(r.entree)} : fenêtre large, vendue avec le fer plat`);
+        assert.deepEqual([c.renfort, c.carre, c.croix, c.traverse, c.barreauxBas], [true, CARRE_RENFORT, nRenfort + 1, false, false], J(r.entree));
+        assert.equal(c.R.alertes.length, 0);
+        assert.deepEqual(c.R.mc?.renfort && [c.R.mc.renfort.l, c.R.mc.renfort.e, c.R.mc.l, c.R.mc.h], [M.RENFORT.l, M.RENFORT.e, M.RENFORT.bois.l, M.RENFORT.bois.h], `${J(r.entree)} : plat et bois du renfort`);
+        const vSans = valeursGC(M.DEFAUTS_GC, r.entree, CARRE_RENFORT, c.croix);
+        const sansPlat = chiffrageOuEchec().chiffrerGC(M.calculerGC(vSans), vSans).conseille;
+        assert.ok(prixGC(c) > sansPlat, `${J(r.entree)} : le fer plat et sa main courante plus large sont comptés dans le prix`);
+        continue;
+      }
+      // Règle du 03/10 (« toujours une solution ») : quand les croix seules ne passent pas, le site propose le
+      // même garde-corps avec une traverse au milieu des croix, des barreaux droits en bas, ou — fenêtre
+      // large — le fer plat de renfort : s'il passe toute la norme de l'outil.
       if (c.ok) {
-        assert.equal(c.barreauxBas, true, `${J(r.entree)} : seule une variante à barreaux peut remplacer « à étudier »`);
-        assert.ok(c.soubassementMm > 0 && c.R.alertes.length === 0, `${J(r.entree)} : variante à barreaux conforme`);
+        assert.ok(c.traverse || c.barreauxBas || c.renfort, `${J(r.entree)} : seule une variante peut remplacer « à étudier »`);
+        if (c.barreauxBas) assert.ok(c.soubassementMm > 0, `${J(r.entree)} : variante à barreaux`);
+        assert.equal(c.renfort, tropSouple, `${J(r.entree)} : le fer plat seulement quand aucun carré n'est assez rigide`);
+        assert.equal(c.R.alertes.length, 0, `${J(r.entree)} : variante conforme`);
       }
       continue;
     }
     assert.equal(c.ok && c.barreauxBas, false, `${J(r.entree)} : les croix seules passent, pas de barreaux ajoutés`);
     assert.ok(c.ok, `${J(r.entree)} : devrait avoir un prix`);
+    assert.equal(c.renfort, false, `${J(r.entree)} : un carré suffit, pas de fer plat`);
     assert.equal(c.carre, r.choix.carre);
     assert.equal(c.croix, r.choix.croix);
     assert.equal(c.R.hauteurGC, r.choix.hauteurGC);

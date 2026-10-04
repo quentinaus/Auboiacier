@@ -242,6 +242,7 @@ export function SchemaFenetre({
   croix,
   soubassementMm = 0,
   traverse = false,
+  renfort = false,
   rosaceMm,
   apercu = false,
   labels,
@@ -272,6 +273,8 @@ export function SchemaFenetre({
   soubassementMm?: number;
   /** Une traverse au milieu de chaque croix. */
   traverse?: boolean;
+  /** Fenêtre large : un fer plat de 10 mm sous une main courante de 45 mm (au lieu de 40 mm). */
+  renfort?: boolean;
   labels: {
     largeur: string;
     allege: string;
@@ -323,7 +326,9 @@ export function SchemaFenetre({
 
   /** L'appui, la main courante et les barres à l'échelle aussi : 50, 40 et 20 mm. */
   const EP_APPUI = Math.max(2, r(50 * echelle));
-  const mainCouranteH = mode === "garde-corps" ? Math.max(1.5, Math.min(r(40 * echelle), hauteur / 2)) : Math.max(2, r(40 * echelle));
+  const mainCouranteH = mode === "garde-corps" ? Math.max(1.5, Math.min(r((renfort ? 55 : 40) * echelle), hauteur / 2)) : Math.max(2, r(40 * echelle));
+  /** Le fer plat de renfort, sous le bois (10 mm sur les 55). */
+  const platH = renfort && mode === "garde-corps" ? Math.max(1, r((mainCouranteH * 10) / 55)) : 0;
   const barre = Math.max(1, r(20 * echelle));
   const rosace = Math.max(1.5, r(((rosaceMm ?? 100) / 2) * echelle));
   const cadreHaut = r(hautGardeCorpsY + mainCouranteH);
@@ -438,6 +443,7 @@ export function SchemaFenetre({
           );
         })}
         <rect x={G - 2} y={hautGardeCorpsY} width={D - G + 4} height={mainCouranteH} rx={2.5} fill={BOIS} stroke="#b08a52" strokeWidth={0.8} />
+        {platH > 0 && <rect x={G} y={r(hautGardeCorpsY + mainCouranteH - platH)} width={D - G} height={platH} fill={ACIER} />}
       </g>
       )}
       {/* Une barre d'appui : le bas de la fenêtre est haut, il ne manque qu'une barre à la hauteur de la norme. */}

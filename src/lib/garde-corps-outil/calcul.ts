@@ -11,7 +11,7 @@
 import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, DEFAUTS_GC, calculerGC, geomGC, type ResultatGC, type ValeursGC } from "./moteur.genere.mjs";
 import { chiffrage } from "./chiffrage.ts";
 import { idModeleGC, lireModeleGC, type RaisonSansPrixGC } from "../garde-corps.ts";
-import { codeAlerte, CROIX_MAX, ESSENCES_GC, ORDRE_CARRES, valeursGC, type CodeAlerteGC, type EntreeSiteGC } from "./entree.ts";
+import { CARRE_RENFORT, codeAlerte, CROIX_MAX, ESSENCES_GC, ORDRE_CARRES, valeursGC, type CodeAlerteGC, type EntreeSiteGC } from "./entree.ts";
 
 export { ChiffrageIndisponible } from "./chiffrage.ts";
 export type { CodeAlerteGC, EntreeSiteGC, EssenceGC } from "./entree.ts";
@@ -37,6 +37,11 @@ export type ConfigGC = Commun & {
   barreauxBas: boolean;
   /** Une traverse au milieu de chaque croix (modèle « -t »). */
   traverse: boolean;
+  /**
+   * Fenêtre large : la lisse haute est raidie par un fer plat soudé dessus, caché sous une main courante plus
+   * large (décision de Quentin, 04/10/2026). Ajouté seulement quand aucun carré de l'atelier n'est assez rigide.
+   */
+  renfort: boolean;
   /** Des barreaux droits en partie basse (le cadre commence dans la zone d'escalade, sous 600 mm du sol). */
   soubassement: boolean;
   /** Leur hauteur, du bas du cadre à la lisse qui les ferme (0 : aucun). */
@@ -45,7 +50,7 @@ export type ConfigGC = Commun & {
   v: Readonly<ValeursGC>;
   R: Readonly<ResultatGC>;
 };
-/** Rien ne passe (de 1 à 6 croix, carrés de 12 à 20) : pas de prix, « à étudier avec l'atelier ». */
+/** Rien ne passe (de 1 à 6 croix, carrés de 12 à 20, puis avec le fer plat de renfort) : pas de prix, « à étudier avec l'atelier ». */
 export type ConfigAEtudierGC = Commun & {
   ok: false;
   conforme: false;
@@ -88,7 +93,7 @@ const memoire = new Map<string, ConfigGC | ConfigAEtudierGC>();
 const ESSAIS_MAX = 30000;
 const essais = new Map<string, readonly CodeAlerteGC[]>();
 /**
- * Par relevé et par carré : le carré est-il écarté d'office ? Deux contrôles de l'outil ne dépendent ni du
+ * Par relevé, par carré, avec ou sans fer plat de renfort : le carré est-il écarté d'office ? Deux contrôles de l'outil ne dépendent ni du
  * nombre de croix, ni des barreaux, ni de la traverse (un test le vérifie sur une grille) : la rigidité de la
  * lisse haute (« solidité ») et la place des vis dans le carré (« fixation » : avec la vis de l'atelier, les
  * carrés de 12 et de 14 ne passent jamais). Dès qu'un essai le dit, le carré est écarté pour tous les dessins
@@ -124,22 +129,34 @@ function fenetreTropBasse(cleReleve: string, entree: EntreeSiteGC): boolean {
   return oui;
 }
 
+/** La clé d'un carré pour un relevé, sans ou avec le fer plat de renfort. */
+const cleCarre = (cleReleve: string, s: number, r: boolean) => `${cleReleve}|${s}|${r ? 1 : 0}`;
+
+/**
+ * La lisse haute est-elle trop souple dans TOUS les carrés de l'atelier (fenêtre large) ? C'est le seul cas où
+ * le site ajoute le fer plat de renfort. À appeler après avoir essayé le plus gros carré : la rigidité ne
+ * dépend pas du dessin, et un carré plus gros est toujours plus rigide.
+ */
+function lisseTropSouple(cleReleve: string): boolean {
+  return ecarte.get(cleCarre(cleReleve, Math.max(...ORDRE_CARRES), false))?.includes("solidite") === true;
+}
+
 /** Un essai de l'outil (calcul rapide : mêmes alertes, sans chercher de solution à écrire dans leur texte). */
-function essayer(cleReleve: string, entree: EntreeSiteGC, s: number, n: number, b: boolean, t: boolean): { codes: readonly CodeAlerteGC[]; R: ResultatGC | null; v: ValeursGC | null } {
+function essayer(cleReleve: string, entree: EntreeSiteGC, s: number, n: number, b: boolean, t: boolean, r = false): { codes: readonly CodeAlerteGC[]; R: ResultatGC | null; v: ValeursGC | null } {
   if (tropBasse.get(cleReleve)) return { codes: FENETRE, R: null, v: null };
-  const horsJeu = ecarte.get(`${cleReleve}|${s}`);
+  const horsJeu = ecarte.get(cleCarre(cleReleve, s, r));
   if (horsJeu) return { codes: horsJeu, R: null, v: null };
-  const cle = `${cleReleve}|${s}|${n}|${b ? 1 : 0}|${t ? 1 : 0}`;
+  const cle = `${cleReleve}|${s}|${n}|${b ? 1 : 0}|${t ? 1 : 0}|${r ? 1 : 0}`;
   const connus = essais.get(cle);
   if (connus?.length) return { codes: connus, R: null, v: null };
-  const v = valeursGC(DEFAUTS_GC, entree, s, n, b, t) as ValeursGC;
+  const v = valeursGC(DEFAUTS_GC, entree, s, n, b, t, r) as ValeursGC;
   const R = calculerGC({ ...v, _rapide: true });
   let codes: readonly CodeAlerteGC[] = [...new Set(R.alertes.map(codeAlerte))];
   // Le carré lui-même ne convient pas (pas assez rigide, ou la vis n'y tient pas) : c'est la raison qui compte
   // pour ce carré, quel que soit le dessin.
   if (duCarre(codes)) {
     codes = codes.includes("solidite") ? SOLIDITE : FIXATION;
-    garder(ecarte, `${cleReleve}|${s}`, codes, ESSAIS_MAX);
+    garder(ecarte, cleCarre(cleReleve, s, r), codes, ESSAIS_MAX);
   }
   garder(essais, cle, codes, ESSAIS_MAX);
   // Sans alerte, le calcul rapide EST le calcul complet de l'outil (identiques au caractère près : un test le
@@ -151,7 +168,9 @@ function essayer(cleReleve: string, entree: EntreeSiteGC, s: number, n: number, 
  * La configuration choisie pour ce relevé (décision 2 du 29/09) : le carré de
  * 16 avec le moins de croix qui passe TOUTE la norme de l'outil (trous,
  * hauteur, soubassement, solidité, fenêtre) ; sinon les autres carrés de 12 à
- * 20 ; de 1 à 6 croix. Si rien ne passe : « à étudier ».
+ * 20 ; de 1 à 6 croix. Fenêtre large (aucun carré assez rigide seul) : le
+ * carré de 16 avec un fer plat caché sous la main courante (04/10/2026).
+ * Si rien ne passe : « à étudier ».
  */
 export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   if (!entreeValide(e)) throw new RangeError("relevé de garde-corps hors des bornes de l'outil");
@@ -218,25 +237,34 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   /** Ce qui bloque, carré par carré (les essais du dessin choisi, ou des croix seules sans choix). */
   const blocages: (readonly CodeAlerteGC[])[] = [];
   let auCarre16: readonly CodeAlerteGC[] | null = null;
-  recherche: for (const [b, t] of variantes) {
-    for (const s of carres) {
-      for (let n = nMin; n <= nMax; n++) {
-        const essai = essayer(cleReleve, entree, s, n, b, t);
-        if (essai.R && essai.v) {
-          const { R, v } = essai;
-          if (!(R.hauteurGC! > 0) || !(R.kg! > 0)) throw new Error("garde-corps : calcul de l'outil incohérent");
-          const soubassementMm = geomGC(v, n).sb;
-          // Des barreaux demandés mais que l'outil n'a pas pu dessiner (cadre trop bas) : ce n'est pas ce modèle.
-          if (b && !(soubassementMm > 0)) {
-            if (choisi) blocages.push(["trop-petit"]);
-            continue;
+  let auCarre16Renfort = false;
+  // D'abord sans renfort, dans tous les carrés. Ensuite, seulement si la lisse haute est trop souple dans tous
+  // (fenêtre large) : le carré de l'atelier avec le fer plat caché sous la main courante.
+  recherche: for (const r of [false, true]) {
+    if (r && !lisseTropSouple(cleReleve)) break;
+    // Avec le fer plat, la rigidité est réglée : seul compte ce qui bloque ENCORE (les essais qui suivent).
+    if (r) blocages.length = 0;
+    for (const [b, t] of variantes) {
+      for (const s of r ? [CARRE_RENFORT] : carres) {
+        for (let n = nMin; n <= nMax; n++) {
+          const essai = essayer(cleReleve, entree, s, n, b, t, r);
+          if (essai.R && essai.v) {
+            const { R, v } = essai;
+            if (!(R.hauteurGC! > 0) || !(R.kg! > 0)) throw new Error("garde-corps : calcul de l'outil incohérent");
+            const soubassementMm = geomGC(v, n).sb;
+            // Des barreaux demandés mais que l'outil n'a pas pu dessiner (cadre trop bas) : ce n'est pas ce modèle.
+            if (b && !(soubassementMm > 0)) {
+              if (choisi) blocages.push(["trop-petit"]);
+              continue;
+            }
+            resultat = { ...commun, ok: true, conforme: true, carre: s, croix: n, barreauxBas: b, traverse: t, renfort: r, soubassement: soubassementMm > 0, soubassementMm, kg: R.kg!, v: gelerProfond(v), R: gelerProfond(R) };
+            break recherche;
           }
-          resultat = { ...commun, ok: true, conforme: true, carre: s, croix: n, barreauxBas: b, traverse: t, soubassement: soubassementMm > 0, soubassementMm, kg: R.kg!, v: gelerProfond(v), R: gelerProfond(R) };
-          break recherche;
+          if (choisi) blocages.push(essai.codes);
+          // Sans choix : ce qui bloque au carré de 16, croix seules (la section du modèle), avec le moins d'alertes.
+          // Avec le renfort, c'est ce qui bloque ENCORE qui compte (la rigidité, elle, est réglée par le plat).
+          else if (s === 16 && !b && !t && (!auCarre16 || r !== auCarre16Renfort || essai.codes.length < auCarre16.length)) { auCarre16 = essai.codes; auCarre16Renfort = r; }
         }
-        if (choisi) blocages.push(essai.codes);
-        // Sans choix : ce qui bloque au carré de 16, croix seules (la section du modèle), avec le moins d'alertes.
-        else if (s === 16 && !b && !t && (!auCarre16 || essai.codes.length < auCarre16.length)) auCarre16 = essai.codes;
       }
     }
   }
@@ -271,6 +299,7 @@ export function catalogueGC(e: EntreeSiteGC): DessinGC[] {
   if (geomGC(valeursGC(DEFAUTS_GC, sansChoix, 16, 1), 1).appui) return [];
   // Un dessin = un nombre de croix, des barreaux en bas ou non (demandés, ou imposés par la norme), une traverse ou non.
   const dessins = new Map<string, DessinGC>();
+  const cleReleve = JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, e.essence]);
   // L'ordre du catalogue : les croix seules, puis avec une traverse au milieu, puis avec des barreaux en bas,
   // puis les deux — de 1 à 6 croix chaque fois.
   for (const [b, t] of [[false, false], [false, true], [true, false], [true, true]] as const) {
@@ -283,7 +312,8 @@ export function catalogueGC(e: EntreeSiteGC): DessinGC[] {
         const cle = [c.croix, c.soubassementMm > 0, t].join("|");
         if (!dessins.get(cle)?.conforme) dessins.set(cle, { conforme: true, config: c });
       } else {
-        const sb = Math.max(0, Math.round(geomGC(valeursGC(DEFAUTS_GC, sansChoix, 16, n, b, t), n).sb || 0));
+        // (Fenêtre large : avec le fer plat de renfort, le cadre est plus bas — c'est ce cadre-là qu'on regarde.)
+        const sb = Math.max(0, Math.round(geomGC(valeursGC(DEFAUTS_GC, sansChoix, 16, n, b, t, lisseTropSouple(cleReleve)), n).sb || 0));
         // Des barreaux en bas que l'outil ne peut pas dessiner (garde-corps trop bas) : ce dessin n'existe pas
         // pour cette fenêtre. Le montrer ferait un jumeau « hors norme » du même dessin sans barreaux.
         if (b && sb === 0) continue;

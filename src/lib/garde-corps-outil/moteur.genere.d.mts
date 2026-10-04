@@ -3,7 +3,7 @@ export type ValeursGC = {
   B: number; A: number; Hs: number; Hf: number; Xo: number; jour: number; j: number; s: number; nP: number; nb: number;
   sbMode: string; ass: string; rosace: boolean; etage: boolean; mc: number; epMc: number; mcType: string; essence: string;
   rainure: boolean; rnP: number; rnJ: number; dF: number; fF: number; eF: number; nF: number; trait: number;
-  debitAr: number; minSoud: number; remise: string; km: number; prixVente: number; _rapide?: boolean;
+  debitAr: number; minSoud: number; remise: string; km: number; prixVente: number; traverse: boolean; renfort: string; _rapide?: boolean;
   [autre: string]: unknown;
 };
 export type LigneDebitGC = { nom: string; qte: number; mat: string; long: number; coupes: string; note: string; dessin?: unknown };
@@ -17,6 +17,8 @@ export type ResultatGC = {
   kg?: number;
   metres?: number;
   hauteurGC?: number;
+  /** La main courante retenue : largeur, hauteur, profondeur de rainure ; et le plat de renfort s'il y en a un. */
+  mc?: { l: number; h: number; chev: number; renfort: { l: number; e: number; vis: number } | null };
   [autre: string]: unknown;
 };
 export type GeomGC = { Lc: number; cible: number; manque: number; appui: "barre" | "rien" | null; hNorme: number; Hr: number; Hc: number; h: number; w: number; sb: number; ok: boolean; dMax: number; limite: number; [autre: string]: unknown };
@@ -35,6 +37,7 @@ export declare const CIBLE_MARGE: number;
 export declare const HAUT_ETAGE: number;
 export declare const LIMITE_ACIER: number;
 export declare const MINI_GC: number;
+export declare const RENFORT: Readonly<{ l: number; e: number; bois: Readonly<{ l: number; h: number }>; LcMax: number; pasVis: number; visD: number; visL: number }>;
 export declare const ROSACE_R: number;
 export declare const SPHERE: number;
 export declare const SPHERE_HAUT: number;

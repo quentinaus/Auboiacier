@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Moteur garde-corps : norme NF P01-012, géométrie, débit, dessins. SANS coûts.
-// Source : l'outil de plans (plans-atelier.html), sha256 df33a7323b62d0e05330eba492ff37c83b10c1dba6eb57038b61e28e837ae8e6
+// Source : l'outil de plans (plans-atelier.html), sha256 7debafb735a47e76154fbc841e9948803aea1fa71bba4e3b4f1fe36508a02c2c
 /* eslint-disable */
 const SPHERE = 110;
 const SPHERE_HAUT = 180;
@@ -13,6 +13,9 @@ const SB_MINI = 60;
 const SB_CROIX_MINI = 250;
 const MC_PROFIL = { l: 40, h: 10, ep: 5.6, r: 20, kg: 2.2 };
 const LIMITE_ACIER = 235;
+const RENFORT = { l: 60, e: 10, bois: { l: 60, h: 45 }, LcMax: 2400, pasVis: 250, visD: 5, visL: 40 };
+const E_ACIER = 210000;
+const CHARGE_V = 0.67 * 1.5;
 const HAUT_ETAGE = 1000;
 const ALLEGE_LIBRE = 900;
 const MINI_GC = 200;
@@ -238,7 +241,17 @@ function barre(p, q, s, r) {
     const poly = [[p[0] - ex + nx, p[1] - ey + ny], [q[0] + ex + nx, q[1] + ey + ny], [q[0] + ex - nx, q[1] + ey - ny], [p[0] - ex - nx, p[1] - ey - ny]];
     return clip(poly, r[0], r[1], r[2], r[3]);
   }
+function mainCouranteGC(v) {
+    if (v._mc) return v;
+    let w = { ...v, _mc: true };
+    if (v.mcType === "profil") w = { ...w, mc: MC_PROFIL.h, lMc: MC_PROFIL.l, chev: MC_PROFIL.h - MC_PROFIL.ep, lR: MC_PROFIL.r, profilMC: true };
+    else if (v.mcType === "acier") w = { ...w, lMc: v.mc, mc: v.epMc };
+    else if (v.mc > 0 && v.renfort === "plat") w = { ...w, lMc: RENFORT.bois.l, mc: RENFORT.bois.h, chev: 0, lR: 0, eRf: RENFORT.e, lRf: RENFORT.l };
+    else if (v.mc > 0 && v.rainure !== false && v.rnP > 0) w = { ...w, chev: Math.min(v.rnP, v.s), lR: v.s + v.rnJ };
+    return w;
+  }
 function geomGC(v, n) {
+    v = mainCouranteGC(v);
     const Lc = v.B - v.j;
     const appuiA = 0, appuiX = v.Xo >= 100 && v.Xo < 600 ? v.Xo : 0;
     const cible = HAUT_ETAGE + Math.max(appuiA, appuiX) + CIBLE_MARGE;
@@ -246,9 +259,9 @@ function geomGC(v, n) {
     const hNorme = Math.max(MINI_GC, manque);
     const Hr = v.Hs >= MINI_GC ? v.Hs : hNorme;
     const appui = v.Hs >= MINI_GC || manque >= MINI_GC ? null : cible - v.A < BARRE_APPUI && (appuiX === 0 || v.A >= HAUT_ETAGE + appuiX) ? "rien" : "barre";
-    const Hc = Hr - v.mc + (v.chev || 0);
+    const Hc = Hr - v.mc + (v.chev || 0) - (v.eRf || 0);
     const zCadre = v.A + v.jour;
-    const Hc0 = Hr - v.mc + (v.chev || 0), hautInt = zCadre + Hc0 - v.s;
+    const Hc0 = Hc, hautInt = zCadre + Hc0 - v.s;
     const place = (z) => z - zCadre >= v.s + SB_MINI && hautInt - (z + v.s) >= SB_CROIX_MINI;
     const besoin = zCadre < Z_ESCALADE, voulu = besoin || v.sbMode === "toujours";
     let zL = 0;
@@ -280,17 +293,29 @@ function sectionMainCourante(v) {
       pts.push([-L, H * 0.4]);
       return pts;
     }
-    const m = v.mc, c = v.chev || 0, l = v.lR || 0;
-    return c > 0 ? [[-m / 2, 0], [-l / 2, 0], [-l / 2, c], [l / 2, c], [l / 2, 0], [m / 2, 0], [m / 2, m], [-m / 2, m]] : rect(-m / 2, 0, m / 2, m);
+    const m = v.mc, W = v.eRf ? v.lMc : v.mc, c = v.chev || 0, l = v.lR || 0;
+    return c > 0 ? [[-W / 2, 0], [-l / 2, 0], [-l / 2, c], [l / 2, c], [l / 2, 0], [W / 2, 0], [W / 2, m], [-W / 2, m]] : rect(-W / 2, 0, W / 2, m);
   }
 function dessinMainCourante(L, v) {
-    const W = v.profilMC ? v.lMc : v.mc, H = v.mc, cls = v.profilMC ? "t-acier-plein" : "t-bois";
+    const W = v.profilMC || v.eRf ? v.lMc : v.mc, H = v.mc, cls = v.profilMC ? "t-acier-plein" : "t-bois";
     const D = profil(rectPts(L, H), { cls });
-    if (!(v.chev > 0)) return D;
+    if (!(v.chev > 0) && !v.eRf) return D;
     const K = Math.max(2, Math.round(Math.min(L, 12 * W) / (3 * W)));
     const m = W * K, ox = -(m / 2 + 5.5 * W);
     const S = sectionMainCourante(v).map(([x, y]) => [ox + x * K, y * K]);
     const n = (x) => (Number.isInteger(x) ? mmTxt(x) : fmt(x, 1));
+    if (v.eRf) {
+      const e = v.eRf * K, sK = v.s * K, lP = v.lRf * K, xv = (v.s / 2 + v.lRf / 2) / 2 * K;
+      D.push({ t: "poly", cls: "t-acier-plein", pts: rect(ox - sK / 2, -e - sK, ox + sK / 2, -e) });
+      D.push({ t: "poly", cls: "t-acier-plein", pts: rect(ox - lP / 2, -e, ox + lP / 2, 0) });
+      D.push({ t: "poly", cls, pts: S });
+      D.push({ t: "poly", ouvert: true, cls: "t-cache", pts: [[ox - xv, -e], [ox - xv, (v.eRf + 30) * K - e]] }, { t: "poly", ouvert: true, cls: "t-cache", pts: [[ox + xv, -e], [ox + xv, (v.eRf + 30) * K - e]] });
+      D.push({ t: "cote", a: [ox - m / 2, 0], b: [ox - m / 2, H * K], cote: "gauche", d: 1, txt: n(H) });
+      D.push({ t: "cote", a: [ox + lP / 2, -e], b: [ox + lP / 2, 0], cote: "droite", d: 1, txt: n(v.eRf) });
+      D.push({ t: "cote", a: [ox - m / 2, H * K], b: [ox + m / 2, H * K], cote: "haut", d: 1, txt: n(W) });
+      D.push({ t: "texte", p: [ox, -e - sK], txt: `Section (agrandie ×${K}) : bois ${n(W)} × ${n(H)} posé sur le plat ${n(v.lRf)} × ${n(v.eRf)}, vissé par dessous`, pos: "sous", decal: 4.2 });
+      return D;
+    }
     D.push({ t: "poly", cls, pts: S });
     D.push({ t: "cote", a: [ox - v.lR * K / 2, 0], b: [ox + v.lR * K / 2, 0], cote: "bas", d: 1, txt: n(v.lR) });
     D.push({ t: "cote", a: [ox + m / 2, 0], b: [ox + m / 2, v.chev * K], cote: "droite", d: 1, txt: n(v.chev) });
@@ -316,10 +341,9 @@ function calculerGC(v) {
     const vEntree = v;
     const acier = v.mcType === "acier";
     const profilMC = v.mcType === "profil";
-    if (profilMC) v = { ...v, mc: MC_PROFIL.h, lMc: MC_PROFIL.l, chev: MC_PROFIL.h - MC_PROFIL.ep, lR: MC_PROFIL.r, profilMC: true };
-    if (acier) v = { ...v, lMc: v.mc, mc: v.epMc };
-    const rain = !acier && !profilMC && v.mc > 0 && v.rainure !== false && v.rnP > 0;
-    if (rain) v = { ...v, chev: Math.min(v.rnP, v.s), lR: v.s + v.rnJ };
+    v = mainCouranteGC(v);
+    const renfort = v.eRf > 0;
+    const rain = !acier && !profilMC && !renfort && v.chev > 0;
     const R = { vues: { face: [], cote: [], dessus: [] }, debit: [], alertes: [], oks: [], notes: [], resume: [], tubes: [], acierM2: 0, poids: 0 };
     const F = R.vues.face, C = R.vues.cote, D = R.vues.dessus;
     const auto = Math.max(1, Math.round(v.B / 600));
@@ -355,6 +379,12 @@ function calculerGC(v) {
     }
     if (profilMC && s > MC_PROFIL.r - 1) R.alertes.push(`Main courante profilée : sa rainure fait ${MC_PROFIL.r} mm, le carré de ${s} ne rentre pas. Prends un carré de ${MC_PROFIL.r - 2} au plus.`);
     else if (profilMC) R.notes.push(`Main courante profilée ${MC_PROFIL.l} × ${MC_PROFIL.h} : rainure de ${MC_PROFIL.r} sur un carré de ${s} (${fmt((MC_PROFIL.r - s) / 2, 1)} mm de jeu de chaque côté), emboîtée de ${fmt(MC_PROFIL.h - MC_PROFIL.ep, 1)} mm. Profondeur déduite des cotes du fabricant (10 − 5,6) : à vérifier sur la barre reçue.`);
+    const nVisMc = renfort ? Math.max(4, Math.round(g.Lc / RENFORT.pasVis) + 1) : 0;
+    if (renfort) {
+      const debord = (v.lRf - s) / 2;
+      if (debord < RENFORT.visD + 8) R.alertes.push(`Main courante : avec un carré de ${s}, le plat de ${mmTxt(v.lRf)} ne dépasse que de ${fmt(debord, 1)} mm de chaque côté : pas la place pour les vis du bois. Prends un carré de ${v.lRf - 2 * (RENFORT.visD + 8)} au plus.`);
+      else R.oks.push(`Main courante : bois ${mmTxt(v.lMc)} × ${mmTxt(v.mc)} posé sur le plat ${mmTxt(v.lRf)} × ${mmTxt(v.eRf)}, vissé par dessous (${nVisMc} vis Ø ${RENFORT.visD} × ${RENFORT.visL}).`);
+    }
     if (rain) {
       const joue = (v.mc - v.lR) / 2, dessus = v.mc - v.chev;
       if (joue < 8 || dessus < 20) R.alertes.push(`Main courante : la rainure ${(Number.isInteger(v.lR) ? mmTxt(v.lR) : fmt(v.lR, 1))} × ${mmTxt(v.chev)} affaiblit trop le bois de ${mmTxt(v.mc)} (il reste ${fmt(joue, 1)} mm sur les côtés et ${mmTxt(dessus)} mm dessus). Il faut au moins 8 mm sur les côtés et 20 mm dessus : prends une main courante plus grosse ou une rainure moins profonde.`);
@@ -386,10 +416,34 @@ function calculerGC(v) {
       else R.alertes.push(`Escalade : le dessus de la traverse du milieu est à ${mmTxt(zT)} mm du sol. Sous 600 mm, un enfant peut y poser le pied : pas aux normes. Enlève la traverse.`);
     }
     if (v.sbMode === "toujours" && !g.sb) R.notes.push(`Barreaux en bas : pas assez de hauteur (cadre de ${mmTxt(g.Hc)} mm), les croix seraient trop plates. Garde-corps dessiné avec les croix seules.`);
-    const Lm = g.Lc / 1000, sigma = (0.9 * Lm * Lm / 8) * 1e6 / (s * s * s / 6);
-    if (sigma > LIMITE_ACIER) R.alertes.push(`Solidité : la lisse haute en carré de ${s} travaille à ${mmTxt(sigma)} MPa (limite ${LIMITE_ACIER}). Trop faible : prends un carré plus gros.`);
-    else if (sigma > 0.8 * LIMITE_ACIER) R.notes.push(`Solidité : la lisse haute en carré de ${s} travaille à ${mmTxt(sigma)} MPa, pour ${LIMITE_ACIER} au maximum. C'est à la limite : un carré de 20 ou une note de calcul.`);
-    else R.oks.push(`Solidité : lisse haute à ${mmTxt(sigma)} MPa (limite ${LIMITE_ACIER}).`);
+    const Ih = s ** 4 / 12 + (renfort ? v.eRf * v.lRf ** 3 / 12 : 0);
+    const Wh = renfort ? Ih / (Math.max(s, v.lRf) / 2) : s * s * s / 6;
+    const Lm = g.Lc / 1000, sigma = (0.9 * Lm * Lm / 8) * 1e6 / Wh;
+    const lisseTxt = renfort ? `la lisse haute renforcée (carré de ${s} + plat ${mmTxt(v.lRf)} × ${mmTxt(v.eRf)})` : `la lisse haute en carré de ${s}`;
+    const peutRenfort = !renfort && !acier && !profilMC && v.mc > 0 && g.Lc <= RENFORT.LcMax;
+    if (renfort && g.Lc > RENFORT.LcMax) R.alertes.push(`Solidité : ${mmTxt(g.Lc)} mm de large. Au-delà de ${mmTxt(RENFORT.LcMax)} mm, le plat ${mmTxt(v.lRf)} × ${mmTxt(v.eRf)} n'est plus garanti (flèche, déversement, fixations) : il faut une note de calcul.`);
+    else if (sigma > LIMITE_ACIER) R.alertes.push(`Solidité : ${lisseTxt} travaille à ${mmTxt(sigma)} MPa (limite ${LIMITE_ACIER}). Trop faible : ${renfort ? "il faut une note de calcul" : `prends un carré plus gros${peutRenfort ? `, ou ajoute le renfort (plat ${RENFORT.l} × ${RENFORT.e} sous la main courante bois)` : ""}`}.`);
+    else if (sigma > 0.8 * LIMITE_ACIER) R.notes.push(`Solidité : ${lisseTxt} travaille à ${mmTxt(sigma)} MPa, pour ${LIMITE_ACIER} au maximum. C'est à la limite : ${renfort ? "une note de calcul" : s < 20 ? "un carré de 20 ou une note de calcul" : "le renfort (plat sous la main courante) ou une note de calcul"}.`);
+    else R.oks.push(`Solidité : ${renfort ? "lisse haute renforcée" : "lisse haute"} à ${mmTxt(sigma)} MPa (limite ${LIMITE_ACIER}).`);
+    if (renfort) {
+      const fleche = 5 * 0.6 * g.Lc ** 4 / (384 * E_ACIER * Ih);
+      R.notes.push(`Flèche : sous la poussée normale (0,6 kN/m), la main courante bouge de ${fmt(fleche, 1)} mm au milieu (repère du métier : L/300 = ${fmt(g.Lc / 300, 1)} mm).`);
+    }
+    {
+      const Lv = g.w + s, Wv = renfort ? (s ** 4 / 12 + v.lRf * v.eRf ** 3 / 12) / (s / 2) : s * s * s / 6;
+      const sigmaV = (n > 1 ? 0.203 : 0.25) * CHARGE_V * Lv * 1000 / Wv;
+      if (sigmaV > LIMITE_ACIER) R.alertes.push(`Charge verticale : si quelqu'un s'appuie de tout son poids au milieu d'un panneau de ${mmTxt(Lv)} mm, la lisse haute travaille à ${mmTxt(sigmaV)} MPa (limite ${LIMITE_ACIER}). Trop faible : mets plus de croix (des panneaux plus étroits).`);
+      else R.oks.push(`Charge verticale : lisse haute à ${mmTxt(sigmaV)} MPa entre deux montants (limite ${LIMITE_ACIER}).`);
+    }
+    {
+      const LmF = v.ass === "onglet" ? g.Hc : g.Hc - 2 * s, pos = percages(LmF, v.nF, v.eF);
+      const dF = pos[pos.length - 1] - pos[0], aF = g.Hr - ((v.ass === "onglet" ? 0 : s) + pos[pos.length - 1]);
+      if (dF > 0) {
+        const Vd = 0.45 * Lm, k = 1 + aF / dF, haute = Vd * k;
+        if (renfort && k > 2) R.alertes.push(`Fixation : les perçages d'un montant ne sont écartés que de ${mmTxt(dF)} mm. Sur une fenêtre de ${mmTxt(g.Lc)} mm, la vis du haut reprendrait ${mmTxt(haute * 100)} kg : trop pour un mur. Il faut un garde-corps plus haut (un bas de fenêtre plus bas) ou une note de calcul.`);
+        else if (renfort || haute > 1) R.notes.push(`Fixation : chaque côté reprend ${mmTxt(Vd * 100)} kg de poussée, dont ${mmTxt(haute * 100)} kg sur la vis du haut. À justifier selon le mur : scellement chimique ; dans le tuffeau ou un mur creux, essai d'arrachement sur place.`);
+      }
+    }
     if (v.Hf > 0 && v.A + v.Hf < haut) R.alertes.push(`La fenêtre est trop basse : le haut de l'ouverture est à ${mmTxt(v.A + v.Hf)} mm du sol, la main courante à ${mmTxt(haut)} mm.`);
     R.notes.push("Garde-corps visible en façade : le client doit sans doute déposer une déclaration préalable en mairie.");
 
@@ -399,7 +453,8 @@ function calculerGC(v) {
     F.push({ t: "poly", cls: "t-mur", pts: rect(-B2, 0, B2, v.A) });
     F.push({ t: "poly", piece: "Traverses du cadre", cls: "t-acier-plein", pts: rect(x0, y0, -x0, y0 + s) }, { t: "poly", piece: "Traverses du cadre", cls: "t-acier-plein", pts: rect(x0, y0 + g.Hc - s, -x0, y0 + g.Hc) });
     F.push({ t: "poly", piece: "Montants de rive", cls: "t-acier-plein", pts: rect(x0, y0, x0 + s, y0 + g.Hc) }, { t: "poly", piece: "Montants de rive", cls: "t-acier-plein", pts: rect(-x0 - s, y0, -x0, y0 + g.Hc) });
-    if (v.mc > 0) F.push({ t: "poly", piece: "Main courante", cls: acier || profilMC ? "t-acier-plein" : "t-bois", pts: rect(x0, y0 + g.Hc - (v.chev || 0), -x0, haut) });
+    if (renfort) F.push({ t: "poly", piece: "Plat de renfort", cls: "t-acier-plein", pts: rect(x0, y0 + g.Hc, -x0, y0 + g.Hc + v.eRf) });
+    if (v.mc > 0) F.push({ t: "poly", piece: "Main courante", cls: acier || profilMC ? "t-acier-plein" : "t-bois", pts: rect(x0, y0 + g.Hc + (v.eRf || 0) - (v.chev || 0), -x0, haut) });
     const yM = v.ass === "onglet" ? y0 : y0 + s, LmR = v.ass === "onglet" ? g.Hc : g.Hc - 2 * s;
     const posF = percages(LmR, v.nF, v.eF);
     posF.forEach((pz) => { F.push(...percageCache(x0, x0 + s, yM + pz, v.dF, v.fF), ...percageCache(-x0, -x0 - s, yM + pz, v.dF, v.fF)); });
@@ -441,7 +496,7 @@ function calculerGC(v) {
     F.push({ t: "cote", a: [-B2 - 250, v.A], b: [-B2 - 250, y0], cote: "gauche", d: 1, txt: `${mmTxt(v.jour)}` });
     if (g.sb) F.push({ t: "cote", a: [-B2 - 250, y0], b: [-B2 - 250, y0 + g.sb + s], cote: "gauche", d: 1, txt: `${mmTxt(g.sb + s)}` });
     F.push({ t: "cote", a: [B2 + 250, y0], b: [B2 + 250, y0 + g.Hc], cote: "droite", d: 1, txt: `${mmTxt(g.Hc)}` });
-    if (v.mc > 0) F.push({ t: "cote", a: [B2 + 250, y0 + g.Hc - (v.chev || 0)], b: [B2 + 250, haut], cote: "droite", d: 1, txt: `${mmTxt(v.mc)}` });
+    if (v.mc > 0) F.push({ t: "cote", a: [B2 + 250, y0 + g.Hc - (v.chev || 0)], b: [B2 + 250, haut], cote: "droite", d: 1, txt: renfort ? `${mmTxt(v.eRf)} + ${mmTxt(v.mc)}` : `${mmTxt(v.mc)}` });
     F.push({ t: "cote", a: [B2 + 250, 0], b: [B2 + 250, haut], cote: "droite", d: 2, txt: `${mmTxt(haut)} du sol` });
     const px0 = x0 + s;
     for (let i = 0; i < n; i++) { const pxi = x0 + s + i * (g.w + s); F.push({ t: "cote", a: [pxi, haut], b: [pxi + g.w, haut], cote: "haut", d: 2, txt: `${mmTxt(g.w)}` }); }
@@ -451,18 +506,24 @@ function calculerGC(v) {
     C.push({ t: "sol", x1: -ep - 300, x2: 300 });
     C.push({ t: "poly", cls: "t-mur", pts: rect(-ep, 0, 0, v.A) });
     C.push({ t: "poly", piece: "Montants de rive", cls: "t-acier-plein", pts: rect(-ep / 2 - s / 2, y0, -ep / 2 + s / 2, y0 + g.Hc) });
-    if (v.mc > 0) C.push({ t: "poly", piece: "Main courante", cls: acier || profilMC ? "t-acier-plein" : "t-bois", pts: acier ? rect(-ep / 2 - v.lMc / 2, y0 + g.Hc, -ep / 2 + v.lMc / 2, haut) : sectionMainCourante(v).map(([x, y]) => [x - ep / 2, y + y0 + g.Hc - (v.chev || 0)]) });
+    if (v.mc > 0) C.push({ t: "poly", piece: "Main courante", cls: acier || profilMC ? "t-acier-plein" : "t-bois", pts: acier ? rect(-ep / 2 - v.lMc / 2, y0 + g.Hc, -ep / 2 + v.lMc / 2, haut) : sectionMainCourante(v).map(([x, y]) => [x - ep / 2, y + y0 + g.Hc + (v.eRf || 0) - (v.chev || 0)]) });
+    if (renfort) {
+      C.push({ t: "poly", piece: "Plat de renfort", cls: "t-acier-plein", pts: rect(-ep / 2 - v.lRf / 2, y0 + g.Hc, -ep / 2 + v.lRf / 2, y0 + g.Hc + v.eRf) });
+      for (const xv of [-1, 1].map((k) => -ep / 2 + k * (s / 2 + v.lRf / 2) / 2)) C.push({ t: "poly", ouvert: true, cls: "t-cache", pts: [[xv, y0 + g.Hc], [xv, y0 + g.Hc + v.eRf + 30]] });
+    }
     C.push({ t: "cote", a: [0, 0], b: [0, v.A], cote: "droite", d: 2, txt: `${mmTxt(v.A)}` });
     C.push({ t: "cote", a: [0, v.A], b: [0, y0], cote: "droite", d: 2, txt: `${mmTxt(v.jour)}` });
     C.push({ t: "cote", a: [0, y0], b: [0, haut], cote: "droite", d: 2, txt: `${mmTxt(g.Hr)}` });
-    if (v.mc > 0) { const lm = acier || profilMC ? v.lMc : v.mc; C.push({ t: "cote", a: [-ep / 2 - lm / 2, haut], b: [-ep / 2 + lm / 2, haut], cote: "haut", d: 1, txt: `${mmTxt(lm)}` }); }
+    if (v.mc > 0) { const lm = acier || profilMC || renfort ? v.lMc : v.mc; C.push({ t: "cote", a: [-ep / 2 - lm / 2, haut], b: [-ep / 2 + lm / 2, haut], cote: "haut", d: 1, txt: `${mmTxt(lm)}` }); }
 
     D.push({ t: "poly", cls: "t-mur", pts: rect(-B2 - 250, -ep / 2, -B2, ep / 2) }, { t: "poly", cls: "t-mur", pts: rect(B2, -ep / 2, B2 + 250, ep / 2) });
-    if (v.mc > 0) { const lm = acier || profilMC ? v.lMc : v.mc; D.push({ t: "poly", piece: "Main courante", cls: acier || profilMC ? "t-acier-plein" : "t-bois", pts: rect(x0, -lm / 2, -x0, lm / 2) }); }
+    const lmD = v.mc > 0 ? (acier || profilMC || renfort ? v.lMc : v.mc) : s;
+    if (renfort) D.push({ t: "poly", piece: "Plat de renfort", cls: "t-cache", pts: rect(x0, -v.lRf / 2, -x0, v.lRf / 2) });
+    if (v.mc > 0) D.push({ t: "poly", piece: "Main courante", cls: acier || profilMC ? "t-acier-plein" : "t-bois", pts: rect(x0, -lmD / 2, -x0, lmD / 2) });
     else D.push({ t: "poly", piece: "Traverses du cadre", cls: "t-acier-plein", pts: rect(x0, -s / 2, -x0, s / 2) });
     D.push({ t: "poly", piece: "Traverses du cadre", cls: "t-cache", pts: rect(x0, -s / 2, -x0, s / 2) });
     D.push({ t: "cote", a: [-B2, ep / 2], b: [B2, ep / 2], cote: "haut", d: 1, txt: `${mmTxt(v.B)}` });
-    D.push({ t: "cote", a: [x0, -v.mc / 2], b: [-x0, -v.mc / 2], cote: "bas", d: 1, txt: `${mmTxt(g.Lc)} (${v.j ? "jeu " + mmTxt(v.j) + " mm au total" : "même taille que la fenêtre"})` });
+    D.push({ t: "cote", a: [x0, -lmD / 2], b: [-x0, -lmD / 2], cote: "bas", d: 1, txt: `${mmTxt(g.Lc)} (${v.j ? "jeu " + mmTxt(v.j) + " mm au total" : "même taille que la fenêtre"})` });
 
     const alpha = Math.atan2(g.h, g.w), diag = Math.hypot(g.w, g.h);
     const theta = Math.min(2 * alpha, Math.PI - 2 * alpha);
@@ -500,14 +561,22 @@ function calculerGC(v) {
     if (v.nb > 0) { R.debit.push({ nom: "Barreaux", qte: v.nb * n, mat, long: g.h, coupes: `Coupes droites · vides égaux de ${mmTxt(g.vide)} mm`, note: g.sb ? "Entre la lisse intermédiaire et la traverse haute" : v.traverse ? "Entre les traverses du cadre" : "Entre les traverses", dessin: profil(rectPts(g.h, s)) }); morceaux.push({ qte: v.nb * n, long: g.h }); }
     if (profilMC) R.debit.push({ nom: "Main courante", qte: 1, mat: `Main courante acier profilée ${MC_PROFIL.l} × ${MC_PROFIL.h}, rainure ${MC_PROFIL.r}`, long: g.Lc, coupes: "Coupes droites, emboîtée sur la traverse haute, soudée par points dessous", note: "Achetée en barre", dessin: dessinMainCourante(g.Lc, v) });
     else if (v.mc > 0 && acier) R.debit.push({ nom: "Main courante", qte: 1, mat: `Plat acier ${mmTxt(v.lMc)} × ${mmTxt(v.mc)}`, long: g.Lc, coupes: "Coupes droites, soudée à plat sur la traverse haute", note: "Arêtes cassées", dessin: profil(rectPts(g.Lc, v.mc)) });
+    else if (v.mc > 0 && renfort) {
+      R.debit.push({ nom: "Plat de renfort de la lisse haute", qte: 1, mat: `Plat acier ${mmTxt(v.lRf)} × ${mmTxt(v.eRf)}`, long: g.Lc, coupes: `Coupes droites · ${nVisMc} trous Ø ${fmt(RENFORT.visD + 0.5, 1)} fraisés dessous, en quinconce à ${fmt((s / 2 + v.lRf / 2) / 2, 0)} mm de l'axe, tous les ${RENFORT.pasVis} mm environ (à percer avant de souder) · soudé à plat, centré sur la traverse haute, cordon continu des deux côtés`, note: "Il tient la poussée sur la main courante : ne pas le supprimer ni le raccourcir", dessin: profil(rectPts(g.Lc, v.eRf)) });
+      R.debit.push({ nom: "Main courante", qte: 1, mat: `${{ chene: "Chêne", hetre: "Hêtre", pin: "Pin", noyer: "Noyer" }[v.essence || "chene"]} massif ${mmTxt(v.lMc)} × ${mmTxt(v.mc)}`, long: g.Lc, coupes: "Dessous plan, sans rainure · arrondie, poncée, huilée", note: "Posée sur le plat de renfort · vissée par dessous à travers le plat", dessin: dessinMainCourante(g.Lc, v) });
+      R.debit.push({ nom: `Vis du bois Ø ${RENFORT.visD} × ${RENFORT.visL} inox à tête fraisée`, qte: nVisMc, mat: "À acheter", long: 0, coupes: "Par dessous, à travers le plat de renfort", note: "Avant-trou Ø 3 dans le bois" });
+    }
     else if (v.mc > 0) R.debit.push({ nom: "Main courante", qte: 1, mat: `${{ chene: "Chêne", hetre: "Hêtre", pin: "Pin", noyer: "Noyer" }[v.essence || "chene"]} massif ${mmTxt(v.mc)} × ${mmTxt(v.mc)}`, long: g.Lc, coupes: rain ? `Rainure dessous ${(Number.isInteger(v.lR) ? mmTxt(v.lR) : fmt(v.lR, 1))} × ${mmTxt(v.chev)} de profondeur, sur toute la longueur · arrondie, poncée, huilée` : "Arrondie, poncée, huilée", note: rain ? "Emboîtée sur la lisse haute · collage PU ou vis par-dessous à travers la lisse" : "Fixation sur le cadre : à définir", dessin: dessinMainCourante(g.Lc, v) });
     if (v.rosace !== false) R.debit.push({ nom: "Rosaces Ø 100", qte: n, mat: "Achetées", long: 0, coupes: "1 au centre de chaque croix", note: "" });
     R.debit.push({ nom: `Vis ou goujons Ø ${fmt(v.dF - 0.5, 0)} à tête fraisée + chevilles`, qte: 2 * v.nF, mat: "À acheter (longueur selon le mur)", long: 0, coupes: `${v.nF} par montant de rive`, note: "Mur plein : cheville nylon · mur creux ou ancien : scellement chimique" });
 
     const b = barres(morceaux, v.trait, 0);
     const metres = morceaux.reduce((x, m) => x + m.qte * m.long, 0) / 1000;
-    const kg = metres * s * s * 7.85e-3 + (profilMC ? MC_PROFIL.kg * g.Lc / 1000 : acier ? v.lMc * v.mc * g.Lc / 1e9 * 7850 : v.mc * v.mc * g.Lc / 1e9 * 700);
+    const kg = metres * s * s * 7.85e-3 + (profilMC ? MC_PROFIL.kg * g.Lc / 1000 : acier ? v.lMc * v.mc * g.Lc / 1e9 * 7850 : (renfort ? v.lMc : v.mc) * v.mc * g.Lc / 1e9 * 700)
+      + (renfort ? v.lRf * v.eRf * g.Lc / 1e9 * 7850 : 0);
     R.kg = kg; R.metres = metres; R.hauteurGC = g.Hr;
+    R.mc = { l: acier || profilMC || renfort ? v.lMc : v.mc, h: v.mc, chev: v.chev || 0, renfort: renfort ? { l: v.lRf, e: v.eRf, vis: nVisMc } : null };
+    if (renfort && !v._rapide && !R.alertes.length && !calculerGC({ ...vEntree, renfort: "sans", _rapide: true }).alertes.length) R.notes.unshift("Renfort : pas nécessaire ici. Sans le plat, la lisse haute tient et le garde-corps reste aux normes (main courante de 40).");
     if (v.nb > 0 && !v._rapide && !R.alertes.length) {
       const sans = calculerGC({ ...vEntree, nb: 0, _rapide: true });
       if (!sans.alertes.length) R.notes.unshift(`Barreaux dans les croix : pas nécessaires ici. Sans eux, le garde-corps reste aux normes. Mets « Barreaux par panneau » à 0 dans Paramètres d'atelier.`);
@@ -518,33 +587,40 @@ function calculerGC(v) {
       ["Barres de 6 m", `${b.n}`],
       ["Chute", `${fmt(b.chute / 1000, 2)} m`],
       ["Peinture", `${fmt(metres * 4 * s / 1000, 2)} m²`],
+      ...(renfort ? [[`Plat de renfort ${mmTxt(v.lRf)} × ${mmTxt(v.eRf)}`, `${fmt(g.Lc / 1000, 2)} m`]] : []),
       ["Poids", `≈ ${fmt(kg, 1)} kg`],
       ["Croix", `${n}${v.nP >= 1 ? "" : " (auto)"}`],
     ];
     R.notes.push(`Hauteur retenue : ${mmTxt(g.Hr)} mm, main courante comprise (${v.Hs >= MINI_GC ? "voulue par le client" : `calculée pour que la main courante arrive à ${mmTxt(g.cible)} mm du sol${v.etage ? "" : " ; au rez-de-chaussée ce n'est pas obligatoire, tu peux taper une hauteur plus basse"}`}).`);
+    if (renfort) R.notes.push(`Main courante ${mmTxt(v.lMc)} × ${mmTxt(v.mc)} sur plat ${mmTxt(v.lRf)} × ${mmTxt(v.eRf)} : le cadre est plus bas de ${mmTxt(v.mc + v.eRf - (vEntree.mc - (mainCouranteGC({ ...vEntree, renfort: "sans" }).chev || 0)))} mm qu'avec la main courante de ${mmTxt(vEntree.mc)}, le dessus reste à la même hauteur.`);
     R.notes.push(v.traverse ? "Chaque croix : une diagonale entière et deux demi-diagonales soudées contre elle. Au milieu, deux demi-traverses vont du montant jusqu'au centre : leur bout en pointe rentre entre les diagonales." : "Chaque croix : une diagonale entière et deux demi-diagonales soudées contre elle.");
     return R;
   }
 function variantesConformes(v) {
     const base = calculerGC(v);
     if (!base.alertes.length) return [];
-    const carres = [...new Set([v.s, 16, 18, 20, 22, 25].filter((x) => x >= v.s))];
+    const carres = [...new Set([v.s, 16, 18, 20].filter((x) => x >= v.s))];
     const croix = [1, 2, 3, 4, 5, 6], barreaux = [0, 1, 2, 3, 4];
+    const rf0 = v.renfort === "plat" ? "plat" : "sans";
+    const tropSouple = v.mcType === "bois" && calculerGC({ ...v, s: 20, renfort: "sans", _rapide: true }).alertes.some((a) => a.startsWith("Solidité"));
+    const renforts = tropSouple ? [...new Set([rf0, "plat"])] : [rf0];
     const vues = new Set(), out = [];
-    for (const sbMode of [...new Set([v.sbMode || "auto", "toujours"])]) for (const s of carres) for (const nP of croix) for (const nb of barreaux) for (const Hs of v.Hs >= MINI_GC ? [v.Hs, 0] : [0]) for (const traverse of [false, true]) {
+    for (const renfort of renforts) for (const sbMode of [...new Set([v.sbMode || "auto", "toujours"])]) for (const s of carres) for (const nP of croix) for (const nb of barreaux) for (const Hs of v.Hs >= MINI_GC ? [v.Hs, 0] : [0]) for (const traverse of [false, true]) {
       if (traverse && nb > 0) continue;
-      const w = { ...v, s, nP, nb, Hs, sbMode, traverse, _rapide: true };
-      const cle = [sbMode, s, nP, nb, Hs, traverse].join("|");
+      if (renfort !== rf0 && nb > 0) continue;
+      const w = { ...v, s, nP, nb, Hs, sbMode, traverse, renfort, _rapide: true };
+      const cle = [sbMode, s, nP, nb, Hs, traverse, renfort].join("|");
       if (vues.has(cle)) continue;
       vues.add(cle);
       let R;
       try { R = calculerGC(w); } catch (e) { continue; }
       if (R.alertes.length) continue;
-      const change = (s !== v.s) + (Math.max(1, Math.round(v.nP || 1)) !== nP) + ((v.nb || 0) !== nb) + (Hs !== v.Hs) + (sbMode !== (v.sbMode || "auto")) + (traverse !== !!v.traverse);
+      const change = (s !== v.s) + (Math.max(1, Math.round(v.nP || 1)) !== nP) + ((v.nb || 0) !== nb) + (Hs !== v.Hs) + (sbMode !== (v.sbMode || "auto")) + (traverse !== !!v.traverse) + (renfort !== rf0);
       out.push({ w, R, change, score: change * 4 + (R.kg || 0) + nb * 8 });
     }
     out.sort((a, b) => a.score - b.score);
-    const domine = (a, b) => b.w.sbMode === a.w.sbMode && b.w.nP <= a.w.nP && b.w.nb <= a.w.nb && b.w.s <= a.w.s && b.w.Hs === a.w.Hs && b.w.traverse <= a.w.traverse && (!a.w.traverse || b.change <= a.change) && (b.w.nP < a.w.nP || b.w.nb < a.w.nb || b.w.s < a.w.s || b.w.traverse < a.w.traverse);
+    const rf = (x) => (x.w.renfort === "plat" ? 1 : 0);
+    const domine = (a, b) => b.w.sbMode === a.w.sbMode && b.w.nP <= a.w.nP && b.w.nb <= a.w.nb && b.w.s <= a.w.s && b.w.Hs === a.w.Hs && b.w.traverse <= a.w.traverse && rf(b) <= rf(a) && (!a.w.traverse || b.change <= a.change) && (b.w.nP < a.w.nP || b.w.nb < a.w.nb || b.w.s < a.w.s || b.w.traverse < a.w.traverse || rf(b) < rf(a));
     const utiles = out.filter((a) => !out.some((b) => domine(a, b)));
     const vuesD = new Set(), uniques = [];
     for (const c of utiles) { const k = c.R.debit.map((d) => `${d.nom}:${d.qte}:${Math.round(d.long || 0)}`).join("|"); if (!vuesD.has(k)) { vuesD.add(k); uniques.push(c); } }
@@ -559,10 +635,11 @@ function decrireVariante(v, c) {
     if (c.w.Hs !== v.Hs) d.push("hauteur calculée pour la norme");
     if (c.w.traverse !== !!v.traverse) d.push(c.w.traverse ? `une traverse au milieu ${c.w.nP > 1 ? "de chaque croix" : "de la croix"}` : "sans traverse au milieu");
     if (c.w.sbMode !== (v.sbMode || "auto")) d.push(c.w.sbMode === "toujours" ? "barreaux en bas, croix au-dessus" : "croix seules");
+    if ((c.w.renfort === "plat") !== (v.renfort === "plat")) d.push(c.w.renfort === "plat" ? `lisse haute renforcée : plat ${RENFORT.l} × ${RENFORT.e} sous une main courante bois de ${RENFORT.bois.l}` : "sans plat de renfort");
     return d;
   }
-export const DEFAUTS_GC = Object.freeze({"prixVente":0,"km":30,"debitAr":8,"minSoud":1.2,"rnP":14,"rnJ":1,"nF":2,"dF":6.5,"fF":13,"eF":40,"epMc":8,"L":2000,"l":1000,"H":750,"e":45,"a":80,"ep":3,"t":3,"pL":75,"pl":60,"pX":80,"rX":250,"tS":300,"tW":120,"pR":60,"bR":300,"lame":150,"latte":120,"jeu":8,"trait":3,"B":1180,"A":650,"Hs":0,"Hf":0,"s":16,"mc":40,"j":1,"jour":90,"nP":1,"nb":0,"Xo":0,"Hm":2600,"recul":0,"Wm":900,"lh":150,"lw":100,"le":5,"em":50,"nez":0,"hs":80,"tp":8,"plx":200,"ply":150,"tpp":10,"epl":200,"ass":"droit","etage":true,"rosace":true,"traverse":false,"mcType":"bois","sbMode":"auto","essence":"chene","remise":"retrait","essenceT":"chene","teinte":"noir","rainure":true});
+export const DEFAUTS_GC = Object.freeze({"prixVente":0,"km":30,"debitAr":8,"minSoud":1.2,"rnP":14,"rnJ":1,"nF":2,"dF":6.5,"fF":13,"eF":40,"epMc":8,"L":2000,"l":1000,"H":750,"e":45,"a":80,"ep":3,"t":3,"pL":75,"pl":60,"pX":80,"rX":250,"tS":300,"tW":120,"pR":60,"bR":300,"lame":150,"latte":120,"jeu":8,"trait":3,"B":1180,"A":650,"Hs":0,"Hf":0,"s":16,"mc":40,"j":1,"jour":90,"nP":1,"nb":0,"Xo":0,"Hm":2600,"recul":0,"Wm":900,"lh":150,"lw":100,"le":5,"em":50,"nez":0,"hs":80,"tp":8,"plx":200,"ply":150,"tpp":10,"epl":200,"ass":"droit","etage":true,"rosace":true,"traverse":false,"mcType":"bois","sbMode":"auto","renfort":"sans","essence":"chene","remise":"retrait","essenceT":"chene","teinte":"noir","rainure":true});
 export const BORNES_GC = Object.freeze({ B: Object.freeze({"min":300,"max":3000}), A: Object.freeze({"min":0,"max":1200}), Hf: Object.freeze({"min":0,"max":3000}) });
-export const EMPREINTE_SOURCE = "df33a7323b62d0e05330eba492ff37c83b10c1dba6eb57038b61e28e837ae8e6";
-export { ALLEGE_LIBRE, BARRE_APPUI, CIBLE_MARGE, HAUT_ETAGE, LIMITE_ACIER, MINI_GC, ROSACE_R, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, decrireVariante, fmt, geomGC, mmTxt, variantesConformes };
-export const EMPREINTE = "14f1f1abd92e";
+export const EMPREINTE_SOURCE = "7debafb735a47e76154fbc841e9948803aea1fa71bba4e3b4f1fe36508a02c2c";
+export { ALLEGE_LIBRE, BARRE_APPUI, CIBLE_MARGE, HAUT_ETAGE, LIMITE_ACIER, MINI_GC, RENFORT, ROSACE_R, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, decrireVariante, fmt, geomGC, mmTxt, variantesConformes };
+export const EMPREINTE = "43a8c467e10a";

@@ -61,7 +61,8 @@ function devisOk(e: EntreeDevisGC) {
 
 // Des relevés variés : fenêtre étroite ou large, allège basse (barreaux en bas), moyenne, haute ; étage et rez-de-chaussée.
 const RELEVES: ReleveGC[] = [];
-for (const largeurMm of [450, 900, 1180, 1250, 1500])
+// (1 990 et 2 300 : fenêtres larges, vendues avec le fer plat de renfort caché sous la main courante.)
+for (const largeurMm of [450, 900, 1180, 1250, 1500, 1990, 2300])
   for (const allegeMm of [0, 300, 650, 950])
     RELEVES.push({ largeurMm, allegeMm, enEtage: allegeMm !== 950 || largeurMm % 2 === 0, fenetreMm: allegeMm === 300 ? 1500 : 0 });
 

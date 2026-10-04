@@ -293,6 +293,10 @@ function traits(config: ConfigGC) {
     traverse: R.debit.some((d) => /^Demi-traverses/.test(d.nom)),
     nVis: vis ? vis.qte : 2 * v.nF,
     rainure: /^Rainure/.test(mcD?.coupes || ""),
+    // La main courante retenue par l'outil (40 × 40, ou 60 × 45 sur le fer plat de renfort d'une fenêtre large).
+    mcL: R.mc ? R.mc.l : v.mc,
+    mcH: R.mc ? R.mc.h : v.mc,
+    renfort: R.mc?.renfort ?? null,
   };
 }
 
@@ -308,6 +312,7 @@ function lignesAnglaises(fr: LignesSite, config: ConfigGC, line: ResolvedLine, q
   const croix = `${t.n} Saint Andrew's ${t.n > 1 ? "crosses" : "cross"}`;
   const bas = t.sb ? ", straight bars in the lower part" : "";
   const traverse = !verre && t.traverse ? `, a middle rail in ${t.n > 1 ? "each cross" : "the cross"}` : "";
+  const renfort = t.renfort ? `, top rail stiffened by a ${nb(t.renfort.l)} × ${nb(t.renfort.e)} mm flat bar hidden under the handrail` : "";
   // Le même ordre et les mêmes mots que le libellé de commande anglais (products.ts) : croix, traverse, barreaux.
   const options = [`Custom — ${nb(L)} × ${nb(H)} mm`, verre ? null : `${t.n} ${t.n > 1 ? "crosses" : "cross"}`, !verre && t.traverse ? "middle rail" : null, t.sb ? "bars below" : null, bois, teinte, verre ? null : rosace, verre ? produit.remplissages?.find((r) => r.sansCroix)?.label : null]
     .filter(Boolean)
@@ -315,9 +320,9 @@ function lignesAnglaises(fr: LignesSite, config: ConfigGC, line: ResolvedLine, q
   const designations = [
     `${produit.name} — ${options}`,
     verre
-      ? `Solid steel structure — ${nb(L)} × ${nb(H)} mm, welded frame holding the glass${bas}, TIG welded`
-      : `Solid steel structure — ${nb(L)} × ${nb(H)} mm, ${croix} and ${t.n} ${minuscule(rosace)} ${t.n > 1 ? "rosettes" : "rosette"}${traverse}${bas}, TIG welded`,
-    `Solid ${bois.toLowerCase()} handrail ${nb(config.v.mc)} × ${nb(config.v.mc)} mm, hardwax-oil finish`,
+      ? `Solid steel structure — ${nb(L)} × ${nb(H)} mm, welded frame holding the glass${bas}${renfort}, TIG welded`
+      : `Solid steel structure — ${nb(L)} × ${nb(H)} mm, ${croix} and ${t.n} ${minuscule(rosace)} ${t.n > 1 ? "rosettes" : "rosette"}${traverse}${bas}${renfort}, TIG welded`,
+    `Solid ${bois.toLowerCase()} handrail ${nb(t.mcL)} × ${nb(t.mcH)} mm, hardwax-oil finish`,
     line.metal?.id === "brut" ? "Steel finish — raw, clear protective varnish" : `Painted finish of the steel — ${teinte.toLowerCase()}`,
     livraison.mode === "transporteur" ? "Fixings, fitting notes and packaging" : "Fixings and fitting notes",
   ];
@@ -384,9 +389,9 @@ function caracteristiquesAnglaises(base: DevisGC, config: ConfigGC, line: Resolv
     verre ? null : { label: "Rosette", value: rosace },
     {
       label: "Frame",
-      value: `Solid steel ${nb(v.s)} × ${nb(v.s)} mm, TIG welded, ${line.metal?.id === "brut" ? "raw steel, clear varnish" : `painted finish — steel colour ${teinte}`}`,
+      value: `Solid steel ${nb(v.s)} × ${nb(v.s)} mm${t.renfort ? `, top rail stiffened by a ${nb(t.renfort.l)} × ${nb(t.renfort.e)} mm flat bar hidden under the handrail` : ""}, TIG welded, ${line.metal?.id === "brut" ? "raw steel, clear varnish" : `painted finish — steel colour ${teinte}`}`,
     },
-    { label: "Handrail", value: `${bois}, solid, ${nb(v.mc)} × ${nb(v.mc)} mm, hardwax oil, satin${t.rainure ? ", fitted onto the frame" : ""}` },
+    { label: "Handrail", value: `${bois}, solid, ${nb(t.mcL)} × ${nb(t.mcH)} mm, hardwax oil, satin${t.renfort ? `, screwed from below onto a ${nb(t.renfort.l)} × ${nb(t.renfort.e)} mm steel flat bar` : t.rainure ? ", fitted onto the frame" : ""}` },
     {
       label: "Installation",
       value: `Fitted into the window reveal, ${livraison.mode === "pose" ? "installed by the workshop" : "fixings supplied"} — ${t.nVis} countersunk screws and plugs`,

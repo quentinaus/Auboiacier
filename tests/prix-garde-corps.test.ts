@@ -16,7 +16,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, CIBLE_MARGE, DEFAUTS_GC, HAUT_ETAGE, MINI_GC, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, geomGC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
+import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, CIBLE_MARGE, DEFAUTS_GC, HAUT_ETAGE, MINI_GC, RENFORT, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, geomGC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
 import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
 import {
   configurerGC,
@@ -27,7 +27,7 @@ import {
   type ConfigGC,
 } from "../src/lib/garde-corps-outil/calcul.ts";
 import { ligneGC, lireRequetePrixGC, PARAMETRES_PRIX_GC, reponsePrixGC, type RequetePrixGC } from "../src/lib/garde-corps-outil/site.ts";
-import { CROIX_MAX, ESSENCES_GC, ORDRE_CARRES, valeursGC, type EntreeSiteGC } from "../src/lib/garde-corps-outil/entree.ts";
+import { CARRE_RENFORT, CROIX_MAX, ESSENCES_GC, ORDRE_CARRES, valeursGC, type EntreeSiteGC } from "../src/lib/garde-corps-outil/entree.ts";
 import { tarifLivraison, tarifPose } from "../src/lib/deplacement.ts";
 
 function chiffrageOuEchec() {
@@ -158,20 +158,78 @@ test("configuration : aucun trou ne laisse passer la boule (110 mm sous 800 mm d
   }
 });
 
-test("configuration : trop large pour la lisse haute en carré 16 → un carré plus gros ou « à étudier »", () => {
-  let vus = 0;
+test("configuration : trop large pour la lisse haute en carré 16 → un carré plus gros, le fer plat de renfort, ou « à étudier »", () => {
+  let vus = 0, renforces = 0;
+  const souple = (e: EntreeSiteGC, s: number) => calculerGC({ ...valeursGC(DEFAUTS_GC, e, s, CROIX_MAX), _rapide: true }).alertes.some((a: string) => a.startsWith("Solidité"));
   for (const e of GRILLE) {
-    const seize = calculerGC({ ...valeursGC(DEFAUTS_GC, e, 16, CROIX_MAX), _rapide: true });
-    if (!seize.alertes.some((a: string) => a.startsWith("Solidité"))) continue;
+    if (!souple(e, 16)) {
+      const c = configurerGC(e);
+      assert.ok(!c.ok || !c.renfort, `${JSON.stringify(e)} : le carré de 16 suffit, pas de fer plat`);
+      continue;
+    }
     vus++;
     const c = configurerGC(e);
-    if (c.ok) assert.ok(c.carre > 16, `${JSON.stringify(e)} : carré ${c.carre}`);
-    else if (c.raison === "barre-appui" || c.raison === "sans-garde-corps") continue;   // pas de garde-corps à croix du tout
-    else assert.ok(c.alertes.includes("solidite"));
+    if (c.ok && c.renfort) {
+      // Le fer plat : seulement quand même le plus gros carré de l'atelier est trop souple, et au carré de 16.
+      renforces++;
+      assert.ok(souple(e, 20), `${JSON.stringify(e)} : un carré de 20 suffisait`);
+      assert.equal(c.carre, CARRE_RENFORT);
+      assert.ok(c.v.B - c.v.j <= RENFORT.LcMax, `${JSON.stringify(e)} : au-delà de la largeur garantie du fer plat`);
+      assert.deepEqual([c.v.renfort, c.R.mc?.renfort?.l, c.R.mc?.renfort?.e, c.R.alertes.length], ["plat", RENFORT.l, RENFORT.e, 0]);
+    } else if (c.ok) {
+      assert.ok(c.carre > 16 && !souple(e, c.carre), `${JSON.stringify(e)} : carré ${c.carre}`);
+      assert.equal(c.R.mc?.renfort ?? null, null, `${JSON.stringify(e)} : pas de fer plat quand un carré suffit`);
+    } else if (c.raison === "barre-appui" || c.raison === "sans-garde-corps") continue;   // pas de garde-corps à croix du tout
+    else assert.ok(c.alertes.length > 0, `${JSON.stringify(e)} : une raison est donnée`);
   }
   assert.ok(vus > 0, "la grille doit contenir des largeurs trop grandes pour le carré 16");
+  assert.ok(renforces > 0, "la grille doit contenir des fenêtres larges vendues avec le fer plat");
+  // Les bornes du fer plat : 2 400 mm de cadre au plus. Un millimètre de plus : à étudier.
+  const juste = configurerGC(releve({ largeurMm: RENFORT.LcMax + DEFAUTS_GC.j }));
+  assert.ok(juste.ok && juste.renfort, "2 400 mm de cadre : vendu avec le fer plat");
+  const trop = configurerGC(releve({ largeurMm: RENFORT.LcMax + DEFAUTS_GC.j + 1 }));
+  assert.equal(trop.ok, false, "au-delà : à étudier");
+  assert.ok(!trop.ok && trop.alertes.includes("solidite"));
   // Et à l'autre bout, la largeur maximale de l'outil ne se vend pas sans étude.
   assert.equal(configurerGC(releve({ largeurMm: BORNES_GC.B.max })).ok, false);
+});
+
+test("fenêtre large : le fer plat est le même pour tous les dessins, ne se choisit pas et ne se contourne pas", () => {
+  chiffrageOuEchec();
+  const large = { largeurMm: 1990, allegeMm: 650, enEtage: true, fenetreMm: 0 };
+  const q = { releve: large, essence: "chene" as const, quantite: 1 };
+  const r = reponsePrixGC(q);
+  assert.ok(r && r.ok && r.renfort, "1 990 mm : vendu, avec le fer plat");
+  const conformes = r.modeles.filter((m) => m.conforme);
+  assert.ok(conformes.length >= 3);
+  for (const m of conformes) {
+    assert.equal(m.renfort, true, `${m.id} : sur cette largeur, tous les modèles vendus ont le fer plat`);
+    assert.equal(m.carre, CARRE_RENFORT);
+    // Un identifiant forgé dans un autre carré : le même garde-corps, au même prix (le carré reste celui de l'atelier).
+    for (const s of ORDRE_CARRES) {
+      const forge = reponsePrixGC({ ...q, releve: { ...large, modele: m.id.replace(/^\d+/, String(s)) } });
+      assert.ok(forge && forge.ok, `${s} : ${m.id}`);
+      assert.deepEqual([forge.carre, forge.renfort, forge.prix], [CARRE_RENFORT, true, m.prix]);
+    }
+  }
+  for (const m of r.modeles.filter((x) => !x.conforme)) {
+    const forge = reponsePrixGC({ ...q, releve: { ...large, modele: m.id } });
+    assert.ok(forge && !forge.ok, `${m.id} : hors norme, pas vendu`);
+  }
+  // Le prix compte le fer plat : plus cher que le même dessin sur une fenêtre où un carré suffit.
+  const etroit = reponsePrixGC({ ...q, releve: { ...large, largeurMm: 1180, modele: r.modeles.find((m) => m.conforme)!.id } });
+  assert.ok(etroit && (!etroit.ok || (etroit.renfort === false && etroit.prix < r.prix)));
+  // Le libellé de commande et le devis le disent.
+  const ligne = ligneGC(large, { woodId: "chene" });
+  assert.ok(ligne.ok && ligne.line.gc?.renfort);
+  assert.match(ligne.line.size!.label, /lisse haute renforcée$/);
+  const en = ligneGC(large, { woodId: "chene" }, "en");
+  assert.ok(en.ok);
+  assert.match(en.line.size!.label, /reinforced top rail$/);
+  // Sous un panneau de verre aussi : la lisse haute reste renforcée.
+  const verre = ligneGC(large, { woodId: "chene", remplissageId: "verre" });
+  assert.ok(verre.ok && verre.line.gc?.renfort);
+  assert.match(verre.line.size!.label, /lisse haute renforcée$/);
 });
 
 test("configuration : fenêtre trop basse pour la hauteur demandée → « à étudier », raison fenêtre", () => {
@@ -360,7 +418,7 @@ test("réponse de /api/prix-garde-corps : le prix et la forme, rien d'autre", ()
   chiffrageOuEchec();
   const ok = reponsePrixGC(requete({ largeurMm: 1180 }));
   assert.ok(ok);
-  assert.deepEqual(Object.keys(ok).sort(), ["carre", "conforme", "croix", "hauteurMm", "jourMm", "kg", "mainCouranteMm", "modeles", "obligatoire", "ok", "prix", "remise", "soubassementMm", "traverse"]);
+  assert.deepEqual(Object.keys(ok).sort(), ["carre", "conforme", "croix", "hauteurMm", "jourMm", "kg", "mainCouranteMm", "modeles", "obligatoire", "ok", "prix", "remise", "renfort", "soubassementMm", "traverse"]);
   const non = reponsePrixGC(requete({ largeurMm: BORNES_GC.B.max }));
   assert.ok(non);
   assert.deepEqual(Object.keys(non).sort(), ["alertes", "conforme", "hauteurMm", "jourMm", "mainCouranteMm", "modeles", "obligatoire", "ok", "raison"]);
@@ -402,7 +460,7 @@ test("catalogue des modèles : tous montrés, seuls les conformes ont un prix, u
   const r = reponsePrixGC(q);
   assert.ok(r && r.ok, "ce relevé a un prix");
   assert.ok(r.modeles.length >= 12 && r.modeles.length <= 24, "le catalogue entier est envoyé");
-  assert.deepEqual(Object.keys(r.modeles[0]).sort(), ["carre", "conforme", "croix", "hauteurMm", "id", "kg", "prix", "raisons", "soubassementMm", "traverse"]);
+  assert.deepEqual(Object.keys(r.modeles[0]).sort(), ["carre", "conforme", "croix", "hauteurMm", "id", "kg", "prix", "raisons", "renfort", "soubassementMm", "traverse"]);
   // Les quatre familles : croix seules, traverse au milieu, barreaux en bas, les deux.
   assert.ok(r.modeles.some((m) => m.traverse) && r.modeles.some((m) => !m.traverse));
   const conformes = r.modeles.filter((m) => m.conforme), hors = r.modeles.filter((m) => !m.conforme);

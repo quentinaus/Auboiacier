@@ -27,7 +27,7 @@ import { acorn, analyser, controlerModule, extraireScript, fermeture, GLOBAUX_PE
 import { preparerOutil } from "./outil-plans/charger-outil.mjs";
 import { chainesSecretes, DECLARATIONS_COUTS, secretsDans } from "./outil-plans/secrets.mjs";
 import { chiffrer, dechiffrer, DEPENDANCES_CHIFFRAGE, empreinte, evaluerChiffrage, FICHIER_CLE, lireCle, NOM_CLE } from "../src/lib/garde-corps-outil/coffre.ts";
-import { codeAlerte, CROIX_MAX, ORDRE_CARRES, valeursGC } from "../src/lib/garde-corps-outil/entree.ts";
+import { CARRE_RENFORT, codeAlerte, CROIX_MAX, ORDRE_CARRES, valeursGC } from "../src/lib/garde-corps-outil/entree.ts";
 
 const args = process.argv.slice(2);
 const SOURCE = args.find((a) => !a.startsWith("--"));
@@ -53,7 +53,7 @@ const A = analyser(html);
 // ---------- 1. Ce qu'on prend : des racines, puis tout ce qu'elles utilisent ----------
 const RACINES = {
   moteur: ["geomGC", "calculerGC", "variantesConformes", "decrireVariante", "HAUT_ETAGE", "ALLEGE_LIBRE", "MINI_GC", "BARRE_APPUI", "SPHERE",
-    "SPHERE_HAUT", "Z_SPHERE", "Z_ESCALADE", "CIBLE_MARGE", "LIMITE_ACIER", "ROSACE_R", "fmt", "mmTxt"],
+    "SPHERE_HAUT", "Z_SPHERE", "Z_ESCALADE", "CIBLE_MARGE", "LIMITE_ACIER", "ROSACE_R", "RENFORT", "fmt", "mmTxt"],
   devis: ["composerDevisGC", "dsDevisHtml", "dsPrix", "DS_GC", "DS_VALIDITE_JOURS"],
   chiffrage: ["chiffrerGC", "remiseGC", "REGLAGES"],
 };
@@ -234,7 +234,7 @@ export type ValeursGC = {
   B: number; A: number; Hs: number; Hf: number; Xo: number; jour: number; j: number; s: number; nP: number; nb: number;
   sbMode: string; ass: string; rosace: boolean; etage: boolean; mc: number; epMc: number; mcType: string; essence: string;
   rainure: boolean; rnP: number; rnJ: number; dF: number; fF: number; eF: number; nF: number; trait: number;
-  debitAr: number; minSoud: number; remise: string; km: number; prixVente: number; _rapide?: boolean;
+  debitAr: number; minSoud: number; remise: string; km: number; prixVente: number; traverse: boolean; renfort: string; _rapide?: boolean;
   [autre: string]: unknown;
 };
 export type LigneDebitGC = { nom: string; qte: number; mat: string; long: number; coupes: string; note: string; dessin?: unknown };
@@ -248,6 +248,8 @@ export type ResultatGC = {
   kg?: number;
   metres?: number;
   hauteurGC?: number;
+  /** La main courante retenue : largeur, hauteur, profondeur de rainure ; et le plat de renfort s'il y en a un. */
+  mc?: { l: number; h: number; chev: number; renfort: { l: number; e: number; vis: number } | null };
   [autre: string]: unknown;
 };
 export type GeomGC = { Lc: number; cible: number; manque: number; appui: "barre" | "rien" | null; hNorme: number; Hr: number; Hc: number; h: number; w: number; sb: number; ok: boolean; dMax: number; limite: number; [autre: string]: unknown };
@@ -266,6 +268,7 @@ export declare const CIBLE_MARGE: number;
 export declare const HAUT_ETAGE: number;
 export declare const LIMITE_ACIER: number;
 export declare const MINI_GC: number;
+export declare const RENFORT: Readonly<{ l: number; e: number; bois: Readonly<{ l: number; h: number }>; LcMax: number; pasVis: number; visD: number; visL: number }>;
 export declare const ROSACE_R: number;
 export declare const SPHERE: number;
 export declare const SPHERE_HAUT: number;
@@ -449,6 +452,16 @@ function comparerAvecOutil(M, D, CH) {
     v.nP = entre(1, 6, 1);
     cas.push({ nom: "hasard " + cas.length, valeurs: v, chantier: hasard() < 0.3 ? "49400 Saumur" : "", lire: cas.length % 5 === 0 });
   }
+  // Le fer plat de renfort de la lisse haute (fenêtre large). Ajoutés APRÈS les cas tirés au hasard : leur tirage ne change pas.
+  cas.push(
+    { nom: "renfort, 1990 de large, 5 croix", valeurs: { B: 1990, A: 650, nP: 5, renfort: "plat" }, lire: true },
+    { nom: "renfort, 2400 de large, traverse au milieu", valeurs: { B: 2400, A: 400, nP: 3, traverse: true, renfort: "plat" } },
+    { nom: "renfort au-delà de 2400", valeurs: { B: 2500, A: 500, nP: 6, renfort: "plat" } },
+    { nom: "renfort, bas de fenêtre haut", valeurs: { B: 1800, A: 720, nP: 5, renfort: "plat" }, lire: true },
+    { nom: "renfort pas nécessaire, noyer", valeurs: { B: 1180, A: 650, nP: 4, renfort: "plat", essence: "noyer" } },
+    { nom: "renfort demandé avec un plat d'acier", valeurs: { B: 1900, A: 600, nP: 5, renfort: "plat", mcType: "acier" } },
+    { nom: "renfort, pin, transporteur", valeurs: { B: 2200, A: 300, nP: 6, renfort: "plat", essence: "pin", remise: "transporteur", km: 180 }, chantier: "75011 Paris", lire: true },
+  );
   let variantes = 0;
   const casRef = [];
   for (const c of cas) {
@@ -520,6 +533,10 @@ function comparerAvecOutil(M, D, CH) {
   while (releves.length < 24) {
     releves.push({ largeurMm: entre(300, 1800, 1), allegeMm: entre(0, 1200, 1), enEtage: hasard() < 0.8, fenetreMm: hasard() < 0.6 ? 0 : entre(400, 2500, 1), essence: pick(["pin", "hetre", "chene", "noyer"]) });
   }
+  // Fenêtres larges (fer plat de renfort) : ajoutées APRÈS le tirage au hasard, qui ne change donc pas.
+  for (const [largeurMm, allegeMm, enEtage, fenetreMm, essence] of [[1669, 650, true, 0, "chene"], [1990, 650, true, 0, "chene"], [2400, 300, true, 0, "pin"], [2401, 500, true, 0, "chene"], [2200, 700, true, 1500, "noyer"], [1850, 0, false, 0, "hetre"], [2300, 640, true, 0, "noyer"], [1750, 560, true, 0, "pin"], [2402, 650, true, 0, "chene"]]) {
+    releves.push({ largeurMm, allegeMm, enEtage, fenetreMm, essence });
+  }
   const site = [];
   for (const e of releves) {
     const alertes = {};
@@ -535,9 +552,18 @@ function comparerAvecOutil(M, D, CH) {
         if (!choix && !codesO.length) choix = { carre: s, croix: n };
       }
     }
+    // Avec le fer plat de renfort, au carré de l'atelier : croix seules, de 1 à 6 croix.
+    const renfort = [];
+    for (let n = 1; n <= CROIX_MAX; n++) {
+      const codesO = O.calculerGC({ ...valeursGC(defautsOutil, e, CARRE_RENFORT, n, false, false, true), _rapide: true }).alertes.map(codeAlerte);
+      const codesE = M.calculerGC({ ...valeursGC(DEFAUTS_GC, e, CARRE_RENFORT, n, false, false, true), _rapide: true }).alertes.map(codeAlerte);
+      if (J(codesO) !== J(codesE)) ecarts.push(`relevé ${J(e)} : alertes avec renfort, ${n} croix`);
+      if (codesO.includes("autre")) ecarts.push(`relevé ${J(e)} : une alerte de l'outil n'a pas de code (entree.ts)`);
+      renfort.push(codesO);
+    }
     const geo = M.geomGC(valeursGC(DEFAUTS_GC, e, 16, 1), 1);
     if (J(O.geomGC(valeursGC(defautsOutil, e, 16, 1), 1).Hr) !== J(geo.Hr)) ecarts.push(`relevé ${J(e)} : hauteur`);
-    const ref = { entree: e, hauteur: geo.Hr, alertes, choix: null };
+    const ref = { entree: e, hauteur: geo.Hr, alertes, renfort, choix: null };
     if (choix) {
       const vO = valeursGC(defautsOutil, e, choix.carre, choix.croix), vE = valeursGC(DEFAUTS_GC, e, choix.carre, choix.croix);
       const RObrut = O.calculerGC(vO), RE = M.calculerGC(vE);

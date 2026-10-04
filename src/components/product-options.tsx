@@ -1011,7 +1011,7 @@ export function ProductOptions({
             remplissage?.sansCroix ? null : configGC.croix,
             locale,
             // Le même libellé que celui du serveur (panier, commande) : la traverse, les barreaux, le carré.
-            { soubassement: configGC.soubassementMm > 0, carre: configGC.carre, traverse: configGC.traverse },
+            { soubassement: configGC.soubassementMm > 0, carre: configGC.carre, traverse: configGC.traverse, renfort: configGC.renfort },
           ),
         }
       : null

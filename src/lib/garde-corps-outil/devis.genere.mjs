@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Devis garde-corps au format du site (composerDevisGC, dsDevisHtml). SANS coûts : le prix est une entrée.
-// Source : l'outil de plans (plans-atelier.html), sha256 df33a7323b62d0e05330eba492ff37c83b10c1dba6eb57038b61e28e837ae8e6
+// Source : l'outil de plans (plans-atelier.html), sha256 7debafb735a47e76154fbc841e9948803aea1fa71bba4e3b4f1fe36508a02c2c
 /* eslint-disable */
 function kgColisGC(R) { return Math.max(8, Math.round((R && R.kg) || 0)); }
 const DS_VALIDITE_JOURS = 30;
@@ -117,7 +117,7 @@ function dsRemplissageGC(R, v) {
 function dsPhotoConvient(R, v, rp, avecMc) {
     const ratio = v.B / R.hauteurGC, ref = 1180 / 350;
     return rp.modele === "croix" && rp.n === 2 && rp.rosaces === 2 && !rp.traverse && !rp.barreauxCroix && !rp.bas
-      && avecMc && v.mcType === "bois" && (v.essence || "chene") === "chene" && ratio > ref * 0.8 && ratio < ref * 1.2;
+      && avecMc && v.mcType === "bois" && !(R.mc && R.mc.renfort) && (v.essence || "chene") === "chene" && ratio > ref * 0.8 && ratio < ref * 1.2;
   }
 function dsSchemaGC(R, v, avecMc = true) {
     const face = (R.vues && R.vues.face) || [];
@@ -186,13 +186,16 @@ function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto", tva = nu
     const km = Math.max(0, Math.round(v.km || 0));
     const obligatoire = v.etage && v.A < 900;
 
+    const mcL = R.mc ? R.mc.l : v.mc, mcH = R.mc ? R.mc.h : v.mc;
+    const rfD = R.mc && R.mc.renfort ? R.mc.renfort : null;
+    const renfortTxt = rfD ? `, lisse haute renforcée par un plat ${dsMm(rfD.l)}\u00a0×\u00a0${dsMm(rfD.e)}\u00a0mm caché sous la main courante` : "";
     const mc = !mcD ? null
       : v.mcType === "profil" ? { option: "Main courante profilée 40\u00a0×\u00a010", carac: "Acier profilé 40\u00a0×\u00a010\u00a0mm, emboîté sur le cadre, finition peinte", poste: "Main courante en acier profilé 40\u00a0×\u00a010\u00a0mm, emboîtée sur le cadre, finition peinte", accroche: "acier profilé" }
       : v.mcType === "acier" ? { option: `Main courante plat acier ${dsMm(v.mc)}\u00a0×\u00a0${dsMm(v.epMc)}`, carac: `Plat d'acier ${dsMm(v.mc)}\u00a0×\u00a0${dsMm(v.epMc)}\u00a0mm, soudé sur le cadre, finition peinte`, poste: `Main courante en plat d'acier ${dsMm(v.mc)}\u00a0×\u00a0${dsMm(v.epMc)}\u00a0mm, soudée sur le cadre, finition peinte`, accroche: "plat d'acier" }
       : {
         option: essence,
-        carac: `${essence}, massif, ${dsMm(v.mc)}\u00a0×\u00a0${dsMm(v.mc)}\u00a0mm, huile-cire, satinée${/^Rainure/.test(mcD.coupes || "") ? ", emboîtée sur le cadre" : ""}`,
-        poste: `Main courante ${essence.toLowerCase()} massif ${dsMm(v.mc)}\u00a0×\u00a0${dsMm(v.mc)}\u00a0mm, finition huile-cire`,
+        carac: `${essence}, massif, ${dsMm(mcL)}\u00a0×\u00a0${dsMm(mcH)}\u00a0mm, huile-cire, satinée${rfD ? `, vissée par dessous sur un plat d'acier ${dsMm(rfD.l)}\u00a0×\u00a0${dsMm(rfD.e)}\u00a0mm` : /^Rainure/.test(mcD.coupes || "") ? ", emboîtée sur le cadre" : ""}`,
+        poste: `Main courante ${essence.toLowerCase()} massif ${dsMm(mcL)}\u00a0×\u00a0${dsMm(mcH)}\u00a0mm, finition huile-cire`,
         accroche: essence.toLowerCase(),
       };
 
@@ -212,7 +215,7 @@ function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto", tva = nu
       { label: "Hauteur du garde-corps", value: `${dsMm(H)}\u00a0mm` },
       { label: "Remplissage", value: dsMaj(rp.texte) },
       rp.rosaces ? { label: "Rosace", value: DS_GC.rosace } : null,
-      { label: "Structure", value: `Acier plein ${dsMm(v.s)}\u00a0×\u00a0${dsMm(v.s)}\u00a0mm, soudure TIG, finition peinte — teinte de l'acier ${teinte}` },
+      { label: "Structure", value: `Acier plein ${dsMm(v.s)}\u00a0×\u00a0${dsMm(v.s)}\u00a0mm${renfortTxt}, soudure TIG, finition peinte — teinte de l'acier ${teinte}` },
       mc ? { label: "Main courante", value: mc.carac } : null,
       { label: "Pose", value: `Encastré dans le tableau de la fenêtre, ${remise === "pose" ? "posé par l'atelier" : "fixations fournies"} — ${nVis}\u00a0vis à tête fraisée et chevilles` },
       normes ? { label: "Normes", value: normes } : null,
@@ -226,7 +229,7 @@ function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto", tva = nu
 
     const options = [`Sur mesure — ${dsMm(L)}\u00a0×\u00a0${dsMm(H)}\u00a0mm`, ...rp.options, mc ? mc.option : null, dsMaj(teinte), rp.rosaces ? DS_GC.rosace : null].filter(Boolean).join(" · ");
     const postes = [
-      { cle: "structure", designation: `Structure acier plein — ${dsMm(L)}\u00a0×\u00a0${dsMm(H)}\u00a0mm, ${rp.structure}, soudure TIG` },
+      { cle: "structure", designation: `Structure acier plein — ${dsMm(L)}\u00a0×\u00a0${dsMm(H)}\u00a0mm, ${rp.structure}${renfortTxt}, soudure TIG` },
       mc ? { cle: "mainCourante", designation: mc.poste } : null,
       { cle: "peinture", designation: `Finition peinte de l'acier — teinte ${teinte}` },
       { cle: "fixations", designation: remise === "transporteur" ? "Fixations, notice de pose et emballage" : "Fixations et notice de pose" },
@@ -337,6 +340,6 @@ function dsDevisHtml(devis) {
 function dsPageHtml(corps, n, total) {
     return `<section class="ds-page"><div class="ds-corps">${corps}</div><div class="ds-pied"><span>${dsEsc(DS_PIED)}</span></div><div class="ds-num"><span>Page ${n} / ${total}</span></div></section>`;
   }
-export const EMPREINTE_SOURCE = "df33a7323b62d0e05330eba492ff37c83b10c1dba6eb57038b61e28e837ae8e6";
+export const EMPREINTE_SOURCE = "7debafb735a47e76154fbc841e9948803aea1fa71bba4e3b4f1fe36508a02c2c";
 export { DS_GC, DS_VALIDITE_JOURS, composerDevisGC, dsDevisHtml, dsPrix };
-export const EMPREINTE = "d1ecf8b7c488";
+export const EMPREINTE = "2a7f832fead7";
