@@ -26,7 +26,7 @@
  * bande du milieu.
  */
 
-import { BARRE_APPUI_MM, JOUR_GC_MM, MAIN_COURANTE_MM, formeGC } from "@/lib/garde-corps";
+import { BARRE_APPUI_MM, JOUR_GC_MM, MAIN_COURANTE_MM, formeGC, type TrousGC } from "@/lib/garde-corps";
 
 const ACCENT = "#2b2320";
 const ENCRE = "#2a2116";
@@ -243,6 +243,7 @@ export function SchemaFenetre({
   soubassementMm = 0,
   traverse = false,
   renfort = false,
+  trous = null,
   rosaceMm,
   apercu = false,
   labels,
@@ -275,6 +276,8 @@ export function SchemaFenetre({
   traverse?: boolean;
   /** Fenêtre large : un fer plat de 10 mm sous une main courante de 45 mm (au lieu de 40 mm). */
   renfort?: boolean;
+  /** Le rond rouge (vide trop grand) et les ronds verts de l'outil de plans, posés dans le cadre du modèle montré. */
+  trous?: TrousGC | null;
   labels: {
     largeur: string;
     allege: string;
@@ -440,6 +443,14 @@ export function SchemaFenetre({
                 taille={Math.min(rosace, (x1 - x0) / 2.2, (basCroix - cadreHaut) / 2.2)}
               />
             </g>
+          );
+        })}
+        {/* Les ronds de l'outil : rouge = le vide est trop grand, vert = le vide respecte la norme. */}
+        {trous && remplissage === "croix" && trous.ronds.map((c, i) => {
+          const sx = (D - G - 4) / trous.cadreMm.l, sy = (cadreBas - cadreHaut) / trous.cadreMm.h;
+          const couleur = c.ok ? "#2f7d46" : "#b3261e";
+          return (
+            <ellipse key={`rond${i}`} cx={r(G + 2 + c.x * sx)} cy={r(cadreBas - c.y * sy)} rx={r((c.d / 2) * sx)} ry={r((c.d / 2) * sy)} fill={couleur} fillOpacity={0.3} stroke={couleur} strokeWidth={1.6} />
           );
         })}
         <rect x={G - 2} y={hautGardeCorpsY} width={D - G + 4} height={mainCouranteH} rx={2.5} fill={BOIS} stroke="#b08a52" strokeWidth={0.8} />
