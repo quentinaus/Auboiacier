@@ -1606,10 +1606,16 @@ export function ProductOptions({
           <p className="text-lg font-medium text-[#2b2320]">{t.coordonneesTitle}</p>
           <p className="mt-1.5 text-[13px] leading-relaxed text-[#6f6357]">{t.coordonneesNote}</p>
           <div className="mt-4 grid gap-4">
+            {/* Safari (iPhone) propose « Remplir avec mes contacts » d'après le nom du champ et son autocomplete :
+                on lui donne les deux (name, autoComplete) ainsi que le type de clavier. */}
             {champCoordonnees(t.coordonneesNom, "nom", {
               required: true,
               maxLength: MAX_TEXTE.name,
+              name: "name",
+              type: "text",
               autoComplete: "name",
+              autoCapitalize: "words",
+              enterKeyHint: "next",
               autoFocus: true,
             })}
             {champCoordonnees(t.coordonneesEmail, "email", {
@@ -1617,7 +1623,13 @@ export function ProductOptions({
               type: "email",
               maxLength: MAX_TEXTE.email,
               pattern: EMAIL_MOTIF,
+              name: "email",
               autoComplete: "email",
+              inputMode: "email",
+              autoCapitalize: "none",
+              autoCorrect: "off",
+              spellCheck: false,
+              enterKeyHint: "done",
             })}
           </div>
           <div className="mt-6 flex items-center gap-4">
