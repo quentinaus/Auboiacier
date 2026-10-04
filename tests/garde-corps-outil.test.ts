@@ -218,7 +218,12 @@ test("relevés du site : la configuration retenue suit la règle du 29/09 et don
       const nRenfort = r.renfort.findIndex((a) => a.length === 0);
       if (tropSouple && nRenfort >= 0) {
         assert.ok(c.ok, `${J(r.entree)} : fenêtre large, vendue avec le fer plat`);
-        assert.deepEqual([c.renfort, c.carre, c.croix, c.traverse, c.barreauxBas], [true, CARRE_RENFORT, nRenfort + 1, false, false], J(r.entree));
+        // Jusqu'à 6 croix, le site essaie TOUS les dessins (croix seules, traverse, barreaux) avant de passer à 7 croix et
+        // plus : il ne choisit jamais plus de croix que les croix seules du plus petit nombre qui passe.
+        assert.equal(c.renfort, true, J(r.entree));
+        assert.equal(c.carre, CARRE_RENFORT, J(r.entree));
+        assert.ok(c.croix <= nRenfort + 1, `${J(r.entree)} : ${c.croix} croix, les croix seules passent à ${nRenfort + 1}`);
+        if (nRenfort + 1 <= 6) assert.deepEqual([c.croix, c.traverse, c.barreauxBas], [nRenfort + 1, false, false], J(r.entree));
         assert.equal(c.R.alertes.length, 0);
         assert.deepEqual(c.R.mc?.renfort && [c.R.mc.renfort.l, c.R.mc.renfort.e, c.R.mc.l, c.R.mc.h], [M.RENFORT.l, M.RENFORT.e, M.RENFORT.bois.l, M.RENFORT.bois.h], `${J(r.entree)} : plat et bois du renfort`);
         const vSans = valeursGC(M.DEFAUTS_GC, r.entree, CARRE_RENFORT, c.croix);

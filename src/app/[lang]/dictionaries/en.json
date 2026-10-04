@@ -419,6 +419,7 @@
     "gcAEtudierTitre": "To be studied with the workshop",
     "gcAEtudier": "These measurements go beyond what our model allows within the standard. We study your window with you, with no obligation.",
     "gcAEtudierSolidite": "At this width our model would not be stiff enough, even reinforced. We work out a sturdier solution with you, with no obligation.",
+    "gcAEtudierFixation": "Your railing would be wide and low: the screws in the wall would be overloaded. We work out a safe fixing with you, with no obligation.",
     "gcRenfort": "Wide window: the top rail is stiffened by a flat steel bar hidden under the handrail. The handrail is 60 mm wide. It is included in the price. Before making it, the workshop checks the fixing into your wall with you.",
     "gcTropEtroit": "The smallest window we fit is {min} mm wide.",
     "gcCalcul": "Working out the railing…",

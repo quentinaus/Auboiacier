@@ -1,9 +1,9 @@
 {
  "à lire": "Généré par scripts/extraire-moteur-garde-corps.mjs à partir de l'outil de plans (chargé tel quel dans node:vm). Aucun coût : des prix de vente, des poids, des hauteurs et des empreintes (sha256 tronqué) des réponses complètes. Ne pas modifier à la main.",
- "outil": "7debafb735a47e76154fbc841e9948803aea1fa71bba4e3b4f1fe36508a02c2c",
+ "outil": "bafd6ed0e67303698e7065c592fda88183e97471b54eaa27f9c7da727079e86f",
  "empreintes": {
-  "moteur": "43a8c467e10a",
-  "devis": "2a7f832fead7",
+  "moteur": "8deec783cb53",
+  "devis": "2dc10216c777",
   "chiffrage": "c19a9dfe21fc"
  },
  "defauts": "1689a0fa55c07397",
@@ -1422,6 +1422,30 @@
      [
       "fixation",
       "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -1453,6 +1477,30 @@
      [
       "fixation",
       "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "16": [
@@ -1466,6 +1514,12 @@
      [
       "trous"
      ],
+     [],
+     [],
+     [],
+     [],
+     [],
+     [],
      [],
      [],
      []
@@ -1483,6 +1537,12 @@
      ],
      [],
      [],
+     [],
+     [],
+     [],
+     [],
+     [],
+     [],
      []
     ],
     "20": [
@@ -1497,6 +1557,12 @@
      ],
      [],
      [],
+     [],
+     [],
+     [],
+     [],
+     [],
+     [],
      []
     ]
    },
@@ -1507,6 +1573,12 @@
     [
      "trous"
     ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
     [],
     [],
     [],
@@ -1551,6 +1623,24 @@
      ],
      [
       "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ],
     "14": [
@@ -1572,6 +1662,24 @@
      ],
      [
       "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ],
     "16": [
@@ -1586,6 +1694,24 @@
      ],
      [
       "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ],
     "18": [
@@ -1594,6 +1720,24 @@
      ],
      [],
      [],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
      [
       "trop-petit"
      ],
@@ -1618,6 +1762,24 @@
      ],
      [
       "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ]
    },
@@ -1628,6 +1790,24 @@
     [],
     [],
     [],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
+    ],
     [
      "trop-petit"
     ],
@@ -1679,6 +1859,27 @@
      [
       "barre-appui",
       "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ],
     "14": [
@@ -1706,6 +1907,25 @@
      [
       "barre-appui",
       "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ],
     "16": [
@@ -1726,6 +1946,24 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ],
     "18": [
@@ -1746,6 +1984,24 @@
      ],
      [
       "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ],
     "20": [
@@ -1763,6 +2019,24 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ],
      [
       "trop-petit"
@@ -1793,6 +2067,24 @@
     [
      "barre-appui",
      "fixation"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
     ]
    ],
    "choix": null
@@ -1832,6 +2124,30 @@
      [
       "barre-appui",
       "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
      ]
     ],
     "14": [
@@ -1859,6 +2175,28 @@
      [
       "barre-appui",
       "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ],
     "16": [
@@ -1879,6 +2217,24 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ],
     "18": [
@@ -1899,6 +2255,24 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ],
     "20": [
@@ -1919,6 +2293,24 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ]
    },
@@ -1946,6 +2338,27 @@
     [
      "barre-appui",
      "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
     ]
    ],
    "choix": null
@@ -1989,6 +2402,30 @@
      [
       "fixation",
       "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -2003,6 +2440,24 @@
      ],
      [
       "trous",
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
       "fixation"
      ],
      [
@@ -2028,6 +2483,12 @@
      ],
      [],
      [],
+     [],
+     [],
+     [],
+     [],
+     [],
+     [],
      []
     ],
     "18": [
@@ -2042,7 +2503,17 @@
      ],
      [],
      [],
-     []
+     [],
+     [],
+     [],
+     [],
+     [],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ]
     ],
     "20": [
      [
@@ -2056,7 +2527,19 @@
      ],
      [],
      [],
-     []
+     [],
+     [],
+     [],
+     [],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ]
     ]
    },
    "renfort": [
@@ -2069,6 +2552,12 @@
     [
      "trous"
     ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
     [],
     [],
     []
@@ -2122,6 +2611,30 @@
      [
       "fixation",
       "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -2153,6 +2666,30 @@
      [
       "fixation",
       "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "16": [
@@ -2169,6 +2706,12 @@
      [
       "trous"
      ],
+     [],
+     [],
+     [],
+     [],
+     [],
+     [],
      [],
      []
     ],
@@ -2187,6 +2730,12 @@
       "trous"
      ],
      [],
+     [],
+     [],
+     [],
+     [],
+     [],
+     [],
      []
     ],
     "20": [
@@ -2202,6 +2751,12 @@
      [
       "trous"
      ],
+     [],
+     [],
+     [],
+     [],
+     [],
+     [],
      [],
      []
     ]
@@ -2219,6 +2774,12 @@
     [
      "trous"
     ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
     [],
     []
    ],
@@ -2275,6 +2836,36 @@
       "fixation",
       "solidite",
       "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
      ]
     ],
     "14": [
@@ -2287,6 +2878,36 @@
      ],
      [
       "trous",
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
+      "fixation",
+      "solidite",
+      "fenetre"
+     ],
+     [
       "fixation",
       "solidite",
       "fenetre"
@@ -2333,6 +2954,24 @@
      ],
      [
       "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
      ]
     ],
     "18": [
@@ -2343,6 +2982,24 @@
      ],
      [
       "trous",
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
       "fenetre"
      ],
      [
@@ -2378,6 +3035,24 @@
      ],
      [
       "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
+     ],
+     [
+      "fenetre"
      ]
     ]
    },
@@ -2388,6 +3063,24 @@
     ],
     [
      "trous",
+     "fenetre"
+    ],
+    [
+     "fenetre"
+    ],
+    [
+     "fenetre"
+    ],
+    [
+     "fenetre"
+    ],
+    [
+     "fenetre"
+    ],
+    [
+     "fenetre"
+    ],
+    [
      "fenetre"
     ],
     [
@@ -2445,6 +3138,30 @@
      [
       "fixation",
       "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -2476,6 +3193,30 @@
      [
       "fixation",
       "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "16": [
@@ -2489,6 +3230,12 @@
      [
       "trous"
      ],
+     [],
+     [],
+     [],
+     [],
+     [],
+     [],
      [],
      [],
      []
@@ -2506,6 +3253,12 @@
      ],
      [],
      [],
+     [],
+     [],
+     [],
+     [],
+     [],
+     [],
      []
     ],
     "20": [
@@ -2520,6 +3273,12 @@
      ],
      [],
      [],
+     [],
+     [],
+     [],
+     [],
+     [],
+     [],
      []
     ]
    },
@@ -2530,6 +3289,12 @@
     [
      "trous"
     ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
     [],
     [],
     [],
@@ -2584,6 +3349,30 @@
      [
       "fixation",
       "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -2601,6 +3390,30 @@
      ],
      [
       "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
       "fixation",
       "solidite"
      ],
@@ -2639,6 +3452,24 @@
      ],
      [
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "18": [
@@ -2652,6 +3483,12 @@
      [
       "trous"
      ],
+     [],
+     [],
+     [],
+     [],
+     [],
+     [],
      [],
      [],
      []
@@ -2668,6 +3505,12 @@
      ],
      [],
      [],
+     [],
+     [],
+     [],
+     [],
+     [],
+     [],
      []
     ]
    },
@@ -2678,6 +3521,12 @@
     [
      "trous"
     ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
     [],
     [],
     [],
@@ -2735,6 +3584,30 @@
       "trous",
       "fixation",
       "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -2768,6 +3641,30 @@
      [
       "fixation",
       "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "16": [
@@ -2794,6 +3691,24 @@
      ],
      [
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "18": [
@@ -2813,6 +3728,12 @@
      [
       "trous"
      ],
+     [],
+     [],
+     [],
+     [],
+     [],
+     [],
      []
     ],
     "20": [
@@ -2832,6 +3753,12 @@
      [
       "trous"
      ],
+     [],
+     [],
+     [],
+     [],
+     [],
+     [],
      []
     ]
    },
@@ -2852,6 +3779,12 @@
     [
      "trous"
     ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
     []
    ],
    "choix": {
@@ -2905,6 +3838,30 @@
      [
       "fixation",
       "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -2927,6 +3884,30 @@
      ],
      [
       "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
       "fixation",
       "solidite"
      ],
@@ -2962,6 +3943,24 @@
      ],
      [
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "18": [
@@ -2978,6 +3977,12 @@
      [
       "trous"
      ],
+     [],
+     [],
+     [],
+     [],
+     [],
+     [],
      [],
      []
     ],
@@ -2996,6 +4001,12 @@
       "trous"
      ],
      [],
+     [],
+     [],
+     [],
+     [],
+     [],
+     [],
      []
     ]
    },
@@ -3013,6 +4024,12 @@
     [
      "trous"
     ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
     [],
     []
    ],
@@ -3069,6 +4086,36 @@
       "barre-appui",
       "fixation",
       "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -3083,6 +4130,36 @@
       "fixation",
       "solidite",
       "charge-verticale"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
      ],
      [
       "barre-appui",
@@ -3130,6 +4207,30 @@
      [
       "barre-appui",
       "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
      ]
     ],
     "18": [
@@ -3137,6 +4238,30 @@
       "barre-appui",
       "solidite",
       "charge-verticale"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
      ],
      [
       "barre-appui",
@@ -3178,6 +4303,24 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
      ]
     ]
    },
@@ -3185,6 +4328,30 @@
     [
      "barre-appui",
      "charge-verticale",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
      "fixation"
     ],
     [
@@ -3252,6 +4419,30 @@
      [
       "fixation",
       "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -3275,6 +4466,30 @@
      ],
      [
       "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
       "fixation",
       "solidite"
      ],
@@ -3311,6 +4526,24 @@
      ],
      [
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "18": [
@@ -3336,6 +4569,24 @@
      ],
      [
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "20": [
@@ -3353,6 +4604,12 @@
       "trous"
      ],
      [],
+     [],
+     [],
+     [],
+     [],
+     [],
+     [],
      []
     ]
    },
@@ -3367,6 +4624,12 @@
     [
      "trous"
     ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
     [],
     [],
     []
@@ -3424,6 +4687,30 @@
      [
       "fixation",
       "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -3447,6 +4734,30 @@
      ],
      [
       "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
       "fixation",
       "solidite"
      ],
@@ -3483,6 +4794,24 @@
      ],
      [
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "18": [
@@ -3501,6 +4830,24 @@
      ],
      [
       "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
       "solidite"
      ],
      [
@@ -3533,6 +4880,24 @@
      ],
      [
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ]
    },
@@ -3550,6 +4915,12 @@
     [
      "trous"
     ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
     [],
     []
    ],
@@ -3600,6 +4971,33 @@
       "trous",
       "fixation",
       "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -3635,6 +5033,33 @@
       "trous",
       "fixation",
       "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "16": [
@@ -3663,6 +5088,26 @@
      [
       "trous",
       "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "18": [
@@ -3689,6 +5134,26 @@
      ],
      [
       "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
       "solidite"
      ]
     ],
@@ -3717,6 +5182,26 @@
      [
       "trous",
       "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ]
    },
@@ -3739,7 +5224,17 @@
     ],
     [
      "trous"
-    ]
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [],
+    [],
+    [],
+    []
    ],
    "choix": null
   },
@@ -3789,6 +5284,39 @@
       "fixation",
       "solidite",
       "charge-verticale"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -3826,6 +5354,36 @@
       "barre-appui",
       "fixation",
       "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
      ]
     ],
     "16": [
@@ -3855,6 +5413,30 @@
      [
       "barre-appui",
       "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
      ]
     ],
     "18": [
@@ -3867,6 +5449,30 @@
       "barre-appui",
       "solidite",
       "charge-verticale"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
      ],
      [
       "barre-appui",
@@ -3910,6 +5516,30 @@
      [
       "barre-appui",
       "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
      ]
     ]
    },
@@ -3918,6 +5548,36 @@
      "barre-appui",
      "solidite",
      "charge-verticale",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "solidite",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "solidite",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "solidite",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "solidite",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "solidite",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "solidite",
      "fixation"
     ],
     [
@@ -3981,6 +5641,24 @@
      ],
      [
       "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
      ]
     ],
     "14": [
@@ -3995,6 +5673,24 @@
      ],
      [
       "trous",
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
+      "fixation"
+     ],
+     [
       "fixation"
      ],
      [
@@ -4020,7 +5716,17 @@
      ],
      [],
      [],
-     []
+     [],
+     [],
+     [],
+     [],
+     [],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ]
     ],
     "18": [
      [
@@ -4032,7 +5738,19 @@
      [],
      [],
      [],
-     []
+     [],
+     [],
+     [],
+     [],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ]
     ],
     "20": [
      [
@@ -4044,7 +5762,21 @@
      [],
      [],
      [],
-     []
+     [],
+     [],
+     [],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ]
     ]
    },
    "renfort": [
@@ -4057,7 +5789,17 @@
     [],
     [],
     [],
-    []
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
+    ]
    ],
    "choix": {
     "carre": 16,
@@ -4110,6 +5852,36 @@
       "barre-appui",
       "fixation",
       "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -4117,6 +5889,30 @@
       "barre-appui",
       "fixation",
       "charge-verticale"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
      ],
      [
       "barre-appui",
@@ -4158,12 +5954,48 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
      ]
     ],
     "18": [
      [
       "barre-appui",
       "charge-verticale"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
      ],
      [
       "barre-appui"
@@ -4199,10 +6031,52 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "trop-petit"
      ]
     ]
    },
    "renfort": [
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
     [
      "barre-appui",
      "fixation"
@@ -4266,6 +6140,30 @@
      [
       "barre-appui",
       "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
      ]
     ],
     "14": [
@@ -4273,6 +6171,30 @@
       "barre-appui",
       "fixation",
       "charge-verticale"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
      ],
      [
       "barre-appui",
@@ -4314,6 +6236,24 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "trop-petit"
      ]
     ],
     "18": [
@@ -4334,6 +6274,24 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ],
     "20": [
@@ -4354,6 +6312,24 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ]
    },
@@ -4381,6 +6357,29 @@
     [
      "barre-appui",
      "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "trop-petit"
     ]
    ],
    "choix": null
@@ -4429,6 +6428,36 @@
       "barre-appui",
       "fixation",
       "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -4443,6 +6472,36 @@
       "fixation",
       "solidite",
       "charge-verticale"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
      ],
      [
       "barre-appui",
@@ -4490,12 +6549,54 @@
      [
       "barre-appui",
       "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
      ]
     ],
     "18": [
      [
       "barre-appui",
       "charge-verticale"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
      ],
      [
       "barre-appui"
@@ -4532,6 +6633,24 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
      ]
     ]
    },
@@ -4539,6 +6658,30 @@
     [
      "barre-appui",
      "charge-verticale",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
      "fixation"
     ],
     [
@@ -4599,6 +6742,30 @@
      [
       "barre-appui",
       "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
      ]
     ],
     "14": [
@@ -4626,6 +6793,28 @@
      [
       "barre-appui",
       "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "barre-appui",
+      "fixation"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ],
     "16": [
@@ -4646,6 +6835,24 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ],
     "18": [
@@ -4666,6 +6873,24 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ],
     "20": [
@@ -4686,6 +6911,24 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ]
    },
@@ -4713,6 +6956,27 @@
     [
      "barre-appui",
      "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
     ]
    ],
    "choix": null
@@ -4760,6 +7024,36 @@
       "barre-appui",
       "fixation",
       "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -4774,6 +7068,36 @@
       "fixation",
       "solidite",
       "charge-verticale"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
      ],
      [
       "barre-appui",
@@ -4821,12 +7145,54 @@
      [
       "barre-appui",
       "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "solidite"
      ]
     ],
     "18": [
      [
       "barre-appui",
       "charge-verticale"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
      ],
      [
       "barre-appui"
@@ -4863,6 +7229,24 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
      ]
     ]
    },
@@ -4870,6 +7254,30 @@
     [
      "barre-appui",
      "charge-verticale",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
      "fixation"
     ],
     [
@@ -4938,6 +7346,36 @@
       "barre-appui",
       "fixation",
       "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -4946,6 +7384,36 @@
       "fixation",
       "solidite",
       "charge-verticale"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "barre-appui",
+      "fixation",
+      "solidite"
      ],
      [
       "barre-appui",
@@ -4992,12 +7460,48 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
      ]
     ],
     "18": [
      [
       "barre-appui",
       "charge-verticale"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
      ],
      [
       "barre-appui"
@@ -5033,10 +7537,52 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
+     ],
+     [
+      "barre-appui"
      ]
     ]
    },
    "renfort": [
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
+    [
+     "barre-appui",
+     "fixation"
+    ],
     [
      "barre-appui",
      "fixation"
@@ -5099,6 +7645,24 @@
      [
       "barre-appui",
       "fixation"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ],
     "14": [
@@ -5124,6 +7688,24 @@
      ],
      [
       "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ],
     "16": [
@@ -5138,6 +7720,24 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ],
      [
       "trop-petit"
@@ -5164,6 +7764,24 @@
      ],
      [
       "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ]
     ],
     "20": [
@@ -5175,6 +7793,24 @@
      ],
      [
       "barre-appui"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
+     ],
+     [
+      "trop-petit"
      ],
      [
       "trop-petit"
@@ -5203,6 +7839,24 @@
     [
      "barre-appui",
      "fixation"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
+    ],
+    [
+     "trop-petit"
     ],
     [
      "trop-petit"
@@ -5255,6 +7909,30 @@
      [
       "fixation",
       "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -5278,6 +7956,30 @@
      ],
      [
       "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
       "fixation",
       "solidite"
      ],
@@ -5314,6 +8016,24 @@
      ],
      [
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "18": [
@@ -5339,6 +8059,24 @@
      ],
      [
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "20": [
@@ -5355,6 +8093,12 @@
      [
       "trous"
      ],
+     [],
+     [],
+     [],
+     [],
+     [],
+     [],
      [],
      []
     ]
@@ -5373,6 +8117,12 @@
     [
      "trous"
     ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
     [],
     []
    ],
@@ -5429,6 +8179,30 @@
      [
       "fixation",
       "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -5463,6 +8237,30 @@
      [
       "fixation",
       "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "16": [
@@ -5486,6 +8284,24 @@
      ],
      [
       "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
       "solidite"
      ],
      [
@@ -5516,6 +8332,24 @@
      ],
      [
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "20": [
@@ -5542,6 +8376,24 @@
      ],
      [
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ]
    },
@@ -5559,6 +8411,12 @@
     [
      "trous"
     ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
     [],
     []
    ],
@@ -5610,6 +8468,36 @@
       "fixation",
       "solidite",
       "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -5646,6 +8534,35 @@
       "trous",
       "fixation",
       "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "16": [
@@ -5675,6 +8592,28 @@
      [
       "trous",
       "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "18": [
@@ -5703,6 +8642,28 @@
      [
       "trous",
       "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "20": [
@@ -5730,6 +8691,27 @@
      [
       "trous",
       "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ]
    },
@@ -5752,7 +8734,19 @@
     ],
     [
      "trous"
-    ]
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [
+     "trous"
+    ],
+    [],
+    [],
+    []
    ],
    "choix": null
   },
@@ -5802,6 +8796,32 @@
       "fixation",
       "solidite",
       "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -5838,6 +8858,31 @@
       "trous",
       "fixation",
       "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "16": [
@@ -5867,6 +8912,25 @@
      [
       "trous",
       "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "18": [
@@ -5895,6 +8959,25 @@
      [
       "trous",
       "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "20": [
@@ -5922,6 +9005,25 @@
      [
       "trous",
       "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ]
    },
@@ -5944,7 +9046,15 @@
     ],
     [
      "trous"
-    ]
+    ],
+    [
+     "trous"
+    ],
+    [],
+    [],
+    [],
+    [],
+    []
    ],
    "choix": null
   },
@@ -5988,6 +9098,30 @@
       "fixation",
       "solidite",
       "charge-verticale"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -6018,6 +9152,30 @@
      [
       "fixation",
       "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "16": [
@@ -6040,12 +9198,48 @@
      ],
      [
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "18": [
      [
       "solidite",
       "charge-verticale"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ],
      [
       "solidite"
@@ -6082,12 +9276,48 @@
      ],
      [
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ]
    },
    "renfort": [
     [
      "charge-verticale",
+     "fixation"
+    ],
+    [
+     "fixation"
+    ],
+    [
+     "fixation"
+    ],
+    [
+     "fixation"
+    ],
+    [
+     "fixation"
+    ],
+    [
+     "fixation"
+    ],
+    [
      "fixation"
     ],
     [
@@ -6153,6 +9383,32 @@
       "trous",
       "fixation",
       "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -6188,6 +9444,32 @@
       "trous",
       "fixation",
       "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "16": [
@@ -6216,6 +9498,26 @@
      [
       "trous",
       "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "18": [
@@ -6242,6 +9544,25 @@
      ],
      [
       "trous",
+      "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
       "solidite"
      ]
     ],
@@ -6270,6 +9591,25 @@
      [
       "trous",
       "solidite"
+     ],
+     [
+      "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ]
    },
@@ -6292,7 +9632,15 @@
     ],
     [
      "trous"
-    ]
+    ],
+    [
+     "trous"
+    ],
+    [],
+    [],
+    [],
+    [],
+    []
    ],
    "choix": null
   },
@@ -6342,6 +9690,30 @@
       "fixation",
       "solidite",
       "charge-verticale"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -6378,6 +9750,30 @@
       "trous",
       "fixation",
       "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "16": [
@@ -6405,6 +9801,24 @@
      ],
      [
       "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
       "solidite"
      ]
     ],
@@ -6434,6 +9848,24 @@
      [
       "trous",
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "20": [
@@ -6461,6 +9893,24 @@
      [
       "trous",
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ]
    },
@@ -6483,7 +9933,13 @@
     ],
     [
      "trous"
-    ]
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
    ],
    "choix": null
   },
@@ -6532,6 +9988,31 @@
       "trous",
       "fixation",
       "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -6567,6 +10048,31 @@
       "trous",
       "fixation",
       "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "16": [
@@ -6590,6 +10096,24 @@
      ],
      [
       "trous",
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
       "solidite"
      ],
      [
@@ -6620,6 +10144,24 @@
      ],
      [
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "20": [
@@ -6646,6 +10188,24 @@
      ],
      [
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ]
    },
@@ -6666,6 +10226,12 @@
     [
      "trous"
     ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
     []
    ],
    "choix": null
@@ -6716,6 +10282,32 @@
       "fixation",
       "solidite",
       "charge-verticale"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite",
+      "charge-verticale"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "14": [
@@ -6752,6 +10344,31 @@
       "trous",
       "fixation",
       "solidite"
+     ],
+     [
+      "trous",
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
+     ],
+     [
+      "fixation",
+      "solidite"
      ]
     ],
     "16": [
@@ -6781,6 +10398,24 @@
      [
       "trous",
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "18": [
@@ -6809,6 +10444,24 @@
      [
       "trous",
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ],
     "20": [
@@ -6836,6 +10489,24 @@
      [
       "trous",
       "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
+     ],
+     [
+      "solidite"
      ]
     ]
    },
@@ -6859,6 +10530,24 @@
     ],
     [
      "trous",
+     "solidite"
+    ],
+    [
+     "solidite"
+    ],
+    [
+     "solidite"
+    ],
+    [
+     "solidite"
+    ],
+    [
+     "solidite"
+    ],
+    [
+     "solidite"
+    ],
+    [
      "solidite"
     ],
     [

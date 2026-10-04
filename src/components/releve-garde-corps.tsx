@@ -358,10 +358,14 @@ export function ReleveGardeCorps({
       ? fr
         ? "l'espace entre les barres serait trop grand"
         : "the gap between the bars would be too wide"
-      : raisons.includes("solidite") || raisons.includes("charge-verticale")
+      : raisons.includes("fixation")
         ? fr
-          ? "sur cette largeur, il ne serait pas assez rigide"
-          : "over this width it would not be stiff enough"
+          ? "sur cette largeur, les vis dans le mur seraient trop sollicitées"
+          : "over this width, the screws in the wall would be overloaded"
+        : raisons.includes("solidite") || raisons.includes("charge-verticale")
+        ? fr
+          ? "sur cette largeur, la barre du haut ne serait pas assez rigide"
+          : "over this width the top rail would not be stiff enough"
         : raisons.includes("soubassement")
           ? fr
             ? "si près du sol, le bas doit être fermé par des barreaux"
@@ -374,11 +378,7 @@ export function ReleveGardeCorps({
               ? fr
                 ? "le garde-corps serait trop bas pour ce dessin"
                 : "the railing would be too low for this design"
-              : raisons.includes("fixation")
-                ? fr
-                  ? "sur cette largeur, la fixation dans le mur est à étudier"
-                  : "over this width, the wall fixing needs a study"
-                : "";
+              : "";
   // « Ce n'est pas le modèle qui n'est pas aux normes, c'est l'ensemble modèle + fenêtre » (Quentin, 04/10).
   const pasAdapte = (m: { raisons: readonly string[] }) => {
     const mots = raisonEnMots(m.raisons);
@@ -443,6 +443,7 @@ export function ReleveGardeCorps({
           const t = explique.trous;
           const rouges = t.ronds.filter((r) => !r.ok).length;
           const verts = t.ronds.some((r) => r.ok);
+          const raison = raisonEnMots(explique.raisons);
           return (
             <>
               <div className="mt-1.5 rounded-lg bg-white/70 px-2 py-1.5">
@@ -458,21 +459,33 @@ export function ReleveGardeCorps({
                 />
               </div>
               <ul className="mt-1.5 space-y-1">
-                <li className="flex items-start gap-1.5">
-                  <span aria-hidden className="mt-[3px] h-2.5 w-2.5 shrink-0 rounded-full border-[1.5px] border-[#c0392b] bg-[#c0392b]/30" />
-                  <span>
-                    {fr
-                      ? `${rouges > 1 ? "Ronds rouges" : "Rond rouge"} : le plus grand vide fait ${nombre(t.plusGrandMm)} mm. Une boule de ${nombre(t.limiteMm)} mm ne doit pas pouvoir passer entre les barres : l'écart est trop grand.`
-                      : `${rouges > 1 ? "Red circles" : "Red circle"}: the largest gap is ${nombre(t.plusGrandMm)} mm. A ${nombre(t.limiteMm)} mm ball must not be able to pass between the bars: the gap is too wide.`}
-                  </span>
-                </li>
+                {rouges > 0 && (
+                  <li className="flex items-start gap-1.5">
+                    <span aria-hidden className="mt-[3px] h-2.5 w-2.5 shrink-0 rounded-full border-[1.5px] border-[#c0392b] bg-[#c0392b]/30" />
+                    <span>
+                      {fr
+                        ? `${rouges > 1 ? "Ronds rouges" : "Rond rouge"} : le plus grand vide fait ${nombre(t.plusGrandMm)} mm. Une boule de ${nombre(t.limiteMm)} mm ne doit pas pouvoir passer entre les barres : l'écart est trop grand.`
+                        : `${rouges > 1 ? "Red circles" : "Red circle"}: the largest gap is ${nombre(t.plusGrandMm)} mm. A ${nombre(t.limiteMm)} mm ball must not be able to pass between the bars: the gap is too wide.`}
+                    </span>
+                  </li>
+                )}
                 {verts && (
                   <li className="flex items-start gap-1.5">
                     <span aria-hidden className="mt-[3px] h-2.5 w-2.5 shrink-0 rounded-full border-[1.5px] border-[#2f7d46] bg-[#2f7d46]/30" />
-                    <span>{fr ? "Ronds verts : des vides assez petits, aux normes." : "Green circles: gaps small enough, to standard."}</span>
+                    <span>
+                      {rouges > 0
+                        ? fr ? "Ronds verts : des vides assez petits, aux normes." : "Green circles: gaps small enough, to standard."
+                        : fr ? `Ronds verts : tous les vides respectent la norme (le plus grand fait ${nombre(t.plusGrandMm)} mm).` : `Green circles: every gap meets the standard (the largest is ${nombre(t.plusGrandMm)} mm).`}
+                    </span>
                   </li>
                 )}
               </ul>
+              {rouges === 0 && raison && (
+                <p className="mt-1.5 font-medium text-[#2b2320]">
+                  {fr ? "Ce qui bloque : " : "What blocks it: "}
+                  {raison}.
+                </p>
+              )}
             </>
           );
         })()
@@ -763,11 +776,13 @@ export function ReleveGardeCorps({
                    La largeur du cadre est écrite en toutes lettres (3/4 de sa hauteur) : avec `aspect-ratio` seul,
                    Safari ne la comptait pas dans la largeur de la colonne — elle tombait à zéro, le croquis
                    disparaissait et la carte des modèles s'écrasait. */
-                <div className="mx-auto flex w-fit max-w-full flex-col">
-                  <div className="relative h-[var(--h)] w-[calc(var(--h)*0.75)] max-w-full overflow-hidden rounded-2xl [--h:40svh] md:[--h:min(62vh,640px)] xl:[--h:clamp(300px,calc(100vh_-_22rem),660px)]">
+                <div className="mx-auto flex w-fit max-w-full flex-col xl:min-h-0 xl:flex-1">
+                  <div className="relative h-[var(--h)] w-[calc(var(--h)*0.75)] max-w-full shrink-0 overflow-hidden rounded-2xl [--h:40svh] md:[--h:min(62vh,640px)] xl:[--h:clamp(220px,calc(100dvh_-_25rem),640px)]">
                     {croquis}
                   </div>
-                  <div className="w-0 min-w-full">{catalogue}</div>
+                  {/* Le catalogue (et l'explication des ronds rouge et vert) prend la hauteur qui reste et défile
+                      DANS sa zone : le bloc entier tient toujours sur l'écran (règle de Quentin). */}
+                  <div className="w-0 min-w-full xl:min-h-0 xl:flex-1 xl:overflow-y-auto xl:overscroll-contain">{catalogue}</div>
                 </div>,
                 schemaSlot
               )
@@ -957,7 +972,12 @@ export function ReleveGardeCorps({
                 <div role="alert">
                   <p className="font-medium text-[#2b2320]">{t.gcAEtudierTitre}</p>
                   <p className="mt-1 text-[#5c5140]">
-                    {reponse.alertes.includes("solidite") || reponse.alertes.includes("fixation") || reponse.alertes.includes("charge-verticale") ? t.gcAEtudierSolidite : t.gcAEtudier} {lienEtude}
+                    {reponse.alertes.includes("fixation")
+                      ? t.gcAEtudierFixation
+                      : reponse.alertes.includes("solidite") || reponse.alertes.includes("charge-verticale")
+                        ? t.gcAEtudierSolidite
+                        : t.gcAEtudier}{" "}
+                    {lienEtude}
                   </p>
                 </div>
               )}
@@ -1042,6 +1062,15 @@ export function ReleveGardeCorps({
                 : fr
                   ? "Dernière étape : choisissez votre modèle, sous le croquis."
                   : "Last step: choose your model, under the sketch."}
+            </p>
+          )}
+          {/* Pourquoi des barreaux en bas : si le client ne les a pas choisis, c'est la norme (le cadre commence sous
+              60 cm du sol : des croix s'y escaladent, des barreaux droits non). Il doit le savoir, pas le subir. */}
+          {conforme && !surVerre && conforme.soubassementMm > 0 && !voulu?.barreauxBas && (
+            <p className="mt-2 rounded-xl bg-[#f3ede3] px-3.5 py-2 text-[12px] leading-snug text-[#4a3f33]">
+              {fr
+                ? "Barreaux droits en bas : imposés par la norme. Le bas de votre garde-corps est à moins de 60 cm du sol, et un enfant pourrait grimper sur des croix."
+                : "Straight bars at the bottom: required by the standard. The bottom of your railing is less than 60 cm from the floor, and a child could climb on crosses."}
             </p>
           )}
           {/* « Poids et détails », « Ce que comprend le prix » : la fiche les dépose ici (voir detailsSlot). */}

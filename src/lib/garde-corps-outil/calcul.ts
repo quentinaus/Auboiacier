@@ -11,7 +11,7 @@
 import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, DEFAUTS_GC, calculerGC, geomGC, type ResultatGC, type ValeursGC } from "./moteur.genere.mjs";
 import { chiffrage } from "./chiffrage.ts";
 import { idModeleGC, lireModeleGC, type RaisonSansPrixGC, type RondGC, type TrousGC } from "../garde-corps.ts";
-import { CARRE_RENFORT, codeAlerte, CROIX_MAX, ESSENCES_GC, ORDRE_CARRES, valeursGC, type CodeAlerteGC, type EntreeSiteGC } from "./entree.ts";
+import { CARRE_RENFORT, codeAlerte, CROIX_CATALOGUE, CROIX_MAX, ESSENCES_GC, ORDRE_CARRES, valeursGC, type CodeAlerteGC, type EntreeSiteGC } from "./entree.ts";
 
 export { ChiffrageIndisponible } from "./chiffrage.ts";
 export type { CodeAlerteGC, EntreeSiteGC, EssenceGC } from "./entree.ts";
@@ -195,7 +195,9 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
     ...(e.modele !== undefined ? { modele: e.modele } : {}),
   });
   const carres: readonly number[] = ORDRE_CARRES;
-  const [nMin, nMax] = choisi ? [choisi.croix, choisi.croix] : [1, CROIX_MAX];
+  // Sans choix : d'abord 1 à 6 croix dans tous les carrés (les prix d'avant ne changent pas), puis seulement si
+  // rien n'a passé, 7 à 12 croix — les fenêtres larges et basses que l'outil résout et que le site refusait.
+  const plages: readonly (readonly [nMin: number, nMax: number])[] = choisi ? [[choisi.croix, choisi.croix]] : [[1, CROIX_CATALOGUE], [CROIX_CATALOGUE + 1, CROIX_MAX]];
   // Sans choix du client : les croix seules d'abord ; si rien ne passe, une traverse au milieu des croix (la
   // solution de l'outil : le même dessin, les vides coupés en deux) ; puis des barreaux droits en bas ; puis les deux.
   const variantes: readonly (readonly [barreaux: boolean, traverse: boolean])[] = choisi
@@ -246,7 +248,7 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
     if (r && !lisseTropSouple(cleReleve)) break;
     // Avec le fer plat, la rigidité est réglée : seul compte ce qui bloque ENCORE (les essais qui suivent).
     if (r) blocages.length = 0;
-    for (const [b, t] of variantes) {
+    for (const [nMin, nMax] of plages) for (const [b, t] of variantes) {
       for (const s of r ? [CARRE_RENFORT] : carres) {
         for (let n = nMin; n <= nMax; n++) {
           const essai = essayer(cleReleve, entree, s, n, b, t, r);
@@ -289,13 +291,13 @@ export type DessinGC =
 
 /**
  * Les vides d'un dessin dans cette fenêtre, pour l'EXPLIQUER au client : le rond rouge (le vide trop grand) et les
- * ronds verts, ceux que l'outil de plans dessine sur ses modèles. null si aucun vide n'est trop grand (le dessin
- * est alors écarté pour une autre raison : rigidité, fixation…). Calcul de géométrie seulement, sans les contrôles.
+ * ronds verts, ceux que l'outil de plans dessine sur ses modèles — sur TOUS les modèles, comme l'outil : un modèle
+ * écarté pour sa fixation ou sa rigidité montre des ronds verts (ses vides sont bons) et la raison, au lieu de rien.
+ * Calcul de géométrie seulement, sans les contrôles.
  */
 function trousDuDessin(entree: EntreeSiteGC, n: number, b: boolean, t: boolean, renfort: boolean): TrousGC | null {
   const v = valeursGC(DEFAUTS_GC, entree, CARRE_REFERENCE, n, b, t, renfort) as ValeursGC;
   const g = geomGC(v, n);
-  if (g.ok) return null;
   const trous = (g.trous ?? []) as { c: [number, number]; d: number; limite: number; ok: boolean }[];
   const s = Number(v.s), sb = Number(g.sb) || 0;
   const ronds: RondGC[] = [];
@@ -333,17 +335,24 @@ export function catalogueGC(e: EntreeSiteGC): DessinGC[] {
   const dessins = new Map<string, DessinGC>();
   const cleReleve = JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, e.essence]);
   // L'ordre du catalogue : les croix seules, puis avec une traverse au milieu, puis avec des barreaux en bas,
-  // puis les deux — de 1 à 6 croix chaque fois.
+  // puis les deux — de 1 à 6 croix chaque fois (de 7 à 12 : seulement les modèles aux normes).
   for (const [b, t] of [[false, false], [false, true], [true, false], [true, true]] as const) {
+    // De 7 à 12 croix : seulement quand AUCUN modèle de 1 à 6 croix de cette famille n'est aux normes (une fenêtre
+    // large et basse). Sinon le catalogue se remplirait de dessins très serrés pour une fenêtre ordinaire.
+    let assezDeCroix = false;
     for (let n = 1; n <= CROIX_MAX; n++) {
+      if (n > CROIX_CATALOGUE && assezDeCroix) break;
       // Le dessin dans le premier carré de l'atelier qui passe toute la norme (configurerGC les essaie dans l'ordre).
       const c = configurerGC({ ...sansChoix, modele: idModeleGC(16, n, b, t) });
       if (c.ok) {
+        if (n <= CROIX_CATALOGUE) assezDeCroix = true;
         // Le même dessin par deux chemins (les barreaux que la norme impose déjà) : une seule fois — et s'il
         // n'était « hors norme » que par l'autre chemin, c'est le dessin conforme qu'on garde.
         const cle = [c.croix, c.soubassementMm > 0, t].join("|");
         if (!dessins.get(cle)?.conforme) dessins.set(cle, { conforme: true, config: c });
       } else {
+        // Au-delà de 6 croix, le catalogue ne montre que les modèles aux normes (douze croix hors norme : du bruit).
+        if (n > CROIX_CATALOGUE) continue;
         // (Fenêtre large : avec le fer plat de renfort, le cadre est plus bas — c'est ce cadre-là qu'on regarde.)
         const sb = Math.max(0, Math.round(geomGC(valeursGC(DEFAUTS_GC, sansChoix, 16, n, b, t, lisseTropSouple(cleReleve)), n).sb || 0));
         // Des barreaux en bas que l'outil ne peut pas dessiner (garde-corps trop bas) : ce dessin n'existe pas

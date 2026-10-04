@@ -419,6 +419,7 @@
     "gcAEtudierTitre": "À étudier avec l'atelier",
     "gcAEtudier": "Ces cotes sortent de ce que notre modèle permet en respectant la norme. Nous étudions votre fenêtre avec vous, sans engagement.",
     "gcAEtudierSolidite": "À cette largeur, notre modèle ne serait pas assez rigide, même renforcé. Nous étudions avec vous une solution plus solide, sans engagement.",
+    "gcAEtudierFixation": "Votre garde-corps serait large et peu haut : les vis dans le mur travailleraient trop. Nous étudions avec vous une fixation sûre, sans engagement.",
     "gcRenfort": "Fenêtre large : la barre du haut est renforcée par un fer plat, caché sous la main courante. La main courante fait 60 mm de large. C'est compris dans le prix. Avant de fabriquer, l'atelier vérifie avec vous la fixation dans votre mur.",
     "gcTropEtroit": "La plus petite fenêtre que nous équipons fait {min} mm de large.",
     "gcCalcul": "Calcul du garde-corps…",

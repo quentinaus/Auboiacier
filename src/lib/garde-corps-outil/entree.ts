@@ -27,7 +27,16 @@ export const CARRE_RENFORT = 16;
  * pas de prix, « à étudier avec l'atelier ».
  */
 export const ORDRE_CARRES = [16, 12, 14, 18, 20] as const;
-export const CROIX_MAX = 6;
+/**
+ * L'outil de plans n'a pas de limite de croix : on tape le nombre qu'on veut. Le site va jusqu'à 12 — un balayage
+ * de toutes les cotes (05/10) montre que les fenêtres larges et basses (1,50 à 2,40 m de large, bas de fenêtre à
+ * moins de 40 cm du sol) ne passent la norme qu'avec 7 à 10 croix : à 6, le site répondait « à étudier » alors que
+ * l'outil, avec 7 croix, donnait un garde-corps aux normes. Le catalogue, lui, montre toujours 1 à 6 croix, puis
+ * les modèles de 7 à 12 croix SEULEMENT s'ils sont aux normes (CROIX_CATALOGUE).
+ */
+export const CROIX_MAX = 12;
+/** Au catalogue : de 1 à 6 croix toujours ; au-delà, seulement les modèles aux normes. */
+export const CROIX_CATALOGUE = 6;
 
 /**
  * Les réglages de l'outil pour ce relevé : ses valeurs par défaut (celles de

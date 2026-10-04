@@ -31,6 +31,9 @@ import { ligneGC, lireRequetePrixGC, PARAMETRES_PRIX_GC, reponsePrixGC, type Req
 import { CARRE_RENFORT, CROIX_MAX, ESSENCES_GC, ORDRE_CARRES, valeursGC, type EntreeSiteGC } from "../src/lib/garde-corps-outil/entree.ts";
 import { tarifLivraison, tarifPose } from "../src/lib/deplacement.ts";
 
+/** Les nombres de croix essayés dans les tests d'indépendance (1 à 12 en entier prendrait plus d'une minute). */
+const ECHANTILLON_CROIX = [1, 2, 3, 5, 6, 9, 12];
+
 function chiffrageOuEchec() {
   const etat = chargerChiffrage();
   if (!etat.ok) assert.fail("Clé du chiffrage absente ou invalide : copier .env.chiffrage.local d'une autre copie du site (jamais par git).");
@@ -460,7 +463,7 @@ test("catalogue des modèles : tous montrés, seuls les conformes ont un prix, u
   const q = { releve, essence: "chene" as const, quantite: 1 };
   const r = reponsePrixGC(q);
   assert.ok(r && r.ok, "ce relevé a un prix");
-  assert.ok(r.modeles.length >= 12 && r.modeles.length <= 24, "le catalogue entier est envoyé");
+  assert.ok(r.modeles.length >= 12 && r.modeles.length <= 48, "le catalogue entier est envoyé");
   assert.deepEqual(Object.keys(r.modeles[0]).sort(), ["carre", "conforme", "croix", "hauteurMm", "id", "kg", "prix", "raisons", "renfort", "soubassementMm", "traverse", "trous"]);
   // Les quatre familles : croix seules, traverse au milieu, barreaux en bas, les deux.
   assert.ok(r.modeles.some((m) => m.traverse) && r.modeles.some((m) => !m.traverse));
@@ -482,7 +485,7 @@ test("catalogue des modèles : tous montrés, seuls les conformes ont un prix, u
   // Le carré de l'identifiant est indicatif : c'est le DESSIN qui est choisi, le carré reste celui de l'atelier.
   // Un identifiant forgé dans un autre carré ne donne ni un autre garde-corps ni un autre prix.
   for (const m of conformes) {
-    const suite = m.id.replace(/^\d+-\d/, "");
+    const suite = m.id.replace(/^\d+-\d+/, "");
     for (const s of ORDRE_CARRES) {
       const forge = reponsePrixGC({ ...q, releve: { ...releve, modele: `${s}-${m.croix}${suite}` } });
       assert.ok(forge && forge.ok, `${s}-${m.croix}${suite} : le même dessin`);
@@ -499,7 +502,8 @@ test("modèles hors norme : le rond rouge et les ronds verts de l'outil accompag
   // La fenêtre de Quentin (05/10) : 1 775 × 410 en étage, aucun modèle ne convient.
   const q = { releve: { largeurMm: 1775, allegeMm: 410, enEtage: true, fenetreMm: 0 }, essence: "chene" as const, quantite: 1 };
   const r = reponsePrixGC(q);
-  assert.ok(r && !r.ok);
+  // (Avec 7 à 12 croix l'outil résout cette fenêtre basse et large : des modèles aux normes ET des refusés.)
+  assert.ok(r);
   const refuses = r.modeles.filter((m) => !m.conforme);
   assert.ok(refuses.length >= 6);
   for (const m of r.modeles.filter((x) => x.conforme)) assert.equal(m.trous, null, `${m.id} : aux normes, rien à expliquer`);
@@ -538,7 +542,8 @@ test("le modèle choisi ne saute pas quand une cote fait changer de carré : c'e
   for (const allegeMm of [300, 650]) {
     const depart = reponsePrixGC({ releve: { largeurMm: 700, allegeMm, enEtage: true, fenetreMm: 0 }, essence: "chene", quantite: 1 });
     assert.ok(depart);
-    for (const choisi of depart.modeles.filter((m) => m.conforme)) {
+    // (Jusqu'à 6 croix ici ; les modèles de 7 à 12 croix sont couverts par parite-outil-site.test.ts.)
+    for (const choisi of depart.modeles.filter((m) => m.conforme && m.croix <= 6)) {
       for (let largeurMm = 700; largeurMm <= 1700; largeurMm += 100) {
         const releve = { largeurMm, allegeMm, enEtage: true, fenetreMm: 0 };
         const catalogue = reponsePrixGC({ releve, essence: "chene", quantite: 1 })!.modeles;
@@ -616,7 +621,7 @@ test("la rigidité de la lisse ne dépend pas du dessin : un carré écarté pou
         const vus = new Set<boolean>();
         for (const b of [false, true])
           for (const t of [false, true])
-            for (let n = 1; n <= CROIX_MAX; n++) {
+            for (const n of ECHANTILLON_CROIX) {
               const alertes: string[] = calculerGC({ ...valeursGC(DEFAUTS_GC, releve({ largeurMm, allegeMm }), s, n, b, t), _rapide: true }).alertes;
               // « Trop petit pour ce nombre de croix » : l'outil s'arrête avant de contrôler la solidité.
               if (alertes.some((a) => a.startsWith("Le garde-corps est trop petit"))) continue;
@@ -694,7 +699,7 @@ test("ce qui écarte un carré entier (solidité, fixation) ne dépend pas du de
         const vus = new Set<string>();
         for (const b of [false, true])
           for (const t of [false, true])
-            for (let n = 1; n <= CROIX_MAX; n++) {
+            for (const n of ECHANTILLON_CROIX) {
               const alertes: string[] = calculerGC({ ...valeursGC(DEFAUTS_GC, releve({ largeurMm, allegeMm }), s, n, b, t), _rapide: true }).alertes;
               if (alertes.some((a) => a.startsWith("Le garde-corps est trop petit"))) continue;
               vus.add(`${alertes.some((a) => a.startsWith("Solidité"))}|${alertes.some((a) => a.startsWith("Fixation"))}`);

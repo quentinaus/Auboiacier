@@ -511,12 +511,12 @@ export function ProductView({
          manque pas, la carte reste à côté du croquis et défile seule. */
       <section
         id="configuration"
-        className={`mx-auto scroll-mt-14 px-5 pb-3 pt-4 md:flex md:h-[calc(100dvh-3.5rem)] md:min-h-[560px] md:flex-col md:px-10 md:py-4 ${troisColonnes ? "max-w-[1480px] xl:block xl:h-auto xl:min-h-0 xl:scroll-mt-4 xl:py-3" : "max-w-7xl"}`}
+        className={`mx-auto scroll-mt-14 px-5 pb-3 pt-4 md:flex md:h-[calc(100dvh-3.5rem)] md:min-h-[560px] md:flex-col md:px-10 md:py-4 ${troisColonnes ? "max-w-[1480px] xl:h-[calc(100dvh-2rem)] xl:scroll-mt-4 xl:py-3" : "max-w-7xl"}`}
       >
         {/* Sur ordinateur, tout tient dans la hauteur de l'écran, titre compris : le titre
             est dans la plaque, la carte et le croquis se partagent la hauteur qui reste. */}
         <div
-          className={`fond-configuration flex flex-col gap-4 md:grid md:min-h-0 md:flex-1 md:grid-cols-[minmax(0,372px)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)] md:items-stretch md:gap-x-10 md:gap-y-4 lg:gap-x-14 ${troisColonnes ? "xl:flex-none xl:grid-rows-none xl:items-start " : ""}${
+          className={`fond-configuration flex flex-col gap-4 md:grid md:min-h-0 md:flex-1 md:grid-cols-[minmax(0,372px)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)] md:items-stretch md:gap-x-10 md:gap-y-4 lg:gap-x-14 ${troisColonnes ? "xl:items-start " : ""}${
             /* Le garde-corps, sur grand écran : TROIS colonnes — les cotes, le croquis et les modèles,
                puis le résultat, la livraison et le panier. Tout tient sur un écran, titre compris,
                sans faire défiler ni la page ni une carte. */
@@ -535,7 +535,7 @@ export function ProductView({
               la barre d'achat doit rester collée au bas de l'écran. */}
           {/* Sur ordinateur, la carte tient dans la hauteur du bloc ; si ses choix sont plus hauts que l'écran, ELLE défile
               (la molette ne fait jamais défiler la page à travers elle), et la barre d'achat reste collée en bas. */}
-          <div className={`carte-verre overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 md:min-h-0 md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain md:px-6 md:pt-5 ${troisColonnes ? "colonne-cotes xl:overflow-visible xl:px-5 xl:pb-3 xl:pt-4" : ""}`}>
+          <div className={`carte-verre overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 md:min-h-0 md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain md:px-6 md:pt-5 ${troisColonnes ? "colonne-cotes xl:max-h-full xl:px-5 xl:pb-3 xl:pt-4" : ""}`}>
             {options}
           </div>
           {/* Le croquis : au-dessus de la carte sur téléphone, à côté et en grand sur ordinateur. */}
@@ -544,17 +544,17 @@ export function ProductView({
               /* Le croquis d'une table ou d'un plafond remplit la hauteur du bloc, au milieu. Le garde-corps a son
                  catalogue de modèles sous le croquis : il défile dans sa colonne sous 1280 px, et tient entier au-dessus. */
               product.releve === "garde-corps-fenetre"
-                ? "md:min-h-0 md:overflow-y-auto xl:overflow-visible"
+                ? "md:min-h-0 md:overflow-y-auto xl:flex xl:min-h-0 xl:flex-col xl:self-stretch xl:overflow-hidden"
                 : "md:flex md:min-h-0 md:items-center md:justify-center"
             }`}
           >
-            <div ref={setSchemaSlot} className="schema-configuration mx-auto w-full" />
+            <div ref={setSchemaSlot} className={`schema-configuration mx-auto w-full ${troisColonnes ? "xl:flex xl:min-h-0 xl:flex-1 xl:flex-col" : ""}`} />
           </div>
           {/* La troisième colonne du garde-corps (grand écran) : `ProductOptions` y dépose le résultat,
               puis la livraison et la barre d'achat. Vide et cachée en dessous de 1280 px : tout reste
               alors dans la première carte. */}
           {troisColonnes && (
-            <div className="carte-verre colonne-achat hidden overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 xl:block">
+            <div className="carte-verre colonne-achat hidden overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 xl:block xl:max-h-full xl:overflow-y-auto xl:overflow-x-hidden xl:overscroll-contain">
               <div ref={setResultatSlot} />
               <div ref={setAchatSlot} />
             </div>

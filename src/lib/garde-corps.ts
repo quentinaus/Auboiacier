@@ -85,11 +85,11 @@ export type ReleveGC = {
 };
 
 /**
- * Un modèle : la section du carré (12 à 20), un tiret, le nombre de croix (1 à 6) ; puis « -b » (barreaux droits
+ * Un modèle : la section du carré (12 à 20), un tiret, le nombre de croix (1 à 12) ; puis « -b » (barreaux droits
  * en bas) et « -t » (une traverse au milieu de chaque croix : la solution de l'outil quand le vide entre les
  * barres est trop grand).
  */
-const MODELE_GC = /^(12|14|16|18|20)-([1-6])(-b)?(-t)?$/;
+const MODELE_GC = /^(12|14|16|18|20)-(1[0-2]|[1-9])(-b)?(-t)?$/;
 
 /** Lit « 16-3 », « 16-2-t », « 16-5-b-t » ; null si ce n'est pas un modèle. */
 export function lireModeleGC(m: unknown): { carre: number; croix: number; barreauxBas: boolean; traverse: boolean } | null {
@@ -163,8 +163,11 @@ export type ModeleGC = {
   kg: number;
 };
 
-/** Combien de modèles la route propose au plus : 6 croix × (croix seules, traverse, barreaux, barreaux + traverse). */
-export const MODELES_GC_MAX = 24;
+/**
+ * Combien de modèles la route propose au plus : 12 croix × (croix seules, traverse, barreaux, barreaux + traverse).
+ * (Au-delà de 6 croix, seuls les modèles aux normes sont montrés.)
+ */
+export const MODELES_GC_MAX = 48;
 
 /**
  * Le relevé qui fait le « à partir de » du garde-corps : le plus petit que
