@@ -1,9 +1,9 @@
 {
  "à lire": "Généré par scripts/extraire-moteur-garde-corps.mjs à partir de l'outil de plans (chargé tel quel dans node:vm). Aucun coût : des prix de vente, des poids, des hauteurs et des empreintes (sha256 tronqué) des réponses complètes. Ne pas modifier à la main.",
- "outil": "d69ae73b2dd8d7c13fa51766dd91c228531745f0ab2f82bcc0cf8e8818108488",
+ "outil": "df33a7323b62d0e05330eba492ff37c83b10c1dba6eb57038b61e28e837ae8e6",
  "empreintes": {
-  "moteur": "5681c916be9b",
-  "devis": "fa3ee815d349",
+  "moteur": "14f1f1abd92e",
+  "devis": "d1ecf8b7c488",
   "chiffrage": "400c81016ec1"
  },
  "defauts": "04a70457d483d769",
