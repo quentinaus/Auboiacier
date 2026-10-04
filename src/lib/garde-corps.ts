@@ -106,6 +106,32 @@ export function idModeleGC(carre: number, croix: number, barreauxBas: boolean, t
 export type RaisonSansPrixGC = "a-etudier" | "fenetre-trop-basse" | "barre-appui" | "sans-garde-corps";
 export const RAISONS_SANS_PRIX_GC: readonly RaisonSansPrixGC[] = ["a-etudier", "fenetre-trop-basse", "barre-appui", "sans-garde-corps"];
 
+/** Un vide du cadre, tel que l'outil le contrôle : le plus grand cercle qui passe entre les barres. */
+export type RondGC = {
+  /** Centre du cercle, en mm depuis le coin bas-gauche du cadre (le haut est vers le haut). */
+  x: number;
+  y: number;
+  /** Diamètre du cercle, en mm. */
+  d: number;
+  /** Ce vide respecte-t-il la norme (une boule de la taille limite ne passe pas) ? Rond vert si oui, rouge sinon. */
+  ok: boolean;
+};
+
+/**
+ * Pourquoi un modèle n'est pas aux normes avec une fenêtre : le rond rouge (un vide trop grand) et les ronds
+ * verts (les vides qui conviennent), comme dans l'outil de plans. Sert à DESSINER l'explication ; le calcul reste
+ * celui du serveur.
+ */
+export type TrousGC = {
+  /** Le cadre, en mm : sa largeur et sa hauteur (le repère des ronds). */
+  cadreMm: { l: number; h: number };
+  /** Le plus grand vide, en mm. */
+  plusGrandMm: number;
+  /** La boule qui ne doit pas passer à cet endroit, en mm (110, ou 180 en partie haute). */
+  limiteMm: number;
+  ronds: RondGC[];
+};
+
 /** Un modèle conforme proposé au client, tel que le serveur le donne : jamais un coût. */
 export type ModeleGC = {
   /** « carré-croix », à renvoyer tel quel pour le choisir. */
@@ -123,6 +149,8 @@ export type ModeleGC = {
   soubassementMm: number;
   /** Une traverse au milieu de chaque croix. */
   traverse: boolean;
+  /** Les vides de ce dessin avec CETTE fenêtre, quand l'un est trop grand (modèle hors norme) ; sinon null. */
+  trous: TrousGC | null;
   /**
    * Fenêtre large : la lisse haute est renforcée par un fer plat soudé dessus, caché sous une main courante
    * plus large (décision de Quentin, 04/10/2026). C'est le serveur qui le décide, jamais le client.
@@ -255,6 +283,23 @@ export function parametresPrixGC(r: ReleveGC, o: OptionsGC): URLSearchParams {
   return p;
 }
 
+/** Relit les vides d'un modèle : null s'il n'y en a pas, undefined si le format est mauvais. */
+function lireTrousGC(brut: unknown): TrousGC | null | undefined {
+  if (brut === null || brut === undefined) return null;
+  if (typeof brut !== "object") return undefined;
+  const o = brut as Record<string, unknown>;
+  const nb = (x: unknown, min = 0) => typeof x === "number" && Number.isFinite(x) && x >= min && x <= 100000;
+  const cadre = o.cadreMm as Record<string, unknown> | null;
+  if (!cadre || typeof cadre !== "object" || !nb(cadre.l, 1) || !nb(cadre.h, 1) || !nb(o.plusGrandMm) || !nb(o.limiteMm, 1) || !Array.isArray(o.ronds) || o.ronds.length > 12) return undefined;
+  const ronds: RondGC[] = [];
+  for (const r of o.ronds) {
+    const x = r as Record<string, unknown> | null;
+    if (!x || typeof x !== "object" || !nb(x.x) || !nb(x.y) || !nb(x.d, 1) || typeof x.ok !== "boolean") return undefined;
+    ronds.push({ x: x.x as number, y: x.y as number, d: x.d as number, ok: x.ok });
+  }
+  return { cadreMm: { l: cadre.l as number, h: cadre.h as number }, plusGrandMm: o.plusGrandMm as number, limiteMm: o.limiteMm as number, ronds };
+}
+
 const CODES: readonly CodeAlerteGC[] = ["barre-appui", "trous", "solidite", "fenetre", "hauteur", "soubassement", "fixation", "trop-petit", "jour", "jeu", "main-courante", "charge-verticale", "autre"];
 
 /**
@@ -277,7 +322,9 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
     if (!entier(x.soubassementMm) || !entier(x.hauteurMm, 1) || !entier(x.prix, x.conforme ? 1 : 0) || !entier(x.kg)) return null;
     const raisons = Array.isArray(x.raisons) ? x.raisons.filter((a): a is CodeAlerteGC => CODES.includes(a as CodeAlerteGC)) : [];
     if (x.traverse !== lu.traverse) return null;
-    modeles.push({ id: x.id as string, conforme: x.conforme, raisons, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, traverse: lu.traverse, renfort: x.renfort === true, hauteurMm: x.hauteurMm as number, prix: x.prix as number, kg: x.kg as number });
+    const trous = lireTrousGC(x.trous);
+    if (trous === undefined) return null;
+    modeles.push({ id: x.id as string, conforme: x.conforme, raisons, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, traverse: lu.traverse, trous, renfort: x.renfort === true, hauteurMm: x.hauteurMm as number, prix: x.prix as number, kg: x.kg as number });
   }
   if (o.ok === true && o.conforme === true) {
     if (!entier(o.prix, 1) || !(typeof o.remise === "number" && Number.isInteger(o.remise) && o.remise <= 0)) return null;

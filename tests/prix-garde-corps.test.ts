@@ -18,6 +18,7 @@ import assert from "node:assert/strict";
 
 import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, CIBLE_MARGE, DEFAUTS_GC, HAUT_ETAGE, MINI_GC, RENFORT, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, geomGC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
 import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
+import { lireReponsePrixGC } from "../src/lib/garde-corps.ts";
 import {
   configurerGC,
   entreeValide,
@@ -460,7 +461,7 @@ test("catalogue des modèles : tous montrés, seuls les conformes ont un prix, u
   const r = reponsePrixGC(q);
   assert.ok(r && r.ok, "ce relevé a un prix");
   assert.ok(r.modeles.length >= 12 && r.modeles.length <= 24, "le catalogue entier est envoyé");
-  assert.deepEqual(Object.keys(r.modeles[0]).sort(), ["carre", "conforme", "croix", "hauteurMm", "id", "kg", "prix", "raisons", "renfort", "soubassementMm", "traverse"]);
+  assert.deepEqual(Object.keys(r.modeles[0]).sort(), ["carre", "conforme", "croix", "hauteurMm", "id", "kg", "prix", "raisons", "renfort", "soubassementMm", "traverse", "trous"]);
   // Les quatre familles : croix seules, traverse au milieu, barreaux en bas, les deux.
   assert.ok(r.modeles.some((m) => m.traverse) && r.modeles.some((m) => !m.traverse));
   const conformes = r.modeles.filter((m) => m.conforme), hors = r.modeles.filter((m) => !m.conforme);
@@ -491,6 +492,42 @@ test("catalogue des modèles : tous montrés, seuls les conformes ont un prix, u
   // Un modèle illisible : l'adresse est refusée.
   assert.equal(lireRequetePrixGC(new URLSearchParams("l=1190&allege=585&etage=1&fenetre=1200&wood=chene&modele=99-9")), null);
   assert.equal(lireRequetePrixGC(new URLSearchParams("l=1190&allege=585&etage=1&fenetre=1200&wood=chene&modele=16-3"))?.releve.modele, "16-3");
+});
+
+test("modèles hors norme : le rond rouge et les ronds verts de l'outil accompagnent le refus", () => {
+  chiffrageOuEchec();
+  // La fenêtre de Quentin (05/10) : 1 775 × 410 en étage, aucun modèle ne convient.
+  const q = { releve: { largeurMm: 1775, allegeMm: 410, enEtage: true, fenetreMm: 0 }, essence: "chene" as const, quantite: 1 };
+  const r = reponsePrixGC(q);
+  assert.ok(r && !r.ok);
+  const refuses = r.modeles.filter((m) => !m.conforme);
+  assert.ok(refuses.length >= 6);
+  for (const m of r.modeles.filter((x) => x.conforme)) assert.equal(m.trous, null, `${m.id} : aux normes, rien à expliquer`);
+  for (const m of refuses.filter((x) => x.raisons.includes("trous"))) {
+    const t = m.trous;
+    assert.ok(t, `${m.id} : un vide trop grand, donc des ronds`);
+    // Au moins un rond rouge (le vide trop grand), plus grand que la boule qui ne doit pas passer.
+    const rouges = t.ronds.filter((x) => !x.ok);
+    assert.ok(rouges.length >= 1, `${m.id} : un rond rouge`);
+    assert.ok(t.plusGrandMm >= t.limiteMm && Math.max(...rouges.map((x) => x.d)) === t.plusGrandMm, `${m.id} : le plus grand vide dépasse la limite`);
+    assert.ok(rouges.every((x) => x.d >= 1), "diamètres positifs");
+    // Les ronds sont dans le cadre.
+    for (const x of t.ronds) assert.ok(x.x - x.d / 2 >= -1 && x.x + x.d / 2 <= t.cadreMm.l + 1 && x.y - x.d / 2 >= -1 && x.y + x.d / 2 <= t.cadreMm.h + 1, `${m.id} : rond dans le cadre ${JSON.stringify(x)}`);
+  }
+  // Plus de croix : le plus grand vide diminue (c'est ce que le client doit comprendre).
+  const seules = refuses.filter((m) => !m.traverse && m.soubassementMm > 0 === refuses[0].soubassementMm > 0 && m.trous).sort((a, b) => a.croix - b.croix);
+  for (let i = 1; i < seules.length; i++) assert.ok(seules[i].trous!.plusGrandMm <= seules[i - 1].trous!.plusGrandMm, "plus de croix, vide plus petit");
+  // Et la réponse se relit côté navigateur, ronds compris ; un format truqué est refusé.
+  const relu = lireReponsePrixGC(JSON.parse(JSON.stringify(r)));
+  assert.ok(relu);
+  assert.deepEqual(relu.modeles.map((m) => m.trous), r.modeles.map((m) => m.trous));
+  const truque = JSON.parse(JSON.stringify(r));
+  const i = truque.modeles.findIndex((m: { trous: unknown }) => m.trous);
+  truque.modeles[i].trous.ronds[0].x = "12";
+  assert.equal(lireReponsePrixGC(truque), null, "un rond mal formé : la réponse est refusée");
+  const trop = JSON.parse(JSON.stringify(r));
+  trop.modeles[i].trous.ronds = Array.from({ length: 40 }, () => ({ x: 1, y: 1, d: 5, ok: true }));
+  assert.equal(lireReponsePrixGC(trop), null, "trop de ronds : refusé");
 });
 
 test("le modèle choisi ne saute pas quand une cote fait changer de carré : c'est le dessin qui est choisi", () => {

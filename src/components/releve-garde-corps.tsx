@@ -17,6 +17,7 @@ import {
   type OptionsGC,
   type ReleveGC,
   type ReponsePrixGC,
+  type TrousGC,
 } from "@/lib/garde-corps";
 import type { Deplacement } from "@/lib/deplacement";
 import { prixAffiche } from "@/lib/ui";
@@ -271,6 +272,8 @@ export function ReleveGardeCorps({
   const [coteActive, setCoteActive] = useState<CoteFenetre | null>(null);
   /** Le catalogue entier, modèles hors norme compris : fermé d'abord (on ne montre que ce qui se commande). */
   const [toutVoir, setToutVoir] = useState(false);
+  /** Le modèle hors norme dont le client veut voir le pourquoi (les ronds rouge et vert de l'outil de plans). */
+  const [pourquoi, setPourquoi] = useState<string | null>(null);
 
   /** La réponse du serveur pour les cotes ET le modèle demandés. */
   const brute = prix.statut === "pret" ? prix.reponse : null;
@@ -325,6 +328,13 @@ export function ReleveGardeCorps({
       : m.id === cotes.modele || (voulu !== null && m.croix === voulu.croix && m.traverse === voulu.traverse && lireModeleGC(m.id)?.barreauxBas === voulu.barreauxBas);
   const choisi = voulu ? (modeles.find((m) => m.conforme && estChoisi(m)) ?? null) : null;
   const nbConformes = modeles.filter((m) => m.conforme).length;
+  // Rien ne convient : le modèle le plus proche de la norme est expliqué d'emblée — le client voit le rond
+  // rouge (le vide trop grand) au lieu de seulement lire « à étudier ». Le catalogue, lui, reste à sa demande.
+  const rienNeConvient = modeles.length > 0 && nbConformes === 0;
+  const plusProche = rienNeConvient
+    ? ([...modeles].sort((a, b) => (a.trous ? a.trous.plusGrandMm / a.trous.limiteMm : 99) - (b.trous ? b.trous.plusGrandMm / b.trous.limiteMm : 99))[0] ?? null)
+    : null;
+  const explique = (pourquoi ? modeles.find((m) => m.id === pourquoi && !m.conforme) : null) ?? plusProche;
   const libelleModele = (m: { croix: number; soubassementMm: number; traverse: boolean }) =>
     `${croixTexte(m.croix)}${m.traverse ? (fr ? ", traverse au milieu" : ", middle rail") : ""}${m.soubassementMm > 0 ? (fr ? ", barreaux en bas" : ", bars below") : ""}`;
   const pastille = (ok: boolean) => (
@@ -418,6 +428,62 @@ export function ReleveGardeCorps({
             : fr
               ? "Ces modèles conviennent à votre fenêtre. Choisissez le vôtre."
               : "These models suit your window. Choose yours.";
+  /**
+   * Pourquoi un modèle n'est pas aux normes avec CETTE fenêtre. Le dessin est celui de l'outil de plans : le rond
+   * rouge est le vide trop grand (une boule de la taille limite passerait), les ronds verts sont les vides qui
+   * respectent la norme. Le client comprend que c'est l'écart entre les barres qui bloque.
+   */
+  const explication = explique && (
+    <div className="mt-2.5 rounded-xl bg-[#f7f1e8] px-3 py-2.5 text-[12px] leading-snug text-[#4a3f33]" role="status" aria-live="polite">
+      <p className="font-medium text-[#2b2320]">
+        {libelleModele(explique)} : {fr ? "pas aux normes avec votre fenêtre" : "not to standard with your window"}
+      </p>
+      {explique.trous ? (
+        (() => {
+          const t = explique.trous;
+          const rouges = t.ronds.filter((r) => !r.ok).length;
+          const verts = t.ronds.some((r) => r.ok);
+          return (
+            <>
+              <div className="mt-1.5 rounded-lg bg-white/70 px-2 py-1.5">
+                <MiniGardeCorps
+                  largeurMm={releve?.largeurMm ?? 1180}
+                  hauteurMm={explique.hauteurMm}
+                  hMaxMm={explique.hauteurMm}
+                  soubassementMm={explique.soubassementMm}
+                  traverse={explique.traverse}
+                  croix={explique.croix}
+                  trous={t}
+                  grand
+                />
+              </div>
+              <ul className="mt-1.5 space-y-1">
+                <li className="flex items-start gap-1.5">
+                  <span aria-hidden className="mt-[3px] h-2.5 w-2.5 shrink-0 rounded-full border-[1.5px] border-[#c0392b] bg-[#c0392b]/30" />
+                  <span>
+                    {fr
+                      ? `${rouges > 1 ? "Ronds rouges" : "Rond rouge"} : le plus grand vide fait ${nombre(t.plusGrandMm)} mm. Une boule de ${nombre(t.limiteMm)} mm ne doit pas pouvoir passer entre les barres : l'écart est trop grand.`
+                      : `${rouges > 1 ? "Red circles" : "Red circle"}: the largest gap is ${nombre(t.plusGrandMm)} mm. A ${nombre(t.limiteMm)} mm ball must not be able to pass between the bars: the gap is too wide.`}
+                  </span>
+                </li>
+                {verts && (
+                  <li className="flex items-start gap-1.5">
+                    <span aria-hidden className="mt-[3px] h-2.5 w-2.5 shrink-0 rounded-full border-[1.5px] border-[#2f7d46] bg-[#2f7d46]/30" />
+                    <span>{fr ? "Ronds verts : des vides assez petits, aux normes." : "Green circles: gaps small enough, to standard."}</span>
+                  </li>
+                )}
+              </ul>
+            </>
+          );
+        })()
+      ) : (
+        <p className="mt-1">{pasAdapte(explique)}.</p>
+      )}
+      <p className="mt-1.5 text-[11px] text-[#6f6357]">
+        {fr ? "Espaces entre les barres : norme NF P01-012." : "Gaps between the bars: standard NF P01-012."}
+      </p>
+    </div>
+  );
   const catalogue = (
     /* Sous le croquis : une carte de verre comme ses voisines (mêmes coins, même titre), les modèles en
        tuiles, puis un lien discret pour envoyer une photo de son style. */
@@ -463,26 +529,27 @@ export function ReleveGardeCorps({
             role="group"
             aria-label={fr ? "Modèles de garde-corps" : "Railing models"}
             aria-busy={modelesPerimes}
-            className={`mt-2.5 grid grid-cols-3 gap-2 transition-opacity sm:grid-cols-6 ${modelesPerimes ? "opacity-60" : ""}`}
+            className={`mt-2.5 grid grid-cols-3 gap-2 transition-opacity ${liste.length > 6 ? "sm:grid-cols-4" : "sm:grid-cols-6"} ${modelesPerimes ? "opacity-60" : ""}`}
           >
             {liste.map((m) => {
               const actif = choisi !== null && choisi.id === m.id;
+              const horsNorme = marque && !m.conforme;
               return (
                 <button
                   key={m.id}
                   type="button"
-                  aria-pressed={marque ? actif : undefined}
-                  aria-disabled={marque && !m.conforme}
-                  aria-label={`${libelleModele(m)}${marque ? (m.conforme ? ` — ${prixAffiche(m.prix, locale)}` : ` — ${pasAdapte(m)}`) : ""}`}
-                  title={marque && !m.conforme ? pasAdapte(m) : libelleModele(m)}
+                  aria-pressed={marque ? (m.conforme ? actif : explique?.id === m.id) : undefined}
+                  aria-label={`${libelleModele(m)}${marque ? (m.conforme ? ` — ${prixAffiche(m.prix, locale)}` : ` — ${pasAdapte(m)} — ${fr ? "toucher pour voir pourquoi" : "tap to see why"}`) : ""}`}
+                  title={horsNorme ? `${pasAdapte(m)} — ${fr ? "touchez pour voir pourquoi" : "tap to see why"}` : libelleModele(m)}
                   onClick={() => {
                     if (!marque) document.getElementById(`${idChamps}-largeur`)?.focus();
                     else if (m.conforme) {
                       setPerdu(null);
+                      setPourquoi(null);
                       onChange({ ...cotes, modele: m.id });
-                    }
+                    } else setPourquoi((p) => (p === m.id ? null : m.id));
                   }}
-                  className="tuile-modele relative flex min-w-0 flex-col px-1.5 pb-1.5 pt-2.5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
+                  className={`tuile-modele relative flex min-w-0 flex-col px-1.5 pb-1.5 pt-2.5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${horsNorme ? "tuile-hors-norme" : ""}`}
                 >
                   {marque && pastille(m.conforme)}
                   <MiniGardeCorps
@@ -492,6 +559,7 @@ export function ReleveGardeCorps({
                     soubassementMm={m.soubassementMm}
                     traverse={m.traverse}
                     croix={m.croix}
+                    trous={horsNorme ? m.trous : null}
                   />
                   <span className="mt-1.5 block text-[11px] font-semibold leading-tight text-[#2b2320]">
                     {m.croix} {fr ? "croix" : m.croix > 1 ? "crosses" : "cross"}
@@ -502,10 +570,8 @@ export function ReleveGardeCorps({
                       {m.soubassementMm > 0 && <span className="block">{fr ? "+\u00a0barreaux" : "+\u00a0bars"}</span>}
                     </span>
                   )}
-                  {marque && (
-                    <span className="mt-auto block pt-0.5 text-[11px] leading-tight tabular-nums text-[#6f6357]">
-                      {m.conforme ? prixAffiche(m.prix, locale) : fr ? "pas avec cette fenêtre" : "not with this window"}
-                    </span>
+                  {marque && m.conforme && (
+                    <span className="mt-auto block pt-0.5 text-[11px] leading-tight tabular-nums text-[#6f6357]">{prixAffiche(m.prix, locale)}</span>
                   )}
                 </button>
               );
@@ -513,6 +579,12 @@ export function ReleveGardeCorps({
           </div>
         );
       })()}
+      {explication}
+      {!explication && toutVoir && modeles.some((m) => !m.conforme) && (
+        <p className="mt-2 text-[11px] leading-snug text-[#6f6357]">
+          {fr ? "Touchez un modèle sans coche verte pour voir pourquoi il n'est pas aux normes." : "Tap a model without a green tick to see why it is not to standard."}
+        </p>
+      )}
     </div>
   );
 
@@ -687,9 +759,12 @@ export function ReleveGardeCorps({
              carte, en grand ; sinon il reste ici, au-dessus des cases. */
           return schemaSlot
             ? createPortal(
-                /* Une colonne à la largeur du croquis : la rangée des modèles s'aligne sur ses bords. */
+                /* Une colonne à la largeur du croquis : la rangée des modèles s'aligne sur ses bords.
+                   La largeur du cadre est écrite en toutes lettres (3/4 de sa hauteur) : avec `aspect-ratio` seul,
+                   Safari ne la comptait pas dans la largeur de la colonne — elle tombait à zéro, le croquis
+                   disparaissait et la carte des modèles s'écrasait. */
                 <div className="mx-auto flex w-fit max-w-full flex-col">
-                  <div className="relative aspect-[3/4] h-[40svh] max-w-full overflow-hidden rounded-2xl md:h-[min(62vh,640px)] xl:h-[calc(100vh-22rem)] xl:max-h-[660px] xl:min-h-[300px]">
+                  <div className="relative h-[var(--h)] w-[calc(var(--h)*0.75)] max-w-full overflow-hidden rounded-2xl [--h:40svh] md:[--h:min(62vh,640px)] xl:[--h:clamp(300px,calc(100vh_-_22rem),660px)]">
                     {croquis}
                   </div>
                   <div className="w-0 min-w-full">{catalogue}</div>
@@ -1065,6 +1140,7 @@ const MODELES_VITRINE: ModeleGC[] = ([[false, false], [false, true], [true, fals
     carre: 16,
     soubassementMm: b ? 150 : 0,
     traverse: t,
+    trous: null,
     renfort: false,
     hauteurMm: b ? 520 : 350,
     prix: 0,
@@ -1078,15 +1154,17 @@ const MODELES_VITRINE: ModeleGC[] = ([[false, false], [false, true], [true, fals
  * le même cadre de vue (largeur de la fenêtre × hauteur du plus haut modèle) :
  * un garde-corps deux fois plus haut est dessiné deux fois plus haut.
  */
-function MiniGardeCorps({ largeurMm, hauteurMm, hMaxMm, soubassementMm, croix, traverse = false }: { largeurMm: number; hauteurMm: number; hMaxMm: number; soubassementMm: number; croix: number; traverse?: boolean }) {
+function MiniGardeCorps({ largeurMm, hauteurMm, hMaxMm, soubassementMm, croix, traverse = false, trous = null, grand = false }: { largeurMm: number; hauteurMm: number; hMaxMm: number; soubassementMm: number; croix: number; traverse?: boolean; trous?: TrousGC | null; grand?: boolean }) {
   const L = largeurMm, H = Math.max(hMaxMm, hauteurMm);
   const y0 = H - hauteurMm, haut = y0 + 40, bas = H;
   const lisse = soubassementMm > 0 ? bas - soubassementMm : bas;
   const pas = L / croix;
   const nb = Math.max(2, Math.round(L / 110));
   const trait = { vectorEffect: "non-scaling-stroke" as const };
+  // Les ronds de l'outil sont en mm depuis le coin bas-gauche du CADRE : on les pose dans le cadre de ce dessin.
+  const sx = trous ? L / trous.cadreMm.l : 1, sy = trous ? (bas - haut) / trous.cadreMm.h : 1;
   return (
-    <svg viewBox={`${-L * 0.02} ${-H * 0.03} ${L * 1.04} ${H * 1.06}`} preserveAspectRatio="xMidYMax meet" aria-hidden className="block h-[26px] w-full" fill="none" stroke="#2b2320" strokeWidth="1.5" strokeLinecap="round">
+    <svg viewBox={`${-L * 0.02} ${-H * 0.03} ${L * 1.04} ${H * 1.06}`} preserveAspectRatio="xMidYMax meet" aria-hidden className={grand ? "block h-auto w-full" : "block h-[26px] w-full"} fill="none" stroke="#2b2320" strokeWidth="1.5" strokeLinecap="round">
       <rect x={-L * 0.01} y={y0} width={L * 1.02} height="40" fill="#c9a36b" stroke="none" />
       <rect x="0" y={haut} width={L} height={bas - haut} {...trait} />
       {soubassementMm > 0 && <line x1="0" y1={lisse} x2={L} y2={lisse} {...trait} />}
@@ -1108,6 +1186,21 @@ function MiniGardeCorps({ largeurMm, hauteurMm, hMaxMm, soubassementMm, croix, t
           const x = ((i + 1) * L) / nb;
           return <line key={`b${i}`} x1={x} y1={lisse} x2={x} y2={bas} strokeWidth="0.9" {...trait} />;
         })}
+      {/* Le rond rouge : le vide trop grand. Les ronds verts : les vides qui respectent la norme. */}
+      {trous?.ronds.map((r, i) => (
+        <ellipse
+          key={`r${i}`}
+          cx={r.x * sx}
+          cy={bas - r.y * sy}
+          rx={(r.d / 2) * sx}
+          ry={(r.d / 2) * sy}
+          fill={r.ok ? "#2f7d46" : "#c0392b"}
+          fillOpacity="0.3"
+          stroke={r.ok ? "#2f7d46" : "#c0392b"}
+          strokeWidth={grand ? 1.8 : 1.2}
+          {...trait}
+        />
+      ))}
     </svg>
   );
 }

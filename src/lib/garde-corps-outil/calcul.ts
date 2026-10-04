@@ -10,7 +10,7 @@
  */
 import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, DEFAUTS_GC, calculerGC, geomGC, type ResultatGC, type ValeursGC } from "./moteur.genere.mjs";
 import { chiffrage } from "./chiffrage.ts";
-import { idModeleGC, lireModeleGC, type RaisonSansPrixGC } from "../garde-corps.ts";
+import { idModeleGC, lireModeleGC, type RaisonSansPrixGC, type RondGC, type TrousGC } from "../garde-corps.ts";
 import { CARRE_RENFORT, codeAlerte, CROIX_MAX, ESSENCES_GC, ORDRE_CARRES, valeursGC, type CodeAlerteGC, type EntreeSiteGC } from "./entree.ts";
 
 export { ChiffrageIndisponible } from "./chiffrage.ts";
@@ -103,6 +103,8 @@ const ecarte = new Map<string, readonly CodeAlerteGC[]>();
 const SOLIDITE: readonly CodeAlerteGC[] = Object.freeze(["solidite"]);
 const FIXATION: readonly CodeAlerteGC[] = Object.freeze(["fixation"]);
 const FENETRE: readonly CodeAlerteGC[] = Object.freeze(["fenetre"]);
+/** Le carré de référence du catalogue (le premier de l'atelier), pour le dessin des vides. */
+const CARRE_REFERENCE = ORDRE_CARRES[0];
 /** Les raisons qui écartent un carré entier : elles ne disent rien du dessin. */
 const duCarre = (codes: readonly CodeAlerteGC[]) => codes.includes("solidite") || codes.includes("fixation");
 /**
@@ -283,7 +285,37 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
 /** Un dessin du catalogue, pour une fenêtre : conforme (avec sa configuration complète) ou non. */
 export type DessinGC =
   | { conforme: true; config: ConfigGC }
-  | { conforme: false; carre: number; croix: number; barreauxBas: boolean; traverse: boolean; soubassementMm: number; raisons: CodeAlerteGC[] };
+  | { conforme: false; carre: number; croix: number; barreauxBas: boolean; traverse: boolean; soubassementMm: number; raisons: CodeAlerteGC[]; trous: TrousGC | null };
+
+/**
+ * Les vides d'un dessin dans cette fenêtre, pour l'EXPLIQUER au client : le rond rouge (le vide trop grand) et les
+ * ronds verts, ceux que l'outil de plans dessine sur ses modèles. null si aucun vide n'est trop grand (le dessin
+ * est alors écarté pour une autre raison : rigidité, fixation…). Calcul de géométrie seulement, sans les contrôles.
+ */
+function trousDuDessin(entree: EntreeSiteGC, n: number, b: boolean, t: boolean, renfort: boolean): TrousGC | null {
+  const v = valeursGC(DEFAUTS_GC, entree, CARRE_REFERENCE, n, b, t, renfort) as ValeursGC;
+  const g = geomGC(v, n);
+  if (g.ok) return null;
+  const trous = (g.trous ?? []) as { c: [number, number]; d: number; limite: number; ok: boolean }[];
+  const s = Number(v.s), sb = Number(g.sb) || 0;
+  const ronds: RondGC[] = [];
+  const vus = new Set<string>();
+  // Comme l'outil : un seul rond par taille (les panneaux sont tous pareils), placé dans le premier panneau.
+  for (const x of trous) {
+    const cle = t ? `${Math.round(x.d)}|${x.ok}` : String(Math.round(x.d));
+    if (vus.has(cle)) continue;
+    vus.add(cle);
+    ronds.push({ x: Math.round(s + x.c[0]), y: Math.round(s + sb + x.c[1]), d: Math.round(x.d), ok: x.ok });
+  }
+  // Le vide entre les barreaux du bas, quand le cadre en a.
+  if (sb > 0) {
+    const dS = Math.min(Number(g.videS), Number(g.hb));
+    if (Number.isFinite(dS) && dS > 0) ronds.push({ x: Math.round(s + Number(g.videS) / 2), y: Math.round(s + Number(g.hb) / 2), d: Math.round(dS), ok: dS < Number(g.limiteS) });
+  }
+  ronds.sort((a, b2) => a.x - b2.x);
+  if (!ronds.length || !Number.isFinite(g.dMax) || !(g.Lc > 0) || !(g.Hc > 0)) return null;
+  return { cadreMm: { l: Math.round(g.Lc), h: Math.round(Number(g.Hc)) }, plusGrandMm: Math.round(g.dMax), limiteMm: Math.round(g.limite), ronds: ronds.slice(0, 12) };
+}
 
 /**
  * Le CATALOGUE des dessins pour cette fenêtre : de 1 à 6 croix ; croix seules,
@@ -319,7 +351,7 @@ export function catalogueGC(e: EntreeSiteGC): DessinGC[] {
         if (b && sb === 0) continue;
         const cle = [n, b || sb > 0, t].join("|");
         // La raison donnée au client : ce qui bloque ce dessin (configurerGC).
-        if (!dessins.has(cle)) dessins.set(cle, { conforme: false, carre: 16, croix: n, barreauxBas: b, traverse: t, soubassementMm: sb, raisons: [...c.alertes] });
+        if (!dessins.has(cle)) dessins.set(cle, { conforme: false, carre: 16, croix: n, barreauxBas: b, traverse: t, soubassementMm: sb, raisons: [...c.alertes], trous: trousDuDessin(sansChoix, n, b, t, lisseTropSouple(cleReleve)) });
       }
     }
   }

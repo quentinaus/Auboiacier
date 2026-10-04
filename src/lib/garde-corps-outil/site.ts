@@ -156,13 +156,13 @@ function catalogueSiteGC(q: RequetePrixGC, hauteurMm: number): ModeleGC[] {
   const modeles: ModeleGC[] = [];
   for (const d of catalogueGC(entreeGC(q.releve, q.essence))) {
     if (!d.conforme) {
-      modeles.push({ id: idModeleGC(d.carre, d.croix, d.barreauxBas, d.traverse), conforme: false, raisons: d.raisons, croix: d.croix, carre: d.carre, soubassementMm: d.soubassementMm, traverse: d.traverse, renfort: false, hauteurMm, prix: 0, kg: 0 });
+      modeles.push({ id: idModeleGC(d.carre, d.croix, d.barreauxBas, d.traverse), conforme: false, raisons: d.raisons, croix: d.croix, carre: d.carre, soubassementMm: d.soubassementMm, traverse: d.traverse, trous: d.trous, renfort: false, hauteurMm, prix: 0, kg: 0 });
       continue;
     }
     const m = d.config;
     const id = idModeleGC(m.carre, m.croix, m.barreauxBas, m.traverse);
     const l = ligneGC({ ...q.releve, modele: id }, { woodId: q.essence, metalId: q.metalId, fabricId: q.fabricId, remplissageId: q.remplissageId });
-    if (l.ok && l.line.gc) modeles.push({ id, conforme: true, raisons: [], croix: m.croix, carre: m.carre, soubassementMm: m.soubassementMm, traverse: m.traverse, renfort: m.renfort, hauteurMm: l.line.gc.hauteurMm, prix: l.line.unitPrice, kg: Math.round(l.line.gc.kg) });
+    if (l.ok && l.line.gc) modeles.push({ id, conforme: true, raisons: [], croix: m.croix, carre: m.carre, soubassementMm: m.soubassementMm, traverse: m.traverse, trous: null, renfort: m.renfort, hauteurMm: l.line.gc.hauteurMm, prix: l.line.unitPrice, kg: Math.round(l.line.gc.kg) });
   }
   return modeles.slice(0, MODELES_GC_MAX);
 }
