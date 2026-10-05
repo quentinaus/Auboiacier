@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Moteur garde-corps : norme NF P01-012, géométrie, débit, dessins. SANS coûts.
-// Source : l'outil de plans (plans-atelier.html), sha256 b5026771c4102a7489a058228c0774bb6a31ca70ed05967f9ffa259b2e42c084
+// Source : l'outil de plans (plans-atelier.html), sha256 cc320f1c44323aa688e7e28a063410b7eecf3d1af5ab696491c1c2ed19e6aacf
 /* eslint-disable */
 const NOMS = { mikado: "Table Mikado", croix: "Table Croix", mikadoExt: "Table Mikado extérieur", gardeCorps: "Garde-corps Rosace à croix", escalier: "Escalier droit à limon central" };
 const SPHERE = 110;
@@ -30,7 +30,7 @@ const MINI_SEULS = 120;
 const BARRE_APPUI = 40;
 const DEG = 180 / Math.PI;
 const BARRE = 6000;
-const fmt = (x, d = 0) => Number(x).toLocaleString("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmt = ((formats) => (x, d = 0) => (formats[d] || (formats[d] = new Intl.NumberFormat("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d }))).format(Number(x)))({});
 const mmTxt = (x) => fmt(Math.round(x));
 const rect = (x1, y1, x2, y2) => [[x1, y1], [x2, y1], [x2, y2], [x1, y2]];
 function barres(morceaux, trait, a) {
@@ -174,8 +174,14 @@ function trousPanneau(w, h, s, rr = ROSACE_R, barres = [], traverse = false) {
       const cotes = [[tr.pts[0], tr.pts[1], 0], [tr.pts[1], tr.pts[2], s / 2], [tr.pts[2], tr.pts[0], s / 2]];
       const D = cotes.map(([p, q, off]) => droite(p, q, g, off));
       const P = [inter(D[0], D[1]), inter(D[1], D[2]), inter(D[2], D[0])];
-      const dBarre = (x) => barres.reduce((m, [a, b]) => Math.min(m, x < a ? a - x : x > b ? x - b : -Math.min(x - a, b - x)), Infinity);
-      const f = (x, y) => Math.min(...D.map((d) => d.a * x + d.b * y - d.c), Math.hypot(x - M[0], y - M[1]) - rr, dBarre(x));
+      const dBarre = (x) => {
+        let m = Infinity;
+        for (let j = 0; j < barres.length; j++) { const a = barres[j][0], b = barres[j][1]; m = Math.min(m, x < a ? a - x : x > b ? x - b : -Math.min(x - a, b - x)); }
+        return m;
+      };
+      const D0 = D[0], D1 = D[1], D2c = D[2];
+      const f = (x, y) => Math.min(D0.a * x + D0.b * y - D0.c, D1.a * x + D1.b * y - D1.c, D2c.a * x + D2c.b * y - D2c.c, Math.hypot(x - M[0], y - M[1]) - rr, dBarre(x));
+      const morceauDe = (x) => { let k = 0; for (let j = 0; j < barres.length; j++) if (x > barres[j][0]) k++; return k; };
       let best = { r: -Infinity, c: [0, 0] };
       const N = barres.length ? 72 : 48;
       const parMorceau = traverse ? barres.map(() => ({ r: -Infinity, c: [0, 0] })).concat([{ r: -Infinity, c: [0, 0] }]) : null;
@@ -183,7 +189,7 @@ function trousPanneau(w, h, s, rr = ROSACE_R, barres = [], traverse = false) {
         const u = i / N, w2 = k / N, z = 1 - u - w2;
         const x = u * P[0][0] + w2 * P[1][0] + z * P[2][0], y = u * P[0][1] + w2 * P[1][1] + z * P[2][1];
         const r = f(x, y); if (r > best.r) best = { r, c: [x, y] };
-        if (traverse) { const m = parMorceau[barres.filter(([a]) => x > a).length]; if (r > m.r) { m.r = r; m.c = [x, y]; } }
+        if (traverse) { const m = parMorceau[morceauDe(x)]; if (r > m.r) { m.r = r; m.c = [x, y]; } }
       }
       const crete = (x, y) => {
         const L = D.map((d) => ({ v: d.a * x + d.b * y - d.c, g: [d.a, d.b] }));
@@ -1062,6 +1068,6 @@ function planA3Pur(R, v, infos, modele) {
 const DS_ESSENCES = { pin: "Pin", hetre: "Hêtre", chene: "Chêne", noyer: "Noyer" };
 export const DEFAUTS_GC = Object.freeze({"prixVente":0,"km":30,"debitAr":8,"minSoud":1.2,"rnP":14,"rnJ":1,"nF":2,"dF":6.5,"fF":13,"eF":40,"epMc":8,"L":2000,"l":1000,"H":750,"e":45,"a":80,"ep":3,"t":3,"pL":75,"pl":60,"pX":80,"rX":250,"tS":300,"tW":120,"pR":60,"bR":300,"lame":150,"latte":120,"jeu":8,"trait":3,"B":1180,"A":650,"Hs":0,"Hf":0,"s":16,"mc":40,"j":1,"jour":90,"nP":1,"nb":0,"rD":100,"Xo":0,"Hm":2600,"recul":0,"Wm":900,"lh":150,"lw":100,"le":5,"em":50,"nez":0,"hs":80,"tp":8,"plx":200,"ply":150,"tpp":10,"epl":200,"ass":"droit","etage":true,"rosace":true,"traverse":false,"mcType":"bois","sbMode":"auto","seuls":false,"renfort":"sans","patte":0,"essence":"chene","remise":"retrait","essenceT":"chene","teinte":"noir","rainure":true,"jourAuto":true,"jourSaisi":90});
 export const BORNES_GC = Object.freeze({ B: Object.freeze({"min":300,"max":3000}), A: Object.freeze({"min":0,"max":1200}), Hf: Object.freeze({"min":0,"max":3000}) });
-export const EMPREINTE_SOURCE = "b5026771c4102a7489a058228c0774bb6a31ca70ed05967f9ffa259b2e42c084";
+export const EMPREINTE_SOURCE = "cc320f1c44323aa688e7e28a063410b7eecf3d1af5ab696491c1c2ed19e6aacf";
 export { ALLEGE_LIBRE, BARRE_APPUI, CIBLE_MARGE, DS_ESSENCES, HAUT_ETAGE, LIMITE_ACIER, MARGE_BOULE, MINI_GC, MINI_SEULS, RENFORT, ROSACE_R, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, coupeMainCourante, decrireVariante, fmt, geomGC, mmTxt, planA3Pur, svgDe, variantesConformes };
-export const EMPREINTE = "0ee124a52947";
+export const EMPREINTE = "552b625e34f3";
