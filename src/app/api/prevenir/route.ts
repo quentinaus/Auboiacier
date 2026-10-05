@@ -71,7 +71,7 @@ export async function POST(request: Request) {
       "Son panier :",
       ...(panier.length ? panier.map((l) => `- ${l}`) : ["(vide)"]),
       "",
-      "À prévenir le jour de l'ouverture des commandes, puis à effacer (promis dans la politique de confidentialité).",
+      "À prévenir le jour de l'ouverture des commandes (au plus tard le lundi 7 décembre 2026), à passer en priorité dans le planning, puis à effacer (promis dans la politique de confidentialité).",
     ].join("\n"),
     replyTo: email,
   });
@@ -89,16 +89,18 @@ export async function POST(request: Request) {
       ? [
           "Hello,",
           "",
-          "Auboiacier is being set up. Orders open in late November 2026.",
-          "We will write to you as soon as we open. No payment before then.",
+          "Your sign-up is noted: the workshop opens on Monday 7 December 2026 at the latest.",
+          "We make one piece at a time, and the first to sign up get priority in the production schedule.",
+          "We will write to you on opening day. No payment before then.",
           "",
           "Auboiacier — wood, steel & light",
         ]
       : [
           "Bonjour,",
           "",
-          "Auboiacier est en cours de création. Les commandes ouvrent fin novembre 2026.",
-          "Nous vous écrivons dès l'ouverture. Aucun paiement avant.",
+          "Votre inscription est notée : l'atelier ouvre au plus tard le lundi 7 décembre 2026.",
+          "Nous fabriquons une pièce à la fois, et les premiers inscrits passent en priorité dans le planning de fabrication.",
+          "Nous vous écrivons le jour de l'ouverture. Aucun paiement avant.",
           "",
           "Auboiacier — bois, acier & lumière",
         ]
