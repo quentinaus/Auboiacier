@@ -22,11 +22,13 @@ export function ProductTail({
   lumiere?: boolean;
 }) {
   const t = dict.artisanat;
+  // La fiche Google de l'atelier, quand elle existe : sans elle, ni phrase ni lien.
+  const ficheGoogle = lienAvisGoogle();
 
   /* Les questions communes à toutes les fiches, visibles à l'écran. Elles ne
      sont plus balisées pour Google : les mêmes questions sur quinze pages
-     passaient pour du contenu dupliqué. Les pages qui ont leurs propres
-     questions (tables, plafonds, bois massif, FAQ) gardent leur balisage. */
+     passaient pour du contenu dupliqué. Seules /faq, /artisanat/tables et
+     /toiles-tendues balisent leurs questions (src/lib/faq-balisees.ts). */
   const questions = [
     { q: t.faqDeliveryQ, a: t.faqDeliveryA },
     { q: t.faqShorterQ, a: t.faqShorterA },
@@ -59,19 +61,22 @@ export function ProductTail({
             </blockquote>
           ) : (
             <p className="mx-auto mt-6 max-w-xl text-center leading-relaxed text-[#726757]">
-              {t.avisNote}
+              {ficheGoogle ? t.avisNoteGoogle : t.avisNote}
             </p>
           )}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-center">
-            {/* Les avis restent sur Google : ni note recopiée, ni balisage d'avis ici. */}
-            <a
-              href={lienAvisGoogle()}
-              target="_blank"
-              rel="noopener"
-              className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"
-            >
-              {t.avisGoogle}
-            </a>
+            {/* Les avis restent sur Google : ni note recopiée, ni balisage
+                d'avis ici. Pas de lien tant que la fiche n'est pas renseignée. */}
+            {ficheGoogle && (
+              <a
+                href={ficheGoogle}
+                target="_blank"
+                rel="noopener"
+                className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"
+              >
+                {t.avisGoogle}
+              </a>
+            )}
             <Link
               href={`/${locale}/realisations`}
               className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"

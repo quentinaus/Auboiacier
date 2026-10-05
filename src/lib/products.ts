@@ -1503,7 +1503,7 @@ export const products: Product[] = [
     // sécurité françaises » : la fiche détaille hauteur (art. R134-59) et
     // espaces (NF P01-012) — rien ici qui ressemble à une marque NF.
     seoDescription:
-      "Garde-corps de fenêtre en acier plein, rosace style ancien, sur mesure à Saumur, aux normes de sécurité françaises.",
+      "Garde-corps de fenêtre en acier plein, à rosaces de style ancien, sur mesure à Saumur, aux normes de sécurité françaises.",
     releve: "garde-corps-fenetre",
     category: "interieur",
     // Se commande en ligne, aux cotes que le client relève lui-même : aucune

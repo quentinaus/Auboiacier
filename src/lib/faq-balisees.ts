@@ -40,15 +40,17 @@ export function questionsTables(dict: Dict, formats: string): QuestionReponse[] 
 
 /**
  * /toiles-tendues. `delai` : le délai lu à la ligne « Fabrication » des
- * fiches ; sans délai écrit, la question du délai disparaît.
+ * fiches ; sans délai écrit, la question du délai disparaît. « Quelle
+ * différence avec un plafond tendu ? » n'y figure pas : la section
+ * « Cadre lumineux ou plafond tendu mur à mur ? » de la même page y répond
+ * déjà, et la redire en bas de page faisait doublon.
  */
 export function questionsPlafonds(dict: Dict, delai: string | null): QuestionReponse[] {
   const tl = dict.lumiere;
   return [
     tl.faq[0],
     tl.faq[1],
-    tl.faq[2],
     { q: dict.artisanat.faqToileQ, a: dict.artisanat.faqToileA },
-    ...(delai ? [{ q: tl.faq[3].q, a: remplir(tl.faq[3].a, { delai }) }] : []),
+    ...(delai ? [{ q: tl.faq[2].q, a: remplir(tl.faq[2].a, { delai }) }] : []),
   ];
 }

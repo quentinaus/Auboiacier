@@ -178,6 +178,10 @@ régler avant la mise en ligne, ou à retirer du texte (voir les remarques).
       horaires s'affichent alors tout seuls en bas de page et sur la page
       Contact, et partent à Google : les trois doivent être écrits pareil
       partout, c'est ce que Google compare.
+      Avec l'adresse de la fiche, l'accueil et le bas des fiches disent
+      « Les avis de nos clients sont publiés sur notre fiche Google » et
+      montrent le lien « Lire les avis sur Google » ; sans elle, ni phrase
+      ni lien. À renseigner une fois la fiche créée.
 - [ ] L'adresse de l'atelier dans `ATELIER.rue` (`src/lib/seo.ts`) si elle est
       publique.
 

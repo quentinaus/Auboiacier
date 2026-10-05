@@ -25,10 +25,10 @@ import {
   TRANSPORT_MAX_PETITE_COTE_MM,
 } from "../src/lib/products.ts";
 import { prixDepart } from "../src/lib/garde-corps-outil/site.ts";
-import { descriptionSeo, titreSeo } from "../src/lib/seo.ts";
+import { descriptionSeo, lienAvisGoogle, titreSeo } from "../src/lib/seo.ts";
 import { prixAffiche } from "../src/lib/ui.ts";
 import { remplacerMarqueurs } from "../src/lib/marqueurs.ts";
-import { PRIX_OFFRE_CENTS } from "../src/lib/deplacement.ts";
+import { PRIX_OFFRE_CENTS, RAYON_MAX_KM } from "../src/lib/deplacement.ts";
 import { questionsFaq, questionsPlafonds, questionsTables } from "../src/lib/faq-balisees.ts";
 import { delaiFabrication } from "../src/lib/vitrine.ts";
 
@@ -146,8 +146,9 @@ test("les tailles de plafond citées dans les textes sont celles du catalogue et
   assert.ok(JSON.stringify(lucarne.specs).includes(`D'un seul tenant jusqu'à ${rectLivrable}`));
   assert.ok(JSON.stringify(halo.specs).includes(`D'un seul tenant jusqu'à ${TRANSPORT_MAX_PETITE_COTE_MM / 10} cm`));
   for (const dict of [fr, en]) {
-    // Les textes qui citent le plus grand plafond disent aussi jusqu'où il part d'un seul tenant.
-    for (const texte of [dict.home.surMesureBody, dict.lumiere.faq[1].a]) {
+    // Les textes qui citent le plus grand plafond disent aussi jusqu'où il part
+    // d'un seul tenant (le bloc « Au-delà de 230 × 210 cm » : titre et texte).
+    for (const texte of [`${dict.home.surMesureTitle} ${dict.home.surMesureBody}`, dict.lumiere.faq[0].a]) {
       for (const taille of [rect, disque, rectLivrable, disqueLivrable]) {
         assert.ok(texte.includes(taille), `« ${texte} » ne dit pas ${taille}`);
       }
@@ -287,4 +288,106 @@ test("accueil : les liens « Nos fabrications » et leurs libellés restent alig
   assert.ok(chemins.includes("/artisanat/tables"));
   assert.ok(chemins.includes("/bois-massif"));
   assert.equal(chemins.indexOf("/artisanat/tables"), fr.hub.seoLinks.findIndex((l) => /^Tables/.test(l)));
+});
+
+test("avis : sans adresse de fiche Google, ni phrase « nos avis sont sur Google », ni lien, ni recherche de repli", () => {
+  // La fiche Google Business Profile n'existe pas encore (MISE-EN-LIGNE.md).
+  const attendu = process.env.NEXT_PUBLIC_ATELIER_GOOGLE?.trim() || null;
+  assert.equal(lienAvisGoogle(), attendu);
+  const seo = readFileSync(new URL("../src/lib/seo.ts", import.meta.url), "utf8");
+  assert.doesNotMatch(seo, /google\.[a-z.]+\/maps\/search/, "une recherche Google Maps sert encore de repli");
+  for (const dict of [fr, en]) {
+    // Le texte affiché par défaut ne parle pas de Google.
+    for (const texte of [dict.hub.testimonialsNote, dict.artisanat.avisNote]) {
+      assert.doesNotMatch(texte, /Google/, texte);
+    }
+  }
+  // La phrase Google et le lien ne s'affichent que si la fiche est renseignée.
+  const accueil = readFileSync(new URL("../src/app/[lang]/page.tsx", import.meta.url), "utf8");
+  assert.match(accueil, /ficheGoogle \? t\.testimonialsNoteGoogle : t\.testimonialsNote/);
+  assert.match(accueil, /\{ficheGoogle && \(\s*<a\s+href=\{ficheGoogle\}/);
+  const tail = readFileSync(new URL("../src/components/product-tail.tsx", import.meta.url), "utf8");
+  assert.match(tail, /ficheGoogle \? t\.avisNoteGoogle : t\.avisNote/);
+  assert.match(tail, /\{ficheGoogle && \(\s*<a\s+href=\{ficheGoogle\}/);
+  for (const source of [accueil, tail]) {
+    assert.doesNotMatch(source, /href=\{lienAvisGoogle\(\)\}/, "lien Google affiché sans condition");
+  }
+});
+
+test("textes : ni pose en une journée ni « pas de poussière », et le délai des tables n'est pas toujours sur la fiche", () => {
+  for (const [nom, brut] of [
+    ["fr.json", frBrut],
+    ["en.json", enBrut],
+  ] as const) {
+    const texte = JSON.stringify(brut);
+    for (const promesse of [/poussi[èe]re/i, /\bdust\b/i, /en une journée/i, /\bin a day\b/i]) {
+      assert.doesNotMatch(texte, promesse, `${nom} : promesse invérifiable ${promesse}`);
+    }
+  }
+  // Une table au moins n'a pas de délai écrit (« délai confirmé avec le devis ») :
+  // la page des tables ne peut pas dire que le délai est sur chaque fiche, sans plus.
+  const sansDelai = products.filter(
+    (p) => p.famille?.startsWith("table") && p.specs.some((s) => s.label === "Fabrication" && /devis/.test(s.value))
+  );
+  if (sansDelai.length > 0) {
+    assert.match(fr.tables.fabricationBody, /confirmé avec le devis/, fr.tables.fabricationBody);
+    assert.match(en.tables.fabricationBody, /confirmed with the quote/, en.tables.fabricationBody);
+  }
+});
+
+test("zone : aucune pose ni prise de cotes promise au-delà du rayon de l'atelier", () => {
+  for (const dict of [fr, en]) {
+    const corps = dict.zone.sections[0].body;
+    assert.ok(corps.includes(`${RAYON_MAX_KM} km`), corps);
+    assert.doesNotMatch(corps, /pose plus loin|fitting further afield|écrivez-nous|write to us/i, corps);
+  }
+});
+
+test("/toiles-tendues : une même explication n'y revient pas deux fois", () => {
+  for (const [locale, dict] of [
+    ["fr", fr],
+    ["en", en],
+  ] as const) {
+    const tl = dict.lumiere;
+    // Tous les textes de la page, FAQ comprise (délai fictif : seule sa présence compte).
+    const page = [
+      tl.choixCadre,
+      tl.choixTendu,
+      tl.choixPrix,
+      tl.poseBody,
+      tl.lumiereBody,
+      tl.piecesBody,
+      tl.fabricationBody,
+      dict.home.surMesureTitle,
+      dict.home.surMesureBody,
+      ...questionsPlafonds(dict, "6 semaines").flatMap((qr) => [qr.q, qr.a]),
+    ].join("\n");
+    const motifs =
+      locale === "fr"
+        ? [/sans outil/gi, /d'un seul tenant/gi, /plafond tendu couvre/gi]
+        : [/without a tool/gi, /in one piece/gi, /stretch ceiling covers/gi];
+    for (const motif of motifs) {
+      const n = page.match(motif)?.length ?? 0;
+      assert.ok(n <= 1, `${locale} : ${motif} revient ${n} fois sur /toiles-tendues`);
+    }
+  }
+});
+
+test("/bois-massif : « L'entretien au quotidien » mène à la question de la FAQ, ancre comprise", () => {
+  for (const dict of [fr, en]) {
+    const question = dict.faq.items.find((item) => item.id === "entretien-bois-acier");
+    assert.ok(question, "question d'entretien sans ancre dans /faq");
+    assert.equal(question.q, dict.artisanat.faqCareQ);
+  }
+  const page = readFileSync(new URL("../src/app/[lang]/bois-massif/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /"entretien-bois-acier"/);
+  assert.match(page, /lien: \{ href: lienEntretien, label: t\.huileLien \}/);
+});
+
+test("le chêne « traité classe 4 » n'est repris ni dans une réponse balisée ni sur /bois-massif (à confirmer par Quentin)", () => {
+  for (const dict of [fr, en]) {
+    for (const texte of [...questionsTables(dict, "").map((qr) => qr.a), dict.bois.plateauxBody, dict.bois.huileBody]) {
+      assert.doesNotMatch(texte, /class(e)? 4/i, texte);
+    }
+  }
 });

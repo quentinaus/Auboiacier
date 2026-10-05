@@ -60,7 +60,8 @@
     "editorialBody2": "No production runs: every piece is made to order, to the dimensions of your home, and can be sanded or repainted rather than replaced.",
     "editorialCta": "See the workshop",
     "testimonialsTitle": "What our clients say",
-    "testimonialsNote": "Our clients' reviews are published on our Google Business Profile.",
+    "testimonialsNote": "First projects are under way: client reviews will be published here.",
+    "testimonialsNoteGoogle": "Our clients' reviews are published on our Google Business Profile.",
     "testimonialsCta": "See our work",
     "missionTitle": "What we are trying to do",
     "missionBody": "To make pieces in steel and solid wood that can still be sanded and repainted in thirty years, rather than replaced.",
@@ -125,8 +126,8 @@
         "body": "Warm white for everyday, colours for a mood: brightness and hue are set from your phone."
       },
       {
-        "title": "A clean, fast install",
-        "body": "The aluminium frame fixes to the existing ceiling and the fabric is stretched in a day. No demolition, no dust."
+        "title": "No building work",
+        "body": "The aluminium frame fixes to the existing ceiling or hangs on cables, then the fabric clips into its groove."
       }
     ],
     "pourquoiTitle": "Why Auboiacier",
@@ -150,7 +151,7 @@
     "catalogueLumiere": "{n} shapes, prices shown",
     "catalogueLumiereNote": "Backlit stretched fabric, lacquered aluminium frame, from 60 cm to a whole ceiling.",
     "surMesureTitle": "Beyond 230 × 210 cm",
-    "surMesureBody": "In one piece, a light ceiling goes up to 230 × 210 cm (Ø 210 cm for the Halo) and ships anywhere in mainland France. Beyond that, it is made of modules assembled and fitted at your place by the workshop, within 200 km of Saumur: up to 400 × 300 cm (Ø 400 cm), the product page gives the price. For a larger ceiling, the workshop measures up at your home, then quotes.",
+    "surMesureBody": "Past that size, or Ø 210 cm for the Halo, a light ceiling is made of modules that the workshop assembles and fits at your place, within 200 km of Saumur. Up to 400 × 300 cm (Ø 400 cm), the product page gives the price. Larger still, the workshop measures up at your home, then quotes.",
     "altPlafondDemo": "Backlit stretched-fabric ceiling on an aluminium frame"
   },
   "realisations": {
@@ -237,7 +238,8 @@
     "delaiBody": "Nothing is kept in stock: your piece is made for you, to order. Its lead time is shown above, on the “Lead time” line, and confirmed when you order.",
     "delaiCta": "Order",
     "avisTitle": "What our clients say",
-    "avisNote": "Our clients' reviews are published on our Google Business Profile.",
+    "avisNote": "First projects are under way: client reviews will be published here.",
+    "avisNoteGoogle": "Our clients' reviews are published on our Google Business Profile.",
     "avisCta": "See our work",
     "contactTitle": "Tell us about your project",
     "contactBody": "A particular size, a specific timber, a colour outside the range? Write to us: we adapt the model and quote it.",
@@ -613,7 +615,7 @@
       }
     ],
     "photoAlt": "Saumur castle and the riverfront at sunset, reflected in the Loire",
-    "h1": "The Auboiacier workshop, metalworker in Saumur"
+    "h1": "The Auboiacier metalwork workshop in Saumur"
   },
   "contact": {
     "title": "Contact",
@@ -1109,7 +1111,7 @@
     "sections": [
       {
         "title": "Anywhere in mainland France",
-        "body": "Pieces from the collection are delivered anywhere in mainland France by carrier, priced by your town: they travel protected, and we agree a time slot with you. The one exception: a light ceiling larger than 230 × 210 cm, made of modules, is fitted by the workshop. For fitting further afield (backlit stretch ceiling, steel partition, staircase), write to us: we look at the job and the driving time, and we give you a straight answer."
+        "body": "Pieces from the collection are delivered anywhere in mainland France by carrier, priced by your town: they travel protected, and we agree a time slot with you. The one exception: a light ceiling larger than 230 × 210 cm, made of modules, is fitted by the workshop, so only within 200 km of Saumur. Beyond 200 km, the workshop does not travel, neither to measure nor to fit: a window railing is then made to measurements you take yourself, and shipped."
       },
       {
         "title": "How a project runs",
@@ -1152,6 +1154,7 @@
         "a": "The workshop is in Saumur, in the Maine-et-Loire. We travel up to 200 km from the workshop — Maine-et-Loire, Indre-et-Loire, Deux-Sèvres, Vienne — to measure up and fit, and we deliver furniture anywhere in mainland France. The detail is on the Where we work page."
       },
       {
+        "id": "entretien-bois-acier",
         "q": "How do I care for a wood & steel piece?",
         "a": "A soft dry cloth day to day. For oiled wood, one coat of hardwax oil a year is enough; a scratch sands out lightly. Painted steel wipes clean with a damp sponge, without abrasives."
       },
@@ -1355,17 +1358,13 @@
     "piecesTitle": "Which rooms",
     "piecesBody": "Above a dining table, in a large living room, a meeting room or an open-plan office. Past 1.50 m across, a single Halo can light the whole room.",
     "fabricationTitle": "Making, delivery, fitting",
-    "fabricationBody": "Every ceiling is made to order: allow {delai}. The fabric clips into a groove all round the frame; it comes out and goes back without a tool for cleaning. In one piece, up to 230 × 210 cm (Ø 210 cm for the Halo), a ceiling ships anywhere in mainland France. Larger ones are made of modules that the workshop assembles and fits at your place, within 200 km of Saumur. Within that radius, the workshop can also come and fit any ceiling: the product page gives the fitting price for your postcode.",
+    "fabricationBody": "Every ceiling is made to order: allow {delai}. The fabric clips into a groove all round the frame. In one piece, up to 230 × 210 cm (Ø 210 cm for the Halo), a ceiling ships anywhere in mainland France. Within 200 km of Saumur, the workshop can also come and fit it: the product page gives the fitting price for your postcode.",
     "zoneLink": "See where we work",
     "faqTitle": "Frequently asked questions",
     "faq": [
       {
-        "q": "How is it different from a stretch ceiling?",
-        "a": "A stretch ceiling covers the whole room, wall to wall, and is fitted on site by a specialist installer. Our light ceilings are aluminium boxes at the size you choose, complete with their fabric and LEDs, fixed below the existing ceiling."
-      },
-      {
         "q": "What sizes?",
-        "a": "Rectangles up to 400 × 300 cm, discs up to Ø 400 cm, to the centimetre. In one piece up to 230 × 210 cm (Ø 210 cm for the Halo); beyond that, in modules assembled and fitted at your place by the workshop, within 200 km of Saumur. Catalogue sizes have their price shown; for your own size, the product page works out the price at once."
+        "a": "Rectangles up to 400 × 300 cm, discs up to Ø 400 cm, to the centimetre. Beyond 230 × 210 cm (Ø 210 cm for the Halo), the ceiling is made of modules fitted by the workshop, within 200 km of Saumur. Catalogue sizes have their price shown; for your own size, the product page works out the price at once."
       },
       {
         "q": "Which white should I choose?",
@@ -1418,7 +1417,7 @@
     "dimensionsTitle": "Your dimensions",
     "dimensionsBody": "Length and width are up to you, to the centimetre, from {min} cm. The largest one-piece top is {longueur} × {largeur} cm. As a guide, allow about 60 cm of table per guest.",
     "fabricationTitle": "Made in Saumur",
-    "fabricationBody": "Nothing is kept in stock. When you order, the steel is cut, welded and ground in the workshop, then painted. The tops of the Mikado, Croix and Brindille tables are finished with hardwax oil; the Mikado Outdoor table gets an outdoor oil, and the river table pairs oak with a pour of epoxy resin. Allow {delai} for making on most models; the exact lead time is on each product page. We deliver anywhere in France by carrier. You can also have the workshop deliver and fit the table, priced by the distance from Saumur, or collect it from the workshop.",
+    "fabricationBody": "Nothing is kept in stock. When you order, the steel is cut, welded and ground in the workshop, then painted. The tops of the Mikado, Croix and Brindille tables are finished with hardwax oil; the Mikado Outdoor table gets an outdoor oil, and the river table pairs oak with a pour of epoxy resin. Allow {delai} for making on most models; the exact lead time is on each product page or confirmed with the quote. We deliver anywhere in France by carrier. You can also have the workshop deliver and fit the table, priced by the distance from Saumur, or collect it from the workshop.",
     "faqTitle": "Frequently asked questions",
     "faqTailleQ": "What size for 6, 8 or 10 people?",
     "faqTailleA": "Allow about 60 cm of table per guest. Catalogue sizes: {formats}. Between two sizes, enter your dimensions: the product page works out the price.",
@@ -1426,8 +1425,8 @@
     "faqBoisA": "Oak is the workshop's reference: hard, blond, with a strong grain. Walnut is brown and darker, with a rich grain. Beech is pale, with a fine, tight grain. Pine is the softest: it marks more easily, but a mark sands back out. On the Mikado, Croix and Brindille tables, all four are finished with hardwax oil.",
     "faqEntretienQ": "How do I care for an oiled top?",
     "faqEntretienA": "Wipe up spills straight away with a soft, barely damp cloth, and put hot dishes on a trivet. When the wood looks dry, a coat of hardwax oil restores its protection; a scratch sands out lightly, on that spot alone.",
-    "faqDehorsQ": "Does treated oak stand up to the outdoors?",
-    "faqDehorsA": "Yes. The Mikado Outdoor table has a solid oak top treated to class 4, laid in spaced slats so rain runs off, and a base painted for outdoor use. Allow one coat of oil a year, or let the wood go grey if you like the patina.",
+    "faqDehorsQ": "Can a wooden table stay outdoors?",
+    "faqDehorsA": "Yes, that is what the Mikado Outdoor table is for: a top of solid oak slats, spaced so rain runs off, finished with an outdoor oil, on a base painted for outdoor use. Allow one coat of oil a year, or let the wood go grey if you like the patina.",
     "faqHorsQ": "Can I have a timber or a shape outside the catalogue?",
     "faqHorsA": "Yes, on quotation. Tell us the shape or the timber you want: we adapt the model and price it.",
     "ctaTitle": "A table outside the catalogue?",
@@ -1440,15 +1439,15 @@
     "h1": "Solid wood in our workshop: stair treads, handrails and table tops",
     "intro": "In our workshop, solid wood always goes with steel: a tread on a stringer, a handrail on a railing, a top on a welded base. Four timbers are on offer: pine, beech, oak and walnut.",
     "marchesTitle": "Stair treads",
-    "marchesBody": "On the central stringer staircase, each tread is a single piece of solid wood 50 mm thick, in pine, beech, oak or walnut. It is fixed on plates hidden under the tread, so it seems to float above the stringer. A tread wears where feet land: oak and beech, both hard, mark less quickly than pine, which is softer. The staircase handrail is in curved wood.",
+    "marchesBody": "On the central stringer staircase, each tread is a single piece of solid wood 50 mm thick, in pine, beech, oak or walnut. A tread wears where feet land: oak and beech, both hard, mark less quickly than walnut, which is medium-hard, or pine, which is softer.",
     "marchesLien": "The central stringer staircase",
     "mainCouranteTitle": "Railing handrails",
     "mainCouranteBody": "On the window railing, the handrail can be solid wood, in the same four timbers, finished with hardwax oil. It comes in two forms: a 40 × 40 mm square, grooved underneath to fit over the top rail; or a 60 × 45 mm piece laid on a 60 × 10 mm steel flat bar welded to the top rail, which stiffens it. This is the part your hand touches: wood feels softer there, and less cold than steel. It also comes in all steel.",
     "mainCouranteLien": "The window railing",
     "plateauxTitle": "Table tops",
-    "plateauxBody": "The Mikado, Croix and Brindille tables have a top in solid pine, beech, oak or walnut; first-grade oak, with no knots and no sapwood, is the workshop's reference. The longer the table, the thicker the top must be so it does not sag: the product page checks that the thickness you choose — 28, 36 or 45 mm — suits the length. The garden table has slats of oak treated to class 4, and the river table a pour of epoxy resin through the oak.",
+    "plateauxBody": "The Mikado, Croix and Brindille tables have a top in solid pine, beech, oak or walnut; first-grade oak, with no knots and no sapwood, is the workshop's reference. The longer the table, the thicker the top must be so it does not sag: the product page checks that the thickness you choose — 28, 36 or 45 mm — suits the length. The Mikado Outdoor table has a top of spaced oak slats, and the river table a pour of epoxy resin through the oak.",
     "huileTitle": "Why hardwax oil",
-    "huileBody": "Treads, wooden handrails and the tops of the Mikado, Croix and Brindille tables are finished with hardwax oil rather than varnish. The oil soaks into the wood and the wax protects the surface, without forming a film that can flake. The wood keeps its touch and gains a patina over the years. And a mark is repaired on the spot: a light sanding with fine sandpaper, then a coat of hardwax oil, on that spot alone — whereas scratched varnish is hard to touch up in patches. The garden table gets an outdoor oil instead.",
+    "huileBody": "Treads, wooden handrails and the tops of the Mikado, Croix and Brindille tables are finished with hardwax oil rather than varnish. The oil soaks into the wood and the wax protects the surface, without forming a film that can flake. The wood keeps its touch and gains a patina over the years. Above all, a mark can be put right without stripping the whole surface: you sand and oil the damaged spot, nothing more. Scratched varnish, by contrast, is hard to touch up in patches. The Mikado Outdoor table gets an outdoor oil instead.",
     "huileLien": "Day-to-day care",
     "bougeTitle": "Solid wood moves",
     "bougeBody": "Solid wood follows the humidity of the air: it swells slightly when the air is damp and shrinks back when it is dry. Avoid placing a table against a radiator, or in full sun behind a large window.",

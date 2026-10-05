@@ -116,15 +116,14 @@ export function horairesLisibles(locale: Locale): string {
 }
 
 /**
- * Où lire les avis des clients : la fiche Google de l'atelier quand son
- * adresse est renseignée (NEXT_PUBLIC_ATELIER_GOOGLE), sinon une recherche
- * Google Maps sur le nom de l'atelier et sa ville, qui ouvre la même fiche.
- * Le site ne recopie ni la note ni les avis.
+ * L'adresse de la fiche Google de l'atelier (NEXT_PUBLIC_ATELIER_GOOGLE), où
+ * se lisent les avis des clients — ou null tant qu'elle n'est pas renseignée.
+ * Sans fiche, le site n'en parle pas du tout : ni « nos avis sont sur
+ * Google », ni lien, ni recherche Google Maps de repli (elle ne menait à
+ * aucune fiche). Le site ne recopie ni la note ni les avis.
  */
-export function lienAvisGoogle(): string {
-  if (CONTACT_PUBLIC.google) return CONTACT_PUBLIC.google;
-  const recherche = encodeURIComponent(`${ATELIER.nom} ${ATELIER.ville}`);
-  return `https://www.google.com/maps/search/?api=1&query=${recherche}`;
+export function lienAvisGoogle(): string | null {
+  return CONTACT_PUBLIC.google.trim() || null;
 }
 
 /** Le téléphone tel qu'on le compose : +33612345678 → 06 12 34 56 78. */

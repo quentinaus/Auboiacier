@@ -252,6 +252,8 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
 
   /** Vrais témoignages clients — à remplir, rien d'inventé ici. */
   const testimonials: { quote: string; author: string }[] = [];
+  // La fiche Google de l'atelier, quand elle existe : sans elle, ni phrase ni lien.
+  const ficheGoogle = lienAvisGoogle();
 
   return (
     <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
@@ -462,7 +464,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
             </div>
           ) : (
             <p className="mx-auto mt-8 max-w-xl text-center leading-relaxed text-[#726757]">
-              {t.testimonialsNote}
+              {ficheGoogle ? t.testimonialsNoteGoogle : t.testimonialsNote}
             </p>
           )}
 
@@ -470,15 +472,18 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               se rejoignent d'ici : sans lien, personne ne les trouve. */}
           <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-center">
             {/* Les avis restent sur la fiche Google : ni note recopiée, ni
-                balisage d'avis sur le site. */}
-            <a
-              href={lienAvisGoogle()}
-              target="_blank"
-              rel="noopener"
-              className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"
-            >
-              {t.avisGoogle}
-            </a>
+                balisage d'avis sur le site. Le lien n'apparaît qu'une fois
+                l'adresse de la fiche renseignée (NEXT_PUBLIC_ATELIER_GOOGLE). */}
+            {ficheGoogle && (
+              <a
+                href={ficheGoogle}
+                target="_blank"
+                rel="noopener"
+                className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"
+              >
+                {t.avisGoogle}
+              </a>
+            )}
             {[
               { href: `/${locale}/realisations`, label: t.testimonialsCta },
               { href: `/${locale}/zone-intervention`, label: dict.nav.zone },

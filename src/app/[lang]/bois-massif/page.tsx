@@ -34,13 +34,16 @@ export default async function BoisMassifPage({ params }: PageProps<"/[lang]/bois
   const locale = isLocale(lang) ? lang : defaultLocale;
   const dict = await getDictionary(locale);
   const t = dict.bois;
+  // « L'entretien au quotidien » mène droit à la question de /faq qui en parle.
+  const questionEntretien = dict.faq.items.find((item) => item.id === "entretien-bois-acier");
+  const lienEntretien = questionEntretien ? `/${locale}/faq#${questionEntretien.id}` : `/${locale}/faq`;
 
   /** Un usage du bois, ce qu'il faut en savoir, et la page où le configurer. */
   const blocs = [
     { titre: t.marchesTitle, texte: t.marchesBody, lien: { href: `/${locale}/artisanat/escalier-limon-central`, label: t.marchesLien } },
     { titre: t.mainCouranteTitle, texte: t.mainCouranteBody, lien: { href: `/${locale}/artisanat/garde-corps`, label: t.mainCouranteLien } },
     { titre: t.plateauxTitle, texte: t.plateauxBody, lien: { href: `/${locale}/artisanat/tables`, label: dict.liens.toutesTables } },
-    { titre: t.huileTitle, texte: t.huileBody, lien: { href: `/${locale}/faq`, label: t.huileLien } },
+    { titre: t.huileTitle, texte: t.huileBody, lien: { href: lienEntretien, label: t.huileLien } },
     { titre: t.bougeTitle, texte: t.bougeBody, lien: null },
   ];
 

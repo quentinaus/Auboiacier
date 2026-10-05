@@ -60,7 +60,8 @@
     "editorialBody2": "Aucune série : chaque pièce est fabriquée à la commande, aux dimensions de votre intérieur, et se reponce ou se repeint plutôt que de se remplacer.",
     "editorialCta": "Voir l'atelier",
     "testimonialsTitle": "Ce qu'en disent nos clients",
-    "testimonialsNote": "Les avis de nos clients sont publiés sur notre fiche Google.",
+    "testimonialsNote": "Les premiers chantiers arrivent : les avis clients seront publiés ici.",
+    "testimonialsNoteGoogle": "Les avis de nos clients sont publiés sur notre fiche Google.",
     "testimonialsCta": "Voir les réalisations",
     "missionTitle": "Ce que nous cherchons à faire",
     "missionBody": "Fabriquer des pièces d'acier et de bois massif que l'on puisse reponcer et repeindre dans trente ans, au lieu de les remplacer.",
@@ -125,8 +126,8 @@
         "body": "Blanc chaud au quotidien, couleurs pour une ambiance : l'intensité et la teinte se règlent depuis votre téléphone."
       },
       {
-        "title": "Une pose propre et rapide",
-        "body": "Le cadre aluminium se fixe au plafond existant, la toile se tend en une journée. Pas de gros œuvre, pas de poussière."
+        "title": "Une pose sans gros œuvre",
+        "body": "Le cadre aluminium se fixe au plafond existant ou se suspend par câbles, puis la toile se clipse dans sa gorge."
       }
     ],
     "pourquoiTitle": "Pourquoi Auboiacier",
@@ -150,7 +151,7 @@
     "catalogueLumiere": "{n} formes, prix affichés",
     "catalogueLumiereNote": "Toile tendue rétroéclairée, cadre aluminium laqué, de 60 cm au plafond entier.",
     "surMesureTitle": "Au-delà de 230 × 210 cm",
-    "surMesureBody": "D'un seul tenant, un plafond lumineux va jusqu'à 230 × 210 cm (Ø 210 cm pour le Halo) et se livre partout en France métropolitaine. Au-delà, il est fait de modules assemblés et posés chez vous par l'atelier, jusqu'à 200 km de Saumur : jusqu'à 400 × 300 cm (Ø 400 cm), la fiche donne le prix. Pour un plafond plus grand, l'atelier relève les cotes chez vous, puis chiffre.",
+    "surMesureBody": "Passé cette taille, ou Ø 210 cm pour le Halo, un plafond lumineux est fait de modules que l'atelier assemble et pose chez vous, jusqu'à 200 km de Saumur. Jusqu'à 400 × 300 cm (Ø 400 cm), la fiche donne le prix. Plus grand encore, l'atelier relève les cotes chez vous, puis chiffre.",
     "altPlafondDemo": "Plafond lumineux à cadre aluminium, toile tendue rétroéclairée"
   },
   "realisations": {
@@ -237,7 +238,8 @@
     "delaiBody": "Rien n'est en stock : votre pièce est fabriquée pour vous, à la commande. Son délai figure ci-dessus, à la ligne « Fabrication ». Il vous est confirmé à la commande.",
     "delaiCta": "Commander",
     "avisTitle": "Ce qu'en disent nos clients",
-    "avisNote": "Les avis de nos clients sont publiés sur notre fiche Google.",
+    "avisNote": "Les premiers chantiers arrivent : les avis clients seront publiés ici.",
+    "avisNoteGoogle": "Les avis de nos clients sont publiés sur notre fiche Google.",
     "avisCta": "Voir les réalisations",
     "contactTitle": "Parlez-nous de votre projet",
     "contactBody": "Une dimension particulière, une essence précise, une teinte hors nuancier ? Écrivez-nous : nous adaptons le modèle et nous chiffrons.",
@@ -1109,7 +1111,7 @@
     "sections": [
       {
         "title": "Partout en France métropolitaine",
-        "body": "Les pièces de la collection sont livrées dans toute la France métropolitaine, par transporteur, au prix de votre ville : elles voyagent protégées, et nous convenons d'un créneau avec vous. Seule exception : un plafond lumineux de plus de 230 × 210 cm, fait de modules, est posé par l'atelier. Pour une pose plus loin (plafond lumineux, verrière, escalier), écrivez-nous : nous regardons le chantier et le temps de route, et nous vous répondons franchement."
+        "body": "Les pièces de la collection sont livrées dans toute la France métropolitaine, par transporteur, au prix de votre ville : elles voyagent protégées, et nous convenons d'un créneau avec vous. Seule exception : un plafond lumineux de plus de 230 × 210 cm, fait de modules, est posé par l'atelier, donc jusqu'à 200 km de Saumur seulement. Au-delà de 200 km, l'atelier ne se déplace ni pour relever les cotes ni pour poser : un garde-corps se fabrique alors sur les cotes que vous prenez vous-même, puis il est expédié."
       },
       {
         "title": "Comment se passe un chantier",
@@ -1152,6 +1154,7 @@
         "a": "L'atelier est à Saumur, en Maine-et-Loire. Nous nous déplaçons jusqu'à 200 km de l'atelier — Maine-et-Loire, Indre-et-Loire, Deux-Sèvres, Vienne — pour relever les cotes et poser, et nous livrons le mobilier dans toute la France métropolitaine. Le détail est sur la page Zone d'intervention."
       },
       {
+        "id": "entretien-bois-acier",
         "q": "Comment entretenir une pièce bois & acier ?",
         "a": "Un chiffon doux et sec au quotidien. Pour le bois huilé, une réapplication d'huile-cire une fois par an suffit ; une rayure se rattrape d'un ponçage léger. L'acier peint se nettoie à l'éponge humide, sans produit abrasif."
       },
@@ -1355,17 +1358,13 @@
     "piecesTitle": "Pour quelles pièces",
     "piecesBody": "Au-dessus d'une table de salle à manger, dans une grande pièce à vivre, une salle de réunion ou un plateau de bureaux. Au-delà de 1,50 m de diamètre, un seul Halo peut éclairer toute la pièce.",
     "fabricationTitle": "Fabrication, livraison, pose",
-    "fabricationBody": "Chaque plafond est fabriqué à la commande : comptez {delai}. La toile se clipse dans une gorge tout autour du cadre ; elle se retire et se remet sans outil pour le nettoyage. D'un seul tenant, jusqu'à 230 × 210 cm (Ø 210 cm pour le Halo), un plafond se livre partout en France métropolitaine. Plus grand, il est fait de modules que l'atelier assemble et pose chez vous, jusqu'à 200 km de Saumur. Dans ce rayon, l'atelier peut aussi venir poser n'importe quel plafond : la fiche donne le prix de la pose selon votre code postal.",
+    "fabricationBody": "Chaque plafond est fabriqué à la commande : comptez {delai}. La toile se clipse dans une gorge tout autour du cadre. D'un seul tenant, jusqu'à 230 × 210 cm (Ø 210 cm pour le Halo), un plafond se livre partout en France métropolitaine. Jusqu'à 200 km de Saumur, l'atelier peut aussi venir le poser : la fiche donne le prix de la pose selon votre code postal.",
     "zoneLink": "Voir la zone d'intervention",
     "faqTitle": "Questions fréquentes",
     "faq": [
       {
-        "q": "Quelle différence avec un plafond tendu ?",
-        "a": "Un plafond tendu couvre toute la pièce, d'un mur à l'autre, et se pose sur place par un poseur spécialisé. Nos plafonds lumineux sont des caissons en aluminium aux cotes choisies, avec leur toile et leurs LED, fixés sous le plafond existant."
-      },
-      {
         "q": "Quelles tailles ?",
-        "a": "Rectangle jusqu'à 400 × 300 cm, disque jusqu'à Ø 400 cm, au centimètre près. D'un seul tenant jusqu'à 230 × 210 cm (Ø 210 cm pour le Halo) ; au-delà, en modules assemblés et posés chez vous par l'atelier, jusqu'à 200 km de Saumur. Les tailles du catalogue ont leur prix affiché ; pour vos cotes, la fiche calcule le prix aussitôt."
+        "a": "Rectangle jusqu'à 400 × 300 cm, disque jusqu'à Ø 400 cm, au centimètre près. Au-delà de 230 × 210 cm (Ø 210 cm pour le Halo), le plafond est fait de modules posés par l'atelier, dans un rayon de 200 km autour de Saumur. Les tailles du catalogue ont leur prix affiché ; pour vos cotes, la fiche calcule le prix aussitôt."
       },
       {
         "q": "Quel blanc choisir ?",
@@ -1418,7 +1417,7 @@
     "dimensionsTitle": "Vos dimensions",
     "dimensionsBody": "Longueur et largeur sont libres, au centimètre près, à partir de {min} cm. Le plus grand plateau d'un seul tenant mesure {longueur} × {largeur} cm. Pour choisir, comptez environ 60 cm de plateau par convive.",
     "fabricationTitle": "Fabriquée à Saumur",
-    "fabricationBody": "Rien n'est en stock. À la commande, l'acier est coupé, soudé et meulé à l'atelier, puis peint. Les plateaux des tables Mikado, Croix et Brindille sont finis à l'huile-cire ; la table Mikado Extérieur reçoit une huile pour l'extérieur, et la table rivière associe le chêne à une coulée de résine époxy. Comptez {delai} de fabrication pour la plupart des modèles ; le délai exact est écrit sur chaque fiche. Nous livrons partout en France par transporteur. Vous pouvez aussi faire livrer et poser la table par l'atelier, au prix de la distance depuis Saumur, ou venir la retirer à l'atelier.",
+    "fabricationBody": "Rien n'est en stock. À la commande, l'acier est coupé, soudé et meulé à l'atelier, puis peint. Les plateaux des tables Mikado, Croix et Brindille sont finis à l'huile-cire ; la table Mikado Extérieur reçoit une huile pour l'extérieur, et la table rivière associe le chêne à une coulée de résine époxy. Comptez {delai} de fabrication pour la plupart des modèles ; le délai exact est écrit sur chaque fiche ou confirmé avec le devis. Nous livrons partout en France par transporteur. Vous pouvez aussi faire livrer et poser la table par l'atelier, au prix de la distance depuis Saumur, ou venir la retirer à l'atelier.",
     "faqTitle": "Questions fréquentes",
     "faqTailleQ": "Quelle taille pour 6, 8 ou 10 personnes ?",
     "faqTailleA": "Comptez environ 60 cm de plateau par convive. Les formats du catalogue : {formats}. Entre deux formats, entrez vos cotes : la fiche calcule le prix.",
@@ -1426,8 +1425,8 @@
     "faqBoisA": "Le chêne est la référence de l'atelier : dur, blond, au veinage marqué. Le noyer est brun et plus sombre, au veinage riche. Le hêtre est clair, avec un grain fin et serré. Le pin est le plus tendre : il se marque plus vite, mais une marque se rattrape au ponçage. Sur les tables Mikado, Croix et Brindille, les quatre sont finis à l'huile-cire.",
     "faqEntretienQ": "Comment entretenir un plateau huilé ?",
     "faqEntretienA": "Essuyez les liquides sans attendre, avec un chiffon doux à peine humide, et posez les plats chauds sur un dessous-de-plat. Quand le bois paraît sec, une couche d'huile-cire lui rend sa protection ; une rayure se rattrape d'un ponçage léger, sur la zone touchée seulement.",
-    "faqDehorsQ": "Le chêne traité tient-il dehors ?",
-    "faqDehorsA": "Oui. La table Mikado Extérieur a un plateau en chêne massif traité classe 4, monté en lattes espacées pour que la pluie s'écoule, et un piétement peint pour l'extérieur. Comptez une couche d'huile par an, ou laissez le bois griser si vous aimez la patine.",
+    "faqDehorsQ": "Une table en bois peut-elle rester dehors ?",
+    "faqDehorsA": "Oui, la table Mikado Extérieur est faite pour ça : un plateau en lattes de chêne massif, espacées pour que la pluie s'écoule, fini à l'huile pour l'extérieur, sur un piétement peint pour l'extérieur. Comptez une couche d'huile par an, ou laissez le bois griser si vous aimez la patine.",
     "faqHorsQ": "Peut-on avoir une essence ou une forme hors catalogue ?",
     "faqHorsA": "Oui, sur devis. Décrivez-nous la forme ou l'essence voulue : nous adaptons le modèle et nous chiffrons.",
     "ctaTitle": "Une table hors catalogue ?",
@@ -1440,15 +1439,15 @@
     "h1": "Le bois massif à l'atelier : marches, mains courantes et plateaux",
     "intro": "À l'atelier, le bois massif va toujours avec l'acier : une marche sur un limon, une main courante sur un garde-corps, un plateau sur un piétement soudé. Quatre essences sont proposées : pin, hêtre, chêne et noyer.",
     "marchesTitle": "Marches d'escalier",
-    "marchesBody": "Sur l'escalier à limon central, chaque marche est une pièce de bois massif de 50 mm d'épaisseur, en pin, hêtre, chêne ou noyer. Elle est fixée sur des platines cachées sous la marche : elle semble flotter au-dessus du limon. Une marche s'use là où l'on pose le pied : le chêne et le hêtre, durs, se marquent moins vite que le pin, plus tendre. La main courante de l'escalier est en bois cintré.",
+    "marchesBody": "Sur l'escalier à limon central, chaque marche est une pièce de bois massif de 50 mm d'épaisseur, en pin, hêtre, chêne ou noyer. Une marche s'use là où l'on pose le pied : le chêne et le hêtre, durs, se marquent moins vite que le noyer, mi-dur, et que le pin, plus tendre.",
     "marchesLien": "L'escalier à limon central",
     "mainCouranteTitle": "Mains courantes de garde-corps",
     "mainCouranteBody": "Sur le garde-corps de fenêtre, la main courante peut être en bois massif, dans les mêmes quatre essences, finie à l'huile-cire. Elle se fait de deux façons : un carré de 40 × 40 mm, rainuré dessous pour s'emboîter sur la lisse haute ; ou une pièce de 60 × 45 mm posée sur un fer plat d'acier de 60 × 10 mm soudé sur la lisse haute, qui la raidit. C'est la partie que la main touche : le bois y est plus doux, et moins froid que l'acier. Elle existe aussi tout en acier.",
     "mainCouranteLien": "Le garde-corps de fenêtre",
     "plateauxTitle": "Plateaux de table",
-    "plateauxBody": "Les tables Mikado, Croix et Brindille ont un plateau en pin, hêtre, chêne ou noyer massif ; le chêne, premier choix, sans nœud ni aubier, est la référence de l'atelier. Plus une table est longue, plus son plateau doit être épais pour ne pas fléchir : la fiche vérifie que l'épaisseur choisie — 28, 36 ou 45 mm — convient à la longueur. La table de jardin a des lattes de chêne traité classe 4, et la table rivière une coulée de résine époxy dans le chêne.",
+    "plateauxBody": "Les tables Mikado, Croix et Brindille ont un plateau en pin, hêtre, chêne ou noyer massif ; le chêne, premier choix, sans nœud ni aubier, est la référence de l'atelier. Plus une table est longue, plus son plateau doit être épais pour ne pas fléchir : la fiche vérifie que l'épaisseur choisie — 28, 36 ou 45 mm — convient à la longueur. La table Mikado Extérieur a un plateau en lattes de chêne espacées, et la table rivière une coulée de résine époxy dans le chêne.",
     "huileTitle": "Pourquoi l'huile-cire",
-    "huileBody": "Les marches, les mains courantes en bois et les plateaux des tables Mikado, Croix et Brindille sont finis à l'huile-cire plutôt que vernis. L'huile pénètre dans le bois et la cire le protège en surface, sans former de film qui s'écaille. Le bois garde son toucher et se patine avec les années. Et une marque se répare sur place : un ponçage léger au papier de verre fin, puis une couche d'huile-cire, sur la zone touchée seulement — là où un vernis rayé se reprend mal par endroits. La table de jardin, elle, reçoit une huile pour l'extérieur.",
+    "huileBody": "Les marches, les mains courantes en bois et les plateaux des tables Mikado, Croix et Brindille sont finis à l'huile-cire plutôt que vernis. L'huile pénètre dans le bois et la cire le protège en surface, sans former de film qui s'écaille. Le bois garde son toucher et se patine avec les années. Surtout, une marque se reprend sans décaper toute la surface : on ponce et on huile l'endroit abîmé, rien de plus. Un vernis rayé, lui, se reprend mal par endroits. La table Mikado Extérieur, elle, reçoit une huile pour l'extérieur.",
     "huileLien": "L'entretien au quotidien",
     "bougeTitle": "Le bois massif bouge",
     "bougeBody": "Le bois massif suit l'humidité de l'air : il gonfle un peu quand l'air est humide, et se resserre quand il est sec. Évitez de placer une table contre un radiateur, ou en plein soleil derrière une baie vitrée.",
