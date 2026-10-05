@@ -590,7 +590,9 @@ export const products: Product[] = [
     boisAuM2: true,
     famille: "table-interieur",
     seoMots: "table acier & chêne",
-    seoTitre: "Table chêne massif pied Mikado acier",
+    seoTitre: "Table bois massif pied Mikado acier",
+    seoDescription:
+      "Table à manger sur mesure : tubes d'acier croisés sous un plateau en bois massif (pin, hêtre, chêne ou noyer), fabriquée à Saumur.",
     category: "interieur",
     orderMode: "cart",
     name: "Table Mikado",
@@ -830,7 +832,9 @@ export const products: Product[] = [
     en: {
       name: "Mikado Table",
       seoMots: "steel & oak table",
-      seoTitre: "Solid oak table, Mikado steel base",
+      seoTitre: "Solid wood table, Mikado steel base",
+      seoDescription:
+        "Made-to-measure dining table: crossed steel tubes under a solid wood top (pine, beech, oak or walnut), made in Saumur, France.",
       tagline: "Steel tubes crossed like pick-up sticks, under a solid oak top.",
       images: [
         "Mikado table — front view, charcoal black legs",
@@ -873,7 +877,7 @@ export const products: Product[] = [
     boisAuM2: true,
     famille: "table-interieur",
     seoMots: "table acier & chêne",
-    seoTitre: "Table chêne massif pied croix acier",
+    seoTitre: "Table bois massif pied croix acier",
     category: "interieur",
     orderMode: "cart",
     name: "Table Croix",
@@ -986,7 +990,7 @@ export const products: Product[] = [
     en: {
       name: "Croix Table",
       seoMots: "steel & oak table",
-      seoTitre: "Solid oak table, steel X base",
+      seoTitre: "Solid wood table, steel X base",
       tagline: "Two steel tubes in an X at each end of the top, and room for everyone's legs.",
       images: [
         "Croix table: solid oak top on two black steel X bases, end view",
@@ -1030,7 +1034,7 @@ export const products: Product[] = [
     boisAuM2: true,
     famille: "table-interieur",
     seoMots: "table acier & chêne",
-    seoTitre: "Table Brindille, chêne massif et acier",
+    seoTitre: "Table Brindille, bois massif et acier",
     category: "interieur",
     orderMode: "cart",
     name: "Table Brindille",
@@ -1113,7 +1117,7 @@ export const products: Product[] = [
     en: {
       name: "Brindille Table",
       seoMots: "steel & oak table",
-      seoTitre: "Brindille table, solid oak and steel",
+      seoTitre: "Brindille table, solid wood and steel",
       tagline: "A bunch of steel rods bent one by one, under a top that seems to float.",
       images: [
         "Brindille table: solid oak top on a bunch of bent steel rods, front view",
@@ -2207,7 +2211,7 @@ export const products: Product[] = [
     sections: [
       {
         title: "Un disque de lumière pleine",
-        body: "Le cercle est roulé d'une seule pièce : pas d'angle, pas de raccord visible sur le pourtour. La toile s'y tend en une seule surface et diffuse la même lumière du centre jusqu'au bord.",
+        body: "Jusqu'à Ø 210 cm, le cercle est roulé d'une seule pièce : pas d'angle, pas de raccord visible sur le pourtour. La toile s'y tend en une seule surface et diffuse la même lumière du centre jusqu'au bord.",
       },
       {
         title: "Le même cadre, roulé",
@@ -2256,7 +2260,7 @@ export const products: Product[] = [
       sections: [
         {
           title: "A full disc of light",
-          body: "The circle is rolled in one piece: no corner, no joint showing anywhere on the rim. The fabric is stretched across it as a single surface and gives the same light from the centre out to the edge.",
+          body: "Up to Ø 210 cm, the circle is rolled in one piece: no corner, no joint showing anywhere on the rim. The fabric is stretched across it as a single surface and gives the same light from the centre out to the edge.",
         },
         {
           title: "The same frame, rolled",

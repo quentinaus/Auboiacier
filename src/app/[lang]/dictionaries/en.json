@@ -61,7 +61,7 @@
     "editorialCta": "See the workshop",
     "testimonialsTitle": "What our clients say",
     "testimonialsNote": "First projects are under way: client reviews will be published here.",
-    "testimonialsNoteGoogle": "Our clients' reviews are published on our Google Business Profile.",
+    "testimonialsNoteGoogle": "Find the workshop on its Google Business Profile.",
     "testimonialsCta": "See our work",
     "missionTitle": "What we are trying to do",
     "missionBody": "To make pieces in steel and solid wood that can still be sanded and repainted in thirty years, rather than replaced.",
@@ -107,7 +107,7 @@
     "configTable": "Configure a table",
     "configGardeCorps": "Configure a railing",
     "configPlafond": "Configure a light ceiling",
-    "avisGoogle": "Read our Google reviews"
+    "avisGoogle": "See our Google profile"
   },
   "home": {
     "heroTitle": "Backlit stretch-fabric ceilings, made to measure in Saumur",
@@ -239,7 +239,7 @@
     "delaiCta": "Order",
     "avisTitle": "What our clients say",
     "avisNote": "First projects are under way: client reviews will be published here.",
-    "avisNoteGoogle": "Our clients' reviews are published on our Google Business Profile.",
+    "avisNoteGoogle": "Find the workshop on its Google Business Profile.",
     "avisCta": "See our work",
     "contactTitle": "Tell us about your project",
     "contactBody": "A particular size, a specific timber, a colour outside the range? Write to us: we adapt the model and quote it.",
@@ -507,11 +507,11 @@
     "gcFenetreCourt": "Bottom to top of the window",
     "raisonCotesGardeCorps": "Enter the width and the height below the window to add to your cart.",
     "h1": "Made-to-measure pieces in steel and solid wood",
-    "avisGoogle": "Read our Google reviews",
+    "avisGoogle": "See our Google profile",
     "faqPoseToileQ": "How is a light ceiling fitted?",
     "faqPoseToileA": "The aluminium frame fixes to the existing ceiling or hangs on cables, then the fabric clips into its groove. No building work: a few holes drilled in the ceiling, and a cut-out in the false ceiling for a recessed model. The workshop can come and fit it; the product page gives the price for your postcode.",
     "faqToileQ": "How do I look after the fabric?",
-    "faqToileA": "The fabric comes out and goes back without a tool, so it can be dusted. The lacquered aluminium frame wipes clean with a soft cloth."
+    "faqToileA": "The fabric comes out and goes back in without a tool, so it can be dusted. The lacquered aluminium frame wipes clean with a soft cloth."
   },
   "devis": {
     "title": "Request a quote",
@@ -1111,7 +1111,7 @@
     "sections": [
       {
         "title": "Anywhere in mainland France",
-        "body": "Pieces from the collection are delivered anywhere in mainland France by carrier, priced by your town: they travel protected, and we agree a time slot with you. The one exception: a light ceiling larger than 230 × 210 cm, made of modules, is fitted by the workshop, so only within 200 km of Saumur. Beyond 200 km, the workshop does not travel, neither to measure nor to fit: a window railing is then made to measurements you take yourself, and shipped."
+        "body": "Pieces from the collection are delivered anywhere in mainland France by carrier, priced by your town: they travel protected, and we agree a time slot with you. The one exception: a light ceiling larger than 230 × 210 cm, made of modules, is fitted by the workshop, so only within 200 km of Saumur. Beyond 200 km, the workshop does not travel, either to measure or to fit: a window railing is then made to measurements you take yourself, and shipped."
       },
       {
         "title": "How a project runs",
@@ -1417,7 +1417,7 @@
     "dimensionsTitle": "Your dimensions",
     "dimensionsBody": "Length and width are up to you, to the centimetre, from {min} cm. The largest one-piece top is {longueur} × {largeur} cm. As a guide, allow about 60 cm of table per guest.",
     "fabricationTitle": "Made in Saumur",
-    "fabricationBody": "Nothing is kept in stock. When you order, the steel is cut, welded and ground in the workshop, then painted. The tops of the Mikado, Croix and Brindille tables are finished with hardwax oil; the Mikado Outdoor table gets an outdoor oil, and the river table pairs oak with a pour of epoxy resin. Allow {delai} for making on most models; the exact lead time is on each product page or confirmed with the quote. We deliver anywhere in France by carrier. You can also have the workshop deliver and fit the table, priced by the distance from Saumur, or collect it from the workshop.",
+    "fabricationBody": "Nothing is kept in stock. When you order, the steel is cut, welded and ground in the workshop, then painted. The tops of the Mikado, Croix and Brindille tables are finished with hardwax oil; the Mikado Outdoor table gets an outdoor oil, and the river table pairs oak with a pour of epoxy resin. Allow {delai} for making on most models; the exact lead time is on each product page or confirmed with the quote. We deliver anywhere in mainland France by carrier. Within 200 km of Saumur, the workshop can also deliver and fit the table, priced by the distance; or you can collect it from the workshop.",
     "faqTitle": "Frequently asked questions",
     "faqTailleQ": "What size for 6, 8 or 10 people?",
     "faqTailleA": "Allow about 60 cm of table per guest. Catalogue sizes: {formats}. Between two sizes, enter your dimensions: the product page works out the price.",
@@ -1442,7 +1442,7 @@
     "marchesBody": "On the central stringer staircase, each tread is a single piece of solid wood 50 mm thick, in pine, beech, oak or walnut. A tread wears where feet land: oak and beech, both hard, mark less quickly than walnut, which is medium-hard, or pine, which is softer.",
     "marchesLien": "The central stringer staircase",
     "mainCouranteTitle": "Railing handrails",
-    "mainCouranteBody": "On the window railing, the handrail can be solid wood, in the same four timbers, finished with hardwax oil. It comes in two forms: a 40 × 40 mm square, grooved underneath to fit over the top rail; or a 60 × 45 mm piece laid on a 60 × 10 mm steel flat bar welded to the top rail, which stiffens it. This is the part your hand touches: wood feels softer there, and less cold than steel. It also comes in all steel.",
+    "mainCouranteBody": "On the window railing, the handrail can be solid wood, in the same four timbers, finished with hardwax oil. It comes in two forms: a 40 × 40 mm square, grooved underneath to fit over the top rail; or a 60 × 45 mm piece laid on a 60 × 10 mm steel flat bar welded to the top rail, which stiffens it. This is the part your hand touches: wood feels softer there, and less cold than steel. It is also available in steel.",
     "mainCouranteLien": "The window railing",
     "plateauxTitle": "Table tops",
     "plateauxBody": "The Mikado, Croix and Brindille tables have a top in solid pine, beech, oak or walnut; first-grade oak, with no knots and no sapwood, is the workshop's reference. The longer the table, the thicker the top must be so it does not sag: the product page checks that the thickness you choose — 28, 36 or 45 mm — suits the length. The Mikado Outdoor table has a top of spaced oak slats, and the river table a pour of epoxy resin through the oak.",
