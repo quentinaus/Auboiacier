@@ -221,6 +221,11 @@ def van(sc, roof_rail=''):
     body.append(R(95, -42, 5.5, 1.6, '#2b2320', .8))
     body.append(E(134.5, -50, 2.4, 3.6, '#2b2320'))
     body.append(R(146, -37, 5.6, 5.4, '#f1e3cb', 1.6))
+    # Le nom de l'atelier en grand sur le flanc (demande de Quentin, 05/10/2026) : c'est l'entreprise qui vient, mesure et
+    # pose ; le camion du transporteur (film « Je mesure moi-même »), lui, reste sans nom.
+    body.append('<text x="55" y="-44.6" text-anchor="middle" textLength="90" lengthAdjust="spacingAndGlyphs" '
+                'font-family="-apple-system,BlinkMacSystemFont,&quot;Helvetica Neue&quot;,Arial,sans-serif" '
+                'font-size="13.5" font-weight="700" fill="#f1e3cb">AUBOIACIER</text>')
     body.append(R(2, -50, 3, 10, '#8c5a3c', 1))
     body.append(R(147, -22.5, 7, 6.5, '#211b19', 1.6))
     body.append(R(0, -22.5, 5, 6.5, '#211b19', 1.6))
