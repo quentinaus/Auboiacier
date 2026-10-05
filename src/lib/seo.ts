@@ -115,6 +115,18 @@ export function horairesLisibles(locale: Locale): string {
     .join(" · ");
 }
 
+/**
+ * Où lire les avis des clients : la fiche Google de l'atelier quand son
+ * adresse est renseignée (NEXT_PUBLIC_ATELIER_GOOGLE), sinon une recherche
+ * Google Maps sur le nom de l'atelier et sa ville, qui ouvre la même fiche.
+ * Le site ne recopie ni la note ni les avis.
+ */
+export function lienAvisGoogle(): string {
+  if (CONTACT_PUBLIC.google) return CONTACT_PUBLIC.google;
+  const recherche = encodeURIComponent(`${ATELIER.nom} ${ATELIER.ville}`);
+  return `https://www.google.com/maps/search/?api=1&query=${recherche}`;
+}
+
 /** Le téléphone tel qu'on le compose : +33612345678 → 06 12 34 56 78. */
 export function telephoneLisible(): string {
   const brut = CONTACT_PUBLIC.telephone.replace(/\s+/g, "");
@@ -123,78 +135,11 @@ export function telephoneLisible(): string {
   return /^0\d{9}$/.test(national) ? national.replace(/(\d{2})(?=\d)/g, "$1 ").trim() : brut;
 }
 
-/** Mots-clés de fond, repris sur toutes les pages. */
-const MOTS_CLES: Record<Locale, string[]> = {
-  fr: [
-    "métallerie Saumur",
-    "métallerie artisanale Saumur",
-    "métallier Angers",
-    "métallier Cholet",
-    "métallier Tours",
-    "artisan métallier Anjou",
-    "atelier de métallerie Val de Loire",
-    "garde-corps sur mesure",
-    "garde-corps artisanal sur mesure",
-    "garde-corps de fenêtre sur mesure",
-    "garde-corps fenêtre Saumur",
-    "garde-corps acier Maine-et-Loire",
-    "garde-corps croix de Saint-André",
-    "garde-corps rosace fonte",
-    "garde-corps prix instantané",
-    "garde-corps devis PDF",
-    "garde-corps norme NF P01-012",
-    "main courante chêne acier sur mesure",
-    "devis instantané en ligne",
-    "prix en ligne sur mesure",
-    "devis PDF gratuit sans compte",
-    "fabrication française artisanale",
-    "soudure TIG acier sur mesure",
-    "prise de cotes à domicile Anjou",
-    "pose garde-corps Saumur",
-    "escalier limon central acier chêne",
-    "verrière d'intérieur acier Anjou",
-    "table Mikado acier chêne",
-    "chaise velours piétement acier",
-    "plafond tendu lumineux LED sur mesure",
-    "métallier Saumur",
-    "ferronnier Maine-et-Loire",
-    "table sur mesure Saumur",
-    "table bois et acier sur mesure",
-    "mobilier sur mesure Maine-et-Loire 49",
-    "métallier soudeur Pays de la Loire",
-    "escalier acier sur mesure Saumur",
-    "verrière atelier sur mesure 49",
-    "plafond lumineux tendu",
-    "toile tendue rétroéclairée",
-    "sculpture métal sur mesure",
-    "mobilier haut de gamme fabriqué en France",
-    "table chêne massif piètement acier",
-    "artisanat français sur mesure",
-    "bon rapport qualité prix mobilier sur mesure",
-    "table de salle à manger design prix atelier",
-  ],
-  en: [
-    "custom window railing France",
-    "handmade window railing Saumur",
-    "bespoke steel railing Loire Valley",
-    "metalworks Saumur",
-    "craft metalworker Anjou",
-    "instant online price bespoke steel",
-    "free PDF quote no account",
-    "made in France handmade steel",
-    "TIG welded steel made to measure",
-    "custom steel and oak furniture France",
-    "bespoke dining table Loire Valley",
-    "metalworker Saumur France",
-    "handmade furniture Maine-et-Loire",
-    "stretched fabric light ceiling",
-    "backlit ceiling panel custom",
-    "steel staircase bespoke France",
-    "crittall style steel partition",
-    "luxury handmade furniture made in France",
-    "workshop direct prices bespoke furniture",
-  ],
-};
+/*
+ * Plus de liste de mots-clés « de fond » répétée sur toutes les pages : Google
+ * ne lit pas la balise keywords, et Bing prend une longue liste identique
+ * partout pour du bourrage. Chaque page ne déclare que les siens (motsCles).
+ */
 
 /**
  * Image de partage par défaut (Facebook, WhatsApp, LinkedIn…).
@@ -203,6 +148,12 @@ const MOTS_CLES: Record<Locale, string[]> = {
  * se retrouveraient rognées n'importe comment.
  */
 const IMAGE_PARTAGE = "/images/partage-auboiacier.jpg";
+
+/** Le logo de l'atelier pour Google : carré, 512 × 512, dans public/. */
+const LOGO = "/icon-512.png";
+
+/** Celui qui a ouvert l'atelier (page À propos). */
+const FONDATEUR = "Quentin Aumercier";
 
 /**
  * Dimensions réelles, uniquement pour les images dont on est sûr.
@@ -383,7 +334,7 @@ export function metadataPage({
   return {
     title: { absolute: titre },
     description: desc,
-    keywords: [...motsCles, ...MOTS_CLES[locale]],
+    ...(motsCles.length > 0 ? { keywords: motsCles } : {}),
     alternates: alternatesPour(locale, chemin),
     robots: noIndex
       ? { index: false, follow: true }
@@ -432,6 +383,10 @@ export function jsonLdAtelier(locale: Locale) {
     url: `${SITE_URL}/${locale}`,
     email: ATELIER.email,
     image: absolu(IMAGE_PARTAGE),
+    // Le logo carré de l'atelier (512 × 512), celui de l'écran d'accueil du téléphone.
+    logo: absolu(LOGO),
+    // Le fondateur, tel que le présente la page À propos.
+    founder: { "@type": "Person", name: FONDATEUR },
     description:
       locale === "fr"
         ? "Atelier de métallerie artisanale à Saumur (Maine-et-Loire) : garde-corps de fenêtre sur mesure, tables, chaises, escaliers, verrières, sculptures et plafonds lumineux à toile tendue, en acier et bois massif, fabriqués à la main sur mesure."
@@ -522,6 +477,24 @@ export function jsonLdFilAriane(locale: Locale, etapes: { nom: string; chemin: s
       position: i + 1,
       name: etape.nom,
       item: `${SITE_URL}/${locale}${etape.chemin}`,
+    })),
+  };
+}
+
+/**
+ * Une liste de pages (les modèles d'une famille) : Google comprend que la
+ * page les présente, et peut les relier entre elles.
+ */
+export function jsonLdListe(locale: Locale, nom: string, elements: { nom: string; chemin: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: nom,
+    itemListElement: elements.map((element, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: element.nom,
+      url: `${SITE_URL}/${locale}${element.chemin}`,
     })),
   };
 }

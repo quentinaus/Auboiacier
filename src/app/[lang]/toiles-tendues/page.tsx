@@ -4,13 +4,15 @@ import Image from "next/image";
 import { BandeauDetail } from "@/components/bandeau-detail";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
-import { metadataPage } from "@/lib/seo";
+import { metadataPage, jsonLdFilAriane, jsonLdListe, scriptJsonLd } from "@/lib/seo";
 import { PlafondLumineux } from "@/components/plafond-lumineux";
 import { products, priceFrom, productLocalise } from "@/lib/products";
 import { MaterialBubble } from "@/components/material-bubble";
 import { serif } from "@/lib/fonts";
 import { hoverZoom, prixAffiche } from "@/lib/ui";
 import { PhotoPlafondAnime, MembraneAnimee } from "@/components/photo-plafond-anime";
+import { FaqVisible } from "@/components/faq-visible";
+import { delaiFabrication, remplir } from "@/lib/vitrine";
 
 const realisationPhotos: {
   src: string;
@@ -60,23 +62,65 @@ export default async function ToilesTenduesPage({
   const dict = await getDictionary(locale);
   const t = dict.home;
   const ta = dict.artisanat;
+  const tl = dict.lumiere;
 
   // Nom, description des photos et teintes de cadre dans la langue du visiteur.
   const luminaires = products
     .filter((product) => product.category === "lumiere")
     .map((product) => productLocalise(product, locale));
 
+  // Le délai, lu à la ligne « Fabrication » de la fiche : jamais recopié ici.
+  const delai = luminaires.map(delaiFabrication).find((d) => d !== null) ?? null;
+  const avecDelai = (texte: string) =>
+    delai ? remplir(texte, { delai }) : texte.replace(/[^.]*\{delai\}[^.]*\.\s*/, "");
+
+  // Les questions affichées en bas de page, et balisées pour Google depuis la même liste.
+  const questions = [
+    tl.faq[0],
+    tl.faq[1],
+    tl.faq[2],
+    { q: ta.faqToileQ, a: ta.faqToileA },
+    ...(delai ? [{ q: tl.faq[3].q, a: avecDelai(tl.faq[3].a) }] : []),
+  ];
+
+  const lien =
+    "inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black";
+
   return (
     <div>
+      {/* Le chemin de navigation et la liste des deux modèles, pour les moteurs. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={scriptJsonLd(
+          jsonLdFilAriane(locale, [
+            { nom: dict.nav.home, chemin: "" },
+            { nom: dict.hub.lightingLabel, chemin: "/toiles-tendues" },
+          ])
+        )}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={scriptJsonLd(
+          jsonLdListe(
+            locale,
+            t.catalogueLumiere,
+            luminaires.map((p) => ({ nom: p.name, chemin: `/artisanat/${p.slug}` }))
+          )
+        )}
+      />
       <div className="mx-auto max-w-6xl px-6 pb-24 pt-16">
-        <h1 className={`${serif.className} text-4xl text-[#2b2320] md:text-5xl`}>{t.heroTitle}</h1>
-        <p className="mt-4 max-w-xl leading-relaxed text-[#5c5140]">{t.heroSubtitle}</p>
+        <h1 className={`${serif.className} max-w-4xl text-4xl leading-tight text-[#2b2320] md:text-5xl`}>{t.heroTitle}</h1>
+        <p className="mt-4 max-w-2xl leading-relaxed text-[#5c5140]">{t.heroSubtitle}</p>
+        <p className="mt-3 max-w-2xl leading-relaxed text-[#5c5140]">
+          {t.heroAustralie}{" "}
+          <Link href={`/${locale}/a-propos`} className="underline underline-offset-4 hover:text-[#2b2320]">
+            {dict.nav.apropos}
+          </Link>
+        </p>
 
         {/* Le catalogue, exactement comme du côté mobilier */}
         <section className="mt-16">
-          <h2 className="text-xs font-medium uppercase tracking-widest text-[#726757]">
-            {t.catalogueLumiere}
-          </h2>
+          <h2 className={`${serif.className} text-2xl text-[#2b2320]`}>{t.catalogueLumiere}</h2>
           <p className="mt-2 text-sm text-[#726757]">{t.catalogueLumiereNote}</p>
 
           <div className="mt-6 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
@@ -122,14 +166,24 @@ export default async function ToilesTenduesPage({
                   >
                     {product.name}
                   </h3>
-                  <p className="mt-1.5 flex items-baseline gap-2 text-[#726757]">
-                    <span className="text-[11px] font-medium uppercase tracking-[0.14em]">
-                      {ta.from}
-                    </span>
-                    <span className="text-[15px] font-medium tabular-nums text-[#2b2320]">
-                      {prixAffiche(priceFrom(product) ?? 0, locale)}
-                    </span>
-                  </p>
+                  {/* Sans prix au catalogue : « Sur devis », jamais « 0 € ». */}
+                  {(() => {
+                    const depart = priceFrom(product);
+                    return depart === null ? (
+                      <p className="mt-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-[#726757]">
+                        {ta.onQuote}
+                      </p>
+                    ) : (
+                      <p className="mt-1.5 flex items-baseline gap-2 text-[#726757]">
+                        <span className="text-[11px] font-medium uppercase tracking-[0.14em]">
+                          {ta.from}
+                        </span>
+                        <span className="text-[15px] font-medium tabular-nums text-[#2b2320]">
+                          {prixAffiche(depart, locale)}
+                        </span>
+                      </p>
+                    );
+                  })()}
                   {/* Aperçu des teintes de cadre, mêmes pastilles que la fiche produit. */}
                   <div className="mt-3 flex items-center gap-1.5">
                     {product.metals.slice(0, 8).map((material) => (
@@ -140,6 +194,40 @@ export default async function ToilesTenduesPage({
               </Link>
             ))}
           </div>
+        </section>
+
+        {/* Ce que l'on achète ici, et ce que n'est pas : un plafond tendu mur à
+            mur. Les fiches Lucarne et Halo renvoient à cette ancre. */}
+        <section id="plafond-tendu" className="mt-20 scroll-mt-24 border-t border-[#e5ddd3] pt-14">
+          <h2 className={`${serif.className} max-w-3xl text-2xl text-[#2b2320] md:text-3xl`}>{tl.choixTitle}</h2>
+          <div className="mt-6 grid gap-6 md:grid-cols-3">
+            {[tl.choixCadre, tl.choixTendu, tl.choixPrix].map((texte) => (
+              <p key={texte} className="leading-relaxed text-[#4a4038]">
+                {texte}
+              </p>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-16 grid gap-10 md:grid-cols-3">
+          {[
+            { titre: tl.poseTitle, texte: tl.poseBody },
+            { titre: tl.lumiereTitle, texte: tl.lumiereBody },
+            { titre: tl.piecesTitle, texte: tl.piecesBody },
+          ].map((bloc) => (
+            <div key={bloc.titre}>
+              <h2 className={`${serif.className} text-xl text-[#2b2320]`}>{bloc.titre}</h2>
+              <p className="mt-3 text-sm leading-relaxed text-[#4a4038]">{bloc.texte}</p>
+            </div>
+          ))}
+        </section>
+
+        <section className="mt-16 max-w-3xl">
+          <h2 className={`${serif.className} text-xl text-[#2b2320]`}>{tl.fabricationTitle}</h2>
+          <p className="mt-3 leading-relaxed text-[#4a4038]">{avecDelai(tl.fabricationBody)}</p>
+          <Link href={`/${locale}/zone-intervention`} className={`mt-4 ${lien}`}>
+            {tl.zoneLink}
+          </Link>
         </section>
 
         {/* Le sur-mesure : au-delà des tailles du catalogue */}
@@ -211,6 +299,9 @@ export default async function ToilesTenduesPage({
             </div>
           ))}
         </section>
+
+        {/* Questions fréquentes, affichées ET balisées depuis la même liste. */}
+        <FaqVisible titre={tl.faqTitle} questions={questions} className="mt-20 max-w-3xl" />
       </div>
 
       {/* Bandeau atelier : panneau sombre et photo, le même dessin partout. */}

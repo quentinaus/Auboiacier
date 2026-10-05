@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { BandeauDetail } from "@/components/bandeau-detail";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
@@ -38,7 +39,7 @@ export default async function AProposPage({
 
       <div className="mx-auto max-w-3xl px-6 py-16">
         <h1 className={`${serif.className} text-3xl font-medium tracking-tight md:text-4xl`}>
-          {t.title}
+          {t.h1}
         </h1>
 
         {/* L'atelier et sa ville */}
@@ -55,6 +56,18 @@ export default async function AProposPage({
         <section className="mt-14 max-w-prose">
           <h2 className={`${serif.className} text-2xl font-medium`}>{t.histoireTitle}</h2>
           <p className="mt-4 leading-relaxed text-[#4a4038]">{t.histoireBody}</p>
+          {/* Les deux matières de l'atelier, et son terrain : chacun a sa page. */}
+          <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            <Link href={`/${locale}/bois-massif`} className="text-[#2b2320] underline decoration-[#2b2320]/30 underline-offset-4 hover:decoration-[#2b2320]">
+              {dict.liens.boisLong}
+            </Link>
+            <Link href={`/${locale}/toiles-tendues`} className="text-[#2b2320] underline decoration-[#2b2320]/30 underline-offset-4 hover:decoration-[#2b2320]">
+              {dict.liens.plafonds}
+            </Link>
+            <Link href={`/${locale}/zone-intervention`} className="text-[#2b2320] underline decoration-[#2b2320]/30 underline-offset-4 hover:decoration-[#2b2320]">
+              {dict.liens.zonePose}
+            </Link>
+          </div>
         </section>
 
       </div>

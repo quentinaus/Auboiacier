@@ -11,6 +11,7 @@ export function LumiereHeader({ locale, dict }: { locale: Locale; dict: Dictiona
   const links = [
     { href: `/${locale}/toiles-tendues`, label: dict.hub.lightingLabel },
     { href: `/${locale}/artisanat`, label: dict.hub.craftLabel },
+    { href: `/${locale}/zone-intervention`, label: dict.nav.zone },
     { href: `/${locale}/a-propos`, label: dict.nav.apropos },
     { href: `/${locale}/contact`, label: dict.nav.contact },
   ];

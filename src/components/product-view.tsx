@@ -563,16 +563,20 @@ export function ProductView({
           rapprochent — l'écran va aux choix, pas au titre. */}
       <div className={`px-6 pb-8 pt-2 md:px-8 md:py-10 lg:px-12 ${estTable ? "colonne-table" : ""}`}>
         {filAriane && (
-          <nav aria-label={filAriane.label} className="hidden flex-wrap justify-end text-[11px] text-[#7a6f64] md:flex">
+          // Toujours sur une seule ligne : le bloc de configuration doit tenir
+          // dans l'écran. Si la place manque (« Tables » ajouté au fil des
+          // tables), c'est le nom du modèle qui se raccourcit — il est écrit
+          // en entier juste dessous, dans le titre.
+          <nav aria-label={filAriane.label} className="hidden min-w-0 justify-end whitespace-nowrap text-[11px] text-[#7a6f64] md:flex">
             {filAriane.etapes.map((etape) => (
-              <span key={etape.href}>
+              <span key={etape.href} className="shrink-0">
                 <Link href={etape.href} className="hover:text-[#2b2320]">
                   {etape.nom}
                 </Link>
                 <span className="mx-1.5">/</span>
               </span>
             ))}
-            <span className="text-[#2b2320]">{product.name}</span>
+            <span className="min-w-0 truncate text-[#2b2320]">{product.name}</span>
           </nav>
         )}
         <h1 className={`${serif.className} text-2xl leading-tight text-[#2b2320] md:mt-6 md:text-[2rem]`}>{product.name}</h1>

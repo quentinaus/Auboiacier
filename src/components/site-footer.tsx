@@ -19,7 +19,10 @@ export function SiteFooter({
   const links = [
     { href: `/${locale}/toiles-tendues`, label: dict.hub.lightingLabel },
     { href: `/${locale}/artisanat`, label: dict.hub.craftLabel },
+    { href: `/${locale}/artisanat/tables`, label: dict.liens.tables },
+    { href: `/${locale}/artisanat/garde-corps`, label: dict.liens.gardeCorps },
     { href: `/${locale}/artisanat/verrieres`, label: dict.verrieres.title },
+    { href: `/${locale}/bois-massif`, label: dict.liens.bois },
     { href: `/${locale}/artisanat/sculptures`, label: dict.sculptures.title },
     { href: `/${locale}/realisations`, label: dict.nav.realisations },
     { href: `/${locale}/devis`, label: dict.nav.devis },

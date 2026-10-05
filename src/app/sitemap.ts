@@ -7,6 +7,8 @@ import { SITE_URL } from "@/lib/seo";
 const PAGES: { chemin: string; priorite: number; frequence: "weekly" | "monthly" | "yearly" }[] = [
   { chemin: "", priorite: 1, frequence: "weekly" },
   { chemin: "/artisanat", priorite: 0.9, frequence: "weekly" },
+  // Les tables sur mesure : modèles, essences, dimensions, questions.
+  { chemin: "/artisanat/tables", priorite: 0.9, frequence: "weekly" },
   { chemin: "/toiles-tendues", priorite: 0.9, frequence: "weekly" },
   { chemin: "/realisations", priorite: 0.8, frequence: "monthly" },
   { chemin: "/artisanat/sculptures", priorite: 0.7, frequence: "monthly" },
@@ -14,6 +16,8 @@ const PAGES: { chemin: string; priorite: number; frequence: "weekly" | "monthly"
   { chemin: "/devis", priorite: 0.9, frequence: "monthly" },
   { chemin: "/rendez-vous", priorite: 0.8, frequence: "monthly" },
   { chemin: "/a-propos", priorite: 0.6, frequence: "monthly" },
+  // Le bois massif à l'atelier : l'autre matière, à côté de l'acier.
+  { chemin: "/bois-massif", priorite: 0.7, frequence: "monthly" },
   // Les deux pages écrites pour le référencement local : Google doit les voir vite.
   { chemin: "/zone-intervention", priorite: 0.7, frequence: "monthly" },
   { chemin: "/faq", priorite: 0.7, frequence: "monthly" },

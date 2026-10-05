@@ -3,7 +3,7 @@ import Image from "next/image";
 import type { Locale } from "@/lib/i18n";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { serif } from "@/lib/fonts";
-import { jsonLdFaq, scriptJsonLd } from "@/lib/seo";
+import { lienAvisGoogle } from "@/lib/seo";
 
 /**
  * Bas de page commun à toutes les fiches (mobilier, sculptures, verrières) :
@@ -13,33 +13,35 @@ export function ProductTail({
   dict,
   locale,
   testimonial,
+  lumiere = false,
 }: {
   dict: Dictionary;
   locale: Locale;
   testimonial?: { quote: string; author: string };
+  /** Un plafond lumineux : la toile remplace le bois et l'acier dans les questions. */
+  lumiere?: boolean;
 }) {
   const t = dict.artisanat;
 
-  /* Cinq vraies questions-réponses, visibles à l'écran : elles ont droit au
-     balisage FAQPage, qui les fait apparaître dépliées dans les résultats de
-     recherche. Ce bloc sert les fiches produit, les sculptures et les
-     verrières : le balisage part sur les trois d'un coup. */
+  /* Les questions communes à toutes les fiches, visibles à l'écran. Elles ne
+     sont plus balisées pour Google : les mêmes questions sur quinze pages
+     passaient pour du contenu dupliqué. Les pages qui ont leurs propres
+     questions (tables, plafonds, bois massif, FAQ) gardent leur balisage. */
   const questions = [
     { q: t.faqDeliveryQ, a: t.faqDeliveryA },
     { q: t.faqShorterQ, a: t.faqShorterA },
     { q: t.faqCustomQ, a: t.faqCustomA },
     { q: t.faqPayQ, a: t.faqPayA },
-    { q: t.faqCareQ, a: t.faqCareA },
+    ...(lumiere
+      ? [
+          { q: t.faqPoseToileQ, a: t.faqPoseToileA },
+          { q: t.faqToileQ, a: t.faqToileA },
+        ]
+      : [{ q: t.faqCareQ, a: t.faqCareA }]),
   ];
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={scriptJsonLd(
-          jsonLdFaq(questions.map((item) => ({ question: item.q, reponse: item.a })))
-        )}
-      />
       <div className="mx-auto max-w-6xl px-6">
         {/* Avis clients */}
         <section className="mt-20 border-t border-[#e8e1d8] pt-16">
@@ -60,7 +62,16 @@ export function ProductTail({
               {t.avisNote}
             </p>
           )}
-          <div className="mt-8 text-center">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-center">
+            {/* Les avis restent sur Google : ni note recopiée, ni balisage d'avis ici. */}
+            <a
+              href={lienAvisGoogle()}
+              target="_blank"
+              rel="noopener"
+              className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"
+            >
+              {t.avisGoogle}
+            </a>
             <Link
               href={`/${locale}/realisations`}
               className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"

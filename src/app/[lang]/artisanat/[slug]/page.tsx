@@ -134,16 +134,46 @@ export default async function ProductPage({
   // accroche, blocs descriptifs, caractéristiques, tailles et matières.
   const product = productLocalise(fiche, locale);
 
-  // On reste dans le même univers : une lumière ne renvoie pas vers une table.
+  /** Une carte de « Autres pièces de l'atelier » : une fiche, ou une page (les verrières). */
+  type Carte = {
+    href: string;
+    nom: string;
+    image?: { src: string; alt: string; bg?: string; fit?: "cover" | "contain"; position?: string };
+    prix: string;
+  };
+  const carteFiche = (p: (typeof products)[number]): Carte => {
+    const fichePlus = productLocalise(p, locale);
+    const depart = prixDepart(fichePlus);
+    return {
+      href: `/${locale}/artisanat/${fichePlus.slug}`,
+      nom: fichePlus.name,
+      image: fichePlus.images[0],
+      prix: depart === null ? t.onQuote : `${t.from} ${prixAffiche(depart, locale)}`,
+    };
+  };
+  // Le garde-corps et l'escalier renvoient l'un vers l'autre, puis vers les
+  // verrières : trois ouvrages du bâtiment, mesurés et posés par l'atelier.
+  // Ailleurs, on reste dans le même univers : une lumière ne renvoie pas vers
+  // une table.
+  const ouvrage = product.famille === "garde-corps" || product.famille === "escalier";
   const memeUnivers = products.filter(
     (p) => p.slug !== product.slug && p.category === product.category
   );
-  const related = (memeUnivers.length > 0
-    ? memeUnivers
-    : products.filter((p) => p.slug !== product.slug)
-  )
-    .slice(0, 3)
-    .map((p) => productLocalise(p, locale));
+  const related: Carte[] = ouvrage
+    ? [
+        ...products
+          .filter((p) => p.slug !== product.slug && (p.famille === "garde-corps" || p.famille === "escalier"))
+          .map(carteFiche),
+        {
+          href: `/${locale}/artisanat/verrieres`,
+          nom: dict.verrieres.title,
+          image: { src: "/images/verriere-interieure.jpg", alt: dict.verrieres.photoAlt, fit: "cover" as const, position: "50% 45%" },
+          prix: t.onQuote,
+        },
+      ].slice(0, 3)
+    : (memeUnivers.length > 0 ? memeUnivers : products.filter((p) => p.slug !== product.slug))
+        .slice(0, 3)
+        .map(carteFiche);
   /** La lumière a sa propre boutique : le fil d'Ariane y ramène. */
   const boutique =
     product.category === "lumiere" ? `/${locale}/toiles-tendues` : `/${locale}/artisanat`;
@@ -151,6 +181,20 @@ export default async function ProductPage({
   // même page dans tout le site, sinon Google voit deux fils d'Ariane différents.
   const categorie =
     product.category === "lumiere" ? dict.hub.lightingLabel : t.breadcrumbShop;
+  // Les tables ont leur page : Accueil > La collection > Tables > le modèle.
+  const estTable = product.famille === "table-interieur" || product.famille === "table-exterieur";
+
+  /** « À voir aussi » : les pages qui complètent cette fiche. */
+  const liensUtiles: { href: string; label: string }[] = [
+    ...(estTable ? [{ href: `/${locale}/artisanat/tables`, label: dict.liens.toutesTables }] : []),
+    ...(estTable || ouvrage ? [{ href: `/${locale}/bois-massif`, label: dict.liens.boisLong }] : []),
+    ...(product.category === "lumiere"
+      ? [{ href: `/${locale}/toiles-tendues#plafond-tendu`, label: dict.liens.plafondTendu }]
+      : []),
+    ...(ouvrage || product.category === "lumiere"
+      ? [{ href: `/${locale}/zone-intervention`, label: dict.liens.zonePose }]
+      : []),
+  ];
   const hasImages = product.images.length > 0;
 
   /** Images des blocs éditoriaux : on pioche dans les coloris pour ne pas répéter la même photo. */
@@ -240,6 +284,7 @@ export default async function ProductPage({
               nom: categorie,
               chemin: product.category === "lumiere" ? "/toiles-tendues" : "/artisanat",
             },
+            ...(estTable ? [{ nom: dict.tables.title, chemin: "/artisanat/tables" }] : []),
             { nom: product.name, chemin: `/artisanat/${product.slug}` },
           ])
         )}
@@ -260,6 +305,7 @@ export default async function ProductPage({
             etapes: [
               { nom: dict.nav.home, href: `/${locale}` },
               { nom: categorie, href: boutique },
+              ...(estTable ? [{ nom: dict.tables.title, href: `/${locale}/artisanat/tables` }] : []),
             ],
           }}
         />
@@ -348,6 +394,19 @@ export default async function ProductPage({
               </div>
             ))}
           </dl>
+          {liensUtiles.length > 0 && (
+            <nav aria-label={dict.liens.titre} className="mt-6 flex max-w-2xl flex-wrap gap-x-6 gap-y-2">
+              {liensUtiles.map((l) => (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className="py-1 text-sm text-[#2b2320] underline decoration-[#2b2320]/30 underline-offset-4 hover:decoration-[#2b2320]"
+                >
+                  {l.label}
+                </Link>
+              ))}
+            </nav>
+          )}
         </section>
 
         {/* 6. Délai */}
@@ -367,7 +426,12 @@ export default async function ProductPage({
 
       </div>
 
-      <ProductTail dict={dict} locale={locale} testimonial={product.testimonial} />
+      <ProductTail
+        dict={dict}
+        locale={locale}
+        testimonial={product.testimonial}
+        lumiere={product.category === "lumiere"}
+      />
 
       <div className="mx-auto max-w-6xl px-6">
         {/* 11. Vous aimerez aussi */}
@@ -375,41 +439,34 @@ export default async function ProductPage({
           <div className="border-t border-[#e8e1d8] py-16 pb-24">
             <h2 className={`${serif.className} text-xl text-[#2b2320]`}>{t.relatedTitle}</h2>
             <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {related.map((p) => (
-                <Link
-                  key={p.slug}
-                  href={`/${locale}/artisanat/${p.slug}`}
-                  className="group flex flex-col gap-3"
-                >
+              {related.map((carte) => (
+                <Link key={carte.href} href={carte.href} className="group flex flex-col gap-3">
                   <div
                     className={`relative aspect-[4/3] overflow-hidden rounded-xl ${hoverZoom}`}
-                    style={{ backgroundColor: p.images[0]?.bg ?? "#ffffff" }}
+                    style={{ backgroundColor: carte.image?.bg ?? "#ffffff" }}
                   >
-                    {p.images[0] ? (
+                    {carte.image ? (
                       <Image
-                        src={p.images[0].src}
-                        alt={p.images[0].alt}
+                        src={carte.image.src}
+                        alt={carte.image.alt}
                         fill
                         sizes="(max-width: 640px) 100vw, 33vw"
+                        style={carte.image.position ? { objectPosition: carte.image.position } : undefined}
                         className={
-                          p.images[0].fit === "contain" ? "object-contain p-4" : "object-cover"
+                          carte.image.fit === "contain" ? "object-contain p-4" : "object-cover"
                         }
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-[#f1ece4] p-6">
                         <span className={`${serif.className} text-center text-2xl text-[#726757]`}>
-                          {p.name}
+                          {carte.nom}
                         </span>
                       </div>
                     )}
                   </div>
                   <div>
-                    <h3 className={`${serif.className} text-lg text-[#2b2320]`}>{p.name}</h3>
-                    <p className="mt-1 text-sm text-[#726757]">
-                      {prixDepart(p) === null
-                        ? t.onQuote
-                        : `${t.from} ${prixAffiche(prixDepart(p) as number, locale)}`}
-                    </p>
+                    <h3 className={`${serif.className} text-lg text-[#2b2320]`}>{carte.nom}</h3>
+                    <p className="mt-1 text-sm text-[#726757]">{carte.prix}</p>
                   </div>
                 </Link>
               ))}

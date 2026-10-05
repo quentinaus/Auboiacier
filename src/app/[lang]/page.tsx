@@ -5,7 +5,7 @@ import Image from "next/image";
 import { BandeauDetail } from "@/components/bandeau-detail";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "./dictionaries";
-import { metadataPage } from "@/lib/seo";
+import { metadataPage, lienAvisGoogle } from "@/lib/seo";
 import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
@@ -302,9 +302,15 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               <h1 className={`${serif.className} text-[#2b2320]`}>
                 <span className="block text-xl leading-tight sm:text-2xl md:text-[1.6rem]">{metier}</span>
                 {reste.length > 0 && (
-                  <span className="mt-2 block text-sm font-normal leading-relaxed text-[#6f6357] md:text-[0.95rem]">
-                    {reste.join(" — ")}
-                  </span>
+                  <>
+                    {/* Le tiret reste dans le texte du titre : sans lui, Google
+                        et les lecteurs d'écran lisaient « Métallier à
+                        Saumurgarde-corps… », les deux moitiés collées. */}
+                    <span className="sr-only"> — </span>
+                    <span className="mt-2 block text-sm font-normal leading-relaxed text-[#6f6357] md:text-[0.95rem]">
+                      {reste.join(" — ")}
+                    </span>
+                  </>
                 )}
               </h1>
             );
@@ -406,7 +412,8 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               "/artisanat/garde-corps",
               "/artisanat/escalier-limon-central",
               "/artisanat/verrieres",
-              "/artisanat#table-interieur",
+              "/artisanat/tables",
+              "/bois-massif",
               "/toiles-tendues",
               "/artisanat/sculptures",
               "/devis",
@@ -462,6 +469,16 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           {/* Les deux pages de fond (zone desservie, questions fréquentes)
               se rejoignent d'ici : sans lien, personne ne les trouve. */}
           <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-center">
+            {/* Les avis restent sur la fiche Google : ni note recopiée, ni
+                balisage d'avis sur le site. */}
+            <a
+              href={lienAvisGoogle()}
+              target="_blank"
+              rel="noopener"
+              className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"
+            >
+              {t.avisGoogle}
+            </a>
             {[
               { href: `/${locale}/realisations`, label: t.testimonialsCta },
               { href: `/${locale}/zone-intervention`, label: dict.nav.zone },

@@ -86,6 +86,13 @@ export default async function RendezVousPage({ params }: PageProps<"/[lang]/rend
             <div className="max-w-2xl">
               <h2 className={`${serif.className} text-3xl md:text-4xl`}>{t.piecesTitle}</h2>
               <p className="mt-4 leading-relaxed text-[#5c5140]">{t.piecesSubtitle}</p>
+              {/* Jusqu'où l'atelier se déplace : la page de la zone le dit. */}
+              <Link
+                href={`/${locale}/zone-intervention`}
+                className="mt-3 inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"
+              >
+                {t.zoneLink}
+              </Link>
             </div>
             <div className="mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
               {pieces.map((product) => {

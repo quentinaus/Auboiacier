@@ -60,7 +60,7 @@
     "editorialBody2": "Aucune série : chaque pièce est fabriquée à la commande, aux dimensions de votre intérieur, et se reponce ou se repeint plutôt que de se remplacer.",
     "editorialCta": "Voir l'atelier",
     "testimonialsTitle": "Ce qu'en disent nos clients",
-    "testimonialsNote": "Les premiers chantiers arrivent : les avis clients seront publiés ici.",
+    "testimonialsNote": "Les avis de nos clients sont publiés sur notre fiche Google.",
     "testimonialsCta": "Voir les réalisations",
     "missionTitle": "Ce que nous cherchons à faire",
     "missionBody": "Fabriquer des pièces d'acier et de bois massif que l'on puisse reponcer et repeindre dans trente ans, au lieu de les remplacer.",
@@ -88,16 +88,28 @@
     "seoP1": "Auboiacier est un atelier de métallerie installé à Saumur (49400), en Maine-et-Loire. Le métallier-soudeur y fabrique à la main des garde-corps de fenêtre, des escaliers, des verrières d'atelier, des tables en chêne massif sur piétement acier, des chaises, des plafonds lumineux à toile tendue et des sculptures en acier de récupération. Chaque pièce est dessinée à vos cotes et soudée à la commande : rien n'est en stock.",
     "seoP2": "Le prix s'affiche en une minute : entrez vos cotes dans le configurateur en ligne, choisissez la matière et la finition, puis téléchargez votre devis en PDF, sans compte ni engagement. Nous venons relever les cotes et poser à Saumur, Angers, Cholet, Tours, Chinon et jusqu'à 200 km de l'atelier ; les pièces de la collection sont livrées partout en France métropolitaine.",
     "seoLinksTitle": "Nos fabrications sur mesure",
-    "seoLinks": ["Garde-corps de fenêtre sur mesure", "Escalier acier et chêne", "Verrière d'atelier en acier", "Table bois et acier", "Plafond lumineux à toile tendue", "Sculptures en acier de récupération", "Devis instantané en PDF", "Prise de cotes à domicile", "Zone d'intervention : Saumur, Angers, Cholet, Tours"],
+    "seoLinks": [
+      "Garde-corps de fenêtre sur mesure",
+      "Escalier acier et chêne",
+      "Verrière d'atelier en acier",
+      "Tables sur mesure bois et acier",
+      "Le bois massif à l'atelier",
+      "Plafond lumineux à toile tendue",
+      "Sculptures en acier de récupération",
+      "Devis instantané en PDF",
+      "Prise de cotes à domicile",
+      "Zone d'intervention : Saumur, Angers, Cholet, Tours"
+    ],
     "configLabel": "Configurateur en ligne",
     "configTitle": "Configurez votre pièce, le prix s'affiche",
     "configText": "Table, garde-corps de fenêtre, plafond lumineux : entrez vos cotes, choisissez l'essence, la teinte, la livraison. Le prix se calcule sous vos yeux et votre devis se télécharge en PDF — sans compte, sans engagement.",
     "configTable": "Configurer une table",
     "configGardeCorps": "Configurer un garde-corps",
-    "configPlafond": "Configurer un plafond lumineux"
+    "configPlafond": "Configurer un plafond lumineux",
+    "avisGoogle": "Lire les avis sur Google"
   },
   "home": {
-    "heroTitle": "Votre plafond, une pièce sur mesure",
+    "heroTitle": "Plafonds lumineux en toile tendue, fabriqués sur mesure à Saumur",
     "heroSubtitle": "Cadre aluminium coupé en onglet, toile tendue, éclairage LED intégré. Chaque plafond est fabriqué à l'atelier aux dimensions de votre pièce.",
     "heroCtaPrimary": "Demander un devis",
     "heroCtaSecondary": "Voir les réalisations",
@@ -135,11 +147,12 @@
     "ctaTitle": "Un projet à chiffrer",
     "ctaSubtitle": "Décrivez votre pièce : nous relevons les cotes, nous chiffrons, nous posons.",
     "ctaButton": "Décrire mon projet",
-    "catalogueLumiere": "Plafonds lumineux",
+    "catalogueLumiere": "Deux formes, prix affichés",
     "catalogueLumiereNote": "Toile tendue rétroéclairée, cadre aluminium laqué, de 60 cm au plafond entier.",
     "surMesureTitle": "Au-delà de 400 × 300 cm",
-    "surMesureBody": "Le plus grand panneau d'un seul tenant fait 400 × 300 cm. Au-delà, nous assemblons plusieurs caissons jointifs pour couvrir un plafond entier : l'atelier relève les cotes chez vous, puis chiffre.",
-    "altPlafondDemo": "Plafond lumineux à cadre aluminium, toile tendue rétroéclairée"
+    "surMesureBody": "Rectangle jusqu'à 400 × 300 cm, disque jusqu'à Ø 400 cm, au centimètre près. Au-delà, nous assemblons plusieurs caissons jointifs pour couvrir un plafond entier : l'atelier relève les cotes chez vous, puis chiffre.",
+    "altPlafondDemo": "Plafond lumineux à cadre aluminium, toile tendue rétroéclairée",
+    "heroAustralie": "Avant d'ouvrir l'atelier, Quentin a travaillé plusieurs années en Australie chez un fabricant de plafonds lumineux."
   },
   "realisations": {
     "title": "Réalisations",
@@ -225,7 +238,7 @@
     "delaiBody": "Rien n'est en stock : votre pièce est fabriquée pour vous, à la commande. Son délai figure ci-dessus, à la ligne « Fabrication ». Il vous est confirmé à la commande.",
     "delaiCta": "Commander",
     "avisTitle": "Ce qu'en disent nos clients",
-    "avisNote": "Les premiers chantiers arrivent : les avis clients seront publiés ici.",
+    "avisNote": "Les avis de nos clients sont publiés sur notre fiche Google.",
     "avisCta": "Voir les réalisations",
     "contactTitle": "Parlez-nous de votre projet",
     "contactBody": "Une dimension particulière, une essence précise, une teinte hors nuancier ? Écrivez-nous : nous adaptons le modèle et nous chiffrons.",
@@ -354,13 +367,13 @@
     ],
     "gcMurInfo": "La matière dans laquelle nous fixons le garde-corps, de chaque côté de la fenêtre. Cela décide des chevilles et des vis que nous fournissons. En cas de doute, choisissez « Je ne sais pas » : nous vous demanderons une photo.",
     "gcQui": "Qui prend les cotes",
-    "gcQuiInfo": "L'atelier vient chez vous mesurer avant de fabriquer — 19,99 € jusqu'à 30 km autour de Saumur, puis les kilomètres et le temps de route, jusqu'à 200 km. Ou vous mesurez vous-même, au mètre : deux mesures, sans frais.",
+    "gcQuiInfo": "L'atelier vient chez vous mesurer avant de fabriquer — {prixVisite} jusqu'à {rayonVisite} km autour de Saumur, puis les kilomètres et le temps de route, jusqu'à 200 km. Ou vous mesurez vous-même, au mètre : deux mesures, sans frais.",
     "gcQuiMoi": "Je mesure moi-même",
     "gcQuiMoiNote": "Gratuit. Deux mesures au mètre en suivant le croquis, et le prix s'affiche tout de suite.",
     "gcQuiAtelier": "L'atelier vient mesurer",
-    "gcQuiAtelierNote": "Dès 19,99 €. Nous venons chez vous, jusqu'à 200 km de Saumur, et nous vous envoyons le prix exact du garde-corps.",
+    "gcQuiAtelierNote": "Dès {prixVisite}. Nous venons chez vous, jusqu'à 200 km de Saumur, et nous vous envoyons le prix exact du garde-corps.",
     "gcCodePostal": "Code postal de la fenêtre",
-    "gcCodePostalInfo": "Il décide du déplacement : 19,99 € jusqu'à 30 km autour de Saumur, puis les kilomètres et le temps de route. Au-delà de 200 km, nous ne nous déplaçons pas. Compté une seule fois, même pour plusieurs fenêtres.",
+    "gcCodePostalInfo": "Il décide du déplacement : {prixVisite} jusqu'à {rayonVisite} km autour de Saumur, puis les kilomètres et le temps de route. Au-delà de 200 km, nous ne nous déplaçons pas. Compté une seule fois, même pour plusieurs fenêtres.",
     "gcVisiteOfferte": "Déplacement offert — {dep}",
     "gcVisiteForfait": "Déplacement : {prix}, déduit si vous commandez",
     "gcVisiteAttente": "Entrez votre code postal pour connaître le déplacement.",
@@ -396,7 +409,7 @@
     "gcVisiteTropLoin": "{commune} est à {km} km de Saumur : nous ne nous déplaçons pas au-delà de 200 km. Mesurez vous-même en suivant le croquis — nous fabriquons et expédions à vos cotes.",
     "gcPieceApresVisite": "Prix exact envoyé après la visite, pose comprise",
     "gcVisiteLigne": "Prise de cotes à domicile : {prix}",
-    "gcVisiteLigneDepart": "Prise de cotes à domicile : à partir de 19,99 €",
+    "gcVisiteLigneDepart": "Prise de cotes à domicile : à partir de {prixVisite}",
     "gcCalcule": "Hauteur calculée par l'atelier — Code de la construction, art. R134-59 : la main courante est à {m} mm du sol. Espaces entre les barres : norme NF P01-012.",
     "gcMurFacultatif": "Facultatif — dans quoi se fixe le garde-corps",
     "gcConforme": "Conforme aux normes françaises : hauteur et espaces entre les barres",
@@ -448,7 +461,7 @@
     "gcPromesseCourt": "Prix immédiat",
     "gcCotesExactesSouligne": "au millimètre près",
     "releveQuiMoiNote": "Gratuit. Vos cotes au mètre en suivant les cases, et nous vous envoyons un devis.",
-    "releveQuiAtelierNote": "Dès 19,99 €. Nous venons chez vous, jusqu'à 200 km de Saumur, et vous recevez un devis, pose comprise.",
+    "releveQuiAtelierNote": "Dès {prixVisite}. Nous venons chez vous, jusqu'à 200 km de Saumur, et vous recevez un devis, pose comprise.",
     "releveQuiMoiTag": "Gratuit",
     "releveCodePostal": "Code postal du chantier",
     "releveVisiteIntro": "L'escalier se fait uniquement sur devis : l'atelier vient prendre les cotes chez vous, et vous recevez un devis, pose comprise. Le déplacement est déduit de la commande.",
@@ -491,7 +504,13 @@
     "gcLargeurCourt": "Largeur, d'un mur à l'autre",
     "gcAllegeCourt": "Du sol au bas de la fenêtre",
     "gcFenetreCourt": "Du bas au haut de la fenêtre",
-    "raisonCotesGardeCorps": "Indiquez la largeur et la hauteur sous la fenêtre pour ajouter au panier."
+    "raisonCotesGardeCorps": "Indiquez la largeur et la hauteur sous la fenêtre pour ajouter au panier.",
+    "h1": "Pièces sur mesure en acier et bois massif",
+    "avisGoogle": "Lire les avis sur Google",
+    "faqPoseToileQ": "Comment se pose un plafond lumineux ?",
+    "faqPoseToileA": "Le cadre aluminium se fixe au plafond existant ou se suspend par câbles, puis la toile se clipse dans sa gorge : pas de gros œuvre, pas de poussière. L'atelier peut venir le poser ; la fiche donne le prix selon votre code postal.",
+    "faqToileQ": "Comment entretenir la toile ?",
+    "faqToileA": "La toile se retire et se remet sans outil, ce qui permet de la dépoussiérer. Le cadre en aluminium laqué se nettoie au chiffon doux."
   },
   "devis": {
     "title": "Demander un devis",
@@ -594,7 +613,8 @@
         "body": "Fabriqué et posé par la même main, couvert par la garantie légale, et réparable bien après."
       }
     ],
-    "photoAlt": "Le château et les quais de Saumur au coucher du soleil, reflétés dans la Loire"
+    "photoAlt": "Le château et les quais de Saumur au coucher du soleil, reflétés dans la Loire",
+    "h1": "L'atelier Auboiacier, métallier à Saumur"
   },
   "contact": {
     "title": "Contact",
@@ -686,7 +706,8 @@
     "detailAlt": "Poignée en laiton massif sur le montant acier d'une verrière",
     "panelTitle": "Des panneaux pleins quand il faut",
     "panelBody": "En partie basse, le verre peut céder la place à de la tôle d'acier raidie par une croix de Saint-André : le bas de porte encaisse les chocs et les coups de pied, et la verrière gagne en caractère.",
-    "panelAlt": "Panneau bas d'une verrière en tôle d'acier noire avec croix de Saint-André"
+    "panelAlt": "Panneau bas d'une verrière en tôle d'acier noire avec croix de Saint-André",
+    "atelierTitle": "Verrière d'atelier sur mesure, de Saumur à Angers"
   },
   "panier": {
     "title": "Votre panier",
@@ -952,7 +973,7 @@
   },
   "seo": {
     "hub": {
-      "title": "Métallerie Saumur — garde-corps sur mesure",
+      "title": "Métallerie Saumur : acier et bois sur mesure",
       "description": "Atelier de métallerie artisanale à Saumur (49) : garde-corps, escaliers, verrières, tables et plafonds lumineux sur mesure. Prix instantané, devis PDF."
     },
     "artisanat": {
@@ -961,8 +982,8 @@
     },
     "produitSuffixe": "Fabriqué à Saumur (49), livraison France entière.",
     "lumiere": {
-      "title": "Plafonds lumineux à toile tendue LED",
-      "description": "Plafonds lumineux à toile tendue rétroéclairée, cadre aluminium : rectangles jusqu'à 400 × 300 cm, disques jusqu'à Ø 400 cm. Fabriqués à Saumur (49)."
+      "title": "Plafond lumineux toile tendue sur mesure",
+      "description": "Luminaire en toile tendue rétroéclairée sur cadre alu : rectangle jusqu'à 400 × 300 cm ou disque jusqu'à Ø 400 cm. Fabriqué à Saumur, prix affiché, livré."
     },
     "sculptures": {
       "title": "Sculptures en acier, pièces uniques",
@@ -1009,8 +1030,8 @@
       "description": "Règles d'utilisation du site Auboiacier : accès, propriété intellectuelle, responsabilité, liens."
     },
     "zone": {
-      "title": "Métallier Saumur et Maine-et-Loire",
-      "description": "Métallier à Saumur : prise de cotes, pose et livraison à Angers, Cholet, Tours, Chinon, Doué-en-Anjou, jusqu'à 200 km de l'atelier (49, 37, 79, 86)."
+      "title": "Métallier à Saumur, pose en Anjou et Touraine",
+      "description": "Atelier de métallerie à Saumur : garde-corps, escaliers, verrières, tables acier et bois, plafonds lumineux. Cotes et pose de Chinon à Angers et Tours."
     },
     "faq": {
       "title": "Questions fréquentes : délais, prix",
@@ -1021,7 +1042,7 @@
       "description": "Confirmation de votre commande à l'atelier Auboiacier."
     },
     "rdv": {
-      "title": "Prise de cotes à domicile, dès 19,99 €",
+      "title": "Prise de cotes à domicile, dès {prixVisite}",
       "description": "L'atelier vient mesurer chez vous, jusqu'à 200 km de Saumur : garde-corps de fenêtre, escalier, verrière. Créneau en ligne, prix exact ensuite."
     },
     "merciDevis": {
@@ -1039,20 +1060,54 @@
     "compteConnexion": {
       "title": "Se connecter",
       "description": "Ouvrez votre espace client Auboiacier avec Google ou un lien reçu par e-mail, sans mot de passe."
+    },
+    "tables": {
+      "title": "Tables sur mesure bois massif et acier",
+      "description": "Tables à manger sur mesure : plateau en chêne, noyer, hêtre ou pin massif, piétement en acier soudé. Fabriquées à Saumur, prix affiché, livrées en France."
+    },
+    "bois": {
+      "title": "Bois massif et métal sur mesure à Saumur",
+      "description": "Plateaux de table, marches d'escalier, mains courantes : chêne, noyer, hêtre ou pin massif, travaillés avec l'acier à l'atelier de Saumur (49)."
     }
   },
   "zone": {
     "title": "Zone d'intervention",
-    "subtitle": "L'atelier est à Saumur, en Maine-et-Loire. Les livraisons partent de là, et nous en partons pour relever les cotes et poser.",
+    "h1": "Métallier à Saumur, en Anjou et en Touraine",
+    "subtitle": "L'atelier Auboiacier est à Saumur, en Maine-et-Loire. On y travaille l'acier, le bois massif et les plafonds lumineux en toile tendue. Vous gardez un seul interlocuteur, de la prise de cotes à la pose.",
+    "metiersTitle": "Ce que l'atelier fabrique et pose",
+    "metiers": {
+      "gardeCorps": {
+        "titre": "Garde-corps de fenêtre",
+        "texte": "En acier plein, fabriqué à vos cotes, avec son prix affiché en ligne."
+      },
+      "escalier": {
+        "titre": "Escalier à limon central",
+        "texte": "Droit, quart tournant ou demi-tournant, marches en bois massif, mesuré et posé par l'atelier."
+      },
+      "verrieres": {
+        "titre": "Verrières d'intérieur",
+        "texte": "Mesurées chez vous, soudées à l'atelier, puis posées."
+      },
+      "tables": {
+        "titre": "Tables",
+        "texte": "Plateau en bois massif sur piétement en acier soudé, au centimètre près."
+      },
+      "plafonds": {
+        "titre": "Plafonds lumineux",
+        "texte": "Toile tendue rétroéclairée sur cadre aluminium, rectangle ou disque."
+      },
+      "sculptures": {
+        "titre": "Sculptures",
+        "texte": "Pièces uniques en acier, pensées avec vous."
+      }
+    },
+    "autourTitle": "Autour de Saumur",
+    "autourBody": "Saumur et les communes voisines — Doué-en-Anjou, Longué-Jumelles, Montreuil-Bellay, Bourgueil, Chinon — sont à moins d'une heure de route de l'atelier. C'est notre terrain de tous les jours : nous venons relever les cotes chez vous, nous posons, et nous repassons sans difficulté si un réglage s'impose.",
+    "realisationsTitle": "Réalisations près de chez vous",
+    "voisinsTitle": "Angers, Tours, Cholet et les départements voisins",
+    "voisinsBody": "Angers, Cholet, Tours, et plus largement le Maine-et-Loire (49), l'Indre-et-Loire (37), les Deux-Sèvres (79) et la Vienne (86) : nous nous y déplaçons couramment. Le déplacement est chiffré dans le devis : vous savez à l'avance ce qu'il coûte. La prise de cotes à domicile coûte {prixVisite} jusqu'à {rayonVisite} km de Saumur ; au-delà, son prix dépend de la distance.",
+    "rdvLink": "Réserver une prise de cotes",
     "sections": [
-      {
-        "title": "Autour de Saumur",
-        "body": "Saumur et les communes voisines — Doué-en-Anjou, Longué-Jumelles, Montreuil-Bellay, Bourgueil, Chinon — sont à moins d'une heure de route de l'atelier. C'est notre terrain de tous les jours : nous venons relever les cotes chez vous, nous posons, et nous repassons sans difficulté si un réglage s'impose."
-      },
-      {
-        "title": "Le Maine-et-Loire et les départements voisins",
-        "body": "Angers, Cholet, Tours, et plus largement le Maine-et-Loire (49), l'Indre-et-Loire (37), les Deux-Sèvres (79) et la Vienne (86) : nous nous y déplaçons couramment. Le déplacement est chiffré dans le devis : vous savez à l'avance ce qu'il coûte."
-      },
       {
         "title": "Partout en France métropolitaine",
         "body": "Les pièces de la collection sont livrées dans toute la France métropolitaine, par transporteur, au prix de votre ville : elles voyagent protégées, et nous convenons d'un créneau avec vous. Pour une pose plus loin (plafond lumineux, verrière, escalier), écrivez-nous : nous regardons le chantier et le temps de route, et nous vous répondons franchement."
@@ -1063,6 +1118,7 @@
       }
     ],
     "communesTitle": "Communes et départements desservis",
+    "faqQuestionLink": "Lire la réponse dans les questions fréquentes",
     "ctaTitle": "Votre commune n'est pas dans la liste ?",
     "ctaBody": "Écrivez-nous quand même, avec votre commune et votre projet : nous vous répondons sous 48 h.",
     "ctaLabel": "Nous écrire",
@@ -1117,6 +1173,7 @@
         "a": "Oui, et sans engagement. Décrivez votre projet par le formulaire de contact : vous recevez une réponse sous 48 h et une estimation écrite."
       },
       {
+        "id": "metallier-saumur",
         "q": "Où trouver un métallier à Saumur et en Anjou ?",
         "a": "Auboiacier est un atelier de métallerie à Saumur (49400), en Maine-et-Loire. Nous fabriquons garde-corps, escaliers, verrières, tables bois et acier, plafonds lumineux et sculptures sur mesure, et nous nous déplaçons pour la prise de cotes et la pose à Saumur, Angers, Cholet, Tours, Chinon et jusqu'à 200 km de l'atelier."
       },
@@ -1142,7 +1199,7 @@
   "rdv": {
     "eyebrow": "Prise de cotes à domicile",
     "h1": "L'atelier vient mesurer chez vous",
-    "lead": "Dès 19,99 €, jusqu'à 200 km de Saumur. Vous choisissez le créneau, le métallier relève les cotes et vous envoie le prix exact de votre pièce.",
+    "lead": "Dès {prixVisite}, jusqu'à 200 km de Saumur. Vous choisissez le créneau, le métallier relève les cotes et vous envoie le prix exact de votre pièce.",
     "ctaPieces": "Choisir la pièce",
     "ctaPiecesNote": "Créneau réservé en ligne",
     "ctaAutre": "Demander un rendez-vous",
@@ -1170,7 +1227,8 @@
     "formSubtitle": "Verrière, sculpture, pièce hors catalogue : décrivez le projet, nous confirmons sous 24 à 72 h.",
     "prefill": "Rendez-vous pour une prise de cotes à domicile",
     "creneauLabel": "Votre créneau",
-    "creneauManque": "Choisissez le jour et la demi-journée qui vous arrangent : nous confirmons par e-mail."
+    "creneauManque": "Choisissez le jour et la demi-journée qui vous arrangent : nous confirmons par e-mail.",
+    "zoneLink": "Voir la zone d'intervention"
   },
   "merciDemande": {
     "title": "Merci, votre demande est bien partie",
@@ -1274,5 +1332,143 @@
     "suppressionAnnuler": "Annuler",
     "suppressionEnCours": "Suppression…",
     "suppressionErreur": "La suppression n'a pas abouti. Réessayez, ou écrivez-nous à auboiacier@gmail.com."
+  },
+  "liens": {
+    "tables": "Tables sur mesure",
+    "gardeCorps": "Garde-corps de fenêtre",
+    "bois": "Le bois massif",
+    "boisLong": "Le bois massif à l'atelier",
+    "zonePose": "Pose autour de Saumur",
+    "plafondTendu": "Comparer avec un plafond tendu",
+    "toutesTables": "Toutes les tables",
+    "plafonds": "Tout sur les plafonds lumineux",
+    "titre": "À voir aussi"
+  },
+  "lumiere": {
+    "choixTitle": "Cadre lumineux ou plafond tendu mur à mur ?",
+    "choixCadre": "Nos plafonds lumineux sont des caissons en aluminium, avec leur toile et leurs LED, fixés sous votre plafond existant. Vous choisissez la forme et les cotes, au centimètre.",
+    "choixTendu": "Un plafond tendu mur à mur, c'est autre chose : une toile accrochée tout autour de la pièce, sur des profilés fixés aux murs, et posée par un poseur spécialisé.",
+    "choixPrix": "Le prix affiché ici est celui de la pièce entière, à ses cotes. Les prix au mètre carré que donnent les guides parlent de la pose mur à mur : ils ne se comparent pas directement.",
+    "poseTitle": "En applique, suspendu ou encastré",
+    "poseBody": "La Lucarne se pose en applique au plafond, se suspend par câbles ou s'encastre dans un faux plafond. Le Halo se pose au plafond ou se suspend. L'alimentation 220 V est fournie ; la variation est en option.",
+    "lumiereTitle": "La lumière",
+    "lumiereBody": "Blanc chaud 3000 K ou blanc neutre 4000 K. La toile diffuse la lumière sur toute sa surface : pas de point chaud, pas d'ombre dure. Sur la Lucarne, une application permet aussi de régler la couleur.",
+    "piecesTitle": "Pour quelles pièces",
+    "piecesBody": "Au-dessus d'une table de salle à manger, dans une grande pièce à vivre, une salle de réunion ou un plateau de bureaux. Au-delà de 1,50 m de diamètre, un seul Halo peut éclairer toute la pièce.",
+    "fabricationTitle": "Fabrication, livraison, pose",
+    "fabricationBody": "Chaque plafond est fabriqué à la commande : comptez {delai}. La toile se clipse dans une gorge tout autour du cadre ; elle se retire et se remet sans outil pour le nettoyage. Nous livrons partout en France, et l'atelier peut venir poser votre plafond : la fiche donne le prix selon votre code postal.",
+    "zoneLink": "Voir la zone d'intervention",
+    "faqTitle": "Questions fréquentes",
+    "faq": [
+      {
+        "q": "Quelle différence avec un plafond tendu ?",
+        "a": "Un plafond tendu couvre toute la pièce, d'un mur à l'autre, et se pose sur place par un poseur spécialisé. Nos plafonds lumineux sont des caissons en aluminium aux cotes choisies, avec leur toile et leurs LED, fixés sous le plafond existant."
+      },
+      {
+        "q": "Quelles tailles ?",
+        "a": "Rectangle jusqu'à 400 × 300 cm, disque jusqu'à Ø 400 cm, au centimètre près. Les tailles du catalogue ont leur prix affiché ; pour vos cotes, la fiche calcule le prix aussitôt."
+      },
+      {
+        "q": "Quel blanc choisir ?",
+        "a": "Le 3000 K est un blanc chaud, proche d'une ampoule classique : le plus doux pour une salle à manger. Le 4000 K est un blanc neutre, plus proche de la lumière du jour : on le préfère souvent dans un bureau ou une cuisine."
+      },
+      {
+        "q": "Quel délai ?",
+        "a": "Comptez {delai} de fabrication, puis la livraison ou la pose. Le délai exact vous est confirmé à la commande."
+      }
+    ]
+  },
+  "essences": {
+    "note": "Rangées de la moins chère à la plus chère, d'après les prix de l'atelier.",
+    "teinte": "Teinte",
+    "durete": "Dureté",
+    "usage": "Usage",
+    "pin": {
+      "teinte": "Blond clair, qui prend une teinte miel avec le temps.",
+      "durete": "Tendre : il se marque plus vite, et se rattrape au ponçage.",
+      "usage": "Une table de tous les jours, au style simple."
+    },
+    "hetre": {
+      "teinte": "Clair, légèrement rosé, au veinage discret.",
+      "durete": "Dur, au grain fin et serré.",
+      "usage": "Une table lumineuse et sobre, qui sert beaucoup."
+    },
+    "chene": {
+      "teinte": "Blond doré, au veinage bien visible.",
+      "durete": "Dur et durable.",
+      "usage": "La référence de l'atelier : celle des photos et des tailles du catalogue."
+    },
+    "noyer": {
+      "teinte": "Brun profond, au veinage riche.",
+      "durete": "Mi-dur.",
+      "usage": "Une pièce de caractère, plus sombre et plus chaude."
+    }
+  },
+  "tables": {
+    "title": "Tables",
+    "h1": "Tables sur mesure en bois massif et acier, fabriquées à Saumur",
+    "intro": "Le plateau est en bois massif. Le piétement est en acier, coupé et soudé au TIG à l'atelier, puis peint. Vous donnez la longueur et la largeur au centimètre, et chaque fiche calcule le prix tout de suite.",
+    "modelesTitle": "{n} modèles, prix affichés",
+    "modelesNote": "Le prix « à partir de » est celui de la plus petite taille, dans le bois et la teinte les moins chers. Sur la fiche, le prix suit votre configuration.",
+    "riviere": "Table rivière",
+    "configurer": "Configurer",
+    "essencesTitle": "Le plateau : quatre essences",
+    "pietementTitle": "Le piétement : acier soudé à l'atelier",
+    "pietementBody": "Trois dessins. Mikado : des tubes d'acier de 80 × 80 mm croisés sous le plateau. Croix : un X d'acier à chaque bout, et toute la place pour les jambes. Brindille : un bouquet de tiges cintrées une à une. Le piétement Mikado porte aussi la table rivière et la table de jardin. Chaque piétement est soudé à l'atelier, puis peint dans la teinte de votre choix.",
+    "teintesTitle": "Les teintes du piétement",
+    "dimensionsTitle": "Vos dimensions",
+    "dimensionsBody": "Longueur et largeur sont libres, au centimètre près, à partir de {min} cm. Le plus grand plateau d'un seul tenant mesure {longueur} × {largeur} cm. Pour choisir, comptez environ 60 cm de plateau par convive.",
+    "fabricationTitle": "Fabriquée à Saumur",
+    "fabricationBody": "Rien n'est en stock. À la commande, l'acier est coupé, soudé et meulé à l'atelier, puis peint ; le plateau est fini à l'huile-cire. Comptez {delai} de fabrication pour la plupart des modèles ; le délai exact est écrit sur chaque fiche. Nous livrons partout en France par transporteur. Vous pouvez aussi faire livrer et poser la table par l'atelier, au prix de la distance depuis Saumur, ou venir la retirer à l'atelier.",
+    "faqTitle": "Questions fréquentes",
+    "faqTailleQ": "Quelle taille pour 6, 8 ou 10 personnes ?",
+    "faqTailleA": "Comptez environ 60 cm de plateau par convive. Les formats du catalogue : {formats}. Entre deux formats, entrez vos cotes : la fiche calcule le prix.",
+    "faqBoisQ": "Quel bois choisir ?",
+    "faqBoisA": "Le chêne est la référence de l'atelier : dur, blond, au veinage marqué. Le noyer est brun et plus sombre, au veinage riche. Le hêtre est clair, avec un grain fin et serré. Le pin est le plus tendre : il se marque plus vite, mais une marque se rattrape au ponçage. Les quatre sont finis à l'huile-cire.",
+    "faqEntretienQ": "Comment entretenir un plateau huilé ?",
+    "faqDehorsQ": "Le chêne traité tient-il dehors ?",
+    "faqDehorsA": "Oui. La table Mikado Extérieur a un plateau en chêne massif traité classe 4, monté en lattes espacées pour que la pluie s'écoule, et un piétement peint pour l'extérieur. Comptez une couche d'huile par an, ou laissez le bois griser si vous aimez la patine.",
+    "faqHorsQ": "Peut-on avoir une essence ou une forme hors catalogue ?",
+    "faqHorsA": "Oui, sur devis. Décrivez-nous la forme ou l'essence voulue : nous adaptons le modèle et nous chiffrons.",
+    "ctaTitle": "Une table hors catalogue ?",
+    "ctaBody": "Une forme, une essence ou une taille particulière : décrivez votre projet, nous vous répondons avec un prix.",
+    "ctaDevis": "Demander un devis",
+    "ctaContact": "Nous écrire"
+  },
+  "bois": {
+    "title": "Bois massif",
+    "h1": "Le bois massif à l'atelier : chêne, noyer, hêtre et pin",
+    "intro": "Le bois massif entre dans la plupart des pièces de l'atelier, toujours avec l'acier : plateaux de table, marches d'escalier, mains courantes. Voici les essences proposées, et ce qu'il faut savoir pour choisir.",
+    "essencesTitle": "Quatre essences, quatre caractères",
+    "ouTitle": "Où le bois entre dans nos pièces",
+    "ou": {
+      "tables": {
+        "titre": "Plateaux de table",
+        "texte": "En pin, hêtre, chêne ou noyer massif, sur les tables Mikado, Croix et Brindille. La table rivière associe le chêne et la résine époxy."
+      },
+      "escalier": {
+        "titre": "Marches d'escalier",
+        "texte": "Des marches de 50 mm en bois massif, dans l'une des quatre essences, sur un limon central en acier."
+      },
+      "gardeCorps": {
+        "titre": "Main courante du garde-corps",
+        "texte": "En bois massif rainuré, ou posée sur un fer plat soudé à la lisse haute. Elle existe aussi tout en acier."
+      },
+      "exterieur": {
+        "titre": "Lattes de la table de jardin",
+        "texte": "En chêne massif traité classe 4, montées en lattes espacées pour que la pluie s'écoule."
+      }
+    },
+    "preparationTitle": "Comment le plateau est préparé",
+    "preparationBody": "Les plateaux sont en bois massif premier choix, d'un seul tenant jusqu'à {longueur} × {largeur} cm. Ils sont finis à l'huile-cire plutôt que vernis : le bois garde son toucher et se patine avec les années, et une marque se rattrape au papier fin, sur la zone touchée seulement.",
+    "entretienTitle": "Entretien",
+    "entretienBody": "Un chiffon doux et sec au quotidien. Une couche d'huile-cire une fois par an suffit, et une rayure se rattrape d'un ponçage léger.",
+    "atelierTitle": "Un atelier bois et métal à Saumur",
+    "atelierBody": "L'atelier de Saumur dessine chaque pièce, soude l'acier et assemble le bois et le métal. Vous gardez un seul interlocuteur, de la prise de cotes à la pose.",
+    "faqTitle": "Questions fréquentes",
+    "faqBoisTableQ": "Quel bois choisir pour une table ?",
+    "faqBougeQ": "Le bois massif bouge-t-il ?",
+    "faqBougeA": "Oui, un peu : il suit l'humidité de la pièce. Il gonfle légèrement quand l'air est humide et se resserre quand il est sec. Évitez de placer la table contre un radiateur ou en plein soleil derrière une baie vitrée.",
+    "faqHorsQ": "Peut-on avoir une essence hors catalogue ?"
   }
 }

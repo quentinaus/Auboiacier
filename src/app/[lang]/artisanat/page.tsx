@@ -94,7 +94,7 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
   return (
     <div>
       <div className="mx-auto max-w-6xl px-6 pb-24 pt-16">
-        <h1 className={`${serif.className} text-4xl text-[#2b2320] md:text-5xl`}>{t.title}</h1>
+        <h1 className={`${serif.className} text-4xl text-[#2b2320] md:text-5xl`}>{t.h1}</h1>
         <p className="mt-4 max-w-xl leading-relaxed text-[#5c5140]">{t.subtitle}</p>
 
         {/* Le sommaire : une puce par section, pour sauter directement aux
@@ -122,6 +122,15 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
                 </span>
               </div>
               {famille.note && <p className="mt-2 max-w-xl text-sm text-[#726757]">{famille.note}</p>}
+              {/* Les tables ont leur page : modèles, essences, dimensions, questions. */}
+              {famille.id === "table-interieur" && (
+                <Link
+                  href={`/${locale}/artisanat/tables`}
+                  className="mt-2 inline-block text-[11px] font-medium uppercase tracking-[0.16em] text-[#2b2320] underline underline-offset-4 hover:text-black"
+                >
+                  {dict.liens.toutesTables}
+                </Link>
+              )}
 
               <div className="mt-6 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
                 {famille.pieces.map((product, index) => {

@@ -17,6 +17,9 @@ export function ArtisanatHeader({
   // Le panneau du téléphone reprend les mêmes entrées que la barre du hub.
   const links = [
     { href: `/${locale}/artisanat`, label: dict.hub.craftLabel },
+    { href: `/${locale}/artisanat/tables`, label: dict.liens.tables },
+    { href: `/${locale}/artisanat/garde-corps`, label: dict.liens.gardeCorps },
+    { href: `/${locale}/bois-massif`, label: dict.liens.bois },
     { href: `/${locale}/toiles-tendues`, label: dict.hub.lightingLabel },
     { href: `/${locale}/a-propos`, label: dict.nav.apropos },
     { href: `/${locale}/contact`, label: dict.nav.contact },

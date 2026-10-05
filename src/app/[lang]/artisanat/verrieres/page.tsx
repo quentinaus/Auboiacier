@@ -78,7 +78,8 @@ export default async function VerrieresPage({
           <h1 className={`${serif.className} mt-6 text-3xl text-[#2b2320] md:text-[2rem]`}>{t.title}</h1>
           <p className="mt-3 text-[15px] leading-relaxed text-[#5c5140]">{t.tagline}</p>
 
-          <p className="mt-8 text-sm leading-relaxed text-[#4a4038]">{t.intro}</p>
+          <h2 className="mt-8 text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{t.atelierTitle}</h2>
+          <p className="mt-3 text-sm leading-relaxed text-[#4a4038]">{t.intro}</p>
           <p className="mt-4 text-sm leading-relaxed text-[#4a4038]">{t.body}</p>
 
           <div className="mt-8 border-t border-[#e8e1d8] pt-6">
@@ -86,6 +87,12 @@ export default async function VerrieresPage({
               {t.priceTitle}
             </span>
             <p className="mt-3 text-sm leading-relaxed text-[#4a4038]">{t.priceBody}</p>
+            <Link
+              href={`/${locale}/zone-intervention`}
+              className="mt-2 inline-block text-sm text-[#2b2320] underline decoration-[#2b2320]/30 underline-offset-4 hover:decoration-[#2b2320]"
+            >
+              {dict.liens.zonePose}
+            </Link>
           </div>
 
           <div className="mt-6 md:sticky md:bottom-0 md:-mx-8 md:border-t md:border-[#e5ddd3] md:bg-white md:px-8 md:py-4 lg:-mx-12 lg:px-12">

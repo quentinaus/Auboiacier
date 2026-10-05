@@ -12,9 +12,15 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import fr from "../src/app/[lang]/dictionaries/fr.json" with { type: "json" };
-import en from "../src/app/[lang]/dictionaries/en.json" with { type: "json" };
+import frBrut from "../src/app/[lang]/dictionaries/fr.json" with { type: "json" };
+import enBrut from "../src/app/[lang]/dictionaries/en.json" with { type: "json" };
 import { descriptionSeo, titreSeo } from "../src/lib/seo.ts";
+import { remplacerMarqueurs } from "../src/lib/marqueurs.ts";
+
+// Les textes tels que les pages les reçoivent : getDictionary remplace les
+// marqueurs (« dès {prixVisite} ») par la valeur du code avant tout affichage.
+const fr = remplacerMarqueurs(frBrut, "fr");
+const en = remplacerMarqueurs(enBrut, "en");
 
 const LONGUEUR_TITRE = 60;
 const LONGUEUR_DESCRIPTION = 155;

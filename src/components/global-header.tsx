@@ -25,8 +25,14 @@ export function GlobalHeader({
     { href: `/${locale}/a-propos`, label: dict.nav.apropos },
     { href: `/${locale}/contact`, label: dict.nav.contact },
   ];
-  /** Au téléphone, le panneau est la seule navigation : il en montre plus que la barre. */
+  /**
+   * Au téléphone, le panneau est la seule navigation : il en montre plus que
+   * la barre (qui n'a pas la place d'un lien de plus sur une tablette).
+   */
   const liensEnPlus = [
+    { href: `/${locale}/artisanat/tables`, label: dict.liens.tables },
+    { href: `/${locale}/artisanat/garde-corps`, label: dict.liens.gardeCorps },
+    { href: `/${locale}/bois-massif`, label: dict.liens.bois },
     { href: `/${locale}/zone-intervention`, label: dict.nav.zone },
     { href: `/${locale}/faq`, label: dict.nav.faq },
   ];

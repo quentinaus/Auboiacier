@@ -55,7 +55,8 @@ export default async function FaqPage({ params }: PageProps<"/[lang]/faq">) {
 
         <div className="mt-12 divide-y divide-[#e8e1d8] border-t border-[#e8e1d8]">
           {t.items.map((item) => (
-            <section key={item.q} className="py-7">
+            // Une ancre sur les questions que d'autres pages citent (« #metallier-saumur »).
+            <section key={item.q} id={"id" in item ? item.id : undefined} className="scroll-mt-24 py-7">
               <h2 className={`${serif.className} text-lg text-[#2b2320]`}>{item.q}</h2>
               <p className="mt-3 whitespace-pre-line leading-relaxed text-[#4a4038]">{item.a}</p>
             </section>

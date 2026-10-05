@@ -134,7 +134,20 @@ export default async function DevisPage({ params }: PageProps<"/[lang]/devis">) 
 
           {parFamille.map((famille) => (
             <div key={famille.famille} className="mt-14 first:mt-10">
-              <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{famille.label}</h3>
+              <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1">
+                <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{famille.label}</h3>
+                {/* Chaque famille a sa page de présentation : on y renvoie. */}
+                {famille.famille === "table-interieur" && (
+                  <Link href={`/${locale}/artisanat/tables`} className="text-[11px] text-[#2b2320] underline underline-offset-4 hover:text-black">
+                    {dict.liens.toutesTables}
+                  </Link>
+                )}
+                {famille.famille === "plafond" && (
+                  <Link href={`/${locale}/toiles-tendues`} className="text-[11px] text-[#2b2320] underline underline-offset-4 hover:text-black">
+                    {dict.liens.plafonds}
+                  </Link>
+                )}
+              </div>
               <div className="mt-5 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
                 {famille.pieces.map((product) => {
                   const image = product.images[0];

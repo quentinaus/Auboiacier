@@ -1,5 +1,7 @@
 import type { Locale } from "@/lib/i18n";
 import { diametreRosaceGC, idMainCouranteGC, lireMainCouranteGC, lireModeleGC, type ReleveGC } from "./garde-corps.ts";
+import { PRIX_OFFRE_CENTS, RAYON_OFFRE_KM } from "./deplacement.ts";
+import { prixAffiche } from "./ui.ts";
 
 export type ProductSize = {
   id: string;
@@ -574,9 +576,12 @@ const PLATEAU_MASSIF: PalierEpaisseur[] = [
   { jusquaMm: 3600, miniMm: 36 },
   { jusquaMm: 4500, miniMm: 45 },
 ];
-/** Le plus grand panneau d'un seul tenant chez le fournisseur, en mm. */
-const PLATEAU_MAX_LONGUEUR_MM = 4500;
-const PLATEAU_MAX_LARGEUR_MM = 1250;
+/**
+ * Le plus grand panneau d'un seul tenant chez le fournisseur, en mm. Exportés :
+ * les pages /artisanat/tables et /bois-massif les citent, sans les recopier.
+ */
+export const PLATEAU_MAX_LONGUEUR_MM = 4500;
+export const PLATEAU_MAX_LARGEUR_MM = 1250;
 
 export const products: Product[] = [
   {
@@ -585,6 +590,7 @@ export const products: Product[] = [
     boisAuM2: true,
     famille: "table-interieur",
     seoMots: "table acier & chêne",
+    seoTitre: "Table chêne massif pied Mikado acier",
     category: "interieur",
     orderMode: "cart",
     name: "Table Mikado",
@@ -824,6 +830,7 @@ export const products: Product[] = [
     en: {
       name: "Mikado Table",
       seoMots: "steel & oak table",
+      seoTitre: "Solid oak table, Mikado steel base",
       tagline: "Steel tubes crossed like pick-up sticks, under a solid oak top.",
       images: [
         "Mikado table — front view, charcoal black legs",
@@ -866,6 +873,7 @@ export const products: Product[] = [
     boisAuM2: true,
     famille: "table-interieur",
     seoMots: "table acier & chêne",
+    seoTitre: "Table chêne massif pied croix acier",
     category: "interieur",
     orderMode: "cart",
     name: "Table Croix",
@@ -978,6 +986,7 @@ export const products: Product[] = [
     en: {
       name: "Croix Table",
       seoMots: "steel & oak table",
+      seoTitre: "Solid oak table, steel X base",
       tagline: "Two steel tubes in an X at each end of the top, and room for everyone's legs.",
       images: [
         "Croix table: solid oak top on two black steel X bases, end view",
@@ -1021,6 +1030,7 @@ export const products: Product[] = [
     boisAuM2: true,
     famille: "table-interieur",
     seoMots: "table acier & chêne",
+    seoTitre: "Table Brindille, chêne massif et acier",
     category: "interieur",
     orderMode: "cart",
     name: "Table Brindille",
@@ -1103,6 +1113,7 @@ export const products: Product[] = [
     en: {
       name: "Brindille Table",
       seoMots: "steel & oak table",
+      seoTitre: "Brindille table, solid oak and steel",
       tagline: "A bunch of steel rods bent one by one, under a top that seems to float.",
       images: [
         "Brindille table: solid oak top on a bunch of bent steel rods, front view",
@@ -1150,6 +1161,10 @@ export const products: Product[] = [
     boisAuM2: true,
     famille: "table-interieur",
     seoMots: "chêne massif",
+    // « Table rivière » : c'est ainsi qu'on cherche une table à coulée de résine.
+    seoTitre: "Table rivière époxy et chêne massif",
+    seoDescription:
+      "Table rivière : une coulée de résine époxy dans un plateau de chêne massif, sur piétement Mikado en acier. Fabriquée à Saumur (49).",
     category: "interieur",
     orderMode: "cart",
     name: "Table Résine Époxy Mikado",
@@ -1299,7 +1314,7 @@ export const products: Product[] = [
     ],
     sections: [
       {
-        title: "Une rivière de résine dans le chêne",
+        title: "Une table rivière : la résine coule dans le chêne",
         body: "Le plateau est en chêne massif. Une rivière de résine époxy le traverse d'un bout à l'autre, coulée à l'atelier dans la teinte de votre choix : rouge, or nacré, turquoise, ou bleu semé de paillettes d'or. Le fil du bois et les reflets de la résine changent d'une table à l'autre : chaque plateau est unique.",
       },
       {
@@ -1323,6 +1338,9 @@ export const products: Product[] = [
     en: {
       name: "Mikado Epoxy Resin Table",
       seoMots: "solid oak",
+      seoTitre: "Epoxy river table in solid oak",
+      seoDescription:
+        "River table: a pour of epoxy resin through a solid oak top, on a Mikado steel base. Made in Saumur, France.",
       tagline: "A river of epoxy resin through a solid oak top, on the Mikado steel base.",
       images: [
         "Mikado epoxy resin table — front view: solid oak top with a river of resin, Mikado base",
@@ -1341,7 +1359,7 @@ export const products: Product[] = [
       },
       sections: [
         {
-          title: "A river of resin through the oak",
+          title: "A river table: resin flowing through the oak",
           body: "The top is solid oak. A river of epoxy resin runs through it from end to end, poured in the workshop in the colour of your choice: red, pearl gold, turquoise, or blue scattered with gold flakes. The grain of the wood and the sheen of the resin change from one table to the next: every top is one of a kind.",
         },
         {
@@ -1367,6 +1385,9 @@ export const products: Product[] = [
     slug: "escalier-limon-central",
     famille: "escalier",
     seoMots: "escalier acier",
+    seoTitre: "Escalier limon central acier et chêne",
+    seoDescription:
+      "Escalier à limon central acier, marches en bois massif, droit, quart tournant ou demi-tournant. Fabriqué et posé depuis Saumur.",
     releve: "escalier",
     category: "interieur",
     // Sur devis, toujours — mais l'atelier peut venir prendre les cotes,
@@ -1424,6 +1445,9 @@ export const products: Product[] = [
     en: {
       name: "Central Stringer Staircase",
       seoMots: "steel staircase",
+      seoTitre: "Steel and oak central stringer staircase",
+      seoDescription:
+        "Central stringer staircase in steel, solid wood treads: straight, quarter turn or half turn. Made and fitted from Saumur, France.",
       tagline: "Curved steel stringer, solid oak treads, cable balustrade.",
       images: [
         "Straight staircase with a central steel stringer, solid oak treads and a steel balustrade with slim horizontal rails, in a limewashed room",
@@ -1461,7 +1485,7 @@ export const products: Product[] = [
     famille: "garde-corps",
     seoMots: "garde-corps sur mesure",
     // Ce que tapent les gens : « garde-corps artisanal sur mesure », et la ville.
-    seoTitre: "Garde-corps artisanal sur mesure, Saumur",
+    seoTitre: "Garde-corps de fenêtre sur mesure, Saumur",
     motsCles: [
       "garde-corps artisanal sur mesure",
       "garde-corps de fenêtre sur mesure Saumur",
@@ -1476,7 +1500,7 @@ export const products: Product[] = [
     // L'accroche fait 131 signes : assemblée avec le prix et le suffixe, elle
     // dépassait les 155 signes que Google affiche.
     seoDescription:
-      "Garde-corps de fenêtre artisanal en acier plein, sur mesure à Saumur. Prix instantané, devis PDF, norme NF P01-012.",
+      "Garde-corps de fenêtre en acier plein, rosace style ancien, sur mesure à Saumur. Prix instantané, devis PDF, hauteur NF P01-012.",
     releve: "garde-corps-fenetre",
     category: "interieur",
     // Se commande en ligne, aux cotes que le client relève lui-même : aucune
@@ -1618,7 +1642,8 @@ export const products: Product[] = [
       { label: "Motif", value: "Croix de Saint-André à rosaces de fonderie, ou barreaux verticaux" },
       { label: "Main courante", value: "Au choix : bois massif (pin, hêtre, chêne ou noyer) rainuré de 40 × 40 mm ou de 60 × 45 mm sur fer plat de 60 × 10 mm, finition huile-cire ; ou acier peint, fer plat de 40 × 8 mm ou profilé de 40 × 10 mm" },
       { label: "Pose", value: "Encastré dans le tableau de la fenêtre, fixations fournies — vous mesurez, nous fabriquons" },
-      { label: "Prise de cotes", value: "Par vous, au mètre — ou par l'atelier, dès 19,99 € jusqu'à 30 km de Saumur, déduits de la commande" },
+      // Le prix de la visite vient de src/lib/deplacement.ts : jamais recopié ici.
+      { label: "Prise de cotes", value: `Par vous, au mètre — ou par l'atelier, dès ${prixAffiche(PRIX_OFFRE_CENTS / 100, "fr")} jusqu'à ${RAYON_OFFRE_KM}\u00a0km de Saumur, déduits de la commande` },
       { label: "Normes", value: "Conforme aux normes françaises : hauteur calculée selon l'art. R134-59 du Code de la construction ; espaces entre les barres selon la NF P01-012" },
       { label: "Fabrication", value: "Sur commande — comptez 4 à 6 semaines" },
       { label: "Livraison", value: "Par transporteur en France métropolitaine, livré et posé par l'atelier, ou retiré à l'atelier à Saumur — fixations et notice de pose comprises" },
@@ -1627,7 +1652,7 @@ export const products: Product[] = [
     en: {
       name: "Rosette Window Railing",
       seoMots: "custom window railing",
-      seoTitre: "Custom handmade window railing, Saumur",
+      seoTitre: "Custom window railing, Saumur",
       motsCles: [
         "custom handmade window railing",
         "bespoke steel window railing France",
@@ -1637,7 +1662,7 @@ export const products: Product[] = [
         "NF P01-012 window guard custom",
       ],
       seoDescription:
-        "Handmade solid steel window railing, made to measure in Saumur, France. Instant price, PDF quote, NF P01-012 standard.",
+        "Solid steel window railing with period-style rosettes, made to measure in Saumur. Instant price, PDF quote, NF P01-012 height.",
       tagline: "Handmade custom window railing in solid steel: Saint Andrew's crosses with cast rosettes, or vertical bars; wood or steel handrail. Made to the millimetre, fitted into your window.",
       images: [
         "Window railing seen head-on: painted black steel frame with a Saint Andrew's cross, two cast rosettes, oak handrail",
@@ -1668,7 +1693,7 @@ export const products: Product[] = [
         { label: "Pattern", value: "Saint Andrew's crosses with cast rosettes, or vertical bars" },
         { label: "Handrail", value: "Your choice: solid wood (pine, beech, oak or walnut), grooved 40 × 40 mm or 60 × 45 mm on a 60 × 10 mm flat bar, oil-wax finish; or painted steel, 40 × 8 mm flat bar or 40 × 10 mm profile" },
         { label: "Fitting", value: "Fits into the window reveal, fixings supplied — you measure, we build" },
-        { label: "Survey", value: "By you, with a tape — or by the workshop, from €19.99 within 30 km of Saumur, deducted from the order" },
+        { label: "Survey", value: `By you, with a tape — or by the workshop, from ${prixAffiche(PRIX_OFFRE_CENTS / 100, "en")} within ${RAYON_OFFRE_KM} km of Saumur, deducted from the order` },
         { label: "Standards", value: "Compliant with French standards: height set by art. R134-59 of the French building code; gaps between the bars to NF P01-012" },
         { label: "Lead time", value: "Made to order — allow 4 to 6 weeks" },
         { label: "Delivery", value: "By carrier in mainland France, delivered and fitted by the workshop, or collected from the workshop in Saumur — fixings and fitting guide included" },
@@ -1776,6 +1801,7 @@ export const products: Product[] = [
     boisAuM2: true,
     famille: "table-exterieur",
     seoMots: "table de jardin",
+    seoTitre: "Table de jardin chêne et acier, Mikado",
     // Même raison que le garde-corps : accroche + prix + suffixe dépassait.
     seoDescription:
       "Table de jardin à lattes de chêne traité, piétement Mikado en acier peint, faite pour rester dehors. Fabriquée à Saumur (49).",
@@ -1854,6 +1880,7 @@ export const products: Product[] = [
     en: {
       name: "Mikado Outdoor Table",
       seoMots: "garden table",
+      seoTitre: "Oak and steel garden table, Mikado",
       // Même raison qu'en français : accroche + prix + suffixe dépassait.
       seoDescription:
         "Garden table with a slatted treated-oak top and a painted steel Mikado base, made to stay outside. Made in Saumur, France.",
@@ -1960,6 +1987,9 @@ export const products: Product[] = [
     poseOption: true,
     famille: "plafond",
     seoMots: "plafond lumineux toile tendue",
+    seoTitre: "Lucarne, plafonnier en toile tendue",
+    seoDescription:
+      "Plafonnier en toile tendue rétroéclairée, cadre alu laqué, en applique, suspendu ou encastré. Fabriqué à Saumur, livré en France.",
     // Les photos de la fiche sont carrées : déclinaison 1200 × 630 pour les réseaux.
     imagePartage: "/images/partage/lucarne.jpg",
     category: "lumiere",
@@ -2052,6 +2082,9 @@ export const products: Product[] = [
     en: {
       name: "Lucarne",
       seoMots: "backlit stretch ceiling",
+      seoTitre: "Lucarne, stretch-fabric ceiling light",
+      seoDescription:
+        "Backlit stretch-fabric ceiling light, lacquered aluminium frame, surface-mounted, hung or recessed. Made in Saumur, delivered in France.",
       tagline: "Backlit stretched fabric, lacquered aluminium frame.",
       images: [
         "Lucarne: backlit stretch ceiling seen from below, black aluminium frame",
@@ -2097,6 +2130,9 @@ export const products: Product[] = [
     poseOption: true,
     famille: "plafond",
     seoMots: "plafond lumineux rond",
+    seoTitre: "Halo, luminaire rond en toile tendue",
+    seoDescription:
+      "Grand luminaire rond en toile tendue rétroéclairée, cadre alu laqué, jusqu'à Ø 400 cm. Fabriqué à Saumur, livré en France.",
     // Photos carrées, là aussi : déclinaison 1200 × 630 pour les réseaux.
     imagePartage: "/images/partage/halo.jpg",
     category: "lumiere",
@@ -2195,6 +2231,9 @@ export const products: Product[] = [
     en: {
       name: "Halo",
       seoMots: "round backlit stretch ceiling",
+      seoTitre: "Halo, round stretch-fabric ceiling light",
+      seoDescription:
+        "Large round backlit stretch-fabric light, lacquered aluminium frame, up to Ø 400 cm. Made in Saumur, delivered in France.",
       tagline: "A circle of backlit stretched fabric, lacquered aluminium frame.",
       images: [
         "Halo: round stretched-fabric light ceiling, black aluminium frame",
