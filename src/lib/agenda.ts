@@ -31,11 +31,32 @@ const HORIZON_JOURS = 42;
  * la clé attendue. Sans clé configurée, rien n'ouvre.
  */
 export function cleAgendaValide(recue: unknown): recue is string {
-  const attendue = process.env.AGENDA_CLE;
+  return memeCle(recue, process.env.AGENDA_CLE);
+}
+
+function memeCle(recue: unknown, attendue: string | undefined): recue is string {
   if (!attendue || typeof recue !== "string" || !recue) return false;
   const a = Buffer.from(recue);
   const b = Buffer.from(attendue);
   return a.length === b.length && timingSafeEqual(a, b);
+}
+
+/**
+ * La clé du FLUX de calendrier (/api/agenda/ics), qui ne sert qu'à lire.
+ *
+ * L'adresse du flux est faite pour être donnée à Google Agenda ou à Apple :
+ * elle est copiée, collée, enregistrée chez eux. Avec la clé de l'atelier
+ * dedans, quiconque la retrouvait pouvait aussi changer l'état des commandes.
+ * AGENDA_ICS_CLE la sépare : elle n'ouvre que le flux. Tant qu'elle n'est pas
+ * posée dans Vercel, l'ancienne clé continue d'ouvrir le flux, pour ne pas
+ * casser un abonnement existant.
+ */
+export function cleFluxIcs(): string | undefined {
+  return process.env.AGENDA_ICS_CLE?.trim() || process.env.AGENDA_CLE;
+}
+
+export function cleFluxValide(recue: unknown): recue is string {
+  return memeCle(recue, cleFluxIcs());
 }
 
 /** La date d'aujourd'hui, en Europe/Paris, au format AAAA-MM-JJ. */
@@ -75,9 +96,11 @@ const MEMOIRE_MS = 60_000;
 
 /**
  * Les créneaux déjà payés, lus chez Stripe. Le rendez-vous est dans les
- * métadonnées du paiement (voir /api/commande). Sans Stripe, ou si la
- * recherche échoue, on n'en cache aucun : mieux vaut un doublon que Quentin
- * règle au téléphone qu'un agenda vide.
+ * métadonnées du paiement (voir /api/commande). Si la recherche échoue, le
+ * calendrier affiché n'en cache aucun (mieux vaut un doublon que Quentin
+ * règle au téléphone qu'un agenda vide) ; mais AU PAIEMENT (`frais`), l'échec
+ * remonte et le créneau est refusé : on n'encaisse pas une visite sans avoir
+ * pu vérifier que la demi-journée est libre.
  */
 export async function creneauxPris(frais = false): Promise<Set<string>> {
   if (!isStripeConfigured()) return new Set();
@@ -96,6 +119,7 @@ export async function creneauxPris(frais = false): Promise<Set<string>> {
     return pris;
   } catch (error) {
     console.error("[agenda] créneaux pris illisibles :", error);
+    if (frais) throw error;
     return new Set();
   }
 }
@@ -121,9 +145,35 @@ export async function creneauxDisponibles(frais = false): Promise<Creneau[]> {
 
 /** Ce créneau est-il encore proposable ? Vérifié au moment de payer. */
 export async function creneauValide(c: Creneau): Promise<boolean> {
-  const dispo = await creneauxDisponibles(true);
-  const cle = cleCreneau(c);
-  return dispo.some((d) => cleCreneau(d) === cle);
+  try {
+    const dispo = await creneauxDisponibles(true);
+    const cle = cleCreneau(c);
+    return dispo.some((d) => cleCreneau(d) === cle);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Les autres commandes PAYÉES sur ce même créneau, par leur référence.
+ *
+ * La vérification au paiement passe par la recherche de Stripe, qui a jusqu'à
+ * une minute de retard, et une page de paiement reste ouverte jusqu'à trente
+ * minutes : deux clients peuvent donc, rarement, payer la même demi-journée.
+ * Le webhook appelle cette fonction après chaque visite payée et prévient
+ * Quentin s'il y a doublon. On lit ici la LISTE des sessions (immédiate), pas
+ * la recherche.
+ */
+export async function autresVisitesDuCreneau(rdv: string, sessionId: string): Promise<string[]> {
+  if (!isStripeConfigured()) return [];
+  const depuis = Math.floor(Date.now() / 1000) - (HORIZON_JOURS + DELAI_JOURS + 7) * 24 * 60 * 60;
+  const autres: string[] = [];
+  for await (const s of getStripe().checkout.sessions.list({ status: "complete", created: { gte: depuis }, limit: 100 })) {
+    if (s.id !== sessionId && s.payment_status === "paid" && s.metadata?.rdv === rdv) {
+      autres.push(s.metadata?.order_ref ?? s.id);
+    }
+  }
+  return autres;
 }
 
 /** Les rendez-vous payés, pour l'agenda de Quentin (flux et page privée). */
@@ -181,7 +231,11 @@ export async function rendezVousPayes(): Promise<RendezVous[]> {
  * chaque rendez-vous payé apparaît tout seul, avec l'adresse et le téléphone.
  */
 export function fluxIcs(rendezVous: RendezVous[]): string {
-  const ligne = (s: string) => s.replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+  // RFC 5545 : barre oblique inverse, point-virgule et virgule échappés, et
+  // tout retour à la ligne (\r\n, \r ou \n) écrit « \n » — sinon un texte
+  // pourrait ouvrir une nouvelle ligne du fichier, donc un nouveau champ.
+  const ligne = (s: string) =>
+    s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r\n|\r|\n/g, "\\n");
   const evenements = rendezVous.map((rdv) => {
     const [debut, fin] = HEURES[rdv.creneau.demi];
     const jour = rdv.creneau.date.replace(/-/g, "");

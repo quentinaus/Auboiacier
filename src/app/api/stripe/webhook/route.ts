@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { ligneDeJournal, notifyCustomer, notifyOwner } from "@/lib/order-email";
 import { getStripe } from "@/lib/stripe";
+import { autresVisitesDuCreneau, lireCreneau, libelleCreneau } from "@/lib/agenda";
+import { ownerEmail, sendEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 /** Un rejeu Stripe ne doit pas rester suspendu : au-delà, Stripe recommence. */
@@ -99,6 +101,15 @@ async function traiter(sessionId: string) {
       clientDejaPrevenu ? Promise.resolve(true) : notifyCustomer(session, lineItems.data),
     ]);
 
+    // Une visite payée sur un créneau déjà vendu (rare : voir
+    // autresVisitesDuCreneau) : Quentin est prévenu tout de suite, pour
+    // appeler l'un des deux clients. Une seule fois, au premier passage.
+    if (!atelierDejaPrevenu && atelierEnvoye && session.metadata?.rdv) {
+      await signalerDoublon(session).catch((error) =>
+        console.error("[webhook] doublon de créneau non vérifié :", sessionId, error)
+      );
+    }
+
     // On note ce qui est parti, pour ne pas le renvoyer au rejeu suivant.
     if (atelierEnvoye !== atelierDejaPrevenu || clientEnvoye !== clientDejaPrevenu) {
       try {
@@ -131,4 +142,22 @@ async function traiter(sessionId: string) {
     console.error("[webhook] traitement impossible :", error);
     return NextResponse.json({ error: "error" }, { status: 500 });
   }
+}
+
+async function signalerDoublon(session: Stripe.Checkout.Session) {
+  const rdv = session.metadata?.rdv ?? "";
+  const autres = await autresVisitesDuCreneau(rdv, session.id);
+  if (!autres.length) return;
+  const creneau = lireCreneau(rdv);
+  const quand = creneau ? libelleCreneau(creneau, "fr") : rdv;
+  await sendEmail({
+    to: ownerEmail(),
+    subject: `Attention : deux prises de cotes le même créneau (${quand})`,
+    text: [
+      `La commande ${session.metadata?.order_ref ?? session.id} vient d'être payée pour une prise de cotes le ${quand}.`,
+      `Ce créneau était déjà payé par : ${autres.join(", ")}.`,
+      "",
+      "Appelez l'un des deux clients pour lui proposer une autre demi-journée (ou le rembourser depuis Stripe).",
+    ].join("\n"),
+  });
 }
