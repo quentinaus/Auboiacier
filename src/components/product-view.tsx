@@ -77,6 +77,8 @@ export function ProductView({
   const [schemaSlot, setSchemaSlot] = useState<HTMLDivElement | null>(null);
   /** Même mécanique pour le choix des matières : à côté de la photo, qu'elles font changer. */
   const [matieresSlot, setMatieresSlot] = useState<HTMLDivElement | null>(null);
+  /** Garde-corps, grand écran : couleur, bois et rosace sont sur UNE ligne au-dessus du croquis, dans le bloc Configuration. */
+  const [matieresCentreSlot, setMatieresCentreSlot] = useState<HTMLDivElement | null>(null);
   /** Garde-corps, grand écran : la troisième colonne — le résultat, puis la livraison et la barre d'achat. */
   const [resultatSlot, setResultatSlot] = useState<HTMLDivElement | null>(null);
   const [achatSlot, setAchatSlot] = useState<HTMLDivElement | null>(null);
@@ -243,6 +245,7 @@ export function ProductView({
         }
         schemaSlot={schemaSlot}
         matieresSlot={matieresSlot}
+        matieresCentreSlot={matieresCentreSlot}
         resultatSlot={resultatSlot}
         achatSlot={achatSlot}
       />
@@ -483,7 +486,7 @@ export function ProductView({
             {/* Les matières d'abord : c'est ce qu'on vient voir, et la photo
                 suit chaque choix — elles restent donc juste sous le titre.
                 `ProductOptions` les dépose ici par portail (voir matieresSlot). */}
-            <div ref={setMatieresSlot} />
+            <div ref={setMatieresSlot} className={troisColonnes ? "xl:hidden" : undefined} />
             {/* L'accroche et le prix de départ suivent, avant le chemin vers
                 le configurateur. */}
             <p className="mt-8 border-t border-[#e5ddd3] pt-7 text-[15px] leading-relaxed text-[#4a4038]">
@@ -561,6 +564,8 @@ export function ProductView({
                 : "md:flex md:min-h-0 md:items-center md:justify-center"
             }`}
           >
+            {/* La ligne des matières (couleur, bois, rosace), au-dessus du croquis, sur grand écran (demande de Quentin). */}
+            {troisColonnes && <div ref={setMatieresCentreSlot} className="hidden xl:block" />}
             <div ref={setSchemaSlot} className={`schema-configuration mx-auto w-full ${troisColonnes ? "xl:flex xl:min-h-0 xl:flex-1 xl:flex-col" : ""}`} />
           </div>
           {/* La troisième colonne du garde-corps (grand écran) : `ProductOptions` y dépose le résultat,

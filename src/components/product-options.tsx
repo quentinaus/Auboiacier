@@ -475,6 +475,7 @@ export function ProductOptions({
   apercu,
   schemaSlot,
   matieresSlot,
+  matieresCentreSlot,
   resultatSlot,
   achatSlot,
   compteOuvert = false,
@@ -517,6 +518,8 @@ export function ProductOptions({
    * font changer — pas dans la carte plus bas.
    */
   matieresSlot?: HTMLDivElement | null;
+  /** Garde-corps, grand écran : la ligne compacte couleur / bois / rosace, au-dessus du croquis. */
+  matieresCentreSlot?: HTMLDivElement | null;
 }) {
   /** La taille à laquelle la fiche s'ouvre, s'il y en a une. */
   const tailleInitiale =
@@ -1940,7 +1943,42 @@ export function ProductOptions({
           /* Configurateur en pleine page : les matières font changer la photo,
              elles restent à côté d'elle (portail, voir matieresSlot) — pas
              dans la carte plus bas. */
+          /* Garde-corps sur grand écran : une ligne compacte au-dessus du grand croquis, dans le bloc Configuration
+             (demande de Quentin, 05/10) — la couleur, le bois et la rosace se choisissent là où on voit le résultat. */
+          const ligneMatieres = (titre: string, options: ProductSwatch[], choisi: string, choisir: (id: string) => void, avecEcart: boolean) => (
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{titre}</span>
+              <div role="group" aria-label={titre} className="flex gap-1">
+                {options.map((o) => {
+                  const on = o.id === choisi;
+                  const nom = avecEcart && o.priceDelta ? `${o.label} (${formatDelta(o.priceDelta, locale)})` : o.label;
+                  return (
+                    <button
+                      key={o.id}
+                      type="button"
+                      aria-pressed={on}
+                      aria-label={nom}
+                      title={nom}
+                      onClick={() => choisir(o.id)}
+                      className={`rounded-[5px] p-[3px] transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${on ? "bg-white ring-2 ring-[#2b2320]" : "ring-1 ring-transparent hover:bg-white/70 hover:ring-[#2b2320]/30"}`}
+                    >
+                      <MaterialBubble material={o} selected={on} taille="miniature" className="aspect-[4/5] w-[22px]" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+          const matieresCompactes = (
+            <div className="mb-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 rounded-2xl bg-white/55 px-3 py-1.5">
+              {product.metals.length > 0 && ligneMatieres(locale === "fr" ? "Acier" : "Steel", product.metals, metalId, setMetalId, false)}
+              {product.woods.length > 0 && ligneMatieres(locale === "fr" ? "Bois" : "Wood", woodsAffiches, woodId, setWoodId, orderable && product.woods.some((bois) => bois.priceDelta))}
+              {product.fabrics && product.fabrics.length > 0 && product.fabricLabel && !sansRosace &&
+                ligneMatieres(locale === "fr" ? "Rosace" : "Rosette", product.fabrics, fabricId, setFabricId, product.fabrics.some((rosace) => rosace.priceDelta))}
+            </div>
+          );
           if (nouvelleMiseEnPage) {
+            if (estGC && grandEcran && matieresCentreSlot) return createPortal(matieresCompactes, matieresCentreSlot);
             return matieresSlot ? createPortal(matieres, matieresSlot) : null;
           }
           return (

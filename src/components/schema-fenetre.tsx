@@ -312,7 +312,10 @@ export function SchemaFenetre({
   const MC = mode === "garde-corps" ? A + J + H : NORME_MM;
   const F = borne(hauteurFenetreMm ?? MODELE.fenetreMm, 200, 3000);
   // Une seule échelle pour tout. Tant que la fenêtre tient dans la pièce dessinée, elle ne change pas.
-  const echelle = Math.min(PLACE_LARGEUR / L, PLACE_HAUTEUR / Math.max(PIECE_MM, A + F + 150));
+  // Et le haut de la fenêtre, avec sa cote ① au-dessus, reste TOUJOURS dans le cadre (demande de Quentin, 05/10) : le haut de
+  // l'ouverture est à (A + F − MC) × échelle au-dessus de la main courante, qui est fixe ; on garde 44 de marge pour la cote.
+  const echelleHaut = A + F > MC ? (MAIN_COURANTE_Y - 44) / (A + F - MC) : Infinity;
+  const echelle = Math.min(PLACE_LARGEUR / L, PLACE_HAUTEUR / Math.max(PIECE_MM, A + F + 150), echelleHaut);
   const largeur = r(L * echelle);
   const fenetre = Math.max(3, r(F * echelle));
   const hauteur = Math.max(3, r(H * echelle));

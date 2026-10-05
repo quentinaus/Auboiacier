@@ -465,48 +465,59 @@ export function ReleveGardeCorps({
   const marque = modeles.length > 0;
   const liste: ModeleGC[] = marque ? modelesFamille : MODELES_VITRINE.filter((m) => !m.traverse && m.soubassementMm === 0);
   const controlesFamille = marque ? (
-  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-    {[
-      {
-        titre: fr ? "Barreaux" : "Bars",
-        valeur: famille.barreaux,
-        options: [
-          { v: "aucun", label: fr ? "Aucun" : "None", note: barreauxImposes ? (fr ? "Imposés par la norme ici : le bas du cadre est à moins de 60 cm du sol." : "Required by the standard here: the bottom of the frame is under 60 cm from the floor.") : "", aide: fr ? "Des croix seules, sans barreaux" : "Crosses only, no bars" },
-          { v: "bas", label: fr ? "En bas" : "Bottom", note: "", aide: fr ? "Des barreaux droits en bas, sous les croix" : "Straight bars at the bottom, under the crosses" },
-          { v: "tout", label: fr ? "Partout" : "Everywhere", note: "", aide: fr ? "Des barreaux sur toute la hauteur : en bas et dans chaque croix" : "Bars over the full height: at the bottom and in every cross" },
-        ],
-        choisir: (v: string) => changerFamille(v as "aucun" | "bas" | "tout", famille.traverse),
-      },
-      {
-        titre: fr ? "Traverse" : "Rail",
-        valeur: famille.traverse ? "avec" : "sans",
-        options: [
-          { v: "sans", label: fr ? "Sans" : "Without", note: "", aide: fr ? "Pas de traverse" : "No middle rail" },
-          { v: "avec", label: fr ? "Avec" : "With", note: "", aide: fr ? "Une traverse horizontale au milieu de chaque croix" : "A horizontal rail in the middle of each cross" },
-        ],
-        choisir: (v: string) => changerFamille(famille.barreaux === "tout" && v === "avec" ? "bas" : famille.barreaux, v === "avec"),
-      },
-    ].map((ligne) => (
-      <div key={ligne.titre} className="flex items-center gap-1.5">
-        <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-[#6f6357]">{ligne.titre}</span>
-        <div role="group" aria-label={ligne.titre} className="flex gap-0.5 rounded-full bg-[#2b2320]/[0.07] p-0.5">
-          {ligne.options.map((o) => (
-            <button
-              key={o.v}
-              type="button"
-              aria-pressed={ligne.valeur === o.v}
-              disabled={o.note !== ""}
-              title={o.note || o.aide}
-              onClick={() => ligne.choisir(o.v)}
-              className={`rounded-full px-2 py-0.5 text-[11px] font-medium leading-tight transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${ligne.valeur === o.v ? "bg-[#2b2320] text-white" : "text-[#2b2320] hover:bg-white/80"}`}
-            >
-              {o.label}
-            </button>
-          ))}
+    <div className="space-y-3">
+      {[
+        {
+          titre: fr ? "Barreaux" : "Bars",
+          valeur: famille.barreaux,
+          options: [
+            { v: "aucun", label: fr ? "Aucun" : "None", note: barreauxImposes ? (fr ? "Imposés par la norme ici : le bas du cadre est à moins de 60 cm du sol." : "Required by the standard here: the bottom of the frame is under 60 cm from the floor.") : "" },
+            { v: "bas", label: fr ? "En bas" : "At the bottom", note: "" },
+            { v: "tout", label: fr ? "Partout" : "Everywhere", note: "" },
+          ],
+          legende: barreauxImposes
+            ? fr ? "Barreaux droits en bas : la norme les impose ici (bas du cadre à moins de 60 cm du sol)." : "Straight bars at the bottom: required here by the standard (frame under 60 cm from the floor)."
+            : famille.barreaux === "aucun"
+              ? fr ? "Des croix seules, sans barreaux." : "Crosses only, no bars."
+              : famille.barreaux === "bas"
+                ? fr ? "Des barreaux droits en bas, sous les croix." : "Straight bars at the bottom, under the crosses."
+                : fr ? "Des barreaux sur toute la hauteur, en bas et dans chaque croix." : "Bars over the full height, at the bottom and in every cross.",
+          choisir: (v: string) => changerFamille(v as "aucun" | "bas" | "tout", famille.traverse),
+        },
+        {
+          titre: fr ? "Traverse au milieu" : "Middle rail",
+          valeur: famille.traverse ? "avec" : "sans",
+          options: [
+            { v: "sans", label: fr ? "Sans" : "Without", note: "" },
+            { v: "avec", label: fr ? "Avec" : "With", note: "" },
+          ],
+          legende: famille.traverse
+            ? fr ? "Une barre horizontale au milieu de chaque croix." : "A horizontal bar across the middle of each cross."
+            : fr ? "Pas de barre horizontale : les croix restent ouvertes." : "No horizontal bar: the crosses stay open.",
+          choisir: (v: string) => changerFamille(famille.barreaux === "tout" && v === "avec" ? "bas" : famille.barreaux, v === "avec"),
+        },
+      ].map((ligne) => (
+        <div key={ligne.titre}>
+          <span className="text-[12px] font-semibold text-[#2b2320]">{ligne.titre}</span>
+          <div role="group" aria-label={ligne.titre} className="mt-1 grid gap-1" style={{ gridTemplateColumns: `repeat(${ligne.options.length}, minmax(0, 1fr))` }}>
+            {ligne.options.map((o) => (
+              <button
+                key={o.v}
+                type="button"
+                aria-pressed={ligne.valeur === o.v}
+                disabled={o.note !== ""}
+                title={o.note || undefined}
+                onClick={() => ligne.choisir(o.v)}
+                className={`min-w-0 rounded-lg border px-1.5 py-1.5 text-[12px] font-medium leading-tight transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${ligne.valeur === o.v ? "border-[#2b2320] bg-[#2b2320] text-white" : "border-[#d9cfc2] bg-white text-[#2b2320] hover:border-[#2b2320]"}`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+          <p className="mt-1 text-[11.5px] leading-snug text-[#6f6357]">{ligne.legende}</p>
         </div>
-      </div>
-    ))}
-  </div>
+      ))}
+    </div>
   ) : null;
   const lienPhoto = lienDevis ? (
     <Link
@@ -520,7 +531,7 @@ export function ReleveGardeCorps({
   const catalogue = (
     /* Sous le croquis, en bande FINE pour laisser la place au grand croquis (règle de Quentin, 05/10) : les deux boutons
        (barreaux, traverse) et UNE rangée de modèles qui défile de côté, chacun avec son prix et sa pastille verte ou rouge. */
-    <div id="modeles-gc" className="carte-verre carte-modeles mt-2 scroll-mt-24 rounded-[20px] px-3 pb-2 pt-2.5 text-left xl:mt-0">
+    <div id="modeles-gc" className="carte-verre carte-modeles mt-2 scroll-mt-24 rounded-[20px] px-3 pb-2 pt-2.5 text-left">
       {/* Sous 1280 px les boutons sont ici ; au-dessus, ils sont dans la colonne de droite et la carte n'est que la rangée. */}
       <div className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 ${marque ? "xl:hidden" : ""}`}>
         {marque ? controlesFamille : <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{fr ? "Votre modèle" : "Your model"}</p>}
@@ -833,7 +844,7 @@ export function ReleveGardeCorps({
                    La largeur du cadre est écrite en toutes lettres (3/4 de sa hauteur) : avec `aspect-ratio` seul,
                    Safari ne la comptait pas dans la largeur de la colonne — elle tombait à zéro, le croquis
                    disparaissait et la carte des modèles s'écrasait. */
-                <div className="mx-auto flex w-[max(calc(var(--h)*0.75),360px)] max-w-full flex-col [--h:40svh] md:[--h:min(62vh,640px)] xl:min-h-0 xl:flex-1 xl:justify-center xl:[--h:clamp(260px,calc(100dvh_-_13.5rem),780px)]">
+                <div className="mx-auto flex w-[max(calc(var(--h)*0.75),360px)] max-w-full flex-col [--h:40svh] md:[--h:min(62vh,640px)] xl:min-h-0 xl:flex-1 xl:justify-center xl:[--h:clamp(240px,calc(100dvh_-_21rem),780px)]">
                   {/* GRAND CROQUIS (demande de Quentin, répétée) : sur grand écran il prend toute la hauteur de la colonne, et la
                       bande des modèles (boutons + une rangée qui défile) se pose en bas du croquis, sur le mur et le sol. */}
                   <div className="relative flex flex-col xl:block">
@@ -842,7 +853,8 @@ export function ReleveGardeCorps({
                       {puce}
                       {legendeCroquis}
                     </div>
-                    <div className="w-0 min-w-full xl:absolute xl:inset-x-2 xl:bottom-2 xl:z-20 xl:w-auto xl:min-w-0">{catalogue}</div>
+                    {/* La rangée des modèles est SOUS le croquis, jamais par-dessus : elle cachait le garde-corps et les cotes selon la fenêtre. */}
+                    <div className="mx-auto w-0 min-w-full">{catalogue}</div>
                   </div>
                 </div>,
                 schemaSlot
@@ -924,8 +936,8 @@ export function ReleveGardeCorps({
               <>
           {/* Grand écran : les boutons barreaux et traverse sont ici, à côté du prix ; la rangée des modèles est sur le croquis. */}
           {controlesFamille && (
-            <div className="mb-3 hidden rounded-xl bg-[#2b2320]/[0.04] px-3 py-2 xl:block">
-              <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#6f6357]">{fr ? "Votre garde-corps, au choix" : "Your railing, your choice"}</p>
+            <div className="mb-3 hidden rounded-2xl border border-[#e5ddd3] bg-white/90 p-3.5 shadow-sm xl:block">
+              <p className="mb-2 text-[14px] font-semibold text-[#2b2320]">{fr ? "Composez votre garde-corps" : "Design your railing"}</p>
               {controlesFamille}
             </div>
           )}
@@ -937,7 +949,7 @@ export function ReleveGardeCorps({
             onMouseLeave={() => setCoteActive(null)}
           >
             <div className="min-w-0">
-              <span className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
+              <span className={`flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357] ${resultatSlot ? "hidden" : ""}`}>
                 {t.gcResultTitle}
               </span>
               {/* À côté de la carte, pas de prix en grand : il est déjà dans la barre d'achat, juste à gauche.
@@ -963,7 +975,7 @@ export function ReleveGardeCorps({
                   ? [
                       t.gcResume.replace("{l}", nombre(releve.largeurMm)).replace("{h}", nombre(dessin.hauteurMm)),
                       dessin.ok && !surVerre ? croixTexte(dessin.croix) : null,
-                      conforme ? t.gcPrixCompris : null,
+                      conforme && !resultatSlot ? t.gcPrixCompris : null,
                     ]
                       .filter(Boolean)
                       .join(" · ")
@@ -1059,13 +1071,23 @@ export function ReleveGardeCorps({
                     <svg viewBox="0 0 20 20" aria-hidden fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5 shrink-0">
                       <path d="M4 10.5l4 4 8-9" />
                     </svg>
-                    {t.gcConforme}
+                    {resultatSlot ? (fr ? "Conforme aux normes françaises" : "Compliant with French standards") : t.gcConforme}
+                    {resultatSlot && (
+                      <InfoBulle
+                        texte={fr ? "Hauteur : Code de la construction, art. R134-59. Espaces entre les barres : norme NF P01-012. Calculés pour votre fenêtre : nous ne vendons jamais un garde-corps qui ne les respecte pas." : "Height: French building code, art. R134-59. Gaps between the bars: standard NF P01-012. Worked out for your window: we never sell a railing that does not meet them."}
+                        label={t.gcInfoLabel}
+                      />
+                    )}
                   </p>
                   {/* La loi n'impose rien ici (rez-de-chaussée, ou bas de fenêtre à 90 cm et plus) : on le dit,
                       pour que le client ne croie pas qu'il lui en faut un. Il peut en vouloir un quand même. */}
                   {!conforme.obligatoire && (
                     <p className="mt-1.5 rounded-lg bg-[#eef3ea] px-2.5 py-1.5 text-[#33502f]">
-                      {releve && !releve.enEtage
+                      {resultatSlot
+                        ? fr
+                          ? "La loi n'impose pas de garde-corps ici : c'est un choix de style."
+                          : "The law does not require a railing here: it is a style choice."
+                        : releve && !releve.enEtage
                         ? fr
                           ? "Bon à savoir : au rez-de-chaussée, la loi n'impose pas de garde-corps. Vous pouvez en poser un pour le style."
                           : "Good to know: on the ground floor, the law does not require a railing. You can have one for the look."
@@ -1082,7 +1104,15 @@ export function ReleveGardeCorps({
                     {conforme.soubassementMm > 0 ? ` ${t.gcSoubassement}` : ""}
                   </p>
                   {/* Fenêtre large : le renfort est compris dans le prix ; on dit ce qu'il change, et que le mur compte. */}
-                  {conforme.renfort && <p className="mt-1.5 rounded-lg bg-[#f3ede3] px-2.5 py-1.5 text-[#4a3f33]">{t.gcRenfort}</p>}
+                  {conforme.renfort &&
+                    (resultatSlot ? (
+                      <p className="mt-1.5 flex items-center gap-1.5 text-[11.5px] leading-snug text-[#4a3f33]">
+                        {fr ? "Fenêtre large : barre du haut renforcée, comprise dans le prix." : "Wide window: top rail reinforced, included in the price."}
+                        <InfoBulle texte={t.gcRenfort} label={t.gcInfoLabel} />
+                      </p>
+                    ) : (
+                      <p className="mt-1.5 rounded-lg bg-[#f3ede3] px-2.5 py-1.5 text-[#4a3f33]">{t.gcRenfort}</p>
+                    ))}
                   {PROPOSER_VERRE && verre && (
                     <p className="mt-1 text-[#5c5140]">
                       {surVerre ? (
@@ -1127,7 +1157,7 @@ export function ReleveGardeCorps({
           {/* Le modèle : on le choisit dans le catalogue (à côté du croquis ; ici même sur téléphone). */}
           {!schemaSlot && catalogue}
           {/* (En colonne étroite, « choisissez votre modèle » est déjà dit sous le bouton du panier, juste en dessous.) */}
-          {conforme && !surVerre && (choisi || !resultatSlot) && (
+          {conforme && !surVerre && !resultatSlot && (
             <p className={`mt-3 rounded-xl px-3.5 py-2 text-[13px] leading-snug ${choisi ? "bg-[#e3efe4] text-[#1f5a2e]" : "bg-[#fbeeda] text-[#7a4510]"}`} role="status">
               {choisi
                 ? `${fr ? "Modèle choisi" : "Chosen model"} : ${libelleModele(choisi)}${schemaSlot ? "" : ` — ${prixAffiche(choisi.prix, locale)}`}`
@@ -1138,7 +1168,7 @@ export function ReleveGardeCorps({
           )}
           {/* Pourquoi des barreaux en bas : si le client ne les a pas choisis, c'est la norme (le cadre commence sous
               60 cm du sol : des croix s'y escaladent, des barreaux droits non). Il doit le savoir, pas le subir. */}
-          {conforme && !surVerre && conforme.soubassementMm > 0 && !voulu?.barreauxBas && (
+          {conforme && !surVerre && !resultatSlot && conforme.soubassementMm > 0 && !voulu?.barreauxBas && (
             <p className="mt-2 rounded-xl bg-[#f3ede3] px-3.5 py-2 text-[12px] leading-snug text-[#4a3f33]">
               {fr
                 ? "Barreaux droits en bas : imposés par la norme. Le bas de votre garde-corps est à moins de 60 cm du sol, et un enfant pourrait grimper sur des croix."
