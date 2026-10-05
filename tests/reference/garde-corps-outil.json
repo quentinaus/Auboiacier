@@ -1,10 +1,10 @@
 {
  "à lire": "Généré par scripts/extraire-moteur-garde-corps.mjs à partir de l'outil de plans (chargé tel quel dans node:vm). Aucun coût : des prix de vente, des poids, des hauteurs et des empreintes (sha256 tronqué) des réponses complètes. Ne pas modifier à la main.",
- "outil": "692e4be35da7d8b8d9614571769db5f4f36bd37d392e9237c29d7e306acdc13a",
+ "outil": "c97b6c24bb522fff9c523084889fbbd0a1c2d20ad20a888e1acb94dd878e113d",
  "empreintes": {
-  "moteur": "6f0702e9fbc7",
-  "devis": "fd2dcb02e863",
-  "chiffrage": "8dbfff5e9626"
+  "moteur": "5ebb9070cecf",
+  "devis": "abd64b15806a",
+  "chiffrage": "d09e6938857c"
  },
  "defauts": "630fbf91f998fecc",
  "date": "2026-09-29T10:00:00.000Z",
@@ -1575,7 +1575,7 @@
    "kg": 24.78528414410579,
    "alertes": 0,
    "prix": 630,
-   "chiffrage": "978e23eded251230",
+   "chiffrage": "2e7c4a0f25e47e65",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
@@ -1602,7 +1602,7 @@
    "kg": 24.35290614410579,
    "alertes": 1,
    "prix": 610,
-   "chiffrage": "31782501e50f422c",
+   "chiffrage": "88a4cf52e113412c",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
@@ -1629,7 +1629,7 @@
    "kg": 21.677634926413806,
    "alertes": 1,
    "prix": 740,
-   "chiffrage": "8362490e983a396d",
+   "chiffrage": "db3c25bc6810a3ff",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
@@ -1681,18 +1681,18 @@
    "hauteurGC": 135,
    "kg": 13.640761399999999,
    "alertes": 0,
-   "prix": 380,
-   "chiffrage": "1e4959a7f8f2d664",
+   "prix": 390,
+   "chiffrage": "2771166a6cc7af8d",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-OMSDA",
-    "total": 380,
+    "numero": "D-20260929-DYB17",
+    "total": 390,
     "lignes": 5,
-    "donnees": "af1304c824104ea0",
-    "html": "33bfe44f2c5a3be0"
+    "donnees": "5ba3a898354b9dcf",
+    "html": "ac15876f316ca04c"
    }
   },
   {
