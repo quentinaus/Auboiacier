@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { essenceDeReference, priceFrom, type Product } from "@/lib/products";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
-import { ETAPE_MODELE_GC } from "./etapes-telephone";
+import { ETAPE_MODELE_GC, MEDIA_TELEPHONE_GC } from "./etapes-telephone";
 import { ProductOptions, aLeConfigurateurPleinePage, type Ouverture } from "./product-options";
 import Link from "next/link";
 import { serif } from "@/lib/fonts";
@@ -148,7 +148,8 @@ export function ProductView({
    */
   const recaler = () => {
     const bloc = blocRef.current;
-    if (!bloc || !window.matchMedia("(max-width: 47.999rem)").matches) return;
+    // Seulement pendant le parcours en questions du garde-corps (pas une table, pas la visite de l'atelier).
+    if (!bloc?.querySelector('.fond-gc[data-parcours="1"]') || !window.matchMedia(MEDIA_TELEPHONE_GC).matches) return;
     const haut = bloc.getBoundingClientRect().top;
     if (Math.abs(haut) > 2 && Math.abs(haut) < window.innerHeight * 0.4) window.scrollBy({ top: haut, behavior: "auto" });
   };
@@ -650,6 +651,8 @@ export function ProductView({
           data-parcours={troisColonnes && parcoursTel ? "1" : undefined}
           data-etape={etapeTel}
           data-clavier={troisColonnes && parcoursTel && clavier ? "1" : undefined}
+          // Le bloc entièrement à l'écran : les cartes des étapes peuvent défiler (globals.css).
+          data-en-place={blocEnPlace ? "1" : undefined}
           className={`fond-configuration flex min-h-0 flex-1 flex-col gap-2.5 md:min-h-0 md:flex-1 ${
             /* Le garde-corps : sur tablette, le croquis et ses modèles en haut, sur toute la largeur, puis la carte des
                mesures et la colonne d'achat côte à côte ; sur grand écran, TROIS colonnes — les cotes, le croquis et les
@@ -665,7 +668,7 @@ export function ProductView({
           {troisColonnes && <div ref={setPorteSlot} className="porte-slot contents" />}
           {/* Le titre, et — sur grand écran, au garde-corps — la ligne des matières (couleur, bois, rosace) à sa droite, au-dessus
               du croquis mais PAS dessus (demande de Quentin : « remonte-la, il y a de la place »). */}
-          <div className={troisColonnes ? "md:col-span-2 md:flex md:items-center md:justify-between md:gap-4 lg:col-span-3 lg:grid lg:grid-cols-[262px_minmax(0,1fr)_272px] lg:items-center lg:gap-x-4 xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:gap-x-5" : "lg:col-span-2"}>
+          <div className={troisColonnes ? "titre-config md:col-span-2 md:flex md:items-center md:justify-between md:gap-4 lg:col-span-3 lg:grid lg:grid-cols-[262px_minmax(0,1fr)_272px] lg:items-center lg:gap-x-4 xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:gap-x-5" : "lg:col-span-2"}>
             <div>
               <h2 className={`${serif.className} text-lg leading-none text-[#2b2320] md:text-[28px]`}>{t.configurationTitle}</h2>
               {/* Le conseil de Quentin (05/10) : un garde-corps a beaucoup de réglages et de normes ; l'ordinateur, qui montre tout
@@ -712,7 +715,7 @@ export function ProductView({
           {/* Le croquis : au-dessus de la carte sur téléphone (il ne rétrécit jamais : c'est la carte qui défile), à côté et en
               grand sur ordinateur. */}
           <div
-            className={`order-1 shrink-0 ${
+            className={`croquis-config order-1 shrink-0 ${
               /* Le croquis d'une table ou d'un plafond remplit la hauteur du bloc, au milieu. Le garde-corps a son
                  catalogue de modèles sous le croquis : il défile dans sa colonne sous 1024 px, et tient entier au-dessus. */
               product.releve === "garde-corps-fenetre"
@@ -724,7 +727,7 @@ export function ProductView({
           </div>
           {/* Téléphone, une question à la fois : la question (ou l'étape) et, à la fin, le prix — rendus par la fiche ; puis les
               étapes « Modèle » et « Finitions » (la rangée des modèles et la ligne des matières de l'ordinateur). */}
-          {troisColonnes && parcoursTel && <div ref={setEnteteTelSlot} className="order-2 shrink-0 md:hidden" />}
+          {troisColonnes && parcoursTel && <div ref={setEnteteTelSlot} className="entete-tel order-2 shrink-0 md:hidden" />}
           {troisColonnes && (
             <div className="panneau-etape etape-8 hidden min-h-0 flex-1 overflow-y-auto overscroll-contain max-md:order-3 md:hidden">
               <div ref={setModeleTelSlot} />
@@ -737,7 +740,7 @@ export function ProductView({
           )}
           {/* Sous la carte de l'étape, sur la plaque : « Retour » et « Suivant » (rendus par la fiche). Hors de la carte qui
               défile, le bouton reste toujours visible (l'étape « Prix » a sa barre d'achat et son retour à elle). */}
-          {troisColonnes && parcoursTel && <div ref={setNavTelSlot} className="order-4 shrink-0 empty:hidden md:hidden" />}
+          {troisColonnes && parcoursTel && <div ref={setNavTelSlot} className="nav-tel order-4 shrink-0 empty:hidden md:hidden" />}
           {/* Le bandeau des modèles : en bas du bloc, sous les cotes et le croquis, sur toute leur longueur. Placé AVANT la colonne
               d'achat dans le DOM (la grille le range en bas) : au clavier, on choisit le modèle avant d'arriver au bouton du panier. */}
           {troisColonnes && <div ref={setBandeauSlot} className="bandeau-gc hidden lg:col-span-2 lg:col-start-1 lg:row-start-3 lg:block" />}
@@ -747,7 +750,7 @@ export function ProductView({
           {troisColonnes && (
             <div className="carte-verre colonne-achat panneau-etape etape-9 hidden min-h-0 overflow-x-clip rounded-[26px] px-4 pb-0 pt-4 max-md:order-3 max-md:flex-1 max-md:overflow-y-auto max-md:overscroll-contain md:col-start-2 md:row-start-3 md:flex md:min-h-0 md:max-h-full md:flex-col md:self-stretch md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain lg:col-start-3 lg:row-span-2 lg:row-start-2 xl:px-5">
               {parcoursTel && (
-                <button type="button" onClick={() => allerEtapeTel(ETAPE_MODELE_GC)} className="mb-2 self-start text-[13px] font-medium text-[#5c5140] underline underline-offset-4 md:hidden">
+                <button type="button" onClick={() => allerEtapeTel(ETAPE_MODELE_GC)} className="retour-modele mb-2 self-start text-[13px] font-medium text-[#5c5140] underline underline-offset-4 md:hidden">
                   {locale === "fr" ? "← Retour : Modèle" : "← Back: Model"}
                 </button>
               )}

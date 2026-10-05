@@ -50,7 +50,7 @@ import { MAX_TEXTE, EMAIL_MOTIF } from "@/lib/devis-regles";
 import { POSE_INITIALE, PoseDomicile, livraisonPrete, montantLivraison, type ChoixPose } from "./pose-domicile";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 import { InscriptionOuverture } from "./inscription-ouverture";
-import { EnteteEtapes, NavEtape, NB_ETAPES_GC, QUESTIONS_GC, ETAPE_MODELE_GC } from "./etapes-telephone";
+import { EnteteEtapes, NavEtape, NB_ETAPES_GC, QUESTIONS_GC, ETAPE_MODELE_GC, MEDIA_TELEPHONE_GC } from "./etapes-telephone";
 import type { TextesOuverture } from "@/lib/ouverture";
 
 const ACCENT = "#2b2320";
@@ -874,6 +874,16 @@ export function ProductOptions({
     () => window.matchMedia("(min-width: 48rem)").matches,
     () => false
   );
+  /** Un téléphone, debout ou tourné (MEDIA_TELEPHONE_GC) : le garde-corps y pose ses questions une à une. */
+  const telephoneGC = useSyncExternalStore(
+    (prevenir) => {
+      const mq = window.matchMedia(MEDIA_TELEPHONE_GC);
+      mq.addEventListener("change", prevenir);
+      return () => mq.removeEventListener("change", prevenir);
+    },
+    () => window.matchMedia(MEDIA_TELEPHONE_GC).matches,
+    () => false
+  );
   /** Garde-corps sur téléphone : l'emplacement des matières, dans la partie « Modèle » de la carte (releve-garde-corps.tsx). */
   /** Garde-corps : l'emplacement, dans le cadre du résultat (à côté de la carte), du poids, des détails et de ce que comprend le prix. */
   const [detailsSlot, setDetailsSlot] = useState<HTMLDivElement | null>(null);
@@ -1128,7 +1138,7 @@ export function ProductOptions({
    * étapes (product-view.tsx). Le résultat, la livraison et l'achat vont alors dans la colonne d'achat, comme sur ordinateur.
    */
   const parcoursTel =
-    estGC && nouvelleMiseEnPage && !ecranMoyen && Boolean(etapesTelephone) && !(product.priseDeCotes === true && cotesGardeCorps.qui === "atelier");
+    estGC && nouvelleMiseEnPage && telephoneGC && Boolean(etapesTelephone) && !(product.priseDeCotes === true && cotesGardeCorps.qui === "atelier");
   const signalerParcours = etapesTelephone?.signaler;
   useEffect(() => {
     signalerParcours?.(parcoursTel);
@@ -2425,11 +2435,11 @@ export function ProductOptions({
             </div>
           );
           if (nouvelleMiseEnPage) {
-            if (estGC && ecranMoyen && matieresCentreSlot) return createPortal(matieresCompactes, matieresCentreSlot);
+            if (estGC && ecranMoyen && !parcoursTel && matieresCentreSlot) return createPortal(matieresCompactes, matieresCentreSlot);
             // Sur téléphone, le garde-corps garde ses matières DANS le bloc, dans la partie « Modèle » de la carte (après les
             // mesures, comme l'ordinateur les met au-dessus du croquis) : elles changent le croquis, qui reste visible.
             // (Le choix complet, écrit en clair : la ligne compacte ouvre une fenêtre de 440 px, coupée sur un téléphone.)
-            if (estGC) return parcoursTel && etapesTelephone?.finitionsSlot ? createPortal(<div className="md:hidden">{blocMatieres(true)}</div>, etapesTelephone.finitionsSlot) : null;
+            if (estGC) return parcoursTel && etapesTelephone?.finitionsSlot ? createPortal(<div>{blocMatieres(true)}</div>, etapesTelephone.finitionsSlot) : null;
             return matieresSlot ? createPortal(matieres, matieresSlot) : null;
           }
           return (

@@ -1499,7 +1499,7 @@ export function ReleveGardeCorps({
                     </div>
                     {/* La rangée des modèles est SOUS le croquis, jamais par-dessus : elle cachait le garde-corps et les cotes selon la fenêtre.
                         Sur grand écran, elle est dans le bandeau du bas (bandeauSlot). */}
-                    {!bandeauSlot && !telephone && <div className="mx-auto w-0 min-w-full md:mx-0 md:w-auto md:min-w-0 md:flex-1">{catalogue}</div>}
+                    {!bandeauSlot && !telephone && !modeleSlot && <div className="mx-auto w-0 min-w-full md:mx-0 md:w-auto md:min-w-0 md:flex-1">{catalogue}</div>}
                   </div>
                 </div>,
                 schemaSlot
@@ -1594,7 +1594,8 @@ export function ReleveGardeCorps({
           {/* Sur téléphone, la rangée des modèles a son étape à elle (« Modèle », product-view.tsx), comme le bandeau sous le
               croquis sur ordinateur ; sans parcours en étapes, elle reste dans la carte, sous le mur (sous le croquis, elle le
               poussait hors de l'écran). */}
-          {telephone && schemaSlot && !bandeauSlot && (
+          {/* (`modeleSlot` : le parcours en questions, aussi sur un téléphone tourné, plus large que 48 rem.) */}
+          {(telephone || modeleSlot) && schemaSlot && !bandeauSlot && (
             modeleSlot ? createPortal(catalogue, modeleSlot) : <div className="mt-3">{catalogue}</div>
           )}
 

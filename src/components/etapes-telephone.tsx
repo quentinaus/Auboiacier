@@ -8,6 +8,13 @@
  */
 
 /**
+ * Le téléphone, debout ou TOURNÉ (paysage : 31,25 rem = 500 px de haut au plus, moins de 1024 px de large). Tourné, il
+ * est assez large pour la mise en page tablette, mais trop bas : les cartes étaient coupées. Il garde donc le parcours en
+ * questions, en deux colonnes (globals.css, même requête).
+ */
+export const MEDIA_TELEPHONE_GC = "(max-width: 47.999rem), (orientation: landscape) and (max-height: 31.25rem) and (max-width: 63.999rem)";
+
+/**
  * Les questions d'abord (largeur en bas, largeur en haut, hauteur sous la fenêtre, hauteur de la fenêtre, étage, mur),
  * puis le reste.
  */

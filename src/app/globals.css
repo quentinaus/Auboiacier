@@ -225,7 +225,8 @@ textarea:focus-visible,
    sous le croquis : 1 à 6 les questions (la carte des mesures n'y montre que la question posée), 7 les finitions,
    8 les modèles, 9 la colonne du prix. La question est écrite en grand dans l'en-tête : les petits titres de la carte
    s'effacent. */
-@media (max-width: 47.999rem) {
+/* (Aussi le téléphone TOURNÉ : MEDIA_TELEPHONE_GC, etapes-telephone.tsx.) */
+@media (max-width: 47.999rem), (orientation: landscape) and (max-height: 31.25rem) and (max-width: 63.999rem) {
   .fond-gc[data-parcours="1"] .panneau-etape {
     display: none !important;
   }
@@ -240,6 +241,9 @@ textarea:focus-visible,
   .fond-gc[data-parcours="1"][data-etape="9"] .panneau-etape.etape-9 {
     display: flex !important;
     flex-direction: column;
+  }
+  .fond-gc[data-parcours="1"]:not([data-en-place]) > .panneau-etape {
+    overflow-y: hidden !important;
   }
   .fond-gc[data-parcours="1"] .colonne-cotes .titre-mesures,
   .fond-gc[data-parcours="1"] .colonne-cotes .consigne-cotes,
@@ -280,6 +284,91 @@ textarea:focus-visible,
   .fond-gc[data-parcours="1"] .etape-8 .carte-modeles > .controles-famille {
     order: 1;
     margin-top: 0.75rem;
+  }
+}
+/* Téléphone TOURNÉ (paysage, 500 px de haut au plus) : le même parcours en questions, en deux colonnes — le croquis à
+   gauche, sur toute la hauteur ; la question, sa carte et ses boutons à droite. Plus large que 48 rem, il recevait la
+   mise en page tablette, trop haute : les cartes étaient coupées (demande de Quentin). Les classes « md: » de Tailwind
+   valent ici : ces règles, hors couche, passent devant. */
+@media (orientation: landscape) and (max-height: 31.25rem) and (max-width: 63.999rem) {
+  /* (Pas tant que « Qui prend les mesures ? » couvre la plaque : ses deux cartes ont besoin de leur hauteur.) */
+  #configuration:has(.fond-gc[data-parcours="1"]):not(:has(.porte-qui)) {
+    height: 100svh;
+    min-height: 0;
+    padding: 6px 10px;
+    scroll-margin-top: 0;
+    scroll-snap-align: start;
+  }
+  #configuration:has(.fond-gc[data-parcours="1"]):not(:has(.porte-qui)) > .mt-3 {
+    display: none;
+  }
+  /* L'aimant du téléphone debout : en arrivant près du bloc, la page s'y cale. */
+  html:has(.fond-gc[data-parcours="1"]) {
+    scroll-snap-type: y proximity;
+  }
+  /* La colonne du prix est basse : la barre d'achat n'y reste pas collée, la livraison passe au-dessus d'elle. */
+  .fond-gc[data-parcours="1"] .colonne-achat .barre-achat {
+    position: static;
+  }
+  .fond-configuration.fond-gc[data-parcours="1"] {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    column-gap: 14px;
+    row-gap: 8px;
+    padding: 10px 14px;
+  }
+  /* Le titre « Configuration » cède sa place : la question, à droite, dit où l'on en est, et le croquis prend toute la
+     hauteur à gauche. */
+  .fond-gc[data-parcours="1"] > .titre-config {
+    display: none;
+  }
+  .fond-gc[data-parcours="1"] > .croquis-config {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .fond-gc[data-parcours="1"] .schema-configuration {
+    height: 100%;
+  }
+  .fond-gc[data-parcours="1"] .schema-configuration > div,
+  .fond-gc[data-parcours="1"][data-clavier="1"] .schema-configuration > div {
+    --h: calc(100svh - 34px);
+    width: auto;
+  }
+  .fond-gc[data-parcours="1"] .schema-configuration svg {
+    max-height: none;
+  }
+  .fond-gc[data-parcours="1"] > .entete-tel {
+    grid-column: 2;
+    grid-row: 1;
+    display: block;
+  }
+  .fond-gc[data-parcours="1"] > .panneau-etape {
+    grid-column: 2;
+    grid-row: 2;
+    min-height: 0;
+  }
+  .fond-gc[data-parcours="1"] > .panneau-etape:not(.etape-9) {
+    padding-bottom: 12px;
+  }
+  .fond-gc[data-parcours="1"] > .nav-tel {
+    grid-column: 2;
+    grid-row: 3;
+    display: block;
+  }
+  .fond-gc[data-parcours="1"] > .nav-tel:empty {
+    display: none;
+  }
+  /* La colonne du prix n'a pas de boutons dessous : elle prend aussi leur place. */
+  .fond-gc[data-parcours="1"] > .panneau-etape.etape-9 {
+    grid-row: 2 / span 2;
+  }
+  .fond-gc[data-parcours="1"] .retour-modele {
+    display: inline-block;
   }
 }
 /* Le croquis remplit sa colonne, sans jamais dépasser la hauteur de la plaque. */
@@ -643,7 +732,7 @@ textarea:focus-visible,
     font-size: 11.5px;
   }
   /* La phrase sous « qui mesure » : en trop dans la colonne serrée (le bouton dit déjà « prix immédiat »). */
-  .colonne-cotes [id="cotes"] > div > p:not([role]) {
+  .fond-gc:not([data-parcours="1"]) .colonne-cotes [id="cotes"] > div > p:not([role]) {
     display: none;
   }
   .colonne-achat #livraison label,
