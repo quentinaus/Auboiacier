@@ -284,6 +284,8 @@ export function ReleveGardeCorps({
   const [coteActive, setCoteActive] = useState<CoteFenetre | null>(null);
   /** La rangée des modèles, qui défile de côté (règle de Quentin, 05/10 : « Votre modèle » ne doit jamais être coupé). */
   const bande = useRef<HTMLDivElement | null>(null);
+  /** Y a-t-il plus de modèles que la place ? Alors les flèches s'affichent (mesuré sur la rangée, pas deviné d'après leur nombre). */
+  const [deborde, setDeborde] = useState(false);
   /** Le modèle hors norme dont le client veut voir le pourquoi (les ronds rouge et vert de l'outil de plans). */
   const [pourquoi, setPourquoi] = useState<string | null>(null);
   /** Les deux boutons du client : le barreaudage (aucun / en bas / sur toute la hauteur) et la traverse au milieu. */
@@ -333,14 +335,13 @@ export function ReleveGardeCorps({
     return nom ? `${nom[fr ? 0 : 1]} Ø${ROSACE_MM_GC[id]}` : "";
   };
   /** La configuration complète d'un modèle, en clair : ce qu'il contient, son acier, sa rosace. */
-  const descriptionModele = (m: ModeleGC, court = false) =>
+  const descriptionModele = (m: ModeleGC) =>
     [
       m.seuls ? (fr ? "barreaux verticaux seuls" : "vertical bars only") : `${m.croix} ${fr ? "croix" : m.croix > 1 ? "crosses" : "cross"}`,
       m.traverse ? (fr ? "traverse au milieu" : "middle rail") : null,
       !m.seuls && m.soubassementMm > 0 ? (fr ? "barreaux en bas" : "bars below") : null,
-      // En liste courte, ce qui est le même pour presque tous (le carré de 16, le fer plat d'une fenêtre large) n'est pas répété.
-      court && m.carre === 16 ? null : fr ? `acier carré de ${m.carre}` : `${m.carre} mm square steel`,
-      !court && m.renfort ? (fr ? "lisse haute renforcée" : "reinforced top rail") : null,
+      fr ? `acier carré de ${m.carre}` : `${m.carre} mm square steel`,
+      m.renfort ? (fr ? "lisse haute renforcée" : "reinforced top rail") : null,
       m.rosace ? rosaceTexte(m.rosace) : null,
     ]
       .filter(Boolean)
@@ -503,12 +504,22 @@ export function ReleveGardeCorps({
   const liste: ModeleGC[] = parPrixActif
     ? modeles.filter((m) => m.conforme).sort((a, b) => a.prix - b.prix || a.croix - b.croix)
     : marque ? modelesFamille : MODELES_VITRINE.filter((m) => !m.traverse && m.soubassementMm === 0);
+  useEffect(() => {
+    const zone = bande.current;
+    if (!zone || typeof ResizeObserver === "undefined") return;
+    const mesurer = () => setDeborde(zone.scrollWidth > zone.clientWidth + 2);
+    const observateur = new ResizeObserver(mesurer);
+    observateur.observe(zone);
+    for (const enfant of Array.from(zone.children)) observateur.observe(enfant);
+    return () => observateur.disconnect();
+  }, [liste.length, parPrixActif, bandeauSlot]);
   const controlesFamille = marque ? (
     <div className="space-y-2.5">
       {[
         {
           titre: fr ? "Barreaux" : "Bars",
           valeur: famille.barreaux,
+          colonnes: "minmax(0,0.85fr) minmax(0,1fr) minmax(0,1.45fr)",
           options: [
             { v: "aucun", label: fr ? "Aucun" : "None", note: barreauxImposes ? (fr ? "Obligatoires ici : le bas du cadre est à moins de 60 cm du sol." : "Mandatory here: the bottom of the frame is under 60 cm from the floor.") : "" },
             { v: "bas", label: fr ? "En bas" : "At the bottom", note: "" },
@@ -545,7 +556,7 @@ export function ReleveGardeCorps({
             role="radiogroup"
             aria-label={ligne.titre}
             className="mt-1.5 grid rounded-full border border-[#9a8d80] bg-white p-0.5"
-            style={{ gridTemplateColumns: `repeat(${ligne.options.length}, minmax(0, 1fr))` }}
+            style={{ gridTemplateColumns: ligne.colonnes ?? `repeat(${ligne.options.length}, minmax(0, 1fr))` }}
           >
             {ligne.options.map((o) => (
               <button
@@ -556,13 +567,13 @@ export function ReleveGardeCorps({
                 disabled={o.note !== ""}
                 title={o.note || undefined}
                 onClick={() => ligne.choisir(o.v)}
-                className={`rounded-full px-1.5 py-1.5 text-[12px] font-medium leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] disabled:cursor-not-allowed disabled:opacity-40 ${ligne.valeur === o.v ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"}`}
+                className={`whitespace-nowrap rounded-full px-1.5 py-1.5 text-[12px] font-medium leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] disabled:cursor-not-allowed disabled:opacity-40 ${ligne.valeur === o.v ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"}`}
               >
                 {o.label}
               </button>
             ))}
           </div>
-          <p className="legende-option mt-1 text-[11px] leading-snug text-[#6f6357]">{ligne.legende}</p>
+          <p className={`${ligne.options.some((o) => o.note) ? "" : "legende-option "}mt-1 text-[11px] leading-snug text-[#6f6357]`}>{ligne.legende}</p>
         </div>
       ))}
     </div>
@@ -605,7 +616,7 @@ export function ReleveGardeCorps({
   const rangee =
     liste.length > 0 ? (
       <div className="relative">
-        {liste.length > (grandeRangee ? 6 : 3) &&
+        {deborde &&
           ([-1, 1] as const).map((sens) => (
             <button
               key={sens}
@@ -639,6 +650,8 @@ export function ReleveGardeCorps({
                 title={horsNorme ? `${pasAdapte(m)} — ${fr ? "touchez pour voir pourquoi" : "tap to see why"}` : marque ? descriptionModele(m) : libelleModele(m)}
                 onMouseEnter={() => setSurvol(m.id)}
                 onMouseLeave={() => setSurvol(null)}
+                onFocus={() => setSurvol(m.id)}
+                onBlur={() => setSurvol(null)}
                 onClick={() => {
                   if (!marque) document.getElementById(`${idChamps}-largeur`)?.focus();
                   else if (m.conforme) {
@@ -666,7 +679,7 @@ export function ReleveGardeCorps({
                   seuls={m.seuls}
                   croix={m.croix}
                   trous={horsNorme ? m.trous : null}
-                  hauteurPx={grandeRangee ? 44 : 26}
+                  hauteurPx={grandeRangee ? 40 : 26}
                 />
                 <span className="mt-1 block text-[11px] font-semibold leading-tight text-[#2b2320]">
                   {m.seuls ? (fr ? "Barreaux" : "Bars") : `${m.croix} ${fr ? "croix" : m.croix > 1 ? "crosses" : "cross"}`}
@@ -706,25 +719,36 @@ export function ReleveGardeCorps({
    * Demande de Quentin : « pas un menu déroulant, un bandeau qui prend l'espace vide en bas du panneau ».
    */
   const modeleDetail = (survol ? modeles.find((m) => m.id === survol) : null) ?? explique ?? choisi;
+  // Une phrase d'état (aucun modèle aux normes, modèle perdu, mesures à compléter…) passe avant le détail d'un modèle : c'est elle qui dit quoi faire.
+  const phraseBandeau = !survol ? phraseModeles : "";
   const bandeau = (
-    <div id="modeles-gc" className="carte-verre carte-modeles rounded-[22px] px-4 pb-2 pt-2.5 text-left">
-      <div className="flex items-center gap-3">
+    <div id="modeles-gc" className="carte-verre carte-modeles rounded-[22px] px-4 pb-2 pt-2 text-left">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         <span className="shrink-0 text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{fr ? "Votre modèle" : "Your model"}</span>
-        <p className="min-w-0 flex-1 truncate text-[12px] leading-snug text-[#2b2320]" aria-live="polite" title={modeleDetail ? descriptionModele(modeleDetail) : undefined}>
-          {modeleDetail && marque ? (
-            <>
-              <span className="font-semibold">{descriptionModele(modeleDetail)}</span>
-              <span className="text-[#6f6357]"> — {modeleDetail.conforme ? prixAffiche(modeleDetail.prix, locale) : pasAdapte(modeleDetail)}</span>
-            </>
-          ) : (
-            <span className={modeles.length === 0 && texteManque ? "font-medium text-[#7a4510]" : "text-[#6f6357]"}>
-              {phraseModeles || (marque ? (fr ? "Touchez un modèle pour le voir sur le croquis et lire son détail." : "Tap a model to see it on the sketch and read its details.") : "")}
-            </span>
-          )}
-        </p>
-        {boutonPrix}
-        {lienPhoto}
+        <span className="ml-auto flex flex-wrap items-center justify-end gap-x-3 gap-y-1">
+          {boutonPrix}
+          {lienPhoto}
+        </span>
       </div>
+      {/* Le détail du modèle touché, survolé ou choisi — écrit en clair, sur sa propre ligne (deux au plus). */}
+      <p
+        className="mt-0 line-clamp-2 min-h-[1.1rem] text-[12px] leading-snug text-[#2b2320]"
+        aria-live={survol ? "off" : "polite"}
+        title={phraseBandeau || (modeleDetail ? descriptionModele(modeleDetail) : undefined)}
+      >
+        {phraseBandeau ? (
+          <span className={modeles.length === 0 && texteManque ? "font-medium text-[#7a4510]" : "text-[#5c5140]"}>{phraseBandeau}</span>
+        ) : modeleDetail && marque ? (
+          <>
+            <span className="font-semibold">{descriptionModele(modeleDetail)}</span>
+            <span className="text-[#6f6357]"> — {modeleDetail.conforme ? prixAffiche(modeleDetail.prix, locale) : pasAdapte(modeleDetail)}</span>
+          </>
+        ) : (
+          <span className="text-[#6f6357]">
+            {marque ? (fr ? "Touchez un modèle pour le voir sur le croquis et lire son détail." : "Tap a model to see it on the sketch and read its details.") : ""}
+          </span>
+        )}
+      </p>
       {rangee}
     </div>
   );
@@ -966,7 +990,7 @@ export function ReleveGardeCorps({
                    La largeur du cadre est écrite en toutes lettres (3/4 de sa hauteur) : avec `aspect-ratio` seul,
                    Safari ne la comptait pas dans la largeur de la colonne — elle tombait à zéro, le croquis
                    disparaissait et la carte des modèles s'écrasait. */
-                <div className={`mx-auto flex max-w-full flex-col [--h:40svh] md:[--h:min(62vh,640px)] xl:min-h-0 xl:flex-1 xl:justify-center ${bandeauSlot ? "w-[calc(var(--h)*0.75)] xl:[--h:clamp(240px,calc(100dvh_-_17.75rem),800px)]" : "w-[max(calc(var(--h)*0.75),360px)] xl:[--h:clamp(240px,calc(100dvh_-_22.5rem),780px)]"}`}>
+                <div className={`mx-auto flex max-w-full flex-col [--h:40svh] md:[--h:min(62vh,640px)] xl:min-h-0 xl:flex-1 xl:justify-center ${bandeauSlot ? "w-[calc(var(--h)*0.75)] xl:[--h:clamp(240px,100cqh,800px)]" : "w-[max(calc(var(--h)*0.75),360px)] xl:[--h:clamp(240px,calc(100dvh_-_22.5rem),780px)]"}`}>
                   {/* GRAND CROQUIS (demande de Quentin, répétée) : sur grand écran il prend toute la hauteur de la colonne, et la
                       bande des modèles (boutons + une rangée qui défile) se pose en bas du croquis, sur le mur et le sol. */}
                   <div className="relative flex flex-col xl:block">
@@ -1199,7 +1223,7 @@ export function ReleveGardeCorps({
                     {resultatSlot ? (fr ? "Conforme aux normes françaises" : "Compliant with French standards") : t.gcConforme}
                     {resultatSlot && (
                       <InfoBulle
-                        texte={fr ? "Hauteur : Code de la construction, art. R134-59. Espaces entre les barres : norme NF P01-012. Calculés pour votre fenêtre : nous ne vendons jamais un garde-corps qui ne les respecte pas." : "Height: French building code, art. R134-59. Gaps between the bars: standard NF P01-012. Worked out for your window: we never sell a railing that does not meet them."}
+                        texte={`${fr ? "Hauteur : Code de la construction, art. R134-59. Espaces entre les barres : norme NF P01-012. Calculés pour votre fenêtre : nous ne vendons jamais un garde-corps qui ne les respecte pas." : "Height: French building code, art. R134-59. Gaps between the bars: standard NF P01-012. Worked out for your window: we never sell a railing that does not meet them."}${conforme.renfort ? ` ${t.gcRenfort}` : ""}`}
                         label={t.gcInfoLabel}
                       />
                     )}

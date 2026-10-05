@@ -570,8 +570,11 @@ export function ProductView({
                 : "md:flex md:min-h-0 md:items-center md:justify-center"
             }`}
           >
-            <div ref={setSchemaSlot} className={`schema-configuration mx-auto w-full ${troisColonnes ? "xl:flex xl:min-h-0 xl:flex-1 xl:flex-col" : ""}`} />
+            <div ref={setSchemaSlot} className={`schema-configuration mx-auto w-full ${troisColonnes ? "xl:flex xl:min-h-0 xl:flex-1 xl:flex-col xl:[container-type:size]" : ""}`} />
           </div>
+          {/* Le bandeau des modèles : en bas du bloc, sous les cotes et le croquis, sur toute leur longueur. Placé AVANT la colonne
+              d'achat dans le DOM (la grille le range en bas) : au clavier, on choisit le modèle avant d'arriver au bouton du panier. */}
+          {troisColonnes && <div ref={setBandeauSlot} className="bandeau-gc hidden xl:col-span-2 xl:col-start-1 xl:row-start-3 xl:block" />}
           {/* La troisième colonne du garde-corps (grand écran) : `ProductOptions` y dépose le résultat,
               puis la livraison et la barre d'achat. Vide et cachée en dessous de 1280 px : tout reste
               alors dans la première carte. */}
@@ -582,8 +585,6 @@ export function ProductView({
               <div ref={setAchatSlot} className="mt-auto" />
             </div>
           )}
-          {/* Le bandeau des modèles : en bas du bloc, sous les cotes et le croquis, sur toute leur longueur. */}
-          {troisColonnes && <div ref={setBandeauSlot} className="bandeau-gc hidden xl:col-span-2 xl:col-start-1 xl:row-start-3 xl:block" />}
         </div>
         {/* Sous la plaque, en petit : une question ? */}
         <div className="mt-3 px-1">{aide}</div>

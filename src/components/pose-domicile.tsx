@@ -223,7 +223,10 @@ export function PoseDomicile({
         type="button"
         role="radio"
         aria-checked={active}
-        onClick={() => onChange({ ...choix, mode, deplacement: null })}
+        onClick={() => {
+          // Le mode déjà choisi : rien à refaire (le prix calculé ne doit pas être effacé sans être redemandé).
+          if (mode !== choix.mode) onChange({ ...choix, mode, deplacement: null });
+        }}
         className={`flex flex-1 items-start gap-3 rounded-2xl border px-4 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${compact ? "py-2.5" : "py-3.5"} ${
           active ? "border-[#2b2320] bg-white" : "border-[#e5ddd3] bg-transparent hover:border-[#9a8d80]"
         }`}
@@ -270,7 +273,10 @@ export function PoseDomicile({
                 role="radio"
                 aria-checked={actif}
                 title={titreMode(mode)}
-                onClick={() => onChange({ ...choix, mode, deplacement: null })}
+                onClick={() => {
+                  // Le mode déjà choisi : rien à refaire (le prix calculé ne doit pas être effacé sans être redemandé).
+                  if (!actif) onChange({ ...choix, mode, deplacement: null });
+                }}
                 className={`rounded-full px-1.5 py-1.5 text-[12px] font-medium leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${actif ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"}`}
               >
                 {nomPilule(mode)}
@@ -308,6 +314,10 @@ export function PoseDomicile({
             <p id={`${idCp}-etat`} role="status" aria-live="polite" className={`mt-1.5 text-[11.5px] leading-snug ${etat === "ok" ? "text-[#2b2320]" : "text-[#6f6357]"} ${etat === "attente" ? "sr-only" : ""}`}>
               {texteAvecGras(message)}
             </p>
+            {/* Une pièce lourde ou encombrante coûte cher en simple colis : on le dit tout de suite, aussi en pilule. */}
+            {etat === "ok" && choix.mode === "transporteur" && (dep?.kg ?? 0) > KG_SUGGERE_POSE && !livraisonSeule && (
+              <p className="mt-1 text-[11px] leading-snug text-[#9a5b3f]">{t.livraisonLourd}</p>
+            )}
           </div>
         )}
       </div>

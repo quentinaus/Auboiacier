@@ -342,6 +342,7 @@ function SousMenu({
  */
 function PopoverDetails({ titre, libelle, children }: { titre: string; libelle: string; children: ReactNode }) {
   const bouton = useRef<HTMLButtonElement>(null);
+  const fenetre = useRef<HTMLDivElement>(null);
   const [place, setPlace] = useState<{ right: number; top?: number; bottom?: number } | null>(null);
   const idFenetre = useId();
   const ouvrir = () => {
@@ -355,18 +356,31 @@ function PopoverDetails({ titre, libelle, children }: { titre: string; libelle: 
   useEffect(() => {
     if (!place) return;
     const fermer = () => setPlace(null);
-    const touche = (e: KeyboardEvent) => e.key === "Escape" && fermer();
+    // Échap : on ferme et le focus revient sur le lien, comme pour une vraie fenêtre.
+    const touche = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      fermer();
+      bouton.current?.focus();
+    };
     const dehors = (e: MouseEvent) => {
       const cible = e.target as Element | null;
       if (!cible?.closest(`[data-popover="${CSS.escape(idFenetre)}"]`) && !bouton.current?.contains(cible)) fermer();
     };
+    // La page défile (la fenêtre est fixe, son lien bouge) : on ferme, sauf si c'est la fenêtre elle-même qui défile.
+    const defile = (e: Event) => {
+      if (!fenetre.current?.contains(e.target as Node)) fermer();
+    };
     window.addEventListener("keydown", touche);
     window.addEventListener("mousedown", dehors);
     window.addEventListener("resize", fermer);
+    window.addEventListener("scroll", defile, true);
+    // Au clavier : la fenêtre prend le focus à l'ouverture (elle est en fin de page, hors de l'ordre de tabulation du lien).
+    fenetre.current?.focus({ preventScroll: true });
     return () => {
       window.removeEventListener("keydown", touche);
       window.removeEventListener("mousedown", dehors);
       window.removeEventListener("resize", fermer);
+      window.removeEventListener("scroll", defile, true);
     };
   }, [place, idFenetre]);
   return (
@@ -375,6 +389,7 @@ function PopoverDetails({ titre, libelle, children }: { titre: string; libelle: 
         ref={bouton}
         type="button"
         aria-expanded={place !== null}
+        aria-haspopup="dialog"
         aria-controls={idFenetre}
         onClick={ouvrir}
         className="inline-flex cursor-pointer items-center gap-1 text-[12px] font-medium text-[#2b2320] underline underline-offset-4 transition-colors hover:text-[#6d2c2c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
@@ -387,12 +402,14 @@ function PopoverDetails({ titre, libelle, children }: { titre: string; libelle: 
       {place &&
         createPortal(
           <div
+            ref={fenetre}
             id={idFenetre}
             data-popover={idFenetre}
             role="dialog"
+            tabIndex={-1}
             aria-label={titre}
             style={{ position: "fixed", right: place.right, top: place.top, bottom: place.bottom, width: 340 }}
-            className="z-[90] max-h-[min(70vh,560px)] overflow-y-auto rounded-2xl border border-[#e5ddd3] bg-white p-4 text-left shadow-[0_24px_60px_-20px_rgba(43,35,32,0.45)]"
+            className="z-[90] max-h-[min(70vh,560px)] overflow-y-auto rounded-2xl outline-none border border-[#e5ddd3] bg-white p-4 text-left shadow-[0_24px_60px_-20px_rgba(43,35,32,0.45)]"
           >
             {children}
           </div>,
@@ -776,14 +793,14 @@ export function ProductOptions({
     livraison: product.releve === "garde-corps-fenetre",
   });
   const ouvrirMenu = (nom: string, ouvert: boolean) => setMenusOuverts((m) => ({ ...m, [nom]: ouvert }));
-  /** L'écran est-il assez large pour les trois colonnes du garde-corps (1280 px) ? */
+  /** L'écran est-il assez large pour les trois colonnes du garde-corps (80 rem = 1280 px, comme la variante « xl: » de Tailwind : même unité, même seuil, même avec une police agrandie) ? */
   const grandEcran = useSyncExternalStore(
     (prevenir) => {
-      const mq = window.matchMedia("(min-width: 1280px)");
+      const mq = window.matchMedia("(min-width: 80rem)");
       mq.addEventListener("change", prevenir);
       return () => mq.removeEventListener("change", prevenir);
     },
-    () => window.matchMedia("(min-width: 1280px)").matches,
+    () => window.matchMedia("(min-width: 80rem)").matches,
     () => false
   );
   /** Garde-corps : l'emplacement, dans le cadre du résultat (à côté de la carte), du poids, des détails et de ce que comprend le prix. */
@@ -1611,6 +1628,17 @@ export function ProductOptions({
    */
   /* Le garde-corps sur grand écran : le devis PDF et « Mettre de côté » sont deux petits liens sur UNE ligne (la colonne d'achat ne défile pas). */
   const liensSerres = Boolean(colonneAchat && estGC);
+  /** Une autre fenêtre : on vide les cotes, on garde le bois et l'acier, et le curseur revient dans la première case. */
+  const autreFenetre = () => {
+    // L'étage et le modèle aussi : ils dépendent de la fenêtre, et rien ne doit être choisi d'avance (décision du 03/10) —
+    // le modèle d'avant validait le panier tout seul.
+    setCotesGardeCorps({ ...cotesGardeCorps, largeur: "", allege: "", fenetre: "", etage: "", modele: "" });
+    setQuantity(1);
+    setAjoutee(null);
+    const premiere = releveRef.current?.querySelector<HTMLInputElement>("input[inputmode=decimal]");
+    premiere?.focus();
+    premiere?.scrollIntoView({ block: "center", behavior: "smooth" });
+  };
   const lienDevis = (
     <div className={liensSerres ? "mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1" : "mt-3"}>
       {/* Le lien « Détails » (poids, ce que comprend le prix) : la fenêtre flottante y est posée (detailsSlot). */}
@@ -2726,13 +2754,17 @@ export function ProductOptions({
         if (colonneAchat && estGC) {
           return (
             <>
-              {!modeVisite &&
-                detailsSlot &&
+              {detailsSlot &&
                 createPortal(
-                  <PopoverDetails titre={t.sousMenuDetails} libelle={locale === "fr" ? "Détails" : "Details"}>
-                    {detailsDl}
-                    <p className="mt-3 border-t border-[#e5ddd3] pt-3 text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{t.sousMenuInclus}</p>
-                    <div className="mt-2">{listeInclus}</div>
+                  <PopoverDetails titre={modeVisite ? t.sousMenuInclus : t.sousMenuDetails} libelle={locale === "fr" ? "Détails" : "Details"}>
+                    {/* À domicile (visite), seulement ce que comprend le prix de la visite. */}
+                    {!modeVisite && (
+                      <>
+                        {detailsDl}
+                        <p className="mt-3 border-t border-[#e5ddd3] pt-3 text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{t.sousMenuInclus}</p>
+                      </>
+                    )}
+                    <div className={modeVisite ? "" : "mt-2"}>{listeInclus}</div>
                   </PopoverDetails>,
                   detailsSlot
                 )}
@@ -2897,7 +2929,22 @@ export function ProductOptions({
           {optionsLabel && !modeVisite && total !== null && !colonneAchat && (
             <p className="mt-2 text-[11px] text-[#5c5140]">{optionsLabel}</p>
           )}
-          {lienDevis}
+          {/* Grand écran : la colonne ne défile pas, la confirmation d'ajout prend la place des petits liens, sur UNE ligne. */}
+          {liensSerres && added ? (
+            <div className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[12px]">
+              <span className="font-medium text-[#2a6b3a]">✓ {t.added}</span>
+              <Link href={`/${locale}/panier`} className="font-medium text-[#2b2320] underline underline-offset-4 hover:text-[#6d2c2c]">
+                {VOIR_PANIER[locale]}
+              </Link>
+              {estGC && !modeVisite && (
+                <button type="button" onClick={autreFenetre} className="font-medium text-[#2b2320] underline underline-offset-4 hover:text-[#6d2c2c]">
+                  {t.gcLotAutre}
+                </button>
+              )}
+            </div>
+          ) : (
+            lienDevis
+          )}
 
           {/* Le grand prix comprend la quantité : on détaille dès qu'on en commande plusieurs. */}
           {quantity > 1 && total !== null && (
@@ -2933,7 +2980,7 @@ export function ProductOptions({
           )}
 
           {/* La confirmation reste sous les yeux, et mène au panier. */}
-          {added && (
+          {added && !liensSerres && (
             <div className="mt-5 rounded-xl border border-[#e5ddd3] bg-[#fbfaf8] px-5 py-5 text-center">
               <p className="text-sm font-medium text-[#2a2116]">{t.added}</p>
               <div className="mt-3 flex flex-wrap justify-center gap-2">
@@ -2948,29 +2995,7 @@ export function ProductOptions({
                 {estGC && !modeVisite && (
                   <button
                     type="button"
-                    onClick={() => {
-                      // L'étage et le modèle aussi : ils dépendent de la fenêtre, et rien ne doit être
-                      // choisi d'avance (décision du 03/10) — le modèle d'avant validait le panier tout seul.
-                      setCotesGardeCorps({
-                        ...cotesGardeCorps,
-                        largeur: "",
-                        allege: "",
-                        fenetre: "",
-                        etage: "",
-                        modele: "",
-                      });
-                      setQuantity(1);
-                      setAjoutee(null);
-                      const premiere =
-                        releveRef.current?.querySelector<HTMLInputElement>(
-                          "input[inputmode=decimal]",
-                        );
-                      premiere?.focus();
-                      premiere?.scrollIntoView({
-                        block: "center",
-                        behavior: "smooth",
-                      });
-                    }}
+                    onClick={autreFenetre}
                     className="inline-block rounded-full border border-[#e5ddd3] bg-white px-6 py-2.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#2a2116] transition-colors hover:border-black hover:text-black"
                   >
                     {t.gcLotAutre}

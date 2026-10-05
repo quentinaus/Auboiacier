@@ -12,6 +12,7 @@
   --color-foreground: var(--foreground);
 }
 
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -198,7 +199,7 @@ textarea:focus-visible,
   }
 }
 /* Le garde-corps en trois colonnes : la plaque est plus serrée pour donner sa place au GRAND croquis (demande de Quentin). */
-@media (min-width: 1280px) {
+@media (min-width: 80rem) {
   .fond-configuration.fond-gc {
     padding: 22px 22px;
   }
@@ -460,7 +461,7 @@ textarea:focus-visible,
 
 /* La colonne des choix d'une table, sur grand écran : un peu plus grosse
    (titre, nuanciers, prix), pour que la photo d'à côté ne soit pas étirée. */
-@media (min-width: 1280px) {
+@media (min-width: 80rem) {
   .colonne-table {
     zoom: 1.18;
   }
@@ -557,7 +558,7 @@ textarea:focus-visible,
  *  titre compris (product-view.tsx). On serre ce qui peut l'être, sans rien
  *  retirer : les mêmes blocs, avec moins d'air.
  * ------------------------------------------------------------------ */
-@media (min-width: 1280px) {
+@media (min-width: 80rem) {
   .colonne-cotes .consigne-cotes {
     display: none; /* « sans rien retirer : l'atelier prend le jeu » est dit dans la bulle « i » de chaque cote */
   }
@@ -575,8 +576,8 @@ textarea:focus-visible,
   }
   /* Les trois cotes : un peu moins d'air entre elles, pour que la carte des mesures tienne à côté du bandeau. */
   .colonne-cotes .py-2\.5 {
-    padding-top: 0.3rem;
-    padding-bottom: 0.3rem;
+    padding-top: 0.22rem;
+    padding-bottom: 0.22rem;
   }
   .colonne-achat #livraison [class~="rounded-2xl"] {
     padding-top: 0.45rem;
@@ -599,7 +600,7 @@ textarea:focus-visible,
 
 /* Fenêtres de moins de 900 px de haut : la carte des mesures reprend toute la hauteur (le bandeau ne couvre plus que le milieu),
    et les visuels du bandeau rapetissent. */
-@media (min-width: 1280px) and (max-height: 900px) {
+@media (min-width: 80rem) and (max-height: 900px) {
   .colonne-cotes {
     grid-row: 2 / span 2;
   }
@@ -611,33 +612,33 @@ textarea:focus-visible,
   }
 }
 /* Moins de 780 px : on retire aussi la ligne « fenêtre large » (elle reste dans la bulle de la norme) et le titre de la livraison. */
-@media (min-width: 1280px) and (max-height: 780px) {
+@media (min-width: 80rem) and (max-height: 780px) {
   .colonne-achat .info-renfort,
   .colonne-achat #sous-menu-livraison > span {
-    display: none;
+    display: none; /* la phrase « fenêtre large » passe dans la bulle de la norme (releve-garde-corps.tsx) */
   }
 }
 /* Moins de 780 px : la carte des mesures n'écrit plus ses deux titres (« Vos mesures », « Qui prend les cotes ») : les choix se lisent seuls. */
-@media (min-width: 1280px) and (max-height: 780px) {
+@media (min-width: 80rem) and (max-height: 780px) {
   .colonne-cotes .titre-mesures,
   .colonne-cotes .intitule-qui {
     display: none;
   }
 }
 /* Moins de 780 px : les pilules segmentées sont un peu moins hautes. */
-@media (min-width: 1280px) and (max-height: 780px) {
+@media (min-width: 80rem) and (max-height: 780px) {
   .colonne-achat [role="radiogroup"] button,
   .colonne-cotes [role="radiogroup"] button,
   .colonne-cotes .grid button {
     padding-top: 0.2rem;
     padding-bottom: 0.2rem;
   }
-  .colonne-achat .space-y-2\.5 > * + * {
-    margin-top: 0.4rem;
+  .colonne-achat .space-y-2\.5 > :not(:last-child) {
+    margin-block-end: 0.4rem;
   }
 }
 /* Moins de 740 px : encore un peu d'air en moins dans la colonne d'achat. */
-@media (min-width: 1280px) and (max-height: 740px) {
+@media (min-width: 80rem) and (max-height: 740px) {
   .colonne-achat {
     padding-top: 0.6rem;
   }
@@ -658,7 +659,7 @@ textarea:focus-visible,
 }
 
 /* Fenêtres peu hautes : la colonne d'achat ne défile jamais, on retire les phrases d'aide sous les choix (elles restent dans leur bulle). */
-@media (min-width: 1280px) and (max-height: 900px) {
+@media (min-width: 80rem) and (max-height: 900px) {
   .colonne-achat .legende-option,
   .colonne-achat .titre-options {
     display: none;
