@@ -23,7 +23,7 @@ import {
   type ProductSize,
   type ProductSwatch,
 } from "@/lib/products";
-import { amenerAlEcran, prixAffiche, surfaceAffichee } from "@/lib/ui";
+import { amenerAlEcran, moinsDAnimations, prixAffiche, surfaceAffichee } from "@/lib/ui";
 import { MainCouranteListe, MainCouranteMenu } from "./main-courante-choix";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { useCart } from "@/lib/cart";
@@ -595,7 +595,7 @@ export function ProductOptions({
   schemaSlot?: HTMLDivElement | null;
   /**
    * Garde-corps, grand écran (trois colonnes, voir product-view.tsx) : où poser le résultat, puis
-   * la livraison et la barre d'achat. Sous 1280 px ces emplacements sont cachés : on n'y dépose rien.
+   * la livraison et la barre d'achat. Sous 1024 px ces emplacements sont cachés : on n'y dépose rien.
    */
   resultatSlot?: HTMLDivElement | null;
   achatSlot?: HTMLDivElement | null;
@@ -795,14 +795,27 @@ export function ProductOptions({
     livraison: product.releve === "garde-corps-fenetre",
   });
   const ouvrirMenu = (nom: string, ouvert: boolean) => setMenusOuverts((m) => ({ ...m, [nom]: ouvert }));
-  /** L'écran est-il assez large pour les trois colonnes du garde-corps (80 rem = 1280 px, comme la variante « xl: » de Tailwind : même unité, même seuil, même avec une police agrandie) ? */
+  /** L'écran est-il assez large pour les trois colonnes du garde-corps (64 rem = 1024 px, comme la variante « lg: » de Tailwind : même unité, même seuil, même avec une police agrandie) ? Dès 1024 px (05/10) : entre 1024 et 1280, deux colonnes faisaient défiler la carte des cotes ET le croquis. */
   const grandEcran = useSyncExternalStore(
     (prevenir) => {
-      const mq = window.matchMedia("(min-width: 80rem)");
+      const mq = window.matchMedia("(min-width: 64rem)");
       mq.addEventListener("change", prevenir);
       return () => mq.removeEventListener("change", prevenir);
     },
-    () => window.matchMedia("(min-width: 80rem)").matches,
+    () => window.matchMedia("(min-width: 64rem)").matches,
+    () => false
+  );
+  /**
+   * Une tablette ou plus (48 rem = 768 px, « md: ») : le garde-corps y a déjà sa colonne d'achat (résultat, livraison,
+   * panier) et sa ligne des matières dans le titre. Seul le bandeau des modèles attend le grand écran.
+   */
+  const ecranMoyen = useSyncExternalStore(
+    (prevenir) => {
+      const mq = window.matchMedia("(min-width: 48rem)");
+      mq.addEventListener("change", prevenir);
+      return () => mq.removeEventListener("change", prevenir);
+    },
+    () => window.matchMedia("(min-width: 48rem)").matches,
     () => false
   );
   /** Garde-corps : l'emplacement, dans le cadre du résultat (à côté de la carte), du poids, des détails et de ce que comprend le prix. */
@@ -826,9 +839,24 @@ export function ProductOptions({
       requestAnimationFrame(() => {
         const cible = document.querySelector(ancre);
         if (!cible) return;
-        // « center » plutôt que « start » : la carte défile à l'intérieur
-        // d'elle-même, et un bloc collé tout en haut passe sous le titre.
-        amenerAlEcran(cible, { block: "center" });
+        // Le bloc tient dans l'écran et c'est la CARTE qui défile : on pose le bloc en haut de l'écran, puis on fait défiler
+        // la carte seule jusqu'à la case. (scrollIntoView faisait aussi défiler la page : sur téléphone, le croquis sortait
+        // de l'écran au moment même où l'on venait remplir la cote qu'il montre.)
+        // La carte qui défile : le premier parent qui a son propre défilement (la rangée des modèles est elle-même une
+        // carte de verre, sans défilement : on remonte jusqu'à celle qui défile).
+        let carte = cible.parentElement;
+        while (carte && !(carte.scrollHeight > carte.clientHeight + 1 && /(auto|scroll)/.test(getComputedStyle(carte).overflowY))) {
+          carte = carte.parentElement;
+        }
+        const bloc = document.getElementById("configuration");
+        if (carte && bloc && bloc.contains(carte)) {
+          amenerAlEcran(bloc, { block: "start" });
+          const haut = cible.getBoundingClientRect().top - carte.getBoundingClientRect().top + carte.scrollTop - carte.clientHeight / 3;
+          carte.scrollTo({ top: Math.max(0, haut), behavior: moinsDAnimations() ? "auto" : "smooth" });
+        } else {
+          // « center » plutôt que « start » : un bloc collé tout en haut passe sous le titre.
+          amenerAlEcran(cible, { block: "center" });
+        }
         // Une case à remplir, ou une liste à choisir (le type de mur).
         const champ = cible.querySelector<HTMLInputElement | HTMLSelectElement>('input:not([type="hidden"]), select');
         champ?.focus({ preventScroll: true });
@@ -1015,7 +1043,7 @@ export function ProductOptions({
    */
   const estGC = prixParOutil(product);
   /** Garde-corps sur grand écran : la livraison et la barre d'achat vont dans la troisième colonne. */
-  const colonneAchat = estGC && nouvelleMiseEnPage && grandEcran ? (achatSlot ?? null) : null;
+  const colonneAchat = estGC && nouvelleMiseEnPage && ecranMoyen ? (achatSlot ?? null) : null;
   const versColonneAchat = (noeud: ReactNode) => (colonneAchat ? createPortal(noeud, colonneAchat) : noeud);
   const lectureReleve = estGC ? lireReleve(cotesGardeCorps, t) : null;
   const releveGC = lectureReleve?.etat === "ok" ? lectureReleve.releve : null;
@@ -2097,7 +2125,7 @@ export function ProductOptions({
             </div>
           );
           const matieresCompactes = (
-            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 rounded-2xl bg-white/55 px-3 py-1.5 xl:shrink-0 xl:flex-nowrap">
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 rounded-2xl bg-white/55 px-3 py-1.5 lg:shrink-0 lg:flex-nowrap">
               {product.metals.length > 0 && ligneMatieres(locale === "fr" ? "Acier" : "Steel", product.metals, metalId, setMetalId, false)}
               {product.woods.length > 0 &&
                 (estGC
@@ -2108,7 +2136,11 @@ export function ProductOptions({
             </div>
           );
           if (nouvelleMiseEnPage) {
-            if (estGC && grandEcran && matieresCentreSlot) return createPortal(matieresCompactes, matieresCentreSlot);
+            if (estGC && ecranMoyen && matieresCentreSlot) return createPortal(matieresCompactes, matieresCentreSlot);
+            // Sur téléphone, le garde-corps garde ses matières DANS le bloc, en tête de la carte : elles changent le croquis,
+            // qui doit rester visible pendant qu'on les choisit (près de la photo, on ne voyait plus le croquis).
+            // (Le choix complet, écrit en clair : la ligne compacte ouvre une fenêtre de 440 px, coupée sur un téléphone.)
+            if (estGC) return <div className="mb-3 md:hidden">{matieres}</div>;
             return matieresSlot ? createPortal(matieres, matieresSlot) : null;
           }
           return (
@@ -2644,7 +2676,7 @@ export function ProductOptions({
         <div ref={releveRef}>
           <ReleveGardeCorps
             schemaSlot={nouvelleMiseEnPage ? schemaSlot : undefined}
-            resultatSlot={nouvelleMiseEnPage && grandEcran ? resultatSlot : undefined}
+            resultatSlot={nouvelleMiseEnPage && ecranMoyen ? resultatSlot : undefined}
             bandeauSlot={nouvelleMiseEnPage && grandEcran ? bandeauSlot : undefined}
             cotes={cotesGardeCorps}
             onChange={setCotesGardeCorps}
@@ -2798,13 +2830,17 @@ export function ProductOptions({
                 )}
               {/* Rien à acheter (main courante seule sur devis, rien à poser, fenêtre trop basse) : pas de livraison à choisir. Le bloc reste
                   monté, seulement caché : s'il apparaissait et disparaissait, il se retrouvait SOUS la barre d'achat. */}
+              {/* L'enveloppe reste TOUJOURS dans le portail, cachée quand il n'y a pas de livraison : retirée puis remise (aller-retour
+                  par « L'atelier vient mesurer »), React la replaçait APRÈS la barre d'achat, dans la colonne d'achat. */}
               {versColonneAchat(
-                livraison ? (
-                  <div className={`mt-2 border-t border-[#e5ddd3] pt-2.5 ${reponseGC && !reponseGC.ok && reponseGC.raison !== "a-etudier" ? "hidden" : ""}`} id="sous-menu-livraison">
-                    <span className="block text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{product.livraisonSeule ? t.livraisonTitle : t.poseTitle}</span>
-                    <div className="mt-2">{livraison}</div>
-                  </div>
-                ) : null
+                <div className={`mt-2 border-t border-[#e5ddd3] pt-2.5 ${!livraison || (reponseGC && !reponseGC.ok && reponseGC.raison !== "a-etudier") ? "hidden" : ""}`} id="sous-menu-livraison">
+                  {livraison && (
+                    <>
+                      <span className="block text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{product.livraisonSeule ? t.livraisonTitle : t.poseTitle}</span>
+                      <div className="mt-2">{livraison}</div>
+                    </>
+                  )}
+                </div>
               )}
             </>
           );
@@ -2831,7 +2867,7 @@ export function ProductOptions({
               ? /* Dans la carte : collée en bas à toutes les tailles, d'un bord à
                    l'autre de la carte (ses marges internes), dans son gris
                    (voir .barre-achat, globals.css). */
-                "barre-achat relative sticky bottom-0 z-20 -mx-5 mt-4 border-t border-[#e5ddd3] px-5 pb-4 pt-3 md:-mx-6 md:px-6 md:pb-5 md:pt-4"
+                "barre-achat relative sticky bottom-0 z-20 -mx-5 mt-4 border-t border-[#e5ddd3] px-5 pb-3 pt-2.5 md:-mx-6 md:px-6 md:pb-5 md:pt-4"
               : "mt-5 md:sticky md:bottom-0 md:z-20 md:-mx-8 md:border-t md:border-[#e5ddd3] md:bg-white md:px-8 md:py-4 lg:-mx-12 lg:px-12"
           }
         >
@@ -2841,11 +2877,11 @@ export function ProductOptions({
               (« 2 940 € ») écrasait le prix ou le sélecteur quand les trois
               devaient tenir sur la même ligne, dans la colonne étroite du
               format tablette. */}
-          <div className={nouvelleMiseEnPage ? "flex flex-col gap-2 md:gap-3" : "flex flex-col gap-3"}>
+          <div className={nouvelleMiseEnPage ? "flex flex-col gap-1.5 md:gap-3" : "flex flex-col gap-3"}>
             <div className="flex items-center gap-3">
               <div className="min-w-0 flex-1">
                 <p
-                  className="text-xl font-medium leading-tight tabular-nums"
+                  className={`font-medium leading-tight tabular-nums ${nouvelleMiseEnPage ? "text-lg md:text-xl" : "text-xl"}`}
                   /* Sur la carte grise du configurateur, le prix s'écrit en clair. */
                   style={{ color: ACCENT }}
                 >
@@ -2927,7 +2963,7 @@ export function ProductOptions({
                 // La visite de l'atelier n'a pas de livraison : seule la pièce en demande une.
                 (!modeVisite && product.poseOption && !livraisonPrete(pose))
               }
-              className={`btn-verre w-full rounded-full px-5 text-[11px] font-medium uppercase tracking-[0.14em] text-white ${nouvelleMiseEnPage ? "py-3 md:py-3.5" : "py-3.5"}`}
+              className={`btn-verre w-full rounded-full px-5 text-[11px] font-medium uppercase tracking-[0.14em] text-white ${nouvelleMiseEnPage ? "py-2.5 md:py-3.5" : "py-3.5"}`}
             >
               {t.addToCart}
             </button>

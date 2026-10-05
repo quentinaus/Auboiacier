@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
@@ -292,6 +292,16 @@ export function ReleveGardeCorps({
   };
 }) {
   const idChamps = useId();
+  /** Un téléphone (moins de 768 px) : le croquis seul en haut du bloc, tout le reste dans la carte qui défile. */
+  const telephone = useSyncExternalStore(
+    (prevenir) => {
+      const mq = window.matchMedia("(max-width: 47.999rem)");
+      mq.addEventListener("change", prevenir);
+      return () => mq.removeEventListener("change", prevenir);
+    },
+    () => window.matchMedia("(max-width: 47.999rem)").matches,
+    () => false
+  );
   const langue = locale === "en" ? "en-GB" : "fr-FR";
   const [coteActive, setCoteActive] = useState<CoteFenetre | null>(null);
   /** La rangée des modèles, qui défile de côté (règle de Quentin, 05/10 : « Votre modèle » ne doit jamais être coupé). */
@@ -772,7 +782,7 @@ export function ReleveGardeCorps({
     /* Sous le croquis (téléphone, tablette), en bande FINE : les deux boutons (barreaux, traverse) et UNE rangée de modèles qui
        défile de côté, chacun avec son prix : uniquement des modèles aux normes. Sur grand écran : voir `bandeau`. */
     <div id="modeles-gc" className="carte-verre carte-modeles mt-2 scroll-mt-24 rounded-[20px] px-3 pb-2 pt-2.5 text-left">
-      <div className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 ${marque ? "xl:hidden" : ""}`}>
+      <div className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 ${marque ? "lg:hidden" : ""}`}>
         {marque ? controlesFamille : <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{fr ? "Votre modèle" : "Your model"}</p>}
       </div>
       {phraseModeles && <p className={`mt-1 text-[11.5px] leading-snug ${modeles.length === 0 && texteManque ? "font-medium text-[#7a4510]" : "text-[#5c5140]"}`}>{phraseModeles}</p>}
@@ -785,7 +795,7 @@ export function ReleveGardeCorps({
       {boutonPrix && <div className="mt-1.5 flex items-center justify-end">{boutonPrix}</div>}
       {rangee}
       {/* Un garde-corps à son style : une photo, et l'atelier répond. */}
-      {lienPhoto && <div className="mt-0.5 xl:hidden">{lienPhoto}</div>}
+      {lienPhoto && <div className="mt-0.5 lg:hidden">{lienPhoto}</div>}
     </div>
   );
   /**
@@ -967,7 +977,7 @@ export function ReleveGardeCorps({
           onChange={(qui) => onChange({ ...cotes, qui })}
           t={t}
           notes={{ moi: t.gcQuiMoiNote, atelier: t.gcQuiAtelierNote }}
-          compact={Boolean(bandeauSlot)}
+          compact={Boolean(bandeauSlot || resultatSlot)}
         />
       </div>
 
@@ -976,7 +986,9 @@ export function ReleveGardeCorps({
         <>
           {/* L'atelier s'occupe de tout : à la place du croquis (rien à mesurer), un panneau qui le dit
               et qui détend — sur téléphone, il passe au-dessus du code postal. */}
-          {schemaSlot ? createPortal(<Serenite fr={fr} />, schemaSlot) : <Serenite fr={fr} petit />}
+          {/* Sous 1024 px, la petite version, dans la carte : la grande, en haut du bloc, écrasait le code postal et le créneau
+              (téléphone, et tablette peu haute). */}
+          {schemaSlot && bandeauSlot ? createPortal(<Serenite fr={fr} />, schemaSlot) : <Serenite fr={fr} petit />}
           <VisiteAtelier cotes={cotes} onChange={(visite) => onChange({ ...cotes, ...visite })} t={t} locale={locale} />
         </>
       )}
@@ -1039,7 +1051,7 @@ export function ReleveGardeCorps({
           // sont ceux de l'outil de plans : rouge = le vide trop grand (une boule de la taille limite passerait), vert = un
           // vide qui respecte la norme.
           const legendeCroquis = explique && (
-            <div className="pointer-events-none absolute inset-x-2 bottom-2 z-10 rounded-xl xl:bottom-auto xl:top-11 bg-white/93 px-2.5 py-1.5 text-[11px] leading-snug text-[#4a3f33] shadow-sm" role="status" aria-live="polite">
+            <div className="pointer-events-none absolute inset-x-2 bottom-2 z-10 rounded-xl lg:bottom-auto lg:top-11 bg-white/93 px-2.5 py-1.5 text-[11px] leading-snug text-[#4a3f33] shadow-sm" role="status" aria-live="polite">
               {explique.trous ? (
                 (() => {
                   const t = explique.trous;
@@ -1087,10 +1099,10 @@ export function ReleveGardeCorps({
                    La largeur du cadre est écrite en toutes lettres (3/4 de sa hauteur) : avec `aspect-ratio` seul,
                    Safari ne la comptait pas dans la largeur de la colonne — elle tombait à zéro, le croquis
                    disparaissait et la carte des modèles s'écrasait. */
-                <div className={`mx-auto flex max-w-full flex-col [--h:40svh] md:[--h:min(62vh,640px)] xl:min-h-0 xl:flex-1 xl:justify-center ${bandeauSlot ? "w-[calc(var(--h)*0.75)] xl:[--h:clamp(240px,100cqh,800px)]" : "w-[max(calc(var(--h)*0.75),360px)] xl:[--h:clamp(240px,calc(100dvh_-_22.5rem),780px)]"}`}>
+                <div className={`mx-auto flex max-w-full flex-col [--h:34svh] lg:min-h-0 lg:flex-1 lg:justify-center ${bandeauSlot ? "w-[calc(var(--h)*0.75)] lg:[--h:clamp(240px,100cqh,800px)]" : "w-[max(calc(var(--h)*0.75),360px)] md:w-full md:[--h:min(38svh,430px)] lg:w-[max(calc(var(--h)*0.75),360px)] lg:[--h:clamp(240px,calc(100dvh_-_22.5rem),780px)]"}`}>
                   {/* GRAND CROQUIS (demande de Quentin, répétée) : sur grand écran il prend toute la hauteur de la colonne, et la
                       bande des modèles (boutons + une rangée qui défile) se pose en bas du croquis, sur le mur et le sol. */}
-                  <div className="relative flex flex-col xl:block">
+                  <div className="relative flex flex-col md:flex-row md:items-start md:gap-3 lg:block">
                     <div className="relative mx-auto aspect-[3/4] w-[min(100%,calc(var(--h)*0.75))] shrink-0 overflow-hidden rounded-2xl">
                       {croquis}
                       {puce}
@@ -1098,7 +1110,7 @@ export function ReleveGardeCorps({
                     </div>
                     {/* La rangée des modèles est SOUS le croquis, jamais par-dessus : elle cachait le garde-corps et les cotes selon la fenêtre.
                         Sur grand écran, elle est dans le bandeau du bas (bandeauSlot). */}
-                    {!bandeauSlot && <div className="mx-auto w-0 min-w-full">{catalogue}</div>}
+                    {!bandeauSlot && !telephone && <div className="mx-auto w-0 min-w-full md:mx-0 md:w-auto md:min-w-0 md:flex-1">{catalogue}</div>}
                   </div>
                 </div>,
                 schemaSlot
@@ -1182,6 +1194,10 @@ export function ReleveGardeCorps({
             </label>
           </div>
 
+          {/* Sur téléphone, la rangée des modèles est dans la carte, sous le mur : sous le croquis, elle le poussait hors de
+              l'écran (le croquis doit rester visible pendant qu'on choisit). */}
+          {telephone && schemaSlot && !bandeauSlot && <div className="mt-1">{catalogue}</div>}
+
           {/* Le résultat : le prix, la norme, le modèle choisi. À côté de la carte, sous le catalogue
               (la carte, à gauche, ne porte plus que les cotes et la livraison : elle était trop longue
               et la colonne de droite restait vide) ; sur téléphone, il reste ici. */}
@@ -1190,7 +1206,7 @@ export function ReleveGardeCorps({
               <>
           {/* Grand écran : les boutons barreaux et traverse sont ici, à côté du prix ; la rangée des modèles est sur le croquis. */}
           {controlesFamille && (
-            <div className="hidden xl:block">
+            <div className="hidden lg:block">
               <p className="titre-options mb-2 text-[15px] font-semibold text-[#2b2320]">{fr ? "Composez votre garde-corps" : "Design your railing"}</p>
               {controlesFamille}
             </div>
@@ -1467,18 +1483,21 @@ export function ReleveGardeCorps({
             </p>
           )}
           {/* « Poids et détails », « Ce que comprend le prix » : la fiche les dépose ici (voir detailsSlot). */}
-          {schemaSlot && detailsSlot && !bandeauSlot && <div ref={detailsSlot} className="mt-2.5" />}
+          {schemaSlot && detailsSlot && !resultatSlot && <div ref={detailsSlot} className="mt-2.5" />}
 
-          {lienPhoto && !bandeauSlot && <div className="mt-1.5 hidden xl:block">{lienPhoto}</div>}
+          {lienPhoto && !bandeauSlot && <div className="mt-1.5 hidden lg:block">{lienPhoto}</div>}
           {/* La note de fabrication : pas dans la colonne étroite, qui doit tenir sur un écran. */}
           {!resultatSlot && <p className="mt-4 text-[11px] leading-snug text-[#726757]">{t.gcNote}</p>}
               </>
             );
+            // Sur téléphone, le résultat reste dans la carte qui défile : sous le croquis, il le poussait hors de l'écran.
             return resultatSlot
               ? createPortal(<div className="resultat-colonne pb-1 text-left">{resultat}</div>, resultatSlot)
-              : schemaSlot
+              : schemaSlot && !telephone
                 ? createPortal(<div className="mt-4 rounded-2xl border border-[#e0d6c8] bg-white/75 p-4 text-left md:p-5">{resultat}</div>, schemaSlot)
-                : resultat;
+                : schemaSlot
+                  ? <div className="mt-3 border-t border-[#e5ddd3] pt-1">{resultat}</div>
+                  : resultat;
           })()}
         </>
       )}

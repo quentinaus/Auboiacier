@@ -489,7 +489,7 @@ export function ProductView({
             {/* Les matières d'abord : c'est ce qu'on vient voir, et la photo
                 suit chaque choix — elles restent donc juste sous le titre.
                 `ProductOptions` les dépose ici par portail (voir matieresSlot). */}
-            <div ref={setMatieresSlot} className={troisColonnes ? "xl:hidden" : undefined} />
+            <div ref={setMatieresSlot} className={troisColonnes ? "lg:hidden" : undefined} />
             {/* L'accroche et le prix de départ suivent, avant le chemin vers
                 le configurateur. */}
             <p className="mt-8 border-t border-[#e5ddd3] pt-7 text-[15px] leading-relaxed text-[#4a4038]">
@@ -520,33 +520,34 @@ export function ProductView({
         pendant qu'on descend dans la carte. `ProductOptions` y dépose le
         croquis par portail (voir schemaSlot). */}
     {pleinePage && (
-      /* Sur téléphone, la page défile normalement : la carte prend la hauteur
-         qu'il lui faut. Elle a d'abord été enfermée dans la hauteur de
-         l'écran, croquis compris, pour que tout tienne d'un coup d'œil — mais
-         il ne restait alors qu'un tiers d'écran pour la carte, et on ne
-         pouvait plus voir les trois cotes ensemble sans faire défiler un
-         menu à l'intérieur d'un autre. Deux défilements imbriqués sur un
-         téléphone : personne ne s'y retrouve. Sur ordinateur, où la place ne
-         manque pas, la carte reste à côté du croquis et défile seule. */
+      /* Partout, téléphone compris, le bloc tient dans UN écran (règle de Quentin, répétée le 05/10 : « tout en
+         bloc, sur iPhone, tablette et PC ») : en haut le croquis, toujours visible pendant qu'on change une cote ou
+         une matière ; dessous, la carte des choix, qui défile À L'INTÉRIEUR d'elle-même quand elle est plus haute
+         que l'écran — jamais la page. La barre d'achat reste collée au bas de la carte. */
       <section
         id="configuration"
-        className={`mx-auto scroll-mt-14 px-5 pb-3 pt-4 md:flex md:h-[calc(100dvh-3.5rem)] md:min-h-[560px] md:flex-col md:px-10 md:py-4 ${troisColonnes ? "max-w-[1480px] xl:h-[calc(100dvh-2rem)] xl:scroll-mt-4 xl:px-6 xl:py-3" : "max-w-7xl"}`}
+        className={`mx-auto flex h-[100svh] min-h-[520px] scroll-mt-0 flex-col px-3 pb-2 pt-3 md:h-[calc(100dvh-3.5rem)] md:min-h-[560px] md:scroll-mt-14 md:px-10 md:py-4 ${troisColonnes ? "max-w-[1480px] lg:h-[calc(100dvh-2rem)] lg:scroll-mt-4 lg:px-6 lg:py-3" : "max-w-7xl"}`}
       >
         {/* Sur ordinateur, tout tient dans la hauteur de l'écran, titre compris : le titre
             est dans la plaque, la carte et le croquis se partagent la hauteur qui reste. */}
         <div
-          className={`fond-configuration flex flex-col gap-4 md:grid md:min-h-0 md:flex-1 md:grid-cols-[minmax(0,372px)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)] md:items-stretch md:gap-x-10 md:gap-y-4 lg:gap-x-14 ${troisColonnes ? "xl:items-start " : ""}${
-            /* Le garde-corps, sur grand écran : TROIS colonnes — les cotes, le croquis et les modèles,
-               puis le résultat, la livraison et le panier. Tout tient sur un écran, titre compris,
-               sans faire défiler ni la page ni une carte. */
-            troisColonnes ? "fond-gc xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:grid-rows-[auto_minmax(0,1fr)_auto] xl:gap-x-5 xl:gap-y-3" : ""
+          className={`fond-configuration flex min-h-0 flex-1 flex-col gap-2.5 md:min-h-0 md:flex-1 ${
+            /* Le garde-corps : sur tablette, le croquis et ses modèles en haut, sur toute la largeur, puis la carte des
+               mesures et la colonne d'achat côte à côte ; sur grand écran, TROIS colonnes — les cotes, le croquis et les
+               modèles, puis le résultat, la livraison et le panier. Tout tient sur un écran, titre compris. (Les classes
+               des tables ne s'appliquent pas ici : deux grilles dans la même plaque se contredisaient.) */
+            troisColonnes
+              ? "fond-gc md:grid md:items-stretch md:grid-cols-2 md:grid-rows-[auto_auto_minmax(0,1fr)] md:gap-x-4 md:gap-y-3 lg:grid-cols-[262px_minmax(0,1fr)_272px] lg:grid-rows-[auto_minmax(0,1fr)_auto] lg:items-start lg:gap-x-4 lg:gap-y-3 xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:gap-x-5"
+              : "md:gap-4 lg:grid lg:items-stretch lg:grid-cols-[minmax(0,372px)_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)] lg:gap-x-14 lg:gap-y-4"
           }`}
         >
           {/* Le titre, et — sur grand écran, au garde-corps — la ligne des matières (couleur, bois, rosace) à sa droite, au-dessus
               du croquis mais PAS dessus (demande de Quentin : « remonte-la, il y a de la place »). */}
-          <div className={troisColonnes ? "md:col-span-2 xl:col-span-3 xl:grid xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:items-center xl:gap-x-5" : "md:col-span-2"}>
-            <h2 className={`${serif.className} text-xl text-[#2b2320] md:text-[28px] md:leading-none`}>{t.configurationTitle}</h2>
-            {troisColonnes && <div ref={setMatieresCentreSlot} className="hidden xl:flex xl:justify-center" />}
+          <div className={troisColonnes ? "md:col-span-2 md:flex md:items-center md:justify-between md:gap-4 lg:col-span-3 lg:grid lg:grid-cols-[262px_minmax(0,1fr)_272px] lg:items-center lg:gap-x-4 xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:gap-x-5" : "lg:col-span-2"}>
+            <h2 className={`${serif.className} text-lg leading-none text-[#2b2320] md:text-[28px]`}>{t.configurationTitle}</h2>
+            {/* Entre 1024 et 1280 px, la colonne du milieu est trop étroite pour la ligne des matières : elle prend aussi la
+                place au-dessus de la colonne d'achat (sinon elle passait sur le titre). */}
+            {troisColonnes && <div ref={setMatieresCentreSlot} className="hidden md:flex md:justify-end lg:col-span-2 lg:justify-center xl:col-span-1" />}
           </div>
           {/* Pas de marge en bas : c'est la barre d'achat, collée au bord
               inférieur, qui porte la sienne — sinon le contenu qui défile
@@ -557,32 +558,35 @@ export function ProductView({
               la barre d'achat doit rester collée au bas de l'écran. */}
           {/* Sur ordinateur, la carte tient dans la hauteur du bloc ; si ses choix sont plus hauts que l'écran, ELLE défile
               (la molette ne fait jamais défiler la page à travers elle), et la barre d'achat reste collée en bas. */}
-          <div className={`carte-verre overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 md:min-h-0 md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain md:px-6 md:pt-5 ${troisColonnes ? "colonne-cotes xl:col-start-1 xl:row-start-2 xl:max-h-full xl:px-5 xl:pb-3 xl:pt-4" : ""}`}>
+          <div className={`carte-verre order-2 min-h-0 flex-1 overflow-y-auto overflow-x-clip overscroll-contain rounded-[26px] px-5 pb-0 pt-4 md:overflow-x-hidden md:px-6 md:pt-5 ${troisColonnes ? "colonne-cotes md:order-none md:flex-none md:col-start-1 md:row-start-3 lg:col-start-1 lg:row-start-2 lg:max-h-full lg:px-4 lg:pb-3 lg:pt-4 xl:px-5" : "lg:order-none lg:flex-none"}`}>
             {options}
           </div>
-          {/* Le croquis : au-dessus de la carte sur téléphone, à côté et en grand sur ordinateur. */}
+          {/* Le croquis : au-dessus de la carte sur téléphone (il ne rétrécit jamais : c'est la carte qui défile), à côté et en
+              grand sur ordinateur. */}
           <div
-            className={`order-first md:order-none ${
+            className={`order-1 shrink-0 ${
               /* Le croquis d'une table ou d'un plafond remplit la hauteur du bloc, au milieu. Le garde-corps a son
-                 catalogue de modèles sous le croquis : il défile dans sa colonne sous 1280 px, et tient entier au-dessus. */
+                 catalogue de modèles sous le croquis : il défile dans sa colonne sous 1024 px, et tient entier au-dessus. */
               product.releve === "garde-corps-fenetre"
-                ? "md:min-h-0 md:overflow-y-auto xl:col-start-2 xl:row-start-2 xl:flex xl:min-h-0 xl:flex-col xl:self-stretch xl:overflow-hidden"
-                : "md:flex md:min-h-0 md:items-center md:justify-center"
+                ? "md:order-none md:col-span-2 md:row-start-2 md:min-h-0 lg:col-span-1 lg:col-start-2 lg:row-start-2 lg:flex lg:min-h-0 lg:flex-col lg:self-stretch lg:overflow-hidden"
+                : "lg:order-none lg:flex lg:min-h-0 lg:items-center lg:justify-center"
             }`}
           >
-            <div ref={setSchemaSlot} className={`schema-configuration mx-auto w-full ${troisColonnes ? "xl:flex xl:min-h-0 xl:flex-1 xl:flex-col xl:[container-type:size]" : ""}`} />
+            <div ref={setSchemaSlot} className={`schema-configuration mx-auto w-full ${troisColonnes ? "lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:[container-type:size]" : ""}`} />
           </div>
           {/* Le bandeau des modèles : en bas du bloc, sous les cotes et le croquis, sur toute leur longueur. Placé AVANT la colonne
               d'achat dans le DOM (la grille le range en bas) : au clavier, on choisit le modèle avant d'arriver au bouton du panier. */}
-          {troisColonnes && <div ref={setBandeauSlot} className="bandeau-gc hidden xl:col-span-2 xl:col-start-1 xl:row-start-3 xl:block" />}
+          {troisColonnes && <div ref={setBandeauSlot} className="bandeau-gc hidden lg:col-span-2 lg:col-start-1 lg:row-start-3 lg:block" />}
           {/* La troisième colonne du garde-corps (grand écran) : `ProductOptions` y dépose le résultat,
-              puis la livraison et la barre d'achat. Vide et cachée en dessous de 1280 px : tout reste
+              puis la livraison et la barre d'achat. Vide et cachée en dessous de 1024 px : tout reste
               alors dans la première carte. */}
           {troisColonnes && (
-            <div className="carte-verre colonne-achat hidden overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 xl:col-start-3 xl:row-span-2 xl:row-start-2 xl:flex xl:max-h-full xl:flex-col xl:self-stretch xl:overflow-y-auto xl:overflow-x-hidden xl:overscroll-contain">
-              <div ref={setResultatSlot} />
+            <div className="carte-verre colonne-achat hidden overflow-x-clip rounded-[26px] px-4 pb-0 pt-4 md:col-start-2 md:row-start-3 md:flex md:min-h-0 md:max-h-full md:flex-col md:self-stretch md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain lg:col-start-3 lg:row-span-2 lg:row-start-2 xl:px-5">
+              <div ref={setResultatSlot} className="mb-auto" />
               {/* L'achat est collé au bas de la colonne : tout le reste (options, résultat, livraison) se range au-dessus, sans défiler. */}
-              <div ref={setAchatSlot} className="mt-auto" />
+              {/* Sans boîte (contents) : la livraison et la barre d'achat deviennent des éléments de la colonne. La barre (opaque,
+                  sticky bottom-0) se colle ainsi au bas de la colonne quand elle défile (tablette), et la livraison passe dessous. */}
+              <div ref={setAchatSlot} className="contents" />
             </div>
           )}
         </div>

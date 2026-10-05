@@ -198,10 +198,17 @@ textarea:focus-visible,
     padding: 32px 36px;
   }
 }
-/* Le garde-corps en trois colonnes : la plaque est plus serrée pour donner sa place au GRAND croquis (demande de Quentin). */
-@media (min-width: 80rem) {
+/* Le garde-corps (tablette et plus) : la plaque est plus serrée pour donner sa place au GRAND croquis (demande de Quentin). */
+@media (min-width: 48rem) {
   .fond-configuration.fond-gc {
     padding: 22px 22px;
+  }
+}
+/* Tables et plafonds sur tablette en hauteur (768 à 1024 px) : le croquis est en haut, sur toute la largeur ; il garde
+   la place de la carte des choix dessous. */
+@media (min-width: 48rem) and (max-width: 63.999rem) {
+  .fond-configuration:not(.fond-gc) .schema-configuration svg {
+    max-height: 34svh;
   }
 }
 /* Le croquis remplit sa colonne, sans jamais dépasser la hauteur de la plaque. */
@@ -554,11 +561,11 @@ textarea:focus-visible,
 }
 
 /* ------------------------------------------------------------------ *
- *  Le garde-corps sur grand écran : trois colonnes qui tiennent sur UN écran,
- *  titre compris (product-view.tsx). On serre ce qui peut l'être, sans rien
- *  retirer : les mêmes blocs, avec moins d'air.
+ *  Le garde-corps sur tablette et grand écran : des colonnes qui tiennent sur
+ *  UN écran, titre compris (product-view.tsx). On serre ce qui peut l'être,
+ *  sans rien retirer : les mêmes blocs, avec moins d'air.
  * ------------------------------------------------------------------ */
-@media (min-width: 80rem) {
+@media (min-width: 48rem) {
   .colonne-cotes .consigne-cotes {
     display: none; /* « sans rien retirer : l'atelier prend le jeu » est dit dans la bulle « i » de chaque cote */
   }
@@ -600,7 +607,7 @@ textarea:focus-visible,
 
 /* Fenêtres de moins de 900 px de haut : la carte des mesures reprend toute la hauteur (le bandeau ne couvre plus que le milieu),
    et les visuels du bandeau rapetissent. */
-@media (min-width: 80rem) and (max-height: 900px) {
+@media (min-width: 64rem) and (max-height: 900px) {
   .colonne-cotes {
     grid-row: 2 / span 2;
   }
@@ -612,21 +619,21 @@ textarea:focus-visible,
   }
 }
 /* Moins de 780 px : on retire aussi la ligne « fenêtre large » (elle reste dans la bulle de la norme) et le titre de la livraison. */
-@media (min-width: 80rem) and (max-height: 780px) {
+@media (min-width: 64rem) and (max-height: 780px) {
   .colonne-achat .info-renfort,
   .colonne-achat #sous-menu-livraison > span {
     display: none; /* la phrase « fenêtre large » passe dans la bulle de la norme (releve-garde-corps.tsx) */
   }
 }
 /* Moins de 780 px : la carte des mesures n'écrit plus ses deux titres (« Vos mesures », « Qui prend les cotes ») : les choix se lisent seuls. */
-@media (min-width: 80rem) and (max-height: 780px) {
+@media (min-width: 64rem) and (max-height: 780px) {
   .colonne-cotes .titre-mesures,
   .colonne-cotes .intitule-qui {
     display: none;
   }
 }
 /* Moins de 780 px : les pilules segmentées sont un peu moins hautes. */
-@media (min-width: 80rem) and (max-height: 780px) {
+@media (min-width: 64rem) and (max-height: 780px) {
   .colonne-achat [role="radiogroup"] button,
   .colonne-cotes [role="radiogroup"] button,
   .colonne-cotes .grid button {
@@ -638,7 +645,7 @@ textarea:focus-visible,
   }
 }
 /* Moins de 740 px : encore un peu d'air en moins dans la colonne d'achat. */
-@media (min-width: 80rem) and (max-height: 740px) {
+@media (min-width: 64rem) and (max-height: 740px) {
   .colonne-achat {
     padding-top: 0.6rem;
   }
@@ -658,8 +665,51 @@ textarea:focus-visible,
   }
 }
 
+/* Entre 1024 et 1280 px (tablette à l'horizontale, petit portable) : les colonnes sont plus étroites, donc plus hautes.
+   La carte des mesures prend toute la hauteur (le bandeau des modèles ne passe que sous le croquis), et la colonne
+   d'achat se resserre un peu : rien ne défile (demande de Quentin, 05/10). */
+@media (min-width: 64rem) and (max-width: 79.999rem) {
+  .colonne-cotes {
+    grid-row: 2 / span 2;
+  }
+  .bandeau-gc {
+    grid-column: 2;
+  }
+  .colonne-achat {
+    padding-top: 0.7rem;
+  }
+  .colonne-achat .barre-achat {
+    margin-top: 0.25rem;
+  }
+  .colonne-achat .legende-option,
+  .colonne-achat .titre-options {
+    display: none;
+  }
+}
+
+/* Téléphone tourné à l'horizontale (large, mais moins de 500 px de haut) : le bloc garde la hauteur de l'écran, sans la
+   hauteur minimale des tablettes qui le faisait déborder de 226 px ; le croquis reste en haut, les cartes défilent dedans. */
+@media (min-width: 48rem) and (max-height: 31.25rem) {
+  #configuration {
+    height: 100svh;
+    min-height: 0;
+    scroll-margin-top: 0;
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
+  }
+  .fond-configuration,
+  .fond-configuration.fond-gc {
+    padding: 10px 14px;
+    row-gap: 6px;
+  }
+  /* « Une question sur cette pièce ? » sous la plaque : la place manque, le lien Contact reste dans l'en-tête. */
+  #configuration > .fond-configuration + * {
+    display: none;
+  }
+}
+
 /* Fenêtres peu hautes : la colonne d'achat ne défile jamais, on retire les phrases d'aide sous les choix (elles restent dans leur bulle). */
-@media (min-width: 80rem) and (max-height: 900px) {
+@media (min-width: 64rem) and (max-height: 900px) {
   .colonne-achat .legende-option,
   .colonne-achat .titre-options {
     display: none;
