@@ -207,24 +207,19 @@ export function PorteQuiMesure({
       scene: "SVG_JE_MESURE" as const,
       classeScene: "aplat-scB",
       etiquette: notes.tagMoi,
-      // Trait d'union insécable : « moi-même » ne se coupe pas en fin de ligne.
-      titre: fr ? "Je mesure moi\u2011même" : "I measure myself",
-      note: "",
-      // Ce que le client obtient, en trois temps (Quentin, 05/10/2026 : « tu commandes le garde-corps à tes mesures, l'atelier
-      // te le fabrique aux normes et tu le reçois prêt à poser, avec visserie et son guide d'installation »). Les mots en gras
-      // sont ceux qui comptent. Fixations et notice de pose fournies : c'est aussi ce que disent le prix et le panier.
-      // (Une ligne par étape : la scène de la carte garde sa place, même sur un écran bas.)
-      etapes: fr
-        ? [
-            ["", "Commandez", " à vos mesures, au prix affiché"],
-            ["L'atelier le fabrique ", "aux normes", ""],
-            ["Reçu ", "prêt à poser", ", visserie et guide de pose"],
-          ]
-        : [
-            ["", "Order", " to your measurements, at the price shown"],
-            ["The workshop makes it ", "to the standard", ""],
-            ["Arrives ", "ready to fit", ", with fixings and fitting guide"],
-          ],
+      // « Je mesure et pose moi-même » (Quentin, 05/10/2026) : la différence avec la carte de l'atelier, qui pose. Une
+      // phrase, qui met en avant ce qui compte : l'atelier fabrique aux cotes exactes du client. (Trait d'union insécable :
+      // « moi-même » ne se coupe pas en fin de ligne.)
+      titre: fr ? "Je mesure et pose moi\u2011même" : "I measure and fit it myself",
+      note: fr ? (
+        <>
+          Vous prenez deux mesures au mètre&nbsp;: l&apos;atelier fabrique votre garde-corps <strong className="porte-fort">à vos cotes exactes</strong>.
+        </>
+      ) : (
+        <>
+          You take two tape measurements: the workshop makes your railing <strong className="porte-fort">to your exact dimensions</strong>.
+        </>
+      ),
       action: fr ? "Saisir mes mesures" : "Enter my measurements",
     },
   ];
@@ -258,22 +253,6 @@ export function PorteQuiMesure({
                 <span className="aplat-tag">{c.etiquette}</span>
                 <span className="aplat-card-title block">{c.titre}</span>
                 {c.note && <span className="aplat-card-text block">{c.note}</span>}
-                {c.etapes && (
-                  <span className="aplat-card-text porte-etapes">
-                    {c.etapes.map(([avant, gras, apres], i) => (
-                      <span key={i} className="porte-etape">
-                        <span className="porte-etape-num" aria-hidden>
-                          {i + 1}
-                        </span>
-                        <span>
-                          {avant}
-                          <strong>{gras}</strong>
-                          {apres}
-                        </span>
-                      </span>
-                    ))}
-                  </span>
-                )}
                 <span className="aplat-btn porte-action">
                   {c.action}
                   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="ml-2 h-4 w-4">
