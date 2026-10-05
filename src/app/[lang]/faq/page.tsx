@@ -3,6 +3,7 @@ import Link from "next/link";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
 import { metadataPage, jsonLdFaq, jsonLdFilAriane, scriptJsonLd } from "@/lib/seo";
+import { questionsFaq } from "@/lib/faq-balisees";
 import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
@@ -28,11 +29,12 @@ export default async function FaqPage({ params }: PageProps<"/[lang]/faq">) {
   return (
     <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
       {/* Les questions sont toutes visibles à l'écran, sans repli : c'est la
-          condition pour que Google ait le droit de les afficher. */}
+          condition pour que Google ait le droit de les afficher. Aucune n'est
+          balisée ailleurs sur le site (src/lib/faq-balisees.ts). */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={scriptJsonLd(
-          jsonLdFaq(t.items.map((item) => ({ question: item.q, reponse: item.a })))
+          jsonLdFaq(questionsFaq(dict).map((item) => ({ question: item.q, reponse: item.a })))
         )}
       />
       <script
@@ -47,8 +49,16 @@ export default async function FaqPage({ params }: PageProps<"/[lang]/faq">) {
       <GlobalHeader locale={locale} dict={dict} />
       <main id="contenu">
 
-      <div className="mx-auto max-w-3xl px-6 py-16">
-        <h1 className={`${serif.className} text-3xl font-medium tracking-tight md:text-4xl`}>
+      <div className="mx-auto max-w-3xl px-6 pb-16 pt-10 md:pt-14">
+        {/* Le fil d'Ariane visible : le même que celui balisé plus haut. */}
+        <nav aria-label={dict.nav.breadcrumb} className="flex flex-wrap text-[11px] text-[#726757]">
+          <Link href={`/${locale}`} className="hover:text-[#2b2320]">
+            {dict.nav.home}
+          </Link>
+          <span className="mx-1.5">/</span>
+          <span className="text-[#2b2320]">{t.title}</span>
+        </nav>
+        <h1 className={`${serif.className} mt-6 text-3xl font-medium tracking-tight md:text-4xl`}>
           {t.title}
         </h1>
         <p className="mt-4 leading-relaxed text-[#5c5140]">{t.subtitle}</p>

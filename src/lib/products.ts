@@ -578,7 +578,7 @@ const PLATEAU_MASSIF: PalierEpaisseur[] = [
 ];
 /**
  * Le plus grand panneau d'un seul tenant chez le fournisseur, en mm. Exportés :
- * les pages /artisanat/tables et /bois-massif les citent, sans les recopier.
+ * la page /artisanat/tables les cite, sans les recopier.
  */
 export const PLATEAU_MAX_LONGUEUR_MM = 4500;
 export const PLATEAU_MAX_LARGEUR_MM = 1250;
@@ -855,7 +855,7 @@ export const products: Product[] = [
         },
         {
           title: "A first-grade oak top",
-          body: "Our reference top is French first-grade oak from sustainably managed forests. Wide boards, each running the full length in a single piece, are selected and matched by hand so grain and colour answer each other: no knots, no sapwood. Oiled rather than varnished, the wood keeps its touch and gains a patina over the years; a mark comes out with fine paper, on that spot alone. Beech, walnut and pine are made to the same standard.",
+          body: "Our reference top is French first-grade oak from sustainably managed forests. Wide boards, each running the full length in a single piece, are selected and matched by hand so grain and colour answer each other: no knots, no sapwood. Oiled rather than varnished, the wood keeps its touch and gains a patina over the years; a mark comes out with fine sandpaper, on that spot alone. Beech, walnut and pine are made to the same standard.",
         },
       ],
       specs: [
@@ -1012,7 +1012,7 @@ export const products: Product[] = [
         },
         {
           title: "A first-grade oak top",
-          body: "Our reference top is French first-grade oak from sustainably managed forests. Wide boards, each running the full length in a single piece, are selected and matched by hand so grain and colour answer each other: no knots, no sapwood. Oiled rather than varnished, the wood keeps its touch and gains a patina over the years; a mark comes out with fine paper, on that spot alone. Beech, walnut and pine are made to the same standard.",
+          body: "Our reference top is French first-grade oak from sustainably managed forests. Wide boards, each running the full length in a single piece, are selected and matched by hand so grain and colour answer each other: no knots, no sapwood. Oiled rather than varnished, the wood keeps its touch and gains a patina over the years; a mark comes out with fine sandpaper, on that spot alone. Beech, walnut and pine are made to the same standard.",
         },
       ],
       specs: [
@@ -1137,7 +1137,7 @@ export const products: Product[] = [
         },
         {
           title: "A first-grade oak top",
-          body: "Our reference top is French first-grade oak from sustainably managed forests. Wide boards, each running the full length in a single piece, are selected and matched by hand so grain and colour answer each other: no knots, no sapwood. Oiled rather than varnished, the wood keeps its touch and gains a patina over the years; a mark comes out with fine paper, on that spot alone. Beech, walnut and pine are made to the same standard.",
+          body: "Our reference top is French first-grade oak from sustainably managed forests. Wide boards, each running the full length in a single piece, are selected and matched by hand so grain and colour answer each other: no knots, no sapwood. Oiled rather than varnished, the wood keeps its touch and gains a patina over the years; a mark comes out with fine sandpaper, on that spot alone. Beech, walnut and pine are made to the same standard.",
         },
       ],
       specs: [
@@ -1385,7 +1385,7 @@ export const products: Product[] = [
     slug: "escalier-limon-central",
     famille: "escalier",
     seoMots: "escalier acier",
-    seoTitre: "Escalier limon central acier et chêne",
+    seoTitre: "Escalier limon central acier et bois",
     seoDescription:
       "Escalier à limon central acier, marches en bois massif, droit, quart tournant ou demi-tournant. Fabriqué et posé depuis Saumur.",
     releve: "escalier",
@@ -1445,7 +1445,7 @@ export const products: Product[] = [
     en: {
       name: "Central Stringer Staircase",
       seoMots: "steel staircase",
-      seoTitre: "Steel and oak central stringer staircase",
+      seoTitre: "Steel and wood central stringer stairs",
       seoDescription:
         "Central stringer staircase in steel, solid wood treads: straight, quarter turn or half turn. Made and fitted from Saumur, France.",
       tagline: "Curved steel stringer, solid oak treads, cable balustrade.",
@@ -1498,9 +1498,12 @@ export const products: Product[] = [
       "balcon français fenêtre garde-corps acier",
     ],
     // L'accroche fait 131 signes : assemblée avec le prix et le suffixe, elle
-    // dépassait les 155 signes que Google affiche.
+    // dépassait les 155 signes que Google affiche. Courte, elle tient aussi
+    // avec « Sur devis, pose comprise. » (prix indisponible). « Normes de
+    // sécurité françaises » : la fiche détaille hauteur (art. R134-59) et
+    // espaces (NF P01-012) — rien ici qui ressemble à une marque NF.
     seoDescription:
-      "Garde-corps de fenêtre en acier plein, rosace style ancien, sur mesure à Saumur. Prix instantané, devis PDF, hauteur NF P01-012.",
+      "Garde-corps de fenêtre en acier plein, rosace style ancien, sur mesure à Saumur, aux normes de sécurité françaises.",
     releve: "garde-corps-fenetre",
     category: "interieur",
     // Se commande en ligne, aux cotes que le client relève lui-même : aucune
@@ -1662,7 +1665,7 @@ export const products: Product[] = [
         "NF P01-012 window guard custom",
       ],
       seoDescription:
-        "Solid steel window railing with period-style rosettes, made to measure in Saumur. Instant price, PDF quote, NF P01-012 height.",
+        "Solid steel window railing, period-style rosettes, made to measure in Saumur to French safety standards.",
       tagline: "Handmade custom window railing in solid steel: Saint Andrew's crosses with cast rosettes, or vertical bars; wood or steel handrail. Made to the millimetre, fitted into your window.",
       images: [
         "Window railing seen head-on: painted black steel frame with a Saint Andrew's cross, two cast rosettes, oak handrail",
@@ -1989,7 +1992,7 @@ export const products: Product[] = [
     seoMots: "plafond lumineux toile tendue",
     seoTitre: "Lucarne, plafonnier en toile tendue",
     seoDescription:
-      "Plafonnier en toile tendue rétroéclairée, cadre alu laqué, en applique, suspendu ou encastré. Fabriqué à Saumur, livré en France.",
+      "Plafonnier en toile tendue rétroéclairée, cadre alu, fabriqué à Saumur. Livré jusqu'à 230 × 210 cm, posé par l'atelier au-delà.",
     // Les photos de la fiche sont carrées : déclinaison 1200 × 630 pour les réseaux.
     imagePartage: "/images/partage/lucarne.jpg",
     category: "lumiere",
@@ -2084,7 +2087,7 @@ export const products: Product[] = [
       seoMots: "backlit stretch ceiling",
       seoTitre: "Lucarne, stretch-fabric ceiling light",
       seoDescription:
-        "Backlit stretch-fabric ceiling light, lacquered aluminium frame, surface-mounted, hung or recessed. Made in Saumur, delivered in France.",
+        "Backlit stretch-fabric ceiling light, aluminium frame, made in Saumur. Shipped up to 230 × 210 cm; larger sizes fitted by the workshop.",
       tagline: "Backlit stretched fabric, lacquered aluminium frame.",
       images: [
         "Lucarne: backlit stretch ceiling seen from below, black aluminium frame",
@@ -2132,7 +2135,7 @@ export const products: Product[] = [
     seoMots: "plafond lumineux rond",
     seoTitre: "Halo, luminaire rond en toile tendue",
     seoDescription:
-      "Grand luminaire rond en toile tendue rétroéclairée, cadre alu laqué, jusqu'à Ø 400 cm. Fabriqué à Saumur, livré en France.",
+      "Grand luminaire rond en toile tendue rétroéclairée, fabriqué à Saumur. Livré jusqu'à Ø 210 cm, posé par l'atelier au-delà.",
     // Photos carrées, là aussi : déclinaison 1200 × 630 pour les réseaux.
     imagePartage: "/images/partage/halo.jpg",
     category: "lumiere",
@@ -2217,7 +2220,7 @@ export const products: Product[] = [
       },
       {
         title: "Posé au plafond ou suspendu",
-        body: "Le disque se pose au plafond ou se suspend par câbles. Jusqu'à 400 cm de diamètre d'un seul tenant ; l'alimentation 220 V est fournie, la variation est possible sur demande.",
+        body: "Le disque se pose au plafond ou se suspend par câbles. Il se fabrique jusqu'à 400 cm de diamètre : d'un seul tenant jusqu'à 210 cm, en modules posés chez vous par l'atelier au-delà. L'alimentation 220 V est fournie, la variation est possible sur demande.",
       },
     ],
     specs: [
@@ -2233,7 +2236,7 @@ export const products: Product[] = [
       seoMots: "round backlit stretch ceiling",
       seoTitre: "Halo, round stretch-fabric ceiling light",
       seoDescription:
-        "Large round backlit stretch-fabric light, lacquered aluminium frame, up to Ø 400 cm. Made in Saumur, delivered in France.",
+        "Large round backlit stretch-fabric light, made in Saumur. Shipped up to Ø 210 cm; larger sizes fitted by the workshop.",
       tagline: "A circle of backlit stretched fabric, lacquered aluminium frame.",
       images: [
         "Halo: round stretched-fabric light ceiling, black aluminium frame",
@@ -2265,7 +2268,7 @@ export const products: Product[] = [
         },
         {
           title: "Fixed to the ceiling or suspended",
-          body: "The disc fixes to the ceiling or hangs on cables. Up to 400 cm across in one piece; the 220 V supply comes with it and dimming is available on request.",
+          body: "The disc fixes to the ceiling or hangs on cables. It is made up to 400 cm across: in one piece up to 210 cm, in modules fitted at your place by the workshop beyond that. The 220 V supply comes with it and dimming is available on request.",
         },
       ],
       specs: [

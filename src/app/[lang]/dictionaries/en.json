@@ -90,7 +90,7 @@
     "seoLinksTitle": "What we make to measure",
     "seoLinks": [
       "Custom window railings",
-      "Steel and oak staircase",
+      "Steel and solid wood staircase",
       "Steel workshop partition",
       "Custom wood and steel tables",
       "Solid wood in our workshop",
@@ -147,12 +147,11 @@
     "ctaTitle": "A project to quote",
     "ctaSubtitle": "Describe your room: we measure up, we quote, we fit.",
     "ctaButton": "Describe my project",
-    "catalogueLumiere": "Two shapes, prices shown",
+    "catalogueLumiere": "{n} shapes, prices shown",
     "catalogueLumiereNote": "Backlit stretched fabric, lacquered aluminium frame, from 60 cm to a whole ceiling.",
-    "surMesureTitle": "Beyond 400 × 300 cm",
-    "surMesureBody": "Rectangles up to 400 × 300 cm, discs up to Ø 400 cm, to the centimetre. Beyond that we butt several boxes together to cover a whole ceiling: the workshop measures up at your home, then quotes.",
-    "altPlafondDemo": "Backlit stretched-fabric ceiling on an aluminium frame",
-    "heroAustralie": "Before opening the workshop, Quentin spent several years in Australia with a maker of backlit stretch ceilings."
+    "surMesureTitle": "Beyond 230 × 210 cm",
+    "surMesureBody": "In one piece, a light ceiling goes up to 230 × 210 cm (Ø 210 cm for the Halo) and ships anywhere in mainland France. Beyond that, it is made of modules assembled and fitted at your place by the workshop, within 200 km of Saumur: up to 400 × 300 cm (Ø 400 cm), the product page gives the price. For a larger ceiling, the workshop measures up at your home, then quotes.",
+    "altPlafondDemo": "Backlit stretched-fabric ceiling on an aluminium frame"
   },
   "realisations": {
     "title": "Projects",
@@ -268,7 +267,7 @@
     "customMin": "Minimum",
     "customArea": "Area",
     "customTooSmall": "Below the smallest size we can build.",
-    "customTooBig": "Beyond the largest single piece: write to us, we join several boxes together.",
+    "customTooBig": "Beyond the largest size on offer: write to us, we join several boxes together and quote.",
     "customInvalid": "Enter dimensions as numbers.",
     "customLength": "Length",
     "customHelpPlan": "Your sizes in centimetres — or millimetres if you prefer, the unit switches next to them. The top is priced per m², the base included.",
@@ -508,7 +507,7 @@
     "h1": "Made-to-measure pieces in steel and solid wood",
     "avisGoogle": "Read our Google reviews",
     "faqPoseToileQ": "How is a light ceiling fitted?",
-    "faqPoseToileA": "The aluminium frame fixes to the existing ceiling or hangs on cables, then the fabric clips into its groove: no building work, no dust. The workshop can come and fit it; the product page gives the price for your postcode.",
+    "faqPoseToileA": "The aluminium frame fixes to the existing ceiling or hangs on cables, then the fabric clips into its groove. No building work: a few holes drilled in the ceiling, and a cut-out in the false ceiling for a recessed model. The workshop can come and fit it; the product page gives the price for your postcode.",
     "faqToileQ": "How do I look after the fabric?",
     "faqToileA": "The fabric comes out and goes back without a tool, so it can be dusted. The lacquered aluminium frame wipes clean with a soft cloth."
   },
@@ -707,7 +706,7 @@
     "panelTitle": "Solid panels where they earn their place",
     "panelBody": "Lower down, glass can give way to steel sheet stiffened by a cross brace: the bottom of the door takes the knocks, and the partition gains character.",
     "panelAlt": "Lower panel of a steel partition in black sheet steel with a cross brace",
-    "atelierTitle": "Made-to-measure steel partitions, from Saumur to Angers"
+    "atelierTitle": "Made-to-measure steel partitions"
   },
   "panier": {
     "title": "Your cart",
@@ -983,7 +982,7 @@
     "produitSuffixe": "Handmade in Saumur, France. Shipped nationwide.",
     "lumiere": {
       "title": "Custom backlit stretch-fabric ceilings",
-      "description": "Backlit stretch-fabric light on an aluminium frame: rectangles up to 400 × 300 cm, discs up to Ø 400 cm. Made in Saumur, France, priced online, delivered."
+      "description": "Backlit stretch-fabric ceiling light, rectangle or disc, made in Saumur. Ships up to 230 × 210 cm (Ø 210 cm); larger sizes fitted by the workshop."
     },
     "sculptures": {
       "title": "One-off reclaimed steel sculptures",
@@ -1031,7 +1030,7 @@
     },
     "zone": {
       "title": "Metalworker in Saumur, Anjou and Touraine",
-      "description": "Saumur metalwork studio: railings, stairs, glass partitions, steel and wood tables, light ceilings. Survey and fitting from Chinon to Angers and Tours."
+      "description": "Metalwork studio in Saumur, France: railings, stairs, steel partitions, steel and wood tables, light ceilings. Measuring and fitting within 200 km."
     },
     "faq": {
       "title": "FAQ — lead times, prices, delivery",
@@ -1067,13 +1066,13 @@
     },
     "bois": {
       "title": "Solid wood and steel made to order, Saumur",
-      "description": "Table tops, stair treads, handrails: solid oak, walnut, beech or pine, worked alongside steel in our Saumur workshop (Maine-et-Loire, France)."
+      "description": "Stair treads, railing handrails, table tops: solid pine, beech, oak or walnut, paired with steel in our Saumur workshop (Maine-et-Loire, France)."
     }
   },
   "zone": {
     "title": "Where we work",
     "h1": "Metalworker in Saumur, Anjou and Touraine",
-    "subtitle": "The Auboiacier workshop is in Saumur, in the Maine-et-Loire, France. It works in steel, solid wood and backlit stretch-fabric ceilings. You keep one point of contact, from the measuring visit to the fitting.",
+    "subtitle": "The Auboiacier workshop is in Saumur, in the Maine-et-Loire, France. It works in steel and solid wood, and makes backlit stretch-fabric ceiling lights. You keep one point of contact, from the measuring visit to the fitting.",
     "metiersTitle": "What the workshop makes and fits",
     "metiers": {
       "gardeCorps": {
@@ -1102,15 +1101,15 @@
       }
     },
     "autourTitle": "Around Saumur",
-    "autourBody": "Saumur and the nearby towns — Doué-en-Anjou, Longué-Jumelles, Montreuil-Bellay, Bourgueil, Chinon — are less than an hour's drive from the workshop. This is our everyday ground: we come and measure up at your home, we fit, and we come back without fuss if something needs adjusting.",
+    "autourBody": "In Saumur and the nearby towns, the workshop comes to measure up at your home, then fits the piece. If something needs adjusting after fitting, we come back to do it.",
     "realisationsTitle": "Projects near you",
-    "voisinsTitle": "Angers, Tours, Cholet and the neighbouring departments",
-    "voisinsBody": "Angers, Cholet, Tours, and more widely the Maine-et-Loire (49), Indre-et-Loire (37), Deux-Sèvres (79) and Vienne (86): we travel there regularly. Travel is priced into the quote: you know what it costs before you commit. A measuring visit at your home costs {prixVisite} within {rayonVisite} km of Saumur; further out, its price depends on the distance.",
+    "voisinsTitle": "Up to 200 km from the workshop",
+    "voisinsBody": "Further out, in Angers, Tours or the neighbouring departments, the workshop travels up to 200 km from Saumur to measure up and fit. Travel is priced into the quote: you know what it costs before you commit. A measuring visit at your home costs {prixVisite} within {rayonVisite} km of Saumur; further out, its price depends on the distance.",
     "rdvLink": "Book a measuring visit",
     "sections": [
       {
         "title": "Anywhere in mainland France",
-        "body": "Pieces from the collection are delivered anywhere in mainland France by carrier, priced by your town: they travel protected, and we agree a time slot with you. For fitting further afield (backlit stretch ceiling, steel partition, staircase), write to us: we look at the job and the driving time, and we give you a straight answer."
+        "body": "Pieces from the collection are delivered anywhere in mainland France by carrier, priced by your town: they travel protected, and we agree a time slot with you. The one exception: a light ceiling larger than 230 × 210 cm, made of modules, is fitted by the workshop. For fitting further afield (backlit stretch ceiling, steel partition, staircase), write to us: we look at the job and the driving time, and we give you a straight answer."
       },
       {
         "title": "How a project runs",
@@ -1150,7 +1149,7 @@
       },
       {
         "q": "Where do you work?",
-        "a": "The workshop is in Saumur, in the Maine-et-Loire. We regularly travel across Maine-et-Loire, Indre-et-Loire, Deux-Sèvres and Vienne to measure up and fit, and we deliver furniture anywhere in mainland France. The detail is on the Where we work page."
+        "a": "The workshop is in Saumur, in the Maine-et-Loire. We travel up to 200 km from the workshop — Maine-et-Loire, Indre-et-Loire, Deux-Sèvres, Vienne — to measure up and fit, and we deliver furniture anywhere in mainland France. The detail is on the Where we work page."
       },
       {
         "q": "How do I care for a wood & steel piece?",
@@ -1166,7 +1165,7 @@
       },
       {
         "q": "How is a backlit stretch ceiling fitted?",
-        "a": "The aluminium frame is fixed to your existing ceiling, then the fabric is stretched: no demolition, no dust, and the fitting usually takes a day. The largest single panel is 400 × 300 cm; beyond that we butt several boxes together to cover a whole ceiling."
+        "a": "The aluminium frame fixes to the existing ceiling or hangs on cables, then the fabric clips into its groove. No building work: a few holes drilled in the ceiling, and a cut-out in the false ceiling for a recessed model. In one piece, a ceiling goes up to 230 × 210 cm (Ø 210 cm for the Halo); beyond that, it is made of modules assembled and fitted at your place by the workshop."
       },
       {
         "q": "Are quotes free?",
@@ -1347,7 +1346,7 @@
   "lumiere": {
     "choixTitle": "A light panel or a wall-to-wall stretch ceiling?",
     "choixCadre": "Our light ceilings are aluminium boxes, complete with their fabric and LEDs, fixed below your existing ceiling. You choose the shape and the size, to the centimetre.",
-    "choixTendu": "A wall-to-wall stretch ceiling is something else: a fabric hooked all round the room, on profiles fixed to the walls, and fitted by a specialist installer.",
+    "choixTendu": "A wall-to-wall stretch ceiling is something else: a fabric membrane stretched all round the room, on profiles fixed to the walls, and fitted by a specialist installer.",
     "choixPrix": "The price shown here is for the whole piece, at its size. The per-square-metre prices you find in guides are for wall-to-wall installation: they do not compare directly.",
     "poseTitle": "Surface-mounted, suspended or recessed",
     "poseBody": "The Lucarne is surface-mounted on the ceiling, hung on cables or recessed into a false ceiling. The Halo fixes to the ceiling or hangs. The 220 V supply comes with it; dimming is optional.",
@@ -1356,7 +1355,7 @@
     "piecesTitle": "Which rooms",
     "piecesBody": "Above a dining table, in a large living room, a meeting room or an open-plan office. Past 1.50 m across, a single Halo can light the whole room.",
     "fabricationTitle": "Making, delivery, fitting",
-    "fabricationBody": "Every ceiling is made to order: allow {delai}. The fabric clips into a groove all round the frame; it comes out and goes back without a tool for cleaning. We deliver anywhere in France, and the workshop can come and fit your ceiling: the product page gives the price for your postcode.",
+    "fabricationBody": "Every ceiling is made to order: allow {delai}. The fabric clips into a groove all round the frame; it comes out and goes back without a tool for cleaning. In one piece, up to 230 × 210 cm (Ø 210 cm for the Halo), a ceiling ships anywhere in mainland France. Larger ones are made of modules that the workshop assembles and fits at your place, within 200 km of Saumur. Within that radius, the workshop can also come and fit any ceiling: the product page gives the fitting price for your postcode.",
     "zoneLink": "See where we work",
     "faqTitle": "Frequently asked questions",
     "faq": [
@@ -1366,7 +1365,7 @@
       },
       {
         "q": "What sizes?",
-        "a": "Rectangles up to 400 × 300 cm, discs up to Ø 400 cm, to the centimetre. Catalogue sizes have their price shown; for your own size, the product page works out the price at once."
+        "a": "Rectangles up to 400 × 300 cm, discs up to Ø 400 cm, to the centimetre. In one piece up to 230 × 210 cm (Ø 210 cm for the Halo); beyond that, in modules assembled and fitted at your place by the workshop, within 200 km of Saumur. Catalogue sizes have their price shown; for your own size, the product page works out the price at once."
       },
       {
         "q": "Which white should I choose?",
@@ -1419,13 +1418,14 @@
     "dimensionsTitle": "Your dimensions",
     "dimensionsBody": "Length and width are up to you, to the centimetre, from {min} cm. The largest one-piece top is {longueur} × {largeur} cm. As a guide, allow about 60 cm of table per guest.",
     "fabricationTitle": "Made in Saumur",
-    "fabricationBody": "Nothing is kept in stock. When you order, the steel is cut, welded and ground in the workshop, then painted; the top is finished with hardwax oil. Allow {delai} for making on most models; the exact lead time is on each product page. We deliver anywhere in France by carrier. You can also have the workshop deliver and fit the table, priced by the distance from Saumur, or collect it from the workshop.",
+    "fabricationBody": "Nothing is kept in stock. When you order, the steel is cut, welded and ground in the workshop, then painted. The tops of the Mikado, Croix and Brindille tables are finished with hardwax oil; the Mikado Outdoor table gets an outdoor oil, and the river table pairs oak with a pour of epoxy resin. Allow {delai} for making on most models; the exact lead time is on each product page. We deliver anywhere in France by carrier. You can also have the workshop deliver and fit the table, priced by the distance from Saumur, or collect it from the workshop.",
     "faqTitle": "Frequently asked questions",
     "faqTailleQ": "What size for 6, 8 or 10 people?",
     "faqTailleA": "Allow about 60 cm of table per guest. Catalogue sizes: {formats}. Between two sizes, enter your dimensions: the product page works out the price.",
     "faqBoisQ": "Which wood should I choose?",
-    "faqBoisA": "Oak is the workshop's reference: hard, blond, with a strong grain. Walnut is brown and darker, with a rich grain. Beech is pale, with a fine, tight grain. Pine is the softest: it marks more easily, but a mark sands back out. All four are finished with hardwax oil.",
+    "faqBoisA": "Oak is the workshop's reference: hard, blond, with a strong grain. Walnut is brown and darker, with a rich grain. Beech is pale, with a fine, tight grain. Pine is the softest: it marks more easily, but a mark sands back out. On the Mikado, Croix and Brindille tables, all four are finished with hardwax oil.",
     "faqEntretienQ": "How do I care for an oiled top?",
+    "faqEntretienA": "Wipe up spills straight away with a soft, barely damp cloth, and put hot dishes on a trivet. When the wood looks dry, a coat of hardwax oil restores its protection; a scratch sands out lightly, on that spot alone.",
     "faqDehorsQ": "Does treated oak stand up to the outdoors?",
     "faqDehorsA": "Yes. The Mikado Outdoor table has a solid oak top treated to class 4, laid in spaced slats so rain runs off, and a base painted for outdoor use. Allow one coat of oil a year, or let the wood go grey if you like the patina.",
     "faqHorsQ": "Can I have a timber or a shape outside the catalogue?",
@@ -1437,38 +1437,22 @@
   },
   "bois": {
     "title": "Solid wood",
-    "h1": "Solid wood in our workshop: oak, walnut, beech and pine",
-    "intro": "Solid wood goes into most of the workshop's pieces, always alongside steel: table tops, stair treads, handrails. Here are the timbers on offer, and what to know to choose.",
-    "essencesTitle": "Four timbers, four characters",
-    "ouTitle": "Where wood goes into our pieces",
-    "ou": {
-      "tables": {
-        "titre": "Table tops",
-        "texte": "In solid pine, beech, oak or walnut, on the Mikado, Croix and Brindille tables. The river table pairs oak with epoxy resin."
-      },
-      "escalier": {
-        "titre": "Stair treads",
-        "texte": "50 mm solid wood treads, in any of the four timbers, on a central steel stringer."
-      },
-      "gardeCorps": {
-        "titre": "Railing handrail",
-        "texte": "Grooved solid wood, or laid on a flat bar welded to the top rail. It also comes in all steel."
-      },
-      "exterieur": {
-        "titre": "Garden table slats",
-        "texte": "Solid oak treated to class 4, laid in spaced slats so rain runs off."
-      }
-    },
-    "preparationTitle": "How the top is prepared",
-    "preparationBody": "The tops are first-grade solid wood, in one piece up to {longueur} × {largeur} cm. They are finished with hardwax oil rather than varnish: the wood keeps its touch and gains a patina over the years, and a mark comes out with fine paper, on that spot alone.",
-    "entretienTitle": "Care",
-    "entretienBody": "A soft dry cloth day to day. One coat of hardwax oil a year is enough, and a scratch sands out lightly.",
+    "h1": "Solid wood in our workshop: stair treads, handrails and table tops",
+    "intro": "In our workshop, solid wood always goes with steel: a tread on a stringer, a handrail on a railing, a top on a welded base. Four timbers are on offer: pine, beech, oak and walnut.",
+    "marchesTitle": "Stair treads",
+    "marchesBody": "On the central stringer staircase, each tread is a single piece of solid wood 50 mm thick, in pine, beech, oak or walnut. It is fixed on plates hidden under the tread, so it seems to float above the stringer. A tread wears where feet land: oak and beech, both hard, mark less quickly than pine, which is softer. The staircase handrail is in curved wood.",
+    "marchesLien": "The central stringer staircase",
+    "mainCouranteTitle": "Railing handrails",
+    "mainCouranteBody": "On the window railing, the handrail can be solid wood, in the same four timbers, finished with hardwax oil. It comes in two forms: a 40 × 40 mm square, grooved underneath to fit over the top rail; or a 60 × 45 mm piece laid on a 60 × 10 mm steel flat bar welded to the top rail, which stiffens it. This is the part your hand touches: wood feels softer there, and less cold than steel. It also comes in all steel.",
+    "mainCouranteLien": "The window railing",
+    "plateauxTitle": "Table tops",
+    "plateauxBody": "The Mikado, Croix and Brindille tables have a top in solid pine, beech, oak or walnut; first-grade oak, with no knots and no sapwood, is the workshop's reference. The longer the table, the thicker the top must be so it does not sag: the product page checks that the thickness you choose — 28, 36 or 45 mm — suits the length. The garden table has slats of oak treated to class 4, and the river table a pour of epoxy resin through the oak.",
+    "huileTitle": "Why hardwax oil",
+    "huileBody": "Treads, wooden handrails and the tops of the Mikado, Croix and Brindille tables are finished with hardwax oil rather than varnish. The oil soaks into the wood and the wax protects the surface, without forming a film that can flake. The wood keeps its touch and gains a patina over the years. And a mark is repaired on the spot: a light sanding with fine sandpaper, then a coat of hardwax oil, on that spot alone — whereas scratched varnish is hard to touch up in patches. The garden table gets an outdoor oil instead.",
+    "huileLien": "Day-to-day care",
+    "bougeTitle": "Solid wood moves",
+    "bougeBody": "Solid wood follows the humidity of the air: it swells slightly when the air is damp and shrinks back when it is dry. Avoid placing a table against a radiator, or in full sun behind a large window.",
     "atelierTitle": "A wood and metal workshop in Saumur",
-    "atelierBody": "The Saumur workshop draws every piece, welds the steel and puts the wood and metal together. You keep one point of contact, from the measuring visit to the fitting.",
-    "faqTitle": "Frequently asked questions",
-    "faqBoisTableQ": "Which wood should I choose for a table?",
-    "faqBougeQ": "Does solid wood move?",
-    "faqBougeA": "Yes, a little: it follows the humidity of the room. It swells slightly when the air is damp and shrinks back when it is dry. Avoid placing the table against a radiator or in full sun behind a large window.",
-    "faqHorsQ": "Can I have a timber outside the catalogue?"
+    "atelierBody": "The Saumur workshop draws every piece, welds the steel and puts the wood and metal together. You keep one point of contact, from the measuring visit to the fitting."
   }
 }

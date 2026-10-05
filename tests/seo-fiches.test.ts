@@ -14,16 +14,23 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 
 import frBrut from "../src/app/[lang]/dictionaries/fr.json" with { type: "json" };
 import enBrut from "../src/app/[lang]/dictionaries/en.json" with { type: "json" };
-import { products, productLocalise } from "../src/lib/products.ts";
+import {
+  products,
+  productLocalise,
+  TRANSPORT_MAX_GRANDE_COTE_MM,
+  TRANSPORT_MAX_PETITE_COTE_MM,
+} from "../src/lib/products.ts";
 import { prixDepart } from "../src/lib/garde-corps-outil/site.ts";
 import { descriptionSeo, titreSeo } from "../src/lib/seo.ts";
 import { prixAffiche } from "../src/lib/ui.ts";
 import { remplacerMarqueurs } from "../src/lib/marqueurs.ts";
 import { PRIX_OFFRE_CENTS } from "../src/lib/deplacement.ts";
+import { questionsFaq, questionsPlafonds, questionsTables } from "../src/lib/faq-balisees.ts";
+import { delaiFabrication } from "../src/lib/vitrine.ts";
 
 const fr = remplacerMarqueurs(frBrut, "fr");
 /**
@@ -126,15 +133,43 @@ test("aucun montant de prise de cotes n'est tapé dans les textes : il vient de 
   }
 });
 
-test("les tailles de plafond citées dans les textes sont celles du catalogue", () => {
-  const lucarne = products.find((p) => p.slug === "plafond-lumineux-lucarne")!.surMesure!;
-  const halo = products.find((p) => p.slug === "plafond-lumineux-halo")!.surMesure!;
-  const rect = `${lucarne.maxLargeurMm / 10} × ${lucarne.maxHauteurMm / 10} cm`;
-  const disque = `Ø ${halo.maxLargeurMm / 10} cm`;
+test("les tailles de plafond citées dans les textes sont celles du catalogue et du transport", () => {
+  const lucarne = products.find((p) => p.slug === "plafond-lumineux-lucarne")!;
+  const halo = products.find((p) => p.slug === "plafond-lumineux-halo")!;
+  // Le plus grand plafond : celui du catalogue.
+  const rect = `${lucarne.surMesure!.maxLargeurMm / 10} × ${lucarne.surMesure!.maxHauteurMm / 10} cm`;
+  const disque = `Ø ${halo.surMesure!.maxLargeurMm / 10} cm`;
+  // Le plus grand d'un seul tenant, donc livrable : la limite des transporteurs.
+  const rectLivrable = `${TRANSPORT_MAX_GRANDE_COTE_MM / 10} × ${TRANSPORT_MAX_PETITE_COTE_MM / 10} cm`;
+  const disqueLivrable = `Ø ${TRANSPORT_MAX_PETITE_COTE_MM / 10} cm`;
+  // Les fiches disent la même chose que le code.
+  assert.ok(JSON.stringify(lucarne.specs).includes(`D'un seul tenant jusqu'à ${rectLivrable}`));
+  assert.ok(JSON.stringify(halo.specs).includes(`D'un seul tenant jusqu'à ${TRANSPORT_MAX_PETITE_COTE_MM / 10} cm`));
   for (const dict of [fr, en]) {
-    for (const texte of [dict.seo.lumiere.description, dict.home.surMesureBody, dict.lumiere.faq[1].a]) {
-      assert.ok(texte.includes(rect), `« ${texte} » ne dit pas ${rect}`);
-      assert.ok(texte.includes(disque), `« ${texte} » ne dit pas ${disque}`);
+    // Les textes qui citent le plus grand plafond disent aussi jusqu'où il part d'un seul tenant.
+    for (const texte of [dict.home.surMesureBody, dict.lumiere.faq[1].a]) {
+      for (const taille of [rect, disque, rectLivrable, disqueLivrable]) {
+        assert.ok(texte.includes(taille), `« ${texte} » ne dit pas ${taille}`);
+      }
+    }
+    // Ceux qui parlent de livraison disent la limite livrable.
+    const posePlafond = dict.faq.items.find((item) => /plafond lumineux|stretch ceiling/.test(item.q))!.a;
+    for (const texte of [dict.seo.lumiere.description, dict.lumiere.fabricationBody, posePlafond]) {
+      for (const taille of [rectLivrable, disqueLivrable]) {
+        assert.ok(texte.includes(taille), `« ${texte} » ne dit pas ${taille}`);
+      }
+    }
+    assert.ok(dict.home.surMesureTitle.includes(rectLivrable), dict.home.surMesureTitle);
+  }
+  // Les descriptions Google des deux plafonds : jamais « livré en France » sans limite.
+  for (const locale of ["fr", "en"] as const) {
+    for (const plafond of [lucarne, halo]) {
+      const description = productLocalise(plafond, locale).seoDescription ?? "";
+      assert.doesNotMatch(description, /livrée? en France|delivered in France/, description);
+      assert.ok(
+        description.includes(plafond === halo ? disqueLivrable : rectLivrable),
+        `${plafond.slug} (${locale}) : « ${description} » ne dit pas la limite livrable`
+      );
     }
   }
 });
@@ -166,7 +201,7 @@ test("les questions balisées pour Google sont affichées à l'écran, jamais de
   const faq = readFileSync(new URL("../src/components/faq-visible.tsx", import.meta.url), "utf8");
   assert.match(faq, /jsonLdFaq\(questions\.map/);
   assert.match(faq, /\{questions\.map\(/);
-  for (const chemin of ["artisanat/tables", "bois-massif", "toiles-tendues"]) {
+  for (const chemin of ["artisanat/tables", "toiles-tendues"]) {
     const source = readFileSync(new URL(`../src/app/[lang]/${chemin}/page.tsx`, import.meta.url), "utf8");
     assert.match(source, /<FaqVisible[^>]*questions=\{questions\}/, `${chemin} : la FAQ doit passer par FaqVisible`);
     assert.doesNotMatch(source, /jsonLdFaq/, `${chemin} : une FAQ balisée hors de FaqVisible`);
@@ -178,6 +213,68 @@ test("les questions balisées pour Google sont affichées à l'écran, jamais de
   // quinze pages passaient pour du contenu dupliqué.
   const tail = readFileSync(new URL("../src/components/product-tail.tsx", import.meta.url), "utf8");
   assert.doesNotMatch(tail, /jsonLdFaq/);
+});
+
+/** Tous les fichiers .tsx sous un dossier. */
+function fichiersTsx(dossier: URL): URL[] {
+  return readdirSync(dossier, { withFileTypes: true }).flatMap((entree) => {
+    const url = new URL(entree.name + (entree.isDirectory() ? "/" : ""), dossier);
+    if (entree.isDirectory()) return fichiersTsx(url);
+    return entree.name.endsWith(".tsx") ? [url] : [];
+  });
+}
+
+test("FAQ : seules /faq, /artisanat/tables et /toiles-tendues balisent des questions", () => {
+  const app = new URL("../src/app/", import.meta.url);
+  const autorises = ["[lang]/faq/page.tsx", "[lang]/artisanat/tables/page.tsx", "[lang]/toiles-tendues/page.tsx"].map(
+    (chemin) => new URL(chemin, app).href
+  );
+  for (const fichier of fichiersTsx(app)) {
+    const source = readFileSync(fichier, "utf8");
+    if (!/jsonLdFaq|<FaqVisible/.test(source)) continue;
+    assert.ok(autorises.includes(fichier.href), `${fichier.pathname} balise une FAQ`);
+    // Et chacune prend ses questions dans src/lib/faq-balisees.ts.
+    assert.match(source, /questions(Faq|Tables|Plafonds)\(dict/, `${fichier.pathname} : questions hors de faq-balisees.ts`);
+  }
+});
+
+for (const locale of ["fr", "en"] as const) {
+  test(`${locale} : une même question, ou une même réponse, n'est balisée qu'une fois sur tout le site`, () => {
+    const dict = DICTIONNAIRES[locale];
+    // Comme les pages : les formats de la table de référence, le délai des plafonds.
+    const reference = productLocalise(products.find((p) => p.slug === "table-mikado")!, locale);
+    const formats = reference.sizes
+      .filter((taille) => ["p6", "p8", "p10"].includes(taille.id))
+      .map((taille) => taille.label)
+      .join("; ");
+    const delai =
+      products
+        .filter((p) => p.category === "lumiere")
+        .map((p) => delaiFabrication(productLocalise(p, locale)))
+        .find((d) => d !== null) ?? null;
+    const toutes = [
+      ...questionsFaq(dict).map((qr) => ({ ...qr, page: "/faq" })),
+      ...questionsTables(dict, formats).map((qr) => ({ ...qr, page: "/artisanat/tables" })),
+      ...questionsPlafonds(dict, delai).map((qr) => ({ ...qr, page: "/toiles-tendues" })),
+    ];
+    const normaliser = (texte: string) => texte.replace(/\s+/g, " ").trim().toLowerCase();
+    for (const champ of ["q", "a"] as const) {
+      const vus = new Map<string, string>();
+      for (const qr of toutes) {
+        const cle = normaliser(qr[champ]);
+        assert.ok(!vus.has(cle), `« ${qr[champ]} » balisée sur ${vus.get(cle)} et sur ${qr.page}`);
+        vus.set(cle, qr.page);
+      }
+    }
+  });
+}
+
+test("un fil d'Ariane balisé est toujours un fil d'Ariane affiché", () => {
+  for (const fichier of fichiersTsx(new URL("../src/app/", import.meta.url))) {
+    const source = readFileSync(fichier, "utf8");
+    if (!source.includes("jsonLdFilAriane(")) continue;
+    assert.ok(source.includes("dict.nav.breadcrumb"), `${fichier.pathname} : BreadcrumbList sans fil d'Ariane visible`);
+  }
 });
 
 test("accueil : les liens « Nos fabrications » et leurs libellés restent alignés, en français comme en anglais", () => {

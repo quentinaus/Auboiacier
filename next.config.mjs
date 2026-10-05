@@ -61,10 +61,12 @@ const nextConfig = {
       // L'adresse de Vercel, auboiacier.vercel.app, servait le site en double :
       // elle renvoie au .fr. Ce nom exact seulement — les adresses de
       // prévisualisation (auboiacier-git-….vercel.app) restent consultables.
+      // Sauf /api/… : un appel de service (le webhook de Stripe, par exemple)
+      // réglé sur cette adresse ne suit pas une redirection, il échouerait.
       {
-        source: "/:chemin*",
+        source: "/:chemin((?!api(?:/|$)).*)",
         has: [{ type: "host", value: "auboiacier\\.vercel\\.app" }],
-        destination: "https://auboiacier.fr/:chemin*",
+        destination: "https://auboiacier.fr/:chemin",
         permanent: true,
       },
       // Le .eu, pris en même temps que le .fr, ne sert qu'à ramener ici.

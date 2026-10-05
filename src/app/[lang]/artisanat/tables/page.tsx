@@ -17,6 +17,7 @@ import { serif } from "@/lib/fonts";
 import { hoverZoom, prixAffiche } from "@/lib/ui";
 import { MaterialBubble } from "@/components/material-bubble";
 import { FaqVisible } from "@/components/faq-visible";
+import { questionsTables } from "@/lib/faq-balisees";
 
 /**
  * Les tables sur mesure, en une page : ce que cherchent ceux qui tapent
@@ -66,13 +67,8 @@ export default async function TablesPage({ params }: PageProps<"/[lang]/artisana
 
   const titreModeles = remplir(t.modelesTitle, { n: String(tables.length) });
 
-  const questions = [
-    { q: t.faqTailleQ, a: remplir(t.faqTailleA, { formats }) },
-    { q: t.faqBoisQ, a: t.faqBoisA },
-    { q: t.faqEntretienQ, a: dict.artisanat.faqCareA },
-    { q: t.faqDehorsQ, a: t.faqDehorsA },
-    { q: t.faqHorsQ, a: t.faqHorsA },
-  ];
+  // Balisées pour Google : chacune ne l'est que sur cette page (src/lib/faq-balisees.ts).
+  const questions = questionsTables(dict, formats);
 
   const lien =
     "inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black";

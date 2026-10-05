@@ -13,6 +13,7 @@ import { hoverZoom, prixAffiche } from "@/lib/ui";
 import { PhotoPlafondAnime, MembraneAnimee } from "@/components/photo-plafond-anime";
 import { FaqVisible } from "@/components/faq-visible";
 import { delaiFabrication, remplir } from "@/lib/vitrine";
+import { questionsPlafonds } from "@/lib/faq-balisees";
 
 const realisationPhotos: {
   src: string;
@@ -74,14 +75,12 @@ export default async function ToilesTenduesPage({
   const avecDelai = (texte: string) =>
     delai ? remplir(texte, { delai }) : texte.replace(/[^.]*\{delai\}[^.]*\.\s*/, "");
 
-  // Les questions affichées en bas de page, et balisées pour Google depuis la même liste.
-  const questions = [
-    tl.faq[0],
-    tl.faq[1],
-    tl.faq[2],
-    { q: ta.faqToileQ, a: ta.faqToileA },
-    ...(delai ? [{ q: tl.faq[3].q, a: avecDelai(tl.faq[3].a) }] : []),
-  ];
+  // Les questions affichées en bas de page, et balisées pour Google depuis la
+  // même liste — balisées sur cette page seulement (src/lib/faq-balisees.ts).
+  const questions = questionsPlafonds(dict, delai);
+
+  // « {n} formes, prix affichés » : le nombre de modèles vient du catalogue.
+  const titreCatalogue = remplir(t.catalogueLumiere, { n: String(luminaires.length) });
 
   const lien =
     "inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black";
@@ -103,24 +102,26 @@ export default async function ToilesTenduesPage({
         dangerouslySetInnerHTML={scriptJsonLd(
           jsonLdListe(
             locale,
-            t.catalogueLumiere,
+            titreCatalogue,
             luminaires.map((p) => ({ nom: p.name, chemin: `/artisanat/${p.slug}` }))
           )
         )}
       />
-      <div className="mx-auto max-w-6xl px-6 pb-24 pt-16">
-        <h1 className={`${serif.className} max-w-4xl text-4xl leading-tight text-[#2b2320] md:text-5xl`}>{t.heroTitle}</h1>
-        <p className="mt-4 max-w-2xl leading-relaxed text-[#5c5140]">{t.heroSubtitle}</p>
-        <p className="mt-3 max-w-2xl leading-relaxed text-[#5c5140]">
-          {t.heroAustralie}{" "}
-          <Link href={`/${locale}/a-propos`} className="underline underline-offset-4 hover:text-[#2b2320]">
-            {dict.nav.apropos}
+      <div className="mx-auto max-w-6xl px-6 pb-24 pt-10 md:pt-14">
+        {/* Le fil d'Ariane visible : le même que celui balisé plus haut. */}
+        <nav aria-label={dict.nav.breadcrumb} className="flex flex-wrap text-[11px] text-[#726757]">
+          <Link href={`/${locale}`} className="hover:text-[#2b2320]">
+            {dict.nav.home}
           </Link>
-        </p>
+          <span className="mx-1.5">/</span>
+          <span className="text-[#2b2320]">{dict.hub.lightingLabel}</span>
+        </nav>
+        <h1 className={`${serif.className} mt-6 max-w-4xl text-4xl leading-tight text-[#2b2320] md:text-5xl`}>{t.heroTitle}</h1>
+        <p className="mt-4 max-w-2xl leading-relaxed text-[#5c5140]">{t.heroSubtitle}</p>
 
         {/* Le catalogue, exactement comme du côté mobilier */}
         <section className="mt-16">
-          <h2 className={`${serif.className} text-2xl text-[#2b2320]`}>{t.catalogueLumiere}</h2>
+          <h2 className={`${serif.className} text-2xl text-[#2b2320]`}>{titreCatalogue}</h2>
           <p className="mt-2 text-sm text-[#726757]">{t.catalogueLumiereNote}</p>
 
           <div className="mt-6 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
