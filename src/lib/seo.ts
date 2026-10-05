@@ -68,21 +68,22 @@ export const ATELIER = {
 } as const;
 
 /**
- * Coordonnées publiques que seul Quentin peut donner. Elles restent vides tant
- * qu'il n'a pas rempli les variables dans Vercel (voir .env.example) : tout ce
- * qui est vide est simplement omis, jamais inventé.
+ * Coordonnées publiques de l'atelier. Le téléphone et les horaires sont ceux
+ * de la fiche Google de Quentin (capture du 05/10/2026) : le site doit dire
+ * exactement la même chose que la fiche. Une variable remplie dans Vercel
+ * (voir .env.example) les remplace ; ce qui reste vide est omis, jamais inventé.
  * Le préfixe NEXT_PUBLIC_ est volontaire — ce sont des informations publiques,
  * et elles peuvent ainsi être affichées aussi bien dans les pages que dans les
  * données envoyées à Google.
  */
 export const CONTACT_PUBLIC = {
   /** Format international, sans espaces : +33612345678. */
-  telephone: process.env.NEXT_PUBLIC_ATELIER_TELEPHONE ?? "",
+  telephone: process.env.NEXT_PUBLIC_ATELIER_TELEPHONE || "+33782372379",
   /**
    * Horaires au format compris par Google, séparés par des points-virgules :
    * « Mo-Fr 08:00-18:00; Sa 09:00-12:00 ».
    */
-  horaires: process.env.NEXT_PUBLIC_ATELIER_HORAIRES ?? "",
+  horaires: process.env.NEXT_PUBLIC_ATELIER_HORAIRES || "Mo-Fr 07:00-17:00; Sa 09:00-16:00",
   facebook: process.env.NEXT_PUBLIC_ATELIER_FACEBOOK ?? "",
   instagram: process.env.NEXT_PUBLIC_ATELIER_INSTAGRAM ?? "",
   /** Adresse de la fiche Google de l'atelier (Google Business Profile). */
