@@ -181,8 +181,7 @@ const cleDessin = (d: DessinGC) =>
  * permet (ModeleGC.rosace). Les dessins que seule une plus grande rosace permet sont proposés aussi.
  */
 function catalogueSiteGC(q: RequetePrixGC, hauteurMm: number): ModeleGC[] {
-  const fabricId = rosaceDeLaRequete(q);
-  const choisie = fabricId !== undefined && Object.hasOwn(ROSACE_MM_GC, fabricId) ? fabricId : ROSACE_DEFAUT_GC;
+  const choisie = rosaceDuCatalogue(q);
   const base = catalogueGC(entreeGC(q.releve, q.essence, diametreRosaceGC(choisie)));
   const repli = ROSACES_REPLI_GC.filter((id) => diametreRosaceGC(id) > diametreRosaceGC(choisie)).map((id) => ({
     id: id as string,
@@ -247,27 +246,54 @@ function prixParMainCourante(q: RequetePrixGC): MainsPrixGC {
  * d'autre ne peut partir vers le navigateur. null : une option inconnue
  * (la route répond 400).
  */
+/** La rosace qui compte pour les modèles du catalogue : la choisie si elle est connue, sinon celle du modèle (comme catalogueSiteGC). */
+function rosaceDuCatalogue(q: RequetePrixGC): string {
+  const fabricId = rosaceDeLaRequete(q);
+  return fabricId !== undefined && Object.hasOwn(ROSACE_MM_GC, fabricId) ? fabricId : ROSACE_DEFAUT_GC;
+}
+
+/**
+ * LE MOINS CHER D'OFFICE (décision de Quentin, 05/10/2026 : « le site propose la meilleure config, le client ne cherche pas ») :
+ * tant que le client n'a pas choisi de modèle, le croquis, le prix affiché et l'aperçu du plan montrent le modèle aux normes le
+ * moins cher pour cette fenêtre, avec la rosace qu'il a choisie — et non plus les croix seules. Le client le choisit (lui ou un
+ * autre) dans la rangée avant le panier. Aucun modèle aux normes avec cette rosace : la requête reste telle quelle.
+ */
+function avecLeMoinsCher(q: RequetePrixGC, modeles: readonly ModeleGC[]): RequetePrixGC {
+  if (q.releve.modele) return q;
+  const rosace = rosaceDuCatalogue(q);
+  // À croix seulement (Quentin, 05/10 : « le moins cher à croix ») : les barreaux seuls, souvent moins chers, restent dans la
+  // rangée avec leur prix. Quand seuls les barreaux conviennent, la configuration de l'outil les propose déjà.
+  const moinsCher = modeles
+    .filter((m) => m.conforme && !m.seuls && m.rosace === rosace)
+    .sort((a, b) => a.prix - b.prix || a.croix - b.croix)[0];
+  return moinsCher ? { ...q, releve: { ...q.releve, modele: moinsCher.id } } : q;
+}
+
 export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
-  const c = configurationGC(q.releve, q.essence, diametreRosaceGC(rosaceDeLaRequete(q)));
-  if (!c) return null;
-  if (!c.ok) {
+  const c0 = configurationGC(q.releve, q.essence, diametreRosaceGC(rosaceDeLaRequete(q)));
+  if (!c0) return null;
+  if (!c0.ok) {
     return {
       ok: false,
       conforme: false,
-      raison: c.raison,
-      hauteurMm: c.hauteurMm,
-      mainCouranteMm: c.mainCouranteMm,
-      jourMm: c.jourMm,
-      obligatoire: c.obligatoire,
-      alertes: [...c.alertes],
-      modeles: catalogueSiteGC(q, c.hauteurMm),
+      raison: c0.raison,
+      hauteurMm: c0.hauteurMm,
+      mainCouranteMm: c0.mainCouranteMm,
+      jourMm: c0.jourMm,
+      obligatoire: c0.obligatoire,
+      alertes: [...c0.alertes],
+      modeles: catalogueSiteGC(q, c0.hauteurMm),
       mains: prixParMainCourante(q),
     };
   }
+  const modeles = catalogueSiteGC(q, c0.hauteurMm);
+  // Sans choix du client : le moins cher des modèles aux normes (sinon, la configuration de l'outil).
+  const proposee = avecLeMoinsCher(q, modeles);
+  const cp = proposee === q ? c0 : configurationGC(proposee.releve, q.essence, diametreRosaceGC(rosaceDeLaRequete(q)));
+  const [qr, c] = cp?.ok ? [proposee, cp] : [q, c0];
   // Une option absente : celle du modèle (ligneGC).
-  const r = ligneGC(q.releve, { woodId: q.essence, metalId: q.metalId, fabricId: q.fabricId, remplissageId: q.remplissageId });
+  const r = ligneGC(qr.releve, { woodId: q.essence, metalId: q.metalId, fabricId: q.fabricId, remplissageId: q.remplissageId });
   if (!r.ok || !r.line.gc) return null;
-  const modeles = catalogueSiteGC(q, c.hauteurMm);
   return {
     ok: true,
     conforme: true,
@@ -286,7 +312,7 @@ export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
     kg: Math.round(r.line.gc.kg),
     obligatoire: c.obligatoire,
     modeles,
-    mains: prixParMainCourante(q),
+    mains: prixParMainCourante(qr),
   };
 }
 
@@ -294,11 +320,16 @@ export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
  * L'aperçu du plan : le « Plan A3 » que dessine l'outil de plans pour cette configuration (même moteur, même dessin :
  * planA3Pur est la fonction de l'outil). En mode « aperçu », l'outil retire de la feuille la liste de débit, le détail de
  * fixation et la coupe de perçage, et pose un filigrane : le client voit son plan, il n'a pas de quoi le refaire.
+ * Sans modèle choisi : le plan du modèle montré sur le croquis, le moins cher (avecLeMoinsCher).
  * null : pas de garde-corps à dessiner (« à étudier »).
  */
 export function planApercuGC(q: RequetePrixGC, date = new Date()): PlanApercuGC | null {
-  const c = configurationGC(q.releve, q.essence, diametreRosaceGC(rosaceDeLaRequete(q)));
-  if (!c || !c.ok) return null;
+  const rosaceMm = diametreRosaceGC(rosaceDeLaRequete(q));
+  const c0 = configurationGC(q.releve, q.essence, rosaceMm);
+  if (!c0 || !c0.ok) return null;
+  const proposee = q.releve.modele ? q : avecLeMoinsCher(q, catalogueSiteGC(q, c0.hauteurMm));
+  const cp = proposee === q ? c0 : configurationGC(proposee.releve, q.essence, rosaceMm);
+  const c = cp?.ok ? cp : c0;
   const R = calculerGC({ ...c.v });
   const jour = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", day: "2-digit", month: "2-digit", year: "numeric" }).format(date);
   return {

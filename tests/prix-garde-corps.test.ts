@@ -18,7 +18,7 @@ import assert from "node:assert/strict";
 
 import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, CIBLE_MARGE, DEFAUTS_GC, HAUT_ETAGE, MINI_GC, RENFORT, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, geomGC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
 import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
-import { JOUR_MINI_GC_MM, jourGC, lireReponsePrixGC } from "../src/lib/garde-corps.ts";
+import { JOUR_MINI_GC_MM, jourGC, lireReponsePrixGC, modeleAfficheGC } from "../src/lib/garde-corps.ts";
 import {
   configurerGC,
   entreeValide,
@@ -228,8 +228,9 @@ test("fenêtre large : le fer plat est le même pour tous les dessins, ne se cho
     assert.ok(forge && !forge.ok, `${m.id} : hors norme, pas vendu`);
   }
   // Le prix compte le fer plat : plus cher que le même dessin sur une fenêtre où un carré suffit.
-  const etroit = reponsePrixGC({ ...q, releve: { ...large, largeurMm: 1180, modele: r.modeles.find((m) => m.conforme)!.id } });
-  assert.ok(etroit && (!etroit.ok || (etroit.renfort === false && etroit.prix < r.prix)));
+  const dessin = r.modeles.find((m) => m.conforme)!;
+  const etroit = reponsePrixGC({ ...q, releve: { ...large, largeurMm: 1180, modele: dessin.id } });
+  assert.ok(etroit && (!etroit.ok || (etroit.renfort === false && etroit.prix < dessin.prix)));
   // Le libellé de commande et le devis le disent.
   const ligne = ligneGC(large, { woodId: "chene" });
   assert.ok(ligne.ok && ligne.line.gc?.renfort);
@@ -438,9 +439,10 @@ test("réponse de /api/prix-garde-corps : le prix et la forme, rien d'autre", ()
 
 test("réponse de /api/prix-garde-corps : le prix de l'outil, plus les suppléments des options du site", () => {
   chiffrageOuEchec();
-  const c = configOk({ largeurMm: 1180 });
   const base = reponsePrixGC(requete({ largeurMm: 1180 }));
   assert.ok(base?.ok);
+  // Sans choix du client, la route montre le moins cher à croix : c'est ce dessin que l'outil chiffre.
+  const c = configOk({ largeurMm: 1180, modele: modeleAfficheGC(base) });
   // Les options du modèle (noir, fleur, croix) : exactement le prix de l'outil.
   assert.equal(base.prix, prixGC(c));
   assert.equal(base.remise, 0);
@@ -452,13 +454,14 @@ test("réponse de /api/prix-garde-corps : le prix de l'outil, plus les suppléme
   // compte pas les rosaces : son prix est celui de l'outil, sans supplément. Le petit médaillon d'acier (Ø85) ajoute le sien au prix de CE dessin.
   const sans = reponsePrixGC(requete({ largeurMm: 1180 }, { fabricId: "sans" }));
   assert.ok(sans?.ok);
-  const ligneSans = ligneGC(requete({ largeurMm: 1180 }).releve, { woodId: "chene", fabricId: "sans" });
+  const ligneSans = ligneGC({ ...requete({ largeurMm: 1180 }).releve, modele: modeleAfficheGC(sans) }, { woodId: "chene", fabricId: "sans" });
   assert.ok(ligneSans.ok && ligneSans.line.gc);
   assert.equal(sans.prix, ligneSans.line.gc.prixOutil, "sans rosace : le prix de l'outil, sans supplément");
   assert.ok(sans.prix < base.prix, "sans rosace : moins cher que la fleur (l'outil ne compte plus les rosaces)");
   const acier = reponsePrixGC(requete({ largeurMm: 1180 }, { fabricId: "acier" }));
-  const ligneAcier = ligneGC(requete({ largeurMm: 1180 }).releve, { woodId: "chene", fabricId: "acier" });
-  assert.ok(acier?.ok && ligneAcier.ok && ligneAcier.line.gc);
+  assert.ok(acier?.ok);
+  const ligneAcier = ligneGC({ ...requete({ largeurMm: 1180 }).releve, modele: modeleAfficheGC(acier) }, { woodId: "chene", fabricId: "acier" });
+  assert.ok(ligneAcier.ok && ligneAcier.line.gc);
   assert.equal(acier.prix, ligneAcier.line.gc.prixOutil + 15);
   // Le verre remplace les croix : son supplément s'ajoute, la rosace ne se paie plus.
   const verre = reponsePrixGC(requete({ largeurMm: 1180 }, { remplissageId: "verre", fabricId: "fonte" }));
@@ -631,8 +634,11 @@ test("une traverse au milieu : la solution de l'outil quand le vide entre les ba
   assert.match(l.line.size.label, /2 croix, traverse au milieu, acier carré de \d+$/);
   const sansTraverse = r.modeles.find((m) => m.conforme && !m.traverse && m.soubassementMm === 0);
   assert.ok(sansTraverse);
-  // Sans choix du client, les croix seules restent proposées d'abord quand elles passent.
-  assert.equal(r.traverse, false);
+  // Sans choix du client : le moins cher des modèles à croix aux normes, avec la rosace choisie (décision de Quentin, 05/10/2026 :
+  // « le site propose la meilleure config ») — ici, les deux croix avec une traverse, moins chères que des croix seules.
+  const moinsCher = Math.min(...r.modeles.filter((m) => m.conforme && !m.seuls && m.rosace === "fleur").map((m) => m.prix));
+  assert.equal(r.prix, moinsCher);
+  assert.ok(r.traverse && r.croix === 2, "le moins cher à croix : deux croix et une traverse");
 });
 
 test("la rigidité de la lisse ne dépend pas du dessin : un carré écarté pour un dessin l'est pour tous", () => {

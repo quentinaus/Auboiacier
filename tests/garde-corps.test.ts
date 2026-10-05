@@ -29,6 +29,7 @@ import {
   diametreRosaceGC,
   formeGC,
   lireReponsePrixGC,
+  modeleAfficheGC,
   parametresPrixGC,
   releveDansLesBornes,
   type ReleveGC,
@@ -237,12 +238,14 @@ test("le prix encaissé est le prix affiché : la route, le panier et la command
   for (const r of [releve(), releve({ largeurMm: 450, allegeMm: 0, fenetreMm: 1600 }), releve({ enEtage: false, allegeMm: 300 })]) {
     for (const options of [MODELE, { metalId: "brut", fabricId: "acier", remplissageId: "croix" }, { metalId: "blanc", fabricId: "fleur", remplissageId: "verre" }]) {
       const route = reponsePrixGC({ releve: r, essence: "hetre", ...options, quantite: 1 });
-      const serveur = resolveSelection({ slug: gc.slug, sizeId: SUR_MESURE, ...r, woodId: "hetre", ...options }, prixReleveOutil);
+      // Le dessin affiché (sans choix : le moins cher à croix), tel que le client le met au panier.
+      const modeleGc = route?.ok ? modeleAfficheGC(route) : undefined;
+      const serveur = resolveSelection({ slug: gc.slug, sizeId: SUR_MESURE, ...r, modeleGc, woodId: "hetre", ...options }, prixReleveOutil);
       assert.ok(route?.ok && serveur.ok);
       assert.equal(route.prix, serveur.line.unitPrice);
       assert.equal(route.hauteurMm, serveur.line.gc?.hauteurMm);
       // Et la hauteur que le client a vue est vérifiée à la commande : une autre est refusée.
-      const autreHauteur = resolveSelection({ slug: gc.slug, sizeId: SUR_MESURE, ...r, hauteurMm: route.hauteurMm + 10, woodId: "hetre", ...options }, prixReleveOutil);
+      const autreHauteur = resolveSelection({ slug: gc.slug, sizeId: SUR_MESURE, ...r, modeleGc, hauteurMm: route.hauteurMm + 10, woodId: "hetre", ...options }, prixReleveOutil);
       assert.equal(autreHauteur.ok === false && autreHauteur.reason, "hauteur");
     }
   }
@@ -300,7 +303,8 @@ test("plusieurs garde-corps : une remise, jamais sous le plancher, et une seule 
   const autre = config({ largeurMm: 800, allegeMm: 720 }, "pin");
   assert.ok(prixCommandeGC([{ config: c, quantite: 1 }, { config: autre, quantite: 1 }]).remise < 0);
   const route = reponsePrixGC({ releve: releve(), essence: "chene", quantite: 3 });
-  assert.ok(route?.ok && route.remise === prixCommandeGC([{ config: c, quantite: 3 }]).remise);
+  // (La route montre, sans choix, le moins cher à croix : sa remise est celle de CE dessin.)
+  assert.ok(route?.ok && route.remise === prixCommandeGC([{ config: config({ modele: modeleAfficheGC(route) }), quantite: 3 }]).remise);
 });
 
 test("le « à partir de » est le prix du plus petit garde-corps, et aucun ne coûte moins", () => {
@@ -364,7 +368,8 @@ test("la fiche démarre sur le chêne de la photo, et appelle le bois « main co
   // d'appel du 05/10/2026 — plus de frais d'atelier —, 800 × 300 tombe à la même dizaine : on prend 1 200 × 300.)
   const grand = releve({ largeurMm: 1200, allegeMm: 300 });
   const chene = reponsePrixGC({ releve: grand, essence: "chene", quantite: 1 });
-  const pin = reponsePrixGC({ releve: grand, essence: "pin", quantite: 1 });
+  // (Le même dessin pour les deux bois : seul le bois change.)
+  const pin = reponsePrixGC({ releve: chene?.ok ? { ...grand, modele: modeleAfficheGC(chene) } : grand, essence: "pin", quantite: 1 });
   assert.ok(chene?.ok && pin?.ok && chene.prix !== pin.prix);
   // Un garde-corps n'a pas de plateau.
   assert.deepEqual(gc.woodLabel, { fr: "Main courante", en: "Handrail" });

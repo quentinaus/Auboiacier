@@ -9,7 +9,7 @@ import assert from "node:assert/strict";
 import { calculerGC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
 import { configurationGC, ligneGC, planApercuGC, reponsePrixGC, type RequetePrixGC } from "../src/lib/garde-corps-outil/site.ts";
 import { composerDevisGardeCorps } from "../src/lib/garde-corps-outil/devis-site.ts";
-import { lireReponsePrixGC } from "../src/lib/garde-corps.ts";
+import { lireReponsePrixGC, modeleAfficheGC } from "../src/lib/garde-corps.ts";
 
 const releve = { largeurMm: 1775, allegeMm: 665, enEtage: true, fenetreMm: 2400 };
 
@@ -36,12 +36,14 @@ test("prix, panier, devis FR et EN, réponse de la route et plan : la patte y es
   const r = reponsePrixGC(q);
   assert.ok(r?.ok && r.patte > 0);
   assert.deepEqual(lireReponsePrixGC(JSON.parse(JSON.stringify(r))), r);
-  const l = ligneGC(releve, { woodId: "chene", fabricId: "fleur" });
+  // Le dessin affiché (sans choix : le moins cher à croix), tel que le client le met au panier.
+  const choisi = { ...releve, modele: modeleAfficheGC(r) };
+  const l = ligneGC(choisi, { woodId: "chene", fabricId: "fleur" });
   assert.ok(l.ok && (l.line.gc?.patte ?? 0) > 0);
   assert.equal(l.line.unitPrice, r.prix);
   assert.match(l.line.size.label, /pattes? (au milieu )?scellées? dans l'appui/);
   for (const locale of ["fr", "en"] as const) {
-    const d = composerDevisGardeCorps({ releve, options: { woodId: "chene", metalId: "noir", fabricId: "fleur", remplissageId: "croix" }, quantite: 1, livraison: { mode: "retrait" }, date: new Date("2026-10-05T10:00:00+02:00"), locale, origine: "https://auboiacier.fr" });
+    const d = composerDevisGardeCorps({ releve: choisi, options: { woodId: "chene", metalId: "noir", fabricId: "fleur", remplissageId: "croix" }, quantite: 1, livraison: { mode: "retrait" }, date: new Date("2026-10-05T10:00:00+02:00"), locale, origine: "https://auboiacier.fr" });
     assert.ok(d.ok);
     assert.equal(d.devis.total, r.prix);
     assert.match(JSON.stringify(d.devis.lignes), locale === "fr" ? /pattes? (au milieu, )?scellées? dans l'appui/ : /fixing bars? sealed into the sill/);

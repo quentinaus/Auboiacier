@@ -160,6 +160,11 @@ export function idModeleGC(carre: number, croix: number, barreauxBas: boolean, t
   return `${carre}-${croix}${seuls ? "-s" : barreauxBas ? "-b" : ""}${traverse ? "-t" : ""}`;
 }
 
+/** Le dessin que montre une réponse aux normes (sans choix du client : le moins cher à croix) — celui qui irait au panier. */
+export function modeleAfficheGC(r: { carre: number; croix: number; soubassementMm: number; traverse: boolean; seuls: boolean }): string {
+  return idModeleGC(r.carre, r.croix, r.soubassementMm > 0, r.traverse, r.seuls);
+}
+
 /**
  * Les rosaces du catalogue (products.ts, « fabrics ») et leur DIAMÈTRE en mm. Il compte pour la norme : la rosace bouche
  * le centre des croix, une rosace plus petite laisse un vide plus grand (la « acier » de Ø85), et SANS rosace (Ø0, demande de
