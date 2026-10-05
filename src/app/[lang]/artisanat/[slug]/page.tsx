@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { compteConfigure } from "@/lib/compte-jetons";
+import { commandesOuvertes } from "@/lib/entreprise";
+import { textesOuverture } from "@/lib/ouverture";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -248,6 +250,8 @@ export default async function ProductPage({
       <div id="acheter" className="scroll-mt-0">
         <ProductView
           compteOuvert={compteConfigure()}
+          // Avant l'ouverture des commandes : s'inscrire à la place de payer.
+          ouverture={commandesOuvertes() ? undefined : { t: textesOuverture(dict.panier), contactEmail: dict.contact.email }}
           product={product}
           t={t}
           locale={locale}

@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { essenceDeReference, priceFrom, type Product } from "@/lib/products";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
-import { ProductOptions, aLeConfigurateurPleinePage } from "./product-options";
+import { ProductOptions, aLeConfigurateurPleinePage, type Ouverture } from "./product-options";
 import Link from "next/link";
 import { serif } from "@/lib/fonts";
 import { amenerAlEcran, hoverZoom, prixAffiche } from "@/lib/ui";
@@ -30,12 +30,15 @@ export function ProductView({
   locale,
   filAriane,
   compteOuvert = false,
+  ouverture,
 }: {
   product: Product;
   t: Dictionary["artisanat"];
   locale: "fr" | "en";
   /** L'espace client est-il ouvert ? On ne propose pas un compte qui n'existe pas encore. */
   compteOuvert?: boolean;
+  /** Les commandes ne sont pas encore ouvertes : de quoi s'inscrire (voir ProductOptions). */
+  ouverture?: Ouverture;
   /** Le fil d'Ariane : il ouvre la colonne des options. Des données plutôt
       qu'un élément tout fait — un élément venu du serveur perd le marquage
       « enfants statiques » et React réclame des clés. */
@@ -234,6 +237,7 @@ export function ProductView({
         t={t}
         locale={locale}
         compteOuvert={compteOuvert}
+        ouverture={ouverture}
         fabricId={fabricId}
         onFabricChange={selectFabric}
         metalId={metalId}
