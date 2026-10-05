@@ -1,9 +1,9 @@
 {
  "à lire": "Généré par scripts/extraire-moteur-garde-corps.mjs à partir de l'outil de plans (chargé tel quel dans node:vm). Aucun coût : des prix de vente, des poids, des hauteurs et des empreintes (sha256 tronqué) des réponses complètes. Ne pas modifier à la main.",
- "outil": "a08e6baa4870209e7ba0f42babb4d72984f875e431e7e08d36fc413a6eebf89e",
+ "outil": "692e4be35da7d8b8d9614571769db5f4f36bd37d392e9237c29d7e306acdc13a",
  "empreintes": {
-  "moteur": "885141888970",
-  "devis": "6d92c82d927d",
+  "moteur": "6f0702e9fbc7",
+  "devis": "fd2dcb02e863",
   "chiffrage": "8dbfff5e9626"
  },
  "defauts": "630fbf91f998fecc",
@@ -12,7 +12,7 @@
   {
    "nom": "valeurs de départ de l'outil",
    "valeurs": {},
-   "R": "7c08f74e3b5f20e6",
+   "R": "8e62c03f13591963",
    "hauteurGC": 285,
    "kg": 11.586496206695967,
    "alertes": 2,
@@ -29,14 +29,14 @@
     "donnees": "e04fde328ceac979",
     "html": "cfc1d75e2364fc06"
    },
-   "variantes": "a548a57dcbc90803"
+   "variantes": "786472f830cdcb2d"
   },
   {
    "nom": "photo du site, 4 croix",
    "valeurs": {
     "nP": 4
    },
-   "R": "af3a02ecf3fe7a21",
+   "R": "1a0913fe954ce99a",
    "hauteurGC": 285,
    "kg": 13.93871978926249,
    "alertes": 0,
@@ -60,7 +60,7 @@
     "B": 1195,
     "nP": 3
    },
-   "R": "ba473b26b5fb447d",
+   "R": "e38ee46364d5617c",
    "hauteurGC": 285,
    "kg": 13.15452127255788,
    "alertes": 1,
@@ -77,7 +77,7 @@
     "donnees": "9ac55c28a19ccc57",
     "html": "d70c2f6eef54326f"
    },
-   "variantes": "15ba17ee8748359e"
+   "variantes": "ecc69a3aba8fb467"
   },
   {
    "nom": "juste au-delà, carré 16",
@@ -85,7 +85,7 @@
     "B": 1200,
     "nP": 3
    },
-   "R": "6c48d03e18752bc3",
+   "R": "559835ec023252dc",
    "hauteurGC": 285,
    "kg": 13.197213301258028,
    "alertes": 2,
@@ -110,7 +110,7 @@
     "s": 18,
     "nP": 4
    },
-   "R": "5df69ebaeaa8bfe6",
+   "R": "98243a12a32b64ca",
    "hauteurGC": 285,
    "kg": 17.329978192330188,
    "alertes": 0,
@@ -136,7 +136,7 @@
     "nP": 2
    },
    "chantier": "12 rue des Lilas, 44000 Nantes",
-   "R": "414c9961677a2d16",
+   "R": "33ba08c5f9e81722",
    "hauteurGC": 635,
    "kg": 16.599922153974305,
    "alertes": 1,
@@ -162,7 +162,7 @@
     "etage": false,
     "nP": 2
    },
-   "R": "a02a00d1ff64a9ed",
+   "R": "29cafd4a87bb7ee3",
    "hauteurGC": 935,
    "kg": 20.022727787429087,
    "alertes": 1,
@@ -186,7 +186,7 @@
     "B": 300,
     "A": 900
    },
-   "R": "88269d1f7b978ae6",
+   "R": "f850bebfe91888a0",
    "hauteurGC": 200,
    "kg": 3.2840222715711174,
    "alertes": 1,
@@ -212,7 +212,7 @@
     "s": 20,
     "nP": 6
    },
-   "R": "13cb97a811129ed3",
+   "R": "cdc2e242111ab9e3",
    "hauteurGC": 435,
    "kg": 63.433907065313385,
    "alertes": 2,
@@ -288,7 +288,7 @@
     "A": 600,
     "Hf": 300
    },
-   "R": "26d14664fafcb1eb",
+   "R": "1ee2dc25fedb76c6",
    "hauteurGC": 335,
    "kg": 10.229529947356024,
    "alertes": 3,
@@ -316,7 +316,7 @@
     "km": 250
    },
    "chantier": "33000 Bordeaux",
-   "R": "50c313bacdcd3b22",
+   "R": "367f14042de028eb",
    "hauteurGC": 1285,
    "kg": 28.38386781054879,
    "alertes": 2,
@@ -345,7 +345,7 @@
     "nP": 6
    },
    "chantier": "Tours 37000",
-   "R": "22b78f8152be4324",
+   "R": "63bd4170dba73b83",
    "hauteurGC": 200,
    "kg": 31.239879987931168,
    "alertes": 2,
@@ -374,7 +374,7 @@
     "essence": "noyer",
     "rainure": false
    },
-   "R": "837c6e4677c3e563",
+   "R": "9ab06c7f97caf95b",
    "hauteurGC": 535,
    "kg": 14.831320160513556,
    "alertes": 2,
@@ -401,7 +401,7 @@
     "remise": "transporteur",
     "km": 60
    },
-   "R": "29f2aa6ea208fc2e",
+   "R": "a35d8ee56d6d70e6",
    "hauteurGC": 285,
    "kg": 9.966376430678451,
    "alertes": 2,
@@ -429,7 +429,7 @@
     "km": 10,
     "nP": 1
    },
-   "R": "06d70b8c7433b663",
+   "R": "41c19d701dabe229",
    "hauteurGC": 200,
    "kg": 6.824974061142441,
    "alertes": 2,
@@ -456,7 +456,7 @@
     "essence": "hetre",
     "nP": 3
    },
-   "R": "40151fd2433e1a1b",
+   "R": "9e0355282afcf38d",
    "hauteurGC": 685,
    "kg": 22.67414548872896,
    "alertes": 1,
@@ -489,7 +489,7 @@
     "nP": 4
    },
    "chantier": "49400 Saumur",
-   "R": "463ec294b1234a61",
+   "R": "73206c1e2a0ea29c",
    "hauteurGC": 365,
    "kg": 19.413284913329715,
    "alertes": 0,
@@ -521,7 +521,7 @@
     "ass": "onglet",
     "nP": 6
    },
-   "R": "5229956705c0fa5e",
+   "R": "8cb110d19afe4db9",
    "hauteurGC": 670,
    "kg": 21.974615416185152,
    "alertes": 0,
@@ -552,7 +552,7 @@
     "s": 16,
     "nP": 4
    },
-   "R": "15e64be5c0fe4638",
+   "R": "b0f1113d19ff7df6",
    "hauteurGC": 200,
    "kg": 17.378751258203685,
    "alertes": 2,
@@ -586,7 +586,7 @@
     "nP": 2
    },
    "chantier": "49400 Saumur",
-   "R": "70388ed591447a96",
+   "R": "139b4302bd25b7d6",
    "hauteurGC": 655,
    "kg": 16.794996600733104,
    "alertes": 0,
@@ -618,7 +618,7 @@
     "rainure": false,
     "nP": 6
    },
-   "R": "7633d9619b8f8b72",
+   "R": "4d857953dd122072",
    "hauteurGC": 200,
    "kg": 14.116177402891116,
    "alertes": 2,
@@ -651,7 +651,7 @@
     "rainure": false,
     "nP": 2
    },
-   "R": "b63d06b128109f33",
+   "R": "6d4bd127ca5bee14",
    "hauteurGC": 490,
    "kg": 5.842248467224007,
    "alertes": 2,
@@ -684,7 +684,7 @@
     "rainure": false,
     "nP": 3
    },
-   "R": "86a692ace3c9891a",
+   "R": "b80bcf6c402a8b08",
    "hauteurGC": 935,
    "kg": 39.0638380574264,
    "alertes": 2,
@@ -717,7 +717,7 @@
     "rainure": false,
     "nP": 1
    },
-   "R": "f2f22473d0eb9e7f",
+   "R": "ba6a1e6c9f601b35",
    "hauteurGC": 570,
    "kg": 8.08806858237536,
    "alertes": 1,
@@ -749,7 +749,7 @@
     "nP": 1
    },
    "chantier": "49400 Saumur",
-   "R": "bd892a936bd0ea9c",
+   "R": "81a83379a0172536",
    "hauteurGC": 200,
    "kg": 6.592583719078489,
    "alertes": 4,
@@ -781,7 +781,7 @@
     "jour": 75,
     "nP": 3
    },
-   "R": "f1dac515676dcaad",
+   "R": "2ba364affafba306",
    "hauteurGC": 790,
    "kg": 32.756014769588184,
    "alertes": 2,
@@ -813,7 +813,7 @@
     "nP": 5
    },
    "chantier": "49400 Saumur",
-   "R": "edcdd1b28db8e35b",
+   "R": "21ccb36bf4ceb90b",
    "hauteurGC": 930,
    "kg": 39.67482948831191,
    "alertes": 2,
@@ -878,7 +878,7 @@
     "nP": 3
    },
    "chantier": "49400 Saumur",
-   "R": "20db8324fb8e9369",
+   "R": "2892dfec4d263d95",
    "hauteurGC": 200,
    "kg": 14.235938577440713,
    "alertes": 2,
@@ -909,7 +909,7 @@
     "s": 16,
     "nP": 4
    },
-   "R": "65f082b23a16e110",
+   "R": "8a32f813ff00c9cb",
    "hauteurGC": 795,
    "kg": 27.129860061863017,
    "alertes": 1,
@@ -1043,7 +1043,7 @@
     "sbMode": "toujours",
     "nP": 5
    },
-   "R": "bef9ec332aa4cd87",
+   "R": "4aa47f6b24e9aa43",
    "hauteurGC": 200,
    "kg": 12.885192570926993,
    "alertes": 1,
@@ -1078,7 +1078,7 @@
     "jour": 110,
     "nP": 5
    },
-   "R": "616f2f19e0c6df01",
+   "R": "4ea9c4551dcc7929",
    "hauteurGC": 540,
    "kg": 37.290110794057206,
    "alertes": 4,
@@ -1109,7 +1109,7 @@
     "s": 16,
     "nP": 5
    },
-   "R": "ae5a7c1abbaf6356",
+   "R": "2bba7c16278333cd",
    "hauteurGC": 200,
    "kg": 11.545838861073006,
    "alertes": 1,
@@ -1141,7 +1141,7 @@
     "nb": 1,
     "nP": 2
    },
-   "R": "58f454cedba60ef7",
+   "R": "af6551b87bec0c4e",
    "hauteurGC": 540,
    "kg": 22.26451836958298,
    "alertes": 1,
@@ -1173,7 +1173,7 @@
     "nP": 6
    },
    "chantier": "49400 Saumur",
-   "R": "2ab38676eef85c1b",
+   "R": "f184ea446c2782bc",
    "hauteurGC": 715,
    "kg": 20.31486509007775,
    "alertes": 0,
@@ -1199,7 +1199,7 @@
     "nP": 5,
     "renfort": "plat"
    },
-   "R": "a9d6bcd04cf635b9",
+   "R": "3db061e9728555f0",
    "hauteurGC": 285,
    "kg": 31.89925230305927,
    "alertes": 1,
@@ -1226,7 +1226,7 @@
     "traverse": true,
     "renfort": "plat"
    },
-   "R": "bce99cedd5d59360",
+   "R": "3f8e0fa7b8961a2f",
    "hauteurGC": 535,
    "kg": 51.719109976145276,
    "alertes": 1,
@@ -1252,7 +1252,7 @@
     "nP": 6,
     "renfort": "plat"
    },
-   "R": "f0d9777bf0a6efc9",
+   "R": "d427e4202921dd4c",
    "hauteurGC": 435,
    "kg": 49.57367050119775,
    "alertes": 2,
@@ -1278,7 +1278,7 @@
     "nP": 5,
     "renfort": "plat"
    },
-   "R": "0b10c669c6a9bc12",
+   "R": "5d511e47e9d76a14",
    "hauteurGC": 215,
    "kg": 27.715290418821276,
    "alertes": 1,
@@ -1305,7 +1305,7 @@
     "renfort": "plat",
     "essence": "noyer"
    },
-   "R": "484b5bb6fa8aa6f4",
+   "R": "f6102bf371855cd1",
    "hauteurGC": 285,
    "kg": 19.81855516431197,
    "alertes": 0,
@@ -1362,7 +1362,7 @@
     "km": 180
    },
    "chantier": "75011 Paris",
-   "R": "f12b33a3d61896c7",
+   "R": "4b5002b4fbbd2344",
    "hauteurGC": 635,
    "kg": 51.825738581558376,
    "alertes": 1,
@@ -1387,7 +1387,7 @@
     "A": 650,
     "seuls": true
    },
-   "R": "a6d7259e69dd32de",
+   "R": "11556db57b524de8",
    "hauteurGC": 285,
    "kg": 11.5332672,
    "alertes": 0,
@@ -1412,7 +1412,7 @@
     "A": 300,
     "seuls": true
    },
-   "R": "5c3da234eca22624",
+   "R": "1fa2cf89c42b73a6",
    "hauteurGC": 635,
    "kg": 19.973587199999997,
    "alertes": 0,
@@ -1464,7 +1464,7 @@
     "seuls": true,
     "s": 20
    },
-   "R": "486bff44de019660",
+   "R": "8004c68b4f27a61a",
    "hauteurGC": 285,
    "kg": 27.096479999999996,
    "alertes": 1,
@@ -1491,7 +1491,7 @@
     "renfort": "plat",
     "essence": "noyer"
    },
-   "R": "7272199f64b834d8",
+   "R": "6cbb0e3fb03e455d",
    "hauteurGC": 535,
    "kg": 41.357636799999995,
    "alertes": 1,
@@ -1516,7 +1516,7 @@
     "A": 300,
     "seuls": true
    },
-   "R": "90320ff193795dad",
+   "R": "4207219cf45b02b5",
    "hauteurGC": 635,
    "kg": 37.8388032,
    "alertes": 2,
@@ -1543,7 +1543,7 @@
     "jour": 65,
     "jourSaisi": 90
    },
-   "R": "74a521582d3ba2e7",
+   "R": "3ad29c5478297ee9",
    "hauteurGC": 200,
    "kg": 11.143209459640014,
    "alertes": 1,
@@ -1570,7 +1570,7 @@
     "s": 18,
     "patte": 2
    },
-   "R": "88805917dbb2a5b5",
+   "R": "0285424d4eda0137",
    "hauteurGC": 270,
    "kg": 24.78528414410579,
    "alertes": 0,
@@ -1597,7 +1597,7 @@
     "s": 18,
     "patte": 1
    },
-   "R": "4e684b0ec5d90b97",
+   "R": "283c1dafff9177cd",
    "hauteurGC": 270,
    "kg": 24.35290614410579,
    "alertes": 1,
@@ -1624,7 +1624,7 @@
     "s": 16,
     "patte": 4
    },
-   "R": "ffb73e645cffbadf",
+   "R": "c434c0fe4034a60d",
    "hauteurGC": 270,
    "kg": 21.677634926413806,
    "alertes": 1,
@@ -1650,7 +1650,7 @@
     "nP": 2,
     "patte": 3
    },
-   "R": "32460654183cca41",
+   "R": "7dbb48107246288f",
    "hauteurGC": 285,
    "kg": 9.787891121887158,
    "alertes": 2,
@@ -1677,7 +1677,7 @@
     "s": 18,
     "patte": 1
    },
-   "R": "2d4fe58a85c3d353",
+   "R": "9d94656cb4d4884b",
    "hauteurGC": 135,
    "kg": 13.640761399999999,
    "alertes": 0,
@@ -1702,7 +1702,7 @@
     "A": 650,
     "rosace": false
    },
-   "R": "b3cd2e5972950771",
+   "R": "03793f76cbdb49f8",
    "hauteurGC": 285,
    "kg": 11.586496206695967,
    "alertes": 2,
@@ -1729,7 +1729,7 @@
     "rosace": false,
     "traverse": true
    },
-   "R": "e829bc50199c68e3",
+   "R": "d5621cf887f33442",
    "hauteurGC": 535,
    "kg": 21.821867952622373,
    "alertes": 0,
@@ -1757,7 +1757,7 @@
     "jour": 90,
     "jourSaisi": 90
    },
-   "R": "7fa5c80a1c4afd24",
+   "R": "507b259b98bdc86b",
    "hauteurGC": 175,
    "kg": 7.9401024,
    "alertes": 0,
@@ -1785,7 +1785,7 @@
     "jour": 65,
     "jourSaisi": 90
    },
-   "R": "d665fc293d132b68",
+   "R": "ffc086a211e06b87",
    "hauteurGC": 120,
    "kg": 7.055878399999999,
    "alertes": 0,
@@ -1992,7 +1992,7 @@
    "choix": {
     "carre": 16,
     "croix": 4,
-    "R": "af3a02ecf3fe7a21",
+    "R": "1a0913fe954ce99a",
     "hauteurGC": 285,
     "kg": 13.93871978926249,
     "prix": 470
@@ -2189,7 +2189,7 @@
    "choix": {
     "carre": 16,
     "croix": 2,
-    "R": "f63a216024cba172",
+    "R": "c00e1a271a3c9911",
     "hauteurGC": 935,
     "kg": 11.333822163985973,
     "prix": 370
@@ -2834,7 +2834,7 @@
    "choix": {
     "carre": 16,
     "croix": 4,
-    "R": "3f9fffa8648fb251",
+    "R": "bc228ad1c77e26b5",
     "hauteurGC": 935,
     "kg": 23.748520019505396,
     "prix": 610
@@ -3033,7 +3033,7 @@
    "choix": {
     "carre": 16,
     "croix": 5,
-    "R": "3d5ab68d6b9370f8",
+    "R": "5e2eb28f65546881",
     "hauteurGC": 585,
     "kg": 22.47757047707461,
     "prix": 710
@@ -3494,7 +3494,7 @@
    "choix": {
     "carre": 16,
     "croix": 4,
-    "R": "110655b9f513d01f",
+    "R": "7b21c6c2a9026085",
     "hauteurGC": 285,
     "kg": 14.06206552516484,
     "prix": 470
@@ -3708,7 +3708,7 @@
    "choix": {
     "carre": 18,
     "croix": 4,
-    "R": "5df69ebaeaa8bfe6",
+    "R": "98243a12a32b64ca",
     "hauteurGC": 285,
     "kg": 17.329978192330188,
     "prix": 470
@@ -3940,7 +3940,7 @@
    "choix": {
     "carre": 18,
     "croix": 6,
-    "R": "c3c7a6f47dffcd2a",
+    "R": "f5d297ee0c1e8a4c",
     "hauteurGC": 835,
     "kg": 42.04810782983189,
     "prix": 850
@@ -4163,7 +4163,7 @@
    "choix": {
     "carre": 18,
     "croix": 5,
-    "R": "1ad16887b518d8bd",
+    "R": "6bd661397cda28de",
     "hauteurGC": 336,
     "kg": 22.210949601910364,
     "prix": 560
@@ -5703,7 +5703,7 @@
    "choix": {
     "carre": 16,
     "croix": 4,
-    "R": "e84ada4bd502a9b1",
+    "R": "0cc582abcd3ce179",
     "hauteurGC": 836,
     "kg": 20.46480819174683,
     "prix": 580
