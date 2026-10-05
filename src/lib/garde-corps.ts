@@ -171,8 +171,14 @@ export type ModeleGC = {
   soubassementMm: number;
   /** Une traverse au milieu de chaque croix. */
   traverse: boolean;
-  /** Des barreaux sur toute la hauteur (en bas et dans chaque croix) ; sinon false. */
+  /** Des barreaux verticaux et rien d'autre (modèle « -s »). */
   seuls: boolean;
+  /**
+   * La rosace avec laquelle ce modèle est calculé et chiffré : celle que le client a choisie quand elle suffit, sinon la plus
+   * petite plus grande qui permet ce dessin (le grand médaillon Ø170 laisse des vides plus petits). Vide pour des
+   * barreaux seuls, qui n'ont pas de rosace. Choisir le modèle applique aussi cette rosace.
+   */
+  rosace: string;
   /** Les vides de ce dessin avec CETTE fenêtre, quand l'un est trop grand (modèle hors norme) ; sinon null. */
   trous: TrousGC | null;
   /**
@@ -351,9 +357,10 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
     if (!entier(x.soubassementMm) || !entier(x.hauteurMm, 1) || !entier(x.prix, x.conforme ? 1 : 0) || !entier(x.kg)) return null;
     const raisons = Array.isArray(x.raisons) ? x.raisons.filter((a): a is CodeAlerteGC => CODES.includes(a as CodeAlerteGC)) : [];
     if (x.traverse !== lu.traverse || x.seuls !== lu.seuls) return null;
+    if (typeof x.rosace !== "string" || (x.rosace !== "" && !Object.hasOwn(ROSACE_MM_GC, x.rosace))) return null;
     const trous = lireTrousGC(x.trous);
     if (trous === undefined) return null;
-    modeles.push({ id: x.id as string, conforme: x.conforme, raisons, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, traverse: lu.traverse, seuls: lu.seuls, trous, renfort: x.renfort === true, hauteurMm: x.hauteurMm as number, prix: x.prix as number, kg: x.kg as number });
+    modeles.push({ id: x.id as string, conforme: x.conforme, raisons, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, traverse: lu.traverse, seuls: lu.seuls, rosace: x.rosace, trous, renfort: x.renfort === true, hauteurMm: x.hauteurMm as number, prix: x.prix as number, kg: x.kg as number });
   }
   if (o.ok === true && o.conforme === true) {
     if (!entier(o.prix, 1) || !(typeof o.remise === "number" && Number.isInteger(o.remise) && o.remise <= 0)) return null;

@@ -8,11 +8,11 @@
  * part vers le navigateur, sauf ce que reponsePrixGC construit champ par
  * champ : un prix de vente et une forme, jamais un coût.
  */
-import { catalogueGC, configurerGC, prixCommandeGC, prixGC, ChiffrageIndisponible, type ConfigAEtudierGC, type ConfigGC } from "./calcul.ts";
+import { catalogueGC, configurerGC, prixCommandeGC, prixGC, ChiffrageIndisponible, type ConfigAEtudierGC, type ConfigGC, type DessinGC } from "./calcul.ts";
 import { MAINS_COURANTES_GC, type EntreeSiteGC, type MainCouranteGC } from "./entree.ts";
 import { RENFORT } from "./moteur.genere.mjs";
 import { getProduct, priceFrom, prixParOutil, resolveSelection, SUR_MESURE, type PrixReleve, type Product } from "../products.ts";
-import { BORNES_RELEVE_GC, MODELES_GC_MAX, RELEVE_DEPART_GC, diametreRosaceGC, idModeleGC, lireModeleGC, releveDansLesBornes, type ModeleGC, type ReleveGC, type ReponsePrixGC } from "../garde-corps.ts";
+import { BORNES_RELEVE_GC, MODELES_GC_MAX, RELEVE_DEPART_GC, ROSACE_DEFAUT_GC, ROSACE_MM_GC, diametreRosaceGC, idModeleGC, lireModeleGC, releveDansLesBornes, type ModeleGC, type ReleveGC, type ReponsePrixGC } from "../garde-corps.ts";
 import type { CalculGC } from "../tarif-panier.ts";
 
 /** L'identifiant du garde-corps de fenêtre au catalogue. */
@@ -152,18 +152,60 @@ export function lireRequetePrixGC(params: URLSearchParams): RequetePrixGC | null
   return { releve: { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm, ...(modele ? { modele } : {}) }, essence, metalId, fabricId, remplissageId, quantite };
 }
 
-/** Le catalogue des dessins, tel qu'il part vers le navigateur : chaque dessin conforme à son prix (le calcul du panier). */
+/**
+ * Les rosaces de repli, de la moins chère à la plus chère. Un dessin qui ne passe pas la norme avec la rosace choisie est
+ * essayé avec la première de ces rosaces plus GRANDE que la choisie (une plus grande bouche plus le centre des croix : les
+ * vides sont plus petits). Décision de Quentin, 05/10/2026 : « c'est à toi de faire la meilleure configuration en fonction
+ * de la taille de la rosace, des espaces et du prix, et tu lui proposes » — pas au client de chercher.
+ */
+const ROSACES_REPLI_GC = ["fleur", "medaillon"] as const;
+
+/** Ce qui fait « le même dessin » d'un catalogue à l'autre : croix, barreaux en bas, traverse, barreaux seuls. */
+const cleDessin = (d: DessinGC) =>
+  d.conforme
+    ? `${d.config.croix}|${d.config.soubassementMm > 0}|${d.config.traverse}|${d.config.seuls}`
+    : `${d.croix}|${d.barreauxBas || d.soubassementMm > 0}|${d.traverse}|${d.seuls}`;
+
+/**
+ * Le catalogue des dessins, tel qu'il part vers le navigateur : chaque dessin conforme à son prix (le calcul du panier),
+ * avec la rosace qu'il demande — la choisie par le client quand elle suffit, sinon la plus petite plus grande qui le
+ * permet (ModeleGC.rosace). Les dessins que seule une plus grande rosace permet sont proposés aussi.
+ */
 function catalogueSiteGC(q: RequetePrixGC, hauteurMm: number): ModeleGC[] {
+  const choisie = q.fabricId !== undefined && Object.hasOwn(ROSACE_MM_GC, q.fabricId) ? q.fabricId : ROSACE_DEFAUT_GC;
+  const base = catalogueGC(entreeGC(q.releve, q.essence, diametreRosaceGC(choisie)));
+  const repli = ROSACES_REPLI_GC.filter((id) => diametreRosaceGC(id) > diametreRosaceGC(choisie)).map((id) => ({
+    id: id as string,
+    dessins: new Map(catalogueGC(entreeGC(q.releve, q.essence, diametreRosaceGC(id))).map((d) => [cleDessin(d), d] as const)),
+  }));
   const modeles: ModeleGC[] = [];
-  for (const d of catalogueGC(entreeGC(q.releve, q.essence, diametreRosaceGC(q.fabricId)))) {
-    if (!d.conforme) {
-      modeles.push({ id: idModeleGC(d.carre, d.croix, d.barreauxBas, d.traverse, d.seuls), conforme: false, raisons: d.raisons, croix: d.croix, carre: d.carre, soubassementMm: d.soubassementMm, traverse: d.traverse, seuls: d.seuls, trous: d.trous, renfort: false, hauteurMm, prix: 0, kg: 0 });
+  const ajouteConforme = (m: ConfigGC, rosaceId: string) => {
+    const id = idModeleGC(m.carre, m.croix, m.barreauxBas, m.traverse, m.seuls);
+    // Barreaux seuls : pas de rosace, ni à choisir ni à payer.
+    const l = ligneGC({ ...q.releve, modele: id }, { woodId: q.essence, metalId: q.metalId, fabricId: rosaceId, remplissageId: q.remplissageId });
+    if (l.ok && l.line.gc) modeles.push({ id, conforme: true, raisons: [], croix: m.croix, carre: m.carre, soubassementMm: m.soubassementMm, traverse: m.traverse, seuls: m.seuls, rosace: m.seuls ? "" : rosaceId, trous: null, renfort: m.renfort, hauteurMm: l.line.gc.hauteurMm, prix: l.line.unitPrice, kg: Math.round(l.line.gc.kg) });
+  };
+  const vus = new Set<string>();
+  for (const d of base) {
+    const cle = cleDessin(d);
+    vus.add(cle);
+    if (d.conforme) {
+      ajouteConforme(d.config, choisie);
       continue;
     }
-    const m = d.config;
-    const id = idModeleGC(m.carre, m.croix, m.barreauxBas, m.traverse, m.seuls);
-    const l = ligneGC({ ...q.releve, modele: id }, { woodId: q.essence, metalId: q.metalId, fabricId: q.fabricId, remplissageId: q.remplissageId });
-    if (l.ok && l.line.gc) modeles.push({ id, conforme: true, raisons: [], croix: m.croix, carre: m.carre, soubassementMm: m.soubassementMm, traverse: m.traverse, seuls: m.seuls, trous: null, renfort: m.renfort, hauteurMm: l.line.gc.hauteurMm, prix: l.line.unitPrice, kg: Math.round(l.line.gc.kg) });
+    // Pas aux normes avec la rosace choisie : la première plus grande qui le permet, si une le permet.
+    const autre = repli.map((r) => ({ id: r.id, d: r.dessins.get(cle) })).find((r) => r.d?.conforme);
+    if (autre?.d?.conforme) {
+      ajouteConforme(autre.d.config, autre.id);
+      continue;
+    }
+    modeles.push({ id: idModeleGC(d.carre, d.croix, d.barreauxBas, d.traverse, d.seuls), conforme: false, raisons: d.raisons, croix: d.croix, carre: d.carre, soubassementMm: d.soubassementMm, traverse: d.traverse, seuls: d.seuls, rosace: d.seuls ? "" : choisie, trous: d.trous, renfort: false, hauteurMm, prix: 0, kg: 0 });
+  }
+  // Les dessins que le catalogue de la rosace choisie ne montre pas (7 à 12 croix) mais qu'une plus grande permet.
+  for (const r of repli) for (const [cle, d] of r.dessins) {
+    if (vus.has(cle) || !d.conforme) continue;
+    vus.add(cle);
+    ajouteConforme(d.config, r.id);
   }
   return modeles.slice(0, MODELES_GC_MAX);
 }

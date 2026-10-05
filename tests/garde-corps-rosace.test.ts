@@ -82,7 +82,50 @@ test("la route du prix et la ligne de panier utilisent la rosace choisie", () =>
   assert.equal(avec.ok && avec.line.gc?.rosaceMm, 170);
   // Le catalogue envoyé au navigateur suit la rosace choisie.
   const q = (fabricId: string) => reponsePrixGC({ releve: { ...releve, modele: undefined }, essence: "chene", fabricId, quantite: 1 });
-  const conformes = (fabricId: string) => (q(fabricId)?.modeles ?? []).filter((m) => m.conforme).length;
+  // (Le catalogue propose aussi, avec leur rosace, les dessins que seule une plus grande rosace permet : on compte ici ceux
+  // qui passent AVEC la rosace choisie.)
+  const conformes = (fabricId: string) => (q(fabricId)?.modeles ?? []).filter((m) => m.conforme && m.rosace === fabricId).length;
   assert.ok(conformes("medaillon") > conformes("fleur"), "plus de modèles aux normes avec la grande rosace");
   assert.equal(conformes("fonte"), conformes("fleur"), "la fonte Ø100 et la fleur Ø100 : mêmes modèles");
+});
+
+test("le catalogue propose, pour chaque dessin, la meilleure rosace : la choisie, sinon la plus petite plus grande qui le permet", () => {
+  const releveDe = (largeurMm: number, allegeMm: number) => ({ largeurMm, allegeMm, enEtage: true, fenetreMm: 0 });
+  let avecGrande = 0, avecFleurDepuisAcier = 0;
+  for (const [largeur, allege] of GRILLE) for (const choisie of ["fleur", "acier", "medaillon"]) {
+    const releve = releveDe(largeur, allege);
+    const r = reponsePrixGC({ releve, essence: "chene", fabricId: choisie, quantite: 1 });
+    if (!r) continue;
+    for (const m of r.modeles) {
+      if (m.seuls) { assert.equal(m.rosace, "", "barreaux seuls : pas de rosace"); }
+      else assert.ok(Object.hasOwn(ROSACE_MM_GC, m.rosace), `${m.id} : une rosace connue`);
+      if (!m.conforme) { assert.equal(m.prix, 0); continue; }
+      // La rosace du modèle est la choisie, ou une PLUS GRANDE (jamais une plus petite).
+      assert.ok(m.seuls || diametreRosaceGC(m.rosace) >= diametreRosaceGC(choisie), `${m.id} : ${m.rosace} n'est pas plus petite que ${choisie}`);
+      // Le prix annoncé est exactement ce que le panier encaisserait avec cette rosace — et le modèle y passe la norme.
+      const l = ligneGC({ ...releve, modele: m.id }, { woodId: "chene", fabricId: m.rosace || choisie });
+      assert.ok(l.ok, `${largeur} × ${allege} ${m.id} avec ${m.rosace || choisie}`);
+      assert.equal(l.line.unitPrice, m.prix);
+      if (m.rosace === "medaillon" && choisie !== "medaillon") avecGrande++;
+      if (m.rosace === "fleur" && choisie === "acier") avecFleurDepuisAcier++;
+    }
+  }
+  assert.ok(avecGrande >= 3, `des modèles que seul le grand médaillon permet (${avecGrande})`);
+  assert.ok(avecFleurDepuisAcier >= 0);
+});
+
+test("choisir un modèle qui demande le grand médaillon : sans lui, il n'est pas vendu ; la route le refuse proprement", () => {
+  for (const [largeur, allege] of GRILLE) {
+    const releve = { largeurMm: largeur, allegeMm: allege, enEtage: true, fenetreMm: 0 };
+    const r = reponsePrixGC({ releve, essence: "chene", fabricId: "fleur", quantite: 1 });
+    for (const m of r?.modeles ?? []) {
+      if (!m.conforme || m.rosace !== "medaillon") continue;
+      const sans = reponsePrixGC({ releve: { ...releve, modele: m.id }, essence: "chene", fabricId: "fleur", quantite: 1 });
+      assert.ok(sans && !sans.ok, `${m.id} avec la fleur : refusé (le client doit prendre le grand médaillon)`);
+      const avec = reponsePrixGC({ releve: { ...releve, modele: m.id }, essence: "chene", fabricId: "medaillon", quantite: 1 });
+      assert.ok(avec?.ok && avec.prix === m.prix, `${m.id} avec le grand médaillon : au prix annoncé`);
+      return;
+    }
+  }
+  assert.fail("aucun modèle qui demande le grand médaillon dans la grille");
 });

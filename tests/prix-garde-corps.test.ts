@@ -472,7 +472,7 @@ test("catalogue des modèles : tous montrés, seuls les conformes ont un prix, u
   const r = reponsePrixGC(q);
   assert.ok(r && r.ok, "ce relevé a un prix");
   assert.ok(r.modeles.length >= 12 && r.modeles.length <= 48, "le catalogue entier est envoyé");
-  assert.deepEqual(Object.keys(r.modeles[0]).sort(), ["carre", "conforme", "croix", "hauteurMm", "id", "kg", "prix", "raisons", "renfort", "seuls", "soubassementMm", "traverse", "trous"]);
+  assert.deepEqual(Object.keys(r.modeles[0]).sort(), ["carre", "conforme", "croix", "hauteurMm", "id", "kg", "prix", "raisons", "renfort", "rosace", "seuls", "soubassementMm", "traverse", "trous"]);
   // Les quatre familles : croix seules, traverse au milieu, barreaux en bas, les deux.
   assert.ok(r.modeles.some((m) => m.traverse) && r.modeles.some((m) => !m.traverse));
   const conformes = r.modeles.filter((m) => m.conforme), hors = r.modeles.filter((m) => !m.conforme);
@@ -480,7 +480,8 @@ test("catalogue des modèles : tous montrés, seuls les conformes ont un prix, u
   // Le modèle que l'outil retient de lui-même est dans le catalogue, au même prix.
   assert.equal(conformes.find((m) => m.croix === r.croix && m.traverse === r.traverse && m.soubassementMm > 0 === r.soubassementMm > 0)?.prix, r.prix);
   for (const m of conformes) {
-    const choisi = reponsePrixGC({ ...q, releve: { ...releve, modele: m.id } });
+    // (Un modèle qui demande le grand médaillon se commande avec lui : c'est la rosace du modèle.)
+    const choisi = reponsePrixGC({ ...q, fabricId: m.rosace || undefined, releve: { ...releve, modele: m.id } });
     assert.ok(choisi && choisi.ok, `le modèle ${m.id} se commande`);
     assert.equal(choisi.prix, m.prix, `le modèle ${m.id} est encaissé au prix affiché`);
     assert.deepEqual([choisi.carre, choisi.croix, choisi.traverse], [m.carre, m.croix, m.traverse]);
@@ -495,7 +496,7 @@ test("catalogue des modèles : tous montrés, seuls les conformes ont un prix, u
   for (const m of conformes) {
     const suite = m.id.replace(/^\d+-\d+/, "");
     for (const s of ORDRE_CARRES) {
-      const forge = reponsePrixGC({ ...q, releve: { ...releve, modele: `${s}-${m.croix}${suite}` } });
+      const forge = reponsePrixGC({ ...q, fabricId: m.rosace || undefined, releve: { ...releve, modele: `${s}-${m.croix}${suite}` } });
       assert.ok(forge && forge.ok, `${s}-${m.croix}${suite} : le même dessin`);
       assert.deepEqual([forge.carre, forge.croix, forge.soubassementMm, forge.traverse, forge.prix], [m.carre, m.croix, m.soubassementMm, m.traverse, m.prix], `${s}-${m.croix}${suite}`);
     }
@@ -551,11 +552,11 @@ test("le modèle choisi ne saute pas quand une cote fait changer de carré : c'e
     const depart = reponsePrixGC({ releve: { largeurMm: 700, allegeMm, enEtage: true, fenetreMm: 0 }, essence: "chene", quantite: 1 });
     assert.ok(depart);
     // (Jusqu'à 6 croix ici ; les modèles de 7 à 12 croix sont couverts par parite-outil-site.test.ts.)
-    for (const choisi of depart.modeles.filter((m) => m.conforme && m.croix <= 6)) {
+    for (const choisi of depart.modeles.filter((m) => m.conforme && m.croix <= 6 && (m.seuls || m.rosace === "fleur"))) {
       for (let largeurMm = 700; largeurMm <= 1700; largeurMm += 100) {
         const releve = { largeurMm, allegeMm, enEtage: true, fenetreMm: 0 };
         const catalogue = reponsePrixGC({ releve, essence: "chene", quantite: 1 })!.modeles;
-        const propose = catalogue.find((m) => m.conforme && m.croix === choisi.croix && m.traverse === choisi.traverse && m.seuls === choisi.seuls && m.soubassementMm > 0 === choisi.soubassementMm > 0);
+        const propose = catalogue.find((m) => m.conforme && m.croix === choisi.croix && m.traverse === choisi.traverse && m.seuls === choisi.seuls && m.rosace === choisi.rosace && m.soubassementMm > 0 === choisi.soubassementMm > 0);
         const r = reponsePrixGC({ releve: { ...releve, modele: choisi.id }, essence: "chene", quantite: 1 });
         assert.ok(r);
         if (propose && (propose.id.includes("-b") === choisi.id.includes("-b") || propose.soubassementMm > 0)) {
@@ -576,7 +577,7 @@ test("le libellé de la commande dit ce qui est vendu : barreaux en bas, section
   assert.ok(r);
   const libelles = new Map<string, number>();
   for (const m of r.modeles.filter((x) => x.conforme)) {
-    const l = ligneGC({ ...releve, modele: m.id }, { woodId: "chene" });
+    const l = ligneGC({ ...releve, modele: m.id }, { woodId: "chene", fabricId: m.rosace || undefined });
     assert.ok(l.ok);
     const libelle = l.line.size.label;
     if (m.seuls) assert.equal(libelle.includes("croix"), false, libelle);

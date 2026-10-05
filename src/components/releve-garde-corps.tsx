@@ -10,6 +10,7 @@ import { SchemaFenetre, NUMERO_COTE, type CoteFenetre } from "./schema-fenetre";
 import {
   BORNES_RELEVE_GC,
   MAIN_COURANTE_MM,
+  ROSACE_MM_GC,
   lireReponsePrixGC,
   noteReleveGC,
   parametresPrixGC,
@@ -229,6 +230,8 @@ export function ReleveGardeCorps({
   prix,
   lienDevis,
   rosaceMm,
+  rosaceId,
+  onRosace,
   mainCourante,
   schemaSlot,
   resultatSlot,
@@ -246,6 +249,9 @@ export function ReleveGardeCorps({
   lienDevis?: string;
   /** Le diamètre de la rosace choisie, en millimètres, pour le croquis. */
   rosaceMm?: number;
+  /** La rosace choisie (identifiant de l'option) : un modèle peut en demander une plus grande, que le choisir applique. */
+  rosaceId?: string;
+  onRosace?: (id: string) => void;
   /** La main courante choisie (un bois, « acier » ou « profil ») : le croquis la dessine en bois ou en acier. */
   mainCourante?: string;
   /**
@@ -295,7 +301,7 @@ export function ReleveGardeCorps({
   const surVerre = verre?.surVerre === true;
   const releve = lecture.etat === "ok" ? lecture.releve : null;
   /** Le modèle que le client avait choisi et qui ne va plus avec ses nouvelles mesures : on le lui dit. */
-  const [perdu, setPerdu] = useState<{ croix: number; barreaux: boolean; traverse: boolean; raisons: readonly string[]; pour: string } | null>(null);
+  const [perdu, setPerdu] = useState<{ croix: number; barreaux: boolean; traverse: boolean; seuls: boolean; raisons: readonly string[]; pour: string } | null>(null);
   /** Les mesures affichées : le message « modèle perdu » ne vaut que pour celles du refus. */
   const mesures = `${cotes.largeur}|${cotes.allege}|${cotes.fenetre}|${cotes.etage}`;
   /** Le refus déjà pris en compte (la réponse du serveur) : on ne le note qu'une fois. */
@@ -304,7 +310,7 @@ export function ReleveGardeCorps({
     const voulu = lireModeleGC(cotes.modele);
     setRefusVu(brute);
     // D'autres modèles conviennent : on explique. (Barre d'appui, fenêtre trop basse… : le message du résultat suffit.)
-    setPerdu(voulu && brute.raison === "a-etudier" && brute.modeles.some((m) => m.conforme) ? { croix: voulu.croix, barreaux: voulu.barreauxBas, traverse: voulu.traverse, raisons: brute.alertes, pour: mesures } : null);
+    setPerdu(voulu && brute.raison === "a-etudier" && brute.modeles.some((m) => m.conforme) ? { croix: voulu.croix, barreaux: voulu.barreauxBas, traverse: voulu.traverse, seuls: voulu.seuls, raisons: brute.alertes, pour: mesures } : null);
   }
   useEffect(() => {
     if (modeleRefuse) onChange({ ...cotes, modele: "" });
@@ -316,6 +322,24 @@ export function ReleveGardeCorps({
   const texteManque = commence ? texteManqueGC(lecture, locale) : null;
   const nombre = (n: number) => n.toLocaleString(langue);
   const croixTexte = (n: number) => (n > 1 ? t.gcCroixPlusieurs.replace("{n}", String(n)) : t.gcCroixUne);
+  /** Le nom d'une rosace, avec son diamètre (celui qui compte pour la norme). */
+  const rosaceTexte = (id: string) => {
+    const nom = { fleur: ["rosace fleur", "flower rosette"], fonte: ["médaillon fonte", "cast-iron medallion"], acier: ["médaillon acier", "steel medallion"], medaillon: ["grand médaillon", "large medallion"] }[id];
+    return nom ? `${nom[fr ? 0 : 1]} Ø${ROSACE_MM_GC[id]}` : "";
+  };
+  /** La configuration complète d'un modèle, en clair : ce qu'il contient, son acier, sa rosace. */
+  const descriptionModele = (m: ModeleGC, court = false) =>
+    [
+      m.seuls ? (fr ? "barreaux verticaux seuls" : "vertical bars only") : `${m.croix} ${fr ? "croix" : m.croix > 1 ? "crosses" : "cross"}`,
+      m.traverse ? (fr ? "traverse au milieu" : "middle rail") : null,
+      !m.seuls && m.soubassementMm > 0 ? (fr ? "barreaux en bas" : "bars below") : null,
+      // En liste courte, ce qui est le même pour presque tous (le carré de 16, le fer plat d'une fenêtre large) n'est pas répété.
+      court && m.carre === 16 ? null : fr ? `acier carré de ${m.carre}` : `${m.carre} mm square steel`,
+      !court && m.renfort ? (fr ? "lisse haute renforcée" : "reinforced top rail") : null,
+      m.rosace ? rosaceTexte(m.rosace) : null,
+    ]
+      .filter(Boolean)
+      .join(" · ");
   /** Ce que le garde-corps contient : ses croix, ou des barreaux verticaux seuls. */
   const contenuTexte = (m: { croix: number; seuls: boolean }) => (m.seuls ? (fr ? "barreaux verticaux" : "vertical bars") : croixTexte(m.croix));
   const fr = locale === "fr";
@@ -457,8 +481,8 @@ export function ReleveGardeCorps({
             : "With these choices, no model meets the standards. Change the bars or the middle rail."
         : perdu && perdu.pour === mesures && !choisi
           ? fr
-            ? `Le modèle que vous aviez choisi (${libelleCourt({ croix: perdu.croix, soubassementMm: perdu.barreaux ? 1 : 0, traverse: perdu.traverse })}) + ces mesures : l'ensemble ne serait plus aux normes${raisonEnMots(perdu.raisons) ? ` (${raisonEnMots(perdu.raisons)})` : ""}. Choisissez-en un autre.`
-            : `The model you had chosen (${libelleCourt({ croix: perdu.croix, soubassementMm: perdu.barreaux ? 1 : 0, traverse: perdu.traverse })}) + these measurements: together they would no longer meet the standard${raisonEnMots(perdu.raisons) ? ` (${raisonEnMots(perdu.raisons)})` : ""}. Choose another one.`
+            ? `Le modèle que vous aviez choisi (${libelleCourt({ croix: perdu.croix, soubassementMm: perdu.barreaux ? 1 : 0, traverse: perdu.traverse, seuls: perdu.seuls })}) ne respecte plus la norme avec ces choix${raisonEnMots(perdu.raisons) ? ` (${raisonEnMots(perdu.raisons)})` : ""}. Choisissez-en un autre.`
+            : `The model you had chosen (${libelleCourt({ croix: perdu.croix, soubassementMm: perdu.barreaux ? 1 : 0, traverse: perdu.traverse, seuls: perdu.seuls })}) no longer meets the standard with these choices${raisonEnMots(perdu.raisons) ? ` (${raisonEnMots(perdu.raisons)})` : ""}. Choose another one.`
           : "";
   // Le modèle montré en grand sur le croquis : celui que le client vient de toucher s'il n'est pas aux normes (avec ses
   // ronds rouge et vert), ou — quand rien ne convient — le plus proche de la norme.
@@ -569,7 +593,39 @@ export function ReleveGardeCorps({
           </button>
         </div>
       )}
-      {liste.length > 0 && (
+      {/* Du moins cher au plus cher : une ligne par modèle, avec sa configuration complète écrite en clair (rosace comprise). */}
+      {liste.length > 0 && parPrixActif && (
+        <ol
+          aria-label={fr ? "Modèles du moins cher au plus cher" : "Models, cheapest first"}
+          aria-busy={modelesPerimes}
+          className={`mt-1.5 max-h-[8.5rem] space-y-1 overflow-y-auto pr-1 transition-opacity ${modelesPerimes ? "opacity-60" : ""}`}
+        >
+          {liste.map((m, i) => {
+            const actif = choisi !== null && choisi.id === m.id;
+            return (
+              <li key={m.id}>
+                <button
+                  type="button"
+                  aria-pressed={actif}
+                  title={descriptionModele(m)}
+                  onClick={() => {
+                    setPerdu(null);
+                    setPourquoi(null);
+                    onChange({ ...cotes, modele: m.id });
+                    if (m.rosace && rosaceId && m.rosace !== rosaceId) onRosace?.(m.rosace);
+                  }}
+                  className={`flex w-full items-center gap-2 rounded-lg border px-2 py-1 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${actif ? "border-[#2b2320] bg-white shadow-sm" : "border-[#d9cfc2] bg-white/60 hover:border-[#2b2320]"}`}
+                >
+                  <span className="w-4 shrink-0 text-center text-[11px] font-semibold tabular-nums text-[#6f6357]">{i + 1}</span>
+                  <span className="min-w-0 flex-1 text-[11.5px] leading-tight text-[#2b2320]">{descriptionModele(m, true)}</span>
+                  <span className="shrink-0 text-[12px] font-semibold tabular-nums text-[#2b2320]">{prixAffiche(m.prix, locale)}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+      )}
+      {liste.length > 0 && !parPrixActif && (
         <div className="relative">
           {liste.length > 3 &&
             ([-1, 1] as const).map((sens) => (
@@ -609,6 +665,7 @@ export function ReleveGardeCorps({
                     setPerdu(null);
                     setPourquoi(null);
                     onChange({ ...cotes, modele: m.id });
+                    if (m.rosace && rosaceId && m.rosace !== rosaceId) onRosace?.(m.rosace);
                   } else setPourquoi((p) => (p === m.id ? null : m.id));
                 }}
                 className={`tuile-modele relative flex w-[78px] shrink-0 snap-start flex-col px-1.5 pb-1.5 pt-2.5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${horsNorme ? "tuile-hors-norme" : ""}`}
@@ -628,11 +685,9 @@ export function ReleveGardeCorps({
                 <span className="mt-1 block text-[11px] font-semibold leading-tight text-[#2b2320]">
                   {m.seuls ? (fr ? "Barreaux" : "Bars") : `${m.croix} ${fr ? "croix" : m.croix > 1 ? "crosses" : "cross"}`}
                 </span>
-                {parPrixActif && (
-                  <span className="block text-[9.5px] leading-tight text-[#6f6357]">
-                    {m.seuls ? (fr ? "barreaux verticaux" : "vertical bars") : m.traverse ? (fr ? "+ traverse" : "+ rail") : m.soubassementMm > 0 ? (fr ? "+ barreaux" : "+ bars") : fr ? "croix seules" : "crosses only"}
-                    {m.traverse && m.soubassementMm > 0 && !m.seuls ? (fr ? " + barreaux" : " + bars") : ""}
-                  </span>
+                {/* Le modèle demande une autre rosace que la choisie (plus grande : les vides sont plus petits). */}
+                {marque && m.conforme && m.rosace && rosaceId && m.rosace !== rosaceId && (
+                  <span className="block text-[9.5px] leading-tight text-[#6f6357]">{rosaceTexte(m.rosace).split(" Ø")[0]}</span>
                 )}
                 {marque && (
                   <span className={`block text-[11px] font-medium leading-tight tabular-nums ${m.conforme ? "text-[#2b2320]" : "text-[#6d2c2c]"}`}>
@@ -1315,6 +1370,7 @@ const MODELES_VITRINE: ModeleGC[] = ([[false, false], [false, true], [true, fals
     traverse: t,
     trous: null,
     seuls: false,
+    rosace: "",
     renfort: false,
     hauteurMm: b ? 520 : 350,
     prix: 0,

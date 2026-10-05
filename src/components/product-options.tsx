@@ -2524,6 +2524,8 @@ export function ProductOptions({
             lecture={lectureReleve}
             prix={prixGC}
             rosaceMm={Number(fabric?.label.match(/Ø(\d+)/)?.[1]) || undefined}
+            rosaceId={fabricId}
+            onRosace={setFabricId}
             mainCourante={woodId}
             lienDevis={`/${locale}/contact?produit=${product.slug}&config=${encodeURIComponent(optionsPiece)}${cotesPourDevisGC ? `&releve=${encodeURIComponent(cotesPourDevisGC)}` : ""}`}
             detailsSlot={setDetailsSlot}

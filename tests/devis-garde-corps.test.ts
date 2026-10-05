@@ -263,7 +263,8 @@ test("le numéro du devis change avec la fenêtre, les options, la quantité et 
   // Deux modèles différents pour la même fenêtre : deux devis, deux numéros.
   const modeles = reponsePrixGC({ releve, essence: "chene", quantite: 1 })!.modeles.filter((m) => m.conforme);
   assert.ok(modeles.length >= 2);
-  const numeros = new Set(modeles.map((m) => numero({}, { modele: m.id })));
+  // (Un modèle qui demande le grand médaillon se commande avec lui : sa rosace est celle du modèle.)
+  const numeros = new Set(modeles.map((m) => numero({ options: { woodId: "chene", ...MODELE, fabricId: m.rosace || MODELE.fabricId } }, { modele: m.id })));
   assert.equal(numeros.size, modeles.length, "un numéro par modèle");
 });
 
