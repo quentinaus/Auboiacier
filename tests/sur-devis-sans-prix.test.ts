@@ -32,14 +32,14 @@ const sansPrix = products.filter(
   (p) => p.orderMode === "quote" && p.sizes.length === 0 && !p.surMesure
 );
 
-test("la table résine est au catalogue, sur devis, sans aucun prix", () => {
+test("la table résine a ses prix (05/10/2026) : catalogue, en caisse, ses quatre teintes", () => {
   const table = produit("table-resine-mikado");
-  assert.equal(table.orderMode, "quote");
+  assert.equal(table.orderMode, "cart");
   assert.equal(table.famille, "table-interieur");
   assert.equal(table.category, "interieur");
-  assert.equal(priceFrom(table), null, "un prix « à partir de » a été inventé");
-  assert.ok(sansPrix.includes(table));
-  // Les quatre teintes de résine des photos.
+  assert.equal(priceFrom(table), 2160);
+  assert.ok(!sansPrix.includes(table));
+  assert.deepEqual(table.sizes.map((t) => t.price), [2160, 2540, 2760, 3170, 3670]);
   assert.deepEqual(
     (table.fabrics ?? []).map((f) => f.id),
     ["bleu-paillettes-or", "rouge", "or-nacre", "turquoise"]

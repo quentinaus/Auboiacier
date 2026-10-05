@@ -1141,33 +1141,19 @@ export const products: Product[] = [
   {
     slug: "table-resine-mikado",
     /*
-     * PRIX : PAS ENCORE FIXÉS (« on verra les prix plus tard », Quentin,
-     * octobre 2026). En attendant, la table se fait SUR DEVIS : la fiche
-     * n'annonce aucun chiffre, et « Demander un devis » envoie au formulaire
-     * de contact la teinte, le format, le bois et le piétement choisis.
-     *
-     * LE JOUR DES PRIX, tout se change ici, dans cette fiche :
-     *   1. `formatsDevis.tailles` devient `sizes`, chaque format avec son
-     *      `price` (mêmes identifiants p6 … p14 : la traduction suit) ;
-     *   2. ajouter un `surMesure`, sur le modèle de la table Mikado, avec
-     *      ses propres chiffres ;
-     *   3. passer `orderMode` à "cart", retirer `formatsDevis` et `noteDevis`.
-     * Si une teinte de résine coûte plus cher, le devis PDF (src/lib/devis.ts)
-     * devra aussi apprendre à l'écrire : il ne connaît pas encore de ligne
-     * « résine ». `npm test` vérifie ensuite que chaque prix est facturable.
+     * PRIX (05/10/2026) : calculés par le tableur « Chiffrage Auboiacier.xlsx » (Pièces 635-693) et l'outil de plans
+     * (modèle « resine ») : même pied que la Table Mikado, plateau de chêne de récupération noyé dans 40 % de résine
+     * Epodex ECO MAX. Prix plancher arrondi (ton heure à 50 €), sous les tables rivière des artisans (2 600 à 3 050 € en
+     * 200 × 100). Sur mesure : 1 340 € + 640 €/m², jamais sous le prix plancher (contrôlé de 80 × 80 à 450 × 125).
      */
     poseOption: true,
     boisAuM2: true,
     famille: "table-interieur",
     seoMots: "chêne massif",
     category: "interieur",
-    orderMode: "quote",
+    orderMode: "cart",
     name: "Table Résine Époxy Mikado",
     tagline: "Une rivière de résine époxy dans un plateau de chêne massif, sur le piétement Mikado.",
-    noteDevis: {
-      fr: "Cette table se fait sur devis : nous vous répondons avec le prix et le délai, pour la teinte et le format choisis.",
-      en: "This table is made on quotation: we reply with the price and lead time for the colour and size you choose.",
-    },
     // Les quatre rendus ont le cadrage des photos « coupe » de la table
     // Mikado : fond blanc de studio, la table remplit le cadre. Le recadrage
     // garde la rivière et son chant en vue (position), même sur un écran
@@ -1252,21 +1238,29 @@ export const products: Product[] = [
         fit: "cover",
       },
     ],
-    // Aucune taille à prix : voir « PRIX » plus haut. Les formats sont ceux
-    // de la table Mikado, proposés sans tarif.
-    sizes: [],
-    formatsDevis: {
-      tailles: [
-        { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm" },
-        { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm" },
-        { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm" },
-        { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm" },
-        { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm" },
-      ],
-      // Les bornes du plateau de la table Mikado (PLATEAU_MAX_…, plus haut).
-      surMesure: {
-        fr: "De 80 × 80 cm à 450 × 125 cm, d'un seul tenant : indiquez vos cotes dans votre message.",
-        en: "From 80 × 80 cm up to 450 × 125 cm in one piece: give your dimensions in your message.",
+    sizes: [
+      { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 2160 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 2540 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 2760 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 3170 },
+      { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 3670 },
+    ],
+    surMesure: {
+      forme: "rect",
+      axes: "plan",
+      forfait: 1340,
+      parM2: 640,
+      minMm: 800,
+      maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
+      maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
+      epaisseur: {
+        // Plateau coulé : 45 mm fini seulement.
+        minMm: 45,
+        maxMm: 45,
+        refMm: 45,
+        choixMm: [45],
+        parM2ParMm: 10,
+        miniParLongueur: PLATEAU_MASSIF,
       },
     },
     woods: woods({ chene: 0 }),
