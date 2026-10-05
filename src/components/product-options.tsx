@@ -44,6 +44,7 @@ import { memoVersReleve, memoriserConfig, releveVersMemo, reprendreConfig, type 
 import { livrableParTransporteur } from "@/lib/products";
 import { VisiteAtelier } from "./prise-de-cotes";
 import { PorteQuiMesure, RevenirAuChoix, type QuiPrendLesCotes } from "./porte-qui-mesure";
+import { OngletsConfiguration } from "./onglets-configuration";
 import { MAX_TEXTE, EMAIL_MOTIF } from "@/lib/devis-regles";
 import { POSE_INITIALE, PoseDomicile, livraisonPrete, montantLivraison, type ChoixPose } from "./pose-domicile";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
@@ -849,6 +850,8 @@ export function ProductOptions({
     () => window.matchMedia("(min-width: 48rem)").matches,
     () => false
   );
+  /** Garde-corps sur téléphone : l'emplacement des matières, dans la partie « Modèle » de la carte (releve-garde-corps.tsx). */
+  const [matieresTelSlot, setMatieresTelSlot] = useState<HTMLDivElement | null>(null);
   /** Garde-corps : l'emplacement, dans le cadre du résultat (à côté de la carte), du poids, des détails et de ce que comprend le prix. */
   const [detailsSlot, setDetailsSlot] = useState<HTMLDivElement | null>(null);
 
@@ -2064,6 +2067,18 @@ export function ProductOptions({
     /* pb-24 sur téléphone : la barre d'achat fixe ne doit pas recouvrir la fin
        de la colonne. */
     <div className={nouvelleMiseEnPage ? "flex flex-col" : "flex flex-col pb-24 md:pb-0"}>
+      {/* Téléphone, garde-corps : les trois parties de l'ordinateur (mesures, modèle, prix) en onglets collés en haut de la
+          carte. (Pas en mode « l'atelier vient mesurer » : il n'y a alors ni mesures ni modèle à choisir.) */}
+      {estGC && nouvelleMiseEnPage && !modeVisite && !ecranMoyen && (
+        <OngletsConfiguration
+          label={locale === "fr" ? "Parties de la configuration" : "Configuration sections"}
+          parties={[
+            { id: "cotes", label: locale === "fr" ? "Mesures" : "Measures" },
+            { id: "partie-modele", label: locale === "fr" ? "Modèle" : "Model" },
+            { id: "partie-prix", label: locale === "fr" ? "Prix" : "Price" },
+          ]}
+        />
+      )}
       {/* Le grand croquis : posé par portail à droite de la carte, dans la
           section « Configuration » (voir schemaSlot, product-view.tsx). Rien
           ne bouge dans les cotes elles-mêmes : seul l'endroit où le dessin
@@ -2223,10 +2238,10 @@ export function ProductOptions({
           );
           if (nouvelleMiseEnPage) {
             if (estGC && ecranMoyen && matieresCentreSlot) return createPortal(matieresCompactes, matieresCentreSlot);
-            // Sur téléphone, le garde-corps garde ses matières DANS le bloc, en tête de la carte : elles changent le croquis,
-            // qui doit rester visible pendant qu'on les choisit (près de la photo, on ne voyait plus le croquis).
+            // Sur téléphone, le garde-corps garde ses matières DANS le bloc, dans la partie « Modèle » de la carte (après les
+            // mesures, comme l'ordinateur les met au-dessus du croquis) : elles changent le croquis, qui reste visible.
             // (Le choix complet, écrit en clair : la ligne compacte ouvre une fenêtre de 440 px, coupée sur un téléphone.)
-            if (estGC) return <div className="mb-3 md:hidden">{matieres}</div>;
+            if (estGC) return matieresTelSlot ? createPortal(<div className="md:hidden">{matieres}</div>, matieresTelSlot) : null;
             return matieresSlot ? createPortal(matieres, matieresSlot) : null;
           }
           return (
@@ -2792,6 +2807,7 @@ export function ProductOptions({
             teinteBois={wood?.swatch}
             lienDevis={`/${locale}/contact?produit=${product.slug}&config=${encodeURIComponent(optionsPiece)}${cotesPourDevisGC ? `&releve=${encodeURIComponent(cotesPourDevisGC)}` : ""}`}
             detailsSlot={setDetailsSlot}
+            matieresSlotTelephone={setMatieresTelSlot}
             verre={
               verre && remplissageModele
                 ? {

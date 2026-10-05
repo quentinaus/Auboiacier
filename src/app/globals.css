@@ -718,6 +718,28 @@ textarea:focus-visible,
   }
 }
 
+/* Ordinateur : le petit titre « Vos mesures » n'apprend rien dans la colonne des cotes (les trois cotes le disent) ; sans lui,
+   la colonne tient même quand la bande des modèles, en dessous, s'agrandit pour décrire le modèle choisi. */
+@media (min-width: 64rem) {
+  .colonne-cotes .titre-mesures {
+    display: none;
+  }
+}
+/* Ordinateur peu haut (800 px et moins) : la colonne d'achat se resserre de quelques pixels — le détail du modèle choisi et
+   le bouton « Être prévenu en priorité » avec sa phrase la faisaient dépasser de 14 à 18 px. */
+@media (min-width: 64rem) and (max-height: 800px) {
+  .colonne-achat .barre-achat > div {
+    gap: 0.35rem;
+  }
+  .colonne-achat .barre-achat > p {
+    margin-top: 0.25rem;
+  }
+  .colonne-achat #sous-menu-livraison {
+    margin-top: 0.25rem;
+    padding-top: 0.4rem;
+  }
+}
+
 /* Fenêtres peu hautes : la colonne d'achat ne défile jamais, on retire les phrases d'aide sous les choix (elles restent dans leur bulle). */
 @media (min-width: 64rem) and (max-height: 900px) {
   .colonne-achat .legende-option,

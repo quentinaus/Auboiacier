@@ -247,6 +247,7 @@ export function ReleveGardeCorps({
   schemaSlot,
   resultatSlot,
   detailsSlot,
+  matieresSlotTelephone,
   verre,
 }: {
   cotes: CotesGardeCorps;
@@ -283,6 +284,8 @@ export function ReleveGardeCorps({
    * résultat, à côté de la carte (qui ne garde que les cotes et la livraison).
    */
   detailsSlot?: (element: HTMLDivElement | null) => void;
+  /** Téléphone : où la fiche dépose les matières (acier, main courante, rosace), dans la partie « Modèle ». */
+  matieresSlotTelephone?: (element: HTMLDivElement | null) => void;
   /** Le verre feuilleté à la place des croix : une option, avec son supplément. */
   verre?: {
     surVerre: boolean;
@@ -1178,9 +1181,14 @@ export function ReleveGardeCorps({
             </label>
           </div>
 
-          {/* Sur téléphone, la rangée des modèles est dans la carte, sous le mur : sous le croquis, elle le poussait hors de
-              l'écran (le croquis doit rester visible pendant qu'on choisit). */}
-          {telephone && schemaSlot && !bandeauSlot && <div className="mt-1">{catalogue}</div>}
+          {/* Sur téléphone, la partie « Modèle » (comme le dessus et le dessous du croquis sur ordinateur) : les matières, puis la
+              rangée des modèles. Dans la carte, sous le mur : sous le croquis, elle le poussait hors de l'écran. */}
+          {telephone && schemaSlot && !bandeauSlot && (
+            <div id="partie-modele" className="mt-3 border-t border-[#e5ddd3] pt-4">
+              <div ref={matieresSlotTelephone} className="mb-4" />
+              {catalogue}
+            </div>
+          )}
 
           {/* Le résultat : le prix, la norme, le modèle choisi. À côté de la carte, sous le catalogue
               (la carte, à gauche, ne porte plus que les cotes et la livraison : elle était trop longue
@@ -1480,7 +1488,7 @@ export function ReleveGardeCorps({
               : schemaSlot && !telephone
                 ? createPortal(<div className="mt-4 rounded-2xl border border-[#e0d6c8] bg-white/75 p-4 text-left md:p-5">{resultat}</div>, schemaSlot)
                 : schemaSlot
-                  ? <div className="mt-3 border-t border-[#e5ddd3] pt-1">{resultat}</div>
+                  ? <div id="partie-prix" className="mt-3 border-t border-[#e5ddd3] pt-1">{resultat}</div>
                   : resultat;
           })()}
         </>
