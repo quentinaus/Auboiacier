@@ -91,9 +91,9 @@ export async function generateMetadata({
   // tapent. Surtout pas l'accroche commerciale, trop longue pour les soixante
   // signes que Google affiche — elle se faisait couper en plein milieu, et le
   // titre se réduisait alors au nom du modèle, que personne ne cherche.
-  const title = product.seoMots
-    ? `${product.name} — ${product.seoMots}`
-    : `${product.name} — ${product.tagline}`;
+  const title =
+    product.seoTitre ??
+    (product.seoMots ? `${product.name} — ${product.seoMots}` : `${product.name} — ${product.tagline}`);
   // Une fiche dont l'accroche est trop longue pour tenir avec le prix et le
   // suffixe donne sa propre description (voir Product.seoDescription) ; le
   // prix, lui, vient toujours du catalogue.
@@ -113,6 +113,7 @@ export async function generateMetadata({
       `${product.name} ${ATELIER.ville}`,
       locale === "fr" ? `${product.name} sur mesure` : `made-to-measure ${product.name}`,
       `${product.name} ${ATELIER.departement}`,
+      ...(product.motsCles ?? []),
     ],
   });
 }

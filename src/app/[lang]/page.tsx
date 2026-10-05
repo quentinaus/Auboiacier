@@ -366,6 +366,37 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
         </div>
       </section>
 
+      {/* 4 bis. Le texte que lisent les moteurs de recherche ET les visiteurs : ce que fait l'atelier, où, et comment avoir un prix.
+          Écrit en phrases, pas en liste de mots-clés : Google pénalise l'entassement de mots et récompense un texte utile.
+          Chaque lien mène à la fiche de la fabrication citée. */}
+      <section className="border-t border-[#e5ddd3] bg-white px-6 py-14 md:py-20">
+        <div className="mx-auto max-w-3xl">
+          <h2 className={`${serif.className} text-2xl text-[#2b2320] sm:text-3xl`}>{t.seoTitle}</h2>
+          <p className="mt-5 text-sm leading-relaxed text-[#4a4038] md:text-[0.95rem]">{t.seoP1}</p>
+          <p className="mt-4 text-sm leading-relaxed text-[#4a4038] md:text-[0.95rem]">{t.seoP2}</p>
+          <h3 className="mt-8 text-[11px] font-medium uppercase tracking-[0.25em] text-[#6f6357]">{t.seoLinksTitle}</h3>
+          <ul className="mt-4 grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
+            {[
+              "/artisanat/garde-corps",
+              "/artisanat/escalier-limon-central",
+              "/artisanat/verrieres",
+              "/artisanat#table-interieur",
+              "/toiles-tendues",
+              "/artisanat/sculptures",
+              "/devis",
+              "/rendez-vous",
+              "/zone-intervention",
+            ].map((chemin, i) => (
+              <li key={chemin}>
+                <Link href={`/${locale}${chemin}`} className="text-[#2b2320] underline decoration-[#2b2320]/30 underline-offset-4 hover:decoration-[#2b2320]">
+                  {t.seoLinks[i]}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       {/* 5. Le mot de l'atelier — le panneau sombre et la marche d'escalier
           en gros plan : le même dessin que sur la page des verrières. */}
       <BandeauDetail

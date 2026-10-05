@@ -46,6 +46,19 @@ export const ATELIER = {
     "Bourgueil",
     "Chinon",
     "Tours",
+    "Fontevraud-l'Abbaye",
+    "Montsoreau",
+    "Gennes",
+    "Les Rosiers-sur-Loire",
+    "Beaufort-en-Anjou",
+    "Baugé-en-Anjou",
+    "Langeais",
+    "Azay-le-Rideau",
+    "Loudun",
+    "Thouars",
+    "Poitiers",
+    "Le Mans",
+    "Nantes",
     "Maine-et-Loire (49)",
     "Indre-et-Loire (37)",
     "Deux-Sèvres (79)",
@@ -112,6 +125,36 @@ export function telephoneLisible(): string {
 /** Mots-clés de fond, repris sur toutes les pages. */
 const MOTS_CLES: Record<Locale, string[]> = {
   fr: [
+    "métallerie Saumur",
+    "métallerie artisanale Saumur",
+    "métallier Angers",
+    "métallier Cholet",
+    "métallier Tours",
+    "artisan métallier Anjou",
+    "atelier de métallerie Val de Loire",
+    "garde-corps sur mesure",
+    "garde-corps artisanal sur mesure",
+    "garde-corps de fenêtre sur mesure",
+    "garde-corps fenêtre Saumur",
+    "garde-corps acier Maine-et-Loire",
+    "garde-corps croix de Saint-André",
+    "garde-corps rosace fonte",
+    "garde-corps prix instantané",
+    "garde-corps devis PDF",
+    "garde-corps norme NF P01-012",
+    "main courante chêne acier sur mesure",
+    "devis instantané en ligne",
+    "prix en ligne sur mesure",
+    "devis PDF gratuit sans compte",
+    "fabrication française artisanale",
+    "soudure TIG acier sur mesure",
+    "prise de cotes à domicile Anjou",
+    "pose garde-corps Saumur",
+    "escalier limon central acier chêne",
+    "verrière d'intérieur acier Anjou",
+    "table Mikado acier chêne",
+    "chaise velours piétement acier",
+    "plafond tendu lumineux LED sur mesure",
     "métallier Saumur",
     "ferronnier Maine-et-Loire",
     "table sur mesure Saumur",
@@ -130,6 +173,15 @@ const MOTS_CLES: Record<Locale, string[]> = {
     "table de salle à manger design prix atelier",
   ],
   en: [
+    "custom window railing France",
+    "handmade window railing Saumur",
+    "bespoke steel railing Loire Valley",
+    "metalworks Saumur",
+    "craft metalworker Anjou",
+    "instant online price bespoke steel",
+    "free PDF quote no account",
+    "made in France handmade steel",
+    "TIG welded steel made to measure",
     "custom steel and oak furniture France",
     "bespoke dining table Loire Valley",
     "metalworker Saumur France",
@@ -381,8 +433,8 @@ export function jsonLdAtelier(locale: Locale) {
     image: absolu(IMAGE_PARTAGE),
     description:
       locale === "fr"
-        ? "Atelier de métallerie à Saumur (Maine-et-Loire) : tables, chaises, escaliers, verrières, sculptures et plafonds lumineux à toile tendue, en acier et bois massif, fabriqués à la main sur mesure."
-        : "Metalwork studio in Saumur, Loire Valley, France: bespoke tables, chairs, staircases, steel partitions, sculptures and backlit stretched-fabric ceilings in steel and solid wood, all handmade to order.",
+        ? "Atelier de métallerie artisanale à Saumur (Maine-et-Loire) : garde-corps de fenêtre sur mesure, tables, chaises, escaliers, verrières, sculptures et plafonds lumineux à toile tendue, en acier et bois massif, fabriqués à la main sur mesure."
+        : "Craft metalwork studio in Saumur, Loire Valley, France: custom window railings, bespoke tables, chairs, staircases, steel partitions, sculptures and backlit stretched-fabric ceilings in steel and solid wood, all handmade to order.",
     address: {
       "@type": "PostalAddress",
       // Renseignée dans ATELIER.rue le jour où l'adresse de l'atelier est
@@ -423,6 +475,7 @@ export function jsonLdAtelier(locale: Locale) {
  */
 const OFFRES: Record<Locale, string[]> = {
   fr: [
+    "Garde-corps de fenêtre sur mesure",
     "Table sur mesure bois et acier",
     "Chaise et fauteuil garnis",
     "Escalier acier sur mesure",
@@ -431,6 +484,7 @@ const OFFRES: Record<Locale, string[]> = {
     "Plafond lumineux à toile tendue",
   ],
   en: [
+    "Custom window railing",
     "Bespoke wood and steel table",
     "Upholstered chairs and armchairs",
     "Bespoke steel staircase",

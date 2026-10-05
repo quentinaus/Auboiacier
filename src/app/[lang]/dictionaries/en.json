@@ -34,7 +34,7 @@
   "hub": {
     "title": "Two crafts, one hand",
     "subtitle": "Backlit stretch ceilings or furniture: choose what you have come to have made.",
-    "h1": "Metalworker in Saumur, France — steel and solid-wood furniture, made-to-measure backlit stretch ceilings",
+    "h1": "Metalworker in Saumur, France — custom window railings, staircases, steel partitions, steel and solid-wood furniture, backlit stretch ceilings",
     "lightingLabel": "Backlit stretch ceilings",
     "lightingTitle": "Backlit stretch ceilings",
     "lightingSubtitle": "Aluminium frame, stretched fabric, integrated LEDs. Prices shown for catalogue sizes, and the calculator quotes your own measurements to the centimetre.",
@@ -84,6 +84,11 @@
     "altHalo": "Halo: round backlit stretch ceiling, black aluminium frame, seen from below",
     "altPlafonds": "Backlit stretch ceiling above a dining table",
     "altVerrieres": "Black steel interior partition between a living room and a kitchen",
+    "seoTitle": "Custom craft metalwork in Saumur and the Loire Valley",
+    "seoP1": "Auboiacier is a metalwork studio in Saumur (49400), Maine-et-Loire, France. The metalworker-welder hand-makes window railings, staircases, steel workshop partitions, solid oak tables on steel bases, chairs, backlit stretched-fabric ceilings and reclaimed-steel sculptures. Every piece is drawn to your measurements and welded to order: nothing is kept in stock.",
+    "seoP2": "The price appears within a minute: enter your measurements in the online configurator, choose the material and finish, then download your PDF quote, with no account and no commitment. We measure and fit in Saumur, Angers, Cholet, Tours, Chinon and up to 200 km from the workshop; collection pieces are delivered across mainland France.",
+    "seoLinksTitle": "What we make to measure",
+    "seoLinks": ["Custom window railings", "Steel and oak staircase", "Steel workshop partition", "Wood and steel table", "Backlit stretched-fabric ceiling", "Reclaimed-steel sculptures", "Instant PDF quote", "Home measuring visit", "Where we work: Saumur, Angers, Cholet, Tours"],
     "configLabel": "Online configurator",
     "configTitle": "Configure your piece, the price appears",
     "configText": "Table, window railing, light ceiling: enter your dimensions, choose the wood, the colour, the delivery. The price is worked out in front of you and your quote downloads as a PDF — no account, no commitment.",
@@ -940,12 +945,12 @@
   },
   "seo": {
     "hub": {
-      "title": "Steel & wood furniture, stretch ceilings",
-      "description": "Metal and wood workshop in Saumur, France: tables, chairs, staircases, window railings, steel partitions and backlit stretch ceilings, made to measure."
+      "title": "Metalworks Saumur — custom steel railings",
+      "description": "Craft metalwork studio in Saumur, France: custom window railings, staircases, steel partitions, tables and backlit ceilings. Instant price, PDF quote."
     },
     "artisanat": {
-      "title": "Handmade tables, chairs and staircases — Saumur",
-      "description": "Solid oak tables on welded steel bases, velvet chairs, staircases and steel partitions, handmade in Saumur, Loire Valley. Prices shown, no middleman."
+      "title": "Custom railings and steel furniture",
+      "description": "Window railings, staircases, steel partitions and solid oak tables on welded steel bases, handmade in Saumur, Loire Valley. Prices shown, PDF quote."
     },
     "produitSuffixe": "Handmade in Saumur, France. Shipped nationwide.",
     "lumiere": {
@@ -998,7 +1003,7 @@
     },
     "zone": {
       "title": "Metalworker in Saumur & the Loire Valley",
-      "description": "Workshop in Saumur, France: measuring and fitting across Maine-et-Loire, Indre-et-Loire, Deux-Sèvres and Vienne. Furniture delivered to mainland France."
+      "description": "Metalworker in Saumur: measuring, fitting and delivery in Angers, Cholet, Tours, Chinon and up to 200 km from the workshop (49, 37, 79, 86)."
     },
     "faq": {
       "title": "FAQ — lead times, prices, delivery",
@@ -1103,6 +1108,22 @@
       {
         "q": "Are quotes free?",
         "a": "Yes, and with no obligation. Describe your project through the contact form: you get an answer within 48 hours and a written estimate."
+      },
+      {
+        "q": "Where can I find a metalworker in Saumur and Anjou?",
+        "a": "Auboiacier is a metalwork studio in Saumur (49400), Maine-et-Loire, France. We make window railings, staircases, steel partitions, wood and steel tables, backlit ceilings and sculptures to measure, and we travel for measuring and fitting in Saumur, Angers, Cholet, Tours, Chinon and up to 200 km from the workshop."
+      },
+      {
+        "q": "Can I get a price straight away, without waiting for a quote?",
+        "a": "Yes: the online configurator works out the price of your railing, table or backlit ceiling in front of you, to your measurements. You then download a free PDF quote, with no account and no commitment."
+      },
+      {
+        "q": "How is a made-to-measure window railing worked out?",
+        "a": "You enter the window width and the height of the window sill, upstairs or on the ground floor. The workshop works out the number of crosses, the steel section and the gaps between bars to the NF P01-012 standard (a 110 mm ball must not pass below 800 mm from the floor, 180 mm above, with a 3 mm margin), then shows the price."
+      },
+      {
+        "q": "What do “handmade” and “made to measure” mean at Auboiacier?",
+        "a": "Every piece is cut, TIG-welded and finished by hand in the Saumur workshop, to the dimensions of your home. There is no stock and no series, and you deal with one person, from measuring to fitting."
       }
     ],
     "ctaTitle": "Your question is not here?",

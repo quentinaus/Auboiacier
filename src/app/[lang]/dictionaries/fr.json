@@ -34,7 +34,7 @@
   "hub": {
     "title": "Deux savoir-faire, une seule main",
     "subtitle": "Plafonds lumineux ou mobilier : choisissez ce que vous venez faire fabriquer.",
-    "h1": "Métallier à Saumur — mobilier acier et bois massif, plafonds lumineux sur mesure",
+    "h1": "Métallier à Saumur — garde-corps, escaliers, verrières, mobilier acier et bois massif, plafonds lumineux sur mesure",
     "lightingLabel": "Plafonds lumineux",
     "lightingTitle": "Plafonds lumineux",
     "lightingSubtitle": "Cadre aluminium, toile tendue, LED intégrées. Prix affichés pour les tailles du catalogue, et le calculateur chiffre vos cotes au centimètre.",
@@ -84,6 +84,11 @@
     "altHalo": "Halo : plafond lumineux rond à toile tendue, cadre aluminium noir, vu de dessous",
     "altPlafonds": "Plafond lumineux au-dessus d'une table à manger",
     "altVerrieres": "Verrière d'intérieur en acier noir séparant un salon d'une cuisine",
+    "seoTitle": "Métallerie artisanale sur mesure à Saumur et en Anjou",
+    "seoP1": "Auboiacier est un atelier de métallerie installé à Saumur (49400), en Maine-et-Loire. Le métallier-soudeur y fabrique à la main des garde-corps de fenêtre, des escaliers, des verrières d'atelier, des tables en chêne massif sur piétement acier, des chaises, des plafonds lumineux à toile tendue et des sculptures en acier de récupération. Chaque pièce est dessinée à vos cotes et soudée à la commande : rien n'est en stock.",
+    "seoP2": "Le prix s'affiche en une minute : entrez vos cotes dans le configurateur en ligne, choisissez la matière et la finition, puis téléchargez votre devis en PDF, sans compte ni engagement. Nous venons relever les cotes et poser à Saumur, Angers, Cholet, Tours, Chinon et jusqu'à 200 km de l'atelier ; les pièces de la collection sont livrées partout en France métropolitaine.",
+    "seoLinksTitle": "Nos fabrications sur mesure",
+    "seoLinks": ["Garde-corps de fenêtre sur mesure", "Escalier acier et chêne", "Verrière d'atelier en acier", "Table bois et acier", "Plafond lumineux à toile tendue", "Sculptures en acier de récupération", "Devis instantané en PDF", "Prise de cotes à domicile", "Zone d'intervention : Saumur, Angers, Cholet, Tours"],
     "configLabel": "Configurateur en ligne",
     "configTitle": "Configurez votre pièce, le prix s'affiche",
     "configText": "Table, garde-corps de fenêtre, plafond lumineux : entrez vos cotes, choisissez l'essence, la teinte, la livraison. Le prix se calcule sous vos yeux et votre devis se télécharge en PDF — sans compte, sans engagement.",
@@ -940,12 +945,12 @@
   },
   "seo": {
     "hub": {
-      "title": "Mobilier acier & bois, plafonds lumineux",
-      "description": "Atelier de métallerie à Saumur (49) : tables, chaises, escaliers, garde-corps, verrières et plafonds lumineux sur mesure. Livrés partout en France."
+      "title": "Métallerie Saumur — garde-corps sur mesure",
+      "description": "Atelier de métallerie artisanale à Saumur (49) : garde-corps, escaliers, verrières, tables et plafonds lumineux sur mesure. Prix instantané, devis PDF."
     },
     "artisanat": {
-      "title": "Mobilier sur mesure bois & acier",
-      "description": "Tables en chêne massif sur piétement acier, chaises en velours, escaliers et verrières faits main à Saumur. Prix affichés, livraison France entière."
+      "title": "Garde-corps et mobilier sur mesure",
+      "description": "Garde-corps de fenêtre, escaliers, verrières et tables en chêne massif sur acier, faits main à Saumur. Prix affichés, devis PDF, livraison France entière."
     },
     "produitSuffixe": "Fabriqué à Saumur (49), livraison France entière.",
     "lumiere": {
@@ -998,7 +1003,7 @@
     },
     "zone": {
       "title": "Métallier Saumur et Maine-et-Loire",
-      "description": "Atelier à Saumur (49) : prise de cotes et pose en Maine-et-Loire, Indre-et-Loire, Deux-Sèvres et Vienne. Mobilier livré en France métropolitaine."
+      "description": "Métallier à Saumur : prise de cotes, pose et livraison à Angers, Cholet, Tours, Chinon, Doué-en-Anjou, jusqu'à 200 km de l'atelier (49, 37, 79, 86)."
     },
     "faq": {
       "title": "Questions fréquentes : délais, prix",
@@ -1103,6 +1108,22 @@
       {
         "q": "Les devis sont-ils gratuits ?",
         "a": "Oui, et sans engagement. Décrivez votre projet par le formulaire de contact : vous recevez une réponse sous 48 h et une estimation écrite."
+      },
+      {
+        "q": "Où trouver un métallier à Saumur et en Anjou ?",
+        "a": "Auboiacier est un atelier de métallerie à Saumur (49400), en Maine-et-Loire. Nous fabriquons garde-corps, escaliers, verrières, tables bois et acier, plafonds lumineux et sculptures sur mesure, et nous nous déplaçons pour la prise de cotes et la pose à Saumur, Angers, Cholet, Tours, Chinon et jusqu'à 200 km de l'atelier."
+      },
+      {
+        "q": "Puis-je avoir un prix tout de suite, sans attendre un devis ?",
+        "a": "Oui : le configurateur en ligne calcule le prix de votre garde-corps, de votre table ou de votre plafond lumineux sous vos yeux, à vos cotes. Vous téléchargez ensuite un devis PDF gratuit, sans compte et sans engagement."
+      },
+      {
+        "q": "Comment est calculé un garde-corps de fenêtre sur mesure ?",
+        "a": "Vous entrez la largeur de la fenêtre et la hauteur du bas de fenêtre, en étage ou au rez-de-chaussée. L'atelier calcule le nombre de croix, la section de l'acier et les espaces entre les barres selon la norme NF P01-012 (une boule de 110 mm ne doit pas passer sous 800 mm du sol, 180 mm au-dessus, avec 3 mm de marge), puis affiche le prix."
+      },
+      {
+        "q": "Que veut dire « artisanal » et « sur mesure » chez Auboiacier ?",
+        "a": "Chaque pièce est coupée, soudée à la TIG et finie à la main dans l'atelier de Saumur, aux dimensions de votre intérieur. Il n'y a ni stock ni série, et vous gardez un seul interlocuteur, de la prise de cotes à la pose."
       }
     ],
     "ctaTitle": "Votre question n'est pas là ?",

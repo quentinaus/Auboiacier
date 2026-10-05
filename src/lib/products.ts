@@ -157,6 +157,10 @@ export type Product = {
    * ce sont « table acier chêne » et « plafond lumineux » que l'on cherche.
    */
   seoMots?: string;
+  /** Le titre de la page pour Google, quand « nom — seoMots » ne dit pas ce que les gens tapent (le garde-corps : « garde-corps artisanal sur mesure »). */
+  seoTitre?: string;
+  /** Mots-clés propres à cette fiche, en plus de ceux du nom et de la ville. */
+  motsCles?: string[];
   /**
    * Description pour Google, quand l'accroche est trop longue pour être
    * assemblée avec le prix et le suffixe de src/lib/seo.ts (155 signes
@@ -293,6 +297,10 @@ export type ProductEn = {
   tagline?: string;
   /** Les deux ou trois mots de métier du titre, en anglais. */
   seoMots?: string;
+  /** Le titre de la page pour Google, en anglais (voir Product.seoTitre). */
+  seoTitre?: string;
+  /** Mots-clés de la fiche, en anglais. */
+  motsCles?: string[];
   /** Description pour Google, en anglais (voir Product.seoDescription). */
   seoDescription?: string;
   /** Description (alt) de chaque photo, dans l'ordre de `images`. */
@@ -1457,12 +1465,24 @@ export const products: Product[] = [
     slug: "garde-corps",
     poseOption: true,
     famille: "garde-corps",
-    // « barre d'appui » : c'est le mot que tapent les gens pour une fenêtre.
-    seoMots: "barre d'appui",
+    seoMots: "garde-corps sur mesure",
+    // Ce que tapent les gens : « garde-corps artisanal sur mesure », et la ville.
+    seoTitre: "Garde-corps artisanal sur mesure, Saumur",
+    motsCles: [
+      "garde-corps artisanal sur mesure",
+      "garde-corps de fenêtre sur mesure Saumur",
+      "garde-corps fenêtre acier Maine-et-Loire",
+      "garde-corps croix de Saint-André rosace",
+      "garde-corps prix instantané devis PDF",
+      "garde-corps norme NF P01-012 sur mesure",
+      "garde-corps Angers Cholet Tours sur mesure",
+      "main courante chêne ou acier sur mesure",
+      "balcon français fenêtre garde-corps acier",
+    ],
     // L'accroche fait 131 signes : assemblée avec le prix et le suffixe, elle
     // dépassait les 155 signes que Google affiche.
     seoDescription:
-      "Garde-corps de fenêtre en acier plein, croix de Saint-André, rosaces de fonderie, main courante chêne. Fabriqué à vos cotes à Saumur (49).",
+      "Garde-corps de fenêtre artisanal en acier plein, sur mesure à Saumur. Prix instantané, devis PDF, norme NF P01-012.",
     releve: "garde-corps-fenetre",
     category: "interieur",
     // Se commande en ligne, aux cotes que le client relève lui-même : aucune
@@ -1479,7 +1499,7 @@ export const products: Product[] = [
     orderMode: "cart",
     priseDeCotes: true,
     name: "Garde-corps de fenêtre Rosace",
-    tagline: "En acier plein : croix de Saint-André à rosaces de fonderie, ou barreaux verticaux ; main courante en bois ou en acier. Fabriqué au millimètre, encastré dans votre fenêtre.",
+    tagline: "Garde-corps artisanal sur mesure, en acier plein : croix de Saint-André à rosaces de fonderie, ou barreaux verticaux ; main courante en bois ou en acier. Fabriqué au millimètre, encastré dans votre fenêtre.",
     images: [
       {
         src: "/images/garde-corps/fenetre.jpg",
@@ -1612,10 +1632,19 @@ export const products: Product[] = [
     // Traduction anglaise de la fiche.
     en: {
       name: "Rosette Window Railing",
-      seoMots: "window railing",
+      seoMots: "custom window railing",
+      seoTitre: "Custom handmade window railing, Saumur",
+      motsCles: [
+        "custom handmade window railing",
+        "bespoke steel window railing France",
+        "window railing Saumur Loire Valley",
+        "Saint Andrew's cross railing cast rosettes",
+        "instant price PDF quote railing",
+        "NF P01-012 window guard custom",
+      ],
       seoDescription:
-        "Solid steel window railing with a Saint Andrew's cross, cast rosettes and an oak handrail, made to the millimetre in Saumur, France.",
-      tagline: "In solid steel: Saint Andrew's crosses with cast rosettes, or vertical bars; wood or steel handrail. Made to the millimetre, fitted into your window.",
+        "Handmade solid steel window railing, made to measure in Saumur, France. Instant price, PDF quote, NF P01-012 standard.",
+      tagline: "Handmade custom window railing in solid steel: Saint Andrew's crosses with cast rosettes, or vertical bars; wood or steel handrail. Made to the millimetre, fitted into your window.",
       images: [
         "Window railing seen head-on: painted black steel frame with a Saint Andrew's cross, two cast rosettes, oak handrail",
         "The same railing fitted in the reveal, seen from the room: the whole window, the sill and the daylight under the frame",
@@ -3108,6 +3137,8 @@ export function productLocalise(product: Product, locale: Locale): Product {
     name: en?.name ?? product.name,
     tagline: en?.tagline ?? product.tagline,
     seoMots: en?.seoMots ?? product.seoMots,
+    seoTitre: en?.seoTitre,
+    motsCles: en?.motsCles ?? product.motsCles,
     // Pas de repli sur le français : sans traduction, la fiche anglaise
     // assemble sa description à partir de l'accroche, déjà traduite.
     seoDescription: en?.seoDescription,
