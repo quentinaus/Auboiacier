@@ -2,9 +2,15 @@
 
 Les scènes animées validées par Quentin le 05/10/2026 pour le configurateur du garde-corps :
 
-- **Scène A** : la carte « L'atelier vient mesurer » (l'utilitaire part de l'atelier de Saumur, la fenêtre est cotée).
-- **Scène B** : la carte « Je mesure moi-même » (le mètre ruban, les cotes 1 000 mm et 650 mm, le prix de 320 €).
-- **Scène C** : le film du parcours, en 16 s et quatre chapitres (prise de cotes, prix exact, fabrication à Saumur, pose).
+- **Scène A** : l'utilitaire « AUBOIACIER » part de Saumur, la fenêtre est cotée (gardée dans la maquette, plus montrée sur le site).
+- **Scène B** : le film « Je mesure et pose moi-même », 36,95 s : les deux mesures (1 000 mm, 650 mm), le devis à 320 € et
+  le tampon « Commandé », la fabrication à Saumur, la caisse en bois tamponnée « AUBOIACIER », le camion du transporteur
+  (sans nom) et la carte de France, puis la pose par le client.
+- **Scène C** : le film de l'atelier, 27,76 s, en quatre chapitres (prise de cotes, prix exact, fabrication à Saumur, pose
+  par l'atelier) : sur la carte « L'atelier mesure et s'occupe de tout » et dans le panneau du mode atelier.
+- Les deux films finissent sur l'écran « AUBOIACIER » (le sceau au garde-corps, le nom, « Métallerie · Saumur ») et
+  repartent en douceur. Sur les cartes, une étiquette par étape (.aplat-et, .aplat-etB0…5, .aplat-etC0…3) : des
+  éléments HTML posés par le site, dans sa langue, et calés sur le film par les styles extraits.
 
 `index.html` est la maquette complète, autonome (HTML, CSS et SVG, sans bibliothèque), écrite par `build.py`. Toute
 l'animation y est en `@keyframes` CSS. Avec `index.html?t=3.5`, toutes les animations sont figées à 3,5 s : c'est ce

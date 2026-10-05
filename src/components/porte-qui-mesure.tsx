@@ -201,11 +201,19 @@ export function PorteQuiMesure({
         ? `Nous prenons les cotes chez vous, puis nous fabriquons et posons votre garde-corps. Visite à partir de\u00a0${prixAffiche(PRIX_OFFRE_CENTS / 100, locale)}.`
         : `We take the measurements at your home, then make and fit your railing. Visit from\u00a0${prixAffiche(PRIX_OFFRE_CENTS / 100, locale)}.`,
       action: fr ? "Prendre rendez-vous" : "Book a visit",
+      // Les étapes du film, en étiquette sur l'image (« que le client comprenne ce qui se passe », Quentin, 05/10/2026) :
+      // chacune s'affiche pendant son étape (classes .aplat-etC0… de motion-aplat.genere.ts, calées sur le film).
+      etiquettes: {
+        classe: "aplat-etC",
+        textes: fr
+          ? ["Nous venons mesurer", "Vous recevez le prix exact", "Fabrication à Saumur", "Pose par l'atelier"]
+          : ["We come and measure", "You receive the exact price", "Made in Saumur", "Fitted by the workshop"],
+      },
     },
     {
       id: "moi" as const,
       scene: "SVG_JE_MESURE" as const,
-      classeScene: "aplat-scB",
+      classeScene: "aplat-scB porte-scene-film",
       etiquette: notes.tagMoi,
       // « Je mesure et pose moi-même » (Quentin, 05/10/2026) : la différence avec la carte de l'atelier, qui pose. Une
       // phrase, qui met en avant ce qui compte : l'atelier fabrique aux cotes exactes du client. (Trait d'union insécable :
@@ -221,6 +229,12 @@ export function PorteQuiMesure({
         </>
       ),
       action: fr ? "Saisir mes mesures" : "Enter my measurements",
+      etiquettes: {
+        classe: "aplat-etB",
+        textes: fr
+          ? ["Vous mesurez", "Le prix s'affiche, vous commandez", "Fabrication à Saumur", "Emballé avec soin", "Livré partout en France", "Vous le posez"]
+          : ["You measure", "See the price, place your order", "Made in Saumur", "Carefully packed", "Delivered anywhere in France", "You fit it yourself"],
+      },
     },
   ];
 
@@ -248,7 +262,13 @@ export function PorteQuiMesure({
               onClick={(e) => choisir(c.id, e.currentTarget)}
               className="porte-carte aplat-card flex min-h-0 flex-col text-left focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#2b2320]"
             >
-              <SceneAplat scenes={scenes} svg={c.scene} className={`aplat-card-scene ${c.classeScene} porte-scene`} />
+              <SceneAplat scenes={scenes} svg={c.scene} className={`aplat-card-scene ${c.classeScene} porte-scene`}>
+                {c.etiquettes.textes.map((texte, i) => (
+                  <span key={i} aria-hidden className={`aplat-et ${c.etiquettes.classe}${i}`}>
+                    <b>{i + 1}</b> · {texte}
+                  </span>
+                ))}
+              </SceneAplat>
               <span className="aplat-card-body porte-texte shrink-0">
                 <span className="aplat-tag">{c.etiquette}</span>
                 <span className="aplat-card-title block">{c.titre}</span>
