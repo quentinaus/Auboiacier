@@ -26,7 +26,9 @@ type CleLegende =
   | "altVerriereSalon"
   | "altVerriereCroisillon"
   | "altSculptureCheval"
-  | "altSculptureTorse";
+  | "altSculptureTorse"
+  | "altVerrierePose"
+  | "altVerrierePoseDetail";
 
 /**
  * Chantiers publiés. Chacun porte sa famille et la clé de sa légende dans le
@@ -37,7 +39,7 @@ type CleLegende =
  * Pour ajouter un chantier : une ligne ici, et la légende dans les deux
  * dictionnaires (realisations.altXxx), en français et en anglais.
  */
-const photos: { src: string; alt: CleLegende; famille: Famille; lien?: string; video?: string }[] = [
+const photos: { src: string; alt: CleLegende; famille: Famille; lien?: string; video?: string; portrait?: boolean }[] = [
   {
     src: "/images/mikado/ambiance.jpg",
     alt: "altTableMikado",
@@ -110,6 +112,9 @@ const photos: { src: string; alt: CleLegende; famille: Famille; lien?: string; v
     famille: "verriere",
     lien: "verrieres",
   },
+  // La pose d'une verrière sur chantier (photos de l'atelier, en portrait) : le travail tel qu'il se fait.
+  { src: "/images/verriere-pose-chantier-2.jpg", alt: "altVerrierePoseDetail", famille: "verriere", lien: "verrieres", portrait: true },
+  { src: "/images/verriere-pose-chantier-4.jpg", alt: "altVerrierePose", famille: "verriere", lien: "verrieres", portrait: true },
   {
     src: "/images/sculpture-cheval-v2.jpg",
     alt: "altSculptureCheval",
@@ -229,7 +234,7 @@ export default async function RealisationsPage({
             }
             const figure = (
               <>
-                <div className={`relative aspect-[16/10] overflow-hidden rounded-xl ${hoverZoom}`}>
+                <div className={`relative ${photo.portrait ? "aspect-[4/5]" : "aspect-[16/10]"} overflow-hidden rounded-xl ${hoverZoom}`}>
                   <Image
                     src={photo.src}
                     alt={legende}

@@ -161,7 +161,9 @@
     "altVerriereSalon": "Verrière d'atelier séparant un salon d'une cuisine",
     "altVerriereCroisillon": "Détail du bas d'une verrière, panneau en acier à croisillon",
     "altSculptureCheval": "Cheval cabré en acier, devant une longère en pierre",
-    "altSculptureTorse": "Torse en acier de récupération soudé à la main, en vidéo"
+    "altSculptureTorse": "Torse en acier de récupération soudé à la main, en vidéo",
+    "altVerrierePose": "Pose d'une verrière en acier noir, vue d'ensemble : le chantier en cours",
+    "altVerrierePoseDetail": "Pose d'une verrière en acier noir à carreaux, au-dessus d'un muret de pierre : le chantier en cours"
   },
   "artisanat": {
     "title": "La collection",
