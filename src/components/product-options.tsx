@@ -44,7 +44,6 @@ import { memoVersReleve, memoriserConfig, releveVersMemo, reprendreConfig, type 
 import { livrableParTransporteur } from "@/lib/products";
 import { VisiteAtelier } from "./prise-de-cotes";
 import { PorteQuiMesure, RevenirAuChoix, type QuiPrendLesCotes } from "./porte-qui-mesure";
-import { OngletsConfiguration } from "./onglets-configuration";
 import { MAX_TEXTE, EMAIL_MOTIF } from "@/lib/devis-regles";
 import { POSE_INITIALE, PoseDomicile, livraisonPrete, montantLivraison, type ChoixPose } from "./pose-domicile";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
@@ -573,6 +572,7 @@ export function ProductOptions({
   resultatSlot,
   achatSlot,
   porteSlot,
+  etapesTelephone,
   compteOuvert = false,
   ouverture,
 }: {
@@ -626,6 +626,18 @@ export function ProductOptions({
   bandeauSlot?: HTMLDivElement | null;
   /** Garde-corps : la plaque « Configuration », où poser d'abord la question « Qui prend les mesures ? ». */
   porteSlot?: HTMLDivElement | null;
+  /**
+   * Garde-corps sur téléphone : le parcours en étapes de product-view.tsx (une partie à la fois, comme les colonnes de
+   * l'ordinateur). Les emplacements du modèle, des finitions et du prix, et de quoi changer d'étape.
+   */
+  etapesTelephone?: {
+    modeleSlot: HTMLDivElement | null;
+    finitionsSlot: HTMLDivElement | null;
+    prixSlot: HTMLElement | null;
+    /** La fiche dit si le parcours en étapes s'applique (garde-corps, téléphone, « je mesure moi-même »). */
+    signaler: (actif: boolean) => void;
+    aller: (etape: number) => void;
+  };
 }) {
   /** La taille à laquelle la fiche s'ouvre, s'il y en a une. */
   const tailleInitiale =
@@ -851,7 +863,6 @@ export function ProductOptions({
     () => false
   );
   /** Garde-corps sur téléphone : l'emplacement des matières, dans la partie « Modèle » de la carte (releve-garde-corps.tsx). */
-  const [matieresTelSlot, setMatieresTelSlot] = useState<HTMLDivElement | null>(null);
   /** Garde-corps : l'emplacement, dans le cadre du résultat (à côté de la carte), du poids, des détails et de ce que comprend le prix. */
   const [detailsSlot, setDetailsSlot] = useState<HTMLDivElement | null>(null);
 
@@ -869,6 +880,18 @@ export function ProductOptions({
    */
   function allerAuChampManquant(ancre: string) {
     if (ancre === "#livraison") ouvrirMenu("livraison", true);
+    // Sur téléphone, en étapes : on ouvre d'abord l'étape où se trouve la case (elle est cachée sinon).
+    if (parcoursTel) {
+      const etape =
+        ancre === "#mur-gc" || (ancre === "#cotes" && lectureReleve?.etat === "incomplet" && lectureReleve.manque === "etage")
+          ? 2
+          : ancre === "#modeles-gc"
+            ? 3
+            : ancre === "#livraison"
+              ? 5
+              : 1;
+      etapesTelephone?.aller(etape);
+    }
     requestAnimationFrame(() =>
       requestAnimationFrame(() => {
         const cible = document.querySelector(ancre);
@@ -885,7 +908,9 @@ export function ProductOptions({
         const bloc = document.getElementById("configuration");
         if (carte && bloc && bloc.contains(carte)) {
           amenerAlEcran(bloc, { block: "start" });
-          const haut = cible.getBoundingClientRect().top - carte.getBoundingClientRect().top + carte.scrollTop - carte.clientHeight / 3;
+          // En étapes (téléphone), la case va tout en haut de la carte : en bas, la barre d'achat collée la cacherait.
+          const marge = parcoursTel ? 12 : carte.clientHeight / 3;
+          const haut = cible.getBoundingClientRect().top - carte.getBoundingClientRect().top + carte.scrollTop - marge;
           carte.scrollTo({ top: Math.max(0, haut), behavior: moinsDAnimations() ? "auto" : "smooth" });
         } else {
           // « center » plutôt que « start » : un bloc collé tout en haut passe sous le titre.
@@ -1077,7 +1102,17 @@ export function ProductOptions({
    */
   const estGC = prixParOutil(product);
   /** Garde-corps sur grand écran : la livraison et la barre d'achat vont dans la troisième colonne. */
-  const colonneAchat = estGC && nouvelleMiseEnPage && ecranMoyen ? (achatSlot ?? null) : null;
+  /**
+   * Le parcours en étapes du téléphone (garde-corps, « je mesure moi-même ») : les colonnes de l'ordinateur deviennent des
+   * étapes (product-view.tsx). Le résultat, la livraison et l'achat vont alors dans la colonne d'achat, comme sur ordinateur.
+   */
+  const parcoursTel =
+    estGC && nouvelleMiseEnPage && !ecranMoyen && Boolean(etapesTelephone) && !(product.priseDeCotes === true && cotesGardeCorps.qui === "atelier");
+  const signalerParcours = etapesTelephone?.signaler;
+  useEffect(() => {
+    signalerParcours?.(parcoursTel);
+  }, [parcoursTel, signalerParcours]);
+  const colonneAchat = estGC && nouvelleMiseEnPage && (ecranMoyen || parcoursTel) ? (achatSlot ?? null) : null;
   const versColonneAchat = (noeud: ReactNode) => (colonneAchat ? createPortal(noeud, colonneAchat) : noeud);
   const lectureReleve = estGC ? lireReleve(cotesGardeCorps, t) : null;
   const releveGC = lectureReleve?.etat === "ok" ? lectureReleve.releve : null;
@@ -2067,18 +2102,10 @@ export function ProductOptions({
     /* pb-24 sur téléphone : la barre d'achat fixe ne doit pas recouvrir la fin
        de la colonne. */
     <div className={nouvelleMiseEnPage ? "flex flex-col" : "flex flex-col pb-24 md:pb-0"}>
-      {/* Téléphone, garde-corps : les trois parties de l'ordinateur (mesures, modèle, prix) en onglets collés en haut de la
-          carte. (Pas en mode « l'atelier vient mesurer » : il n'y a alors ni mesures ni modèle à choisir.) */}
-      {estGC && nouvelleMiseEnPage && !modeVisite && !ecranMoyen && (
-        <OngletsConfiguration
-          label={locale === "fr" ? "Parties de la configuration" : "Configuration sections"}
-          parties={[
-            { id: "cotes", label: locale === "fr" ? "Mesures" : "Measures" },
-            { id: "partie-modele", label: locale === "fr" ? "Modèle" : "Model" },
-            { id: "partie-prix", label: locale === "fr" ? "Prix" : "Price" },
-          ]}
-        />
-      )}
+      {/* Téléphone, en étapes : le prix reste écrit en haut, à côté de l'étape, quelle que soit l'étape affichée. */}
+      {parcoursTel &&
+        etapesTelephone?.prixSlot &&
+        createPortal(prixFinal !== null ? prixAffiche(prixFinal, locale) : "— €", etapesTelephone.prixSlot)}
       {/* Le grand croquis : posé par portail à droite de la carte, dans la
           section « Configuration » (voir schemaSlot, product-view.tsx). Rien
           ne bouge dans les cotes elles-mêmes : seul l'endroit où le dessin
@@ -2144,7 +2171,9 @@ export function ProductOptions({
       {(product.woods.length > 0 || product.metals.length > 0) &&
         !(estGC && modeVisite) &&
         (() => {
-          const matieres = (
+          /* Sur téléphone (étape « Finitions ») : la main courante en menu, pour que l'acier, la main courante et la rosace
+             tiennent sur un écran ; ailleurs, la liste en clair. */
+          const blocMatieres = (enMenu: boolean) => (
             <div className="flex flex-col gap-7">
               {product.metals.length > 0 && (
                 <SwatchGroup
@@ -2158,7 +2187,7 @@ export function ProductOptions({
                 />
               )}
               {product.woods.length > 0 && estGC && (
-                <MainCouranteListe {...choixMainCourante} />
+                enMenu ? <MainCouranteMenu {...choixMainCourante} /> : <MainCouranteListe {...choixMainCourante} />
               )}
               {product.woods.length > 0 && !estGC && (
                 <SwatchGroup
@@ -2196,6 +2225,7 @@ export function ProductOptions({
                 )}
             </div>
           );
+          const matieres = blocMatieres(false);
           /* Configurateur en pleine page : les matières font changer la photo,
              elles restent à côté d'elle (portail, voir matieresSlot) — pas
              dans la carte plus bas. */
@@ -2241,7 +2271,7 @@ export function ProductOptions({
             // Sur téléphone, le garde-corps garde ses matières DANS le bloc, dans la partie « Modèle » de la carte (après les
             // mesures, comme l'ordinateur les met au-dessus du croquis) : elles changent le croquis, qui reste visible.
             // (Le choix complet, écrit en clair : la ligne compacte ouvre une fenêtre de 440 px, coupée sur un téléphone.)
-            if (estGC) return matieresTelSlot ? createPortal(<div className="md:hidden">{matieres}</div>, matieresTelSlot) : null;
+            if (estGC) return parcoursTel && etapesTelephone?.finitionsSlot ? createPortal(<div className="md:hidden">{blocMatieres(true)}</div>, etapesTelephone.finitionsSlot) : null;
             return matieresSlot ? createPortal(matieres, matieresSlot) : null;
           }
           return (
@@ -2791,7 +2821,8 @@ export function ProductOptions({
           <RevenirAuChoix.Provider value={aLaQuestionQui && porteSlot ? () => setPorte({ depuis: cotesGardeCorps.qui }) : null}>
           <ReleveGardeCorps
             schemaSlot={nouvelleMiseEnPage ? schemaSlot : undefined}
-            resultatSlot={nouvelleMiseEnPage && ecranMoyen ? resultatSlot : undefined}
+            resultatSlot={nouvelleMiseEnPage && (ecranMoyen || parcoursTel) ? resultatSlot : undefined}
+            modeleSlot={parcoursTel ? (etapesTelephone?.modeleSlot ?? undefined) : undefined}
             bandeauSlot={nouvelleMiseEnPage && grandEcran ? bandeauSlot : undefined}
             cotes={cotesGardeCorps}
             onChange={setCotesGardeCorps}
@@ -2807,7 +2838,6 @@ export function ProductOptions({
             teinteBois={wood?.swatch}
             lienDevis={`/${locale}/contact?produit=${product.slug}&config=${encodeURIComponent(optionsPiece)}${cotesPourDevisGC ? `&releve=${encodeURIComponent(cotesPourDevisGC)}` : ""}`}
             detailsSlot={setDetailsSlot}
-            matieresSlotTelephone={setMatieresTelSlot}
             verre={
               verre && remplissageModele
                 ? {

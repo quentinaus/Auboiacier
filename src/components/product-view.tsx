@@ -9,6 +9,7 @@ import Link from "next/link";
 import { serif } from "@/lib/fonts";
 import { amenerAlEcran, hoverZoom, prixAffiche } from "@/lib/ui";
 import { PhotoPlafondMesuree } from "./photo-plafond-anime";
+import { EnteteEtapes, NavEtape, NB_ETAPES_GC } from "./etapes-telephone";
 
 /**
  * Les flèches de la galerie ne portent pas de texte : seul un lecteur d'écran
@@ -114,6 +115,24 @@ export function ProductView({
   const [bandeauSlot, setBandeauSlot] = useState<HTMLDivElement | null>(null);
   /** Garde-corps : la question « Qui prend les mesures ? », posée sur toute la plaque avant le configurateur. */
   const [porteSlot, setPorteSlot] = useState<HTMLDivElement | null>(null);
+  /**
+   * Garde-corps sur téléphone : le parcours en ÉTAPES (etapes-telephone.tsx). Les colonnes de l'ordinateur deviennent cinq
+   * étapes, une seule à l'écran sous le croquis : 1 les cotes et 2 la fenêtre (la colonne des mesures), 3 les modèles
+   * (le bandeau), 4 les finitions (la ligne des matières), 5 le prix (la colonne d'achat). `parcoursTel` : la fiche dit
+   * s'il s'applique (téléphone, « je mesure moi-même »).
+   */
+  const [etapeTel, setEtapeTel] = useState(1);
+  const [parcoursTel, setParcoursTel] = useState(false);
+  const [modeleTelSlot, setModeleTelSlot] = useState<HTMLDivElement | null>(null);
+  const [finitionsTelSlot, setFinitionsTelSlot] = useState<HTMLDivElement | null>(null);
+  const [prixTelSlot, setPrixTelSlot] = useState<HTMLSpanElement | null>(null);
+  const etapesTelephone = { modeleSlot: modeleTelSlot, finitionsSlot: finitionsTelSlot, prixSlot: prixTelSlot, signaler: setParcoursTel, aller: setEtapeTel };
+  /* Une nouvelle étape s'ouvre en haut, pas là où la précédente avait défilé. */
+  useEffect(() => {
+    blocRef.current?.querySelectorAll<HTMLElement>(".panneau-etape").forEach((p) => {
+      p.scrollTop = 0;
+    });
+  }, [etapeTel]);
 
   /* Sur téléphone la photo est au-dessus des options. On ne remonte plus à
      chaque teinte choisie — c'est la barre du bas qui montre le rendu
@@ -283,6 +302,7 @@ export function ProductView({
         achatSlot={achatSlot}
         bandeauSlot={bandeauSlot}
         porteSlot={porteSlot}
+        etapesTelephone={troisColonnes ? etapesTelephone : undefined}
       />
       {!pleinePage && aide}
     </>
@@ -564,6 +584,8 @@ export function ProductView({
         {/* Sur ordinateur, tout tient dans la hauteur de l'écran, titre compris : le titre
             est dans la plaque, la carte et le croquis se partagent la hauteur qui reste. */}
         <div
+          data-parcours={troisColonnes && parcoursTel ? "1" : undefined}
+          data-etape={etapeTel}
           className={`fond-configuration flex min-h-0 flex-1 flex-col gap-2.5 md:min-h-0 md:flex-1 ${
             /* Le garde-corps : sur tablette, le croquis et ses modèles en haut, sur toute la largeur, puis la carte des
                mesures et la colonne d'achat côte à côte ; sur grand écran, TROIS colonnes — les cotes, le croquis et les
@@ -586,9 +608,17 @@ export function ProductView({
                   d'un coup, est plus confortable — mais téléphone et tablette marchent aussi. */}
               {troisColonnes && (
                 <p className="mt-1 text-[11px] leading-snug text-[#6f6357] lg:hidden">
-                  {locale === "fr"
-                    ? "Conseil : sur ordinateur, tous les réglages s'affichent d'un coup — c'est plus confortable. Ici aussi, tout fonctionne."
-                    : "Tip: on a computer, every setting shows at once — it is more comfortable. Everything works here too."}
+                  {/* Sur téléphone, en étapes : une seule ligne, l'écran est compté. */}
+                  {parcoursTel ? (
+                    <span className="md:hidden">
+                      {locale === "fr" ? "Plus confortable sur ordinateur. Ici, suivez les étapes." : "More comfortable on a computer. Here, follow the steps."}
+                    </span>
+                  ) : null}
+                  <span className={parcoursTel ? "max-md:hidden" : undefined}>
+                    {locale === "fr"
+                      ? "Conseil : sur ordinateur, tous les réglages s'affichent d'un coup — c'est plus confortable. Ici aussi, tout fonctionne."
+                      : "Tip: on a computer, every setting shows at once — it is more comfortable. Everything works here too."}
+                  </span>
                 </p>
               )}
             </div>
@@ -605,7 +635,7 @@ export function ProductView({
               la barre d'achat doit rester collée au bas de l'écran. */}
           {/* Sur ordinateur, la carte tient dans la hauteur du bloc ; si ses choix sont plus hauts que l'écran, ELLE défile
               (la molette ne fait jamais défiler la page à travers elle), et la barre d'achat reste collée en bas. */}
-          <div className={`carte-verre order-2 min-h-0 flex-1 overflow-y-auto overflow-x-clip overscroll-contain rounded-[26px] px-5 pb-0 pt-4 md:overflow-x-hidden md:px-6 md:pt-5 ${blocEnPlace ? "" : "max-md:overflow-y-hidden"} ${troisColonnes ? "colonne-cotes md:order-none md:flex-none md:col-start-1 md:row-start-3 lg:col-start-1 lg:row-start-2 lg:max-h-full lg:px-4 lg:pb-3 lg:pt-4 xl:px-5" : "lg:order-none lg:flex-none"}`}>
+          <div className={`carte-verre order-2 min-h-0 flex-1 overflow-y-auto overflow-x-clip overscroll-contain rounded-[26px] px-5 pb-0 pt-4 md:overflow-x-hidden md:px-6 md:pt-5 ${blocEnPlace ? "" : "max-md:overflow-y-hidden"} ${troisColonnes ? "colonne-cotes panneau-etape etape-1 etape-2 max-md:order-3 max-md:pb-3 md:order-none md:flex-none md:col-start-1 md:row-start-3 lg:col-start-1 lg:row-start-2 lg:max-h-full lg:px-4 lg:pb-3 lg:pt-4 xl:px-5" : "lg:order-none lg:flex-none"}`}>
             {options}
           </div>
           {/* Le croquis : au-dessus de la carte sur téléphone (il ne rétrécit jamais : c'est la carte qui défile), à côté et en
@@ -621,6 +651,22 @@ export function ProductView({
           >
             <div ref={setSchemaSlot} className={`schema-configuration mx-auto w-full ${troisColonnes ? "lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:[container-type:size]" : ""}`} />
           </div>
+          {/* Téléphone, en étapes : où l'on en est, ce qu'il faut faire, le prix ; puis les étapes « Modèle » et « Finitions »
+              (la rangée des modèles et la ligne des matières de l'ordinateur), chacune seule à l'écran sous le croquis. */}
+          {troisColonnes && parcoursTel && <EnteteEtapes etape={etapeTel} aller={setEtapeTel} locale={locale} prixRef={setPrixTelSlot} />}
+          {troisColonnes && (
+            <div className="panneau-etape etape-3 hidden min-h-0 flex-1 overflow-y-auto overscroll-contain max-md:order-3 md:hidden">
+              <div ref={setModeleTelSlot} />
+            </div>
+          )}
+          {troisColonnes && (
+            <div className="carte-verre panneau-etape etape-4 hidden min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[26px] px-5 py-4 max-md:order-3 md:hidden">
+              <div ref={setFinitionsTelSlot} />
+            </div>
+          )}
+          {/* Sous la carte de l'étape, sur la plaque : « Retour » et « Suivant ». Hors de la carte qui défile, le bouton reste
+              toujours visible (l'étape « Prix » a sa barre d'achat et son retour à elle). */}
+          {troisColonnes && parcoursTel && etapeTel < NB_ETAPES_GC && <NavEtape etape={etapeTel} aller={setEtapeTel} locale={locale} />}
           {/* Le bandeau des modèles : en bas du bloc, sous les cotes et le croquis, sur toute leur longueur. Placé AVANT la colonne
               d'achat dans le DOM (la grille le range en bas) : au clavier, on choisit le modèle avant d'arriver au bouton du panier. */}
           {troisColonnes && <div ref={setBandeauSlot} className="bandeau-gc hidden lg:col-span-2 lg:col-start-1 lg:row-start-3 lg:block" />}
@@ -628,7 +674,12 @@ export function ProductView({
               puis la livraison et la barre d'achat. Vide et cachée en dessous de 1024 px : tout reste
               alors dans la première carte. */}
           {troisColonnes && (
-            <div className="carte-verre colonne-achat hidden overflow-x-clip rounded-[26px] px-4 pb-0 pt-4 md:col-start-2 md:row-start-3 md:flex md:min-h-0 md:max-h-full md:flex-col md:self-stretch md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain lg:col-start-3 lg:row-span-2 lg:row-start-2 xl:px-5">
+            <div className="carte-verre colonne-achat panneau-etape etape-5 hidden min-h-0 overflow-x-clip rounded-[26px] px-4 pb-0 pt-4 max-md:order-3 max-md:flex-1 max-md:overflow-y-auto max-md:overscroll-contain md:col-start-2 md:row-start-3 md:flex md:min-h-0 md:max-h-full md:flex-col md:self-stretch md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain lg:col-start-3 lg:row-span-2 lg:row-start-2 xl:px-5">
+              {parcoursTel && (
+                <button type="button" onClick={() => setEtapeTel(4)} className="mb-2 self-start text-[13px] font-medium text-[#5c5140] underline underline-offset-4 md:hidden">
+                  {locale === "fr" ? "← Retour : Finitions" : "← Back: Finishes"}
+                </button>
+              )}
               <div ref={setResultatSlot} className="mb-auto" />
               {/* L'achat est collé au bas de la colonne : tout le reste (options, résultat, livraison) se range au-dessus, sans défiler. */}
               {/* Sans boîte (contents) : la livraison et la barre d'achat deviennent des éléments de la colonne. La barre (opaque,

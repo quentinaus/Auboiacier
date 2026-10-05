@@ -247,7 +247,7 @@ export function ReleveGardeCorps({
   schemaSlot,
   resultatSlot,
   detailsSlot,
-  matieresSlotTelephone,
+  modeleSlot,
   verre,
 }: {
   cotes: CotesGardeCorps;
@@ -285,7 +285,8 @@ export function ReleveGardeCorps({
    */
   detailsSlot?: (element: HTMLDivElement | null) => void;
   /** Téléphone : où la fiche dépose les matières (acier, main courante, rosace), dans la partie « Modèle ». */
-  matieresSlotTelephone?: (element: HTMLDivElement | null) => void;
+  /** Téléphone, parcours en étapes : l'étape « Modèle » (product-view.tsx), où va la rangée des modèles. */
+  modeleSlot?: HTMLDivElement | null;
   /** Le verre feuilleté à la place des croix : une option, avec son supplément. */
   verre?: {
     surVerre: boolean;
@@ -519,18 +520,8 @@ export function ReleveGardeCorps({
           ? fr
             ? "Votre fenêtre n'a pas besoin de garde-corps."
             : "Your window does not need a railing."
-          : texteManque
-            ? fr
-              ? `${texteManque} Nous vous proposerons ensuite les modèles qui conviennent à votre fenêtre.`
-              : `${texteManque} We will then show the models that suit your window.`
-            : lecture.etat === "incomplet"
-              ? fr
-                ? "Entrez vos mesures : nous vous proposons les modèles qui conviennent à votre fenêtre."
-                : "Enter your measurements: we show the models that suit your window."
-              : // Les mesures sont là : le calcul est en cours, ou il n'y a pas de modèle à proposer (le résultat dit pourquoi).
-                prix.statut === "calcul"
-                ? t.gcCalcul
-                : ""
+          : // Ce qui manque encore ; l'annonce des modèles est écrite au milieu de la rangée (voir `attente`).
+            (texteManque ?? "")
       : nbConformes === 0
         ? fr
           ? "Aucun de nos modèles ne convient à cette fenêtre : nous l'étudions avec vous, sur devis."
@@ -557,14 +548,29 @@ export function ReleveGardeCorps({
   // Barre d'appui, rien à poser, fenêtre trop basse : aucun modèle à choisir. Les montrer (« 1 croix… 6 croix ») contredirait la phrase du bandeau.
   const sansModeleAChoisir = reponse !== null && !reponse.ok && (reponse.raison === "barre-appui" || reponse.raison === "sans-garde-corps" || reponse.raison === "fenetre-trop-basse");
   const sens = tri === "croissant" ? 1 : -1;
-  const liste: ModeleGC[] = sansModeleAChoisir
-    ? []
-    : marque
-      ? // TOUS les modèles aux normes pour cette fenêtre, tous types confondus (croix, traverse, barreaux), rangés par prix — et
+  // Tant que les mesures et l'étage ne sont pas tous entrés, AUCUN modèle n'est montré (Quentin, 05/10 : « ne propose pas de
+  // garde-corps ») : un petit message, au milieu de la rangée, dit qu'ils s'afficheront ici.
+  const attente =
+    modeles.length === 0 && !sansModeleAChoisir
+      ? lecture.etat === "incomplet"
+        ? fr
+          ? "Les garde-corps aux normes pour votre fenêtre s'afficheront ici dès que toutes vos informations seront entrées."
+          : "The railings that meet the standard for your window will appear here as soon as all your details are entered."
+        : lecture.etat === "ok" && (prix.statut === "calcul" || prix.statut === "attente")
+          ? t.gcCalcul
+          : lecture.etat === "hors-bornes" || prix.statut === "pret"
+            ? fr
+              ? "Pas de modèle à proposer pour ces mesures."
+              : "No model to offer for these measurements."
+            : null // Serveur injoignable : le message est sous les mesures.
+      : null;
+  const liste: ModeleGC[] =
+    !marque || sansModeleAChoisir
+      ? []
+      : // TOUS les modèles aux normes pour cette fenêtre, tous types confondus (croix, traverse, barreaux), rangés par prix — et
         // seulement eux (Quentin, 05/10 : « on ne comprend pas, il y a de tout », puis « pourquoi ça n'affiche qu'un seul modèle ? »).
         // Les réglages Barreaux et Traverse restent des raccourcis : ils choisissent le modèle le plus proche dans cette rangée.
-        modeles.filter((m) => m.conforme).sort((a, b) => sens * (a.prix - b.prix) || sens * (a.croix - b.croix))
-      : MODELES_VITRINE.filter((m) => !m.traverse && m.soubassementMm === 0);
+        modeles.filter((m) => m.conforme).sort((a, b) => sens * (a.prix - b.prix) || sens * (a.croix - b.croix));
   useEffect(() => {
     const zone = bande.current;
     if (!zone || typeof ResizeObserver === "undefined") return;
@@ -696,7 +702,8 @@ export function ReleveGardeCorps({
    * prix (croissant ou décroissant) ; elle défile de côté s'il y en a plus que la place. Un clic choisit le modèle et son détail
    * s'écrit au-dessus.
    */
-  const grandeRangee = Boolean(bandeauSlot);
+  // En grand aussi sur l'étape « Modèle » du téléphone : la rangée y a l'écran pour elle.
+  const grandeRangee = Boolean(bandeauSlot || modeleSlot);
   const rangee =
     liste.length > 0 ? (
       <div className="relative">
@@ -736,13 +743,10 @@ export function ReleveGardeCorps({
                 onFocus={() => setSurvol(m.id)}
                 onBlur={() => setSurvol(null)}
                 onClick={() => {
-                  if (!marque) document.getElementById(`${idChamps}-largeur`)?.focus();
-                  else {
-                    setPerdu(null);
-                    setPourquoi(null);
-                    onChange({ ...cotes, modele: m.id });
-                    if (m.rosace && rosaceId && m.rosace !== rosaceId) onRosace?.(m.rosace);
-                  }
+                  setPerdu(null);
+                  setPourquoi(null);
+                  onChange({ ...cotes, modele: m.id });
+                  if (m.rosace && rosaceId && m.rosace !== rosaceId) onRosace?.(m.rosace);
                 }}
                 className={`tuile-modele relative flex ${grandeRangee ? "w-[104px] grow max-w-[190px]" : "w-[78px]"} shrink-0 snap-start flex-col px-1.5 pb-1.5 pt-2.5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]`}
               >
@@ -778,12 +782,17 @@ export function ReleveGardeCorps({
           })}
         </div>
       </div>
+    ) : attente ? (
+      // À peu près la hauteur de la rangée de modèles : le croquis ne saute pas quand ils arrivent.
+      <div className={`mt-1.5 flex items-center justify-center rounded-2xl border border-dashed border-[#2b2320]/15 bg-white/35 px-4 py-3 text-center ${grandeRangee ? "min-h-[112px]" : "min-h-[72px]"}`}>
+        <p className="max-w-[30rem] text-[12.5px] leading-snug text-[#5c5140]" aria-live="polite">{attente}</p>
+      </div>
     ) : null;
   const catalogue = (
     /* Sous le croquis (téléphone, tablette), en bande FINE : les deux boutons (barreaux, traverse) et UNE rangée de modèles qui
        défile de côté, chacun avec son prix : uniquement des modèles aux normes. Sur grand écran : voir `bandeau`. */
     <div id="modeles-gc" className="carte-verre carte-modeles mt-2 scroll-mt-24 rounded-[20px] px-3 pb-2 pt-2.5 text-left">
-      <div className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 ${marque ? "lg:hidden" : ""}`}>
+      <div className={`controles-famille flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 ${marque ? "lg:hidden" : ""}`}>
         {marque ? controlesFamille : <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{fr ? "Votre modèle" : "Your model"}</p>}
       </div>
       {phraseModeles && <p className={`mt-1 text-[11.5px] leading-snug ${modeles.length === 0 && texteManque ? "font-medium text-[#7a4510]" : "text-[#5c5140]"}`}>{phraseModeles}</p>}
@@ -858,7 +867,7 @@ export function ReleveGardeCorps({
    * est dans la bulle.
    */
   const ligne = (cote: "largeur" | "allege" | "fenetre", props: { label: string; aide?: string; info: string; placeholder: string }) => (
-    <div className="py-2.5">
+    <div className="py-2.5" data-sous-etape="1">
       <label htmlFor={`${idChamps}-${cote}`} className="flex items-center gap-2 text-[13.5px] leading-snug text-[#2b2320]">
         <IconeCote cote={cote} />
         <span className="min-w-0 flex-1">
@@ -953,12 +962,12 @@ export function ReleveGardeCorps({
       }
       id="cotes"
     >
-      <span className="titre-mesures block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
+      <span data-sous-etape="1" className="titre-mesures block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
         {t.gcTitle}
       </span>
 
       {/* 1. Qui mesure ? C'est la première question, elle décide de la suite. */}
-      <div className="mt-3">
+      <div className="mt-3" data-sous-etape="1">
         <QuiMesure
           valeur={cotes.qui}
           onChange={(qui) => onChange({ ...cotes, qui })}
@@ -1112,7 +1121,7 @@ export function ReleveGardeCorps({
               </div>
             );
           })()}
-          <p className="consigne-cotes mt-2.5 text-xs leading-snug text-[#6f6357]">{t.gcConsigne}</p>
+          <p data-sous-etape="1" className="consigne-cotes mt-2.5 text-xs leading-snug text-[#6f6357]">{t.gcConsigne}</p>
 
           <div className="mt-1 divide-y divide-[#e5ddd3]">
             {/* Des intitulés courts : sur téléphone, « Largeur de la fenêtre,
@@ -1127,7 +1136,7 @@ export function ReleveGardeCorps({
                 boutons en pleine largeur : côte à côte, « Au rez-de-chaussée »
                 débordait de la carte sur téléphone et écrasait l'intitulé sur
                 trois lignes. */}
-            <div className="py-3">
+            <div className="py-3" data-sous-etape="2">
               <span className="flex items-center gap-2.5 text-[15px] text-[#2b2320]">
                 <InfoBulle texte={t.gcEtageInfo} label={t.gcInfoLabel} />
                 {t.gcEtage}
@@ -1157,7 +1166,7 @@ export function ReleveGardeCorps({
 
             {/* Le mur, OBLIGATOIRE (décision de Quentin, 05/10) : il décide des chevilles et de la fixation que
                 l'atelier fournit. « Je ne sais pas » reste possible : on demandera une photo. Le croquis le dessine. */}
-            <label id="mur-gc" className="block scroll-mt-28 py-3">
+            <label id="mur-gc" data-sous-etape="2" className="block scroll-mt-28 py-3">
               <span className="flex items-center gap-2.5 text-[15px] text-[#2b2320]">
                 <InfoBulle texte={t.gcMurInfo} label={t.gcInfoLabel} />
                 {t.gcMur}
@@ -1181,13 +1190,11 @@ export function ReleveGardeCorps({
             </label>
           </div>
 
-          {/* Sur téléphone, la partie « Modèle » (comme le dessus et le dessous du croquis sur ordinateur) : les matières, puis la
-              rangée des modèles. Dans la carte, sous le mur : sous le croquis, elle le poussait hors de l'écran. */}
+          {/* Sur téléphone, la rangée des modèles a son étape à elle (« Modèle », product-view.tsx), comme le bandeau sous le
+              croquis sur ordinateur ; sans parcours en étapes, elle reste dans la carte, sous le mur (sous le croquis, elle le
+              poussait hors de l'écran). */}
           {telephone && schemaSlot && !bandeauSlot && (
-            <div id="partie-modele" className="mt-3 border-t border-[#e5ddd3] pt-4">
-              <div ref={matieresSlotTelephone} className="mb-4" />
-              {catalogue}
-            </div>
+            modeleSlot ? createPortal(catalogue, modeleSlot) : <div className="mt-3">{catalogue}</div>
           )}
 
           {/* Le résultat : le prix, la norme, le modèle choisi. À côté de la carte, sous le catalogue
@@ -1488,7 +1495,7 @@ export function ReleveGardeCorps({
               : schemaSlot && !telephone
                 ? createPortal(<div className="mt-4 rounded-2xl border border-[#e0d6c8] bg-white/75 p-4 text-left md:p-5">{resultat}</div>, schemaSlot)
                 : schemaSlot
-                  ? <div id="partie-prix" className="mt-3 border-t border-[#e5ddd3] pt-1">{resultat}</div>
+                  ? <div className="mt-3 border-t border-[#e5ddd3] pt-1">{resultat}</div>
                   : resultat;
           })()}
         </>
@@ -1505,27 +1512,6 @@ const CURSEURS = {
   allege: { min: 0, max: BORNES_RELEVE_GC.allegeMm.max, depart: 585 },
   fenetre: { min: 0, max: BORNES_RELEVE_GC.fenetreMm.max, depart: 1200 },
 } as const;
-
-/** Les dessins montrés AVANT les mesures : de 1 à 6 croix, seules puis avec barreaux, sur une fenêtre type. */
-const MODELES_VITRINE: ModeleGC[] = ([[false, false], [false, true], [true, false], [true, true]] as const).flatMap(([b, t]) =>
-  [1, 2, 3, 4, 5, 6].map((n) => ({
-    id: idModeleGC(16, n, b, t),
-    conforme: false,
-    raisons: [],
-    croix: n,
-    carre: 16,
-    soubassementMm: b ? 150 : 0,
-    traverse: t,
-    trous: null,
-    seuls: false,
-    rosace: "",
-    renfort: false,
-    patte: 0,
-    hauteurMm: b ? 520 : 350,
-    prix: 0,
-    kg: 0,
-  }))
-);
 
 /**
  * Le petit dessin d'un modèle, À L'ÉCHELLE de la fenêtre du client : le cadre,

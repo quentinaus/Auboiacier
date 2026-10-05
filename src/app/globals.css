@@ -221,6 +221,43 @@ textarea:focus-visible,
     scroll-snap-align: start;
   }
 }
+/* Téléphone, garde-corps : le parcours en ÉTAPES (etapes-telephone.tsx, product-view.tsx). Une seule étape à l'écran sous
+   le croquis : 1 et 2 la carte des mesures (les cotes, puis la fenêtre), 3 les modèles, 4 les finitions, 5 la colonne du prix.
+   La consigne de chaque étape est écrite dans l'en-tête : les petits titres et la consigne de la carte s'effacent. */
+@media (max-width: 47.999rem) {
+  .fond-gc[data-parcours="1"] .panneau-etape {
+    display: none !important;
+  }
+  .fond-gc[data-parcours="1"][data-etape="1"] .panneau-etape.etape-1,
+  .fond-gc[data-parcours="1"][data-etape="2"] .panneau-etape.etape-2,
+  .fond-gc[data-parcours="1"][data-etape="3"] .panneau-etape.etape-3,
+  .fond-gc[data-parcours="1"][data-etape="4"] .panneau-etape.etape-4,
+  .fond-gc[data-parcours="1"][data-etape="5"] .panneau-etape.etape-5 {
+    display: flex !important;
+    flex-direction: column;
+  }
+  .fond-gc[data-parcours="1"][data-etape="1"] [data-sous-etape="2"],
+  .fond-gc[data-parcours="1"][data-etape="2"] [data-sous-etape="1"],
+  .fond-gc[data-parcours="1"] .colonne-cotes .titre-mesures,
+  .fond-gc[data-parcours="1"] .colonne-cotes .consigne-cotes,
+  .fond-gc[data-parcours="1"] .colonne-cotes .note-qui {
+    display: none !important;
+  }
+  /* Petits téléphones (iPhone SE…) : le croquis rétrécit avec la hauteur de l'écran, pour laisser à l'étape la place de
+     ses cases (34 % de la hauteur au plus, 150 px au moins). */
+  .fond-gc[data-parcours="1"] .schema-configuration > div {
+    --h: clamp(150px, calc(100svh - 540px), 34svh);
+  }
+  /* Étape « Modèle » : les modèles d'abord, les réglages Barreaux et Traverse (des raccourcis) ensuite. */
+  .fond-gc[data-parcours="1"] .etape-3 .carte-modeles {
+    display: flex;
+    flex-direction: column;
+  }
+  .fond-gc[data-parcours="1"] .etape-3 .carte-modeles > .controles-famille {
+    order: 1;
+    margin-top: 0.75rem;
+  }
+}
 /* Le croquis remplit sa colonne, sans jamais dépasser la hauteur de la plaque. */
 @media (min-width: 768px) {
   .schema-configuration svg {

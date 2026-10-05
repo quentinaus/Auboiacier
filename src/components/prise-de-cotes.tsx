@@ -104,7 +104,7 @@ export function QuiMesure({
             {fr ? "Changer" : "Change"}
           </button>
         </div>
-        <p id={idNote} className="mt-1.5 text-[12px] leading-snug text-[#6f6357]">
+        <p id={idNote} className="note-qui mt-1.5 text-[12px] leading-snug text-[#6f6357]">
           {valeur === "atelier" ? notes.atelier : notes.moi}
         </p>
       </>
