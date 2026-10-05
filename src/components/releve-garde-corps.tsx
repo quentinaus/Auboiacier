@@ -229,6 +229,7 @@ export function ReleveGardeCorps({
   prix,
   lienDevis,
   rosaceMm,
+  mainCourante,
   schemaSlot,
   resultatSlot,
   detailsSlot,
@@ -245,6 +246,8 @@ export function ReleveGardeCorps({
   lienDevis?: string;
   /** Le diamètre de la rosace choisie, en millimètres, pour le croquis. */
   rosaceMm?: number;
+  /** La main courante choisie (un bois, « acier » ou « profil ») : le croquis la dessine en bois ou en acier. */
+  mainCourante?: string;
   /**
    * L'emplacement du croquis, hors de la carte du configurateur : à côté
    * d'elle, en grand (voir schemaSlot dans product-view.tsx). Sans lui, le
@@ -763,6 +766,7 @@ export function ReleveGardeCorps({
               renfort={apercuModele ? apercuModele.renfort : dessin?.ok ? dessin.renfort : false}
               trous={explique?.trous ?? null}
               rosaceMm={rosaceMm}
+              mainCouranteAcier={mainCourante === "acier" || mainCourante === "profil"}
               apercu={commence && !dessin?.ok && !apercuModele}
               remplissage={surVerre ? "verre" : "croix"}
               actif={coteActive}

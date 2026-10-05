@@ -6,15 +6,15 @@
  * prix. Aucun coût ici, aucune règle recopiée : les règles restent dans le
  * moteur extrait de l'outil (moteur.genere.mjs).
  */
-import { ESSENCES_GC, type CodeAlerteGC, type EssenceGC, type ReleveGC } from "../garde-corps.ts";
+import { ESSENCES_GC, MAINS_COURANTES_GC, type CodeAlerteGC, type EssenceGC, type MainCouranteGC, type ReleveGC } from "../garde-corps.ts";
 
-export { ESSENCES_GC };
-export type { CodeAlerteGC, EssenceGC };
+export { ESSENCES_GC, MAINS_COURANTES_GC };
+export type { CodeAlerteGC, EssenceGC, MainCouranteGC };
 
 /** Ce que le client relève à sa fenêtre, en millimètres, et le bois de sa main courante. */
 export type EntreeSiteGC = ReleveGC & {
   /** Bois de la main courante. */
-  essence: EssenceGC;
+  essence: MainCouranteGC;
 };
 
 /** Avec le fer plat de renfort, l'atelier garde son carré de 16 (décision de Quentin, 04/10/2026). */
@@ -53,8 +53,9 @@ export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: numb
     A: e.allegeMm,
     etage: e.enEtage,
     Hf: e.fenetreMm,
-    essence: e.essence,
-    mcType: "bois",
+    // La main courante : un bois, ou de l'acier (plat soudé, ou profilé). L'essence ne compte qu'avec le bois.
+    essence: e.essence === "acier" || e.essence === "profil" ? "chene" : e.essence,
+    mcType: e.essence === "acier" ? "acier" : e.essence === "profil" ? "profil" : "bois",
     rosace: true,
     Hs: 0,
     Xo: 0,

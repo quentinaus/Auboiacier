@@ -23,6 +23,13 @@
 export const ESSENCES_GC = ["pin", "hetre", "chene", "noyer"] as const;
 export type EssenceGC = (typeof ESSENCES_GC)[number];
 
+/**
+ * La main courante que choisit le client : un bois (quatre essences), ou de l'ACIER — un plat soudé à plat sur le cadre
+ * (« acier »), ou un profilé du commerce emboîté (« profil »). Même identifiants que l'outil de plans (mcType).
+ */
+export const MAINS_COURANTES_GC = [...ESSENCES_GC, "acier", "profil"] as const;
+export type MainCouranteGC = (typeof MAINS_COURANTES_GC)[number];
+
 /** Les bornes des champs de l'outil, en millimètres (BORNES_GC du moteur). */
 export const BORNES_RELEVE_GC = {
   largeurMm: { min: 300, max: 3000 },

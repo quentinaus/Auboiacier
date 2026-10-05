@@ -9,7 +9,7 @@
  * champ : un prix de vente et une forme, jamais un coût.
  */
 import { catalogueGC, configurerGC, prixCommandeGC, prixGC, ChiffrageIndisponible, type ConfigAEtudierGC, type ConfigGC } from "./calcul.ts";
-import { ESSENCES_GC, type EntreeSiteGC, type EssenceGC } from "./entree.ts";
+import { MAINS_COURANTES_GC, type EntreeSiteGC, type MainCouranteGC } from "./entree.ts";
 import { RENFORT } from "./moteur.genere.mjs";
 import { getProduct, priceFrom, prixParOutil, resolveSelection, SUR_MESURE, type PrixReleve, type Product } from "../products.ts";
 import { BORNES_RELEVE_GC, MODELES_GC_MAX, RELEVE_DEPART_GC, idModeleGC, lireModeleGC, releveDansLesBornes, type ModeleGC, type ReleveGC, type ReponsePrixGC } from "../garde-corps.ts";
@@ -24,9 +24,9 @@ function produitGC(): Product {
   return p;
 }
 
-const estEssence = (x: string): x is EssenceGC => (ESSENCES_GC as readonly string[]).includes(x);
+const estEssence = (x: string): x is MainCouranteGC => (MAINS_COURANTES_GC as readonly string[]).includes(x);
 
-function entreeGC(releve: ReleveGC, essence: EssenceGC): EntreeSiteGC {
+function entreeGC(releve: ReleveGC, essence: MainCouranteGC): EntreeSiteGC {
   return {
     largeurMm: releve.largeurMm, allegeMm: releve.allegeMm, enEtage: releve.enEtage, fenetreMm: releve.fenetreMm, essence,
     ...(releve.modele !== undefined ? { modele: releve.modele } : {}),
@@ -103,7 +103,7 @@ export const PARAMETRES_PRIX_GC = ["l", "allege", "etage", "fenetre", "wood", "m
 
 export type RequetePrixGC = {
   releve: ReleveGC;
-  essence: EssenceGC;
+  essence: MainCouranteGC;
   metalId?: string;
   fabricId?: string;
   remplissageId?: string;
@@ -249,7 +249,7 @@ export function prixDepart(product: Product): number | null {
   if (!prixParOutil(product)) return priceFrom(product);
   if (departMemo !== undefined) return departMemo;
   const calcul = () => {
-    const prix = ESSENCES_GC.map((essence) => {
+    const prix = MAINS_COURANTES_GC.map((essence) => {
       const c = configurationGC(RELEVE_DEPART_GC, essence);
       return c?.ok ? prixGC(c) : null;
     }).filter((x): x is number => x !== null);

@@ -244,6 +244,7 @@ export function SchemaFenetre({
   traverse = false,
   renfort = false,
   trous = null,
+  mainCouranteAcier = false,
   rosaceMm,
   apercu = false,
   labels,
@@ -278,6 +279,8 @@ export function SchemaFenetre({
   renfort?: boolean;
   /** Le rond rouge (vide trop grand) et les ronds verts de l'outil de plans, posés dans le cadre du modèle montré. */
   trous?: TrousGC | null;
+  /** La main courante est en acier (plat ou profilé) et non en bois. */
+  mainCouranteAcier?: boolean;
   labels: {
     largeur: string;
     allege: string;
@@ -456,7 +459,7 @@ export function SchemaFenetre({
             <ellipse key={`rond${i}`} cx={r(G + 2 + c.x * sx)} cy={r(cadreBas - c.y * sy)} rx={r((c.d / 2) * sx)} ry={r((c.d / 2) * sy)} fill={couleur} fillOpacity={0.3} stroke={couleur} strokeWidth={1.6} />
           );
         })}
-        <rect x={G - 2} y={hautGardeCorpsY} width={D - G + 4} height={mainCouranteH} rx={2.5} fill={BOIS} stroke="#b08a52" strokeWidth={0.8} />
+        <rect x={G - 2} y={hautGardeCorpsY} width={D - G + 4} height={mainCouranteH} rx={2.5} fill={mainCouranteAcier ? "#4a4b4f" : BOIS} stroke={mainCouranteAcier ? "#2b2c2f" : "#b08a52"} strokeWidth={0.8} />
         {platH > 0 && <rect x={G} y={r(hautGardeCorpsY + mainCouranteH - platH)} width={D - G} height={platH} fill={ACIER} />}
       </g>
       )}
@@ -464,7 +467,7 @@ export function SchemaFenetre({
       {mode === "barre" && (
         <g>
           <line x1={G} y1={r(hautGardeCorpsY + mainCouranteH + barre)} x2={D} y2={r(hautGardeCorpsY + mainCouranteH + barre)} stroke={ACIER} strokeWidth={r(barre * 1.4)} />
-          <rect x={G - 2} y={hautGardeCorpsY} width={D - G + 4} height={mainCouranteH} rx={2.5} fill={BOIS} stroke="#b08a52" strokeWidth={0.8} />
+          <rect x={G - 2} y={hautGardeCorpsY} width={D - G + 4} height={mainCouranteH} rx={2.5} fill={mainCouranteAcier ? "#4a4b4f" : BOIS} stroke={mainCouranteAcier ? "#2b2c2f" : "#b08a52"} strokeWidth={0.8} />
         </g>
       )}
 

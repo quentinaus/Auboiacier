@@ -1503,10 +1503,15 @@ export const products: Product[] = [
     sizes: [],
     // L'outil chiffre le bois de la main courante à son volume, essence par
     // essence : aucun écart fixe ici (il compterait le bois deux fois).
-    woods: woods({ pin: 0, hetre: 0, chene: 0, noyer: 0 }),
+    // La main courante : quatre bois, ou de l'acier (un plat soudé, un profilé du commerce) — au choix du client (05/10).
+    woods: [
+      ...woods({ pin: 0, hetre: 0, chene: 0, noyer: 0 }),
+      { id: "acier", label: "Acier, plat", labelEn: "Steel, flat bar", swatch: "#4a4b4f", priceDelta: 0 },
+      { id: "profil", label: "Acier, profilé", labelEn: "Steel, profiled", swatch: "#2e2f33", priceDelta: 0 },
+    ],
     boisParDefaut: "chene",
-    // Un garde-corps n'a pas de plateau : le bois, c'est la main courante.
-    woodLabel: { fr: "Bois de la main courante", en: "Handrail timber" },
+    // Un garde-corps n'a pas de plateau : le « bois », c'est la main courante — en bois ou en acier.
+    woodLabel: { fr: "Main courante", en: "Handrail" },
     metals: metals("noir", "brut", "blanc"),
     metalLabel: { fr: "Couleur de l'acier", en: "Steel colour" },
     // La rosace au croisement des barres : quatre modèles de fonderie, en

@@ -20,6 +20,7 @@ import {
   BORNES_RELEVE_GC,
   ESSENCES_GC,
   JOUR_GC_MM,
+  MAINS_COURANTES_GC,
   MAIN_COURANTE_MM,
   MINI_GC_MM,
   RELEVE_DEPART_GC,
@@ -69,7 +70,8 @@ test("les constantes du site sont celles de l'outil de plans", () => {
     { largeurMm: { ...BORNES_RELEVE_GC.largeurMm }, allegeMm: { ...BORNES_RELEVE_GC.allegeMm }, fenetreMm: { ...BORNES_RELEVE_GC.fenetreMm } },
     { largeurMm: { ...BORNES_GC.B }, allegeMm: { ...BORNES_GC.A }, fenetreMm: { ...BORNES_GC.Hf } }
   );
-  assert.deepEqual([...ESSENCES_GC].sort(), gc.woods.map((w) => w.id).sort(), "les essences du catalogue sont celles de l'outil");
+  // La main courante du catalogue : les quatre bois de l'outil, plus l'acier (plat soudé, profilé).
+  assert.deepEqual([...MAINS_COURANTES_GC].sort(), gc.woods.map((w) => w.id).sort(), "les mains courantes du catalogue sont celles de l'outil");
 });
 
 test("le garde-corps se chiffre sur le serveur seulement : le catalogue public n'en donne aucun prix", () => {
@@ -268,11 +270,11 @@ test("le « à partir de » est le prix du plus petit garde-corps, et aucun ne c
   chiffrageOuEchec();
   const depart = prixDepart(gc);
   assert.ok(depart !== null && Number.isInteger(depart) && depart > 0);
-  const moinsCher = Math.min(...ESSENCES_GC.map((e) => prixGC(configurationGC(RELEVE_DEPART_GC, e) as ConfigGC)));
+  const moinsCher = Math.min(...MAINS_COURANTES_GC.map((e) => prixGC(configurationGC(RELEVE_DEPART_GC, e) as ConfigGC)));
   assert.equal(depart, moinsCher);
   for (const largeurMm of [300, 450, 800, 1180, 1500]) {
     for (const allegeMm of [0, 300, 650, 900, 1200]) {
-      for (const essence of ESSENCES_GC) {
+      for (const essence of MAINS_COURANTES_GC) {
         const c = configurationGC(releve({ largeurMm, allegeMm }), essence);
         if (c?.ok) assert.ok(prixGC(c) >= depart, `${largeurMm} × allège ${allegeMm} en ${essence} : ${prixGC(c)} € sous le « à partir de » ${depart} €`);
       }
@@ -326,7 +328,7 @@ test("la fiche démarre sur le chêne de la photo, et appelle le bois « main co
   const pin = reponsePrixGC({ releve: grand, essence: "pin", quantite: 1 });
   assert.ok(chene?.ok && pin?.ok && chene.prix !== pin.prix);
   // Un garde-corps n'a pas de plateau.
-  assert.deepEqual(gc.woodLabel, { fr: "Bois de la main courante", en: "Handrail timber" });
+  assert.deepEqual(gc.woodLabel, { fr: "Main courante", en: "Handrail" });
 });
 
 test("une option absente est celle du modèle, partout : prix, devis, aperçu de la livraison", () => {

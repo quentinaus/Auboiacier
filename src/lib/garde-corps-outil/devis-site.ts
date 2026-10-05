@@ -329,7 +329,11 @@ function lignesAnglaises(fr: LignesSite, config: ConfigGC, line: ResolvedLine, q
     verre
       ? `Solid steel structure — ${nb(L)} × ${nb(H)} mm, welded frame holding the glass${bas}${renfort}, TIG welded`
       : `Solid steel structure — ${nb(L)} × ${nb(H)} mm, ${croix} and ${t.n} ${minuscule(rosace)} ${t.n > 1 ? "rosettes" : "rosette"}${traverse}${barreauxC}${bas}${renfort}, TIG welded`,
-    `Solid ${bois.toLowerCase()} handrail ${nb(t.mcL)} × ${nb(t.mcH)} mm, hardwax-oil finish`,
+    config.v.mcType === "acier"
+      ? `Flat steel handrail ${nb(t.mcL)} × ${nb(t.mcH)} mm, welded onto the frame, painted finish`
+      : config.v.mcType === "profil"
+        ? `Profiled steel handrail ${nb(t.mcL)} × ${nb(t.mcH)} mm, fitted onto the frame, painted finish`
+        : `Solid ${bois.toLowerCase()} handrail ${nb(t.mcL)} × ${nb(t.mcH)} mm, hardwax-oil finish`,
     line.metal?.id === "brut" ? "Steel finish — raw, clear protective varnish" : `Painted finish of the steel — ${teinte.toLowerCase()}`,
     livraison.mode === "transporteur" ? "Fixings, fitting notes and packaging" : "Fixings and fitting notes",
   ];
@@ -361,9 +365,10 @@ function lignesAnglaises(fr: LignesSite, config: ConfigGC, line: ResolvedLine, q
 
 function accrocheAnglaise(line: ResolvedLine, config: ConfigGC): string {
   const bois = productLocalise(line.product, "en").woods.find((w) => w.id === line.wood?.id)!.label.toLowerCase();
+  const main = config.v.mcType === "acier" ? "flat steel" : config.v.mcType === "profil" ? "profiled steel" : bois;
   return line.remplissage?.sansCroix
-    ? `Laminated glass panel in a solid steel frame, ${bois} handrail. Made to the millimetre, fitted into your window.`
-    : `Solid steel Saint Andrew's crosses${traits(config).traverse ? " with a middle rail" : ""}, cast rosettes, ${bois} handrail. Made to the millimetre, fitted into your window.`;
+    ? `Laminated glass panel in a solid steel frame, ${main} handrail. Made to the millimetre, fitted into your window.`
+    : `Solid steel Saint Andrew's crosses${traits(config).traverse ? " with a middle rail" : ""}, cast rosettes, ${main} handrail. Made to the millimetre, fitted into your window.`;
 }
 
 function caracteristiquesAnglaises(base: DevisGC, config: ConfigGC, line: ResolvedLine, livraison: LivraisonDevisGC): Caracteristique[] {
@@ -398,7 +403,15 @@ function caracteristiquesAnglaises(base: DevisGC, config: ConfigGC, line: Resolv
       label: "Frame",
       value: `Solid steel ${nb(v.s)} × ${nb(v.s)} mm${t.renfort ? `, top rail stiffened by a ${nb(t.renfort.l)} × ${nb(t.renfort.e)} mm flat bar hidden under the handrail` : ""}, TIG welded, ${line.metal?.id === "brut" ? "raw steel, clear varnish" : `painted finish — steel colour ${teinte}`}`,
     },
-    { label: "Handrail", value: `${bois}, solid, ${nb(t.mcL)} × ${nb(t.mcH)} mm, hardwax oil, satin${t.renfort ? `, screwed from below onto a ${nb(t.renfort.l)} × ${nb(t.renfort.e)} mm steel flat bar` : t.rainure ? ", fitted onto the frame" : ""}` },
+    {
+      label: "Handrail",
+      value:
+        v.mcType === "acier"
+          ? `Flat steel ${nb(t.mcL)} × ${nb(t.mcH)} mm, welded onto the frame, painted finish`
+          : v.mcType === "profil"
+            ? `Profiled steel ${nb(t.mcL)} × ${nb(t.mcH)} mm, fitted onto the frame, painted finish`
+            : `${bois}, solid, ${nb(t.mcL)} × ${nb(t.mcH)} mm, hardwax oil, satin${t.renfort ? `, screwed from below onto a ${nb(t.renfort.l)} × ${nb(t.renfort.e)} mm steel flat bar` : t.rainure ? ", fitted onto the frame" : ""}`,
+    },
     {
       label: "Installation",
       value: `Fitted into the window reveal, ${livraison.mode === "pose" ? "installed by the workshop" : "fixings supplied"} — ${t.nVis} countersunk screws and plugs`,

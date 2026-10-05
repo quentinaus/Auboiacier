@@ -11,10 +11,10 @@
 import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, DEFAUTS_GC, calculerGC, geomGC, type ResultatGC, type ValeursGC } from "./moteur.genere.mjs";
 import { chiffrage } from "./chiffrage.ts";
 import { idModeleGC, lireModeleGC, type RaisonSansPrixGC, type RondGC, type TrousGC } from "../garde-corps.ts";
-import { CARRE_RENFORT, codeAlerte, CROIX_CATALOGUE, CROIX_MAX, ESSENCES_GC, NB_BARREAUX_MAX, ORDRE_CARRES, valeursGC, type CodeAlerteGC, type EntreeSiteGC } from "./entree.ts";
+import { CARRE_RENFORT, codeAlerte, CROIX_CATALOGUE, CROIX_MAX, MAINS_COURANTES_GC, NB_BARREAUX_MAX, ORDRE_CARRES, valeursGC, type CodeAlerteGC, type EntreeSiteGC } from "./entree.ts";
 
 export { ChiffrageIndisponible } from "./chiffrage.ts";
-export type { CodeAlerteGC, EntreeSiteGC, EssenceGC } from "./entree.ts";
+export type { CodeAlerteGC, EntreeSiteGC, EssenceGC, MainCouranteGC } from "./entree.ts";
 
 type Commun = {
   entree: Readonly<EntreeSiteGC>;
@@ -79,7 +79,7 @@ export function entreeValide(e: EntreeSiteGC): boolean {
     dans(e.allegeMm, BORNES_GC.A) &&
     dans(e.fenetreMm, BORNES_GC.Hf) &&
     typeof e.enEtage === "boolean" &&
-    (ESSENCES_GC as readonly string[]).includes(e.essence) &&
+    (MAINS_COURANTES_GC as readonly string[]).includes(e.essence) &&
     (e.modele === undefined || lireModeleGC(e.modele) !== null)
   );
 }

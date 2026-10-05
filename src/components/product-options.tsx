@@ -1972,7 +1972,7 @@ export function ProductOptions({
           const matieresCompactes = (
             <div className="mb-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 rounded-2xl bg-white/55 px-3 py-1.5">
               {product.metals.length > 0 && ligneMatieres(locale === "fr" ? "Acier" : "Steel", product.metals, metalId, setMetalId, false)}
-              {product.woods.length > 0 && ligneMatieres(locale === "fr" ? "Bois" : "Wood", woodsAffiches, woodId, setWoodId, orderable && product.woods.some((bois) => bois.priceDelta))}
+              {product.woods.length > 0 && ligneMatieres(locale === "fr" ? "Main courante" : "Handrail", woodsAffiches, woodId, setWoodId, orderable && product.woods.some((bois) => bois.priceDelta))}
               {product.fabrics && product.fabrics.length > 0 && product.fabricLabel && !sansRosace &&
                 ligneMatieres(locale === "fr" ? "Rosace" : "Rosette", product.fabrics, fabricId, setFabricId, product.fabrics.some((rosace) => rosace.priceDelta))}
             </div>
@@ -2522,6 +2522,7 @@ export function ProductOptions({
             lecture={lectureReleve}
             prix={prixGC}
             rosaceMm={Number(fabric?.label.match(/Ø(\d+)/)?.[1]) || undefined}
+            mainCourante={woodId}
             lienDevis={`/${locale}/contact?produit=${product.slug}&config=${encodeURIComponent(optionsPiece)}${cotesPourDevisGC ? `&releve=${encodeURIComponent(cotesPourDevisGC)}` : ""}`}
             detailsSlot={setDetailsSlot}
             verre={
