@@ -179,6 +179,7 @@
     "addToCart": "Add to cart",
     "added": "Added to cart",
     "ouvertureBouton": "Notify me first",
+    "ouvertureBoutonCourt": "Notify me",
     "ouvertureGardee": "Your configuration is saved in your cart.",
     "ouvertureFermer": "Close",
     "raisonCotesManquantes": "Enter your dimensions (length, width, thickness) to add to cart.",

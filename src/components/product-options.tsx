@@ -3215,7 +3215,8 @@ export function ProductOptions({
             disabled={total === null || (modeVisite && !visitePrete) || murAChoisir || modeleAChoisir || (!modeVisite && product.poseOption && !livraisonPrete(pose))}
             className="btn-verre ml-auto shrink-0 rounded-full px-5 py-3 text-xs font-medium uppercase tracking-[0.12em] text-white"
           >
-            {ouverture ? t.ouvertureBouton : t.addToCart}
+            {/* La version courte : la longue ne laissait plus de place au prix. */}
+            {ouverture ? t.ouvertureBoutonCourt : t.addToCart}
           </button>
         </div>
       )}
