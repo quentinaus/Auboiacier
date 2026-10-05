@@ -577,7 +577,7 @@ export function ProductOptions({
   compteOuvert?: boolean;
   /**
    * Les commandes ne sont pas encore ouvertes (src/lib/entreprise.ts) : le
-   * bouton du panier devient « M'inscrire en priorité ». La configuration va
+   * bouton du panier devient « Être prévenu en priorité ». La configuration va
    * au panier comme d'habitude, puis une fenêtre demande l'e-mail.
    */
   ouverture?: Ouverture;
