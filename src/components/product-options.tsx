@@ -829,7 +829,8 @@ export function ProductOptions({
         // « center » plutôt que « start » : la carte défile à l'intérieur
         // d'elle-même, et un bloc collé tout en haut passe sous le titre.
         amenerAlEcran(cible, { block: "center" });
-        const champ = cible.querySelector<HTMLInputElement>('input:not([type="hidden"])');
+        // Une case à remplir, ou une liste à choisir (le type de mur).
+        const champ = cible.querySelector<HTMLInputElement | HTMLSelectElement>('input:not([type="hidden"]), select');
         champ?.focus({ preventScroll: true });
       })
     );
@@ -1454,10 +1455,14 @@ export function ProductOptions({
    */
   /** Le garde-corps a un prix, mais le client n'a pas encore choisi son modèle parmi ceux aux normes. */
   const modeleAChoisir = estGC && !modeVisite && Boolean(configGC) && !cotesGardeCorps.modele;
+  /** Le type de mur est obligatoire (décision de Quentin, 05/10) : il décide des chevilles et de la fixation fournies. */
+  const murAChoisir = estGC && !modeVisite && Boolean(configGC) && !cotesGardeCorps.mur;
   const raisonIndisponible: { message: string; ancre: string } | null = modeVisite
     ? !visitePrete
       ? { message: t.raisonVisiteIncomplete, ancre: "#cotes" }
       : null
+    : murAChoisir
+      ? { message: locale === "fr" ? "Choisissez le type de mur : il décide des chevilles et de la fixation que nous fournissons." : "Choose the wall type: it decides the plugs and fixings we supply.", ancre: "#mur-gc" }
     : modeleAChoisir
       ? { message: locale === "fr" ? "Choisissez votre modèle de garde-corps parmi ceux proposés." : "Choose your railing model among those offered.", ancre: "#modeles-gc" }
     : total === null
@@ -2651,6 +2656,8 @@ export function ProductOptions({
             rosaceId={fabricId}
             onRosace={setFabricId}
             mainCourante={woodId}
+            teinteAcier={metal?.swatch}
+            teinteBois={wood?.swatch}
             lienDevis={`/${locale}/contact?produit=${product.slug}&config=${encodeURIComponent(optionsPiece)}${cotesPourDevisGC ? `&releve=${encodeURIComponent(cotesPourDevisGC)}` : ""}`}
             detailsSlot={setDetailsSlot}
             verre={
@@ -2916,7 +2923,7 @@ export function ProductOptions({
               onClick={addToCart}
               disabled={
                 total === null ||
-                (modeVisite && !visitePrete) || modeleAChoisir ||
+                (modeVisite && !visitePrete) || murAChoisir || modeleAChoisir ||
                 // La visite de l'atelier n'a pas de livraison : seule la pièce en demande une.
                 (!modeVisite && product.poseOption && !livraisonPrete(pose))
               }
@@ -3101,7 +3108,7 @@ export function ProductOptions({
           <button
             type="button"
             onClick={addToCart}
-            disabled={total === null || (modeVisite && !visitePrete) || modeleAChoisir || (!modeVisite && product.poseOption && !livraisonPrete(pose))}
+            disabled={total === null || (modeVisite && !visitePrete) || murAChoisir || modeleAChoisir || (!modeVisite && product.poseOption && !livraisonPrete(pose))}
             className="btn-verre ml-auto shrink-0 rounded-full px-5 py-3 text-xs font-medium uppercase tracking-[0.12em] text-white"
           >
             {t.addToCart}

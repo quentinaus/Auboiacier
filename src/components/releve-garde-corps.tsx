@@ -6,7 +6,8 @@ import Link from "next/link";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { InfoBulle } from "./info-bulle";
 import { QuiMesure, VisiteAtelier } from "./prise-de-cotes";
-import { SchemaFenetre, NUMERO_COTE, type CoteFenetre } from "./schema-fenetre";
+import { SchemaFenetre, type CoteFenetre } from "./schema-fenetre";
+import { matiereMur } from "@/lib/murs-gc";
 import { PlanApercu } from "./plan-apercu";
 import {
   BORNES_RELEVE_GC,
@@ -36,11 +37,11 @@ export type CotesGardeCorps = {
   /** « moi » : le client mesure. « atelier » : Quentin vient mesurer. */
   qui: "moi" | "atelier";
   etage: string;
-  /** ① La largeur de la fenêtre entre les murs. */
+  /** La largeur de la fenêtre entre les murs. */
   largeur: string;
-  /** ② Du sol au bas de la fenêtre. C'est d'elle qu'on déduit la hauteur du garde-corps. */
+  /** Du sol au bas de la fenêtre. C'est d'elle qu'on déduit la hauteur du garde-corps. */
   allege: string;
-  /** ③ De l'appui au haut de l'ouverture : le garde-corps doit tenir dedans. */
+  /** De l'appui au haut de l'ouverture : le garde-corps doit tenir dedans. */
   fenetre: string;
   mur: string;
   codePostal: string;
@@ -74,8 +75,8 @@ const mm = (valeur: string) => {
 /** Ce que disent les cases : un relevé complet, ce qui manque, ou une cote hors de ce que l'atelier fabrique. */
 export type LectureReleve =
   /**
-   * `manque` : la première chose qui manque, pour le dire précisément au client — la largeur (①), le bas de
-   * la fenêtre (②), la hauteur de fenêtre tapée de travers (③, facultative), ou « etage » quand les cotes
+   * `manque` : la première chose qui manque, pour le dire précisément au client — la largeur, le bas de
+   * la fenêtre, la hauteur de fenêtre tapée de travers (facultative), ou « etage » quand les cotes
    * sont là mais que le client n'a pas dit où est la fenêtre.
    */
   | { etat: "incomplet"; manque: "largeur" | "allege" | "fenetre" | "etage"; illisible?: boolean }
@@ -121,15 +122,15 @@ export function texteManqueGC(lecture: LectureReleve | null | undefined, locale:
   const fr = locale === "fr";
   switch (lecture.manque) {
     case "largeur":
-      if (lecture.illisible) return fr ? "La mesure ① (largeur) n'est pas un nombre : corrigez-la." : "Measurement ① (width) is not a number: please correct it.";
-      return fr ? "Il manque la mesure ① : la largeur de la fenêtre." : "Measurement ① is missing: the width of the window.";
+      if (lecture.illisible) return fr ? "La largeur de la fenêtre n'est pas un nombre : corrigez-la." : "The window width is not a number: please correct it.";
+      return fr ? "Il manque la largeur de la fenêtre, d'un mur à l'autre." : "The window width, wall to wall, is missing.";
     case "allege":
-      if (lecture.illisible) return fr ? "La mesure ② (du sol au bas de la fenêtre) n'est pas un nombre : corrigez-la." : "Measurement ② (floor to bottom of the window) is not a number: please correct it.";
-      return fr ? "Il manque la mesure ② : du sol au bas de la fenêtre." : "Measurement ② is missing: from the floor to the bottom of the window.";
+      if (lecture.illisible) return fr ? "La hauteur du sol au bas de la fenêtre n'est pas un nombre : corrigez-la." : "The height from the floor to the bottom of the window is not a number: please correct it.";
+      return fr ? "Il manque la hauteur du sol au bas de la fenêtre." : "The height from the floor to the bottom of the window is missing.";
     case "fenetre":
       return fr
-        ? "La mesure ③ n'est pas un nombre : corrigez-la ou effacez-la (elle est facultative)."
-        : "Measurement ③ is not a number: correct it or clear it (it is optional).";
+        ? "La hauteur de la fenêtre n'est pas un nombre : corrigez-la ou effacez-la (elle est facultative)."
+        : "The window height is not a number: correct it or clear it (it is optional).";
     case "etage":
       return fr ? "Dites où est la fenêtre : en étage ou au rez-de-chaussée." : "Tell us where the window is: upstairs or on the ground floor.";
   }
@@ -198,15 +199,17 @@ export function noteGardeCorps(cotes: CotesGardeCorps, t: Dictionary["artisanat"
   );
 }
 
-/** La pastille numérotée devant une case : la même que sur le croquis. */
-function Pastille({ n }: { n: number }) {
+/**
+ * Devant chaque case, le pictogramme de sa cote, dessiné comme sur un plan : une largeur entre deux murs,
+ * une hauteur depuis le sol, une hauteur de fenêtre. Il remplace les pastilles ①②③ (« pas pro », 05/10).
+ */
+function IconeCote({ cote }: { cote: "largeur" | "allege" | "fenetre" }) {
   return (
-    <span
-      aria-hidden
-      className="inline-flex h-[17px] w-[17px] shrink-0 items-center justify-center rounded-full border border-[#2a2116] text-[10px] font-bold leading-none text-[#2a2116]"
-    >
-      {n}
-    </span>
+    <svg aria-hidden viewBox="0 0 18 18" className="h-[18px] w-[18px] shrink-0 text-[#2a2116]" fill="none" stroke="currentColor" strokeWidth={1.3} strokeLinecap="round">
+      {cote === "largeur" && <path d="M2 5v8M16 5v8M2 9h14M3.6 10.6l1.6-3.2M12.8 10.6l1.6-3.2" />}
+      {cote === "allege" && <path d="M2.5 16h13M9 16V3M5 3h8M7.4 4.6l3.2-3.2M7.4 17.6l3.2-3.2" strokeOpacity={1} />}
+      {cote === "fenetre" && <path d="M7 3h8v12H7zM11 3v12M3 3v12M1.4 4.6l3.2-3.2M1.4 16.6l3.2-3.2" />}
+    </svg>
   );
 }
 
@@ -238,6 +241,8 @@ export function ReleveGardeCorps({
   onRosace,
   bandeauSlot,
   mainCourante,
+  teinteAcier,
+  teinteBois,
   schemaSlot,
   resultatSlot,
   detailsSlot,
@@ -261,6 +266,9 @@ export function ReleveGardeCorps({
   bandeauSlot?: HTMLDivElement | null;
   /** La main courante choisie (un bois, « acier » ou « profil ») : le croquis la dessine en bois ou en acier. */
   mainCourante?: string;
+  /** Les teintes de l'acier et du bois choisies sur la fiche, pour que le croquis les montre. */
+  teinteAcier?: string;
+  teinteBois?: string;
   /**
    * L'emplacement du croquis, hors de la carte du configurateur : à côté
    * d'elle, en grand (voir schemaSlot dans product-view.tsx). Sans lui, le
@@ -844,7 +852,7 @@ export function ReleveGardeCorps({
   const ligne = (cote: "largeur" | "allege" | "fenetre", props: { label: string; aide?: string; info: string; placeholder: string }) => (
     <div className="py-2.5">
       <label htmlFor={`${idChamps}-${cote}`} className="flex items-center gap-2 text-[13.5px] leading-snug text-[#2b2320]">
-        <Pastille n={NUMERO_COTE[cote]} />
+        <IconeCote cote={cote} />
         <span className="min-w-0 flex-1">
           {props.label}
           {/* La mesure qui manque : la même étiquette que « à choisir » pour l'étage. */}
@@ -982,6 +990,9 @@ export function ReleveGardeCorps({
               seuls={apercuModele ? apercuModele.seuls : dessin?.ok ? dessin.seuls : false}
               trous={explique?.trous ?? null}
               rosaceMm={rosaceMm}
+              mur={matiereMur(cotes.mur, t.gcMurOptions)}
+              teinteAcier={teinteAcier}
+              teinteBois={teinteBois}
               typeMainCourante={mainCourante === "acier" ? "acier-plat" : mainCourante === "profil" ? "acier-profile" : undefined}
               apercu={commence && !dessin?.ok && !apercuModele}
               remplissage={surVerre ? "verre" : "croix"}
@@ -1097,7 +1108,7 @@ export function ReleveGardeCorps({
             {/* Des intitulés courts : sur téléphone, « Largeur de la fenêtre,
                 entre les murs » tenait sur quatre lignes et chaque cote
                 prenait un écran. L'explication complète reste dans la bulle
-                « i », et le croquis numéroté juste au-dessus montre où mesurer. */}
+                « i », et le croquis coté juste à côté montre où mesurer. */}
             {ligne("largeur", { label: t.gcLargeurCourt, aide: `${t.gcLargeur}. ${t.gcLargeurAide}`, info: t.gcLargeurInfo, placeholder: "1180" })}
             {ligne("allege", { label: t.gcAllegeCourt, aide: `${t.gcAllege}. ${t.gcAllegeAide}`, info: t.gcAllegeInfo, placeholder: String(CURSEURS.allege.depart) })}
             {ligne("fenetre", { label: `${t.gcFenetreCourt} · ${locale === "fr" ? "facultatif" : "optional"}`, aide: `${t.gcFenetre}. ${t.gcFenetreAide}`, info: t.gcFenetreInfo, placeholder: "1200" })}
@@ -1134,15 +1145,23 @@ export function ReleveGardeCorps({
               </div>
             </div>
 
-            {/* Le mur, en option : ça décide des chevilles qu'on fournit. */}
-            <label className="block py-3">
+            {/* Le mur, OBLIGATOIRE (décision de Quentin, 05/10) : il décide des chevilles et de la fixation que
+                l'atelier fournit. « Je ne sais pas » reste possible : on demandera une photo. Le croquis le dessine. */}
+            <label id="mur-gc" className="block scroll-mt-28 py-3">
               <span className="flex items-center gap-2.5 text-[15px] text-[#2b2320]">
                 <InfoBulle texte={t.gcMurInfo} label={t.gcInfoLabel} />
                 {t.gcMur}
-                <span className="text-xs text-[#6f6357]">{t.gcFacultatif}</span>
+                {cotes.mur === "" && (
+                  <span className="rounded-full bg-[#fbeeda] px-2 py-0.5 text-[11px] font-medium text-[#7a4510]">{fr ? "à choisir" : "to choose"}</span>
+                )}
               </span>
-              <select value={cotes.mur} onChange={(e) => set("mur")(e.target.value)} className={`${SELECT.replace("w-[8.5rem]", "w-full")} mt-2`}>
-                <option value="">—</option>
+              <select
+                id={`${idChamps}-mur`}
+                value={cotes.mur}
+                onChange={(e) => set("mur")(e.target.value)}
+                className={`${SELECT.replace("w-[8.5rem]", "w-full")} mt-2 ${cotes.mur === "" ? "border-[#c98a3a]" : ""}`}
+              >
+                <option value="" disabled>{fr ? "Choisissez…" : "Choose…"}</option>
                 {t.gcMurOptions.map((option) => (
                   <option key={option} value={option}>
                     {option}

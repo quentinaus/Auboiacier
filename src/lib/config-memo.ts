@@ -1,6 +1,7 @@
 // Chemins relatifs, pas l'alias « @/ » : les tests (node --test) chargent ce
 // fichier directement, sans le compilateur de Next.
 import { BORNES_RELEVE_GC, lireModeleGC } from "./garde-corps.ts";
+import { MATIERES_MUR } from "./murs-gc.ts";
 
 /**
  * La configuration en cours, mise de côté le temps d'un aller-retour.
@@ -53,7 +54,7 @@ export type ConfigMemo = {
   gcFenetreMm?: number;
   /** true : en étage ; false : au rez-de-chaussée. Absent : le client ne l'a pas dit, et on ne le dit jamais à sa place. */
   gcEnEtage?: boolean;
-  /** Le type de mur, tel qu'il est écrit dans la liste. */
+  /** Le type de mur : sa matière (« brique », MATIERES_MUR) ; une mémoire plus ancienne a pu garder le mot affiché (« Brique pleine »). */
   gcMur?: string;
   /** Le modèle choisi (« 16-5-b »), tel que lireModeleGC le reconnaît. */
   gcModele?: string;
@@ -120,7 +121,8 @@ export function releveVersMemo(cases: CasesReleveGc, t: MotsReleveGc): ReleveGcM
     gcAllegeMm: mm(cases.allege),
     gcFenetreMm: mm(cases.fenetre),
     gcEnEtage: etage === 0 ? true : etage === 1 ? false : undefined,
-    gcMur: cases.mur || undefined,
+    // La matière, pas le mot de la liste : il change avec la langue. Un mot inconnu de la liste est gardé tel quel.
+    gcMur: cases.mur ? (MATIERES_MUR[t.gcMurOptions.indexOf(cases.mur)] ?? cases.mur) : undefined,
     gcModele: cases.modele || undefined,
   };
 }
@@ -130,7 +132,7 @@ export function releveVersMemo(cases: CasesReleveGc, t: MotsReleveGc): ReleveGcM
  * ou au retour de la création de compte. Seulement ce qui avait été rempli.
  * L'étage ne revient que s'il avait été choisi : sur une nouvelle fenêtre,
  * rien n'est jamais coché d'avance (décision du 03/10). Le mur ne revient que
- * s'il figure encore dans la liste, dans la langue de la page.
+ * dans la langue de la page.
  */
 export function memoVersReleve(memo: ReleveGcMemo, t: MotsReleveGc): Partial<CasesReleveGc> {
   const cases: Partial<CasesReleveGc> = {};
@@ -139,7 +141,12 @@ export function memoVersReleve(memo: ReleveGcMemo, t: MotsReleveGc): Partial<Cas
   if (memo.gcFenetreMm !== undefined) cases.fenetre = String(memo.gcFenetreMm);
   const etage = memo.gcEnEtage === undefined ? undefined : t.gcEtageOptions[memo.gcEnEtage ? 0 : 1];
   if (etage !== undefined) cases.etage = etage;
-  if (memo.gcMur !== undefined && t.gcMurOptions.includes(memo.gcMur)) cases.mur = memo.gcMur;
+  // La matière se retrouve dans la liste de la page, quelle que soit sa langue ; une mémoire plus ancienne a gardé
+  // le mot affiché, qu'on reprend s'il est dans la liste.
+  if (memo.gcMur !== undefined) {
+    const mot = t.gcMurOptions[(MATIERES_MUR as readonly string[]).indexOf(memo.gcMur)] ?? (t.gcMurOptions.includes(memo.gcMur) ? memo.gcMur : undefined);
+    if (mot !== undefined) cases.mur = mot;
+  }
   if (memo.gcModele !== undefined) cases.modele = memo.gcModele;
   return cases;
 }
