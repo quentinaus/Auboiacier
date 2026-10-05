@@ -40,7 +40,7 @@ export const ENTREPRISE = {
   tva: "",
   tvaMention: { fr: "", en: "" },
   assurance: "",
-  telephone: "",
+  telephone: "07 82 37 23 79",
   mediateur: { nom: "", adresse: "", site: "" },
 };
 
