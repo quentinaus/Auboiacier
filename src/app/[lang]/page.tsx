@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { BandeauDetail } from "@/components/bandeau-detail";
@@ -10,6 +11,8 @@ import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
 import { PhotoPlafondAnime } from "@/components/photo-plafond-anime";
 import { hoverZoom } from "@/lib/ui";
+import { Apparition } from "@/components/apparition";
+import { Parallaxe } from "@/components/parallaxe";
 
 /** Panneau cliquable : image plein cadre, titre centré, bouton. Pleine
  *  largeur sur téléphone, une moitié d'écran à partir de la tablette. */
@@ -23,6 +26,7 @@ function HeroPanel({
   objectPosition,
   priority = false,
   divider = false,
+  rang = 0,
 }: {
   href: string;
   src: string;
@@ -34,7 +38,13 @@ function HeroPanel({
   objectPosition?: string;
   priority?: boolean;
   divider?: boolean;
+  /** 0 pour le panneau de gauche, 1 pour celui de droite : le second
+   *  s'anime un peu après le premier. */
+  rang?: number;
 }) {
+  /** Titre, phrase puis bouton arrivent l'un après l'autre. */
+  const entree = (i: number) =>
+    ({ "--retard": `${250 + rang * 180 + i * 160}ms` }) as CSSProperties;
   return (
     <Link
       href={href}
@@ -42,15 +52,19 @@ function HeroPanel({
         divider ? "border-t border-white/15 md:border-l md:border-t-0" : ""
       }`}
     >
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        priority={priority}
-        sizes="(max-width: 768px) 100vw, 50vw"
-        style={{ objectPosition }}
-        className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
-      />
+      {/* La caméra avance lentement (cadre) ; le survol agrandit la photo
+          elle-même : les deux mouvements ne se contrarient pas. */}
+      <div className="camera-lente absolute inset-0">
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          priority={priority}
+          sizes="(max-width: 768px) 100vw, 50vw"
+          style={{ objectPosition }}
+          className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
+        />
+      </div>
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/55 transition-opacity duration-500 group-hover:opacity-90" />
 
       <div className="relative z-10 flex flex-col items-center px-3 text-center sm:px-6">
@@ -59,12 +73,13 @@ function HeroPanel({
             page, et la structure se lisait à l'envers pour un lecteur d'écran
             comme pour Google. */}
         <p
-          className={`${serif.className} max-w-md text-3xl font-normal leading-tight text-white drop-shadow-lg sm:text-4xl md:text-5xl`}
+          style={entree(0)}
+          className={`entree-monte ${serif.className} max-w-md text-3xl font-normal leading-tight text-white drop-shadow-lg sm:text-4xl md:text-5xl`}
         >
           {title}
         </p>
         {subtitle && (
-          <p className="mt-4 max-w-sm text-[13px] leading-relaxed text-white/90 drop-shadow-md sm:mt-5 sm:max-w-md sm:text-sm">
+          <p style={entree(1)} className="entree-monte mt-4 max-w-sm text-[13px] leading-relaxed text-white/90 drop-shadow-md sm:mt-5 sm:max-w-md sm:text-sm">
             {subtitle}
           </p>
         )}
@@ -73,7 +88,7 @@ function HeroPanel({
             écran. Toute la tuile est le lien ; ce bouton n'est qu'une
             invitation. Le seul plein bordeaux de l'accueil est « Demander un
             devis », en bas de page : c'est lui qui convertit. */}
-        <span className="mt-6 inline-block border border-white/70 px-7 py-3 text-[11px] font-medium uppercase leading-tight tracking-[0.18em] text-white transition-colors duration-300 group-hover:bg-white group-hover:text-[#2b2320] sm:px-8 sm:py-3.5 md:mt-7 md:tracking-[0.2em]">
+        <span style={entree(2)} className="entree-monte mt-6 inline-block border border-white/70 px-7 py-3 text-[11px] font-medium uppercase leading-tight tracking-[0.18em] text-white transition-colors duration-300 group-hover:bg-white group-hover:text-[#2b2320] sm:px-8 sm:py-3.5 md:mt-7 md:tracking-[0.2em]">
           {cta}
         </span>
       </div>
@@ -267,6 +282,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           objectPosition="50% 55%"
           priority
           divider
+          rang={1}
         />
       </section>
 
@@ -276,7 +292,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           accorde très peu de poids à un titre invisible — et un visiteur qui
           arrive du moteur veut savoir en une phrase où il est tombé. */}
       <section className="border-t border-[#e5ddd3] bg-[#ffffff] px-6 py-8 md:py-10">
-        <div className="mx-auto max-w-2xl text-center">
+        <Apparition className="mx-auto max-w-2xl text-center">
           {/* Le titre garde toute sa phrase pour le référencement, mais se
               lit en deux temps : le métier et la ville en lettrine, le
               reste en dessous, plus discret. */}
@@ -293,15 +309,17 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               </h1>
             );
           })()}
-          <span aria-hidden className="mx-auto mt-5 block h-px w-10 bg-[#2b2320]/60" />
-        </div>
+          <span aria-hidden className="mx-auto mt-5 block h-px w-10">
+            <span className="trait-dessine block h-full w-full bg-[#2b2320]/60" />
+          </span>
+        </Apparition>
       </section>
 
       {/* 2 bis. Le configurateur : ce que peu d'artisans offrent, dit
           clairement — on entre ses cotes, on voit le prix, on télécharge
           son devis. Trois portes, une par famille configurable. */}
       <section className="border-t border-[#e5ddd3] bg-[#f5f1ea] px-6 py-14 md:py-20">
-        <div className="mx-auto max-w-3xl text-center">
+        <Apparition className="mx-auto max-w-3xl text-center">
           <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-[#6f6357]">{t.configLabel}</p>
           <h2 className={`${serif.className} mt-4 text-2xl text-[#2b2320] sm:text-3xl md:text-[2.4rem] md:leading-tight`}>
             {t.configTitle}
@@ -328,24 +346,27 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               </Link>
             ))}
           </div>
-        </div>
+        </Apparition>
       </section>
 
       {/* 3. Bandeau atelier */}
       <section>
         <div className="relative flex h-[240px] items-center justify-center overflow-hidden sm:h-[280px] md:h-[340px]">
-          <Image
-            src="/images/atelier-soudeur.jpg"
-            alt={t.altAtelier}
-            fill
-            sizes="100vw"
-            className="object-cover"
-          />
+          {/* La photo glisse un peu moins vite que la page (Parallaxe). */}
+          <Parallaxe>
+            <Image
+              src="/images/atelier-soudeur.jpg"
+              alt={t.altAtelier}
+              fill
+              sizes="100vw"
+              className="object-cover"
+            />
+          </Parallaxe>
           <div className="absolute inset-0 bg-black/35" />
-          <div className="relative z-10 px-6 text-center">
+          <Apparition className="relative z-10 px-6 text-center">
             <h2 className={`${serif.className} text-2xl text-white drop-shadow-lg sm:text-3xl`}>{t.bandTitle}</h2>
             <p className="mx-auto mt-3 max-w-xl text-sm text-white/85 drop-shadow md:text-[0.95rem]">{t.bandSubtitle}</p>
-          </div>
+          </Apparition>
         </div>
       </section>
 
@@ -357,10 +378,15 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           </h2>
           {/* Quatre par rangée, plus petites ; la dernière rangée se centre. */}
           <div className="mt-8 flex flex-wrap justify-center gap-4 sm:gap-6">
-            {categories.map((c) => (
-              <div key={c.href + c.label} className="basis-[calc(50%-0.5rem)] md:basis-[calc(25%-1.125rem)]">
+            {/* Les tuiles d'une même rangée arrivent l'une après l'autre. */}
+            {categories.map((c, i) => (
+              <Apparition
+                key={c.href + c.label}
+                retard={(i % 4) * 110}
+                className="basis-[calc(50%-0.5rem)] md:basis-[calc(25%-1.125rem)]"
+              >
                 <CategoryTile {...c} />
-              </div>
+              </Apparition>
             ))}
           </div>
         </div>
@@ -370,7 +396,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           Écrit en phrases, pas en liste de mots-clés : Google pénalise l'entassement de mots et récompense un texte utile.
           Chaque lien mène à la fiche de la fabrication citée. */}
       <section className="border-t border-[#e5ddd3] bg-white px-6 py-14 md:py-20">
-        <div className="mx-auto max-w-3xl">
+        <Apparition className="mx-auto max-w-3xl">
           <h2 className={`${serif.className} text-2xl text-[#2b2320] sm:text-3xl`}>{t.seoTitle}</h2>
           <p className="mt-5 text-sm leading-relaxed text-[#4a4038] md:text-[0.95rem]">{t.seoP1}</p>
           <p className="mt-4 text-sm leading-relaxed text-[#4a4038] md:text-[0.95rem]">{t.seoP2}</p>
@@ -394,7 +420,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               </li>
             ))}
           </ul>
-        </div>
+        </Apparition>
       </section>
 
       {/* 5. Le mot de l'atelier — le panneau sombre et la marche d'escalier
@@ -409,7 +435,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
 
       {/* 6. Les avis — remplir `testimonials` dès qu'il y a de vrais retours clients. */}
       <section className="bg-[#f5f1ea] px-6 py-16 md:py-24">
-        <div className="mx-auto max-w-5xl">
+        <Apparition className="mx-auto max-w-5xl">
           <h2 className="text-center text-[11px] font-medium uppercase tracking-[0.3em] text-[#6f6357]">
             {t.testimonialsTitle}
           </h2>
@@ -450,20 +476,22 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               </Link>
             ))}
           </div>
-        </div>
+        </Apparition>
       </section>
 
       {/* 7. La mission, sur une photo plein cadre */}
       <section className="relative flex min-h-[55vh] items-center justify-center overflow-hidden md:min-h-[80vh]">
-        <Image
-          src="/images/vignes-coucher-soleil.jpg"
-          alt={t.altVignes}
-          fill
-          sizes="100vw"
-          className="object-cover"
-        />
+        <Parallaxe>
+          <Image
+            src="/images/vignes-coucher-soleil.jpg"
+            alt={t.altVignes}
+            fill
+            sizes="100vw"
+            className="object-cover"
+          />
+        </Parallaxe>
         <div className="absolute inset-0 bg-black/45" />
-        <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
+        <Apparition className="relative z-10 mx-auto max-w-3xl px-6 text-center">
           <h2 className={`${serif.className} text-2xl text-white sm:text-3xl md:text-4xl`}>{t.missionTitle}</h2>
           <p className="mx-auto mt-6 max-w-xl leading-relaxed text-white/85">{t.missionBody}</p>
           <Link
@@ -472,7 +500,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           >
             {t.missionCta}
           </Link>
-        </div>
+        </Apparition>
       </section>
 
       </main>

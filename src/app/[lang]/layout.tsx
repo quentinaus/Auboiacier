@@ -74,6 +74,11 @@ export default async function RootLayout({
   return (
     <html lang={lang}>
       <body className="antialiased">
+        {/* Sans JavaScript, les blocs qui apparaissent au défilement
+            (Apparition) ne seraient jamais révélés : on les montre d'office. */}
+        <noscript>
+          <style>{`[data-apparition]{opacity:1!important;transform:none!important}[data-apparition] .trait-dessine{transform:none!important}`}</style>
+        </noscript>
         <a
           href="#contenu"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-[#2b2320] focus:px-5 focus:py-3 focus:text-sm focus:font-medium focus:text-white focus:no-underline focus:outline-2 focus:outline-offset-2 focus:outline-white"

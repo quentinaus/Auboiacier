@@ -721,3 +721,74 @@ textarea:focus-visible,
 .coupe-mc .t-acier-plein { fill: var(--acier); stroke: rgba(43, 35, 32, 0.8); stroke-width: 1.1; stroke-linejoin: round; }
 .coupe-mc .t-bois { fill: var(--bois); stroke: #7a5530; stroke-width: 1.1; stroke-linejoin: round; }
 .coupe-mc .t-cache { fill: none; stroke: rgba(43, 35, 32, 0.65); stroke-width: 0.9; stroke-dasharray: 3 2; }
+
+/* ------------------------------------------------------------------ *
+ *  Animations de l'accueil (demande de Quentin, 05/10/2026)
+ *  Discrètes, une seule fois, jamais en boucle. Tout est rangé sous
+ *  « no-preference » : si le visiteur a demandé moins d'animations,
+ *  rien ne bouge et rien n'est caché. Sans JavaScript, le <noscript>
+ *  du gabarit montre les blocs (les textes restent lisibles par Google).
+ * ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: no-preference) {
+  /* Apparitions au défilement (composant Apparition) : le bloc monte et
+     se dévoile la première fois qu'il entre à l'écran. */
+  [data-apparition] {
+    transition:
+      opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+      transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  [data-apparition]:not([data-vu]) {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+
+  /* Le petit trait sous un titre se dessine de gauche à droite, juste
+     après l'arrivée du titre. */
+  [data-apparition] .trait-dessine {
+    transform-origin: left center;
+    transition: transform 1.1s cubic-bezier(0.65, 0, 0.35, 1) 0.35s;
+  }
+  [data-apparition]:not([data-vu]) .trait-dessine {
+    transform: scaleX(0);
+  }
+
+  /* Les photos du haut de page : la caméra avance très lentement. */
+  .camera-lente {
+    animation: camera-avance 22s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+  }
+
+  /* Le titre, la phrase puis le bouton arrivent l'un après l'autre
+     (--retard posé sur chaque élément). */
+  .entree-monte {
+    animation: entree-monte 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: var(--retard, 0ms);
+  }
+}
+
+@keyframes camera-avance {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+@keyframes entree-monte {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Profondeur : la photo glisse un peu moins vite que la page
+   (composant Parallaxe, qui la décale de ± 10 % de sa hauteur). Le cadre
+   dépasse de 15 % en haut et en bas : aucun bord vide n'apparaît. */
+.parallaxe {
+  position: absolute;
+  inset: -15% 0;
+  will-change: transform;
+}
