@@ -235,8 +235,8 @@ export type ModeleGC = {
    * plus large (décision de Quentin, 04/10/2026). C'est le serveur qui le décide, jamais le client.
    */
   renfort: boolean;
-  /** Fenêtre large et garde-corps bas : une patte au milieu, scellée dans l'appui (05/10/2026). Décidée par le serveur. */
-  patte: boolean;
+  /** Fenêtre large et garde-corps bas : le nombre de pattes scellées dans l'appui (0 à 4, 05/10/2026). Décidé par le serveur. */
+  patte: number;
   /** Hauteur du garde-corps dans ce modèle, main courante comprise (pour le dessiner à l'échelle). */
   hauteurMm: number;
   /** Le prix d'UNE pièce dans ce modèle, options comprises. */
@@ -307,8 +307,8 @@ export type ReponsePrixGC =
       seuls: boolean;
       /** Fenêtre large : un fer plat caché sous la main courante raidit la lisse haute. */
       renfort: boolean;
-      /** Une patte au milieu, scellée dans l'appui : les vis des tableaux seules seraient trop tirées. */
-      patte: boolean;
+      /** Le nombre de pattes scellées dans l'appui (0 à 4) : les vis des tableaux seules seraient trop tirées. */
+      patte: number;
       /** Poids d'une pièce, arrondi au kilo. */
       kg: number;
       /** En étage avec une allège sous 900 mm : la loi impose la protection. */
@@ -428,6 +428,9 @@ function lireTrousGC(brut: unknown): TrousGC | null | undefined {
   return { cadreMm: { l: cadre.l as number, h: cadre.h as number }, plusGrandMm: Math.max(0, o.plusGrandMm as number), limiteMm: o.limiteMm as number, ronds };
 }
 
+/** Le nombre de pattes lu dans une réponse : un entier de 0 à 4, sinon 0. */
+const nbPattesLu = (x: unknown) => (typeof x === "number" && Number.isInteger(x) && x >= 0 && x <= 4 ? x : 0);
+
 const CODES: readonly CodeAlerteGC[] = ["barre-appui", "trous", "solidite", "fenetre", "hauteur", "soubassement", "fixation", "trop-petit", "jour", "jeu", "main-courante", "charge-verticale", "autre"];
 
 /**
@@ -453,7 +456,7 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
     if (typeof x.rosace !== "string" || (x.rosace !== "" && !Object.hasOwn(ROSACE_MM_GC, x.rosace))) return null;
     const trous = lireTrousGC(x.trous);
     if (trous === undefined) return null;
-    modeles.push({ id: x.id as string, conforme: x.conforme, raisons, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, traverse: lu.traverse, seuls: lu.seuls, rosace: x.rosace, trous, renfort: x.renfort === true, patte: x.patte === true, hauteurMm: x.hauteurMm as number, prix: x.prix as number, kg: x.kg as number });
+    modeles.push({ id: x.id as string, conforme: x.conforme, raisons, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, traverse: lu.traverse, seuls: lu.seuls, rosace: x.rosace, trous, renfort: x.renfort === true, patte: nbPattesLu(x.patte), hauteurMm: x.hauteurMm as number, prix: x.prix as number, kg: x.kg as number });
   }
   const mains: MainsPrixGC = {};
   if (o.mains && typeof o.mains === "object") {
@@ -476,7 +479,7 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
       traverse: o.traverse,
       seuls: o.seuls,
       renfort: o.renfort === true,
-      patte: o.patte === true,
+      patte: nbPattesLu(o.patte),
       kg: o.kg as number,
       modeles,
       mains,

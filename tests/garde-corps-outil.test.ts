@@ -186,16 +186,16 @@ test("relevés du site : avec le fer plat de renfort, les mêmes alertes que l'o
       assert.deepEqual(codes, r.renfort[n - 1], `${J(r.entree)} avec renfort, ${n} croix`);
       assert.ok(!codes.includes("autre"), `${J(r.entree)} : une alerte sans code`);
     }
-    if (r.alertes[20].every((a) => a.includes("solidite")) && r.renfort.some((a) => a.length === 0)) larges++;
+    if (r.alertes[18].every((a) => a.includes("solidite")) && r.renfort.some((a) => a.length === 0)) larges++;
   }
   assert.ok(larges >= 3, "la référence contient des fenêtres larges que seul le fer plat permet de vendre");
 });
 
 test("relevés du site : la configuration retenue suit la règle du 29/09 et donne le prix de l'outil", () => {
   for (const r of REF.site) {
-    // La règle, écrite ici indépendamment de calcul.ts : carré 16 d'abord, puis 12, 14, 18, 20 ; le moins de croix.
+    // La règle, écrite ici indépendamment de calcul.ts : carré 16 d'abord, puis 12, 14, 18 (jamais 20) ; le moins de croix.
     let attendu: { carre: number; croix: number } | null = null;
-    for (const s of [16, 12, 14, 18, 20]) {
+    for (const s of [16, 12, 14, 18]) {
       const n = r.alertes[s].findIndex((a) => a.length === 0);
       if (n >= 0) { attendu = { carre: s, croix: n + 1 }; break; }
     }
@@ -227,7 +227,7 @@ test("relevés du site : la configuration retenue suit la règle du 29/09 et don
       // FENÊTRE LARGE (décision du 04/10) : quand la lisse haute est trop souple même dans le plus gros carré,
       // le site ajoute le fer plat caché sous la main courante, au carré de l'atelier. La règle, écrite ici
       // indépendamment de calcul.ts : le moins de croix qui passe avec le plat (référence « renfort »).
-      const tropSouple = r.alertes[20].every((a) => a.includes("solidite"));
+      const tropSouple = r.alertes[18].every((a) => a.includes("solidite"));
       const nRenfort = r.renfort.findIndex((a) => a.length === 0);
       if (tropSouple && nRenfort >= 0) {
         assert.ok(c.ok, `${J(r.entree)} : fenêtre large, vendue avec le fer plat`);

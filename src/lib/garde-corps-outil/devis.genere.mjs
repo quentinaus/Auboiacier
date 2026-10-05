@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Devis garde-corps au format du site (composerDevisGC, dsDevisHtml). SANS coûts : le prix est une entrée.
-// Source : l'outil de plans (plans-atelier.html), sha256 98f49ad71562a04ee4d180427e03a8ede5c0b094b4c0d08b232add26922c9e2f
+// Source : l'outil de plans (plans-atelier.html), sha256 b5026771c4102a7489a058228c0774bb6a31ca70ed05967f9ffa259b2e42c084
 /* eslint-disable */
 import { DS_ESSENCES } from "./moteur.genere.mjs";
 function kgColisGC(R) { return Math.max(8, Math.round((R && R.kg) || 0)); }
@@ -189,7 +189,7 @@ function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto", tva = nu
     const mcL = R.mc ? R.mc.l : v.mc, mcH = R.mc ? R.mc.h : v.mc;
     const rfD = R.mc && R.mc.renfort ? R.mc.renfort : null;
     const renfortTxt = (rfD ? `, lisse haute renforcée par un plat ${dsMm(rfD.l)}\u00a0×\u00a0${dsMm(rfD.e)}\u00a0mm caché sous la main courante` : "")
-      + (R.debit.some((d) => /^Patte de scellement/.test(d.nom)) ? ", patte de scellement au milieu, scellée dans l'appui" : "");
+      + ((() => { const p = R.debit.find((d) => /^Pattes? de scellement/.test(d.nom)); return p ? (p.qte > 1 ? `, ${p.qte} pattes scellées dans l'appui` : ", patte au milieu, scellée dans l'appui") : ""; })());
     const mc = !mcD ? null
       : v.mcType === "profil" ? { option: "Main courante profilée 40\u00a0×\u00a010", carac: "Acier profilé 40\u00a0×\u00a010\u00a0mm, emboîté sur le cadre, finition peinte", poste: "Main courante en acier profilé 40\u00a0×\u00a010\u00a0mm, emboîtée sur le cadre, finition peinte", accroche: "acier profilé" }
       : v.mcType === "acier" ? { option: `Main courante plat acier ${dsMm(v.mc)}\u00a0×\u00a0${dsMm(v.epMc)}`, carac: `Plat d'acier ${dsMm(v.mc)}\u00a0×\u00a0${dsMm(v.epMc)}\u00a0mm, soudé sur le cadre, finition peinte`, poste: `Main courante en plat d'acier ${dsMm(v.mc)}\u00a0×\u00a0${dsMm(v.epMc)}\u00a0mm, soudée sur le cadre, finition peinte`, accroche: "plat d'acier" }
@@ -341,6 +341,6 @@ function dsDevisHtml(devis) {
 function dsPageHtml(corps, n, total) {
     return `<section class="ds-page"><div class="ds-corps">${corps}</div><div class="ds-pied"><span>${dsEsc(DS_PIED)}</span></div><div class="ds-num"><span>Page ${n} / ${total}</span></div></section>`;
   }
-export const EMPREINTE_SOURCE = "98f49ad71562a04ee4d180427e03a8ede5c0b094b4c0d08b232add26922c9e2f";
+export const EMPREINTE_SOURCE = "b5026771c4102a7489a058228c0774bb6a31ca70ed05967f9ffa259b2e42c084";
 export { DS_GC, DS_VALIDITE_JOURS, composerDevisGC, dsDevisHtml, dsPrix };
-export const EMPREINTE = "6fbda9a55d76";
+export const EMPREINTE = "fde970429b2d";

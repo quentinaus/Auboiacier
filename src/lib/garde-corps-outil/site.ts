@@ -209,7 +209,7 @@ function catalogueSiteGC(q: RequetePrixGC, hauteurMm: number): ModeleGC[] {
       ajouteConforme(autre.d.config, autre.id);
       continue;
     }
-    modeles.push({ id: idModeleGC(d.carre, d.croix, d.barreauxBas, d.traverse, d.seuls), conforme: false, raisons: d.raisons, croix: d.croix, carre: d.carre, soubassementMm: d.soubassementMm, traverse: d.traverse, seuls: d.seuls, rosace: d.seuls ? "" : choisie, trous: d.trous, renfort: false, patte: false, hauteurMm, prix: 0, kg: 0 });
+    modeles.push({ id: idModeleGC(d.carre, d.croix, d.barreauxBas, d.traverse, d.seuls), conforme: false, raisons: d.raisons, croix: d.croix, carre: d.carre, soubassementMm: d.soubassementMm, traverse: d.traverse, seuls: d.seuls, rosace: d.seuls ? "" : choisie, trous: d.trous, renfort: false, patte: 0, hauteurMm, prix: 0, kg: 0 });
   }
   // Les dessins que le catalogue de la rosace choisie ne montre pas (7 à 12 croix) mais qu'une plus grande permet.
   for (const r of repli) for (const [cle, d] of r.dessins) {

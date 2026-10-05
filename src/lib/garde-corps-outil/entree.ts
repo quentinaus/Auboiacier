@@ -22,7 +22,8 @@ export type EntreeSiteGC = ReleveGC & {
 /** Avec le fer plat de renfort, l'atelier garde son carré de 16 (décision de Quentin, 04/10/2026). */
 export const CARRE_RENFORT = 16;
 /** Barreaux seuls : la charge verticale dépend du carré, le fer plat de renfort se pose donc aussi sur un carré de 18 ou de 20. */
-export const CARRES_RENFORT_SEULS = [16, 18, 20] as const;
+// 18 au plus (décision de Quentin, 05/10/2026 : « 20, c'est gros, ça casse le style »).
+export const CARRES_RENFORT_SEULS = [16, 18] as const;
 
 /**
  * Décision de Quentin (29/09) : le carré de 16 d'abord, avec le moins de
@@ -30,7 +31,8 @@ export const CARRES_RENFORT_SEULS = [16, 18, 20] as const;
  * à 20, du plus fin au plus gros ; de 1 à 6 croix. Si rien ne passe du tout :
  * pas de prix, « à étudier avec l'atelier ».
  */
-export const ORDRE_CARRES = [16, 12, 14, 18, 20] as const;
+// Jamais de carré de 20 (décision de Quentin, 05/10/2026) : au-delà de 18, ce sont le fer plat ou les pattes qui tiennent.
+export const ORDRE_CARRES = [16, 12, 14, 18] as const;
 /**
  * L'outil de plans n'a pas de limite de croix : on tape le nombre qu'on veut. Le site va jusqu'à 12 — un balayage
  * de toutes les cotes (05/10) montre que les fenêtres larges et basses (1,50 à 2,40 m de large, bas de fenêtre à
@@ -48,7 +50,7 @@ export const CROIX_CATALOGUE = 6;
  * avec rosaces, main courante en bois, hauteur calculée pour la norme, rien
  * sous la fenêtre, barreaux en bas seulement si la norme les demande).
  */
-export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: number, nP: number, barreauxBas = false, traverse = false, renfort = false, seuls = false, patte = false) {
+export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: number, nP: number, barreauxBas = false, traverse = false, renfort = false, seuls = false, patte = 0) {
   const mc = lireMainCouranteGC(e.essence) ?? { type: "bois-rainure" as const, essence: "chene" as const };
   return {
     ...defauts,
@@ -80,7 +82,8 @@ export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: numb
     renfort: renfort || mc.type === "bois-plat" ? "plat" : "sans",
     s,
     nP,
-    // La patte du milieu, scellée dans l'appui (05/10/2026) : le site ne l'ajoute que si rien ne passe sans elle (calcul.ts).
+    // Les pattes scellées dans l'appui, du même carré que le cadre (0 à 4, 05/10/2026) : le site ne les ajoute que si rien ne passe
+    // sans elles, et le moins possible (calcul.ts).
     patte,
   };
 }

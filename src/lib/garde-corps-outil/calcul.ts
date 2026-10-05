@@ -45,10 +45,10 @@ export type ConfigGC = Commun & {
    */
   renfort: boolean;
   /**
-   * Fenêtre large et garde-corps bas : une patte de 40 × 10 soudée sous le montant du milieu, scellée dans l'appui (décision de
-   * Quentin, 05/10/2026). Ajoutée seulement quand rien ne passe sans elle (fixation des tableaux, rigidité).
+   * Fenêtre large et garde-corps bas : le nombre de pattes (0 à 4) du même carré que le cadre, soudées sous des montants et scellées
+   * dans l'appui (décisions de Quentin, 05/10/2026). Ajoutées seulement quand rien ne passe sans elles, et le moins possible.
    */
-  patte: boolean;
+  patte: number;
   /** Des barreaux droits en partie basse (le cadre commence dans la zone d'escalade, sous 600 mm du sol). */
   soubassement: boolean;
   /** Leur hauteur, du bas du cadre à la lisse qui les ferme (0 : aucun). */
@@ -142,23 +142,29 @@ function fenetreTropBasse(cleReleve: string, entree: EntreeSiteGC, seuls = false
 }
 
 /** La clé d'un carré pour un relevé, sans ou avec le fer plat de renfort. */
-const cleCarre = (cleReleve: string, s: number, r: boolean, p = false) => `${cleReleve}|${s}|${r ? 1 : 0}${p ? "|p" : ""}`;
+const cleCarre = (cleReleve: string, s: number, r: boolean, p = 0) => `${cleReleve}|${s}|${r ? 1 : 0}${p ? `|p${p}` : ""}`;
 
 /**
  * La lisse haute est-elle trop souple dans TOUS les carrés de l'atelier (fenêtre large) ? C'est le seul cas où
  * le site ajoute le fer plat de renfort. À appeler après avoir essayé le plus gros carré : la rigidité ne
  * dépend pas du dessin, et un carré plus gros est toujours plus rigide.
  */
-function lisseTropSouple(cleReleve: string, p = false): boolean {
+function lisseTropSouple(cleReleve: string, p = 0): boolean {
   return ecarte.get(cleCarre(cleReleve, Math.max(...ORDRE_CARRES), false, p))?.includes("solidite") === true;
 }
 
+/** L'essence qui représente un type de main courante pour la recherche (même section, même calcul) : « chene » ou « chene-plat ». */
+function representantMainCourante(id: EntreeSiteGC["essence"]): EntreeSiteGC["essence"] {
+  const m = lireMainCouranteGC(id);
+  return m?.type === "bois-rainure" ? "chene" : m?.type === "bois-plat" ? "chene-plat" : id;
+}
+
 /** Un essai de l'outil (calcul rapide : mêmes alertes, sans chercher de solution à écrire dans leur texte). */
-function essayer(cleReleve: string, entree: EntreeSiteGC, s: number, n: number, b: boolean, t: boolean, r = false, seuls = false, p = false): { codes: readonly CodeAlerteGC[]; R: ResultatGC | null; v: ValeursGC | null } {
+function essayer(cleReleve: string, entree: EntreeSiteGC, s: number, n: number, b: boolean, t: boolean, r = false, seuls = false, p = 0): { codes: readonly CodeAlerteGC[]; R: ResultatGC | null; v: ValeursGC | null } {
   if (tropBasse.get(cleReleve)) return { codes: FENETRE, R: null, v: null };
   const horsJeu = ecarte.get(cleCarre(cleReleve, s, r, p));
   if (horsJeu) return { codes: horsJeu, R: null, v: null };
-  const cle = `${cleReleve}|${s}|${n}|${b ? 1 : 0}|${t ? 1 : 0}|${r ? 1 : 0}|${seuls ? 1 : 0}${p ? "|p" : ""}`;
+  const cle = `${cleReleve}|${s}|${n}|${b ? 1 : 0}|${t ? 1 : 0}|${r ? 1 : 0}|${seuls ? 1 : 0}${p ? `|p${p}` : ""}`;
   const connus = essais.get(cle);
   if (connus?.length) return { codes: connus, R: null, v: null };
   const v = valeursGC(DEFAUTS_GC, entree, s, n, b, t, r, seuls, p) as ValeursGC;
@@ -194,6 +200,11 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   // et un identifiant forgé pouvait obtenir un carré que l'atelier ne propose pas.
   const choisi = lireModeleGC(e.modele);
   const cleReleve = JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, e.essence, e.rosaceMm ?? 100]);
+  // La RECHERCHE ne dépend que du type de main courante : pin, hêtre, chêne et noyer ont la même section et le même calcul (seuls le
+  // nom et le prix du bois changent). Les essais sont donc partagés entre les essences d'un même type (« chene » pour le bois rainuré,
+  // « chene-plat » pour le bois sur fer plat) : dix fois moins de calcul pour les prix de chaque main courante.
+  const essenceCalcul = representantMainCourante(e.essence);
+  const cleCalcul = JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, essenceCalcul, e.rosaceMm ?? 100]);
   // La mémoire est rangée par DESSIN (pas par identifiant) : « 16-4 » et « 18-4 » sont la même demande.
   const cle = `${cleReleve}|${choisi ? `${choisi.croix}|${choisi.barreauxBas ? 1 : 0}|${choisi.traverse ? 1 : 0}|${choisi.seuls ? 1 : 0}` : ""}`;
   const deja = memoire.get(cle);
@@ -207,6 +218,7 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
     ...(e.rosaceMm !== undefined ? { rosaceMm: e.rosaceMm } : {}),
     ...(e.modele !== undefined ? { modele: e.modele } : {}),
   });
+  const entreeCalcul: EntreeSiteGC = essenceCalcul === entree.essence ? entree : Object.freeze({ ...entree, essence: essenceCalcul });
   const carres: readonly number[] = ORDRE_CARRES;
   // Sans choix : d'abord 1 à 6 croix dans tous les carrés (les prix d'avant ne changent pas), puis seulement si
   // rien n'a passé, 7 à 12 croix — les fenêtres larges et basses que l'outil résout et que le site refusait.
@@ -253,7 +265,7 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
     return resultat;
   }
   // La fenêtre s'arrête sous la main courante : aucun dessin n'y changera rien (en applique, sur devis).
-  if (fenetreTropBasse(cleReleve, entree, soloSeuls)) {
+  if (fenetreTropBasse(cleCalcul, entreeCalcul, soloSeuls)) {
     resultat = { ...commun, ok: false, conforme: false, raison: "fenetre-trop-basse", alertes: [...FENETRE] };
     Object.freeze(resultat);
     garder(memoire, cle, resultat, MEMOIRE_MAX);
@@ -271,26 +283,52 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   let blocagesSansPatte: (readonly CodeAlerteGC[])[] = [], auCarre16SansPatte: readonly CodeAlerteGC[] | null = null;
   /** Un essai sans patte a buté sur la rigidité ou la fixation (avant que le fer plat ne remette les blocages à zéro). */
   let butePatte = false;
-  for (const patte of [false, true]) {
+  // Une patte d'abord, puis deux… jusqu'à quatre : le moins de pattes qui passe.
+  // Le moins de pattes qui puisse suffire, d'après le calcul de la patte (carré de 18, le plus fort) : chacune reprend au moins
+  // q L / (k + 1) ; elle tient si q L / (k + 1) × (hauteur + jour) ≤ 235 × 18³ / 6. Une estimation par défaut (elle ne saute jamais
+  // un nombre de pattes qui passerait) : on ne commence qu'à ce nombre-là, et au-delà de 4, la patte n'est pas essayée du tout.
+  const rbMax = (235 * 18 ** 3 / 6) / (commun.hauteurMm + commun.jourMm) / 1000;
+  const pattesMin = Math.max(1, Math.ceil((0.9 * entree.largeurMm / 1000) / rbMax) - 1);
+  for (const patte of [0, 1, 2, 3, 4]) {
   if (patte) {
     if (resultat) break;
     if (!butePatte) break;
-    blocagesSansPatte = [...blocages];
-    auCarre16SansPatte = auCarre16;
-    blocages.length = 0;
-    auCarre16 = null;
+    if (patte < pattesMin) continue;
+    if (patte > 1) { blocages.length = 0; auCarre16 = null; }
+    if (patte === 1) {
+      blocagesSansPatte = [...blocages];
+      auCarre16SansPatte = auCarre16;
+      blocages.length = 0;
+      auCarre16 = null;
+    }
   }
   recherche: for (const r of platVoulu ? [true] : [false, true]) {
-    if (r && !platVoulu && !lisseTropSouple(cleReleve, patte)) break;
+    if (r && !platVoulu && !lisseTropSouple(cleCalcul, patte)) break;
     // Avec le fer plat, la rigidité est réglée : seul compte ce qui bloque ENCORE (les essais qui suivent).
     if (r) blocages.length = 0;
     for (const [nMin, nMax] of plages) for (const [b, t, seuls] of variantes) {
       for (const s of r ? (seuls || platVoulu ? CARRES_RENFORT_SEULS : [CARRE_RENFORT]) : carres) {
         for (let n = nMin; n <= nMax; n++) {
-          const essai = essayer(cleReleve, entree, s, n, b, t, r, seuls, patte);
+          // Les pattes ne changent ni les vides ni la hauteur : inutile d'essayer un dessin dont les vides sont déjà hors norme, un dessin
+          // sans assez de montants pour les poser, ou un carré de 12 ou 14 (trop faible pour une patte). Le calcul complet reste fait
+          // pour tout le reste (sinon une fenêtre impossible coûtait plus de 10 s de calcul).
+          if (patte) {
+            if (s < CARRE_RENFORT || (!seuls && n - 1 < patte)) continue;
+            // La patte la plus chargée reprend au moins q L / (k + 1) : si, même ainsi, ce carré est trop faible, inutile de calculer.
+            if ((0.9 * entree.largeurMm / 1000 / (patte + 1)) * 1000 * (commun.hauteurMm + commun.jourMm) / (s ** 3 / 6) > 235) continue;
+            const vg = valeursGC(DEFAUTS_GC, entreeCalcul, s, n, b, t, r, seuls) as ValeursGC;
+            if (!geomGC(vg, n).ok) continue;
+          }
+          const essai = essayer(cleCalcul, entreeCalcul, s, n, b, t, r, seuls, patte);
           if (!patte && (essai.codes.includes("solidite") || essai.codes.includes("fixation"))) butePatte = true;
           if (essai.R && essai.v) {
-            const { R, v } = essai;
+            let { R, v } = essai;
+            // Trouvé avec l'essence de calcul : on refait le calcul complet avec celle du client (nom et poids du bois dans le débit).
+            if (essenceCalcul !== entree.essence) {
+              v = valeursGC(DEFAUTS_GC, entree, s, n, b, t, r, seuls, patte) as ValeursGC;
+              R = calculerGC({ ...v, _rapide: true });
+              if (R.alertes.length) throw new Error("garde-corps : l'essence change le calcul de la norme");
+            }
             if (!(R.hauteurGC! > 0) || !(R.kg! > 0)) throw new Error("garde-corps : calcul de l'outil incohérent");
             const soubassementMm = geomGC(v, n).sb;
             // Des barreaux en bas demandés mais que l'outil n'a pas pu dessiner (cadre trop bas) : ce n'est pas ce modèle.

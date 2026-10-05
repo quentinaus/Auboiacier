@@ -97,7 +97,7 @@ test("le plan d'aperçu est le Plan A3 de l'outil, sans liste de débit ni déta
 });
 
 test("le plan d'aperçu : pas de plan pour ce qui est à étudier ; la réponse refuse tout ce qui n'est pas un dessin", () => {
-  assert.equal(planApercuGC(q(3000, 650)), null, "trop large : à étudier");
+  assert.equal(planApercuGC(q(3000, 0)), null, "trop large et trop haut, même avec des pattes : à étudier");
   const ok = planApercuGC(q(1180))!;
   const base = JSON.parse(JSON.stringify(ok));
   assert.ok(lirePlanApercuGC(base));

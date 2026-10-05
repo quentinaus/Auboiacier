@@ -178,7 +178,7 @@ test("configuration : trop large pour la lisse haute en carré 16 → un carré 
     if (c.ok && c.renfort) {
       // Le fer plat : seulement quand même le plus gros carré de l'atelier est trop souple, et au carré de 16.
       renforces++;
-      assert.ok(souple(e, 20), `${JSON.stringify(e)} : un carré de 20 suffisait`);
+      assert.ok(souple(e, 18), `${JSON.stringify(e)} : un carré de 18 suffisait (jamais de 20, décision du 05/10/2026)`);
       assert.equal(c.carre, CARRE_RENFORT);
       assert.ok(c.v.B - c.v.j <= RENFORT.LcMax, `${JSON.stringify(e)} : au-delà de la largeur garantie du fer plat`);
       assert.deepEqual([c.v.renfort, c.R.mc?.renfort?.l, c.R.mc?.renfort?.e, c.R.alertes.length], ["plat", RENFORT.l, RENFORT.e, 0]);
@@ -194,10 +194,10 @@ test("configuration : trop large pour la lisse haute en carré 16 → un carré 
   const juste = configurerGC(releve({ largeurMm: RENFORT.LcMax + DEFAUTS_GC.j }));
   assert.ok(juste.ok && juste.renfort, "2 400 mm de cadre : vendu avec le fer plat");
   const trop = configurerGC(releve({ largeurMm: RENFORT.LcMax + DEFAUTS_GC.j + 1 }));
-  assert.equal(trop.ok, false, "au-delà : à étudier");
-  assert.ok(!trop.ok && trop.alertes.includes("solidite"));
+  // Au-delà : jamais le fer plat seul. Depuis le 05/10/2026, les pattes scellées dans l'appui peuvent le permettre ; sinon, à étudier.
+  assert.ok(trop.ok ? trop.patte > 0 && !trop.renfort : trop.alertes.includes("solidite"), "au-delà : des pattes, ou à étudier");
   // Et à l'autre bout, la largeur maximale de l'outil ne se vend pas sans étude.
-  assert.equal(configurerGC(releve({ largeurMm: BORNES_GC.B.max })).ok, false);
+  assert.equal(configurerGC(releve({ largeurMm: BORNES_GC.B.max, allegeMm: 0 })).ok, false);
 });
 
 test("fenêtre large : le fer plat est le même pour tous les dessins, ne se choisit pas et ne se contourne pas", () => {
@@ -209,7 +209,9 @@ test("fenêtre large : le fer plat est le même pour tous les dessins, ne se cho
   const conformes = r.modeles.filter((m) => m.conforme);
   assert.ok(conformes.length >= 3);
   for (const m of conformes) {
-    assert.equal(m.renfort, true, `${m.id} : sur cette largeur, tous les modèles vendus ont le fer plat`);
+    // (Depuis le 05/10/2026, un dessin peut aussi être tenu par des pattes scellées dans l'appui, sans fer plat.)
+    assert.ok(m.renfort || m.patte > 0, `${m.id} : sur cette largeur, tous les modèles vendus ont le fer plat ou des pattes`);
+    if (m.patte > 0 && !m.renfort) continue;
     // (Les barreaux seuls peuvent demander un carré de 18 ou de 20 : leur charge verticale dépend du carré.)
     if (m.seuls) assert.ok((CARRES_RENFORT_SEULS as readonly number[]).includes(m.carre), `${m.id} : carré ${m.carre}`);
     else assert.equal(m.carre, CARRE_RENFORT);
@@ -337,7 +339,7 @@ test("commande : plusieurs pièces, frais fixes une seule fois, jamais sous le p
 test("commande : une pièce « à étudier » ou une quantité fausse est refusée", () => {
   chiffrageOuEchec();
   const c = configOk({});
-  const aEtudier = configurerGC(releve({ largeurMm: BORNES_GC.B.max }));
+  const aEtudier = configurerGC(releve({ largeurMm: BORNES_GC.B.max, allegeMm: 0 }));
   assert.throws(() => prixCommandeGC([]));
   assert.throws(() => prixCommandeGC([{ config: c, quantite: 0 }]));
   assert.throws(() => prixCommandeGC([{ config: c, quantite: 1.5 }]));
@@ -428,7 +430,7 @@ test("réponse de /api/prix-garde-corps : le prix et la forme, rien d'autre", ()
   const ok = reponsePrixGC(requete({ largeurMm: 1180 }));
   assert.ok(ok);
   assert.deepEqual(Object.keys(ok).sort(), ["carre", "conforme", "croix", "hauteurMm", "jourMm", "kg", "mainCouranteMm", "mains", "modeles", "obligatoire", "ok", "patte", "prix", "remise", "renfort", "seuls", "soubassementMm", "traverse"]);
-  const non = reponsePrixGC(requete({ largeurMm: BORNES_GC.B.max }));
+  const non = reponsePrixGC(requete({ largeurMm: BORNES_GC.B.max, allegeMm: 0 }));
   assert.ok(non);
   assert.deepEqual(Object.keys(non).sort(), ["alertes", "conforme", "hauteurMm", "jourMm", "mainCouranteMm", "mains", "modeles", "obligatoire", "ok", "raison"]);
   for (const r of [ok, non]) for (const [k, x] of Object.entries(r)) assert.ok(["number", "boolean", "string"].includes(typeof x) || Array.isArray(x) || (k === "mains" && Object.values(x as object).every((p) => Number.isInteger(p))), k);

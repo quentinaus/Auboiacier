@@ -2500,8 +2500,8 @@ export type ResolvedLine = {
     seuls: boolean;
     /** Fenêtre large : un fer plat caché sous la main courante raidit la lisse haute. */
     renfort: boolean;
-    /** Une patte au milieu, scellée dans l'appui. */
-    patte: boolean;
+    /** Le nombre de pattes scellées dans l'appui (0 à 4). */
+    patte: number;
     /** Le diamètre de la rosace chiffrée, en mm : il compte pour la norme. */
     rosaceMm: number;
     /** La main courante DEMANDÉE (« chene ») : la remise sur la quantité se calcule sur elle, comme le prix et le devis (wood est celle qui sera fabriquée). */
@@ -2982,8 +2982,8 @@ export type ReponseReleve =
       seuls: boolean;
       /** Fenêtre large : un fer plat caché sous la main courante raidit la lisse haute. */
       renfort: boolean;
-      /** Une patte au milieu, scellée dans l'appui. */
-      patte?: boolean;
+      /** Le nombre de pattes scellées dans l'appui (0 à 4). */
+      patte?: number;
       /** Le poids d'une pièce, en kilos (celui de l'outil). */
       kg: number;
     }
@@ -3005,13 +3005,15 @@ export function libelleGardeCorps(
   hauteurMm: number,
   croix: number | null,
   locale: Locale = "fr",
-  modele: { soubassement?: boolean; carre?: number; traverse?: boolean; renfort?: boolean; seuls?: boolean; patte?: boolean } = {}
+  modele: { soubassement?: boolean; carre?: number; traverse?: boolean; renfort?: boolean; seuls?: boolean; patte?: number } = {}
 ) {
   const langue = locale === "en" ? "en-GB" : "fr-FR";
   const cotes = `${largeurMm.toLocaleString(langue)} × ${hauteurMm.toLocaleString(langue)} mm`;
   const prefixe = locale === "en" ? "Custom" : "Sur mesure";
   const renfort = (modele.renfort ? (locale === "en" ? ", reinforced top rail" : ", lisse haute renforcée") : "")
-    + (modele.patte ? (locale === "en" ? ", middle fixing bar sealed into the sill" : ", patte au milieu scellée dans l'appui") : "");
+    + (!modele.patte ? "" : modele.patte > 1
+      ? (locale === "en" ? `, ${modele.patte} fixing bars sealed into the sill` : `, ${modele.patte} pattes scellées dans l'appui`)
+      : (locale === "en" ? ", middle fixing bar sealed into the sill" : ", patte au milieu scellée dans l'appui"));
   if (croix === null) return `${prefixe} — ${cotes}${renfort}`;
   const mot = locale === "en" ? (croix > 1 ? "crosses" : "cross") : "croix";
   const traverse = modele.traverse ? (locale === "en" ? ", middle rail" : ", traverse au milieu") : "";
@@ -3110,7 +3112,7 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
         traverse: r.traverse,
         seuls: r.seuls,
         renfort: r.renfort,
-        patte: r.patte === true,
+        patte: r.patte ?? 0,
         rosaceMm,
         essence: wood.value.id,
         kg: r.kg + (verre ? ((largeurMm * r.hauteurMm) / 1e6) * VERRE_KG_PAR_M2 : 0),

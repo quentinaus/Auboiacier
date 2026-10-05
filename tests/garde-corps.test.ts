@@ -251,7 +251,7 @@ test("le prix encaissé est le prix affiché : la route, le panier et la command
 test("à étudier avec l'atelier : pas de prix, pas de commande", () => {
   chiffrageOuEchec();
   // (Jusqu'à 2 400 mm de cadre, une fenêtre large se vend avec le fer plat de renfort : au-delà, à étudier.)
-  for (const r of [releve({ largeurMm: 3000, allegeMm: 0 }), releve({ largeurMm: 2500 }), releve({ allegeMm: 300, fenetreMm: 500 })]) {
+  for (const r of [releve({ largeurMm: 3000, allegeMm: 0 }), releve({ largeurMm: 2800, allegeMm: 300 }), releve({ allegeMm: 300, fenetreMm: 500 })]) {
     const reponse = reponsePrixGC({ releve: r, essence: "chene", quantite: 1 });
     assert.ok(reponse && !reponse.ok, JSON.stringify(r));
     assert.ok(!("prix" in reponse), "aucun prix pour un garde-corps à étudier");
