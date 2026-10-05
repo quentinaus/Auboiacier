@@ -556,8 +556,10 @@ export function ReleveGardeCorps({
   const liste: ModeleGC[] = sansModeleAChoisir
     ? []
     : marque
-      ? // UNIQUEMENT les modèles aux normes pour cette fenêtre, rangés par prix (Quentin, 05/10 : « on ne comprend pas, il y a de tout »).
-        modelesFamille.filter((m) => m.conforme).sort((a, b) => sens * (a.prix - b.prix) || sens * (a.croix - b.croix))
+      ? // TOUS les modèles aux normes pour cette fenêtre, tous types confondus (croix, traverse, barreaux), rangés par prix — et
+        // seulement eux (Quentin, 05/10 : « on ne comprend pas, il y a de tout », puis « pourquoi ça n'affiche qu'un seul modèle ? »).
+        // Les réglages Barreaux et Traverse restent des raccourcis : ils choisissent le modèle le plus proche dans cette rangée.
+        modeles.filter((m) => m.conforme).sort((a, b) => sens * (a.prix - b.prix) || sens * (a.croix - b.croix))
       : MODELES_VITRINE.filter((m) => !m.traverse && m.soubassementMm === 0);
   useEffect(() => {
     const zone = bande.current;
@@ -568,17 +570,6 @@ export function ReleveGardeCorps({
     for (const enfant of Array.from(zone.children)) observateur.observe(enfant);
     return () => observateur.disconnect();
   }, [liste.length, tri, bandeauSlot]);
-  /** Les modèles aux normes des AUTRES familles (autres barreaux, traverse) : le client doit savoir qu'ils existent. */
-  const nbAutresModeles = marque
-    ? modeles.filter((m) => m.conforme && !(familleDe(m).barreaux === famille.barreaux && familleDe(m).traverse === famille.traverse)).length
-    : 0;
-  const nbModelesFamille = modelesFamille.filter((m) => m.conforme).length;
-  /** Amène le client aux réglages « Barreaux » et « Traverse » (ceux qui visibles à l'écran). */
-  const allerAuxReglages = () => {
-    const zone = Array.from(document.querySelectorAll<HTMLElement>("[data-controles-famille]")).find((z) => z.offsetParent !== null);
-    zone?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-    zone?.querySelector<HTMLElement>("button:not([disabled])")?.focus({ preventScroll: true });
-  };
   // Un réglage qui ne mène à aucun modèle aux normes pour cette fenêtre est grisé (on ne propose que ce qui est aux normes).
   const aucunAuxNormes = fr ? "Aucun modèle aux normes avec ce choix pour votre fenêtre." : "No model meets the standard with this choice for your window.";
   const sansConforme = (barreaux: "aucun" | "bas" | "seuls") =>
@@ -767,6 +758,12 @@ export function ReleveGardeCorps({
                 <span className="mt-1 block text-[11px] font-semibold leading-tight text-[#2b2320]">
                   {m.seuls ? (fr ? "Barreaux" : "Bars") : `${m.croix} ${fr ? "croix" : m.croix > 1 ? "crosses" : "cross"}`}
                 </span>
+                {/* La rangée mêle tous les types : ce que le modèle a en plus des croix se lit sous son nom. */}
+                {marque && !m.seuls && (m.traverse || m.soubassementMm > 0) && (
+                  <span className="block text-[9.5px] leading-tight text-[#5c5140]">
+                    {[m.traverse ? (fr ? "+ traverse" : "+ rail") : null, m.soubassementMm > 0 ? (fr ? "+ barreaux en bas" : "+ bars below") : null].filter(Boolean).join(" ")}
+                  </span>
+                )}
                 {/* Le modèle demande une autre rosace que la choisie (plus grande : les vides sont plus petits). */}
                 {marque && m.rosace && rosaceId && m.rosace !== rosaceId && (
                   <span className="block text-[9.5px] leading-tight text-[#6f6357]">{rosaceTexte(m.rosace).split(" Ø")[0]}</span>
@@ -789,7 +786,7 @@ export function ReleveGardeCorps({
       {marque && nbConformes > 0 && (
         <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
           <p className="text-[13px] font-semibold leading-tight text-[#2b2320]">{!choisi ? (fr ? "Choisissez votre modèle" : "Choose your model") : fr ? "Votre modèle" : "Your model"}</p>
-          {nbModelesFamille > 0 && mentionNormes(nbModelesFamille)}
+          {mentionNormes(nbConformes)}
         </div>
       )}
       {boutonPrix && <div className="mt-1.5 flex items-center justify-end">{boutonPrix}</div>}
@@ -813,21 +810,7 @@ export function ReleveGardeCorps({
         <span className="shrink-0 text-[14px] font-semibold leading-tight text-[#2b2320]">
           {marque && nbConformes > 0 && !choisi ? (fr ? "Choisissez votre modèle" : "Choose your model") : fr ? "Votre modèle" : "Your model"}
         </span>
-        {marque && nbModelesFamille > 0 && mentionNormes(nbModelesFamille)}
-        {/* D'autres modèles existent, dans les autres familles : le client doit le savoir et savoir où les trouver. */}
-        {nbAutresModeles > 0 && (
-          <button
-            type="button"
-            onClick={allerAuxReglages}
-            title={fr ? "Réglez « Barreaux » et « Traverse au milieu » pour voir d'autres modèles" : "Set “Bars” and “Middle rail” to see other models"}
-            className="inline-flex items-center gap-1 rounded-full bg-[#2b2320]/[0.07] px-2.5 py-0.5 text-[11px] font-medium leading-tight text-[#2b2320] transition-colors hover:bg-white/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
-          >
-            {fr ? `+ ${nbAutresModeles} autre${nbAutresModeles > 1 ? "s" : ""} modèle${nbAutresModeles > 1 ? "s" : ""} aux normes : barreaux, traverse` : `+ ${nbAutresModeles} other model${nbAutresModeles > 1 ? "s" : ""} to standard: bars, middle rail`}
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3" aria-hidden>
-              <path d="M7.5 4.5L13 10l-5.5 5.5" />
-            </svg>
-          </button>
-        )}
+        {marque && nbConformes > 0 && mentionNormes(nbConformes)}
         <span className="ml-auto flex flex-wrap items-center justify-end gap-x-3 gap-y-1">
           {boutonPrix}
           {lienPhoto}
