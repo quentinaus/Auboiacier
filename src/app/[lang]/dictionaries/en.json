@@ -160,7 +160,8 @@
     "altReunion": "Large round backlit stretch ceiling above a meeting room",
     "altVerriereSalon": "Workshop-style glass partition separating a living room from a kitchen",
     "altVerriereCroisillon": "Detail of a partition's lower panel, steel cross-bracing",
-    "altSculptureCheval": "Rearing steel horse sculpture, in front of a stone farmhouse"
+    "altSculptureCheval": "Rearing steel horse sculpture, in front of a stone farmhouse",
+    "altSculptureTorse": "Hand-welded salvaged-steel torso, in a video"
   },
   "artisanat": {
     "title": "The collection",
@@ -653,7 +654,12 @@
     "priceTitle": "Price",
     "priceBody": "On request — each piece being unique, the price depends on the subject, its size and the time it takes to build.",
     "cta": "Talk about your project",
-    "photoAlt": "Rearing horse sculpture in reclaimed steel, welded by hand, in front of a stone house"
+    "photoAlt": "Rearing horse sculpture in reclaimed steel, welded by hand, in front of a stone house",
+    "torseTitle": "A torso made of salvaged parts",
+    "torseBody": "Chains, hinges, plates, bolts: every piece is welded by hand, one by one, until the curves of a body appear.",
+    "torseVideoAlt": "Video: a torso of salvaged steel, welded by hand, filmed from all around in the evening light",
+    "videoPause": "Pause the video",
+    "videoPlay": "Play the video"
   },
   "verrieres": {
     "title": "Interior steel partitions",

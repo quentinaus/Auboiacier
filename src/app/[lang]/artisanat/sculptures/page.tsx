@@ -6,6 +6,7 @@ import { getDictionary } from "../../dictionaries";
 import { metadataPage, jsonLdFilAriane, scriptJsonLd } from "@/lib/seo";
 import { serif } from "@/lib/fonts";
 import { ProductTail } from "@/components/product-tail";
+import { VideoBoucle } from "@/components/video-boucle";
 
 
 export async function generateMetadata({
@@ -81,6 +82,22 @@ export default async function SculpturesPage({
 
           <p className="mt-8 text-sm leading-relaxed text-[#4a4038]">{t.intro}</p>
           <p className="mt-4 text-sm leading-relaxed text-[#4a4038]">{t.body}</p>
+
+          {/* Le torse, en vidéo : un tour complet, sans son, en boucle (elle se met en pause d'un clic). */}
+          <div className="mt-8 border-t border-[#e8e1d8] pt-6">
+            <span className="block text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
+              {t.torseTitle}
+            </span>
+            <VideoBoucle
+              src="/videos/torse-acier.mp4"
+              poster="/images/torse-acier-poster.jpg"
+              description={t.torseVideoAlt}
+              libellePause={t.videoPause}
+              libelleLecture={t.videoPlay}
+              className="mx-auto mt-4 aspect-[720/1074] w-full max-w-[20rem] rounded-2xl bg-[#e5ddd3]"
+            />
+            <p className="mt-3 text-sm leading-relaxed text-[#4a4038]">{t.torseBody}</p>
+          </div>
 
           <div className="mt-8 border-t border-[#e8e1d8] pt-6">
             <span className="block text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">

@@ -6,6 +6,7 @@ import { getDictionary } from "../dictionaries";
 import { metadataPage } from "@/lib/seo";
 import { serif } from "@/lib/fonts";
 import { hoverZoom } from "@/lib/ui";
+import { VideoBoucle } from "@/components/video-boucle";
 
 /** Les familles publiées, telles qu'elles s'écrivent dans l'adresse. */
 type Famille = "table" | "garde-corps" | "escalier" | "plafond" | "verriere" | "sculpture";
@@ -24,7 +25,8 @@ type CleLegende =
   | "altReunion"
   | "altVerriereSalon"
   | "altVerriereCroisillon"
-  | "altSculptureCheval";
+  | "altSculptureCheval"
+  | "altSculptureTorse";
 
 /**
  * Chantiers publiés. Chacun porte sa famille et la clé de sa légende dans le
@@ -35,7 +37,7 @@ type CleLegende =
  * Pour ajouter un chantier : une ligne ici, et la légende dans les deux
  * dictionnaires (realisations.altXxx), en français et en anglais.
  */
-const photos: { src: string; alt: CleLegende; famille: Famille; lien?: string }[] = [
+const photos: { src: string; alt: CleLegende; famille: Famille; lien?: string; video?: string }[] = [
   {
     src: "/images/mikado/ambiance.jpg",
     alt: "altTableMikado",
@@ -111,6 +113,14 @@ const photos: { src: string; alt: CleLegende; famille: Famille; lien?: string }[
   {
     src: "/images/sculpture-cheval-v2.jpg",
     alt: "altSculptureCheval",
+    famille: "sculpture",
+    lien: "sculptures",
+  },
+  {
+    // Une vidéo en boucle : `src` est sa photo d'ouverture.
+    src: "/images/torse-acier-poster.jpg",
+    video: "/videos/torse-acier.mp4",
+    alt: "altSculptureTorse",
     famille: "sculpture",
     lien: "sculptures",
   },
@@ -193,6 +203,30 @@ export default async function RealisationsPage({
         <div className="mt-10 grid gap-8 md:grid-cols-2">
           {visibles.map((photo) => {
             const legende = t[photo.alt];
+            // Une vidéo n'est pas dans un lien (elle a son bouton pause) : c'est sa légende qui mène à la fiche.
+            if (photo.video) {
+              return (
+                <figure key={photo.src} className="flex flex-col gap-3">
+                  <VideoBoucle
+                    src={photo.video}
+                    poster={photo.src}
+                    description={legende}
+                    libellePause={dict.sculptures.videoPause}
+                    libelleLecture={dict.sculptures.videoPlay}
+                    className="aspect-[4/5] w-full rounded-xl bg-[#e5ddd3]"
+                  />
+                  <figcaption className="text-sm text-[#726757]">
+                    {photo.lien ? (
+                      <Link href={`/${locale}/artisanat/${photo.lien}`} className="underline underline-offset-4 hover:text-[#2b2320]">
+                        {legende}
+                      </Link>
+                    ) : (
+                      legende
+                    )}
+                  </figcaption>
+                </figure>
+              );
+            }
             const figure = (
               <>
                 <div className={`relative aspect-[16/10] overflow-hidden rounded-xl ${hoverZoom}`}>

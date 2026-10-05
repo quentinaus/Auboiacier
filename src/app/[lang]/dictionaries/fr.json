@@ -160,7 +160,8 @@
     "altReunion": "Grand plafond lumineux rond au-dessus d'une salle de réunion",
     "altVerriereSalon": "Verrière d'atelier séparant un salon d'une cuisine",
     "altVerriereCroisillon": "Détail du bas d'une verrière, panneau en acier à croisillon",
-    "altSculptureCheval": "Cheval cabré en acier, devant une longère en pierre"
+    "altSculptureCheval": "Cheval cabré en acier, devant une longère en pierre",
+    "altSculptureTorse": "Torse en acier de récupération soudé à la main, en vidéo"
   },
   "artisanat": {
     "title": "La collection",
@@ -653,7 +654,12 @@
     "priceTitle": "Prix",
     "priceBody": "Sur devis — chaque pièce étant unique, le prix dépend du sujet, des dimensions et du temps de fabrication.",
     "cta": "Parler de votre projet",
-    "photoAlt": "Cheval cabré en acier de récupération soudé à la main, devant une longère en pierre"
+    "photoAlt": "Cheval cabré en acier de récupération soudé à la main, devant une longère en pierre",
+    "torseTitle": "Un torse en pièces de récupération",
+    "torseBody": "Chaînes, charnières, tôles, boulons : chaque pièce est soudée à la main, une à une, jusqu'à dessiner les courbes d'un corps.",
+    "torseVideoAlt": "Vidéo : un torse en acier de récupération soudé à la main, filmé en tournant autour, dans la lumière du soir",
+    "videoPause": "Mettre la vidéo en pause",
+    "videoPlay": "Lire la vidéo"
   },
   "verrieres": {
     "title": "Verrières d'intérieur",
