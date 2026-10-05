@@ -50,6 +50,8 @@ export type ConfigMemo = {
    * de l'atelier (BORNES_RELEVE_GC).
    */
   gcLargeurMm?: number;
+  /** La largeur mesurée en haut, vers 1 m du sol (gcLargeurMm : celle d'en bas). Absente d'une mémoire plus ancienne. */
+  gcLargeurHautMm?: number;
   gcAllegeMm?: number;
   gcFenetreMm?: number;
   /** true : en étage ; false : au rez-de-chaussée. Absent : le client ne l'a pas dit, et on ne le dit jamais à sa place. */
@@ -63,13 +65,15 @@ export type ConfigMemo = {
 /** Les champs du relevé du garde-corps dans la mémoire. */
 export type ReleveGcMemo = Pick<
   ConfigMemo,
-  "gcLargeurMm" | "gcAllegeMm" | "gcFenetreMm" | "gcEnEtage" | "gcMur" | "gcModele"
+  "gcLargeurMm" | "gcLargeurHautMm" | "gcAllegeMm" | "gcFenetreMm" | "gcEnEtage" | "gcMur" | "gcModele"
 >;
 
 /** Les cases du relevé, telles que le client les tape (CotesGardeCorps, releve-garde-corps.tsx). */
 type CasesReleveGc = {
   etage: string;
   largeur: string;
+  /** La largeur en haut (murs pas parallèles) : facultative ici, une saisie plus ancienne ne l'a pas. */
+  largeurHaut?: string;
   allege: string;
   fenetre: string;
   mur: string;
@@ -97,6 +101,7 @@ export function lireReleveGcMemo(o: Record<string, unknown>): ReleveGcMemo {
     typeof v === "number" && Number.isInteger(v) && v >= borne.min && v <= borne.max ? v : undefined;
   return {
     gcLargeurMm: mm(o.gcLargeurMm, BORNES_RELEVE_GC.largeurMm),
+    gcLargeurHautMm: mm(o.gcLargeurHautMm, BORNES_RELEVE_GC.largeurMm),
     gcAllegeMm: mm(o.gcAllegeMm, BORNES_RELEVE_GC.allegeMm),
     gcFenetreMm: mm(o.gcFenetreMm, BORNES_RELEVE_GC.fenetreMm),
     gcEnEtage: typeof o.gcEnEtage === "boolean" ? o.gcEnEtage : undefined,
@@ -112,12 +117,14 @@ export function lireReleveGcMemo(o: Record<string, unknown>): ReleveGcMemo {
  */
 export function releveVersMemo(cases: CasesReleveGc, t: MotsReleveGc): ReleveGcMemo {
   const mm = (saisie: string) => {
-    const nombre = Number(saisie.replace(",", "."));
+    // Comme le formulaire (lireReleve) : « 1 180 » et « 1172 mm » se lisent aussi.
+    const nombre = Number(saisie.replace(/[\s\u00a0\u202f]/g, "").replace(/mm$/i, "").replace(",", "."));
     return saisie.trim() !== "" && Number.isFinite(nombre) && nombre >= 0 ? Math.round(nombre) : undefined;
   };
   const etage = t.gcEtageOptions.indexOf(cases.etage);
   return {
     gcLargeurMm: mm(cases.largeur),
+    gcLargeurHautMm: cases.largeurHaut === undefined ? undefined : mm(cases.largeurHaut),
     gcAllegeMm: mm(cases.allege),
     gcFenetreMm: mm(cases.fenetre),
     gcEnEtage: etage === 0 ? true : etage === 1 ? false : undefined,
@@ -137,6 +144,7 @@ export function releveVersMemo(cases: CasesReleveGc, t: MotsReleveGc): ReleveGcM
 export function memoVersReleve(memo: ReleveGcMemo, t: MotsReleveGc): Partial<CasesReleveGc> {
   const cases: Partial<CasesReleveGc> = {};
   if (memo.gcLargeurMm !== undefined) cases.largeur = String(memo.gcLargeurMm);
+  if (memo.gcLargeurHautMm !== undefined) cases.largeurHaut = String(memo.gcLargeurHautMm);
   if (memo.gcAllegeMm !== undefined) cases.allege = String(memo.gcAllegeMm);
   if (memo.gcFenetreMm !== undefined) cases.fenetre = String(memo.gcFenetreMm);
   const etage = memo.gcEnEtage === undefined ? undefined : t.gcEtageOptions[memo.gcEnEtage ? 0 : 1];

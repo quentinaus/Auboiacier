@@ -209,6 +209,13 @@ test("le retour de la création de compte rend le relevé, sans cocher l'étage 
   assert.equal(reprendreConfig("garde-corps"), null);
 });
 
+test("la largeur en haut (murs pas parallèles) se met de côté et revient avec le reste", () => {
+  memoriserConfig({ ...OPTIONS_GC, ...releveVersMemo({ ...FENETRE, largeurHaut: "1172" }, fr.artisanat) });
+  const releve = memoVersReleve(reprendreConfig("garde-corps")!, fr.artisanat);
+  assert.equal(releve.largeur, FENETRE.largeur);
+  assert.equal(releve.largeurHaut, "1172");
+});
+
 test("une mémoire trafiquée ne remet ni cote hors bornes ni modèle inventé", () => {
   const stockage = stockageDeSession();
   stockage.set(

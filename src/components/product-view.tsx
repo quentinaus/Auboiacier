@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { essenceDeReference, priceFrom, type Product } from "@/lib/products";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
+import { ETAPE_MODELE_GC } from "./etapes-telephone";
 import { ProductOptions, aLeConfigurateurPleinePage, type Ouverture } from "./product-options";
 import Link from "next/link";
 import { serif } from "@/lib/fonts";
@@ -115,9 +116,9 @@ export function ProductView({
   /** Garde-corps : la question « Qui prend les mesures ? », posée sur toute la plaque avant le configurateur. */
   const [porteSlot, setPorteSlot] = useState<HTMLDivElement | null>(null);
   /**
-   * Garde-corps sur téléphone : UNE QUESTION À LA FOIS (etapes-telephone.tsx), sous le croquis. Étapes 1 à 5 : les
-   * questions (largeur, hauteur sous la fenêtre, hauteur de la fenêtre, étage, mur), dans la carte des mesures ; 6 les
-   * finitions ; 7 les modèles ; 8 le prix (la colonne d'achat). L'en-tête et les boutons sont rendus par la fiche
+   * Garde-corps sur téléphone : UNE QUESTION À LA FOIS (etapes-telephone.tsx), sous le croquis. Étapes 1 à 6 : les
+   * questions (largeur en bas et en haut, hauteur sous la fenêtre, hauteur de la fenêtre, étage, mur), dans la carte
+   * des mesures ; 7 les finitions ; 8 les modèles ; 9 le prix (la colonne d'achat). L'en-tête et les boutons sont rendus par la fiche
    * (product-options.tsx), qui sait ce qui manque. `parcoursTel` : la fiche dit s'il s'applique (téléphone, « je mesure
    * moi-même »).
    */
@@ -705,7 +706,7 @@ export function ProductView({
             onBlur={(e) => {
               if ((e.target as HTMLElement).matches("input[inputmode]")) setChampFocus(false);
             }}
-            className={`carte-verre order-2 min-h-0 flex-1 overflow-y-auto overflow-x-clip overscroll-contain rounded-[26px] px-5 pb-0 pt-4 md:overflow-x-hidden md:px-6 md:pt-5 ${blocEnPlace ? "" : "max-md:overflow-y-hidden"} ${troisColonnes ? "colonne-cotes panneau-etape etape-1 etape-2 etape-3 etape-4 etape-5 max-md:order-3 max-md:pb-3 md:order-none md:flex-none md:col-start-1 md:row-start-3 lg:col-start-1 lg:row-start-2 lg:max-h-full lg:px-4 lg:pb-3 lg:pt-4 xl:px-5" : "lg:order-none lg:flex-none"}`}>
+            className={`carte-verre order-2 min-h-0 flex-1 overflow-y-auto overflow-x-clip overscroll-contain rounded-[26px] px-5 pb-0 pt-4 md:overflow-x-hidden md:px-6 md:pt-5 ${blocEnPlace ? "" : "max-md:overflow-y-hidden"} ${troisColonnes ? "colonne-cotes panneau-etape etape-1 etape-2 etape-3 etape-4 etape-5 etape-6 max-md:order-3 max-md:pb-3 md:order-none md:flex-none md:col-start-1 md:row-start-3 lg:col-start-1 lg:row-start-2 lg:max-h-full lg:px-4 lg:pb-3 lg:pt-4 xl:px-5" : "lg:order-none lg:flex-none"}`}>
             {options}
           </div>
           {/* Le croquis : au-dessus de la carte sur téléphone (il ne rétrécit jamais : c'est la carte qui défile), à côté et en
@@ -725,12 +726,12 @@ export function ProductView({
               étapes « Modèle » et « Finitions » (la rangée des modèles et la ligne des matières de l'ordinateur). */}
           {troisColonnes && parcoursTel && <div ref={setEnteteTelSlot} className="order-2 shrink-0 md:hidden" />}
           {troisColonnes && (
-            <div className="panneau-etape etape-7 hidden min-h-0 flex-1 overflow-y-auto overscroll-contain max-md:order-3 md:hidden">
+            <div className="panneau-etape etape-8 hidden min-h-0 flex-1 overflow-y-auto overscroll-contain max-md:order-3 md:hidden">
               <div ref={setModeleTelSlot} />
             </div>
           )}
           {troisColonnes && (
-            <div className="carte-verre panneau-etape etape-6 hidden min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[26px] px-5 py-4 max-md:order-3 md:hidden">
+            <div className="carte-verre panneau-etape etape-7 hidden min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[26px] px-5 py-4 max-md:order-3 md:hidden">
               <div ref={setFinitionsTelSlot} />
             </div>
           )}
@@ -744,9 +745,9 @@ export function ProductView({
               puis la livraison et la barre d'achat. Vide et cachée en dessous de 1024 px : tout reste
               alors dans la première carte. */}
           {troisColonnes && (
-            <div className="carte-verre colonne-achat panneau-etape etape-8 hidden min-h-0 overflow-x-clip rounded-[26px] px-4 pb-0 pt-4 max-md:order-3 max-md:flex-1 max-md:overflow-y-auto max-md:overscroll-contain md:col-start-2 md:row-start-3 md:flex md:min-h-0 md:max-h-full md:flex-col md:self-stretch md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain lg:col-start-3 lg:row-span-2 lg:row-start-2 xl:px-5">
+            <div className="carte-verre colonne-achat panneau-etape etape-9 hidden min-h-0 overflow-x-clip rounded-[26px] px-4 pb-0 pt-4 max-md:order-3 max-md:flex-1 max-md:overflow-y-auto max-md:overscroll-contain md:col-start-2 md:row-start-3 md:flex md:min-h-0 md:max-h-full md:flex-col md:self-stretch md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain lg:col-start-3 lg:row-span-2 lg:row-start-2 xl:px-5">
               {parcoursTel && (
-                <button type="button" onClick={() => allerEtapeTel(7)} className="mb-2 self-start text-[13px] font-medium text-[#5c5140] underline underline-offset-4 md:hidden">
+                <button type="button" onClick={() => allerEtapeTel(ETAPE_MODELE_GC)} className="mb-2 self-start text-[13px] font-medium text-[#5c5140] underline underline-offset-4 md:hidden">
                   {locale === "fr" ? "← Retour : Modèle" : "← Back: Model"}
                 </button>
               )}

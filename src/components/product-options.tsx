@@ -34,6 +34,7 @@ import {
   lireReleve,
   texteManqueGC,
   etatQuestionGC,
+  largeursGC,
   noteGardeCorps,
   usePrixGardeCorps,
   COTES_GARDE_CORPS_VIDES,
@@ -896,14 +897,17 @@ export function ProductOptions({
       // « #cotes » : la question sans réponse ; si toutes en ont une, celle de la mesure en cause (hors barème), sinon
       // la première — c'est d'une mesure que dépend ce qui bloque (à étudier, pas besoin de garde-corps…).
       const horsBornes = lectureReleve?.etat === "hors-bornes" ? lectureReleve.raison : null;
+      // Trop étroite ou trop large : la largeur en cause est la plus petite (ou la plus grande) des deux.
+      const l = largeursGC(cotesGardeCorps);
+      const largeurEnCause = l && (horsBornes === "trop-etroit" ? l.hautMm < l.basMm : horsBornes === "trop-large" ? l.hautMm > l.basMm : false) ? 2 : 1;
       const etape =
         ancre === "#mur-gc"
-          ? 5
+          ? 6
           : ancre === "#modeles-gc"
             ? ETAPE_MODELE_GC
             : ancre === "#livraison"
               ? NB_ETAPES_GC
-              : (questionAFaire ?? (horsBornes === "allege" ? 2 : horsBornes === "fenetre" ? 3 : 1));
+              : (questionAFaire ?? (horsBornes === "allege" ? 3 : horsBornes === "fenetre" ? 4 : largeurEnCause));
       etapesTelephone?.aller(etape);
     }
     requestAnimationFrame(() =>
@@ -931,7 +935,10 @@ export function ProductOptions({
           amenerAlEcran(cible, { block: "center" });
         }
         // Une case à remplir, ou une liste à choisir (le type de mur).
-        const champ = cible.querySelector<HTMLInputElement | HTMLSelectElement>('input:not([type="hidden"]), select');
+        const manque = lectureReleve?.etat === "incomplet" ? lectureReleve.manque : null;
+        const champ =
+          (manque && manque !== "etage" ? cible.querySelector<HTMLInputElement>(`[id$="-${manque}"]`) : null) ??
+          cible.querySelector<HTMLInputElement | HTMLSelectElement>('input:not([type="hidden"]), select');
         champ?.focus({ preventScroll: true });
       })
     );
@@ -1144,7 +1151,11 @@ export function ProductOptions({
   useEffect(() => {
     if (!enEtapes || !repriseFaite || departTel.current) return;
     departTel.current = true;
-    if (questionAFaire === null && etapeTel === 1) allerEtape?.(ETAPE_MODELE_GC);
+    // Tout rempli : ses modèles ; une mémoire plus ancienne sans la largeur en haut : la question qui manque.
+    if (etapeTel === 1) {
+      if (questionAFaire === null) allerEtape?.(ETAPE_MODELE_GC);
+      else if (questionAFaire > 1) allerEtape?.(questionAFaire);
+    }
   }, [enEtapes, repriseFaite, questionAFaire, etapeTel, allerEtape]);
   /**
    * L'étape où le client a voulu passer sans réponse (ou sur une mesure hors barème) : le message s'écrit alors sous la
@@ -1177,11 +1188,11 @@ export function ProductOptions({
   const changerCotesGC = (suivant: CotesGardeCorps) => {
     setCotesGardeCorps(suivant);
     // La réponse retouchée : le message d'avant ne vaut plus.
-    const champ = questionTel === 1 ? "largeur" : questionTel === 2 ? "allege" : questionTel === 3 ? "fenetre" : null;
+    const champ = questionTel === 1 ? "largeur" : questionTel === 2 ? "largeurHaut" : questionTel === 3 ? "allege" : questionTel === 4 ? "fenetre" : null;
     if (champ && suivant[champ] !== cotesGardeCorps[champ]) setEssaiQuestion(null);
     const repondu =
-      (questionTel === 4 && suivant.etage !== cotesGardeCorps.etage && t.gcEtageOptions.includes(suivant.etage)) ||
-      (questionTel === 5 && suivant.mur !== cotesGardeCorps.mur && suivant.mur !== "");
+      (questionTel === 5 && suivant.etage !== cotesGardeCorps.etage && t.gcEtageOptions.includes(suivant.etage)) ||
+      (questionTel === 6 && suivant.mur !== cotesGardeCorps.mur && suivant.mur !== "");
     if (!repondu) return;
     const prochaine = questionTel + 1;
     window.clearTimeout(passageAuto.current);
@@ -1400,11 +1411,13 @@ export function ProductOptions({
    * Sans prix du serveur (barre d'appui, garde-corps à étudier), le libellé n'a pas les cotes : on les ajoute à
    * la demande de devis (paramètre « releve » de la page contact). C'est là que l'atelier en a le plus besoin.
    */
+  /** Murs pas parallèles : les deux largeurs mesurées, quand elles diffèrent (pour l'atelier). */
+  const largeursDifferentes = estGC && largeursGC(cotesGardeCorps)?.ecartMm ? largeursGC(cotesGardeCorps) : null;
   const cotesPourDevisGC =
     estGC && releveGC && !configGC
       ? locale === "fr"
-        ? `Fenêtre : ${releveGC.largeurMm} mm de large, bas à ${releveGC.allegeMm} mm du sol${releveGC.fenetreMm ? `, ${releveGC.fenetreMm} mm de haut` : ""}, ${releveGC.enEtage ? "en étage" : "au rez-de-chaussée"}${reponseGC && !reponseGC.ok && reponseGC.raison === "barre-appui" ? " — main courante seule" : ""}`
-        : `Window: ${releveGC.largeurMm} mm wide, bottom ${releveGC.allegeMm} mm from the floor${releveGC.fenetreMm ? `, ${releveGC.fenetreMm} mm high` : ""}, ${releveGC.enEtage ? "upstairs" : "ground floor"}${reponseGC && !reponseGC.ok && reponseGC.raison === "barre-appui" ? " — handrail on its own" : ""}`
+        ? `Fenêtre : ${releveGC.largeurMm} mm de large${largeursDifferentes ? ` (mesurée ${largeursDifferentes.basMm} mm en bas, ${largeursDifferentes.hautMm} mm en haut)` : ""}, bas à ${releveGC.allegeMm} mm du sol${releveGC.fenetreMm ? `, ${releveGC.fenetreMm} mm de haut` : ""}, ${releveGC.enEtage ? "en étage" : "au rez-de-chaussée"}${reponseGC && !reponseGC.ok && reponseGC.raison === "barre-appui" ? " — main courante seule" : ""}`
+        : `Window: ${releveGC.largeurMm} mm wide${largeursDifferentes ? ` (measured ${largeursDifferentes.basMm} mm at the bottom, ${largeursDifferentes.hautMm} mm at the top)` : ""}, bottom ${releveGC.allegeMm} mm from the floor${releveGC.fenetreMm ? `, ${releveGC.fenetreMm} mm high` : ""}, ${releveGC.enEtage ? "upstairs" : "ground floor"}${reponseGC && !reponseGC.ok && reponseGC.raison === "barre-appui" ? " — handrail on its own" : ""}`
       : null;
   /** Sous le grand prix : la pièce configurée, ou la visite et son créneau. */
   const optionsLabel = modeVisite
@@ -1438,6 +1451,7 @@ export function ProductOptions({
     cotesGardeCorps.rdv,
     cotesGardeCorps.mur,
     cotesGardeCorps.largeur,
+    cotesGardeCorps.largeurHaut,
     cotesGardeCorps.allege,
     cotesGardeCorps.fenetre,
     cotesGardeCorps.etage,
@@ -1749,12 +1763,15 @@ export function ProductOptions({
     const config = configActuelle();
     // Deux fenêtres aux mêmes options font deux favoris : la largeur, en tête
     // du résumé, permet de les distinguer dans la liste.
+    // La largeur retenue : la plus petite des deux mesurées (murs pas parallèles), celle du prix.
+    const largeurRetenue =
+      config.gcLargeurMm === undefined ? undefined : Math.min(config.gcLargeurMm, config.gcLargeurHautMm ?? config.gcLargeurMm);
     const fenetre =
-      config.gcLargeurMm === undefined
+      largeurRetenue === undefined
         ? null
         : locale === "fr"
-          ? `Fenêtre de ${config.gcLargeurMm} mm`
-          : `${config.gcLargeurMm} mm window`;
+          ? `Fenêtre de ${largeurRetenue} mm`
+          : `${largeurRetenue} mm window`;
     try {
       const reponse = await fetch("/api/compte/favoris", {
         method: "POST",
@@ -1834,7 +1851,7 @@ export function ProductOptions({
     // dans le geste du client : c'est ce qui permet au téléphone d'ouvrir le clavier).
     if (enEtapes) {
       flushSync(() => {
-        setCotesGardeCorps({ ...cotesGardeCorps, largeur: "", allege: "", fenetre: "", etage: "", modele: "" });
+        setCotesGardeCorps({ ...cotesGardeCorps, largeur: "", largeurHaut: "", allege: "", fenetre: "", etage: "", modele: "" });
         setQuantity(1);
         setAjoutee(null);
         etapesTelephone?.aller(1);
@@ -1844,7 +1861,7 @@ export function ProductOptions({
     }
     // L'étage et le modèle aussi : ils dépendent de la fenêtre, et rien ne doit être choisi d'avance (décision du 03/10) —
     // le modèle d'avant validait le panier tout seul.
-    setCotesGardeCorps({ ...cotesGardeCorps, largeur: "", allege: "", fenetre: "", etage: "", modele: "" });
+    setCotesGardeCorps({ ...cotesGardeCorps, largeur: "", largeurHaut: "", allege: "", fenetre: "", etage: "", modele: "" });
     setQuantity(1);
     setAjoutee(null);
     const premiere = releveRef.current?.querySelector<HTMLInputElement>("input[inputmode=decimal]");
@@ -2052,7 +2069,16 @@ export function ProductOptions({
           priseDeCotesCp: cotesGardeCorps.codePostal.replace(/\s+/g, ""),
           rdv: cotesGardeCorps.rdv,
           // Ce que le client a en tête, pour que Quentin arrive avec la bonne idée.
-          note: [product.name, wood?.label, metal?.label]
+          note: [
+            product.name,
+            wood?.label,
+            metal?.label,
+            // Murs pas parallèles : la visite a souvent été conseillée pour ça ; Quentin arrive en sachant ce qui a été relevé.
+            largeursDifferentes &&
+              (locale === "fr"
+                ? `largeur relevée ${largeursDifferentes.basMm} mm en bas, ${largeursDifferentes.hautMm} mm en haut`
+                : `width measured ${largeursDifferentes.basMm} mm at the bottom, ${largeursDifferentes.hautMm} mm at the top`),
+          ]
             .filter(Boolean)
             .join(" · "),
           name: t.gcVisiteResume,
@@ -2225,7 +2251,7 @@ export function ProductOptions({
             bloque={Boolean(etatQuestion?.manque || modeleTelManque)}
             // Les questions écrivent leur message sous leur case ; ici, seulement l'étape « Modèle ».
             message={!questionTel && essaiQuestion === etapeTel ? modeleTelManque : null}
-            passer={questionTel === 3 && cotesGardeCorps.fenetre.trim() === ""}
+            passer={questionTel === 4 && cotesGardeCorps.fenetre.trim() === ""}
             onSuivant={
               questionTel
                 ? avancerQuestion

@@ -7,8 +7,11 @@
  * et le prix. Le prix n'apparaît qu'une fois les questions remplies.
  */
 
-/** Les questions d'abord (largeur, hauteur sous la fenêtre, hauteur de la fenêtre, étage, mur), puis le reste. */
-export const QUESTIONS_GC = 5;
+/**
+ * Les questions d'abord (largeur en bas, largeur en haut, hauteur sous la fenêtre, hauteur de la fenêtre, étage, mur),
+ * puis le reste.
+ */
+export const QUESTIONS_GC = 6;
 /** Après les questions : les finitions d'abord (demande de Quentin, 05/10), puis le modèle, puis le prix. */
 export const ETAPE_FINITIONS_GC = QUESTIONS_GC + 1;
 export const ETAPE_MODELE_GC = QUESTIONS_GC + 2;
@@ -17,10 +20,18 @@ export const ETAPES_GC = [
   {
     courtFr: "Largeur",
     courtEn: "Width",
-    questionFr: "Quelle est la largeur de votre fenêtre\u00a0?",
-    questionEn: "How wide is your window?",
-    aideFr: "La cote exacte d'un mur à l'autre, en millimètres. L'atelier calcule ensuite celle du garde-corps, pour qu'il s'encastre.",
-    aideEn: "The exact size from one wall to the other, in millimetres. The workshop then works out the railing's size so it fits.",
+    questionFr: "Quelle est la largeur de votre fenêtre, en bas\u00a0?",
+    questionEn: "How wide is your window, at the bottom?",
+    aideFr: "La cote exacte d'un mur à l'autre, juste au-dessus de l'appui, en millimètres. L'atelier calcule ensuite celle du garde-corps.",
+    aideEn: "The exact size from one wall to the other, just above the sill, in millimetres. The workshop then works out the railing's size.",
+  },
+  {
+    courtFr: "En haut",
+    courtEn: "Top",
+    questionFr: "Et la largeur en haut, vers 1\u00a0m du sol\u00a0?",
+    questionEn: "And the width at the top, about 1 m from the floor?",
+    aideFr: "Des murs ne sont pas toujours parallèles\u00a0: nous fabriquons à la plus petite des deux largeurs.",
+    aideEn: "Walls are not always parallel: we make it to the smaller of the two widths.",
   },
   {
     courtFr: "Hauteur",

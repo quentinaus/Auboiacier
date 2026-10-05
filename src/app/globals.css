@@ -222,8 +222,8 @@ textarea:focus-visible,
   }
 }
 /* Téléphone, garde-corps : UNE QUESTION À LA FOIS (etapes-telephone.tsx, product-view.tsx). Une seule étape à l'écran
-   sous le croquis : 1 à 5 les questions (la carte des mesures n'y montre que la question posée), 6 les finitions,
-   7 les modèles, 8 la colonne du prix. La question est écrite en grand dans l'en-tête : les petits titres de la carte
+   sous le croquis : 1 à 6 les questions (la carte des mesures n'y montre que la question posée), 7 les finitions,
+   8 les modèles, 9 la colonne du prix. La question est écrite en grand dans l'en-tête : les petits titres de la carte
    s'effacent. */
 @media (max-width: 47.999rem) {
   .fond-gc[data-parcours="1"] .panneau-etape {
@@ -236,7 +236,8 @@ textarea:focus-visible,
   .fond-gc[data-parcours="1"][data-etape="5"] .panneau-etape.etape-5,
   .fond-gc[data-parcours="1"][data-etape="6"] .panneau-etape.etape-6,
   .fond-gc[data-parcours="1"][data-etape="7"] .panneau-etape.etape-7,
-  .fond-gc[data-parcours="1"][data-etape="8"] .panneau-etape.etape-8 {
+  .fond-gc[data-parcours="1"][data-etape="8"] .panneau-etape.etape-8,
+  .fond-gc[data-parcours="1"][data-etape="9"] .panneau-etape.etape-9 {
     display: flex !important;
     flex-direction: column;
   }
@@ -264,19 +265,19 @@ textarea:focus-visible,
     display: flex;
   }
   /* Étape « Modèle » : les modèles d'abord, les réglages Barreaux et Traverse (des raccourcis) ensuite. */
-  .fond-gc[data-parcours="1"] .etape-7 .carte-modeles {
+  .fond-gc[data-parcours="1"] .etape-8 .carte-modeles {
     display: flex;
     flex-direction: column;
   }
   /* La consigne « Choisissez votre modèle » est déjà écrite en grand dans l'en-tête. */
-  .fond-gc[data-parcours="1"] .etape-7 .carte-modeles > .titre-catalogue {
+  .fond-gc[data-parcours="1"] .etape-8 .carte-modeles > .titre-catalogue {
     display: none;
   }
   /* Pendant le calcul, la rangée des réglages ne porte qu'un petit titre « Votre modèle » : inutile sous l'en-tête. */
-  .fond-gc[data-parcours="1"] .etape-7 .carte-modeles > .controles-famille:not(:has(button)) {
+  .fond-gc[data-parcours="1"] .etape-8 .carte-modeles > .controles-famille:not(:has(button)) {
     display: none;
   }
-  .fond-gc[data-parcours="1"] .etape-7 .carte-modeles > .controles-famille {
+  .fond-gc[data-parcours="1"] .etape-8 .carte-modeles > .controles-famille {
     order: 1;
     margin-top: 0.75rem;
   }
@@ -636,8 +637,10 @@ textarea:focus-visible,
  *  sans rien retirer : les mêmes blocs, avec moins d'air.
  * ------------------------------------------------------------------ */
 @media (min-width: 48rem) {
+  /* La consigne « cotes exactes d'un mur à l'autre : l'atelier calcule celle du garde-corps » reste écrite, en petit
+     (Quentin, 05/10 : « bien préciser qu'il faut les cotes exactes »). */
   .colonne-cotes .consigne-cotes {
-    display: none; /* « sans rien retirer : l'atelier prend le jeu » est dit dans la bulle « i » de chaque cote */
+    font-size: 11.5px;
   }
   /* La phrase sous « qui mesure » : en trop dans la colonne serrée (le bouton dit déjà « prix immédiat »). */
   .colonne-cotes [id="cotes"] > div > p:not([role]) {

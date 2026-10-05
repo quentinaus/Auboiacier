@@ -13,6 +13,7 @@ import { PlanApercu } from "./plan-apercu";
 import { ChargementModeles } from "./chargement-modeles";
 import {
   BORNES_RELEVE_GC,
+  ECART_MURS_GC_MM,
   MAIN_COURANTE_MM,
   MARGE_BOULE_GC_MM,
   ROSACE_MM_GC,
@@ -39,8 +40,13 @@ export type CotesGardeCorps = {
   /** « moi » : le client mesure. « atelier » : Quentin vient mesurer. */
   qui: "moi" | "atelier";
   etage: string;
-  /** La largeur de la fenêtre entre les murs. */
+  /** La largeur de la fenêtre entre les murs, en bas (juste au-dessus de l'appui). */
   largeur: string;
+  /**
+   * La même largeur en haut, vers 1 m du sol (décision de Quentin, 05/10 : des murs pas parallèles, et le garde-corps ne
+   * s'encastrerait pas, ou avec trop de jeu). L'atelier fabrique à la plus petite des deux.
+   */
+  largeurHaut: string;
   /** Du sol au bas de la fenêtre. C'est d'elle qu'on déduit la hauteur du garde-corps. */
   allege: string;
   /** De l'appui au haut de l'ouverture : le garde-corps doit tenir dedans. */
@@ -60,6 +66,7 @@ export const COTES_GARDE_CORPS_VIDES: CotesGardeCorps = {
   qui: "moi",
   etage: "",
   largeur: "",
+  largeurHaut: "",
   allege: "",
   fenetre: "",
   mur: "",
@@ -81,7 +88,7 @@ export type LectureReleve =
    * la fenêtre, la hauteur de fenêtre tapée de travers (facultative), ou « etage » quand les cotes
    * sont là mais que le client n'a pas dit où est la fenêtre.
    */
-  | { etat: "incomplet"; manque: "largeur" | "allege" | "fenetre" | "etage"; illisible?: boolean }
+  | { etat: "incomplet"; manque: "largeur" | "largeurHaut" | "allege" | "fenetre" | "etage"; illisible?: boolean }
   | { etat: "hors-bornes"; raison: "trop-etroit" | "trop-large" | "allege" | "fenetre" }
   | { etat: "ok"; releve: ReleveGC };
 
@@ -92,13 +99,17 @@ export type LectureReleve =
  * la montrer que la taire. Les bornes sont celles de l'outil de plans.
  */
 export function lireReleve(cotes: CotesGardeCorps, t: Dictionary["artisanat"]): LectureReleve {
-  const largeurMm = mm(cotes.largeur);
+  const largeurBasMm = mm(cotes.largeur);
+  const largeurHautMm = mm(cotes.largeurHaut);
+  // Murs pas parallèles : l'atelier fabrique à la plus petite des deux largeurs (le prix, le plan et le devis aussi).
+  const largeurMm = Math.min(largeurBasMm, largeurHautMm);
   const allegeMm = mm(cotes.allege);
   // La hauteur de la fenêtre est FACULTATIVE (décision du 03/10) : elle ne sert qu'au croquis et à
   // vérifier que le garde-corps tient dans l'ouverture. Vide : 0, « inconnue », comme dans l'outil.
   const fenetreMm = cotes.fenetre.trim() === "" ? 0 : mm(cotes.fenetre);
   // `illisible` : la case est remplie, mais ce n'est pas une mesure (des lettres, zéro, un nombre négatif).
-  if (!Number.isFinite(largeurMm) || largeurMm <= 0) return { etat: "incomplet", manque: "largeur", illisible: cotes.largeur.trim() !== "" };
+  if (!Number.isFinite(largeurBasMm) || largeurBasMm <= 0) return { etat: "incomplet", manque: "largeur", illisible: cotes.largeur.trim() !== "" };
+  if (!Number.isFinite(largeurHautMm) || largeurHautMm <= 0) return { etat: "incomplet", manque: "largeurHaut", illisible: cotes.largeurHaut.trim() !== "" };
   if (!Number.isFinite(allegeMm)) return { etat: "incomplet", manque: "allege", illisible: cotes.allege.trim() !== "" };
   if (!Number.isFinite(fenetreMm)) return { etat: "incomplet", manque: "fenetre", illisible: true };
   // En étage ou au rez-de-chaussée : JAMAIS présélectionné (décision du 03/10). La norme en dépend ;
@@ -124,8 +135,11 @@ export function texteManqueGC(lecture: LectureReleve | null | undefined, locale:
   const fr = locale === "fr";
   switch (lecture.manque) {
     case "largeur":
-      if (lecture.illisible) return fr ? "La largeur de la fenêtre n'est pas un nombre : corrigez-la." : "The window width is not a number: please correct it.";
-      return fr ? "Il manque la largeur de la fenêtre, d'un mur à l'autre." : "The window width, wall to wall, is missing.";
+      if (lecture.illisible) return fr ? "La largeur en bas n'est pas un nombre : corrigez-la." : "The width at the bottom is not a number: please correct it.";
+      return fr ? "Il manque la largeur en bas, d'un mur à l'autre, juste au-dessus de l'appui." : "The width at the bottom, wall to wall just above the sill, is missing.";
+    case "largeurHaut":
+      if (lecture.illisible) return fr ? "La largeur en haut n'est pas un nombre : corrigez-la." : "The width at the top is not a number: please correct it.";
+      return fr ? "Il manque la largeur en haut, vers 1 m du sol." : "The width at the top, about 1 m from the floor, is missing.";
     case "allege":
       if (lecture.illisible) return fr ? "La hauteur du sol au bas de la fenêtre n'est pas un nombre : corrigez-la." : "The height from the floor to the bottom of the window is not a number: please correct it.";
       return fr ? "Il manque la hauteur du sol au bas de la fenêtre." : "The height from the floor to the bottom of the window is missing.";
@@ -136,6 +150,42 @@ export function texteManqueGC(lecture: LectureReleve | null | undefined, locale:
     case "etage":
       return fr ? "Dites où est la fenêtre : en étage ou au rez-de-chaussée." : "Tell us where the window is: upstairs or on the ground floor.";
   }
+}
+
+/**
+ * Les deux largeurs mesurées et leur écart (murs pas parallèles), quand les deux cases sont lisibles ; sinon null.
+ * `retenueMm` : la plus petite, celle à laquelle l'atelier fabrique.
+ */
+export function largeursGC(cotes: CotesGardeCorps): { basMm: number; hautMm: number; ecartMm: number; retenueMm: number } | null {
+  const basMm = mm(cotes.largeur);
+  const hautMm = mm(cotes.largeurHaut);
+  if (!Number.isFinite(basMm) || basMm <= 0 || !Number.isFinite(hautMm) || hautMm <= 0) return null;
+  return { basMm, hautMm, ecartMm: Math.abs(basMm - hautMm), retenueMm: Math.min(basMm, hautMm) };
+}
+
+/** Ce qu'on dit au client quand ses murs ne sont pas parallèles (null : les deux largeurs sont égales, ou pas encore là). */
+export function texteEcartGC(cotes: CotesGardeCorps, locale: "fr" | "en"): { texte: string; visite: boolean } | null {
+  const l = largeursGC(cotes);
+  if (!l || l.ecartMm === 0) return null;
+  // Une largeur encore en cours de frappe (« 1 », « 11 »…) ou hors de ce que l'atelier fabrique : c'est le message de
+  // cette largeur qui parle, pas l'écart.
+  const B = BORNES_RELEVE_GC.largeurMm;
+  if (Math.min(l.basMm, l.hautMm) < B.min || Math.max(l.basMm, l.hautMm) > B.max) return null;
+  const fr = locale === "fr";
+  const n = (v: number) => v.toLocaleString(fr ? "fr-FR" : "en-GB");
+  if (l.ecartMm > ECART_MURS_GC_MM)
+    return {
+      visite: true,
+      texte: fr
+        ? `Vos murs ne sont pas parallèles : ${n(l.ecartMm)} mm d'écart. Nous fabriquons à la plus petite largeur (${n(l.retenueMm)} mm), mais au-delà de ${ECART_MURS_GC_MM} mm, nous vous conseillons la visite de l'atelier pour un encastrement parfait.`
+        : `Your walls are not parallel: ${n(l.ecartMm)} mm apart. We make it to the smaller width (${n(l.retenueMm)} mm), but beyond ${ECART_MURS_GC_MM} mm we advise a visit from the workshop for a perfect fit.`,
+    };
+  return {
+    visite: false,
+    texte: fr
+      ? `${n(l.ecartMm)} mm d'écart : nous fabriquons à la plus petite largeur, ${n(l.retenueMm)} mm.`
+      : `${n(l.ecartMm)} mm apart: we make it to the smaller width, ${n(l.retenueMm)} mm.`,
+  };
 }
 
 /**
@@ -169,6 +219,20 @@ export function etatQuestionGC(
       return rien;
     }
     case 2: {
+      const v = mm(cotes.largeurHaut);
+      if (!Number.isFinite(v) || v <= 0)
+        return {
+          manque:
+            cotes.largeurHaut.trim() !== ""
+              ? fr ? "La largeur en haut n'est pas un nombre : corrigez-la." : "The width at the top is not a number: please correct it."
+              : fr ? "Entrez la largeur en haut pour continuer." : "Enter the width at the top to continue.",
+          avertissement: null,
+        };
+      // Murs pas parallèles : l'écart est écrit sous la case, dès la saisie (releve-garde-corps.tsx, ecartMurs).
+      if (v < B.largeurMm.min) return { manque: null, avertissement: t.gcTropEtroit.replace("{min}", nombre(B.largeurMm.min)) };
+      return rien;
+    }
+    case 3: {
       const v = mm(cotes.allege);
       if (!Number.isFinite(v))
         return {
@@ -187,7 +251,7 @@ export function etatQuestionGC(
         };
       return rien;
     }
-    case 3: {
+    case 4: {
       // Facultative : vide, on passe.
       if (cotes.fenetre.trim() === "") return rien;
       const v = mm(cotes.fenetre);
@@ -201,11 +265,11 @@ export function etatQuestionGC(
       if (v > B.fenetreMm.max) return { manque: null, avertissement: t.gcAEtudier };
       return rien;
     }
-    case 4:
+    case 5:
       return t.gcEtageOptions.includes(cotes.etage)
         ? rien
         : { manque: fr ? "Touchez « En étage » ou « Au rez-de-chaussée »." : "Tap “Upstairs” or “Ground floor”.", avertissement: null };
-    case 5:
+    case 6:
       return cotes.mur !== ""
         ? rien
         : { manque: fr ? "Touchez le type de mur (ou « Je ne sais pas »)." : "Tap the wall type (or “I don't know”).", avertissement: null };
@@ -271,7 +335,15 @@ export function usePrixGardeCorps(releve: ReleveGC | null, options: OptionsGC): 
  */
 export function noteGardeCorps(cotes: CotesGardeCorps, t: Dictionary["artisanat"], reponse?: ReponsePrixGC | null, langue: "fr" | "en" = "fr"): string {
   return noteReleveGC(
-    { etage: cotes.etage, mur: cotes.mur, allegeMm: mm(cotes.allege), fenetreMm: mm(cotes.fenetre), jourMm: reponse?.jourMm ?? 0 },
+    {
+      etage: cotes.etage,
+      mur: cotes.mur,
+      allegeMm: mm(cotes.allege),
+      fenetreMm: mm(cotes.fenetre),
+      jourMm: reponse?.jourMm ?? 0,
+      largeurBasMm: largeursGC(cotes)?.basMm,
+      largeurHautMm: largeursGC(cotes)?.hautMm,
+    },
     t,
     langue,
   );
@@ -281,10 +353,11 @@ export function noteGardeCorps(cotes: CotesGardeCorps, t: Dictionary["artisanat"
  * Devant chaque case, le pictogramme de sa cote, dessiné comme sur un plan : une largeur entre deux murs,
  * une hauteur depuis le sol, une hauteur de fenêtre. Il remplace les pastilles ①②③ (« pas pro », 05/10).
  */
-function IconeCote({ cote }: { cote: "largeur" | "allege" | "fenetre" }) {
+function IconeCote({ cote }: { cote: "largeur" | "largeurHaut" | "allege" | "fenetre" }) {
   return (
     <svg aria-hidden viewBox="0 0 18 18" className="h-[18px] w-[18px] shrink-0 text-[#2a2116]" fill="none" stroke="currentColor" strokeWidth={1.3} strokeLinecap="round">
-      {cote === "largeur" && <path d="M2 5v8M16 5v8M2 9h14M3.6 10.6l1.6-3.2M12.8 10.6l1.6-3.2" />}
+      {cote === "largeur" && <path d="M2 3v12M16 3v12M2 12h14M3.6 13.6l1.6-3.2M12.8 13.6l1.6-3.2" />}
+      {cote === "largeurHaut" && <path d="M2 3v12M16 3v12M2 6h14M3.6 7.6l1.6-3.2M12.8 7.6l1.6-3.2" />}
       {cote === "allege" && <path d="M2.5 16h13M9 16V3M5 3h8M7.4 4.6l3.2-3.2M7.4 17.6l3.2-3.2" strokeOpacity={1} />}
       {cote === "fenetre" && <path d="M7 3h8v12H7zM11 3v12M3 3v12M1.4 4.6l3.2-3.2M1.4 16.6l3.2-3.2" />}
     </svg>
@@ -401,7 +474,7 @@ export function ReleveGardeCorps({
   const langue = locale === "en" ? "en-GB" : "fr-FR";
   const [coteActive, setCoteActive] = useState<CoteFenetre | null>(null);
   /** La cote dont parle la question posée (téléphone) : le croquis la montre, même sans le doigt dans la case. */
-  const coteQuestion: CoteFenetre | null = question === 1 ? "largeur" : question === 2 ? "allege" : question === 3 ? "fenetre" : null;
+  const coteQuestion: CoteFenetre | null = question === 1 || question === 2 ? "largeur" : question === 3 ? "allege" : question === 4 ? "fenetre" : null;
   // La même case sert d'une question de mesure à l'autre (le clavier reste ouvert) : ni « focus » ni « blur » ne
   // préviennent du changement. La cote éclairée repart donc de zéro à chaque question.
   const [questionVue, setQuestionVue] = useState(question);
@@ -444,7 +517,7 @@ export function ReleveGardeCorps({
   /** Le modèle que le client avait choisi et qui ne va plus avec ses nouvelles mesures : on le lui dit. */
   const [perdu, setPerdu] = useState<{ croix: number; barreaux: boolean; traverse: boolean; seuls: boolean; raisons: readonly string[]; pour: string } | null>(null);
   /** Les mesures affichées : le message « modèle perdu » ne vaut que pour celles du refus. */
-  const mesures = `${cotes.largeur}|${cotes.allege}|${cotes.fenetre}|${cotes.etage}`;
+  const mesures = `${cotes.largeur}|${cotes.largeurHaut}|${cotes.allege}|${cotes.fenetre}|${cotes.etage}`;
   /** Le refus déjà pris en compte (la réponse du serveur) : on ne le note qu'une fois. */
   const [refusVu, setRefusVu] = useState<ReponsePrixGC | null>(null);
   if (modeleRefuse && brute && !brute.ok && refusVu !== brute) {
@@ -458,7 +531,7 @@ export function ReleveGardeCorps({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modeleRefuse]);
   /** Le client a commencé à remplir : à partir de là, on lui montre précisément ce qui manque. */
-  const commence = cotes.largeur.trim() !== "" || cotes.allege.trim() !== "" || cotes.fenetre.trim() !== "" || t.gcEtageOptions.includes(cotes.etage);
+  const commence = cotes.largeur.trim() !== "" || cotes.largeurHaut.trim() !== "" || cotes.allege.trim() !== "" || cotes.fenetre.trim() !== "" || t.gcEtageOptions.includes(cotes.etage);
   const manque = commence && lecture.etat === "incomplet" ? lecture.manque : null;
   const texteManque = commence ? texteManqueGC(lecture, locale) : null;
   const nombre = (n: number) => n.toLocaleString(langue);
@@ -976,7 +1049,7 @@ export function ReleveGardeCorps({
   const allerA = (cote: CoteFenetre) => {
     // Téléphone, une question à la fois : la cote touchée ouvre sa question.
     if (question) {
-      const n = cote === "largeur" ? 1 : cote === "allege" ? 2 : cote === "fenetre" ? 3 : null;
+      const n = cote === "largeur" ? (question === 2 ? 2 : 1) : cote === "allege" ? 3 : cote === "fenetre" ? 4 : null;
       if (n) allerQuestion?.(n);
       return;
     }
@@ -989,7 +1062,32 @@ export function ReleveGardeCorps({
    * saisie en pilule à droite. L'aide n'est plus écrite sous le champ : elle
    * est dans la bulle.
    */
-  const ligne = (cote: "largeur" | "allege" | "fenetre", props: { label: string; aide?: string; info: string; placeholder: string }) => (
+  /** La largeur en haut se montre sur le croquis comme la largeur : c'est la même cote, plus haut. */
+  const coteCroquis = (cote: "largeur" | "largeurHaut" | "allege" | "fenetre"): CoteFenetre => (cote === "largeurHaut" ? "largeur" : cote);
+  /**
+   * Murs pas parallèles (décision de Quentin, 05/10) : sous les deux largeurs, l'écart et la largeur retenue ; au-delà de
+   * ECART_MURS_GC_MM, la visite de l'atelier est conseillée, à un geste.
+   */
+  const ecart = texteEcartGC(cotes, locale);
+  const versAtelier = (texte: string) => (
+    <button type="button" onClick={() => onChange({ ...cotes, qui: "atelier" })} className="font-semibold underline underline-offset-4">
+      {texte}
+    </button>
+  );
+  const ecartMurs = ecart && (
+    <p role="status" className={`py-2 text-[12.5px] leading-snug ${ecart.visite ? "font-medium text-[#7a4510]" : "text-[#5c5140]"}`}>
+      {ecart.texte}
+      {ecart.visite && <> {versAtelier(fr ? "Faire mesurer par l'atelier" : "Have the workshop measure")}</>}
+    </p>
+  );
+  /** La même chose, en une phrase, pour la colonne serrée de l'ordinateur. */
+  const ecartMursCourt = ecart?.visite && largeursGC(cotes) && (
+    <p role="status" className="py-1 text-[12px] font-medium leading-snug text-[#7a4510]">
+      {fr ? `Murs pas parallèles, ${largeursGC(cotes)!.ecartMm} mm d'écart : ` : `Walls ${largeursGC(cotes)!.ecartMm} mm out of parallel: `}
+      {versAtelier(fr ? "faites mesurer par l'atelier" : "have the workshop measure")}
+    </p>
+  );
+  const ligne = (cote: "largeur" | "largeurHaut" | "allege" | "fenetre", props: { label: string; aide?: string; info: string; placeholder: string }) => (
     <div className="py-2.5">
       <label htmlFor={`${idChamps}-${cote}`} className="flex items-center gap-2 text-[13.5px] leading-snug text-[#2b2320]">
         <IconeCote cote={cote} />
@@ -1019,7 +1117,7 @@ export function ReleveGardeCorps({
           onPointerUp={(e) => {
             if (e.button === 0 && cotes[cote].trim() === "") set(cote)(e.currentTarget.value);
           }}
-          onFocus={() => setCoteActive(cote)}
+          onFocus={() => setCoteActive(coteCroquis(cote))}
           onBlur={() => setCoteActive(null)}
           className={`curseur-cote block h-5 min-w-0 flex-1 cursor-pointer ${cotes[cote].trim() === "" ? "curseur-vide" : ""}`}
         />
@@ -1035,7 +1133,7 @@ export function ReleveGardeCorps({
             onChange={(e) => set(cote)(e.target.value)}
             // « ex. 1180 », en italique : une valeur d'EXEMPLE, pas une mesure saisie.
             placeholder={`${fr ? "ex." : "e.g."} ${props.placeholder}`}
-            onFocus={() => setCoteActive(cote)}
+            onFocus={() => setCoteActive(coteCroquis(cote))}
             onBlur={() => setCoteActive(null)}
             className="w-full min-w-0 bg-transparent text-right text-base tabular-nums text-[#2b2320] placeholder:text-[13px] placeholder:italic placeholder:text-[#726757] outline-none focus-visible:shadow-none focus-visible:outline-none sm:text-[15px]"
           />
@@ -1055,7 +1153,7 @@ export function ReleveGardeCorps({
       {messageQuestion ?? ""}
     </p>
   );
-  const grandeSaisie = (cote: "largeur" | "allege" | "fenetre", props: { label: string; info: string; placeholder: string }) => (
+  const grandeSaisie = (cote: "largeur" | "largeurHaut" | "allege" | "fenetre", props: { label: string; info: string; placeholder: string }) => (
     <div className="pt-1">
       <label htmlFor={`${idChamps}-${cote}`} className="sr-only">
         {props.label}
@@ -1079,7 +1177,7 @@ export function ReleveGardeCorps({
             }
           }}
           placeholder={`${fr ? "ex." : "e.g."} ${props.placeholder}`}
-          onFocus={() => setCoteActive(cote)}
+          onFocus={() => setCoteActive(coteCroquis(cote))}
           onBlur={() => setCoteActive(null)}
           className="w-full min-w-0 bg-transparent text-right text-[26px] font-semibold tabular-nums text-[#2b2320] placeholder:text-[18px] placeholder:font-normal placeholder:italic placeholder:text-[#726757] outline-none focus-visible:shadow-none focus-visible:outline-none"
         />
@@ -1097,6 +1195,7 @@ export function ReleveGardeCorps({
       </button>
       </div>
       {messageTel}
+      {cote === "largeurHaut" && ecartMurs && <div className="text-center">{ecartMurs}</div>}
       <input
         type="range"
         aria-label={props.label}
@@ -1108,7 +1207,7 @@ export function ReleveGardeCorps({
         onPointerUp={(e) => {
           if (e.button === 0 && cotes[cote].trim() === "") set(cote)(e.currentTarget.value);
         }}
-        onFocus={() => setCoteActive(cote)}
+        onFocus={() => setCoteActive(coteCroquis(cote))}
         onBlur={() => setCoteActive(null)}
         className={`curseur-cote mt-4 block h-6 w-full cursor-pointer ${cotes[cote].trim() === "" ? "curseur-vide" : ""}`}
       />
@@ -1130,14 +1229,69 @@ export function ReleveGardeCorps({
       {libelle}
     </button>
   );
+  // Courts : dans la colonne de l'ordinateur, chaque intitulé tient sur une ligne ; la bulle « i » dit où mesurer.
+  const libelleLargeurBas = fr ? "Largeur en bas" : "Width at the bottom";
+  const libelleLargeurHaut = fr ? "Largeur en haut" : "Width at the top";
+  const infoLargeurHaut = fr
+    ? "Mesurez la même largeur, d'un mur à l'autre, mais en haut : vers 1 m du sol, là où passera la main courante. Si vos murs ne sont pas parallèles, nous fabriquons à la plus petite des deux largeurs."
+    : "Measure the same width, wall to wall, but at the top: about 1 m from the floor, where the handrail will be. If your walls are not parallel, we make it to the smaller of the two widths.";
+  /**
+   * Ordinateur et tablette : les deux largeurs côte à côte, « en bas » et « en haut », sur une seule ligne — deux lignes
+   * à curseur faisaient déborder la colonne d'un écran de portable.
+   */
+  const ligneLargeurs = (
+    <div className="py-2.5">
+      <div className="flex items-center gap-2 text-[13.5px] leading-snug text-[#2b2320]">
+        <IconeCote cote="largeur" />
+        <span className="min-w-0 flex-1">
+          {fr ? "Largeur, d'un mur à l'autre" : "Width, wall to wall"}
+          {(manque === "largeur" || manque === "largeurHaut") && (
+            <span className="ml-2 inline-block rounded-full bg-[#fbeeda] px-2 py-0.5 align-middle text-[11px] font-medium text-[#7a4510]">
+              {cotes[manque].trim() !== "" ? (fr ? "à corriger" : "to correct") : fr ? "à remplir" : "to fill in"}
+            </span>
+          )}
+        </span>
+        <InfoBulle texte={`${t.gcLargeurInfo} ${t.gcLargeurAide} ${infoLargeurHaut}`} label={t.gcInfoLabel} />
+      </div>
+      <div className="mt-1.5 grid grid-cols-2 gap-2">
+        {(["largeur", "largeurHaut"] as const).map((cote) => (
+          <label key={cote} htmlFor={`${idChamps}-${cote}`} className="block min-w-0">
+            <span className="mb-1 block text-[11.5px] leading-tight text-[#6f6357]">
+              {cote === "largeur" ? (fr ? "en bas, à l'appui" : "bottom, at the sill") : fr ? "en haut, à 1 m" : "top, at 1 m"}
+            </span>
+            <span
+              className={`flex h-9 items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3 transition-[border-color,box-shadow] focus-within:border-[#2b2320] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)] ${
+                manque === cote ? "outline outline-2 outline-[#c98a3a]" : ""
+              }`}
+            >
+              <input
+                id={`${idChamps}-${cote}`}
+                inputMode="decimal"
+                aria-label={cote === "largeur" ? libelleLargeurBas : libelleLargeurHaut}
+                value={cotes[cote]}
+                onChange={(e) => set(cote)(e.target.value)}
+                placeholder={`${fr ? "ex." : "e.g."} 1180`}
+                onFocus={() => setCoteActive("largeur")}
+                onBlur={() => setCoteActive(null)}
+                className="w-full min-w-0 bg-transparent text-right text-base tabular-nums text-[#2b2320] placeholder:text-[13px] placeholder:italic placeholder:text-[#726757] outline-none focus-visible:shadow-none focus-visible:outline-none sm:text-[15px]"
+              />
+              <span className="text-xs text-[#6f6357]">mm</span>
+            </span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
   const questionTelephone =
     question === 1 ? (
-      grandeSaisie("largeur", { label: t.gcLargeurCourt, info: t.gcLargeurInfo, placeholder: "1180" })
+      grandeSaisie("largeur", { label: libelleLargeurBas, info: t.gcLargeurInfo, placeholder: "1180" })
     ) : question === 2 ? (
-      grandeSaisie("allege", { label: t.gcAllegeCourt, info: t.gcAllegeInfo, placeholder: String(CURSEURS.allege.depart) })
+      grandeSaisie("largeurHaut", { label: libelleLargeurHaut, info: infoLargeurHaut, placeholder: "1180" })
     ) : question === 3 ? (
-      grandeSaisie("fenetre", { label: t.gcFenetreCourt, info: t.gcFenetreInfo, placeholder: "1200" })
+      grandeSaisie("allege", { label: t.gcAllegeCourt, info: t.gcAllegeInfo, placeholder: String(CURSEURS.allege.depart) })
     ) : question === 4 ? (
+      grandeSaisie("fenetre", { label: t.gcFenetreCourt, info: t.gcFenetreInfo, placeholder: "1200" })
+    ) : question === 5 ? (
       <div className="pt-1">
         <div className="grid gap-2">
           {t.gcEtageOptions.map((option, i) => grosBouton(cotes.etage === option, () => set("etage")(option), option, i === 0))}
@@ -1145,7 +1299,7 @@ export function ReleveGardeCorps({
         {messageTel}
         <p className="mt-3 text-[12.5px] leading-snug text-[#5c5140]">{t.gcEtageInfo}</p>
       </div>
-    ) : question === 5 ? (
+    ) : question === 6 ? (
       <div id="mur-gc" className="scroll-mt-28 pt-1">
         <div className="grid grid-cols-2 gap-2">
           {t.gcMurOptions.map((option, i) => grosBouton(cotes.mur === option, () => set("mur")(option), option, i === 0))}
@@ -1233,7 +1387,11 @@ export function ReleveGardeCorps({
           const croquis = (
             <SchemaFenetre
               className="absolute inset-0 h-full w-full"
-              largeurMm={Number.isFinite(mm(cotes.largeur)) && mm(cotes.largeur) > 0 ? mm(cotes.largeur) : undefined}
+              // La largeur retenue (la plus petite des deux mesurées), celle du prix ; à la question « en haut », celle d'en haut.
+              largeurMm={(() => {
+                const v = question === 2 ? mm(cotes.largeurHaut) : (largeursGC(cotes)?.retenueMm ?? mm(cotes.largeur));
+                return Number.isFinite(v) && v > 0 ? v : undefined;
+              })()}
               allegeMm={Number.isFinite(mm(cotes.allege)) ? mm(cotes.allege) : undefined}
               hauteurFenetreMm={Number.isFinite(mm(cotes.fenetre)) && mm(cotes.fenetre) > 0 ? mm(cotes.fenetre) : undefined}
               croix={apercuModele ? apercuModele.croix : dessin?.ok ? dessin.croix : undefined}
@@ -1367,7 +1525,9 @@ export function ReleveGardeCorps({
                 entre les murs » tenait sur quatre lignes et chaque cote
                 prenait un écran. L'explication complète reste dans la bulle
                 « i », et le croquis coté juste à côté montre où mesurer. */}
-            {ligne("largeur", { label: t.gcLargeurCourt, aide: `${t.gcLargeur}. ${t.gcLargeurAide}`, info: t.gcLargeurInfo, placeholder: "1180" })}
+            {ligneLargeurs}
+            {/* Dans la colonne serrée de l'ordinateur, seulement quand la visite est conseillée (sur téléphone, toujours). */}
+            {ecartMursCourt}
             {ligne("allege", { label: t.gcAllegeCourt, aide: `${t.gcAllege}. ${t.gcAllegeAide}`, info: t.gcAllegeInfo, placeholder: String(CURSEURS.allege.depart) })}
             {ligne("fenetre", { label: `${t.gcFenetreCourt} · ${locale === "fr" ? "facultatif" : "optional"}`, aide: `${t.gcFenetre}. ${t.gcFenetreAide}`, info: t.gcFenetreInfo, placeholder: "1200" })}
 
@@ -1749,6 +1909,7 @@ export function ReleveGardeCorps({
 /** Les bornes des curseurs : celles que l'atelier fabrique (BORNES_RELEVE_GC), et où le curseur attend. */
 const CURSEURS = {
   largeur: { min: BORNES_RELEVE_GC.largeurMm.min, max: BORNES_RELEVE_GC.largeurMm.max, depart: 1180 },
+  largeurHaut: { min: BORNES_RELEVE_GC.largeurMm.min, max: BORNES_RELEVE_GC.largeurMm.max, depart: 1180 },
   // 585 : le bas de fenêtre du garde-corps de la photo (350 mm de haut, main courante à 1 025 mm du sol).
   allege: { min: 0, max: BORNES_RELEVE_GC.allegeMm.max, depart: 585 },
   fenetre: { min: 0, max: BORNES_RELEVE_GC.fenetreMm.max, depart: 1200 },

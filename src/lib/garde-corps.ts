@@ -59,6 +59,12 @@ export const BORNES_RELEVE_GC = {
   fenetreMm: { min: 0, max: 3000 },
 } as const;
 
+/**
+ * Murs pas parallèles (décision de Quentin, 05/10) : le client mesure la largeur en bas (à l'appui) et en haut (vers 1 m
+ * du sol) ; l'atelier fabrique à la plus petite. Au-delà de cet écart, le site conseille la visite de l'atelier.
+ */
+export const ECART_MURS_GC_MM = 10;
+
 /** Le jour laissé entre l'appui et le bas du cadre, par défaut dans l'outil (DEFAUTS_GC.jour). */
 export const JOUR_GC_MM = 90;
 
@@ -513,12 +519,26 @@ const deuxPoints = (langue: "fr" | "en") => (langue === "fr" ? "\u00a0: " : ": "
  * que la note la plus longue, dans les deux langues, passe entière.
  */
 export function noteReleveGC(
-  r: { etage: string; mur: string; allegeMm: number; fenetreMm: number; jourMm: number },
+  r: {
+    etage: string;
+    mur: string;
+    allegeMm: number;
+    fenetreMm: number;
+    jourMm: number;
+    /** Les deux largeurs mesurées (murs pas parallèles) : l'atelier fabrique à la plus petite, et les connaît pour la pose. */
+    largeurBasMm?: number;
+    largeurHautMm?: number;
+  },
   t: MotsNoteGC,
   langue: "fr" | "en" = "fr"
 ): string {
+  const largeurs =
+    Number.isFinite(r.largeurBasMm) &&
+    Number.isFinite(r.largeurHautMm) &&
+    (langue === "fr" ? `largeur en bas ${r.largeurBasMm} mm, en haut ${r.largeurHautMm} mm` : `width bottom ${r.largeurBasMm} mm, top ${r.largeurHautMm} mm`);
   return [
     r.etage,
+    largeurs,
     r.mur && `${t.gcMur.toLowerCase()}${deuxPoints(langue)}${r.mur.toLowerCase()}`,
     Number.isFinite(r.allegeMm) && `${t.gcAllege.toLowerCase()} ${r.allegeMm} mm`,
     Number.isFinite(r.fenetreMm) && `${t.gcFenetre.toLowerCase()} ${r.fenetreMm} mm`,

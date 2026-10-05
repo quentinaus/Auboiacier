@@ -157,7 +157,7 @@ test("ce que le client précise sur un garde-corps arrive entier au panier et au
     const plusLong = (liste: string[]) => liste.reduce((a, b) => (b.length > a.length ? b : a), "");
     // La note la plus longue que la fiche peut écrire : les plus longs libellés, les plus grandes cotes de l'outil.
     const note = noteReleveGC(
-      { etage: plusLong(t.gcEtageOptions), mur: plusLong(t.gcMurOptions), allegeMm: BORNES_RELEVE_GC.allegeMm.max, fenetreMm: BORNES_RELEVE_GC.fenetreMm.max, jourMm: 9999 },
+      { etage: plusLong(t.gcEtageOptions), mur: plusLong(t.gcMurOptions), allegeMm: BORNES_RELEVE_GC.allegeMm.max, fenetreMm: BORNES_RELEVE_GC.fenetreMm.max, jourMm: 9999, largeurBasMm: BORNES_RELEVE_GC.largeurMm.max, largeurHautMm: BORNES_RELEVE_GC.largeurMm.max },
       t,
       langue
     );
@@ -179,7 +179,7 @@ test("le nom envoyé à Stripe tient en 250 signes ; le libellé entier, note co
     const plusLong = (liste: string[]) => liste.reduce((a, b) => (b.length > a.length ? b : a), "");
     // Le garde-corps le plus bavard : la rosace au plus long libellé, la note la plus longue de la fiche.
     const note = noteReleveGC(
-      { etage: plusLong(t.gcEtageOptions), mur: plusLong(t.gcMurOptions), allegeMm: BORNES_RELEVE_GC.allegeMm.max, fenetreMm: BORNES_RELEVE_GC.fenetreMm.max, jourMm: 9999 },
+      { etage: plusLong(t.gcEtageOptions), mur: plusLong(t.gcMurOptions), allegeMm: BORNES_RELEVE_GC.allegeMm.max, fenetreMm: BORNES_RELEVE_GC.fenetreMm.max, jourMm: 9999, largeurBasMm: BORNES_RELEVE_GC.largeurMm.max, largeurHautMm: BORNES_RELEVE_GC.largeurMm.max },
       t,
       langue
     );
