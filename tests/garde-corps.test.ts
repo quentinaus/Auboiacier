@@ -20,6 +20,7 @@ import {
   BORNES_RELEVE_GC,
   ESSENCES_GC,
   JOUR_GC_MM,
+  JOUR_MINI_GC_MM,
   MAINS_COURANTES_GC,
   MAIN_COURANTE_MM,
   MINI_GC_MM,
@@ -65,8 +66,8 @@ test("les constantes du site sont celles de l'outil de plans", () => {
   assert.equal(MAIN_COURANTE_MM, HAUT_ETAGE + CIBLE_MARGE, "la hauteur de la main courante, depuis le sol");
   assert.equal(MINI_GC_MM, MINI_GC, "le plus petit garde-corps à croix");
   assert.equal(BARRE_APPUI_MM, BARRE_APPUI, "l'épaisseur d'une barre d'appui");
-  // Le garde-corps de départ (le « à partir de ») est le plus petit qui se vend : juste avant la barre d'appui.
-  assert.equal(RELEVE_DEPART_GC.allegeMm, MAIN_COURANTE_MM - JOUR_GC_MM - MINI_GC_MM);
+  // Le garde-corps de départ (le « à partir de ») est le plus petit qui se vend : le premier cadre bas à barreaux, là où même un jour de 40 ne laisse plus la place à des croix.
+  assert.equal(RELEVE_DEPART_GC.allegeMm, MAIN_COURANTE_MM - JOUR_MINI_GC_MM - MINI_GC_MM + 1);
   assert.deepEqual(
     { largeurMm: { ...BORNES_RELEVE_GC.largeurMm }, allegeMm: { ...BORNES_RELEVE_GC.allegeMm }, fenetreMm: { ...BORNES_RELEVE_GC.fenetreMm } },
     { largeurMm: { ...BORNES_GC.B }, allegeMm: { ...BORNES_GC.A }, fenetreMm: { ...BORNES_GC.Hf } }
@@ -112,8 +113,12 @@ test("la hauteur est celle de l'outil : plus de 350 mm imposés, ni de 80 cm au 
 
 test("le croquis suit le curseur sans le serveur : formeGC est la règle du moteur, à chaque millimètre", () => {
   for (let allegeMm = BORNES_GC.A.min; allegeMm <= BORNES_GC.A.max; allegeMm++) {
-    // Le cadre le plus bas (barreaux seuls, 120 mm) fixe la limite du croquis : au-dessus, les croix ; entre les deux, des barreaux.
-    const v = valeursGC(DEFAUTS_GC, { ...releve({ allegeMm }), essence: "chene" }, 16, 1, false, false, false, true);
+    // Le cadre le plus bas (barreaux seuls, 120 mm) fixe la limite du croquis : tant que des croix tiennent, c'est leur cadre
+    // (jour réduit jusqu'à 40) qu'on dessine ; au-dessus, le cadre à barreaux seuls (son propre minimum, son propre jour).
+    const entreeAllege = { ...releve({ allegeMm }), essence: "chene" as const };
+    const vCroix = valeursGC(DEFAUTS_GC, entreeAllege, 16, 1);
+    const vSeuls = valeursGC(DEFAUTS_GC, entreeAllege, 16, 1, false, false, false, true);
+    const v = geomGC(vCroix, 1).appui === null ? vCroix : vSeuls;
     const g = geomGC(v, 1);
     const f = formeGC(allegeMm);
     assert.equal(f.mode, g.appui === "barre" ? "barre" : g.appui === "rien" ? "aucun" : "garde-corps", `bas de fenêtre à ${allegeMm}`);
@@ -304,7 +309,7 @@ test("le « à partir de » est le prix du plus petit garde-corps, et aucun ne c
   const moinsCher = Math.min(...MAINS_COURANTES_GC.flatMap((e) => { const c = configurationGC(RELEVE_DEPART_GC, e); return c?.ok ? [prixGC(c)] : []; }));
   assert.equal(depart, moinsCher);
   for (const largeurMm of [300, 450, 800, 1180, 1500]) {
-    for (const allegeMm of [0, 300, 650, 900, 1200]) {
+    for (const allegeMm of [0, 300, 650, 735, 786, 800, 865, 900, 1200]) {
       for (const essence of MAINS_COURANTES_GC) {
         const c = configurationGC(releve({ largeurMm, allegeMm }), essence);
         if (c?.ok) assert.ok(prixGC(c) >= depart, `${largeurMm} × allège ${allegeMm} en ${essence} : ${prixGC(c)} € sous le « à partir de » ${depart} €`);

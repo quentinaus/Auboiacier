@@ -158,7 +158,8 @@ test("ce que le client précise sur un garde-corps arrive entier au panier et au
     // La note la plus longue que la fiche peut écrire : les plus longs libellés, les plus grandes cotes de l'outil.
     const note = noteReleveGC(
       { etage: plusLong(t.gcEtageOptions), mur: plusLong(t.gcMurOptions), allegeMm: BORNES_RELEVE_GC.allegeMm.max, fenetreMm: BORNES_RELEVE_GC.fenetreMm.max, jourMm: 9999 },
-      t
+      t,
+      langue
     );
     assert.ok(note.length <= MAX_PRECISIONS, `${langue} : ${note.length} signes > ${MAX_PRECISIONS}`);
     const tarifLu = await tarif([garde({ note }), { slug: RETRAIT }], langue);
@@ -179,7 +180,8 @@ test("le nom envoyé à Stripe tient en 250 signes ; le libellé entier, note co
     // Le garde-corps le plus bavard : la rosace au plus long libellé, la note la plus longue de la fiche.
     const note = noteReleveGC(
       { etage: plusLong(t.gcEtageOptions), mur: plusLong(t.gcMurOptions), allegeMm: BORNES_RELEVE_GC.allegeMm.max, fenetreMm: BORNES_RELEVE_GC.fenetreMm.max, jourMm: 9999 },
-      t
+      t,
+      langue
     );
     const lu = await tarif([garde({ note, fabricId: "medaillon" }), table(), garde({ note: "x".repeat(MAX_PRECISIONS), fabricId: "medaillon" }), { slug: RETRAIT }], langue);
     const libelles = lu.pieces.map(libellePiece);

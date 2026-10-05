@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { ChiffrageIndisponible, lireRequetePrixGC, reponsePrixGC } from "@/lib/prix-garde-corps.server";
 import { creerLimite } from "@/lib/limite-debit";
+import { budgetCalculGC } from "@/lib/budget-calcul-gc";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 /**
  * Cent vingt relevés par adresse et par dix minutes : de quoi essayer ses
@@ -30,8 +32,11 @@ export async function GET(request: Request) {
   }
   const requete = lireRequetePrixGC(new URL(request.url).searchParams);
   if (!requete) return NextResponse.json({ error: "invalid" }, { status: 400 });
+  if (budgetCalculGC.epuise(request, Date.now())) return NextResponse.json({ error: "too_many" }, { status: 429 });
+  const debut = performance.now();
   try {
     const reponse = reponsePrixGC(requete);
+    budgetCalculGC.depenser(request, performance.now() - debut, Date.now());
     if (!reponse) return NextResponse.json({ error: "invalid" }, { status: 400 });
     return NextResponse.json(reponse, { headers: { "cache-control": "private, max-age=600" } });
   } catch (erreur) {

@@ -76,7 +76,7 @@ export function PlanApercu({ parametres, fr, onClose }: { parametres: URLSearchP
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={image}
-              alt={fr ? `Plan d'aperçu : garde-corps de ${courant.plan.largeurMm} mm, ${courant.plan.seuls ? "barreaux droits" : `${courant.plan.croix} croix`}, hauteur ${courant.plan.hauteurMm} mm` : `Preview drawing: ${courant.plan.largeurMm} mm railing, ${courant.plan.seuls ? "vertical bars" : `${courant.plan.croix} crosses`}, ${courant.plan.hauteurMm} mm high`}
+              alt={fr ? `Plan d'aperçu : garde-corps de ${courant.plan.largeurMm} mm, ${courant.plan.seuls ? "barreaux verticaux" : `${courant.plan.croix} croix`}, hauteur ${courant.plan.hauteurMm} mm` : `Preview drawing: ${courant.plan.largeurMm} mm railing, ${courant.plan.seuls ? "vertical bars" : `${courant.plan.croix} ${courant.plan.croix > 1 ? "crosses" : "cross"}`}, ${courant.plan.hauteurMm} mm high`}
               width={1188}
               height={840}
               className="mx-auto block h-auto bg-white shadow-[0_2px_14px_-6px_rgba(43,35,32,0.35)]"

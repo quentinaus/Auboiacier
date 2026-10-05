@@ -149,7 +149,8 @@ function optionsTraduites(line: ResolvedLine, locale: "fr" | "en"): { nom: strin
   const { product, size, wood, metal, fabric, remplissage } = line;
   const fiche = productLocalise(product, locale);
   const rangTaille = product.sizes.findIndex((taille) => taille.id === size.id);
-  const sousVerre = remplissage?.sansCroix === true;
+  // Sous un panneau de verre, ou avec des barreaux seuls, il n'y a pas de rosace : on ne l'écrit pas.
+  const sousVerre = remplissage?.sansCroix === true || line.gc?.seuls === true;
   const options =
     [
       product.sizes.length > 1 || size.id === SUR_MESURE ? (rangTaille >= 0 ? fiche.sizes[rangTaille].label : size.label) : null,
@@ -224,8 +225,10 @@ export async function tarifer(
         epaisseurMm: coteMm(line.epaisseurMm),
         allegeMm: hauteurMm(line.allegeMm),
         enEtage: typeof line.enEtage === "boolean" ? line.enEtage : undefined,
-        fenetreMm: hauteurMm(line.fenetreMm),
-        modeleGc: typeof line.modeleGc === "string" ? line.modeleGc.slice(0, 8) : undefined,
+        // Une hauteur de fenêtre absente = inconnue (0) ; une hauteur illisible est refusée (NaN), jamais prise pour « inconnue ».
+        fenetreMm: line.fenetreMm === undefined || line.fenetreMm === null ? undefined : (hauteurMm(line.fenetreMm) ?? Number.NaN),
+        // (« 20-12-b-t » : 9 signes ; au-delà de 16, ce n'est plus un identifiant.)
+        modeleGc: typeof line.modeleGc === "string" ? line.modeleGc.slice(0, 16) : undefined,
         locale,
       },
       gc.prixReleve
@@ -249,7 +252,7 @@ export async function tarifer(
   // Plusieurs garde-corps : les frais fixes de l'atelier comptés une fois.
   const gardesCorps = tarif.pieces.filter((p) => p.line.gc);
   if (gardesCorps.length) {
-    tarif.remise = gc.remise(gardesCorps.map((p) => ({ releve: p.line.gc!.releve, essence: p.line.wood!.id, quantite: p.quantite, rosaceMm: p.line.gc!.rosaceMm })));
+    tarif.remise = gc.remise(gardesCorps.map((p) => ({ releve: p.line.gc!.releve, essence: p.line.gc!.essence, quantite: p.quantite, rosaceMm: p.line.gc!.rosaceMm })));
     if (!Number.isInteger(tarif.remise) || tarif.remise > 0) throw new Error("remise de garde-corps invalide");
   }
 

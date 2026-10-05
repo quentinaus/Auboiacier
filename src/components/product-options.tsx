@@ -1228,8 +1228,8 @@ export function ProductOptions({
   const cotesPourDevisGC =
     estGC && releveGC && !configGC
       ? locale === "fr"
-        ? `Fenêtre : ${releveGC.largeurMm} mm de large, bas à ${releveGC.allegeMm} mm du sol${releveGC.fenetreMm ? `, ${releveGC.fenetreMm} mm de haut` : ""}, ${releveGC.enEtage ? "en étage" : "au rez-de-chaussée"}${reponseGC && !reponseGC.ok && reponseGC.raison === "barre-appui" ? " — barre d'appui" : ""}`
-        : `Window: ${releveGC.largeurMm} mm wide, bottom ${releveGC.allegeMm} mm from the floor${releveGC.fenetreMm ? `, ${releveGC.fenetreMm} mm high` : ""}, ${releveGC.enEtage ? "upstairs" : "ground floor"}${reponseGC && !reponseGC.ok && reponseGC.raison === "barre-appui" ? " — support bar" : ""}`
+        ? `Fenêtre : ${releveGC.largeurMm} mm de large, bas à ${releveGC.allegeMm} mm du sol${releveGC.fenetreMm ? `, ${releveGC.fenetreMm} mm de haut` : ""}, ${releveGC.enEtage ? "en étage" : "au rez-de-chaussée"}${reponseGC && !reponseGC.ok && reponseGC.raison === "barre-appui" ? " — main courante seule" : ""}`
+        : `Window: ${releveGC.largeurMm} mm wide, bottom ${releveGC.allegeMm} mm from the floor${releveGC.fenetreMm ? `, ${releveGC.fenetreMm} mm high` : ""}, ${releveGC.enEtage ? "upstairs" : "ground floor"}${reponseGC && !reponseGC.ok && reponseGC.raison === "barre-appui" ? " — handrail on its own" : ""}`
       : null;
   /** Sous le grand prix : la pièce configurée, ou la visite et son créneau. */
   const optionsLabel = modeVisite
@@ -1389,6 +1389,8 @@ export function ProductOptions({
       if (cotesEff?.epaisseurMm) q.set("t", String(cotesEff.epaisseurMm));
     }
     if (woodId) q.set("wood", woodId);
+    // La rosace choisie : un modèle qui ne passe la norme qu'avec le grand médaillon doit se peser avec lui.
+    if (estGC && fabricId) q.set("fabric", fabricId);
     if (remplissageId) q.set("remplissage", remplissageId);
     q.set("qty", String(quantity));
     return q.toString();
@@ -1827,7 +1829,7 @@ export function ProductOptions({
         // Et la note pour l'atelier (étage, mur, allège, fenêtre).
         note:
           estGC
-            ? noteGardeCorps(cotesGardeCorps, t, configGC) || undefined
+            ? noteGardeCorps(cotesGardeCorps, t, configGC, locale) || undefined
             : // Une table à vos cotes : sa hauteur finie part avec, quand elle n'est pas celle d'usage.
               table &&
                 sizeIdEff === SUR_MESURE &&
@@ -2842,7 +2844,7 @@ export function ProductOptions({
                   {modeVisite
                     ? prixVisite !== null
                       ? // La visite a un prix : c'est lui qui part au panier, on le montre.
-                        `${locale === "fr" ? "Visite" : "Visit"} : ${prixAffiche(prixVisite, locale)}`
+                        `${locale === "fr" ? "Visite : " : "Visit: "}${prixAffiche(prixVisite, locale)}`
                       : locale === "fr"
                         ? "Visite : votre code postal"
                         : "Visit: your postcode"

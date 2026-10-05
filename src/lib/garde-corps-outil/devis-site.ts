@@ -201,8 +201,10 @@ function lignesSite(base: DevisGC, config: ConfigGC, line: ResolvedLine, quantit
   if (metal.id !== teinteModele.id) {
     titre = remplacer(titre, ` · ${majuscule(DS_GC.teinte)}`, ` · ${metal.label}`);
     const teinte = metal.label.toLowerCase();
+    // « teinte blanche » (et non « teinte blanc ») ; « teinte de l'acier blanc » reste juste (l'acier est masculin).
+    const teinteAccordee = metal.id === "blanc" ? "blanche" : teinte;
     // L'acier brut n'est pas peint : il est verni (le texte du site, depuis toujours).
-    peinture = metal.id === "brut" ? "Finition de l'acier — brut, vernis incolore de protection" : remplacer(peinture, `teinte ${DS_GC.teinte}`, `teinte ${teinte}`);
+    peinture = metal.id === "brut" ? "Finition de l'acier — brut, vernis incolore de protection" : remplacer(peinture, `teinte ${DS_GC.teinte}`, `teinte ${teinteAccordee}`);
     carac("Structure").value = remplacer(
       carac("Structure").value,
       `finition peinte — teinte de l'acier ${DS_GC.teinte}`,
@@ -318,7 +320,7 @@ function lignesAnglaises(fr: LignesSite, config: ConfigGC, line: ResolvedLine, q
   const verre = line.remplissage?.sansCroix === true;
   const L = config.v.B;
   const H = config.hauteurMm;
-  const bois = produit.woods.find((w) => w.id === line.wood?.id)!.label;
+  const bois = produit.woods.find((w) => w.id === line.wood?.id)!.label.split(",")[0];
   const teinte = produit.metals.find((m) => m.id === line.metal?.id)!.label;
   const rosace = produit.fabrics!.find((f) => f.id === line.fabric?.id)!.label;
   const croix = `${t.n} Saint Andrew's ${t.n > 1 ? "crosses" : "cross"}`;
@@ -372,7 +374,7 @@ function lignesAnglaises(fr: LignesSite, config: ConfigGC, line: ResolvedLine, q
 }
 
 function accrocheAnglaise(line: ResolvedLine, config: ConfigGC): string {
-  const bois = productLocalise(line.product, "en").woods.find((w) => w.id === line.wood?.id)!.label.toLowerCase();
+  const bois = productLocalise(line.product, "en").woods.find((w) => w.id === line.wood?.id)!.label.split(",")[0].toLowerCase();
   const main = config.v.mcType === "acier" ? "flat steel" : config.v.mcType === "profil" ? "profiled steel" : bois;
   return traits(config).seuls
     ? `Solid steel vertical bars, ${main} handrail. Made to the millimetre, fitted into your window.`
@@ -386,7 +388,7 @@ function caracteristiquesAnglaises(base: DevisGC, config: ConfigGC, line: Resolv
   const { v } = config;
   const t = traits(config);
   const verre = line.remplissage?.sansCroix === true;
-  const bois = produit.woods.find((w) => w.id === line.wood?.id)!.label;
+  const bois = produit.woods.find((w) => w.id === line.wood?.id)!.label.split(",")[0];
   const teinte = produit.metals.find((m) => m.id === line.metal?.id)!.label.toLowerCase();
   const rosace = produit.fabrics!.find((f) => f.id === line.fabric?.id)!.label;
   const haut = v.A + v.jour + config.hauteurMm;

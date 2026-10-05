@@ -160,6 +160,15 @@ export function lireRequetePrixGC(params: URLSearchParams): RequetePrixGC | null
  */
 const ROSACES_REPLI_GC = ["fleur", "medaillon"] as const;
 
+/**
+ * La rosace qui compte pour la norme : celle choisie par le client, sauf sous un panneau de verre (il n'y a plus de croix, donc
+ * plus de rosace : le panier calcule alors avec la fleur par défaut, la route et l'aperçu du plan doivent faire pareil).
+ */
+function rosaceDeLaRequete(q: RequetePrixGC): string | undefined {
+  const sousVerre = produitGC().remplissages?.find((r) => r.id === q.remplissageId)?.sansCroix === true;
+  return sousVerre ? undefined : q.fabricId;
+}
+
 /** Ce qui fait « le même dessin » d'un catalogue à l'autre : croix, barreaux en bas, traverse, barreaux seuls. */
 const cleDessin = (d: DessinGC) =>
   d.conforme
@@ -172,7 +181,8 @@ const cleDessin = (d: DessinGC) =>
  * permet (ModeleGC.rosace). Les dessins que seule une plus grande rosace permet sont proposés aussi.
  */
 function catalogueSiteGC(q: RequetePrixGC, hauteurMm: number): ModeleGC[] {
-  const choisie = q.fabricId !== undefined && Object.hasOwn(ROSACE_MM_GC, q.fabricId) ? q.fabricId : ROSACE_DEFAUT_GC;
+  const fabricId = rosaceDeLaRequete(q);
+  const choisie = fabricId !== undefined && Object.hasOwn(ROSACE_MM_GC, fabricId) ? fabricId : ROSACE_DEFAUT_GC;
   const base = catalogueGC(entreeGC(q.releve, q.essence, diametreRosaceGC(choisie)));
   const repli = ROSACES_REPLI_GC.filter((id) => diametreRosaceGC(id) > diametreRosaceGC(choisie)).map((id) => ({
     id: id as string,
@@ -238,7 +248,7 @@ function prixParMainCourante(q: RequetePrixGC): MainsPrixGC {
  * (la route répond 400).
  */
 export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
-  const c = configurationGC(q.releve, q.essence, diametreRosaceGC(q.fabricId));
+  const c = configurationGC(q.releve, q.essence, diametreRosaceGC(rosaceDeLaRequete(q)));
   if (!c) return null;
   if (!c.ok) {
     return {
@@ -286,7 +296,7 @@ export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
  * null : pas de garde-corps à dessiner (« à étudier »).
  */
 export function planApercuGC(q: RequetePrixGC, date = new Date()): PlanApercuGC | null {
-  const c = configurationGC(q.releve, q.essence, diametreRosaceGC(q.fabricId));
+  const c = configurationGC(q.releve, q.essence, diametreRosaceGC(rosaceDeLaRequete(q)));
   if (!c || !c.ok) return null;
   const R = calculerGC({ ...c.v });
   const jour = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", day: "2-digit", month: "2-digit", year: "numeric" }).format(date);

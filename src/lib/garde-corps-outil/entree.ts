@@ -61,7 +61,7 @@ export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: numb
     mcType: mc.type === "acier-plat" ? "acier" : mc.type === "acier-profile" ? "profil" : "bois",
     rosace: true,
     // Le jour sous le cadre : 90 mm, réduit (jamais sous 40) quand le garde-corps serait sinon trop bas (jourGC).
-    jour: jourGC(e.allegeMm),
+    jour: jourGC(e.allegeMm, seuls),
     // Le diamètre de la rosace choisie (la fleur de Ø100 par défaut).
     rD: e.rosaceMm ?? 100,
     Hs: 0,

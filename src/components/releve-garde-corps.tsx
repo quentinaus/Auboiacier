@@ -12,6 +12,7 @@ import {
   BORNES_RELEVE_GC,
   MAIN_COURANTE_MM,
   ROSACE_MM_GC,
+  lireMainCouranteGC,
   lireReponsePrixGC,
   noteReleveGC,
   parametresPrixGC,
@@ -188,10 +189,11 @@ export function usePrixGardeCorps(releve: ReleveGC | null, options: OptionsGC): 
  * cadre est celui que l'outil a retenu (la réponse du serveur). Le texte est
  * composé par noteReleveGC (src/lib/garde-corps.ts), que les tests lisent.
  */
-export function noteGardeCorps(cotes: CotesGardeCorps, t: Dictionary["artisanat"], reponse?: ReponsePrixGC | null): string {
+export function noteGardeCorps(cotes: CotesGardeCorps, t: Dictionary["artisanat"], reponse?: ReponsePrixGC | null, langue: "fr" | "en" = "fr"): string {
   return noteReleveGC(
     { etage: cotes.etage, mur: cotes.mur, allegeMm: mm(cotes.allege), fenetreMm: mm(cotes.fenetre), jourMm: reponse?.jourMm ?? 0 },
     t,
+    langue,
   );
 }
 
@@ -310,6 +312,9 @@ export function ReleveGardeCorps({
   /** Ce que le croquis dessine : la réponse, ou la dernière pendant qu'on recalcule. */
   const dessin = reponse ?? (prix.statut === "calcul" ? prix.precedent : null);
   const conforme = reponse?.ok ? reponse : null;
+  /** Le client a choisi le bois sur fer plat (et non : la fenêtre est large et l'atelier le pose d'office). */
+  const platChoisi = lireMainCouranteGC(mainCourante ?? "")?.type === "bois-plat";
+  const textRenfort = platChoisi ? t.gcRenfortChoisi : t.gcRenfort;
   const surVerre = verre?.surVerre === true;
   const releve = lecture.etat === "ok" ? lecture.releve : null;
   /** Le modèle que le client avait choisi et qui ne va plus avec ses nouvelles mesures : on le lui dit. */
@@ -345,7 +350,7 @@ export function ReleveGardeCorps({
       m.seuls ? (fr ? "barreaux verticaux seuls" : "vertical bars only") : `${m.croix} ${fr ? "croix" : m.croix > 1 ? "crosses" : "cross"}`,
       m.traverse ? (fr ? "traverse au milieu" : "middle rail") : null,
       !m.seuls && m.soubassementMm > 0 ? (fr ? "barreaux en bas" : "bars below") : null,
-      fr ? `acier carré de ${m.carre}` : `${m.carre} mm square steel`,
+      fr ? `acier carré de ${m.carre} mm` : `${m.carre} mm square steel`,
       m.renfort ? (fr ? "lisse haute renforcée" : "reinforced top rail") : null,
       m.rosace ? rosaceTexte(m.rosace) : null,
     ]
@@ -1195,8 +1200,8 @@ export function ReleveGardeCorps({
                 <div role="status">
                   <p className="text-[#2b2320]">
                     {fr
-                      ? `Le bas de votre fenêtre est à ${nombre(releve.allegeMm)} mm du sol, et la main courante se pose à ${nombre(reponse.mainCouranteMm)} mm (la hauteur de la loi) : il ne reste que ${nombre(reponse.mainCouranteMm - releve.allegeMm)} mm, trop peu pour un garde-corps. Une main courante seule respecte ici la norme : le vide dessous reste plus petit que la boule de la norme.`
-                      : `The bottom of your window is ${nombre(releve.allegeMm)} mm from the floor, and the handrail goes at ${nombre(reponse.mainCouranteMm)} mm (the height the law requires): only ${nombre(reponse.mainCouranteMm - releve.allegeMm)} mm are left, too little for a railing. A handrail on its own meets the standard here: the gap below it stays smaller than the standard's ball.`}
+                      ? `Le bas de votre fenêtre est à ${nombre(releve.allegeMm)} mm du sol, et la main courante se pose à ${nombre(reponse.mainCouranteMm)} mm (la loi demande 1 m au moins) : il ne reste que ${nombre(reponse.mainCouranteMm - releve.allegeMm)} mm, trop peu pour un garde-corps. Une main courante seule respecte ici la norme : le vide dessous reste plus petit que la boule de la norme.`
+                      : `The bottom of your window is ${nombre(releve.allegeMm)} mm from the floor, and the handrail goes at ${nombre(reponse.mainCouranteMm)} mm (the law asks for at least 1 m): only ${nombre(reponse.mainCouranteMm - releve.allegeMm)} mm are left, too little for a railing. A handrail on its own meets the standard here: the gap below it stays smaller than the standard's ball.`}
                   </p>
                   <p className="mt-1 text-[#5c5140]">
                     {fr ? "Nous la fabriquons sur devis : réponse sous 24 à 72 h." : "We make it on quotation: reply within 24 to 72 h."} {lienEtude}
@@ -1244,7 +1249,7 @@ export function ReleveGardeCorps({
                     {resultatSlot ? (fr ? "Conforme aux normes françaises" : "Compliant with French standards") : t.gcConforme}
                     {resultatSlot && (
                       <InfoBulle
-                        texte={`${fr ? "Hauteur : Code de la construction, art. R134-59. Espaces entre les barres : norme NF P01-012. Calculés pour votre fenêtre : nous ne vendons jamais un garde-corps qui ne les respecte pas." : "Height: French building code, art. R134-59. Gaps between the bars: standard NF P01-012. Worked out for your window: we never sell a railing that does not meet them."}${conforme.renfort ? ` ${t.gcRenfort}` : ""}`}
+                        texte={`${fr ? "Hauteur : Code de la construction, art. R134-59. Espaces entre les barres : norme NF P01-012. Calculés pour votre fenêtre : nous ne vendons jamais un garde-corps qui ne les respecte pas." : "Height: French building code, art. R134-59. Gaps between the bars: standard NF P01-012. Worked out for your window: we never sell a railing that does not meet them."}${conforme.renfort ? ` ${textRenfort}` : ""}`}
                         label={t.gcInfoLabel}
                       />
                     )}
@@ -1300,11 +1305,11 @@ export function ReleveGardeCorps({
                   {conforme.renfort &&
                     (resultatSlot ? (
                       <p className="info-renfort mt-1.5 flex items-center gap-1.5 text-[11.5px] leading-snug text-[#4a3f33]">
-                        {fr ? "Fenêtre large : traverse renforcée, incluse." : "Wide window: reinforced rail, included."}
-                        <InfoBulle texte={t.gcRenfort} label={t.gcInfoLabel} />
+                        {platChoisi ? (fr ? "Sur fer plat : lisse haute renforcée, incluse." : "On a flat bar: reinforced top rail, included.") : fr ? "Fenêtre large : lisse haute renforcée, incluse." : "Wide window: reinforced top rail, included."}
+                        <InfoBulle texte={textRenfort} label={t.gcInfoLabel} />
                       </p>
                     ) : (
-                      <p className="mt-1.5 rounded-lg bg-[#f3ede3] px-2.5 py-1.5 text-[#4a3f33]">{t.gcRenfort}</p>
+                      <p className="mt-1.5 rounded-lg bg-[#f3ede3] px-2.5 py-1.5 text-[#4a3f33]">{textRenfort}</p>
                     ))}
                   {PROPOSER_VERRE && verre && (
                     <p className="mt-1 text-[#5c5140]">
@@ -1353,7 +1358,7 @@ export function ReleveGardeCorps({
           {conforme && !surVerre && !resultatSlot && (
             <p className={`mt-3 rounded-xl px-3.5 py-2 text-[13px] leading-snug ${choisi ? "bg-[#e3efe4] text-[#1f5a2e]" : "bg-[#fbeeda] text-[#7a4510]"}`} role="status">
               {choisi
-                ? `${fr ? "Modèle choisi" : "Chosen model"} : ${libelleModele(choisi)}${schemaSlot ? "" : ` — ${prixAffiche(choisi.prix, locale)}`}`
+                ? `${fr ? "Modèle choisi : " : "Chosen model: "}${libelleModele(choisi)}${schemaSlot ? "" : ` — ${prixAffiche(choisi.prix, locale)}`}`
                 : fr
                   ? "Dernière étape : choisissez votre modèle, sous le croquis."
                   : "Last step: choose your model, under the sketch."}

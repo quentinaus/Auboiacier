@@ -48,7 +48,7 @@ function colisDemande(params: URLSearchParams): { kg: number; plusGrandeCoteMm: 
     if (largeurMm === undefined || allegeMm === undefined || (etage !== "1" && etage !== "0") || !woodId) return null;
     const ligne = ligneGC(
       { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm: mm("fenetre") ?? 0, ...(lireModeleGC(params.get("modele")) ? { modele: params.get("modele")! } : {}) },
-      { woodId, metalId: identifiant(params.get("metal")) ?? produit.metals[0]?.id, fabricId: produit.fabrics?.[0]?.id, remplissageId: identifiant(params.get("remplissage")) ?? produit.remplissages?.[0]?.id }
+      { woodId, metalId: identifiant(params.get("metal")) ?? produit.metals[0]?.id, fabricId: identifiant(params.get("fabric")) ?? produit.fabrics?.[0]?.id, remplissageId: identifiant(params.get("remplissage")) ?? produit.remplissages?.[0]?.id }
     );
     if (!ligne.ok || !ligne.line.gc) return null;
     const [L, H] = ligne.line.size.dimsMm!;

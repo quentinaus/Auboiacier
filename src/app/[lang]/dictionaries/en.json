@@ -138,10 +138,10 @@
   },
   "realisations": {
     "title": "Projects",
-    "subtitle": "Tables, guardrails, staircases, glass partitions and backlit ceilings, fitted for homes and businesses.",
+    "subtitle": "Tables, railings, staircases, glass partitions and backlit ceilings, fitted for homes and businesses.",
     "filterAll": "All",
     "filterTable": "Tables",
-    "filterGardeCorps": "Guardrails",
+    "filterGardeCorps": "Railings",
     "filterEscalier": "Staircases",
     "filterPlafond": "Backlit ceilings",
     "filterVerriere": "Glass partitions",
@@ -149,8 +149,8 @@
     "moreSoon": "More projects will be added as installs are completed.",
     "filterEmpty": "No project in this family has been published yet.",
     "altTableMikado": "Walnut Mikado table and green velvet chairs, in a dining room with stone walls",
-    "altGardeCorpsInterieur": "Window guardrail fitted into the reveal, seen from the room",
-    "altGardeCorpsRue": "The same guardrail seen from the street, resting on a tuffeau stone sill",
+    "altGardeCorpsInterieur": "Window railing fitted into the reveal, seen from the room",
+    "altGardeCorpsRue": "The same railing seen from the street, resting on a tuffeau stone sill",
     "altEscalierSalle": "Central-stringer staircase, in a room with limewashed walls",
     "altEscalierMarche": "Detail of a step: solid oak resting on its steel stringer",
     "altSalle": "Backlit stretch ceiling above a dining table",
@@ -198,7 +198,7 @@
     "descriptifTitle": "The piece in detail",
     "sectionFaq": "Frequently asked questions",
     "faqDeliveryQ": "What are the lead and delivery times?",
-    "faqDeliveryA": "Each piece is made to order. The time is shown on the piece's own page, on the “Lead time” line: from 3 to 12 weeks depending on the model — a chair leaves sooner than a staircase. Then comes delivery across mainland France with assembly included; we propose a precise slot as soon as your piece is ready.",
+    "faqDeliveryA": "Each piece is made to order. The time is shown on the piece's own page, on the “Lead time” line: from 3 to 12 weeks depending on the model — a chair leaves sooner than a staircase. Then comes delivery across mainland France (assembly is included if you choose fitting by the workshop); we propose a precise slot as soon as your piece is ready.",
     "faqCareQ": "How do I care for a wood & steel piece?",
     "faqCareA": "A soft dry cloth day to day. For oiled wood, re-apply hardwax oil once a year; scratches sand out lightly. Painted steel wipes clean with a damp sponge — no abrasives.",
     "relatedTitle": "More from the workshop",
@@ -208,7 +208,7 @@
     "helpTitle": "A question about this piece?",
     "helpCta": "Get in touch",
     "deliveryTitle": "Delivery anywhere in France, fitting optional",
-    "deliveryBody": "We deliver anywhere in mainland France by carrier: the price depends on your town, the weight and the size, and appears on the product page as soon as you enter your postcode. The piece travels under blankets, with no throw-away packaging, and we agree a precise time slot with you. The piece arrives ready, with its notes. If you would rather the workshop delivered and fitted it itself, choose that on the product page: the price depends on the distance from Saumur, and it all happens in a single trip.",
+    "deliveryBody": "We deliver anywhere in mainland France by carrier: the price depends on your town, the weight and the size, and appears on the product page as soon as you enter your postcode. The piece travels protected, and we agree a precise time slot with you. The piece arrives ready, with its notes. If you would rather the workshop delivered and fitted it itself, choose that on the product page: the price depends on the distance from Saumur, and it all happens in a single trip.",
     "delaiTitle": "Lead time",
     "delaiBody": "Nothing is kept in stock: your piece is made for you, to order. Its lead time is shown above, on the “Lead time” line, and confirmed when you order.",
     "delaiCta": "Order",
@@ -274,7 +274,7 @@
     "poseInvalide": "This does not look like a French postcode.",
     "poseErreur": "We cannot price the fitting right now. Please try again in a moment.",
     "poseResume": "Delivery and fitting at home",
-    "poseAjoutee": "Fitting is added to the basket with the piece.",
+    "poseAjoutee": "Fitting is added to the cart with the piece.",
     "inclusPose": "Home fitting optional, priced by distance.",
     "inclusAtelier": "Made in our workshop in Saumur, in the Loire Valley.",
     "inclusPaiement": "Secure card payment: your card details never pass through our website.",
@@ -379,7 +379,7 @@
     "gcCreneauAucun": "No free slot for now: write to us and we will find a date together.",
     "gcCreneauChargement": "Loading availability…",
     "gcCreneauChoisi": "Appointment: {date}.",
-    "gcCreneauManque": "Pick a half-day to add the visit to your basket.",
+    "gcCreneauManque": "Pick a half-day to add the visit to your cart.",
     "gcQuiAtelierTag": "Easiest",
     "gcVisiteTropLoin": "{commune} is {km} km from Saumur: we do not travel beyond 200 km. Measure yourself following the sketch — we build and ship to your measurements.",
     "gcPieceApresVisite": "Exact price sent after the visit, fitting included",
@@ -395,7 +395,7 @@
     "gcPrixCompris": "wood and steel included",
     "gcLot": "Several windows? The workshop's fixed costs are paid only once: a discount applies from the second railing, even with different sizes.",
     "gcLotAutre": "Add another railing",
-    "gcLotDeja": "{n} already in your basket: the discount is worked out in the basket, across all the railings.",
+    "gcLotDeja": "Already in your cart: {n}. The discount is worked out in the cart, across all the railings.",
     "inclusLivraisonPose": "Delivery in mainland France included, fixings and fitting guide supplied — nothing is added at checkout.",
     "gcHorsBareme": "Beyond {l} mm wide we still make it — in several parts, on quotation. Write to us with your measurements: we reply within 48 h.",
     "gcHorsBaremeCourt": "Over {l} mm wide: on quotation",
@@ -422,6 +422,7 @@
     "gcAEtudier": "These measurements go beyond what our model allows within the standard. We study your window with you, with no obligation.",
     "gcAEtudierSolidite": "At this width our model would not be stiff enough, even reinforced. We work out a sturdier solution with you, with no obligation.",
     "gcAEtudierFixation": "Your railing would be wide and low: the fixings in the wall would be overloaded. We work out a safe fixing with you, with no obligation.",
+    "gcRenfortChoisi": "Handrail on a flat bar: the top rail is stiffened by a flat steel bar, hidden under the wood. The handrail is 60 mm wide. It is included in the price. Before making it, the workshop checks the fixing into your wall with you.",
     "gcRenfort": "Wide window: the top rail is stiffened by a flat steel bar hidden under the handrail. The handrail is 60 mm wide. It is included in the price. Before making it, the workshop checks the fixing into your wall with you.",
     "gcTropEtroit": "The smallest window we fit is {min} mm wide.",
     "gcCalcul": "Working out the railing…",
@@ -705,13 +706,13 @@
     "modeManquant": "Choose how to receive your pieces (delivery, fitting or collection from the workshop): open the piece's page again.",
     "tarifCalcul": "Working out the prices…",
     "tarifIndisponible": "The prices cannot be worked out right now. Try again in a moment, or write to us.",
-    "prixChange": "A railing has changed since the basket was shown: check it, then pay again.",
+    "prixChange": "A railing has changed since the cart was shown: check it, then pay again.",
     "delivery": "Delivery",
     "deliveryIncluded": "Included",
     "poseLine": "Home fitting",
     "deliveryWithPose": "In the fitting",
     "prevenirTitre": "The workshop opens in late November 2026",
-    "prevenirTexte": "Auboiacier is being set up. Orders open in late November 2026. Leave your email and we will write to you as soon as we open, with your basket. No payment before then.",
+    "prevenirTexte": "Auboiacier is being set up. Orders open in late November 2026. Leave your email and we will write to you as soon as we open, with your cart. No payment before then.",
     "prevenirEmail": "Your email",
     "prevenirEmailPh": "you@example.com",
     "prevenirBouton": "Let me know when you open",
@@ -961,14 +962,14 @@
     },
     "realisations": {
       "title": "Our projects: furniture & fittings",
-      "description": "Tables, guardrails, staircases, glass partitions and backlit ceilings for homes and businesses in the Loire Valley, from our Saumur workshop."
+      "description": "Tables, railings, staircases, glass partitions and backlit ceilings for homes and businesses in the Loire Valley, from our Saumur workshop."
     },
     "devis": {
       "title": "Instant quote, priced in one minute",
       "description": "Enter your dimensions and see the price in one minute: steel and wood tables, window railings, light ceilings. Delivery anywhere in France."
     },
     "panier": {
-      "title": "Your basket",
+      "title": "Your cart",
       "description": "The pieces you have selected from the workshop."
     },
     "cgv": {
@@ -1034,7 +1035,7 @@
       },
       {
         "title": "Anywhere in mainland France",
-        "body": "Pieces from the collection are delivered anywhere in mainland France by carrier, priced by your town: they travel under blankets, with no throw-away packaging, and we agree a time slot with you. For fitting further afield (backlit stretch ceiling, steel partition, staircase), write to us: we look at the job and the driving time, and we give you a straight answer."
+        "body": "Pieces from the collection are delivered anywhere in mainland France by carrier, priced by your town: they travel protected, and we agree a time slot with you. For fitting further afield (backlit stretch ceiling, steel partition, staircase), write to us: we look at the job and the driving time, and we give you a straight answer."
       },
       {
         "title": "How a project runs",
@@ -1069,7 +1070,7 @@
       },
       {
         "q": "How does delivery work?",
-        "a": "We deliver anywhere in mainland France by carrier: the price depends on your town, the weight and the size, and appears on the product page as soon as you enter your postcode. Your piece travels under blankets, with no throw-away packaging, and we agree a precise time slot with you. The piece arrives ready, with its notes. If you would rather the workshop delivered and fitted it itself, choose that on the product page: the price depends on the distance from Saumur, and it all happens in a single trip."
+        "a": "We deliver anywhere in mainland France by carrier: the price depends on your town, the weight and the size, and appears on the product page as soon as you enter your postcode. Your piece travels protected, and we agree a precise time slot with you. The piece arrives ready, with its notes. If you would rather the workshop delivered and fitted it itself, choose that on the product page: the price depends on the distance from Saumur, and it all happens in a single trip."
       },
       {
         "q": "Where do you work?",

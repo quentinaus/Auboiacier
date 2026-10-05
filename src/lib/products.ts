@@ -1586,8 +1586,8 @@ export const products: Product[] = [
         body: "Le cadre et les croisillons sont en acier plein, soudés puis peints à l'atelier. Au croisement, une rosace de fonderie, comme sur les balcons anciens de Saumur. Quatre modèles sont proposés, en aluminium moulé, en fonte ou en acier ; vous choisissez le vôtre à la commande.",
       },
       {
-        title: "Une main courante en bois massif de 40 mm",
-        body: "Le dessus est une pièce de bois massif de 40 mm, arrondie, poncée et huilée. La main s'y pose sans accrocher, l'été comme l'hiver. Pin, hêtre, chêne ou noyer au choix ; le chêne est celui de la photo. Sur les fenêtres larges (plus de 1,67\u00a0m), elle fait 60\u00a0mm de large et cache un fer plat d\'acier qui raidit la barre du haut\u00a0: c\'est compris dans le prix.",
+        title: "Une main courante en bois ou en acier",
+        body: "Quatre modèles au choix. En bois massif (pin, hêtre, chêne ou noyer ; le chêne est celui de la photo), arrondi, poncé et huilé : rainuré de 40 × 40 mm, il s'emboîte sur le cadre ; ou de 60 × 45 mm, vissé sur un fer plat de 60 × 10 mm qui raidit la lisse haute (obligatoire à partir de 1,67 m de large, compris dans le prix). En acier, peint comme le cadre : un fer plat de 40 × 8 mm soudé à plat, ou un profilé du commerce de 40 × 10 mm. Le choix se fait sur la fiche, avec le prix de chacun.",
       },
       {
         title: "Deux mesures à relever",
@@ -1601,7 +1601,7 @@ export const products: Product[] = [
     specs: [
       { label: "Structure", value: "Acier plein, soudure TIG, finition peinte" },
       { label: "Motif", value: "Croix de Saint-André à rosaces de fonderie, ou barreaux verticaux" },
-      { label: "Main courante", value: "Pin, hêtre, chêne ou noyer massif au choix, 40 mm (60 mm de large sur les fenêtres larges, avec un fer plat d'acier caché dessous), finition huile-cire" },
+      { label: "Main courante", value: "Au choix : bois massif (pin, hêtre, chêne ou noyer) rainuré de 40 × 40 mm ou de 60 × 45 mm sur fer plat de 60 × 10 mm, finition huile-cire ; ou acier peint, fer plat de 40 × 8 mm ou profilé de 40 × 10 mm" },
       { label: "Pose", value: "Encastré dans le tableau de la fenêtre, fixations fournies — vous mesurez, nous fabriquons" },
       { label: "Prise de cotes", value: "Par vous, au mètre — ou par l'atelier, dès 19,99 € jusqu'à 30 km de Saumur, déduits de la commande" },
       { label: "Normes", value: "Conforme aux normes françaises : hauteur calculée selon l'art. R134-59 du Code de la construction ; espaces entre les barres selon la NF P01-012" },
@@ -1627,8 +1627,8 @@ export const products: Product[] = [
           body: "The frame and the braces are solid steel, welded then painted in the workshop. Where the bars cross sits a cast rosette, as on the old balconies of Saumur. Four models are offered, in cast aluminium, cast iron or steel; you choose yours with the order.",
         },
         {
-          title: "A 40 mm solid wood handrail",
-          body: "The top is a 40 mm piece of solid wood, rounded, sanded and oiled. The hand rests on it without catching, summer or winter. Pine, beech, oak or walnut; oak is the one in the photo. On wide windows (over 1.67\u00a0m) it is 60\u00a0mm wide and hides a flat steel bar that stiffens the top rail: it is included in the price.",
+          title: "A wood or steel handrail",
+          body: "Four designs to choose from. In solid wood (pine, beech, oak or walnut; oak is the one in the photo), rounded, sanded and oiled: grooved, 40 × 40 mm, it fits over the frame; or 60 × 45 mm, screwed onto a 60 × 10 mm flat bar that stiffens the top rail (required from 1.67 m wide, included in the price). In steel, painted like the frame: a 40 × 8 mm flat bar welded flat, or an off-the-shelf 40 × 10 mm profile. You choose on the product page, with the price of each.",
         },
         {
           title: "Two measurements to take",
@@ -1642,7 +1642,7 @@ export const products: Product[] = [
       specs: [
         { label: "Frame", value: "Solid steel, TIG welded, painted finish" },
         { label: "Pattern", value: "Saint Andrew's crosses with cast rosettes, or vertical bars" },
-        { label: "Handrail", value: "Pine, beech, oak or walnut to choose from, 40 mm (60 mm wide on wide windows, with a flat steel bar hidden underneath), oil-wax finish" },
+        { label: "Handrail", value: "Your choice: solid wood (pine, beech, oak or walnut), grooved 40 × 40 mm or 60 × 45 mm on a 60 × 10 mm flat bar, oil-wax finish; or painted steel, 40 × 8 mm flat bar or 40 × 10 mm profile" },
         { label: "Fitting", value: "Fits into the window reveal, fixings supplied — you measure, we build" },
         { label: "Survey", value: "By you, with a tape — or by the workshop, from €19.99 within 30 km of Saumur, deducted from the order" },
         { label: "Standards", value: "Compliant with French standards: height set by art. R134-59 of the French building code; gaps between the bars to NF P01-012" },
@@ -2472,6 +2472,8 @@ export type ResolvedLine = {
     renfort: boolean;
     /** Le diamètre de la rosace chiffrée, en mm : il compte pour la norme. */
     rosaceMm: number;
+    /** La main courante DEMANDÉE (« chene ») : la remise sur la quantité se calcule sur elle, comme le prix et le devis (wood est celle qui sera fabriquée). */
+    essence: string;
     /** Le poids d'une pièce : celui de l'outil, plus le verre s'il remplace les croix. */
     kg: number;
   };
@@ -3028,6 +3030,8 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
   const mc = lireMainCouranteGC(wood.value.id);
   const boisFabrique = (r.renfort && mc?.type === "bois-rainure" && mc.essence ? product.woods.find((w) => w.id === idMainCouranteGC("bois-plat", mc.essence!)) : undefined) ?? wood.value;
   const verre = remplissage.value?.sansCroix === true;
+  // Un panneau de verre remplace les croix : sur un cadre à barreaux seuls (bas de fenêtre haut), il n'y a rien à remplacer.
+  if (verre && r.seuls) return { ok: false, reason: "a_etudier" };
   const supplementVerre = verre && remplissage.value ? supplementRemplissage(remplissage.value, largeurMm, r.hauteurMm) : 0;
   // Sans croix (verre, barreaux seuls) il n'y a pas de rosace : son supplément ne s'applique pas.
   const sansRosace = verre || r.seuls;
@@ -3072,6 +3076,7 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
         seuls: r.seuls,
         renfort: r.renfort,
         rosaceMm,
+        essence: wood.value.id,
         kg: r.kg + (verre ? ((largeurMm * r.hauteurMm) / 1e6) * VERRE_KG_PAR_M2 : 0),
       },
     },

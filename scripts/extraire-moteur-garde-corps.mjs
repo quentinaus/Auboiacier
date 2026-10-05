@@ -496,6 +496,8 @@ function comparerAvecOutil(M, D, CH) {
     { nom: "barreaux seuls, trop souple", valeurs: { B: 2400, A: 300, seuls: true } },
     // Le jour automatique : à 760 mm du sol, le jour tapé (90) est réduit à 65 pour que le garde-corps fasse 200 mm.
     { nom: "jour automatique, bas de fenêtre à 760", valeurs: { B: 1180, A: 760, jourAuto: true, jour: 65, jourSaisi: 90 }, lire: true },
+    // Barreaux seuls à 760 mm : leur minimum (120) laisse le jour à 90 — c'est ce que le site applique (jourGC(allège, seuls)).
+    { nom: "barreaux seuls, bas de fenêtre à 760 : jour 90", valeurs: { B: 1180, A: 760, seuls: true, jourAuto: true, jour: 90, jourSaisi: 90 }, lire: true },
     { nom: "barreaux seuls bas, bas de fenêtre à 840", valeurs: { B: 1180, A: 840, seuls: true, jourAuto: true, jour: 65, jourSaisi: 90 }, lire: true },
   );
   let variantes = 0;

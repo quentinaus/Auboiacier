@@ -32,10 +32,10 @@ const MOTS = {
     pareil: "Même prix",
     nom: { "bois-rainure": "Bois rainuré", "bois-plat": "Bois sur fer plat", "acier-plat": "Acier, fer plat", "acier-profile": "Acier, profilé" },
     detail: {
-      "bois-rainure": "Carré de bois 40 × 40, creusé dessous : il s'emboîte sur le cadre.",
-      "bois-plat": "Bois 60 × 45 vissé sur un fer plat 60 × 10 soudé : plus large, plus rigide.",
-      "acier-plat": "Fer plat 40 × 8 soudé à plat sur le cadre, peint comme le cadre.",
-      "acier-profile": "Profilé du commerce 40 × 10, rainuré, emboîté sur le cadre et peint.",
+      "bois-rainure": "Carré de bois 40 × 40 mm, creusé dessous : il s'emboîte sur le cadre.",
+      "bois-plat": "Bois 60 × 45 mm vissé sur un fer plat 60 × 10 mm soudé : plus large, plus rigide.",
+      "acier-plat": "Fer plat 40 × 8 mm soudé à plat sur le cadre, peint comme le cadre.",
+      "acier-profile": "Profilé du commerce 40 × 10 mm, rainuré, emboîté sur le cadre et peint.",
     },
     impossible: {
       "bois-rainure": "Fenêtre large : un fer plat est nécessaire sous le bois.",
@@ -53,10 +53,10 @@ const MOTS = {
     pareil: "Same price",
     nom: { "bois-rainure": "Grooved wood", "bois-plat": "Wood on flat bar", "acier-plat": "Steel, flat bar", "acier-profile": "Steel, profiled" },
     detail: {
-      "bois-rainure": "40 × 40 wooden block, grooved underneath: it fits over the frame.",
-      "bois-plat": "60 × 45 wood screwed onto a welded 60 × 10 flat bar: wider and stiffer.",
-      "acier-plat": "40 × 8 flat bar welded flat on the frame, painted like the frame.",
-      "acier-profile": "Off-the-shelf 40 × 10 grooved profile, fitted over the frame and painted.",
+      "bois-rainure": "40 × 40 mm wooden block, grooved underneath: it fits over the frame.",
+      "bois-plat": "60 × 45 mm wood screwed onto a welded 60 × 10 mm flat bar: wider and stiffer.",
+      "acier-plat": "40 × 8 mm flat bar welded flat on the frame, painted like the frame.",
+      "acier-profile": "Off-the-shelf 40 × 10 mm grooved profile, fitted over the frame and painted.",
     },
     impossible: {
       "bois-rainure": "Wide window: a flat bar is needed under the wood.",

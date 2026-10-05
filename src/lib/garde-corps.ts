@@ -87,8 +87,10 @@ export const JOUR_MINI_GC_MM = 40;
  * Quand même 40 mm ne suffit pas pour des croix, on cherche pour un cadre à barreaux seuls (120 mm au minimum).
  * Hors de ces cas, le jour normal. C'est la même règle que le « jour automatique » de l'outil de plans.
  */
-export function jourGC(allegeMm: number): number {
-  for (const mini of [MINI_GC_MM, MINI_SEULS_GC_MM]) {
+export function jourGC(allegeMm: number, seuls = false): number {
+  // Un cadre à barreaux seuls se juge sur son propre minimum (120 mm), comme la case « barreaux seuls » de l'outil de plans :
+  // sa main courante arrive à la hauteur sans qu'on réduise le jour (à 760 mm du sol, 90 et non 65).
+  for (const mini of seuls ? [MINI_SEULS_GC_MM] : [MINI_GC_MM, MINI_SEULS_GC_MM]) {
     const place = MAIN_COURANTE_MM - allegeMm - mini;
     if (place >= JOUR_GC_MM) return JOUR_GC_MM;
     if (place >= JOUR_MINI_GC_MM) return place;
@@ -245,15 +247,15 @@ export type ModeleGC = {
 export const MODELES_GC_MAX = 48;
 
 /**
- * Le relevé qui fait le « à partir de » du garde-corps : le plus petit que
- * l'outil fabrique — la fenêtre la plus étroite (300 mm), en étage, avec un
- * bas de fenêtre à 735 mm du sol (le garde-corps a alors sa hauteur minimale,
- * 200 mm, et sa main courante arrive pile à la norme ; plus haut, une barre
- * d'appui suffit). Le prix annoncé est celui de l'outil pour ce relevé, dans
- * l'essence la moins chère : aucun garde-corps ne coûte moins (un test le
- * vérifie). À AJUSTER par Quentin s'il préfère annoncer une fenêtre courante.
+ * Le relevé qui fait le « à partir de » du garde-corps : le plus petit que l'outil fabrique — la fenêtre la plus étroite
+ * (300 mm), en étage, avec le bas de fenêtre le plus haut où il faut encore des croix de moins de 200 mm (786 mm : même avec
+ * un jour de 40, un cadre à croix ne tiendrait plus), donc le premier du CADRE BAS À BARREAUX (120 mm au minimum), le moins
+ * cher de tous : 260 € contre 280 € avec des croix à 735 mm. Plus haut (866 mm), la loi n'impose plus de garde-corps complet
+ * (« main courante seule » sur devis). Le prix annoncé est celui de l'outil pour ce relevé, dans la main courante la moins
+ * chère : aucun garde-corps ne coûte moins (un test le vérifie sur toutes les allèges). À AJUSTER par Quentin s'il préfère
+ * annoncer une fenêtre courante.
  */
-export const RELEVE_DEPART_GC: ReleveGC = { largeurMm: BORNES_RELEVE_GC.largeurMm.min, allegeMm: 735, enEtage: true, fenetreMm: 0 };
+export const RELEVE_DEPART_GC: ReleveGC = { largeurMm: BORNES_RELEVE_GC.largeurMm.min, allegeMm: MAIN_COURANTE_MM - JOUR_MINI_GC_MM - MINI_GC_MM + 1, enEtage: true, fenetreMm: 0 };
 
 /** Les alertes de l'outil, réduites à un mot-clé que le site sait traduire. */
 export type CodeAlerteGC =
@@ -407,14 +409,17 @@ function lireTrousGC(brut: unknown): TrousGC | null | undefined {
   const o = brut as Record<string, unknown>;
   const nb = (x: unknown, min = 0) => typeof x === "number" && Number.isFinite(x) && x >= min && x <= 100000;
   const cadre = o.cadreMm as Record<string, unknown> | null;
-  if (!cadre || typeof cadre !== "object" || !nb(cadre.l, 1) || !nb(cadre.h, 1) || !nb(o.plusGrandMm) || !nb(o.limiteMm, 1) || !Array.isArray(o.ronds) || o.ronds.length > 12) return undefined;
+  if (!cadre || typeof cadre !== "object" || !nb(cadre.l, 1) || !nb(cadre.h, 1) || typeof o.plusGrandMm !== "number" || !Number.isFinite(o.plusGrandMm) || !nb(o.limiteMm, 1) || !Array.isArray(o.ronds) || o.ronds.length > 12) return undefined;
   const ronds: RondGC[] = [];
   for (const r of o.ronds) {
     const x = r as Record<string, unknown> | null;
-    if (!x || typeof x !== "object" || !nb(x.x) || !nb(x.y) || !nb(x.d, 1) || typeof x.ok !== "boolean") return undefined;
+    if (!x || typeof x !== "object" || !nb(x.x) || typeof x.ok !== "boolean" || typeof x.d !== "number" || !Number.isFinite(x.d)) return undefined;
+    // Un vide bouché par la rosace (diamètre nul ou négatif) n'a rien à montrer : on l'ignore, sans rejeter toute la réponse.
+    if (x.d < 1) continue;
+    if (!nb(x.y) || !nb(x.d, 1)) return undefined;
     ronds.push({ x: x.x as number, y: x.y as number, d: x.d as number, ok: x.ok });
   }
-  return { cadreMm: { l: cadre.l as number, h: cadre.h as number }, plusGrandMm: o.plusGrandMm as number, limiteMm: o.limiteMm as number, ronds };
+  return { cadreMm: { l: cadre.l as number, h: cadre.h as number }, plusGrandMm: Math.max(0, o.plusGrandMm as number), limiteMm: o.limiteMm as number, ronds };
 }
 
 const CODES: readonly CodeAlerteGC[] = ["barre-appui", "trous", "solidite", "fenetre", "hauteur", "soubassement", "fixation", "trop-petit", "jour", "jeu", "main-courante", "charge-verticale", "autre"];
@@ -481,6 +486,9 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
 /** Les mots de la note, pris au dictionnaire de la fiche (fr.json / en.json, « artisanat »). */
 export type MotsNoteGC = { gcMur: string; gcAllege: string; gcFenetre: string; gcJourCourt: string };
 
+/** Les deux-points s'écrivent « mot\u00a0: » en français et « mot: » en anglais. */
+const deuxPoints = (langue: "fr" | "en") => (langue === "fr" ? "\u00a0: " : ": ");
+
 /**
  * Ce que le client précise et qui doit arriver tel quel à l'atelier, sur le
  * panier et le bon de commande : l'étage, le mur, l'allège, la hauteur de la
@@ -491,11 +499,12 @@ export type MotsNoteGC = { gcMur: string; gcAllege: string; gcFenetre: string; g
  */
 export function noteReleveGC(
   r: { etage: string; mur: string; allegeMm: number; fenetreMm: number; jourMm: number },
-  t: MotsNoteGC
+  t: MotsNoteGC,
+  langue: "fr" | "en" = "fr"
 ): string {
   return [
     r.etage,
-    r.mur && `${t.gcMur.toLowerCase()} : ${r.mur.toLowerCase()}`,
+    r.mur && `${t.gcMur.toLowerCase()}${deuxPoints(langue)}${r.mur.toLowerCase()}`,
     Number.isFinite(r.allegeMm) && `${t.gcAllege.toLowerCase()} ${r.allegeMm} mm`,
     Number.isFinite(r.fenetreMm) && `${t.gcFenetre.toLowerCase()} ${r.fenetreMm} mm`,
     r.jourMm > 0 && `${t.gcJourCourt} ${r.jourMm} mm`,

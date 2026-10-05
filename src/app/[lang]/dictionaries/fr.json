@@ -198,7 +198,7 @@
     "descriptifTitle": "La pièce en détail",
     "sectionFaq": "Questions fréquentes",
     "faqDeliveryQ": "Quels sont les délais de fabrication et de livraison ?",
-    "faqDeliveryA": "Chaque pièce est fabriquée à la commande. Le délai est indiqué sur la fiche de la pièce, à la ligne « Fabrication » : de 3 à 12 semaines selon le modèle — une chaise part plus vite qu'un escalier. Vient ensuite la livraison en France métropolitaine, montage compris ; un créneau précis vous est proposé dès que votre pièce est prête.",
+    "faqDeliveryA": "Chaque pièce est fabriquée à la commande. Le délai est indiqué sur la fiche de la pièce, à la ligne « Fabrication » : de 3 à 12 semaines selon le modèle — une chaise part plus vite qu'un escalier. Vient ensuite la livraison en France métropolitaine (le montage est compris si vous choisissez la pose par l'atelier) ; un créneau précis vous est proposé dès que votre pièce est prête.",
     "faqCareQ": "Comment entretenir une pièce bois & acier ?",
     "faqCareA": "Un chiffon doux et sec au quotidien. Pour le bois huilé, une réapplication d'huile-cire une fois par an suffit ; une rayure se rattrape d'un ponçage léger. L'acier peint se nettoie à l'éponge humide, sans produit abrasif.",
     "relatedTitle": "Autres pièces de l'atelier",
@@ -208,7 +208,7 @@
     "helpTitle": "Une question sur cette pièce ?",
     "helpCta": "Nous contacter",
     "deliveryTitle": "Livraison partout en France, pose en option",
-    "deliveryBody": "Nous livrons partout en France métropolitaine, par transporteur : le prix dépend de votre ville, du poids et des dimensions, et s'affiche sur la fiche dès votre code postal. La pièce voyage sous couvertures, sans emballage jetable, et nous convenons d'un créneau précis avec vous. La pièce arrive prête, avec sa notice. Si vous préférez que l'atelier vienne la livrer et la poser lui-même, choisissez-le sur la fiche : le prix dépend de la distance depuis Saumur, et tout se fait sur un seul trajet.",
+    "deliveryBody": "Nous livrons partout en France métropolitaine, par transporteur : le prix dépend de votre ville, du poids et des dimensions, et s'affiche sur la fiche dès votre code postal. La pièce voyage protégée, et nous convenons d'un créneau précis avec vous. La pièce arrive prête, avec sa notice. Si vous préférez que l'atelier vienne la livrer et la poser lui-même, choisissez-le sur la fiche : le prix dépend de la distance depuis Saumur, et tout se fait sur un seul trajet.",
     "delaiTitle": "Délai de fabrication",
     "delaiBody": "Rien n'est en stock : votre pièce est fabriquée pour vous, à la commande. Son délai figure ci-dessus, à la ligne « Fabrication ». Il vous est confirmé à la commande.",
     "delaiCta": "Commander",
@@ -324,8 +324,8 @@
     "gcLargeurAide": "Dans l'ouverture, d'un mur à l'autre. Mesurez en haut et en bas, notez la plus petite.",
     "gcLargeurInfo": "Ouvrez la fenêtre et mesurez d'un mur à l'autre, dans l'ouverture, là où le garde-corps va s'encastrer. Cote brute : ne retirez rien, nous prenons le jeu de pose.",
     "gcAllege": "Hauteur du sol au bas de la fenêtre",
-    "gcAllegeAide": "Du parquet ou du carrelage jusqu'au dessus de l'appui.",
-    "gcAllegeInfo": "Debout dans la pièce, mesurez du sol fini (parquet ou carrelage posé) jusqu'au dessus de l'appui de fenêtre, la tablette sur laquelle on pose les mains. Cette hauteur, l'allège, nous donne la hauteur du garde-corps.",
+    "gcAllegeAide": "Du parquet ou du carrelage jusqu'au-dessus de l'appui.",
+    "gcAllegeInfo": "Debout dans la pièce, mesurez du sol fini (parquet ou carrelage posé) jusqu'au-dessus de l'appui de fenêtre, la tablette sur laquelle on pose les mains. Cette hauteur, l'allège, nous donne la hauteur du garde-corps.",
     "gcMur": "Type de mur",
     "gcConsigne": "Cotes exactes de l'ouverture, en millimètres, sans rien retirer : l'atelier prend le jeu de pose.",
     "gcFacultatif": "(facultatif)",
@@ -395,7 +395,7 @@
     "gcPrixCompris": "bois et acier compris",
     "gcLot": "Plusieurs fenêtres ? Les frais fixes de l'atelier ne se paient qu'une fois : une remise s'applique dès le deuxième garde-corps, même avec des cotes différentes.",
     "gcLotAutre": "Ajouter un garde-corps",
-    "gcLotDeja": "{n} déjà au panier : la remise se calcule au panier, sur tous les garde-corps.",
+    "gcLotDeja": "Déjà au panier : {n} garde-corps. La remise se calcule au panier, sur tous les garde-corps.",
     "inclusLivraisonPose": "Livraison en France métropolitaine comprise, fixations et notice de pose fournies — rien ne s'ajoute au paiement.",
     "gcHorsBareme": "Au-delà de {l} mm de large, nous le fabriquons aussi — en plusieurs parties, sur devis. Écrivez-nous avec vos cotes : réponse sous 48 h.",
     "gcHorsBaremeCourt": "Plus de {l} mm de large : sur devis",
@@ -422,7 +422,8 @@
     "gcAEtudier": "Ces cotes dépassent ce que notre modèle permet dans le respect de la norme. Nous étudions votre fenêtre avec vous, sans engagement.",
     "gcAEtudierSolidite": "À cette largeur, notre modèle ne serait pas assez rigide, même renforcé. Nous étudions avec vous une solution plus solide, sans engagement.",
     "gcAEtudierFixation": "Votre garde-corps serait large et peu haut : les fixations dans le mur seraient trop sollicitées. Nous étudions avec vous une fixation sûre, sans engagement.",
-    "gcRenfort": "Fenêtre large : la traverse haute est renforcée par un fer plat, caché sous la main courante. La main courante fait 60 mm de large. C'est compris dans le prix. Avant de fabriquer, l'atelier vérifie avec vous la fixation dans votre mur.",
+    "gcRenfortChoisi": "Main courante sur fer plat : la lisse haute est raidie par un fer plat, caché sous le bois. La main courante fait 60 mm de large. C'est compris dans le prix. Avant de fabriquer, l'atelier vérifie avec vous la fixation dans votre mur.",
+    "gcRenfort": "Fenêtre large : la lisse haute est renforcée par un fer plat, caché sous la main courante. La main courante fait 60 mm de large. C'est compris dans le prix. Avant de fabriquer, l'atelier vérifie avec vous la fixation dans votre mur.",
     "gcTropEtroit": "La plus petite fenêtre que nous équipons fait {min} mm de large.",
     "gcCalcul": "Calcul du garde-corps…",
     "gcPrixIndisponible": "Le prix ne peut pas être calculé pour l'instant. Réessayez dans un moment, ou écrivez-nous.",
@@ -1034,7 +1035,7 @@
       },
       {
         "title": "Partout en France métropolitaine",
-        "body": "Les pièces de la collection sont livrées dans toute la France métropolitaine, par transporteur, au prix de votre ville : elles voyagent sous couvertures, sans emballage jetable, et nous convenons d'un créneau avec vous. Pour une pose plus loin (plafond lumineux, verrière, escalier), écrivez-nous : nous regardons le chantier et le temps de route, et nous vous répondons franchement."
+        "body": "Les pièces de la collection sont livrées dans toute la France métropolitaine, par transporteur, au prix de votre ville : elles voyagent protégées, et nous convenons d'un créneau avec vous. Pour une pose plus loin (plafond lumineux, verrière, escalier), écrivez-nous : nous regardons le chantier et le temps de route, et nous vous répondons franchement."
       },
       {
         "title": "Comment se passe un chantier",
@@ -1069,7 +1070,7 @@
       },
       {
         "q": "Comment se passe la livraison ?",
-        "a": "Nous livrons partout en France métropolitaine, par transporteur : le prix dépend de votre ville, du poids et des dimensions, et s'affiche sur la fiche dès votre code postal. Votre pièce voyage sous couvertures, sans emballage jetable, et nous convenons d'un créneau précis avec vous. La pièce arrive prête, avec sa notice. Si vous préférez que l'atelier vienne la livrer et la poser lui-même, choisissez-le sur la fiche : le prix dépend de la distance depuis Saumur, et tout se fait sur un seul trajet."
+        "a": "Nous livrons partout en France métropolitaine, par transporteur : le prix dépend de votre ville, du poids et des dimensions, et s'affiche sur la fiche dès votre code postal. Votre pièce voyage protégée, et nous convenons d'un créneau précis avec vous. La pièce arrive prête, avec sa notice. Si vous préférez que l'atelier vienne la livrer et la poser lui-même, choisissez-le sur la fiche : le prix dépend de la distance depuis Saumur, et tout se fait sur un seul trajet."
       },
       {
         "q": "Où intervenez-vous ?",

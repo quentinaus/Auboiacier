@@ -63,3 +63,47 @@ export function creerLimite({
     return recents.length > maximum;
   };
 }
+
+/**
+ * Un budget de TEMPS DE CALCUL, par adresse et au total : le calcul d'un garde-corps coûte de 0,1 s (relevé déjà vu) à plus de
+ * 3 s (grande fenêtre jamais vue), sur le seul fil du serveur. Compter les requêtes ne suffit donc pas : 120 requêtes de 3 s
+ * font 6 minutes de calcul. Chaque porte qui calcule mesure son temps (`depenser`) et refuse (`epuise`) quand l'adresse — ou
+ * l'instance entière — a déjà pris son budget sur la fenêtre. Un client normal (quelques dizaines de relevés) n'y touche pas.
+ */
+export function creerBudget({
+  fenetreMs,
+  budgetMs,
+  budgetGlobalMs,
+  tailleMax = 5000,
+}: {
+  fenetreMs: number;
+  budgetMs: number;
+  budgetGlobalMs: number;
+  tailleMax?: number;
+}) {
+  const depenses = new Map<string, { heure: number; ms: number }[]>();
+  let globales: { heure: number; ms: number }[] = [];
+  const recents = (liste: { heure: number; ms: number }[], maintenant: number) => liste.filter((d) => maintenant - d.heure < fenetreMs);
+  const somme = (liste: { ms: number }[]) => liste.reduce((t, d) => t + d.ms, 0);
+
+  return {
+    /** Vrai quand l'adresse (ou l'instance) a épuisé son temps de calcul : la porte répond 429. */
+    epuise(request: Request, maintenant: number): boolean {
+      globales = recents(globales, maintenant);
+      if (somme(globales) > budgetGlobalMs) return true;
+      return somme(recents(depenses.get(adresseAppelante(request)) ?? [], maintenant)) > budgetMs;
+    },
+    /** À appeler une fois le calcul fait, avec sa durée (performance.now() avant/après). */
+    depenser(request: Request, ms: number, maintenant: number): void {
+      if (!(ms > 0)) return;
+      const ip = adresseAppelante(request);
+      depenses.set(ip, [...recents(depenses.get(ip) ?? [], maintenant), { heure: maintenant, ms }]);
+      globales.push({ heure: maintenant, ms });
+      if (depenses.size > tailleMax) {
+        for (const [cle, liste] of depenses) {
+          if (recents(liste, maintenant).length === 0) depenses.delete(cle);
+        }
+      }
+    },
+  };
+}

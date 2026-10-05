@@ -158,7 +158,7 @@ test("options que l'outil ne chiffre pas encore : leur supplément rejoint son p
   // L'acier blanc : la teinte change, pas le prix ; l'acier brut est verni, pas peint.
   const blanc = devisOk(entree(releve, { options: { woodId: "chene", ...MODELE, metalId: "blanc" } }));
   assert.equal(blanc.total, base.total);
-  assert.equal(blanc.lignes[3].designation, "Finition peinte de l'acier — teinte blanc");
+  assert.equal(blanc.lignes[3].designation, "Finition peinte de l'acier — teinte blanche");
   assert.ok(!JSON.stringify(blanc).includes("noir charbon"));
   const brut = devisOk(entree(releve, { options: { woodId: "chene", ...MODELE, metalId: "brut" } }));
   assert.equal(brut.lignes[3].designation, "Finition de l'acier — brut, vernis incolore de protection");

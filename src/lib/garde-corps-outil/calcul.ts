@@ -123,14 +123,16 @@ function garder<K, V>(m: Map<K, V>, cle: K, valeur: V, max: number) {
 }
 
 /** La fenêtre du relevé s'arrête-t-elle sous la main courante ? (l'alerte « La fenêtre est trop basse » de l'outil) */
-function fenetreTropBasse(cleReleve: string, entree: EntreeSiteGC): boolean {
+function fenetreTropBasse(cleReleve: string, entree: EntreeSiteGC, seuls = false): boolean {
   if (!(entree.fenetreMm > 0)) return false;
-  const connu = tropBasse.get(cleReleve);
+  // Un cadre à barreaux seuls est plus bas qu'un cadre à croix (120 mm au lieu de 200) : il tient dans une ouverture où les croix ne tiennent pas.
+  const cle = `${cleReleve}|${seuls ? "s" : "c"}`;
+  const connu = tropBasse.get(cle);
   if (connu !== undefined) return connu;
-  // Un essai simple (carré de 16, une croix) : l'outil y contrôle toujours la fenêtre.
-  const R = calculerGC({ ...(valeursGC(DEFAUTS_GC, entree, 16, 1) as ValeursGC), _rapide: true });
+  // Un essai simple (carré de 16, une croix, ou des barreaux seuls) : l'outil y contrôle toujours la fenêtre.
+  const R = calculerGC({ ...(valeursGC(DEFAUTS_GC, entree, 16, 1, false, false, false, seuls) as ValeursGC), _rapide: true });
   const oui = R.alertes.map(codeAlerte).includes("fenetre");
-  garder(tropBasse, cleReleve, oui, ESSAIS_MAX);
+  garder(tropBasse, cle, oui, ESSAIS_MAX);
   return oui;
 }
 
@@ -213,7 +215,9 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
     : choisi
     ? [[choisi.barreauxBas, choisi.traverse, choisi.seuls]]
     : [[false, false, false], [false, true, false], [true, false, false], [true, true, false]];
-  const base = soloSeuls ? baseSeuls : valeursGC(DEFAUTS_GC, entree, 16, 1);
+  // La hauteur, le jour et la main courante annoncés sont ceux du dessin vendu : un cadre à barreaux seuls (choisi, ou seul possible)
+  // se juge sur son propre minimum (120 mm), comme la case « barreaux seuls » de l'outil — à 760 mm : jour 90 et cadre de 175, non 65 et 200.
+  const base = soloSeuls || choisi?.seuls ? baseSeuls : valeursGC(DEFAUTS_GC, entree, 16, 1);
   const g = geomGC(base, 1);
   const commun: Commun = {
     entree,
@@ -242,7 +246,7 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
     return resultat;
   }
   // La fenêtre s'arrête sous la main courante : aucun dessin n'y changera rien (en applique, sur devis).
-  if (fenetreTropBasse(cleReleve, entree)) {
+  if (fenetreTropBasse(cleReleve, entree, soloSeuls)) {
     resultat = { ...commun, ok: false, conforme: false, raison: "fenetre-trop-basse", alertes: [...FENETRE] };
     Object.freeze(resultat);
     garder(memoire, cle, resultat, MEMOIRE_MAX);
@@ -316,6 +320,8 @@ function trousDuDessin(entree: EntreeSiteGC, n: number, b: boolean, t: boolean, 
   const vus = new Set<string>();
   // Comme l'outil : un seul rond par taille (les panneaux sont tous pareils), placé dans le premier panneau.
   for (const x of trous) {
+    // Une rosace plus grande que le vide le bouche entièrement : il n'y a plus de rond à montrer (et jamais de diamètre nul ou négatif).
+    if (!(Math.round(x.d) >= 1)) continue;
     const cle = t ? `${Math.round(x.d)}|${x.ok}` : String(Math.round(x.d));
     if (vus.has(cle)) continue;
     vus.add(cle);
@@ -328,7 +334,7 @@ function trousDuDessin(entree: EntreeSiteGC, n: number, b: boolean, t: boolean, 
   }
   ronds.sort((a, b2) => a.x - b2.x);
   if (!ronds.length || !Number.isFinite(g.dMax) || !(g.Lc > 0) || !(g.Hc > 0)) return null;
-  return { cadreMm: { l: Math.round(g.Lc), h: Math.round(Number(g.Hc)) }, plusGrandMm: Math.round(g.dMax), limiteMm: Math.round(g.limite), ronds: ronds.slice(0, 12) };
+  return { cadreMm: { l: Math.round(g.Lc), h: Math.round(Number(g.Hc)) }, plusGrandMm: Math.max(0, Math.round(g.dMax)), limiteMm: Math.round(g.limite), ronds: ronds.slice(0, 12) };
 }
 
 /**
