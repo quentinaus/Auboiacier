@@ -197,6 +197,12 @@ textarea:focus-visible,
     padding: 32px 36px;
   }
 }
+/* Le garde-corps en trois colonnes : la plaque est plus serrée pour donner sa place au GRAND croquis (demande de Quentin). */
+@media (min-width: 1280px) {
+  .fond-configuration.fond-gc {
+    padding: 22px 22px;
+  }
+}
 /* Le croquis remplit sa colonne, sans jamais dépasser la hauteur de la plaque. */
 @media (min-width: 768px) {
   .schema-configuration svg {

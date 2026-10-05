@@ -524,7 +524,7 @@ export function ProductView({
          manque pas, la carte reste à côté du croquis et défile seule. */
       <section
         id="configuration"
-        className={`mx-auto scroll-mt-14 px-5 pb-3 pt-4 md:flex md:h-[calc(100dvh-3.5rem)] md:min-h-[560px] md:flex-col md:px-10 md:py-4 ${troisColonnes ? "max-w-[1480px] xl:h-[calc(100dvh-2rem)] xl:scroll-mt-4 xl:py-3" : "max-w-7xl"}`}
+        className={`mx-auto scroll-mt-14 px-5 pb-3 pt-4 md:flex md:h-[calc(100dvh-3.5rem)] md:min-h-[560px] md:flex-col md:px-10 md:py-4 ${troisColonnes ? "max-w-[1480px] xl:h-[calc(100dvh-2rem)] xl:scroll-mt-4 xl:px-6 xl:py-3" : "max-w-7xl"}`}
       >
         {/* Sur ordinateur, tout tient dans la hauteur de l'écran, titre compris : le titre
             est dans la plaque, la carte et le croquis se partagent la hauteur qui reste. */}
@@ -533,7 +533,7 @@ export function ProductView({
             /* Le garde-corps, sur grand écran : TROIS colonnes — les cotes, le croquis et les modèles,
                puis le résultat, la livraison et le panier. Tout tient sur un écran, titre compris,
                sans faire défiler ni la page ni une carte. */
-            troisColonnes ? "xl:grid-cols-[330px_minmax(0,1fr)_340px] xl:gap-x-6 xl:gap-y-3" : ""
+            troisColonnes ? "fond-gc xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:gap-x-5 xl:gap-y-3" : ""
           }`}
         >
           <div className={troisColonnes ? "md:col-span-2 xl:col-span-3" : "md:col-span-2"}>

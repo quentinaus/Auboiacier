@@ -318,17 +318,16 @@ export function ReleveGardeCorps({
   const modeles = sourceModeles && !surVerre ? sourceModeles.modeles : [];
   const modelesPerimes = brute === null && modeles.length > 0;
   const hMax = Math.max(1, ...modeles.map((m) => m.hauteurMm));
-  // Le garde-corps de la photo : deux croix, sans barreaux. La norme en demande parfois plus.
-  // Le garde-corps de la photo : deux croix, sans barreaux. S'il n'est pas aux normes ici, on le dit.
-  const adapte = modeles.length > 0 && !modeles.some((m) => m.conforme && m.croix === 2 && m.soubassementMm === 0 && !m.traverse);
   // Le modèle choisi se reconnaît à son DESSIN (croix, barreaux), pas à son carré : le serveur peut l'avoir
   // retenu dans un carré plus gros que celui de l'identifiant.
   const voulu = lireModeleGC(cotes.modele);
-  const estChoisi = (m: { id: string; croix: number; soubassementMm: number; traverse: boolean }) =>
-    conforme
-      ? m.croix === conforme.croix && m.soubassementMm > 0 === conforme.soubassementMm > 0 && m.traverse === conforme.traverse && (m as ModeleGC).partout === conforme.partout
-      : m.id === cotes.modele || (voulu !== null && m.croix === voulu.croix && m.traverse === voulu.traverse && lireModeleGC(m.id)?.barreauxBas === voulu.barreauxBas && lireModeleGC(m.id)?.partout === voulu.partout);
-  const choisi = voulu ? (modeles.find((m) => m.conforme && estChoisi(m)) ?? null) : null;
+  // Le choix se lit tout de suite dans l'identifiant touché (le serveur met un instant à répondre : le croquis et la rangée
+  // ne doivent pas attendre). À défaut d'identifiant identique (la fenêtre a changé, le carré avec), le même DESSIN.
+  const memeDessin = (m: ModeleGC) => {
+    const l = lireModeleGC(m.id);
+    return voulu !== null && m.croix === voulu.croix && m.traverse === voulu.traverse && m.partout === voulu.partout && (l?.barreauxBas ?? false) === voulu.barreauxBas;
+  };
+  const choisi = voulu ? (modeles.find((m) => m.conforme && m.id === cotes.modele) ?? modeles.find((m) => m.conforme && memeDessin(m)) ?? null) : null;
   const nbConformes = modeles.filter((m) => m.conforme).length;
   // Les deux boutons du client choisissent une FAMILLE de modèles : barreaux (aucun / en bas / sur toute la hauteur) et
   // traverse. La rangée ne montre que cette famille ; le nombre de croix se choisit dans la rangée.
@@ -349,6 +348,8 @@ export function ReleveGardeCorps({
     ? ([...modelesFamille].sort((a, b) => (a.trous ? a.trous.plusGrandMm / a.trous.limiteMm : 99) - (b.trous ? b.trous.plusGrandMm / b.trous.limiteMm : 99))[0] ?? null)
     : null;
   const explique = (pourquoi ? modeles.find((m) => m.id === pourquoi && !m.conforme) : null) ?? plusProche;
+  /** Le modèle montré en grand sur le croquis, dès qu'on le touche : le choisi, ou celui qu'on explique. */
+  const apercuModele: ModeleGC | null = explique ?? choisi;
   const changerFamille = (barreaux: "aucun" | "bas" | "tout", traverse: boolean) => {
     // « Toute la hauteur » et la traverse ne se combinent pas (comme dans l'outil) : l'un remplace l'autre.
     const f = { barreaux, traverse: barreaux === "tout" ? false : traverse };
@@ -414,8 +415,6 @@ export function ReleveGardeCorps({
       ? `Ce modèle + votre fenêtre : l'ensemble ne serait pas aux normes${mots ? ` (${mots})` : ""}`
       : `This model + your window: together they would not meet the standard${mots ? ` (${mots})` : ""}`;
   };
-  /** Le modèle de la photo (deux croix, sans barreaux) : pourquoi il ne va pas avec cette fenêtre. */
-  const raisonPhoto = raisonEnMots(modeles.find((m) => m.croix === 2 && m.soubassementMm === 0 && !m.traverse && !m.conforme)?.raisons ?? []);
   const libelleCourt = (m: { croix: number; soubassementMm: number; traverse: boolean }) =>
     `${m.croix} ${fr ? "croix" : m.croix > 1 ? "crosses" : "cross"}${m.traverse ? (fr ? " + traverse" : " + rail") : ""}${m.soubassementMm > 0 ? (fr ? " + barreaux" : " + bars") : ""}`;
   /** La phrase de la bande : ce qu'il faut faire, ou pourquoi le modèle de la photo ne va pas avec CETTE fenêtre. */
@@ -453,13 +452,7 @@ export function ReleveGardeCorps({
           ? fr
             ? `Le modèle que vous aviez choisi (${libelleCourt({ croix: perdu.croix, soubassementMm: perdu.barreaux ? 1 : 0, traverse: perdu.traverse })}) + ces mesures : l'ensemble ne serait plus aux normes${raisonEnMots(perdu.raisons) ? ` (${raisonEnMots(perdu.raisons)})` : ""}. Choisissez-en un autre.`
             : `The model you had chosen (${libelleCourt({ croix: perdu.croix, soubassementMm: perdu.barreaux ? 1 : 0, traverse: perdu.traverse })}) + these measurements: together they would no longer meet the standard${raisonEnMots(perdu.raisons) ? ` (${raisonEnMots(perdu.raisons)})` : ""}. Choose another one.`
-          : adapte
-            ? fr
-              ? `Le modèle de la photo n'est pas aux normes ici${raisonPhoto ? ` (${raisonPhoto})` : ""}. Choisissez-en un adapté.`
-              : `The model in the photo is not to standard here${raisonPhoto ? ` (${raisonPhoto})` : ""}. Choose one that fits.`
-            : fr
-              ? "Ces modèles conviennent à votre fenêtre. Choisissez le vôtre."
-              : "These models suit your window. Choose yours.";
+          : "";
   // Le modèle montré en grand sur le croquis : celui que le client vient de toucher s'il n'est pas aux normes (avec ses
   // ronds rouge et vert), ou — quand rien ne convient — le plus proche de la norme.
   const idSelectionne = explique ? explique.id : (choisi?.id ?? null);
@@ -471,96 +464,91 @@ export function ReleveGardeCorps({
   }, [idSelectionne]);
   const marque = modeles.length > 0;
   const liste: ModeleGC[] = marque ? modelesFamille : MODELES_VITRINE.filter((m) => !m.traverse && m.soubassementMm === 0);
-  const catalogue = (
-    /* Sous le croquis : UNE rangée de modèles qui défile de côté, chacun avec son prix et sa pastille verte ou rouge
-       (aux normes ou non pour cette fenêtre). On touche un modèle : il s'affiche en grand sur le croquis. */
-    <div id="modeles-gc" className="carte-verre carte-modeles mt-3 scroll-mt-24 rounded-[22px] px-4 pb-3 pt-3 text-left">
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-        <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{fr ? "Votre modèle" : "Your model"}</p>
-        <span className="flex items-center gap-x-3 text-[12px] font-medium text-[#2b2320]">
-          {/* Un garde-corps à son style : une photo, et l'atelier répond. Toujours là, en lien discret. */}
-          {lienDevis && (
-            <Link
-              href={lienDevis}
-              title={fr ? "Envoyez-nous une photo : réponse en 24 à 72 h" : "Send us a photo: reply within 24 to 72 h"}
-              className="underline underline-offset-4 transition-colors hover:text-[#6d2c2c]"
+  const controlesFamille = marque ? (
+  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+    {[
+      {
+        titre: fr ? "Barreaux" : "Bars",
+        valeur: famille.barreaux,
+        options: [
+          { v: "aucun", label: fr ? "Aucun" : "None", note: barreauxImposes ? (fr ? "Imposés par la norme ici : le bas du cadre est à moins de 60 cm du sol." : "Required by the standard here: the bottom of the frame is under 60 cm from the floor.") : "", aide: fr ? "Des croix seules, sans barreaux" : "Crosses only, no bars" },
+          { v: "bas", label: fr ? "En bas" : "Bottom", note: "", aide: fr ? "Des barreaux droits en bas, sous les croix" : "Straight bars at the bottom, under the crosses" },
+          { v: "tout", label: fr ? "Partout" : "Everywhere", note: "", aide: fr ? "Des barreaux sur toute la hauteur : en bas et dans chaque croix" : "Bars over the full height: at the bottom and in every cross" },
+        ],
+        choisir: (v: string) => changerFamille(v as "aucun" | "bas" | "tout", famille.traverse),
+      },
+      {
+        titre: fr ? "Traverse" : "Rail",
+        valeur: famille.traverse ? "avec" : "sans",
+        options: [
+          { v: "sans", label: fr ? "Sans" : "Without", note: "", aide: fr ? "Pas de traverse" : "No middle rail" },
+          { v: "avec", label: fr ? "Avec" : "With", note: "", aide: fr ? "Une traverse horizontale au milieu de chaque croix" : "A horizontal rail in the middle of each cross" },
+        ],
+        choisir: (v: string) => changerFamille(famille.barreaux === "tout" && v === "avec" ? "bas" : famille.barreaux, v === "avec"),
+      },
+    ].map((ligne) => (
+      <div key={ligne.titre} className="flex items-center gap-1.5">
+        <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-[#6f6357]">{ligne.titre}</span>
+        <div role="group" aria-label={ligne.titre} className="flex gap-0.5 rounded-full bg-[#2b2320]/[0.07] p-0.5">
+          {ligne.options.map((o) => (
+            <button
+              key={o.v}
+              type="button"
+              aria-pressed={ligne.valeur === o.v}
+              disabled={o.note !== ""}
+              title={o.note || o.aide}
+              onClick={() => ligne.choisir(o.v)}
+              className={`rounded-full px-2 py-0.5 text-[11px] font-medium leading-tight transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${ligne.valeur === o.v ? "bg-[#2b2320] text-white" : "text-[#2b2320] hover:bg-white/80"}`}
             >
-              {fr ? "Votre style, sur photo" : "Your style, from a photo"}
-            </Link>
-          )}
-          {liste.length > 3 && (
-            <span className="flex gap-1">
-              {([-1, 1] as const).map((sens) => (
-                <button
-                  key={sens}
-                  type="button"
-                  aria-label={sens < 0 ? (fr ? "Modèles précédents" : "Previous models") : fr ? "Modèles suivants" : "Next models"}
-                  onClick={() => bande.current?.scrollBy({ left: sens * 220, behavior: "smooth" })}
-                  className="flex h-6 w-6 items-center justify-center rounded-full text-[#2b2320] ring-1 ring-[#2b2320]/20 transition-colors hover:bg-white"
-                >
-                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3" aria-hidden>
-                    <path d={sens < 0 ? "M12.5 4.5L7 10l5.5 5.5" : "M7.5 4.5L13 10l-5.5 5.5"} />
-                  </svg>
-                </button>
-              ))}
-            </span>
-          )}
-        </span>
-      </div>
-      {/* Barreaudage et traverse : deux petits sélecteurs, mis à jour sur l'outil de plans comme sur le site. */}
-      {marque && (
-        <div className="mt-2 space-y-1">
-          {[
-            {
-              titre: fr ? "Barreaux" : "Bars",
-              valeur: famille.barreaux,
-              options: [
-                { v: "aucun", label: fr ? "Aucun" : "None", note: barreauxImposes ? (fr ? "Imposés par la norme ici : le bas du cadre est à moins de 60 cm du sol." : "Required by the standard here: the bottom of the frame is under 60 cm from the floor.") : "", aide: fr ? "Des croix seules, sans barreaux" : "Crosses only, no bars" },
-                { v: "bas", label: fr ? "En bas" : "Bottom", note: "", aide: fr ? "Des barreaux droits en bas, sous les croix" : "Straight bars at the bottom, under the crosses" },
-                { v: "tout", label: fr ? "Partout" : "Everywhere", note: "", aide: fr ? "Des barreaux sur toute la hauteur : en bas et dans chaque croix" : "Bars over the full height: at the bottom and in every cross" },
-              ],
-              choisir: (v: string) => changerFamille(v as "aucun" | "bas" | "tout", famille.traverse),
-            },
-            {
-              titre: fr ? "Traverse" : "Middle rail",
-              valeur: famille.traverse ? "avec" : "sans",
-              options: [
-                { v: "sans", label: fr ? "Sans" : "Without", note: "", aide: fr ? "Pas de traverse" : "No middle rail" },
-                { v: "avec", label: fr ? "Avec" : "With", note: "", aide: fr ? "Une traverse horizontale au milieu de chaque croix" : "A horizontal rail in the middle of each cross" },
-              ],
-              choisir: (v: string) => changerFamille(famille.barreaux === "tout" && v === "avec" ? "bas" : famille.barreaux, v === "avec"),
-            },
-          ].map((ligne) => (
-            <div key={ligne.titre} className="flex items-center gap-2">
-              <span className="w-[62px] shrink-0 text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{ligne.titre}</span>
-              <div role="group" aria-label={ligne.titre} className="flex min-w-0 flex-1 gap-0.5 rounded-full bg-[#2b2320]/[0.07] p-0.5">
-                {ligne.options.map((o) => (
-                  <button
-                    key={o.v}
-                    type="button"
-                    aria-pressed={ligne.valeur === o.v}
-                    disabled={o.note !== ""}
-                    title={o.note || o.aide}
-                    onClick={() => ligne.choisir(o.v)}
-                    className={`min-w-0 flex-1 truncate rounded-full px-1.5 py-1 text-[11px] font-medium leading-tight transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${ligne.valeur === o.v ? "bg-[#2b2320] text-white" : "text-[#2b2320] hover:bg-white/80"}`}
-                  >
-                    {o.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+              {o.label}
+            </button>
           ))}
         </div>
-      )}
-      {phraseModeles && <p className={`mt-1 text-[12px] leading-snug ${modeles.length === 0 && texteManque ? "font-medium text-[#7a4510]" : "text-[#5c5140]"}`}>{phraseModeles}</p>}
+      </div>
+    ))}
+  </div>
+  ) : null;
+  const lienPhoto = lienDevis ? (
+    <Link
+      href={lienDevis}
+      title={fr ? "Envoyez-nous une photo : réponse en 24 à 72 h" : "Send us a photo: reply within 24 to 72 h"}
+      className="inline-block text-[11px] font-medium text-[#2b2320] underline underline-offset-4 transition-colors hover:text-[#6d2c2c]"
+    >
+      {fr ? "Votre style, sur photo" : "Your style, from a photo"}
+    </Link>
+  ) : null;
+  const catalogue = (
+    /* Sous le croquis, en bande FINE pour laisser la place au grand croquis (règle de Quentin, 05/10) : les deux boutons
+       (barreaux, traverse) et UNE rangée de modèles qui défile de côté, chacun avec son prix et sa pastille verte ou rouge. */
+    <div id="modeles-gc" className="carte-verre carte-modeles mt-2 scroll-mt-24 rounded-[20px] px-3 pb-2 pt-2.5 text-left xl:mt-0">
+      {/* Sous 1280 px les boutons sont ici ; au-dessus, ils sont dans la colonne de droite et la carte n'est que la rangée. */}
+      <div className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 ${marque ? "xl:hidden" : ""}`}>
+        {marque ? controlesFamille : <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{fr ? "Votre modèle" : "Your model"}</p>}
+      </div>
+      {phraseModeles && <p className={`mt-1 text-[11.5px] leading-snug ${modeles.length === 0 && texteManque ? "font-medium text-[#7a4510]" : "text-[#5c5140]"}`}>{phraseModeles}</p>}
       {liste.length > 0 && (
+        <div className="relative">
+          {liste.length > 3 &&
+            ([-1, 1] as const).map((sens) => (
+              <button
+                key={sens}
+                type="button"
+                aria-label={sens < 0 ? (fr ? "Modèles précédents" : "Previous models") : fr ? "Modèles suivants" : "Next models"}
+                onClick={() => bande.current?.scrollBy({ left: sens * 220, behavior: "smooth" })}
+                className={`absolute top-1/2 z-10 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-[#2b2320] shadow ring-1 ring-[#2b2320]/20 transition-colors hover:bg-white ${sens < 0 ? "-left-2" : "-right-2"}`}
+              >
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3" aria-hidden>
+                  <path d={sens < 0 ? "M12.5 4.5L7 10l5.5 5.5" : "M7.5 4.5L13 10l-5.5 5.5"} />
+                </svg>
+              </button>
+            ))}
         <div
           ref={bande}
           role="group"
           aria-label={fr ? "Modèles de garde-corps" : "Railing models"}
           aria-busy={modelesPerimes}
           style={{ scrollbarWidth: "thin" }}
-          className={`relative -mx-1 mt-2 flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1.5 pt-0.5 transition-opacity ${modelesPerimes ? "opacity-60" : ""}`}
+          className={`relative -mx-1 mt-1.5 flex snap-x snap-mandatory gap-1.5 overflow-x-auto px-1 pb-1 pt-0.5 transition-opacity ${modelesPerimes ? "opacity-60" : ""}`}
         >
           {liste.map((m) => {
             const actif = choisi !== null && choisi.id === m.id;
@@ -580,7 +568,7 @@ export function ReleveGardeCorps({
                     onChange({ ...cotes, modele: m.id });
                   } else setPourquoi((p) => (p === m.id ? null : m.id));
                 }}
-                className={`tuile-modele relative flex w-[92px] shrink-0 snap-start flex-col px-2 pb-2 pt-3 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${horsNorme ? "tuile-hors-norme" : ""}`}
+                className={`tuile-modele relative flex w-[78px] shrink-0 snap-start flex-col px-1.5 pb-1.5 pt-2.5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${horsNorme ? "tuile-hors-norme" : ""}`}
               >
                 {marque && pastille(m.conforme)}
                 <MiniGardeCorps
@@ -591,17 +579,13 @@ export function ReleveGardeCorps({
                   traverse={m.traverse}
                   croix={m.croix}
                   trous={horsNorme ? m.trous : null}
-                  hauteurPx={34}
+                  hauteurPx={26}
                 />
-                <span className="mt-1.5 block text-[12px] font-semibold leading-tight text-[#2b2320]">
+                <span className="mt-1 block text-[11px] font-semibold leading-tight text-[#2b2320]">
                   {m.croix} {fr ? "croix" : m.croix > 1 ? "crosses" : "cross"}
                 </span>
-                <span className="block min-h-[2.4em] text-[10px] leading-tight text-[#6f6357]">
-                  {m.traverse && <span className="block">{fr ? "+\u00a0traverse" : "+\u00a0rail"}</span>}
-                  {m.soubassementMm > 0 && <span className="block">{fr ? "+\u00a0barreaux" : "+\u00a0bars"}</span>}
-                </span>
                 {marque && (
-                  <span className={`mt-auto block pt-0.5 text-[12px] font-medium leading-tight tabular-nums ${m.conforme ? "text-[#2b2320]" : "text-[#6d2c2c]"}`}>
+                  <span className={`block text-[11px] font-medium leading-tight tabular-nums ${m.conforme ? "text-[#2b2320]" : "text-[#6d2c2c]"}`}>
                     {m.conforme ? prixAffiche(m.prix, locale) : fr ? "hors norme" : "off-standard"}
                   </span>
                 )}
@@ -609,7 +593,10 @@ export function ReleveGardeCorps({
             );
           })}
         </div>
+        </div>
       )}
+      {/* Un garde-corps à son style : une photo, et l'atelier répond. Sous 1280 px ici ; au-dessus, dans la colonne de droite. */}
+      {lienPhoto && <div className="mt-0.5 xl:hidden">{lienPhoto}</div>}
     </div>
   );
 
@@ -759,13 +746,13 @@ export function ReleveGardeCorps({
               largeurMm={Number.isFinite(mm(cotes.largeur)) && mm(cotes.largeur) > 0 ? mm(cotes.largeur) : undefined}
               allegeMm={Number.isFinite(mm(cotes.allege)) ? mm(cotes.allege) : undefined}
               hauteurFenetreMm={Number.isFinite(mm(cotes.fenetre)) && mm(cotes.fenetre) > 0 ? mm(cotes.fenetre) : undefined}
-              croix={explique ? explique.croix : dessin?.ok ? dessin.croix : undefined}
-              soubassementMm={explique ? explique.soubassementMm : dessin?.ok ? dessin.soubassementMm : 0}
-              traverse={explique ? explique.traverse : dessin?.ok ? dessin.traverse : false}
-              renfort={explique ? false : dessin?.ok ? dessin.renfort : false}
+              croix={apercuModele ? apercuModele.croix : dessin?.ok ? dessin.croix : undefined}
+              soubassementMm={apercuModele ? apercuModele.soubassementMm : dessin?.ok ? dessin.soubassementMm : 0}
+              traverse={apercuModele ? apercuModele.traverse : dessin?.ok ? dessin.traverse : false}
+              renfort={apercuModele ? apercuModele.renfort : dessin?.ok ? dessin.renfort : false}
               trous={explique?.trous ?? null}
               rosaceMm={rosaceMm}
-              apercu={commence && !dessin?.ok && !explique}
+              apercu={commence && !dessin?.ok && !apercuModele}
               remplissage={surVerre ? "verre" : "croix"}
               actif={coteActive}
               onChoisir={allerA}
@@ -782,7 +769,7 @@ export function ReleveGardeCorps({
             />
           );
           // La puce en haut à droite du croquis : verte (aux normes) ou rouge (pas aux normes) pour le modèle montré.
-          const montre = explique ? { ok: false } : conforme && !surVerre ? { ok: true } : null;
+          const montre = explique ? { ok: false } : (choisi || conforme) && !surVerre ? { ok: true } : null;
           const puce = montre && (
             <span
               className={`pointer-events-none absolute right-2 top-2 z-10 flex items-center gap-1.5 rounded-full bg-white/92 py-1 pl-1.5 pr-2.5 text-[11px] font-semibold shadow-sm ${montre.ok ? "text-[#1f5a2e]" : "text-[#8a2b24]"}`}
@@ -799,7 +786,7 @@ export function ReleveGardeCorps({
           // sont ceux de l'outil de plans : rouge = le vide trop grand (une boule de la taille limite passerait), vert = un
           // vide qui respecte la norme.
           const legendeCroquis = explique && (
-            <div className="pointer-events-none absolute inset-x-2 bottom-2 z-10 rounded-xl bg-white/93 px-2.5 py-1.5 text-[11px] leading-snug text-[#4a3f33] shadow-sm" role="status" aria-live="polite">
+            <div className="pointer-events-none absolute inset-x-2 bottom-2 z-10 rounded-xl xl:bottom-auto xl:top-11 bg-white/93 px-2.5 py-1.5 text-[11px] leading-snug text-[#4a3f33] shadow-sm" role="status" aria-live="polite">
               {explique.trous ? (
                 (() => {
                   const t = explique.trous;
@@ -846,16 +833,17 @@ export function ReleveGardeCorps({
                    La largeur du cadre est écrite en toutes lettres (3/4 de sa hauteur) : avec `aspect-ratio` seul,
                    Safari ne la comptait pas dans la largeur de la colonne — elle tombait à zéro, le croquis
                    disparaissait et la carte des modèles s'écrasait. */
-                <div className="mx-auto flex w-[max(calc(var(--h)*0.75),340px)] max-w-full flex-col [--h:40svh] md:[--h:min(62vh,640px)] xl:min-h-0 xl:flex-1 xl:[--h:clamp(200px,calc(100dvh_-_33rem),640px)]">
-                  {/* (La carte des modèles a sa propre largeur minimale : quand l'écran est bas, le croquis rétrécit mais la carte non.) */}
-                  <div className="relative mx-auto h-[var(--h)] w-[calc(var(--h)*0.75)] max-w-full shrink-0 overflow-hidden rounded-2xl">
-                    {croquis}
-                    {puce}
-                    {legendeCroquis}
+                <div className="mx-auto flex w-[max(calc(var(--h)*0.75),360px)] max-w-full flex-col [--h:40svh] md:[--h:min(62vh,640px)] xl:min-h-0 xl:flex-1 xl:justify-center xl:[--h:clamp(260px,calc(100dvh_-_13.5rem),780px)]">
+                  {/* GRAND CROQUIS (demande de Quentin, répétée) : sur grand écran il prend toute la hauteur de la colonne, et la
+                      bande des modèles (boutons + une rangée qui défile) se pose en bas du croquis, sur le mur et le sol. */}
+                  <div className="relative flex flex-col xl:block">
+                    <div className="relative mx-auto aspect-[3/4] w-[min(100%,calc(var(--h)*0.75))] shrink-0 overflow-hidden rounded-2xl">
+                      {croquis}
+                      {puce}
+                      {legendeCroquis}
+                    </div>
+                    <div className="w-0 min-w-full xl:absolute xl:inset-x-2 xl:bottom-2 xl:z-20 xl:w-auto xl:min-w-0">{catalogue}</div>
                   </div>
-                  {/* Le catalogue (et l'explication des ronds rouge et vert) prend la hauteur qui reste et défile
-                      DANS sa zone : le bloc entier tient toujours sur l'écran (règle de Quentin). */}
-                  <div className="w-0 min-w-full xl:min-h-0 xl:flex-1 xl:overflow-y-auto xl:overscroll-contain">{catalogue}</div>
                 </div>,
                 schemaSlot
               )
@@ -934,6 +922,13 @@ export function ReleveGardeCorps({
           {(() => {
             const resultat = (
               <>
+          {/* Grand écran : les boutons barreaux et traverse sont ici, à côté du prix ; la rangée des modèles est sur le croquis. */}
+          {controlesFamille && (
+            <div className="mb-3 hidden rounded-xl bg-[#2b2320]/[0.04] px-3 py-2 xl:block">
+              <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#6f6357]">{fr ? "Votre garde-corps, au choix" : "Your railing, your choice"}</p>
+              {controlesFamille}
+            </div>
+          )}
           {/* ④ Ce que ça donne, calculé par l'outil de l'atelier : les cotes,
               les croix, le prix, et la norme en une ligne. */}
           <div
@@ -1153,6 +1148,7 @@ export function ReleveGardeCorps({
           {/* « Poids et détails », « Ce que comprend le prix » : la fiche les dépose ici (voir detailsSlot). */}
           {schemaSlot && detailsSlot && <div ref={detailsSlot} className="mt-3" />}
 
+          {lienPhoto && <div className="mt-3 hidden xl:block">{lienPhoto}</div>}
           {/* La note de fabrication : pas dans la colonne étroite, qui doit tenir sur un écran. */}
           {!resultatSlot && <p className="mt-4 text-[11px] leading-snug text-[#726757]">{t.gcNote}</p>}
               </>
