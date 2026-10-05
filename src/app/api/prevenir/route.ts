@@ -89,18 +89,18 @@ export async function POST(request: Request) {
       ? [
           "Hello,",
           "",
-          "Your sign-up is noted: the next order opening is on Monday 7 December 2026 at the latest.",
-          "We make one piece at a time and open orders in batches: those who sign up get priority in the production schedule.",
-          "We will write to you on opening day. No payment before then.",
+          "Your sign-up is noted: online orders open on Monday 7 December 2026.",
+          "That day we will write to you with your cart, and your order gets priority in the workshop's schedule.",
+          "Nothing to pay until then.",
           "",
           "Auboiacier — wood, steel & light",
         ]
       : [
           "Bonjour,",
           "",
-          "Votre inscription est notée : la prochaine ouverture des commandes a lieu au plus tard le lundi 7 décembre 2026.",
-          "Nous fabriquons une pièce à la fois et ouvrons les commandes par séries : les inscrits passent en priorité dans le planning de fabrication.",
-          "Nous vous écrivons le jour de l'ouverture. Aucun paiement avant.",
+          "Votre inscription est notée : les commandes en ligne ouvrent le lundi 7 décembre 2026.",
+          "Ce jour-là, nous vous écrivons avec votre panier, et votre commande passe en priorité dans le planning de l'atelier.",
+          "D'ici là, rien à payer.",
           "",
           "Auboiacier — bois, acier & lumière",
         ]
