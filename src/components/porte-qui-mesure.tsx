@@ -209,7 +209,22 @@ export function PorteQuiMesure({
       etiquette: notes.tagMoi,
       // Trait d'union insécable : « moi-même » ne se coupe pas en fin de ligne.
       titre: fr ? "Je mesure moi\u2011même" : "I measure myself",
-      note: fr ? "Deux mesures au mètre, guidées pas à pas. Le prix s'affiche aussitôt, sans frais." : "Two tape measurements, guided step by step. The price shows straight away, free of charge.",
+      note: "",
+      // Ce que le client obtient, en trois temps (Quentin, 05/10/2026 : « tu commandes le garde-corps à tes mesures, l'atelier
+      // te le fabrique aux normes et tu le reçois prêt à poser, avec visserie et son guide d'installation »). Les mots en gras
+      // sont ceux qui comptent. Fixations et notice de pose fournies : c'est aussi ce que disent le prix et le panier.
+      // (Une ligne par étape : la scène de la carte garde sa place, même sur un écran bas.)
+      etapes: fr
+        ? [
+            ["", "Commandez", " à vos mesures, au prix affiché"],
+            ["L'atelier le fabrique ", "aux normes", ""],
+            ["Reçu ", "prêt à poser", ", visserie et guide de pose"],
+          ]
+        : [
+            ["", "Order", " to your measurements, at the price shown"],
+            ["The workshop makes it ", "to the standard", ""],
+            ["Arrives ", "ready to fit", ", with fixings and fitting guide"],
+          ],
       action: fr ? "Saisir mes mesures" : "Enter my measurements",
     },
   ];
@@ -242,7 +257,23 @@ export function PorteQuiMesure({
               <span className="aplat-card-body porte-texte shrink-0">
                 <span className="aplat-tag">{c.etiquette}</span>
                 <span className="aplat-card-title block">{c.titre}</span>
-                <span className="aplat-card-text block">{c.note}</span>
+                {c.note && <span className="aplat-card-text block">{c.note}</span>}
+                {c.etapes && (
+                  <span className="aplat-card-text porte-etapes">
+                    {c.etapes.map(([avant, gras, apres], i) => (
+                      <span key={i} className="porte-etape">
+                        <span className="porte-etape-num" aria-hidden>
+                          {i + 1}
+                        </span>
+                        <span>
+                          {avant}
+                          <strong>{gras}</strong>
+                          {apres}
+                        </span>
+                      </span>
+                    ))}
+                  </span>
+                )}
                 <span className="aplat-btn porte-action">
                   {c.action}
                   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="ml-2 h-4 w-4">

@@ -867,6 +867,37 @@ textarea:focus-visible,
 .porte-carte .porte-texte {
   flex-grow: 1;
 }
+/* « Je mesure moi-même » : ce que le client obtient, en trois étapes numérotées — commander à ses mesures, fabriqué aux normes,
+   reçu prêt à poser avec visserie et guide d'installation (Quentin, 05/10/2026). Les mots qui comptent sont en gras. */
+.porte-etapes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.porte-etape {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+.porte-etape-num {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: 999px;
+  background: #f2e7d6;
+  color: #8a6233;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1;
+}
+.porte-etapes strong {
+  font-weight: 650;
+  color: #2b2320;
+}
 .porte-action svg {
   transition: translate 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -890,6 +921,18 @@ textarea:focus-visible,
     font-size: 13px;
     line-height: 1.4;
     margin-bottom: 9px;
+  }
+  .porte-etapes {
+    gap: 3px;
+  }
+  .porte-etape {
+    gap: 7px;
+  }
+  .porte-etape-num {
+    width: 17px;
+    height: 17px;
+    margin-top: 0.5px;
+    font-size: 10.5px;
   }
   .porte-texte .aplat-btn {
     height: 34px;
