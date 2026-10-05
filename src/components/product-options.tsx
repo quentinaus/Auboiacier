@@ -43,6 +43,7 @@ import { diametreRosaceGC } from "@/lib/garde-corps";
 import { memoVersReleve, memoriserConfig, releveVersMemo, reprendreConfig, type ConfigMemo } from "@/lib/config-memo";
 import { livrableParTransporteur } from "@/lib/products";
 import { VisiteAtelier } from "./prise-de-cotes";
+import { PorteQuiMesure, RevenirAuChoix, type QuiPrendLesCotes } from "./porte-qui-mesure";
 import { MAX_TEXTE, EMAIL_MOTIF } from "@/lib/devis-regles";
 import { POSE_INITIALE, PoseDomicile, livraisonPrete, montantLivraison, type ChoixPose } from "./pose-domicile";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
@@ -570,6 +571,7 @@ export function ProductOptions({
   bandeauSlot,
   resultatSlot,
   achatSlot,
+  porteSlot,
   compteOuvert = false,
   ouverture,
 }: {
@@ -621,6 +623,8 @@ export function ProductOptions({
   matieresCentreSlot?: HTMLDivElement | null;
   /** Garde-corps, grand écran : le bandeau des modèles, en bas du bloc (product-view.tsx). */
   bandeauSlot?: HTMLDivElement | null;
+  /** Garde-corps : la plaque « Configuration », où poser d'abord la question « Qui prend les mesures ? ». */
+  porteSlot?: HTMLDivElement | null;
 }) {
   /** La taille à laquelle la fiche s'ouvre, s'il y en a une. */
   const tailleInitiale =
@@ -723,6 +727,13 @@ export function ProductOptions({
       ? { ...COTES_GARDE_CORPS_VIDES, qui: "atelier" }
       : COTES_GARDE_CORPS_VIDES,
   );
+  /**
+   * Le garde-corps commence par une seule question, sur tout le bloc : qui prend les mesures ? (porte-qui-mesure.tsx)
+   * `null` : la question est réglée, le configurateur est là. `depuis` : on y revient par « Changer ».
+   * Une pièce sur devis n'a pas la question : c'est toujours l'atelier qui vient.
+   */
+  const aLaQuestionQui = product.releve === "garde-corps-fenetre" && product.orderMode !== "quote";
+  const [porte, setPorte] = useState<{ depuis?: QuiPrendLesCotes } | null>(aLaQuestionQui ? {} : null);
 
   /**
    * Au retour de la création de compte, on remet la configuration en place.
@@ -780,7 +791,11 @@ export function ProductOptions({
     // ne remet que ce qui avait été rempli — l'étage d'une NOUVELLE fenêtre,
     // lui, n'est jamais coché d'avance.
     const releve = memoVersReleve(memo, t);
-    if (Object.keys(releve).length > 0) setCotesGardeCorps((cotes) => ({ ...cotes, ...releve }));
+    if (Object.keys(releve).length > 0) {
+      setCotesGardeCorps((cotes) => ({ ...cotes, ...releve }));
+      // Le client revient à ses cotes : il les a prises lui-même, on ne lui repose pas la question.
+      setPorte(null);
+    }
   }, [product.slug, formatsDevis, setWoodId, setMetalId, setFabricId, t]);
   /** Les coordonnées facultatives du client, pour un devis PDF nominatif. */
   const [coordonnees, setCoordonnees] = useState({ nom: "", email: "" });
@@ -2108,8 +2123,11 @@ export function ProductOptions({
 
       {/* Les matières côte à côte, chaque groupe juste aussi large que ses
           pastilles : l'acier, le bois et la rosace tiennent sur une ou deux
-          rangées au lieu de trois blocs centrés l'un sous l'autre. */}
+          rangées au lieu de trois blocs centrés l'un sous l'autre.
+          Pas de matières quand l'atelier vient mesurer le garde-corps : Quentin les montre au client le jour de la
+          visite, sur son ordinateur (05/10/2026). */}
       {(product.woods.length > 0 || product.metals.length > 0) &&
+        !(estGC && modeVisite) &&
         (() => {
           const matieres = (
             <div className="flex flex-col gap-7">
@@ -2735,13 +2753,27 @@ export function ProductOptions({
                 t={t}
                 locale={locale}
                 labelCodePostal={t.releveCodePostal}
+                question={locale === "fr" ? "Où se trouve le chantier\u00a0?" : "Where is the site?"}
               />
             </div>
           </div>
         </div>
       )}
+      {estGC && aLaQuestionQui && porte && porteSlot &&
+        createPortal(
+          <PorteQuiMesure
+            locale={locale}
+            titre={t.configurationTitle}
+            notes={{ moi: t.gcQuiMoiNote, tagMoi: t.gcQuiMoiTag }}
+            depuis={porte.depuis}
+            onChoisir={(qui) => setCotesGardeCorps((cotes) => ({ ...cotes, qui }))}
+            onFin={() => setPorte(null)}
+          />,
+          porteSlot,
+        )}
       {estGC && lectureReleve && (
         <div ref={releveRef}>
+          <RevenirAuChoix.Provider value={aLaQuestionQui && porteSlot ? () => setPorte({ depuis: cotesGardeCorps.qui }) : null}>
           <ReleveGardeCorps
             schemaSlot={nouvelleMiseEnPage ? schemaSlot : undefined}
             resultatSlot={nouvelleMiseEnPage && ecranMoyen ? resultatSlot : undefined}
@@ -2771,6 +2803,7 @@ export function ProductOptions({
                 : undefined
             }
           />
+          </RevenirAuChoix.Provider>
         </div>
       )}
 
@@ -2958,8 +2991,8 @@ export function ProductOptions({
                       ? // La visite a un prix : c'est lui qui part au panier, on le montre.
                         `${locale === "fr" ? "Visite : " : "Visit: "}${prixAffiche(prixVisite, locale)}`
                       : locale === "fr"
-                        ? "Visite : votre code postal"
-                        : "Visit: your postcode"
+                        ? "Visite : — €"
+                        : "Visit: — €"
                     : prixFinal !== null
                       ? prixAffiche(prixFinal, locale)
                       : bareme || estGC

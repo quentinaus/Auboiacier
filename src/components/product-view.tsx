@@ -112,6 +112,8 @@ export function ProductView({
   const [achatSlot, setAchatSlot] = useState<HTMLDivElement | null>(null);
   /** Garde-corps, grand écran : le bandeau des modèles, en bas du bloc, sous les cotes et le croquis (visuels, un clic = le détail). */
   const [bandeauSlot, setBandeauSlot] = useState<HTMLDivElement | null>(null);
+  /** Garde-corps : la question « Qui prend les mesures ? », posée sur toute la plaque avant le configurateur. */
+  const [porteSlot, setPorteSlot] = useState<HTMLDivElement | null>(null);
 
   /* Sur téléphone la photo est au-dessus des options. On ne remonte plus à
      chaque teinte choisie — c'est la barre du bas qui montre le rendu
@@ -280,6 +282,7 @@ export function ProductView({
         resultatSlot={resultatSlot}
         achatSlot={achatSlot}
         bandeauSlot={bandeauSlot}
+        porteSlot={porteSlot}
       />
       {!pleinePage && aide}
     </>
@@ -571,6 +574,9 @@ export function ProductView({
               : "md:gap-4 lg:grid lg:items-stretch lg:grid-cols-[minmax(0,372px)_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)] lg:gap-x-14 lg:gap-y-4"
           }`}
         >
+          {/* Garde-corps : la question « Qui prend les mesures ? » couvre d'abord toute la plaque (porte-qui-mesure.tsx).
+              `contents` : l'emplacement ne prend aucune place dans la grille. */}
+          {troisColonnes && <div ref={setPorteSlot} className="porte-slot contents" />}
           {/* Le titre, et — sur grand écran, au garde-corps — la ligne des matières (couleur, bois, rosace) à sa droite, au-dessus
               du croquis mais PAS dessus (demande de Quentin : « remonte-la, il y a de la place »). */}
           <div className={troisColonnes ? "md:col-span-2 md:flex md:items-center md:justify-between md:gap-4 lg:col-span-3 lg:grid lg:grid-cols-[262px_minmax(0,1fr)_272px] lg:items-center lg:gap-x-4 xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:gap-x-5" : "lg:col-span-2"}>

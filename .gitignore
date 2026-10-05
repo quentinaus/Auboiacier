@@ -41,3 +41,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 graphify-out/
+
+# La maquette complète du motion design (python3 docs/motion-aplat/build.py la régénère) : ses milliers de nombres
+# tirés au hasard peuvent ressembler à une valeur du chiffrage (tests/frontiere-chiffrage.test.ts). Seules les scènes
+# extraites (src/components/motion-aplat.genere.ts) entrent dans le dépôt.
+docs/motion-aplat/index.html

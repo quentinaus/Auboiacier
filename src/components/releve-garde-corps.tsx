@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { InfoBulle } from "./info-bulle";
 import { QuiMesure, VisiteAtelier } from "./prise-de-cotes";
+import { SereniteAtelier } from "./serenite-atelier";
 import { SchemaFenetre, type CoteFenetre } from "./schema-fenetre";
 import { matiereMur } from "@/lib/murs-gc";
 import { PlanApercu } from "./plan-apercu";
@@ -971,8 +972,8 @@ export function ReleveGardeCorps({
               et qui détend — sur téléphone, il passe au-dessus du code postal. */}
           {/* Sous 1024 px, la petite version, dans la carte : la grande, en haut du bloc, écrasait le code postal et le créneau
               (téléphone, et tablette peu haute). */}
-          {schemaSlot && bandeauSlot ? createPortal(<Serenite fr={fr} />, schemaSlot) : <Serenite fr={fr} petit />}
-          <VisiteAtelier cotes={cotes} onChange={(visite) => onChange({ ...cotes, ...visite })} t={t} locale={locale} />
+          {schemaSlot && bandeauSlot ? createPortal(<SereniteAtelier locale={locale} />, schemaSlot) : <SereniteAtelier locale={locale} petit />}
+          <VisiteAtelier cotes={cotes} onChange={(visite) => onChange({ ...cotes, ...visite })} t={t} locale={locale} recapSlot={resultatSlot} />
         </>
       )}
 
@@ -1496,64 +1497,6 @@ const CURSEURS = {
   allege: { min: 0, max: BORNES_RELEVE_GC.allegeMm.max, depart: 585 },
   fenetre: { min: 0, max: BORNES_RELEVE_GC.fenetreMm.max, depart: 1200 },
 } as const;
-
-/**
- * « L'atelier s'occupe de tout » : le client n'a rien à mesurer. Un transat, un café qui fume, un
- * soleil qui tourne doucement — et les trois étapes, qui arrivent l'une après l'autre.
- * Les animations sont en CSS (globals.css, .serenite-…) et s'arrêtent si l'on a demandé moins de mouvement.
- */
-function Serenite({ fr, petit = false }: { fr: boolean; petit?: boolean }) {
-  const etapes = fr
-    ? ["Nous venons mesurer chez vous", "Vous recevez le prix exact, sans engagement", "Nous fabriquons et nous posons"]
-    : ["We come and measure at your home", "You receive the exact price, no commitment", "We build and we fit"];
-  return (
-    <div className={`serenite mx-auto flex w-full max-w-[540px] flex-col items-center rounded-2xl border border-[#e0d6c8] bg-white/75 text-center ${petit ? "mt-3 px-4 py-4" : "px-6 py-7 md:px-8 md:py-9"}`}>
-      <svg viewBox="0 0 260 150" aria-hidden className={petit ? "h-[92px] w-auto" : "h-[150px] w-auto"} fill="none" stroke="#2b2320" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        {/* Le soleil, qui tourne tout doucement. */}
-        <g className="serenite-soleil">
-          <circle cx="208" cy="38" r="15" fill="#f1c56b" stroke="none" />
-          {Array.from({ length: 8 }, (_, i) => {
-            const a = (i * Math.PI) / 4;
-            return <line key={i} x1={208 + Math.cos(a) * 22} y1={38 + Math.sin(a) * 22} x2={208 + Math.cos(a) * 29} y2={38 + Math.sin(a) * 29} stroke="#e0a93a" strokeWidth="2.4" />;
-          })}
-        </g>
-        {/* Le sol. */}
-        <line x1="18" y1="132" x2="242" y2="132" stroke="#b7aa94" strokeWidth="1.5" />
-        {/* Le transat : deux piétements croisés, la toile tendue. */}
-        <line x1="52" y1="132" x2="118" y2="58" />
-        <line x1="70" y1="88" x2="150" y2="132" />
-        <path d="M112 62 Q104 104 150 118" stroke="#c9a36b" strokeWidth="7" />
-        <line x1="150" y1="118" x2="172" y2="132" />
-        {/* Le guéridon et la tasse, qui fume. */}
-        <line x1="186" y1="132" x2="186" y2="104" />
-        <line x1="174" y1="104" x2="198" y2="104" />
-        <path d="M180 104 v-9 h12 v9" fill="#ffffff" />
-        <path d="M192 97 q5 1 0 5" strokeWidth="1.5" />
-        <g className="serenite-vapeur" strokeWidth="1.5" stroke="#9a8d80">
-          <path d="M183 90 q-3 -5 0 -9 q3 -4 0 -8" />
-          <path d="M189 90 q-3 -5 0 -9 q3 -4 0 -8" />
-        </g>
-      </svg>
-      <p className={`mt-3 font-medium leading-snug text-[#2b2320] ${petit ? "text-[15px]" : "text-[20px]"}`}>
-        {fr ? "Vous n'avez rien à mesurer : l'atelier se déplace." : "You have nothing to measure: the workshop comes to you."}
-      </p>
-      <p className="mt-1 text-[13px] leading-snug text-[#5c5140]">
-        {fr ? "Choisissez un créneau : nous nous occupons du reste." : "Pick a slot: we take care of the rest."}
-      </p>
-      <ol className={`w-full text-left ${petit ? "mt-3 space-y-1.5" : "mt-5 space-y-2.5"}`}>
-        {etapes.map((etape, i) => (
-          <li key={etape} className="serenite-etape flex items-center gap-3 rounded-xl bg-[#f6f1ea] px-3.5 py-2.5 text-[13.5px] text-[#2b2320]" style={{ animationDelay: `${0.25 + i * 0.35}s` }}>
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#2b2320] text-[12px] font-semibold text-white">{i + 1}</span>
-            {etape}
-          </li>
-        ))}
-      </ol>
-      <p className="mt-4 text-xs leading-snug text-[#6f6357]">
-        {fr ? "Le prix de la visite est déduit de votre commande." : "The price of the visit is deducted from your order."}
-      </p>
-    </div>
-  );
-}
 
 /** Les dessins montrés AVANT les mesures : de 1 à 6 croix, seules puis avec barreaux, sur une fenêtre type. */
 const MODELES_VITRINE: ModeleGC[] = ([[false, false], [false, true], [true, false], [true, true]] as const).flatMap(([b, t]) =>

@@ -726,54 +726,178 @@ textarea:focus-visible,
   }
 }
 
-/* « L'atelier s'occupe de tout » (releve-garde-corps.tsx, Serenite) : un peu de mouvement, très doux. */
-.serenite-soleil {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: serenite-tourner 28s linear infinite;
+/* « L'atelier vient mesurer » (serenite-atelier.tsx) : le film du parcours en aplats (ses styles et ses mouvements
+   arrivent avec la scène, motion-aplat.genere.ts). Ici, seulement sa place dans le bloc. */
+.parcours-aplat.aplat-panel {
+  margin: 0;
+  max-width: none;
+  container-type: inline-size;
 }
-.serenite-vapeur path {
-  animation: serenite-vapeur 3.2s ease-in-out infinite;
+/* La légende tient sur une ligne quelle que soit la largeur du panneau (dans la carte, sous 1024 px, il est étroit). */
+.parcours-aplat.aplat-panel .aplat-cap {
+  font-size: clamp(14px, 5.4cqi, 22px);
 }
-.serenite-vapeur path + path {
-  animation-delay: 1.1s;
+.parcours-aplat .aplat-film {
+  flex: 1 1 auto;
+  min-height: 0;
 }
-.serenite-etape {
-  animation: serenite-arriver 0.55s ease both;
+.parcours-aplat .aplat-film > svg {
+  width: 100%;
+  height: 100%;
 }
-@keyframes serenite-tourner {
-  to {
-    transform: rotate(360deg);
+/* Tant que l'écran « Qui prend les mesures ? » couvre la plaque, le film attend : il commence au premier chapitre. */
+.fond-configuration:has(.porte-qui) .parcours-aplat,
+.fond-configuration:has(.porte-qui) .parcours-aplat * {
+  animation-play-state: paused !important;
+}
+
+/* ------------------------------------------------------------------ *
+ *  « Qui prend les mesures ? » (porte-qui-mesure.tsx) : l'écran de choix
+ *  posé sur la plaque Configuration du garde-corps, avant le configurateur.
+ * ------------------------------------------------------------------ */
+/* Tant que les cartes sont là, ce qu'elles recouvrent est caché, et hors d'atteinte du clavier. La plaque a la hauteur
+   de l'écran à toutes les tailles (« tout en bloc ») : l'écran de choix se pose dessus, sans rien pousser. */
+.fond-configuration:has(> .porte-slot > .porte-qui:is([data-etat="choix"], [data-etat="ouverture"])) > :not(.porte-slot) {
+  visibility: hidden;
+}
+.porte-qui {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  /* Les marges de la plaque (globals.css, .fond-configuration) : le titre tombe à la place du vrai. */
+  padding: 14px;
+}
+@media (min-width: 48rem) {
+  .porte-qui {
+    padding: 22px;
   }
 }
-@keyframes serenite-vapeur {
-  0% {
+@media (min-width: 48rem) and (max-height: 31.25rem) {
+  .porte-qui {
+    padding: 10px 14px;
+  }
+}
+/* Pendant que le configurateur apparaît ou disparaît, rien ne se clique sur l'écran de choix. */
+.porte-qui:is([data-etat="revele"], [data-etat="retour"]) {
+  pointer-events: none;
+}
+.porte-qui:is([data-etat="revele"], [data-etat="retour"]) .porte-contenu {
+  visibility: hidden;
+}
+.porte-qui[data-etat="ouverture"] {
+  pointer-events: none;
+}
+.porte-qui[data-etat="ouverture"] .porte-contenu {
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+/* Le voile : le papier de la carte choisie, qui gagne tout le bloc. Le JavaScript l'anime ; ici, sa place de repos. */
+.porte-voile {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 32px;
+  background: #fbf8f4;
+  box-shadow: 0 30px 70px -30px rgba(43, 35, 32, 0.45);
+  opacity: 0;
+  pointer-events: none;
+}
+.porte-qui:is([data-etat="ouverture"], [data-etat="revele"], [data-etat="retour"]) .porte-voile {
+  opacity: 1;
+}
+/* Les cartes sont celles de la maquette en aplats (aplat-card) ; en plus, une ombre et un léger soulèvement au survol. */
+.porte-carte {
+  cursor: pointer;
+  box-shadow:
+    0 24px 50px -30px rgba(43, 35, 32, 0.5),
+    0 6px 16px -10px rgba(43, 35, 32, 0.22);
+  transition:
+    translate 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.5s ease;
+}
+.porte-carte:hover {
+  translate: 0 -4px;
+  box-shadow:
+    0 36px 70px -32px rgba(43, 35, 32, 0.6),
+    0 10px 22px -12px rgba(43, 35, 32, 0.3);
+}
+/* La scène garde les proportions de la maquette (720 × 334) ; quand la hauteur manque, elle se resserre sans se
+   déformer (le dessin reste entier, centré dans son décor). */
+.porte-scene {
+  flex: 0 1 auto;
+  width: 100%;
+  min-height: 0;
+  aspect-ratio: 720 / 334;
+  overflow: hidden;
+}
+.porte-scene > svg {
+  width: 100%;
+  height: 100%;
+}
+/* Côte à côte, les deux cartes ont la même hauteur : le texte de la plus courte prend la place qui reste. */
+.porte-carte .porte-texte {
+  flex-grow: 1;
+}
+.porte-action svg {
+  transition: translate 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.porte-carte:hover .porte-action svg {
+  translate: 3px 0;
+}
+/* Téléphone : les deux cartes tiennent l'une sous l'autre dans l'écran ; le texte se resserre, la scène prend le reste. */
+@media (max-width: 47.999rem) {
+  .porte-texte.aplat-card-body {
+    padding: 11px 16px 13px;
+  }
+  .porte-texte .aplat-tag {
+    font-size: 11.5px;
+    padding: 3px 9px;
+  }
+  .porte-texte .aplat-card-title {
+    font-size: 22px;
+    margin: 6px 0 3px;
+  }
+  .porte-texte .aplat-card-text {
+    font-size: 13px;
+    line-height: 1.4;
+    margin-bottom: 9px;
+  }
+  .porte-texte .aplat-btn {
+    height: 34px;
+    font-size: 13px;
+    padding: 0 15px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* L'arrivée : la question, puis les deux cartes. */
+  .porte-qui:not([data-vu]) :is(.porte-entete, .porte-carte) {
     opacity: 0;
-    transform: translateY(4px);
   }
-  40% {
-    opacity: 0.9;
+  .porte-qui[data-vu] .porte-entete {
+    animation: porte-monter 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   }
-  100% {
-    opacity: 0;
-    transform: translateY(-7px);
+  .porte-qui[data-vu] .porte-carte {
+    animation: porte-monter 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.12s both;
+  }
+  .porte-qui[data-vu] .porte-carte + .porte-carte {
+    animation-delay: 0.24s;
+  }
+  /* Au retour (« Changer »), pas de montée : le voile se replie déjà sur sa carte. */
+  .porte-qui[data-retour] :is(.porte-entete, .porte-carte) {
+    animation-name: porte-fondu;
   }
 }
-@keyframes serenite-arriver {
+@keyframes porte-monter {
   from {
     opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
+    transform: translateY(26px) scale(0.98);
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .serenite-soleil,
-  .serenite-vapeur path,
-  .serenite-etape {
-    animation: none;
+@keyframes porte-fondu {
+  from {
+    opacity: 0;
   }
 }
 
