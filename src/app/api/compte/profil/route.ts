@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { clientConnecte } from "@/lib/compte";
 import { creerLimite } from "@/lib/limite-debit";
+import { origineEtrangere } from "@/lib/origine";
 import { enregistrerProfil } from "@/lib/profil-client";
 
 export const runtime = "nodejs";
@@ -17,6 +18,11 @@ export const maxDuration = 20;
 const tropDeDemandes = creerLimite({ fenetreMs: 10 * 60 * 1000, maximum: 20 });
 
 export async function POST(request: Request) {
+  // Un site tiers ne doit pas pouvoir agir sur le compte par le navigateur
+  // d'un client connecté (le témoin « lax » ne suffit pas à tout couvrir).
+  if (origineEtrangere(request)) {
+    return NextResponse.json({ error: "origin" }, { status: 403 });
+  }
   const email = await clientConnecte();
   if (!email) return NextResponse.json({ error: "non_connecte" }, { status: 401 });
   if (tropDeDemandes(request, Date.now())) {

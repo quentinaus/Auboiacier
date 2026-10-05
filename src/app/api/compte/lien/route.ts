@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { compteConfigure, normaliserEmail, retourInterne, signerLien } from "@/lib/compte-jetons";
 import { sendEmail } from "@/lib/email";
-import { creerLimite } from "@/lib/limite-debit";
+import { creerLimite, creerLimiteParCle } from "@/lib/limite-debit";
+import { origineEtrangere } from "@/lib/origine";
 import { siteOrigin } from "@/lib/stripe";
 
 export const runtime = "nodejs";
@@ -16,9 +17,20 @@ export const maxDuration = 20;
  */
 const tropDeDemandes = creerLimite({ fenetreMs: 10 * 60 * 1000, maximum: 5 });
 
+/**
+ * Et par DESTINATAIRE : trois liens par heure pour une même adresse. La limite
+ * par IP seule laissait quelqu'un qui dispose de plusieurs adresses IP remplir
+ * la boîte d'un inconnu de liens de connexion.
+ */
+const tropDeLiens = creerLimiteParCle({ fenetreMs: 60 * 60 * 1000, maximum: 3 });
+
 export async function POST(request: Request) {
   if (!compteConfigure()) {
     return NextResponse.json({ error: "not_configured" }, { status: 503 });
+  }
+  // Un site tiers ne fait pas demander de liens par le navigateur de ses visiteurs.
+  if (origineEtrangere(request)) {
+    return NextResponse.json({ error: "origin" }, { status: 403 });
   }
   if (tropDeDemandes(request, Date.now())) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
@@ -34,6 +46,8 @@ export async function POST(request: Request) {
   const locale = langue === "en" ? "en" : "fr";
   const adresse = normaliserEmail(email);
   if (!adresse) return NextResponse.json({ error: "bad_email" }, { status: 400 });
+  // Plafond atteint pour cette adresse : même réponse que d'habitude, rien ne part.
+  if (tropDeLiens(adresse, Date.now())) return NextResponse.json({ ok: true });
 
   const jeton = signerLien(adresse, Math.floor(Date.now() / 1000));
   if (!jeton) return NextResponse.json({ error: "not_configured" }, { status: 503 });

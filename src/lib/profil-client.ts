@@ -61,7 +61,7 @@ function enProfil(client: Stripe.Customer): Profil {
  * La fiche à utiliser pour cette adresse, ou null si le client n'en a aucune.
  * Ne crée rien.
  */
-async function trouverFiche(email: string): Promise<Stripe.Customer | null> {
+export async function trouverFiche(email: string): Promise<Stripe.Customer | null> {
   if (!isStripeConfigured() || !email) return null;
   try {
     const page = await getStripe().customers.list({ email, limit: 100 });
