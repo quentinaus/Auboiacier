@@ -77,6 +77,8 @@ export const MINI_GC_MM = 200;
 
 /** Un cadre à barreaux seuls, main courante comprise, peut être plus bas (MINI_SEULS du moteur) : il n'y a pas de croix à aplatir. */
 export const MINI_SEULS_GC_MM = 120;
+/** La marge de sécurité de l'atelier sur la boule de la norme (MARGE_BOULE de l'outil) : un vide n'est vendu que s'il fait 3 mm de moins (décision de Quentin, 05/10/2026). */
+export const MARGE_BOULE_GC_MM = 3;
 /** Le plus petit jour sous le cadre (JOUR_MINI du moteur) : l'appui n'est jamais parfaitement plan. */
 export const JOUR_MINI_GC_MM = 40;
 

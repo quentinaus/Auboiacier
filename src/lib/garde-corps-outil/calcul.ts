@@ -8,7 +8,7 @@
  * (import "server-only") ; les tests l'importent directement. Aucun composant
  * du navigateur ne doit l'importer, même indirectement : un test le vérifie.
  */
-import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, DEFAUTS_GC, calculerGC, geomGC, type ResultatGC, type ValeursGC } from "./moteur.genere.mjs";
+import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, DEFAUTS_GC, MARGE_BOULE, calculerGC, geomGC, type ResultatGC, type ValeursGC } from "./moteur.genere.mjs";
 import { chiffrage } from "./chiffrage.ts";
 import { idModeleGC, lireMainCouranteGC, lireModeleGC, ROSACES_MM_GC, type RaisonSansPrixGC, type RondGC, type TrousGC } from "../garde-corps.ts";
 import { CARRE_RENFORT, CARRES_RENFORT_SEULS, codeAlerte, CROIX_CATALOGUE, CROIX_MAX, MAINS_COURANTES_GC, ORDRE_CARRES, valeursGC, type CodeAlerteGC, type EntreeSiteGC } from "./entree.ts";
@@ -334,7 +334,7 @@ function trousDuDessin(entree: EntreeSiteGC, n: number, b: boolean, t: boolean, 
   }
   ronds.sort((a, b2) => a.x - b2.x);
   if (!ronds.length || !Number.isFinite(g.dMax) || !(g.Lc > 0) || !(g.Hc > 0)) return null;
-  return { cadreMm: { l: Math.round(g.Lc), h: Math.round(Number(g.Hc)) }, plusGrandMm: Math.max(0, Math.round(g.dMax)), limiteMm: Math.round(g.limite), ronds: ronds.slice(0, 12) };
+  return { cadreMm: { l: Math.round(g.Lc), h: Math.round(Number(g.Hc)) }, plusGrandMm: Math.max(0, Math.round(g.dMax)), limiteMm: Math.round(g.limite) - MARGE_BOULE, ronds: ronds.slice(0, 12) };
 }
 
 /**

@@ -21,6 +21,7 @@ import {
   ESSENCES_GC,
   JOUR_GC_MM,
   JOUR_MINI_GC_MM,
+  MARGE_BOULE_GC_MM,
   MAINS_COURANTES_GC,
   MAIN_COURANTE_MM,
   MINI_GC_MM,
@@ -32,7 +33,7 @@ import {
   releveDansLesBornes,
   type ReleveGC,
 } from "../src/lib/garde-corps.ts";
-import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, CIBLE_MARGE, DEFAUTS_GC, HAUT_ETAGE, MINI_GC, geomGC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
+import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, CIBLE_MARGE, DEFAUTS_GC, HAUT_ETAGE, MARGE_BOULE, MINI_GC, geomGC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
 import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
 import { prixCommandeGC, prixGC, type ConfigGC } from "../src/lib/garde-corps-outil/calcul.ts";
 import {
@@ -65,6 +66,7 @@ test("les constantes du site sont celles de l'outil de plans", () => {
   assert.equal(ALLEGE_SANS_OBLIGATION_MM, ALLEGE_LIBRE);
   assert.equal(MAIN_COURANTE_MM, HAUT_ETAGE + CIBLE_MARGE, "la hauteur de la main courante, depuis le sol");
   assert.equal(MINI_GC_MM, MINI_GC, "le plus petit garde-corps à croix");
+  assert.equal(MARGE_BOULE_GC_MM, MARGE_BOULE, "la marge de sécurité sur la boule de la norme");
   assert.equal(BARRE_APPUI_MM, BARRE_APPUI, "l'épaisseur d'une barre d'appui");
   // Le garde-corps de départ (le « à partir de ») est le plus petit qui se vend : le premier cadre bas à barreaux, là où même un jour de 40 ne laisse plus la place à des croix.
   assert.equal(RELEVE_DEPART_GC.allegeMm, MAIN_COURANTE_MM - JOUR_MINI_GC_MM - MINI_GC_MM + 1);

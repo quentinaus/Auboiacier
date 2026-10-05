@@ -215,7 +215,8 @@ test("fenêtre large : le fer plat est le même pour tous les dessins, ne se cho
     else assert.equal(m.carre, CARRE_RENFORT);
     // Un identifiant forgé dans un autre carré : le même garde-corps, au même prix (le carré reste celui de l'atelier).
     for (const s of ORDRE_CARRES) {
-      const forge = reponsePrixGC({ ...q, releve: { ...large, modele: m.id.replace(/^\d+/, String(s)) } });
+      // (La rosace du modèle : avec la marge de 3 mm sur la boule, certains dessins ne passent qu'avec une plus grande rosace, que le catalogue propose.)
+      const forge = reponsePrixGC({ ...q, ...(m.rosace ? { fabricId: m.rosace } : {}), releve: { ...large, modele: m.id.replace(/^\d+/, String(s)) } });
       assert.ok(forge && forge.ok, `${s} : ${m.id}`);
       assert.deepEqual([forge.carre, forge.renfort, forge.prix], [m.carre, true, m.prix]);
     }

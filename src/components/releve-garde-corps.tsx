@@ -11,6 +11,7 @@ import { PlanApercu } from "./plan-apercu";
 import {
   BORNES_RELEVE_GC,
   MAIN_COURANTE_MM,
+  MARGE_BOULE_GC_MM,
   ROSACE_MM_GC,
   lireMainCouranteGC,
   lireReponsePrixGC,
@@ -982,8 +983,8 @@ export function ReleveGardeCorps({
                           <span aria-hidden className="mt-[3px] h-2.5 w-2.5 shrink-0 rounded-full border-[1.5px] border-[#b3261e] bg-[#b3261e]/30" />
                           <span>
                             {fr
-                              ? `${rouges > 1 ? "Ronds rouges" : "Rond rouge"} : le plus grand vide mesure ${nombre(t.plusGrandMm)} mm ; la norme exige moins de ${nombre(t.limiteMm)} mm.`
-                              : `${rouges > 1 ? "Red circles" : "Red circle"}: the largest gap is ${nombre(t.plusGrandMm)} mm; the standard requires under ${nombre(t.limiteMm)} mm.`}
+                              ? `${rouges > 1 ? "Ronds rouges" : "Rond rouge"}\u00a0: le plus grand vide mesure ${nombre(t.plusGrandMm)} mm\u00a0; l'atelier exige moins de ${nombre(t.limiteMm)} mm (la boule de la norme, ${nombre(t.limiteMm + MARGE_BOULE_GC_MM)} mm, moins ${MARGE_BOULE_GC_MM} mm de marge de fabrication).`
+                              : `${rouges > 1 ? "Red circles" : "Red circle"}: the largest gap is ${nombre(t.plusGrandMm)} mm; the workshop requires under ${nombre(t.limiteMm)} mm (the standard's ${nombre(t.limiteMm + MARGE_BOULE_GC_MM)} mm ball, minus ${MARGE_BOULE_GC_MM} mm manufacturing margin).`}
                           </span>
                         </p>
                       )}

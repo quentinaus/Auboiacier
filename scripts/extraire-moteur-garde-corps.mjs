@@ -53,7 +53,7 @@ const A = analyser(html);
 // ---------- 1. Ce qu'on prend : des racines, puis tout ce qu'elles utilisent ----------
 const RACINES = {
   moteur: ["geomGC", "calculerGC", "variantesConformes", "decrireVariante", "HAUT_ETAGE", "ALLEGE_LIBRE", "MINI_GC", "MINI_SEULS", "BARRE_APPUI", "SPHERE",
-    "SPHERE_HAUT", "Z_SPHERE", "Z_ESCALADE", "CIBLE_MARGE", "LIMITE_ACIER", "ROSACE_R", "RENFORT", "fmt", "mmTxt", "planA3Pur", "DS_ESSENCES", "coupeMainCourante", "svgDe"],
+    "SPHERE_HAUT", "Z_SPHERE", "Z_ESCALADE", "CIBLE_MARGE", "LIMITE_ACIER", "ROSACE_R", "RENFORT", "fmt", "mmTxt", "planA3Pur", "DS_ESSENCES", "coupeMainCourante", "svgDe", "MARGE_BOULE"],
   devis: ["composerDevisGC", "dsDevisHtml", "dsPrix", "DS_GC", "DS_VALIDITE_JOURS"],
   chiffrage: ["chiffrerGC", "remiseGC", "REGLAGES"],
 };
@@ -273,6 +273,7 @@ export declare const CIBLE_MARGE: number;
 export declare const HAUT_ETAGE: number;
 export declare const LIMITE_ACIER: number;
 export declare const MINI_GC: number;
+export declare const MARGE_BOULE: number;
 export declare const MINI_SEULS: number;
 export declare const RENFORT: Readonly<{ l: number; e: number; bois: Readonly<{ l: number; h: number }>; LcMax: number; pasVis: number; visD: number; visL: number }>;
 export declare const ROSACE_R: number;

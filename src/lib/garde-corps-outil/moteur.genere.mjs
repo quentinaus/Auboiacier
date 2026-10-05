@@ -1,11 +1,12 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Moteur garde-corps : norme NF P01-012, géométrie, débit, dessins. SANS coûts.
-// Source : l'outil de plans (plans-atelier.html), sha256 5644127c2d739cadae1856ff675eb0b11f4c5dfd359b9863b922b91a90d9ad9d
+// Source : l'outil de plans (plans-atelier.html), sha256 1caf8c6fed72a55330b1cf64acaf9923f600e337c091bfb21176ddcfebe93e3c
 /* eslint-disable */
 const NOMS = { mikado: "Table Mikado", croix: "Table Croix", mikadoExt: "Table Mikado extérieur", gardeCorps: "Garde-corps Rosace à croix", escalier: "Escalier droit à limon central" };
 const SPHERE = 110;
 const SPHERE_HAUT = 180;
 const Z_SPHERE = 800;
+const MARGE_BOULE = 3;
 const CIBLE_MARGE = 25;
 const ROSACE_R = 50;
 const rosaceR = (v) => (v.rosace === false ? 0 : v.rD >= 20 ? v.rD / 2 : ROSACE_R);
@@ -290,7 +291,7 @@ function geomGC(v, n) {
     const trous = (seuls ? trousSeuls : w > 0 && h > 0 ? trousPanneau(w, h, v.s, rosaceR(v), barres, !!v.traverse) : []).map((x) => {
       const d = 2 * x.r;
       const limite = zBas + x.yBas < Z_SPHERE ? SPHERE : SPHERE_HAUT;
-      return { ...x, d, limite, ok: d < limite };
+      return { ...x, d, limite, ok: d < limite - MARGE_BOULE };
     });
     const pire = trous.reduce((m, x) => (!m || x.d / x.limite > m.d / m.limite ? x : m), null);
     return { Lc, cible, manque, appui, hNorme, Hr, Hc, h, w, trous, pire, vide, zBas, sb, hb, nbS, nbB, videS, limiteS: zCadre + v.s < Z_SPHERE ? SPHERE : SPHERE_HAUT, dMax: pire ? pire.d : Infinity, limite: pire ? pire.limite : SPHERE, ok: trous.every((x) => x.ok) };
@@ -397,9 +398,9 @@ function calculerGC(v) {
     let bMin = null;
     if (!g.ok && !v._rapide && !seuls) for (let k = 1; k <= 12; k++) { const gk = geomGC({ ...v, nb: k }, n); if (gk.ok) { bMin = k; break; } }
     const tOk = !g.ok && !v.traverse && !v._rapide && !seuls && geomGC({ ...v, traverse: true }, n).ok;
-    if (g.ok && g.dMax > g.limite - 10) R.notes.push(`Trous : ${mmTxt(g.dMax)} mm pour ${g.limite} au maximum. C'est juste : la norme ne tolère aucun millimètre de plus. Garde 10 mm de marge pour les écarts de fabrication.`);
-    if (g.ok) R.oks.push(`Trous : le plus grand cercle fait Ø ${mmTxt(g.dMax)} mm${v.nb > 0 || seuls ? `, vide entre barreaux ${fmt(g.vide, 1)} mm` : ""} (boule de ${g.limite} mm à cet endroit : ${g.limite === SPHERE ? "le trou commence sous 800 mm du sol" : "tout le trou est au-dessus de 800 mm du sol"}) : elle ne passe pas.`);
-    else R.alertes.push(`Trous : ${mmTxt(g.dMax)} mm (cercle rouge). À cet endroit, une boule de ${g.limite} mm ne doit pas passer : pas aux normes.` +
+    if (g.ok && g.dMax > g.limite - 10) R.notes.push(`Trous : ${mmTxt(g.dMax)} mm pour ${g.limite - MARGE_BOULE} au maximum (la boule de la norme, ${g.limite}, moins ${MARGE_BOULE} mm de marge de fabrication). C'est juste : la norme ne tolère aucun millimètre de plus.`);
+    if (g.ok) R.oks.push(`Trous : le plus grand cercle fait Ø ${mmTxt(g.dMax)} mm${v.nb > 0 || seuls ? `, vide entre barreaux ${fmt(g.vide, 1)} mm` : ""} (boule de ${g.limite} mm à cet endroit, ${MARGE_BOULE} mm de marge comprise : ${g.limite === SPHERE ? "le trou commence sous 800 mm du sol" : "tout le trou est au-dessus de 800 mm du sol"}) : elle ne passe pas.`);
+    else R.alertes.push(`Trous : ${mmTxt(g.dMax)} mm (cercle rouge). À cet endroit, une boule de ${g.limite} mm ne doit pas passer : l'atelier exige moins de ${g.limite - MARGE_BOULE} mm (${MARGE_BOULE} mm de marge de fabrication), pas aux normes.` +
       (nMin ? ` Solution : ${nMin} croix sur cette largeur.` : "") + (bMin ? ` Ou ${bMin} barreaux par panneau (réglage « Barreaux »).` : "") +
       (tOk ? `${nMin || bMin ? " Ou" : " Solution :"} une traverse au milieu ${n > 1 ? "de chaque croix" : "de la croix"} (Options, « Traverse au milieu »).` : ""));
     {
@@ -439,7 +440,7 @@ function calculerGC(v) {
     if (v.A >= 600 && v.A < 625) R.notes.push("Allège entre 600 et 625 mm : le seuil de 600 n'a pas de tolérance. Mesure bien.");
     if (g.sb) {
       R.notes.push(`Soubassement : ${v.A + v.jour < Z_ESCALADE ? `le cadre commence à ${mmTxt(v.A + v.jour)} mm du sol, dans la zone d'escalade (100 à 600 mm). ` : "choisi pour le style. "}Le bas est rempli de ${g.nbS} barreaux (vides de ${fmt(g.videS, 1)} mm), fermé par une lisse dont le dessus est à ${mmTxt(v.A + v.jour + g.sb + s)} mm du sol ; les croix commencent au-dessus.`);
-      if (g.videS >= g.limiteS) R.alertes.push(`Soubassement : vide de ${fmt(g.videS, 1)} mm entre barreaux, il faut moins de ${g.limiteS}.`);
+      if (g.videS >= g.limiteS - MARGE_BOULE) R.alertes.push(`Soubassement : vide de ${fmt(g.videS, 1)} mm entre barreaux, il faut moins de ${g.limiteS - MARGE_BOULE} (la boule de la norme, ${g.limiteS}, moins ${MARGE_BOULE} mm de marge).`);
       else R.oks.push(v.A + v.jour < Z_ESCALADE ? `Escalade : rien à quoi grimper sous 600 mm (barreaux verticaux, vide de ${fmt(g.videS, 1)} mm).` : `Soubassement : barreaux verticaux, vide de ${fmt(g.videS, 1)} mm.`);
     } else if (seuls) R.oks.push(`Escalade : seulement des barreaux verticaux, rien à quoi poser le pied (${g.nbB} barreaux, vides de ${fmt(g.vide, 1)} mm).`);
     else R.oks.push("Escalade : tout le garde-corps est au-dessus de 600 mm du sol.");
@@ -519,7 +520,7 @@ function calculerGC(v) {
       if (i === 0) {
         const vus = new Set(), ronds = [];
         g.trous.forEach((x) => { const k = v.traverse ? `${Math.round(x.d)}|${x.ok}` : Math.round(x.d); if (!vus.has(k)) { vus.add(k); ronds.push({ c: [px + x.c[0], py + x.c[1]], d: x.d, ok: x.ok }); } });
-        if (g.sb) { const dS = Math.min(g.videS, g.hb); ronds.push({ c: [x0 + s + g.videS / 2, y0 + s + g.hb / 2], d: dS, ok: dS < g.limiteS }); }
+        if (g.sb) { const dS = Math.min(g.videS, g.hb); ronds.push({ c: [x0 + s + g.videS / 2, y0 + s + g.hb / 2], d: dS, ok: dS < g.limiteS - MARGE_BOULE }); }
         const yl = y0 - Math.max(60, g.Lc * 0.07);
         ronds.sort((a, b) => a.c[0] - b.c[0]).forEach((r, k) => {
           const xl = x0 + (g.Lc * (k + 1)) / (ronds.length + 1), ton = r.ok ? "bon" : "ko";
@@ -995,6 +996,6 @@ function planA3Pur(R, v, infos, modele) {
 const DS_ESSENCES = { pin: "Pin", hetre: "Hêtre", chene: "Chêne", noyer: "Noyer" };
 export const DEFAUTS_GC = Object.freeze({"prixVente":0,"km":30,"debitAr":8,"minSoud":1.2,"rnP":14,"rnJ":1,"nF":2,"dF":6.5,"fF":13,"eF":40,"epMc":8,"L":2000,"l":1000,"H":750,"e":45,"a":80,"ep":3,"t":3,"pL":75,"pl":60,"pX":80,"rX":250,"tS":300,"tW":120,"pR":60,"bR":300,"lame":150,"latte":120,"jeu":8,"trait":3,"B":1180,"A":650,"Hs":0,"Hf":0,"s":16,"mc":40,"j":1,"jour":90,"nP":1,"nb":0,"rD":100,"Xo":0,"Hm":2600,"recul":0,"Wm":900,"lh":150,"lw":100,"le":5,"em":50,"nez":0,"hs":80,"tp":8,"plx":200,"ply":150,"tpp":10,"epl":200,"ass":"droit","etage":true,"rosace":true,"traverse":false,"mcType":"bois","sbMode":"auto","seuls":false,"renfort":"sans","essence":"chene","remise":"retrait","essenceT":"chene","teinte":"noir","rainure":true,"jourAuto":true,"jourSaisi":90});
 export const BORNES_GC = Object.freeze({ B: Object.freeze({"min":300,"max":3000}), A: Object.freeze({"min":0,"max":1200}), Hf: Object.freeze({"min":0,"max":3000}) });
-export const EMPREINTE_SOURCE = "5644127c2d739cadae1856ff675eb0b11f4c5dfd359b9863b922b91a90d9ad9d";
-export { ALLEGE_LIBRE, BARRE_APPUI, CIBLE_MARGE, DS_ESSENCES, HAUT_ETAGE, LIMITE_ACIER, MINI_GC, MINI_SEULS, RENFORT, ROSACE_R, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, coupeMainCourante, decrireVariante, fmt, geomGC, mmTxt, planA3Pur, svgDe, variantesConformes };
-export const EMPREINTE = "48ee4bfbbda5";
+export const EMPREINTE_SOURCE = "1caf8c6fed72a55330b1cf64acaf9923f600e337c091bfb21176ddcfebe93e3c";
+export { ALLEGE_LIBRE, BARRE_APPUI, CIBLE_MARGE, DS_ESSENCES, HAUT_ETAGE, LIMITE_ACIER, MARGE_BOULE, MINI_GC, MINI_SEULS, RENFORT, ROSACE_R, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, coupeMainCourante, decrireVariante, fmt, geomGC, mmTxt, planA3Pur, svgDe, variantesConformes };
+export const EMPREINTE = "8df3b38cae66";

@@ -40,6 +40,7 @@ export declare const CIBLE_MARGE: number;
 export declare const HAUT_ETAGE: number;
 export declare const LIMITE_ACIER: number;
 export declare const MINI_GC: number;
+export declare const MARGE_BOULE: number;
 export declare const MINI_SEULS: number;
 export declare const RENFORT: Readonly<{ l: number; e: number; bois: Readonly<{ l: number; h: number }>; LcMax: number; pasVis: number; visD: number; visL: number }>;
 export declare const ROSACE_R: number;
