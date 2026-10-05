@@ -339,7 +339,7 @@
     "gcAllegeAide": "Du parquet ou du carrelage jusqu'au-dessus de l'appui.",
     "gcAllegeInfo": "Debout dans la pièce, mesurez du sol fini (parquet ou carrelage posé) jusqu'au-dessus de l'appui de fenêtre, la tablette sur laquelle on pose les mains. Cette hauteur, l'allège, nous donne la hauteur du garde-corps.",
     "gcMur": "Type de mur",
-    "gcConsigne": "Cotes exactes de l'ouverture, en millimètres, sans rien retirer : l'atelier prend le jeu de pose.",
+    "gcConsigne": "Cotes exactes de l'ouverture, d'un mur à l'autre, en millimètres, sans rien retirer : l'atelier calcule ensuite la cote du garde-corps pour qu'il s'encastre.",
     "gcFacultatif": "(facultatif)",
     "gcMainCourante": "Main courante à {m} mm du sol. Garde-corps posé {j} mm au-dessus du bas de la fenêtre.",
     "gcMurOptions": [

@@ -339,7 +339,7 @@
     "gcAllegeAide": "From the floorboards or tiles up to the top of the sill.",
     "gcAllegeInfo": "Standing in the room, measure from the finished floor (boards or tiles laid) up to the top of the window sill, the ledge you rest your hands on. That height, the sill height, gives us the height of the railing.",
     "gcMur": "Wall type",
-    "gcConsigne": "Exact opening dimensions, in millimetres, nothing deducted: the workshop allows for the fitting clearance.",
+    "gcConsigne": "Exact opening dimensions, wall to wall, in millimetres, nothing deducted: the workshop then works out the railing's size so it fits.",
     "gcFacultatif": "(optional)",
     "gcMainCourante": "Handrail {m} mm from the floor. Railing fitted {j} mm above the bottom of the window.",
     "gcMurOptions": [

@@ -9,6 +9,9 @@
 
 /** Les questions d'abord (largeur, hauteur sous la fenêtre, hauteur de la fenêtre, étage, mur), puis le reste. */
 export const QUESTIONS_GC = 5;
+/** Après les questions : les finitions d'abord (demande de Quentin, 05/10), puis le modèle, puis le prix. */
+export const ETAPE_FINITIONS_GC = QUESTIONS_GC + 1;
+export const ETAPE_MODELE_GC = QUESTIONS_GC + 2;
 
 export const ETAPES_GC = [
   {
@@ -16,8 +19,8 @@ export const ETAPES_GC = [
     courtEn: "Width",
     questionFr: "Quelle est la largeur de votre fenêtre\u00a0?",
     questionEn: "How wide is your window?",
-    aideFr: "D'un mur à l'autre, dans l'ouverture, en millimètres.",
-    aideEn: "From one wall to the other, inside the opening, in millimetres.",
+    aideFr: "La cote exacte d'un mur à l'autre, en millimètres. L'atelier calcule ensuite celle du garde-corps, pour qu'il s'encastre.",
+    aideEn: "The exact size from one wall to the other, in millimetres. The workshop then works out the railing's size so it fits.",
   },
   {
     courtFr: "Hauteur",
@@ -52,20 +55,20 @@ export const ETAPES_GC = [
     aideEn: "It decides the plugs and screws we supply.",
   },
   {
+    courtFr: "Finitions",
+    courtEn: "Finishes",
+    questionFr: "Quelles finitions aimeriez-vous\u00a0?",
+    questionEn: "Which finishes would you like?",
+    aideFr: "La couleur de l'acier, la main courante et la rosace.",
+    aideEn: "The steel colour, the handrail and the rosette.",
+  },
+  {
     courtFr: "Modèle",
     courtEn: "Model",
     questionFr: "Choisissez votre modèle",
     questionEn: "Choose your model",
-    aideFr: "Tous sont aux normes pour votre fenêtre.",
-    aideEn: "All of them meet the standard for your window.",
-  },
-  {
-    courtFr: "Finitions",
-    courtEn: "Finishes",
-    questionFr: "Vos finitions",
-    questionEn: "Your finishes",
-    aideFr: "La couleur de l'acier, la main courante et la rosace.",
-    aideEn: "The steel colour, the handrail and the rosette.",
+    aideFr: "Tous sont aux normes pour votre fenêtre, avec vos finitions.",
+    aideEn: "All of them meet the standard for your window, with your finishes.",
   },
   {
     courtFr: "Prix",
@@ -101,7 +104,7 @@ export function EnteteEtapes({
   const fr = locale === "fr";
   const courante = ETAPES_GC[etape - 1] ?? ETAPES_GC[0];
   const enQuestions = etape <= QUESTIONS_GC;
-  const sansChoix = sansModele && etape === QUESTIONS_GC + 1;
+  const sansChoix = sansModele && etape === ETAPE_MODELE_GC;
   const question = sansChoix ? (fr ? "Votre garde-corps" : "Your railing") : fr ? courante.questionFr : courante.questionEn;
   const aide = sansChoix
     ? fr
@@ -159,7 +162,8 @@ export function EnteteEtapes({
           {/* L'aide s'efface clavier ouvert (globals.css) : la case doit rester au-dessus du clavier, même sur un petit iPhone. */}
           <p className="aide-question mt-0.5 text-[12.5px] leading-snug text-[#5c5140]">{aide}</p>
         </div>
-        {!enQuestions && prix && <span className="shrink-0 text-[18px] font-semibold tabular-nums text-[#1d1d1f]">{prix}</span>}
+        {/* Le prix, à partir du modèle : avant, il ne serait que celui d'un modèle que le client n'a pas choisi. */}
+        {etape >= ETAPE_MODELE_GC && prix && <span className="shrink-0 text-[18px] font-semibold tabular-nums text-[#1d1d1f]">{prix}</span>}
       </div>
     </div>
   );
@@ -194,9 +198,13 @@ export function NavEtape({
   const libelle =
     etape === QUESTIONS_GC
       ? fr
-        ? "Voir mes modèles →"
-        : "See my models →"
-      : etape < QUESTIONS_GC
+        ? "Suivant : mes finitions →"
+        : "Next: my finishes →"
+      : etape === ETAPE_FINITIONS_GC
+        ? fr
+          ? "Voir mes modèles →"
+          : "See my models →"
+        : etape < QUESTIONS_GC
         ? passer
           ? fr
             ? "Passer →"

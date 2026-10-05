@@ -117,7 +117,7 @@ export function ProductView({
   /**
    * Garde-corps sur téléphone : UNE QUESTION À LA FOIS (etapes-telephone.tsx), sous le croquis. Étapes 1 à 5 : les
    * questions (largeur, hauteur sous la fenêtre, hauteur de la fenêtre, étage, mur), dans la carte des mesures ; 6 les
-   * modèles ; 7 les finitions ; 8 le prix (la colonne d'achat). L'en-tête et les boutons sont rendus par la fiche
+   * finitions ; 7 les modèles ; 8 le prix (la colonne d'achat). L'en-tête et les boutons sont rendus par la fiche
    * (product-options.tsx), qui sait ce qui manque. `parcoursTel` : la fiche dit s'il s'applique (téléphone, « je mesure
    * moi-même »).
    */
@@ -725,12 +725,12 @@ export function ProductView({
               étapes « Modèle » et « Finitions » (la rangée des modèles et la ligne des matières de l'ordinateur). */}
           {troisColonnes && parcoursTel && <div ref={setEnteteTelSlot} className="order-2 shrink-0 md:hidden" />}
           {troisColonnes && (
-            <div className="panneau-etape etape-6 hidden min-h-0 flex-1 overflow-y-auto overscroll-contain max-md:order-3 md:hidden">
+            <div className="panneau-etape etape-7 hidden min-h-0 flex-1 overflow-y-auto overscroll-contain max-md:order-3 md:hidden">
               <div ref={setModeleTelSlot} />
             </div>
           )}
           {troisColonnes && (
-            <div className="carte-verre panneau-etape etape-7 hidden min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[26px] px-5 py-4 max-md:order-3 md:hidden">
+            <div className="carte-verre panneau-etape etape-6 hidden min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[26px] px-5 py-4 max-md:order-3 md:hidden">
               <div ref={setFinitionsTelSlot} />
             </div>
           )}
@@ -747,7 +747,7 @@ export function ProductView({
             <div className="carte-verre colonne-achat panneau-etape etape-8 hidden min-h-0 overflow-x-clip rounded-[26px] px-4 pb-0 pt-4 max-md:order-3 max-md:flex-1 max-md:overflow-y-auto max-md:overscroll-contain md:col-start-2 md:row-start-3 md:flex md:min-h-0 md:max-h-full md:flex-col md:self-stretch md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain lg:col-start-3 lg:row-span-2 lg:row-start-2 xl:px-5">
               {parcoursTel && (
                 <button type="button" onClick={() => allerEtapeTel(7)} className="mb-2 self-start text-[13px] font-medium text-[#5c5140] underline underline-offset-4 md:hidden">
-                  {locale === "fr" ? "← Retour : Finitions" : "← Back: Finishes"}
+                  {locale === "fr" ? "← Retour : Modèle" : "← Back: Model"}
                 </button>
               )}
               <div ref={setResultatSlot} className="mb-auto" />

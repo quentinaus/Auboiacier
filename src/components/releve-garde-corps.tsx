@@ -10,6 +10,7 @@ import { SereniteAtelier } from "./serenite-atelier";
 import { SchemaFenetre, type CoteFenetre } from "./schema-fenetre";
 import { matiereMur } from "@/lib/murs-gc";
 import { PlanApercu } from "./plan-apercu";
+import { ChargementModeles } from "./chargement-modeles";
 import {
   BORNES_RELEVE_GC,
   MAIN_COURANTE_MM,
@@ -647,6 +648,8 @@ export function ReleveGardeCorps({
   // Barre d'appui, rien à poser, fenêtre trop basse : aucun modèle à choisir. Les montrer (« 1 croix… 6 croix ») contredirait la phrase du bandeau.
   const sansModeleAChoisir = reponse !== null && !reponse.ok && (reponse.raison === "barre-appui" || reponse.raison === "sans-garde-corps" || reponse.raison === "fenetre-trop-basse");
   const sens = tri === "croissant" ? 1 : -1;
+  /** Les mesures sont là, le serveur cherche les modèles : l'animation de chargement. */
+  const enCalcul = modeles.length === 0 && !sansModeleAChoisir && lecture.etat === "ok" && (prix.statut === "calcul" || prix.statut === "attente");
   // Tant que les mesures et l'étage ne sont pas tous entrés, AUCUN modèle n'est montré (Quentin, 05/10 : « ne propose pas de
   // garde-corps ») : un petit message, au milieu de la rangée, dit qu'ils s'afficheront ici.
   const attente =
@@ -655,7 +658,7 @@ export function ReleveGardeCorps({
         ? fr
           ? "Les garde-corps aux normes pour votre fenêtre s'afficheront ici dès que toutes vos informations seront entrées."
           : "The railings that meet the standard for your window will appear here as soon as all your details are entered."
-        : lecture.etat === "ok" && (prix.statut === "calcul" || prix.statut === "attente")
+        : enCalcul
           ? t.gcCalcul
           : lecture.etat === "hors-bornes" || prix.statut === "pret"
             ? fr
@@ -880,11 +883,26 @@ export function ReleveGardeCorps({
             );
           })}
         </div>
+        {/* Les prix se recalculent (une finition changée, une mesure retouchée) : les modèles d'avant restent pâles, et on
+            dit que ça travaille. */}
+        {modelesPerimes && (
+          <div role="status" className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+            <span className="flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 text-[12px] font-medium text-[#2b2320] shadow ring-1 ring-[#2b2320]/10">
+              <span aria-hidden className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#2b2320]/20 border-t-[#c98a3a] motion-reduce:animate-none" />
+              {fr ? "Mise à jour des modèles…" : "Updating the models…"}
+            </span>
+          </div>
+        )}
       </div>
     ) : attente ? (
       // À peu près la hauteur de la rangée de modèles : le croquis ne saute pas quand ils arrivent.
       <div className={`mt-1.5 flex items-center justify-center rounded-2xl border border-dashed border-[#2b2320]/15 bg-white/35 px-4 py-3 text-center ${grandeRangee ? "min-h-[112px]" : "min-h-[72px]"}`}>
-        <p className="max-w-[30rem] text-[12.5px] leading-snug text-[#5c5140]" aria-live="polite">{attente}</p>
+        {/* Le calcul en cours : un garde-corps qui se trace (« on ne comprenait pas ce qui se passait », Quentin, 05/10). */}
+        {enCalcul ? (
+          <ChargementModeles locale={locale} />
+        ) : (
+          <p className="max-w-[30rem] text-[12.5px] leading-snug text-[#5c5140]" aria-live="polite">{attente}</p>
+        )}
       </div>
     ) : null;
   const catalogue = (
@@ -993,7 +1011,7 @@ export function ReleveGardeCorps({
           aria-label={props.label}
           min={CURSEURS[cote].min}
           max={CURSEURS[cote].max}
-          step={5}
+          step={1}
           value={Number.isFinite(mm(cotes[cote])) ? Math.min(CURSEURS[cote].max, Math.max(CURSEURS[cote].min, mm(cotes[cote]))) : CURSEURS[cote].depart}
           onChange={(e) => set(cote)(e.target.value)}
           // Un clic sur le curseur sans le déplacer : le client garde la valeur où il attend. Elle devient
@@ -1084,7 +1102,7 @@ export function ReleveGardeCorps({
         aria-label={props.label}
         min={CURSEURS[cote].min}
         max={CURSEURS[cote].max}
-        step={5}
+        step={1}
         value={Number.isFinite(mm(cotes[cote])) ? Math.min(CURSEURS[cote].max, Math.max(CURSEURS[cote].min, mm(cotes[cote]))) : CURSEURS[cote].depart}
         onChange={(e) => set(cote)(e.target.value)}
         onPointerUp={(e) => {

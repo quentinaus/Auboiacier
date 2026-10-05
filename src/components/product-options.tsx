@@ -49,7 +49,7 @@ import { MAX_TEXTE, EMAIL_MOTIF } from "@/lib/devis-regles";
 import { POSE_INITIALE, PoseDomicile, livraisonPrete, montantLivraison, type ChoixPose } from "./pose-domicile";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 import { InscriptionOuverture } from "./inscription-ouverture";
-import { EnteteEtapes, NavEtape, NB_ETAPES_GC, QUESTIONS_GC } from "./etapes-telephone";
+import { EnteteEtapes, NavEtape, NB_ETAPES_GC, QUESTIONS_GC, ETAPE_MODELE_GC } from "./etapes-telephone";
 import type { TextesOuverture } from "@/lib/ouverture";
 
 const ACCENT = "#2b2320";
@@ -900,7 +900,7 @@ export function ProductOptions({
         ancre === "#mur-gc"
           ? 5
           : ancre === "#modeles-gc"
-            ? QUESTIONS_GC + 1
+            ? ETAPE_MODELE_GC
             : ancre === "#livraison"
               ? NB_ETAPES_GC
               : (questionAFaire ?? (horsBornes === "allege" ? 2 : horsBornes === "fenetre" ? 3 : 1));
@@ -1144,7 +1144,7 @@ export function ProductOptions({
   useEffect(() => {
     if (!enEtapes || !repriseFaite || departTel.current) return;
     departTel.current = true;
-    if (questionAFaire === null && etapeTel === 1) allerEtape?.(QUESTIONS_GC + 1);
+    if (questionAFaire === null && etapeTel === 1) allerEtape?.(ETAPE_MODELE_GC);
   }, [enEtapes, repriseFaite, questionAFaire, etapeTel, allerEtape]);
   /**
    * L'étape où le client a voulu passer sans réponse (ou sur une mesure hors barème) : le message s'écrit alors sous la
@@ -1630,7 +1630,7 @@ export function ProductOptions({
   const modeleAChoisir = estGC && !modeVisite && Boolean(configGC) && !cotesGardeCorps.modele;
   /** Téléphone, étape « Modèle » : rien n'est encore touché. */
   const modeleTelManque =
-    enEtapes && etapeTel === QUESTIONS_GC + 1 && modeleAChoisir
+    enEtapes && etapeTel === ETAPE_MODELE_GC && modeleAChoisir
       ? locale === "fr"
         ? "Touchez le modèle qui vous plaît pour continuer."
         : "Tap the model you like to continue."
