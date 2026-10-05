@@ -396,24 +396,24 @@ export function ReleveGardeCorps({
         : "the gap between the bars would be too wide"
       : raisons.includes("fixation")
         ? fr
-          ? "sur cette largeur, les vis dans le mur seraient trop sollicitées"
-          : "over this width, the screws in the wall would be overloaded"
+          ? "sur cette largeur, les fixations dans le mur seraient trop sollicitées"
+          : "over this width, the fixings in the wall would be overloaded"
         : raisons.includes("solidite") || raisons.includes("charge-verticale")
         ? fr
-          ? "sur cette largeur, la barre du haut ne serait pas assez rigide"
-          : "over this width the top rail would not be stiff enough"
+          ? "sur cette largeur, la traverse haute ne serait pas assez rigide"
+          : "over this width, the top rail would not be stiff enough"
         : raisons.includes("soubassement")
           ? fr
-            ? "si près du sol, le bas doit être fermé par des barreaux"
-            : "this close to the floor, the bottom must be closed with bars"
+            ? "si près du sol, le bas du cadre doit être fermé par des barreaux"
+            : "this close to the floor, the bottom of the frame must be closed with bars"
           : raisons.includes("fenetre")
             ? fr
               ? "il ne tiendrait pas dans la hauteur de la fenêtre"
               : "it would not fit in the height of the window"
             : raisons.includes("trop-petit")
               ? fr
-                ? "le garde-corps serait trop bas pour ce dessin"
-                : "the railing would be too low for this design"
+                ? "la hauteur disponible ne suffit pas pour ce modèle"
+                : "there is not enough height for this model"
               : "";
   // « Ce n'est pas le modèle qui n'est pas aux normes, c'est l'ensemble modèle + fenêtre » (Quentin, 04/10).
   const pasAdapte = (m: { raisons: readonly string[] }) => {
@@ -429,8 +429,8 @@ export function ReleveGardeCorps({
     modeles.length === 0
       ? reponse && !reponse.ok && reponse.raison === "barre-appui"
         ? fr
-          ? "Pas de modèle à croix pour cette fenêtre : une barre d'appui, sur devis."
-          : "No model with crosses for this window: a support bar, on quotation."
+          ? "Aucun garde-corps à poser sur cette fenêtre : une barre d'appui, sur devis."
+          : "No railing to fit on this window: a support bar, on quotation."
         : reponse && !reponse.ok && reponse.raison === "sans-garde-corps"
           ? fr
             ? "Votre fenêtre n'a pas besoin de garde-corps."
@@ -449,12 +449,12 @@ export function ReleveGardeCorps({
                 : ""
       : nbConformes === 0
         ? fr
-          ? "Aucun de nos modèles ne convient à cette fenêtre."
-          : "None of our models fits this window."
+          ? "Aucun de nos modèles ne convient à cette fenêtre : nous l'étudions avec vous, sur devis."
+          : "None of our models fits this window: we study it with you, on quotation."
         : familleSansModele
           ? fr
-            ? "Avec ces choix, aucun modèle n'est aux normes : essayez d'autres barreaux, ou une traverse."
-            : "With these choices no model is to standard: try other bars, or a middle rail."
+            ? "Avec ces choix, aucun modèle n'est conforme aux normes. Modifiez les barreaux ou la traverse."
+            : "With these choices, no model meets the standards. Change the bars or the middle rail."
         : perdu && perdu.pour === mesures && !choisi
           ? fr
             ? `Le modèle que vous aviez choisi (${libelleCourt({ croix: perdu.croix, soubassementMm: perdu.barreaux ? 1 : 0, traverse: perdu.traverse })}) + ces mesures : l'ensemble ne serait plus aux normes${raisonEnMots(perdu.raisons) ? ` (${raisonEnMots(perdu.raisons)})` : ""}. Choisissez-en un autre.`
@@ -481,17 +481,17 @@ export function ReleveGardeCorps({
           titre: fr ? "Barreaux" : "Bars",
           valeur: famille.barreaux,
           options: [
-            { v: "aucun", label: fr ? "Aucun" : "None", note: barreauxImposes ? (fr ? "Imposés par la norme ici : le bas du cadre est à moins de 60 cm du sol." : "Required by the standard here: the bottom of the frame is under 60 cm from the floor.") : "" },
+            { v: "aucun", label: fr ? "Aucun" : "None", note: barreauxImposes ? (fr ? "Obligatoires ici : le bas du cadre est à moins de 60 cm du sol." : "Mandatory here: the bottom of the frame is under 60 cm from the floor.") : "" },
             { v: "bas", label: fr ? "En bas" : "At the bottom", note: "" },
             { v: "seuls", label: fr ? "Barreaux seuls" : "Bars only", note: "" },
           ],
           legende: barreauxImposes
-            ? fr ? "Barreaux droits en bas : la norme les impose ici (bas du cadre à moins de 60 cm du sol)." : "Straight bars at the bottom: required here by the standard (frame under 60 cm from the floor)."
+            ? fr ? "Barreaux verticaux en bas : obligatoires ici, le bas du cadre étant à moins de 60 cm du sol." : "Vertical bars at the bottom: mandatory here, as the bottom of the frame is under 60 cm from the floor."
             : famille.barreaux === "aucun"
-              ? fr ? "Des croix seules, sans barreaux." : "Crosses only, no bars."
+              ? fr ? "Croix de Saint-André seules, sans barreaux." : "Saint Andrew's crosses only, no bars."
               : famille.barreaux === "bas"
-                ? fr ? "Des barreaux droits en bas, sous les croix." : "Straight bars at the bottom, under the crosses."
-                : fr ? "Des barreaux verticaux, du haut au bas du cadre, sans croix." : "Vertical bars from the top to the bottom of the frame, no crosses.",
+                ? fr ? "Barreaux verticaux en partie basse, sous les croix." : "Vertical bars in the lower part, under the crosses."
+                : fr ? "Barreaux verticaux sur toute la hauteur du cadre, sans croix." : "Vertical bars over the full height of the frame, no crosses.",
           choisir: (v: string) => changerFamille(v as "aucun" | "bas" | "seuls", famille.traverse),
         },
         {
@@ -499,13 +499,13 @@ export function ReleveGardeCorps({
           valeur: famille.traverse ? "avec" : "sans",
           options: [
             { v: "sans", label: fr ? "Sans" : "Without", note: "" },
-            { v: "avec", label: fr ? "Avec" : "With", note: famille.barreaux === "seuls" ? (fr ? "Pas de traverse avec des barreaux seuls." : "No middle rail with bars only.") : "" },
+            { v: "avec", label: fr ? "Avec" : "With", note: famille.barreaux === "seuls" ? (fr ? "Non disponible avec des barreaux seuls." : "Not available with bars only.") : "" },
           ],
           legende: famille.barreaux === "seuls"
-            ? fr ? "Non proposée avec des barreaux seuls : il n'y a pas de croix." : "Not offered with bars only: there are no crosses."
+            ? fr ? "Sans objet avec des barreaux seuls, qui n'ont pas de croix." : "Not applicable to bars only, which have no crosses."
             : famille.traverse
-              ? fr ? "Une barre horizontale au milieu de chaque croix." : "A horizontal bar across the middle of each cross."
-              : fr ? "Pas de barre horizontale : les croix restent ouvertes." : "No horizontal bar: the crosses stay open.",
+              ? fr ? "Une barre horizontale au centre de chaque croix, qui réduit les vides." : "A horizontal bar across the centre of each cross, which reduces the gaps."
+              : fr ? "Croix sans barre horizontale." : "Crosses without a horizontal bar.",
           choisir: (v: string) => changerFamille(famille.barreaux, v === "avec"),
         },
       ].map((ligne) => (
@@ -601,7 +601,7 @@ export function ReleveGardeCorps({
                 key={m.id}
                 type="button"
                 aria-pressed={marque ? (m.conforme ? actif : explique?.id === m.id) : undefined}
-                aria-label={`${libelleModele(m)}${marque ? (m.conforme ? ` — ${prixAffiche(m.prix, locale)}` : ` — ${pasAdapte(m)} — ${fr ? "toucher pour voir pourquoi" : "tap to see why"}`) : ""}`}
+                aria-label={`${libelleModele(m)}${marque ? (m.conforme ? ` — ${prixAffiche(m.prix, locale)}` : ` — ${pasAdapte(m)} — ${fr ? "touchez pour voir pourquoi" : "tap to see why"}`) : ""}`}
                 title={horsNorme ? `${pasAdapte(m)} — ${fr ? "touchez pour voir pourquoi" : "tap to see why"}` : libelleModele(m)}
                 onClick={() => {
                   if (!marque) document.getElementById(`${idChamps}-largeur`)?.focus();
@@ -852,20 +852,20 @@ export function ReleveGardeCorps({
                           <span aria-hidden className="mt-[3px] h-2.5 w-2.5 shrink-0 rounded-full border-[1.5px] border-[#b3261e] bg-[#b3261e]/30" />
                           <span>
                             {fr
-                              ? `${rouges > 1 ? "Ronds rouges" : "Rond rouge"} : le plus grand vide fait ${nombre(t.plusGrandMm)} mm. La norme veut moins de ${nombre(t.limiteMm)} mm.`
-                              : `${rouges > 1 ? "Red circles" : "Red circle"}: the largest gap is ${nombre(t.plusGrandMm)} mm. The standard wants under ${nombre(t.limiteMm)} mm.`}
+                              ? `${rouges > 1 ? "Ronds rouges" : "Rond rouge"} : le plus grand vide mesure ${nombre(t.plusGrandMm)} mm ; la norme exige moins de ${nombre(t.limiteMm)} mm.`
+                              : `${rouges > 1 ? "Red circles" : "Red circle"}: the largest gap is ${nombre(t.plusGrandMm)} mm; the standard requires under ${nombre(t.limiteMm)} mm.`}
                           </span>
                         </p>
                       )}
                       {verts && (
                         <p className="flex items-start gap-1.5">
                           <span aria-hidden className="mt-[3px] h-2.5 w-2.5 shrink-0 rounded-full border-[1.5px] border-[#2f7d46] bg-[#2f7d46]/30" />
-                          <span>{rouges > 0 ? (fr ? "Ronds verts : vides conformes." : "Green circles: gaps to standard.") : fr ? `Ronds verts : tous les vides sont conformes (max ${nombre(t.plusGrandMm)} mm).` : `Green circles: every gap is to standard (max ${nombre(t.plusGrandMm)} mm).`}</span>
+                          <span>{rouges > 0 ? (fr ? "Ronds verts : vides conformes à la norme." : "Green circles: gaps that meet the standard.") : fr ? `Ronds verts : tous les vides sont conformes à la norme (au plus ${nombre(t.plusGrandMm)} mm).` : `Green circles: every gap meets the standard (at most ${nombre(t.plusGrandMm)} mm).`}</span>
                         </p>
                       )}
                       {rouges === 0 && raison && (
                         <p className="font-medium text-[#2b2320]">
-                          {fr ? "Ce qui bloque : " : "What blocks it: "}
+                          {fr ? "Motif : " : "Reason: "}
                           {raison}.
                         </p>
                       )}
@@ -1066,8 +1066,8 @@ export function ReleveGardeCorps({
                 <div role="status">
                   <p className="text-[#2b2320]">
                     {fr
-                      ? `Le bas de votre fenêtre est à ${nombre(releve.allegeMm)} mm du sol. Il manque ${nombre(reponse.mainCouranteMm - releve.allegeMm)} mm pour arriver à ${nombre(reponse.mainCouranteMm)} mm. C'est trop peu pour un garde-corps à croix : il faut une barre d'appui (parfois deux).`
-                      : `The bottom of your window is ${nombre(releve.allegeMm)} mm from the floor. ${nombre(reponse.mainCouranteMm - releve.allegeMm)} mm are missing to reach ${nombre(reponse.mainCouranteMm)} mm. That is too little for a railing with crosses: it takes a support bar (sometimes two).`}
+                      ? `Le bas de votre fenêtre est à ${nombre(releve.allegeMm)} mm du sol. Il manque ${nombre(reponse.mainCouranteMm - releve.allegeMm)} mm pour arriver à ${nombre(reponse.mainCouranteMm)} mm. L'écart est trop faible pour un garde-corps à croix : il faut une barre d'appui.`
+                      : `The bottom of your window is ${nombre(releve.allegeMm)} mm from the floor. ${nombre(reponse.mainCouranteMm - releve.allegeMm)} mm are missing to reach ${nombre(reponse.mainCouranteMm)} mm. The gap is too small for a railing with crosses: it takes a support bar.`}
                   </p>
                   <p className="mt-1 text-[#5c5140]">
                     {fr ? "Nous la fabriquons sur devis : réponse sous 24 à 72 h." : "We make it on quotation: reply within 24 to 72 h."} {lienEtude}
@@ -1148,7 +1148,7 @@ export function ReleveGardeCorps({
                   {conforme.renfort &&
                     (resultatSlot ? (
                       <p className="mt-1.5 flex items-center gap-1.5 text-[11.5px] leading-snug text-[#4a3f33]">
-                        {fr ? "Fenêtre large : barre du haut renforcée, comprise dans le prix." : "Wide window: top rail reinforced, included in the price."}
+                        {fr ? "Fenêtre large : traverse haute renforcée, comprise dans le prix." : "Wide window: top rail reinforced, included in the price."}
                         <InfoBulle texte={t.gcRenfort} label={t.gcInfoLabel} />
                       </p>
                     ) : (
@@ -1212,8 +1212,8 @@ export function ReleveGardeCorps({
           {conforme && !surVerre && !resultatSlot && conforme.soubassementMm > 0 && !voulu?.barreauxBas && (
             <p className="mt-2 rounded-xl bg-[#f3ede3] px-3.5 py-2 text-[12px] leading-snug text-[#4a3f33]">
               {fr
-                ? "Barreaux droits en bas : imposés par la norme. Le bas de votre garde-corps est à moins de 60 cm du sol, et un enfant pourrait grimper sur des croix."
-                : "Straight bars at the bottom: required by the standard. The bottom of your railing is less than 60 cm from the floor, and a child could climb on crosses."}
+                ? "Barreaux verticaux en bas : obligatoires. Le bas du garde-corps est à moins de 60 cm du sol, et des croix pourraient servir de marche à un enfant."
+                : "Vertical bars at the bottom: mandatory. The bottom of the railing is less than 60 cm from the floor, and crosses could give a child a foothold."}
             </p>
           )}
           {/* « Poids et détails », « Ce que comprend le prix » : la fiche les dépose ici (voir detailsSlot). */}
@@ -1283,10 +1283,10 @@ function Serenite({ fr, petit = false }: { fr: boolean; petit?: boolean }) {
         </g>
       </svg>
       <p className={`mt-3 font-medium leading-snug text-[#2b2320] ${petit ? "text-[15px]" : "text-[20px]"}`}>
-        {fr ? "Installez-vous : vous n'avez rien à mesurer." : "Sit back: you have nothing to measure."}
+        {fr ? "Vous n'avez rien à mesurer : l'atelier se déplace." : "You have nothing to measure: the workshop comes to you."}
       </p>
       <p className="mt-1 text-[13px] leading-snug text-[#5c5140]">
-        {fr ? "Choisissez un créneau, on s'occupe du reste." : "Pick a slot, we take care of the rest."}
+        {fr ? "Choisissez un créneau : nous nous occupons du reste." : "Pick a slot: we take care of the rest."}
       </p>
       <ol className={`w-full text-left ${petit ? "mt-3 space-y-1.5" : "mt-5 space-y-2.5"}`}>
         {etapes.map((etape, i) => (

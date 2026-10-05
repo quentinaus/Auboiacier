@@ -1479,7 +1479,7 @@ export const products: Product[] = [
     orderMode: "cart",
     priseDeCotes: true,
     name: "Garde-corps de fenêtre Rosace",
-    tagline: "Croix de Saint-André en acier plein, rosaces de fonderie, main courante en chêne. Fabriqué au millimètre, encastré dans votre fenêtre.",
+    tagline: "En acier plein : croix de Saint-André à rosaces de fonderie, ou barreaux verticaux ; main courante en bois ou en acier. Fabriqué au millimètre, encastré dans votre fenêtre.",
     images: [
       {
         src: "/images/garde-corps/fenetre.jpg",
@@ -1598,7 +1598,7 @@ export const products: Product[] = [
     ],
     specs: [
       { label: "Structure", value: "Acier plein, soudure TIG, finition peinte" },
-      { label: "Motif", value: "Croix de Saint-André, rosaces de fonderie" },
+      { label: "Motif", value: "Croix de Saint-André à rosaces de fonderie, ou barreaux verticaux" },
       { label: "Main courante", value: "Pin, hêtre, chêne ou noyer massif au choix, 40 mm (60 mm de large sur les fenêtres larges, avec un fer plat d'acier caché dessous), finition huile-cire" },
       { label: "Pose", value: "Encastré dans le tableau de la fenêtre, fixations fournies — vous mesurez, nous fabriquons" },
       { label: "Prise de cotes", value: "Par vous, au mètre — ou par l'atelier, dès 19,99 € jusqu'à 30 km de Saumur, déduits de la commande" },
@@ -1612,7 +1612,7 @@ export const products: Product[] = [
       seoMots: "window railing",
       seoDescription:
         "Solid steel window railing with a Saint Andrew's cross, cast rosettes and an oak handrail, made to the millimetre in Saumur, France.",
-      tagline: "Solid steel Saint Andrew's cross, cast rosettes, oak handrail. Made to the millimetre, fitted into your window.",
+      tagline: "In solid steel: Saint Andrew's crosses with cast rosettes, or vertical bars; wood or steel handrail. Made to the millimetre, fitted into your window.",
       images: [
         "Window railing seen head-on: painted black steel frame with a Saint Andrew's cross, two cast rosettes, oak handrail",
         "The same railing fitted in the reveal, seen from the room: the whole window, the sill and the daylight under the frame",
@@ -1639,7 +1639,7 @@ export const products: Product[] = [
       ],
       specs: [
         { label: "Frame", value: "Solid steel, TIG welded, painted finish" },
-        { label: "Pattern", value: "Saint Andrew's cross, cast rosettes" },
+        { label: "Pattern", value: "Saint Andrew's crosses with cast rosettes, or vertical bars" },
         { label: "Handrail", value: "Pine, beech, oak or walnut to choose from, 40 mm (60 mm wide on wide windows, with a flat steel bar hidden underneath), oil-wax finish" },
         { label: "Fitting", value: "Fits into the window reveal, fixings supplied — you measure, we build" },
         { label: "Survey", value: "By you, with a tape — or by the workshop, from €19.99 within 30 km of Saumur, deducted from the order" },
