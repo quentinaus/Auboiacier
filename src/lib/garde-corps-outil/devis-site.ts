@@ -291,6 +291,12 @@ function traits(config: ConfigGC) {
     sb: R.debit.some((d) => /soubassement/i.test(d.nom)),
     // La traverse au milieu des croix : lue dans le débit, comme le fait le devis de l'outil.
     traverse: R.debit.some((d) => /^Demi-traverses/.test(d.nom)),
+    // Les barreaux verticaux dans chaque croix (« sur toute la hauteur ») : lus dans le débit, comme le fait le devis de l'outil.
+    barreauxCroix: (() => {
+      const nb = R.debit.filter((d) => /^Barreaux/.test(d.nom) && !/soubassement/i.test(d.nom)).reduce((a, d) => a + (Number(d.qte) || 0), 0);
+      const croix = diag ? diag.qte : Math.max(1, Math.round(v.nP || 1));
+      return croix > 0 ? Math.round(nb / croix) : 0;
+    })(),
     nVis: vis ? vis.qte : 2 * v.nF,
     rainure: /^Rainure/.test(mcD?.coupes || ""),
     // La main courante retenue par l'outil (40 × 40, ou 60 × 45 sur le fer plat de renfort d'une fenêtre large).
@@ -312,16 +318,17 @@ function lignesAnglaises(fr: LignesSite, config: ConfigGC, line: ResolvedLine, q
   const croix = `${t.n} Saint Andrew's ${t.n > 1 ? "crosses" : "cross"}`;
   const bas = t.sb ? ", straight bars in the lower part" : "";
   const traverse = !verre && t.traverse ? `, a middle rail in ${t.n > 1 ? "each cross" : "the cross"}` : "";
+  const barreauxC = !verre && t.barreauxCroix ? `, ${t.barreauxCroix} straight ${t.barreauxCroix > 1 ? "bars" : "bar"} in ${t.n > 1 ? "each cross" : "the cross"}` : "";
   const renfort = t.renfort ? `, top rail stiffened by a ${nb(t.renfort.l)} × ${nb(t.renfort.e)} mm flat bar hidden under the handrail` : "";
   // Le même ordre et les mêmes mots que le libellé de commande anglais (products.ts) : croix, traverse, barreaux.
-  const options = [`Custom — ${nb(L)} × ${nb(H)} mm`, verre ? null : `${t.n} ${t.n > 1 ? "crosses" : "cross"}`, !verre && t.traverse ? "middle rail" : null, t.sb ? "bars below" : null, bois, teinte, verre ? null : rosace, verre ? produit.remplissages?.find((r) => r.sansCroix)?.label : null]
+  const options = [`Custom — ${nb(L)} × ${nb(H)} mm`, verre ? null : `${t.n} ${t.n > 1 ? "crosses" : "cross"}`, !verre && t.traverse ? "middle rail" : null, !verre && t.barreauxCroix ? `${t.barreauxCroix} ${t.barreauxCroix > 1 ? "bars" : "bar"} per cross` : null, t.sb ? "bars below" : null, bois, teinte, verre ? null : rosace, verre ? produit.remplissages?.find((r) => r.sansCroix)?.label : null]
     .filter(Boolean)
     .join(" · ");
   const designations = [
     `${produit.name} — ${options}`,
     verre
       ? `Solid steel structure — ${nb(L)} × ${nb(H)} mm, welded frame holding the glass${bas}${renfort}, TIG welded`
-      : `Solid steel structure — ${nb(L)} × ${nb(H)} mm, ${croix} and ${t.n} ${minuscule(rosace)} ${t.n > 1 ? "rosettes" : "rosette"}${traverse}${bas}${renfort}, TIG welded`,
+      : `Solid steel structure — ${nb(L)} × ${nb(H)} mm, ${croix} and ${t.n} ${minuscule(rosace)} ${t.n > 1 ? "rosettes" : "rosette"}${traverse}${barreauxC}${bas}${renfort}, TIG welded`,
     `Solid ${bois.toLowerCase()} handrail ${nb(t.mcL)} × ${nb(t.mcH)} mm, hardwax-oil finish`,
     line.metal?.id === "brut" ? "Steel finish — raw, clear protective varnish" : `Painted finish of the steel — ${teinte.toLowerCase()}`,
     livraison.mode === "transporteur" ? "Fixings, fitting notes and packaging" : "Fixings and fitting notes",
@@ -372,7 +379,7 @@ function caracteristiquesAnglaises(base: DevisGC, config: ConfigGC, line: Resolv
   const bas = t.sb ? ", straight bars in the lower part" : "";
   const remplissage = verre
     ? `${produit.remplissages?.find((r) => r.sansCroix)?.label}${bas}`
-    : `${t.n} Saint Andrew's ${t.n > 1 ? "crosses" : "cross"} and ${t.n} ${t.n > 1 ? "rosettes" : "rosette"}${t.traverse ? `, a middle rail in ${t.n > 1 ? "each cross" : "the cross"}` : ""}${bas}`;
+    : `${t.n} Saint Andrew's ${t.n > 1 ? "crosses" : "cross"} and ${t.n} ${t.n > 1 ? "rosettes" : "rosette"}${t.traverse ? `, a middle rail in ${t.n > 1 ? "each cross" : "the cross"}` : ""}${t.barreauxCroix ? `, ${t.barreauxCroix} straight ${t.barreauxCroix > 1 ? "bars" : "bar"} in ${t.n > 1 ? "each cross" : "the cross"}` : ""}${bas}`;
   const releve = [
     v.etage ? "Upstairs" : "Ground floor",
     `floor to bottom of the window ${nb(v.A)} mm`,

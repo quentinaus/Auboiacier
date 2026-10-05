@@ -26,17 +26,21 @@ for (const B of [600, 1400, 2200]) for (const A of [0, 450, 700]) FENETRES.push(
 /** Ce que le moteur accepte, dessin par dessin : un calcul simple, sans cache. */
 function dessinsPossibles(en: EntreeSiteGC): Set<string> {
   const ok = new Set<string>();
-  const alertes = (s: number, n: number, b: boolean, t: boolean, plat: boolean) =>
-    calculerGC({ ...(valeursGC(DEFAUTS_GC, en, s, n, b, t, plat) as object as Parameters<typeof calculerGC>[0]), _rapide: true }).alertes as string[];
+  const alertes = (s: number, n: number, b: boolean, t: boolean, plat: boolean, nb = 0) =>
+    calculerGC({ ...(valeursGC(DEFAUTS_GC, en, s, n, b, t, plat, nb) as object as Parameters<typeof calculerGC>[0]), _rapide: true }).alertes as string[];
+  // Les cinq familles du catalogue : croix seules, + traverse, + barreaux en bas, les deux, et « barreaux partout »
+  // (en bas ET dans chaque croix, de 1 à 4 barreaux par croix, sans traverse).
+  const familles: [boolean, boolean, boolean][] = [[false, false, false], [false, true, false], [true, false, false], [true, true, false], [true, false, true]];
   // Comme le catalogue de l'outil : de 7 à 12 croix, seulement si aucun modèle de 1 à 6 croix de la famille ne passe.
-  for (const t of [false, true]) for (const b of [false, true]) for (let n = 1, assez = false; n <= CROIX_MAX && !(n > CROIX_CATALOGUE && assez); n++) {
-    const cle = `${n}|${t ? 1 : 0}`;
+  for (const [b, t, partout] of familles) for (let n = 1, assez = false; n <= CROIX_MAX && !(n > CROIX_CATALOGUE && assez); n++) {
+    const cle = `${n}|${t ? 1 : 0}|${partout ? 1 : 0}`;
     const avant = ok.has(cle);
+    const nbs = partout ? [1, 2, 3, 4] : [0];
     // Sans plat : un carré de l'atelier qui passe tout (les carrés de 12 et 14 ne passent jamais la fixation : un test
     // de prix-garde-corps.test.ts le vérifie sur toute une grille).
-    let passe = [16, 18, 20].some((s) => alertes(s, n, b, t, false).length === 0);
+    let passe = [16, 18, 20].some((s) => nbs.some((nb) => alertes(s, n, b, t, false, nb).length === 0));
     // Avec le plat de renfort : seulement si la lisse haute est trop souple dans TOUS les carrés (comme l'outil).
-    if (!passe) passe = [16, 18, 20].every((s) => alertes(s, n, b, t, false).some((a) => a.startsWith("Solidité"))) && alertes(16, n, b, t, true).length === 0;
+    if (!passe) passe = [16, 18, 20].every((s) => nbs.every((nb) => alertes(s, n, b, t, false, nb).some((a) => a.startsWith("Solidité")))) && nbs.some((nb) => alertes(16, n, b, t, true, nb).length === 0);
     if (passe) { ok.add(cle); if (n <= CROIX_CATALOGUE) assez = true; }
     void avant;
   }
@@ -53,7 +57,7 @@ test("parité : tout ce que l'outil sait résoudre (jusqu'à 12 croix), le site 
       continue;
     }
     const outil = dessinsPossibles(en);
-    const site = new Set(catalogueGC(en).filter((d) => d.conforme).map((d) => (d.conforme ? `${d.config.croix}|${d.config.traverse ? 1 : 0}` : "")));
+    const site = new Set(catalogueGC(en).filter((d) => d.conforme).map((d) => (d.conforme ? `${d.config.croix}|${d.config.traverse ? 1 : 0}|${d.config.partout ? 1 : 0}` : "")));
     assert.deepEqual([...site].sort(), [...outil].sort(), `${nom} : mêmes dessins aux normes (outil contre site)`);
     // Et la configuration choisie quand le client n'a rien choisi : il y en a une dès que l'outil en trouve une.
     const c = configurerGC(en);

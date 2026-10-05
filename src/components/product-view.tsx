@@ -467,6 +467,19 @@ export function ProductView({
           /* À côté de la photo, rien que l'essentiel : l'accroche, le prix de
              départ, et le chemin vers le configurateur, plus bas. */
           <div className="mt-5 md:mt-8">
+            {/* Le garde-corps respecte les normes françaises : on le dit tout de suite, sous l'accroche (demande de Quentin). */}
+            {product.releve === "garde-corps-fenetre" && (
+              <div className="mb-5 flex items-start gap-3 rounded-2xl bg-[#e8f0e6] px-4 py-3 text-[#1f4a2a]">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="mt-0.5 h-5 w-5 shrink-0">
+                  <path d="M12 3l7.5 3v5.5c0 4.6-3.1 8.2-7.5 9.5-4.4-1.3-7.5-4.9-7.5-9.5V6L12 3z" />
+                  <path d="M8.5 12l2.5 2.5 4.5-5" />
+                </svg>
+                <div>
+                  <p className="text-[14px] font-semibold leading-tight">{t.gcNormesTitre}</p>
+                  <p className="mt-1 text-[12.5px] leading-snug text-[#33583b]">{t.gcNormesDetail}</p>
+                </div>
+              </div>
+            )}
             {/* Les matières d'abord : c'est ce qu'on vient voir, et la photo
                 suit chaque choix — elles restent donc juste sous le titre.
                 `ProductOptions` les dépose ici par portail (voir matieresSlot). */}

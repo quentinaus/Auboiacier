@@ -274,6 +274,8 @@ export function ReleveGardeCorps({
   const bande = useRef<HTMLDivElement | null>(null);
   /** Le modèle hors norme dont le client veut voir le pourquoi (les ronds rouge et vert de l'outil de plans). */
   const [pourquoi, setPourquoi] = useState<string | null>(null);
+  /** Les deux boutons du client : le barreaudage (aucun / en bas / sur toute la hauteur) et la traverse au milieu. */
+  const [filtre, setFiltre] = useState<{ barreaux: "aucun" | "bas" | "tout"; traverse: boolean }>({ barreaux: "aucun", traverse: false });
 
   /** La réponse du serveur pour les cotes ET le modèle demandés. */
   const brute = prix.statut === "pret" ? prix.reponse : null;
@@ -324,17 +326,43 @@ export function ReleveGardeCorps({
   const voulu = lireModeleGC(cotes.modele);
   const estChoisi = (m: { id: string; croix: number; soubassementMm: number; traverse: boolean }) =>
     conforme
-      ? m.croix === conforme.croix && m.soubassementMm > 0 === conforme.soubassementMm > 0 && m.traverse === conforme.traverse
-      : m.id === cotes.modele || (voulu !== null && m.croix === voulu.croix && m.traverse === voulu.traverse && lireModeleGC(m.id)?.barreauxBas === voulu.barreauxBas);
+      ? m.croix === conforme.croix && m.soubassementMm > 0 === conforme.soubassementMm > 0 && m.traverse === conforme.traverse && (m as ModeleGC).partout === conforme.partout
+      : m.id === cotes.modele || (voulu !== null && m.croix === voulu.croix && m.traverse === voulu.traverse && lireModeleGC(m.id)?.barreauxBas === voulu.barreauxBas && lireModeleGC(m.id)?.partout === voulu.partout);
   const choisi = voulu ? (modeles.find((m) => m.conforme && estChoisi(m)) ?? null) : null;
   const nbConformes = modeles.filter((m) => m.conforme).length;
-  // Rien ne convient : le modèle le plus proche de la norme est expliqué d'emblée — le client voit le rond
-  // rouge (le vide trop grand) au lieu de seulement lire « à étudier ». Le catalogue, lui, reste à sa demande.
-  const rienNeConvient = modeles.length > 0 && nbConformes === 0;
-  const plusProche = rienNeConvient
-    ? ([...modeles].sort((a, b) => (a.trous ? a.trous.plusGrandMm / a.trous.limiteMm : 99) - (b.trous ? b.trous.plusGrandMm / b.trous.limiteMm : 99))[0] ?? null)
+  // Les deux boutons du client choisissent une FAMILLE de modèles : barreaux (aucun / en bas / sur toute la hauteur) et
+  // traverse. La rangée ne montre que cette famille ; le nombre de croix se choisit dans la rangée.
+  const familleDe = (m: ModeleGC) => ({ barreaux: m.partout ? "tout" : m.soubassementMm > 0 ? "bas" : "aucun", traverse: m.traverse }) as const;
+  // La norme impose des barreaux en bas (cadre sous 60 cm du sol) : aucun modèle sans eux n'existe pour cette fenêtre.
+  const barreauxImposes = modeles.length > 0 && !modeles.some((m) => !m.partout && m.soubassementMm === 0);
+  const famille: { barreaux: "aucun" | "bas" | "tout"; traverse: boolean } = choisi
+    ? familleDe(choisi)
+    : { barreaux: barreauxImposes && filtre.barreaux === "aucun" ? "bas" : filtre.barreaux, traverse: filtre.traverse };
+  const modelesFamille = modeles.filter((m) => {
+    const f = familleDe(m);
+    return f.barreaux === famille.barreaux && f.traverse === famille.traverse;
+  });
+  // Rien ne convient dans cette famille : le modèle le plus proche de la norme est expliqué d'emblée — le client voit
+  // le rond rouge (le vide trop grand) au lieu de seulement lire « à étudier ».
+  const familleSansModele = modelesFamille.length > 0 && !modelesFamille.some((m) => m.conforme);
+  const plusProche = familleSansModele
+    ? ([...modelesFamille].sort((a, b) => (a.trous ? a.trous.plusGrandMm / a.trous.limiteMm : 99) - (b.trous ? b.trous.plusGrandMm / b.trous.limiteMm : 99))[0] ?? null)
     : null;
   const explique = (pourquoi ? modeles.find((m) => m.id === pourquoi && !m.conforme) : null) ?? plusProche;
+  const changerFamille = (barreaux: "aucun" | "bas" | "tout", traverse: boolean) => {
+    // « Toute la hauteur » et la traverse ne se combinent pas (comme dans l'outil) : l'un remplace l'autre.
+    const f = { barreaux, traverse: barreaux === "tout" ? false : traverse };
+    setFiltre(f);
+    setPourquoi(null);
+    setPerdu(null);
+    // Le client avait choisi un modèle : on garde le même nombre de croix s'il est aux normes dans la nouvelle famille,
+    // sinon le plus proche ; s'il n'y en a aucun, le choix est retiré et la rangée explique pourquoi.
+    if (choisi) {
+      const cible = modeles.filter((m) => m.conforme && familleDe(m).barreaux === f.barreaux && m.traverse === f.traverse);
+      const proche = [...cible].sort((a, b) => Math.abs(a.croix - choisi.croix) - Math.abs(b.croix - choisi.croix) || a.croix - b.croix)[0];
+      onChange({ ...cotes, modele: proche ? proche.id : "" });
+    }
+  };
   const libelleModele = (m: { croix: number; soubassementMm: number; traverse: boolean }) =>
     `${croixTexte(m.croix)}${m.traverse ? (fr ? ", traverse au milieu" : ", middle rail") : ""}${m.soubassementMm > 0 ? (fr ? ", barreaux en bas" : ", bars below") : ""}`;
   const pastille = (ok: boolean) => (
@@ -417,6 +445,10 @@ export function ReleveGardeCorps({
         ? fr
           ? "Aucun de nos modèles ne convient à cette fenêtre."
           : "None of our models fits this window."
+        : familleSansModele
+          ? fr
+            ? "Avec ces choix, aucun modèle n'est aux normes : essayez d'autres barreaux, ou une traverse."
+            : "With these choices no model is to standard: try other bars, or a middle rail."
         : perdu && perdu.pour === mesures && !choisi
           ? fr
             ? `Le modèle que vous aviez choisi (${libelleCourt({ croix: perdu.croix, soubassementMm: perdu.barreaux ? 1 : 0, traverse: perdu.traverse })}) + ces mesures : l'ensemble ne serait plus aux normes${raisonEnMots(perdu.raisons) ? ` (${raisonEnMots(perdu.raisons)})` : ""}. Choisissez-en un autre.`
@@ -438,7 +470,7 @@ export function ReleveGardeCorps({
     if (tuile) zone.scrollTo({ left: Math.max(0, tuile.offsetLeft - (zone.clientWidth - tuile.clientWidth) / 2), behavior: "smooth" });
   }, [idSelectionne]);
   const marque = modeles.length > 0;
-  const liste: ModeleGC[] = marque ? modeles : MODELES_VITRINE;
+  const liste: ModeleGC[] = marque ? modelesFamille : MODELES_VITRINE.filter((m) => !m.traverse && m.soubassementMm === 0);
   const catalogue = (
     /* Sous le croquis : UNE rangée de modèles qui défile de côté, chacun avec son prix et sa pastille verte ou rouge
        (aux normes ou non pour cette fenêtre). On touche un modèle : il s'affiche en grand sur le croquis. */
@@ -475,6 +507,51 @@ export function ReleveGardeCorps({
           )}
         </span>
       </div>
+      {/* Barreaudage et traverse : deux petits sélecteurs, mis à jour sur l'outil de plans comme sur le site. */}
+      {marque && (
+        <div className="mt-2 space-y-1">
+          {[
+            {
+              titre: fr ? "Barreaux" : "Bars",
+              valeur: famille.barreaux,
+              options: [
+                { v: "aucun", label: fr ? "Aucun" : "None", note: barreauxImposes ? (fr ? "Imposés par la norme ici : le bas du cadre est à moins de 60 cm du sol." : "Required by the standard here: the bottom of the frame is under 60 cm from the floor.") : "", aide: fr ? "Des croix seules, sans barreaux" : "Crosses only, no bars" },
+                { v: "bas", label: fr ? "En bas" : "Bottom", note: "", aide: fr ? "Des barreaux droits en bas, sous les croix" : "Straight bars at the bottom, under the crosses" },
+                { v: "tout", label: fr ? "Partout" : "Everywhere", note: "", aide: fr ? "Des barreaux sur toute la hauteur : en bas et dans chaque croix" : "Bars over the full height: at the bottom and in every cross" },
+              ],
+              choisir: (v: string) => changerFamille(v as "aucun" | "bas" | "tout", famille.traverse),
+            },
+            {
+              titre: fr ? "Traverse" : "Middle rail",
+              valeur: famille.traverse ? "avec" : "sans",
+              options: [
+                { v: "sans", label: fr ? "Sans" : "Without", note: "", aide: fr ? "Pas de traverse" : "No middle rail" },
+                { v: "avec", label: fr ? "Avec" : "With", note: "", aide: fr ? "Une traverse horizontale au milieu de chaque croix" : "A horizontal rail in the middle of each cross" },
+              ],
+              choisir: (v: string) => changerFamille(famille.barreaux === "tout" && v === "avec" ? "bas" : famille.barreaux, v === "avec"),
+            },
+          ].map((ligne) => (
+            <div key={ligne.titre} className="flex items-center gap-2">
+              <span className="w-[62px] shrink-0 text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{ligne.titre}</span>
+              <div role="group" aria-label={ligne.titre} className="flex min-w-0 flex-1 gap-0.5 rounded-full bg-[#2b2320]/[0.07] p-0.5">
+                {ligne.options.map((o) => (
+                  <button
+                    key={o.v}
+                    type="button"
+                    aria-pressed={ligne.valeur === o.v}
+                    disabled={o.note !== ""}
+                    title={o.note || o.aide}
+                    onClick={() => ligne.choisir(o.v)}
+                    className={`min-w-0 flex-1 truncate rounded-full px-1.5 py-1 text-[11px] font-medium leading-tight transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${ligne.valeur === o.v ? "bg-[#2b2320] text-white" : "text-[#2b2320] hover:bg-white/80"}`}
+                  >
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       {phraseModeles && <p className={`mt-1 text-[12px] leading-snug ${modeles.length === 0 && texteManque ? "font-medium text-[#7a4510]" : "text-[#5c5140]"}`}>{phraseModeles}</p>}
       {liste.length > 0 && (
         <div
@@ -769,8 +846,9 @@ export function ReleveGardeCorps({
                    La largeur du cadre est écrite en toutes lettres (3/4 de sa hauteur) : avec `aspect-ratio` seul,
                    Safari ne la comptait pas dans la largeur de la colonne — elle tombait à zéro, le croquis
                    disparaissait et la carte des modèles s'écrasait. */
-                <div className="mx-auto flex w-fit max-w-full flex-col xl:min-h-0 xl:flex-1">
-                  <div className="relative h-[var(--h)] w-[calc(var(--h)*0.75)] max-w-full shrink-0 overflow-hidden rounded-2xl [--h:40svh] md:[--h:min(62vh,640px)] xl:[--h:clamp(200px,calc(100dvh_-_28rem),640px)]">
+                <div className="mx-auto flex w-[max(calc(var(--h)*0.75),340px)] max-w-full flex-col [--h:40svh] md:[--h:min(62vh,640px)] xl:min-h-0 xl:flex-1 xl:[--h:clamp(200px,calc(100dvh_-_33rem),640px)]">
+                  {/* (La carte des modèles a sa propre largeur minimale : quand l'écran est bas, le croquis rétrécit mais la carte non.) */}
+                  <div className="relative mx-auto h-[var(--h)] w-[calc(var(--h)*0.75)] max-w-full shrink-0 overflow-hidden rounded-2xl">
                     {croquis}
                     {puce}
                     {legendeCroquis}
@@ -1169,6 +1247,7 @@ const MODELES_VITRINE: ModeleGC[] = ([[false, false], [false, true], [true, fals
     soubassementMm: b ? 150 : 0,
     traverse: t,
     trous: null,
+    partout: false,
     renfort: false,
     hauteurMm: b ? 520 : 350,
     prix: 0,

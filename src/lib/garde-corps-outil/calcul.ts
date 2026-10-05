@@ -11,7 +11,7 @@
 import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, DEFAUTS_GC, calculerGC, geomGC, type ResultatGC, type ValeursGC } from "./moteur.genere.mjs";
 import { chiffrage } from "./chiffrage.ts";
 import { idModeleGC, lireModeleGC, type RaisonSansPrixGC, type RondGC, type TrousGC } from "../garde-corps.ts";
-import { CARRE_RENFORT, codeAlerte, CROIX_CATALOGUE, CROIX_MAX, ESSENCES_GC, ORDRE_CARRES, valeursGC, type CodeAlerteGC, type EntreeSiteGC } from "./entree.ts";
+import { CARRE_RENFORT, codeAlerte, CROIX_CATALOGUE, CROIX_MAX, ESSENCES_GC, NB_BARREAUX_MAX, ORDRE_CARRES, valeursGC, type CodeAlerteGC, type EntreeSiteGC } from "./entree.ts";
 
 export { ChiffrageIndisponible } from "./chiffrage.ts";
 export type { CodeAlerteGC, EntreeSiteGC, EssenceGC } from "./entree.ts";
@@ -37,6 +37,10 @@ export type ConfigGC = Commun & {
   barreauxBas: boolean;
   /** Une traverse au milieu de chaque croix (modèle « -t »). */
   traverse: boolean;
+  /** Des barreaux sur toute la hauteur : en bas ET dans chaque croix (modèle « -v »). */
+  partout: boolean;
+  /** Combien de barreaux verticaux dans chaque croix (0 si le modèle n'en a pas). */
+  barreauxCroix: number;
   /**
    * Fenêtre large : la lisse haute est raidie par un fer plat soudé dessus, caché sous une main courante plus
    * large (décision de Quentin, 04/10/2026). Ajouté seulement quand aucun carré de l'atelier n'est assez rigide.
@@ -105,6 +109,9 @@ const FIXATION: readonly CodeAlerteGC[] = Object.freeze(["fixation"]);
 const FENETRE: readonly CodeAlerteGC[] = Object.freeze(["fenetre"]);
 /** Le carré de référence du catalogue (le premier de l'atelier), pour le dessin des vides. */
 const CARRE_REFERENCE = ORDRE_CARRES[0];
+/** Les nombres de barreaux par croix essayés pour « barreaux sur toute la hauteur » : du plus petit au plus grand. */
+const NB_PARTOUT: readonly number[] = Array.from({ length: NB_BARREAUX_MAX }, (_, i) => i + 1);
+const SANS_BARREAUX: readonly number[] = [0];
 /** Les raisons qui écartent un carré entier : elles ne disent rien du dessin. */
 const duCarre = (codes: readonly CodeAlerteGC[]) => codes.includes("solidite") || codes.includes("fixation");
 /**
@@ -144,14 +151,14 @@ function lisseTropSouple(cleReleve: string): boolean {
 }
 
 /** Un essai de l'outil (calcul rapide : mêmes alertes, sans chercher de solution à écrire dans leur texte). */
-function essayer(cleReleve: string, entree: EntreeSiteGC, s: number, n: number, b: boolean, t: boolean, r = false): { codes: readonly CodeAlerteGC[]; R: ResultatGC | null; v: ValeursGC | null } {
+function essayer(cleReleve: string, entree: EntreeSiteGC, s: number, n: number, b: boolean, t: boolean, r = false, nb = 0): { codes: readonly CodeAlerteGC[]; R: ResultatGC | null; v: ValeursGC | null } {
   if (tropBasse.get(cleReleve)) return { codes: FENETRE, R: null, v: null };
   const horsJeu = ecarte.get(cleCarre(cleReleve, s, r));
   if (horsJeu) return { codes: horsJeu, R: null, v: null };
-  const cle = `${cleReleve}|${s}|${n}|${b ? 1 : 0}|${t ? 1 : 0}|${r ? 1 : 0}`;
+  const cle = `${cleReleve}|${s}|${n}|${b ? 1 : 0}|${t ? 1 : 0}|${r ? 1 : 0}|${nb}`;
   const connus = essais.get(cle);
   if (connus?.length) return { codes: connus, R: null, v: null };
-  const v = valeursGC(DEFAUTS_GC, entree, s, n, b, t, r) as ValeursGC;
+  const v = valeursGC(DEFAUTS_GC, entree, s, n, b, t, r, nb) as ValeursGC;
   const R = calculerGC({ ...v, _rapide: true });
   let codes: readonly CodeAlerteGC[] = [...new Set(R.alertes.map(codeAlerte))];
   // Le carré lui-même ne convient pas (pas assez rigide, ou la vis n'y tient pas) : c'est la raison qui compte
@@ -183,7 +190,7 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   const choisi = lireModeleGC(e.modele);
   const cleReleve = JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, e.essence]);
   // La mémoire est rangée par DESSIN (pas par identifiant) : « 16-4 » et « 18-4 » sont la même demande.
-  const cle = `${cleReleve}|${choisi ? `${choisi.croix}|${choisi.barreauxBas ? 1 : 0}|${choisi.traverse ? 1 : 0}` : ""}`;
+  const cle = `${cleReleve}|${choisi ? `${choisi.croix}|${choisi.barreauxBas ? 1 : 0}|${choisi.traverse ? 1 : 0}|${choisi.partout ? 1 : 0}` : ""}`;
   const deja = memoire.get(cle);
   if (deja) {
     memoire.delete(cle);
@@ -200,9 +207,9 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   const plages: readonly (readonly [nMin: number, nMax: number])[] = choisi ? [[choisi.croix, choisi.croix]] : [[1, CROIX_CATALOGUE], [CROIX_CATALOGUE + 1, CROIX_MAX]];
   // Sans choix du client : les croix seules d'abord ; si rien ne passe, une traverse au milieu des croix (la
   // solution de l'outil : le même dessin, les vides coupés en deux) ; puis des barreaux droits en bas ; puis les deux.
-  const variantes: readonly (readonly [barreaux: boolean, traverse: boolean])[] = choisi
-    ? [[choisi.barreauxBas, choisi.traverse]]
-    : [[false, false], [false, true], [true, false], [true, true]];
+  const variantes: readonly (readonly [barreaux: boolean, traverse: boolean, partout: boolean])[] = choisi
+    ? [[choisi.barreauxBas, choisi.traverse, choisi.partout]]
+    : [[false, false, false], [false, true, false], [true, false, false], [true, true, false]];
   const base = valeursGC(DEFAUTS_GC, entree, 16, 1);
   const g = geomGC(base, 1);
   const commun: Commun = {
@@ -248,26 +255,27 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
     if (r && !lisseTropSouple(cleReleve)) break;
     // Avec le fer plat, la rigidité est réglée : seul compte ce qui bloque ENCORE (les essais qui suivent).
     if (r) blocages.length = 0;
-    for (const [nMin, nMax] of plages) for (const [b, t] of variantes) {
+    for (const [nMin, nMax] of plages) for (const [b, t, partout] of variantes) {
       for (const s of r ? [CARRE_RENFORT] : carres) {
-        for (let n = nMin; n <= nMax; n++) {
-          const essai = essayer(cleReleve, entree, s, n, b, t, r);
+        for (let n = nMin; n <= nMax; n++) for (const nb of partout ? NB_PARTOUT : SANS_BARREAUX) {
+          const essai = essayer(cleReleve, entree, s, n, b, t, r, nb);
           if (essai.R && essai.v) {
             const { R, v } = essai;
             if (!(R.hauteurGC! > 0) || !(R.kg! > 0)) throw new Error("garde-corps : calcul de l'outil incohérent");
             const soubassementMm = geomGC(v, n).sb;
-            // Des barreaux demandés mais que l'outil n'a pas pu dessiner (cadre trop bas) : ce n'est pas ce modèle.
-            if (b && !(soubassementMm > 0)) {
+            // Des barreaux en bas demandés mais que l'outil n'a pas pu dessiner (cadre trop bas) : ce n'est pas ce modèle.
+            // (« Partout » garde ses barreaux dans les croix : le bas peut rester sans barreaux, la hauteur est couverte.)
+            if (b && !partout && !(soubassementMm > 0)) {
               if (choisi) blocages.push(["trop-petit"]);
               continue;
             }
-            resultat = { ...commun, ok: true, conforme: true, carre: s, croix: n, barreauxBas: b, traverse: t, renfort: r, soubassement: soubassementMm > 0, soubassementMm, kg: R.kg!, v: gelerProfond(v), R: gelerProfond(R) };
+            resultat = { ...commun, ok: true, conforme: true, carre: s, croix: n, barreauxBas: b, traverse: t, partout, barreauxCroix: nb, renfort: r, soubassement: soubassementMm > 0, soubassementMm, kg: R.kg!, v: gelerProfond(v), R: gelerProfond(R) };
             break recherche;
           }
           if (choisi) blocages.push(essai.codes);
           // Sans choix : ce qui bloque au carré de 16, croix seules (la section du modèle), avec le moins d'alertes.
           // Avec le renfort, c'est ce qui bloque ENCORE qui compte (la rigidité, elle, est réglée par le plat).
-          else if (s === 16 && !b && !t && (!auCarre16 || r !== auCarre16Renfort || essai.codes.length < auCarre16.length)) { auCarre16 = essai.codes; auCarre16Renfort = r; }
+          else if (s === 16 && !b && !t && nb === 0 && (!auCarre16 || r !== auCarre16Renfort || essai.codes.length < auCarre16.length)) { auCarre16 = essai.codes; auCarre16Renfort = r; }
         }
       }
     }
@@ -287,7 +295,7 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
 /** Un dessin du catalogue, pour une fenêtre : conforme (avec sa configuration complète) ou non. */
 export type DessinGC =
   | { conforme: true; config: ConfigGC }
-  | { conforme: false; carre: number; croix: number; barreauxBas: boolean; traverse: boolean; soubassementMm: number; raisons: CodeAlerteGC[]; trous: TrousGC | null };
+  | { conforme: false; carre: number; croix: number; barreauxBas: boolean; traverse: boolean; partout: boolean; soubassementMm: number; raisons: CodeAlerteGC[]; trous: TrousGC | null };
 
 /**
  * Les vides d'un dessin dans cette fenêtre, pour l'EXPLIQUER au client : le rond rouge (le vide trop grand) et les
@@ -295,8 +303,14 @@ export type DessinGC =
  * écarté pour sa fixation ou sa rigidité montre des ronds verts (ses vides sont bons) et la raison, au lieu de rien.
  * Calcul de géométrie seulement, sans les contrôles.
  */
-function trousDuDessin(entree: EntreeSiteGC, n: number, b: boolean, t: boolean, renfort: boolean): TrousGC | null {
-  const v = valeursGC(DEFAUTS_GC, entree, CARRE_REFERENCE, n, b, t, renfort) as ValeursGC;
+function trousDuDessin(entree: EntreeSiteGC, n: number, b: boolean, t: boolean, renfort: boolean, partout = false): TrousGC | null {
+  // « Sur toute la hauteur » : on montre le nombre de barreaux par croix qui donne les plus petits vides.
+  const essais = (partout ? NB_PARTOUT : SANS_BARREAUX).map((nb) => trousAvecBarreaux(entree, n, b, t, renfort, nb));
+  return essais.reduce<TrousGC | null>((meilleur, x) => (x && (!meilleur || x.plusGrandMm < meilleur.plusGrandMm) ? x : meilleur), null);
+}
+
+function trousAvecBarreaux(entree: EntreeSiteGC, n: number, b: boolean, t: boolean, renfort: boolean, nb: number): TrousGC | null {
+  const v = valeursGC(DEFAUTS_GC, entree, CARRE_REFERENCE, n, b, t, renfort, nb) as ValeursGC;
   const g = geomGC(v, n);
   const trous = (g.trous ?? []) as { c: [number, number]; d: number; limite: number; ok: boolean }[];
   const s = Number(v.s), sb = Number(g.sb) || 0;
@@ -336,19 +350,20 @@ export function catalogueGC(e: EntreeSiteGC): DessinGC[] {
   const cleReleve = JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, e.essence]);
   // L'ordre du catalogue : les croix seules, puis avec une traverse au milieu, puis avec des barreaux en bas,
   // puis les deux — de 1 à 6 croix chaque fois (de 7 à 12 : seulement les modèles aux normes).
-  for (const [b, t] of [[false, false], [false, true], [true, false], [true, true]] as const) {
+  // (Cinquième famille : « barreaux sur toute la hauteur » = en bas ET dans chaque croix, sans traverse.)
+  for (const [b, t, p] of [[false, false, false], [false, true, false], [true, false, false], [true, true, false], [true, false, true]] as const) {
     // De 7 à 12 croix : seulement quand AUCUN modèle de 1 à 6 croix de cette famille n'est aux normes (une fenêtre
     // large et basse). Sinon le catalogue se remplirait de dessins très serrés pour une fenêtre ordinaire.
     let assezDeCroix = false;
     for (let n = 1; n <= CROIX_MAX; n++) {
       if (n > CROIX_CATALOGUE && assezDeCroix) break;
       // Le dessin dans le premier carré de l'atelier qui passe toute la norme (configurerGC les essaie dans l'ordre).
-      const c = configurerGC({ ...sansChoix, modele: idModeleGC(16, n, b, t) });
+      const c = configurerGC({ ...sansChoix, modele: idModeleGC(16, n, b, t, p) });
       if (c.ok) {
         if (n <= CROIX_CATALOGUE) assezDeCroix = true;
         // Le même dessin par deux chemins (les barreaux que la norme impose déjà) : une seule fois — et s'il
         // n'était « hors norme » que par l'autre chemin, c'est le dessin conforme qu'on garde.
-        const cle = [c.croix, c.soubassementMm > 0, t].join("|");
+        const cle = [c.croix, c.soubassementMm > 0, t, p].join("|");
         if (!dessins.get(cle)?.conforme) dessins.set(cle, { conforme: true, config: c });
       } else {
         // Au-delà de 6 croix, le catalogue ne montre que les modèles aux normes (douze croix hors norme : du bruit).
@@ -357,10 +372,10 @@ export function catalogueGC(e: EntreeSiteGC): DessinGC[] {
         const sb = Math.max(0, Math.round(geomGC(valeursGC(DEFAUTS_GC, sansChoix, 16, n, b, t, lisseTropSouple(cleReleve)), n).sb || 0));
         // Des barreaux en bas que l'outil ne peut pas dessiner (garde-corps trop bas) : ce dessin n'existe pas
         // pour cette fenêtre. Le montrer ferait un jumeau « hors norme » du même dessin sans barreaux.
-        if (b && sb === 0) continue;
-        const cle = [n, b || sb > 0, t].join("|");
+        if (b && !p && sb === 0) continue;
+        const cle = [n, b || sb > 0, t, p].join("|");
         // La raison donnée au client : ce qui bloque ce dessin (configurerGC).
-        if (!dessins.has(cle)) dessins.set(cle, { conforme: false, carre: 16, croix: n, barreauxBas: b, traverse: t, soubassementMm: sb, raisons: [...c.alertes], trous: trousDuDessin(sansChoix, n, b, t, lisseTropSouple(cleReleve)) });
+        if (!dessins.has(cle)) dessins.set(cle, { conforme: false, carre: 16, croix: n, barreauxBas: b, traverse: t, partout: p, soubassementMm: sb, raisons: [...c.alertes], trous: trousDuDessin(sansChoix, n, b, t, lisseTropSouple(cleReleve), p) });
       }
     }
   }

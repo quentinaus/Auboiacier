@@ -1580,7 +1580,7 @@ export const products: Product[] = [
       },
       {
         title: "Une main courante en bois massif de 40 mm",
-        body: "Le dessus est une pièce de bois massif de 40 mm, arrondie, poncée et huilée. La main s'y pose sans accrocher, l'été comme l'hiver. Pin, hêtre, chêne ou noyer au choix ; le chêne est celui de la photo.",
+        body: "Le dessus est une pièce de bois massif de 40 mm, arrondie, poncée et huilée. La main s'y pose sans accrocher, l'été comme l'hiver. Pin, hêtre, chêne ou noyer au choix ; le chêne est celui de la photo. Sur les fenêtres larges (plus de 1,67\u00a0m), elle fait 60\u00a0mm de large et cache un fer plat d\'acier qui raidit la barre du haut\u00a0: c\'est compris dans le prix.",
       },
       {
         title: "Deux mesures à relever",
@@ -1594,10 +1594,10 @@ export const products: Product[] = [
     specs: [
       { label: "Structure", value: "Acier plein, soudure TIG, finition peinte" },
       { label: "Motif", value: "Croix de Saint-André, rosaces de fonderie" },
-      { label: "Main courante", value: "Pin, hêtre, chêne ou noyer massif au choix, 40 mm, finition huile-cire" },
+      { label: "Main courante", value: "Pin, hêtre, chêne ou noyer massif au choix, 40 mm (60 mm de large sur les fenêtres larges, avec un fer plat d'acier caché dessous), finition huile-cire" },
       { label: "Pose", value: "Encastré dans le tableau de la fenêtre, fixations fournies — vous mesurez, nous fabriquons" },
       { label: "Prise de cotes", value: "Par vous, au mètre — ou par l'atelier, dès 19,99 € jusqu'à 30 km de Saumur, déduits de la commande" },
-      { label: "Normes", value: "Hauteur calculée selon l'art. R134-59 du Code de la construction ; espaces entre les barres selon la NF P01-012" },
+      { label: "Normes", value: "Conforme aux normes françaises : hauteur calculée selon l'art. R134-59 du Code de la construction ; espaces entre les barres selon la NF P01-012" },
       { label: "Fabrication", value: "Sur commande — comptez 4 à 6 semaines" },
       { label: "Livraison", value: "Par transporteur en France métropolitaine, livré et posé par l'atelier, ou retiré à l'atelier à Saumur — fixations et notice de pose comprises" },
     ],
@@ -1621,7 +1621,7 @@ export const products: Product[] = [
         },
         {
           title: "A 40 mm solid wood handrail",
-          body: "The top is a 40 mm piece of solid wood, rounded, sanded and oiled. The hand rests on it without catching, summer or winter. Pine, beech, oak or walnut; oak is the one in the photo.",
+          body: "The top is a 40 mm piece of solid wood, rounded, sanded and oiled. The hand rests on it without catching, summer or winter. Pine, beech, oak or walnut; oak is the one in the photo. On wide windows (over 1.67\u00a0m) it is 60\u00a0mm wide and hides a flat steel bar that stiffens the top rail: it is included in the price.",
         },
         {
           title: "Two measurements to take",
@@ -1635,10 +1635,10 @@ export const products: Product[] = [
       specs: [
         { label: "Frame", value: "Solid steel, TIG welded, painted finish" },
         { label: "Pattern", value: "Saint Andrew's cross, cast rosettes" },
-        { label: "Handrail", value: "Pine, beech, oak or walnut to choose from, 40 mm, oil-wax finish" },
+        { label: "Handrail", value: "Pine, beech, oak or walnut to choose from, 40 mm (60 mm wide on wide windows, with a flat steel bar hidden underneath), oil-wax finish" },
         { label: "Fitting", value: "Fits into the window reveal, fixings supplied — you measure, we build" },
         { label: "Survey", value: "By you, with a tape — or by the workshop, from €19.99 within 30 km of Saumur, deducted from the order" },
-        { label: "Standards", value: "Height set by art. R134-59 of the French building code; gaps between the bars to NF P01-012" },
+        { label: "Standards", value: "Compliant with French standards: height set by art. R134-59 of the French building code; gaps between the bars to NF P01-012" },
         { label: "Lead time", value: "Made to order — allow 4 to 6 weeks" },
         { label: "Delivery", value: "By carrier in mainland France, delivered and fitted by the workshop, or collected from the workshop in Saumur — fixings and fitting guide included" },
       ],
@@ -2459,6 +2459,8 @@ export type ResolvedLine = {
     soubassement: boolean;
     /** Une traverse au milieu de chaque croix. */
     traverse: boolean;
+    /** Des barreaux sur toute la hauteur (en bas et dans chaque croix). */
+    partout: boolean;
     /** Fenêtre large : un fer plat caché sous la main courante raidit la lisse haute. */
     renfort: boolean;
     /** Le poids d'une pièce : celui de l'outil, plus le verre s'il remplace les croix. */
@@ -2933,6 +2935,8 @@ export type ReponseReleve =
       soubassement: boolean;
       /** Une traverse au milieu de chaque croix. */
       traverse: boolean;
+      /** Des barreaux sur toute la hauteur (en bas et dans chaque croix). */
+      partout: boolean;
       /** Fenêtre large : un fer plat caché sous la main courante raidit la lisse haute. */
       renfort: boolean;
       /** Le poids d'une pièce, en kilos (celui de l'outil). */
@@ -2956,7 +2960,7 @@ export function libelleGardeCorps(
   hauteurMm: number,
   croix: number | null,
   locale: Locale = "fr",
-  modele: { soubassement?: boolean; carre?: number; traverse?: boolean; renfort?: boolean } = {}
+  modele: { soubassement?: boolean; carre?: number; traverse?: boolean; renfort?: boolean; partout?: boolean } = {}
 ) {
   const langue = locale === "en" ? "en-GB" : "fr-FR";
   const cotes = `${largeurMm.toLocaleString(langue)} × ${hauteurMm.toLocaleString(langue)} mm`;
@@ -2965,7 +2969,9 @@ export function libelleGardeCorps(
   if (croix === null) return `${prefixe} — ${cotes}${renfort}`;
   const mot = locale === "en" ? (croix > 1 ? "crosses" : "cross") : "croix";
   const traverse = modele.traverse ? (locale === "en" ? ", middle rail" : ", traverse au milieu") : "";
-  const barreaux = modele.soubassement ? (locale === "en" ? ", bars below" : ", barreaux en bas") : "";
+  const barreaux = modele.partout
+    ? locale === "en" ? ", bars across the whole height" : ", barreaux sur toute la hauteur"
+    : modele.soubassement ? (locale === "en" ? ", bars below" : ", barreaux en bas") : "";
   const carre = modele.carre ? (locale === "en" ? `, ${modele.carre} mm square bar` : `, acier carré de ${modele.carre}`) : "";
   return `${prefixe} — ${cotes}, ${croix} ${mot}${traverse}${barreaux}${carre}${renfort}`;
 }
@@ -3013,7 +3019,7 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
 
   const size: ProductSize = {
     id: SUR_MESURE,
-    label: libelleGardeCorps(largeurMm, r.hauteurMm, verre ? null : r.croix, selection.locale, { soubassement: r.soubassement, carre: r.carre, traverse: r.traverse, renfort: r.renfort }),
+    label: libelleGardeCorps(largeurMm, r.hauteurMm, verre ? null : r.croix, selection.locale, { soubassement: r.soubassement, carre: r.carre, traverse: r.traverse, renfort: r.renfort, partout: r.partout }),
     price: r.prix,
     dimsMm: [largeurMm, r.hauteurMm],
   };
@@ -3046,6 +3052,7 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
         carre: r.carre,
         soubassement: r.soubassement,
         traverse: r.traverse,
+        partout: r.partout,
         renfort: r.renfort,
         kg: r.kg + (verre ? ((largeurMm * r.hauteurMm) / 1e6) * VERRE_KG_PAR_M2 : 0),
       },

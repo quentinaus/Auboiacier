@@ -37,6 +37,8 @@ export const ORDRE_CARRES = [16, 12, 14, 18, 20] as const;
 export const CROIX_MAX = 12;
 /** Au catalogue : de 1 à 6 croix toujours ; au-delà, seulement les modèles aux normes. */
 export const CROIX_CATALOGUE = 6;
+/** « Barreaux sur toute la hauteur » : le plus petit nombre de barreaux par croix qui passe la norme, de 1 à 4. */
+export const NB_BARREAUX_MAX = 4;
 
 /**
  * Les réglages de l'outil pour ce relevé : ses valeurs par défaut (celles de
@@ -44,7 +46,7 @@ export const CROIX_CATALOGUE = 6;
  * avec rosaces, main courante en bois, hauteur calculée pour la norme, rien
  * sous la fenêtre, barreaux en bas seulement si la norme les demande).
  */
-export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: number, nP: number, barreauxBas = false, traverse = false, renfort = false) {
+export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: number, nP: number, barreauxBas = false, traverse = false, renfort = false, nb = 0) {
   return {
     ...defauts,
     B: e.largeurMm,
@@ -56,9 +58,10 @@ export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: numb
     rosace: true,
     Hs: 0,
     Xo: 0,
-    nb: 0,
+    // Des barreaux verticaux dans chaque croix (« sur toute la hauteur » : l'option « nb » de l'outil).
+    nb,
     // « toujours » : des barreaux droits en bas même quand la norme ne les impose pas (un des modèles au choix).
-    sbMode: barreauxBas ? "toujours" : "auto",
+    sbMode: barreauxBas || nb > 0 ? "toujours" : "auto",
     // Une traverse au milieu de chaque croix (un des modèles au choix) : elle coupe les vides en deux.
     traverse,
     // Fenêtre large : un fer plat soudé sur la lisse haute, caché sous une main courante plus large. Le site ne

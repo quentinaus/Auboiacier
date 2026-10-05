@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Moteur garde-corps : norme NF P01-012, géométrie, débit, dessins. SANS coûts.
-// Source : l'outil de plans (plans-atelier.html), sha256 bafd6ed0e67303698e7065c592fda88183e97471b54eaa27f9c7da727079e86f
+// Source : l'outil de plans (plans-atelier.html), sha256 62e1f7aec8d98b72684a3cbaa2a8afd7530428877ae393c529e117c1a83c7f05
 /* eslint-disable */
 const SPHERE = 110;
 const SPHERE_HAUT = 180;
@@ -640,6 +640,6 @@ function decrireVariante(v, c) {
   }
 export const DEFAUTS_GC = Object.freeze({"prixVente":0,"km":30,"debitAr":8,"minSoud":1.2,"rnP":14,"rnJ":1,"nF":2,"dF":6.5,"fF":13,"eF":40,"epMc":8,"L":2000,"l":1000,"H":750,"e":45,"a":80,"ep":3,"t":3,"pL":75,"pl":60,"pX":80,"rX":250,"tS":300,"tW":120,"pR":60,"bR":300,"lame":150,"latte":120,"jeu":8,"trait":3,"B":1180,"A":650,"Hs":0,"Hf":0,"s":16,"mc":40,"j":1,"jour":90,"nP":1,"nb":0,"Xo":0,"Hm":2600,"recul":0,"Wm":900,"lh":150,"lw":100,"le":5,"em":50,"nez":0,"hs":80,"tp":8,"plx":200,"ply":150,"tpp":10,"epl":200,"ass":"droit","etage":true,"rosace":true,"traverse":false,"mcType":"bois","sbMode":"auto","renfort":"sans","essence":"chene","remise":"retrait","essenceT":"chene","teinte":"noir","rainure":true});
 export const BORNES_GC = Object.freeze({ B: Object.freeze({"min":300,"max":3000}), A: Object.freeze({"min":0,"max":1200}), Hf: Object.freeze({"min":0,"max":3000}) });
-export const EMPREINTE_SOURCE = "bafd6ed0e67303698e7065c592fda88183e97471b54eaa27f9c7da727079e86f";
+export const EMPREINTE_SOURCE = "62e1f7aec8d98b72684a3cbaa2a8afd7530428877ae393c529e117c1a83c7f05";
 export { ALLEGE_LIBRE, BARRE_APPUI, CIBLE_MARGE, HAUT_ETAGE, LIMITE_ACIER, MINI_GC, RENFORT, ROSACE_R, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, decrireVariante, fmt, geomGC, mmTxt, variantesConformes };
-export const EMPREINTE = "8deec783cb53";
+export const EMPREINTE = "02686a4c5478";
