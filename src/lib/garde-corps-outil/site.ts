@@ -158,7 +158,7 @@ export function lireRequetePrixGC(params: URLSearchParams): RequetePrixGC | null
  * vides sont plus petits). Décision de Quentin, 05/10/2026 : « c'est à toi de faire la meilleure configuration en fonction
  * de la taille de la rosace, des espaces et du prix, et tu lui proposes » — pas au client de chercher.
  */
-const ROSACES_REPLI_GC = ["fleur", "medaillon"] as const;
+const ROSACES_REPLI_GC = ["fleur"] as const;
 
 /**
  * La rosace qui compte pour la norme : celle choisie par le client, sauf sous un panneau de verre (il n'y a plus de croix, donc

@@ -39,6 +39,7 @@ import {
   type CotesGardeCorps,
 } from "./releve-garde-corps";
 import { LIVRAISON, POSE, PRISE_DE_COTES, RETRAIT } from "@/lib/deplacement";
+import { diametreRosaceGC } from "@/lib/garde-corps";
 import { memoVersReleve, memoriserConfig, releveVersMemo, reprendreConfig, type ConfigMemo } from "@/lib/config-memo";
 import { livrableParTransporteur } from "@/lib/products";
 import { VisiteAtelier } from "./prise-de-cotes";
@@ -2646,7 +2647,7 @@ export function ProductOptions({
             locale={locale}
             lecture={lectureReleve}
             prix={prixGC}
-            rosaceMm={Number(fabric?.label.match(/Ø(\d+)/)?.[1]) || undefined}
+            rosaceMm={fabric ? diametreRosaceGC(fabric.id) : undefined}
             rosaceId={fabricId}
             onRosace={setFabricId}
             mainCourante={woodId}

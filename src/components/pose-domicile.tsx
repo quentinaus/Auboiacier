@@ -311,7 +311,7 @@ export function PoseDomicile({
               </span>
             </label>
             {/* Tant que le code postal n'est pas tapé, le champ suffit (le bouton d'achat dit quoi faire) : une ligne de moins. */}
-            <p id={`${idCp}-etat`} role="status" aria-live="polite" className={`mt-1.5 text-[11.5px] leading-snug ${etat === "ok" ? "text-[#2b2320]" : "text-[#6f6357]"} ${etat === "attente" ? "sr-only" : ""}`}>
+            <p id={`${idCp}-etat`} role="status" aria-live="polite" className={`text-[11.5px] leading-snug ${etat === "attente" ? "sr-only" : "mt-1.5"} ${etat === "ok" ? "text-[#2b2320]" : "text-[#6f6357]"}`}>
               {texteAvecGras(message)}
             </p>
             {/* Une pièce lourde ou encombrante coûte cher en simple colis : on le dit tout de suite, aussi en pilule. */}

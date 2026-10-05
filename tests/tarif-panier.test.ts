@@ -183,7 +183,7 @@ test("le nom envoyé à Stripe tient en 250 signes ; le libellé entier, note co
       t,
       langue
     );
-    const lu = await tarif([garde({ note, fabricId: "medaillon" }), table(), garde({ note: "x".repeat(MAX_PRECISIONS), fabricId: "medaillon" }), { slug: RETRAIT }], langue);
+    const lu = await tarif([garde({ note, fabricId: "fonte" }), table(), garde({ note: "x".repeat(MAX_PRECISIONS), fabricId: "fonte" }), { slug: RETRAIT }], langue);
     const libelles = lu.pieces.map(libellePiece);
     assert.ok(libelles[0].length > MAX_NOM_STRIPE, `${langue} : ce libellé dépassait la limite de Stripe (${libelles[0].length} signes)`);
     const { noms, entiers } = nomsStripe(libelles);

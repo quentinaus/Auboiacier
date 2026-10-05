@@ -162,13 +162,13 @@ export function idModeleGC(carre: number, croix: number, barreauxBas: boolean, t
 
 /**
  * Les rosaces du catalogue (products.ts, « fabrics ») et leur DIAMÈTRE en mm. Il compte pour la norme : la rosace bouche
- * le centre des croix, une rosace plus petite laisse un vide plus grand (la « acier » de Ø85), une plus grande en laisse
- * un plus petit (le « grand médaillon » de Ø170 permet moins de croix). Le calcul de l'outil prend le diamètre de la
- * rosace CHOISIE ; un test relie ces diamètres aux libellés du catalogue.
+ * le centre des croix, une rosace plus petite laisse un vide plus grand (la « acier » de Ø85), et SANS rosace (Ø0, demande de
+ * Quentin du 05/10/2026) le vide est le plus grand : moins de modèles passent la norme. Le grand médaillon de Ø170 a été retiré
+ * (« trop gros »). Le calcul de l'outil prend le diamètre de la rosace CHOISIE ; un test relie ces diamètres aux libellés du catalogue.
  */
-export const ROSACE_MM_GC: Readonly<Record<string, number>> = Object.freeze({ fleur: 100, fonte: 100, acier: 85, medaillon: 170 });
+export const ROSACE_MM_GC: Readonly<Record<string, number>> = Object.freeze({ fleur: 100, fonte: 100, acier: 85, sans: 0 });
 /** Les diamètres que le moteur accepte (tout autre est refusé). */
-export const ROSACES_MM_GC: readonly number[] = Object.freeze([85, 100, 170]);
+export const ROSACES_MM_GC: readonly number[] = Object.freeze([0, 85, 100]);
 export const ROSACE_DEFAUT_GC = "fleur";
 /** Le diamètre de la rosace d'un identifiant d'option (celui de la fleur si l'identifiant est absent ou inconnu). */
 export const diametreRosaceGC = (id: string | undefined): number => (id !== undefined && Object.hasOwn(ROSACE_MM_GC, id) ? ROSACE_MM_GC[id] : ROSACE_MM_GC[ROSACE_DEFAUT_GC]);
@@ -224,7 +224,7 @@ export type ModeleGC = {
   seuls: boolean;
   /**
    * La rosace avec laquelle ce modèle est calculé et chiffré : celle que le client a choisie quand elle suffit, sinon la plus
-   * petite plus grande qui permet ce dessin (le grand médaillon Ø170 laisse des vides plus petits). Vide pour des
+   * petite plus grande qui permet ce dessin (la fleur Ø100 laisse des vides plus petits que le Ø85 ou que l'absence de rosace). Vide pour des
    * barreaux seuls, qui n'ont pas de rosace. Choisir le modèle applique aussi cette rosace.
    */
   rosace: string;

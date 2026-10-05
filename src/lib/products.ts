@@ -1548,12 +1548,13 @@ export const products: Product[] = [
         priceDelta: 15,
       },
       {
-        id: "medaillon",
-        label: "Grand médaillon, fonte Ø170",
-        labelEn: "Large medallion, cast iron Ø170",
-        swatch: "#2b2320",
-        grain: "url(/images/garde-corps/rosaces/medaillon.jpg)",
-        priceDelta: 30,
+        // Sans rosace (demande de Quentin, 05/10/2026) : le centre des croix reste vide ; l'outil ne compte pas les rosaces.
+        id: "sans",
+        label: "Sans rosace",
+        labelEn: "No rosette",
+        swatch: "#f4efe8",
+        grain: "url(/images/garde-corps/rosaces/sans.svg)",
+        priceDelta: 0,
       },
     ],
     remplissages: [

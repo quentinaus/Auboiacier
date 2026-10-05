@@ -119,7 +119,7 @@ test("le devis dit ce que le panier encaissera : même prix, même remise, même
   for (const releve of RELEVES.filter((_, i) => i % 3 === 0)) {
     const c = configurationGC(releve, "noyer");
     if (!c?.ok) continue;
-    for (const options of [MODELE, { metalId: "blanc", fabricId: "medaillon", remplissageId: "croix" }, { metalId: "brut", fabricId: "fleur", remplissageId: "verre" }]) {
+    for (const options of [MODELE, { metalId: "blanc", fabricId: "fonte", remplissageId: "croix" }, { metalId: "brut", fabricId: "fleur", remplissageId: "verre" }]) {
       for (const quantite of [1, 3]) {
         for (const livraison of livraisons(118.46)) {
           const devis = devisOk(entree(releve, { options: { woodId: "noyer", ...options }, quantite, livraison }));
@@ -143,7 +143,7 @@ test("options que l'outil ne chiffre pas encore : leur supplément rejoint son p
   const base = devisOk(entree(releve));
   const produit = getProduct("garde-corps")!;
   // (La fonte Ø100 a le diamètre de la fleur : le dessin ne change pas, seul le supplément s'ajoute. Une rosace d'un autre
-  // diamètre — le grand médaillon Ø170 — peut changer le dessin lui-même : voir garde-corps-rosace.test.ts.)
+  // diamètre — ou l'absence de rosace — peut changer le dessin lui-même : voir garde-corps-rosace.test.ts.)
   const rosace = produit.fabrics!.find((f) => f.id === "fonte")!;
 
   // Une autre rosace : +supplément sur la structure, son nom partout.
@@ -165,7 +165,7 @@ test("options que l'outil ne chiffre pas encore : leur supplément rejoint son p
   assert.ok(!brut.lignes.some((l) => /peinte/.test(l.designation)));
 
   // Le verre à la place des croix : un cadre qui le reçoit, sa ligne à son prix, plus de rosace (même forgée).
-  const verre = devisOk(entree(releve, { options: { woodId: "chene", ...MODELE, remplissageId: "verre", fabricId: "medaillon" } }));
+  const verre = devisOk(entree(releve, { options: { woodId: "chene", ...MODELE, remplissageId: "verre", fabricId: "fonte" } }));
   const supplement = supplementRemplissage(produit.remplissages!.find((r) => r.sansCroix)!, 1180, c.hauteurMm);
   assert.match(verre.lignes[1].designation, /cadre soudé recevant le verre/);
   assert.equal(verre.lignes[1].unitaire, base.lignes[1].unitaire, "sous le verre, la rosace ne se paie pas");
@@ -177,7 +177,7 @@ test("options que l'outil ne chiffre pas encore : leur supplément rejoint son p
   assert.ok(!/croix|rosace/i.test(verre.lignes[0].designation.replace(DS_GC.nom, "").replace("à la place des croix", "")));
 
   // Toujours : les postes font le prix de la pièce au panier.
-  for (const [devis, options] of [[medaillon, { fabricId: "fonte" }], [blanc, { metalId: "blanc" }], [brut, { metalId: "brut" }], [verre, { remplissageId: "verre", fabricId: "medaillon" }]] as const) {
+  for (const [devis, options] of [[medaillon, { fabricId: "fonte" }], [blanc, { metalId: "blanc" }], [brut, { metalId: "brut" }], [verre, { remplissageId: "verre", fabricId: "fonte" }]] as const) {
     const ligne = ligneGC(releve, { woodId: "chene", ...MODELE, ...options });
     assert.ok(ligne.ok);
     const postes = devis.lignes.filter((l) => !l.titre && !/^Livraison/.test(l.designation));

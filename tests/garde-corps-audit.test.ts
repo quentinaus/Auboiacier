@@ -26,7 +26,7 @@ const RETRAIT = { slug: "retrait-atelier" };
 test("fenêtres étroites : la réponse du serveur se relit dans le navigateur (rosace plus grande que le vide)", () => {
   chiffrageOuEchec();
   let relues = 0;
-  for (const allege of [0, 300, 500, 585, 650, 735, 760, 786]) for (const fabricId of ["fleur", "acier", "medaillon"]) for (const largeur of [300, 305, 320, 340, 360, 400, 420]) {
+  for (const allege of [0, 300, 500, 585, 650, 735, 760, 786]) for (const fabricId of ["fleur", "acier", "sans"]) for (const largeur of [300, 305, 320, 340, 360, 400, 420]) {
     const r = reponsePrixGC(q(largeur, allege, "chene", fabricId));
     assert.ok(r, `${largeur} × ${allege}`);
     const lue = lireReponsePrixGC(JSON.parse(JSON.stringify(r)));
@@ -68,7 +68,7 @@ test("le « à partir de » est le prix le plus bas qui se vend (cadre bas à ba
 test("panier : un modèle à barreaux seuls n'écrit pas de rosace, en français comme en anglais", async () => {
   chiffrageOuEchec();
   for (const locale of ["fr", "en"] as const) {
-    const t = await tarif([garde({ modeleGc: "16-1-s", fabricId: "medaillon" }), RETRAIT], locale);
+    const t = await tarif([garde({ modeleGc: "16-1-s", fabricId: "fonte" }), RETRAIT], locale);
     assert.equal(t.refusees.length, 0);
     const o = tarifAffiche(t, locale).lignes[0].options;
     assert.ok(!/médaillon|medaillon|rosette|fleur|flower/i.test(o), `${locale} : ${o}`);
@@ -102,12 +102,12 @@ test("panier : un identifiant de modèle de 9 signes passe, une hauteur de fenê
 test("panier : la remise se calcule sur la main courante DEMANDÉE, comme la route et le devis", async () => {
   chiffrageOuEchec();
   // Fenêtre large : le bois « rainuré » est fabriqué sur fer plat (l'identifiant fabriqué n'est pas celui demandé).
-  const l = ligneGC({ largeurMm: 2400, allegeMm: 400, enEtage: true, fenetreMm: 0 }, { woodId: "pin", fabricId: "medaillon" });
+  const l = ligneGC({ largeurMm: 2400, allegeMm: 400, enEtage: true, fenetreMm: 0 }, { woodId: "pin", fabricId: "fonte" });
   assert.ok(l.ok && l.line.gc);
   assert.equal(l.line.gc.essence, "pin", "la main courante demandée est gardée dans la ligne");
   assert.notEqual(l.line.wood?.id, undefined);
-  const route = reponsePrixGC({ releve: { largeurMm: 2400, allegeMm: 400, enEtage: true, fenetreMm: 0 }, essence: "pin", fabricId: "medaillon", quantite: 5 });
-  const panier = await tarif([garde({ largeurMm: 2400, allegeMm: 400, fenetreMm: 0, woodId: "pin", fabricId: "medaillon", quantity: 5 }), RETRAIT]);
+  const route = reponsePrixGC({ releve: { largeurMm: 2400, allegeMm: 400, enEtage: true, fenetreMm: 0 }, essence: "pin", fabricId: "fonte", quantite: 5 });
+  const panier = await tarif([garde({ largeurMm: 2400, allegeMm: 400, fenetreMm: 0, woodId: "pin", fabricId: "fonte", quantity: 5 }), RETRAIT]);
   assert.ok(route?.ok);
   assert.equal(panier.refusees.length, 0);
   const pieces = panier.pieces.filter((p) => p.line.gc);
@@ -118,9 +118,9 @@ test("panier : la remise se calcule sur la main courante DEMANDÉE, comme la rou
 test("sous un panneau de verre : la rosace par défaut compte partout ; pas de verre sur un cadre à barreaux seuls", () => {
   chiffrageOuEchec();
   const r = (fabricId: string) => reponsePrixGC({ releve: { largeurMm: 1180, allegeMm: 650, enEtage: true, fenetreMm: 0 }, essence: "pin", fabricId, remplissageId: "verre", quantite: 3 });
-  const medaillon = r("medaillon"), fleur = r("fleur");
+  const medaillon = r("acier"), fleur = r("fleur");
   assert.ok(medaillon?.ok && fleur?.ok);
-  assert.equal(medaillon.prix, fleur.prix, "le verre n'a pas de rosace : le médaillon ne change rien");
+  assert.equal(medaillon.prix, fleur.prix, "le verre n'a pas de rosace : le médaillon d'acier ne change rien");
   assert.equal(medaillon.croix, fleur.croix);
   assert.equal(medaillon.remise, fleur.remise);
   // Un cadre à barreaux seuls (bas de fenêtre à 800 mm) ne reçoit pas de verre : refusé proprement, le devis ne plante pas.

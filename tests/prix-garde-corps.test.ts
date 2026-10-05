@@ -446,14 +446,20 @@ test("réponse de /api/prix-garde-corps : le prix de l'outil, plus les suppléme
   const fonte = reponsePrixGC(requete({ largeurMm: 1180 }, { fabricId: "fonte" }));   // Ø100 comme la fleur : même dessin
   assert.ok(fonte?.ok);
   assert.ok(fonte.prix > base.prix);
-  // Le grand médaillon (Ø170) compte pour la norme : il peut permettre un autre dessin ; son supplément s'ajoute au prix de CE dessin.
-  const medaillon = reponsePrixGC(requete({ largeurMm: 1180 }, { fabricId: "medaillon" }));
-  assert.ok(medaillon?.ok);
-  const ligneMedaillon = ligneGC(requete({ largeurMm: 1180 }).releve, { woodId: "chene", fabricId: "medaillon" });
-  assert.ok(ligneMedaillon.ok && ligneMedaillon.line.gc);
-  assert.equal(medaillon.prix, ligneMedaillon.line.gc.prixOutil + 30);
+  // La rosace compte pour la norme : « sans rosace » (Ø0) laisse les vides plus grands, donc peut changer de dessin, et l'outil ne
+  // compte pas les rosaces : son prix est celui de l'outil, sans supplément. Le petit médaillon d'acier (Ø85) ajoute le sien au prix de CE dessin.
+  const sans = reponsePrixGC(requete({ largeurMm: 1180 }, { fabricId: "sans" }));
+  assert.ok(sans?.ok);
+  const ligneSans = ligneGC(requete({ largeurMm: 1180 }).releve, { woodId: "chene", fabricId: "sans" });
+  assert.ok(ligneSans.ok && ligneSans.line.gc);
+  assert.equal(sans.prix, ligneSans.line.gc.prixOutil, "sans rosace : le prix de l'outil, sans supplément");
+  assert.ok(sans.prix < base.prix, "sans rosace : moins cher que la fleur (l'outil ne compte plus les rosaces)");
+  const acier = reponsePrixGC(requete({ largeurMm: 1180 }, { fabricId: "acier" }));
+  const ligneAcier = ligneGC(requete({ largeurMm: 1180 }).releve, { woodId: "chene", fabricId: "acier" });
+  assert.ok(acier?.ok && ligneAcier.ok && ligneAcier.line.gc);
+  assert.equal(acier.prix, ligneAcier.line.gc.prixOutil + 15);
   // Le verre remplace les croix : son supplément s'ajoute, la rosace ne se paie plus.
-  const verre = reponsePrixGC(requete({ largeurMm: 1180 }, { remplissageId: "verre", fabricId: "medaillon" }));
+  const verre = reponsePrixGC(requete({ largeurMm: 1180 }, { remplissageId: "verre", fabricId: "fonte" }));
   assert.ok(verre?.ok);
   assert.ok(verre.prix > base.prix);
   const verreFleur = reponsePrixGC(requete({ largeurMm: 1180 }, { remplissageId: "verre" }));

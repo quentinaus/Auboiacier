@@ -1562,6 +1562,58 @@
    }
   },
   {
+   "nom": "sans rosace, 1180 × 650",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "rosace": false
+   },
+   "R": "b3cd2e5972950771",
+   "hauteurGC": 285,
+   "kg": 11.586496206695967,
+   "alertes": 2,
+   "prix": 340,
+   "chiffrage": "46a6f47f51a83292",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-4BPWH",
+    "total": 340,
+    "lignes": 5,
+    "donnees": "bf754e0c8a6fb5b6",
+    "html": "f8f9e626b038dede"
+   }
+  },
+  {
+   "nom": "sans rosace, 900 × 400, 5 croix, traverse",
+   "valeurs": {
+    "B": 900,
+    "A": 400,
+    "nP": 5,
+    "rosace": false,
+    "traverse": true
+   },
+   "R": "e829bc50199c68e3",
+   "hauteurGC": 535,
+   "kg": 21.821867952622373,
+   "alertes": 0,
+   "prix": 920,
+   "chiffrage": "f2627497a074c6d2",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-M0XIV",
+    "total": 920,
+    "lignes": 5,
+    "donnees": "f0f5cc7cb1c5e6fe",
+    "html": "ffafbd577fb513e2"
+   }
+  },
+  {
    "nom": "barreaux seuls, bas de fenêtre à 760 : jour 90",
    "valeurs": {
     "B": 1180,

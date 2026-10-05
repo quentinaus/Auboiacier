@@ -86,10 +86,10 @@ test("barreaux seuls : la ligne de panier, son prix, ses mots — sans rosace", 
   assert.match(l.line.size.label, /barreaux seuls/);
   assert.ok(!/croix|rosace/i.test(l.line.size.label + l.line.optionsLabel), l.line.optionsLabel);
   // Une rosace payante choisie avant : sans croix elle ne coûte rien et n'est pas écrite.
-  const medaillon = ligneGC({ ...fenetre, modele: "16-1-s" }, { woodId: "chene", metalId: "noir", fabricId: "medaillon", remplissageId: "croix" });
+  const medaillon = ligneGC({ ...fenetre, modele: "16-1-s" }, { woodId: "chene", metalId: "noir", fabricId: "fonte", remplissageId: "croix" });
   assert.ok(medaillon.ok);
   assert.equal(medaillon.line.unitPrice, prix, "pas de supplément de rosace");
-  assert.ok(!/médaillon|medaillon/i.test(medaillon.line.optionsLabel));
+  assert.ok(!/médaillon|medaillon|fonte/i.test(medaillon.line.optionsLabel));
   // Le même relevé avec des croix coûte autre chose : ce n'est pas le même garde-corps.
   const croix = ligneGC(fenetre, { woodId: "chene", metalId: "noir", fabricId: "fleur", remplissageId: "croix" });
   assert.ok(croix.ok);
@@ -116,6 +116,6 @@ test("barreaux seuls : le devis, en français et en anglais, aux mêmes montants
   assert.match(texte(en), /vertical bars/);
   assert.ok(!/cross|rosette|croix|barreaux/i.test(texte(en)), "anglais seulement, sans croix ni rosette");
   // La rosace payante d'avant ne change ni le prix ni le texte, et ne fait pas échouer le devis.
-  assert.equal(devis("fr", "medaillon").total, fr.total);
-  assert.equal(devis("en", "medaillon").total, en.total);
+  assert.equal(devis("fr", "fonte").total, fr.total);
+  assert.equal(devis("en", "fonte").total, en.total);
 });

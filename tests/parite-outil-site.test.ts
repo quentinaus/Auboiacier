@@ -82,9 +82,9 @@ test("parité : un modèle de 7 à 12 croix se choisit, se chiffre et se refuse 
   assert.throws(() => configurerGC({ ...en, modele: "16-13" }), RangeError, "13 croix : refusé (au plus 12)");
 });
 
-test("parité avec la rosace choisie : Ø85 (acier) et Ø170 (grand médaillon), outil contre site", () => {
+test("parité avec la rosace choisie : Ø85 (acier) et sans rosace, outil contre site", () => {
   let avecSolution = 0;
-  for (const rosaceMm of [85, 170]) for (const [largeur, allege] of [[1000, 600], [1800, 600], [2000, 400], [1180, 400], [1400, 200]]) {
+  for (const rosaceMm of [0, 85]) for (const [largeur, allege] of [[1000, 600], [1800, 600], [2000, 400], [1180, 400], [1400, 200]]) {
     const en = { ...e(largeur, allege), rosaceMm };
     const outil = dessinsPossibles(en);
     const site = new Set(catalogueGC(en).filter((d) => d.conforme).map((d) => (d.conforme ? `${d.config.croix}|${d.config.traverse ? 1 : 0}|${d.config.seuls ? 1 : 0}` : "")));

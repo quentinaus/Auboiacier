@@ -461,11 +461,14 @@ export function SchemaFenetre({
                 {/* La traverse au milieu : d'un montant à l'autre, à mi-hauteur de la croix. */}
                 {traverse && <line x1={x0} y1={r((cadreHaut + basCroix) / 2)} x2={x1} y2={r((cadreHaut + basCroix) / 2)} />}
               </g>
-              <Rosace
-                cx={r((x0 + x1) / 2)}
-                cy={r((cadreHaut + basCroix) / 2)}
-                taille={Math.min(rosace, (x1 - x0) / 2.2, (basCroix - cadreHaut) / 2.2)}
-              />
+              {/* Sans rosace (Ø0) : le centre des croix reste vide. */}
+              {rosaceMm !== 0 && (
+                <Rosace
+                  cx={r((x0 + x1) / 2)}
+                  cy={r((cadreHaut + basCroix) / 2)}
+                  taille={Math.min(rosace, (x1 - x0) / 2.2, (basCroix - cadreHaut) / 2.2)}
+                />
+              )}
             </g>
           );
         })}

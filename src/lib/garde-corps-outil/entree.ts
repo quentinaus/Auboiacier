@@ -59,11 +59,12 @@ export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: numb
     // La main courante : un bois, ou de l'acier (plat soudé, ou profilé). L'essence ne compte qu'avec le bois.
     essence: mc.essence ?? "chene",
     mcType: mc.type === "acier-plat" ? "acier" : mc.type === "acier-profile" ? "profil" : "bois",
-    rosace: true,
+    // Sans rosace (Ø0) : le centre des croix reste vide, le vide à contrôler est plus grand (rosaceR de l'outil).
+    rosace: e.rosaceMm !== 0,
     // Le jour sous le cadre : 90 mm, réduit (jamais sous 40) quand le garde-corps serait sinon trop bas (jourGC).
     jour: jourGC(e.allegeMm, seuls),
     // Le diamètre de la rosace choisie (la fleur de Ø100 par défaut).
-    rD: e.rosaceMm ?? 100,
+    rD: e.rosaceMm || 100,
     Hs: 0,
     Xo: 0,
     // Barreaux seuls (un des modèles au choix) : un cadre de barreaux verticaux, sans croix ni rosace ni traverse.

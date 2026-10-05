@@ -225,7 +225,7 @@ test("le prix du site est le prix de l'outil, plus les suppléments des options 
         assert.equal(avec.line.unitPrice, prixGC(c) + (metal.priceDelta ?? 0), `teinte ${metal.id}`);
       }
       const verre = gc.remplissages!.find((x) => x.sansCroix)!;
-      const sousVerre = ligneGC(r, { woodId: essence, ...MODELE, remplissageId: verre.id, fabricId: "medaillon" });
+      const sousVerre = ligneGC(r, { woodId: essence, ...MODELE, remplissageId: verre.id, fabricId: "fonte" });
       assert.ok(sousVerre.ok);
       assert.equal(sousVerre.line.unitPrice, prixGC(c) + supplementRemplissage(verre, r.largeurMm, c.hauteurMm), "le verre, et pas de rosace à payer");
     }
