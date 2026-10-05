@@ -278,7 +278,7 @@ export function ReleveGardeCorps({
   /** Le modèle hors norme dont le client veut voir le pourquoi (les ronds rouge et vert de l'outil de plans). */
   const [pourquoi, setPourquoi] = useState<string | null>(null);
   /** Les deux boutons du client : le barreaudage (aucun / en bas / sur toute la hauteur) et la traverse au milieu. */
-  const [filtre, setFiltre] = useState<{ barreaux: "aucun" | "bas" | "tout"; traverse: boolean }>({ barreaux: "aucun", traverse: false });
+  const [filtre, setFiltre] = useState<{ barreaux: "aucun" | "bas" | "seuls"; traverse: boolean }>({ barreaux: "aucun", traverse: false });
   /** « Du moins cher au plus cher » : tous les modèles aux normes, tous types confondus, par prix croissant. */
   const [parPrix, setParPrix] = useState(false);
 
@@ -316,6 +316,8 @@ export function ReleveGardeCorps({
   const texteManque = commence ? texteManqueGC(lecture, locale) : null;
   const nombre = (n: number) => n.toLocaleString(langue);
   const croixTexte = (n: number) => (n > 1 ? t.gcCroixPlusieurs.replace("{n}", String(n)) : t.gcCroixUne);
+  /** Ce que le garde-corps contient : ses croix, ou des barreaux verticaux seuls. */
+  const contenuTexte = (m: { croix: number; seuls: boolean }) => (m.seuls ? (fr ? "barreaux verticaux" : "vertical bars") : croixTexte(m.croix));
   const fr = locale === "fr";
   // Le catalogue : tous les dessins, chacun marqué « aux normes » ou non pour CETTE fenêtre. Pendant un
   // recalcul, ceux de la réponse précédente restent affichés, estompés (la bande se vidait à chaque touche).
@@ -330,16 +332,16 @@ export function ReleveGardeCorps({
   // ne doivent pas attendre). À défaut d'identifiant identique (la fenêtre a changé, le carré avec), le même DESSIN.
   const memeDessin = (m: ModeleGC) => {
     const l = lireModeleGC(m.id);
-    return voulu !== null && m.croix === voulu.croix && m.traverse === voulu.traverse && m.partout === voulu.partout && (l?.barreauxBas ?? false) === voulu.barreauxBas;
+    return voulu !== null && m.croix === voulu.croix && m.traverse === voulu.traverse && m.seuls === voulu.seuls && (l?.barreauxBas ?? false) === voulu.barreauxBas;
   };
   const choisi = voulu ? (modeles.find((m) => m.conforme && m.id === cotes.modele) ?? modeles.find((m) => m.conforme && memeDessin(m)) ?? null) : null;
   const nbConformes = modeles.filter((m) => m.conforme).length;
   // Les deux boutons du client choisissent une FAMILLE de modèles : barreaux (aucun / en bas / sur toute la hauteur) et
   // traverse. La rangée ne montre que cette famille ; le nombre de croix se choisit dans la rangée.
-  const familleDe = (m: ModeleGC) => ({ barreaux: m.partout ? "tout" : m.soubassementMm > 0 ? "bas" : "aucun", traverse: m.traverse }) as const;
+  const familleDe = (m: ModeleGC) => ({ barreaux: m.seuls ? "seuls" : m.soubassementMm > 0 ? "bas" : "aucun", traverse: m.traverse }) as const;
   // La norme impose des barreaux en bas (cadre sous 60 cm du sol) : aucun modèle sans eux n'existe pour cette fenêtre.
-  const barreauxImposes = modeles.length > 0 && !modeles.some((m) => !m.partout && m.soubassementMm === 0);
-  const famille: { barreaux: "aucun" | "bas" | "tout"; traverse: boolean } = choisi
+  const barreauxImposes = modeles.length > 0 && !modeles.some((m) => !m.seuls && m.soubassementMm === 0);
+  const famille: { barreaux: "aucun" | "bas" | "seuls"; traverse: boolean } = choisi
     ? familleDe(choisi)
     : { barreaux: barreauxImposes && filtre.barreaux === "aucun" ? "bas" : filtre.barreaux, traverse: filtre.traverse };
   const modelesFamille = modeles.filter((m) => {
@@ -355,22 +357,22 @@ export function ReleveGardeCorps({
   const explique = (pourquoi ? modeles.find((m) => m.id === pourquoi && !m.conforme) : null) ?? plusProche;
   /** Le modèle montré en grand sur le croquis, dès qu'on le touche : le choisi, ou celui qu'on explique. */
   const apercuModele: ModeleGC | null = explique ?? choisi;
-  const changerFamille = (barreaux: "aucun" | "bas" | "tout", traverse: boolean) => {
-    // « Toute la hauteur » et la traverse ne se combinent pas (comme dans l'outil) : l'un remplace l'autre.
-    const f = { barreaux, traverse: barreaux === "tout" ? false : traverse };
+  const changerFamille = (barreaux: "aucun" | "bas" | "seuls", traverse: boolean) => {
+    // Les barreaux seuls n'ont ni croix ni traverse (comme dans l'outil).
+    const f = { barreaux, traverse: barreaux === "seuls" ? false : traverse };
     setFiltre(f);
     setPourquoi(null);
     setPerdu(null);
-    // Le client avait choisi un modèle : on garde le même nombre de croix s'il est aux normes dans la nouvelle famille,
-    // sinon le plus proche ; s'il n'y en a aucun, le choix est retiré et la rangée explique pourquoi.
-    if (choisi) {
-      const cible = modeles.filter((m) => m.conforme && familleDe(m).barreaux === f.barreaux && m.traverse === f.traverse);
-      const proche = [...cible].sort((a, b) => Math.abs(a.croix - choisi.croix) - Math.abs(b.croix - choisi.croix) || a.croix - b.croix)[0];
-      onChange({ ...cotes, modele: proche ? proche.id : "" });
-    }
+    // Le garde-corps change tout de suite sur le croquis (règle de Quentin : « quand je clique, ça doit se voir ») : on garde le
+    // même nombre de croix s'il est aux normes dans la nouvelle famille, sinon le plus proche (celui du client, ou celui
+    // que le site proposait). Sans repère, le moins cher. S'il n'y en a aucun, le choix est retiré et la rangée explique pourquoi.
+    const cible = modeles.filter((m) => m.conforme && familleDe(m).barreaux === f.barreaux && m.traverse === f.traverse);
+    const repere = choisi ?? (dessin?.ok && !dessin.seuls ? dessin : null);
+    const proche = [...cible].sort((a, b) => (repere ? Math.abs(a.croix - repere.croix) - Math.abs(b.croix - repere.croix) : 0) || a.prix - b.prix || a.croix - b.croix)[0];
+    if (choisi || proche) onChange({ ...cotes, modele: proche ? proche.id : "" });
   };
-  const libelleModele = (m: { croix: number; soubassementMm: number; traverse: boolean }) =>
-    `${croixTexte(m.croix)}${m.traverse ? (fr ? ", traverse au milieu" : ", middle rail") : ""}${m.soubassementMm > 0 ? (fr ? ", barreaux en bas" : ", bars below") : ""}`;
+  const libelleModele = (m: { croix: number; soubassementMm: number; traverse: boolean; seuls?: boolean }) =>
+    m.seuls ? (fr ? "Barreaux seuls" : "Bars only") : `${croixTexte(m.croix)}${m.traverse ? (fr ? ", traverse au milieu" : ", middle rail") : ""}${m.soubassementMm > 0 ? (fr ? ", barreaux en bas" : ", bars below") : ""}`;
   const pastille = (ok: boolean) => (
     <span
       aria-hidden
@@ -420,8 +422,8 @@ export function ReleveGardeCorps({
       ? `Ce modèle + votre fenêtre : l'ensemble ne serait pas aux normes${mots ? ` (${mots})` : ""}`
       : `This model + your window: together they would not meet the standard${mots ? ` (${mots})` : ""}`;
   };
-  const libelleCourt = (m: { croix: number; soubassementMm: number; traverse: boolean }) =>
-    `${m.croix} ${fr ? "croix" : m.croix > 1 ? "crosses" : "cross"}${m.traverse ? (fr ? " + traverse" : " + rail") : ""}${m.soubassementMm > 0 ? (fr ? " + barreaux" : " + bars") : ""}`;
+  const libelleCourt = (m: { croix: number; soubassementMm: number; traverse: boolean; seuls?: boolean }) =>
+    m.seuls ? (fr ? "barreaux seuls" : "bars only") : `${m.croix} ${fr ? "croix" : m.croix > 1 ? "crosses" : "cross"}${m.traverse ? (fr ? " + traverse" : " + rail") : ""}${m.soubassementMm > 0 ? (fr ? " + barreaux" : " + bars") : ""}`;
   /** La phrase de la bande : ce qu'il faut faire, ou pourquoi le modèle de la photo ne va pas avec CETTE fenêtre. */
   const phraseModeles =
     modeles.length === 0
@@ -481,7 +483,7 @@ export function ReleveGardeCorps({
           options: [
             { v: "aucun", label: fr ? "Aucun" : "None", note: barreauxImposes ? (fr ? "Imposés par la norme ici : le bas du cadre est à moins de 60 cm du sol." : "Required by the standard here: the bottom of the frame is under 60 cm from the floor.") : "" },
             { v: "bas", label: fr ? "En bas" : "At the bottom", note: "" },
-            { v: "tout", label: fr ? "Partout" : "Everywhere", note: "" },
+            { v: "seuls", label: fr ? "Barreaux seuls" : "Bars only", note: "" },
           ],
           legende: barreauxImposes
             ? fr ? "Barreaux droits en bas : la norme les impose ici (bas du cadre à moins de 60 cm du sol)." : "Straight bars at the bottom: required here by the standard (frame under 60 cm from the floor)."
@@ -489,20 +491,22 @@ export function ReleveGardeCorps({
               ? fr ? "Des croix seules, sans barreaux." : "Crosses only, no bars."
               : famille.barreaux === "bas"
                 ? fr ? "Des barreaux droits en bas, sous les croix." : "Straight bars at the bottom, under the crosses."
-                : fr ? "Des barreaux sur toute la hauteur, en bas et dans chaque croix." : "Bars over the full height, at the bottom and in every cross.",
-          choisir: (v: string) => changerFamille(v as "aucun" | "bas" | "tout", famille.traverse),
+                : fr ? "Des barreaux verticaux, du haut au bas du cadre, sans croix." : "Vertical bars from the top to the bottom of the frame, no crosses.",
+          choisir: (v: string) => changerFamille(v as "aucun" | "bas" | "seuls", famille.traverse),
         },
         {
           titre: fr ? "Traverse au milieu" : "Middle rail",
           valeur: famille.traverse ? "avec" : "sans",
           options: [
             { v: "sans", label: fr ? "Sans" : "Without", note: "" },
-            { v: "avec", label: fr ? "Avec" : "With", note: "" },
+            { v: "avec", label: fr ? "Avec" : "With", note: famille.barreaux === "seuls" ? (fr ? "Pas de traverse avec des barreaux seuls." : "No middle rail with bars only.") : "" },
           ],
-          legende: famille.traverse
-            ? fr ? "Une barre horizontale au milieu de chaque croix." : "A horizontal bar across the middle of each cross."
-            : fr ? "Pas de barre horizontale : les croix restent ouvertes." : "No horizontal bar: the crosses stay open.",
-          choisir: (v: string) => changerFamille(famille.barreaux === "tout" && v === "avec" ? "bas" : famille.barreaux, v === "avec"),
+          legende: famille.barreaux === "seuls"
+            ? fr ? "Non proposée avec des barreaux seuls : il n'y a pas de croix." : "Not offered with bars only: there are no crosses."
+            : famille.traverse
+              ? fr ? "Une barre horizontale au milieu de chaque croix." : "A horizontal bar across the middle of each cross."
+              : fr ? "Pas de barre horizontale : les croix restent ouvertes." : "No horizontal bar: the crosses stay open.",
+          choisir: (v: string) => changerFamille(famille.barreaux, v === "avec"),
         },
       ].map((ligne) => (
         <div key={ligne.titre}>
@@ -616,17 +620,18 @@ export function ReleveGardeCorps({
                   hMaxMm={marque ? hMax : 520}
                   soubassementMm={m.soubassementMm}
                   traverse={m.traverse}
+                  seuls={m.seuls}
                   croix={m.croix}
                   trous={horsNorme ? m.trous : null}
                   hauteurPx={26}
                 />
                 <span className="mt-1 block text-[11px] font-semibold leading-tight text-[#2b2320]">
-                  {m.croix} {fr ? "croix" : m.croix > 1 ? "crosses" : "cross"}
+                  {m.seuls ? (fr ? "Barreaux" : "Bars") : `${m.croix} ${fr ? "croix" : m.croix > 1 ? "crosses" : "cross"}`}
                 </span>
                 {parPrixActif && (
                   <span className="block text-[9.5px] leading-tight text-[#6f6357]">
-                    {m.partout ? (fr ? "barreaux partout" : "bars everywhere") : m.traverse ? (fr ? "+ traverse" : "+ rail") : m.soubassementMm > 0 ? (fr ? "+ barreaux" : "+ bars") : fr ? "croix seules" : "crosses only"}
-                    {m.traverse && m.soubassementMm > 0 && !m.partout ? (fr ? " + barreaux" : " + bars") : ""}
+                    {m.seuls ? (fr ? "barreaux verticaux" : "vertical bars") : m.traverse ? (fr ? "+ traverse" : "+ rail") : m.soubassementMm > 0 ? (fr ? "+ barreaux" : "+ bars") : fr ? "croix seules" : "crosses only"}
+                    {m.traverse && m.soubassementMm > 0 && !m.seuls ? (fr ? " + barreaux" : " + bars") : ""}
                   </span>
                 )}
                 {marque && (
@@ -795,6 +800,7 @@ export function ReleveGardeCorps({
               soubassementMm={apercuModele ? apercuModele.soubassementMm : dessin?.ok ? dessin.soubassementMm : 0}
               traverse={apercuModele ? apercuModele.traverse : dessin?.ok ? dessin.traverse : false}
               renfort={apercuModele ? apercuModele.renfort : dessin?.ok ? dessin.renfort : false}
+              seuls={apercuModele ? apercuModele.seuls : dessin?.ok ? dessin.seuls : false}
               trous={explique?.trous ?? null}
               rosaceMm={rosaceMm}
               mainCouranteAcier={mainCourante === "acier" || mainCourante === "profil"}
@@ -1009,7 +1015,7 @@ export function ReleveGardeCorps({
                     : releve && dessin
                   ? [
                       t.gcResume.replace("{l}", nombre(releve.largeurMm)).replace("{h}", nombre(dessin.hauteurMm)),
-                      dessin.ok && !surVerre ? croixTexte(dessin.croix) : null,
+                      dessin.ok && !surVerre ? contenuTexte(dessin) : null,
                       conforme && !resultatSlot ? t.gcPrixCompris : null,
                     ]
                       .filter(Boolean)
@@ -1173,7 +1179,7 @@ export function ReleveGardeCorps({
               )}
               <p role="status" aria-live="polite" className="sr-only">
                 {releve && conforme
-                  ? `${releve.largeurMm} × ${conforme.hauteurMm} mm, ${croixTexte(conforme.croix)}. ${t.gcCalcule.replace("{m}", String(conforme.mainCouranteMm))} ${prixAffiche(conforme.prix, locale)}.`
+                  ? `${releve.largeurMm} × ${conforme.hauteurMm} mm, ${contenuTexte(conforme)}. ${t.gcCalcule.replace("{m}", String(conforme.mainCouranteMm))} ${prixAffiche(conforme.prix, locale)}.`
                   : reponse && !reponse.ok
                     ? reponse.raison === "barre-appui"
                       ? fr
@@ -1308,7 +1314,7 @@ const MODELES_VITRINE: ModeleGC[] = ([[false, false], [false, true], [true, fals
     soubassementMm: b ? 150 : 0,
     traverse: t,
     trous: null,
-    partout: false,
+    seuls: false,
     renfort: false,
     hauteurMm: b ? 520 : 350,
     prix: 0,
@@ -1322,7 +1328,7 @@ const MODELES_VITRINE: ModeleGC[] = ([[false, false], [false, true], [true, fals
  * le même cadre de vue (largeur de la fenêtre × hauteur du plus haut modèle) :
  * un garde-corps deux fois plus haut est dessiné deux fois plus haut.
  */
-function MiniGardeCorps({ largeurMm, hauteurMm, hMaxMm, soubassementMm, croix, traverse = false, trous = null, hauteurPx = 26 }: { largeurMm: number; hauteurMm: number; hMaxMm: number; soubassementMm: number; croix: number; traverse?: boolean; trous?: TrousGC | null; hauteurPx?: number }) {
+function MiniGardeCorps({ largeurMm, hauteurMm, hMaxMm, soubassementMm, croix, traverse = false, seuls = false, trous = null, hauteurPx = 26 }: { largeurMm: number; hauteurMm: number; hMaxMm: number; soubassementMm: number; croix: number; seuls?: boolean; traverse?: boolean; trous?: TrousGC | null; hauteurPx?: number }) {
   const L = largeurMm, H = Math.max(hMaxMm, hauteurMm);
   const y0 = H - hauteurMm, haut = y0 + 40, bas = H;
   const lisse = soubassementMm > 0 ? bas - soubassementMm : bas;
@@ -1337,8 +1343,13 @@ function MiniGardeCorps({ largeurMm, hauteurMm, hMaxMm, soubassementMm, croix, t
       <rect x="0" y={haut} width={L} height={bas - haut} {...trait} />
       {soubassementMm > 0 && <line x1="0" y1={lisse} x2={L} y2={lisse} {...trait} />}
       {/* La traverse au milieu des croix : un trait horizontal, d'un montant à l'autre. */}
-      {traverse && <line x1="0" y1={(haut + lisse) / 2} x2={L} y2={(haut + lisse) / 2} strokeWidth="1" {...trait} />}
-      {Array.from({ length: croix }, (_, i) => {
+      {traverse && !seuls && <line x1="0" y1={(haut + lisse) / 2} x2={L} y2={(haut + lisse) / 2} strokeWidth="1" {...trait} />}
+      {seuls &&
+        Array.from({ length: nb - 1 }, (_, i) => {
+          const x = ((i + 1) * L) / nb;
+          return <line key={`s${i}`} x1={x} y1={haut} x2={x} y2={bas} strokeWidth="0.9" {...trait} />;
+        })}
+      {!seuls && Array.from({ length: croix }, (_, i) => {
         const x0 = i * pas, x1 = x0 + pas;
         return (
           <g key={i}>

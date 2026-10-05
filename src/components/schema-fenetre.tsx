@@ -243,6 +243,7 @@ export function SchemaFenetre({
   soubassementMm = 0,
   traverse = false,
   renfort = false,
+  seuls = false,
   trous = null,
   mainCouranteAcier = false,
   rosaceMm,
@@ -275,6 +276,8 @@ export function SchemaFenetre({
   soubassementMm?: number;
   /** Une traverse au milieu de chaque croix. */
   traverse?: boolean;
+  /** Des barreaux verticaux et rien d'autre : ni croix, ni rosace, ni traverse. */
+  seuls?: boolean;
   /** Fenêtre large : un fer plat de 10 mm sous une main courante de 45 mm (au lieu de 40 mm). */
   renfort?: boolean;
   /** Le rond rouge (vide trop grand) et les ronds verts de l'outil de plans, posés dans le cadre du modèle montré. */
@@ -346,6 +349,8 @@ export function SchemaFenetre({
   const soubassement = soubassementMm > 0 ? Math.min(r(soubassementMm * echelle), (cadreBas - cadreHaut) / 2) : 0;
   const basCroix = r(cadreBas - soubassement);
   const barreaux = soubassement > 0 ? Math.max(2, Math.round(L / 116)) : 0;
+  /** Barreaux seuls : un barreau tous les 116 mm environ (vide de 100 mm, carré de 16), sur toute la hauteur du cadre. */
+  const barreauxSeuls = seuls ? Math.max(2, Math.round(L / 116)) : 0;
   const milieu = r((G + D) / 2);
 
   // Les pastilles ② et ③ se suivent sur la même verticale : quand une des
@@ -431,7 +436,16 @@ export function SchemaFenetre({
             })}
           </g>
         )}
-        {remplissage === "croix" && Array.from({ length: panneaux }, (_, i) => {
+        {remplissage === "croix" && seuls && (
+          /* Des barreaux verticaux, du haut au bas du cadre : rien à quoi poser le pied. */
+          <g stroke={ACIER} strokeWidth={barre}>
+            {Array.from({ length: barreauxSeuls }, (_, i) => {
+              const x = r(G + 2 + ((D - G - 4) * (i + 1)) / (barreauxSeuls + 1));
+              return <line key={i} x1={x} y1={cadreHaut} x2={x} y2={cadreBas} />;
+            })}
+          </g>
+        )}
+        {remplissage === "croix" && !seuls && Array.from({ length: panneaux }, (_, i) => {
           const x0 = r(G + 2 + ((D - G - 4) * i) / panneaux);
           const x1 = r(G + 2 + ((D - G - 4) * (i + 1)) / panneaux);
           return (

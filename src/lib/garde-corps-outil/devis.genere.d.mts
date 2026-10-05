@@ -31,7 +31,7 @@ export declare function composerDevisGC(p: {
 }): { ok: true; devis: DevisGC } | { ok: false; raison: string };
 export declare function dsDevisHtml(devis: DevisGC): string;
 export declare function dsPrix(euros: number): string;
-export declare const DS_GC: Readonly<{ nom: string; delai: string; teinte: string; rosace: string; parts: Readonly<Record<string, number>>; photo: string }>;
+export declare const DS_GC: Readonly<{ nom: string; nomSansRosace: string; nomBarreaux: string; delai: string; teinte: string; rosace: string; parts: Readonly<Record<string, number>>; photo: string }>;
 export declare const DS_VALIDITE_JOURS: number;
 export declare const EMPREINTE: string;
 export declare const EMPREINTE_SOURCE: string;

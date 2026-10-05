@@ -939,6 +939,8 @@ export function ProductOptions({
   const reponseGC = prixGC.statut === "pret" ? prixGC.reponse : null;
   /** La forme retenue et son prix : seulement quand l'outil dit oui (sinon « à étudier »). */
   const configGC = reponseGC?.ok ? reponseGC : null;
+  /** Barreaux seuls : pas de croix, donc pas de rosace à choisir ni à payer. */
+  const sansRosaceGC = configGC?.seuls === true;
   const cotesEff: { largeurMm: number; hauteurMm: number; epaisseurMm?: number } | null = estGC
     ? configGC && releveGC
       ? { largeurMm: releveGC.largeurMm, hauteurMm: configGC.hauteurMm }
@@ -1014,7 +1016,7 @@ export function ProductOptions({
             remplissage?.sansCroix ? null : configGC.croix,
             locale,
             // Le même libellé que celui du serveur (panier, commande) : la traverse, les barreaux, le carré.
-            { soubassement: configGC.soubassementMm > 0, carre: configGC.carre, traverse: configGC.traverse, renfort: configGC.renfort, partout: configGC.partout },
+            { soubassement: configGC.soubassementMm > 0, carre: configGC.carre, traverse: configGC.traverse, renfort: configGC.renfort, seuls: configGC.seuls },
           ),
         }
       : null
@@ -1115,7 +1117,7 @@ export function ProductOptions({
     wood?.label,
     metal?.label,
     // Sous le verre, plus de croix ni de rosace.
-    remplissage?.sansCroix ? null : fabric?.label,
+    remplissage?.sansCroix || sansRosaceGC ? null : fabric?.label,
     remplissage && remplissage !== remplissageModele ? remplissage.label : null,
   ]
     .filter(Boolean)
@@ -1925,7 +1927,7 @@ export function ProductOptions({
               {product.fabrics &&
                 product.fabrics.length > 0 &&
                 product.fabricLabel &&
-                !sansRosace && (
+                !sansRosace && !sansRosaceGC && (
                   <SwatchGroup
                     label={product.fabricLabel[locale]}
                     options={product.fabrics}
@@ -1973,7 +1975,7 @@ export function ProductOptions({
             <div className="mb-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 rounded-2xl bg-white/55 px-3 py-1.5">
               {product.metals.length > 0 && ligneMatieres(locale === "fr" ? "Acier" : "Steel", product.metals, metalId, setMetalId, false)}
               {product.woods.length > 0 && ligneMatieres(locale === "fr" ? "Main courante" : "Handrail", woodsAffiches, woodId, setWoodId, orderable && product.woods.some((bois) => bois.priceDelta))}
-              {product.fabrics && product.fabrics.length > 0 && product.fabricLabel && !sansRosace &&
+              {product.fabrics && product.fabrics.length > 0 && product.fabricLabel && !sansRosace && !sansRosaceGC &&
                 ligneMatieres(locale === "fr" ? "Rosace" : "Rosette", product.fabrics, fabricId, setFabricId, product.fabrics.some((rosace) => rosace.priceDelta))}
             </div>
           );

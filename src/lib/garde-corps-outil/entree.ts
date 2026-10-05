@@ -19,6 +19,8 @@ export type EntreeSiteGC = ReleveGC & {
 
 /** Avec le fer plat de renfort, l'atelier garde son carré de 16 (décision de Quentin, 04/10/2026). */
 export const CARRE_RENFORT = 16;
+/** Barreaux seuls : la charge verticale dépend du carré, le fer plat de renfort se pose donc aussi sur un carré de 18 ou de 20. */
+export const CARRES_RENFORT_SEULS = [16, 18, 20] as const;
 
 /**
  * Décision de Quentin (29/09) : le carré de 16 d'abord, avec le moins de
@@ -37,8 +39,6 @@ export const ORDRE_CARRES = [16, 12, 14, 18, 20] as const;
 export const CROIX_MAX = 12;
 /** Au catalogue : de 1 à 6 croix toujours ; au-delà, seulement les modèles aux normes. */
 export const CROIX_CATALOGUE = 6;
-/** « Barreaux sur toute la hauteur » : le plus petit nombre de barreaux par croix qui passe la norme, de 1 à 4. */
-export const NB_BARREAUX_MAX = 4;
 
 /**
  * Les réglages de l'outil pour ce relevé : ses valeurs par défaut (celles de
@@ -46,7 +46,7 @@ export const NB_BARREAUX_MAX = 4;
  * avec rosaces, main courante en bois, hauteur calculée pour la norme, rien
  * sous la fenêtre, barreaux en bas seulement si la norme les demande).
  */
-export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: number, nP: number, barreauxBas = false, traverse = false, renfort = false, nb = 0) {
+export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: number, nP: number, barreauxBas = false, traverse = false, renfort = false, seuls = false) {
   return {
     ...defauts,
     B: e.largeurMm,
@@ -59,12 +59,13 @@ export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: numb
     rosace: true,
     Hs: 0,
     Xo: 0,
-    // Des barreaux verticaux dans chaque croix (« sur toute la hauteur » : l'option « nb » de l'outil).
-    nb,
+    // Barreaux seuls (un des modèles au choix) : un cadre de barreaux verticaux, sans croix ni rosace ni traverse.
+    seuls,
+    nb: 0,
     // « toujours » : des barreaux droits en bas même quand la norme ne les impose pas (un des modèles au choix).
-    sbMode: barreauxBas || nb > 0 ? "toujours" : "auto",
+    sbMode: barreauxBas && !seuls ? "toujours" : "auto",
     // Une traverse au milieu de chaque croix (un des modèles au choix) : elle coupe les vides en deux.
-    traverse,
+    traverse: traverse && !seuls,
     // Fenêtre large : un fer plat soudé sur la lisse haute, caché sous une main courante plus large. Le site ne
     // l'ajoute que lorsqu'aucun carré de l'atelier n'est assez rigide seul (calcul.ts).
     renfort: renfort ? "plat" : "sans",

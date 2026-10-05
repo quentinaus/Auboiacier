@@ -93,22 +93,22 @@ export type ReleveGC = {
 
 /**
  * Un modèle : la section du carré (12 à 20), un tiret, le nombre de croix (1 à 12) ; puis « -b » (barreaux droits
- * en bas) ou « -v » (barreaux sur toute la hauteur : en bas ET dans chaque croix), et « -t » (une traverse au milieu de chaque croix : la solution de l'outil quand le vide entre les
+ * en bas) ou « -s » (barreaux seuls : des barreaux verticaux et rien d'autre, toujours « 1 » croix dans l'identifiant), et « -t » (une traverse au milieu de chaque croix : la solution de l'outil quand le vide entre les
  * barres est trop grand).
  */
-const MODELE_GC = /^(12|14|16|18|20)-(1[0-2]|[1-9])(-b|-v)?(-t)?$/;
+const MODELE_GC = /^(12|14|16|18|20)-(1[0-2]|[1-9])(-b|-s)?(-t)?$/;
 
 /** Lit « 16-3 », « 16-2-t », « 16-5-b-t » ; null si ce n'est pas un modèle. */
-export function lireModeleGC(m: unknown): { carre: number; croix: number; barreauxBas: boolean; partout: boolean; traverse: boolean } | null {
+export function lireModeleGC(m: unknown): { carre: number; croix: number; barreauxBas: boolean; seuls: boolean; traverse: boolean } | null {
   const r = typeof m === "string" ? MODELE_GC.exec(m) : null;
-  // « -v » : des barreaux sur toute la hauteur (en bas ET dans chaque croix). Pas avec une traverse (trop chargé : l'outil ne le fait pas).
-  if (!r || (r[3] === "-v" && r[4] !== undefined)) return null;
-  return { carre: Number(r[1]), croix: Number(r[2]), barreauxBas: r[3] !== undefined, partout: r[3] === "-v", traverse: r[4] !== undefined };
+  // « -s » : des barreaux seuls, sans croix ni traverse (« 16-1-s » : un seul identifiant, pas de doublons).
+  if (!r || (r[3] === "-s" && (r[4] !== undefined || r[2] !== "1"))) return null;
+  return { carre: Number(r[1]), croix: Number(r[2]), barreauxBas: r[3] === "-b", seuls: r[3] === "-s", traverse: r[4] !== undefined };
 }
 
 /** L'identifiant d'un dessin (le carré est indicatif : le serveur le choisit). */
-export function idModeleGC(carre: number, croix: number, barreauxBas: boolean, traverse: boolean, partout = false): string {
-  return `${carre}-${croix}${partout ? "-v" : barreauxBas ? "-b" : ""}${traverse ? "-t" : ""}`;
+export function idModeleGC(carre: number, croix: number, barreauxBas: boolean, traverse: boolean, seuls = false): string {
+  return `${carre}-${croix}${seuls ? "-s" : barreauxBas ? "-b" : ""}${traverse ? "-t" : ""}`;
 }
 
 /** Pourquoi le serveur ne donne pas de prix pour un relevé. */
@@ -159,7 +159,7 @@ export type ModeleGC = {
   /** Une traverse au milieu de chaque croix. */
   traverse: boolean;
   /** Des barreaux sur toute la hauteur (en bas et dans chaque croix) ; sinon false. */
-  partout: boolean;
+  seuls: boolean;
   /** Les vides de ce dessin avec CETTE fenêtre, quand l'un est trop grand (modèle hors norme) ; sinon null. */
   trous: TrousGC | null;
   /**
@@ -231,7 +231,7 @@ export type ReponsePrixGC =
       /** Une traverse au milieu de chaque croix. */
       traverse: boolean;
       /** Des barreaux sur toute la hauteur (en bas et dans chaque croix). */
-      partout: boolean;
+      seuls: boolean;
       /** Fenêtre large : un fer plat caché sous la main courante raidit la lisse haute. */
       renfort: boolean;
       /** Poids d'une pièce, arrondi au kilo. */
@@ -337,14 +337,14 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
     if (!lu || x.croix !== lu.croix || x.carre !== lu.carre || typeof x.conforme !== "boolean") return null;
     if (!entier(x.soubassementMm) || !entier(x.hauteurMm, 1) || !entier(x.prix, x.conforme ? 1 : 0) || !entier(x.kg)) return null;
     const raisons = Array.isArray(x.raisons) ? x.raisons.filter((a): a is CodeAlerteGC => CODES.includes(a as CodeAlerteGC)) : [];
-    if (x.traverse !== lu.traverse || x.partout !== lu.partout) return null;
+    if (x.traverse !== lu.traverse || x.seuls !== lu.seuls) return null;
     const trous = lireTrousGC(x.trous);
     if (trous === undefined) return null;
-    modeles.push({ id: x.id as string, conforme: x.conforme, raisons, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, traverse: lu.traverse, partout: lu.partout, trous, renfort: x.renfort === true, hauteurMm: x.hauteurMm as number, prix: x.prix as number, kg: x.kg as number });
+    modeles.push({ id: x.id as string, conforme: x.conforme, raisons, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, traverse: lu.traverse, seuls: lu.seuls, trous, renfort: x.renfort === true, hauteurMm: x.hauteurMm as number, prix: x.prix as number, kg: x.kg as number });
   }
   if (o.ok === true && o.conforme === true) {
     if (!entier(o.prix, 1) || !(typeof o.remise === "number" && Number.isInteger(o.remise) && o.remise <= 0)) return null;
-    if (!entier(o.croix, 1) || !entier(o.carre, 1) || !entier(o.soubassementMm) || !entier(o.kg) || typeof o.traverse !== "boolean" || typeof o.partout !== "boolean") return null;
+    if (!entier(o.croix, 1) || !entier(o.carre, 1) || !entier(o.soubassementMm) || !entier(o.kg) || typeof o.traverse !== "boolean" || typeof o.seuls !== "boolean") return null;
     return {
       ok: true,
       conforme: true,
@@ -354,7 +354,7 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
       carre: o.carre as number,
       soubassementMm: o.soubassementMm as number,
       traverse: o.traverse,
-      partout: o.partout,
+      seuls: o.seuls,
       renfort: o.renfort === true,
       kg: o.kg as number,
       modeles,

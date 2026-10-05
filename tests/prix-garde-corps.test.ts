@@ -28,7 +28,7 @@ import {
   type ConfigGC,
 } from "../src/lib/garde-corps-outil/calcul.ts";
 import { ligneGC, lireRequetePrixGC, PARAMETRES_PRIX_GC, reponsePrixGC, type RequetePrixGC } from "../src/lib/garde-corps-outil/site.ts";
-import { CARRE_RENFORT, CROIX_MAX, ESSENCES_GC, ORDRE_CARRES, valeursGC, type EntreeSiteGC } from "../src/lib/garde-corps-outil/entree.ts";
+import { CARRE_RENFORT, CARRES_RENFORT_SEULS, CROIX_MAX, ESSENCES_GC, ORDRE_CARRES, valeursGC, type EntreeSiteGC } from "../src/lib/garde-corps-outil/entree.ts";
 import { tarifLivraison, tarifPose } from "../src/lib/deplacement.ts";
 
 /** Les nombres de croix essayés dans les tests d'indépendance (1 à 12 en entier prendrait plus d'une minute). */
@@ -208,12 +208,14 @@ test("fenêtre large : le fer plat est le même pour tous les dessins, ne se cho
   assert.ok(conformes.length >= 3);
   for (const m of conformes) {
     assert.equal(m.renfort, true, `${m.id} : sur cette largeur, tous les modèles vendus ont le fer plat`);
-    assert.equal(m.carre, CARRE_RENFORT);
+    // (Les barreaux seuls peuvent demander un carré de 18 ou de 20 : leur charge verticale dépend du carré.)
+    if (m.seuls) assert.ok((CARRES_RENFORT_SEULS as readonly number[]).includes(m.carre), `${m.id} : carré ${m.carre}`);
+    else assert.equal(m.carre, CARRE_RENFORT);
     // Un identifiant forgé dans un autre carré : le même garde-corps, au même prix (le carré reste celui de l'atelier).
     for (const s of ORDRE_CARRES) {
       const forge = reponsePrixGC({ ...q, releve: { ...large, modele: m.id.replace(/^\d+/, String(s)) } });
       assert.ok(forge && forge.ok, `${s} : ${m.id}`);
-      assert.deepEqual([forge.carre, forge.renfort, forge.prix], [CARRE_RENFORT, true, m.prix]);
+      assert.deepEqual([forge.carre, forge.renfort, forge.prix], [m.carre, true, m.prix]);
     }
   }
   for (const m of r.modeles.filter((x) => !x.conforme)) {
@@ -422,7 +424,7 @@ test("réponse de /api/prix-garde-corps : le prix et la forme, rien d'autre", ()
   chiffrageOuEchec();
   const ok = reponsePrixGC(requete({ largeurMm: 1180 }));
   assert.ok(ok);
-  assert.deepEqual(Object.keys(ok).sort(), ["carre", "conforme", "croix", "hauteurMm", "jourMm", "kg", "mainCouranteMm", "modeles", "obligatoire", "ok", "partout", "prix", "remise", "renfort", "soubassementMm", "traverse"]);
+  assert.deepEqual(Object.keys(ok).sort(), ["carre", "conforme", "croix", "hauteurMm", "jourMm", "kg", "mainCouranteMm", "modeles", "obligatoire", "ok", "prix", "remise", "renfort", "seuls", "soubassementMm", "traverse"]);
   const non = reponsePrixGC(requete({ largeurMm: BORNES_GC.B.max }));
   assert.ok(non);
   assert.deepEqual(Object.keys(non).sort(), ["alertes", "conforme", "hauteurMm", "jourMm", "mainCouranteMm", "modeles", "obligatoire", "ok", "raison"]);
@@ -464,7 +466,7 @@ test("catalogue des modèles : tous montrés, seuls les conformes ont un prix, u
   const r = reponsePrixGC(q);
   assert.ok(r && r.ok, "ce relevé a un prix");
   assert.ok(r.modeles.length >= 12 && r.modeles.length <= 48, "le catalogue entier est envoyé");
-  assert.deepEqual(Object.keys(r.modeles[0]).sort(), ["carre", "conforme", "croix", "hauteurMm", "id", "kg", "partout", "prix", "raisons", "renfort", "soubassementMm", "traverse", "trous"]);
+  assert.deepEqual(Object.keys(r.modeles[0]).sort(), ["carre", "conforme", "croix", "hauteurMm", "id", "kg", "prix", "raisons", "renfort", "seuls", "soubassementMm", "traverse", "trous"]);
   // Les quatre familles : croix seules, traverse au milieu, barreaux en bas, les deux.
   assert.ok(r.modeles.some((m) => m.traverse) && r.modeles.some((m) => !m.traverse));
   const conformes = r.modeles.filter((m) => m.conforme), hors = r.modeles.filter((m) => !m.conforme);
@@ -519,7 +521,7 @@ test("modèles hors norme : le rond rouge et les ronds verts de l'outil accompag
     for (const x of t.ronds) assert.ok(x.x - x.d / 2 >= -1 && x.x + x.d / 2 <= t.cadreMm.l + 1 && x.y - x.d / 2 >= -1 && x.y + x.d / 2 <= t.cadreMm.h + 1, `${m.id} : rond dans le cadre ${JSON.stringify(x)}`);
   }
   // Plus de croix : le plus grand vide diminue (c'est ce que le client doit comprendre).
-  const seules = refuses.filter((m) => !m.traverse && !m.partout && m.soubassementMm > 0 === refuses[0].soubassementMm > 0 && m.trous).sort((a, b) => a.croix - b.croix);
+  const seules = refuses.filter((m) => !m.traverse && !m.seuls && m.soubassementMm > 0 === refuses[0].soubassementMm > 0 && m.trous).sort((a, b) => a.croix - b.croix);
   for (let i = 1; i < seules.length; i++) assert.ok(seules[i].trous!.plusGrandMm <= seules[i - 1].trous!.plusGrandMm, "plus de croix, vide plus petit");
   // Et la réponse se relit côté navigateur, ronds compris ; un format truqué est refusé.
   const relu = lireReponsePrixGC(JSON.parse(JSON.stringify(r)));
@@ -547,7 +549,7 @@ test("le modèle choisi ne saute pas quand une cote fait changer de carré : c'e
       for (let largeurMm = 700; largeurMm <= 1700; largeurMm += 100) {
         const releve = { largeurMm, allegeMm, enEtage: true, fenetreMm: 0 };
         const catalogue = reponsePrixGC({ releve, essence: "chene", quantite: 1 })!.modeles;
-        const propose = catalogue.find((m) => m.conforme && m.croix === choisi.croix && m.traverse === choisi.traverse && m.partout === choisi.partout && m.soubassementMm > 0 === choisi.soubassementMm > 0);
+        const propose = catalogue.find((m) => m.conforme && m.croix === choisi.croix && m.traverse === choisi.traverse && m.seuls === choisi.seuls && m.soubassementMm > 0 === choisi.soubassementMm > 0);
         const r = reponsePrixGC({ releve: { ...releve, modele: choisi.id }, essence: "chene", quantite: 1 });
         assert.ok(r);
         if (propose && (propose.id.includes("-b") === choisi.id.includes("-b") || propose.soubassementMm > 0)) {
@@ -571,10 +573,11 @@ test("le libellé de la commande dit ce qui est vendu : barreaux en bas, section
     const l = ligneGC({ ...releve, modele: m.id }, { woodId: "chene" });
     assert.ok(l.ok);
     const libelle = l.line.size.label;
-    assert.match(libelle, new RegExp(`${m.croix} croix`));
+    if (m.seuls) assert.equal(libelle.includes("croix"), false, libelle);
+    else assert.match(libelle, new RegExp(`${m.croix} croix`));
     assert.match(libelle, new RegExp(`acier carré de ${m.carre}$`));
-    assert.equal(libelle.includes("barreaux en bas"), m.soubassementMm > 0 && !m.partout, libelle);
-    assert.equal(libelle.includes("barreaux sur toute la hauteur"), m.partout, libelle);
+    assert.equal(libelle.includes("barreaux en bas"), m.soubassementMm > 0 && !m.seuls, libelle);
+    assert.equal(libelle.includes("barreaux seuls"), m.seuls, libelle);
     assert.equal(libelle.includes("traverse au milieu"), m.traverse, libelle);
     // Deux modèles différents ne portent jamais le même libellé (l'atelier ne les distinguait que par le prix).
     assert.equal(libelles.has(libelle), false, libelle);
@@ -687,7 +690,7 @@ test("des barreaux en bas impossibles (garde-corps trop bas) : la bonne raison, 
   const r = reponsePrixGC({ releve: fenetre, essence: "chene", quantite: 1 });
   assert.ok(r && r.ok);
   assert.ok(!r.modeles.some((m) => m.id.includes("-b")), "aucun dessin « barreaux en bas » : l'outil ne peut pas les dessiner ici");
-  const cles = r.modeles.map((m) => `${m.croix}|${m.soubassementMm > 0}|${m.traverse}|${m.partout}`);
+  const cles = r.modeles.map((m) => `${m.croix}|${m.soubassementMm > 0}|${m.traverse}|${m.seuls}`);
   assert.equal(new Set(cles).size, cles.length, "chaque dessin une seule fois");
   assert.equal(new Set(r.modeles.map((m) => m.id)).size, r.modeles.length);
 });

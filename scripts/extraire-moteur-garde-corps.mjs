@@ -234,7 +234,7 @@ export type ValeursGC = {
   B: number; A: number; Hs: number; Hf: number; Xo: number; jour: number; j: number; s: number; nP: number; nb: number;
   sbMode: string; ass: string; rosace: boolean; etage: boolean; mc: number; epMc: number; mcType: string; essence: string;
   rainure: boolean; rnP: number; rnJ: number; dF: number; fF: number; eF: number; nF: number; trait: number;
-  debitAr: number; minSoud: number; remise: string; km: number; prixVente: number; traverse: boolean; renfort: string; _rapide?: boolean;
+  debitAr: number; minSoud: number; remise: string; km: number; prixVente: number; traverse: boolean; renfort: string; seuls?: boolean; _rapide?: boolean;
   [autre: string]: unknown;
 };
 export type LigneDebitGC = { nom: string; qte: number; mat: string; long: number; coupes: string; note: string; dessin?: unknown };
@@ -310,7 +310,7 @@ export declare function composerDevisGC(p: {
 }): { ok: true; devis: DevisGC } | { ok: false; raison: string };
 export declare function dsDevisHtml(devis: DevisGC): string;
 export declare function dsPrix(euros: number): string;
-export declare const DS_GC: Readonly<{ nom: string; delai: string; teinte: string; rosace: string; parts: Readonly<Record<string, number>>; photo: string }>;
+export declare const DS_GC: Readonly<{ nom: string; nomSansRosace: string; nomBarreaux: string; delai: string; teinte: string; rosace: string; parts: Readonly<Record<string, number>>; photo: string }>;
 export declare const DS_VALIDITE_JOURS: number;
 export declare const EMPREINTE: string;
 export declare const EMPREINTE_SOURCE: string;
@@ -461,6 +461,13 @@ function comparerAvecOutil(M, D, CH) {
     { nom: "renfort pas nécessaire, noyer", valeurs: { B: 1180, A: 650, nP: 4, renfort: "plat", essence: "noyer" } },
     { nom: "renfort demandé avec un plat d'acier", valeurs: { B: 1900, A: 600, nP: 5, renfort: "plat", mcType: "acier" } },
     { nom: "renfort, pin, transporteur", valeurs: { B: 2200, A: 300, nP: 6, renfort: "plat", essence: "pin", remise: "transporteur", km: 180 }, chantier: "75011 Paris", lire: true },
+    // Les barreaux seuls (des barreaux verticaux, sans croix ni rosace) : ajoutés APRÈS les autres cas.
+    { nom: "barreaux seuls, 1180 × 650", valeurs: { B: 1180, A: 650, seuls: true }, lire: true },
+    { nom: "barreaux seuls, bas de fenêtre bas (escalade)", valeurs: { B: 1180, A: 300, seuls: true } },
+    { nom: "barreaux seuls, 700 de large, acier", valeurs: { B: 700, A: 500, seuls: true, mcType: "acier" }, lire: true },
+    { nom: "barreaux seuls, large : carré de 20", valeurs: { B: 1990, A: 650, seuls: true, s: 20 }, lire: true },
+    { nom: "barreaux seuls, renfort, noyer", valeurs: { B: 2200, A: 400, seuls: true, renfort: "plat", essence: "noyer" } },
+    { nom: "barreaux seuls, trop souple", valeurs: { B: 2400, A: 300, seuls: true } },
   );
   let variantes = 0;
   const casRef = [];

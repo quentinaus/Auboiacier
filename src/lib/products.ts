@@ -2465,7 +2465,7 @@ export type ResolvedLine = {
     /** Une traverse au milieu de chaque croix. */
     traverse: boolean;
     /** Des barreaux sur toute la hauteur (en bas et dans chaque croix). */
-    partout: boolean;
+    seuls: boolean;
     /** Fenêtre large : un fer plat caché sous la main courante raidit la lisse haute. */
     renfort: boolean;
     /** Le poids d'une pièce : celui de l'outil, plus le verre s'il remplace les croix. */
@@ -2941,7 +2941,7 @@ export type ReponseReleve =
       /** Une traverse au milieu de chaque croix. */
       traverse: boolean;
       /** Des barreaux sur toute la hauteur (en bas et dans chaque croix). */
-      partout: boolean;
+      seuls: boolean;
       /** Fenêtre large : un fer plat caché sous la main courante raidit la lisse haute. */
       renfort: boolean;
       /** Le poids d'une pièce, en kilos (celui de l'outil). */
@@ -2965,7 +2965,7 @@ export function libelleGardeCorps(
   hauteurMm: number,
   croix: number | null,
   locale: Locale = "fr",
-  modele: { soubassement?: boolean; carre?: number; traverse?: boolean; renfort?: boolean; partout?: boolean } = {}
+  modele: { soubassement?: boolean; carre?: number; traverse?: boolean; renfort?: boolean; seuls?: boolean } = {}
 ) {
   const langue = locale === "en" ? "en-GB" : "fr-FR";
   const cotes = `${largeurMm.toLocaleString(langue)} × ${hauteurMm.toLocaleString(langue)} mm`;
@@ -2974,10 +2974,10 @@ export function libelleGardeCorps(
   if (croix === null) return `${prefixe} — ${cotes}${renfort}`;
   const mot = locale === "en" ? (croix > 1 ? "crosses" : "cross") : "croix";
   const traverse = modele.traverse ? (locale === "en" ? ", middle rail" : ", traverse au milieu") : "";
-  const barreaux = modele.partout
-    ? locale === "en" ? ", bars across the whole height" : ", barreaux sur toute la hauteur"
-    : modele.soubassement ? (locale === "en" ? ", bars below" : ", barreaux en bas") : "";
+  const barreaux = modele.soubassement && !modele.seuls ? (locale === "en" ? ", bars below" : ", barreaux en bas") : "";
   const carre = modele.carre ? (locale === "en" ? `, ${modele.carre} mm square bar` : `, acier carré de ${modele.carre}`) : "";
+  // Barreaux seuls : des barreaux verticaux et rien d'autre, aucune croix à compter.
+  if (modele.seuls) return `${prefixe} — ${cotes}, ${locale === "en" ? "vertical bars only" : "barreaux seuls"}${carre}${renfort}`;
   return `${prefixe} — ${cotes}, ${croix} ${mot}${traverse}${barreaux}${carre}${renfort}`;
 }
 
@@ -3019,12 +3019,14 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
 
   const verre = remplissage.value?.sansCroix === true;
   const supplementVerre = verre && remplissage.value ? supplementRemplissage(remplissage.value, largeurMm, r.hauteurMm) : 0;
-  const unitPrice = r.prix + (metal.value?.priceDelta ?? 0) + (fabric.value?.priceDelta ?? 0) + supplementVerre;
+  // Sans croix (verre, barreaux seuls) il n'y a pas de rosace : son supplément ne s'applique pas.
+  const sansRosace = verre || r.seuls;
+  const unitPrice = r.prix + (metal.value?.priceDelta ?? 0) + (sansRosace ? 0 : fabric.value?.priceDelta ?? 0) + supplementVerre;
   if (!Number.isInteger(unitPrice) || unitPrice <= 0) return { ok: false, reason: "invalid_price" };
 
   const size: ProductSize = {
     id: SUR_MESURE,
-    label: libelleGardeCorps(largeurMm, r.hauteurMm, verre ? null : r.croix, selection.locale, { soubassement: r.soubassement, carre: r.carre, traverse: r.traverse, renfort: r.renfort, partout: r.partout }),
+    label: libelleGardeCorps(largeurMm, r.hauteurMm, verre ? null : r.croix, selection.locale, { soubassement: r.soubassement, carre: r.carre, traverse: r.traverse, renfort: r.renfort, seuls: r.seuls }),
     price: r.prix,
     dimsMm: [largeurMm, r.hauteurMm],
   };
@@ -3032,7 +3034,7 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
     size.label,
     wood.value.label,
     metal.value?.label,
-    verre ? null : fabric.value?.label,
+    sansRosace ? null : fabric.value?.label,
     remplissage.value && remplissage.value !== product.remplissages?.[0] ? remplissage.value.label : null,
   ]
     .filter(Boolean)
@@ -3057,7 +3059,7 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
         carre: r.carre,
         soubassement: r.soubassement,
         traverse: r.traverse,
-        partout: r.partout,
+        seuls: r.seuls,
         renfort: r.renfort,
         kg: r.kg + (verre ? ((largeurMm * r.hauteurMm) / 1e6) * VERRE_KG_PAR_M2 : 0),
       },

@@ -1,12 +1,12 @@
 {
  "à lire": "Généré par scripts/extraire-moteur-garde-corps.mjs à partir de l'outil de plans (chargé tel quel dans node:vm). Aucun coût : des prix de vente, des poids, des hauteurs et des empreintes (sha256 tronqué) des réponses complètes. Ne pas modifier à la main.",
- "outil": "62e1f7aec8d98b72684a3cbaa2a8afd7530428877ae393c529e117c1a83c7f05",
+ "outil": "8609b3d4bdd55f735344e258a09f034f85d646a1ed6848f3743f94ee6d6386a7",
  "empreintes": {
-  "moteur": "02686a4c5478",
-  "devis": "a4fad8b30a81",
-  "chiffrage": "c19a9dfe21fc"
+  "moteur": "783195bbcb14",
+  "devis": "ddade35859eb",
+  "chiffrage": "95e17d318e21"
  },
- "defauts": "1689a0fa55c07397",
+ "defauts": "8dbeace0d411c893",
  "date": "2026-09-29T10:00:00.000Z",
  "cas": [
   {
@@ -29,7 +29,7 @@
     "donnees": "01fa52a13c2ee75f",
     "html": "61482ac42d769a2e"
    },
-   "variantes": "e5437b034595fb2a"
+   "variantes": "10a0d73e5cb8138a"
   },
   {
    "nom": "photo du site, 4 croix",
@@ -77,7 +77,7 @@
     "donnees": "42a98ff6f2179ae4",
     "html": "ed4327fca4603bd9"
    },
-   "variantes": "da4b8675998eaeba"
+   "variantes": "d2192d627f219d60"
   },
   {
    "nom": "juste au-delà, carré 16",
@@ -489,7 +489,7 @@
     "nP": 4
    },
    "chantier": "49400 Saumur",
-   "R": "fcfe96ffef5d24a3",
+   "R": "33f3a080ce561054",
    "hauteurGC": 365,
    "kg": 19.413284913329715,
    "alertes": 0,
@@ -1378,6 +1378,160 @@
     "lignes": 6,
     "donnees": "d4c49efae6f14486",
     "html": "0c418e10b24bd43a"
+   }
+  },
+  {
+   "nom": "barreaux seuls, 1180 × 650",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "seuls": true
+   },
+   "R": "5a425d3f5bbbd01f",
+   "hauteurGC": 285,
+   "kg": 11.5332672,
+   "alertes": 0,
+   "prix": 450,
+   "chiffrage": "36ef6ba4696dd153",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-PO6ZX",
+    "total": 450,
+    "lignes": 5,
+    "donnees": "c81303526adf683d",
+    "html": "91e5119c6abc5c04"
+   }
+  },
+  {
+   "nom": "barreaux seuls, bas de fenêtre bas (escalade)",
+   "valeurs": {
+    "B": 1180,
+    "A": 300,
+    "seuls": true
+   },
+   "R": "8ede4d21de626c5c",
+   "hauteurGC": 635,
+   "kg": 19.973587199999997,
+   "alertes": 0,
+   "prix": 480,
+   "chiffrage": "3cfe50df263480ee",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-RZ0LO",
+    "total": 480,
+    "lignes": 5,
+    "donnees": "0f03297be1f6ac32",
+    "html": "43becc338d00776b"
+   }
+  },
+  {
+   "nom": "barreaux seuls, 700 de large, acier",
+   "valeurs": {
+    "B": 700,
+    "A": 500,
+    "seuls": true,
+    "mcType": "acier"
+   },
+   "R": "868c2e6503228701",
+   "hauteurGC": 435,
+   "kg": 10.121852800000001,
+   "alertes": 0,
+   "prix": 340,
+   "chiffrage": "27d285b4fb3765be",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-B3SX0",
+    "total": 340,
+    "lignes": 5,
+    "donnees": "44b73d1543a221c3",
+    "html": "af0bb3b447433fe4"
+   }
+  },
+  {
+   "nom": "barreaux seuls, large : carré de 20",
+   "valeurs": {
+    "B": 1990,
+    "A": 650,
+    "seuls": true,
+    "s": 20
+   },
+   "R": "8829c9ac20755272",
+   "hauteurGC": 285,
+   "kg": 27.096479999999996,
+   "alertes": 1,
+   "prix": 580,
+   "chiffrage": "2394127da0c54cb4",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-I61WD",
+    "total": 580,
+    "lignes": 5,
+    "donnees": "c178d4018678ea6b",
+    "html": "1ff189fac1c69c03"
+   }
+  },
+  {
+   "nom": "barreaux seuls, renfort, noyer",
+   "valeurs": {
+    "B": 2200,
+    "A": 400,
+    "seuls": true,
+    "renfort": "plat",
+    "essence": "noyer"
+   },
+   "R": "81725f58f71cb86b",
+   "hauteurGC": 535,
+   "kg": 41.357636799999995,
+   "alertes": 1,
+   "prix": 870,
+   "chiffrage": "56781f515f2ad1f2",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-P88YY",
+    "total": 870,
+    "lignes": 5,
+    "donnees": "3e69ad193ab874ea",
+    "html": "633fe5eb9d3e30b5"
+   }
+  },
+  {
+   "nom": "barreaux seuls, trop souple",
+   "valeurs": {
+    "B": 2400,
+    "A": 300,
+    "seuls": true
+   },
+   "R": "296c3d6aca51c20f",
+   "hauteurGC": 635,
+   "kg": 37.8388032,
+   "alertes": 2,
+   "prix": 720,
+   "chiffrage": "040917b78d3b1834",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-YPY1C",
+    "total": 720,
+    "lignes": 5,
+    "donnees": "737fb9dee097c20a",
+    "html": "ada4de684a266ee6"
    }
   }
  ],
