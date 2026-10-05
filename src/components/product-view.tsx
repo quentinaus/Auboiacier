@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { essenceDeReference, priceFrom, type Product } from "@/lib/products";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
@@ -68,6 +68,31 @@ export function ProductView({
   /** La galerie a une vue qui change avec le coloris ET la teinte de pieds (table résine). */
   const aVueParColoris = product.images.some((img) => img.parColoris);
   const galleryRef = useRef<HTMLDivElement>(null);
+  /**
+   * Le bloc Configuration est-il entièrement à l'écran ? Sur téléphone, la carte des choix ne défile QU'ALORS : tant que
+   * le bloc arrive, un doigt posé sur la carte fait défiler la page, pas la carte. Sans cela, en descendant vers le bloc,
+   * on faisait défiler la carte à mi-chemin : le bloc restait à moitié à l'écran et les cotes remontaient, cachées
+   * (capture de Quentin sur son iPhone, 05/10).
+   */
+  const blocRef = useRef<HTMLElement>(null);
+  // Libre par défaut : si la mesure ne se faisait pas, la carte ne doit jamais rester bloquée.
+  const [blocEnPlace, setBlocEnPlace] = useState(true);
+  useEffect(() => {
+    const bloc = blocRef.current;
+    if (!bloc) return;
+    const mesurer = () => {
+      const r = bloc.getBoundingClientRect();
+      // Entièrement à l'écran, à 2 px près (sur iPhone, l'écran grandit quand la barre d'adresse se replie).
+      setBlocEnPlace(r.top > -2 && r.bottom < window.innerHeight + 2);
+    };
+    mesurer();
+    window.addEventListener("scroll", mesurer, { passive: true });
+    window.addEventListener("resize", mesurer);
+    return () => {
+      window.removeEventListener("scroll", mesurer);
+      window.removeEventListener("resize", mesurer);
+    };
+  }, []);
   const stripRef = useRef<HTMLDivElement>(null);
   /**
    * L'emplacement du grand croquis, en pleine largeur, sous la galerie et la
@@ -529,6 +554,7 @@ export function ProductView({
          une matière ; dessous, la carte des choix, qui défile À L'INTÉRIEUR d'elle-même quand elle est plus haute
          que l'écran — jamais la page. La barre d'achat reste collée au bas de la carte. */
       <section
+        ref={blocRef}
         id="configuration"
         className={`mx-auto flex h-[100svh] min-h-[520px] scroll-mt-0 flex-col px-3 pb-2 pt-3 md:h-[calc(100dvh-3.5rem)] md:min-h-[560px] md:scroll-mt-14 md:px-10 md:py-4 ${troisColonnes ? "max-w-[1480px] lg:h-[calc(100dvh-2rem)] lg:scroll-mt-4 lg:px-6 lg:py-3" : "max-w-7xl"}`}
       >
@@ -562,7 +588,7 @@ export function ProductView({
               la barre d'achat doit rester collée au bas de l'écran. */}
           {/* Sur ordinateur, la carte tient dans la hauteur du bloc ; si ses choix sont plus hauts que l'écran, ELLE défile
               (la molette ne fait jamais défiler la page à travers elle), et la barre d'achat reste collée en bas. */}
-          <div className={`carte-verre order-2 min-h-0 flex-1 overflow-y-auto overflow-x-clip overscroll-contain rounded-[26px] px-5 pb-0 pt-4 md:overflow-x-hidden md:px-6 md:pt-5 ${troisColonnes ? "colonne-cotes md:order-none md:flex-none md:col-start-1 md:row-start-3 lg:col-start-1 lg:row-start-2 lg:max-h-full lg:px-4 lg:pb-3 lg:pt-4 xl:px-5" : "lg:order-none lg:flex-none"}`}>
+          <div className={`carte-verre order-2 min-h-0 flex-1 overflow-y-auto overflow-x-clip overscroll-contain rounded-[26px] px-5 pb-0 pt-4 md:overflow-x-hidden md:px-6 md:pt-5 ${blocEnPlace ? "" : "max-md:overflow-y-hidden"} ${troisColonnes ? "colonne-cotes md:order-none md:flex-none md:col-start-1 md:row-start-3 lg:col-start-1 lg:row-start-2 lg:max-h-full lg:px-4 lg:pb-3 lg:pt-4 xl:px-5" : "lg:order-none lg:flex-none"}`}>
             {options}
           </div>
           {/* Le croquis : au-dessus de la carte sur téléphone (il ne rétrécit jamais : c'est la carte qui défile), à côté et en

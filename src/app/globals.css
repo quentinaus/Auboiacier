@@ -211,6 +211,16 @@ textarea:focus-visible,
     max-height: 34svh;
   }
 }
+/* Téléphone : en arrivant près du bloc Configuration, la page s'y cale d'elle-même (aimant doux, « proximity ») : le bloc
+   remplit alors exactement l'écran. Sans lui, la page s'arrêtait à mi-chemin (capture de Quentin, 05/10). */
+@media (max-width: 47.999rem) {
+  html:has(#configuration) {
+    scroll-snap-type: y proximity;
+  }
+  #configuration {
+    scroll-snap-align: start;
+  }
+}
 /* Le croquis remplit sa colonne, sans jamais dépasser la hauteur de la plaque. */
 @media (min-width: 768px) {
   .schema-configuration svg {
