@@ -243,6 +243,7 @@ export function SchemaFenetre({
   soubassementMm = 0,
   traverse = false,
   renfort = false,
+  patte = false,
   seuls = false,
   trous = null,
   typeMainCourante,
@@ -280,6 +281,8 @@ export function SchemaFenetre({
   seuls?: boolean;
   /** Fenêtre large : un fer plat de 10 mm sous une main courante de 45 mm (au lieu de 40 mm). */
   renfort?: boolean;
+  /** Une patte au milieu, du bas du cadre à l'appui (scellée dedans). */
+  patte?: boolean;
   /** Le rond rouge (vide trop grand) et les ronds verts de l'outil de plans, posés dans le cadre du modèle montré. */
   trous?: TrousGC | null;
   /** La main courante est en acier (plat ou profilé) et non en bois. */
@@ -482,6 +485,8 @@ export function SchemaFenetre({
         })}
         <rect x={G - 2} y={hautGardeCorpsY} width={D - G + 4} height={mainCouranteH} rx={typeMainCourante === "acier-profile" ? r(mainCouranteH / 2) : acierMc ? 1 : 2.5} fill={acierMc ? ACIER : BOIS} stroke={acierMc ? ACIER : "#b08a52"} strokeWidth={0.8} />
         {platH > 0 && <rect x={G} y={r(hautGardeCorpsY + mainCouranteH - platH)} width={D - G} height={platH} fill={ACIER} />}
+        {/* La patte du milieu : du bas du cadre jusqu'à l'appui, où elle est scellée. */}
+        {patte && <rect x={r((G + D) / 2 - 1.5)} y={basGardeCorpsY} width={3} height={Math.max(2, appuiY - basGardeCorpsY + 2)} fill={ACIER} />}
       </g>
       )}
       {/* Une barre d'appui : le bas de la fenêtre est haut, il ne manque qu'une barre à la hauteur de la norme. */}

@@ -316,6 +316,8 @@ function traits(config: ConfigGC) {
     mcL: R.mc ? R.mc.l : v.mc,
     mcH: R.mc ? R.mc.h : v.mc,
     renfort: R.mc?.renfort ?? null,
+    // La patte du milieu, scellée dans l'appui (fenêtre large et garde-corps bas) : lue dans le débit, comme le fait le devis de l'outil.
+    patte: R.debit.some((d) => /^Patte de scellement/.test(d.nom)),
   };
 }
 
@@ -333,7 +335,7 @@ function lignesAnglaises(fr: LignesSite, config: ConfigGC, line: ResolvedLine, q
   const bas = t.sb ? ", straight bars in the lower part" : "";
   const traverse = !verre && t.traverse ? `, a middle rail in ${t.n > 1 ? "each cross" : "the cross"}` : "";
   const barreauxC = !verre && t.barreauxCroix ? `, ${t.barreauxCroix} straight ${t.barreauxCroix > 1 ? "bars" : "bar"} in ${t.n > 1 ? "each cross" : "the cross"}` : "";
-  const renfort = t.renfort ? `, top rail stiffened by a ${nb(t.renfort.l)} × ${nb(t.renfort.e)} mm flat bar hidden under the handrail` : "";
+  const renfort = t.renfort ? `, top rail stiffened by a ${nb(t.renfort.l)} × ${nb(t.renfort.e)} mm flat bar hidden under the handrail` : "" + (t.patte ? ", middle fixing bar sealed into the sill" : "");
   // Le même ordre et les mêmes mots que le libellé de commande anglais (products.ts) : croix, traverse, barreaux.
   const options = [`Custom — ${nb(L)} × ${nb(H)} mm`, t.seuls ? "vertical bars only" : verre ? null : `${t.n} ${t.n > 1 ? "crosses" : "cross"}`, !verre && t.traverse ? "middle rail" : null, !verre && t.barreauxCroix ? `${t.barreauxCroix} ${t.barreauxCroix > 1 ? "bars" : "bar"} per cross` : null, t.sb ? "bars below" : null, bois, teinte, verre || t.seuls ? null : rosace, verre ? produit.remplissages?.find((r) => r.sansCroix)?.label : null]
     .filter(Boolean)
@@ -422,7 +424,7 @@ function caracteristiquesAnglaises(base: DevisGC, config: ConfigGC, line: Resolv
     verre || t.seuls || sansRosace ? null : { label: "Rosette", value: rosace },
     {
       label: "Frame",
-      value: `Solid steel ${nb(v.s)} × ${nb(v.s)} mm${t.renfort ? `, top rail stiffened by a ${nb(t.renfort.l)} × ${nb(t.renfort.e)} mm flat bar hidden under the handrail` : ""}, TIG welded, ${line.metal?.id === "brut" ? "raw steel, clear varnish" : `painted finish — steel colour ${teinte}`}`,
+      value: `Solid steel ${nb(v.s)} × ${nb(v.s)} mm${t.patte ? ", middle fixing bar sealed into the sill" : ""}${t.renfort ? `, top rail stiffened by a ${nb(t.renfort.l)} × ${nb(t.renfort.e)} mm flat bar hidden under the handrail` : ""}, TIG welded, ${line.metal?.id === "brut" ? "raw steel, clear varnish" : `painted finish — steel colour ${teinte}`}`,
     },
     {
       label: "Handrail",

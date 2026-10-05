@@ -3,7 +3,7 @@ export type ValeursGC = {
   B: number; A: number; Hs: number; Hf: number; Xo: number; jour: number; j: number; s: number; nP: number; nb: number;
   sbMode: string; ass: string; rosace: boolean; etage: boolean; mc: number; epMc: number; mcType: string; essence: string;
   rainure: boolean; rnP: number; rnJ: number; dF: number; fF: number; eF: number; nF: number; trait: number;
-  debitAr: number; minSoud: number; remise: string; km: number; prixVente: number; traverse: boolean; renfort: string; seuls?: boolean; rD: number; jourAuto?: boolean; jourSaisi?: number; _rapide?: boolean;
+  debitAr: number; minSoud: number; remise: string; km: number; prixVente: number; traverse: boolean; renfort: string; seuls?: boolean; patte?: boolean; rD: number; jourAuto?: boolean; jourSaisi?: number; _rapide?: boolean;
   [autre: string]: unknown;
 };
 export type LigneDebitGC = { nom: string; qte: number; mat: string; long: number; coupes: string; note: string; dessin?: unknown };

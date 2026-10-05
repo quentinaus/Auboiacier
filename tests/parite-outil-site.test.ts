@@ -20,6 +20,8 @@ const e = (largeurMm: number, allegeMm: number, enEtage = true, fenetreMm = 0): 
 const FENETRES: EntreeSiteGC[] = [
   e(1990, 650), e(1775, 410), e(1775, 685), e(1160, 505), e(1180, 650), e(1650, 300), e(2000, 300), e(2400, 300), e(2401, 500),
   e(1500, 0), e(1669, 650), e(1700, 650), e(2400, 650), e(1200, 300, false),
+  // Trop larges même avec la patte du milieu (au-delà du fer plat de renfort, 2 400 mm) : ni l'outil ni le site.
+  e(3000, 650), e(2800, 300),
 ];
 for (const B of [600, 1400, 2200]) for (const A of [0, 450, 700]) FENETRES.push(e(B, A));
 // Bas de fenêtre haut : des croix avec un jour réduit (760, 785), puis un cadre bas à barreaux seuls (790 à 865), puis rien (870).
@@ -28,8 +30,8 @@ for (const [B, A] of [[1180, 760], [1180, 785], [1180, 790], [1180, 840], [1800,
 /** Ce que le moteur accepte, dessin par dessin : un calcul simple, sans cache. */
 function dessinsPossibles(en: EntreeSiteGC): Set<string> {
   const ok = new Set<string>();
-  const alertes = (s: number, n: number, b: boolean, t: boolean, plat: boolean, seuls = false) =>
-    calculerGC({ ...(valeursGC(DEFAUTS_GC, en, s, n, b, t, plat, seuls) as object as Parameters<typeof calculerGC>[0]), _rapide: true }).alertes as string[];
+  const alertes = (s: number, n: number, b: boolean, t: boolean, plat: boolean, seuls = false, patte = false) =>
+    calculerGC({ ...(valeursGC(DEFAUTS_GC, en, s, n, b, t, plat, seuls, patte) as object as Parameters<typeof calculerGC>[0]), _rapide: true }).alertes as string[];
   // Les cinq familles du catalogue : croix seules, + traverse, + barreaux en bas, les deux, et les « barreaux seuls »
   // (des barreaux verticaux et rien d'autre : un seul dessin, sans croix).
   const familles: [boolean, boolean, boolean][] = [[false, false, false], [false, true, false], [true, false, false], [true, true, false], [false, false, true]];
@@ -41,6 +43,11 @@ function dessinsPossibles(en: EntreeSiteGC): Set<string> {
     let passe = [16, 18, 20].some((s) => alertes(s, n, b, t, false, seuls).length === 0);
     // Avec le plat de renfort : seulement si la lisse haute est trop souple dans TOUS les carrés (comme l'outil).
     if (!passe) passe = [16, 18, 20].every((s) => alertes(s, n, b, t, false, seuls).some((a) => a.startsWith("Solidité"))) && (seuls ? [16, 18, 20] : [16]).some((s) => alertes(s, n, b, t, true, seuls).length === 0);
+    // Avec la patte du milieu (05/10/2026) : seulement si ce dessin bloque sur la fixation ou la rigidité, dans un carré de l'atelier.
+    if (!passe && [16, 18, 20].some((s) => alertes(s, n, b, t, false, seuls).some((a) => /^(Solidité|Fixation)/.test(a))
+      || alertes(16, n, b, t, true, seuls).some((a) => /^(Solidité|Fixation)/.test(a)))) {
+      passe = [16, 12, 14, 18, 20].some((s) => alertes(s, n, b, t, false, seuls, true).length === 0);
+    }
     if (passe) { ok.add(cle); if (n <= CROIX_CATALOGUE) assez = true; }
   }
   return ok;

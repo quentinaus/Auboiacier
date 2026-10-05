@@ -978,6 +978,7 @@ export function ReleveGardeCorps({
               soubassementMm={apercuModele ? apercuModele.soubassementMm : dessin?.ok ? dessin.soubassementMm : 0}
               traverse={apercuModele ? apercuModele.traverse : dessin?.ok ? dessin.traverse : false}
               renfort={apercuModele ? apercuModele.renfort : dessin?.ok ? dessin.renfort : false}
+              patte={apercuModele ? apercuModele.patte : dessin?.ok ? dessin.patte : false}
               seuls={apercuModele ? apercuModele.seuls : dessin?.ok ? dessin.seuls : false}
               trous={explique?.trous ?? null}
               rosaceMm={rosaceMm}
@@ -1359,6 +1360,18 @@ export function ReleveGardeCorps({
                     ) : (
                       <p className="mt-1.5 rounded-lg bg-[#f3ede3] px-2.5 py-1.5 text-[#4a3f33]">{textRenfort}</p>
                     ))}
+                  {/* Fenêtre large et garde-corps bas : la patte du milieu, scellée dans l'appui, est comprise. */}
+                  {conforme.patte && (
+                    <p className="info-renfort mt-1.5 flex items-center gap-1.5 text-[11.5px] leading-snug text-[#4a3f33]">
+                      {fr ? "Garde-corps large et bas : une patte au milieu, scellée dans l'appui, incluse." : "Wide, low railing: a middle fixing bar sealed into the sill, included."}
+                      <InfoBulle
+                        texte={fr
+                          ? "Votre garde-corps est large et bas : les vis des tableaux seules seraient trop tirées. Une patte en acier de 40 × 10 mm, soudée sous le montant du milieu, est scellée dans l'appui de la fenêtre (trou de 14 mm, scellement chimique). Elle est comprise dans le prix. L'appui doit être sain : l'atelier le vérifie avec vous avant de fabriquer."
+                          : "Your railing is wide and low: the screws in the reveals alone would be overloaded. A 40 × 10 mm steel bar, welded under the middle upright, is sealed into the window sill (14 mm hole, chemical anchor). It is included in the price. The sill must be sound: the workshop checks it with you before making the railing."}
+                        label={t.gcInfoLabel}
+                      />
+                    </p>
+                  )}
                   {PROPOSER_VERRE && verre && (
                     <p className="mt-1 text-[#5c5140]">
                       {surVerre ? (
@@ -1522,6 +1535,7 @@ const MODELES_VITRINE: ModeleGC[] = ([[false, false], [false, true], [true, fals
     seuls: false,
     rosace: "",
     renfort: false,
+    patte: false,
     hauteurMm: b ? 520 : 350,
     prix: 0,
     kg: 0,

@@ -235,6 +235,8 @@ export type ModeleGC = {
    * plus large (décision de Quentin, 04/10/2026). C'est le serveur qui le décide, jamais le client.
    */
   renfort: boolean;
+  /** Fenêtre large et garde-corps bas : une patte au milieu, scellée dans l'appui (05/10/2026). Décidée par le serveur. */
+  patte: boolean;
   /** Hauteur du garde-corps dans ce modèle, main courante comprise (pour le dessiner à l'échelle). */
   hauteurMm: number;
   /** Le prix d'UNE pièce dans ce modèle, options comprises. */
@@ -305,6 +307,8 @@ export type ReponsePrixGC =
       seuls: boolean;
       /** Fenêtre large : un fer plat caché sous la main courante raidit la lisse haute. */
       renfort: boolean;
+      /** Une patte au milieu, scellée dans l'appui : les vis des tableaux seules seraient trop tirées. */
+      patte: boolean;
       /** Poids d'une pièce, arrondi au kilo. */
       kg: number;
       /** En étage avec une allège sous 900 mm : la loi impose la protection. */
@@ -449,7 +453,7 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
     if (typeof x.rosace !== "string" || (x.rosace !== "" && !Object.hasOwn(ROSACE_MM_GC, x.rosace))) return null;
     const trous = lireTrousGC(x.trous);
     if (trous === undefined) return null;
-    modeles.push({ id: x.id as string, conforme: x.conforme, raisons, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, traverse: lu.traverse, seuls: lu.seuls, rosace: x.rosace, trous, renfort: x.renfort === true, hauteurMm: x.hauteurMm as number, prix: x.prix as number, kg: x.kg as number });
+    modeles.push({ id: x.id as string, conforme: x.conforme, raisons, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, traverse: lu.traverse, seuls: lu.seuls, rosace: x.rosace, trous, renfort: x.renfort === true, patte: x.patte === true, hauteurMm: x.hauteurMm as number, prix: x.prix as number, kg: x.kg as number });
   }
   const mains: MainsPrixGC = {};
   if (o.mains && typeof o.mains === "object") {
@@ -472,6 +476,7 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
       traverse: o.traverse,
       seuls: o.seuls,
       renfort: o.renfort === true,
+      patte: o.patte === true,
       kg: o.kg as number,
       modeles,
       mains,

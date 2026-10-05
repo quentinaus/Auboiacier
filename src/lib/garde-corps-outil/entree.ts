@@ -48,7 +48,7 @@ export const CROIX_CATALOGUE = 6;
  * avec rosaces, main courante en bois, hauteur calculée pour la norme, rien
  * sous la fenêtre, barreaux en bas seulement si la norme les demande).
  */
-export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: number, nP: number, barreauxBas = false, traverse = false, renfort = false, seuls = false) {
+export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: number, nP: number, barreauxBas = false, traverse = false, renfort = false, seuls = false, patte = false) {
   const mc = lireMainCouranteGC(e.essence) ?? { type: "bois-rainure" as const, essence: "chene" as const };
   return {
     ...defauts,
@@ -80,6 +80,8 @@ export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: numb
     renfort: renfort || mc.type === "bois-plat" ? "plat" : "sans",
     s,
     nP,
+    // La patte du milieu, scellée dans l'appui (05/10/2026) : le site ne l'ajoute que si rien ne passe sans elle (calcul.ts).
+    patte,
   };
 }
 
@@ -97,6 +99,8 @@ const CODES: [string, CodeAlerteGC][] = [
   ["Jeu total", "jeu"],
   ["Main courante", "main-courante"],
   ["Charge verticale", "charge-verticale"],
+  // (« Patte au milieu » et « Patte impossible » restent « autre » : ils dépendent du DESSIN — où tombe le montant du milieu —
+  // et non du carré, qui ne doit donc pas être écarté pour eux.)
 ];
 
 export function codeAlerte(texte: string): CodeAlerteGC {

@@ -236,7 +236,7 @@ export type ValeursGC = {
   B: number; A: number; Hs: number; Hf: number; Xo: number; jour: number; j: number; s: number; nP: number; nb: number;
   sbMode: string; ass: string; rosace: boolean; etage: boolean; mc: number; epMc: number; mcType: string; essence: string;
   rainure: boolean; rnP: number; rnJ: number; dF: number; fF: number; eF: number; nF: number; trait: number;
-  debitAr: number; minSoud: number; remise: string; km: number; prixVente: number; traverse: boolean; renfort: string; seuls?: boolean; rD: number; jourAuto?: boolean; jourSaisi?: number; _rapide?: boolean;
+  debitAr: number; minSoud: number; remise: string; km: number; prixVente: number; traverse: boolean; renfort: string; seuls?: boolean; patte?: boolean; rD: number; jourAuto?: boolean; jourSaisi?: number; _rapide?: boolean;
   [autre: string]: unknown;
 };
 export type LigneDebitGC = { nom: string; qte: number; mat: string; long: number; coupes: string; note: string; dessin?: unknown };
@@ -497,6 +497,11 @@ function comparerAvecOutil(M, D, CH) {
     { nom: "barreaux seuls, trop souple", valeurs: { B: 2400, A: 300, seuls: true } },
     // Le jour automatique : à 760 mm du sol, le jour tapé (90) est réduit à 65 pour que le garde-corps fasse 200 mm.
     { nom: "jour automatique, bas de fenêtre à 760", valeurs: { B: 1180, A: 760, jourAuto: true, jour: 65, jourSaisi: 90 }, lire: true },
+    // La patte au milieu (05/10/2026) : fenêtre large et garde-corps bas, les vis des tableaux trop tirées sans elle.
+    { nom: "patte au milieu, 1775 × 665, carré de 20", valeurs: { B: 1775, A: 665, nP: 4, s: 20, patte: true }, lire: true },
+    { nom: "patte au milieu, 1775 × 665, carré de 16 (montant trop faible)", valeurs: { B: 1775, A: 665, nP: 5, s: 16, patte: true } },
+    { nom: "patte au milieu, une seule croix (impossible)", valeurs: { B: 900, A: 650, nP: 1, patte: true } },
+    { nom: "patte au milieu, barreaux seuls", valeurs: { B: 1800, A: 800, seuls: true, s: 18, patte: true }, lire: true },
     // Sans rosace (Ø0, choix du site depuis le 05/10/2026) : la case « Rosace au centre : Sans » de l'outil.
     { nom: "sans rosace, 1180 × 650", valeurs: { B: 1180, A: 650, rosace: false }, lire: true },
     { nom: "sans rosace, 900 × 400, 5 croix, traverse", valeurs: { B: 900, A: 400, nP: 5, rosace: false, traverse: true }, lire: true },

@@ -46,7 +46,7 @@ export const prixReleveOutil: PrixReleve = (e) => {
   if (!c) return { ok: false, raison: "hors-bornes" };
   // Barre d'appui ou rien à poser : pour le panier, c'est « à étudier » (pas de prix, pas de commande).
   if (!c.ok) return { ok: false, raison: c.raison === "fenetre-trop-basse" ? c.raison : "a-etudier" };
-  return { ok: true, prix: prixGC(c), hauteurMm: c.hauteurMm, croix: c.croix, carre: c.carre, soubassement: c.soubassement, traverse: c.traverse, seuls: c.seuls, renfort: c.renfort, kg: c.kg };
+  return { ok: true, prix: prixGC(c), hauteurMm: c.hauteurMm, croix: c.croix, carre: c.carre, soubassement: c.soubassement, traverse: c.traverse, seuls: c.seuls, renfort: c.renfort, patte: c.patte, kg: c.kg };
 };
 
 /** La remise d'une commande de plusieurs garde-corps : frais fixes une fois, jamais sous le plancher. */
@@ -193,7 +193,7 @@ function catalogueSiteGC(q: RequetePrixGC, hauteurMm: number): ModeleGC[] {
     const id = idModeleGC(m.carre, m.croix, m.barreauxBas, m.traverse, m.seuls);
     // Barreaux seuls : pas de rosace, ni à choisir ni à payer.
     const l = ligneGC({ ...q.releve, modele: id }, { woodId: q.essence, metalId: q.metalId, fabricId: rosaceId, remplissageId: q.remplissageId });
-    if (l.ok && l.line.gc) modeles.push({ id, conforme: true, raisons: [], croix: m.croix, carre: m.carre, soubassementMm: m.soubassementMm, traverse: m.traverse, seuls: m.seuls, rosace: m.seuls ? "" : rosaceId, trous: null, renfort: m.renfort, hauteurMm: l.line.gc.hauteurMm, prix: l.line.unitPrice, kg: Math.round(l.line.gc.kg) });
+    if (l.ok && l.line.gc) modeles.push({ id, conforme: true, raisons: [], croix: m.croix, carre: m.carre, soubassementMm: m.soubassementMm, traverse: m.traverse, seuls: m.seuls, rosace: m.seuls ? "" : rosaceId, trous: null, renfort: m.renfort, patte: m.patte, hauteurMm: l.line.gc.hauteurMm, prix: l.line.unitPrice, kg: Math.round(l.line.gc.kg) });
   };
   const vus = new Set<string>();
   for (const d of base) {
@@ -209,7 +209,7 @@ function catalogueSiteGC(q: RequetePrixGC, hauteurMm: number): ModeleGC[] {
       ajouteConforme(autre.d.config, autre.id);
       continue;
     }
-    modeles.push({ id: idModeleGC(d.carre, d.croix, d.barreauxBas, d.traverse, d.seuls), conforme: false, raisons: d.raisons, croix: d.croix, carre: d.carre, soubassementMm: d.soubassementMm, traverse: d.traverse, seuls: d.seuls, rosace: d.seuls ? "" : choisie, trous: d.trous, renfort: false, hauteurMm, prix: 0, kg: 0 });
+    modeles.push({ id: idModeleGC(d.carre, d.croix, d.barreauxBas, d.traverse, d.seuls), conforme: false, raisons: d.raisons, croix: d.croix, carre: d.carre, soubassementMm: d.soubassementMm, traverse: d.traverse, seuls: d.seuls, rosace: d.seuls ? "" : choisie, trous: d.trous, renfort: false, patte: false, hauteurMm, prix: 0, kg: 0 });
   }
   // Les dessins que le catalogue de la rosace choisie ne montre pas (7 à 12 croix) mais qu'une plus grande permet.
   for (const r of repli) for (const [cle, d] of r.dessins) {
@@ -282,6 +282,7 @@ export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
     traverse: c.traverse,
     seuls: c.seuls,
     renfort: c.renfort,
+    patte: c.patte,
     kg: Math.round(r.line.gc.kg),
     obligatoire: c.obligatoire,
     modeles,

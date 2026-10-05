@@ -427,7 +427,7 @@ test("réponse de /api/prix-garde-corps : le prix et la forme, rien d'autre", ()
   chiffrageOuEchec();
   const ok = reponsePrixGC(requete({ largeurMm: 1180 }));
   assert.ok(ok);
-  assert.deepEqual(Object.keys(ok).sort(), ["carre", "conforme", "croix", "hauteurMm", "jourMm", "kg", "mainCouranteMm", "mains", "modeles", "obligatoire", "ok", "prix", "remise", "renfort", "seuls", "soubassementMm", "traverse"]);
+  assert.deepEqual(Object.keys(ok).sort(), ["carre", "conforme", "croix", "hauteurMm", "jourMm", "kg", "mainCouranteMm", "mains", "modeles", "obligatoire", "ok", "patte", "prix", "remise", "renfort", "seuls", "soubassementMm", "traverse"]);
   const non = reponsePrixGC(requete({ largeurMm: BORNES_GC.B.max }));
   assert.ok(non);
   assert.deepEqual(Object.keys(non).sort(), ["alertes", "conforme", "hauteurMm", "jourMm", "mainCouranteMm", "mains", "modeles", "obligatoire", "ok", "raison"]);
@@ -481,7 +481,7 @@ test("catalogue des modèles : tous montrés, seuls les conformes ont un prix, u
   const r = reponsePrixGC(q);
   assert.ok(r && r.ok, "ce relevé a un prix");
   assert.ok(r.modeles.length >= 12 && r.modeles.length <= 48, "le catalogue entier est envoyé");
-  assert.deepEqual(Object.keys(r.modeles[0]).sort(), ["carre", "conforme", "croix", "hauteurMm", "id", "kg", "prix", "raisons", "renfort", "rosace", "seuls", "soubassementMm", "traverse", "trous"]);
+  assert.deepEqual(Object.keys(r.modeles[0]).sort(), ["carre", "conforme", "croix", "hauteurMm", "id", "kg", "patte", "prix", "raisons", "renfort", "rosace", "seuls", "soubassementMm", "traverse", "trous"]);
   // Les quatre familles : croix seules, traverse au milieu, barreaux en bas, les deux.
   assert.ok(r.modeles.some((m) => m.traverse) && r.modeles.some((m) => !m.traverse));
   const conformes = r.modeles.filter((m) => m.conforme), hors = r.modeles.filter((m) => !m.conforme);

@@ -248,9 +248,10 @@ test("relevés du site : la configuration retenue suit la règle du 29/09 et don
       // même garde-corps avec une traverse au milieu des croix, des barreaux droits en bas, ou — fenêtre
       // large — le fer plat de renfort : s'il passe toute la norme de l'outil.
       if (c.ok) {
-        assert.ok(c.traverse || c.barreauxBas || c.renfort, `${J(r.entree)} : seule une variante peut remplacer « à étudier »`);
+        // (Depuis le 05/10/2026 : ou la patte du milieu, scellée dans l'appui, quand les vis des tableaux sont trop tirées.)
+        assert.ok(c.traverse || c.barreauxBas || c.renfort || c.patte, `${J(r.entree)} : seule une variante peut remplacer « à étudier »`);
         if (c.barreauxBas) assert.ok(c.soubassementMm > 0, `${J(r.entree)} : variante à barreaux`);
-        assert.equal(c.renfort, tropSouple, `${J(r.entree)} : le fer plat seulement quand aucun carré n'est assez rigide`);
+        if (!c.patte) assert.equal(c.renfort, tropSouple, `${J(r.entree)} : le fer plat seulement quand aucun carré n'est assez rigide`);
         assert.equal(c.R.alertes.length, 0, `${J(r.entree)} : variante conforme`);
       }
       continue;

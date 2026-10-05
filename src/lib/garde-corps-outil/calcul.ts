@@ -44,6 +44,11 @@ export type ConfigGC = Commun & {
    * large (décision de Quentin, 04/10/2026). Ajouté seulement quand aucun carré de l'atelier n'est assez rigide.
    */
   renfort: boolean;
+  /**
+   * Fenêtre large et garde-corps bas : une patte de 40 × 10 soudée sous le montant du milieu, scellée dans l'appui (décision de
+   * Quentin, 05/10/2026). Ajoutée seulement quand rien ne passe sans elle (fixation des tableaux, rigidité).
+   */
+  patte: boolean;
   /** Des barreaux droits en partie basse (le cadre commence dans la zone d'escalade, sous 600 mm du sol). */
   soubassement: boolean;
   /** Leur hauteur, du bas du cadre à la lisse qui les ferme (0 : aucun). */
@@ -137,33 +142,35 @@ function fenetreTropBasse(cleReleve: string, entree: EntreeSiteGC, seuls = false
 }
 
 /** La clé d'un carré pour un relevé, sans ou avec le fer plat de renfort. */
-const cleCarre = (cleReleve: string, s: number, r: boolean) => `${cleReleve}|${s}|${r ? 1 : 0}`;
+const cleCarre = (cleReleve: string, s: number, r: boolean, p = false) => `${cleReleve}|${s}|${r ? 1 : 0}${p ? "|p" : ""}`;
 
 /**
  * La lisse haute est-elle trop souple dans TOUS les carrés de l'atelier (fenêtre large) ? C'est le seul cas où
  * le site ajoute le fer plat de renfort. À appeler après avoir essayé le plus gros carré : la rigidité ne
  * dépend pas du dessin, et un carré plus gros est toujours plus rigide.
  */
-function lisseTropSouple(cleReleve: string): boolean {
-  return ecarte.get(cleCarre(cleReleve, Math.max(...ORDRE_CARRES), false))?.includes("solidite") === true;
+function lisseTropSouple(cleReleve: string, p = false): boolean {
+  return ecarte.get(cleCarre(cleReleve, Math.max(...ORDRE_CARRES), false, p))?.includes("solidite") === true;
 }
 
 /** Un essai de l'outil (calcul rapide : mêmes alertes, sans chercher de solution à écrire dans leur texte). */
-function essayer(cleReleve: string, entree: EntreeSiteGC, s: number, n: number, b: boolean, t: boolean, r = false, seuls = false): { codes: readonly CodeAlerteGC[]; R: ResultatGC | null; v: ValeursGC | null } {
+function essayer(cleReleve: string, entree: EntreeSiteGC, s: number, n: number, b: boolean, t: boolean, r = false, seuls = false, p = false): { codes: readonly CodeAlerteGC[]; R: ResultatGC | null; v: ValeursGC | null } {
   if (tropBasse.get(cleReleve)) return { codes: FENETRE, R: null, v: null };
-  const horsJeu = ecarte.get(cleCarre(cleReleve, s, r));
+  const horsJeu = ecarte.get(cleCarre(cleReleve, s, r, p));
   if (horsJeu) return { codes: horsJeu, R: null, v: null };
-  const cle = `${cleReleve}|${s}|${n}|${b ? 1 : 0}|${t ? 1 : 0}|${r ? 1 : 0}|${seuls ? 1 : 0}`;
+  const cle = `${cleReleve}|${s}|${n}|${b ? 1 : 0}|${t ? 1 : 0}|${r ? 1 : 0}|${seuls ? 1 : 0}${p ? "|p" : ""}`;
   const connus = essais.get(cle);
   if (connus?.length) return { codes: connus, R: null, v: null };
-  const v = valeursGC(DEFAUTS_GC, entree, s, n, b, t, r, seuls) as ValeursGC;
+  const v = valeursGC(DEFAUTS_GC, entree, s, n, b, t, r, seuls, p) as ValeursGC;
   const R = calculerGC({ ...v, _rapide: true });
   let codes: readonly CodeAlerteGC[] = [...new Set(R.alertes.map(codeAlerte))];
   // Le carré lui-même ne convient pas (pas assez rigide, ou la vis n'y tient pas) : c'est la raison qui compte
   // pour ce carré, quel que soit le dessin.
-  if (duCarre(codes)) {
+  // (Avec la patte, la rigidité et la fixation dépendent du DESSIN — où tombe le montant du milieu, s'il y en a un : une seule
+  // croix n'en a pas — : le carré n'est jamais écarté pour eux.)
+  if (duCarre(codes) && !p) {
     codes = codes.includes("solidite") ? SOLIDITE : FIXATION;
-    garder(ecarte, cleCarre(cleReleve, s, r), codes, ESSAIS_MAX);
+    garder(ecarte, cleCarre(cleReleve, s, r, p), codes, ESSAIS_MAX);
   }
   garder(essais, cle, codes, ESSAIS_MAX);
   // Sans alerte, le calcul rapide EST le calcul complet de l'outil (identiques au caractère près : un test le
@@ -260,14 +267,28 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   // (fenêtre large) : le carré de l'atelier avec le fer plat caché sous la main courante.
   // Bois SUR FER PLAT, choisi par le client : le plat est posé d'office, dans tous les carrés de l'atelier (comme pour les barreaux seuls).
   const platVoulu = lireMainCouranteGC(entree.essence)?.type === "bois-plat";
+  // Rien ne passe parce que les vis des tableaux sont trop tirées ou la lisse trop souple : on recommence avec la patte du milieu.
+  let blocagesSansPatte: (readonly CodeAlerteGC[])[] = [], auCarre16SansPatte: readonly CodeAlerteGC[] | null = null;
+  /** Un essai sans patte a buté sur la rigidité ou la fixation (avant que le fer plat ne remette les blocages à zéro). */
+  let butePatte = false;
+  for (const patte of [false, true]) {
+  if (patte) {
+    if (resultat) break;
+    if (!butePatte) break;
+    blocagesSansPatte = [...blocages];
+    auCarre16SansPatte = auCarre16;
+    blocages.length = 0;
+    auCarre16 = null;
+  }
   recherche: for (const r of platVoulu ? [true] : [false, true]) {
-    if (r && !platVoulu && !lisseTropSouple(cleReleve)) break;
+    if (r && !platVoulu && !lisseTropSouple(cleReleve, patte)) break;
     // Avec le fer plat, la rigidité est réglée : seul compte ce qui bloque ENCORE (les essais qui suivent).
     if (r) blocages.length = 0;
     for (const [nMin, nMax] of plages) for (const [b, t, seuls] of variantes) {
       for (const s of r ? (seuls || platVoulu ? CARRES_RENFORT_SEULS : [CARRE_RENFORT]) : carres) {
         for (let n = nMin; n <= nMax; n++) {
-          const essai = essayer(cleReleve, entree, s, n, b, t, r, seuls);
+          const essai = essayer(cleReleve, entree, s, n, b, t, r, seuls, patte);
+          if (!patte && (essai.codes.includes("solidite") || essai.codes.includes("fixation"))) butePatte = true;
           if (essai.R && essai.v) {
             const { R, v } = essai;
             if (!(R.hauteurGC! > 0) || !(R.kg! > 0)) throw new Error("garde-corps : calcul de l'outil incohérent");
@@ -277,7 +298,7 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
               if (choisi) blocages.push(["trop-petit"]);
               continue;
             }
-            resultat = { ...commun, ok: true, conforme: true, carre: s, croix: n, barreauxBas: b, traverse: t, seuls, renfort: r, soubassement: soubassementMm > 0, soubassementMm, kg: R.kg!, v: gelerProfond(v), R: gelerProfond(R) };
+            resultat = { ...commun, ok: true, conforme: true, carre: s, croix: n, barreauxBas: b, traverse: t, seuls, renfort: r, patte, soubassement: soubassementMm > 0, soubassementMm, kg: R.kg!, v: gelerProfond(v), R: gelerProfond(R) };
             break recherche;
           }
           if (choisi) blocages.push(essai.codes);
@@ -287,6 +308,13 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
         }
       }
     }
+  }
+  }
+  // La patte n'a rien donné : on garde la raison d'avant (c'est elle qu'on explique au client).
+  if (!resultat && blocagesSansPatte.length + (auCarre16SansPatte ? 1 : 0) > 0) {
+    blocages.length = 0;
+    blocages.push(...blocagesSansPatte);
+    auCarre16 = auCarre16SansPatte;
   }
   if (!resultat) {
     // Pour un dessin choisi : la raison dans un carré qui convient s'il y en a un (« l'espace entre les barres
