@@ -4,6 +4,8 @@ import { getStripe, isStripeConfigured, newOrderRef, piedDeFacture, siteOrigin }
 import { commandesOuvertes } from "@/lib/entreprise";
 import { creerLimite } from "@/lib/limite-debit";
 import { origineEtrangere } from "@/lib/origine";
+import { budgetCalculGC } from "@/lib/budget-calcul-gc";
+import { trouverFiche } from "@/lib/profil-client";
 import { PRISE_DE_COTES, libelleLivraison, libellePose, libellePriseDeCotes } from "@/lib/deplacement";
 import { cleCreneau, creneauValide, libelleCreneau } from "@/lib/agenda";
 import { clientConnecte } from "@/lib/compte";
@@ -76,8 +78,15 @@ export async function POST(request: Request) {
   // tout est recalculé ici — pièces, remise sur plusieurs garde-corps (l'outil
   // de plans), livraison, pose ou retrait à l'atelier, prise de cotes.
   let tarif: Tarif;
+  // Même budget de temps de calcul que le panier : un panier de garde-corps
+  // jamais vus coûte plusieurs secondes au serveur.
+  if (budgetCalculGC.epuise(request, Date.now())) {
+    return NextResponse.json({ error: "too_many" }, { status: 429 });
+  }
+  const debut = performance.now();
   try {
     tarif = await tarifer(body.lines, { locale, gc: CALCUL_GC });
+    budgetCalculGC.depenser(request, performance.now() - debut, Date.now());
   } catch (erreur) {
     if (erreur instanceof ChiffrageIndisponible) {
       // Pas de clé du chiffrage sur ce serveur : pas de garde-corps vendu à un prix inventé.
@@ -188,8 +197,12 @@ export async function POST(request: Request) {
   try {
     const email = await clientConnecte();
     if (email) {
-      const trouves = await getStripe().customers.list({ email, limit: 1 });
-      clientStripe = trouves.data[0]?.id ?? null;
+      // La fiche de l'ESPACE client (celle que lit et corrige la page
+      // « Mes informations »), pas simplement la plus récente à cette adresse :
+      // n'importe qui peut créer une fiche à l'adresse d'un autre en payant
+      // avec elle, et la page de paiement suivante du vrai client aurait été
+      // pré-remplie avec l'adresse choisie par l'autre.
+      clientStripe = (await trouverFiche(email))?.id ?? null;
     }
   } catch (error) {
     // Un pré-remplissage raté ne doit pas empêcher d'acheter : on continue
@@ -301,6 +314,11 @@ export async function POST(request: Request) {
         // Trace de l'acceptation des conditions de vente avant paiement.
         cgv_accepted: "1",
       },
+      // Une visite à domicile tient une demi-journée de l'agenda : la page de
+      // paiement ne reste pas ouverte 24 heures (le défaut de Stripe) mais 30
+      // minutes, le minimum, pour qu'un onglet oublié ne permette pas de payer
+      // demain un créneau vendu entre-temps à quelqu'un d'autre.
+      ...(visite ? { expires_at: Math.floor(Date.now() / 1000) + 30 * 60 } : {}),
       success_url: `${origin}/${locale}/commande/merci?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/${locale}/panier`,
     });

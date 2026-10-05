@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { calculerDeplacement, calculerLivraison, calculerPose } from "@/lib/deplacement";
 import { getProduct, poidsColisKg, prixParOutil } from "@/lib/products";
 import { creerLimite } from "@/lib/limite-debit";
+import { budgetCalculGC } from "@/lib/budget-calcul-gc";
 import { ChiffrageIndisponible, ligneGC } from "@/lib/prix-garde-corps.server";
 
 export const runtime = "nodejs";
@@ -84,8 +85,17 @@ export async function GET(request: Request) {
   const pour = params.get("pour");
   let colis: { kg: number; plusGrandeCoteMm: number } | null = null;
   if (pour === "livraison") {
+    // Peser un garde-corps, c'est le calculer : même budget de temps que la
+    // fiche et le panier. Sans lui, cette porte (120 demandes par dix minutes)
+    // permettait d'occuper le serveur plusieurs minutes en changeant une cote
+    // à chaque appel.
+    if (budgetCalculGC.epuise(request, Date.now())) {
+      return NextResponse.json({ error: "too_many" }, { status: 429 });
+    }
+    const debut = performance.now();
     try {
       colis = colisDemande(params);
+      budgetCalculGC.depenser(request, performance.now() - debut, Date.now());
     } catch (erreur) {
       if (erreur instanceof ChiffrageIndisponible) return NextResponse.json({ error: "indisponible" }, { status: 503 });
       throw erreur;

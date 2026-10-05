@@ -6,7 +6,9 @@ import { composerDevis, type Devis, type LivraisonDevis, type ResultatDevis } fr
 import { ChiffrageIndisponible, composerDevisGardeCorps, type LivraisonDevisGC } from "@/lib/prix-garde-corps.server";
 import { rendreDevisPdf } from "@/lib/devis-pdf";
 import { creerLimite } from "@/lib/limite-debit";
-import { MAX_TEXTE } from "@/lib/devis-regles";
+import { budgetCalculGC } from "@/lib/budget-calcul-gc";
+import { EMAIL_VALIDE, MAX_TEXTE } from "@/lib/devis-regles";
+import { siteOrigin } from "@/lib/stripe";
 import { isLocale } from "@/lib/i18n";
 
 export const runtime = "nodejs";
@@ -41,11 +43,25 @@ function identifiant(valeur: string | null): string | undefined {
   return valeur && /^[a-z0-9-]{1,40}$/i.test(valeur) ? valeur : undefined;
 }
 
-/** Un texte libre du client, sans caractères de contrôle, borné. */
-function texte(valeur: string | null, max: number): string | undefined {
+/**
+ * Les coordonnées imprimées sur le devis, lues dans l'adresse du lien.
+ *
+ * Ce PDF sort de auboiacier.fr, au vrai prix : n'importe quel texte qu'on y
+ * laisse entrer devient « un devis Auboiacier ». Un champ libre suffisait à un
+ * escroc pour envoyer un lien vers un vrai devis portant « Acompte à virer sur
+ * IBAN FR76… ». On ne garde donc que ce que la fiche envoie vraiment — un nom
+ * et une adresse e-mail — et sous une forme qui ne peut rien dire d'autre :
+ * des lettres pour le nom, une adresse valide pour l'e-mail. Ni note, ni
+ * adresse postale, ni téléphone (la fiche n'en envoie pas).
+ */
+function nomClient(valeur: string | null): string | undefined {
   if (!valeur) return undefined;
-  const propre = valeur.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "").trim().slice(0, max);
-  return propre || undefined;
+  const propre = valeur.replace(/[^\p{L} '’.-]+/gu, " ").replace(/\s+/g, " ").trim().slice(0, MAX_TEXTE.name);
+  return propre.length >= 2 ? propre : undefined;
+}
+function emailClient(valeur: string | null): string | undefined {
+  const propre = (valeur ?? "").trim().slice(0, MAX_TEXTE.email);
+  return EMAIL_VALIDE.test(propre) ? propre : undefined;
 }
 
 export async function GET(request: Request) {
@@ -61,12 +77,7 @@ export async function GET(request: Request) {
 
   const langue = p.get("lang") ?? "fr";
   const locale = isLocale(langue) ? langue : "fr";
-  const client = {
-    nom: texte(p.get("nom"), MAX_TEXTE.name),
-    adresse: texte(p.get("adresse"), 300),
-    email: texte(p.get("email"), MAX_TEXTE.email),
-    telephone: texte(p.get("telephone"), MAX_TEXTE.phone),
-  };
+  const client = { nom: nomClient(p.get("nom")), email: emailClient(p.get("email")) };
   const mode = p.get("mode");
   const cp = (p.get("cp") ?? "").replace(/\s+/g, "");
 
@@ -108,6 +119,11 @@ export async function GET(request: Request) {
       if (!situe.ok) return NextResponse.json({ error: situe.reason }, { status: 400 });
       livraison = { mode, codePostal: cp, lieu: situe.lieu };
     } else return NextResponse.json({ error: "mode_livraison" }, { status: 400 });
+    // Composer ce devis, c'est calculer le garde-corps : même budget de temps que la fiche.
+    if (budgetCalculGC.epuise(request, Date.now())) {
+      return NextResponse.json({ error: "too_many" }, { status: 429 });
+    }
+    const debut = performance.now();
     try {
       resultat = composerDevisGardeCorps({
         releve: { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm, ...(modele ? { modele } : {}) },
@@ -117,14 +133,18 @@ export async function GET(request: Request) {
         client,
         date: new Date(),
         locale,
-        origine: url.origin,
+        // Le domaine du site, jamais l'hôte de la requête : la photo du devis
+        // est téléchargée par le serveur à cette adresse, et un en-tête Host
+        // forgé l'aurait envoyé chercher ailleurs.
+        origine: siteOrigin(),
       });
+      budgetCalculGC.depenser(request, performance.now() - debut, Date.now());
     } catch (erreur) {
       if (erreur instanceof ChiffrageIndisponible) return NextResponse.json({ error: "indisponible" }, { status: 503 });
       throw erreur;
     }
   } else {
-    resultat = await devisCatalogue(p, product, locale, mode, cp, client, url.origin);
+    resultat = await devisCatalogue(p, product, locale, mode, cp, client, siteOrigin());
   }
   if (!resultat.ok) return NextResponse.json({ error: resultat.reason }, { status: 400 });
   return pdfDuDevis(resultat.devis, locale);
@@ -178,7 +198,6 @@ async function devisCatalogue(
     },
     quantity,
     hauteurTableMm: entier(p.get("h"), 2000),
-    note: texte(p.get("note"), 500),
     livraison,
     client,
     date: new Date(),
