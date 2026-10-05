@@ -56,7 +56,8 @@ function identifiant(valeur: string | null): string | undefined {
  */
 function nomClient(valeur: string | null): string | undefined {
   if (!valeur) return undefined;
-  const propre = valeur.replace(/[^\p{L} '’.-]+/gu, " ").replace(/\s+/g, " ").trim().slice(0, MAX_TEXTE.name);
+  // Ni chiffre (un IBAN, un téléphone), ni point (une adresse web), 60 signes.
+  const propre = valeur.replace(/[^\p{L} '’-]+/gu, " ").replace(/\s+/g, " ").trim().slice(0, 60);
   return propre.length >= 2 ? propre : undefined;
 }
 function emailClient(valeur: string | null): string | undefined {
