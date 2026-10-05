@@ -302,8 +302,8 @@ export function ReleveGardeCorps({
   const [pourquoi, setPourquoi] = useState<string | null>(null);
   /** Les deux boutons du client : le barreaudage (aucun / en bas / sur toute la hauteur) et la traverse au milieu. */
   const [filtre, setFiltre] = useState<{ barreaux: "aucun" | "bas" | "seuls"; traverse: boolean }>({ barreaux: "aucun", traverse: false });
-  /** « Du moins cher au plus cher » : tous les modèles aux normes, tous types confondus, par prix croissant. */
-  const [parPrix, setParPrix] = useState(false);
+  /** L'ordre des modèles dans la rangée : prix croissant (par défaut) ou décroissant — le bouton de tri (Quentin, 05/10). */
+  const [tri, setTri] = useState<"croissant" | "decroissant">("croissant");
   /** Avant les mesures : le modèle de la vitrine que le client vient de toucher (il s'affiche sur le croquis). */
   const [vitrineId, setVitrineId] = useState<string | null>(null);
   /** Le plan d'aperçu (une vue, filigrané) est-il ouvert ? */
@@ -393,11 +393,22 @@ export function ReleveGardeCorps({
   // Bas de fenêtre trop haut pour des croix : seul existe le cadre bas à barreaux (« toujours quelque chose, jamais hors norme »).
   const seulsExiste = modeles.length > 0 && modeles.every((m) => m.seuls);
   const barreauxImposes = !seulsExiste && modeles.length > 0 && !modeles.some((m) => !m.seuls && m.soubassementMm === 0);
-  const famille: { barreaux: "aucun" | "bas" | "seuls"; traverse: boolean } = seulsExiste
+  const familleVoulue: { barreaux: "aucun" | "bas" | "seuls"; traverse: boolean } = seulsExiste
     ? { barreaux: "seuls", traverse: false }
     : choisi
     ? familleDe(choisi)
     : { barreaux: barreauxImposes && filtre.barreaux === "aucun" ? "bas" : filtre.barreaux, traverse: filtre.traverse };
+  /** Les modèles aux normes d'une famille, pour cette fenêtre. */
+  const conformesDe = (f: { barreaux: "aucun" | "bas" | "seuls"; traverse: boolean }) =>
+    modeles.filter((m) => m.conforme && familleDe(m).barreaux === f.barreaux && m.traverse === f.traverse);
+  // La rangée ne montre QUE des modèles aux normes (Quentin, 05/10 : « pas tomber sur de tout ») : une famille sans aucun
+  // modèle aux normes n'est jamais affichée vide. On passe à la même famille avec ou sans traverse, sinon à celle du moins cher.
+  const famille: { barreaux: "aucun" | "bas" | "seuls"; traverse: boolean } =
+    choisi || nbConformes === 0 || conformesDe(familleVoulue).length > 0
+      ? familleVoulue
+      : conformesDe({ ...familleVoulue, traverse: !familleVoulue.traverse }).length > 0
+      ? { ...familleVoulue, traverse: !familleVoulue.traverse }
+      : familleDe([...modeles.filter((m) => m.conforme)].sort((a, b) => a.prix - b.prix)[0]);
   // Un seul modèle possible (le cadre bas à barreaux) : il n'y a rien à choisir, on le choisit pour le client.
   const seulModele = seulsExiste && modeles.length === 1 && modeles[0].conforme && !choisi ? modeles[0].id : null;
   useEffect(() => {
@@ -408,18 +419,17 @@ export function ReleveGardeCorps({
     const f = familleDe(m);
     return f.barreaux === famille.barreaux && f.traverse === famille.traverse;
   });
-  // Rien ne convient dans cette famille : le modèle le plus proche de la norme est expliqué d'emblée — le client voit
-  // le rond rouge (le vide trop grand) au lieu de seulement lire « à étudier ».
   const familleSansModele = modelesFamille.length > 0 && !modelesFamille.some((m) => m.conforme);
-  const plusProche = familleSansModele
-    ? ([...modelesFamille].sort((a, b) => (a.trous ? a.trous.plusGrandMm / a.trous.limiteMm : 99) - (b.trous ? b.trous.plusGrandMm / b.trous.limiteMm : 99))[0] ?? null)
-    : null;
-  const explique = (pourquoi ? modeles.find((m) => m.id === pourquoi && !m.conforme) : null) ?? plusProche;
+  // Un modèle hors norme n'est plus montré dans la rangée (seulement ceux aux normes) : il n'y a plus de rond rouge à expliquer,
+  // sauf pour un modèle hors norme encore désigné (pourquoi), ce qui n'arrive plus depuis la rangée.
+  const explique = pourquoi ? (modeles.find((m) => m.id === pourquoi && !m.conforme) ?? null) : null;
   /** Le modèle montré en grand sur le croquis, dès qu'on le touche : le choisi, ou celui qu'on explique. */
   const apercuModele: ModeleGC | null = explique ?? choisi;
   const changerFamille = (barreaux: "aucun" | "bas" | "seuls", traverse: boolean) => {
     // Les barreaux seuls n'ont ni croix ni traverse (comme dans l'outil).
-    const f = { barreaux, traverse: barreaux === "seuls" ? false : traverse };
+    let f = { barreaux, traverse: barreaux === "seuls" ? false : traverse };
+    // Aucun modèle aux normes avec cette traverse : la même famille avec l'autre réglage de traverse, s'il en a.
+    if (!conformesDe(f).length && barreaux !== "seuls" && conformesDe({ ...f, traverse: !f.traverse }).length) f = { ...f, traverse: !f.traverse };
     setFiltre(f);
     setPourquoi(null);
     setPerdu(null);
@@ -530,16 +540,14 @@ export function ReleveGardeCorps({
     if (tuile) zone.scrollTo({ left: Math.max(0, tuile.offsetLeft - (zone.clientWidth - tuile.clientWidth) / 2), behavior: "smooth" });
   }, [idSelectionne]);
   const marque = modeles.length > 0;
-  const parPrixActif = marque && parPrix;
   // Barre d'appui, rien à poser, fenêtre trop basse : aucun modèle à choisir. Les montrer (« 1 croix… 6 croix ») contredirait la phrase du bandeau.
   const sansModeleAChoisir = reponse !== null && !reponse.ok && (reponse.raison === "barre-appui" || reponse.raison === "sans-garde-corps" || reponse.raison === "fenetre-trop-basse");
+  const sens = tri === "croissant" ? 1 : -1;
   const liste: ModeleGC[] = sansModeleAChoisir
     ? []
-    : parPrixActif
-    ? modeles.filter((m) => m.conforme).sort((a, b) => a.prix - b.prix || a.croix - b.croix)
     : marque
-      ? // Les modèles qu'on peut choisir d'abord ; ceux qui ne passent pas la norme avec cette fenêtre ensuite (on les touche pour voir pourquoi).
-        [...modelesFamille].sort((a, b) => Number(b.conforme) - Number(a.conforme))
+      ? // UNIQUEMENT les modèles aux normes pour cette fenêtre, rangés par prix (Quentin, 05/10 : « on ne comprend pas, il y a de tout »).
+        modelesFamille.filter((m) => m.conforme).sort((a, b) => sens * (a.prix - b.prix) || sens * (a.croix - b.croix))
       : MODELES_VITRINE.filter((m) => !m.traverse && m.soubassementMm === 0);
   useEffect(() => {
     const zone = bande.current;
@@ -549,7 +557,7 @@ export function ReleveGardeCorps({
     observateur.observe(zone);
     for (const enfant of Array.from(zone.children)) observateur.observe(enfant);
     return () => observateur.disconnect();
-  }, [liste.length, parPrixActif, bandeauSlot]);
+  }, [liste.length, tri, bandeauSlot]);
   /** Les modèles aux normes des AUTRES familles (autres barreaux, traverse) : le client doit savoir qu'ils existent. */
   const nbAutresModeles = marque
     ? modeles.filter((m) => m.conforme && !(familleDe(m).barreaux === famille.barreaux && familleDe(m).traverse === famille.traverse)).length
@@ -561,6 +569,12 @@ export function ReleveGardeCorps({
     zone?.scrollIntoView({ block: "nearest", behavior: "smooth" });
     zone?.querySelector<HTMLElement>("button:not([disabled])")?.focus({ preventScroll: true });
   };
+  // Un réglage qui ne mène à aucun modèle aux normes pour cette fenêtre est grisé (on ne propose que ce qui est aux normes).
+  const aucunAuxNormes = fr ? "Aucun modèle aux normes avec ce choix pour votre fenêtre." : "No model meets the standard with this choice for your window.";
+  const sansConforme = (barreaux: "aucun" | "bas" | "seuls") =>
+    nbConformes === 0 || modeles.some((m) => m.conforme && familleDe(m).barreaux === barreaux) ? "" : aucunAuxNormes;
+  const sansConformeTraverse = (traverse: boolean) =>
+    nbConformes === 0 || conformesDe({ barreaux: famille.barreaux, traverse }).length ? "" : aucunAuxNormes;
   const controlesFamille = marque ? (
     <div className="space-y-2.5" data-controles-famille>
       {[
@@ -569,9 +583,9 @@ export function ReleveGardeCorps({
           valeur: famille.barreaux,
           colonnes: "minmax(0,0.85fr) minmax(0,1fr) minmax(0,1.45fr)",
           options: [
-            { v: "aucun", label: fr ? "Aucun" : "None", note: seulsExiste ? (fr ? "Pas pour cette fenêtre : le cadre est trop bas pour des croix." : "Not for this window: the frame is too low for crosses.") : barreauxImposes ? (fr ? "Obligatoires ici : le bas du cadre est à moins de 60 cm du sol." : "Mandatory here: the bottom of the frame is under 60 cm from the floor.") : "" },
-            { v: "bas", label: fr ? "En bas" : "At the bottom", note: seulsExiste ? (fr ? "Pas pour cette fenêtre : le cadre est trop bas pour des croix." : "Not for this window: the frame is too low for crosses.") : "" },
-            { v: "seuls", label: fr ? "Barreaux seuls" : "Bars only", note: "" },
+            { v: "aucun", label: fr ? "Aucun" : "None", note: seulsExiste ? (fr ? "Pas pour cette fenêtre : le cadre est trop bas pour des croix." : "Not for this window: the frame is too low for crosses.") : barreauxImposes ? (fr ? "Obligatoires ici : le bas du cadre est à moins de 60 cm du sol." : "Mandatory here: the bottom of the frame is under 60 cm from the floor.") : sansConforme("aucun") },
+            { v: "bas", label: fr ? "En bas" : "At the bottom", note: seulsExiste ? (fr ? "Pas pour cette fenêtre : le cadre est trop bas pour des croix." : "Not for this window: the frame is too low for crosses.") : sansConforme("bas") },
+            { v: "seuls", label: fr ? "Barreaux seuls" : "Bars only", note: sansConforme("seuls") },
           ],
           legende: seulsExiste
             ? fr ? "Fenêtre haute : un cadre bas à barreaux verticaux." : "High window: a low frame of vertical bars."
@@ -588,8 +602,8 @@ export function ReleveGardeCorps({
           titre: fr ? "Traverse au milieu" : "Middle rail",
           valeur: famille.traverse ? "avec" : "sans",
           options: [
-            { v: "sans", label: fr ? "Sans" : "Without", note: "" },
-            { v: "avec", label: fr ? "Avec" : "With", note: famille.barreaux === "seuls" ? (fr ? "Non disponible avec des barreaux seuls." : "Not available with bars only.") : "" },
+            { v: "sans", label: fr ? "Sans" : "Without", note: sansConformeTraverse(false) },
+            { v: "avec", label: fr ? "Avec" : "With", note: famille.barreaux === "seuls" ? (fr ? "Non disponible avec des barreaux seuls." : "Not available with bars only.") : sansConformeTraverse(true) },
           ],
           legende: famille.barreaux === "seuls"
             ? fr ? "Sans objet : pas de croix." : "Not applicable: no crosses."
@@ -628,39 +642,54 @@ export function ReleveGardeCorps({
       ))}
     </div>
   ) : null;
+  /** Le bouton « personnaliser » : le client envoie une photo du garde-corps qu'il veut, l'atelier répond par un devis. */
   const lienPhoto = lienDevis ? (
     <Link
       href={lienDevis}
-      title={fr ? "Envoyez-nous une photo : réponse en 24 à 72 h" : "Send us a photo: reply within 24 to 72 h"}
-      className="inline-block text-[11px] font-medium text-[#2b2320] underline underline-offset-4 transition-colors hover:text-[#6d2c2c]"
+      title={fr ? "Envoyez-nous une photo du garde-corps que vous voulez : devis en 24 à 72 h" : "Send us a photo of the railing you want: quote within 24 to 72 h"}
+      className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#2b2320]/25 px-2.5 py-1 text-[11px] font-medium leading-tight text-[#2b2320] transition-colors hover:bg-white/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
     >
-      {fr ? "Votre style, sur photo" : "Your style, from a photo"}
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3" aria-hidden>
+        <path d="M3 7h3l1.5-2h5L14 7h3v9H3z" />
+        <circle cx="10" cy="11.5" r="2.8" />
+      </svg>
+      {fr ? "Personnaliser sur photo : devis" : "Customise from a photo: quote"}
     </Link>
   ) : null;
-  /** Le bouton « Du moins cher au plus cher » : tous les modèles aux normes, par prix croissant, chacun avec sa rosace. */
+  /** Le bouton de tri : prix croissant ou décroissant (un clic inverse l'ordre). */
   const boutonPrix =
-    marque && nbConformes > 1 ? (
+    marque && liste.length > 1 ? (
       <button
         type="button"
-        aria-pressed={parPrix}
         onClick={() => {
-          setParPrix((v) => !v);
-          setPourquoi(null);
+          setTri((v) => (v === "croissant" ? "decroissant" : "croissant"));
           bande.current?.scrollTo({ left: 0 });
         }}
-        title={fr ? "Tous les modèles aux normes pour votre fenêtre, du moins cher au plus cher" : "Every model to standard for your window, cheapest first"}
-        className={`flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium leading-tight transition-colors ${parPrix ? "bg-[#2b2320] text-white" : "bg-[#2b2320]/[0.07] text-[#2b2320] hover:bg-white/80"}`}
+        aria-label={fr ? `Trier par prix : ${tri === "croissant" ? "croissant" : "décroissant"} (toucher pour inverser)` : `Sort by price: ${tri === "croissant" ? "low to high" : "high to low"} (tap to reverse)`}
+        title={fr ? "Inverser l'ordre des prix" : "Reverse the price order"}
+        className="flex shrink-0 items-center gap-1.5 rounded-full bg-[#2b2320]/[0.07] px-2.5 py-1 text-[11px] font-medium leading-tight text-[#2b2320] transition-colors hover:bg-white/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
       >
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3" aria-hidden>
-          <path d="M6 3v14M6 17l-3-3M6 17l3-3M14 17V3M14 3l-3 3M14 3l3 3" />
+          <path d={tri === "croissant" ? "M10 16V4M10 4l-4 4M10 4l4 4" : "M10 4v12M10 16l-4-4M10 16l4-4"} />
         </svg>
-        {fr ? "Du moins cher au plus cher" : "Cheapest first"}
+        {fr ? (tri === "croissant" ? "Prix croissant" : "Prix décroissant") : tri === "croissant" ? "Price: low to high" : "Price: high to low"}
       </button>
     ) : null;
+  /** « Uniquement des modèles aux normes » : dit clairement que la rangée ne propose rien d'autre. */
+  const mentionNormes = (n: number) => (
+    <span className="inline-flex items-center gap-1 text-[11.5px] font-medium text-[#2f7d46]">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3 shrink-0" aria-hidden>
+        <path d="M4.5 10.5l3.5 3.5 7.5-8" />
+      </svg>
+      {fr
+        ? `Uniquement des modèles aux normes pour votre fenêtre (${n})`
+        : `Only models that meet the standard for your window (${n})`}
+    </span>
+  );
   /**
-   * La rangée des modèles : des VISUELS, un par modèle, avec son prix et sa pastille verte ou rouge ; elle défile de côté s'il y en
-   * a plus que la place. Un clic choisit le modèle (ou, hors norme, explique pourquoi) et son détail s'écrit au-dessus. Du moins cher
-   * au plus cher : les mêmes visuels, rangés par prix, numérotés.
+   * La rangée des modèles : des VISUELS, un par modèle AUX NORMES pour cette fenêtre, avec son prix et sa pastille verte, rangés par
+   * prix (croissant ou décroissant) ; elle défile de côté s'il y en a plus que la place. Un clic choisit le modèle et son détail
+   * s'écrit au-dessus.
    */
   const grandeRangee = Boolean(bandeauSlot);
   const rangee =
@@ -688,38 +717,31 @@ export function ReleveGardeCorps({
           style={{ scrollbarWidth: "thin" }}
           className={`relative -mx-1 mt-1.5 flex snap-x snap-mandatory gap-1.5 overflow-x-auto px-1 pb-1 pt-0.5 transition-opacity ${modelesPerimes ? "opacity-60" : ""}`}
         >
-          {liste.map((m, rang) => {
+          {liste.map((m) => {
             const actif = choisi !== null && choisi.id === m.id;
-            const horsNorme = marque && !m.conforme;
             return (
               <button
                 key={m.id}
                 type="button"
-                aria-pressed={marque ? (m.conforme ? actif : explique?.id === m.id) : undefined}
-                aria-label={`${marque ? descriptionModele(m) : libelleModele(m)}${marque ? (m.conforme ? ` — ${prixAffiche(m.prix, locale)}` : ` — ${pasAdapte(m)} — ${fr ? "touchez pour voir pourquoi" : "tap to see why"}`) : ""}`}
-                title={horsNorme ? `${pasAdapte(m)} — ${fr ? "touchez pour voir pourquoi" : "tap to see why"}` : marque ? descriptionModele(m) : libelleModele(m)}
+                aria-pressed={marque ? actif : undefined}
+                aria-label={`${marque ? descriptionModele(m) : libelleModele(m)}${marque ? ` — ${prixAffiche(m.prix, locale)}` : ""}`}
+                title={marque ? descriptionModele(m) : libelleModele(m)}
                 onMouseEnter={() => setSurvol(m.id)}
                 onMouseLeave={() => setSurvol(null)}
                 onFocus={() => setSurvol(m.id)}
                 onBlur={() => setSurvol(null)}
                 onClick={() => {
                   if (!marque) document.getElementById(`${idChamps}-largeur`)?.focus();
-                  else if (m.conforme) {
+                  else {
                     setPerdu(null);
                     setPourquoi(null);
                     onChange({ ...cotes, modele: m.id });
                     if (m.rosace && rosaceId && m.rosace !== rosaceId) onRosace?.(m.rosace);
-                  } else setPourquoi((p) => (p === m.id ? null : m.id));
+                  }
                 }}
-                className={`tuile-modele relative flex ${grandeRangee ? "w-[104px] grow max-w-[190px]" : "w-[78px]"} shrink-0 snap-start flex-col px-1.5 pb-1.5 pt-2.5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${horsNorme ? "tuile-hors-norme" : ""}`}
+                className={`tuile-modele relative flex ${grandeRangee ? "w-[104px] grow max-w-[190px]" : "w-[78px]"} shrink-0 snap-start flex-col px-1.5 pb-1.5 pt-2.5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]`}
               >
-                {marque && pastille(m.conforme)}
-                {/* Du moins cher au plus cher : le rang du modèle. */}
-                {parPrixActif && (
-                  <span aria-hidden className="absolute left-1.5 top-1.5 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-[#2b2320] text-[10px] font-bold leading-none text-white">
-                    {rang + 1}
-                  </span>
-                )}
+                {marque && pastille(true)}
                 <MiniGardeCorps
                   largeurMm={releve?.largeurMm ?? 1180}
                   hauteurMm={m.hauteurMm}
@@ -729,21 +751,17 @@ export function ReleveGardeCorps({
                   seuls={m.seuls}
                   sansRosace={m.rosace === "sans"}
                   croix={m.croix}
-                  trous={horsNorme ? m.trous : null}
+                  trous={null}
                   hauteurPx={grandeRangee ? 40 : 26}
                 />
                 <span className="mt-1 block text-[11px] font-semibold leading-tight text-[#2b2320]">
                   {m.seuls ? (fr ? "Barreaux" : "Bars") : `${m.croix} ${fr ? "croix" : m.croix > 1 ? "crosses" : "cross"}`}
                 </span>
                 {/* Le modèle demande une autre rosace que la choisie (plus grande : les vides sont plus petits). */}
-                {marque && m.conforme && m.rosace && rosaceId && m.rosace !== rosaceId && (
+                {marque && m.rosace && rosaceId && m.rosace !== rosaceId && (
                   <span className="block text-[9.5px] leading-tight text-[#6f6357]">{rosaceTexte(m.rosace).split(" Ø")[0]}</span>
                 )}
-                {marque && (
-                  <span className={`block text-[11px] font-medium leading-tight tabular-nums ${m.conforme ? "text-[#2b2320]" : "text-[#6d2c2c]"}`}>
-                    {m.conforme ? prixAffiche(m.prix, locale) : fr ? "hors norme" : "off-standard"}
-                  </span>
-                )}
+                {marque && <span className="block text-[11px] font-medium leading-tight tabular-nums text-[#2b2320]">{prixAffiche(m.prix, locale)}</span>}
               </button>
             );
           })}
@@ -752,17 +770,17 @@ export function ReleveGardeCorps({
     ) : null;
   const catalogue = (
     /* Sous le croquis (téléphone, tablette), en bande FINE : les deux boutons (barreaux, traverse) et UNE rangée de modèles qui
-       défile de côté, chacun avec son prix et sa pastille verte ou rouge. Sur grand écran : voir `bandeau`. */
+       défile de côté, chacun avec son prix : uniquement des modèles aux normes. Sur grand écran : voir `bandeau`. */
     <div id="modeles-gc" className="carte-verre carte-modeles mt-2 scroll-mt-24 rounded-[20px] px-3 pb-2 pt-2.5 text-left">
       <div className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 ${marque ? "xl:hidden" : ""}`}>
         {marque ? controlesFamille : <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{fr ? "Votre modèle" : "Your model"}</p>}
       </div>
       {phraseModeles && <p className={`mt-1 text-[11.5px] leading-snug ${modeles.length === 0 && texteManque ? "font-medium text-[#7a4510]" : "text-[#5c5140]"}`}>{phraseModeles}</p>}
       {marque && nbConformes > 0 && (
-        <p className="mt-2 text-[13px] font-semibold leading-tight text-[#2b2320]">
-          {!choisi ? (fr ? "Choisissez votre modèle" : "Choose your model") : fr ? "Votre modèle" : "Your model"}
-          <span className="ml-2 text-[11.5px] font-normal text-[#5c5140]">{(() => { const n = parPrixActif ? nbConformes : nbModelesFamille; return fr ? `${n} modèle${n > 1 ? "s" : ""} aux normes` : `${n} model${n > 1 ? "s" : ""} to standard`; })()}</span>
-        </p>
+        <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+          <p className="text-[13px] font-semibold leading-tight text-[#2b2320]">{!choisi ? (fr ? "Choisissez votre modèle" : "Choose your model") : fr ? "Votre modèle" : "Your model"}</p>
+          {nbModelesFamille > 0 && mentionNormes(nbModelesFamille)}
+        </div>
       )}
       {boutonPrix && <div className="mt-1.5 flex items-center justify-end">{boutonPrix}</div>}
       {rangee}
@@ -785,23 +803,16 @@ export function ReleveGardeCorps({
         <span className="shrink-0 text-[14px] font-semibold leading-tight text-[#2b2320]">
           {marque && nbConformes > 0 && !choisi ? (fr ? "Choisissez votre modèle" : "Choose your model") : fr ? "Votre modèle" : "Your model"}
         </span>
-        {marque && (parPrixActif ? nbConformes : nbModelesFamille) > 0 && (
-          <span className="text-[11.5px] text-[#5c5140]">
-            {(() => {
-              const n = parPrixActif ? nbConformes : nbModelesFamille;
-              return fr ? `${n} modèle${n > 1 ? "s" : ""} aux normes pour votre fenêtre` : `${n} model${n > 1 ? "s" : ""} to standard for your window`;
-            })()}
-          </span>
-        )}
+        {marque && nbModelesFamille > 0 && mentionNormes(nbModelesFamille)}
         {/* D'autres modèles existent, dans les autres familles : le client doit le savoir et savoir où les trouver. */}
-        {!parPrixActif && nbAutresModeles > 0 && (
+        {nbAutresModeles > 0 && (
           <button
             type="button"
             onClick={allerAuxReglages}
             title={fr ? "Réglez « Barreaux » et « Traverse au milieu » pour voir d'autres modèles" : "Set “Bars” and “Middle rail” to see other models"}
             className="inline-flex items-center gap-1 rounded-full bg-[#2b2320]/[0.07] px-2.5 py-0.5 text-[11px] font-medium leading-tight text-[#2b2320] transition-colors hover:bg-white/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
           >
-            {fr ? `+ ${nbAutresModeles} autre${nbAutresModeles > 1 ? "s" : ""} modèle${nbAutresModeles > 1 ? "s" : ""} : barreaux, traverse` : `+ ${nbAutresModeles} other model${nbAutresModeles > 1 ? "s" : ""}: bars, middle rail`}
+            {fr ? `+ ${nbAutresModeles} autre${nbAutresModeles > 1 ? "s" : ""} modèle${nbAutresModeles > 1 ? "s" : ""} aux normes : barreaux, traverse` : `+ ${nbAutresModeles} other model${nbAutresModeles > 1 ? "s" : ""} to standard: bars, middle rail`}
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3" aria-hidden>
               <path d="M7.5 4.5L13 10l-5.5 5.5" />
             </svg>
