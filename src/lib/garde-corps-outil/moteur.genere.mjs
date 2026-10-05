@@ -1,7 +1,8 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Moteur garde-corps : norme NF P01-012, géométrie, débit, dessins. SANS coûts.
-// Source : l'outil de plans (plans-atelier.html), sha256 077d2a7d7f98ed3b9bcf84e03c32e15f87a93a1495345994d34aaf31b2b919f8
+// Source : l'outil de plans (plans-atelier.html), sha256 5644127c2d739cadae1856ff675eb0b11f4c5dfd359b9863b922b91a90d9ad9d
 /* eslint-disable */
+const NOMS = { mikado: "Table Mikado", croix: "Table Croix", mikadoExt: "Table Mikado extérieur", gardeCorps: "Garde-corps Rosace à croix", escalier: "Escalier droit à limon central" };
 const SPHERE = 110;
 const SPHERE_HAUT = 180;
 const Z_SPHERE = 800;
@@ -20,6 +21,7 @@ const CHARGE_V = 0.67 * 1.5;
 const HAUT_ETAGE = 1000;
 const ALLEGE_LIBRE = 900;
 const MINI_GC = 200;
+const MINI_SEULS = 120;
 const BARRE_APPUI = 40;
 const DEG = 180 / Math.PI;
 const BARRE = 6000;
@@ -259,9 +261,10 @@ function geomGC(v, n) {
     const appuiA = 0, appuiX = v.Xo >= 100 && v.Xo < 600 ? v.Xo : 0;
     const cible = HAUT_ETAGE + Math.max(appuiA, appuiX) + CIBLE_MARGE;
     const manque = Math.ceil(cible - v.A - v.jour);
-    const hNorme = Math.max(MINI_GC, manque);
-    const Hr = v.Hs >= MINI_GC ? v.Hs : hNorme;
-    const appui = v.Hs >= MINI_GC || manque >= MINI_GC ? null : cible - v.A < BARRE_APPUI && (appuiX === 0 || v.A >= HAUT_ETAGE + appuiX) ? "rien" : "barre";
+    const mini = seuls ? MINI_SEULS : MINI_GC;
+    const hNorme = Math.max(mini, manque);
+    const Hr = v.Hs >= mini ? v.Hs : hNorme;
+    const appui = v.Hs >= mini || manque >= mini ? null : cible - v.A < BARRE_APPUI && (appuiX === 0 || v.A >= HAUT_ETAGE + appuiX) ? "rien" : "barre";
     const Hc = Hr - v.mc + (v.chev || 0) - (v.eRf || 0);
     const zCadre = v.A + v.jour;
     const Hc0 = Hc, hautInt = zCadre + Hc0 - v.s;
@@ -330,6 +333,26 @@ function dessinMainCourante(L, v) {
     D.push({ t: "texte", p: [ox, 0], txt: `Section (agrandie ×${K}) : rainure ${n(v.lR)} × ${n(v.chev)}`, pos: "sous", decal: 4.2 });
     return D;
   }
+function coupeMainCourante(v0) {
+    const v = mainCouranteGC(v0), s = v.s, D = [];
+    if (v.eRf) {
+      const xv = (s / 2 + v.lRf / 2) / 2;
+      D.push({ t: "poly", cls: "t-acier-plein", pts: rect(-s / 2, -v.eRf - s, s / 2, -v.eRf) });
+      D.push({ t: "poly", cls: "t-acier-plein", pts: rect(-v.lRf / 2, -v.eRf, v.lRf / 2, 0) });
+      D.push({ t: "poly", cls: "t-bois", pts: sectionMainCourante(v) });
+      D.push({ t: "poly", ouvert: true, cls: "t-cache", pts: [[-xv, -v.eRf], [-xv, v.mc * 0.7]] }, { t: "poly", ouvert: true, cls: "t-cache", pts: [[xv, -v.eRf], [xv, v.mc * 0.7]] });
+      return D;
+    }
+    if (v.mcType === "acier") {
+      D.push({ t: "poly", cls: "t-acier-plein", pts: rect(-s / 2, -s, s / 2, 0) });
+      D.push({ t: "poly", cls: "t-acier-plein", pts: rect(-v.lMc / 2, 0, v.lMc / 2, v.mc) });
+      return D;
+    }
+    const c = v.chev || 0;
+    D.push({ t: "poly", cls: "t-acier-plein", pts: rect(-s / 2, c - s, s / 2, c) });
+    D.push({ t: "poly", cls: v.profilMC ? "t-acier-plein" : "t-bois", pts: sectionMainCourante(v) });
+    return D;
+  }
 function dessinMontantRive(pts, Lm, v) {
     const s = v.s, posF = percages(Lm, v.nF, v.eF);
     const D = profil(pts, { entier: true });
@@ -357,15 +380,16 @@ function calculerGC(v) {
     const auto = Math.max(1, Math.round(v.B / 600));
     const n = v.nP >= 1 ? Math.round(v.nP) : 1;
     const g = geomGC(v, seuls ? 1 : n);
+    if ((v.ass === "onglet" ? g.Hc : g.Hc - 2 * v.s) < 2 * v.eF + v.fF) v = { ...v, eF: Math.max(15, v.fF / 2 + 9) };
     if (!(g.w > 3 * v.s) || !(g.h > 3 * v.s)) { R.alertes.push(seuls ? "Le garde-corps est trop petit pour des barreaux : augmente la largeur ou la hauteur." : "Le garde-corps est trop petit pour ce nombre de croix : baisse le nombre de croix ou augmente la hauteur."); return R; }
     const s = v.s, x0 = -g.Lc / 2, y0 = v.A + v.jour, haut = y0 + g.Hr;
     const obligatoire = v.etage && v.A < ALLEGE_LIBRE;
     if (g.appui === "rien") R.alertes.push(`Barre d'appui : rien à poser. Le bas de la fenêtre est à ${mmTxt(v.A)} mm du sol : il reste moins de ${BARRE_APPUI} mm jusqu'à ${mmTxt(g.cible)} mm${v.Xo >= 100 && v.Xo < 600 ? "" : `, et à partir de ${ALLEGE_LIBRE} mm la loi n'impose rien`}.`);
     else if (g.appui) {
-      const videB = g.cible - BARRE_APPUI - v.A, limiteB = v.A < Z_SPHERE ? SPHERE : SPHERE_HAUT, jourB = g.cible - v.A - MINI_GC;
-      R.alertes.push(`Barre d'appui : il ne manque que ${mmTxt(g.cible - v.A)} mm entre le bas de la fenêtre et ${mmTxt(g.cible)} mm du sol. Un garde-corps à croix de ${MINI_GC} mm monterait à ${mmTxt(haut)} mm : la main courante ne serait plus à sa hauteur. ` +
+      const miniGC = seuls ? MINI_SEULS : MINI_GC, videB = g.cible - BARRE_APPUI - v.A, limiteB = v.A < Z_SPHERE ? SPHERE : SPHERE_HAUT, jourB = g.cible - v.A - miniGC;
+      R.alertes.push(`Barre d'appui : il ne manque que ${mmTxt(g.cible - v.A)} mm entre le bas de la fenêtre et ${mmTxt(g.cible)} mm du sol. Un garde-corps ${seuls ? "à barreaux" : "à croix"} de ${miniGC} mm monterait à ${mmTxt(haut)} mm : la main courante ne serait plus à sa hauteur. ` +
         (videB < limiteB ? `Une barre d'appui seule suffit (vide de ${mmTxt(videB)} mm dessous, boule de ${limiteB}).` : `Il faut une barre d'appui avec une lisse basse (une barre seule laisserait ${mmTxt(videB)} mm de vide, boule de ${limiteB}).`) +
-        (jourB >= 0 ? ` Ou garde un garde-corps de ${MINI_GC} mm en réduisant le jour sous le cadre à ${mmTxt(jourB)} mm.` : ""));
+        (jourB >= 0 ? ` Ou garde un garde-corps de ${miniGC} mm en réduisant le jour sous le cadre à ${mmTxt(jourB)} mm.` : ""));
     }
 
     let nMin = null;
@@ -613,6 +637,76 @@ function calculerGC(v) {
     R.notes.push(seuls ? `Barreaux verticaux seuls : ${g.nbB} barreaux soudés entre la traverse haute et la traverse basse, vides égaux de ${fmt(g.vide, 1)} mm. Pas de croix ni de rosace.` : v.traverse ? "Chaque croix : une diagonale entière et deux demi-diagonales soudées contre elle. Au milieu, deux demi-traverses vont du montant jusqu'au centre : leur bout en pointe rentre entre les diagonales." : "Chaque croix : une diagonale entière et deux demi-diagonales soudées contre elle.");
     return R;
   }
+function bornes(prims) {
+    let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
+    const add = ([x, y]) => { x1 = Math.min(x1, x); x2 = Math.max(x2, x); y1 = Math.min(y1, y); y2 = Math.max(y2, y); };
+    for (const p of prims) {
+      if (p.pts) p.pts.forEach(add);
+      if (p.t === "sol") { add([p.x1, 0]); add([p.x2, 0]); }
+      if (p.a) { add(p.a); add(p.b); }
+      if (p.t === "cercle") { add([p.c[0] - p.r, p.c[1] - p.r]); add([p.c[0] + p.r, p.c[1] + p.r]); }
+      if (p.t === "texte") add(p.p);
+    }
+    return { x1, y1, x2, y2, w: x2 - x1, h: y2 - y1 };
+  }
+function coteGeom(p, fs) {
+    const pas = fs * 2.4 * p.d;
+    const [ax, ay] = p.a, [bx, by] = p.b;
+    if (p.cote === "haut" || p.cote === "bas") {
+      const y = p.cote === "haut" ? Math.max(ay, by) + pas : Math.min(ay, by) - pas;
+      const court = !p.ton && Math.abs(bx - ax) < fs * 0.62 * String(p.txt).length + fs;
+      const tx = court ? Math.max(ax, bx) + fs * (0.9 + 0.33 * String(p.txt).length) : (ax + bx) / 2;
+      return { l: [[ax, ay, ax, y], [bx, by, bx, y], [ax, y, bx, y]], ticks: [[ax, y], [bx, y]], txt: [tx, y + (p.cote === "haut" ? fs * 0.45 : -fs * 1.15)], rot: 0 };
+    }
+    const x = p.cote === "droite" ? Math.max(ax, bx) + pas : Math.min(ax, bx) - pas;
+    const court = Math.abs(by - ay) < fs * 0.62 * String(p.txt).length + fs;
+    const ty = court ? Math.max(ay, by) + fs * (0.9 + 0.33 * String(p.txt).length) : (ay + by) / 2;
+    return { l: [[ax, ay, x, ay], [bx, by, x, by], [x, ay, x, by]].concat(court ? [[x, Math.max(ay, by), x, ty - fs * 0.33 * String(p.txt).length - fs * 0.3]] : []), ticks: [[x, ay], [x, by]], txt: [x + (p.cote === "droite" ? fs * 0.45 : -fs * 0.45), ty], rot: -90, cote: p.cote };
+  }
+function svgDe(prims, petit = false) {
+    const b = bornes(prims);
+    const fs = Math.max(b.w, b.h) / (petit === "planche" ? 19 : petit ? 26 : 42);
+    const m = fs * 8.5;
+    const vb = [b.x1 - m, -(b.y2 + m), b.w + 2 * m, b.h + 2 * m];
+    const Y = (y) => -y;
+    let out = "";
+    const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    for (const p of prims) {
+      const pc = p.piece ? ` data-piece="${esc([].concat(p.piece).join("|"))}"` : "", cc = p.piece ? " cliquable" : "";
+      if (p.t === "poly") out += `<${p.ouvert ? "polyline" : "polygon"}${pc} class="${p.cls}${cc}" points="${p.pts.map(([x, y]) => `${x.toFixed(1)},${Y(y).toFixed(1)}`).join(" ")}"/>`;
+      if (p.t === "sol") out += `<line class="t-sol" x1="${p.x1}" y1="0" x2="${p.x2}" y2="0"/>`;
+      if (p.t === "cercle") out += `<circle${pc} class="${p.cls}${cc}" cx="${p.c[0].toFixed(1)}" cy="${Y(p.c[1]).toFixed(1)}" r="${p.r.toFixed(1)}"/>`;
+      if (p.t === "texte") {
+        const dy = p.pos === "sous" ? fs * (1.25 + (p.decal || 0) * 1.1) : -fs * (0.55 + (p.decal || 0) * 1.1);
+        const tc = p.ton ? `t-texte ${p.ton} halo` : "t-libre", tf = p.ton ? fs * 1.15 : fs * 0.72;
+        out += `<text class="${tc}" font-size="${tf.toFixed(1)}" x="${p.p[0].toFixed(1)}" y="${(Y(p.p[1]) + dy).toFixed(1)}" text-anchor="middle">${esc(p.txt)}</text>`;
+      }
+      if (p.t === "fleche") {
+        const [x, y] = p.p, a = fs * 0.45;
+        out += `<polygon class="t-fleche ${p.ton || ""}" points="${x.toFixed(1)},${Y(y).toFixed(1)} ${(x - a * 0.5).toFixed(1)},${Y(y - a).toFixed(1)} ${(x + a * 0.5).toFixed(1)},${Y(y - a).toFixed(1)}"/>`;
+      }
+      if (p.t === "point") out += `<circle class="t-point" cx="${p.c[0].toFixed(1)}" cy="${Y(p.c[1]).toFixed(1)}" r="${(fs * 0.22).toFixed(1)}"/>`;
+      if (p.t === "angle") {
+        const r = fs * 3.2, [cx, cy] = p.c;
+        const x1 = cx - r, y1 = cy, x2 = cx - r * Math.cos(p.ang), y2 = cy - r * Math.sin(p.ang);
+        out += `<path class="t-cote" d="M${x1.toFixed(1)},${Y(y1).toFixed(1)} A${r.toFixed(1)},${r.toFixed(1)} 0 0 0 ${x2.toFixed(1)},${Y(y2).toFixed(1)}"/>`;
+        out += `<text class="t-texte" font-size="${(fs * 0.85).toFixed(1)}" x="${(cx - r * 1.35).toFixed(1)}" y="${Y(cy - r * 0.45).toFixed(1)}" text-anchor="end">${esc(p.txt)}</text>`;
+      }
+      if (p.t === "cote") {
+        const g = coteGeom(p, fs);
+        const ton = p.ton ? " " + p.ton : "";
+        for (const [x1, y1, x2, y2] of g.l) out += `<line class="t-cote${ton}" x1="${x1.toFixed(1)}" y1="${Y(y1).toFixed(1)}" x2="${x2.toFixed(1)}" y2="${Y(y2).toFixed(1)}"/>`;
+        const tk = fs * 0.45;
+        for (const [x, y] of g.ticks) out += `<line class="t-cote${ton}" x1="${(x - tk).toFixed(1)}" y1="${Y(y - tk).toFixed(1)}" x2="${(x + tk).toFixed(1)}" y2="${Y(y + tk).toFixed(1)}"/>`;
+        const [tx, ty] = g.txt;
+        const anchor = g.rot ? "middle" : "middle";
+        const tr = g.rot ? ` transform="rotate(90 ${tx.toFixed(1)} ${Y(ty).toFixed(1)})"` : "";
+        const dy = g.rot ? (g.cote === "droite" ? -fs * 0.25 : fs * 0.45) : 0;
+        out += `<text class="t-texte${ton}" font-size="${fs.toFixed(1)}" x="${tx.toFixed(1)}" y="${(Y(ty) + dy).toFixed(1)}" text-anchor="${anchor}"${tr}>${esc(p.txt)}</text>`;
+      }
+    }
+    return { vb, fs, html: out };
+  }
 function variantesConformes(v) {
     const base = calculerGC(v);
     if (!base.alertes.length) return [];
@@ -656,8 +750,251 @@ function decrireVariante(v, c) {
     if ((c.w.renfort === "plat") !== (v.renfort === "plat")) d.push(c.w.renfort === "plat" ? `lisse haute renforcée : plat ${RENFORT.l} × ${RENFORT.e} sous une main courante bois de ${RENFORT.bois.l}` : "sans plat de renfort");
     return d;
   }
-export const DEFAUTS_GC = Object.freeze({"prixVente":0,"km":30,"debitAr":8,"minSoud":1.2,"rnP":14,"rnJ":1,"nF":2,"dF":6.5,"fF":13,"eF":40,"epMc":8,"L":2000,"l":1000,"H":750,"e":45,"a":80,"ep":3,"t":3,"pL":75,"pl":60,"pX":80,"rX":250,"tS":300,"tW":120,"pR":60,"bR":300,"lame":150,"latte":120,"jeu":8,"trait":3,"B":1180,"A":650,"Hs":0,"Hf":0,"s":16,"mc":40,"j":1,"jour":90,"nP":1,"nb":0,"rD":100,"Xo":0,"Hm":2600,"recul":0,"Wm":900,"lh":150,"lw":100,"le":5,"em":50,"nez":0,"hs":80,"tp":8,"plx":200,"ply":150,"tpp":10,"epl":200,"ass":"droit","etage":true,"rosace":true,"traverse":false,"mcType":"bois","sbMode":"auto","seuls":false,"renfort":"sans","essence":"chene","remise":"retrait","essenceT":"chene","teinte":"noir","rainure":true});
+function fichesPlanches(R) { return R.debit.filter((d) => d.dessin).map((d, k) => ({ d, rep: k + 1 })); }
+const A3_COUL = [
+    { cle: "Carré plein", trait: "#d98a2b", fond: "#fdf3e6" },
+    { cle: "Plat acier", trait: "#2f6db3", fond: "#eaf1fa" },
+    { cle: "Main courante acier", trait: "#2f6db3", fond: "#eaf1fa" },
+    { cle: "Tube", trait: "#2f6db3", fond: "#eaf1fa" },
+    { cle: "Tôle", trait: "#7a5aa6", fond: "#f2edf8" },
+    { cle: "Bois", trait: "#9a6a3a", fond: "#f6ede2" },
+    { cle: "Chêne", trait: "#9a6a3a", fond: "#f6ede2" },
+    { cle: "Hêtre", trait: "#9a6a3a", fond: "#f6ede2" },
+    { cle: "Pin", trait: "#9a6a3a", fond: "#f6ede2" },
+    { cle: "Noyer", trait: "#9a6a3a", fond: "#f6ede2" },
+  ];
+const ECHELLES = [2, 2.5, 5, 7.5, 10, 15, 20, 25, 30, 50];
+function a3Matiere(mat) { return String(mat).replace(/\s*\(.*$/, "").trim(); }
+function a3Couleur(mat) { return A3_COUL.find((c) => String(mat).startsWith(c.cle)) || { trait: "#2b2320", fond: "#eeeae4" }; }
+function planA3Pur(R, v, infos, modele) {
+    const apercu = !!infos.apercu;
+    const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    const f1 = (x) => (Math.round(x * 100) / 100).toString();
+    const nom0 = (p) => [].concat(p.piece)[0];
+    const pieces = (prims) => prims.filter((p) => p.piece && (p.t === "poly" || p.t === "cercle"));
+    const matDe = (piece) => { const cles = [].concat(piece); const d = R.debit.find((x) => cles.some((k) => x.nom.startsWith(k))); return d ? d.mat : ""; };
+    const face = pieces(R.vues.face), vCote = pieces(R.vues.cote), dessus = pieces(R.vues.dessus);
+    const cachesFace = apercu ? [] : R.vues.face.filter((p) => p.t === "poly" && p.cls === "t-cache" && p.ouvert);
+    const bf = bornes(face), bc = bornes(vCote), bd = bornes(dessus);
+    let out = "";
+    const T = (x, y, txt, { t = 2.5, a = "middle", g = 400, c = "#1f2a36", rot = 0, f = "Arial, Helvetica, sans-serif" } = {}) =>
+      `<text x="${f1(x)}" y="${f1(y)}" font-size="${t}" font-weight="${g}" fill="${c}" font-family="${f}" text-anchor="${a}"${rot ? ` transform="rotate(${rot} ${f1(x)} ${f1(y)})"` : ""}>${esc(txt)}</text>`;
+    const L = (x1, y1, x2, y2, c = "#5b6b7c", w = 0.18, dash = "") => `<line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(x2)}" y2="${f1(y2)}" stroke="${c}" stroke-width="${w}"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`;
+    const RECT = (x, y, w, h, sw = 0.25, fill = "none") => `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" fill="${fill}" stroke="#1f2a36" stroke-width="${sw}"/>`;
+
+    const ZX1 = 14, ZX2 = 406, ZY1 = 14, ZY2 = 196;
+    const gapX = 34;
+    const nInter = apercu ? 0 : Math.max(0, face.filter((p) => p.t === "poly" && /^Montants/.test(nom0(p))).length - 2);
+    const autour = 14 + 5 * nInter + 33 + 20 + 4;
+    const k = ECHELLES.find((e) => (bf.w + bc.w) / e + gapX + (apercu ? 14 : 26 + 84) <= ZX2 - ZX1 && (bf.h + bd.h) / e + autour <= ZY2 - ZY1) || 50;
+    const largeur = bf.w / k + gapX + bc.w / k + (apercu ? 14 : 26 + 78);
+    const oxF = ZX1 + (ZX2 - ZX1 - largeur) / 2 + 4;
+    const hautBloc = 14 + 5 * nInter + bf.h / k + 33 + bd.h / k + 20;
+    const oyF = ZY1 + (ZY2 - ZY1 - hautBloc) / 2 + 14 + 5 * nInter + bf.h / k;
+    const ech = `échelle 1:${k} @ A3`;
+
+    function vue(prims, b, ox, oy, extra = []) {
+      const P = (x, y) => [ox + (x - b.x1) / k, oy - (y - b.y1) / k];
+      prims.forEach((p) => {
+        const c = a3Couleur(matDe(p.piece));
+        if (p.t === "poly") out += `<polygon points="${p.pts.map(([x, y]) => P(x, y).map(f1).join(",")).join(" ")}" fill="${c.fond}" stroke="${c.trait}" stroke-width="0.3" stroke-linejoin="round"/>`;
+        else { const [cx, cy] = P(p.c[0], p.c[1]); out += `<circle cx="${f1(cx)}" cy="${f1(cy)}" r="${f1(p.r / k)}" fill="${c.fond}" stroke="${c.trait}" stroke-width="0.3"/>`; }
+      });
+      extra.forEach((p) => out += `<polyline points="${p.pts.map(([x, y]) => P(x, y).map(f1).join(",")).join(" ")}" fill="none" stroke="#1f2a36" stroke-width="0.18" stroke-dasharray="0.8 0.6"/>`);
+      return P;
+    }
+    function coter(P, a, b, sens, dec, txt) {
+      const [ax, ay] = P(...a), [bx, by] = P(...b), tk = 1;
+      if (sens === "haut" || sens === "bas") {
+        const s = sens === "haut" ? -1 : 1, y = sens === "haut" ? Math.min(ay, by) - dec : Math.max(ay, by) + dec;
+        out += L(ax, ay + s * 1, ax, y + s * 1.2) + L(bx, by + s * 1, bx, y + s * 1.2) + L(ax, y, bx, y, "#1f2a36", 0.2);
+        out += L(ax - tk, y + tk, ax + tk, y - tk, "#1f2a36", 0.3) + L(bx - tk, y + tk, bx + tk, y - tk, "#1f2a36", 0.3);
+        out += T((ax + bx) / 2, y - 0.8, txt, { g: 700, t: 2.4 });
+      } else {
+        const s = sens === "droite" ? 1 : -1, x = sens === "droite" ? Math.max(ax, bx) + dec : Math.min(ax, bx) - dec;
+        out += L(ax + s * 1, ay, x + s * 1.2, ay) + L(bx + s * 1, by, x + s * 1.2, by) + L(x, ay, x, by, "#1f2a36", 0.2);
+        out += L(x - tk, ay + tk, x + tk, ay - tk, "#1f2a36", 0.3) + L(x - tk, by + tk, x + tk, by - tk, "#1f2a36", 0.3);
+        out += T(x - 2.6, (ay + by) / 2, txt, { g: 700, t: 2.4, rot: 90 });
+      }
+    }
+    function titre(x, y, noir, rouge, sous) {
+      out += `<text x="${f1(x)}" y="${f1(y)}" font-size="3.6" font-weight="700" font-family="Arial, Helvetica, sans-serif" fill="#111">${esc(noir)}${rouge ? `<tspan fill="#c0392b">${esc(rouge)}</tspan>` : ""}</text>`;
+      out += T(x, y + 3.8, sous, { t: 2.2, a: "start", c: "#444" });
+    }
+
+    out += `<rect x="0" y="0" width="420" height="297" fill="#fff"/>`;
+    out += RECT(10, 10, 400, 277, 0.5);
+
+    const PF = vue(face, bf, oxF, oyF, cachesFace);
+    const montants = face.filter((p) => p.t === "poly" && /^Montants/.test(nom0(p))).map((p) => { const xs = p.pts.map((q) => q[0]); return (Math.min(...xs) + Math.max(...xs)) / 2; }).sort((a, b) => a - b);
+    const yH = bf.y2, yB = bf.y1;
+    const inter = montants.slice(1, -1);
+    if (!apercu) inter.forEach((x, i) => coter(PF, [bf.x1, yH], [x, yH], "haut", 6 + 5 * i, `${mmTxt(x - bf.x1)} c/c`));
+    coter(PF, [bf.x1, yH], [bf.x2, yH], "haut", 6 + (apercu ? 0 : 5 * inter.length), `${mmTxt(bf.w)} hors tout`);
+    for (let i = 0; i + 1 < montants.length; i++) coter(PF, [montants[i], yB], [montants[i + 1], yB], "bas", 6, `${mmTxt(montants[i + 1] - montants[i])} c/c`);
+    const mc = face.find((p) => nom0(p) === "Main courante");
+    if (mc) {
+      const ym = Math.min(...mc.pts.map((q) => q[1]));
+      const rfP = face.find((p) => nom0(p) === "Plat de renfort");
+      const yc = rfP ? Math.min(...rfP.pts.map((q) => q[1])) : ym;
+      coter(PF, [bf.x2, yB], [bf.x2, yc], "droite", 6, `${mmTxt(yc - yB)}`);
+      coter(PF, [bf.x2, yc], [bf.x2, yH], "droite", 6, rfP ? `${mmTxt(ym - yc)} + ${mmTxt(yH - ym)}` : `${mmTxt(yH - ym)}`);
+      coter(PF, [bf.x2, yB], [bf.x2, yH], "droite", 12, `${mmTxt(bf.h)}`);
+    } else coter(PF, [bf.x2, yB], [bf.x2, yH], "droite", 6, `${mmTxt(bf.h)}`);
+    titre(oxF, oyF + 17, "VUE DE FACE", " - CADRE SEUL", `vue depuis l'intérieur · ${ech}`);
+
+    const oyD = oyF + 33 + bd.h / k;
+    const PD = vue(dessus, bd, oxF + (bd.x1 - bf.x1) / k, oyD);
+    coter(PD, [bd.x1, bd.y1], [bd.x2, bd.y1], "bas", 5, `${mmTxt(bd.w)}`);
+    coter(PD, [bd.x2, bd.y1], [bd.x2, bd.y2], "droite", 5, `${mmTxt(bd.h)}`);
+    titre(oxF, oyD + 15, "VUE DE DESSUS", " - CADRE SEUL", ech);
+
+    const oxC = oxF + bf.w / k + gapX;
+    const PC = vue(vCote, bc, oxC, oyF);
+    coter(PC, [bc.x2, bc.y1], [bc.x2, bc.y2], "droite", 5, `${mmTxt(bc.h)}`);
+    coter(PC, [bc.x1, bc.y2], [bc.x2, bc.y2], "haut", 4, `${mmTxt(bc.w)}`);
+    titre(oxC - 4, oyF + 17, "VUE DE CÔTÉ", " - CADRE SEUL", ech);
+
+    const mR = R.debit.find((d) => d.nom.startsWith("Montants de rive"));
+    if (mR && v.nF && !apercu) {
+      const Lm = mR.long, s = v.s, kd = [1, 2, 2.5, 5, 10, 15, 20, 25, 30].find((e) => Lm / e <= Math.max(bf.h / k, 40)) || 30;
+      const posF = percages(Lm, v.nF, v.eF);
+      const x0 = oxC + bc.w / k + 26, y0 = oyF - Math.max(bf.h / k, Lm / kd);
+      out += `<rect x="${f1(x0)}" y="${f1(y0)}" width="${f1(s / kd)}" height="${f1(Lm / kd)}" fill="#fdf3e6" stroke="#d98a2b" stroke-width="0.3"/>`;
+      posF.forEach((z) => {
+        const cy = y0 + Lm / kd - z / kd, cx = x0 + s / kd / 2;
+        out += `<circle cx="${f1(cx)}" cy="${f1(cy)}" r="${f1(v.fF / 2 / kd)}" fill="none" stroke="#1f2a36" stroke-width="0.2" stroke-dasharray="0.8 0.5"/>`;
+        out += `<circle cx="${f1(cx)}" cy="${f1(cy)}" r="${f1(v.dF / 2 / kd)}" fill="#fff" stroke="#1f2a36" stroke-width="0.3"/>`;
+        out += L(cx - v.fF / kd * 0.8, cy, cx + v.fF / kd * 0.8, cy, "#1f2a36", 0.15, "2 0.6 0.4 0.6");
+      });
+      const PB = (x, z) => [x0 + x / kd, y0 + Lm / kd - z / kd];
+      { const yc = PB(0, posF[posF.length - 1])[1]; out += L(x0 - 5, yc, x0 + s / kd + 3, yc, "#1f2a36", 0.3, "4 1 0.7 1") + T(x0 - 6.5, yc + 1, "C", { t: 2.8, g: 700 }); }
+      const ch = [0, ...posF, Lm];
+      for (let i = 0; i + 1 < ch.length; i++) coter(PB, [s, ch[i]], [s, ch[i + 1]], "droite", 4, mmTxt(ch[i + 1] - ch[i]));
+      coter(PB, [0, Lm], [s, Lm], "haut", 3, `${s}`);
+      titre(x0 + s / kd + 16, y0 + 4, "DÉTAIL B", " - FIXATION", `face intérieure d'un montant de rive · échelle 1:${kd}`);
+      out += T(x0 + s / kd + 16, y0 + 12, `${posF.length} perçages Ø ${fmt(v.dF, 1)} traversants par montant`, { t: 2.3, a: "start" });
+      out += T(x0 + s / kd + 16, y0 + 15.5, `fraisés à 90°, Ø ${fmt(v.fF, 1)}, côté intérieur`, { t: 2.3, a: "start" });
+      out += T(x0 + s / kd + 16, y0 + 19, `vis ou goujon à tête fraisée + cheville dans le tableau`, { t: 2.3, a: "start" });
+      {
+        const e2 = 2, xs = x0 + s / kd + 30, ys = y0 + 30, S2 = s * e2, d2 = v.dF * e2, f2 = v.fF * e2, pf = (f2 - d2) / 2;
+        const ym = ys + S2 / 2;
+        const trou = [[xs, ym - d2 / 2], [xs + S2 - pf, ym - d2 / 2], [xs + S2, ym - f2 / 2], [xs + S2, ym + f2 / 2], [xs + S2 - pf, ym + d2 / 2], [xs, ym + d2 / 2]];
+        out += `<defs><pattern id="hachure" width="1.6" height="1.6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="1.6" stroke="#d98a2b" stroke-width="0.25"/></pattern></defs>`;
+        out += `<rect x="${f1(xs)}" y="${f1(ys)}" width="${f1(S2)}" height="${f1(S2)}" fill="url(#hachure)" stroke="#d98a2b" stroke-width="0.35"/>`;
+        out += `<polygon points="${trou.map((q) => q.map(f1).join(",")).join(" ")}" fill="#fff" stroke="#1f2a36" stroke-width="0.3"/>`;
+        out += L(xs - 3, ym, xs + S2 + 3, ym, "#1f2a36", 0.15, "3 0.8 0.5 0.8");
+        const P2 = (x, y) => [x, y];
+        coter(P2, [xs, ys], [xs, ys + S2], "gauche", 4, `${s}`);
+        coter(P2, [xs, ys], [xs + S2, ys], "haut", 4, `${s}`);
+        coter(P2, [xs + S2, ym - f2 / 2], [xs + S2, ym + f2 / 2], "droite", 4, `Ø ${fmt(v.fF, 1)}`);
+        coter(P2, [xs + 1.5, ym - d2 / 2], [xs + 1.5, ym + d2 / 2], "droite", S2 + 12, `Ø ${fmt(v.dF, 1)}`);
+        out += T(xs + S2 - pf - 1, ym - f2 / 2 - 1.5, "90°", { t: 2.2, g: 700, a: "end" });
+        out += T(xs, ys + S2 + 5, "côté mur", { t: 2, a: "start", c: "#555" }) + T(xs + S2, ys + S2 + 5, "côté intérieur", { t: 2, a: "end", c: "#555" });
+        titre(xs - 4, ys + S2 + 12, "COUPE C-C", " - PERÇAGE", "échelle 2:1");
+      }
+    }
+
+    const yb = 202, hb = 81;
+    out += RECT(14, yb, 58, hb);
+    out += T(43, yb + 5.5, "RÉVISIONS", { t: 2.6, g: 700 });
+    out += L(14, yb + 8, 72, yb + 8, "#1f2a36", 0.2);
+    out += T(16, yb + 12, "RÉV.", { t: 1.9, g: 700, a: "start", c: "#6f6357" }) + T(25, yb + 12, "DATE", { t: 1.9, g: 700, a: "start", c: "#6f6357" }) + T(42, yb + 12, "DESCRIPTION", { t: 1.9, g: 700, a: "start", c: "#6f6357" });
+    out += L(14, yb + 14, 72, yb + 14, "#1f2a36", 0.15);
+    out += T(16, yb + 18.5, "A", { t: 2.3, a: "start" }) + T(25, yb + 18.5, infos.date || "", { t: 2.1, a: "start" }) + T(42, yb + 18.5, "Première émission", { t: 2.1, a: "start" });
+    for (let i = 1; i <= 5; i++) out += L(14, yb + 14 + i * 7, 72, yb + 14 + i * 7, "#c8c2b8", 0.12);
+    out += L(23.5, yb + 8, 23.5, yb + 49, "#1f2a36", 0.12) + L(40.5, yb + 8, 40.5, yb + 49, "#1f2a36", 0.12);
+    out += T(16, yb + 60, "NOTE", { t: 2, g: 700, a: "start", c: "#6f6357" });
+    ["Cotes en mm.", "Ne pas mesurer sur le plan.", "Vérifier les cotes sur place", "avant de fabriquer."].forEach((l, i) => out += T(16, yb + 64 + i * 3.4, l, { t: 2, a: "start", c: "#444" }));
+
+    const groupes = new Map(), achats = [];
+    const repDe = new Map(fichesPlanches(R).map(({ d, rep }) => [d, rep]));
+    R.debit.forEach((d) => {
+      if (!d.long || !d.qte) { if (d.qte) achats.push(d); return; }
+      const m = a3Matiere(d.mat);
+      if (!groupes.has(m)) groupes.set(m, []);
+      groupes.get(m).push(d);
+    });
+    const xL = 75, wL = 176;
+    out += RECT(xL, yb, wL, hb);
+    if (apercu) {
+      const mcTxt = v.mcType === "profil" ? "acier profilé 40 × 10" : v.mcType === "acier" ? `plat d'acier ${mmTxt(v.mc)} × ${mmTxt(v.epMc)}` : `${DS_ESSENCES[v.essence] || DS_ESSENCES.chene}, ${v.renfort === "plat" ? `${RENFORT.bois.l} × ${RENFORT.bois.h} sur plat ${RENFORT.l} × ${RENFORT.e}` : `${mmTxt(v.mc)} × ${mmTxt(v.mc)}`}`;
+      out += T(xL + 4, yb + 5.5, "VOTRE GARDE-CORPS", { t: 2.6, g: 700, a: "start", c: "#111" });
+      out += L(xL, yb + 8, xL + wL, yb + 8, "#1f2a36", 0.2);
+      [
+        v.seuls ? "Garde-corps de fenêtre à barreaux droits" : `Garde-corps de fenêtre, ${v.nP} croix de Saint-André${v.traverse ? " avec traverse" : ""}`,
+        `Largeur entre tableaux : ${mmTxt(v.B)} mm`,
+        `Bas de fenêtre à ${mmTxt(v.A)} mm du sol`,
+        `Hauteur du garde-corps : ${mmTxt(R.hauteurGC)} mm, main courante comprise`,
+        `Acier carré plein ${v.s} × ${v.s} mm`,
+        `Main courante : ${mcTxt}`,
+        R.alertes.length ? "" : "Conforme à la norme NF P01-012",
+      ].filter(Boolean).forEach((l, i) => out += T(xL + 4, yb + 15 + i * 6, l, { t: 2.6, a: "start" }));
+    } else {
+    out += T(xL + 4, yb + 5.5, "LISTE DE DÉBIT - " + (modele === "gardeCorps" ? (v.seuls ? "GARDE-CORPS À BARREAUX" : "GARDE-CORPS") : NOMS[modele].toUpperCase()), { t: 2.6, g: 700, a: "start", c: "#111" });
+    out += L(xL, yb + 8, xL + wL, yb + 8, "#1f2a36", 0.2);
+    let cx = xL + 4, cy0 = yb + 13;
+    groupes.forEach((liste, m) => {
+      const c = a3Couleur(m);
+      out += T(cx, cy0, m, { t: 2.4, g: 700, a: "start", c: c.trait });
+      liste.forEach((d, i) => {
+        const angle = /°/.test(d.coupes) && !/^Coupes droites/.test(d.coupes.split("·")[0]);
+        const perce = /perçage/.test(d.coupes);
+        const court = d.nom.replace(/\s*\(.*$/, "").replace(/^Plat de renfort.*/, "Plat de renfort");
+        out += T(cx, cy0 + 4.5 + i * 3.8, `${d.qte}x ${mmTxt(d.long)} mm${angle ? " *" : ""}${perce ? " (B)" : ""}`, { t: 2.3, a: "start" });
+        out += T(cx + 27, cy0 + 4.5 + i * 3.8, `${repDe.has(d) ? `Rep. ${repDe.get(d)} · ` : ""}${court}`, { t: 2, a: "start", c: "#6f6357" });
+      });
+      cx += Math.min(88, (wL - 4) / groupes.size);
+    });
+    const notes = [];
+    if (R.debit.some((d) => d.long && /°/.test(d.coupes) && !/^Coupes droites/.test(d.coupes.split("·")[0]))) notes.push("* coupe d'angle : voir la planche de la pièce");
+    if (R.debit.some((d) => /perçage/.test(d.coupes))) notes.push("(B) perçages de fixation : voir le détail B");
+    notes.forEach((n, i) => out += T(xL + 4, yb + hb - 18 + i * 3.4, n, { t: 2, a: "start", c: "#555" }));
+    if (achats.length) {
+      out += L(xL, yb + hb - 12, xL + wL, yb + hb - 12, "#1f2a36", 0.15);
+      out += T(xL + 4, yb + hb - 7.5, "À ACHETER :", { t: 2.2, g: 700, a: "start" });
+      out += T(xL + 24, yb + hb - 7.5, achats.map((d) => `${d.qte}x ${d.nom}`).join("  ·  "), { t: 2.1, a: "start" });
+      out += T(xL + 24, yb + hb - 3.8, achats.filter((d) => d.note).map((d) => d.note).join(" · "), { t: 1.9, a: "start", c: "#555" });
+    }
+    }
+
+    const xK = 254, wK = 44;
+    out += RECT(xK, yb, wK, hb);
+    out += T(xK + wK / 2, yb + 5.5, "LÉGENDE", { t: 2.6, g: 700 });
+    out += L(xK, yb + 8, xK + wK, yb + 8, "#1f2a36", 0.2);
+    [...groupes.keys()].forEach((m, i) => {
+      const c = a3Couleur(m);
+      out += `<rect x="${xK + 4}" y="${yb + 12 + i * 7}" width="5" height="3.6" fill="${c.fond}" stroke="${c.trait}" stroke-width="0.4"/>` + T(xK + 11, yb + 15 + i * 7, m, { t: 2.2, a: "start" });
+    });
+    const yk = yb + 12 + groupes.size * 7;
+    if (!apercu) out += L(xK + 4, yk + 1.8, xK + 9, yk + 1.8, "#1f2a36", 0.2, "0.8 0.6") + T(xK + 11, yk + 3, "Perçage (caché)", { t: 2.2, a: "start" });
+
+    const xC = 301, wC = 105;
+    out += RECT(xC, yb, wC, hb, 0.4);
+    out += T(xC + 4, yb + 11, "AUBOIACIER", { t: 7.5, a: "start", c: "#2b2320", f: "'Hoefler Text', Georgia, 'Times New Roman', serif" });
+    out += T(xC + 4, yb + 16, "MÉTALLERIE · FAIT MAIN À SAUMUR", { t: 2, a: "start", c: "#6f6357" });
+    out += T(xC + wC - 4, yb + 16, "auboiacier.fr", { t: 2, a: "end", c: "#6f6357" });
+    const cases = [
+      ["CLIENT", infos.client || "—"], ["CHANTIER", infos.chantier || "—"],
+      ["PROJET", modele === "gardeCorps" ? v.seuls ? "Garde-corps à barreaux droits" : `Garde-corps ${v.rosace === false ? "à croix" : "rosace à croix"}${v.traverse ? " et traverse" : ""}` : NOMS[modele]], ["DATE", infos.date || ""],
+      ["DESSINÉ PAR", "Q. Aumercier"], ["VÉRIFIÉ", "—"],
+      ["ÉCHELLE", `1:${k} @ A3`], ["N° DE PLAN", apercu ? "APERÇU" : infos.numero || "—"],
+      ["RÉVISION", "A"], ["FORMAT", "A3 paysage"],
+    ];
+    const hc = (hb - 19) / 5;
+    cases.forEach(([k2, val], i) => {
+      const col = i % 2, lig = Math.floor(i / 2), x = xC + col * wC / 2, y = yb + 19 + lig * hc;
+      out += `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(wC / 2)}" height="${f1(hc)}" fill="none" stroke="#1f2a36" stroke-width="0.18"/>`;
+      out += T(x + 1.5, y + 3, k2, { t: 1.8, g: 700, a: "start", c: "#6f6357" }) + T(x + 1.5, y + hc - 2.3, val, { t: 2.5, a: "start" });
+    });
+    out += T(14, 285.3, apercu ? "Aperçu non contractuel, non destiné à la fabrication. Le plan d'atelier complet est établi par Auboiacier après la commande." : "Ce plan appartient à Auboiacier. Il ne peut être copié ou transmis sans son accord.", { t: 1.8, a: "start", c: "#777" });
+    if (apercu) out += `<text x="210" y="112" font-size="52" font-weight="700" fill="#1f2a36" fill-opacity="0.07" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" transform="rotate(-18 210 112)">APERÇU</text>`;
+
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="420mm" height="297mm" viewBox="0 0 420 297">${out}</svg>`;
+  }
+const DS_ESSENCES = { pin: "Pin", hetre: "Hêtre", chene: "Chêne", noyer: "Noyer" };
+export const DEFAUTS_GC = Object.freeze({"prixVente":0,"km":30,"debitAr":8,"minSoud":1.2,"rnP":14,"rnJ":1,"nF":2,"dF":6.5,"fF":13,"eF":40,"epMc":8,"L":2000,"l":1000,"H":750,"e":45,"a":80,"ep":3,"t":3,"pL":75,"pl":60,"pX":80,"rX":250,"tS":300,"tW":120,"pR":60,"bR":300,"lame":150,"latte":120,"jeu":8,"trait":3,"B":1180,"A":650,"Hs":0,"Hf":0,"s":16,"mc":40,"j":1,"jour":90,"nP":1,"nb":0,"rD":100,"Xo":0,"Hm":2600,"recul":0,"Wm":900,"lh":150,"lw":100,"le":5,"em":50,"nez":0,"hs":80,"tp":8,"plx":200,"ply":150,"tpp":10,"epl":200,"ass":"droit","etage":true,"rosace":true,"traverse":false,"mcType":"bois","sbMode":"auto","seuls":false,"renfort":"sans","essence":"chene","remise":"retrait","essenceT":"chene","teinte":"noir","rainure":true,"jourAuto":true,"jourSaisi":90});
 export const BORNES_GC = Object.freeze({ B: Object.freeze({"min":300,"max":3000}), A: Object.freeze({"min":0,"max":1200}), Hf: Object.freeze({"min":0,"max":3000}) });
-export const EMPREINTE_SOURCE = "077d2a7d7f98ed3b9bcf84e03c32e15f87a93a1495345994d34aaf31b2b919f8";
-export { ALLEGE_LIBRE, BARRE_APPUI, CIBLE_MARGE, HAUT_ETAGE, LIMITE_ACIER, MINI_GC, RENFORT, ROSACE_R, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, decrireVariante, fmt, geomGC, mmTxt, variantesConformes };
-export const EMPREINTE = "12db29e570d8";
+export const EMPREINTE_SOURCE = "5644127c2d739cadae1856ff675eb0b11f4c5dfd359b9863b922b91a90d9ad9d";
+export { ALLEGE_LIBRE, BARRE_APPUI, CIBLE_MARGE, DS_ESSENCES, HAUT_ETAGE, LIMITE_ACIER, MINI_GC, MINI_SEULS, RENFORT, ROSACE_R, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, coupeMainCourante, decrireVariante, fmt, geomGC, mmTxt, planA3Pur, svgDe, variantesConformes };
+export const EMPREINTE = "48ee4bfbbda5";

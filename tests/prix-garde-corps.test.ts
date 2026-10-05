@@ -18,7 +18,7 @@ import assert from "node:assert/strict";
 
 import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, CIBLE_MARGE, DEFAUTS_GC, HAUT_ETAGE, MINI_GC, RENFORT, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, geomGC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
 import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
-import { lireReponsePrixGC } from "../src/lib/garde-corps.ts";
+import { JOUR_MINI_GC_MM, jourGC, lireReponsePrixGC } from "../src/lib/garde-corps.ts";
 import {
   configurerGC,
   entreeValide,
@@ -93,7 +93,9 @@ test("hauteur : à chaque millimètre de bas de fenêtre, un garde-corps pile à
     const v = valeursGC(DEFAUTS_GC, releve({ allegeMm: A }), 16, 1);
     const g = geomGC(v, 1);
     assert.equal(g.cible, cible);
-    if (A <= cible - DEFAUTS_GC.jour - MINI_GC) {
+    // Le jour sous le cadre se réduit (jamais sous 40 mm) quand le garde-corps serait trop bas : jusqu'à 785 mm, des croix.
+    if (A <= cible - JOUR_MINI_GC_MM - MINI_GC) {
+      assert.equal(v.jour, jourGC(A), `bas de fenêtre à ${A} : le jour`);
       assert.equal(g.appui, null, `bas de fenêtre à ${A}`);
       assert.equal(A + v.jour + g.Hr, cible, `bas de fenêtre à ${A} : main courante pile à la norme`);
     } else assert.equal(g.appui, A > cible - BARRE_APPUI ? "rien" : "barre", `bas de fenêtre à ${A}`);
@@ -424,11 +426,11 @@ test("réponse de /api/prix-garde-corps : le prix et la forme, rien d'autre", ()
   chiffrageOuEchec();
   const ok = reponsePrixGC(requete({ largeurMm: 1180 }));
   assert.ok(ok);
-  assert.deepEqual(Object.keys(ok).sort(), ["carre", "conforme", "croix", "hauteurMm", "jourMm", "kg", "mainCouranteMm", "modeles", "obligatoire", "ok", "prix", "remise", "renfort", "seuls", "soubassementMm", "traverse"]);
+  assert.deepEqual(Object.keys(ok).sort(), ["carre", "conforme", "croix", "hauteurMm", "jourMm", "kg", "mainCouranteMm", "mains", "modeles", "obligatoire", "ok", "prix", "remise", "renfort", "seuls", "soubassementMm", "traverse"]);
   const non = reponsePrixGC(requete({ largeurMm: BORNES_GC.B.max }));
   assert.ok(non);
-  assert.deepEqual(Object.keys(non).sort(), ["alertes", "conforme", "hauteurMm", "jourMm", "mainCouranteMm", "modeles", "obligatoire", "ok", "raison"]);
-  for (const r of [ok, non]) for (const x of Object.values(r)) assert.ok(["number", "boolean", "string"].includes(typeof x) || Array.isArray(x));
+  assert.deepEqual(Object.keys(non).sort(), ["alertes", "conforme", "hauteurMm", "jourMm", "mainCouranteMm", "mains", "modeles", "obligatoire", "ok", "raison"]);
+  for (const r of [ok, non]) for (const [k, x] of Object.entries(r)) assert.ok(["number", "boolean", "string"].includes(typeof x) || Array.isArray(x) || (k === "mains" && Object.values(x as object).every((p) => Number.isInteger(p))), k);
 });
 
 test("réponse de /api/prix-garde-corps : le prix de l'outil, plus les suppléments des options du site", () => {

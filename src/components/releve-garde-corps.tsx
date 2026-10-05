@@ -7,6 +7,7 @@ import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { InfoBulle } from "./info-bulle";
 import { QuiMesure, VisiteAtelier } from "./prise-de-cotes";
 import { SchemaFenetre, NUMERO_COTE, type CoteFenetre } from "./schema-fenetre";
+import { PlanApercu } from "./plan-apercu";
 import {
   BORNES_RELEVE_GC,
   MAIN_COURANTE_MM,
@@ -292,6 +293,10 @@ export function ReleveGardeCorps({
   const [filtre, setFiltre] = useState<{ barreaux: "aucun" | "bas" | "seuls"; traverse: boolean }>({ barreaux: "aucun", traverse: false });
   /** « Du moins cher au plus cher » : tous les modèles aux normes, tous types confondus, par prix croissant. */
   const [parPrix, setParPrix] = useState(false);
+  /** Avant les mesures : le modèle de la vitrine que le client vient de toucher (il s'affiche sur le croquis). */
+  const [vitrineId, setVitrineId] = useState<string | null>(null);
+  /** Le plan d'aperçu (une vue, filigrané) est-il ouvert ? */
+  const [planOuvert, setPlanOuvert] = useState(false);
   /** Le modèle survolé : son détail s'écrit dans le bandeau. */
   const [survol, setSurvol] = useState<string | null>(null);
 
@@ -370,10 +375,20 @@ export function ReleveGardeCorps({
   // traverse. La rangée ne montre que cette famille ; le nombre de croix se choisit dans la rangée.
   const familleDe = (m: ModeleGC) => ({ barreaux: m.seuls ? "seuls" : m.soubassementMm > 0 ? "bas" : "aucun", traverse: m.traverse }) as const;
   // La norme impose des barreaux en bas (cadre sous 60 cm du sol) : aucun modèle sans eux n'existe pour cette fenêtre.
-  const barreauxImposes = modeles.length > 0 && !modeles.some((m) => !m.seuls && m.soubassementMm === 0);
-  const famille: { barreaux: "aucun" | "bas" | "seuls"; traverse: boolean } = choisi
+  // Bas de fenêtre trop haut pour des croix : seul existe le cadre bas à barreaux (« toujours quelque chose, jamais hors norme »).
+  const seulsExiste = modeles.length > 0 && modeles.every((m) => m.seuls);
+  const barreauxImposes = !seulsExiste && modeles.length > 0 && !modeles.some((m) => !m.seuls && m.soubassementMm === 0);
+  const famille: { barreaux: "aucun" | "bas" | "seuls"; traverse: boolean } = seulsExiste
+    ? { barreaux: "seuls", traverse: false }
+    : choisi
     ? familleDe(choisi)
     : { barreaux: barreauxImposes && filtre.barreaux === "aucun" ? "bas" : filtre.barreaux, traverse: filtre.traverse };
+  // Un seul modèle possible (le cadre bas à barreaux) : il n'y a rien à choisir, on le choisit pour le client.
+  const seulModele = seulsExiste && modeles.length === 1 && modeles[0].conforme && !choisi ? modeles[0].id : null;
+  useEffect(() => {
+    if (seulModele) onChange({ ...cotes, modele: seulModele });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seulModele]);
   const modelesFamille = modeles.filter((m) => {
     const f = familleDe(m);
     return f.barreaux === famille.barreaux && f.traverse === famille.traverse;
@@ -459,8 +474,8 @@ export function ReleveGardeCorps({
     modeles.length === 0
       ? reponse && !reponse.ok && reponse.raison === "barre-appui"
         ? fr
-          ? "Aucun garde-corps à poser sur cette fenêtre : une barre d'appui, sur devis."
-          : "No railing to fit on this window: a support bar, on quotation."
+          ? "Pour cette fenêtre, une main courante seule respecte la norme : nous la fabriquons sur devis."
+          : "For this window a handrail on its own meets the standard: we make it on quotation."
         : reponse && !reponse.ok && reponse.raison === "sans-garde-corps"
           ? fr
             ? "Votre fenêtre n'a pas besoin de garde-corps."
@@ -501,7 +516,11 @@ export function ReleveGardeCorps({
   }, [idSelectionne]);
   const marque = modeles.length > 0;
   const parPrixActif = marque && parPrix;
-  const liste: ModeleGC[] = parPrixActif
+  // Barre d'appui, rien à poser, fenêtre trop basse : aucun modèle à choisir. Les montrer (« 1 croix… 6 croix ») contredirait la phrase du bandeau.
+  const sansModeleAChoisir = reponse !== null && !reponse.ok && (reponse.raison === "barre-appui" || reponse.raison === "sans-garde-corps" || reponse.raison === "fenetre-trop-basse");
+  const liste: ModeleGC[] = sansModeleAChoisir
+    ? []
+    : parPrixActif
     ? modeles.filter((m) => m.conforme).sort((a, b) => a.prix - b.prix || a.croix - b.croix)
     : marque ? modelesFamille : MODELES_VITRINE.filter((m) => !m.traverse && m.soubassementMm === 0);
   useEffect(() => {
@@ -521,11 +540,13 @@ export function ReleveGardeCorps({
           valeur: famille.barreaux,
           colonnes: "minmax(0,0.85fr) minmax(0,1fr) minmax(0,1.45fr)",
           options: [
-            { v: "aucun", label: fr ? "Aucun" : "None", note: barreauxImposes ? (fr ? "Obligatoires ici : le bas du cadre est à moins de 60 cm du sol." : "Mandatory here: the bottom of the frame is under 60 cm from the floor.") : "" },
-            { v: "bas", label: fr ? "En bas" : "At the bottom", note: "" },
+            { v: "aucun", label: fr ? "Aucun" : "None", note: seulsExiste ? (fr ? "Pas pour cette fenêtre : le cadre est trop bas pour des croix." : "Not for this window: the frame is too low for crosses.") : barreauxImposes ? (fr ? "Obligatoires ici : le bas du cadre est à moins de 60 cm du sol." : "Mandatory here: the bottom of the frame is under 60 cm from the floor.") : "" },
+            { v: "bas", label: fr ? "En bas" : "At the bottom", note: seulsExiste ? (fr ? "Pas pour cette fenêtre : le cadre est trop bas pour des croix." : "Not for this window: the frame is too low for crosses.") : "" },
             { v: "seuls", label: fr ? "Barreaux seuls" : "Bars only", note: "" },
           ],
-          legende: barreauxImposes
+          legende: seulsExiste
+            ? fr ? "Fenêtre haute : un cadre bas à barreaux verticaux, aux normes." : "High window: a low frame of vertical bars, to standard."
+            : barreauxImposes
             ? fr ? "Barreaux verticaux en bas, obligatoires ici (cadre à moins de 60 cm du sol)." : "Vertical bars at the bottom, mandatory here (frame under 60 cm from the floor)."
             : famille.barreaux === "aucun"
               ? fr ? "Croix de Saint-André seules." : "Saint Andrew's crosses only."
@@ -836,8 +857,8 @@ export function ReleveGardeCorps({
         : reponse && !reponse.ok
           ? reponse.raison === "barre-appui"
             ? fr
-              ? "Une barre d'appui"
-              : "A support bar"
+              ? "Une main courante"
+              : "A handrail"
             : reponse.raison === "sans-garde-corps"
               ? fr
                 ? "Pas besoin de garde-corps"
@@ -907,7 +928,7 @@ export function ReleveGardeCorps({
               seuls={apercuModele ? apercuModele.seuls : dessin?.ok ? dessin.seuls : false}
               trous={explique?.trous ?? null}
               rosaceMm={rosaceMm}
-              mainCouranteAcier={mainCourante === "acier" || mainCourante === "profil"}
+              typeMainCourante={mainCourante === "acier" ? "acier-plat" : mainCourante === "profil" ? "acier-profile" : undefined}
               apercu={commence && !dessin?.ok && !apercuModele}
               remplissage={surVerre ? "verre" : "croix"}
               actif={coteActive}
@@ -1118,8 +1139,8 @@ export function ReleveGardeCorps({
                     : "Nothing to fit"
                   : releve && dessin && !dessin.ok && dessin.raison === "barre-appui"
                     ? fr
-                      ? `Barre d'appui de ${nombre(releve.largeurMm)} mm · sur devis`
-                      : `Support bar, ${nombre(releve.largeurMm)} mm · on quotation`
+                      ? `Main courante seule de ${nombre(releve.largeurMm)} mm · sur devis`
+                      : `Handrail on its own, ${nombre(releve.largeurMm)} mm · on quotation`
                     : releve && dessin
                   ? [
                       t.gcResume.replace("{l}", nombre(releve.largeurMm)).replace("{h}", nombre(dessin.hauteurMm)),
@@ -1174,8 +1195,8 @@ export function ReleveGardeCorps({
                 <div role="status">
                   <p className="text-[#2b2320]">
                     {fr
-                      ? `Le bas de votre fenêtre est à ${nombre(releve.allegeMm)} mm du sol. Il manque ${nombre(reponse.mainCouranteMm - releve.allegeMm)} mm pour arriver à ${nombre(reponse.mainCouranteMm)} mm. L'écart est trop faible pour un garde-corps à croix : il faut une barre d'appui.`
-                      : `The bottom of your window is ${nombre(releve.allegeMm)} mm from the floor. ${nombre(reponse.mainCouranteMm - releve.allegeMm)} mm are missing to reach ${nombre(reponse.mainCouranteMm)} mm. The gap is too small for a railing with crosses: it takes a support bar.`}
+                      ? `Le bas de votre fenêtre est à ${nombre(releve.allegeMm)} mm du sol, et la main courante se pose à ${nombre(reponse.mainCouranteMm)} mm (la hauteur de la loi) : il ne reste que ${nombre(reponse.mainCouranteMm - releve.allegeMm)} mm, trop peu pour un garde-corps. Une main courante seule respecte ici la norme : le vide dessous reste plus petit que la boule de la norme.`
+                      : `The bottom of your window is ${nombre(releve.allegeMm)} mm from the floor, and the handrail goes at ${nombre(reponse.mainCouranteMm)} mm (the height the law requires): only ${nombre(reponse.mainCouranteMm - releve.allegeMm)} mm are left, too little for a railing. A handrail on its own meets the standard here: the gap below it stays smaller than the standard's ball.`}
                   </p>
                   <p className="mt-1 text-[#5c5140]">
                     {fr ? "Nous la fabriquons sur devis : réponse sous 24 à 72 h." : "We make it on quotation: reply within 24 to 72 h."} {lienEtude}
@@ -1228,6 +1249,29 @@ export function ReleveGardeCorps({
                       />
                     )}
                   </p>
+                  {/* « Voir le plan » (demande de Quentin) : UNE vue d'aperçu, aux cotes du client, sans rien de la fabrication. */}
+                  {releve && !surVerre && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setPlanOuvert(true)}
+                        className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#9a8d80] bg-white px-3 py-1.5 text-[12px] font-medium text-[#2b2320] transition-colors hover:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
+                      >
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden>
+                          <rect x="2.5" y="4" width="15" height="12" rx="1.2" />
+                          <path d="M2.5 8h15M7 8v8M5 6h.01" />
+                        </svg>
+                        {fr ? "Voir le plan" : "View the drawing"}
+                      </button>
+                      {planOuvert && (
+                        <PlanApercu
+                          fr={fr}
+                          onClose={() => setPlanOuvert(false)}
+                          parametres={parametresPrixGC(releve, { woodId: mainCourante ?? "chene", fabricId: rosaceId })}
+                        />
+                      )}
+                    </>
+                  )}
                   {/* La loi n'impose rien ici (rez-de-chaussée, ou bas de fenêtre à 90 cm et plus) : on le dit,
                       pour que le client ne croie pas qu'il lui en faut un. Il peut en vouloir un quand même. */}
                   {!conforme.obligatoire && (
@@ -1291,8 +1335,8 @@ export function ReleveGardeCorps({
                   : reponse && !reponse.ok
                     ? reponse.raison === "barre-appui"
                       ? fr
-                        ? "Une barre d'appui, sur devis."
-                        : "A support bar, on quotation."
+                        ? "Une main courante seule, sur devis."
+                        : "A handrail on its own, on quotation."
                       : reponse.raison === "sans-garde-corps"
                         ? fr
                           ? "Pas besoin de garde-corps."

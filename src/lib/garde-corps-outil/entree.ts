@@ -6,7 +6,7 @@
  * prix. Aucun coût ici, aucune règle recopiée : les règles restent dans le
  * moteur extrait de l'outil (moteur.genere.mjs).
  */
-import { ESSENCES_GC, MAINS_COURANTES_GC, type CodeAlerteGC, type EssenceGC, type MainCouranteGC, type ReleveGC } from "../garde-corps.ts";
+import { ESSENCES_GC, MAINS_COURANTES_GC, jourGC, lireMainCouranteGC, type CodeAlerteGC, type EssenceGC, type MainCouranteGC, type ReleveGC } from "../garde-corps.ts";
 
 export { ESSENCES_GC, MAINS_COURANTES_GC };
 export type { CodeAlerteGC, EssenceGC, MainCouranteGC };
@@ -49,6 +49,7 @@ export const CROIX_CATALOGUE = 6;
  * sous la fenêtre, barreaux en bas seulement si la norme les demande).
  */
 export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: number, nP: number, barreauxBas = false, traverse = false, renfort = false, seuls = false) {
+  const mc = lireMainCouranteGC(e.essence) ?? { type: "bois-rainure" as const, essence: "chene" as const };
   return {
     ...defauts,
     B: e.largeurMm,
@@ -56,9 +57,11 @@ export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: numb
     etage: e.enEtage,
     Hf: e.fenetreMm,
     // La main courante : un bois, ou de l'acier (plat soudé, ou profilé). L'essence ne compte qu'avec le bois.
-    essence: e.essence === "acier" || e.essence === "profil" ? "chene" : e.essence,
-    mcType: e.essence === "acier" ? "acier" : e.essence === "profil" ? "profil" : "bois",
+    essence: mc.essence ?? "chene",
+    mcType: mc.type === "acier-plat" ? "acier" : mc.type === "acier-profile" ? "profil" : "bois",
     rosace: true,
+    // Le jour sous le cadre : 90 mm, réduit (jamais sous 40) quand le garde-corps serait sinon trop bas (jourGC).
+    jour: jourGC(e.allegeMm),
     // Le diamètre de la rosace choisie (la fleur de Ø100 par défaut).
     rD: e.rosaceMm ?? 100,
     Hs: 0,
@@ -72,7 +75,8 @@ export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: numb
     traverse: traverse && !seuls,
     // Fenêtre large : un fer plat soudé sur la lisse haute, caché sous une main courante plus large. Le site ne
     // l'ajoute que lorsqu'aucun carré de l'atelier n'est assez rigide seul (calcul.ts).
-    renfort: renfort ? "plat" : "sans",
+    // Le bois SUR FER PLAT est un choix du client : le plat est là d'office (sinon, seulement quand la fenêtre est large).
+    renfort: renfort || mc.type === "bois-plat" ? "plat" : "sans",
     s,
     nP,
   };

@@ -23,12 +23,34 @@
 export const ESSENCES_GC = ["pin", "hetre", "chene", "noyer"] as const;
 export type EssenceGC = (typeof ESSENCES_GC)[number];
 
+/** Le bois sur FER PLAT : la même essence, posée sur un plat de 60 × 10 soudé sur la lisse haute (« chene-plat »). */
+export const ESSENCES_PLAT_GC = ["pin-plat", "hetre-plat", "chene-plat", "noyer-plat"] as const;
+
 /**
- * La main courante que choisit le client : un bois (quatre essences), ou de l'ACIER — un plat soudé à plat sur le cadre
- * (« acier »), ou un profilé du commerce emboîté (« profil »). Même identifiants que l'outil de plans (mcType).
+ * LA MAIN COURANTE que choisit le client (demande de Quentin, 05/10/2026 : « de vrais designs : bois, acier ou fer plat, et la
+ * rainure, tout comme dans l'outil »). Quatre TYPES, comme dans l'outil de plans :
+ *  - bois RAINURÉ : un carré de bois de 40 × 40, une rainure dessous qui l'emboîte sur la lisse haute (« chene ») ;
+ *  - bois SUR FER PLAT : le bois (60 × 45) posé sur un plat de 60 × 10 soudé sur la lisse, qui la raidit (« chene-plat ») ;
+ *  - acier PLAT : un plat d'acier de 40 × 8 soudé à plat sur le cadre (« acier ») ;
+ *  - acier PROFILÉ : un profilé du commerce de 40 × 10, rainuré, emboîté sur la lisse (« profil »).
+ * Pour un bois, l'identifiant dit aussi l'essence. Même vocabulaire que l'outil (mcType, rainure, renfort).
  */
-export const MAINS_COURANTES_GC = [...ESSENCES_GC, "acier", "profil"] as const;
+export const MAINS_COURANTES_GC = [...ESSENCES_GC, ...ESSENCES_PLAT_GC, "acier", "profil"] as const;
 export type MainCouranteGC = (typeof MAINS_COURANTES_GC)[number];
+export type TypeMainCouranteGC = "bois-rainure" | "bois-plat" | "acier-plat" | "acier-profile";
+
+/** Le type et l'essence d'une main courante (null pour l'acier, qui n'a pas d'essence). */
+export function lireMainCouranteGC(id: string): { type: TypeMainCouranteGC; essence: EssenceGC | null } | null {
+  if (id === "acier") return { type: "acier-plat", essence: null };
+  if (id === "profil") return { type: "acier-profile", essence: null };
+  if ((ESSENCES_GC as readonly string[]).includes(id)) return { type: "bois-rainure", essence: id as EssenceGC };
+  if ((ESSENCES_PLAT_GC as readonly string[]).includes(id)) return { type: "bois-plat", essence: id.slice(0, -5) as EssenceGC };
+  return null;
+}
+/** L'identifiant d'une main courante : un type, et une essence pour le bois. */
+export function idMainCouranteGC(type: TypeMainCouranteGC, essence: EssenceGC = "chene"): MainCouranteGC {
+  return type === "acier-plat" ? "acier" : type === "acier-profile" ? "profil" : type === "bois-plat" ? (`${essence}-plat` as MainCouranteGC) : essence;
+}
 
 /** Les bornes des champs de l'outil, en millimètres (BORNES_GC du moteur). */
 export const BORNES_RELEVE_GC = {
@@ -53,6 +75,27 @@ export const MAIN_COURANTE_MM = 1025;
 /** Un garde-corps à croix ne se fabrique pas plus bas (MINI_GC du moteur) : en dessous, une barre d'appui. */
 export const MINI_GC_MM = 200;
 
+/** Un cadre à barreaux seuls, main courante comprise, peut être plus bas (MINI_SEULS du moteur) : il n'y a pas de croix à aplatir. */
+export const MINI_SEULS_GC_MM = 120;
+/** Le plus petit jour sous le cadre (JOUR_MINI du moteur) : l'appui n'est jamais parfaitement plan. */
+export const JOUR_MINI_GC_MM = 40;
+
+/**
+ * LE JOUR SOUS LE CADRE POUR CE BAS DE FENÊTRE (demande de Quentin, 05/10/2026 : « à 760 mm il faut un garde-corps, pas une
+ * barre d'appui »). Le jour normal est de 90 mm. Si, avec lui, le garde-corps serait plus bas que le minimum d'un cadre à croix
+ * (200 mm), on le réduit — jamais sous 40 mm — pour que la main courante reste pile à sa hauteur : à 760 mm du sol, 65 mm.
+ * Quand même 40 mm ne suffit pas pour des croix, on cherche pour un cadre à barreaux seuls (120 mm au minimum).
+ * Hors de ces cas, le jour normal. C'est la même règle que le « jour automatique » de l'outil de plans.
+ */
+export function jourGC(allegeMm: number): number {
+  for (const mini of [MINI_GC_MM, MINI_SEULS_GC_MM]) {
+    const place = MAIN_COURANTE_MM - allegeMm - mini;
+    if (place >= JOUR_GC_MM) return JOUR_GC_MM;
+    if (place >= JOUR_MINI_GC_MM) return place;
+  }
+  return JOUR_GC_MM;
+}
+
 /** L'épaisseur d'une barre d'appui (BARRE_APPUI du moteur). */
 export const BARRE_APPUI_MM = 40;
 
@@ -63,8 +106,10 @@ export const BARRE_APPUI_MM = 40;
  * la règle du moteur. Le prix, les croix et la norme, eux, ne viennent que du serveur.
  */
 export function formeGC(allegeMm: number): { mode: "garde-corps" | "barre" | "aucun"; hauteurMm: number; jourMm: number } {
-  const manque = Math.ceil(MAIN_COURANTE_MM - allegeMm - JOUR_GC_MM);
-  if (manque >= MINI_GC_MM) return { mode: "garde-corps", hauteurMm: manque, jourMm: JOUR_GC_MM };
+  const jour = jourGC(allegeMm);
+  const manque = Math.ceil(MAIN_COURANTE_MM - allegeMm - jour);
+  // Au moins le cadre le plus bas (barreaux seuls) ; en dessous de 200 mm, c'est lui seul qui existe.
+  if (manque >= MINI_SEULS_GC_MM) return { mode: "garde-corps", hauteurMm: manque, jourMm: jour };
   if (MAIN_COURANTE_MM - allegeMm >= BARRE_APPUI_MM) return { mode: "barre", hauteurMm: BARRE_APPUI_MM, jourMm: MAIN_COURANTE_MM - allegeMm - BARRE_APPUI_MM };
   return { mode: "aucun", hauteurMm: 0, jourMm: 0 };
 }
@@ -226,6 +271,9 @@ export type CodeAlerteGC =
   | "charge-verticale"
   | "autre";
 
+/** Le prix d'une pièce pour chaque main courante qui convient à la fenêtre (les autres sont absentes). */
+export type MainsPrixGC = Partial<Record<MainCouranteGC, number>>;
+
 /** Ce que rend /api/prix-garde-corps : le prix et la forme retenue, JAMAIS un coût. */
 export type ReponsePrixGC =
   | {
@@ -259,6 +307,8 @@ export type ReponsePrixGC =
       obligatoire: boolean;
       /** Les modèles que la norme permet pour cette fenêtre (au plus MODELES_GC_MAX), celui-ci compris. */
       modeles: ModeleGC[];
+      /** Le prix d'UNE pièce avec chaque main courante ; une main courante absente de la liste ne convient pas à cette fenêtre. */
+      mains: MainsPrixGC;
     }
   | {
       ok: false;
@@ -278,7 +328,39 @@ export type ReponsePrixGC =
       alertes: CodeAlerteGC[];
       /** Le catalogue des dessins, tous hors norme pour cette fenêtre (ou vide : version ancienne du serveur). */
       modeles: ModeleGC[];
+      /** Le prix d'UNE pièce avec chaque main courante qui convient (le client peut en changer pour sortir de l'impasse). */
+      mains: MainsPrixGC;
     };
+
+/**
+ * L'APERÇU DU PLAN (demande de Quentin, 05/10/2026) : le « Plan A3 » de l'outil de plans de l'atelier, dessiné par l'outil
+ * lui-même pour la configuration du client — jamais redessiné par le site. Ni liste de débit, ni détail de fixation, ni
+ * perçage : de quoi voir à quoi ressemblera le plan de sa fenêtre, pas de quoi le fabriquer. `svg` est le SVG de l'outil.
+ */
+export type PlanApercuGC = {
+  /** La feuille A3 en SVG (420 × 297). */
+  svg: string;
+  largeurMm: number;
+  hauteurMm: number;
+  croix: number;
+  carre: number;
+  seuls: boolean;
+  traverse: boolean;
+};
+
+/**
+ * Relit la réponse de /api/plan-garde-corps : null au moindre doute. Le SVG ne s'affiche que dans une balise <img> (un SVG
+ * « image » n'exécute rien), et on refuse d'avance tout ce qui n'est pas un dessin.
+ */
+export function lirePlanApercuGC(json: unknown): PlanApercuGC | null {
+  if (!json || typeof json !== "object") return null;
+  const o = json as Record<string, unknown>;
+  if (typeof o.svg !== "string" || !o.svg.startsWith("<svg ") || o.svg.length > 600_000) return null;
+  if (/<(?!\/?(?:svg|rect|line|polygon|polyline|circle|text|tspan|g)[\s>/])/i.test(o.svg) || /\bon\w+\s*=|javascript:|href\s*=/i.test(o.svg)) return null;
+  const entier = (x: unknown) => typeof x === "number" && Number.isInteger(x) && x >= 0;
+  if (!entier(o.largeurMm) || !entier(o.hauteurMm) || !entier(o.croix) || !entier(o.carre) || typeof o.seuls !== "boolean" || typeof o.traverse !== "boolean") return null;
+  return { svg: o.svg, largeurMm: o.largeurMm as number, hauteurMm: o.hauteurMm as number, croix: o.croix as number, carre: o.carre as number, seuls: o.seuls, traverse: o.traverse };
+}
 
 /** Les options d'une pièce, telles que la fiche les envoie. */
 export type OptionsGC = {
@@ -362,6 +444,13 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
     if (trous === undefined) return null;
     modeles.push({ id: x.id as string, conforme: x.conforme, raisons, croix: lu.croix, carre: lu.carre, soubassementMm: x.soubassementMm as number, traverse: lu.traverse, seuls: lu.seuls, rosace: x.rosace, trous, renfort: x.renfort === true, hauteurMm: x.hauteurMm as number, prix: x.prix as number, kg: x.kg as number });
   }
+  const mains: MainsPrixGC = {};
+  if (o.mains && typeof o.mains === "object") {
+    for (const [id, prix] of Object.entries(o.mains as Record<string, unknown>)) {
+      if (!(MAINS_COURANTES_GC as readonly string[]).includes(id) || !entier(prix, 1)) return null;
+      mains[id as MainCouranteGC] = prix as number;
+    }
+  }
   if (o.ok === true && o.conforme === true) {
     if (!entier(o.prix, 1) || !(typeof o.remise === "number" && Number.isInteger(o.remise) && o.remise <= 0)) return null;
     if (!entier(o.croix, 1) || !entier(o.carre, 1) || !entier(o.soubassementMm) || !entier(o.kg) || typeof o.traverse !== "boolean" || typeof o.seuls !== "boolean") return null;
@@ -378,12 +467,13 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
       renfort: o.renfort === true,
       kg: o.kg as number,
       modeles,
+      mains,
       ...commun,
     };
   }
   if (o.ok === false && o.conforme === false && RAISONS_SANS_PRIX_GC.includes(o.raison as RaisonSansPrixGC)) {
     const alertes = Array.isArray(o.alertes) ? o.alertes.filter((a): a is CodeAlerteGC => CODES.includes(a as CodeAlerteGC)) : [];
-    return { ok: false, conforme: false, raison: o.raison as RaisonSansPrixGC, alertes, modeles, ...commun };
+    return { ok: false, conforme: false, raison: o.raison as RaisonSansPrixGC, alertes, modeles, mains, ...commun };
   }
   return null;
 }

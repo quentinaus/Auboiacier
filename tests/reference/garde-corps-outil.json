@@ -1,12 +1,12 @@
 {
  "à lire": "Généré par scripts/extraire-moteur-garde-corps.mjs à partir de l'outil de plans (chargé tel quel dans node:vm). Aucun coût : des prix de vente, des poids, des hauteurs et des empreintes (sha256 tronqué) des réponses complètes. Ne pas modifier à la main.",
- "outil": "077d2a7d7f98ed3b9bcf84e03c32e15f87a93a1495345994d34aaf31b2b919f8",
+ "outil": "5644127c2d739cadae1856ff675eb0b11f4c5dfd359b9863b922b91a90d9ad9d",
  "empreintes": {
-  "moteur": "12db29e570d8",
-  "devis": "c334cb137314",
+  "moteur": "48ee4bfbbda5",
+  "devis": "3e677cb724a6",
   "chiffrage": "95e17d318e21"
  },
- "defauts": "d353d52ecd3cfe14",
+ "defauts": "2e28db8d91e93f32",
  "date": "2026-09-29T10:00:00.000Z",
  "cas": [
   {
@@ -29,7 +29,7 @@
     "donnees": "01fa52a13c2ee75f",
     "html": "61482ac42d769a2e"
    },
-   "variantes": "48659e9d975149e6"
+   "variantes": "0e18cf558e372866"
   },
   {
    "nom": "photo du site, 4 croix",
@@ -77,7 +77,7 @@
     "donnees": "42a98ff6f2179ae4",
     "html": "ed4327fca4603bd9"
    },
-   "variantes": "8e20686c38428d2c"
+   "variantes": "4750ba902050b4e3"
   },
   {
    "nom": "juste au-delà, carré 16",
@@ -1532,6 +1532,61 @@
     "lignes": 5,
     "donnees": "737fb9dee097c20a",
     "html": "ada4de684a266ee6"
+   }
+  },
+  {
+   "nom": "jour automatique, bas de fenêtre à 760",
+   "valeurs": {
+    "B": 1180,
+    "A": 760,
+    "jourAuto": true,
+    "jour": 65,
+    "jourSaisi": 90
+   },
+   "R": "56d0acffab04ae16",
+   "hauteurGC": 200,
+   "kg": 11.143209459640014,
+   "alertes": 1,
+   "prix": 340,
+   "chiffrage": "97fee92294a3b5e3",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-9ICOX",
+    "total": 340,
+    "lignes": 5,
+    "donnees": "34487393712e6928",
+    "html": "3491a5d91449b408"
+   }
+  },
+  {
+   "nom": "barreaux seuls bas, bas de fenêtre à 840",
+   "valeurs": {
+    "B": 1180,
+    "A": 840,
+    "seuls": true,
+    "jourAuto": true,
+    "jour": 65,
+    "jourSaisi": 90
+   },
+   "R": "79e6c950ad47dae5",
+   "hauteurGC": 120,
+   "kg": 7.055878399999999,
+   "alertes": 0,
+   "prix": 360,
+   "chiffrage": "a4eafcb42ed01db2",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-E4COU",
+    "total": 360,
+    "lignes": 5,
+    "donnees": "80490bf983a79dbd",
+    "html": "475d123ef60c83d2"
    }
   }
  ],

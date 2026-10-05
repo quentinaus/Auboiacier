@@ -1,5 +1,5 @@
 import type { Locale } from "@/lib/i18n";
-import { diametreRosaceGC, lireModeleGC, type ReleveGC } from "./garde-corps.ts";
+import { diametreRosaceGC, idMainCouranteGC, lireMainCouranteGC, lireModeleGC, type ReleveGC } from "./garde-corps.ts";
 
 export type ProductSize = {
   id: string;
@@ -1505,8 +1505,10 @@ export const products: Product[] = [
     // essence : aucun écart fixe ici (il compterait le bois deux fois).
     // La main courante : quatre bois, ou de l'acier (un plat soudé, un profilé du commerce) — au choix du client (05/10).
     woods: [
-      ...woods({ pin: 0, hetre: 0, chene: 0, noyer: 0 }),
-      { id: "acier", label: "Acier, plat", labelEn: "Steel, flat bar", swatch: "#4a4b4f", priceDelta: 0 },
+      ...woods({ pin: 0, hetre: 0, chene: 0, noyer: 0 }).map((b) => ({ ...b, label: `${b.label}, rainuré`, labelEn: `${b.labelEn}, grooved` })),
+      // Le même bois, posé sur un fer plat de 60 × 10 soudé sur la lisse haute (il la raidit) : « Chêne, sur fer plat ».
+      ...woods({ pin: 0, hetre: 0, chene: 0, noyer: 0 }).map((b) => ({ ...b, id: `${b.id}-plat`, label: `${b.label}, sur fer plat`, labelEn: `${b.labelEn}, on flat bar` })),
+      { id: "acier", label: "Acier, fer plat", labelEn: "Steel, flat bar", swatch: "#4a4b4f", priceDelta: 0 },
       { id: "profil", label: "Acier, profilé", labelEn: "Steel, profiled", swatch: "#2e2f33", priceDelta: 0 },
     ],
     boisParDefaut: "chene",
@@ -3021,6 +3023,10 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
   if (!r.ok) return { ok: false, reason: r.raison === "hors-bornes" ? "unknown_size" : "a_etudier" };
   if (selection.hauteurMm !== undefined && selection.hauteurMm !== r.hauteurMm) return { ok: false, reason: "hauteur" };
 
+  // Fenêtre large : l'outil pose lui-même le bois sur un fer plat. La ligne dit ce qui sera fabriqué (« Chêne, sur fer plat »),
+  // pas le « rainuré » demandé : même prix, même devis.
+  const mc = lireMainCouranteGC(wood.value.id);
+  const boisFabrique = (r.renfort && mc?.type === "bois-rainure" && mc.essence ? product.woods.find((w) => w.id === idMainCouranteGC("bois-plat", mc.essence!)) : undefined) ?? wood.value;
   const verre = remplissage.value?.sansCroix === true;
   const supplementVerre = verre && remplissage.value ? supplementRemplissage(remplissage.value, largeurMm, r.hauteurMm) : 0;
   // Sans croix (verre, barreaux seuls) il n'y a pas de rosace : son supplément ne s'applique pas.
@@ -3036,7 +3042,7 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
   };
   const optionsLabel = [
     size.label,
-    wood.value.label,
+    boisFabrique.label,
     metal.value?.label,
     sansRosace ? null : fabric.value?.label,
     remplissage.value && remplissage.value !== product.remplissages?.[0] ? remplissage.value.label : null,
@@ -3048,7 +3054,7 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
     line: {
       product,
       size,
-      wood: wood.value,
+      wood: boisFabrique,
       metal: metal.value,
       fabric: fabric.value,
       remplissage: remplissage.value,

@@ -24,6 +24,7 @@ import {
   type ProductSwatch,
 } from "@/lib/products";
 import { amenerAlEcran, prixAffiche, surfaceAffichee } from "@/lib/ui";
+import { MainCouranteListe, MainCouranteMenu } from "./main-courante-choix";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { useCart } from "@/lib/cart";
 import { MaterialBubble } from "./material-bubble";
@@ -1062,6 +1063,17 @@ export function ProductOptions({
   }));
   const metal = product.metals.find((m) => m.id === metalId);
   const fabric = product.fabrics?.find((f) => f.id === fabricId);
+  /* Garde-corps : le choix de la main courante (quatre modèles dessinés, puis l'essence), avec les prix de l'outil. */
+  const choixMainCourante = {
+    options: product.woods,
+    choisi: woodId,
+    onChoisir: setWoodId,
+    mains: reponseGC?.mains,
+    prixActuel: configGC?.prix ?? null,
+    renfort: configGC?.renfort === true,
+    couleurAcier: metal?.swatch ?? "#1c1a18",
+    locale,
+  };
   // Même calcul que le panier et /api/commande : aucune divergence possible.
   const totalPiece = estGC
     ? (configGC?.prix ?? null)
@@ -1466,7 +1478,7 @@ export function ProductOptions({
                 : prixGC.statut === "indisponible" || prixGC.statut === "erreur"
                   ? { message: t.gcPrixIndisponible, ancre: "#cotes" }
                   : reponseGC && !reponseGC.ok && reponseGC.raison === "barre-appui"
-                    ? { message: locale === "fr" ? "Pour cette fenêtre : une barre d'appui, sur devis. Demandez-nous un devis." : "For this window: a support bar, on quotation. Ask us for a quote.", ancre: "#cotes" }
+                    ? { message: locale === "fr" ? "Pour cette fenêtre : une main courante seule, sur devis. Demandez-nous un devis." : "For this window: a handrail on its own, on quotation. Ask us for a quote.", ancre: "#cotes" }
                     : reponseGC && !reponseGC.ok && reponseGC.raison === "sans-garde-corps"
                       ? { message: locale === "fr" ? "Votre fenêtre n'a pas besoin de garde-corps." : "Your window does not need a railing.", ancre: "#cotes" }
                       : { message: t.raisonGcAEtudier, ancre: "#cotes" }
@@ -2008,7 +2020,10 @@ export function ProductOptions({
                   locale={locale}
                 />
               )}
-              {product.woods.length > 0 && (
+              {product.woods.length > 0 && estGC && (
+                <MainCouranteListe {...choixMainCourante} />
+              )}
+              {product.woods.length > 0 && !estGC && (
                 <SwatchGroup
                   label={
                     product.woodLabel ? product.woodLabel[locale] : t.woodLabel
@@ -2076,7 +2091,10 @@ export function ProductOptions({
           const matieresCompactes = (
             <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 rounded-2xl bg-white/55 px-3 py-1.5 xl:shrink-0 xl:flex-nowrap">
               {product.metals.length > 0 && ligneMatieres(locale === "fr" ? "Acier" : "Steel", product.metals, metalId, setMetalId, false)}
-              {product.woods.length > 0 && ligneMatieres(locale === "fr" ? "Main courante" : "Handrail", woodsAffiches, woodId, setWoodId, orderable && product.woods.some((bois) => bois.priceDelta))}
+              {product.woods.length > 0 &&
+                (estGC
+                  ? <MainCouranteMenu {...choixMainCourante} />
+                  : ligneMatieres(locale === "fr" ? "Main courante" : "Handrail", woodsAffiches, woodId, setWoodId, orderable && product.woods.some((bois) => bois.priceDelta)))}
               {product.fabrics && product.fabrics.length > 0 && product.fabricLabel && !sansRosace && !sansRosaceGC &&
                 ligneMatieres(locale === "fr" ? "Rosace" : "Rosette", product.fabrics, fabricId, setFabricId, product.fabrics.some((rosace) => rosace.priceDelta))}
             </div>
@@ -2768,9 +2786,11 @@ export function ProductOptions({
                   </PopoverDetails>,
                   detailsSlot
                 )}
+              {/* Rien à acheter (main courante seule sur devis, rien à poser, fenêtre trop basse) : pas de livraison à choisir. Le bloc reste
+                  monté, seulement caché : s'il apparaissait et disparaissait, il se retrouvait SOUS la barre d'achat. */}
               {versColonneAchat(
                 livraison ? (
-                  <div className="mt-2 border-t border-[#e5ddd3] pt-2.5" id="sous-menu-livraison">
+                  <div className={`mt-2 border-t border-[#e5ddd3] pt-2.5 ${reponseGC && !reponseGC.ok && reponseGC.raison !== "a-etudier" ? "hidden" : ""}`} id="sous-menu-livraison">
                     <span className="block text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{product.livraisonSeule ? t.livraisonTitle : t.poseTitle}</span>
                     <div className="mt-2">{livraison}</div>
                   </div>

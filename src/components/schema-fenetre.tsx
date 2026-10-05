@@ -245,7 +245,7 @@ export function SchemaFenetre({
   renfort = false,
   seuls = false,
   trous = null,
-  mainCouranteAcier = false,
+  typeMainCourante,
   rosaceMm,
   apercu = false,
   labels,
@@ -283,7 +283,8 @@ export function SchemaFenetre({
   /** Le rond rouge (vide trop grand) et les ronds verts de l'outil de plans, posés dans le cadre du modèle montré. */
   trous?: TrousGC | null;
   /** La main courante est en acier (plat ou profilé) et non en bois. */
-  mainCouranteAcier?: boolean;
+  /** La main courante en acier : fer plat (40 × 8) ou profilé (40 × 10, dessus bombé) ; absente : en bois. */
+  typeMainCourante?: "acier-plat" | "acier-profile";
   labels: {
     largeur: string;
     allege: string;
@@ -338,7 +339,10 @@ export function SchemaFenetre({
 
   /** L'appui, la main courante et les barres à l'échelle aussi : 50, 40 et 20 mm. */
   const EP_APPUI = Math.max(2, r(50 * echelle));
-  const mainCouranteH = mode === "garde-corps" ? Math.max(1.5, Math.min(r((renfort ? 55 : 40) * echelle), hauteur / 2)) : Math.max(2, r(40 * echelle));
+  /** Les hauteurs de l'outil : fer plat 8, profilé 10, bois 40, bois sur fer plat 55 (10 de plat + 45 de bois). */
+  const hauteurMcMm = typeMainCourante === "acier-plat" ? 8 : typeMainCourante === "acier-profile" ? 10 : renfort ? 55 : 40;
+  const acierMc = typeMainCourante !== undefined;
+  const mainCouranteH = mode === "garde-corps" ? Math.max(2, Math.min(r(hauteurMcMm * echelle), hauteur / 2)) : Math.max(2, r(40 * echelle));
   /** Le fer plat de renfort, sous le bois (10 mm sur les 55). */
   const platH = renfort && mode === "garde-corps" ? Math.max(1, r((mainCouranteH * 10) / 55)) : 0;
   const barre = Math.max(1, r(20 * echelle));
@@ -473,7 +477,7 @@ export function SchemaFenetre({
             <ellipse key={`rond${i}`} cx={r(G + 2 + c.x * sx)} cy={r(cadreBas - c.y * sy)} rx={r((c.d / 2) * sx)} ry={r((c.d / 2) * sy)} fill={couleur} fillOpacity={0.3} stroke={couleur} strokeWidth={1.6} />
           );
         })}
-        <rect x={G - 2} y={hautGardeCorpsY} width={D - G + 4} height={mainCouranteH} rx={2.5} fill={mainCouranteAcier ? "#4a4b4f" : BOIS} stroke={mainCouranteAcier ? "#2b2c2f" : "#b08a52"} strokeWidth={0.8} />
+        <rect x={G - 2} y={hautGardeCorpsY} width={D - G + 4} height={mainCouranteH} rx={typeMainCourante === "acier-profile" ? r(mainCouranteH / 2) : acierMc ? 1 : 2.5} fill={acierMc ? ACIER : BOIS} stroke={acierMc ? ACIER : "#b08a52"} strokeWidth={0.8} />
         {platH > 0 && <rect x={G} y={r(hautGardeCorpsY + mainCouranteH - platH)} width={D - G} height={platH} fill={ACIER} />}
       </g>
       )}
@@ -481,7 +485,7 @@ export function SchemaFenetre({
       {mode === "barre" && (
         <g>
           <line x1={G} y1={r(hautGardeCorpsY + mainCouranteH + barre)} x2={D} y2={r(hautGardeCorpsY + mainCouranteH + barre)} stroke={ACIER} strokeWidth={r(barre * 1.4)} />
-          <rect x={G - 2} y={hautGardeCorpsY} width={D - G + 4} height={mainCouranteH} rx={2.5} fill={mainCouranteAcier ? "#4a4b4f" : BOIS} stroke={mainCouranteAcier ? "#2b2c2f" : "#b08a52"} strokeWidth={0.8} />
+          <rect x={G - 2} y={hautGardeCorpsY} width={D - G + 4} height={mainCouranteH} rx={typeMainCourante === "acier-profile" ? r(mainCouranteH / 2) : acierMc ? 1 : 2.5} fill={acierMc ? ACIER : BOIS} stroke={acierMc ? ACIER : "#b08a52"} strokeWidth={0.8} />
         </g>
       )}
 

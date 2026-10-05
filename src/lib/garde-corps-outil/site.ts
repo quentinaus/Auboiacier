@@ -10,9 +10,9 @@
  */
 import { catalogueGC, configurerGC, prixCommandeGC, prixGC, ChiffrageIndisponible, type ConfigAEtudierGC, type ConfigGC, type DessinGC } from "./calcul.ts";
 import { MAINS_COURANTES_GC, type EntreeSiteGC, type MainCouranteGC } from "./entree.ts";
-import { RENFORT } from "./moteur.genere.mjs";
+import { RENFORT, calculerGC, planA3Pur } from "./moteur.genere.mjs";
 import { getProduct, priceFrom, prixParOutil, resolveSelection, SUR_MESURE, type PrixReleve, type Product } from "../products.ts";
-import { BORNES_RELEVE_GC, MODELES_GC_MAX, RELEVE_DEPART_GC, ROSACE_DEFAUT_GC, ROSACE_MM_GC, diametreRosaceGC, idModeleGC, lireModeleGC, releveDansLesBornes, type ModeleGC, type ReleveGC, type ReponsePrixGC } from "../garde-corps.ts";
+import { BORNES_RELEVE_GC, MODELES_GC_MAX, RELEVE_DEPART_GC, ROSACE_DEFAUT_GC, ROSACE_MM_GC, diametreRosaceGC, idModeleGC, lireMainCouranteGC, lireModeleGC, releveDansLesBornes, type MainsPrixGC, type ModeleGC, type PlanApercuGC, type ReleveGC, type ReponsePrixGC } from "../garde-corps.ts";
 import type { CalculGC } from "../tarif-panier.ts";
 
 /** L'identifiant du garde-corps de fenêtre au catalogue. */
@@ -211,6 +211,28 @@ function catalogueSiteGC(q: RequetePrixGC, hauteurMm: number): ModeleGC[] {
 }
 
 /**
+ * Le prix d'UNE pièce avec chaque main courante (bois rainuré, bois sur fer plat, acier plat, acier profilé), à
+ * la même fenêtre et aux mêmes options. Le modèle déjà choisi est gardé quand la main courante l'accepte ; sinon le moteur
+ * propose le dessin qui convient (c'est ce que fera le panier). Une main courante qui ne passe pas la norme pour cette
+ * fenêtre n'est pas dans la liste : le client ne peut pas la choisir (« jamais hors norme, mais toujours une proposition »).
+ */
+function prixParMainCourante(q: RequetePrixGC): MainsPrixGC {
+  const mains: MainsPrixGC = {};
+  const { modele, ...sansModele } = q.releve;
+  for (const id of MAINS_COURANTES_GC) {
+    const options = { woodId: id, metalId: q.metalId, fabricId: q.fabricId, remplissageId: q.remplissageId };
+    const gardee = modele ? ligneGC(q.releve, options) : null;
+    const l = gardee?.ok ? gardee : ligneGC(sansModele, options);
+    if (!l.ok) continue;
+    // Fenêtre large : l'outil pose lui-même le bois sur un fer plat. Le bois « rainuré » n'existe donc pas ici : c'est
+    // « sur fer plat » qui est proposé (même prix), pour que le nom choisi dise ce qui sera fabriqué.
+    if (lireMainCouranteGC(id)?.type === "bois-rainure" && l.line.gc?.renfort) continue;
+    mains[id] = l.line.unitPrice;
+  }
+  return mains;
+}
+
+/**
  * La réponse de /api/prix-garde-corps, construite champ par champ : rien
  * d'autre ne peut partir vers le navigateur. null : une option inconnue
  * (la route répond 400).
@@ -229,6 +251,7 @@ export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
       obligatoire: c.obligatoire,
       alertes: [...c.alertes],
       modeles: catalogueSiteGC(q, c.hauteurMm),
+      mains: prixParMainCourante(q),
     };
   }
   // Une option absente : celle du modèle (ligneGC).
@@ -252,6 +275,29 @@ export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
     kg: Math.round(r.line.gc.kg),
     obligatoire: c.obligatoire,
     modeles,
+    mains: prixParMainCourante(q),
+  };
+}
+
+/**
+ * L'aperçu du plan : le « Plan A3 » que dessine l'outil de plans pour cette configuration (même moteur, même dessin :
+ * planA3Pur est la fonction de l'outil). En mode « aperçu », l'outil retire de la feuille la liste de débit, le détail de
+ * fixation et la coupe de perçage, et pose un filigrane : le client voit son plan, il n'a pas de quoi le refaire.
+ * null : pas de garde-corps à dessiner (« à étudier »).
+ */
+export function planApercuGC(q: RequetePrixGC, date = new Date()): PlanApercuGC | null {
+  const c = configurationGC(q.releve, q.essence, diametreRosaceGC(q.fabricId));
+  if (!c || !c.ok) return null;
+  const R = calculerGC({ ...c.v });
+  const jour = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", day: "2-digit", month: "2-digit", year: "numeric" }).format(date);
+  return {
+    svg: planA3Pur(R, c.v, { apercu: true, date: jour }, "gardeCorps"),
+    largeurMm: q.releve.largeurMm,
+    hauteurMm: c.hauteurMm,
+    croix: c.croix,
+    carre: c.carre,
+    seuls: c.seuls,
+    traverse: c.traverse,
   };
 }
 

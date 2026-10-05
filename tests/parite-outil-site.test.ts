@@ -22,6 +22,8 @@ const FENETRES: EntreeSiteGC[] = [
   e(1500, 0), e(1669, 650), e(1700, 650), e(2400, 650), e(1200, 300, false),
 ];
 for (const B of [600, 1400, 2200]) for (const A of [0, 450, 700]) FENETRES.push(e(B, A));
+// Bas de fenêtre haut : des croix avec un jour réduit (760, 785), puis un cadre bas à barreaux seuls (790 à 865), puis rien (870).
+for (const [B, A] of [[1180, 760], [1180, 785], [1180, 790], [1180, 840], [1800, 800], [1180, 865], [1180, 870]]) FENETRES.push(e(B, A));
 
 /** Ce que le moteur accepte, dessin par dessin : un calcul simple, sans cache. */
 function dessinsPossibles(en: EntreeSiteGC): Set<string> {
@@ -48,8 +50,9 @@ test("parité : tout ce que l'outil sait résoudre (jusqu'à 12 croix), le site 
   let avecSolution = 0, sansSolution = 0, septEtPlus = 0;
   for (const en of FENETRES) {
     const nom = `${en.largeurMm} × ${en.allegeMm}${en.enEtage ? "" : " (rez)"}`;
-    // Barre d'appui / rien à poser : aucun dessin à croix, des deux côtés.
-    if (geomGC(valeursGC(DEFAUTS_GC, en, 16, 1), 1).appui) {
+    // Barre d'appui / rien à poser : aucun dessin, des deux côtés — même pas un cadre à barreaux seuls, le plus bas de tous.
+    // (De 786 à 865 mm, les croix sont impossibles mais pas ce cadre : le catalogue est alors ce seul dessin, comparé plus bas.)
+    if (geomGC(valeursGC(DEFAUTS_GC, en, 16, 1, false, false, false, true), 1).appui) {
       assert.deepEqual(catalogueGC(en), [], `${nom} : pas de modèle à croix`);
       continue;
     }

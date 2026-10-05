@@ -52,8 +52,8 @@ const A = analyser(html);
 
 // ---------- 1. Ce qu'on prend : des racines, puis tout ce qu'elles utilisent ----------
 const RACINES = {
-  moteur: ["geomGC", "calculerGC", "variantesConformes", "decrireVariante", "HAUT_ETAGE", "ALLEGE_LIBRE", "MINI_GC", "BARRE_APPUI", "SPHERE",
-    "SPHERE_HAUT", "Z_SPHERE", "Z_ESCALADE", "CIBLE_MARGE", "LIMITE_ACIER", "ROSACE_R", "RENFORT", "fmt", "mmTxt"],
+  moteur: ["geomGC", "calculerGC", "variantesConformes", "decrireVariante", "HAUT_ETAGE", "ALLEGE_LIBRE", "MINI_GC", "MINI_SEULS", "BARRE_APPUI", "SPHERE",
+    "SPHERE_HAUT", "Z_SPHERE", "Z_ESCALADE", "CIBLE_MARGE", "LIMITE_ACIER", "ROSACE_R", "RENFORT", "fmt", "mmTxt", "planA3Pur", "DS_ESSENCES", "coupeMainCourante", "svgDe"],
   devis: ["composerDevisGC", "dsDevisHtml", "dsPrix", "DS_GC", "DS_VALIDITE_JOURS"],
   chiffrage: ["chiffrerGC", "remiseGC", "REGLAGES"],
 };
@@ -164,7 +164,9 @@ function champsDuHtml(h) {
 const champs = champsDuHtml(avantScript);
 const lireSrc = decl("lire").texte, champsSrc = decl("CHAMPS").texte;
 if (!/^function lire\(\)/.test(lireSrc)) arret("lire() a changé de forme dans l'outil");
-const DEFAUTS_GC = new Function("$", `${champsSrc};\n${lireSrc};\nreturn lire();`)((id) => {
+// lire() utilise quelques constantes de l'outil (le jour automatique) : on les lui donne telles qu'elles sont déclarées.
+const constantesDeLire = ["MINI_GC", "MINI_SEULS", "JOUR_MINI", "HAUT_ETAGE", "CIBLE_MARGE"].map((n) => decl(n).texte).join("\n");
+const DEFAUTS_GC = new Function("$", `${constantesDeLire};\n${champsSrc};\n${lireSrc};\nreturn lire();`)((id) => {
   if (!champs[id]) throw new Error("champ absent de la page de l'outil : " + id);
   return champs[id];
 });
@@ -234,7 +236,7 @@ export type ValeursGC = {
   B: number; A: number; Hs: number; Hf: number; Xo: number; jour: number; j: number; s: number; nP: number; nb: number;
   sbMode: string; ass: string; rosace: boolean; etage: boolean; mc: number; epMc: number; mcType: string; essence: string;
   rainure: boolean; rnP: number; rnJ: number; dF: number; fF: number; eF: number; nF: number; trait: number;
-  debitAr: number; minSoud: number; remise: string; km: number; prixVente: number; traverse: boolean; renfort: string; seuls?: boolean; rD: number; _rapide?: boolean;
+  debitAr: number; minSoud: number; remise: string; km: number; prixVente: number; traverse: boolean; renfort: string; seuls?: boolean; rD: number; jourAuto?: boolean; jourSaisi?: number; _rapide?: boolean;
   [autre: string]: unknown;
 };
 export type LigneDebitGC = { nom: string; qte: number; mat: string; long: number; coupes: string; note: string; dessin?: unknown };
@@ -262,12 +264,16 @@ export declare function variantesConformes(v: ValeursGC): VarianteGC[];
 export declare function decrireVariante(v: ValeursGC, c: { w: ValeursGC }): string[];
 export declare function fmt(x: number, d?: number): string;
 export declare function mmTxt(x: number): string;
+export declare function coupeMainCourante(v: ValeursGC): unknown[];
+export declare function svgDe(prims: readonly unknown[], petit?: boolean | string): { vb: number[]; fs: number; html: string };
+export declare function planA3Pur(R: ResultatGC, v: ValeursGC, infos: { apercu?: boolean; date?: string; client?: string; chantier?: string; numero?: string }, modele: string): string;
 export declare const ALLEGE_LIBRE: number;
 export declare const BARRE_APPUI: number;
 export declare const CIBLE_MARGE: number;
 export declare const HAUT_ETAGE: number;
 export declare const LIMITE_ACIER: number;
 export declare const MINI_GC: number;
+export declare const MINI_SEULS: number;
 export declare const RENFORT: Readonly<{ l: number; e: number; bois: Readonly<{ l: number; h: number }>; LcMax: number; pasVis: number; visD: number; visL: number }>;
 export declare const ROSACE_R: number;
 export declare const SPHERE: number;
@@ -351,6 +357,7 @@ console.log(`notes d'achat retirées du moteur : ${moteurNeutre.retires} ; chaî
 // ---------- 7. L'outil et le code extrait, côte à côte ----------
 const temp = mkdtempSync(join(tmpdir(), "moteur-gc-"));
 let reference;
+let texteCoupes = "";
 try {
   writeFileSync(join(temp, NOMS.moteur), texteMoteur);
   writeFileSync(join(temp, NOMS.devis), texteDevis);
@@ -358,6 +365,24 @@ try {
   const D = await import(pathToFileURL(join(temp, NOMS.devis)).href);
   const CH = evaluerChiffrage(dechiffrer(paquet, cle), M.fmt);
   reference = comparerAvecOutil(M, D, CH);
+  // Les quatre coupes de main courante du choix du site, dessinées par l'outil (coupeMainCourante + svgDe) : le site les montre
+  // telles quelles, il ne les redessine pas.
+  const TYPES_MC = {
+    "bois-rainure": { mcType: "bois", renfort: "sans" },
+    "bois-plat": { mcType: "bois", renfort: "plat" },
+    "acier-plat": { mcType: "acier", renfort: "sans" },
+    "acier-profile": { mcType: "profil", renfort: "sans" },
+  };
+  const coupes = {};
+  for (const [type, reglages] of Object.entries(TYPES_MC)) {
+    const prims = M.coupeMainCourante({ ...DEFAUTS_GC, rainure: true, ...reglages });
+    let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
+    for (const p of prims) for (const [x, y] of p.pts) { x1 = Math.min(x1, x); x2 = Math.max(x2, x); y1 = Math.min(y1, y); y2 = Math.max(y2, y); }
+    const marge = 4;
+    coupes[type] = { vb: [x1 - marge, -(y2 + marge), x2 - x1 + 2 * marge, y2 - y1 + 2 * marge].map((n) => Math.round(n * 10) / 10), html: M.svgDe(prims).html };
+  }
+  texteCoupes = entete("Les quatre coupes de main courante du choix du site, dessinées par l'outil de plans (coupeMainCourante).") +
+    `export const COUPES_MAIN_COURANTE_GC: Readonly<Record<"bois-rainure" | "bois-plat" | "acier-plat" | "acier-profile", Readonly<{ vb: readonly [number, number, number, number]; html: string }>>> = ${JSON.stringify(coupes, null, 1)};\n`;
 } finally {
   rmSync(temp, { recursive: true, force: true });
 }
@@ -370,6 +395,7 @@ const aEcrire = [
   [join(DOSSIER, NOMS.devis), texteDevis],
   [cheminChiffre, texteChiffre],
   ...Object.entries(TYPES).map(([n, t]) => [join(DOSSIER, n), t]),
+  [join(RACINE, "src/lib/garde-corps-coupes.genere.ts"), texteCoupes],
   [REFERENCE, texteReference],
 ];
 if (VERIFIER) {
@@ -468,12 +494,18 @@ function comparerAvecOutil(M, D, CH) {
     { nom: "barreaux seuls, large : carré de 20", valeurs: { B: 1990, A: 650, seuls: true, s: 20 }, lire: true },
     { nom: "barreaux seuls, renfort, noyer", valeurs: { B: 2200, A: 400, seuls: true, renfort: "plat", essence: "noyer" } },
     { nom: "barreaux seuls, trop souple", valeurs: { B: 2400, A: 300, seuls: true } },
+    // Le jour automatique : à 760 mm du sol, le jour tapé (90) est réduit à 65 pour que le garde-corps fasse 200 mm.
+    { nom: "jour automatique, bas de fenêtre à 760", valeurs: { B: 1180, A: 760, jourAuto: true, jour: 65, jourSaisi: 90 }, lire: true },
+    { nom: "barreaux seuls bas, bas de fenêtre à 840", valeurs: { B: 1180, A: 840, seuls: true, jourAuto: true, jour: 65, jourSaisi: 90 }, lire: true },
   );
   let variantes = 0;
   const casRef = [];
   for (const c of cas) {
     const valeurs = c.valeurs || {};
-    const vE = { ...DEFAUTS_GC, ...valeurs };
+    // Le jour automatique réduit le jour tapé quand le garde-corps serait trop bas : les cas ordinaires le coupent (la comparaison
+    // se fait valeur pour valeur) ; un cas dédié, plus bas, le laisse faire et vérifie le jour retenu.
+    const vE = { ...DEFAUTS_GC, jourAuto: false, ...valeurs };
+    if (valeurs.jourSaisi === undefined) vE.jourSaisi = vE.jour;
     let vO = vE, Olocal = O, dateLocale = dateOutil, charge = null;
     if (c.lire) {                     // l'outil relit ces valeurs comme si elles étaient gardées dans le navigateur
       charge = lancer(vE);

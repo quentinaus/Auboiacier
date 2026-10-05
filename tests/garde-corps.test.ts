@@ -112,7 +112,8 @@ test("la hauteur est celle de l'outil : plus de 350 mm imposés, ni de 80 cm au 
 
 test("le croquis suit le curseur sans le serveur : formeGC est la règle du moteur, à chaque millimètre", () => {
   for (let allegeMm = BORNES_GC.A.min; allegeMm <= BORNES_GC.A.max; allegeMm++) {
-    const v = valeursGC(DEFAUTS_GC, { ...releve({ allegeMm }), essence: "chene" }, 16, 1);
+    // Le cadre le plus bas (barreaux seuls, 120 mm) fixe la limite du croquis : au-dessus, les croix ; entre les deux, des barreaux.
+    const v = valeursGC(DEFAUTS_GC, { ...releve({ allegeMm }), essence: "chene" }, 16, 1, false, false, false, true);
     const g = geomGC(v, 1);
     const f = formeGC(allegeMm);
     assert.equal(f.mode, g.appui === "barre" ? "barre" : g.appui === "rien" ? "aucun" : "garde-corps", `bas de fenêtre à ${allegeMm}`);
@@ -125,15 +126,18 @@ test("le croquis suit le curseur sans le serveur : formeGC est la règle du mote
   }
   // Ce que le serveur répond pour une barre d'appui, c'est ce que le croquis dessine.
   chiffrageOuEchec();
-  const barre = configurationGC(releve({ allegeMm: 820 }), "chene")!;
-  assert.deepEqual([barre.hauteurMm, barre.jourMm], [formeGC(820).hauteurMm, formeGC(820).jourMm]);
+  const barre = configurationGC(releve({ allegeMm: 900 }), "chene")!;
+  assert.deepEqual([barre.hauteurMm, barre.jourMm], [formeGC(900).hauteurMm, formeGC(900).jourMm]);
+  // Et pour un garde-corps bas : sa hauteur et son jour.
+  const bas = configurationGC(releve({ allegeMm: 840 }), "chene")!;
+  assert.deepEqual([bas.hauteurMm, bas.jourMm], [formeGC(840).hauteurMm, formeGC(840).jourMm]);
 });
 
 test("la main courante ne bouge jamais : un bas de fenêtre haut donne une barre d'appui, jamais un garde-corps qui dépasse", () => {
   chiffrageOuEchec();
   const cas = (allegeMm: number, enEtage = true) => configurationGC(releve({ allegeMm, enEtage }), "chene")!;
-  // Il manque moins que le plus petit garde-corps à croix : une barre d'appui, sur devis, à la hauteur de la norme.
-  for (const allegeMm of [736, 800, 899, 900, 985]) {
+  // Il manque moins que le plus petit cadre (120 mm, barreaux seuls) : une main courante seule, sur devis, à la hauteur de la norme.
+  for (const allegeMm of [866, 899, 900, 985]) {
     for (const enEtage of [true, false]) {
       const c = cas(allegeMm, enEtage);
       assert.equal(c.ok, false, `allège ${allegeMm}`);
@@ -152,6 +156,27 @@ test("la main courante ne bouge jamais : un bas de fenêtre haut donne une barre
   }
   // Juste avant : le plus petit garde-corps, avec un prix.
   assert.equal(cas(735).ok, true);
+  // « Jamais rien qui ne soit pas aux normes, mais toujours quelque chose » (Quentin, 05/10/2026) : de 736 à 785 mm, des croix
+  // avec un jour réduit (jamais sous 40 mm) ; de 786 à 865 mm, un cadre bas à barreaux seuls. Même au rez-de-chaussée.
+  for (const allegeMm of [736, 760, 785]) {
+    for (const enEtage of [true, false]) {
+      const c = cas(allegeMm, enEtage);
+      assert.ok(c.ok && !c.seuls, `allège ${allegeMm} : des croix`);
+      assert.equal(c.mainCouranteMm, MAIN_COURANTE_MM);
+      assert.equal(c.jourMm, MAIN_COURANTE_MM - allegeMm - c.hauteurMm, `allège ${allegeMm} : le jour qui reste`);
+      assert.ok(c.jourMm >= 40 && c.jourMm < 110, `allège ${allegeMm} : jour de ${c.jourMm}`);
+    }
+  }
+  assert.equal(cas(760).jourMm, 65, "à 760 mm : un garde-corps de 200 mm, posé à 65 mm au-dessus de l'appui");
+  for (const allegeMm of [786, 800, 840, 865]) {
+    const c = cas(allegeMm);
+    assert.ok(c.ok && c.seuls, `allège ${allegeMm} : un cadre bas à barreaux`);
+    assert.equal(c.mainCouranteMm, MAIN_COURANTE_MM);
+    assert.ok(c.hauteurMm >= 120 && c.hauteurMm < 200, `allège ${allegeMm} : hauteur ${c.hauteurMm}`);
+    assert.deepEqual(c.R.alertes, [], `allège ${allegeMm} : rien qui ne soit pas aux normes`);
+    const route = reponsePrixGC({ releve: releve({ allegeMm }), essence: "chene", quantite: 1 });
+    assert.ok(route && route.ok && route.modeles.length === 1 && route.modeles[0].seuls, `allège ${allegeMm} : le catalogue ne montre que ce cadre`);
+  }
 });
 
 test("les croix ne sont plus limitées à 450 mm : l'outil en met autant qu'il faut", () => {
@@ -275,7 +300,8 @@ test("le « à partir de » est le prix du plus petit garde-corps, et aucun ne c
   chiffrageOuEchec();
   const depart = prixDepart(gc);
   assert.ok(depart !== null && Number.isInteger(depart) && depart > 0);
-  const moinsCher = Math.min(...MAINS_COURANTES_GC.map((e) => prixGC(configurationGC(RELEVE_DEPART_GC, e) as ConfigGC)));
+  // (Au relevé de départ, le bois sur fer plat est trop haut pour le cadre : seules les mains courantes qui conviennent comptent.)
+  const moinsCher = Math.min(...MAINS_COURANTES_GC.flatMap((e) => { const c = configurationGC(RELEVE_DEPART_GC, e); return c?.ok ? [prixGC(c)] : []; }));
   assert.equal(depart, moinsCher);
   for (const largeurMm of [300, 450, 800, 1180, 1500]) {
     for (const allegeMm of [0, 300, 650, 900, 1200]) {

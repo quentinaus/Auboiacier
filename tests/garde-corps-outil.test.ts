@@ -64,7 +64,12 @@ const REF: {
 const J = (x: unknown) => JSON.stringify(x);
 const court = (t: string) => createHash("sha256").update(t).digest("hex").slice(0, 16);
 const trie = (o: object) => Object.fromEntries(Object.keys(o).sort().map((k) => [k, (o as Record<string, unknown>)[k]]));
-const valeurs = (c: CasRef) => ({ ...M.DEFAUTS_GC, ...c.valeurs }) as M.ValeursGC;
+// (Comme le script d'extraction : le jour automatique est coupé, sauf dans les cas qui le demandent ; le jour « saisi » est le jour tapé.)
+const valeurs = (c: CasRef) => {
+  const v = { ...M.DEFAUTS_GC, jourAuto: false, ...c.valeurs } as M.ValeursGC;
+  if (c.valeurs.jourSaisi === undefined) v.jourSaisi = v.jour;
+  return v;
+};
 const infos = (c: CasRef) => ({ client: "", chantier: c.chantier ?? "", email: "", telephone: "", date: new Date(REF.date) });
 
 function chiffrageOuEchec() {
@@ -199,6 +204,14 @@ test("relevés du site : la configuration retenue suit la règle du 29/09 et don
     // La main courante ne bouge pas (04/10) : quand l'outil dit « barre d'appui » ou « rien à poser », le site
     // ne vend pas de garde-corps à croix — et l'outil non plus (son alerte « Barre d'appui » sur chaque essai).
     const appui = M.geomGC(valeursGC(M.DEFAUTS_GC, r.entree, 16, 1), 1).appui;
+    // Bas de fenêtre trop haut pour des croix, mais pas pour un cadre à barreaux seuls (plus bas) : le site propose ce cadre,
+    // jamais « rien » (« jamais quelque chose qui n'est pas aux normes, mais toujours quelque chose », 05/10).
+    if (appui && M.geomGC(valeursGC(M.DEFAUTS_GC, r.entree, 16, 1, false, false, false, true), 1).appui === null) {
+      assert.equal(r.choix, null, `${J(r.entree)} : pas de croix`);
+      assert.ok(c.ok ? c.seuls : c.raison !== "barre-appui" && c.raison !== "sans-garde-corps", J(r.entree));
+      assert.equal(c.mainCouranteMm, M.HAUT_ETAGE + M.CIBLE_MARGE);
+      continue;
+    }
     if (appui) {
       assert.equal(r.choix, null, `${J(r.entree)} : l'outil ne retient aucun garde-corps à croix`);
       for (const s of ORDRE_CARRES) for (const a of r.alertes[s]) assert.ok(a.includes("barre-appui") || a.includes("trop-petit"), `${J(r.entree)} carré ${s} : ${a}`);

@@ -10,7 +10,7 @@
  */
 import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, DEFAUTS_GC, calculerGC, geomGC, type ResultatGC, type ValeursGC } from "./moteur.genere.mjs";
 import { chiffrage } from "./chiffrage.ts";
-import { idModeleGC, lireModeleGC, ROSACES_MM_GC, type RaisonSansPrixGC, type RondGC, type TrousGC } from "../garde-corps.ts";
+import { idModeleGC, lireMainCouranteGC, lireModeleGC, ROSACES_MM_GC, type RaisonSansPrixGC, type RondGC, type TrousGC } from "../garde-corps.ts";
 import { CARRE_RENFORT, CARRES_RENFORT_SEULS, codeAlerte, CROIX_CATALOGUE, CROIX_MAX, MAINS_COURANTES_GC, ORDRE_CARRES, valeursGC, type CodeAlerteGC, type EntreeSiteGC } from "./entree.ts";
 
 export { ChiffrageIndisponible } from "./chiffrage.ts";
@@ -201,13 +201,19 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   const carres: readonly number[] = ORDRE_CARRES;
   // Sans choix : d'abord 1 à 6 croix dans tous les carrés (les prix d'avant ne changent pas), puis seulement si
   // rien n'a passé, 7 à 12 croix — les fenêtres larges et basses que l'outil résout et que le site refusait.
-  const plages: readonly (readonly [nMin: number, nMax: number])[] = choisi ? [[choisi.croix, choisi.croix]] : [[1, CROIX_CATALOGUE], [CROIX_CATALOGUE + 1, CROIX_MAX]];
+  // Bas de fenêtre trop haut pour des croix mais pas pour un cadre à barreaux seuls (qui peut être plus bas) : c'est lui, et lui seul,
+  // qu'on propose. « Jamais rien qui ne soit pas aux normes, mais toujours quelque chose » (Quentin, 05/10/2026).
+  const baseSeuls = valeursGC(DEFAUTS_GC, entree, 16, 1, false, false, false, true);
+  const soloSeuls = geomGC(valeursGC(DEFAUTS_GC, entree, 16, 1), 1).appui !== null && geomGC(baseSeuls, 1).appui === null;
+  const plages: readonly (readonly [nMin: number, nMax: number])[] = soloSeuls ? [[1, 1]] : choisi ? [[choisi.croix, choisi.croix]] : [[1, CROIX_CATALOGUE], [CROIX_CATALOGUE + 1, CROIX_MAX]];
   // Sans choix du client : les croix seules d'abord ; si rien ne passe, une traverse au milieu des croix (la
   // solution de l'outil : le même dessin, les vides coupés en deux) ; puis des barreaux droits en bas ; puis les deux.
-  const variantes: readonly (readonly [barreaux: boolean, traverse: boolean, seuls: boolean])[] = choisi
+  const variantes: readonly (readonly [barreaux: boolean, traverse: boolean, seuls: boolean])[] = soloSeuls
+    ? [[false, false, true]]
+    : choisi
     ? [[choisi.barreauxBas, choisi.traverse, choisi.seuls]]
     : [[false, false, false], [false, true, false], [true, false, false], [true, true, false]];
-  const base = valeursGC(DEFAUTS_GC, entree, 16, 1);
+  const base = soloSeuls ? baseSeuls : valeursGC(DEFAUTS_GC, entree, 16, 1);
   const g = geomGC(base, 1);
   const commun: Commun = {
     entree,
@@ -248,12 +254,14 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   let auCarre16Renfort = false;
   // D'abord sans renfort, dans tous les carrés. Ensuite, seulement si la lisse haute est trop souple dans tous
   // (fenêtre large) : le carré de l'atelier avec le fer plat caché sous la main courante.
-  recherche: for (const r of [false, true]) {
-    if (r && !lisseTropSouple(cleReleve)) break;
+  // Bois SUR FER PLAT, choisi par le client : le plat est posé d'office, dans tous les carrés de l'atelier (comme pour les barreaux seuls).
+  const platVoulu = lireMainCouranteGC(entree.essence)?.type === "bois-plat";
+  recherche: for (const r of platVoulu ? [true] : [false, true]) {
+    if (r && !platVoulu && !lisseTropSouple(cleReleve)) break;
     // Avec le fer plat, la rigidité est réglée : seul compte ce qui bloque ENCORE (les essais qui suivent).
     if (r) blocages.length = 0;
     for (const [nMin, nMax] of plages) for (const [b, t, seuls] of variantes) {
-      for (const s of r ? (seuls ? CARRES_RENFORT_SEULS : [CARRE_RENFORT]) : carres) {
+      for (const s of r ? (seuls || platVoulu ? CARRES_RENFORT_SEULS : [CARRE_RENFORT]) : carres) {
         for (let n = nMin; n <= nMax; n++) {
           const essai = essayer(cleReleve, entree, s, n, b, t, r, seuls);
           if (essai.R && essai.v) {
@@ -333,15 +341,17 @@ function trousDuDessin(entree: EntreeSiteGC, n: number, b: boolean, t: boolean, 
 export function catalogueGC(e: EntreeSiteGC): DessinGC[] {
   const { modele: _ignore, ...sansChoix } = e;
   void _ignore;
-  // Barre d'appui, ou rien à poser : aucun modèle à croix n'est proposé.
-  if (geomGC(valeursGC(DEFAUTS_GC, sansChoix, 16, 1), 1).appui) return [];
+  // Barre d'appui, ou rien à poser : aucun modèle à croix. Bas de fenêtre trop haut pour des croix mais pas pour un cadre à
+  // barreaux seuls (plus bas) : ce cadre, et lui seul.
+  const croixImpossibles = geomGC(valeursGC(DEFAUTS_GC, sansChoix, 16, 1), 1).appui !== null;
+  if (croixImpossibles && geomGC(valeursGC(DEFAUTS_GC, sansChoix, 16, 1, false, false, false, true), 1).appui !== null) return [];
   // Un dessin = un nombre de croix, des barreaux en bas ou non (demandés, ou imposés par la norme), une traverse ou non.
   const dessins = new Map<string, DessinGC>();
   const cleReleve = JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, e.essence, e.rosaceMm ?? 100]);
   // L'ordre du catalogue : les croix seules, puis avec une traverse au milieu, puis avec des barreaux en bas,
   // puis les deux — de 1 à 6 croix chaque fois (de 7 à 12 : seulement les modèles aux normes).
   // (Cinquième famille : les barreaux seuls — des barreaux verticaux et rien d'autre, un seul dessin.)
-  for (const [b, t, p] of [[false, false, false], [false, true, false], [true, false, false], [true, true, false], [false, false, true]] as const) {
+  for (const [b, t, p] of ([[false, false, false], [false, true, false], [true, false, false], [true, true, false], [false, false, true]] as const).filter(([, , seuls]) => seuls || !croixImpossibles)) {
     // De 7 à 12 croix : seulement quand AUCUN modèle de 1 à 6 croix de cette famille n'est aux normes (une fenêtre
     // large et basse). Sinon le catalogue se remplirait de dessins très serrés pour une fenêtre ordinaire.
     let assezDeCroix = false;
