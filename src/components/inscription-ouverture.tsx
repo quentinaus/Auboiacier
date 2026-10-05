@@ -10,7 +10,7 @@ type Etat = "idle" | "loading" | "ok" | "invalide" | "too_many" | "erreur";
 /**
  * « Me prévenir à l'ouverture » : avant l'ouverture des commandes, le client
  * laisse son e-mail, l'atelier le reçoit avec la configuration (/api/prevenir),
- * et les premiers inscrits passent en priorité dans le planning. Le même
+ * et les inscrits passent en priorité dans le planning. Le même
  * formulaire dans le panier et sur la fiche produit.
  */
 export function InscriptionOuverture({
