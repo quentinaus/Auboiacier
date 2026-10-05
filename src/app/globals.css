@@ -221,9 +221,10 @@ textarea:focus-visible,
     scroll-snap-align: start;
   }
 }
-/* Téléphone, garde-corps : le parcours en ÉTAPES (etapes-telephone.tsx, product-view.tsx). Une seule étape à l'écran sous
-   le croquis : 1 et 2 la carte des mesures (les cotes, puis la fenêtre), 3 les modèles, 4 les finitions, 5 la colonne du prix.
-   La consigne de chaque étape est écrite dans l'en-tête : les petits titres et la consigne de la carte s'effacent. */
+/* Téléphone, garde-corps : UNE QUESTION À LA FOIS (etapes-telephone.tsx, product-view.tsx). Une seule étape à l'écran
+   sous le croquis : 1 à 5 les questions (la carte des mesures n'y montre que la question posée), 6 les modèles,
+   7 les finitions, 8 la colonne du prix. La question est écrite en grand dans l'en-tête : les petits titres de la carte
+   s'effacent. */
 @media (max-width: 47.999rem) {
   .fond-gc[data-parcours="1"] .panneau-etape {
     display: none !important;
@@ -232,12 +233,13 @@ textarea:focus-visible,
   .fond-gc[data-parcours="1"][data-etape="2"] .panneau-etape.etape-2,
   .fond-gc[data-parcours="1"][data-etape="3"] .panneau-etape.etape-3,
   .fond-gc[data-parcours="1"][data-etape="4"] .panneau-etape.etape-4,
-  .fond-gc[data-parcours="1"][data-etape="5"] .panneau-etape.etape-5 {
+  .fond-gc[data-parcours="1"][data-etape="5"] .panneau-etape.etape-5,
+  .fond-gc[data-parcours="1"][data-etape="6"] .panneau-etape.etape-6,
+  .fond-gc[data-parcours="1"][data-etape="7"] .panneau-etape.etape-7,
+  .fond-gc[data-parcours="1"][data-etape="8"] .panneau-etape.etape-8 {
     display: flex !important;
     flex-direction: column;
   }
-  .fond-gc[data-parcours="1"][data-etape="1"] [data-sous-etape="2"],
-  .fond-gc[data-parcours="1"][data-etape="2"] [data-sous-etape="1"],
   .fond-gc[data-parcours="1"] .colonne-cotes .titre-mesures,
   .fond-gc[data-parcours="1"] .colonne-cotes .consigne-cotes,
   .fond-gc[data-parcours="1"] .colonne-cotes .note-qui {
@@ -248,12 +250,29 @@ textarea:focus-visible,
   .fond-gc[data-parcours="1"] .schema-configuration > div {
     --h: clamp(150px, calc(100svh - 540px), 34svh);
   }
+  /* Le doigt dans une case : le clavier va couvrir le bas de l'écran. Le croquis se fait plus petit pour rester visible
+     au-dessus de lui, avec la case ; le conseil s'efface. */
+  .fond-gc[data-parcours="1"][data-clavier="1"] .schema-configuration > div {
+    --h: clamp(120px, 21svh, 180px);
+  }
+  .fond-gc[data-parcours="1"][data-clavier="1"] .conseil-telephone,
+  .fond-gc[data-parcours="1"][data-clavier="1"] .aide-question,
+  .fond-gc[data-parcours="1"][data-clavier="1"] .qui-mesure-question {
+    display: none;
+  }
+  .fond-gc[data-parcours="1"][data-clavier="1"] .ok-clavier {
+    display: flex;
+  }
   /* Étape « Modèle » : les modèles d'abord, les réglages Barreaux et Traverse (des raccourcis) ensuite. */
-  .fond-gc[data-parcours="1"] .etape-3 .carte-modeles {
+  .fond-gc[data-parcours="1"] .etape-6 .carte-modeles {
     display: flex;
     flex-direction: column;
   }
-  .fond-gc[data-parcours="1"] .etape-3 .carte-modeles > .controles-famille {
+  /* La consigne « Choisissez votre modèle » est déjà écrite en grand dans l'en-tête. */
+  .fond-gc[data-parcours="1"] .etape-6 .carte-modeles > .titre-catalogue {
+    display: none;
+  }
+  .fond-gc[data-parcours="1"] .etape-6 .carte-modeles > .controles-famille {
     order: 1;
     margin-top: 0.75rem;
   }

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, useSyncExternalStore, type ComponentProps, type ReactNode } from "react";
-import { createPortal } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import {
   computeUnitPrice,
@@ -33,6 +33,7 @@ import {
   ReleveGardeCorps,
   lireReleve,
   texteManqueGC,
+  etatQuestionGC,
   noteGardeCorps,
   usePrixGardeCorps,
   COTES_GARDE_CORPS_VIDES,
@@ -48,6 +49,7 @@ import { MAX_TEXTE, EMAIL_MOTIF } from "@/lib/devis-regles";
 import { POSE_INITIALE, PoseDomicile, livraisonPrete, montantLivraison, type ChoixPose } from "./pose-domicile";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 import { InscriptionOuverture } from "./inscription-ouverture";
+import { EnteteEtapes, NavEtape, NB_ETAPES_GC, QUESTIONS_GC } from "./etapes-telephone";
 import type { TextesOuverture } from "@/lib/ouverture";
 
 const ACCENT = "#2b2320";
@@ -627,13 +629,18 @@ export function ProductOptions({
   /** Garde-corps : la plaque « Configuration », où poser d'abord la question « Qui prend les mesures ? ». */
   porteSlot?: HTMLDivElement | null;
   /**
-   * Garde-corps sur téléphone : le parcours en étapes de product-view.tsx (une partie à la fois, comme les colonnes de
-   * l'ordinateur). Les emplacements du modèle, des finitions et du prix, et de quoi changer d'étape.
+   * Garde-corps sur téléphone : le parcours de product-view.tsx, UNE QUESTION À LA FOIS (etapes-telephone.tsx), puis le
+   * modèle, les finitions et le prix. L'étape affichée, les emplacements (en-tête, boutons, modèle, finitions), et de
+   * quoi changer d'étape.
    */
   etapesTelephone?: {
+    /** Le parcours est en place à l'écran (posé après le montage, jamais au rendu du serveur). */
+    actif: boolean;
+    etape: number;
+    enteteSlot: HTMLDivElement | null;
+    navSlot: HTMLDivElement | null;
     modeleSlot: HTMLDivElement | null;
     finitionsSlot: HTMLDivElement | null;
-    prixSlot: HTMLElement | null;
     /** La fiche dit si le parcours en étapes s'applique (garde-corps, téléphone, « je mesure moi-même »). */
     signaler: (actif: boolean) => void;
     aller: (etape: number) => void;
@@ -762,9 +769,13 @@ export function ProductOptions({
    * une seule fois.
    */
   const configReprise = useRef(false);
+  /** La mémoire du navigateur a été relue (téléphone : le saut vers les modèles d'un client qui revient l'attend). */
+  const [repriseFaite, setRepriseFaite] = useState(false);
   useEffect(() => {
     if (configReprise.current) return;
     configReprise.current = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- marque la fin de la relecture du stockage, au montage
+    setRepriseFaite(true);
     const memo = reprendreConfig(product.slug);
     if (!memo) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- relecture d'un stockage externe au montage, impossible à l'initialisation (voir ci-dessus)
@@ -881,15 +892,18 @@ export function ProductOptions({
   function allerAuChampManquant(ancre: string) {
     if (ancre === "#livraison") ouvrirMenu("livraison", true);
     // Sur téléphone, en étapes : on ouvre d'abord l'étape où se trouve la case (elle est cachée sinon).
-    if (parcoursTel) {
+    if (enEtapes) {
+      // « #cotes » : la question sans réponse ; si toutes en ont une, celle de la mesure en cause (hors barème), sinon
+      // la première — c'est d'une mesure que dépend ce qui bloque (à étudier, pas besoin de garde-corps…).
+      const horsBornes = lectureReleve?.etat === "hors-bornes" ? lectureReleve.raison : null;
       const etape =
-        ancre === "#mur-gc" || (ancre === "#cotes" && lectureReleve?.etat === "incomplet" && lectureReleve.manque === "etage")
-          ? 2
+        ancre === "#mur-gc"
+          ? 5
           : ancre === "#modeles-gc"
-            ? 3
+            ? QUESTIONS_GC + 1
             : ancre === "#livraison"
-              ? 5
-              : 1;
+              ? NB_ETAPES_GC
+              : (questionAFaire ?? (horsBornes === "allege" ? 2 : horsBornes === "fenetre" ? 3 : 1));
       etapesTelephone?.aller(etape);
     }
     requestAnimationFrame(() =>
@@ -1112,6 +1126,68 @@ export function ProductOptions({
   useEffect(() => {
     signalerParcours?.(parcoursTel);
   }, [parcoursTel, signalerParcours]);
+  /** Téléphone : l'étape affichée ; de 1 à 5, c'est une question (largeur, hauteur, fenêtre, étage, mur). */
+  const etapeTel = etapesTelephone?.etape ?? 1;
+  const allerEtape = etapesTelephone?.aller;
+  // Le parcours tel que product-view l'a posé, après le montage : le rendu du serveur (qui ne connaît pas l'écran) garde
+  // ainsi le formulaire complet de la tablette et de l'ordinateur.
+  const enEtapes = parcoursTel && Boolean(etapesTelephone?.actif);
+  const questionTel = enEtapes && etapeTel <= QUESTIONS_GC ? etapeTel : undefined;
+  const etatQuestion = questionTel ? etatQuestionGC(cotesGardeCorps, questionTel, t, locale) : null;
+  /** La première question sans réponse (null : tout est rempli, les modèles et le prix peuvent s'afficher). */
+  const questionAFaire = estGC
+    ? (Array.from({ length: QUESTIONS_GC }, (_, i) => i + 1).find((n) => etatQuestionGC(cotesGardeCorps, n, t, locale).manque) ?? null)
+    : null;
+  // Un client qui revient (configuration mise de côté) avec tout rempli : il arrive directement sur ses modèles. Une
+  // seule fois par visite, et seulement après la relecture de la mémoire (avant, les cases sont encore vides).
+  const departTel = useRef(false);
+  useEffect(() => {
+    if (!enEtapes || !repriseFaite || departTel.current) return;
+    departTel.current = true;
+    if (questionAFaire === null && etapeTel === 1) allerEtape?.(QUESTIONS_GC + 1);
+  }, [enEtapes, repriseFaite, questionAFaire, etapeTel, allerEtape]);
+  /**
+   * L'étape où le client a voulu passer sans réponse (ou sur une mesure hors barème) : le message s'écrit alors sous la
+   * case — au-dessus du clavier, là où il regarde. Effacé dès qu'il retouche la réponse.
+   */
+  const [essaiQuestion, setEssaiQuestion] = useState<number | null>(null);
+  /** « Suivant », ou « OK » à côté de la case : la question suivante ; ou ce qui manque, et le doigt sur la case. */
+  const avancerQuestion = () => {
+    if (!questionTel) return;
+    if (etatQuestion?.manque) {
+      setEssaiQuestion(questionTel);
+      document.querySelector<HTMLElement>(".colonne-cotes [data-question-champ]")?.focus();
+      return;
+    }
+    // Une mesure hors de ce que l'atelier fabrique (un zéro de trop…) : on s'arrête une fois pour le dire ; le second
+    // « OK » passe.
+    if (etatQuestion?.avertissement && essaiQuestion !== questionTel) {
+      setEssaiQuestion(questionTel);
+      return;
+    }
+    allerEtape?.(questionTel + 1);
+  };
+  /** Le message de la question posée, écrit sous sa case (releve-garde-corps.tsx). */
+  const messageQuestion =
+    questionTel && essaiQuestion === questionTel ? (etatQuestion?.manque ?? etatQuestion?.avertissement ?? null) : null;
+  /** « En étage », un type de mur : touché, le choix fait passer de lui-même à la question suivante. */
+  const passageAuto = useRef<number | undefined>(undefined);
+  // Un changement d'étape à la main (« Retour ») annule le passage automatique en attente.
+  useEffect(() => () => window.clearTimeout(passageAuto.current), [etapeTel]);
+  const changerCotesGC = (suivant: CotesGardeCorps) => {
+    setCotesGardeCorps(suivant);
+    // La réponse retouchée : le message d'avant ne vaut plus.
+    const champ = questionTel === 1 ? "largeur" : questionTel === 2 ? "allege" : questionTel === 3 ? "fenetre" : null;
+    if (champ && suivant[champ] !== cotesGardeCorps[champ]) setEssaiQuestion(null);
+    const repondu =
+      (questionTel === 4 && suivant.etage !== cotesGardeCorps.etage && t.gcEtageOptions.includes(suivant.etage)) ||
+      (questionTel === 5 && suivant.mur !== cotesGardeCorps.mur && suivant.mur !== "");
+    if (!repondu) return;
+    const prochaine = questionTel + 1;
+    window.clearTimeout(passageAuto.current);
+    // Un temps pour voir le choix s'allumer (et le mur se dessiner sur le croquis) avant de changer d'écran.
+    passageAuto.current = window.setTimeout(() => allerEtape?.(prochaine), 380);
+  };
   const colonneAchat = estGC && nouvelleMiseEnPage && (ecranMoyen || parcoursTel) ? (achatSlot ?? null) : null;
   const versColonneAchat = (noeud: ReactNode) => (colonneAchat ? createPortal(noeud, colonneAchat) : noeud);
   const lectureReleve = estGC ? lireReleve(cotesGardeCorps, t) : null;
@@ -1552,6 +1628,13 @@ export function ProductOptions({
    */
   /** Le garde-corps a un prix, mais le client n'a pas encore choisi son modèle parmi ceux aux normes. */
   const modeleAChoisir = estGC && !modeVisite && Boolean(configGC) && !cotesGardeCorps.modele;
+  /** Téléphone, étape « Modèle » : rien n'est encore touché. */
+  const modeleTelManque =
+    enEtapes && etapeTel === QUESTIONS_GC + 1 && modeleAChoisir
+      ? locale === "fr"
+        ? "Touchez le modèle qui vous plaît pour continuer."
+        : "Tap the model you like to continue."
+      : null;
   /** Le type de mur est obligatoire (décision de Quentin, 05/10) : il décide des chevilles et de la fixation fournies. */
   const murAChoisir = estGC && !modeVisite && Boolean(configGC) && !cotesGardeCorps.mur;
   const raisonIndisponible: { message: string; ancre: string } | null = modeVisite
@@ -1747,6 +1830,18 @@ export function ProductOptions({
   const liensSerres = Boolean(colonneAchat && estGC);
   /** Une autre fenêtre : on vide les cotes, on garde le bois et l'acier, et le curseur revient dans la première case. */
   const autreFenetre = () => {
+    // Téléphone, une question à la fois : retour à la première question, le doigt dans sa case (rendu tout de suite,
+    // dans le geste du client : c'est ce qui permet au téléphone d'ouvrir le clavier).
+    if (enEtapes) {
+      flushSync(() => {
+        setCotesGardeCorps({ ...cotesGardeCorps, largeur: "", allege: "", fenetre: "", etage: "", modele: "" });
+        setQuantity(1);
+        setAjoutee(null);
+        etapesTelephone?.aller(1);
+      });
+      document.querySelector<HTMLElement>(".colonne-cotes [data-question-champ]")?.focus();
+      return;
+    }
     // L'étage et le modèle aussi : ils dépendent de la fenêtre, et rien ne doit être choisi d'avance (décision du 03/10) —
     // le modèle d'avant validait le panier tout seul.
     setCotesGardeCorps({ ...cotesGardeCorps, largeur: "", allege: "", fenetre: "", etage: "", modele: "" });
@@ -2102,10 +2197,47 @@ export function ProductOptions({
     /* pb-24 sur téléphone : la barre d'achat fixe ne doit pas recouvrir la fin
        de la colonne. */
     <div className={nouvelleMiseEnPage ? "flex flex-col" : "flex flex-col pb-24 md:pb-0"}>
-      {/* Téléphone, en étapes : le prix reste écrit en haut, à côté de l'étape, quelle que soit l'étape affichée. */}
-      {parcoursTel &&
-        etapesTelephone?.prixSlot &&
-        createPortal(prixFinal !== null ? prixAffiche(prixFinal, locale) : "— €", etapesTelephone.prixSlot)}
+      {/* Téléphone, une question à la fois : en haut, la question (ou l'étape) et, une fois tout rempli, le prix ; sous la
+          carte, « Retour » et « Suivant » (qui dit ce qui manque). */}
+      {enEtapes &&
+        etapesTelephone?.enteteSlot &&
+        createPortal(
+          <EnteteEtapes
+            etape={etapeTel}
+            aller={etapesTelephone.aller}
+            locale={locale}
+            prix={questionAFaire === null && prixFinal !== null ? prixAffiche(prixFinal, locale) : null}
+            sansModele={
+              questionAFaire === null &&
+              (lectureReleve?.etat === "hors-bornes" || (prixGC.statut === "pret" && !prixGC.reponse.ok))
+            }
+          />,
+          etapesTelephone.enteteSlot,
+        )}
+      {enEtapes &&
+        etapesTelephone?.navSlot &&
+        etapeTel < NB_ETAPES_GC &&
+        createPortal(
+          <NavEtape
+            etape={etapeTel}
+            aller={etapesTelephone.aller}
+            locale={locale}
+            bloque={Boolean(etatQuestion?.manque || modeleTelManque)}
+            // Les questions écrivent leur message sous leur case ; ici, seulement l'étape « Modèle ».
+            message={!questionTel && essaiQuestion === etapeTel ? modeleTelManque : null}
+            passer={questionTel === 3 && cotesGardeCorps.fenetre.trim() === ""}
+            onSuivant={
+              questionTel
+                ? avancerQuestion
+                : () => {
+                    // L'étape « Modèle » : un modèle touché avant d'aller plus loin (le prix et l'achat en dépendent).
+                    if (modeleTelManque) return setEssaiQuestion(etapeTel);
+                    etapesTelephone.aller(etapeTel + 1);
+                  }
+            }
+          />,
+          etapesTelephone.navSlot,
+        )}
       {/* Le grand croquis : posé par portail à droite de la carte, dans la
           section « Configuration » (voir schemaSlot, product-view.tsx). Rien
           ne bouge dans les cotes elles-mêmes : seul l'endroit où le dessin
@@ -2823,9 +2955,13 @@ export function ProductOptions({
             schemaSlot={nouvelleMiseEnPage ? schemaSlot : undefined}
             resultatSlot={nouvelleMiseEnPage && (ecranMoyen || parcoursTel) ? resultatSlot : undefined}
             modeleSlot={parcoursTel ? (etapesTelephone?.modeleSlot ?? undefined) : undefined}
+            question={questionTel}
+            suivante={avancerQuestion}
+            messageQuestion={messageQuestion}
+            allerQuestion={enEtapes ? etapesTelephone?.aller : undefined}
             bandeauSlot={nouvelleMiseEnPage && grandEcran ? bandeauSlot : undefined}
             cotes={cotesGardeCorps}
-            onChange={setCotesGardeCorps}
+            onChange={changerCotesGC}
             t={t}
             locale={locale}
             lecture={lectureReleve}

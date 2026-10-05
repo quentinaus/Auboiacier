@@ -137,6 +137,82 @@ export function texteManqueGC(lecture: LectureReleve | null | undefined, locale:
   }
 }
 
+/**
+ * Téléphone, une question à la fois (etapes-telephone.tsx) : ce qui empêche de passer à la question suivante (`manque`),
+ * et ce qu'il faut savoir sans être bloqué (`avertissement` : une mesure hors de ce que l'atelier fabrique). Chaque
+ * question est lue SEULE : `lireReleve` s'arrête au premier défaut, une largeur hors barème y cachait une hauteur vide.
+ */
+export function etatQuestionGC(
+  cotes: CotesGardeCorps,
+  question: number,
+  t: Dictionary["artisanat"],
+  locale: "fr" | "en",
+): { manque: string | null; avertissement: string | null } {
+  const fr = locale === "fr";
+  const B = BORNES_RELEVE_GC;
+  const nombre = (n: number) => n.toLocaleString(fr ? "fr-FR" : "en-GB");
+  const rien = { manque: null, avertissement: null };
+  switch (question) {
+    case 1: {
+      const v = mm(cotes.largeur);
+      if (!Number.isFinite(v) || v <= 0)
+        return {
+          manque:
+            cotes.largeur.trim() !== ""
+              ? fr ? "La largeur n'est pas un nombre : corrigez-la." : "The width is not a number: please correct it."
+              : fr ? "Entrez la largeur de la fenêtre pour continuer." : "Enter the window width to continue.",
+          avertissement: null,
+        };
+      if (v < B.largeurMm.min) return { manque: null, avertissement: t.gcTropEtroit.replace("{min}", nombre(B.largeurMm.min)) };
+      if (v > B.largeurMm.max) return { manque: null, avertissement: t.gcHorsBareme.replace("{l}", nombre(B.largeurMm.max)) };
+      return rien;
+    }
+    case 2: {
+      const v = mm(cotes.allege);
+      if (!Number.isFinite(v))
+        return {
+          manque:
+            cotes.allege.trim() !== ""
+              ? fr ? "Cette hauteur n'est pas un nombre : corrigez-la." : "This height is not a number: please correct it."
+              : fr ? "Entrez la hauteur du sol au bas de la fenêtre pour continuer." : "Enter the height from the floor to the bottom of the window to continue.",
+          avertissement: null,
+        };
+      if (v > B.allegeMm.max)
+        return {
+          manque: null,
+          avertissement: fr
+            ? "À cette hauteur, la loi ne demande pas de garde-corps (seulement en dessous de 90 cm)."
+            : "At that height the law does not ask for a railing (only below 90 cm).",
+        };
+      return rien;
+    }
+    case 3: {
+      // Facultative : vide, on passe.
+      if (cotes.fenetre.trim() === "") return rien;
+      const v = mm(cotes.fenetre);
+      if (!Number.isFinite(v))
+        return {
+          manque: fr
+            ? "La hauteur de la fenêtre n'est pas un nombre : corrigez-la ou effacez-la."
+            : "The window height is not a number: correct it or clear it.",
+          avertissement: null,
+        };
+      if (v > B.fenetreMm.max) return { manque: null, avertissement: t.gcAEtudier };
+      return rien;
+    }
+    case 4:
+      return t.gcEtageOptions.includes(cotes.etage)
+        ? rien
+        : { manque: fr ? "Touchez « En étage » ou « Au rez-de-chaussée »." : "Tap “Upstairs” or “Ground floor”.", avertissement: null };
+    case 5:
+      return cotes.mur !== ""
+        ? rien
+        : { manque: fr ? "Touchez le type de mur (ou « Je ne sais pas »)." : "Tap the wall type (or “I don't know”).", avertissement: null };
+    default:
+      return rien;
+  }
+}
+
 /** Le prix du garde-corps, tel que le serveur le donne (/api/prix-garde-corps). */
 export type EtatPrixGC =
   /** Il manque une cote. */
@@ -248,6 +324,10 @@ export function ReleveGardeCorps({
   resultatSlot,
   detailsSlot,
   modeleSlot,
+  question,
+  suivante,
+  messageQuestion,
+  allerQuestion,
   verre,
 }: {
   cotes: CotesGardeCorps;
@@ -284,9 +364,19 @@ export function ReleveGardeCorps({
    * résultat, à côté de la carte (qui ne garde que les cotes et la livraison).
    */
   detailsSlot?: (element: HTMLDivElement | null) => void;
-  /** Téléphone : où la fiche dépose les matières (acier, main courante, rosace), dans la partie « Modèle ». */
   /** Téléphone, parcours en étapes : l'étape « Modèle » (product-view.tsx), où va la rangée des modèles. */
   modeleSlot?: HTMLDivElement | null;
+  /**
+   * Téléphone, une question à la fois (etapes-telephone.tsx) : la question posée, de 1 à 5 (largeur, hauteur sous la
+   * fenêtre, hauteur de la fenêtre, étage, mur). La carte ne montre alors QUE cette question, en grand.
+   */
+  question?: number;
+  /** Passer à la question suivante (touche Entrée, ou « OK » à côté de la case). */
+  suivante?: () => void;
+  /** Ce qui manque à la question posée, ou ce qu'il faut savoir : écrit sous sa case, au-dessus du clavier. */
+  messageQuestion?: string | null;
+  /** Aller à une question (une cote touchée sur le croquis : sa question). */
+  allerQuestion?: (question: number) => void;
   /** Le verre feuilleté à la place des croix : une option, avec son supplément. */
   verre?: {
     surVerre: boolean;
@@ -309,6 +399,15 @@ export function ReleveGardeCorps({
   );
   const langue = locale === "en" ? "en-GB" : "fr-FR";
   const [coteActive, setCoteActive] = useState<CoteFenetre | null>(null);
+  /** La cote dont parle la question posée (téléphone) : le croquis la montre, même sans le doigt dans la case. */
+  const coteQuestion: CoteFenetre | null = question === 1 ? "largeur" : question === 2 ? "allege" : question === 3 ? "fenetre" : null;
+  // La même case sert d'une question de mesure à l'autre (le clavier reste ouvert) : ni « focus » ni « blur » ne
+  // préviennent du changement. La cote éclairée repart donc de zéro à chaque question.
+  const [questionVue, setQuestionVue] = useState(question);
+  if (questionVue !== question) {
+    setQuestionVue(question);
+    setCoteActive(null);
+  }
   /** La rangée des modèles, qui défile de côté (règle de Quentin, 05/10 : « Votre modèle » ne doit jamais être coupé). */
   const bande = useRef<HTMLDivElement | null>(null);
   /** Y a-t-il plus de modèles que la place ? Alors les flèches s'affichent (mesuré sur la rangée, pas deviné d'après leur nombre). */
@@ -797,7 +896,7 @@ export function ReleveGardeCorps({
       </div>
       {phraseModeles && <p className={`mt-1 text-[11.5px] leading-snug ${modeles.length === 0 && texteManque ? "font-medium text-[#7a4510]" : "text-[#5c5140]"}`}>{phraseModeles}</p>}
       {marque && nbConformes > 0 && (
-        <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+        <div className="titre-catalogue mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
           <p className="text-[13px] font-semibold leading-tight text-[#2b2320]">{!choisi ? (fr ? "Choisissez votre modèle" : "Choose your model") : fr ? "Votre modèle" : "Your model"}</p>
           {mentionNormes(nbConformes)}
         </div>
@@ -857,6 +956,12 @@ export function ReleveGardeCorps({
 
   /** Cliquer une cote sur le croquis amène le curseur dans sa case. */
   const allerA = (cote: CoteFenetre) => {
+    // Téléphone, une question à la fois : la cote touchée ouvre sa question.
+    if (question) {
+      const n = cote === "largeur" ? 1 : cote === "allege" ? 2 : cote === "fenetre" ? 3 : null;
+      if (n) allerQuestion?.(n);
+      return;
+    }
     setCoteActive(cote);
     document.getElementById(`${idChamps}-${cote}`)?.focus();
   };
@@ -867,7 +972,7 @@ export function ReleveGardeCorps({
    * est dans la bulle.
    */
   const ligne = (cote: "largeur" | "allege" | "fenetre", props: { label: string; aide?: string; info: string; placeholder: string }) => (
-    <div className="py-2.5" data-sous-etape="1">
+    <div className="py-2.5">
       <label htmlFor={`${idChamps}-${cote}`} className="flex items-center gap-2 text-[13.5px] leading-snug text-[#2b2320]">
         <IconeCote cote={cote} />
         <span className="min-w-0 flex-1">
@@ -922,6 +1027,116 @@ export function ReleveGardeCorps({
     </div>
   );
 
+  /**
+   * TÉLÉPHONE, UNE QUESTION À LA FOIS (etapes-telephone.tsx) : la question elle-même est écrite en grand au-dessus de la
+   * carte ; la carte ne porte que la réponse, en grand (la case, le curseur, ou de gros boutons), et l'explication.
+   */
+  /** Sous la case (ou les boutons) : ce qui manque, ou ce qu'il faut savoir — visible clavier ouvert. */
+  const messageTel = (
+    <p id={`${idChamps}-message`} aria-live="polite" className="mt-2 text-center text-[13px] font-medium leading-snug text-[#7a4510] empty:hidden">
+      {messageQuestion ?? ""}
+    </p>
+  );
+  const grandeSaisie = (cote: "largeur" | "allege" | "fenetre", props: { label: string; info: string; placeholder: string }) => (
+    <div className="pt-1">
+      <label htmlFor={`${idChamps}-${cote}`} className="sr-only">
+        {props.label}
+      </label>
+      <div className="mx-auto flex w-full max-w-[20rem] items-center gap-2">
+      <span className="flex h-14 min-w-0 flex-1 items-center gap-2 rounded-2xl border border-[#9a8d80] bg-white px-4 transition-[border-color,box-shadow] focus-within:border-[#2b2320] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
+        <input
+          id={`${idChamps}-${cote}`}
+          data-question-champ
+          inputMode="decimal"
+          autoComplete="off"
+          enterKeyHint="next"
+          aria-describedby={messageQuestion ? `${idChamps}-message` : undefined}
+          aria-invalid={messageQuestion ? true : undefined}
+          value={cotes[cote]}
+          onChange={(e) => set(cote)(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              suivante?.();
+            }
+          }}
+          placeholder={`${fr ? "ex." : "e.g."} ${props.placeholder}`}
+          onFocus={() => setCoteActive(cote)}
+          onBlur={() => setCoteActive(null)}
+          className="w-full min-w-0 bg-transparent text-right text-[26px] font-semibold tabular-nums text-[#2b2320] placeholder:text-[18px] placeholder:font-normal placeholder:italic placeholder:text-[#726757] outline-none focus-visible:shadow-none focus-visible:outline-none"
+        />
+        <span className="text-[15px] text-[#6f6357]">mm</span>
+      </span>
+      {/* Clavier ouvert, « Suivant » est caché dessous : « OK », à côté de la case, passe à la question suivante — sans
+          quitter la case (le clavier reste ouvert pour la mesure suivante). Caché clavier fermé (globals.css). */}
+      <button
+        type="button"
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => suivante?.()}
+        className="ok-clavier hidden h-14 shrink-0 items-center rounded-2xl bg-[#1d1d1f] px-4 text-[16px] font-semibold text-white"
+      >
+        OK
+      </button>
+      </div>
+      {messageTel}
+      <input
+        type="range"
+        aria-label={props.label}
+        min={CURSEURS[cote].min}
+        max={CURSEURS[cote].max}
+        step={5}
+        value={Number.isFinite(mm(cotes[cote])) ? Math.min(CURSEURS[cote].max, Math.max(CURSEURS[cote].min, mm(cotes[cote]))) : CURSEURS[cote].depart}
+        onChange={(e) => set(cote)(e.target.value)}
+        onPointerUp={(e) => {
+          if (e.button === 0 && cotes[cote].trim() === "") set(cote)(e.currentTarget.value);
+        }}
+        onFocus={() => setCoteActive(cote)}
+        onBlur={() => setCoteActive(null)}
+        className={`curseur-cote mt-4 block h-6 w-full cursor-pointer ${cotes[cote].trim() === "" ? "curseur-vide" : ""}`}
+      />
+      <p className="mt-3 text-[12.5px] leading-snug text-[#5c5140]">{props.info}</p>
+    </div>
+  );
+  /** Un gros bouton de réponse (étage, mur) : touché, il est choisi ; la fiche passe d'elle-même à la question suivante. */
+  const grosBouton = (actifBouton: boolean, onClick: () => void, libelle: string, premier: boolean) => (
+    <button
+      key={libelle}
+      type="button"
+      data-question-champ={premier ? "" : undefined}
+      aria-pressed={actifBouton}
+      onClick={onClick}
+      className={`rounded-2xl border px-3 py-3.5 text-[15px] font-medium leading-tight transition-colors ${
+        actifBouton ? "border-[#2b2320] bg-[#2b2320] text-white" : "border-[#d8cec2] bg-white text-[#2b2320] active:bg-[#f3eee8]"
+      }`}
+    >
+      {libelle}
+    </button>
+  );
+  const questionTelephone =
+    question === 1 ? (
+      grandeSaisie("largeur", { label: t.gcLargeurCourt, info: t.gcLargeurInfo, placeholder: "1180" })
+    ) : question === 2 ? (
+      grandeSaisie("allege", { label: t.gcAllegeCourt, info: t.gcAllegeInfo, placeholder: String(CURSEURS.allege.depart) })
+    ) : question === 3 ? (
+      grandeSaisie("fenetre", { label: t.gcFenetreCourt, info: t.gcFenetreInfo, placeholder: "1200" })
+    ) : question === 4 ? (
+      <div className="pt-1">
+        <div className="grid gap-2">
+          {t.gcEtageOptions.map((option, i) => grosBouton(cotes.etage === option, () => set("etage")(option), option, i === 0))}
+        </div>
+        {messageTel}
+        <p className="mt-3 text-[12.5px] leading-snug text-[#5c5140]">{t.gcEtageInfo}</p>
+      </div>
+    ) : question === 5 ? (
+      <div id="mur-gc" className="scroll-mt-28 pt-1">
+        <div className="grid grid-cols-2 gap-2">
+          {t.gcMurOptions.map((option, i) => grosBouton(cotes.mur === option, () => set("mur")(option), option, i === 0))}
+        </div>
+        {messageTel}
+        <p className="mt-3 text-[12.5px] leading-snug text-[#5c5140]">{t.gcMurInfo}</p>
+      </div>
+    ) : null;
+
   /** Le grand chiffre : le prix, « à étudier », « sur devis », ou un tiret. */
   const grandChiffre =
     lecture.etat === "hors-bornes"
@@ -962,12 +1177,13 @@ export function ReleveGardeCorps({
       }
       id="cotes"
     >
-      <span data-sous-etape="1" className="titre-mesures block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
+      <span className="titre-mesures block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
         {t.gcTitle}
       </span>
 
-      {/* 1. Qui mesure ? C'est la première question, elle décide de la suite. */}
-      <div className="mt-3" data-sous-etape="1">
+      {/* 1. Qui mesure ? C'est la première question, elle décide de la suite (sur téléphone, en tête de la première question). */}
+      {(!question || question === 1) && (
+      <div className={question ? "qui-mesure-question mt-3" : "mt-3"}>
         <QuiMesure
           valeur={cotes.qui}
           onChange={(qui) => onChange({ ...cotes, qui })}
@@ -976,6 +1192,7 @@ export function ReleveGardeCorps({
           compact={Boolean(bandeauSlot || resultatSlot)}
         />
       </div>
+      )}
 
       {/* 2a. L'atelier vient : le code postal, le prix, la demi-journée. */}
       {cotes.qui === "atelier" && (
@@ -1015,7 +1232,7 @@ export function ReleveGardeCorps({
               typeMainCourante={mainCourante === "acier" ? "acier-plat" : mainCourante === "profil" ? "acier-profile" : undefined}
               apercu={commence && !dessin?.ok && !apercuModele}
               remplissage={surVerre ? "verre" : "croix"}
-              actif={coteActive}
+              actif={question ? coteQuestion : coteActive}
               onChoisir={allerA}
               locale={locale}
               labels={{
@@ -1121,7 +1338,11 @@ export function ReleveGardeCorps({
               </div>
             );
           })()}
-          <p data-sous-etape="1" className="consigne-cotes mt-2.5 text-xs leading-snug text-[#6f6357]">{t.gcConsigne}</p>
+          {question ? (
+            questionTelephone
+          ) : (
+            <>
+          <p className="consigne-cotes mt-2.5 text-xs leading-snug text-[#6f6357]">{t.gcConsigne}</p>
 
           <div className="mt-1 divide-y divide-[#e5ddd3]">
             {/* Des intitulés courts : sur téléphone, « Largeur de la fenêtre,
@@ -1136,7 +1357,7 @@ export function ReleveGardeCorps({
                 boutons en pleine largeur : côte à côte, « Au rez-de-chaussée »
                 débordait de la carte sur téléphone et écrasait l'intitulé sur
                 trois lignes. */}
-            <div className="py-3" data-sous-etape="2">
+            <div className="py-3">
               <span className="flex items-center gap-2.5 text-[15px] text-[#2b2320]">
                 <InfoBulle texte={t.gcEtageInfo} label={t.gcInfoLabel} />
                 {t.gcEtage}
@@ -1166,7 +1387,7 @@ export function ReleveGardeCorps({
 
             {/* Le mur, OBLIGATOIRE (décision de Quentin, 05/10) : il décide des chevilles et de la fixation que
                 l'atelier fournit. « Je ne sais pas » reste possible : on demandera une photo. Le croquis le dessine. */}
-            <label id="mur-gc" data-sous-etape="2" className="block scroll-mt-28 py-3">
+            <label id="mur-gc" className="block scroll-mt-28 py-3">
               <span className="flex items-center gap-2.5 text-[15px] text-[#2b2320]">
                 <InfoBulle texte={t.gcMurInfo} label={t.gcInfoLabel} />
                 {t.gcMur}
@@ -1189,6 +1410,8 @@ export function ReleveGardeCorps({
               </select>
             </label>
           </div>
+            </>
+          )}
 
           {/* Sur téléphone, la rangée des modèles a son étape à elle (« Modèle », product-view.tsx), comme le bandeau sous le
               croquis sur ordinateur ; sans parcours en étapes, elle reste dans la carte, sous le mur (sous le croquis, elle le
