@@ -68,7 +68,7 @@ export type CalculGC = {
    * euros) : les frais fixes de l'atelier comptés une seule fois, jamais sous
    * le prix plancher (décision de Quentin du 29/09).
    */
-  remise: (lignes: { releve: ReleveGC; essence: string; quantite: number }[]) => number;
+  remise: (lignes: { releve: ReleveGC; essence: string; quantite: number; rosaceMm?: number }[]) => number;
 };
 
 /** Une pièce du panier, vérifiée et chiffrée. */
@@ -249,7 +249,7 @@ export async function tarifer(
   // Plusieurs garde-corps : les frais fixes de l'atelier comptés une fois.
   const gardesCorps = tarif.pieces.filter((p) => p.line.gc);
   if (gardesCorps.length) {
-    tarif.remise = gc.remise(gardesCorps.map((p) => ({ releve: p.line.gc!.releve, essence: p.line.wood!.id, quantite: p.quantite })));
+    tarif.remise = gc.remise(gardesCorps.map((p) => ({ releve: p.line.gc!.releve, essence: p.line.wood!.id, quantite: p.quantite, rosaceMm: p.line.gc!.rosaceMm })));
     if (!Number.isInteger(tarif.remise) || tarif.remise > 0) throw new Error("remise de garde-corps invalide");
   }
 

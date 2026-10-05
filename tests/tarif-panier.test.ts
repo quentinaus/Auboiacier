@@ -104,7 +104,7 @@ test("plusieurs garde-corps, même à des cotes différentes : la remise de l'ou
   assert.equal(t.remise, attendue);
   assert.equal(t.total, 2 * prixGC(cfg()) + prixGC(cfg({ largeurMm: 800, allegeMm: 720, fenetreMm: 0 }, "pin")) + attendue);
   // Les options du site ne changent pas la remise (elles s'ajoutent au prix de l'outil).
-  const avecOptions = await tarif([garde({ fabricId: "medaillon", metalId: "blanc" }, 2), garde({ largeurMm: 800, allegeMm: 720, fenetreMm: 0, woodId: "pin", remplissageId: "verre" }), { slug: RETRAIT }]);
+  const avecOptions = await tarif([garde({ fabricId: "fonte", metalId: "blanc" }, 2), garde({ largeurMm: 800, allegeMm: 720, fenetreMm: 0, woodId: "pin", remplissageId: "verre" }), { slug: RETRAIT }]);
   assert.equal(avecOptions.remise, attendue);
   // Une table dans la même commande ne change rien à la remise des garde-corps.
   const mixte = await tarif([...lignes.slice(0, 2), table(), { slug: RETRAIT }]);

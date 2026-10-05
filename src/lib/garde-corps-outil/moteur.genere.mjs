@@ -1,12 +1,13 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Moteur garde-corps : norme NF P01-012, géométrie, débit, dessins. SANS coûts.
-// Source : l'outil de plans (plans-atelier.html), sha256 8609b3d4bdd55f735344e258a09f034f85d646a1ed6848f3743f94ee6d6386a7
+// Source : l'outil de plans (plans-atelier.html), sha256 077d2a7d7f98ed3b9bcf84e03c32e15f87a93a1495345994d34aaf31b2b919f8
 /* eslint-disable */
 const SPHERE = 110;
 const SPHERE_HAUT = 180;
 const Z_SPHERE = 800;
 const CIBLE_MARGE = 25;
 const ROSACE_R = 50;
+const rosaceR = (v) => (v.rosace === false ? 0 : v.rD >= 20 ? v.rD / 2 : ROSACE_R);
 const Z_ESCALADE = 600;
 const SB_VIDE = 100;
 const SB_MINI = 60;
@@ -283,7 +284,7 @@ function geomGC(v, n) {
     const vide = seuls ? (w - nbB * v.s) / (nbB + 1) : v.nb > 0 ? (w - v.nb * v.s) / (v.nb + 1) : Infinity;
     const barres = v.nb > 0 ? Array.from({ length: v.nb }, (_, b) => { const x = (b + 1) * vide + b * v.s; return [x, x + v.s]; }) : [];
     const trousSeuls = seuls && w > 0 && h > 0 ? [{ c: [vide / 2, Math.min(vide, h) / 2], r: Math.min(vide, h) / 2, yBas: 0 }] : [];
-    const trous = (seuls ? trousSeuls : w > 0 && h > 0 ? trousPanneau(w, h, v.s, v.rosace === false ? 0 : ROSACE_R, barres, !!v.traverse) : []).map((x) => {
+    const trous = (seuls ? trousSeuls : w > 0 && h > 0 ? trousPanneau(w, h, v.s, rosaceR(v), barres, !!v.traverse) : []).map((x) => {
       const d = 2 * x.r;
       const limite = zBas + x.yBas < Z_SPHERE ? SPHERE : SPHERE_HAUT;
       return { ...x, d, limite, ok: d < limite };
@@ -488,7 +489,7 @@ function calculerGC(v) {
         F.push({ t: "poly", piece: "Demi-traverses du milieu", cls: "t-acier-plein", pts: dt.pts.map(([x, y]) => [px + x, py + y]) });
         F.push({ t: "poly", piece: "Demi-traverses du milieu", cls: "t-acier-plein", pts: dt.pts.map(([x, y]) => [px + g.w - x, py + y]) });
       }
-      if (v.rosace !== false) F.push({ t: "cercle", piece: "Rosaces", cls: "t-rond", c: [px + g.w / 2, py + g.h / 2], r: ROSACE_R });
+      if (v.rosace !== false) F.push({ t: "cercle", piece: "Rosaces", cls: "t-rond", c: [px + g.w / 2, py + g.h / 2], r: rosaceR(v) });
       for (let b = 1; b <= v.nb; b++) { const bx = px + b * g.vide + (b - 1) * s; F.push({ t: "poly", piece: "Barreaux", cls: "t-acier-plein", pts: rect(bx, py, bx + s, py + g.h) }); }
       }
       if (i === 0) {
@@ -515,7 +516,7 @@ function calculerGC(v) {
     F.push({ t: "cote", a: [B2 + 250, 0], b: [B2 + 250, haut], cote: "droite", d: 2, txt: `${mmTxt(haut)} du sol` });
     const px0 = x0 + s;
     for (let i = 0; i < n; i++) { const pxi = x0 + s + i * (g.w + s); F.push({ t: "cote", a: [pxi, haut], b: [pxi + g.w, haut], cote: "haut", d: 2, txt: `${mmTxt(g.w)}` }); }
-    if (v.rosace !== false) F.push({ t: "texte", p: [x0 + s + g.w / 2, y0 + s + (g.sb || 0) + g.h / 2 - ROSACE_R], txt: "rosace Ø 100", pos: "sous" });
+    if (v.rosace !== false) F.push({ t: "texte", p: [x0 + s + g.w / 2, y0 + s + (g.sb || 0) + g.h / 2 - rosaceR(v)], txt: `rosace Ø ${mmTxt(2 * rosaceR(v))}`, pos: "sous" });
 
     const ep = 200;
     C.push({ t: "sol", x1: -ep - 300, x2: 300 });
@@ -583,7 +584,7 @@ function calculerGC(v) {
       R.debit.push({ nom: `Vis du bois Ø ${RENFORT.visD} × ${RENFORT.visL} inox à tête fraisée`, qte: nVisMc, mat: "À acheter", long: 0, coupes: "Par dessous, à travers le plat de renfort", note: "Avant-trou Ø 3 dans le bois" });
     }
     else if (v.mc > 0) R.debit.push({ nom: "Main courante", qte: 1, mat: `${{ chene: "Chêne", hetre: "Hêtre", pin: "Pin", noyer: "Noyer" }[v.essence || "chene"]} massif ${mmTxt(v.mc)} × ${mmTxt(v.mc)}`, long: g.Lc, coupes: rain ? `Rainure dessous ${(Number.isInteger(v.lR) ? mmTxt(v.lR) : fmt(v.lR, 1))} × ${mmTxt(v.chev)} de profondeur, sur toute la longueur · arrondie, poncée, huilée` : "Arrondie, poncée, huilée", note: rain ? "Emboîtée sur la lisse haute · collage PU ou vis par-dessous à travers la lisse" : "Fixation sur le cadre : à définir", dessin: dessinMainCourante(g.Lc, v) });
-    if (v.rosace !== false) R.debit.push({ nom: "Rosaces Ø 100", qte: n, mat: "Achetées", long: 0, coupes: "1 au centre de chaque croix", note: "" });
+    if (v.rosace !== false) R.debit.push({ nom: `Rosaces Ø ${mmTxt(2 * rosaceR(v))}`, qte: n, mat: "Achetées", long: 0, coupes: "1 au centre de chaque croix", note: "" });
     R.debit.push({ nom: `Vis ou goujons Ø ${fmt(v.dF - 0.5, 0)} à tête fraisée + chevilles`, qte: 2 * v.nF, mat: "À acheter (longueur selon le mur)", long: 0, coupes: `${v.nF} par montant de rive`, note: "Mur plein : cheville nylon · mur creux ou ancien : scellement chimique" });
 
     const b = barres(morceaux, v.trait, 0);
@@ -655,8 +656,8 @@ function decrireVariante(v, c) {
     if ((c.w.renfort === "plat") !== (v.renfort === "plat")) d.push(c.w.renfort === "plat" ? `lisse haute renforcée : plat ${RENFORT.l} × ${RENFORT.e} sous une main courante bois de ${RENFORT.bois.l}` : "sans plat de renfort");
     return d;
   }
-export const DEFAUTS_GC = Object.freeze({"prixVente":0,"km":30,"debitAr":8,"minSoud":1.2,"rnP":14,"rnJ":1,"nF":2,"dF":6.5,"fF":13,"eF":40,"epMc":8,"L":2000,"l":1000,"H":750,"e":45,"a":80,"ep":3,"t":3,"pL":75,"pl":60,"pX":80,"rX":250,"tS":300,"tW":120,"pR":60,"bR":300,"lame":150,"latte":120,"jeu":8,"trait":3,"B":1180,"A":650,"Hs":0,"Hf":0,"s":16,"mc":40,"j":1,"jour":90,"nP":1,"nb":0,"Xo":0,"Hm":2600,"recul":0,"Wm":900,"lh":150,"lw":100,"le":5,"em":50,"nez":0,"hs":80,"tp":8,"plx":200,"ply":150,"tpp":10,"epl":200,"ass":"droit","etage":true,"rosace":true,"traverse":false,"mcType":"bois","sbMode":"auto","seuls":false,"renfort":"sans","essence":"chene","remise":"retrait","essenceT":"chene","teinte":"noir","rainure":true});
+export const DEFAUTS_GC = Object.freeze({"prixVente":0,"km":30,"debitAr":8,"minSoud":1.2,"rnP":14,"rnJ":1,"nF":2,"dF":6.5,"fF":13,"eF":40,"epMc":8,"L":2000,"l":1000,"H":750,"e":45,"a":80,"ep":3,"t":3,"pL":75,"pl":60,"pX":80,"rX":250,"tS":300,"tW":120,"pR":60,"bR":300,"lame":150,"latte":120,"jeu":8,"trait":3,"B":1180,"A":650,"Hs":0,"Hf":0,"s":16,"mc":40,"j":1,"jour":90,"nP":1,"nb":0,"rD":100,"Xo":0,"Hm":2600,"recul":0,"Wm":900,"lh":150,"lw":100,"le":5,"em":50,"nez":0,"hs":80,"tp":8,"plx":200,"ply":150,"tpp":10,"epl":200,"ass":"droit","etage":true,"rosace":true,"traverse":false,"mcType":"bois","sbMode":"auto","seuls":false,"renfort":"sans","essence":"chene","remise":"retrait","essenceT":"chene","teinte":"noir","rainure":true});
 export const BORNES_GC = Object.freeze({ B: Object.freeze({"min":300,"max":3000}), A: Object.freeze({"min":0,"max":1200}), Hf: Object.freeze({"min":0,"max":3000}) });
-export const EMPREINTE_SOURCE = "8609b3d4bdd55f735344e258a09f034f85d646a1ed6848f3743f94ee6d6386a7";
+export const EMPREINTE_SOURCE = "077d2a7d7f98ed3b9bcf84e03c32e15f87a93a1495345994d34aaf31b2b919f8";
 export { ALLEGE_LIBRE, BARRE_APPUI, CIBLE_MARGE, HAUT_ETAGE, LIMITE_ACIER, MINI_GC, RENFORT, ROSACE_R, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, decrireVariante, fmt, geomGC, mmTxt, variantesConformes };
-export const EMPREINTE = "783195bbcb14";
+export const EMPREINTE = "12db29e570d8";

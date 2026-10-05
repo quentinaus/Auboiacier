@@ -440,9 +440,15 @@ test("réponse de /api/prix-garde-corps : le prix de l'outil, plus les suppléme
   assert.equal(base.prix, prixGC(c));
   assert.equal(base.remise, 0);
   // Une rosace plus chère ajoute son supplément (décision 5 : inchangé, ajouté au prix de l'outil).
+  const fonte = reponsePrixGC(requete({ largeurMm: 1180 }, { fabricId: "fonte" }));   // Ø100 comme la fleur : même dessin
+  assert.ok(fonte?.ok);
+  assert.ok(fonte.prix > base.prix);
+  // Le grand médaillon (Ø170) compte pour la norme : il peut permettre un autre dessin ; son supplément s'ajoute au prix de CE dessin.
   const medaillon = reponsePrixGC(requete({ largeurMm: 1180 }, { fabricId: "medaillon" }));
   assert.ok(medaillon?.ok);
-  assert.ok(medaillon.prix > base.prix);
+  const ligneMedaillon = ligneGC(requete({ largeurMm: 1180 }).releve, { woodId: "chene", fabricId: "medaillon" });
+  assert.ok(ligneMedaillon.ok && ligneMedaillon.line.gc);
+  assert.equal(medaillon.prix, ligneMedaillon.line.gc.prixOutil + 30);
   // Le verre remplace les croix : son supplément s'ajoute, la rosace ne se paie plus.
   const verre = reponsePrixGC(requete({ largeurMm: 1180 }, { remplissageId: "verre", fabricId: "medaillon" }));
   assert.ok(verre?.ok);

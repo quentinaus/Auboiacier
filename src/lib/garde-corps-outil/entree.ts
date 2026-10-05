@@ -15,6 +15,8 @@ export type { CodeAlerteGC, EssenceGC, MainCouranteGC };
 export type EntreeSiteGC = ReleveGC & {
   /** Bois de la main courante. */
   essence: MainCouranteGC;
+  /** Le diamètre de la rosace choisie, en mm (100 si absent) : il compte pour la norme (ROSACES_MM_GC). */
+  rosaceMm?: number;
 };
 
 /** Avec le fer plat de renfort, l'atelier garde son carré de 16 (décision de Quentin, 04/10/2026). */
@@ -57,6 +59,8 @@ export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: numb
     essence: e.essence === "acier" || e.essence === "profil" ? "chene" : e.essence,
     mcType: e.essence === "acier" ? "acier" : e.essence === "profil" ? "profil" : "bois",
     rosace: true,
+    // Le diamètre de la rosace choisie (la fleur de Ø100 par défaut).
+    rD: e.rosaceMm ?? 100,
     Hs: 0,
     Xo: 0,
     // Barreaux seuls (un des modèles au choix) : un cadre de barreaux verticaux, sans croix ni rosace ni traverse.

@@ -10,7 +10,7 @@
  */
 import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, DEFAUTS_GC, calculerGC, geomGC, type ResultatGC, type ValeursGC } from "./moteur.genere.mjs";
 import { chiffrage } from "./chiffrage.ts";
-import { idModeleGC, lireModeleGC, type RaisonSansPrixGC, type RondGC, type TrousGC } from "../garde-corps.ts";
+import { idModeleGC, lireModeleGC, ROSACES_MM_GC, type RaisonSansPrixGC, type RondGC, type TrousGC } from "../garde-corps.ts";
 import { CARRE_RENFORT, CARRES_RENFORT_SEULS, codeAlerte, CROIX_CATALOGUE, CROIX_MAX, MAINS_COURANTES_GC, ORDRE_CARRES, valeursGC, type CodeAlerteGC, type EntreeSiteGC } from "./entree.ts";
 
 export { ChiffrageIndisponible } from "./chiffrage.ts";
@@ -78,6 +78,7 @@ export function entreeValide(e: EntreeSiteGC): boolean {
     dans(e.fenetreMm, BORNES_GC.Hf) &&
     typeof e.enEtage === "boolean" &&
     (MAINS_COURANTES_GC as readonly string[]).includes(e.essence) &&
+    (e.rosaceMm === undefined || ROSACES_MM_GC.includes(e.rosaceMm)) &&
     (e.modele === undefined || lireModeleGC(e.modele) !== null)
   );
 }
@@ -183,7 +184,7 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   // l'identifiant est indicatif — sinon le même dessin « sautait » quand une cote faisait changer de carré,
   // et un identifiant forgé pouvait obtenir un carré que l'atelier ne propose pas.
   const choisi = lireModeleGC(e.modele);
-  const cleReleve = JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, e.essence]);
+  const cleReleve = JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, e.essence, e.rosaceMm ?? 100]);
   // La mémoire est rangée par DESSIN (pas par identifiant) : « 16-4 » et « 18-4 » sont la même demande.
   const cle = `${cleReleve}|${choisi ? `${choisi.croix}|${choisi.barreauxBas ? 1 : 0}|${choisi.traverse ? 1 : 0}|${choisi.seuls ? 1 : 0}` : ""}`;
   const deja = memoire.get(cle);
@@ -194,6 +195,7 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   }
   const entree: EntreeSiteGC = Object.freeze({
     largeurMm: e.largeurMm, allegeMm: e.allegeMm, enEtage: e.enEtage, fenetreMm: e.fenetreMm, essence: e.essence,
+    ...(e.rosaceMm !== undefined ? { rosaceMm: e.rosaceMm } : {}),
     ...(e.modele !== undefined ? { modele: e.modele } : {}),
   });
   const carres: readonly number[] = ORDRE_CARRES;
@@ -335,7 +337,7 @@ export function catalogueGC(e: EntreeSiteGC): DessinGC[] {
   if (geomGC(valeursGC(DEFAUTS_GC, sansChoix, 16, 1), 1).appui) return [];
   // Un dessin = un nombre de croix, des barreaux en bas ou non (demandés, ou imposés par la norme), une traverse ou non.
   const dessins = new Map<string, DessinGC>();
-  const cleReleve = JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, e.essence]);
+  const cleReleve = JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, e.essence, e.rosaceMm ?? 100]);
   // L'ordre du catalogue : les croix seules, puis avec une traverse au milieu, puis avec des barreaux en bas,
   // puis les deux — de 1 à 6 croix chaque fois (de 7 à 12 : seulement les modèles aux normes).
   // (Cinquième famille : les barreaux seuls — des barreaux verticaux et rien d'autre, un seul dessin.)

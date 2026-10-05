@@ -1,5 +1,5 @@
 import type { Locale } from "@/lib/i18n";
-import { lireModeleGC, type ReleveGC } from "./garde-corps.ts";
+import { diametreRosaceGC, lireModeleGC, type ReleveGC } from "./garde-corps.ts";
 
 export type ProductSize = {
   id: string;
@@ -2468,6 +2468,8 @@ export type ResolvedLine = {
     seuls: boolean;
     /** Fenêtre large : un fer plat caché sous la main courante raidit la lisse haute. */
     renfort: boolean;
+    /** Le diamètre de la rosace chiffrée, en mm : il compte pour la norme. */
+    rosaceMm: number;
     /** Le poids d'une pièce : celui de l'outil, plus le verre s'il remplace les croix. */
     kg: number;
   };
@@ -2948,7 +2950,7 @@ export type ReponseReleve =
       kg: number;
     }
   | { ok: false; raison: "a-etudier" | "fenetre-trop-basse" | "hors-bornes" };
-export type PrixReleve = (releve: ReleveGC & { essence: string }) => ReponseReleve;
+export type PrixReleve = (releve: ReleveGC & { essence: string; rosaceMm?: number }) => ReponseReleve;
 
 /** Un entier de millimètres, ou rien. */
 const mmEntier = (x: unknown) => (typeof x === "number" && Number.isInteger(x) && x >= 0 ? x : undefined);
@@ -3013,7 +3015,9 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
     // forgée obtenait le verre au prix du dessin le moins cher — 680 € au lieu de 860 € sur une fenêtre de 1 180.)
     ...(selection.modeleGc !== undefined && remplissage.value?.sansCroix !== true ? { modele: selection.modeleGc } : {}),
   };
-  const r = prixReleve({ ...releve, essence: wood.value.id });
+  // La rosace choisie compte pour la norme (son diamètre bouche le centre des croix) ; sous verre, il n'y en a pas : la fleur.
+  const rosaceMm = remplissage.value?.sansCroix === true ? diametreRosaceGC(undefined) : diametreRosaceGC(fabric.value?.id);
+  const r = prixReleve({ ...releve, essence: wood.value.id, rosaceMm });
   if (!r.ok) return { ok: false, reason: r.raison === "hors-bornes" ? "unknown_size" : "a_etudier" };
   if (selection.hauteurMm !== undefined && selection.hauteurMm !== r.hauteurMm) return { ok: false, reason: "hauteur" };
 
@@ -3061,6 +3065,7 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
         traverse: r.traverse,
         seuls: r.seuls,
         renfort: r.renfort,
+        rosaceMm,
         kg: r.kg + (verre ? ((largeurMm * r.hauteurMm) / 1e6) * VERRE_KG_PAR_M2 : 0),
       },
     },

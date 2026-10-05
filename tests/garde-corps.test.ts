@@ -24,6 +24,7 @@ import {
   MAIN_COURANTE_MM,
   MINI_GC_MM,
   RELEVE_DEPART_GC,
+  diametreRosaceGC,
   formeGC,
   lireReponsePrixGC,
   parametresPrixGC,
@@ -179,8 +180,12 @@ test("le prix du site est le prix de l'outil, plus les suppléments des options 
       assert.deepEqual(modele.line.size.dimsMm, [r.largeurMm, c.hauteurMm]);
       for (const fabric of gc.fabrics!) {
         const avec = ligneGC(r, { woodId: essence, ...MODELE, fabricId: fabric.id });
+        // Le diamètre de la rosace compte pour la norme : avec une autre rosace, le dessin retenu peut changer.
+        const cF = configurationGC(r, essence, diametreRosaceGC(fabric.id));
+        if (!cF?.ok) { assert.equal(avec.ok, false, `rosace ${fabric.id} : pas de modèle aux normes`); continue; }
         assert.ok(avec.ok);
-        assert.equal(avec.line.unitPrice, prixGC(c) + (fabric.priceDelta ?? 0), `rosace ${fabric.id}`);
+        assert.equal(avec.line.unitPrice, prixGC(cF) + (fabric.priceDelta ?? 0), `rosace ${fabric.id}`);
+        if (diametreRosaceGC(fabric.id) === 100) assert.equal(prixGC(cF), prixGC(c), `rosace ${fabric.id} : même diamètre que la fleur, même dessin`);
       }
       for (const metal of gc.metals) {
         const avec = ligneGC(r, { woodId: essence, ...MODELE, metalId: metal.id });

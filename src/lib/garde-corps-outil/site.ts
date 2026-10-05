@@ -12,7 +12,7 @@ import { catalogueGC, configurerGC, prixCommandeGC, prixGC, ChiffrageIndisponibl
 import { MAINS_COURANTES_GC, type EntreeSiteGC, type MainCouranteGC } from "./entree.ts";
 import { RENFORT } from "./moteur.genere.mjs";
 import { getProduct, priceFrom, prixParOutil, resolveSelection, SUR_MESURE, type PrixReleve, type Product } from "../products.ts";
-import { BORNES_RELEVE_GC, MODELES_GC_MAX, RELEVE_DEPART_GC, idModeleGC, lireModeleGC, releveDansLesBornes, type ModeleGC, type ReleveGC, type ReponsePrixGC } from "../garde-corps.ts";
+import { BORNES_RELEVE_GC, MODELES_GC_MAX, RELEVE_DEPART_GC, diametreRosaceGC, idModeleGC, lireModeleGC, releveDansLesBornes, type ModeleGC, type ReleveGC, type ReponsePrixGC } from "../garde-corps.ts";
 import type { CalculGC } from "../tarif-panier.ts";
 
 /** L'identifiant du garde-corps de fenêtre au catalogue. */
@@ -26,22 +26,23 @@ function produitGC(): Product {
 
 const estEssence = (x: string): x is MainCouranteGC => (MAINS_COURANTES_GC as readonly string[]).includes(x);
 
-function entreeGC(releve: ReleveGC, essence: MainCouranteGC): EntreeSiteGC {
+function entreeGC(releve: ReleveGC, essence: MainCouranteGC, rosaceMm?: number): EntreeSiteGC {
   return {
     largeurMm: releve.largeurMm, allegeMm: releve.allegeMm, enEtage: releve.enEtage, fenetreMm: releve.fenetreMm, essence,
+    ...(rosaceMm !== undefined ? { rosaceMm } : {}),
     ...(releve.modele !== undefined ? { modele: releve.modele } : {}),
   };
 }
 
 /** La configuration de l'outil pour ce relevé, ou null s'il sort des bornes des champs de l'outil. */
-export function configurationGC(releve: ReleveGC, essence: string): ConfigGC | ConfigAEtudierGC | null {
+export function configurationGC(releve: ReleveGC, essence: string, rosaceMm?: number): ConfigGC | ConfigAEtudierGC | null {
   if (!estEssence(essence) || !releveDansLesBornes(releve)) return null;
-  return configurerGC(entreeGC(releve, essence));
+  return configurerGC(entreeGC(releve, essence, rosaceMm));
 }
 
 /** Le calcul de l'outil, sous la forme que products.ts attend (resolveSelection). */
 export const prixReleveOutil: PrixReleve = (e) => {
-  const c = configurationGC(e, e.essence);
+  const c = configurationGC(e, e.essence, e.rosaceMm);
   if (!c) return { ok: false, raison: "hors-bornes" };
   // Barre d'appui ou rien à poser : pour le panier, c'est « à étudier » (pas de prix, pas de commande).
   if (!c.ok) return { ok: false, raison: c.raison === "fenetre-trop-basse" ? c.raison : "a-etudier" };
@@ -49,10 +50,10 @@ export const prixReleveOutil: PrixReleve = (e) => {
 };
 
 /** La remise d'une commande de plusieurs garde-corps : frais fixes une fois, jamais sous le plancher. */
-export function remiseCommandeGC(lignes: { releve: ReleveGC; essence: string; quantite: number }[]): number {
+export function remiseCommandeGC(lignes: { releve: ReleveGC; essence: string; quantite: number; rosaceMm?: number }[]): number {
   if (!lignes.length) return 0;
   const commande = lignes.map((l) => {
-    const c = configurationGC(l.releve, l.essence);
+    const c = configurationGC(l.releve, l.essence, l.rosaceMm);
     if (!c?.ok) throw new Error("remise : garde-corps sans prix");
     return { config: c, quantite: l.quantite };
   });
@@ -154,7 +155,7 @@ export function lireRequetePrixGC(params: URLSearchParams): RequetePrixGC | null
 /** Le catalogue des dessins, tel qu'il part vers le navigateur : chaque dessin conforme à son prix (le calcul du panier). */
 function catalogueSiteGC(q: RequetePrixGC, hauteurMm: number): ModeleGC[] {
   const modeles: ModeleGC[] = [];
-  for (const d of catalogueGC(entreeGC(q.releve, q.essence))) {
+  for (const d of catalogueGC(entreeGC(q.releve, q.essence, diametreRosaceGC(q.fabricId)))) {
     if (!d.conforme) {
       modeles.push({ id: idModeleGC(d.carre, d.croix, d.barreauxBas, d.traverse, d.seuls), conforme: false, raisons: d.raisons, croix: d.croix, carre: d.carre, soubassementMm: d.soubassementMm, traverse: d.traverse, seuls: d.seuls, trous: d.trous, renfort: false, hauteurMm, prix: 0, kg: 0 });
       continue;
@@ -173,7 +174,7 @@ function catalogueSiteGC(q: RequetePrixGC, hauteurMm: number): ModeleGC[] {
  * (la route répond 400).
  */
 export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
-  const c = configurationGC(q.releve, q.essence);
+  const c = configurationGC(q.releve, q.essence, diametreRosaceGC(q.fabricId));
   if (!c) return null;
   if (!c.ok) {
     return {

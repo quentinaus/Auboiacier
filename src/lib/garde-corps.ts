@@ -111,6 +111,19 @@ export function idModeleGC(carre: number, croix: number, barreauxBas: boolean, t
   return `${carre}-${croix}${seuls ? "-s" : barreauxBas ? "-b" : ""}${traverse ? "-t" : ""}`;
 }
 
+/**
+ * Les rosaces du catalogue (products.ts, « fabrics ») et leur DIAMÈTRE en mm. Il compte pour la norme : la rosace bouche
+ * le centre des croix, une rosace plus petite laisse un vide plus grand (la « acier » de Ø85), une plus grande en laisse
+ * un plus petit (le « grand médaillon » de Ø170 permet moins de croix). Le calcul de l'outil prend le diamètre de la
+ * rosace CHOISIE ; un test relie ces diamètres aux libellés du catalogue.
+ */
+export const ROSACE_MM_GC: Readonly<Record<string, number>> = Object.freeze({ fleur: 100, fonte: 100, acier: 85, medaillon: 170 });
+/** Les diamètres que le moteur accepte (tout autre est refusé). */
+export const ROSACES_MM_GC: readonly number[] = Object.freeze([85, 100, 170]);
+export const ROSACE_DEFAUT_GC = "fleur";
+/** Le diamètre de la rosace d'un identifiant d'option (celui de la fleur si l'identifiant est absent ou inconnu). */
+export const diametreRosaceGC = (id: string | undefined): number => (id !== undefined && Object.hasOwn(ROSACE_MM_GC, id) ? ROSACE_MM_GC[id] : ROSACE_MM_GC[ROSACE_DEFAUT_GC]);
+
 /** Pourquoi le serveur ne donne pas de prix pour un relevé. */
 export type RaisonSansPrixGC = "a-etudier" | "fenetre-trop-basse" | "barre-appui" | "sans-garde-corps";
 export const RAISONS_SANS_PRIX_GC: readonly RaisonSansPrixGC[] = ["a-etudier", "fenetre-trop-basse", "barre-appui", "sans-garde-corps"];

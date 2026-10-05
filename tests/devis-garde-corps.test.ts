@@ -142,14 +142,16 @@ test("options que l'outil ne chiffre pas encore : leur supplément rejoint son p
   const c = configurationGC(releve, "chene") as ConfigGC;
   const base = devisOk(entree(releve));
   const produit = getProduct("garde-corps")!;
-  const rosace = produit.fabrics!.find((f) => f.id === "medaillon")!;
+  // (La fonte Ø100 a le diamètre de la fleur : le dessin ne change pas, seul le supplément s'ajoute. Une rosace d'un autre
+  // diamètre — le grand médaillon Ø170 — peut changer le dessin lui-même : voir garde-corps-rosace.test.ts.)
+  const rosace = produit.fabrics!.find((f) => f.id === "fonte")!;
 
   // Une autre rosace : +supplément sur la structure, son nom partout.
-  const medaillon = devisOk(entree(releve, { options: { woodId: "chene", ...MODELE, fabricId: "medaillon" } }));
+  const medaillon = devisOk(entree(releve, { options: { woodId: "chene", ...MODELE, fabricId: "fonte" } }));
   assert.equal(medaillon.lignes[1].unitaire, base.lignes[1].unitaire + rosace.priceDelta!);
   assert.equal(medaillon.total, base.total + rosace.priceDelta!);
   assert.ok(medaillon.lignes[0].designation.endsWith(` · ${rosace.label}`));
-  assert.ok(medaillon.lignes[1].designation.includes("grand médaillon, fonte Ø170"));
+  assert.ok(medaillon.lignes[1].designation.includes("médaillon fleur, fonte Ø100"));
   assert.equal(medaillon.piece.caracteristiques.find((k) => k.label === "Rosace")?.value, rosace.label);
   assert.ok(!JSON.stringify(medaillon).includes(DS_GC.rosace), "plus aucune trace de la fleur");
 
@@ -175,7 +177,7 @@ test("options que l'outil ne chiffre pas encore : leur supplément rejoint son p
   assert.ok(!/croix|rosace/i.test(verre.lignes[0].designation.replace(DS_GC.nom, "").replace("à la place des croix", "")));
 
   // Toujours : les postes font le prix de la pièce au panier.
-  for (const [devis, options] of [[medaillon, { fabricId: "medaillon" }], [blanc, { metalId: "blanc" }], [brut, { metalId: "brut" }], [verre, { remplissageId: "verre", fabricId: "medaillon" }]] as const) {
+  for (const [devis, options] of [[medaillon, { fabricId: "fonte" }], [blanc, { metalId: "blanc" }], [brut, { metalId: "brut" }], [verre, { remplissageId: "verre", fabricId: "medaillon" }]] as const) {
     const ligne = ligneGC(releve, { woodId: "chene", ...MODELE, ...options });
     assert.ok(ligne.ok);
     const postes = devis.lignes.filter((l) => !l.titre && !/^Livraison/.test(l.designation));

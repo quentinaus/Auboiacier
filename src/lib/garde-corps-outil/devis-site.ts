@@ -94,7 +94,7 @@ export function composerDevisGardeCorps(entree: EntreeDevisGC): ResultatDevis {
   const line = resolu.line;
   // La configuration du relevé RÉELLEMENT chiffré par la ligne (sous verre, le dessin choisi ne compte pas) :
   // le devis décrit exactement ce que le panier encaisse.
-  const config = configurationGC(line.gc!.releve, options.woodId);
+  const config = configurationGC(line.gc!.releve, options.woodId, line.gc!.rosaceMm);
   if (!config) return { ok: false, reason: "unknown_size" };
   if (!config.ok) return { ok: false, reason: "a_etudier" };
 
