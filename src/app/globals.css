@@ -858,6 +858,11 @@ textarea:focus-visible,
   width: 100%;
   height: 100%;
 }
+/* La carte de l'atelier montre le film du parcours (720 × 400), bord à bord dans la carte. */
+.porte-scene.porte-scene-film {
+  aspect-ratio: 720 / 400;
+  border-radius: 0;
+}
 /* Côte à côte, les deux cartes ont la même hauteur : le texte de la plus courte prend la place qui reste. */
 .porte-carte .porte-texte {
   flex-grow: 1;

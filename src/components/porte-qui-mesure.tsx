@@ -191,13 +191,15 @@ export function PorteQuiMesure({
   const cartes = [
     {
       id: "atelier" as const,
-      scene: "SVG_ATELIER" as const,
-      classeScene: "aplat-scA",
+      // Le film du parcours (prise de cotes, prix, fabrication, pose), le même que dans le mode atelier : Quentin
+      // l'a voulu ici, et que la carte dise que l'atelier s'occupe de tout, pose comprise (05/10/2026).
+      scene: "SVG_FILM" as const,
+      classeScene: "aplat-film porte-scene-film",
       etiquette: fr ? "Sans rien mesurer" : "Nothing to measure",
-      titre: fr ? "L'atelier vient mesurer" : "The workshop comes to measure",
+      titre: fr ? "L'atelier mesure et s'occupe de\u00a0tout" : "The workshop measures and handles everything",
       note: fr
-        ? `Nous prenons les cotes chez vous, puis vous recevez le prix exact. Visite à partir de\u00a0${prixAffiche(PRIX_OFFRE_CENTS / 100, locale)}.`
-        : `We take the measurements at your home, then you receive the exact price. Visit from\u00a0${prixAffiche(PRIX_OFFRE_CENTS / 100, locale)}.`,
+        ? `Nous prenons les cotes chez vous, puis nous fabriquons et posons votre garde-corps. Visite à partir de\u00a0${prixAffiche(PRIX_OFFRE_CENTS / 100, locale)}.`
+        : `We take the measurements at your home, then make and fit your railing. Visit from\u00a0${prixAffiche(PRIX_OFFRE_CENTS / 100, locale)}.`,
       action: fr ? "Prendre rendez-vous" : "Book a visit",
     },
     {

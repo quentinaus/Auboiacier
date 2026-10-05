@@ -5,9 +5,9 @@
 // La maquette validée par Quentin le 05/10/2026 vit dans docs/motion-aplat/ : index.html, écrit par build.py
 // (toute l'animation est en @keyframes CSS, les mouvements composés y sont échantillonnés). Ce script en COPIE,
 // telles quelles, les trois scènes et leurs styles, et écrit src/components/motion-aplat.genere.ts :
-//   SVG_ATELIER    la carte « L'atelier vient mesurer » (l'utilitaire part de Saumur, la fenêtre est cotée) ;
 //   SVG_JE_MESURE  la carte « Je mesure moi-même » (le mètre, les deux cotes, le prix) ;
-//   SVG_FILM       le film du parcours (prise de cotes, prix, fabrication, pose) ;
+//   SVG_FILM       le film du parcours (prise de cotes, prix, fabrication, pose), sur la carte « L'atelier mesure et
+//                  s'occupe de tout » et en mode « l'atelier vient mesurer » ;
 //   CSS_APLAT      leurs styles, et seulement les leurs : les règles de la page de démonstration (html, body, *,
 //                  en-tête, colonne « téléphone », bouton « Rejouer ») et ses @font-face sont écartées.
 // Les titres de la maquette sont en Crimson Text : sur le site, c'est la police des titres du site.
@@ -90,8 +90,8 @@ function svgApres(repere) {
     .replaceAll('"Crimson Text"', '"Auboiacier Display"');
 }
 
+// (La scène A de la maquette, l'utilitaire seul, n'est plus montrée sur le site : la carte de l'atelier montre le film.)
 const scenes = {
-  SVG_ATELIER: svgApres('class="aplat-card-scene aplat-scA"'),
   SVG_JE_MESURE: svgApres('class="aplat-card-scene aplat-scB"'),
   SVG_FILM: svgApres('class="aplat-film"'),
 };
