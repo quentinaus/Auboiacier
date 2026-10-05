@@ -262,7 +262,7 @@ function lignesSite(base: DevisGC, config: ConfigGC, line: ResolvedLine, quantit
   const remise = q > 1 ? prixCommandeGC([{ config, quantite: q }]).remise : 0;
   if (remise < 0) {
     lignes.push({
-      designation: "Plusieurs garde-corps dans la même commande — frais fixes de l'atelier comptés une fois",
+      designation: "Plusieurs garde-corps dans la même commande",
       details: [],
       quantite: 1,
       unitaire: remise,
@@ -360,7 +360,7 @@ function lignesAnglaises(fr: LignesSite, config: ConfigGC, line: ResolvedLine, q
   const verreFr = line.product.remplissages?.find((r) => r.sansCroix);
   return fr.lignes.map((l, i) => {
     if (i < designations.length) return { ...l, designation: designations[i], details: [] };
-    if (l.designation.startsWith("Plusieurs garde-corps")) return { ...l, designation: "Several railings in the same order — the workshop's fixed costs counted once" };
+    if (l.designation.startsWith("Plusieurs garde-corps")) return { ...l, designation: "Several railings in the same order" };
     if (l.designation.startsWith("Livraison par transporteur")) {
       return {
         ...l,

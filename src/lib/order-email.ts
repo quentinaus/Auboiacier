@@ -69,8 +69,8 @@ function formatLines(lines: Stripe.LineItem[], locale: "fr" | "en" = "fr", sessi
   if (remise > 0) {
     texte.push(
       locale === "en"
-        ? `• Several-railings discount (the workshop's fixed costs counted once)\n  −${euros(remise)}`
-        : `• Remise plusieurs garde-corps (frais fixes de l'atelier comptés une fois)\n  −${euros(remise)}`
+        ? `• Several-railings discount (same order)\n  −${euros(remise)}`
+        : `• Remise plusieurs garde-corps (même commande)\n  −${euros(remise)}`
     );
   }
   if (session?.metadata?.retrait === "1") {

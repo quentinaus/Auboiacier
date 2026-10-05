@@ -237,7 +237,7 @@ export async function POST(request: Request) {
         // La page de paiement vit 24 heures : le bon, une de plus.
         redeem_by: Math.floor(Date.now() / 1000) + 25 * 3600,
         name: locale === "en" ? "Several railings" : "Plusieurs garde-corps",
-        metadata: { order_ref: orderRef, motif: "frais fixes de l'atelier comptés une fois" },
+        metadata: { order_ref: orderRef, motif: "plusieurs garde-corps dans la même commande" },
       });
       coupon = bon.id;
     } catch (error) {

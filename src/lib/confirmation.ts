@@ -33,7 +33,7 @@ import { libelleEntier } from "./libelle-stripe.ts";
 const TEXTES = {
   fr: {
     remiseGc: "Remise plusieurs garde-corps",
-    remiseGcDetail: "Frais fixes de l'atelier comptés une seule fois",
+    remiseGcDetail: "Plusieurs garde-corps dans la même commande",
     remise: "Remise",
     retrait: "Retrait à l'atelier",
     retraitDetail: "À Saumur, sur rendez-vous",
@@ -48,7 +48,7 @@ const TEXTES = {
   },
   en: {
     remiseGc: "Several-railings discount",
-    remiseGcDetail: "The workshop's fixed costs counted only once",
+    remiseGcDetail: "Several railings in the same order",
     remise: "Discount",
     retrait: "Collection from the workshop",
     retraitDetail: "In Saumur, by appointment",

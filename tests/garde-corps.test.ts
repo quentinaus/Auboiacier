@@ -360,8 +360,9 @@ test("la fiche démarre sur le chêne de la photo, et appelle le bois « main co
   }
   // Le pin et le chêne n'ont pas le même prix : démarrer sur le mauvais montrait un prix qui n'était pas celui de la photo.
   chiffrageOuEchec();
-  // (Sur un grand garde-corps : sur un petit, l'écart de bois disparaît dans l'arrondi à la dizaine.)
-  const grand = releve({ largeurMm: 800, allegeMm: 300 });
+  // (Sur un grand garde-corps : sur un petit, l'écart de bois disparaît dans l'arrondi à la dizaine. Depuis le prix
+  // d'appel du 05/10/2026 — plus de frais d'atelier —, 800 × 300 tombe à la même dizaine : on prend 1 200 × 300.)
+  const grand = releve({ largeurMm: 1200, allegeMm: 300 });
   const chene = reponsePrixGC({ releve: grand, essence: "chene", quantite: 1 });
   const pin = reponsePrixGC({ releve: grand, essence: "pin", quantite: 1 });
   assert.ok(chene?.ok && pin?.ok && chene.prix !== pin.prix);

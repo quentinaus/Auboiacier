@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Les quatre coupes de main courante du choix du site, dessinées par l'outil de plans (coupeMainCourante).
-// Source : l'outil de plans (plans-atelier.html), sha256 cc320f1c44323aa688e7e28a063410b7eecf3d1af5ab696491c1c2ed19e6aacf
+// Source : l'outil de plans (plans-atelier.html), sha256 a08e6baa4870209e7ba0f42babb4d72984f875e431e7e08d36fc413a6eebf89e
 /* eslint-disable */
 export const COUPES_MAIN_COURANTE_GC: Readonly<Record<"bois-rainure" | "bois-plat" | "acier-plat" | "acier-profile", Readonly<{ vb: readonly [number, number, number, number]; html: string }>>> = {
  "bois-rainure": {
