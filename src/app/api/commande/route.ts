@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "not_configured" }, { status: 503 });
   }
 
-  let body: { locale?: unknown; lines?: unknown; cgvAccepted?: unknown; ville?: unknown };
+  let body: { locale?: unknown; lines?: unknown; cgvAccepted?: unknown; visiteAvantDelai?: unknown; ville?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -138,6 +138,11 @@ export async function POST(request: Request) {
   // La prise de cotes à domicile : le créneau doit être encore libre à l'instant où l'on paie.
   const visite = tarif.visite;
   if (visite) {
+    // Un service, donc 14 jours de rétractation ; la visite a lieu avant leur
+    // fin : la demande expresse du client est obligatoire (art. L221-25).
+    if (body.visiteAvantDelai !== true) {
+      return NextResponse.json({ error: "avant_delai" }, { status: 400 });
+    }
     if (!(await creneauValide(visite.creneau))) {
       return NextResponse.json({ error: "rdv" }, { status: 409 });
     }
@@ -313,6 +318,8 @@ export async function POST(request: Request) {
         ...(tarif.remise < 0 ? { remise_gc: String(-tarif.remise) } : {}),
         // Trace de l'acceptation des conditions de vente avant paiement.
         cgv_accepted: "1",
+        // Et, pour une visite, de la demande de l'exécuter avant la fin du délai de rétractation.
+        ...(visite ? { visite_avant_delai: "1" } : {}),
       },
       // Une visite à domicile tient une demi-journée de l'agenda : la page de
       // paiement ne reste pas ouverte 24 heures (le défaut de Stripe) mais 30

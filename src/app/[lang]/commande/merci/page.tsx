@@ -11,6 +11,7 @@ import { compteConfigure } from "@/lib/compte-jetons";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
 import { serif } from "@/lib/fonts";
 import { prixAffiche } from "@/lib/ui";
+import { lienConfirmationOuvert } from "@/lib/confirmation";
 
 /**
  * Cette page ne se visite qu'au retour du paiement, avec un numéro de commande
@@ -30,6 +31,10 @@ export async function generateMetadata({
     description: dict.seo.merci.description,
     noIndex: true,
   });
+}
+
+function confirmationOuverte(creeLeS: number) {
+  return lienConfirmationOuvert(creeLeS, Math.floor(Date.now() / 1000));
 }
 
 export default async function MerciPage({
@@ -60,7 +65,10 @@ export default async function MerciPage({
         paid = true;
         reference = session.metadata?.order_ref ?? session.id;
         amount = prixAffiche((session.amount_total ?? 0) / 100, locale);
-        confirmation = `/api/commande/confirmation?session_id=${encodeURIComponent(sessionId)}`;
+        // Le lien du PDF ne vit que trente jours (voir DUREE_LIEN_CONFIRMATION_S).
+        if (confirmationOuverte(session.created)) {
+          confirmation = `/api/commande/confirmation?session_id=${encodeURIComponent(sessionId)}`;
+        }
       }
     } catch (error) {
       console.error("[merci] session introuvable :", error);

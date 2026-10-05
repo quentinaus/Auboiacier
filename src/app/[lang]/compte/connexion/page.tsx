@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CompteConnexion } from "@/components/compte-connexion";
 import { clientConnecte } from "@/lib/compte";
@@ -84,6 +85,15 @@ export default async function ConnexionPage({
           <p className="text-center text-sm text-[#5c5140]">{t.ferme}</p>
         )}
       </div>
+
+      {/* Information au point de collecte (RGPD, art. 13) : à quoi sert ce
+         qu'on vous demande ici, et où en lire davantage. */}
+      <p className="mx-auto mt-6 max-w-[380px] text-center text-xs leading-relaxed text-[#726757]">
+        {t.noticeConnexion}{" "}
+        <Link href={`/${locale}/confidentialite`} className="underline underline-offset-4 hover:text-[#2b2320]">
+          {t.noticeLien}
+        </Link>
+      </p>
     </>
   );
 }

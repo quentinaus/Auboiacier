@@ -221,3 +221,20 @@ export function composerConfirmation({ session, lignes, origine }: EntreeConfirm
 
   return { ...contenu, acceptation };
 }
+
+/**
+ * Combien de temps le lien du PDF de confirmation reste ouvert : trente jours
+ * après la commande.
+ *
+ * Ce PDF porte le nom, l'adresse, le téléphone et l'e-mail du client, et son
+ * adresse ne demande rien d'autre que l'identifiant de la session de paiement.
+ * Celui-ci ne se devine pas, mais il traîne dans l'historique du navigateur
+ * (un ordinateur partagé, un lien transféré) : sans échéance, ces données
+ * restaient lisibles pour toujours. Le client garde son exemplaire (e-mail de
+ * confirmation, facture Stripe) et suit sa commande dans son espace.
+ */
+export const DUREE_LIEN_CONFIRMATION_S = 30 * 24 * 60 * 60;
+
+export function lienConfirmationOuvert(creeLeS: number, maintenantS: number): boolean {
+  return maintenantS - creeLeS <= DUREE_LIEN_CONFIRMATION_S;
+}

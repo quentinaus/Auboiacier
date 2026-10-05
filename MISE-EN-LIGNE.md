@@ -166,6 +166,11 @@ régler avant la mise en ligne, ou à retirer du texte (voir les remarques).
       rendez-vous apparaît ensuite tout seul sur ton téléphone. La clé voyage
       dans l'adresse : si tu as partagé le lien par erreur, change-la dans
       Vercel et réabonne ton calendrier.
+- [ ] `AGENDA_ICS_CLE` dans Vercel : une DEUXIÈME clé, fabriquée pareil
+      (`openssl rand -base64 30`), qui n'ouvre que le flux calendrier. Une fois
+      posée, la page de l'agenda donne l'adresse du flux avec cette clé-là :
+      réabonne ton calendrier avec elle. Ainsi l'adresse confiée à Google ou à
+      Apple ne permet plus d'ouvrir l'atelier ni de changer une commande.
 - [ ] `AGENDA_INDISPONIBLE` (facultatif) : les jours où tu ne veux pas de
       visite, séparés par des virgules (`2026-09-20, 2026-09-21`). Le site ne
       propose jamais le samedi, le dimanche, ni les trois prochains jours.

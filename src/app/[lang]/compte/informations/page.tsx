@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ProfilFormulaire } from "@/components/profil-formulaire";
 import { sessionClient } from "@/lib/compte";
@@ -71,6 +72,13 @@ export default async function InformationsPage({
           ou: t.infosOu,
         }}
       />
+      {/* Information au point de collecte (RGPD, art. 13). */}
+      <p className="mt-6 text-xs leading-relaxed text-[#726757]">
+        {t.noticeInfos}{" "}
+        <Link href={`/${locale}/confidentialite`} className="underline underline-offset-4 hover:text-[#2b2320]">
+          {t.noticeLien}
+        </Link>
+      </p>
     </>
   );
 }

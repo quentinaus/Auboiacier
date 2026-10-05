@@ -80,6 +80,9 @@ export function CartView({
   const [accepted, setAccepted] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [showCgvError, setShowCgvError] = useState(false);
+  /** La visite avant la fin du délai de rétractation : demande expresse du client (art. L221-25 du code de la consommation). */
+  const [avantDelai, setAvantDelai] = useState(false);
+  const [showAvantDelaiError, setShowAvantDelaiError] = useState(false);
   /**
    * La ville, demandée avant de payer. Stripe recueillera l'adresse complète
    * juste après ; celle-ci arrive plus tôt pour que Quentin sache tout de
@@ -94,6 +97,7 @@ export function CartView({
   /** Ce qui vient de se passer dans le panier, dit à voix haute une seule fois. */
   const [annonce, setAnnonce] = useState("");
   const idCgvErreur = useId();
+  const idAvantDelaiErreur = useId();
   const [emailPrevenir, setEmailPrevenir] = useState("");
   const [prevenirStatus, setPrevenirStatus] = useState<Prevenir>("idle");
   /** Champ piège : invisible pour un humain, rempli par les robots. */
@@ -221,6 +225,8 @@ export function CartView({
   const ligneLivraison = lines.find((l) => l.livraison);
   const ligneRetrait = lines.find((l) => l.retrait);
   const piecesAuPanier = lines.some((l) => !l.visite);
+  /** Une prise de cotes à domicile dans le panier (le service, pas une livraison). */
+  const visiteAuPanier = items.some((item) => item.slug === PRISE_DE_COTES);
   /** Ce qui empêche de payer, dit par le serveur (une livraison à choisir, un code postal…). */
   const probleme = donnees?.probleme ?? null;
 
@@ -265,6 +271,10 @@ export function CartView({
       setShowCgvError(true);
       return;
     }
+    if (visiteAuPanier && !avantDelai) {
+      setShowAvantDelaiError(true);
+      return;
+    }
     if (!prixConnus || probleme) return;
     setStatus("loading");
     try {
@@ -274,6 +284,7 @@ export function CartView({
         body: JSON.stringify({
           locale,
           cgvAccepted: true,
+          ...(visiteAuPanier ? { visiteAvantDelai: true } : {}),
           ville: ville.trim().slice(0, VILLE_MAX),
           // Les mêmes lignes que pour le tarif affiché ; un garde-corps y joint
           // la hauteur que le client a vue : si elle a changé, le serveur refuse.
@@ -311,6 +322,7 @@ export function CartView({
       // Un prix ou une hauteur a changé : le panier redemande son tarif, le client le revoit.
       if (error === "changed" || error === "unavailable") setVersion((v) => v + 1);
       if (error === "cgv") setShowCgvError(true);
+      if (error === "avant_delai") setShowAvantDelaiError(true);
       if (error === "ville") setShowVilleError(true);
     } catch {
       setStatus("error");
@@ -608,6 +620,35 @@ export function CartView({
               <p id={idCgvErreur} role="alert" className="mt-2 text-sm text-[#2b2320]">
                 {t.cgvRequired}
               </p>
+            )}
+
+            {/* Une prise de cotes est un SERVICE : 14 jours de rétractation.
+                La visite tombe presque toujours dans ce délai ; la loi exige
+                alors que le client le demande expressément, case non cochée
+                d'avance. Sans elle, il pourrait se faire rembourser une
+                visite déjà faite. */}
+            {visiteAuPanier && (
+              <>
+                <label className="mt-4 flex items-start gap-3 text-sm text-[#4a4038]">
+                  <input
+                    type="checkbox"
+                    checked={avantDelai}
+                    onChange={(event) => {
+                      setAvantDelai(event.target.checked);
+                      if (event.target.checked) setShowAvantDelaiError(false);
+                    }}
+                    aria-invalid={showAvantDelaiError && !avantDelai}
+                    aria-describedby={showAvantDelaiError && !avantDelai ? idAvantDelaiErreur : undefined}
+                    className="mt-1 h-4 w-4 accent-[#2b2320]"
+                  />
+                  <span>{t.avantDelaiAccept}</span>
+                </label>
+                {showAvantDelaiError && !avantDelai && (
+                  <p id={idAvantDelaiErreur} role="alert" className="mt-2 text-sm text-[#2b2320]">
+                    {t.avantDelaiRequired}
+                  </p>
+                )}
+              </>
             )}
 
             {problem && (

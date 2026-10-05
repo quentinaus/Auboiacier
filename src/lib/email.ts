@@ -54,7 +54,9 @@ function fromEmail() {
 export async function sendEmail(input: EmailInput): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    console.error("[email] RESEND_API_KEY absente — e-mail non envoyé :", input.subject);
+    // Pas l'objet : il peut porter le nom d'un client, et les journaux ne
+    // doivent contenir aucune donnée personnelle qui n'y soit pas nécessaire.
+    console.error("[email] RESEND_API_KEY absente — e-mail non envoyé.");
     return false;
   }
 

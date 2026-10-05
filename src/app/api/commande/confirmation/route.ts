@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { composerConfirmation } from "@/lib/confirmation";
+import { composerConfirmation, lienConfirmationOuvert } from "@/lib/confirmation";
 import { rendreDevisPdf } from "@/lib/devis-pdf";
 import { creerLimite } from "@/lib/limite-debit";
 import { getStripe, isStripeConfigured, siteOrigin } from "@/lib/stripe";
@@ -56,6 +56,10 @@ export async function GET(request: Request) {
   // Une commande impayée n'a pas de confirmation — ce serait un faux.
   if (session.payment_status !== "paid") {
     return NextResponse.json({ error: "not_paid" }, { status: 404 });
+  }
+  // Passé trente jours, le lien ne montre plus les coordonnées du client.
+  if (!lienConfirmationOuvert(session.created, Math.floor(Date.now() / 1000))) {
+    return NextResponse.json({ error: "expired" }, { status: 404 });
   }
 
   // L'expansion s'arrête aux dix premières lignes : on demande la liste
