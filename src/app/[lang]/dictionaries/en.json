@@ -637,7 +637,7 @@
       "required": "Please fill in your name, email, city and message.",
       "notConfigured": "Automatic sending is not switched on yet. Please email us in the meantime.",
       "tooBig": "Attachments too heavy: 10 files at most, 4 MB in total (a PDF is not shrunk).",
-      "privacy": "Your details are used only to answer your request and kept for three years at most.",
+      "privacy": "Your details are used only to answer your request and kept for three years at most. For photos, please avoid ones in which people can be recognised.",
       "privacyLink": "Privacy policy",
       "sendFailed": "Automatic sending failed. You can email us directly:",
       "sendFailedCta": "Open my email app",
@@ -816,7 +816,7 @@
     "sections": [
       {
         "title": "Site publisher",
-        "body": "Auboiacier — metal and wood workshop, in Saumur, Maine-et-Loire, France. Contact: auboiacier@gmail.com."
+        "body": "Quentin Aumercier, trading as Auboiacier — metal and wood workshop, in Saumur, Maine-et-Loire, France. Contact: auboiacier@gmail.com."
       },
       {
         "title": "Publication director",
@@ -824,7 +824,7 @@
       },
       {
         "title": "Hosting",
-        "body": "Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, USA — vercel.com."
+        "body": "Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA — phone: +1 559 288 7060 — vercel.com. The site's functions run in Paris (cdg1 region)."
       },
       {
         "title": "Payment and emails",
@@ -846,6 +846,7 @@
     "labelStatut": "Legal form",
     "labelAdresse": "Registered address",
     "labelSiret": "Business ID (SIRET)",
+    "labelImmatriculation": "Registration",
     "labelTva": "VAT number",
     "labelTelephone": "Phone"
   },
@@ -876,7 +877,7 @@
       },
       {
         "title": "6. How long we keep it",
-        "body": "Quote, contact or appointment request without an order: three years after our last exchange, then deletion. Attached photos and plans follow the same rule.\n\nOrders and paid appointments: order and invoice data are kept for ten years from the end of the financial year, as French accounting law requires (Article L123-22 of the Commercial Code). During the legal warranty period (two years after delivery), they also serve after-sales service.\n\n“Let me know when orders open” requests: until orders open, then deleted at the latest one month later.\n\nCustomer account: your saved details and favourites remain for as long as you keep your account. You can change or delete them from the account, or ask us to delete the whole account. With no order and no activity for three years, we delete it.\n\nTechnical logs and anti-abuse counters: from ten minutes to a few days, at the host.\n\nCart: in your browser only, until you empty it, the order is paid, or you clear the site's data in your browser.\n\nStripe keeps, on its side, what its own legal obligations require (see its privacy policy)."
+        "body": "Quote, contact or appointment request without an order: three years after our last exchange, then deletion. Attached photos and plans follow the same rule.\n\nOrders and paid appointments: order and invoice data are kept for ten years from the end of the financial year, as French accounting law requires (Article L123-22 of the Commercial Code). During the legal warranty period (two years after delivery), they also serve after-sales service.\n\n“Let me know when orders open” requests: until orders open, then deleted at the latest one month later.\n\nCustomer account: your saved details and favourites remain for as long as you keep your account. You can change them from the account, and delete it yourself at any time (“Delete my account”, under “Your details”): the record is then erased, except what is linked to an order, which the law requires us to keep. With no order and no activity for three years, we delete it.\n\nTechnical logs and anti-abuse counters: from ten minutes to a few days, at the host.\n\nCart: in your browser only, until you empty it, the order is paid, or you clear the site's data in your browser.\n\nStripe keeps, on its side, what its own legal obligations require (see its privacy policy)."
       },
       {
         "title": "7. Your rights",
@@ -1261,6 +1262,13 @@
     "infosOu": "Your details are kept with Stripe, our payment provider, alongside your orders — and nowhere else.",
     "noticeConnexion": "Your email address is used only to sign you in and find your orders. With Google, we also receive your name.",
     "noticeInfos": "These details are used to pre-fill your next orders. You can change them at any time.",
-    "noticeLien": "Privacy policy"
+    "noticeLien": "Privacy policy",
+    "suppressionTitre": "Delete my account",
+    "suppressionExplication": "Your saved details and the pieces you set aside will be deleted, and you will be signed out. Your orders and their invoices are kept for ten years, as the law requires.",
+    "suppressionBouton": "Delete my account…",
+    "suppressionConfirmer": "Yes, delete everything",
+    "suppressionAnnuler": "Cancel",
+    "suppressionEnCours": "Deleting…",
+    "suppressionErreur": "Deletion did not complete. Please try again, or write to us at auboiacier@gmail.com."
   }
 }

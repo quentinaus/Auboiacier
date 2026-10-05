@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ProfilFormulaire } from "@/components/profil-formulaire";
+import { CompteSuppression } from "@/components/compte-suppression";
 import { sessionClient } from "@/lib/compte";
 import { serif } from "@/lib/fonts";
 import { defaultLocale, isLocale } from "@/lib/i18n";
@@ -79,6 +80,20 @@ export default async function InformationsPage({
           {t.noticeLien}
         </Link>
       </p>
+
+      {/* Le droit à l'effacement, sans avoir à nous écrire (RGPD, art. 17). */}
+      <CompteSuppression
+        locale={locale}
+        t={{
+          titre: t.suppressionTitre,
+          explication: t.suppressionExplication,
+          bouton: t.suppressionBouton,
+          confirmer: t.suppressionConfirmer,
+          annuler: t.suppressionAnnuler,
+          enCours: t.suppressionEnCours,
+          erreur: t.suppressionErreur,
+        }}
+      />
     </>
   );
 }

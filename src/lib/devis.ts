@@ -829,6 +829,7 @@ export function emetteurDevis(locale: Locale) {
       ...TEXTES[locale].emetteurLignes,
       [ENTREPRISE.adresse, ENTREPRISE.statut].filter(Boolean).join(" — "),
       ENTREPRISE.siret ? `SIRET ${ENTREPRISE.siret}` : "",
+      ENTREPRISE.immatriculation,
       ENTREPRISE.tva ? `TVA ${ENTREPRISE.tva}` : "",
       ENTREPRISE.assurance,
       ENTREPRISE.telephone,

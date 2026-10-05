@@ -1,5 +1,6 @@
 import "server-only";
 import Stripe from "stripe";
+import { ENTREPRISE } from "@/lib/entreprise";
 
 let client: Stripe | null = null;
 
@@ -40,12 +41,16 @@ export function isStripeConfigured() {
  * qu'elles ne sont pas remplies — on n'invente rien sur un document comptable.
  */
 export function piedDeFacture(): string | undefined {
+  // Les variables FACTURE_… de Vercel l'emportent ; à défaut, la fiche de
+  // l'entreprise (src/lib/entreprise.ts), la même que le site et les devis :
+  // une facture ne peut plus partir sans les mentions remplies là-bas.
+  const e = ENTREPRISE;
   const lignes = [
-    process.env.FACTURE_RAISON_SOCIALE,
-    process.env.FACTURE_ADRESSE,
-    process.env.FACTURE_SIRET,
-    process.env.FACTURE_TVA,
-    process.env.FACTURE_ASSURANCE,
+    process.env.FACTURE_RAISON_SOCIALE || [e.raisonSociale, e.statut].filter(Boolean).join(" — "),
+    process.env.FACTURE_ADRESSE || e.adresse,
+    process.env.FACTURE_SIRET || [e.siret && `SIRET ${e.siret}`, e.immatriculation].filter(Boolean).join(" — "),
+    process.env.FACTURE_TVA || (e.tva && `TVA ${e.tva}`),
+    process.env.FACTURE_ASSURANCE || e.assurance,
   ]
     .map((ligne) => ligne?.replace(/\s+/g, " ").trim())
     .filter((ligne): ligne is string => Boolean(ligne));

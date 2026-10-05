@@ -6,35 +6,13 @@ import { metadataPage } from "@/lib/seo";
 import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
+import { ENTREPRISE } from "@/lib/entreprise";
 
-/* ------------------------------------------------------------------ *
- *  À COMPLÉTER AVANT LA PREMIÈRE VENTE
- *  Tant qu'une valeur est vide, rien ne s'affiche : le client ne voit
- *  jamais de « à compléter » sur le site.
- *
- *  1. Le régime de TVA (TVA_MENTION ci-dessous). Deux cas courants :
- *     — franchise en base : « TVA non applicable, article 293 B du CGI » ;
- *     — assujetti : « Prix TTC, TVA 20 % incluse — n° TVA FR00 000000000 ».
- *  2. Le médiateur de la consommation (MEDIATEUR ci-dessous). Adhérer à un
- *     médiateur est obligatoire pour vendre en ligne à des particuliers :
- *     on remplit le nom, le site et l'adresse postale une fois l'adhésion faite.
- *  3. Les identifiants de l'entreprise (raison sociale, statut juridique,
- *     SIRET, n° de TVA, adresse du siège, téléphone) : ils se remplissent
- *     dans src/lib/entreprise.ts.
- * ------------------------------------------------------------------ */
-
-/** Mention de TVA, dans les deux langues. Vide = rien ne s'affiche. */
-const TVA_MENTION: Record<string, string> = {
-  fr: "",
-  en: "",
-};
-
-/** Médiateur de la consommation auquel l'atelier adhère. Vide = rien ne s'affiche. */
-const MEDIATEUR = {
-  nom: "",
-  adresse: "",
-  site: "",
-};
+/* La mention de TVA et le médiateur de la consommation se remplissent,
+ * comme tout ce qui identifie l'entreprise, dans src/lib/entreprise.ts.
+ * Tant qu'une valeur est vide, rien ne s'affiche : le client ne voit jamais
+ * de « à compléter » sur le site. */
+const MEDIATEUR = ENTREPRISE.mediateur;
 
 export async function generateMetadata({
   params,
@@ -57,7 +35,7 @@ export default async function CgvPage({ params }: PageProps<"/[lang]/cgv">) {
   const dict = await getDictionary(locale);
   const t = dict.cgv;
 
-  const tva = TVA_MENTION[locale] ?? "";
+  const tva = ENTREPRISE.tvaMention[locale] ?? "";
 
   return (
     <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">

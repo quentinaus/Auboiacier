@@ -637,7 +637,7 @@
       "required": "Merci de remplir le nom, l'e-mail, la ville et le message.",
       "notConfigured": "L'envoi automatique n'est pas encore activé. Écrivez-nous par e-mail en attendant.",
       "tooBig": "Pièces jointes trop lourdes : 10 fichiers au plus, 4 Mo en tout (un PDF n'est pas réduit).",
-      "privacy": "Vos informations servent uniquement à répondre à votre demande, et sont conservées trois ans au plus.",
+      "privacy": "Vos informations servent uniquement à répondre à votre demande, et sont conservées trois ans au plus. Pour les photos, évitez celles où l'on reconnaît des personnes.",
       "privacyLink": "Politique de confidentialité",
       "sendFailed": "L'envoi automatique a échoué. Vous pouvez nous écrire directement :",
       "sendFailedCta": "Ouvrir ma messagerie",
@@ -816,7 +816,7 @@
     "sections": [
       {
         "title": "Éditeur du site",
-        "body": "Auboiacier — atelier de métallerie, à Saumur (Maine-et-Loire). Contact : auboiacier@gmail.com."
+        "body": "Quentin Aumercier, sous le nom commercial Auboiacier — atelier de métallerie, à Saumur (Maine-et-Loire). Contact : auboiacier@gmail.com."
       },
       {
         "title": "Directeur de la publication",
@@ -824,7 +824,7 @@
       },
       {
         "title": "Hébergeur",
-        "body": "Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, États-Unis — vercel.com."
+        "body": "Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis — téléphone : +1 559 288 7060 — vercel.com. Les fonctions du site s'exécutent à Paris (région cdg1)."
       },
       {
         "title": "Paiement et e-mails",
@@ -846,6 +846,7 @@
     "labelStatut": "Statut juridique",
     "labelAdresse": "Adresse du siège",
     "labelSiret": "SIRET",
+    "labelImmatriculation": "Immatriculation",
     "labelTva": "Numéro de TVA",
     "labelTelephone": "Téléphone"
   },
@@ -876,7 +877,7 @@
       },
       {
         "title": "6. Combien de temps nous les gardons",
-        "body": "Demande de devis, de contact ou de rendez-vous sans commande : trois ans après notre dernier échange, puis suppression. Les photos et plans joints suivent la même règle.\n\nCommande et rendez-vous payé : les données de la commande et de la facture sont conservées dix ans à compter de la clôture de l'exercice, comme l'exige la loi comptable (article L123-22 du code de commerce). Pendant la garantie légale (deux ans après la livraison), elles servent aussi au service après-vente.\n\nDemande « me prévenir à l'ouverture » : jusqu'à l'ouverture des commandes, puis effacement au plus tard un mois après.\n\nEspace client : vos coordonnées enregistrées et vos favoris restent tant que vous gardez votre espace. Vous pouvez les modifier ou les effacer depuis l'espace, ou nous demander la suppression de tout l'espace. Sans commande ni activité pendant trois ans, nous le supprimons.\n\nJournaux techniques et compteurs anti-abus : de dix minutes à quelques jours, chez l'hébergeur.\n\nPanier : dans votre navigateur uniquement, jusqu'à ce que vous le vidiez, que la commande soit payée, ou que vous effaciez les données du site dans votre navigateur.\n\nStripe conserve de son côté ce que ses propres obligations légales lui imposent (voir sa politique de confidentialité)."
+        "body": "Demande de devis, de contact ou de rendez-vous sans commande : trois ans après notre dernier échange, puis suppression. Les photos et plans joints suivent la même règle.\n\nCommande et rendez-vous payé : les données de la commande et de la facture sont conservées dix ans à compter de la clôture de l'exercice, comme l'exige la loi comptable (article L123-22 du code de commerce). Pendant la garantie légale (deux ans après la livraison), elles servent aussi au service après-vente.\n\nDemande « me prévenir à l'ouverture » : jusqu'à l'ouverture des commandes, puis effacement au plus tard un mois après.\n\nEspace client : vos coordonnées enregistrées et vos favoris restent tant que vous gardez votre espace. Vous pouvez les modifier depuis l'espace, et le supprimer vous-même à tout moment (« Supprimer mon espace », dans « Vos informations ») : la fiche est alors effacée, sauf ce qui est lié à une commande, que la loi nous oblige à garder. Sans commande ni activité pendant trois ans, nous le supprimons.\n\nJournaux techniques et compteurs anti-abus : de dix minutes à quelques jours, chez l'hébergeur.\n\nPanier : dans votre navigateur uniquement, jusqu'à ce que vous le vidiez, que la commande soit payée, ou que vous effaciez les données du site dans votre navigateur.\n\nStripe conserve de son côté ce que ses propres obligations légales lui imposent (voir sa politique de confidentialité)."
       },
       {
         "title": "7. Vos droits",
@@ -1261,6 +1262,13 @@
     "infosOu": "Vos coordonnées sont conservées chez Stripe, notre prestataire de paiement, avec vos commandes — et nulle part ailleurs.",
     "noticeConnexion": "Votre adresse e-mail sert uniquement à vous connecter et à retrouver vos commandes. Avec Google, nous recevons aussi votre nom.",
     "noticeInfos": "Ces coordonnées servent à pré-remplir vos prochaines commandes. Vous pouvez les modifier à tout moment.",
-    "noticeLien": "Politique de confidentialité"
+    "noticeLien": "Politique de confidentialité",
+    "suppressionTitre": "Supprimer mon espace",
+    "suppressionExplication": "Vos coordonnées enregistrées et vos pièces mises de côté seront effacées, et vous serez déconnecté. Vos commandes et leurs factures restent conservées dix ans, comme la loi l'exige.",
+    "suppressionBouton": "Supprimer mon espace…",
+    "suppressionConfirmer": "Oui, tout effacer",
+    "suppressionAnnuler": "Annuler",
+    "suppressionEnCours": "Suppression…",
+    "suppressionErreur": "La suppression n'a pas abouti. Réessayez, ou écrivez-nous à auboiacier@gmail.com."
   }
 }

@@ -72,20 +72,12 @@ Vercel (l'hébergement) est le troisième, gratuit lui aussi pour démarrer.
     puis reprendre la clé `sk_live_` et **recréer le webhook en mode réel**
     (le `whsec_` est différent).
 11. **Remplir les textes légaux** : les pages Conditions générales de vente et
-    Mentions légales existent mais attendent la raison sociale, le statut, le
-    SIRET, l'adresse, le téléphone et le régime de TVA.
-12. **Remplir le bas des factures** (obligatoire avant la première vente
-    réelle). Stripe édite la facture du client, mais une facture française doit
-    porter les mentions de l'entreprise. Elles se collent dans Vercel, comme les
-    clés, dans ces cinq variables :
-    - `FACTURE_RAISON_SOCIALE` — nom et statut (ex. « Auboiacier — EI Quentin Aumercier »)
-    - `FACTURE_ADRESSE` — l'adresse du siège, sur une ligne
-    - `FACTURE_SIRET` — SIRET, code APE, chambre de métiers
-    - `FACTURE_TVA` — soit « TVA non applicable, art. 293 B du CGI », soit le numéro de TVA
-    - `FACTURE_ASSURANCE` — l'assurance décennale (dès qu'il y a de la pose)
-
-    Tant qu'elles sont vides, le bas de facture reste vide : le site n'invente
-    rien sur un document comptable. Il n'y a rien à écrire dans le code.
+    Mentions légales existent et attendent la fiche `src/lib/entreprise.ts`
+    (voir plus bas).
+12. **Le bas des factures** se remplit tout seul depuis `src/lib/entreprise.ts`
+    (raison sociale, adresse, SIRET, immatriculation, TVA, assurance). Les
+    variables `FACTURE_…` de Vercel restent possibles, mais seulement pour
+    imprimer autre chose que la fiche : vides, c'est la fiche qui sert.
 13. **Faire connaître l'atelier à Google** (facultatif, mais c'est ce qui fait
     apparaître le téléphone, les horaires et les avis dans les résultats) :
     créer la fiche Google de l'atelier (Google Business Profile), puis remplir
@@ -101,15 +93,14 @@ Le code est prêt et se tait tant que ces valeurs sont vides : rien ne s'affiche
 
 **Sans ça, on ne peut pas vendre**
 
-- [ ] Identité de l'entreprise : raison sociale, statut, SIRET, adresse du
-      siège, numéro de TVA → `src/lib/entreprise.ts`. Elle s'affiche sur les
-      mentions légales ET sur la politique de confidentialité : sans elle, le
-      « responsable du traitement » n'est pas identifiable (RGPD).
-- [ ] Régime de TVA → `TVA_MENTION` en haut de `src/app/[lang]/cgv/page.tsx`
-      (franchise en base : « TVA non applicable, article 293 B du CGI » ;
-      sinon : « Prix TTC, TVA 20 % incluse — n° TVA FR… »).
-- [ ] Médiateur de la consommation : l'adhésion est obligatoire pour vendre en
-      ligne à des particuliers → `MEDIATEUR`, même fichier.
+- [ ] LA fiche de l'entreprise, `src/lib/entreprise.ts` : raison sociale,
+      statut, adresse, SIRET, immatriculation, TVA (et sa mention en phrase
+      pour les CGV, en français et en anglais), assurance décennale,
+      téléphone, médiateur de la consommation. Elle alimente les mentions
+      légales, la politique de confidentialité, les CGV, les devis et les
+      factures. GARDE-FOU : les ventes ne s'ouvrent que quand toutes ses
+      lignes obligatoires sont remplies (`champsManquants`) — le SIRET seul
+      ne suffit pas.
 - [ ] Le domaine `auboiacier.fr` vérifié chez Resend, et `DEVIS_FROM_EMAIL`
       réglé dessus (voir plus haut : sans ça le site refuse d'encaisser).
 - [ ] Les cinq variables obligatoires dans Vercel.

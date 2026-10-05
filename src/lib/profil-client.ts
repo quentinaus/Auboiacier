@@ -205,3 +205,41 @@ export async function retirerFavori(email: string, id: unknown): Promise<Favori[
     return null;
   }
 }
+
+/**
+ * « Supprimer mon espace » : le droit à l'effacement, sans avoir à écrire.
+ *
+ * Toutes les fiches Stripe à cette adresse passent en revue :
+ *   — une fiche SANS aucun paiement ne porte que ce que le client a saisi
+ *     dans son espace (coordonnées, favoris) : elle est supprimée entière ;
+ *   — une fiche liée à une commande reste, parce que la loi impose de garder
+ *     10 ans la commande et sa facture (code de commerce, L123-22) ; on n'y
+ *     efface que ce qui relève de l'espace : la marque et les favoris.
+ *
+ * Rend false si quelque chose a échoué : la page le dit, et le client peut
+ * réessayer ou écrire à l'atelier.
+ */
+export async function supprimerEspace(email: string): Promise<boolean> {
+  if (!isStripeConfigured() || !email) return false;
+  const stripe = getStripe();
+  try {
+    const fiches = (await stripe.customers.list({ email, limit: 100 })).data.filter((c) => !c.deleted);
+    for (const fiche of fiches) {
+      const paiements = await stripe.paymentIntents.list({ customer: fiche.id, limit: 1 });
+      if (paiements.data.length === 0) {
+        await stripe.customers.del(fiche.id);
+        continue;
+      }
+      // Stripe efface une métadonnée quand on lui envoie une chaîne vide.
+      const nettoyage: Record<string, string> = {};
+      for (const cle of Object.keys(fiche.metadata ?? {})) {
+        if (cle === MARQUE || cle.startsWith(PREFIXE_FAVORI)) nettoyage[cle] = "";
+      }
+      if (Object.keys(nettoyage).length) await stripe.customers.update(fiche.id, { metadata: nettoyage });
+    }
+    return true;
+  } catch (error) {
+    console.error("[compte] suppression de l'espace incomplète :", error);
+    return false;
+  }
+}
