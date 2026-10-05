@@ -335,6 +335,73 @@ function SousMenu({
   );
 }
 
+/**
+ * Une ligne (titre, résumé, chevron) comme celle d'un sous-menu, qui ouvre son contenu dans une FENÊTRE FLOTTANTE posée à gauche
+ * de la colonne, au lieu de le déplier dedans : la colonne d'achat du garde-corps (grand écran) tient sur un écran sans jamais
+ * défiler (demande de Quentin). Se ferme au clic ailleurs et à « Échap ».
+ */
+function PopoverDetails({ titre, libelle, children }: { titre: string; libelle: string; children: ReactNode }) {
+  const bouton = useRef<HTMLButtonElement>(null);
+  const [place, setPlace] = useState<{ right: number; top?: number; bottom?: number } | null>(null);
+  const idFenetre = useId();
+  const ouvrir = () => {
+    if (place) return setPlace(null);
+    const r = bouton.current?.getBoundingClientRect();
+    if (!r) return;
+    const right = window.innerWidth - r.left + 12;
+    // En haut de l'écran la fenêtre s'aligne sur le haut de la ligne, en bas sur son bas.
+    setPlace(r.top > window.innerHeight / 2 ? { right, bottom: Math.max(12, window.innerHeight - r.bottom) } : { right, top: Math.max(12, r.top) });
+  };
+  useEffect(() => {
+    if (!place) return;
+    const fermer = () => setPlace(null);
+    const touche = (e: KeyboardEvent) => e.key === "Escape" && fermer();
+    const dehors = (e: MouseEvent) => {
+      const cible = e.target as Element | null;
+      if (!cible?.closest(`[data-popover="${CSS.escape(idFenetre)}"]`) && !bouton.current?.contains(cible)) fermer();
+    };
+    window.addEventListener("keydown", touche);
+    window.addEventListener("mousedown", dehors);
+    window.addEventListener("resize", fermer);
+    return () => {
+      window.removeEventListener("keydown", touche);
+      window.removeEventListener("mousedown", dehors);
+      window.removeEventListener("resize", fermer);
+    };
+  }, [place, idFenetre]);
+  return (
+    <>
+      <button
+        ref={bouton}
+        type="button"
+        aria-expanded={place !== null}
+        aria-controls={idFenetre}
+        onClick={ouvrir}
+        className="inline-flex cursor-pointer items-center gap-1 text-[12px] font-medium text-[#2b2320] underline underline-offset-4 transition-colors hover:text-[#6d2c2c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
+      >
+        {libelle}
+        <svg viewBox="0 0 20 20" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={`h-3 w-3 shrink-0 transition-transform ${place ? "-rotate-90" : ""}`}>
+          <path d="M5 8l5 5 5-5" />
+        </svg>
+      </button>
+      {place &&
+        createPortal(
+          <div
+            id={idFenetre}
+            data-popover={idFenetre}
+            role="dialog"
+            aria-label={titre}
+            style={{ position: "fixed", right: place.right, top: place.top, bottom: place.bottom, width: 340 }}
+            className="z-[90] max-h-[min(70vh,560px)] overflow-y-auto rounded-2xl border border-[#e5ddd3] bg-white p-4 text-left shadow-[0_24px_60px_-20px_rgba(43,35,32,0.45)]"
+          >
+            {children}
+          </div>,
+          document.body
+        )}
+    </>
+  );
+}
+
 /** Le numéro d'une cote : le même sur le croquis et devant sa ligne. */
 function Pastille({ n }: { n: number }) {
   return (
@@ -476,6 +543,7 @@ export function ProductOptions({
   schemaSlot,
   matieresSlot,
   matieresCentreSlot,
+  bandeauSlot,
   resultatSlot,
   achatSlot,
   compteOuvert = false,
@@ -520,6 +588,8 @@ export function ProductOptions({
   matieresSlot?: HTMLDivElement | null;
   /** Garde-corps, grand écran : la ligne compacte couleur / bois / rosace, au-dessus du croquis. */
   matieresCentreSlot?: HTMLDivElement | null;
+  /** Garde-corps, grand écran : le bandeau des modèles, en bas du bloc (product-view.tsx). */
+  bandeauSlot?: HTMLDivElement | null;
 }) {
   /** La taille à laquelle la fiche s'ouvre, s'il y en a une. */
   const tailleInitiale =
@@ -1539,22 +1609,26 @@ export function ProductOptions({
    * dit ce qu'il attend (raisonIndisponible, la même phrase que sous le
    * bouton d'achat).
    */
+  /* Le garde-corps sur grand écran : le devis PDF et « Mettre de côté » sont deux petits liens sur UNE ligne (la colonne d'achat ne défile pas). */
+  const liensSerres = Boolean(colonneAchat && estGC);
   const lienDevis = (
-    <div className="mt-3">
+    <div className={liensSerres ? "mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1" : "mt-3"}>
+      {/* Le lien « Détails » (poids, ce que comprend le prix) : la fenêtre flottante y est posée (detailsSlot). */}
+      {liensSerres && <div ref={setDetailsSlot} />}
       {chiffrable && (
         <button
           type="button"
           onClick={ouvrirDevis}
           disabled={!urlDevis}
           aria-describedby={!urlDevis && raisonIndisponible ? idRaisonDevis : undefined}
-          className={`flex w-full items-center justify-center gap-2.5 rounded-full border px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${
+          className={liensSerres ? `inline-flex items-center gap-1.5 text-[12px] font-medium underline underline-offset-4 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${urlDevis ? "text-[#2b2320] hover:text-[#6d2c2c]" : "cursor-not-allowed text-[#6f6357] no-underline opacity-70"}` : `flex w-full items-center justify-center gap-2.5 rounded-full border px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${
             urlDevis
               ? "border-[#2b2320] text-[#2b2320] hover:bg-[#2b2320] hover:text-white"
               : "cursor-not-allowed border-[#c9bfb2] text-[#6f6357]"
           }`}
         >
-          {devisIcone}
-          {orderable ? t.devisPdf : t.estimationPdf}
+          {!liensSerres && devisIcone}
+          {liensSerres ? (locale === "fr" ? "Devis PDF" : "Quote PDF") : orderable ? t.devisPdf : t.estimationPdf}
         </button>
       )}
       {/* Pourquoi il est grisé — sans ce mot, le bouton a l'air cassé. */}
@@ -1568,7 +1642,7 @@ export function ProductOptions({
           seulement le nom de l'article. Discret, en dessous du devis — ce
           n'est pas l'action principale, mais c'est celle qui ramène. */}
       {compteOuvert && !modeVisite && (
-        <p className="mt-3 text-center">
+        <p className={liensSerres ? "" : "mt-3 text-center"}>
           <button
             type="button"
             onClick={mettreDeCote}
@@ -1972,7 +2046,7 @@ export function ProductOptions({
             </div>
           );
           const matieresCompactes = (
-            <div className="mb-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 rounded-2xl bg-white/55 px-3 py-1.5">
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 rounded-2xl bg-white/55 px-3 py-1.5 xl:shrink-0 xl:flex-nowrap">
               {product.metals.length > 0 && ligneMatieres(locale === "fr" ? "Acier" : "Steel", product.metals, metalId, setMetalId, false)}
               {product.woods.length > 0 && ligneMatieres(locale === "fr" ? "Main courante" : "Handrail", woodsAffiches, woodId, setWoodId, orderable && product.woods.some((bois) => bois.priceDelta))}
               {product.fabrics && product.fabrics.length > 0 && product.fabricLabel && !sansRosace && !sansRosaceGC &&
@@ -2517,6 +2591,7 @@ export function ProductOptions({
           <ReleveGardeCorps
             schemaSlot={nouvelleMiseEnPage ? schemaSlot : undefined}
             resultatSlot={nouvelleMiseEnPage && grandEcran ? resultatSlot : undefined}
+            bandeauSlot={nouvelleMiseEnPage && grandEcran ? bandeauSlot : undefined}
             cotes={cotesGardeCorps}
             onChange={setCotesGardeCorps}
             t={t}
@@ -2558,6 +2633,7 @@ export function ProductOptions({
                 choix={poseObligatoire && pose.mode === "transporteur" ? { ...pose, mode: "pose" } : pose}
                 onChange={setPose}
                 compact={nouvelleMiseEnPage}
+                pilule={Boolean(colonneAchat && estGC)}
                 demontee={Boolean(product.boisAuM2)}
                 livraisonSeule={Boolean(product.livraisonSeule)}
                 poseSeule={poseObligatoire}
@@ -2578,30 +2654,8 @@ export function ProductOptions({
               ? `${pose.mode === "pose" ? t.poseCourt : t.livraisonCourt} · ${prixAffiche(pose.deplacement.montantCents / 100, locale)}`
               : t.livraisonAChoisir;
         const resumeDetails = poidsKg !== null ? `≈ ${poidsKg} kg` : "—";
-        const sousMenus = (
-          <div className="mt-2">
-            {livraison && (
-                <SousMenu
-                  id="sous-menu-livraison"
-                titre={product.livraisonSeule ? t.livraisonTitle : t.poseTitle}
-                resume={resumeLivraison}
-                ouvert={Boolean(menusOuverts.livraison)}
-                onToggle={(o) => ouvrirMenu("livraison", o)}
-              >
-                {livraison}
-              </SousMenu>
-            )}
-            {(() => {
-              const details = (
-                <>
-            {!modeVisite && (
-            <SousMenu
-                titre={t.sousMenuDetails}
-                resume={resumeDetails}
-                ouvert={Boolean(menusOuverts.details)}
-                onToggle={(o) => ouvrirMenu("details", o)}
-              >
-                <dl className="grid gap-1.5 text-xs leading-snug text-[#5c5140]">
+        const detailsDl = (
+          <dl className="grid gap-1.5 text-xs leading-snug text-[#5c5140]">
                   {(
                     [
                       [
@@ -2625,7 +2679,32 @@ export function ProductOptions({
                       <dd className="text-right tabular-nums text-[#2b2320]">{valeur}</dd>
                     </div>
                   ))}
-                </dl>
+          </dl>
+        );
+        const sousMenus = (
+          <div className="mt-2">
+            {livraison && (
+                <SousMenu
+                  id="sous-menu-livraison"
+                titre={product.livraisonSeule ? t.livraisonTitle : t.poseTitle}
+                resume={resumeLivraison}
+                ouvert={Boolean(menusOuverts.livraison)}
+                onToggle={(o) => ouvrirMenu("livraison", o)}
+              >
+                {livraison}
+              </SousMenu>
+            )}
+            {(() => {
+              const details = (
+                <>
+            {!modeVisite && (
+            <SousMenu
+                titre={t.sousMenuDetails}
+                resume={resumeDetails}
+                ouvert={Boolean(menusOuverts.details)}
+                onToggle={(o) => ouvrirMenu("details", o)}
+              >
+                {detailsDl}
               </SousMenu>
             )}
             <SousMenu
@@ -2642,6 +2721,32 @@ export function ProductOptions({
             })()}
           </div>
         );
+        /* Le garde-corps sur grand écran : la colonne d'achat ne défile pas. Les détails (poids, ce que comprend le prix) vont dans
+           une fenêtre flottante ; la livraison reste là, en pilules, au-dessus de la barre d'achat. */
+        if (colonneAchat && estGC) {
+          return (
+            <>
+              {!modeVisite &&
+                detailsSlot &&
+                createPortal(
+                  <PopoverDetails titre={t.sousMenuDetails} libelle={locale === "fr" ? "Détails" : "Details"}>
+                    {detailsDl}
+                    <p className="mt-3 border-t border-[#e5ddd3] pt-3 text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{t.sousMenuInclus}</p>
+                    <div className="mt-2">{listeInclus}</div>
+                  </PopoverDetails>,
+                  detailsSlot
+                )}
+              {versColonneAchat(
+                livraison ? (
+                  <div className="mt-2 border-t border-[#e5ddd3] pt-2.5" id="sous-menu-livraison">
+                    <span className="block text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{product.livraisonSeule ? t.livraisonTitle : t.poseTitle}</span>
+                    <div className="mt-2">{livraison}</div>
+                  </div>
+                ) : null
+              )}
+            </>
+          );
+        }
         return versColonneAchat(sousMenus);
       })()}
 
@@ -2785,7 +2890,7 @@ export function ProductOptions({
             </p>
           )}
         </div>
-        <div className={nouvelleMiseEnPage ? "pb-5" : ""}>
+        <div className={nouvelleMiseEnPage ? (liensSerres ? "pb-2.5" : "pb-5") : ""}>
           {/* Ce que ce prix-là comprend : sans cette ligne, cliquer « Noyer »
               faisait bondir le chiffre de 710 € sans un mot d'explication. */}
           {/* (Dans la troisième colonne du garde-corps, le résultat le dit déjà, juste au-dessus.) */}

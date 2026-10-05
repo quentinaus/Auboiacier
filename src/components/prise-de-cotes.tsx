@@ -50,6 +50,7 @@ export function QuiMesure({
   t,
   notes,
   tagMoi,
+  compact = false,
 }: {
   valeur: Visite["qui"];
   onChange: (qui: Visite["qui"]) => void;
@@ -58,6 +59,11 @@ export function QuiMesure({
   notes: { moi: string; atelier: string };
   /** L'étiquette du bouton « je mesure » : « Prix immédiat » quand le prix tombe, « Gratuit » sinon. */
   tagMoi?: string;
+  /**
+   * Colonne étroite (le garde-corps sur grand écran) : UNE pilule segmentée, comme le choix d'épaisseur d'une table, avec des
+   * noms courts ; l'étiquette de chaque choix passe dans sa bulle (title). Elle ne prend qu'une ligne.
+   */
+  compact?: boolean;
 }) {
   const idQui = useId();
   const idNote = useId();
@@ -71,11 +77,31 @@ export function QuiMesure({
   ] as const;
   return (
     <>
-      <span id={idQui}>
+      <span id={idQui} className="intitule-qui">
         <Intitule info={t.gcQuiInfo} infoLabel={t.gcInfoLabel}>
           {t.gcQui}
         </Intitule>
       </span>
+      {compact ? (
+        <div role="radiogroup" aria-labelledby={idQui} aria-describedby={idNote} className="mt-1.5 grid grid-cols-2 rounded-full border border-[#9a8d80] bg-white p-0.5">
+          {choix.map((c) => {
+            const actif = valeur === c.id;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                role="radio"
+                aria-checked={actif}
+                title={[c.label, c.tag].filter(Boolean).join(" — ")}
+                onClick={() => onChange(c.id)}
+                className={`rounded-full px-1.5 py-1.5 text-[12px] font-medium leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${actif ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"}`}
+              >
+                {c.id === "atelier" ? (fr ? "L'atelier mesure" : "We measure") : fr ? "Je mesure" : "I measure"}
+              </button>
+            );
+          })}
+        </div>
+      ) : (
       <div role="group" aria-labelledby={idQui} className="mt-2 grid grid-cols-2 items-stretch gap-2">
         {choix.map((c) => {
           const actif = valeur === c.id;
@@ -141,6 +167,7 @@ export function QuiMesure({
           );
         })}
       </div>
+      )}
       {/* Une seule explication, celle du choix fait : deux paragraphes côte à
           côte se lisaient comme un tableau à comparer, pas comme une réponse. */}
       <p id={idNote} className="mt-2 text-[12px] leading-snug text-[#6f6357]">

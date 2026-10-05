@@ -64,6 +64,7 @@ export function PoseDomicile({
   poseSeule = false,
   infoSeul,
   compact = false,
+  pilule = false,
   t,
   locale,
 }: {
@@ -90,6 +91,11 @@ export function PoseDomicile({
   infoSeul?: string;
   /** Dans la carte du configurateur : serré, sans le paragraphe d'explication. */
   compact?: boolean;
+  /**
+   * Le garde-corps sur grand écran : les façons de recevoir la pièce en UNE pilule segmentée (comme le choix d'épaisseur d'une
+   * table), le code postal sur une ligne, le prix dessous. La colonne d'achat ne défile pas (demande de Quentin).
+   */
+  pilule?: boolean;
   t: Dictionary["artisanat"];
   locale: "fr" | "en";
 }) {
@@ -240,6 +246,73 @@ export function PoseDomicile({
   };
 
   const invalide = etat === "invalide" || etat === "hors" || etat === "loin";
+
+  if (pilule) {
+    const nomPilule = (mode: ModeLivraison) =>
+      mode === "transporteur" ? t.livraisonCourt : mode === "pose" ? t.poseCourt : locale === "fr" ? "Retrait" : "Pick-up";
+    return (
+      <div className="scroll-mt-28" id="livraison">
+        <span id={idGroupe} className="sr-only">
+          {livraisonSeule ? t.livraisonTitle : t.poseTitle}
+        </span>
+        <div
+          role="radiogroup"
+          aria-labelledby={idGroupe}
+          className="grid rounded-full border border-[#9a8d80] bg-white p-0.5"
+          style={{ gridTemplateColumns: `repeat(${modes.length}, minmax(0, 1fr))` }}
+        >
+          {modes.map((mode) => {
+            const actif = choix.mode === mode;
+            return (
+              <button
+                key={mode}
+                type="button"
+                role="radio"
+                aria-checked={actif}
+                title={titreMode(mode)}
+                onClick={() => onChange({ ...choix, mode, deplacement: null })}
+                className={`rounded-full px-1.5 py-1.5 text-[12px] font-medium leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${actif ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"}`}
+              >
+                {nomPilule(mode)}
+              </button>
+            );
+          })}
+        </div>
+        {poseSeule && !livraisonSeule && <p className="mt-1.5 text-[11px] leading-snug text-[#6f6357]">{t.poseObligatoire}</p>}
+        {retrait ? (
+          <p className="mt-1.5 text-[11.5px] leading-snug text-[#6f6357]">{t.poseRetraitInfo}</p>
+        ) : (
+          <div className="mt-2">
+            <label htmlFor={idCp} className="flex items-center justify-between gap-3">
+              <span className="text-[13px] text-[#2b2320]">{locale === "fr" ? "Code postal" : "Postcode"}</span>
+              <span
+                className={`flex h-9 w-[6.5rem] shrink-0 items-center rounded-full border bg-white px-3 transition-colors focus-within:border-[#2b2320] ${
+                  invalide ? "border-[#b4533a]" : "border-[#9a8d80]"
+                }`}
+              >
+                <input
+                  id={idCp}
+                  inputMode="numeric"
+                  autoComplete="postal-code"
+                  maxLength={6}
+                  value={choix.codePostal}
+                  onChange={(event) => onChange({ ...choix, codePostal: event.target.value, deplacement: null })}
+                  placeholder="49400"
+                  aria-describedby={`${idCp}-etat`}
+                  aria-invalid={invalide}
+                  className="w-full min-w-0 bg-transparent text-right text-[15px] tabular-nums text-[#2b2320] outline-none placeholder:text-[#726757]"
+                />
+              </span>
+            </label>
+            {/* Tant que le code postal n'est pas tapé, le champ suffit (le bouton d'achat dit quoi faire) : une ligne de moins. */}
+            <p id={`${idCp}-etat`} role="status" aria-live="polite" className={`mt-1.5 text-[11.5px] leading-snug ${etat === "ok" ? "text-[#2b2320]" : "text-[#6f6357]"} ${etat === "attente" ? "sr-only" : ""}`}>
+              {texteAvecGras(message)}
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     // id="livraison" : le bouton d'achat y renvoie quand le code postal

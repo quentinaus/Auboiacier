@@ -82,6 +82,8 @@ export function ProductView({
   /** Garde-corps, grand écran : la troisième colonne — le résultat, puis la livraison et la barre d'achat. */
   const [resultatSlot, setResultatSlot] = useState<HTMLDivElement | null>(null);
   const [achatSlot, setAchatSlot] = useState<HTMLDivElement | null>(null);
+  /** Garde-corps, grand écran : le bandeau des modèles, en bas du bloc, sous les cotes et le croquis (visuels, un clic = le détail). */
+  const [bandeauSlot, setBandeauSlot] = useState<HTMLDivElement | null>(null);
 
   /* Sur téléphone la photo est au-dessus des options. On ne remonte plus à
      chaque teinte choisie — c'est la barre du bas qui montre le rendu
@@ -248,6 +250,7 @@ export function ProductView({
         matieresCentreSlot={matieresCentreSlot}
         resultatSlot={resultatSlot}
         achatSlot={achatSlot}
+        bandeauSlot={bandeauSlot}
       />
       {!pleinePage && aide}
     </>
@@ -536,11 +539,14 @@ export function ProductView({
             /* Le garde-corps, sur grand écran : TROIS colonnes — les cotes, le croquis et les modèles,
                puis le résultat, la livraison et le panier. Tout tient sur un écran, titre compris,
                sans faire défiler ni la page ni une carte. */
-            troisColonnes ? "fond-gc xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:gap-x-5 xl:gap-y-3" : ""
+            troisColonnes ? "fond-gc xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:grid-rows-[auto_minmax(0,1fr)_auto] xl:gap-x-5 xl:gap-y-3" : ""
           }`}
         >
-          <div className={troisColonnes ? "md:col-span-2 xl:col-span-3" : "md:col-span-2"}>
+          {/* Le titre, et — sur grand écran, au garde-corps — la ligne des matières (couleur, bois, rosace) à sa droite, au-dessus
+              du croquis mais PAS dessus (demande de Quentin : « remonte-la, il y a de la place »). */}
+          <div className={troisColonnes ? "md:col-span-2 xl:col-span-3 xl:grid xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:items-center xl:gap-x-5" : "md:col-span-2"}>
             <h2 className={`${serif.className} text-xl text-[#2b2320] md:text-[28px] md:leading-none`}>{t.configurationTitle}</h2>
+            {troisColonnes && <div ref={setMatieresCentreSlot} className="hidden xl:flex xl:justify-center" />}
           </div>
           {/* Pas de marge en bas : c'est la barre d'achat, collée au bord
               inférieur, qui porte la sienne — sinon le contenu qui défile
@@ -551,7 +557,7 @@ export function ProductView({
               la barre d'achat doit rester collée au bas de l'écran. */}
           {/* Sur ordinateur, la carte tient dans la hauteur du bloc ; si ses choix sont plus hauts que l'écran, ELLE défile
               (la molette ne fait jamais défiler la page à travers elle), et la barre d'achat reste collée en bas. */}
-          <div className={`carte-verre overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 md:min-h-0 md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain md:px-6 md:pt-5 ${troisColonnes ? "colonne-cotes xl:max-h-full xl:px-5 xl:pb-3 xl:pt-4" : ""}`}>
+          <div className={`carte-verre overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 md:min-h-0 md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain md:px-6 md:pt-5 ${troisColonnes ? "colonne-cotes xl:col-start-1 xl:row-start-2 xl:max-h-full xl:px-5 xl:pb-3 xl:pt-4" : ""}`}>
             {options}
           </div>
           {/* Le croquis : au-dessus de la carte sur téléphone, à côté et en grand sur ordinateur. */}
@@ -560,23 +566,24 @@ export function ProductView({
               /* Le croquis d'une table ou d'un plafond remplit la hauteur du bloc, au milieu. Le garde-corps a son
                  catalogue de modèles sous le croquis : il défile dans sa colonne sous 1280 px, et tient entier au-dessus. */
               product.releve === "garde-corps-fenetre"
-                ? "md:min-h-0 md:overflow-y-auto xl:flex xl:min-h-0 xl:flex-col xl:self-stretch xl:overflow-hidden"
+                ? "md:min-h-0 md:overflow-y-auto xl:col-start-2 xl:row-start-2 xl:flex xl:min-h-0 xl:flex-col xl:self-stretch xl:overflow-hidden"
                 : "md:flex md:min-h-0 md:items-center md:justify-center"
             }`}
           >
-            {/* La ligne des matières (couleur, bois, rosace), au-dessus du croquis, sur grand écran (demande de Quentin). */}
-            {troisColonnes && <div ref={setMatieresCentreSlot} className="hidden xl:block" />}
             <div ref={setSchemaSlot} className={`schema-configuration mx-auto w-full ${troisColonnes ? "xl:flex xl:min-h-0 xl:flex-1 xl:flex-col" : ""}`} />
           </div>
           {/* La troisième colonne du garde-corps (grand écran) : `ProductOptions` y dépose le résultat,
               puis la livraison et la barre d'achat. Vide et cachée en dessous de 1280 px : tout reste
               alors dans la première carte. */}
           {troisColonnes && (
-            <div className="carte-verre colonne-achat hidden overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 xl:block xl:max-h-full xl:overflow-y-auto xl:overflow-x-hidden xl:overscroll-contain">
+            <div className="carte-verre colonne-achat hidden overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 xl:col-start-3 xl:row-span-2 xl:row-start-2 xl:flex xl:max-h-full xl:flex-col xl:self-stretch xl:overflow-y-auto xl:overflow-x-hidden xl:overscroll-contain">
               <div ref={setResultatSlot} />
-              <div ref={setAchatSlot} />
+              {/* L'achat est collé au bas de la colonne : tout le reste (options, résultat, livraison) se range au-dessus, sans défiler. */}
+              <div ref={setAchatSlot} className="mt-auto" />
             </div>
           )}
+          {/* Le bandeau des modèles : en bas du bloc, sous les cotes et le croquis, sur toute leur longueur. */}
+          {troisColonnes && <div ref={setBandeauSlot} className="bandeau-gc hidden xl:col-span-2 xl:col-start-1 xl:row-start-3 xl:block" />}
         </div>
         {/* Sous la plaque, en petit : une question ? */}
         <div className="mt-3 px-1">{aide}</div>

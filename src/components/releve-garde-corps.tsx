@@ -232,6 +232,7 @@ export function ReleveGardeCorps({
   rosaceMm,
   rosaceId,
   onRosace,
+  bandeauSlot,
   mainCourante,
   schemaSlot,
   resultatSlot,
@@ -252,6 +253,8 @@ export function ReleveGardeCorps({
   /** La rosace choisie (identifiant de l'option) : un modèle peut en demander une plus grande, que le choisir applique. */
   rosaceId?: string;
   onRosace?: (id: string) => void;
+  /** Grand écran : le bandeau des modèles, en bas du bloc (product-view.tsx). */
+  bandeauSlot?: HTMLDivElement | null;
   /** La main courante choisie (un bois, « acier » ou « profil ») : le croquis la dessine en bois ou en acier. */
   mainCourante?: string;
   /**
@@ -287,6 +290,8 @@ export function ReleveGardeCorps({
   const [filtre, setFiltre] = useState<{ barreaux: "aucun" | "bas" | "seuls"; traverse: boolean }>({ barreaux: "aucun", traverse: false });
   /** « Du moins cher au plus cher » : tous les modèles aux normes, tous types confondus, par prix croissant. */
   const [parPrix, setParPrix] = useState(false);
+  /** Le modèle survolé : son détail s'écrit dans le bandeau. */
+  const [survol, setSurvol] = useState<string | null>(null);
 
   /** La réponse du serveur pour les cotes ET le modèle demandés. */
   const brute = prix.statut === "pret" ? prix.reponse : null;
@@ -499,7 +504,7 @@ export function ReleveGardeCorps({
     ? modeles.filter((m) => m.conforme).sort((a, b) => a.prix - b.prix || a.croix - b.croix)
     : marque ? modelesFamille : MODELES_VITRINE.filter((m) => !m.traverse && m.soubassementMm === 0);
   const controlesFamille = marque ? (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       {[
         {
           titre: fr ? "Barreaux" : "Bars",
@@ -510,12 +515,12 @@ export function ReleveGardeCorps({
             { v: "seuls", label: fr ? "Barreaux seuls" : "Bars only", note: "" },
           ],
           legende: barreauxImposes
-            ? fr ? "Barreaux verticaux en bas : obligatoires ici, le bas du cadre étant à moins de 60 cm du sol." : "Vertical bars at the bottom: mandatory here, as the bottom of the frame is under 60 cm from the floor."
+            ? fr ? "Barreaux verticaux en bas, obligatoires ici (cadre à moins de 60 cm du sol)." : "Vertical bars at the bottom, mandatory here (frame under 60 cm from the floor)."
             : famille.barreaux === "aucun"
-              ? fr ? "Croix de Saint-André seules, sans barreaux." : "Saint Andrew's crosses only, no bars."
+              ? fr ? "Croix de Saint-André seules." : "Saint Andrew's crosses only."
               : famille.barreaux === "bas"
-                ? fr ? "Barreaux verticaux en partie basse, sous les croix." : "Vertical bars in the lower part, under the crosses."
-                : fr ? "Barreaux verticaux sur toute la hauteur du cadre, sans croix." : "Vertical bars over the full height of the frame, no crosses.",
+                ? fr ? "Barreaux verticaux sous les croix." : "Vertical bars under the crosses."
+                : fr ? "Barreaux verticaux, sans croix." : "Vertical bars, no crosses.",
           choisir: (v: string) => changerFamille(v as "aucun" | "bas" | "seuls", famille.traverse),
         },
         {
@@ -526,31 +531,38 @@ export function ReleveGardeCorps({
             { v: "avec", label: fr ? "Avec" : "With", note: famille.barreaux === "seuls" ? (fr ? "Non disponible avec des barreaux seuls." : "Not available with bars only.") : "" },
           ],
           legende: famille.barreaux === "seuls"
-            ? fr ? "Sans objet avec des barreaux seuls, qui n'ont pas de croix." : "Not applicable to bars only, which have no crosses."
+            ? fr ? "Sans objet : pas de croix." : "Not applicable: no crosses."
             : famille.traverse
-              ? fr ? "Une barre horizontale au centre de chaque croix, qui réduit les vides." : "A horizontal bar across the centre of each cross, which reduces the gaps."
+              ? fr ? "Une barre horizontale au centre des croix." : "A horizontal bar across the centre of the crosses."
               : fr ? "Croix sans barre horizontale." : "Crosses without a horizontal bar.",
           choisir: (v: string) => changerFamille(famille.barreaux, v === "avec"),
         },
       ].map((ligne) => (
         <div key={ligne.titre}>
-          <span className="text-[12px] font-semibold text-[#2b2320]">{ligne.titre}</span>
-          <div role="group" aria-label={ligne.titre} className="mt-1 grid gap-1" style={{ gridTemplateColumns: `repeat(${ligne.options.length}, minmax(0, 1fr))` }}>
+          <span className="block text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{ligne.titre}</span>
+          {/* Une pilule segmentée, comme le choix d'épaisseur d'une table (le style vient de .carte-verre, globals.css). */}
+          <div
+            role="radiogroup"
+            aria-label={ligne.titre}
+            className="mt-1.5 grid rounded-full border border-[#9a8d80] bg-white p-0.5"
+            style={{ gridTemplateColumns: `repeat(${ligne.options.length}, minmax(0, 1fr))` }}
+          >
             {ligne.options.map((o) => (
               <button
                 key={o.v}
                 type="button"
-                aria-pressed={ligne.valeur === o.v}
+                role="radio"
+                aria-checked={ligne.valeur === o.v}
                 disabled={o.note !== ""}
                 title={o.note || undefined}
                 onClick={() => ligne.choisir(o.v)}
-                className={`min-w-0 rounded-lg border px-1.5 py-1.5 text-[12px] font-medium leading-tight transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${ligne.valeur === o.v ? "border-[#2b2320] bg-[#2b2320] text-white" : "border-[#d9cfc2] bg-white text-[#2b2320] hover:border-[#2b2320]"}`}
+                className={`rounded-full px-1.5 py-1.5 text-[12px] font-medium leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] disabled:cursor-not-allowed disabled:opacity-40 ${ligne.valeur === o.v ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"}`}
               >
                 {o.label}
               </button>
             ))}
           </div>
-          <p className="mt-1 text-[11.5px] leading-snug text-[#6f6357]">{ligne.legende}</p>
+          <p className="legende-option mt-1 text-[11px] leading-snug text-[#6f6357]">{ligne.legende}</p>
         </div>
       ))}
     </div>
@@ -564,83 +576,49 @@ export function ReleveGardeCorps({
       {fr ? "Votre style, sur photo" : "Your style, from a photo"}
     </Link>
   ) : null;
-  const catalogue = (
-    /* Sous le croquis, en bande FINE pour laisser la place au grand croquis (règle de Quentin, 05/10) : les deux boutons
-       (barreaux, traverse) et UNE rangée de modèles qui défile de côté, chacun avec son prix et sa pastille verte ou rouge. */
-    <div id="modeles-gc" className="carte-verre carte-modeles mt-2 scroll-mt-24 rounded-[20px] px-3 pb-2 pt-2.5 text-left">
-      {/* Sous 1280 px les boutons sont ici ; au-dessus, ils sont dans la colonne de droite et la carte n'est que la rangée. */}
-      <div className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 ${marque ? "xl:hidden" : ""}`}>
-        {marque ? controlesFamille : <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{fr ? "Votre modèle" : "Your model"}</p>}
-      </div>
-      {phraseModeles && <p className={`mt-1 text-[11.5px] leading-snug ${modeles.length === 0 && texteManque ? "font-medium text-[#7a4510]" : "text-[#5c5140]"}`}>{phraseModeles}</p>}
-      {marque && nbConformes > 1 && (
-        <div className="mt-1.5 flex items-center justify-end">
-          <button
-            type="button"
-            aria-pressed={parPrix}
-            onClick={() => {
-              setParPrix((v) => !v);
-              setPourquoi(null);
-              bande.current?.scrollTo({ left: 0 });
-            }}
-            title={fr ? "Tous les modèles aux normes pour votre fenêtre, du moins cher au plus cher" : "Every model to standard for your window, cheapest first"}
-            className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium leading-tight transition-colors ${parPrix ? "bg-[#2b2320] text-white" : "bg-[#2b2320]/[0.07] text-[#2b2320] hover:bg-white/80"}`}
-          >
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3" aria-hidden>
-              <path d="M6 3v14M6 17l-3-3M6 17l3-3M14 17V3M14 3l-3 3M14 3l3 3" />
-            </svg>
-            {fr ? "Du moins cher au plus cher" : "Cheapest first"}
-          </button>
-        </div>
-      )}
-      {/* Du moins cher au plus cher : une ligne par modèle, avec sa configuration complète écrite en clair (rosace comprise). */}
-      {liste.length > 0 && parPrixActif && (
-        <ol
-          aria-label={fr ? "Modèles du moins cher au plus cher" : "Models, cheapest first"}
-          aria-busy={modelesPerimes}
-          className={`mt-1.5 max-h-[8.5rem] space-y-1 overflow-y-auto pr-1 transition-opacity ${modelesPerimes ? "opacity-60" : ""}`}
-        >
-          {liste.map((m, i) => {
-            const actif = choisi !== null && choisi.id === m.id;
-            return (
-              <li key={m.id}>
-                <button
-                  type="button"
-                  aria-pressed={actif}
-                  title={descriptionModele(m)}
-                  onClick={() => {
-                    setPerdu(null);
-                    setPourquoi(null);
-                    onChange({ ...cotes, modele: m.id });
-                    if (m.rosace && rosaceId && m.rosace !== rosaceId) onRosace?.(m.rosace);
-                  }}
-                  className={`flex w-full items-center gap-2 rounded-lg border px-2 py-1 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${actif ? "border-[#2b2320] bg-white shadow-sm" : "border-[#d9cfc2] bg-white/60 hover:border-[#2b2320]"}`}
-                >
-                  <span className="w-4 shrink-0 text-center text-[11px] font-semibold tabular-nums text-[#6f6357]">{i + 1}</span>
-                  <span className="min-w-0 flex-1 text-[11.5px] leading-tight text-[#2b2320]">{descriptionModele(m, true)}</span>
-                  <span className="shrink-0 text-[12px] font-semibold tabular-nums text-[#2b2320]">{prixAffiche(m.prix, locale)}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ol>
-      )}
-      {liste.length > 0 && !parPrixActif && (
-        <div className="relative">
-          {liste.length > 3 &&
-            ([-1, 1] as const).map((sens) => (
-              <button
-                key={sens}
-                type="button"
-                aria-label={sens < 0 ? (fr ? "Modèles précédents" : "Previous models") : fr ? "Modèles suivants" : "Next models"}
-                onClick={() => bande.current?.scrollBy({ left: sens * 220, behavior: "smooth" })}
-                className={`absolute top-1/2 z-10 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-[#2b2320] shadow ring-1 ring-[#2b2320]/20 transition-colors hover:bg-white ${sens < 0 ? "-left-2" : "-right-2"}`}
-              >
-                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3" aria-hidden>
-                  <path d={sens < 0 ? "M12.5 4.5L7 10l5.5 5.5" : "M7.5 4.5L13 10l-5.5 5.5"} />
-                </svg>
-              </button>
-            ))}
+  /** Le bouton « Du moins cher au plus cher » : tous les modèles aux normes, par prix croissant, chacun avec sa rosace. */
+  const boutonPrix =
+    marque && nbConformes > 1 ? (
+      <button
+        type="button"
+        aria-pressed={parPrix}
+        onClick={() => {
+          setParPrix((v) => !v);
+          setPourquoi(null);
+          bande.current?.scrollTo({ left: 0 });
+        }}
+        title={fr ? "Tous les modèles aux normes pour votre fenêtre, du moins cher au plus cher" : "Every model to standard for your window, cheapest first"}
+        className={`flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium leading-tight transition-colors ${parPrix ? "bg-[#2b2320] text-white" : "bg-[#2b2320]/[0.07] text-[#2b2320] hover:bg-white/80"}`}
+      >
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3" aria-hidden>
+          <path d="M6 3v14M6 17l-3-3M6 17l3-3M14 17V3M14 3l-3 3M14 3l3 3" />
+        </svg>
+        {fr ? "Du moins cher au plus cher" : "Cheapest first"}
+      </button>
+    ) : null;
+  /**
+   * La rangée des modèles : des VISUELS, un par modèle, avec son prix et sa pastille verte ou rouge ; elle défile de côté s'il y en
+   * a plus que la place. Un clic choisit le modèle (ou, hors norme, explique pourquoi) et son détail s'écrit au-dessus. Du moins cher
+   * au plus cher : les mêmes visuels, rangés par prix, numérotés.
+   */
+  const grandeRangee = Boolean(bandeauSlot);
+  const rangee =
+    liste.length > 0 ? (
+      <div className="relative">
+        {liste.length > (grandeRangee ? 6 : 3) &&
+          ([-1, 1] as const).map((sens) => (
+            <button
+              key={sens}
+              type="button"
+              aria-label={sens < 0 ? (fr ? "Modèles précédents" : "Previous models") : fr ? "Modèles suivants" : "Next models"}
+              onClick={() => bande.current?.scrollBy({ left: sens * 260, behavior: "smooth" })}
+              className={`absolute top-1/2 z-10 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-[#2b2320] shadow ring-1 ring-[#2b2320]/20 transition-colors hover:bg-white ${sens < 0 ? "-left-2" : "-right-2"}`}
+            >
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3" aria-hidden>
+                <path d={sens < 0 ? "M12.5 4.5L7 10l5.5 5.5" : "M7.5 4.5L13 10l-5.5 5.5"} />
+              </svg>
+            </button>
+          ))}
         <div
           ref={bande}
           role="group"
@@ -649,7 +627,7 @@ export function ReleveGardeCorps({
           style={{ scrollbarWidth: "thin" }}
           className={`relative -mx-1 mt-1.5 flex snap-x snap-mandatory gap-1.5 overflow-x-auto px-1 pb-1 pt-0.5 transition-opacity ${modelesPerimes ? "opacity-60" : ""}`}
         >
-          {liste.map((m) => {
+          {liste.map((m, rang) => {
             const actif = choisi !== null && choisi.id === m.id;
             const horsNorme = marque && !m.conforme;
             return (
@@ -657,8 +635,10 @@ export function ReleveGardeCorps({
                 key={m.id}
                 type="button"
                 aria-pressed={marque ? (m.conforme ? actif : explique?.id === m.id) : undefined}
-                aria-label={`${libelleModele(m)}${marque ? (m.conforme ? ` — ${prixAffiche(m.prix, locale)}` : ` — ${pasAdapte(m)} — ${fr ? "touchez pour voir pourquoi" : "tap to see why"}`) : ""}`}
-                title={horsNorme ? `${pasAdapte(m)} — ${fr ? "touchez pour voir pourquoi" : "tap to see why"}` : libelleModele(m)}
+                aria-label={`${marque ? descriptionModele(m) : libelleModele(m)}${marque ? (m.conforme ? ` — ${prixAffiche(m.prix, locale)}` : ` — ${pasAdapte(m)} — ${fr ? "touchez pour voir pourquoi" : "tap to see why"}`) : ""}`}
+                title={horsNorme ? `${pasAdapte(m)} — ${fr ? "touchez pour voir pourquoi" : "tap to see why"}` : marque ? descriptionModele(m) : libelleModele(m)}
+                onMouseEnter={() => setSurvol(m.id)}
+                onMouseLeave={() => setSurvol(null)}
                 onClick={() => {
                   if (!marque) document.getElementById(`${idChamps}-largeur`)?.focus();
                   else if (m.conforme) {
@@ -668,9 +648,15 @@ export function ReleveGardeCorps({
                     if (m.rosace && rosaceId && m.rosace !== rosaceId) onRosace?.(m.rosace);
                   } else setPourquoi((p) => (p === m.id ? null : m.id));
                 }}
-                className={`tuile-modele relative flex w-[78px] shrink-0 snap-start flex-col px-1.5 pb-1.5 pt-2.5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${horsNorme ? "tuile-hors-norme" : ""}`}
+                className={`tuile-modele relative flex ${grandeRangee ? "w-[104px]" : "w-[78px]"} shrink-0 snap-start flex-col px-1.5 pb-1.5 pt-2.5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${horsNorme ? "tuile-hors-norme" : ""}`}
               >
                 {marque && pastille(m.conforme)}
+                {/* Du moins cher au plus cher : le rang du modèle. */}
+                {parPrixActif && (
+                  <span aria-hidden className="absolute left-1.5 top-1.5 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-[#2b2320] text-[10px] font-bold leading-none text-white">
+                    {rang + 1}
+                  </span>
+                )}
                 <MiniGardeCorps
                   largeurMm={releve?.largeurMm ?? 1180}
                   hauteurMm={m.hauteurMm}
@@ -680,7 +666,7 @@ export function ReleveGardeCorps({
                   seuls={m.seuls}
                   croix={m.croix}
                   trous={horsNorme ? m.trous : null}
-                  hauteurPx={26}
+                  hauteurPx={grandeRangee ? 44 : 26}
                 />
                 <span className="mt-1 block text-[11px] font-semibold leading-tight text-[#2b2320]">
                   {m.seuls ? (fr ? "Barreaux" : "Bars") : `${m.croix} ${fr ? "croix" : m.croix > 1 ? "crosses" : "cross"}`}
@@ -698,10 +684,48 @@ export function ReleveGardeCorps({
             );
           })}
         </div>
-        </div>
-      )}
-      {/* Un garde-corps à son style : une photo, et l'atelier répond. Sous 1280 px ici ; au-dessus, dans la colonne de droite. */}
+      </div>
+    ) : null;
+  const catalogue = (
+    /* Sous le croquis (téléphone, tablette), en bande FINE : les deux boutons (barreaux, traverse) et UNE rangée de modèles qui
+       défile de côté, chacun avec son prix et sa pastille verte ou rouge. Sur grand écran : voir `bandeau`. */
+    <div id="modeles-gc" className="carte-verre carte-modeles mt-2 scroll-mt-24 rounded-[20px] px-3 pb-2 pt-2.5 text-left">
+      <div className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 ${marque ? "xl:hidden" : ""}`}>
+        {marque ? controlesFamille : <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{fr ? "Votre modèle" : "Your model"}</p>}
+      </div>
+      {phraseModeles && <p className={`mt-1 text-[11.5px] leading-snug ${modeles.length === 0 && texteManque ? "font-medium text-[#7a4510]" : "text-[#5c5140]"}`}>{phraseModeles}</p>}
+      {boutonPrix && <div className="mt-1.5 flex items-center justify-end">{boutonPrix}</div>}
+      {rangee}
+      {/* Un garde-corps à son style : une photo, et l'atelier répond. */}
       {lienPhoto && <div className="mt-0.5 xl:hidden">{lienPhoto}</div>}
+    </div>
+  );
+  /**
+   * LE BANDEAU DES MODÈLES (grand écran) : en bas du bloc Configuration, sur toute la longueur des cotes et du croquis. Des visuels
+   * (un par modèle) ; au-dessus, le détail du modèle touché ou survolé, écrit en clair (croix, traverse, barreaux, acier, rosace, prix).
+   * Demande de Quentin : « pas un menu déroulant, un bandeau qui prend l'espace vide en bas du panneau ».
+   */
+  const modeleDetail = (survol ? modeles.find((m) => m.id === survol) : null) ?? explique ?? choisi;
+  const bandeau = (
+    <div id="modeles-gc" className="carte-verre carte-modeles rounded-[22px] px-4 pb-2 pt-2.5 text-left">
+      <div className="flex items-center gap-3">
+        <span className="shrink-0 text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{fr ? "Votre modèle" : "Your model"}</span>
+        <p className="min-w-0 flex-1 truncate text-[12px] leading-snug text-[#2b2320]" aria-live="polite" title={modeleDetail ? descriptionModele(modeleDetail) : undefined}>
+          {modeleDetail && marque ? (
+            <>
+              <span className="font-semibold">{descriptionModele(modeleDetail)}</span>
+              <span className="text-[#6f6357]"> — {modeleDetail.conforme ? prixAffiche(modeleDetail.prix, locale) : pasAdapte(modeleDetail)}</span>
+            </>
+          ) : (
+            <span className={modeles.length === 0 && texteManque ? "font-medium text-[#7a4510]" : "text-[#6f6357]"}>
+              {phraseModeles || (marque ? (fr ? "Touchez un modèle pour le voir sur le croquis et lire son détail." : "Tap a model to see it on the sketch and read its details.") : "")}
+            </span>
+          )}
+        </p>
+        {boutonPrix}
+        {lienPhoto}
+      </div>
+      {rangee}
     </div>
   );
 
@@ -815,7 +839,7 @@ export function ReleveGardeCorps({
       }
       id="cotes"
     >
-      <span className="block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
+      <span className="titre-mesures block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
         {t.gcTitle}
       </span>
 
@@ -826,6 +850,7 @@ export function ReleveGardeCorps({
           onChange={(qui) => onChange({ ...cotes, qui })}
           t={t}
           notes={{ moi: t.gcQuiMoiNote, atelier: t.gcQuiAtelierNote }}
+          compact={Boolean(bandeauSlot)}
         />
       </div>
 
@@ -935,12 +960,13 @@ export function ReleveGardeCorps({
           /* Dans la section « Configuration », le croquis va à côté de la
              carte, en grand ; sinon il reste ici, au-dessus des cases. */
           return schemaSlot
-            ? createPortal(
+            ? <>
+              {createPortal(
                 /* Une colonne à la largeur du croquis : la rangée des modèles s'aligne sur ses bords.
                    La largeur du cadre est écrite en toutes lettres (3/4 de sa hauteur) : avec `aspect-ratio` seul,
                    Safari ne la comptait pas dans la largeur de la colonne — elle tombait à zéro, le croquis
                    disparaissait et la carte des modèles s'écrasait. */
-                <div className="mx-auto flex w-[max(calc(var(--h)*0.75),360px)] max-w-full flex-col [--h:40svh] md:[--h:min(62vh,640px)] xl:min-h-0 xl:flex-1 xl:justify-center xl:[--h:clamp(240px,calc(100dvh_-_22.5rem),780px)]">
+                <div className={`mx-auto flex max-w-full flex-col [--h:40svh] md:[--h:min(62vh,640px)] xl:min-h-0 xl:flex-1 xl:justify-center ${bandeauSlot ? "w-[calc(var(--h)*0.75)] xl:[--h:clamp(240px,calc(100dvh_-_17.75rem),800px)]" : "w-[max(calc(var(--h)*0.75),360px)] xl:[--h:clamp(240px,calc(100dvh_-_22.5rem),780px)]"}`}>
                   {/* GRAND CROQUIS (demande de Quentin, répétée) : sur grand écran il prend toute la hauteur de la colonne, et la
                       bande des modèles (boutons + une rangée qui défile) se pose en bas du croquis, sur le mur et le sol. */}
                   <div className="relative flex flex-col xl:block">
@@ -949,12 +975,15 @@ export function ReleveGardeCorps({
                       {puce}
                       {legendeCroquis}
                     </div>
-                    {/* La rangée des modèles est SOUS le croquis, jamais par-dessus : elle cachait le garde-corps et les cotes selon la fenêtre. */}
-                    <div className="mx-auto w-0 min-w-full">{catalogue}</div>
+                    {/* La rangée des modèles est SOUS le croquis, jamais par-dessus : elle cachait le garde-corps et les cotes selon la fenêtre.
+                        Sur grand écran, elle est dans le bandeau du bas (bandeauSlot). */}
+                    {!bandeauSlot && <div className="mx-auto w-0 min-w-full">{catalogue}</div>}
                   </div>
                 </div>,
                 schemaSlot
-              )
+              )}
+              {bandeauSlot && createPortal(bandeau, bandeauSlot)}
+            </>
             : (
               <div className="relative mx-auto mt-4 aspect-[3/4] w-full max-w-[400px] overflow-hidden rounded-xl">
                 {croquis}
@@ -1032,19 +1061,19 @@ export function ReleveGardeCorps({
               <>
           {/* Grand écran : les boutons barreaux et traverse sont ici, à côté du prix ; la rangée des modèles est sur le croquis. */}
           {controlesFamille && (
-            <div className="mb-3 hidden rounded-2xl border border-[#e5ddd3] bg-white/90 p-3.5 shadow-sm xl:block">
-              <p className="mb-2 text-[14px] font-semibold text-[#2b2320]">{fr ? "Composez votre garde-corps" : "Design your railing"}</p>
+            <div className="hidden xl:block">
+              <p className="titre-options mb-2 text-[15px] font-semibold text-[#2b2320]">{fr ? "Composez votre garde-corps" : "Design your railing"}</p>
               {controlesFamille}
             </div>
           )}
           {/* ④ Ce que ça donne, calculé par l'outil de l'atelier : les cotes,
               les croix, le prix, et la norme en une ligne. */}
           <div
-            className="mt-4 flex flex-wrap items-start justify-between gap-x-6 gap-y-3"
+            className={`flex flex-wrap items-start justify-between gap-x-6 gap-y-3 ${resultatSlot ? "mt-3" : "mt-4"}`}
             onMouseEnter={() => setCoteActive("hauteur")}
             onMouseLeave={() => setCoteActive(null)}
           >
-            <div className="min-w-0">
+            <div className={`min-w-0 ${resultatSlot && conforme ? "hidden" : ""}`}>
               <span className={`flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357] ${resultatSlot ? "hidden" : ""}`}>
                 {t.gcResultTitle}
               </span>
@@ -1202,8 +1231,8 @@ export function ReleveGardeCorps({
                   {/* Fenêtre large : le renfort est compris dans le prix ; on dit ce qu'il change, et que le mur compte. */}
                   {conforme.renfort &&
                     (resultatSlot ? (
-                      <p className="mt-1.5 flex items-center gap-1.5 text-[11.5px] leading-snug text-[#4a3f33]">
-                        {fr ? "Fenêtre large : traverse haute renforcée, comprise dans le prix." : "Wide window: top rail reinforced, included in the price."}
+                      <p className="info-renfort mt-1.5 flex items-center gap-1.5 text-[11.5px] leading-snug text-[#4a3f33]">
+                        {fr ? "Fenêtre large : traverse renforcée, incluse." : "Wide window: reinforced rail, included."}
                         <InfoBulle texte={t.gcRenfort} label={t.gcInfoLabel} />
                       </p>
                     ) : (
@@ -1272,9 +1301,9 @@ export function ReleveGardeCorps({
             </p>
           )}
           {/* « Poids et détails », « Ce que comprend le prix » : la fiche les dépose ici (voir detailsSlot). */}
-          {schemaSlot && detailsSlot && <div ref={detailsSlot} className="mt-3" />}
+          {schemaSlot && detailsSlot && !bandeauSlot && <div ref={detailsSlot} className="mt-2.5" />}
 
-          {lienPhoto && <div className="mt-3 hidden xl:block">{lienPhoto}</div>}
+          {lienPhoto && !bandeauSlot && <div className="mt-1.5 hidden xl:block">{lienPhoto}</div>}
           {/* La note de fabrication : pas dans la colonne étroite, qui doit tenir sur un écran. */}
           {!resultatSlot && <p className="mt-4 text-[11px] leading-snug text-[#726757]">{t.gcNote}</p>}
               </>
@@ -1394,7 +1423,7 @@ function MiniGardeCorps({ largeurMm, hauteurMm, hMaxMm, soubassementMm, croix, t
   // Les ronds de l'outil sont en mm depuis le coin bas-gauche du CADRE : on les pose dans le cadre de ce dessin.
   const sx = trous ? L / trous.cadreMm.l : 1, sy = trous ? (bas - haut) / trous.cadreMm.h : 1;
   return (
-    <svg viewBox={`${-L * 0.02} ${-H * 0.03} ${L * 1.04} ${H * 1.06}`} preserveAspectRatio="xMidYMax meet" aria-hidden className="block w-full" style={{ height: hauteurPx }} fill="none" stroke="#2b2320" strokeWidth="1.5" strokeLinecap="round">
+    <svg viewBox={`${-L * 0.02} ${-H * 0.03} ${L * 1.04} ${H * 1.06}`} preserveAspectRatio="xMidYMax meet" aria-hidden className="block w-full" style={{ height: `var(--mini-gc, ${hauteurPx}px)` }} fill="none" stroke="#2b2320" strokeWidth="1.5" strokeLinecap="round">
       <rect x={-L * 0.01} y={y0} width={L * 1.02} height="40" fill="#c9a36b" stroke="none" />
       <rect x="0" y={haut} width={L} height={bas - haut} {...trait} />
       {soubassementMm > 0 && <line x1="0" y1={lisse} x2={L} y2={lisse} {...trait} />}
