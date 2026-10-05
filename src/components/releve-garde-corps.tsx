@@ -279,6 +279,8 @@ export function ReleveGardeCorps({
   const [pourquoi, setPourquoi] = useState<string | null>(null);
   /** Les deux boutons du client : le barreaudage (aucun / en bas / sur toute la hauteur) et la traverse au milieu. */
   const [filtre, setFiltre] = useState<{ barreaux: "aucun" | "bas" | "tout"; traverse: boolean }>({ barreaux: "aucun", traverse: false });
+  /** « Du moins cher au plus cher » : tous les modèles aux normes, tous types confondus, par prix croissant. */
+  const [parPrix, setParPrix] = useState(false);
 
   /** La réponse du serveur pour les cotes ET le modèle demandés. */
   const brute = prix.statut === "pret" ? prix.reponse : null;
@@ -466,7 +468,10 @@ export function ReleveGardeCorps({
     if (tuile) zone.scrollTo({ left: Math.max(0, tuile.offsetLeft - (zone.clientWidth - tuile.clientWidth) / 2), behavior: "smooth" });
   }, [idSelectionne]);
   const marque = modeles.length > 0;
-  const liste: ModeleGC[] = marque ? modelesFamille : MODELES_VITRINE.filter((m) => !m.traverse && m.soubassementMm === 0);
+  const parPrixActif = marque && parPrix;
+  const liste: ModeleGC[] = parPrixActif
+    ? modeles.filter((m) => m.conforme).sort((a, b) => a.prix - b.prix || a.croix - b.croix)
+    : marque ? modelesFamille : MODELES_VITRINE.filter((m) => !m.traverse && m.soubassementMm === 0);
   const controlesFamille = marque ? (
     <div className="space-y-3">
       {[
@@ -540,6 +545,26 @@ export function ReleveGardeCorps({
         {marque ? controlesFamille : <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{fr ? "Votre modèle" : "Your model"}</p>}
       </div>
       {phraseModeles && <p className={`mt-1 text-[11.5px] leading-snug ${modeles.length === 0 && texteManque ? "font-medium text-[#7a4510]" : "text-[#5c5140]"}`}>{phraseModeles}</p>}
+      {marque && nbConformes > 1 && (
+        <div className="mt-1.5 flex items-center justify-end">
+          <button
+            type="button"
+            aria-pressed={parPrix}
+            onClick={() => {
+              setParPrix((v) => !v);
+              setPourquoi(null);
+              bande.current?.scrollTo({ left: 0 });
+            }}
+            title={fr ? "Tous les modèles aux normes pour votre fenêtre, du moins cher au plus cher" : "Every model to standard for your window, cheapest first"}
+            className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium leading-tight transition-colors ${parPrix ? "bg-[#2b2320] text-white" : "bg-[#2b2320]/[0.07] text-[#2b2320] hover:bg-white/80"}`}
+          >
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3" aria-hidden>
+              <path d="M6 3v14M6 17l-3-3M6 17l3-3M14 17V3M14 3l-3 3M14 3l3 3" />
+            </svg>
+            {fr ? "Du moins cher au plus cher" : "Cheapest first"}
+          </button>
+        </div>
+      )}
       {liste.length > 0 && (
         <div className="relative">
           {liste.length > 3 &&
@@ -598,6 +623,12 @@ export function ReleveGardeCorps({
                 <span className="mt-1 block text-[11px] font-semibold leading-tight text-[#2b2320]">
                   {m.croix} {fr ? "croix" : m.croix > 1 ? "crosses" : "cross"}
                 </span>
+                {parPrixActif && (
+                  <span className="block text-[9.5px] leading-tight text-[#6f6357]">
+                    {m.partout ? (fr ? "barreaux partout" : "bars everywhere") : m.traverse ? (fr ? "+ traverse" : "+ rail") : m.soubassementMm > 0 ? (fr ? "+ barreaux" : "+ bars") : fr ? "croix seules" : "crosses only"}
+                    {m.traverse && m.soubassementMm > 0 && !m.partout ? (fr ? " + barreaux" : " + bars") : ""}
+                  </span>
+                )}
                 {marque && (
                   <span className={`block text-[11px] font-medium leading-tight tabular-nums ${m.conforme ? "text-[#2b2320]" : "text-[#6d2c2c]"}`}>
                     {m.conforme ? prixAffiche(m.prix, locale) : fr ? "hors norme" : "off-standard"}
@@ -848,7 +879,7 @@ export function ReleveGardeCorps({
                    La largeur du cadre est écrite en toutes lettres (3/4 de sa hauteur) : avec `aspect-ratio` seul,
                    Safari ne la comptait pas dans la largeur de la colonne — elle tombait à zéro, le croquis
                    disparaissait et la carte des modèles s'écrasait. */
-                <div className="mx-auto flex w-[max(calc(var(--h)*0.75),360px)] max-w-full flex-col [--h:40svh] md:[--h:min(62vh,640px)] xl:min-h-0 xl:flex-1 xl:justify-center xl:[--h:clamp(240px,calc(100dvh_-_21rem),780px)]">
+                <div className="mx-auto flex w-[max(calc(var(--h)*0.75),360px)] max-w-full flex-col [--h:40svh] md:[--h:min(62vh,640px)] xl:min-h-0 xl:flex-1 xl:justify-center xl:[--h:clamp(240px,calc(100dvh_-_22.5rem),780px)]">
                   {/* GRAND CROQUIS (demande de Quentin, répétée) : sur grand écran il prend toute la hauteur de la colonne, et la
                       bande des modèles (boutons + une rangée qui défile) se pose en bas du croquis, sur le mur et le sol. */}
                   <div className="relative flex flex-col xl:block">
