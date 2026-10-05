@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { canNotifyOwner, ownerEmail, sendEmail } from "@/lib/email";
-import { creerLimite } from "@/lib/limite-debit";
+import { creerLimite, creerLimiteParCle } from "@/lib/limite-debit";
 import { origineEtrangere } from "@/lib/origine";
 import { EMAIL_VALIDE, MAX_TEXTE, envoiTropRapide, fichiersTropLourds } from "@/lib/devis-regles";
 
@@ -67,6 +67,24 @@ function nomDeFichier(nom: string, extension: string) {
  * commande. Pour faire mieux : un compteur partagé (Vercel KV, Upstash).
  */
 const tooManyRequests = creerLimite({ fenetreMs: 10 * 60 * 1000, maximum: 3 });
+
+/**
+ * L'accusé de réception part vers l'adresse TAPÉE dans le formulaire, qui
+ * n'est pas vérifiée : n'importe qui peut y mettre celle d'un inconnu. Trois
+ * accusés par adresse et par jour au plus ; au-delà, la demande arrive quand
+ * même à l'atelier, seul l'accusé est sauté.
+ */
+const tropDAccuses = creerLimiteParCle({ fenetreMs: 24 * 60 * 60 * 1000, maximum: 3 });
+
+/**
+ * Le nom tel qu'il entre dans l'OBJET du mail de l'atelier : des lettres, des
+ * espaces, des traits d'union et des apostrophes, 40 signes. Un nom n'a ni
+ * chiffres, ni deux-points, ni adresse web ; sans ce tri, le champ servait à
+ * écrire « URGENT Stripe : compte suspendu, appelez le 06… » en objet.
+ */
+function nomPourObjet(nom: string) {
+  return nom.replace(/[^\p{L} '’-]+/gu, " ").replace(/\s+/g, " ").trim().slice(0, 40) || "sans nom";
+}
 
 /** Réception d'une demande de devis : validation puis envoi par e-mail. */
 export async function POST(request: Request) {
@@ -158,9 +176,10 @@ export async function POST(request: Request) {
 
   const sent = await sendEmail({
     to: ownerEmail(),
-    // L'objet est figé : le nom du visiteur ne doit pas pouvoir le maquiller en
-    // « URGENT — Stripe : votre compte va être suspendu ».
-    subject: `Demande de devis — ${name.slice(0, 60)}${project ? ` (${project})` : ""}`,
+    // Le nom du visiteur ne doit pas pouvoir maquiller l'objet en « URGENT —
+    // Stripe : votre compte va être suspendu » : il n'y entre que trié, et le
+    // type de projet (texte libre lui aussi) reste dans le corps du message.
+    subject: `Demande de devis — ${nomPourObjet(name)}`,
     text: lines.join("\n"),
     // Répondre à cet e-mail écrit directement au prospect.
     replyTo: email,
@@ -175,12 +194,18 @@ export async function POST(request: Request) {
   // la fonction peut être arrêtée dès qu'elle a répondu, et un envoi lancé sans
   // être attendu ne part parfois jamais — le prospect voit « demande envoyée »
   // et ne reçoit rien. Son échec, lui, ne remet toujours pas la demande en cause.
+  //
+  // Il ne reprend AUCUN texte tapé par le visiteur, pas même son nom : il part
+  // vers une adresse que personne n'a vérifiée, et « Bonjour <nom> » permettait
+  // d'envoyer « Bonjour Gagnez 500 € sur arnaque.tld » à un inconnu, depuis
+  // notre domaine.
+  if (tropDAccuses(email.toLowerCase(), Date.now())) return NextResponse.json({ ok: true });
   const accuse =
     locale === "en"
       ? {
           subject: "Your quote request — Auboiacier",
           text: [
-            `Hello ${name},`,
+            "Hello,",
             "",
             "We have received your request and will get back to you within 48 hours.",
             "",
@@ -190,7 +215,7 @@ export async function POST(request: Request) {
       : {
           subject: "Votre demande de devis — Auboiacier",
           text: [
-            `Bonjour ${name},`,
+            "Bonjour,",
             "",
             "Nous avons bien reçu votre demande et nous vous répondons sous 48 heures.",
             "",

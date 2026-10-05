@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { canNotifyOwner, ownerEmail, sendEmail } from "@/lib/email";
-import { creerLimite } from "@/lib/limite-debit";
+import { creerLimite, creerLimiteParCle } from "@/lib/limite-debit";
 import { origineEtrangere } from "@/lib/origine";
 import { EMAIL_VALIDE, MAX_TEXTE, envoiTropRapide } from "@/lib/devis-regles";
 
@@ -18,6 +18,9 @@ function borne(valeur: unknown, max: number) {
 
 /** 3 demandes par adresse IP et par dix minutes, comme le formulaire de devis. */
 const tropDeDemandes = creerLimite({ fenetreMs: 10 * 60 * 1000, maximum: 3 });
+
+/** Deux accusés par adresse et par jour : l'adresse tapée n'est pas vérifiée (voir /api/devis). */
+const tropDAccuses = creerLimiteParCle({ fenetreMs: 24 * 60 * 60 * 1000, maximum: 2 });
 
 /**
  * « Me prévenir à l'ouverture » : avant l'immatriculation, le panier ne peut
@@ -77,6 +80,7 @@ export async function POST(request: Request) {
   }
 
   // Accusé de réception, attendu pour qu'il parte vraiment (voir /api/devis).
+  if (tropDAccuses(email.toLowerCase(), Date.now())) return NextResponse.json({ ok: true });
   await sendEmail({
     to: email,
     replyTo: ownerEmail(),
