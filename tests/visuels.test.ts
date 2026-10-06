@@ -369,7 +369,16 @@ test("les vraies photos : le travail de Quentin avant l'ouverture de l'atelier, 
     for (const p of photos.filter((photo) => estVraiePhoto(photo.src))) {
       assert.match(d.realisations[p.alt], avant, `légende de ${p.src}`);
     }
+    // La page Sculptures montre aussi le torse : sa légende et la description de la vidéo le disent.
+    assert.match(d.sculptures.torseBody, avant, "Sculptures : légende du torse");
+    assert.match(d.sculptures.torseVideoAlt, avant, "Sculptures : description de la vidéo du torse");
   }
+  // Les vraies photos ne s'affichent que sur Projets et visuels, la zone d'intervention (avec une commune, jamais un
+  // visuel) et, pour le torse, la page Sculptures : un nouvel endroit doit dire, lui aussi, d'où elles viennent.
+  const endroits = fichiers("src")
+    .filter((f) => /\.tsx?$/.test(f) && f !== join("src", "lib", "visuels.ts"))
+    .filter((f) => ATTENDUES.some((src) => lire(f).includes(src)));
+  assert.deepEqual(endroits.sort(), [join("src", "app", "[lang]", "artisanat", "sculptures", "page.tsx"), join("src", "lib", "chantiers.ts")].sort());
   const retirees = [/chantier et atelier/i, /le chantier en cours/i, /premières photos/i, /on site and in the workshop/i, /job in progress/i, /first (site )?photos/i];
   for (const [nom, d] of [["fr", fr], ["en", en]] as const) {
     const textes = JSON.stringify([d.realisations, d.seo.realisations]);
