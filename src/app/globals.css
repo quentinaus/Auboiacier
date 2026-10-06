@@ -1284,8 +1284,8 @@ textarea:focus-visible,
   .camera-lente.camera-douce {
     animation-name: camera-avance-douce;
   }
-  .indice-defiler svg {
-    animation: indice-glisse 2.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  .indice-bille {
+    animation: indice-bille 1.8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
   }
 
   /* Le titre, la phrase puis le bouton arrivent l'un après l'autre
@@ -1297,15 +1297,56 @@ textarea:focus-visible,
 }
 
 /* La flèche du premier écran de l'accueil (indice-defiler.tsx) : elle glisse vers le bas, et s'efface dès qu'on défile. */
-@keyframes indice-glisse {
-  0%,
-  100% {
-    transform: translateY(-4px);
-    opacity: 0.55;
+/* La souris du premier écran : contour blanc, bille qui descend puis s'efface, en boucle. */
+.indice-souris {
+  position: relative;
+  display: block;
+  width: 26px;
+  height: 42px;
+  border: 2px solid #ffffff;
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.12),
+    0 4px 14px rgba(0, 0, 0, 0.35);
+}
+.indice-bille {
+  position: absolute;
+  left: 50%;
+  top: 7px;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 999px;
+  background: #ffffff;
+}
+@media (min-width: 768px) {
+  .indice-souris {
+    width: 30px;
+    height: 50px;
+    border-radius: 15px;
   }
-  50% {
-    transform: translateY(6px);
+  .indice-bille {
+    top: 8px;
+    width: 7px;
+    height: 7px;
+    margin-left: -3.5px;
+  }
+}
+@keyframes indice-bille {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  15% {
     opacity: 1;
+  }
+  70% {
+    transform: translateY(16px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(20px);
+    opacity: 0;
   }
 }
 .indice-defiler {
