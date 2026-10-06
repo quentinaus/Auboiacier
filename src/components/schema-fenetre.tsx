@@ -40,7 +40,7 @@ const ENCRE = "#2b2320";
 const ACIER_DEFAUT = "#2b2320";
 const BOIS_DEFAUT = "#d9b582";
 
-/** « largeur » : la largeur en bas, au ras de l'appui ; « largeurHaut » : la largeur en haut, à la main courante. */
+/** « largeur » : la largeur en bas, au ras de l'appui ; « largeurHaut » : la largeur à 1 m du sol. */
 export type CoteFenetre = "largeur" | "largeurHaut" | "allege" | "fenetre" | "hauteur";
 
 
@@ -495,7 +495,7 @@ export function SchemaFenetre({
   /** Les cotes dessinées à l'échelle. Sans valeur, le croquis prend celles du modèle, et les étiquettes disent ce qu'il faut mesurer. */
   largeurMm?: number;
   /**
-   * La largeur en haut, à la main courante (murs pas parallèles, décision de Quentin, 05/10). `largeurMm` est alors celle
+   * La largeur en haut, à 1 m du sol (murs pas parallèles, décision de Quentin, 05/10). `largeurMm` est alors celle
    * d'en bas, au ras de l'appui. Le dessin est à la plus petite des deux.
    */
   largeurHautMm?: number;
@@ -621,17 +621,17 @@ export function SchemaFenetre({
   const debord = Math.max(3, r(40 * e));
   const tablette = Math.max(2, r(35 * e));
 
-  /* Les cotes : les deux largeurs SUR le garde-corps (« on parle de quelle lisse ? », Quentin, 06/10) — en bas sur la
-     barre du bas, au ras de l'appui ; en haut sur la main courante — d'un mur à l'autre. Le bas de la fenêtre à gauche,
-     sa hauteur à droite. */
+  /* Les cotes. Les deux largeurs, d'un mur à l'autre, à des repères que le client trouve SEUL (« il ne sait pas où sera
+     la main courante : c'est nous qui la calculons », Quentin, 06/10) : en bas au ras de l'appui, en haut à 1 m du sol.
+     Le bas de la fenêtre à gauche, sa hauteur à droite. */
   const fr = locale === "fr";
   const noms = fr
-    ? { largeur: "En bas", largeurHaut: "En haut", allege: "Bas de fenêtre", fenetre: "Hauteur" }
-    : { largeur: "Bottom", largeurHaut: "Top", allege: "Sill height", fenetre: "Height" };
-  /** La largeur en haut : au milieu de la main courante. En bas : sur la barre du bas du cadre (au ras de l'appui sans garde-corps). */
-  const yLargeurHaut = r(hautGardeCorpsY + mainCouranteH / 2);
-  const yLargeurBas = mode === "garde-corps" ? r(cadreBas) : r(appuiY - 6);
-  /** La barre dont on demande la largeur, surlignée en bleu (« la sélectionner », Quentin). */
+    ? { largeur: "En bas", largeurHaut: "À 1 m", allege: "Bas de fenêtre", fenetre: "Hauteur" }
+    : { largeur: "Bottom", largeurHaut: "At 1 m", allege: "Sill height", fenetre: "Height" };
+  /** En bas : juste au-dessus de l'appui. En haut : à 1 m du sol (toujours au-dessus de la ligne du bas). */
+  const yLargeurBas = r(appuiY - 5);
+  const yLargeurHaut = r(Math.min(solY - 1000 * e, yLargeurBas - 16));
+  /** La ligne où mesurer la largeur demandée, surlignée en bleu (« la sélectionner », Quentin). */
   const surligne = actif === "largeur" ? yLargeurBas : actif === "largeurHaut" ? yLargeurHaut : null;
   const xGauche = r(Math.max(14, G - debord - 15));
   const xDroite = r(Math.min(LARGEUR - 14, D + debord + 15));
@@ -825,8 +825,8 @@ export function SchemaFenetre({
       {/* Une ombre douce sur les bords, comme une photo. */}
       <rect x={0} y={0} width={LARGEUR} height={HAUTEUR} fill={`url(#${ids("vignette")})`} pointerEvents="none" />
 
-      {/* La barre dont on demande la largeur, en bleu « sélection » d'un mur à l'autre : il ressort sur le bois comme sur
-          l'acier (l'orange se confondait avec une main courante en chêne). */}
+      {/* La ligne où mesurer la largeur demandée, en bleu « sélection », d'un mur à l'autre : il ressort sur le bois comme
+          sur l'acier (l'orange se confondait avec une main courante en chêne). */}
       {surligne !== null && (
         <g pointerEvents="none">
           <rect x={r(G - 3)} y={r(surligne - 7)} width={r(D - G + 6)} height={14} rx={7} fill="#2f7fe0" opacity={0.18} />
@@ -861,6 +861,20 @@ export function SchemaFenetre({
         ombre={ids("ombre")}
         onChoisir={onChoisir}
       />
+      {actif === "largeurHaut" ? (
+        <Cote
+          cote="largeurHaut"
+          vertical
+          de={[xGauche, solY]}
+          a={[xGauche, yLargeurHaut]}
+          texte={fr ? "1 m" : "1 m"}
+          vide={false}
+          actif
+          label={fr ? "1 m depuis le sol" : "1 m from the floor"}
+          ombre={ids("ombre")}
+          onChoisir={onChoisir}
+        />
+      ) : (
       <Cote
         cote="allege"
         vertical
@@ -873,6 +887,7 @@ export function SchemaFenetre({
         ombre={ids("ombre")}
         onChoisir={onChoisir}
       />
+      )}
       <Cote
         cote="fenetre"
         vertical

@@ -44,7 +44,7 @@ export type CotesGardeCorps = {
   /** La largeur de la fenêtre entre les murs, en bas (juste au-dessus de l'appui). */
   largeur: string;
   /**
-   * La même largeur en haut, vers 1 m du sol (décision de Quentin, 05/10 : des murs pas parallèles, et le garde-corps ne
+   * La même largeur en haut, à 1 m du sol (décision de Quentin, 05/10 : des murs pas parallèles, et le garde-corps ne
    * s'encastrerait pas, ou avec trop de jeu). L'atelier fabrique à la plus petite des deux.
    */
   largeurHaut: string;
@@ -139,8 +139,8 @@ export function texteManqueGC(lecture: LectureReleve | null | undefined, locale:
       if (lecture.illisible) return fr ? "La largeur en bas n'est pas un nombre : corrigez-la." : "The width at the bottom is not a number: please correct it.";
       return fr ? "Il manque la largeur en bas, d'un mur à l'autre, juste au-dessus de l'appui." : "The width at the bottom, wall to wall just above the sill, is missing.";
     case "largeurHaut":
-      if (lecture.illisible) return fr ? "La largeur en haut n'est pas un nombre : corrigez-la." : "The width at the top is not a number: please correct it.";
-      return fr ? "Il manque la largeur en haut, vers 1 m du sol." : "The width at the top, about 1 m from the floor, is missing.";
+      if (lecture.illisible) return fr ? "La largeur à 1 m du sol n'est pas un nombre : corrigez-la." : "The width 1 m from the floor is not a number: please correct it.";
+      return fr ? "Il manque la largeur à 1 m du sol, d'un mur à l'autre." : "The width 1 m from the floor, wall to wall, is missing.";
     case "allege":
       if (lecture.illisible) return fr ? "La hauteur du sol au bas de la fenêtre n'est pas un nombre : corrigez-la." : "The height from the floor to the bottom of the window is not a number: please correct it.";
       return fr ? "Il manque la hauteur du sol au bas de la fenêtre." : "The height from the floor to the bottom of the window is missing.";
@@ -226,8 +226,8 @@ export function etatQuestionGC(
         return {
           manque:
             cotes.largeurHaut.trim() !== ""
-              ? fr ? "La largeur en haut n'est pas un nombre : corrigez-la." : "The width at the top is not a number: please correct it."
-              : fr ? "Entrez la largeur en haut pour continuer." : "Enter the width at the top to continue.",
+              ? fr ? "La largeur à 1 m du sol n'est pas un nombre : corrigez-la." : "The width 1 m from the floor is not a number: please correct it."
+              : fr ? "Entrez la largeur à 1 m du sol pour continuer." : "Enter the width 1 m from the floor to continue.",
           avertissement: null,
         };
       // Murs pas parallèles : l'écart est écrit sous la case, dès la saisie (releve-garde-corps.tsx, ecartMurs).
@@ -1065,7 +1065,7 @@ export function ReleveGardeCorps({
    * saisie en pilule à droite. L'aide n'est plus écrite sous le champ : elle
    * est dans la bulle.
    */
-  /** Chaque case a sa cote sur le croquis (la largeur en haut, sur la main courante). */
+  /** Chaque case a sa cote sur le croquis (la largeur en haut, à 1 m du sol). */
   const coteCroquis = (cote: "largeur" | "largeurHaut" | "allege" | "fenetre"): CoteFenetre => cote;
   /**
    * Murs pas parallèles (décision de Quentin, 05/10) : sous les deux largeurs, l'écart et la largeur retenue ; au-delà de
@@ -1234,13 +1234,13 @@ export function ReleveGardeCorps({
   );
   // Courts : dans la colonne de l'ordinateur, chaque intitulé tient sur une ligne ; la bulle « i » dit où mesurer.
   const libelleLargeurBas = fr ? "Largeur en bas" : "Width at the bottom";
-  const libelleLargeurHaut = fr ? "Largeur en haut" : "Width at the top";
+  const libelleLargeurHaut = fr ? "Largeur à 1 m du sol" : "Width 1 m from the floor";
   const infoLargeurBas = fr
-    ? "D'un mur à l'autre, dans l'ouverture, juste au-dessus de l'appui : là où passera la barre du bas du garde-corps (en bleu sur le dessin). La cote exacte, sans rien retirer : l'atelier calcule celle du garde-corps."
-    : "Wall to wall, inside the opening, just above the sill: where the bottom bar of the railing will be (blue on the drawing). The exact size, nothing deducted: the workshop works out the railing's size.";
+    ? "D'un mur à l'autre, dans l'ouverture, juste au-dessus de l'appui de fenêtre (la ligne bleue sur le dessin). La cote exacte, sans rien retirer : l'atelier calcule celle du garde-corps."
+    : "Wall to wall, inside the opening, just above the window sill (the blue line on the drawing). The exact size, nothing deducted: the workshop works out the railing's size.";
   const infoLargeurHaut = fr
-    ? "La même largeur, d'un mur à l'autre, mais en haut : à la hauteur de la main courante, vers 1 m du sol (en bleu sur le dessin). Les murs ne sont jamais tout à fait droits : nous fabriquons à la plus petite des deux largeurs."
-    : "The same width, wall to wall, but at the top: at handrail height, about 1 m from the floor (blue on the drawing). Walls are never quite straight: we make it to the smaller of the two widths.";
+    ? "La même largeur, à 1 m du sol : mesurez 1 m depuis le sol, faites un trait au crayon, puis la largeur à cette hauteur (la ligne bleue). Pas besoin de savoir où sera le garde-corps : nous le calculons. Les murs ne sont jamais tout à fait droits : nous fabriquons à la plus petite des deux largeurs."
+    : "The same width, 1 m from the floor: measure 1 m up from the floor, make a pencil mark, then the width at that height (the blue line). No need to know where the railing will go: we work it out. Walls are never quite straight: we make it to the smaller of the two widths.";
   /**
    * Ordinateur et tablette : les deux largeurs côte à côte, « en bas » et « en haut », sur une seule ligne — deux lignes
    * à curseur faisaient déborder la colonne d'un écran de portable.
@@ -1263,7 +1263,7 @@ export function ReleveGardeCorps({
         {(["largeur", "largeurHaut"] as const).map((cote) => (
           <label key={cote} htmlFor={`${idChamps}-${cote}`} className="block min-w-0">
             <span className="mb-1 block text-[11.5px] leading-tight text-[#6f6357]">
-              {cote === "largeur" ? (fr ? "en bas, au ras de l'appui" : "bottom, at the sill") : fr ? "en haut, à la main courante" : "top, at the handrail"}
+              {cote === "largeur" ? (fr ? "en bas, au ras de l'appui" : "bottom, at the sill") : fr ? "en haut, à 1 m du sol" : "top, 1 m from the floor"}
             </span>
             <span
               className={`flex h-9 items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3 transition-[border-color,box-shadow] focus-within:border-[#2b2320] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)] ${
@@ -1296,8 +1296,8 @@ export function ReleveGardeCorps({
       grandeSaisie("largeurHaut", {
         label: libelleLargeurHaut,
         info: fr
-          ? "Mesurez de la même façon, d'un mur à l'autre dans l'ouverture, mais à cette hauteur-là. Cote brute : ne retirez rien."
-          : "Measure the same way, wall to wall inside the opening, but at that height. Raw size: deduct nothing.",
+          ? "Mesurez de la même façon, d'un mur à l'autre dans l'ouverture, mais à 1 m du sol. Cote brute : ne retirez rien."
+          : "Measure the same way, wall to wall inside the opening, but 1 m from the floor. Raw size: deduct nothing.",
         placeholder: "1180",
       })
     ) : question === 3 ? (
@@ -1424,7 +1424,7 @@ export function ReleveGardeCorps({
               locale={locale}
               labels={{
                 largeur: fr ? "Largeur en bas, au ras de l'appui" : "Width at the bottom, at the sill",
-                largeurHaut: fr ? "Largeur en haut, à la main courante" : "Width at the top, at the handrail",
+                largeurHaut: fr ? "Largeur à 1 m du sol" : "Width 1 m from the floor",
                 allege: t.gcSchemaAllege,
                 fenetre: t.gcSchemaFenetre,
                 hauteur: t.gcSchemaHauteur,

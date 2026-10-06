@@ -60,7 +60,7 @@ export const BORNES_RELEVE_GC = {
 } as const;
 
 /**
- * Murs pas parallèles (décision de Quentin, 05/10) : le client mesure la largeur en bas (à l'appui) et en haut (vers 1 m
+ * Murs pas parallèles (décision de Quentin, 05/10) : le client mesure la largeur en bas (à l'appui) et en haut (à 1 m
  * du sol) ; l'atelier fabrique à la plus petite. Au-delà de cet écart, le site conseille la visite de l'atelier.
  */
 export const ECART_MURS_GC_MM = 10;
@@ -537,7 +537,7 @@ export function noteReleveGC(
   const largeurs =
     Number.isFinite(r.largeurBasMm) &&
     Number.isFinite(r.largeurHautMm) &&
-    (langue === "fr" ? `largeur en bas ${r.largeurBasMm} mm, en haut ${r.largeurHautMm} mm` : `width bottom ${r.largeurBasMm} mm, top ${r.largeurHautMm} mm`);
+    (langue === "fr" ? `largeur au ras de l'appui ${r.largeurBasMm} mm, à 1 m du sol ${r.largeurHautMm} mm` : `width at the sill ${r.largeurBasMm} mm, 1 m up ${r.largeurHautMm} mm`);
   return [
     r.etage,
     largeurs,

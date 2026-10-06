@@ -1426,8 +1426,8 @@ export function ProductOptions({
   const cotesPourDevisGC =
     estGC && releveGC && !configGC
       ? locale === "fr"
-        ? `Fenêtre : ${releveGC.largeurMm} mm de large${largeursDifferentes ? ` (mesurée ${largeursDifferentes.basMm} mm en bas, ${largeursDifferentes.hautMm} mm en haut)` : ""}, bas à ${releveGC.allegeMm} mm du sol${releveGC.fenetreMm ? `, ${releveGC.fenetreMm} mm de haut` : ""}, ${releveGC.enEtage ? "en étage" : "au rez-de-chaussée"}${reponseGC && !reponseGC.ok && reponseGC.raison === "barre-appui" ? " — main courante seule" : ""}`
-        : `Window: ${releveGC.largeurMm} mm wide${largeursDifferentes ? ` (measured ${largeursDifferentes.basMm} mm at the bottom, ${largeursDifferentes.hautMm} mm at the top)` : ""}, bottom ${releveGC.allegeMm} mm from the floor${releveGC.fenetreMm ? `, ${releveGC.fenetreMm} mm high` : ""}, ${releveGC.enEtage ? "upstairs" : "ground floor"}${reponseGC && !reponseGC.ok && reponseGC.raison === "barre-appui" ? " — handrail on its own" : ""}`
+        ? `Fenêtre : ${releveGC.largeurMm} mm de large${largeursDifferentes ? ` (mesurée ${largeursDifferentes.basMm} mm au ras de l'appui, ${largeursDifferentes.hautMm} mm à 1 m du sol)` : ""}, bas à ${releveGC.allegeMm} mm du sol${releveGC.fenetreMm ? `, ${releveGC.fenetreMm} mm de haut` : ""}, ${releveGC.enEtage ? "en étage" : "au rez-de-chaussée"}${reponseGC && !reponseGC.ok && reponseGC.raison === "barre-appui" ? " — main courante seule" : ""}`
+        : `Window: ${releveGC.largeurMm} mm wide${largeursDifferentes ? ` (measured ${largeursDifferentes.basMm} mm at the sill, ${largeursDifferentes.hautMm} mm 1 m up)` : ""}, bottom ${releveGC.allegeMm} mm from the floor${releveGC.fenetreMm ? `, ${releveGC.fenetreMm} mm high` : ""}, ${releveGC.enEtage ? "upstairs" : "ground floor"}${reponseGC && !reponseGC.ok && reponseGC.raison === "barre-appui" ? " — handrail on its own" : ""}`
       : null;
   /** Sous le grand prix : la pièce configurée, ou la visite et son créneau. */
   const optionsLabel = modeVisite
@@ -2086,8 +2086,8 @@ export function ProductOptions({
             // Murs pas parallèles : la visite a souvent été conseillée pour ça ; Quentin arrive en sachant ce qui a été relevé.
             largeursDifferentes &&
               (locale === "fr"
-                ? `largeur relevée ${largeursDifferentes.basMm} mm en bas, ${largeursDifferentes.hautMm} mm en haut`
-                : `width measured ${largeursDifferentes.basMm} mm at the bottom, ${largeursDifferentes.hautMm} mm at the top`),
+                ? `largeur relevée ${largeursDifferentes.basMm} mm au ras de l'appui, ${largeursDifferentes.hautMm} mm à 1 m du sol`
+                : `width measured ${largeursDifferentes.basMm} mm at the sill, ${largeursDifferentes.hautMm} mm 1 m up`),
           ]
             .filter(Boolean)
             .join(" · "),
