@@ -16,6 +16,7 @@ import { Parallaxe } from "@/components/parallaxe";
 import { getProduct } from "@/lib/products";
 import { prixAppelGC } from "@/lib/prix-garde-corps.server";
 import { prixAffiche } from "@/lib/ui";
+import { MiniGardeCorps } from "@/components/releve-garde-corps";
 
 /** Panneau cliquable : image plein cadre, titre centré, bouton. Pleine
  *  largeur sur téléphone, une moitié d'écran à partir de la tablette. */
@@ -298,15 +299,22 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
       {/* 1 bis. Le garde-corps, tout de suite : le produit le plus demandé, avec un prix réaliste et la fenêtre qui va
           avec, avant toute configuration (étude marketing, 06/10). Sans prix (outil indisponible), pas de bandeau. */}
       {appelGC && (
-        <section className="border-t border-[#3d3532] bg-[#2b2320] px-6 py-6 text-white md:py-7">
-          <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 text-center md:flex-row md:justify-between md:text-left">
-            <div>
-              <p className={`${serif.className} text-xl leading-tight md:text-2xl`}>
-                {locale === "fr" ? "Garde-corps de fenêtre sur mesure, aux normes" : "Made-to-measure window railings, to standard"}
+        <section className="bg-[#f5f1ea] px-4 py-6 md:px-6 md:py-8">
+          <div className="mx-auto flex max-w-5xl flex-col items-center gap-5 rounded-[26px] border border-[#e5ddd3] bg-white px-5 py-6 shadow-[0_22px_50px_-36px_rgba(43,35,32,0.5)] md:flex-row md:gap-8 md:px-8">
+            {/* Le dessin d'un garde-corps de la fiche (deux croix, rosaces, main courante en chêne) : pas une photo. */}
+            <div className="w-40 shrink-0 rounded-2xl bg-[#f7f4ef] px-4 pb-3 pt-4 md:w-48" aria-hidden>
+              <MiniGardeCorps largeurMm={1000} hauteurMm={400} hMaxMm={400} soubassementMm={0} croix={2} hauteurPx={64} />
+            </div>
+            <div className="min-w-0 flex-1 text-center md:text-left">
+              <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-[#6f6357]">
+                {locale === "fr" ? "Sur mesure, aux normes" : "Made to measure, to standard"}
               </p>
-              <p className="mt-1.5 text-[14px] leading-snug text-white/85">
+              <p className={`${serif.className} mt-1.5 text-2xl leading-tight text-[#2b2320] md:text-[1.9rem]`}>
+                {locale === "fr" ? "Garde-corps de fenêtre" : "Window railings"}
+              </p>
+              <p className="mt-2 text-[15px] leading-snug text-[#4a4038]">
                 {locale === "fr" ? "Dès " : "From "}
-                <span className="font-semibold text-white">{prixAffiche(appelGC.prix, locale)}</span>
+                <span className="font-semibold text-[#2b2320]">{prixAffiche(appelGC.prix, locale)}</span>
                 {locale === "fr"
                   ? ` pour une fenêtre de ${appelGC.largeurMm / 10}\u00a0cm de large. Votre prix exact, à vos mesures, tout de suite.`
                   : ` for a window ${appelGC.largeurMm / 10} cm wide. Your exact price, to your measurements, straight away.`}
@@ -314,7 +322,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
             </div>
             <Link
               href={`/${locale}/artisanat/garde-corps#configuration`}
-              className="shrink-0 rounded-full bg-white px-6 py-3 text-[12px] font-semibold uppercase tracking-[0.16em] text-[#2b2320] transition-colors hover:bg-[#f3eee8]"
+              className="shrink-0 rounded-full bg-[#2b2320] px-7 py-3.5 text-[12px] font-semibold uppercase tracking-[0.16em] text-white transition-colors hover:bg-[#3d3532]"
             >
               {locale === "fr" ? "Calculer mon prix" : "Get my price"}
             </Link>

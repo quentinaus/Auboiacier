@@ -1983,9 +1983,10 @@ const CURSEURS = {
  * Le petit dessin d'un modèle, À L'ÉCHELLE de la fenêtre du client : le cadre,
  * ses croix à rosace, les barreaux du bas. Tous les dessins du catalogue ont
  * le même cadre de vue (largeur de la fenêtre × hauteur du plus haut modèle) :
- * un garde-corps deux fois plus haut est dessiné deux fois plus haut.
+ * un garde-corps deux fois plus haut est dessiné deux fois plus haut. Aussi sur la page « Comment on vérifie votre
+ * garde-corps », avec le rond rouge des dessins refusés.
  */
-function MiniGardeCorps({ largeurMm, hauteurMm, hMaxMm, soubassementMm, croix, traverse = false, seuls = false, sansRosace = false, trous = null, hauteurPx = 26 }: { largeurMm: number; hauteurMm: number; hMaxMm: number; soubassementMm: number; croix: number; seuls?: boolean; traverse?: boolean; sansRosace?: boolean; trous?: TrousGC | null; hauteurPx?: number }) {
+export function MiniGardeCorps({ largeurMm, hauteurMm, hMaxMm, soubassementMm, croix, traverse = false, seuls = false, sansRosace = false, trous = null, hauteurPx = 26 }: { largeurMm: number; hauteurMm: number; hMaxMm: number; soubassementMm: number; croix: number; seuls?: boolean; traverse?: boolean; sansRosace?: boolean; trous?: TrousGC | null; hauteurPx?: number }) {
   const L = largeurMm, H = Math.max(hMaxMm, hauteurMm);
   const y0 = H - hauteurMm, haut = y0 + 40, bas = H;
   const lisse = soubassementMm > 0 ? bas - soubassementMm : bas;
