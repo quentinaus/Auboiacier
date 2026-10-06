@@ -64,6 +64,8 @@ export const BORNES_RELEVE_GC = {
  * du sol) ; l'atelier fabrique à la plus petite. Au-delà de cet écart, le site conseille la visite de l'atelier.
  */
 export const ECART_MURS_GC_MM = 10;
+/** Jusqu'à cet écart, rien à dire : avec l'enduit, un mur bouge toujours d'un millimètre ou deux (Quentin, 06/10). */
+export const TOLERANCE_MURS_GC_MM = 2;
 
 /** Le jour laissé entre l'appui et le bas du cadre, par défaut dans l'outil (DEFAUTS_GC.jour). */
 export const JOUR_GC_MM = 90;

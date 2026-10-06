@@ -40,7 +40,8 @@ const ENCRE = "#2b2320";
 const ACIER_DEFAUT = "#2b2320";
 const BOIS_DEFAUT = "#d9b582";
 
-export type CoteFenetre = "largeur" | "allege" | "fenetre" | "hauteur";
+/** « largeur » : la largeur en bas, au ras de l'appui ; « largeurHaut » : la largeur en haut, à la main courante. */
+export type CoteFenetre = "largeur" | "largeurHaut" | "allege" | "fenetre" | "hauteur";
 
 
 type Point = [number, number];
@@ -458,6 +459,7 @@ function Rosace({ cx, cy, taille = 6.5, acier }: { cx: number; cy: number; taill
 
 export function SchemaFenetre({
   largeurMm,
+  largeurHautMm,
   allegeMm,
   hauteurFenetreMm,
   croix,
@@ -492,6 +494,11 @@ export function SchemaFenetre({
   remplissage?: "croix" | "verre";
   /** Les cotes dessinées à l'échelle. Sans valeur, le croquis prend celles du modèle, et les étiquettes disent ce qu'il faut mesurer. */
   largeurMm?: number;
+  /**
+   * La largeur en haut, à la main courante (murs pas parallèles, décision de Quentin, 05/10). `largeurMm` est alors celle
+   * d'en bas, au ras de l'appui. Le dessin est à la plus petite des deux.
+   */
+  largeurHautMm?: number;
   allegeMm?: number;
   /** De l'appui au haut de l'ouverture. */
   hauteurFenetreMm?: number;
@@ -518,6 +525,8 @@ export function SchemaFenetre({
   teinteBois?: string;
   labels: {
     largeur: string;
+    /** La largeur en haut (sinon, le libellé de la largeur). */
+    largeurHaut?: string;
     allege: string;
     fenetre: string;
     hauteur: string;
@@ -538,7 +547,11 @@ export function SchemaFenetre({
   // Les cotes, bornées à ce qui reste une fenêtre (une faute de frappe à
   // 20 000 mm écrasait tout le dessin) — mais proportionnelles entre elles.
   const borne = (mm: number, min: number, max: number) => Math.min(Math.max(mm, min), max);
-  const L = borne(largeurMm ?? MODELE.largeurMm, 200, 3000);
+  const L = borne(
+    largeurMm !== undefined && largeurHautMm !== undefined ? Math.min(largeurMm, largeurHautMm) : (largeurMm ?? largeurHautMm ?? MODELE.largeurMm),
+    200,
+    3000,
+  );
   const A = borne(allegeMm ?? ALLEGE_MODELE_MM, 0, 1500);
   // CE QU'ON DESSINE DANS LA FENÊTRE vient de la règle de l'outil (formeGC), calculée ici même : le croquis
   // suit le curseur EN DIRECT, sans attendre le serveur. Un garde-corps tant qu'il en faut au moins 200 mm ;
@@ -608,12 +621,18 @@ export function SchemaFenetre({
   const debord = Math.max(3, r(40 * e));
   const tablette = Math.max(2, r(35 * e));
 
-  /* Les cotes : la largeur au-dessus de la fenêtre, le bas de la fenêtre à gauche, sa hauteur à droite. */
+  /* Les cotes : les deux largeurs SUR le garde-corps (« on parle de quelle lisse ? », Quentin, 06/10) — en bas sur la
+     barre du bas, au ras de l'appui ; en haut sur la main courante — d'un mur à l'autre. Le bas de la fenêtre à gauche,
+     sa hauteur à droite. */
   const fr = locale === "fr";
   const noms = fr
-    ? { largeur: "Largeur", allege: "Bas de fenêtre", fenetre: "Hauteur" }
-    : { largeur: "Width", allege: "Sill height", fenetre: "Height" };
-  const yLargeur = r(hautOuvertureY - 17);
+    ? { largeur: "En bas", largeurHaut: "En haut", allege: "Bas de fenêtre", fenetre: "Hauteur" }
+    : { largeur: "Bottom", largeurHaut: "Top", allege: "Sill height", fenetre: "Height" };
+  /** La largeur en haut : au milieu de la main courante. En bas : sur la barre du bas du cadre (au ras de l'appui sans garde-corps). */
+  const yLargeurHaut = r(hautGardeCorpsY + mainCouranteH / 2);
+  const yLargeurBas = mode === "garde-corps" ? r(cadreBas) : r(appuiY - 6);
+  /** La barre dont on demande la largeur, surlignée en bleu (« la sélectionner », Quentin). */
+  const surligne = actif === "largeur" ? yLargeurBas : actif === "largeurHaut" ? yLargeurHaut : null;
   const xGauche = r(Math.max(14, G - debord - 15));
   const xDroite = r(Math.min(LARGEUR - 14, D + debord + 15));
   const rappel = { stroke: "#4d433a", strokeOpacity: 0.55, strokeWidth: 0.6 };
@@ -806,18 +825,35 @@ export function SchemaFenetre({
       {/* Une ombre douce sur les bords, comme une photo. */}
       <rect x={0} y={0} width={LARGEUR} height={HAUTEUR} fill={`url(#${ids("vignette")})`} pointerEvents="none" />
 
+      {/* La barre dont on demande la largeur, en bleu « sélection » d'un mur à l'autre : il ressort sur le bois comme sur
+          l'acier (l'orange se confondait avec une main courante en chêne). */}
+      {surligne !== null && (
+        <g pointerEvents="none">
+          <rect x={r(G - 3)} y={r(surligne - 7)} width={r(D - G + 6)} height={14} rx={7} fill="#2f7fe0" opacity={0.18} />
+          <rect x={r(G - 1)} y={r(surligne - 4.5)} width={r(D - G + 2)} height={9} rx={4.5} fill="none" stroke="#2f7fe0" strokeWidth={1.8} />
+        </g>
+      )}
       {/* Les lignes de rappel : du bord mesuré jusqu'au-delà de la cote. */}
       <g {...rappel}>
-        <line x1={G} x2={G} y1={r(hautOuvertureY - 3)} y2={r(yLargeur - 5)} />
-        <line x1={D} x2={D} y1={r(hautOuvertureY - 3)} y2={r(yLargeur - 5)} />
         <line x1={r(G - debord - 3)} x2={r(xGauche - 5)} y1={appuiY} y2={appuiY} />
         <line x1={r(D + 3)} x2={r(xDroite + 5)} y1={hautOuvertureY} y2={hautOuvertureY} />
         <line x1={r(D + debord + 3)} x2={r(xDroite + 5)} y1={appuiY} y2={appuiY} />
       </g>
       <Cote
+        cote="largeurHaut"
+        de={[G, yLargeurHaut]}
+        a={[D, yLargeurHaut]}
+        texte={largeurHautMm !== undefined ? enMm(largeurHautMm, locale) : noms.largeurHaut}
+        vide={largeurHautMm === undefined}
+        actif={actif === "largeurHaut"}
+        label={labels.largeurHaut ?? labels.largeur}
+        ombre={ids("ombre")}
+        onChoisir={onChoisir}
+      />
+      <Cote
         cote="largeur"
-        de={[G, yLargeur]}
-        a={[D, yLargeur]}
+        de={[G, yLargeurBas]}
+        a={[D, yLargeurBas]}
         texte={largeurMm !== undefined ? enMm(largeurMm, locale) : noms.largeur}
         vide={largeurMm === undefined}
         actif={actif === "largeur"}
