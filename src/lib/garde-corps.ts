@@ -73,6 +73,21 @@ export const JOUR_GC_MM = 90;
 /** En étage, à partir de cette allège, la loi n'impose plus de protection (ALLEGE_LIBRE du moteur). */
 export const ALLEGE_SANS_OBLIGATION_MM = 900;
 
+/** La hauteur que la loi demande au haut de la main courante, depuis le sol fini, sans tolérance (HAUT_ETAGE du moteur). */
+export const HAUTEUR_LOI_GC_MM = 1000;
+
+/**
+ * LES BOULES DE LA NORME (NF P01-012), telles que l'outil les contrôle : une boule de SPHERE_GC_MM ne doit passer dans
+ * aucun vide qui commence sous Z_SPHERE_GC_MM du sol ; au-dessus, une boule de SPHERE_HAUT_GC_MM (SPHERE, SPHERE_HAUT,
+ * Z_SPHERE du moteur). Le jour sous le cadre reste, lui aussi, plus petit que SPHERE_GC_MM.
+ */
+export const SPHERE_GC_MM = 110;
+export const SPHERE_HAUT_GC_MM = 180;
+export const Z_SPHERE_GC_MM = 800;
+
+/** Sous cette hauteur du sol, rien sur quoi grimper : des barreaux verticaux ferment le bas d'un cadre qui commence plus bas (Z_ESCALADE du moteur). */
+export const Z_ESCALADE_GC_MM = 600;
+
 /**
  * LA HAUTEUR DE LA MAIN COURANTE, DEPUIS LE SOL : elle ne bouge jamais (décision de Quentin, 04/10/2026).
  * La loi demande 1 000 mm au moins ; l'atelier vise 1 025 (HAUT_ETAGE + CIBLE_MARGE du moteur), en étage
@@ -124,6 +139,26 @@ export function formeGC(allegeMm: number): { mode: "garde-corps" | "barre" | "au
   if (manque >= MINI_SEULS_GC_MM) return { mode: "garde-corps", hauteurMm: manque, jourMm: jour };
   if (MAIN_COURANTE_MM - allegeMm >= BARRE_APPUI_MM) return { mode: "barre", hauteurMm: BARRE_APPUI_MM, jourMm: MAIN_COURANTE_MM - allegeMm - BARRE_APPUI_MM };
   return { mode: "aucun", hauteurMm: 0, jourMm: 0 };
+}
+
+/**
+ * Les bas de fenêtre où la forme change, lus dans formeGC (la règle de l'outil) : à partir de `mainSeuleMm`, plus aucun
+ * cadre ne tient sous la main courante (une main courante seule, sur devis) ; à partir de `rienMm`, il n'y a rien à
+ * poser. La page des normes (/garde-corps-fenetre-normes) les cite au lieu de les recopier.
+ */
+export function seuilsFormeGC(): { mainSeuleMm: number; rienMm: number } {
+  const { min, max } = BORNES_RELEVE_GC.allegeMm;
+  let mainSeuleMm = max + 1;
+  let rienMm = max + 1;
+  for (let allegeMm = min; allegeMm <= max; allegeMm++) {
+    const { mode } = formeGC(allegeMm);
+    if (mode !== "garde-corps" && mainSeuleMm > max) mainSeuleMm = allegeMm;
+    if (mode === "aucun") {
+      rienMm = allegeMm;
+      break;
+    }
+  }
+  return { mainSeuleMm, rienMm };
 }
 
 /** Ce que le client relève à sa fenêtre, en millimètres entiers. */

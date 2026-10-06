@@ -69,6 +69,15 @@ export default async function FaqPage({ params }: PageProps<"/[lang]/faq">) {
             <section key={item.q} id={"id" in item ? item.id : undefined} className="scroll-mt-24 py-7">
               <h2 className={`${serif.className} text-lg text-[#2b2320]`}>{item.q}</h2>
               <p className="mt-3 whitespace-pre-line leading-relaxed text-[#4a4038]">{item.a}</p>
+              {/* Le calcul du garde-corps : la règle en entier, avec des exemples, sur sa propre page. */}
+              {"id" in item && item.id === "calcul-garde-corps" && (
+                <Link
+                  href={`/${locale}/garde-corps-fenetre-normes`}
+                  className="mt-3 inline-block py-1 text-sm text-[#2b2320] underline decoration-[#2b2320]/30 underline-offset-4 hover:decoration-[#2b2320]"
+                >
+                  {dict.liens.normesGc}
+                </Link>
+              )}
             </section>
           ))}
         </div>

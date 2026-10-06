@@ -91,6 +91,7 @@
     "seoLinksTitle": "What we make to measure",
     "seoLinks": [
       "Custom window railings",
+      "Window railings: height and rules",
       "Steel and solid wood staircase",
       "Steel workshop partition",
       "Custom wood and steel tables",
@@ -1073,6 +1074,10 @@
     "bois": {
       "title": "Solid wood and steel made to order, Saumur",
       "description": "Stair treads, railing handrails, table tops: solid pine, beech, oak or walnut, paired with steel in our Saumur workshop (Maine-et-Loire, France)."
+    },
+    "normesGc": {
+      "title": "Window railing height: the French rule",
+      "description": "In France, an upstairs sill under 90 cm must be guarded: handrail at least 1 m from the floor, limited gaps. Worked examples, with their prices."
     }
   },
   "zone": {
@@ -1188,6 +1193,7 @@
         "a": "Yes: the online configurator works out the price of your railing, table or backlit ceiling in front of you, to your measurements. You then download a free PDF quote, with no account and no commitment."
       },
       {
+        "id": "calcul-garde-corps",
         "q": "How is a made-to-measure window railing worked out?",
         "a": "You enter the window width and the height of the window sill, upstairs or on the ground floor. The workshop works out the number of crosses, the steel section and the gaps between bars to the NF P01-012 standard (a 110 mm ball must not pass below 800 mm from the floor, 180 mm above, with a 3 mm margin), then shows the price."
       },
@@ -1357,7 +1363,8 @@
     "plafondTendu": "Compare with a stretch ceiling",
     "toutesTables": "All tables",
     "plafonds": "All about light ceilings",
-    "titre": "See also"
+    "titre": "See also",
+    "normesGc": "Railing height and rules"
   },
   "lumiere": {
     "choixTitle": "A light panel or a wall-to-wall stretch ceiling?",
@@ -1466,5 +1473,61 @@
     "bougeBody": "Solid wood follows the humidity of the air: it swells slightly when the air is damp and shrinks back when it is dry. Avoid placing a table against a radiator, or in full sun behind a large window.",
     "atelierTitle": "A wood and metal workshop in Saumur",
     "atelierBody": "The Saumur workshop draws every piece, welds the steel and puts the wood and metal together. You keep one point of contact, from the measuring visit to the fitting."
+  },
+  "normesGc": {
+    "title": "Railing height and rules",
+    "h1": "Window railings in France: height, rules and price",
+    "intro": "A low upstairs window, a sill at knee height in an old house: before ordering a railing, you need to know whether it is required, how high its handrail must sit and what gaps it may leave. Here is the rule as the workshop applies it, followed by worked examples priced by the same calculation as the railing's product page.",
+    "introLien": "See the window railing",
+    "obligatoireTitle": "When is a window railing required?",
+    "obligatoireBody": "Upstairs, a window whose sill is less than {seuil} from the floor must be guarded: the French building code requires it. From {seuil} up, the law no longer requires any protection. On the ground floor it requires none; the workshop still fits its railings at the same height as upstairs.",
+    "hauteurTitle": "How high? It is the handrail that counts",
+    "hauteurBody": "The rule does not set the height of the railing itself, but that of the top of its handrail: at least {loi} above the finished floor of the room, with no tolerance (French building code, article R134-59). The workshop aims for {cible}, to keep a margin. So the top of the handrail is always in the same place, and it is the railing that grows or shrinks with the bottom of the window: its height is {cible}, minus the sill height, minus the gap left under the frame.",
+    "jourBody": "The gap under the frame is the space left between the sill and the bottom of the frame, because a sill is never perfectly flat. The workshop leaves {jour}; when the sill is high and space is short, it reduces it, never below {jourMini}. This gap always stays smaller than {sphere}, the standard's ball.",
+    "allegeBody": "The sill height is measured standing in the room: from the finished floor, with the boards or tiles laid, to the top of the sill, the ledge you rest your hands on.",
+    "croquisLegende": "The product page's sketch, for a window {largeur} wide whose sill is {allege} from the floor: a railing {hauteur} high, set {jourEx} above the sill.",
+    "videsTitle": "Gaps between the bars (NF P01-012)",
+    "videsBody": "The NF P01-012 standard is checked with balls. In a gap that starts less than {zSphere} from the floor, a {sphere} ball must not pass through; in a gap that starts higher, a {sphereHaut} ball. The workshop keeps a {marge} margin: a gap is only sold if it is smaller than the ball, minus those {marge}. The check is redone for every window, as the number of crosses depends on its width.",
+    "escaladeBody": "Below {escalade} from the floor, the workshop leaves nothing to put a foot on: when the frame starts lower, vertical bars close its lower part, and the crosses only start above.",
+    "rosaceBody": "The rosette counts too. Set where the bars cross, it fills the centre of the cross: a smaller rosette, or none at all, leaves a bigger gap, and fewer designs meet the rule. For each window, the product page only offers the designs that do.",
+    "videsNote": "This is what the site means by “French safety standards”: the height and the gaps, checked window by window. No railing that fails them is sold.",
+    "exemplesTitle": "Worked examples for a window {largeur} wide",
+    "exemplesIntro": "An upstairs window, {largeur} wide, with the product page's starting options: handrail “{bois}”, steel “{teinte}”, rosette “{rosace}”. For each sill height, here is what the workshop calculates, with the design the product page offers first; other compliant designs can be chosen there.",
+    "colAllege": "Sill at",
+    "colObligatoire": "Required",
+    "colHauteur": "Railing",
+    "colJour": "Gap under frame",
+    "colDessin": "Design",
+    "colPrix": "Price",
+    "oui": "Yes",
+    "non": "No",
+    "dessinCroixUne": "{n} cross",
+    "dessinCroix": "{n} crosses",
+    "dessinTraverse": "middle rail",
+    "dessinBarreauxBas": "bars at the bottom",
+    "dessinSeuls": "bars only",
+    "mainSeule": "Handrail on its own",
+    "rien": "Nothing to fit",
+    "surDevis": "On quotation",
+    "prixFiche": "Price on the product page",
+    "ouvrir": "Open with these measurements",
+    "exemplesNote": "Price of one railing, worked out by the same engine as the product page, fixings and fitting guide included. Delivery, fitting or collection from the workshop are chosen next, on the product page.",
+    "porteFenetreTitle": "French windows: the Juliet balcony",
+    "porteFenetreBody": "In front of a French window, the bottom of the opening is at floor level, or nearly. The railing then rises from the bottom of the opening to the handrail, and vertical bars close its lower part: that is the first row of the table. It fits between the walls like a window railing, and is ordered the same way, on the same product page.",
+    "hauteTitle": "High windows: a handrail on its own, or nothing",
+    "hauteBody": "When the sill is high, little room is left under the handrail. From {mainSeule} above the floor, even the workshop's smallest frame, with bars, no longer fits: the workshop then makes a handrail on its own, at the same height, on quotation. From {rien}, the sill is almost at handrail height: there is nothing to fit. Upstairs, protection remains required as long as the sill is below {seuil}.",
+    "mesurerTitle": "Measure yourself, or have the workshop come",
+    "mesurerBody": "Measurements are taken with a tape, in millimetres. The width between the walls, twice: at the sill, then one metre up from the floor. The workshop builds to the smaller of the two; if they differ by more than {ecart}, it recommends a measuring visit. Then the sill height, from the finished floor. The window height is optional: it checks that the railing fits in the opening. If it does not, the workshop makes it face-fixed, in front of the window, on quotation.",
+    "visiteBody": "If you prefer, the workshop comes to measure: {prixVisite} within {rayonVisite} km of Saumur, then mileage and driving time, up to {rayonMax}. This amount is deducted from your order if you order afterwards.",
+    "prixTitle": "What changes the price",
+    "prixBody": "The price is worked out from your measurements, on the product page, before any commitment. It depends on the window width, the railing height and the design that meets the rule, then on your choices: the handrail and the rosette. On the product page, the railing starts from {depart}.",
+    "mainsTitre": "The handrail, for the window {largeur} wide with its sill at {allege}",
+    "rosacesTitre": "The rosette, per railing",
+    "compris": "no extra cost",
+    "lotBody": "Several windows go in the same basket, each to its own measurements: the workshop's fixed costs are only counted once.",
+    "ctaTitle": "Your window, to your measurements",
+    "ctaBody": "Enter your measurements on the product page: the height, the design and the price show straight away, with a plan preview and a free PDF quote. If you prefer, the workshop comes to measure at your home.",
+    "ctaCalculer": "Work out my railing",
+    "ctaRdv": "Home measuring visit"
   }
 }

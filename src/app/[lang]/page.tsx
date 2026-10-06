@@ -454,6 +454,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           <ul className="mt-4 grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
             {[
               "/artisanat/garde-corps",
+              "/garde-corps-fenetre-normes",
               "/artisanat/escalier-limon-central",
               "/artisanat/verrieres",
               "/artisanat/tables",

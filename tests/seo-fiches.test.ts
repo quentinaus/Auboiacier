@@ -31,6 +31,7 @@ import { remplacerMarqueurs } from "../src/lib/marqueurs.ts";
 import { PRIX_OFFRE_CENTS, RAYON_MAX_KM } from "../src/lib/deplacement.ts";
 import { questionsFaq, questionsPlafonds, questionsTables } from "../src/lib/faq-balisees.ts";
 import { delaiFabrication } from "../src/lib/vitrine.ts";
+import { ALLEGE_SANS_OBLIGATION_MM, HAUTEUR_LOI_GC_MM } from "../src/lib/garde-corps.ts";
 
 const fr = remplacerMarqueurs(frBrut, "fr");
 /**
@@ -180,6 +181,7 @@ test("les pages du référencement existent, figurent au plan du site et ont leu
   for (const [chemin, cle] of [
     ["/artisanat/tables", "tables"],
     ["/bois-massif", "bois"],
+    ["/garde-corps-fenetre-normes", "normesGc"],
     ["/toiles-tendues", "lumiere"],
     ["/zone-intervention", "zone"],
   ] as const) {
@@ -389,5 +391,50 @@ test("le chêne « traité classe 4 » n'est repris ni dans une réponse balisé
     for (const texte of [...questionsTables(dict, "").map((qr) => qr.a), dict.bois.plateauxBody, dict.bois.huileBody]) {
       assert.doesNotMatch(texte, /class(e)? 4/i, texte);
     }
+  }
+});
+
+test("/garde-corps-fenetre-normes : aucun chiffre de la règle ni aucun prix n'est tapé, tout vient du code", () => {
+  for (const [nom, brut] of [
+    ["fr.json", frBrut],
+    ["en.json", enBrut],
+  ] as const) {
+    // Les textes de la page (pas les clés : « h1 »), avant remplacement des marqueurs : seules les références (article,
+    // norme) ont des chiffres.
+    const texte = Object.values(brut.normesGc).join("\n");
+    const sansReferences = texte.replace(/R134-59|NF[\s\u00a0]P01-012/g, "");
+    assert.doesNotMatch(sansReferences, /\d/, `${nom} : un chiffre tapé dans normesGc (il doit venir du code)`);
+    assert.doesNotMatch(texte, /€/, `${nom} : un prix tapé dans normesGc`);
+    // Jamais rien qui ressemble à une marque NF : seulement la norme, nommée en entier.
+    assert.doesNotMatch(texte, /certifi/i, nom);
+    assert.doesNotMatch(texte.replace(/NF[\s\u00a0]P01-012/g, ""), /\bNF\b/, `${nom} : « NF » seul dans normesGc`);
+  }
+  // Les deux chiffres que la description Google cite sont ceux du code.
+  for (const dict of [fr, en]) {
+    const description = dict.seo.normesGc.description;
+    assert.ok(description.includes(`${ALLEGE_SANS_OBLIGATION_MM / 10} cm`), description);
+    assert.ok(description.includes(`${HAUTEUR_LOI_GC_MM / 1000} m `), description);
+  }
+  // La page calcule ses exemples avec la fonction de /api/prix-garde-corps, et n'écrit aucun montant.
+  const page = readFileSync(new URL("../src/app/[lang]/garde-corps-fenetre-normes/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /reponsePrixGC\(\{ releve, essence, quantite: 1 \}\)/);
+  assert.match(page, /prixDepart\(modele\)/);
+  assert.doesNotMatch(page, /\d\s*€|€\s*\d/, "un montant écrit dans la page");
+  // Ni produit ni FAQ balisés : le produit reste sur la fiche, les questions sur les trois pages autorisées.
+  assert.doesNotMatch(page, /jsonLdProduit|jsonLdFaq|<FaqVisible/);
+});
+
+test("/garde-corps-fenetre-normes : la fiche du garde-corps, l'accueil et la FAQ y mènent", () => {
+  const fiche = readFileSync(new URL("../src/app/[lang]/artisanat/[slug]/page.tsx", import.meta.url), "utf8");
+  assert.match(fiche, /product\.famille === "garde-corps"\s*\?\s*\[\{ href: `\/\$\{locale\}\/garde-corps-fenetre-normes`, label: dict\.liens\.normesGc \}\]/);
+  const accueil = readFileSync(new URL("../src/app/[lang]/page.tsx", import.meta.url), "utf8");
+  assert.ok(accueil.includes('"/garde-corps-fenetre-normes"'), "accueil : lien absent");
+  const faq = readFileSync(new URL("../src/app/[lang]/faq/page.tsx", import.meta.url), "utf8");
+  assert.match(faq, /item\.id === "calcul-garde-corps"/);
+  for (const dict of [fr, en]) {
+    // L'ancre est posée sur la question du calcul du garde-corps, la seule qui cite la norme des vides.
+    const question = dict.faq.items.find((item) => "id" in item && item.id === "calcul-garde-corps");
+    assert.ok(question && /NF P01-012/.test(question.a), "question du calcul du garde-corps sans ancre");
+    assert.ok(dict.liens.normesGc, "libellé du lien absent");
   }
 });

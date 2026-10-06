@@ -187,6 +187,10 @@ export default async function ProductPage({
   /** « À voir aussi » : les pages qui complètent cette fiche. */
   const liensUtiles: { href: string; label: string }[] = [
     ...(estTable ? [{ href: `/${locale}/artisanat/tables`, label: dict.liens.toutesTables }] : []),
+    // Le garde-corps de fenêtre : la règle (hauteur, vides) et des exemples calculés, sur leur propre page.
+    ...(product.famille === "garde-corps"
+      ? [{ href: `/${locale}/garde-corps-fenetre-normes`, label: dict.liens.normesGc }]
+      : []),
     ...(estTable || ouvrage ? [{ href: `/${locale}/bois-massif`, label: dict.liens.boisLong }] : []),
     ...(product.category === "lumiere"
       ? [{ href: `/${locale}/toiles-tendues#plafond-tendu`, label: dict.liens.plafondTendu }]

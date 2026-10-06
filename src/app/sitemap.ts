@@ -20,6 +20,8 @@ const PAGES: { chemin: string; priorite: number; frequence: "weekly" | "monthly"
   { chemin: "/a-propos", priorite: 0.6, frequence: "monthly" },
   // Le bois massif à l'atelier : l'autre matière, à côté de l'acier.
   { chemin: "/bois-massif", priorite: 0.7, frequence: "monthly" },
+  // Le garde-corps de fenêtre : la règle de hauteur et de vides, avec des exemples calculés par le moteur.
+  { chemin: "/garde-corps-fenetre-normes", priorite: 0.8, frequence: "monthly" },
   // Les deux pages écrites pour le référencement local : Google doit les voir vite.
   { chemin: "/zone-intervention", priorite: 0.7, frequence: "monthly" },
   { chemin: "/faq", priorite: 0.7, frequence: "monthly" },

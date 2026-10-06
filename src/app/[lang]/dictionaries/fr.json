@@ -91,6 +91,7 @@
     "seoLinksTitle": "Nos fabrications sur mesure",
     "seoLinks": [
       "Garde-corps de fenêtre sur mesure",
+      "Garde-corps de fenêtre : hauteur et normes",
       "Escalier acier et bois massif",
       "Verrière d'atelier en acier",
       "Tables sur mesure bois et acier",
@@ -1073,6 +1074,10 @@
     "bois": {
       "title": "Bois massif et métal sur mesure à Saumur",
       "description": "Marches d'escalier, mains courantes de garde-corps, plateaux de table : pin, hêtre, chêne ou noyer massif, associés à l'acier à l'atelier de Saumur (49)."
+    },
+    "normesGc": {
+      "title": "Garde-corps fenêtre : hauteur et normes",
+      "description": "En étage, un appui à moins de 90 cm du sol doit être protégé : main courante à 1 m au moins, vides limités. Exemples calculés, avec leur prix."
     }
   },
   "zone": {
@@ -1188,6 +1193,7 @@
         "a": "Oui : le configurateur en ligne calcule le prix de votre garde-corps, de votre table ou de votre plafond lumineux sous vos yeux, à vos cotes. Vous téléchargez ensuite un devis PDF gratuit, sans compte et sans engagement."
       },
       {
+        "id": "calcul-garde-corps",
         "q": "Comment est calculé un garde-corps de fenêtre sur mesure ?",
         "a": "Vous entrez la largeur de la fenêtre et la hauteur du bas de fenêtre, en étage ou au rez-de-chaussée. L'atelier calcule le nombre de croix, la section de l'acier et les espaces entre les barres selon la norme NF P01-012 (une boule de 110 mm ne doit pas passer sous 800 mm du sol, 180 mm au-dessus, avec 3 mm de marge), puis affiche le prix."
       },
@@ -1357,7 +1363,8 @@
     "plafondTendu": "Comparer avec un plafond tendu",
     "toutesTables": "Toutes les tables",
     "plafonds": "Tout sur les plafonds lumineux",
-    "titre": "À voir aussi"
+    "titre": "À voir aussi",
+    "normesGc": "Hauteur et normes du garde-corps"
   },
   "lumiere": {
     "choixTitle": "Cadre lumineux ou plafond tendu mur à mur ?",
@@ -1466,5 +1473,61 @@
     "bougeBody": "Le bois massif suit l'humidité de l'air : il gonfle un peu quand l'air est humide, et se resserre quand il est sec. Évitez de placer une table contre un radiateur, ou en plein soleil derrière une baie vitrée.",
     "atelierTitle": "Un atelier bois et métal à Saumur",
     "atelierBody": "L'atelier de Saumur dessine chaque pièce, soude l'acier et assemble le bois et le métal. Vous gardez un seul interlocuteur, de la prise de cotes à la pose."
+  },
+  "normesGc": {
+    "title": "Hauteur et normes du garde-corps",
+    "h1": "Garde-corps de fenêtre : quelle hauteur, quelles normes, quel prix ?",
+    "intro": "Une fenêtre basse à l'étage, un appui à hauteur de genou dans une maison ancienne : avant de commander un garde-corps, il faut savoir s'il est obligatoire, à quelle hauteur poser sa main courante et quels vides il peut laisser. Voici la règle telle que l'atelier l'applique, puis des exemples chiffrés par le même calcul que la fiche du garde-corps.",
+    "introLien": "Voir le garde-corps de fenêtre",
+    "obligatoireTitle": "Quand un garde-corps est-il obligatoire ?",
+    "obligatoireBody": "En étage, une fenêtre dont l'appui est à moins de {seuil} du sol doit être protégée : c'est le Code de la construction qui l'impose. À partir de {seuil}, la loi n'impose plus de protection. Au rez-de-chaussée, elle n'en impose pas ; l'atelier y pose pourtant ses garde-corps à la même hauteur qu'en étage.",
+    "hauteurTitle": "Quelle hauteur ? Celle de la main courante",
+    "hauteurBody": "La règle ne fixe pas la hauteur du garde-corps lui-même, mais celle du haut de sa main courante : {loi} au moins au-dessus du sol fini de la pièce, sans tolérance (Code de la construction, article R134-59). L'atelier vise {cible}, pour garder une marge. Le haut de la main courante est donc toujours au même endroit, et c'est le garde-corps qui grandit ou rapetisse avec le bas de la fenêtre : sa hauteur vaut {cible}, moins la hauteur de l'appui, moins le jour laissé sous le cadre.",
+    "jourBody": "Le jour est l'espace laissé entre l'appui et le bas du cadre, car un appui n'est jamais parfaitement plan. L'atelier laisse {jour} ; quand l'appui est haut et que la place manque, il le réduit, jamais sous {jourMini}. Ce jour reste toujours plus petit que {sphere}, la boule de la norme.",
+    "allegeBody": "La hauteur de l'appui, qu'on appelle aussi l'allège, se mesure debout dans la pièce : du sol fini, parquet ou carrelage posé, jusqu'au-dessus de l'appui, là où l'on pose les mains.",
+    "croquisLegende": "Le croquis de la fiche, pour une fenêtre de {largeur} de large dont l'appui est à {allege} du sol : un garde-corps de {hauteur}, posé {jourEx} au-dessus de l'appui.",
+    "videsTitle": "Les vides entre les barres (NF P01-012)",
+    "videsBody": "La norme NF P01-012 se vérifie avec des boules. Dans un vide qui commence à moins de {zSphere} du sol, une boule de {sphere} ne doit pas passer ; dans un vide qui commence plus haut, une boule de {sphereHaut}. L'atelier garde {marge} de marge : un vide n'est vendu que s'il est plus petit que la boule, moins ces {marge}. Le calcul est refait pour chaque fenêtre, car le nombre de croix dépend de sa largeur.",
+    "escaladeBody": "Sous {escalade} du sol, l'atelier ne laisse rien sur quoi poser le pied : quand le cadre commence plus bas, des barreaux verticaux ferment sa partie basse, et les croix ne commencent qu'au-dessus.",
+    "rosaceBody": "La rosace compte aussi. Posée au croisement des barres, elle bouche le centre de la croix : une rosace plus petite, ou pas de rosace du tout, laisse un vide plus grand, et moins de dessins passent la règle. Pour chaque fenêtre, la fiche ne propose que les dessins qui la respectent.",
+    "videsNote": "C'est ce que le site appelle « aux normes de sécurité françaises » : la hauteur et les vides, vérifiés fenêtre par fenêtre. Aucun garde-corps qui ne les respecte pas n'est vendu.",
+    "exemplesTitle": "Exemples calculés pour une fenêtre de {largeur} de large",
+    "exemplesIntro": "Une fenêtre en étage, de {largeur} de large, avec les options de départ de la fiche : main courante « {bois} », acier « {teinte} », rosace « {rosace} ». Pour chaque hauteur d'appui, voici ce que calcule l'atelier, avec le dessin que la fiche propose d'office ; d'autres dessins aux normes y sont au choix.",
+    "colAllege": "Appui à",
+    "colObligatoire": "Obligatoire",
+    "colHauteur": "Garde-corps",
+    "colJour": "Jour sous le cadre",
+    "colDessin": "Dessin",
+    "colPrix": "Prix",
+    "oui": "Oui",
+    "non": "Non",
+    "dessinCroixUne": "{n} croix",
+    "dessinCroix": "{n} croix",
+    "dessinTraverse": "traverse au milieu",
+    "dessinBarreauxBas": "barreaux en bas",
+    "dessinSeuls": "barreaux seuls",
+    "mainSeule": "Main courante seule",
+    "rien": "Rien à poser",
+    "surDevis": "Sur devis",
+    "prixFiche": "Prix sur la fiche",
+    "ouvrir": "Ouvrir avec ces cotes",
+    "exemplesNote": "Prix d'une pièce, calculés par le même moteur que la fiche, fixations et notice de pose comprises. La livraison, la pose ou le retrait à l'atelier se choisissent ensuite sur la fiche.",
+    "porteFenetreTitle": "Porte-fenêtre : le balcon français",
+    "porteFenetreBody": "Devant une porte-fenêtre, le bas de l'ouverture est au niveau du sol, ou presque. Le garde-corps monte alors du bas de l'ouverture jusqu'à la main courante, et des barreaux verticaux ferment sa partie basse : c'est la première ligne du tableau. Il s'encastre entre les murs comme celui d'une fenêtre, et se commande de la même façon, sur la même fiche.",
+    "hauteTitle": "Fenêtre haute : une main courante seule, ou rien",
+    "hauteBody": "Quand l'appui est haut, il reste peu de place sous la main courante. À partir de {mainSeule} du sol, même le plus petit cadre de l'atelier, à barreaux, ne tient plus : l'atelier fabrique alors une main courante seule, posée à la même hauteur, sur devis. À partir de {rien}, l'appui arrive presque à la hauteur de la main courante : il n'y a rien à poser. En étage, la protection reste obligatoire tant que l'appui est sous {seuil}.",
+    "mesurerTitle": "Mesurer soi-même, ou faire venir l'atelier",
+    "mesurerBody": "Les mesures se prennent au mètre, en millimètres. La largeur entre les murs, deux fois : au ras de l'appui, puis à un mètre du sol. L'atelier fabrique à la plus petite des deux ; si elles diffèrent de plus de {ecart}, il conseille de venir mesurer. Puis la hauteur de l'appui, depuis le sol fini. La hauteur de la fenêtre est facultative : elle sert à vérifier que le garde-corps tient dans l'ouverture. S'il ne tient pas, l'atelier le fait en applique, devant la fenêtre, sur devis.",
+    "visiteBody": "Si vous préférez, l'atelier vient prendre les cotes : {prixVisite} jusqu'à {rayonVisite} km de Saumur, puis les kilomètres et le temps de route, jusqu'à {rayonMax}. Ce montant est déduit de votre commande si vous commandez ensuite.",
+    "prixTitle": "Ce qui fait varier le prix",
+    "prixBody": "Le prix se calcule à vos cotes, sur la fiche, avant tout engagement. Il dépend de la largeur de la fenêtre, de la hauteur du garde-corps et du dessin qui passe la règle, puis de vos choix : la main courante et la rosace. Sur la fiche, le garde-corps est à partir de {depart}.",
+    "mainsTitre": "La main courante, pour la fenêtre de {largeur} dont l'appui est à {allege}",
+    "rosacesTitre": "La rosace, par garde-corps",
+    "compris": "sans supplément",
+    "lotBody": "Plusieurs fenêtres se commandent dans le même panier, chacune à ses cotes : les frais fixes de l'atelier n'y sont comptés qu'une fois.",
+    "ctaTitle": "Votre fenêtre, à vos cotes",
+    "ctaBody": "Entrez vos mesures sur la fiche : la hauteur, le dessin et le prix s'affichent aussitôt, avec un aperçu du plan et un devis PDF gratuit. Si vous préférez, l'atelier vient mesurer chez vous.",
+    "ctaCalculer": "Calculer mon garde-corps",
+    "ctaRdv": "Prise de cotes à domicile"
   }
 }

@@ -18,6 +18,11 @@ import {
   ALLEGE_SANS_OBLIGATION_MM,
   BARRE_APPUI_MM,
   BORNES_RELEVE_GC,
+  HAUTEUR_LOI_GC_MM,
+  SPHERE_GC_MM,
+  SPHERE_HAUT_GC_MM,
+  Z_ESCALADE_GC_MM,
+  Z_SPHERE_GC_MM,
   ESSENCES_GC,
   JOUR_GC_MM,
   JOUR_MINI_GC_MM,
@@ -28,13 +33,14 @@ import {
   RELEVE_DEPART_GC,
   diametreRosaceGC,
   formeGC,
+  seuilsFormeGC,
   lireReponsePrixGC,
   modeleAfficheGC,
   parametresPrixGC,
   releveDansLesBornes,
   type ReleveGC,
 } from "../src/lib/garde-corps.ts";
-import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, CIBLE_MARGE, DEFAUTS_GC, HAUT_ETAGE, MARGE_BOULE, MINI_GC, geomGC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
+import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, CIBLE_MARGE, DEFAUTS_GC, HAUT_ETAGE, MARGE_BOULE, MINI_GC, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, geomGC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
 import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
 import { prixCommandeGC, prixGC, type ConfigGC } from "../src/lib/garde-corps-outil/calcul.ts";
 import {
@@ -69,6 +75,12 @@ test("les constantes du site sont celles de l'outil de plans", () => {
   assert.equal(MINI_GC_MM, MINI_GC, "le plus petit garde-corps à croix");
   assert.equal(MARGE_BOULE_GC_MM, MARGE_BOULE, "la marge de sécurité sur la boule de la norme");
   assert.equal(BARRE_APPUI_MM, BARRE_APPUI, "l'épaisseur d'une barre d'appui");
+  // Les chiffres de la norme que cite la page /garde-corps-fenetre-normes.
+  assert.equal(HAUTEUR_LOI_GC_MM, HAUT_ETAGE, "la hauteur de la loi, au haut de la main courante");
+  assert.equal(SPHERE_GC_MM, SPHERE, "la boule de la norme sous 800 mm");
+  assert.equal(SPHERE_HAUT_GC_MM, SPHERE_HAUT, "la boule de la norme au-dessus");
+  assert.equal(Z_SPHERE_GC_MM, Z_SPHERE, "la hauteur où la boule change");
+  assert.equal(Z_ESCALADE_GC_MM, Z_ESCALADE, "la zone d'escalade");
   // Le garde-corps de départ (le « à partir de ») est le plus petit qui se vend : le premier cadre bas à barreaux, là où même un jour de 40 ne laisse plus la place à des croix.
   assert.equal(RELEVE_DEPART_GC.allegeMm, MAIN_COURANTE_MM - JOUR_MINI_GC_MM - MINI_GC_MM + 1);
   assert.deepEqual(
@@ -139,6 +151,21 @@ test("le croquis suit le curseur sans le serveur : formeGC est la règle du mote
   // Et pour un garde-corps bas : sa hauteur et son jour.
   const bas = configurationGC(releve({ allegeMm: 840 }), "chene")!;
   assert.deepEqual([bas.hauteurMm, bas.jourMm], [formeGC(840).hauteurMm, formeGC(840).jourMm]);
+});
+
+test("les seuils que cite la page des normes sont ceux du moteur : main courante seule, puis rien à poser", () => {
+  chiffrageOuEchec();
+  const { mainSeuleMm, rienMm } = seuilsFormeGC();
+  const cas = (allegeMm: number) => configurationGC(releve({ allegeMm }), "chene")!;
+  assert.equal(cas(mainSeuleMm - 1).ok, true, "juste en dessous : encore un garde-corps");
+  const premier = cas(mainSeuleMm);
+  assert.equal(!premier.ok && premier.raison, "barre-appui", "le premier bas de fenêtre sans garde-corps");
+  const avantRien = cas(rienMm - 1);
+  assert.equal(!avantRien.ok && avantRien.raison, "barre-appui", "juste en dessous : une main courante seule");
+  const rien = cas(rienMm);
+  assert.equal(!rien.ok && rien.raison, "sans-garde-corps", "le premier bas de fenêtre où il n'y a rien à poser");
+  // La main courante seule commence avant le seuil de la loi : entre les deux, elle est obligatoire en étage.
+  assert.ok(mainSeuleMm < ALLEGE_SANS_OBLIGATION_MM && ALLEGE_SANS_OBLIGATION_MM < rienMm);
 });
 
 test("la main courante ne bouge jamais : un bas de fenêtre haut donne une barre d'appui, jamais un garde-corps qui dépasse", () => {
