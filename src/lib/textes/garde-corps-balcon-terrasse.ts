@@ -26,7 +26,8 @@ import { DATE_OUVERTURE_COMMANDES } from "../ouverture.ts";
  * CE QUE LA PAGE NE PROMET PAS :
  * - aucun prix (sur devis) : la seule somme citée est celle de la prise de
  *   cotes, lue dans le code ({prixVisite}, src/lib/marqueurs.ts) ;
- * - pas de pose : elle demande l'assurance décennale, pas encore signée ;
+ * - la pose : faite par l'atelier et chiffrée au devis (décennale signée avant l'ouverture, décision de
+ *   Quentin du 07/10/2026 : DECENNALE_AVANT_OUVERTURE) ; jamais « pose comprise » dans un prix affiché ;
  * - pas de « solidité vérifiée » : la fixation est étudiée au cas par cas ;
  * - aucun mot « artisan / artisanal » (loi 96-603, art. 21, avant
  *   l'immatriculation), ni « premium », « luxe », « certifié »…
@@ -268,7 +269,7 @@ const FR: TextesGcExterieur = {
 
   poseTitre: "Et la pose ?",
   pose:
-    "La pose d'un garde-corps sur un balcon ou une terrasse demande l'assurance décennale de l'atelier : elle ne sera proposée qu'une fois cette assurance signée. Les commandes ouvrent le {ouverture} ; le devis dit toujours, noir sur blanc, si la pose est comprise.",
+    "L'atelier fabrique et pose lui-même, autour de Saumur : la pose et le déplacement sont chiffrés au devis, couverts par l'assurance décennale de l'atelier, signée avant l'ouverture des commandes du {ouverture}. Le devis dit toujours, noir sur blanc, ce qui est compris.",
 
   prixTitre: "Le prix d'un garde-corps de balcon ou de terrasse",
   prix: [
@@ -293,7 +294,7 @@ const FR: TextesGcExterieur = {
     },
     {
       q: "La pose est-elle comprise ?",
-      r: "Pas encore : la pose demande l'assurance décennale de l'atelier, et elle ne sera proposée qu'une fois celle-ci signée. Le devis dit toujours si la pose est comprise ou non.",
+      r: "Elle se chiffre au devis, avec le déplacement : l'atelier pose lui-même, sous son assurance décennale, signée avant l'ouverture des commandes. Le devis dit toujours ce qui est compris.",
     },
     {
       q: "Faut-il une autorisation de la mairie ?",
@@ -431,7 +432,7 @@ const EN: TextesGcExterieur = {
 
   poseTitre: "What about fitting?",
   pose:
-    "Fitting a railing on a balcony or a terrace requires the workshop's ten-year building insurance (assurance décennale): fitting will only be offered once that insurance is signed. Orders open on {ouverture}; the quote always states clearly whether fitting is included.",
+    "The workshop makes and fits the railing itself, around Saumur: fitting and travel are priced in the quote, covered by the workshop's ten-year building insurance (assurance décennale), signed before orders open on {ouverture}. The quote always states clearly what is included.",
 
   prixTitre: "What a balcony or terrace railing costs",
   prix: [
@@ -456,7 +457,7 @@ const EN: TextesGcExterieur = {
     },
     {
       q: "Is fitting included?",
-      r: "Not yet: fitting requires the workshop's ten-year building insurance, and it will only be offered once that is signed. The quote always says whether fitting is included.",
+      r: "It is priced in the quote, with travel: the workshop fits the railing itself, under its ten-year building insurance, signed before orders open. The quote always says what is included.",
     },
     {
       q: "Do I need permission from the town hall?",

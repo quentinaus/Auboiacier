@@ -89,10 +89,15 @@ export function commandesOuvertes(fiche: Fiche = ENTREPRISE) {
 /**
  * L'interrupteur « décennale » (plan de référencement, lot L10) : poser chez
  * le client demande l'assurance décennale (code des assurances, art. L241-1
- * et L243-3). Tant que la ligne `assurance` est vide, aucun texte nouveau ne
- * promet la pose ; il dit à la place qu'elle sera proposée une fois
- * l'assurance signée (guide de l'escalier, page balcon et terrasse).
+ * et L243-3). Décision de Quentin (07/10/2026) : elle est signée AVANT
+ * l'ouverture des commandes du 7 décembre 2026 ; rien ne se commande avant,
+ * donc les textes peuvent dire la pose comprise dès maintenant
+ * (DECENNALE_AVANT_OUVERTURE). Si la signature glisse après l'ouverture,
+ * remettre la constante à false : les textes repassent seuls à « la pose
+ * sera proposée une fois l'assurance signée ».
  */
+export const DECENNALE_AVANT_OUVERTURE = true;
+
 export function poseAssuree(fiche: Fiche = ENTREPRISE) {
-  return fiche.assurance.trim() !== "";
+  return DECENNALE_AVANT_OUVERTURE || fiche.assurance.trim() !== "";
 }

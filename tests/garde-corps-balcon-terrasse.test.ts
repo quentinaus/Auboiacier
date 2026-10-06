@@ -128,10 +128,10 @@ for (const locale of LANGUES) {
     assert.deepEqual(sommes, [valeursMarqueurs(locale)["{prixVisite}"]]);
   });
 
-  test(`${locale} : la pose attend l'assurance décennale ; jamais « pose comprise », ni « posé par l'atelier »`, () => {
+  test(`${locale} : la pose : par l'atelier, chiffrée au devis, sous l'assurance décennale ; jamais « pose comprise »`, () => {
     const t = textesGcExterieur(locale);
     const texte = tout(t);
-    assert.doesNotMatch(texte, /pose comprise|pos[ée]e? par l'atelier|pose par l'atelier|(?<!\bis )fitting included|fitted by (us|the workshop)/i);
+    assert.doesNotMatch(texte, /pose comprise|(?<!\bis )fitting included/i);
     assert.match(t.pose, locale === "fr" ? /assurance décennale/ : /ten-year building insurance/);
     assert.match(t.pose, locale === "fr" ? /lundi 7 décembre 2026/ : /Monday 7 December 2026/, "la date d'ouverture lue dans le code");
     const faqPose = t.faq.find((qr) => /pose|fitting/i.test(qr.q));

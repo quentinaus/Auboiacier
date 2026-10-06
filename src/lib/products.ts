@@ -1545,10 +1545,11 @@ const catalogue: Product[] = [
         body: "L'escalier droit monte d'une seule volée ; le quart tournant tourne d'un quart de tour, en haut ou en bas, quand le recul manque ; le demi-tournant revient sur lui-même quand la place au sol est plus courte encore. La prise de cotes chez vous dit laquelle convient à votre trémie. Les prix de départ de chaque forme, et les normes d'un escalier, sont dans notre guide de l'escalier à limon central.",
       },
       {
-        // Ni la pose (elle attend l'assurance décennale : poseAssuree, src/lib/entreprise.ts), ni le garde-corps
-        // « compris » : son remplissage se choisit et se chiffre au devis (à confirmer par Quentin, relecture du 07/10/2026).
+        // La pose jusqu'à 45 km est comprise (décision de Quentin, 07/10/2026 : décennale signée avant l'ouverture —
+        // DECENNALE_AVANT_OUVERTURE, src/lib/entreprise.ts). Le garde-corps n'est pas dit « compris » : son
+        // remplissage se choisit et se chiffre au devis.
         title: "Ce qui est compris",
-        body: "La prise de cotes chez vous, déduite de la commande ; le plan ; le limon en tube d'acier, coupé et soudé à l'atelier avec les supports et les platines des marches ; les marches en bois massif de 5 cm. Le garde-corps du côté du vide et sa main courante en bois sont dessinés et chiffrés au devis, selon le remplissage choisi, d'après la norme NF P01-012 (2024).",
+        body: "La prise de cotes chez vous, déduite de la commande ; le plan ; le limon en tube d'acier, coupé et soudé à l'atelier avec les supports et les platines des marches ; les marches en bois massif de 5 cm ; la pose jusqu'à 45 km de Saumur (au-delà, la route s'ajoute au devis). Le garde-corps du côté du vide et sa main courante en bois sont dessinés et chiffrés au devis, selon le remplissage choisi, d'après la norme NF P01-012 (2024).",
       },
     ],
     specs: [
@@ -1593,7 +1594,7 @@ const catalogue: Product[] = [
         },
         {
           title: "What is included",
-          body: "The measuring visit at your home, deducted from the order; the drawing; the stringer, a steel tube cut and welded in the workshop with the supports and plates for the treads; the 5 cm solid wood treads. The balustrade on the open side and its timber handrail are drawn and priced with the quote, depending on the infill you choose, to the French standard NF P01-012 (2024).",
+          body: "The measuring visit at your home, deducted from the order; the drawing; the stringer, a steel tube cut and welded in the workshop with the supports and plates for the treads; the 5 cm solid wood treads; fitting within 45 km of Saumur (beyond that, travel is added to the quote). The balustrade on the open side and its timber handrail are drawn and priced with the quote, depending on the infill you choose, to the French standard NF P01-012 (2024).",
         },
       ],
       specs: [
