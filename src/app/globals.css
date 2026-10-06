@@ -925,6 +925,9 @@ textarea:focus-visible,
     padding-top: 0.2rem;
     padding-bottom: 0.2rem;
   }
+  .colonne-cotes .consigne-cotes {
+    margin-top: 0.3rem;
+  }
 }
 
 /* Entre 1024 et 1280 px (tablette à l'horizontale, petit portable) : les colonnes sont plus étroites, donc plus hautes.
@@ -980,6 +983,14 @@ textarea:focus-visible,
 /* Ordinateur peu haut (800 px et moins) : la colonne d'achat se resserre de quelques pixels — le détail du modèle choisi et
    le bouton « Être prévenu en priorité » avec sa phrase la faisaient dépasser de 14 à 18 px. */
 @media (min-width: 64rem) and (max-height: 800px) {
+  /* Les quatre cotes à curseur (les deux largeurs ont chacune le leur, Quentin 07/10) : la case un peu moins haute et collée
+     à son intitulé, pour que la carte des mesures tienne sans défiler jusqu'à 720 px de haut. */
+  .colonne-cotes div:has(> .curseur-cote) {
+    margin-top: 0.15rem;
+  }
+  .colonne-cotes .curseur-cote + span {
+    height: 2rem;
+  }
   .colonne-achat .barre-achat > div {
     gap: 0.35rem;
   }

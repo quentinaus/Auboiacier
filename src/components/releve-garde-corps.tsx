@@ -1228,7 +1228,10 @@ export function ReleveGardeCorps({
       {versAtelier(fr ? "faites mesurer par l'atelier" : "have the workshop measure")}
     </p>
   );
-  const ligne = (cote: "largeur" | "largeurHaut" | "allege" | "fenetre", props: { label: string; aide?: string; info: string; placeholder: string }) => (
+  const ligne = (
+    cote: "largeur" | "largeurHaut" | "allege" | "fenetre",
+    props: { label: string; aide?: string; info: string; placeholder: string; facultatif?: boolean },
+  ) => (
     <div className="py-2.5">
       <label htmlFor={`${idChamps}-${cote}`} className="flex items-center gap-2 text-[13.5px] leading-snug text-[#2b2320]">
         <IconeCote cote={cote} />
@@ -1272,8 +1275,9 @@ export function ReleveGardeCorps({
             inputMode="decimal"
             value={cotes[cote]}
             onChange={(e) => set(cote)(e.target.value)}
-            // « ex. 1180 », en italique : une valeur d'EXEMPLE, pas une mesure saisie.
-            placeholder={`${fr ? "ex." : "e.g."} ${props.placeholder}`}
+            // « ex. 1180 », en italique : une valeur d'EXEMPLE, pas une mesure saisie. Une cote facultative le dit dans sa
+            // case : écrit après l'intitulé, « · facultatif » le passait sur deux lignes et la colonne débordait (1280 × 720).
+            placeholder={props.facultatif ? (fr ? "facultatif" : "optional") : `${fr ? "ex." : "e.g."} ${props.placeholder}`}
             onFocus={() => setCoteActive(coteCroquis(cote))}
             onBlur={() => setCoteActive(null)}
             className="w-full min-w-0 bg-transparent text-right text-base tabular-nums text-[#2b2320] placeholder:text-[13px] placeholder:italic placeholder:text-[#726757] outline-none focus-visible:shadow-none focus-visible:outline-none sm:text-[15px]"
@@ -1379,53 +1383,6 @@ export function ReleveGardeCorps({
   const infoLargeurHaut = fr
     ? "La même largeur, à 1 m du sol : mesurez 1 m depuis le sol, faites un trait au crayon, puis la largeur à cette hauteur (la ligne bleue). Pas besoin de savoir où sera le garde-corps : nous le calculons. Les murs ne sont jamais tout à fait droits : nous fabriquons à la plus petite des deux largeurs."
     : "The same width, 1 m from the floor: measure 1 m up from the floor, make a pencil mark, then the width at that height (the blue line). No need to know where the railing will go: we work it out. Walls are never quite straight: we make it to the smaller of the two widths.";
-  /**
-   * Ordinateur et tablette : les deux largeurs côte à côte, « en bas » et « en haut », sur une seule ligne — deux lignes
-   * à curseur faisaient déborder la colonne d'un écran de portable.
-   */
-  const ligneLargeurs = (
-    <div className="py-2.5">
-      <div className="flex items-center gap-2 text-[13.5px] leading-snug text-[#2b2320]">
-        <IconeCote cote="largeur" />
-        <span className="min-w-0 flex-1">
-          {fr ? "Largeur, d'un mur à l'autre" : "Width, wall to wall"}
-          {(manque === "largeur" || manque === "largeurHaut") && (
-            <span className="ml-2 inline-block rounded-full bg-[#fbeeda] px-2 py-0.5 align-middle text-[11px] font-medium text-[#7a4510]">
-              {cotes[manque].trim() !== "" ? (fr ? "à corriger" : "to correct") : fr ? "à remplir" : "to fill in"}
-            </span>
-          )}
-        </span>
-        <InfoBulle texte={`${infoLargeurBas} ${infoLargeurHaut}`} label={t.gcInfoLabel} />
-      </div>
-      <div className="mt-1.5 grid grid-cols-2 gap-2">
-        {(["largeur", "largeurHaut"] as const).map((cote) => (
-          <label key={cote} htmlFor={`${idChamps}-${cote}`} className="block min-w-0">
-            <span className="mb-1 block text-[11.5px] leading-tight text-[#6f6357]">
-              {cote === "largeur" ? (fr ? "en bas, au ras de l'appui" : "bottom, at the sill") : fr ? "en haut, à 1 m du sol" : "top, 1 m from the floor"}
-            </span>
-            <span
-              className={`flex h-9 items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3 transition-[border-color,box-shadow] focus-within:border-[#2b2320] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)] ${
-                manque === cote ? "outline outline-2 outline-[#c98a3a]" : ""
-              }`}
-            >
-              <input
-                id={`${idChamps}-${cote}`}
-                inputMode="decimal"
-                aria-label={cote === "largeur" ? libelleLargeurBas : libelleLargeurHaut}
-                value={cotes[cote]}
-                onChange={(e) => set(cote)(e.target.value)}
-                placeholder={`${fr ? "ex." : "e.g."} 1180`}
-                onFocus={() => setCoteActive(cote)}
-                onBlur={() => setCoteActive(null)}
-                className="w-full min-w-0 bg-transparent text-right text-base tabular-nums text-[#2b2320] placeholder:text-[13px] placeholder:italic placeholder:text-[#726757] outline-none focus-visible:shadow-none focus-visible:outline-none sm:text-[15px]"
-              />
-              <span className="text-xs text-[#6f6357]">mm</span>
-            </span>
-          </label>
-        ))}
-      </div>
-    </div>
-  );
   const questionTelephone =
     question === 1 ? (
       // L'en-tête dit OÙ mesurer (et le croquis le montre en bleu) ; sous la case, COMMENT.
@@ -1676,11 +1633,14 @@ export function ReleveGardeCorps({
                 entre les murs » tenait sur quatre lignes et chaque cote
                 prenait un écran. L'explication complète reste dans la bulle
                 « i », et le croquis coté juste à côté montre où mesurer. */}
-            {ligneLargeurs}
+            {/* Les deux largeurs, chacune sur sa ligne avec son curseur, comme les autres cotes (Quentin, 07/10 : côte à côte,
+                sans curseur, « c'est moche, pas compréhensible, pas le même style que le reste »). */}
+            {ligne("largeur", { label: fr ? "Largeur au ras de l'appui" : "Width at the sill", info: infoLargeurBas, placeholder: "1180" })}
+            {ligne("largeurHaut", { label: libelleLargeurHaut, info: infoLargeurHaut, placeholder: "1180" })}
             {/* Dans la colonne serrée de l'ordinateur, seulement quand la visite est conseillée (sur téléphone, toujours). */}
             {ecartMursCourt}
             {ligne("allege", { label: t.gcAllegeCourt, aide: `${t.gcAllege}. ${t.gcAllegeAide}`, info: t.gcAllegeInfo, placeholder: String(CURSEURS.allege.depart) })}
-            {ligne("fenetre", { label: `${t.gcFenetreCourt} · ${locale === "fr" ? "facultatif" : "optional"}`, aide: `${t.gcFenetre}. ${t.gcFenetreAide}`, info: t.gcFenetreInfo, placeholder: "1200" })}
+            {ligne("fenetre", { label: t.gcFenetreCourt, aide: `${t.gcFenetre}. ${t.gcFenetreAide}`, info: t.gcFenetreInfo, placeholder: "1200", facultatif: true })}
 
             {/* En étage ou pas : deux boutons. L'intitulé AU-DESSUS et les
                 boutons en pleine largeur : côte à côte, « Au rez-de-chaussée »
@@ -1703,11 +1663,12 @@ export function ReleveGardeCorps({
                       type="button"
                       aria-pressed={actifBouton}
                       onClick={() => set("etage")(option)}
-                      className={`rounded-full px-2 py-2 text-[13px] font-medium transition-colors ${
+                      className={`whitespace-nowrap rounded-full px-1 py-2 text-[12px] font-medium transition-colors xl:text-[12.5px] ${
                         actifBouton ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"
                       }`}
                     >
-                      {option}
+                      {/* « Rez-de-chaussée » sur une ligne : sur deux, la carte des mesures débordait des écrans peu hauts. */}
+                      {fr && option === "Au rez-de-chaussée" ? "Rez-de-chaussée" : option}
                     </button>
                   );
                 })}
