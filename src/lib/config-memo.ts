@@ -67,14 +67,14 @@ export type ConfigMemo = {
    * fixation entre dans le prix. Distinct de gcMur, la matière que le croquis dessine. Les cotes ne vont jamais sans le mur.
    */
   gcMurFixation?: MurFixationGC;
-  gcCMurMm?: number;
+  gcTMurMm?: number;
   gcEMurMm?: number;
 };
 
 /** Les champs du relevé du garde-corps dans la mémoire. */
 export type ReleveGcMemo = Pick<
   ConfigMemo,
-  "gcLargeurMm" | "gcLargeurHautMm" | "gcAllegeMm" | "gcFenetreMm" | "gcEnEtage" | "gcMur" | "gcModele" | "gcDecor" | "gcMurFixation" | "gcCMurMm" | "gcEMurMm"
+  "gcLargeurMm" | "gcLargeurHautMm" | "gcAllegeMm" | "gcFenetreMm" | "gcEnEtage" | "gcMur" | "gcModele" | "gcDecor" | "gcMurFixation" | "gcTMurMm" | "gcEMurMm"
 >;
 
 /** Les cases du relevé, telles que le client les tape (CotesGardeCorps, releve-garde-corps.tsx). */
@@ -91,7 +91,7 @@ type CasesReleveGc = {
   decor?: string;
   /** Le mur pour la fixation (un code de MURS_FIXATION_GC), et ses cotes telles que tapées : facultatifs. */
   murFixation?: string;
-  cMur?: string;
+  tMur?: string;
   eMur?: string;
 };
 
@@ -125,7 +125,7 @@ export function lireReleveGcMemo(o: Record<string, unknown>): ReleveGcMemo {
     gcDecor: typeof o.gcDecor === "string" && lireDecorGC(o.gcDecor) ? o.gcDecor : undefined,
     // Le mur de la fixation : un code de la liste de l'outil ; ses cotes, dans leurs bornes, et seulement avec lui.
     gcMurFixation: estMurFixationGC(o.gcMurFixation) ? o.gcMurFixation : undefined,
-    gcCMurMm: estMurFixationGC(o.gcMurFixation) ? mm(o.gcCMurMm, BORNES_MUR_GC.cMurMm) : undefined,
+    gcTMurMm: estMurFixationGC(o.gcMurFixation) ? mm(o.gcTMurMm, BORNES_MUR_GC.tMurMm) : undefined,
     gcEMurMm: estMurFixationGC(o.gcMurFixation) ? mm(o.gcEMurMm, BORNES_MUR_GC.eMurMm) : undefined,
   };
 }
@@ -153,7 +153,7 @@ export function releveVersMemo(cases: CasesReleveGc, t: MotsReleveGc): ReleveGcM
     gcModele: cases.modele || undefined,
     gcDecor: cases.decor && lireDecorGC(cases.decor) ? cases.decor : undefined,
     gcMurFixation: estMurFixationGC(cases.murFixation) ? cases.murFixation : undefined,
-    gcCMurMm: estMurFixationGC(cases.murFixation) && cases.cMur !== undefined ? mm(cases.cMur) : undefined,
+    gcTMurMm: estMurFixationGC(cases.murFixation) && cases.tMur !== undefined ? mm(cases.tMur) : undefined,
     gcEMurMm: estMurFixationGC(cases.murFixation) && cases.eMur !== undefined ? mm(cases.eMur) : undefined,
   };
 }
@@ -183,7 +183,7 @@ export function memoVersReleve(memo: ReleveGcMemo, t: MotsReleveGc): Partial<Cas
   if (memo.gcDecor !== undefined) cases.decor = memo.gcDecor;
   if (memo.gcMurFixation !== undefined) {
     cases.murFixation = memo.gcMurFixation;
-    if (memo.gcCMurMm !== undefined) cases.cMur = String(memo.gcCMurMm);
+    if (memo.gcTMurMm !== undefined) cases.tMur = String(memo.gcTMurMm);
     if (memo.gcEMurMm !== undefined) cases.eMur = String(memo.gcEMurMm);
   }
   return cases;

@@ -193,14 +193,15 @@ export const NOMS_MUR_FIXATION_GC: Readonly<Record<MurFixationGC, { fr: string; 
 });
 
 /**
- * Les cotes du mur, en millimètres (les champs cMur et eMur de l'outil) : de l'arête du mur nu à la 1re tige, et
+ * Les cotes du mur, en millimètres (les champs tMur et eMur de l'outil) : la profondeur du tableau, de l'arête du mur nu
+ * à la fenêtre (ce que le client mesure ; l'outil en tire la place des tiges, à 75 mm au moins de la fenêtre), et
  * l'épaisseur du mur (pour l'ancrage traversant). Absentes : celles de l'outil (DEFAUTS_GC, un test le vérifie).
  */
 export const BORNES_MUR_GC = {
-  cMurMm: { min: 20, max: 300 },
+  tMurMm: { min: 40, max: 900 },
   eMurMm: { min: 150, max: 900 },
 } as const;
-export const C_MUR_DEFAUT_GC_MM = 60;
+export const T_MUR_DEFAUT_GC_MM = 150;
 export const E_MUR_DEFAUT_GC_MM = 450;
 
 /**
@@ -219,27 +220,27 @@ export const TEXTE_FIXATION_GC_MAX = 800;
 export type MurReleveGC = {
   /** Le mur des tableaux (mur dans l'outil). Absent : non précisé, la fixation d'avant. */
   mur?: MurFixationGC;
-  /** De l'arête du mur nu à la 1re tige, en mm (cMur dans l'outil ; C_MUR_DEFAUT_GC_MM si absent). Seulement avec un mur. */
-  cMurMm?: number;
+  /** La profondeur du tableau, de l'arête du mur nu à la fenêtre, en mm (tMur dans l'outil ; T_MUR_DEFAUT_GC_MM si absent). Seulement avec un mur. */
+  tMurMm?: number;
   /** L'épaisseur du mur, en mm (eMur dans l'outil ; E_MUR_DEFAUT_GC_MM si absent). Seulement avec un mur. */
   eMurMm?: number;
 };
 
 /** Le mur d'un relevé est-il lisible ? Un mur de la liste, des cotes entières dans leurs bornes, et jamais de cote sans mur. */
-export function murDansLesBornes(r: { mur?: unknown; cMurMm?: unknown; eMurMm?: unknown }): boolean {
+export function murDansLesBornes(r: { mur?: unknown; tMurMm?: unknown; eMurMm?: unknown }): boolean {
   const dans = (n: unknown, b: { min: number; max: number }) => n === undefined || (Number.isInteger(n) && (n as number) >= b.min && (n as number) <= b.max);
-  if (r.mur === undefined) return r.cMurMm === undefined && r.eMurMm === undefined;
-  return estMurFixationGC(r.mur) && dans(r.cMurMm, BORNES_MUR_GC.cMurMm) && dans(r.eMurMm, BORNES_MUR_GC.eMurMm);
+  if (r.mur === undefined) return r.tMurMm === undefined && r.eMurMm === undefined;
+  return estMurFixationGC(r.mur) && dans(r.tMurMm, BORNES_MUR_GC.tMurMm) && dans(r.eMurMm, BORNES_MUR_GC.eMurMm);
 }
 
 /** Les seuls champs du mur, recopiés d'un relevé (rien quand il n'y a pas de mur). */
 export function champsMurGC(r: MurReleveGC): MurReleveGC {
   if (r.mur === undefined) return {};
-  return { mur: r.mur, ...(r.cMurMm !== undefined ? { cMurMm: r.cMurMm } : {}), ...(r.eMurMm !== undefined ? { eMurMm: r.eMurMm } : {}) };
+  return { mur: r.mur, ...(r.tMurMm !== undefined ? { tMurMm: r.tMurMm } : {}), ...(r.eMurMm !== undefined ? { eMurMm: r.eMurMm } : {}) };
 }
 
 /**
- * Le mur lu dans une adresse (?mur=beton&c=80&ep=450) : {} sans mur ; null si quelque chose est illisible (un mur
+ * Le mur lu dans une adresse (?mur=beton&t=180&ep=450) : {} sans mur ; null si quelque chose est illisible (un mur
  * inconnu, une cote qui n'est pas un entier dans ses bornes, une cote sans mur) — la route refuse alors la demande.
  */
 export function lireMurParametresGC(params: URLSearchParams): MurReleveGC | null {
@@ -249,23 +250,23 @@ export function lireMurParametresGC(params: URLSearchParams): MurReleveGC | null
     if (t === null) return undefined;
     return /^\d{1,4}$/.test(t) && Number(t) >= b.min && Number(t) <= b.max ? Number(t) : null;
   };
-  const cMurMm = cote("c", BORNES_MUR_GC.cMurMm);
+  const tMurMm = cote("t", BORNES_MUR_GC.tMurMm);
   const eMurMm = cote("ep", BORNES_MUR_GC.eMurMm);
-  if (cMurMm === null || eMurMm === null) return null;
-  if (mur === null) return cMurMm === undefined && eMurMm === undefined ? {} : null;
+  if (tMurMm === null || eMurMm === null) return null;
+  if (mur === null) return tMurMm === undefined && eMurMm === undefined ? {} : null;
   if (!estMurFixationGC(mur)) return null;
-  return champsMurGC({ mur, cMurMm, eMurMm });
+  return champsMurGC({ mur, tMurMm, eMurMm });
 }
 
 /**
- * Le mur dans une adresse (le chemin inverse de lireMurParametresGC) : &mur=beton&c=80&ep=450, seulement quand le client l'a
+ * Le mur dans une adresse (le chemin inverse de lireMurParametresGC) : &mur=beton&t=180&ep=450, seulement quand le client l'a
  * donné — sans lui, l'adresse (et le prix) restent ceux d'avant. Pour la route du prix, l'aperçu du plan, la livraison et le
  * devis PDF.
  */
 export function ajouterMurParametresGC(p: URLSearchParams, r: MurReleveGC): URLSearchParams {
   if (!r.mur) return p;
   p.set("mur", r.mur);
-  if (r.cMurMm !== undefined) p.set("c", String(r.cMurMm));
+  if (r.tMurMm !== undefined) p.set("t", String(r.tMurMm));
   if (r.eMurMm !== undefined) p.set("ep", String(r.eMurMm));
   return p;
 }

@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 
 import {
   BORNES_MUR_GC,
-  C_MUR_DEFAUT_GC_MM,
+  T_MUR_DEFAUT_GC_MM,
   E_MUR_DEFAUT_GC_MM,
   MURS_FIXATION_GC,
   NOMS_MUR_FIXATION_GC,
@@ -53,10 +53,10 @@ const localiser = async (): Promise<ResultatLieu> => ({ ok: true, lieu });
  * ------------------------------------------------------------------ */
 
 test("les murs, les cotes par défaut et les noms du site sont ceux de l'outil", () => {
-  assert.equal(C_MUR_DEFAUT_GC_MM, DEFAUTS_GC.cMur);
+  assert.equal(T_MUR_DEFAUT_GC_MM, DEFAUTS_GC.tMur);
   assert.equal(E_MUR_DEFAUT_GC_MM, DEFAUTS_GC.eMur);
   assert.equal(DEFAUTS_GC.mur, "", "l'outil part d'un mur non précisé");
-  assert.ok(BORNES_MUR_GC.cMurMm.min <= C_MUR_DEFAUT_GC_MM && C_MUR_DEFAUT_GC_MM <= BORNES_MUR_GC.cMurMm.max);
+  assert.ok(BORNES_MUR_GC.tMurMm.min <= T_MUR_DEFAUT_GC_MM && T_MUR_DEFAUT_GC_MM <= BORNES_MUR_GC.tMurMm.max);
   assert.ok(BORNES_MUR_GC.eMurMm.min <= E_MUR_DEFAUT_GC_MM && E_MUR_DEFAUT_GC_MM <= BORNES_MUR_GC.eMurMm.max);
   const c = configurationGC(releve(), "chene") as ConfigGC;
   for (const mur of MURS_FIXATION_GC) {
@@ -73,10 +73,10 @@ test("requête : chaque mur de l'outil est accepté, avec ou sans ses cotes", ()
   for (const mur of MURS_FIXATION_GC) {
     const q = lire(`${BASE}&mur=${mur}`);
     assert.equal(q?.releve.mur, mur, mur);
-    assert.equal(q?.releve.cMurMm, undefined, "une cote absente : celle de l'outil, au calcul");
+    assert.equal(q?.releve.tMurMm, undefined, "une cote absente : celle de l'outil, au calcul");
   }
-  const q = lire(`${BASE}&mur=beton&c=${BORNES_MUR_GC.cMurMm.min}&ep=${BORNES_MUR_GC.eMurMm.max}`);
-  assert.deepEqual(q?.releve, { largeurMm: 1200, allegeMm: 400, enEtage: true, fenetreMm: 0, mur: "beton", cMurMm: BORNES_MUR_GC.cMurMm.min, eMurMm: BORNES_MUR_GC.eMurMm.max });
+  const q = lire(`${BASE}&mur=beton&t=${BORNES_MUR_GC.tMurMm.min}&ep=${BORNES_MUR_GC.eMurMm.max}`);
+  assert.deepEqual(q?.releve, { largeurMm: 1200, allegeMm: 400, enEtage: true, fenetreMm: 0, mur: "beton", tMurMm: BORNES_MUR_GC.tMurMm.min, eMurMm: BORNES_MUR_GC.eMurMm.max });
   assert.equal(lire(`${BASE}&mur=pierre-dure&ep=600`)?.releve.eMurMm, 600);
   // Sans mur : le relevé d'avant, sans aucun champ de mur.
   assert.deepEqual(Object.keys(lire(BASE)!.releve).sort(), ["allegeMm", "enEtage", "fenetreMm", "largeurMm"]);
@@ -85,27 +85,27 @@ test("requête : chaque mur de l'outil est accepté, avec ou sans ses cotes", ()
 test("requête : un mur inconnu, une cote hors bornes ou une cote sans mur sont refusés", () => {
   for (const q of [
     "mur=granit", "mur=BETON", "mur=", "mur=beton&mur=brique", "mur=pierre",           // un mur que l'outil ne connaît pas (« pierre » : tuffeau, pierre dure ou moellons)
-    `mur=beton&c=${BORNES_MUR_GC.cMurMm.min - 1}`, `mur=beton&c=${BORNES_MUR_GC.cMurMm.max + 1}`,
-    "mur=beton&c=80.5", "mur=beton&c=-5", "mur=beton&c=1e2", "mur=beton&c=", "mur=beton&c=abc",
+    `mur=beton&t=${BORNES_MUR_GC.tMurMm.min - 1}`, `mur=beton&t=${BORNES_MUR_GC.tMurMm.max + 1}`,
+    "mur=beton&t=180.5", "mur=beton&t=-5", "mur=beton&t=1e2", "mur=beton&t=", "mur=beton&t=abc",
     `mur=moellons&ep=${BORNES_MUR_GC.eMurMm.min - 1}`, `mur=moellons&ep=${BORNES_MUR_GC.eMurMm.max + 1}`, "mur=moellons&ep=450mm",
-    "c=80", "ep=450", "c=80&ep=450",                                                     // une cote sans mur
+    "t=180", "ep=450", "t=180&ep=450",                                                     // une cote sans mur
   ]) assert.equal(lire(`${BASE}&${q}`), null, q);
-  assert.equal(lireMurParametresGC(new URLSearchParams("c=80")), null);
+  assert.equal(lireMurParametresGC(new URLSearchParams("t=180")), null);
   assert.deepEqual(lireMurParametresGC(new URLSearchParams("")), {});
 });
 
 test("requête : l'adresse fabriquée par la fiche se relit à l'identique, et n'a pas de mur quand le client n'en a pas donné", () => {
-  for (const r of [releve(), releve({ mur: "tuffeau" }), releve({ mur: "beton", cMurMm: 90 }), releve({ mur: "moellons", cMurMm: 120, eMurMm: 600, modele: "16-4" })]) {
+  for (const r of [releve(), releve({ mur: "tuffeau" }), releve({ mur: "beton", tMurMm: 90 }), releve({ mur: "moellons", tMurMm: 120, eMurMm: 600, modele: "16-4" })]) {
     const p = parametresPrixGC(r, { woodId: "chene" });
     assert.deepEqual(lireRequetePrixGC(p)?.releve, r);
     assert.equal(p.has("mur"), r.mur !== undefined);
   }
   // Le relevé lui-même : mêmes règles que l'adresse.
   assert.equal(releveDansLesBornes(releve({ mur: "beton" })), true);
-  assert.equal(releveDansLesBornes(releve({ cMurMm: 80 })), false, "une cote sans mur");
+  assert.equal(releveDansLesBornes(releve({ tMurMm: 80 })), false, "une cote sans mur");
   assert.equal(releveDansLesBornes(releve({ mur: "granit" as MurFixationGC })), false);
   assert.equal(releveDansLesBornes(releve({ mur: "beton", eMurMm: 1000 })), false);
-  assert.equal(entreeValide({ ...releve({ mur: "beton", cMurMm: 19 }), essence: "chene" }), false);
+  assert.equal(entreeValide({ ...releve({ mur: "beton", tMurMm: 19 }), essence: "chene" }), false);
   assert.throws(() => configurerGC({ ...releve({ mur: "granit" as MurFixationGC }), essence: "chene" }), RangeError);
 });
 
@@ -178,7 +178,7 @@ const ligneDuPanier = (r: ReleveGC, quantity = 1) => ({
   fenetreMm: r.fenetreMm,
   modeleGc: r.modele,
   murGc: r.mur,
-  cMurMm: r.cMurMm,
+  tMurMm: r.tMurMm,
   eMurMm: r.eMurMm,
   woodId: "chene",
   metalId: "noir",
@@ -299,7 +299,7 @@ test("panier : un mur illisible est refusé, jamais remplacé en silence par la 
   chiffrageOuEchec();
   const r = releve({ modele: "16-6" });
   for (const mur of [
-    { murGc: "granit" }, { murGc: "beton", cMurMm: 10 }, { murGc: "beton", cMurMm: "80" }, { murGc: "beton", eMurMm: 2000 }, { cMurMm: 80 }, { eMurMm: 450 },
+    { murGc: "granit" }, { murGc: "beton", tMurMm: 10 }, { murGc: "beton", tMurMm: "80" }, { murGc: "beton", eMurMm: 2000 }, { tMurMm: 80 }, { eMurMm: 450 },
     // Un mur qui n'est pas une chaîne lisible, sans aucune cote : refusé aussi (avant, la ligne passait au prix sans mur, sans fixation).
     { murGc: 1 }, { murGc: true }, { murGc: ["beton"] }, { murGc: { a: 1 } }, { murGc: "  " }, { murGc: "" }, { murGc: 0 }, { murGc: false },
   ]) {
@@ -320,7 +320,7 @@ test("panier : un mur illisible est refusé, jamais remplacé en silence par la 
  *  Le temps de calcul : des pattes seulement quand elles peuvent aider
  * ------------------------------------------------------------------ */
 
-test("temps : un mur « sur étude » quelle que soit la poussée (placo, fixation trop près de l'arête, montant trop court) n'essaie pas les pattes", async () => {
+test("temps : un mur « sur étude » quelle que soit la poussée (placo, tableau trop peu profond, montant trop court) n'essaie pas les pattes", async () => {
   chiffrageOuEchec();
   // Les relevés de la relecture (07/10/2026) : la route prenait 7 à 8 s (1 à 3 s sans mur), un panier de 19 fenêtres en placo 11 à 18 s
   // (0,1 s sans mur) — le fil du serveur bloqué pour tous les visiteurs. Des relevés jamais vus ici (rien en mémoire).
@@ -352,14 +352,14 @@ test("temps : un mur « sur étude » quelle que soit la poussée (placo, fixati
 test("pattes : un mur que seule la poussée met « sur étude » garde ses pattes (béton près de l'arête, brique creuse, parpaing, tuffeau)", () => {
   chiffrageOuEchec();
   // Ce que la recherche complète trouvait avant le contrôle (balayage du 07/10/2026) : le contrôle ne doit rien enlever.
-  // Béton à 45 mm de l'arête : la platine n'y tient pas (60 mm au moins) et l'outil n'écrit que son refus, mais la tige du
-  // premier montage passe une fois soulagée par les pattes.
+  // Béton, tableau de 120 mm : la platine n'y tient pas (60 mm de l'arête + 75 de la fenêtre) et l'outil n'écrit que son
+  // refus, mais la tige du premier montage (40 mm de l'arête) passe une fois soulagée par les pattes.
   for (const [r, essence, attendu] of [
-    [releve({ largeurMm: 2200, allegeMm: 700, mur: "beton", cMurMm: 45 }), "chene-plat", { croix: 5, carre: 18, patte: 2 }],
+    [releve({ largeurMm: 2200, allegeMm: 700, mur: "beton", tMurMm: 120 }), "chene-plat", { croix: 5, carre: 18, patte: 2 }],
     [releve({ largeurMm: 500, allegeMm: 0, mur: "brique-creuse" }), "chene", { croix: 5, carre: 16, patte: 2 }],
     [releve({ largeurMm: 801, allegeMm: 0, mur: "parpaing" }), "chene", { croix: 4, carre: 18, patte: 3 }],
-    [releve({ largeurMm: 801, allegeMm: 700, mur: "tuffeau" }), "chene", { croix: 2, carre: 16, patte: 1 }],
-    [releve({ largeurMm: 1500, allegeMm: 700, mur: "brique" }), "chene", { croix: 3, carre: 16, patte: 2 }],
+    [releve({ largeurMm: 1000, allegeMm: 700, mur: "tuffeau" }), "chene", { croix: 2, carre: 18, patte: 1 }],
+    [releve({ largeurMm: 1500, allegeMm: 700, mur: "brique", tMurMm: 135 }), "chene", { croix: 3, carre: 16, patte: 2 }],   // tiges à 60 mm de l'arête
   ] as const) {
     const c = configurerGC({ ...r, essence });
     assert.ok(c.ok, `${JSON.stringify(r)} : plus de garde-corps`);
@@ -395,10 +395,10 @@ test("mémoire : le même relevé dans deux murs (ou à deux cotes du mur) ne pa
   assert.equal((beton.R.fixation as { mur: string }).mur, "beton");
   assert.equal((brique.R.fixation as { mur: string }).mur, "brique");
   assert.equal(sans1.R.fixation, undefined);
-  // La distance à l'arête : 60 mm, une tige ; 30 mm, rien ne tient (étude) — deux résultats distincts.
-  const pres = configurerGC({ ...e, mur: "beton", cMurMm: 30 });
+  // La profondeur du tableau : 135 mm, la tige tient ; 100 mm, plus de place pour elle (étude) — deux résultats distincts.
+  const pres = configurerGC({ ...e, mur: "beton", tMurMm: 100 });
   assert.ok(!pres.ok && pres.alertes.includes("fixation"));
-  assert.ok(configurerGC({ ...e, mur: "beton", cMurMm: 60 }).ok);
+  assert.ok(configurerGC({ ...e, mur: "beton", tMurMm: 135 }).ok);
   // L'épaisseur du mur : la longueur des tiges traversantes change (le débit).
   const mince = configurerGC({ ...e, mur: "moellons", eMurMm: 300 });
   const epais = configurerGC({ ...e, mur: "moellons", eMurMm: 700 });
@@ -440,13 +440,13 @@ test("sans mur : les réglages donnés à l'outil, l'adresse, le numéro de devi
   const e = { ...releve(), essence: "chene" as const };
   const v = valeursGC(DEFAUTS_GC, e, 16, 3) as ValeursGC;
   assert.equal(v.mur, "");
-  assert.equal(v.cMur, DEFAUTS_GC.cMur);
+  assert.equal(v.tMur, DEFAUTS_GC.tMur);
   assert.equal(v.eMur, DEFAUTS_GC.eMur);
   // Avec un mur : le mur et les cotes (par défaut celles de l'outil), rien d'autre ne bouge.
-  const vm = valeursGC(DEFAUTS_GC, { ...e, mur: "tuffeau", cMurMm: 90 }, 16, 3) as ValeursGC;
-  assert.deepEqual({ ...vm, mur: "", cMur: DEFAUTS_GC.cMur, eMur: DEFAUTS_GC.eMur }, v);
+  const vm = valeursGC(DEFAUTS_GC, { ...e, mur: "tuffeau", tMurMm: 90 }, 16, 3) as ValeursGC;
+  assert.deepEqual({ ...vm, mur: "", tMur: DEFAUTS_GC.tMur, eMur: DEFAUTS_GC.eMur }, v);
   assert.equal(vm.mur, "tuffeau");
-  assert.equal(vm.cMur, 90);
+  assert.equal(vm.tMur, 90);
   assert.equal(vm.eMur, E_MUR_DEFAUT_GC_MM);
   // L'adresse de la route.
   assert.equal(parametresPrixGC(releve(), { woodId: "chene" }).toString(), "l=1200&allege=400&etage=1&fenetre=0&wood=chene");
@@ -457,7 +457,7 @@ test("sans mur : les réglages donnés à l'outil, l'adresse, le numéro de devi
   assert.equal(numero({ murGc: undefined }), numero({}));
   assert.notEqual(numero({ murGc: "beton" }), numero({}));
   assert.notEqual(numero({ murGc: "beton" }), numero({ murGc: "brique" }));
-  assert.notEqual(numero({ murGc: "beton", cMurMm: 80 }), numero({ murGc: "beton" }));
+  assert.notEqual(numero({ murGc: "beton", tMurMm: 80 }), numero({ murGc: "beton" }));
   // Le libellé : pas un mot de fixation.
   const t = await tarifer([ligneDuPanier(releve({ modele: "16-6" })), { slug: RETRAIT }], { locale: "fr", gc: CALCUL_GC, localiser });
   assert.doesNotMatch(t.pieces[0].options, /fixation/);
@@ -468,20 +468,20 @@ test("sans mur : les réglages donnés à l'outil, l'adresse, le numéro de devi
  * ------------------------------------------------------------------ */
 
 test("favoris : le mur de la fixation et ses cotes se gardent, relus par liste blanche, et le favori le plus chargé tient chez Stripe", () => {
-  const lu = lireReleveGcMemo({ gcMurFixation: "pierre-dure", gcCMurMm: 120, gcEMurMm: 600 });
+  const lu = lireReleveGcMemo({ gcMurFixation: "pierre-dure", gcTMurMm: 120, gcEMurMm: 600 });
   assert.equal(lu.gcMurFixation, "pierre-dure");
-  assert.equal(lu.gcCMurMm, 120);
+  assert.equal(lu.gcTMurMm, 120);
   assert.equal(lu.gcEMurMm, 600);
-  assert.equal(lireReleveGcMemo({ gcMurFixation: "granit", gcCMurMm: 120 }).gcCMurMm, undefined, "pas de cote sans mur");
+  assert.equal(lireReleveGcMemo({ gcMurFixation: "granit", gcTMurMm: 120 }).gcTMurMm, undefined, "pas de cote sans mur");
   assert.equal(lireReleveGcMemo({ gcMurFixation: "granit" }).gcMurFixation, undefined);
-  assert.equal(lireReleveGcMemo({ gcMurFixation: "beton", gcCMurMm: 10 }).gcCMurMm, undefined, "hors bornes");
+  assert.equal(lireReleveGcMemo({ gcMurFixation: "beton", gcTMurMm: 10 }).gcTMurMm, undefined, "hors bornes");
   // Les cases du relevé, aller et retour.
   const mots = { gcEtageOptions: ["En étage", "Au rez-de-chaussée"], gcMurOptions: ["Pierre"] };
-  const cases = { etage: "En étage", largeur: "1200", allege: "400", fenetre: "", mur: "", murFixation: "moellons", cMur: "90", eMur: "600" };
+  const cases = { etage: "En étage", largeur: "1200", allege: "400", fenetre: "", mur: "", murFixation: "moellons", tMur: "90", eMur: "600" };
   const memo = releveVersMemo(cases, mots);
-  assert.deepEqual([memo.gcMurFixation, memo.gcCMurMm, memo.gcEMurMm], ["moellons", 90, 600]);
+  assert.deepEqual([memo.gcMurFixation, memo.gcTMurMm, memo.gcEMurMm], ["moellons", 90, 600]);
   const retour = memoVersReleve(memo, mots);
-  assert.deepEqual([retour.murFixation, retour.cMur, retour.eMur], ["moellons", "90", "600"]);
+  assert.deepEqual([retour.murFixation, retour.tMur, retour.eMur], ["moellons", "90", "600"]);
   // Le favori le plus chargé (les ids les plus longs, toutes les cotes aux bornes, le mur au nom le plus long).
   const produit = getProduct("garde-corps")!;
   const plusLong = (mots: readonly string[]) => mots.reduce((a, b) => (b.length > a.length ? b : a), "");
@@ -504,7 +504,7 @@ test("favoris : le mur de la fixation et ses cotes se gardent, relus par liste b
     gcMur: "Je ne sais pas (enduit)",
     gcModele: "16-5-b",
     gcMurFixation: plusLong(MURS_FIXATION_GC),
-    gcCMurMm: BORNES_MUR_GC.cMurMm.max,
+    gcTMurMm: BORNES_MUR_GC.tMurMm.max,
     gcEMurMm: BORNES_MUR_GC.eMurMm.max,
   };
   const favori = composerFavori({ slug: "garde-corps", titre: plusLong([produit.name, produit.en?.name ?? ""]), resume: "Fenêtre de 3000 mm · ".padEnd(120, "Chêne massif · "), prixCents: 999_999, config, maintenantS: 1_760_000_000 });

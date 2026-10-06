@@ -141,7 +141,7 @@ export function ligneGC(
       ...(releve.decor !== undefined ? { decorGc: releve.decor } : {}),
       // Le mur des tableaux (facultatif) : la fixation entre dans le prix.
       murGc: releve.mur,
-      cMurMm: releve.cMurMm,
+      tMurMm: releve.tMurMm,
       eMurMm: releve.eMurMm,
       woodId: options.woodId,
       metalId: options.metalId ?? modele.metals[0]?.id,
@@ -162,7 +162,7 @@ export function ligneGC(
  * (idDecorGC) ; « decors=1 » : demander aussi le prix de chaque assemblage de décor (PrixDecorGC) ; « mur », « c », « ep » : le
  * mur des tableaux et ses cotes (facultatifs).
  */
-export const PARAMETRES_PRIX_GC = ["l", "allege", "etage", "fenetre", "wood", "metal", "fabric", "remplissage", "qty", "modele", "decor", "decors", "mur", "c", "ep"] as const;
+export const PARAMETRES_PRIX_GC = ["l", "allege", "etage", "fenetre", "wood", "metal", "fabric", "remplissage", "qty", "modele", "decor", "decors", "mur", "t", "ep"] as const;
 
 export type RequetePrixGC = {
   releve: ReleveGC;
@@ -181,7 +181,7 @@ export type RequetePrixGC = {
  * dans les bornes de l'outil, étage 1 ou 0, un bois connu, des identifiants
  * d'option courts, une quantité de 1 à 10, aucun paramètre inconnu ou en
  * double. « fenetre » peut manquer (0 = inconnue) ; les options aussi (celles
- * du modèle). Le mur des tableaux aussi (&mur=beton&c=80&ep=450) : un mur de
+ * du modèle). Le mur des tableaux aussi (&mur=beton&t=180&ep=450) : un mur de
  * la liste de l'outil, des cotes entières dans leurs bornes, jamais une cote
  * sans mur.
  */

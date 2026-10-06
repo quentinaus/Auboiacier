@@ -48,7 +48,7 @@ function ligneEnvoyee(item: CartItem) {
     decorGc: item.decorGc,
     // Le mur des tableaux : la fixation entre dans le prix, le serveur la recalcule.
     murGc: item.murGc,
-    cMurMm: item.cMurMm,
+    tMurMm: item.tMurMm,
     eMurMm: item.eMurMm,
     woodId: item.woodId,
     metalId: item.metalId,

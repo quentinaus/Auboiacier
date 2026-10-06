@@ -468,7 +468,7 @@ export function numeroDevis(entree: {
     // Le décor à volutes : un autre décor, un autre devis. Absent sans décor : les numéros d'avant ne changent pas.
     ...(s.decorGc ? [s.decorGc] : []),
     // Le mur des tableaux : une autre fixation, un autre prix, un autre devis. Sans mur, le numéro ne change pas.
-    ...(s.allegeMm !== undefined && s.murGc ? [s.murGc, s.cMurMm, s.eMurMm] : []),
+    ...(s.allegeMm !== undefined && s.murGc ? [s.murGc, s.tMurMm, s.eMurMm] : []),
   ]
     .map((v) => v ?? "-")
     .join("|");

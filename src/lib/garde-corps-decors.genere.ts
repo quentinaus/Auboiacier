@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Le décor à volutes du garde-corps : assemblages, formes permises (MT_AVEC), noms de l'outil (DECOR_NOMS, MT_NOMS, ses boutons). SANS coûts.
-// Source : l'outil de plans (plans-atelier.html), sha256 f305bbfeaa2968decd89d9ac295800f463a52329cedb119de0d891f83f58fb8f
+// Source : l'outil de plans (plans-atelier.html), sha256 995eb627a36cfedb1289b9d81dca6c7086ac13808a3ffd76f240c72b1faa5234
 /* eslint-disable */
 export type AssemblageDecorGC = "entre" | "frise" | "anneaux" | "hauteur" | "coeurs" | "medaillon" | "applique";
 export type FormeDecorGC = "C" | "S" | "J" | "coeur" | "doubleC" | "poste" | "anneau";

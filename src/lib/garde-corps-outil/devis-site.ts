@@ -128,7 +128,7 @@ export function composerDevisGardeCorps(entree: EntreeDevisGC): ResultatDevis {
     // Le décor à volutes chiffré : deux décors, deux numéros.
     ...(line.gc!.releve.decor !== undefined ? { decorGc: line.gc!.releve.decor } : {}),
     // Le mur des tableaux (celui du relevé chiffré) : une autre fixation, un autre prix, un autre numéro.
-    ...(line.gc!.releve.mur ? { murGc: line.gc!.releve.mur, cMurMm: line.gc!.releve.cMurMm, eMurMm: line.gc!.releve.eMurMm } : {}),
+    ...(line.gc!.releve.mur ? { murGc: line.gc!.releve.mur, tMurMm: line.gc!.releve.tMurMm, eMurMm: line.gc!.releve.eMurMm } : {}),
   };
   // Avec un décor, les photos de la fiche (des croix à rosaces) ne montrent pas la pièce : pas de photo plutôt qu'une fausse.
   const photo = config.decor ? undefined : photoConfiguration(produit, selection);

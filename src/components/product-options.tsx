@@ -2139,7 +2139,7 @@ export function ProductOptions({
         // Le relevé du garde-corps : c'est avec lui que le serveur recalcule la
         // forme et le prix (la hauteur ci-dessus n'en est qu'une copie).
         ...(estGC && releveGC
-          ? { allegeMm: releveGC.allegeMm, enEtage: releveGC.enEtage, fenetreMm: releveGC.fenetreMm, modeleGc: releveGC.decor ? undefined : releveGC.modele, ...(releveGC.decor ? { decorGc: releveGC.decor } : {}), murGc: releveGC.mur, cMurMm: releveGC.cMurMm, eMurMm: releveGC.eMurMm }
+          ? { allegeMm: releveGC.allegeMm, enEtage: releveGC.enEtage, fenetreMm: releveGC.fenetreMm, modeleGc: releveGC.decor ? undefined : releveGC.modele, ...(releveGC.decor ? { decorGc: releveGC.decor } : {}), murGc: releveGC.mur, tMurMm: releveGC.tMurMm, eMurMm: releveGC.eMurMm }
           : {}),
         // Et la note pour l'atelier (étage, mur, allège, fenêtre).
         note:

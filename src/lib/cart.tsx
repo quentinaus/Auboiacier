@@ -41,11 +41,11 @@ export type CartItem = {
   /** Garde-corps : le décor à volutes choisi (« frise.S.bouton.colliers.carre.aucune.0 »), voir ReleveGC.decor. */
   decorGc?: string;
   /**
-   * Garde-corps : le mur des tableaux (« beton », MURS_FIXATION_GC) et ses cotes en mm (de l'arête à la 1re tige,
-   * épaisseur du mur). Le serveur y choisit la fixation, qui entre dans le prix. Absent : la fixation d'avant.
+   * Garde-corps : le mur des tableaux (« beton », MURS_FIXATION_GC) et ses cotes en mm (profondeur du tableau,
+   * de l'arête à la fenêtre ; épaisseur du mur). Le serveur y choisit la fixation, qui entre dans le prix. Absent : la fixation d'avant.
    */
   murGc?: string;
-  cMurMm?: number;
+  tMurMm?: number;
   eMurMm?: number;
   /**
    * Une ligne « prise de cotes à domicile » (slug PRISE_DE_COTES) : le code
@@ -106,7 +106,7 @@ function lineId(line: CartLine) {
     // Le décor à volutes, SEULEMENT s'il y en a un : les identifiants des lignes déjà au panier ne changent pas.
     ...(line.decorGc ? [line.decorGc] : []),
     // Le mur des tableaux : un autre mur, une autre fixation, une autre ligne. Sans mur, l'identifiant ne change pas.
-    ...(line.allegeMm !== undefined && line.murGc ? [line.murGc, line.cMurMm ?? "", line.eMurMm ?? ""] : []),
+    ...(line.allegeMm !== undefined && line.murGc ? [line.murGc, line.tMurMm ?? "", line.eMurMm ?? ""] : []),
   ]
     .map((part) => part ?? "-")
     .join("|");

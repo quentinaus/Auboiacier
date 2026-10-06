@@ -239,7 +239,7 @@ export async function tarifer(
         // refusée (NaN), jamais prise pour « absente » ; un mur illisible aussi (1, true, ["beton"], « » : il devient « ? »,
         // qu'aucun mur ne porte), sinon la ligne passait au prix sans mur ; un mur inconnu : refusé par resolveSelection.
         murGc: line.murGc === undefined || line.murGc === null ? undefined : (identifiant(line.murGc)?.slice(0, 20) ?? "?"),
-        cMurMm: line.cMurMm === undefined || line.cMurMm === null ? undefined : (hauteurMm(line.cMurMm) ?? Number.NaN),
+        tMurMm: line.tMurMm === undefined || line.tMurMm === null ? undefined : (hauteurMm(line.tMurMm) ?? Number.NaN),
         eMurMm: line.eMurMm === undefined || line.eMurMm === null ? undefined : (hauteurMm(line.eMurMm) ?? Number.NaN),
         locale,
       },

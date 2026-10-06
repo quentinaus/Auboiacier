@@ -2683,11 +2683,11 @@ export type Selection = {
   /** Garde-corps : le décor à volutes choisi (idDecorGC, « frise.S.bouton.colliers.carre.aucune.0 »). Il remplace le modèle. */
   decorGc?: string;
   /**
-   * Garde-corps : le mur des tableaux (MURS_FIXATION_GC) et ses cotes en mm (ReleveGC.mur, cMurMm, eMurMm). La fixation
+   * Garde-corps : le mur des tableaux (MURS_FIXATION_GC) et ses cotes en mm (ReleveGC.mur, tMurMm, eMurMm). La fixation
    * que l'outil y choisit entre dans le prix. Absent : la fixation d'avant (vis et chevilles). Une cote sans mur est refusée.
    */
   murGc?: string;
-  cMurMm?: number;
+  tMurMm?: number;
   eMurMm?: number;
   /** Langue du libellé de la ligne. N'influence aucun prix. */
   locale?: Locale;
@@ -3325,7 +3325,7 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
   if (selection.modeleGc !== undefined && !lireModeleGC(selection.modeleGc)) return { ok: false, reason: "unknown_size" };
   // Le mur des tableaux (facultatif) : un mur de la liste de l'outil, des cotes entières dans leurs bornes, jamais une cote
   // sans mur. Illisible : refusé, jamais remplacé en silence (la fixation change le prix).
-  const mur = { mur: selection.murGc, cMurMm: selection.cMurMm, eMurMm: selection.eMurMm };
+  const mur = { mur: selection.murGc, tMurMm: selection.tMurMm, eMurMm: selection.eMurMm };
   if (!murDansLesBornes(mur)) return { ok: false, reason: "unknown_size" };
   const releve: ReleveGC = {
     largeurMm, allegeMm, enEtage: selection.enEtage, fenetreMm,

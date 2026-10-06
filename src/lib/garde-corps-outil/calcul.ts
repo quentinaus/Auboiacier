@@ -103,7 +103,7 @@ export function entreeValide(e: EntreeSiteGC): boolean {
  * fixation change le prix, le débit, et parfois la forme : des pattes, ou « à étudier »).
  */
 function cleDuReleve(e: EntreeSiteGC, essence: string, avecDecor: readonly string[] = []): string {
-  return JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, essence, e.rosaceMm ?? 100, e.mur ?? "", e.cMurMm ?? null, e.eMurMm ?? null, ...avecDecor]);
+  return JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, essence, e.rosaceMm ?? 100, e.mur ?? "", e.tMurMm ?? null, e.eMurMm ?? null, ...avecDecor]);
 }
 
 // Le calcul prend quelques millisecondes à quelques dizaines : on garde les derniers relevés.
@@ -180,7 +180,7 @@ function fenetreTropBasse(cleReleve: string, entree: EntreeSiteGC, seuls = false
  */
 const REFUS_SANS_POUSSEE: readonly RegExp[] = [
   /^sur étude — le placo est à l'intérieur/,
-  /^sur étude — la 1re fixation doit être à \d+ mm au moins de l'arête/,
+  /^sur étude — le tableau est trop peu profond/,
   /^sur étude — un carré de \d+ au moins/,
   /^sur étude — le montant de rive est trop court/,
 ];
@@ -324,7 +324,7 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   // même (la hauteur d'un cadre à croix, le cadre des barreaux seuls). Ils se partagent donc cette mémoire — un test le vérifie
   // sur une grille de fenêtres : le premier décor calculé écarte les carrés pour les six autres (la liste des prix des décors).
   // (Le mur des tableaux et ses cotes y entrent : la fixation dépend du mur.)
-  const cleCarres = decor ? JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, essenceCalcul, "décor", e.mur ?? "", e.cMurMm ?? null, e.eMurMm ?? null]) : cleCalcul;
+  const cleCarres = decor ? JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, essenceCalcul, "décor", e.mur ?? "", e.tMurMm ?? null, e.eMurMm ?? null]) : cleCalcul;
   // La mémoire est rangée par DESSIN (pas par identifiant) : « 16-4 » et « 18-4 » sont la même demande.
   const cle = `${cleReleve}|${choisi ? `${choisi.croix}|${choisi.barreauxBas ? 1 : 0}|${choisi.traverse ? 1 : 0}|${choisi.seuls ? 1 : 0}` : ""}`;
   const deja = memoire.get(cle);
