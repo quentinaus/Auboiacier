@@ -132,6 +132,18 @@ export default async function ZonePage({ params }: PageProps<"/[lang]/zone-inter
               </li>
             ))}
           </ul>
+          {/* Les deux autres services de l'atelier, chacun sur sa page (référencement, 07/10/2026). */}
+          <nav
+            aria-label={locale === "fr" ? "Autres services de l'atelier" : "Other workshop services"}
+            className="mt-10 flex flex-wrap justify-center gap-x-8 gap-y-2 md:mt-14"
+          >
+            <Link href={`/${locale}/garde-corps-balcon-terrasse`} className="lien-fleche py-2 text-[#2b2320]">
+              {locale === "fr" ? "Garde-corps de balcon et de terrasse" : "Balcony and terrace railings"}
+            </Link>
+            <Link href={`/${locale}/soudure-reparations`} className="lien-fleche py-2 text-[#2b2320]">
+              {locale === "fr" ? "Soudure et réparations" : "Welding and repairs"}
+            </Link>
+          </nav>
         </div>
       </section>
 

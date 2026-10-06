@@ -257,7 +257,7 @@ const FR: TextesGcExterieur = {
 
   poseTitre: "Et la pose ?",
   pose:
-    "La pose d'un garde-corps sur un balcon ou une terrasse demande l'assurance décennale de l'atelier : elle ne sera proposée qu'une fois cette assurance signée, ce qui est prévu avant l'ouverture des commandes, le {ouverture}. Le devis dit toujours, noir sur blanc, si la pose est comprise.",
+    "La pose d'un garde-corps sur un balcon ou une terrasse demande l'assurance décennale de l'atelier : elle ne sera proposée qu'une fois cette assurance signée. Les commandes ouvrent le {ouverture} ; le devis dit toujours, noir sur blanc, si la pose est comprise.",
 
   prixTitre: "Le prix d'un garde-corps de balcon ou de terrasse",
   prix: [
@@ -414,7 +414,7 @@ const EN: TextesGcExterieur = {
 
   poseTitre: "What about fitting?",
   pose:
-    "Fitting a railing on a balcony or a terrace requires the workshop's ten-year building insurance (assurance décennale): fitting will only be offered once that insurance is signed, which is planned before orders open on {ouverture}. The quote always states clearly whether fitting is included.",
+    "Fitting a railing on a balcony or a terrace requires the workshop's ten-year building insurance (assurance décennale): fitting will only be offered once that insurance is signed. Orders open on {ouverture}; the quote always states clearly whether fitting is included.",
 
   prixTitre: "What a balcony or terrace railing costs",
   prix: [

@@ -201,6 +201,24 @@ export default async function ProductPage({
     ...(product.famille === "garde-corps"
       ? [{ href: `/${locale}/garde-corps-fenetre-normes`, label: dict.liens.normesGc }]
       : []),
+    // Les garde-corps de balcon et de terrasse, sur devis : leur page (référencement, 07/10/2026).
+    ...(product.famille === "garde-corps"
+      ? [
+          {
+            href: `/${locale}/garde-corps-balcon-terrasse`,
+            label: locale === "fr" ? "Garde-corps de balcon et de terrasse" : "Balcony and terrace railings",
+          },
+        ]
+      : []),
+    // L'escalier : ses prix par forme et par essence, et ses normes, sur le guide (référencement, 07/10/2026).
+    ...(product.famille === "escalier"
+      ? [
+          {
+            href: `/${locale}/escalier-limon-central-prix-normes`,
+            label: locale === "fr" ? "Escalier à limon central : prix et normes" : "Steel spine staircase: prices and rules",
+          },
+        ]
+      : []),
     ...(estTable || ouvrage ? [{ href: `/${locale}/bois-massif`, label: dict.liens.boisLong }] : []),
     ...(product.category === "lumiere"
       ? [{ href: `/${locale}/toiles-tendues#plafond-tendu`, label: dict.liens.plafondTendu }]

@@ -313,6 +313,38 @@ test("llms.txt : qui, quoi, où, les pages clés — sans prix écrit à la main
   }
 });
 
+test("les trois pages nouvelles (guide escalier, balcon et terrasse, soudure) : au plan du site, et des pages y mènent", () => {
+  const lire = (chemin: string) => readFileSync(new URL(`../src/${chemin}`, import.meta.url), "utf8");
+  const plan = lire("app/sitemap.ts");
+  const pied = lire("components/site-footer.tsx");
+  const fiche = lire("app/[lang]/artisanat/[slug]/page.tsx");
+  const zone = lire("app/[lang]/zone-intervention/page.tsx");
+  for (const chemin of ["/escalier-limon-central-prix-normes", "/garde-corps-balcon-terrasse", "/soudure-reparations"]) {
+    assert.ok(existsSync(new URL(`../src/app/[lang]${chemin}/page.tsx`, import.meta.url)), `${chemin} : page absente`);
+    assert.ok(plan.includes(`chemin: "${chemin}"`), `${chemin} absent du plan du site`);
+    assert.ok(pied.includes(`/\${locale}${chemin}\``), `${chemin} absent du pied de page`);
+  }
+  // La fiche escalier mène à son guide, la fiche garde-corps à la page balcon et terrasse, la zone à la soudure.
+  assert.match(fiche, /famille === "escalier"[\s\S]{0,120}\/escalier-limon-central-prix-normes/);
+  assert.match(fiche, /famille === "garde-corps"[\s\S]{0,120}\/garde-corps-balcon-terrasse/);
+  assert.match(zone, /\/soudure-reparations/);
+  assert.match(zone, /\/garde-corps-balcon-terrasse/);
+});
+
+test("pied de page : chaque lien mène à une page du site qui existe", () => {
+  const pied = readFileSync(new URL("../src/components/site-footer.tsx", import.meta.url), "utf8");
+  const chemins = [...pied.matchAll(/href: `\/\$\{locale\}([^`]*)`/g)].map((m) => m[1] ?? "");
+  assert.ok(chemins.length >= 15, `${chemins.length} liens seulement`);
+  for (const chemin of chemins) {
+    const sansAncre = chemin.replace(/#.*$/, "");
+    const fiche = sansAncre.match(/^\/artisanat\/([a-z0-9-]+)$/)?.[1];
+    assert.ok(
+      existsSync(new URL(`../src/app/[lang]${sansAncre}`, import.meta.url)) || (fiche && products.some((p) => p.slug === fiche)),
+      `le pied de page renvoie vers ${chemin}, qui n'existe pas`
+    );
+  }
+});
+
 test("IndexNow : une seule clé, servie en public/<clé>.txt, et l'envoi prêt (jamais lancé par les tests)", () => {
   const cle = cleIndexNow();
   assert.match(cle, /^[0-9a-f]{32}$/);

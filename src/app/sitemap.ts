@@ -22,6 +22,12 @@ const PAGES: { chemin: string; priorite: number; frequence: "weekly" | "monthly"
   { chemin: "/bois-massif", priorite: 0.7, frequence: "monthly" },
   // Le garde-corps de fenêtre : la règle de hauteur et de vides, avec des exemples calculés par le moteur.
   { chemin: "/garde-corps-fenetre-normes", priorite: 0.8, frequence: "monthly" },
+  // L'escalier à limon central : prix par forme et par essence (moteur du catalogue), normes sourcées.
+  { chemin: "/escalier-limon-central-prix-normes", priorite: 0.8, frequence: "monthly" },
+  // Les garde-corps de balcon, de terrasse et les rampes d'escalier extérieur (oui de Quentin, 07/10/2026).
+  { chemin: "/garde-corps-balcon-terrasse", priorite: 0.7, frequence: "monthly" },
+  // La soudure et les réparations à façon, à Saumur (oui de Quentin, 07/10/2026).
+  { chemin: "/soudure-reparations", priorite: 0.7, frequence: "monthly" },
   // Les deux pages écrites pour le référencement local : Google doit les voir vite.
   { chemin: "/zone-intervention", priorite: 0.7, frequence: "monthly" },
   { chemin: "/faq", priorite: 0.7, frequence: "monthly" },

@@ -5,9 +5,9 @@
 Quentin Aumercier est soudeur-métallier, titulaire du CAP Métallier et du BP Métallier. Il a travaillé deux ans en Australie chez un fabricant de plafonds lumineux en toile tendue avant d'ouvrir l'atelier à Saumur. Il travaille seul : celui qui répond est celui qui fabrique. Langues : français, anglais.
 
 - Fabrication sur mesure : chaque pièce est dessinée aux cotes du client et soudée à la commande, rien n'est en stock.
-- Prix : affiché sur chaque fiche pour les cotes demandées, avec un devis PDF sans compte ; verrières et sculptures sur devis.
+- Prix : affiché sur chaque fiche pour les cotes demandées, avec un devis PDF sans compte ; escaliers, verrières et sculptures sur devis.
 - Zone : atelier à Saumur ; prise de cotes à domicile autour de Saumur ; livraison en France métropolitaine.
-- Aussi sur demande : garde-corps de balcon et de terrasse, rampes d'escalier, soudure et réparations à façon (formulaire de contact).
+- Aussi, sur devis : garde-corps de balcon et de terrasse, rampes d'escalier extérieur, soudure et réparations à façon (pages ci-dessous).
 - Contact : auboiacier@gmail.com, 07 82 37 23 79.
 
 ## Pièces et savoir-faire
@@ -19,12 +19,15 @@ Quentin Aumercier est soudeur-métallier, titulaire du CAP Métallier et du BP M
 - [Tables sur mesure en bois massif et acier](https://auboiacier.fr/fr/artisanat/tables): modèles, essences, dimensions
 - [Plafonds lumineux en toile tendue](https://auboiacier.fr/fr/toiles-tendues): Lucarne (rectangle) et Halo (disque)
 - [Sculptures en acier soudé](https://auboiacier.fr/fr/artisanat/sculptures): sur commande
+- [Garde-corps de balcon et de terrasse](https://auboiacier.fr/fr/garde-corps-balcon-terrasse): balcons, terrasses, rampes d'escalier extérieur, sur devis
+- [Soudure et réparations](https://auboiacier.fr/fr/soudure-reparations): acier et aluminium, TIG, MAG, électrode, sur devis
 - [Le bois massif à l'atelier](https://auboiacier.fr/fr/bois-massif): plateaux, marches, mains courantes
 
 ## Guides
 
 - [Garde-corps de fenêtre : la norme](https://auboiacier.fr/fr/garde-corps-fenetre-normes): hauteur, vides, cas où il est obligatoire
 - [Comment un garde-corps est vérifié](https://auboiacier.fr/fr/artisanat/verification-garde-corps): les contrôles de l'outil, avec un exemple réel
+- [Escalier à limon central : prix et normes](https://auboiacier.fr/fr/escalier-limon-central-prix-normes): prix par forme et par essence, hauteur de marche, giron, loi de Blondel, échappée
 - [Questions fréquentes](https://auboiacier.fr/fr/faq): délais, prix, livraison
 
 ## L'atelier
@@ -39,6 +42,9 @@ Quentin Aumercier est soudeur-métallier, titulaire du CAP Métallier et du BP M
 
 - [Home](https://auboiacier.fr/en): metalwork workshop in Saumur, Loire Valley, France
 - [The collection](https://auboiacier.fr/en/artisanat): bespoke steel and solid wood pieces, priced online
+- [Steel spine staircase: prices and rules](https://auboiacier.fr/en/escalier-limon-central-prix-normes): prices by shape and timber, French rules
+- [Balcony and terrace railings](https://auboiacier.fr/en/garde-corps-balcon-terrasse): bespoke, quoted per project
+- [Welding and repairs](https://auboiacier.fr/en/soudure-reparations): steel and aluminium, quoted per job
 - [About Quentin Aumercier](https://auboiacier.fr/en/a-propos): welder-metalworker, French CAP and BP Métallier diplomas, two years in Australia with a maker of backlit stretch-fabric ceilings
 
 ## Optional
