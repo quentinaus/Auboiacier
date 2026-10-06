@@ -1852,8 +1852,8 @@ const catalogue: Product[] = [
       // (voir table-mikado).
       forme: "rect",
       axes: "plan",
-      forfait: 994,
-      parM2: 250,
+      forfait: 987,
+      parM2: 255,
       // Le tour de la table : les tables longues et étroites coûtent plus que leur surface (lattes, traverses).
       parMetre: 40,
       minMm: 800,
