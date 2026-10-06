@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { essenceDeReference, priceFrom, type Product } from "@/lib/products";
+import { essenceDeReference, type Product } from "@/lib/products";
+import { prixAfficheFiche } from "@/lib/donnees-google";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { ETAPE_MODELE_GC, MEDIA_TELEPHONE_GC } from "./etapes-telephone";
 import { ProductOptions, aLeConfigurateurPleinePage, type Ouverture } from "./product-options";
@@ -331,7 +332,11 @@ export function ProductView({
   const pleinePage = aLeConfigurateurPleinePage(product);
   const estTable = product.famille === "table-interieur" || product.famille === "table-exterieur";
   const troisColonnes = product.releve === "garde-corps-fenetre";
-  const prixDepart = product.releve ? null : priceFrom(product);
+  // Le prix du haut de la fiche : le même calcul que la description et les
+  // données Google (src/lib/donnees-google.ts) — Google ne reçoit que ce qui
+  // s'affiche ici. « À partir de » d'un côté, prix d'appel du garde-corps de l'autre.
+  const prixFiche = prixAfficheFiche(product, prixAppel);
+  const prixDepart = prixFiche?.sorte === "a-partir-de" ? prixFiche.prix : null;
   const aide = (
     <p className={pleinePage ? "mt-3 text-xs text-[#726757]" : "mt-6 border-t border-[#e5ddd3] pt-6 text-sm text-[#726757]"}>
       {t.helpTitle}{" "}
@@ -629,13 +634,13 @@ export function ProductView({
               </p>
             )}
             {/* Le garde-corps : un prix d'appel réaliste, avec la fenêtre qui va avec (étude marketing, 06/10). */}
-            {prixAppel && (
+            {prixFiche?.sorte === "appel" && (
               <p className="mt-4 text-[14px] tabular-nums text-[#4a4038]">
                 {locale === "fr" ? "Dès " : "From "}
-                <span className="font-semibold text-[#2b2320]">{prixAffiche(prixAppel.prix, locale)}</span>
+                <span className="font-semibold text-[#2b2320]">{prixAffiche(prixFiche.prix, locale)}</span>
                 {locale === "fr"
-                  ? ` pour une fenêtre de ${prixAppel.largeurMm / 10}\u00a0cm de large`
-                  : ` for a window ${prixAppel.largeurMm / 10} cm wide`}
+                  ? ` pour une fenêtre de ${prixFiche.largeurMm / 10}\u00a0cm de large`
+                  : ` for a window ${prixFiche.largeurMm / 10} cm wide`}
               </p>
             )}
             <p className="mt-1 text-xs leading-snug text-[#7a6f64]">{t.prixAttenteCotes}</p>

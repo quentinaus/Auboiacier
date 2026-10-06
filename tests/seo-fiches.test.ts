@@ -5,12 +5,13 @@
  *
  * seo.test.ts vérifie les textes des dictionnaires ; les fiches, elles,
  * assemblent leur titre et leur description à la volée (nom, mots de métier,
- * accroche, prix « à partir de »), dans src/app/[lang]/artisanat/[slug]/page.tsx.
+ * accroche, prix affiché par la fiche), dans src/app/[lang]/artisanat/[slug]/page.tsx.
  * On refait ici le même assemblage, avec le vrai prix du moteur, et on vérifie
  * que rien n'est coupé par Google — un titre amputé perd justement les mots
  * que les gens tapent.
  *
- * Aucun montant n'est écrit dans ce fichier : les prix viennent de prixDepart.
+ * Aucun montant n'est écrit dans ce fichier : les prix viennent du catalogue
+ * et de l'outil (prixAfficheFiche, src/lib/donnees-google.ts).
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -24,8 +25,9 @@ import {
   TRANSPORT_MAX_GRANDE_COTE_MM,
   TRANSPORT_MAX_PETITE_COTE_MM,
 } from "../src/lib/products.ts";
-import { prixDepart } from "../src/lib/garde-corps-outil/site.ts";
-import { descriptionSeo, lienAvisGoogle, titreSeo } from "../src/lib/seo.ts";
+import { prixAppelGC, prixDepart } from "../src/lib/garde-corps-outil/site.ts";
+import { prixAfficheFiche, textePrixDescription } from "../src/lib/donnees-google.ts";
+import { descriptionSeo, descriptionTient, lienAvisGoogle, titreSeo } from "../src/lib/seo.ts";
 import { prixAffiche } from "../src/lib/ui.ts";
 import { remplacerMarqueurs } from "../src/lib/marqueurs.ts";
 import { PRIX_OFFRE_CENTS, RAYON_MAX_KM } from "../src/lib/deplacement.ts";
@@ -46,23 +48,17 @@ const DICTIONNAIRES = { fr, en } as const;
 function balisesFiche(slug: string, locale: "fr" | "en") {
   const fiche = productLocalise(products.find((p) => p.slug === slug)!, locale);
   const depart = prixDepart(fiche);
-  const depuis =
-    depart === null
-      ? fiche.priseDeCotes
-        ? locale === "fr"
-          ? "Sur devis, pose comprise."
-          : "Price on request, fitting included."
-        : locale === "fr"
-          ? "Sur devis."
-          : "Price on request."
-      : locale === "fr"
-        ? `À partir de ${prixAffiche(depart, locale)}.`
-        : `From ${prixAffiche(depart, locale)}.`;
+  // Le prix que la fiche affiche, et lui seul (sans prix affiché : « Sur devis… ») ;
+  // la phrase de la fiche, ou sa forme courte si la description ne tiendrait pas.
+  const prixFiche = prixAfficheFiche(fiche, prixAppelGC(fiche));
   const titre =
     fiche.seoTitre ?? (fiche.seoMots ? `${fiche.name} — ${fiche.seoMots}` : `${fiche.name} — ${fiche.tagline}`);
-  const description = fiche.seoDescription
-    ? `${fiche.seoDescription} ${depuis}`
-    : `${fiche.tagline} ${depuis} ${DICTIONNAIRES[locale].seo.produitSuffixe}`;
+  const assembler = (depuis: string) =>
+    fiche.seoDescription
+      ? `${fiche.seoDescription} ${depuis}`
+      : `${fiche.tagline} ${depuis} ${DICTIONNAIRES[locale].seo.produitSuffixe}`;
+  const complete = assembler(textePrixDescription(fiche, prixFiche, locale));
+  const description = descriptionTient(complete) ? complete : assembler(textePrixDescription(fiche, prixFiche, locale, true));
   return { titre, description, depart };
 }
 

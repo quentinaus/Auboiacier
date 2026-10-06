@@ -30,7 +30,17 @@ import {
   valeurPropre,
 } from "../src/lib/provenance.ts";
 import { provenanceVisite, retenirProvenance } from "../src/lib/provenance-visite.ts";
-import { COMPTEURS, FAMILLES, compter, etiquettesOrigine, etiquettesPropres, ligneCompteur } from "../src/lib/compteurs.ts";
+import {
+  COMPTEURS,
+  FAMILLES,
+  JOURNAL_SEULEMENT,
+  USER_AGENT_FAMILLE,
+  compter,
+  etiquettesOrigine,
+  etiquettesPropres,
+  familleNavigateur,
+  ligneCompteur,
+} from "../src/lib/compteurs.ts";
 import { products } from "../src/lib/products.ts";
 import { SITE_URL } from "../src/lib/seo.ts";
 import { MAX_METADONNEE_STRIPE } from "../src/lib/libelle-stripe.ts";
@@ -223,7 +233,33 @@ test("la ligne du journal tient sur une ligne et ne dit rien de personne", () =>
   assert.ok(!ligne.includes("\n"));
 });
 
-test("compter() : une ligne au journal, et en production un événement sans adresse IP, ni cookie, ni adresse de page", async () => {
+test("le navigateur réduit à sa famille : Chrome, Safari, Firefox, Edge ou autre ; un robot, rien", () => {
+  const cas: [string, string | null][] = [
+    ["Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36", "chrome"],
+    ["Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36", "chrome"],
+    ["Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/130.0.0.0 Mobile/15E148 Safari/604.1", "chrome"],
+    ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15", "safari"],
+    ["Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0", "firefox"],
+    ["Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0", "edge"],
+    ["Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 312.0.0.0", "autre"],
+    // Un téléphone de la marque Cubot n'est pas un robot.
+    ["Mozilla/5.0 (Linux; Android 11; CUBOT X30) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36", "chrome"],
+    ["Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)", null],
+    ["Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/130.0.0.0 Safari/537.36", null],
+    ["Stripe/1.0 (+https://stripe.com/docs/webhooks)", null],
+    ["node", null],
+    ["", null],
+  ];
+  for (const [ua, attendu] of cas) assert.equal(familleNavigateur(ua), attendu, ua);
+  // Chaque user-agent générique est relu comme sa propre famille, ne passe pas pour un robot, et ne dit rien d'autre.
+  for (const [famille, ua] of Object.entries(USER_AGENT_FAMILLE)) {
+    assert.equal(familleNavigateur(ua), famille, ua);
+    assert.doesNotMatch(ua, /Windows|Mac OS|iPhone|Android|Linux|Mobile|\b[1-9]\d*\.\d+\.\d+\.[1-9]/, ua);
+  }
+  assert.deepEqual([...JOURNAL_SEULEMENT], ["commande_payee"]);
+});
+
+test("compter() : une ligne au journal, et en production un événement sans adresse IP, ni cookie, ni adresse de page, ni navigateur précis", async () => {
   const journal: string[] = [];
   const envois: { url: string; init: RequestInit }[] = [];
   const log = console.log;
@@ -235,8 +271,10 @@ test("compter() : une ligne au journal, et en production un événement sans adr
     return new Response("ok");
   }) as typeof fetch;
   try {
+    const iphone =
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
     const requete = new Request("https://auboiacier.fr/api/devis-pdf?slug=table-mikado&nom=Jean%20Dupont&email=jean%40exemple.fr", {
-      headers: { "user-agent": "Mozilla/5.0 Test", cookie: "auboiacier_compte=secret", "x-forwarded-for": "203.0.113.7" },
+      headers: { "user-agent": iphone, cookie: "auboiacier_compte=secret", "x-forwarded-for": "203.0.113.7" },
     });
     // Hors production (essais, prévisualisations) : le journal seulement.
     delete process.env.VERCEL_ENV;
@@ -254,13 +292,30 @@ test("compter() : une ligne au journal, et en production un événement sans adr
     assert.equal(entetes.get("cookie"), null);
     assert.equal(entetes.get("x-vercel-ip"), null);
     assert.equal(entetes.get("x-forwarded-for"), null);
-    assert.equal(entetes.get("user-agent"), "Mozilla/5.0 Test");
+    // Le navigateur : sa seule famille, sous un user-agent générique (ni iPhone, ni iOS 18, ni version).
+    assert.equal(entetes.get("user-agent"), USER_AGENT_FAMILLE.safari);
     const corps = JSON.parse(String(init.body));
     assert.equal(corps.en, "devis_pdf");
     assert.deepEqual(corps.ed, { famille: "table-interieur" });
     assert.equal(corps.o, `${SITE_URL}/`);
     const tout = JSON.stringify(init);
-    for (const secret of ["Jean", "jean", "exemple", "203.0.113.7", "secret"]) assert.ok(!tout.includes(secret), `« ${secret} » envoyé à Vercel`);
+    for (const secret of ["Jean", "jean", "exemple", "203.0.113.7", "secret", "iPhone", "18_0", "18.0"]) assert.ok(!tout.includes(secret), `« ${secret} » envoyé à Vercel`);
+
+    // Une commande payée (webhook de Stripe) : la ligne du journal, rien chez Vercel.
+    journal.length = 0;
+    const stripe = new Request("https://auboiacier.fr/api/stripe/webhook", { method: "POST", headers: { "user-agent": "Stripe/1.0 (+https://stripe.com/docs/webhooks)" } });
+    await compter("commande_payee", { connu: "google", canal: "aucun" }, stripe);
+    assert.deepEqual(journal, ['COMPTEUR {"compteur":"commande_payee","connu":"google","canal":"aucun"}']);
+    assert.equal(envois.length, 1, "commande_payee envoyée à Vercel");
+    // Même avec un vrai navigateur : jamais chez Vercel.
+    await compter("commande_payee", {}, requete);
+    assert.equal(envois.length, 1);
+
+    // Un robot, ou une requête sans navigateur : le journal seulement.
+    for (const robot of ["Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)", "curl/8.4.0", ""]) {
+      await compter("devis_pdf", { famille: "plafond" }, new Request("https://auboiacier.fr/api/devis-pdf", { headers: robot ? { "user-agent": robot } : {} }));
+    }
+    assert.equal(envois.length, 1, "un robot envoyé à Vercel");
 
     // Un envoi qui échoue ne casse rien.
     globalThis.fetch = (async () => {

@@ -313,6 +313,11 @@ export function descriptionSeo(texte: string) {
   return debut.slice(0, mot > 0 ? mot : LONGUEUR_DESCRIPTION - 1).replace(/[\s,;:—–-]+$/, "") + "…";
 }
 
+/** La description tient-elle entière dans ce que Google affiche (descriptionSeo n'y coupe rien) ? */
+export function descriptionTient(texte: string): boolean {
+  return descriptionSeo(texte) === texte.replace(/\s+/g, " ").trim();
+}
+
 function absolu(chemin: string) {
   return chemin.startsWith("http") ? chemin : `${SITE_URL}${chemin}`;
 }
@@ -521,6 +526,11 @@ export function jsonLdListe(locale: Locale, nom: string, elements: { nom: string
   };
 }
 
+/**
+ * Le bloc Product d'une fiche, avec son offre. Seulement pour une fiche qui
+ * affiche un prix : sans offre (ni avis, ni note), Google le signale comme
+ * élément non valide — la page n'en émet alors aucun (src/lib/donnees-google.ts).
+ */
 export function jsonLdProduit({
   locale,
   chemin,
@@ -535,12 +545,9 @@ export function jsonLdProduit({
   nom: string;
   description: string;
   images: string[];
-  /**
-   * Absente pour une pièce sur devis sans prix : on n'annonce alors aucune
-   * offre. Son bas est le « à partir de » de la page (fourchetteGoogle).
-   */
-  fourchette?: FourchetteGoogle;
-  /** Précommande avant l'ouverture des commandes, disponible ensuite (disponibiliteGoogle). */
+  /** Son bas est le prix affiché par la fiche (fourchetteGoogle). */
+  fourchette: FourchetteGoogle;
+  /** InStock quand le panier encaisse, null avant : aucune disponibilité envoyée (disponibiliteGoogle). */
   disponibilite: DisponibiliteGoogle;
 }) {
   return {
@@ -553,27 +560,20 @@ export function jsonLdProduit({
     manufacturer: { "@id": `${SITE_URL}/#atelier` },
     countryOfOrigin: "FR",
     url: `${SITE_URL}/${locale}${chemin}`,
-    ...(fourchette
-      ? {
-          offers: {
-            "@type": "AggregateOffer",
-            priceCurrency: "EUR",
-            lowPrice: fourchette.prixMin,
-            highPrice: fourchette.prixMax,
-            offerCount: 1,
-            // Google n'affiche le prix qu'avec une disponibilité de sa liste :
-            // MadeToOrder n'en fait pas partie, la fiche passait donc à la
-            // trappe. « InStock » = commandable tout de suite (le délai de
-            // fabrication est dit dans la page et dans l'e-mail de confirmation) ;
-            // « PreOrder » tant que le panier n'encaisse pas, avec le jour de
-            // l'ouverture des commandes (src/lib/donnees-google.ts).
-            availability: `https://schema.org/${disponibilite.valeur}`,
-            ...(disponibilite.aPartirDu ? { availabilityStarts: disponibilite.aPartirDu } : {}),
-            seller: { "@id": `${SITE_URL}/#atelier` },
-            areaServed: "FR",
-          },
-        }
-      : {}),
+    offers: {
+      "@type": "AggregateOffer",
+      priceCurrency: "EUR",
+      lowPrice: fourchette.prixMin,
+      highPrice: fourchette.prixMax,
+      offerCount: 1,
+      // Seulement une valeur de la liste de Google (MadeToOrder n'en fait
+      // pas partie) : InStock quand le panier encaisse — le délai de
+      // fabrication est dit dans la page et dans l'e-mail de confirmation.
+      // Avant l'ouverture, aucune : rien ne se commande encore.
+      ...(disponibilite ? { availability: `https://schema.org/${disponibilite}` } : {}),
+      seller: { "@id": `${SITE_URL}/#atelier` },
+      areaServed: "FR",
+    },
   };
 }
 

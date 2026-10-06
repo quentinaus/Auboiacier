@@ -40,8 +40,10 @@ export async function GET(request: Request) {
     budgetCalculGC.depenser(request, performance.now() - debut, Date.now());
     if (!reponse) return NextResponse.json({ error: "invalid" }, { status: 400 });
     // Un prix calculé de plus au compteur (ou un garde-corps « à étudier ») :
-    // ni les cotes ni le prix n'y entrent. Le navigateur garde la réponse dix
-    // minutes : les mêmes cotes redemandées ne sont pas recomptées.
+    // ni les cotes ni le prix n'y entrent. C'est un nombre de CALCULS, pas de
+    // visiteurs : chaque cote ou option changée relance un calcul, un même
+    // client en fait souvent plusieurs. Le navigateur garde la réponse dix minutes :
+    // les mêmes cotes redemandées ne sont pas recomptées.
     after(() => compter("prix_calcule", { famille: "garde-corps", resultat: reponse.ok ? "prix" : "a-etudier" }, request));
     return NextResponse.json(reponse, { headers: { "cache-control": "private, max-age=600" } });
   } catch (erreur) {

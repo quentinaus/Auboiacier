@@ -8,13 +8,14 @@ import { notFound } from "next/navigation";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../../dictionaries";
 import { getProduct, products, prixParOutil, productLocalise } from "@/lib/products";
-import { disponibiliteGoogle, fourchetteGoogle } from "@/lib/donnees-google";
+import { disponibiliteGoogle, fourchetteGoogle, prixAfficheFiche, textePrixDescription } from "@/lib/donnees-google";
 import { fourchetteGC, prixAppelGC, prixDepart } from "@/lib/prix-garde-corps.server";
 import { ProductView } from "@/components/product-view";
 import { ProductTail } from "@/components/product-tail";
 import { MembraneAnimee } from "@/components/photo-plafond-anime";
 import {
   metadataPage,
+  descriptionTient,
   jsonLdProduit,
   jsonLdFilAriane,
   scriptJsonLd,
@@ -66,23 +67,11 @@ export async function generateMetadata({
 
   // Le prix écrit de la même façon dans le résultat de recherche et sur la
   // page : Google affichait « From €2 870 » là où la page disait « 2 870 € ».
-  // Le garde-corps : celui de l'outil de plans, calculé sur le serveur.
-  const depart = prixDepart(product);
-  const depuis =
-    depart === null
-      ? // « Pose comprise » ne vaut que pour une pièce que l'atelier vient
-        // mesurer chez le client avant de la poser (priseDeCotes). Une table
-        // sur devis se livre, la pose y reste en option.
-        product.priseDeCotes
-        ? locale === "fr"
-          ? "Sur devis, pose comprise."
-          : "Price on request, fitting included."
-        : locale === "fr"
-          ? "Sur devis."
-          : "Price on request."
-      : locale === "fr"
-        ? `À partir de ${prixAffiche(depart, locale)}.`
-        : `From ${prixAffiche(depart, locale)}.`;
+  // Et seulement le prix que la fiche affiche (prixAfficheFiche, le même que
+  // ProductView et le JSON-LD), avec ses mots : le garde-corps donne son prix
+  // d'appel, calculé par l'outil sur le serveur ; l'escalier, sans prix sur
+  // sa fiche, « Sur devis, pose comprise. ».
+  const prixFiche = prixAfficheFiche(product, prixAppelGC(product));
   // Le titre porte la pièce, la matière et la ville : c'est ce que les gens
   // tapent. Surtout pas l'accroche commerciale, trop longue pour les soixante
   // signes que Google affiche — elle se faisait couper en plein milieu, et le
@@ -92,10 +81,13 @@ export async function generateMetadata({
     (product.seoMots ? `${product.name} — ${product.seoMots}` : `${product.name} — ${product.tagline}`);
   // Une fiche dont l'accroche est trop longue pour tenir avec le prix et le
   // suffixe donne sa propre description (voir Product.seoDescription) ; le
-  // prix, lui, vient toujours du catalogue.
-  const description = product.seoDescription
-    ? `${product.seoDescription} ${depuis}`
-    : `${product.tagline} ${depuis} ${dict.seo.produitSuffixe}`;
+  // prix, lui, vient toujours du catalogue. Si la phrase de la fiche ne tient
+  // pas dans les 155 signes de Google (il la couperait, prix compris), sa
+  // forme courte : même prix, moins de mots.
+  const assembler = (depuis: string) =>
+    product.seoDescription ? `${product.seoDescription} ${depuis}` : `${product.tagline} ${depuis} ${dict.seo.produitSuffixe}`;
+  const complete = assembler(textePrixDescription(product, prixFiche, locale));
+  const description = descriptionTient(complete) ? complete : assembler(textePrixDescription(product, prixFiche, locale, true));
 
   return metadataPage({
     locale,
@@ -223,34 +215,39 @@ export default async function ProductPage({
   const achetable = product.orderMode === "cart";
 
   /**
-   * Ce que Google reçoit (src/lib/donnees-google.ts) : un prix bas égal au
-   * « à partir de » de la page — jamais le plus petit sur-mesure, que la page
-   * n'affiche pas — et la disponibilité réelle (précommande tant que le
-   * panier n'encaisse pas). Une pièce sur devis sans prix d'appel n'annonce
-   * aucune offre. Le garde-corps a sa fourchette, calculée par l'outil.
+   * Ce que Google reçoit (src/lib/donnees-google.ts) : le prix que la fiche
+   * affiche (prixAfficheFiche, le même calcul que ProductView), sinon aucune
+   * offre — et alors aucun bloc Product, que Google jugerait non valide. La
+   * disponibilité n'est envoyée que lorsque le panier encaisse. Le garde-corps
+   * a le haut de sa fourchette, calculé par l'outil.
    */
+  const prixAppel = prixAppelGC(product);
+  const fourchette = fourchetteGoogle(product, prixAfficheFiche(product, prixAppel), prixParOutil(product) ? fourchetteGC() : null);
+  const disponibilite = disponibiliteGoogle({ achetable, ouvert: commandesOuvertes() });
+  /** Une pièce sans aucun prix au catalogue (bandeau « Livraison » plus bas). */
   const prixDepartFiche = prixDepart(product);
-  const fourchette = fourchetteGoogle(product, prixDepartFiche, prixParOutil(product) ? fourchetteGC() : null);
-  const disponibilite = disponibiliteGoogle({ achetable, ouvert: commandesOuvertes(), maintenant: new Date() });
 
   return (
     <div>
       {/* Fiche produit et fil d'Ariane pour les moteurs : c'est ce qui fait
-          apparaître le prix et le fil de navigation dans les résultats. */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={scriptJsonLd(
-          jsonLdProduit({
-            locale,
-            chemin: `/artisanat/${product.slug}`,
-            nom: product.name,
-            description: `${product.tagline} ${product.sections[0]?.body ?? ""}`.trim(),
-            images: product.images.map((img) => img.src),
-            fourchette,
-            disponibilite,
-          })
-        )}
-      />
+          apparaître le prix et le fil de navigation dans les résultats. Pas de
+          prix affiché sur la fiche : pas de bloc Product, le fil seulement. */}
+      {fourchette && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={scriptJsonLd(
+            jsonLdProduit({
+              locale,
+              chemin: `/artisanat/${product.slug}`,
+              nom: product.name,
+              description: `${product.tagline} ${product.sections[0]?.body ?? ""}`.trim(),
+              images: product.images.map((img) => img.src),
+              fourchette,
+              disponibilite,
+            })
+          )}
+        />
+      )}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={scriptJsonLd(
@@ -273,7 +270,7 @@ export default async function ProductPage({
       <div id="acheter" className="scroll-mt-0">
         <ProductView
           compteOuvert={compteConfigure()}
-          prixAppel={prixAppelGC(product)}
+          prixAppel={prixAppel}
           // Avant l'ouverture des commandes : s'inscrire à la place de payer.
           ouverture={commandesOuvertes() ? undefined : { t: textesOuverture(dict.panier), contactEmail: dict.contact.email }}
           product={product}

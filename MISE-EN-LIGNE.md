@@ -282,9 +282,13 @@ clients : ni nom, ni e-mail, ni adresse IP. Juste des nombres.
 
 **Ce qui est compté**
 
-- `prix_calcule` : un prix de garde-corps calculé (le client a tapé ses
-  cotes). Les tables, elles, se chiffrent dans le téléphone du client : elles
-  ne sont pas comptées ici.
+- `prix_calcule` : un prix de garde-corps calculé. Attention, c'est un
+  nombre de **calculs**, pas de visiteurs : chaque fois qu'un client change
+  une cote ou une option, le prix est recalculé et compté. Un seul client qui
+  essaie trois largeurs et deux mains courantes fait 5 ou 6 calculs. Pour
+  savoir combien de personnes, regarde plutôt `devis_pdf`, les demandes et
+  les inscriptions. Les tables, elles, se chiffrent dans le téléphone du
+  client : elles ne sont pas comptées ici.
 - `devis_pdf` : un devis PDF ouvert, avec la famille de la pièce (table,
   plafond, garde-corps…).
 - `demande_devis` : un formulaire de devis envoyé (page Contact).
@@ -292,7 +296,10 @@ clients : ni nom, ni e-mail, ni adresse IP. Juste des nombres.
 - `inscription_prevenir` : une inscription « Me prévenir à l'ouverture ».
 - `depart_paiement` : un client parti payer chez Stripe (il peut encore
   renoncer).
-- `commande_payee` : une commande payée.
+- `commande_payee` : une commande payée. Celle-ci n'est que dans les
+  **Logs** (pas dans Analytics) : c'est Stripe qui prévient le site, pas le
+  client, et Vercel jetterait l'événement comme venant d'un robot. Pour
+  compter les commandes, Stripe > Paiements fait foi (voir plus bas).
 
 Les demandes, inscriptions et commandes portent deux petites étiquettes :
 `connu` (la réponse au menu « Comment nous avez-vous connu ? », ou
@@ -304,7 +311,13 @@ Les demandes, inscriptions et commandes portent deux petites étiquettes :
 Vercel > ton projet > **Analytics** > descendre jusqu'au cadre **Events**.
 Clique sur un nom (par exemple `demande_devis`) : tu vois le total, puis le
 détail par étiquette (`connu`, `canal`). La période se choisit en haut
-(7 jours, 30 jours, 12 mois).
+(7 jours, 30 jours, 12 mois). Tous les compteurs y sont, sauf
+`commande_payee` (Stripe).
+
+Vercel ne reçoit rien qui désigne quelqu'un : ni adresse IP, ni cookie, ni
+adresse de page, et du navigateur seulement sa famille (Chrome, Safari,
+Firefox, Edge ou autre), sans version ni appareil. Les robots (Google,
+outils automatiques) ne sont pas envoyés : ils ne restent que dans les Logs.
 
 Attention : ce cadre « Events » n'existe qu'avec l'offre **Pro** de Vercel
 (20 $ par mois). Elle est de toute façon obligatoire pour un site qui vend :

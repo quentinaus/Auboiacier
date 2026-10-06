@@ -3,9 +3,10 @@ import type { Dictionary } from "@/app/[lang]/dictionaries";
 /**
  * Le jour annoncé pour l'ouverture des commandes en ligne : le lundi
  * 7 décembre 2026. Les textes (« Commandes en ligne : ouverture le lundi
- * 7 décembre 2026 », e-mails de « me prévenir ») le disent en toutes
- * lettres ; les données envoyées à Google le donnent dans ce format
- * (availabilityStarts), et un test vérifie que les deux disent le même jour.
+ * 7 décembre 2026 ») et les e-mails de « me prévenir » le disent en toutes
+ * lettres ; un test vérifie qu'ils disent tous ce jour-là. Google, lui, ne
+ * reçoit aucune date : tant que le panier n'encaisse pas, la fiche ne lui
+ * annonce aucune disponibilité (src/lib/donnees-google.ts).
  *
  * Ce n'est pas lui qui ouvre le panier : c'est commandesOuvertes()
  * (src/lib/entreprise.ts), dès que la fiche de l'entreprise est complète.

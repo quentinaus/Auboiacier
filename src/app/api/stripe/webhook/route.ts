@@ -106,6 +106,9 @@ async function traiter(sessionId: string, request: Request) {
     // Une commande payée de plus au compteur : une seule fois, au premier
     // bon de commande parti (un rejeu de Stripe ne la recompte pas). Elle n'y
     // porte que son origine (réponse au menu, canal du lien), rien d'autre.
+    // Une ligne « COMPTEUR » dans les journaux seulement : la requête vient de
+    // Stripe, pas du client, et Vercel Analytics la jetterait comme robot
+    // (JOURNAL_SEULEMENT, src/lib/compteurs.ts). Stripe fait foi.
     if (!atelierDejaPrevenu && atelierEnvoye) {
       const { connu, provenance } = origineDesMetadonnees(session.metadata);
       after(() => compter("commande_payee", etiquettesOrigine(connu, provenance), request));
