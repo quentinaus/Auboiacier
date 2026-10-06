@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/*.test.ts",
     "garde-corps:extraire": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/extraire-moteur-garde-corps.mjs",
-    "garde-corps:verifier-build": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verifier-build-couts.mjs"
+    "garde-corps:verifier-build": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verifier-build-couts.mjs",
+    "carte-avis": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/carte-avis/fabriquer.mjs"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.9.0",

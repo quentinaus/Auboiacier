@@ -12,6 +12,7 @@ import { clientConnecte } from "@/lib/compte";
 import { CALCUL_GC, ChiffrageIndisponible } from "@/lib/prix-garde-corps.server";
 import { libellePiece, tarifer, type Tarif } from "@/lib/tarif-panier";
 import { nomsStripe } from "@/lib/libelle-stripe";
+import { semainesCommande } from "@/lib/avis";
 
 export const runtime = "nodejs";
 /** Un départ en paiement ne doit jamais rester suspendu plus d'une demi-minute. */
@@ -314,6 +315,10 @@ export async function POST(request: Request) {
         ...(mode?.mode === "pose" ? { pose_cp: mode.codePostal, pose_commune: mode.deplacement.commune } : {}),
         ...(mode?.mode === "transporteur" ? { livraison_cp: mode.codePostal, livraison_commune: mode.deplacement.commune } : {}),
         ...(mode?.mode === "retrait" ? { retrait: "1" } : {}),
+        // La fabrication la plus longue, en semaines, lue sur les fiches : la
+        // demande d'avis (src/lib/avis.ts) part dix jours après la livraison
+        // estimée, et c'est d'ici qu'elle la connaît.
+        ...(tarif.pieces.length ? { fabrication_semaines: String(semainesCommande(tarif.pieces.map((p) => p.line.product))) } : {}),
         // La remise sur plusieurs garde-corps, en euros : elle se lit aussi sur le bon de réduction.
         ...(tarif.remise < 0 ? { remise_gc: String(-tarif.remise) } : {}),
         // Trace de l'acceptation des conditions de vente avant paiement.

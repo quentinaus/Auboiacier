@@ -126,6 +126,28 @@ export function lienAvisGoogle(): string | null {
   return CONTACT_PUBLIC.google.trim() || null;
 }
 
+/**
+ * Le lien « laisser un avis » de la fiche Google, celui qui ouvre directement
+ * la fenêtre des étoiles (https://g.page/r/…/review). Google le donne dans la
+ * fiche : « Demander des avis ». C'est la destination de l'adresse courte
+ * https://auboiacier.fr/avis — celle de la carte glissée dans les colis et du
+ * mail envoyé après la livraison (src/lib/avis.ts).
+ *
+ * La variable NEXT_PUBLIC_ATELIER_GOOGLE_AVIS de Vercel l'emporte ; à défaut,
+ * cette constante, vide tant que Quentin n'a pas le lien. Vide : /avis montre
+ * une page de remerciement, et aucun mail de demande d'avis ne part.
+ */
+export const AVIS_GOOGLE_REPLI = "";
+
+/**
+ * Le lien d'avis, ou null. Une adresse complète en https, sinon rien : une
+ * faute de frappe ne doit pas envoyer les clients sur une page d'erreur.
+ */
+export function lienLaisserAvis(): string | null {
+  const lien = (process.env.NEXT_PUBLIC_ATELIER_GOOGLE_AVIS || AVIS_GOOGLE_REPLI).trim();
+  return /^https:\/\/[^\s"'<>]+$/i.test(lien) ? lien : null;
+}
+
 /** Le téléphone tel qu'on le compose : +33612345678 → 06 12 34 56 78. */
 export function telephoneLisible(): string {
   const brut = CONTACT_PUBLIC.telephone.replace(/\s+/g, "");

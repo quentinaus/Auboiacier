@@ -185,6 +185,64 @@ régler avant la mise en ligne, ou à retirer du texte (voir les remarques).
 - [ ] L'adresse de l'atelier dans `ATELIER.rue` (`src/lib/seo.ts`) si elle est
       publique.
 
+**Pour que tes clients donnent leur avis sur Google**
+
+Le site demande son avis à chaque client, **une seule fois**, par un court
+mail signé Quentin, environ 10 jours après la livraison. Et une carte à
+glisser dans les colis est prête (voir plus bas). Tout passe par une adresse
+courte : `auboiacier.fr/avis`. Il te reste deux réglages, dans Vercel > le
+projet > Settings > Environment Variables, puis un redéploiement
+(Deployments > … > Redeploy) :
+
+- [ ] `NEXT_PUBLIC_ATELIER_GOOGLE_AVIS` : le lien « laisser un avis » de ta
+      fiche Google. Pour le trouver : ouvre ta fiche Google, clique sur
+      « Demander des avis », puis copie le lien. Il ressemble à
+      `https://g.page/r/XXXXXXXX/review`. Colle-le tel quel, puis redéploie.
+      Tant qu'il est vide : `auboiacier.fr/avis` affiche une petite page
+      « Merci ! » (avec un bouton vers ta fiche si `NEXT_PUBLIC_ATELIER_GOOGLE`
+      est rempli), et **aucun mail d'avis ne part**. Rien ne se perd : les
+      commandes attendent, et les mails partent le lendemain du réglage.
+- [ ] `CRON_SECRET` : un mot de passe que Vercel présente tout seul quand il
+      réveille le site chaque matin. Fabrique-le dans le Terminal avec
+      `openssl rand -hex 32` et colle le résultat. Tu n'as rien d'autre à en
+      faire. Sans lui, le réveil est refusé et aucun mail d'avis ne part.
+
+Comment ça marche, sans que tu aies rien à faire :
+
+- Chaque matin entre 9 h et 11 h, le site regarde les commandes payées des
+  4 derniers mois (chez Stripe) et envoie le mail à celles qui sont prêtes.
+- « Prête » = date du paiement + délai de fabrication le plus long de la
+  commande (celui écrit sur la fiche, 8 semaines si la fiche n'en donne pas)
+  + 10 jours. Le retrait à l'atelier et la pose comptent comme une livraison.
+- Si tu coches « Livrée » sur ton écran de commandes : 10 jours après.
+  « Expédiée » : pas avant 17 jours après. « En fabrication » : le mail
+  attend.
+- Jamais de mail pour une commande remboursée (même en partie), annulée ou
+  contestée, ni pour une prise de cotes seule. Un client qui a commandé deux
+  fois ne reçoit qu'un seul mail.
+- Un client t'a dit qu'il ne veut pas de ce mail : Stripe > Paiements > son
+  paiement > Métadonnées > Modifier, ajoute `avis_demande_le` avec la valeur
+  `non`. C'est fini pour lui.
+- Pour vérifier : Vercel > Settings > Cron Jobs > « Run » lance le passage
+  tout de suite. Le résultat se lit dans Logs, en cherchant `[avis]`.
+
+La carte des colis (« Merci ! Votre avis compte », un QR code et l'adresse
+écrite en clair), dans `public/imprimer/` :
+
+- `carte-avis-4-par-a4.pdf` : 4 cartes sur une feuille A4, pour ton
+  imprimante. Imprimer en « taille réelle » (100 %), puis couper sur les
+  pointillés. Un papier épais (200 g ou plus) fait une vraie carte.
+- `carte-avis-a6.pdf` ou `carte-avis.svg` : une carte au format A6
+  (10,5 × 14,8 cm), à envoyer à un imprimeur.
+- Elles sont aussi en ligne : `https://auboiacier.fr/imprimer/carte-avis-4-par-a4.pdf`.
+- Avant d'en imprimer cent, scanne une carte avec ton téléphone.
+
+Les règles, pour garder tes avis (Google peut tous les effacer, et la loi
+punit les faux avis) : jamais de cadeau, de remise ou de tirage au sort en
+échange d'un avis ; jamais « mettez-nous 5 étoiles » ; demander à tous les
+clients, pas seulement aux contents ; jamais d'avis écrit par toi ou par tes
+proches.
+
 **Trois décisions de métier**
 
 - [ ] Les vraies photos. Beaucoup d'images du site sont des rendus ou des

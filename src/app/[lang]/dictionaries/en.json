@@ -891,11 +891,11 @@
       },
       {
         "title": "3. Why, and on what legal basis",
-        "body": "Answering your quote, contact or appointment request, telling you when orders open and giving you production priority if you asked us to (your email is deleted afterwards), and sending you an acknowledgement: steps taken at your request prior to a possible contract (Article 6(1)(b) GDPR).\n\nOpening and running your customer account (sign-in, saved details, favourites, order tracking): a service you ask us for (Article 6(1)(b)).\n\nProcessing your order, taking payment, organising manufacture, delivery or the visit, sending you the confirmation and invoice, handling warranties and after-sales service: performance of the contract (Article 6(1)(b)).\n\nKeeping invoices and accounting records: legal obligation (Article 6(1)(c); French Commercial Code).\n\nProtecting the site against abuse (limit on submissions per IP address, anti-bot field, technical logs) and measuring traffic without identifying anyone: legitimate interest (Article 6(1)(f)), with no impact on your rights and freedoms.\n\nWe do no marketing: no newsletter, no promotional follow-up, no sale or sharing of your data for marketing purposes. If we ever offered a newsletter, it would rely on your consent, freely given and revocable at any time."
+        "body": "Answering your quote, contact or appointment request, telling you when orders open and giving you production priority if you asked us to (your email is deleted afterwards), and sending you an acknowledgement: steps taken at your request prior to a possible contract (Article 6(1)(b) GDPR).\n\nOpening and running your customer account (sign-in, saved details, favourites, order tracking): a service you ask us for (Article 6(1)(b)).\n\nProcessing your order, taking payment, organising manufacture, delivery or the visit, sending you the confirmation and invoice, handling warranties and after-sales service: performance of the contract (Article 6(1)(b)).\n\nAsking for your opinion, once only: an email about ten days after delivery inviting you, if you wish, to leave a review on the studio's Google page, with no reminder and nothing offered in return: legitimate interest in following up with our customers (Article 6(1)(f)). A simple email is enough not to receive it.\n\nKeeping invoices and accounting records: legal obligation (Article 6(1)(c); French Commercial Code).\n\nProtecting the site against abuse (limit on submissions per IP address, anti-bot field, technical logs) and measuring traffic without identifying anyone: legitimate interest (Article 6(1)(f)), with no impact on your rights and freedoms.\n\nWe do no marketing: no newsletter, no promotional follow-up, no sale or sharing of your data for marketing purposes. If we ever offered a newsletter, it would rely on your consent, freely given and revocable at any time."
       },
       {
         "title": "4. Who receives your data",
-        "body": "Your data is read by the craftsman himself, and processed by the providers below, who act on our behalf, on our instructions and only for the purposes stated:\n\n— Stripe Payments Europe, Ltd. (Dublin, Ireland): payment page, payment collection, invoice, refunds, storage of the contact details and delivery address linked to the order, and of your customer account record (saved details, favourites). Stripe also processes some data on its own account (fraud prevention, regulatory obligations), under its own privacy policy: stripe.com/privacy.\n\n— Resend, Inc. (United States): delivery of our emails (acknowledgement, sign-in link, order confirmation, order sheet to the studio). Resend keeps a copy of sent messages for a few days to track delivery, then deletes it.\n\n— Vercel Inc. (United States): hosting of the site and running of the forms. Vercel sees the IP address and technical logs; if sending an order sheet to the studio fails, the order reference, email and postcode are written to its logs for a few days so that the order is not lost.\n\n— Google (Gmail, Google Ireland Ltd.): our mailbox, where your requests and order sheets arrive.\n\n— Google Ireland Ltd., if you choose “Continue with Google”: Google verifies your identity and sends us your email address and your name. For this sign-in, Google acts under its own privacy policy: policies.google.com/privacy.\n\n— Apple Distribution International Ltd. (Cork, Ireland): the craftsman's calendar (iCloud), where paid measuring appointments appear, with the customer's name, address and phone number.\n\n— Base Adresse Nationale (French public service, api-adresse.data.gouv.fr): only your postcode, sent by our server, to calculate the distance for a measuring visit. No other information goes with it.\n\nWe do not sell, rent or pass on your data to anyone. It may be disclosed to an authority where the law requires it."
+        "body": "Your data is read by the craftsman himself, and processed by the providers below, who act on our behalf, on our instructions and only for the purposes stated:\n\n— Stripe Payments Europe, Ltd. (Dublin, Ireland): payment page, payment collection, invoice, refunds, storage of the contact details and delivery address linked to the order, and of your customer account record (saved details, favourites). Stripe also processes some data on its own account (fraud prevention, regulatory obligations), under its own privacy policy: stripe.com/privacy.\n\n— Resend, Inc. (United States): delivery of our emails (acknowledgement, sign-in link, order confirmation, order sheet to the studio, review request after delivery). Resend keeps a copy of sent messages for a few days to track delivery, then deletes it.\n\n— Vercel Inc. (United States): hosting of the site and running of the forms. Vercel sees the IP address and technical logs; if sending an order sheet to the studio fails, the order reference, email and postcode are written to its logs for a few days so that the order is not lost.\n\n— Google (Gmail, Google Ireland Ltd.): our mailbox, where your requests and order sheets arrive.\n\n— Google Ireland Ltd., if you choose “Continue with Google”: Google verifies your identity and sends us your email address and your name. For this sign-in, Google acts under its own privacy policy: policies.google.com/privacy.\n\n— Apple Distribution International Ltd. (Cork, Ireland): the craftsman's calendar (iCloud), where paid measuring appointments appear, with the customer's name, address and phone number.\n\n— Base Adresse Nationale (French public service, api-adresse.data.gouv.fr): only your postcode, sent by our server, to calculate the distance for a measuring visit. No other information goes with it.\n\nWe do not sell, rent or pass on your data to anyone. It may be disclosed to an authority where the law requires it."
       },
       {
         "title": "5. Transfers outside the European Union",
@@ -1041,6 +1041,10 @@
     "merci": {
       "title": "Thank you for your order",
       "description": "Confirmation of your order from the Auboiacier workshop."
+    },
+    "avis": {
+      "title": "Your review",
+      "description": "Thank you for reviewing your Auboiacier piece: the short address that leads to the workshop's Google page, in Saumur."
     },
     "rdv": {
       "title": "On-site measuring, from {prixVisite}",
@@ -1237,6 +1241,15 @@
     "texte": "We reply within 24 to 72 hours to the address you gave. Remember to check your spam folder.",
     "retour": "Back to the home page",
     "devis": "See the instant-quote pieces"
+  },
+  "avis": {
+    "titre": "Thank you!",
+    "intro": "Thank you for taking a moment to share your opinion. For a small workshop, every piece of feedback counts.",
+    "attente": "The page for leaving a Google review is coming very soon. Come back to this same address in a few days: it will take you straight there.",
+    "fiche": "Reviews are left on the workshop's Google page: open it, then choose “Write a review”.",
+    "boutonFiche": "Open the Google page",
+    "question": "A question about your order? Write to us:",
+    "retour": "Back to the home page"
   },
   "introuvable": {
     "code": "Error 404",

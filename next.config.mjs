@@ -45,7 +45,12 @@ const nextConfig = {
     minimumCacheTTL: 31536000,
   },
   async headers() {
-    return [{ source: "/:path*", headers: enTetesDeSecurite }];
+    return [
+      { source: "/:path*", headers: enTetesDeSecurite },
+      // Les fichiers à imprimer (la carte des avis glissée dans les colis) sont
+      // en ligne pour l'atelier, pas pour les résultats de recherche.
+      { source: "/imprimer/:fichier*", headers: [{ key: "X-Robots-Tag", value: "noindex" }] },
+    ];
   },
   async redirects() {
     return [

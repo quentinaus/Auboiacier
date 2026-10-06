@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { defaultLocale, locales } from "@/lib/i18n";
 import { creerLimite } from "@/lib/limite-debit";
+import { redirectionAvis } from "@/lib/avis-lien";
+import { lienLaisserAvis } from "@/lib/seo";
 
 /**
  * Limite de débit de la page de remerciement : 20 affichages par adresse et
@@ -24,6 +26,16 @@ export function proxy(request: NextRequest) {
       status: 429,
       headers: { "retry-after": "600", "content-type": "text/plain; charset=utf-8" },
     });
+  }
+
+  // L'adresse courte des avis (la carte des colis, le mail après livraison) :
+  // droit au lien d'avis Google quand il est connu, sans passer par une page.
+  // Sinon /avis suit le chemin normal jusqu'à la page de remerciement.
+  const avis = redirectionAvis(pathname, lienLaisserAvis());
+  if (avis) {
+    // 307 et non 308 : le lien de Google peut changer, une redirection
+    // permanente resterait gravée dans les navigateurs.
+    return NextResponse.redirect(avis, 307);
   }
 
   const hasLocale = locales.some(

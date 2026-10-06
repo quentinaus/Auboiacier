@@ -13,6 +13,12 @@ export type EmailInput = {
   to: string;
   subject: string;
   text: string;
+  /**
+   * Une version mise en page, en plus du texte (la demande d'avis, pour son
+   * bouton). Le texte reste toujours là : c'est lui que lisent les
+   * messageries qui n'affichent pas le HTML.
+   */
+  html?: string;
   replyTo?: string;
   attachments?: EmailAttachment[];
 };
@@ -66,6 +72,7 @@ export async function sendEmail(input: EmailInput): Promise<boolean> {
     reply_to: input.replyTo,
     subject: input.subject,
     text: input.text,
+    html: input.html,
     attachments: input.attachments?.length ? input.attachments : undefined,
   };
 
