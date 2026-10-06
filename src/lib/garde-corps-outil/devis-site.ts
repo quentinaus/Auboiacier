@@ -29,7 +29,7 @@ import { configurationGC, ligneGC, slugGC } from "./site.ts";
 import { dateLisible, emetteurDevis, numeroDevis, photoConfiguration, type Caracteristique, type Devis, type LigneDevis, type ResultatDevis } from "../devis.ts";
 import { getProduct, productLocalise, SUR_MESURE, type ResolvedLine } from "../products.ts";
 import { tarifLivraison, tarifPose, type Lieu } from "../deplacement.ts";
-import { NOM_GC_DECOR, nomDecorAnglaisGC, type ReleveGC } from "../garde-corps.ts";
+import { estMurFixationGC, NOM_GC_DECOR, NOMS_MUR_FIXATION_GC, nomDecorAnglaisGC, type ReleveGC } from "../garde-corps.ts";
 import type { Locale } from "../i18n.ts";
 
 export type LivraisonDevisGC =
@@ -127,6 +127,8 @@ export function composerDevisGardeCorps(entree: EntreeDevisGC): ResultatDevis {
     ...(releve.modele !== undefined ? { modeleGc: releve.modele } : {}),
     // Le décor à volutes chiffré : deux décors, deux numéros.
     ...(line.gc!.releve.decor !== undefined ? { decorGc: line.gc!.releve.decor } : {}),
+    // Le mur des tableaux (celui du relevé chiffré) : une autre fixation, un autre prix, un autre numéro.
+    ...(line.gc!.releve.mur ? { murGc: line.gc!.releve.mur, cMurMm: line.gc!.releve.cMurMm, eMurMm: line.gc!.releve.eMurMm } : {}),
   };
   // Avec un décor, les photos de la fiche (des croix à rosaces) ne montrent pas la pièce : pas de photo plutôt qu'une fausse.
   const photo = config.decor ? undefined : photoConfiguration(produit, selection);
@@ -158,10 +160,38 @@ export function composerDevisGardeCorps(entree: EntreeDevisGC): ResultatDevis {
     lignes,
     total,
     delai: locale === "en" ? "4 to 6 weeks" : DS_GC.delai,
-    conditions: locale === "en" ? conditionsAnglaises(base, livraison) : [...base.conditions],
+    conditions: conditionsDuDevis(base, config, livraison, locale),
     lienFiche: `${entree.origine}/${locale}/artisanat/${slug}`,
   };
   return { ok: true, devis };
+}
+
+/**
+ * Mur « je ne sais pas » (enduit) : l'outil chiffre la fixation sur la base d'une brique pleine, et son statut dit
+ * « prix indicatif » (fixationMurGC). Le devis le dit, comme la route (« le mur sera confirmé… ») et le libellé de la
+ * commande (« à confirmer ») : dans « Pose », et dans les conditions, juste après la validité — sinon le client recevait,
+ * valable trente jours, un prix ferme que l'atelier tient pour indicatif.
+ */
+const RESERVE_INDICATIVE = {
+  fr: "prix indicatif : le mur sera confirmé avec la photo du tableau, la fixation et le prix peuvent changer",
+  en: "indicative price: the wall will be confirmed from a photo of the reveal, the fixing and the price may change",
+};
+const CONDITION_INDICATIVE = {
+  fr: "Prix indicatif pour la fixation : le mur des tableaux n'est pas encore connu. Il sera confirmé avec la photo du tableau avant la fabrication ; la fixation et le prix peuvent alors changer.",
+  en: "Indicative price for the fixing: the wall of the window reveals is not known yet. It will be confirmed from a photo of the reveal before manufacture; the fixing and the price may then change.",
+};
+/** La fixation dans le mur est-elle chiffrée à titre indicatif (mur inconnu) ? */
+const fixationIndicative = (config: ConfigGC) => (config.R.fixation as { statut?: unknown } | undefined)?.statut === "indicatif";
+
+/** Les conditions du devis : celles de l'outil (ou leur traduction), et la réserve du prix indicatif quand le mur est inconnu. */
+function conditionsDuDevis(base: DevisGC, config: ConfigGC, livraison: LivraisonDevisGC, locale: Locale): string[] {
+  const en = locale === "en";
+  const conditions = en ? conditionsAnglaises(base, livraison) : [...base.conditions];
+  if (!fixationIndicative(config)) return conditions;
+  const validite = conditions.findIndex((c) => c.startsWith(en ? "Quote valid for" : "Devis valable"));
+  if (validite < 0) throw new Error("devis garde-corps : la validité du devis est introuvable dans les conditions");
+  conditions.splice(validite + 1, 0, CONDITION_INDICATIVE[en ? "en" : "fr"]);
+  return conditions;
 }
 
 /* ------------------------------------------------------------------ *
@@ -245,6 +275,7 @@ function lignesSite(base: DevisGC, config: ConfigGC, line: ResolvedLine, quantit
     structure = remplacer(structure, minuscule(DS_GC.rosace), minuscule(fabric.label));
     carac("Rosace").value = fabric.label;
   }
+  // Mur inconnu : la fixation écrite par l'outil est celle d'une brique pleine, à confirmer (RESERVE_INDICATIVE).
 
   const q = quantite;
   const piece = (l: LigneDevisGC, designation: string, supplement: number): LigneDevis => ({
@@ -475,7 +506,7 @@ function caracteristiquesAnglaises(base: DevisGC, config: ConfigGC, line: Resolv
     },
     {
       label: "Installation",
-      value: `Fitted into the window reveal, ${livraison.mode === "pose" ? "installed by the workshop" : "fixings supplied"} — ${t.nVis} countersunk screws and plugs`,
+      value: `Fitted into the window reveal, ${livraison.mode === "pose" ? "installed by the workshop" : "fixings supplied"} — ${fixationAnglaise(config) ?? `${t.nVis} countersunk screws and plugs`}`,
     },
     base.piece.caracteristiques.some((c) => c.label === "Normes")
       ? {
@@ -488,6 +519,28 @@ function caracteristiquesAnglaises(base: DevisGC, config: ConfigGC, line: Resolv
     { label: "Measurements taken", value: releve },
   ];
   return lignes.filter((c): c is Caracteristique => c !== null);
+}
+
+/** Le montage de la fixation, en anglais (les modes de l'outil : fixationMurGC). */
+const MONTAGES_EN: Readonly<Record<string, string>> = {
+  tige: "rods bonded into the wall through the frame",
+  platine: "small plates welded to the frame and rods bonded into the wall",
+  platines: "small plates welded to the frame and rods bonded into the wall",
+  traversant: "rods through the wall, with a plate on the inside",
+};
+
+/**
+ * La fixation dans le mur, comme l'outil l'écrit dans « Pose » (devis.genere.mjs) : « fixation adaptée au mur (béton) :
+ * …, tout en inox » — et, mur inconnu, la réserve du prix indicatif, comme dans « Pose » en français (lignesSite).
+ * null : pas de mur donné (les vis et chevilles d'avant).
+ */
+function fixationAnglaise(config: ConfigGC): string | null {
+  const F = config.R.fixation as { mur?: unknown; mode?: unknown; statut?: unknown } | undefined;
+  if (!F || F.statut === "etude" || !estMurFixationGC(F.mur)) return null;
+  // Le même texte que l'outil écrit pour le client (texteClient, fixationMurGC), en anglais.
+  if (F.statut === "indicatif") return "Indicative price: we will confirm the fixing with a photo of your window reveal.";
+  const montage = typeof F.mode === "string" && Object.hasOwn(MONTAGES_EN, F.mode) ? MONTAGES_EN[F.mode] : "rods bonded into the wall";
+  return `Fixing suited to your wall (${NOMS_MUR_FIXATION_GC[F.mur].en}): ${montage}, all stainless steel, supplied.`;
 }
 
 function conditionsAnglaises(base: DevisGC, livraison: LivraisonDevisGC): string[] {

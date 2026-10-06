@@ -1,4 +1,4 @@
-import { idDecorGC, lireDecorGC, lireModeleGC } from "@/lib/garde-corps";
+import { idDecorGC, lireDecorGC, lireModeleGC, lireMurParametresGC } from "@/lib/garde-corps";
 import { NextResponse, after } from "next/server";
 import { compter } from "@/lib/compteurs";
 import { SUR_MESURE, getProduct, poidsColisKg, prixParOutil } from "@/lib/products";
@@ -28,7 +28,8 @@ export const maxDuration = 20;
  *
  * Le garde-corps de fenêtre a son propre devis : celui de l'outil de plans,
  * avec les mêmes lignes et le même total (décision du 29/09), composé sur le
- * serveur à partir du relevé (l, allege, etage, fenetre).
+ * serveur à partir du relevé (l, allege, etage, fenetre ; et le mur des
+ * tableaux, mur, c, ep, quand le client l'a donné : la fixation est au prix).
  */
 const tropDeDemandes = creerLimite({ fenetreMs: 10 * 60 * 1000, maximum: 30 });
 
@@ -119,6 +120,9 @@ export async function GET(request: Request) {
     if (decorBrut !== null && !decor) return NextResponse.json({ error: "invalid" }, { status: 400 });
     // Le Garde-corps forgé à volutes a toujours un décor ; le garde-corps Rosace, jamais (07/10/2026) : le devis est celui de la fiche.
     if (product.decorsGC === true ? !decor : decor !== null) return NextResponse.json({ error: "invalid" }, { status: 400 });
+    // Le mur des tableaux (facultatif) : illisible, refusé — la fixation change le prix, jamais remplacée en silence.
+    const mur = lireMurParametresGC(p);
+    if (mur === null) return NextResponse.json({ error: "invalid" }, { status: 400 });
     let livraison: LivraisonDevisGC;
     if (mode === "retrait") livraison = { mode: "retrait" };
     else if (mode === "transporteur" || mode === "pose") {
@@ -134,7 +138,7 @@ export async function GET(request: Request) {
     const debut = performance.now();
     try {
       resultat = composerDevisGardeCorps({
-        releve: { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm, ...(decor ? { decor: idDecorGC(decor) } : modele ? { modele } : {}) },
+        releve: { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm, ...(decor ? { decor: idDecorGC(decor) } : modele ? { modele } : {}), ...mur },
         options: { woodId, metalId, fabricId, remplissageId },
         quantite: entier(p.get("qty"), 10) ?? 1,
         livraison,

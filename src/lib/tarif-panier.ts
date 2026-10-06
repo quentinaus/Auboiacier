@@ -235,6 +235,12 @@ export async function tarifer(
         // Le décor à volutes : un identifiant (lireDecorGC) ; au-delà de 64 signes, ce n'en est plus un — il est alors refusé
         // (unknown_decor), jamais coupé pour devenir un autre décor.
         decorGc: line.decorGc === undefined || line.decorGc === null ? undefined : typeof line.decorGc === "string" && line.decorGc.length <= 64 ? line.decorGc : "",
+        // Le mur des tableaux (facultatif) : la fixation que l'outil y choisit entre dans le prix. Une cote illisible est
+        // refusée (NaN), jamais prise pour « absente » ; un mur illisible aussi (1, true, ["beton"], « » : il devient « ? »,
+        // qu'aucun mur ne porte), sinon la ligne passait au prix sans mur ; un mur inconnu : refusé par resolveSelection.
+        murGc: line.murGc === undefined || line.murGc === null ? undefined : (identifiant(line.murGc)?.slice(0, 20) ?? "?"),
+        cMurMm: line.cMurMm === undefined || line.cMurMm === null ? undefined : (hauteurMm(line.cMurMm) ?? Number.NaN),
+        eMurMm: line.eMurMm === undefined || line.eMurMm === null ? undefined : (hauteurMm(line.eMurMm) ?? Number.NaN),
         locale,
       },
       gc.prixReleve

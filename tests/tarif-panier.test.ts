@@ -16,12 +16,12 @@ import { readFileSync } from "node:fs";
 
 import { libellePiece, MAX_PRECISIONS, tarifAffiche, tarifer } from "../src/lib/tarif-panier.ts";
 import { libelleEntier, MAX_METADONNEE_STRIPE, MAX_NOM_STRIPE, nomsStripe } from "../src/lib/libelle-stripe.ts";
-import { BORNES_RELEVE_GC, noteReleveGC } from "../src/lib/garde-corps.ts";
-import { CALCUL_GC, configurationGC, remiseCommandeGC } from "../src/lib/garde-corps-outil/site.ts";
+import { BORNES_RELEVE_GC, modeleAfficheGC, MURS_FIXATION_GC, noteReleveGC } from "../src/lib/garde-corps.ts";
+import { CALCUL_GC, configurationGC, remiseCommandeGC, reponsePrixGC } from "../src/lib/garde-corps-outil/site.ts";
 import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
 import { prixCommandeGC, prixGC, type ConfigGC } from "../src/lib/garde-corps-outil/calcul.ts";
 import { LIVRAISON, POSE, PRISE_DE_COTES, RETRAIT, tarifLivraison, tarifPose, type ResultatLieu } from "../src/lib/deplacement.ts";
-import { getProduct } from "../src/lib/products.ts";
+import { getProduct, libelleGardeCorps, productLocalise } from "../src/lib/products.ts";
 
 const aKm = (distanceKm: number) => async (): Promise<ResultatLieu> => ({ ok: true, lieu: { distanceKm, commune: "Nantes", precision: "adresse" } });
 const tarif = (lignes: unknown, locale: "fr" | "en" = "fr", km = 118.4) => tarifer(lignes, { locale, gc: CALCUL_GC, localiser: aKm(km) });
@@ -199,6 +199,57 @@ test("le nom envoyé à Stripe tient en 250 signes ; le libellé entier, note co
     assert.equal(libelleEntier(noms[2], 0, entiers), libelles[2]);
     // Une commande d'avant la limite (sans métadonnée) : le nom, tel quel.
     assert.equal(libelleEntier(noms[0], 0, { order_ref: "AB-1" }), noms[0]);
+  }
+});
+
+test("avec le mur des tableaux, le libellé passe 500 signes : il se relit entier, la note jusqu'au bout, une clé par ligne", async () => {
+  chiffrageOuEchec();
+  for (const langue of ["fr", "en"] as const) {
+    const t = JSON.parse(readFileSync(new URL(`../src/app/[lang]/dictionaries/${langue}.json`, import.meta.url), "utf8")).artisanat;
+    const plusLong = (liste: readonly string[]) => liste.reduce((a, b) => (b.length > a.length ? b : a), "");
+    const note = noteReleveGC(
+      { etage: plusLong(t.gcEtageOptions), mur: plusLong(t.gcMurOptions), allegeMm: BORNES_RELEVE_GC.allegeMm.max, fenetreMm: BORNES_RELEVE_GC.fenetreMm.max, jourMm: 9999, largeurBasMm: BORNES_RELEVE_GC.largeurMm.max, largeurHautMm: BORNES_RELEVE_GC.largeurMm.max },
+      t,
+      langue
+    );
+    // Le cas de la relecture (07/10/2026) : 2 000 × 500 en étage, fenêtre de 1 450, le modèle proposé par la route, noyer sur fer
+    // plat, rosace en fonte, mur en tuffeau, la note la plus longue de la fiche. Avant : 529 signes, l'atelier lisait « posé à 9 ».
+    const route = reponsePrixGC({ releve: { largeurMm: 2000, allegeMm: 500, enEtage: true, fenetreMm: 1450, mur: "tuffeau" }, essence: "noyer-plat", fabricId: "fonte", quantite: 1 });
+    assert.ok(route?.ok);
+    const ligne = garde({ largeurMm: 2000, allegeMm: 500, fenetreMm: 1450, murGc: "tuffeau", modeleGc: modeleAfficheGC(route), woodId: "noyer-plat", fabricId: "fonte", note });
+    const lu = await tarif([ligne, table(), { slug: RETRAIT }], langue);
+    assert.deepEqual(lu.refusees, []);
+    const reel = libellePiece(lu.pieces[0]);
+    assert.ok(reel.length > MAX_METADONNEE_STRIPE, `${langue} : ${reel.length} signes — ce cas ne dépasse plus 500 signes, le test ne vérifie plus la suite`);
+    // Le pire libellé : la forme la plus longue de l'outil (12 croix, traverse, barreaux en bas, fer plat de renfort, 4 pattes), le mur et
+    // le montage aux plus longs noms, « à confirmer », les plus longues options de la fiche, la note la plus longue.
+    const fiche = productLocalise(getProduct("garde-corps")!, langue);
+    const taille = plusLong(
+      MURS_FIXATION_GC.flatMap((mur) =>
+        ["tige", "platine", "platines", "traversant"].map((mode) =>
+          libelleGardeCorps(3000, 1100, 12, langue, { soubassement: true, carre: 16, traverse: true, renfort: true, patte: 4, fixation: { mur, mode, statut: "indicatif" } })
+        )
+      )
+    );
+    const options = [taille, plusLong(fiche.woods.map((w) => w.label)), plusLong(fiche.metals.map((m) => m.label)), plusLong((fiche.fabrics ?? []).map((f) => f.label))].join(" · ");
+    const pire = libellePiece({ ...lu.pieces[0], options, precisions: note });
+    assert.ok(pire.length > reel.length);
+    const libelles = [reel, libellePiece(lu.pieces[1]), pire];
+    const { noms, entiers } = nomsStripe(libelles);
+    for (const nom of noms) assert.ok(nom.length <= MAX_NOM_STRIPE, `${langue} : ${nom.length} signes, Stripe refuserait le paiement`);
+    for (const valeur of Object.values(entiers)) assert.ok(valeur.length <= MAX_METADONNEE_STRIPE, `${langue} : ${valeur.length} signes dans une métadonnée`);
+    // Une seule clé par ligne coupée, comme avant : Stripe n'en accepte que 50 par commande, et un panier a jusqu'à 19 pièces.
+    assert.deepEqual(Object.keys(entiers), ["libelle_0", "libelle_2"]);
+    // Relu chez Stripe : chaque ligne retrouve son libellé entier — la note jusqu'au bout, « posé à … mm » compris.
+    assert.deepEqual(noms.map((nom, rang) => libelleEntier(nom, rang, entiers)), libelles);
+    assert.ok(libelleEntier(noms[0], 0, entiers).endsWith(note), `${langue} : l'atelier perd la fin de la note`);
+    // Des lignes revenues dans un autre ordre : chaque suite rejoint son nom, jamais celui d'une autre ligne.
+    assert.equal(libelleEntier(noms[2], 0, entiers), pire);
+    assert.equal(libelleEntier(noms[0], 2, entiers), reel);
+    // Une suite qui n'est pas celle de ce nom (une autre empreinte) n'est jamais recollée : le nom coupé, tel quel.
+    const suite = entiers.libelle_0;
+    assert.equal(libelleEntier(noms[0], 0, { libelle_0: `${suite.slice(0, 1)}00000000${suite.slice(9)}` }), noms[0]);
+    assert.equal(libelleEntier(noms[2], 2, { libelle_0: suite }), noms[2]);
   }
 });
 

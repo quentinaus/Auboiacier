@@ -3,7 +3,10 @@ import { creerBudget } from "./limite-debit.ts";
 /**
  * LE BUDGET DE CALCUL DU GARDE-CORPS, partagé par toutes les portes qui le calculent (fiche, aperçu du plan, panier, commande).
  * Un relevé jamais vu coûte de 0,35 à 3,4 s sur le seul fil du serveur (une fenêtre large, une petite rosace), 0,1 s s'il a déjà
- * été calculé ; un panier de 19 fenêtres, près de 5 s. Compter les requêtes ne suffisait pas (120 × 3 s = 6 minutes de calcul) :
+ * été calculé ; un panier de 19 fenêtres, près de 5 s. Avec le mur des tableaux, pas plus (mesuré le 07/10/2026 : de 0,1 à 1,5 s
+ * selon le mur, comme sans mur) : un mur « sur étude » quelle que soit la poussée — le placo, un cadre trop court pour écarter
+ * les fixations — ne fait plus calculer les pattes pour rien (murSansRemede, calcul.ts : la route en placo prenait 7 à 8 s, un
+ * panier de 19 fenêtres 11 à 18 s ; un test le vérifie). Compter les requêtes ne suffisait pas (120 × 3 s = 6 minutes de calcul) :
  * 90 s par adresse et par dix minutes (de quoi essayer plusieurs dizaines de fenêtres), 400 s pour l'instance entière. Au-delà,
  * 429 plutôt qu'un site qui ne répond plus à personne.
  */

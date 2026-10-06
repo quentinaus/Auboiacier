@@ -6,7 +6,7 @@
  * prix. Aucun coût ici, aucune règle recopiée : les règles restent dans le
  * moteur extrait de l'outil (moteur.genere.mjs).
  */
-import { ESSENCES_GC, MAINS_COURANTES_GC, jourGC, lireDecorGC, lireMainCouranteGC, type ChoixDecorGC, type CodeAlerteGC, type EssenceGC, type MainCouranteGC, type ReleveGC } from "../garde-corps.ts";
+import { C_MUR_DEFAUT_GC_MM, E_MUR_DEFAUT_GC_MM, ESSENCES_GC, MAINS_COURANTES_GC, jourGC, lireDecorGC, lireMainCouranteGC, type ChoixDecorGC, type CodeAlerteGC, type EssenceGC, type MainCouranteGC, type ReleveGC } from "../garde-corps.ts";
 
 export { ESSENCES_GC, MAINS_COURANTES_GC };
 export type { CodeAlerteGC, EssenceGC, MainCouranteGC };
@@ -99,6 +99,9 @@ export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: numb
     // sans elles, et le moins possible (calcul.ts).
     patte,
     ...champsDecorGC(decor),
+    // Le mur des tableaux (décisions de Quentin, 06 et 07/10/2026) : l'outil y choisit la fixation, la met au débit et au prix.
+    // Seulement quand le client l'a donné ; sinon les valeurs de l'outil (mur non précisé : vis Ø 6 et chevilles, comme avant).
+    ...(e.mur ? { mur: e.mur, cMur: e.cMurMm ?? C_MUR_DEFAUT_GC_MM, eMur: e.eMurMm ?? E_MUR_DEFAUT_GC_MM } : {}),
   };
 }
 

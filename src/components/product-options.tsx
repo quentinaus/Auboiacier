@@ -41,7 +41,7 @@ import {
   type CotesGardeCorps,
 } from "./releve-garde-corps";
 import { LIVRAISON, POSE, PRISE_DE_COTES, RETRAIT } from "@/lib/deplacement";
-import { decorParDefautGC, diametreRosaceGC, idDecorGC, lireDecorGC } from "@/lib/garde-corps";
+import { ajouterMurParametresGC, decorParDefautGC, diametreRosaceGC, idDecorGC, lireDecorGC } from "@/lib/garde-corps";
 
 /** Le décor de départ du Garde-corps forgé à volutes : des volutes en C entre les barreaux, le décor classique des balcons. */
 const DECOR_FORGE_DEPART = idDecorGC(decorParDefautGC("entre"));
@@ -1601,6 +1601,8 @@ export function ProductOptions({
       if (releveGC.modele) q.set("modele", releveGC.modele);
       // Le décor à volutes : le plan de l'outil le dessine.
       if (releveGC.decor) q.set("decor", releveGC.decor);
+      // Le mur des tableaux, quand le client l'a donné : les platines de la fixation pèsent aussi.
+      ajouterMurParametresGC(q, releveGC);
     } else {
       const l = cotesEff?.largeurMm ?? size?.dimsMm?.[0];
       const w = cotesEff?.hauteurMm ?? size?.dimsMm?.[1];
@@ -1642,6 +1644,8 @@ export function ProductOptions({
         if (!releveGC.modele) return null;
         p.set("modele", releveGC.modele);
       }
+      // Le mur des tableaux, quand le client l'a donné : la fixation est dans le prix du devis comme dans celui du panier.
+      ajouterMurParametresGC(p, releveGC);
     } else {
       if (sizeIdEff) p.set("size", sizeIdEff);
       if (cotesEff?.largeurMm) p.set("l", String(cotesEff.largeurMm));
@@ -2135,7 +2139,7 @@ export function ProductOptions({
         // Le relevé du garde-corps : c'est avec lui que le serveur recalcule la
         // forme et le prix (la hauteur ci-dessus n'en est qu'une copie).
         ...(estGC && releveGC
-          ? { allegeMm: releveGC.allegeMm, enEtage: releveGC.enEtage, fenetreMm: releveGC.fenetreMm, modeleGc: releveGC.decor ? undefined : releveGC.modele, ...(releveGC.decor ? { decorGc: releveGC.decor } : {}) }
+          ? { allegeMm: releveGC.allegeMm, enEtage: releveGC.enEtage, fenetreMm: releveGC.fenetreMm, modeleGc: releveGC.decor ? undefined : releveGC.modele, ...(releveGC.decor ? { decorGc: releveGC.decor } : {}), murGc: releveGC.mur, cMurMm: releveGC.cMurMm, eMurMm: releveGC.eMurMm }
           : {}),
         // Et la note pour l'atelier (étage, mur, allège, fenêtre).
         note:

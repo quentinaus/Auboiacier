@@ -9,10 +9,10 @@
  * champ : un prix de vente et une forme, jamais un coût.
  */
 import { catalogueGC, configurerGC, prixCommandeGC, prixGC, ChiffrageIndisponible, type ConfigAEtudierGC, type ConfigGC, type DessinGC } from "./calcul.ts";
-import { MAINS_COURANTES_GC, type EntreeSiteGC, type MainCouranteGC } from "./entree.ts";
-import { RENFORT, calculerGC, geomGC, mtAlleger, planA3Pur } from "./moteur.genere.mjs";
+import { MAINS_COURANTES_GC, type EntreeSiteGC, type MainCouranteGC, valeursGC } from "./entree.ts";
+import { RENFORT, calculerGC, geomGC, mtAlleger, planA3Pur, DEFAUTS_GC, type ResultatGC, type ValeursGC } from "./moteur.genere.mjs";
 import { getProduct, priceFrom, prixParOutil, resolveSelection, SUR_MESURE, type PrixReleve, type Product } from "../products.ts";
-import { BORNES_RELEVE_GC, DECOR_NOMBRES_MAX, MODELES_GC_MAX, RELEVE_DEPART_GC, ROSACE_DEFAUT_GC, ROSACE_MM_GC, decorParDefautGC, diametreRosaceGC, idDecorGC, idModeleGC, lireDecorGC, lireMainCouranteGC, lireModeleGC, releveDansLesBornes, type ChoixDecorGC, type DecorReponseGC, type DecorTraitGC, type MainsPrixGC, type ModeleGC, type PlanApercuGC, type PrixDecorGC, type ReleveGC, type ReponsePrixGC } from "../garde-corps.ts";
+import { BORNES_RELEVE_GC, DECOR_NOMBRES_MAX, MODELES_GC_MAX, RELEVE_DEPART_GC, ROSACE_DEFAUT_GC, ROSACE_MM_GC, decorParDefautGC, diametreRosaceGC, idDecorGC, idModeleGC, lireDecorGC, lireMainCouranteGC, lireModeleGC, releveDansLesBornes, type ChoixDecorGC, type DecorReponseGC, type DecorTraitGC, type MainsPrixGC, type ModeleGC, type PlanApercuGC, type PrixDecorGC, type ReleveGC, type ReponsePrixGC, STATUTS_FIXATION_GC, TEXTE_FIXATION_GC_MAX, champsMurGC, estMurFixationGC, lireMurParametresGC, type FixationGC, type MurFixationGC, type StatutFixationGC } from "../garde-corps.ts";
 import { DECORS_GC } from "../garde-corps-decors.genere.ts";
 import type { CalculGC } from "../tarif-panier.ts";
 
@@ -38,7 +38,36 @@ function entreeGC(releve: ReleveGC, essence: MainCouranteGC, rosaceMm?: number):
     ...(rosaceMm !== undefined ? { rosaceMm } : {}),
     ...(releve.modele !== undefined ? { modele: releve.modele } : {}),
     ...(releve.decor !== undefined ? { decor: releve.decor } : {}),
+    // Le mur des tableaux et ses cotes, quand le client les a donnés : l'outil y choisit la fixation et la chiffre.
+    ...champsMurGC(releve),
   };
+}
+
+/** La fixation que l'outil a retenue (R.fixation), quand un mur lui a été donné. */
+type FixationMoteur = { mur: MurFixationGC; mode: string; statut: string; texte: string; texteClient?: string };
+function fixationMoteur(R: Readonly<ResultatGC>): FixationMoteur | null {
+  const F = R.fixation as Partial<Record<keyof FixationMoteur, unknown>> | undefined;
+  if (!F || typeof F !== "object" || !estMurFixationGC(F.mur) || typeof F.mode !== "string" || typeof F.statut !== "string" || typeof F.texte !== "string") return null;
+  return { mur: F.mur, mode: F.mode, statut: F.statut, texte: F.texte, ...(typeof F.texteClient === "string" ? { texteClient: F.texteClient } : {}) };
+}
+
+/**
+ * Le statut que le site montre : ceux de l'outil tels quels (valide, indicatif, étude). Un autre statut de l'outil (« sous
+ * réserve d'essais ») se lit comme un prix indicatif quand il y a un prix — il reste à confirmer —, sinon comme une étude.
+ */
+function statutFixation(statut: string, avecPrix: boolean): StatutFixationGC {
+  if ((STATUTS_FIXATION_GC as readonly string[]).includes(statut) && !(avecPrix && statut === "etude")) return statut as StatutFixationGC;
+  return avecPrix ? "indicatif" : "etude";
+}
+
+/**
+ * Ce que la route dit de la fixation : le statut, le mur, et le texte POUR LE CLIENT que l'outil écrit (texteClient : simple,
+ * sans les valeurs d'atelier ; à défaut, le texte d'atelier), borné. Jamais un coût.
+ */
+function fixationPourLeSite(F: FixationMoteur, avecPrix: boolean): FixationGC {
+  const brut = F.texteClient ?? F.texte;
+  const texte = brut.length <= TEXTE_FIXATION_GC_MAX ? brut : `${brut.slice(0, TEXTE_FIXATION_GC_MAX - 1).replace(/\s+\S*$/, "")}…`;
+  return { statut: statutFixation(F.statut, avecPrix), mur: F.mur, texte };
 }
 
 /** La configuration de l'outil pour ce relevé, ou null s'il sort des bornes des champs de l'outil. */
@@ -53,11 +82,15 @@ export const prixReleveOutil: PrixReleve = (e) => {
   if (!c) return { ok: false, raison: "hors-bornes" };
   // Barre d'appui ou rien à poser : pour le panier, c'est « à étudier » (pas de prix, pas de commande).
   if (!c.ok) return { ok: false, raison: c.raison === "fenetre-trop-basse" ? c.raison : "a-etudier" };
+  // La fixation retenue dans le mur, quand le client l'a donné : elle est dans le prix, et le libellé de la commande la nomme.
+  const F = fixationMoteur(c.R);
+  const fixation = F ? { mur: F.mur, mode: F.mode, statut: statutFixation(F.statut, true) } : undefined;
   return {
     ok: true, prix: prixGC(c), hauteurMm: c.hauteurMm, croix: c.croix, carre: c.carre, soubassement: c.soubassement, traverse: c.traverse, seuls: c.seuls, renfort: c.renfort, patte: c.patte, kg: c.kg,
     // Le nom du décor, celui de l'outil (« Frise de volutes en S ») : le libellé de commande le porte ; et la frise basse retirée.
     ...(c.decor && typeof c.R.decorNom === "string" ? { decorNom: c.R.decorNom } : {}),
     ...(c.decor && friseRetiree(c) ? { decorFriseRetiree: true } : {}),
+    ...(fixation ? { fixation } : {}),
   };
 };
 
@@ -106,6 +139,10 @@ export function ligneGC(
       fenetreMm: releve.fenetreMm,
       modeleGc: releve.modele,
       ...(releve.decor !== undefined ? { decorGc: releve.decor } : {}),
+      // Le mur des tableaux (facultatif) : la fixation entre dans le prix.
+      murGc: releve.mur,
+      cMurMm: releve.cMurMm,
+      eMurMm: releve.eMurMm,
       woodId: options.woodId,
       metalId: options.metalId ?? modele.metals[0]?.id,
       fabricId: forge ? undefined : (options.fabricId ?? modele.fabrics?.[0]?.id),
@@ -122,9 +159,10 @@ export function ligneGC(
 
 /**
  * Les paramètres acceptés par /api/prix-garde-corps. Tout autre paramètre = refus. « decor » : le décor à volutes choisi
- * (idDecorGC) ; « decors=1 » : demander aussi le prix de chaque assemblage de décor (PrixDecorGC).
+ * (idDecorGC) ; « decors=1 » : demander aussi le prix de chaque assemblage de décor (PrixDecorGC) ; « mur », « c », « ep » : le
+ * mur des tableaux et ses cotes (facultatifs).
  */
-export const PARAMETRES_PRIX_GC = ["l", "allege", "etage", "fenetre", "wood", "metal", "fabric", "remplissage", "qty", "modele", "decor", "decors"] as const;
+export const PARAMETRES_PRIX_GC = ["l", "allege", "etage", "fenetre", "wood", "metal", "fabric", "remplissage", "qty", "modele", "decor", "decors", "mur", "c", "ep"] as const;
 
 export type RequetePrixGC = {
   releve: ReleveGC;
@@ -143,7 +181,9 @@ export type RequetePrixGC = {
  * dans les bornes de l'outil, étage 1 ou 0, un bois connu, des identifiants
  * d'option courts, une quantité de 1 à 10, aucun paramètre inconnu ou en
  * double. « fenetre » peut manquer (0 = inconnue) ; les options aussi (celles
- * du modèle).
+ * du modèle). Le mur des tableaux aussi (&mur=beton&c=80&ep=450) : un mur de
+ * la liste de l'outil, des cotes entières dans leurs bornes, jamais une cote
+ * sans mur.
  */
 export function lireRequetePrixGC(params: URLSearchParams): RequetePrixGC | null {
   const cles = [...params.keys()];
@@ -183,8 +223,10 @@ export function lireRequetePrixGC(params: URLSearchParams): RequetePrixGC | null
   if (choixDecor && produitGC().remplissages?.find((r) => r.id === remplissageId)?.sansCroix === true) return null;
   const decors = params.get("decors");
   if (decors !== null && decors !== "1") return null;
+  const mur = lireMurParametresGC(params);
+  if (mur === null) return null;
   return {
-    releve: { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm, ...(choixDecor ? { decor: idDecorGC(choixDecor) } : modele ? { modele } : {}) },
+    releve: { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm, ...(choixDecor ? { decor: idDecorGC(choixDecor) } : modele ? { modele } : {}), ...mur },
     essence, metalId, fabricId, remplissageId, quantite,
     ...(decors === "1" ? { decors: true } : {}),
   };
@@ -374,12 +416,24 @@ function prixDesDecors(q: RequetePrixGC): PrixDecorGC[] {
   });
 }
 
+/**
+ * Pourquoi un garde-corps « à étudier » ne se fixe pas dans ce mur (ou que le mur n'y est pour rien) : le texte de l'outil
+ * pour la configuration de départ (carré de 16, une croix). Seulement quand le client a donné son mur.
+ */
+function fixationAEtudier(q: RequetePrixGC, c0: ConfigAEtudierGC): FixationGC | undefined {
+  if (!q.releve.mur || c0.raison !== "a-etudier") return undefined;
+  const v = valeursGC(DEFAUTS_GC, entreeGC(q.releve, q.essence, diametreRosaceGC(rosaceDeLaRequete(q))), 16, 1) as ValeursGC;
+  const F = fixationMoteur(calculerGC({ ...v, _rapide: true }));
+  return F ? fixationPourLeSite(F, false) : undefined;
+}
+
 export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
   const decors = q.decors ? { decors: prixDesDecors(q) } : {};
   if (q.releve.decor !== undefined) return reponseAvecDecor(q, decors);
   const c0 = configurationGC(q.releve, q.essence, diametreRosaceGC(rosaceDeLaRequete(q)));
   if (!c0) return null;
   if (!c0.ok) {
+    const fixation = fixationAEtudier(q, c0);
     return {
       ok: false,
       conforme: false,
@@ -392,6 +446,7 @@ export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
       modeles: catalogueSiteGC(q, c0.hauteurMm),
       mains: prixParMainCourante(q),
       ...decors,
+      ...(fixation ? { fixation } : {}),
     };
   }
   const modeles = catalogueSiteGC(q, c0.hauteurMm);
@@ -402,6 +457,8 @@ export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
   // Une option absente : celle du modèle (ligneGC).
   const r = ligneGC(qr.releve, { woodId: q.essence, metalId: q.metalId, fabricId: q.fabricId, remplissageId: q.remplissageId });
   if (!r.ok || !r.line.gc) return null;
+  // La fixation dans le mur retenue pour CE garde-corps (celle que le prix comprend), quand le client a donné son mur.
+  const F = fixationMoteur(c.R);
   return {
     ok: true,
     conforme: true,
@@ -422,6 +479,7 @@ export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
     modeles,
     mains: prixParMainCourante(qr),
     ...decors,
+    ...(F ? { fixation: fixationPourLeSite(F, true) } : {}),
   };
 }
 
@@ -465,6 +523,7 @@ function reponseAvecDecor(q: RequetePrixGC, decors: { decors?: PrixDecorGC[] }):
     mains,
     decor,
     ...decors,
+    ...(fixationMoteur(c.R) ? { fixation: fixationPourLeSite(fixationMoteur(c.R)!, true) } : {}),
   };
 }
 

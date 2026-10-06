@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Devis garde-corps au format du site (composerDevisGC, dsDevisHtml). SANS coûts : le prix est une entrée.
-// Source : l'outil de plans (plans-atelier.html), sha256 a2a0b69ed83f67230d9abc4aba30ccb1bdb509d1741d8e52f2a597d9fd635f79
+// Source : l'outil de plans (plans-atelier.html), sha256 f305bbfeaa2968decd89d9ac295800f463a52329cedb119de0d891f83f58fb8f
 /* eslint-disable */
 import { DS_ESSENCES } from "./moteur.genere.mjs";
 function kgColisGC(R) { return Math.max(8, Math.round((R && R.kg) || 0)); }
@@ -224,7 +224,9 @@ function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto", tva = nu
       rp.rosaces ? { label: "Rosace", value: DS_GC.rosace } : null,
       { label: "Structure", value: `Acier plein ${dsMm(v.s)}\u00a0×\u00a0${dsMm(v.s)}\u00a0mm${renfortTxt}, soudure TIG, finition peinte — teinte de l'acier ${teinte}` },
       mc ? { label: "Main courante", value: mc.carac } : null,
-      { label: "Pose", value: `Encastré dans le tableau de la fenêtre, ${remise === "pose" ? "posé par l'atelier" : "fixations fournies"} — ${nVis}\u00a0vis à tête fraisée et chevilles` },
+      { label: "Pose", value: R.fixation && R.fixation.statut !== "etude"
+        ? `Encastré dans le tableau de la fenêtre, ${remise === "pose" ? "posé par l'atelier" : "fixations fournies"} — ${R.fixation.texteClient}`
+        : `Encastré dans le tableau de la fenêtre, ${remise === "pose" ? "posé par l'atelier" : "fixations fournies"} — ${nVis}\u00a0vis à tête fraisée et chevilles` },
       normes ? { label: "Normes", value: normes } : null,
       { label: "Cotes relevées", value: releve },
     ].filter(Boolean);
@@ -347,6 +349,6 @@ function dsDevisHtml(devis) {
 function dsPageHtml(corps, n, total) {
     return `<section class="ds-page"><div class="ds-corps">${corps}</div><div class="ds-pied"><span>${dsEsc(DS_PIED)}</span></div><div class="ds-num"><span>Page ${n} / ${total}</span></div></section>`;
   }
-export const EMPREINTE_SOURCE = "a2a0b69ed83f67230d9abc4aba30ccb1bdb509d1741d8e52f2a597d9fd635f79";
+export const EMPREINTE_SOURCE = "f305bbfeaa2968decd89d9ac295800f463a52329cedb119de0d891f83f58fb8f";
 export { DS_GC, DS_VALIDITE_JOURS, composerDevisGC, dsDevisHtml, dsPrix };
-export const EMPREINTE = "6b6809d69dad";
+export const EMPREINTE = "8c4bce512442";

@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Moteur garde-corps : norme NF P01-012, géométrie, débit, dessins. SANS coûts.
-// Source : l'outil de plans (plans-atelier.html), sha256 a2a0b69ed83f67230d9abc4aba30ccb1bdb509d1741d8e52f2a597d9fd635f79
+// Source : l'outil de plans (plans-atelier.html), sha256 f305bbfeaa2968decd89d9ac295800f463a52329cedb119de0d891f83f58fb8f
 /* eslint-disable */
 const NOMS = { mikado: "Table Mikado", croix: "Table Croix", mikadoExt: "Table Mikado extérieur", resine: "Table Résine Époxy Mikado", gardeCorps: "Garde-corps Rosace à croix", escalier: "Escalier droit à limon central", ptBattant: "Portail battant", ptCoulissant: "Portail coulissant", ptPliant: "Portail pliant", ptPortillon: "Portillon" };
 const SPHERE = 110;
@@ -132,8 +132,150 @@ function profil(pts, { cls = "t-acier-plein", debout = false, entier = false, po
     });
     return prims;
   }
+function plaque(contour, trous = [], { cls = "t-acier-plein", note = "", cotes = null } = {}) {
+    const xs = contour.map((p) => p[0]), ys = contour.map((p) => p[1]);
+    const x0 = Math.min(...xs), y0 = Math.min(...ys), x1 = Math.max(...xs), y1 = Math.max(...ys);
+    const prims = [{ t: "poly", cls, pts: contour }];
+    prims.push({ t: "cote", a: [x0, y0], b: [x1, y0], cote: "bas", d: trous.length ? 1 : 1, txt: mmTxt(x1 - x0) });
+    prims.push({ t: "cote", a: [x1, y0], b: [x1, y1], cote: "droite", d: 1, txt: mmTxt(y1 - y0) });
+    if (trous.length) {
+      trous.forEach((tr) => prims.push({ t: "cercle", cls: "t-trou-plan", c: tr.c, r: tr.d / 2 }));
+      const chaine = (vals, lo, hi) => [lo, ...[...new Set(vals.map((v) => Math.round(v * 10) / 10))].sort((a, b) => a - b).filter((v) => v > lo + 0.5 && v < hi - 0.5), hi];
+      const ref = cotes || { x: trous, y: trous };
+      const cx = chaine(ref.x.map((tr) => tr.c[0]), x0, x1), cy = chaine(ref.y.map((tr) => tr.c[1]), y0, y1);
+      for (let k = 0; k + 1 < cx.length; k++) prims.push({ t: "cote", a: [cx[k], y1], b: [cx[k + 1], y1], cote: "haut", d: 1, txt: mmTxt(cx[k + 1] - cx[k]) });
+      for (let k = 0; k + 1 < cy.length; k++) prims.push({ t: "cote", a: [x0, cy[k]], b: [x0, cy[k + 1]], cote: "gauche", d: 1, txt: mmTxt(cy[k + 1] - cy[k]) });
+      const ds = [...new Set(trous.map((tr) => tr.d))];
+      prims.push({ t: "texte", p: [(x0 + x1) / 2, y0], txt: `${trous.length} trou${trous.length > 1 ? "s" : ""} Ø ${ds.join(" / ")}${note ? " · " + note : ""}`, pos: "sous", decal: 3.2 });
+    } else if (note) prims.push({ t: "texte", p: [(x0 + x1) / 2, y0], txt: note, pos: "sous", decal: 3.2 });
+    return prims;
+  }
 const rectPts = (w, h) => [[0, 0], [w, 0], [w, h], [0, h]];
 const percages = (Lm, n, e) => (n >= 3 ? [e, Lm / 2, Lm - e] : [e, Lm - e]);
+const effortsPoints = (P, yH, ys) => {
+    const n = ys.length, m = ys.reduce((a, y) => a + y, 0) / n, I = ys.reduce((a, y) => a + (y - m) ** 2, 0);
+    return ys.map((y) => Math.abs(P / n + (I > 0 ? P * (yH - m) * (y - m) / I : 0)));
+  };
+function fixationMurGC({ mur, c, s, LmF, y0, yH, P, eF, eMur }) {
+    const NOMS_MUR = { beton: "béton", brique: "brique pleine", "brique-creuse": "brique creuse", parpaing: "parpaing", "beton-cellulaire": "béton cellulaire", tuffeau: "pierre tendre (tuffeau)", "pierre-dure": "pierre dure", moellons: "moellons", placo: "placo", enduit: "mur inconnu (enduit)" };
+    const nomMur = NOMS_MUR[mur] || mur;
+    const MONTAGE_CLIENT = { tige: "des tiges scellées dans le mur à travers le cadre", platine: "de petites platines soudées au cadre et des tiges scellées dans le mur", platines: "de petites platines soudées au cadre et des tiges scellées dans le mur", traversant: "des tiges qui traversent le mur, avec une plaque côté intérieur" };
+    const CONSEIL_CLIENT = {
+      placo: "Le placo est à l'intérieur : indiquez le mur extérieur (béton, brique, pierre…).",
+      "brique-creuse": "S'il y a un poteau en béton le long de la fenêtre, choisissez « Béton ».",
+      parpaing: "S'il y a un poteau en béton le long de la fenêtre, choisissez « Béton ».",
+    };
+    const client = (statut, mode) => statut === "valide" ? `Fixation adaptée à votre mur (${nomMur}) : ${MONTAGE_CLIENT[mode] || "des tiges scellées dans le mur"}, tout en inox, fournie.`
+      : statut === "indicatif" ? "Prix indicatif : nous confirmerons la fixation avec la photo de votre tableau."
+      : `Votre mur (${nomMur}) demande une fixation à étudier : nous vous faisons un devis.${CONSEIL_CLIENT[mur] ? " " + CONSEIL_CLIENT[mur] : ""}`;
+    const kg = (kN) => Math.round(kN * 101.97);
+    const haut = y0 + LmF - eF, bas = y0 + eF;
+    const TIGE = (d, l) => ({ cle: d === 8 ? "fxT8" : "fxT10", nom: `Tige filetée M${d} inox A4, coupée à ${l} mm` });
+    const ECROU = (d) => ({ cle: d === 8 ? "fxE8" : "fxE10", nom: `Écrou borgne et rondelle M${d} inox A4` });
+    const RESINE = { cle: "fxRes", nom: "Résine de scellement fischer FIS V Plus 360 S (cartouche)" };
+    const BRIQUE_PLEINE = () => ({ mode: "platine", nom: "en haut, une platine 50 × 6 à 2 tiges M10 l'une au-dessus de l'autre (65 mm, deux briques) ; en bas, une platine à 1 tige M10", cMin: 60, sMin: 0,
+      pts: () => (haut - 65 >= bas + 30 ? [bas, haut - 65, haut] : null), rd: "brique",
+      trou: "platine 50 × 6 × 100 mm en haut (2 trous Ø 12), platine 50 × 6 × 60 mm en bas (1 trou Ø 12), soudées derrière le montant, posées sur le mur nu", platines: 4, plat: [50, 6, 100],
+      plaques: [{ qte: 2, L: 100, W: 50, E: 6, d: 12, trous: [[25, 17.5], [25, 82.5]], role: "en haut, 2 tiges l'une au-dessus de l'autre (65 mm)" }, { qte: 2, L: 60, W: 50, E: 6, d: 12, trous: [[25, 30]], role: "en bas, 1 tige" }],
+      achats: [[TIGE(10, 100), 6], [ECROU(10), 6], [RESINE, 1]] });
+    const TRAVERSANT = (nomMurT) => {
+      const e = Math.max(80, c), a = 75, rdT = Math.min(5.625 * a / (e + a), 4.225 * a / e, 0.783 / (e / 1000));
+      const lT = Math.round((eMur || 450) + 90);
+      return { mode: "traversant", nom: `en haut et en bas de chaque montant, une patte en équerre (plat 50 × 8 de chant) qui revient sur la façade, 2 tiges M10 inox qui traversent le mur (${Math.round(eMur || 450)} mm) jusqu'à une plaque inox 150 × 150 × 6 à l'intérieur`, cMin: 0, sMin: 0,
+        pts: () => [bas, haut], rd: [rdT, rdT], statut: "valide",
+        nature: `calcul de l'ancrage traversant (${nomMurT} : aucune cheville ; appui des plaques sur la maçonnerie 0,25 N/mm², acier M10 A4-70) ; tiges à ${e} mm de l'arête`,
+        trou: "4 pattes en équerre 50 × 8 soudées aux montants de rive (2 trous Ø 12 chacune), talon de 130 × 130 sur la façade ; 4 plaques inox 150 × 150 × 6 à l'intérieur, isolées de l'acier (rondelles)", platines: 4, plat: [50, 8, 180],
+        plaques: [{ qte: 4, L: 180, W: 50, E: 8, d: 12, trous: [[150, 10], [150, 40]], role: "pattes de façade en équerre (2 tiges chacune)" }],
+        achats: [[TIGE(10, lT), 8], [ECROU(10), 16], [{ cle: "fxPlq", nom: "Plaque inox A4 150 × 150 × 6 (intérieur)" }, 4], [{ cle: "fxRon", nom: "Rondelles isolantes (inox / acier)" }, 8]] };
+    };
+    const MONTAGES = {
+      beton: [
+        { mode: "tige", nom: "une tige M8 inox scellée à travers le montant, en haut et en bas", cMin: 40, sMin: 14, pts: () => [bas, haut], rd: [1.69, 1.69], statut: "valide",
+          nature: "valeur calculée (EN 1992-4, béton C20/25 fissuré, ancrage 80 mm), à faire confirmer par fischer ou Hilti",
+          trou: "trou droit Ø 9 dans le montant (au lieu du fraisé), tige posée d'abord dans le mur", platines: 0,
+          achats: [[TIGE(8, 110), 4], [ECROU(8), 4], [RESINE, 1]] },
+        { mode: "platine", nom: "en haut, une platine 40 × 6 à 2 tiges M8 l'une derrière l'autre (la 1re à 60 mm de l'arête) ; en bas, une tige M8", cMin: 60, sMin: 0, pts: () => [bas, haut], rd: [1.69, 2.87], statut: "valide",
+          nature: "valeurs calculées (EN 1992-4, béton C20/25 fissuré), à faire confirmer par fischer ou Hilti",
+          trou: "platine 40 × 6 × 90 mm soudée derrière le montant en haut (2 trous Ø 9) ; en bas, trou droit Ø 9", platines: 2, plat: [40, 6, 90],
+          plaques: [{ qte: 2, L: 90, W: 40, E: 6, d: 9, trous: [[45, 20], [85, 20]], role: "en haut, 2 tiges l'une derrière l'autre (40 mm)" }],
+          achats: [[TIGE(8, 110), 6], [ECROU(8), 6], [RESINE, 1]] },
+      ],
+      "beton-cellulaire": [
+        { mode: "platines", nom: "deux platines 50 × 6 par montant, à 240 mm l'une de l'autre, tige M10 dans un trou conique (foret fischer PBB Ø 14, 75 mm)", cMin: 120, sMin: 0,
+          pts: () => (haut - 240 >= y0 + 15 ? [haut - 240, haut] : null), rd: [0.89, 0.89], statut: "valide",
+          nature: "valeur calculée avec l'ETE fischer (bloc ≥ 2,5 N/mm²), à faire confirmer par fischer",
+          trou: "2 platines 50 × 6 × 90 mm soudées derrière le montant (1 trou Ø 12 chacune), posées sur le bloc nu (enduit enlevé)", platines: 4, plat: [50, 6, 90],
+          plaques: [{ qte: 4, L: 90, W: 50, E: 6, d: 12, trous: [[70, 25]], role: "en haut et en bas, à 240 mm" }],
+          achats: [[TIGE(10, 100), 4], [ECROU(10), 4], [RESINE, 1]] },
+      ],
+      brique: [
+        { mode: "platine", nom: "en haut, une platine 50 × 6 à 2 tiges M10 l'une au-dessus de l'autre (65 mm, deux briques) ; en bas, une platine à 1 tige M10", cMin: 60, sMin: 0,
+          pts: () => (haut - 65 >= bas + 30 ? [bas, haut - 65, haut] : null), rd: "brique", statut: "valide",
+          nature: "valeur calculée prudente, sans essai : le plus petit de l'ETE-20/0729 (1,14 kN par tige) et de la casse du bord de la brique (TR 054, brique 12,5 N/mm², γ 2,5) ; à faire confirmer par fischer",
+          trou: "platine 50 × 6 × 100 mm en haut (2 trous Ø 12), platine 50 × 6 × 60 mm en bas (1 trou Ø 12), soudées derrière le montant, posées sur la brique nue", platines: 4, plat: [50, 6, 100],
+          plaques: [{ qte: 2, L: 100, W: 50, E: 6, d: 12, trous: [[25, 17.5], [25, 82.5]], role: "en haut, 2 tiges l'une au-dessus de l'autre (65 mm)" }, { qte: 2, L: 60, W: 50, E: 6, d: 12, trous: [[25, 30]], role: "en bas, 1 tige" }],
+          achats: [[TIGE(10, 100), 6], [ECROU(10), 6], [RESINE, 1]] },
+      ],
+      "brique-creuse": [
+        { mode: "platines", nom: "deux platines 50 × 6 par montant, à 315 mm (une par rang), tamis fischer FIS H 20 × 85 K + douille FIS E 15 × 85 M10 inox", cMin: 50, sMin: 0,
+          pts: () => (haut - 315 >= y0 + 15 ? [haut - 315, haut] : null), rd: [0.12, 0.12], statut: "valide",
+          nature: "valeur calculée prudente, sans essai : la plus faible valeur publiée pour une brique creuse (VRk 0,3 kN, ETE-20/0729) ÷ 2,5 ; à faire confirmer par fischer",
+          trou: "2 platines 50 × 6 × 90 mm soudées derrière le montant (1 trou Ø 12 chacune), posées sur la brique nue", platines: 4, plat: [50, 6, 90],
+          plaques: [{ qte: 4, L: 90, W: 50, E: 6, d: 12, trous: [[60, 25]], role: "en haut et en bas, à 315 mm (un rang chacune)" }],
+          achats: [[{ cle: "fxTaF", nom: "Tamis fischer FIS H 20 × 85 K" }, 4], [{ cle: "fxDou", nom: "Douille taraudée fischer FIS E 15 × 85 M10 (inox si possible)" }, 4], [{ cle: "fxV10", nom: "Vis M10 inox A4 + rondelle" }, 4], [RESINE, 1]] },
+      ],
+      parpaing: [
+        { mode: "platines", nom: "deux platines 50 × 6 par montant, à 200 mm (deux rangs de blocs), chevilles chimiques avec tamis", cMin: 50, sMin: 0,
+          pts: () => (haut - 200 >= y0 + 15 ? [haut - 200, haut] : null), rd: [0.48, 0.48], statut: "valide",
+          nature: "valeur calculée sans essai : 1,2 kN publiés pour le bloc creux (Hilti, ETE-19/0160, bord ≥ 50 mm) ÷ 2,5 ; à faire confirmer par Hilti",
+          trou: "2 platines 50 × 6 × 90 mm soudées derrière le montant (1 trou Ø 9 chacune), posées sur le bloc nu", platines: 4, plat: [50, 6, 90],
+          plaques: [{ qte: 4, L: 90, W: 50, E: 6, d: 9, trous: [[60, 25]], role: "en haut et en bas, à 200 mm (un rang de blocs chacune)" }],
+          achats: [[{ cle: "fxTaH", nom: "Tamis Hilti HIT-SC 16 × 85" }, 4], [TIGE(8, 160), 4], [ECROU(8), 4], [{ cle: "fxHit", nom: "Résine Hilti HIT-HY 270 (cartouche)" }, 1]] },
+      ],
+      "pierre-dure": [TRAVERSANT("pierre dure")],
+      moellons: [TRAVERSANT("moellons")],
+      enduit: [{ ...BRIQUE_PLEINE(), statut: "indicatif", nature: "prix indicatif, sur la base d'une brique pleine : le mur sera confirmé avec la photo du tableau, la fixation et le prix peuvent changer" }],
+      tuffeau: [
+        { mode: "platine", nom: "en haut, une platine 50 × 6 à 2 tiges M10 inox scellées 100 mm, l'une au-dessus de l'autre dans 2 pierres différentes ; en bas, une platine à 1 tige", cMin: 60, sMin: 0,
+          pts: () => (haut - 65 >= bas + 30 ? [bas, haut - 65, haut] : null), rd: "tuffeau", statut: "valide",
+          nature: "valeur calculée prudente, sans essai (tuffeau mouillé 3,2 N/mm², TR 054, γ 2,5) : aucune valeur publiée pour la pierre ; à faire confirmer par fischer",
+          trou: "platine 50 × 6 × 100 mm en haut (2 trous Ø 12), platine 50 × 6 × 60 mm en bas (1 trou Ø 12), posées sur la pierre nue", platines: 4, plat: [50, 6, 100],
+          plaques: [{ qte: 2, L: 100, W: 50, E: 6, d: 12, trous: [[25, 17.5], [25, 82.5]], role: "en haut, 2 tiges dans 2 pierres différentes" }, { qte: 2, L: 60, W: 50, E: 6, d: 12, trous: [[25, 30]], role: "en bas, 1 tige" }],
+          achats: [[TIGE(10, 120), 6], [ECROU(10), 6], [RESINE, 1]] },
+      ],
+    };
+    const ETUDE = {
+      placo: "le placo est à l'intérieur, le garde-corps se fixe dehors : indiquer le mur extérieur (béton, brique, pierre…)",
+    };
+    if (ETUDE[mur]) return { mur, nomMur, mode: "etude", statut: "etude", texte: `sur étude — ${ETUDE[mur]}.`, texteClient: client("etude"), points: [], achats: [], platines: 0 };
+    const liste = MONTAGES[mur];
+    if (!liste) return { mur, nomMur, mode: "etude", statut: "etude", texte: "mur inconnu de l'outil : sur étude.", texteClient: client("etude"), points: [], achats: [], platines: 0 };
+    let refus = "";
+    for (const m of liste) {
+      if (c < m.cMin) { refus = `la 1re fixation doit être à ${m.cMin} mm au moins de l'arête du mur nu (ici ${Math.round(c)} mm)`; continue; }
+      if (s < m.sMin) { refus = `un carré de ${m.sMin} au moins pour le trou de la tige`; continue; }
+      const ys = m.pts();
+      if (!ys) { refus = `le montant de rive est trop court (${Math.round(LmF)} mm) pour écarter les fixations`; continue; }
+      const V = effortsPoints(P, yH, ys);
+      const rd = m.rd === "tuffeau" ? ys.map(() => 0.091 * c ** 1.5 / 101.97)
+        : m.rd === "brique" ? ys.map(() => Math.min(1.14, 0.091 * Math.sqrt(12.5 / 3.2) * c ** 1.5 / 101.97)) : m.rd;
+      const points = ys.map((y, i) => ({ y, V: V[i], rd: rd ? rd[i] : null }));
+      const trop = rd ? points.find((p) => p.V > p.rd) : null;
+      if (trop && m.statut !== "indicatif") { refus = `la fixation la plus chargée reprendrait ${kg(trop.V)} kg pour ${kg(trop.rd)} kg admis`; continue; }
+      const pire = points.reduce((a, p) => (p.V > a.V ? p : a), points[0]);
+      const charge = rd ? `fixation la plus chargée : ${kg(pire.V)} kg pour ${kg(pire.rd)} kg admis` : `fixation la plus chargée : ${kg(pire.V)} kg, à prouver par essais`;
+      const texte = `${m.statut === "valide" ? "validé par le calcul" : m.statut === "indicatif" ? "prix indicatif" : "sous réserve d'essais"} — ${m.nom} ; ${charge}${trop ? " : il faudra sans doute des pattes ou un autre montage" : ""} (${m.nature}). ${m.trou}. Tout en inox A4.`;
+      return { mur, nomMur, mode: m.mode, statut: m.statut, texte, texteClient: client(m.statut, m.mode), nomMontage: m.nom, trou: m.trou, points, plat: m.plat || null, platines: m.platines, plaques: m.plaques || [], c,
+        achats: m.achats.map(([a, q]) => ({ cle: a.cle, nom: a.nom, qte: q })) };
+    }
+    const SOLUTIONS = {
+      "brique-creuse": "si un poteau ou un encadrement en béton borde la fenêtre (fréquent en construction récente), la fixation se fait dedans (choisir « Béton ») ; sinon pattes scellées dans un appui en béton, ou visite",
+      parpaing: "si un poteau ou un encadrement en béton borde la fenêtre (fréquent en construction récente), la fixation se fait dedans (choisir « Béton ») ; sinon pattes scellées dans un appui en béton, ou visite",
+      "beton-cellulaire": "pattes scellées dans un appui en béton, ou visite",
+      beton: "platine plus loin de l'arête, pattes dans l'appui, ou note de calcul",
+    };
+    return { mur, nomMur, mode: "etude", statut: "etude", texte: `sur étude — ${refus}. Solutions : ${SOLUTIONS[mur] || "pattes dans l'appui, montage plus fort à étudier, ou visite"}.`, texteClient: client("etude"), points: [], achats: [], platines: 0 };
+  }
 function percageCache(xe, xi, y, d, f) {
     const sens = Math.sign(xi - xe), pf = (f - d) / 2;
     return [
@@ -598,7 +740,14 @@ function calculerGC(v) {
     {
       const LmF = v.ass === "onglet" ? g.Hc : g.Hc - 2 * s, pos = percages(LmF, v.nF, v.eF);
       const dF = pos[pos.length - 1] - pos[0], aF = g.Hr - ((v.ass === "onglet" ? 0 : s) + pos[pos.length - 1]);
-      if (dF > 0) {
+      if (v.mur) {
+        const F = fixationMurGC({ mur: v.mur, c: v.cMur, s, LmF, y0: v.ass === "onglet" ? 0 : s, yH: g.Hr, P: Math.max(RA, RC), eF: v.eF, eMur: v.eMur });
+        R.fixation = F;
+        const msg = `Fixation dans le mur (${F.nomMur}) : ${F.texte}`;
+        if (F.statut === "etude") R.alertes.push(msg);
+        else if (F.statut === "essais" || F.statut === "indicatif") R.notes.push(msg);
+        else R.oks.push(msg);
+      } else if (dF > 0) {
         const Vd = Math.max(RA, RC), k = 1 + aF / dF, haute = Vd * k;
         const tropTire = xPattes.length ? k > 2 && haute > HAUTE_PATTE : renfort && k > 2;
         if (tropTire) R.alertes.push(`Fixation : les perçages d'un montant ne sont écartés que de ${mmTxt(dF)} mm. Sur une fenêtre de ${mmTxt(g.Lc)} mm, la vis du haut reprendrait ${mmTxt(haute * 100)} kg : trop pour un mur. Solution : une ou plusieurs pattes scellées dans l'appui (Options, « Pattes »), un garde-corps plus haut (un bas de fenêtre plus bas) ou une note de calcul.`);
@@ -685,6 +834,17 @@ function calculerGC(v) {
     C.push({ t: "sol", x1: -ep - 300, x2: 300 });
     C.push({ t: "poly", cls: "t-mur", pts: rect(-ep, 0, 0, v.A) });
     C.push({ t: "poly", piece: "Montants de rive", cls: "t-acier-plein", pts: rect(-ep / 2 - s / 2, y0, -ep / 2 + s / 2, y0 + g.Hc) });
+    if (R.fixation && R.fixation.statut !== "etude" && R.fixation.points.length) {
+      const fxC = R.fixation, avecPlatine = fxC.mode !== "tige", xFront = -ep / 2 + s / 2;
+      for (const pt of fxC.points) {
+        const yW = y0 + pt.y, xT = avecPlatine ? -ep / 2 - 35 : -ep / 2;
+        const sansPlatineEnBas = fxC.mur === "beton" && pt === fxC.points[0];
+        if (avecPlatine && !sansPlatineEnBas) C.push({ t: "poly", piece: "Platines de fixation", cls: "t-acier-plein", pts: rect(xT - 25, yW - 22, xFront, yW + 22) });
+        C.push({ t: "cercle", cls: "t-trou-plan", c: [sansPlatineEnBas ? -ep / 2 : xT, yW], r: fxC.mode === "tige" || fxC.mur === "beton" || fxC.mur === "parpaing" ? 4.5 : 6 });
+      }
+      const ptH = fxC.points[fxC.points.length - 1];
+      C.push({ t: "texte", p: [-ep / 2 - 60, y0 + ptH.y + 40], txt: `${fxC.nomMur} : 1re tige à ${mmTxt(fxC.c)} mm de l'arête du mur nu`, pos: "sur" });
+    }
     if (xPattes.length) {
       C.push({ t: "poly", piece: "Pattes de scellement", cls: "t-acier-plein", pts: rect(-ep / 2 - s / 2, v.A, -ep / 2 + s / 2, y0) });
       C.push({ t: "poly", cls: "t-cache", pts: rect(-ep / 2 - s / 2, v.A - PATTE.scel, -ep / 2 + s / 2, v.A) });
@@ -713,13 +873,20 @@ function calculerGC(v) {
     const demi = diag / 2 - (s / 2) / Math.sin(2 * alpha);
     const mat = `Carré plein ${s} × ${s}`;
     const morceaux = [];
+    const fx = R.fixation && R.fixation.statut !== "etude" ? R.fixation : null;
+    const tigeMontant = fx && (fx.mode === "tige" || (fx.mode === "platine" && fx.mur === "beton"));
+    const percMontant = !fx ? `${v.nF} perçages Ø ${fmt(v.dF, 1)} fraisés Ø ${fmt(v.fF, 1)}`
+      : fx.mode === "tige" ? "2 trous droits Ø 9 (tiges M8 scellées dans le mur)"
+      : tigeMontant ? "1 trou droit Ø 9 en bas ; platine soudée en haut"
+      : "sans perçage : platines soudées (voir « Platines de fixation »)";
+    const dessinRive = (pts, L) => (tigeMontant ? dessinMontantRive(pts, L, { ...v, dF: 9, fF: 9 }) : fx ? profil(pts) : dessinMontantRive(pts, L, v));
     if (v.ass === "onglet") {
       R.debit.push({ nom: "Traverses du cadre (haut et bas)", qte: 2, mat, long: g.Lc, coupes: "Onglets à 45° aux 2 bouts", note: "Mesuré à l'extérieur", dessin: profil([[0, 0], [g.Lc, 0], [g.Lc - s, s], [s, s]]) });
-      R.debit.push({ nom: "Montants de rive du cadre", qte: 2, mat, long: g.Hc, coupes: `Onglets à 45° aux 2 bouts · ${v.nF} perçages Ø ${fmt(v.dF, 1)} fraisés Ø ${fmt(v.fF, 1)}`, note: "Mesuré à l'extérieur", dessin: dessinMontantRive([[0, 0], [g.Hc, 0], [g.Hc - s, s], [s, s]], g.Hc, v) });
+      R.debit.push({ nom: "Montants de rive du cadre", qte: 2, mat, long: g.Hc, coupes: `Onglets à 45° aux 2 bouts · ${percMontant}`, note: "Mesuré à l'extérieur", dessin: dessinRive([[0, 0], [g.Hc, 0], [g.Hc - s, s], [s, s]], g.Hc) });
       morceaux.push({ qte: 2, long: g.Lc }, { qte: 2, long: g.Hc });
     } else {
       R.debit.push({ nom: "Traverses du cadre (haut et bas)", qte: 2, mat, long: g.Lc, coupes: "Coupes droites", note: "Filantes", dessin: profil(rectPts(g.Lc, s)) });
-      R.debit.push({ nom: "Montants de rive du cadre", qte: 2, mat, long: g.Hc - 2 * s, coupes: `Coupes droites · ${v.nF} perçages Ø ${fmt(v.dF, 1)} fraisés Ø ${fmt(v.fF, 1)}`, note: v.traverse ? "Entre les traverses du cadre" : "Entre les traverses", dessin: dessinMontantRive(rectPts(g.Hc - 2 * s, s), g.Hc - 2 * s, v) });
+      R.debit.push({ nom: "Montants de rive du cadre", qte: 2, mat, long: g.Hc - 2 * s, coupes: `Coupes droites · ${percMontant}`, note: v.traverse ? "Entre les traverses du cadre" : "Entre les traverses", dessin: dessinRive(rectPts(g.Hc - 2 * s, s), g.Hc - 2 * s) });
       morceaux.push({ qte: 2, long: g.Lc }, { qte: 2, long: g.Hc - 2 * s });
     }
     if (g.sb) {
@@ -759,12 +926,16 @@ function calculerGC(v) {
       morceaux.push({ qte: k, long: v.jour + PATTE.scel });
       R.debit.push({ nom: "Scellement chimique (cartouche)", qte: 1, mat: "À acheter", long: 0, coupes: `Pour ${k > 1 ? `les ${k} pattes` : "la patte"}`, note: "Résine pour pierre tendre (tuffeau)" });
     }
-    R.debit.push({ nom: `Vis ou goujons Ø ${fmt(v.dF - 0.5, 0)} à tête fraisée + chevilles`, qte: 2 * v.nF, mat: "À acheter (longueur selon le mur)", long: 0, coupes: `${v.nF} par montant de rive`, note: "Mur plein : cheville nylon · mur creux ou ancien : scellement chimique" });
+    if (fx) {
+      for (const pl of fx.plaques) R.debit.push({ nom: "Platines de fixation", qte: pl.qte, mat: `Plat acier ${pl.W} × ${pl.E}`, long: pl.L, coupes: `${pl.role} · ${pl.trous.length} trou${pl.trous.length > 1 ? "s" : ""} Ø ${pl.d}`, note: `Soudées derrière les montants de rive (côté fenêtre), posées à plat sur le mur nu · 1re tige à ${mmTxt(fx.c)} mm de l'arête`, dessin: plaque(rectPts(pl.L, pl.W), pl.trous.map((c) => ({ c, d: pl.d })), { note: "tiges inox" }) });
+      fx.achats.forEach((a, n) => R.debit.push({ nom: a.nom, qte: a.qte, mat: "À acheter", long: 0, coupes: "", note: n ? "" : `Fixation dans le mur (${fx.nomMur})` }));
+    } else R.debit.push({ nom: `Vis ou goujons Ø ${fmt(v.dF - 0.5, 0)} à tête fraisée + chevilles`, qte: 2 * v.nF, mat: "À acheter (longueur selon le mur)", long: 0, coupes: `${v.nF} par montant de rive`, note: "Mur plein : cheville nylon · mur creux ou ancien : scellement chimique" });
 
     const b = barres(morceaux, v.trait, 0);
     const metres = morceaux.reduce((x, m) => x + m.qte * m.long, 0) / 1000;
     const kg = metres * s * s * 7.85e-3 + (profilMC ? MC_PROFIL.kg * g.Lc / 1000 : acier ? v.lMc * v.mc * g.Lc / 1e9 * 7850 : (renfort ? v.lMc : v.mc) * v.mc * g.Lc / 1e9 * 700)
-      + (renfort ? v.lRf * v.eRf * g.Lc / 1e9 * 7850 : 0);
+      + (renfort ? v.lRf * v.eRf * g.Lc / 1e9 * 7850 : 0)
+      + (fx ? fx.plaques.reduce((t, pl) => t + pl.qte * pl.L * pl.W * pl.E / 1e9 * 7850, 0) : 0);
     R.kg = kg; R.metres = metres; R.hauteurGC = g.Hr;
     if (Dec) { R.kg += Dec.kgDecor; R.decor = Dec.chiffre; R.decorNom = Dec.nom; R.decorFinitions = Dec.fin; }
     R.mc = { l: acier || profilMC || renfort ? v.lMc : v.mc, h: v.mc, chev: v.chev || 0, renfort: renfort ? { l: v.lRf, e: v.eRf, vis: nVisMc } : null };
@@ -1007,7 +1178,20 @@ function planA3Pur(R, v, infos, modele) {
     titre(oxC - 4, oyF + 17, "VUE DE CÔTÉ", " - CADRE SEUL", ech);
 
     const mR = R.debit.find((d) => d.nom.startsWith("Montants de rive"));
-    if (mR && v.nF && !apercu) {
+    const fxB = R.fixation && R.fixation.statut !== "etude" ? R.fixation : null;
+    const vDetailB = fxB ? { ...v, dF: 9, fF: 9 } : v;
+    if (mR && v.nF && !apercu && fxB && fxB.mode !== "tige") {
+      const x0 = oxC + bc.w / k + 26, y0 = oyF - Math.max(bf.h / k, 40);
+      const lignes = [];
+      for (const t of [fxB.nomMontage, fxB.trou, `1re tige à ${mmTxt(fxB.c)} mm de l'arête du mur nu · tout en inox A4`, fxB.statut === "essais" ? "sous réserve d'essais du mur, avant la fabrication" : "valeur calculée, à confirmer par le fabricant de la résine"]) {
+        let l = "";
+        for (const mot of String(t).split(" ")) { if ((l + " " + mot).length > 62 && l) { lignes.push(l); l = mot; } else l = l ? l + " " + mot : mot; }
+        if (l) lignes.push(l);
+      }
+      titre(x0, y0 + 4, "DÉTAIL B", " - FIXATION", `selon le mur : ${fxB.nomMur} · voir « Platines de fixation » au débit`);
+      lignes.forEach((t, n) => { out += T(x0, y0 + 12 + n * 3.4, t, { t: 2.3, a: "start" }); });
+    } else if (mR && v.nF && !apercu) {
+      const v = vDetailB;
       const Lm = mR.long, s = v.s, kd = [1, 2, 2.5, 5, 10, 15, 20, 25, 30].find((e) => Lm / e <= Math.max(bf.h / k, 40)) || 30;
       const posF = percages(Lm, v.nF, v.eF);
       const x0 = oxC + bc.w / k + 26, y0 = oyF - Math.max(bf.h / k, Lm / kd);
@@ -1024,9 +1208,9 @@ function planA3Pur(R, v, infos, modele) {
       for (let i = 0; i + 1 < ch.length; i++) coter(PB, [s, ch[i]], [s, ch[i + 1]], "droite", 4, mmTxt(ch[i + 1] - ch[i]));
       coter(PB, [0, Lm], [s, Lm], "haut", 3, `${s}`);
       titre(x0 + s / kd + 16, y0 + 4, "DÉTAIL B", " - FIXATION", `face intérieure d'un montant de rive · échelle 1:${kd}`);
-      out += T(x0 + s / kd + 16, y0 + 12, `${posF.length} perçages Ø ${fmt(v.dF, 1)} traversants par montant`, { t: 2.3, a: "start" });
-      out += T(x0 + s / kd + 16, y0 + 15.5, `fraisés à 90°, Ø ${fmt(v.fF, 1)}, côté intérieur`, { t: 2.3, a: "start" });
-      out += T(x0 + s / kd + 16, y0 + 19, `vis ou goujon à tête fraisée + cheville dans le tableau`, { t: 2.3, a: "start" });
+      out += T(x0 + s / kd + 16, y0 + 12, `${posF.length} ${fxB ? "trous droits" : "perçages"} Ø ${fmt(v.dF, 1)} traversants par montant`, { t: 2.3, a: "start" });
+      out += T(x0 + s / kd + 16, y0 + 15.5, fxB ? `tiges M8 inox scellées dans le mur (${fxB.nomMur})` : `fraisés à 90°, Ø ${fmt(v.fF, 1)}, côté intérieur`, { t: 2.3, a: "start" });
+      out += T(x0 + s / kd + 16, y0 + 19, fxB ? `résine fischer FIS V Plus, écrou borgne inox` : `vis ou goujon à tête fraisée + cheville dans le tableau`, { t: 2.3, a: "start" });
       {
         const e2 = 2, xs = x0 + s / kd + 30, ys = y0 + 30, S2 = s * e2, d2 = v.dF * e2, f2 = v.fF * e2, pf = (f2 - d2) / 2;
         const ym = ys + S2 / 2;
@@ -1922,8 +2106,8 @@ function mtGrilleAppui(G, cS) {
   }
   return null;
 }
-export const DEFAUTS_GC = Object.freeze({"prixVente":0,"km":30,"debitAr":8,"minSoud":1.2,"rnP":14,"rnJ":1,"nF":2,"dF":6.5,"fF":13,"eF":25,"epMc":8,"L":2000,"l":1000,"H":750,"e":45,"a":80,"ep":3,"t":3,"pL":75,"pl":60,"pX":80,"rX":250,"tS":300,"tW":120,"pR":60,"bR":300,"lame":150,"latte":120,"jeu":8,"trait":3,"B":1180,"A":650,"Hs":0,"Hf":0,"s":16,"mc":40,"j":1,"jour":90,"nP":1,"nb":0,"rD":100,"Xo":0,"Hm":2600,"recul":0,"Wm":900,"lh":150,"lw":100,"le":5,"em":50,"nez":0,"hs":80,"tp":8,"plx":200,"ply":150,"tpp":10,"epl":200,"ptP":3500,"ptH":1600,"ptFleche":150,"ptHSoub":500,"ptPente":0,"ass":"droit","etage":true,"rosace":true,"traverse":false,"mcType":"bois","sbMode":"auto","seuls":false,"decor":"aucun","decorForme":"C","decorBouts":"bouton","decorLiaison":"colliers","decorBarreaux":"carre","decorFriseBasse":"aucune","decorDore":"0","renfort":"sans","patte":0,"essence":"chene","remise":"retrait","essenceT":"chene","teinte":"noir","rainure":true,"ptMat":"alu","ptForme":"droit","ptSoub":"aucun","ptRemp":"plein","ptVantaux":"2","ptRep":"egal","ptGuidage":"rail","ptSens":"gauche","ptPoteaux":"existants","ptPointes":false,"ptLisse":false,"ptMoteur":false,"jourAuto":true,"jourSaisi":90});
+export const DEFAUTS_GC = Object.freeze({"prixVente":0,"km":30,"debitAr":8,"minSoud":1.2,"rnP":14,"rnJ":1,"nF":2,"dF":6.5,"fF":13,"eF":25,"cMur":60,"eMur":450,"epMc":8,"L":2000,"l":1000,"H":750,"e":45,"a":80,"ep":3,"t":3,"pL":75,"pl":60,"pX":80,"rX":250,"tS":300,"tW":120,"pR":60,"bR":300,"lame":150,"latte":120,"jeu":8,"trait":3,"B":1180,"A":650,"Hs":0,"Hf":0,"s":16,"mc":40,"j":1,"jour":90,"nP":1,"nb":0,"rD":100,"Xo":0,"Hm":2600,"recul":0,"Wm":900,"lh":150,"lw":100,"le":5,"em":50,"nez":0,"hs":80,"tp":8,"plx":200,"ply":150,"tpp":10,"epl":200,"ptP":3500,"ptH":1600,"ptFleche":150,"ptHSoub":500,"ptPente":0,"ass":"droit","mur":"","etage":true,"rosace":true,"traverse":false,"mcType":"bois","sbMode":"auto","seuls":false,"decor":"aucun","decorForme":"C","decorBouts":"bouton","decorLiaison":"colliers","decorBarreaux":"carre","decorFriseBasse":"aucune","decorDore":"0","renfort":"sans","patte":0,"essence":"chene","remise":"retrait","essenceT":"chene","teinte":"noir","rainure":true,"ptMat":"alu","ptForme":"droit","ptSoub":"aucun","ptRemp":"plein","ptVantaux":"2","ptRep":"egal","ptGuidage":"rail","ptSens":"gauche","ptPoteaux":"existants","ptPointes":false,"ptLisse":false,"ptMoteur":false,"jourAuto":true,"jourSaisi":90});
 export const BORNES_GC = Object.freeze({ B: Object.freeze({"min":300,"max":3000}), A: Object.freeze({"min":0,"max":1200}), Hf: Object.freeze({"min":0,"max":3000}) });
-export const EMPREINTE_SOURCE = "a2a0b69ed83f67230d9abc4aba30ccb1bdb509d1741d8e52f2a597d9fd635f79";
+export const EMPREINTE_SOURCE = "f305bbfeaa2968decd89d9ac295800f463a52329cedb119de0d891f83f58fb8f";
 export { ALLEGE_LIBRE, BARRE_APPUI, CIBLE_MARGE, DECOR_NOMS, DS_ESSENCES, HAUT_ETAGE, LIMITE_ACIER, MARGE_BOULE, MINI_GC, MINI_SEULS, MT_AVEC, MT_CHOIX, MT_NOMS, RENFORT, ROSACE_R, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, coupeMainCourante, decorActif, decrireVariante, fmt, geomGC, mmTxt, mtAlleger, planA3Pur, svgDe, variantesConformes };
-export const EMPREINTE = "f6a6457e5581";
+export const EMPREINTE = "c8c5ee0e3f2a";

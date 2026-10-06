@@ -412,7 +412,8 @@ test("adresse de /api/prix-garde-corps : seuls des millimètres entiers dans les
     "l=1180&allege=650&etage=1&wood=chene&qty=11",
     "l=1180&allege=650&etage=1&wood=chene&metal=NOIR!",   // un identifiant d'option, rien d'autre
   ]) assert.equal(ok(q), null, q);
-  assert.deepEqual([...PARAMETRES_PRIX_GC].sort(), ["allege", "decor", "decors", "etage", "fabric", "fenetre", "l", "metal", "modele", "qty", "remplissage", "wood"]);
+  // (« mur », « c », « ep » : le mur des tableaux, facultatif — tests/garde-corps-mur-site.test.ts.)
+  assert.deepEqual([...PARAMETRES_PRIX_GC].sort(), ["allege", "c", "decor", "decors", "ep", "etage", "fabric", "fenetre", "l", "metal", "modele", "mur", "qty", "remplissage", "wood"]);
 });
 
 test("un relevé hors des bornes de l'outil n'est jamais calculé", () => {

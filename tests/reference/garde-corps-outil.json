@@ -1,12 +1,12 @@
 {
  "à lire": "Généré par scripts/extraire-moteur-garde-corps.mjs à partir de l'outil de plans (chargé tel quel dans node:vm). Aucun coût : des prix de vente, des poids, des hauteurs et des empreintes (sha256 tronqué) des réponses complètes. Ne pas modifier à la main.",
- "outil": "a2a0b69ed83f67230d9abc4aba30ccb1bdb509d1741d8e52f2a597d9fd635f79",
+ "outil": "f305bbfeaa2968decd89d9ac295800f463a52329cedb119de0d891f83f58fb8f",
  "empreintes": {
-  "moteur": "f6a6457e5581",
-  "devis": "6b6809d69dad",
-  "chiffrage": "74c709855adb"
+  "moteur": "c8c5ee0e3f2a",
+  "devis": "8c4bce512442",
+  "chiffrage": "1e4a266b7da0"
  },
- "defauts": "4d6b11ddb119ed7a",
+ "defauts": "e18f49a1be522aef",
  "date": "2026-09-29T10:00:00.000Z",
  "cas": [
   {
@@ -29,7 +29,7 @@
     "donnees": "bcf96988cbabd1f4",
     "html": "f9cac4cbc38c011b"
    },
-   "variantes": "b8e6bbcc3dfc0236"
+   "variantes": "52a05a124608968b"
   },
   {
    "nom": "photo du site, 4 croix",
@@ -77,7 +77,7 @@
     "donnees": "9807c02d4d9ac90d",
     "html": "ab30e92c965b4f81"
    },
-   "variantes": "e988b41a432e3fd0"
+   "variantes": "826081cb0b0bd66e"
   },
   {
    "nom": "juste au-delà, carré 16",

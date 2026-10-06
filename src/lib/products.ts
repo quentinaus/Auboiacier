@@ -1,5 +1,5 @@
 import type { Locale } from "@/lib/i18n";
-import { diametreRosaceGC, finitionsDecorGC, idDecorGC, idMainCouranteGC, lireDecorGC, lireMainCouranteGC, lireModeleGC, nomDecorAnglaisGC, type ReleveGC } from "./garde-corps.ts";
+import { champsMurGC, diametreRosaceGC, finitionsDecorGC, idDecorGC, idMainCouranteGC, lireDecorGC, lireMainCouranteGC, lireModeleGC, murDansLesBornes, nomDecorAnglaisGC, NOMS_MUR_FIXATION_GC, type MurFixationGC, type MurReleveGC, type ReleveGC, type StatutFixationGC } from "./garde-corps.ts";
 import { DECORS_GC } from "./garde-corps-decors.genere.ts";
 import { PRIX_OFFRE_CENTS, RAYON_OFFRE_KM } from "./deplacement.ts";
 import { prixAffiche } from "./ui.ts";
@@ -2682,6 +2682,13 @@ export type Selection = {
   modeleGc?: string;
   /** Garde-corps : le décor à volutes choisi (idDecorGC, « frise.S.bouton.colliers.carre.aucune.0 »). Il remplace le modèle. */
   decorGc?: string;
+  /**
+   * Garde-corps : le mur des tableaux (MURS_FIXATION_GC) et ses cotes en mm (ReleveGC.mur, cMurMm, eMurMm). La fixation
+   * que l'outil y choisit entre dans le prix. Absent : la fixation d'avant (vis et chevilles). Une cote sans mur est refusée.
+   */
+  murGc?: string;
+  cMurMm?: number;
+  eMurMm?: number;
   /** Langue du libellé de la ligne. N'influence aucun prix. */
   locale?: Locale;
 };
@@ -2728,6 +2735,8 @@ export type ResolvedLine = {
     decorNom?: string;
     /** La frise basse demandée a été retirée par l'outil (au ras du sol). */
     decorFriseRetiree?: boolean;
+    /** La fixation retenue dans le mur des tableaux, quand le client l'a donné (elle est dans le prix). */
+    fixation?: FixationReleve;
   };
 };
 
@@ -3188,6 +3197,9 @@ export function prixParOutil(product: Product): boolean {
   return product.releve === "garde-corps-fenetre";
 }
 
+/** La fixation que l'outil retient dans le mur des tableaux : le mur, le montage (« tige », « platine »…) et son statut. */
+export type FixationReleve = { mur: MurFixationGC; mode: string; statut: StatutFixationGC };
+
 /** Ce que l'outil de plans répond pour un relevé et une essence (fourni par le serveur). */
 export type ReponseReleve =
   | {
@@ -3212,6 +3224,8 @@ export type ReponseReleve =
       decorNom?: string;
       /** La frise basse demandée a été retirée par l'outil (au ras du sol, elle ferait des marches) : le libellé ne la cite pas. */
       decorFriseRetiree?: boolean;
+      /** La fixation retenue dans le mur, quand un mur est donné. */
+      fixation?: FixationReleve;
     }
   | { ok: false; raison: "a-etudier" | "fenetre-trop-basse" | "hors-bornes" };
 export type PrixReleve = (releve: ReleveGC & { essence: string; rosaceMm?: number }) => ReponseReleve;
@@ -3219,9 +3233,32 @@ export type PrixReleve = (releve: ReleveGC & { essence: string; rosaceMm?: numbe
 /** Un entier de millimètres, ou rien. */
 const mmEntier = (x: unknown) => (typeof x === "number" && Number.isInteger(x) && x >= 0 ? x : undefined);
 
+/** Le montage de la fixation, en deux mots pour le libellé de la commande (les modes de l'outil : fixationMurGC). */
+const MONTAGES_LIBELLE: Readonly<Record<string, { fr: string; en: string }>> = {
+  tige: { fr: "tiges M8 scellées", en: "bonded M8 rods" },
+  platine: { fr: "platines scellées", en: "bonded fixing plates" },
+  platines: { fr: "platines scellées", en: "bonded fixing plates" },
+  traversant: { fr: "ancrage traversant", en: "through-wall anchors" },
+};
+
+/**
+ * « , fixation béton : tiges M8 scellées » : la fixation retenue dans le mur des tableaux, pour que le bon de commande
+ * dise ce qui est vendu (le prix la comprend). « à confirmer » quand le prix est indicatif (mur inconnu).
+ * Avec elle, le libellé le plus long dépasse 500 signes (550) : Stripe le garde en entier (libelle-stripe.ts, un test le vérifie).
+ */
+function libelleFixation(f: { mur: MurFixationGC; mode?: string; statut?: StatutFixationGC } | undefined, locale: Locale): string {
+  if (!f) return "";
+  const en = locale === "en";
+  const nom = NOMS_MUR_FIXATION_GC[f.mur][en ? "en" : "fr"];
+  const montage = f.mode !== undefined && Object.hasOwn(MONTAGES_LIBELLE, f.mode) ? MONTAGES_LIBELLE[f.mode][en ? "en" : "fr"] : null;
+  const confirmer = f.statut === "indicatif" ? (en ? " (to be confirmed)" : " (à confirmer)") : "";
+  return en ? `, ${nom} wall fixing${montage ? `: ${montage}` : ""}${confirmer}` : `, fixation ${nom}${montage ? ` : ${montage}` : ""}${confirmer}`;
+}
+
 /**
  * « Sur mesure — 1 180 × 285 mm, 4 croix, traverse au milieu, barreaux en bas, acier carré de 16 », dans la langue du client
- * (et « , lisse haute renforcée » quand la fenêtre est large : un fer plat caché sous la main courante).
+ * (et « , lisse haute renforcée » quand la fenêtre est large : un fer plat caché sous la main courante ; et la fixation
+ * retenue dans le mur, quand le client l'a donné).
  * Le libellé part sur le bon de commande : il doit dire CE QUI EST VENDU. Deux modèles à des prix différents
  * (avec ou sans barreaux en bas, carré de 16 ou de 18) portaient le même libellé : l'atelier ne pouvait les
  * distinguer que par le prix.
@@ -3231,7 +3268,7 @@ export function libelleGardeCorps(
   hauteurMm: number,
   croix: number | null,
   locale: Locale = "fr",
-  modele: { soubassement?: boolean; carre?: number; traverse?: boolean; renfort?: boolean; seuls?: boolean; patte?: number; decor?: string } = {}
+  modele: { soubassement?: boolean; carre?: number; traverse?: boolean; renfort?: boolean; seuls?: boolean; patte?: number; decor?: string; fixation?: { mur: MurFixationGC; mode?: string; statut?: StatutFixationGC } } = {}
 ) {
   const langue = locale === "en" ? "en-GB" : "fr-FR";
   const cotes = `${largeurMm.toLocaleString(langue)} × ${hauteurMm.toLocaleString(langue)} mm`;
@@ -3239,7 +3276,8 @@ export function libelleGardeCorps(
   const renfort = (modele.renfort ? (locale === "en" ? ", reinforced top rail" : ", lisse haute renforcée") : "")
     + (!modele.patte ? "" : modele.patte > 1
       ? (locale === "en" ? `, ${modele.patte} fixing bars sealed into the sill` : `, ${modele.patte} pattes scellées dans l'appui`)
-      : (locale === "en" ? ", middle fixing bar sealed into the sill" : ", patte au milieu scellée dans l'appui"));
+      : (locale === "en" ? ", middle fixing bar sealed into the sill" : ", patte au milieu scellée dans l'appui"))
+    + libelleFixation(modele.fixation, locale);
   if (croix === null) return `${prefixe} — ${cotes}${renfort}`;
   const mot = locale === "en" ? (croix > 1 ? "crosses" : "cross") : "croix";
   const traverse = modele.traverse ? (locale === "en" ? ", middle rail" : ", traverse au milieu") : "";
@@ -3285,6 +3323,10 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
 
   if (!prixReleve) return { ok: false, reason: "prix_serveur" };
   if (selection.modeleGc !== undefined && !lireModeleGC(selection.modeleGc)) return { ok: false, reason: "unknown_size" };
+  // Le mur des tableaux (facultatif) : un mur de la liste de l'outil, des cotes entières dans leurs bornes, jamais une cote
+  // sans mur. Illisible : refusé, jamais remplacé en silence (la fixation change le prix).
+  const mur = { mur: selection.murGc, cMurMm: selection.cMurMm, eMurMm: selection.eMurMm };
+  if (!murDansLesBornes(mur)) return { ok: false, reason: "unknown_size" };
   const releve: ReleveGC = {
     largeurMm, allegeMm, enEtage: selection.enEtage, fenetreMm,
     // Sous un panneau de verre il n'y a plus de croix : le dessin choisi ne compte pas. (Sinon une requête
@@ -3292,6 +3334,8 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
     // Avec un décor non plus : c'est le décor qui remplit le cadre.
     ...(selection.modeleGc !== undefined && remplissage.value?.sansCroix !== true && !decor ? { modele: selection.modeleGc } : {}),
     ...(decor ? { decor: idDecorGC(decor) } : {}),
+    // Le mur (vérifié juste au-dessus) : l'outil y choisit la fixation et la chiffre.
+    ...champsMurGC(mur as MurReleveGC),
   };
   // La rosace choisie compte pour la norme (son diamètre bouche le centre des croix) ; sous verre, il n'y en a pas : la fleur.
   // Avec un décor non plus (pas de croix) : la rosace par défaut, sans supplément.
@@ -3318,7 +3362,7 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
 
   const size: ProductSize = {
     id: SUR_MESURE,
-    label: libelleGardeCorps(largeurMm, r.hauteurMm, verre ? null : r.croix, selection.locale, { soubassement: r.soubassement, carre: r.carre, traverse: r.traverse, renfort: r.renfort, seuls: r.seuls, patte: r.patte, decor: decorLibelle }),
+    label: libelleGardeCorps(largeurMm, r.hauteurMm, verre ? null : r.croix, selection.locale, { soubassement: r.soubassement, carre: r.carre, traverse: r.traverse, renfort: r.renfort, seuls: r.seuls, patte: r.patte, decor: decorLibelle, fixation: r.fixation }),
     price: r.prix,
     dimsMm: [largeurMm, r.hauteurMm],
   };
@@ -3362,6 +3406,7 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
         kg: r.kg + (verre ? ((largeurMm * r.hauteurMm) / 1e6) * VERRE_KG_PAR_M2 : 0),
         ...(decorNom !== undefined ? { decorNom } : {}),
         ...(r.decorFriseRetiree ? { decorFriseRetiree: true } : {}),
+        ...(r.fixation ? { fixation: r.fixation } : {}),
       },
     },
   };

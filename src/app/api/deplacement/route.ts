@@ -1,4 +1,4 @@
-import { idDecorGC, lireDecorGC, lireModeleGC } from "@/lib/garde-corps";
+import { idDecorGC, lireDecorGC, lireModeleGC, lireMurParametresGC } from "@/lib/garde-corps";
 import { NextResponse } from "next/server";
 import { calculerDeplacement, calculerLivraison, calculerPose } from "@/lib/deplacement";
 import { getProduct, poidsColisKg, prixParOutil } from "@/lib/products";
@@ -23,7 +23,8 @@ function identifiant(valeur: string | null): string | undefined {
 /**
  * Le colis, d'après la pièce (slug), ses cotes et sa quantité : jamais
  * d'après un chiffre envoyé. Le garde-corps est pesé par l'outil de plans, à
- * partir de son relevé (l, allege, etage, fenetre) : c'est le même poids que
+ * partir de son relevé (l, allege, etage, fenetre ; mur, c, ep quand le mur
+ * des tableaux est donné : ses platines pèsent) : c'est le même poids que
  * celui du panier et de la commande (src/lib/tarif-panier.ts). null : un
  * garde-corps sans prix (à étudier, ou un relevé illisible).
  */
@@ -51,8 +52,10 @@ function colisDemande(params: URLSearchParams): { kg: number; plusGrandeCoteMm: 
     const decorBrut = params.get("decor");
     const decor = decorBrut === null ? null : lireDecorGC(decorBrut);
     if (decorBrut !== null && !decor) return null;
+    const mur = lireMurParametresGC(params);
+    if (mur === null) return null;
     const ligne = ligneGC(
-      { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm: mm("fenetre") ?? 0, ...(decor ? { decor: idDecorGC(decor) } : lireModeleGC(params.get("modele")) ? { modele: params.get("modele")! } : {}) },
+      { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm: mm("fenetre") ?? 0, ...(decor ? { decor: idDecorGC(decor) } : lireModeleGC(params.get("modele")) ? { modele: params.get("modele")! } : {}), ...mur },
       { woodId, metalId: identifiant(params.get("metal")) ?? produit.metals[0]?.id, fabricId: identifiant(params.get("fabric")) ?? produit.fabrics?.[0]?.id, remplissageId: identifiant(params.get("remplissage")) ?? produit.remplissages?.[0]?.id }
     );
     if (!ligne.ok || !ligne.line.gc) return null;

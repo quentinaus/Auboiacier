@@ -165,8 +165,113 @@ export function seuilsFormeGC(): { mainSeuleMm: number; rienMm: number } {
   return { mainSeuleMm, rienMm };
 }
 
+/**
+ * LE MUR DES TABLEAUX, POUR LA FIXATION (décisions de Quentin, 06 et 07/10/2026) : l'outil de plans choisit le montage le
+ * plus simple qui tient dans ce mur (tige à travers le montant, platines, ancrage traversant…), dit son statut et met ses
+ * pièces au débit et au prix. Les mêmes codes que la liste « mur » de l'outil, dans son ordre. Sans mur (ce que le site
+ * envoie tant que l'écran ne le demande pas) : la fixation d'avant, vis Ø 6 et chevilles, au même prix.
+ */
+export const MURS_FIXATION_GC = ["beton", "brique", "brique-creuse", "parpaing", "beton-cellulaire", "tuffeau", "pierre-dure", "moellons", "placo", "enduit"] as const;
+export type MurFixationGC = (typeof MURS_FIXATION_GC)[number];
+export const estMurFixationGC = (x: unknown): x is MurFixationGC => typeof x === "string" && (MURS_FIXATION_GC as readonly string[]).includes(x);
+
+/**
+ * Le nom de chaque mur : en français, celui que l'outil écrit (un test le compare au moteur) ; en anglais, pour le
+ * libellé de la commande et le devis.
+ */
+export const NOMS_MUR_FIXATION_GC: Readonly<Record<MurFixationGC, { fr: string; en: string }>> = Object.freeze({
+  beton: { fr: "béton", en: "concrete" },
+  brique: { fr: "brique pleine", en: "solid brick" },
+  "brique-creuse": { fr: "brique creuse", en: "hollow brick" },
+  parpaing: { fr: "parpaing", en: "concrete block" },
+  "beton-cellulaire": { fr: "béton cellulaire", en: "aerated concrete" },
+  tuffeau: { fr: "pierre tendre (tuffeau)", en: "soft stone (tufa)" },
+  "pierre-dure": { fr: "pierre dure", en: "hard stone" },
+  moellons: { fr: "moellons", en: "rubble stone" },
+  placo: { fr: "placo", en: "plasterboard" },
+  enduit: { fr: "mur inconnu (enduit)", en: "unknown wall (rendered)" },
+});
+
+/**
+ * Les cotes du mur, en millimètres (les champs cMur et eMur de l'outil) : de l'arête du mur nu à la 1re tige, et
+ * l'épaisseur du mur (pour l'ancrage traversant). Absentes : celles de l'outil (DEFAUTS_GC, un test le vérifie).
+ */
+export const BORNES_MUR_GC = {
+  cMurMm: { min: 20, max: 300 },
+  eMurMm: { min: 150, max: 900 },
+} as const;
+export const C_MUR_DEFAUT_GC_MM = 60;
+export const E_MUR_DEFAUT_GC_MM = 450;
+
+/**
+ * Le statut de la fixation, tel que le site le montre : « valide » (le calcul la valide), « indicatif » (mur inconnu : le
+ * prix est donné sur la base d'une brique pleine, le mur sera confirmé), « etude » (aucun montage ne tient : pas de prix,
+ * l'atelier étudie — le texte dit pourquoi et les solutions).
+ */
+export const STATUTS_FIXATION_GC = ["valide", "indicatif", "etude"] as const;
+export type StatutFixationGC = (typeof STATUTS_FIXATION_GC)[number];
+/** Ce que la route dit de la fixation dans le mur : jamais un coût. */
+export type FixationGC = { statut: StatutFixationGC; mur: MurFixationGC; texte: string };
+/** La longueur au-delà de laquelle un texte de fixation n'est pas relu (une réponse qui n'est pas la nôtre). */
+export const TEXTE_FIXATION_GC_MAX = 800;
+
+/** Les champs du mur d'un relevé (facultatifs). */
+export type MurReleveGC = {
+  /** Le mur des tableaux (mur dans l'outil). Absent : non précisé, la fixation d'avant. */
+  mur?: MurFixationGC;
+  /** De l'arête du mur nu à la 1re tige, en mm (cMur dans l'outil ; C_MUR_DEFAUT_GC_MM si absent). Seulement avec un mur. */
+  cMurMm?: number;
+  /** L'épaisseur du mur, en mm (eMur dans l'outil ; E_MUR_DEFAUT_GC_MM si absent). Seulement avec un mur. */
+  eMurMm?: number;
+};
+
+/** Le mur d'un relevé est-il lisible ? Un mur de la liste, des cotes entières dans leurs bornes, et jamais de cote sans mur. */
+export function murDansLesBornes(r: { mur?: unknown; cMurMm?: unknown; eMurMm?: unknown }): boolean {
+  const dans = (n: unknown, b: { min: number; max: number }) => n === undefined || (Number.isInteger(n) && (n as number) >= b.min && (n as number) <= b.max);
+  if (r.mur === undefined) return r.cMurMm === undefined && r.eMurMm === undefined;
+  return estMurFixationGC(r.mur) && dans(r.cMurMm, BORNES_MUR_GC.cMurMm) && dans(r.eMurMm, BORNES_MUR_GC.eMurMm);
+}
+
+/** Les seuls champs du mur, recopiés d'un relevé (rien quand il n'y a pas de mur). */
+export function champsMurGC(r: MurReleveGC): MurReleveGC {
+  if (r.mur === undefined) return {};
+  return { mur: r.mur, ...(r.cMurMm !== undefined ? { cMurMm: r.cMurMm } : {}), ...(r.eMurMm !== undefined ? { eMurMm: r.eMurMm } : {}) };
+}
+
+/**
+ * Le mur lu dans une adresse (?mur=beton&c=80&ep=450) : {} sans mur ; null si quelque chose est illisible (un mur
+ * inconnu, une cote qui n'est pas un entier dans ses bornes, une cote sans mur) — la route refuse alors la demande.
+ */
+export function lireMurParametresGC(params: URLSearchParams): MurReleveGC | null {
+  const mur = params.get("mur");
+  const cote = (cle: string, b: { min: number; max: number }) => {
+    const t = params.get(cle);
+    if (t === null) return undefined;
+    return /^\d{1,4}$/.test(t) && Number(t) >= b.min && Number(t) <= b.max ? Number(t) : null;
+  };
+  const cMurMm = cote("c", BORNES_MUR_GC.cMurMm);
+  const eMurMm = cote("ep", BORNES_MUR_GC.eMurMm);
+  if (cMurMm === null || eMurMm === null) return null;
+  if (mur === null) return cMurMm === undefined && eMurMm === undefined ? {} : null;
+  if (!estMurFixationGC(mur)) return null;
+  return champsMurGC({ mur, cMurMm, eMurMm });
+}
+
+/**
+ * Le mur dans une adresse (le chemin inverse de lireMurParametresGC) : &mur=beton&c=80&ep=450, seulement quand le client l'a
+ * donné — sans lui, l'adresse (et le prix) restent ceux d'avant. Pour la route du prix, l'aperçu du plan, la livraison et le
+ * devis PDF.
+ */
+export function ajouterMurParametresGC(p: URLSearchParams, r: MurReleveGC): URLSearchParams {
+  if (!r.mur) return p;
+  p.set("mur", r.mur);
+  if (r.cMurMm !== undefined) p.set("c", String(r.cMurMm));
+  if (r.eMurMm !== undefined) p.set("ep", String(r.eMurMm));
+  return p;
+}
+
 /** Ce que le client relève à sa fenêtre, en millimètres entiers. */
-export type ReleveGC = {
+export type ReleveGC = MurReleveGC & {
   /** Largeur entre les tableaux (B dans l'outil). */
   largeurMm: number;
   /** Du sol fini au-dessus de l'appui (A dans l'outil). */
@@ -515,6 +620,8 @@ export type ReponsePrixGC =
       decor?: DecorReponseGC;
       /** Demandé (decors=1) : le prix de chaque assemblage de décor pour cette fenêtre. */
       decors?: PrixDecorGC[];
+      /** La fixation dans le mur des tableaux, quand le client a donné son mur (« valide » ou « indicatif » : le prix la comprend). */
+      fixation?: FixationGC;
     }
   | {
       ok: false;
@@ -538,6 +645,8 @@ export type ReponsePrixGC =
       mains: MainsPrixGC;
       /** Demandé (decors=1) : le prix de chaque assemblage de décor, pour en choisir un qui passe. */
       decors?: PrixDecorGC[];
+      /** La fixation dans le mur des tableaux, quand le client a donné son mur : « etude » dit pourquoi rien ne tient, et les solutions. */
+      fixation?: FixationGC;
     };
 
 /**
@@ -593,7 +702,8 @@ export function releveDansLesBornes(r: ReleveGC): boolean {
     dans(r.fenetreMm, BORNES_RELEVE_GC.fenetreMm) &&
     typeof r.enEtage === "boolean" &&
     (r.modele === undefined || lireModeleGC(r.modele) !== null) &&
-    (r.decor === undefined || lireDecorGC(r.decor) !== null)
+    (r.decor === undefined || lireDecorGC(r.decor) !== null) &&
+    murDansLesBornes(r)
   );
 }
 
@@ -613,6 +723,7 @@ export function parametresPrixGC(r: ReleveGC, o: OptionsGC): URLSearchParams {
   if (r.modele) p.set("modele", r.modele);
   if (r.decor) p.set("decor", r.decor);
   if (o.decors) p.set("decors", "1");
+  ajouterMurParametresGC(p, r);
   return p;
 }
 
@@ -691,6 +802,19 @@ function lirePrixDecorsGC(brut: unknown): PrixDecorGC[] | undefined | null {
 }
 
 /**
+ * Relit la fixation d'une réponse, par liste blanche : undefined quand la réponse n'en a pas (pas de mur donné, ou un
+ * serveur plus ancien) ; null quand elle est là mais mal formée.
+ */
+function lireFixationGC(brut: unknown): FixationGC | null | undefined {
+  if (brut === undefined) return undefined;
+  if (!brut || typeof brut !== "object") return null;
+  const o = brut as Record<string, unknown>;
+  if (!(STATUTS_FIXATION_GC as readonly unknown[]).includes(o.statut) || !estMurFixationGC(o.mur)) return null;
+  if (typeof o.texte !== "string" || o.texte.length > TEXTE_FIXATION_GC_MAX) return null;
+  return { statut: o.statut as StatutFixationGC, mur: o.mur, texte: o.texte };
+}
+
+/**
  * Relit la réponse de la route, champ par champ : un format inattendu (une
  * version plus ancienne du serveur, un intermédiaire qui répond à sa place)
  * donne null, jamais un prix mal lu.
@@ -700,7 +824,10 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
   const o = json as Record<string, unknown>;
   const entier = (x: unknown, min = 0) => typeof x === "number" && Number.isInteger(x) && x >= min;
   if (!entier(o.hauteurMm, 1) || !entier(o.mainCouranteMm, 1) || !entier(o.jourMm) || typeof o.obligatoire !== "boolean") return null;
-  const commun = { hauteurMm: o.hauteurMm as number, mainCouranteMm: o.mainCouranteMm as number, jourMm: o.jourMm as number, obligatoire: o.obligatoire };
+  // La fixation dans le mur : une fixation mal formée ne se devine pas (elle dit si le prix est ferme ou indicatif).
+  const fixation = lireFixationGC(o.fixation);
+  if (fixation === null) return null;
+  const commun = { hauteurMm: o.hauteurMm as number, mainCouranteMm: o.mainCouranteMm as number, jourMm: o.jourMm as number, obligatoire: o.obligatoire, ...(fixation ? { fixation } : {}) };
   const modeles: ModeleGC[] = [];
   for (const m of Array.isArray(o.modeles) ? o.modeles.slice(0, MODELES_GC_MAX) : []) {
     if (!m || typeof m !== "object") return null;
@@ -728,6 +855,8 @@ export function lireReponsePrixGC(json: unknown): ReponsePrixGC | null {
     if (!entier(o.prix, 1) || !(typeof o.remise === "number" && Number.isInteger(o.remise) && o.remise <= 0)) return null;
     const decor = lireDecorReponseGC(o.decor);
     if (decor === null) return null;
+    // Un prix et une fixation « sur étude » à la fois : ce n'est pas une réponse de ce serveur.
+    if (fixation?.statut === "etude") return null;
     if (!entier(o.croix, 1) || !entier(o.carre, 1) || !entier(o.soubassementMm) || !entier(o.kg) || typeof o.traverse !== "boolean" || typeof o.seuls !== "boolean") return null;
     return {
       ok: true,

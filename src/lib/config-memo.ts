@@ -1,6 +1,6 @@
 // Chemins relatifs, pas l'alias « @/ » : les tests (node --test) chargent ce
 // fichier directement, sans le compilateur de Next.
-import { BORNES_RELEVE_GC, lireDecorGC, lireModeleGC } from "./garde-corps.ts";
+import { BORNES_MUR_GC, BORNES_RELEVE_GC, estMurFixationGC, lireDecorGC, lireModeleGC, type MurFixationGC } from "./garde-corps.ts";
 import { MATIERES_MUR } from "./murs-gc.ts";
 
 /**
@@ -62,12 +62,19 @@ export type ConfigMemo = {
   gcModele?: string;
   /** Le décor à volutes choisi (« frise.S.bouton.colliers.carre.aucune.0 »), tel que lireDecorGC le reconnaît. */
   gcDecor?: string;
+  /**
+   * Le mur des tableaux POUR LA FIXATION (un code de MURS_FIXATION_GC : « beton », « tuffeau »…) et ses cotes en mm — la
+   * fixation entre dans le prix. Distinct de gcMur, la matière que le croquis dessine. Les cotes ne vont jamais sans le mur.
+   */
+  gcMurFixation?: MurFixationGC;
+  gcCMurMm?: number;
+  gcEMurMm?: number;
 };
 
 /** Les champs du relevé du garde-corps dans la mémoire. */
 export type ReleveGcMemo = Pick<
   ConfigMemo,
-  "gcLargeurMm" | "gcLargeurHautMm" | "gcAllegeMm" | "gcFenetreMm" | "gcEnEtage" | "gcMur" | "gcModele" | "gcDecor"
+  "gcLargeurMm" | "gcLargeurHautMm" | "gcAllegeMm" | "gcFenetreMm" | "gcEnEtage" | "gcMur" | "gcModele" | "gcDecor" | "gcMurFixation" | "gcCMurMm" | "gcEMurMm"
 >;
 
 /** Les cases du relevé, telles que le client les tape (CotesGardeCorps, releve-garde-corps.tsx). */
@@ -82,6 +89,10 @@ type CasesReleveGc = {
   modele?: string;
   /** Le décor à volutes (idDecorGC) : facultatif, une saisie plus ancienne ne l'a pas. */
   decor?: string;
+  /** Le mur pour la fixation (un code de MURS_FIXATION_GC), et ses cotes telles que tapées : facultatifs. */
+  murFixation?: string;
+  cMur?: string;
+  eMur?: string;
 };
 
 /** Les mots du dictionnaire dont la mémoire a besoin. Le premier de gcEtageOptions est « en étage » (voir lireReleve). */
@@ -112,6 +123,10 @@ export function lireReleveGcMemo(o: Record<string, unknown>): ReleveGcMemo {
     gcMur: texte(o.gcMur) || undefined,
     gcModele: typeof o.gcModele === "string" && lireModeleGC(o.gcModele) ? o.gcModele : undefined,
     gcDecor: typeof o.gcDecor === "string" && lireDecorGC(o.gcDecor) ? o.gcDecor : undefined,
+    // Le mur de la fixation : un code de la liste de l'outil ; ses cotes, dans leurs bornes, et seulement avec lui.
+    gcMurFixation: estMurFixationGC(o.gcMurFixation) ? o.gcMurFixation : undefined,
+    gcCMurMm: estMurFixationGC(o.gcMurFixation) ? mm(o.gcCMurMm, BORNES_MUR_GC.cMurMm) : undefined,
+    gcEMurMm: estMurFixationGC(o.gcMurFixation) ? mm(o.gcEMurMm, BORNES_MUR_GC.eMurMm) : undefined,
   };
 }
 
@@ -137,6 +152,9 @@ export function releveVersMemo(cases: CasesReleveGc, t: MotsReleveGc): ReleveGcM
     gcMur: cases.mur ? (MATIERES_MUR[t.gcMurOptions.indexOf(cases.mur)] ?? cases.mur) : undefined,
     gcModele: cases.modele || undefined,
     gcDecor: cases.decor && lireDecorGC(cases.decor) ? cases.decor : undefined,
+    gcMurFixation: estMurFixationGC(cases.murFixation) ? cases.murFixation : undefined,
+    gcCMurMm: estMurFixationGC(cases.murFixation) && cases.cMur !== undefined ? mm(cases.cMur) : undefined,
+    gcEMurMm: estMurFixationGC(cases.murFixation) && cases.eMur !== undefined ? mm(cases.eMur) : undefined,
   };
 }
 
@@ -163,6 +181,11 @@ export function memoVersReleve(memo: ReleveGcMemo, t: MotsReleveGc): Partial<Cas
   }
   if (memo.gcModele !== undefined) cases.modele = memo.gcModele;
   if (memo.gcDecor !== undefined) cases.decor = memo.gcDecor;
+  if (memo.gcMurFixation !== undefined) {
+    cases.murFixation = memo.gcMurFixation;
+    if (memo.gcCMurMm !== undefined) cases.cMur = String(memo.gcCMurMm);
+    if (memo.gcEMurMm !== undefined) cases.eMur = String(memo.gcEMurMm);
+  }
   return cases;
 }
 
