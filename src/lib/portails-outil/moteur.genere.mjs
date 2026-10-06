@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/plans-portails.js, tel que collé dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 ef08e50e5d88bcd2d15dca2f.
+// Source : l'outil de plans (plans-atelier.html), sha256 b86ad428f12c7971cbe66238.
 /* eslint-disable */
 // Plans de fabrication des portails : battant (1 ou 2 vantaux), coulissant (sur rail ou autoportant), pliant, portillon.
 // Étude du 06/10/2026 avec Quentin : https://claude.ai/artifact/RvJQFroNvsu5kDhivWKu5r
