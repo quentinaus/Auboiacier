@@ -426,9 +426,9 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
         <div className="relative flex h-[240px] items-center justify-center overflow-hidden sm:h-[280px] md:h-[340px]">
           {/* La photo glisse un peu moins vite que la page (Parallaxe). */}
           <Parallaxe>
+            {/* Une vraie photo de Quentin (src/lib/visuels.ts) : pas de mention « Image d'illustration ». */}
             <Visuel
               locale={locale}
-              mention={false}
               src="/images/atelier-soudeur.jpg"
               alt={t.altAtelier}
               fill
@@ -437,8 +437,6 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
             />
           </Parallaxe>
           <div className="absolute inset-0 bg-black/35" />
-          {/* Hors de la parallaxe : la mention reste dans le coin du bandeau. */}
-          <MentionIllustration src="/images/atelier-soudeur.jpg" locale={locale} ton="sombre" />
           <Apparition className="relative z-10 px-6 text-center">
             <h2 className={`${serif.className} text-[2rem] leading-[1.05] tracking-[-0.016em] text-white drop-shadow-lg sm:text-[2.6rem] md:text-[3.2rem]`}>{t.bandTitle}</h2>
             <p className="mx-auto mt-3 max-w-xl text-[16px] text-white/88 drop-shadow md:text-[19px]">{t.bandSubtitle}</p>

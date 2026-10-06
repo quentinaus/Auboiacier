@@ -2,14 +2,14 @@
  * Les images du site : honnêtes sur ce qu'elles montrent.
  *
  * L'atelier n'a pas encore de chantier client (commandes ouvertes le 7 décembre 2026). Les images des pièces sont
- * des visuels faits par ordinateur, sauf trois vraies photos. Décision de Quentin (06/10/2026) : chaque visuel porte
+ * des visuels faits par ordinateur, sauf quatre vraies photos. Décision de Quentin (06/10/2026) : chaque visuel porte
  * la mention discrète « Image d'illustration » (« Illustration » en anglais), les vraies photos ne la portent pas,
  * et aucune phrase ne fait croire à des chantiers ou des clients passés (code de la consommation, art. L121-2).
  *
  * Ce qu'on vérifie :
  * 1. la liste des vraies photos (src/lib/visuels.ts) : trois fichiers, qui existent, sans mention ;
  * 2. chaque image de pièce du dossier public/images et chaque image citée par le catalogue ou la page « Projets et
- *    visuels » porte la mention — sauf les trois vraies photos ;
+ *    visuels » porte la mention — sauf les vraies photos ;
  * 3. aucune image ne s'affiche hors du composant `Visuel`, qui pose la mention tout seul : un `<Image>` de Next, un
  *    `<img src="/images/…">` ou un `url(/images/…)` écrits à la main passeraient sans mention ;
  * 4. la mention se lit : contraste d'au moins 4,5:1 sur n'importe quelle image, et dite aux lecteurs d'écran une fois ;
@@ -52,12 +52,16 @@ function fichiers(dossier: string): string[] {
 /** Les images de public/images, telles que le site les appelle : « /images/… ». */
 const IMAGES = fichiers("public/images").map((f) => `/${relative("public", f)}`);
 
-/** Les trois vraies photos que Quentin a désignées. */
-const ATTENDUES = [
+/** Le travail de Quentin avant l'ouverture de l'atelier : « réalisé par Quentin avant l'ouverture de l'atelier ». */
+const TRAVAUX_AVANT_ATELIER = [
   "/images/torse-acier-poster.jpg",
   "/images/verriere-pose-chantier-2.jpg",
   "/images/verriere-pose-chantier-4.jpg",
 ];
+/** Quentin au travail, qui meule un châssis : son texte alternatif le nomme. */
+const PORTRAIT_QUENTIN = "/images/atelier-soudeur.jpg";
+/** Les quatre vraies photos que Quentin a désignées. */
+const ATTENDUES = [...TRAVAUX_AVANT_ATELIER, PORTRAIT_QUENTIN];
 
 /** Ce qui n'est pas une photo de pièce : textures du croquis, images de partage, pictogrammes, deux paysages. */
 const PAS_DES_PIECES = (src: string) =>
@@ -68,7 +72,7 @@ const PAS_DES_PIECES = (src: string) =>
   src === "/images/saumur.jpg" ||
   src === "/images/vignes-coucher-soleil.jpg";
 
-test("trois vraies photos, et seulement elles : elles existent et ne portent pas la mention", () => {
+test("quatre vraies photos, et seulement elles : elles existent et ne portent pas la mention", () => {
   assert.deepEqual([...VRAIES_PHOTOS].sort(), [...ATTENDUES].sort());
   for (const src of ATTENDUES) {
     assert.ok(existsSync(join(RACINE, "public", src)), `${src} introuvable dans public`);
@@ -98,7 +102,6 @@ test("chaque image de public/images : la mention, sauf les vraies photos et ce q
     "/images/verriere-interieure.jpg",
     "/images/sculpture-cheval-v2.jpg",
     "/images/plafond-cadre.png",
-    "/images/atelier-soudeur.jpg",
   ]) {
     assert.ok(porteMentionIllustration(src), src);
   }
@@ -130,7 +133,7 @@ test("le catalogue : chaque image d'une fiche (vues, teintes, essences, coloris)
 
 test("Projets et visuels : les vraies photos d'un côté, les visuels de l'autre, aucun visuel « près de chez vous »", () => {
   const vraies = photos.filter((p) => estVraiePhoto(p.src)).map((p) => p.src);
-  assert.deepEqual(vraies.sort(), [...ATTENDUES].sort(), "les vraies photos de la page");
+  assert.deepEqual(vraies.sort(), [...TRAVAUX_AVANT_ATELIER].sort(), "les vraies photos de la page");
   for (const p of photos) {
     assert.ok(existsSync(join(RACINE, "public", p.src)), `${p.src} introuvable`);
     if (!estVraiePhoto(p.src)) {
@@ -373,12 +376,34 @@ test("les vraies photos : le travail de Quentin avant l'ouverture de l'atelier, 
     assert.match(d.sculptures.torseBody, avant, "Sculptures : légende du torse");
     assert.match(d.sculptures.torseVideoAlt, avant, "Sculptures : description de la vidéo du torse");
   }
-  // Les vraies photos ne s'affichent que sur Projets et visuels, la zone d'intervention (avec une commune, jamais un
-  // visuel) et, pour le torse, la page Sculptures : un nouvel endroit doit dire, lui aussi, d'où elles viennent.
-  const endroits = fichiers("src")
-    .filter((f) => /\.tsx?$/.test(f) && f !== join("src", "lib", "visuels.ts"))
-    .filter((f) => ATTENDUES.some((src) => lire(f).includes(src)));
+  // Les travaux d'avant l'atelier ne s'affichent que sur Projets et visuels, la zone d'intervention (avec une commune,
+  // jamais un visuel) et, pour le torse, la page Sculptures : un nouvel endroit doit dire, lui aussi, d'où ils viennent.
+  const code = fichiers("src").filter((f) => /\.tsx?$/.test(f) && f !== join("src", "lib", "visuels.ts"));
+  const endroits = code.filter((f) => TRAVAUX_AVANT_ATELIER.some((src) => lire(f).includes(src)));
   assert.deepEqual(endroits.sort(), [join("src", "app", "[lang]", "artisanat", "sculptures", "page.tsx"), join("src", "lib", "chantiers.ts")].sort());
+});
+
+test("la photo de Quentin au travail : seulement sur l'accueil, le devis, le contact et À propos, avec un texte qui le nomme", () => {
+  // Son texte alternatif nomme Quentin, et ne dit pas « à l'atelier » comme si c'était l'atelier Auboiacier.
+  for (const [nom, d] of [["fr", fr], ["en", en]] as const) {
+    assert.match(d.hub.altAtelier, /^Quentin /, `${nom} : hub.altAtelier`);
+    assert.doesNotMatch(d.hub.altAtelier, /à l'atelier|in the workshop/i, `${nom} : hub.altAtelier`);
+  }
+  const permis = ["page.tsx", join("devis", "page.tsx"), join("contact", "page.tsx"), join("a-propos", "page.tsx")].map((f) =>
+    join("src", "app", "[lang]", f),
+  );
+  const code = fichiers("src").filter((f) => /\.tsx?$/.test(f) && f !== join("src", "lib", "visuels.ts"));
+  const endroits = code.filter((f) => lire(f).includes(PORTRAIT_QUENTIN));
+  assert.ok(endroits.length > 0, "la photo de Quentin n'est plus utilisée : la retirer de VRAIES_PHOTOS");
+  for (const f of endroits) {
+    assert.ok(permis.includes(f), `${f} : la photo de Quentin hors de l'accueil, du devis, du contact et d'À propos`);
+    // Chaque affichage (hors image de partage des réseaux) prend son texte dans hub.altAtelier, qui nomme Quentin.
+    const usages = [...lire(f).matchAll(new RegExp(`${PORTRAIT_QUENTIN.replace(/[./]/g, "\\$&")}"([^\\n]*\\n){0,3}`, "g"))];
+    for (const u of usages) {
+      if (/^\s*image:/m.test(lire(f).slice(Math.max(0, (u.index ?? 0) - 12), u.index))) continue;
+      assert.match(u[0], /altAtelier/, `${f} : la photo de Quentin sans hub.altAtelier`);
+    }
+  }
   const retirees = [/chantier et atelier/i, /le chantier en cours/i, /premières photos/i, /on site and in the workshop/i, /job in progress/i, /first (site )?photos/i];
   for (const [nom, d] of [["fr", fr], ["en", en]] as const) {
     const textes = JSON.stringify([d.realisations, d.seo.realisations]);

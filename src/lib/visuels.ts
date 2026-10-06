@@ -2,10 +2,11 @@
  * LES IMAGES DU SITE : VRAIES PHOTOS OU IMAGES D'ILLUSTRATION.
  *
  * L'atelier n'a pas encore de chantier client à montrer (commandes ouvertes le 7 décembre 2026). Les images des
- * pièces sont donc des visuels faits par ordinateur, à trois exceptions près : la vidéo du torse (sa photo
- * d'ouverture) et deux photos de la pose d'une verrière — du travail de Quentin réalisé AVANT l'ouverture de
+ * pièces sont donc des visuels faits par ordinateur. Quatre vraies photos font exception : la vidéo du torse (sa
+ * photo d'ouverture) et deux photos de la pose d'une verrière — du travail de Quentin réalisé AVANT l'ouverture de
  * l'atelier (chez un ancien employeur ou à titre personnel) : la page « Projets et visuels » le dit, et ne les
- * présente jamais comme des chantiers d'Auboiacier. Décision de Quentin, 06/10/2026 : chaque visuel porte,
+ * présente jamais comme des chantiers d'Auboiacier ; et Quentin au travail, qui meule un châssis (atelier-soudeur) —
+ * un portrait de lui, ni une pièce ni un chantier d'Auboiacier : son texte alternatif le nomme. Décision de Quentin, 06/10/2026 : chaque visuel porte,
  * dans un coin, la mention discrète « Image d'illustration » (« Illustration » en anglais), pour ne jamais faire
  * croire à une réalisation (code de la consommation, art. L121-2). Les mentions légales le disent en une phrase.
  *
@@ -19,17 +20,19 @@ import type { Locale } from "./i18n.ts";
 
 /** Les seules vraies photos du site : elles ne portent pas la mention. */
 export const VRAIES_PHOTOS: readonly string[] = [
+  // Le travail de Quentin avant l'ouverture de l'atelier.
   "/images/torse-acier-poster.jpg",
   "/images/verriere-pose-chantier-2.jpg",
   "/images/verriere-pose-chantier-4.jpg",
+  // Quentin au travail (confirmé par lui le 06/10/2026) : un portrait, pas une pièce d'Auboiacier.
+  "/images/atelier-soudeur.jpg",
 ];
 
 /**
  * Les images qui ne montrent pas une pièce : pas de mention. Les textures du croquis coté (schema/), les images de
  * partage sur les réseaux (partage/, jamais affichées dans une page), les pictogrammes (.svg) et deux paysages du
  * pays saumurois — le château de Saumur et les vignes — qui ne présentent ni une pièce ni un chantier.
- * L'image de l'atelier (le soudeur qui meule un châssis) n'y est pas : elle n'est pas une des vraies photos, elle
- * porte donc la mention, comme les pièces.
+ * La photo de Quentin qui meule un châssis (atelier-soudeur) n'y est pas : c'est une des vraies photos.
  */
 const PAS_UNE_PIECE: readonly (string | RegExp)[] = [
   /^\/images\/schema\//,
@@ -54,7 +57,7 @@ export function cheminImage(src: string): string {
   return chemin.replace(/[?#].*$/, "");
 }
 
-/** Une des trois vraies photos ? */
+/** Une des vraies photos ? */
 export function estVraiePhoto(src: string): boolean {
   return VRAIES_PHOTOS.includes(cheminImage(src));
 }
