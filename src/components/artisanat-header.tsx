@@ -14,11 +14,14 @@ export function ArtisanatHeader({
   locale: Locale;
   dict: Dictionary;
 }) {
-  // Le panneau du téléphone reprend les mêmes entrées que la barre du hub.
+  // Le panneau du téléphone reprend les mêmes entrées que la barre du hub, plus les familles de la collection
+  // (escaliers et verrières ajoutés le 07/10/2026 ; libellé « Escaliers » écrit ici, il n'est pas dans les dictionnaires).
   const links = [
     { href: `/${locale}/artisanat`, label: dict.hub.craftLabel },
     { href: `/${locale}/artisanat/tables`, label: dict.liens.tables },
     { href: `/${locale}/artisanat/garde-corps`, label: dict.liens.gardeCorps },
+    { href: `/${locale}/artisanat/escalier-limon-central`, label: locale === "fr" ? "Escaliers" : "Staircases" },
+    { href: `/${locale}/artisanat/verrieres`, label: dict.verrieres.title },
     { href: `/${locale}/bois-massif`, label: dict.liens.bois },
     { href: `/${locale}/toiles-tendues`, label: dict.hub.lightingLabel },
     { href: `/${locale}/a-propos`, label: dict.nav.apropos },

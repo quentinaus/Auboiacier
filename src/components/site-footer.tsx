@@ -14,6 +14,7 @@ export function SiteFooter({
   tone?: "light" | "dark";
 }) {
   const dark = tone === "dark";
+  const fr = locale === "fr";
   const telephone = telephoneLisible();
   const horaires = horairesLisibles(locale);
   const links = [
@@ -21,6 +22,7 @@ export function SiteFooter({
     { href: `/${locale}/artisanat`, label: dict.hub.craftLabel },
     { href: `/${locale}/artisanat/tables`, label: dict.liens.tables },
     { href: `/${locale}/artisanat/garde-corps`, label: dict.liens.gardeCorps },
+    { href: `/${locale}/artisanat/escalier-limon-central`, label: fr ? "Escaliers" : "Staircases" },
     { href: `/${locale}/artisanat/verrieres`, label: dict.verrieres.title },
     { href: `/${locale}/bois-massif`, label: dict.liens.bois },
     { href: `/${locale}/artisanat/sculptures`, label: dict.sculptures.title },
@@ -37,6 +39,25 @@ export function SiteFooter({
     { href: `/${locale}/confidentialite`, label: dict.footer.privacy },
     { href: `/${locale}/mentions-legales`, label: dict.footer.legal },
   ];
+  // Les guides et les pages de service, liés depuis toutes les pages pour que Google et les visiteurs les trouvent
+  // (plan de référencement, 07/10/2026). Libellés écrits ici dans les deux langues, comme dans le menu du haut.
+  const guides = [
+    { href: `/${locale}/garde-corps-fenetre-normes`, label: dict.liens.normesGc },
+    {
+      href: `/${locale}/artisanat/verification-garde-corps`,
+      label: fr ? "Comment on vérifie un garde-corps" : "How we check a railing",
+    },
+    {
+      href: `/${locale}/escalier-limon-central-prix-normes`,
+      label: fr ? "Escalier à limon central : prix et normes" : "Steel spine staircase: prices and rules",
+    },
+    { href: `/${locale}/soudure-reparations`, label: fr ? "Soudure et réparations" : "Welding and repairs" },
+    {
+      href: `/${locale}/garde-corps-balcon-terrasse`,
+      label: fr ? "Garde-corps de balcon et de terrasse" : "Balcony and terrace railings",
+    },
+    { href: `/${locale}/rendez-vous`, label: fr ? "Prise de cotes à domicile" : "On-site measuring" },
+  ];
 
   return (
     <footer
@@ -48,22 +69,41 @@ export function SiteFooter({
     >
       {/* Façon Apple (Quentin, 06/10/2026) : les intitulés en phrase normale, plus de petites capitales espacées ;
           des liens à 15 px, bien espacés, lisibles au doigt. Sur tablette, la marque et le contact côte à côte, les liens
-          en dessous sur trois colonnes ; sur grand écran, trois colonnes taillées sur leurs liens les plus longs, pour
-          qu'aucune ligne ne se coupe (« Conditions générales de vente », les horaires). */}
+          puis les guides en dessous ; sur grand écran, trois colonnes taillées sur leurs liens les plus longs, pour
+          qu'aucune ligne ne se coupe (« Conditions générales de vente », l'adresse) : les guides au-dessus du contact,
+          dans la troisième colonne, comme les rubriques empilées d'un pied de page Apple (07/10/2026). */}
       <div className="mx-auto grid max-w-6xl gap-12 px-6 py-16 md:grid-cols-2 md:gap-x-14 md:py-20 xl:grid-cols-[minmax(0,1fr)_auto_auto] xl:gap-x-16">
-        <div>
+        <div className="xl:row-span-2">
           <span className={`${serif.className} text-[1.6rem] leading-none tracking-[-0.01em]`}>Auboiacier</span>
           <p className={`mt-4 max-w-xs text-[15px] leading-[1.55] ${dark ? "text-white/70" : "text-[#5c5140]"}`}>
             {dict.footer.tagline}
           </p>
         </div>
 
-        <div className="md:order-last md:col-span-2 xl:order-none xl:col-span-1">
+        <div className="md:order-last md:col-span-2 xl:order-none xl:col-span-1 xl:row-span-2">
           <h2 className={`text-[15px] font-semibold tracking-[-0.01em] ${dark ? "text-white" : "text-[#2b2320]"}`}>
             {dict.footer.navTitle}
           </h2>
           <ul className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 text-[15px] leading-[1.35] sm:gap-x-10 md:grid-cols-3 xl:grid-cols-2">
             {links.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className={dark ? "text-white/80 hover:text-white" : "text-[#4a4038] hover:text-[#2b2320]"}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="md:order-last md:col-span-2 xl:order-none xl:col-span-1">
+          <h2 className={`text-[15px] font-semibold tracking-[-0.01em] ${dark ? "text-white" : "text-[#2b2320]"}`}>
+            Guides
+          </h2>
+          <ul className="mt-5 grid gap-x-6 gap-y-3 text-[15px] leading-[1.35] sm:grid-cols-2 sm:gap-x-10 lg:grid-cols-3 xl:grid-cols-1">
+            {guides.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
