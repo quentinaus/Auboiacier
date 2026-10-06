@@ -100,6 +100,19 @@ export const ETAPES_GC = [
 
 export const NB_ETAPES_GC = ETAPES_GC.length;
 
+/** Les finitions du forgé : ni rosace ni verre (le décor remplit le cadre). */
+const AIDE_FINITIONS_FORGE = { aideFr: "La couleur de l'acier et la main courante.", aideEn: "The steel colour and the handrail." };
+
+/** L'étape « Modèle » du Garde-corps forgé à volutes : le choix du décor. */
+const ETAPE_DECOR_GC = {
+  courtFr: "Décor",
+  courtEn: "Design",
+  questionFr: "Choisissez votre décor",
+  questionEn: "Choose your design",
+  aideFr: "Chaque décor est dessiné et contrôlé à vos cotes. Un décor est déjà choisi pour vous\u00a0: touchez-en un autre si vous préférez.",
+  aideEn: "Each design is drawn and checked to your measurements. One is already chosen for you: tap another if you prefer.",
+};
+
 /**
  * En haut, sous le croquis. Pendant les questions : « Question 2 sur 5 », une barre qui avance, et la question en
  * grand. Ensuite : Modèle, Finitions, Prix (on peut toucher chacun), « Mesures » pour revenir aux questions, et le prix.
@@ -110,7 +123,10 @@ export function EnteteEtapes({
   locale,
   prix,
   sansModele,
+  forge = false,
 }: {
+  /** La fiche du Garde-corps forgé à volutes : l'étape « Modèle » est celle du décor. */
+  forge?: boolean;
   etape: number;
   aller: (etape: number) => void;
   locale: "fr" | "en";
@@ -120,7 +136,11 @@ export function EnteteEtapes({
   sansModele: boolean;
 }) {
   const fr = locale === "fr";
-  const courante = ETAPES_GC[etape - 1] ?? ETAPES_GC[0];
+  // Le forgé choisit un décor, pas un modèle à croix : la même étape, ses mots à elle.
+  const etapes = forge
+    ? ETAPES_GC.map((e, i) => (i + 1 === ETAPE_MODELE_GC ? ETAPE_DECOR_GC : i + 1 === ETAPE_FINITIONS_GC ? { ...e, ...AIDE_FINITIONS_FORGE } : e))
+    : ETAPES_GC;
+  const courante = etapes[etape - 1] ?? etapes[0];
   const enQuestions = etape <= QUESTIONS_GC;
   const sansChoix = sansModele && etape === ETAPE_MODELE_GC;
   const question = sansChoix ? (fr ? "Votre garde-corps" : "Your railing") : fr ? courante.questionFr : courante.questionEn;
@@ -153,7 +173,7 @@ export function EnteteEtapes({
                 {fr ? "Mesures" : "Measures"}
               </button>
             </li>
-            {ETAPES_GC.slice(QUESTIONS_GC).map((e, i) => {
+            {etapes.slice(QUESTIONS_GC).map((e, i) => {
               const n = QUESTIONS_GC + i + 1;
               const active = n === etape;
               return (
@@ -199,7 +219,10 @@ export function NavEtape({
   message,
   passer,
   onSuivant,
+  forge = false,
 }: {
+  /** La fiche du Garde-corps forgé à volutes : « Voir mes décors ». */
+  forge?: boolean;
   etape: number;
   aller: (etape: number) => void;
   locale: "fr" | "en";
@@ -212,7 +235,7 @@ export function NavEtape({
   onSuivant: () => void;
 }) {
   const fr = locale === "fr";
-  const suivante = ETAPES_GC[etape];
+  const suivante = forge && etape + 1 === ETAPE_MODELE_GC ? ETAPE_DECOR_GC : ETAPES_GC[etape];
   const libelle =
     etape === QUESTIONS_GC
       ? fr
@@ -220,8 +243,8 @@ export function NavEtape({
         : "Next: my finishes →"
       : etape === ETAPE_FINITIONS_GC
         ? fr
-          ? "Voir mes modèles →"
-          : "See my models →"
+          ? forge ? "Voir mes décors →" : "Voir mes modèles →"
+          : forge ? "See my designs →" : "See my models →"
         : etape < QUESTIONS_GC
         ? passer
           ? fr

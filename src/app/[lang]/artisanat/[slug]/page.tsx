@@ -236,7 +236,7 @@ export default async function ProductPage({
    * a le haut de sa fourchette, calculé par l'outil.
    */
   const prixAppel = prixAppelGC(product);
-  const fourchette = fourchetteGoogle(product, prixAfficheFiche(product, prixAppel), prixParOutil(product) ? fourchetteGC() : null);
+  const fourchette = fourchetteGoogle(product, prixAfficheFiche(product, prixAppel), prixParOutil(product) ? fourchetteGC(product.slug) : null);
   const disponibilite = disponibiliteGoogle({ achetable, ouvert: commandesOuvertes() });
   /** Une pièce sans aucun prix au catalogue (bandeau « Livraison » plus bas). */
   const prixDepartFiche = prixDepart(product);

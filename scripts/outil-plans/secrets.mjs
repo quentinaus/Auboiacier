@@ -3,16 +3,22 @@
 // tirée, au moment du contrôle, du chiffrage déchiffré avec la clé. Ce fichier ne contient que la méthode.
 import { acorn } from "./analyse.mjs";
 
-/** Les déclarations de l'outil qui portent les coûts. */
-export const DECLARATIONS_COUTS = ["REGLAGES", "TARIFS", "CONSO", "TEMPS_REF"];
+/**
+ * Les déclarations de l'outil qui portent les coûts. MTC_PRIX et MTC_TEMPS : les prix d'achat et les temps du décor à volutes
+ * (module chiffrage-motifs de l'outil, 06/10/2026). MTC_PIECES_PAR_FORME n'en est pas : c'est un nombre de pièces par forme.
+ */
+export const DECLARATIONS_COUTS = ["REGLAGES", "TARIFS", "CONSO", "TEMPS_REF", "MTC_PRIX", "MTC_TEMPS"];
 
 /** Les fonctions du chiffrage et du moteur : leurs noms ne doivent jamais apparaître dans le JavaScript public. */
 export const FONCTIONS_SERVEUR = ["chiffrerGC", "remiseGC", "calculerGC", "geomGC", "composerDevisGC", "dsDevisHtml", "variantesConformes", "trousPanneau"];
 
 // Mots du métier présents aussi dans les textes publics du site : ce ne sont pas des indices.
+// (« bouts effilés », « assemblage », « collier » : le décor à volutes les nomme dans le moteur, le devis et l'écran du site ;
+// « estimation », « au mètre », « au poids » : des mots des textes du site.)
 const BANALS = new Set([
   "pièce", "forfait", "tableur", "recherche", "repère", "mainCourante", "emballage", "peinture", "soudure", "chene",
-  "hetre", "noyer", "morceaux", "Saumur", "notice", "rosace", "Huile-cire", "huileCire",
+  "hetre", "noyer", "morceaux", "Saumur", "notice", "rosace", "Huile-cire", "huileCire", "bouts effilés", "assemblage",
+  "collier", "estimation", "au mètre", "au poids",
 ]);
 
 /**

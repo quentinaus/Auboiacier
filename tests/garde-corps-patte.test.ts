@@ -2,6 +2,8 @@
  * LA PATTE DU MILIEU (décision de Quentin, 05/10/2026, fenêtre de 1 775 × 665 « à étudier ») : quand un garde-corps large et bas
  * n'a aucun modèle parce que les vis des tableaux seraient trop tirées (ou la lisse trop souple), le site le propose avec une patte
  * de 40 × 10 soudée sous le montant du milieu et scellée dans l'appui. Jamais quand on peut s'en passer.
+ * Depuis les perçages ramenés de 40 à 25 mm du bord, le 1 775 × 665 se vend SANS patte : la fenêtre du test est désormais
+ * 1 500 × 720 (2 pattes, dans l'outil comme sur le site, vérifié le 07/10/2026).
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -11,9 +13,9 @@ import { configurationGC, ligneGC, planApercuGC, reponsePrixGC, type RequetePrix
 import { composerDevisGardeCorps } from "../src/lib/garde-corps-outil/devis-site.ts";
 import { lireReponsePrixGC, modeleAfficheGC } from "../src/lib/garde-corps.ts";
 
-const releve = { largeurMm: 1775, allegeMm: 665, enEtage: true, fenetreMm: 2400 };
+const releve = { largeurMm: 1500, allegeMm: 720, enEtage: true, fenetreMm: 2400 };
 
-test("1 775 × 665 : vendu avec la patte du milieu, aux normes, et la patte est dans le débit", () => {
+test("1 500 × 720 : vendu avec la patte du milieu, aux normes, et la patte est dans le débit", () => {
   const c = configurationGC(releve, "chene");
   assert.ok(c?.ok, "la fenêtre a maintenant un garde-corps");
   assert.ok(c.patte >= 1 && c.patte <= 4, "une à quatre pattes");
@@ -25,7 +27,8 @@ test("1 775 × 665 : vendu avec la patte du milieu, aux normes, et la patte est 
 });
 
 test("la patte n'est jamais ajoutée quand on peut s'en passer", () => {
-  for (const [l, a] of [[1180, 650], [900, 735], [1500, 300], [1990, 650], [2400, 300], [600, 0]] as const) {
+  // 1 775 × 665 : la fenêtre de Quentin (05/10), qui demandait une patte avant les perçages à 25 mm.
+  for (const [l, a] of [[1180, 650], [900, 735], [1500, 300], [1775, 665], [1990, 650], [2400, 300], [600, 0]] as const) {
     const c = configurationGC({ largeurMm: l, allegeMm: a, enEtage: true, fenetreMm: 0 }, "chene");
     if (c?.ok) assert.equal(c.patte, 0, `${l} × ${a}`);
   }

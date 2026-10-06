@@ -192,6 +192,8 @@ const PASTILLES_ROSACES = [
 /** Les seules balises <img> écrites à la main : des plans de garde-corps dessinés par l'outil (SVG), pas des pièces. */
 const IMG_PERMISES = [
   join("src", "components", "plan-apercu.tsx"),
+  // Les vignettes des décors à volutes (Garde-corps forgé à volutes) : dessinées par l'outil de plans (SVG).
+  join("src", "components", "choix-decor-gc.tsx"),
   join("src", "app", "[lang]", "artisanat", "verification-garde-corps", "page.tsx"),
 ];
 

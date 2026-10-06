@@ -30,6 +30,8 @@ export {
   remiseCommandeGC,
   reponsePrixGC,
   SLUG_GC,
+  SLUG_GC_FORGE,
+  slugGC,
 } from "./garde-corps-outil/site.ts";
 export { composerDevisGardeCorps } from "./garde-corps-outil/devis-site.ts";
 export type { ConfigAEtudierGC, ConfigGC, EntreeSiteGC, LigneCommandeGC, ModeRemiseGC } from "./garde-corps-outil/calcul.ts";

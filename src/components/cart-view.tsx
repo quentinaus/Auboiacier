@@ -45,6 +45,7 @@ function ligneEnvoyee(item: CartItem) {
     enEtage: item.enEtage,
     fenetreMm: item.fenetreMm,
     modeleGc: item.modeleGc,
+    decorGc: item.decorGc,
     woodId: item.woodId,
     metalId: item.metalId,
     fabricId: item.fabricId,

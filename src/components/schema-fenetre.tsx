@@ -32,7 +32,7 @@
  */
 
 import { useId } from "react";
-import { BARRE_APPUI_MM, JOUR_GC_MM, MAIN_COURANTE_MM, formeGC, type TrousGC } from "@/lib/garde-corps";
+import { BARRE_APPUI_MM, JOUR_GC_MM, MAIN_COURANTE_MM, formeGC, type DecorTraitGC, type TrousGC } from "@/lib/garde-corps";
 import type { MatiereMur } from "@/lib/murs-gc";
 
 const ENCRE = "#2b2320";
@@ -481,6 +481,7 @@ export function SchemaFenetre({
   locale = "fr",
   className = "h-full w-full",
   remplissage = "croix",
+  decor = null,
   coteMainCourante = false,
 }: {
   /** Le diamètre de la rosace choisie, pour la dessiner à l'échelle. */
@@ -491,8 +492,13 @@ export function SchemaFenetre({
    * fenêtre basse, passait pour LE garde-corps proposé — et il n'a pas l'air aux normes.
    */
   apercu?: boolean;
-  /** Les croix du modèle, ou un panneau de verre à leur place. */
-  remplissage?: "croix" | "verre";
+  /** Les croix du modèle, un panneau de verre à leur place, ou un décor à volutes (bibliothèque de styles). */
+  remplissage?: "croix" | "verre" | "decor";
+  /**
+   * Le décor à volutes tel que l'OUTIL DE PLANS le dessine (réponse du serveur) : ses barreaux, ses volutes, ses colliers,
+   * en mm depuis le coin bas-gauche du cadre. Le croquis les pose dans son cadre, sans rien redessiner.
+   */
+  decor?: { cadreMm: { l: number; h: number }; traits: readonly DecorTraitGC[] } | null;
   /**
    * La cote de droite donne le haut de la main courante, depuis le sol, au lieu de la hauteur de la fenêtre :
    * pour la page des normes, qui explique la règle (la fiche, elle, y demande la hauteur de la fenêtre).
@@ -664,6 +670,35 @@ export function SchemaFenetre({
           {Array.from({ length: barreaux }, (_, i) => {
             const x = r(G + 2 + ((D - G - 4) * (i + 1)) / (barreaux + 1));
             return <line key={i} x1={x} y1={basCroix} x2={x} y2={cadreBas} />;
+          })}
+        </g>
+      )}
+      {remplissage === "decor" && decor && (() => {
+        /* Le décor de l'outil, posé dans le cadre du croquis (même repère que les ronds de la norme). */
+        const sx = (D - G - 4) / decor.cadreMm.l,
+          sy = (cadreBas - cadreHaut) / decor.cadreMm.h;
+        const pt = ([x, y]: readonly [number, number]) => `${r(G + 2 + x * sx)},${r(cadreBas - y * sy)}`;
+        const or = "#b8893f";
+        return (
+          <g>
+            {decor.traits.map((tr, i) =>
+              tr.t === "cercle" ? (
+                <ellipse key={i} cx={r(G + 2 + tr.c[0] * sx)} cy={r(cadreBas - tr.c[1] * sy)} rx={Math.max(0.4, tr.r * sx)} ry={Math.max(0.4, tr.r * sy)} fill={tr.role === "or" ? or : acier} />
+              ) : tr.role === "vrille" ? (
+                <polyline key={i} points={tr.pts.map(pt).join(" ")} fill="none" stroke="#ffffff" strokeOpacity={0.55} strokeWidth={0.35} />
+              ) : (
+                <polygon key={i} points={tr.pts.map(pt).join(" ")} fill={tr.role === "or" ? or : acier} stroke={tr.role === "collier" ? "#ffffff" : "none"} strokeOpacity={0.5} strokeWidth={tr.role === "collier" ? 0.3 : 0} />
+              )
+            )}
+          </g>
+        );
+      })()}
+      {remplissage === "decor" && !decor && (
+        /* En attendant le dessin de l'outil : les barreaux du cadre, en filigrane. */
+        <g stroke={acier} strokeWidth={barre} opacity={0.25}>
+          {Array.from({ length: Math.max(2, Math.round(L / 116)) }, (_, i) => {
+            const x = r(G + 2 + ((D - G - 4) * (i + 1)) / (Math.max(2, Math.round(L / 116)) + 1));
+            return <line key={i} x1={x} y1={cadreHaut} x2={x} y2={cadreBas} />;
           })}
         </g>
       )}

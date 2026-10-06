@@ -1,6 +1,6 @@
 // Chemins relatifs, pas l'alias « @/ » : les tests (node --test) chargent ce
 // fichier directement, sans le compilateur de Next.
-import { BORNES_RELEVE_GC, lireModeleGC } from "./garde-corps.ts";
+import { BORNES_RELEVE_GC, lireDecorGC, lireModeleGC } from "./garde-corps.ts";
 import { MATIERES_MUR } from "./murs-gc.ts";
 
 /**
@@ -60,12 +60,14 @@ export type ConfigMemo = {
   gcMur?: string;
   /** Le modèle choisi (« 16-5-b »), tel que lireModeleGC le reconnaît. */
   gcModele?: string;
+  /** Le décor à volutes choisi (« frise.S.bouton.colliers.carre.aucune.0 »), tel que lireDecorGC le reconnaît. */
+  gcDecor?: string;
 };
 
 /** Les champs du relevé du garde-corps dans la mémoire. */
 export type ReleveGcMemo = Pick<
   ConfigMemo,
-  "gcLargeurMm" | "gcLargeurHautMm" | "gcAllegeMm" | "gcFenetreMm" | "gcEnEtage" | "gcMur" | "gcModele"
+  "gcLargeurMm" | "gcLargeurHautMm" | "gcAllegeMm" | "gcFenetreMm" | "gcEnEtage" | "gcMur" | "gcModele" | "gcDecor"
 >;
 
 /** Les cases du relevé, telles que le client les tape (CotesGardeCorps, releve-garde-corps.tsx). */
@@ -78,6 +80,8 @@ type CasesReleveGc = {
   fenetre: string;
   mur: string;
   modele?: string;
+  /** Le décor à volutes (idDecorGC) : facultatif, une saisie plus ancienne ne l'a pas. */
+  decor?: string;
 };
 
 /** Les mots du dictionnaire dont la mémoire a besoin. Le premier de gcEtageOptions est « en étage » (voir lireReleve). */
@@ -107,6 +111,7 @@ export function lireReleveGcMemo(o: Record<string, unknown>): ReleveGcMemo {
     gcEnEtage: typeof o.gcEnEtage === "boolean" ? o.gcEnEtage : undefined,
     gcMur: texte(o.gcMur) || undefined,
     gcModele: typeof o.gcModele === "string" && lireModeleGC(o.gcModele) ? o.gcModele : undefined,
+    gcDecor: typeof o.gcDecor === "string" && lireDecorGC(o.gcDecor) ? o.gcDecor : undefined,
   };
 }
 
@@ -131,6 +136,7 @@ export function releveVersMemo(cases: CasesReleveGc, t: MotsReleveGc): ReleveGcM
     // La matière, pas le mot de la liste : il change avec la langue. Un mot inconnu de la liste est gardé tel quel.
     gcMur: cases.mur ? (MATIERES_MUR[t.gcMurOptions.indexOf(cases.mur)] ?? cases.mur) : undefined,
     gcModele: cases.modele || undefined,
+    gcDecor: cases.decor && lireDecorGC(cases.decor) ? cases.decor : undefined,
   };
 }
 
@@ -156,6 +162,7 @@ export function memoVersReleve(memo: ReleveGcMemo, t: MotsReleveGc): Partial<Cas
     if (mot !== undefined) cases.mur = mot;
   }
   if (memo.gcModele !== undefined) cases.modele = memo.gcModele;
+  if (memo.gcDecor !== undefined) cases.decor = memo.gcDecor;
   return cases;
 }
 

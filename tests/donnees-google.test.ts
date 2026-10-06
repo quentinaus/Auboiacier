@@ -39,7 +39,7 @@ const lire = (chemin: string) => readFileSync(new URL(chemin, import.meta.url), 
 /** Ce que la fiche affiche, comme la page le calcule (le prix d'appel du garde-corps vient de l'outil). */
 const prixFicheDe = (p: (typeof products)[number]) => prixAfficheFiche(p, prixAppelGC(p));
 /** Ce que la page envoie à Google : la fourchette de l'outil pour le garde-corps, rien pour les autres. */
-const fourchetteDe = (p: (typeof products)[number]) => fourchetteGoogle(p, prixFicheDe(p), prixParOutil(p) ? fourchetteGC() : null);
+const fourchetteDe = (p: (typeof products)[number]) => fourchetteGoogle(p, prixFicheDe(p), prixParOutil(p) ? fourchetteGC(p.slug) : null);
 
 test("pour chaque fiche, Google reçoit le prix affiché, ou aucune offre si la fiche n'en affiche pas", () => {
   for (const p of products) {
@@ -163,7 +163,7 @@ test("le jour d'ouverture est le même dans les textes et dans les e-mails", () 
 
 test("la fiche, sa description et ses données Google passent toutes par prixAfficheFiche", () => {
   const page = lire("../src/app/[lang]/artisanat/[slug]/page.tsx");
-  assert.match(page, /fourchetteGoogle\(product, prixAfficheFiche\(product, prixAppel\), prixParOutil\(product\) \? fourchetteGC\(\) : null\)/);
+  assert.match(page, /fourchetteGoogle\(product, prixAfficheFiche\(product, prixAppel\), prixParOutil\(product\) \? fourchetteGC\(product\.slug\) : null\)/);
   assert.match(page, /const prixFiche = prixAfficheFiche\(product, prixAppelGC\(product\)\);/);
   assert.match(page, /descriptionTient\(complete\) \? complete : assembler\(textePrixDescription\(product, prixFiche, locale, true\)\)/);
   assert.match(page, /disponibiliteGoogle\(\{ achetable, ouvert: commandesOuvertes\(\) \}\)/);

@@ -6,7 +6,7 @@
  * prix. Aucun coût ici, aucune règle recopiée : les règles restent dans le
  * moteur extrait de l'outil (moteur.genere.mjs).
  */
-import { ESSENCES_GC, MAINS_COURANTES_GC, jourGC, lireMainCouranteGC, type CodeAlerteGC, type EssenceGC, type MainCouranteGC, type ReleveGC } from "../garde-corps.ts";
+import { ESSENCES_GC, MAINS_COURANTES_GC, jourGC, lireDecorGC, lireMainCouranteGC, type ChoixDecorGC, type CodeAlerteGC, type EssenceGC, type MainCouranteGC, type ReleveGC } from "../garde-corps.ts";
 
 export { ESSENCES_GC, MAINS_COURANTES_GC };
 export type { CodeAlerteGC, EssenceGC, MainCouranteGC };
@@ -45,13 +45,25 @@ export const CROIX_MAX = 12;
 export const CROIX_CATALOGUE = 6;
 
 /**
+ * Les champs du décor à volutes, tels que l'outil les lit dans sa page (decor, decorForme… : des chaînes, « 1 » pour les
+ * rehauts dorés). Sans décor (ou un identifiant illisible) : rien, les valeurs de départ de l'outil restent (« aucun »).
+ */
+export function champsDecorGC(d: ChoixDecorGC | null): Record<string, string> {
+  if (!d) return {};
+  return { decor: d.assemblage, decorForme: d.forme, decorBouts: d.bouts, decorLiaison: d.liaison, decorBarreaux: d.barreaux, decorFriseBasse: d.friseBasse, decorDore: d.dore ? "1" : "0" };
+}
+
+/**
  * Les réglages de l'outil pour ce relevé : ses valeurs par défaut (celles de
  * sa page), puis le relevé du client, puis la forme vendue sur le site (croix
  * avec rosaces, main courante en bois, hauteur calculée pour la norme, rien
- * sous la fenêtre, barreaux en bas seulement si la norme les demande).
+ * sous la fenêtre, barreaux en bas seulement si la norme les demande ; ou le
+ * décor à volutes choisi, dans le cadre des barreaux seuls).
  */
 export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: number, nP: number, barreauxBas = false, traverse = false, renfort = false, seuls = false, patte = 0) {
   const mc = lireMainCouranteGC(e.essence) ?? { type: "bois-rainure" as const, essence: "chene" as const };
+  // Le décor à volutes : l'outil le pose dans le cadre des barreaux seuls, mais garde la hauteur d'un garde-corps à croix.
+  const decor = e.decor === undefined ? null : lireDecorGC(e.decor);
   return {
     ...defauts,
     B: e.largeurMm,
@@ -63,8 +75,9 @@ export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: numb
     mcType: mc.type === "acier-plat" ? "acier" : mc.type === "acier-profile" ? "profil" : "bois",
     // Sans rosace (Ø0) : le centre des croix reste vide, le vide à contrôler est plus grand (rosaceR de l'outil).
     rosace: e.rosaceMm !== 0,
-    // Le jour sous le cadre : 90 mm, réduit (jamais sous 40) quand le garde-corps serait sinon trop bas (jourGC).
-    jour: jourGC(e.allegeMm, seuls),
+    // Le jour sous le cadre : 90 mm, réduit (jamais sous 40) quand le garde-corps serait sinon trop bas (jourGC). Avec un décor,
+    // le minimum est celui d'un cadre à croix (200 mm), comme le jour automatique de l'outil.
+    jour: jourGC(e.allegeMm, seuls && !decor),
     // Le diamètre de la rosace choisie (la fleur de Ø100 par défaut).
     rD: e.rosaceMm || 100,
     Hs: 0,
@@ -85,6 +98,7 @@ export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: numb
     // Les pattes scellées dans l'appui, du même carré que le cadre (0 à 4, 05/10/2026) : le site ne les ajoute que si rien ne passe
     // sans elles, et le moins possible (calcul.ts).
     patte,
+    ...champsDecorGC(decor),
   };
 }
 
@@ -102,6 +116,8 @@ const CODES: [string, CodeAlerteGC][] = [
   ["Jeu total", "jeu"],
   ["Main courante", "main-courante"],
   ["Charge verticale", "charge-verticale"],
+  // Un appui pour le pied entre 100 et 600 mm du sol : le décor à volutes (contrôlé sur son dessin) ou la traverse du milieu.
+  ["Escalade", "escalade"],
   // (« Patte au milieu » et « Patte impossible » restent « autre » : ils dépendent du DESSIN — où tombe le montant du milieu —
   // et non du carré, qui ne doit donc pas être écarté pour eux.)
 ];

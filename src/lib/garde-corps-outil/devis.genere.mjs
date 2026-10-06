@@ -1,13 +1,13 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Devis garde-corps au format du site (composerDevisGC, dsDevisHtml). SANS coûts : le prix est une entrée.
-// Source : l'outil de plans (plans-atelier.html), sha256 c97b6c24bb522fff9c523084889fbbd0a1c2d20ad20a888e1acb94dd878e113d
+// Source : l'outil de plans (plans-atelier.html), sha256 a2a0b69ed83f67230d9abc4aba30ccb1bdb509d1741d8e52f2a597d9fd635f79
 /* eslint-disable */
 import { DS_ESSENCES } from "./moteur.genere.mjs";
 function kgColisGC(R) { return Math.max(8, Math.round((R && R.kg) || 0)); }
 const DS_VALIDITE_JOURS = 30;
 const DS_EMETTEUR = {
     nom: "Auboiacier",
-    lignes: ["Métallerie d'art — atelier à Saumur (49400), Maine-et-Loire", "auboiacier@gmail.com — auboiacier.fr"],
+    lignes: ["Métallerie d'art — atelier à Saumur (49400), Maine-et-Loire", "auboiacier@gmail.com — auboiacier.fr", "07 82 37 23 79"],
     franchiseTva: "TVA non applicable, art. 293 B du CGI",
   };
 const DS_PIED = "Auboiacier — métallerie d'art, Saumur — auboiacier.fr — auboiacier@gmail.com";
@@ -65,6 +65,12 @@ function dsLieu(chantier) {
     return commune ? `${commune} (${m[1]})` : m[1];
   }
 function dsRemplissageGC(R, v) {
+    if (R.decorNom) {
+      const nb = Object.values((R.decor && R.decor.q && R.decor.q.volutes) || {}).reduce((a, b) => a + b, 0);
+      const texte = `décor à volutes : ${dsMin(R.decorNom)}${nb ? ` (${dsPluriel(nb, "pièce", "pièces")})` : ""}${R.decorFinitions ? `, ${R.decorFinitions}` : ""}`;
+      return { modele: "decor", n: 0, rosaces: 0, traverse: false, barreauxCroix: 0, barreauxDroits: 0, vide: null, bas: 0,
+        nom: "Garde-corps forgé à volutes", accroche: `Décor à volutes en acier : ${dsMin(R.decorNom)}`, texte, structure: texte, options: [R.decorNom] };
+    }
     const lignes = (re) => (R.debit || []).filter((d) => re.test(d.nom));
     const qte = (re) => lignes(re).reduce((a, d) => a + (Number(d.qte) || 0), 0);
     const bas = qte(/^Barreaux du soubassement/);
@@ -341,6 +347,6 @@ function dsDevisHtml(devis) {
 function dsPageHtml(corps, n, total) {
     return `<section class="ds-page"><div class="ds-corps">${corps}</div><div class="ds-pied"><span>${dsEsc(DS_PIED)}</span></div><div class="ds-num"><span>Page ${n} / ${total}</span></div></section>`;
   }
-export const EMPREINTE_SOURCE = "c97b6c24bb522fff9c523084889fbbd0a1c2d20ad20a888e1acb94dd878e113d";
+export const EMPREINTE_SOURCE = "a2a0b69ed83f67230d9abc4aba30ccb1bdb509d1741d8e52f2a597d9fd635f79";
 export { DS_GC, DS_VALIDITE_JOURS, composerDevisGC, dsDevisHtml, dsPrix };
-export const EMPREINTE = "abd64b15806a";
+export const EMPREINTE = "6b6809d69dad";

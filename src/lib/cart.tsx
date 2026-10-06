@@ -38,6 +38,8 @@ export type CartItem = {
   fenetreMm?: number;
   /** Garde-corps : le modèle choisi (« 16-3 »), voir ReleveGC.modele. */
   modeleGc?: string;
+  /** Garde-corps : le décor à volutes choisi (« frise.S.bouton.colliers.carre.aucune.0 »), voir ReleveGC.decor. */
+  decorGc?: string;
   /**
    * Une ligne « prise de cotes à domicile » (slug PRISE_DE_COTES) : le code
    * postal du client décide du prix, le créneau vient de l'agenda. Les deux
@@ -94,6 +96,8 @@ function lineId(line: CartLine) {
     // Le relevé d'un garde-corps : une autre fenêtre, une autre ligne. Absent
     // des autres pièces, dont l'identifiant ne change donc pas.
     ...(line.allegeMm !== undefined ? [line.allegeMm, line.enEtage ? "etage" : "rdc", line.fenetreMm, line.modeleGc ?? ""] : []),
+    // Le décor à volutes, SEULEMENT s'il y en a un : les identifiants des lignes déjà au panier ne changent pas.
+    ...(line.decorGc ? [line.decorGc] : []),
   ]
     .map((part) => part ?? "-")
     .join("|");

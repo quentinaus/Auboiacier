@@ -30,7 +30,7 @@ import {
   type ResultatLieu,
 } from "./deplacement.ts";
 import { libelleCreneau, lireCreneau, type Creneau } from "./creneau.ts";
-import type { ReleveGC } from "./garde-corps.ts";
+import { finitionsDecorGC, lireDecorGC, NOM_GC_DECOR, type ReleveGC } from "./garde-corps.ts";
 
 /* ------------------------------------------------------------------ *
  *  Le tarif d'un panier
@@ -149,8 +149,10 @@ function optionsTraduites(line: ResolvedLine, locale: "fr" | "en"): { nom: strin
   const { product, size, wood, metal, fabric, remplissage } = line;
   const fiche = productLocalise(product, locale);
   const rangTaille = product.sizes.findIndex((taille) => taille.id === size.id);
-  // Sous un panneau de verre, ou avec des barreaux seuls, il n'y a pas de rosace : on ne l'écrit pas.
+  // Sous un panneau de verre, ou avec des barreaux seuls (un décor à volutes aussi), il n'y a pas de rosace : on ne l'écrit pas.
   const sousVerre = remplissage?.sansCroix === true || line.gc?.seuls === true;
+  // Un décor à volutes : la pièce se nomme « Garde-corps forgé à volutes », et ses finitions suivent les options.
+  const decor = line.gc?.releve.decor === undefined ? null : lireDecorGC(line.gc.releve.decor);
   const options =
     [
       product.sizes.length > 1 || size.id === SUR_MESURE ? (rangTaille >= 0 ? fiche.sizes[rangTaille].label : size.label) : null,
@@ -158,10 +160,11 @@ function optionsTraduites(line: ResolvedLine, locale: "fr" | "en"): { nom: strin
       fiche.metals.find((acier) => acier.id === metal?.id)?.label,
       sousVerre ? null : fiche.fabrics?.find((velours) => velours.id === fabric?.id)?.label,
       remplissage && remplissage.id !== fiche.remplissages?.[0]?.id ? fiche.remplissages?.find((option) => option.id === remplissage.id)?.label : null,
+      decor ? finitionsDecorGC(line.gc?.decorFriseRetiree ? { ...decor, friseBasse: "aucune" } : decor, locale).join(", ") : null,
     ]
       .filter(Boolean)
       .join(" · ") || line.optionsLabel;
-  return { nom: fiche.name, options };
+  return { nom: decor ? NOM_GC_DECOR[locale] : fiche.name, options };
 }
 
 /**
@@ -229,6 +232,9 @@ export async function tarifer(
         fenetreMm: line.fenetreMm === undefined || line.fenetreMm === null ? undefined : (hauteurMm(line.fenetreMm) ?? Number.NaN),
         // (« 20-12-b-t » : 9 signes ; au-delà de 16, ce n'est plus un identifiant.)
         modeleGc: typeof line.modeleGc === "string" ? line.modeleGc.slice(0, 16) : undefined,
+        // Le décor à volutes : un identifiant (lireDecorGC) ; au-delà de 64 signes, ce n'en est plus un — il est alors refusé
+        // (unknown_decor), jamais coupé pour devenir un autre décor.
+        decorGc: line.decorGc === undefined || line.decorGc === null ? undefined : typeof line.decorGc === "string" && line.decorGc.length <= 64 ? line.decorGc : "",
         locale,
       },
       gc.prixReleve

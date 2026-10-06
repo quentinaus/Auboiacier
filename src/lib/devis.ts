@@ -465,6 +465,8 @@ export function numeroDevis(entree: {
     // Le relevé d'un garde-corps : une autre fenêtre, un autre devis. Absent
     // pour les autres pièces, dont les numéros ne changent donc pas.
     ...(s.allegeMm !== undefined ? [s.allegeMm, s.enEtage ? "etage" : "rdc", s.fenetreMm, ...(s.modeleGc ? [s.modeleGc] : [])] : []),
+    // Le décor à volutes : un autre décor, un autre devis. Absent sans décor : les numéros d'avant ne changent pas.
+    ...(s.decorGc ? [s.decorGc] : []),
   ]
     .map((v) => v ?? "-")
     .join("|");

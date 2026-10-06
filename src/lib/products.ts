@@ -1,5 +1,6 @@
 import type { Locale } from "@/lib/i18n";
-import { diametreRosaceGC, idMainCouranteGC, lireMainCouranteGC, lireModeleGC, type ReleveGC } from "./garde-corps.ts";
+import { diametreRosaceGC, finitionsDecorGC, idDecorGC, idMainCouranteGC, lireDecorGC, lireMainCouranteGC, lireModeleGC, nomDecorAnglaisGC, type ReleveGC } from "./garde-corps.ts";
+import { DECORS_GC } from "./garde-corps-decors.genere.ts";
 import { PRIX_OFFRE_CENTS, RAYON_OFFRE_KM } from "./deplacement.ts";
 import { prixAffiche } from "./ui.ts";
 
@@ -142,6 +143,12 @@ export type Product = {
    * de l'atelier, calculés sur le serveur (voir prixParOutil).
    */
   releve?: "escalier" | "garde-corps-fenetre";
+  /**
+   * Le Garde-corps forgé à volutes (décision de Quentin, 07/10/2026) : la même fenêtre et le même calcul que le garde-corps
+   * de fenêtre, mais la fiche ne vend QUE des décors à volutes (bibliothèque de styles) — jamais de croix. Le garde-corps de
+   * fenêtre Rosace, lui, n'en vend aucun. L'outil de plans compte les heures d'un garde-corps à décor 65 € au lieu de 50.
+   */
+  decorsGC?: boolean;
   /**
    * L'atelier peut venir prendre les cotes à la place du client. Le client
    * donne son code postal ; le déplacement est offert près de Saumur, forfait
@@ -1712,6 +1719,151 @@ const catalogue: Product[] = [
     },
   },
   {
+    slug: "garde-corps-forge-volutes",
+    poseOption: true,
+    famille: "garde-corps",
+    // Le garde-corps à décor de la bibliothèque de styles (07/10/2026) : un modèle à part, plus haut de gamme.
+    decorsGC: true,
+    seoMots: "garde-corps fer forgé",
+    seoTitre: "Garde-corps fer forgé à volutes, Saumur",
+    motsCles: [
+      "garde-corps fer forgé sur mesure",
+      "garde-corps à volutes de fenêtre",
+      "garde-corps ferronnerie ancienne Saumur",
+      "balcon français fer forgé volutes",
+      "garde-corps style haussmannien sur mesure",
+      "garde-corps fer forgé Angers Tours",
+    ],
+    seoDescription:
+      "Garde-corps de fenêtre à volutes de ferronnerie, sur mesure à Saumur, aux normes de sécurité françaises.",
+    releve: "garde-corps-fenetre",
+    category: "interieur",
+    // Le même relevé, le même outil et le même panier que le garde-corps Rosace (voir sa fiche, plus haut) : seul le
+    // remplissage change. Ni rosace ni verre : le décor remplit le cadre.
+    orderMode: "cart",
+    priseDeCotes: true,
+    name: "Garde-corps forgé à volutes",
+    tagline: "Garde-corps de fenêtre en acier plein, à volutes de ferronnerie : le décor des balcons anciens, dessiné à vos cotes et vérifié selon la norme.",
+    images: [
+      {
+        src: "/images/garde-corps/forge/entre-c.jpg",
+        alt: "Garde-corps forgé vu de face : volutes en C entre les barreaux, acier peint noir, main courante en chêne, entre deux tableaux en tuffeau",
+        // Le fond de la pierre : la marge autour du dessin prolonge le mur.
+        bg: "#e6dfd2",
+        fit: "contain",
+      },
+      {
+        src: "/images/garde-corps/forge/directoire.jpg",
+        alt: "Garde-corps forgé à frise d'anneaux de style Directoire, colliers à rehauts dorés, acier peint noir et main courante en chêne",
+        bg: "#e6dfd2",
+        fit: "contain",
+      },
+      {
+        src: "/images/garde-corps/forge/coeurs.jpg",
+        alt: "Garde-corps forgé à cœurs de volutes, acier peint noir, main courante en chêne, dans une baie en pierre de tuffeau",
+        bg: "#e6dfd2",
+        fit: "contain",
+      },
+    ],
+    sizes: [],
+    woods: [
+      ...woods({ pin: 0, hetre: 0, chene: 0, noyer: 0 }).map((b) => ({ ...b, label: `${b.label}, rainuré`, labelEn: `${b.labelEn}, grooved` })),
+      // Le même bois, posé sur un fer plat de 60 × 10 soudé sur la lisse haute (il la raidit) : « Chêne, sur fer plat ».
+      ...woods({ pin: 0, hetre: 0, chene: 0, noyer: 0 }).map((b) => ({ ...b, id: `${b.id}-plat`, label: `${b.label}, sur fer plat`, labelEn: `${b.labelEn}, on flat bar` })),
+      { id: "acier", label: "Acier, fer plat", labelEn: "Steel, flat bar", swatch: "#4a4b4f", priceDelta: 0 },
+      { id: "profil", label: "Acier, profilé", labelEn: "Steel, profiled", swatch: "#2e2f33", priceDelta: 0 },
+    ],
+    boisParDefaut: "chene",
+    woodLabel: { fr: "Main courante", en: "Handrail" },
+    metals: metals("noir", "brut", "blanc"),
+    metalLabel: { fr: "Couleur de l'acier", en: "Steel colour" },
+    sections: [
+      {
+        title: "Un décor de ferronnerie, à vos cotes",
+        body: "Volutes en C entre les barreaux, frise de S, anneaux du Directoire, cœurs, médaillon : sept décors inspirés des balcons anciens, dessinés pour votre fenêtre. Les volutes sont assemblées par colliers sur un cadre en acier plein, soudé puis peint à l'atelier.",
+      },
+      {
+        title: "Les finitions",
+        body: "La forme des volutes, leurs bouts, les colliers ou la soudure, des barreaux carrés, torsadés ou à bagues, des rehauts dorés : chaque décor se règle dans un seul bouton, et le prix suit.",
+      },
+      {
+        title: "Toujours aux normes",
+        body: "Chaque décor est vérifié à vos cotes : aucun vide ne laisse passer une boule de 11 cm sous 80 cm du sol, de 18 cm au-dessus (NF P01-012), et rien ne sert de marche pour grimper. Un décor qui ne passe pas n'est pas proposé.",
+      },
+      {
+        title: "Trois mesures à relever",
+        body: "Vous relevez trois mesures au mètre : la largeur entre les murs au ras de l'appui, la même largeur à 1 m du sol, et la hauteur du sol au bas de la fenêtre (la hauteur de la fenêtre est facultative). Nous calculons la hauteur du garde-corps pour qu'il respecte la règle. Il vient s'encastrer dans le tableau, fixé dans l'épaisseur des murs. Si une cote nous étonne, nous vous appelons avant de couper. Si vous préférez, l'atelier vient prendre les cotes.",
+      },
+      {
+        title: "Une hauteur calculée selon la règle",
+        body: "En étage, une fenêtre dont l'appui est à moins de 90 cm du sol doit être protégée : c'est le Code de la construction. Le haut de la main courante est toujours au même endroit : à 1 m du sol au moins (nous visons 1 025 mm). C'est le garde-corps qui grandit ou rapetisse selon votre fenêtre. Nous faisons le calcul à partir de vos mesures, et nous vous proposons les modèles dont aucun vide n'est trop grand.",
+      },
+    ],
+    specs: [
+      { label: "Structure", value: "Acier plein, soudure TIG, finition peinte" },
+      { label: "Décor", value: "Volutes de ferronnerie en acier, assemblées par colliers : sept décors au choix, et leurs finitions" },
+      { label: "Main courante", value: "Au choix : bois massif (pin, hêtre, chêne ou noyer) rainuré de 40 × 40 mm ou de 60 × 45 mm sur fer plat de 60 × 10 mm, finition huile-cire ; ou acier peint, fer plat de 40 × 8 mm ou profilé de 40 × 10 mm" },
+      { label: "Pose", value: "Encastré dans le tableau de la fenêtre, fixations fournies — vous mesurez, nous fabriquons" },
+      { label: "Prise de cotes", value: `Par vous, au mètre — ou par l'atelier, dès ${prixAffiche(PRIX_OFFRE_CENTS / 100, "fr")} jusqu'à ${RAYON_OFFRE_KM}\u00a0km de Saumur, déduits de la commande` },
+      { label: "Normes", value: "Conforme aux normes françaises : hauteur calculée selon l'art. R134-59 du Code de la construction ; espaces entre les barres selon la NF P01-012" },
+      { label: "Fabrication", value: "Sur commande — comptez 4 à 6 semaines" },
+      { label: "Livraison", value: "Par transporteur en France métropolitaine, livré et posé par l'atelier, ou retiré à l'atelier à Saumur — fixations et notice de pose comprises" },
+    ],
+    en: {
+      name: "Wrought Scroll Window Railing",
+      seoMots: "wrought iron window railing",
+      seoTitre: "Custom wrought scroll window railing, Saumur",
+      motsCles: [
+        "custom wrought iron window railing",
+        "scrollwork window railing France",
+        "period ironwork railing Saumur Loire Valley",
+        "French balcony scroll railing",
+        "Haussmann style window railing",
+      ],
+      seoDescription:
+        "Window railing with ironwork scrolls, made to measure in Saumur to French safety standards.",
+      tagline: "Solid steel window railing with ironwork scrolls: the design of old balconies, drawn to your measurements and checked against the standard.",
+      images: [
+        "Wrought window railing, front view: C-scrolls between the bars, black-painted steel, oak handrail, between two tufa stone reveals",
+        "Wrought railing with a Directoire-style ring frieze, gilded collars, black-painted steel and oak handrail",
+        "Wrought railing with scrolled hearts, black-painted steel, oak handrail, in a tufa stone window opening",
+      ],
+      sizes: {},
+      sections: [
+        {
+          title: "Ironwork, made to your measurements",
+          body: "C-scrolls between the bars, S-scroll frieze, Directoire rings, hearts, medallion: seven designs inspired by old balconies, drawn for your window. The scrolls are clamped with collars onto a solid steel frame, welded then painted in the workshop.",
+        },
+        {
+          title: "The finishes",
+          body: "The shape of the scrolls, their ends, collars or welds, square, twisted or ringed bars, gilded highlights: each design is set in a single button, and the price follows.",
+        },
+        {
+          title: "Always to the standard",
+          body: "Each design is checked at your measurements: no gap lets a 11 cm ball through below 80 cm from the floor, 18 cm above (NF P01-012), and nothing serves as a foothold to climb. A design that fails is not offered.",
+        },
+        {
+          title: "Three measurements to take",
+          body: "You take three tape measurements: the width between the walls just above the sill, the same width 1 m from the floor, and the height from the floor to the bottom of the window (the window height is optional). We work out the railing height so that it meets the rule. The railing fits into the reveal, fixed into the thickness of the walls. If a measurement surprises us, we call you before cutting. If you prefer, the workshop comes to measure up.",
+        },
+        {
+          title: "A height set by the rule",
+          body: "Upstairs, a window whose sill is less than 90 cm from the floor must be guarded: that is the French building code. The top of the handrail is always in the same place: at least 1 m from the floor (we aim for 1,025 mm). It is the railing that grows or shrinks with your window. We do the sum from your measurements, and we show you the models in which no gap is too wide.",
+        },
+      ],
+      specs: [
+        { label: "Frame", value: "Solid steel, TIG welded, painted finish" },
+        { label: "Design", value: "Steel ironwork scrolls, clamped with collars: seven designs to choose from, with their finishes" },
+        { label: "Handrail", value: "Your choice: solid wood (pine, beech, oak or walnut), grooved 40 × 40 mm or 60 × 45 mm on a 60 × 10 mm flat bar, oil-wax finish; or painted steel, 40 × 8 mm flat bar or 40 × 10 mm profile" },
+        { label: "Fitting", value: "Fits into the window reveal, fixings supplied — you measure, we build" },
+        { label: "Survey", value: `By you, with a tape — or by the workshop, from ${prixAffiche(PRIX_OFFRE_CENTS / 100, "en")} within ${RAYON_OFFRE_KM} km of Saumur, deducted from the order` },
+        { label: "Standards", value: "Compliant with French standards: height set by art. R134-59 of the French building code; gaps between the bars to NF P01-012" },
+        { label: "Lead time", value: "Made to order — allow 4 to 6 weeks" },
+        { label: "Delivery", value: "By carrier in mainland France, delivered and fitted by the workshop, or collected from the workshop in Saumur — fixings and fitting guide included" },
+      ],
+    },
+  },
+  {
     slug: "chaise-acier-bois",
     poseOption: true,
     livraisonSeule: true,
@@ -2528,6 +2680,8 @@ export type Selection = {
   fenetreMm?: number;
   /** Garde-corps : le modèle choisi parmi ceux que la norme permet (« 16-3 »). Voir ReleveGC.modele. */
   modeleGc?: string;
+  /** Garde-corps : le décor à volutes choisi (idDecorGC, « frise.S.bouton.colliers.carre.aucune.0 »). Il remplace le modèle. */
+  decorGc?: string;
   /** Langue du libellé de la ligne. N'influence aucun prix. */
   locale?: Locale;
 };
@@ -2570,6 +2724,10 @@ export type ResolvedLine = {
     essence: string;
     /** Le poids d'une pièce : celui de l'outil, plus le verre s'il remplace les croix. */
     kg: number;
+    /** Le décor à volutes (son identifiant est dans releve.decor) : son nom, celui de l'outil (« Frise de volutes en S »). */
+    decorNom?: string;
+    /** La frise basse demandée a été retirée par l'outil (au ras du sol). */
+    decorFriseRetiree?: boolean;
   };
 };
 
@@ -2581,6 +2739,8 @@ export type ResolveFailure =
   | "unknown_metal"
   | "unknown_fabric"
   | "unknown_remplissage"
+  /** Un décor à volutes illisible, ou demandé sous un panneau de verre (le verre et le décor remplacent tous deux les croix). */
+  | "unknown_decor"
   /** Un garde-corps de fenêtre que la norme ne laisse pas vendre tel quel : à étudier avec l'atelier. */
   | "a_etudier"
   /** La hauteur envoyée n'est pas celle que l'outil retient pour ce relevé. */
@@ -3048,6 +3208,10 @@ export type ReponseReleve =
       patte?: number;
       /** Le poids d'une pièce, en kilos (celui de l'outil). */
       kg: number;
+      /** Avec un décor à volutes : son nom, celui de l'outil (« Frise de volutes en S »). */
+      decorNom?: string;
+      /** La frise basse demandée a été retirée par l'outil (au ras du sol, elle ferait des marches) : le libellé ne la cite pas. */
+      decorFriseRetiree?: boolean;
     }
   | { ok: false; raison: "a-etudier" | "fenetre-trop-basse" | "hors-bornes" };
 export type PrixReleve = (releve: ReleveGC & { essence: string; rosaceMm?: number }) => ReponseReleve;
@@ -3067,7 +3231,7 @@ export function libelleGardeCorps(
   hauteurMm: number,
   croix: number | null,
   locale: Locale = "fr",
-  modele: { soubassement?: boolean; carre?: number; traverse?: boolean; renfort?: boolean; seuls?: boolean; patte?: number } = {}
+  modele: { soubassement?: boolean; carre?: number; traverse?: boolean; renfort?: boolean; seuls?: boolean; patte?: number; decor?: string } = {}
 ) {
   const langue = locale === "en" ? "en-GB" : "fr-FR";
   const cotes = `${largeurMm.toLocaleString(langue)} × ${hauteurMm.toLocaleString(langue)} mm`;
@@ -3081,6 +3245,8 @@ export function libelleGardeCorps(
   const traverse = modele.traverse ? (locale === "en" ? ", middle rail" : ", traverse au milieu") : "";
   const barreaux = modele.soubassement && !modele.seuls ? (locale === "en" ? ", bars below" : ", barreaux en bas") : "";
   const carre = modele.carre ? (locale === "en" ? `, ${modele.carre} mm square bar` : `, acier carré de ${modele.carre}`) : "";
+  // Un décor à volutes : son nom à la place des croix ou des barreaux (il est posé dans le cadre des barreaux seuls).
+  if (modele.decor) return `${prefixe} — ${cotes}, ${modele.decor.charAt(0).toLowerCase()}${modele.decor.slice(1)}${carre}${renfort}`;
   // Barreaux seuls : des barreaux verticaux et rien d'autre, aucune croix à compter.
   if (modele.seuls) return `${prefixe} — ${cotes}, ${locale === "en" ? "vertical bars only" : "barreaux seuls"}${carre}${renfort}`;
   return `${prefixe} — ${cotes}, ${croix} ${mot}${traverse}${barreaux}${carre}${renfort}`;
@@ -3110,16 +3276,26 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
   const remplissage = remplissageDemande(product, selection.remplissageId);
   if (!remplissage.ok) return { ok: false, reason: "unknown_remplissage" };
 
+  // Le décor à volutes (06/10/2026) : illisible, refusé ; sous un panneau de verre aussi (le verre et le décor remplacent tous
+  // deux les croix : une ligne forgée ne doit pas obtenir l'un au prix de l'autre).
+  const decor = selection.decorGc === undefined ? null : lireDecorGC(selection.decorGc);
+  if (selection.decorGc !== undefined && (!decor || remplissage.value?.sansCroix === true)) return { ok: false, reason: "unknown_decor" };
+  // Le Garde-corps forgé à volutes se vend avec un décor, toujours ; le garde-corps Rosace, jamais (07/10/2026).
+  if ((product.decorsGC === true) !== (decor !== null)) return { ok: false, reason: "unknown_decor" };
+
   if (!prixReleve) return { ok: false, reason: "prix_serveur" };
   if (selection.modeleGc !== undefined && !lireModeleGC(selection.modeleGc)) return { ok: false, reason: "unknown_size" };
   const releve: ReleveGC = {
     largeurMm, allegeMm, enEtage: selection.enEtage, fenetreMm,
     // Sous un panneau de verre il n'y a plus de croix : le dessin choisi ne compte pas. (Sinon une requête
     // forgée obtenait le verre au prix du dessin le moins cher — 680 € au lieu de 860 € sur une fenêtre de 1 180.)
-    ...(selection.modeleGc !== undefined && remplissage.value?.sansCroix !== true ? { modele: selection.modeleGc } : {}),
+    // Avec un décor non plus : c'est le décor qui remplit le cadre.
+    ...(selection.modeleGc !== undefined && remplissage.value?.sansCroix !== true && !decor ? { modele: selection.modeleGc } : {}),
+    ...(decor ? { decor: idDecorGC(decor) } : {}),
   };
   // La rosace choisie compte pour la norme (son diamètre bouche le centre des croix) ; sous verre, il n'y en a pas : la fleur.
-  const rosaceMm = remplissage.value?.sansCroix === true ? diametreRosaceGC(undefined) : diametreRosaceGC(fabric.value?.id);
+  // Avec un décor non plus (pas de croix) : la rosace par défaut, sans supplément.
+  const rosaceMm = remplissage.value?.sansCroix === true || decor ? diametreRosaceGC(undefined) : diametreRosaceGC(fabric.value?.id);
   const r = prixReleve({ ...releve, essence: wood.value.id, rosaceMm });
   if (!r.ok) return { ok: false, reason: r.raison === "hors-bornes" ? "unknown_size" : "a_etudier" };
   if (selection.hauteurMm !== undefined && selection.hauteurMm !== r.hauteurMm) return { ok: false, reason: "hauteur" };
@@ -3132,14 +3308,17 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
   // Un panneau de verre remplace les croix : sur un cadre à barreaux seuls (bas de fenêtre haut), il n'y a rien à remplacer.
   if (verre && r.seuls) return { ok: false, reason: "a_etudier" };
   const supplementVerre = verre && remplissage.value ? supplementRemplissage(remplissage.value, largeurMm, r.hauteurMm) : 0;
-  // Sans croix (verre, barreaux seuls) il n'y a pas de rosace : son supplément ne s'applique pas.
-  const sansRosace = verre || r.seuls;
+  // Sans croix (verre, barreaux seuls, décor à volutes) il n'y a pas de rosace : son supplément ne s'applique pas.
+  const sansRosace = verre || r.seuls || decor !== null;
+  // Le nom du décor dans la langue du client : celui de l'outil en français, sa traduction en anglais.
+  const decorNom = decor ? (r.decorNom ?? DECORS_GC.assemblages.find((a) => a.id === decor.assemblage)?.nom ?? "") : undefined;
+  const decorLibelle = decor ? (selection.locale === "en" ? nomDecorAnglaisGC(decor) : decorNom) : undefined;
   const unitPrice = r.prix + (metal.value?.priceDelta ?? 0) + (sansRosace ? 0 : fabric.value?.priceDelta ?? 0) + supplementVerre;
   if (!Number.isInteger(unitPrice) || unitPrice <= 0) return { ok: false, reason: "invalid_price" };
 
   const size: ProductSize = {
     id: SUR_MESURE,
-    label: libelleGardeCorps(largeurMm, r.hauteurMm, verre ? null : r.croix, selection.locale, { soubassement: r.soubassement, carre: r.carre, traverse: r.traverse, renfort: r.renfort, seuls: r.seuls, patte: r.patte }),
+    label: libelleGardeCorps(largeurMm, r.hauteurMm, verre ? null : r.croix, selection.locale, { soubassement: r.soubassement, carre: r.carre, traverse: r.traverse, renfort: r.renfort, seuls: r.seuls, patte: r.patte, decor: decorLibelle }),
     price: r.prix,
     dimsMm: [largeurMm, r.hauteurMm],
   };
@@ -3149,6 +3328,9 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
     metal.value?.label,
     sansRosace ? null : fabric.value?.label,
     remplissage.value && remplissage.value !== product.remplissages?.[0] ? remplissage.value.label : null,
+    // Les finitions du décor : l'atelier lit exactement quoi fabriquer (bouts, colliers, barreaux, frise basse, dorure) — ce que
+    // l'outil a posé : une frise basse qu'il a retirée n'est pas écrite.
+    decor ? finitionsDecorGC(r.decorFriseRetiree ? { ...decor, friseBasse: "aucune" } : decor, selection.locale === "en" ? "en" : "fr").join(", ") : null,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -3178,6 +3360,8 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
         rosaceMm,
         essence: wood.value.id,
         kg: r.kg + (verre ? ((largeurMm * r.hauteurMm) / 1e6) * VERRE_KG_PAR_M2 : 0),
+        ...(decorNom !== undefined ? { decorNom } : {}),
+        ...(r.decorFriseRetiree ? { decorFriseRetiree: true } : {}),
       },
     },
   };

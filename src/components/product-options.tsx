@@ -2,7 +2,7 @@
 
 import { Visuel } from "./visuel";
 import Link from "next/link";
-import { useEffect, useId, useRef, useState, useSyncExternalStore, type ComponentProps, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore, type ComponentProps, type ReactNode } from "react";
 import { createPortal, flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import {
@@ -41,7 +41,10 @@ import {
   type CotesGardeCorps,
 } from "./releve-garde-corps";
 import { LIVRAISON, POSE, PRISE_DE_COTES, RETRAIT } from "@/lib/deplacement";
-import { diametreRosaceGC } from "@/lib/garde-corps";
+import { decorParDefautGC, diametreRosaceGC, idDecorGC, lireDecorGC } from "@/lib/garde-corps";
+
+/** Le décor de départ du Garde-corps forgé à volutes : des volutes en C entre les barreaux, le décor classique des balcons. */
+const DECOR_FORGE_DEPART = idDecorGC(decorParDefautGC("entre"));
 import { memoVersReleve, memoriserConfig, releveVersMemo, reprendreConfig, type ConfigMemo } from "@/lib/config-memo";
 import { livrableParTransporteur } from "@/lib/products";
 import { VisiteAtelier } from "./prise-de-cotes";
@@ -746,12 +749,21 @@ export function ProductOptions({
   /** Comment recevoir la pièce : transporteur, livrée et posée par l'atelier, ou retirée à l'atelier. */
   const [pose, setPose] = useState<ChoixPose>(POSE_INITIALE);
   /** Les cotes relevées chez le client (garde-corps), et la visite de l'atelier. */
-  const [cotesGardeCorps, setCotesGardeCorps] = useState<CotesGardeCorps>(
+  const [cotesSaisiesGC, setCotesGardeCorps] = useState<CotesGardeCorps>(
     // Une pièce sur devis ne se mesure pas soi-même : c'est l'atelier qui vient.
     product.orderMode === "quote"
       ? { ...COTES_GARDE_CORPS_VIDES, qui: "atelier" }
       : COTES_GARDE_CORPS_VIDES,
   );
+  /**
+   * Les cotes telles que la fiche les lit (07/10/2026) : le Garde-corps forgé à volutes porte TOUJOURS un décor (celui de
+   * départ tant que le client n'en a pas choisi) ; le garde-corps Rosace, JAMAIS (une mémoire ou un lien d'avant n'en remet pas).
+   */
+  const forgeGC = product.decorsGC === true;
+  const cotesGardeCorps = useMemo<CotesGardeCorps>(() => {
+    if (forgeGC) return lireDecorGC(cotesSaisiesGC.decor) ? cotesSaisiesGC : { ...cotesSaisiesGC, decor: DECOR_FORGE_DEPART, modele: "" };
+    return cotesSaisiesGC.decor ? { ...cotesSaisiesGC, decor: "" } : cotesSaisiesGC;
+  }, [forgeGC, cotesSaisiesGC]);
   /**
    * Le garde-corps commence par une seule question, sur tout le bloc : qui prend les mesures ? (porte-qui-mesure.tsx)
    * `null` : la question est réglée, le configurateur est là. `depuis` : on y revient par « Changer ».
@@ -1223,6 +1235,8 @@ export function ProductOptions({
     fabricId,
     remplissageId: remplissageId || undefined,
     quantite: quantity,
+    // Avec un décor à volutes : la liste des décors et leur prix, pour les vignettes du choix.
+    decors: Boolean(releveGC?.decor),
   });
   const reponseGC = prixGC.statut === "pret" ? prixGC.reponse : null;
   /** La forme retenue et son prix : seulement quand l'outil dit oui (sinon « à étudier »). */
@@ -1470,6 +1484,7 @@ export function ProductOptions({
     cotesGardeCorps.fenetre,
     cotesGardeCorps.etage,
     cotesGardeCorps.modele ?? "",
+    cotesGardeCorps.decor ?? "",
     remplissageId,
     quantity,
     formatDevisId,
@@ -1584,6 +1599,8 @@ export function ProductOptions({
       q.set("etage", releveGC.enEtage ? "1" : "0");
       q.set("fenetre", String(releveGC.fenetreMm));
       if (releveGC.modele) q.set("modele", releveGC.modele);
+      // Le décor à volutes : le plan de l'outil le dessine.
+      if (releveGC.decor) q.set("decor", releveGC.decor);
     } else {
       const l = cotesEff?.largeurMm ?? size?.dimsMm?.[0];
       const w = cotesEff?.hauteurMm ?? size?.dimsMm?.[1];
@@ -1619,8 +1636,12 @@ export function ProductOptions({
       p.set("fenetre", String(releveGC.fenetreMm));
       // Pas de devis sans modèle choisi, comme pour le panier : le serveur chiffrerait un modèle par défaut
       // que le client n'a pas choisi.
-      if (!releveGC.modele) return null;
-      p.set("modele", releveGC.modele);
+      // Un décor à volutes tient lieu de modèle : c'est lui que le serveur chiffre.
+      if (releveGC.decor) p.set("decor", releveGC.decor);
+      else {
+        if (!releveGC.modele) return null;
+        p.set("modele", releveGC.modele);
+      }
     } else {
       if (sizeIdEff) p.set("size", sizeIdEff);
       if (cotesEff?.largeurMm) p.set("l", String(cotesEff.largeurMm));
@@ -1655,7 +1676,7 @@ export function ProductOptions({
    * de la fiche (mêmes ancres que « Prise de cotes à domicile »).
    */
   /** Le garde-corps a un prix, mais le client n'a pas encore choisi son modèle parmi ceux aux normes. */
-  const modeleAChoisir = estGC && !modeVisite && Boolean(configGC) && !cotesGardeCorps.modele;
+  const modeleAChoisir = estGC && !modeVisite && Boolean(configGC) && !cotesGardeCorps.modele && !cotesGardeCorps.decor;
   /** Téléphone, étape « Modèle » : rien n'est encore touché. */
   const modeleTelManque =
     enEtapes && etapeTel === ETAPE_MODELE_GC && modeleAChoisir
@@ -1865,7 +1886,7 @@ export function ProductOptions({
     // dans le geste du client : c'est ce qui permet au téléphone d'ouvrir le clavier).
     if (enEtapes) {
       flushSync(() => {
-        setCotesGardeCorps({ ...cotesGardeCorps, largeur: "", largeurHaut: "", allege: "", fenetre: "", etage: "", modele: "" });
+        setCotesGardeCorps({ ...cotesGardeCorps, largeur: "", largeurHaut: "", allege: "", fenetre: "", etage: "", modele: "", decor: forgeGC ? cotesGardeCorps.decor : "" });
         setQuantity(1);
         setAjoutee(null);
         etapesTelephone?.aller(1);
@@ -1875,7 +1896,7 @@ export function ProductOptions({
     }
     // L'étage et le modèle aussi : ils dépendent de la fenêtre, et rien ne doit être choisi d'avance (décision du 03/10) —
     // le modèle d'avant validait le panier tout seul.
-    setCotesGardeCorps({ ...cotesGardeCorps, largeur: "", largeurHaut: "", allege: "", fenetre: "", etage: "", modele: "" });
+    setCotesGardeCorps({ ...cotesGardeCorps, largeur: "", largeurHaut: "", allege: "", fenetre: "", etage: "", modele: "", decor: forgeGC ? cotesGardeCorps.decor : "" });
     setQuantity(1);
     setAjoutee(null);
     const premiere = releveRef.current?.querySelector<HTMLInputElement>("input[inputmode=decimal]");
@@ -2114,7 +2135,7 @@ export function ProductOptions({
         // Le relevé du garde-corps : c'est avec lui que le serveur recalcule la
         // forme et le prix (la hauteur ci-dessus n'en est qu'une copie).
         ...(estGC && releveGC
-          ? { allegeMm: releveGC.allegeMm, enEtage: releveGC.enEtage, fenetreMm: releveGC.fenetreMm, modeleGc: releveGC.modele }
+          ? { allegeMm: releveGC.allegeMm, enEtage: releveGC.enEtage, fenetreMm: releveGC.fenetreMm, modeleGc: releveGC.decor ? undefined : releveGC.modele, ...(releveGC.decor ? { decorGc: releveGC.decor } : {}) }
           : {}),
         // Et la note pour l'atelier (étage, mur, allège, fenêtre).
         note:
@@ -2243,6 +2264,7 @@ export function ProductOptions({
         etapesTelephone?.enteteSlot &&
         createPortal(
           <EnteteEtapes
+            forge={forgeGC}
             etape={etapeTel}
             aller={etapesTelephone.aller}
             locale={locale}
@@ -2259,6 +2281,7 @@ export function ProductOptions({
         etapeTel < NB_ETAPES_GC &&
         createPortal(
           <NavEtape
+            forge={forgeGC}
             etape={etapeTel}
             aller={etapesTelephone.aller}
             locale={locale}
@@ -2992,6 +3015,7 @@ export function ProductOptions({
         <div ref={releveRef}>
           <RevenirAuChoix.Provider value={aLaQuestionQui && porteSlot ? () => setPorte({ depuis: cotesGardeCorps.qui }) : null}>
           <ReleveGardeCorps
+            forge={forgeGC}
             schemaSlot={nouvelleMiseEnPage ? schemaSlot : undefined}
             resultatSlot={nouvelleMiseEnPage && (ecranMoyen || parcoursTel) ? resultatSlot : undefined}
             modeleSlot={parcoursTel ? (etapesTelephone?.modeleSlot ?? undefined) : undefined}

@@ -1,57 +1,57 @@
 {
  "à lire": "Généré par scripts/extraire-moteur-garde-corps.mjs à partir de l'outil de plans (chargé tel quel dans node:vm). Aucun coût : des prix de vente, des poids, des hauteurs et des empreintes (sha256 tronqué) des réponses complètes. Ne pas modifier à la main.",
- "outil": "c97b6c24bb522fff9c523084889fbbd0a1c2d20ad20a888e1acb94dd878e113d",
+ "outil": "a2a0b69ed83f67230d9abc4aba30ccb1bdb509d1741d8e52f2a597d9fd635f79",
  "empreintes": {
-  "moteur": "5ebb9070cecf",
-  "devis": "abd64b15806a",
-  "chiffrage": "d09e6938857c"
+  "moteur": "f6a6457e5581",
+  "devis": "6b6809d69dad",
+  "chiffrage": "74c709855adb"
  },
- "defauts": "630fbf91f998fecc",
+ "defauts": "4d6b11ddb119ed7a",
  "date": "2026-09-29T10:00:00.000Z",
  "cas": [
   {
    "nom": "valeurs de départ de l'outil",
    "valeurs": {},
-   "R": "8e62c03f13591963",
+   "R": "76308ead1d7821d6",
    "hauteurGC": 285,
    "kg": 11.586496206695967,
    "alertes": 2,
    "prix": 260,
-   "chiffrage": "ec5017d1116f7031",
+   "chiffrage": "c0ab2cb0acb89ad4",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-TQK2V",
+    "numero": "D-20260929-5TBK5",
     "total": 260,
     "lignes": 5,
-    "donnees": "e04fde328ceac979",
-    "html": "cfc1d75e2364fc06"
+    "donnees": "bcf96988cbabd1f4",
+    "html": "f9cac4cbc38c011b"
    },
-   "variantes": "786472f830cdcb2d"
+   "variantes": "b8e6bbcc3dfc0236"
   },
   {
    "nom": "photo du site, 4 croix",
    "valeurs": {
     "nP": 4
    },
-   "R": "1a0913fe954ce99a",
+   "R": "7febf8829ee0d561",
    "hauteurGC": 285,
    "kg": 13.93871978926249,
    "alertes": 0,
    "prix": 470,
-   "chiffrage": "f988ecca2a06d92b",
+   "chiffrage": "72c740ab9a65ad9c",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-MZ98S",
+    "numero": "D-20260929-VDF9I",
     "total": 470,
     "lignes": 5,
-    "donnees": "c701ed36a2cf695b",
-    "html": "84e712f7125a08be"
+    "donnees": "0346fb19c3033850",
+    "html": "34425eabb682cd6d"
    }
   },
   {
@@ -60,24 +60,24 @@
     "B": 1195,
     "nP": 3
    },
-   "R": "e38ee46364d5617c",
+   "R": "7f0c4347b3da9284",
    "hauteurGC": 285,
    "kg": 13.15452127255788,
    "alertes": 1,
    "prix": 400,
-   "chiffrage": "6ae7f4da04545eaf",
+   "chiffrage": "ba71e13a75e7863f",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-JIEZ7",
+    "numero": "D-20260929-5KE4X",
     "total": 400,
     "lignes": 5,
-    "donnees": "9ac55c28a19ccc57",
-    "html": "d70c2f6eef54326f"
+    "donnees": "9807c02d4d9ac90d",
+    "html": "ab30e92c965b4f81"
    },
-   "variantes": "ecc69a3aba8fb467"
+   "variantes": "e988b41a432e3fd0"
   },
   {
    "nom": "juste au-delà, carré 16",
@@ -85,22 +85,22 @@
     "B": 1200,
     "nP": 3
    },
-   "R": "559835ec023252dc",
+   "R": "fec579afcdca278e",
    "hauteurGC": 285,
    "kg": 13.197213301258028,
    "alertes": 2,
    "prix": 400,
-   "chiffrage": "3cfd556637482805",
+   "chiffrage": "839b5c5ecd482fde",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-YPB8Y",
+    "numero": "D-20260929-ID1VG",
     "total": 400,
     "lignes": 5,
-    "donnees": "640ab8b71c3baefc",
-    "html": "d105e1c2649b77a8"
+    "donnees": "8c0728077e312a47",
+    "html": "e7c7b543ed55af80"
    }
   },
   {
@@ -110,22 +110,22 @@
     "s": 18,
     "nP": 4
    },
-   "R": "98243a12a32b64ca",
+   "R": "01319e342e5ebd6e",
    "hauteurGC": 285,
    "kg": 17.329978192330188,
    "alertes": 0,
    "prix": 470,
-   "chiffrage": "cd98bd06a2e709d2",
+   "chiffrage": "cf034322c0acfb5f",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-Z2WC5",
+    "numero": "D-20260929-ZNLVF",
     "total": 470,
     "lignes": 5,
-    "donnees": "0f7280cdcbc59030",
-    "html": "7c40bdfaf834a0c6"
+    "donnees": "f1211952530271df",
+    "html": "aee57e55ca79587a"
    }
   },
   {
@@ -136,22 +136,22 @@
     "nP": 2
    },
    "chantier": "12 rue des Lilas, 44000 Nantes",
-   "R": "33ba08c5f9e81722",
+   "R": "434667d1ab938c80",
    "hauteurGC": 635,
    "kg": 16.599922153974305,
    "alertes": 1,
    "prix": 470,
-   "chiffrage": "d25926dac82ef568",
+   "chiffrage": "0995f7b4033661e6",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-C5RUO",
+    "numero": "D-20260929-8WVGQ",
     "total": 470,
     "lignes": 5,
-    "donnees": "45f7295b55f5987a",
-    "html": "5883eaa8fb368c55"
+    "donnees": "502c114903ecedea",
+    "html": "174a7df347943059"
    }
   },
   {
@@ -162,22 +162,22 @@
     "etage": false,
     "nP": 2
    },
-   "R": "29cafd4a87bb7ee3",
+   "R": "5e228da1019eee71",
    "hauteurGC": 935,
    "kg": 20.022727787429087,
    "alertes": 1,
    "prix": 470,
-   "chiffrage": "ecca8205121494bb",
+   "chiffrage": "f0411603261d6bb3",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-8JD9I",
+    "numero": "D-20260929-2X7C4",
     "total": 470,
     "lignes": 5,
-    "donnees": "e3d8e8d47371cf6c",
-    "html": "dcb41d77c27c2e3a"
+    "donnees": "04120f173c91be05",
+    "html": "326c3329183253c5"
    }
   },
   {
@@ -186,22 +186,22 @@
     "B": 300,
     "A": 900
    },
-   "R": "f850bebfe91888a0",
+   "R": "86e313d1bdad7206",
    "hauteurGC": 200,
    "kg": 3.2840222715711174,
    "alertes": 1,
    "prix": 220,
-   "chiffrage": "0ef38cee1a95f1d1",
+   "chiffrage": "0cd0818fb1743d9b",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-27XC4",
+    "numero": "D-20260929-EPRM2",
     "total": 220,
     "lignes": 5,
-    "donnees": "b48268ab4601e3a3",
-    "html": "3749933623d135ab"
+    "donnees": "3d8726622ad794f1",
+    "html": "a45af32b2951f23c"
    }
   },
   {
@@ -212,22 +212,22 @@
     "s": 20,
     "nP": 6
    },
-   "R": "cdc2e242111ab9e3",
+   "R": "8cbae7a07dc455ba",
    "hauteurGC": 435,
    "kg": 63.433907065313385,
    "alertes": 2,
    "prix": 1110,
-   "chiffrage": "76447715589a67df",
+   "chiffrage": "2db4014ca236bddc",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-RGVU6",
+    "numero": "D-20260929-ZTRNS",
     "total": 1110,
     "lignes": 5,
-    "donnees": "4e88380c614301ab",
-    "html": "b7f9f555b2ecf48c"
+    "donnees": "dabe2f76b14fda2c",
+    "html": "034753538ce0a55f"
    }
   },
   {
@@ -238,22 +238,22 @@
     "mcType": "acier",
     "rosace": false
    },
-   "R": "024066fdf4d774ea",
+   "R": "080bcc122c498c10",
    "hauteurGC": 210,
    "kg": 11.059826638549977,
    "alertes": 1,
    "prix": 230,
-   "chiffrage": "a9967369c86a9948",
+   "chiffrage": "e220c75c07bb1ab7",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-ASTDN",
+    "numero": "D-20260929-Q8VY9",
     "total": 230,
     "lignes": 5,
-    "donnees": "72e20758b837a39d",
-    "html": "c89b1b3a595a2783"
+    "donnees": "952cb017e90fb7bc",
+    "html": "5f2421d1d1298d23"
    }
   },
   {
@@ -263,22 +263,22 @@
     "A": 599,
     "mcType": "profil"
    },
-   "R": "d68c18cb1a1d4efc",
+   "R": "d1808f0b855dbe46",
    "hauteurGC": 336,
    "kg": 15.446454162072452,
    "alertes": 3,
    "prix": 280,
-   "chiffrage": "3ad890be54a96286",
+   "chiffrage": "a57d315117a89577",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-8QETH",
+    "numero": "D-20260929-PUNUJ",
     "total": 280,
     "lignes": 5,
-    "donnees": "f308f91cdb3be75e",
-    "html": "06e62443884e958f"
+    "donnees": "ecd0da2a69651292",
+    "html": "372eac09a28ee04e"
    }
   },
   {
@@ -288,22 +288,22 @@
     "A": 600,
     "Hf": 300
    },
-   "R": "1ee2dc25fedb76c6",
+   "R": "4aaf4acbf96cbd66",
    "hauteurGC": 335,
    "kg": 10.229529947356024,
    "alertes": 3,
    "prix": 260,
-   "chiffrage": "7bb04cc951df8ead",
+   "chiffrage": "be129e3b96d0c62b",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-XB2QN",
+    "numero": "D-20260929-TCC8T",
     "total": 260,
     "lignes": 5,
-    "donnees": "fa54474efdb3acb3",
-    "html": "20fa188044c32dd5"
+    "donnees": "8810bbe7a1448c8c",
+    "html": "6102cda16642430b"
    }
   },
   {
@@ -316,22 +316,22 @@
     "km": 250
    },
    "chantier": "33000 Bordeaux",
-   "R": "367f14042de028eb",
+   "R": "3c5c09dfcbb93982",
    "hauteurGC": 1285,
    "kg": 28.38386781054879,
    "alertes": 2,
    "prix": 480,
-   "chiffrage": "1b8ccb33eac44054",
+   "chiffrage": "85807ba2ab92bbc0",
    "remise": {
     "prix": 74,
     "empreinte": "639137065d4a279e"
    },
    "devis": {
-    "numero": "D-20260929-SA89P",
+    "numero": "D-20260929-L6XMR",
     "total": 554,
     "lignes": 6,
-    "donnees": "a0ac2aa749df8567",
-    "html": "0f647e16cc0c5a60"
+    "donnees": "3b4292e5faf3324c",
+    "html": "653e88d4ce98f050"
    }
   },
   {
@@ -345,22 +345,22 @@
     "nP": 6
    },
    "chantier": "Tours 37000",
-   "R": "63bd4170dba73b83",
+   "R": "da13ccc6bc51f0b9",
    "hauteurGC": 200,
    "kg": 31.239879987931168,
    "alertes": 2,
    "prix": 640,
-   "chiffrage": "ceb34358ab2a3298",
+   "chiffrage": "cde3abcb97a16bf7",
    "remise": {
     "prix": 252,
     "empreinte": "083de718c7ba0e9d"
    },
    "devis": {
-    "numero": "D-20260929-Z8PIQ",
+    "numero": "D-20260929-SOK34",
     "total": 892,
     "lignes": 6,
-    "donnees": "880e7fef60e1dc8e",
-    "html": "be22ccb858168cc0"
+    "donnees": "f31e656e8fe667f4",
+    "html": "5a25fce0b6deca26"
    }
   },
   {
@@ -374,22 +374,22 @@
     "essence": "noyer",
     "rainure": false
    },
-   "R": "9ab06c7f97caf95b",
+   "R": "f1df6da463f242b6",
    "hauteurGC": 535,
    "kg": 14.831320160513556,
    "alertes": 2,
    "prix": 430,
-   "chiffrage": "1c91c3bbb2f1d3e4",
+   "chiffrage": "28f8b1d94f719d1a",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-2P1N5",
+    "numero": "D-20260929-WPA7N",
     "total": 430,
     "lignes": 5,
-    "donnees": "e04498b1de548d1b",
-    "html": "a05c52c9235c8382"
+    "donnees": "5c4cd9c80189f4ac",
+    "html": "778efb497a1d5a65"
    }
   },
   {
@@ -401,22 +401,22 @@
     "remise": "transporteur",
     "km": 60
    },
-   "R": "a35d8ee56d6d70e6",
+   "R": "0984c1d1b6c64b71",
    "hauteurGC": 285,
    "kg": 9.966376430678451,
    "alertes": 2,
    "prix": 260,
-   "chiffrage": "267b28b93e540d4e",
+   "chiffrage": "d2d06106f1c4ea39",
    "remise": {
     "prix": 44,
     "empreinte": "1cd5f680ed2631c9"
    },
    "devis": {
-    "numero": "D-20260929-TCO5B",
+    "numero": "D-20260929-FRSZP",
     "total": 944,
     "lignes": 6,
-    "donnees": "f4761104341b0013",
-    "html": "9d537fe6e23371ec"
+    "donnees": "cb4b5037cc8c8cf5",
+    "html": "2dae0ee2b2e22f69"
    }
   },
   {
@@ -429,22 +429,22 @@
     "km": 10,
     "nP": 1
    },
-   "R": "41c19d701dabe229",
+   "R": "de261a343c04cc15",
    "hauteurGC": 200,
    "kg": 6.824974061142441,
    "alertes": 2,
    "prix": 240,
-   "chiffrage": "99a807fe7e817129",
+   "chiffrage": "a2ca3f5cad37c77d",
    "remise": {
     "prix": 100,
     "empreinte": "0ad77eb380939717"
    },
    "devis": {
-    "numero": "D-20260929-FAGQA",
+    "numero": "D-20260929-67ALG",
     "total": 340,
     "lignes": 6,
-    "donnees": "f6d5ac3ac6306f41",
-    "html": "7e2520824df44a50"
+    "donnees": "56f1268334d5f4dd",
+    "html": "9fd3d43d10efb9bb"
    }
   },
   {
@@ -456,22 +456,22 @@
     "essence": "hetre",
     "nP": 3
    },
-   "R": "9e0355282afcf38d",
+   "R": "c7238337348edcfc",
    "hauteurGC": 685,
    "kg": 22.67414548872896,
    "alertes": 1,
    "prix": 580,
-   "chiffrage": "9846d619811e4510",
+   "chiffrage": "30ac7000dd8366e3",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-57N6K",
+    "numero": "D-20260929-C1F0E",
     "total": 580,
     "lignes": 5,
-    "donnees": "528ca408613b3de7",
-    "html": "42f38bca042f0ca1"
+    "donnees": "1b25bcb0cf03aba7",
+    "html": "a162f0dcc218a619"
    }
   },
   {
@@ -489,22 +489,22 @@
     "nP": 4
    },
    "chantier": "49400 Saumur",
-   "R": "73206c1e2a0ea29c",
+   "R": "36eb933b6f3b884f",
    "hauteurGC": 365,
    "kg": 19.413284913329715,
    "alertes": 0,
    "prix": 610,
-   "chiffrage": "4cf938897a5fe3d4",
+   "chiffrage": "fa0d66bd165ce70f",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-DVYT6",
+    "numero": "D-20260929-YKK9W",
     "total": 610,
     "lignes": 5,
-    "donnees": "2e724380e0532143",
-    "html": "af7a7e74898a68e1"
+    "donnees": "01a649950acd19f5",
+    "html": "d8afaf5bf5a22f17"
    }
   },
   {
@@ -521,22 +521,22 @@
     "ass": "onglet",
     "nP": 6
    },
-   "R": "8cb110d19afe4db9",
+   "R": "7f16b55f16a5d6a2",
    "hauteurGC": 670,
    "kg": 21.974615416185152,
    "alertes": 0,
    "prix": 720,
-   "chiffrage": "b5d6a969f38538b3",
+   "chiffrage": "43e53f1702f21998",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-LIM54",
+    "numero": "D-20260929-09GZ6",
     "total": 720,
     "lignes": 5,
-    "donnees": "4beed6464fa668c2",
-    "html": "99dcff6263b8ecf0"
+    "donnees": "e02a2d7d715f9d84",
+    "html": "3632aa267d1e27b6"
    }
   },
   {
@@ -552,22 +552,22 @@
     "s": 16,
     "nP": 4
    },
-   "R": "b0f1113d19ff7df6",
+   "R": "21e4065e70b9d826",
    "hauteurGC": 200,
    "kg": 17.378751258203685,
    "alertes": 2,
    "prix": 490,
-   "chiffrage": "ce55278f8b863846",
+   "chiffrage": "7c9bcad304a5d320",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-6PAHC",
+    "numero": "D-20260929-TSB1M",
     "total": 490,
     "lignes": 5,
-    "donnees": "27aa29d2a588a3d3",
-    "html": "2284782f6d4637e0"
+    "donnees": "e09e81e1c89bead3",
+    "html": "b8871ec4c2cc174d"
    }
   },
   {
@@ -586,22 +586,22 @@
     "nP": 2
    },
    "chantier": "49400 Saumur",
-   "R": "139b4302bd25b7d6",
+   "R": "739a0f9e844be119",
    "hauteurGC": 655,
    "kg": 16.794996600733104,
    "alertes": 0,
    "prix": 470,
-   "chiffrage": "fc5a1a3432cb0e96",
+   "chiffrage": "f4ce28a03c7b9870",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-J1L66",
+    "numero": "D-20260929-VMSPW",
     "total": 470,
     "lignes": 5,
-    "donnees": "49adc21a194bc1a0",
-    "html": "afd123e892de4ca4"
+    "donnees": "e94ea5ec936f8dfb",
+    "html": "4e675e8f06f05d02"
    }
   },
   {
@@ -618,22 +618,22 @@
     "rainure": false,
     "nP": 6
    },
-   "R": "4d857953dd122072",
+   "R": "803dc89510a84138",
    "hauteurGC": 200,
    "kg": 14.116177402891116,
    "alertes": 2,
    "prix": 600,
-   "chiffrage": "85679236b5e0bba6",
+   "chiffrage": "178253cc8de51dad",
    "remise": {
     "prix": 59,
     "empreinte": "2789175897c20b34"
    },
    "devis": {
-    "numero": "D-20260929-ZIIYX",
+    "numero": "D-20260929-S55NV",
     "total": 659,
     "lignes": 6,
-    "donnees": "5a68a43146512d9e",
-    "html": "81b751bd4a0ec632"
+    "donnees": "73b7404596767e01",
+    "html": "18f65c097b89cbaf"
    }
   },
   {
@@ -651,22 +651,22 @@
     "rainure": false,
     "nP": 2
    },
-   "R": "6d4bd127ca5bee14",
+   "R": "a4565cb28d7dc5cb",
    "hauteurGC": 490,
    "kg": 5.842248467224007,
    "alertes": 2,
    "prix": 310,
-   "chiffrage": "4d79d83f75c8fe2c",
+   "chiffrage": "2c2bd17d34b7b727",
    "remise": {
     "prix": 522,
     "empreinte": "1a9d30f9bb1095e4"
    },
    "devis": {
-    "numero": "D-20260929-00C8D",
+    "numero": "D-20260929-YNDI7",
     "total": 832,
     "lignes": 6,
-    "donnees": "5d240edd83f4e062",
-    "html": "147f21d9b155e3d2"
+    "donnees": "d6632d93b8935ccd",
+    "html": "efc1c8fd457480a9"
    }
   },
   {
@@ -684,22 +684,22 @@
     "rainure": false,
     "nP": 3
    },
-   "R": "b80bcf6c402a8b08",
+   "R": "2f318db0c35ea1c3",
    "hauteurGC": 935,
    "kg": 39.0638380574264,
    "alertes": 2,
    "prix": 740,
-   "chiffrage": "2f681d248f181471",
+   "chiffrage": "6bfa062671824943",
    "remise": {
     "prix": 620,
     "empreinte": "7bf070b020ef0f4e"
    },
    "devis": {
-    "numero": "D-20260929-6XPH2",
+    "numero": "D-20260929-0V38W",
     "total": 1360,
     "lignes": 6,
-    "donnees": "ab8ed768f9a9d2d6",
-    "html": "3b7b10c69da4d55f"
+    "donnees": "addb0c570c7e02e0",
+    "html": "d757b73f320dd626"
    }
   },
   {
@@ -717,22 +717,22 @@
     "rainure": false,
     "nP": 1
    },
-   "R": "ba6a1e6c9f601b35",
+   "R": "2f17c82cb68b6b91",
    "hauteurGC": 570,
    "kg": 8.08806858237536,
    "alertes": 1,
    "prix": 300,
-   "chiffrage": "4e904bc08cfd550c",
+   "chiffrage": "7388e9567082795c",
    "remise": {
     "prix": 154,
     "empreinte": "d0c9e9947f33f4da"
    },
    "devis": {
-    "numero": "D-20260929-0WUMU",
+    "numero": "D-20260929-CCOP8",
     "total": 454,
     "lignes": 6,
-    "donnees": "76aeccdb4eb6aece",
-    "html": "0d8de87f18f8a2ae"
+    "donnees": "d19658f05901dfc6",
+    "html": "bb4d464ed50e66fc"
    }
   },
   {
@@ -749,22 +749,22 @@
     "nP": 1
    },
    "chantier": "49400 Saumur",
-   "R": "81a83379a0172536",
+   "R": "b758dda345d5208d",
    "hauteurGC": 200,
    "kg": 6.592583719078489,
    "alertes": 4,
    "prix": 260,
-   "chiffrage": "c705f3c8e1cccf1d",
+   "chiffrage": "07936d208e41330b",
    "remise": {
     "prix": 100,
     "empreinte": "94e279e2b4b59275"
    },
    "devis": {
-    "numero": "D-20260929-LMF27",
+    "numero": "D-20260929-YZKGL",
     "total": 360,
     "lignes": 6,
-    "donnees": "492eba991e740e09",
-    "html": "ae5971e027049243"
+    "donnees": "ca98ac074eb2c657",
+    "html": "240428a0c478cf55"
    }
   },
   {
@@ -781,22 +781,22 @@
     "jour": 75,
     "nP": 3
    },
-   "R": "2ba364affafba306",
+   "R": "9db0d6b307e70b28",
    "hauteurGC": 790,
    "kg": 32.756014769588184,
    "alertes": 2,
    "prix": 700,
-   "chiffrage": "745f78f25d6124fc",
+   "chiffrage": "1bcaf4a911a6cd11",
    "remise": {
     "prix": 90,
     "empreinte": "1c515102ccbbca58"
    },
    "devis": {
-    "numero": "D-20260929-OLSVJ",
+    "numero": "D-20260929-VBR3D",
     "total": 790,
     "lignes": 6,
-    "donnees": "a903ad006688c7f4",
-    "html": "c7284c50fc1d39d8"
+    "donnees": "99071981ff81a299",
+    "html": "28b5d23425d2515b"
    }
   },
   {
@@ -813,22 +813,22 @@
     "nP": 5
    },
    "chantier": "49400 Saumur",
-   "R": "21ccb36bf4ceb90b",
+   "R": "76e299b9924f4a97",
    "hauteurGC": 930,
    "kg": 39.67482948831191,
    "alertes": 2,
    "prix": 850,
-   "chiffrage": "30a6b6b79f20b849",
+   "chiffrage": "c7a286c539eb0d6a",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-VTOZM",
+    "numero": "D-20260929-HMMCC",
     "total": 850,
     "lignes": 5,
-    "donnees": "2dd24f37cfa0a5ee",
-    "html": "8f5b1d720d29e249"
+    "donnees": "cf4efba93715d443",
+    "html": "2c7214541866ddbe"
    }
   },
   {
@@ -845,22 +845,22 @@
     "mcType": "acier",
     "nP": 4
    },
-   "R": "8a1223acfc2a1a95",
+   "R": "c3cba90eea4316af",
    "hauteurGC": 900,
    "kg": 48.108269568684236,
    "alertes": 2,
    "prix": 860,
-   "chiffrage": "5ba03966822c986a",
+   "chiffrage": "af23f9290957315a",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-596FI",
+    "numero": "D-20260929-W69KG",
     "total": 860,
     "lignes": 5,
-    "donnees": "8ba98a140772d88d",
-    "html": "adb2af97fc1e437f"
+    "donnees": "8bbcb51d3140e8e3",
+    "html": "a1cce8a3279d7c53"
    }
   },
   {
@@ -878,22 +878,22 @@
     "nP": 3
    },
    "chantier": "49400 Saumur",
-   "R": "2892dfec4d263d95",
+   "R": "25173c78d5f96b08",
    "hauteurGC": 200,
    "kg": 14.235938577440713,
    "alertes": 2,
    "prix": 410,
-   "chiffrage": "c46a00f3dacc24e9",
+   "chiffrage": "34d1ab62ee98a63d",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-LA9BM",
+    "numero": "D-20260929-G7A18",
     "total": 410,
     "lignes": 5,
-    "donnees": "eea6e95f4a4be667",
-    "html": "19b033b0d418a2c8"
+    "donnees": "bb1dfc41c6bafbfa",
+    "html": "77b41abec29fb8a1"
    }
   },
   {
@@ -909,22 +909,22 @@
     "s": 16,
     "nP": 4
    },
-   "R": "8a32f813ff00c9cb",
+   "R": "5a6d9b43df2f3e27",
    "hauteurGC": 795,
    "kg": 27.129860061863017,
    "alertes": 1,
    "prix": 670,
-   "chiffrage": "bb631174322a5ffa",
+   "chiffrage": "bd469b46ecda5ce8",
    "remise": {
     "prix": 783,
     "empreinte": "db2bc0d9ff78a4f0"
    },
    "devis": {
-    "numero": "D-20260929-1X7G0",
+    "numero": "D-20260929-K5M32",
     "total": 1453,
     "lignes": 6,
-    "donnees": "d35ddf045cfa9b9b",
-    "html": "0343c4cb744edd72"
+    "donnees": "df55a12ae28317a8",
+    "html": "ea7acae3aecc2adc"
    }
   },
   {
@@ -942,22 +942,22 @@
     "Hs": 660,
     "nP": 5
    },
-   "R": "129834c71671168a",
+   "R": "27e24655cf48dd17",
    "hauteurGC": 660,
    "kg": 29.80783741067726,
    "alertes": 0,
    "prix": 560,
-   "chiffrage": "330d3e14d332ec08",
+   "chiffrage": "1745b519035aa0a6",
    "remise": {
     "prix": 628,
     "empreinte": "64567c408b719847"
    },
    "devis": {
-    "numero": "D-20260929-TGBXI",
+    "numero": "D-20260929-5MDVW",
     "total": 1188,
     "lignes": 6,
-    "donnees": "e24dec688e731283",
-    "html": "2d54ceb337d84327"
+    "donnees": "2b2079ee5feb9fa9",
+    "html": "6325e7320882a34e"
    }
   },
   {
@@ -976,22 +976,22 @@
     "ass": "onglet",
     "nP": 2
    },
-   "R": "45efc0f14dd9a018",
+   "R": "e1e52e2ae43ccdd2",
    "hauteurGC": 750,
    "kg": 15.190518612054175,
    "alertes": 0,
    "prix": 310,
-   "chiffrage": "c152ed02296fff75",
+   "chiffrage": "380fd372d8bc8b82",
    "remise": {
     "prix": 367,
     "empreinte": "ce9f7dd2b93a8209"
    },
    "devis": {
-    "numero": "D-20260929-W0YG6",
+    "numero": "D-20260929-Y28N4",
     "total": 677,
     "lignes": 6,
-    "donnees": "826daa9379a5c974",
-    "html": "fd19417c16282058"
+    "donnees": "f38fd619acc2119c",
+    "html": "c713af948816cb68"
    }
   },
   {
@@ -1011,22 +1011,22 @@
     "Xo": 270,
     "nP": 5
    },
-   "R": "e9b8bd424143e7bc",
+   "R": "26727fe58e3b982e",
    "hauteurGC": 975,
    "kg": 45.09963681433301,
    "alertes": 1,
    "prix": 870,
-   "chiffrage": "8d1473a1b2e17203",
+   "chiffrage": "6e9daeab6c0d38c4",
    "remise": {
     "prix": 236,
     "empreinte": "e8323ec038d8d839"
    },
    "devis": {
-    "numero": "D-20260929-ZFF48",
+    "numero": "D-20260929-Y6IPM",
     "total": 1106,
     "lignes": 6,
-    "donnees": "7621f3d56eb9224c",
-    "html": "d5d53d77a1819ec5"
+    "donnees": "1727df2d953eea80",
+    "html": "2a75eed00a653ef1"
    }
   },
   {
@@ -1043,22 +1043,22 @@
     "sbMode": "toujours",
     "nP": 5
    },
-   "R": "4aa47f6b24e9aa43",
+   "R": "c59127a7cb4b87c5",
    "hauteurGC": 200,
    "kg": 12.885192570926993,
    "alertes": 1,
    "prix": 530,
-   "chiffrage": "5808b7ec53369300",
+   "chiffrage": "4e67c61336429a2f",
    "remise": {
     "prix": 68,
     "empreinte": "2f61ba9a8dee9f1a"
    },
    "devis": {
-    "numero": "D-20260929-PY5NO",
+    "numero": "D-20260929-9D0YY",
     "total": 598,
     "lignes": 6,
-    "donnees": "8ab0b1f734e5addf",
-    "html": "250451204caede14"
+    "donnees": "457c33bae2efb694",
+    "html": "2ddc583d30a863bf"
    }
   },
   {
@@ -1078,22 +1078,22 @@
     "jour": 110,
     "nP": 5
    },
-   "R": "4ea9c4551dcc7929",
+   "R": "4c16b7454fbe08bd",
    "hauteurGC": 540,
    "kg": 37.290110794057206,
    "alertes": 4,
    "prix": 980,
-   "chiffrage": "d5bb0c7cd85b00b4",
+   "chiffrage": "080ca46f4a5614d4",
    "remise": {
     "prix": 244,
     "empreinte": "7553402fffcc2afe"
    },
    "devis": {
-    "numero": "D-20260929-2KKC8",
+    "numero": "D-20260929-MMSB6",
     "total": 1224,
     "lignes": 6,
-    "donnees": "ee1fc22d050579df",
-    "html": "37f9da7ee5073fac"
+    "donnees": "f76934443fc1161b",
+    "html": "471c42867d992dd2"
    }
   },
   {
@@ -1109,22 +1109,22 @@
     "s": 16,
     "nP": 5
    },
-   "R": "2bba7c16278333cd",
+   "R": "6395479053760801",
    "hauteurGC": 200,
    "kg": 11.545838861073006,
    "alertes": 1,
    "prix": 530,
-   "chiffrage": "74f5c6464aa3eceb",
+   "chiffrage": "0095e5a382846ecd",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-WO3MP",
+    "numero": "D-20260929-L2KDV",
     "total": 530,
     "lignes": 5,
-    "donnees": "14c37e6a98e42dfe",
-    "html": "e9675999ffdd7669"
+    "donnees": "3cb60dbbab499622",
+    "html": "5f27949a41439061"
    }
   },
   {
@@ -1141,22 +1141,22 @@
     "nb": 1,
     "nP": 2
    },
-   "R": "af6551b87bec0c4e",
+   "R": "956efcf157f9fddf",
    "hauteurGC": 540,
    "kg": 22.26451836958298,
    "alertes": 1,
    "prix": 480,
-   "chiffrage": "f93ea07dfa4773d3",
+   "chiffrage": "301262683643ac55",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-GXYAU",
+    "numero": "D-20260929-NOWWK",
     "total": 480,
     "lignes": 5,
-    "donnees": "837a6ec40b5d797a",
-    "html": "41f33f19858500ab"
+    "donnees": "07833cc9c0227ff2",
+    "html": "8a016a37fa0ea297"
    }
   },
   {
@@ -1173,22 +1173,22 @@
     "nP": 6
    },
    "chantier": "49400 Saumur",
-   "R": "f184ea446c2782bc",
+   "R": "3e34c02fe1e113a4",
    "hauteurGC": 715,
    "kg": 20.31486509007775,
    "alertes": 0,
    "prix": 700,
-   "chiffrage": "66a7a00c4b1c7464",
+   "chiffrage": "c8211962e429b81e",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-X95K1",
+    "numero": "D-20260929-KZ34R",
     "total": 700,
     "lignes": 5,
-    "donnees": "3b9ca56681e6ae9e",
-    "html": "e6a3eccdb9c7e633"
+    "donnees": "48ef22e61d206d28",
+    "html": "17ecba89a17484fe"
    }
   },
   {
@@ -1199,22 +1199,22 @@
     "nP": 5,
     "renfort": "plat"
    },
-   "R": "3db061e9728555f0",
+   "R": "d50c95cabba7f896",
    "hauteurGC": 285,
    "kg": 31.89925230305927,
    "alertes": 1,
    "prix": 740,
-   "chiffrage": "9c5537d1846b1707",
+   "chiffrage": "1767a072ac024085",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-LQFRS",
+    "numero": "D-20260929-Y4Z5Y",
     "total": 740,
     "lignes": 5,
-    "donnees": "a8662deb74bb0c4f",
-    "html": "daf14d5d57001b09"
+    "donnees": "b2479ce6a39d262c",
+    "html": "def92b72e4a08dab"
    }
   },
   {
@@ -1226,22 +1226,22 @@
     "traverse": true,
     "renfort": "plat"
    },
-   "R": "3f8e0fa7b8961a2f",
+   "R": "bf1ac009ae296ea0",
    "hauteurGC": 535,
    "kg": 51.719109976145276,
    "alertes": 1,
    "prix": 1110,
-   "chiffrage": "ed1aa788b493b664",
+   "chiffrage": "bfeee2bd86ed6161",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-QZR9L",
+    "numero": "D-20260929-C9VUV",
     "total": 1110,
     "lignes": 5,
-    "donnees": "9b402899b173a6d3",
-    "html": "b4ecb85ecac39efa"
+    "donnees": "beb4d0925a68ae34",
+    "html": "8b4d484e8b11ac59"
    }
   },
   {
@@ -1252,22 +1252,22 @@
     "nP": 6,
     "renfort": "plat"
    },
-   "R": "d427e4202921dd4c",
+   "R": "ea6af109e8ec3fc5",
    "hauteurGC": 435,
    "kg": 49.57367050119775,
    "alertes": 2,
    "prix": 1230,
-   "chiffrage": "cb74004365b5551b",
+   "chiffrage": "a46fe14c62785bb4",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-GS1XV",
+    "numero": "D-20260929-HO8XT",
     "total": 1230,
     "lignes": 5,
-    "donnees": "3147af3385bee494",
-    "html": "ecd985d99e22cf2a"
+    "donnees": "cc85204cbaf2a205",
+    "html": "dec42b0fd6675336"
    }
   },
   {
@@ -1278,22 +1278,22 @@
     "nP": 5,
     "renfort": "plat"
    },
-   "R": "5d511e47e9d76a14",
+   "R": "7289d9cd35ff09ca",
    "hauteurGC": 215,
    "kg": 27.715290418821276,
    "alertes": 1,
    "prix": 710,
-   "chiffrage": "c53f839546798a0e",
+   "chiffrage": "1985ef9a43e449c5",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-ZO6GZ",
+    "numero": "D-20260929-5QHJT",
     "total": 710,
     "lignes": 5,
-    "donnees": "0707b8dd7d20cdbe",
-    "html": "f1fa5df76c7e790f"
+    "donnees": "04180750d3029f36",
+    "html": "8604c3e80f80e372"
    }
   },
   {
@@ -1305,22 +1305,22 @@
     "renfort": "plat",
     "essence": "noyer"
    },
-   "R": "f6102bf371855cd1",
+   "R": "8844e5f3045dbfee",
    "hauteurGC": 285,
    "kg": 19.81855516431197,
    "alertes": 0,
    "prix": 590,
-   "chiffrage": "4fcc65c3f92d31c1",
+   "chiffrage": "1fc406bbecf465fa",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-LWLQ8",
+    "numero": "D-20260929-GK6EI",
     "total": 590,
     "lignes": 5,
-    "donnees": "31e5efff30d8092e",
-    "html": "496780ae54249bed"
+    "donnees": "8cece10a37498295",
+    "html": "9e2eb21527369f55"
    }
   },
   {
@@ -1332,22 +1332,22 @@
     "renfort": "plat",
     "mcType": "acier"
    },
-   "R": "604ad77f2e4a6005",
+   "R": "04e93b226cde51f2",
    "hauteurGC": 335,
    "kg": 25.158329816994236,
    "alertes": 2,
    "prix": 560,
-   "chiffrage": "2d1c903b8c774d5d",
+   "chiffrage": "aab8ffe97d6f7af5",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-7GNA8",
+    "numero": "D-20260929-YBPVQ",
     "total": 560,
     "lignes": 5,
-    "donnees": "6569e455748d7ae3",
-    "html": "932afddfb0848a60"
+    "donnees": "28b57e9f08967dc7",
+    "html": "cc8c50d4df63799a"
    }
   },
   {
@@ -1362,22 +1362,22 @@
     "km": 180
    },
    "chantier": "75011 Paris",
-   "R": "4b5002b4fbbd2344",
+   "R": "b904a39cdf02da63",
    "hauteurGC": 635,
    "kg": 51.825738581558376,
    "alertes": 1,
    "prix": 1170,
-   "chiffrage": "609c8a9e587b5b72",
+   "chiffrage": "dd5beebfffbadd09",
    "remise": {
     "prix": 90,
     "empreinte": "35692d18647d6e75"
    },
    "devis": {
-    "numero": "D-20260929-CVLZU",
+    "numero": "D-20260929-KTQ5G",
     "total": 1260,
     "lignes": 6,
-    "donnees": "849700b56969f0ec",
-    "html": "6b1d4847ed9b7e2c"
+    "donnees": "2e02e0a878b6f683",
+    "html": "b64858ec665ae637"
    }
   },
   {
@@ -1387,22 +1387,22 @@
     "A": 650,
     "seuls": true
    },
-   "R": "11556db57b524de8",
+   "R": "f4543691732df73d",
    "hauteurGC": 285,
    "kg": 11.5332672,
    "alertes": 0,
    "prix": 360,
-   "chiffrage": "b2212e744567cbeb",
+   "chiffrage": "bdf12ec2d9a67d62",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-3NP51",
+    "numero": "D-20260929-LJF1R",
     "total": 360,
     "lignes": 5,
-    "donnees": "466ce557b7e2d2c5",
-    "html": "afbad78744b847c7"
+    "donnees": "a289d4ffba7503a4",
+    "html": "e82dadaee8174b16"
    }
   },
   {
@@ -1412,22 +1412,22 @@
     "A": 300,
     "seuls": true
    },
-   "R": "1fa2cf89c42b73a6",
+   "R": "d9c126d3957c9e7e",
    "hauteurGC": 635,
    "kg": 19.973587199999997,
    "alertes": 0,
    "prix": 400,
-   "chiffrage": "dc0050d38b7259be",
+   "chiffrage": "33dad8e9575f3b47",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-0BO4A",
+    "numero": "D-20260929-OAYV8",
     "total": 400,
     "lignes": 5,
-    "donnees": "20a5883cf4b32784",
-    "html": "3c947ea701324234"
+    "donnees": "f106b77c4b60a97a",
+    "html": "b6ce97be4c854507"
    }
   },
   {
@@ -1438,22 +1438,22 @@
     "seuls": true,
     "mcType": "acier"
    },
-   "R": "d3128fc5ae0398ee",
+   "R": "96922e8ae49b0b69",
    "hauteurGC": 435,
    "kg": 10.121852800000001,
    "alertes": 0,
    "prix": 250,
-   "chiffrage": "c0fb854c7529035d",
+   "chiffrage": "26ada269c4608e29",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-IP9G8",
+    "numero": "D-20260929-K9Z1A",
     "total": 250,
     "lignes": 5,
-    "donnees": "0b0d5ba19dfb2671",
-    "html": "eb55617f5d903326"
+    "donnees": "a5a034116db44ca5",
+    "html": "49a7838306b73b98"
    }
   },
   {
@@ -1464,22 +1464,22 @@
     "seuls": true,
     "s": 20
    },
-   "R": "8004c68b4f27a61a",
+   "R": "fd57a78bbf22f982",
    "hauteurGC": 285,
    "kg": 27.096479999999996,
    "alertes": 1,
    "prix": 480,
-   "chiffrage": "fb1420eddfe83646",
+   "chiffrage": "aa9fc7235988da9c",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-0OA4I",
+    "numero": "D-20260929-G9LZK",
     "total": 480,
     "lignes": 5,
-    "donnees": "6893e278eac06c74",
-    "html": "b9ae073ad7fd1ee1"
+    "donnees": "2d8018a8c8c2f79b",
+    "html": "b39bdb7df412c150"
    }
   },
   {
@@ -1491,22 +1491,22 @@
     "renfort": "plat",
     "essence": "noyer"
    },
-   "R": "6cbb0e3fb03e455d",
+   "R": "58dcf3e5f4760035",
    "hauteurGC": 535,
    "kg": 41.357636799999995,
    "alertes": 1,
    "prix": 750,
-   "chiffrage": "b186e1f31b3e57c6",
+   "chiffrage": "af9e58270907cdad",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-5PGFH",
+    "numero": "D-20260929-4B03R",
     "total": 750,
     "lignes": 5,
-    "donnees": "2ebd3443243bc21a",
-    "html": "9e47ea1eec3b67de"
+    "donnees": "add6cf45c3d80075",
+    "html": "dee9899856a121d0"
    }
   },
   {
@@ -1516,22 +1516,22 @@
     "A": 300,
     "seuls": true
    },
-   "R": "4207219cf45b02b5",
+   "R": "7ead2fca5fc4bc23",
    "hauteurGC": 635,
    "kg": 37.8388032,
    "alertes": 2,
    "prix": 620,
-   "chiffrage": "2512677130790603",
+   "chiffrage": "4fe8efd989e8f3f4",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-T6AZ7",
+    "numero": "D-20260929-HG0YT",
     "total": 620,
     "lignes": 5,
-    "donnees": "3c8c3dc19c5137e5",
-    "html": "3881d6abfa7849f7"
+    "donnees": "7c10f61266a2290d",
+    "html": "df4075ff29cb432a"
    }
   },
   {
@@ -1543,22 +1543,22 @@
     "jour": 65,
     "jourSaisi": 90
    },
-   "R": "3ad29c5478297ee9",
+   "R": "67917702dd3ddb5f",
    "hauteurGC": 200,
    "kg": 11.143209459640014,
    "alertes": 1,
    "prix": 260,
-   "chiffrage": "679af16a8dc43000",
+   "chiffrage": "9c1dcc69db03787b",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-54QBC",
+    "numero": "D-20260929-UFYVU",
     "total": 260,
     "lignes": 5,
-    "donnees": "14f4749ccf3e2ba7",
-    "html": "472e7aba76d44129"
+    "donnees": "52b0193abaa126c9",
+    "html": "b6e6697a3b28db78"
    }
   },
   {
@@ -1570,22 +1570,22 @@
     "s": 18,
     "patte": 2
    },
-   "R": "0285424d4eda0137",
+   "R": "68bbe892bcb646f2",
    "hauteurGC": 270,
    "kg": 24.78528414410579,
    "alertes": 0,
    "prix": 630,
-   "chiffrage": "2e7c4a0f25e47e65",
+   "chiffrage": "0551fd5f2f84fdff",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-GEVFY",
+    "numero": "D-20260929-Y7EZ4",
     "total": 630,
     "lignes": 5,
-    "donnees": "0021bd60c42f9d70",
-    "html": "268fa71bd06a12b3"
+    "donnees": "83cf53807fd43a31",
+    "html": "2931c94149b0dd51"
    }
   },
   {
@@ -1597,22 +1597,22 @@
     "s": 18,
     "patte": 1
    },
-   "R": "283c1dafff9177cd",
+   "R": "9a0d3623873b9dd3",
    "hauteurGC": 270,
    "kg": 24.35290614410579,
    "alertes": 1,
    "prix": 610,
-   "chiffrage": "88a4cf52e113412c",
+   "chiffrage": "073872db2ced29dc",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-SM9WF",
+    "numero": "D-20260929-NTSV1",
     "total": 610,
     "lignes": 5,
-    "donnees": "bd85b898e8a48849",
-    "html": "ff692e163135bf12"
+    "donnees": "52f47506e7018241",
+    "html": "4a9008127ee34a7d"
    }
   },
   {
@@ -1624,22 +1624,22 @@
     "s": 16,
     "patte": 4
    },
-   "R": "c434c0fe4034a60d",
+   "R": "d21dde800c063338",
    "hauteurGC": 270,
    "kg": 21.677634926413806,
    "alertes": 1,
    "prix": 740,
-   "chiffrage": "db3c25bc6810a3ff",
+   "chiffrage": "9c1d242b45651aa5",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-R4O5C",
+    "numero": "D-20260929-WWLF6",
     "total": 740,
     "lignes": 5,
-    "donnees": "411c08ccbe7e9eb2",
-    "html": "08cdd8dd868cba37"
+    "donnees": "2972fbca258a186b",
+    "html": "a29ebfc0f1a2aa3a"
    }
   },
   {
@@ -1650,22 +1650,22 @@
     "nP": 2,
     "patte": 3
    },
-   "R": "7dbb48107246288f",
+   "R": "2fe43677b85a75d4",
    "hauteurGC": 285,
    "kg": 9.787891121887158,
    "alertes": 2,
    "prix": 320,
-   "chiffrage": "c8311ae8e4a1fc2c",
+   "chiffrage": "570f177e6f9f09fe",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-HCPTF",
+    "numero": "D-20260929-TC75H",
     "total": 320,
     "lignes": 5,
-    "donnees": "21f8ec81d9a3c113",
-    "html": "22d907c2ad27f10c"
+    "donnees": "8ab58df6448e7004",
+    "html": "a36e39ebe6264042"
    }
   },
   {
@@ -1677,22 +1677,22 @@
     "s": 18,
     "patte": 1
    },
-   "R": "9d94656cb4d4884b",
+   "R": "7a4ef4e932e36ac8",
    "hauteurGC": 135,
    "kg": 13.640761399999999,
    "alertes": 0,
    "prix": 390,
-   "chiffrage": "2771166a6cc7af8d",
+   "chiffrage": "332035f7f480e436",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-DYB17",
+    "numero": "D-20260929-EW5ET",
     "total": 390,
     "lignes": 5,
-    "donnees": "5ba3a898354b9dcf",
-    "html": "ac15876f316ca04c"
+    "donnees": "cdf25091186a9e48",
+    "html": "cec8f4d6e3ee6048"
    }
   },
   {
@@ -1702,22 +1702,22 @@
     "A": 650,
     "rosace": false
    },
-   "R": "03793f76cbdb49f8",
+   "R": "8d684a76a6ec0d3e",
    "hauteurGC": 285,
    "kg": 11.586496206695967,
    "alertes": 2,
    "prix": 260,
-   "chiffrage": "b450d16bd8925b69",
+   "chiffrage": "52b56a6c36583f8f",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-ZEQQG",
+    "numero": "D-20260929-RPUEY",
     "total": 260,
     "lignes": 5,
-    "donnees": "2ce60d66cd68537f",
-    "html": "fc921da3584e13a1"
+    "donnees": "89c277476738430e",
+    "html": "3f6ae2a7f6919344"
    }
   },
   {
@@ -1729,22 +1729,22 @@
     "rosace": false,
     "traverse": true
    },
-   "R": "d5621cf887f33442",
+   "R": "85ca4064a3d8975e",
    "hauteurGC": 535,
    "kg": 21.821867952622373,
    "alertes": 0,
    "prix": 800,
-   "chiffrage": "74b8940c3ec6689c",
+   "chiffrage": "1af95b07b27a5465",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-RMPZA",
+    "numero": "D-20260929-P1R3O",
     "total": 800,
     "lignes": 5,
-    "donnees": "056099fb30156bbf",
-    "html": "ab39e9fab635342d"
+    "donnees": "687678532652d6ea",
+    "html": "de63671804c392ea"
    }
   },
   {
@@ -1757,22 +1757,22 @@
     "jour": 90,
     "jourSaisi": 90
    },
-   "R": "507b259b98bdc86b",
+   "R": "b558ff22101af9fb",
    "hauteurGC": 175,
    "kg": 7.9401024,
    "alertes": 0,
    "prix": 280,
-   "chiffrage": "89483d1ca0c2f4d8",
+   "chiffrage": "b30163c38fb75617",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-B6MMD",
+    "numero": "D-20260929-T3BFF",
     "total": 280,
     "lignes": 5,
-    "donnees": "118ad33231ea575c",
-    "html": "f79fc02e6fce7572"
+    "donnees": "ab63b2e80edfb32d",
+    "html": "c476a0de97b857e7"
    }
   },
   {
@@ -1790,17 +1790,854 @@
    "kg": 7.055878399999999,
    "alertes": 0,
    "prix": 280,
-   "chiffrage": "b4fcf30f6e534dc1",
+   "chiffrage": "5920fca8a71e2a30",
    "remise": {
     "prix": 0,
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-MERJ5",
+    "numero": "D-20260929-PWVUB",
     "total": 280,
     "lignes": 5,
-    "donnees": "8d32663a8bd06344",
-    "html": "aeff1740f2ba82a2"
+    "donnees": "558bdfd72148bba6",
+    "html": "103f04626caea3d9"
+   }
+  },
+  {
+   "nom": "décor entre, C",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "decor": "entre",
+    "decorForme": "C",
+    "seuls": true
+   },
+   "R": "02d431e80345458d",
+   "hauteurGC": 285,
+   "kg": 18.359802812248127,
+   "alertes": 0,
+   "prix": 680,
+   "chiffrage": "fb3e207b71cef272",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-LD3ZW",
+    "total": 680,
+    "lignes": 5,
+    "donnees": "ec6ee623c9007c5d",
+    "html": "39ff56096241d1b7"
+   }
+  },
+  {
+   "nom": "décor entre, S",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "decor": "entre",
+    "decorForme": "S"
+   },
+   "R": "e7ee86f9e68172f9",
+   "hauteurGC": 285,
+   "kg": 16.832008551995163,
+   "alertes": 0,
+   "prix": 670,
+   "chiffrage": "555be8005f2f1966",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-OTUTJ",
+    "total": 670,
+    "lignes": 5,
+    "donnees": "02086613f03d7118",
+    "html": "546a2add9c04bbfb"
+   }
+  },
+  {
+   "nom": "décor entre, J",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "decor": "entre",
+    "decorForme": "J"
+   },
+   "R": "8edb747b3cb6d8a7",
+   "hauteurGC": 285,
+   "kg": 16.543887607827397,
+   "alertes": 0,
+   "prix": 680,
+   "chiffrage": "d8ba024739c0e72b",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-JR2RA",
+    "total": 680,
+    "lignes": 5,
+    "donnees": "5920518b44f3b51d",
+    "html": "4b86f123e16e6844"
+   }
+  },
+  {
+   "nom": "décor frise, S",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "decor": "frise",
+    "decorForme": "S",
+    "seuls": true
+   },
+   "R": "185cc155547ce13d",
+   "hauteurGC": 285,
+   "kg": 12.913522674679774,
+   "alertes": 0,
+   "prix": 500,
+   "chiffrage": "1882ee2f89959acc",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-0A5TU",
+    "total": 500,
+    "lignes": 5,
+    "donnees": "f8c6d33afd94d219",
+    "html": "487163d37b7a082d"
+   }
+  },
+  {
+   "nom": "décor frise, C",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "decor": "frise",
+    "decorForme": "C"
+   },
+   "R": "2476bc35603f439b",
+   "hauteurGC": 285,
+   "kg": 14.379336063012246,
+   "alertes": 0,
+   "prix": 500,
+   "chiffrage": "350644bb0f5aa322",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-5FI06",
+    "total": 500,
+    "lignes": 5,
+    "donnees": "eaf7c60e64f7c8a8",
+    "html": "eff023ff21fa9349"
+   }
+  },
+  {
+   "nom": "décor frise, poste",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "decor": "frise",
+    "decorForme": "poste"
+   },
+   "R": "5908ece981480508",
+   "hauteurGC": 285,
+   "kg": 14.509098552137283,
+   "alertes": 0,
+   "prix": 600,
+   "chiffrage": "dcea92c0b0aeffeb",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-UF7L1",
+    "total": 600,
+    "lignes": 5,
+    "donnees": "d1c74ff1b2603732",
+    "html": "c2faae8bd9313b7e"
+   }
+  },
+  {
+   "nom": "décor anneaux, anneau",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "decor": "anneaux",
+    "decorForme": "anneau",
+    "seuls": true
+   },
+   "R": "8ee9026341b3ef81",
+   "hauteurGC": 285,
+   "kg": 17.644670054504488,
+   "alertes": 0,
+   "prix": 770,
+   "chiffrage": "43a123df7f29fffd",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-MI28V",
+    "total": 770,
+    "lignes": 5,
+    "donnees": "8b18de7a1abdffd6",
+    "html": "5f8dcae8bfeb6065"
+   }
+  },
+  {
+   "nom": "décor hauteur, C",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "decor": "hauteur",
+    "decorForme": "C"
+   },
+   "R": "973c3a93eb232657",
+   "hauteurGC": 285,
+   "kg": 17.55711013512213,
+   "alertes": 0,
+   "prix": 620,
+   "chiffrage": "7d1f885a09b7e15a",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-UJZL8",
+    "total": 620,
+    "lignes": 5,
+    "donnees": "87c4647b0b6902d2",
+    "html": "bbe84ce8e10a26e4"
+   }
+  },
+  {
+   "nom": "décor hauteur, S",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "decor": "hauteur",
+    "decorForme": "S"
+   },
+   "R": "e87705a9ce8e97b7",
+   "hauteurGC": 285,
+   "kg": 15.96907585419407,
+   "alertes": 0,
+   "prix": 610,
+   "chiffrage": "2b3768ac46b28b29",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-FFPD7",
+    "total": 610,
+    "lignes": 5,
+    "donnees": "a6e59043915e1e2c",
+    "html": "d8058448ecead78a"
+   }
+  },
+  {
+   "nom": "décor coeurs, coeur",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "decor": "coeurs",
+    "decorForme": "coeur",
+    "seuls": true
+   },
+   "R": "6a527d314060a64b",
+   "hauteurGC": 285,
+   "kg": 15.81347077119204,
+   "alertes": 0,
+   "prix": 650,
+   "chiffrage": "3f253a32cbe30d23",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-SMXUD",
+    "total": 650,
+    "lignes": 5,
+    "donnees": "17c1550ed33049fb",
+    "html": "1a489c353dfb36a2"
+   }
+  },
+  {
+   "nom": "décor medaillon, coeur",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "decor": "medaillon",
+    "decorForme": "coeur"
+   },
+   "R": "4beac67688520187",
+   "hauteurGC": 285,
+   "kg": 12.421324840087863,
+   "alertes": 0,
+   "prix": 490,
+   "chiffrage": "33b62c65294cf987",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-HNT8E",
+    "total": 490,
+    "lignes": 5,
+    "donnees": "29402434bf3bfbbc",
+    "html": "e677b80631f819e4"
+   }
+  },
+  {
+   "nom": "décor medaillon, doubleC",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "decor": "medaillon",
+    "decorForme": "doubleC"
+   },
+   "R": "c1803a45ac376024",
+   "hauteurGC": 285,
+   "kg": 12.978418233786105,
+   "alertes": 0,
+   "prix": 490,
+   "chiffrage": "8fb204bbc48208ca",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-1PZYB",
+    "total": 490,
+    "lignes": 5,
+    "donnees": "28b65b79aaf09a21",
+    "html": "aaedc8cb6af63ff8"
+   }
+  },
+  {
+   "nom": "décor medaillon, J",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "decor": "medaillon",
+    "decorForme": "J",
+    "seuls": true
+   },
+   "R": "b41f443c8fc8ddee",
+   "hauteurGC": 285,
+   "kg": 12.484945806377576,
+   "alertes": 0,
+   "prix": 490,
+   "chiffrage": "6e5aab0dbef3a72c",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-4NENY",
+    "total": 490,
+    "lignes": 5,
+    "donnees": "99c64dfeb46aa1c4",
+    "html": "6cdea4a96d75ac0d"
+   }
+  },
+  {
+   "nom": "décor applique, doubleC",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "decor": "applique",
+    "decorForme": "doubleC"
+   },
+   "R": "8486415b7d78113e",
+   "hauteurGC": 285,
+   "kg": 16.438513313052056,
+   "alertes": 0,
+   "prix": 590,
+   "chiffrage": "b05da91ca0ce53cc",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-4BEIK",
+    "total": 590,
+    "lignes": 5,
+    "donnees": "a4d9a2395740793e",
+    "html": "9d772d74b710cf71"
+   }
+  },
+  {
+   "nom": "décor applique, coeur",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "decor": "applique",
+    "decorForme": "coeur"
+   },
+   "R": "5a09936e919f5cc7",
+   "hauteurGC": 285,
+   "kg": 14.597716990825031,
+   "alertes": 0,
+   "prix": 580,
+   "chiffrage": "86e2fdbce7b38b20",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-7ATBH",
+    "total": 580,
+    "lignes": 5,
+    "donnees": "e3f53bbfef6ffa7a",
+    "html": "ccfe73bb4438c5a4"
+   }
+  },
+  {
+   "nom": "décor applique, C",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "decor": "applique",
+    "decorForme": "C",
+    "seuls": true
+   },
+   "R": "1d164bb4b51ab4fa",
+   "hauteurGC": 285,
+   "kg": 14.646863562311513,
+   "alertes": 0,
+   "prix": 520,
+   "chiffrage": "b62c0c41813b71a0",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-EGYI7",
+    "total": 520,
+    "lignes": 5,
+    "donnees": "423c808527346471",
+    "html": "f75fa46f9fa5653c"
+   }
+  },
+  {
+   "nom": "décor, bouts effilés",
+   "valeurs": {
+    "B": 1000,
+    "A": 650,
+    "decor": "entre",
+    "decorForme": "S",
+    "decorBouts": "effile"
+   },
+   "R": "fb5577397e91f128",
+   "hauteurGC": 285,
+   "kg": 14.239983239759361,
+   "alertes": 0,
+   "prix": 590,
+   "chiffrage": "e4293986bacb7ea4",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-AFKKO",
+    "total": 590,
+    "lignes": 5,
+    "donnees": "936e55b1b953fd82",
+    "html": "0496d93703fcf21a"
+   }
+  },
+  {
+   "nom": "décor, bouts coupés droits",
+   "valeurs": {
+    "B": 1400,
+    "A": 700,
+    "decor": "frise",
+    "decorForme": "C",
+    "decorBouts": "droit"
+   },
+   "R": "c562b0cd114796e7",
+   "hauteurGC": 235,
+   "kg": 16.59540420952977,
+   "alertes": 2,
+   "prix": 590,
+   "chiffrage": "2a0f6c9597a73864",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-JBIKU",
+    "total": 590,
+    "lignes": 5,
+    "donnees": "e0d17b9eddad49df",
+    "html": "28bbaa43c5079f36"
+   }
+  },
+  {
+   "nom": "décor, volutes soudées",
+   "valeurs": {
+    "B": 900,
+    "A": 650,
+    "decor": "entre",
+    "decorForme": "J",
+    "decorLiaison": "soudure"
+   },
+   "R": "2fef28c828e1b59e",
+   "hauteurGC": 285,
+   "kg": 11.353094138551597,
+   "alertes": 0,
+   "prix": 480,
+   "chiffrage": "0d403bb9bdbeb446",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-VLMAH",
+    "total": 480,
+    "lignes": 5,
+    "donnees": "ff0ed5cbe4790d9c",
+    "html": "7251084794974d20"
+   }
+  },
+  {
+   "nom": "décor, barreaux torsadés",
+   "valeurs": {
+    "B": 1180,
+    "A": 500,
+    "decor": "medaillon",
+    "decorForme": "coeur",
+    "decorBarreaux": "torsade"
+   },
+   "R": "7bba7b4463bd7e62",
+   "hauteurGC": 435,
+   "kg": 16.27352904864822,
+   "alertes": 0,
+   "prix": 390,
+   "chiffrage": "4f123d5a99f68ad5",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-TTJJP",
+    "total": 390,
+    "lignes": 5,
+    "donnees": "39460926c4095d75",
+    "html": "af8d029a1598a93a"
+   }
+  },
+  {
+   "nom": "décor, barreaux à bagues",
+   "valeurs": {
+    "B": 1600,
+    "A": 650,
+    "decor": "anneaux",
+    "decorForme": "anneau",
+    "decorBarreaux": "bagues",
+    "seuls": true
+   },
+   "R": "657f37f429cb5680",
+   "hauteurGC": 285,
+   "kg": 23.29869682170515,
+   "alertes": 2,
+   "prix": 1040,
+   "chiffrage": "12709889c98b7b40",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-E2K0F",
+    "total": 1040,
+    "lignes": 5,
+    "donnees": "c11878a3f91ec2cc",
+    "html": "a5cf3e85086f5a5b"
+   }
+  },
+  {
+   "nom": "décor, frise basse de postes",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "decor": "applique",
+    "decorForme": "C",
+    "decorFriseBasse": "postes"
+   },
+   "R": "afeee97cabc11b4e",
+   "hauteurGC": 285,
+   "kg": 14.646863562311513,
+   "alertes": 0,
+   "prix": 520,
+   "chiffrage": "b62c0c41813b71a0",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-EGYI7",
+    "total": 520,
+    "lignes": 5,
+    "donnees": "423c808527346471",
+    "html": "f75fa46f9fa5653c"
+   }
+  },
+  {
+   "nom": "décor, frise basse au ras du sol (retirée)",
+   "valeurs": {
+    "B": 1180,
+    "A": 300,
+    "decor": "frise",
+    "decorForme": "S",
+    "decorFriseBasse": "postes"
+   },
+   "R": "bb1e804fa033dcfc",
+   "hauteurGC": 635,
+   "kg": 23.803581560735914,
+   "alertes": 0,
+   "prix": 750,
+   "chiffrage": "472ddf6e6d2806f0",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-GTCDL",
+    "total": 750,
+    "lignes": 5,
+    "donnees": "5ea278175a2ee0a1",
+    "html": "4c9e038124a3339e"
+   }
+  },
+  {
+   "nom": "décor doré, transporteur à 120 km",
+   "valeurs": {
+    "B": 1180,
+    "A": 650,
+    "decor": "frise",
+    "decorForme": "S",
+    "decorDore": "1",
+    "remise": "transporteur",
+    "km": 120
+   },
+   "chantier": "37000 Tours",
+   "R": "182a77a7184e0b8e",
+   "hauteurGC": 285,
+   "kg": 12.913522674679774,
+   "alertes": 0,
+   "prix": 640,
+   "chiffrage": "7e630d5270db544e",
+   "remise": {
+    "prix": 51,
+    "empreinte": "42196e088889489e"
+   },
+   "devis": {
+    "numero": "D-20260929-CU6HR",
+    "total": 691,
+    "lignes": 6,
+    "donnees": "56f63bd044b406c9",
+    "html": "ae5adccffcd7012c"
+   }
+  },
+  {
+   "nom": "décor, escalade : cœurs à 300",
+   "valeurs": {
+    "B": 1180,
+    "A": 300,
+    "decor": "coeurs",
+    "decorForme": "coeur",
+    "seuls": true
+   },
+   "R": "87dd1936c4066b52",
+   "hauteurGC": 635,
+   "kg": 26.02487637119204,
+   "alertes": 0,
+   "prix": 880,
+   "chiffrage": "73dff5cc2394ae6c",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-G2GPN",
+    "total": 880,
+    "lignes": 5,
+    "donnees": "925c49a95659eae8",
+    "html": "0dc2a0d169d87580"
+   }
+  },
+  {
+   "nom": "décor, escalade : grille de volutes à 300",
+   "valeurs": {
+    "B": 1180,
+    "A": 300,
+    "decor": "hauteur",
+    "decorForme": "S"
+   },
+   "R": "d477c2565fecb1f8",
+   "hauteurGC": 635,
+   "kg": 31.885976303990326,
+   "alertes": 0,
+   "prix": 1120,
+   "chiffrage": "356fd9c6f7d14ddb",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-WM7PT",
+    "total": 1120,
+    "lignes": 5,
+    "donnees": "0fc1bba4c325356f",
+    "html": "94929d822bd9ed18"
+   }
+  },
+  {
+   "nom": "décor refusé : grille de volutes, 2200 × 400",
+   "valeurs": {
+    "B": 2200,
+    "A": 400,
+    "decor": "hauteur",
+    "decorForme": "C",
+    "seuls": true
+   },
+   "R": "0ca42e380a01733b",
+   "hauteurGC": 535,
+   "kg": 58.41706639719324,
+   "alertes": 3,
+   "prix": 1820,
+   "chiffrage": "8ca39b943916fb77",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-UA0ZZ",
+    "total": 1820,
+    "lignes": 5,
+    "donnees": "fb4a5a05b9520745",
+    "html": "e0f4a5ebbc7a5c3c"
+   }
+  },
+  {
+   "nom": "décor, jour automatique à 760",
+   "valeurs": {
+    "B": 1180,
+    "A": 760,
+    "jourAuto": true,
+    "jour": 65,
+    "jourSaisi": 90,
+    "decor": "frise",
+    "decorForme": "S"
+   },
+   "R": "c5d2e1839c9c7a82",
+   "hauteurGC": 200,
+   "kg": 12.44244471662552,
+   "alertes": 0,
+   "prix": 570,
+   "chiffrage": "0ad005349879bd0b",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-LNNUA",
+    "total": 570,
+    "lignes": 5,
+    "donnees": "0f323ba33667d5e3",
+    "html": "9bb6405e0225f647"
+   }
+  },
+  {
+   "nom": "décor, noyer, pose à 40 km",
+   "valeurs": {
+    "B": 1300,
+    "A": 600,
+    "decor": "medaillon",
+    "decorForme": "doubleC",
+    "essence": "noyer",
+    "remise": "pose",
+    "km": 40
+   },
+   "chantier": "49000 Angers",
+   "R": "bf238dd54a3c890b",
+   "hauteurGC": 335,
+   "kg": 15.461677732619606,
+   "alertes": 2,
+   "prix": 530,
+   "chiffrage": "56d015646298feea",
+   "remise": {
+    "prix": 122,
+    "empreinte": "7fde56f620a93135"
+   },
+   "devis": {
+    "numero": "D-20260929-W273M",
+    "total": 652,
+    "lignes": 6,
+    "donnees": "fd3dc1db77c57a2e",
+    "html": "85e58c01695bb375"
+   }
+  },
+  {
+   "nom": "décor, main courante d'acier plat",
+   "valeurs": {
+    "B": 1100,
+    "A": 650,
+    "decor": "entre",
+    "decorForme": "C",
+    "mcType": "acier",
+    "seuls": true
+   },
+   "R": "cd6baaba213ccdf4",
+   "hauteurGC": 285,
+   "kg": 18.586540216529215,
+   "alertes": 0,
+   "prix": 590,
+   "chiffrage": "433279f3f4753f55",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-7MT9Q",
+    "total": 590,
+    "lignes": 5,
+    "donnees": "e0f3790108ae384e",
+    "html": "8fb2048b6f785522"
+   }
+  },
+  {
+   "nom": "décor, bois sur fer plat, fenêtre large",
+   "valeurs": {
+    "B": 2100,
+    "A": 650,
+    "decor": "applique",
+    "decorForme": "doubleC",
+    "renfort": "plat",
+    "seuls": true
+   },
+   "R": "b11398faffee71c1",
+   "hauteurGC": 285,
+   "kg": 36.39816078515095,
+   "alertes": 1,
+   "prix": 990,
+   "chiffrage": "8c302d7b4a808a63",
+   "remise": {
+    "prix": 0,
+    "empreinte": "df00c5f8cdfc332f"
+   },
+   "devis": {
+    "numero": "D-20260929-SVRV1",
+    "total": 990,
+    "lignes": 5,
+    "donnees": "02741cfbdc687c47",
+    "html": "98fefb2aa1352563"
    }
   }
  ],
@@ -1992,7 +2829,7 @@
    "choix": {
     "carre": 16,
     "croix": 4,
-    "R": "1a0913fe954ce99a",
+    "R": "7febf8829ee0d561",
     "hauteurGC": 285,
     "kg": 13.93871978926249,
     "prix": 470
@@ -2189,7 +3026,7 @@
    "choix": {
     "carre": 16,
     "croix": 2,
-    "R": "c00e1a271a3c9911",
+    "R": "39a63d6fb004ed44",
     "hauteurGC": 935,
     "kg": 11.333822163985973,
     "prix": 370
@@ -2834,7 +3671,7 @@
    "choix": {
     "carre": 16,
     "croix": 4,
-    "R": "bc228ad1c77e26b5",
+    "R": "3d7b7f929265a5f9",
     "hauteurGC": 935,
     "kg": 23.748520019505396,
     "prix": 610
@@ -3033,7 +3870,7 @@
    "choix": {
     "carre": 16,
     "croix": 5,
-    "R": "5e2eb28f65546881",
+    "R": "798e1248073d25c7",
     "hauteurGC": 585,
     "kg": 22.47757047707461,
     "prix": 710
@@ -3494,7 +4331,7 @@
    "choix": {
     "carre": 16,
     "croix": 4,
-    "R": "7b21c6c2a9026085",
+    "R": "3f328996214d429a",
     "hauteurGC": 285,
     "kg": 14.06206552516484,
     "prix": 470
@@ -3708,7 +4545,7 @@
    "choix": {
     "carre": 18,
     "croix": 4,
-    "R": "98243a12a32b64ca",
+    "R": "01319e342e5ebd6e",
     "hauteurGC": 285,
     "kg": 17.329978192330188,
     "prix": 470
@@ -3940,7 +4777,7 @@
    "choix": {
     "carre": 18,
     "croix": 6,
-    "R": "f5d297ee0c1e8a4c",
+    "R": "dcfd85007f391055",
     "hauteurGC": 835,
     "kg": 42.04810782983189,
     "prix": 850
@@ -4163,7 +5000,7 @@
    "choix": {
     "carre": 18,
     "croix": 5,
-    "R": "6bd661397cda28de",
+    "R": "cff207f75790bfea",
     "hauteurGC": 336,
     "kg": 22.210949601910364,
     "prix": 560
@@ -5703,7 +6540,7 @@
    "choix": {
     "carre": 16,
     "croix": 4,
-    "R": "0cc582abcd3ce179",
+    "R": "75063f9effc579ff",
     "hauteurGC": 836,
     "kg": 20.46480819174683,
     "prix": 580
@@ -8733,42 +9570,19 @@
    },
    "renfort": [
     [
-     "charge-verticale",
-     "fixation"
+     "charge-verticale"
     ],
-    [
-     "fixation"
-    ],
-    [
-     "fixation"
-    ],
-    [
-     "fixation"
-    ],
-    [
-     "fixation"
-    ],
-    [
-     "fixation"
-    ],
-    [
-     "fixation"
-    ],
-    [
-     "fixation"
-    ],
-    [
-     "fixation"
-    ],
-    [
-     "fixation"
-    ],
-    [
-     "fixation"
-    ],
-    [
-     "fixation"
-    ]
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
    ],
    "choix": null
   },
@@ -9818,6 +10632,286 @@
     ]
    ],
    "choix": null
+  }
+ ],
+ "decors": [
+  {
+   "entree": {
+    "largeurMm": 1180,
+    "allegeMm": 650,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "chene",
+    "decor": "entre.C.bouton.colliers.carre.aucune.0"
+   },
+   "alertes": {
+    "12": [
+     "fixation",
+     "solidite",
+     "charge-verticale"
+    ],
+    "14": [
+     "fixation",
+     "solidite",
+     "charge-verticale"
+    ],
+    "16": [],
+    "18": []
+   },
+   "renfort": {
+    "16": [],
+    "18": []
+   },
+   "choix": {
+    "carre": 16,
+    "renfort": false,
+    "R": "02d431e80345458d",
+    "hauteurGC": 285,
+    "kg": 18.359802812248127,
+    "prix": 680,
+    "nom": "Volutes en C entre les barreaux"
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 1000,
+    "allegeMm": 300,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "pin",
+    "decor": "coeurs.coeur.effile.soudure.torsade.aucune.0"
+   },
+   "alertes": {
+    "12": [
+     "escalade",
+     "fixation",
+     "solidite",
+     "charge-verticale"
+    ],
+    "14": [
+     "fixation",
+     "solidite",
+     "charge-verticale"
+    ],
+    "16": [],
+    "18": []
+   },
+   "renfort": {
+    "16": [],
+    "18": []
+   },
+   "choix": {
+    "carre": 16,
+    "renfort": false,
+    "R": "35701bf3b44d0757",
+    "hauteurGC": 635,
+    "kg": 22.16959083064381,
+    "prix": 520,
+    "nom": "Cœurs forgés"
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 1600,
+    "allegeMm": 650,
+    "enEtage": true,
+    "fenetreMm": 1500,
+    "essence": "chene",
+    "decor": "frise.S.bouton.colliers.bagues.postes.1"
+   },
+   "alertes": {
+    "12": [
+     "fixation",
+     "solidite",
+     "charge-verticale"
+    ],
+    "14": [
+     "fixation",
+     "solidite",
+     "charge-verticale"
+    ],
+    "16": [
+     "solidite",
+     "charge-verticale"
+    ],
+    "18": [
+     "solidite"
+    ]
+   },
+   "renfort": {
+    "16": [],
+    "18": []
+   },
+   "choix": {
+    "carre": 16,
+    "renfort": true,
+    "R": "d2c6f7adabba0014",
+    "hauteurGC": 285,
+    "kg": 25.480024487586753,
+    "prix": 1010,
+    "nom": "Frise de volutes en S"
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 900,
+    "allegeMm": 760,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "noyer",
+    "decor": "medaillon.doubleC.droit.colliers.carre.aucune.0"
+   },
+   "alertes": {
+    "12": [
+     "fixation",
+     "solidite",
+     "charge-verticale"
+    ],
+    "14": [
+     "fixation",
+     "charge-verticale"
+    ],
+    "16": [],
+    "18": []
+   },
+   "renfort": {
+    "16": [
+     "fixation"
+    ],
+    "18": [
+     "fixation"
+    ]
+   },
+   "choix": {
+    "carre": 16,
+    "renfort": false,
+    "R": "e723d93a30753732",
+    "hauteurGC": 200,
+    "kg": 7.179420365397813,
+    "prix": 340,
+    "nom": "Médaillon : double C"
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 2200,
+    "allegeMm": 400,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "chene",
+    "decor": "hauteur.C.bouton.colliers.carre.aucune.0"
+   },
+   "alertes": {
+    "12": [
+     "escalade",
+     "fixation",
+     "solidite",
+     "charge-verticale"
+    ],
+    "14": [
+     "fixation",
+     "solidite",
+     "charge-verticale"
+    ],
+    "16": [
+     "escalade",
+     "solidite",
+     "charge-verticale"
+    ],
+    "18": [
+     "escalade",
+     "solidite",
+     "charge-verticale"
+    ]
+   },
+   "renfort": {
+    "16": [
+     "escalade",
+     "charge-verticale"
+    ],
+    "18": [
+     "escalade"
+    ]
+   },
+   "choix": null
+  },
+  {
+   "entree": {
+    "largeurMm": 1400,
+    "allegeMm": 500,
+    "enEtage": false,
+    "fenetreMm": 0,
+    "essence": "acier",
+    "decor": "anneaux.anneau.bouton.soudure.carre.aucune.0"
+   },
+   "alertes": {
+    "12": [
+     "fixation",
+     "solidite",
+     "charge-verticale"
+    ],
+    "14": [
+     "fixation",
+     "solidite",
+     "charge-verticale"
+    ],
+    "16": [
+     "solidite",
+     "charge-verticale"
+    ],
+    "18": []
+   },
+   "renfort": {
+    "16": [
+     "solidite",
+     "charge-verticale"
+    ],
+    "18": []
+   },
+   "choix": {
+    "carre": 18,
+    "renfort": false,
+    "R": "8a248338c54c47e6",
+    "hauteurGC": 435,
+    "kg": 28.824895982994427,
+    "prix": 630,
+    "nom": "Frise d'anneaux (Directoire)"
+   }
+  },
+  {
+   "entree": {
+    "largeurMm": 1800,
+    "allegeMm": 650,
+    "enEtage": true,
+    "fenetreMm": 0,
+    "essence": "chene-plat",
+    "decor": "applique.coeur.bouton.colliers.carre.aucune.1"
+   },
+   "alertes": {
+    "12": [
+     "fixation",
+     "charge-verticale"
+    ],
+    "14": [
+     "fixation",
+     "charge-verticale"
+    ],
+    "16": [],
+    "18": []
+   },
+   "renfort": {
+    "16": [],
+    "18": []
+   },
+   "choix": {
+    "carre": 16,
+    "renfort": false,
+    "R": "fda3b239f87b3e15",
+    "hauteurGC": 285,
+    "kg": 29.202861868393313,
+    "prix": 970,
+    "nom": "Cœurs en applique"
+   }
   }
  ]
 }

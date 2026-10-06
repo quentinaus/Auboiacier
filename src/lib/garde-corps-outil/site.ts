@@ -10,17 +10,23 @@
  */
 import { catalogueGC, configurerGC, prixCommandeGC, prixGC, ChiffrageIndisponible, type ConfigAEtudierGC, type ConfigGC, type DessinGC } from "./calcul.ts";
 import { MAINS_COURANTES_GC, type EntreeSiteGC, type MainCouranteGC } from "./entree.ts";
-import { RENFORT, calculerGC, planA3Pur } from "./moteur.genere.mjs";
+import { RENFORT, calculerGC, geomGC, mtAlleger, planA3Pur } from "./moteur.genere.mjs";
 import { getProduct, priceFrom, prixParOutil, resolveSelection, SUR_MESURE, type PrixReleve, type Product } from "../products.ts";
-import { BORNES_RELEVE_GC, MODELES_GC_MAX, RELEVE_DEPART_GC, ROSACE_DEFAUT_GC, ROSACE_MM_GC, diametreRosaceGC, idModeleGC, lireMainCouranteGC, lireModeleGC, releveDansLesBornes, type MainsPrixGC, type ModeleGC, type PlanApercuGC, type ReleveGC, type ReponsePrixGC } from "../garde-corps.ts";
+import { BORNES_RELEVE_GC, DECOR_NOMBRES_MAX, MODELES_GC_MAX, RELEVE_DEPART_GC, ROSACE_DEFAUT_GC, ROSACE_MM_GC, decorParDefautGC, diametreRosaceGC, idDecorGC, idModeleGC, lireDecorGC, lireMainCouranteGC, lireModeleGC, releveDansLesBornes, type ChoixDecorGC, type DecorReponseGC, type DecorTraitGC, type MainsPrixGC, type ModeleGC, type PlanApercuGC, type PrixDecorGC, type ReleveGC, type ReponsePrixGC } from "../garde-corps.ts";
+import { DECORS_GC } from "../garde-corps-decors.genere.ts";
 import type { CalculGC } from "../tarif-panier.ts";
 
 /** L'identifiant du garde-corps de fenêtre au catalogue. */
 export const SLUG_GC = "garde-corps";
+/** Le Garde-corps forgé à volutes (07/10/2026) : le même garde-corps, avec un décor à volutes, sur sa propre fiche. */
+export const SLUG_GC_FORGE = "garde-corps-forge-volutes";
 
-function produitGC(): Product {
-  const p = getProduct(SLUG_GC);
-  if (!p || !prixParOutil(p)) throw new Error("garde-corps : fiche introuvable au catalogue");
+/** La fiche d'un relevé : celle du Garde-corps forgé à volutes s'il a un décor, sinon celle du garde-corps Rosace. */
+export const slugGC = (releve: Pick<ReleveGC, "decor">) => (releve.decor !== undefined ? SLUG_GC_FORGE : SLUG_GC);
+
+function produitGC(slug: string = SLUG_GC): Product {
+  const p = getProduct(slug);
+  if (!p || !prixParOutil(p)) throw new Error(`${slug} : fiche introuvable au catalogue`);
   return p;
 }
 
@@ -31,6 +37,7 @@ function entreeGC(releve: ReleveGC, essence: MainCouranteGC, rosaceMm?: number):
     largeurMm: releve.largeurMm, allegeMm: releve.allegeMm, enEtage: releve.enEtage, fenetreMm: releve.fenetreMm, essence,
     ...(rosaceMm !== undefined ? { rosaceMm } : {}),
     ...(releve.modele !== undefined ? { modele: releve.modele } : {}),
+    ...(releve.decor !== undefined ? { decor: releve.decor } : {}),
   };
 }
 
@@ -46,8 +53,18 @@ export const prixReleveOutil: PrixReleve = (e) => {
   if (!c) return { ok: false, raison: "hors-bornes" };
   // Barre d'appui ou rien à poser : pour le panier, c'est « à étudier » (pas de prix, pas de commande).
   if (!c.ok) return { ok: false, raison: c.raison === "fenetre-trop-basse" ? c.raison : "a-etudier" };
-  return { ok: true, prix: prixGC(c), hauteurMm: c.hauteurMm, croix: c.croix, carre: c.carre, soubassement: c.soubassement, traverse: c.traverse, seuls: c.seuls, renfort: c.renfort, patte: c.patte, kg: c.kg };
+  return {
+    ok: true, prix: prixGC(c), hauteurMm: c.hauteurMm, croix: c.croix, carre: c.carre, soubassement: c.soubassement, traverse: c.traverse, seuls: c.seuls, renfort: c.renfort, patte: c.patte, kg: c.kg,
+    // Le nom du décor, celui de l'outil (« Frise de volutes en S ») : le libellé de commande le porte ; et la frise basse retirée.
+    ...(c.decor && typeof c.R.decorNom === "string" ? { decorNom: c.R.decorNom } : {}),
+    ...(c.decor && friseRetiree(c) ? { decorFriseRetiree: true } : {}),
+  };
 };
+
+/** La frise basse demandée a-t-elle été retirée par l'outil ? (Au ras du sol, ses vagues feraient des marches : NF P01-012.) */
+function friseRetiree(c: ConfigGC): boolean {
+  return c.decor?.friseBasse === "postes" && (c.R.decor as { ch?: { friseBasse?: string } } | undefined)?.ch?.friseBasse !== "postes";
+}
 
 /** La remise d'une commande de plusieurs garde-corps : frais fixes une fois, jamais sous le plancher. */
 export function remiseCommandeGC(lignes: { releve: ReleveGC; essence: string; quantite: number; rosaceMm?: number }[]): number {
@@ -75,20 +92,24 @@ export function ligneGC(
   options: { woodId: string; metalId?: string; fabricId?: string; remplissageId?: string },
   locale: "fr" | "en" = "fr"
 ) {
-  const modele = produitGC();
+  const slug = slugGC(releve);
+  const modele = produitGC(slug);
+  // Le forgé n'a ni rosace ni verre : son décor remplit le cadre (une rosace envoyée serait refusée, unknown_fabric).
+  const forge = releve.decor !== undefined;
   return resolveSelection(
     {
-      slug: SLUG_GC,
+      slug,
       sizeId: SUR_MESURE,
       largeurMm: releve.largeurMm,
       allegeMm: releve.allegeMm,
       enEtage: releve.enEtage,
       fenetreMm: releve.fenetreMm,
       modeleGc: releve.modele,
+      ...(releve.decor !== undefined ? { decorGc: releve.decor } : {}),
       woodId: options.woodId,
       metalId: options.metalId ?? modele.metals[0]?.id,
-      fabricId: options.fabricId ?? modele.fabrics?.[0]?.id,
-      remplissageId: options.remplissageId ?? modele.remplissages?.[0]?.id,
+      fabricId: forge ? undefined : (options.fabricId ?? modele.fabrics?.[0]?.id),
+      remplissageId: forge ? undefined : (options.remplissageId ?? modele.remplissages?.[0]?.id),
       locale,
     },
     prixReleveOutil
@@ -99,8 +120,11 @@ export function ligneGC(
  *  La route /api/prix-garde-corps
  * ------------------------------------------------------------------ */
 
-/** Les paramètres acceptés par /api/prix-garde-corps. Tout autre paramètre = refus. */
-export const PARAMETRES_PRIX_GC = ["l", "allege", "etage", "fenetre", "wood", "metal", "fabric", "remplissage", "qty", "modele"] as const;
+/**
+ * Les paramètres acceptés par /api/prix-garde-corps. Tout autre paramètre = refus. « decor » : le décor à volutes choisi
+ * (idDecorGC) ; « decors=1 » : demander aussi le prix de chaque assemblage de décor (PrixDecorGC).
+ */
+export const PARAMETRES_PRIX_GC = ["l", "allege", "etage", "fenetre", "wood", "metal", "fabric", "remplissage", "qty", "modele", "decor", "decors"] as const;
 
 export type RequetePrixGC = {
   releve: ReleveGC;
@@ -109,6 +133,8 @@ export type RequetePrixGC = {
   fabricId?: string;
   remplissageId?: string;
   quantite: number;
+  /** Rendre aussi le prix de chaque assemblage de décor (PrixDecorGC). */
+  decors?: boolean;
 };
 
 /**
@@ -149,7 +175,19 @@ export function lireRequetePrixGC(params: URLSearchParams): RequetePrixGC | null
   if (metalId === null || fabricId === null || remplissageId === null) return null;
   const modele = params.get("modele");
   if (modele !== null && !lireModeleGC(modele)) return null;
-  return { releve: { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm, ...(modele ? { modele } : {}) }, essence, metalId, fabricId, remplissageId, quantite };
+  // Le décor à volutes : un identifiant illisible est refusé ; un décor sous un panneau de verre aussi (le verre remplace les
+  // croix, le décor aussi : les deux ne vont pas ensemble). Avec un décor, le modèle ne compte pas (configurerGC l'ignore).
+  const decor = params.get("decor");
+  const choixDecor = decor === null ? null : lireDecorGC(decor);
+  if (decor !== null && !choixDecor) return null;
+  if (choixDecor && produitGC().remplissages?.find((r) => r.id === remplissageId)?.sansCroix === true) return null;
+  const decors = params.get("decors");
+  if (decors !== null && decors !== "1") return null;
+  return {
+    releve: { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm, ...(choixDecor ? { decor: idDecorGC(choixDecor) } : modele ? { modele } : {}) },
+    essence, metalId, fabricId, remplissageId, quantite,
+    ...(decors === "1" ? { decors: true } : {}),
+  };
 }
 
 /**
@@ -259,7 +297,8 @@ function rosaceDuCatalogue(q: RequetePrixGC): string {
  * autre) dans la rangée avant le panier. Aucun modèle aux normes avec cette rosace : la requête reste telle quelle.
  */
 function avecLeMoinsCher(q: RequetePrixGC, modeles: readonly ModeleGC[]): RequetePrixGC {
-  if (q.releve.modele) return q;
+  // Un modèle ou un décor choisi par le client : rien ne le remplace. (Et le décor n'est jamais choisi d'office.)
+  if (q.releve.modele || q.releve.decor) return q;
   const rosace = rosaceDuCatalogue(q);
   // À croix seulement (Quentin, 05/10 : « le moins cher à croix ») : les barreaux seuls, souvent moins chers, restent dans la
   // rangée avec leur prix. Quand seuls les barreaux conviennent, la configuration de l'outil les propose déjà.
@@ -269,7 +308,75 @@ function avecLeMoinsCher(q: RequetePrixGC, modeles: readonly ModeleGC[]): Requet
   return moinsCher ? { ...q, releve: { ...q.releve, modele: moinsCher.id } } : q;
 }
 
+/** La requête sans son décor (ni son modèle s'il n'y en a pas) : celle des modèles du catalogue, qui ne dépendent pas du décor. */
+function sansDecor(q: RequetePrixGC): RequetePrixGC {
+  if (q.releve.decor === undefined) return q;
+  const { decor: _decor, ...releve } = q.releve;
+  void _decor;
+  return { ...q, releve };
+}
+
+/**
+ * Le décor de la réponse, construit champ par champ : son identifiant, le nom de l'outil, la frise basse retirée ou non, et ses
+ * traits tels que l'outil les dessine (R.vues.face, les primitives qui portent un rôle), ramenés au coin bas-gauche du cadre,
+ * arrondis au millimètre, allégés par mtAlleger (la fonction de l'outil) jusqu'à tenir sous DECOR_NOMBRES_MAX nombres.
+ */
+function decorDeLaReponse(c: ConfigGC): DecorReponseGC | null {
+  if (!c.decor || typeof c.R.decorNom !== "string") return null;
+  const g = geomGC(c.v, 1);
+  const x0 = -g.Lc / 2, y0 = Number(c.v.A) + Number(c.v.jour);
+  const prims = (c.R.vues.face as { t?: string; role?: string; pts?: [number, number][]; c?: [number, number]; r?: number; ouvert?: boolean }[]).filter((p) => p.role);
+  const mm = (x: number) => Math.round(x);
+  const dixieme = (x: number) => Math.round(x * 10) / 10;
+  for (const tolerance of [0.5, 1, 2, 4, 8]) {
+    const traits: DecorTraitGC[] = [];
+    let nombres = 0;
+    for (const p of prims) {
+      if (p.t === "poly" && p.pts && (p.role === "fer" || p.role === "collier" || p.role === "or" || p.role === "vrille")) {
+        const pts: [number, number][] = [];
+        for (const [x, y] of p.role === "vrille" ? p.pts : mtAlleger(p.pts, tolerance)) {
+          const q: [number, number] = [mm(x - x0), mm(y - y0)];
+          const d = pts[pts.length - 1];
+          if (!d || d[0] !== q[0] || d[1] !== q[1]) pts.push(q);
+        }
+        if (pts.length < 2) continue;
+        traits.push({ t: "poly", pts, role: p.role, ...(p.ouvert === true ? { ouvert: true } : {}) });
+        nombres += 2 * pts.length;
+      } else if (p.t === "cercle" && p.c && typeof p.r === "number" && p.r > 0 && (p.role === "fer" || p.role === "or")) {
+        traits.push({ t: "cercle", c: [dixieme(p.c[0] - x0), dixieme(p.c[1] - y0)], r: Math.max(0.1, dixieme(p.r)), role: p.role });
+        nombres += 3;
+      }
+    }
+    if (nombres <= DECOR_NOMBRES_MAX) {
+      return { id: idDecorGC(c.decor), nom: c.R.decorNom, friseRetiree: friseRetiree(c), cadreMm: { l: Math.round(g.Lc), h: Math.round(Number(g.Hc)) }, traits };
+    }
+  }
+  return null;
+}
+
+/**
+ * Le prix de chaque assemblage de décor pour cette fenêtre (decors=1) : avec les finitions du décor choisi (sa forme si
+ * l'assemblage la permet, sinon la première permise), ou celles de départ. Le même calcul que le panier (ligneGC). Le décor
+ * remplace le remplissage : le prix est celui du garde-corps à décor, jamais sous verre.
+ */
+function prixDesDecors(q: RequetePrixGC): PrixDecorGC[] {
+  const choisi = q.releve.decor ? lireDecorGC(q.releve.decor) : null;
+  const { modele: _modele, decor: _decor, ...releve } = q.releve;
+  void _modele;
+  void _decor;
+  return DECORS_GC.assemblages.map(({ id: assemblage, nom }) => {
+    const d: ChoixDecorGC = choisi
+      ? { ...choisi, assemblage, forme: DECORS_GC.formes[assemblage].includes(choisi.forme) ? choisi.forme : DECORS_GC.formes[assemblage][0] }
+      : decorParDefautGC(assemblage);
+    const id = idDecorGC(d);
+    const l = ligneGC({ ...releve, decor: id }, { woodId: q.essence, metalId: q.metalId, fabricId: q.fabricId });
+    return l.ok && l.line.gc ? { id, nom: l.line.gc.decorNom ?? nom, prix: l.line.unitPrice, conforme: true } : { id, nom, prix: 0, conforme: false };
+  });
+}
+
 export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
+  const decors = q.decors ? { decors: prixDesDecors(q) } : {};
+  if (q.releve.decor !== undefined) return reponseAvecDecor(q, decors);
   const c0 = configurationGC(q.releve, q.essence, diametreRosaceGC(rosaceDeLaRequete(q)));
   if (!c0) return null;
   if (!c0.ok) {
@@ -284,6 +391,7 @@ export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
       alertes: [...c0.alertes],
       modeles: catalogueSiteGC(q, c0.hauteurMm),
       mains: prixParMainCourante(q),
+      ...decors,
     };
   }
   const modeles = catalogueSiteGC(q, c0.hauteurMm);
@@ -313,6 +421,50 @@ export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
     obligatoire: c.obligatoire,
     modeles,
     mains: prixParMainCourante(qr),
+    ...decors,
+  };
+}
+
+/**
+ * La réponse quand le client a choisi un DÉCOR À VOLUTES : le prix, le poids et la forme du garde-corps avec ce décor (la rosace
+ * par défaut, sans supplément : il n'y a pas de croix), son nom et son dessin. Les modèles du catalogue sont ceux de la même
+ * fenêtre SANS décor, au caractère près (la vérification des modèles et « 25 dessins testés » n'en dépendent pas). Si la norme
+ * refuse le décor : « à étudier », avec ce qui bloque (trous, escalade…), et toujours le catalogue des modèles.
+ */
+function reponseAvecDecor(q: RequetePrixGC, decors: { decors?: PrixDecorGC[] }): ReponsePrixGC | null {
+  const qs = sansDecor(q);
+  const c0 = configurationGC(qs.releve, q.essence, diametreRosaceGC(rosaceDeLaRequete(qs)));
+  const c = configurationGC(q.releve, q.essence, diametreRosaceGC(undefined));
+  if (!c0 || !c) return null;
+  const modeles = catalogueSiteGC(qs, c0.hauteurMm);
+  const mains = prixParMainCourante(q);
+  if (!c.ok) {
+    return { ok: false, conforme: false, raison: c.raison, hauteurMm: c.hauteurMm, mainCouranteMm: c.mainCouranteMm, jourMm: c.jourMm, obligatoire: c.obligatoire, alertes: [...c.alertes], modeles, mains, ...decors };
+  }
+  const r = ligneGC(q.releve, { woodId: q.essence, metalId: q.metalId, fabricId: q.fabricId, remplissageId: q.remplissageId });
+  const decor = decorDeLaReponse(c);
+  if (!r.ok || !r.line.gc || !decor) return null;
+  return {
+    ok: true,
+    conforme: true,
+    prix: r.line.unitPrice,
+    remise: q.quantite > 1 ? prixCommandeGC([{ config: c, quantite: q.quantite }]).remise : 0,
+    hauteurMm: c.hauteurMm,
+    mainCouranteMm: c.mainCouranteMm,
+    jourMm: c.jourMm,
+    croix: c.croix,
+    carre: c.carre,
+    soubassementMm: c.soubassementMm,
+    traverse: c.traverse,
+    seuls: c.seuls,
+    renfort: c.renfort,
+    patte: c.patte,
+    kg: Math.round(r.line.gc.kg),
+    obligatoire: c.obligatoire,
+    modeles,
+    mains,
+    decor,
+    ...decors,
   };
 }
 
@@ -324,10 +476,11 @@ export function reponsePrixGC(q: RequetePrixGC): ReponsePrixGC | null {
  * null : pas de garde-corps à dessiner (« à étudier »).
  */
 export function planApercuGC(q: RequetePrixGC, date = new Date()): PlanApercuGC | null {
-  const rosaceMm = diametreRosaceGC(rosaceDeLaRequete(q));
+  // Avec un décor à volutes : le plan du garde-corps à décor (le Plan A3 de l'outil dessine les volutes), rosace par défaut.
+  const rosaceMm = q.releve.decor !== undefined ? diametreRosaceGC(undefined) : diametreRosaceGC(rosaceDeLaRequete(q));
   const c0 = configurationGC(q.releve, q.essence, rosaceMm);
   if (!c0 || !c0.ok) return null;
-  const proposee = q.releve.modele ? q : avecLeMoinsCher(q, catalogueSiteGC(q, c0.hauteurMm));
+  const proposee = q.releve.modele || q.releve.decor ? q : avecLeMoinsCher(q, catalogueSiteGC(q, c0.hauteurMm));
   const cp = proposee === q ? c0 : configurationGC(proposee.releve, q.essence, rosaceMm);
   const c = cp?.ok ? cp : c0;
   const R = calculerGC({ ...c.v });
@@ -340,6 +493,7 @@ export function planApercuGC(q: RequetePrixGC, date = new Date()): PlanApercuGC 
     carre: c.carre,
     seuls: c.seuls,
     traverse: c.traverse,
+    ...(c.decor ? { decor: true } : {}),
   };
 }
 
@@ -347,9 +501,10 @@ export function planApercuGC(q: RequetePrixGC, date = new Date()): PlanApercuGC 
  *  Le « à partir de » et la fourchette annoncée à Google
  * ------------------------------------------------------------------ */
 
-let departMemo: number | null | undefined;
-let appelMemo: { prix: number; largeurMm: number } | null | undefined;
-let fourchetteMemo: { prixMin: number; prixMax: number } | null | undefined;
+/** Par fiche (le garde-corps Rosace, le Garde-corps forgé à volutes) : chacune a son « à partir de » et son prix d'appel. */
+const departMemo = new Map<string, number | null>();
+const appelMemo = new Map<string, { prix: number; largeurMm: number } | null>();
+const fourchetteMemo = new Map<string, { prixMin: number; prixMax: number } | null>();
 let indisponibleSignale = false;
 
 /** Sans la clé du chiffrage : pas de prix (rien d'inventé), et un seul message dans les journaux. */
@@ -379,7 +534,14 @@ function supplementsMoinsChers(p: Product) {
  */
 export function prixDepart(product: Product): number | null {
   if (!prixParOutil(product)) return priceFrom(product);
-  if (departMemo !== undefined) return departMemo;
+  if (departMemo.has(product.slug)) return departMemo.get(product.slug) ?? null;
+  // Le forgé : au relevé de départ (le plus petit garde-corps), aucun décor n'a la place de ses volutes. Son « à partir de » est
+  // donc son prix d'appel : le moins cher de ses décors pour une fenêtre courante (jamais un prix qu'aucune fenêtre n'atteint).
+  if (product.decorsGC) {
+    const appel = prixAppelGC(product);
+    if (appel !== null || indisponibleSignale) departMemo.set(product.slug, appel?.prix ?? null);
+    return appel?.prix ?? null;
+  }
   const calcul = () => {
     const prix = MAINS_COURANTES_GC.map((essence) => {
       const c = configurationGC(RELEVE_DEPART_GC, essence);
@@ -388,7 +550,7 @@ export function prixDepart(product: Product): number | null {
     return prix.length ? Math.min(...prix) + supplementsMoinsChers(product) : null;
   };
   const valeur = sansCle(calcul, null);
-  if (valeur !== null || indisponibleSignale) departMemo = valeur;
+  if (valeur !== null || indisponibleSignale) departMemo.set(product.slug, valeur);
   return valeur;
 }
 
@@ -402,24 +564,27 @@ export function prixDepart(product: Product): number | null {
 export const FENETRE_APPEL_GC = { largeurMm: 1000, allegeMm: 650 } as const;
 export function prixAppelGC(product: Product): { prix: number; largeurMm: number } | null {
   if (!prixParOutil(product)) return null;
-  if (appelMemo !== undefined) return appelMemo;
+  if (appelMemo.has(product.slug)) return appelMemo.get(product.slug) ?? null;
   const moinsCher = (liste: { id: string; priceDelta?: number }[] | undefined) =>
     liste?.length ? liste.reduce((a, b) => ((a.priceDelta ?? 0) <= (b.priceDelta ?? 0) ? a : b)).id : undefined;
   const calcul = () => {
     const prix = MAINS_COURANTES_GC.flatMap((essence) => {
-      const r = reponsePrixGC({
+      const q: RequetePrixGC = {
         releve: { ...FENETRE_APPEL_GC, enEtage: true, fenetreMm: 0 },
         essence,
         metalId: moinsCher(product.metals),
         fabricId: moinsCher(product.fabrics),
         quantite: 1,
-      });
+      };
+      // Le forgé : le moins cher de ses décors, finitions de départ (le calcul des vignettes de la fiche).
+      if (product.decorsGC) return prixDesDecors(q).filter((d) => d.conforme).map((d) => d.prix);
+      const r = reponsePrixGC(q);
       return r ? r.modeles.filter((m) => m.conforme).map((m) => m.prix) : [];
     });
     return prix.length ? { prix: Math.min(...prix), largeurMm: FENETRE_APPEL_GC.largeurMm } : null;
   };
   const valeur = sansCle(calcul, null);
-  if (valeur !== null || indisponibleSignale) appelMemo = valeur;
+  if (valeur !== null || indisponibleSignale) appelMemo.set(product.slug, valeur);
   return valeur;
 }
 
@@ -429,23 +594,30 @@ export function prixAppelGC(product: Product): { prix: number; largeurMm: number
  * haute), en noyer, avec la rosace la plus chère. Le verre, en option, n'y
  * entre pas.
  */
-export function fourchetteGC(): { prixMin: number; prixMax: number } | null {
-  if (fourchetteMemo !== undefined) return fourchetteMemo;
-  const produit = produitGC();
+export function fourchetteGC(slug: string = SLUG_GC): { prixMin: number; prixMax: number } | null {
+  if (fourchetteMemo.has(slug)) return fourchetteMemo.get(slug) ?? null;
+  const produit = produitGC(slug);
   const calcul = () => {
     const min = prixDepart(produit);
     if (min === null) return null;
     let max = 0;
-    // Jusqu'à la plus grande largeur vendue en ligne : celle du fer plat de renfort (RENFORT.LcMax de l'outil).
-    for (let largeurMm = BORNES_RELEVE_GC.largeurMm.min; largeurMm <= RENFORT.LcMax; largeurMm += 100) {
-      const c = configurationGC({ largeurMm, allegeMm: 0, enEtage: true, fenetreMm: 0 }, "noyer");
-      if (c?.ok) max = Math.max(max, prixGC(c));
+    if (produit.decorsGC) {
+      // Le forgé : chacun de ses décors (finitions de départ) à la plus grande fenêtre vendue en ligne, la plus haute, en noyer.
+      for (const { id } of DECORS_GC.assemblages) {
+        const c = configurationGC({ largeurMm: RENFORT.LcMax, allegeMm: 0, enEtage: true, fenetreMm: 0, decor: idDecorGC(decorParDefautGC(id)) }, "noyer");
+        if (c?.ok) max = Math.max(max, prixGC(c));
+      }
+    } else {
+      // Jusqu'à la plus grande largeur vendue en ligne : celle du fer plat de renfort (RENFORT.LcMax de l'outil).
+      for (let largeurMm = BORNES_RELEVE_GC.largeurMm.min; largeurMm <= RENFORT.LcMax; largeurMm += 100) {
+        const c = configurationGC({ largeurMm, allegeMm: 0, enEtage: true, fenetreMm: 0 }, "noyer");
+        if (c?.ok) max = Math.max(max, prixGC(c));
+      }
     }
     const plusCher = (liste: { priceDelta?: number }[] | undefined) => (liste?.length ? Math.max(...liste.map((o) => o.priceDelta ?? 0)) : 0);
     return max > 0 ? { prixMin: min, prixMax: max + plusCher(produit.metals) + plusCher(produit.fabrics) } : null;
   };
   const valeur = sansCle(calcul, null);
-  if (valeur !== null || indisponibleSignale) fourchetteMemo = valeur;
+  if (valeur !== null || indisponibleSignale) fourchetteMemo.set(slug, valeur);
   return valeur;
 }
-

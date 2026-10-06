@@ -30,7 +30,9 @@ import {
 } from "@/lib/garde-corps";
 import type { Deplacement } from "@/lib/deplacement";
 import { prixAffiche } from "@/lib/ui";
-import { idModeleGC, lireModeleGC } from "@/lib/garde-corps";
+import { idDecorGC, idModeleGC, lireDecorGC, lireModeleGC, nomDecorAnglaisGC } from "@/lib/garde-corps";
+import { ChoixDecorGC, type PrixDecorsGC } from "./choix-decor-gc";
+import type { AssemblageDecorGC } from "@/lib/garde-corps-decors.genere";
 
 const ACCENT = "#2b2320";
 /** Décision du 03/10 : plus de panneau de verre proposé — les modèles aux normes (croix, barreaux) le remplacent. */
@@ -60,6 +62,11 @@ export type CotesGardeCorps = {
   rdv: string;
   /** Le modèle choisi parmi ceux que la norme permet (« 16-5-b ») ; vide : celui que l'atelier conseille. */
   modele?: string;
+  /**
+   * Le décor à volutes choisi (bibliothèque de styles, 06/10/2026), son identifiant (lireDecorGC) : il remplace les croix et
+   * le modèle de la rangée ne compte plus. Vide : sans décor (les croix, comme avant).
+   */
+  decor?: string;
 };
 
 export const COTES_GARDE_CORPS_VIDES: CotesGardeCorps = {
@@ -123,7 +130,7 @@ export function lireReleve(cotes: CotesGardeCorps, t: Dictionary["artisanat"]): 
   if (fenetreMm > B.fenetreMm.max) return { etat: "hors-bornes", raison: "fenetre" };
   return {
     etat: "ok",
-    releve: { largeurMm, allegeMm, enEtage: cotes.etage === t.gcEtageOptions[0], fenetreMm, ...(lireModeleGC(cotes.modele) ? { modele: cotes.modele } : {}) },
+    releve: { largeurMm, allegeMm, enEtage: cotes.etage === t.gcEtageOptions[0], fenetreMm, ...(lireDecorGC(cotes.decor) ? { decor: cotes.decor } : lireModeleGC(cotes.modele) ? { modele: cotes.modele } : {}) },
   };
 }
 
@@ -405,7 +412,13 @@ export function ReleveGardeCorps({
   messageQuestion,
   allerQuestion,
   verre,
+  forge = false,
 }: {
+  /**
+   * La fiche du Garde-corps forgé à volutes (07/10/2026) : le client choisit un DÉCOR à volutes (jamais des croix), et
+   * cotes.decor en porte toujours un (product-options.tsx). Sans : le garde-corps Rosace, ses croix et ses barreaux, sans décor.
+   */
+  forge?: boolean;
   cotes: CotesGardeCorps;
   onChange: (cotes: CotesGardeCorps) => void;
   t: Dictionary["artisanat"];
@@ -507,8 +520,19 @@ export function ReleveGardeCorps({
   // Le modèle choisi (un DESSIN : croix, barreaux — le serveur l'essaie dans tous les carrés de l'atelier) ne
   // passe plus la norme avec ces cotes. On ne montre pas « à étudier » : on retire le choix, le serveur
   // recalcule, et la bande des modèles dit pourquoi — c'est l'ensemble modèle + fenêtre qui ne va plus.
-  const modeleRefuse = Boolean(cotes.modele) && brute !== null && !brute.ok;
-  const reponse = modeleRefuse ? null : brute;
+  /** Le décor à volutes choisi : il remplace les croix (le verre, lui, n'a pas de décor). */
+  const decorChoisi = !forge || verre?.surVerre === true ? null : lireDecorGC(cotes.decor);
+  const modeleRefuse = !decorChoisi && Boolean(cotes.modele) && brute !== null && !brute.ok;
+  // Le décor ne passe pas la norme avec ces mesures (un vide, un appui pour grimper) : on le retire et on le dit ; les croix
+  // reviennent (« jamais hors norme, mais toujours une proposition »).
+  // Sur la fiche du forgé, il n'y a pas de croix où revenir : le décor le moins cher qui passe la norme le remplace (« le site
+  // propose la meilleure config ») ; si aucun ne passe, la réponse « à étudier » reste affichée telle quelle.
+  const remplacant =
+    forge && Boolean(decorChoisi) && brute !== null && !brute.ok && brute.raison === "a-etudier"
+      ? [...(brute.decors ?? [])].filter((d) => d.conforme).sort((a, b) => a.prix - b.prix)[0]
+      : undefined;
+  const decorRefuse = Boolean(decorChoisi) && brute !== null && !brute.ok && brute.raison === "a-etudier" && (!forge || remplacant !== undefined);
+  const reponse = modeleRefuse || decorRefuse ? null : brute;
   /** Ce que le croquis dessine : la réponse, ou la dernière pendant qu'on recalcule. */
   const dessin = reponse ?? (prix.statut === "calcul" ? prix.precedent : null);
   const conforme = reponse?.ok ? reponse : null;
@@ -533,6 +557,18 @@ export function ReleveGardeCorps({
     if (modeleRefuse) onChange({ ...cotes, modele: "" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modeleRefuse]);
+  /** Le décor retiré parce qu'il ne passait pas la norme avec ces mesures : le nom du décor, pour le dire. */
+  const [decorPerdu, setDecorPerdu] = useState<string | null>(null);
+  /** Le refus déjà noté (la réponse du serveur) : on ne le note qu'une fois, comme pour le modèle perdu. */
+  const [decorRefusVu, setDecorRefusVu] = useState<ReponsePrixGC | null>(null);
+  if (decorRefuse && decorChoisi && brute && decorRefusVu !== brute) {
+    setDecorRefusVu(brute);
+    setDecorPerdu(decorChoisi.assemblage);
+  }
+  useEffect(() => {
+    if (decorRefuse) onChange({ ...cotes, decor: forge && remplacant ? remplacant.id : "" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [decorRefuse]);
   /** Le client a commencé à remplir : à partir de là, on lui montre précisément ce qui manque. */
   const commence = cotes.largeur.trim() !== "" || cotes.largeurHaut.trim() !== "" || cotes.allege.trim() !== "" || cotes.fenetre.trim() !== "" || t.gcEtageOptions.includes(cotes.etage);
   const manque = commence && lecture.etat === "incomplet" ? lecture.manque : null;
@@ -585,7 +621,7 @@ export function ReleveGardeCorps({
    */
   const choixAuto = useRef<{ modele: string; pour: string } | null>(null);
   const propose =
-    !voulu && reponse?.ok
+    !voulu && !decorChoisi && reponse?.ok
       ? (modeles.find(
           (m) =>
             m.conforme &&
@@ -632,7 +668,7 @@ export function ReleveGardeCorps({
       ? { ...familleVoulue, traverse: !familleVoulue.traverse }
       : familleDe([...modeles.filter((m) => m.conforme)].sort((a, b) => a.prix - b.prix)[0]);
   // Un seul modèle possible (le cadre bas à barreaux) : il n'y a rien à choisir, on le choisit pour le client.
-  const seulModele = seulsExiste && modeles.length === 1 && modeles[0].conforme && !choisi ? modeles[0].id : null;
+  const seulModele = seulsExiste && modeles.length === 1 && modeles[0].conforme && !choisi && !decorChoisi ? modeles[0].id : null;
   useEffect(() => {
     if (seulModele) onChange({ ...cotes, modele: seulModele });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -706,7 +742,11 @@ export function ReleveGardeCorps({
               ? fr
                 ? "la hauteur disponible ne suffit pas pour ce modèle"
                 : "there is not enough height for this model"
-              : "";
+              : raisons.includes("escalade")
+                ? fr
+                  ? "si près du sol, le dessin laisserait un appui pour grimper"
+                  : "this close to the floor, the design would leave a foothold"
+                : "";
   // « Ce n'est pas le modèle qui n'est pas aux normes, c'est l'ensemble modèle + fenêtre » (Quentin, 04/10).
   const pasAdapte = (m: { raisons: readonly string[] }) => {
     const mots = raisonEnMots(m.raisons);
@@ -795,7 +835,7 @@ export function ReleveGardeCorps({
     nbConformes === 0 || modeles.some((m) => m.conforme && familleDe(m).barreaux === barreaux) ? "" : aucunAuxNormes;
   const sansConformeTraverse = (traverse: boolean) =>
     nbConformes === 0 || conformesDe({ barreaux: famille.barreaux, traverse }).length ? "" : aucunAuxNormes;
-  const controlesFamille = marque ? (
+  const controlesFamille = marque && !forge ? (
     <div className="space-y-2.5" data-controles-famille>
       {[
         {
@@ -832,7 +872,8 @@ export function ReleveGardeCorps({
               : fr ? "Croix sans barre horizontale." : "Crosses without a horizontal bar.",
           choisir: (v: string) => changerFamille(famille.barreaux, v === "avec"),
         },
-      ].map((ligne) => (
+      ]
+        .map((ligne) => (
         <div key={ligne.titre}>
           <span className="block text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{ligne.titre}</span>
           {/* Une pilule segmentée, comme le choix d'épaisseur d'une table (le style vient de .carte-verre, globals.css). */}
@@ -1032,22 +1073,52 @@ export function ReleveGardeCorps({
         )}
       </div>
     ) : null;
+  /** Le décor vient d'être remplacé parce qu'il ne passait pas la norme avec ces mesures : on le dit, dans le bandeau. */
+  const motDecorPerdu = decorPerdu && forge
+    ? fr ? "Le décor choisi ne passait pas la norme avec ces mesures : voici le moins cher qui la passe." : "The chosen design did not meet the standard with these sizes: here is the least expensive one that does."
+    : null;
+  /** Les prix des décors (avec les finitions choisies), tels que le serveur les donne ; null tant qu'ils ne sont pas là. */
+  const prixDecors: PrixDecorsGC | null = (() => {
+    const source = brute ?? (prix.statut === "calcul" ? prix.precedent : null);
+    const liste = source && "decors" in source ? source.decors : undefined;
+    if (!liste) return null;
+    const o: PrixDecorsGC = {};
+    for (const x of liste) {
+      const a = (lireDecorGC(x.id)?.assemblage ?? x.id) as AssemblageDecorGC;
+      o[a] = { prix: x.prix, conforme: x.conforme };
+    }
+    return o;
+  })();
+  const choixDecor = decorChoisi ? (
+    <ChoixDecorGC
+      choix={decorChoisi}
+      onChoix={(c) => {
+        setDecorPerdu(null);
+        onChange({ ...cotes, decor: idDecorGC(c), modele: "" });
+      }}
+      prix={prixDecors}
+      locale={locale}
+      grand={grandeRangee}
+      prixAffiche={prixAffiche}
+    />
+  ) : null;
   const catalogue = (
     /* Sous le croquis (téléphone, tablette), en bande FINE : les deux boutons (barreaux, traverse) et UNE rangée de modèles qui
        défile de côté, chacun avec son prix : uniquement des modèles aux normes. Sur grand écran : voir `bandeau`. */
     <div id="modeles-gc" className="carte-verre carte-modeles mt-2 scroll-mt-24 rounded-[20px] px-3 pb-2 pt-2.5 text-left">
       <div className={`controles-famille flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 ${marque ? "lg:hidden" : ""}`}>
-        {marque ? controlesFamille : <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{fr ? "Votre modèle" : "Your model"}</p>}
+        {marque && !forge ? controlesFamille : <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{forge ? (fr ? "Votre décor" : "Your design") : fr ? "Votre modèle" : "Your model"}</p>}
       </div>
-      {phraseModeles && <p className={`mt-1 text-[11.5px] leading-snug ${modeles.length === 0 && texteManque ? "font-medium text-[#7a4510]" : "text-[#5c5140]"}`}>{phraseModeles}</p>}
-      {marque && nbConformes > 0 && (
+      {phraseModeles && !decorChoisi && <p className={`mt-1 text-[11.5px] leading-snug ${modeles.length === 0 && texteManque ? "font-medium text-[#7a4510]" : "text-[#5c5140]"}`}>{phraseModeles}</p>}
+      {marque && nbConformes > 0 && !decorChoisi && (
         <div className="titre-catalogue mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
           <p className="text-[13px] font-semibold leading-tight text-[#2b2320]">{!choisi ? (fr ? "Choisissez votre modèle" : "Choose your model") : fr ? "Votre modèle" : "Your model"}</p>
           {mentionNormes(nbConformes)}
         </div>
       )}
-      {boutonPrix && <div className="mt-1.5 flex items-center justify-end">{boutonPrix}</div>}
-      {rangee}
+      {motDecorPerdu && <p className="mt-1 text-[11.5px] leading-snug text-[#7a4510]">{motDecorPerdu}</p>}
+      {boutonPrix && !decorChoisi && <div className="mt-1.5 flex items-center justify-end">{boutonPrix}</div>}
+      {decorChoisi ? choixDecor : rangee}
       {/* Un garde-corps à son style : une photo, et l'atelier répond. */}
       {lienPhoto && <div className="mt-0.5 lg:hidden">{lienPhoto}</div>}
     </div>
@@ -1061,15 +1132,15 @@ export function ReleveGardeCorps({
   // Une phrase d'état (aucun modèle aux normes, modèle perdu, mesures à compléter…) passe avant le détail d'un modèle : c'est elle qui dit quoi faire.
   const phraseBandeau = !survol ? phraseModeles : "";
   const bandeau = (
-    <div id="modeles-gc" className={`carte-verre carte-modeles rounded-[22px] px-4 pb-2 pt-2 text-left ${marque && nbConformes > 0 && !choisi ? "ring-2 ring-[#c98a3a]/55" : ""}`}>
+    <div id="modeles-gc" className={`carte-verre carte-modeles rounded-[22px] px-4 pb-2 pt-2 text-left ${marque && nbConformes > 0 && !choisi && !decorChoisi ? "ring-2 ring-[#c98a3a]/55" : ""}`}>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         {/* Une consigne tant que rien n'est choisi : « Choisissez votre modèle » ; ensuite, le nom du bloc. */}
         <span className="shrink-0 text-[14px] font-semibold leading-tight text-[#2b2320]">
-          {marque && nbConformes > 0 && !choisi ? (fr ? "Choisissez votre modèle" : "Choose your model") : fr ? "Votre modèle" : "Your model"}
+          {forge ? (fr ? "Votre décor" : "Your design") : marque && nbConformes > 0 && !choisi ? (fr ? "Choisissez votre modèle" : "Choose your model") : fr ? "Votre modèle" : "Your model"}
         </span>
-        {marque && nbConformes > 0 && mentionNormes(nbConformes)}
+        {marque && nbConformes > 0 && !decorChoisi && mentionNormes(nbConformes)}
         <span className="ml-auto flex flex-wrap items-center justify-end gap-x-3 gap-y-1">
-          {boutonPrix}
+          {!decorChoisi && boutonPrix}
           {lienPhoto}
         </span>
       </div>
@@ -1079,7 +1150,23 @@ export function ReleveGardeCorps({
         aria-live={survol ? "off" : "polite"}
         title={phraseBandeau || (modeleDetail ? descriptionModele(modeleDetail) : undefined)}
       >
-        {phraseBandeau ? (
+        {motDecorPerdu ? (
+          <span className="font-medium text-[#7a4510]">{motDecorPerdu}</span>
+        ) : decorChoisi ? (
+          /* Le décor choisi, nommé par l'outil (« Frise de volutes en S »), et son prix. */
+          dessin?.ok && dessin.decor ? (
+            <>
+              <span className="font-semibold">{fr ? dessin.decor.nom : nomDecorAnglaisGC(decorChoisi)}</span>
+              {conforme && <span className="text-[#6f6357]"> — {prixAffiche(conforme.prix, locale)}</span>}
+              {dessin.decor.friseRetiree && <span className="text-[#6f6357]">{fr ? " · frise basse retirée : au ras du sol, elle ferait des marches" : " · lower frieze removed: near the floor it would make footholds"}</span>}
+            </>
+          ) : lecture.etat === "ok" ? (
+            <span className="text-[#6f6357]">{fr ? "Nous dessinons et contrôlons votre décor…" : "Drawing and checking your design…"}</span>
+          ) : (
+            /* Les mesures ne sont pas toutes là : ce qui manque (le décor se dessine à vos cotes). */
+            <span className="text-[#5c5140]">{phraseBandeau || (fr ? "Entrez vos mesures : chaque décor se dessine et se contrôle à vos cotes." : "Enter your measurements: each design is drawn and checked to your sizes.")}</span>
+          )
+        ) : phraseBandeau ? (
           <span className={modeles.length === 0 && texteManque ? "font-medium text-[#7a4510]" : "text-[#5c5140]"}>{phraseBandeau}</span>
         ) : modeleDetail && marque ? (
           <>
@@ -1092,7 +1179,7 @@ export function ReleveGardeCorps({
           </span>
         )}
       </p>
-      {rangee}
+      {decorChoisi ? choixDecor : rangee}
     </div>
   );
 
@@ -1469,7 +1556,8 @@ export function ReleveGardeCorps({
               teinteBois={teinteBois}
               typeMainCourante={mainCourante === "acier" ? "acier-plat" : mainCourante === "profil" ? "acier-profile" : undefined}
               apercu={commence && !dessin?.ok && !apercuModele}
-              remplissage={surVerre ? "verre" : "croix"}
+              remplissage={surVerre ? "verre" : decorChoisi ? "decor" : "croix"}
+              decor={decorChoisi && dessin?.ok && dessin.decor ? dessin.decor : null}
               actif={question ? coteQuestion : coteActive}
               onChoisir={allerA}
               locale={locale}

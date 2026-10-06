@@ -29,6 +29,8 @@ export const GLOBAUX_DOM = new Set([
 export const GLOBAUX_PERMIS = new Set([
   "Math", "Number", "String", "Boolean", "Array", "Object", "JSON", "Set", "Map", "Infinity", "NaN", "undefined",
   "isNaN", "isFinite", "parseFloat", "parseInt", "Intl", "Date", "Error", "RegExp", "Symbol",
+  // Tableaux typés : le contrôle de la norme du décor à volutes (modules/motifs.js, grille de distances) — du calcul pur.
+  "Float64Array", "Int32Array", "Uint8Array",
 ]);
 
 /** Le seul <script> de la page : son texte, et la ligne où il commence dans le HTML. */

@@ -1,4 +1,4 @@
-import { lireModeleGC } from "@/lib/garde-corps";
+import { idDecorGC, lireDecorGC, lireModeleGC } from "@/lib/garde-corps";
 import { NextResponse } from "next/server";
 import { calculerDeplacement, calculerLivraison, calculerPose } from "@/lib/deplacement";
 import { getProduct, poidsColisKg, prixParOutil } from "@/lib/products";
@@ -47,8 +47,12 @@ function colisDemande(params: URLSearchParams): { kg: number; plusGrandeCoteMm: 
     const etage = params.get("etage");
     const woodId = identifiant(params.get("wood"));
     if (largeurMm === undefined || allegeMm === undefined || (etage !== "1" && etage !== "0") || !woodId) return null;
+    // Le décor à volutes pèse le poids de ses volutes : illisible, pas de colis (jamais le poids d'un autre garde-corps).
+    const decorBrut = params.get("decor");
+    const decor = decorBrut === null ? null : lireDecorGC(decorBrut);
+    if (decorBrut !== null && !decor) return null;
     const ligne = ligneGC(
-      { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm: mm("fenetre") ?? 0, ...(lireModeleGC(params.get("modele")) ? { modele: params.get("modele")! } : {}) },
+      { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm: mm("fenetre") ?? 0, ...(decor ? { decor: idDecorGC(decor) } : lireModeleGC(params.get("modele")) ? { modele: params.get("modele")! } : {}) },
       { woodId, metalId: identifiant(params.get("metal")) ?? produit.metals[0]?.id, fabricId: identifiant(params.get("fabric")) ?? produit.fabrics?.[0]?.id, remplissageId: identifiant(params.get("remplissage")) ?? produit.remplissages?.[0]?.id }
     );
     if (!ligne.ok || !ligne.line.gc) return null;

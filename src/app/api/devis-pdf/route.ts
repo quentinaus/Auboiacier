@@ -1,4 +1,4 @@
-import { lireModeleGC } from "@/lib/garde-corps";
+import { idDecorGC, lireDecorGC, lireModeleGC } from "@/lib/garde-corps";
 import { NextResponse, after } from "next/server";
 import { compter } from "@/lib/compteurs";
 import { SUR_MESURE, getProduct, poidsColisKg, prixParOutil } from "@/lib/products";
@@ -113,6 +113,12 @@ export async function GET(request: Request) {
     // Le modèle choisi : « 16-3 ». Illisible : refusé. Non conforme : le calcul le refuse plus bas.
     const modele = p.get("modele");
     if (modele !== null && !lireModeleGC(modele)) return NextResponse.json({ error: "invalid" }, { status: 400 });
+    // Le décor à volutes : « frise.S.bouton.colliers.carre.aucune.0 ». Illisible : refusé. Il remplace le modèle.
+    const decorBrut = p.get("decor");
+    const decor = decorBrut === null ? null : lireDecorGC(decorBrut);
+    if (decorBrut !== null && !decor) return NextResponse.json({ error: "invalid" }, { status: 400 });
+    // Le Garde-corps forgé à volutes a toujours un décor ; le garde-corps Rosace, jamais (07/10/2026) : le devis est celui de la fiche.
+    if (product.decorsGC === true ? !decor : decor !== null) return NextResponse.json({ error: "invalid" }, { status: 400 });
     let livraison: LivraisonDevisGC;
     if (mode === "retrait") livraison = { mode: "retrait" };
     else if (mode === "transporteur" || mode === "pose") {
@@ -128,7 +134,7 @@ export async function GET(request: Request) {
     const debut = performance.now();
     try {
       resultat = composerDevisGardeCorps({
-        releve: { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm, ...(modele ? { modele } : {}) },
+        releve: { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm, ...(decor ? { decor: idDecorGC(decor) } : modele ? { modele } : {}) },
         options: { woodId, metalId, fabricId, remplissageId },
         quantite: entier(p.get("qty"), 10) ?? 1,
         livraison,
