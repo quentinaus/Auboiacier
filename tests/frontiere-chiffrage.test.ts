@@ -31,6 +31,10 @@ const RACINE = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SRC = join(RACINE, "src");
 const OUTIL = join(SRC, "lib", "garde-corps-outil");
 const PORTE = join(SRC, "lib", "prix-garde-corps.server.ts");
+// Les portails (06/10/2026) : même coffre, même clé, leur propre porte. Seul leur moteur (dessin, sans prix) est public.
+const PORTAILS = join(SRC, "lib", "portails-outil");
+const PORTE_PORTAILS = join(SRC, "lib", "prix-portail.server.ts");
+const MOTEUR_PORTAILS = join(PORTAILS, "moteur.genere.mjs");
 const rel = (f: string) => relative(RACINE, f);
 
 function fichiers(dossier: string): string[] {
@@ -58,7 +62,7 @@ function imports(fichier: string): string[] {
   return out;
 }
 const estClient = (f: string) => /^(?:\s*(?:\/\/[^\n]*\n|\/\*[\s\S]*?\*\/))*\s*["']use client["']/.test(readFileSync(f, "utf8"));
-const interdit = (f: string) => f.startsWith(OUTIL + "/") || /\.server\.[a-z]+$/.test(f);
+const interdit = (f: string) => f.startsWith(OUTIL + "/") || /\.server\.[a-z]+$/.test(f) || (f.startsWith(PORTAILS + "/") && f !== MOTEUR_PORTAILS);
 
 test("aucun composant du navigateur n'atteint le calcul du garde-corps, même par ricochet", () => {
   const clients = SOURCES.filter(estClient);
@@ -81,7 +85,22 @@ test("aucun composant du navigateur n'atteint le calcul du garde-corps, même pa
 test("une seule porte vers le calcul : src/lib/prix-garde-corps.server.ts", () => {
   for (const f of SOURCES) {
     if (f.startsWith(OUTIL + "/") || f === PORTE) continue;
-    for (const g of imports(f)) assert.ok(!g.startsWith(OUTIL + "/"), `${rel(f)} importe ${rel(g)} : passer par src/lib/prix-garde-corps.server.ts`);
+    for (const g of imports(f)) {
+      // Le chiffrage des portails ouvre le même coffre (même clé) : c'est la seule chose qu'il prend au garde-corps.
+      if (f.startsWith(PORTAILS + "/") && g === join(OUTIL, "coffre.ts")) continue;
+      assert.ok(!g.startsWith(OUTIL + "/"), `${rel(f)} importe ${rel(g)} : passer par src/lib/prix-garde-corps.server.ts`);
+    }
+  }
+});
+
+test("portails : une seule porte vers leur prix, src/lib/prix-portail.server.ts, qui commence par import \"server-only\"", () => {
+  assert.match(readFileSync(PORTE_PORTAILS, "utf8"), /^import "server-only";\n/);
+  for (const f of SOURCES) {
+    if (f.startsWith(PORTAILS + "/") || f === PORTE_PORTAILS || f === join(OUTIL, "site.ts")) continue;
+    for (const g of imports(f)) {
+      if (g === MOTEUR_PORTAILS) continue;
+      assert.ok(!g.startsWith(PORTAILS + "/"), `${rel(f)} importe ${rel(g)} : passer par src/lib/prix-portail.server.ts`);
+    }
   }
 });
 

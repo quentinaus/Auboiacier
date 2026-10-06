@@ -10,6 +10,8 @@
     "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/*.test.ts",
     "garde-corps:extraire": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/extraire-moteur-garde-corps.mjs",
     "garde-corps:verifier-build": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verifier-build-couts.mjs",
+    "portails:extraire": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/extraire-portails.mjs",
+    "portails:dessins": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/dessins-portails.mjs",
     "carte-avis": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/carte-avis/fabriquer.mjs"
   },
   "dependencies": {

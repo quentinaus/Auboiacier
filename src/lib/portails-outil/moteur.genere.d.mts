@@ -1,0 +1,20 @@
+// FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : types du moteur des portails (moteur.genere.mjs).
+export type Primitive = { t: string; [k: string]: unknown };
+export type ResultatPortail = {
+  vues: { face: Primitive[]; cote: Primitive[]; dessus: Primitive[] };
+  debit: { nom: string; qte: number; mat: string; long: number; coupes: string; note: string; groupe: string }[];
+  alertes: string[]; avertissements: string[]; oks: string[]; notes: string[];
+  resume: [string, string][];
+  poids: number; kg: number; grandeCote: number;
+  dims: { P: number; H: number; type: string; vantaux: number[]; gs: number; hautMax: number };
+  quant: Record<string, unknown>;
+  config: Record<string, unknown> & { type: string; mat: string; remp: string };
+};
+export declare function calculerPortail(v: Record<string, unknown>, modele: string): ResultatPortail;
+export declare function ptEntrees(v: Record<string, unknown>, modele: string): Record<string, unknown>;
+export declare const PT_STYLES: Readonly<Record<string, Record<string, unknown> & { nom: string }>>;
+export declare const PT_MODELES: Readonly<Record<string, { type: string; nom: string }>>;
+export declare function svgDe(prims: readonly unknown[], petit?: boolean | string): { vb: number[]; fs: number; html: string };
+export declare const PT_ATELIER: Readonly<Record<string, unknown> & { bornes: { P: Record<string, [number, number]>; H: [number, number]; fleche: [number, number] } }>;
+export declare const PT_MATIERES: Readonly<Record<string, unknown>>;
+export declare const EMPREINTE: string;

@@ -15,6 +15,8 @@ import { getProduct, priceFrom, prixParOutil, resolveSelection, SLUG_GC_FORGE, S
 import { BORNES_RELEVE_GC, DECOR_NOMBRES_MAX, MODELES_GC_MAX, RELEVE_DEPART_GC, ROSACE_DEFAUT_GC, ROSACE_MM_GC, decorParDefautGC, diametreRosaceGC, idDecorGC, idModeleGC, lireDecorGC, lireMainCouranteGC, lireModeleGC, releveDansLesBornes, type ChoixDecorGC, type DecorReponseGC, type DecorTraitGC, type MainsPrixGC, type ModeleGC, type PlanApercuGC, type PrixDecorGC, type ReleveGC, type ReponsePrixGC, STATUTS_FIXATION_GC, TEXTE_FIXATION_GC_MAX, champsMurGC, estMurFixationGC, lireMurParametresGC, type FixationGC, type MurFixationGC, type StatutFixationGC } from "../garde-corps.ts";
 import { DECORS_GC } from "../garde-corps-decors.genere.ts";
 import type { CalculGC } from "../tarif-panier.ts";
+import { estSlugPortail } from "../portails.ts";
+import { prixDepartPortail } from "../portails-outil/prix.ts";
 
 /** L'identifiant du garde-corps de fenêtre au catalogue. */
 export const SLUG_GC = "garde-corps";
@@ -592,6 +594,8 @@ function supplementsMoinsChers(p: Product) {
  * (RELEVE_DEPART_GC), dans l'essence la moins chère.
  */
 export function prixDepart(product: Product): number | null {
+  // Les portails : le style le moins cher à la cote courante, calculé par l'outil (prix-portail.server.ts).
+  if (product.famille === "portail" && estSlugPortail(product.slug)) return prixDepartPortail(product.slug);
   if (!prixParOutil(product)) return priceFrom(product);
   if (departMemo.has(product.slug)) return departMemo.get(product.slug) ?? null;
   // Le forgé : au relevé de départ (le plus petit garde-corps), aucun décor n'a la place de ses volutes. Son « à partir de » est

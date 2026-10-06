@@ -71,6 +71,7 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
     { id: "garde-corps", titre: h.catGardeCorps, note: t.familleGardeCorpsNote },
     { id: "chaise-exterieur", titre: h.catChaisesExt },
     { id: "escalier", titre: h.catEscaliers },
+    { id: "portail", titre: h.catPortails },
     {
       id: "verrieres",
       titre: h.catVerrieres,

@@ -85,7 +85,8 @@ type Poste =
   | "marches"
   | "gardeCorps"
   | "pose";
-type FamilleDevis = Exclude<Famille, "garde-corps">;
+// Les portails ne passent pas par ce devis : on demande la visite (formulaire de contact), le devis suit.
+type FamilleDevis = Exclude<Famille, "garde-corps" | "portail">;
 const POSTES: Record<FamilleDevis, { poste: Poste; part: number }[]> = {
   "table-interieur": [
     { poste: "plateau", part: 44 },
@@ -683,6 +684,9 @@ function caracteristiques(p: Pieces, entree: EntreeDevis): Caracteristique[] {
       throw new Error("devis du garde-corps : composé par l'outil de plans, sur le serveur");
     case "escalier":
       return caracteristiquesEscalier(p, entree);
+    case "portail":
+      // Sur devis après la visite : la fiche envoie la configuration au formulaire de contact.
+      throw new Error("devis du portail : demandé après la visite de prise de cotes");
   }
 }
 
@@ -728,6 +732,7 @@ function postesDeLaPiece(
   const positif = (n: number) => Math.max(0, n);
   const base = unitPrice - positif(ecartBois) - positif(ecartMetal) - positif(ecartTissu);
 
+  if (product.famille === "portail") throw new Error("devis du portail : demandé après la visite de prise de cotes");
   const parts = POSTES[product.famille];
   const montants = parts.map(({ part }) => Math.round((base * part) / 100));
   montants[0] += base - montants.reduce((somme, m) => somme + m, 0);

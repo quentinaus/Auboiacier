@@ -11,6 +11,8 @@ import { getProduct, products, prixParOutil, productLocalise } from "@/lib/produ
 import { disponibiliteGoogle, fourchetteGoogle, prixAfficheFiche, textePrixDescription } from "@/lib/donnees-google";
 import { fourchetteGC, prixAppelGC, prixDepart } from "@/lib/prix-garde-corps.server";
 import { ProductView } from "@/components/product-view";
+import { PortailConfigurateur } from "@/components/portail-configurateur";
+import { estSlugPortail } from "@/lib/portails";
 import { ProductTail } from "@/components/product-tail";
 import { MembraneAnimee } from "@/components/photo-plafond-anime";
 import {
@@ -282,6 +284,15 @@ export default async function ProductPage({
       {/* 1. Fiche : galerie pleine hauteur + colonne d'options, bord à bord.
           Ancre « acheter » : c'est ici que remonte le bouton du bas de page. */}
       <div id="acheter" className="scroll-mt-0">
+        {product.famille === "portail" && estSlugPortail(product.slug) ? (
+          // Les portails : le client compose son portail par blocs, dessin de l'outil, prix du serveur.
+          <PortailConfigurateur
+            slug={product.slug}
+            locale={locale}
+            nom={product.name}
+            filAriane={{ label: dict.nav.breadcrumb, etapes: [{ nom: dict.nav.home, href: `/${locale}` }, { nom: categorie, href: boutique }] }}
+          />
+        ) : (
         <ProductView
           compteOuvert={compteConfigure()}
           prixAppel={prixAppel}
@@ -299,6 +310,7 @@ export default async function ProductPage({
             ],
           }}
         />
+        )}
       </div>
 
       {/* Sous la fiche, façon Apple (Quentin, 06/10/2026 : « plus premium, moins IA ») : de grands titres, des textes

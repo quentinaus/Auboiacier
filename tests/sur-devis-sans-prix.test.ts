@@ -29,7 +29,9 @@ import { produit } from "./catalogue.ts";
 
 /** Les pièces sur devis qui n'ont ni taille chiffrée ni barème : aucun prix nulle part. */
 const sansPrix = products.filter(
-  (p) => p.orderMode === "quote" && p.sizes.length === 0 && !p.surMesure
+  // Les portails n'ont ni taille ni barème au catalogue, mais un prix : celui de l'outil de plans, calculé sur le
+  // serveur (src/lib/prix-portail.server.ts, tests/portails.test.ts), comme le garde-corps.
+  (p) => p.orderMode === "quote" && p.sizes.length === 0 && !p.surMesure && p.famille !== "portail"
 );
 
 test("la table résine a ses prix (05/10/2026) : catalogue, en caisse, ses quatre teintes", () => {

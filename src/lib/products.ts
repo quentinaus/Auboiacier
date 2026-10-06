@@ -111,7 +111,8 @@ export type Famille =
   | "chaise-exterieur"
   | "escalier"
   | "garde-corps"
-  | "plafond";
+  | "plafond"
+  | "portail";
 
 /**
  * Le remplissage d'un garde-corps : ce qu'il y a entre le cadre et la main
@@ -589,6 +590,31 @@ const PLATEAU_MASSIF: PalierEpaisseur[] = [
  */
 export const PLATEAU_MAX_LONGUEUR_MM = 4500;
 export const PLATEAU_MAX_LARGEUR_MM = 1250;
+
+/**
+ * Une fiche de portail : ce qui ne change pas d'un modèle à l'autre. Pas de taille ni de matière au catalogue : le
+ * client compose son portail sur la fiche, et le prix vient de l'outil de plans, sur le serveur (prix-portail.server.ts).
+ * Rendue comme un tableau d'une pièce pour s'étaler dans le catalogue.
+ */
+function portail(p: {
+  slug: string; name: string; tagline: string; seoMots: string; seoTitre: string; seoDescription: string;
+  images: { src: string; alt: string }[]; sections: ProductSection[]; specs: ProductSpec[]; en: ProductEn;
+}): Product[] {
+  return [{
+    ...p,
+    famille: "portail",
+    category: "exterieur",
+    orderMode: "quote",
+    noteDevis: {
+      fr: "Nous venons mesurer chez vous, puis vous recevez le devis détaillé, au prix affiché ici.",
+      en: "We come and measure at your home, then you receive the detailed quote, at the price shown here.",
+    },
+    images: p.images.map((img) => ({ ...img, bg: "#f4f1ec", fit: "contain" as const })),
+    sizes: [],
+    woods: [],
+    metals: [],
+  }];
+}
 
 const catalogue: Product[] = [
   {
@@ -1494,6 +1520,165 @@ const catalogue: Product[] = [
       ],
     },
   },
+  // ---------- Portails (étude du 06/10/2026 avec Quentin) ----------
+  // Quatre modèles pour toutes les entrées : battant (place derrière), coulissant (place sur le côté), pliant (ni l'un
+  // ni l'autre), portillon (piétons). Le client compose son portail par blocs sur la fiche (src/components/
+  // portail-configurateur.tsx) ; le dessin vient du moteur de l'outil de plans, le prix du serveur (prix-portail.server.ts).
+  // Les images sont des DESSINS tirés du moteur (scripts/dessins-portails.mjs), en attendant les photos de Quentin.
+  ...portail({
+    slug: "portail-battant",
+    name: "Portail battant",
+    tagline: "Deux vantaux qui s'ouvrent vers la maison, en alu ou en acier, composé à votre goût.",
+    seoMots: "portail battant",
+    seoTitre: "Portail battant alu ou acier sur mesure",
+    seoDescription: "Portail battant sur mesure en alu ou acier : lames, panneau, barreaux, chêne, rosaces ou volutes. Fabriqué et posé depuis Saumur.",
+    images: [
+      { src: "/images/portails/portail-battant-lamesChene.jpg", alt: "Dessin d'un portail battant à deux vantaux, cadre alu gris anthracite et lames de chêne horizontales, entre deux piliers" },
+      { src: "/images/portails/portail-battant-volutes.jpg", alt: "Dessin d'un portail battant en acier noir, haut en chapeau de gendarme, barreaux à pointes de lance et frise de volutes, soubassement plein" },
+    ],
+    sections: [
+      { title: "Le portail le plus courant", body: "Deux vantaux qui tournent vers la propriété. Il faut derrière la place d'un vantail, la moitié du passage, sur un sol plat. Les vantaux peuvent être inégaux : le petit sert alors de portillon." },
+      { title: "Composé bloc par bloc", body: "Forme du haut, soubassement, remplissage, matière et couleur : vous composez, le dessin suit à l'échelle et le prix se calcule aussitôt. Ce qui ne se fabrique pas est refusé, avec la raison." },
+    ],
+    specs: [
+      { label: "Matière", value: "Alu soudé TIG, thermolaqué ; ou acier galvanisé à chaud puis thermolaqué (Rosace, Volutes)" },
+      { label: "Passage", value: "De 2 à 5 m entre piliers, hauteur de 0,80 à 2,20 m" },
+      { label: "Place à prévoir", value: "Derrière : la largeur d'un vantail, sur un sol plat ou qui monte de moins de 5 cm" },
+      { label: "Options", value: "Moteur posé par nos soins (cellules, feu, réglage des efforts), poteaux alu ou acier si vos piliers ne tiennent pas" },
+      { label: "Pose", value: "Visite et pose comprises jusqu'à 45 km de Saumur ; au-delà, la route s'ajoute au devis" },
+    ],
+    en: {
+      name: "Swing gate",
+      tagline: "Two leaves opening towards the house, in aluminium or steel, designed to your taste.",
+      seoMots: "swing gate",
+      seoTitre: "Aluminium or steel swing gate",
+      seoDescription: "Made-to-measure swing gate in aluminium or steel: slats, panel, bars, oak, rosettes or scrolls. Made and fitted from Saumur, France.",
+      images: [
+        "Drawing of a two-leaf swing gate, anthracite aluminium frame with horizontal oak slats, between two pillars",
+        "Drawing of a black steel swing gate with an arched top, spear-tipped bars and a frieze of scrolls, solid lower panel",
+      ],
+      sections: [
+        { title: "The most common gate", body: "Two leaves swinging into the property. You need room behind for one leaf, half the opening, on flat ground. The leaves can be unequal: the small one then works as a pedestrian gate." },
+        { title: "Designed block by block", body: "Top shape, lower panel, infill, material and colour: you choose, the scale drawing follows and the price is calculated at once. What cannot be made is refused, with the reason." },
+      ],
+      specs: [
+        { label: "Material", value: "TIG-welded aluminium, powder coated; or hot-dip galvanised then powder-coated steel (Rosette, Scrolls)" },
+        { label: "Opening", value: "From 2 to 5 m between pillars, 0.80 to 2.20 m high" },
+        { label: "Space needed", value: "Behind: the width of one leaf, on flat ground or rising less than 5 cm" },
+        { label: "Options", value: "Motor fitted by us (photocells, light, force setting), aluminium or steel posts if your pillars are not sound" },
+        { label: "Fitting", value: "Survey visit and fitting included within 45 km of Saumur; beyond that, travel is added to the quote" },
+      ],
+    },
+  }),
+  ...portail({
+    slug: "portail-coulissant",
+    name: "Portail coulissant",
+    tagline: "Il glisse le long de la clôture : rien ne s'ouvre vers la maison. Sur rail, ou sans rail.",
+    seoMots: "portail coulissant",
+    seoTitre: "Portail coulissant alu sur mesure",
+    seoDescription: "Portail coulissant sur mesure, sur rail ou sans rail au sol, en alu ou en acier. Fabriqué et posé depuis Saumur.",
+    images: [{ src: "/images/portails/portail-coulissant-plein.jpg", alt: "Dessin d'un portail coulissant alu gris anthracite à lames pleines, entre deux piliers" }],
+    sections: [
+      { title: "Quand il n'y a pas de place derrière", body: "Le portail glisse derrière la clôture. Il faut le long de celle-ci la longueur du portail, le passage plus 15 cm. Rien ne s'ouvre vers la maison et le vent ne le pousse pas." },
+      { title: "Sur rail, ou autoportant", body: "Sur un sol dur et plat, il roule sur un rail. Sur du gravier, de la terre ou une pente, il devient autoportant : une queue d'environ la moitié du passage le porte sur deux chariots, et le passage reste libre de tout rail." },
+    ],
+    specs: [
+      { label: "Matière", value: "Alu soudé TIG, thermolaqué ; ou acier galvanisé puis thermolaqué" },
+      { label: "Passage", value: "De 2 à 6 m, hauteur de 0,80 à 2,20 m" },
+      { label: "Place à prévoir", value: "Sur rail : le passage + 15 cm le long de la clôture. Autoportant : environ 1,5 fois le passage" },
+      { label: "Options", value: "Moteur à crémaillère posé par nos soins, poteaux alu ou acier" },
+      { label: "Pose", value: "Visite et pose comprises jusqu'à 45 km de Saumur ; au-delà, la route s'ajoute au devis" },
+    ],
+    en: {
+      name: "Sliding gate",
+      tagline: "It slides along the fence: nothing opens towards the house. On a rail, or with no rail.",
+      seoMots: "sliding gate",
+      seoTitre: "Aluminium sliding gate, made to measure",
+      seoDescription: "Made-to-measure sliding gate, on a rail or with no ground rail, in aluminium or steel. Made and fitted from Saumur, France.",
+      images: ["Drawing of an anthracite aluminium sliding gate with solid slats, between two pillars"],
+      sections: [
+        { title: "When there is no room behind", body: "The gate slides behind the fence. Along it you need the length of the gate, the opening plus 15 cm. Nothing opens towards the house and the wind does not push it." },
+        { title: "On a rail, or cantilevered", body: "On hard, level ground it runs on a rail. On gravel, soil or a slope it becomes cantilevered: a tail about half the opening carries it on two carriages, and the opening stays free of any rail." },
+      ],
+      specs: [
+        { label: "Material", value: "TIG-welded aluminium, powder coated; or galvanised then powder-coated steel" },
+        { label: "Opening", value: "From 2 to 6 m, 0.80 to 2.20 m high" },
+        { label: "Space needed", value: "On a rail: the opening plus 15 cm along the fence. Cantilever: about 1.5 times the opening" },
+        { label: "Options", value: "Rack motor fitted by us, aluminium or steel posts" },
+        { label: "Fitting", value: "Survey visit and fitting included within 45 km of Saumur; beyond that, travel is added to the quote" },
+      ],
+    },
+  }),
+  ...portail({
+    slug: "portail-pliant",
+    name: "Portail pliant",
+    tagline: "Chaque vantail se plie en deux : pour les cours sans place derrière ni sur le côté.",
+    seoMots: "portail pliant",
+    seoTitre: "Portail pliant sur mesure",
+    seoDescription: "Portail pliant sur mesure, alu ou acier, pour les cours sans place derrière ni sur le côté. Fabriqué et posé depuis Saumur.",
+    images: [{ src: "/images/portails/portail-pliant-barreaux.jpg", alt: "Dessin d'un portail pliant à quatre panneaux, barreaux alu gris anthracite, entre deux piliers" }],
+    sections: [
+      { title: "Ni place derrière, ni sur le côté", body: "Chaque vantail se plie en deux en s'ouvrant : il ne faut derrière qu'un quart du passage, 90 cm pour 3,50 m. La réponse pour les cours fermées, les maisons de ville et les allées courtes." },
+      { title: "Plus de pièces, plus de soin", body: "Quatre panneaux, des charnières de pli et un guide au sol : c'est le portail le plus long à fabriquer et à régler, d'où son prix." },
+    ],
+    specs: [
+      { label: "Matière", value: "Alu soudé TIG, thermolaqué ; ou acier galvanisé puis thermolaqué" },
+      { label: "Passage", value: "De 2,40 à 5 m, hauteur de 0,80 à 2,20 m" },
+      { label: "Place à prévoir", value: "Derrière : un quart du passage" },
+      { label: "Pose", value: "Visite et pose comprises jusqu'à 45 km de Saumur ; au-delà, la route s'ajoute au devis" },
+    ],
+    en: {
+      name: "Folding gate",
+      tagline: "Each leaf folds in two: for courtyards with no room behind and none along the side.",
+      seoMots: "folding gate",
+      seoTitre: "Made-to-measure folding gate",
+      seoDescription: "Made-to-measure folding gate in aluminium or steel, for courtyards with no room behind or alongside. Made and fitted from Saumur.",
+      images: ["Drawing of a four-panel folding gate with anthracite aluminium bars, between two pillars"],
+      sections: [
+        { title: "No room behind, none on the side", body: "Each leaf folds in two as it opens: you only need a quarter of the opening behind, 90 cm for 3.50 m. The answer for enclosed courtyards, town houses and short drives." },
+        { title: "More parts, more care", body: "Four panels, folding hinges and a ground guide: it is the longest gate to make and adjust, hence its price." },
+      ],
+      specs: [
+        { label: "Material", value: "TIG-welded aluminium, powder coated; or galvanised then powder-coated steel" },
+        { label: "Opening", value: "From 2.40 to 5 m, 0.80 to 2.20 m high" },
+        { label: "Space needed", value: "Behind: a quarter of the opening" },
+        { label: "Fitting", value: "Survey visit and fitting included within 45 km of Saumur; beyond that, travel is added to the quote" },
+      ],
+    },
+  }),
+  ...portail({
+    slug: "portillon",
+    name: "Portillon",
+    tagline: "L'entrée des piétons, dans le style de votre portail.",
+    seoMots: "portillon",
+    seoTitre: "Portillon alu ou acier sur mesure",
+    seoDescription: "Portillon sur mesure en alu ou acier, assorti à votre portail. Fabriqué et posé depuis Saumur.",
+    images: [{ src: "/images/portails/portillon-rosace.jpg", alt: "Dessin d'un portillon en acier noir, croix et rosace, soubassement plein et lisse en chêne, entre deux piliers" }],
+    sections: [
+      { title: "Assorti au portail", body: "Le même cadre, le même remplissage et la même couleur que votre portail. Posé en même temps, il partage la visite et le voyage : son prix baisse d'autant sur le devis." },
+    ],
+    specs: [
+      { label: "Matière", value: "Alu soudé TIG, thermolaqué ; ou acier galvanisé puis thermolaqué" },
+      { label: "Passage", value: "De 0,70 à 1,40 m, hauteur de 0,80 à 2,20 m" },
+      { label: "Pose", value: "Visite et pose comprises jusqu'à 45 km de Saumur ; moins cher posé avec le portail" },
+    ],
+    en: {
+      name: "Pedestrian gate",
+      tagline: "The way in on foot, in the style of your gate.",
+      seoMots: "pedestrian gate",
+      seoTitre: "Aluminium or steel pedestrian gate",
+      seoDescription: "Made-to-measure pedestrian gate in aluminium or steel, matching your gate. Made and fitted from Saumur, France.",
+      images: ["Drawing of a black steel pedestrian gate with a cross and rosette, solid lower panel and oak top rail, between two pillars"],
+      sections: [
+        { title: "Matching the gate", body: "The same frame, infill and colour as your gate. Fitted at the same time, it shares the survey visit and the trip: its price drops accordingly on the quote." },
+      ],
+      specs: [
+        { label: "Material", value: "TIG-welded aluminium, powder coated; or galvanised then powder-coated steel" },
+        { label: "Opening", value: "From 0.70 to 1.40 m, 0.80 to 2.20 m high" },
+        { label: "Fitting", value: "Survey visit and fitting included within 45 km of Saumur; cheaper fitted with the gate" },
+      ],
+    },
+  }),
   {
     slug: "garde-corps",
     poseOption: true,
