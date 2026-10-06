@@ -201,6 +201,12 @@ export function PorteQuiMesure({
         ? `Nous prenons les cotes chez vous, puis nous fabriquons et posons votre garde-corps. Visite à partir de\u00a0${prixAffiche(PRIX_OFFRE_CENTS / 100, locale)}.`
         : `We take the measurements at your home, then make and fit your railing. Visit from\u00a0${prixAffiche(PRIX_OFFRE_CENTS / 100, locale)}.`,
       action: fr ? "Prendre rendez-vous" : "Book a visit",
+      // La facilité de pose, en regard de l'autre carte (Quentin, 06/10/2026) : ici, l'atelier pose, il n'y a rien à faire.
+      facilite: {
+        niveau: 10,
+        titre: fr ? "Pose par l'atelier" : "Fitted by the workshop",
+        detail: fr ? "rien à faire." : "nothing to do.",
+      },
       // Les étapes du film, en étiquette sur l'image (« que le client comprenne ce qui se passe », Quentin, 05/10/2026) :
       // chacune s'affiche pendant son étape (classes .aplat-etC0… de motion-aplat.genere.ts, calées sur le film).
       etiquettes: {
@@ -215,19 +221,28 @@ export function PorteQuiMesure({
       scene: "SVG_JE_MESURE" as const,
       classeScene: "aplat-scB porte-scene-film",
       etiquette: notes.tagMoi,
-      // « Je mesure et pose moi-même » (Quentin, 05/10/2026) : la différence avec la carte de l'atelier, qui pose. Une
-      // phrase, qui met en avant ce qui compte : l'atelier fabrique aux cotes exactes du client. (Trait d'union insécable :
-      // « moi-même » ne se coupe pas en fin de ligne.)
-      titre: fr ? "Je mesure et pose moi\u2011même" : "I measure and fit it myself",
+      // « Je mesure, l'atelier fabrique, je pose » (Quentin, 06/10/2026 : « on ne comprend pas que c'est l'atelier qui
+      // fabrique ») : les trois étapes dans l'ordre, et ce qui compte en gras — l'atelier fabrique aux cotes exactes.
+      titre: fr ? "Je mesure, l'atelier fabrique, je\u00a0pose" : "I measure, the workshop makes it, I\u00a0fit\u00a0it",
       note: fr ? (
         <>
           Vous prenez trois mesures au mètre&nbsp;: l&apos;atelier fabrique votre garde-corps <strong className="porte-fort">à vos cotes exactes</strong>.
         </>
       ) : (
         <>
-          You take two tape measurements: the workshop makes your railing <strong className="porte-fort">to your exact dimensions</strong>.
+          You take three tape measurements: the workshop makes your railing <strong className="porte-fort">to your exact dimensions</strong>.
         </>
       ),
+      // Ce que le client reçoit pour poser, et une note de facilité honnête (Quentin, 06/10/2026 : « une note assez facile,
+      // même si ce n'est pas le plus simple du monde » ; 8/10, une perceuse et un niveau, environ une heure).
+      petit: fr
+        ? "Vous recevez la notice de pose de votre garde-corps et toute la visserie (vis, chevilles)."
+        : "You receive the fitting guide for your railing and all the fixings (screws, wall plugs).",
+      facilite: {
+        niveau: 8,
+        titre: fr ? "Pose facile : 8/10" : "Easy to fit: 8/10",
+        detail: fr ? "une perceuse, un niveau, environ 1\u00a0h." : "a drill, a spirit level, about 1\u00a0hour.",
+      },
       action: fr ? "Saisir mes mesures" : "Enter my measurements",
       etiquettes: {
         classe: "aplat-etB",
@@ -273,6 +288,17 @@ export function PorteQuiMesure({
                 <span className="aplat-tag">{c.etiquette}</span>
                 <span className="aplat-card-title block">{c.titre}</span>
                 {c.note && <span className="aplat-card-text block">{c.note}</span>}
+                {"petit" in c && c.petit && <span className="porte-petit block">{c.petit}</span>}
+                <span className="porte-facilite">
+                  <span className="porte-jauge" aria-hidden>
+                    {Array.from({ length: 10 }, (_, i) => (
+                      <i key={i} data-plein={i < c.facilite.niveau ? "" : undefined} />
+                    ))}
+                  </span>
+                  <span>
+                    <strong>{c.facilite.titre}</strong> · {c.facilite.detail}
+                  </span>
+                </span>
                 <span className="aplat-btn porte-action">
                   {c.action}
                   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="ml-2 h-4 w-4">

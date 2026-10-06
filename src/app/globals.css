@@ -1124,6 +1124,42 @@ textarea:focus-visible,
   font-weight: 650;
   color: #2b2320;
 }
+/* Ce que le client reçoit pour poser, en petit, sous la phrase de la carte. */
+.porte-texte .porte-petit {
+  margin: -10px 0 12px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #6f6357;
+}
+/* La facilité de pose : une jauge de dix traits et sa phrase ; en regard sur les deux cartes. */
+.porte-facilite {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  font-size: 13.5px;
+  line-height: 1.35;
+  color: #4a4038;
+}
+.porte-facilite strong {
+  font-weight: 650;
+  color: #2b2320;
+}
+.porte-jauge {
+  display: inline-flex;
+  flex: none;
+  gap: 2px;
+}
+.porte-jauge i {
+  display: block;
+  width: 5px;
+  height: 12px;
+  border-radius: 1.5px;
+  background: rgba(43, 35, 32, 0.14);
+}
+.porte-jauge i[data-plein] {
+  background: #b9874a;
+}
 .porte-action svg {
   transition: translate 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -1147,6 +1183,27 @@ textarea:focus-visible,
     font-size: 13px;
     line-height: 1.4;
     margin-bottom: 9px;
+  }
+  /* La pastille répète le titre : sur téléphone, sa place va au film (Quentin veut des films lisibles). */
+  .porte-texte .aplat-tag {
+    display: none;
+  }
+  .porte-texte .aplat-card-title {
+    margin-top: 0;
+  }
+  .porte-texte .porte-petit {
+    margin: -6px 0 7px;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+  .porte-facilite {
+    gap: 7px;
+    margin-bottom: 9px;
+    font-size: 12px;
+  }
+  .porte-jauge i {
+    width: 4px;
+    height: 10px;
   }
   .porte-texte .aplat-btn {
     height: 34px;
