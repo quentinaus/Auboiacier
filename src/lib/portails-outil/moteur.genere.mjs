@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/plans-portails.js, tel que collé dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 b86ad428f12c7971cbe66238.
+// Source : l'outil de plans (plans-atelier.html), sha256 f61a9d328b3317148819f5ad.
 /* eslint-disable */
 // Plans de fabrication des portails : battant (1 ou 2 vantaux), coulissant (sur rail ou autoportant), pliant, portillon.
 // Étude du 06/10/2026 avec Quentin : https://claude.ai/artifact/RvJQFroNvsu5kDhivWKu5r
@@ -63,16 +63,16 @@
 /* ---------- Réglages d'atelier : valeurs de départ, À CONFIRMER par Quentin ---------- */
 
 const PT_ATELIER = {
-  // Jeux : décision de Quentin du 06/10/2026 (question 4) : 30 mm côté gonds, 25 au centre. Un jour entre 8 et 25 mm pince
+  // Jeux : décisions de Quentin : 25 au centre (06/10/2026) ; 35 mm côté gonds (07/10/2026, au lieu de 30 : la platine du
+  // gond, 10 mm vissés sur le nu, est dans le jeu, et il reste ainsi 25 mm à son droit). Un jour entre 8 et 25 mm pince
   // les doigts (zone de danger 3 des notices Somfy Ixengo) : on reste au-dessus de 25.
   //   vantaux = (P − 2 × jeuGonds − jeuCentre) / 2, P = le plus petit clair relevé ; le demi-millimètre restant va au
-  //   centre (P = 3 500 → 1 707 + 1 707, 26 au centre).
-  jeuGonds: 30,              // entre le nu du pilier (ou du poteau) et le montant côté gonds, AU DESSIN
+  //   centre (P = 3 500 → 1 702 + 1 702, 26 au centre).
+  jeuGonds: 35,              // entre le nu du pilier (ou du poteau) et le montant côté gonds, AU DESSIN
   jeuGondsMin: 25,           // contrôlé sur toute la course (de fermé à ouvert au maximum) : alerte en dessous
   jeuCentre: 25,             // entre les deux vantaux
-  // Vantail seul et portillon, côté serrure : VALEUR DE L'ATELIER, à confirmer par Quentin (sa décision ne parle que des
-  // gonds et du centre). Il faut être ≥ 25 ou ≤ 8 ; 8 mm laisserait le pêne et la gâche sans réglage possible (piliers
-  // rarement d'aplomb), donc 25, comme le centre.
+  // Vantail seul et portillon, côté serrure : 25 mm, décision de Quentin du 07/10/2026. Il faut être ≥ 25 ou ≤ 8 ; 8 mm
+  // laisserait le pêne et la gâche sans réglage possible (piliers rarement d'aplomb), donc 25, comme le centre.
   jeuSerrure: 25,
   zonePincement: [8, 25],    // jour interdit (mm), bornes exclues
   jeuPli: 12,                // pliant : entre les deux panneaux d'un même côté (dans la zone 8-25 : voir l'avertissement)
@@ -89,8 +89,8 @@ const PT_ATELIER = {
   //   notice du gond retenu, comme l'épaisseur de la platine.
   gonds: { axeNu: 65, plageNu: [55, 68], areteMin: 90, axeDerriere: 20, axeReleve: false, bas: 200, haut: 200, troisAuDela: 1800, ouverture: 90, platine: 100, platineEp: 10, entraxe: 65, jeuVertical: [1, 3], femelleD: 36 },
   // Butée centrale BASSE (la butée de 77 mm au milieu du passage est retirée : on trébuche dessus). Viser 40 mm au-dessus
-  // du sol fini (référence à relever). Un sabot vissé sous la traverse basse de chaque vantail descend la chercher (le
-  // cahier en dit un, au droit de la butée : un par vantail, chacun doit buter, à confirmer par Quentin) : recouvrement
+  // du sol fini (référence à relever). Un sabot vissé sous la traverse basse de chaque vantail descend la chercher (un par
+  // vantail, chacun doit buter : décision de Quentin du 07/10/2026) : recouvrement
   // de 25 mm, donc le bas du sabot est à 15 mm du sol. l × p : encombrement au dessin (référence à relever).
   // Motorisé : selon la notice du moteur, sans basculeur.
   butee: { h: 40, recouvrement: 25, l: 100, p: 60, sabot: 40 },
@@ -1097,15 +1097,15 @@ function calculerPortail(v, modele) {
   R.notes.push("Mairie : le plan local d'urbanisme peut fixer hauteur et couleur, et demander une déclaration préalable.");
   if (aGonds) {
     const jeux = centre !== null
-      ? `${RG.jeuGonds} mm côté gonds au dessin (${RG.jeuGondsMin} au moins sur toute la course) et ${RG.jeuCentre} mm au centre (décision de Quentin du 06/10/2026)`
-      : `${RG.jeuGonds} mm côté gonds au dessin (${RG.jeuGondsMin} au moins sur toute la course, décision de Quentin du 06/10/2026) et ${RG.jeuSerrure} mm côté serrure (valeur de l'atelier, à confirmer)`;
+      ? `${RG.jeuGonds} mm côté gonds au dessin (${RG.jeuGondsMin} au moins sur toute la course) et ${RG.jeuCentre} mm au centre (décisions de Quentin des 06 et 07/10/2026)`
+      : `${RG.jeuGonds} mm côté gonds au dessin (${RG.jeuGondsMin} au moins sur toute la course) et ${RG.jeuSerrure} mm côté serrure (décision de Quentin du 07/10/2026)`;
     R.notes.push(`Jeux : ${jeux} : hors de la zone de ${z0} à ${z1} mm où un doigt se pince (notice Somfy Ixengo, zone 3).`);
   }
   if (R.jeux.reglage) {
     const rg = R.jeux.reglage;
     R.notes.push(`Réglage des gonds sur chantier : axe de ${rg.axeMin} à ${rg.axeMax} mm du nu (le gond permet ${rg.plage[0]} à ${rg.plage[1]}) ; au-delà, un jeu passerait sous ${RG.jeuGondsMin} mm.`);
   }
-  if (aButee) R.notes.push(`Butée centrale basse : ${B.h} mm au-dessus du sol fini (référence à relever), ${sabots ? `un sabot sous la traverse basse de chaque ${c.type === "pliant" ? "panneau côté centre" : "vantail"} (bas à ${basSabot} mm du sol ; le cahier en dit un : un par vantail, à confirmer)` : "la traverse basse vient contre elle"}. Pas de butée haute au milieu du passage.`);
+  if (aButee) R.notes.push(`Butée centrale basse : ${B.h} mm au-dessus du sol fini (référence à relever), ${sabots ? `un sabot sous la traverse basse de chaque ${c.type === "pliant" ? "panneau côté centre" : "vantail"} (bas à ${basSabot} mm du sol ; un par vantail, décision de Quentin du 07/10/2026)` : "la traverse basse vient contre elle"}. Pas de butée haute au milieu du passage.`);
   if (unVantail) R.notes.push(`Butée de fermeture sur le pilier côté serrure, côté rue (ou gâche à butée) : le ${c.type === "portillon" ? "portillon" : "vantail"} ne passe jamais vers la rue.`);
   if (plots) R.notes.push(`Arrêts de vantail ouvert sur plots de ${RG.plotArret.l} × ${RG.plotArret.p} × ${RG.plotArret.h}, à ${RG.plotArret.aBout} mm du bout du vantail.`);
   const aRelever = [];
@@ -1145,7 +1145,7 @@ function calculerPortail(v, modele) {
     gonds: () => [gond ? `${gond.ref}${gond.releve ? "" : " (référence à relever)"}` : "Gond sur étude", `Gond haut axe vers le bas (anti-dégondage), ${G.jeuVertical[0]} à ${G.jeuVertical[1]} mm de jeu ; axe à ${G.axeNu} mm du nu${rgl ? `, réglé sur chantier entre ${rgl.axeMin} et ${rgl.axeMax}` : ""}`],
     roues: () => [roue ? `Roue à gorge Ø ${roue.d} pour rail Ø ${roue.rail}` : "Roues sur étude", roue ? `Jusqu'à ${roue.kgMax} kg le portail` : ""],
     buteeCentrale: () => ["Quincaillerie", `Basse : ${B.h} mm au-dessus du sol fini (référence à relever)`],
-    sabotsButee: () => ["Quincaillerie", `Un sous la traverse basse de chaque ${c.type === "pliant" ? "panneau côté centre" : "vantail"}, au droit de la butée (bas à ${basSabot} mm du sol ; un par vantail : à confirmer)`],
+    sabotsButee: () => ["Quincaillerie", `Un sous la traverse basse de chaque ${c.type === "pliant" ? "panneau côté centre" : "vantail"}, au droit de la butée (bas à ${basSabot} mm du sol ; un par vantail)`],
     buteeFermeture: () => ["Quincaillerie", "Sur le pilier côté serrure, côté rue : arrête le vantail fermé (ou gâche à butée) ; référence à relever"],
     arrets: () => ["Quincaillerie", `Sur plots de béton ${RG.plotArret.l} × ${RG.plotArret.p} × ${RG.plotArret.h}, à ${RG.plotArret.aBout} mm du bout du vantail`],
   };
@@ -1373,4 +1373,4 @@ function ptVueCote(c, C, haut, xa, pil, prP, massif, yV) {
 
 
 export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES };
-export const EMPREINTE = "742858cc6e79";
+export const EMPREINTE = "fa4b600c9dde";
