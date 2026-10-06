@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { Visuel } from "./visuel";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, useSyncExternalStore, type ComponentProps, type ReactNode } from "react";
 import { createPortal, flushSync } from "react-dom";
@@ -257,13 +257,17 @@ function SwatchGroup({
               >
                 ×
               </button>
-              <Image
-                src={photo(enGrand)!}
-                alt={enGrand.label}
-                width={400}
-                height={400}
-                className="aspect-square w-full rounded-xl object-cover"
-              />
+              {/* Un cadre à la taille de l'image : la mention se pose dans son coin, pas sous la légende. */}
+              <div className="relative">
+                <Visuel
+                  locale={locale}
+                  src={photo(enGrand)!}
+                  alt={enGrand.label}
+                  width={400}
+                  height={400}
+                  className="aspect-square w-full rounded-xl object-cover"
+                />
+              </div>
               <figcaption className="mt-3 text-center text-sm text-[#2a2116]">
                 {enGrand.label}
                 {showDelta && ` · ${formatDelta(enGrand.priceDelta ?? 0, locale)}`}
@@ -3432,7 +3436,7 @@ export function ProductOptions({
               aria-label={t.apercuPhoto}
               className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-[#e5ddd3] bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
             >
-              <Image key={apercu.src} src={apercu.src} alt={apercu.alt} fill sizes="56px" className="object-contain p-1" />
+              <Visuel locale={locale} vignette key={apercu.src} src={apercu.src} alt={apercu.alt} fill sizes="56px" className="object-contain p-1" />
             </button>
           )}
           <div className="min-w-0">

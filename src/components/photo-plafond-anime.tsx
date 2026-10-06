@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import type { Locale } from "@/lib/i18n";
+import { Visuel, type CoinMention } from "./visuel";
 
 /**
  * La lumière de la toile : pêche, rose, lavande — le dégradé pastel que
@@ -114,6 +115,8 @@ export function PhotoPlafondMesuree({
   sizes,
   className,
   priority,
+  locale,
+  coin,
 }: {
   src: string;
   alt: string;
@@ -121,13 +124,18 @@ export function PhotoPlafondMesuree({
   sizes: string;
   className?: string;
   priority?: boolean;
+  /** La langue de la page, et le coin de la mention « Image d'illustration » (voir visuel.tsx). */
+  locale: Locale;
+  coin?: CoinMention;
 }) {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const rect = useRectanglePhoto(image);
 
   return (
     <>
-      <Image
+      <Visuel
+        locale={locale}
+        coin={coin}
         ref={setImage}
         src={src}
         alt={alt}
@@ -166,7 +174,10 @@ export function PhotoPlafondAnime({
   clip,
   sizes,
   entiere = false,
+  locale,
 }: {
+  /** La langue de la page : celle de la mention « Image d'illustration ». */
+  locale: Locale;
   src: string;
   alt: string;
   /** Rectangle englobant la dalle, en pourcentages de la photo. */
@@ -179,7 +190,7 @@ export function PhotoPlafondAnime({
 }) {
   return (
     <>
-      <Image src={src} alt={alt} fill sizes={sizes} className={entiere ? "object-contain" : "object-cover"} />
+      <Visuel locale={locale} src={src} alt={alt} fill sizes={sizes} className={entiere ? "object-contain" : "object-cover"} />
       <MembraneAnimee box={box} clip={clip} />
     </>
   );

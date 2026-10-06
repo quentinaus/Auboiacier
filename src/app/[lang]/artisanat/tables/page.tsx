@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { Visuel } from "@/components/visuel";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../../dictionaries";
 import { metadataPage, jsonLdFilAriane, jsonLdListe, scriptJsonLd } from "@/lib/seo";
@@ -152,7 +152,8 @@ export default async function TablesPage({ params }: PageProps<"/[lang]/artisana
                     style={{ backgroundColor: image?.bg ?? "#ffffff" }}
                   >
                     {image && (
-                      <Image
+                      <Visuel
+                        locale={locale}
                         src={image.src}
                         alt={image.alt}
                         fill

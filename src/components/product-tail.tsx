@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { Visuel } from "./visuel";
 import type { Locale } from "@/lib/i18n";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { serif } from "@/lib/fonts";
@@ -128,7 +128,8 @@ export function ProductTail({
       {/* Notre mission, sur la photo plein cadre de l'accueil */}
       <section className="relative flex min-h-[55vh] items-center justify-center overflow-hidden md:min-h-[70vh]">
         <Parallaxe>
-          <Image
+          <Visuel
+            locale={locale}
             src="/images/vignes-coucher-soleil.jpg"
             alt={dict.hub.altVignes}
             fill

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
-import Image from "next/image";
+import { Visuel } from "@/components/visuel";
 import Link from "next/link";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
@@ -185,7 +185,8 @@ export default async function DevisPage({ params }: PageProps<"/[lang]/devis">) 
                           style={{ backgroundColor: image?.bg ?? "#ffffff" }}
                         >
                           {image && (
-                            <Image
+                            <Visuel
+                              locale={locale}
                               src={image.src}
                               alt={image.alt}
                               fill
@@ -243,7 +244,8 @@ export default async function DevisPage({ params }: PageProps<"/[lang]/devis">) 
                   className="group flex h-full flex-col overflow-hidden rounded-[22px] bg-[#f5f1ea]"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden">
-                    <Image
+                    <Visuel
+                      locale={locale}
                       src={item.image}
                       alt={item.titre}
                       fill
@@ -271,6 +273,7 @@ export default async function DevisPage({ params }: PageProps<"/[lang]/devis">) 
         corps={t.reassurance.slice(1).map((r) => `${r.titre} — ${r.texte}`)}
         mention={t.reassurance[0].texte}
         photo={{ src: "/images/atelier-soudeur.jpg", alt: dict.hub.altAtelier }}
+        locale={locale}
         photoAGauche
       />
       </main>

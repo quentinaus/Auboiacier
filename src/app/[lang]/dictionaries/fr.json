@@ -5,7 +5,7 @@
   },
   "nav": {
     "home": "Accueil",
-    "realisations": "Réalisations",
+    "realisations": "Projets et visuels",
     "produits": "La collection",
     "devis": "Devis instantané",
     "apropos": "À propos",
@@ -59,10 +59,10 @@
     "editorialBody1": "Auboiacier est un atelier de métallerie. L'acier y est coupé, soudé, meulé, puis peint. Le bois massif vient s'y poser — plateaux de table, marches d'escalier, tablettes — collé, poncé et huilé ici même.",
     "editorialBody2": "Aucune série : chaque pièce est fabriquée à la commande, aux dimensions de votre intérieur, et se reponce ou se repeint plutôt que de se remplacer.",
     "editorialCta": "Voir l'atelier",
-    "testimonialsTitle": "Ce qu'en disent nos clients",
-    "testimonialsNote": "Les premiers chantiers arrivent : les avis clients seront publiés ici.",
+    "testimonialsTitle": "Avis clients",
+    "testimonialsNote": "Les avis des premiers clients seront publiés ici, dès les premières pièces livrées.",
     "testimonialsNoteGoogle": "Retrouvez l'atelier sur sa fiche Google.",
-    "testimonialsCta": "Voir les réalisations",
+    "testimonialsCta": "Voir les projets et visuels",
     "missionTitle": "Ce que nous cherchons à faire",
     "missionBody": "Fabriquer des pièces d'acier et de bois massif que l'on puisse reponcer et repeindre dans trente ans, au lieu de les remplacer.",
     "missionCta": "Demander un devis",
@@ -114,8 +114,8 @@
     "heroTitle": "Plafonds lumineux en toile tendue, fabriqués sur mesure à Saumur",
     "heroSubtitle": "Cadre aluminium coupé en onglet, toile tendue, éclairage LED intégré. Chaque plafond est fabriqué à l'atelier aux dimensions de votre pièce.",
     "heroCtaPrimary": "Demander un devis",
-    "heroCtaSecondary": "Voir les réalisations",
-    "realisationsTitle": "Réalisations récentes",
+    "heroCtaSecondary": "Voir d'autres images",
+    "realisationsTitle": "Mises en situation",
     "gammesTitle": "Ce qu'un plafond lumineux change",
     "gammes": [
       {
@@ -156,8 +156,11 @@
     "altPlafondDemo": "Plafond lumineux à cadre aluminium, toile tendue rétroéclairée"
   },
   "realisations": {
-    "title": "Réalisations",
-    "subtitle": "Tables, garde-corps, escaliers, verrières et plafonds lumineux, posés chez des particuliers et des professionnels.",
+    "title": "Projets et visuels",
+    "subtitle": "Les modèles de l'atelier en images — tables, garde-corps, escaliers, verrières, plafonds lumineux, sculptures — et les premières photos prises sur le chantier et à l'atelier.",
+    "chantierTitle": "En photo : chantier et atelier",
+    "visuelsTitle": "Les modèles en images",
+    "visuelsNote": "Des images d'illustration, qui présentent nos modèles : la pièce fabriquée à vos cotes peut différer légèrement.",
     "filterAll": "Tout",
     "filterTable": "Tables",
     "filterGardeCorps": "Garde-corps",
@@ -165,8 +168,8 @@
     "filterPlafond": "Plafonds lumineux",
     "filterVerriere": "Verrières",
     "filterSculpture": "Sculptures",
-    "moreSoon": "D'autres chantiers seront ajoutés au fil des poses.",
-    "filterEmpty": "Aucun chantier de cette famille n'est encore publié.",
+    "moreSoon": "Les photos des chantiers de l'atelier seront ajoutées ici au fil des poses.",
+    "filterEmpty": "Rien n'est encore publié dans cette famille.",
     "altTableMikado": "Table Mikado en noyer et chaises en velours vert, dans une salle à manger aux murs de pierre",
     "altGardeCorpsInterieur": "Garde-corps de fenêtre posé en tableau, vu depuis la pièce",
     "altGardeCorpsRue": "Le même garde-corps vu de la rue, posé sur un appui en tuffeau",
@@ -238,10 +241,10 @@
     "delaiTitle": "Délai de fabrication",
     "delaiBody": "Rien n'est en stock : votre pièce est fabriquée pour vous, à la commande. Son délai figure ci-dessus, à la ligne « Fabrication ». Il vous est confirmé à la commande.",
     "delaiCta": "Commander",
-    "avisTitle": "Ce qu'en disent nos clients",
-    "avisNote": "Les premiers chantiers arrivent : les avis clients seront publiés ici.",
+    "avisTitle": "Avis clients",
+    "avisNote": "Les avis des premiers clients seront publiés ici, dès les premières pièces livrées.",
     "avisNoteGoogle": "Retrouvez l'atelier sur sa fiche Google.",
-    "avisCta": "Voir les réalisations",
+    "avisCta": "Voir les projets et visuels",
     "contactTitle": "Parlez-nous de votre projet",
     "contactBody": "Une dimension particulière, une essence précise, une teinte hors nuancier ? Écrivez-nous : nous adaptons le modèle et nous chiffrons.",
     "contactCta": "Nous contacter",
@@ -597,7 +600,7 @@
     "histoireBody": "Auboiacier est un atelier de métallerie installé à Saumur, en Maine-et-Loire. À sa tête, Quentin Aumercier, soudeur-métallier formé sur les chantiers et dans les ateliers, en France puis en Australie, où il a travaillé plusieurs années chez un fabricant de plafonds lumineux. Il en a rapporté une méthode : mesurer juste, souder propre, finir sans compromis. De retour en Anjou, il a ouvert l'atelier pour fabriquer des tables, des escaliers, des garde-corps et des plafonds lumineux — pièce par pièce, à la commande, pour des clients qui savent ce qu'ils veulent.",
     "savoirFaireTitle": "Notre savoir-faire",
     "savoirFaireBody": [
-      "Tout est fabriqué ici, à Saumur. L'acier est coupé, soudé au TIG et meulé à l'atelier ; le bois massif est débité, collé, poncé et huilé sur le même établi ; les cadres aluminium des plafonds lumineux sont coupés en onglet et ajustés au millimètre. Rien n'est sous-traité, rien n'est importé.",
+      "Tout est fabriqué ici, à Saumur. L'acier est coupé, soudé au TIG et meulé à l'atelier ; le bois massif est débité, collé, poncé et huilé sur le même établi ; les cadres aluminium des plafonds lumineux sont coupés en onglet et ajustés au millimètre. Rien n'est sous-traité.",
       "Ce que cela change pour vous : des cotes tenues au millimètre, des soudures pleines que l'on peut regarder de près, des finitions qui vieillissent bien. Et une pièce que nous connaissons par cœur — s'il faut la reprendre dans dix ans, nous savons exactement comment elle est faite."
     ],
     "valeursTitle": "Nos valeurs",
@@ -682,7 +685,7 @@
   "sculptures": {
     "title": "Sculptures",
     "tagline": "Pièces uniques en acier de récupération, soudées à la main.",
-    "intro": "Le cheval cabré est né de centaines de chutes d'acier — clés, chaînes, boulons, tôles — soudées une à une jusqu'à retrouver le mouvement d'un animal vivant. Ce n'est pas un produit de série : c'est une œuvre.",
+    "intro": "Un cheval cabré naît de centaines de chutes d'acier — clés, chaînes, boulons, tôles — soudées une à une jusqu'à retrouver le mouvement d'un animal vivant. Ce n'est pas un produit de série : c'est une œuvre.",
     "body": "Chaque sculpture est pensée avec vous : le sujet, la taille, la matière, le socle et l'endroit où elle sera posée. Le travail se fait à l'atelier, à la main, et demande plusieurs semaines selon la pièce. Elles vivent aussi bien dehors, sous la pluie, que dans une entrée.",
     "priceTitle": "Prix",
     "priceBody": "Sur devis — chaque pièce étant unique, le prix dépend du sujet, des dimensions et du temps de fabrication.",
@@ -859,11 +862,15 @@
       },
       {
         "title": "Propriété intellectuelle",
-        "body": "Les textes, photographies et créations présentés sur ce site sont la propriété d'Auboiacier. Toute reproduction sans autorisation est interdite."
+        "body": "Les textes, images et créations présentés sur ce site sont la propriété d'Auboiacier. Toute reproduction sans autorisation est interdite."
       },
       {
         "title": "Données personnelles",
         "body": "Les données transmises par les formulaires ou lors d'une commande servent à répondre à votre demande, à traiter votre commande et à son suivi (dont une seule demande d'avis après la livraison). Vous disposez de droits d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité : écrivez à auboiacier@gmail.com. Le détail — données recueillies, prestataires, durées, transferts, cookies, recours auprès de la CNIL — figure dans la politique de confidentialité."
+      },
+      {
+        "title": "Images d'illustration",
+        "body": "Les images marquées « Image d'illustration » présentent nos modèles ; la pièce fabriquée à vos cotes peut différer légèrement (proportions, teinte du bois, finition)."
       }
     ],
     "privacyCta": "Lire la politique de confidentialité",
@@ -1004,8 +1011,8 @@
       "description": "Table, escalier, verrière ou plafond lumineux : décrivez votre projet, estimation sous 48 h par e-mail. Atelier à Saumur (49), prise de cotes à domicile."
     },
     "realisations": {
-      "title": "Réalisations récentes de l'atelier",
-      "description": "Tables, garde-corps, escaliers, verrières et plafonds lumineux posés chez des particuliers et des professionnels, depuis l'atelier de Saumur (49)."
+      "title": "Projets et visuels de l'atelier",
+      "description": "Les modèles de l'atelier en images — tables, garde-corps, escaliers, verrières, plafonds lumineux — et les premières photos de chantier, à Saumur (49)."
     },
     "devis": {
       "title": "Devis instantané, prix en une minute",

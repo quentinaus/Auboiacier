@@ -13,6 +13,7 @@ import {
 } from "@react-pdf/renderer";
 import type { Devis } from "@/lib/devis";
 import { prixAffiche } from "@/lib/ui";
+import { MENTION_ILLUSTRATION, porteMentionIllustration } from "@/lib/visuels";
 
 /* ------------------------------------------------------------------ *
  *  La mise en page du devis, en PDF
@@ -210,6 +211,9 @@ const styles = StyleSheet.create({
   section: { marginTop: 24 },
   piece: { flexDirection: "row", gap: 22, marginTop: 8 },
   photo: { width: 140, height: 140, objectFit: "contain" },
+  /* Sous la photo d'un visuel, la même mention discrète que sur le site (src/lib/visuels.ts). */
+  photoCadre: { width: 140 },
+  mentionPhoto: { marginTop: 3, fontSize: 6.5, color: GRIS, textAlign: "center" },
   pieceTexte: { flex: 1 },
   pieceNom: {
     fontFamily: "Crimson",
@@ -463,8 +467,13 @@ function DocumentDevis({ devis }: { devis: Devis }) {
               <Text style={styles.etiquette}>{t.piece}</Text>
               <View style={styles.piece}>
                 {devis.piece.photo && (
-                  // eslint-disable-next-line jsx-a11y/alt-text -- l'Image de react-pdf n'a pas d'attribut alt
-                  <Image src={devis.piece.photo} style={styles.photo} />
+                  <View style={styles.photoCadre}>
+                    {/* eslint-disable-next-line jsx-a11y/alt-text -- l'Image de react-pdf n'a pas d'attribut alt */}
+                    <Image src={devis.piece.photo} style={styles.photo} />
+                    {porteMentionIllustration(devis.piece.photo) && (
+                      <Text style={styles.mentionPhoto}>{MENTION_ILLUSTRATION[devis.locale]}</Text>
+                    )}
+                  </View>
                 )}
                 <View style={styles.pieceTexte}>
                   <Text style={styles.pieceNom}>{devis.piece.nom}</Text>

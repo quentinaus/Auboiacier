@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { Visuel, MentionIllustration } from "@/components/visuel";
+import type { Locale } from "@/lib/i18n";
 import { BandeauDetail } from "@/components/bandeau-detail";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "./dictionaries";
@@ -31,7 +32,9 @@ function HeroPanel({
   priority = false,
   divider = false,
   rang = 0,
+  locale,
 }: {
+  locale: Locale;
   href: string;
   src: string;
   alt: string;
@@ -59,7 +62,10 @@ function HeroPanel({
       {/* La caméra avance lentement (cadre) ; le survol agrandit la photo
           elle-même : les deux mouvements ne se contrarient pas. */}
       <div className="camera-lente absolute inset-0">
-        <Image
+        {/* La mention se pose plus bas, au-dessus du voile : ici, elle avancerait avec la caméra. */}
+        <Visuel
+          locale={locale}
+          mention={false}
           src={src}
           alt={alt}
           fill
@@ -70,6 +76,7 @@ function HeroPanel({
         />
       </div>
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/55 transition-opacity duration-500 group-hover:opacity-90" />
+      <MentionIllustration src={src} locale={locale} ton="sombre" />
 
       <div className="relative z-10 flex flex-col items-center px-3 text-center sm:px-6">
         {/* Ce n'est pas un titre de section mais l'intitulé d'un lien : en
@@ -110,7 +117,9 @@ function CategoryTile({
   entiere = false,
   clip,
   clipBox,
+  locale,
 }: {
+  locale: Locale;
   href: string;
   src: string;
   alt: string;
@@ -133,9 +142,11 @@ function CategoryTile({
             clip={clip}
             sizes="(max-width: 768px) 50vw, 280px"
             entiere={entiere}
+            locale={locale}
           />
         ) : (
-          <Image
+          <Visuel
+            locale={locale}
             src={src}
             alt={alt}
             fill
@@ -269,7 +280,10 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
         return (
           <section className="relative flex min-h-[100svh] items-end overflow-hidden bg-[#1d1d1f] md:items-center">
             <div className="camera-lente absolute inset-0">
-              <Image
+              {/* La mention se pose plus bas, au-dessus du voile : ici, elle avancerait avec la caméra. */}
+              <Visuel
+                locale={locale}
+                mention={false}
                 src="/images/mikado/ambiance.jpg"
                 alt={t.altHeroMobilier}
                 fill
@@ -280,6 +294,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               />
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/45 md:bg-gradient-to-r md:from-black/60 md:via-black/30 md:to-black/5" />
+            <MentionIllustration src="/images/mikado/ambiance.jpg" locale={locale} ton="sombre" />
             <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-16 pt-32 md:pb-0 md:pt-0">
               <h1 className={`${serif.className} max-w-5xl text-white`}>
                 <span className="entree-monte block text-[clamp(2.9rem,8.4vw,6.4rem)] font-normal leading-[0.98] tracking-[-0.022em]" style={{ "--retard": "200ms" } as CSSProperties}>
@@ -317,6 +332,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           que 180 px de large et le texte devient illisible. */}
       <section className="grid grid-cols-1 md:grid-cols-2">
         <HeroPanel
+          locale={locale}
           href={`/${locale}/toiles-tendues`}
           src="/images/salle-plafond-mikado.jpg"
           alt={t.altHeroLumiere}
@@ -326,6 +342,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           cta={t.lightingCta}
         />
         <HeroPanel
+          locale={locale}
           href={`/${locale}/artisanat`}
           src="/images/escalier/limon-droit.jpg"
           alt={t.altEscaliers}
@@ -409,7 +426,9 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
         <div className="relative flex h-[240px] items-center justify-center overflow-hidden sm:h-[280px] md:h-[340px]">
           {/* La photo glisse un peu moins vite que la page (Parallaxe). */}
           <Parallaxe>
-            <Image
+            <Visuel
+              locale={locale}
+              mention={false}
               src="/images/atelier-soudeur.jpg"
               alt={t.altAtelier}
               fill
@@ -418,6 +437,8 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
             />
           </Parallaxe>
           <div className="absolute inset-0 bg-black/35" />
+          {/* Hors de la parallaxe : la mention reste dans le coin du bandeau. */}
+          <MentionIllustration src="/images/atelier-soudeur.jpg" locale={locale} ton="sombre" />
           <Apparition className="relative z-10 px-6 text-center">
             <h2 className={`${serif.className} text-[2rem] leading-[1.05] tracking-[-0.016em] text-white drop-shadow-lg sm:text-[2.6rem] md:text-[3.2rem]`}>{t.bandTitle}</h2>
             <p className="mx-auto mt-3 max-w-xl text-[16px] text-white/88 drop-shadow md:text-[19px]">{t.bandSubtitle}</p>
@@ -440,7 +461,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
                 retard={(i % 4) * 110}
                 className="basis-[calc(50%-0.5rem)] md:basis-[calc(25%-1.125rem)]"
               >
-                <CategoryTile {...c} />
+                <CategoryTile {...c} locale={locale} />
               </Apparition>
             ))}
           </div>
@@ -488,6 +509,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
         cta={{ href: `/${locale}/a-propos`, label: t.editorialCta }}
         mention={dict.artisanat.madeInFrance}
         photo={{ src: "/images/escalier/marche-detail.jpg", alt: t.altDetailMarche }}
+        locale={locale}
       />
 
       {/* 6. Les avis — remplir `testimonials` dès qu'il y a de vrais retours clients. */}
@@ -552,7 +574,8 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
       {/* 7. La mission, sur une photo plein cadre */}
       <section className="relative flex min-h-[55vh] items-center justify-center overflow-hidden md:min-h-[80vh]">
         <Parallaxe>
-          <Image
+          <Visuel
+            locale={locale}
             src="/images/vignes-coucher-soleil.jpg"
             alt={t.altVignes}
             fill

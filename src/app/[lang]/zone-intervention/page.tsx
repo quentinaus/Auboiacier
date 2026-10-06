@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { Visuel } from "@/components/visuel";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
 import { metadataPage, jsonLdFilAriane, scriptJsonLd, ATELIER } from "@/lib/seo";
 import { photos } from "@/lib/chantiers";
+import { estVraiePhoto } from "@/lib/visuels";
 import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
@@ -52,7 +53,8 @@ export default async function ZonePage({ params }: PageProps<"/[lang]/zone-inter
 
   // Les chantiers publiés avec leur commune (src/lib/chantiers.ts). Tant
   // qu'il n'y en a aucun, le bloc ne s'affiche pas.
-  const pres = photos.filter((photo) => photo.commune && !photo.video);
+  // Une vraie photo seulement : un visuel n'est jamais présenté comme une réalisation près de chez le visiteur.
+  const pres = photos.filter((photo) => photo.commune && !photo.video && estVraiePhoto(photo.src));
 
   // La question de la FAQ qui répond à « où trouver un métallier à Saumur » :
   // on y renvoie plutôt que de la recopier.
@@ -149,7 +151,8 @@ export default async function ZonePage({ params }: PageProps<"/[lang]/zone-inter
                     const contenu = (
                       <>
                         <div className={`relative aspect-[16/10] overflow-hidden rounded-[22px] ${hoverZoom}`}>
-                          <Image
+                          <Visuel
+                            locale={locale}
                             src={photo.src}
                             alt={legende}
                             fill

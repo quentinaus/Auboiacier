@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 
 import { moinsDAnimations } from "@/lib/ui";
+import type { Locale } from "@/lib/i18n";
+import { MentionIllustration } from "./visuel";
 
 /**
  * UNE VIDÉO EN BOUCLE, SANS SON : elle se lance toute seule (le téléphone l'accepte parce qu'elle est muette), sauf si le visiteur a demandé
@@ -16,7 +18,10 @@ export function VideoBoucle({
   libellePause,
   libelleLecture,
   className = "",
+  locale,
 }: {
+  /** La langue de la page : si la photo d'ouverture est un visuel, la vidéo porte la mention « Image d'illustration ». */
+  locale: Locale;
   src: string;
   poster: string;
   /** Ce que montre la vidéo, pour les lecteurs d'écran. */
@@ -57,6 +62,8 @@ export function VideoBoucle({
         onPause={() => setEnLecture(false)}
         className="block h-full w-full object-cover"
       />
+      {/* En haut : le bouton pause occupe le coin du bas. Rien pour une vraie vidéo (le torse). */}
+      <MentionIllustration src={poster} locale={locale} coin="haut-droite" />
       <button
         type="button"
         onClick={basculer}

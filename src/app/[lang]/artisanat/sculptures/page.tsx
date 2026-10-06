@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { Visuel } from "@/components/visuel";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../../dictionaries";
 import { metadataPage, jsonLdFilAriane, scriptJsonLd } from "@/lib/seo";
@@ -59,7 +59,10 @@ export default async function SculpturesPage({
           la colonne étroite à droite. */}
       <div className="grid md:grid-cols-[minmax(0,1fr)_minmax(380px,36%)] lg:grid-cols-[minmax(0,1fr)_460px]">
         <div className="relative h-[78vw] max-h-[80vh] md:sticky md:top-0 md:h-screen md:max-h-none md:self-start">
-          <Image
+          <Visuel
+            locale={locale}
+            // En haut : l'image fait toute la hauteur de l'écran, son bas tombe sous la ligne de flottaison.
+            coin="haut-droite"
             src="/images/sculpture-cheval-v2.jpg"
             alt={t.photoAlt}
             fill
@@ -100,6 +103,7 @@ export default async function SculpturesPage({
           <Apparition className="mt-10 border-t border-[#e8e1d8] pt-8">
             <span className="surtitre block text-center">{t.torseTitle}</span>
             <VideoBoucle
+              locale={locale}
               src="/videos/torse-acier.mp4"
               poster="/images/torse-acier-poster.jpg"
               description={t.torseVideoAlt}

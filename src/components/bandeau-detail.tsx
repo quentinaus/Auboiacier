@@ -1,5 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
+import type { Locale } from "@/lib/i18n";
+import { Visuel } from "./visuel";
 import { serif } from "@/lib/fonts";
 import { Apparition } from "@/components/apparition";
 
@@ -21,7 +22,10 @@ export function BandeauDetail({
   photo,
   photoAGauche = false,
   className = "",
+  locale,
 }: {
+  /** La langue de la page : celle de la mention « Image d'illustration » posée sur la photo. */
+  locale: Locale;
   titre: string;
   /** Un ou plusieurs paragraphes. */
   corps: string | string[];
@@ -57,7 +61,8 @@ export function BandeauDetail({
         </Apparition>
       </div>
       <div className={`relative min-h-[60vh] md:min-h-[80vh] ${photoAGauche ? "md:order-1" : ""}`}>
-        <Image
+        <Visuel
+          locale={locale}
           src={photo.src}
           alt={photo.alt}
           fill

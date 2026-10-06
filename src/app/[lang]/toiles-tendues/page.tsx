@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { Visuel } from "@/components/visuel";
 import { BandeauDetail } from "@/components/bandeau-detail";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
@@ -28,7 +28,8 @@ const sansVeuve = (texte: string) =>
     .replace(/(\d) ([×x]) (\d)/g, "$1\u00a0$2\u00a0$3")
     .replace(/(\d) (cm|mm|m|km|€|K)(?![\p{L}])/gu, "$1\u00a0$2");
 
-const realisationPhotos: {
+/** Les plafonds en situation : des images d'illustration (voir src/lib/visuels.ts), pas des chantiers. */
+const misesEnSituation: {
   src: string;
   alt: string;
   /** Même description, en anglais : elle est lue par les moteurs et les lecteurs d'écran. */
@@ -38,8 +39,8 @@ const realisationPhotos: {
 }[] = [
   {
     src: "/images/lumiere/lucarne-rgb.jpg",
-    alt: "Plafond lumineux Lucarne posé, toile tendue éclairée en dégradé rose et bleu",
-    altEn: "Lucarne backlit stretch ceiling installed, fabric lit in a pink-to-blue gradient",
+    alt: "Plafond lumineux Lucarne, toile tendue éclairée en dégradé rose et bleu",
+    altEn: "Lucarne backlit stretch ceiling, fabric lit in a pink-to-blue gradient",
   },
   {
     src: "/images/lumiere/salle-ronde.jpg",
@@ -174,7 +175,8 @@ export default async function ToilesTenduesPage({
                     style={{ backgroundColor: product.images[0]?.bg ?? "#ffffff" }}
                   >
                     {product.images[0] && (
-                      <Image
+                      <Visuel
+                        locale={locale}
                         src={product.images[0].src}
                         alt={product.images[0].alt}
                         fill
@@ -282,24 +284,25 @@ export default async function ToilesTenduesPage({
                 </Link>
               </div>
               {/* La toile est réellement éclairée par le dégradé animé. */}
-              <PlafondLumineux alt={t.altPlafondDemo} className="drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)]" />
+              <PlafondLumineux locale={locale} alt={t.altPlafondDemo} className="drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)]" />
             </div>
           </Apparition>
         </div>
       </section>
 
-      {/* Réalisations */}
+      {/* Mises en situation (images d'illustration) */}
       <section className="bg-[#ffffff] py-16 md:py-28">
         <div className="mx-auto max-w-6xl px-6">
           <Apparition>
             <h2 className={titreSection}>{t.realisationsTitle}</h2>
           </Apparition>
           <div className="mt-10 grid gap-5 md:mt-14 md:grid-cols-3">
-            {realisationPhotos.map((photo, i) => (
+            {misesEnSituation.map((photo, i) => (
               <Apparition key={photo.src} retard={(i % 4) * 110}>
                 <div className={`relative aspect-[4/3] overflow-hidden rounded-[22px] ${hoverZoom}`}>
                   {photo.clip && photo.clipBox ? (
                     <PhotoPlafondAnime
+                      locale={locale}
                       src={photo.src}
                       alt={locale === "en" ? photo.altEn : photo.alt}
                       box={photo.clipBox}
@@ -307,7 +310,8 @@ export default async function ToilesTenduesPage({
                       sizes="(max-width: 768px) 100vw, 380px"
                     />
                   ) : (
-                    <Image
+                    <Visuel
+                      locale={locale}
                       src={photo.src}
                       alt={locale === "en" ? photo.altEn : photo.alt}
                       fill
@@ -361,6 +365,7 @@ export default async function ToilesTenduesPage({
         cta={{ href: `/${locale}/contact`, label: dict.nav.contact }}
         mention={dict.artisanat.madeInFrance}
         photo={{ src: "/images/salle-plafond-mikado.jpg", alt: dict.artisanat.altBandeauLumiere }}
+        locale={locale}
       />
     </div>
   );

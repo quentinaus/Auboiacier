@@ -1,8 +1,11 @@
 /**
- * Les chantiers publiés : la page /realisations les montre tous, et la zone
- * d'intervention montre ceux qui portent une commune (« Réalisations près de
- * chez vous ») — la preuve locale, à la place de pages recopiées ville par
- * ville.
+ * Les images de la page « Projets et visuels » (/realisations) : les vraies photos
+ * prises sur le chantier et à l'atelier, puis les modèles en images. Qui est une
+ * vraie photo et qui est une image d'illustration se lit dans src/lib/visuels.ts,
+ * pas ici : la page les range en deux groupes, et chaque visuel porte la mention.
+ * La zone d'intervention montre les vraies photos qui portent une commune
+ * (« Réalisations près de chez vous ») — la preuve locale, à la place de pages
+ * recopiées ville par ville. Un visuel n'y apparaît jamais.
  */
 
 /** Les familles publiées, telles qu'elles s'écrivent dans l'adresse. */
@@ -28,16 +31,17 @@ export type CleLegende =
   | "altVerrierePoseDetail";
 
 /**
- * Chantiers publiés. Chacun porte sa famille et la clé de sa légende dans le
+ * Images publiées. Chacune porte sa famille et la clé de sa légende dans le
  * dictionnaire : la légende change donc de langue avec le reste du site.
  * `lien`, quand il existe, mène à la fiche de la pièce posée — pour qu'un
  * visiteur convaincu par une photo puisse configurer la sienne tout de
  * suite.
- * Pour ajouter un chantier : une ligne ici, et la légende dans les deux
- * dictionnaires (realisations.altXxx), en français et en anglais.
- * `commune` : la commune du chantier, seulement quand elle est vraie et que
- * le client est d'accord. Le chantier apparaît alors aussi sur la page
- * « Zone d'intervention ».
+ * Pour ajouter une image : une ligne ici, et la légende dans les deux
+ * dictionnaires (realisations.altXxx), en français et en anglais. Une vraie
+ * photo de chantier s'ajoute AUSSI à VRAIES_PHOTOS (src/lib/visuels.ts).
+ * `commune` : la commune du chantier, seulement pour une vraie photo, quand
+ * elle est vraie et que le client est d'accord. Le chantier apparaît alors
+ * aussi sur la page « Zone d'intervention ».
  */
 export const photos: {
   src: string;

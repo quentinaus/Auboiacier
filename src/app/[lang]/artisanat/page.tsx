@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { Visuel } from "@/components/visuel";
 import { BandeauDetail } from "@/components/bandeau-detail";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
@@ -194,7 +194,8 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
                       style={{ backgroundColor: product.images[0]?.bg ?? "#ffffff" }}
                     >
                       {product.images[0] ? (
-                        <Image
+                        <Visuel
+                          locale={locale}
                           src={product.images[0].src}
                           alt={product.images[0].alt}
                           fill
@@ -274,7 +275,8 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
                     <div
                       className={`relative aspect-[4/3] overflow-hidden rounded-[22px] bg-white ${hoverZoom}`}
                     >
-                      <Image
+                      <Visuel
+                        locale={locale}
                         src={famille.page.src}
                         alt={famille.page.alt}
                         fill
@@ -308,6 +310,7 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
         cta={{ href: `/${locale}/contact`, label: dict.nav.contact }}
         mention={dict.artisanat.madeInFrance}
         photo={{ src: "/images/mikado/ambiance.jpg", alt: dict.hub.altHeroMobilier }}
+        locale={locale}
       />
     </div>
   );

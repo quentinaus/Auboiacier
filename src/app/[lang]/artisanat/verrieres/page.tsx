@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { Visuel } from "@/components/visuel";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../../dictionaries";
 import { metadataPage, jsonLdFilAriane, scriptJsonLd } from "@/lib/seo";
@@ -58,7 +58,10 @@ export default async function VerrieresPage({
           la colonne étroite à droite. */}
       <div className="grid md:grid-cols-[minmax(0,1fr)_minmax(380px,36%)] lg:grid-cols-[minmax(0,1fr)_460px]">
         <div className="relative h-[78vw] max-h-[80vh] md:sticky md:top-0 md:h-screen md:max-h-none md:self-start">
-          <Image
+          <Visuel
+            locale={locale}
+            // En haut : l'image fait toute la hauteur de l'écran, son bas tombe sous la ligne de flottaison.
+            coin="haut-droite"
             src="/images/verriere-interieure.jpg"
             alt={t.photoAlt}
             fill
@@ -122,6 +125,7 @@ export default async function VerrieresPage({
         corps={t.detailBody}
         mention={dict.artisanat.madeInFrance}
         photo={{ src: "/images/verriere-poignee-laiton.jpg", alt: t.detailAlt }}
+        locale={locale}
       />
 
       {/* Le panneau plein */}
@@ -129,7 +133,8 @@ export default async function VerrieresPage({
         <div className="mx-auto max-w-6xl">
           <Apparition>
             <div className={`relative aspect-[4/3] overflow-hidden rounded-[28px] bg-white sm:aspect-[21/9] ${hoverZoomSubtle}`}>
-              <Image
+              <Visuel
+                locale={locale}
                 src="/images/verriere-croisillon.jpg"
                 alt={t.panelAlt}
                 fill

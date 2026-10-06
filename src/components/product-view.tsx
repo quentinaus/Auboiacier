@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { Visuel } from "./visuel";
 import { essenceDeReference, type Product } from "@/lib/products";
 import { prixAfficheFiche } from "@/lib/donnees-google";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
@@ -424,10 +424,15 @@ export function ProductView({
                 sizes="(max-width: 768px) 100vw, 66vw"
                 className="object-contain p-6 md:p-12"
                 priority
+                locale={locale}
+                coin="haut-droite"
               />
             </div>
           ) : mainImage ? (
-            <Image
+            /* La mention en haut à droite : en bas, la bande de vignettes ; sur les côtés, les flèches. */
+            <Visuel
+              locale={locale}
+              coin="haut-droite"
               key={mainSrc}
               src={mainSrc!}
               alt={mainImage.alt}
@@ -494,7 +499,7 @@ export function ProductView({
                     isCurrent ? "ring-2 ring-inset ring-[#2b2320]" : ""
                   }`}
                 >
-                  <Image src={f.image!} alt={f.label} fill sizes="120px" className="object-cover" />
+                  <Visuel locale={locale} vignette src={f.image!} alt={f.label} fill sizes="120px" className="object-cover" />
                 </button>
               );
             })}
@@ -512,7 +517,9 @@ export function ProductView({
                 }`}
                 style={{ backgroundColor: img.bg ?? "#ffffff" }}
               >
-                <Image
+                <Visuel
+                  locale={locale}
+                  vignette
                   src={img.src}
                   alt={img.alt}
                   fill
@@ -547,7 +554,9 @@ export function ProductView({
                   >
                     {/* Une photo de studio se montre entière, comme en grand :
                         recadrée au carré, une table longue perdait ses pieds. */}
-                    <Image
+                    <Visuel
+                      locale={locale}
+                      vignette
                       src={srcParColoris(img) ?? img.src}
                       alt={img.alt}
                       fill

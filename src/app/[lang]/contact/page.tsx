@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
-import Image from "next/image";
+import { Visuel } from "@/components/visuel";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
 import { metadataPage, CONTACT_PUBLIC, horairesLisibles, telephoneLisible } from "@/lib/seo";
@@ -121,7 +121,8 @@ export default async function ContactPage({
 
             <Apparition className="mt-10 hidden lg:block">
               <div className="relative aspect-[4/3] overflow-hidden rounded-[22px]">
-                <Image
+                <Visuel
+                  locale={locale}
                   src="/images/atelier-soudeur.jpg"
                   alt={dict.hub.altAtelier}
                   fill

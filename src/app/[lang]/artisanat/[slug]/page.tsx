@@ -3,7 +3,7 @@ import { compteConfigure } from "@/lib/compte-jetons";
 import { commandesOuvertes } from "@/lib/entreprise";
 import { textesOuverture } from "@/lib/ouverture";
 import Link from "next/link";
-import Image from "next/image";
+import { Visuel } from "@/components/visuel";
 import { notFound } from "next/navigation";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../../dictionaries";
@@ -316,7 +316,8 @@ export default async function ProductPage({
                     className={`relative aspect-[4/3] overflow-hidden rounded-[24px] ${hoverZoomSubtle}`}
                     style={{ backgroundColor: section.image ? "#ffffff" : (sectionImages[(i + 1) % sectionImages.length].bg ?? "#ffffff") }}
                   >
-                    <Image
+                    <Visuel
+                      locale={locale}
                       src={section.image ?? sectionImages[(i + 1) % sectionImages.length].src}
                       alt={section.image ? section.title : sectionImages[(i + 1) % sectionImages.length].alt}
                       fill
@@ -450,7 +451,8 @@ export default async function ProductPage({
                       style={{ backgroundColor: carte.image?.bg ?? "#ffffff" }}
                     >
                       {carte.image ? (
-                        <Image
+                        <Visuel
+                          locale={locale}
                           src={carte.image.src}
                           alt={carte.image.alt}
                           fill

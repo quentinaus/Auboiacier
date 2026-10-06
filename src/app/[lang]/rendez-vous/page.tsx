@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
-import Image from "next/image";
+import { Visuel } from "@/components/visuel";
 import Link from "next/link";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
@@ -121,7 +121,8 @@ export default async function RendezVousPage({ params }: PageProps<"/[lang]/rend
                     <Link href={`/${locale}/artisanat/${product.slug}#cotes`} className="group flex flex-col gap-5">
                       <div className={`relative aspect-[4/3] overflow-hidden rounded-[22px] ${hoverZoom}`} style={{ backgroundColor: image?.bg ?? "#ffffff" }}>
                         {image && (
-                          <Image
+                          <Visuel
+                            locale={locale}
                             src={image.src}
                             alt={image.alt}
                             fill

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useState } from "react";
-import Image from "next/image";
+import { Visuel } from "./visuel";
 import Link from "next/link";
 import { useCart, type CartItem } from "@/lib/cart";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
@@ -344,7 +344,7 @@ export function CartView({
             <li key={line.id} className="flex gap-4 py-7 sm:gap-6 md:py-8">
               <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[16px] bg-[#f2f2f1] sm:h-24 sm:w-24 md:h-28 md:w-28">
                 {line.image && (
-                  <Image src={line.image} alt={line.name} fill sizes="112px" className="object-cover" />
+                  <Visuel locale={locale} vignette src={line.image} alt={line.name} fill sizes="112px" className="object-cover" />
                 )}
                 {line.visite && (
                   /* Une visite : un calendrier ; une pose ou une livraison : la route ; un retrait : l'atelier. */

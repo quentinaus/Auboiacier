@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
-import Image from "next/image";
+import { Visuel } from "@/components/visuel";
 import Link from "next/link";
 import { BandeauDetail } from "@/components/bandeau-detail";
 import { isLocale, defaultLocale } from "@/lib/i18n";
@@ -53,7 +53,8 @@ export default async function AProposPage({
         {/* L'atelier et sa ville */}
         <div className="entree-monte mx-auto mt-10 max-w-6xl md:mt-16" style={{ "--retard": "320ms" } as CSSProperties}>
           <div className="relative aspect-[16/9] overflow-hidden rounded-[22px] md:aspect-[21/9] md:rounded-[28px]">
-            <Image
+            <Visuel
+              locale={locale}
               src="/images/saumur.jpg"
               alt={t.photoAlt}
               fill
@@ -95,6 +96,7 @@ export default async function AProposPage({
         cta={{ href: `/${locale}/devis`, label: dict.hub.missionCta }}
         mention={dict.artisanat.madeInFrance}
         photo={{ src: "/images/atelier-soudeur.jpg", alt: dict.hub.altAtelier }}
+        locale={locale}
         photoAGauche
       />
 

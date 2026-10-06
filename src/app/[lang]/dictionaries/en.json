@@ -5,7 +5,7 @@
   },
   "nav": {
     "home": "Home",
-    "realisations": "Projects",
+    "realisations": "Projects and visuals",
     "produits": "The collection",
     "devis": "Instant quote",
     "apropos": "About",
@@ -59,10 +59,10 @@
     "editorialBody1": "Auboiacier is a metalwork workshop. Steel is cut, welded, ground, then painted here. Solid wood comes to sit on it — table tops, stair treads, shelves — glued, sanded and oiled in the same place.",
     "editorialBody2": "No production runs: every piece is made to order, to the dimensions of your home, and can be sanded or repainted rather than replaced.",
     "editorialCta": "See the workshop",
-    "testimonialsTitle": "What our clients say",
-    "testimonialsNote": "First projects are under way: client reviews will be published here.",
+    "testimonialsTitle": "Client reviews",
+    "testimonialsNote": "Reviews from our first clients will be published here, as soon as the first pieces are delivered.",
     "testimonialsNoteGoogle": "Find the workshop on its Google Business Profile.",
-    "testimonialsCta": "See our work",
+    "testimonialsCta": "See projects and visuals",
     "missionTitle": "What we are trying to do",
     "missionBody": "To make pieces in steel and solid wood that can still be sanded and repainted in thirty years, rather than replaced.",
     "missionCta": "Request a quote",
@@ -114,8 +114,8 @@
     "heroTitle": "Backlit stretch-fabric ceilings, made to measure in Saumur",
     "heroSubtitle": "Mitred aluminium frame, stretched fabric, integrated LED lighting. Every ceiling is made in the workshop to the dimensions of your room.",
     "heroCtaPrimary": "Request a quote",
-    "heroCtaSecondary": "See the projects",
-    "realisationsTitle": "Recent projects",
+    "heroCtaSecondary": "See more pictures",
+    "realisationsTitle": "In situ",
     "gammesTitle": "What a backlit stretch ceiling changes",
     "gammes": [
       {
@@ -156,8 +156,11 @@
     "altPlafondDemo": "Backlit stretched-fabric ceiling on an aluminium frame"
   },
   "realisations": {
-    "title": "Projects",
-    "subtitle": "Tables, railings, staircases, glass partitions and backlit ceilings, fitted for homes and businesses.",
+    "title": "Projects and visuals",
+    "subtitle": "The workshop's designs in pictures — tables, railings, staircases, glass partitions, backlit ceilings, sculptures — and the first photos taken on site and in the workshop.",
+    "chantierTitle": "In photos: on site and in the workshop",
+    "visuelsTitle": "Our designs in pictures",
+    "visuelsNote": "Illustrations showing our designs: the piece made to your measurements may differ slightly.",
     "filterAll": "All",
     "filterTable": "Tables",
     "filterGardeCorps": "Railings",
@@ -165,8 +168,8 @@
     "filterPlafond": "Backlit ceilings",
     "filterVerriere": "Glass partitions",
     "filterSculpture": "Sculptures",
-    "moreSoon": "More projects will be added as installs are completed.",
-    "filterEmpty": "No project in this family has been published yet.",
+    "moreSoon": "Photos of the workshop's jobs will be added here as they are fitted.",
+    "filterEmpty": "Nothing has been published in this family yet.",
     "altTableMikado": "Walnut Mikado table and green velvet chairs, in a dining room with stone walls",
     "altGardeCorpsInterieur": "Window railing fitted into the reveal, seen from the room",
     "altGardeCorpsRue": "The same railing seen from the street, resting on a tuffeau stone sill",
@@ -238,10 +241,10 @@
     "delaiTitle": "Lead time",
     "delaiBody": "Nothing is kept in stock: your piece is made for you, to order. Its lead time is shown above, on the “Lead time” line, and confirmed when you order.",
     "delaiCta": "Order",
-    "avisTitle": "What our clients say",
-    "avisNote": "First projects are under way: client reviews will be published here.",
+    "avisTitle": "Client reviews",
+    "avisNote": "Reviews from our first clients will be published here, as soon as the first pieces are delivered.",
     "avisNoteGoogle": "Find the workshop on its Google Business Profile.",
-    "avisCta": "See our work",
+    "avisCta": "See projects and visuals",
     "contactTitle": "Tell us about your project",
     "contactBody": "A particular size, a specific timber, a colour outside the range? Write to us: we adapt the model and quote it.",
     "contactCta": "Get in touch",
@@ -597,7 +600,7 @@
     "histoireBody": "Auboiacier is a metalwork workshop in Saumur, in the Loire Valley. It is run by Quentin Aumercier, a welder and metalworker trained on building sites and in workshops, in France and then in Australia, where he spent several years with a maker of backlit stretch ceilings. He brought back a method: measure right, weld clean, finish without compromise. Back in Anjou, he opened the workshop to make tables, staircases, railings and light ceilings — one piece at a time, to order, for customers who know what they want.",
     "savoirFaireTitle": "Our craft",
     "savoirFaireBody": [
-      "Everything is made here, in Saumur. The steel is cut, TIG-welded and ground in the workshop; the solid wood is cut, glued, sanded and oiled on the same bench; the aluminium frames of the light ceilings are mitred and fitted to the millimetre. Nothing is subcontracted, nothing is imported.",
+      "Everything is made here, in Saumur. The steel is cut, TIG-welded and ground in the workshop; the solid wood is cut, glued, sanded and oiled on the same bench; the aluminium frames of the light ceilings are mitred and fitted to the millimetre. Nothing is subcontracted.",
       "What that means for you: dimensions held to the millimetre, full welds that stand up to a close look, finishes that age well. And a piece we know by heart — if it needs attention in ten years, we know exactly how it was made."
     ],
     "valeursTitle": "Our values",
@@ -682,7 +685,7 @@
   "sculptures": {
     "title": "Sculptures",
     "tagline": "One-off pieces in reclaimed steel, welded by hand.",
-    "intro": "The rearing horse is made of hundreds of steel offcuts — spanners, chains, bolts, sheet metal — welded one by one until the animal's movement appears. It is not a production item: it is an artwork.",
+    "intro": "A rearing horse is made from hundreds of steel offcuts — spanners, chains, bolts, sheet metal — welded one by one until the animal's movement appears. It is not a production item: it is an artwork.",
     "body": "Every sculpture is designed with you: the subject, the size, the materials, the base and the place it will stand. The work is done by hand in the workshop and takes several weeks depending on the piece. They live outdoors in the rain just as well as in a hallway.",
     "priceTitle": "Price",
     "priceBody": "On request — each piece being unique, the price depends on the subject, its size and the time it takes to build.",
@@ -859,11 +862,15 @@
       },
       {
         "title": "Intellectual property",
-        "body": "The texts, photographs and creations shown on this site belong to Auboiacier. Any reproduction without permission is forbidden."
+        "body": "The texts, images and creations shown on this site belong to Auboiacier. Any reproduction without permission is forbidden."
       },
       {
         "title": "Personal data",
         "body": "Data sent through the forms or when ordering is used to answer your request, process your order and follow it up (including a single review request after delivery). You have the right to access, correct, erase, restrict and port your data, and to object to its use: write to auboiacier@gmail.com. Full details — data collected, providers, retention, transfers, cookies, how to complain to the CNIL — are in the privacy policy."
+      },
+      {
+        "title": "Illustrations",
+        "body": "Images marked “Illustration” show our designs; the piece made to your measurements may differ slightly (proportions, wood tone, finish)."
       }
     ],
     "privacyCta": "Read the privacy policy",
@@ -1004,8 +1011,8 @@
       "description": "Table, staircase, steel partition or backlit stretch ceiling: describe your project, estimate within 48 hours by email. Workshop in Saumur, France."
     },
     "realisations": {
-      "title": "Our projects: furniture & fittings",
-      "description": "Tables, railings, staircases, glass partitions and backlit ceilings for homes and businesses in the Loire Valley, from our Saumur workshop."
+      "title": "Projects and visuals from the workshop",
+      "description": "The workshop's designs in pictures — tables, railings, staircases, glass partitions, backlit ceilings — and the first site photos, from Saumur, France."
     },
     "devis": {
       "title": "Instant quote, priced in one minute",
