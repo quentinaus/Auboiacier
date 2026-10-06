@@ -19,13 +19,14 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 
 import frBrut from "../src/app/[lang]/dictionaries/fr.json" with { type: "json" };
 import enBrut from "../src/app/[lang]/dictionaries/en.json" with { type: "json" };
-import { CHEMIN_SOUDURE, TEXTES_SOUDURE } from "../src/lib/textes/soudure-reparations.ts";
+import { CHEMIN_SOUDURE, TEXTES_SOUDURE, valeursSoudure } from "../src/lib/textes/soudure-reparations.ts";
 import { descriptionSeo, descriptionTient, jsonLdAtelier, jsonLdService, SITE_URL, titreSeo } from "../src/lib/seo.ts";
-import { marqueursRestants, remplacerMarqueurs, verifierMarqueurs } from "../src/lib/marqueurs.ts";
+import { marqueursRestants, remplacerAvec, remplacerMarqueurs, verifierMarqueurs } from "../src/lib/marqueurs.ts";
 import { DATE_OUVERTURE_COMMANDES } from "../src/lib/ouverture.ts";
 import { getProduct } from "../src/lib/products.ts";
 
@@ -33,8 +34,17 @@ const LOCALES = ["fr", "en"] as const;
 const lire = (chemin: string) => readFileSync(new URL(chemin, import.meta.url), "utf8");
 const PAGE = "../src/app/[lang]/soudure-reparations/page.tsx";
 
-/** Les textes tels que la page les affiche : marqueurs remplacés par les valeurs du code. */
-const textes = (locale: (typeof LOCALES)[number]) => remplacerMarqueurs(TEXTES_SOUDURE[locale], locale);
+/** Les textes tels que la page les affiche : marqueurs du code, puis jour d'ouverture des commandes. */
+const textes = (locale: (typeof LOCALES)[number]) =>
+  remplacerAvec(remplacerMarqueurs(TEXTES_SOUDURE[locale], locale), valeursSoudure(locale));
+
+/**
+ * L'employeur australien de Quentin n'est jamais nommé, ni sur le site, ni dans ce dépôt public : on compare
+ * l'empreinte SHA-256 de chaque mot (en minuscules) à celle de son nom, sans écrire le nom.
+ */
+const EMPREINTE_EMPLOYEUR = "bf70b26b10a2574dffe657b352a33dcb77171cb312337e7afafbc199da9ed2db";
+const nommeEmployeur = (texte: string) =>
+  (texte.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? []).some((mot) => createHash("sha256").update(mot).digest("hex") === EMPREINTE_EMPLOYEUR);
 /** Toutes les chaînes d'un objet, bout à bout. */
 const tout = (valeur: unknown) => JSON.stringify(valeur);
 
@@ -87,6 +97,8 @@ for (const locale of LOCALES) {
     assert.deepEqual(marqueursRestants(TEXTES_SOUDURE[locale]).sort(), ["{prixVisite}", "{rayonVisite}"]);
     assert.doesNotThrow(() => verifierMarqueurs(t, `soudure-reparations (${locale})`));
     assert.deepEqual(marqueursRestants(t), []);
+    // Ni marqueur de la page resté tel quel (« {ouverture} »).
+    assert.doesNotMatch(tout(t), /\{\w+\}/, "un marqueur de la page n'a pas été remplacé");
     assert.match(t.cotesTexte, /€/, "le prix de la prise de cotes vient du code");
   });
 
@@ -116,7 +128,7 @@ for (const locale of LOCALES) {
       locale === "fr" ? ["TIG", "MAG", "Électrode"] : ["TIG", "MIG/MAG", "Stick"]
     );
     // L'employeur australien n'est jamais nommé.
-    assert.doesNotMatch(tout(t), /Newmat/i);
+    assert.ok(!nommeEmployeur(tout(t)), "l'employeur australien est nommé");
     // « English spoken » : sur la page anglaise seulement.
     if (locale === "en") assert.equal(t.quiLangue, "English spoken.");
     else assert.equal(t.quiLangue, "");
@@ -132,6 +144,9 @@ for (const locale of LOCALES) {
     });
     const attendu = locale === "fr" ? jour : jour.replace(/^(\w+),? /, "$1 ");
     assert.ok(t.ouverture.includes(attendu), `« ${t.ouverture} » ne dit pas « ${attendu} »`);
+    // Le jour vient du code : le texte brut n'en écrit aucun.
+    assert.doesNotMatch(TEXTES_SOUDURE[locale].ouverture, /\d|décembre|december|lundi|monday/i);
+    assert.match(TEXTES_SOUDURE[locale].ouverture, /\{ouverture\}/);
   });
 
   test(`${locale} : le service pour Google — son nom est une offre de l'atelier, sans prix`, () => {
@@ -189,7 +204,7 @@ test("la page : un H1, fil d'Ariane visible et balisé, service sans FAQ balisé
   assert.doesNotMatch(source, /jsonLdFaq|FaqVisible/, "FAQ balisée réservée à /faq, /artisanat/tables et /toiles-tendues");
   assert.doesNotMatch(source, /jsonLdProduit|AggregateRating|"Review"/);
   // Les marqueurs remplacés et vérifiés dans la page : un marqueur sans valeur fait échouer la page.
-  assert.match(source, /remplacerMarqueurs\(TEXTES_SOUDURE\[locale\], locale\)/);
+  assert.match(source, /remplacerAvec\(remplacerMarqueurs\(TEXTES_SOUDURE\[locale\], locale\), valeursSoudure\(locale\)\)/);
   assert.match(source, /verifierMarqueurs\(/);
   // Avant l'ouverture : seulement des demandes de devis.
   assert.match(source, /!commandesOuvertes\(\) &&/);

@@ -88,7 +88,8 @@ for (const locale of LANGUES) {
   });
 
   test(`${locale} : aucun mot interdit (liste « Jamais » du plan, « artisan » avant l'immatriculation)`, () => {
-    const texte = tout(textesGcExterieur(locale));
+    // Sans la ligne de tri : elle seule nomme le « Juliet balcony », pour renvoyer vers la fiche qui le fait.
+    const texte = tout({ ...textesGcExterieur(locale), tri: { texte: "", lien: "" } });
     const interdits: RegExp[] = [
       /premium/i,
       /\blux(e|ueux|ueuse|ury)\b/i,
@@ -136,6 +137,17 @@ for (const locale of LANGUES) {
     const faqPose = t.faq.find((qr) => /pose|fitting/i.test(qr.q));
     assert.ok(faqPose, "une question sur la pose");
     assert.match(faqPose.r, locale === "fr" ? /décennale/ : /ten-year/);
+  });
+
+  test(`${locale} : les mots tapés (garde-corps extérieurs, balustrade) et le tri vers la porte-fenêtre`, () => {
+    const t = textesGcExterieur(locale);
+    // « garde-corps extérieur sur mesure » : dans le texte visible, pas seulement dans le JSON-LD.
+    assert.match(t.ouvragesTitre, locale === "fr" ? /^Garde-corps extérieurs/ : /balustrades/);
+    if (locale === "en") assert.match(t.seo.description, /balustrades/);
+    // La porte-fenêtre : la fiche du garde-corps de fenêtre, prix en ligne ; le « Juliet balcony » n'est nommé que là.
+    assert.match(t.tri.texte, locale === "fr" ? /porte-fenêtre/ : /Juliet balcony/);
+    if (locale === "en") assert.match(t.tri.lien, /Juliet balcony/);
+    assert.match(PAGE, /<Link href=\{fiche\}[^>]*>\s*\{t\.tri\.lien\}/);
   });
 
   test(`${locale} : aucun des faits faux connus (corrections du 07/10/2026)`, () => {
@@ -206,7 +218,7 @@ test("la page : un seul H1, le fil d'Ariane et le service balisés, aucune FAQ b
   assert.match(PAGE, /jsonLdService\(/);
   assert.doesNotMatch(PAGE, /jsonLdFaq|FaqVisible/);
   assert.doesNotMatch(PAGE, /offre\s*:/, "le service n'annonce aucun prix");
-  for (const lien of ["/artisanat/garde-corps", "/garde-corps-fenetre-normes", "/rendez-vous", "/contact", "/zone-intervention", "/bois-massif"]) {
+  for (const lien of ["/artisanat/garde-corps", "/garde-corps-fenetre-normes", "/rendez-vous", "/contact", "/zone-intervention", "/bois-massif", "/soudure-reparations"]) {
     assert.ok(PAGE.includes(lien), `lien vers ${lien}`);
   }
   // Les textes viennent tous du fichier des textes : aucune phrase en dur dans la page.

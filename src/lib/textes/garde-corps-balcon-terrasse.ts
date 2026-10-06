@@ -120,6 +120,12 @@ export type TextesGcExterieur = {
   ctaContact: string;
   ouvragesTitre: string;
   ouvrages: Bloc[];
+  /**
+   * La porte-fenêtre (balcon français, « Juliet balcony ») n'est pas ici : elle se commande sur la fiche du
+   * garde-corps de fenêtre, prix en ligne (guide des normes, « porteFenetreBody »). Une ligne de tri, avec son lien,
+   * pour que le visiteur et Google sachent quelle page répond à quoi.
+   */
+  tri: { texte: string; lien: string };
   normesTitre: string;
   normesIntro: string;
   normes: Bloc[];
@@ -147,7 +153,7 @@ export type TextesGcExterieur = {
   /** Une ligne de plus sur la page anglaise (vide en français). */
   anglais: string;
   voirAussi: string;
-  liens: { fiche: string; normes: string; bois: string; zone: string; escalier: string };
+  liens: { fiche: string; normes: string; bois: string; zone: string; escalier: string; soudure: string };
   service: { nom: string; type: string };
 };
 
@@ -165,7 +171,8 @@ const FR: TextesGcExterieur = {
   ctaRdv: "Réserver la prise de cotes",
   ctaContact: "Décrire mon projet",
 
-  ouvragesTitre: "Un balcon, une terrasse, un escalier dehors",
+  // « garde-corps extérieur sur mesure » : la 2e suggestion Google de « garde corps terrasse / balcon sur mesure ».
+  ouvragesTitre: "Garde-corps extérieurs : balcon, terrasse, escalier",
   ouvrages: [
     {
       titre: "Garde-corps de balcon",
@@ -183,6 +190,10 @@ const FR: TextesGcExterieur = {
         "Le long d'un escalier extérieur : une main courante fixée au mur, ou une rampe avec son garde-corps du côté vide, qui suit la pente des marches.",
     },
   ],
+  tri: {
+    texte: "Devant une porte-fenêtre, le balcon français se fabrique comme un garde-corps de fenêtre, avec son prix en ligne.",
+    lien: "Garde-corps de fenêtre et de porte-fenêtre",
+  },
 
   normesTitre: "Hauteur et normes : ce que demande la règle",
   normesIntro:
@@ -304,6 +315,7 @@ const FR: TextesGcExterieur = {
     bois: "Le bois massif à l'atelier",
     zone: "Zone d'intervention",
     escalier: "Escalier à limon central",
+    soudure: "Réparer un garde-corps : soudure et réparations",
   },
   service: { nom: "Garde-corps de balcon et de terrasse sur mesure", type: "Garde-corps extérieur en acier" },
 };
@@ -311,8 +323,9 @@ const FR: TextesGcExterieur = {
 const EN: TextesGcExterieur = {
   seo: {
     title: "Bespoke balcony and terrace railings",
+    // « balustrade » : le mot que tapent les Britanniques (« bespoke balustrade », « steel balustrade »).
     description:
-      "Bespoke balcony and terrace railings and outdoor stair rails in hand-welded steel, made in Saumur, France, with a steel or solid wood handrail. On quote.",
+      "Bespoke balcony and terrace railings and balustrades in hand-welded steel, made in Saumur, France, with a steel or solid wood handrail. Quoted per project.",
   },
   fil: "Balcony and terrace railings",
   surtitre: "Balconies, terraces, outdoor stairs",
@@ -322,7 +335,7 @@ const EN: TextesGcExterieur = {
   ctaRdv: "Book a measuring visit",
   ctaContact: "Describe my project",
 
-  ouvragesTitre: "A balcony, a terrace, outdoor stairs",
+  ouvragesTitre: "Outdoor railings and balustrades: balcony, terrace, stairs",
   ouvrages: [
     {
       titre: "Balcony railings",
@@ -340,6 +353,10 @@ const EN: TextesGcExterieur = {
         "Along outdoor steps: a handrail fixed to the wall, or a stair rail with its balustrade on the open side, following the pitch of the steps.",
     },
   ],
+  tri: {
+    texte: "A Juliet balcony across a French window is made like a window railing, and priced online.",
+    lien: "Juliet balcony railings",
+  },
 
   normesTitre: "Height and French rules: what is required",
   normesIntro:
@@ -418,7 +435,7 @@ const EN: TextesGcExterieur = {
 
   prixTitre: "What a balcony or terrace railing costs",
   prix: [
-    "On quote. The price depends on the length and height, the design, the handrail, the finish, the fixings and access to the site.",
+    "Quoted per project. The price depends on the length and height, the design, the handrail, the finish, the fixings and access to the site.",
     "We do not give a price per metre without seeing the structure: it decides the fixings, and the fixings are part of the price.",
   ],
   prixLienFenetre: "Window railings: priced online",
@@ -461,6 +478,7 @@ const EN: TextesGcExterieur = {
     bois: "Solid wood in our workshop",
     zone: "Where we work",
     escalier: "Steel spine staircase",
+    soudure: "Repairing a railing: welding and repairs",
   },
   service: { nom: "Bespoke balcony and terrace railings", type: "Steel outdoor railings" },
 };
@@ -475,8 +493,8 @@ export function textesBrutsGcExterieur(locale: Locale): TextesGcExterieur {
 /** L'espace insécable entre un nombre et son unité. */
 const NBSP = " ";
 
-/** Un jour du calendrier, en toutes lettres : « lundi 7 décembre 2026 », « Monday 7 December 2026 ». */
-function jourEnLettres(iso: string, locale: Locale, avecJour: boolean): string {
+/** Un jour du calendrier, en toutes lettres : « lundi 7 décembre 2026 », « Monday 7 December 2026 » (aussi pour la page soudure). */
+export function jourEnLettres(iso: string, locale: Locale, avecJour: boolean): string {
   const date = new Date(`${iso}T12:00:00Z`);
   return date
     .toLocaleDateString(locale === "fr" ? "fr-FR" : "en-GB", {

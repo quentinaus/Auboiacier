@@ -1,6 +1,7 @@
 // Extensions écrites en toutes lettres : les tests (node --test, sans outil
 // de construction) importent ce fichier tel quel.
 import type fr from "../app/[lang]/dictionaries/fr.json";
+import type { GuideEscalier } from "./textes/guide-escalier.ts";
 import { remplir } from "./vitrine.ts";
 
 /**
@@ -8,9 +9,11 @@ import { remplir } from "./vitrine.ts";
  *
  * Règle : une même question, ou une même réponse, n'est balisée qu'UNE fois
  * sur tout le site. Les pages les prennent ici, et tests/seo-fiches.test.ts
- * vérifie qu'aucune ne revient deux fois. Seules ces trois pages balisent
- * leurs questions : /faq, /artisanat/tables et /toiles-tendues. Ailleurs
- * (fiches produit, bois massif), les questions s'affichent sans balisage.
+ * vérifie qu'aucune ne revient deux fois. Seules ces quatre pages balisent
+ * leurs questions : /faq, /artisanat/tables, /toiles-tendues et le guide de
+ * l'escalier (plan de référencement, page n° 1). Ailleurs (fiches produit,
+ * bois massif, pages balcon et soudure), les questions s'affichent sans
+ * balisage.
  */
 
 /** Un dictionnaire, marqueurs remplacés (les deux langues ont les mêmes clés). */
@@ -53,4 +56,13 @@ export function questionsPlafonds(dict: Dict, delai: string | null): QuestionRep
     { q: dict.artisanat.faqToileQ, a: dict.artisanat.faqToileA },
     ...(delai ? [{ q: tl.faq[2].q, a: remplir(tl.faq[2].a, { delai }) }] : []),
   ];
+}
+
+/**
+ * Le guide « Escalier à limon central : prix, formes et normes » : ses
+ * questions, telles que la page les affiche (marqueurs remplacés), et les
+ * mêmes pour Google.
+ */
+export function questionsEscalier(guide: GuideEscalier): QuestionReponse[] {
+  return guide.faq.questions.map((qr) => ({ q: qr.q, a: qr.a }));
 }

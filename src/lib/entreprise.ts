@@ -85,3 +85,14 @@ export function champsManquants(fiche: Fiche = ENTREPRISE): string[] {
 export function commandesOuvertes(fiche: Fiche = ENTREPRISE) {
   return champsManquants(fiche).length === 0;
 }
+
+/**
+ * L'interrupteur « décennale » (plan de référencement, lot L10) : poser chez
+ * le client demande l'assurance décennale (code des assurances, art. L241-1
+ * et L243-3). Tant que la ligne `assurance` est vide, aucun texte nouveau ne
+ * promet la pose ; il dit à la place qu'elle sera proposée une fois
+ * l'assurance signée (guide de l'escalier, page balcon et terrasse).
+ */
+export function poseAssuree(fiche: Fiche = ENTREPRISE) {
+  return fiche.assurance.trim() !== "";
+}

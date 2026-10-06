@@ -4,9 +4,9 @@ import Link from "next/link";
 import { isLocale, defaultLocale, type Locale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
 import { metadataPage, jsonLdFilAriane, jsonLdService, scriptJsonLd } from "@/lib/seo";
-import { remplacerMarqueurs, verifierMarqueurs } from "@/lib/marqueurs";
+import { remplacerAvec, remplacerMarqueurs, verifierMarqueurs } from "@/lib/marqueurs";
 import { commandesOuvertes } from "@/lib/entreprise";
-import { CHEMIN_SOUDURE, TEXTES_SOUDURE } from "@/lib/textes/soudure-reparations";
+import { CHEMIN_SOUDURE, TEXTES_SOUDURE, valeursSoudure } from "@/lib/textes/soudure-reparations";
 import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Apparition } from "@/components/apparition";
@@ -29,9 +29,12 @@ import { serif } from "@/lib/fonts";
  * est réservée à /faq, /artisanat/tables et /toiles-tendues.
  */
 
-/** Les textes de la page dans une langue, marqueurs remplacés ; un marqueur sans valeur fait échouer la page. */
+/**
+ * Les textes de la page dans une langue, marqueurs remplacés (ceux du code, puis le jour d'ouverture des
+ * commandes) ; un marqueur sans valeur fait échouer la page.
+ */
 function textes(locale: Locale) {
-  const t = remplacerMarqueurs(TEXTES_SOUDURE[locale], locale);
+  const t = remplacerAvec(remplacerMarqueurs(TEXTES_SOUDURE[locale], locale), valeursSoudure(locale));
   verifierMarqueurs(t, `soudure-reparations (${locale})`);
   return t;
 }

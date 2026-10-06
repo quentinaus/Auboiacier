@@ -3,7 +3,8 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
-import { metadataPage, jsonLdArticle, jsonLdFilAriane, scriptJsonLd } from "@/lib/seo";
+import { metadataPage, jsonLdArticle, jsonLdFaq, jsonLdFilAriane, scriptJsonLd } from "@/lib/seo";
+import { questionsEscalier } from "@/lib/faq-balisees";
 import {
   CHEMIN_GUIDE_ESCALIER,
   DATE_MODIFICATION_GUIDE_ESCALIER,
@@ -26,11 +27,12 @@ import { Visuel } from "@/components/visuel";
  * guideEscalier (src/lib/textes/guide-escalier.ts), qui lit le moteur du
  * catalogue, les marqueurs du code et src/lib/normes-escalier.ts.
  *
- * Données structurées : fil d'Ariane (visible plus bas) et Article signé par
- * l'atelier (Quentin n'a pas encore relu le guide). Pas de FAQ balisée : seules
- * /faq, /artisanat/tables et /toiles-tendues balisent leurs questions
- * (src/lib/faq-balisees.ts, tests/seo-fiches.test.ts). Pas de Product : il
- * reste sur la fiche.
+ * Données structurées : fil d'Ariane (visible plus bas), Article signé par
+ * l'atelier (Quentin n'a pas encore relu le guide) et les questions du guide,
+ * balisées ici et seulement ici (plan, page n° 1 ; questionsEscalier dans
+ * src/lib/faq-balisees.ts, qui garde la règle « une question balisée une seule
+ * fois », tests/seo-fiches.test.ts) : la liste balisée est celle affichée.
+ * Pas de Product : il reste sur la fiche.
  */
 
 export async function generateMetadata({
@@ -53,6 +55,8 @@ export default async function GuideEscalierPage({ params }: PageProps<"/[lang]/e
   const locale = isLocale(lang) ? lang : defaultLocale;
   const dict = await getDictionary(locale);
   const g = guideEscalier(locale);
+  /** Les questions affichées en bas de page, et les mêmes pour Google. */
+  const questions = questionsEscalier(g);
   const fiche = `/${locale}${g.cheminFiche}`;
   const rdv = `/${locale}/rendez-vous`;
 
@@ -77,7 +81,7 @@ export default async function GuideEscalierPage({ params }: PageProps<"/[lang]/e
         dangerouslySetInnerHTML={scriptJsonLd(
           jsonLdFilAriane(locale, [
             { nom: dict.nav.home, chemin: "" },
-            { nom: g.nomFiche, chemin: g.cheminFiche },
+            { nom: g.filArianeFiche, chemin: g.cheminFiche },
             { nom: g.filAriane, chemin: CHEMIN_GUIDE_ESCALIER },
           ])
         )}
@@ -96,6 +100,10 @@ export default async function GuideEscalierPage({ params }: PageProps<"/[lang]/e
           })
         )}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={scriptJsonLd(jsonLdFaq(questions.map((qr) => ({ question: qr.q, reponse: qr.a }))))}
+      />
       <GlobalHeader locale={locale} dict={dict} />
       <main id="contenu">
         {/* 1. Le titre, la promesse, les deux portes : la prise de cotes, la fiche. */}
@@ -108,7 +116,7 @@ export default async function GuideEscalierPage({ params }: PageProps<"/[lang]/e
               </Link>
               <span className="mx-1.5">/</span>
               <Link href={fiche} className="hover:text-[#2b2320]">
-                {g.nomFiche}
+                {g.filArianeFiche}
               </Link>
               <span className="mx-1.5">/</span>
               <span className="text-[#2b2320]">{g.filAriane}</span>
@@ -224,6 +232,13 @@ export default async function GuideEscalierPage({ params }: PageProps<"/[lang]/e
                   </li>
                 ))}
               </ul>
+              {/* Ce que le prix de départ ne comprend pas d'office : le garde-corps, chiffré au devis ; la pose, tant que
+                  l'assurance décennale n'est pas signée. */}
+              {g.contenu.notes.map((note) => (
+                <p key={note} className={`mt-6 ${corps}`}>
+                  {note}
+                </p>
+              ))}
             </Apparition>
             {g.imageDetail && (
               <Apparition retard={120} className="md:pt-24">
@@ -351,22 +366,23 @@ export default async function GuideEscalierPage({ params }: PageProps<"/[lang]/e
                 <Link href={rdv} className="btn-plein">
                   {g.ctaRdv}
                 </Link>
+                {/* « Zone d'intervention », pas « Pose autour de Saumur » : la pose attend l'assurance décennale. */}
                 <Link href={`/${locale}/zone-intervention`} className="lien-fleche text-[#2b2320]">
-                  {dict.liens.zonePose}
+                  {dict.nav.zone}
                 </Link>
               </div>
             </Apparition>
           </div>
         </section>
 
-        {/* 7. Les questions, affichées (non balisées : voir plus haut). */}
+        {/* 7. Les questions, affichées, et balisées plus haut depuis la même liste. */}
         <section className="px-6 py-16 md:py-28">
           <div className="mx-auto max-w-3xl">
             <Apparition>
               <h2 className={titre2}>{g.faq.titre}</h2>
             </Apparition>
             <div className="mt-8 divide-y divide-[#e8e1d8] border-t border-[#e8e1d8]">
-              {g.faq.questions.map((qr, i) => (
+              {questions.map((qr, i) => (
                 <div key={qr.q} className="py-7">
                   <h3 className={`${serif.className} text-[1.35rem] leading-[1.2] text-[#2b2320] md:text-[1.5rem]`}>{qr.q}</h3>
                   <p className={`mt-3 ${corps}`}>{qr.a}</p>

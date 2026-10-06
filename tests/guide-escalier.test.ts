@@ -7,9 +7,11 @@
  * un chiffre recopié ; chaque chiffre de norme vient de
  * src/lib/normes-escalier.ts, avec sa source ; aucune des formules fausses
  * relevées par l'audit du 07/10/2026 (limon « cintré », garde-corps « à
- * câbles ») ni aucun mot interdit par le plan ; la pose est dite comme la
- * fiche la dit, sans rien de plus ; le guide est signé par l'atelier tant
- * que Quentin ne l'a pas relu ; aucune FAQ balisée.
+ * câbles ») ni aucun mot interdit par le plan ; la pose n'est promise
+ * qu'avec l'assurance décennale (poseAssuree), et alors comme la fiche la
+ * dit ; le garde-corps n'est jamais dit « compris dans le prix » ; le guide
+ * est signé par l'atelier tant que Quentin ne l'a pas relu ; ses questions
+ * sont balisées depuis la liste affichée (questionsEscalier).
  *
  * Aucun montant n'est écrit dans ce fichier : les prix viennent du catalogue
  * (computeUnitPrice, priceFrom) et des marqueurs du code.
@@ -36,9 +38,12 @@ import {
   NORME_GARDE_CORPS,
   SOURCES_NORMES_ESCALIER,
   TOLERANCE_HAUTEUR_MARCHE,
+  TOLERANCE_PREMIERE_MARCHE,
   VISEE_ATELIER,
 } from "../src/lib/normes-escalier.ts";
 import { computeUnitPrice, priceFrom, productLocalise, products } from "../src/lib/products.ts";
+import { poseAssuree } from "../src/lib/entreprise.ts";
+import { questionsEscalier } from "../src/lib/faq-balisees.ts";
 import { valeursMarqueurs } from "../src/lib/marqueurs.ts";
 import { descriptionTient, jsonLdArticle, titreSeo } from "../src/lib/seo.ts";
 import { prixAffiche } from "../src/lib/ui.ts";
@@ -126,6 +131,10 @@ for (const locale of LOCALES) {
     assert.equal(droit.des, priceFrom(escalier));
     assert.equal(valeursMarqueurs(locale)["{prix:escalier-limon-central}"], prixAffiche(droit.des, locale));
     assert.ok(guide.seo.description.includes(prixAffiche(droit.des, locale)));
+    // La description commence par le prix, et donne celui du quart tournant (lu dans le moteur, jamais tapé).
+    assert.match(guide.seo.description, locale === "fr" ? /^Prix d'un escalier à limon central/ : /^Steel spine staircase cost/);
+    const quart = lignes.find((l) => l.id === "quart")!;
+    assert.ok(guide.seo.description.includes(prixAffiche(quart.des, locale)), "le prix du quart tournant manque");
     // « La forme la plus simple et la moins chère » : l'escalier droit l'est bien.
     for (const ligne of lignes) assert.ok(ligne.des >= droit.des, `${ligne.id} moins cher que le droit`);
     // Les prix affichés, à la mode de la langue.
@@ -142,13 +151,32 @@ for (const locale of LOCALES) {
     const valeurs = valeursMarqueurs(locale);
     assert.ok(guide.prix.fabrication.includes(valeurs["{delai:escalier-limon-central}"]));
     assert.ok(guide.mesurer.visite.includes(valeurs["{prixVisite}"]));
-    // La pose : la ligne de la fiche, mot pour mot (première lettre mise à part), et rien d'autre.
     const pose = fiche.specs.find((s) => s.label === "Pose" || s.label === "Fitting")!.value;
-    const item = guide.contenu.items[guide.contenu.items.length - 1];
     const simple = (t: string) => t.replace(/\s+/g, " ").toLowerCase();
-    assert.ok(simple(item).includes(simple(pose)), `la pose ne reprend pas la fiche : « ${item} »`);
+    if (poseAssuree()) {
+      // Avec l'assurance décennale : la ligne de la fiche, mot pour mot (première lettre mise à part), dans la liste.
+      const item = guide.contenu.items[guide.contenu.items.length - 1];
+      assert.ok(simple(item).includes(simple(pose)), `la pose ne reprend pas la fiche : « ${item} »`);
+    } else {
+      // Sans elle (aujourd'hui) : la pose n'est ni dans la liste de ce que comprend le prix, ni promise ailleurs ;
+      // une phrase dit qu'elle viendra avec l'assurance, comme la page balcon et terrasse.
+      assert.ok(!simple(texte(guide)).includes(simple(pose)), "la pose de la fiche est promise sans la décennale");
+      assert.doesNotMatch(texte(guide.contenu.items), /\bpose\b|fitting/i);
+      assert.match(texte(guide.contenu.notes), locale === "fr" ? /assurance décennale/ : /ten-year building insurance/);
+    }
     const source = texte(brut);
     assert.doesNotMatch(source, /pose comprise|posé par l'atelier|posée par l'atelier|fitting included|fitted by the workshop/i);
+    // Ni « installer » ni « go into » dans les questions : la question de la maison ancienne ne promet pas la pose.
+    assert.doesNotMatch(texte(guide.faq.questions.map((qr) => qr.q)), /installer|install\b|fit into|go into/i);
+  });
+
+  test(`${locale} : le garde-corps n'est jamais dit « compris dans le prix » (à confirmer par Quentin)`, () => {
+    const tout = texte(guide).replace(/\s+/g, " ");
+    assert.doesNotMatch(tout, /prix comprend ce garde-corps|price includes (that|the) balustrade/i);
+    // Il est dessiné ET chiffré au devis, sous la liste de ce que comprend le prix.
+    assert.ok(!texte(guide.contenu.items).includes(NORME_GARDE_CORPS.reference), "le garde-corps est dans la liste du prix");
+    assert.match(texte(guide.contenu.notes), locale === "fr" ? /chiffrés au devis/ : /priced with the quote/);
+    assert.match(guide.faq.questions[1].a, locale === "fr" ? /chiffré selon le remplissage/ : /priced according to the infill/);
   });
 
   test(`${locale} : chaque chiffre de norme du guide est celui du module des normes`, () => {
@@ -161,7 +189,11 @@ for (const locale of LOCALES) {
     assert.ok(lignes[4].chiffre.includes((ECHAPPEE_MIN.mm / 1000).toLocaleString(locale === "fr" ? "fr-FR" : "en-GB", { minimumFractionDigits: 2 })));
     assert.ok(lignes[5].chiffre.includes(NORME_GARDE_CORPS.reference));
     assert.ok(lignes[0].atelier.includes(cm(VISEE_ATELIER.hauteurMarcheMm)));
+    // ± 5 mm sur chaque marche par rapport à la hauteur prévue ; la première, depuis le sol fini, de +10 à −30 mm.
     assert.ok(guide.normes.mesures.includes(`${TOLERANCE_HAUTEUR_MARCHE.mm} mm`));
+    assert.ok(guide.normes.mesures.includes(`+${TOLERANCE_PREMIERE_MARCHE.plusMm} mm`));
+    assert.ok(guide.normes.mesures.includes(`−${TOLERANCE_PREMIERE_MARCHE.moinsMm} mm`));
+    assert.doesNotMatch(guide.normes.mesures, /près|to within/, "« à 5 mm près » lisait mal la source");
     // L'exemple de Blondel tombe dans la zone de confort de l'atelier, et dans la règle.
     const pas = 2 * VISEE_ATELIER.hauteurMarcheMm + VISEE_ATELIER.gironMm;
     assert.ok(pas >= VISEE_ATELIER.blondelMinMm && pas <= VISEE_ATELIER.blondelMaxMm);
@@ -173,7 +205,7 @@ for (const locale of LOCALES) {
       lignes[5].chiffre,
       lignes[5].atelier,
       guide.normes.gardeCorps,
-      guide.contenu.items.find((item) => item.includes(NORME_GARDE_CORPS.reference))!,
+      guide.contenu.notes.find((note) => note.includes(NORME_GARDE_CORPS.reference))!,
       guide.faq.questions[1].a,
     ];
     for (const phrase of gardeCorps) {
@@ -241,14 +273,31 @@ test("Google : un guide signé par l'atelier, aux dates affichées, et un fil d'
     dateModification: DATE_MODIFICATION_GUIDE_ESCALIER,
   }) as { author: { "@type": string } };
   assert.equal(article.author["@type"], "Organization");
-  // La signature visible dit la même date.
-  assert.match(guideEscalier("fr").signature, /7 octobre 2026/);
+  // La signature visible dit la même date (à régler, avec DATE_PUBLICATION_GUIDE_ESCALIER, le jour de la mise en ligne).
+  const jour = new Date(`${DATE_MODIFICATION_GUIDE_ESCALIER}T12:00:00Z`).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+  assert.ok(guideEscalier("fr").signature.includes(jour), guideEscalier("fr").signature);
   assert.match(PAGE, /jsonLdFilAriane\(/);
 });
 
-test("la page : un seul H1, pas de FAQ balisée, les liens vers les pages voisines", () => {
+test("la page : un seul H1, ses questions balisées depuis la liste affichée, les liens vers les pages voisines", () => {
   assert.equal((PAGE.match(/<h1\b/g) ?? []).length, 1);
-  assert.doesNotMatch(PAGE, /jsonLdFaq|<FaqVisible|FAQPage/);
+  // Une seule liste, questionsEscalier : la même pour l'affichage et pour Google.
+  assert.match(PAGE, /const questions = questionsEscalier\(g\)/);
+  assert.match(PAGE, /jsonLdFaq\(questions\.map/);
+  assert.match(PAGE, /\{questions\.map\(\(qr, i\)/);
+  assert.doesNotMatch(PAGE, /g\.faq\.questions\.map/);
+  for (const locale of LOCALES) {
+    assert.deepEqual(questionsEscalier(guideEscalier(locale)), guideEscalier(locale).faq.questions);
+  }
+  // Le fil d'Ariane dit ce que l'on cherche, pas le nom du modèle.
+  assert.match(PAGE, /nom: g\.filArianeFiche/);
+  assert.equal(guideEscalier("fr").filArianeFiche, "Escalier à limon central");
+  assert.equal(guideEscalier("en").filArianeFiche, "Steel spine staircase");
   for (const lien of ["/rendez-vous", "/bois-massif", "/garde-corps-fenetre-normes", "/zone-intervention"]) {
     assert.ok(PAGE.includes(`/\${locale}${lien}`), `lien manquant vers ${lien}`);
   }

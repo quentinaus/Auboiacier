@@ -69,8 +69,20 @@ type Regle = { mm: number; source: SourceNorme["id"] };
 /** Hauteur de marche dans un logement neuf : 18 cm au plus (arrêté du 24/12/2015, art. 12). */
 export const HAUTEUR_MARCHE_MAX: Regle = { mm: 180, source: "arrete-2015" };
 
-/** Écart admis entre deux hauteurs de marche du même escalier (NF DTU 36.3 P3, cité par l'UICB, § 7). */
+/**
+ * Écart admis sur la hauteur de CHAQUE marche, en plus ou en moins, par rapport
+ * à la hauteur prévue (valeur nominale) : ± 5 mm (NF DTU 36.3 P3, cité par
+ * l'UICB, § 7 ; guide AFEB p. 9). Ce n'est pas l'écart entre deux marches, qui
+ * peut donc aller jusqu'à 10 mm.
+ */
 export const TOLERANCE_HAUTEUR_MARCHE: Regle = { mm: 5, source: "uicb-2020" };
+
+/**
+ * La première marche, mesurée depuis le sol fini une fois l'escalier en place :
+ * de 10 mm de plus à 30 mm de moins que la hauteur prévue (NF DTU 36.3 P1-1,
+ * CCT 6.5.1 ; guide AFEB p. 9, relu le 07/10/2026 ; UICB, p. 7).
+ */
+export const TOLERANCE_PREMIERE_MARCHE = { plusMm: 10, moinsMm: 30, source: "afeb-dtu-36-3" } as const;
 
 /** Giron dans un logement neuf : 24 cm au moins (arrêté du 24/12/2015, art. 12). */
 export const GIRON_MIN: Regle = { mm: 240, source: "arrete-2015" };

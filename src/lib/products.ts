@@ -1263,7 +1263,7 @@ const catalogue: Product[] = [
     // « Table rivière » : c'est ainsi qu'on cherche une table à coulée de résine.
     seoTitre: "Table rivière époxy et chêne massif",
     seoDescription:
-      "Table rivière sur mesure : résine époxy coulée avec du chêne massif de récupération, sur piétement Mikado. Chaque plateau est unique.",
+      "Table rivière sur mesure : chêne massif de récupération et rivière de résine époxy coulée à l'atelier, sur piétement Mikado.",
     // « Pièce unique » est vrai ici, et ici seulement : chaque coulée diffère.
     h1Ligne: "Table rivière en résine époxy et chêne massif, pièce unique",
     category: "interieur",
@@ -1441,7 +1441,7 @@ const catalogue: Product[] = [
       seoMots: "solid oak",
       seoTitre: "Oak epoxy river table, made to measure",
       seoDescription:
-        "Bespoke river table: epoxy resin poured with reclaimed solid oak, on a Mikado steel base, made in Saumur. Every top is one of a kind.",
+        "Bespoke river table: reclaimed solid oak with a poured epoxy river, on a Mikado steel base, made in Saumur. Every top is one of a kind.",
       h1Ligne: "Epoxy river table in solid oak, one of a kind",
       tagline: "A river of epoxy resin through a solid oak top, on the Mikado steel base.",
       images: [
@@ -1540,13 +1540,15 @@ const catalogue: Product[] = [
         body: "Chaque marche en bois massif de 50 mm est fixée sur des platines cachées sous la marche. Le garde-corps à câbles inox et la main courante en bois cintré laissent passer la lumière.",
       },
       {
-        title: "Droit, quart tournant ou demi-tournant",
-        body: "Trois formes, selon la place : l'escalier droit monte d'une seule volée ; le quart tournant tourne d'un quart de tour, en haut ou en bas, quand le recul manque ; le demi-tournant revient sur lui-même quand la place au sol est plus courte encore. La prise de cotes chez vous dit laquelle convient à votre trémie.",
+        // Le guide de l'escalier garde « Droit, quart tournant ou demi-tournant » et les prix par forme : la fiche y renvoie.
+        title: "Trois formes, selon votre trémie",
+        body: "L'escalier droit monte d'une seule volée ; le quart tournant tourne d'un quart de tour, en haut ou en bas, quand le recul manque ; le demi-tournant revient sur lui-même quand la place au sol est plus courte encore. La prise de cotes chez vous dit laquelle convient à votre trémie. Les prix de départ de chaque forme, et les normes d'un escalier, sont dans notre guide de l'escalier à limon central.",
       },
       {
-        // La pose jusqu'à 45 km est déjà promise sur cette fiche (Pose, noteDevis) : elle bascule avec elle (interrupteur décennale).
-        title: "Ce que comprend le prix",
-        body: "La prise de cotes chez vous, déduite de la commande ; le plan ; le limon en tube d'acier, coupé et soudé à l'atelier avec les supports et les platines des marches ; les marches en bois massif de 5 cm ; le garde-corps du côté du vide et sa main courante en bois, dessinés au devis selon la norme NF P01-012 (2024) ; et la pose jusqu'à 45 km de Saumur.",
+        // Ni la pose (elle attend l'assurance décennale : poseAssuree, src/lib/entreprise.ts), ni le garde-corps
+        // « compris » : son remplissage se choisit et se chiffre au devis (à confirmer par Quentin, relecture du 07/10/2026).
+        title: "Ce qui est compris",
+        body: "La prise de cotes chez vous, déduite de la commande ; le plan ; le limon en tube d'acier, coupé et soudé à l'atelier avec les supports et les platines des marches ; les marches en bois massif de 5 cm. Le garde-corps du côté du vide et sa main courante en bois sont dessinés et chiffrés au devis, selon le remplissage choisi, d'après la norme NF P01-012 (2024).",
       },
     ],
     specs: [
@@ -1586,12 +1588,12 @@ const catalogue: Product[] = [
           body: "Each 50 mm solid wood tread is fixed on plates hidden under the tread. The stainless steel cable balustrade and the curved timber handrail let the light through.",
         },
         {
-          title: "Straight, quarter turn or half turn",
-          body: "Three shapes, depending on the space: the straight staircase climbs in a single flight; the quarter turn turns through a quarter, at the top or the bottom, when the run is short; the half turn doubles back on itself when floor space is shorter still. The measuring visit at your home shows which one suits your stairwell opening.",
+          title: "Three shapes, to suit your stairwell",
+          body: "The straight staircase climbs in a single flight; the quarter turn turns through a quarter, at the top or the bottom, when the run is short; the half turn doubles back on itself when floor space is shorter still. The measuring visit at your home shows which one suits your stairwell opening. The starting price of each shape, and the rules a staircase must meet, are in our steel spine staircase guide.",
         },
         {
-          title: "What the price includes",
-          body: "The measuring visit at your home, deducted from the order; the drawing; the stringer, a steel tube cut and welded in the workshop with the supports and plates for the treads; the 5 cm solid wood treads; the balustrade on the open side and its timber handrail, drawn with the quote to the French standard NF P01-012 (2024); and fitting within 45 km of Saumur.",
+          title: "What is included",
+          body: "The measuring visit at your home, deducted from the order; the drawing; the stringer, a steel tube cut and welded in the workshop with the supports and plates for the treads; the 5 cm solid wood treads. The balustrade on the open side and its timber handrail are drawn and priced with the quote, depending on the infill you choose, to the French standard NF P01-012 (2024).",
         },
       ],
       specs: [
@@ -1954,7 +1956,9 @@ const catalogue: Product[] = [
       ],
       seoDescription:
         "Solid steel window railing, wrought-iron style, handmade in Saumur, France; height and gaps worked out to French rules.",
-      h1Ligne: "Bespoke window railing, wrought-iron style solid steel",
+      // « Juliet balcony » est dans le title : la ligne du titre le dit aussi (la même fiche fait la porte-fenêtre,
+      // guide des normes, « porteFenetreBody »).
+      h1Ligne: "Bespoke window and Juliet balcony railing, wrought-iron style solid steel",
       tagline: "Handmade custom window railing in solid steel: Saint Andrew's crosses with cast rosettes, or vertical bars; wood or steel handrail. Made to the millimetre, fitted into your window.",
       images: [
         "Window railing seen head-on: painted black steel frame with a Saint Andrew's cross, two cast rosettes, oak handrail",

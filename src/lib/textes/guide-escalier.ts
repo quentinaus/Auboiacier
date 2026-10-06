@@ -1,6 +1,7 @@
 // Extensions écrites en toutes lettres : les tests (node --test, sans outil
 // de construction) importent ce fichier tel quel.
 import { RAYON_MAX_KM } from "../deplacement.ts";
+import { poseAssuree } from "../entreprise.ts";
 import { calculerEscalier } from "../escalier.ts";
 import type { Locale } from "../i18n.ts";
 import { remplacerMarqueurs, verifierMarqueurs } from "../marqueurs.ts";
@@ -15,6 +16,7 @@ import {
   NORME_GARDE_CORPS,
   SOURCES_NORMES_ESCALIER,
   TOLERANCE_HAUTEUR_MARCHE,
+  TOLERANCE_PREMIERE_MARCHE,
   VISEE_ATELIER,
   type SourceNorme,
 } from "../normes-escalier.ts";
@@ -32,9 +34,14 @@ import { remplir } from "../vitrine.ts";
  *   phrases, les marqueurs du code ({prix:<slug>}, {delai:<slug>},
  *   {prixVisite}, {rayonVisite} — src/lib/marqueurs.ts).
  * - Les normes : src/lib/normes-escalier.ts, chaque chiffre avec sa source.
- * - La pose : la ligne « Pose » de la fiche escalier, lue telle quelle. Le
- *   guide ne promet rien de plus que la fiche (assurance décennale pas encore
- *   signée) ; le jour où la fiche change, le guide suit.
+ * - La pose : poser chez le client demande l'assurance décennale, pas encore
+ *   signée. Tant que poseAssuree() (src/lib/entreprise.ts) est faux, le guide
+ *   ne la promet pas : il dit qu'elle sera proposée une fois l'assurance
+ *   signée, comme la page balcon et terrasse. Le jour où elle l'est, il
+ *   reprend la ligne « Pose » de la fiche, telle quelle.
+ * - Le garde-corps du côté du vide n'est pas dit « compris dans le prix » :
+ *   son remplissage se choisit au devis, et il y est chiffré (à confirmer
+ *   par Quentin, relecture du 07/10/2026).
  *
  * Vérité de fabrication (audit du 07/10/2026) : le limon est un tube d'acier
  * DROIT, coupé et soudé, des supports et des platines soudés portent les
@@ -65,6 +72,8 @@ type QuestionReponse = { q: string; a: string };
 type TextesGuide = {
   seo: { titre: string; description: string };
   filAriane: string;
+  /** L'étape de la fiche dans le fil d'Ariane : ce que l'on cherche, pas le nom du modèle (celui du panier). */
+  filArianeFiche: string;
   surtitre: string;
   h1: string;
   intro: string;
@@ -87,8 +96,12 @@ type TextesGuide = {
     limon: string;
     marches: string;
     finition: string;
+    /** Sous la liste : chiffré au devis, pas compris d'office. */
     gardeCorps: string;
+    /** Dans la liste, seulement quand la pose est assurée (poseAssuree). */
     pose: string;
+    /** Sous la liste, tant que la pose n'est pas assurée. */
+    poseAVenir: string;
   };
   formes: {
     titre: string;
@@ -134,10 +147,12 @@ export const TEXTES_GUIDE_ESCALIER: Record<Locale, TextesGuide> = {
   fr: {
     seo: {
       titre: "Escalier limon central : prix et normes",
+      // Le prix et les formes d'abord : la fiche, elle, commence par « Escalier à limon central sur mesure ».
       description:
-        "Escalier à limon central sur mesure : droit dès {prix:escalier-limon-central}, quart tournant, demi-tournant. Ce que comprend le prix, les normes, les cotes à prendre.",
+        "Prix d'un escalier à limon central : droit dès {prix:escalier-limon-central}, quart tournant dès {desQuart}, demi-tournant dès {desDemi}. Ce que comprend le prix, normes, cotes.",
     },
     filAriane: "Prix, formes et normes",
+    filArianeFiche: "Escalier à limon central",
     surtitre: "Guide de l'atelier",
     h1: "Escalier à limon central : prix, formes et normes",
     intro:
@@ -165,8 +180,10 @@ export const TEXTES_GUIDE_ESCALIER: Record<Locale, TextesGuide> = {
         "Les marches en bois massif de 50 mm d'épaisseur ({essences}), poncées puis finies à l'huile-cire. Fixées sur leurs platines, cachées dessous, elles débordent de chaque côté du limon.",
       finition: "La finition du limon, au choix : {couleurs}.",
       gardeCorps:
-        "Le garde-corps du côté du vide, avec sa main courante en bois massif. Son remplissage se choisit au devis, et il est dessiné selon la norme {norme} ({anneeNorme}).",
+        "Le garde-corps du côté du vide et sa main courante en bois massif sont dessinés et chiffrés au devis, selon le remplissage choisi, d'après la norme {norme} ({anneeNorme}).",
       pose: "La pose : {pose}",
+      poseAVenir:
+        "La pose sera proposée une fois l'assurance décennale de l'atelier signée ; le devis dit toujours si elle est comprise.",
     },
     formes: {
       titre: "Droit, quart tournant ou demi-tournant : quelle forme pour votre trémie ?",
@@ -215,7 +232,7 @@ export const TEXTES_GUIDE_ESCALIER: Record<Locale, TextesGuide> = {
         "afnor-p01-012": "{norme} ({anneeNorme})",
       },
       mesures:
-        "Toutes les marches d'un même escalier ont la même hauteur, à {tolerance} près. Le giron se mesure sur la ligne de foulée, là où l'on pose le pied : au milieu de la marche, pour un escalier de {ligneFoulee} de large au plus. L'échappée évite de se cogner la tête en montant : elle se compte jusqu'au plafond ou au bord de la trémie, et dépend donc de la longueur de la trémie.",
+        "Toutes les marches d'un même escalier sont dessinées à la même hauteur : chacune peut s'en écarter de {tolerance} au plus, et la première, mesurée depuis le sol fini, de +{premiereHaut} à −{premiereBas}. Le giron se mesure sur la ligne de foulée, là où l'on pose le pied : au milieu de la marche, pour un escalier de {ligneFoulee} de large au plus. L'échappée évite de se cogner la tête en montant : elle se compte jusqu'au plafond ou au bord de la trémie, et dépend donc de la longueur de la trémie.",
       blondelTitre: "La loi de Blondel, en pratique",
       blondel:
         "Deux hauteurs de marche plus un giron font la longueur d'un pas : c'est la formule de Blondel, 2\u00a0H\u00a0+\u00a0G. Avec des marches de {hEx} et un giron de {gEx}, on obtient 2\u00a0×\u00a0{hEx}\u00a0+\u00a0{gEx}\u00a0=\u00a0{blondelEx}, au cœur de la zone de confort. Pour monter {hauteurEx} de sol fini à sol fini, cela fait {nHauteurs} hauteurs de marche : {nMarches} marches en bois, le sol de l'étage faisant la dernière, et environ {reculEx} de recul au sol pour un escalier droit.",
@@ -257,14 +274,14 @@ export const TEXTES_GUIDE_ESCALIER: Record<Locale, TextesGuide> = {
       autres: [
         {
           q: "Faut-il un garde-corps ?",
-          a: "Dès qu'un côté de l'escalier donne sur le vide, oui : le prix comprend ce garde-corps, avec sa main courante en bois massif. Il est dessiné selon la norme {norme} ({anneeNorme}), et son remplissage se choisit au devis.",
+          a: "Dès qu'un côté de l'escalier donne sur le vide, oui. Il est dessiné au devis selon la norme {norme} ({anneeNorme}), avec sa main courante en bois massif, et chiffré selon le remplissage choisi.",
         },
         {
           q: "Quel est le délai ?",
           a: "Comptez {delai:escalier-limon-central} de fabrication à l'atelier, à partir de la commande. Le délai exact vous est confirmé à la commande.",
         },
         {
-          q: "Peut-on l'installer dans une maison ancienne ?",
+          q: "Convient-il à une maison ancienne ?",
           a: "Oui, si le plancher et la trémie le permettent : c'est ce que la prise de cotes vérifie. Dans une maison existante, aucune loi n'impose les chiffres des logements neufs, mais l'atelier les applique quand même. Un mur hors d'équerre, un sol pas tout à fait de niveau, une poutre au bord de la trémie : c'est sur place qu'on les découvre, et le plan en tient compte.",
         },
       ],
@@ -279,11 +296,13 @@ export const TEXTES_GUIDE_ESCALIER: Record<Locale, TextesGuide> = {
   },
   en: {
     seo: {
-      titre: "Steel spine staircase: prices and rules",
+      // « steel spine staircase cost » : une suggestion Google.
+      titre: "Steel spine staircase cost and rules",
       description:
-        "Bespoke steel spine staircase made in Saumur, France: straight from {prix:escalier-limon-central}, quarter or half turn. What the price includes, the rules, what to measure.",
+        "Steel spine staircase cost in France: straight from {prix:escalier-limon-central}, quarter turn from {desQuart}, made in Saumur. What the price includes, the rules, what to measure.",
     },
     filAriane: "Prices, shapes and rules",
+    filArianeFiche: "Steel spine staircase",
     surtitre: "Workshop guide",
     h1: "Steel spine staircases: prices, shapes and French rules",
     intro:
@@ -311,8 +330,10 @@ export const TEXTES_GUIDE_ESCALIER: Record<Locale, TextesGuide> = {
         "Solid wood treads, 50 mm thick ({essences}), sanded then finished with hard wax oil. Fixed on their plates, hidden underneath, they reach out on each side of the stringer.",
       finition: "The stringer finish, your choice: {couleurs}.",
       gardeCorps:
-        "The balustrade on the open side, with its solid wood handrail. Its infill is chosen with the quote, and it is drawn to the French standard {norme} ({anneeNorme}).",
+        "The balustrade on the open side and its solid wood handrail are drawn and priced with the quote, depending on the infill you choose, to the French standard {norme} ({anneeNorme}).",
       pose: "Fitting: {pose}",
+      poseAVenir:
+        "Fitting will be offered once the workshop's ten-year building insurance (assurance décennale) is signed; the quote always states whether it is included.",
     },
     formes: {
       titre: "Straight, quarter turn or half turn: which shape for your stairwell?",
@@ -361,7 +382,7 @@ export const TEXTES_GUIDE_ESCALIER: Record<Locale, TextesGuide> = {
         "afnor-p01-012": "{norme} ({anneeNorme})",
       },
       mesures:
-        "All the steps of one staircase have the same rise, to within {tolerance}. The going is measured on the walking line, where you put your foot: in the middle of the tread, for a staircase up to {ligneFoulee} wide. Headroom keeps you from hitting your head on the way up: it is counted up to the ceiling or the edge of the opening, so it depends on the length of the opening.",
+        "All the steps of one staircase are drawn with the same rise: each may differ from it by {tolerance} at most, and the bottom step, measured from the finished floor, by +{premiereHaut} to −{premiereBas}. The going is measured on the walking line, where you put your foot: in the middle of the tread, for a staircase up to {ligneFoulee} wide. Headroom keeps you from hitting your head on the way up: it is counted up to the ceiling or the edge of the opening, so it depends on the length of the opening.",
       blondelTitre: "Blondel's formula, in practice",
       blondel:
         "Two rises plus one going make the length of a stride: that is Blondel's formula, 2\u00a0R\u00a0+\u00a0G. With a rise of {hEx} and a going of {gEx}, you get 2\u00a0×\u00a0{hEx}\u00a0+\u00a0{gEx}\u00a0=\u00a0{blondelEx}, right in the comfort zone. To climb {hauteurEx} from finished floor to finished floor, that makes {nHauteurs} rises: {nMarches} wooden treads, with the upper floor as the last step, and about {reculEx} of run on the ground for a straight staircase.",
@@ -403,14 +424,14 @@ export const TEXTES_GUIDE_ESCALIER: Record<Locale, TextesGuide> = {
       autres: [
         {
           q: "Do I need a balustrade?",
-          a: "As soon as one side of the staircase is open to a drop, yes: the price includes that balustrade, with its solid wood handrail. It is drawn to the French standard {norme} ({anneeNorme}), and its infill is chosen with the quote.",
+          a: "As soon as one side of the staircase is open to a drop, yes. It is drawn with the quote to the French standard {norme} ({anneeNorme}), with its solid wood handrail, and priced according to the infill you choose.",
         },
         {
           q: "What is the lead time?",
           a: "Allow {delai:escalier-limon-central} of making in the workshop, from the order. The exact lead time is confirmed when you order.",
         },
         {
-          q: "Can it go into an old house?",
+          q: "Does it suit an old house?",
           a: "Yes, if the floor and the opening allow it: that is what the measuring visit checks. In an existing house, no law imposes the figures for new homes, but the workshop applies them anyway. A wall out of square, a floor not quite level, a beam at the edge of the opening: you find them on site, and the plan takes them into account.",
         },
       ],
@@ -547,7 +568,13 @@ function guideBrut(locale: Locale) {
       ? `${majuscule} ${debut.length > 1 ? "font" : "fait"} le prix de départ${plus.length ? ` ; ${plus.join(", ")}` : ""}.`
       : `${majuscule} ${debut.length > 1 ? "set" : "sets"} the starting price${plus.length ? `; ${plus.join(", ")}` : ""}.`;
 
-  const pose = ligneFiche(fiche, ["Pose", "Fitting"]);
+  // La pose : la ligne de la fiche, seulement quand l'assurance décennale est signée (voir en tête du fichier).
+  const pose = poseAssuree() ? ligneFiche(fiche, ["Pose", "Fitting"]) : null;
+  const desForme = (id: string) => {
+    const ligne = lignes.find((l) => l.id === id);
+    if (!ligne) throw new Error(`Guide escalier : la forme « ${id} » a disparu de la fiche`);
+    return prixAffiche(ligne.des, locale);
+  };
   const moisNorme = new Date(Date.UTC(NORME_GARDE_CORPS.annee, 10, 1)).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-GB", {
     month: "long",
     year: "numeric",
@@ -558,6 +585,8 @@ function guideBrut(locale: Locale) {
   const valeurs: Record<string, string> = {
     hauteurMax: cm(HAUTEUR_MARCHE_MAX.mm, locale),
     tolerance: `${TOLERANCE_HAUTEUR_MARCHE.mm} mm`,
+    premiereHaut: `${TOLERANCE_PREMIERE_MARCHE.plusMm} mm`,
+    premiereBas: `${TOLERANCE_PREMIERE_MARCHE.moinsMm} mm`,
     gironMin: cm(GIRON_MIN.mm, locale),
     ligneFoulee: metres(LIGNE_FOULEE_LARGEUR_MAX.mm, locale),
     blondelMin: nombre(BLONDEL_MAISON.minMm / 10, locale, 0),
@@ -583,6 +612,8 @@ function guideBrut(locale: Locale) {
     couleurs: liste(fiche.metals.map((m) => m.label.toLocaleLowerCase(locale === "fr" ? "fr-FR" : "en-GB")), locale),
     ecartsBois,
     pose: pose ? minusculeInitiale(pose).replace(/\.?$/, ".") : "",
+    desQuart: desForme("quart"),
+    desDemi: desForme("demi"),
     rayonMax: `${RAYON_MAX_KM} km`,
     date: new Date(`${DATE_MODIFICATION_GUIDE_ESCALIER}T12:00:00Z`).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-GB", {
       day: "numeric",
@@ -602,7 +633,7 @@ function guideBrut(locale: Locale) {
   return {
     seo: { titre: brut.seo.titre, description: r(brut.seo.description) },
     filAriane: brut.filAriane,
-    nomFiche: fiche.name,
+    filArianeFiche: brut.filArianeFiche,
     cheminFiche: `/artisanat/${SLUG_ESCALIER}`,
     surtitre: brut.surtitre,
     h1: brut.h1,
@@ -635,10 +666,11 @@ function guideBrut(locale: Locale) {
         brut.contenu.limon,
         brut.contenu.marches,
         brut.contenu.finition,
-        brut.contenu.gardeCorps,
-        // La pose, telle que la fiche la dit ; sans ligne « Pose » sur la fiche, rien.
+        // La pose, telle que la fiche la dit, seulement quand elle est assurée.
         ...(pose ? [brut.contenu.pose] : []),
       ].map((texte) => r(texte)),
+      /** Sous la liste : ce qui n'est pas compris d'office. */
+      notes: [brut.contenu.gardeCorps, ...(pose ? [] : [brut.contenu.poseAVenir])].map((texte) => r(texte)),
     },
     formes: {
       titre: brut.formes.titre,

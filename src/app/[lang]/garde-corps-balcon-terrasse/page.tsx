@@ -75,6 +75,8 @@ export default async function GardeCorpsBalconTerrassePage({
     { href: `/${locale}/artisanat/escalier-limon-central`, label: t.liens.escalier },
     { href: `/${locale}/bois-massif`, label: t.liens.bois },
     { href: `/${locale}/zone-intervention`, label: t.liens.zone },
+    // Un garde-corps existant à ressouder : la page soudure (relecture du 07/10/2026).
+    { href: `/${locale}/soudure-reparations`, label: t.liens.soudure },
   ];
 
   return (
@@ -159,6 +161,13 @@ export default async function GardeCorpsBalconTerrassePage({
                 </li>
               ))}
             </ul>
+            {/* La porte-fenêtre se commande sur la fiche du garde-corps de fenêtre : une ligne de tri, et son lien. */}
+            <Apparition className="mx-auto mt-10 max-w-2xl text-center md:mt-14">
+              <p className={texte}>{f(t.tri.texte)}</p>
+              <Link href={fiche} className="lien-fleche mt-2 py-2 text-[#2b2320]">
+                {t.tri.lien}
+              </Link>
+            </Apparition>
           </div>
         </section>
 

@@ -14,7 +14,9 @@ import { hoverZoom } from "@/lib/ui";
 import { Apparition } from "@/components/apparition";
 
 /**
- * « Métallier à Saumur » : la page de l'atelier et de son terrain. Pas de
+ * « Métallier en Maine-et-Loire et en Touraine » : la page de l'atelier et de
+ * son terrain (« métallier Saumur » reste à l'accueil : plan de référencement,
+ * 1.13, et relecture du 07/10/2026). Pas de
  * page par ville (Google les prend pour des pages satellites) : une seule
  * page, avec ce que l'atelier fait vraiment, où il se déplace, et les
  * chantiers qui portent une commune — la preuve locale.
@@ -132,11 +134,13 @@ export default async function ZonePage({ params }: PageProps<"/[lang]/zone-inter
               </li>
             ))}
           </ul>
-          {/* Les deux autres services de l'atelier, chacun sur sa page (référencement, 07/10/2026). */}
+          {/* Les deux autres services de l'atelier, chacun sur sa page (référencement, 07/10/2026) : sur devis, et sans
+              pose tant que l'assurance décennale n'est pas signée — ils ne sont donc pas rangés sous « fabrique et pose ». */}
           <nav
             aria-label={locale === "fr" ? "Autres services de l'atelier" : "Other workshop services"}
-            className="mt-10 flex flex-wrap justify-center gap-x-8 gap-y-2 md:mt-14"
+            className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 md:mt-14"
           >
+            <span className="py-2 text-[16px] text-[#5c5140]">{locale === "fr" ? "Aussi, sur devis\u00a0:" : "Also, quoted per project:"}</span>
             <Link href={`/${locale}/garde-corps-balcon-terrasse`} className="lien-fleche py-2 text-[#2b2320]">
               {locale === "fr" ? "Garde-corps de balcon et de terrasse" : "Balcony and terrace railings"}
             </Link>

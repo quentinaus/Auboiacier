@@ -1,6 +1,8 @@
 // Extension écrite en toutes lettres : les tests (node --test, sans outil de
 // construction) importent ce fichier tel quel.
 import type { Locale } from "../i18n.ts";
+import { DATE_OUVERTURE_COMMANDES } from "../ouverture.ts";
+import { jourEnLettres } from "./garde-corps-balcon-terrasse.ts";
 
 /**
  * Les textes de la page « Soudure et réparations à Saumur »
@@ -27,9 +29,10 @@ import type { Locale } from "../i18n.ts";
  * - Aucune promesse de pose ni de soudure chez le client (assurance pas
  *   encore signée) : une pièce qui se démonte se répare à l'atelier ; pour
  *   le reste, on regarde sur photo.
- * - L'atelier OUVRE à Saumur : avant l'ouverture des commandes (lundi
- *   7 décembre 2026, DATE_OUVERTURE_COMMANDES), seulement des demandes de
- *   devis.
+ * - L'atelier OUVRE à Saumur : avant l'ouverture des commandes
+ *   (DATE_OUVERTURE_COMMANDES, src/lib/ouverture.ts), seulement des demandes
+ *   de devis. Le jour n'est pas écrit ici : le texte dit « {ouverture} »,
+ *   rempli par valeursSoudure, comme sur la page balcon et terrasse.
  * - Aucun prix écrit à la main : « sur devis » ; la prise de cotes passe par
  *   ses marqueurs ({prixVisite}, {rayonVisite}), remplacés par la page.
  * - Jamais « artisan » (loi 96-603, art. 21, avant l'immatriculation), ni
@@ -101,8 +104,7 @@ export const TEXTES_SOUDURE: Record<Locale, TextesSoudure> = {
     h1: "Soudure et réparations à Saumur",
     intro:
       "Un gond arraché, un barreau cassé, un pied de chaise fendu, une pièce qu'on ne trouve plus : l'atelier Auboiacier, qui ouvre à Saumur, ressoude l'acier et l'aluminium, et fabrique à façon la pièce qu'il vous faut. Envoyez une photo, vous recevez un devis.",
-    ouverture:
-      "Les commandes ouvrent le lundi 7 décembre 2026. D'ici là, vous pouvez déjà envoyer vos demandes de devis.",
+    ouverture: "Les commandes ouvrent le {ouverture}. D'ici là, vous pouvez déjà envoyer vos demandes de devis.",
     ctaDevis: "Demander un devis",
     ctaDevisNote: "Avec une photo et les dimensions",
     ctaCotes: "Faire mesurer sur place",
@@ -197,6 +199,11 @@ export const TEXTES_SOUDURE: Record<Locale, TextesSoudure> = {
         chemin: "/artisanat/garde-corps",
       },
       {
+        titre: "Garde-corps de balcon et de terrasse",
+        texte: "En acier, dessiné et soudé à vos cotes, sur devis.",
+        chemin: "/garde-corps-balcon-terrasse",
+      },
+      {
         titre: "Escalier à limon central",
         texte: "Un limon en tube d'acier, des marches en bois massif, sur devis.",
         chemin: "/artisanat/escalier-limon-central",
@@ -205,11 +212,6 @@ export const TEXTES_SOUDURE: Record<Locale, TextesSoudure> = {
         titre: "Verrières d'atelier",
         texte: "En acier, mesurées sur place et soudées à l'atelier, sur devis.",
         chemin: "/artisanat/verrieres",
-      },
-      {
-        titre: "Tables acier et bois massif",
-        texte: "Un piétement en acier soudé sous un plateau de bois massif, au centimètre près.",
-        chemin: "/artisanat/tables",
       },
     ],
     faqTitre: "Vos questions",
@@ -246,8 +248,8 @@ export const TEXTES_SOUDURE: Record<Locale, TextesSoudure> = {
     surtitre: "Steel and aluminium · TIG, MIG/MAG, stick",
     h1: "Welding and metal repairs in Saumur",
     intro:
-      "A hinge torn off, a broken bar, a cracked chair leg, a part you can no longer find: the Auboiacier workshop, opening in Saumur, re-welds steel and aluminium and makes the part you need to order. Send a photo and you get a quote.",
-    ouverture: "Orders open on Monday 7 December 2026. Until then, you can already send your quote requests.",
+      "A hinge torn off, a broken bar, a cracked chair leg, a part you can no longer find: the Auboiacier workshop, opening in Saumur, re-welds steel and aluminium, and makes the part you need, to order. Send a photo and you get a quote.",
+    ouverture: "Orders open on {ouverture}. Until then, you can already send your quote requests.",
     ctaDevis: "Ask for a quote",
     ctaDevisNote: "With a photo and the dimensions",
     ctaCotes: "Have it measured on site",
@@ -337,6 +339,11 @@ export const TEXTES_SOUDURE: Record<Locale, TextesSoudure> = {
         chemin: "/artisanat/garde-corps",
       },
       {
+        titre: "Balcony and terrace railings",
+        texte: "In steel, designed and welded to your measurements, quoted per project.",
+        chemin: "/garde-corps-balcon-terrasse",
+      },
+      {
         titre: "Steel spine staircase",
         texte: "A steel tube spine and solid wood treads, quoted per project.",
         chemin: "/artisanat/escalier-limon-central",
@@ -345,11 +352,6 @@ export const TEXTES_SOUDURE: Record<Locale, TextesSoudure> = {
         titre: "Steel internal windows",
         texte: "In steel, measured on site and welded in the workshop, quoted per project.",
         chemin: "/artisanat/verrieres",
-      },
-      {
-        titre: "Steel and solid wood tables",
-        texte: "A welded steel base under a solid wood top, to the centimetre.",
-        chemin: "/artisanat/tables",
       },
     ],
     faqTitre: "Your questions",
@@ -377,3 +379,13 @@ export const TEXTES_SOUDURE: Record<Locale, TextesSoudure> = {
     service: { nom: "Welding and metal repairs", type: "Welding" },
   },
 };
+
+/**
+ * Les valeurs des marqueurs propres à la page (« {ouverture} » : le jour
+ * d'ouverture des commandes, lu dans DATE_OUVERTURE_COMMANDES), au format de
+ * remplacerAvec (src/lib/marqueurs.ts). La page les remplace après les
+ * marqueurs du code.
+ */
+export function valeursSoudure(locale: Locale): Record<string, string> {
+  return { "{ouverture}": jourEnLettres(DATE_OUVERTURE_COMMANDES, locale, true) };
+}

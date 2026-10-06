@@ -31,7 +31,8 @@ import { descriptionSeo, descriptionTient, lienAvisGoogle, titreSeo } from "../s
 import { prixAffiche } from "../src/lib/ui.ts";
 import { remplacerMarqueurs } from "../src/lib/marqueurs.ts";
 import { PRIX_OFFRE_CENTS, RAYON_MAX_KM } from "../src/lib/deplacement.ts";
-import { questionsFaq, questionsPlafonds, questionsTables } from "../src/lib/faq-balisees.ts";
+import { questionsEscalier, questionsFaq, questionsPlafonds, questionsTables } from "../src/lib/faq-balisees.ts";
+import { CHEMIN_GUIDE_ESCALIER, guideEscalier } from "../src/lib/textes/guide-escalier.ts";
 import { delaiFabrication } from "../src/lib/vitrine.ts";
 import { ALLEGE_SANS_OBLIGATION_MM, HAUTEUR_LOI_GC_MM } from "../src/lib/garde-corps.ts";
 
@@ -307,17 +308,21 @@ function fichiersTsx(dossier: URL): URL[] {
   });
 }
 
-test("FAQ : seules /faq, /artisanat/tables et /toiles-tendues balisent des questions", () => {
+test("FAQ : seules /faq, /artisanat/tables, /toiles-tendues et le guide de l'escalier balisent des questions", () => {
   const app = new URL("../src/app/", import.meta.url);
-  const autorises = ["[lang]/faq/page.tsx", "[lang]/artisanat/tables/page.tsx", "[lang]/toiles-tendues/page.tsx"].map(
-    (chemin) => new URL(chemin, app).href
-  );
+  const autorises = [
+    "[lang]/faq/page.tsx",
+    "[lang]/artisanat/tables/page.tsx",
+    "[lang]/toiles-tendues/page.tsx",
+    // Le guide de l'escalier (plan de référencement, page n° 1 : « FAQ balisée ici seulement »).
+    "[lang]/escalier-limon-central-prix-normes/page.tsx",
+  ].map((chemin) => new URL(chemin, app).href);
   for (const fichier of fichiersTsx(app)) {
     const source = readFileSync(fichier, "utf8");
     if (!/jsonLdFaq|<FaqVisible/.test(source)) continue;
     assert.ok(autorises.includes(fichier.href), `${fichier.pathname} balise une FAQ`);
     // Et chacune prend ses questions dans src/lib/faq-balisees.ts.
-    assert.match(source, /questions(Faq|Tables|Plafonds)\(dict/, `${fichier.pathname} : questions hors de faq-balisees.ts`);
+    assert.match(source, /questions(Faq|Tables|Plafonds)\(dict|questionsEscalier\(g\)/, `${fichier.pathname} : questions hors de faq-balisees.ts`);
   }
 });
 
@@ -339,6 +344,7 @@ for (const locale of ["fr", "en"] as const) {
       ...questionsFaq(dict).map((qr) => ({ ...qr, page: "/faq" })),
       ...questionsTables(dict, formats).map((qr) => ({ ...qr, page: "/artisanat/tables" })),
       ...questionsPlafonds(dict, delai).map((qr) => ({ ...qr, page: "/toiles-tendues" })),
+      ...questionsEscalier(guideEscalier(locale)).map((qr) => ({ ...qr, page: CHEMIN_GUIDE_ESCALIER })),
     ];
     const normaliser = (texte: string) => texte.replace(/\s+/g, " ").trim().toLowerCase();
     for (const champ of ["q", "a"] as const) {

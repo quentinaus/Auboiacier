@@ -39,24 +39,25 @@ export function SiteFooter({
     { href: `/${locale}/confidentialite`, label: dict.footer.privacy },
     { href: `/${locale}/mentions-legales`, label: dict.footer.legal },
   ];
-  // Les guides et les pages de service, liés depuis toutes les pages pour que Google et les visiteurs les trouvent
-  // (plan de référencement, 07/10/2026). Libellés écrits ici dans les deux langues, comme dans le menu du haut.
+  // Les pages de service et les guides, liés depuis toutes les pages pour que Google et les visiteurs les trouvent
+  // (plan de référencement, 07/10/2026) : deux petites listes, pour que celui qui cherche un soudeur ne regarde pas
+  // sous « Guides » (relecture du 07/10/2026). Libellés écrits ici dans les deux langues, comme dans le menu du haut,
+  // et assez courts (28 signes au plus) pour tenir sur une ligne dans une colonne de la tablette (768 px).
+  const services = [
+    { href: `/${locale}/soudure-reparations`, label: fr ? "Soudure et réparations" : "Welding and repairs" },
+    { href: `/${locale}/garde-corps-balcon-terrasse`, label: fr ? "Garde-corps de balcon" : "Balcony railings" },
+    { href: `/${locale}/rendez-vous`, label: fr ? "Prise de cotes à domicile" : "On-site measuring" },
+  ];
   const guides = [
-    { href: `/${locale}/garde-corps-fenetre-normes`, label: dict.liens.normesGc },
+    { href: `/${locale}/garde-corps-fenetre-normes`, label: fr ? "Normes du garde-corps" : "Railing height and rules" },
     {
       href: `/${locale}/artisanat/verification-garde-corps`,
-      label: fr ? "Comment on vérifie un garde-corps" : "How we check a railing",
+      label: fr ? "Vérification du garde-corps" : "How we check a railing",
     },
     {
       href: `/${locale}/escalier-limon-central-prix-normes`,
-      label: fr ? "Escalier à limon central : prix et normes" : "Steel spine staircase: prices and rules",
+      label: fr ? "Escalier : prix et normes" : "Staircase prices and rules",
     },
-    { href: `/${locale}/soudure-reparations`, label: fr ? "Soudure et réparations" : "Welding and repairs" },
-    {
-      href: `/${locale}/garde-corps-balcon-terrasse`,
-      label: fr ? "Garde-corps de balcon et de terrasse" : "Balcony and terrace railings",
-    },
-    { href: `/${locale}/rendez-vous`, label: fr ? "Prise de cotes à domicile" : "On-site measuring" },
   ];
 
   return (
@@ -98,22 +99,31 @@ export function SiteFooter({
           </ul>
         </div>
 
+        {/* Services, puis guides : de la tablette au petit ordinateur, trois colonnes calées sur celles de la navigation
+            (md:grid-cols-3, même écart) ; sur grand écran, une colonne au-dessus du contact. */}
         <div className="md:order-last md:col-span-2 xl:order-none xl:col-span-1">
-          <h2 className={`text-[15px] font-semibold tracking-[-0.01em] ${dark ? "text-white" : "text-[#2b2320]"}`}>
-            Guides
-          </h2>
-          <ul className="mt-5 grid gap-x-6 gap-y-3 text-[15px] leading-[1.35] sm:grid-cols-2 sm:gap-x-10 lg:grid-cols-3 xl:grid-cols-1">
-            {guides.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className={dark ? "text-white/80 hover:text-white" : "text-[#4a4038] hover:text-[#2b2320]"}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {[
+            { titre: "Services", liens: services },
+            { titre: "Guides", liens: guides },
+          ].map((bloc, i) => (
+            <div key={bloc.titre} className={i > 0 ? "mt-10" : undefined}>
+              <h2 className={`text-[15px] font-semibold tracking-[-0.01em] ${dark ? "text-white" : "text-[#2b2320]"}`}>
+                {bloc.titre}
+              </h2>
+              <ul className="mt-5 grid gap-x-6 gap-y-3 text-[15px] leading-[1.35] sm:grid-cols-2 sm:gap-x-10 md:grid-cols-3 xl:grid-cols-1">
+                {bloc.liens.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className={dark ? "text-white/80 hover:text-white" : "text-[#4a4038] hover:text-[#2b2320]"}
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
         <div>

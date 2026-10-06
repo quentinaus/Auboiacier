@@ -4,6 +4,7 @@ import { commandesOuvertes } from "@/lib/entreprise";
 import { textesOuverture } from "@/lib/ouverture";
 import Link from "next/link";
 import { Visuel } from "@/components/visuel";
+import { photosDesSections } from "@/lib/photos-sections";
 import { notFound } from "next/navigation";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../../dictionaries";
@@ -246,6 +247,8 @@ export default async function ProductPage({
       .filter((f) => f.image && !product.images.some((img) => img.src === f.image))
       .map((f) => ({ src: f.image as string, alt: `${product.name} — ${f.label}` })),
   ];
+  /** La photo de chaque section : aucune ne revient deux fois (src/lib/photos-sections.ts). */
+  const photosSections = photosDesSections(product.sections, sectionImages);
 
   /** Achetable en ligne : le bas de page renvoie alors au bouton d'achat. */
   const achetable = product.orderMode === "cart";
@@ -338,34 +341,29 @@ export default async function ProductPage({
       <div className="mx-auto max-w-6xl px-6 py-16 md:py-28">
         {/* 2. Blocs éditoriaux */}
         <div className="flex flex-col gap-20 md:gap-32">
-          {product.sections.map((section, i) =>
-            hasImages ? (
+          {product.sections.map((section, i) => {
+            // Une photo par section, jamais deux fois la même sur la fiche ; sans photo libre, la carte texte seul.
+            const choix = hasImages ? photosSections[i] : null;
+            const photo = choix && "photo" in choix ? choix.photo : null;
+            const src = choix ? ("propre" in choix ? choix.propre : choix.photo.src) : null;
+            return src ? (
               <div key={section.title} className="grid items-center gap-10 md:grid-cols-2 md:gap-16 lg:gap-20">
                 <Apparition className={i % 2 === 1 ? "md:order-2" : ""}>
                   {/* Une photo de studio (fond uni) se montre entière dans le
                       cadre ; une photo d'ambiance le remplit. */}
                   <div
                     className={`relative aspect-[4/3] overflow-hidden rounded-[24px] ${hoverZoomSubtle}`}
-                    style={{ backgroundColor: section.image ? "#ffffff" : (sectionImages[(i + 1) % sectionImages.length].bg ?? "#ffffff") }}
+                    style={{ backgroundColor: photo ? (photo.bg ?? "#ffffff") : "#ffffff" }}
                   >
                     <Visuel
                       locale={locale}
-                      src={section.image ?? sectionImages[(i + 1) % sectionImages.length].src}
-                      alt={section.image ? section.title : sectionImages[(i + 1) % sectionImages.length].alt}
+                      src={src}
+                      alt={photo ? photo.alt : section.title}
                       fill
                       sizes="(max-width: 768px) 100vw, 560px"
-                      className={
-                        !section.image && sectionImages[(i + 1) % sectionImages.length].fit === "contain"
-                          ? "object-contain p-4"
-                          : "object-cover"
-                      }
+                      className={photo?.fit === "contain" ? "object-contain p-4" : "object-cover"}
                     />
-                    {(() => {
-                      if (section.image) return null;
-                      const glow = sectionImages[(i + 1) % sectionImages.length].glow;
-                      if (!glow) return null;
-                      return <MembraneAnimee box={membraneEn43(glow.box)} clip={glow.clip} />;
-                    })()}
+                    {photo?.glow && <MembraneAnimee box={membraneEn43(photo.glow.box)} clip={photo.glow.clip} />}
                   </div>
                 </Apparition>
                 <Apparition retard={110}>
@@ -382,8 +380,8 @@ export default async function ProductPage({
                   <p className="mt-6 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{section.body}</p>
                 </div>
               </Apparition>
-            )
-          )}
+            );
+          })}
         </div>
       </div>
 

@@ -1,10 +1,10 @@
 # Auboiacier
 
-> Atelier de métallerie de Quentin Aumercier à Saumur (49400, Maine-et-Loire, France). Garde-corps, escaliers, verrières, tables en bois massif sur piétement acier et plafonds lumineux en toile tendue, fabriqués à la main, sur mesure, à la commande. Prix affichés en ligne, à vos cotes.
+> Atelier de métallerie de Quentin Aumercier à Saumur (49400, Maine-et-Loire, France). Garde-corps, escaliers, verrières, tables en bois massif sur piétement acier et plafonds lumineux en toile tendue, fabriqués à la main, sur mesure, à la commande. Prix affichés en ligne pour les tables, les garde-corps de fenêtre et les plafonds lumineux ; escaliers, verrières, sculptures, garde-corps de balcon et soudure sur devis.
 
 Quentin Aumercier est soudeur-métallier, titulaire du CAP Métallier et du BP Métallier. Il a travaillé deux ans en Australie chez un fabricant de plafonds lumineux en toile tendue avant d'ouvrir l'atelier à Saumur. Il travaille seul : celui qui répond est celui qui fabrique. Langues : français, anglais.
 
-- Fabrication sur mesure : chaque pièce est dessinée aux cotes du client et soudée à la commande, rien n'est en stock.
+- Fabrication à la commande : un format de la collection ou vos propres cotes, rien n'est en stock.
 - Prix : affiché sur chaque fiche pour les cotes demandées, avec un devis PDF sans compte ; escaliers, verrières et sculptures sur devis.
 - Zone : atelier à Saumur ; prise de cotes à domicile autour de Saumur ; livraison en France métropolitaine.
 - Aussi, sur devis : garde-corps de balcon et de terrasse, rampes d'escalier extérieur, soudure et réparations à façon (pages ci-dessous).
@@ -41,7 +41,7 @@ Quentin Aumercier est soudeur-métallier, titulaire du CAP Métallier et du BP M
 ## English
 
 - [Home](https://auboiacier.fr/en): metalwork workshop in Saumur, Loire Valley, France
-- [The collection](https://auboiacier.fr/en/artisanat): bespoke steel and solid wood pieces, priced online
+- [The collection](https://auboiacier.fr/en/artisanat): bespoke steel and solid wood pieces, priced online or quoted per project
 - [Steel spine staircase: prices and rules](https://auboiacier.fr/en/escalier-limon-central-prix-normes): prices by shape and timber, French rules
 - [Balcony and terrace railings](https://auboiacier.fr/en/garde-corps-balcon-terrasse): bespoke, quoted per project
 - [Welding and repairs](https://auboiacier.fr/en/soudure-reparations): steel and aluminium, quoted per job

@@ -636,13 +636,15 @@ const OFFRES: Record<Locale, string[]> = {
     "Soudure et réparation à façon",
   ],
   en: [
-    "Custom window railing",
+    // Les mêmes mots que les titles anglais : « bespoke » plutôt que « custom », « steel internal windows »,
+    // « stretch-fabric ceiling light » (relecture du 07/10/2026).
+    "Bespoke window railing",
     "Bespoke wood and steel table",
     "Upholstered chairs and armchairs",
     "Bespoke steel staircase",
-    "Interior steel partition",
+    "Steel internal windows",
     "Metal sculpture",
-    "Backlit stretched-fabric ceiling",
+    "Backlit stretch-fabric ceiling light",
     "Bespoke balcony and terrace railings",
     "Bespoke stair railings",
     "Welding and metal repairs",

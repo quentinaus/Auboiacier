@@ -191,6 +191,12 @@ for (const locale of ["fr", "en"] as const) {
     assert.ok(a.knowsAbout.length >= 8);
     // Plus de chaises dans la description (pièce retirée le 06/10), plus de « custom » ni de « Craft ».
     assert.doesNotMatch(a.description, /chaise|chair|custom|craft/i);
+    // Les offres en anglais parlent comme les titles : « bespoke », jamais « custom » ; « steel internal windows ».
+    const offres = a.makesOffer.map((o: { itemOffered: { name: string } }) => o.itemOffered.name).join(" | ");
+    if (locale === "en") {
+      assert.doesNotMatch(offres, /custom|partition|stretched-fabric/i, offres);
+      assert.match(offres, /Bespoke window railing/);
+    }
     assert.ok(!("aggregateRating" in a) && !("review" in a), "jamais de note sur l'atelier");
     sansMotInterdit(`jsonLdAtelier(${locale})`, JSON.stringify(a));
   });
@@ -329,6 +335,12 @@ test("les trois pages nouvelles (guide escalier, balcon et terrasse, soudure) : 
   assert.match(fiche, /famille === "garde-corps"[\s\S]{0,120}\/garde-corps-balcon-terrasse/);
   assert.match(zone, /\/soudure-reparations/);
   assert.match(zone, /\/garde-corps-balcon-terrasse/);
+  // Le guide de l'escalier, seule page datée, donne sa vraie date de mise à jour au plan du site ; aucune autre.
+  assert.match(plan, /chemin: "\/escalier-limon-central-prix-normes",[^\n]*modifie: DATE_MODIFICATION_GUIDE_ESCALIER/);
+  assert.equal((plan.match(/modifie: /g) ?? []).length, 1, "une autre page du plan a une date");
+  // Les pages balcon et soudure se relient dans leur texte, pas seulement par le pied de page.
+  assert.ok(lire("app/[lang]/garde-corps-balcon-terrasse/page.tsx").includes("/soudure-reparations"));
+  assert.ok(lire("lib/textes/soudure-reparations.ts").includes('chemin: "/garde-corps-balcon-terrasse"'));
 });
 
 test("pied de page : chaque lien mène à une page du site qui existe", () => {
