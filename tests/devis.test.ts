@@ -169,11 +169,11 @@ test("escalier : une estimation, sans validité, avec sa réserve", () => {
   assert.ok(resultat.ok);
   const { devis } = resultat;
   assert.equal(devis.nature, "estimation");
-  assert.equal(devis.total, 8400);
+  assert.equal(devis.total, 6870);
   const p = postes(devis);
   assert.match(p[0].designation, /^Central stringer/);
   assert.match(p[1].designation, /^Solid oak treads, 50 mm — Quarter turn/);
-  assert.equal(p.reduce((somme, l) => somme + l.unitaire, 0), 8400);
+  assert.equal(p.reduce((somme, l) => somme + l.unitaire, 0), 6870);
   assert.ok(devis.conditions[0].includes("estimate"));
   const l = labels(devis);
   assert.ok(l.includes("Shape") && l.includes("Treads") && l.includes("Stringer"));

@@ -465,7 +465,7 @@
     "releveQuiAtelierNote": "Dès {prixVisite}. Nous venons chez vous, jusqu'à 200 km de Saumur, et vous recevez un devis, pose comprise.",
     "releveQuiMoiTag": "Gratuit",
     "releveCodePostal": "Code postal du chantier",
-    "releveVisiteIntro": "L'escalier se fait uniquement sur devis : l'atelier vient prendre les cotes chez vous, et vous recevez un devis, pose comprise. Le déplacement est déduit de la commande.",
+    "releveVisiteIntro": "L'escalier se fait uniquement sur devis : l'atelier vient prendre les cotes chez vous, et vous recevez un devis, pose comprise jusqu'à 45 km de Saumur (au-delà, la route s'ajoute au devis). Le déplacement est déduit de la commande.",
     "customTableHeight": "Hauteur finie",
     "customTableHeightEdit": "Modifier",
     "customTableHeightAide": "Conseillé : 75 cm — du sol au dessus du plateau.",

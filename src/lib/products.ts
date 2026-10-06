@@ -1417,11 +1417,15 @@ export const products: Product[] = [
       },
     ],
     sizes: [
-      { id: "droit", label: "Droit — 13 marches", price: 6900 },
-      { id: "quart", label: "Quart tournant — 14 marches", price: 8400 },
-      { id: "demi", label: "Demi-tournant — 16 marches", price: 9800 },
+      // Le prix plancher de l'atelier (son heure à 50 €), arrondi à la dizaine,
+      // pose comprise jusqu'à 45 km de Saumur (décision de Quentin, 06/10/2026).
+      // Les deux escaliers tournants gardent leur supplément au-dessus du droit.
+      { id: "droit", label: "Droit — 13 marches", price: 5370 },
+      { id: "quart", label: "Quart tournant — 14 marches", price: 6870 },
+      { id: "demi", label: "Demi-tournant — 16 marches", price: 8270 },
     ],
-    woods: woods({ pin: -1290, hetre: -690, chene: 0, noyer: 1690 }),
+    // L'écart suit le vrai prix du bois des marches et de la main courante.
+    woods: woods({ pin: -390, hetre: -390, chene: 0, noyer: 370 }),
     metals: metals("noir", "brut", "blanc"),
     metalLabel: { fr: "Couleur du limon", en: "Stringer colour" },
     woodLabel: { fr: "Essence des marches", en: "Tread timber" },
@@ -1441,9 +1445,9 @@ export const products: Product[] = [
       { label: "Marches", value: "Pin, hêtre, chêne ou noyer massif au choix, épaisseur 50 mm, finition huile-cire" },
       { label: "Garde-corps", value: "Câbles inox tendus, main courante bois cintré" },
       { label: "Hauteur", value: "Sur mesure, adaptée à votre trémie (prise de cotes à domicile)" },
-      { label: "Normes", value: "Conforme NF P01-012 — garde-corps et hauteur de marche" },
+      { label: "Normes", value: "Garde-corps aux normes de sécurité françaises (NF P01-012)" },
       { label: "Fabrication", value: "Sur commande — comptez 10 à 12 semaines" },
-      { label: "Pose", value: "Comprise, par nos soins, en 1 à 2 jours" },
+      { label: "Pose", value: "Comprise jusqu'à 45 km de Saumur, par nos soins, en 1 à 2 jours ; au-delà, la route s'ajoute au devis" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -1477,9 +1481,9 @@ export const products: Product[] = [
         { label: "Treads", value: "Pine, beech, oak or walnut to choose from, 50 mm thick, oil-wax finish" },
         { label: "Balustrade", value: "Tensioned stainless steel cables, bent timber handrail" },
         { label: "Height", value: "Made to measure, fitted to your stairwell opening (measuring visit at your home)" },
-        { label: "Standards", value: "Complies with NF P01-012 — balustrades and rise" },
+        { label: "Standards", value: "Balustrade to French safety standards (NF P01-012)" },
         { label: "Lead time", value: "Made to order — allow 10 to 12 weeks" },
-        { label: "Fitting", value: "Included, by us, in one or two days" },
+        { label: "Fitting", value: "Included within 45 km of Saumur, by us, in one or two days; beyond that, travel is added to the quote" },
       ],
     },
   },
@@ -2574,7 +2578,7 @@ export type ResolveResult =
 /**
  * Choisit une option dans une liste, en REFUSANT tout ce qui ne correspond pas.
  * Pas de repli sur la première option : un identifiant absent ou inconnu ferait
- * payer le pin (−260 € sur la table, −950 € sur l'escalier) à la place du chêne.
+ * payer le pin (−260 € sur la table, −390 € sur l'escalier) à la place du chêne.
  */
 function pickOption(
   list: ProductSwatch[] | undefined,
