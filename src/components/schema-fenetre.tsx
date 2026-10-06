@@ -645,6 +645,21 @@ export function SchemaFenetre({
   /** En bas : juste au-dessus de l'appui. En haut : à 1 m du sol (toujours au-dessus de la ligne du bas). */
   const yLargeurBas = r(appuiY - 5);
   const yLargeurHaut = r(Math.min(solY - 1000 * e, yLargeurBas - 16));
+  /* Murs pas parallèles (Quentin, 07/10 : « on ne voit pas que ce n'est pas parallèle sur le plan, j'aimerais qu'on le
+     voie ») : l'ouverture se dessine en trapèze, chaque largeur à sa hauteur, et le garde-corps reste à la plus petite. Un
+     écart de quelques millimètres ne se verrait pas à l'échelle : il est agrandi (5 à 14 px de chaque côté). */
+  const ecartMm = largeurMm !== undefined && largeurHautMm !== undefined ? borne(largeurMm, 200, 3000) - borne(largeurHautMm, 200, 3000) : 0;
+  const ecartDessin = ecartMm === 0 ? 0 : Math.min(14, Math.max(5, (Math.abs(ecartMm) * e) / 2));
+  /** De combien le mur s'écarte du garde-corps, de chaque côté, à la hauteur y (droit entre les deux lignes de mesure). */
+  const surplus = (y: number) => {
+    if (ecartDessin === 0) return 0;
+    const t = (yLargeurBas - y) / Math.max(1, yLargeurBas - yLargeurHaut);
+    const bas = ecartMm > 0 ? ecartDessin : 0;
+    const haut = ecartMm < 0 ? ecartDessin : 0;
+    return Math.min(2 * ecartDessin, Math.max(0, bas + (haut - bas) * t));
+  };
+  const bordG = (y: number) => r(G - surplus(y));
+  const bordD = (y: number) => r(D + surplus(y));
   /** La ligne où mesurer la largeur demandée, surlignée en bleu (« la sélectionner », Quentin). */
   const surligne = actif === "largeur" ? yLargeurBas : actif === "largeurHaut" ? yLargeurHaut : null;
   const xGauche = r(Math.max(14, G - debord - 15));
@@ -820,7 +835,17 @@ export function SchemaFenetre({
       <Mur matiere={mur} bas={solY} e={e} ids={ids} />
       <Parquet haut={solY} bas={HAUTEUR} e={e} ids={ids} lumiere={[G, D]} />
 
-      {/* L'ouverture : une ombre douce tout autour dit l'épaisseur du mur. */}
+      {/* L'ouverture : une ombre douce tout autour dit l'épaisseur du mur. Murs pas parallèles : l'ouverture en trapèze, le
+          tableau du mur visible entre la fenêtre et le mur penché. */}
+      {ecartDessin > 0 && (
+        <polygon
+          points={`${bordG(hautOuvertureY)},${hautOuvertureY} ${bordD(hautOuvertureY)},${hautOuvertureY} ${bordD(appuiY)},${appuiY} ${bordG(appuiY)},${appuiY}`}
+          fill="#d8cfc2"
+          stroke="#3a3129"
+          strokeOpacity={0.55}
+          strokeWidth={1}
+        />
+      )}
       <rect x={G - 1.2} y={hautOuvertureY - 1.2} width={r(D - G + 2.4)} height={r(appuiY - hautOuvertureY + 1.2)} fill="#1e1912" fillOpacity={0.1} />
       {/* La menuiserie : le dormant et les deux ouvrants, blancs. */}
       <rect x={G} y={hautOuvertureY} width={r(D - G)} height={r(appuiY - hautOuvertureY)} fill="#f7f5f1" />
@@ -872,8 +897,8 @@ export function SchemaFenetre({
           sur l'acier (l'orange se confondait avec une main courante en chêne). */}
       {surligne !== null && (
         <g pointerEvents="none">
-          <rect x={r(G - 3)} y={r(surligne - 7)} width={r(D - G + 6)} height={14} rx={7} fill="#2f7fe0" opacity={0.18} />
-          <rect x={r(G - 1)} y={r(surligne - 4.5)} width={r(D - G + 2)} height={9} rx={4.5} fill="none" stroke="#2f7fe0" strokeWidth={1.8} />
+          <rect x={r(bordG(surligne) - 3)} y={r(surligne - 7)} width={r(bordD(surligne) - bordG(surligne) + 6)} height={14} rx={7} fill="#2f7fe0" opacity={0.18} />
+          <rect x={r(bordG(surligne) - 1)} y={r(surligne - 4.5)} width={r(bordD(surligne) - bordG(surligne) + 2)} height={9} rx={4.5} fill="none" stroke="#2f7fe0" strokeWidth={1.8} />
         </g>
       )}
       {/* Les lignes de rappel : du bord mesuré jusqu'au-delà de la cote. */}
@@ -890,8 +915,8 @@ export function SchemaFenetre({
       </g>
       <Cote
         cote="largeurHaut"
-        de={[G, yLargeurHaut]}
-        a={[D, yLargeurHaut]}
+        de={[bordG(yLargeurHaut), yLargeurHaut]}
+        a={[bordD(yLargeurHaut), yLargeurHaut]}
         texte={largeurHautMm !== undefined ? enMm(largeurHautMm, locale) : noms.largeurHaut}
         vide={largeurHautMm === undefined}
         actif={actif === "largeurHaut"}
@@ -901,8 +926,8 @@ export function SchemaFenetre({
       />
       <Cote
         cote="largeur"
-        de={[G, yLargeurBas]}
-        a={[D, yLargeurBas]}
+        de={[bordG(yLargeurBas), yLargeurBas]}
+        a={[bordD(yLargeurBas), yLargeurBas]}
         texte={largeurMm !== undefined ? enMm(largeurMm, locale) : noms.largeur}
         vide={largeurMm === undefined}
         actif={actif === "largeur"}
