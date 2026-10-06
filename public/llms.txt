@@ -1,0 +1,46 @@
+# Auboiacier
+
+> Atelier de métallerie de Quentin Aumercier à Saumur (49400, Maine-et-Loire, France). Garde-corps, escaliers, verrières, tables en bois massif sur piétement acier et plafonds lumineux en toile tendue, fabriqués à la main, sur mesure, à la commande. Prix affichés en ligne, à vos cotes.
+
+Quentin Aumercier est soudeur-métallier, titulaire du CAP Métallier et du BP Métallier. Il a travaillé deux ans en Australie chez un fabricant de plafonds lumineux en toile tendue avant d'ouvrir l'atelier à Saumur. Il travaille seul : celui qui répond est celui qui fabrique. Langues : français, anglais.
+
+- Fabrication sur mesure : chaque pièce est dessinée aux cotes du client et soudée à la commande, rien n'est en stock.
+- Prix : affiché sur chaque fiche pour les cotes demandées, avec un devis PDF sans compte ; verrières et sculptures sur devis.
+- Zone : atelier à Saumur ; prise de cotes à domicile autour de Saumur ; livraison en France métropolitaine.
+- Aussi sur demande : garde-corps de balcon et de terrasse, rampes d'escalier, soudure et réparations à façon (formulaire de contact).
+- Contact : auboiacier@gmail.com, 07 82 37 23 79.
+
+## Pièces et savoir-faire
+
+- [La collection](https://auboiacier.fr/fr/artisanat): toutes les pièces en acier et bois massif
+- [Garde-corps de fenêtre sur mesure](https://auboiacier.fr/fr/artisanat/garde-corps): prix calculé aux cotes de la fenêtre
+- [Escalier à limon central](https://auboiacier.fr/fr/artisanat/escalier-limon-central): acier et marches en bois massif
+- [Verrières d'atelier](https://auboiacier.fr/fr/artisanat/verrieres): acier, sur mesure, sur devis
+- [Tables sur mesure en bois massif et acier](https://auboiacier.fr/fr/artisanat/tables): modèles, essences, dimensions
+- [Plafonds lumineux en toile tendue](https://auboiacier.fr/fr/toiles-tendues): Lucarne (rectangle) et Halo (disque)
+- [Sculptures en acier soudé](https://auboiacier.fr/fr/artisanat/sculptures): sur commande
+- [Le bois massif à l'atelier](https://auboiacier.fr/fr/bois-massif): plateaux, marches, mains courantes
+
+## Guides
+
+- [Garde-corps de fenêtre : la norme](https://auboiacier.fr/fr/garde-corps-fenetre-normes): hauteur, vides, cas où il est obligatoire
+- [Comment un garde-corps est vérifié](https://auboiacier.fr/fr/artisanat/verification-garde-corps): les contrôles de l'outil, avec un exemple réel
+- [Questions fréquentes](https://auboiacier.fr/fr/faq): délais, prix, livraison
+
+## L'atelier
+
+- [À propos](https://auboiacier.fr/fr/a-propos): Quentin Aumercier, son parcours
+- [Zone d'intervention](https://auboiacier.fr/fr/zone-intervention): Maine-et-Loire, Indre-et-Loire, Deux-Sèvres, Vienne
+- [Devis en ligne](https://auboiacier.fr/fr/devis): prix et devis PDF
+- [Prise de cotes à domicile](https://auboiacier.fr/fr/rendez-vous)
+- [Contact](https://auboiacier.fr/fr/contact)
+
+## English
+
+- [Home](https://auboiacier.fr/en): metalwork workshop in Saumur, Loire Valley, France
+- [The collection](https://auboiacier.fr/en/artisanat): bespoke steel and solid wood pieces, priced online
+- [About Quentin Aumercier](https://auboiacier.fr/en/a-propos): welder-metalworker, French CAP and BP Métallier diplomas, two years in Australia with a maker of backlit stretch-fabric ceilings
+
+## Optional
+
+- [Plan du site](https://auboiacier.fr/sitemap.xml)

@@ -12,7 +12,8 @@
     "garde-corps:verifier-build": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verifier-build-couts.mjs",
     "portails:extraire": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/extraire-portails.mjs",
     "portails:dessins": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/dessins-portails.mjs",
-    "carte-avis": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/carte-avis/fabriquer.mjs"
+    "carte-avis": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/carte-avis/fabriquer.mjs",
+    "indexnow": "node scripts/indexnow.mjs"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.9.0",

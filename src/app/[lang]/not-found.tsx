@@ -35,11 +35,12 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     // Titre absolu : le modèle du layout ajouterait un second « Auboiacier ».
     title: { absolute: titreComplet(dict.introuvable.title) },
-    // Next ajoute lui-même une balise « noindex » à toute page introuvable ;
-    // mais le layout en pose une seconde, « index, follow », héritée de ses
-    // métadonnées. Deux consignes contraires sur la même page : on remplace
-    // ici celle du layout pour que les deux disent la même chose.
-    robots: { index: false, follow: false },
+    // Next ajoute lui-même une balise « noindex » à toute page introuvable
+    // (réponse 404). Le layout en poserait une seconde, « index, follow »,
+    // héritée de ses métadonnées : null l'efface, et la page n'a plus qu'une
+    // balise robots, celle de Next (avant : « noindex » plus « noindex,
+    // nofollow », deux balises pour une même consigne).
+    robots: null,
   };
 }
 
