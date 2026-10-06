@@ -324,7 +324,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
                 </Link>
               </div>
             </div>
-            <IndiceDefiler cible="suite" label={locale === "fr" ? "Voir la suite de la page" : "Scroll to see more"} />
+            <IndiceDefiler cible="suite" label={locale === "fr" ? "Voir la suite de la page" : "Scroll to see more"} mot={locale === "fr" ? "Découvrir" : "Discover"} />
           </section>
         );
       })()}
