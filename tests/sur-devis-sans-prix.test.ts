@@ -39,7 +39,7 @@ test("la table résine a ses prix (05/10/2026) : catalogue, en caisse, ses quatr
   assert.equal(table.category, "interieur");
   assert.equal(priceFrom(table), 2160);
   assert.ok(!sansPrix.includes(table));
-  assert.deepEqual(table.sizes.map((t) => t.price), [2160, 2540, 2760, 3170, 3670]);
+  assert.deepEqual(table.sizes.map((t) => t.price), [2160, 2540, 2770, 3170, 3670]);
   assert.deepEqual(
     (table.fabrics ?? []).map((f) => f.id),
     ["bleu-paillettes-or", "rouge", "or-nacre", "turquoise"]

@@ -767,7 +767,7 @@ const catalogue: Product[] = [
       { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 1650 },
       { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1880 },
       { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 2030 },
-      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 2300 },
+      { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 2310 },
       { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 2600 },
     ],
     surMesure: {
@@ -796,7 +796,7 @@ const catalogue: Product[] = [
         choixMm: PLATEAU_CHOIX,
         // Chaque millimètre d'écart avec 45 mm se paie au mètre carré, en plus
         // ou en moins : un plateau plus fin utilise vraiment moins de bois.
-        parM2ParMm: 10,
+        parM2ParMm: 2,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
       },
@@ -958,7 +958,7 @@ const catalogue: Product[] = [
         choixMm: PLATEAU_CHOIX,
         // Chaque millimètre d'écart avec 45 mm se paie au mètre carré, en plus
         // ou en moins : un plateau plus fin utilise vraiment moins de bois.
-        parM2ParMm: 10,
+        parM2ParMm: 2,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
       },
@@ -1085,7 +1085,7 @@ const catalogue: Product[] = [
         choixMm: PLATEAU_CHOIX,
         // Chaque millimètre d'écart avec 45 mm se paie au mètre carré, en plus
         // ou en moins : un plateau plus fin utilise vraiment moins de bois.
-        parM2ParMm: 10,
+        parM2ParMm: 2,
         // Et le plateau doit s'épaissir avec la longueur.
         miniParLongueur: PLATEAU_MASSIF,
       },
@@ -1260,7 +1260,7 @@ const catalogue: Product[] = [
     sizes: [
       { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 2160 },
       { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 2540 },
-      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 2760 },
+      { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 2770 },
       { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 3170 },
       { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 3670 },
     ],
@@ -1839,7 +1839,7 @@ const catalogue: Product[] = [
     ],
     sizes: [
       { id: "p6", dimsMm: [1500, 900], label: "6 places — 150 × 90 × H 75 cm", price: 1460 },
-      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1670 },
+      { id: "p8", default: true, dimsMm: [2000, 1000], label: "8 places — 200 × 100 × H 75 cm", price: 1680 },
       { id: "p10", dimsMm: [2400, 1000], label: "10 places — 240 × 100 × H 75 cm", price: 1800 },
       { id: "p12", dimsMm: [3000, 1000], label: "12 places — 300 × 100 × H 75 cm", price: 2050 },
       { id: "p14", dimsMm: [3500, 1100], label: "14 places — 350 × 110 × H 75 cm", price: 2330 },
@@ -1852,8 +1852,10 @@ const catalogue: Product[] = [
       // (voir table-mikado).
       forme: "rect",
       axes: "plan",
-      forfait: 991,
-      parM2: 353,
+      forfait: 994,
+      parM2: 250,
+      // Le tour de la table : les tables longues et étroites coûtent plus que leur surface (lattes, traverses).
+      parMetre: 40,
       minMm: 800,
       maxLargeurMm: PLATEAU_MAX_LONGUEUR_MM,
       maxHauteurMm: PLATEAU_MAX_LARGEUR_MM,
@@ -1863,7 +1865,7 @@ const catalogue: Product[] = [
         maxMm: 45,
         refMm: 45,
         choixMm: PLATEAU_CHOIX,
-        parM2ParMm: 6,
+        parM2ParMm: 0,
         miniParLongueur: PLATEAU_MASSIF,
       },
     },
@@ -2028,15 +2030,15 @@ const catalogue: Product[] = [
       },
     ],
     sizes: [
-      { id: "l120", default: true, dimsMm: [1200, 600], label: "120 × 60 cm — 0,72 m² — 50 W", price: 1290 },
-      { id: "l1212", dimsMm: [1200, 1200], label: "120 × 120 cm — 1,44 m² — 95 W", price: 1710 },
-      { id: "l180", dimsMm: [1800, 900], label: "180 × 90 cm — 1,62 m² — 105 W", price: 1870 },
-      { id: "l240", dimsMm: [2400, 1200], label: "240 × 120 cm — 2,88 m² — 190 W", price: 2550 },
-      { id: "l300", dimsMm: [3000, 1500], label: "300 × 150 cm — 4,5 m² — 290 W", price: 3450 },
-      { id: "l302", dimsMm: [3000, 2000], label: "300 × 200 cm — 6 m² — 390 W", price: 4080 },
-      { id: "l400", dimsMm: [4000, 2000], label: "400 × 200 cm — 8 m² — 520 W", price: 5060 },
-      { id: "l425", dimsMm: [4000, 2500], label: "400 × 250 cm — 10 m² — 650 W", price: 5910 },
-      { id: "l430", dimsMm: [4000, 3000], label: "400 × 300 cm — 12 m² — 780 W", price: 6720 },
+      { id: "l120", default: true, dimsMm: [1200, 600], label: "120 × 60 cm — 0,72 m² — 50 W", price: 1300 },
+      { id: "l1212", dimsMm: [1200, 1200], label: "120 × 120 cm — 1,44 m² — 95 W", price: 1780 },
+      { id: "l180", dimsMm: [1800, 900], label: "180 × 90 cm — 1,62 m² — 105 W", price: 1940 },
+      { id: "l240", dimsMm: [2400, 1200], label: "240 × 120 cm — 2,88 m² — 190 W", price: 2700 },
+      { id: "l300", dimsMm: [3000, 1500], label: "300 × 150 cm — 4,5 m² — 290 W", price: 3670 },
+      { id: "l302", dimsMm: [3000, 2000], label: "300 × 200 cm — 6 m² — 390 W", price: 4370 },
+      { id: "l400", dimsMm: [4000, 2000], label: "400 × 200 cm — 8 m² — 520 W", price: 5480 },
+      { id: "l425", dimsMm: [4000, 2500], label: "400 × 250 cm — 10 m² — 650 W", price: 6330 },
+      { id: "l430", dimsMm: [4000, 3000], label: "400 × 300 cm — 12 m² — 780 W", price: 7280 },
     ],
     surMesure: {
       cotesParDefautMm: [1800, 1180, 200],
@@ -2047,9 +2049,11 @@ const catalogue: Product[] = [
       // paie l'heure de Quentin 50 €. Forfait + mètre carré + mètre de pourtour,
       // calés sur le chiffrage et jamais sous une taille du catalogue ; entre
       // deux tailles, la plus petite qui contient les cotes sert de plafond.
-      forfait: 487,
-      parM2: 333,
-      parMetre: 163,
+      // 06/10/2026 : recalés sur la règle des 14 m de ruban par boîtier LED (1 boîtier de 150 W pour 14 m au plus,
+      // Quentin, 26/09) : la formule la plus basse qui reste au-dessus du plancher à toutes les cotes et profondeurs.
+      forfait: 459,
+      parM2: 380,
+      parMetre: 170,
       minMm: 300,
       maxLargeurMm: 4000,
       maxHauteurMm: 3000,
@@ -2059,7 +2063,7 @@ const catalogue: Product[] = [
         minMm: 180,
         maxMm: 600,
         refMm: 180,
-        parM2Bande: 134,
+        parM2Bande: 156,
       },
     },
     woods: [],
@@ -2178,13 +2182,13 @@ const catalogue: Product[] = [
     ],
     sizes: [
       { id: "d90", dimsMm: [900, 900], label: "Ø 90 cm — 0,64 m² — 40 W", price: 1600 },
-      { id: "d120", default: true, dimsMm: [1200, 1200], label: "Ø 120 cm — 1,13 m² — 75 W", price: 2100 },
+      { id: "d120", default: true, dimsMm: [1200, 1200], label: "Ø 120 cm — 1,13 m² — 75 W", price: 2170 },
       { id: "d150", dimsMm: [1500, 1500], label: "Ø 150 cm — 1,77 m² — 115 W", price: 2730 },
-      { id: "d200", dimsMm: [2000, 2000], label: "Ø 200 cm — 3,14 m² — 205 W", price: 3720 },
-      { id: "d250", dimsMm: [2500, 2500], label: "Ø 250 cm — 4,91 m² — 320 W", price: 4850 },
-      { id: "d300", dimsMm: [3000, 3000], label: "Ø 300 cm — 7,07 m² — 460 W", price: 6050 },
-      { id: "d350", dimsMm: [3500, 3500], label: "Ø 350 cm — 9,62 m² — 625 W", price: 7380 },
-      { id: "d400", dimsMm: [4000, 4000], label: "Ø 400 cm — 12,57 m² — 815 W", price: 8910 },
+      { id: "d200", dimsMm: [2000, 2000], label: "Ø 200 cm — 3,14 m² — 205 W", price: 3790 },
+      { id: "d250", dimsMm: [2500, 2500], label: "Ø 250 cm — 4,91 m² — 320 W", price: 4990 },
+      { id: "d300", dimsMm: [3000, 3000], label: "Ø 300 cm — 7,07 m² — 460 W", price: 6330 },
+      { id: "d350", dimsMm: [3500, 3500], label: "Ø 350 cm — 9,62 m² — 625 W", price: 7800 },
+      { id: "d400", dimsMm: [4000, 4000], label: "Ø 400 cm — 12,57 m² — 815 W", price: 9470 },
     ],
     surMesure: {
       cotesParDefautMm: [1800, 1800, 200],
@@ -2197,9 +2201,10 @@ const catalogue: Product[] = [
       // Prix conseillés du chiffrage du 03/10/2026 : un rond demande bien plus
       // de travail qu'un rectangle (cintrage, roulage), le pourtour pèse donc
       // plus lourd dans le prix.
-      forfait: 396,
-      parM2: 300,
-      parMetre: 383,
+      // 06/10/2026 : recalés sur la règle des 14 m de ruban par boîtier LED (voir la Lucarne).
+      forfait: 419,
+      parM2: 350,
+      parMetre: 370,
       minMm: 300,
       maxLargeurMm: 4000,
       maxHauteurMm: 4000,
@@ -2207,7 +2212,7 @@ const catalogue: Product[] = [
         minMm: 180,
         maxMm: 600,
         refMm: 180,
-        parM2Bande: 134,
+        parM2Bande: 168,
       },
     },
     woods: [],
