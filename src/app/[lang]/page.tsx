@@ -279,24 +279,28 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
       {(() => {
         const [metier, ...reste] = t.h1.split(" — ");
         return (
-          <section className="relative flex min-h-[100svh] items-end overflow-hidden bg-[#1d1d1f] md:items-center">
+          // La photo encadrée, avec du blanc autour (Quentin, 07/10/2026 : « moins zoomée, pas en pleine page, ça dégrade la
+          // qualité ») ; le cadre ne prend pas tout l'écran : le haut de la suite se voit dessous.
+          <section className="bg-white px-3 pt-3 md:px-5 md:pt-5">
+          <div className="relative mx-auto flex h-[86svh] min-h-[520px] max-w-[1680px] items-end overflow-hidden rounded-[24px] bg-[#1d1d1f] md:h-[86svh] md:min-h-[600px] md:items-center md:rounded-[32px]">
             <div className="camera-lente camera-douce absolute inset-0">
               {/* La mention se pose plus bas, au-dessus du voile : ici, elle avancerait avec la caméra. */}
               <Visuel
                 locale={locale}
                 mention={false}
-                src="/images/mikado/ambiance.jpg"
+                src="/images/mikado/ambiance-hd.jpg"
                 alt={t.altHeroMobilier}
                 fill
                 priority
-                sizes="100vw"
+                sizes="(max-width: 1680px) 100vw, 1680px"
                 style={{ objectPosition: "50% 58%" }}
                 className="object-cover"
               />
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/45 md:bg-gradient-to-r md:from-black/60 md:via-black/30 md:to-black/5" />
-            <MentionIllustration src="/images/mikado/ambiance.jpg" locale={locale} ton="sombre" />
-            <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-16 pt-32 md:pb-0 md:pt-0">
+            <MentionIllustration src="/images/mikado/ambiance-hd.jpg" locale={locale} ton="sombre" />
+            {/* Sur téléphone, le texte laisse la place à « Découvrir » et à la souris, en bas du cadre. */}
+            <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-36 pt-28 md:pb-0 md:pt-0">
               <h1 className={`${serif.className} max-w-5xl text-white`}>
                 <span className="entree-monte block text-[clamp(2.9rem,8.4vw,6.4rem)] font-normal leading-[0.98] tracking-[-0.022em]" style={{ "--retard": "200ms" } as CSSProperties}>
                   {metier}
@@ -325,6 +329,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               </div>
             </div>
             <IndiceDefiler cible="suite" label={locale === "fr" ? "Voir la suite de la page" : "Scroll to see more"} mot={locale === "fr" ? "Découvrir" : "Discover"} />
+          </div>
           </section>
         );
       })()}
@@ -332,7 +337,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
       {/* 1 ter. Les deux univers, juste sous le premier écran */}
       {/* Sur téléphone les panneaux se superposent : côte à côte, ils ne font
           que 180 px de large et le texte devient illisible. La flèche du premier écran descend ici. */}
-      <section id="suite" className="grid grid-cols-1 md:grid-cols-2">
+      <section id="suite" className="mt-3 grid scroll-mt-3 grid-cols-1 md:mt-5 md:grid-cols-2 md:scroll-mt-5">
         <HeroPanel
           locale={locale}
           href={`/${locale}/toiles-tendues`}
