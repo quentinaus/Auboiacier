@@ -2458,6 +2458,9 @@ const catalogue: Product[] = [
  */
 export const PIECES_RETIREES: ReadonlySet<string> = new Set(["chaise-acier-bois"]);
 
+/** La fiche du Garde-corps forgé à volutes (07/10/2026) : la fiche du garde-corps Rosace y renvoie. */
+export const SLUG_GC_FORGE = "garde-corps-forge-volutes";
+
 export const products: Product[] = catalogue.filter((p) => !PIECES_RETIREES.has(p.slug));
 
 export function getProduct(slug: string) {

@@ -11,7 +11,7 @@
 import { catalogueGC, configurerGC, prixCommandeGC, prixGC, ChiffrageIndisponible, type ConfigAEtudierGC, type ConfigGC, type DessinGC } from "./calcul.ts";
 import { MAINS_COURANTES_GC, type EntreeSiteGC, type MainCouranteGC, valeursGC } from "./entree.ts";
 import { RENFORT, calculerGC, geomGC, mtAlleger, planA3Pur, DEFAUTS_GC, type ResultatGC, type ValeursGC } from "./moteur.genere.mjs";
-import { getProduct, priceFrom, prixParOutil, resolveSelection, SUR_MESURE, type PrixReleve, type Product } from "../products.ts";
+import { getProduct, priceFrom, prixParOutil, resolveSelection, SLUG_GC_FORGE, SUR_MESURE, type PrixReleve, type Product } from "../products.ts";
 import { BORNES_RELEVE_GC, DECOR_NOMBRES_MAX, MODELES_GC_MAX, RELEVE_DEPART_GC, ROSACE_DEFAUT_GC, ROSACE_MM_GC, decorParDefautGC, diametreRosaceGC, idDecorGC, idModeleGC, lireDecorGC, lireMainCouranteGC, lireModeleGC, releveDansLesBornes, type ChoixDecorGC, type DecorReponseGC, type DecorTraitGC, type MainsPrixGC, type ModeleGC, type PlanApercuGC, type PrixDecorGC, type ReleveGC, type ReponsePrixGC, STATUTS_FIXATION_GC, TEXTE_FIXATION_GC_MAX, champsMurGC, estMurFixationGC, lireMurParametresGC, type FixationGC, type MurFixationGC, type StatutFixationGC } from "../garde-corps.ts";
 import { DECORS_GC } from "../garde-corps-decors.genere.ts";
 import type { CalculGC } from "../tarif-panier.ts";
@@ -19,7 +19,7 @@ import type { CalculGC } from "../tarif-panier.ts";
 /** L'identifiant du garde-corps de fenêtre au catalogue. */
 export const SLUG_GC = "garde-corps";
 /** Le Garde-corps forgé à volutes (07/10/2026) : le même garde-corps, avec un décor à volutes, sur sa propre fiche. */
-export const SLUG_GC_FORGE = "garde-corps-forge-volutes";
+export { SLUG_GC_FORGE };
 
 /** La fiche d'un relevé : celle du Garde-corps forgé à volutes s'il a un décor, sinon celle du garde-corps Rosace. */
 export const slugGC = (releve: Pick<ReleveGC, "decor">) => (releve.decor !== undefined ? SLUG_GC_FORGE : SLUG_GC);

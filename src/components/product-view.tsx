@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Visuel } from "./visuel";
-import { essenceDeReference, type Product } from "@/lib/products";
+import { essenceDeReference, SLUG_GC_FORGE, type Product } from "@/lib/products";
 import { prixAfficheFiche } from "@/lib/donnees-google";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { ETAPE_MODELE_GC, MEDIA_TELEPHONE_GC } from "./etapes-telephone";
@@ -659,6 +659,18 @@ export function ProductView({
             >
               {t.configurationCta}
             </a>
+            {/* Le garde-corps Rosace renvoie vers le Garde-corps forgé à volutes, plus haut de gamme (Quentin, 07/10/2026). */}
+            {product.releve === "garde-corps-fenetre" && !product.decorsGC && (
+              <p className="mt-5 text-[13px] leading-snug text-[#6f6357]">
+                {locale === "fr" ? "Envie de volutes\u00a0? " : "Fancy scrollwork? "}
+                <Link
+                  href={`/${locale}/artisanat/${SLUG_GC_FORGE}`}
+                  className="font-medium text-[#2b2320] underline decoration-[#c9b9a6] underline-offset-4 transition-colors hover:decoration-[#2b2320]"
+                >
+                  {locale === "fr" ? "Voir le garde-corps forgé" : "See the wrought scroll railing"}
+                </Link>
+              </p>
+            )}
           </div>
         ) : (
           <div className="mt-2 md:mt-5">{options}</div>
