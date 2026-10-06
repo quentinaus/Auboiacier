@@ -13,6 +13,7 @@ import { serif } from "@/lib/fonts";
 import { PhotoPlafondAnime } from "@/components/photo-plafond-anime";
 import { hoverZoom } from "@/lib/ui";
 import { Apparition } from "@/components/apparition";
+import { IndiceDefiler } from "@/components/indice-defiler";
 import { Parallaxe } from "@/components/parallaxe";
 import { getProduct } from "@/lib/products";
 import { prixAppelGC } from "@/lib/prix-garde-corps.server";
@@ -279,7 +280,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
         const [metier, ...reste] = t.h1.split(" — ");
         return (
           <section className="relative flex min-h-[100svh] items-end overflow-hidden bg-[#1d1d1f] md:items-center">
-            <div className="camera-lente absolute inset-0">
+            <div className="camera-lente camera-douce absolute inset-0">
               {/* La mention se pose plus bas, au-dessus du voile : ici, elle avancerait avec la caméra. */}
               <Visuel
                 locale={locale}
@@ -323,14 +324,15 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
                 </Link>
               </div>
             </div>
+            <IndiceDefiler cible="suite" label={locale === "fr" ? "Voir la suite de la page" : "Scroll to see more"} />
           </section>
         );
       })()}
 
       {/* 1 ter. Les deux univers, juste sous le premier écran */}
       {/* Sur téléphone les panneaux se superposent : côte à côte, ils ne font
-          que 180 px de large et le texte devient illisible. */}
-      <section className="grid grid-cols-1 md:grid-cols-2">
+          que 180 px de large et le texte devient illisible. La flèche du premier écran descend ici. */}
+      <section id="suite" className="grid grid-cols-1 md:grid-cols-2">
         <HeroPanel
           locale={locale}
           href={`/${locale}/toiles-tendues`}

@@ -53,7 +53,8 @@ export function MentionIllustration({
       aria-hidden="true"
       data-mention-illustration={src}
       className={[
-        "pointer-events-none absolute z-[3] select-none whitespace-nowrap rounded-full px-1.5 py-px text-[9px] leading-[14px] tracking-[0.02em] md:text-[10px]",
+        // Plus discrète (Quentin, 06/10/2026 : « un tout petit peu plus petit »), toujours lisible.
+        "pointer-events-none absolute z-[3] select-none whitespace-nowrap rounded-full px-[5px] py-0 text-[8px] leading-[12px] tracking-[0.02em] md:text-[9px] md:leading-[13px]",
         TONS_MENTION[ton ?? tonMention(src)],
         COINS[coin],
         className,

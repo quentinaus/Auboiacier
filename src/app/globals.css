@@ -1281,6 +1281,12 @@ textarea:focus-visible,
   .camera-lente {
     animation: camera-avance 22s cubic-bezier(0.25, 0.1, 0.25, 1) both;
   }
+  .camera-lente.camera-douce {
+    animation-name: camera-avance-douce;
+  }
+  .indice-defiler svg {
+    animation: indice-glisse 2.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  }
 
   /* Le titre, la phrase puis le bouton arrivent l'un après l'autre
      (--retard posé sur chaque élément). */
@@ -1290,6 +1296,35 @@ textarea:focus-visible,
   }
 }
 
+/* La flèche du premier écran de l'accueil (indice-defiler.tsx) : elle glisse vers le bas, et s'efface dès qu'on défile. */
+@keyframes indice-glisse {
+  0%,
+  100% {
+    transform: translateY(-4px);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateY(6px);
+    opacity: 1;
+  }
+}
+.indice-defiler {
+  transition: opacity 0.4s ease;
+}
+.indice-defiler[data-parti] {
+  opacity: 0;
+  pointer-events: none;
+}
+/* Le premier écran de l'accueil : la photo est déjà agrandie pour remplir l'écran, la caméra n'avance presque pas
+   (Quentin, 06/10/2026 : « la photo est un tout petit peu trop grosse »). */
+@keyframes camera-avance-douce {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.02);
+  }
+}
 @keyframes camera-avance {
   from {
     transform: scale(1);
