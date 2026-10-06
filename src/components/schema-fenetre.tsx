@@ -481,6 +481,7 @@ export function SchemaFenetre({
   locale = "fr",
   className = "h-full w-full",
   remplissage = "croix",
+  coteMainCourante = false,
 }: {
   /** Le diamètre de la rosace choisie, pour la dessiner à l'échelle. */
   rosaceMm?: number;
@@ -492,6 +493,11 @@ export function SchemaFenetre({
   apercu?: boolean;
   /** Les croix du modèle, ou un panneau de verre à leur place. */
   remplissage?: "croix" | "verre";
+  /**
+   * La cote de droite donne le haut de la main courante, depuis le sol, au lieu de la hauteur de la fenêtre :
+   * pour la page des normes, qui explique la règle (la fiche, elle, y demande la hauteur de la fenêtre).
+   */
+  coteMainCourante?: boolean;
   /** Les cotes dessinées à l'échelle. Sans valeur, le croquis prend celles du modèle, et les étiquettes disent ce qu'il faut mesurer. */
   largeurMm?: number;
   /**
@@ -530,6 +536,8 @@ export function SchemaFenetre({
     allege: string;
     fenetre: string;
     hauteur: string;
+    /** La cote du haut de la main courante (avec `coteMainCourante`). */
+    mainCourante?: string;
     metre: string;
     interieur: string;
     jour: string;
@@ -719,7 +727,7 @@ export function SchemaFenetre({
       viewBox={`0 0 ${LARGEUR} ${HAUTEUR}`}
       preserveAspectRatio="xMidYMid slice"
       role="img"
-      aria-label={`${legende}${labels.largeur}, ${labels.allege}, ${labels.fenetre}, ${labels.hauteur}. ${labels.interieur}`}
+      aria-label={`${legende}${labels.largeur}, ${labels.allege}, ${coteMainCourante && labels.mainCourante ? labels.mainCourante : labels.fenetre}, ${labels.hauteur}. ${labels.interieur}`}
       className={className}
     >
       <defs>
@@ -836,8 +844,14 @@ export function SchemaFenetre({
       {/* Les lignes de rappel : du bord mesuré jusqu'au-delà de la cote. */}
       <g {...rappel}>
         <line x1={r(G - debord - 3)} x2={r(xGauche - 5)} y1={appuiY} y2={appuiY} />
-        <line x1={r(D + 3)} x2={r(xDroite + 5)} y1={hautOuvertureY} y2={hautOuvertureY} />
-        <line x1={r(D + debord + 3)} x2={r(xDroite + 5)} y1={appuiY} y2={appuiY} />
+        {coteMainCourante ? (
+          <line x1={r(D + 3)} x2={r(xDroite + 5)} y1={hautGardeCorpsY} y2={hautGardeCorpsY} />
+        ) : (
+          <>
+            <line x1={r(D + 3)} x2={r(xDroite + 5)} y1={hautOuvertureY} y2={hautOuvertureY} />
+            <line x1={r(D + debord + 3)} x2={r(xDroite + 5)} y1={appuiY} y2={appuiY} />
+          </>
+        )}
       </g>
       <Cote
         cote="largeurHaut"
@@ -888,18 +902,34 @@ export function SchemaFenetre({
         onChoisir={onChoisir}
       />
       )}
-      <Cote
-        cote="fenetre"
-        vertical
-        de={[xDroite, appuiY]}
-        a={[xDroite, hautOuvertureY]}
-        texte={hauteurFenetreMm !== undefined ? enMm(hauteurFenetreMm, locale) : noms.fenetre}
-        vide={hauteurFenetreMm === undefined}
-        actif={actif === "fenetre"}
-        label={labels.fenetre}
-        ombre={ids("ombre")}
-        onChoisir={onChoisir}
-      />
+      {coteMainCourante ? (
+        /* Du sol au haut de la main courante : la hauteur que fixe la règle, calculée comme le reste du dessin. */
+        <Cote
+          cote="hauteur"
+          vertical
+          de={[xDroite, solY]}
+          a={[xDroite, hautGardeCorpsY]}
+          texte={enMm(MC, locale)}
+          vide={false}
+          actif={false}
+          label={labels.mainCourante ?? labels.hauteur}
+          ombre={ids("ombre")}
+          onChoisir={onChoisir}
+        />
+      ) : (
+        <Cote
+          cote="fenetre"
+          vertical
+          de={[xDroite, appuiY]}
+          a={[xDroite, hautOuvertureY]}
+          texte={hauteurFenetreMm !== undefined ? enMm(hauteurFenetreMm, locale) : noms.fenetre}
+          vide={hauteurFenetreMm === undefined}
+          actif={actif === "fenetre"}
+          label={labels.fenetre}
+          ombre={ids("ombre")}
+          onChoisir={onChoisir}
+        />
+      )}
     </svg>
   );
 }

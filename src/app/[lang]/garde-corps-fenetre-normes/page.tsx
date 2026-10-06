@@ -232,7 +232,8 @@ export default async function NormesGardeCorpsPage({
 
   const lien =
     "inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black";
-  const titre2 = `${serif.className} text-2xl text-[#2b2320]`;
+  // Chiffres alignés (lining-nums) : les chiffres elzéviriens de la police faisaient lire « Po1-o12 » et « 1 ooo ».
+  const titre2 = `${serif.className} text-2xl lining-nums text-[#2b2320]`;
   const corps = "mt-3 leading-relaxed text-[#4a4038]";
 
   return (
@@ -300,11 +301,13 @@ export default async function NormesGardeCorpsPage({
                         teinteAcier={teinte.swatch}
                         locale={locale}
                         actif={null}
+                        coteMainCourante
                         labels={{
                           largeur: a.gcSchemaLargeur,
                           allege: a.gcSchemaAllege,
                           fenetre: a.gcSchemaFenetre,
                           hauteur: a.gcSchemaHauteur,
+                          mainCourante: t.croquisCote,
                           metre: remplir(a.gcSchemaMetre, { m: nombre(MAIN_COURANTE_MM) }),
                           interieur: a.gcSchemaInterieur,
                           jour: a.gcSchemaJour,
@@ -316,6 +319,8 @@ export default async function NormesGardeCorpsPage({
                         allege: mm(croquis.allegeMm),
                         hauteur: mm(croquis.hauteurMm),
                         jourEx: mm(croquis.jourMm),
+                        // Le haut de la main courante, tel que le croquis le cote : l'appui, le jour, le garde-corps.
+                        mainCourante: mm(croquis.allegeMm + croquis.jourMm + croquis.hauteurMm),
                       })}
                     </figcaption>
                   </figure>
@@ -341,7 +346,7 @@ export default async function NormesGardeCorpsPage({
                 <thead className="max-md:hidden">
                   <tr className="border-b border-[#d9cfc0] align-bottom text-[11px] uppercase tracking-[0.1em] text-[#726757]">
                     <th scope="col" className="whitespace-nowrap py-3 pr-3 font-medium">{t.colAllege}</th>
-                    <th scope="col" className="whitespace-nowrap py-3 pr-3 font-medium">{t.colObligatoire}</th>
+                    <th scope="col" className="py-3 pr-3 font-medium">{t.colObligatoire}</th>
                     <th scope="col" className="whitespace-nowrap py-3 pr-3 font-medium">{t.colHauteur}</th>
                     <th scope="col" className="py-3 pr-3 font-medium">{t.colJour}</th>
                     <th scope="col" className="py-3 pr-3 font-medium">{t.colDessin}</th>
@@ -398,6 +403,7 @@ export default async function NormesGardeCorpsPage({
                               enEtage
                               woodId={essence}
                               label={t.ouvrir}
+                              ariaLabel={texte(t.ouvrirAria, { allege: mm(e.allegeMm) })}
                               className="whitespace-nowrap text-[13px] text-[#2b2320] underline decoration-[#2b2320]/30 underline-offset-4 hover:decoration-[#2b2320]"
                             />
                           )}
@@ -503,7 +509,7 @@ export default async function NormesGardeCorpsPage({
             <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4">
               <Link
                 href={`${fiche}#configuration`}
-                className="btn-verre inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
+                className="btn-verre inline-block whitespace-nowrap rounded-full px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.14em] text-white sm:px-8 sm:tracking-[0.2em]"
               >
                 {t.ctaCalculer}
               </Link>

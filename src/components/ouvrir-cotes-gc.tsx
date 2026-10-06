@@ -24,6 +24,7 @@ export function OuvrirCotesGC({
   enEtage,
   woodId,
   label,
+  ariaLabel,
   className,
 }: {
   href: string;
@@ -33,12 +34,15 @@ export function OuvrirCotesGC({
   enEtage: boolean;
   woodId: string;
   label: string;
+  /** Le nom lu par les lecteurs d'écran : le texte visible, puis l'appui de l'exemple (tous les liens du tableau disent la même chose). */
+  ariaLabel?: string;
   className?: string;
 }) {
   return (
     <Link
       href={href}
       className={className}
+      aria-label={ariaLabel}
       onClick={() =>
         memoriserConfig({
           slug,
