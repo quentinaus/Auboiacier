@@ -85,8 +85,8 @@ export const ETAPES_GC = [
     courtEn: "Model",
     questionFr: "Choisissez votre modèle",
     questionEn: "Choose your model",
-    aideFr: "Tous sont aux normes pour votre fenêtre, avec vos finitions.",
-    aideEn: "All of them meet the standard for your window, with your finishes.",
+    aideFr: "Tous sont aux normes pour votre fenêtre. Le moins cher est déjà choisi\u00a0: touchez-en un autre si vous préférez.",
+    aideEn: "All of them meet the standard for your window. The cheapest is already chosen: tap another if you prefer.",
   },
   {
     courtFr: "Prix",

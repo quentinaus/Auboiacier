@@ -338,7 +338,7 @@
     "releveCalcul": "Calcul indicatif",
     "releveReculLong": "Vous avez plus de recul qu'il n'en faut : nous pouvons adoucir la pente, ou récupérer de la place au sol.",
     "gcTitle": "Vos mesures",
-    "gcIntro": "Deux mesures au mètre : nous calculons la hauteur du garde-corps pour respecter la loi, et nous le fabriquons au millimètre pour qu'il s'encastre dans votre fenêtre. Donnez les cotes brutes, sans rien retirer.",
+    "gcIntro": "Trois mesures au mètre : nous calculons la hauteur du garde-corps pour respecter la loi, et nous le fabriquons au millimètre pour qu'il s'encastre dans votre fenêtre. Donnez les cotes brutes, sans rien retirer.",
     "gcInfoLabel": "Explication",
     "gcEtage": "Où est la fenêtre",
     "gcEtageOptions": [
@@ -368,9 +368,9 @@
     ],
     "gcMurInfo": "La matière dans laquelle nous fixons le garde-corps, de chaque côté de la fenêtre. Cela décide des chevilles et des vis que nous fournissons. En cas de doute, choisissez « Je ne sais pas » : nous vous demanderons une photo.",
     "gcQui": "Qui prend les cotes",
-    "gcQuiInfo": "L'atelier vient chez vous mesurer avant de fabriquer — {prixVisite} jusqu'à {rayonVisite} km autour de Saumur, puis les kilomètres et le temps de route, jusqu'à 200 km. Ou vous mesurez vous-même, au mètre : deux mesures, sans frais.",
+    "gcQuiInfo": "L'atelier vient chez vous mesurer avant de fabriquer — {prixVisite} jusqu'à {rayonVisite} km autour de Saumur, puis les kilomètres et le temps de route, jusqu'à 200 km. Ou vous mesurez vous-même, au mètre : trois mesures, sans frais.",
     "gcQuiMoi": "Je mesure moi-même",
-    "gcQuiMoiNote": "Gratuit. Deux mesures au mètre en suivant le croquis, et le prix s'affiche tout de suite.",
+    "gcQuiMoiNote": "Gratuit. Trois mesures au mètre en suivant le croquis, et le prix s'affiche tout de suite.",
     "gcQuiAtelier": "L'atelier vient mesurer",
     "gcQuiAtelierNote": "Dès {prixVisite}. Nous venons chez vous, jusqu'à 200 km de Saumur, et nous vous envoyons le prix exact du garde-corps.",
     "gcCodePostal": "Code postal de la fenêtre",
@@ -415,7 +415,7 @@
     "gcMurFacultatif": "Facultatif — dans quoi se fixe le garde-corps",
     "gcConforme": "Conforme aux normes françaises : hauteur et espaces entre les barres",
     "gcPrixInclus": "Fabrication au millimètre, fixations et notice de pose comprises.",
-    "gcPrixAttente": "Le prix s'affiche dès vos deux mesures.",
+    "gcPrixAttente": "Le prix s'affiche dès vos trois mesures.",
     "prixAttenteCotes": "Configurez-la : cotes, matières, teinte — le prix s'affiche, le devis se télécharge.",
     "sizeChoose": "Choisir un format du catalogue",
     "gcPrixCompris": "bois et acier compris",
@@ -531,7 +531,7 @@
       },
       {
         "titre": "Entrez vos cotes",
-        "texte": "En centimètres ou en millimètres, guidé par un croquis coté. Deux mesures suffisent pour un garde-corps."
+        "texte": "En centimètres ou en millimètres, guidé par un croquis coté. Trois mesures suffisent pour un garde-corps."
       },
       {
         "titre": "Le prix s'affiche",
@@ -551,7 +551,7 @@
     },
     "saisie": {
       "table": "Longueur et largeur du plateau, épaisseur 28, 36 ou 45 mm",
-      "gardeCorps": "Deux mesures de la fenêtre, prises au mètre",
+      "gardeCorps": "Trois mesures de la fenêtre, prises au mètre",
       "plafondRect": "Longueur et largeur du caisson, au centimètre",
       "plafondRond": "Diamètre du caisson, au centimètre"
     },

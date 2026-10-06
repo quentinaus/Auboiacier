@@ -32,8 +32,11 @@ export function ProductView({
   filAriane,
   compteOuvert = false,
   ouverture,
+  prixAppel,
 }: {
   product: Product;
+  /** Garde-corps : « dès X € pour une fenêtre de Y cm », calculé par l'outil sur le serveur (prixAppelGC). */
+  prixAppel?: { prix: number; largeurMm: number } | null;
   t: Dictionary["artisanat"];
   locale: "fr" | "en";
   /** L'espace client est-il ouvert ? On ne propose pas un compte qui n'existe pas encore. */
@@ -602,7 +605,12 @@ export function ProductView({
                 </svg>
                 <div>
                   <p className="text-[14px] font-semibold leading-tight">{t.gcNormesTitre}</p>
-                  <p className="mt-1 text-[12.5px] leading-snug text-[#33583b]">{t.gcNormesDetail}</p>
+                  <p className="mt-1 text-[12.5px] leading-snug text-[#33583b]">
+                    {t.gcNormesDetail}{" "}
+                    <Link href={`/${locale}/artisanat/verification-garde-corps`} className="font-medium underline underline-offset-2">
+                      {locale === "fr" ? "Comment on vérifie" : "How we check"}
+                    </Link>
+                  </p>
                 </div>
               </div>
             )}
@@ -618,6 +626,16 @@ export function ProductView({
             {prixDepart !== null && (
               <p className="mt-4 text-[13px] tabular-nums text-[#6f6357]">
                 {t.from} <span className="text-[#2b2320]">{prixAffiche(prixDepart, locale)}</span>
+              </p>
+            )}
+            {/* Le garde-corps : un prix d'appel réaliste, avec la fenêtre qui va avec (étude marketing, 06/10). */}
+            {prixAppel && (
+              <p className="mt-4 text-[14px] tabular-nums text-[#4a4038]">
+                {locale === "fr" ? "Dès " : "From "}
+                <span className="font-semibold text-[#2b2320]">{prixAffiche(prixAppel.prix, locale)}</span>
+                {locale === "fr"
+                  ? ` pour une fenêtre de ${prixAppel.largeurMm / 10}\u00a0cm de large`
+                  : ` for a window ${prixAppel.largeurMm / 10} cm wide`}
               </p>
             )}
             <p className="mt-1 text-xs leading-snug text-[#7a6f64]">{t.prixAttenteCotes}</p>
@@ -679,12 +697,8 @@ export function ProductView({
                   d'un coup, est plus confortable — mais téléphone et tablette marchent aussi. */}
               {troisColonnes && (
                 <p className="conseil-telephone mt-1 text-[11px] leading-snug text-[#6f6357] lg:hidden">
-                  {/* Sur téléphone, en étapes : une seule ligne, l'écran est compté. */}
-                  {parcoursTel ? (
-                    <span className="md:hidden">
-                      {locale === "fr" ? "Plus confortable sur ordinateur. Ici, suivez les étapes." : "More comfortable on a computer. Here, follow the steps."}
-                    </span>
-                  ) : null}
+                  {/* Sur téléphone, en étapes : plus de « Plus confortable sur ordinateur » (Quentin, 06/10, d'après l'étude
+                      marketing : il décourageait, alors que le parcours en questions marche bien sur téléphone). */}
                   <span className={parcoursTel ? "max-md:hidden" : undefined}>
                     {locale === "fr"
                       ? "Conseil : sur ordinateur, tous les réglages s'affichent d'un coup — c'est plus confortable. Ici aussi, tout fonctionne."

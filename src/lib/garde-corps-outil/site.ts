@@ -348,6 +348,7 @@ export function planApercuGC(q: RequetePrixGC, date = new Date()): PlanApercuGC 
  * ------------------------------------------------------------------ */
 
 let departMemo: number | null | undefined;
+let appelMemo: { prix: number; largeurMm: number } | null | undefined;
 let fourchetteMemo: { prixMin: number; prixMax: number } | null | undefined;
 let indisponibleSignale = false;
 
@@ -388,6 +389,37 @@ export function prixDepart(product: Product): number | null {
   };
   const valeur = sansCle(calcul, null);
   if (valeur !== null || indisponibleSignale) departMemo = valeur;
+  return valeur;
+}
+
+/**
+ * LE PRIX D'APPEL (étude marketing, 06/10/2026 : « un prix dès réaliste, avec la taille de fenêtre qui va avec ») :
+ * le modèle aux normes le moins cher, toutes mains courantes et options au plus bas, pour une fenêtre COURANTE — 100 cm
+ * de large, en étage, le bas à 65 cm du sol. Le « à partir de » (prixDepart) reste le plus petit garde-corps fabriqué,
+ * pour Google ; celui-ci se lit « dès X € pour une fenêtre de 100 cm ». C'est le prix que le client obtient s'il entre ces
+ * cotes et choisit ce modèle : jamais un chiffre qu'aucune configuration n'atteint.
+ */
+export const FENETRE_APPEL_GC = { largeurMm: 1000, allegeMm: 650 } as const;
+export function prixAppelGC(product: Product): { prix: number; largeurMm: number } | null {
+  if (!prixParOutil(product)) return null;
+  if (appelMemo !== undefined) return appelMemo;
+  const moinsCher = (liste: { id: string; priceDelta?: number }[] | undefined) =>
+    liste?.length ? liste.reduce((a, b) => ((a.priceDelta ?? 0) <= (b.priceDelta ?? 0) ? a : b)).id : undefined;
+  const calcul = () => {
+    const prix = MAINS_COURANTES_GC.flatMap((essence) => {
+      const r = reponsePrixGC({
+        releve: { ...FENETRE_APPEL_GC, enEtage: true, fenetreMm: 0 },
+        essence,
+        metalId: moinsCher(product.metals),
+        fabricId: moinsCher(product.fabrics),
+        quantite: 1,
+      });
+      return r ? r.modeles.filter((m) => m.conforme).map((m) => m.prix) : [];
+    });
+    return prix.length ? { prix: Math.min(...prix), largeurMm: FENETRE_APPEL_GC.largeurMm } : null;
+  };
+  const valeur = sansCle(calcul, null);
+  if (valeur !== null || indisponibleSignale) appelMemo = valeur;
   return valeur;
 }
 

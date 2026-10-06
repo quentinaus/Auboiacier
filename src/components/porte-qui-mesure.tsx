@@ -221,7 +221,7 @@ export function PorteQuiMesure({
       titre: fr ? "Je mesure et pose moi\u2011même" : "I measure and fit it myself",
       note: fr ? (
         <>
-          Vous prenez deux mesures au mètre&nbsp;: l&apos;atelier fabrique votre garde-corps <strong className="porte-fort">à vos cotes exactes</strong>.
+          Vous prenez trois mesures au mètre&nbsp;: l&apos;atelier fabrique votre garde-corps <strong className="porte-fort">à vos cotes exactes</strong>.
         </>
       ) : (
         <>

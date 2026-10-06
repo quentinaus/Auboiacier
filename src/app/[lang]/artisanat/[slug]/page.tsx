@@ -15,7 +15,7 @@ import {
   prixParOutil,
   productLocalise,
 } from "@/lib/products";
-import { fourchetteGC, prixDepart } from "@/lib/prix-garde-corps.server";
+import { fourchetteGC, prixAppelGC, prixDepart } from "@/lib/prix-garde-corps.server";
 import { ProductView } from "@/components/product-view";
 import { ProductTail } from "@/components/product-tail";
 import { MembraneAnimee } from "@/components/photo-plafond-anime";
@@ -295,6 +295,7 @@ export default async function ProductPage({
       <div id="acheter" className="scroll-mt-0">
         <ProductView
           compteOuvert={compteConfigure()}
+          prixAppel={prixAppelGC(product)}
           // Avant l'ouverture des commandes : s'inscrire à la place de payer.
           ouverture={commandesOuvertes() ? undefined : { t: textesOuverture(dict.panier), contactEmail: dict.contact.email }}
           product={product}

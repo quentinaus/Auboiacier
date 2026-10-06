@@ -1640,8 +1640,8 @@ export const products: Product[] = [
         body: "Quatre modèles au choix. En bois massif (pin, hêtre, chêne ou noyer ; le chêne est celui de la photo), arrondi, poncé et huilé : rainuré de 40 × 40 mm, il s'emboîte sur le cadre ; ou de 60 × 45 mm, vissé sur un fer plat de 60 × 10 mm qui raidit la lisse haute (obligatoire à partir de 1,67 m de large, compris dans le prix). En acier, peint comme le cadre : un fer plat de 40 × 8 mm soudé à plat, ou un profilé du commerce de 40 × 10 mm. Le choix se fait sur la fiche, avec le prix de chacun.",
       },
       {
-        title: "Deux mesures à relever",
-        body: "Vous relevez deux mesures au mètre : la largeur entre les murs, et la hauteur du sol au bas de la fenêtre (la hauteur de la fenêtre est facultative). Nous calculons la hauteur du garde-corps pour qu'il respecte la règle. Il vient s'encastrer dans le tableau, fixé dans l'épaisseur des murs. Si une cote nous étonne, nous vous appelons avant de couper. Si vous préférez, l'atelier vient prendre les cotes.",
+        title: "Trois mesures à relever",
+        body: "Vous relevez trois mesures au mètre : la largeur entre les murs au ras de l'appui, la même largeur à 1 m du sol, et la hauteur du sol au bas de la fenêtre (la hauteur de la fenêtre est facultative). Nous calculons la hauteur du garde-corps pour qu'il respecte la règle. Il vient s'encastrer dans le tableau, fixé dans l'épaisseur des murs. Si une cote nous étonne, nous vous appelons avant de couper. Si vous préférez, l'atelier vient prendre les cotes.",
       },
       {
         title: "Une hauteur calculée selon la règle",
@@ -1691,8 +1691,8 @@ export const products: Product[] = [
           body: "Four designs to choose from. In solid wood (pine, beech, oak or walnut; oak is the one in the photo), rounded, sanded and oiled: grooved, 40 × 40 mm, it fits over the frame; or 60 × 45 mm, screwed onto a 60 × 10 mm flat bar that stiffens the top rail (required from 1.67 m wide, included in the price). In steel, painted like the frame: a 40 × 8 mm flat bar welded flat, or an off-the-shelf 40 × 10 mm profile. You choose on the product page, with the price of each.",
         },
         {
-          title: "Two measurements to take",
-          body: "You take two tape measurements: the width between the walls, and the height from the floor to the bottom of the window (the window height is optional). We work out the railing height so that it meets the rule. The railing fits into the reveal, fixed into the thickness of the walls. If a measurement surprises us, we call you before cutting. If you prefer, the workshop comes to measure up.",
+          title: "Three measurements to take",
+          body: "You take three tape measurements: the width between the walls just above the sill, the same width 1 m from the floor, and the height from the floor to the bottom of the window (the window height is optional). We work out the railing height so that it meets the rule. The railing fits into the reveal, fixed into the thickness of the walls. If a measurement surprises us, we call you before cutting. If you prefer, the workshop comes to measure up.",
         },
         {
           title: "A height set by the rule",

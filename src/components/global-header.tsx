@@ -17,9 +17,12 @@ export function GlobalHeader({
   dict: Dictionary;
   overlay?: boolean;
 }) {
-  const links = [
+  const links: { href: string; label: string; grandEcran?: boolean }[] = [
     { href: `/${locale}/toiles-tendues`, label: dict.hub.lightingLabel },
     { href: `/${locale}/artisanat`, label: dict.hub.craftLabel },
+    // Le produit le plus demandé, dans le menu (étude marketing, 06/10) : sur grand écran seulement, la barre d'une
+    // tablette n'a pas la place d'un lien de plus (le panneau du téléphone et de la tablette l'a déjà).
+    { href: `/${locale}/artisanat/garde-corps`, label: locale === "fr" ? "Garde-corps" : "Railings", grandEcran: true },
     { href: `/${locale}/realisations`, label: dict.nav.realisations },
     { href: `/${locale}/devis`, label: dict.nav.devis },
     { href: `/${locale}/a-propos`, label: dict.nav.apropos },
@@ -66,7 +69,7 @@ export function GlobalHeader({
             <Link
               key={link.href}
               href={link.href}
-              className={overlay ? "hover:text-white" : "hover:text-gray-900"}
+              className={`${link.grandEcran ? "hidden lg:inline" : ""} ${overlay ? "hover:text-white" : "hover:text-gray-900"}`}
             >
               {link.label}
             </Link>
@@ -85,7 +88,8 @@ export function GlobalHeader({
           </div>
           <MenuMobile
             locale={locale}
-            links={[...links, ...liensEnPlus]}
+            // Le garde-corps du menu de grand écran est déjà dans liensEnPlus : pas deux fois dans le panneau.
+            links={[...links.filter((l) => !l.grandEcran), ...liensEnPlus]}
             variant={overlay ? "dark" : "light"}
           />
         </div>

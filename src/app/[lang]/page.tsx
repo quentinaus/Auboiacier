@@ -13,6 +13,9 @@ import { PhotoPlafondAnime } from "@/components/photo-plafond-anime";
 import { hoverZoom } from "@/lib/ui";
 import { Apparition } from "@/components/apparition";
 import { Parallaxe } from "@/components/parallaxe";
+import { getProduct } from "@/lib/products";
+import { prixAppelGC } from "@/lib/prix-garde-corps.server";
+import { prixAffiche } from "@/lib/ui";
 
 /** Panneau cliquable : image plein cadre, titre centré, bouton. Pleine
  *  largeur sur téléphone, une moitié d'écran à partir de la tablette. */
@@ -250,6 +253,10 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
     },
   ];
 
+  /** Le garde-corps en haut de l'accueil, avec son prix d'appel calculé par l'outil (étude marketing, 06/10). */
+  const ficheGC = getProduct("garde-corps");
+  const appelGC = ficheGC ? prixAppelGC(ficheGC) : null;
+
   /** Vrais témoignages clients — à remplir, rien d'inventé ici. */
   const testimonials: { quote: string; author: string }[] = [];
   // La fiche Google de l'atelier, quand elle existe : sans elle, ni phrase ni lien.
@@ -287,6 +294,33 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           rang={1}
         />
       </section>
+
+      {/* 1 bis. Le garde-corps, tout de suite : le produit le plus demandé, avec un prix réaliste et la fenêtre qui va
+          avec, avant toute configuration (étude marketing, 06/10). Sans prix (outil indisponible), pas de bandeau. */}
+      {appelGC && (
+        <section className="border-t border-[#3d3532] bg-[#2b2320] px-6 py-6 text-white md:py-7">
+          <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 text-center md:flex-row md:justify-between md:text-left">
+            <div>
+              <p className={`${serif.className} text-xl leading-tight md:text-2xl`}>
+                {locale === "fr" ? "Garde-corps de fenêtre sur mesure, aux normes" : "Made-to-measure window railings, to standard"}
+              </p>
+              <p className="mt-1.5 text-[14px] leading-snug text-white/85">
+                {locale === "fr" ? "Dès " : "From "}
+                <span className="font-semibold text-white">{prixAffiche(appelGC.prix, locale)}</span>
+                {locale === "fr"
+                  ? ` pour une fenêtre de ${appelGC.largeurMm / 10}\u00a0cm de large. Votre prix exact, à vos mesures, tout de suite.`
+                  : ` for a window ${appelGC.largeurMm / 10} cm wide. Your exact price, to your measurements, straight away.`}
+              </p>
+            </div>
+            <Link
+              href={`/${locale}/artisanat/garde-corps#configuration`}
+              className="shrink-0 rounded-full bg-white px-6 py-3 text-[12px] font-semibold uppercase tracking-[0.16em] text-[#2b2320] transition-colors hover:bg-[#f3eee8]"
+            >
+              {locale === "fr" ? "Calculer mon prix" : "Get my price"}
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* 2. Ce que fait l'atelier, écrit noir sur blanc.
           Le titre de niveau 1 était caché et ne contenait aucun des mots que

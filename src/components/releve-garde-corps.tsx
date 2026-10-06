@@ -577,6 +577,37 @@ export function ReleveGardeCorps({
   };
   const choisi = voulu ? (modeles.find((m) => m.conforme && m.id === cotes.modele) ?? modeles.find((m) => m.conforme && memeDessin(m)) ?? null) : null;
   const nbConformes = modeles.filter((m) => m.conforme).length;
+  /**
+   * LE MOINS CHER DÉJÀ CHOISI (étude marketing, 06/10, et « le site propose la meilleure config, le client ne cherche pas ») :
+   * dès que le serveur répond, le modèle qu'il propose (le moins cher à croix, avec la rosace choisie : avecLeMoinsCher)
+   * devient le choix du client — il peut passer au prix sans rien toucher, ou en prendre un autre. Ce choix automatique
+   * suit la fenêtre : si une mesure change, il est retiré, et le serveur propose de nouveau le moins cher.
+   */
+  const choixAuto = useRef<{ modele: string; pour: string } | null>(null);
+  const propose =
+    !voulu && reponse?.ok
+      ? (modeles.find(
+          (m) =>
+            m.conforme &&
+            m.croix === reponse.croix &&
+            m.traverse === reponse.traverse &&
+            Boolean(m.seuls) === Boolean(reponse.seuls) &&
+            (m.soubassementMm > 0) === (reponse.soubassementMm > 0),
+        ) ?? null)
+      : null;
+  useEffect(() => {
+    if (!propose) return;
+    choixAuto.current = { modele: propose.id, pour: mesures };
+    onChange({ ...cotes, modele: propose.id });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propose?.id]);
+  useEffect(() => {
+    const auto = choixAuto.current;
+    if (!auto || cotes.modele !== auto.modele || auto.pour === mesures) return;
+    choixAuto.current = null;
+    onChange({ ...cotes, modele: "" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mesures]);
   // Les deux boutons du client choisissent une FAMILLE de modèles : barreaux (aucun / en bas / sur toute la hauteur) et
   // traverse. La rangée ne montre que cette famille ; le nombre de croix se choisit dans la rangée.
   const familleDe = (m: ModeleGC) => ({ barreaux: m.seuls ? "seuls" : m.soubassementMm > 0 ? "bas" : "aucun", traverse: m.traverse }) as const;
@@ -865,16 +896,29 @@ export function ReleveGardeCorps({
       </button>
     ) : null;
   /** « Uniquement des modèles aux normes » : dit clairement que la rangée ne propose rien d'autre. */
-  const mentionNormes = (n: number) => (
-    <span className="inline-flex items-center gap-1 text-[11.5px] font-medium text-[#2f7d46]">
-      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3 shrink-0" aria-hidden>
-        <path d="M4.5 10.5l3.5 3.5 7.5-8" />
-      </svg>
-      {fr
-        ? `Uniquement des modèles aux normes pour votre fenêtre (${n})`
-        : `Only models that meet the standard for your window (${n})`}
-    </span>
-  );
+  /**
+   * La preuve de la norme (étude marketing, 06/10) : combien de dessins l'outil a testés pour CETTE fenêtre, combien passent,
+   * combien sont refusés — et un lien vers la page qui explique comment.
+   */
+  const mentionNormes = (n: number) => {
+    const testes = modeles.length;
+    const refuses = testes - n;
+    return (
+      <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11.5px] font-medium text-[#2f7d46]">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3 shrink-0" aria-hidden>
+          <path d="M4.5 10.5l3.5 3.5 7.5-8" />
+        </svg>
+        <span>
+          {fr
+            ? `${testes} dessins testés pour votre fenêtre : ${n} aux normes${refuses > 0 ? `, ${refuses} refusés` : ""}`
+            : `${testes} designs tested for your window: ${n} to standard${refuses > 0 ? `, ${refuses} refused` : ""}`}
+        </span>
+        <Link href={`/${locale}/artisanat/verification-garde-corps`} className="font-normal text-[#5c5140] underline underline-offset-2 hover:text-[#2b2320]">
+          {fr ? "Comment ?" : "How?"}
+        </Link>
+      </span>
+    );
+  };
   /**
    * La rangée des modèles : des VISUELS, un par modèle AUX NORMES pour cette fenêtre, avec son prix et sa pastille verte, rangés par
    * prix (croissant ou décroissant) ; elle défile de côté s'il y en a plus que la place. Un clic choisit le modèle et son détail
@@ -975,7 +1019,14 @@ export function ReleveGardeCorps({
       <div className={`mt-1.5 flex items-center justify-center rounded-2xl border border-dashed border-[#2b2320]/15 bg-white/35 px-4 py-3 text-center ${grandeRangee ? "min-h-[112px]" : "min-h-[72px]"}`}>
         {/* Le calcul en cours : un garde-corps qui se trace (« on ne comprenait pas ce qui se passait », Quentin, 05/10). */}
         {enCalcul ? (
-          <ChargementModeles locale={locale} />
+          <ChargementModeles
+            locale={locale}
+            texte={
+              fr
+                ? "Nous testons chaque dessin de garde-corps pour votre fenêtre : hauteur, vides, partie basse, solidité…"
+                : "Testing every railing design for your window: height, gaps, lower part, strength…"
+            }
+          />
         ) : (
           <p className="max-w-[30rem] text-[12.5px] leading-snug text-[#5c5140]" aria-live="polite">{attente}</p>
         )}

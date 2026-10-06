@@ -23,6 +23,8 @@ export {
   lireRequetePrixGC,
   PARAMETRES_PRIX_GC,
   prixDepart,
+  prixAppelGC,
+  FENETRE_APPEL_GC,
   planApercuGC,
   prixReleveOutil,
   remiseCommandeGC,
