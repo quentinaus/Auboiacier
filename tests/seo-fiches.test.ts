@@ -418,7 +418,7 @@ test("/garde-corps-fenetre-normes : aucun chiffre de la règle ni aucun prix n'e
   // La page calcule ses exemples avec la fonction de /api/prix-garde-corps, et n'écrit aucun montant.
   const page = readFileSync(new URL("../src/app/[lang]/garde-corps-fenetre-normes/page.tsx", import.meta.url), "utf8");
   assert.match(page, /reponsePrixGC\(\{ releve, essence, quantite: 1 \}\)/);
-  assert.match(page, /prixDepart\(modele\)/);
+  assert.match(page, /prixAppelGC\(modele\)/);
   assert.doesNotMatch(page, /\d\s*€|€\s*\d/, "un montant écrit dans la page");
   // La rosace : le prix du garde-corps complet par le moteur, pour la fenêtre dite dans le titre — jamais le supplément du
   // catalogue (priceDelta) affiché comme un écart fixe : avec une autre rosace, le moteur peut changer de dessin.

@@ -7,7 +7,7 @@ import { getProduct, productLocalise } from "@/lib/products";
 import {
   ChiffrageIndisponible,
   configurationGC,
-  prixDepart,
+  prixAppelGC,
   reponsePrixGC,
   SLUG_GC,
 } from "@/lib/prix-garde-corps.server";
@@ -205,7 +205,8 @@ export default async function NormesGardeCorpsPage({
   );
   const croquis = calculerExemple(ALLEGE_CROQUIS_MM, essence);
   const pourMains = calculerExemple(ALLEGE_MAINS_MM, essence);
-  const depart = prixDepart(modele);
+  // Le prix d'appel de la fiche (« Dès … pour une fenêtre de … cm de large »), le même calcul (prixAppelGC).
+  const appel = prixAppelGC(modele);
   // Le délai et la livraison tels que la fiche les écrit (« Fabrication », « Livraison » ; « Lead time », « Delivery »).
   const livraison = gc.specs.find((s) => s.label === "Livraison" || s.label === "Delivery");
   const fabrication = gc.specs.find((s) => s.label === "Fabrication" || s.label === "Lead time");
@@ -459,9 +460,12 @@ export default async function NormesGardeCorpsPage({
             <section className="py-8">
               <h2 className={titre2}>{t.prixTitle}</h2>
               <p className={corps}>
-                {depart !== null
-                  ? texte(t.prixBody, { depart: prixAffiche(depart, locale) })
-                  : // Sans clé du chiffrage, pas de « à partir de » : la dernière phrase disparaît.
+                {appel !== null
+                  ? texte(t.prixBody, {
+                      depart: prixAffiche(appel.prix, locale),
+                      largeurAppel: `${appel.largeurMm / 10}\u00a0cm`,
+                    })
+                  : // Sans clé du chiffrage, pas de prix d'appel : la dernière phrase disparaît.
                     t.prixBody.replace(/[^.]*\{depart\}[^.]*\.\s*/, "")}
               </p>
               <div className="mt-6 grid gap-8 sm:grid-cols-2">
