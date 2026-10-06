@@ -1,5 +1,6 @@
 import { lireModeleGC } from "@/lib/garde-corps";
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
+import { compter } from "@/lib/compteurs";
 import { SUR_MESURE, getProduct, poidsColisKg, prixParOutil } from "@/lib/products";
 import { calculerLivraison, calculerPose, localiser } from "@/lib/deplacement";
 import { composerDevis, type Devis, type LivraisonDevis, type ResultatDevis } from "@/lib/devis";
@@ -148,7 +149,11 @@ export async function GET(request: Request) {
     resultat = await devisCatalogue(p, product, locale, mode, cp, client, siteOrigin());
   }
   if (!resultat.ok) return NextResponse.json({ error: resultat.reason }, { status: 400 });
-  return pdfDuDevis(resultat.devis, locale);
+  const reponse = await pdfDuDevis(resultat.devis, locale);
+  // Un devis PDF de plus au compteur : la famille de la pièce, rien d'autre —
+  // surtout pas le nom ni l'e-mail que porte l'adresse de ce lien.
+  after(() => compter("devis_pdf", { famille: product.famille }, request));
+  return reponse;
 }
 
 /** Le devis d'une pièce du catalogue (table, chaise, lumière) : composerDevis. */

@@ -5,6 +5,7 @@ import { getDictionary } from "./dictionaries";
 import { notFound } from "next/navigation";
 import { CartProvider } from "@/lib/cart";
 import { MesureAudience } from "@/components/analytics";
+import { RetenirProvenance } from "@/components/retenir-provenance";
 import {
   SITE_URL,
   alternatesPour,
@@ -102,6 +103,10 @@ export default async function RootLayout({
             les pages /fr et /en passent ici ; l'agenda privé de l'atelier
             (hors [lang]) n'est pas mesuré, sa clé ne doit jamais sortir. */}
         <MesureAudience />
+        {/* Le lien marqué de l'arrivée (utm_…, annonce Google), gardé en
+            mémoire pour la visite et joint aux demandes et à la commande.
+            Rien n'est écrit sur l'appareil : src/lib/provenance-visite.ts. */}
+        <RetenirProvenance />
       </body>
     </html>
   );

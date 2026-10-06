@@ -6,6 +6,7 @@ import { rendreDevisPdf } from "./devis-pdf";
 import { ownerEmail, sendEmail } from "./email";
 import { libelleEntier } from "./libelle-stripe";
 import { libelleStatut, phraseStatut, type Statut } from "./statut-commande";
+import { lignesOrigine, origineDesMetadonnees } from "./provenance";
 import { siteOrigin } from "./stripe";
 
 /**
@@ -138,6 +139,9 @@ export async function notifyOwner(
   const ref = session.metadata?.order_ref ?? session.id;
   const customer = session.customer_details;
   const shipping = session.collected_information?.shipping_details ?? null;
+  // Comment le client nous a connus, et le lien marqué de son arrivée (métadonnées posées par /api/commande).
+  const { connu, provenance } = origineDesMetadonnees(session.metadata);
+  const origine = lignesOrigine(connu, provenance);
 
   const text = [
     `Nouvelle commande ${ref}`,
@@ -164,6 +168,7 @@ export async function notifyOwner(
     formatAddress(shipping?.address ?? customer?.address),
     accesLivraison(session) ? `Accès : ${accesLivraison(session)}` : "",
     "",
+    ...(origine.length ? ["ORIGINE", ...origine, ""] : []),
     `Paiement Stripe : ${session.id}`,
     "Facture et remboursement : tableau de bord Stripe > Paiements.",
   ].join("\n");

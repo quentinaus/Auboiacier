@@ -1,5 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { isEmailConfigured } from "@/lib/email";
+import { compter, etiquettesOrigine } from "@/lib/compteurs";
+import { lireConnu, metadonneesOrigine, nettoyerProvenance } from "@/lib/provenance";
 import { getStripe, isStripeConfigured, newOrderRef, piedDeFacture, siteOrigin } from "@/lib/stripe";
 import { commandesOuvertes } from "@/lib/entreprise";
 import { creerLimite } from "@/lib/limite-debit";
@@ -53,7 +55,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "not_configured" }, { status: 503 });
   }
 
-  let body: { locale?: unknown; lines?: unknown; cgvAccepted?: unknown; visiteAvantDelai?: unknown; ville?: unknown };
+  let body: {
+    locale?: unknown;
+    lines?: unknown;
+    cgvAccepted?: unknown;
+    visiteAvantDelai?: unknown;
+    ville?: unknown;
+    connu?: unknown;
+    provenance?: unknown;
+  };
   try {
     body = await request.json();
   } catch {
@@ -74,6 +84,11 @@ export async function POST(request: Request) {
   if (body.cgvAccepted !== true) {
     return NextResponse.json({ error: "cgv" }, { status: 400 });
   }
+  // D'où vient le client : sa réponse (facultative) à « Comment nous avez-vous
+  // connu ? » et le lien marqué de son arrivée. Revérifiés ici : seules les
+  // valeurs connues passent, et rien de tout cela ne touche au prix.
+  const connu = lireConnu(body.connu);
+  const provenance = nettoyerProvenance(body.provenance);
   // Le tarif de la commande : LA fonction que le panier appelle aussi pour
   // s'afficher (/api/panier/tarif). Aucun montant n'est lu dans la requête :
   // tout est recalculé ici — pièces, remise sur plusieurs garde-corps (l'outil
@@ -321,6 +336,9 @@ export async function POST(request: Request) {
         ...(tarif.pieces.length ? { fabrication_semaines: String(semainesCommande(tarif.pieces.map((p) => p.line.product))) } : {}),
         // La remise sur plusieurs garde-corps, en euros : elle se lit aussi sur le bon de réduction.
         ...(tarif.remise < 0 ? { remise_gc: String(-tarif.remise) } : {}),
+        // L'origine du client (connu, utm_…, annonce_google) : le bon de
+        // commande la recopie, les compteurs l'additionnent.
+        ...metadonneesOrigine(connu, provenance),
         // Trace de l'acceptation des conditions de vente avant paiement.
         cgv_accepted: "1",
         // Et, pour une visite, de la demande de l'exécuter avant la fin du délai de rétractation.
@@ -338,6 +356,8 @@ export async function POST(request: Request) {
     if (!session.url) {
       return NextResponse.json({ error: "error" }, { status: 502 });
     }
+    // Un départ en paiement de plus au compteur (le client peut encore renoncer chez Stripe).
+    after(() => compter("depart_paiement", etiquettesOrigine(connu, provenance), request));
     return NextResponse.json({ url: session.url });
   } catch (error) {
     console.error("[commande] Stripe a refusé la session :", error);

@@ -275,6 +275,80 @@ proches.
 - [ ] Les avis clients : la page d'accueil a la place prête et n'affiche rien
       tant qu'il n'y a pas de vrais retours. On n'en écrit pas.
 
+## Lire les compteurs
+
+Le site compte tout seul ce qui t'aide à décider. Il ne sait rien des
+clients : ni nom, ni e-mail, ni adresse IP. Juste des nombres.
+
+**Ce qui est compté**
+
+- `prix_calcule` : un prix de garde-corps calculé (le client a tapé ses
+  cotes). Les tables, elles, se chiffrent dans le téléphone du client : elles
+  ne sont pas comptées ici.
+- `devis_pdf` : un devis PDF ouvert, avec la famille de la pièce (table,
+  plafond, garde-corps…).
+- `demande_devis` : un formulaire de devis envoyé (page Contact).
+- `demande_rendez_vous` : un formulaire envoyé depuis la page Rendez-vous.
+- `inscription_prevenir` : une inscription « Me prévenir à l'ouverture ».
+- `depart_paiement` : un client parti payer chez Stripe (il peut encore
+  renoncer).
+- `commande_payee` : une commande payée.
+
+Les demandes, inscriptions et commandes portent deux petites étiquettes :
+`connu` (la réponse au menu « Comment nous avez-vous connu ? », ou
+`sans-reponse`) et `canal` (le lien d'arrivée : `google-ads`, `instagram`,
+`facebook`… ou `aucun`).
+
+**Les totaux du mois ou de l'année**
+
+Vercel > ton projet > **Analytics** > descendre jusqu'au cadre **Events**.
+Clique sur un nom (par exemple `demande_devis`) : tu vois le total, puis le
+détail par étiquette (`connu`, `canal`). La période se choisit en haut
+(7 jours, 30 jours, 12 mois).
+
+Attention : ce cadre « Events » n'existe qu'avec l'offre **Pro** de Vercel
+(20 $ par mois). Elle est de toute façon obligatoire pour un site qui vend :
+l'offre gratuite (Hobby) est réservée à un usage personnel, non commercial.
+En Hobby, les totaux ne s'additionnent pas ; il ne reste que les lignes du
+journal ci-dessous.
+
+**Voir un compteur à l'instant (pour vérifier que ça marche)**
+
+Vercel > ton projet > **Logs**, chercher `COMPTEUR`. Une ligne par
+événement, par exemple :
+`COMPTEUR {"compteur":"devis_pdf","famille":"table-interieur"}`.
+Ces lignes ne restent qu'une heure (Hobby) ou un jour (Pro) : elles servent à
+vérifier, pas à additionner.
+
+**À faire une fois, après la mise en ligne**
+
+- [ ] Sur le site en ligne, calcule un prix de garde-corps. Dans la minute,
+      une ligne `COMPTEUR {"compteur":"prix_calcule"…}` apparaît dans Logs.
+      Dans l'heure, `prix_calcule` apparaît dans Analytics > Events (en Pro,
+      avec Analytics activé). Si la ligne est dans Logs mais que rien
+      n'arrive dans Events au bout d'une journée : le dire à Claude.
+
+**Les chiffres qui font foi**
+
+- Les commandes et l'argent : Stripe > Paiements. Toujours juste, même si un
+  compteur se perd.
+- Les demandes et les inscriptions : Gmail, chercher l'objet
+  `Demande de devis` ou `Me prévenir à l'ouverture`. Chaque e-mail dit aussi
+  « Nous a connus par : … » et, s'il y en a un, le lien suivi. Chaque bon de
+  commande a un bloc ORIGINE.
+
+**Savoir ce que rapporte une publication**
+
+Mets un lien marqué au lieu du lien simple. Exemple pour Instagram :
+`https://auboiacier.fr/fr/artisanat/garde-corps?utm_source=instagram&utm_medium=social&utm_campaign=garde-corps-octobre`
+
+Le site lit ces trois mots à l'arrivée et les joint à la demande ou à la
+commande du visiteur. Rien n'est enregistré sur son téléphone : s'il recharge
+la page, le marqueur est perdu, c'est voulu (pas de cookie, donc pas de
+bandeau). Pour Google Ads, rien à faire : Google ajoute tout seul son
+marqueur, et le site note « Arrivé par une annonce Google » (sans jamais
+garder le numéro de clic de Google).
+
 ## Si quelque chose ne marche plus
 
 - **Une commande n'est pas arrivée par e-mail** → Stripe > Développeurs >

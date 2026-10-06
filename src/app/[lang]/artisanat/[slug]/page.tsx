@@ -7,14 +7,8 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../../dictionaries";
-import {
-  devisSurMesure,
-  epaisseurMaxMm,
-  getProduct,
-  products,
-  prixParOutil,
-  productLocalise,
-} from "@/lib/products";
+import { getProduct, products, prixParOutil, productLocalise } from "@/lib/products";
+import { disponibiliteGoogle, fourchetteGoogle } from "@/lib/donnees-google";
 import { fourchetteGC, prixAppelGC, prixDepart } from "@/lib/prix-garde-corps.server";
 import { ProductView } from "@/components/product-view";
 import { ProductTail } from "@/components/product-tail";
@@ -229,43 +223,15 @@ export default async function ProductPage({
   const achetable = product.orderMode === "cart";
 
   /**
-   * La fourchette annoncée à Google doit couvrir ce qu'on vend réellement :
-   * les tailles du catalogue, mais aussi le choix de l'essence et le sur-mesure.
-   * Elle disait 2 310 – 5 190 € pour une table qui part à 950 € en sur-mesure
-   * et monte à près de 14 000 € en noyer épais.
+   * Ce que Google reçoit (src/lib/donnees-google.ts) : un prix bas égal au
+   * « à partir de » de la page — jamais le plus petit sur-mesure, que la page
+   * n'affiche pas — et la disponibilité réelle (précommande tant que le
+   * panier n'encaisse pas). Une pièce sur devis sans prix d'appel n'annonce
+   * aucune offre. Le garde-corps a sa fourchette, calculée par l'outil.
    */
-  const ecartsBois = product.woods.map((bois) => bois.priceDelta ?? 0);
-  const boisMin = ecartsBois.length ? Math.min(...ecartsBois) : 0;
-  const boisMax = ecartsBois.length ? Math.max(...ecartsBois) : 0;
-  const bareme = product.surMesure;
-  const devisMin = bareme
-    ? devisSurMesure(product, bareme.minMm, bareme.minMm)
-    : null;
-  const devisMax = bareme
-    ? devisSurMesure(
-        product,
-        bareme.maxLargeurMm,
-        bareme.maxHauteurMm,
-        epaisseurMaxMm(bareme, bareme.maxLargeurMm, bareme.maxHauteurMm)
-      )
-    : null;
   const prixDepartFiche = prixDepart(product);
-  const prixMin = Math.min(
-    prixDepartFiche ?? Number.POSITIVE_INFINITY,
-    devisMin?.ok ? devisMin.prix + boisMin : Number.POSITIVE_INFINITY
-  );
-  const prixMax = Math.max(
-    product.sizes.length ? Math.max(...product.sizes.map((taille) => taille.price)) + boisMax : 0,
-    devisMax?.ok ? devisMax.prix + boisMax : 0
-  );
-  // Une pièce sur devis sans prix d'appel n'annonce aucune fourchette à
-  // Google : mieux vaut pas d'offre qu'une offre inventée. Le garde-corps a
-  // la sienne, calculée par l'outil de plans.
-  const fourchette = prixParOutil(product)
-    ? (fourchetteGC() ?? undefined)
-    : Number.isFinite(prixMin) && prixMax > 0
-      ? { prixMin, prixMax }
-      : undefined;
+  const fourchette = fourchetteGoogle(product, prixDepartFiche, prixParOutil(product) ? fourchetteGC() : null);
+  const disponibilite = disponibiliteGoogle({ achetable, ouvert: commandesOuvertes(), maintenant: new Date() });
 
   return (
     <div>
@@ -281,7 +247,7 @@ export default async function ProductPage({
             description: `${product.tagline} ${product.sections[0]?.body ?? ""}`.trim(),
             images: product.images.map((img) => img.src),
             fourchette,
-            achetable: product.orderMode === "cart",
+            disponibilite,
           })
         )}
       />

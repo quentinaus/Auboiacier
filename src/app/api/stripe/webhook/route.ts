@@ -1,5 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import type Stripe from "stripe";
+import { compter, etiquettesOrigine } from "@/lib/compteurs";
+import { origineDesMetadonnees } from "@/lib/provenance";
 import { ligneDeJournal, notifyCustomer, notifyOwner } from "@/lib/order-email";
 import { getStripe } from "@/lib/stripe";
 import { autresVisitesDuCreneau, lireCreneau, libelleCreneau } from "@/lib/agenda";
@@ -62,7 +64,7 @@ export async function POST(request: Request) {
   const precedente = enCours.get(sessionId);
   if (precedente) await precedente.catch(() => {});
 
-  const traitement = traiter(sessionId);
+  const traitement = traiter(sessionId, request);
   enCours.set(sessionId, traitement);
   try {
     return await traitement;
@@ -71,7 +73,7 @@ export async function POST(request: Request) {
   }
 }
 
-async function traiter(sessionId: string) {
+async function traiter(sessionId: string, request: Request) {
   try {
     const session = await getStripe().checkout.sessions.retrieve(sessionId);
 
@@ -100,6 +102,14 @@ async function traiter(sessionId: string) {
       atelierDejaPrevenu ? Promise.resolve(true) : notifyOwner(session, lineItems.data),
       clientDejaPrevenu ? Promise.resolve(true) : notifyCustomer(session, lineItems.data),
     ]);
+
+    // Une commande payée de plus au compteur : une seule fois, au premier
+    // bon de commande parti (un rejeu de Stripe ne la recompte pas). Elle n'y
+    // porte que son origine (réponse au menu, canal du lien), rien d'autre.
+    if (!atelierDejaPrevenu && atelierEnvoye) {
+      const { connu, provenance } = origineDesMetadonnees(session.metadata);
+      after(() => compter("commande_payee", etiquettesOrigine(connu, provenance), request));
+    }
 
     // Une visite payée sur un créneau déjà vendu (rare : voir
     // autresVisitesDuCreneau) : Quentin est prévenu tout de suite, pour

@@ -51,6 +51,8 @@ node --test tests/prix-sur-mesure.test.ts
 | `garde-corps-outil.test.ts` | Le garde-corps calculé par le site est celui de l'outil de plans, au caractère près : hauteur, croix, débit, dessins, prix, livraison, devis. Il compare au fichier `reference/garde-corps-outil.json`, que le script `npm run garde-corps:extraire` fabrique en faisant tourner l'outil lui-même. |
 | `prix-garde-corps.test.ts` | Les règles du garde-corps (décisions du 29/09) : hauteur à la norme, carré 16 et le moins de croix possible, « à étudier » quand rien ne passe, prix jamais sous le plancher, remise de plusieurs pièces, livraison, adresse de `/api/prix-garde-corps`. |
 | `frontiere-chiffrage.test.ts` | Les coûts de l'atelier ne sortent jamais du serveur : aucun composant du navigateur n'atteint le calcul, une seule porte (`prix-garde-corps.server.ts`), rien en clair dans le dépôt public, la clé hors de git. |
+| `donnees-google.test.ts` | Ce que Google reçoit d'une fiche (données structurées Product / Offer) : un prix bas égal au « à partir de » affiché par la page, pour chaque fiche, et une disponibilité honnête (précommande jusqu'à l'ouverture des commandes le 7/12/2026, disponible ensuite). Après `npx next build`, il relit aussi chaque page fabriquée et y compare le prix des données Google au prix affiché. |
+| `provenance-compteurs.test.ts` | « Comment nous avez-vous connu ? », la provenance des liens marqués (utm, annonce Google) et les compteurs du site : seules les réponses du menu passent, rien n'est écrit sur l'appareil du visiteur, l'identifiant de clic Google n'est jamais gardé, et un compteur ne porte ni nom, ni e-mail, ni adresse IP, ni cookie. |
 
 ## La règle du jeu quand on écrit un test ici
 

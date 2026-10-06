@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
+import { compter } from "@/lib/compteurs";
 import { ChiffrageIndisponible, lireRequetePrixGC, reponsePrixGC } from "@/lib/prix-garde-corps.server";
 import { creerLimite } from "@/lib/limite-debit";
 import { budgetCalculGC } from "@/lib/budget-calcul-gc";
@@ -38,6 +39,10 @@ export async function GET(request: Request) {
     const reponse = reponsePrixGC(requete);
     budgetCalculGC.depenser(request, performance.now() - debut, Date.now());
     if (!reponse) return NextResponse.json({ error: "invalid" }, { status: 400 });
+    // Un prix calculé de plus au compteur (ou un garde-corps « à étudier ») :
+    // ni les cotes ni le prix n'y entrent. Le navigateur garde la réponse dix
+    // minutes : les mêmes cotes redemandées ne sont pas recomptées.
+    after(() => compter("prix_calcule", { famille: "garde-corps", resultat: reponse.ok ? "prix" : "a-etudier" }, request));
     return NextResponse.json(reponse, { headers: { "cache-control": "private, max-age=600" } });
   } catch (erreur) {
     if (erreur instanceof ChiffrageIndisponible) {

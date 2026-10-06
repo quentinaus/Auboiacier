@@ -4,6 +4,8 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChoixCreneau } from "@/components/choix-creneau";
+import { ChoixConnu } from "@/components/choix-connu";
+import { provenanceVisite } from "@/lib/provenance-visite";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 import { EMAIL_MOTIF, MAX_TEXTE, TELEPHONE_MOTIF, fichiersTropLourds } from "@/lib/devis-regles";
 import { preparerFichiers } from "@/lib/photos-client";
@@ -48,6 +50,7 @@ export function DevisForm({
   prefill = "",
   redirectTo,
   creneau,
+  formulaire = "devis",
 }: {
   t: Dictionary["contact"]["form"];
   email: string;
@@ -66,6 +69,8 @@ export function DevisForm({
    * textes de l'artisanat, où vivent ceux du calendrier.
    */
   creneau?: { t: Dictionary["artisanat"]; label: string; manque: string };
+  /** Quel formulaire : l'e-mail de l'atelier et les compteurs distinguent le devis du rendez-vous. */
+  formulaire?: "devis" | "rendez-vous";
 }) {
   const router = useRouter();
   const [status, setStatus] = useState<Status>("idle");
@@ -126,7 +131,15 @@ export function DevisForm({
       donnees.delete("files");
       for (const fichier of fichiers) donnees.append("files", fichier, fichier.name);
       donnees.append("locale", locale);
+      donnees.append("formulaire", formulaire);
       donnees.append("dureeMs", String(ouvertA.current ? Date.now() - ouvertA.current : 0));
+      // La provenance de la visite (lien marqué), gardée en mémoire depuis
+      // l'arrivée sur le site : elle part avec la demande, rien de plus.
+      const provenance = provenanceVisite();
+      if (provenance?.source) donnees.append("utm_source", provenance.source);
+      if (provenance?.support) donnees.append("utm_medium", provenance.support);
+      if (provenance?.campagne) donnees.append("utm_campaign", provenance.campagne);
+      if (provenance?.annonceGoogle) donnees.append("annonce_google", "1");
       const response = await fetch("/api/devis", {
         method: "POST",
         body: donnees,
@@ -346,6 +359,15 @@ export function DevisForm({
           </p>
         )}
       </div>
+
+      {/* « Comment nous avez-vous connu ? » : facultatif, rien de choisi d'avance. */}
+      <ChoixConnu
+        locale={locale}
+        name="connu"
+        className="mt-9 sm:max-w-[calc(50%-1.25rem)]"
+        classeLibelle={LABEL}
+        classeChamp={FIELD}
+      />
 
       {/* Champ piège anti-robots : invisible pour un visiteur. */}
       <input

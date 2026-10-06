@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 // Extension écrite en toutes lettres : c'est ce qui permet aux tests
 // (node --test, sans outil de construction) d'importer ce fichier tel quel.
 import { locales, type Locale } from "./i18n.ts";
+import type { DisponibiliteGoogle, FourchetteGoogle } from "./donnees-google.ts";
 
 /**
  * Tout ce qui sert au référencement est rassemblé ici : adresse de l'atelier,
@@ -527,16 +528,20 @@ export function jsonLdProduit({
   description,
   images,
   fourchette,
-  achetable,
+  disponibilite,
 }: {
   locale: Locale;
   chemin: string;
   nom: string;
   description: string;
   images: string[];
-  /** Absente pour une pièce sur devis sans prix : on n'annonce alors aucune offre. */
-  fourchette?: { prixMin: number; prixMax: number };
-  achetable: boolean;
+  /**
+   * Absente pour une pièce sur devis sans prix : on n'annonce alors aucune
+   * offre. Son bas est le « à partir de » de la page (fourchetteGoogle).
+   */
+  fourchette?: FourchetteGoogle;
+  /** Précommande avant l'ouverture des commandes, disponible ensuite (disponibiliteGoogle). */
+  disponibilite: DisponibiliteGoogle;
 }) {
   return {
     "@context": "https://schema.org",
@@ -559,10 +564,11 @@ export function jsonLdProduit({
             // Google n'affiche le prix qu'avec une disponibilité de sa liste :
             // MadeToOrder n'en fait pas partie, la fiche passait donc à la
             // trappe. « InStock » = commandable tout de suite (le délai de
-            // fabrication est dit dans la page et dans l'e-mail de confirmation).
-            availability: achetable
-              ? "https://schema.org/InStock"
-              : "https://schema.org/PreOrder",
+            // fabrication est dit dans la page et dans l'e-mail de confirmation) ;
+            // « PreOrder » tant que le panier n'encaisse pas, avec le jour de
+            // l'ouverture des commandes (src/lib/donnees-google.ts).
+            availability: `https://schema.org/${disponibilite.valeur}`,
+            ...(disponibilite.aPartirDu ? { availabilityStarts: disponibilite.aPartirDu } : {}),
             seller: { "@id": `${SITE_URL}/#atelier` },
             areaServed: "FR",
           },

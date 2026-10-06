@@ -11,6 +11,9 @@ import type { TarifAffiche } from "@/lib/tarif-panier";
 import { LIVRAISON, POSE, PRISE_DE_COTES, RETRAIT, libelleLivraison, libellePose, libellePriseDeCotes } from "@/lib/deplacement";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 import { InscriptionOuverture } from "@/components/inscription-ouverture";
+import { ChoixConnu } from "@/components/choix-connu";
+import type { SourceConnu } from "@/lib/provenance";
+import { provenanceVisite } from "@/lib/provenance-visite";
 
 type Status =
   | "idle"
@@ -88,6 +91,8 @@ export function CartView({
    * client abandonne la page de paiement.
    */
   const [ville, setVille] = useState("");
+  /** « Comment nous avez-vous connu ? » : facultatif, il part avec la commande (métadonnées Stripe). */
+  const [connu, setConnu] = useState<SourceConnu | null>(null);
   /** Payer 40 % aujourd'hui, le solde à la livraison ou à la pose. */
   const [showVilleError, setShowVilleError] = useState(false);
   const idVille = useId();
@@ -244,6 +249,9 @@ export function CartView({
           cgvAccepted: true,
           ...(visiteAuPanier ? { visiteAvantDelai: true } : {}),
           ville: ville.trim().slice(0, VILLE_MAX),
+          connu,
+          // Le lien marqué de l'arrivée sur le site, gardé en mémoire pendant la visite.
+          provenance: provenanceVisite(),
           // Les mêmes lignes que pour le tarif affiché ; un garde-corps y joint
           // la hauteur que le client a vue : si elle a changé, le serveur refuse.
           lines: items.map((item) => {
@@ -553,6 +561,15 @@ export function CartView({
                 </p>
               )}
             </div>
+
+            <ChoixConnu
+              locale={locale}
+              valeur={connu}
+              onChange={setConnu}
+              className="mt-4"
+              classeLibelle="block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6f6357]"
+              classeChamp="mt-2 w-full rounded-full border border-[#9a8d80] bg-white px-4 py-2.5 text-sm text-[#2b2320] transition-colors focus:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
+            />
 
             <label className="mt-4 flex items-start gap-3 text-sm text-[#4a4038]">
               <input

@@ -1,5 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { canNotifyOwner, ownerEmail, sendEmail } from "@/lib/email";
+import { compter, etiquettesOrigine } from "@/lib/compteurs";
+import { lignesOrigine, lireConnu, nettoyerProvenance } from "@/lib/provenance";
 import { creerLimite, creerLimiteParCle } from "@/lib/limite-debit";
 import { origineEtrangere } from "@/lib/origine";
 import { EMAIL_VALIDE, MAX_TEXTE, envoiTropRapide, fichiersTropLourds } from "@/lib/devis-regles";
@@ -131,6 +133,18 @@ export async function POST(request: Request) {
     false
   );
   const locale = String(form.get("locale") ?? "") === "en" ? "en" : "fr";
+  /** Le formulaire de la page Rendez-vous, ou celui de la page Contact. */
+  const rendezVous = String(form.get("formulaire") ?? "") === "rendez-vous";
+  // D'où vient le prospect : sa réponse au menu (facultative) et le lien
+  // marqué par lequel il est arrivé, revérifiés ici — seules les valeurs
+  // connues passent (src/lib/provenance.ts).
+  const connu = lireConnu(form.get("connu"));
+  const provenance = nettoyerProvenance({
+    source: form.get("utm_source"),
+    support: form.get("utm_medium"),
+    campagne: form.get("utm_campaign"),
+    annonceGoogle: form.get("annonce_google") === "1",
+  });
 
   if (!name || !city || !message || !EMAIL_VALIDE.test(email)) {
     return NextResponse.json({ error: "invalid" }, { status: 400 });
@@ -168,8 +182,10 @@ export async function POST(request: Request) {
     `Ville : ${city}`,
     project && `Type de projet : ${project}`,
     creneau && `Créneau souhaité : ${creneau}`,
+    rendezVous && "Formulaire : page Rendez-vous",
     // Pour répondre dans la langue du prospect sans avoir à la deviner.
     `Langue : ${locale.toUpperCase()}`,
+    ...lignesOrigine(connu, provenance),
     "",
     message,
   ].filter(Boolean);
@@ -189,6 +205,9 @@ export async function POST(request: Request) {
   if (!sent) {
     return NextResponse.json({ error: "send_failed" }, { status: 502 });
   }
+  // Une demande de plus au compteur, une fois la réponse partie : sans un
+  // mot de ce que le prospect a écrit (src/lib/compteurs.ts).
+  after(() => compter(rendezVous ? "demande_rendez_vous" : "demande_devis", etiquettesOrigine(connu, provenance), request));
 
   // Accusé de réception au prospect, dans SA langue. On l'attend : sur Vercel,
   // la fonction peut être arrêtée dès qu'elle a répondu, et un envoi lancé sans

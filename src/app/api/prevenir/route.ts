@@ -1,5 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { canNotifyOwner, ownerEmail, sendEmail } from "@/lib/email";
+import { compter, etiquettesOrigine } from "@/lib/compteurs";
+import { lignesOrigine, lireConnu, nettoyerProvenance } from "@/lib/provenance";
 import { creerLimite, creerLimiteParCle } from "@/lib/limite-debit";
 import { origineEtrangere } from "@/lib/origine";
 import { EMAIL_VALIDE, MAX_TEXTE, envoiTropRapide } from "@/lib/devis-regles";
@@ -35,7 +37,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "too_many" }, { status: 429, headers: { "retry-after": "600" } });
   }
 
-  let body: { email?: unknown; locale?: unknown; website?: unknown; dureeMs?: unknown; panier?: unknown };
+  let body: {
+    email?: unknown;
+    locale?: unknown;
+    website?: unknown;
+    dureeMs?: unknown;
+    panier?: unknown;
+    connu?: unknown;
+    provenance?: unknown;
+  };
   try {
     body = await request.json();
   } catch {
@@ -55,6 +65,10 @@ export async function POST(request: Request) {
     .slice(0, MAX_LIGNES)
     .map((ligne) => borne(ligne, MAX_LIGNE))
     .filter(Boolean);
+  // Sa réponse à « Comment nous avez-vous connu ? » et le lien marqué de son
+  // arrivée, revérifiés : seules les valeurs connues passent.
+  const connu = lireConnu(body.connu);
+  const provenance = nettoyerProvenance(body.provenance);
 
   if (!canNotifyOwner()) {
     return NextResponse.json({ error: "not_configured" }, { status: 503 });
@@ -67,6 +81,7 @@ export async function POST(request: Request) {
     text: [
       `E-mail : ${email}`,
       `Langue : ${locale.toUpperCase()}`,
+      ...lignesOrigine(connu, provenance),
       "",
       "Son panier :",
       ...(panier.length ? panier.map((l) => `- ${l}`) : ["(vide)"]),
@@ -78,6 +93,8 @@ export async function POST(request: Request) {
   if (!sent) {
     return NextResponse.json({ error: "send_failed" }, { status: 502 });
   }
+  // Un inscrit de plus au compteur, sans son adresse (src/lib/compteurs.ts).
+  after(() => compter("inscription_prevenir", etiquettesOrigine(connu, provenance), request));
 
   // Accusé de réception, attendu pour qu'il parte vraiment (voir /api/devis).
   if (tropDAccuses(email.toLowerCase(), Date.now())) return NextResponse.json({ ok: true });
