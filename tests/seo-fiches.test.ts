@@ -420,6 +420,13 @@ test("/garde-corps-fenetre-normes : aucun chiffre de la règle ni aucun prix n'e
   assert.match(page, /reponsePrixGC\(\{ releve, essence, quantite: 1 \}\)/);
   assert.match(page, /prixDepart\(modele\)/);
   assert.doesNotMatch(page, /\d\s*€|€\s*\d/, "un montant écrit dans la page");
+  // La rosace : le prix du garde-corps complet par le moteur, pour la fenêtre dite dans le titre — jamais le supplément du
+  // catalogue (priceDelta) affiché comme un écart fixe : avec une autre rosace, le moteur peut changer de dessin.
+  assert.match(page, /reponsePrixGC\(\{ releve, essence, fabricId: f\.id, quantite: 1 \}\)/);
+  assert.doesNotMatch(page, /priceDelta/, "un supplément du catalogue affiché comme écart de prix");
+  for (const dict of [frBrut, enBrut]) {
+    assert.match(dict.normesGc.rosacesTitre, /\{largeur\}.*\{allege\}/, "le titre des rosaces dit la fenêtre de l'exemple");
+  }
   // Ni produit ni FAQ balisés : le produit reste sur la fiche, les questions sur les trois pages autorisées.
   assert.doesNotMatch(page, /jsonLdProduit|jsonLdFaq|<FaqVisible/);
 });

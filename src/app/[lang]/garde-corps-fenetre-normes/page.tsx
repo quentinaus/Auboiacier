@@ -61,7 +61,7 @@ const LARGEUR_EXEMPLE_MM = 1000;
 const ALLEGES_EXEMPLES_MM = [0, 300, 500, 700, 850, 950] as const;
 /** L'exemple dessiné à côté de la règle de hauteur : le cadre commence sous la zone d'escalade, des barreaux ferment le bas. */
 const ALLEGE_CROQUIS_MM = 500;
-/** L'exemple des prix par main courante. */
+/** L'exemple des prix par main courante et par rosace. */
 const ALLEGE_MAINS_MM = 700;
 
 /** Ce que la page montre d'un exemple. */
@@ -228,7 +228,24 @@ export default async function NormesGardeCorpsPage({
         .filter(([id]) => id === essence || id === `${essence}-plat` || id === "acier" || id === "profil")
         .map(([id, prix]) => ({ id, label: gc.woods.find((w) => w.id === id)?.label ?? id, prix }))
     : [];
-  const rosaces = (gc.fabrics ?? []).map((f) => ({ id: f.id, label: f.label, ecart: f.priceDelta ?? 0 }));
+  /**
+   * Le prix du garde-corps complet avec chaque rosace, à la fenêtre des mains courantes, par le moteur de la fiche.
+   * Jamais le supplément du catalogue seul : avec une autre rosace, le moteur peut proposer un autre dessin (une rosace
+   * plus petite laisse de plus grands vides), et le prix change avec lui, d'un écart qui varie d'une fenêtre à l'autre.
+   * Sans clé du chiffrage, ou sur un cadre à barreaux seuls (pas de croix, donc pas de rosace), la liste disparaît.
+   */
+  const rosaces = (gc.fabrics ?? []).flatMap((f) => {
+    const releve = { largeurMm: LARGEUR_EXEMPLE_MM, allegeMm: ALLEGE_MAINS_MM, enEtage: true, fenetreMm: 0 };
+    try {
+      const r = reponsePrixGC({ releve, essence, fabricId: f.id, quantite: 1 });
+      if (!r?.ok || r.seuls) return [];
+      const dessin = dessinEnMots({ croix: r.croix, traverse: r.traverse, soubassementMm: r.soubassementMm, seuls: r.seuls, renfort: r.renfort, patte: r.patte });
+      return [{ id: f.id, label: f.label, prix: r.prix, dessin }];
+    } catch (erreur) {
+      if (!(erreur instanceof ChiffrageIndisponible)) throw erreur;
+      return [];
+    }
+  });
 
   const lien =
     "inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black";
@@ -274,7 +291,7 @@ export default async function NormesGardeCorpsPage({
               <p className={corps}>{texte(t.obligatoireBody)}</p>
             </section>
 
-            {/* 2. La hauteur : celle de la main courante, et le croquis de la fiche pour un exemple. */}
+            {/* 2. La hauteur : celle de la main courante, et le croquis du configurateur pour un exemple. */}
             <section className="py-8">
               <h2 className={titre2}>{t.hauteurTitle}</h2>
               <div className="mt-3 grid gap-8 sm:grid-cols-[1fr_15rem]">
@@ -404,7 +421,7 @@ export default async function NormesGardeCorpsPage({
                               woodId={essence}
                               label={t.ouvrir}
                               ariaLabel={texte(t.ouvrirAria, { allege: mm(e.allegeMm) })}
-                              className="whitespace-nowrap text-[13px] text-[#2b2320] underline decoration-[#2b2320]/30 underline-offset-4 hover:decoration-[#2b2320]"
+                              className="inline-block whitespace-nowrap py-2 text-[13px] text-[#2b2320] underline decoration-[#2b2320]/30 underline-offset-4 hover:decoration-[#2b2320] md:-my-2"
                             />
                           )}
                         </td>
@@ -466,22 +483,27 @@ export default async function NormesGardeCorpsPage({
                     </Link>
                   </div>
                 )}
-                {rosaces.length > 0 && (
+                {rosaces.length > 1 && (
                   <div>
-                    <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#726757]">{t.rosacesTitre}</h3>
+                    <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#726757]">
+                      {texte(t.rosacesTitre, { allege: mm(ALLEGE_MAINS_MM) })}
+                    </h3>
                     <dl className="mt-3 divide-y divide-[#e8e1d8] border-y border-[#e8e1d8] text-sm">
                       {rosaces.map((r) => (
                         <div key={r.id} className="flex justify-between gap-4 py-2">
-                          <dt className="text-[#4a4038]">{r.label}</dt>
-                          <dd className="whitespace-nowrap tabular-nums text-[#2b2320]">
-                            {r.ecart > 0 ? `+ ${prixAffiche(r.ecart, locale)}` : t.compris}
-                          </dd>
+                          <dt className="text-[#4a4038]">
+                            {r.label}
+                            {/* Le dessin que la fiche propose avec cette rosace : il peut changer, et le prix avec lui. */}
+                            <span className="block text-xs text-[#6f6357]">{r.dessin}</span>
+                          </dt>
+                          <dd className="whitespace-nowrap tabular-nums text-[#2b2320]">{prixAffiche(r.prix, locale)}</dd>
                         </div>
                       ))}
                     </dl>
                   </div>
                 )}
               </div>
+              {rosaces.length > 1 && <p className="mt-4 text-sm leading-relaxed text-[#6f6357]">{t.rosacesNote}</p>}
               <p className={corps}>{t.lotBody}</p>
               {(fabrication || livraison) && (
                 <dl className="mt-6 grid gap-1 text-sm sm:grid-cols-[9rem_1fr]">
