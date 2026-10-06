@@ -97,7 +97,91 @@ for (const locale of ["fr", "en"] as const) {
       vus.set(rendu, p.slug);
     }
   });
+
+  test(`${locale} : la description propre de chaque fiche laisse la place à la phrase de prix entière`, () => {
+    // Partie « Les longueurs » du plan de référencement : 134 signes au plus avant « À partir de 1 480 €. », 108 avant
+    // « Dès 300 € pour une fenêtre de 100 cm de large. », 129 avant « Sur devis, pose comprise. ». La forme courte de la
+    // phrase de prix reste un filet de sécurité, pas la règle.
+    for (const p of fiches) {
+      const fiche = productLocalise(p, locale);
+      assert.ok(fiche.seoDescription, `${p.slug} : pas de description propre (l'accroche ne dit pas ce que l'on cherche)`);
+      const phrase = textePrixDescription(fiche, prixAfficheFiche(fiche, prixAppelGC(fiche)), locale);
+      const complete = `${fiche.seoDescription} ${phrase}`;
+      assert.ok(descriptionTient(complete), `${p.slug} : « ${complete} » (${complete.length} signes) serait coupée`);
+    }
+  });
+
+  test(`${locale} : chaque fiche a sa ligne de titre principal (h1Ligne), une seule fois et dans sa langue`, () => {
+    const vues = new Map<string, string>();
+    for (const p of fiches) {
+      const ligne = productLocalise(p, locale).h1Ligne;
+      assert.ok(ligne && ligne.length >= 20, `${p.slug} : h1Ligne absente ou trop courte`);
+      assert.ok(!vues.has(ligne), `${p.slug} et ${vues.get(ligne)} partagent la ligne « ${ligne} »`);
+      vues.set(ligne, p.slug);
+      if (locale === "en") assert.notEqual(ligne, p.h1Ligne, `${p.slug} : h1Ligne anglaise restée en français`);
+    }
+  });
 }
+
+/**
+ * Les mots que les fiches ne s'autorisent pas (plan de référencement, liste « Jamais ») : superlatifs invérifiables,
+ * labels sans certificat, titres réservés, mots de visuel calculé, et le plateau dit vrai (ni « premier choix », ni
+ * origine, ni forêt gérée sans la fiche du fournisseur). « Style fer forgé » et « wrought-iron style » sont permis :
+ * l'acier plein en a l'allure, rien n'est forgé.
+ */
+const MOTS_INTERDITS_FICHES = [
+  /premium/i,
+  /\blux/i,
+  /d'exception/i,
+  /n°\s?1\b|No\.\s?1\b/i,
+  /\b(le|la) seule?\b|\bthe only\b/i,
+  /leader|meilleur|\bbest\b/i,
+  /certifi/i,
+  /artisan d'art|maître artisan|ferronnier d'art|master craftsman|blacksmith/i,
+  /\bIA\b|\bAI\b|\b3D\b|\bCGI\b|généré|generated/,
+  /forgée? à la main|hand-?forged/i,
+  /(?<!style |façon )fer forgé|wrought[- ]iron(?![- ]style)/i,
+  /ébéniste|menuisier|forgeron/i,
+  /barrisol|clipso|crittall/i,
+  /premier choix|first-grade|chêne français|French oak|forêts? gérées?|sustainabl|\bPEFC\b|\bFSC\b/i,
+  /plafond tendu|stretch ceiling/i,
+];
+
+test("fiches : aucun mot interdit dans les titres, descriptions, accroches, sections et textes alternatifs", () => {
+  for (const p of fiches) {
+    for (const locale of ["fr", "en"] as const) {
+      const fiche = productLocalise(p, locale);
+      const textes: [string, string | undefined][] = [
+        ["seoTitre", fiche.seoTitre],
+        ["seoDescription", fiche.seoDescription],
+        ["h1Ligne", fiche.h1Ligne],
+        ["tagline", fiche.tagline],
+        ...fiche.sections.flatMap((s, i) => [[`section ${i + 1}`, `${s.title} ${s.body}`]] as [string, string][]),
+        ...fiche.images.map((img, i) => [`photo ${i + 1}`, img.alt] as [string, string]),
+        ...(fiche.photosDescriptif ?? []).map((img, i) => [`photo descriptive ${i + 1}`, img.alt] as [string, string]),
+      ];
+      for (const [champ, texte] of textes) {
+        if (!texte) continue;
+        for (const motif of MOTS_INTERDITS_FICHES) {
+          assert.doesNotMatch(texte, motif, `${p.slug} (${locale}, ${champ}) : « ${texte} »`);
+        }
+        // « custom » est américain ou australien : en anglais britannique, « bespoke », « made to measure ».
+        if (locale === "en" && ["seoTitre", "seoDescription", "h1Ligne"].includes(champ)) {
+          assert.doesNotMatch(texte, /custom/i, `${p.slug} (${champ}) : « ${texte} »`);
+        }
+      }
+    }
+  }
+});
+
+test("les trois tables d'intérieur n'ouvrent pas leur description Google par les mêmes mots", () => {
+  for (const locale of ["fr", "en"] as const) {
+    const debuts = ["table-mikado", "table-croix", "table-brindille"].map((slug) =>
+      (productLocalise(products.find((p) => p.slug === slug)!, locale).seoDescription ?? "").split(/\s+/).slice(0, 3).join(" ")
+    );
+    assert.equal(new Set(debuts).size, debuts.length, `${locale} : ${debuts.join(" / ")}`);
+  }
+});
 
 test("le garde-corps a son prix « à partir de » (clé du chiffrage présente)", () => {
   const { depart } = balisesFiche("garde-corps", "fr");

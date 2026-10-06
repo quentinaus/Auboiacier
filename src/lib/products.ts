@@ -1,7 +1,7 @@
 import type { Locale } from "@/lib/i18n";
 import { champsMurGC, diametreRosaceGC, finitionsDecorGC, idDecorGC, idMainCouranteGC, lireDecorGC, lireMainCouranteGC, lireModeleGC, murDansLesBornes, nomDecorAnglaisGC, NOMS_MUR_FIXATION_GC, type MurFixationGC, type MurReleveGC, type ReleveGC, type StatutFixationGC } from "./garde-corps.ts";
 import { DECORS_GC } from "./garde-corps-decors.genere.ts";
-import { PRIX_OFFRE_CENTS, RAYON_OFFRE_KM } from "./deplacement.ts";
+import { PRIX_OFFRE_CENTS, RAYON_MAX_KM, RAYON_OFFRE_KM } from "./deplacement.ts";
 import { prixAffiche } from "./ui.ts";
 
 export type ProductSize = {
@@ -180,6 +180,13 @@ export type Product = {
    */
   seoDescription?: string;
   /**
+   * Une ligne courte qui dit ce qu'est la pièce avec les mots que l'on tape
+   * (« Table en bois massif sur mesure, piétement acier soudé »), affichée
+   * DANS le titre principal de la fiche, sous le nom du modèle. Le nom reste
+   * en tête : il sert au panier, au devis et au paiement.
+   */
+  h1Ligne?: string;
+  /**
    * Image de partage (Facebook, WhatsApp, LinkedIn…) au format 1200 × 630,
    * quand la première photo de la fiche ne s'y prête pas (carrée : elle se
    * ferait rogner d'un tiers). Absente, c'est la première photo qui part.
@@ -313,6 +320,8 @@ export type ProductEn = {
   motsCles?: string[];
   /** Description pour Google, en anglais (voir Product.seoDescription). */
   seoDescription?: string;
+  /** La ligne du titre principal, en anglais (voir Product.h1Ligne). */
+  h1Ligne?: string;
   /** Description (alt) de chaque photo, dans l'ordre de `images`. */
   images?: string[];
   /** Libellé de chaque taille (et de chaque format sur devis), par identifiant. */
@@ -590,6 +599,27 @@ const PLATEAU_MASSIF: PalierEpaisseur[] = [
  */
 export const PLATEAU_MAX_LONGUEUR_MM = 4500;
 export const PLATEAU_MAX_LARGEUR_MM = 1250;
+/** La plus grande longueur d'un seul tenant, telle que les fiches l'écrivent (« 4,50 m », « 4.5 m ») : jamais recopiée. */
+const PLATEAU_MAX_TEXTE = {
+  fr: `${(PLATEAU_MAX_LONGUEUR_MM / 1000).toFixed(2).replace(".", ",")} m`,
+  en: `${PLATEAU_MAX_LONGUEUR_MM / 1000} m`,
+};
+
+/**
+ * Le plateau des tables Mikado, Croix et Brindille, dit vrai : il vient d'un
+ * panneau du fournisseur, fait aux cotes du client (voir plus haut). Ni
+ * « premier choix », ni origine, ni label tant que la fiche technique du
+ * fournisseur ne le dit pas ; plus de « forêts gérées durablement » sans
+ * certificat (allégation environnementale non prouvée).
+ */
+const SECTION_PLATEAU: ProductSection = {
+  title: "Un plateau en bois massif, huilé à la main",
+  body: "Notre plateau de référence est en chêne massif. Il est fait à vos cotes, poncé, puis huilé plutôt que verni : le bois garde son toucher et se patine avec les années ; une marque se rattrape au papier fin, sur la zone touchée seulement. Le pin, le hêtre et le noyer reçoivent la même finition.",
+};
+const SECTION_PLATEAU_EN = {
+  title: "A solid wood top, oiled by hand",
+  body: "Our reference top is solid oak. It is made to your size, sanded, then oiled rather than varnished: the wood keeps its feel and develops a patina over the years; a mark comes out with fine sandpaper, on the affected spot only. Pine, beech and walnut get the same finish.",
+};
 
 /**
  * Une fiche de portail : ce qui ne change pas d'un modèle à l'autre. Pas de taille ni de matière au catalogue : le
@@ -624,16 +654,21 @@ const catalogue: Product[] = [
     famille: "table-interieur",
     seoMots: "table acier & chêne",
     seoTitre: "Table bois massif pied Mikado acier",
+    // La recherche en tête (« table pied Mikado ») : les trois tables d'intérieur ne commencent plus pareil.
     seoDescription:
-      "Table à manger sur mesure : tubes d'acier croisés sous un plateau en bois massif (pin, hêtre, chêne ou noyer), fabriquée à Saumur.",
+      "Table pied Mikado sur mesure, faite main à Saumur : tubes d'acier 80 mm croisés sous un plateau massif, pin, hêtre, chêne ou noyer.",
+    h1Ligne: "Table en bois massif sur mesure, piétement acier soudé",
     category: "interieur",
     orderMode: "cart",
     name: "Table Mikado",
-    tagline: "Des tubes d'acier croisés comme un jeu de mikado, sous un plateau de chêne massif.",
+    // « bois massif » et non « chêne » : le prix « à partir de » est celui du pin.
+    tagline: "Des tubes d'acier croisés comme un jeu de mikado, sous un plateau en bois massif.",
+    // Chaque vue existe dans toutes les teintes de pieds et toutes les essences :
+    // les textes alternatifs ne citent ni l'une ni l'autre.
     images: [
       {
         src: "/images/mikado/devant/noir.jpg",
-        alt: "Table Mikado — vue de face, pieds noir charbon",
+        alt: "Table Mikado vue de face : plateau en bois massif sur tubes d'acier croisés",
         bg: "#ffffff",
         fit: "contain",
         metal: "noir",
@@ -674,7 +709,7 @@ const catalogue: Product[] = [
       },
       {
         src: "/images/mikado/coupe/gris.jpg",
-        alt: "Table Mikado — détail du plateau et des pieds gris acier",
+        alt: "Table Mikado, détail du plateau et du croisement des tubes d'acier",
         bg: "#ffffff",
         fit: "cover",
         metal: "gris",
@@ -715,7 +750,7 @@ const catalogue: Product[] = [
       },
       {
         src: "/images/mikado/devant/laiton.jpg",
-        alt: "Table Mikado — vue de face, pieds laiton",
+        alt: "Table Mikado de face : le piétement en tubes d'acier peints, croisés sous le plateau",
         bg: "#ffffff",
         fit: "contain",
         metal: "laiton",
@@ -756,7 +791,7 @@ const catalogue: Product[] = [
       },
       {
         src: "/images/mikado/coupe/blanc.jpg",
-        alt: "Table Mikado — détail du plateau et des pieds blancs",
+        alt: "Table Mikado, gros plan sur l'angle du plateau en bois massif et les tubes d'acier",
         bg: "#ffffff",
         fit: "cover",
         metal: "blanc",
@@ -850,9 +885,14 @@ const catalogue: Product[] = [
         body: "Des tubes d'acier de 80 × 80 mm, paroi 3 mm, se croisent sous le plateau comme un jeu de mikado. Chaque appui semble posé au hasard ; l'équilibre est calculé. Le piétement est soudé d'une seule pièce à l'atelier, non démontable, sans vis apparente, puis peint dans la teinte de votre choix.",
       },
       {
-        title: "Un plateau de chêne premier choix",
-        body: "Notre plateau de référence est en chêne français premier choix, issu de forêts gérées durablement. Des lames larges, d'une seule pièce sur toute la longueur, choisies et assemblées à la main pour que le veinage et la teinte se répondent : ni nœud, ni aubier. Huilé plutôt que verni, le bois garde son toucher et se patine avec les années ; une marque se rattrape au papier fin, sur la zone touchée seulement. Hêtre, noyer et pin suivent la même exigence.",
+        title: "Combien de places ?",
+        body: `Comptez 60 cm de plateau par convive. La Mikado se fait de 6 à 14 places au catalogue, et à vos cotes, au centimètre, jusqu'à ${PLATEAU_MAX_TEXTE.fr} d'un seul tenant. Plus la table est longue, plus le plateau doit être épais : la fiche vérifie que l'épaisseur choisie convient à la longueur.`,
       },
+      {
+        title: "Fabriquée pour vous, à Saumur",
+        body: "Rien n'est en stock : chaque Mikado est fabriquée à la commande. Les tubes sont coupés, assemblés et soudés à la main à l'atelier, les soudures meulées, puis le piétement est peint dans la teinte choisie, parmi six. Le plateau est poncé et huilé à la main.",
+      },
+      SECTION_PLATEAU,
     ],
     specs: [
       { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 28, 36 ou 45 mm (45 mm au catalogue), finition huile-cire" },
@@ -865,15 +905,16 @@ const catalogue: Product[] = [
     en: {
       name: "Mikado Table",
       seoMots: "steel & oak table",
-      seoTitre: "Solid wood table, Mikado steel base",
+      seoTitre: "Bespoke dining table, Mikado steel base",
       seoDescription:
-        "Made-to-measure dining table: crossed steel tubes under a solid wood top (pine, beech, oak or walnut), made in Saumur, France.",
-      tagline: "Steel tubes crossed like pick-up sticks, under a solid oak top.",
+        "Bespoke Mikado dining table, handmade in Saumur, France: 80 mm steel tubes crossed under a solid pine, beech, oak or walnut top.",
+      h1Ligne: "Bespoke solid wood dining table, welded steel base",
+      tagline: "Steel tubes crossed like pick-up sticks, under a solid wood top.",
       images: [
-        "Mikado table — front view, charcoal black legs",
-        "Mikado table — close-up of the top and steel grey legs",
-        "Mikado table — front view, brass legs",
-        "Mikado table — close-up of the top and white legs",
+        "Mikado table, front view: solid wood top on crossed steel tubes",
+        "Mikado table, close-up of the top and the crossing steel tubes",
+        "Mikado table from the front: the painted steel tube base crossed under the top",
+        "Mikado table, close-up of the corner of the solid wood top and the steel tubes",
       ],
       photosDescriptif: [
         "Mikado table in walnut with green velvet chairs in a stone-walled dining room",
@@ -891,9 +932,14 @@ const catalogue: Product[] = [
           body: "Steel tubes of 80 × 80 mm, 3 mm wall, cross under the top like a game of pick-up sticks. Every leg looks dropped at random; the balance is worked out. The base is welded in one piece in the workshop, not dismountable, with no visible screw, then painted in the colour of your choice.",
         },
         {
-          title: "A first-grade oak top",
-          body: "Our reference top is French first-grade oak from sustainably managed forests. Wide boards, each running the full length in a single piece, are selected and matched by hand so grain and colour answer each other: no knots, no sapwood. Oiled rather than varnished, the wood keeps its touch and gains a patina over the years; a mark comes out with fine sandpaper, on that spot alone. Beech, walnut and pine are made to the same standard.",
+          title: "How many seats?",
+          body: `Allow 60 cm of top per guest. The Mikado comes in 6 to 14 seats in the catalogue, and to your size, to the centimetre, up to ${PLATEAU_MAX_TEXTE.en} in one piece. The longer the table, the thicker the top must be: the page checks that the thickness you pick suits the length.`,
         },
+        {
+          title: "Made for you, in Saumur",
+          body: "Nothing sits in stock: every Mikado is made to order. The tubes are cut, fitted and welded by hand in the workshop, the welds ground smooth, then the base is painted in the colour you chose, out of six. The top is sanded and oiled by hand.",
+        },
+        SECTION_PLATEAU_EN,
       ],
       specs: [
         { label: "Top", value: "Solid pine, beech, oak or walnut, 28, 36 or 45 mm thick (45 mm for catalogue sizes), hardwax oil finish" },
@@ -910,7 +956,10 @@ const catalogue: Product[] = [
     boisAuM2: true,
     famille: "table-interieur",
     seoMots: "table acier & chêne",
-    seoTitre: "Table bois massif pied croix acier",
+    seoTitre: "Table bois massif, pied croisé acier",
+    seoDescription:
+      "Table pied croisé sur mesure, faite main à Saumur : un X d'acier soudé à chaque bout, la place pour les jambes, plateau massif.",
+    h1Ligne: "Table pied croisé en bois massif et acier, sur mesure",
     category: "interieur",
     orderMode: "cart",
     name: "Table Croix",
@@ -918,7 +967,7 @@ const catalogue: Product[] = [
     images: [
       {
         src: "/images/table-croix-bout-v2.jpg",
-        alt: "Table Croix : plateau en chêne massif sur deux piétements acier noir en X, vue de bout",
+        alt: "Table Croix vue de bout : plateau en bois massif sur deux piétements en X d'acier noir",
         bg: "#ffffff",
         fit: "contain",
         parBois: {
@@ -929,7 +978,7 @@ const catalogue: Product[] = [
       },
       {
         src: "/images/table-croix-soudure-v1.jpg",
-        alt: "Table Croix, gros plan sur le X d'acier : le cordon de soudure au croisement des lames, sous le plateau",
+        alt: "Table Croix, gros plan sur le croisement des deux tubes d'acier, sous le plateau",
         bg: "#ffffff",
         fit: "contain",
         parBois: {
@@ -940,7 +989,7 @@ const catalogue: Product[] = [
       },
       {
         src: "/images/table-croix-cote-v2.jpg",
-        alt: "Table Croix vue de côté : les deux X d'acier noir sous le long plateau de chêne",
+        alt: "Table Croix vue de côté : les deux X d'acier noir sous le long plateau en bois massif",
         bg: "#ffffff",
         fit: "contain",
         parBois: {
@@ -951,7 +1000,7 @@ const catalogue: Product[] = [
       },
       {
         src: "/images/table-croix-detail-v1.jpg",
-        alt: "Table Croix, détail : l'angle du plateau de chêne et le X d'acier noir qui le porte",
+        alt: "Table Croix, détail : l'angle du plateau en bois massif et le X d'acier noir qui le porte",
         bg: "#ffffff",
         fit: "contain",
         parBois: {
@@ -1000,17 +1049,18 @@ const catalogue: Product[] = [
     metals: pieds(),
     sections: [
       {
-        title: "Un X soudé puis meulé",
-        body: "Deux tubes d'acier de 80 × 80 mm, paroi 3 mm, se croisent sous chaque bout du plateau et rejoignent le sol d'une seule pièce. La croix est soudée à plat puis meulée : le raccord disparaît, il ne reste qu'un trait net sous la table.",
+        title: "Un croisement soudé à la main",
+        body: "Deux tubes d'acier de 80 × 80 mm, paroi 3 mm, se croisent sous chaque bout du plateau et rejoignent le sol d'une seule pièce. Au croisement, la soudure est faite à la main, à plat, puis meulée : le raccord disparaît, il ne reste qu'un trait net. Le piétement est ensuite peint dans la teinte de votre choix.",
       },
       {
-        title: "De la place pour les jambes",
-        body: "Les appuis sont repoussés vers les extrémités : on s'assoit au milieu sans buter dans un pied. C'est la table des longues tablées, celle qui accepte une chaise de plus au dernier moment.",
+        title: "Le pied croisé : toute la place pour les jambes",
+        body: "Les deux X d'acier se tiennent aux bouts du plateau : rien au milieu pour gêner les jambes. Sur toute la longueur, chacun s'assied sans buter, et un banc se glisse dessous. C'est la table des longues tablées, celle qui accepte une chaise de plus au dernier moment.",
       },
       {
-        title: "Un plateau de chêne premier choix",
-        body: "Notre plateau de référence est en chêne français premier choix, issu de forêts gérées durablement. Des lames larges, d'une seule pièce sur toute la longueur, choisies et assemblées à la main pour que le veinage et la teinte se répondent : ni nœud, ni aubier. Huilé plutôt que verni, le bois garde son toucher et se patine avec les années ; une marque se rattrape au papier fin, sur la zone touchée seulement. Hêtre, noyer et pin suivent la même exigence.",
+        title: "À vos cotes, à la commande",
+        body: `De 6 à 14 places au catalogue, ou à vos cotes, au centimètre, jusqu'à ${PLATEAU_MAX_TEXTE.fr} d'un seul tenant. Rien n'attend en stock : à la commande, les tubes sont coupés et soudés à l'atelier de Saumur, et le plateau est fait à la longueur choisie, dans l'épaisseur qui lui convient.`,
       },
+      SECTION_PLATEAU,
     ],
     specs: [
       { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 28, 36 ou 45 mm (45 mm au catalogue), finition huile-cire" },
@@ -1023,13 +1073,16 @@ const catalogue: Product[] = [
     en: {
       name: "Croix Table",
       seoMots: "steel & oak table",
-      seoTitre: "Solid wood table, steel X base",
+      seoTitre: "Cross leg dining table, solid wood",
+      seoDescription:
+        "Bespoke cross leg dining table, handmade in Saumur, France: a welded steel X at each end, room for everyone's legs, solid wood top.",
+      h1Ligne: "Cross leg table in solid wood and steel, made to measure",
       tagline: "Two steel tubes in an X at each end of the top, and room for everyone's legs.",
       images: [
-        "Croix table: solid oak top on two black steel X bases, end view",
-        "Croix table, close-up of the steel X: the weld seam where the blades cross, under the top",
-        "Croix table from the side: the two black steel Xs under the long oak top",
-        "Croix table, detail: the corner of the oak top and the black steel X that carries it",
+        "Croix table, end view: solid wood top on two black steel X bases",
+        "Croix table, close-up of the two steel tubes where they cross, under the top",
+        "Croix table from the side: the two black steel Xs under the long solid wood top",
+        "Croix table, detail: the corner of the solid wood top and the black steel X that carries it",
       ],
       sizes: {
         p6: "Seats 6 — 150 × 90 × H 75 cm",
@@ -1040,17 +1093,18 @@ const catalogue: Product[] = [
       },
       sections: [
         {
-          title: "An X welded, then ground back",
-          body: "Two steel tubes of 80 × 80 mm, 3 mm wall, cross under each end of the top and meet the floor as a single piece. The cross is welded flat, then ground back: the joint disappears and only a clean line remains under the table.",
+          title: "A crossing welded by hand",
+          body: "Two steel tubes of 80 × 80 mm, 3 mm wall, cross under each end of the top and meet the floor as a single piece. Where they cross, the weld is made by hand, flat, then ground back: the joint disappears and only a clean line remains. The base is then painted in the colour of your choice.",
         },
         {
-          title: "Room for your legs",
-          body: "The feet are pushed out to the ends: you sit in the middle without knocking into anything. This is the table for long gatherings, the one that takes one more chair at the last minute.",
+          title: "The cross leg: all the room your legs need",
+          body: "The two steel Xs stand at the ends of the top: nothing in the middle gets in the way of your legs. All along the table, everyone sits without knocking into anything, and a bench slides underneath. This is the table for long gatherings, the one that takes one more chair at the last minute.",
         },
         {
-          title: "A first-grade oak top",
-          body: "Our reference top is French first-grade oak from sustainably managed forests. Wide boards, each running the full length in a single piece, are selected and matched by hand so grain and colour answer each other: no knots, no sapwood. Oiled rather than varnished, the wood keeps its touch and gains a patina over the years; a mark comes out with fine sandpaper, on that spot alone. Beech, walnut and pine are made to the same standard.",
+          title: "To your size, made to order",
+          body: `Seats 6 to 14 in the catalogue, or your own dimensions, to the centimetre, up to ${PLATEAU_MAX_TEXTE.en} in one piece. Nothing waits in stock: once you order, the tubes are cut and welded in the workshop in Saumur, and the top is made to the length you chose, in the thickness that suits it.`,
         },
+        SECTION_PLATEAU_EN,
       ],
       specs: [
         { label: "Top", value: "Solid pine, beech, oak or walnut, 28, 36 or 45 mm thick (45 mm for catalogue sizes), hardwax oil finish" },
@@ -1067,7 +1121,10 @@ const catalogue: Product[] = [
     boisAuM2: true,
     famille: "table-interieur",
     seoMots: "table acier & chêne",
-    seoTitre: "Table Brindille, bois massif et acier",
+    seoTitre: "Table design bois massif, acier cintré",
+    seoDescription:
+      "Table design sur mesure, faite main à Saumur : tiges d'acier cintrées une à une sous un plateau en bois massif qui semble flotter.",
+    h1Ligne: "Table design en bois massif, tiges d'acier cintrées",
     category: "interieur",
     orderMode: "cart",
     name: "Table Brindille",
@@ -1131,13 +1188,14 @@ const catalogue: Product[] = [
         body: "Des tiges d'acier fines partent du sol et se rejoignent sous le plateau comme un bouquet de brindilles. De loin, le plateau paraît flotter ; de près, on voit chaque soudure, faite une par une à l'atelier.",
       },
       {
-        title: "Léger à l'œil, stable au sol",
-        body: "Les appuis, nombreux, répartissent la charge : la table ne bouge pas, même chargée. Chaque tige est cintrée puis ajustée à la main ; aucun piétement n'est tout à fait identique à un autre.",
+        title: "Des tiges cintrées une à une",
+        body: "Chaque tige d'acier est cintrée une à une, puis soudée aux autres là où le bouquet se resserre : aucune n'est tout à fait la même. Vu de côté, le plateau semble posé sur des branches.",
       },
       {
-        title: "Un plateau de chêne premier choix",
-        body: "Notre plateau de référence est en chêne français premier choix, issu de forêts gérées durablement. Des lames larges, d'une seule pièce sur toute la longueur, choisies et assemblées à la main pour que le veinage et la teinte se répondent : ni nœud, ni aubier. Huilé plutôt que verni, le bois garde son toucher et se patine avec les années ; une marque se rattrape au papier fin, sur la zone touchée seulement. Hêtre, noyer et pin suivent la même exigence.",
+        title: "Léger à l'œil, stable au sol",
+        body: `Les appuis, nombreux, répartissent la charge : la table ne bouge pas, même chargée. Avec la Brindille, le piétement compte autant que le plateau : on le regarde, on en fait le tour. Elle se fait de 6 à 14 places au catalogue, ou à vos cotes jusqu'à ${PLATEAU_MAX_TEXTE.fr}, et son bouquet se peint dans l'une des six teintes.`,
       },
+      SECTION_PLATEAU,
     ],
     specs: [
       { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 28, 36 ou 45 mm (45 mm au catalogue), finition huile-cire" },
@@ -1150,11 +1208,14 @@ const catalogue: Product[] = [
     en: {
       name: "Brindille Table",
       seoMots: "steel & oak table",
-      seoTitre: "Brindille table, solid wood and steel",
+      seoTitre: "Designer dining table, bent steel base",
+      seoDescription:
+        "Bespoke designer dining table, handmade in Saumur, France: steel rods bent one by one, under a solid wood top that seems to float.",
+      h1Ligne: "Designer table in solid wood, bent steel rods",
       tagline: "A bunch of steel rods bent one by one, under a top that seems to float.",
       images: [
         "Brindille table: solid oak top on a bunch of bent steel rods, front view",
-        "Brindille table in a living room, under a backlit stretch ceiling",
+        "Brindille table in a living room, under a backlit stretch-fabric light ceiling",
       ],
       sizes: {
         p6: "Seats 6 — 150 × 90 × H 75 cm",
@@ -1169,13 +1230,14 @@ const catalogue: Product[] = [
           body: "Slender steel rods rise from the floor and gather under the top like a bunch of twigs. From across the room the top seems to float; up close you can see every weld, made one at a time in the workshop.",
         },
         {
-          title: "Light to the eye, steady on the floor",
-          body: "The many points of contact spread the load: the table does not budge, even fully laid. Each rod is bent and then fitted by hand; no two bases are quite alike.",
+          title: "Rods bent one at a time",
+          body: "Each steel rod is bent one at a time, then welded to the others where the bunch draws in: no two are quite alike. From the side, the top seems to rest on branches.",
         },
         {
-          title: "A first-grade oak top",
-          body: "Our reference top is French first-grade oak from sustainably managed forests. Wide boards, each running the full length in a single piece, are selected and matched by hand so grain and colour answer each other: no knots, no sapwood. Oiled rather than varnished, the wood keeps its touch and gains a patina over the years; a mark comes out with fine sandpaper, on that spot alone. Beech, walnut and pine are made to the same standard.",
+          title: "Light to the eye, steady on the floor",
+          body: `The many points of contact spread the load: the table does not budge, even fully laid. With the Brindille, the base matters as much as the top: you look at it, you walk around it. It comes in 6 to 14 seats in the catalogue, or to your size up to ${PLATEAU_MAX_TEXTE.en}, and its rods are painted in one of six colours.`,
         },
+        SECTION_PLATEAU_EN,
       ],
       specs: [
         { label: "Top", value: "Solid pine, beech, oak or walnut, 28, 36 or 45 mm thick (45 mm for catalogue sizes), hardwax oil finish" },
@@ -1201,7 +1263,9 @@ const catalogue: Product[] = [
     // « Table rivière » : c'est ainsi qu'on cherche une table à coulée de résine.
     seoTitre: "Table rivière époxy et chêne massif",
     seoDescription:
-      "Table rivière : une coulée de résine époxy dans un plateau de chêne massif, sur piétement Mikado en acier. Fabriquée à Saumur (49).",
+      "Table rivière sur mesure : résine époxy coulée dans un plateau de chêne massif, sur piétement Mikado. Chaque plateau est unique.",
+    // « Pièce unique » est vrai ici, et ici seulement : chaque coulée diffère.
+    h1Ligne: "Table rivière en résine époxy et chêne massif, pièce unique",
     category: "interieur",
     orderMode: "cart",
     name: "Table Résine Époxy Mikado",
@@ -1213,7 +1277,7 @@ const catalogue: Product[] = [
     images: [
       {
         src: "/images/table-resine/devant/noir-bleu-paillettes-or-v1.jpg",
-        alt: "Table résine époxy Mikado — vue de face : plateau de chêne massif traversé d'une rivière de résine, piétement Mikado",
+        alt: "Table rivière Mikado vue de face : plateau de chêne massif traversé d'une rivière de résine époxy, piétement acier",
         bg: "#ffffff",
         fit: "contain",
         parColoris: {
@@ -1351,16 +1415,16 @@ const catalogue: Product[] = [
     ],
     sections: [
       {
-        title: "Une table rivière : la résine coule dans le chêne",
-        body: "Le plateau est en chêne massif. Une rivière de résine époxy le traverse d'un bout à l'autre, coulée à l'atelier dans la teinte de votre choix : rouge, or nacré, turquoise, ou bleu semé de paillettes d'or. Le fil du bois et les reflets de la résine changent d'une table à l'autre : chaque plateau est unique.",
+        title: "Une table rivière, coulée pour vous",
+        body: "Le plateau est en chêne massif. La résine époxy y est coulée d'un bout à l'autre, entre ses deux bords naturels, dans la teinte de votre choix : rouge, or nacré, turquoise, ou bleu semé de paillettes d'or. La surface est ensuite poncée et polie. Le fil du bois change d'une table à l'autre et la résine prend sa teinte dans la masse : chaque plateau est une pièce unique, le vôtre ne se refera pas à l'identique.",
       },
       {
         title: "Le piétement Mikado, dans la teinte de votre choix",
-        body: "Le même piétement que notre table Mikado : des tubes d'acier de 80 × 80 mm, paroi 3 mm, croisés sous le plateau comme un jeu de mikado. Il est soudé d'une seule pièce à l'atelier, puis peint en noir charbon mat.",
+        body: "Le même piétement que notre table Mikado : des tubes d'acier de 80 × 80 mm, paroi 3 mm, croisés sous le plateau comme un jeu de mikado. Il est soudé d'une seule pièce à l'atelier, puis peint mat dans l'une des six teintes.",
       },
       {
-        title: "Sur devis, à vos mesures",
-        body: "Choisissez la teinte de la résine et le format — de 6 à 14 places, ou à vos cotes jusqu'à 450 × 125 cm — puis demandez votre devis. Nous vous répondons avec le prix, le délai de fabrication et la livraison.",
+        title: "À vos mesures",
+        body: `Choisissez la teinte de la résine et le format, de 6 à 14 places ou à vos cotes jusqu'à ${PLATEAU_MAX_LONGUEUR_MM / 10} × ${PLATEAU_MAX_LARGEUR_MM / 10} cm : le prix s'affiche aussitôt. Le délai de fabrication, lui, vous est confirmé avec le devis.`,
       },
     ],
     specs: [
@@ -1375,12 +1439,13 @@ const catalogue: Product[] = [
     en: {
       name: "Mikado Epoxy Resin Table",
       seoMots: "solid oak",
-      seoTitre: "Epoxy river table in solid oak",
+      seoTitre: "Oak epoxy river table, made to measure",
       seoDescription:
-        "River table: a pour of epoxy resin through a solid oak top, on a Mikado steel base. Made in Saumur, France.",
+        "Bespoke river table: a pour of epoxy resin through a solid oak top, on a Mikado steel base, made in Saumur. Every top is one of a kind.",
+      h1Ligne: "Epoxy river table in solid oak, one of a kind",
       tagline: "A river of epoxy resin through a solid oak top, on the Mikado steel base.",
       images: [
-        "Mikado epoxy resin table — front view: solid oak top with a river of resin, Mikado base",
+        "Mikado river table, front view: solid oak top with a river of epoxy resin, steel base",
         "Mikado epoxy resin table: red resin river through a solid oak top, black steel base",
         "Mikado epoxy resin table: pearl gold resin river scattered with gold flakes, solid oak top",
         "Mikado epoxy resin table: turquoise resin river between the natural edges of the oak, black steel base",
@@ -1396,16 +1461,16 @@ const catalogue: Product[] = [
       },
       sections: [
         {
-          title: "A river table: resin flowing through the oak",
-          body: "The top is solid oak. A river of epoxy resin runs through it from end to end, poured in the workshop in the colour of your choice: red, pearl gold, turquoise, or blue scattered with gold flakes. The grain of the wood and the sheen of the resin change from one table to the next: every top is one of a kind.",
+          title: "A river table, poured for you",
+          body: "The top is solid oak. The epoxy resin is poured through it from end to end, between its two natural edges, in the colour of your choice: red, pearl gold, turquoise, or blue scattered with gold flakes. The surface is then sanded and polished. The grain of the wood changes from one table to the next and the resin takes its colour right through: every top is one of a kind, and yours will never be made again exactly the same.",
         },
         {
           title: "The Mikado base, in the colour you choose",
-          body: "The same base as our Mikado table: 80 × 80 mm steel tubes, 3 mm wall, crossed under the top like a game of pick-up sticks. It is welded in one piece in the workshop, then painted matt charcoal black.",
+          body: "The same base as our Mikado table: 80 × 80 mm steel tubes, 3 mm wall, crossed under the top like a game of pick-up sticks. It is welded in one piece in the workshop, then given a matt paint finish in one of six colours.",
         },
         {
-          title: "On quotation, to your size",
-          body: "Choose the resin colour and the size — seats 6 to 14, or your own dimensions up to 450 × 125 cm — then request your quote. We reply with the price, the lead time and the delivery.",
+          title: "To your size",
+          body: `Choose the resin colour and the size, seats 6 to 14 or your own dimensions up to ${PLATEAU_MAX_LONGUEUR_MM / 10} × ${PLATEAU_MAX_LARGEUR_MM / 10} cm: the price shows at once. The lead time is confirmed with your quote.`,
         },
       ],
       specs: [
@@ -1423,8 +1488,10 @@ const catalogue: Product[] = [
     famille: "escalier",
     seoMots: "escalier acier",
     seoTitre: "Escalier limon central acier et bois",
+    // La fiche ajoute « Sur devis, pose comprise. » (textePrixDescription) : la pose n'est dite qu'une fois.
     seoDescription:
-      "Escalier à limon central acier, marches en bois massif, droit, quart tournant ou demi-tournant. Fabriqué et posé depuis Saumur.",
+      "Escalier à limon central sur mesure : acier soudé à Saumur, marches en bois massif de 5 cm, droit, quart ou demi-tournant.",
+    h1Ligne: "Escalier sur mesure en acier, marches en bois massif",
     releve: "escalier",
     category: "interieur",
     // Sur devis, toujours — mais l'atelier peut venir prendre les cotes,
@@ -1432,7 +1499,7 @@ const catalogue: Product[] = [
     orderMode: "quote",
     priseDeCotes: true,
     name: "Escalier Limon Central",
-    tagline: "Limon acier cintré, marches chêne massif, garde-corps à câbles.",
+    tagline: "Limon acier cintré, marches en bois massif, garde-corps à câbles.",
     images: [
       {
         src: "/images/escalier/limon-droit.jpg",
@@ -1472,6 +1539,15 @@ const catalogue: Product[] = [
         title: "Des marches qui semblent flotter",
         body: "Chaque marche en bois massif de 50 mm est fixée sur des platines cachées sous la marche. Le garde-corps à câbles inox et la main courante en bois cintré laissent passer la lumière.",
       },
+      {
+        title: "Droit, quart tournant ou demi-tournant",
+        body: "Trois formes, selon la place : l'escalier droit monte d'une seule volée ; le quart tournant tourne d'un quart de tour, en haut ou en bas, quand le recul manque ; le demi-tournant revient sur lui-même quand la place au sol est plus courte encore. La prise de cotes chez vous dit laquelle convient à votre trémie.",
+      },
+      {
+        // La pose jusqu'à 45 km est déjà promise sur cette fiche (Pose, noteDevis) : elle bascule avec elle (interrupteur décennale).
+        title: "Ce que comprend le prix",
+        body: "La prise de cotes chez vous, déduite de la commande ; le plan ; le limon cintré et soudé à l'atelier ; les marches en bois massif de 5 cm ; le garde-corps à câbles inox et sa main courante en bois ; et la pose jusqu'à 45 km de Saumur.",
+      },
     ],
     specs: [
       { label: "Limon", value: "Tube d'acier de forte section, cintré, soudure TIG, finition peinte mate" },
@@ -1486,10 +1562,11 @@ const catalogue: Product[] = [
     en: {
       name: "Central Stringer Staircase",
       seoMots: "steel staircase",
-      seoTitre: "Steel and wood central stringer stairs",
+      seoTitre: "Steel spine staircase, solid wood treads",
       seoDescription:
-        "Central stringer staircase in steel, solid wood treads: straight, quarter turn or half turn. Made and fitted from Saumur, France.",
-      tagline: "Curved steel stringer, solid oak treads, cable balustrade.",
+        "Bespoke steel spine staircase: welded in Saumur, France, 5 cm solid wood treads, straight, quarter turn or half turn.",
+      h1Ligne: "Bespoke steel staircase, solid wood treads",
+      tagline: "Curved steel stringer, solid wood treads, cable balustrade.",
       images: [
         "Straight staircase with a central steel stringer, solid oak treads and a steel balustrade with slim horizontal rails, in a limewashed room",
         "Close-up of the first solid oak treads on the steel stringer, bolted floor plate",
@@ -1507,6 +1584,14 @@ const catalogue: Product[] = [
         {
           title: "Treads that seem to float",
           body: "Each 50 mm solid wood tread is fixed on plates hidden under the tread. The stainless steel cable balustrade and the curved timber handrail let the light through.",
+        },
+        {
+          title: "Straight, quarter turn or half turn",
+          body: "Three shapes, depending on the space: the straight staircase climbs in a single flight; the quarter turn turns through a quarter, at the top or the bottom, when the run is short; the half turn doubles back on itself when floor space is shorter still. The measuring visit at your home shows which one suits your stairwell opening.",
+        },
+        {
+          title: "What the price includes",
+          body: "The measuring visit at your home, deducted from the order; the drawing; the stringer, curved and welded in the workshop; the 5 cm solid wood treads; the stainless steel cable balustrade and its timber handrail; and fitting within 45 km of Saumur.",
         },
       ],
       specs: [
@@ -1698,12 +1783,14 @@ const catalogue: Product[] = [
       "balcon français fenêtre garde-corps acier",
     ],
     // L'accroche fait 131 signes : assemblée avec le prix et le suffixe, elle
-    // dépassait les 155 signes que Google affiche. Courte, elle tient aussi
-    // avec « Sur devis, pose comprise. » (prix indisponible). « Normes de
-    // sécurité françaises » : la fiche détaille hauteur (art. R134-59) et
-    // espaces (NF P01-012) — rien ici qui ressemble à une marque NF.
+    // dépassait les 155 signes que Google affiche. Courte (108 signes au plus),
+    // elle tient avec la phrase entière du prix d'appel (« Dès … pour une
+    // fenêtre de … cm de large. »). « Hauteur et vides vérifiés » : la fiche
+    // détaille hauteur (art. R134-59) et espaces (NF P01-012) — ni marque NF,
+    // ni « solidité » tant que la fixation n'est pas décidée.
     seoDescription:
-      "Garde-corps de fenêtre en acier plein, à rosaces de style ancien, sur mesure à Saumur, aux normes de sécurité françaises.",
+      "Garde-corps de fenêtre en acier plein, style fer forgé, fait main à Saumur ; hauteur et vides vérifiés.",
+    h1Ligne: "Garde-corps de fenêtre sur mesure, acier plein style fer forgé",
     releve: "garde-corps-fenetre",
     category: "interieur",
     // Se commande en ligne, aux cotes que le client relève lui-même : aucune
@@ -1855,7 +1942,8 @@ const catalogue: Product[] = [
     en: {
       name: "Rosette Window Railing",
       seoMots: "custom window railing",
-      seoTitre: "Custom window railing, Saumur",
+      // « Juliet balcony » : la recherche anglaise, jusqu'à la page « porte-fenêtre », qui la prendra.
+      seoTitre: "Bespoke Juliet balcony railing, Saumur",
       motsCles: [
         "custom handmade window railing",
         "bespoke steel window railing France",
@@ -1865,7 +1953,8 @@ const catalogue: Product[] = [
         "NF P01-012 window guard custom",
       ],
       seoDescription:
-        "Solid steel window railing, period-style rosettes, made to measure in Saumur to French safety standards.",
+        "Solid steel window railing, wrought-iron style, handmade in Saumur, France; height and gaps checked to French rules.",
+      h1Ligne: "Bespoke window railing, wrought-iron style solid steel",
       tagline: "Handmade custom window railing in solid steel: Saint Andrew's crosses with cast rosettes, or vertical bars; wood or steel handrail. Made to the millimetre, fitted into your window.",
       images: [
         "Window railing seen head-on: painted black steel frame with a Saint Andrew's cross, two cast rosettes, oak handrail",
@@ -2149,10 +2238,11 @@ const catalogue: Product[] = [
     boisAuM2: true,
     famille: "table-exterieur",
     seoMots: "table de jardin",
-    seoTitre: "Table de jardin chêne et acier, Mikado",
+    seoTitre: "Table de jardin bois et acier sur mesure",
     // Même raison que le garde-corps : accroche + prix + suffixe dépassait.
     seoDescription:
-      "Table de jardin à lattes de chêne traité, piétement Mikado en acier peint, faite pour rester dehors. Fabriquée à Saumur (49).",
+      "Table de jardin sur mesure, faite main à Saumur : lattes de chêne traité, piétement Mikado en acier peint, faite pour rester dehors.",
+    h1Ligne: "Table de jardin en chêne et acier, faite pour rester dehors",
     category: "exterieur",
     orderMode: "cart",
     name: "Table Mikado Extérieur",
@@ -2160,7 +2250,7 @@ const catalogue: Product[] = [
     images: [
       {
         src: "/images/table-exterieur-lattes.jpg",
-        alt: "Table d'extérieur Mikado, plateau à lattes de chêne — vue d'angle sur la finition du plateau",
+        alt: "Table de jardin Mikado : lattes de chêne sur piétement acier, vue d'angle",
         bg: "#ffffff",
         fit: "cover",
         metal: "noir",
@@ -2217,6 +2307,15 @@ const catalogue: Product[] = [
         title: "Le même piétement, traité pour dehors",
         body: "C'est le piétement Mikado de la table d'intérieur, protégé par une peinture pour l'extérieur. La couche tient à la pluie, au sel et aux UV sans s'écailler.",
       },
+      {
+        // Ni « classe 4 » ni fréquence d'entretien ici : à confirmer par Quentin (la ligne Entretien reste celle des caractéristiques).
+        title: "Dehors, toute l'année",
+        body: "Les lattes de chêne traité laissent passer la pluie, le piétement est peint pour l'extérieur : la table reste dehors toute l'année. Sans huile, le chêne grise doucement, comme un bardage ; une couche d'huile extérieure lui rend sa teinte.",
+      },
+      {
+        title: "Une table de jardin à vos cotes",
+        body: `De 6 à 14 places au catalogue, ou à vos cotes, au centimètre, jusqu'à ${PLATEAU_MAX_TEXTE.fr} de long. Rien n'attend en stock : la table est fabriquée pour vous, à la commande, à l'atelier de Saumur, avec le même piétement soudé que la Mikado d'intérieur.`,
+      },
     ],
     specs: [
       { label: "Plateau", value: "Chêne massif traité classe 4, lattes espacées, finition huile extérieure" },
@@ -2230,13 +2329,14 @@ const catalogue: Product[] = [
     en: {
       name: "Mikado Outdoor Table",
       seoMots: "garden table",
-      seoTitre: "Oak and steel garden table, Mikado",
+      seoTitre: "Oak garden table, made to measure",
       // Même raison qu'en français : accroche + prix + suffixe dépassait.
       seoDescription:
-        "Garden table with a slatted treated-oak top and a painted steel Mikado base, made to stay outside. Made in Saumur, France.",
+        "Bespoke oak garden table, handmade in Saumur, France: treated oak slats on a painted welded-steel Mikado base, made to stay outside.",
+      h1Ligne: "Oak and steel garden table, made to stay outside",
       tagline: "Slatted treated-oak top, Mikado base painted for outdoors — made to stay outside.",
       images: [
-        "Mikado outdoor table, slatted oak top — angle view of the top finish",
+        "Mikado garden table: oak slats on a steel base, angle view",
       ],
       sizes: {
         p6: "Seats 6 — 150 × 90 × H 75 cm",
@@ -2253,6 +2353,14 @@ const catalogue: Product[] = [
         {
           title: "The same base, treated for outdoors",
           body: "It is the Mikado base of the indoor table, protected by an outdoor paint finish. The coat stands up to rain, salt and sunlight without flaking.",
+        },
+        {
+          title: "Outside, all year round",
+          body: "The treated oak slats let the rain through and the base is painted for outdoors: the table stays outside all year round. Left unoiled, the oak slowly turns silver, like timber cladding; a coat of outdoor oil brings its colour back.",
+        },
+        {
+          title: "A garden table made to your size",
+          body: `Seats 6 to 14 in the catalogue, or your own dimensions, to the centimetre, up to ${PLATEAU_MAX_TEXTE.en} long. Nothing waits in stock: the table is made for you, to order, in the workshop in Saumur, with the same welded base as the indoor Mikado.`,
         },
       ],
       specs: [
@@ -2337,9 +2445,11 @@ const catalogue: Product[] = [
     poseOption: true,
     famille: "plafond",
     seoMots: "plafond lumineux toile tendue",
-    seoTitre: "Lucarne, plafonnier en toile tendue",
+    seoTitre: "Plafonnier rectangulaire en toile tendue",
+    // « plafond lumineux cuisine » reste à /toiles-tendues : la fiche vise le plafonnier.
     seoDescription:
-      "Plafonnier en toile tendue rétroéclairée, cadre alu, fabriqué à Saumur. Livré jusqu'à 230 × 210 cm, posé par l'atelier au-delà.",
+      "Plafonnier rectangulaire en toile tendue rétroéclairée, fait main à Saumur : effet puits de lumière. Livré jusqu'à 230 × 210 cm.",
+    h1Ligne: "Plafonnier rectangulaire en toile tendue rétroéclairée",
     // Les photos de la fiche sont carrées : déclinaison 1200 × 630 pour les réseaux.
     imagePartage: "/images/partage/lucarne.jpg",
     category: "lumiere",
@@ -2350,7 +2460,7 @@ const catalogue: Product[] = [
     images: [
       {
         src: "/images/lumiere/panneau-dessous-carre.jpg",
-        alt: "Lucarne : plafond lumineux à toile tendue vu de dessous, cadre aluminium noir",
+        alt: "Lucarne : plafonnier rectangulaire en toile tendue, cadre aluminium noir, vu de dessous",
         bg: "#ffffff",
         fit: "cover",
         // Membrane relevée sur la photo : sa lumière est réellement animée.
@@ -2412,6 +2522,10 @@ const catalogue: Product[] = [
         image: "/images/salle-plafond-mikado.jpg",
       },
       {
+        title: "L'effet puits de lumière",
+        body: "Encastrée dans un faux plafond, la Lucarne se lit comme une fausse fenêtre lumineuse : une ouverture au plafond, d'où tombe une lumière égale. Suspendue au-dessus d'un îlot ou d'une table, elle éclaire tout le plan d'une lumière douce, sans éblouir.",
+      },
+      {
         title: "Un cadre en aluminium laqué",
         body: "Le cadre est assemblé en profilé d'aluminium, coupé en onglet et laqué. La teinte ne jaunit pas et ne s'écaille pas. La toile se clipse dans une gorge périphérique ; elle se retire et se remet sans outil pour le nettoyage.",
       },
@@ -2434,13 +2548,14 @@ const catalogue: Product[] = [
     en: {
       name: "Lucarne",
       seoMots: "backlit stretch ceiling",
-      seoTitre: "Lucarne, stretch-fabric ceiling light",
+      seoTitre: "Rectangular stretch-fabric ceiling light",
       seoDescription:
-        "Backlit stretch-fabric ceiling light, aluminium frame, made in Saumur. Shipped up to 230 × 210 cm; larger sizes fitted by the workshop.",
+        "Rectangular backlit stretch-fabric ceiling light, handmade in Saumur, France, for a skylight effect. Shipped up to 230 × 210 cm.",
+      h1Ligne: "Rectangular backlit stretch-fabric ceiling light",
       tagline: "Backlit stretched fabric, lacquered aluminium frame.",
       images: [
-        "Lucarne: backlit stretch ceiling seen from below, black aluminium frame",
-        "Lucarne: backlit stretch ceiling above a dining table",
+        "Lucarne: rectangular stretch-fabric ceiling light, black aluminium frame, seen from below",
+        "Lucarne: backlit stretch-fabric ceiling light above a dining table",
       ],
       sizes: {
         l120: "120 × 60 cm — 0.72 m² — 50 W",
@@ -2457,6 +2572,10 @@ const catalogue: Product[] = [
         {
           title: "Light with no hot spot",
           body: "The stretched fabric spreads the light over its whole surface: no visible spotlight, no hard shadow on the table. The LEDs sit at the back of the box; the fabric evens out their light, the same white from one edge to the other.",
+        },
+        {
+          title: "The skylight effect",
+          body: "Recessed into a false ceiling, the Lucarne reads like a window of light: an opening in the ceiling with an even light falling from it. Hung above a kitchen island or a table, it lights the whole surface with a soft light, without glare.",
         },
         {
           title: "A lacquered aluminium frame",
@@ -2482,9 +2601,10 @@ const catalogue: Product[] = [
     poseOption: true,
     famille: "plafond",
     seoMots: "plafond lumineux rond",
-    seoTitre: "Halo, luminaire rond en toile tendue",
+    seoTitre: "Grand plafonnier rond en toile tendue",
     seoDescription:
-      "Grand luminaire rond en toile tendue rétroéclairée, fabriqué à Saumur. Livré jusqu'à Ø 210 cm, posé par l'atelier au-delà.",
+      "Grand plafonnier rond en toile tendue rétroéclairée, fait main à Saumur, de Ø 90 à Ø 400 cm. Livré jusqu'à Ø 210 cm, posé au-delà.",
+    h1Ligne: "Grand plafonnier rond en toile tendue rétroéclairée",
     // Photos carrées, là aussi : déclinaison 1200 × 630 pour les réseaux.
     imagePartage: "/images/partage/halo.jpg",
     category: "lumiere",
@@ -2495,7 +2615,7 @@ const catalogue: Product[] = [
     images: [
       {
         src: "/images/lumiere/rond-dessous-carre.jpg",
-        alt: "Halo : plafond lumineux rond à toile tendue, cadre aluminium noir",
+        alt: "Halo : grand plafonnier rond en toile tendue, cadre aluminium noir",
         bg: "#ffffff",
         fit: "cover",
         // Membrane relevée sur la photo : sa lumière est réellement animée.
@@ -2506,7 +2626,7 @@ const catalogue: Product[] = [
       },
       {
         src: "/images/lumiere/rond-allume.jpg",
-        alt: "Halo allumé, plafond lumineux rond",
+        alt: "Halo allumé : grand plafonnier rond en toile tendue rétroéclairée",
         bg: "#e8e8e8",
         fit: "cover",
       },
@@ -2569,8 +2689,8 @@ const catalogue: Product[] = [
         image: "/images/lumiere/salle-ronde.jpg",
       },
       {
-        title: "Posé au plafond ou suspendu",
-        body: "Le disque se pose au plafond ou se suspend par câbles. Il se fabrique jusqu'à 400 cm de diamètre : d'un seul tenant jusqu'à 210 cm, en modules posés chez vous par l'atelier au-delà. L'alimentation 220 V est fournie, la variation est possible sur demande.",
+        title: "Un grand plafonnier rond, de Ø 90 à Ø 400 cm",
+        body: `Au-dessus d'une grande table, un Halo de Ø 120 ou 150 cm éclaire toute la longueur sans éblouir. Il se pose au plafond ou se suspend par câbles, et se fabrique au centimètre jusqu'à 400 cm de diamètre : d'un seul tenant jusqu'à 210 cm ; au-delà, en modules que l'atelier assemble et pose chez vous, jusqu'à ${RAYON_MAX_KM} km de Saumur. L'alimentation 220 V est fournie, la variation est possible sur demande.`,
       },
     ],
     specs: [
@@ -2584,13 +2704,14 @@ const catalogue: Product[] = [
     en: {
       name: "Halo",
       seoMots: "round backlit stretch ceiling",
-      seoTitre: "Halo, round stretch-fabric ceiling light",
+      seoTitre: "Large round stretch-fabric ceiling light",
       seoDescription:
-        "Large round backlit stretch-fabric light, made in Saumur. Shipped up to Ø 210 cm; larger sizes fitted by the workshop.",
+        "Large round backlit stretch-fabric ceiling light, handmade in Saumur, France, from Ø 90 to Ø 400 cm. Ships up to Ø 210 cm in one piece.",
+      h1Ligne: "Large round backlit stretch-fabric ceiling light",
       tagline: "A circle of backlit stretched fabric, lacquered aluminium frame.",
       images: [
-        "Halo: round stretched-fabric light ceiling, black aluminium frame",
-        "Halo lit up: round light ceiling",
+        "Halo: large round stretch-fabric ceiling light, black aluminium frame",
+        "Halo lit up: large round backlit stretch-fabric ceiling light",
         "Close-up of the curved aluminium frame and the lit stretched fabric",
       ],
       sizes: {
@@ -2617,8 +2738,8 @@ const catalogue: Product[] = [
           body: "Past 1.50 m across, the disc no longer adds to the lighting: it replaces it. One is enough for a meeting room, an open-plan office or a large living room, with no other spotlight. The diffused light casts no hard shadow on faces.",
         },
         {
-          title: "Fixed to the ceiling or suspended",
-          body: "The disc fixes to the ceiling or hangs on cables. It is made up to 400 cm across: in one piece up to 210 cm, in modules fitted at your place by the workshop beyond that. The 220 V supply comes with it and dimming is available on request.",
+          title: "A large round ceiling light, from Ø 90 to Ø 400 cm",
+          body: `Above a large table, a Halo of Ø 120 or 150 cm lights the whole length without glare. It fixes to the ceiling or hangs on cables, and is made to the centimetre up to 400 cm across: in one piece up to 210 cm; beyond that, in modules the workshop assembles and fits at your place, within ${RAYON_MAX_KM} km of Saumur. The 220 V supply comes with it and dimming is available on request.`,
         },
       ],
       specs: [
@@ -3629,6 +3750,8 @@ export function productLocalise(product: Product, locale: Locale): Product {
     // Pas de repli sur le français : sans traduction, la fiche anglaise
     // assemble sa description à partir de l'accroche, déjà traduite.
     seoDescription: en?.seoDescription,
+    // Pas de repli non plus : une ligne française dans un titre anglais.
+    h1Ligne: en?.h1Ligne,
     images: product.images.map((image, i) => ({ ...image, alt: en?.images?.[i] ?? image.alt })),
     photosDescriptif: product.photosDescriptif?.map((photo, i) => ({
       ...photo,
