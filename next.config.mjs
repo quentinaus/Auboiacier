@@ -54,6 +54,14 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // La chaise d'intérieur est retirée de la vente (Quentin, 06/10/2026) :
+      // son ancienne adresse mène au catalogue plutôt qu'à une page
+      // introuvable. Temporaire (307) : elle reviendra une fois rechiffrée.
+      {
+        source: "/:lang(fr|en)/artisanat/:slug(chaise-acier-bois)",
+        destination: "/:lang/artisanat",
+        permanent: false,
+      },
       // Une seule adresse pour tout le site. Ces deux règles vivaient dans
       // vercel.json, où Next.js ne les appliquait jamais : www servait le site
       // en double, et Google voyait deux sites jumeaux. Ici elles partent bien.

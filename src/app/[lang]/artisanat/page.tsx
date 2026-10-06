@@ -69,7 +69,6 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
     { id: "table-exterieur", titre: h.catTablesExt },
     // Le garde-corps de fenêtre remonte ici (demande du 03/10) : c'est le produit d'appel.
     { id: "garde-corps", titre: h.catGardeCorps, note: t.familleGardeCorpsNote },
-    { id: "chaise", titre: h.catChaises },
     { id: "chaise-exterieur", titre: h.catChaisesExt },
     { id: "escalier", titre: h.catEscaliers },
     {

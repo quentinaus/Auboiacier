@@ -187,13 +187,6 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
       label: t.catTablesExt,
     },
     {
-      href: `/${locale}/artisanat#chaise`,
-      src: "/images/chaises/vert-bouteille.jpg",
-      alt: t.altChaises,
-      label: t.catChaises,
-      objectPosition: "50% 55%",
-    },
-    {
       href: `/${locale}/artisanat#chaise-exterieur`,
       // Recadrage 3/4 du fauteuil, centré : la photo d'origine est en paysage.
       src: "/images/chaise-exterieur-tuile.jpg",

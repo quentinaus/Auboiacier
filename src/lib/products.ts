@@ -583,7 +583,7 @@ const PLATEAU_MASSIF: PalierEpaisseur[] = [
 export const PLATEAU_MAX_LONGUEUR_MM = 4500;
 export const PLATEAU_MAX_LARGEUR_MM = 1250;
 
-export const products: Product[] = [
+const catalogue: Product[] = [
   {
     slug: "table-mikado",
     poseOption: true,
@@ -2289,6 +2289,19 @@ export const products: Product[] = [
     },
   },
 ];
+
+/**
+ * Pièces retirées de la vente : la chaise d'intérieur était vendue à perte
+ * (Quentin, 06/10/2026 : « supprime que la chaise d'intérieur » ; le fauteuil
+ * d'extérieur reste, son prix sera revu). Sa fiche reste écrite plus haut,
+ * pour la remettre en vente une fois rechiffrée : il suffira de l'ôter de
+ * cette liste. Tant qu'elle y est, ni le catalogue, ni l'accueil, ni le plan
+ * du site, ni le panier, ni le paiement ne la connaissent, et son ancienne
+ * adresse renvoie au catalogue (next.config.mjs).
+ */
+export const PIECES_RETIREES: ReadonlySet<string> = new Set(["chaise-acier-bois"]);
+
+export const products: Product[] = catalogue.filter((p) => !PIECES_RETIREES.has(p.slug));
 
 export function getProduct(slug: string) {
   return products.find((p) => p.slug === slug);

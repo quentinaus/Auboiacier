@@ -9,7 +9,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { composerDevis, numeroDevis, photoConfiguration, type EntreeDevis } from "../src/lib/devis.ts";
-import { SUR_MESURE, getProduct, resolveSelection } from "../src/lib/products.ts";
+import { PIECES_RETIREES, SUR_MESURE, getProduct, resolveSelection } from "../src/lib/products.ts";
 import { achetables, combinaisonsValides } from "./catalogue.ts";
 import type { Deplacement } from "../src/lib/deplacement.ts";
 
@@ -100,25 +100,12 @@ test("table sur mesure avec pose : la ligne de pose reprend le montant du géoco
   assert.ok(!devis.conditions.some((c) => /au pied du camion/i.test(c)));
 });
 
-test("chaise par transporteur : le colis pèse la chaise fois la quantité, pas de plateau", () => {
-  const resultat = composerDevis(
-    entree({
-      selection: { slug: "chaise-acier-bois", metalId: "noir", fabricId: "paon" },
-      quantity: 4,
-      livraison: { mode: "transporteur", codePostal: "69001", deplacement: { ...nantes, commune: "Lyon", montantCents: 9800, distanceKm: 430 } },
-    })
-  );
-  assert.ok(resultat.ok);
-  const { devis } = resultat;
-  const p = postes(devis);
-  assert.ok(p.every((l) => l.quantite === 4 && l.total === 4 * l.unitaire));
-  assert.equal(p.reduce((somme, l) => somme + l.total, 0), 4 * 145);
-  assert.match(p[1].designation, /^Assise garnie — mousse haute densité, velours Paon/);
-  const livraison = devis.lignes[devis.lignes.length - 1];
-  assert.match(livraison.details[0], /36 kg/); // 9 kg × 4
-  const l = labels(devis);
-  assert.ok(l.includes("Velours") && l.includes("Assise") && l.includes("Structure"));
-  assert.ok(!l.includes("Plateau") && !l.includes("Puissance"));
+test("la chaise d'intérieur, retirée de la vente, ne se chiffre plus ; le fauteuil reste", () => {
+  assert.ok(PIECES_RETIREES.has("chaise-acier-bois"));
+  assert.equal(getProduct("chaise-acier-bois"), undefined);
+  assert.ok(!composerDevis(entree({ selection: { slug: "chaise-acier-bois", metalId: "noir", fabricId: "paon" } })).ok);
+  assert.ok(!PIECES_RETIREES.has("fauteuil-terrasse"));
+  assert.ok(getProduct("fauteuil-terrasse"));
 });
 
 test("plafond lumineux sur mesure : surface, puissance et profondeur du caisson", () => {
@@ -202,9 +189,6 @@ test("la photo du devis est celle de la configuration, et jamais un WebP", () =>
   const photo = photoConfiguration(mikado, { woodId: "noyer", metalId: "laiton" });
   assert.ok(photo && /noyer/.test(photo) && /laiton/.test(photo), photo);
   assert.match(photo!, /\.(jpe?g|png)$/i);
-  const chaise = getProduct("chaise-acier-bois")!;
-  const coloris = photoConfiguration(chaise, { fabricId: "paon" });
-  assert.ok(coloris === undefined || /\.(jpe?g|png)$/i.test(coloris));
 });
 
 test("en anglais, les options aussi sont en anglais", () => {

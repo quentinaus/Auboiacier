@@ -219,7 +219,7 @@ const DUE = PAYE_LE * 1000 + (8 * 7 + JOURS_APRES_LIVRAISON) * JOUR_MS;
 test("le délai de fabrication vient des fiches : la borne haute, en semaines", () => {
   assert.equal(semainesFabrication(fiche("table-mikado")), 8, "« 6 à 8 semaines »");
   assert.equal(semainesFabrication(fiche("garde-corps")), 6, "« 4 à 6 semaines »");
-  assert.equal(semainesFabrication(fiche("chaise-acier-bois")), 4, "« 4 semaines »");
+  assert.equal(semainesFabrication(fiche("fauteuil-terrasse")), 4, "« 4 semaines »");
   assert.equal(semainesFabrication(fiche("table-resine-mikado")), null, "« délai confirmé avec le devis »");
   // Toute fiche qui annonce des semaines est lue : aucune ne retombe en silence sur le défaut.
   for (const p of products) {
@@ -230,8 +230,8 @@ test("le délai de fabrication vient des fiches : la borne haute, en semaines", 
 
 test("une commande attend sa pièce la plus longue ; à défaut, 8 semaines", () => {
   assert.equal(SEMAINES_PAR_DEFAUT, 8);
-  assert.equal(semainesCommande([fiche("chaise-acier-bois"), fiche("table-mikado")]), 8);
-  assert.equal(semainesCommande([fiche("chaise-acier-bois"), fiche("garde-corps")]), 6);
+  assert.equal(semainesCommande([fiche("fauteuil-terrasse"), fiche("table-mikado")]), 8);
+  assert.equal(semainesCommande([fiche("fauteuil-terrasse"), fiche("garde-corps")]), 6);
   assert.equal(semainesCommande([fiche("table-resine-mikado")]), SEMAINES_PAR_DEFAUT);
   assert.equal(semainesCommande([]), SEMAINES_PAR_DEFAUT);
 });
