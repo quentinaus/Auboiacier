@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { isLocale, defaultLocale } from "@/lib/i18n";
@@ -7,6 +8,8 @@ import { metadataPage, jsonLdFilAriane, scriptJsonLd } from "@/lib/seo";
 import { serif } from "@/lib/fonts";
 import { hoverZoomSubtle } from "@/lib/ui";
 import { ProductTail } from "@/components/product-tail";
+import { BandeauDetail } from "@/components/bandeau-detail";
+import { Apparition } from "@/components/apparition";
 
 
 export async function generateMetadata({
@@ -31,6 +34,8 @@ export default async function VerrieresPage({
   const locale = isLocale(lang) ? lang : defaultLocale;
   const dict = await getDictionary(locale);
   const t = dict.verrieres;
+  /** Le titre, la phrase puis le texte arrivent l'un après l'autre (animation CSS, sans attendre le script). */
+  const entree = (ms: number) => ({ "--retard": `${ms}ms` }) as CSSProperties;
 
   return (
     <>
@@ -63,8 +68,8 @@ export default async function VerrieresPage({
           />
         </div>
 
-        <div className="px-6 py-8 md:px-8 md:py-10 lg:px-12">
-          <nav aria-label={dict.nav.breadcrumb} className="flex flex-wrap justify-end text-[11px] text-[#7a6f64]">
+        <div className="px-6 pb-12 pt-8 md:px-8 md:pb-10 md:pt-10 lg:px-12">
+          <nav aria-label={dict.nav.breadcrumb} className="flex flex-wrap justify-end text-[13px] text-[#6f6357]">
             <Link href={`/${locale}`} className="hover:text-[#2b2320]">
               {dict.nav.home}
             </Link>
@@ -75,74 +80,70 @@ export default async function VerrieresPage({
             <span className="mx-1.5">/</span>
             <span className="text-[#2b2320]">{t.title}</span>
           </nav>
-          <h1 className={`${serif.className} mt-6 text-3xl text-[#2b2320] md:text-[2rem]`}>{t.title}</h1>
-          <p className="mt-3 text-[15px] leading-relaxed text-[#5c5140]">{t.tagline}</p>
+          <h1
+            className={`${serif.className} entree-monte mt-8 text-[2.4rem] text-balance leading-[1.03] tracking-[-0.02em] text-[#2b2320] sm:text-[3rem]`}
+            style={entree(100)}
+          >
+            {t.title}
+          </h1>
+          <p className="entree-monte mt-4 text-[17px] leading-[1.45] text-[#5c5140] md:mt-5 lg:text-[19px]" style={entree(240)}>
+            {t.tagline}
+          </p>
 
-          <h2 className="mt-8 text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{t.atelierTitle}</h2>
-          <p className="mt-3 text-sm leading-relaxed text-[#4a4038]">{t.intro}</p>
-          <p className="mt-4 text-sm leading-relaxed text-[#4a4038]">{t.body}</p>
+          <div className="entree-monte" style={entree(380)}>
+            <h2 className={`${serif.className} mt-10 text-balance text-[1.4rem] leading-[1.12] tracking-[-0.01em] text-[#2b2320] md:text-[1.7rem]`}>
+              {t.atelierTitle}
+            </h2>
+            <p className="mt-4 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.intro}</p>
+            <p className="mt-4 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.body}</p>
 
-          <div className="mt-8 border-t border-[#e8e1d8] pt-6">
-            <span className="block text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
-              {t.priceTitle}
-            </span>
-            <p className="mt-3 text-sm leading-relaxed text-[#4a4038]">{t.priceBody}</p>
-            <Link
-              href={`/${locale}/zone-intervention`}
-              className="mt-2 inline-block text-sm text-[#2b2320] underline decoration-[#2b2320]/30 underline-offset-4 hover:decoration-[#2b2320]"
-            >
-              {dict.liens.zonePose}
-            </Link>
+            <div className="mt-10 border-t border-[#e8e1d8] pt-8">
+              <span className="surtitre block">{t.priceTitle}</span>
+              <p className="mt-3 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.priceBody}</p>
+              <Link href={`/${locale}/zone-intervention`} className="lien-fleche mt-4 text-[#2b2320]">
+                {dict.liens.zonePose}
+              </Link>
+            </div>
           </div>
 
-          <div className="mt-6 md:sticky md:bottom-0 md:-mx-8 md:border-t md:border-[#e5ddd3] md:bg-white md:px-8 md:py-4 lg:-mx-12 lg:px-12">
-            <Link
-              href={`/${locale}/contact`}
-              className="btn-verre block rounded-full px-8 py-3.5 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-white"
-            >
+          <div className="mt-8 md:sticky md:bottom-0 md:-mx-8 md:border-t md:border-[#e5ddd3] md:bg-white md:px-8 md:py-4 lg:-mx-12 lg:px-12">
+            <Link href={`/${locale}/contact`} className="btn-plein w-full">
               {t.cta}
             </Link>
           </div>
-          <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{dict.artisanat.madeInFrance}</p>
+          <p className="mt-5 text-[14px] text-[#6f6357] md:text-[15px]">{dict.artisanat.madeInFrance}</p>
         </div>
       </div>
 
-      {/* Le détail laiton, en pleine largeur */}
-      <section className="mt-20 grid md:grid-cols-2">
-        <div className="flex items-center bg-[#2b2320] px-8 py-16 md:px-16 md:py-24">
-          <div className="mx-auto max-w-md">
-            <h2 className={`${serif.className} text-3xl text-white md:text-4xl`}>{t.detailTitle}</h2>
-            <p className="mt-6 leading-relaxed text-white/80">{t.detailBody}</p>
-            <p className="mt-10 text-[11px] uppercase tracking-[0.18em] text-white/50">
-              {dict.artisanat.madeInFrance}
-            </p>
-          </div>
-        </div>
-        <div className="relative min-h-[60vh] md:min-h-[80vh]">
-          <Image
-            src="/images/verriere-poignee-laiton.jpg"
-            alt={t.detailAlt}
-            fill
-            sizes="(max-width: 768px) 100vw, 560px"
-            className="object-cover"
-          />
-        </div>
-      </section>
+      {/* Le détail laiton, en pleine largeur : le bandeau commun (même dessin partout). */}
+      <BandeauDetail
+        className="mt-16 md:mt-24"
+        titre={t.detailTitle}
+        corps={t.detailBody}
+        mention={dict.artisanat.madeInFrance}
+        photo={{ src: "/images/verriere-poignee-laiton.jpg", alt: t.detailAlt }}
+      />
 
       {/* Le panneau plein */}
-      <section className="mx-auto mt-24 max-w-6xl px-6">
-        <div className={`relative aspect-[21/9] overflow-hidden rounded-xl bg-white ${hoverZoomSubtle}`}>
-          <Image
-            src="/images/verriere-croisillon.jpg"
-            alt={t.panelAlt}
-            fill
-            sizes="100vw"
-            className="object-cover"
-          />
-        </div>
-        <div className="mt-8 max-w-2xl">
-          <h2 className={`${serif.className} text-2xl text-[#2b2320]`}>{t.panelTitle}</h2>
-          <p className="mt-4 leading-relaxed text-[#4a4038]">{t.panelBody}</p>
+      <section className="px-6 pt-16 md:pt-28">
+        <div className="mx-auto max-w-6xl">
+          <Apparition>
+            <div className={`relative aspect-[4/3] overflow-hidden rounded-[28px] bg-white sm:aspect-[21/9] ${hoverZoomSubtle}`}>
+              <Image
+                src="/images/verriere-croisillon.jpg"
+                alt={t.panelAlt}
+                fill
+                sizes="(max-width: 1200px) 100vw, 1152px"
+                className="object-cover"
+              />
+            </div>
+          </Apparition>
+          <Apparition className="mt-10 max-w-3xl md:mt-12">
+            <h2 className={`${serif.className} text-[2rem] text-balance leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.5rem] md:text-[3rem]`}>
+              {t.panelTitle}
+            </h2>
+            <p className="mt-5 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.panelBody}</p>
+          </Apparition>
         </div>
       </section>
 

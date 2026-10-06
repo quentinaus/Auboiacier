@@ -301,11 +301,11 @@ export function CartView({
 
   if (lines.length === 0) {
     return (
-      <div className="rounded-2xl border border-[#e8e1d8] bg-white p-10 text-center">
-        <p className="text-[#5c5140]">{t.empty}</p>
+      <div className="rounded-[28px] bg-[#f5f1ea] px-6 py-14 text-center md:py-20">
+        <p className="text-[17px] leading-[1.45] text-[#4a4038] md:text-[21px]">{t.empty}</p>
         <Link
           href={`/${locale}/artisanat`}
-          className="btn-verre mt-6 inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
+          className="btn-plein mt-8"
         >
           {t.backToShop}
         </Link>
@@ -341,10 +341,10 @@ export function CartView({
 
   /** Une ligne du panier : la pièce ou le service, son prix, et de quoi la modifier. */
   const rangee = (line: (typeof lines)[number]) => (
-            <li key={line.id} className="flex gap-5 py-6">
-              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-[#f2f2f1]">
+            <li key={line.id} className="flex gap-4 py-7 sm:gap-6 md:py-8">
+              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[16px] bg-[#f2f2f1] sm:h-24 sm:w-24 md:h-28 md:w-28">
                 {line.image && (
-                  <Image src={line.image} alt={line.name} fill sizes="80px" className="object-cover" />
+                  <Image src={line.image} alt={line.name} fill sizes="112px" className="object-cover" />
                 )}
                 {line.visite && (
                   /* Une visite : un calendrier ; une pose ou une livraison : la route ; un retrait : l'atelier. */
@@ -356,7 +356,7 @@ export function CartView({
                     strokeWidth="1.4"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="h-full w-full p-5"
+                    className="h-full w-full p-5 md:p-7"
                   >
                     {line.retrait ? (
                       <>
@@ -383,15 +383,15 @@ export function CartView({
               <div className="flex min-w-0 flex-1 flex-col">
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <h2 className={`${serif.className} text-lg leading-snug text-[#2b2320]`}>{line.name}</h2>
-                    {line.options && <p className="mt-1 text-sm text-[#726757]">{line.options}</p>}
+                    <h2 className={`${serif.className} text-[1.25rem] leading-[1.15] tracking-[-0.01em] text-[#2b2320] md:text-[1.45rem]`}>{line.name}</h2>
+                    {line.options && <p className="mt-1.5 text-[15px] leading-[1.45] text-[#5c5140]">{line.options}</p>}
                   </div>
-                  <p className="whitespace-nowrap font-medium tabular-nums text-[#2b2320]">
+                  <p className="whitespace-nowrap text-[17px] font-medium tabular-nums text-[#2b2320]">
                     {line.unitPrice !== null ? prixAffiche(line.unitPrice * line.quantity, locale) : "…"}
                   </p>
                 </div>
 
-                <div className="mt-3 flex items-center gap-4">
+                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
                   {!line.visite && (
                     <div className="flex items-center rounded-full border border-[#9a8d80]">
                       {/* Un lecteur d'écran entend « moins », « plus », « retirer » :
@@ -404,16 +404,16 @@ export function CartView({
                             setAnnonce(fr ? `${line.name} retiré du panier` : `${line.name} removed from the cart`);
                           }
                         }}
-                        className="px-3 py-1.5 text-[#5c5140] hover:text-[#2a2116]"
+                        className="px-3.5 py-2 text-[17px] leading-none text-[#5c5140] hover:text-[#2a2116]"
                         aria-label={fr ? `Diminuer la quantité — ${line.name}` : `Decrease quantity — ${line.name}`}
                       >
                         −
                       </button>
-                      <span className="min-w-6 text-center text-sm tabular-nums">{line.quantity}</span>
+                      <span className="min-w-6 text-center text-[15px] tabular-nums">{line.quantity}</span>
                       <button
                         type="button"
                         onClick={() => setQuantity(line.id, line.quantity + 1)}
-                        className="px-3 py-1.5 text-[#5c5140] hover:text-[#2a2116]"
+                        className="px-3.5 py-2 text-[17px] leading-none text-[#5c5140] hover:text-[#2a2116]"
                         aria-label={fr ? `Augmenter la quantité — ${line.name}` : `Increase quantity — ${line.name}`}
                       >
                         +
@@ -423,7 +423,7 @@ export function CartView({
 
                   {/* Le prix unitaire ne se répète que s'il y en a plusieurs. */}
                   {!line.visite && line.quantity > 1 && line.unitPrice !== null && (
-                    <span className="text-sm tabular-nums text-[#726757]">
+                    <span className="text-[15px] tabular-nums text-[#6f6357]">
                       {prixAffiche(line.unitPrice, locale)} × {line.quantity}
                     </span>
                   )}
@@ -438,7 +438,7 @@ export function CartView({
                       setAnnonce(fr ? `${line.name} retiré du panier` : `${line.name} removed from the cart`);
                     }}
                     aria-label={fr ? `${t.remove} ${line.name} du panier` : `${t.remove} ${line.name} from the cart`}
-                    className="ml-auto -my-1 py-1 text-xs text-[#726757] underline underline-offset-4 hover:text-black"
+                    className="ml-auto -my-1 py-1 text-[15px] text-[#5c5140] underline decoration-[#5c5140]/40 underline-offset-4 hover:text-black hover:decoration-black"
                   >
                     {t.remove}
                   </button>
@@ -451,32 +451,32 @@ export function CartView({
   return (
     <div>
       {stale.length > 0 && (
-        <p role="status" className="mb-6 rounded-xl border border-[#e8e1d8] px-5 py-4 text-sm text-[#2b2320]">
+        <p role="status" className="mb-8 rounded-[18px] bg-[#f5f1ea] px-5 py-4 text-[15px] leading-[1.5] text-[#2b2320] md:text-[16px]">
           {t.removedLine}
         </p>
       )}
 
       {/* Deux colonnes : les lignes à gauche, le récapitulatif et le paiement
           à droite, comme un comptoir. Sur téléphone, l'un sous l'autre. */}
-      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-16">
+      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-16">
         <ul className="divide-y divide-[#e8e1d8] border-t border-[#e8e1d8]">
           {[
             ...lines.filter((l) => !l.visite).map(rangee),
             // Plusieurs garde-corps : la remise, une ligne à elle, comme sur la page de paiement.
             remise < 0 ? (
-              <li key="remise" className="flex gap-5 py-6">
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-[#f2f2f1]" aria-hidden>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="#7a6f64" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="h-full w-full p-5">
+              <li key="remise" className="flex gap-4 py-7 sm:gap-6 md:py-8">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[16px] bg-[#f2f2f1] sm:h-24 sm:w-24 md:h-28 md:w-28" aria-hidden>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#7a6f64" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="h-full w-full p-5 md:p-7">
                     <path d="M3 12V4h8l10 10-8 8z" />
                     <circle cx="7.5" cy="8.5" r="1.4" />
                   </svg>
                 </div>
                 <div className="flex min-w-0 flex-1 items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <h2 className={`${serif.className} text-lg leading-snug text-[#2b2320]`}>{t.lot}</h2>
-                    <p className="mt-1 text-sm text-[#726757]">{t.remiseNote}</p>
+                    <h2 className={`${serif.className} text-[1.25rem] leading-[1.15] tracking-[-0.01em] text-[#2b2320] md:text-[1.45rem]`}>{t.lot}</h2>
+                    <p className="mt-1.5 text-[15px] leading-[1.45] text-[#5c5140]">{t.remiseNote}</p>
                   </div>
-                  <p className="whitespace-nowrap font-medium tabular-nums text-[#2b2320]">{prixAffiche(remise, locale)}</p>
+                  <p className="whitespace-nowrap text-[17px] font-medium tabular-nums text-[#2b2320]">{prixAffiche(remise, locale)}</p>
                 </div>
               </li>
             ) : null,
@@ -486,9 +486,10 @@ export function CartView({
 
         {/* Le récapitulatif, collé en haut quand la liste défile. */}
         <aside className="lg:sticky lg:top-8 lg:self-start">
-          <div className="rounded-2xl border border-[#e8e1d8] p-6">
-            <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{t.recap}</h2>
-            <dl className="mt-4 space-y-2.5 text-sm">
+          {/* Façon Apple (Quentin, 06/10/2026) : un panneau papier, un vrai titre, des montants lisibles. */}
+          <div className="rounded-[28px] bg-[#f5f1ea] p-6 md:p-8">
+            <h2 className={`${serif.className} text-[1.4rem] leading-[1.12] tracking-[-0.01em] text-[#2b2320] md:text-[1.7rem]`}>{t.recap}</h2>
+            <dl className="mt-5 space-y-3 text-[16px]">
               <div className="flex justify-between gap-4">
                 <dt className="text-[#5c5140]">{t.pieces}</dt>
                 <dd className="tabular-nums text-[#2b2320]">{prixConnus ? prixAffiche(totalPieces, locale) : "…"}</dd>
@@ -523,21 +524,21 @@ export function CartView({
                   <dd className="tabular-nums text-[#2b2320]">{lignePose.unitPrice !== null ? prixAffiche(lignePose.unitPrice, locale) : "…"}</dd>
                 </div>
               )}
-              <div className="flex items-baseline justify-between gap-4 border-t border-[#e8e1d8] pt-3">
-                <dt className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{t.total}</dt>
-                <dd className="text-2xl font-medium tabular-nums text-[#2b2320]">{prixConnus ? prixAffiche(total, locale) : "…"}</dd>
+              <div className="flex items-baseline justify-between gap-4 border-t border-[#e0d7cb] pt-4">
+                <dt className="text-[17px] font-semibold text-[#2b2320]">{t.total}</dt>
+                <dd className="text-[1.75rem] font-medium tracking-[-0.01em] tabular-nums text-[#2b2320]">{prixConnus ? prixAffiche(total, locale) : "…"}</dd>
               </div>
             </dl>
             {/* En attendant le serveur : les prix arrivent, rien ne se paie encore. */}
-            {!prixConnus && !tarifCourant && <p className="mt-3 text-xs text-[#726757]">{t.tarifCalcul}</p>}
-            <p className="mt-3 text-xs leading-relaxed text-[#726757]">{t.shippingNote}</p>
+            {!prixConnus && !tarifCourant && <p className="mt-3 text-[14px] text-[#6f6357]">{t.tarifCalcul}</p>}
+            <p className="mt-3 text-[14px] leading-[1.5] text-[#6f6357]">{t.shippingNote}</p>
 
             {ouvert ? (
               <>
             {/* La ville, avant tout le reste : c'est la première chose que Quentin
                 regarde en recevant une commande. */}
-            <div className="mt-6">
-              <label htmlFor={idVille} className="block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6f6357]">
+            <div className="mt-7">
+              <label htmlFor={idVille} className="block text-[15px] font-medium text-[#2b2320]">
                 {t.city}
               </label>
               <input
@@ -552,11 +553,11 @@ export function CartView({
                 placeholder={t.cityPh}
                 aria-invalid={showVilleError && !ville.trim()}
                 aria-describedby={showVilleError && !ville.trim() ? idVilleErreur : undefined}
-                className="mt-2 w-full rounded-full border border-[#9a8d80] bg-white px-4 py-2.5 text-sm text-[#2b2320] transition-colors placeholder:text-[#726757] focus:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
+                className="mt-2 w-full rounded-full border border-[#9a8d80] bg-white px-4 py-3 text-[16px] text-[#2b2320] transition-colors placeholder:text-[#6f6357] focus:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
               />
-              <p className="mt-2 text-xs leading-relaxed text-[#726757]">{t.cityNote}</p>
+              <p className="mt-2 text-[14px] leading-[1.5] text-[#6f6357]">{t.cityNote}</p>
               {showVilleError && !ville.trim() && (
-                <p id={idVilleErreur} role="alert" className="mt-2 text-sm text-[#2b2320]">
+                <p id={idVilleErreur} role="alert" className="mt-2 text-[15px] text-[#2b2320]">
                   {t.cityRequired}
                 </p>
               )}
@@ -566,12 +567,12 @@ export function CartView({
               locale={locale}
               valeur={connu}
               onChange={setConnu}
-              className="mt-4"
-              classeLibelle="block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6f6357]"
-              classeChamp="mt-2 w-full rounded-full border border-[#9a8d80] bg-white px-4 py-2.5 text-sm text-[#2b2320] transition-colors focus:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
+              className="mt-5"
+              classeLibelle="block text-[14px] font-semibold text-[#5c5140]"
+              classeChamp="mt-2 w-full rounded-full border border-[#9a8d80] bg-white px-4 py-2.5 text-[15px] text-[#2b2320] transition-colors focus:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
             />
 
-            <label className="mt-4 flex items-start gap-3 text-sm text-[#4a4038]">
+            <label className="mt-5 flex items-start gap-3 text-[15px] leading-[1.5] text-[#4a4038]">
               <input
                 type="checkbox"
                 checked={accepted}
@@ -592,7 +593,7 @@ export function CartView({
               </span>
             </label>
             {showCgvError && !accepted && (
-              <p id={idCgvErreur} role="alert" className="mt-2 text-sm text-[#2b2320]">
+              <p id={idCgvErreur} role="alert" className="mt-2 text-[15px] text-[#2b2320]">
                 {t.cgvRequired}
               </p>
             )}
@@ -604,7 +605,7 @@ export function CartView({
                 visite déjà faite. */}
             {visiteAuPanier && (
               <>
-                <label className="mt-4 flex items-start gap-3 text-sm text-[#4a4038]">
+                <label className="mt-5 flex items-start gap-3 text-[15px] leading-[1.5] text-[#4a4038]">
                   <input
                     type="checkbox"
                     checked={avantDelai}
@@ -619,7 +620,7 @@ export function CartView({
                   <span>{t.avantDelaiAccept}</span>
                 </label>
                 {showAvantDelaiError && !avantDelai && (
-                  <p id={idAvantDelaiErreur} role="alert" className="mt-2 text-sm text-[#2b2320]">
+                  <p id={idAvantDelaiErreur} role="alert" className="mt-2 text-[15px] text-[#2b2320]">
                     {t.avantDelaiRequired}
                   </p>
                 )}
@@ -627,7 +628,7 @@ export function CartView({
             )}
 
             {problem && (
-              <p role="alert" className="mt-5 text-sm leading-relaxed text-[#2b2320]">
+              <p role="alert" className="mt-5 text-[15px] leading-[1.5] text-[#2b2320]">
                 {problem}{" "}
                 <a href={`mailto:${contactEmail}`} className="underline underline-offset-4">
                   {t.writeUs}
@@ -639,15 +640,15 @@ export function CartView({
               type="button"
               onClick={checkout}
               disabled={status === "loading" || !prixConnus || probleme !== null}
-              className="btn-verre mt-6 w-full rounded-full px-8 py-4 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
+              className="btn-plein mt-7 w-full disabled:cursor-not-allowed disabled:opacity-40"
             >
               {status === "loading" ? t.redirecting : t.checkout}
             </button>
-            <p className="mt-4 text-center text-xs leading-relaxed text-[#6f6357]">{t.securedBy}</p>
+            <p className="mt-4 text-center text-[14px] leading-[1.5] text-[#6f6357]">{t.securedBy}</p>
 
             {/* La politique s'informe, elle ne se consent pas : la base légale est
                 le contrat, donc un simple lien, pas une seconde case à cocher. */}
-            <p className="mt-2 text-center text-xs leading-relaxed text-[#6f6357]">
+            <p className="mt-2 text-center text-[14px] leading-[1.5] text-[#6f6357]">
               {t.privacyNote}{" "}
               <Link href={`/${locale}/confidentialite`} className="underline underline-offset-4 hover:text-black">
                 {t.privacyLink}
@@ -658,9 +659,9 @@ export function CartView({
               <>
             {/* Avant l'immatriculation, on n'encaisse pas : le client laisse son
                 e-mail et l'atelier le prévient le jour de l'ouverture. */}
-            <div className="mt-6 rounded-xl border border-[#e8e1d8] bg-[#faf8f5] p-5">
-              <p className="text-sm font-medium text-[#2b2320]">{t.prevenirTitre}</p>
-              <p className="mt-2 text-sm leading-relaxed text-[#4a4038]">{t.prevenirTexte}</p>
+            <div className="mt-7 rounded-[20px] bg-white p-5 md:p-6">
+              <p className="text-[17px] font-semibold leading-[1.35] tracking-[-0.01em] text-[#2b2320]">{t.prevenirTitre}</p>
+              <p className="mt-2 text-[15px] leading-[1.55] text-[#4a4038]">{t.prevenirTexte}</p>
               <InscriptionOuverture
                 t={t}
                 locale={locale}
@@ -671,7 +672,7 @@ export function CartView({
                 )}
               />
             </div>
-            <p className="mt-4 text-center text-sm text-[#4a4038]">
+            <p className="mt-5 text-center text-[15px] leading-[1.5] text-[#4a4038]">
               {t.prevenirDevis}{" "}
               <Link href={`/${locale}/devis`} className="underline underline-offset-4 hover:text-black">
                 {t.prevenirDevisLien}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { isLocale, defaultLocale } from "@/lib/i18n";
@@ -9,6 +10,7 @@ import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
 import { hoverZoom } from "@/lib/ui";
+import { Apparition } from "@/components/apparition";
 
 /**
  * « Métallier à Saumur » : la page de l'atelier et de son terrain. Pas de
@@ -56,8 +58,12 @@ export default async function ZonePage({ params }: PageProps<"/[lang]/zone-inter
   // on y renvoie plutôt que de la recopier.
   const questionMetallier = dict.faq.items.find((item) => item.id === "metallier-saumur");
 
-  const lien =
-    "inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black";
+  /** Les titres de la page, aux tailles de l'accueil (façon Apple, 06/10/2026). */
+  const titreSection = `${serif.className} text-balance text-[2rem] leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.5rem] md:text-[3rem]`;
+  const sousTitre = `${serif.className} text-[1.4rem] leading-[1.12] tracking-[-0.01em] text-[#2b2320] md:text-[1.7rem]`;
+  const texte = "text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]";
+  /** Le titre et la phrase du haut arrivent l'un après l'autre, comme en haut de l'accueil. */
+  const entree = (ms: number) => ({ "--retard": `${ms}ms` }) as CSSProperties;
 
   return (
     <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
@@ -73,54 +79,76 @@ export default async function ZonePage({ params }: PageProps<"/[lang]/zone-inter
       <GlobalHeader locale={locale} dict={dict} />
       <main id="contenu">
 
-      <div className="mx-auto max-w-3xl px-6 pb-16 pt-10 md:pt-14">
-        {/* Le fil d'Ariane visible : le même que celui balisé plus haut. */}
-        <nav aria-label={dict.nav.breadcrumb} className="flex flex-wrap text-[11px] text-[#726757]">
-          <Link href={`/${locale}`} className="hover:text-[#2b2320]">
-            {dict.nav.home}
-          </Link>
-          <span className="mx-1.5">/</span>
-          <span className="text-[#2b2320]">{t.title}</span>
-        </nav>
-        <h1 className={`${serif.className} mt-6 text-3xl font-medium tracking-tight md:text-4xl`}>
-          {t.h1}
-        </h1>
-        <p className="mt-4 leading-relaxed text-[#5c5140]">{t.subtitle}</p>
+      {/* 1. Le titre : le métier et la ville. */}
+      <section className="bg-[#ffffff] px-6 pb-16 pt-10 md:pb-24 md:pt-14">
+        <div className="mx-auto max-w-3xl">
+          {/* Le fil d'Ariane visible : le même que celui balisé plus haut. */}
+          <nav aria-label={dict.nav.breadcrumb} className="flex flex-wrap text-[14px] text-[#6f6357]">
+            <Link href={`/${locale}`} className="hover:text-[#2b2320]">
+              {dict.nav.home}
+            </Link>
+            <span className="mx-1.5">/</span>
+            <span className="text-[#2b2320]">{t.title}</span>
+          </nav>
+          <h1
+            className={`${serif.className} entree-monte mt-10 text-balance text-[2.4rem] leading-[1.03] tracking-[-0.02em] md:mt-14 sm:text-[3rem] md:text-[3.8rem]`}
+            style={entree(150)}
+          >
+            {t.h1}
+          </h1>
+          <p
+            className="entree-monte mt-6 text-[17px] leading-[1.45] text-[#5c5140] md:mt-7 md:text-[21px]"
+            style={entree(330)}
+          >
+            {t.subtitle}
+          </p>
+        </div>
+      </section>
 
-        {/* Ce que l'atelier fabrique et pose : un lien par métier. */}
-        <section className="mt-12">
-          <h2 className={`${serif.className} text-xl text-[#2b2320]`}>{t.metiersTitle}</h2>
-          <ul className="mt-5 divide-y divide-[#e8e1d8] border-t border-[#e8e1d8]">
-            {metiers.map((metier) => (
-              <li key={metier.href} className="py-4">
-                <Link
-                  href={metier.href}
-                  className="font-medium text-[#2b2320] underline decoration-[#2b2320]/30 underline-offset-4 hover:decoration-[#2b2320]"
-                >
-                  {metier.titre}
-                </Link>
-                <p className="mt-1 text-sm leading-relaxed text-[#4a4038]">{metier.texte}</p>
+      {/* 2. Ce que l'atelier fabrique et pose : un lien par métier. Le lien
+          garde le seul nom du métier ; toute la tuile s'ouvre au clic. */}
+      <section className="bg-[#f5f1ea] px-6 py-16 md:py-28">
+        <div className="mx-auto max-w-6xl">
+          <Apparition>
+            <h2 className={`${titreSection} text-center`}>{t.metiersTitle}</h2>
+          </Apparition>
+          <ul className="mt-10 grid gap-4 sm:grid-cols-2 md:mt-14 md:gap-5 lg:grid-cols-3">
+            {metiers.map((metier, i) => (
+              <li key={metier.href}>
+                <Apparition retard={(i % 3) * 110} className="h-full">
+                  <div className="group relative h-full rounded-[22px] bg-white px-7 py-7 transition-shadow duration-500 hover:shadow-[0_22px_50px_-36px_rgba(43,35,32,0.5)] md:px-8 md:py-8">
+                    {/* Le chevron dit que la tuile s'ouvre ; le calque (before) rend toute la tuile cliquable. */}
+                    <Link
+                      href={metier.href}
+                      className={`${serif.className} text-[1.35rem] leading-[1.15] tracking-[-0.01em] text-[#2b2320] decoration-1 underline-offset-[6px] before:absolute before:inset-0 before:rounded-[22px] before:content-[''] after:ml-1.5 after:inline-block after:transition-transform after:duration-300 after:content-['›'] group-hover:underline group-hover:after:translate-x-1 md:text-[1.5rem]`}
+                    >
+                      {metier.titre}
+                    </Link>
+                    <p className="mt-3 text-[16px] leading-[1.55] text-[#4a4038]">{metier.texte}</p>
+                  </div>
+                </Apparition>
               </li>
             ))}
           </ul>
-        </section>
+        </div>
+      </section>
 
-        <div className="mt-12 flex flex-col gap-10">
-          <section>
-            <h2 className={`${serif.className} text-xl text-[#2b2320]`}>{t.autourTitle}</h2>
-            <p className="mt-3 leading-relaxed text-[#4a4038]">{t.autourBody}</p>
+      {/* 3. Où l'atelier se déplace, et comment se passe un chantier. */}
+      <section className="bg-[#ffffff] px-6 py-16 md:py-28">
+        <div className="mx-auto flex max-w-3xl flex-col gap-14 md:gap-16">
+          <Apparition>
+            <h2 className={sousTitre}>{t.autourTitle}</h2>
+            <p className={`mt-4 ${texte}`}>{t.autourBody}</p>
 
             {pres.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#726757]">
-                  {t.realisationsTitle}
-                </h3>
+              <div className="mt-8">
+                <h3 className="surtitre">{t.realisationsTitle}</h3>
                 <div className="mt-4 grid gap-6 sm:grid-cols-2">
                   {pres.map((photo) => {
                     const legende = dict.realisations[photo.alt];
                     const contenu = (
                       <>
-                        <div className={`relative aspect-[16/10] overflow-hidden rounded-xl ${hoverZoom}`}>
+                        <div className={`relative aspect-[16/10] overflow-hidden rounded-[22px] ${hoverZoom}`}>
                           <Image
                             src={photo.src}
                             alt={legende}
@@ -129,15 +157,15 @@ export default async function ZonePage({ params }: PageProps<"/[lang]/zone-inter
                             className="object-cover"
                           />
                         </div>
-                        <figcaption className="text-sm text-[#726757]">
+                        <figcaption className="text-[15px] leading-[1.5] text-[#5c5140]">
                           <span className="font-medium text-[#2b2320]">{photo.commune}</span> — {legende}
                         </figcaption>
                       </>
                     );
                     return (
-                      <figure key={photo.src} className="flex flex-col gap-2">
+                      <figure key={photo.src} className="flex flex-col gap-3">
                         {photo.lien ? (
-                          <Link href={`/${locale}/artisanat/${photo.lien}`} className="flex flex-col gap-2">
+                          <Link href={`/${locale}/artisanat/${photo.lien}`} className="flex flex-col gap-3">
                             {contenu}
                           </Link>
                         ) : (
@@ -149,71 +177,80 @@ export default async function ZonePage({ params }: PageProps<"/[lang]/zone-inter
                 </div>
               </div>
             )}
-          </section>
+          </Apparition>
 
-          <section>
-            <h2 className={`${serif.className} text-xl text-[#2b2320]`}>{t.voisinsTitle}</h2>
-            <p className="mt-3 leading-relaxed text-[#4a4038]">{t.voisinsBody}</p>
-            <Link href={`/${locale}/rendez-vous`} className={`mt-3 ${lien}`}>
+          <Apparition>
+            <h2 className={sousTitre}>{t.voisinsTitle}</h2>
+            <p className={`mt-4 ${texte}`}>{t.voisinsBody}</p>
+            <Link href={`/${locale}/rendez-vous`} className="lien-fleche mt-4 py-2 text-[#2b2320]">
               {t.rdvLink}
             </Link>
-          </section>
+          </Apparition>
 
           {t.sections.map((section) => (
-            <section key={section.title}>
-              <h2 className={`${serif.className} text-xl text-[#2b2320]`}>{section.title}</h2>
+            <Apparition key={section.title}>
+              <h2 className={sousTitre}>{section.title}</h2>
               {/* Les textes contiennent des retours à la ligne (les étapes d'un
                   chantier) : whitespace-pre-line les respecte. */}
-              <p className="mt-3 whitespace-pre-line leading-relaxed text-[#4a4038]">
+              <p className={`mt-4 whitespace-pre-line ${texte}`}>
                 {section.body}
               </p>
-            </section>
+            </Apparition>
           ))}
         </div>
+      </section>
 
-        {/* Les communes desservies, écrites noir sur blanc. */}
-        <section className="mt-14">
-          <h2 className={`${serif.className} text-xl text-[#2b2320]`}>{t.communesTitle}</h2>
-          <ul className="mt-5 flex flex-wrap gap-2">
-            {ATELIER.zones.map((commune) => (
-              <li
-                key={commune}
-                className="rounded-full border border-[#e5ddd3] bg-white px-4 py-2 text-sm text-[#5c5140]"
-              >
-                {commune}
-              </li>
-            ))}
-          </ul>
-        </section>
+      {/* 4. Les communes desservies, écrites noir sur blanc. */}
+      <section className="bg-[#f5f1ea] px-6 py-16 md:py-28">
+        <div className="mx-auto max-w-4xl">
+          <Apparition>
+            <h2 className={`${titreSection} text-center`}>{t.communesTitle}</h2>
+            <ul className="mt-10 flex flex-wrap justify-center gap-2.5 md:mt-12">
+              {ATELIER.zones.map((commune) => (
+                <li
+                  key={commune}
+                  className="rounded-full bg-white px-[1.1rem] py-2.5 text-[15px] text-[#4a4038]"
+                >
+                  {commune}
+                </li>
+              ))}
+            </ul>
+          </Apparition>
 
-        {questionMetallier && (
-          <p className="mt-12 leading-relaxed text-[#4a4038]">
-            <span className={`${serif.className} text-lg text-[#2b2320]`}>{questionMetallier.q}</span>{" "}
-            <Link
-              href={`/${locale}/faq#${questionMetallier.id}`}
-              className="underline underline-offset-4 hover:text-[#2b2320]"
-            >
-              {t.faqQuestionLink}
-            </Link>
-          </p>
-        )}
+          {questionMetallier && (
+            <Apparition>
+              {/* La question sur sa ligne, le lien dessous : collés, le « ? » partait seul en début de ligne. */}
+              <p className={`mx-auto mt-12 max-w-3xl text-balance text-center md:mt-16 ${texte}`}>
+                <span className={`${serif.className} block text-[1.2rem] text-[#2b2320] md:text-[1.35rem]`}>
+                  {questionMetallier.q.replace(/ ([?!:;])/g, " $1")}
+                </span>{" "}
+                <Link
+                  href={`/${locale}/faq#${questionMetallier.id}`}
+                  className="mt-2 inline-block underline underline-offset-4 hover:text-[#2b2320]"
+                >
+                  {t.faqQuestionLink}
+                </Link>
+              </p>
+            </Apparition>
+          )}
+        </div>
+      </section>
 
-        <section className="mt-14 rounded-xl border border-[#d9cfc0] bg-white px-6 py-7">
-          <h2 className={`${serif.className} text-xl text-[#2b2320]`}>{t.ctaTitle}</h2>
-          <p className="mt-3 leading-relaxed text-[#4a4038]">{t.ctaBody}</p>
-          <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4">
-            <Link
-              href={`/${locale}/contact`}
-              className="btn-verre inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
-            >
+      {/* 5. Une commune absente : on écrit quand même. */}
+      <section className="bg-[#ffffff] px-6 py-16 md:py-28">
+        <Apparition className="mx-auto max-w-3xl text-center">
+          <h2 className={titreSection}>{t.ctaTitle}</h2>
+          <p className={`mx-auto mt-5 max-w-2xl ${texte}`}>{t.ctaBody}</p>
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
+            <Link href={`/${locale}/contact`} className="btn-plein">
               {t.ctaLabel}
             </Link>
-            <Link href={`/${locale}/faq`} className={lien}>
+            <Link href={`/${locale}/faq`} className="lien-fleche py-2 text-[#2b2320]">
               {t.faqLink}
             </Link>
           </div>
-        </section>
-      </div>
+        </Apparition>
+      </section>
 
       </main>
       <SiteFooter locale={locale} dict={dict} tone="light" />

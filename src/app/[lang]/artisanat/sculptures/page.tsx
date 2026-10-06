@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { isLocale, defaultLocale } from "@/lib/i18n";
@@ -7,6 +8,7 @@ import { metadataPage, jsonLdFilAriane, scriptJsonLd } from "@/lib/seo";
 import { serif } from "@/lib/fonts";
 import { ProductTail } from "@/components/product-tail";
 import { VideoBoucle } from "@/components/video-boucle";
+import { Apparition } from "@/components/apparition";
 
 
 export async function generateMetadata({
@@ -33,6 +35,8 @@ export default async function SculpturesPage({
   const locale = isLocale(lang) ? lang : defaultLocale;
   const dict = await getDictionary(locale);
   const t = dict.sculptures;
+  /** Le titre, la phrase puis le texte arrivent l'un après l'autre (animation CSS, sans attendre le script). */
+  const entree = (ms: number) => ({ "--retard": `${ms}ms` }) as CSSProperties;
 
   return (
     <>
@@ -65,8 +69,8 @@ export default async function SculpturesPage({
           />
         </div>
 
-        <div className="px-6 py-8 md:px-8 md:py-10 lg:px-12">
-          <nav aria-label={dict.nav.breadcrumb} className="flex flex-wrap justify-end text-[11px] text-[#7a6f64]">
+        <div className="px-6 pb-12 pt-8 md:px-8 md:pb-10 md:pt-10 lg:px-12">
+          <nav aria-label={dict.nav.breadcrumb} className="flex flex-wrap justify-end text-[13px] text-[#6f6357]">
             <Link href={`/${locale}`} className="hover:text-[#2b2320]">
               {dict.nav.home}
             </Link>
@@ -77,44 +81,46 @@ export default async function SculpturesPage({
             <span className="mx-1.5">/</span>
             <span className="text-[#2b2320]">{t.title}</span>
           </nav>
-          <h1 className={`${serif.className} mt-6 text-3xl text-[#2b2320] md:text-[2rem]`}>{t.title}</h1>
-          <p className="mt-3 text-[15px] leading-relaxed text-[#5c5140]">{t.tagline}</p>
+          <h1
+            className={`${serif.className} entree-monte mt-8 text-[2.4rem] text-balance leading-[1.03] tracking-[-0.02em] text-[#2b2320] sm:text-[3rem]`}
+            style={entree(100)}
+          >
+            {t.title}
+          </h1>
+          <p className="entree-monte mt-4 text-[17px] leading-[1.45] text-[#5c5140] md:mt-5 lg:text-[19px]" style={entree(240)}>
+            {t.tagline}
+          </p>
 
-          <p className="mt-8 text-sm leading-relaxed text-[#4a4038]">{t.intro}</p>
-          <p className="mt-4 text-sm leading-relaxed text-[#4a4038]">{t.body}</p>
+          <div className="entree-monte" style={entree(380)}>
+            <p className="mt-8 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.intro}</p>
+            <p className="mt-4 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.body}</p>
+          </div>
 
           {/* Le torse, en vidéo : un tour complet, sans son, en boucle (elle se met en pause d'un clic). */}
-          <div className="mt-8 border-t border-[#e8e1d8] pt-6">
-            <span className="block text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
-              {t.torseTitle}
-            </span>
+          <Apparition className="mt-10 border-t border-[#e8e1d8] pt-8">
+            <span className="surtitre block text-center">{t.torseTitle}</span>
             <VideoBoucle
               src="/videos/torse-acier.mp4"
               poster="/images/torse-acier-poster.jpg"
               description={t.torseVideoAlt}
               libellePause={t.videoPause}
               libelleLecture={t.videoPlay}
-              className="mx-auto mt-4 aspect-[720/1074] w-full max-w-[20rem] rounded-2xl bg-[#e5ddd3]"
+              className="mx-auto mt-5 aspect-[720/1074] w-full max-w-[20rem] rounded-[22px] bg-[#e5ddd3]"
             />
-            <p className="mt-3 text-sm leading-relaxed text-[#4a4038]">{t.torseBody}</p>
+            <p className="mt-5 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.torseBody}</p>
+          </Apparition>
+
+          <div className="mt-10 border-t border-[#e8e1d8] pt-8">
+            <span className="surtitre block">{t.priceTitle}</span>
+            <p className="mt-3 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.priceBody}</p>
           </div>
 
-          <div className="mt-8 border-t border-[#e8e1d8] pt-6">
-            <span className="block text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">
-              {t.priceTitle}
-            </span>
-            <p className="mt-3 text-sm leading-relaxed text-[#4a4038]">{t.priceBody}</p>
-          </div>
-
-          <div className="mt-6 md:sticky md:bottom-0 md:-mx-8 md:border-t md:border-[#e5ddd3] md:bg-white md:px-8 md:py-4 lg:-mx-12 lg:px-12">
-            <Link
-              href={`/${locale}/contact`}
-              className="btn-verre block rounded-full px-8 py-3.5 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-white"
-            >
+          <div className="mt-8 md:sticky md:bottom-0 md:-mx-8 md:border-t md:border-[#e5ddd3] md:bg-white md:px-8 md:py-4 lg:-mx-12 lg:px-12">
+            <Link href={`/${locale}/contact`} className="btn-plein w-full">
               {t.cta}
             </Link>
           </div>
-          <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{dict.artisanat.madeInFrance}</p>
+          <p className="mt-5 text-[14px] text-[#6f6357] md:text-[15px]">{dict.artisanat.madeInFrance}</p>
         </div>
       </div>
 

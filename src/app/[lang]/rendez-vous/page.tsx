@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { isLocale, defaultLocale } from "@/lib/i18n";
@@ -8,6 +9,7 @@ import { serif } from "@/lib/fonts";
 import { hoverZoom } from "@/lib/ui";
 import { products, productLocalise } from "@/lib/products";
 import { DevisForm } from "@/components/devis-form";
+import { Apparition } from "@/components/apparition";
 import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -38,101 +40,124 @@ export default async function RendezVousPage({ params }: PageProps<"/[lang]/rend
   const t = dict.rdv;
   const pieces = products.filter((p) => p.priseDeCotes).map((p) => productLocalise(p, locale));
 
-  const bouton = "inline-flex items-center justify-center rounded-full px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] transition-colors";
+  /** Le titre, la phrase puis les boutons arrivent l'un après l'autre, comme en haut de l'accueil. */
+  const entree = (ms: number) => ({ "--retard": `${ms}ms` }) as CSSProperties;
 
   return (
     <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
       <GlobalHeader locale={locale} dict={dict} />
       <main id="contenu">
-        <section className="border-b border-[#e5ddd3] px-6 pb-14 pt-16 md:pb-20 md:pt-24">
+        <section className="px-6 pb-16 pt-16 md:pb-28 md:pt-28">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#2b2320]">{t.eyebrow}</p>
-            <h1 className={`${serif.className} mt-4 text-3xl leading-tight sm:text-4xl md:text-[3rem] md:leading-[1.1]`}>{t.h1}</h1>
-            <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-[#5c5140] md:text-lg">{t.lead}</p>
-            <div className="mt-9 flex flex-col items-center justify-center gap-5 sm:flex-row sm:items-start sm:gap-4">
-              <div className="flex flex-col items-center gap-2">
-                <a href="#pieces" className={`${bouton} btn-verre text-white`}>
+            <p className="surtitre entree-monte" style={entree(100)}>{t.eyebrow}</p>
+            <h1
+              className={`${serif.className} entree-monte mt-4 text-balance text-[2.4rem] leading-[1.03] tracking-[-0.02em] sm:text-[3rem] md:text-[3.8rem]`}
+              style={entree(200)}
+            >
+              {t.h1}
+            </h1>
+            <p
+              className="entree-monte mx-auto mt-6 max-w-2xl text-[17px] leading-[1.45] text-[#5c5140] md:mt-7 md:text-[21px]"
+              style={entree(380)}
+            >
+              {t.lead}
+            </p>
+            <div
+              className="entree-monte mt-10 flex flex-col items-center justify-center gap-6 sm:flex-row sm:items-start sm:gap-5"
+              style={entree(560)}
+            >
+              <div className="flex flex-col items-center gap-2.5">
+                <a href="#pieces" className="btn-plein">
                   {t.ctaPieces}
                 </a>
-                <span className="text-xs text-[#6f6357]">{t.ctaPiecesNote}</span>
+                <span className="text-[14px] text-[#6f6357]">{t.ctaPiecesNote}</span>
               </div>
-              <div className="flex flex-col items-center gap-2">
-                <a href="#formulaire" className={`${bouton} border border-[#2b2320]/25 text-[#2b2320] hover:border-black hover:text-black`}>
+              <div className="flex flex-col items-center gap-2.5">
+                <a href="#formulaire" className="btn-contour">
                   {t.ctaAutre}
                 </a>
-                <span className="text-xs text-[#6f6357]">{t.ctaAutreNote}</span>
+                <span className="text-[14px] text-[#6f6357]">{t.ctaAutreNote}</span>
               </div>
             </div>
           </div>
 
-          <div className="mx-auto mt-14 max-w-5xl md:mt-20">
-            <p className="text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{t.etapesTitle}</p>
-            <ol className="mt-6 grid gap-4 md:grid-cols-3">
+          <div className="mx-auto mt-20 max-w-6xl md:mt-28">
+            <Apparition>
+              <p className="surtitre text-center">{t.etapesTitle}</p>
+            </Apparition>
+            <ol className="mt-8 grid gap-4 md:grid-cols-3 md:gap-5">
               {t.etapes.map((etape, i) => (
-                <li key={etape.titre} className="rounded-2xl border border-[#e5ddd3] bg-white px-6 py-6">
-                  <span aria-hidden className={`${serif.className} inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#2b2320] text-base`}>
-                    {i + 1}
-                  </span>
-                  <h2 className={`${serif.className} mt-4 text-xl`}>{etape.titre}</h2>
-                  <p className="mt-2 text-sm leading-relaxed text-[#6f6357]">{etape.texte}</p>
+                <li key={etape.titre}>
+                  <Apparition retard={(i % 4) * 110} className="h-full rounded-[22px] bg-[#f5f1ea] px-7 py-8 md:px-8 md:py-9">
+                    <span aria-hidden className={`${serif.className} inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#2b2320] text-[17px]`}>
+                      {i + 1}
+                    </span>
+                    <h2 className={`${serif.className} mt-5 text-[1.4rem] leading-[1.12] tracking-[-0.01em] md:text-[1.7rem]`}>{etape.titre}</h2>
+                    <p className="mt-3 text-[16px] leading-[1.55] text-[#5c5140] md:text-[17px]">{etape.texte}</p>
+                  </Apparition>
                 </li>
               ))}
             </ol>
           </div>
         </section>
 
-        <section id="pieces" className="scroll-mt-24 px-6 py-16 md:py-24">
+        <section id="pieces" className="scroll-mt-24 bg-[#f5f1ea] px-6 py-16 md:py-28">
           <div className="mx-auto max-w-6xl">
-            <div className="max-w-2xl">
-              <h2 className={`${serif.className} text-3xl md:text-4xl`}>{t.piecesTitle}</h2>
-              <p className="mt-4 leading-relaxed text-[#5c5140]">{t.piecesSubtitle}</p>
+            <Apparition className="max-w-3xl">
+              <h2 className={`${serif.className} text-balance text-[2rem] leading-[1.05] tracking-[-0.018em] sm:text-[2.5rem] md:text-[3rem]`}>
+                {t.piecesTitle}
+              </h2>
+              <p className="mt-5 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.piecesSubtitle}</p>
               {/* Jusqu'où l'atelier se déplace : la page de la zone le dit. */}
-              <Link
-                href={`/${locale}/zone-intervention`}
-                className="mt-3 inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"
-              >
+              <Link href={`/${locale}/zone-intervention`} className="lien-fleche mt-4 py-2 text-[#2b2320]">
                 {t.zoneLink}
               </Link>
-            </div>
-            <div className="mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-              {pieces.map((product) => {
+            </Apparition>
+            <div className="mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 md:mt-14">
+              {pieces.map((product, i) => {
                 const image = product.images[0];
                 return (
-                  <Link key={product.slug} href={`/${locale}/artisanat/${product.slug}#cotes`} className="group flex flex-col gap-4">
-                    <div className={`relative aspect-[4/3] overflow-hidden rounded-xl ${hoverZoom}`} style={{ backgroundColor: image?.bg ?? "#ffffff" }}>
-                      {image && (
-                        <Image
-                          src={image.src}
-                          alt={image.alt}
-                          fill
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          className={image.fit === "contain" ? "object-contain p-4" : "object-cover"}
-                          style={image.position ? { objectPosition: image.position } : undefined}
-                        />
-                      )}
-                      <span className="absolute left-3 top-3 rounded-full bg-[#2b2320] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-white">
-                        {t.badge}
-                      </span>
-                    </div>
-                    <div>
-                      <h3 className={`${serif.className} text-lg transition-colors duration-300 group-hover:text-black`}>{product.name}</h3>
-                      <p className="mt-1 text-sm text-[#6f6357]">{product.tagline}</p>
-                      <span className="mt-3 inline-block border-b border-[#2b2320] pb-0.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#2b2320]">
-                        {t.cta}
-                      </span>
-                    </div>
-                  </Link>
+                  <Apparition key={product.slug} retard={(i % 3) * 110}>
+                    <Link href={`/${locale}/artisanat/${product.slug}#cotes`} className="group flex flex-col gap-5">
+                      <div className={`relative aspect-[4/3] overflow-hidden rounded-[22px] ${hoverZoom}`} style={{ backgroundColor: image?.bg ?? "#ffffff" }}>
+                        {image && (
+                          <Image
+                            src={image.src}
+                            alt={image.alt}
+                            fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className={image.fit === "contain" ? "object-contain p-4" : "object-cover"}
+                            style={image.position ? { objectPosition: image.position } : undefined}
+                          />
+                        )}
+                        <span className="absolute left-4 top-4 rounded-full bg-[#2b2320] px-3 py-1 text-[13px] font-medium text-white">
+                          {t.badge}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className={`${serif.className} text-[1.35rem] leading-[1.15] tracking-[-0.01em] transition-colors duration-300 group-hover:text-black`}>
+                          {product.name}
+                        </h3>
+                        <p className="mt-1.5 text-[15px] leading-[1.5] text-[#5c5140] md:text-[16px]">{product.tagline}</p>
+                        <span className="lien-fleche mt-3 text-[#2b2320]">{t.cta}</span>
+                      </div>
+                    </Link>
+                  </Apparition>
                 );
               })}
             </div>
           </div>
         </section>
 
-        <section id="formulaire" className="scroll-mt-24 border-t border-[#e5ddd3] px-6 py-16 md:py-24">
+        <section id="formulaire" className="scroll-mt-24 bg-[#ffffff] px-6 py-16 md:py-28">
           <div className="mx-auto max-w-3xl">
-            <h2 className={`${serif.className} text-3xl md:text-4xl`}>{t.formTitle}</h2>
-            <p className="mt-3 leading-relaxed text-[#5c5140]">{t.formSubtitle}</p>
-            <div className="mt-8">
+            <Apparition>
+              <h2 className={`${serif.className} text-balance text-[2rem] leading-[1.05] tracking-[-0.018em] sm:text-[2.5rem] md:text-[3rem]`}>
+                {t.formTitle}
+              </h2>
+              <p className="mt-5 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.formSubtitle}</p>
+            </Apparition>
+            <div className="mt-10 md:mt-12">
               <DevisForm
                 t={dict.contact.form}
                 email={dict.contact.email}

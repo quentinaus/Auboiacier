@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { CartView } from "@/components/cart-view";
 import { serif } from "@/lib/fonts";
 import { commandesOuvertes } from "@/lib/entreprise";
+import { Apparition } from "@/components/apparition";
 
 export async function generateMetadata({
   params,
@@ -34,11 +35,15 @@ export default async function PanierPage({ params }: PageProps<"/[lang]/panier">
       <ArtisanatHeader locale={locale} dict={dict} />
       <main id="contenu">
 
-      <div className="mx-auto max-w-6xl px-6 py-12 md:py-16">
-        <h1 className={`${serif.className} text-3xl font-medium tracking-tight md:text-4xl`}>
-          {t.title}
-        </h1>
-        <div className="mt-10">
+      {/* Façon Apple (Quentin, 06/10/2026) : un grand titre et de l'air ; le panier lui-même n'apparaît pas au
+          défilement (c'est un formulaire). */}
+      <div className="mx-auto max-w-6xl px-6 pb-16 pt-14 md:pb-28 md:pt-20">
+        <Apparition>
+          <h1 className={`${serif.className} text-[2.4rem] leading-[1.03] tracking-[-0.02em] text-[#2b2320] sm:text-[3rem] md:text-[3.8rem]`}>
+            {t.title}
+          </h1>
+        </Apparition>
+        <div className="mt-10 md:mt-14">
           <CartView t={t} locale={locale} contactEmail={dict.contact.email} ouvert={commandesOuvertes()} />
         </div>
       </div>

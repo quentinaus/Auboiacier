@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { isLocale, defaultLocale } from "@/lib/i18n";
@@ -49,30 +50,37 @@ export default async function AvisPage({ params }: PageProps<"/[lang]/avis">) {
     <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
       <ArtisanatHeader locale={locale} dict={dict} />
       <main id="contenu">
-        <div className="mx-auto max-w-2xl px-6 py-20">
-          <div className="rounded-2xl border border-[#e8e1d8] bg-white p-8 text-center md:p-12">
-            <h1 className={`${serif.className} text-3xl text-[#2b2320]`}>{t.titre}</h1>
-            <p className="mt-4 leading-relaxed text-[#4a4038]">{t.intro}</p>
-            <p className="mt-4 leading-relaxed text-[#4a4038]">{fiche ? t.fiche : t.attente}</p>
+        {/* Façon Apple (Quentin, 06/10/2026) : une carte papier sans liseré, le grand titre, un seul bouton plein. La
+            carte monte sans attendre le JavaScript : c'est tout le premier écran. */}
+        <div className="mx-auto max-w-2xl px-6 py-16 md:py-28">
+          <div
+            className="entree-monte rounded-[22px] bg-[#f5f1ea] px-6 py-10 text-center sm:px-10 md:rounded-[28px] md:px-14 md:py-14"
+            style={{ "--retard": "120ms" } as CSSProperties}
+          >
+            <h1 className={`${serif.className} text-[2.4rem] font-normal leading-[1.03] tracking-[-0.02em] text-[#2b2320] sm:text-[3rem] md:text-[3.8rem]`}>
+              {t.titre}
+            </h1>
+            <p className="mx-auto mt-5 max-w-lg text-[17px] leading-[1.45] text-[#4a4038] md:mt-6 md:text-[21px]">{t.intro}</p>
+            <p className="mx-auto mt-4 max-w-lg text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{fiche ? t.fiche : t.attente}</p>
             {fiche && (
               <a
                 href={fiche}
                 target="_blank"
                 rel="noopener"
-                className="btn-verre mt-8 inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
+                className="btn-plein mt-8"
               >
                 {t.boutonFiche}
               </a>
             )}
-            <p className="mt-8 border-t border-[#e8e1d8] pt-6 text-sm leading-relaxed text-[#5c5140]">
+            <p className="mx-auto mt-10 max-w-lg border-t border-[#e5ddd3] pt-7 text-[15px] leading-[1.55] text-[#5c5140] md:text-[16px]">
               {t.question}{" "}
-              <a href={`mailto:${ATELIER.email}`} className="underline underline-offset-4 hover:text-black">
+              <a href={`mailto:${ATELIER.email}`} className="text-[#2b2320] underline decoration-[#2b2320]/30 underline-offset-4 hover:decoration-[#2b2320]">
                 {ATELIER.email}
               </a>
             </p>
             <Link
               href={`/${locale}`}
-              className="mt-6 inline-block text-sm underline underline-offset-4 hover:text-black"
+              className="lien-fleche mt-6 text-[#2b2320]"
             >
               {t.retour}
             </Link>

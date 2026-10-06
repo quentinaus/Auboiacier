@@ -17,11 +17,12 @@ import type { Dictionary } from "@/app/[lang]/dictionaries";
  * les champs des fiches produit, lisible à 3:1 sur blanc.
  */
 const FIELD =
-  "mt-1 w-full rounded-none border-0 border-b border-[#9a8d80] bg-transparent px-0 py-3 text-base text-[#2b2320] transition-[border-color,box-shadow] placeholder:text-[#726757] focus:border-[#2b2320] focus:shadow-[0_1px_0_0_#2b2320] focus:outline-none sm:text-[15px]";
-const LABEL = "block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6f6357]";
+  "mt-1.5 w-full rounded-none border-0 border-b border-[#9a8d80] bg-transparent px-0 py-3 text-[16px] text-[#2b2320] transition-[border-color,box-shadow] placeholder:text-[#6f6357] focus:border-[#2b2320] focus:shadow-[0_1px_0_0_#2b2320] focus:outline-none md:text-[17px]";
+/** L'intitulé d'un champ : une phrase normale, lisible, sans petites capitales espacées (façon Apple, 06/10/2026). */
+const LABEL = "block text-[15px] font-medium leading-snug text-[#2b2320]";
 /** Le type de projet : une rangée de pastilles, comme les options d'une fiche. */
 const PILL =
-  "cursor-pointer rounded-full border border-[#e5ddd3] px-4 py-2 text-sm text-[#2b2320] transition-colors hover:border-[#9a8d80] has-checked:border-[#2b2320] has-checked:bg-[#2b2320] has-checked:text-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-[#2b2320]";
+  "cursor-pointer rounded-full border border-[#e5ddd3] px-[1.1rem] py-2.5 text-[15px] text-[#2b2320] transition-colors hover:border-[#9a8d80] has-checked:border-[#2b2320] has-checked:bg-[#2b2320] has-checked:text-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-[#2b2320]";
 
 /** « 480 Ko », « 2,1 Mo » — « 480 KB », « 2.1 MB » en anglais. */
 function poidsLisible(octets: number, locale: "fr" | "en") {
@@ -181,14 +182,14 @@ export function DevisForm({
         tabIndex={-1}
         role="status"
         aria-live="polite"
-        className="flex flex-col items-center justify-center border-y border-[#e5ddd3] py-16 text-center outline-none"
+        className="flex flex-col items-center justify-center rounded-[22px] bg-[#f5f1ea] px-6 py-16 text-center outline-none"
         style={hauteurForm ? { minHeight: Math.min(hauteurForm, 480) } : undefined}
       >
         <svg aria-hidden="true" viewBox="0 0 24 24" className="h-8 w-8 text-[#2b2320]" fill="none" stroke="currentColor" strokeWidth="1.25">
           <circle cx="12" cy="12" r="11" />
           <path d="M7 12.5l3.2 3.2L17 9" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <p className="mt-5 max-w-md leading-relaxed text-[#2b2320]">{t.success}</p>
+        <p className="mt-5 max-w-md text-[17px] leading-[1.55] text-[#2b2320]">{t.success}</p>
       </div>
     );
   }
@@ -212,7 +213,7 @@ export function DevisForm({
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2">
+      <div className="grid gap-x-10 gap-y-9 sm:grid-cols-2">
         <label className="block">
           <span className={LABEL}>{t.name}</span>
           <input
@@ -268,11 +269,11 @@ export function DevisForm({
       {/* Le type de projet : des pastilles plutôt qu'une liste déroulante, on
           voit d'un coup d'œil ce que l'atelier fait. Un seul choix, le premier
           coché d'avance. */}
-      <fieldset className="mt-9">
+      <fieldset className="mt-10">
         <legend id={idProjet} className={LABEL}>
           {t.project}
         </legend>
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-3.5 flex flex-wrap gap-2">
           {t.projects.map((option, i) => (
             <label key={option} className={PILL}>
               <input type="radio" name="project" value={option} defaultChecked={i === 0} className="sr-only" />
@@ -283,7 +284,7 @@ export function DevisForm({
       </fieldset>
 
       {creneau && (
-        <div className="mt-9">
+        <div className="mt-10">
           <span className={LABEL}>{creneau.label}</span>
           <div className="mt-3">
             <ChoixCreneau valeur={creneauCle} onChange={setCreneauCle} t={creneau.t} locale={locale} texteManque={creneau.manque} />
@@ -294,7 +295,7 @@ export function DevisForm({
 
       {/* Le message : un vrai cadre, pas un simple trait — c'est ici qu'on
           écrit, et ça doit se voir au premier regard. */}
-      <label className="mt-9 block">
+      <label className="mt-10 block">
         <span className={LABEL}>{t.message}</span>
         <textarea
           name="message"
@@ -303,20 +304,20 @@ export function DevisForm({
           rows={7}
           defaultValue={prefill}
           placeholder={t.messagePh}
-          className="mt-3 w-full resize-y rounded-xl border border-[#9a8d80] bg-white px-4 py-3.5 text-base leading-relaxed text-[#2b2320] transition-colors placeholder:text-[#726757] focus:border-[#2b2320] focus:outline-none focus:shadow-[inset_0_0_0_1px_#2b2320] sm:text-[15px]"
+          className="mt-3.5 w-full resize-y rounded-[18px] border border-[#9a8d80] bg-white px-5 py-4 text-[16px] leading-[1.55] text-[#2b2320] transition-colors placeholder:text-[#6f6357] focus:border-[#2b2320] focus:outline-none focus:shadow-[inset_0_0_0_1px_#2b2320] md:text-[17px]"
         />
       </label>
 
       {/* Les pièces jointes : une zone à cliquer, le champ natif reste caché
           mais focusable au clavier, et les fichiers choisis sont nommés dessous. */}
-      <div className="mt-9">
+      <div className="mt-10">
         <span className={LABEL}>{t.files}</span>
         <label
-          className={`mt-3 flex cursor-pointer items-center justify-between gap-4 border border-dashed px-5 py-4 transition-colors hover:border-[#2b2320] has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-[#2b2320] ${
+          className={`mt-3.5 flex cursor-pointer items-center justify-between gap-4 rounded-[18px] border border-dashed px-5 py-4 transition-colors hover:border-[#2b2320] has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-[#2b2320] ${
             fichiersRefuses ? "border-[#b4533a]" : "border-[#9a8d80]"
           }`}
         >
-          <span className="text-sm text-[#2b2320]">{t.filesCta}</span>
+          <span className="text-[15px] text-[#2b2320] md:text-[16px]">{t.filesCta}</span>
           <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4 shrink-0 text-[#2b2320]" fill="none" stroke="currentColor" strokeWidth="1.25">
             <path d="M10 4v12M4 10h12" strokeLinecap="round" />
           </svg>
@@ -339,9 +340,9 @@ export function DevisForm({
             className="sr-only"
           />
         </label>
-        {preparation && <p className="mt-2 text-xs text-[#6f6357]">{t.filesPreparing}</p>}
+        {preparation && <p className="mt-2 text-[13px] text-[#6f6357] md:text-[14px]">{t.filesPreparing}</p>}
         {fichiers.length > 0 && !preparation && (
-          <ul className="mt-2 flex flex-col gap-1 text-sm text-[#2b2320]">
+          <ul className="mt-2.5 flex flex-col gap-1 text-[15px] text-[#2b2320]">
             {fichiers.map((f) => (
               <li key={`${f.name}-${f.size}`} className="flex justify-between gap-4">
                 <span className="truncate">{f.name}</span>
@@ -350,11 +351,11 @@ export function DevisForm({
             ))}
           </ul>
         )}
-        <span id={idFichiersAide} className="mt-2 block text-xs text-[#6f6357]">
+        <span id={idFichiersAide} className="mt-2.5 block text-[13px] leading-[1.5] text-[#6f6357] md:text-[14px]">
           {t.filesHint}
         </span>
         {fichiersRefuses && (
-          <p role="alert" className="mt-1 text-xs text-[#b4533a]">
+          <p role="alert" className="mt-1 text-[13px] text-[#b4533a] md:text-[14px]">
             {t.tooBig}
           </p>
         )}
@@ -379,7 +380,7 @@ export function DevisForm({
       />
 
       {problem && (
-        <div role="alert" className="mt-8 border-l-2 border-[#2b2320] pl-4 text-sm leading-relaxed text-[#2b2320]">
+        <div role="alert" className="mt-9 border-l-2 border-[#2b2320] pl-4 text-[15px] leading-[1.55] text-[#2b2320] md:text-[16px]">
           <p>
             {problem}{" "}
             <a href={`mailto:${email}`} className="underline underline-offset-4">
@@ -398,7 +399,7 @@ export function DevisForm({
                   .filter(Boolean)
                   .join("\n")
               )}`}
-              className="mt-3 inline-block rounded-full border border-[#2b2320] px-6 py-2.5 text-[11px] font-medium uppercase tracking-[0.16em] transition-colors hover:bg-[#2b2320] hover:text-white"
+              className="btn-contour mt-4"
             >
               {t.sendFailedCta}
             </a>
@@ -410,14 +411,14 @@ export function DevisForm({
         type="submit"
         disabled={status === "sending" || preparation}
         aria-busy={status === "sending" || preparation}
-        className="btn-verre mt-10 w-full rounded-full px-8 py-4 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
+        className="btn-plein mt-11 w-full disabled:cursor-not-allowed disabled:opacity-45"
       >
         {status === "sending" ? t.sending : t.submit}
       </button>
 
       {/* L'information exigée au moment de la collecte (art. 13 RGPD) : une
           phrase, et le lien vers la politique qui détaille le reste. */}
-      <p className="mt-4 text-center text-xs leading-relaxed text-[#6f6357]">
+      <p className="mt-5 text-center text-[13px] leading-[1.5] text-[#6f6357] md:text-[14px]">
         {t.privacy}{" "}
         <Link href={`/${locale}/confidentialite`} className="underline underline-offset-4 hover:text-black">
           {t.privacyLink}

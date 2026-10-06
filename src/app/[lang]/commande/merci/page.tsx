@@ -12,6 +12,7 @@ import { getStripe, isStripeConfigured } from "@/lib/stripe";
 import { serif } from "@/lib/fonts";
 import { prixAffiche } from "@/lib/ui";
 import { lienConfirmationOuvert } from "@/lib/confirmation";
+import { Apparition } from "@/components/apparition";
 
 /**
  * Cette page ne se visite qu'au retour du paiement, avec un numéro de commande
@@ -80,26 +81,28 @@ export default async function MerciPage({
       <ArtisanatHeader locale={locale} dict={dict} />
       <main id="contenu">
 
-      <div className="mx-auto max-w-2xl px-6 py-20">
-        <div className="rounded-2xl border border-[#e8e1d8] bg-white p-8 text-center md:p-12">
+      {/* Façon Apple (Quentin, 06/10/2026) : plus de carte bordée ni de capitales espacées ; un grand titre, le
+          récapitulatif sur un fond papier, un seul bouton plein par bloc. */}
+      <div className="mx-auto max-w-3xl px-6 pb-16 pt-16 text-center md:pb-28 md:pt-24">
+        <Apparition>
           {paid ? (
             <>
               <CartClear />
-              <h1 className={`${serif.className} text-3xl text-[#2b2320]`}>{t.thankTitle}</h1>
-              <p className="mt-4 leading-relaxed text-[#4a4038]">{t.thankBody}</p>
+              <h1 className={`${serif.className} text-[2.4rem] leading-[1.03] tracking-[-0.02em] text-[#2b2320] sm:text-[3rem] md:text-[3.8rem]`}>{t.thankTitle}</h1>
+              <p className="mx-auto mt-6 max-w-2xl text-[17px] leading-[1.45] text-[#4a4038] md:text-[21px]">{t.thankBody}</p>
 
-              <dl className="mt-8 flex flex-col gap-2 border-y border-[#e8e1d8] py-6 text-sm">
-                <div className="flex items-baseline justify-between">
-                  <dt className="text-[#726757]">{t.ref}</dt>
-                  <dd className="font-medium tabular-nums text-[#2b2320]">{reference}</dd>
+              <dl className="mx-auto mt-10 flex max-w-xl flex-col gap-3 rounded-[22px] bg-[#f5f1ea] px-6 py-5 text-left text-[16px] md:px-8 md:py-6 md:text-[17px]">
+                <div className="flex items-baseline justify-between gap-4">
+                  <dt className="text-[#5c5140]">{t.ref}</dt>
+                  <dd className="min-w-0 break-all text-right font-semibold tabular-nums text-[#2b2320]">{reference}</dd>
                 </div>
-                <div className="flex items-baseline justify-between">
-                  <dt className="text-[#726757]">{t.amount}</dt>
+                <div className="flex items-baseline justify-between gap-4">
+                  <dt className="text-[#5c5140]">{t.amount}</dt>
                   <dd className="font-medium tabular-nums text-[#2b2320]">{amount}</dd>
                 </div>
               </dl>
 
-              <p className="mt-6 text-sm leading-relaxed text-[#5c5140]">{t.leadTime}</p>
+              <p className="mx-auto mt-6 max-w-xl text-[16px] leading-[1.55] text-[#5c5140] md:text-[17px]">{t.leadTime}</p>
 
               {/* Le même document que celui joint à l'e-mail de confirmation.
                   Une balise <a>, pas un Link : c'est un PDF servi par une
@@ -108,20 +111,20 @@ export default async function MerciPage({
                 href={confirmation}
                 target="_blank"
                 rel="noopener"
-                className="mt-6 inline-block rounded-full border border-[#9a8d80] px-6 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] transition-colors hover:bg-[#f7f4ef]"
+                className="btn-plein mt-8"
               >
                 {t.confirmationPdf}
               </a>
 
               {proposerCompte && (
-                <div className="mt-8 rounded-2xl border border-[#e8e1d8] bg-[#fbfaf8] p-6">
-                  <p className="text-base font-medium text-[#2b2320]">{dict.compte.merciTitre}</p>
-                  <p className="mt-2 text-sm leading-relaxed text-[#5c5140]">
+                <div className="mx-auto mt-12 max-w-xl rounded-[28px] bg-[#f5f1ea] px-6 py-8 md:px-10 md:py-10">
+                  <p className={`${serif.className} text-[1.4rem] leading-[1.12] tracking-[-0.01em] text-[#2b2320] md:text-[1.7rem]`}>{dict.compte.merciTitre}</p>
+                  <p className="mt-3 text-[16px] leading-[1.55] text-[#5c5140] md:text-[17px]">
                     {dict.compte.merciCorps}
                   </p>
                   <Link
                     href={`/${locale}/compte/connexion`}
-                    className="btn-verre mt-5 inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
+                    className="btn-contour mt-6"
                   >
                     {dict.compte.merciBouton}
                   </Link>
@@ -130,18 +133,21 @@ export default async function MerciPage({
             </>
           ) : (
             <>
-              <h1 className={`${serif.className} text-2xl text-[#2b2320]`}>{t.notPaidTitle}</h1>
-              <p className="mt-4 leading-relaxed text-[#4a4038]">{t.notPaidBody}</p>
+              <h1 className={`${serif.className} text-[2.4rem] leading-[1.03] tracking-[-0.02em] text-[#2b2320] sm:text-[3rem] md:text-[3.8rem]`}>{t.notPaidTitle}</h1>
+              <p className="mx-auto mt-6 max-w-2xl text-[17px] leading-[1.45] text-[#4a4038] md:text-[21px]">{t.notPaidBody}</p>
             </>
           )}
 
-          <Link
-            href={`/${locale}/artisanat`}
-            className="btn-verre mt-8 inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
-          >
-            {t.backToShop}
-          </Link>
-        </div>
+          {/* Après un paiement, le bouton plein est le PDF : le retour à la collection devient un lien fléché. */}
+          <div className="mt-10">
+            <Link
+              href={`/${locale}/artisanat`}
+              className={paid ? "lien-fleche text-[#2b2320]" : "btn-plein"}
+            >
+              {t.backToShop}
+            </Link>
+          </div>
+        </Apparition>
       </div>
 
       </main>

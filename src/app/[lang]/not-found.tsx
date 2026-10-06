@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { lang } from "next/root-params";
 import { isLocale, defaultLocale, type Locale } from "@/lib/i18n";
@@ -47,31 +48,31 @@ export default async function NotFound() {
   const dict = await getDictionary(locale);
   const t = dict.introuvable;
 
-  const secondaire =
-    "inline-flex items-center justify-center rounded-full border border-[#2b2320]/25 px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] transition-colors hover:border-black hover:text-black";
-
   return (
     <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
       {/* Next remet le titre de l'accueil après l'hydratation : on le corrige. */}
       <TitreIntrouvable titre={titreComplet(t.title)} />
       <GlobalHeader locale={locale} dict={dict} />
-      <main id="contenu" className="mx-auto max-w-2xl px-6 py-20 text-center md:py-28">
-        <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-[#6f6357]">{t.code}</p>
-        <h1 className={`${serif.className} mt-4 text-3xl md:text-4xl`}>{t.title}</h1>
-        <p className="mx-auto mt-5 max-w-md leading-relaxed text-[#5c5140]">{t.body}</p>
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href={`/${locale}`}
-            className="btn-verre inline-flex items-center justify-center rounded-full px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
-          >
-            {t.home}
-          </Link>
-          <Link href={`/${locale}/artisanat`} className={secondaire}>
-            {t.craft}
-          </Link>
-          <Link href={`/${locale}/devis`} className={secondaire}>
-            {t.quote}
-          </Link>
+      {/* Façon Apple (Quentin, 06/10/2026) : l'accroche en phrase normale, le grand titre, un seul bouton plein, les
+          deux autres sorties en liens fléchés. Le bloc monte sans attendre le JavaScript. */}
+      <main id="contenu" className="mx-auto max-w-3xl px-6 py-20 text-center md:py-32">
+        <div className="entree-monte" style={{ "--retard": "120ms" } as CSSProperties}>
+          <p className="surtitre">{t.code}</p>
+          <h1 className={`${serif.className} mt-3 text-balance text-[2.4rem] font-normal leading-[1.03] tracking-[-0.02em] sm:text-[3rem] md:text-[3.8rem]`}>
+            {t.title}
+          </h1>
+          <p className="mx-auto mt-5 max-w-xl text-[17px] leading-[1.45] text-[#5c5140] md:mt-6 md:text-[21px]">{t.body}</p>
+          <div className="mt-10 flex flex-col items-center justify-center gap-x-8 gap-y-4 sm:flex-row sm:flex-wrap">
+            <Link href={`/${locale}`} className="btn-plein">
+              {t.home}
+            </Link>
+            <Link href={`/${locale}/artisanat`} className="lien-fleche py-2 text-[#2b2320]">
+              {t.craft}
+            </Link>
+            <Link href={`/${locale}/devis`} className="lien-fleche py-2 text-[#2b2320]">
+              {t.quote}
+            </Link>
+          </div>
         </div>
       </main>
       <SiteFooter locale={locale} dict={dict} />

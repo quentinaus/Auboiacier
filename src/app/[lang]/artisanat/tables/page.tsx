@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { isLocale, defaultLocale } from "@/lib/i18n";
@@ -18,6 +19,7 @@ import { hoverZoom, prixAffiche } from "@/lib/ui";
 import { MaterialBubble } from "@/components/material-bubble";
 import { FaqVisible } from "@/components/faq-visible";
 import { questionsTables } from "@/lib/faq-balisees";
+import { Apparition } from "@/components/apparition";
 
 /**
  * Les tables sur mesure, en une page : ce que cherchent ceux qui tapent
@@ -70,8 +72,10 @@ export default async function TablesPage({ params }: PageProps<"/[lang]/artisana
   // Balisées pour Google : chacune ne l'est que sur cette page (src/lib/faq-balisees.ts).
   const questions = questionsTables(dict, formats);
 
-  const lien =
-    "inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black";
+  /** Le premier écran arrive tout de suite (animation CSS) ; la suite monte au défilement. */
+  const entree = (ms: number) => ({ "--retard": `${ms}ms` }) as CSSProperties;
+  const titreSection = `${serif.className} text-[2rem] text-balance leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.5rem] md:text-[3rem]`;
+  const texte = "text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]";
 
   return (
     <div>
@@ -96,40 +100,55 @@ export default async function TablesPage({ params }: PageProps<"/[lang]/artisana
         )}
       />
 
-      <div className="mx-auto max-w-6xl px-6 pb-24 pt-10 md:pt-14">
-        <nav aria-label={dict.nav.breadcrumb} className="flex flex-wrap text-[11px] text-[#726757]">
-          <Link href={`/${locale}`} className="hover:text-[#2b2320]">
-            {dict.nav.home}
-          </Link>
-          <span className="mx-1.5">/</span>
-          <Link href={`/${locale}/artisanat`} className="hover:text-[#2b2320]">
-            {dict.artisanat.breadcrumbShop}
-          </Link>
-          <span className="mx-1.5">/</span>
-          <span className="text-[#2b2320]">{t.title}</span>
-        </nav>
+      {/* 1. Le titre et la promesse. */}
+      <section className="bg-[#ffffff] px-6 pb-16 pt-10 md:pb-24 md:pt-14">
+        <div className="mx-auto max-w-6xl">
+          <nav aria-label={dict.nav.breadcrumb} className="flex flex-wrap text-[13px] text-[#6f6357]">
+            <Link href={`/${locale}`} className="hover:text-[#2b2320]">
+              {dict.nav.home}
+            </Link>
+            <span className="mx-1.5">/</span>
+            <Link href={`/${locale}/artisanat`} className="hover:text-[#2b2320]">
+              {dict.artisanat.breadcrumbShop}
+            </Link>
+            <span className="mx-1.5">/</span>
+            <span className="text-[#2b2320]">{t.title}</span>
+          </nav>
 
-        <h1 className={`${serif.className} mt-6 max-w-3xl text-3xl leading-tight text-[#2b2320] md:text-5xl`}>
-          {t.h1}
-        </h1>
-        <p className="mt-5 max-w-2xl leading-relaxed text-[#5c5140]">{t.intro}</p>
+          <h1
+            className={`${serif.className} entree-monte mt-8 max-w-4xl text-[2.4rem] text-balance leading-[1.03] tracking-[-0.02em] text-[#2b2320] sm:text-[3rem] md:mt-12 md:text-[3.8rem]`}
+            style={entree(100)}
+          >
+            {t.h1}
+          </h1>
+          <p
+            className="entree-monte mt-6 max-w-2xl text-[17px] leading-[1.45] text-[#5c5140] md:mt-7 md:text-[21px]"
+            style={entree(260)}
+          >
+            {t.intro}
+          </p>
+        </div>
+      </section>
 
-        {/* 1. Les modèles, chacun avec le prix calculé par le catalogue. */}
-        <section className="mt-14">
-          <h2 className={`${serif.className} text-2xl text-[#2b2320]`}>{titreModeles}</h2>
-          <p className="mt-2 max-w-2xl text-sm text-[#726757]">{t.modelesNote}</p>
-          <div className="mt-8 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+      {/* 2. Les modèles, chacun avec le prix calculé par le catalogue. */}
+      <section className="bg-[#f5f1ea] px-6 py-16 md:py-28">
+        <div className="mx-auto max-w-6xl">
+          <Apparition className="max-w-3xl">
+            <h2 className={titreSection}>{titreModeles}</h2>
+            <p className="mt-5 text-[16px] leading-[1.55] text-[#5c5140] md:text-[17px]">{t.modelesNote}</p>
+          </Apparition>
+          <div className="mt-10 grid gap-x-8 gap-y-14 sm:grid-cols-2 md:mt-14 lg:grid-cols-3">
             {tables.map((product, index) => {
               const depart = prixDepart(product);
               const image = product.images[0];
               return (
+                <Apparition key={product.slug} retard={(index % 3) * 110}>
                 <Link
-                  key={product.slug}
                   href={`/${locale}/artisanat/${product.slug}`}
-                  className="group flex flex-col gap-4"
+                  className="group flex flex-col gap-5"
                 >
                   <div
-                    className={`relative aspect-[4/3] overflow-hidden rounded-xl ${hoverZoom}`}
+                    className={`relative aspect-[4/3] overflow-hidden rounded-[22px] ${hoverZoom}`}
                     style={{ backgroundColor: image?.bg ?? "#ffffff" }}
                   >
                     {image && (
@@ -144,141 +163,157 @@ export default async function TablesPage({ params }: PageProps<"/[lang]/artisana
                       />
                     )}
                     {product.slug === "table-resine-mikado" && (
-                      <span className="absolute left-3 top-3 rounded-full bg-[#2b2320] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-white">
+                      <span className="absolute left-4 top-4 rounded-full bg-[#2b2320] px-3 py-1 text-[13px] font-medium text-white">
                         {t.riviere}
                       </span>
                     )}
                   </div>
                   <div>
                     <h3
-                      className={`${serif.className} text-lg text-[#2b2320] transition-colors duration-300 group-hover:text-black`}
+                      className={`${serif.className} text-[1.4rem] leading-[1.12] tracking-[-0.01em] text-[#2b2320] transition-colors duration-300 group-hover:text-black md:text-[1.7rem]`}
                     >
                       {product.name}
                     </h3>
-                    <p className="mt-1 text-sm leading-relaxed text-[#5c5140]">{product.tagline}</p>
+                    <p className="mt-1.5 text-[15px] leading-[1.5] text-[#5c5140] md:text-[16px]">{product.tagline}</p>
                     {depart === null ? (
-                      <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.14em] text-[#726757]">
-                        {dict.artisanat.onQuote}
-                      </p>
+                      <p className="mt-2.5 text-[15px] text-[#5c5140] md:text-[16px]">{dict.artisanat.onQuote}</p>
                     ) : (
-                      <p className="mt-2 flex items-baseline gap-2 text-[#726757]">
-                        <span className="text-[11px] font-medium uppercase tracking-[0.14em]">
-                          {dict.artisanat.from}
-                        </span>
-                        <span className="text-[15px] font-medium tabular-nums text-[#2b2320]">
+                      <p className="mt-2.5 flex items-baseline gap-2 text-[15px] text-[#5c5140] md:text-[16px]">
+                        <span>{dict.artisanat.from}</span>
+                        <span className="text-[17px] font-medium tabular-nums text-[#2b2320] md:text-[18px]">
                           {prixAffiche(depart, locale)}
                         </span>
                       </p>
                     )}
-                    <span className="mt-3 inline-block border-b border-[#2b2320] pb-0.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#2b2320]">
-                      {t.configurer}
-                    </span>
+                    <span className="lien-fleche mt-3 text-[#2b2320]">{t.configurer}</span>
                   </div>
                 </Link>
+                </Apparition>
               );
             })}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* 2. Les essences, rangées par prix d'après les écarts du catalogue. */}
-        <section className="mt-20 border-t border-[#e8e1d8] pt-14">
-          <h2 className={`${serif.className} text-2xl text-[#2b2320]`}>{t.essencesTitle}</h2>
-          <p className="mt-2 max-w-2xl text-sm text-[#726757]">{e.note}</p>
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {essences.map((bois) => {
-              const texte = e[bois.id as "pin" | "hetre" | "chene" | "noyer"];
-              if (!texte) return null;
+      {/* 3. Les essences, rangées par prix d'après les écarts du catalogue. */}
+      <section className="bg-[#ffffff] px-6 py-16 md:py-28">
+        <div className="mx-auto max-w-6xl">
+          <Apparition className="max-w-3xl">
+            <h2 className={titreSection}>{t.essencesTitle}</h2>
+            <p className="mt-5 text-[16px] leading-[1.55] text-[#5c5140] md:text-[17px]">{e.note}</p>
+          </Apparition>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 md:mt-14 md:gap-5 lg:grid-cols-4">
+            {essences.map((bois, i) => {
+              const fiche = e[bois.id as "pin" | "hetre" | "chene" | "noyer"];
+              if (!fiche) return null;
               return (
-                <div key={bois.id} className="rounded-2xl border border-[#e8e1d8] bg-white p-6">
+                <Apparition key={bois.id} retard={(i % 4) * 110} className="h-full rounded-[22px] bg-[#f5f1ea] px-7 py-8">
                   <div className="flex items-center gap-3">
                     <MaterialBubble material={bois} className="h-8 w-6" />
-                    <h3 className={`${serif.className} text-lg text-[#2b2320]`}>{bois.label}</h3>
+                    <h3 className={`${serif.className} text-[1.4rem] leading-[1.12] tracking-[-0.01em] text-[#2b2320] md:text-[1.7rem]`}>{bois.label}</h3>
                   </div>
-                  <dl className="mt-4 space-y-3 text-sm leading-relaxed">
+                  <dl className="mt-6 space-y-4 text-[16px] leading-[1.5]">
                     <div>
-                      <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-[#726757]">{e.teinte}</dt>
-                      <dd className="text-[#4a4038]">{texte.teinte}</dd>
+                      <dt className="text-[14px] font-semibold text-[#6f6357]">{e.teinte}</dt>
+                      <dd className="mt-0.5 text-[#4a4038]">{fiche.teinte}</dd>
                     </div>
                     <div>
-                      <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-[#726757]">{e.durete}</dt>
-                      <dd className="text-[#4a4038]">{texte.durete}</dd>
+                      <dt className="text-[14px] font-semibold text-[#6f6357]">{e.durete}</dt>
+                      <dd className="mt-0.5 text-[#4a4038]">{fiche.durete}</dd>
                     </div>
                     <div>
-                      <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-[#726757]">{e.usage}</dt>
-                      <dd className="text-[#4a4038]">{texte.usage}</dd>
+                      <dt className="text-[14px] font-semibold text-[#6f6357]">{e.usage}</dt>
+                      <dd className="mt-0.5 text-[#4a4038]">{fiche.usage}</dd>
                     </div>
                   </dl>
-                </div>
+                </Apparition>
               );
             })}
           </div>
-          <Link href={`/${locale}/bois-massif`} className={`mt-6 ${lien}`}>
-            {dict.liens.boisLong}
-          </Link>
-        </section>
+          <Apparition>
+            <Link href={`/${locale}/bois-massif`} className="lien-fleche mt-8 text-[#2b2320] md:mt-10">
+              {dict.liens.boisLong}
+            </Link>
+          </Apparition>
+        </div>
+      </section>
 
-        {/* 3. Le piétement et ses teintes, lues dans les options de la fiche. */}
-        <section className="mt-20 grid gap-10 border-t border-[#e8e1d8] pt-14 md:grid-cols-2">
-          <div>
-            <h2 className={`${serif.className} text-2xl text-[#2b2320]`}>{t.pietementTitle}</h2>
-            <p className="mt-4 leading-relaxed text-[#4a4038]">{t.pietementBody}</p>
-          </div>
-          <div>
-            <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#726757]">{t.teintesTitle}</h3>
-            <ul className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">
+      {/* 4. Le piétement et ses teintes, lues dans les options de la fiche. */}
+      <section className="bg-[#f5f1ea] px-6 py-16 md:py-28">
+        <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-2 md:gap-16">
+          <Apparition>
+            <h2 className={titreSection}>{t.pietementTitle}</h2>
+            <p className={`mt-6 ${texte}`}>{t.pietementBody}</p>
+          </Apparition>
+          <Apparition retard={110} className="md:pt-3">
+            <h3 className="surtitre">{t.teintesTitle}</h3>
+            <ul className="mt-6 grid grid-cols-2 gap-5 sm:grid-cols-3">
               {reference.metals.map((teinte) => (
-                <li key={teinte.id} className="flex items-center gap-3 text-sm text-[#4a4038]">
+                <li key={teinte.id} className="flex items-center gap-3 text-[15px] text-[#4a4038] md:text-[16px]">
                   <MaterialBubble material={teinte} className="h-8 w-6" />
                   {teinte.label}
                 </li>
               ))}
             </ul>
-          </div>
-        </section>
+          </Apparition>
+        </div>
+      </section>
 
-        {/* 4. Dimensions et fabrication. */}
-        <section className="mt-20 grid gap-10 border-t border-[#e8e1d8] pt-14 md:grid-cols-2">
-          <div>
-            <h2 className={`${serif.className} text-2xl text-[#2b2320]`}>{t.dimensionsTitle}</h2>
-            <p className="mt-4 leading-relaxed text-[#4a4038]">
+      {/* 5. Dimensions et fabrication. */}
+      <section className="bg-[#ffffff] px-6 py-16 md:py-28">
+        <div className="mx-auto grid max-w-6xl gap-14 md:grid-cols-2 md:gap-16">
+          <Apparition>
+            <h2 className={titreSection}>{t.dimensionsTitle}</h2>
+            <p className={`mt-6 ${texte}`}>
               {remplir(t.dimensionsBody, {
                 min: cm(reference.surMesure?.minMm ?? 0),
                 longueur: cm(PLATEAU_MAX_LONGUEUR_MM),
                 largeur: cm(PLATEAU_MAX_LARGEUR_MM),
               })}
             </p>
-          </div>
-          <div>
-            <h2 className={`${serif.className} text-2xl text-[#2b2320]`}>{t.fabricationTitle}</h2>
-            <p className="mt-4 leading-relaxed text-[#4a4038]">
+          </Apparition>
+          <Apparition retard={110}>
+            <h2 className={titreSection}>{t.fabricationTitle}</h2>
+            <p className={`mt-6 ${texte}`}>
               {delai
                 ? remplir(t.fabricationBody, { delai })
                 : // Sans délai écrit sur la fiche, la phrase du délai disparaît.
                   t.fabricationBody.replace(/[^.]*\{delai\}[^.]*\.\s*/, "")}
             </p>
-          </div>
-        </section>
+          </Apparition>
+        </div>
+      </section>
 
-        {/* 5. Questions fréquentes, affichées ET balisées depuis la même liste. */}
-        <FaqVisible titre={t.faqTitle} questions={questions} className="mt-20 max-w-3xl" />
+      {/* 6. Questions fréquentes, affichées ET balisées depuis la même liste. */}
+      <section className="bg-[#f5f1ea] px-6 py-16 md:py-28">
+        <div className="mx-auto max-w-6xl">
+          <Apparition className="max-w-3xl">
+            {/* Le titre de la liste au même corps que les autres titres de section de la page. */}
+            <FaqVisible
+              titre={t.faqTitle}
+              questions={questions}
+              className="[&_h2]:text-[2rem] [&_h2]:leading-[1.05] [&_h2]:tracking-[-0.018em] sm:[&_h2]:text-[2.5rem] md:[&_h2]:text-[3rem] [&_h3]:text-[1.4rem] [&_h3]:leading-[1.12] [&_h3]:tracking-[-0.01em] [&_p]:text-[16px] [&_p]:leading-[1.55] md:[&_p]:text-[17px]"
+            />
+          </Apparition>
+        </div>
+      </section>
 
-        {/* 6. Un projet hors catalogue. */}
-        <section className="mt-20 rounded-xl border border-[#d9cfc0] bg-white px-6 py-7 md:px-10 md:py-10">
-          <h2 className={`${serif.className} text-xl text-[#2b2320] md:text-2xl`}>{t.ctaTitle}</h2>
-          <p className="mt-3 max-w-2xl leading-relaxed text-[#4a4038]">{t.ctaBody}</p>
-          <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4">
-            <Link
-              href={`/${locale}/devis`}
-              className="btn-verre inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
-            >
+      {/* 7. Un projet hors catalogue : un seul bouton plein, le contact en lien. */}
+      <section className="bg-[#ffffff] px-6 py-16 md:py-28">
+        <Apparition className="mx-auto max-w-3xl text-center">
+          {/* L'espace avant « ? » ne se coupe pas : le point d'interrogation ne part pas seul à la ligne. */}
+          <h2 className={titreSection}>{t.ctaTitle.replace(/ ([?!:;])/g, "\u00a0$1")}</h2>
+          <p className="mx-auto mt-6 max-w-2xl text-[17px] leading-[1.5] text-[#5c5140] md:text-[19px]">{t.ctaBody}</p>
+          <div className="mt-10 flex flex-col items-center justify-center gap-x-8 gap-y-5 sm:flex-row">
+            <Link href={`/${locale}/devis`} className="btn-plein">
               {t.ctaDevis}
             </Link>
-            <Link href={`/${locale}/contact`} className={lien}>
+            <Link href={`/${locale}/contact`} className="lien-fleche text-[#2b2320]">
               {t.ctaContact}
             </Link>
           </div>
-        </section>
-      </div>
+        </Apparition>
+      </section>
     </div>
   );
 }

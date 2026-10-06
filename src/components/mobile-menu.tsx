@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { Locale } from "@/lib/i18n";
 import { LocaleSwitcher } from "./locale-switcher";
+import { serif } from "@/lib/fonts";
 
 /**
  * Le menu du téléphone : un bouton, un panneau qui s'ouvre par-dessus la page.
@@ -144,10 +145,11 @@ export function MenuMobile({
             role="dialog"
             aria-modal="true"
             aria-label={navLabel}
-            className="absolute inset-x-0 top-0 max-h-[100dvh] overflow-y-auto border-b border-[#e5ddd3] bg-[#fbfaf8] px-6 pb-8 pt-4 shadow-xl"
+            className="absolute inset-x-0 top-0 max-h-[100dvh] overflow-y-auto border-b border-[#e5ddd3] bg-[#fbfaf8] px-6 pb-10 pt-4 shadow-xl"
           >
+            {/* Façon Apple (Quentin, 06/10/2026) : « Menu » en phrase normale, plus de capitales espacées. */}
             <div className="flex items-center justify-between">
-              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#6f6357]">
+              <span className="text-[15px] font-medium tracking-[-0.01em] text-[#6f6357]">
                 {titreMenu}
               </span>
               <button
@@ -171,20 +173,23 @@ export function MenuMobile({
               </button>
             </div>
 
-            <nav aria-label={navLabel} className="mt-4 flex flex-col">
-              {links.map((link) => (
+            {/* De grands liens, sans filets entre eux, qui arrivent l'un après l'autre à l'ouverture (coupé si le
+                visiteur a demandé moins d'animations). */}
+            <nav aria-label={navLabel} className="mt-5 flex flex-col">
+              {links.map((link, i) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setOuvert(false)}
-                  className="border-t border-[#e8e1d8] py-4 text-base text-[#2a2116]"
+                  style={{ animationDelay: `${i * 30}ms` }}
+                  className={`${serif.className} py-2.5 text-[1.6rem] leading-[1.15] tracking-[-0.01em] text-[#2b2320] motion-safe:animate-[entree-monte_0.5s_cubic-bezier(0.2,0.7,0.2,1)_both]`}
                 >
                   {link.label}
                 </Link>
               ))}
             </nav>
 
-            <div className="mt-6 border-t border-[#e8e1d8] pt-5">
+            <div className="mt-7 border-t border-[#e8e1d8] pt-5">
               <LocaleSwitcher locale={locale} />
             </div>
           </div>

@@ -30,7 +30,7 @@ export function ArtisanatHeader({
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-4">
         <Link
           href={`/${locale}`}
-          className="min-w-0 truncate font-mono text-xs tracking-widest text-[#7f7058] hover:text-[#2a2116]"
+          className="font-display min-w-0 truncate text-[14px] tracking-[0.26em] text-[#5c5140] hover:text-[#2b2320]"
         >
           ← {dict.nav.backToHub}
         </Link>

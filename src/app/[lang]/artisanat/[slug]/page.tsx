@@ -23,6 +23,7 @@ import {
 } from "@/lib/seo";
 import { serif } from "@/lib/fonts";
 import { hoverZoom, hoverZoomSubtle, prixAffiche } from "@/lib/ui";
+import { Apparition } from "@/components/apparition";
 
 /**
  * Le bandeau « Livraison » d'une pièce qui n'a encore aucun prix (sur devis,
@@ -34,6 +35,17 @@ const LIVRAISON_SUR_DEVIS = {
   fr: "Nous livrons partout en France métropolitaine, par transporteur, 90 € au maximum. Si vous préférez, l'atelier vient livrer et poser la pièce lui-même, sur un seul trajet depuis Saumur. Le prix de la livraison ou de la pose est écrit sur votre devis.",
   en: "We deliver anywhere in mainland France by carrier, €90 at most. If you prefer, the workshop delivers and fits the piece itself, in a single trip from Saumur. The delivery or fitting price is written on your quote.",
 } as const;
+
+/**
+ * Les titres en grand : la ponctuation haute (« ? », « : »…) et l'unité d'une
+ * cote ne partent jamais seules à la ligne (« 230 × 210 cm », « mur à mur ? »).
+ * Le texte ne change pas, seules ces espaces deviennent insécables.
+ */
+const sansVeuve = (texte: string) =>
+  texte
+    .replace(/ ([?!:;»])/g, "\u00a0$1")
+    .replace(/(\d) ([×x]) (\d)/g, "$1\u00a0$2\u00a0$3")
+    .replace(/(\d) (cm|mm|m|km|€|K)(?![\p{L}])/gu, "$1\u00a0$2");
 
 /**
  * Les photos à membrane sont carrées ; les blocs éditoriaux les affichent dans
@@ -194,6 +206,8 @@ export default async function ProductPage({
       : []),
   ];
   const hasImages = product.images.length > 0;
+  /** Le titre d'une section sous la fiche, le même dessin que sur l'accueil. */
+  const titreSection = `${serif.className} text-balance text-[2rem] leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.5rem] md:text-[3rem]`;
 
   /** Images des blocs éditoriaux : on pioche dans les coloris pour ne pas répéter la même photo. */
   const sectionImages: {
@@ -287,17 +301,19 @@ export default async function ProductPage({
         />
       </div>
 
-      <div className="mx-auto max-w-6xl px-6 py-6 md:py-8">
+      {/* Sous la fiche, façon Apple (Quentin, 06/10/2026 : « plus premium, moins IA ») : de grands titres, des textes
+          lisibles, des sections qui respirent, blanc et papier en alternance comme sur l'accueil. */}
+      <div className="mx-auto max-w-6xl px-6 py-16 md:py-28">
         {/* 2. Blocs éditoriaux */}
-        <div className="mt-16 flex flex-col gap-16 md:mt-24 md:gap-24">
+        <div className="flex flex-col gap-20 md:gap-32">
           {product.sections.map((section, i) =>
             hasImages ? (
-              <div key={section.title} className="grid items-center gap-10 md:grid-cols-2 md:gap-16">
-                <div className={i % 2 === 1 ? "md:order-2" : ""}>
+              <div key={section.title} className="grid items-center gap-10 md:grid-cols-2 md:gap-16 lg:gap-20">
+                <Apparition className={i % 2 === 1 ? "md:order-2" : ""}>
                   {/* Une photo de studio (fond uni) se montre entière dans le
                       cadre ; une photo d'ambiance le remplit. */}
                   <div
-                    className={`relative aspect-[4/3] overflow-hidden rounded-xl ${hoverZoomSubtle}`}
+                    className={`relative aspect-[4/3] overflow-hidden rounded-[24px] ${hoverZoomSubtle}`}
                     style={{ backgroundColor: section.image ? "#ffffff" : (sectionImages[(i + 1) % sectionImages.length].bg ?? "#ffffff") }}
                   >
                     <Image
@@ -318,66 +334,74 @@ export default async function ProductPage({
                       return <MembraneAnimee box={membraneEn43(glow.box)} clip={glow.clip} />;
                     })()}
                   </div>
-                </div>
-                <div>
-                  <h2 className={`${serif.className} text-2xl text-[#2b2320]`}>{section.title}</h2>
-                  <p className="mt-4 leading-relaxed text-[#4a4038]">{section.body}</p>
-                </div>
+                </Apparition>
+                <Apparition retard={110}>
+                  <h2 className={`${serif.className} text-balance text-[2rem] leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.5rem] md:text-[2.1rem] lg:text-[2.5rem]`}>
+                    {sansVeuve(section.title)}
+                  </h2>
+                  <p className="mt-5 text-[16px] leading-[1.55] text-[#4a4038] md:mt-6 md:text-[17px]">{section.body}</p>
+                </Apparition>
               </div>
             ) : (
-              <div key={section.title} className="rounded-2xl bg-[#f5f1ea] px-8 py-14 md:px-16">
+              <Apparition key={section.title} className="rounded-[28px] bg-[#f5f1ea] px-6 py-14 sm:px-10 md:px-16 md:py-20">
                 <div className="mx-auto max-w-2xl text-center">
-                  <h2 className={`${serif.className} text-2xl text-[#2b2320]`}>{section.title}</h2>
-                  <p className="mt-4 leading-relaxed text-[#4a4038]">{section.body}</p>
+                  <h2 className={titreSection}>{sansVeuve(section.title)}</h2>
+                  <p className="mt-6 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{section.body}</p>
                 </div>
-              </div>
+              </Apparition>
             )
           )}
         </div>
       </div>
 
       {/* 3. Artisanat français */}
-      <section className="mt-24 bg-[#2b2320] px-6 py-20 text-white">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className={`${serif.className} text-3xl`}>{t.craftBandTitle}</h2>
-          <p className="mt-5 leading-relaxed text-white/85">{t.craftBandBody}</p>
-        </div>
+      <section className="bg-[#2b2320] px-6 py-16 text-white md:py-28">
+        <Apparition className="mx-auto max-w-3xl text-center">
+          <h2 className={`${serif.className} text-balance text-[2rem] leading-[1.05] tracking-[-0.018em] sm:text-[2.5rem] md:text-[3rem]`}>
+            {sansVeuve(t.craftBandTitle)}
+          </h2>
+          <p className="mx-auto mt-6 max-w-2xl text-[17px] leading-[1.5] text-white/85 md:text-[19px]">{t.craftBandBody}</p>
+        </Apparition>
       </section>
 
       {/* 4. Livraison */}
-      <section className="bg-[#f5f1ea] px-6 py-20">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className={`${serif.className} text-2xl text-[#2b2320] md:text-3xl`}>
-            {t.deliveryTitle}
-          </h2>
-          <p className="mt-5 leading-relaxed text-[#4a4038]">
+      <section className="bg-[#f5f1ea] px-6 py-16 md:py-28">
+        <Apparition className="mx-auto max-w-3xl text-center">
+          <h2 className={titreSection}>{sansVeuve(t.deliveryTitle)}</h2>
+          <p className="mx-auto mt-6 max-w-2xl text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">
             {prixDepartFiche === null && !product.priseDeCotes
               ? LIVRAISON_SUR_DEVIS[locale]
               : t.deliveryBody}
           </p>
-        </div>
+        </Apparition>
       </section>
 
       <div className="mx-auto max-w-6xl px-6">
-        {/* 5. Descriptif */}
-        <section id="descriptif" className="scroll-mt-24 pt-20">
-          <h2 className={`${serif.className} text-xl text-[#2b2320]`}>{t.descriptifTitle}</h2>
-          <dl className="mt-6 max-w-2xl divide-y divide-[#e8e1d8] border-t border-[#e8e1d8]">
-            {product.specs.map((spec) => (
-              <div key={spec.label} className="grid gap-1 py-4 sm:grid-cols-[11rem_1fr]">
-                <dt className="text-sm text-[#726757]">{spec.label}</dt>
-                <dd className="text-sm leading-relaxed text-[#2b2320]">{spec.value}</dd>
-              </div>
-            ))}
-          </dl>
+        {/* 5. Descriptif : sur grand écran, le titre et les pages utiles à gauche, les caractéristiques à droite. */}
+        <section
+          id="descriptif"
+          className="grid scroll-mt-24 gap-8 py-16 md:py-28 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:grid-rows-[auto_1fr] lg:gap-x-16 lg:gap-y-8"
+        >
+          <Apparition className="lg:col-start-1 lg:row-start-1">
+            <h2 className={titreSection}>{t.descriptifTitle}</h2>
+          </Apparition>
+          <Apparition retard={110} className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+            <dl className="divide-y divide-[#e8e1d8] border-y border-[#e8e1d8]">
+              {product.specs.map((spec) => (
+                <div key={spec.label} className="grid gap-1 py-5 sm:grid-cols-[11rem_1fr] sm:gap-6">
+                  <dt className="text-[15px] text-[#6f6357] md:text-[16px]">{spec.label}</dt>
+                  <dd className="text-[16px] leading-[1.55] text-[#2b2320] md:text-[17px]">{spec.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </Apparition>
           {liensUtiles.length > 0 && (
-            <nav aria-label={dict.liens.titre} className="mt-6 flex max-w-2xl flex-wrap gap-x-6 gap-y-2">
+            <nav
+              aria-label={dict.liens.titre}
+              className="flex flex-wrap gap-x-8 gap-y-2 lg:col-start-1 lg:row-start-2 lg:flex-col lg:items-start lg:self-start"
+            >
               {liensUtiles.map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  className="py-1 text-sm text-[#2b2320] underline decoration-[#2b2320]/30 underline-offset-4 hover:decoration-[#2b2320]"
-                >
+                <Link key={l.href} href={l.href} className="lien-fleche py-1 text-[#2b2320]">
                   {l.label}
                 </Link>
               ))}
@@ -386,20 +410,21 @@ export default async function ProductPage({
         </section>
 
         {/* 6. Délai */}
-        <section className="mt-20 border-t border-[#e8e1d8] pt-16 text-center">
-          <h2 className={`${serif.className} text-2xl text-[#2b2320]`}>{t.delaiTitle}</h2>
-          <p className="mx-auto mt-4 max-w-2xl leading-relaxed text-[#4a4038]">{t.delaiBody}</p>
-          {/* Le bouton doit tenir sa promesse : une pièce du catalogue remonte
-              au choix des dimensions et au bouton d'achat ; une pièce qui ne se
-              vend que sur devis mène au formulaire de contact. */}
-          <Link
-            href={achetable ? "#acheter" : `/${locale}/contact?produit=${product.slug}`}
-            className="btn-verre mt-8 inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
-          >
-            {achetable ? t.delaiCta : t.delaiCtaDevis}
-          </Link>
+        <section className="border-t border-[#e8e1d8] pt-16 text-center md:pt-28">
+          <Apparition className="mx-auto max-w-3xl">
+            <h2 className={titreSection}>{sansVeuve(t.delaiTitle)}</h2>
+            <p className="mx-auto mt-6 max-w-2xl text-[17px] leading-[1.5] text-[#4a4038] md:text-[19px]">{t.delaiBody}</p>
+            {/* Le bouton doit tenir sa promesse : une pièce du catalogue remonte
+                au choix des dimensions et au bouton d'achat ; une pièce qui ne se
+                vend que sur devis mène au formulaire de contact. */}
+            <Link
+              href={achetable ? "#acheter" : `/${locale}/contact?produit=${product.slug}`}
+              className="btn-plein mt-10"
+            >
+              {achetable ? t.delaiCta : t.delaiCtaDevis}
+            </Link>
+          </Apparition>
         </section>
-
       </div>
 
       <ProductTail
@@ -412,44 +437,50 @@ export default async function ProductPage({
       <div className="mx-auto max-w-6xl px-6">
         {/* 11. Vous aimerez aussi */}
         {related.length > 0 && (
-          <div className="border-t border-[#e8e1d8] py-16 pb-24">
-            <h2 className={`${serif.className} text-xl text-[#2b2320]`}>{t.relatedTitle}</h2>
-            <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {related.map((carte) => (
-                <Link key={carte.href} href={carte.href} className="group flex flex-col gap-3">
-                  <div
-                    className={`relative aspect-[4/3] overflow-hidden rounded-xl ${hoverZoom}`}
-                    style={{ backgroundColor: carte.image?.bg ?? "#ffffff" }}
-                  >
-                    {carte.image ? (
-                      <Image
-                        src={carte.image.src}
-                        alt={carte.image.alt}
-                        fill
-                        sizes="(max-width: 640px) 100vw, 33vw"
-                        style={carte.image.position ? { objectPosition: carte.image.position } : undefined}
-                        className={
-                          carte.image.fit === "contain" ? "object-contain p-4" : "object-cover"
-                        }
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-[#f1ece4] p-6">
-                        <span className={`${serif.className} text-center text-2xl text-[#726757]`}>
-                          {carte.nom}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <h3 className={`${serif.className} text-lg text-[#2b2320]`}>{carte.nom}</h3>
-                    <p className="mt-1 text-sm text-[#726757]">{carte.prix}</p>
-                  </div>
-                </Link>
+          <div className="border-t border-[#e8e1d8] py-16 md:py-28">
+            <Apparition>
+              <h2 className={titreSection}>{t.relatedTitle}</h2>
+            </Apparition>
+            <div className="mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 md:mt-14 lg:grid-cols-3">
+              {related.map((carte, i) => (
+                <Apparition key={carte.href} retard={(i % 4) * 110}>
+                  <Link href={carte.href} className="group flex flex-col gap-5">
+                    <div
+                      className={`relative aspect-[4/3] overflow-hidden rounded-[22px] ${hoverZoom}`}
+                      style={{ backgroundColor: carte.image?.bg ?? "#ffffff" }}
+                    >
+                      {carte.image ? (
+                        <Image
+                          src={carte.image.src}
+                          alt={carte.image.alt}
+                          fill
+                          sizes="(max-width: 640px) 100vw, 33vw"
+                          style={carte.image.position ? { objectPosition: carte.image.position } : undefined}
+                          className={
+                            carte.image.fit === "contain" ? "object-contain p-4" : "object-cover"
+                          }
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-[#f1ece4] p-6">
+                          <span className={`${serif.className} text-center text-2xl text-[#5c5140]`}>
+                            {carte.nom}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h3 className={`${serif.className} text-[1.4rem] leading-[1.12] tracking-[-0.01em] text-[#2b2320] md:text-[1.7rem]`}>
+                        {carte.nom}
+                      </h3>
+                      <p className="mt-2 text-[16px] text-[#5c5140] md:text-[17px]">{carte.prix}</p>
+                    </div>
+                  </Link>
+                </Apparition>
               ))}
             </div>
             <Link
               href={`/${locale}/artisanat`}
-              className="mt-10 inline-block text-sm text-[#726757] hover:text-[#2b2320]"
+              className="mt-12 inline-block py-1 text-[16px] font-medium text-[#2b2320] hover:underline hover:underline-offset-4 md:text-[17px]"
             >
               {t.backToCatalogue}
             </Link>

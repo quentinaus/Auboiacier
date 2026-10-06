@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { BandeauDetail } from "@/components/bandeau-detail";
@@ -10,6 +11,20 @@ import { prixAppelGC, prixDepart } from "@/lib/prix-garde-corps.server";
 import { serif } from "@/lib/fonts";
 import { MaterialBubble } from "@/components/material-bubble";
 import { hoverZoom, prixAffiche } from "@/lib/ui";
+import { Apparition } from "@/components/apparition";
+
+/** Une carte du catalogue arrive en montant : tout de suite dans le premier écran (animation CSS, l'image principale
+ *  n'attend pas le script), au défilement ensuite (Apparition). */
+function Arrivee({ premierEcran, retard, children }: { premierEcran: boolean; retard: number; children: ReactNode }) {
+  if (premierEcran) {
+    return (
+      <div className="entree-monte" style={{ "--retard": `${520 + retard}ms` } as CSSProperties}>
+        {children}
+      </div>
+    );
+  }
+  return <Apparition retard={retard}>{children}</Apparition>;
+}
 
 export async function generateMetadata({
   params,
@@ -91,61 +106,91 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
     }))
     .filter((famille) => famille.pieces.length > 0 || famille.page);
 
+  /** Le premier écran arrive tout de suite (animation CSS, sans attendre le script) ; la suite monte au défilement. */
+  const entree = (ms: number) => ({ "--retard": `${ms}ms` }) as CSSProperties;
+
   return (
     <div>
-      <div className="mx-auto max-w-6xl px-6 pb-24 pt-16">
-        <h1 className={`${serif.className} text-4xl text-[#2b2320] md:text-5xl`}>{t.h1}</h1>
-        <p className="mt-4 max-w-xl leading-relaxed text-[#5c5140]">{t.subtitle}</p>
+      {/* 1. Le titre, la phrase, le sommaire. */}
+      <section className="bg-[#ffffff] px-6 pb-12 pt-14 md:pb-16 md:pt-24">
+        <div className="mx-auto max-w-6xl">
+          <h1
+            className={`${serif.className} entree-monte max-w-5xl text-[2.4rem] text-balance leading-[1.03] tracking-[-0.02em] text-[#2b2320] sm:text-[3rem] md:text-[3.8rem]`}
+            style={entree(100)}
+          >
+            {t.h1}
+          </h1>
+          <p
+            className="entree-monte mt-6 max-w-2xl text-[17px] leading-[1.45] text-[#5c5140] md:mt-7 md:text-[21px]"
+            style={entree(260)}
+          >
+            {t.subtitle}
+          </p>
 
-        {/* Le sommaire : une puce par section, pour sauter directement aux
-            garde-corps sans passer devant toutes les tables. */}
-        <nav aria-label={t.famillesNav} className="mt-8 flex flex-wrap gap-2">
-          {sections.map((famille) => (
-            <a
-              key={famille.id}
-              href={`#${famille.id}`}
-              className="rounded-full border border-[#e5ddd3] bg-white px-3.5 py-1.5 text-xs text-[#5c5140] transition-colors hover:border-black hover:text-black"
-            >
-              {famille.titre}
-            </a>
-          ))}
-        </nav>
+          {/* Le sommaire : une puce par section, pour sauter directement aux
+              garde-corps sans passer devant toutes les tables. */}
+          <nav
+            aria-label={t.famillesNav}
+            className="entree-monte mt-10 flex flex-wrap gap-2.5 md:mt-12"
+            style={entree(420)}
+          >
+            {sections.map((famille) => (
+              <a
+                key={famille.id}
+                href={`#${famille.id}`}
+                className="rounded-full border border-[#e5ddd3] bg-white px-4 py-2 text-[14px] text-[#4a4038] transition-colors hover:border-[#1d1d1f] hover:text-[#1d1d1f] md:text-[15px]"
+              >
+                {famille.titre}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </section>
 
-        {sections.map((famille, rang) => {
-          const nombre = famille.pieces.length + (famille.page ? 1 : 0);
-          return (
-            <section key={famille.id} id={famille.id} className="mt-16 scroll-mt-24">
-              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <h2 className={`${serif.className} text-2xl text-[#2b2320]`}>{famille.titre}</h2>
-                <span className="text-xs text-[#726757]">
-                  {(nombre > 1 ? t.familleModelesPluriel : t.familleModeles).replace("{n}", String(nombre))}
-                </span>
-              </div>
-              {famille.note && <p className="mt-2 max-w-xl text-sm text-[#726757]">{famille.note}</p>}
-              {/* Les tables ont leur page : modèles, essences, dimensions, questions. */}
-              {famille.id === "table-interieur" && (
-                <Link
-                  href={`/${locale}/artisanat/tables`}
-                  className="mt-2 inline-block text-[11px] font-medium uppercase tracking-[0.16em] text-[#2b2320] underline underline-offset-4 hover:text-black"
-                >
-                  {dict.liens.toutesTables}
-                </Link>
-              )}
+      {/* 2. Une section par famille, fonds blanc et papier en alternance (comme l'accueil). */}
+      {sections.map((famille, rang) => {
+        const nombre = famille.pieces.length + (famille.page ? 1 : 0);
+        return (
+          <section
+            key={famille.id}
+            id={famille.id}
+            className={`scroll-mt-24 px-6 py-16 md:py-24 ${rang % 2 === 0 ? "bg-[#f5f1ea]" : "bg-[#ffffff]"}`}
+          >
+            <div className="mx-auto max-w-6xl">
+              <Apparition className="max-w-3xl">
+                <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
+                  <h2 className={`${serif.className} text-[2rem] text-balance leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.5rem] md:text-[3rem]`}>
+                    {famille.titre}
+                  </h2>
+                  <span className="text-[15px] text-[#6f6357] md:text-[16px]">
+                    {(nombre > 1 ? t.familleModelesPluriel : t.familleModeles).replace("{n}", String(nombre))}
+                  </span>
+                </div>
+                {famille.note && (
+                  <p className="mt-4 max-w-2xl text-[16px] leading-[1.55] text-[#5c5140] md:text-[17px]">{famille.note}</p>
+                )}
+                {/* Les tables ont leur page : modèles, essences, dimensions, questions. */}
+                {famille.id === "table-interieur" && (
+                  <Link href={`/${locale}/artisanat/tables`} className="lien-fleche mt-4 text-[#2b2320]">
+                    {dict.liens.toutesTables}
+                  </Link>
+                )}
+              </Apparition>
 
-              <div className="mt-6 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="mt-10 grid gap-x-8 gap-y-14 sm:grid-cols-2 md:mt-12 lg:grid-cols-3">
                 {famille.pieces.map((product, index) => {
                   // Le « à partir de » : celui du catalogue ; pour le garde-corps, le prix d'appel de la fiche (« dès 300 € pour
                   // une fenêtre de 100 cm ») : un seul chiffre partout pour le client.
                   const appel = prixAppelGC(product);
                   const depart = appel ? appel.prix : prixDepart(product);
                   return (
+                  <Arrivee key={product.slug} premierEcran={rang === 0} retard={(index % 3) * 110}>
                   <Link
-                    key={product.slug}
                     href={`/${locale}/artisanat/${product.slug}`}
-                    className="group flex flex-col gap-4"
+                    className="group flex flex-col gap-5"
                   >
                     <div
-                      className={`relative aspect-[4/3] overflow-hidden rounded-xl ${hoverZoom}`}
+                      className={`relative aspect-[4/3] overflow-hidden rounded-[22px] ${hoverZoom}`}
                       // Le cadre prend la teinte du fond de la photo : son contour ne se voit plus.
                       style={{ backgroundColor: product.images[0]?.bg ?? "#ffffff" }}
                     >
@@ -169,7 +214,7 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
                       ) : (
                         <div className="flex h-full w-full items-center justify-center bg-[#f1ece4] p-6">
                           <span
-                            className={`${serif.className} text-center text-3xl leading-tight text-[#726757]`}
+                            className={`${serif.className} text-center text-3xl leading-tight text-[#6f6357]`}
                           >
                             {product.name}
                           </span>
@@ -179,26 +224,21 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
 
                     <div>
                       <h3
-                        className={`${serif.className} text-lg text-[#2b2320] transition-colors duration-300 group-hover:text-black`}
+                        className={`${serif.className} text-[1.4rem] leading-[1.12] tracking-[-0.01em] text-[#2b2320] transition-colors duration-300 group-hover:text-black md:text-[1.7rem]`}
                       >
                         {product.name}
                       </h3>
-                      {/* Le chiffre que le client cherche : il avait exactement
-                          la taille et la couleur de la note grise du dessus. */}
+                      {/* Le chiffre que le client cherche, en clair sous le nom. */}
                       {depart === null ? (
-                        <p className="mt-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-[#726757]">
-                          {t.onQuote}
-                        </p>
+                        <p className="mt-2.5 text-[15px] text-[#5c5140] md:text-[16px]">{t.onQuote}</p>
                       ) : (
-                        <p className="mt-1.5 flex items-baseline gap-2 text-[#726757]">
-                          <span className="text-[11px] font-medium uppercase tracking-[0.14em]">
-                            {appel ? (locale === "fr" ? "Dès" : "From") : t.from}
-                          </span>
-                          <span className="text-[15px] font-medium tabular-nums text-[#2b2320]">
+                        <p className="mt-2.5 flex items-baseline gap-2 text-[15px] text-[#5c5140] md:text-[16px]">
+                          <span>{appel ? (locale === "fr" ? "Dès" : "From") : t.from}</span>
+                          <span className="text-[17px] font-medium tabular-nums text-[#2b2320] md:text-[18px]">
                             {prixAffiche(depart, locale)}
                           </span>
                           {appel && (
-                            <span className="text-[12px]">
+                            <span className="text-[14px]">
                               {locale === "fr" ? `fenêtre de ${appel.largeurMm / 10}\u00a0cm` : `${appel.largeurMm / 10} cm window`}
                             </span>
                           )}
@@ -206,10 +246,10 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
                       )}
                       {/* La pièce se configure en ligne : dit sur la carte, c'est ce qui la distingue. */}
                       {(product.surMesure || prixParOutil(product)) && product.orderMode === "cart" && (
-                        <p className="mt-1 text-[11px] text-[#6f6357]">{t.configurable}</p>
+                        <p className="mt-1 text-[14px] text-[#6f6357]">{t.configurable}</p>
                       )}
                       {/* Aperçu des matières disponibles, mêmes pastilles que la fiche produit. */}
-                      <div className="mt-3 flex items-center gap-1.5">
+                      <div className="mt-4 flex items-center gap-1.5">
                         {[...product.woods, ...product.metals, ...(product.fabrics ?? [])]
                           .slice(0, 8)
                           .map((material) => (
@@ -223,15 +263,17 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
                       </div>
                     </div>
                   </Link>
+                  </Arrivee>
                   );
                 })}
 
                 {/* Les verrières et les sculptures se font sur devis, sur leur
                     propre page : une carte vers cette page ferme la section. */}
                 {famille.page && (
-                  <Link href={famille.page.href} className="group flex flex-col gap-4">
+                  <Arrivee premierEcran={rang === 0} retard={(famille.pieces.length % 3) * 110}>
+                  <Link href={famille.page.href} className="group flex flex-col gap-5">
                     <div
-                      className={`relative aspect-[4/3] overflow-hidden rounded-xl bg-white ${hoverZoom}`}
+                      className={`relative aspect-[4/3] overflow-hidden rounded-[22px] bg-white ${hoverZoom}`}
                     >
                       <Image
                         src={famille.page.src}
@@ -245,21 +287,20 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
 
                     <div>
                       <h3
-                        className={`${serif.className} text-lg text-[#2b2320] transition-colors duration-300 group-hover:text-black`}
+                        className={`${serif.className} text-[1.4rem] leading-[1.12] tracking-[-0.01em] text-[#2b2320] transition-colors duration-300 group-hover:text-black md:text-[1.7rem]`}
                       >
                         {famille.page.titre}
                       </h3>
-                      <p className="mt-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-[#726757]">
-                        {t.onQuote}
-                      </p>
+                      <p className="mt-2.5 text-[15px] text-[#5c5140] md:text-[16px]">{t.onQuote}</p>
                     </div>
                   </Link>
+                  </Arrivee>
                 )}
               </div>
-            </section>
-          );
-        })}
-      </div>
+            </div>
+          </section>
+        );
+      })}
 
       {/* Bandeau atelier : panneau sombre et photo, le même dessin partout. */}
       <BandeauDetail

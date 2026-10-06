@@ -91,7 +91,7 @@ export function InscriptionOuverture({
             envoyer();
           }}
         >
-          <label htmlFor={idEmail} className="block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6f6357]">
+          <label htmlFor={idEmail} className="block text-[14px] font-semibold text-[#5c5140]">
             {t.prevenirEmail}
           </label>
           <input
@@ -148,7 +148,7 @@ export function InscriptionOuverture({
           <button
             type="submit"
             disabled={etat === "loading"}
-            className="btn-verre mt-4 w-full rounded-full px-8 py-4 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
+            className="btn-verre mt-4 w-full rounded-full px-6 py-3.5 text-[16px] font-medium text-white"
           >
             {etat === "loading" ? t.prevenirEnvoi : t.prevenirBouton}
           </button>

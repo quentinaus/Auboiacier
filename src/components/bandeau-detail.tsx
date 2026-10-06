@@ -1,12 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import { serif } from "@/lib/fonts";
+import { Apparition } from "@/components/apparition";
 
 /**
  * Le bandeau pleine largeur en deux moitiés : un panneau sombre qui porte le
  * titre et le propos, une photo qui montre le détail dont on parle. C'est le
  * même dessin que « Le détail qui change tout » sur la page des verrières —
  * une seule pièce à régler pour qu'il reste identique partout.
+ *
+ * Façon Apple (Quentin, 06/10/2026 : « plus premium, moins IA ») : un grand
+ * titre, un texte lisible, un seul bouton plein (blanc sur le panneau sombre),
+ * la mention en phrase normale — plus de petites capitales espacées.
  */
 export function BandeauDetail({
   titre,
@@ -20,7 +25,7 @@ export function BandeauDetail({
   titre: string;
   /** Un ou plusieurs paragraphes. */
   corps: string | string[];
-  /** La petite ligne en capitales, sous le texte : « Fabriqué à la main en France ». */
+  /** La petite ligne sous le texte : « Fabriqué en France, à Saumur ». */
   mention?: string;
   cta?: { href: string; label: string };
   photo: { src: string; alt: string; position?: string };
@@ -31,26 +36,25 @@ export function BandeauDetail({
   const paragraphes = Array.isArray(corps) ? corps : [corps];
   return (
     <section className={`grid md:grid-cols-2 ${className}`}>
-      <div className={`flex items-center bg-[#2b2320] px-8 py-16 md:px-16 md:py-24 ${photoAGauche ? "md:order-2" : ""}`}>
-        <div className="mx-auto max-w-md">
-          <h2 className={`${serif.className} text-3xl text-white md:text-4xl`}>{titre}</h2>
+      <div className={`flex items-center bg-[#2b2320] px-6 py-16 sm:px-10 md:px-14 md:py-28 lg:px-20 ${photoAGauche ? "md:order-2" : ""}`}>
+        <Apparition className="mx-auto w-full max-w-md">
+          <h2 className={`${serif.className} text-[2rem] text-balance leading-[1.05] tracking-[-0.018em] text-white sm:text-[2.5rem] md:text-[3rem]`}>
+            {titre}
+          </h2>
           {paragraphes.map((p, i) => (
-            <p key={i} className={`leading-relaxed text-white/80 ${i === 0 ? "mt-6" : "mt-4"}`}>
+            <p key={i} className={`text-[16px] leading-[1.55] text-white/80 md:text-[17px] ${i === 0 ? "mt-6" : "mt-4"}`}>
               {p}
             </p>
           ))}
           {cta && (
-            <Link
-              href={cta.href}
-              className="mt-8 inline-block rounded-full border border-white/40 px-7 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors hover:border-white hover:bg-white hover:text-[#2b2320]"
-            >
+            <Link href={cta.href} className="btn-clair mt-10">
               {cta.label}
             </Link>
           )}
           {mention && (
-            <p className="mt-10 text-[11px] uppercase tracking-[0.18em] text-white/50">{mention}</p>
+            <p className={`${cta ? "mt-8" : "mt-10"} text-[14px] leading-[1.45] text-white/60 md:text-[15px]`}>{mention}</p>
           )}
-        </div>
+        </Apparition>
       </div>
       <div className={`relative min-h-[60vh] md:min-h-[80vh] ${photoAGauche ? "md:order-1" : ""}`}>
         <Image

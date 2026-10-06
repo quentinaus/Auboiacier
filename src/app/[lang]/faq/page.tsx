@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
@@ -7,6 +8,7 @@ import { questionsFaq } from "@/lib/faq-balisees";
 import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
+import { Apparition } from "@/components/apparition";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/faq">): Promise<Metadata> {
   const { lang } = await params;
@@ -49,63 +51,67 @@ export default async function FaqPage({ params }: PageProps<"/[lang]/faq">) {
       <GlobalHeader locale={locale} dict={dict} />
       <main id="contenu">
 
-      <div className="mx-auto max-w-3xl px-6 pb-16 pt-10 md:pt-14">
+      <div className="mx-auto max-w-3xl px-6 pb-16 pt-10 md:pb-28 md:pt-14">
         {/* Le fil d'Ariane visible : le même que celui balisé plus haut. */}
-        <nav aria-label={dict.nav.breadcrumb} className="flex flex-wrap text-[11px] text-[#726757]">
+        <nav aria-label={dict.nav.breadcrumb} className="flex flex-wrap text-[13px] text-[#6f6357]">
           <Link href={`/${locale}`} className="hover:text-[#2b2320]">
             {dict.nav.home}
           </Link>
           <span className="mx-1.5">/</span>
           <span className="text-[#2b2320]">{t.title}</span>
         </nav>
-        <h1 className={`${serif.className} mt-6 text-3xl font-medium tracking-tight md:text-4xl`}>
-          {t.title}
-        </h1>
-        <p className="mt-4 leading-relaxed text-[#5c5140]">{t.subtitle}</p>
+        {/* Le haut de page, façon Apple (Quentin, 06/10/2026) : grand titre et chapô, qui montent sans attendre le
+            JavaScript. */}
+        <div className="entree-monte" style={{ "--retard": "120ms" } as CSSProperties}>
+          <h1 className={`${serif.className} mt-8 text-[2.4rem] font-normal leading-[1.03] tracking-[-0.02em] sm:text-[3rem] md:mt-10 md:text-[3.8rem]`}>
+            {t.title}
+          </h1>
+          <p className="mt-5 text-[17px] leading-[1.45] text-[#5c5140] md:mt-6 md:text-[21px]">{t.subtitle}</p>
+        </div>
 
-        <div className="mt-12 divide-y divide-[#e8e1d8] border-t border-[#e8e1d8]">
+        <div className="mt-12 divide-y divide-[#e8e1d8] border-t border-[#e8e1d8] md:mt-16">
           {t.items.map((item) => (
             // Une ancre sur les questions que d'autres pages citent (« #metallier-saumur »).
-            <section key={item.q} id={"id" in item ? item.id : undefined} className="scroll-mt-24 py-7">
-              <h2 className={`${serif.className} text-lg text-[#2b2320]`}>{item.q}</h2>
-              <p className="mt-3 whitespace-pre-line leading-relaxed text-[#4a4038]">{item.a}</p>
-              {/* Le calcul du garde-corps : la règle en entier, avec des exemples, sur sa propre page. */}
-              {"id" in item && item.id === "calcul-garde-corps" && (
-                <Link
-                  href={`/${locale}/garde-corps-fenetre-normes`}
-                  className="mt-3 inline-block py-1 text-sm text-[#2b2320] underline decoration-[#2b2320]/30 underline-offset-4 hover:decoration-[#2b2320]"
-                >
-                  {dict.liens.normesGc}
-                </Link>
-              )}
+            <section key={item.q} id={"id" in item ? item.id : undefined} className="scroll-mt-24 py-9 md:py-11">
+              <Apparition>
+                <h2 className={`${serif.className} text-[1.4rem] font-normal leading-[1.12] tracking-[-0.01em] text-[#2b2320] md:text-[1.7rem]`}>
+                  {item.q}
+                </h2>
+                <p className="mt-4 whitespace-pre-line text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{item.a}</p>
+                {/* Le calcul du garde-corps : la règle en entier, avec des exemples, sur sa propre page. */}
+                {"id" in item && item.id === "calcul-garde-corps" && (
+                  <Link
+                    href={`/${locale}/garde-corps-fenetre-normes`}
+                    className="lien-fleche mt-4 py-1 text-[#2b2320]"
+                  >
+                    {dict.liens.normesGc}
+                  </Link>
+                )}
+              </Apparition>
             </section>
           ))}
         </div>
 
-        <section className="mt-14 rounded-xl border border-[#d9cfc0] bg-white px-6 py-7">
-          <h2 className={`${serif.className} text-xl text-[#2b2320]`}>{t.ctaTitle}</h2>
-          <p className="mt-3 leading-relaxed text-[#4a4038]">{t.ctaBody}</p>
-          <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4">
-            <Link
-              href={`/${locale}/contact`}
-              className="btn-verre inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
-            >
-              {t.ctaLabel}
-            </Link>
-            <Link
-              href={`/${locale}/zone-intervention`}
-              className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"
-            >
-              {t.zoneLink}
-            </Link>
-            <Link
-              href={`/${locale}/rendez-vous`}
-              className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"
-            >
-              {t.rdvLink}
-            </Link>
-          </div>
-        </section>
+        {/* La sortie : une carte papier, un seul bouton plein, les deux autres en liens fléchés. */}
+        <Apparition className="mt-14 md:mt-20">
+          <section className="rounded-[22px] bg-[#f5f1ea] px-7 py-9 md:rounded-[28px] md:px-12 md:py-12">
+            <h2 className={`${serif.className} text-balance text-[1.75rem] font-normal leading-[1.08] tracking-[-0.01em] text-[#2b2320] md:text-[2.1rem]`}>
+              {t.ctaTitle}
+            </h2>
+            <p className="mt-4 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.ctaBody}</p>
+            <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4">
+              <Link href={`/${locale}/contact`} className="btn-plein">
+                {t.ctaLabel}
+              </Link>
+              <Link href={`/${locale}/zone-intervention`} className="lien-fleche py-2 text-[#2b2320]">
+                {t.zoneLink}
+              </Link>
+              <Link href={`/${locale}/rendez-vous`} className="lien-fleche py-2 text-[#2b2320]">
+                {t.rdvLink}
+              </Link>
+            </div>
+          </section>
+        </Apparition>
       </div>
 
       </main>
