@@ -157,8 +157,8 @@
   },
   "realisations": {
     "title": "Projects and visuals",
-    "subtitle": "The workshop's designs in pictures — tables, railings, staircases, glass partitions, backlit ceilings, sculptures — and the first photos taken on site and in the workshop.",
-    "chantierTitle": "In photos: on site and in the workshop",
+    "subtitle": "The workshop's designs in pictures — tables, railings, staircases, glass partitions, backlit ceilings, sculptures — and, in photos, work made by Quentin before the workshop opened.",
+    "chantierTitle": "In photos: Quentin's work",
     "visuelsTitle": "Our designs in pictures",
     "visuelsNote": "Illustrations showing our designs: the piece made to your measurements may differ slightly.",
     "filterAll": "All",
@@ -171,21 +171,21 @@
     "moreSoon": "Photos of the workshop's jobs will be added here as they are fitted.",
     "filterEmpty": "Nothing has been published in this family yet.",
     "altTableMikado": "Walnut Mikado table and green velvet chairs, in a dining room with stone walls",
-    "altGardeCorpsInterieur": "Window railing fitted into the reveal, seen from the room",
-    "altGardeCorpsRue": "The same railing seen from the street, resting on a tuffeau stone sill",
+    "altGardeCorpsInterieur": "Window railing in the reveal, seen from the room",
+    "altGardeCorpsRue": "The same railing seen from the street, on a tuffeau stone sill",
     "altEscalierSalle": "Central-stringer staircase, in a room with limewashed walls",
-    "altEscalierMarche": "Detail of a step: solid oak resting on its steel stringer",
+    "altEscalierMarche": "Detail of a step: solid oak on its steel stringer",
     "altSalle": "Backlit stretch ceiling above a dining table",
     "altPlafondBeton": "Square backlit ceiling above a dining table, exposed concrete wall",
     "altLucarneCouleur": "Recessed Lucarne, fabric lit in a pink-to-blue gradient",
-    "altHaloSalle": "Halo, round backlit ceiling, fitted in a living space",
+    "altHaloSalle": "Halo, round backlit ceiling",
     "altReunion": "Large round backlit stretch ceiling above a meeting room",
     "altVerriereSalon": "Workshop-style glass partition separating a living room from a kitchen",
     "altVerriereCroisillon": "Detail of a partition's lower panel, steel cross-bracing",
     "altSculptureCheval": "Rearing steel horse sculpture, in front of a stone farmhouse",
-    "altSculptureTorse": "Hand-welded salvaged-steel torso, in a video",
-    "altVerrierePose": "Fitting a black steel partition, overall view: the job in progress",
-    "altVerrierePoseDetail": "Fitting a black steel gridded partition above a low stone wall: the job in progress"
+    "altSculptureTorse": "Hand-welded salvaged-steel torso, made by Quentin before the workshop opened (video)",
+    "altVerrierePose": "Black steel partition being fitted, overall view, made by Quentin before the workshop opened",
+    "altVerrierePoseDetail": "Black steel gridded partition being fitted above a low stone wall, made by Quentin before the workshop opened"
   },
   "artisanat": {
     "title": "The collection",
@@ -494,7 +494,7 @@
     "retraitResume": "Collection from the workshop",
     "livraisonAttentePiece": "The delivery price shows as soon as the piece has its own.",
     "configurable": "Configure it online",
-    "apercuPhoto": "See the photo of my configuration",
+    "apercuPhoto": "See the image of my configuration",
     "coordonneesTitle": "Your details",
     "coordonneesNote": "For a quote in your name.",
     "coordonneesCompte": "or create your account",
@@ -597,7 +597,7 @@
   "apropos": {
     "title": "About",
     "histoireTitle": "Our story",
-    "histoireBody": "Auboiacier is a metalwork workshop in Saumur, in the Loire Valley. It is run by Quentin Aumercier, a welder and metalworker trained on building sites and in workshops, in France and then in Australia, where he spent several years with a maker of backlit stretch ceilings. He brought back a method: measure right, weld clean, finish without compromise. Back in Anjou, he opened the workshop to make tables, staircases, railings and light ceilings — one piece at a time, to order, for customers who know what they want.",
+    "histoireBody": "Auboiacier is a metalwork workshop in Saumur, in the Loire Valley. It is run by Quentin Aumercier, a welder and metalworker trained on building sites and in workshops, in France and then in Australia, where he spent several years with a maker of backlit stretch ceilings. He brought back a method: measure right, weld clean, finish without compromise. Back in Anjou, he is opening the workshop in Saumur to make tables, staircases, railings and light ceilings — one piece at a time, to order, for customers who know what they want.",
     "savoirFaireTitle": "Our craft",
     "savoirFaireBody": [
       "Everything is made here, in Saumur. The steel is cut, TIG-welded and ground in the workshop; the solid wood is cut, glued, sanded and oiled on the same bench; the aluminium frames of the light ceilings are mitred and fitted to the millimetre. Nothing is subcontracted.",
@@ -946,7 +946,7 @@
       },
       {
         "title": "3. Prices, instant quote and information",
-        "body": "Prices shown by the instant quote are those at which the piece can be ordered online, under the terms of sale. Product pages, photos and option renderings illustrate the pieces as faithfully as possible: wood and steel are living materials, so real shades and grain vary slightly. An estimate given by email following the form binds the studio only once it becomes a written, accepted quote."
+        "body": "Prices shown by the instant quote are those at which the piece can be ordered online, under the terms of sale. Product pages, images and option renderings illustrate the pieces as faithfully as possible: wood and steel are living materials, so real shades and grain vary slightly. An estimate given by email following the form binds the studio only once it becomes a written, accepted quote."
       },
       {
         "title": "4. Intellectual property",
@@ -1012,7 +1012,7 @@
     },
     "realisations": {
       "title": "Projects and visuals from the workshop",
-      "description": "The workshop's designs in pictures — tables, railings, staircases, glass partitions, backlit ceilings — and the first site photos, from Saumur, France."
+      "description": "Designs from the Saumur workshop in pictures — tables, railings, staircases, glass partitions, backlit ceilings — and Quentin's work in photos."
     },
     "devis": {
       "title": "Instant quote, priced in one minute",
@@ -1421,7 +1421,7 @@
     "chene": {
       "teinte": "Golden blond, with a clearly visible grain.",
       "durete": "Hard and long-lasting.",
-      "usage": "The workshop's reference: the one in the photos and the catalogue sizes."
+      "usage": "The workshop's reference: the one in the images and the catalogue sizes."
     },
     "noyer": {
       "teinte": "Deep brown, with a rich grain.",

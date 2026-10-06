@@ -1538,13 +1538,13 @@ const catalogue: Product[] = [
       },
       {
         src: "/images/garde-corps/fenetre-pose.jpg",
-        alt: "Le même garde-corps posé en tableau, vu depuis la pièce : la fenêtre entière, l'appui et le jour sous le cadre",
+        alt: "Le même garde-corps en tableau, vu depuis la pièce : la fenêtre entière, l'appui et le jour sous le cadre",
         bg: "#e9e6e0",
         fit: "contain",
       },
       {
         src: "/images/garde-corps/fenetre-rue.jpg",
-        alt: "Le garde-corps vu de la rue, entre les volets : posé sur l'appui en tuffeau, la fenêtre ouverte derrière",
+        alt: "Le garde-corps vu de la rue, entre les volets : sur l'appui en tuffeau, la fenêtre ouverte derrière",
         bg: "#e6e1d6",
         fit: "contain",
       },
@@ -1637,7 +1637,7 @@ const catalogue: Product[] = [
       },
       {
         title: "Une main courante en bois ou en acier",
-        body: "Quatre modèles au choix. En bois massif (pin, hêtre, chêne ou noyer ; le chêne est celui de la photo), arrondi, poncé et huilé : rainuré de 40 × 40 mm, il s'emboîte sur le cadre ; ou de 60 × 45 mm, vissé sur un fer plat de 60 × 10 mm qui raidit la lisse haute (obligatoire à partir de 1,67 m de large, compris dans le prix). En acier, peint comme le cadre : un fer plat de 40 × 8 mm soudé à plat, ou un profilé du commerce de 40 × 10 mm. Le choix se fait sur la fiche, avec le prix de chacun.",
+        body: "Quatre modèles au choix. En bois massif (pin, hêtre, chêne ou noyer ; le chêne est celui de l'image), arrondi, poncé et huilé : rainuré de 40 × 40 mm, il s'emboîte sur le cadre ; ou de 60 × 45 mm, vissé sur un fer plat de 60 × 10 mm qui raidit la lisse haute (obligatoire à partir de 1,67 m de large, compris dans le prix). En acier, peint comme le cadre : un fer plat de 40 × 8 mm soudé à plat, ou un profilé du commerce de 40 × 10 mm. Le choix se fait sur la fiche, avec le prix de chacun.",
       },
       {
         title: "Trois mesures à relever",
@@ -1677,8 +1677,8 @@ const catalogue: Product[] = [
       tagline: "Handmade custom window railing in solid steel: Saint Andrew's crosses with cast rosettes, or vertical bars; wood or steel handrail. Made to the millimetre, fitted into your window.",
       images: [
         "Window railing seen head-on: painted black steel frame with a Saint Andrew's cross, two cast rosettes, oak handrail",
-        "The same railing fitted in the reveal, seen from the room: the whole window, the sill and the daylight under the frame",
-        "The railing seen from the street, between the shutters: set on the tuffeau stone sill, the window open behind",
+        "The same railing in the reveal, seen from the room: the whole window, the sill and the daylight under the frame",
+        "The railing seen from the street, between the shutters: on the tuffeau stone sill, the window open behind",
       ],
       sizes: {},
       sections: [
@@ -1688,7 +1688,7 @@ const catalogue: Product[] = [
         },
         {
           title: "A wood or steel handrail",
-          body: "Four designs to choose from. In solid wood (pine, beech, oak or walnut; oak is the one in the photo), rounded, sanded and oiled: grooved, 40 × 40 mm, it fits over the frame; or 60 × 45 mm, screwed onto a 60 × 10 mm flat bar that stiffens the top rail (required from 1.67 m wide, included in the price). In steel, painted like the frame: a 40 × 8 mm flat bar welded flat, or an off-the-shelf 40 × 10 mm profile. You choose on the product page, with the price of each.",
+          body: "Four designs to choose from. In solid wood (pine, beech, oak or walnut; oak is the one in the image), rounded, sanded and oiled: grooved, 40 × 40 mm, it fits over the frame; or 60 × 45 mm, screwed onto a 60 × 10 mm flat bar that stiffens the top rail (required from 1.67 m wide, included in the price). In steel, painted like the frame: a 40 × 8 mm flat bar welded flat, or an off-the-shelf 40 × 10 mm profile. You choose on the product page, with the price of each.",
         },
         {
           title: "Three measurements to take",
@@ -2169,7 +2169,7 @@ const catalogue: Product[] = [
       },
       {
         src: "/images/lumiere/rond-allume.jpg",
-        alt: "Halo allumé, plafond lumineux rond posé au plafond d'une pièce à vivre",
+        alt: "Halo allumé, plafond lumineux rond",
         bg: "#e8e8e8",
         fit: "cover",
       },
@@ -2253,7 +2253,7 @@ const catalogue: Product[] = [
       tagline: "A circle of backlit stretched fabric, lacquered aluminium frame.",
       images: [
         "Halo: round stretched-fabric light ceiling, black aluminium frame",
-        "Halo lit up: round light ceiling fitted to a living-room ceiling",
+        "Halo lit up: round light ceiling",
         "Close-up of the curved aluminium frame and the lit stretched fabric",
       ],
       sizes: {

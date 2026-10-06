@@ -157,8 +157,8 @@
   },
   "realisations": {
     "title": "Projets et visuels",
-    "subtitle": "Les modèles de l'atelier en images — tables, garde-corps, escaliers, verrières, plafonds lumineux, sculptures — et les premières photos prises sur le chantier et à l'atelier.",
-    "chantierTitle": "En photo : chantier et atelier",
+    "subtitle": "Les modèles de l'atelier en images — tables, garde-corps, escaliers, verrières, plafonds lumineux, sculptures — et, en photo, des travaux réalisés par Quentin avant l'ouverture de l'atelier.",
+    "chantierTitle": "En photo : le travail de Quentin",
     "visuelsTitle": "Les modèles en images",
     "visuelsNote": "Des images d'illustration, qui présentent nos modèles : la pièce fabriquée à vos cotes peut différer légèrement.",
     "filterAll": "Tout",
@@ -171,21 +171,21 @@
     "moreSoon": "Les photos des chantiers de l'atelier seront ajoutées ici au fil des poses.",
     "filterEmpty": "Rien n'est encore publié dans cette famille.",
     "altTableMikado": "Table Mikado en noyer et chaises en velours vert, dans une salle à manger aux murs de pierre",
-    "altGardeCorpsInterieur": "Garde-corps de fenêtre posé en tableau, vu depuis la pièce",
-    "altGardeCorpsRue": "Le même garde-corps vu de la rue, posé sur un appui en tuffeau",
+    "altGardeCorpsInterieur": "Garde-corps de fenêtre en tableau, vu depuis la pièce",
+    "altGardeCorpsRue": "Le même garde-corps vu de la rue, sur un appui en tuffeau",
     "altEscalierSalle": "Escalier à limon central, dans une pièce aux murs chaulés",
-    "altEscalierMarche": "Détail d'une marche : chêne massif posé sur son limon en acier",
+    "altEscalierMarche": "Détail d'une marche : chêne massif sur son limon en acier",
     "altSalle": "Plafond lumineux tendu au-dessus d'une table à manger",
     "altPlafondBeton": "Plafond lumineux carré au-dessus d'une table à manger, mur en béton brut",
     "altLucarneCouleur": "Lucarne encastrée, toile tendue éclairée en dégradé rose et bleu",
-    "altHaloSalle": "Halo, plafond lumineux rond, posé dans une pièce à vivre",
+    "altHaloSalle": "Halo, plafond lumineux rond",
     "altReunion": "Grand plafond lumineux rond au-dessus d'une salle de réunion",
     "altVerriereSalon": "Verrière d'atelier séparant un salon d'une cuisine",
     "altVerriereCroisillon": "Détail du bas d'une verrière, panneau en acier à croisillon",
     "altSculptureCheval": "Cheval cabré en acier, devant une longère en pierre",
-    "altSculptureTorse": "Torse en acier de récupération soudé à la main, en vidéo",
-    "altVerrierePose": "Pose d'une verrière en acier noir, vue d'ensemble : le chantier en cours",
-    "altVerrierePoseDetail": "Pose d'une verrière en acier noir à carreaux, au-dessus d'un muret de pierre : le chantier en cours"
+    "altSculptureTorse": "Torse en acier de récupération soudé à la main, réalisé par Quentin avant l'ouverture de l'atelier (vidéo)",
+    "altVerrierePose": "Pose d'une verrière en acier noir, vue d'ensemble, réalisée par Quentin avant l'ouverture de l'atelier",
+    "altVerrierePoseDetail": "Pose d'une verrière en acier noir à carreaux, au-dessus d'un muret de pierre, réalisée par Quentin avant l'ouverture de l'atelier"
   },
   "artisanat": {
     "title": "La collection",
@@ -494,7 +494,7 @@
     "retraitResume": "Retrait à l'atelier",
     "livraisonAttentePiece": "Le prix de la livraison s'affiche dès que la pièce a le sien.",
     "configurable": "Se configure en ligne",
-    "apercuPhoto": "Voir la photo de ma configuration",
+    "apercuPhoto": "Voir l'image de ma configuration",
     "coordonneesTitle": "Vos coordonnées",
     "coordonneesNote": "Pour un devis à votre nom.",
     "coordonneesCompte": "ou créez votre compte",
@@ -597,7 +597,7 @@
   "apropos": {
     "title": "À propos",
     "histoireTitle": "Notre histoire",
-    "histoireBody": "Auboiacier est un atelier de métallerie installé à Saumur, en Maine-et-Loire. À sa tête, Quentin Aumercier, soudeur-métallier formé sur les chantiers et dans les ateliers, en France puis en Australie, où il a travaillé plusieurs années chez un fabricant de plafonds lumineux. Il en a rapporté une méthode : mesurer juste, souder propre, finir sans compromis. De retour en Anjou, il a ouvert l'atelier pour fabriquer des tables, des escaliers, des garde-corps et des plafonds lumineux — pièce par pièce, à la commande, pour des clients qui savent ce qu'ils veulent.",
+    "histoireBody": "Auboiacier est un atelier de métallerie installé à Saumur, en Maine-et-Loire. À sa tête, Quentin Aumercier, soudeur-métallier formé sur les chantiers et dans les ateliers, en France puis en Australie, où il a travaillé plusieurs années chez un fabricant de plafonds lumineux. Il en a rapporté une méthode : mesurer juste, souder propre, finir sans compromis. De retour en Anjou, il ouvre l'atelier à Saumur pour fabriquer des tables, des escaliers, des garde-corps et des plafonds lumineux — pièce par pièce, à la commande, pour des clients qui savent ce qu'ils veulent.",
     "savoirFaireTitle": "Notre savoir-faire",
     "savoirFaireBody": [
       "Tout est fabriqué ici, à Saumur. L'acier est coupé, soudé au TIG et meulé à l'atelier ; le bois massif est débité, collé, poncé et huilé sur le même établi ; les cadres aluminium des plafonds lumineux sont coupés en onglet et ajustés au millimètre. Rien n'est sous-traité.",
@@ -946,7 +946,7 @@
       },
       {
         "title": "3. Prix, devis instantané et informations",
-        "body": "Les prix affichés par le devis instantané sont ceux auxquels la pièce peut être commandée en ligne, dans les conditions des CGV. Les fiches, photos et rendus d'options illustrent les pièces au mieux : le bois et l'acier étant des matières vivantes, les teintes et veinages réels varient légèrement. Une estimation donnée par e-mail à la suite du formulaire n'engage l'atelier qu'une fois transformée en devis écrit et accepté."
+        "body": "Les prix affichés par le devis instantané sont ceux auxquels la pièce peut être commandée en ligne, dans les conditions des CGV. Les fiches, images et rendus d'options illustrent les pièces au mieux : le bois et l'acier étant des matières vivantes, les teintes et veinages réels varient légèrement. Une estimation donnée par e-mail à la suite du formulaire n'engage l'atelier qu'une fois transformée en devis écrit et accepté."
       },
       {
         "title": "4. Propriété intellectuelle",
@@ -1012,7 +1012,7 @@
     },
     "realisations": {
       "title": "Projets et visuels de l'atelier",
-      "description": "Les modèles de l'atelier en images — tables, garde-corps, escaliers, verrières, plafonds lumineux — et les premières photos de chantier, à Saumur (49)."
+      "description": "Les modèles de l'atelier de Saumur (49) en images — tables, garde-corps, escaliers, verrières, plafonds lumineux — et le travail de Quentin en photo."
     },
     "devis": {
       "title": "Devis instantané, prix en une minute",
@@ -1421,7 +1421,7 @@
     "chene": {
       "teinte": "Blond doré, au veinage bien visible.",
       "durete": "Dur et durable.",
-      "usage": "La référence de l'atelier : celle des photos et des tailles du catalogue."
+      "usage": "La référence de l'atelier : celle des images et des tailles du catalogue."
     },
     "noyer": {
       "teinte": "Brun profond, au veinage riche.",

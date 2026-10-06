@@ -10,9 +10,12 @@
  * 1. la liste des vraies photos (src/lib/visuels.ts) : trois fichiers, qui existent, sans mention ;
  * 2. chaque image de pièce du dossier public/images et chaque image citée par le catalogue ou la page « Projets et
  *    visuels » porte la mention — sauf les trois vraies photos ;
- * 3. aucune image ne s'affiche hors du composant `Visuel`, qui pose la mention tout seul : un `<Image>` de Next
- *    écrit à la main dans une page passerait sans mention ;
- * 4. plus aucune des phrases retirées, et la phrase des mentions légales dans les deux langues.
+ * 3. aucune image ne s'affiche hors du composant `Visuel`, qui pose la mention tout seul : un `<Image>` de Next, un
+ *    `<img src="/images/…">` ou un `url(/images/…)` écrits à la main passeraient sans mention ;
+ * 4. la mention se lit : contraste d'au moins 4,5:1 sur n'importe quelle image, et dite aux lecteurs d'écran une fois ;
+ * 5. plus aucune des phrases retirées, et la phrase des mentions légales dans les deux langues ;
+ * 6. les vraies photos sont le travail de Quentin d'avant l'atelier, jamais des chantiers d'Auboiacier ; les légendes
+ *    des visuels ne disent pas « posé », et un visuel s'appelle une image, pas une photo.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -25,11 +28,14 @@ import { products } from "../src/lib/products.ts";
 import { photos } from "../src/lib/chantiers.ts";
 import {
   MENTION_ILLUSTRATION,
+  VISUELS_SOMBRES,
   VRAIES_PHOTOS,
+  altAvecMention,
   cheminImage,
   estVraiePhoto,
   montreUnePiece,
   porteMentionIllustration,
+  tonMention,
 } from "../src/lib/visuels.ts";
 
 const RACINE = new URL("..", import.meta.url).pathname;
@@ -164,9 +170,119 @@ test("aucune image ne s'affiche sans passer par Visuel (qui pose la mention)", (
     }
   }
   assert.deepEqual(fautes, []);
-  // Les images en CSS (pastilles de matière) ne sont que des textures et des rosaces de quelques millimètres.
   // Le devis PDF, lui, écrit la mention sous la photo de la pièce.
   assert.match(lire("src/lib/devis-pdf.tsx"), /porteMentionIllustration\(devis\.piece\.photo\)/);
+});
+
+/**
+ * Les seules images de pièces affichées en CSS : les pastilles des rosaces du garde-corps, de quelques millimètres, à
+ * côté du croquis qui les montre en grand. Une nouvelle image en `url(/images/…)` doit passer par `Visuel`, ou
+ * s'ajouter ici en connaissance de cause.
+ */
+const PASTILLES_ROSACES = [
+  "src/lib/products.ts : /images/garde-corps/rosaces/fleur.jpg",
+  "src/lib/products.ts : /images/garde-corps/rosaces/fonte.jpg",
+  "src/lib/products.ts : /images/garde-corps/rosaces/acier.jpg",
+  "src/lib/products.ts : /images/garde-corps/rosaces/sans.svg",
+];
+
+/** Les seules balises <img> écrites à la main : des plans de garde-corps dessinés par l'outil (SVG), pas des pièces. */
+const IMG_PERMISES = [
+  join("src", "components", "plan-apercu.tsx"),
+  join("src", "app", "[lang]", "artisanat", "verification-garde-corps", "page.tsx"),
+];
+
+test("aucune image écrite à la main : ni <img src=\"/images/…\">, ni url(/images/…) hors des pastilles de rosaces", () => {
+  const code = fichiers("src").filter((f) => /\.(tsx?|m?js|css)$/.test(f));
+  assert.ok(code.length > 50, "les fichiers du site n'ont pas été lus");
+  const fautes: string[] = [];
+  const urls: string[] = [];
+  for (const f of code) {
+    const texte = lire(f);
+    // Une balise <img> qui va chercher une image du site, en JSX comme dans du HTML écrit en texte.
+    for (const m of texte.matchAll(/<img\b[^>]*?\bsrc\s*=\s*\{?\s*["'`]\/images\//g)) {
+      fautes.push(`${f} : ${m[0].replace(/\s+/g, " ").slice(0, 80)}… (passer par Visuel)`);
+    }
+    // Toute balise <img> en JSX, même avec une adresse calculée : seulement là où on sait ce qu'elle montre.
+    if (f.endsWith(".tsx") && !IMG_PERMISES.includes(f) && /<img\b[\s/>]/.test(texte.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, ""))) {
+      fautes.push(`${f} : balise <img> écrite à la main (passer par Visuel)`);
+    }
+    // Une image du site en CSS, avec ou sans guillemets.
+    for (const m of texte.matchAll(/url\(\s*["']?(\/images\/[^"')\s]+)/g)) urls.push(`${f} : ${m[1]}`);
+  }
+  assert.deepEqual(fautes, []);
+  assert.deepEqual(urls.sort(), [...PASTILLES_ROSACES].sort(), "images en url(…) : seulement les pastilles de rosaces");
+});
+
+/** Luminance relative (WCAG 2) d'une couleur [r, g, b] de 0 à 255. */
+function luminance([r, g, b]: number[]): number {
+  const lin = (v: number) => {
+    const c = v / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+const contraste = (a: number[], b: number[]) => {
+  const [l1, l2] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (l1 + 0.05) / (l2 + 0.05);
+};
+/** Une couleur à moitié transparente, posée sur une autre. */
+const poser = (dessus: number[], opacite: number, dessous: number[]) => dessus.map((v, i) => v * opacite + dessous[i] * (1 - opacite));
+
+test("la mention se lit sur n'importe quelle image : contraste d'au moins 4,5:1, dans les deux tons", () => {
+  const composant = lire("src/components/visuel.tsx");
+  const tons = composant.match(/TONS_MENTION = \{\s*clair: "([^"]+)",\s*sombre: "([^"]+)",?\s*\}/);
+  assert.ok(tons, "visuel.tsx : TONS_MENTION introuvable");
+  /** « bg-white/85 text-[#5c5140] » → le voile (couleur, opacité) et le texte (couleur, opacité). */
+  const lireTon = (classes: string) => {
+    const couleur = (nom: string) =>
+      nom === "white" ? [255, 255, 255] : nom === "black" ? [0, 0, 0] : (nom.match(/^\[#([0-9a-f]{6})\]$/i)?.[1].match(/../g) ?? []).map((h) => parseInt(h, 16));
+    const fond = classes.match(/\bbg-(white|black|\[#[0-9a-f]{6}\])(?:\/(\d+))?(?:\s|$)/i);
+    const texte = classes.match(/\btext-(white|black|\[#[0-9a-f]{6}\])(?:\/(\d+))?(?:\s|$)/i);
+    assert.ok(fond && texte, `classes illisibles par le test : ${classes}`);
+    return {
+      fond: couleur(fond[1]),
+      opaciteFond: fond[2] ? Number(fond[2]) / 100 : 1,
+      texte: couleur(texte[1]),
+      opaciteTexte: texte[2] ? Number(texte[2]) / 100 : 1,
+    };
+  };
+  // L'image sous la mention : tous les gris, et les couleurs franches (coins du cube des couleurs).
+  const dessous: number[][] = [];
+  for (let v = 0; v <= 255; v += 5) dessous.push([v, v, v]);
+  for (const r of [0, 255]) for (const g of [0, 255]) for (const b of [0, 255]) dessous.push([r, g, b]);
+  for (const [nom, classes] of [["clair", tons[1]], ["sombre", tons[2]]] as const) {
+    const ton = lireTon(classes);
+    let pire = Infinity;
+    for (const image of dessous) {
+      const voile = poser(ton.fond, ton.opaciteFond, image);
+      pire = Math.min(pire, contraste(poser(ton.texte, ton.opaciteTexte, voile), voile));
+    }
+    assert.ok(pire >= 4.5, `ton ${nom} (${classes}) : contraste de ${pire.toFixed(2)}:1 au pire, il faut 4,5:1`);
+  }
+  // Les visuels sombres prennent le ton sombre d'eux-mêmes ; ils existent et portent la mention.
+  for (const src of VISUELS_SOMBRES) {
+    assert.ok(existsSync(join(RACINE, "public", src)), `${src} introuvable`);
+    assert.ok(porteMentionIllustration(src), src);
+    assert.equal(tonMention(src), "sombre", src);
+  }
+  assert.equal(tonMention("/images/mikado/ambiance.jpg"), "clair");
+  assert.match(composant, /TONS_MENTION\[ton \?\? tonMention\(src\)\]/, "le ton par défaut vient de VISUELS_SOMBRES");
+});
+
+test("lecteurs d'écran : la mention se lit une fois, avec l'image (texte alternatif), jamais en double", () => {
+  assert.equal(altAvecMention("Table Mikado", "/images/mikado/ambiance.jpg", "fr"), "Table Mikado (image d'illustration)");
+  assert.equal(altAvecMention("Mikado table", "/images/mikado/ambiance.jpg", "en"), "Mikado table (illustration)");
+  // Pas deux fois, pas sur une image décorative, pas sur une vraie photo ni sur ce qui n'est pas une pièce.
+  assert.equal(altAvecMention("Table Mikado (image d'illustration)", "/images/mikado/ambiance.jpg", "fr"), "Table Mikado (image d'illustration)");
+  assert.equal(altAvecMention("", "/images/mikado/ambiance.jpg", "fr"), "");
+  assert.equal(altAvecMention("Pose d'une verrière", "/images/verriere-pose-chantier-4.jpg", "fr"), "Pose d'une verrière");
+  assert.equal(altAvecMention("Saumur", "/images/saumur.jpg", "fr"), "Saumur");
+  const composant = lire("src/components/visuel.tsx");
+  assert.match(composant, /aria-hidden="true"/, "la mention visible est cachée aux lecteurs d'écran (sinon : deux fois)");
+  assert.match(composant, /altAvecMention\(props\.alt, src, locale\)/, "Visuel ajoute la mention au texte alternatif");
+  assert.match(composant, /<Image \{\.\.\.props\} alt=\{alt\} \/>/);
+  assert.match(lire("src/components/video-boucle.tsx"), /aria-label=\{altAvecMention\(description, poster, locale\)\}/);
 });
 
 test("la mention : le texte exact, sans « IA », « généré » ni « 3D »", () => {
@@ -239,4 +355,54 @@ test("les mentions légales disent ce que sont les images d'illustration, dans l
   // Les liens de la page visent toujours les bons articles (index 4 et 5).
   assert.match(fr.mentionsLegales.sections[4].title, /propriété intellectuelle/i);
   assert.match(fr.mentionsLegales.sections[5].title, /données personnelles/i);
+});
+
+test("les vraies photos : le travail de Quentin avant l'ouverture de l'atelier, jamais un chantier d'Auboiacier", () => {
+  assert.equal(fr.realisations.chantierTitle, "En photo : le travail de Quentin");
+  assert.equal(en.realisations.chantierTitle, "In photos: Quentin's work");
+  // « réalisé », « réalisée » ou « réalisés » selon ce qu'on montre.
+  for (const [d, avant] of [
+    [fr, /réalisée?s? par Quentin avant l'ouverture de l'atelier/],
+    [en, /made by Quentin before the workshop opened/],
+  ] as const) {
+    assert.match(d.realisations.subtitle, avant, "sous-titre de la page");
+    for (const p of photos.filter((photo) => estVraiePhoto(photo.src))) {
+      assert.match(d.realisations[p.alt], avant, `légende de ${p.src}`);
+    }
+  }
+  const retirees = [/chantier et atelier/i, /le chantier en cours/i, /premières photos/i, /on site and in the workshop/i, /job in progress/i, /first (site )?photos/i];
+  for (const [nom, d] of [["fr", fr], ["en", en]] as const) {
+    const textes = JSON.stringify([d.realisations, d.seo.realisations]);
+    for (const motif of retirees) assert.doesNotMatch(textes, motif, `${nom} : ${motif}`);
+    // La description Google de la page : vraie, et sous la limite de 155 signes.
+    assert.ok([...d.seo.realisations.description].length <= 155, `${nom} : description de la page trop longue`);
+  }
+  // À propos : l'atelier ouvre (commandes le 7 décembre 2026), il n'a pas « ouvert ».
+  assert.match(fr.apropos.histoireBody, /De retour en Anjou, il ouvre l'atelier à Saumur/);
+  assert.match(en.apropos.histoireBody, /Back in Anjou, he is opening the workshop in Saumur/);
+  assert.doesNotMatch(fr.apropos.histoireBody, /il a ouvert l'atelier/);
+  assert.doesNotMatch(en.apropos.histoireBody, /he opened the workshop/);
+});
+
+test("les légendes des visuels ne disent pas « posé » ; un visuel est une image, pas une photo", () => {
+  const pose = /\bpos[ée]e?s?(?![a-zàâçéèêëîïôûùüÿœ])|\bfitted\b|\binstall[ée]e?s?(?![a-zé])|\binstalled\b/i;
+  // Les légendes de la page Projets et visuels (les vraies photos peuvent montrer une pose : ce sont des photos).
+  for (const p of photos) {
+    if (estVraiePhoto(p.src)) continue;
+    assert.doesNotMatch(fr.realisations[p.alt], pose, `fr ${p.alt}`);
+    assert.doesNotMatch(en.realisations[p.alt], pose, `en ${p.alt}`);
+  }
+  // Les textes alternatifs des fiches, en français et en anglais.
+  for (const p of products) {
+    for (const img of p.images) assert.doesNotMatch(img.alt, pose, `${p.slug} : ${img.alt}`);
+    for (const alt of (p.en as { images?: string[] } | undefined)?.images ?? []) assert.doesNotMatch(alt, pose, `${p.slug} (en) : ${alt}`);
+  }
+  assert.equal(fr.artisanat.apercuPhoto, "Voir l'image de ma configuration");
+  assert.equal(en.artisanat.apercuPhoto, "See the image of my configuration");
+  assert.match(fr.essences.chene.usage, /celle des images/);
+  assert.match(en.essences.chene.usage, /in the images/);
+  assert.match(fr.cgu.sections[2].body, /Les fiches, images et rendus d'options/);
+  assert.match(en.cgu.sections[2].body, /Product pages, images and option renderings/);
+  const catalogue = lire("src/lib/products.ts");
+  assert.doesNotMatch(catalogue, /le chêne est celui de la photo|oak is the one in the photo/);
 });

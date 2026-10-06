@@ -56,7 +56,8 @@ export default async function RealisationsPage({
 
   const visibles = filtre ? photos.filter((p) => p.famille === filtre) : photos;
   /* L'adresse reste /realisations, mais la page dit ce qu'elle montre (décision de Quentin, 06/10/2026) : d'abord les
-     vraies photos, prises sur le chantier et à l'atelier ; puis les modèles en images, chacun marqué « Image
+     vraies photos — le travail de Quentin, réalisé avant l'ouverture de l'atelier, jamais présenté comme un chantier
+     d'Auboiacier ; puis les modèles en images, chacun marqué « Image
      d'illustration ». Aucun visuel n'est présenté comme un chantier. La liste des vraies photos : src/lib/visuels.ts. */
   const vraies = visibles.filter((p) => estVraiePhoto(p.src));
   const visuels = visibles.filter((p) => !estVraiePhoto(p.src));

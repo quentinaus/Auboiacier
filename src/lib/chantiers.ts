@@ -1,6 +1,8 @@
 /**
  * Les images de la page « Projets et visuels » (/realisations) : les vraies photos
- * prises sur le chantier et à l'atelier, puis les modèles en images. Qui est une
+ * — le travail de Quentin, réalisé avant l'ouverture de l'atelier (chez un ancien
+ * employeur ou à titre personnel), jamais présenté comme un chantier d'Auboiacier —
+ * puis les modèles en images. Qui est une
  * vraie photo et qui est une image d'illustration se lit dans src/lib/visuels.ts,
  * pas ici : la page les range en deux groupes, et chaque visuel porte la mention.
  * La zone d'intervention montre les vraies photos qui portent une commune
@@ -124,7 +126,7 @@ export const photos: {
     famille: "verriere",
     lien: "verrieres",
   },
-  // La pose d'une verrière sur chantier (photos de l'atelier, en portrait) : le travail tel qu'il se fait.
+  // La pose d'une verrière (vraies photos, en portrait) : réalisée par Quentin avant l'ouverture de l'atelier.
   { src: "/images/verriere-pose-chantier-2.jpg", alt: "altVerrierePoseDetail", famille: "verriere", lien: "verrieres", portrait: true },
   { src: "/images/verriere-pose-chantier-4.jpg", alt: "altVerrierePose", famille: "verriere", lien: "verrieres", portrait: true },
   {

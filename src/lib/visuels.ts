@@ -3,7 +3,9 @@
  *
  * L'atelier n'a pas encore de chantier client à montrer (commandes ouvertes le 7 décembre 2026). Les images des
  * pièces sont donc des visuels faits par ordinateur, à trois exceptions près : la vidéo du torse (sa photo
- * d'ouverture) et deux photos de la pose d'une verrière. Décision de Quentin, 06/10/2026 : chaque visuel porte,
+ * d'ouverture) et deux photos de la pose d'une verrière — du travail de Quentin réalisé AVANT l'ouverture de
+ * l'atelier (chez un ancien employeur ou à titre personnel) : la page « Projets et visuels » le dit, et ne les
+ * présente jamais comme des chantiers d'Auboiacier. Décision de Quentin, 06/10/2026 : chaque visuel porte,
  * dans un coin, la mention discrète « Image d'illustration » (« Illustration » en anglais), pour ne jamais faire
  * croire à une réalisation (code de la consommation, art. L121-2). Les mentions légales le disent en une phrase.
  *
@@ -67,4 +69,34 @@ export function montreUnePiece(src: string): boolean {
 /** L'image porte-t-elle la mention « Image d'illustration » ? Toute image de pièce, sauf les vraies photos. */
 export function porteMentionIllustration(src: string): boolean {
   return montreUnePiece(src) && !estVraiePhoto(src);
+}
+
+/**
+ * Les visuels en demi-teinte ou sombres, en plein cadre : leur mention prend le ton sombre (voile foncé, texte blanc),
+ * plus discret qu'un voile clair posé sur une pièce dans l'ombre. Les deux tons se lisent sur n'importe quelle image
+ * (contraste d'au moins 4,5:1, vérifié par tests/visuels.test.ts) : cette liste ne règle que la discrétion.
+ * Un `ton` passé à la main au composant l'emporte.
+ */
+export const VISUELS_SOMBRES: readonly string[] = [
+  "/images/verriere-croisillon.jpg",
+  "/images/sculpture-cheval-v2.jpg",
+  "/images/lumiere/salle-ronde.jpg",
+  "/images/escalier/limon-droit.jpg",
+  "/images/verriere-interieure.jpg",
+];
+
+/** Le ton de la mention quand la page ne le choisit pas : sombre pour les visuels de `VISUELS_SOMBRES`, clair sinon. */
+export function tonMention(src: string): "clair" | "sombre" {
+  return VISUELS_SOMBRES.includes(cheminImage(src)) ? "sombre" : "clair";
+}
+
+/**
+ * Le texte alternatif d'une image qui porte la mention, pour les lecteurs d'écran : « Table Mikado… (image
+ * d'illustration) ». La mention visible, elle, leur est cachée : l'information se lit une seule fois, avec l'image.
+ * Une image décorative (alt vide) reste muette, et une vraie photo garde son texte tel quel.
+ */
+export function altAvecMention(alt: string, src: string, locale: Locale): string {
+  const mention = MENTION_ILLUSTRATION[locale].toLowerCase();
+  if (!alt.trim() || !porteMentionIllustration(src) || alt.toLowerCase().includes(`(${mention})`)) return alt;
+  return `${alt} (${mention})`;
 }

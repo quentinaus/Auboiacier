@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { moinsDAnimations } from "@/lib/ui";
 import type { Locale } from "@/lib/i18n";
 import { MentionIllustration } from "./visuel";
+import { altAvecMention } from "@/lib/visuels";
 
 /**
  * UNE VIDÉO EN BOUCLE, SANS SON : elle se lance toute seule (le téléphone l'accepte parce qu'elle est muette), sauf si le visiteur a demandé
@@ -57,7 +58,8 @@ export function VideoBoucle({
         loop
         playsInline
         preload="metadata"
-        aria-label={description}
+        // Si la photo d'ouverture est un visuel, la description le dit aussi aux lecteurs d'écran (« … (image d'illustration) »).
+        aria-label={altAvecMention(description, poster, locale)}
         onPlay={() => setEnLecture(true)}
         onPause={() => setEnLecture(false)}
         className="block h-full w-full object-cover"
