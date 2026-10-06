@@ -7,7 +7,7 @@ import { metadataPage } from "@/lib/seo";
 import { serif } from "@/lib/fonts";
 import { hoverZoom, prixAffiche } from "@/lib/ui";
 import { products, prixParOutil, productLocalise, type Famille, type Product } from "@/lib/products";
-import { prixDepart } from "@/lib/prix-garde-corps.server";
+import { prixAppelGC, prixDepart } from "@/lib/prix-garde-corps.server";
 import { BandeauDetail } from "@/components/bandeau-detail";
 import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -151,7 +151,9 @@ export default async function DevisPage({ params }: PageProps<"/[lang]/devis">) 
               <div className="mt-5 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
                 {famille.pieces.map((product) => {
                   const image = product.images[0];
-                  const depart = prixDepart(product);
+                  // Le garde-corps : le prix d'appel de sa fiche (« dès 300 € pour une fenêtre de 100 cm »).
+                  const appel = prixAppelGC(product);
+                  const depart = appel ? appel.prix : prixDepart(product);
                   return (
                     <Link
                       key={product.slug}
@@ -183,8 +185,15 @@ export default async function DevisPage({ params }: PageProps<"/[lang]/devis">) 
                         <p className="mt-1 text-sm text-[#6f6357]">{saisie(product, t.saisie)}</p>
                         {depart !== null && (
                           <p className="mt-2 flex items-baseline gap-2 text-[#726757]">
-                            <span className="text-[11px] font-medium uppercase tracking-[0.14em]">{t.from}</span>
+                            <span className="text-[11px] font-medium uppercase tracking-[0.14em]">
+                              {appel ? (locale === "fr" ? "Dès" : "From") : t.from}
+                            </span>
                             <span className="text-base text-[#2b2320]">{prixAffiche(depart, locale)}</span>
+                            {appel && (
+                              <span className="text-[12px]">
+                                {locale === "fr" ? `fenêtre de ${appel.largeurMm / 10}\u00a0cm` : `${appel.largeurMm / 10} cm window`}
+                              </span>
+                            )}
                           </p>
                         )}
                         <span className="mt-3 inline-block border-b border-[#2b2320] pb-0.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#2b2320]">

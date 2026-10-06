@@ -6,7 +6,7 @@ import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
 import { metadataPage } from "@/lib/seo";
 import { products, prixParOutil, productLocalise, type Famille } from "@/lib/products";
-import { prixDepart } from "@/lib/prix-garde-corps.server";
+import { prixAppelGC, prixDepart } from "@/lib/prix-garde-corps.server";
 import { serif } from "@/lib/fonts";
 import { MaterialBubble } from "@/components/material-bubble";
 import { hoverZoom, prixAffiche } from "@/lib/ui";
@@ -134,8 +134,10 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
 
               <div className="mt-6 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
                 {famille.pieces.map((product, index) => {
-                  // Le « à partir de » : celui du catalogue, ou de l'outil de plans pour le garde-corps.
-                  const depart = prixDepart(product);
+                  // Le « à partir de » : celui du catalogue ; pour le garde-corps, le prix d'appel de la fiche (« dès 300 € pour
+                  // une fenêtre de 100 cm ») : un seul chiffre partout pour le client.
+                  const appel = prixAppelGC(product);
+                  const depart = appel ? appel.prix : prixDepart(product);
                   return (
                   <Link
                     key={product.slug}
@@ -190,11 +192,16 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
                       ) : (
                         <p className="mt-1.5 flex items-baseline gap-2 text-[#726757]">
                           <span className="text-[11px] font-medium uppercase tracking-[0.14em]">
-                            {t.from}
+                            {appel ? (locale === "fr" ? "Dès" : "From") : t.from}
                           </span>
                           <span className="text-[15px] font-medium tabular-nums text-[#2b2320]">
                             {prixAffiche(depart, locale)}
                           </span>
+                          {appel && (
+                            <span className="text-[12px]">
+                              {locale === "fr" ? `fenêtre de ${appel.largeurMm / 10}\u00a0cm` : `${appel.largeurMm / 10} cm window`}
+                            </span>
+                          )}
                         </p>
                       )}
                       {/* La pièce se configure en ligne : dit sur la carte, c'est ce qui la distingue. */}

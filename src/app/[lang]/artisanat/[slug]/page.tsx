@@ -144,11 +144,19 @@ export default async function ProductPage({
   const carteFiche = (p: (typeof products)[number]): Carte => {
     const fichePlus = productLocalise(p, locale);
     const depart = prixDepart(fichePlus);
+    // Le garde-corps : le même prix d'appel que sa fiche (« dès 300 € pour une fenêtre de 100 cm »).
+    const appel = prixAppelGC(fichePlus);
     return {
       href: `/${locale}/artisanat/${fichePlus.slug}`,
       nom: fichePlus.name,
       image: fichePlus.images[0],
-      prix: depart === null ? t.onQuote : `${t.from} ${prixAffiche(depart, locale)}`,
+      prix: appel
+        ? locale === "fr"
+          ? `Dès ${prixAffiche(appel.prix, locale)} pour une fenêtre de ${appel.largeurMm / 10}\u00a0cm`
+          : `From ${prixAffiche(appel.prix, locale)} for a ${appel.largeurMm / 10} cm window`
+        : depart === null
+          ? t.onQuote
+          : `${t.from} ${prixAffiche(depart, locale)}`,
     };
   };
   // Le garde-corps et l'escalier renvoient l'un vers l'autre, puis vers les
