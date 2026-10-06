@@ -48,6 +48,10 @@ const STYLES = `
   ${rosace("cm-rosace2", 54)}
   @keyframes cm-bois { 0%, 60% { transform: translateY(-15px); opacity: 0; } 65% { opacity: 1; } 71% { transform: translateY(1.6px); } 76%, 88% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(0); opacity: 0; } }
 }
+/* Une seule fois (l'accueil) : le garde-corps se fabrique quand il arrive à l'écran, puis reste. La boucle s'arrête à
+   88 %, au garde-corps fini (avant le fondu de fin) ; tant que le bloc n'est pas vu (Apparition), elle attend. */
+.cm-scene.cm-une-fois .cm-anim, .cm-scene.cm-une-fois .cm-trait { animation-iteration-count: .88; animation-duration: 3.4s; animation-delay: .35s; }
+[data-apparition]:not([data-vu]) .cm-une-fois * { animation-play-state: paused; }
 /* Sans animation : le garde-corps fini, sans éclats. */
 @media (prefers-reduced-motion: reduce) {
   .cm-scene .cm-eclat { display: none; }
@@ -90,15 +94,15 @@ function Eclat({ x, y, classe }: { x: number; y: number; classe: string }) {
   );
 }
 
-export function ChargementModeles({ locale, texte }: { locale: "fr" | "en"; texte?: string }) {
-  const fr = locale === "fr";
+/** Le garde-corps en aplats qui se fabrique : en boucle pendant un calcul, ou une seule fois (`uneFois`) sur l'accueil. */
+export function GardeCorpsEnAplats({ uneFois = false, className = "h-14 w-auto" }: { uneFois?: boolean; className?: string }) {
   return (
-    <div role="status" aria-live="polite" className="cm-scene flex flex-col items-center gap-2 py-1">
+    <span className={`cm-scene block ${uneFois ? "cm-une-fois" : ""}`}>
       {/* Les styles une seule fois dans la page, même si l'animation est montrée à deux endroits. */}
       <style href="chargement-modeles" precedence="medium">
         {STYLES}
       </style>
-      <svg viewBox="0 0 168 72" className="h-14 w-auto overflow-visible" aria-hidden fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <svg viewBox="0 0 168 72" className={`${className} overflow-visible`} aria-hidden fill="none" strokeLinecap="round" strokeLinejoin="round">
         {/* L'ombre posée sous le garde-corps. */}
         <ellipse cx="84" cy="66" rx="74" ry="3.2" fill="rgba(43,35,32,.1)" />
         {/* La main courante en bois : elle se pose sur le cadre, à la fin. */}
@@ -118,6 +122,15 @@ export function ChargementModeles({ locale, texte }: { locale: "fr" | "en"; text
         <Rosace x={46} y={40} classe="cm-rosace1" />
         <Rosace x={122} y={40} classe="cm-rosace2" />
       </svg>
+    </span>
+  );
+}
+
+export function ChargementModeles({ locale, texte }: { locale: "fr" | "en"; texte?: string }) {
+  const fr = locale === "fr";
+  return (
+    <div role="status" aria-live="polite" className="flex flex-col items-center gap-2 py-1">
+      <GardeCorpsEnAplats />
       <p className="text-center text-[12.5px] leading-snug text-[#5c5140]">
         {texte ?? (fr ? "Nous cherchons les garde-corps aux normes pour votre fenêtre…" : "Finding the railings that meet the standard for your window…")}
       </p>

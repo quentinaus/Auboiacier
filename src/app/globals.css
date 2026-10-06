@@ -132,6 +132,100 @@ textarea:focus-visible,
  *  (grisé) reste géré au cas par cas par chaque bouton : lui seul sait
  *  s'il doit aussi couper le flou et l'ombre.
  * ------------------------------------------------------------------ */
+/* Le style des boutons et des accroches, façon Apple (Quentin, 06/10/2026 : « plus premium, plus Apple, moins IA ») :
+   des phrases normales, sans petites capitales espacées ; un seul bouton plein par bloc, les autres en lien fléché. */
+.surtitre {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: #8a6233;
+}
+@media (min-width: 768px) {
+  .surtitre {
+    font-size: 15px;
+  }
+}
+.btn-plein,
+.btn-clair,
+.btn-contour {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  border-radius: 999px;
+  padding: 0.78rem 1.45rem;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@media (min-width: 768px) {
+  .btn-plein,
+  .btn-clair,
+  .btn-contour {
+    font-size: 17px;
+    padding: 0.85rem 1.6rem;
+  }
+}
+.btn-plein {
+  background: #1d1d1f;
+  color: #ffffff;
+}
+.btn-plein:hover {
+  background: #000000;
+}
+.btn-clair {
+  background: #ffffff;
+  color: #1d1d1f;
+}
+.btn-clair:hover {
+  background: #f2efe9;
+}
+.btn-contour {
+  border: 1px solid rgba(29, 29, 31, 0.28);
+  color: #1d1d1f;
+}
+.btn-contour:hover {
+  border-color: #1d1d1f;
+}
+:is(.btn-plein, .btn-clair, .btn-contour):active {
+  transform: scale(0.97);
+}
+/* Le lien fléché : le texte et un chevron qui avance au survol. */
+.lien-fleche {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+@media (min-width: 768px) {
+  .lien-fleche {
+    font-size: 17px;
+  }
+}
+.lien-fleche::after {
+  content: "\203A";
+  font-size: 1.25em;
+  line-height: 1;
+  transform: translateY(-0.04em);
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.lien-fleche:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+:is(.lien-fleche:hover, .group:hover .lien-fleche)::after {
+  transform: translate(0.18em, -0.04em);
+}
+
 .btn-verre {
   background: rgba(43, 35, 32, 0.76);
   backdrop-filter: blur(16px) saturate(1.5);

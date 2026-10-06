@@ -51,7 +51,7 @@ export function GlobalHeader({
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-4">
         <Link
           href={`/${locale}`}
-          className={`min-w-0 truncate font-mono text-sm tracking-widest ${overlay ? "text-white drop-shadow" : ""}`}
+          className={`font-display min-w-0 truncate text-[15px] tracking-[0.3em] ${overlay ? "text-white drop-shadow" : "text-[#1d1d1f]"}`}
         >
           {dict.meta.siteName.toUpperCase()}
         </Link>

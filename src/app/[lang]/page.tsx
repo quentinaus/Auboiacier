@@ -16,7 +16,7 @@ import { Parallaxe } from "@/components/parallaxe";
 import { getProduct } from "@/lib/products";
 import { prixAppelGC } from "@/lib/prix-garde-corps.server";
 import { prixAffiche } from "@/lib/ui";
-import { MiniGardeCorps } from "@/components/releve-garde-corps";
+import { GardeCorpsEnAplats } from "@/components/chargement-modeles";
 
 /** Panneau cliquable : image plein cadre, titre centré, bouton. Pleine
  *  largeur sur téléphone, une moitié d'écran à partir de la tablette. */
@@ -52,7 +52,7 @@ function HeroPanel({
   return (
     <Link
       href={href}
-      className={`group relative flex min-h-[46vh] items-center justify-center overflow-hidden sm:min-h-[58vh] md:min-h-[78vh] ${
+      className={`group relative flex min-h-[46vh] items-center justify-center overflow-hidden sm:min-h-[52vh] md:min-h-[64vh] ${
         divider ? "border-t border-white/15 md:border-l md:border-t-0" : ""
       }`}
     >
@@ -78,12 +78,12 @@ function HeroPanel({
             comme pour Google. */}
         <p
           style={entree(0)}
-          className={`entree-monte ${serif.className} max-w-md text-3xl font-normal leading-tight text-white drop-shadow-lg sm:text-4xl md:text-5xl`}
+          className={`entree-monte ${serif.className} max-w-md text-[2.2rem] font-normal leading-[1.04] tracking-[-0.016em] text-white drop-shadow-lg sm:text-[2.6rem] md:text-[3.4rem]`}
         >
           {title}
         </p>
         {subtitle && (
-          <p style={entree(1)} className="entree-monte mt-4 max-w-sm text-[13px] leading-relaxed text-white/90 drop-shadow-md sm:mt-5 sm:max-w-md sm:text-sm">
+          <p style={entree(1)} className="entree-monte mt-4 max-w-sm text-[15px] leading-snug text-white/90 drop-shadow-md sm:mt-5 sm:max-w-md md:text-[17px]">
             {subtitle}
           </p>
         )}
@@ -92,7 +92,7 @@ function HeroPanel({
             écran. Toute la tuile est le lien ; ce bouton n'est qu'une
             invitation. Le seul plein bordeaux de l'accueil est « Demander un
             devis », en bas de page : c'est lui qui convertit. */}
-        <span style={entree(2)} className="entree-monte mt-6 inline-block border border-white/70 px-7 py-3 text-[11px] font-medium uppercase leading-tight tracking-[0.18em] text-white transition-colors duration-300 group-hover:bg-white group-hover:text-[#2b2320] sm:px-8 sm:py-3.5 md:mt-7 md:tracking-[0.2em]">
+        <span style={entree(2)} className="entree-monte lien-fleche mt-6 text-white md:mt-7">
           {cta}
         </span>
       </div>
@@ -268,7 +268,58 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
       <GlobalHeader locale={locale} dict={dict} overlay />
       <main id="contenu">
 
-      {/* 1. Les deux univers, plein écran */}
+      {/* 1. Le premier écran, façon Apple (Quentin, 06/10/2026 : « plus premium, plus Apple ») : une seule grande photo,
+          le grand titre de la page — le métier et la ville —, une phrase, deux boutons. Le h1 garde toute sa phrase pour
+          le référencement : le métier en très grand, le reste dessous. */}
+      {(() => {
+        const [metier, ...reste] = t.h1.split(" — ");
+        return (
+          <section className="relative flex min-h-[100svh] items-end overflow-hidden bg-[#1d1d1f] md:items-center">
+            <div className="camera-lente absolute inset-0">
+              <Image
+                src="/images/mikado/ambiance.jpg"
+                alt={t.altHeroMobilier}
+                fill
+                priority
+                sizes="100vw"
+                style={{ objectPosition: "50% 58%" }}
+                className="object-cover"
+              />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/45 md:bg-gradient-to-r md:from-black/60 md:via-black/30 md:to-black/5" />
+            <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-16 pt-32 md:pb-0 md:pt-0">
+              <h1 className={`${serif.className} max-w-5xl text-white`}>
+                <span className="entree-monte block text-[clamp(2.9rem,8.4vw,6.4rem)] font-normal leading-[0.98] tracking-[-0.022em]" style={{ "--retard": "200ms" } as CSSProperties}>
+                  {metier}
+                </span>
+                {reste.length > 0 && (
+                  <>
+                    {/* Le tiret reste dans le texte du titre : sans lui, Google et les lecteurs d'écran liraient les
+                        deux moitiés collées. */}
+                    <span className="sr-only"> — </span>
+                    <span
+                      className="entree-monte mt-5 block max-w-xl font-sans text-[17px] font-normal leading-[1.45] tracking-[-0.01em] text-white/88 md:mt-7 md:text-[21px]"
+                      style={{ "--retard": "420ms" } as CSSProperties}
+                    >
+                      {reste.join(" — ").replace(/^./, (c) => c.toUpperCase())}.
+                    </span>
+                  </>
+                )}
+              </h1>
+              <div className="entree-monte mt-8 flex flex-wrap items-center gap-x-6 gap-y-4 md:mt-10" style={{ "--retard": "620ms" } as CSSProperties}>
+                <Link href={`/${locale}/artisanat`} className="btn-clair">
+                  {t.craftCta}
+                </Link>
+                <Link href={`/${locale}/toiles-tendues`} className="lien-fleche text-white">
+                  {t.lightingCta}
+                </Link>
+              </div>
+            </div>
+          </section>
+        );
+      })()}
+
+      {/* 1 ter. Les deux univers, juste sous le premier écran */}
       {/* Sur téléphone les panneaux se superposent : côte à côte, ils ne font
           que 180 px de large et le texte devient illisible. */}
       <section className="grid grid-cols-1 md:grid-cols-2">
@@ -280,17 +331,15 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           subtitle={t.lightingSubtitle}
           objectPosition="50% 26%"
           cta={t.lightingCta}
-          priority
         />
         <HeroPanel
           href={`/${locale}/artisanat`}
-          src="/images/mikado/ambiance.jpg"
-          alt={t.altHeroMobilier}
+          src="/images/escalier/limon-droit.jpg"
+          alt={t.altEscaliers}
           title={t.craftTitle}
           subtitle={t.craftSubtitle}
           cta={t.craftCta}
-          objectPosition="50% 55%"
-          priority
+          objectPosition="72% 50%"
           divider
           rang={1}
         />
@@ -302,17 +351,19 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
         <section className="bg-[#f5f1ea] px-4 py-6 md:px-6 md:py-8">
           <div className="mx-auto flex max-w-5xl flex-col items-center gap-5 rounded-[26px] border border-[#e5ddd3] bg-white px-5 py-6 shadow-[0_22px_50px_-36px_rgba(43,35,32,0.5)] md:flex-row md:gap-8 md:px-8">
             {/* Le dessin d'un garde-corps de la fiche (deux croix, rosaces, main courante en chêne) : pas une photo. */}
-            <div className="w-40 shrink-0 rounded-2xl bg-[#f7f4ef] px-4 pb-3 pt-4 md:w-48" aria-hidden>
-              <MiniGardeCorps largeurMm={1000} hauteurMm={400} hMaxMm={400} soubassementMm={0} croix={2} hauteurPx={64} />
-            </div>
+            {/* Le garde-corps en aplats des films du site, qui se fabrique sous les yeux quand le bandeau arrive (Quentin,
+                06/10/2026 : reprendre le motion design déjà fait) : cadre, croix, soudure, rosaces, main courante en chêne. */}
+            <Apparition className="w-44 shrink-0 rounded-2xl bg-[#f7f4ef] px-4 pb-3 pt-4 md:w-52">
+              <GardeCorpsEnAplats uneFois className="h-auto w-full" />
+            </Apparition>
             <div className="min-w-0 flex-1 text-center md:text-left">
-              <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-[#6f6357]">
+              <p className="surtitre">
                 {locale === "fr" ? "Sur mesure, aux normes" : "Made to measure, to standard"}
               </p>
-              <p className={`${serif.className} mt-1.5 text-2xl leading-tight text-[#2b2320] md:text-[1.9rem]`}>
+              <p className={`${serif.className} mt-1 text-[1.75rem] leading-[1.08] tracking-[-0.01em] text-[#2b2320] md:text-[2.1rem]`}>
                 {locale === "fr" ? "Garde-corps de fenêtre" : "Window railings"}
               </p>
-              <p className="mt-2 text-[15px] leading-snug text-[#4a4038]">
+              <p className="mt-2 text-[15px] leading-snug text-[#4a4038] md:text-[17px]">
                 {locale === "fr" ? "Dès " : "From "}
                 <span className="font-semibold text-[#2b2320]">{prixAffiche(appelGC.prix, locale)}</span>
                 {locale === "fr"
@@ -322,7 +373,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
             </div>
             <Link
               href={`/${locale}/artisanat/garde-corps#configuration`}
-              className="shrink-0 rounded-full bg-[#2b2320] px-7 py-3.5 text-[12px] font-semibold uppercase tracking-[0.16em] text-white transition-colors hover:bg-[#3d3532]"
+              className="btn-plein shrink-0"
             >
               {locale === "fr" ? "Calculer mon prix" : "Get my price"}
             </Link>
@@ -330,51 +381,16 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
         </section>
       )}
 
-      {/* 2. Ce que fait l'atelier, écrit noir sur blanc.
-          Le titre de niveau 1 était caché et ne contenait aucun des mots que
-          les gens tapent : ni métallier, ni Saumur, ni table, ni acier. Google
-          accorde très peu de poids à un titre invisible — et un visiteur qui
-          arrive du moteur veut savoir en une phrase où il est tombé. */}
-      <section className="border-t border-[#e5ddd3] bg-[#ffffff] px-6 py-8 md:py-10">
-        <Apparition className="mx-auto max-w-2xl text-center">
-          {/* Le titre garde toute sa phrase pour le référencement, mais se
-              lit en deux temps : le métier et la ville en lettrine, le
-              reste en dessous, plus discret. */}
-          {(() => {
-            const [metier, ...reste] = t.h1.split(" — ");
-            return (
-              <h1 className={`${serif.className} text-[#2b2320]`}>
-                <span className="block text-xl leading-tight sm:text-2xl md:text-[1.6rem]">{metier}</span>
-                {reste.length > 0 && (
-                  <>
-                    {/* Le tiret reste dans le texte du titre : sans lui, Google
-                        et les lecteurs d'écran lisaient « Métallier à
-                        Saumurgarde-corps… », les deux moitiés collées. */}
-                    <span className="sr-only"> — </span>
-                    <span className="mt-2 block text-sm font-normal leading-relaxed text-[#6f6357] md:text-[0.95rem]">
-                      {reste.join(" — ")}
-                    </span>
-                  </>
-                )}
-              </h1>
-            );
-          })()}
-          <span aria-hidden className="mx-auto mt-5 block h-px w-10">
-            <span className="trait-dessine block h-full w-full bg-[#2b2320]/60" />
-          </span>
-        </Apparition>
-      </section>
-
       {/* 2 bis. Le configurateur : ce que peu d'artisans offrent, dit
           clairement — on entre ses cotes, on voit le prix, on télécharge
           son devis. Trois portes, une par famille configurable. */}
       <section className="border-t border-[#e5ddd3] bg-[#f5f1ea] px-6 py-14 md:py-20">
         <Apparition className="mx-auto max-w-3xl text-center">
-          <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-[#6f6357]">{t.configLabel}</p>
-          <h2 className={`${serif.className} mt-4 text-2xl text-[#2b2320] sm:text-3xl md:text-[2.4rem] md:leading-tight`}>
+          <p className="surtitre">{t.configLabel}</p>
+          <h2 className={`${serif.className} mt-3 text-[2.1rem] leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.7rem] md:text-[3.5rem]`}>
             {t.configTitle}
           </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-[#5c5140] md:text-[0.95rem]">{t.configText}</p>
+          <p className="mx-auto mt-5 max-w-2xl text-[17px] leading-[1.5] text-[#5c5140] md:text-[19px]">{t.configText}</p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
             {[
               // Chaque porte mène aux modèles de sa famille — pas à un seul
@@ -386,11 +402,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               <Link
                 key={porte.href}
                 href={porte.href}
-                className={`inline-flex items-center justify-center rounded-full px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] transition-colors ${
-                  porte.plein
-                    ? "btn-verre text-white"
-                    : "border border-[#2b2320]/30 text-[#2b2320] hover:border-black hover:text-black"
-                }`}
+                className={porte.plein ? "btn-plein" : "btn-contour"}
               >
                 {porte.label}
               </Link>
@@ -414,8 +426,8 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           </Parallaxe>
           <div className="absolute inset-0 bg-black/35" />
           <Apparition className="relative z-10 px-6 text-center">
-            <h2 className={`${serif.className} text-2xl text-white drop-shadow-lg sm:text-3xl`}>{t.bandTitle}</h2>
-            <p className="mx-auto mt-3 max-w-xl text-sm text-white/85 drop-shadow md:text-[0.95rem]">{t.bandSubtitle}</p>
+            <h2 className={`${serif.className} text-[2rem] leading-[1.05] tracking-[-0.016em] text-white drop-shadow-lg sm:text-[2.6rem] md:text-[3.2rem]`}>{t.bandTitle}</h2>
+            <p className="mx-auto mt-3 max-w-xl text-[16px] text-white/88 drop-shadow md:text-[19px]">{t.bandSubtitle}</p>
           </Apparition>
         </div>
       </section>
@@ -423,11 +435,11 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
       {/* 4. Les catégories */}
       <section className="bg-[#f5f1ea] px-6 pb-16 pt-10 md:pb-24">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-center text-[11px] font-medium uppercase tracking-[0.3em] text-[#6f6357]">
+          <h2 className={`${serif.className} text-center text-[2.1rem] leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.7rem] md:text-[3.2rem]`}>
             {t.categoriesTitle}
           </h2>
           {/* Quatre par rangée, plus petites ; la dernière rangée se centre. */}
-          <div className="mt-8 flex flex-wrap justify-center gap-4 sm:gap-6">
+          <div className="mt-10 flex flex-wrap justify-center gap-4 sm:gap-6 md:mt-14">
             {/* Les tuiles d'une même rangée arrivent l'une après l'autre. */}
             {categories.map((c, i) => (
               <Apparition
@@ -447,11 +459,11 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           Chaque lien mène à la fiche de la fabrication citée. */}
       <section className="border-t border-[#e5ddd3] bg-white px-6 py-14 md:py-20">
         <Apparition className="mx-auto max-w-3xl">
-          <h2 className={`${serif.className} text-2xl text-[#2b2320] sm:text-3xl`}>{t.seoTitle}</h2>
-          <p className="mt-5 text-sm leading-relaxed text-[#4a4038] md:text-[0.95rem]">{t.seoP1}</p>
-          <p className="mt-4 text-sm leading-relaxed text-[#4a4038] md:text-[0.95rem]">{t.seoP2}</p>
-          <h3 className="mt-8 text-[11px] font-medium uppercase tracking-[0.25em] text-[#6f6357]">{t.seoLinksTitle}</h3>
-          <ul className="mt-4 grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
+          <h2 className={`${serif.className} text-[1.9rem] leading-[1.08] tracking-[-0.016em] text-[#2b2320] sm:text-[2.3rem]`}>{t.seoTitle}</h2>
+          <p className="mt-5 text-[16px] leading-[1.6] text-[#4a4038] md:text-[17px]">{t.seoP1}</p>
+          <p className="mt-4 text-[16px] leading-[1.6] text-[#4a4038] md:text-[17px]">{t.seoP2}</p>
+          <h3 className="surtitre mt-9">{t.seoLinksTitle}</h3>
+          <ul className="mt-4 grid gap-x-8 gap-y-2.5 text-[16px] sm:grid-cols-2">
             {[
               "/artisanat/garde-corps",
               "/garde-corps-fenetre-normes",
@@ -488,7 +500,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
       {/* 6. Les avis — remplir `testimonials` dès qu'il y a de vrais retours clients. */}
       <section className="bg-[#f5f1ea] px-6 py-16 md:py-24">
         <Apparition className="mx-auto max-w-5xl">
-          <h2 className="text-center text-[11px] font-medium uppercase tracking-[0.3em] text-[#6f6357]">
+          <h2 className={`${serif.className} text-center text-[2.1rem] leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.7rem]`}>
             {t.testimonialsTitle}
           </h2>
 
@@ -506,7 +518,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               ))}
             </div>
           ) : (
-            <p className="mx-auto mt-8 max-w-xl text-center leading-relaxed text-[#726757]">
+            <p className="mx-auto mt-6 max-w-xl text-center text-[17px] leading-[1.5] text-[#5c5140]">
               {ficheGoogle ? t.testimonialsNoteGoogle : t.testimonialsNote}
             </p>
           )}
@@ -522,7 +534,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
                 href={ficheGoogle}
                 target="_blank"
                 rel="noopener"
-                className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"
+                className="lien-fleche py-2 text-[#2b2320]"
               >
                 {t.avisGoogle}
               </a>
@@ -535,7 +547,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               <Link
                 key={lien.href}
                 href={lien.href}
-                className="inline-block py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#2b2320] underline underline-offset-8 hover:text-black"
+                className="lien-fleche py-2 text-[#2b2320]"
               >
                 {lien.label}
               </Link>
@@ -557,11 +569,11 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
         </Parallaxe>
         <div className="absolute inset-0 bg-black/45" />
         <Apparition className="relative z-10 mx-auto max-w-3xl px-6 text-center">
-          <h2 className={`${serif.className} text-2xl text-white sm:text-3xl md:text-4xl`}>{t.missionTitle}</h2>
-          <p className="mx-auto mt-6 max-w-xl leading-relaxed text-white/85">{t.missionBody}</p>
+          <h2 className={`${serif.className} text-[2.2rem] leading-[1.05] tracking-[-0.018em] text-white sm:text-[2.8rem] md:text-[3.6rem]`}>{t.missionTitle}</h2>
+          <p className="mx-auto mt-6 max-w-xl text-[17px] leading-[1.5] text-white/88 md:text-[19px]">{t.missionBody}</p>
           <Link
             href={`/${locale}/contact`}
-            className="btn-verre mt-10 inline-block px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
+            className="btn-clair mt-10"
           >
             {t.missionCta}
           </Link>
