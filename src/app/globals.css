@@ -256,11 +256,10 @@ textarea:focus-visible,
     --h: clamp(150px, calc(100svh - 540px), 34svh);
   }
   /* Le doigt dans une case : le clavier va couvrir le bas de l'écran. Le croquis se fait plus petit pour rester visible
-     au-dessus de lui, avec la case ; le conseil s'efface. */
+     au-dessus de lui, avec la case ; l'aide s'efface. */
   .fond-gc[data-parcours="1"][data-clavier="1"] .schema-configuration > div {
     --h: clamp(120px, 21svh, 180px);
   }
-  .fond-gc[data-parcours="1"][data-clavier="1"] .conseil-telephone,
   .fond-gc[data-parcours="1"][data-clavier="1"] .aide-question,
   .fond-gc[data-parcours="1"][data-clavier="1"] .qui-mesure-question {
     display: none;

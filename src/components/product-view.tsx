@@ -693,19 +693,6 @@ export function ProductView({
           <div className={troisColonnes ? "titre-config md:col-span-2 md:flex md:items-center md:justify-between md:gap-4 lg:col-span-3 lg:grid lg:grid-cols-[262px_minmax(0,1fr)_272px] lg:items-center lg:gap-x-4 xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:gap-x-5" : "lg:col-span-2"}>
             <div>
               <h2 className={`${serif.className} text-lg leading-none text-[#2b2320] md:text-[28px]`}>{t.configurationTitle}</h2>
-              {/* Le conseil de Quentin (05/10) : un garde-corps a beaucoup de réglages et de normes ; l'ordinateur, qui montre tout
-                  d'un coup, est plus confortable — mais téléphone et tablette marchent aussi. */}
-              {troisColonnes && (
-                <p className="conseil-telephone mt-1 text-[11px] leading-snug text-[#6f6357] lg:hidden">
-                  {/* Sur téléphone, en étapes : plus de « Plus confortable sur ordinateur » (Quentin, 06/10, d'après l'étude
-                      marketing : il décourageait, alors que le parcours en questions marche bien sur téléphone). */}
-                  <span className={parcoursTel ? "max-md:hidden" : undefined}>
-                    {locale === "fr"
-                      ? "Conseil : sur ordinateur, tous les réglages s'affichent d'un coup — c'est plus confortable. Ici aussi, tout fonctionne."
-                      : "Tip: on a computer, every setting shows at once — it is more comfortable. Everything works here too."}
-                  </span>
-                </p>
-              )}
             </div>
             {/* Entre 1024 et 1280 px, la colonne du milieu est trop étroite pour la ligne des matières : elle prend aussi la
                 place au-dessus de la colonne d'achat (sinon elle passait sur le titre). */}
