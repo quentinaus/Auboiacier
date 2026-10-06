@@ -17,12 +17,19 @@ l'animation y est en `@keyframes` CSS. Avec `index.html?t=3.5`, toutes les anima
 qui permet d'en tirer des images fixes ou de vérifier un instant précis. Elle n'entre pas dans le dépôt (ses milliers
 de nombres peuvent ressembler par hasard à une valeur du chiffrage) : `python3 docs/motion-aplat/build.py` la récrit.
 
-Sur le site, `scripts/extraire-motion-aplat.mjs` en copie les trois scènes et leurs styles, sans les redessiner, dans
-`src/components/motion-aplat.genere.ts`. Après une retouche de la maquette :
+Sur le site, les films sont des **vidéos** (Quentin, 07/10/2026 : dessinés en direct, ils ramaient dans Safari) :
 
 ```bash
 node scripts/extraire-motion-aplat.mjs
+node scripts/rendre-films-aplat.mjs
 ```
 
-Ce que le site en fait : `src/components/porte-qui-mesure.tsx` (les deux cartes de « Qui prend les mesures ? ») et
+Le premier écrit `scripts/films-aplat.genere.mjs` (les scènes complètes, pour fabriquer les vidéos) et
+`src/components/motion-aplat.genere.ts` (seulement l'habillage posé par-dessus : étiquettes d'étape, légendes, traits).
+Le second rend chaque film image par image à 60 images/s (Chrome sans écran) et écrit `public/videos/aplat/` :
+`<film>-grand.mp4` (1440 × 800), `<film>-petit.mp4` (972 × 540, petits textes agrandis, pour le téléphone), et leurs
+images fixes (début, et fin pour les visiteurs qui demandent moins d'animations). Il faut Chrome et ffmpeg.
+
+Ce que le site en fait : `src/components/motion-aplat.tsx` (la vidéo, et l'habillage calé sur elle),
+`src/components/porte-qui-mesure.tsx` (les deux cartes de « Qui prend les mesures ? ») et
 `src/components/serenite-atelier.tsx` (le film, en mode « L'atelier vient mesurer »).

@@ -148,15 +148,47 @@ const propre = (texte) => {
 const cssPropre = propre(css);
 for (const nom of Object.keys(scenes)) scenes[nom] = propre(scenes[nom]);
 
+/**
+ * Le site ne dessine plus les scènes : il montre leurs vidéos (scripts/rendre-films-aplat.mjs, motion-aplat.tsx). Il ne
+ * garde que l'HABILLAGE posé par-dessus — étiquettes d'étape, légendes, traits de progression, cadres — sans les
+ * mouvements des dessins : une classe qui n'existe que dans les dessins (SVG) et ses images clés ne servent plus.
+ */
+// (La scène A, l'utilitaire seul, n'est plus sur le site : ses classes partent aussi.)
+const dessins = [...Object.values(scenes), svgApres('class="aplat-card-scene aplat-scA"')];
+const classesDessins = new Set(dessins.flatMap((svg) => [...svg.matchAll(/class="([^"]+)"/g)].flatMap((m) => m[1].split(/\s+/))));
+const deDessin = (selecteur) => [...selecteur.matchAll(/\.(aplat-[\w-]+)/g)].some((m) => classesDessins.has(m[1]));
+function habillage(texte) {
+  let sortie = "";
+  for (const { prelude, corps } of blocs(texte)) {
+    if (prelude.startsWith("@keyframes")) {
+      if (!classesDessins.has(prelude.replace("@keyframes", "").trim())) sortie += `${prelude}{${corps.trim()}}\n`;
+    } else if (/^@(media|container|supports)/.test(prelude)) {
+      const dedans = habillage(corps);
+      if (dedans.trim()) sortie += `${prelude}{\n${dedans}}\n`;
+    } else {
+      const gardes = prelude.split(",").map((x) => x.trim()).filter((x) => !deDessin(x));
+      if (gardes.length) sortie += `${gardes.join(",")}{${corps.trim()}}\n`;
+    }
+  }
+  return sortie;
+}
+const cssHabillage = habillage(cssPropre);
+
 const entete =
-  "// Généré par scripts/extraire-motion-aplat.mjs depuis docs/motion-aplat/index.html : ne pas modifier à la main.\n" +
-  "// Les scènes en aplats validées par Quentin le 05/10/2026 (cartes « Qui prend les mesures ? » et film du parcours).\n";
-const corps = [
-  `export const CSS_APLAT = ${JSON.stringify(cssPropre)};`,
-  ...Object.entries(scenes).map(([nom, svg]) => `export const ${nom} = ${JSON.stringify(svg)};`),
-].join("\n");
-writeFileSync(join(racine, "src/components/motion-aplat.genere.ts"), `${entete}${corps}\n`);
+  "// Généré par scripts/extraire-motion-aplat.mjs depuis docs/motion-aplat/index.html : ne pas modifier à la main.\n";
+writeFileSync(
+  join(racine, "src/components/motion-aplat.genere.ts"),
+  `${entete}// L'habillage des films en aplats (étiquettes d'étape, légendes, traits de progression), calé sur leurs vidéos.\n` +
+    `export const CSS_APLAT = ${JSON.stringify(cssHabillage)};\n`,
+);
+// Les scènes complètes : seulement pour fabriquer les vidéos (scripts/rendre-films-aplat.mjs), jamais envoyées au site.
+writeFileSync(
+  join(racine, "scripts/films-aplat.genere.mjs"),
+  `${entete}// Les scènes complètes des films en aplats, pour scripts/rendre-films-aplat.mjs.\n` +
+    [`export const CSS_APLAT = ${JSON.stringify(cssPropre)};`, ...Object.entries(scenes).map(([nom, svg]) => `export const ${nom} = ${JSON.stringify(svg)};`)].join("\n") +
+    "\n",
+);
 
 const ko = (n) => `${Math.round(n / 1024)} ko`;
 if (decalages) console.log(`${decalages} nombre(s) décalé(s) d'une unité (ressemblance avec une valeur du chiffrage).`);
-console.log(`motion-aplat.genere.ts : CSS ${ko(cssPropre.length)}, ${Object.entries(scenes).map(([n, s]) => `${n} ${ko(s.length)}`).join(", ")}`);
+console.log(`site : habillage ${ko(cssHabillage.length)} ; vidéos : CSS ${ko(cssPropre.length)}, ${Object.entries(scenes).map(([n, x]) => `${n} ${ko(x.length)}`).join(", ")}`);

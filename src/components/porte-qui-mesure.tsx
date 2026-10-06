@@ -2,7 +2,7 @@
 
 import { createContext, useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from "react";
 import { serif } from "@/lib/fonts";
-import { SceneAplat, useScenesAplat } from "./motion-aplat";
+import { FilmAplat } from "./motion-aplat";
 import { PRIX_OFFRE_CENTS } from "@/lib/deplacement";
 import { prixAffiche } from "@/lib/ui";
 
@@ -76,7 +76,6 @@ export function PorteQuiMesure({
   /** Au retour : le voile, plein, doit se replier sur sa carte dès que les cartes sont posées. */
   const repli = useRef(false);
   const fin = useEffectEvent(onFin);
-  const scenes = useScenesAplat();
 
   useEffect(() => {
     const el = racine.current;
@@ -193,7 +192,7 @@ export function PorteQuiMesure({
       id: "atelier" as const,
       // Le film du parcours (prise de cotes, prix, fabrication, pose), le même que dans le mode atelier : Quentin
       // l'a voulu ici, et que la carte dise que l'atelier s'occupe de tout, pose comprise (05/10/2026).
-      scene: "SVG_FILM" as const,
+      film: "atelier" as const,
       classeScene: "aplat-film porte-scene-film",
       etiquette: fr ? "Sans rien mesurer" : "Nothing to measure",
       titre: fr ? "L'atelier mesure et s'occupe de\u00a0tout" : "The workshop measures and handles everything",
@@ -218,7 +217,7 @@ export function PorteQuiMesure({
     },
     {
       id: "moi" as const,
-      scene: "SVG_JE_MESURE" as const,
+      film: "je-mesure" as const,
       classeScene: "aplat-scB porte-scene-film",
       etiquette: notes.tagMoi,
       // « Je mesure, l'atelier fabrique, je pose » (Quentin, 06/10/2026 : « on ne comprend pas que c'est l'atelier qui
@@ -277,13 +276,13 @@ export function PorteQuiMesure({
               onClick={(e) => choisir(c.id, e.currentTarget)}
               className="porte-carte aplat-card flex min-h-0 flex-col text-left focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#2b2320]"
             >
-              <SceneAplat scenes={scenes} svg={c.scene} className={`aplat-card-scene ${c.classeScene} porte-scene`}>
+              <FilmAplat film={c.film} className={`aplat-card-scene ${c.classeScene} porte-scene`}>
                 {c.etiquettes.textes.map((texte, i) => (
                   <span key={i} aria-hidden className={`aplat-et ${c.etiquettes.classe}${i}`}>
                     <b>{i + 1}</b> · {texte}
                   </span>
                 ))}
-              </SceneAplat>
+              </FilmAplat>
               <span className="aplat-card-body porte-texte shrink-0">
                 <span className="aplat-tag">{c.etiquette}</span>
                 <span className="aplat-card-title block">{c.titre}</span>
