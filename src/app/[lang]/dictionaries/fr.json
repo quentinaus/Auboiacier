@@ -726,7 +726,7 @@
     "checkout": "Payer ma commande",
     "redirecting": "Ouverture du paiement sécurisé…",
     "securedBy": "Paiement sécurisé par carte bancaire. Vos coordonnées bancaires ne transitent jamais par notre site.",
-    "privacyNote": "Vos coordonnées et votre adresse sont saisies sur la page de Stripe et servent uniquement à la commande.",
+    "privacyNote": "Vos coordonnées et votre adresse sont saisies sur la page de Stripe et servent à la commande et à son suivi (dont une seule demande d'avis après la livraison).",
     "privacyLink": "Politique de confidentialité",
     "removedLine": "Une pièce n'est plus disponible dans cette configuration : elle a été retirée du panier.",
     "unavailable": "Une pièce du panier n'est plus commandable en ligne. Retirez-la ou demandez un devis.",
@@ -862,7 +862,7 @@
       },
       {
         "title": "Données personnelles",
-        "body": "Les données transmises par les formulaires ou lors d'une commande servent uniquement à répondre à votre demande et à traiter votre commande. Vous disposez de droits d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité : écrivez à auboiacier@gmail.com. Le détail — données recueillies, prestataires, durées, transferts, cookies, recours auprès de la CNIL — figure dans la politique de confidentialité."
+        "body": "Les données transmises par les formulaires ou lors d'une commande servent à répondre à votre demande, à traiter votre commande et à son suivi (dont une seule demande d'avis après la livraison). Vous disposez de droits d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité : écrivez à auboiacier@gmail.com. Le détail — données recueillies, prestataires, durées, transferts, cookies, recours auprès de la CNIL — figure dans la politique de confidentialité."
       }
     ],
     "privacyCta": "Lire la politique de confidentialité",
@@ -1245,7 +1245,7 @@
   "avis": {
     "titre": "Merci !",
     "intro": "Merci de prendre un moment pour donner votre avis. Pour un petit atelier, chaque retour compte.",
-    "attente": "La page pour laisser un avis sur Google arrive très bientôt. Revenez à cette même adresse dans quelques jours : elle vous y mènera directement.",
+    "attente": "La page des avis n'est pas encore ouverte : cette même adresse y mènera bientôt.",
     "fiche": "Votre avis se donne sur la fiche Google de l'atelier : ouvrez-la, puis choisissez « Écrire un avis ».",
     "boutonFiche": "Ouvrir la fiche Google",
     "question": "Une question sur votre commande ? Écrivez-nous :",

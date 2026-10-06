@@ -16,7 +16,8 @@ import { serif } from "@/lib/fonts";
  * /avis, /fr/avis et /en/avis directement vers lui et cette page ne
  * s'affiche jamais ; la redirection ci-dessous n'est qu'un second filet.
  * Tant qu'il ne l'est pas : un merci, et soit la fiche Google de l'atelier
- * si elle est renseignée, soit « la page arrive ». Jamais d'erreur.
+ * si elle est renseignée, soit « la page n'est pas encore ouverte », sans
+ * promettre de date ni demander de revenir. Jamais d'erreur.
  *
  * Elle n'a rien à faire dans un moteur de recherche : « ne pas indexer », et
  * absente du plan du site.

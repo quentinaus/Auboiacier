@@ -214,15 +214,31 @@ Comment ça marche, sans que tu aies rien à faire :
 - « Prête » = date du paiement + délai de fabrication le plus long de la
   commande (celui écrit sur la fiche, 8 semaines si la fiche n'en donne pas)
   + 10 jours. Le retrait à l'atelier et la pose comptent comme une livraison.
-- Si tu coches « Livrée » sur ton écran de commandes : 10 jours après.
-  « Expédiée » : pas avant 17 jours après. « En fabrication » : le mail
-  attend.
-- Jamais de mail pour une commande remboursée (même en partie), annulée ou
-  contestée, ni pour une prise de cotes seule. Un client qui a commandé deux
-  fois ne reçoit qu'un seul mail.
-- Un client t'a dit qu'il ne veut pas de ce mail : Stripe > Paiements > son
-  paiement > Métadonnées > Modifier, ajoute `avis_demande_le` avec la valeur
-  `non`. C'est fini pour lui.
+- Si tu coches « Livrée » (ou « Posée », « Retirée ») sur ton écran de
+  commandes : 10 jours après. « Expédiée » : pas avant 17 jours après.
+  « Prête à poser » ou « Prête à retirer » : le mail attend que tu coches
+  « Posée » ou « Retirée » — pense à le faire le jour même. « En
+  fabrication » : le mail attend.
+- **Une commande en retard ? Laisse-la sur « En fabrication » tant qu'elle
+  n'est pas partie** (ou posée, ou retirée). Sinon le mail part à la date
+  prévue, avant la pièce.
+- Jamais de mail pour une commande annulée ou remboursée en totalité, ni
+  pour une prise de cotes seule. Une commande remboursée en partie, ou en
+  litige, reçoit le mail comme les autres : Google interdit de ne demander
+  l'avis qu'aux clients contents.
+- Un client qui a commandé deux fois ne reçoit qu'un seul mail, même s'il
+  recommande des années plus tard : le site le note aussi sur sa fiche
+  client chez Stripe.
+- Un client t'a dit qu'il ne veut pas de ce mail : Stripe > Clients > ce
+  client > Métadonnées > Modifier, ajoute `avis_demande_le` avec la valeur
+  `non`. C'est fini pour lui, pour toutes ses commandes, même futures. (S'il
+  a plusieurs fiches à la même adresse, une seule suffit. Sur son paiement,
+  ça marche aussi : le site recopie le « non » sur sa fiche le lendemain.)
+- Le site préfère ne pas envoyer plutôt qu'envoyer deux fois. Si Resend ne
+  répond pas clairement, le mail est peut-être parti : il ne repart pas, et
+  les Logs le disent (« peut-être partie(s) ») — regarde dans Resend >
+  Emails. Si rien ne part et que quelque chose a échoué, la ligne du cron
+  passe en rouge dans Settings > Cron Jobs.
 - Pour vérifier : Vercel > Settings > Cron Jobs > « Run » lance le passage
   tout de suite. Le résultat se lit dans Logs, en cherchant `[avis]`.
 

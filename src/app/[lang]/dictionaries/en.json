@@ -726,7 +726,7 @@
     "checkout": "Pay for my order",
     "redirecting": "Opening secure payment…",
     "securedBy": "Secure card payment. Your card details never pass through our website.",
-    "privacyNote": "Your contact details and address are entered on Stripe's page and used only for the order.",
+    "privacyNote": "Your contact details and address are entered on Stripe's page and used for the order and its follow-up (including a single review request after delivery).",
     "privacyLink": "Privacy policy",
     "removedLine": "One piece is no longer available in this configuration: it was removed from your cart.",
     "unavailable": "One item in your cart can no longer be ordered online. Remove it or request a quote.",
@@ -862,7 +862,7 @@
       },
       {
         "title": "Personal data",
-        "body": "Data sent through the forms or when ordering is used only to answer your request and process your order. You have the right to access, correct, erase, restrict and port your data, and to object to its use: write to auboiacier@gmail.com. Full details — data collected, providers, retention, transfers, cookies, how to complain to the CNIL — are in the privacy policy."
+        "body": "Data sent through the forms or when ordering is used to answer your request, process your order and follow it up (including a single review request after delivery). You have the right to access, correct, erase, restrict and port your data, and to object to its use: write to auboiacier@gmail.com. Full details — data collected, providers, retention, transfers, cookies, how to complain to the CNIL — are in the privacy policy."
       }
     ],
     "privacyCta": "Read the privacy policy",
@@ -891,7 +891,7 @@
       },
       {
         "title": "3. Why, and on what legal basis",
-        "body": "Answering your quote, contact or appointment request, telling you when orders open and giving you production priority if you asked us to (your email is deleted afterwards), and sending you an acknowledgement: steps taken at your request prior to a possible contract (Article 6(1)(b) GDPR).\n\nOpening and running your customer account (sign-in, saved details, favourites, order tracking): a service you ask us for (Article 6(1)(b)).\n\nProcessing your order, taking payment, organising manufacture, delivery or the visit, sending you the confirmation and invoice, handling warranties and after-sales service: performance of the contract (Article 6(1)(b)).\n\nAsking for your opinion, once only: an email about ten days after delivery inviting you, if you wish, to leave a review on the studio's Google page, with no reminder and nothing offered in return: legitimate interest in following up with our customers (Article 6(1)(f)). A simple email is enough not to receive it.\n\nKeeping invoices and accounting records: legal obligation (Article 6(1)(c); French Commercial Code).\n\nProtecting the site against abuse (limit on submissions per IP address, anti-bot field, technical logs) and measuring traffic without identifying anyone: legitimate interest (Article 6(1)(f)), with no impact on your rights and freedoms.\n\nWe do no marketing: no newsletter, no promotional follow-up, no sale or sharing of your data for marketing purposes. If we ever offered a newsletter, it would rely on your consent, freely given and revocable at any time."
+        "body": "Answering your quote, contact or appointment request, telling you when orders open and giving you production priority if you asked us to (your email is deleted afterwards), and sending you an acknowledgement: steps taken at your request prior to a possible contract (Article 6(1)(b) GDPR).\n\nOpening and running your customer account (sign-in, saved details, favourites, order tracking): a service you ask us for (Article 6(1)(b)).\n\nProcessing your order, taking payment, organising manufacture, delivery or the visit, sending you the confirmation and invoice, handling warranties and after-sales service: performance of the contract (Article 6(1)(b)).\n\nAsking for your opinion, once only: an email about ten days after delivery inviting you, if you wish, to leave a review on the workshop's Google page, with no reminder and nothing offered in return: legitimate interest in following up with our customers (Article 6(1)(f)). Just email us if you would rather not receive it.\n\nKeeping invoices and accounting records: legal obligation (Article 6(1)(c); French Commercial Code).\n\nProtecting the site against abuse (limit on submissions per IP address, anti-bot field, technical logs) and measuring traffic without identifying anyone: legitimate interest (Article 6(1)(f)), with no impact on your rights and freedoms.\n\nWe do no marketing: no newsletter, no promotional follow-up, no sale or sharing of your data for marketing purposes. If we ever offered a newsletter, it would rely on your consent, freely given and revocable at any time."
       },
       {
         "title": "4. Who receives your data",
@@ -1245,7 +1245,7 @@
   "avis": {
     "titre": "Thank you!",
     "intro": "Thank you for taking a moment to share your opinion. For a small workshop, every piece of feedback counts.",
-    "attente": "The page for leaving a Google review is coming very soon. Come back to this same address in a few days: it will take you straight there.",
+    "attente": "The review page is not open yet: this same address will take you there soon.",
     "fiche": "Reviews are left on the workshop's Google page: open it, then choose “Write a review”.",
     "boutonFiche": "Open the Google page",
     "question": "A question about your order? Write to us:",
