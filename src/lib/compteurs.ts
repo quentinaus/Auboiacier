@@ -61,6 +61,7 @@ export const FAMILLES = [
   "escalier",
   "garde-corps",
   "plafond",
+  "portail",
 ] as const satisfies readonly Famille[];
 
 /** Chaque étiquette et ses seules valeurs possibles. */

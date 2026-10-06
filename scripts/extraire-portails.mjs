@@ -31,15 +31,18 @@ const REFERENCE = join(RACINE, "tests/reference/portails-outil.json");
 const sha = (t) => createHash("sha256").update(t).digest("hex");
 
 const html = readFileSync(SOURCE, "utf8");
+/** Le texte entre deux repères ; le repère de début est un texte ou une RegExp (la date du collage change à chaque collage). */
 function entre(debut, fin) {
-  const i = html.indexOf(debut);
-  if (i < 0 || html.indexOf(debut, i + 1) >= 0) arret(`repère introuvable ou en double dans l'outil : ${debut.trim()}`);
+  const re = typeof debut === "string" ? new RegExp(debut.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&"), "g") : new RegExp(debut.source, "g");
+  const trouves = [...html.matchAll(re)];
+  if (trouves.length !== 1) arret(`repère introuvable ou en double dans l'outil : ${typeof debut === "string" ? debut.trim() : debut.source}`);
+  const i = trouves[0].index, long = trouves[0][0].length;
   const j = html.indexOf(fin, i);
   if (j < 0) arret(`repère de fin introuvable : ${fin.trim()}`);
-  return html.slice(i + debut.length, j);
+  return html.slice(i + long, j);
 }
-const plans = entre("/* ---------- Portails (plans/modules/plans-portails.js, collé tel quel le 06/10/2026) ---------- */\n", "\n  /* ---------- fin du module des portails ---------- */");
-const chiffrage = entre("/* ---------- Chiffrage des portails (plans/modules/chiffrage-portails.js, collé tel quel le 06/10/2026) ---------- */\n", "/* ---------- fin du chiffrage des portails ---------- */");
+const plans = entre(/\/\* ---------- Portails \(plans\/modules\/plans-portails\.js, collé tel quel le \d\d\/\d\d\/\d{4}\) ---------- \*\/\n/, "\n  /* ---------- fin du module des portails ---------- */");
+const chiffrage = entre(/\/\* ---------- Chiffrage des portails \(plans\/modules\/chiffrage-portails\.js, collé tel quel le \d\d\/\d\d\/\d{4}\) ---------- \*\/\n/, "/* ---------- fin du chiffrage des portails ---------- */");
 const tarifs = entre("/* ---- TARIFS GÉNÉRÉS DEPUIS LE TABLEUR (début)", "/* ---- TARIFS GÉNÉRÉS DEPUIS LE TABLEUR (fin)");
 // Le dessin SVG de l'outil (bornes, coteGeom, svgDe) : le même rendu que les plans, sans passer par le moteur du garde-corps.
 const dessin = entre("  /* ---------- Dessin SVG ---------- */\n", "  function dessiner(svg, prims, petit = false) {");

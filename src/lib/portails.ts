@@ -172,7 +172,7 @@ export const TEXTES_PORTAIL = {
     styles: { plein: "Plein", lisse: "Lisse", barreaux: "Barreaux", lamesChene: "Lames chêne", rosace: "Rosace", volutes: "Volutes" },
     stylesNote: {
       plein: "Lames alu emboîtées, on ne voit pas à travers", lisse: "Panneau alu lisse, moderne", barreaux: "Barreaux serrés, ajouré",
-      lamesChene: "Cadre alu, lames de chêne", rosace: "Croix et rosaces, comme le garde-corps", volutes: "Acier forgé, volutes et pointes",
+      lamesChene: "Cadre alu, lames de chêne", rosace: "Croix et rosaces, comme le garde-corps", volutes: "Acier, volutes en fer forgé et pointes",
     },
     compose: "Composé à votre goût",
     mat: { alu: "Alu", acier: "Acier" },
@@ -205,7 +205,7 @@ export const TEXTES_PORTAIL = {
     styles: { plein: "Solid", lisse: "Flat", barreaux: "Bars", lamesChene: "Oak slats", rosace: "Rosette", volutes: "Scrolls" },
     stylesNote: {
       plein: "Interlocking aluminium slats, fully private", lisse: "Flat aluminium panel, modern", barreaux: "Close vertical bars",
-      lamesChene: "Aluminium frame, oak slats", rosace: "Crosses and rosettes, like the balustrade", volutes: "Forged steel, scrolls and spear tips",
+      lamesChene: "Aluminium frame, oak slats", rosace: "Crosses and rosettes, like the balustrade", volutes: "Steel, wrought-iron scrolls and spear tips",
     },
     compose: "Made to your taste",
     mat: { alu: "Aluminium", acier: "Steel" },
