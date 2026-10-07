@@ -30,6 +30,9 @@ const POTEAUX = ["existants", "acier", "alu"] as const;
 // Les décors (lot 3, 07/10/2026) : les formules PT_DECOR_FORMULES de l'outil (motifs.js, références du commerce). Un décor
 // impose l'acier ; « Sur mesure » se chiffre sur devis (le moteur rend une alerte : « à étudier »).
 export const DECORS_PORTAIL = ["aucun", "classique", "frise", "medaillon", "couronnement", "coeurs", "surMesure"] as const;
+// Le moteur (lot 4, « Somfy partout ») : « conseille » laisse l'outil choisir (PT_MOTEURS : le plus facile à poser qui
+// convient à ce portail) ; sinon le client choisit Ixengo (vérins), Axovia (bras) ou Elixo (coulissant).
+export const MOTEURS_PORTAIL = ["conseille", "ixengo", "axovia", "elixo"] as const;
 export const COULEURS_PORTAIL = ["anthracite", "noir", "blanc", "vert", "rouille"] as const;
 
 export type ConfigPortail = {
@@ -50,6 +53,7 @@ export type ConfigPortail = {
   sens: "gauche" | "droite";
   poteaux: (typeof POTEAUX)[number];
   moteur: boolean;
+  moteurModele: (typeof MOTEURS_PORTAIL)[number];
   pente: number;
   couleur: (typeof COULEURS_PORTAIL)[number];
 };
@@ -66,7 +70,7 @@ export function configDepart(slug: SlugPortail, style: StylePortail = "plein"): 
   const base: ConfigPortail = {
     P: slug === "portillon" ? 1000 : 3500, H: 1600, mat: "alu", forme: "droit", fleche: 150, soub: "aucun", hSoub: 500,
     remp: "plein", decor: "aucun", pointes: false, lisse: false, vantaux: 2, rep: "egal", guidage: "rail", sens: "gauche",
-    poteaux: "existants", moteur: false, pente: 0, couleur: "anthracite",
+    poteaux: "existants", moteur: false, moteurModele: "conseille", pente: 0, couleur: "anthracite",
   };
   return appliquerStyle(base, style);
 }
@@ -106,6 +110,7 @@ export function versEntrees(cfg: ConfigPortail): Record<string, unknown> {
     ptP: cfg.P, ptH: cfg.H, ptMat: cfg.mat, ptForme: cfg.forme, ptFleche: cfg.fleche, ptSoub: cfg.soub, ptHSoub: cfg.hSoub,
     ptRemp: cfg.remp, ptDecor: cfg.decor, ptPointes: cfg.pointes, ptLisse: cfg.lisse, ptVantaux: String(cfg.vantaux), ptRep: cfg.rep,
     ptGuidage: cfg.guidage, ptSens: cfg.sens, ptPoteaux: cfg.poteaux, ptMoteur: cfg.moteur, ptPente: cfg.pente,
+    ...(cfg.moteurModele !== "conseille" ? { ptMoteurModele: cfg.moteurModele } : {}),
   };
 }
 
@@ -114,7 +119,7 @@ export function planPortail(slug: SlugPortail, cfg: ConfigPortail): ResultatPort
   return calculerPortail(versEntrees(cfg), SLUGS_PORTAIL[slug]);
 }
 
-const PARAMS: (keyof ConfigPortail)[] = ["P", "H", "mat", "forme", "fleche", "soub", "hSoub", "remp", "decor", "pointes", "lisse", "vantaux", "rep", "guidage", "sens", "poteaux", "moteur", "pente", "couleur"];
+const PARAMS: (keyof ConfigPortail)[] = ["P", "H", "mat", "forme", "fleche", "soub", "hSoub", "remp", "decor", "pointes", "lisse", "vantaux", "rep", "guidage", "sens", "poteaux", "moteur", "moteurModele", "pente", "couleur"];
 
 /** La configuration en paramètres d'adresse (pour /api/prix-portail). */
 export function versParams(slug: SlugPortail, cfg: ConfigPortail): URLSearchParams {
@@ -148,7 +153,7 @@ export function lireConfig(params: URLSearchParams): { slug: SlugPortail; cfg: C
     fleche: nombre("fleche", [0, 400]), soub: choix("soub", SOUBS), hSoub: nombre("hSoub", [0, 2000]), remp: choix("remp", REMPS),
     decor: choix("decor", DECORS_PORTAIL), pointes: bool("pointes"), lisse: bool("lisse"), vantaux: params.get("vantaux") === "1" ? 1 : params.get("vantaux") === "2" ? 2 : null,
     rep: choix("rep", ["egal", "tiers"] as const), guidage: choix("guidage", ["rail", "auto"] as const), sens: choix("sens", ["gauche", "droite"] as const),
-    poteaux: choix("poteaux", POTEAUX), moteur: bool("moteur"), pente: nombre("pente", b.pente), couleur: choix("couleur", COULEURS_PORTAIL),
+    poteaux: choix("poteaux", POTEAUX), moteur: bool("moteur"), moteurModele: choix("moteurModele", MOTEURS_PORTAIL), pente: nombre("pente", b.pente), couleur: choix("couleur", COULEURS_PORTAIL),
   };
   if (Object.values(cfg).some((x) => x === null)) return null;
   return { slug, cfg: cfg as ConfigPortail };

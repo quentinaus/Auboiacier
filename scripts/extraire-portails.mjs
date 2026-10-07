@@ -99,13 +99,13 @@ if (!/function svgDe\(/.test(dessin) || /document|window/.test(dessin)) arret("l
 for (const interdit of [/\bTARIFS_ACHATS\b/, /\bREGLAGES\b/, /\bprixPaye\b/, /\bht:/, /\bheure_atelier\b/, /\bchiffrerPortail\b/]) {
   if (interdit.test(plans)) arret(`le moteur des portails contient « ${interdit.source} » : il ne doit porter aucun prix`);
 }
-for (const n of ["calculerPortail", "ptEntrees", "PT_STYLES", "PT_MODELES", "PT_ATELIER", "PT_MATIERES", "PT_DECOR_FORMULES"]) {
+for (const n of ["calculerPortail", "ptEntrees", "PT_STYLES", "PT_MODELES", "PT_ATELIER", "PT_MATIERES", "PT_DECOR_FORMULES", "PT_MOTEURS"]) {
   if (!new RegExp(`^(?:const|function) ${n}\\b`, "m").test(plans)) arret(`${n} absent du moteur`);
 }
 const enTete = (quoi) => `// FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.\n// ${quoi}\n// Source : l'outil de plans (plans-atelier.html), sha256 ${sha(html).slice(0, 24)}.\n`;
 const moteur = enTete("Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.")
   + "/* eslint-disable */\n" + motifs + "\n" + plans + "\n" + dessin
-  + `\nexport { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, MT_AVEC, MT_NOMS };\nexport const EMPREINTE = ${JSON.stringify(empreinte(motifs + plans))};\n`;
+  + `\nexport { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, PT_MOTEURS, MT_AVEC, MT_NOMS };\nexport const EMPREINTE = ${JSON.stringify(empreinte(motifs + plans))};\n`;
 const moteurTypes = `// FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : types du moteur des portails (moteur.genere.mjs).
 export type Primitive = { t: string; [k: string]: unknown };
 export type ResultatPortail = {
@@ -118,6 +118,8 @@ export type ResultatPortail = {
   quant: Record<string, unknown>;
   config: Record<string, unknown> & { type: string; mat: string; remp: string; decor: string };
   decor: { formule: string; nom: string; refus: { quoi: string; raison: string }[]; cimierH: number } | null;
+  moteurs?: { permis: { cle: string; nom: string; facilite: number; garantie: number }[]; refus: { cle: string | null; nom: string; raison: string }[]; conseille: { cle: string } | null; choisi: { cle: string } | null; barrePalpeuse: boolean; notes: string[] };
+  pose?: { ouvrages: { rep: number; nom: string; qte: number; cotes: string; quiFait: string; delai: string }[]; reservations: { nom: string; quiFait: string; detail: string }[]; electricite: string[]; essais: string[]; prerequis: string[]; controle: string[]; notes: string[] };
 };
 export declare function calculerPortail(v: Record<string, unknown>, modele: string): ResultatPortail;
 export declare function ptEntrees(v: Record<string, unknown>, modele: string): Record<string, unknown>;
@@ -128,6 +130,7 @@ export declare const PT_ATELIER: Readonly<Record<string, unknown> & { bornes: { 
 export declare const PT_MATIERES: Readonly<Record<string, unknown>>;
 export declare const PT_DECOR_FORMULES: Readonly<Record<string, { nom: string; ligne: string; choix: Record<string, string>[] }>>;
 export declare const MT_AVEC: Readonly<Record<string, string[]>>;
+export declare const PT_MOTEURS: Readonly<{ cle: string; nom: string; ref: string; pour: string[]; principe: string; contenu: string; garantie: number }[]>;
 export declare const MT_NOMS: Readonly<Record<string, string>>;
 export declare const EMPREINTE: string;
 `;
@@ -159,6 +162,8 @@ const CAS = [];
 for (const modele of ["ptBattant", "ptCoulissant", "ptPliant", "ptPortillon"]) for (const ptStyle of ["plein", "lisse", "barreaux", "lamesChene", "rosace", "volutes"])
   for (const opts of [{}, { ptMoteur: true }, { ptPoteaux: "alu" }, { ptGuidage: "auto" }, { ptP: modele === "ptPortillon" ? 1200 : 4200, ptH: 1800 }])
     CAS.push({ modele, v: { ptStyle, ...(modele === "ptPortillon" ? { ptP: 1000 } : {}), ...opts } });
+// Les moteurs (lot 4) : Axovia demandé sur le battant ; Elixo et barre palpeuse sur un coulissant ajouré.
+CAS.push({ modele: "ptBattant", v: { ptStyle: "plein", ptMoteur: true, ptMoteurModele: "axovia" } }, { modele: "ptCoulissant", v: { ptStyle: "barreaux", ptMoteur: true } });
 // Les décors (lot 3) : chaque formule sur le battant et le portillon, avec le catalogue anonymisé du site.
 for (const modele of ["ptBattant", "ptPortillon"]) for (const ptDecor of ["classique", "frise", "medaillon", "couronnement", "coeurs", "surMesure"])
   CAS.push({ modele, v: { ptStyle: "barreaux", ptDecor, ...(modele === "ptPortillon" ? { ptP: 1000 } : {}) } });

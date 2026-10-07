@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 8c6f3c2992681e4c07411b93.
+// Source : l'outil de plans (plans-atelier.html), sha256 e4d33fc3330012c943e35f41.
 /* eslint-disable */
 
 
@@ -34,7 +34,7 @@ const MT_CHOIX = {
   assemblage: ["barreaux", "entre", "frise", "anneaux", "hauteur", "coeurs", "medaillon", "applique", "coins", "cimier", "appliquePlein"],
   forme: ["C", "S", "J", "coeur", "doubleC", "poste", "anneau"],
   bouts: ["droit", "effile", "bouton"],
-  liaison: ["soudure", "colliers"],
+  liaison: ["soudure"],
   barreaux: ["carre", "torsade", "bagues"],
   friseBasse: ["aucune", "postes"],
   pointes: ["aucune", "lance"],
@@ -373,22 +373,20 @@ function mtVolute(traits, forme, F, pieces, q, ch, devant = false, cat = null) {
   q.longueurVolutes = (q.longueurVolutes || 0) + longueur;
   return true;
 }
-function mtLien(F, pieces, q, ch, r, soude = false) {
+function mtLien(F, pieces, q, ch, r) {
   q.liens = q.liens || [];
   if (q.liens.some((l) => Math.abs(l[0] - r[0]) < 3 && Math.abs(l[1] - r[1]) < 12)) return;
   q.liens.push(r);
-  if (ch.liaison !== "colliers" || soude) { q.soudures = (q.soudures || 0) + 1; return; }
-  const [x, y, w, h] = r, C = MT_ATELIER.collier;
-  mtPoly(F, [[x, y], [x + w, y], [x + w, y + h], [x, y + h]], "Colliers", ch.dore ? "or" : "collier");
-  pieces.push({ nom: "Collier", mat: `Fer plat ${C.b} × ${C.e}`, long: 2 * (Math.max(w, h) + 20) + 2 * MT_ATELIER.volute.b, kgM: mtKgM(C.b, C.e), peri: 2 * (C.b + C.e), coupes: "Coupe droite, serré à chaud", note: "", groupe: "Décor" });
-  q.colliers = (q.colliers || 0) + 1;
+  q.soudures = (q.soudures || 0) + 1;
+  q.pointsSoudes = (q.pointsSoudes || 0) + 1;
 }
 function mtLiens(m, cotes, a, c, F, pieces, q, ch, B = MT_ATELIER.barreau, z = null) {
   const pts = m.flat(), H = MT_ATELIER.collier.h, e = MT_ATELIER.epVue + 4;
   const g = pts.reduce((r, p) => (p[0] < r[0] ? p : r)), d = pts.reduce((r, p) => (p[0] > r[0] ? p : r));
   const h = pts.reduce((r, p) => (p[1] > r[1] ? p : r)), b = pts.reduce((r, p) => (p[1] < r[1] ? p : r));
-  if (cotes.includes("g")) mtLien(F, pieces, q, ch, [a - B - e, g[1] - H / 2, B + 2 * e, H], !!z && Math.abs(a - z.x0) < 0.5);
-  if (cotes.includes("d")) mtLien(F, pieces, q, ch, [c - e, d[1] - H / 2, B + 2 * e, H], !!z && Math.abs(c - z.x1) < 0.5);
+  void z;
+  if (cotes.includes("g")) mtLien(F, pieces, q, ch, [a - B - e, g[1] - H / 2, B + 2 * e, H]);
+  if (cotes.includes("d")) mtLien(F, pieces, q, ch, [c - e, d[1] - H / 2, B + 2 * e, H]);
   if (cotes.includes("h")) mtLien(F, pieces, q, ch, [h[0] - H / 2, h[1] - e, H, e + 20]);
   if (cotes.includes("b")) mtLien(F, pieces, q, ch, [b[0] - H / 2, b[1] - 20, H, e + 20]);
 }
@@ -663,7 +661,7 @@ const MT_ASSEMBLAGES = {
     for (const droite of [false, true]) {
       const m = mtContreHaut(mtCaser(f, droite ? z.x1 - 2 - wC : z.x0 + 2, z.bas(z.x0), wC, hC, "bas", droite), z.haut, 2);
       if (!mtVolute(m, ch.forme, F, pieces, q, ch, true, k)) continue;
-      q.soudures = (q.soudures || 0) + 2;
+      q.soudures = (q.soudures || 0) + 2; q.pointsSoudes = (q.pointsSoudes || 0) + 2;
       const bm = mtBoite(m);
       xs.filter((x) => x + B > bm.x0 + 4 && x < bm.x1 - 4).forEach((x) => {
         const pts = m.flat().filter(([px]) => px > x - 2 && px < x + B + 2);
@@ -698,7 +696,7 @@ const MT_ASSEMBLAGES = {
       const m0 = mtCaser(Mi.f, x0 + i * (wm + g) + (wm - Mi.w) / 2, 0, Mi.w, Mi.h, "bas", mtDroite(i, n));
       const m = mtDecaler(m0, 0, -mtEcart(m0, yC, 1));
       if (!mtVolute(m, fo, F, pieces, q, ch, false, Mi.k)) continue;
-      q.soudures = (q.soudures || 0) + 2; nPose++;
+      q.soudures = (q.soudures || 0) + 2; q.pointsSoudes = (q.pointsSoudes || 0) + 2; nPose++;
       hMaxi = Math.max(hMaxi, -mtEcart(m, yC, -1));
     }
     if (nPose) q.cimier = { h: Math.round(hMaxi), n: nPose };
@@ -725,7 +723,7 @@ const MT_ASSEMBLAGES = {
       const deux = mtFormeN(ch, i, xs.length) !== ch.forme && M2 !== M1, fo0 = deux ? ch.forme2 : ch.forme;
       const surAxe = Math.abs(x - cx) < 0.5 && !MT_SYMETRIQUES.includes(fo0), fo = surAxe ? mtFormeAxe(fo0) : fo0, Mi = surAxe ? motif(fo) || (deux ? M2 : M1) : deux ? M2 : M1;
       const m = mtCaser(Mi.f, x - Mi.w / 2, (yb + yh - Mi.h) / 2, Mi.w, Mi.h, "centre", mtDroite(i, xs.length));
-      if (mtVolute(m, fo, F, pieces, q, ch, true, Mi.k)) q.soudures = (q.soudures || 0) + 4;
+      if (mtVolute(m, fo, F, pieces, q, ch, true, Mi.k)) { q.soudures = (q.soudures || 0) + 4; q.pointsSoudes = (q.pointsSoudes || 0) + 4; }
     });
   },
 };
@@ -738,7 +736,7 @@ function mtChoix(c = {}) {
   const pick = (k, def) => (MT_CHOIX[k].includes(c[k]) ? c[k] : def);
   const assemblage = pick("assemblage", "entre"), avec = MT_AVEC[assemblage];
   const forme = avec.length ? (avec.includes(c.forme) ? c.forme : avec[0]) : null;
-  const ch = { assemblage, forme, bouts: pick("bouts", "bouton"), liaison: pick("liaison", "colliers"), barreaux: pick("barreaux", "carre"), friseBasse: pick("friseBasse", "aucune"), pointes: pick("pointes", "aucune"), dore: c.dore === true, fab: c.fab === "forge" ? "forge" : "achat" };
+  const ch = { assemblage, forme, bouts: pick("bouts", "bouton"), liaison: "soudure", barreaux: pick("barreaux", "carre"), friseBasse: pick("friseBasse", "aucune"), pointes: pick("pointes", "aucune"), dore: c.dore === true, fab: c.fab === "forge" ? "forge" : "achat" };
   ch.pos = pick("pos", "haut"); ch.rythme = pick("rythme", "tous");
   ch.forme2 = avec.length ? (avec.includes(c.forme2) && c.forme2 !== forme ? c.forme2 : avec.find((f) => f !== forme) || forme) : null;
   ch.catalogue = c.catalogue === true;
@@ -1028,7 +1026,8 @@ function mtGrilleAppui(G, cS) {
 //   ptSoub "aucun" | "plein" | "lames" | "barreaux" (soubassement), ptHSoub hauteur du soubassement depuis le sol (500),
 //   ptRemp "plein" | "lames" | "lamesAlu" | "barreaux" | "croix" | "volutes" (remplissage au-dessus),
 //   ptPointes (barreaux qui dépassent, pointes de lance), ptLisse (lisse en chêne sur le dessus),
-//   ptPoteaux "existants" | "acier" | "alu", ptMoteur (true/false), ptPente (mm de montée côté propriété, battant),
+//   ptPoteaux "existants" | "acier" | "alu", ptMoteur (true/false), ptMoteurModele (lot 4 : "ixengo" | "axovia" | "elixo" ;
+//     absent = le moteur conseillé par PT_MOTEURS), ptPente (mm de montée côté propriété, battant),
 //   ptCouleur (texte, sans effet sur le plan), trait (scie, 3).
 //   ptStyle (facultatif) : "plein" | "barreaux" | "lamesChene" | "rosace" | "volutes" remplit les blocs non donnés.
 //   ptDecor (lot 3, 07/10/2026) : "aucun" | une formule de PT_DECOR_FORMULES ("classique", "frise", "medaillon",
@@ -1173,6 +1172,29 @@ const PT_ROUES = [
 ];
 
 // Les profilés : section (b = face vue de la rue, e = épaisseur du portail), épaisseur de paroi (ep) ou plein.
+// Les moteurs (lot 4, décision de Quentin du 06/10/2026 : « Somfy partout »). AUCUN PRIX ici (clés de prix dans
+// chiffrage-portails.js). Fiches relevées le 07/10/2026 (packs « Confort » : moteurs, armoire, 2 télécommandes Keygo io,
+// cellules, feu avec antenne, batterie de secours) ; tout ce que la fiche ne dit pas reste « selon la notice, à relever ».
+//   kgVantail : [largeur de vantail jusqu'à (mm), kg au plus] ; surfaceVent : m² pleins par vantail au plus selon le vent
+//   (abrité, exposé, très exposé) ; recoinMin : place derrière le gond, le long du mur ; facilite : critères de la jauge
+//   (cahier §6.2 : on part de 10 et on retire) ; garantie en années.
+const PT_MOTEURS = [
+  { cle: "ixengo", nom: "Somfy Ixengo L 3S+ io", ref: "Pack Confort, réf. 1246485", pour: ["battant"], principe: "Deux vérins à vis sans fin sur le pilier",
+    kgVantail: [[2600, 400], [3000, 300], [4000, 170]], surfaceVent: { abrite: 4, expose: 3, tres: 2 }, recoinMin: 160, gondBordMax: 250,
+    contenu: "2 vérins, armoire 3S+ io, 2 télécommandes, cellules, feu avec antenne, batterie de secours, pattes de pilier réglables",
+    garantie: 5, criteres: [], releve: true },
+  { cle: "axovia", nom: "Somfy Axovia MultiPro 3S+ io", ref: "Pack Confort", pour: ["battant"], principe: "Deux bras articulés, pour les gros piliers ou un gond loin du bord",
+    kgVantail: [[3500, 300]], surfaceVent: null, recoinMin: 500, gondBordMax: null,
+    contenu: "2 moteurs à bras, armoire 3S+ io, 2 télécommandes, cellules, feu avec antenne, batterie de secours",
+    garantie: 5, criteres: ["bras"], releve: false },
+  { cle: "elixo", nom: "Somfy Elixo 3S+ M io", ref: "Pack Confort, réf. 1246489", pour: ["coulissant"], principe: "Moteur à crémaillère au sol, côté où le portail se range",
+    kgMax: 600, longueurMax: 8000, contenu: "Moteur avec armoire intégrée, 2 télécommandes, cellules, feu avec antenne, batterie de secours (crémaillère à part)",
+    garantie: 5, criteres: [], releve: true },
+];
+// La jauge « Facilité de pose » (cahier §6.2) : on part de 10 et on retire selon les critères du kit.
+const PT_FACILITE = { pattes: 1, batterie: 1, butee: 1, finsDeCourse: 1, bras: 2, caisson: 4, special: 6 };
+const ptFacilite = (m) => 10 - m.criteres.reduce((s, k) => s + (PT_FACILITE[k] || 0), 0);
+
 const PT_MATIERES = {
   alu: {
     nom: "Aluminium", densite: 2.7, finition: "Thermolaquage",
@@ -1325,6 +1347,7 @@ function ptEntrees(v, modele) {
   c.lisse = ptBool(pick("ptLisse", false), false);
   c.poteaux = ptChoix(v.ptPoteaux, ["existants", "acier", "alu"], "existants");
   c.moteur = ptBool(v.ptMoteur, false);
+  c.moteurModele = PT_MOTEURS.some((m) => m.cle === v.ptMoteurModele) ? v.ptMoteurModele : null;
   c.pente = Math.max(0, Math.round(ptNombre(v.ptPente, 0)));
   c.couleur = v.ptCouleur || (c.mat === "alu" ? "Gris anthracite (RAL 7016)" : "Noir");
   c.trait = ptNombre(v.trait, 3);
@@ -1850,6 +1873,242 @@ function ptPiliers(c, prP, geos, Vi) {
 
 /* ---------- 5. Le calcul complet ---------- */
 
+/* ---------- 5 bis. La motorisation (lot 4) : les solutions permises pour CE portail, la conseillée ---------- */
+
+// La part pleine (prise au vent) de chaque remplissage : approchée, pour la limite de surface des vérins.
+const PT_PLEIN = { plein: 1, panneau: 1, lames: 0.9, lamesAlu: 0.8, croix: 0.3, barreaux: 0.2 };
+/**
+ *  Rend { permis, refus, conseille, choisi, barrePalpeuse, notes } : chaque solution de PT_MOTEURS est permise ou refusée
+ *  avec sa raison en clair (largeur et poids de chaque vantail, surface au vent, pilier, recoin, longueur et poids du
+ *  coulissant). Conseillé (sans prix) : le plus facile à poser, puis la plus longue garantie ; le chiffrage départage par
+ *  le prix (cahier §6.2). Aucune cote inventée : ce que la visite n'a pas relevé reste une note « à relever ».
+ */
+function ptMotorisation(c, V, R, ctx) {
+  const Vi = c.visite, out = { permis: [], refus: [], conseille: null, choisi: null, barrePalpeuse: false, notes: [] };
+  if (c.type === "portillon") return out;
+  if (c.type === "pliant") { out.refus.push({ cle: null, nom: "Pliant motorisé", raison: "sur étude (deux moteurs sur les kits de pli, et la mesure des forces est obligatoire : aucun rapport d'essai de fabricant)" }); return out; }
+  const part = (t) => PT_PLEIN[t] ?? 1;
+  const surface = (l) => (l / 1000) * (c.soub !== "aucun" ? (c.hSoub * part(c.soub) + (c.H - c.hSoub) * part(c.remp)) : c.H * part(c.remp)) / 1000 + (c.decor !== "aucun" ? 0.1 * (l / 1000) * (c.H / 1000) : 0);
+  for (const m of PT_MOTEURS) {
+    if (!m.pour.includes(c.type)) continue;
+    const raisons = [], notes = [];
+    if (c.type === "battant") {
+      V.forEach((vt, i) => {
+        const l = vt.x1 - vt.x0, kg = ctx.kgV[i].kg, lim = m.kgVantail.find(([L]) => l <= L);
+        const r = !lim ? `vantail de ${ptMm(l)} mm (${ptMm(m.kgVantail[m.kgVantail.length - 1][0])} au plus)` : kg > lim[1] ? `vantail de ${ptKg(kg)} kg (${lim[1]} kg au plus jusqu'à ${ptMm(lim[0])} mm de large)` : null;
+        if (r && !raisons.includes(r)) raisons.push(r);
+      });
+      if (m.gondBordMax && Vi.gondBord !== null && Vi.gondBord > m.gondBordMax) raisons.push(`pilier profond : axe du gond à ${ptMm(Vi.gondBord)} mm de l'arête (${m.gondBordMax} au plus pour les vérins)`);
+      if (Vi.recoin !== null && Vi.recoin < m.recoinMin) raisons.push(`recoin de ${ptMm(Vi.recoin)} mm derrière le gond (${m.recoinMin} au moins)`);
+      if (m.surfaceVent) {
+        const sMax = Math.max(...V.map((vt) => surface(vt.x1 - vt.x0)));
+        const lim = m.surfaceVent[Vi.vent || "abrite"];
+        if (sMax > lim) raisons.push(`vantail de ${ptKg(sMax)} m² pleins au vent (${lim} m² au plus${Vi.vent ? "" : ", même abrité"})`);
+        else if (!Vi.vent && sMax > m.surfaceVent.expose) notes.push(`${m.nom} : vantail de ${ptKg(sMax)} m² pleins, au-delà de ${m.surfaceVent.expose} m² si l'entrée est exposée au vent : exposition à relever à la visite.`);
+      } else notes.push(`${m.nom} : surface au vent permise selon la notice, à relever.`);
+    } else if (c.type === "coulissant") {
+      const kg = ctx.kgV.reduce((x, y) => x + y.kg, 0);
+      if (kg > m.kgMax) raisons.push(`portail de ${ptKg(kg)} kg (${m.kgMax} kg au plus)`);
+      if (ctx.Lg > m.longueurMax) raisons.push(`portail de ${ptMm(ctx.Lg)} mm (${ptMm(m.longueurMax)} au plus)`);
+    }
+    const e = { cle: m.cle, nom: m.nom, ref: m.ref, principe: m.principe, contenu: m.contenu, garantie: m.garantie, facilite: ptFacilite(m), releve: m.releve, notes };
+    if (raisons.length) out.refus.push({ ...e, raison: raisons.join(" ; ") }); else out.permis.push(e);
+  }
+  out.conseille = [...out.permis].sort((a, b) => b.facilite - a.facilite || b.garantie - a.garantie)[0] || null;
+  out.choisi = c.moteurModele ? out.permis.find((m) => m.cle === c.moteurModele) || null : out.conseille;
+  if (out.choisi) out.notes.push(...out.choisi.notes);
+  // Coulissant : barre palpeuse sur le bord de fermeture si le remplissage est ajouré, et d'office au-delà de 200 kg.
+  if (c.type === "coulissant") {
+    const kg = ctx.kgV.reduce((x, y) => x + y.kg, 0), ajoure = part(c.remp) < 0.85;
+    if (kg > 200 || ajoure) { out.barrePalpeuse = true; out.notes.push(`Barre palpeuse sur le bord de fermeture : ${kg > 200 ? `portail de ${ptKg(kg)} kg (plus de 200)` : "remplissage ajouré (une main passe au travers)"}.`); }
+  }
+  // Côtés : M1 et l'armoire du côté où arrive le courant (battant) ; le moteur du côté où le portail se range (coulissant).
+  if (c.type === "battant") {
+    if (Vi.courant === "gauche" || Vi.courant === "droite") out.notes.push(`Courant au pilier de ${Vi.courant} (vu de la rue) : M1 sur le vantail de ${Vi.courant}, armoire sur ce pilier, à 40 cm du sol au moins ; ordre d'ouverture selon la notice.`);
+    else if (Vi.courant === "aucun") out.notes.push("Pas de courant au portail : l'électricien du client amène le 230 V au pilier (ligne dédiée 10 A, différentiel 30 mA), hors devis.");
+    else out.notes.push("Pilier où arrive le courant : à relever à la visite (M1 et l'armoire vont de ce côté).");
+    if (out.choisi && out.choisi.cle === "ixengo") out.notes.push("Ixengo : pattes de pilier réglables du kit (B = Z + X, Z = 110, ou 240 avec la patte longue réf. 9019500 ; A ≈ B) : A et B à mesurer à la visite, selon la notice.");
+    if (out.choisi && out.choisi.cle === "axovia") out.notes.push("Axovia : bras articulés, cotes de pose selon la notice (à relever) ; recoin de 500 mm au moins derrière le gond.");
+  } else if (c.type === "coulissant") {
+    out.notes.push(`Moteur côté propriété, du côté où le portail se range (${c.sens}, vu de la rue), sur socle maçonné ; crémaillère sur la traverse basse, 1 à 2 mm de jeu sur le pignon.`);
+  }
+  return out;
+}
+
+/* ---------- 8. La pose (lot 4) : ouvrages, réservations, électricité, essais, et les vues de pose ---------- */
+
+// Fixation des gonds selon la matière du pilier (cahier §2.4). Rien n'est deviné : support non relevé = « à voir ».
+const PT_FIXATION_GONDS = {
+  beton: "cheville métal 10 × 80 ou scellement chimique M12, trou Ø 14, 110 de profondeur",
+  parpaing: "scellement chimique M12 avec tamis, trou Ø 16 à 20, 2 par gond, à 115-150 mm du bord",
+  brique: "scellement chimique M12 avec tamis, trou Ø 16 à 20, 2 par gond, à 115-150 mm du bord",
+  tuffeau: "tige M12 traversante avec contre-plaque ; sinon scellement chimique M12 avec tamis sur 150 mm au moins",
+};
+/**
+ *  R.pose = { ouvrages: [{ rep, nom, qte, cotes, quiFait, delai }], reservations, electricite, essais, prerequis, controle,
+ *  notes } ; R.vues.pose : l'implantation (la vue de dessus, plus moteurs, armoire, cellules, feu, gaines, longrine, socle) ;
+ *  R.vues.poseCoupe : la coupe de pose (massifs, longrine, gaines et leur profondeur). Décision de Quentin du 07/10/2026
+ *  (« je veux pas me charger du béton, je veux que le client se charge de ça et qu'il ait les plans pour le maçon ») : tout
+ *  le BÉTON (massifs, longrine, socle du moteur, plots) est fait par le maçon du client d'après notre plan de maçonnerie ;
+ *  Quentin contrôle les cotes avant de charger le camion. L'électricien du client amène le 230 V au pilier.
+ */
+function ptPose(c, V, R, ctx) {
+  const RG = PT_ATELIER, Vi = c.visite, A = R.quant.achats, Mo = c.moteur && R.moteurs ? R.moteurs.choisi : null;
+  const P = { ouvrages: [], reservations: [], electricite: [], essais: [], prerequis: [], controle: [], notes: [] };
+  const NOUS = "Auboiacier", ELEC = "Électricien du client", MACON = "Maçon du client (d'après notre plan)";
+  let rep = 0;
+  // m3 : le volume de béton de l'ouvrage (pour le chiffrage de la maçonnerie, lot 7) ; 0 s'il n'y a pas de béton.
+  const ouvrage = (nom, qte, cotes, quiFait = NOUS, delai = "", m3 = 0) => P.ouvrages.push({ rep: ++rep, nom, qte, cotes, quiFait, delai, m3: Math.round(m3 * 1000) / 1000 });
+  const coul = c.type === "coulissant", gonds = c.type !== "coulissant", piliers = c.poteaux === "existants";
+  let fouille = false;
+  // Gonds : fixation selon le pilier, et l'effort au gond haut (m × g × e / h, affiché × 3).
+  if (gonds && piliers) {
+    const fix = Vi.support && PT_FIXATION_GONDS[Vi.support];
+    ouvrage("Fixation des gonds dans les piliers", A.gonds || 0, fix || "matière des piliers à relever à la visite : fixation à choisir sur place", NOUS, fix && /chimique/.test(fix) ? "scellement chimique : temps de prise de la fiche du produit" : "");
+    const g = V.find((x) => x.gonds), kg = ctx.kgV[V.indexOf(g)].kg, ys = g.gondsY || [];
+    if (ys.length > 1) {
+      const h = (ys[ys.length - 1] - ys[0]) / 1000, e = (g.x1 - g.x0) / 2000, F = kg * 9.81 * e / h / 10;
+      P.notes.push(`Effort au gond haut : ${ptKg(kg)} kg × 9,81 × ${ptKg(e)} m ÷ ${ptKg(h)} m ≈ ${Math.round(F)} daN ; fixation prévue pour ${Math.round(3 * F)} daN (coefficient 3).`);
+    }
+  }
+  if (c.poteaux !== "existants" && R.quant.massif) {
+    const m = R.quant.massif;
+    const pl = RG.platinePoteau;
+    ouvrage("Massifs des poteaux", 2, `${ptMm(m.cote)} × ${ptMm(m.cote)} × ${ptMm(m.prof)} mm, cage d'armature ${m.cage} ; poteaux sur platine ${pl.cote} × ${pl.cote} × ${pl.ep} : ${pl.tiges} tiges M${pl.d} noyées au gabarit que nous fournissons${gonds ? " (gonds posés à l'atelier)" : ""}`, MACON, "coulés 7 jours au moins avant la pose", 2 * (m.cote / 1000) ** 2 * m.prof / 1000);
+    ouvrage("Poteaux boulonnés sur les massifs", 2, `platines de niveau, poteaux d'aplomb`, NOUS);
+    fouille = true;
+  }
+  if (R.quant.butee) ouvrage("Butée centrale basse, scellée au sol", 1, `${R.quant.butee.h} mm au-dessus du sol fini, au milieu du passage ; scellement chimique`, NOUS, "temps de prise de la fiche du produit");
+  if (R.quant.plots) { const pl = R.quant.plots; ouvrage("Plots béton des arrêts de vantail ouvert", pl.n, `${pl.l} × ${pl.p} × ${pl.h} mm, à ${pl.aBout} mm du bout du vantail ouvert`, MACON, "coulés 7 jours au moins avant la pose", pl.n * pl.l * pl.p * pl.h / 1e9); fouille = true; }
+  if (A.verrou) ouvrage("Gâche de sol du verrou (vantail fixe)", 1, "Ø 30 environ, 60 de profondeur, au droit du verrou", NOUS);
+  if (coul && c.guidage === "rail") {
+    const L = c.P + R.quant.longueurPortail + 300;
+    ouvrage("Longrine du rail, DE NIVEAU", 1, `${ptMm(L)} × 300 × 300 mm (passage + place de rangement), fers 4 HA 10, rail scellé dessus ; seuil ${Vi.seuil === "existant" ? "existant à contrôler (niveau ± 2 mm)" : Vi.seuil === "neuf" ? "neuf" : "à relever (neuf ou existant)"} ; nous scellons le rail`, MACON, "coulée 7 jours au moins avant la pose", L / 1000 * 0.3 * 0.3);
+    fouille = true;
+  }
+  if (coul && c.guidage === "auto" && R.quant.massifQueue) {
+    ouvrage("Massif de l'autoportant", 1, `${ptMm(R.quant.massifQueue)} × 600 × 600 mm, depuis la face extérieure du pilier ; platines des chariots sur 4 chevilles chimiques M12 chacune${R.quant.chariots ? ` ; chariots à ${ptMm(Math.abs(R.quant.chariots[0] - R.quant.chariots[1]))} mm l'un de l'autre (à recaler sur la notice du kit)` : ""}`, MACON, "coulé 7 jours au moins avant la pose", R.quant.massifQueue / 1000 * 0.6 * 0.6);
+    P.notes.push("Autoportant : réception à 60 mm, avec 5 mm de jeu dans le V ; guide haut au poteau.");
+    fouille = true;
+  }
+  if (coul) {
+    P.notes.push(`Coulissant : place de rangement libre de ${ptMm(R.quant.longueurPortail + (R.quant.queue || 0))} mm le long de la clôture${Vi.cloture ? ` (clôture ${Vi.cloture === "aucune" ? "absente" : Vi.cloture})` : " (clôture à relever)"} ; guide haut, butée arrière et réception.`);
+  }
+  if (c.type === "pliant") P.notes.push("Pliant : 2 kits de pli FAC (pivots haut et bas), U de guidage 40 × 40 sur 1,9 m fixé au pilier ; pas de rail au sol (seulement la butée centrale basse). Une fois ouvert, il occupe un peu plus de la moitié du passage.");
+  // Moteur : socle, gaines, électricité, essais.
+  if (Mo) {
+    if (coul) { ouvrage("Socle du moteur, maçonné", 1, "600 × 400 mm, 400 de profondeur, côté où le portail se range, à l'intérieur ; tiges filetées qui dépassent de 25 à 35 mm (cotes de la notice)", MACON, "coulé 7 jours au moins avant la pose du moteur", 0.6 * 0.4 * 0.4); fouille = true; }
+    P.reservations.push({ nom: "Gaine rouge du 230 V jusqu'au pilier de l'armoire", quiFait: ELEC, detail: "câble U-1000 R2V enterré, grillage avertisseur rouge au-dessus" });
+    P.reservations.push({ nom: "Gaine basse tension séparée (cellules, feu)", quiFait: NOUS, detail: "distance avec le 230 V à confirmer dans la NF C 15-100" });
+    if (c.type === "battant" && c.nbV === 2) {
+      P.reservations.push({ nom: "Traversée de l'allée pour M2", quiFait: NOUS, detail: `${ptMm(c.P + 600)} mm environ ; 0,50 m sous un jardin, 0,85 m sous un passage de voiture (à confirmer) ; AVANT tout revêtement neuf (le client en est prévenu à la commande)` });
+      fouille = true;
+    }
+    P.reservations.push({ nom: "Boîte de coupure au pied du pilier de l'armoire", quiFait: NOUS, detail: "" });
+    P.electricite.push(
+      "Ligne dédiée 10 A, différentiel 30 mA, coupure omnipolaire (électricien du client, hors devis)",
+      "Alimentation enterrée U-1000 R2V : 3G1,5 jusqu'à 30 m, 3G2,5 au-delà (chute de tension à vérifier)",
+      ...(c.type === "battant" ? ["Moteurs : H07RN-F 3G1,5 entre l'armoire et les moteurs seulement, 20 m au plus"] : []),
+      "Cellules : émetteur 2 × 0,75, récepteur 4 × 0,75 ; sortie de câble à 400-600 mm du sol, côté rue",
+      "Feu : 2 × 0,75 et câble d'antenne RG58, sur le pilier de l'armoire",
+      "Commande fixe à 1 500 mm du sol au moins ; parafoudre conseillé");
+    P.essais.push("Inversion du mouvement sur un objet de 50 mm à mi-hauteur", "Cellules (coupure du faisceau pendant la fermeture)", "Déverrouillage manuel", "Forces, si elles sont mesurées : 400 N en zone d'écrasement, 1 400 N au choc, retour sous 25 N en moins de 5 s (valeurs à vérifier dans la NF EN 12453)");
+  }
+  P.maconnerieClient = P.ouvrages.some((o) => o.quiFait === MACON);
+  if (P.maconnerieClient) {
+    P.notes.push("Maçonnerie (béton) : faite par le maçon du client d'après notre plan de maçonnerie, remis 15 jours avant ; coulée 7 jours au moins avant la pose (le béton durcit en quelques heures, mais il ne porte un portail et ses fixations qu'après plusieurs jours : environ 70 % de sa résistance à 7 jours, toute sa résistance à 28 jours).");
+    P.notes.push("Avant de charger le camion : contrôle des ouvrages du maçon (cotes à ± 10 mm, niveau, aplomb), sur photos cotées ou sur place.");
+  }
+  if (fouille) P.notes.push(`Avant toute fouille (massifs, longrine, socle, tranchée) : DT-DICT sur le guichet unique (reseaux-et-canalisations.ineris.fr)${Vi.reseaux ? ` : ${Vi.reseaux}` : " : date de la réponse à noter"} ; fouille à la main près d'un réseau repéré.`);
+  P.prerequis.push("Accès et place dégagés le jour de la pose", ...(P.maconnerieClient ? ["Maçonnerie faite par son maçon d'après notre plan, coulée 7 jours au moins avant la pose"] : []), ...(Mo ? ["Courant amené au pilier de l'armoire (si prévu)"] : []), "Déclaration préalable accordée, s'il en faut une (le client la dépose avec notre dessin)", "Réseaux signalés (DT-DICT)");
+  P.controle.push(`Jeux : ${RG.jeuGonds} mm côté gonds, ${RG.jeuCentre} mm au centre ou côté serrure, sur toute la course`, "Aplomb des vantaux", "Manœuvre à la main : effort mesuré au peson (valeur de référence dans la norme)", "Butées et arrêts", "Serrure et verrou");
+  P.betonM3 = Math.round(P.ouvrages.reduce((x, o) => x + o.m3, 0) * 1000) / 1000;
+  R.pose = P;
+  // --- Vue d'implantation : la vue de dessus + les ouvrages de pose ---
+  const D = R.vues.dessus.filter((p) => !(p.t === "texte" && p.txt === "place libre")).map((p) => p);
+  const pil = ctx.pil, bP = pil.b, xG = -bP / 2, xD = c.P + bP / 2;
+  if (Mo && c.type === "battant") {
+    const cote = Vi.courant === "droite" ? "droite" : "gauche", xA = cote === "droite" ? xD : xG;
+    ctx.geos.forEach((g, i) => {
+      const a = g.monde([-40, g.axe[1] + 140]), b = g.monde([g.jeu + 0.42 * g.w, g.axe[1] + 30]);
+      D.push({ t: "poly", piece: Mo.cle === "axovia" ? "Bras du moteur" : "Vérin", cls: "t-acier", ouvert: true, pts: [a, b] });
+      const m1 = (g.gauche ? "gauche" : "droite") === cote;
+      D.push({ t: "texte", p: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], txt: m1 ? "M1" : "M2", pos: "sur" });
+    });
+    D.push({ t: "poly", piece: "Armoire", cls: "t-acier-plein", pts: ptRect(xA - 150, pil.y1 + 20, xA + 150, pil.y1 + 140) });
+    D.push({ t: "texte", p: [xA, pil.y1 + 140], txt: Vi.courant === "gauche" || Vi.courant === "droite" ? "armoire" : "armoire (côté du courant, à relever)", pos: "sur" });
+    D.push({ t: "poly", cls: "t-cache", ouvert: true, pts: [[xG, pil.y1 + 260], [xD, pil.y1 + 260]] });
+    D.push({ t: "texte", p: [c.P / 2, pil.y1 + 260], txt: "traversée de l'allée (M2) : gaine enterrée", pos: "sur" });
+  }
+  if (Mo) {
+    for (const x of [xG, xD]) D.push({ t: "poly", piece: "Cellules", cls: "t-acier-plein", pts: ptRect(x - 30, pil.y0 - 40, x + 30, pil.y0) });
+    D.push({ t: "texte", p: [xG, pil.y0 - 40], txt: "cellules (400 à 600 du sol)", pos: "sous", decal: 1.6 });
+  }
+  if (coul) {
+    const yG = ctx.yG, e = c.M.cadre.e, gauche = c.sens === "gauche";
+    if (c.guidage === "rail") {
+      const L = c.P + R.quant.longueurPortail + 300, x0 = gauche ? c.P + 150 - L : -150, x1 = x0 + L;
+      D.unshift({ t: "poly", piece: "Longrine", cls: "t-mur", pts: ptRect(x0, yG + e / 2 - 150, x1, yG + e / 2 + 150) });
+      D.push({ t: "cote", a: [x0, yG + e / 2 - 150], b: [x1, yG + e / 2 - 150], cote: "bas", d: 3.4, txt: `longrine ${ptMm(L)}, de niveau` });
+    }
+    if (Mo) {
+      const xs = gauche ? -bP - 700 : c.P + bP + 100;
+      D.unshift({ t: "poly", piece: "Socle du moteur", cls: "t-mur", pts: ptRect(xs, yG + e + 40, xs + 600, yG + e + 440) });
+      D.push({ t: "texte", p: [xs + 300, yG + e + 440], txt: "socle du moteur 600 × 400", pos: "sur" });
+    }
+  }
+  R.vues.pose = D;
+  // --- Coupe de pose : ce qui est sous le sol, avec les profondeurs ---
+  const K = [{ t: "sol", x1: -400, x2: 2600 }];
+  let x = 0;
+  const bloc = (nom, l, h, txt) => { K.push({ t: "poly", piece: nom, cls: "t-mur", pts: ptRect(x, -h, x + l, 0) }); K.push({ t: "cote", a: [x, -h], b: [x + l, -h], cote: "bas", d: 1, txt: ptMm(l) }); K.push({ t: "cote", a: [x + l, -h], b: [x + l, 0], cote: "droite", d: 1, txt: ptMm(h) }); K.push({ t: "texte", p: [x + l / 2, 0], txt, pos: "sur" }); x += l + 500; };
+  if (R.quant.massif && c.poteaux !== "existants") bloc("Massif de poteau", R.quant.massif.cote, R.quant.massif.prof, "massif de poteau");
+  if (R.quant.plots) bloc("Plot d'arrêt", RG.plotArret.l, RG.plotArret.h, "plot d'arrêt");
+  if (coul && c.guidage === "rail") bloc("Longrine", 300, 300, "longrine (rail dessus)");
+  if (coul && c.guidage === "auto") bloc("Massif de l'autoportant", 600, 600, "massif de l'autoportant");
+  if (Mo && coul) bloc("Socle du moteur", 600, 400, "socle du moteur");
+  if (Mo && c.type === "battant" && c.nbV === 2) {
+    for (const [dx, prof, ou] of [[60, 500, "sous un jardin"], [560, 850, "sous un passage de voiture"]]) {
+      K.push({ t: "cercle", piece: "Gaine", cls: "t-rond", c: [x + dx, -prof], r: 32 });
+      K.push({ t: "cote", a: [x + dx + 32, -prof], b: [x + dx + 32, 0], cote: "droite", d: 1, txt: ptMm(prof) });
+      K.push({ t: "texte", p: [x + dx, -prof - 32], txt: ou, pos: "sous" });
+    }
+    K.push({ t: "texte", p: [x + 300, 0], txt: "gaine de la traversée (à confirmer)", pos: "sur" });
+  }
+  R.vues.poseCoupe = K.length > 1 ? K : [];
+  // --- Élévation côté propriété (si motorisé) : le portail vu de l'intérieur (miroir de la vue de face, sans cotes), les
+  // vérins ou bras à leur hauteur (selon la notice : à relever), l'armoire sur le pilier du courant, le feu, les cellules.
+  const E = [];
+  if (Mo) {
+    const miroir = (pts) => pts.map(([x, y]) => [c.P - x, y]);
+    for (const p of R.vues.face) {
+      if (p.t === "poly") E.push({ ...p, pts: miroir(p.pts) });
+      else if (p.t === "cercle") E.push({ ...p, c: [c.P - p.c[0], p.c[1]] });
+      else if (p.t === "sol") E.push({ ...p });
+    }
+    const hAxe = c.gs + Math.round((c.H - c.gs) * 0.4);   // hauteur de l'axe : selon la notice ; au dessin, aux 2/5
+    // Vu de l'intérieur, la gauche de la rue est à droite : le pilier du courant est donc retourné.
+    const xPil = (cote) => (cote === "gauche" ? c.P + bP / 2 : -bP / 2);
+    const cote = Vi.courant === "droite" ? "droite" : "gauche";
+    if (c.type === "battant") {
+      for (const g of ctx.geos) {
+        const xp = g.gauche ? c.P + 60 : -60, xv = g.gauche ? c.P - (g.jeu + 0.42 * g.w) : g.jeu + 0.42 * g.w;
+        E.push({ t: "poly", piece: Mo.cle === "axovia" ? "Bras du moteur" : "Vérin", cls: "t-acier-plein", pts: [[xp, hAxe - 30], [xv, hAxe - 30], [xv, hAxe + 30], [xp, hAxe + 30]] });
+      }
+      E.push({ t: "cote", a: [c.P / 2, 0], b: [c.P / 2, hAxe], cote: "droite", d: 1, txt: ptMm(hAxe) });
+      E.push({ t: "texte", p: [c.P / 2, hAxe + 30], txt: "axe du moteur : hauteur selon la notice", pos: "sur" });
+      E.push({ t: "poly", piece: "Renfort de patte moteur", cls: "t-acier", pts: ptRect(c.P - (ctx.geos[0].jeu + 0.42 * ctx.geos[0].w) - 100, hAxe - 40, c.P - (ctx.geos[0].jeu + 0.42 * ctx.geos[0].w) + 100, hAxe + 40) });
+    }
+    const xa = xPil(cote);
+    E.push({ t: "poly", piece: "Armoire", cls: "t-acier-plein", pts: ptRect(xa - 120, 400, xa + 120, 700) });
+    E.push({ t: "texte", p: [xa, 400], txt: "armoire", pos: "sous" });
+    E.push({ t: "cercle", piece: "Feu", cls: "t-rond", c: [xa, c.H + 120], r: 60 });
+    for (const x of [-bP / 2, c.P + bP / 2]) E.push({ t: "poly", piece: "Cellules", cls: "t-acier-plein", pts: ptRect(x - 30, 450, x + 30, 550) });
+    E.push({ t: "texte", p: [c.P / 2, -60], txt: "Vue de l'intérieur (côté propriété) : la gauche de la rue est à droite", pos: "sous", convention: true });
+  }
+  R.vues.poseElev = E;
+}
+
 function calculerPortail(v, modele) {
   v = v || {};
   const c = ptEntrees(v, modele), RG = PT_ATELIER, M = c.M, G = RG.gonds, Vi = c.visite;
@@ -2050,6 +2309,7 @@ function calculerPortail(v, modele) {
       // Les deux chariots sont sur le massif, sous la queue : le 1er à 200 mm du pilier, le 2e à 100 mm du bout de la queue.
       const xc1 = gauche ? -bP - CH.aPilier : c.P + bP + CH.aPilier, xc2 = gauche ? xq0 + CH.aBout : xq1 - CH.aBout;
       for (const xg of [xc1, xc2]) F.push({ t: "cercle", piece: "Chariots", cls: "t-cache", c: [xg, c.gs / 2], r: 25 });
+      q.chariots = [xc1, xc2];
       q.massifQueue = queue + CH.massifEnPlus;
       if ((gauche ? xc1 - xc2 : xc2 - xc1) < 500) R.avertissements.push(`Autoportant : les chariots ne sont qu'à ${ptMm(Math.abs(xc1 - xc2))} mm l'un de l'autre (pilier large ou queue courte). Sur étude, avec le tableau Comunello.`);
       pieces.push({ nom: "Poutre autoportante", mat: "Kit autoportant (poutre, 2 chariots, roulette, réception)", long: Lg + queue, kgM: 0, peri: 0, coupes: "Selon le kit", note: "Vissée sous la traverse basse", groupe: "Guidage", achat: true });
@@ -2152,12 +2412,24 @@ function calculerPortail(v, modele) {
     A.gonds = nG * 2; A.charnieresPli = (c.H > 1800 ? 4 : 3) * 2; A.roulettesBout = 2; A.guidesSol = 2; A.buteeCentrale = 1; if (sabots) A.sabotsButee = 2; A.serrure = 1; A.verrou = 1; A.poignees = 1;
     R.avertissements.push("Pliant : charnières de pli, roulettes et guides au sol à choisir chez un fournisseur. À confirmer.");
   } else { A.serrure = 1; A.poignees = 1; }
+  // Le moteur (lot 4) : les solutions permises pour CE portail, le conseillé, le choix du client (ptMoteurModele).
+  R.moteurs = ptMotorisation(c, V, R, { kgV: parVantail, Lg, coul });
   if (c.moteur) {
-    if (c.type === "battant") { A.moteur = c.nbV === 2 ? "Kit moteur 2 vérins (cellules, feu, 2 télécommandes)" : "Kit moteur 1 vérin (cellules, feu, 2 télécommandes)"; }
-    else if (c.type === "coulissant") { A.moteur = "Kit moteur coulissant (cellules, feu, 2 télécommandes)"; A.cremaillereM = Math.ceil(Lg / 1000); }
-    else if (c.type === "pliant") { A.moteur = "Kit moteur pour portail pliant"; R.avertissements.push("Moteur de portail pliant : kit spécial, à choisir sur devis. À confirmer."); }
-    else { R.notes.push("Portillon : pas de moteur, mais une gâche électrique peut se poser (sur devis)."); }
-    if (c.type !== "portillon") R.notes.push("Motorisé : pose selon NF EN 12453 (cellules, feu clignotant, réglage des efforts) ; déclaration de conformité machine (directive 2006/42/CE jusqu'au 19/01/2027, règlement (UE) 2023/1230 ensuite).");
+    const Mo = R.moteurs.choisi;
+    if (Mo) {
+      A.moteur = `${Mo.nom} (${Mo.ref}) : ${Mo.contenu}`;
+      if (c.type === "coulissant") A.cremaillereM = Math.ceil(Lg / 1000);
+      if (R.moteurs.barrePalpeuse) A.barrePalpeuse = 1;
+    }
+    // Portillon : jamais de moteur (note, rien n'est chiffré). Ailleurs, pas de solution permise : sur étude (rouge).
+    const refusChoisi = c.moteurModele ? R.moteurs.refus.find((m) => m.cle === c.moteurModele) : null;
+    if (!Mo && c.type === "portillon") R.notes.push("Portillon : pas de moteur (gâche électrique et ferme-portillon, sur devis).");
+    else if (!Mo && c.type === "pliant") R.alertes.push(`Pliant motorisé : ${R.moteurs.refus[0].raison}.`);
+    else if (!Mo) R.alertes.push(refusChoisi
+      ? `Moteur ${refusChoisi.nom} : ${refusChoisi.raison}.${R.moteurs.conseille ? ` ${R.moteurs.conseille.nom} convient.` : " Sur étude."}`
+      : `Moteur : aucun kit Somfy ne convient (${R.moteurs.refus.map((m) => `${m.nom} : ${m.raison}`).join(" ; ")}). Sur étude.`);
+    for (const n of R.moteurs.notes) R.notes.push(n);
+    if (c.type !== "portillon" && Mo) R.notes.push("Motorisé : pose selon NF EN 12453 (cellules, feu clignotant, réglage des efforts) ; déclaration de conformité machine (directive 2006/42/CE jusqu'au 19/01/2027, règlement (UE) 2023/1230 ensuite).");
     if (aButee) R.notes.push("Motorisé : butée centrale selon la notice du moteur, sans basculeur.");
   }
   R.notes.push("Portail : DoP et étiquette CE (NF EN 13241).");
@@ -2225,6 +2497,8 @@ function calculerPortail(v, modele) {
     const [mat, note] = ACHATS_DETAIL[k] ? ACHATS_DETAIL[k]() : ["Quincaillerie", ""];
     R.debit.push({ nom: ACHATS_NOMS[k] || k, qte: n, mat, long: 0, coupes: "—", note, groupe: "Achats" });
   }
+  // Moteur (lot 4) : un renfort dans chaque vantail motorisé, au droit de la patte du vérin ou du bras (selon la notice).
+  if (c.moteur && R.moteurs && R.moteurs.choisi && c.type === "battant") R.debit.push({ nom: "Renfort de patte moteur", qte: c.nbV, mat: c.mat === "alu" ? "Plat alu 50 × 10, vissé (jamais soudé à moins de 30 mm d'un nœud)" : "Plat acier 60 × 8, soudé", long: 200, coupes: "Percé et taraudé AVANT laquage ou galvanisation", note: `Position selon la notice ${R.moteurs.choisi.nom}`, groupe: "Achats" });
   if (q.rosaces) R.debit.push({ nom: "Rosaces", qte: q.rosaces, mat: c.mat === "acier" ? "Rosace fonte Ø 100 (comme le garde-corps)" : "Rosace alu Ø 100 (à trouver)", long: 0, coupes: "—", note: "Soudée au croisement", groupe: "Achats" });
 
   // --- Quantités pour le chiffrage (aucun prix ici) ---
@@ -2243,7 +2517,8 @@ function calculerPortail(v, modele) {
   const kgPortail = parVantail.reduce((s, x) => s + x.kg, 0);
   R.quant = {
     type: c.type, modele: c.modele, mat: c.mat, metres, toleM2, panneauM2, laqueM2, soudures: q.soudures, achats: A, rosaces: q.rosaces, volutes: q.volutes,
-    vantaux: parVantail, queue, longueurPortail: coul ? Lg : null, massifQueue: q.massifQueue || 0, poteaux: c.poteaux, moteur: c.moteur,
+    vantaux: parVantail, queue, longueurPortail: coul ? Lg : null, massifQueue: q.massifQueue || 0, chariots: q.chariots || null, poteaux: c.poteaux, moteur: c.moteur,
+    moteurModele: c.moteur && R.moteurs && R.moteurs.choisi ? R.moteurs.choisi.cle : null,
     cintrage: c.forme === "chapeau" || c.forme === "creux", lisse: c.lisse && c.forme === "droit", pointes: c.pointes,
     // Ce que le moteur a choisi dans ses tables (aucun prix) :
     gonds: gond ? { cle: gond.cle, ref: gond.ref, chargePaire: gond.chargePaire, inox: gond.inox, releve: gond.releve, kgPorte: Math.round(kgPorte * 10) / 10, parVantail: nG } : null,
@@ -2261,6 +2536,8 @@ function calculerPortail(v, modele) {
   R.dims = { P: c.P, H: c.H, type: c.type, vantaux: largeurs.map(Math.round), gs: c.gs, hautMax: Math.round(Math.max(...ptCourbe(haut, xa, xb).map(([, y]) => y)) + (q.decor ? q.decor.cimierH : 0)) };
   R.grandeCote = Math.round(Math.max(...largeurs));
   R.config = c;
+  // La pose (lot 4) : les ouvrages, réservations, électricité, essais, et les vues de pose (après R.quant).
+  ptPose(c, V, R, { kgV: parVantail, geos, pil, yG });
 
   // --- Résumé ---
   const nomType = c.type === "battant" ? `Battant ${c.nbV} ${c.nbV > 1 ? "vantaux" : "vantail"}${c.nbV === 2 && c.rep === "tiers" ? ` inégaux, grand à ${c.sens === "droite" ? "droite" : "gauche"}` : ""}` : c.type === "coulissant" ? `Coulissant ${c.guidage === "rail" ? "sur rail" : "autoportant"}` : c.type === "pliant" ? "Pliant (2 × 2 panneaux)" : "Portillon";
@@ -2457,5 +2734,5 @@ function ptVueCote(c, C, haut, xa, pil, prP, massif, yV) {
   }
 
 
-export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, MT_AVEC, MT_NOMS };
-export const EMPREINTE = "846681042134";
+export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, PT_MOTEURS, MT_AVEC, MT_NOMS };
+export const EMPREINTE = "59505bdbfbfe";

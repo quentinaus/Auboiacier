@@ -25,6 +25,7 @@ function configDe(slug: SlugPortail, v: Record<string, unknown>): ConfigPortail 
   if (v.ptP) cfg = { ...cfg, P: Number(v.ptP) };
   if (v.ptH) cfg = { ...cfg, H: Number(v.ptH) };
   if (v.ptMoteur) cfg = { ...cfg, moteur: true };
+  if (v.ptMoteurModele) cfg = { ...cfg, moteurModele: v.ptMoteurModele as ConfigPortail["moteurModele"] };
   if (v.ptPoteaux) cfg = { ...cfg, poteaux: v.ptPoteaux as ConfigPortail["poteaux"] };
   if (v.ptGuidage) cfg = { ...cfg, guidage: v.ptGuidage as ConfigPortail["guidage"] };
   if (v.ptDecor) cfg = { ...cfg, decor: v.ptDecor as ConfigPortail["decor"], mat: "acier" };
