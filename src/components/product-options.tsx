@@ -34,6 +34,7 @@ import {
   lireReleve,
   texteManqueGC,
   etatQuestionGC,
+  murFixationDesCotes,
   largeursGC,
   noteGardeCorps,
   usePrixGardeCorps,
@@ -1214,11 +1215,13 @@ export function ProductOptions({
   const changerCotesGC = (suivant: CotesGardeCorps) => {
     setCotesGardeCorps(suivant);
     // La réponse retouchée : le message d'avant ne vaut plus.
-    const champ = questionTel === 1 ? "largeur" : questionTel === 2 ? "largeurHaut" : questionTel === 3 ? "allege" : questionTel === 4 ? "fenetre" : null;
+    const champ = questionTel === 1 ? "largeur" : questionTel === 2 ? "largeurHaut" : questionTel === 3 ? "allege" : questionTel === 4 ? "fenetre" : questionTel === 7 ? "tMur" : null;
     if (champ && suivant[champ] !== cotesGardeCorps[champ]) setEssaiQuestion(null);
+    // Le mur : on passe à la suite quand il est complet (la pierre précisée, pour la pierre).
+    const murComplet = murFixationDesCotes(suivant, t.gcMurOptions) !== null;
     const repondu =
       (questionTel === 5 && suivant.etage !== cotesGardeCorps.etage && t.gcEtageOptions.includes(suivant.etage)) ||
-      (questionTel === 6 && suivant.mur !== cotesGardeCorps.mur && suivant.mur !== "");
+      (questionTel === 6 && murComplet && (suivant.mur !== cotesGardeCorps.mur || suivant.murFixation !== cotesGardeCorps.murFixation));
     if (!repondu) return;
     const prochaine = questionTel + 1;
     window.clearTimeout(passageAuto.current);
@@ -1688,14 +1691,25 @@ export function ProductOptions({
         ? "Touchez le modèle qui vous plaît pour continuer."
         : "Tap the model you like to continue."
       : null;
-  /** Le type de mur est obligatoire (décision de Quentin, 05/10) : il décide des chevilles et de la fixation fournies. */
-  const murAChoisir = estGC && !modeVisite && Boolean(configGC) && !cotesGardeCorps.mur;
+  /**
+   * Le type de mur est obligatoire (décision de Quentin, 05/10) : il décide de la fixation fournie. Avec lui, la pierre
+   * précisée et la profondeur du tableau, où se scellent les tiges (« Auboiacier », 07/10).
+   */
+  const manqueMur = estGC && !modeVisite && Boolean(configGC) ? (etatQuestionGC(cotesGardeCorps, 6, t, locale).manque ?? etatQuestionGC(cotesGardeCorps, 7, t, locale).manque) : null;
+  const murAChoisir = Boolean(manqueMur);
   const raisonIndisponible: { message: string; ancre: string } | null = modeVisite
     ? !visitePrete
       ? { message: t.raisonVisiteIncomplete, ancre: "#cotes" }
       : null
     : murAChoisir
-      ? { message: locale === "fr" ? "Choisissez le type de mur : il décide des chevilles et de la fixation que nous fournissons." : "Choose the wall type: it decides the plugs and fixings we supply.", ancre: "#mur-gc" }
+      ? {
+          message: !cotesGardeCorps.mur
+            ? locale === "fr"
+              ? "Choisissez le type de mur : il décide de la fixation que nous fournissons."
+              : "Choose the wall type: it decides the fixings we supply."
+            : (manqueMur ?? ""),
+          ancre: "#mur-gc",
+        }
     : modeleAChoisir
       ? { message: locale === "fr" ? "Choisissez votre modèle de garde-corps parmi ceux proposés." : "Choose your railing model among those offered.", ancre: "#modeles-gc" }
     : total === null

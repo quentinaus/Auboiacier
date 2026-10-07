@@ -15,10 +15,10 @@
 export const MEDIA_TELEPHONE_GC = "(max-width: 47.999rem), (orientation: landscape) and (max-height: 31.25rem) and (max-width: 63.999rem)";
 
 /**
- * Les questions d'abord (largeur en bas, largeur en haut, hauteur sous la fenêtre, hauteur de la fenêtre, étage, mur),
- * puis le reste.
+ * Les questions d'abord (largeur en bas, largeur en haut, hauteur sous la fenêtre, hauteur de la fenêtre, étage, mur,
+ * profondeur du tableau pour la fixation), puis le reste.
  */
-export const QUESTIONS_GC = 6;
+export const QUESTIONS_GC = 7;
 /** Après les questions : les finitions d'abord (demande de Quentin, 05/10), puis le modèle, puis le prix. */
 export const ETAPE_FINITIONS_GC = QUESTIONS_GC + 1;
 export const ETAPE_MODELE_GC = QUESTIONS_GC + 2;
@@ -69,8 +69,17 @@ export const ETAPES_GC = [
     courtEn: "Wall",
     questionFr: "Dans quel mur fixer le garde-corps\u00a0?",
     questionEn: "What wall will the railing be fixed in?",
-    aideFr: "Il décide des chevilles et des vis que nous fournissons.",
-    aideEn: "It decides the plugs and screws we supply.",
+    aideFr: "Il décide de la fixation que nous fournissons.",
+    aideEn: "It decides the fixings we supply.",
+  },
+  {
+    // La fixation dans le mur (« Auboiacier », 07/10/2026) : les tiges se scellent dans le tableau.
+    courtFr: "Tableau",
+    courtEn: "Reveal",
+    questionFr: "Quelle profondeur entre la façade et la fenêtre\u00a0?",
+    questionEn: "How deep is it from the façade to the window?",
+    aideFr: "Dehors, de l'angle du mur jusqu'au cadre de la fenêtre, en millimètres. Les fixations se scellent dans cette épaisseur.",
+    aideEn: "Outside, from the corner of the wall to the window frame, in millimetres. The fixings are set in this depth.",
   },
   {
     courtFr: "Finitions",

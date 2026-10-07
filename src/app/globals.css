@@ -339,7 +339,8 @@ textarea:focus-visible,
   .fond-gc[data-parcours="1"][data-etape="6"] .panneau-etape.etape-6,
   .fond-gc[data-parcours="1"][data-etape="7"] .panneau-etape.etape-7,
   .fond-gc[data-parcours="1"][data-etape="8"] .panneau-etape.etape-8,
-  .fond-gc[data-parcours="1"][data-etape="9"] .panneau-etape.etape-9 {
+  .fond-gc[data-parcours="1"][data-etape="9"] .panneau-etape.etape-9,
+  .fond-gc[data-parcours="1"][data-etape="10"] .panneau-etape.etape-10 {
     display: flex !important;
     flex-direction: column;
   }
@@ -369,19 +370,19 @@ textarea:focus-visible,
     display: flex;
   }
   /* Étape « Modèle » : les modèles d'abord, les réglages Barreaux et Traverse (des raccourcis) ensuite. */
-  .fond-gc[data-parcours="1"] .etape-8 .carte-modeles {
+  .fond-gc[data-parcours="1"] .etape-9 .carte-modeles {
     display: flex;
     flex-direction: column;
   }
   /* La consigne « Choisissez votre modèle » est déjà écrite en grand dans l'en-tête. */
-  .fond-gc[data-parcours="1"] .etape-8 .carte-modeles > .titre-catalogue {
+  .fond-gc[data-parcours="1"] .etape-9 .carte-modeles > .titre-catalogue {
     display: none;
   }
   /* Pendant le calcul, la rangée des réglages ne porte qu'un petit titre « Votre modèle » : inutile sous l'en-tête. */
-  .fond-gc[data-parcours="1"] .etape-8 .carte-modeles > .controles-famille:not(:has(button)) {
+  .fond-gc[data-parcours="1"] .etape-9 .carte-modeles > .controles-famille:not(:has(button)) {
     display: none;
   }
-  .fond-gc[data-parcours="1"] .etape-8 .carte-modeles > .controles-famille {
+  .fond-gc[data-parcours="1"] .etape-9 .carte-modeles > .controles-famille {
     order: 1;
     margin-top: 0.75rem;
   }
@@ -452,7 +453,7 @@ textarea:focus-visible,
     grid-row: 2;
     min-height: 0;
   }
-  .fond-gc[data-parcours="1"] > .panneau-etape:not(.etape-9) {
+  .fond-gc[data-parcours="1"] > .panneau-etape:not(.etape-10) {
     padding-bottom: 12px;
   }
   .fond-gc[data-parcours="1"] > .nav-tel {
@@ -464,7 +465,7 @@ textarea:focus-visible,
     display: none;
   }
   /* La colonne du prix n'a pas de boutons dessous : elle prend aussi leur place. */
-  .fond-gc[data-parcours="1"] > .panneau-etape.etape-9 {
+  .fond-gc[data-parcours="1"] > .panneau-etape.etape-10 {
     grid-row: 2 / span 2;
   }
   .fond-gc[data-parcours="1"] .retour-modele {

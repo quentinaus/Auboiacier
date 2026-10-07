@@ -370,7 +370,7 @@
       "Placo sur ossature",
       "Je ne sais pas"
     ],
-    "gcMurInfo": "La matière dans laquelle nous fixons le garde-corps, de chaque côté de la fenêtre. Cela décide des chevilles et des vis que nous fournissons. En cas de doute, choisissez « Je ne sais pas » : nous vous demanderons une photo.",
+    "gcMurInfo": "La matière dans laquelle nous fixons le garde-corps, de chaque côté de la fenêtre. Elle décide de la fixation, calculée pour votre mur et fournie. En cas de doute, choisissez « Je ne sais pas » : le prix sera indicatif, et nous confirmerons la fixation avec une photo de votre tableau.",
     "gcQui": "Qui prend les cotes",
     "gcQuiInfo": "L'atelier vient chez vous mesurer avant de fabriquer — {prixVisite} jusqu'à {rayonVisite} km autour de Saumur, puis les kilomètres et le temps de route, jusqu'à 200 km. Ou vous mesurez vous-même, au mètre : trois mesures, sans frais.",
     "gcQuiMoi": "Je mesure moi-même",

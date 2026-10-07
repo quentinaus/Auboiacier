@@ -370,7 +370,7 @@
       "Plasterboard on studs",
       "I don't know"
     ],
-    "gcMurInfo": "What we fix the railing into, on each side of the window. It decides the plugs and screws we supply. If unsure, choose “I don't know”: we will ask you for a photo.",
+    "gcMurInfo": "What we fix the railing into, on each side of the window. It decides the fixing, worked out for your wall and supplied. If unsure, choose “I don't know”: the price will be indicative, and we will confirm the fixing with a photo of your reveal.",
     "gcQui": "Who takes the measurements",
     "gcQuiInfo": "The workshop comes to your home to measure before building — {prixVisite} within {rayonVisite} km of Saumur, then mileage and driving time, up to 200 km. Or you measure yourself, with a tape: three measurements, free of charge.",
     "gcQuiMoi": "I measure myself",

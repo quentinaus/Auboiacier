@@ -30,7 +30,7 @@ import {
 } from "@/lib/garde-corps";
 import type { Deplacement } from "@/lib/deplacement";
 import { prixAffiche } from "@/lib/ui";
-import { idDecorGC, idModeleGC, lireDecorGC, lireModeleGC, nomDecorAnglaisGC } from "@/lib/garde-corps";
+import { BORNES_MUR_GC, champsMurGC, idDecorGC, idModeleGC, lireDecorGC, lireModeleGC, nomDecorAnglaisGC, type MurFixationGC } from "@/lib/garde-corps";
 import { ChoixDecorGC, type PrixDecorsGC } from "./choix-decor-gc";
 import type { AssemblageDecorGC } from "@/lib/garde-corps-decors.genere";
 
@@ -67,6 +67,15 @@ export type CotesGardeCorps = {
    * le modèle de la rangée ne compte plus. Vide : sans décor (les croix, comme avant).
    */
   decor?: string;
+  /**
+   * La fixation dans le mur (« Auboiacier », 07/10/2026, sur le oui de Quentin) : le code du mur pour l'outil
+   * (MURS_FIXATION_GC). Déduit du type de mur ; pour la pierre, le client précise laquelle (tuffeau, pierre dure, moellons).
+   */
+  murFixation?: string;
+  /** La profondeur du tableau, de l'angle de la façade (mur nu) jusqu'à la fenêtre, en mm : les tiges s'y scellent. */
+  tMur?: string;
+  /** L'épaisseur du mur, en mm : seulement pour la pierre dure et les moellons (ancrage traversant), facultative. */
+  eMur?: string;
 };
 
 export const COTES_GARDE_CORPS_VIDES: CotesGardeCorps = {
@@ -88,6 +97,21 @@ const mm = (valeur: string) => {
   const nombre = Number(valeur.replace(/[\s\u00a0\u202f]/g, "").replace(/mm$/i, "").replace(",", "."));
   return valeur.trim() !== "" && Number.isFinite(nombre) && nombre >= 0 ? Math.round(nombre) : NaN;
 };
+
+/** Les trois pierres que l'outil distingue pour la fixation : la pierre tendre de la région, la pierre dure, les moellons. */
+export const PIERRES_GC = ["tuffeau", "pierre-dure", "moellons"] as const;
+/** Les murs dont l'épaisseur compte pour la fixation (ancrage traversant). */
+export const murAvecEpaisseurGC = (m: MurFixationGC | null) => m === "pierre-dure" || m === "moellons";
+/**
+ * Le mur de la fixation, déduit des cases : le type de mur de la liste (« Je ne sais pas » : enduit, le mur inconnu,
+ * prix indicatif), et la pierre précisée. null : rien de choisi, ou la pierre pas encore précisée.
+ */
+export function murFixationDesCotes(cotes: CotesGardeCorps, options: readonly string[]): MurFixationGC | null {
+  if (!cotes.mur) return null;
+  const matiere = matiereMur(cotes.mur, options);
+  if (matiere !== "pierre") return matiere;
+  return (PIERRES_GC as readonly string[]).includes(cotes.murFixation ?? "") ? (cotes.murFixation as MurFixationGC) : null;
+}
 
 /** Ce que disent les cases : un relevé complet, ce qui manque, ou une cote hors de ce que l'atelier fabrique. */
 export type LectureReleve =
@@ -128,9 +152,20 @@ export function lireReleve(cotes: CotesGardeCorps, t: Dictionary["artisanat"]): 
   if (largeurMm > B.largeurMm.max) return { etat: "hors-bornes", raison: "trop-large" };
   if (allegeMm > B.allegeMm.max) return { etat: "hors-bornes", raison: "allege" };
   if (fenetreMm > B.fenetreMm.max) return { etat: "hors-bornes", raison: "fenetre" };
+  // Le mur de la fixation, dès qu'il est choisi : ses cotes seulement lisibles et dans leurs bornes (sinon celles de
+  // l'outil), l'épaisseur seulement pour la pierre dure et les moellons.
+  const murFixation = murFixationDesCotes(cotes, t.gcMurOptions);
+  const dans = (v: number, b: { min: number; max: number }) => (Number.isFinite(v) && v >= b.min && v <= b.max ? v : undefined);
+  const champsMur = murFixation
+    ? champsMurGC({
+        mur: murFixation,
+        tMurMm: dans(mm(cotes.tMur ?? ""), BORNES_MUR_GC.tMurMm),
+        eMurMm: murAvecEpaisseurGC(murFixation) ? dans(mm(cotes.eMur ?? ""), BORNES_MUR_GC.eMurMm) : undefined,
+      })
+    : {};
   return {
     etat: "ok",
-    releve: { largeurMm, allegeMm, enEtage: cotes.etage === t.gcEtageOptions[0], fenetreMm, ...(lireDecorGC(cotes.decor) ? { decor: cotes.decor } : lireModeleGC(cotes.modele) ? { modele: cotes.modele } : {}) },
+    releve: { largeurMm, allegeMm, enEtage: cotes.etage === t.gcEtageOptions[0], fenetreMm, ...champsMur, ...(lireDecorGC(cotes.decor) ? { decor: cotes.decor } : lireModeleGC(cotes.modele) ? { modele: cotes.modele } : {}) },
   };
 }
 
@@ -279,9 +314,37 @@ export function etatQuestionGC(
         ? rien
         : { manque: fr ? "Touchez « En étage » ou « Au rez-de-chaussée »." : "Tap “Upstairs” or “Ground floor”.", avertissement: null };
     case 6:
-      return cotes.mur !== ""
+      if (cotes.mur === "") return { manque: fr ? "Touchez le type de mur (ou « Je ne sais pas »)." : "Tap the wall type (or “I don't know”).", avertissement: null };
+      return murFixationDesCotes(cotes, t.gcMurOptions)
         ? rien
-        : { manque: fr ? "Touchez le type de mur (ou « Je ne sais pas »)." : "Tap the wall type (or “I don't know”).", avertissement: null };
+        : { manque: fr ? "Dites quelle pierre : tuffeau, pierre dure ou moellons." : "Tell us which stone: tufa, hard stone or rubble stone.", avertissement: null };
+    case 7: {
+      // La profondeur du tableau : les tiges de la fixation s'y scellent (« Auboiacier », 07/10).
+      const T = BORNES_MUR_GC.tMurMm;
+      const v = mm(cotes.tMur ?? "");
+      if (!Number.isFinite(v) || v <= 0)
+        return {
+          manque:
+            (cotes.tMur ?? "").trim() !== ""
+              ? fr ? "La profondeur n'est pas un nombre : corrigez-la." : "The depth is not a number: please correct it."
+              : fr ? "Entrez la profondeur entre la façade et la fenêtre pour continuer." : "Enter the depth between the façade and the window to continue.",
+          avertissement: null,
+        };
+      if (v < T.min || v > T.max)
+        return { manque: fr ? `Entre ${nombre(T.min)} et ${nombre(T.max)} mm : vérifiez la mesure.` : `Between ${nombre(T.min)} and ${nombre(T.max)} mm: check the measurement.`, avertissement: null };
+      if (murAvecEpaisseurGC(murFixationDesCotes(cotes, t.gcMurOptions)) && (cotes.eMur ?? "").trim() !== "") {
+        const E = BORNES_MUR_GC.eMurMm;
+        const ep = mm(cotes.eMur ?? "");
+        if (!Number.isFinite(ep) || ep < E.min || ep > E.max)
+          return {
+            manque: fr
+              ? `L'épaisseur du mur se compte entre ${nombre(E.min)} et ${nombre(E.max)} mm : corrigez-la, ou effacez-la.`
+              : `The wall thickness goes from ${nombre(E.min)} to ${nombre(E.max)} mm: correct it, or clear it.`,
+            avertissement: null,
+          };
+      }
+      return rien;
+    }
     default:
       return rien;
   }
@@ -362,13 +425,19 @@ export function noteGardeCorps(cotes: CotesGardeCorps, t: Dictionary["artisanat"
  * Devant chaque case, le pictogramme de sa cote, dessiné comme sur un plan : une largeur entre deux murs,
  * une hauteur depuis le sol, une hauteur de fenêtre. Il remplace les pastilles ①②③ (« pas pro », 05/10).
  */
-function IconeCote({ cote }: { cote: "largeur" | "largeurHaut" | "allege" | "fenetre" }) {
+/** Les cotes qui se tapent (et ont un curseur) : celles de la fenêtre, et celles du mur pour la fixation. */
+type CoteSaisieGC = "largeur" | "largeurHaut" | "allege" | "fenetre" | "tMur" | "eMur";
+
+function IconeCote({ cote }: { cote: CoteSaisieGC }) {
   return (
     <svg aria-hidden viewBox="0 0 18 18" className="h-[18px] w-[18px] shrink-0 text-[#2a2116]" fill="none" stroke="currentColor" strokeWidth={1.3} strokeLinecap="round">
       {cote === "largeur" && <path d="M2 3v12M16 3v12M2 12h14M3.6 13.6l1.6-3.2M12.8 13.6l1.6-3.2" />}
       {cote === "largeurHaut" && <path d="M2 3v12M16 3v12M2 6h14M3.6 7.6l1.6-3.2M12.8 7.6l1.6-3.2" />}
       {cote === "allege" && <path d="M2.5 16h13M9 16V3M5 3h8M7.4 4.6l3.2-3.2M7.4 17.6l3.2-3.2" strokeOpacity={1} />}
       {cote === "fenetre" && <path d="M7 3h8v12H7zM11 3v12M3 3v12M1.4 4.6l3.2-3.2M1.4 16.6l3.2-3.2" />}
+      {/* Vue de dessus : le mur, la fenêtre au fond du tableau, et la profondeur entre les deux. */}
+      {cote === "tMur" && <path d="M2 2v14M2 2h5v5M16 7H7M7 7v9M2 12h14M3.6 13.6l-1.6-1.6 1.6-1.6M14.4 10.4l1.6 1.6-1.6 1.6" />}
+      {cote === "eMur" && <path d="M5 2v14M13 2v14M5 9h8M6.6 10.6L5 9l1.6-1.6M11.4 7.4L13 9l-1.6 1.6" />}
     </svg>
   );
 }
@@ -1185,6 +1254,59 @@ export function ReleveGardeCorps({
 
   const set = (champ: keyof CotesGardeCorps) => (valeur: string) =>
     onChange({ ...cotes, [champ]: valeur });
+  /** Le type de mur : le code de la fixation suit ; la pierre attend d'être précisée (sauf si elle l'était déjà). */
+  const choisirMur = (option: string) => {
+    const matiere = matiereMur(option, t.gcMurOptions);
+    const pierreDonnee = (PIERRES_GC as readonly string[]).includes(cotes.murFixation ?? "");
+    onChange({ ...cotes, mur: option, murFixation: matiere === "pierre" ? (pierreDonnee ? cotes.murFixation : "") : matiere });
+    // La pierre à préciser s'ouvre sous la liste : on l'amène sous les yeux (sur téléphone, elle était sous le bord de la carte).
+    if (matiere === "pierre") window.setTimeout(() => document.getElementById(`${idChamps}-pierre`)?.scrollIntoView({ block: "nearest", behavior: "smooth" }), 60);
+  };
+  const estPierre = cotes.mur !== "" && matiereMur(cotes.mur, t.gcMurOptions) === "pierre";
+  const murChoisi = murFixationDesCotes(cotes, t.gcMurOptions);
+  const NOMS_PIERRES: Record<(typeof PIERRES_GC)[number], string> = fr
+    ? { tuffeau: "Tuffeau", "pierre-dure": "Pierre dure", moellons: "Moellons" }
+    : { tuffeau: "Tufa", "pierre-dure": "Hard stone", moellons: "Rubble stone" };
+  const infoPierre = fr
+    ? "Le tuffeau : la pierre blanche et tendre de la région. La pierre dure : un calcaire ou un granit qui ne se raye pas à l'ongle. Les moellons : des pierres irrégulières montées au mortier."
+    : "Tufa: the soft white local stone. Hard stone: a limestone or granite you cannot scratch with a fingernail. Rubble stone: irregular stones laid in mortar.";
+  const libelleTableau = fr ? "Profondeur du tableau" : "Reveal depth";
+  const infoTableau = fr
+    ? "Dehors, de l'angle du mur (sans l'enduit, si vous le voyez) jusqu'au cadre de la fenêtre, en millimètres. La fixation se fait dans cette épaisseur : nous la plaçons au mieux. Nous vous demanderons aussi une photo du tableau avec un mètre."
+    : "Outside, from the corner of the wall (without the render, if you can see it) to the window frame, in millimetres. The fixing goes into this depth: we place it for the best hold. We will also ask you for a photo of the reveal with a tape measure.";
+  const libelleEpaisseur = fr ? "Épaisseur du mur" : "Wall thickness";
+  const infoEpaisseur = fr
+    ? "De la façade jusqu'au mur intérieur, à côté de la fenêtre. Facultatif : sans elle, nous comptons 450 mm, l'épaisseur courante des murs en pierre."
+    : "From the façade to the inside wall, beside the window. Optional: without it, we count 450 mm, the usual thickness of stone walls.";
+  /** Les trois pierres, en pilules (ordinateur) ou en gros boutons (téléphone). */
+  const choixPierre = (gros: boolean) =>
+    estPierre && (
+      <div id={`${idChamps}-pierre`} className={gros ? "mt-3" : "mt-2"}>
+        <p className={`flex items-center gap-2 ${gros ? "mb-2 text-[14px]" : "mb-1.5 text-[12.5px]"} text-[#2b2320]`}>
+          {fr ? "Quelle pierre ?" : "Which stone?"}
+          <InfoBulle texte={infoPierre} label={t.gcInfoLabel} />
+        </p>
+        <div className={gros ? "grid grid-cols-3 gap-2" : `grid grid-cols-3 rounded-full border bg-white p-0.5 ${murChoisi ? "border-[#9a8d80]" : "border-[#c98a3a]"}`}>
+          {PIERRES_GC.map((pierre) =>
+            gros ? (
+              grosBouton(cotes.murFixation === pierre, () => onChange({ ...cotes, murFixation: pierre }), NOMS_PIERRES[pierre], false)
+            ) : (
+              <button
+                key={pierre}
+                type="button"
+                aria-pressed={cotes.murFixation === pierre}
+                onClick={() => onChange({ ...cotes, murFixation: pierre })}
+                className={`whitespace-nowrap rounded-full px-1 py-1.5 text-[12px] font-medium transition-colors ${
+                  cotes.murFixation === pierre ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"
+                }`}
+              >
+                {NOMS_PIERRES[pierre]}
+              </button>
+            ),
+          )}
+        </div>
+      </div>
+    );
 
   /** Cliquer une cote sur le croquis amène le curseur dans sa case. */
   const allerA = (cote: CoteFenetre) => {
@@ -1204,7 +1326,9 @@ export function ReleveGardeCorps({
    * est dans la bulle.
    */
   /** Chaque case a sa cote sur le croquis (la largeur en haut, à 1 m du sol). */
-  const coteCroquis = (cote: "largeur" | "largeurHaut" | "allege" | "fenetre"): CoteFenetre => cote;
+  const coteCroquis = (cote: CoteSaisieGC): CoteFenetre | null => (cote === "tMur" || cote === "eMur" ? null : cote);
+  /** Ce qui est tapé dans une case (les cases du mur sont facultatives dans les cotes). */
+  const saisie = (cote: CoteSaisieGC) => cotes[cote] ?? "";
   /**
    * Murs pas parallèles (décision de Quentin, 05/10) : sous les deux largeurs, l'écart et la largeur retenue ; au-delà de
    * ECART_MURS_GC_MM, la visite de l'atelier est conseillée, à un geste.
@@ -1229,7 +1353,7 @@ export function ReleveGardeCorps({
     </p>
   );
   const ligne = (
-    cote: "largeur" | "largeurHaut" | "allege" | "fenetre",
+    cote: CoteSaisieGC,
     props: { label: string; aide?: string; info: string; placeholder: string; facultatif?: boolean },
   ) => (
     <div className="py-2.5">
@@ -1240,7 +1364,7 @@ export function ReleveGardeCorps({
           {/* La mesure qui manque : la même étiquette que « à choisir » pour l'étage. */}
           {manque === cote && (
             <span className="ml-2 inline-block rounded-full bg-[#fbeeda] px-2 py-0.5 align-middle text-[11px] font-medium text-[#7a4510]">
-              {cotes[cote].trim() !== "" ? (fr ? "à corriger" : "to correct") : fr ? "à remplir" : "to fill in"}
+              {saisie(cote).trim() !== "" ? (fr ? "à corriger" : "to correct") : fr ? "à remplir" : "to fill in"}
             </span>
           )}
         </span>
@@ -1254,16 +1378,16 @@ export function ReleveGardeCorps({
           min={CURSEURS[cote].min}
           max={CURSEURS[cote].max}
           step={1}
-          value={Number.isFinite(mm(cotes[cote])) ? Math.min(CURSEURS[cote].max, Math.max(CURSEURS[cote].min, mm(cotes[cote]))) : CURSEURS[cote].depart}
+          value={Number.isFinite(mm(saisie(cote))) ? Math.min(CURSEURS[cote].max, Math.max(CURSEURS[cote].min, mm(saisie(cote)))) : CURSEURS[cote].depart}
           onChange={(e) => set(cote)(e.target.value)}
           // Un clic sur le curseur sans le déplacer : le client garde la valeur où il attend. Elle devient
           // sa mesure (avant, la case restait vide alors que le curseur avait l'air réglé).
           onPointerUp={(e) => {
-            if (e.button === 0 && cotes[cote].trim() === "") set(cote)(e.currentTarget.value);
+            if (e.button === 0 && saisie(cote).trim() === "") set(cote)(e.currentTarget.value);
           }}
           onFocus={() => setCoteActive(coteCroquis(cote))}
           onBlur={() => setCoteActive(null)}
-          className={`curseur-cote block h-5 min-w-0 flex-1 cursor-pointer ${cotes[cote].trim() === "" ? "curseur-vide" : ""}`}
+          className={`curseur-cote block h-5 min-w-0 flex-1 cursor-pointer ${saisie(cote).trim() === "" ? "curseur-vide" : ""}`}
         />
         <span
           className={`flex h-9 w-[6.75rem] shrink-0 items-center gap-1 rounded-full border border-[#9a8d80] bg-white px-3 transition-[border-color,box-shadow] focus-within:border-[#2b2320] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)] ${
@@ -1273,7 +1397,7 @@ export function ReleveGardeCorps({
           <input
             id={`${idChamps}-${cote}`}
             inputMode="decimal"
-            value={cotes[cote]}
+            value={saisie(cote)}
             onChange={(e) => set(cote)(e.target.value)}
             // « ex. 1180 », en italique : une valeur d'EXEMPLE, pas une mesure saisie. Une cote facultative le dit dans sa
             // case : écrit après l'intitulé, « · facultatif » le passait sur deux lignes et la colonne débordait (1280 × 720).
@@ -1298,7 +1422,7 @@ export function ReleveGardeCorps({
       {messageQuestion ?? ""}
     </p>
   );
-  const grandeSaisie = (cote: "largeur" | "largeurHaut" | "allege" | "fenetre", props: { label: string; info: string; placeholder: string }) => (
+  const grandeSaisie = (cote: CoteSaisieGC, props: { label: string; info: string; placeholder: string }) => (
     <div className="pt-1">
       <label htmlFor={`${idChamps}-${cote}`} className="sr-only">
         {props.label}
@@ -1313,7 +1437,7 @@ export function ReleveGardeCorps({
           enterKeyHint="next"
           aria-describedby={messageQuestion ? `${idChamps}-message` : undefined}
           aria-invalid={messageQuestion ? true : undefined}
-          value={cotes[cote]}
+          value={saisie(cote)}
           onChange={(e) => set(cote)(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -1347,14 +1471,14 @@ export function ReleveGardeCorps({
         min={CURSEURS[cote].min}
         max={CURSEURS[cote].max}
         step={1}
-        value={Number.isFinite(mm(cotes[cote])) ? Math.min(CURSEURS[cote].max, Math.max(CURSEURS[cote].min, mm(cotes[cote]))) : CURSEURS[cote].depart}
+        value={Number.isFinite(mm(saisie(cote))) ? Math.min(CURSEURS[cote].max, Math.max(CURSEURS[cote].min, mm(saisie(cote)))) : CURSEURS[cote].depart}
         onChange={(e) => set(cote)(e.target.value)}
         onPointerUp={(e) => {
-          if (e.button === 0 && cotes[cote].trim() === "") set(cote)(e.currentTarget.value);
+          if (e.button === 0 && saisie(cote).trim() === "") set(cote)(e.currentTarget.value);
         }}
         onFocus={() => setCoteActive(coteCroquis(cote))}
         onBlur={() => setCoteActive(null)}
-        className={`curseur-cote mt-4 block h-6 w-full cursor-pointer ${cotes[cote].trim() === "" ? "curseur-vide" : ""}`}
+        className={`curseur-cote mt-4 block h-6 w-full cursor-pointer ${saisie(cote).trim() === "" ? "curseur-vide" : ""}`}
       />
       <p className="mt-3 text-[12.5px] leading-snug text-[#5c5140]">{props.info}</p>
     </div>
@@ -1410,10 +1534,23 @@ export function ReleveGardeCorps({
     ) : question === 6 ? (
       <div id="mur-gc" className="scroll-mt-28 pt-1">
         <div className="grid grid-cols-2 gap-2">
-          {t.gcMurOptions.map((option, i) => grosBouton(cotes.mur === option, () => set("mur")(option), option, i === 0))}
+          {t.gcMurOptions.map((option, i) => grosBouton(cotes.mur === option, () => choisirMur(option), option, i === 0))}
         </div>
+        {choixPierre(true)}
         {messageTel}
         <p className="mt-3 text-[12.5px] leading-snug text-[#5c5140]">{t.gcMurInfo}</p>
+      </div>
+    ) : question === 7 ? (
+      <div>
+        {grandeSaisie("tMur", {
+          label: libelleTableau,
+          // L'en-tête dit déjà où mesurer : ici, le reste.
+          info: fr
+            ? "Sans l'enduit, si vous le voyez. La fixation se fait dans cette épaisseur : nous la plaçons au mieux. Nous vous demanderons aussi une photo du tableau avec un mètre."
+            : "Without the render, if you can see it. The fixing goes into this depth: we place it for the best hold. We will also ask you for a photo of the reveal with a tape measure.",
+          placeholder: "150",
+        })}
+        {murAvecEpaisseurGC(murChoisi) && ligne("eMur", { label: libelleEpaisseur, info: infoEpaisseur, placeholder: "450", facultatif: true })}
       </div>
     ) : null;
 
@@ -1688,7 +1825,7 @@ export function ReleveGardeCorps({
               <select
                 id={`${idChamps}-mur`}
                 value={cotes.mur}
-                onChange={(e) => set("mur")(e.target.value)}
+                onChange={(e) => choisirMur(e.target.value)}
                 className={`${SELECT.replace("w-[8.5rem]", "w-full")} mt-2 ${cotes.mur === "" ? "border-[#c98a3a]" : ""}`}
               >
                 <option value="" disabled>{fr ? "Choisissez…" : "Choose…"}</option>
@@ -1699,6 +1836,11 @@ export function ReleveGardeCorps({
                 ))}
               </select>
             </label>
+            {/* La fixation dans le mur (« Auboiacier », 07/10) : la pierre précisée, la profondeur du tableau où se scellent
+                les tiges, et l'épaisseur pour la pierre dure et les moellons. */}
+            {choixPierre(false)}
+            {cotes.mur !== "" && ligne("tMur", { label: libelleTableau, info: infoTableau, placeholder: "150" })}
+            {murAvecEpaisseurGC(murChoisi) && ligne("eMur", { label: libelleEpaisseur, info: infoEpaisseur, placeholder: "450", facultatif: true })}
           </div>
             </>
           )}
@@ -1840,7 +1982,9 @@ export function ReleveGardeCorps({
                   <p className="font-medium text-[#2b2320]">{t.gcAEtudierTitre}</p>
                   <p className="mt-1 text-[#5c5140]">
                     {reponse.alertes.includes("fixation")
-                      ? t.gcAEtudierFixation
+                      ? reponse.fixation?.statut === "etude"
+                        ? reponse.fixation.texte
+                        : t.gcAEtudierFixation
                       : reponse.alertes.includes("solidite") || reponse.alertes.includes("charge-verticale")
                         ? t.gcAEtudierSolidite
                         : t.gcAEtudier}{" "}
@@ -1862,6 +2006,12 @@ export function ReleveGardeCorps({
                       />
                     )}
                   </p>
+                  {/* La fixation dans le mur : adaptée (et fournie), ou prix indicatif tant que le mur n'est pas confirmé. */}
+                  {reponse?.ok && reponse.fixation && (
+                    <p className={`mt-0.5 text-[12.5px] leading-snug ${reponse.fixation.statut === "indicatif" ? "font-medium text-[#7a4510]" : "text-[#5c5140]"}`}>
+                      {reponse.fixation.texte}
+                    </p>
+                  )}
                   {/* « Voir le plan » (demande de Quentin) : UNE vue d'aperçu, aux cotes du client, sans rien de la fabrication. */}
                   {releve && !surVerre && (
                     <>
@@ -2026,6 +2176,9 @@ const CURSEURS = {
   // 585 : le bas de fenêtre du garde-corps de la photo (350 mm de haut, main courante à 1 025 mm du sol).
   allege: { min: 0, max: BORNES_RELEVE_GC.allegeMm.max, depart: 585 },
   fenetre: { min: 0, max: BORNES_RELEVE_GC.fenetreMm.max, depart: 1200 },
+  // Le tableau : le curseur s'arrête à 500 mm (au-delà, rare, la case se tape) ; l'épaisseur, celle des murs anciens.
+  tMur: { min: BORNES_MUR_GC.tMurMm.min, max: 500, depart: 150 },
+  eMur: { min: BORNES_MUR_GC.eMurMm.min, max: BORNES_MUR_GC.eMurMm.max, depart: 450 },
 } as const;
 
 /**
