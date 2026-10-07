@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 e4d33fc3330012c943e35f41.
+// Source : l'outil de plans (plans-atelier.html), sha256 9c4f674ae48405c82b83e8b0.
 /* eslint-disable */
 
 
@@ -2001,7 +2001,8 @@ function ptPose(c, V, R, ctx) {
     P.reservations.push({ nom: "Gaine rouge du 230 V jusqu'au pilier de l'armoire", quiFait: ELEC, detail: "câble U-1000 R2V enterré, grillage avertisseur rouge au-dessus" });
     P.reservations.push({ nom: "Gaine basse tension séparée (cellules, feu)", quiFait: NOUS, detail: "distance avec le 230 V à confirmer dans la NF C 15-100" });
     if (c.type === "battant" && c.nbV === 2) {
-      P.reservations.push({ nom: "Traversée de l'allée pour M2", quiFait: NOUS, detail: `${ptMm(c.P + 600)} mm environ ; 0,50 m sous un jardin, 0,85 m sous un passage de voiture (à confirmer) ; AVANT tout revêtement neuf (le client en est prévenu à la commande)` });
+      // Tranchée et gaine : le maçon du client, d'après notre plan (décision de Quentin du 07/10/2026) ; nous passons les câbles.
+      P.reservations.push({ nom: "Traversée de l'allée pour M2 (tranchée et gaine)", quiFait: MACON, detail: `${ptMm(c.P + 600)} mm environ ; 0,50 m sous un jardin, 0,85 m sous un passage de voiture (à confirmer) ; AVANT tout revêtement neuf (le client en est prévenu à la commande) ; nous passons les câbles` });
       fouille = true;
     }
     P.reservations.push({ nom: "Boîte de coupure au pied du pilier de l'armoire", quiFait: NOUS, detail: "" });
@@ -2020,7 +2021,8 @@ function ptPose(c, V, R, ctx) {
     P.notes.push("Avant de charger le camion : contrôle des ouvrages du maçon (cotes à ± 10 mm, niveau, aplomb), sur photos cotées ou sur place.");
   }
   if (fouille) P.notes.push(`Avant toute fouille (massifs, longrine, socle, tranchée) : DT-DICT sur le guichet unique (reseaux-et-canalisations.ineris.fr)${Vi.reseaux ? ` : ${Vi.reseaux}` : " : date de la réponse à noter"} ; fouille à la main près d'un réseau repéré.`);
-  P.prerequis.push("Accès et place dégagés le jour de la pose", ...(P.maconnerieClient ? ["Maçonnerie faite par son maçon d'après notre plan, coulée 7 jours au moins avant la pose"] : []), ...(Mo ? ["Courant amené au pilier de l'armoire (si prévu)"] : []), "Déclaration préalable accordée, s'il en faut une (le client la dépose avec notre dessin)", "Réseaux signalés (DT-DICT)");
+  // Rien n'est prêt le jour prévu : le client prévient pour décaler (décision de Quentin du 07/10/2026 : pas de forfait).
+  P.prerequis.push("Si quelque chose n'est pas prêt (maçonnerie, courant, accès), le client nous prévient par mail ou par téléphone pour décaler la pose", "Accès et place dégagés le jour de la pose", ...(P.maconnerieClient ? ["Maçonnerie faite par son maçon d'après notre plan, coulée 7 jours au moins avant la pose"] : []), ...(Mo ? ["Courant amené au pilier de l'armoire (si prévu)"] : []), "Déclaration préalable accordée, s'il en faut une (le client la dépose avec notre dessin)", "Réseaux signalés (DT-DICT)");
   P.controle.push(`Jeux : ${RG.jeuGonds} mm côté gonds, ${RG.jeuCentre} mm au centre ou côté serrure, sur toute la course`, "Aplomb des vantaux", "Manœuvre à la main : effort mesuré au peson (valeur de référence dans la norme)", "Butées et arrêts", "Serrure et verrou");
   P.betonM3 = Math.round(P.ouvrages.reduce((x, o) => x + o.m3, 0) * 1000) / 1000;
   R.pose = P;
@@ -2735,4 +2737,4 @@ function ptVueCote(c, C, haut, xa, pil, prP, massif, yV) {
 
 
 export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, PT_MOTEURS, MT_AVEC, MT_NOMS };
-export const EMPREINTE = "59505bdbfbfe";
+export const EMPREINTE = "c9cce4d6ffab";
