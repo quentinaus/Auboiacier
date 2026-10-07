@@ -1348,35 +1348,36 @@ textarea:focus-visible,
 .indice-souris {
   position: relative;
   display: block;
-  width: 26px;
-  height: 42px;
-  border: 2px solid #ffffff;
-  border-radius: 14px;
+  width: 18px;
+  height: 30px;
+  border: 1.5px solid #ffffff;
+  border-radius: 10px;
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.12),
-    0 4px 14px rgba(0, 0, 0, 0.35);
+    0 3px 10px rgba(0, 0, 0, 0.35);
 }
 .indice-bille {
   position: absolute;
   left: 50%;
-  top: 7px;
-  width: 6px;
-  height: 6px;
-  margin-left: -3px;
-  border-radius: 10px;
+  top: 5px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 999px;
   background: #ffffff;
 }
+/* Plus petite (Quentin, 07/10/2026 : « le logo de la souris, moins gros »). */
 @media (min-width: 768px) {
   .indice-souris {
-    width: 30px;
-    height: 50px;
-    border-radius: 15px;
+    width: 20px;
+    height: 33px;
+    border-radius: 10px;
   }
   .indice-bille {
-    top: 8px;
-    width: 7px;
-    height: 7px;
-    margin-left: -3.5px;
+    top: 6px;
+    width: 5px;
+    height: 5px;
+    margin-left: -2.5px;
   }
 }
 @keyframes indice-bille {
@@ -1388,11 +1389,11 @@ textarea:focus-visible,
     opacity: 1;
   }
   70% {
-    transform: translateY(16px);
+    transform: translateY(11px);
     opacity: 1;
   }
   100% {
-    transform: translateY(20px);
+    transform: translateY(14px);
     opacity: 0;
   }
 }
