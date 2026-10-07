@@ -108,7 +108,37 @@
     "configTable": "Configurer une table",
     "configGardeCorps": "Configurer un garde-corps",
     "configPlafond": "Configurer un plafond lumineux",
-    "avisGoogle": "Voir la fiche Google"
+    "avisGoogle": "Voir la fiche Google",
+    "seoBlocs": {
+      "titre": "Métallerie sur mesure à Saumur et en Anjou",
+      "blocs": [
+        {
+          "paragraphes": [
+            "Auboiacier est un atelier de métallerie qui ouvre à Saumur, en Maine-et-Loire. Derrière cette métallerie à Saumur, un seul homme : Quentin Aumercier, soudeur-métallier, titulaire d'un CAP et d'un brevet professionnel en métallerie. Il soude depuis plus de cinq ans, au TIG, au MAG et à l'électrode, en France puis en Australie, où il a travaillé deux ans chez un fabricant de plafonds lumineux en toile tendue, un savoir-faire qu'il rapporte à Saumur. Si vous cherchez un métallier à Saumur, vous parlez donc à celui qui fabrique : celui qui répond à votre message est celui qui soude votre pièce."
+          ]
+        },
+        {
+          "h3": "Ce que fabrique l'atelier",
+          "paragraphes": [
+            "L'atelier fabrique des garde-corps de fenêtre en acier plein, à croix de Saint-André et rosaces de fonderie, avec une main courante en bois ou en acier, dans l'esprit des balcons anciens ; des escaliers à limon central, bâtis sur un tube d'acier de forte section et portant des marches en bois massif ; des verrières d'atelier en acier fin, mesurées chez vous puis soudées à l'atelier ; des tables en bois massif sur piétement d'acier soudé ; des plafonds lumineux en toile tendue ; et des sculptures en acier de récupération, soudées une à une.",
+            "Tout est fait sur mesure : chaque pièce est dessinée à vos cotes, puis fabriquée à Saumur, à la commande, sans stock ni série. L'acier est coupé, soudé à la main et meulé, puis peint. Le bois massif, chêne, noyer, hêtre ou pin, est poncé et huilé à l'atelier avant de venir se fixer sur l'acier ; vous choisissez l'essence du bois et la teinte de l'acier. Un plateau massif se reponce, un piétement soudé se repeint : une pièce faite ainsi se répare au lieu de se remplacer. Les plafonds lumineux suivent la même logique : un caisson d'aluminium soudé à l'atelier, une toile tendue, un éclairage LED intégré, aux dimensions de votre pièce."
+          ]
+        },
+        {
+          "h3": "Comment ça se passe",
+          "paragraphes": [
+            "Le prix est affiché avant tout rendez-vous. Pour un garde-corps de fenêtre, une table ou un plafond lumineux, vous entrez vos cotes dans le configurateur : le prix apparaît aussitôt, à vos dimensions, et vous téléchargez un devis PDF sans compte et sans engagement. Pour le garde-corps, le configurateur calcule la hauteur et les espaces entre les barres d'après votre fenêtre.",
+            "Un escalier, une verrière ou une sculpture se chiffrent au devis, et l'atelier vient relever les cotes chez vous, sur rendez-vous : la prise de cotes à domicile coûte {prixVisite} jusqu'à {rayonVisite} km de Saumur, davantage au-delà selon la distance. Vous pouvez aussi la demander pour un garde-corps si vous préférez ne pas mesurer vous-même. Chaque pièce est fabriquée sur commande, et le délai vous est confirmé par écrit au moment de commander."
+          ]
+        },
+        {
+          "h3": "Où nous intervenons",
+          "paragraphes": [
+            "Métallier à Saumur, Quentin se déplace en Anjou comme en Touraine pour relever les cotes : à Saumur et dans les communes voisines, Montreuil-Bellay, Doué-en-Anjou ou Fontevraud-l'Abbaye, puis à Angers, à Tours ou à Chinon, et jusqu'à 200 km de l'atelier, en Maine-et-Loire, en Indre-et-Loire, dans les Deux-Sèvres et dans la Vienne. Les pièces de la collection sont livrées par transporteur dans toute la France métropolitaine ; une table arrive démontée, prête à visser. La pose par l'atelier, si vous la souhaitez, est chiffrée au devis. Pour une métallerie à Saumur ou ailleurs dans le Val de Loire, écrivez-nous avec votre commune et votre projet."
+          ]
+        }
+      ]
+    }
   },
   "home": {
     "heroTitle": "Plafonds lumineux en toile tendue, fabriqués sur mesure à Saumur",

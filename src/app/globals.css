@@ -1525,15 +1525,14 @@ textarea:focus-visible,
 
   background: #f1ebe2 !important;
 }
+/* Plus calme (Quentin, 07/10/2026 : « soit pas assez Liquid Glass, soit trop de couleurs ») : un fond pierre et papier,
+   un seul halo doré très doux, une ombre de pierre en bas à droite ; plus de bleu. Le verre ressort mieux. */
 #configuration:has(.fond-gc) .fond-configuration::before {
   background:
-    radial-gradient(30% 34% at 25% 28%, rgba(216, 174, 116, .88), rgba(216, 174, 116, 0) 100%),
-    radial-gradient(28% 32% at 76% 28%, rgba(140, 164, 196, .85), rgba(140, 164, 196, 0) 100%),
-    radial-gradient(34% 34% at 58% 74%, rgba(212, 186, 152, .95), rgba(212, 186, 152, 0) 100%),
-    radial-gradient(24% 28% at 24% 76%, rgba(173, 129, 72, .60), rgba(173, 129, 72, 0) 100%),
-    radial-gradient(24% 28% at 84% 76%, rgba(118, 142, 176, .65), rgba(118, 142, 176, 0) 100%),
-    radial-gradient(20% 22% at 50% 38%, rgba(255, 246, 232, .9), rgba(255, 246, 232, 0) 100%),
-    linear-gradient(135deg, #f7f2ea, #ebe3d6);
+    radial-gradient(38% 42% at 28% 30%, rgba(222, 186, 132, .55), rgba(222, 186, 132, 0) 100%),
+    radial-gradient(40% 40% at 78% 78%, rgba(196, 184, 166, .55), rgba(196, 184, 166, 0) 100%),
+    radial-gradient(26% 26% at 55% 40%, rgba(255, 250, 242, .9), rgba(255, 250, 242, 0) 100%),
+    linear-gradient(135deg, #f6f2ec, #ece6dd);
 }
 
 /* ---------------------------------------------------------------------------

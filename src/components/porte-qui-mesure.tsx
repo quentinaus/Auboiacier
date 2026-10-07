@@ -276,7 +276,7 @@ export function PorteQuiMesure({
               onClick={(e) => choisir(c.id, e.currentTarget)}
               className="porte-carte aplat-card flex min-h-0 flex-col text-left focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#2b2320]"
             >
-              <FilmAplat film={c.film} className={`aplat-card-scene ${c.classeScene} porte-scene`}>
+              <FilmAplat film={c.film} groupe="porte" className={`aplat-card-scene ${c.classeScene} porte-scene`}>
                 {c.etiquettes.textes.map((texte, i) => (
                   <span key={i} aria-hidden className={`aplat-et ${c.etiquettes.classe}${i}`}>
                     <b>{i + 1}</b> · {texte}

@@ -108,7 +108,37 @@
     "configTable": "Configure a table",
     "configGardeCorps": "Configure a railing",
     "configPlafond": "Configure a light ceiling",
-    "avisGoogle": "See our Google profile"
+    "avisGoogle": "See our Google profile",
+    "seoBlocs": {
+      "titre": "Bespoke metalwork in Saumur and Anjou",
+      "blocs": [
+        {
+          "paragraphes": [
+            "Auboiacier is a metalwork workshop opening in Saumur, in Maine-et-Loire, France. Behind this metal workshop in Saumur stands one man: Quentin Aumercier, a welder-metalworker holding a French CAP and a Brevet Professionnel in metalwork. He has been welding for more than five years, with TIG, MIG/MAG and stick, in France and then in Australia, where he spent two years with a maker of backlit stretch-fabric ceilings, a skill he has brought back to Saumur. If you are looking for a metalworker in Saumur, you speak to the person who makes your piece: the one who answers your message is the one who welds it. English spoken."
+          ]
+        },
+        {
+          "h3": "What the workshop makes",
+          "paragraphes": [
+            "The workshop makes window railings in solid steel, with St Andrew's crosses, cast rosettes and a handrail in wood or steel, in the spirit of old balconies; steel spine staircases, built on a heavy steel tube and fitted with solid wood treads; steel internal windows, measured at your home and welded in the workshop; solid wood tables on welded steel bases; backlit stretch-fabric ceiling lights; and sculptures in reclaimed steel, welded piece by piece.",
+            "Every piece is bespoke and handmade: drawn to your dimensions, then made to measure in Saumur, to order, with no stock and no production runs. The steel is cut, hand-welded and ground, then painted. The solid wood, whether oak, walnut, beech or pine, is sanded and oiled in the workshop before it is fixed to the steel; you choose the wood and the colour of the steel. A solid wood top can be sanded again and a welded base repainted, so a piece made this way is repaired rather than replaced. The light ceilings follow the same logic: an aluminium box welded in the workshop, a stretched fabric and integrated LED lighting, sized to your room."
+          ]
+        },
+        {
+          "h3": "How it works",
+          "paragraphes": [
+            "The price is shown before any appointment. For a window railing, a table or a light ceiling, you enter your measurements in the online configurator: the price appears at once, worked out for your dimensions, and you download a PDF quote with no account and no commitment. For a railing, the configurator works out the height and the gaps between the bars from your window.",
+            "A staircase, a steel internal window or a sculpture is priced by quote, and the workshop comes to measure at your home, by appointment: a home measuring visit costs {prixVisite} within {rayonVisite} km of Saumur, and more beyond that, depending on distance. You can also book it for a window railing if you would rather not measure yourself. Every piece is made to order, and the lead time is confirmed to you in writing when you place the order."
+          ]
+        },
+        {
+          "h3": "Where we work",
+          "paragraphes": [
+            "As a metalworker in Saumur, Quentin travels across Anjou and Touraine to measure up: in Saumur and the nearby towns of Montreuil-Bellay, Doué-en-Anjou and Fontevraud-l'Abbaye, then in Angers, Tours or Chinon, and up to 200 km from the workshop, across Maine-et-Loire, Indre-et-Loire, Deux-Sèvres and Vienne. Pieces from the collection are delivered by carrier across mainland France; a table arrives unassembled, ready to screw together. Fitting by the workshop, if you want it, is priced in the quote. For metalwork in Saumur or anywhere in the Loire Valley, write to us with your town and your project."
+          ]
+        }
+      ]
+    }
   },
   "home": {
     "heroTitle": "Backlit stretch-fabric ceilings, made to measure in Saumur",

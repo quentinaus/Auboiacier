@@ -39,6 +39,25 @@ export type FilmAplat = "atelier" | "je-mesure";
  */
 export const DEBUT_LOGO: Record<FilmAplat, number> = { atelier: 25.0, "je-mesure": 34.2 };
 
+/**
+ * Un seul film à la fois dans un même groupe (les deux cartes de « Qui prend les mesures ? ») : deux vidéos qui tournent
+ * côte à côte, on ne sait plus où regarder (Quentin, 07/10/2026). Celui qu'on survole joue ; sinon chacun joue un tour
+ * complet (du logo au logo), puis passe la main ; l'autre attend, immobile, sur l'écran AUBOIACIER.
+ */
+type Membre = { activer: () => void; desactiver: () => void };
+const groupes = new Map<string, { membres: Membre[]; actif: Membre | null }>();
+function choisirDansGroupe(nom: string, m: Membre) {
+  const g = groupes.get(nom);
+  if (!g || g.actif === m) return;
+  g.actif = m;
+  for (const x of g.membres) (x === m ? x.activer : x.desactiver)();
+}
+function passerLaMain(nom: string, m: Membre) {
+  const g = groupes.get(nom);
+  if (!g || g.actif !== m || g.membres.length < 2) return;
+  choisirDansGroupe(nom, g.membres[(g.membres.indexOf(m) + 1) % g.membres.length]);
+}
+
 /** Sous cette largeur, la version « petit » du film (ses petits textes y sont agrandis, comme sur la page). */
 const LARGEUR_PETIT = 520;
 
@@ -53,12 +72,15 @@ export function FilmAplat({
   children,
   portee,
   attendrePorte = false,
+  groupe,
 }: {
   film: FilmAplat;
   className?: string;
   children?: ReactNode;
   portee?: RefObject<HTMLElement | null>;
   attendrePorte?: boolean;
+  /** Le nom d'un groupe de films dont un seul joue à la fois. */
+  groupe?: string;
 }) {
   const habillage = useScenesAplat();
   const cadre = useRef<HTMLSpanElement>(null);
@@ -91,6 +113,10 @@ export function FilmAplat({
     const bloquee = () => attendrePorte && Boolean(el.closest(".fond-configuration")?.querySelector(".porte-qui"));
     let visible = false;
     let image = 0;
+    // Dans un groupe, seul le film actif joue ; le premier inscrit commence.
+    let actif = !groupe;
+    let aBoucle = false;
+    let dernier = 0;
 
     // Les étiquettes et légendes à l'instant exact de la vidéo.
     const caler = () => {
@@ -111,7 +137,7 @@ export function FilmAplat({
         caler();
         return;
       }
-      if (visible) {
+      if (visible && actif) {
         v.play().catch(() => {}); // économie d'énergie de l'iPhone : l'affiche reste, c'est tout
       } else {
         v.pause();
@@ -125,6 +151,50 @@ export function FilmAplat({
       cancelAnimationFrame(image);
       caler();
     };
+    // Un tour complet joué (retour au logo après la fin du film) : le film passe la main au suivant du groupe.
+    const surTemps = () => {
+      if (v.currentTime < dernier - 1) aBoucle = true;
+      dernier = v.currentTime;
+      if (groupe && aBoucle && v.currentTime >= DEBUT_LOGO[film]) {
+        aBoucle = false;
+        passerLaMain(groupe, membre);
+      }
+    };
+    const membre: Membre = {
+      activer: () => {
+        actif = true;
+        aBoucle = false;
+        dernier = v.currentTime;
+        decider();
+      },
+      desactiver: () => {
+        actif = false;
+        v.pause();
+        if (v.readyState >= 1) v.currentTime = DEBUT_LOGO[film];
+        caler();
+      },
+    };
+    let quitterGroupe = () => {};
+    let declencheur: Element | null = null;
+    const surSurvol = () => groupe && choisirDansGroupe(groupe, membre);
+    if (groupe) {
+      const g = groupes.get(groupe) ?? { membres: [], actif: null };
+      g.membres.push(membre);
+      groupes.set(groupe, g);
+      if (!g.actif) {
+        g.actif = membre;
+        actif = true;
+      }
+      declencheur = el.closest("[data-carte]") ?? el;
+      declencheur.addEventListener("pointerenter", surSurvol);
+      declencheur.addEventListener("focusin", surSurvol);
+      quitterGroupe = () => {
+        g.membres = g.membres.filter((x) => x !== membre);
+        if (g.actif === membre) g.actif = g.membres[0] ?? null;
+        if (!g.membres.length) groupes.delete(groupe);
+      };
+    }
+    v.addEventListener("timeupdate", surTemps);
     v.addEventListener("playing", surLecture);
     v.addEventListener("pause", surPause);
     v.addEventListener("seeked", caler);
@@ -141,11 +211,15 @@ export function FilmAplat({
       window.clearInterval(veille);
       cancelAnimationFrame(image);
       v.removeEventListener("playing", surLecture);
+      v.removeEventListener("timeupdate", surTemps);
+      declencheur?.removeEventListener("pointerenter", surSurvol);
+      declencheur?.removeEventListener("focusin", surSurvol);
+      quitterGroupe();
       v.removeEventListener("pause", surPause);
       v.removeEventListener("seeked", caler);
       v.pause();
     };
-  }, [film, portee, attendrePorte]);
+  }, [film, portee, attendrePorte, groupe]);
 
   return (
     <>

@@ -3,9 +3,9 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { Visuel, MentionIllustration } from "@/components/visuel";
 import type { Locale } from "@/lib/i18n";
-import { BandeauDetail } from "@/components/bandeau-detail";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "./dictionaries";
+import { remplacerMarqueurs } from "@/lib/marqueurs";
 import { metadataPage, lienAvisGoogle } from "@/lib/seo";
 import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -14,7 +14,6 @@ import { PhotoPlafondAnime } from "@/components/photo-plafond-anime";
 import { hoverZoom } from "@/lib/ui";
 import { Apparition } from "@/components/apparition";
 import { IndiceDefiler } from "@/components/indice-defiler";
-import { Parallaxe } from "@/components/parallaxe";
 import { getProduct } from "@/lib/products";
 import { prixAppelGC } from "@/lib/prix-garde-corps.server";
 import { prixAffiche } from "@/lib/ui";
@@ -178,6 +177,8 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
   const locale = isLocale(lang) ? lang : defaultLocale;
   const dict = await getDictionary(locale);
   const t = dict.hub;
+  /** Le texte du bas, avec {prixVisite} et {rayonVisite} remplacés par les valeurs à jour. */
+  const seoBlocs = remplacerMarqueurs(t.seoBlocs, locale);
 
   const categories = [
     {
@@ -368,11 +369,19 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
         );
       })()}
 
-      {/* 1 bis. Le garde-corps, tout de suite : le produit le plus demandé, avec un prix réaliste et la fenêtre qui va
-          avec, avant toute configuration (étude marketing, 06/10). Sans prix (outil indisponible), pas de bandeau. */}
-      {appelGC && (
-        <section className="bg-[#f5f1ea] px-4 py-6 md:px-6 md:py-8">
-          <div className="mx-auto flex max-w-5xl flex-col items-center gap-5 rounded-[26px] border border-[#e5ddd3] bg-white px-5 py-6 shadow-[0_22px_50px_-36px_rgba(43,35,32,0.5)] md:flex-row md:gap-8 md:px-8">
+      {/* 2. Configurer sa pièce, en un seul bloc (Quentin, 07/10/2026 : « l'accueil a trop d'info, simplifie ») : le titre,
+          puis le garde-corps en avant — le plus demandé, avec son prix d'appel calculé par l'outil —, puis les autres
+          familles qui se configurent. Sans prix du garde-corps (outil indisponible), seulement le titre et les liens. */}
+      <section className="border-t border-[#e5ddd3] bg-[#f5f1ea] px-6 py-16 md:py-24">
+        <Apparition className="mx-auto max-w-3xl text-center">
+          <p className="surtitre">{t.configLabel}</p>
+          <h2 className={`${serif.className} mt-3 text-[2.1rem] leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.7rem] md:text-[3.5rem]`}>
+            {t.configTitle}
+          </h2>
+          <p className="mx-auto mt-5 max-w-2xl text-[17px] leading-[1.5] text-[#5c5140] md:text-[19px]">{t.configText}</p>
+        </Apparition>
+        {appelGC && (
+          <div className="mx-auto mt-10 flex max-w-4xl flex-col items-center gap-5 rounded-[26px] border border-[#e5ddd3] bg-white px-5 py-6 text-center shadow-[0_22px_50px_-36px_rgba(43,35,32,0.5)] md:mt-12 md:flex-row md:gap-8 md:px-8 md:text-left">
             {/* Le dessin d'un garde-corps de la fiche (deux croix, rosaces, main courante en chêne) : pas une photo. */}
             {/* Le garde-corps en aplats des films du site, qui se fabrique sous les yeux quand le bandeau arrive (Quentin,
                 06/10/2026 : reprendre le motion design déjà fait) : cadre, croix, soudure, rosaces, main courante en chêne. */}
@@ -401,63 +410,21 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               {locale === "fr" ? "Calculer mon prix" : "Get my price"}
             </Link>
           </div>
-        </section>
-      )}
-
-      {/* 2 bis. Le configurateur : ce que peu d'artisans offrent, dit
-          clairement — on entre ses cotes, on voit le prix, on télécharge
-          son devis. Trois portes, une par famille configurable. */}
-      <section className="border-t border-[#e5ddd3] bg-[#f5f1ea] px-6 py-14 md:py-20">
-        <Apparition className="mx-auto max-w-3xl text-center">
-          <p className="surtitre">{t.configLabel}</p>
-          <h2 className={`${serif.className} mt-3 text-[2.1rem] leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.7rem] md:text-[3.5rem]`}>
-            {t.configTitle}
-          </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-[17px] leading-[1.5] text-[#5c5140] md:text-[19px]">{t.configText}</p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
-            {[
-              // Chaque porte mène aux modèles de sa famille — pas à un seul
-              // d'entre eux — pour qu'on choisisse lequel configurer.
-              { href: `/${locale}/artisanat#table-interieur`, label: t.configTable, plein: true },
-              { href: `/${locale}/artisanat#garde-corps`, label: t.configGardeCorps, plein: false },
-              { href: `/${locale}/toiles-tendues`, label: t.configPlafond, plein: false },
-            ].map((porte) => (
-              <Link
-                key={porte.href}
-                href={porte.href}
-                className={porte.plein ? "btn-plein" : "btn-contour"}
-              >
-                {porte.label}
-              </Link>
-            ))}
-          </div>
-        </Apparition>
-      </section>
-
-      {/* 3. Bandeau atelier */}
-      <section>
-        <div className="relative flex h-[240px] items-center justify-center overflow-hidden sm:h-[280px] md:h-[340px]">
-          {/* La photo glisse un peu moins vite que la page (Parallaxe). */}
-          <Parallaxe>
-            {/* Une vraie photo de Quentin (src/lib/visuels.ts) : pas de mention « Image d'illustration ». */}
-            <Visuel
-              locale={locale}
-              src="/images/atelier-soudeur.jpg"
-              alt={t.altAtelier}
-              fill
-              sizes="100vw"
-              className="object-cover"
-            />
-          </Parallaxe>
-          <div className="absolute inset-0 bg-black/35" />
-          <Apparition className="relative z-10 px-6 text-center">
-            <h2 className={`${serif.className} text-[2rem] leading-[1.05] tracking-[-0.016em] text-white drop-shadow-lg sm:text-[2.6rem] md:text-[3.2rem]`}>{t.bandTitle}</h2>
-            <p className="mx-auto mt-3 max-w-xl text-[16px] text-white/88 drop-shadow md:text-[19px]">{t.bandSubtitle}</p>
-          </Apparition>
+        )}
+        <div className="mt-8 flex flex-col items-center justify-center gap-x-8 gap-y-3 sm:flex-row sm:flex-wrap">
+          {[
+            { href: `/${locale}/artisanat#table-interieur`, label: t.configTable },
+            ...(appelGC ? [] : [{ href: `/${locale}/artisanat#garde-corps`, label: t.configGardeCorps }]),
+            { href: `/${locale}/toiles-tendues`, label: t.configPlafond },
+          ].map((porte) => (
+            <Link key={porte.href} href={porte.href} className="lien-fleche text-[#2b2320]">
+              {porte.label}
+            </Link>
+          ))}
         </div>
       </section>
 
-      {/* 4. Les catégories */}
+      {/* 3. Les catégories */}
       <section className="bg-[#f5f1ea] px-6 pb-16 pt-10 md:pb-24">
         <div className="mx-auto max-w-6xl">
           <h2 className={`${serif.className} text-center text-[2.1rem] leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.7rem] md:text-[3.2rem]`}>
@@ -479,51 +446,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
         </div>
       </section>
 
-      {/* 4 bis. Le texte que lisent les moteurs de recherche ET les visiteurs : ce que fait l'atelier, où, et comment avoir un prix.
-          Écrit en phrases, pas en liste de mots-clés : Google pénalise l'entassement de mots et récompense un texte utile.
-          Chaque lien mène à la fiche de la fabrication citée. */}
-      <section className="border-t border-[#e5ddd3] bg-white px-6 py-14 md:py-20">
-        <Apparition className="mx-auto max-w-3xl">
-          <h2 className={`${serif.className} text-[1.9rem] leading-[1.08] tracking-[-0.016em] text-[#2b2320] sm:text-[2.3rem]`}>{t.seoTitle}</h2>
-          <p className="mt-5 text-[16px] leading-[1.6] text-[#4a4038] md:text-[17px]">{t.seoP1}</p>
-          <p className="mt-4 text-[16px] leading-[1.6] text-[#4a4038] md:text-[17px]">{t.seoP2}</p>
-          <h3 className="surtitre mt-9">{t.seoLinksTitle}</h3>
-          <ul className="mt-4 grid gap-x-8 gap-y-2.5 text-[16px] sm:grid-cols-2">
-            {[
-              "/artisanat/garde-corps",
-              "/garde-corps-fenetre-normes",
-              "/artisanat/escalier-limon-central",
-              "/artisanat/verrieres",
-              "/artisanat/tables",
-              "/bois-massif",
-              "/toiles-tendues",
-              "/artisanat/sculptures",
-              "/devis",
-              "/rendez-vous",
-              "/zone-intervention",
-            ].map((chemin, i) => (
-              <li key={chemin}>
-                <Link href={`/${locale}${chemin}`} className="text-[#2b2320] underline decoration-[#2b2320]/30 underline-offset-4 hover:decoration-[#2b2320]">
-                  {t.seoLinks[i]}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </Apparition>
-      </section>
-
-      {/* 5. Le mot de l'atelier — le panneau sombre et la marche d'escalier
-          en gros plan : le même dessin que sur la page des verrières. */}
-      <BandeauDetail
-        titre={t.editorialTitle}
-        corps={[t.editorialBody1, t.editorialBody2]}
-        cta={{ href: `/${locale}/a-propos`, label: t.editorialCta }}
-        mention={dict.artisanat.madeInFrance}
-        photo={{ src: "/images/escalier/marche-detail.jpg", alt: t.altDetailMarche }}
-        locale={locale}
-      />
-
-      {/* 6. Les avis — remplir `testimonials` dès qu'il y a de vrais retours clients. */}
+      {/* 4. Les avis — remplir `testimonials` dès qu'il y a de vrais retours clients. */}
       <section className="bg-[#f5f1ea] px-6 py-16 md:py-24">
         <Apparition className="mx-auto max-w-5xl">
           <h2 className={`${serif.className} text-center text-[2.1rem] leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.7rem]`}>
@@ -582,28 +505,46 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
         </Apparition>
       </section>
 
-      {/* 7. La mission, sur une photo plein cadre */}
-      <section className="relative flex min-h-[55vh] items-center justify-center overflow-hidden md:min-h-[80vh]">
-        <Parallaxe>
-          <Visuel
-            locale={locale}
-            src="/images/vignes-coucher-soleil.jpg"
-            alt={t.altVignes}
-            fill
-            sizes="100vw"
-            className="object-cover"
-          />
-        </Parallaxe>
-        <div className="absolute inset-0 bg-black/45" />
-        <Apparition className="relative z-10 mx-auto max-w-3xl px-6 text-center">
-          <h2 className={`${serif.className} text-[2.2rem] leading-[1.05] tracking-[-0.018em] text-white sm:text-[2.8rem] md:text-[3.6rem]`}>{t.missionTitle}</h2>
-          <p className="mx-auto mt-6 max-w-xl text-[17px] leading-[1.5] text-white/88 md:text-[19px]">{t.missionBody}</p>
-          <Link
-            href={`/${locale}/contact`}
-            className="btn-clair mt-10"
-          >
-            {t.missionCta}
-          </Link>
+      {/* 5. Le texte que lisent les moteurs de recherche ET les visiteurs, tout en bas : ce que fait l'atelier, comment ça
+          se passe, où il intervient (texte de la conversation Tarifs, 07/10/2026 : l'accueil doit garder assez de texte
+          visible pour Google — rien de replié ni de caché). Puis les liens vers chaque fabrication. */}
+      <section className="border-t border-[#e5ddd3] bg-white px-6 py-16 md:py-24">
+        <Apparition className="mx-auto max-w-2xl">
+          <h2 className={`${serif.className} text-[1.9rem] leading-[1.08] tracking-[-0.016em] text-[#2b2320] sm:text-[2.3rem]`}>{seoBlocs.titre}</h2>
+          {seoBlocs.blocs.map((bloc, i) => (
+            <div key={i} className={i ? "mt-9" : "mt-5"}>
+              {"h3" in bloc && bloc.h3 && (
+                <h3 className={`${serif.className} text-[1.4rem] leading-[1.15] tracking-[-0.01em] text-[#2b2320] md:text-[1.6rem]`}>{bloc.h3}</h3>
+              )}
+              {bloc.paragraphes.map((paragraphe, j) => (
+                <p key={j} className={`${"h3" in bloc && bloc.h3 && j === 0 ? "mt-3" : j ? "mt-4" : ""} text-[16px] leading-[1.65] text-[#4a4038] md:text-[17px]`}>
+                  {paragraphe}
+                </p>
+              ))}
+            </div>
+          ))}
+          <h3 className="surtitre mt-9">{t.seoLinksTitle}</h3>
+          <ul className="mt-4 grid gap-x-8 gap-y-2.5 text-[16px] sm:grid-cols-2">
+            {[
+              "/artisanat/garde-corps",
+              "/garde-corps-fenetre-normes",
+              "/artisanat/escalier-limon-central",
+              "/artisanat/verrieres",
+              "/artisanat/tables",
+              "/bois-massif",
+              "/toiles-tendues",
+              "/artisanat/sculptures",
+              "/devis",
+              "/rendez-vous",
+              "/zone-intervention",
+            ].map((chemin, i) => (
+              <li key={chemin}>
+                <Link href={`/${locale}${chemin}`} className="text-[#2b2320] underline decoration-[#2b2320]/30 underline-offset-4 hover:decoration-[#2b2320]">
+                  {t.seoLinks[i]}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </Apparition>
       </section>
 
