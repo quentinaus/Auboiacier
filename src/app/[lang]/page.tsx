@@ -31,7 +31,6 @@ function HeroPanel({
   cta,
   objectPosition,
   priority = false,
-  divider = false,
   rang = 0,
   locale,
 }: {
@@ -45,7 +44,6 @@ function HeroPanel({
   cta: string;
   objectPosition?: string;
   priority?: boolean;
-  divider?: boolean;
   /** 0 pour le panneau de gauche, 1 pour celui de droite : le second
    *  s'anime un peu après le premier. */
   rang?: number;
@@ -56,9 +54,7 @@ function HeroPanel({
   return (
     <Link
       href={href}
-      className={`group relative flex min-h-[46vh] items-center justify-center overflow-hidden sm:min-h-[52vh] md:min-h-[64vh] ${
-        divider ? "border-t border-white/15 md:border-l md:border-t-0" : ""
-      }`}
+      className="group relative flex min-h-[46vh] items-center justify-center overflow-hidden sm:min-h-[52vh] md:min-h-0"
     >
       {/* La caméra avance lentement (cadre) ; le survol agrandit la photo
           elle-même : les deux mouvements ne se contrarient pas. */}
@@ -86,7 +82,7 @@ function HeroPanel({
             comme pour Google. */}
         <p
           style={entree(0)}
-          className={`entree-monte ${serif.className} max-w-md text-[2.2rem] font-normal leading-[1.04] tracking-[-0.016em] text-white drop-shadow-lg sm:text-[2.6rem] md:text-[3.4rem]`}
+          className={`entree-monte ${serif.className} max-w-md text-[2.2rem] font-normal leading-[1.04] tracking-[-0.016em] text-white drop-shadow-lg sm:text-[2.6rem] md:text-[clamp(2rem,min(3.4vw,6.4svh),3.4rem)]`}
         >
           {title}
         </p>
@@ -269,7 +265,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
   const ficheGoogle = lienAvisGoogle();
 
   return (
-    <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
+    <div className="accueil-droit min-h-screen bg-[#ffffff] text-[#2b2320]">
       <GlobalHeader locale={locale} dict={dict} overlay />
       <main id="contenu">
 
@@ -283,9 +279,10 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           // qualité ») ; le cadre ne prend pas tout l'écran : le haut de la suite se voit dessous.
           // Sur téléphone (en hauteur), une photo en largeur ne remplit l'écran qu'en étant très zoomée (Quentin, 07/10 :
           // « la photo est très zoomée ») : elle garde ses proportions, en haut, et le texte passe dessous, sur blanc.
-          <section className="hero-accueil bg-white px-3 pt-3 md:px-5 md:pt-5">
-          <div className="relative mx-auto max-w-[1680px] md:flex md:h-[86svh] md:min-h-[600px] md:items-center">
-            <div className="relative aspect-[3/2] overflow-hidden rounded-[22px] bg-[#1d1d1f] md:absolute md:inset-0 md:aspect-auto md:rounded-[32px]">
+          <>
+          <section className="hero-accueil trio-accueil bg-white p-[2px] md:grid md:h-[100svh] md:min-h-[600px] md:grid-cols-2 md:grid-rows-[minmax(0,1.3fr)_minmax(0,1fr)] md:gap-[2px]">
+          <div className="relative md:col-span-2 md:flex md:items-center md:overflow-hidden">
+            <div className="relative aspect-[3/2] overflow-hidden bg-[#1d1d1f] md:absolute md:inset-0 md:aspect-auto">
             <div className="camera-lente camera-douce absolute inset-0">
               {/* La mention se pose plus bas, au-dessus du voile : ici, elle avancerait avec la caméra. */}
               <Visuel
@@ -306,7 +303,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
             </div>
             <div className="relative z-10 mx-auto w-full max-w-6xl px-3 pb-2 pt-7 md:px-6 md:pb-0 md:pt-0">
               <h1 className={`${serif.className} max-w-5xl text-[#1d1d1f] md:text-white`}>
-                <span className="entree-monte block text-[clamp(2.9rem,8.4vw,6.4rem)] font-normal leading-[0.98] tracking-[-0.022em]" style={{ "--retard": "200ms" } as CSSProperties}>
+                <span className="entree-monte block text-[clamp(2.9rem,8.4vw,6.4rem)] font-normal leading-[0.98] tracking-[-0.022em] md:text-[clamp(2.6rem,min(6.6vw,11svh),6.4rem)]" style={{ "--retard": "200ms" } as CSSProperties}>
                   {metier}
                 </span>
                 {reste.length > 0 && (
@@ -315,7 +312,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
                         deux moitiés collées. */}
                     <span className="sr-only"> — </span>
                     <span
-                      className="entree-monte mt-4 block max-w-xl font-sans text-[17px] font-normal leading-[1.45] tracking-[-0.01em] text-[#4a4038] md:mt-7 md:text-[21px] md:text-white/88"
+                      className="entree-monte mt-4 block max-w-xl font-sans text-[17px] font-normal leading-[1.45] tracking-[-0.01em] text-[#4a4038] md:mt-[2.6svh] md:text-[clamp(16px,2.4svh,21px)] md:text-white/88"
                       style={{ "--retard": "420ms" } as CSSProperties}
                     >
                       {reste.join(" — ").replace(/^./, (c) => c.toUpperCase())}.
@@ -323,7 +320,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
                   </>
                 )}
               </h1>
-              <div className="entree-monte mt-8 flex flex-wrap items-center gap-x-6 gap-y-4 md:mt-10" style={{ "--retard": "620ms" } as CSSProperties}>
+              <div className="entree-monte mt-8 flex flex-wrap items-center gap-x-6 gap-y-4 md:mt-[3.4svh]" style={{ "--retard": "620ms" } as CSSProperties}>
                 <Link href={`/${locale}/artisanat`} className="btn-clair">
                   {t.craftCta}
                 </Link>
@@ -338,14 +335,10 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               <IndiceDefiler cible="suite" label={locale === "fr" ? "Voir la suite de la page" : "Scroll to see more"} mot={locale === "fr" ? "Découvrir" : "Discover"} />
             </div>
           </div>
-          </section>
-        );
-      })()}
-
-      {/* 1 ter. Les deux univers, juste sous le premier écran */}
-      {/* Sur téléphone les panneaux se superposent : côte à côte, ils ne font
-          que 180 px de large et le texte devient illisible. La flèche du premier écran descend ici. */}
-      <section id="suite" className="mt-3 grid scroll-mt-3 grid-cols-1 md:mt-5 md:grid-cols-2 md:scroll-mt-5">
+          {/* 1 ter. Les deux univers, dans le même cadre que la grande photo (Quentin, 07/10/2026 : « les trois photos en une
+              page », séparées d'un trait blanc fin, le même tout autour). Sur téléphone, les panneaux se superposent :
+              côte à côte, ils ne feraient que 180 px de large et le texte deviendrait illisible. */}
+          <div className="mt-[2px] grid grid-cols-1 gap-[2px] md:contents">
         <HeroPanel
           locale={locale}
           href={`/${locale}/toiles-tendues`}
@@ -365,10 +358,15 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           subtitle={t.craftSubtitle}
           cta={t.craftCta}
           objectPosition="72% 50%"
-          divider
           rang={1}
         />
-      </section>
+          </div>
+          </section>
+          {/* La fin du cadre : « Découvrir » descend jusqu'ici. */}
+          <span id="suite" aria-hidden="true" className="block h-0 scroll-mt-0" />
+          </>
+        );
+      })()}
 
       {/* 1 bis. Le garde-corps, tout de suite : le produit le plus demandé, avec un prix réaliste et la fenêtre qui va
           avec, avant toute configuration (étude marketing, 06/10). Sans prix (outil indisponible), pas de bandeau. */}
