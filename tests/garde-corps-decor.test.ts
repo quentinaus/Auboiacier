@@ -170,15 +170,16 @@ test("parité : avec un décor, le site retient le premier carré où le calcul 
     const c = configurerGC(en);
     const platVoulu = f.essence.endsWith("-plat");
     // La règle, écrite ici sans les mémoires du site : les carrés de l'atelier dans l'ordre, calcul complet.
-    let attendu: number | null = null;
+    // Dans chaque carré, 1 panneau, puis 2, puis 3 (des montants au milieu : 07/10/2026).
+    let attendu: number | null = null, panneaux = 1;
     if (!platVoulu) {
-      for (const s of ORDRE_CARRES) {
-        if (calculerGC(valeursGC(DEFAUTS_GC, en, s, 1, false, false, false, true) as ValeursGC).alertes.length === 0) { attendu = s; break; }
+      carres: for (const s of ORDRE_CARRES) for (let n = 1; n <= 3; n++) {
+        if (calculerGC(valeursGC(DEFAUTS_GC, en, s, n, false, false, false, true) as ValeursGC).alertes.length === 0) { attendu = s; panneaux = n; break carres; }
       }
     }
     if (attendu !== null) {
-      assert.ok(c.ok, `${nom} : vendu (carré de ${attendu})`);
-      assert.deepEqual([c.carre, c.renfort, c.patte, c.seuls, c.croix], [attendu, false, 0, true, 1], nom);
+      assert.ok(c.ok, `${nom} : vendu (carré de ${attendu}, ${panneaux} panneau(x))`);
+      assert.deepEqual([c.carre, c.renfort, c.patte, c.seuls, c.croix], [attendu, false, 0, true, panneaux], nom);
     }
     if (!c.ok) { refuses++; continue; }
     vendus++;
@@ -192,7 +193,8 @@ test("parité : avec un décor, le site retient le premier carré où le calcul 
     if (attendu === null) assert.ok(c.renfort || c.patte > 0 || platVoulu, `${nom} : sans carré qui tienne seul, le fer plat ou les pattes`);
     if (platVoulu) assert.ok(CARRES_RENFORT_SEULS.includes(c.carre as 16 | 18) && c.renfort, nom);
   }
-  assert.ok(vendus >= 40 && refuses >= 3, `${vendus} vendus, ${refuses} refusés`);
+  // Depuis le 07/10/2026, aucun décor n'est « à étudier » sur une fenêtre que le site vend (balayage de plans/tests/motifs.test.mjs).
+  assert.ok(vendus >= 40 && refuses === 0, `${vendus} vendus, ${refuses} refusés`);
 });
 
 test("parité : les relevés avec décor de la référence (l'outil lui-même, calcul complet) donnent le même garde-corps et le même prix", () => {
@@ -217,6 +219,7 @@ test("parité : les relevés avec décor de la référence (l'outil lui-même, c
     if (r.choix.renfort && !(r.alertes[18] ?? []).includes("solidite") && !plat) continue;   // le site n'ajoute le fer plat que pour la rigidité
     assert.ok(c.ok, nom);
     assert.equal(c.carre, r.choix.carre, nom);
+    assert.equal(c.croix, (r.choix as { panneaux?: number }).panneaux ?? 1, `${nom} : panneaux`);
     assert.equal(court(J(c.R)), r.choix.R, `${nom} : calcul de l'outil`);
     assert.equal(c.R.decorNom, r.choix.nom);
     assert.equal(prixGC(c), r.choix.prix, `${nom} : prix`);
@@ -317,7 +320,8 @@ test("avec un décor : le prix du garde-corps à décor, et les modèles du cata
     assert.equal(avec.prix, l.line.unitPrice);
     const metal = getProduct("garde-corps")!.metals.find((m) => m.id === (q.metalId ?? "noir"))!;
     assert.equal(avec.prix, prixGC(c) + (metal.priceDelta ?? 0), "pas de supplément de rosace avec un décor");
-    assert.deepEqual([avec.croix, avec.seuls, avec.traverse, avec.soubassementMm, avec.carre, avec.kg], [1, true, false, 0, c.carre, Math.round(c.kg)]);
+    // croix : le nombre de panneaux du décor (des montants au milieu sur une fenêtre large).
+    assert.deepEqual([avec.croix, avec.seuls, avec.traverse, avec.soubassementMm, avec.carre, avec.kg], [c.croix, true, false, 0, c.carre, Math.round(c.kg)]);
     assert.ok(avec.decor);
     assert.equal(avec.decor.id, decor);
     assert.equal(avec.decor.nom, c.R.decorNom);
@@ -330,7 +334,7 @@ test("avec un décor : le prix du garde-corps à décor, et les modèles du cata
     // La remise de plusieurs pièces : la règle de l'outil (frais fixes une fois, jamais sous le plancher), décor compris.
     assert.equal(avec.remise, q.quantite > 1 ? prixCommandeGC([{ config: c, quantite: q.quantite }]).remise : 0);
   }
-  assert.ok(refuse >= 1, "un décor refusé par la norme au moins");
+  assert.equal(refuse, 0, "aucun décor « à étudier » (07/10/2026)");
 });
 
 test("la liste des prix des décors (decors=1) : le même calcul que le panier, pour chaque assemblage", () => {
@@ -473,7 +477,8 @@ test("l'aperçu du plan dessine le décor (le Plan A3 de l'outil)", () => {
   assert.equal(avec.seuls, true);
   assert.notEqual(avec.svg, sans.svg);
   assert.match(avec.svg, /volutes/i);
-  assert.equal(planApercuGC(requete("l=2200&allege=400&etage=1&wood=chene&decor=hauteur.C.bouton.colliers.carre.aucune.0")), null, "décor refusé : pas de plan");
+  // Une fenêtre large : le décor en panneaux, son plan aussi (07/10/2026 : plus de décor refusé).
+  assert.ok(planApercuGC(requete("l=2200&allege=400&etage=1&wood=chene&decor=hauteur.C.bouton.colliers.carre.aucune.0"))?.decor, "décor en panneaux : son plan");
 });
 
 /* ------------------------------------------------------------------ *
@@ -517,11 +522,12 @@ test("panier et commande : le prix de la route, le décor dans le libellé (fran
     assert.ok(/volutes|scroll/i.test(noms[0].slice(0, 120)), noms[0]);
   }
   // Refusés : un décor illisible ; un décor sur la fiche du garde-corps Rosace (sous verre ou non) ; le forgé sans décor, avec
-  // un panneau de verre ou une rosace (il n'en a pas) ; un décor que la norme refuse est « à étudier ».
+  // un panneau de verre ou une rosace (il n'en a pas) ; une fenêtre trop basse pour un garde-corps est « à étudier ».
   const refus = await tarifer(
     [
       ligneForge({ decorGc: "frise.Z" }), ligne({ decorGc: decor, remplissageId: "verre" }), ligneForge({ decorGc: 12 }),
-      ligneForge({ largeurMm: 2200, allegeMm: 400, fenetreMm: 0, decorGc: "hauteur.C.bouton.colliers.carre.aucune.0" }),
+      // « À étudier » : une fenêtre qui s'arrête sous la main courante (plus aucun décor n'est refusé par la norme, 07/10/2026).
+      ligneForge({ fenetreMm: 200, decorGc: "hauteur.C.bouton.colliers.carre.aucune.0" }),
       ligne({ decorGc: decor }), ligneForge(), ligneForge({ decorGc: decor, remplissageId: "verre" }), ligneForge({ decorGc: decor, fabricId: "fonte" }),
       { slug: RETRAIT },
     ],

@@ -57,5 +57,7 @@ export function chainesSecretes(corpsChiffrage) {
 
 /** Les chaînes de la liste présentes dans un texte (vide = propre). */
 export function secretsDans(texte, liste) {
-  return liste.filter((s) => texte.includes(s));
+  // Un prix (« 12.34 ») ne compte que comme nombre entier : « 112.34 », une coordonnée d'un dessin SVG, n'est pas une fuite.
+  const nombre = (x) => new RegExp(`(?<![\\d.])${x.replace(".", "\\.")}(?!\\d)`);
+  return liste.filter((s) => (/^\d+\.\d+$/.test(s) ? nombre(s).test(texte) : texte.includes(s)));
 }

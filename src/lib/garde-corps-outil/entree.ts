@@ -115,6 +115,8 @@ const CODES: [string, CodeAlerteGC][] = [
   ["Soubassement", "soubassement"],
   ["Fixation", "fixation"],
   ["Le garde-corps est trop petit", "trop-petit"],
+  // Un décor dans une bande trop basse (moins de 60 mm entre les traverses, par exemple avec le fer plat sous une fenêtre haute).
+  ["Le garde-corps est trop bas pour un décor", "trop-petit"],
   ["Jour sous le cadre", "jour"],
   ["Jeu total", "jeu"],
   ["Main courante", "main-courante"],

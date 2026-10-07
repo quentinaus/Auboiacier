@@ -725,36 +725,43 @@ function comparerAvecOutil(M, D, CH) {
     [2200, 400, true, 0, "chene", "hauteur.C.bouton.colliers.carre.aucune.0"],
     [1400, 500, false, 0, "acier", "anneaux.anneau.bouton.soudure.carre.aucune.0"],
     [1800, 650, true, 0, "chene-plat", "applique.coeur.bouton.colliers.carre.aucune.1"],
+    // Fenêtre large (fer plat et panneaux) et bande basse sous une fenêtre haute (07/10/2026 : aucun décor « à étudier »).
+    [2400, 400, true, 0, "chene", "frise.S.bouton.colliers.carre.aucune.0"],
+    [1000, 800, true, 0, "chene", "anneaux.anneau.bouton.colliers.carre.aucune.0"],
   ].map(([largeurMm, allegeMm, enEtage, fenetreMm, essence, decor]) => ({ largeurMm, allegeMm, enEtage, fenetreMm, essence, decor }));
   const siteDecors = [];
   for (const e of relevesDecor) {
     const alertes = {};
     let choix = null;
-    const essai = (s, renfort) => {
-      const vO = valeursGC(defautsOutil, e, s, 1, false, false, renfort, true), vE = valeursGC(DEFAUTS_GC, e, s, 1, false, false, renfort, true);
+    // n : le nombre de panneaux du décor (des montants au milieu), 1 à 3 comme le site (calcul.ts).
+    const essai = (s, renfort, n = 1) => {
+      const vO = valeursGC(defautsOutil, e, s, n, false, false, renfort, true), vE = valeursGC(DEFAUTS_GC, e, s, n, false, false, renfort, true);
       const RObrut = O.calculerGC(vO), RE = M.calculerGC(vE);
       if (J(neutraliserObjet(JSON.parse(J(RObrut)))) !== J(RE)) ecarts.push(`relevé décor ${J(e)} : calculerGC, carré ${s}${renfort ? ", renfort" : ""}`);
-      if (!RE.decorNom) ecarts.push(`relevé décor ${J(e)} : le décor n'est pas lu (valeursGC)`);
       const codes = RE.alertes.map(codeAlerte);
+      // Une bande trop basse pour un décor (le fer plat la réduit encore) : l'outil le dit, sans poser de décor.
+      if (!RE.decorNom && !codes.includes("trop-petit")) ecarts.push(`relevé décor ${J(e)} : le décor n'est pas lu (valeursGC)`);
       if (codes.includes("autre")) ecarts.push(`relevé décor ${J(e)} : une alerte de l'outil n'a pas de code (entree.ts)`);
       return { codes, vO, vE, RObrut, RE };
     };
-    const retenir = (s, renfort, x) => {
+    const retenir = (s, renfort, x, n) => {
       const CO = O.chiffrerGC(x.RObrut, x.vO), CE = CH.chiffrerGC(x.RE, x.vE);
       if (J(CO) !== J(CE)) ecarts.push(`relevé décor ${J(e)} : chiffrerGC`);
-      return { carre: s, renfort, R: court(J(x.RE)), hauteurGC: x.RE.hauteurGC, kg: x.RE.kg, prix: CE.conseille, nom: x.RE.decorNom };
+      return { carre: s, renfort, panneaux: n, R: court(J(x.RE)), hauteurGC: x.RE.hauteurGC, kg: x.RE.kg, prix: CE.conseille, nom: x.RE.decorNom };
     };
-    for (const s of ORDRE_CARRES) {
-      const x = essai(s, false);
-      alertes[s] = x.codes;
-      if (!choix && !x.codes.length) choix = retenir(s, false, x);
-    }
+    // Dans chaque carré : 1 panneau (ses alertes sont gardées pour les tests), puis 2, puis 3 tant que rien n'est retenu.
+    const parCarre = (s, renfortOn, garde) => {
+      const x = essai(s, renfortOn, 1);
+      garde[s] = x.codes;
+      if (!choix && !x.codes.length) choix = retenir(s, renfortOn, x, 1);
+      for (let n = 2; n <= 3 && !choix; n++) {
+        const xn = essai(s, renfortOn, n);
+        if (!xn.codes.length) choix = retenir(s, renfortOn, xn, n);
+      }
+    };
+    for (const s of ORDRE_CARRES) parCarre(s, false, alertes);
     const renfort = {};
-    for (const s of CARRES_RENFORT_SEULS) {
-      const x = essai(s, true);
-      renfort[s] = x.codes;
-      if (!choix && !x.codes.length) choix = retenir(s, true, x);
-    }
+    for (const s of CARRES_RENFORT_SEULS) parCarre(s, true, renfort);
     siteDecors.push({ entree: e, alertes, renfort, choix });
   }
   // Depuis le 07/10/2026, chaque décor a une variante aux normes sur toute fenêtre que le site vend (balayage de

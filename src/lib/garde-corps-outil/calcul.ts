@@ -351,7 +351,9 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   const baseSeuls = valeursGC(DEFAUTS_GC, entree, 16, 1, false, false, false, true);
   const soloSeuls = !decor && geomGC(valeursGC(DEFAUTS_GC, entree, 16, 1), 1).appui !== null && geomGC(baseSeuls, 1).appui === null;
   // Avec un décor : un seul dessin, le cadre des barreaux seuls rempli du décor (une « croix »).
-  const plages: readonly (readonly [nMin: number, nMax: number])[] = soloSeuls || decor ? [[1, 1]] : choisi ? [[choisi.croix, choisi.croix]] : [[1, CROIX_CATALOGUE], [CROIX_CATALOGUE + 1, CROIX_MAX]];
+  // Avec un décor : 1 panneau, puis 2, puis 3 (des montants au milieu, quand la charge verticale refuse un seul panneau sur une
+  // fenêtre large : décision du 07/10/2026, « aucun décor à étudier »).
+  const plages: readonly (readonly [nMin: number, nMax: number])[] = soloSeuls ? [[1, 1]] : decor ? [[1, 3]] : choisi ? [[choisi.croix, choisi.croix]] : [[1, CROIX_CATALOGUE], [CROIX_CATALOGUE + 1, CROIX_MAX]];
   // Sans choix du client : les croix seules d'abord ; si rien ne passe, une traverse au milieu des croix (la
   // solution de l'outil : le même dessin, les vides coupés en deux) ; puis des barreaux droits en bas ; puis les deux.
   const variantes: readonly (readonly [barreaux: boolean, traverse: boolean, seuls: boolean])[] = soloSeuls || decor
@@ -361,7 +363,8 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
     : [[false, false, false], [false, true, false], [true, false, false], [true, true, false]];
   // La hauteur, le jour et la main courante annoncés sont ceux du dessin vendu : un cadre à barreaux seuls (choisi, ou seul possible)
   // se juge sur son propre minimum (120 mm), comme la case « barreaux seuls » de l'outil — à 760 mm : jour 90 et cadre de 175, non 65 et 200.
-  // Avec un décor, le cadre des barreaux seuls garde le minimum d'un cadre à croix (valeursGC, geomGC : decorActif).
+  // Avec un décor, le cadre des barreaux seuls a le même minimum (120 mm, geomGC) ; le jour automatique vise d'abord celui d'un cadre à
+  // croix (valeursGC, jourGC).
   const base = soloSeuls || choisi?.seuls || decor ? baseSeuls : valeursGC(DEFAUTS_GC, entree, 16, 1);
   const g = geomGC(base, 1);
   const commun: Commun = {
