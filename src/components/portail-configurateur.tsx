@@ -9,7 +9,7 @@
  * (/api/prix-portail?variantes=1 : le portail, ses styles, ses décors et ses moteurs en une demande) : jamais un coût ici.
  */
 import "./portail/configurateur-portail.css";
-import { useDeferredValue, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import { useDeferredValue, useEffect, useId, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { svgDe, PT_DECOR_FORMULES } from "@/lib/portails-outil/moteur.genere.mjs";
 import {
@@ -161,7 +161,9 @@ function Pilule<T extends string | number>({ aria, valeur, options, onChange, pi
 /** Une cote : curseur et case, bornés par l'atelier. Une cote hors bornes est dite « à corriger », jamais corrigée en douce. */
 function LigneCote({ picto, titre, info, valeur, bornes, onChange, aide, aCorriger }: { picto: keyof typeof PICTO_COTE; titre: string; info: string; valeur: number; bornes: [number, number]; onChange: (n: number) => void; aide?: string; aCorriger: string }) {
   const [texte, setTexte] = useState(String(valeur));
-  useEffect(() => setTexte(String(valeur)), [valeur]);
+  // La case suit le curseur : quand la cote change d'ailleurs, le texte reprend sa valeur (pendant le rendu, sans effet).
+  const [vue, setVue] = useState(valeur);
+  if (vue !== valeur) { setVue(valeur); setTexte(String(valeur)); }
   const n = Math.round(Number(texte.replace(/\s/g, "").replace(",", ".")));
   const hors = !Number.isFinite(n) || n < bornes[0] || n > bornes[1];
   const valider = () => { if (!hors && n !== valeur) onChange(n); };
@@ -185,6 +187,11 @@ function LigneCote({ picto, titre, info, valeur, bornes, onChange, aide, aCorrig
 const Jauge = ({ n, phrase, aria }: { n: number; phrase: string; aria: string }) => (
   <span className="porte-facilite"><span className="porte-jauge" role="img" aria-label={aria}>{Array.from({ length: 10 }, (_, i) => <i key={i} data-plein={i < n ? "" : undefined} />)}</span><span>{phrase}</span></span>
 );
+
+/** La croix qui ferme une fenêtre. */
+const Fermer = ({ label, onClose }: { label: string; onClose: () => void }) => (<button type="button" className="cpt-fermer" aria-label={label} onClick={onClose}><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7" stroke="#3c3c43" strokeWidth="1.6" strokeLinecap="round" /></svg></button>);
+/** Le pied d'une fenêtre : une phrase et « Terminé ». */
+const Pied = ({ phrase, termine, onClose }: { phrase: string; termine: string; onClose: () => void }) => (<div className="cpt-f-pied"><span>{phrase}</span><button type="button" className="btn-verre" onClick={onClose}>{termine}</button></div>);
 
 type InfosMoteurs = {
   permis: { cle: CleMoteur; nom: string; principe: string; contenu: string; garantie: number; facilite: number }[];
@@ -228,6 +235,8 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
   // Les prix : demandés au serveur une fois la frappe posée (le portail, ses styles, ses décors et ses moteurs d'un coup).
   const cle = versParams(slug, cfg).toString();
   const [reponse, setReponse] = useState<{ cle: string; etat: EtatPrix } | null>(null);
+  // Pendant le calcul, on garde les derniers prix (grisés) plutôt qu'un trou.
+  const [dernier, setDernier] = useState<Variantes | null>(null);
   useEffect(() => {
     let annule = false;
     const minuteur = setTimeout(async () => {
@@ -238,16 +247,13 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
       } catch {
         etat = { etat: "indispo" };
       }
-      if (!annule) setReponse({ cle, etat });
+      if (!annule) { setReponse({ cle, etat }); if (etat.etat === "ok") setDernier(etat.v); }
     }, 320);
     return () => { annule = true; clearTimeout(minuteur); };
   }, [cle]);
-  // Pendant le calcul, on garde les derniers prix (grisés) plutôt qu'un trou.
-  const dernier = useRef<Variantes | null>(null);
   const vFrais = reponse?.etat.etat === "ok" ? reponse.etat.v : null;
-  useEffect(() => { if (vFrais) dernier.current = vFrais; }, [vFrais]);
   const perime = reponse?.cle !== cle;
-  const V = vFrais ?? dernier.current;
+  const V = vFrais ?? dernier;
   const alerte = R.alertes[0] ?? (V && !V.base.ok && !perime ? V.base.alertes[0] : null);
   const prixBase = V && V.base.ok ? V.base.prix : null;
 
@@ -284,8 +290,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
   const ecartDecor = V && cfg.decor !== "aucun" && V.decors[cfg.decor] != null && V.decors.aucun != null ? (V.decors[cfg.decor] as number) - (V.decors.aucun as number) : null;
   const ecartMoteur = V && cfg.moteur && V.moteurs[moteurChoisi] != null && V.moteurs.aucun != null ? (V.moteurs[moteurChoisi] as number) - (V.moteurs.aucun as number) : null;
 
-  const Fermer = () => (<button type="button" className="cpt-fermer" aria-label={t.fermer} onClick={() => setFenetre(null)}><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7" stroke="#3c3c43" strokeWidth="1.6" strokeLinecap="round" /></svg></button>);
-  const Pied = ({ phrase }: { phrase: string }) => (<div className="cpt-f-pied"><span>{phrase}</span><button type="button" className="btn-verre" onClick={() => setFenetre(null)}>{t.termine}</button></div>);
+  const fermer = () => setFenetre(null);
 
   const lignesMoteur: { k: CleMoteur; permis: boolean; detail: string; facilite: number; garantie?: number }[] = [
     ...(moteurs?.permis ?? []).map((m) => ({ k: m.cle, permis: true, detail: `${m.principe}. ${t.kit}`, facilite: m.facilite, garantie: m.garantie })),
@@ -467,7 +472,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
             {/* La fenêtre Décor : sur la colonne des mesures, le croquis reste visible et suit chaque choix. */}
             {fenetre === "decor" && (
               <div className="carte-verre cpt-fenetre" role="dialog" aria-label={t.decor}>
-                <div className="cpt-f-tete"><div><p className="cpt-f-titre">{t.decor}</p><p className="cpt-f-sous">{t.fDecorSous}</p></div><Fermer /></div>
+                <div className="cpt-f-tete"><div><p className="cpt-f-titre">{t.decor}</p><p className="cpt-f-sous">{t.fDecorSous}</p></div><Fermer label={t.fermer} onClose={fermer} /></div>
                 <p className="cpt-f-info">{t.fDecorInfo} <b>{t.fDecorAcier}</b></p>
                 <div className="cpt-formules">
                   <button type="button" className="tuile-modele cpt-formule" aria-pressed={cfg.decor === "aucun"} onClick={() => maj({ decor: "aucun" })}>
@@ -489,14 +494,14 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
                     <span><span className="cpt-f-nom" style={{ display: "block" }}>{t.surMesure}</span><span className="cpt-f-ligne" style={{ display: "block" }}>{t.surMesureLigne}</span></span>
                   </button>
                 </div>
-                <Pied phrase={t.pied} />
+                <Pied phrase={t.pied} termine={t.termine} onClose={fermer} />
               </div>
             )}
 
             {/* La fenêtre Moteur : chaque kit Somfy permis pour CE portail, le conseillé, ceux qui ne vont pas et pourquoi. */}
             {fenetre === "moteur" && (
               <div className="carte-verre cpt-fenetre" role="dialog" aria-label={t.moteur}>
-                <div className="cpt-f-tete"><div><p className="cpt-f-titre">{t.moteur}</p><p className="cpt-f-sous">{vantauxTxt}, ≈ {nf(R.poids)} kg. {t.fMoteurSous}</p></div><Fermer /></div>
+                <div className="cpt-f-tete"><div><p className="cpt-f-titre">{t.moteur}</p><p className="cpt-f-sous">{vantauxTxt}, ≈ {nf(R.poids)} kg. {t.fMoteurSous}</p></div><Fermer label={t.fermer} onClose={fermer} /></div>
                 <div className="cpt-moteurs" role="radiogroup" aria-label={t.moteur}>
                   {lignesMoteur.map((l) => {
                     const choisi = moteurChoisi === l.k;
@@ -515,7 +520,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
                   })}
                 </div>
                 <p className="cpt-f-note">{t.courant}</p>
-                <Pied phrase={t.piedMoteur} />
+                <Pied phrase={t.piedMoteur} termine={t.termine} onClose={fermer} />
               </div>
             )}
           </div>
@@ -526,7 +531,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
       {fenetre === "details" && (<>
         <div className="cpt-voile-fond" onClick={() => setFenetre(null)} aria-hidden="true" />
         <div className="cpt-details" role="dialog" aria-label={t.details}>
-          <div className="cpt-f-tete"><p className="cpt-d-titre">{t.dVotre(nom)}</p><Fermer /></div>
+          <div className="cpt-f-tete"><p className="cpt-d-titre">{t.dVotre(nom)}</p><Fermer label={t.fermer} onClose={fermer} /></div>
           <dl className="cpt-d-liste">
             <dt>{t.dDimensions}</dt><dd>{t.passage} {nf(cfg.P)} mm, {t.hauteur.toLowerCase()} {nf(cfg.H)} mm</dd>
             <dt>{t.dVantaux}</dt><dd>{vantauxTxt}</dd>
@@ -548,7 +553,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
       {fenetre === "plan" && (<>
         <div className="cpt-voile-fond" onClick={() => setFenetre(null)} aria-hidden="true" />
         <div className="cpt-plan" role="dialog" aria-label={t.planTitre}>
-          <div className="cpt-f-tete"><div><p className="cpt-f-titre">{t.planTitre}</p><p className="cpt-f-sous">{t.planSous}</p></div><Fermer /></div>
+          <div className="cpt-f-tete"><div><p className="cpt-f-titre">{t.planTitre}</p><p className="cpt-f-sous">{t.planSous}</p></div><Fermer label={t.fermer} onClose={fermer} /></div>
           <div className="cpt-plan-vues">
             <figure><figcaption>{t.vueFace}</figcaption><Vue prims={R.vues.face as Prims} couleur={cfg.couleur} label={t.vueFace} /></figure>
             <figure><figcaption>{t.vueDessus}</figcaption><Vue prims={R.vues.dessus as Prims} couleur={cfg.couleur} label={t.vueDessus} /></figure>
@@ -560,7 +565,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
       {fenetre === "guide" && (<>
         <div className="cpt-voile-fond" onClick={() => setFenetre(null)} aria-hidden="true" />
         <div className="cpt-guide" role="dialog" aria-label={tp.guideTitre}>
-          <div className="cpt-f-tete"><p className="cpt-f-titre">{tp.guideTitre}</p><Fermer /></div>
+          <div className="cpt-f-tete"><p className="cpt-f-titre">{tp.guideTitre}</p><Fermer label={t.fermer} onClose={fermer} /></div>
           {tp.guideQ.map((q, i) => {
             const cleQ = (["derriere", "cote", "sol"] as const)[i];
             const visible = i === 0 || (i === 1 && guide.derriere === false) || (i === 2 && guide.derriere === false && guide.cote === true);
