@@ -1754,7 +1754,7 @@ const catalogue: Product[] = [
       },
       {
         src: "/images/garde-corps/forge/directoire.jpg",
-        alt: "Garde-corps forgé à frise d'anneaux de style Directoire, colliers à rehauts dorés, acier peint noir et main courante en chêne",
+        alt: "Garde-corps forgé à frise d'anneaux de style Directoire, rehauts dorés, acier peint noir et main courante en chêne",
         bg: "#e6dfd2",
         fit: "contain",
       },
@@ -1780,11 +1780,11 @@ const catalogue: Product[] = [
     sections: [
       {
         title: "Un décor de ferronnerie, à vos cotes",
-        body: "Volutes en C entre les barreaux, frise de S, anneaux du Directoire, cœurs, médaillon : sept décors inspirés des balcons anciens, dessinés pour votre fenêtre. Les volutes sont assemblées par colliers sur un cadre en acier plein, soudé puis peint à l'atelier.",
+        body: "Volutes en C entre les barreaux, frise de S, anneaux du Directoire, cœurs, médaillon : sept décors inspirés des balcons anciens, dessinés pour votre fenêtre. Les volutes sont soudées à l'atelier sur un cadre en acier plein, puis peintes avec lui.",
       },
       {
         title: "Les finitions",
-        body: "La forme des volutes, leurs bouts, les colliers ou la soudure, des barreaux carrés, torsadés ou à bagues, des rehauts dorés : chaque décor se règle dans un seul bouton, et le prix suit.",
+        body: "La forme des volutes, leurs bouts, des barreaux carrés, torsadés ou à bagues, des rehauts dorés : chaque décor se règle dans un seul bouton, et le prix suit.",
       },
       {
         title: "Toujours aux normes",
@@ -1801,7 +1801,7 @@ const catalogue: Product[] = [
     ],
     specs: [
       { label: "Structure", value: "Acier plein, soudure TIG, finition peinte" },
-      { label: "Décor", value: "Volutes de ferronnerie en acier, assemblées par colliers : sept décors au choix, et leurs finitions" },
+      { label: "Décor", value: "Volutes de ferronnerie en acier, soudées : sept décors au choix, et leurs finitions" },
       { label: "Main courante", value: "Au choix : bois massif (pin, hêtre, chêne ou noyer) rainuré de 40 × 40 mm ou de 60 × 45 mm sur fer plat de 60 × 10 mm, finition huile-cire ; ou acier peint, fer plat de 40 × 8 mm ou profilé de 40 × 10 mm" },
       { label: "Pose", value: "Encastré dans le tableau de la fenêtre, fixations fournies — vous mesurez, nous fabriquons" },
       { label: "Prise de cotes", value: `Par vous, au mètre — ou par l'atelier, dès ${prixAffiche(PRIX_OFFRE_CENTS / 100, "fr")} jusqu'à ${RAYON_OFFRE_KM}\u00a0km de Saumur, déduits de la commande` },
@@ -1825,18 +1825,18 @@ const catalogue: Product[] = [
       tagline: "Solid steel window railing with ironwork scrolls: the design of old balconies, drawn to your measurements and checked against the standard.",
       images: [
         "Wrought window railing, front view: C-scrolls between the bars, black-painted steel, oak handrail, between two tufa stone reveals",
-        "Wrought railing with a Directoire-style ring frieze, gilded collars, black-painted steel and oak handrail",
+        "Wrought railing with a Directoire-style ring frieze, gilded highlights, black-painted steel and oak handrail",
         "Wrought railing with scrolled hearts, black-painted steel, oak handrail, in a tufa stone window opening",
       ],
       sizes: {},
       sections: [
         {
           title: "Ironwork, made to your measurements",
-          body: "C-scrolls between the bars, S-scroll frieze, Directoire rings, hearts, medallion: seven designs inspired by old balconies, drawn for your window. The scrolls are clamped with collars onto a solid steel frame, welded then painted in the workshop.",
+          body: "C-scrolls between the bars, S-scroll frieze, Directoire rings, hearts, medallion: seven designs inspired by old balconies, drawn for your window. The scrolls are welded in the workshop onto a solid steel frame, then painted with it.",
         },
         {
           title: "The finishes",
-          body: "The shape of the scrolls, their ends, collars or welds, square, twisted or ringed bars, gilded highlights: each design is set in a single button, and the price follows.",
+          body: "The shape of the scrolls, their ends, square, twisted or ringed bars, gilded highlights: each design is set in a single button, and the price follows.",
         },
         {
           title: "Always to the standard",
@@ -1853,7 +1853,7 @@ const catalogue: Product[] = [
       ],
       specs: [
         { label: "Frame", value: "Solid steel, TIG welded, painted finish" },
-        { label: "Design", value: "Steel ironwork scrolls, clamped with collars: seven designs to choose from, with their finishes" },
+        { label: "Design", value: "Steel ironwork scrolls, welded: seven designs to choose from, with their finishes" },
         { label: "Handrail", value: "Your choice: solid wood (pine, beech, oak or walnut), grooved 40 × 40 mm or 60 × 45 mm on a 60 × 10 mm flat bar, oil-wax finish; or painted steel, 40 × 8 mm flat bar or 40 × 10 mm profile" },
         { label: "Fitting", value: "Fits into the window reveal, fixings supplied — you measure, we build" },
         { label: "Survey", value: `By you, with a tape — or by the workshop, from ${prixAffiche(PRIX_OFFRE_CENTS / 100, "en")} within ${RAYON_OFFRE_KM} km of Saumur, deducted from the order` },
@@ -2683,7 +2683,7 @@ export type Selection = {
   fenetreMm?: number;
   /** Garde-corps : le modèle choisi parmi ceux que la norme permet (« 16-3 »). Voir ReleveGC.modele. */
   modeleGc?: string;
-  /** Garde-corps : le décor à volutes choisi (idDecorGC, « frise.S.bouton.colliers.carre.aucune.0 »). Il remplace le modèle. */
+  /** Garde-corps : le décor à volutes choisi (idDecorGC, « frise.S.bouton.soudure.carre.aucune.0 »). Il remplace le modèle. */
   decorGc?: string;
   /**
    * Garde-corps : le mur des tableaux (MURS_FIXATION_GC) et ses cotes en mm (ReleveGC.mur, tMurMm, eMurMm). La fixation

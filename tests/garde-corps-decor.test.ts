@@ -83,7 +83,8 @@ const requete = (q: string) => {
 
 test("l'identifiant d'un décor se lit et s'écrit à l'identique, pour tous les décors possibles", () => {
   const tous = tousLesDecors();
-  assert.ok(tous.length >= 16 * 3 * 2 * 3 * 2 * 2, `${tous.length} décors`);
+  // 16 dessins × 3 bouts × 1 liaison (la soudure seule, 07/10/2026) × 3 barreaux × 2 frises basses × 2 dorures.
+  assert.ok(tous.length >= 16 * 3 * 1 * 3 * 2 * 2, `${tous.length} décors`);
   const vus = new Set<string>();
   for (const c of tous) {
     const id = idDecorGC(c);
@@ -93,19 +94,27 @@ test("l'identifiant d'un décor se lit et s'écrit à l'identique, pour tous les
     assert.ok(!vus.has(id), `deux décors, un seul identifiant : ${id}`);
     vus.add(id);
   }
-  assert.equal(idDecorGC(decorParDefautGC("frise")), "frise.S.bouton.colliers.carre.aucune.0");
+  assert.equal(idDecorGC(decorParDefautGC("frise")), "frise.S.bouton.soudure.carre.aucune.0");
+});
+
+test("un identifiant d'avant le 07/10/2026, avec des colliers, se relit en soudure (la seule liaison de l'atelier)", () => {
+  const d = lireDecorGC("frise.S.bouton.colliers.carre.aucune.0");
+  assert.ok(d);
+  assert.equal(d.liaison, "soudure");
+  assert.equal(idDecorGC(d), "frise.S.bouton.soudure.carre.aucune.0");
+  assert.deepEqual(DECORS_GC.liaisons.map((l) => l.id), ["soudure"]);
 });
 
 test("un identifiant de décor inconnu, incomplet ou forgé est refusé", () => {
-  const bon = "entre.C.bouton.colliers.carre.aucune.0";
+  const bon = "entre.C.bouton.soudure.carre.aucune.0";
   assert.ok(lireDecorGC(bon));
   for (const mauvais of [
-    "", "aucun", "barreaux.C.bouton.colliers.carre.aucune.0", "entre.coeur.bouton.colliers.carre.aucune.0", "anneaux.C.bouton.colliers.carre.aucune.0",
-    "coeurs.C.bouton.colliers.carre.aucune.0", "entre.C.pointu.colliers.carre.aucune.0", "entre.C.bouton.rivets.carre.aucune.0",
-    "entre.C.bouton.colliers.rond.aucune.0", "entre.C.bouton.colliers.carre.lances.0", "entre.C.bouton.colliers.carre.aucune.2",
-    "entre.C.bouton.colliers.carre.aucune.oui", "entre.C.bouton.colliers.carre.aucune", "entre.C.bouton.colliers.carre.aucune.0.0",
-    "Entre.C.bouton.colliers.carre.aucune.0", " entre.C.bouton.colliers.carre.aucune.0", "entre.C.bouton.colliers.carre.aucune.0 ",
-    "entre.lyre.bouton.colliers.carre.aucune.0", "entre.C.bouton.colliers.carre.aucune.0" + ".".repeat(60), "__proto__.C.bouton.colliers.carre.aucune.0",
+    "", "aucun", "barreaux.C.bouton.soudure.carre.aucune.0", "entre.coeur.bouton.soudure.carre.aucune.0", "anneaux.C.bouton.soudure.carre.aucune.0",
+    "coeurs.C.bouton.soudure.carre.aucune.0", "entre.C.pointu.soudure.carre.aucune.0", "entre.C.bouton.rivets.carre.aucune.0",
+    "entre.C.bouton.soudure.rond.aucune.0", "entre.C.bouton.soudure.carre.lances.0", "entre.C.bouton.soudure.carre.aucune.2",
+    "entre.C.bouton.soudure.carre.aucune.oui", "entre.C.bouton.soudure.carre.aucune", "entre.C.bouton.soudure.carre.aucune.0.0",
+    "Entre.C.bouton.soudure.carre.aucune.0", " entre.C.bouton.soudure.carre.aucune.0", "entre.C.bouton.soudure.carre.aucune.0 ",
+    "entre.lyre.bouton.soudure.carre.aucune.0", "entre.C.bouton.soudure.carre.aucune.0" + ".".repeat(60), "__proto__.C.bouton.soudure.carre.aucune.0",
   ]) assert.equal(lireDecorGC(mauvais), null, mauvais);
   for (const x of [null, undefined, 3, true, {}, [], decorParDefautGC("entre")]) assert.equal(lireDecorGC(x), null, J(x));
   assert.throws(() => decorParDefautGC("barreaux" as AssemblageDecorGC));
@@ -129,8 +138,8 @@ test("les listes du site sont celles de l'outil : DECOR_NOMS, MT_AVEC, MT_NOMS, 
   for (const a of ASSEMBLAGES) {
     const d = decorParDefautGC(a);
     assert.equal(d.forme, DECORS_GC.formes[a][0]);
-    assert.deepEqual([d.bouts, d.liaison, d.barreaux, d.friseBasse, d.dore], ["bouton", "colliers", "carre", "aucune", false]);
-    assert.deepEqual([d.bouts, d.liaison, d.barreaux, d.friseBasse, d.dore ? "1" : "0"], [DEFAUTS_GC.decorBouts, DEFAUTS_GC.decorLiaison, DEFAUTS_GC.decorBarreaux, DEFAUTS_GC.decorFriseBasse, DEFAUTS_GC.decorDore]);
+    assert.deepEqual([d.bouts, d.liaison, d.barreaux, d.friseBasse, d.dore], ["bouton", "soudure", "carre", "aucune", false]);
+    assert.deepEqual([d.bouts, d.liaison, d.barreaux, d.friseBasse, d.dore ? "1" : "0"], [DEFAUTS_GC.decorBouts, "soudure", DEFAUTS_GC.decorBarreaux, DEFAUTS_GC.decorFriseBasse, DEFAUTS_GC.decorDore]);
   }
   // Par défaut : pas de décor.
   assert.equal(DEFAUTS_GC.decor, "aucun");
@@ -253,13 +262,13 @@ test("ce que le cadre refuse ne dépend pas du décor (la mémoire partagée ent
 test("les paramètres de la route : decor (illisible : refusé ; sous verre : refusé), decors=1, et le modèle ignoré avec un décor", () => {
   assert.ok(PARAMETRES_PRIX_GC.includes("decor") && PARAMETRES_PRIX_GC.includes("decors"));
   const base = "l=1180&allege=650&etage=1&wood=chene";
-  const d = "frise.S.bouton.colliers.carre.aucune.0";
+  const d = "frise.S.bouton.soudure.carre.aucune.0";
   assert.equal(requete(`${base}&decor=${d}`).releve.decor, d);
   assert.equal(requete(`${base}&decor=${d}&modele=16-3`).releve.modele, undefined);
   assert.equal(requete(`${base}&modele=16-3`).releve.modele, "16-3");
   assert.equal(requete(`${base}&decors=1`).decors, true);
   assert.equal(requete(base).decors, undefined);
-  for (const q of [`${base}&decor=frise.Z.bouton.colliers.carre.aucune.0`, `${base}&decor=`, `${base}&decors=0`, `${base}&decors=oui`, `${base}&decor=${d}&remplissage=verre`, `${base}&decor=${d}&decor=${d}`]) {
+  for (const q of [`${base}&decor=frise.Z.bouton.soudure.carre.aucune.0`, `${base}&decor=`, `${base}&decors=0`, `${base}&decors=oui`, `${base}&decor=${d}&remplissage=verre`, `${base}&decor=${d}&decor=${d}`]) {
     assert.equal(lireRequetePrixGC(new URLSearchParams(q)), null, q);
   }
   // Le relevé du navigateur porte le décor, et l'adresse de la route aussi.
@@ -294,11 +303,11 @@ test("avec un décor : le prix du garde-corps à décor, et les modèles du cata
   chiffrageOuEchec();
   let refuse = 0;
   for (const [base, decor] of [
-    ["l=1180&allege=650&etage=1&wood=chene", "frise.S.bouton.colliers.carre.aucune.0"],
+    ["l=1180&allege=650&etage=1&wood=chene", "frise.S.bouton.soudure.carre.aucune.0"],
     ["l=1180&allege=650&etage=1&wood=chene&fabric=fonte&metal=blanc&qty=3", "coeurs.coeur.effile.soudure.torsade.aucune.1"],
-    ["l=2200&allege=400&etage=1&wood=chene", "hauteur.C.bouton.colliers.carre.aucune.0"],
-    ["l=900&allege=760&etage=1&wood=noyer-plat", "medaillon.J.droit.colliers.bagues.aucune.0"],
-    ["l=1400&allege=300&etage=1&wood=acier&fenetre=1500", "anneaux.anneau.bouton.colliers.carre.postes.0"],
+    ["l=2200&allege=400&etage=1&wood=chene", "hauteur.C.bouton.soudure.carre.aucune.0"],
+    ["l=900&allege=760&etage=1&wood=noyer-plat", "medaillon.J.droit.soudure.bagues.aucune.0"],
+    ["l=1400&allege=300&etage=1&wood=acier&fenetre=1500", "anneaux.anneau.bouton.soudure.carre.postes.0"],
   ] as const) {
     const sans = reponsePrixGC(requete(base))!;
     const avec = reponsePrixGC(requete(`${base}&decor=${decor}`))!;
@@ -444,7 +453,7 @@ test("les traits du décor : en mm depuis le coin du cadre, bornés, relus à l'
     assert.ok(relu && relu.ok);
     assert.deepEqual(relu.decor, d);
   }
-  const r = reponsePrixGC(requete("l=1180&allege=650&etage=1&wood=chene&decor=frise.S.bouton.colliers.carre.aucune.1&decors=1"))!;
+  const r = reponsePrixGC(requete("l=1180&allege=650&etage=1&wood=chene&decor=frise.S.bouton.soudure.carre.aucune.1&decors=1"))!;
   assert.ok(r.ok && r.decor);
   assert.ok(r.decor.traits.some((t) => t.role === "or"), "les rehauts dorés sont dessinés en or");
   const brut = JSON.parse(J(r));
@@ -470,7 +479,7 @@ test("les traits du décor : en mm depuis le coin du cadre, bornés, relus à l'
 test("l'aperçu du plan dessine le décor (le Plan A3 de l'outil)", () => {
   chiffrageOuEchec();
   const sans = planApercuGC(requete("l=1180&allege=650&etage=1&wood=chene"), new Date("2026-10-06T10:00:00+02:00"))!;
-  const avec = planApercuGC(requete("l=1180&allege=650&etage=1&wood=chene&decor=frise.S.bouton.colliers.carre.aucune.0"), new Date("2026-10-06T10:00:00+02:00"))!;
+  const avec = planApercuGC(requete("l=1180&allege=650&etage=1&wood=chene&decor=frise.S.bouton.soudure.carre.aucune.0"), new Date("2026-10-06T10:00:00+02:00"))!;
   assert.ok(sans && avec);
   assert.equal(sans.decor, undefined);
   assert.equal(avec.decor, true);
@@ -478,7 +487,7 @@ test("l'aperçu du plan dessine le décor (le Plan A3 de l'outil)", () => {
   assert.notEqual(avec.svg, sans.svg);
   assert.match(avec.svg, /volutes/i);
   // Une fenêtre large : le décor en panneaux, son plan aussi (07/10/2026 : plus de décor refusé).
-  assert.ok(planApercuGC(requete("l=2200&allege=400&etage=1&wood=chene&decor=hauteur.C.bouton.colliers.carre.aucune.0"))?.decor, "décor en panneaux : son plan");
+  assert.ok(planApercuGC(requete("l=2200&allege=400&etage=1&wood=chene&decor=hauteur.C.bouton.soudure.carre.aucune.0"))?.decor, "décor en panneaux : son plan");
 });
 
 /* ------------------------------------------------------------------ *
@@ -527,7 +536,7 @@ test("panier et commande : le prix de la route, le décor dans le libellé (fran
     [
       ligneForge({ decorGc: "frise.Z" }), ligne({ decorGc: decor, remplissageId: "verre" }), ligneForge({ decorGc: 12 }),
       // « À étudier » : une fenêtre qui s'arrête sous la main courante (plus aucun décor n'est refusé par la norme, 07/10/2026).
-      ligneForge({ fenetreMm: 200, decorGc: "hauteur.C.bouton.colliers.carre.aucune.0" }),
+      ligneForge({ fenetreMm: 200, decorGc: "hauteur.C.bouton.soudure.carre.aucune.0" }),
       ligne({ decorGc: decor }), ligneForge(), ligneForge({ decorGc: decor, remplissageId: "verre" }), ligneForge({ decorGc: decor, fabricId: "fonte" }),
       { slug: RETRAIT },
     ],
@@ -547,7 +556,7 @@ test("panier et commande : le prix de la route, le décor dans le libellé (fran
 
 test("une frise basse que l'outil retire (au ras du sol) n'est pas écrite sur la commande", async () => {
   chiffrageOuEchec();
-  const decor = "frise.S.bouton.colliers.carre.postes.0";
+  const decor = "frise.S.bouton.soudure.carre.postes.0";
   const route = reponsePrixGC(requete(`l=1180&allege=300&etage=1&wood=chene&decor=${decor}`))!;
   assert.ok(route.ok && route.decor);
   assert.equal(route.decor.friseRetiree, true);
@@ -557,7 +566,7 @@ test("une frise basse que l'outil retire (au ras du sol) n'est pas écrite sur l
 
 test("le devis nomme le décor (comme l'outil), en français et en anglais, aux mêmes montants que le panier ; le téléphone est celui de l'entreprise", () => {
   chiffrageOuEchec();
-  const decor = "medaillon.doubleC.bouton.colliers.bagues.aucune.1";
+  const decor = "medaillon.doubleC.bouton.soudure.bagues.aucune.1";
   const releve: ReleveGC = { largeurMm: 1180, allegeMm: 650, enEtage: true, fenetreMm: 0, decor };
   const entree = (locale: "fr" | "en", fabricId = "fleur"): EntreeDevisGC => ({
     releve, options: { woodId: "chene", metalId: "blanc", fabricId, remplissageId: "croix" }, quantite: 2, livraison: { mode: "retrait" },
@@ -590,7 +599,7 @@ test("le devis nomme le décor (comme l'outil), en français et en anglais, aux 
   // Pas de photo de croix à rosaces pour une pièce à volutes.
   assert.equal(fr.piece.photo, undefined);
   // Un devis par décor : un autre décor, un autre numéro.
-  const autre = composerDevisGardeCorps({ ...entree("fr"), releve: { ...releve, decor: "medaillon.coeur.bouton.colliers.bagues.aucune.1" } });
+  const autre = composerDevisGardeCorps({ ...entree("fr"), releve: { ...releve, decor: "medaillon.coeur.bouton.soudure.bagues.aucune.1" } });
   assert.ok(autre.ok && autre.devis.numero !== fr.numero);
   // Le téléphone du devis : celui de la fiche de l'entreprise, le même que l'outil écrit sur les siens.
   assert.ok(fr.emetteur.lignes.some((x) => x.includes(ENTREPRISE.telephone)), J(fr.emetteur));
@@ -602,9 +611,9 @@ test("le devis nomme le décor (comme l'outil), en français et en anglais, aux 
  * ------------------------------------------------------------------ */
 
 test("la configuration mise de côté et les favoris gardent le décor (et refusent un décor inventé)", () => {
-  const decor = "medaillon.doubleC.bouton.colliers.torsade.aucune.0";
+  const decor = "medaillon.doubleC.bouton.soudure.torsade.aucune.0";
   assert.equal(lireReleveGcMemo({ gcDecor: decor }).gcDecor, decor);
-  assert.equal(lireReleveGcMemo({ gcDecor: "medaillon.lyre.bouton.colliers.torsade.aucune.0" }).gcDecor, undefined);
+  assert.equal(lireReleveGcMemo({ gcDecor: "medaillon.lyre.bouton.soudure.torsade.aucune.0" }).gcDecor, undefined);
   assert.equal(lireReleveGcMemo({ gcDecor: 12 }).gcDecor, undefined);
   const mots = { gcEtageOptions: ["En étage", "Au rez-de-chaussée"], gcMurOptions: ["Brique"] };
   const memo = releveVersMemo({ etage: "En étage", largeur: "1180", allege: "650", fenetre: "", mur: "", modele: "", decor }, mots);

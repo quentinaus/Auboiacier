@@ -38,7 +38,7 @@ export type CartItem = {
   fenetreMm?: number;
   /** Garde-corps : le modèle choisi (« 16-3 »), voir ReleveGC.modele. */
   modeleGc?: string;
-  /** Garde-corps : le décor à volutes choisi (« frise.S.bouton.colliers.carre.aucune.0 »), voir ReleveGC.decor. */
+  /** Garde-corps : le décor à volutes choisi (« frise.S.bouton.soudure.carre.aucune.0 »), voir ReleveGC.decor. */
   decorGc?: string;
   /**
    * Garde-corps : le mur des tableaux (« beton », MURS_FIXATION_GC) et ses cotes en mm (profondeur du tableau,

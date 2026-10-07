@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Moteur garde-corps : norme NF P01-012, géométrie, débit, dessins. SANS coûts.
-// Source : l'outil de plans (plans-atelier.html), sha256 8152166654fd7faa6689367e5e424972dd8241604ec6fe029db6fbb506f2db09
+// Source : l'outil de plans (plans-atelier.html), sha256 a81d98d0a366b8f5875cd2b69b29e0e4ea415a91c5df2d90caaff8621ff01c98
 /* eslint-disable */
 const NOMS = { mikado: "Table Mikado", croix: "Table Croix", mikadoExt: "Table Mikado extérieur", resine: "Table Résine Époxy Mikado", gardeCorps: "Garde-corps Rosace à croix", escalier: "Escalier droit à limon central", ptBattant: "Portail battant", ptCoulissant: "Portail coulissant", ptPliant: "Portail pliant", ptPortillon: "Portillon" };
 const SPHERE = 110;
@@ -434,12 +434,12 @@ function mainCouranteGC(v) {
 function geomGC(v, n) {
     v = mainCouranteGC(v);
     const seuls = !!v.seuls;
-    if (seuls) { v = { ...v, traverse: false, nb: 0, rosace: false, sbMode: "auto" }; n = 1; }
+    if (seuls) { v = { ...v, traverse: false, nb: 0, rosace: false, sbMode: "auto" }; n = decorActif(v) && n >= 1 ? Math.round(n) : 1; }
     const Lc = v.B - v.j;
     const appuiA = 0, appuiX = v.Xo >= 100 && v.Xo < 600 ? v.Xo : 0;
     const cible = HAUT_ETAGE + Math.max(appuiA, appuiX) + CIBLE_MARGE;
     const manque = Math.ceil(cible - v.A - v.jour);
-    const mini = seuls && !decorActif(v) ? MINI_SEULS : MINI_GC;
+    const mini = seuls ? MINI_SEULS : MINI_GC;
     const hNorme = Math.max(mini, manque);
     const Hr = v.Hs >= mini ? v.Hs : hNorme;
     const appui = v.Hs >= mini || manque >= mini ? null : cible - v.A < BARRE_APPUI && (appuiX === 0 || v.A >= HAUT_ETAGE + appuiX) ? "rien" : "barre";
@@ -461,7 +461,7 @@ function geomGC(v, n) {
     const w = (Lc - 2 * v.s - (n - 1) * v.s) / n;
     const zBas = v.A + v.jour + v.s + (sb ? sb : 0);
     const videB = zBas < Z_SPHERE ? SB_VIDE : SPHERE_HAUT - 10;
-    const nbB = seuls ? Math.max(1, Math.ceil((Wint - videB) / (v.s + videB))) : 0;
+    const nbB = seuls ? Math.max(1, Math.ceil((w - videB) / (v.s + videB))) : 0;
     const vide = seuls ? (w - nbB * v.s) / (nbB + 1) : v.nb > 0 ? (w - v.nb * v.s) / (v.nb + 1) : Infinity;
     const barres = v.nb > 0 ? Array.from({ length: v.nb }, (_, b) => { const x = (b + 1) * vide + b * v.s; return [x, x + v.s]; }) : [];
     const trousSeuls = seuls && w > 0 && h > 0 ? [{ c: [vide / 2, Math.min(vide, h) / 2], r: Math.min(vide, h) / 2, yBas: 0 }] : [];
@@ -568,22 +568,29 @@ function nomDecorGC(ch) {
     }
   }
 function choixDecorGC(v) {
-    return { assemblage: v.decor, forme: v.decorForme, bouts: v.decorBouts, liaison: v.decorLiaison, barreaux: v.decorBarreaux, friseBasse: v.decorFriseBasse, dore: v.decorDore === "1" || v.decorDore === true };
+    return { assemblage: v.decor, forme: v.decorForme, bouts: v.decorBouts, liaison: "soudure", barreaux: v.decorBarreaux, friseBasse: v.decorFriseBasse, dore: v.decorDore === "1" || v.decorDore === true };
   }
-function decorGC(v, g, x0, y0) {
+function decorGC(v, g, x0, y0, n = 1) {
     const s = v.s, px = x0 + s, py = y0 + s, escalade = y0 < Z_ESCALADE;
     const z = { x0: px, x1: px + g.w, y0: py, haut: () => py + g.h, barreau: s, vide: py < Z_SPHERE ? SB_VIDE : SPHERE_HAUT - 10,
       norme: { sol: () => 0, escalade, marge: MARGE_BOULE, pas: 2 } };
     const F = [], pieces = [], q = {};
     const ch = mtRemplir(z, choixDecorGC(v), F, pieces, q);
-    const N = (q.norme || [])[0] || { ok: true, dBas: 0, dMax: 0, ou: null, appui: null };
-    const nom = nomDecorGC(ch);
+    for (let i = 1; i < n; i++) {
+      const a = px + i * (g.w + s);
+      mtRemplir({ ...z, x0: a, x1: a + g.w, ...(2 * i + 1 > n ? { miroir: true } : {}) }, choixDecorGC(v), F, pieces, q);
+    }
+    const Ns = q.norme || [], pireN = n > 1 && Ns.length > 1 ? Ns.find((r) => !r.ok) || Ns.reduce((a, r) => (r.dBas > a.dBas || (r.dBas === a.dBas && r.dMax > a.dMax) ? r : a), Ns[0]) : null;
+    const N = pireN ? { ...pireN, ok: Ns.every((r) => r.ok), dBas: Math.max(...Ns.map((r) => r.dBas)), dMax: Math.max(...Ns.map((r) => r.dMax)), variante: Math.max(...Ns.map((r) => r.variante || 0)) }
+      : (q.norme || [])[0] || { ok: true, dBas: 0, dMax: 0, ou: null, appui: null };
+    const nom = nomDecorGC(ch) + (n > 1 ? `, en ${n} panneaux` : "");
     const nVol = Object.values(q.volutes || {}).reduce((a, b) => a + b, 0);
-    const fin = [ch.assemblage === "anneaux" ? null : ch.bouts === "bouton" ? "bouts effilés à bouton" : ch.bouts === "effile" ? "bouts effilés" : "bouts coupés droits", ch.liaison === "colliers" ? (q.colliers ? `${q.colliers} colliers` : null) : "soudées", ch.barreaux === "torsade" ? "barreaux torsadés" : ch.barreaux === "bagues" ? "barreaux à bagues" : null, ch.dore ? "rehauts dorés" : null].filter(Boolean).join(", ");
-    const note = `Décor : ${nom}, ${nVol} pièce${nVol > 1 ? "s" : ""} (${fin})${escalade ? ", posé au-dessus d'un socle de barreaux serrés jusqu'à 620 mm du sol" : ""}. Volutes, colliers et bagues achetés tout faits, repris au gabarit.`;
+    const fin = [ch.assemblage === "anneaux" ? null : ch.bouts === "bouton" ? "bouts effilés à bouton" : ch.bouts === "effile" ? "bouts effilés" : "bouts coupés droits", "soudées", ch.barreaux === "torsade" ? "barreaux torsadés" : ch.barreaux === "bagues" ? "barreaux à bagues" : null, ch.dore ? "rehauts dorés" : null].filter(Boolean).join(", ");
+    const panneauxTxt = n > 1 ? ` ${n} panneaux égaux de ${mmTxt(g.w)} mm, séparés par ${n > 2 ? `${n - 1} montants intermédiaires` : "un montant intermédiaire"} en carré de ${s} ; la moitié droite en miroir de la gauche.` : "";
+    const note = `Décor : ${nom}, ${nVol} pièce${nVol > 1 ? "s" : ""} (${fin})${escalade ? ", posé au-dessus d'un socle de barreaux serrés jusqu'à 620 mm du sol" : ""}.${panneauxTxt} Volutes et bagues achetées toutes faites, reprises au gabarit ; tout le décor est assemblé par soudure.`;
     const trous = N.ou ? [{ c: [N.ou[0] - px, N.ou[1] - py], d: N.dBas, ok: N.ok }] : [];
     const kgDecor = pieces.filter((p) => !/^Carré plein/.test(p.mat)).reduce((t, p) => t + (p.kgM || 0) * (p.long || 0) / 1000, 0);
-    return { F: F.filter((p) => p.role !== "detour"), pieces, q, ch, N, escalade, nom, fin, note, trous, kgDecor, chiffre: { pieces, q, ch } };
+    return { F: F.filter((p) => p.role !== "detour"), pieces, q, ch, N, escalade, nom, fin, note, trous, kgDecor, n, chiffre: { pieces, q, ch } };
   }
 function normeDecorGC(R, D) {
     const N = D.N, lim = SPHERE - MARGE_BOULE;
@@ -591,7 +598,7 @@ function normeDecorGC(R, D) {
     else if (N.appui) R.alertes.push(`Escalade : le décor laisse un appui pour le pied à ${mmTxt(N.appui[1])} mm du sol (entre 100 et 600 mm) : pas aux normes. Choisis un autre décor.`);
     else R.alertes.push(`Trous : le décor laisse passer un cercle de Ø ${mmTxt(N.dBas >= lim ? N.dBas : N.dMax)} mm (boule de ${N.dBas >= lim ? SPHERE : SPHERE_HAUT} mm, ${MARGE_BOULE} mm de marge) : pas aux normes. Choisis une autre volute ou un autre décor.`);
     if (N.variante) R.notes.push("Décor : pour rester aux normes, les barreaux restent continus derrière le motif, soudé devant.");
-    for (const n of D.q.notes || []) R.notes.push(n);
+    for (const n of D.n > 1 ? [...new Set(D.q.notes || [])] : D.q.notes || []) R.notes.push(n);
   }
 function debitDecorGC(R, D, morceaux, s) {
     const groupes = new Map();
@@ -620,23 +627,25 @@ function calculerGC(v) {
     const decor = decorActif(v);
     if (decor) v = { ...v, seuls: true };
     const seuls = !!v.seuls;
-    if (seuls) v = { ...v, traverse: false, nb: 0, rosace: false, sbMode: "auto", nP: 1 };
+    if (seuls) v = { ...v, traverse: false, nb: 0, rosace: false, sbMode: "auto", nP: decor ? v.nP : 1 };
     const renfort = v.eRf > 0;
     const rain = !acier && !profilMC && !renfort && v.chev > 0;
     const R = { vues: { face: [], cote: [], dessus: [] }, debit: [], alertes: [], oks: [], notes: [], resume: [], tubes: [], acierM2: 0, poids: 0 };
     const F = R.vues.face, C = R.vues.cote, D = R.vues.dessus;
     const auto = Math.max(1, Math.round(v.B / 600));
     const n = v.nP >= 1 ? Math.round(v.nP) : 1;
-    const g = geomGC(v, seuls ? 1 : n);
+    const g = geomGC(v, seuls && !decor ? 1 : n);
     if (v.ass === "onglet" && v.eF < v.fF / 2 + v.s + 3) v = { ...v, eF: Math.ceil(v.fF / 2 + v.s + 3) };
     if ((v.ass === "onglet" ? g.Hc : g.Hc - 2 * v.s) < 2 * v.eF + v.fF) v = { ...v, eF: Math.max(15, v.fF / 2 + 9) };
-    if (!(g.w > 3 * v.s) || !(g.h > 3 * v.s)) { R.alertes.push(seuls ? "Le garde-corps est trop petit pour des barreaux : augmente la largeur ou la hauteur." : "Le garde-corps est trop petit pour ce nombre de croix : baisse le nombre de croix ou augmente la hauteur."); return R; }
+    if (!(g.w > 3 * v.s) || !(g.h > 3 * v.s)) { R.alertes.push(decor ? (!(g.w > 3 * v.s) ? "Le garde-corps est trop petit pour ce nombre de panneaux : baisse le nombre de panneaux." : `Le garde-corps est trop bas pour un décor (${mmTxt(Math.max(0, g.h))} mm entre les traverses) : augmente la hauteur du garde-corps.`) : seuls ? "Le garde-corps est trop petit pour des barreaux : augmente la largeur ou la hauteur." : "Le garde-corps est trop petit pour ce nombre de croix : baisse le nombre de croix ou augmente la hauteur."); return R; }
     const s = v.s, x0 = -g.Lc / 2, y0 = v.A + v.jour, haut = y0 + g.Hr;
-    const Dec = decor ? decorGC(v, g, x0, y0) : null;
+    const Dec = decor ? decorGC(v, g, x0, y0, n) : null;
     const kPattes = nbPattes(v);
+    const xMontants = Array.from({ length: n - 1 }, (_, i) => x0 + s + (i + 1) * (g.w + s) - s / 2);
     const xsPattes = !kPattes ? [] : (() => {
-      const elems = seuls ? Array.from({ length: g.nbB }, (_, b) => x0 + s + (b + 1) * g.vide + b * s + s / 2)
-        : Array.from({ length: n - 1 }, (_, i) => x0 + s + (i + 1) * (g.w + s) - s / 2);
+      const elems = seuls && n > 1 ? [...xMontants, ...Array.from({ length: n * g.nbB }, (_, k) => { const i = Math.floor(k / g.nbB), b = k % g.nbB; return x0 + s + i * (g.w + s) + (b + 1) * g.vide + b * s + s / 2; })]
+        : seuls ? Array.from({ length: g.nbB }, (_, b) => x0 + s + (b + 1) * g.vide + b * s + s / 2)
+        : xMontants;
       const pris = [];
       for (let j = 1; j <= kPattes; j++) {
         const cible = x0 + g.Lc * j / (kPattes + 1);
@@ -647,11 +656,13 @@ function calculerGC(v) {
       return pris.sort((a, b) => a - b);
     })();
     const xPattes = xsPattes || [];
+    const pSurM = xPattes.filter((x) => xMontants.includes(x)).length;
+    const sousP = !seuls || (n > 1 && pSurM === xPattes.length) ? ["montant", "montants"] : pSurM ? ["montant ou barreau", "montants et barreaux"] : ["barreau", "barreaux"];
     const obligatoire = v.etage && v.A < ALLEGE_LIBRE;
     if (g.appui === "rien") R.alertes.push(`Barre d'appui : rien à poser. Le bas de la fenêtre est à ${mmTxt(v.A)} mm du sol : il reste moins de ${BARRE_APPUI} mm jusqu'à ${mmTxt(g.cible)} mm${v.Xo >= 100 && v.Xo < 600 ? "" : `, et à partir de ${ALLEGE_LIBRE} mm la loi n'impose rien`}.`);
     else if (g.appui) {
       const miniGC = seuls ? MINI_SEULS : MINI_GC, videB = g.cible - BARRE_APPUI - v.A, limiteB = v.A < Z_SPHERE ? SPHERE : SPHERE_HAUT, jourB = g.cible - v.A - miniGC;
-      R.alertes.push(`Barre d'appui : il ne manque que ${mmTxt(g.cible - v.A)} mm entre le bas de la fenêtre et ${mmTxt(g.cible)} mm du sol. Un garde-corps ${seuls ? "à barreaux" : "à croix"} de ${miniGC} mm monterait à ${mmTxt(haut)} mm : la main courante ne serait plus à sa hauteur. ` +
+      R.alertes.push(`Barre d'appui : il ne manque que ${mmTxt(g.cible - v.A)} mm entre le bas de la fenêtre et ${mmTxt(g.cible)} mm du sol. Un garde-corps ${decor ? "à volutes" : seuls ? "à barreaux" : "à croix"} de ${miniGC} mm monterait à ${mmTxt(haut)} mm : la main courante ne serait plus à sa hauteur. ` +
         (videB < limiteB ? `Une barre d'appui seule suffit (vide de ${mmTxt(videB)} mm dessous, boule de ${limiteB}).` : `Il faut une barre d'appui avec une lisse basse (une barre seule laisserait ${mmTxt(videB)} mm de vide, boule de ${limiteB}).`) +
         (jourB >= 0 ? ` Ou garde un garde-corps de ${miniGC} mm en réduisant le jour sous le cadre à ${mmTxt(jourB)} mm.` : ""));
     }
@@ -755,11 +766,14 @@ function calculerGC(v) {
     {
       const Lv = g.w + s, Wv = renfort ? (s ** 4 / 12 + v.lRf * v.eRf ** 3 / 12) / (s / 2) : s * s * s / 6;
       const Iv = s ** 4 / 12 + (renfort ? v.lRf * v.eRf ** 3 / 12 : 0), Ib = s ** 4 / 12;
-      const sigmaV = seuls ? (Iv / (Iv + Ib)) * 0.25 * CHARGE_V * g.Lc * 1000 / (Iv / (s / 2)) : (n > 1 ? 0.203 : 0.25) * CHARGE_V * Lv * 1000 / Wv;
-      if (seuls) {
-        if (sigmaV > LIMITE_ACIER) R.alertes.push(`Charge verticale : si quelqu'un s'appuie de tout son poids au milieu, la traverse haute (reliée à la basse par les barreaux) travaille à ${mmTxt(sigmaV)} MPa (limite ${LIMITE_ACIER}). Trop faible : prends un carré plus gros.`);
+      const panneaux = decor && n > 1;
+      const sigmaV = seuls && !panneaux ? (Iv / (Iv + Ib)) * 0.25 * CHARGE_V * g.Lc * 1000 / (Iv / (s / 2)) : (n > 1 ? 0.203 : 0.25) * CHARGE_V * Lv * 1000 / Wv;
+      const nV = decor && sigmaV > LIMITE_ACIER ? [2, 3, 4, 5, 6, 7, 8].find((k) => { const wk = (g.Lc - 2 * s - (k - 1) * s) / k; return k > n && wk > 3 * s && 0.203 * CHARGE_V * (wk + s) * 1000 / Wv <= LIMITE_ACIER; }) : null;
+      if (seuls && !panneaux) {
+        if (sigmaV > LIMITE_ACIER) R.alertes.push(`Charge verticale : si quelqu'un s'appuie de tout son poids au milieu, la traverse haute (reliée à la basse par les barreaux) travaille à ${mmTxt(sigmaV)} MPa (limite ${LIMITE_ACIER}). Trop faible : prends un carré plus gros${nV ? `, ou fais le décor en ${nV} panneaux séparés par des montants intermédiaires (Options, « Nombre de panneaux »)` : ""}.`);
         else R.oks.push(`Charge verticale : la traverse haute, aidée par la basse à travers les barreaux, travaille à ${mmTxt(sigmaV)} MPa (limite ${LIMITE_ACIER}). Calcul simplifié.`);
-      } else if (sigmaV > LIMITE_ACIER) R.alertes.push(`Charge verticale : si quelqu'un s'appuie de tout son poids au milieu d'un panneau de ${mmTxt(Lv)} mm, la lisse haute travaille à ${mmTxt(sigmaV)} MPa (limite ${LIMITE_ACIER}). Trop faible : mets plus de croix (des panneaux plus étroits).`);
+      } else if (sigmaV > LIMITE_ACIER && panneaux) R.alertes.push(`Charge verticale : si quelqu'un s'appuie de tout son poids au milieu d'un panneau de ${mmTxt(Lv)} mm, la lisse haute travaille à ${mmTxt(sigmaV)} MPa (limite ${LIMITE_ACIER}). Trop faible : ${nV ? `mets ${nV} panneaux (des panneaux plus étroits) ou prends un carré plus gros` : "prends un carré plus gros"}.`);
+      else if (sigmaV > LIMITE_ACIER) R.alertes.push(`Charge verticale : si quelqu'un s'appuie de tout son poids au milieu d'un panneau de ${mmTxt(Lv)} mm, la lisse haute travaille à ${mmTxt(sigmaV)} MPa (limite ${LIMITE_ACIER}). Trop faible : mets plus de croix (des panneaux plus étroits).`);
       else R.oks.push(`Charge verticale : lisse haute à ${mmTxt(sigmaV)} MPa entre deux montants (limite ${LIMITE_ACIER}).`);
     }
     {
@@ -781,11 +795,11 @@ function calculerGC(v) {
     }
     if (kPattes) {
       const nomP = kPattes > 1 ? `Pattes (${kPattes})` : "Patte";
-      if (!xsPattes) R.alertes.push(`Patte impossible : ${kPattes} patte${kPattes > 1 ? "s" : ""} demandée${kPattes > 1 ? "s" : ""}, mais pas assez de ${seuls ? "barreaux" : "montants (il faut plus de croix)"} pour les souder dessous.`);
+      if (!xsPattes) R.alertes.push(`Patte impossible : ${kPattes} patte${kPattes > 1 ? "s" : ""} demandée${kPattes > 1 ? "s" : ""}, mais pas assez de ${seuls && n > 1 ? "montants et de barreaux" : seuls ? "barreaux" : "montants (il faut plus de croix)"} pour les souder dessous.`);
       else {
         const W = s ** 3 / 6, sigM = RB * 1000 * g.Hr / W, sigP = RB * 1000 * (g.Hr + v.jour) / W;
         if (Math.max(sigM, sigP) > LIMITE_ACIER) R.alertes.push(`Patte au milieu : la plus chargée reprend ${mmTxt(RB * 100)} kg ; en carré de ${s}, elle travaille à ${mmTxt(sigP)} MPa dans l'appui (limite ${LIMITE_ACIER}). Trop faible : une patte de plus, ou un carré plus gros.`);
-        else R.oks.push(`${nomP} scellée${kPattes > 1 ? "s" : ""} dans l'appui, en carré de ${s} : la plus chargée reprend ${mmTxt(RB * 100)} kg ; ${seuls ? "barreau" : "montant"} à ${mmTxt(sigM)} MPa, patte à ${mmTxt(sigP)} MPa (limite ${LIMITE_ACIER}). Calcul simplifié.`);
+        else R.oks.push(`${nomP} scellée${kPattes > 1 ? "s" : ""} dans l'appui, en carré de ${s} : la plus chargée reprend ${mmTxt(RB * 100)} kg ; ${sousP[0]} à ${mmTxt(sigM)} MPa, patte à ${mmTxt(sigP)} MPa (limite ${LIMITE_ACIER}). Calcul simplifié.`);
         R.notes.push(`${nomP} en carré de ${s}, scellée${kPattes > 1 ? "s" : ""} de ${PATTE.scel} mm dans l'appui (trou Ø ${s + 2}, scellement chimique). L'appui doit être sain et faire au moins ${PATTE.scel + 20} mm d'épaisseur ; dans le tuffeau, essai d'arrachement sur place.`);
       }
     }
@@ -814,9 +828,9 @@ function calculerGC(v) {
     }
     for (let i = 0; i < n; i++) {
       const px = x0 + s + i * (g.w + s), py = y0 + s + (g.sb || 0);
-      if (i > 0) F.push({ t: "poly", piece: "Montants entre les croix", cls: "t-acier-plein", pts: rect(px - s, py, px, py + g.h) });
+      if (i > 0) F.push({ t: "poly", piece: Dec ? "Montants intermédiaires" : "Montants entre les croix", cls: "t-acier-plein", pts: rect(px - s, py, px, py + g.h) });
       const r = [px, py, px + g.w, py + g.h];
-      if (Dec) F.push(...Dec.F);
+      if (Dec) { if (i === 0) F.push(...Dec.F); }
       else if (seuls) for (let b = 1; b <= g.nbB; b++) { const bx = px + b * g.vide + (b - 1) * s; F.push({ t: "poly", piece: "Barreaux", cls: "t-acier-plein", pts: rect(bx, py, bx + s, py + g.h) }); }
       else {
       F.push({ t: "poly", piece: "Diagonale entière", cls: "t-acier-plein", pts: barre([px, py], [px + g.w, py + g.h], s, r) });
@@ -920,7 +934,7 @@ function calculerGC(v) {
       R.debit.push({ nom: "Barreaux du soubassement", qte: g.nbS, mat, long: g.hb, coupes: `Coupes droites · vides égaux de ${fmt(g.videS, 1)} mm`, note: "Entre la traverse basse et la lisse intermédiaire", dessin: profil(rectPts(g.hb, s)) });
       morceaux.push({ qte: 1, long: g.Lc - 2 * s }, { qte: g.nbS, long: g.hb });
     }
-    if (n > 1) { R.debit.push({ nom: "Montants entre les croix", qte: n - 1, mat, long: g.h, coupes: "Coupes droites", note: g.sb ? "Entre la lisse intermédiaire et la traverse haute" : v.traverse ? "Entre les traverses du cadre" : "Entre les traverses", dessin: profil(rectPts(g.h, s)) }); morceaux.push({ qte: n - 1, long: g.h }); }
+    if (n > 1) { R.debit.push({ nom: Dec ? "Montants intermédiaires (entre les panneaux)" : "Montants entre les croix", qte: n - 1, mat, long: g.h, coupes: "Coupes droites", note: Dec ? `Entre les traverses, un entre deux panneaux du décor (panneaux de ${mmTxt(g.w)} mm)` : g.sb ? "Entre la lisse intermédiaire et la traverse haute" : v.traverse ? "Entre les traverses du cadre" : "Entre les traverses", dessin: profil(rectPts(g.h, s)) }); morceaux.push({ qte: n - 1, long: g.h }); }
     const rP = [0, 0, g.w, g.h];
     const diagEntiere = barre([0, 0], [g.w, g.h], s, rP);
     const nx = -Math.sin(alpha), ny = Math.cos(alpha);
@@ -948,7 +962,7 @@ function calculerGC(v) {
     if (v.rosace !== false) R.debit.push({ nom: `Rosaces Ø ${mmTxt(2 * rosaceR(v))}`, qte: n, mat: "Achetées", long: 0, coupes: "1 au centre de chaque croix", note: "" });
     if (xPattes.length) {
       const k = xPattes.length;
-      R.debit.push({ nom: `Patte${k > 1 ? "s" : ""} de scellement`, qte: k, mat, long: v.jour + PATTE.scel, coupes: `Coupe droite · soudée${k > 1 ? "s" : ""} sous ${k > 1 ? `${k} ${seuls ? "barreaux" : "montants"}` : `le ${seuls ? "barreau" : "montant"} du milieu`}`, note: `Scellée${k > 1 ? "s" : ""} de ${PATTE.scel} mm dans l'appui : trou Ø ${s + 2}, scellement chimique` });
+      R.debit.push({ nom: `Patte${k > 1 ? "s" : ""} de scellement`, qte: k, mat, long: v.jour + PATTE.scel, coupes: `Coupe droite · soudée${k > 1 ? "s" : ""} sous ${k > 1 ? `${k} ${sousP[1]}` : `le ${sousP[0]} du milieu`}`, note: `Scellée${k > 1 ? "s" : ""} de ${PATTE.scel} mm dans l'appui : trou Ø ${s + 2}, scellement chimique` });
       morceaux.push({ qte: k, long: v.jour + PATTE.scel });
       R.debit.push({ nom: "Scellement chimique (cartouche)", qte: 1, mat: "À acheter", long: 0, coupes: `Pour ${k > 1 ? `les ${k} pattes` : "la patte"}`, note: "Résine pour pierre tendre (tuffeau)" });
     }
@@ -1059,13 +1073,14 @@ function variantesConformes(v) {
     const base = calculerGC(v);
     if (!base.alertes.length) return [];
     const carres = [...new Set([v.s, 16, 18].filter((x) => x >= v.s && x <= 18))];
-    const croix = v.seuls ? [1] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], barreaux = v.seuls ? [0] : [0, 1, 2, 3, 4];
+    const dec = decorActif(v);
+    const croix = dec ? [1, 2, 3, 4] : v.seuls ? [1] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], barreaux = v.seuls || dec ? [0] : [0, 1, 2, 3, 4];
     const rf0 = v.renfort === "plat" ? "plat" : "sans";
     const tropSouple = v.mcType === "bois" && calculerGC({ ...v, s: 18, renfort: "sans", _rapide: true }).alertes.some((a) => a.startsWith("Solidité"));
     const renforts = tropSouple ? [...new Set([rf0, "plat"])] : [rf0];
     const vues = new Set(), out = [];
     for (const renfort of renforts) for (const sbMode of [...new Set([v.sbMode || "auto", "toujours"])]) for (const s of carres) for (const nP of croix) for (const nb of barreaux) for (const Hs of v.Hs >= MINI_GC ? [v.Hs, 0] : [0]) for (const traverse of [false, true]) {
-      if (v.seuls && (traverse || sbMode !== "auto")) continue;
+      if ((v.seuls || dec) && (traverse || sbMode !== "auto")) continue;
       if (traverse && nb > 0) continue;
       if (renfort !== rf0 && nb > 0) continue;
       const w = { ...v, s, nP, nb, Hs, sbMode, traverse, renfort, _rapide: true };
@@ -1089,7 +1104,7 @@ function variantesConformes(v) {
 function decrireVariante(v, c) {
     const d = [];
     const n0 = Math.max(1, Math.round(v.nP || 1));
-    if (c.w.nP !== n0) d.push(`${c.w.nP} croix au lieu de ${n0}`);
+    if (c.w.nP !== n0) d.push(decorActif(v) ? `décor en ${c.w.nP} panneau${c.w.nP > 1 ? "x" : ""} au lieu de ${n0}` : `${c.w.nP} croix au lieu de ${n0}`);
     if ((v.nb || 0) !== c.w.nb) d.push(c.w.nb ? `${c.w.nb} barreau${c.w.nb > 1 ? "x" : ""} verticaux à travers chaque croix` : "sans barreaux dans les croix");
     if (c.w.s !== v.s) d.push(`carré de ${c.w.s} au lieu de ${v.s}`);
     if (c.w.Hs !== v.Hs) d.push("hauteur calculée pour la norme");
@@ -1386,12 +1401,15 @@ const MT_ATELIER = {
   cimier: [150, 300],
   coinMax: 0.3,
   jeuBande: 3,
+  videEscalade: 95,
+  petiteHauteur: 220,
+  jeuVoisin: 5,
 };
 const MT_CHOIX = {
   assemblage: ["barreaux", "entre", "frise", "anneaux", "hauteur", "coeurs", "medaillon", "applique", "coins", "cimier", "appliquePlein"],
   forme: ["C", "S", "J", "coeur", "doubleC", "poste", "anneau"],
   bouts: ["droit", "effile", "bouton"],
-  liaison: ["soudure", "colliers"],
+  liaison: ["soudure"],
   barreaux: ["carre", "torsade", "bagues"],
   friseBasse: ["aucune", "postes"],
   pointes: ["aucune", "lance"],
@@ -1572,6 +1590,19 @@ const mtSansRef = (forme, assemblage) => `${MT_NOMS[forme] || forme} : aucune r�
 const mtSym = (i, n) => (n ? Math.min(i, n - 1 - i) : i);
 const mtDroite = (i, n) => (n ? i > (n - 1) / 2 : false);
 const mtSens = (i, n, alterne = true) => (n ? (alterne && mtSym(i, n) % 2 === 1) !== mtDroite(i, n) : alterne && i % 2 === 1);
+const mtPetite = (z, ch) => !ch.catalogue && !z.lib && mtHauteurMin(z) < MT_ATELIER.petiteHauteur;
+const mtCouchee = (k) => mtTourner(mtForme(k), Math.PI / 2);
+function mtBande(z, ch, F, pieces, q, debout) {
+  const lu = mtLuAxe(z), hB = mtHauteurMin(z) - 8, forme = (k) => { const d = mtForme(k), b = mtBoite(d), w = hB * (b.x1 - b.x0) / (b.y1 - b.y0); return debout && w + 2 >= 60 ? d : mtCouchee(k); };
+  const f = forme(ch.forme), bb = mtBoite(f), vmax = Math.min(z.vide || MT_ATELIER.vide, hB * (bb.x1 - bb.x0) / (bb.y1 - bb.y0) + 2);
+  const lib = mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch, vmax, undefined, undefined, lu), nL = lu ? lib.length : 0;
+  lib.forEach(([a, c], i) => {
+    if (mtSaute(ch, i, nL)) return;
+    const fo = mtFormeN(ch, i, nL), { yb, yh } = mtCase(z.bas, z.haut, a, c);
+    const m = mtCaser(fo === ch.forme ? f : forme(fo), a + 1, yb + 4, c - a - 2, yh - yb - 8, "centre", mtSens(i, nL));
+    if (mtVolute(m, fo, F, pieces, q, ch)) mtLiens(m, "gd", a, c, F, pieces, q, ch, z.barreau, z);
+  });
+}
 const mtLuAxe = (z) => { const W = z.x1 - z.x0; return Math.abs(z.haut(z.x1) - z.haut(z.x0)) <= 0.05 * W && Math.abs(z.bas(z.x1) - z.bas(z.x0)) <= 0.05 * W; };
 const mtSaute = (ch, i, n) => ch.rythme === "unSurDeux" && mtSym(i, n) % 2 === 1;
 const mtFormeN = (ch, i, n) => (ch.rythme === "alterne" && mtSym(i, n) % 2 === 1 && ch.forme2 ? ch.forme2 : ch.forme);
@@ -1603,10 +1634,15 @@ function mtBarreau(z, x, F, pieces, q, ch, y0, y1) {
   pieces.push({ nom: tors ? "Barreau torsadé" : "Barreau", mat: tors ? `Carré ${b} torsadé (acheté)` : `Carré plein ${b}`, long: L, kgM: mtKgM(b, b), peri: 4 * b, coupes: Math.abs(bas(x) - bas(x + b)) > 1 ? "Coupes d'onglet à la pente" : "Coupes droites", note: tors ? "Acheté torsadé (60 % de la longueur)" : "", groupe: "Remplissage" });
   q.soudures = (q.soudures || 0) + 2;
 }
+function mtCompteBarreaux(z, a, b, vmax) {
+  vmax = Math.min(vmax || z.vide || MT_ATELIER.vide, z.videMax || Infinity);
+  if (z.norme && z.norme.escalade && vmax <= 110) vmax = Math.min(vmax, MT_ATELIER.videEscalade);
+  const B = z.barreau || MT_ATELIER.barreau;
+  return Math.max(0, Math.ceil((b - a - vmax) / (B + vmax)));
+}
 function mtBarreaux(z, a, b, F, pieces, q, ch, vmax, y0, y1, pair = false) {
   if (z.lib) return z.lib;
-  vmax = Math.min(vmax || z.vide || MT_ATELIER.vide, z.videMax || Infinity);
-  const B = z.barreau || MT_ATELIER.barreau, n0 = Math.max(0, Math.ceil((b - a - vmax) / (B + vmax))), n = pair && n0 % 2 === 0 ? n0 + 1 : n0, v = (b - a - n * B) / (n + 1);
+  const B = z.barreau || MT_ATELIER.barreau, n0 = mtCompteBarreaux(z, a, b, vmax), n = pair && n0 % 2 === 0 ? n0 + 1 : n0, v = (b - a - n * B) / (n + 1);
   for (let i = 0; i < n; i++) mtBarreau(z, a + v + i * (v + B), F, pieces, q, ch, y0, y1);
   q.vide = Math.max(q.vide || 0, v);
   return Array.from({ length: n + 1 }, (_, i) => [a + i * (v + B), a + i * (v + B) + v]);
@@ -1644,22 +1680,20 @@ function mtVolute(traits, forme, F, pieces, q, ch, devant = false, cat = null) {
   q.longueurVolutes = (q.longueurVolutes || 0) + longueur;
   return true;
 }
-function mtLien(F, pieces, q, ch, r, soude = false) {
+function mtLien(F, pieces, q, ch, r) {
   q.liens = q.liens || [];
   if (q.liens.some((l) => Math.abs(l[0] - r[0]) < 3 && Math.abs(l[1] - r[1]) < 12)) return;
   q.liens.push(r);
-  if (ch.liaison !== "colliers" || soude) { q.soudures = (q.soudures || 0) + 1; return; }
-  const [x, y, w, h] = r, C = MT_ATELIER.collier;
-  mtPoly(F, [[x, y], [x + w, y], [x + w, y + h], [x, y + h]], "Colliers", ch.dore ? "or" : "collier");
-  pieces.push({ nom: "Collier", mat: `Fer plat ${C.b} × ${C.e}`, long: 2 * (Math.max(w, h) + 20) + 2 * MT_ATELIER.volute.b, kgM: mtKgM(C.b, C.e), peri: 2 * (C.b + C.e), coupes: "Coupe droite, serré à chaud", note: "", groupe: "Décor" });
-  q.colliers = (q.colliers || 0) + 1;
+  q.soudures = (q.soudures || 0) + 1;
+  q.pointsSoudes = (q.pointsSoudes || 0) + 1;
 }
 function mtLiens(m, cotes, a, c, F, pieces, q, ch, B = MT_ATELIER.barreau, z = null) {
   const pts = m.flat(), H = MT_ATELIER.collier.h, e = MT_ATELIER.epVue + 4;
   const g = pts.reduce((r, p) => (p[0] < r[0] ? p : r)), d = pts.reduce((r, p) => (p[0] > r[0] ? p : r));
   const h = pts.reduce((r, p) => (p[1] > r[1] ? p : r)), b = pts.reduce((r, p) => (p[1] < r[1] ? p : r));
-  if (cotes.includes("g")) mtLien(F, pieces, q, ch, [a - B - e, g[1] - H / 2, B + 2 * e, H], !!z && Math.abs(a - z.x0) < 0.5);
-  if (cotes.includes("d")) mtLien(F, pieces, q, ch, [c - e, d[1] - H / 2, B + 2 * e, H], !!z && Math.abs(c - z.x1) < 0.5);
+  void z;
+  if (cotes.includes("g")) mtLien(F, pieces, q, ch, [a - B - e, g[1] - H / 2, B + 2 * e, H]);
+  if (cotes.includes("d")) mtLien(F, pieces, q, ch, [c - e, d[1] - H / 2, B + 2 * e, H]);
   if (cotes.includes("h")) mtLien(F, pieces, q, ch, [h[0] - H / 2, h[1] - e, H, e + 20]);
   if (cotes.includes("b")) mtLien(F, pieces, q, ch, [b[0] - H / 2, b[1] - 20, H, e + 20]);
 }
@@ -1678,6 +1712,7 @@ const mtCase = (bas, haut, a, c) => ({ yb: Math.max(bas(a), bas(c)), yh: Math.mi
 const MT_ASSEMBLAGES = {
   barreaux: (z, ch, F, pieces, q) => { mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch); },
   entre: (z, ch, F, pieces, q) => {
+    if (mtPetite(z, ch)) return mtBande(z, ch, F, pieces, q, false);
     const B = z.barreau || MT_ATELIER.barreau;
     const lu = mtLuAxe(z), cat = ch.catalogue && !z.lib ? mtRefVides(ch.forme, "entre", z.x1 - z.x0, B, Math.min(MT_ATELIER.voluteMax, mtHauteurMin(z) - 8), undefined, lu) : null;
     const lib = mtBarreaux(cat ? { ...z, videMax: 0 } : z, z.x0, z.x1, F, pieces, q, ch, cat ? cat.v * (1 + 1e-6) : undefined, undefined, undefined, lu);
@@ -1694,9 +1729,12 @@ const MT_ASSEMBLAGES = {
         traits = mtFormeRef(k.e); h = k.e.h * k.s;
       } else traits = mtForme(forme);
       const y = ch.pos === "bas" ? yb + 4 : ch.pos === "milieu" ? (yb + yh - h) / 2 : yh - 4 - h;
-      let m = mtCaser(traits, a + 1, y, c - a - 2, h, ch.pos === "bas" ? "bas" : ch.pos === "milieu" ? "centre" : "haut", mtSens(i, nL));
+      const sens = mtSens(i, nL);
+      let m = mtCaser(traits, a + 1, y, c - a - 2, h, ch.pos === "bas" ? "bas" : ch.pos === "milieu" ? "centre" : "haut", sens);
+      const crosse = forme === "J" && !k;
+      if (crosse) { const bm = mtBoite(m); m = mtDecaler(m, sens ? c - 1 - bm.x1 : a + 1 - bm.x0, 0); }
       if (courbe && ch.pos === "haut") m = mtContreHaut(m, z.haut, 4);
-      if (mtVolute(m, forme, F, pieces, q, ch, false, k)) mtLiens(m, "gd", a, c, F, pieces, q, ch, z.barreau, z);
+      if (mtVolute(m, forme, F, pieces, q, ch, false, k)) mtLiens(m, crosse ? (sens ? "d" : "g") : "gd", a, c, F, pieces, q, ch, z.barreau, z);
     });
   },
   frise: (z, ch, F, pieces, q) => {
@@ -1767,9 +1805,17 @@ const MT_ASSEMBLAGES = {
     if (!plein && !lanceP) mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch, 0, z.bas, (x) => dessusLisse(x) - L.b);
   },
   hauteur: (z, ch, F, pieces, q) => {
+    if (mtPetite(z, ch)) return mtBande(z, ch, F, pieces, q, true);
     const B = z.barreau || MT_ATELIER.barreau, esc = z.norme && z.norme.escalade;
     const lu = mtLuAxe(z), cat = ch.catalogue && !esc ? mtRefVides(ch.forme, "hauteur", z.x1 - z.x0, B, mtHauteurMin(z) - 4, MT_ATELIER.voluteMax, lu) : null;
-    const lib = mtBarreaux(cat ? { ...z, videMax: 0 } : z, z.x0, z.x1, F, pieces, q, ch, cat ? cat.v * (1 + 1e-6) : z.norme && z.norme.escalade ? 0 : z.videGrille || MT_ATELIER.videGrille, undefined, undefined, lu), f = mtForme(ch.forme), bb = mtBoite(f);
+    const f = mtForme(ch.forme), bb = mtBoite(f), r = (bb.y1 - bb.y0) / (bb.x1 - bb.x0);
+    let vG = esc ? 0 : z.videGrille || MT_ATELIER.videGrille, nVoulu = 0;
+    if (lu && !esc && !cat && !ch.catalogue && !z.lib) {
+      const W = z.x1 - z.x0, H = mtHauteurMin(z), n0 = mtCompteBarreaux(z, z.x0, z.x1, vG), nb = n0 % 2 === 0 ? n0 + 1 : n0, v0 = (W - nb * B) / (nb + 1), h1 = (v0 - 2) * r;
+      const n = Math.max(1, Math.round(H / h1));
+      if (H / n < h1 - 0.5) { vG = (H / n - 2) / r + 2; nVoulu = n; }
+    }
+    const lib = mtBarreaux(cat ? { ...z, videMax: 0 } : z, z.x0, z.x1, F, pieces, q, ch, cat ? cat.v * (1 + 1e-6) : vG, undefined, undefined, lu);
     if (ch.catalogue && !cat) { mtRefus(q, MT_NOMS[ch.forme], mtSansRef(ch.forme, "hauteur")); return; }
     const nL = lu ? lib.length : 0;
     lib.forEach(([a, c], i) => {
@@ -1788,7 +1834,7 @@ const MT_ASSEMBLAGES = {
         return;
       }
       if (yh - yb < h1 * 0.6) return;
-      const n = Math.max(1, Math.round((yh - yb) / h1)), ph = (yh - yb) / n;
+      const n = nVoulu || Math.max(1, Math.round((yh - yb) / h1)), ph = (yh - yb) / n;
       for (let k = 0; k < n; k++) {
         const forme = mtFormeN(ch, mtSym(i, nL) + k);
         const m = mtCaser(forme === ch.forme ? f : mtForme(forme), a + 1, yb + k * ph + 1, c - a - 2, ph - 2, "centre", mtSens(i, nL) !== (k % 2 === 1));
@@ -1797,17 +1843,27 @@ const MT_ASSEMBLAGES = {
     });
   },
   anneaux: (z, ch, F, pieces, q) => {
+    if (mtPetite(z, ch)) {
+      const lib = mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch, Math.min(z.vide || MT_ATELIER.vide, mtHauteurMin(z)), undefined, undefined, mtLuAxe(z));
+      lib.forEach(([a, c], i) => {
+        if (mtSaute(ch, i, lib.length)) return;
+        const { yb, yh } = mtCase(z.bas, z.haut, a, c), m = mtCaser(mtForme("anneau"), a + 1, yb + 1, c - a - 2, yh - yb - 2);
+        if (mtVolute(m, "anneau", F, pieces, q, ch)) mtLiens(m, "gdhb", a, c, F, pieces, q, ch, z.barreau, z);
+      });
+      return;
+    }
     const B = z.barreau || MT_ATELIER.barreau, cat = ch.catalogue ? mtRefVides("anneau", "anneaux", z.x1 - z.x0, B, Infinity, 100) : null;
     const lib = mtBarreaux(cat ? { ...z, videMax: 0 } : z, z.x0, z.x1, F, pieces, q, ch, cat ? cat.v * (1 + 1e-6) : undefined), v = lib[0][1] - lib[0][0], L = MT_ATELIER.lisseFrise;
     if (ch.catalogue && !cat) { mtRefus(q, MT_NOMS.anneau, mtSansRef("anneau", "anneaux")); return; }
-    const yL = (x) => z.haut(x) - v - 2, courbe = mtCourbe(z);
+    const lu = mtLuAxe(z), pente = (z.haut(z.x1) - z.haut(z.x0)) / (z.x1 - z.x0), rampe = !lu && !cat && !z.lib;
+    const yL = rampe ? (x) => z.haut(x) - (v + 2) * Math.hypot(1, pente) : (x) => z.haut(x) - v - 2, courbe = mtCourbe(z);
     mtLisse(z, yL, F, pieces, ch, "Lisse de frise");
     lib.forEach(([a, c], i) => {
       if (mtSaute(ch, i, lib.length)) return;
       const { yb, yh } = mtCase(yL, z.haut, a, c);
-      let m = mtCaser(mtForme("anneau"), a + 1, yb + 1, c - a - 2, cat ? cat.e.h * cat.s : yh - yb - 2);
-      if (courbe || cat) m = mtDansBande(m, yL, z.haut, 1, 1, cat ? (1 - MT_ATELIER.reprise) / cat.s : 0.5);
-      if (mtVolute(m, "anneau", F, pieces, q, ch, false, cat)) mtLiens(m, "gdhb", a, c, F, pieces, q, ch, z.barreau, z);
+      let m = mtCaser(mtForme("anneau"), a + 1, yb + 1, c - a - 2, cat ? cat.e.h * cat.s : rampe ? c - a - 2 : yh - yb - 2);
+      if (courbe || cat || rampe) m = mtDansBande(m, yL, z.haut, 1, 1, cat ? (1 - MT_ATELIER.reprise) / cat.s : 0.5);
+      if (mtVolute(m, "anneau", F, pieces, q, ch, false, cat)) mtLiens(m, rampe ? "gd" : "gdhb", a, c, F, pieces, q, ch, z.barreau, z);
     });
     void L;
   },
@@ -1817,7 +1873,8 @@ const MT_ASSEMBLAGES = {
       const hz = ch.catalogue ? mtHauteurMin(z) - 10 : 0;
       const cat = ch.catalogue ? mtRefVides("coeur", "coeurs", z.x1 - z.x0, B, hz, Math.min(hz, 1.4 * (2 * v0 + B))) : null;
       if (ch.catalogue && !cat) { mtRefus(q, MT_NOMS.coeur, mtSansRef("coeur", "coeurs")); mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch); return; }
-      mtBarreaux(cat ? { ...z, videMax: 0 } : z, z.x0, z.x1, F, pieces, q, ch, cat ? cat.v * (1 + 1e-6) : 2 * v0 + B).forEach(([a, c], i, L) => {
+      const fC = mtBoite(mtForme("coeur")), wC = (mtHauteurMin(z) - 10) * (fC.x1 - fC.x0) / (fC.y1 - fC.y0) + 2;
+      mtBarreaux(cat ? { ...z, videMax: 0 } : z, z.x0, z.x1, F, pieces, q, ch, cat ? cat.v * (1 + 1e-6) : Math.min(2 * v0 + B, wC)).forEach(([a, c], i, L) => {
         if (mtSaute(ch, i, L.length)) return;
         const cs = mtCase(z.bas, z.haut, a, c), hh = cat ? cat.e.h * cat.s : Math.min(cs.yh - cs.yb - 10, 1.4 * (c - a));
         const m = mtCaser(cat ? mtFormeRef(cat.e) : mtForme("coeur"), a + 1, cs.yb + (cs.yh - cs.yb - hh) / 2, c - a - 2, hh);
@@ -1845,6 +1902,15 @@ const MT_ASSEMBLAGES = {
     if (k) { hh = k.e.h * k.s; w = hh * (bb.x1 - bb.x0) / (bb.y1 - bb.y0); }
     const y = yb + (H - hh) * 0.62, e = MT_ATELIER.epVue + 4, Hc = MT_ATELIER.collier.h;
     if (z.norme || z.lib) {
+      if (mtPetite(z, ch)) {
+        const lib = mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch, undefined, undefined, undefined, true), v = lib[0][1] - lib[0][0];
+        const asp = (bb.y1 - bb.y0) / (bb.x1 - bb.x0), jeu = MT_ATELIER.jeuVoisin + MT_ATELIER.epVue * 0.62 + 1;
+        const wP = Math.min((H - 12) / asp, 2 * v + B - 2 * jeu), hP = wP * asp, m = mtCaser(f, cx - wP / 2, yb + (H - hP) / 2, wP, hP), bm = mtBoite(m);
+        if (!mtVolute(m, forme, F, pieces, q, ch, true)) return;
+        mtLien(F, pieces, q, ch, [cx - B / 2 - 4, bm.y0 + 2, B + 8, Hc]);
+        if (bm.y1 - bm.y0 > 40) mtLien(F, pieces, q, ch, [cx - B / 2 - 4, bm.y1 - Hc - 2, B + 8, Hc]);
+        return;
+      }
       const lib = mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch), xs = lib.slice(0, -1).map(([, c]) => c), pas = lib.length > 1 ? lib[1][0] - lib[0][0] : z.x1 - z.x0;
       const asp = (bb.y1 - bb.y0) / (bb.x1 - bb.x0), wN = k ? w : Math.min(Math.max(w, 2 * pas + 8), (z.x1 - z.x0) * 0.8, (H - 20) / asp), hN = wN * asp, yN = yb + (H - hN) * 0.62;
       const m = mtCaser(f, cx - wN / 2, yN, wN, hN), bm = mtBoite(m);
@@ -1865,9 +1931,10 @@ const MT_ASSEMBLAGES = {
     mtLien(F, pieces, q, ch, [cx - B / 2 - e, bm.y1 - (bm.y1 - bm.y0) * 0.16 - Hc / 2, B + 2 * e, Hc]);
   },
   applique: (z, ch, F, pieces, q) => {
-    const B = z.barreau || MT_ATELIER.barreau, lib = mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch), xs = lib.slice(0, -1).map(([, c]) => c);
+    const petite = mtPetite(z, ch), B = z.barreau || MT_ATELIER.barreau, deux = !petite && !z.lib && mtCompteBarreaux(z, z.x0, z.x1) === 2;
+    const lib = mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch, undefined, undefined, undefined, deux), xs = lib.slice(0, -1).map(([, c]) => c);
     if (!xs.length) return;
-    const v = lib[0][1] - lib[0][0], f = mtForme(ch.forme), bb = mtBoite(f), pas = 3, debut = [0, 1, 2].find((d) => (2 * d) % pas === (xs.length - 1) % pas), axe = (z.x0 + z.x1) / 2;
+    const v = lib[0][1] - lib[0][0], f = mtForme(ch.forme), bb = mtBoite(f), pas = petite ? 1 : 3, debut = petite ? 0 : [0, 1, 2].find((d) => (2 * d) % pas === (xs.length - 1) % pas), axe = (z.x0 + z.x1) / 2;
     const nM = Math.floor((xs.length - 1 - debut) / pas) + 1, lu = mtLuAxe(z);
     xs.forEach((x, i) => {
       if ((i - debut) % pas) return;
@@ -1876,13 +1943,14 @@ const MT_ASSEMBLAGES = {
       const forme = centre ? mtFormeAxe(mtFormeN(ch, j, nM)) : mtFormeN(ch, j, nM), { yb, yh } = mtCase(z.bas, z.haut, x - v, x + B + v);
       let fi = forme === ch.forme ? f : mtForme(forme), k = null;
       const bi = forme === ch.forme ? bb : mtBoite(fi);
-      let w = 2 * v + B * 1.6, h = Math.min(w * (bi.y1 - bi.y0) / (bi.x1 - bi.x0), yh - yb - 16);
+      let w = petite ? 2 * v + B - 2 * (MT_ATELIER.jeuVoisin + MT_ATELIER.epVue * 0.62 + 1) : 2 * v + B * 1.6, h = Math.min(w * (bi.y1 - bi.y0) / (bi.x1 - bi.x0), yh - yb - (petite ? 12 : 16));
+      if (petite) w = Math.min(w, h * (bi.x1 - bi.x0) / (bi.y1 - bi.y0));
       if (ch.catalogue) {
         k = mtRef(forme, "applique", { hMax: yh - yb - 16, viserL: w });
         if (!k) { mtRefus(q, MT_NOMS[forme], mtSansRef(forme, "applique")); return; }
         fi = mtFormeRef(k.e); w = k.e.l * k.s; h = k.e.h * k.s;
       }
-      const yc = Math.min(yb + (yh - yb) * 0.62, yh - h / 2 - 8);
+      const yc = petite ? (yb + yh) / 2 : Math.min(yb + (yh - yb) * 0.62, yh - h / 2 - 8);
       const m = mtCaser(fi, x + B / 2 - w / 2, yc - h / 2, w, h, "centre", lu && !MT_SYMETRIQUES.includes(forme) && x + B / 2 > axe + 0.5);
       if (!mtVolute(m, forme, F, pieces, q, ch, true, k)) return;
       mtLien(F, pieces, q, ch, [x - 4, yc - 7, B + 8, 14]);
@@ -1898,7 +1966,7 @@ const MT_ASSEMBLAGES = {
     for (const droite of [false, true]) {
       const m = mtContreHaut(mtCaser(f, droite ? z.x1 - 2 - wC : z.x0 + 2, z.bas(z.x0), wC, hC, "bas", droite), z.haut, 2);
       if (!mtVolute(m, ch.forme, F, pieces, q, ch, true, k)) continue;
-      q.soudures = (q.soudures || 0) + 2;
+      q.soudures = (q.soudures || 0) + 2; q.pointsSoudes = (q.pointsSoudes || 0) + 2;
       const bm = mtBoite(m);
       xs.filter((x) => x + B > bm.x0 + 4 && x < bm.x1 - 4).forEach((x) => {
         const pts = m.flat().filter(([px]) => px > x - 2 && px < x + B + 2);
@@ -1933,7 +2001,7 @@ const MT_ASSEMBLAGES = {
       const m0 = mtCaser(Mi.f, x0 + i * (wm + g) + (wm - Mi.w) / 2, 0, Mi.w, Mi.h, "bas", mtDroite(i, n));
       const m = mtDecaler(m0, 0, -mtEcart(m0, yC, 1));
       if (!mtVolute(m, fo, F, pieces, q, ch, false, Mi.k)) continue;
-      q.soudures = (q.soudures || 0) + 2; nPose++;
+      q.soudures = (q.soudures || 0) + 2; q.pointsSoudes = (q.pointsSoudes || 0) + 2; nPose++;
       hMaxi = Math.max(hMaxi, -mtEcart(m, yC, -1));
     }
     if (nPose) q.cimier = { h: Math.round(hMaxi), n: nPose };
@@ -1960,7 +2028,7 @@ const MT_ASSEMBLAGES = {
       const deux = mtFormeN(ch, i, xs.length) !== ch.forme && M2 !== M1, fo0 = deux ? ch.forme2 : ch.forme;
       const surAxe = Math.abs(x - cx) < 0.5 && !MT_SYMETRIQUES.includes(fo0), fo = surAxe ? mtFormeAxe(fo0) : fo0, Mi = surAxe ? motif(fo) || (deux ? M2 : M1) : deux ? M2 : M1;
       const m = mtCaser(Mi.f, x - Mi.w / 2, (yb + yh - Mi.h) / 2, Mi.w, Mi.h, "centre", mtDroite(i, xs.length));
-      if (mtVolute(m, fo, F, pieces, q, ch, true, Mi.k)) q.soudures = (q.soudures || 0) + 4;
+      if (mtVolute(m, fo, F, pieces, q, ch, true, Mi.k)) { q.soudures = (q.soudures || 0) + 4; q.pointsSoudes = (q.pointsSoudes || 0) + 4; }
     });
   },
 };
@@ -1970,7 +2038,7 @@ function mtChoix(c = {}) {
   const pick = (k, def) => (MT_CHOIX[k].includes(c[k]) ? c[k] : def);
   const assemblage = pick("assemblage", "entre"), avec = MT_AVEC[assemblage];
   const forme = avec.length ? (avec.includes(c.forme) ? c.forme : avec[0]) : null;
-  const ch = { assemblage, forme, bouts: pick("bouts", "bouton"), liaison: pick("liaison", "colliers"), barreaux: pick("barreaux", "carre"), friseBasse: pick("friseBasse", "aucune"), pointes: pick("pointes", "aucune"), dore: c.dore === true, fab: c.fab === "forge" ? "forge" : "achat" };
+  const ch = { assemblage, forme, bouts: pick("bouts", "bouton"), liaison: "soudure", barreaux: pick("barreaux", "carre"), friseBasse: pick("friseBasse", "aucune"), pointes: pick("pointes", "aucune"), dore: c.dore === true, fab: c.fab === "forge" ? "forge" : "achat" };
   ch.pos = pick("pos", "haut"); ch.rythme = pick("rythme", "tous");
   ch.forme2 = avec.length ? (avec.includes(c.forme2) && c.forme2 !== forme ? c.forme2 : avec.find((f) => f !== forme) || forme) : null;
   ch.catalogue = c.catalogue === true;
@@ -2142,8 +2210,8 @@ function mtGrilleAppui(G, cS) {
   }
   return null;
 }
-export const DEFAUTS_GC = Object.freeze({"prixVente":0,"km":30,"debitAr":8,"minSoud":1.2,"rnP":14,"rnJ":1,"nF":2,"dF":6.5,"fF":13,"eF":25,"tMur":150,"eMur":450,"epMc":8,"L":2000,"l":1000,"H":750,"e":45,"a":80,"ep":3,"t":3,"pL":75,"pl":60,"pX":80,"rX":250,"tS":300,"tW":120,"pR":60,"bR":300,"lame":150,"latte":120,"jeu":8,"trait":3,"B":1180,"A":650,"Hs":0,"Hf":0,"s":16,"mc":40,"j":1,"jour":90,"nP":1,"nb":0,"rD":100,"Xo":0,"Hm":2600,"recul":0,"Wm":900,"lh":150,"lw":100,"le":5,"em":50,"nez":0,"hs":80,"tp":8,"plx":200,"ply":150,"tpp":10,"epl":200,"ptP":3500,"ptH":1600,"ptFleche":150,"ptHSoub":500,"ptPente":0,"ass":"droit","mur":"","etage":true,"rosace":true,"traverse":false,"mcType":"bois","sbMode":"auto","seuls":false,"decor":"aucun","decorForme":"C","decorBouts":"bouton","decorLiaison":"colliers","decorBarreaux":"carre","decorFriseBasse":"aucune","decorDore":"0","renfort":"sans","patte":0,"essence":"chene","remise":"retrait","essenceT":"chene","teinte":"noir","rainure":true,"ptMat":"alu","ptForme":"droit","ptSoub":"aucun","ptRemp":"plein","ptVantaux":"2","ptRep":"egal","ptGuidage":"rail","ptSens":"gauche","ptPoteaux":"existants","ptPointes":false,"ptLisse":false,"ptMoteur":false,"jourAuto":true,"jourSaisi":90});
+export const DEFAUTS_GC = Object.freeze({"prixVente":0,"km":30,"debitAr":8,"minSoud":1.2,"rnP":14,"rnJ":1,"nF":2,"dF":6.5,"fF":13,"eF":25,"tMur":150,"eMur":450,"epMc":8,"L":2000,"l":1000,"H":750,"e":45,"a":80,"ep":3,"t":3,"pL":75,"pl":60,"pX":80,"rX":250,"tS":300,"tW":120,"pR":60,"bR":300,"lame":150,"latte":120,"jeu":8,"trait":3,"B":1180,"A":650,"Hs":0,"Hf":0,"s":16,"mc":40,"j":1,"jour":90,"nP":1,"nb":0,"rD":100,"Xo":0,"Hm":2600,"recul":0,"Wm":900,"lh":150,"lw":100,"le":5,"em":50,"nez":0,"hs":80,"tp":8,"plx":200,"ply":150,"tpp":10,"epl":200,"ptP":3500,"ptH":1600,"ptFleche":150,"ptHSoub":500,"ptPente":0,"ass":"droit","mur":"","etage":true,"rosace":true,"traverse":false,"mcType":"bois","sbMode":"auto","seuls":false,"decor":"aucun","decorForme":"C","decorBouts":"bouton","decorBarreaux":"carre","decorFriseBasse":"aucune","decorDore":"0","renfort":"sans","patte":0,"essence":"chene","remise":"retrait","essenceT":"chene","teinte":"noir","rainure":true,"ptMat":"alu","ptForme":"droit","ptSoub":"aucun","ptRemp":"plein","ptVantaux":"2","ptRep":"egal","ptGuidage":"rail","ptSens":"gauche","ptPoteaux":"existants","ptDecor":"aucun","ptBouts":"effile","ptBarreauxDeco":"carre","ptPointes":false,"ptLisse":false,"ptMoteur":false,"jourAuto":true,"jourSaisi":90});
 export const BORNES_GC = Object.freeze({ B: Object.freeze({"min":300,"max":3000}), A: Object.freeze({"min":0,"max":1200}), Hf: Object.freeze({"min":0,"max":3000}) });
-export const EMPREINTE_SOURCE = "8152166654fd7faa6689367e5e424972dd8241604ec6fe029db6fbb506f2db09";
+export const EMPREINTE_SOURCE = "a81d98d0a366b8f5875cd2b69b29e0e4ea415a91c5df2d90caaff8621ff01c98";
 export { ALLEGE_LIBRE, BARRE_APPUI, CIBLE_MARGE, DECOR_NOMS, DS_ESSENCES, HAUT_ETAGE, LIMITE_ACIER, MARGE_BOULE, MINI_GC, MINI_SEULS, MT_AVEC, MT_CHOIX, MT_NOMS, RENFORT, ROSACE_R, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, coupeMainCourante, decorActif, decrireVariante, fmt, geomGC, mmTxt, mtAlleger, planA3Pur, svgDe, variantesConformes };
-export const EMPREINTE = "1e7ae79f8103";
+export const EMPREINTE = "e8a30d087fb2";

@@ -114,7 +114,7 @@ export async function GET(request: Request) {
     // Le modèle choisi : « 16-3 ». Illisible : refusé. Non conforme : le calcul le refuse plus bas.
     const modele = p.get("modele");
     if (modele !== null && !lireModeleGC(modele)) return NextResponse.json({ error: "invalid" }, { status: 400 });
-    // Le décor à volutes : « frise.S.bouton.colliers.carre.aucune.0 ». Illisible : refusé. Il remplace le modèle.
+    // Le décor à volutes : « frise.S.bouton.soudure.carre.aucune.0 ». Illisible : refusé. Il remplace le modèle.
     const decorBrut = p.get("decor");
     const decor = decorBrut === null ? null : lireDecorGC(decorBrut);
     if (decorBrut !== null && !decor) return NextResponse.json({ error: "invalid" }, { status: 400 });

@@ -60,7 +60,7 @@ export type ConfigMemo = {
   gcMur?: string;
   /** Le modèle choisi (« 16-5-b »), tel que lireModeleGC le reconnaît. */
   gcModele?: string;
-  /** Le décor à volutes choisi (« frise.S.bouton.colliers.carre.aucune.0 »), tel que lireDecorGC le reconnaît. */
+  /** Le décor à volutes choisi (« frise.S.bouton.soudure.carre.aucune.0 »), tel que lireDecorGC le reconnaît. */
   gcDecor?: string;
   /**
    * Le mur des tableaux POUR LA FIXATION (un code de MURS_FIXATION_GC : « beton », « tuffeau »…) et ses cotes en mm — la

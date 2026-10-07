@@ -283,7 +283,7 @@ export type ReleveGC = MurReleveGC & {
   fenetreMm: number;
   /**
    * Le DÉCOR À VOLUTES choisi (bibliothèque de styles de l'outil, 06/10/2026), son identifiant (idDecorGC, lu par
-   * lireDecorGC) : « frise.S.bouton.colliers.carre.aucune.0 ». Il remplace les croix : le cadre est celui des barreaux
+   * lireDecorGC) : « frise.S.bouton.soudure.carre.aucune.0 ». Il remplace les croix : le cadre est celui des barreaux
    * seuls, le modèle (ci-dessous) est alors ignoré. Absent : pas de décor. Le serveur le revérifie toujours sur le dessin
    * de l'outil : un décor que la norme refuse ne donne ni prix ni commande.
    */
@@ -342,7 +342,7 @@ export type ChoixDecorGC = {
   dore: boolean;
 };
 
-/** L'identifiant d'un décor, tel qu'il voyage (adresse, panier, commande) : « entre.C.bouton.colliers.carre.aucune.0 ». */
+/** L'identifiant d'un décor, tel qu'il voyage (adresse, panier, commande) : « entre.C.bouton.soudure.carre.aucune.0 ». */
 export function idDecorGC(c: ChoixDecorGC): string {
   return [c.assemblage, c.forme, c.bouts, c.liaison, c.barreaux, c.friseBasse, c.dore ? "1" : "0"].join(".");
 }
@@ -358,7 +358,9 @@ export function lireDecorGC(t: unknown): ChoixDecorGC | null {
   if (typeof t !== "string" || t.length > DECOR_MAX_SIGNES) return null;
   const morceaux = t.split(".");
   if (morceaux.length !== 7) return null;
-  const [assemblage, forme, bouts, liaison, barreaux, friseBasse, dore] = morceaux;
+  const [assemblage, forme, bouts, liaisonLue, barreaux, friseBasse, dore] = morceaux;
+  // Les colliers ne sont plus proposés (Quentin, 07/10/2026 : soudure seulement) : un lien ou un favori d'avant se relit en soudure.
+  const liaison = liaisonLue === "colliers" && !(DECORS_GC.liaisons as readonly { id: string }[]).some((o) => o.id === "colliers") ? "soudure" : liaisonLue;
   const dans = <T extends string>(liste: readonly { id: T }[], x: string): x is T => liste.some((o) => o.id === x);
   const a = DECORS_GC.assemblages.find((o) => o.id === assemblage)?.id;
   if (!a || !(DECORS_GC.formes[a] as readonly string[]).includes(forme)) return null;

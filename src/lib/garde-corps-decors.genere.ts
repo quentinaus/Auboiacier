@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Le décor à volutes du garde-corps : assemblages, formes permises (MT_AVEC), noms de l'outil (DECOR_NOMS, MT_NOMS, ses boutons). SANS coûts.
-// Source : l'outil de plans (plans-atelier.html), sha256 8152166654fd7faa6689367e5e424972dd8241604ec6fe029db6fbb506f2db09
+// Source : l'outil de plans (plans-atelier.html), sha256 a81d98d0a366b8f5875cd2b69b29e0e4ea415a91c5df2d90caaff8621ff01c98
 /* eslint-disable */
 export type AssemblageDecorGC = "entre" | "frise" | "anneaux" | "hauteur" | "coeurs" | "medaillon" | "applique";
 export type FormeDecorGC = "C" | "S" | "J" | "coeur" | "doubleC" | "poste" | "anneau";
@@ -16,7 +16,7 @@ export const DECORS_GC: {
   formes: Readonly<Record<AssemblageDecorGC, readonly FormeDecorGC[]>>;
   nomsFormes: Readonly<Record<FormeDecorGC, string>>;
   bouts: readonly { id: "bouton" | "effile" | "droit"; nom: string }[];
-  liaisons: readonly { id: "colliers" | "soudure"; nom: string }[];
+  liaisons: readonly { id: "soudure"; nom: string }[];
   barreaux: readonly { id: "carre" | "torsade" | "bagues"; nom: string }[];
   frisesBasses: readonly { id: "aucune" | "postes"; nom: string }[];
 } = geler({
@@ -106,10 +106,6 @@ export const DECORS_GC: {
   }
  ],
  "liaisons": [
-  {
-   "id": "colliers",
-   "nom": "Colliers"
-  },
   {
    "id": "soudure",
    "nom": "Soudées"

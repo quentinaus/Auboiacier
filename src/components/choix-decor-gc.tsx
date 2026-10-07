@@ -129,14 +129,16 @@ export function ChoixDecorGC({
   const lignes: { titre: string; valeur: string; options: { id: string; nom: string }[]; choisir: (v: string) => void }[] = [
     // Les anneaux n'ont pas de bouts : la ligne ne s'affiche que pour les volutes.
     ...(choix.assemblage === "anneaux" ? [] : [{ titre: fr ? "Bouts des volutes" : "Scroll ends", valeur: choix.bouts, options: [...DECORS_GC.bouts], choisir: (v: string) => changer({ bouts: v as ChoixDecorGC["bouts"] }) }]),
-    { titre: fr ? "Assemblage" : "Joints", valeur: choix.liaison, options: [...DECORS_GC.liaisons], choisir: (v: string) => changer({ liaison: v as ChoixDecorGC["liaison"] }) },
+    // L'assemblage : la soudure seule (Quentin, 07/10/2026 : « uniquement soudure, on propose pas » les colliers) ; la ligne ne
+    // revient que si l'outil propose un jour plus d'une liaison.
+    ...(DECORS_GC.liaisons.length > 1 ? [{ titre: fr ? "Assemblage" : "Joints", valeur: choix.liaison, options: [...DECORS_GC.liaisons], choisir: (v: string) => changer({ liaison: v as ChoixDecorGC["liaison"] }) }] : []),
     { titre: fr ? "Barreaux" : "Bars", valeur: choix.barreaux, options: [...DECORS_GC.barreaux], choisir: (v: string) => changer({ barreaux: v as ChoixDecorGC["barreaux"] }) },
     { titre: fr ? "Frise basse" : "Lower frieze", valeur: choix.friseBasse, options: [...DECORS_GC.frisesBasses], choisir: (v: string) => changer({ friseBasse: v as ChoixDecorGC["friseBasse"] }) },
     { titre: fr ? "Rehauts dorés" : "Gilded accents", valeur: choix.dore ? "1" : "0", options: [{ id: "0", nom: fr ? "Non" : "No" }, { id: "1", nom: fr ? "Oui" : "Yes" }], choisir: (v: string) => changer({ dore: v === "1" }) },
   ];
   const resume = [
     choix.assemblage === "anneaux" ? null : COURT[choix.bouts]?.[fr ? 0 : 1],
-    choix.liaison === "colliers" ? (fr ? "colliers" : "collars") : fr ? "soudées" : "welded",
+    DECORS_GC.liaisons.length > 1 ? (choix.liaison === "colliers" ? (fr ? "colliers" : "collars") : fr ? "soudées" : "welded") : null,
     choix.barreaux === "carre" ? null : COURT[choix.barreaux]?.[fr ? 0 : 1]?.toLowerCase(),
     choix.friseBasse === "postes" ? (fr ? "postes" : "waves") : null,
     choix.dore ? (fr ? "doré" : "gilded") : null,

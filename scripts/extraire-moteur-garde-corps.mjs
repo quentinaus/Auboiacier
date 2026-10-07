@@ -73,7 +73,8 @@ const CONTRAT_DECORS = {
   assemblages: ["entre", "frise", "anneaux", "hauteur", "coeurs", "medaillon", "applique"],
   formes: ["C", "S", "J", "coeur", "doubleC", "poste", "anneau"],
   bouts: ["bouton", "effile", "droit"],
-  liaisons: ["colliers", "soudure"],
+  // La soudure seule (Quentin, 07/10/2026 : « uniquement soudure, on propose pas » les colliers).
+  liaisons: ["soudure"],
   barreaux: ["carre", "torsade", "bagues"],
   frisesBasses: ["aucune", "postes"],
 };
@@ -586,7 +587,7 @@ function comparerAvecOutil(M, D, CH) {
   cas.push(
     { nom: "décor, bouts effilés", valeurs: { B: 1000, A: 650, decor: "entre", decorForme: "S", decorBouts: "effile" }, lire: true },
     { nom: "décor, bouts coupés droits", valeurs: { B: 1400, A: 700, decor: "frise", decorForme: "C", decorBouts: "droit" } },
-    { nom: "décor, volutes soudées", valeurs: { B: 900, A: 650, decor: "entre", decorForme: "J", decorLiaison: "soudure" }, lire: true },
+    { nom: "décor, volutes en crosse (soudées, la seule liaison)", valeurs: { B: 900, A: 650, decor: "entre", decorForme: "J" }, lire: true },
     { nom: "décor, barreaux torsadés", valeurs: { B: 1180, A: 500, decor: "medaillon", decorForme: "coeur", decorBarreaux: "torsade" }, lire: true },
     { nom: "décor, barreaux à bagues", valeurs: { B: 1600, A: 650, decor: "anneaux", decorForme: "anneau", decorBarreaux: "bagues", seuls: true } },
     { nom: "décor, frise basse de postes", valeurs: { B: 1180, A: 650, decor: "applique", decorForme: "C", decorFriseBasse: "postes" }, lire: true },
@@ -830,7 +831,12 @@ function decorsDuSite(M) {
     formes,
     nomsFormes,
     bouts: liste("decorBouts", "bouts", CONTRAT_DECORS.bouts, DEFAUTS_GC.decorBouts),
-    liaisons: liste("decorLiaison", "liaison", CONTRAT_DECORS.liaisons, DEFAUTS_GC.decorLiaison),
+    // Plus de bouton « Liaison » dans l'outil : la soudure, seule liaison du module (MT_CHOIX.liaison).
+    liaisons: (() => {
+      if (b.decorLiaison) return liste("decorLiaison", "liaison", CONTRAT_DECORS.liaisons, DEFAUTS_GC.decorLiaison);
+      if (!memes(M.MT_CHOIX.liaison, CONTRAT_DECORS.liaisons)) arret(`la liaison du module n'est plus [${CONTRAT_DECORS.liaisons.join(", ")}]`);
+      return [{ id: "soudure", nom: "Soudées" }];
+    })(),
     barreaux: liste("decorBarreaux", "barreaux", CONTRAT_DECORS.barreaux, DEFAUTS_GC.decorBarreaux),
     frisesBasses: liste("decorFriseBasse", "friseBasse", CONTRAT_DECORS.frisesBasses, DEFAUTS_GC.decorFriseBasse),
   };
