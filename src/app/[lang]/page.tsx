@@ -280,7 +280,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           // Sur téléphone (en hauteur), une photo en largeur ne remplit l'écran qu'en étant très zoomée (Quentin, 07/10 :
           // « la photo est très zoomée ») : elle garde ses proportions, en haut, et le texte passe dessous, sur blanc.
           <>
-          <section className="hero-accueil trio-accueil bg-white md:grid md:h-[100svh] md:min-h-[600px] md:grid-cols-2 md:grid-rows-[minmax(0,1.3fr)_minmax(0,1fr)] md:gap-[2px]">
+          <section className="hero-accueil trio-accueil bg-white md:grid md:h-[100svh] md:min-h-[600px] md:grid-cols-2 md:grid-rows-[minmax(0,1.3fr)_minmax(0,1fr)] md:gap-px">
           <div className="relative md:col-span-2 md:flex md:items-center md:overflow-hidden">
             <div className="relative aspect-[3/2] overflow-hidden bg-[#1d1d1f] md:absolute md:inset-0 md:aspect-auto">
             <div className="camera-lente camera-douce absolute inset-0">
@@ -338,7 +338,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           {/* 1 ter. Les deux univers, dans le même cadre que la grande photo (Quentin, 07/10/2026 : « les trois photos en une
               page », séparées d'un trait blanc fin ; pas de trait sur le pourtour de la page). Sur téléphone, les panneaux se superposent :
               côte à côte, ils ne feraient que 180 px de large et le texte deviendrait illisible. */}
-          <div className="mt-[2px] grid grid-cols-1 gap-[2px] md:contents">
+          <div className="mt-px grid grid-cols-1 gap-px md:contents">
         <HeroPanel
           locale={locale}
           href={`/${locale}/toiles-tendues`}
