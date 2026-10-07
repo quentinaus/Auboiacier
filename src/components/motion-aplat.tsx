@@ -32,6 +32,13 @@ export function useScenesAplat(): Habillage | null {
 
 export type FilmAplat = "atelier" | "je-mesure";
 
+/**
+ * L'instant où l'écran « AUBOIACIER » de fin est complet : chaque film COMMENCE là (Quentin, 07/10/2026 : « mets exactement
+ * cette petite image aussi au début des motion design »). Le logo tient environ 2 s, puis le film reprend à son début ;
+ * l'image d'attente (<film>-<taille>-debut.jpg, scripts/rendre-films-aplat.mjs) est cette même image : aucun saut.
+ */
+export const DEBUT_LOGO: Record<FilmAplat, number> = { atelier: 25.0, "je-mesure": 34.2 };
+
 /** Sous cette largeur, la version « petit » du film (ses petits textes y sont agrandis, comme sur la page). */
 const LARGEUR_PETIT = 520;
 
@@ -71,6 +78,11 @@ export function FilmAplat({
     }
     v.poster = `/videos/aplat/${film}-${taille}-debut.jpg`;
     v.src = `/videos/aplat/${film}-${taille}.mp4`;
+    // Le film part de l'écran AUBOIACIER (une seule fois : ensuite, la boucle fait le reste).
+    const auLogo = () => {
+      v.currentTime = DEBUT_LOGO[film];
+    };
+    v.addEventListener("loadedmetadata", auLogo, { once: true });
     // La version du téléphone est plus large que la scène (le décor continue) : elle remplit le cadre, les côtés en trop
     // sont coupés. Celle de l'ordinateur a les proportions de la scène : elle s'y loge entière.
     v.style.objectFit = taille === "petit" ? "cover" : "contain";
@@ -95,7 +107,7 @@ export function FilmAplat({
     const decider = () => {
       if (bloquee()) {
         v.pause();
-        v.currentTime = 0;
+        if (v.readyState >= 1) v.currentTime = DEBUT_LOGO[film];
         caler();
         return;
       }
