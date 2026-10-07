@@ -1408,6 +1408,11 @@ textarea:focus-visible,
    lumineux ; les choix et les modèles en pastilles de verre ; plus de petites capitales espacées.
    Réservé au garde-corps (:has(.fond-gc)) : les tables et les plafonds gardent leur style.
    ========================================================================== */
+/* La couche floue du décor déborde de 200 px pour ne pas montrer de bord net : sans cette coupe, la page entière
+   s'élargissait (défilement de côté sur téléphone). « clip » ne crée pas de zone de défilement : le bas collé reste collé. */
+#configuration:has(.fond-gc) {
+  overflow-x: clip;
+}
 /* ===========================================================================
    DIRECTION 2 — « Dégradé lumineux »
    Derrière le bloc : grandes taches de couleur douces (or chaud, pierre, bleu acier)
