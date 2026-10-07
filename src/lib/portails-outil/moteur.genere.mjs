@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 9c4f674ae48405c82b83e8b0.
+// Source : l'outil de plans (plans-atelier.html), sha256 d33f25ca5c8380d33380d925.
 /* eslint-disable */
 
 
@@ -1539,7 +1539,7 @@ function ptRemplir(c, z, remp, F, pieces, q, ctx) {
     const cw = (w - (cols - 1) * mi) / cols;
     for (let k = 0; k < cols; k++) {
       const a = z.x0 + k * (cw + mi), b = a + cw, ya = z.haut(a), yb = z.haut(b);
-      if (k > 0) { F.push({ t: "poly", piece: "Montants des croix", cls: "t-acier-plein", pts: [[a - mi, z.y0], [a, z.y0], [a, z.haut(a)], [a - mi, z.haut(a - mi)]] }); ptPiece(pieces, ptNomZ("Montant entre croix", z), { nom: c.mat === "acier" ? "Fer plat 30 × 8" : "Plat alu 30 × 8", b: 30, e: 8, plein: true }, z.haut(a) - z.y0, d, "Coupes droites", "", "Remplissage"); }
+      if (k > 0) { F.push({ t: "poly", piece: "Montants des croix", cls: "t-acier-plein", pts: [[a - mi, z.y0], [a, z.y0], [a, z.haut(a)], [a - mi, z.haut(a - mi)]] }); ptPiece(pieces, ptNomZ("Montant entre croix", z), { nom: c.mat === "acier" ? "Plat acier 30 × 8" : "Plat alu 30 × 8", b: 30, e: 8, plein: true }, z.haut(a) - z.y0, d, "Coupes droites", "", "Remplissage"); }
       const e = pr.b / 2;
       F.push({ t: "poly", piece: "Croix", cls: "t-acier-plein", pts: [[a, z.y0], [a + e * 1.4, z.y0], [b, yb - e * 1.4], [b, yb], [b - e * 1.4, yb], [a, z.y0 + e * 1.4]] });
       F.push({ t: "poly", piece: "Croix", cls: "t-acier-plein", pts: [[a, ya], [a, ya - e * 1.4], [b - e * 1.4, z.y0], [b, z.y0], [b, z.y0 + e * 1.4], [a + e * 1.4, ya]] });
@@ -1579,7 +1579,7 @@ function ptFusion(a, b) {
 
 // Une zone du haut reçoit un ou deux placements de motifs.js, en mode catalogue (la référence achetée exacte, l'écart des
 // barreaux réglé sur elle). motifs.js dessine les barreaux ET le décor. Ses barreaux droits redeviennent les barreaux du
-// portail (même carré, chiffrés au mètre) ; le reste (volutes, colliers, lisses de frise, barreaux torsadés, bagues) est
+// portail (même carré, chiffrés au mètre) ; le reste (volutes, colliers, lisses des frises, barreaux torsadés, bagues) est
 // marqué decor: true : chiffré par chiffrage-motifs.js, compté dans le poids, la peinture et la galvanisation, jamais dans
 // les mètres de profilés. q.decor garde les pièces, les compteurs et les refus de tout le portail.
 function ptDecorZone(c, z, F, pieces, q) {
@@ -2737,4 +2737,4 @@ function ptVueCote(c, C, haut, xa, pil, prP, massif, yV) {
 
 
 export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, PT_MOTEURS, MT_AVEC, MT_NOMS };
-export const EMPREINTE = "c9cce4d6ffab";
+export const EMPREINTE = "c4d2bd4bed78";
