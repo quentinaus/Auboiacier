@@ -281,8 +281,11 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
         return (
           // La photo encadrée, avec du blanc autour (Quentin, 07/10/2026 : « moins zoomée, pas en pleine page, ça dégrade la
           // qualité ») ; le cadre ne prend pas tout l'écran : le haut de la suite se voit dessous.
-          <section className="bg-white px-3 pt-3 md:px-5 md:pt-5">
-          <div className="relative mx-auto flex h-[86svh] min-h-[520px] max-w-[1680px] items-end overflow-hidden rounded-[24px] bg-[#1d1d1f] md:h-[86svh] md:min-h-[600px] md:items-center md:rounded-[32px]">
+          // Sur téléphone (en hauteur), une photo en largeur ne remplit l'écran qu'en étant très zoomée (Quentin, 07/10 :
+          // « la photo est très zoomée ») : elle garde ses proportions, en haut, et le texte passe dessous, sur blanc.
+          <section className="hero-accueil bg-white px-3 pt-3 md:px-5 md:pt-5">
+          <div className="relative mx-auto max-w-[1680px] md:flex md:h-[86svh] md:min-h-[600px] md:items-center">
+            <div className="relative aspect-[3/2] overflow-hidden rounded-[22px] bg-[#1d1d1f] md:absolute md:inset-0 md:aspect-auto md:rounded-[32px]">
             <div className="camera-lente camera-douce absolute inset-0">
               {/* La mention se pose plus bas, au-dessus du voile : ici, elle avancerait avec la caméra. */}
               <Visuel
@@ -297,11 +300,12 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
                 className="object-cover"
               />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/45 md:bg-gradient-to-r md:from-black/60 md:via-black/30 md:to-black/5" />
+            {/* Sur téléphone, seulement de quoi lire le menu en haut ; sur ordinateur, de quoi lire le titre posé sur la photo. */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/0 to-black/0 md:bg-gradient-to-r md:from-black/60 md:via-black/30 md:to-black/5" />
             <MentionIllustration src="/images/mikado/ambiance-hd.jpg" locale={locale} ton="sombre" />
-            {/* Sur téléphone, le texte laisse la place à « Découvrir » et à la souris, en bas du cadre. */}
-            <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-36 pt-28 md:pb-0 md:pt-0">
-              <h1 className={`${serif.className} max-w-5xl text-white`}>
+            </div>
+            <div className="relative z-10 mx-auto w-full max-w-6xl px-3 pb-2 pt-7 md:px-6 md:pb-0 md:pt-0">
+              <h1 className={`${serif.className} max-w-5xl text-[#1d1d1f] md:text-white`}>
                 <span className="entree-monte block text-[clamp(2.9rem,8.4vw,6.4rem)] font-normal leading-[0.98] tracking-[-0.022em]" style={{ "--retard": "200ms" } as CSSProperties}>
                   {metier}
                 </span>
@@ -311,7 +315,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
                         deux moitiés collées. */}
                     <span className="sr-only"> — </span>
                     <span
-                      className="entree-monte mt-5 block max-w-xl font-sans text-[17px] font-normal leading-[1.45] tracking-[-0.01em] text-white/88 md:mt-7 md:text-[21px]"
+                      className="entree-monte mt-4 block max-w-xl font-sans text-[17px] font-normal leading-[1.45] tracking-[-0.01em] text-[#4a4038] md:mt-7 md:text-[21px] md:text-white/88"
                       style={{ "--retard": "420ms" } as CSSProperties}
                     >
                       {reste.join(" — ").replace(/^./, (c) => c.toUpperCase())}.
@@ -323,12 +327,16 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
                 <Link href={`/${locale}/artisanat`} className="btn-clair">
                   {t.craftCta}
                 </Link>
-                <Link href={`/${locale}/toiles-tendues`} className="lien-fleche text-white">
+                <Link href={`/${locale}/toiles-tendues`} className="lien-fleche text-[#1d1d1f] md:text-white">
                   {t.lightingCta}
                 </Link>
               </div>
             </div>
-            <IndiceDefiler cible="suite" label={locale === "fr" ? "Voir la suite de la page" : "Scroll to see more"} mot={locale === "fr" ? "Découvrir" : "Discover"} />
+            {/* « Découvrir » et la souris : sur ordinateur seulement (une souris ne dit rien sur un téléphone, et la suite s'y
+                voit déjà sous le texte). */}
+            <div className="hidden md:block">
+              <IndiceDefiler cible="suite" label={locale === "fr" ? "Voir la suite de la page" : "Scroll to see more"} mot={locale === "fr" ? "Découvrir" : "Discover"} />
+            </div>
           </div>
           </section>
         );
