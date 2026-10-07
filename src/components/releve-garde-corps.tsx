@@ -12,6 +12,7 @@ import { matiereMur } from "@/lib/murs-gc";
 import { PlanApercu } from "./plan-apercu";
 import { ChargementModeles } from "./chargement-modeles";
 import { PhotoTableau } from "./photo-tableau";
+import { ETAPES_GC, QUESTIONS_GC } from "./etapes-telephone";
 import {
   BORNES_RELEVE_GC,
   ECART_MURS_GC_MM,
@@ -452,9 +453,6 @@ function IconeCote({ cote }: { cote: CoteSaisieGC }) {
   );
 }
 
-const SELECT =
-  "h-10 w-[8.5rem] shrink-0 rounded-full border border-[#9a8d80] bg-white px-3.5 text-base text-[#2b2320] focus:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] sm:text-[15px]";
-
 /**
  * Le relevé d'un garde-corps de fenêtre.
  *
@@ -567,6 +565,54 @@ export function ReleveGardeCorps({
   );
   const langue = locale === "en" ? "en-GB" : "fr-FR";
   const [coteActive, setCoteActive] = useState<CoteFenetre | null>(null);
+  /**
+   * ORDINATEUR ET TABLETTE AUSSI, UNE QUESTION À LA FOIS (Quentin, 07/10/2026 : la colonne des mesures devenait trop
+   * longue avec le mur, « questions une par une ») : les questions du téléphone, dans la colonne, à côté du croquis ; puis
+   * le résumé des réponses, chacune modifiable. null : la première question qui manque (ou le résumé si tout est là, une
+   * configuration reprise), tant que le client n'a rien touché.
+   */
+  const [questionPc, setQuestionPc] = useState<number | "resume" | null>(null);
+  /** Ce qui manque (ou l'avertissement) sous la question de l'ordinateur, après un essai de « Suivant ». */
+  const [messagePc, setMessagePc] = useState<{ question: number; texte: string; avertissement: boolean } | null>(null);
+  const premiereAFaire = () => {
+    for (let n = 1; n <= QUESTIONS_GC; n++) if (etatQuestionGC(cotes, n, t, locale).manque) return n;
+    return null;
+  };
+  const questionAffichee: number | "resume" = questionPc ?? premiereAFaire() ?? "resume";
+  /** La question en cours ne bouge plus dès que le client y touche (sinon, la première frappe la faisait passer). */
+  const figerQuestion = () => {
+    if (!question && questionPc === null) setQuestionPc(questionAffichee);
+    if (!question) setMessagePc(null);
+  };
+  const allerPc = (n: number | "resume") => {
+    setMessagePc(null);
+    setQuestionPc(n);
+  };
+  /** « Suivant » sur ordinateur : ce qui manque d'abord ; un avertissement, une fois ; puis la question d'après. */
+  const suivantePc = () => {
+    if (questionAffichee === "resume") return;
+    const n = questionAffichee;
+    const etat = etatQuestionGC(cotes, n, t, locale);
+    if (etat.manque) {
+      setMessagePc({ question: n, texte: etat.manque, avertissement: false });
+      return;
+    }
+    if (etat.avertissement && !(messagePc?.question === n && messagePc.avertissement)) {
+      setMessagePc({ question: n, texte: etat.avertissement, avertissement: true });
+      return;
+    }
+    allerPc(n >= QUESTIONS_GC ? "resume" : n + 1);
+  };
+  /** Un choix (étage, mur) fait passer de lui-même à la suite, comme sur téléphone (là, c'est la fiche qui s'en charge). */
+  const passerBientot = (n: number) => {
+    if (question) return;
+    window.setTimeout(() => allerPc(n >= QUESTIONS_GC ? "resume" : n + 1), 380);
+  };
+  // La question qui change (« Suivant », « Retour », une réponse du résumé) : le doigt va dans sa case.
+  useEffect(() => {
+    if (question || questionPc === null || questionPc === "resume") return;
+    document.querySelector<HTMLElement>(".colonne-cotes [data-question-champ]")?.focus({ preventScroll: true });
+  }, [question, questionPc]);
   /** La cote dont parle la question posée (téléphone) : le croquis la montre, même sans le doigt dans la case. */
   const coteQuestion: CoteFenetre | null =
     question === 1 ? "largeur" : question === 2 ? "largeurHaut" : question === 3 ? "allege" : question === 4 ? "fenetre" : null;
@@ -1262,12 +1308,15 @@ export function ReleveGardeCorps({
     </div>
   );
 
-  const set = (champ: keyof CotesGardeCorps) => (valeur: string) =>
+  const set = (champ: keyof CotesGardeCorps) => (valeur: string) => {
+    figerQuestion();
     onChange({ ...cotes, [champ]: valeur });
+  };
   /** Le type de mur : le code de la fixation suit ; la pierre attend d'être précisée (sauf si elle l'était déjà). */
   const choisirMur = (option: string) => {
     const matiere = matiereMur(option, t.gcMurOptions);
     const pierreDonnee = (PIERRES_GC as readonly string[]).includes(cotes.murFixation ?? "");
+    figerQuestion();
     onChange({ ...cotes, mur: option, murFixation: matiere === "pierre" ? (pierreDonnee ? cotes.murFixation : "") : matiere });
     // La pierre à préciser s'ouvre sous la liste : on l'amène sous les yeux (sur téléphone, elle était sous le bord de la carte).
     if (matiere === "pierre") window.setTimeout(() => document.getElementById(`${idChamps}-pierre`)?.scrollIntoView({ block: "nearest", behavior: "smooth" }), 60);
@@ -1281,9 +1330,6 @@ export function ReleveGardeCorps({
     ? "Le tuffeau : la pierre blanche et tendre de la région. La pierre dure : un calcaire ou un granit qui ne se raye pas à l'ongle. Les moellons : des pierres irrégulières montées au mortier."
     : "Tufa: the soft white local stone. Hard stone: a limestone or granite you cannot scratch with a fingernail. Rubble stone: irregular stones laid in mortar.";
   const libelleTableau = fr ? "Profondeur du tableau" : "Reveal depth";
-  const infoTableau = fr
-    ? "Dehors, de l'angle du mur (sans l'enduit, si vous le voyez) jusqu'au cadre de la fenêtre, en millimètres. La fixation se fait dans cette épaisseur : nous la plaçons au mieux. Nous vous demanderons aussi une photo du tableau avec un mètre."
-    : "Outside, from the corner of the wall (without the render, if you can see it) to the window frame, in millimetres. The fixing goes into this depth: we place it for the best hold. We will also ask you for a photo of the reveal with a tape measure.";
   const libelleEpaisseur = fr ? "Épaisseur du mur" : "Wall thickness";
   const infoEpaisseur = fr
     ? "De la façade jusqu'au mur intérieur, à côté de la fenêtre. Facultatif : sans elle, nous comptons 450 mm, l'épaisseur courante des murs en pierre."
@@ -1318,7 +1364,16 @@ export function ReleveGardeCorps({
         <div className={gros ? "grid grid-cols-3 gap-2" : `grid grid-cols-3 rounded-full border bg-white p-0.5 ${murChoisi ? "border-[#9a8d80]" : "border-[#c98a3a]"}`}>
           {PIERRES_GC.map((pierre) =>
             gros ? (
-              grosBouton(cotes.murFixation === pierre, () => onChange({ ...cotes, murFixation: pierre }), NOMS_PIERRES[pierre], false)
+              grosBouton(
+                cotes.murFixation === pierre,
+                () => {
+                  figerQuestion();
+                  onChange({ ...cotes, murFixation: pierre });
+                  passerBientot(6);
+                },
+                NOMS_PIERRES[pierre],
+                false,
+              )
             ) : (
               <button
                 key={pierre}
@@ -1446,9 +1501,13 @@ export function ReleveGardeCorps({
    * carte ; la carte ne porte que la réponse, en grand (la case, le curseur, ou de gros boutons), et l'explication.
    */
   /** Sous la case (ou les boutons) : ce qui manque, ou ce qu'il faut savoir — visible clavier ouvert. */
+  /** Le message sous la question : celui de la fiche sur téléphone, le sien sur ordinateur. */
+  const messageAffiche = question ? messageQuestion : messagePc && messagePc.question === questionAffichee ? messagePc.texte : null;
+  /** Entrée, ou « OK » : la question suivante. */
+  const avancer = () => (question ? suivante?.() : suivantePc());
   const messageTel = (
     <p id={`${idChamps}-message`} aria-live="polite" className="mt-2 text-center text-[13px] font-medium leading-snug text-[#7a4510] empty:hidden">
-      {messageQuestion ?? ""}
+      {messageAffiche ?? ""}
     </p>
   );
   const grandeSaisie = (cote: CoteSaisieGC, props: { label: string; info: string; placeholder: string }) => (
@@ -1464,14 +1523,14 @@ export function ReleveGardeCorps({
           inputMode="decimal"
           autoComplete="off"
           enterKeyHint="next"
-          aria-describedby={messageQuestion ? `${idChamps}-message` : undefined}
-          aria-invalid={messageQuestion ? true : undefined}
+          aria-describedby={messageAffiche ? `${idChamps}-message` : undefined}
+          aria-invalid={messageAffiche ? true : undefined}
           value={saisie(cote)}
           onChange={(e) => set(cote)(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              suivante?.();
+              avancer();
             }
           }}
           placeholder={`${fr ? "ex." : "e.g."} ${props.placeholder}`}
@@ -1486,7 +1545,7 @@ export function ReleveGardeCorps({
       <button
         type="button"
         onMouseDown={(e) => e.preventDefault()}
-        onClick={() => suivante?.()}
+        onClick={() => avancer()}
         className="ok-clavier hidden h-14 shrink-0 items-center rounded-2xl bg-[#1d1d1f] px-4 text-[16px] font-semibold text-white"
       >
         OK
@@ -1509,7 +1568,7 @@ export function ReleveGardeCorps({
         onBlur={() => setCoteActive(null)}
         className={`curseur-cote mt-4 block h-6 w-full cursor-pointer ${saisie(cote).trim() === "" ? "curseur-vide" : ""}`}
       />
-      <p className="mt-3 text-[12.5px] leading-snug text-[#5c5140]">{props.info}</p>
+      <p className="info-question mt-3 text-[12.5px] leading-snug text-[#5c5140]">{props.info}</p>
     </div>
   );
   /** Un gros bouton de réponse (étage, mur) : touché, il est choisi ; la fiche passe d'elle-même à la question suivante. */
@@ -1520,7 +1579,7 @@ export function ReleveGardeCorps({
       data-question-champ={premier ? "" : undefined}
       aria-pressed={actifBouton}
       onClick={onClick}
-      className={`rounded-2xl border px-3 py-3.5 text-[15px] font-medium leading-tight transition-colors ${
+      className={`border font-medium leading-tight transition-colors ${question ? "rounded-2xl px-3 py-3.5 text-[15px]" : "rounded-xl px-2.5 py-2 text-[13.5px]"} ${
         actifBouton ? "border-[#2b2320] bg-[#2b2320] text-white" : "border-[#d8cec2] bg-white text-[#2b2320] active:bg-[#f3eee8]"
       }`}
     >
@@ -1530,59 +1589,164 @@ export function ReleveGardeCorps({
   // Courts : dans la colonne de l'ordinateur, chaque intitulé tient sur une ligne ; la bulle « i » dit où mesurer.
   const libelleLargeurBas = fr ? "Largeur en bas" : "Width at the bottom";
   const libelleLargeurHaut = fr ? "Largeur à 1 m du sol" : "Width 1 m from the floor";
-  const infoLargeurBas = fr
-    ? "D'un mur à l'autre, dans l'ouverture, juste au-dessus de l'appui de fenêtre (la ligne bleue sur le dessin). La cote exacte, sans rien retirer : l'atelier calcule celle du garde-corps."
-    : "Wall to wall, inside the opening, just above the window sill (the blue line on the drawing). The exact size, nothing deducted: the workshop works out the railing's size.";
-  const infoLargeurHaut = fr
-    ? "La même largeur, à 1 m du sol : mesurez 1 m depuis le sol, faites un trait au crayon, puis la largeur à cette hauteur (la ligne bleue). Pas besoin de savoir où sera le garde-corps : nous le calculons. Les murs ne sont jamais tout à fait droits : nous fabriquons à la plus petite des deux largeurs."
-    : "The same width, 1 m from the floor: measure 1 m up from the floor, make a pencil mark, then the width at that height (the blue line). No need to know where the railing will go: we work it out. Walls are never quite straight: we make it to the smaller of the two widths.";
-  const questionTelephone =
-    question === 1 ? (
+  /** L'explication de chaque question : sous la réponse sur téléphone, dans la bulle « i » sur ordinateur. */
+  const infoQuestion = (n: number): string =>
+    n === 1
+      ? t.gcLargeurInfo
+      : n === 2
+        ? fr
+          ? "Mesurez de la même façon, d'un mur à l'autre dans l'ouverture, mais à 1 m du sol. Cote brute : ne retirez rien."
+          : "Measure the same way, wall to wall inside the opening, but 1 m from the floor. Raw size: deduct nothing."
+        : n === 3
+          ? t.gcAllegeInfo
+          : n === 4
+            ? t.gcFenetreInfo
+            : n === 5
+              ? t.gcEtageInfo
+              : n === 6
+                ? t.gcMurInfo
+                : fr
+                  ? "Sans l'enduit, si vous le voyez. La fixation se fait dans cette épaisseur : nous la plaçons au mieux. Nous vous demanderons aussi une photo du tableau avec un mètre."
+                  : "Without the render, if you can see it. The fixing goes into this depth: we place it for the best hold. We will also ask you for a photo of the reveal with a tape measure.";
+  const contenuQuestion = (n: number) =>
+    n === 1 ? (
       // L'en-tête dit OÙ mesurer (et le croquis le montre en bleu) ; sous la case, COMMENT.
       grandeSaisie("largeur", { label: libelleLargeurBas, info: t.gcLargeurInfo, placeholder: "1180" })
-    ) : question === 2 ? (
-      grandeSaisie("largeurHaut", {
-        label: libelleLargeurHaut,
-        info: fr
-          ? "Mesurez de la même façon, d'un mur à l'autre dans l'ouverture, mais à 1 m du sol. Cote brute : ne retirez rien."
-          : "Measure the same way, wall to wall inside the opening, but 1 m from the floor. Raw size: deduct nothing.",
-        placeholder: "1180",
-      })
-    ) : question === 3 ? (
+    ) : n === 2 ? (
+      grandeSaisie("largeurHaut", { label: libelleLargeurHaut, info: infoQuestion(2), placeholder: "1180" })
+    ) : n === 3 ? (
       grandeSaisie("allege", { label: t.gcAllegeCourt, info: t.gcAllegeInfo, placeholder: String(CURSEURS.allege.depart) })
-    ) : question === 4 ? (
+    ) : n === 4 ? (
       grandeSaisie("fenetre", { label: t.gcFenetreCourt, info: t.gcFenetreInfo, placeholder: "1200" })
-    ) : question === 5 ? (
+    ) : n === 5 ? (
       <div className="pt-1">
         <div className="grid gap-2">
-          {t.gcEtageOptions.map((option, i) => grosBouton(cotes.etage === option, () => set("etage")(option), option, i === 0))}
+          {t.gcEtageOptions.map((option, i) =>
+            grosBouton(
+              cotes.etage === option,
+              () => {
+                set("etage")(option);
+                passerBientot(5);
+              },
+              option,
+              i === 0,
+            ),
+          )}
         </div>
         {messageTel}
-        <p className="mt-3 text-[12.5px] leading-snug text-[#5c5140]">{t.gcEtageInfo}</p>
+        <p className="info-question mt-3 text-[12.5px] leading-snug text-[#5c5140]">{t.gcEtageInfo}</p>
       </div>
-    ) : question === 6 ? (
+    ) : n === 6 ? (
       <div id="mur-gc" className="scroll-mt-28 pt-1">
         <div className="grid grid-cols-2 gap-2">
-          {t.gcMurOptions.map((option, i) => grosBouton(cotes.mur === option, () => choisirMur(option), option, i === 0))}
+          {t.gcMurOptions.map((option, i) =>
+            grosBouton(
+              cotes.mur === option,
+              () => {
+                choisirMur(option);
+                if (matiereMur(option, t.gcMurOptions) !== "pierre") passerBientot(6);
+              },
+              option,
+              i === 0,
+            ),
+          )}
         </div>
         {choixPierre(true)}
         {messageTel}
-        <p className="mt-3 text-[12.5px] leading-snug text-[#5c5140]">{t.gcMurInfo}</p>
+        <p className="info-question mt-3 text-[12.5px] leading-snug text-[#5c5140]">{t.gcMurInfo}</p>
       </div>
-    ) : question === 7 ? (
+    ) : n === 7 ? (
       <div>
-        {grandeSaisie("tMur", {
-          label: libelleTableau,
-          // L'en-tête dit déjà où mesurer : ici, le reste.
-          info: fr
-            ? "Sans l'enduit, si vous le voyez. La fixation se fait dans cette épaisseur : nous la plaçons au mieux. Nous vous demanderons aussi une photo du tableau avec un mètre."
-            : "Without the render, if you can see it. The fixing goes into this depth: we place it for the best hold. We will also ask you for a photo of the reveal with a tape measure.",
-          placeholder: "150",
-        })}
+        {/* L'en-tête dit déjà où mesurer : sous la case, le reste. */}
+        {grandeSaisie("tMur", { label: libelleTableau, info: infoQuestion(7), placeholder: "150" })}
         {murAvecEpaisseurGC(murChoisi) && ligne("eMur", { label: libelleEpaisseur, info: infoEpaisseur, placeholder: "450", facultatif: true })}
         <div className="mt-3 flex justify-center">{photoTableau(true)}</div>
       </div>
     ) : null;
+  const questionTelephone = question ? contenuQuestion(question) : null;
+
+  /** Une cote tapée, écrite comme le site écrit ses nombres (« 1 000 mm »), ou rien. */
+  const enMmAffiche = (valeur?: string) => {
+    const n = mm(valeur ?? "");
+    return Number.isFinite(n) ? `${n.toLocaleString(fr ? "fr-FR" : "en-GB")} mm` : "";
+  };
+  /** Sur ordinateur et tablette : la question en cours, dans la colonne, avec « Retour » et « Suivant ». */
+  const questionOrdinateur = (n: number) => {
+    const etape = ETAPES_GC[n - 1];
+    const vide = n === 4 && cotes.fenetre.trim() === "";
+    const pale = Boolean(etatQuestionGC(cotes, n, t, locale).manque);
+    return (
+      <div className="mt-2.5">
+        <div className="flex items-center gap-2.5">
+          <span className="shrink-0 text-[11px] font-semibold text-[#6f6357]">{fr ? `Question ${n} sur ${QUESTIONS_GC}` : `Question ${n} of ${QUESTIONS_GC}`}</span>
+          <span className="flex flex-1 gap-1" aria-hidden>
+            {Array.from({ length: QUESTIONS_GC }, (_, i) => (
+              <span key={i} className={`h-1 flex-1 rounded-full transition-colors ${i < n ? "bg-[#2b2320]" : "bg-[#2b2320]/15"}`} />
+            ))}
+          </span>
+        </div>
+        <div className="mt-2 flex items-start justify-between gap-2">
+          <h3 className="text-[16px] font-semibold leading-tight text-[#1d1d1f]">{fr ? etape.questionFr : etape.questionEn}</h3>
+          <InfoBulle texte={infoQuestion(n)} label={t.gcInfoLabel} />
+        </div>
+        <p className="aide-question mt-0.5 text-[12.5px] leading-snug text-[#5c5140]">{fr ? etape.aideFr : etape.aideEn}</p>
+        <div className="mt-2">{contenuQuestion(n)}</div>
+        <div className="mt-3 flex items-center gap-2">
+          {n > 1 && (
+            <button type="button" onClick={() => allerPc(n - 1)} className="rounded-full bg-white/70 px-3.5 py-2.5 text-[13.5px] font-medium text-[#2b2320] ring-1 ring-[#2b2320]/15">
+              {fr ? "← Retour" : "← Back"}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={suivantePc}
+            className={`flex-1 rounded-full px-4 py-2.5 text-[14px] font-semibold text-white transition-colors ${pale ? "bg-[#1d1d1f]/45" : "bg-[#1d1d1f]"}`}
+          >
+            {n === QUESTIONS_GC ? (fr ? "Terminer →" : "Finish →") : vide ? (fr ? "Passer →" : "Skip →") : fr ? "Suivant →" : "Next →"}
+          </button>
+        </div>
+      </div>
+    );
+  };
+  /** Toutes les réponses données : leur résumé, une ligne chacune ; toucher une ligne rouvre sa question. */
+  const nomMur = murChoisi ? NOMS_MUR_FIXATION_GC[murChoisi][fr ? "fr" : "en"] : cotes.mur;
+  const lignesResume: { n: number; label: string; valeur: string }[] = [
+    { n: 1, label: fr ? "Largeur au ras de l'appui" : "Width at the sill", valeur: enMmAffiche(cotes.largeur) },
+    { n: 2, label: libelleLargeurHaut, valeur: enMmAffiche(cotes.largeurHaut) },
+    { n: 3, label: t.gcAllegeCourt, valeur: enMmAffiche(cotes.allege) },
+    { n: 4, label: t.gcFenetreCourt, valeur: enMmAffiche(cotes.fenetre) || (fr ? "non donnée" : "not given") },
+    { n: 5, label: t.gcEtage, valeur: fr && cotes.etage === "Au rez-de-chaussée" ? "Rez-de-chaussée" : cotes.etage },
+    { n: 6, label: t.gcMur, valeur: nomMur ? nomMur.charAt(0).toUpperCase() + nomMur.slice(1) : "" },
+    {
+      n: 7,
+      label: libelleTableau,
+      valeur: [enMmAffiche(cotes.tMur), murAvecEpaisseurGC(murChoisi) && cotes.eMur ? `${fr ? "mur" : "wall"} ${enMmAffiche(cotes.eMur)}` : ""].filter(Boolean).join(" · "),
+    },
+  ];
+  const resumeMesures = (
+    <div className="mt-2.5">
+      <div className="flex items-baseline justify-between gap-2">
+        <p className="text-[15px] font-semibold text-[#1d1d1f]">{fr ? "Vos mesures" : "Your measurements"}</p>
+        <span className="text-[11.5px] text-[#6f6357]">{fr ? "Touchez une ligne pour la changer" : "Tap a line to change it"}</span>
+      </div>
+      <ul className="mt-1.5 divide-y divide-[#e5ddd3]">
+        {lignesResume.map((l) => (
+          <li key={l.n}>
+            <button
+              type="button"
+              onClick={() => allerPc(l.n)}
+              className="flex w-full items-baseline justify-between gap-3 py-2 text-left text-[13px] transition-colors hover:text-[#1d1d1f]"
+            >
+              <span className="min-w-0 text-[#5c5140]">{l.label}</span>
+              <span className="shrink-0 font-medium tabular-nums text-[#2b2320]">{l.valeur}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      {ecartMursCourt}
+      <div className="mt-2">{photoTableau(false)}</div>
+    </div>
+  );
 
   /** Le grand chiffre : le prix, « à étudier », « sur devis », ou un tiret. */
   const grandChiffre =
@@ -1793,86 +1957,8 @@ export function ReleveGardeCorps({
             questionTelephone
           ) : (
             <>
-          <p className="consigne-cotes mt-2.5 text-xs leading-snug text-[#6f6357]">{t.gcConsigne}</p>
-
-          <div className="mt-1 divide-y divide-[#e5ddd3]">
-            {/* Des intitulés courts : sur téléphone, « Largeur de la fenêtre,
-                entre les murs » tenait sur quatre lignes et chaque cote
-                prenait un écran. L'explication complète reste dans la bulle
-                « i », et le croquis coté juste à côté montre où mesurer. */}
-            {/* Les deux largeurs, chacune sur sa ligne avec son curseur, comme les autres cotes (Quentin, 07/10 : côte à côte,
-                sans curseur, « c'est moche, pas compréhensible, pas le même style que le reste »). */}
-            {ligne("largeur", { label: fr ? "Largeur au ras de l'appui" : "Width at the sill", info: infoLargeurBas, placeholder: "1180" })}
-            {ligne("largeurHaut", { label: libelleLargeurHaut, info: infoLargeurHaut, placeholder: "1180" })}
-            {/* Dans la colonne serrée de l'ordinateur, seulement quand la visite est conseillée (sur téléphone, toujours). */}
-            {ecartMursCourt}
-            {ligne("allege", { label: t.gcAllegeCourt, aide: `${t.gcAllege}. ${t.gcAllegeAide}`, info: t.gcAllegeInfo, placeholder: String(CURSEURS.allege.depart) })}
-            {ligne("fenetre", { label: t.gcFenetreCourt, aide: `${t.gcFenetre}. ${t.gcFenetreAide}`, info: t.gcFenetreInfo, placeholder: "1200", facultatif: true })}
-
-            {/* En étage ou pas : deux boutons. L'intitulé AU-DESSUS et les
-                boutons en pleine largeur : côte à côte, « Au rez-de-chaussée »
-                débordait de la carte sur téléphone et écrasait l'intitulé sur
-                trois lignes. */}
-            <div className="py-3">
-              <span className="flex items-center gap-2.5 text-[15px] text-[#2b2320]">
-                <InfoBulle texte={t.gcEtageInfo} label={t.gcInfoLabel} />
-                {t.gcEtage}
-                {cotes.etage === "" && (
-                  <span className="rounded-full bg-[#fbeeda] px-2 py-0.5 text-[11px] font-medium text-[#7a4510]">{fr ? "à choisir" : "to choose"}</span>
-                )}
-              </span>
-              <div className={`mt-2 grid grid-cols-2 rounded-full border bg-white p-0.5 ${cotes.etage === "" ? "border-[#c98a3a]" : "border-[#9a8d80]"}`}>
-                {t.gcEtageOptions.map((option) => {
-                  const actifBouton = cotes.etage === option;
-                  return (
-                    <button
-                      key={option}
-                      type="button"
-                      aria-pressed={actifBouton}
-                      onClick={() => set("etage")(option)}
-                      className={`whitespace-nowrap rounded-full px-1 py-2 text-[12px] font-medium transition-colors xl:text-[12.5px] ${
-                        actifBouton ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"
-                      }`}
-                    >
-                      {/* « Rez-de-chaussée » sur une ligne : sur deux, la carte des mesures débordait des écrans peu hauts. */}
-                      {fr && option === "Au rez-de-chaussée" ? "Rez-de-chaussée" : option}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Le mur, OBLIGATOIRE (décision de Quentin, 05/10) : il décide des chevilles et de la fixation que
-                l'atelier fournit. « Je ne sais pas » reste possible : on demandera une photo. Le croquis le dessine. */}
-            <label id="mur-gc" className="block scroll-mt-28 py-3">
-              <span className="flex items-center gap-2.5 text-[15px] text-[#2b2320]">
-                <InfoBulle texte={t.gcMurInfo} label={t.gcInfoLabel} />
-                {t.gcMur}
-                {cotes.mur === "" && (
-                  <span className="rounded-full bg-[#fbeeda] px-2 py-0.5 text-[11px] font-medium text-[#7a4510]">{fr ? "à choisir" : "to choose"}</span>
-                )}
-              </span>
-              <select
-                id={`${idChamps}-mur`}
-                value={cotes.mur}
-                onChange={(e) => choisirMur(e.target.value)}
-                className={`${SELECT.replace("w-[8.5rem]", "w-full")} mt-2 ${cotes.mur === "" ? "border-[#c98a3a]" : ""}`}
-              >
-                <option value="" disabled>{fr ? "Choisissez…" : "Choose…"}</option>
-                {t.gcMurOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
-            {/* La fixation dans le mur (« Auboiacier », 07/10) : la pierre précisée, la profondeur du tableau où se scellent
-                les tiges, et l'épaisseur pour la pierre dure et les moellons. */}
-            {choixPierre(false)}
-            {cotes.mur !== "" && ligne("tMur", { label: libelleTableau, info: infoTableau, placeholder: "150" })}
-            {cotes.mur !== "" && <div className="pb-1">{photoTableau(false)}</div>}
-            {murAvecEpaisseurGC(murChoisi) && ligne("eMur", { label: libelleEpaisseur, info: infoEpaisseur, placeholder: "450", facultatif: true })}
-          </div>
+              <p className="consigne-cotes mt-2.5 text-xs leading-snug text-[#6f6357]">{t.gcConsigne}</p>
+              {questionAffichee === "resume" ? resumeMesures : questionOrdinateur(questionAffichee)}
             </>
           )}
 
