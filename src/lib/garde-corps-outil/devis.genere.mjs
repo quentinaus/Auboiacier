@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Devis garde-corps au format du site (composerDevisGC, dsDevisHtml). SANS coûts : le prix est une entrée.
-// Source : l'outil de plans (plans-atelier.html), sha256 bddb4fb840533846cfdeb7b63807dbeca02f796b39a1315f610d7cc93df788b3
+// Source : l'outil de plans (plans-atelier.html), sha256 0d0b8c92a21218ba3ff2b6c7ac7af28f4b66e14b7e6364b630c8a11ab53c3808
 /* eslint-disable */
 import { DS_ESSENCES } from "./moteur.genere.mjs";
 function kgColisGC(R) { return Math.max(8, Math.round((R && R.kg) || 0)); }
@@ -349,6 +349,6 @@ function dsDevisHtml(devis) {
 function dsPageHtml(corps, n, total) {
     return `<section class="ds-page"><div class="ds-corps">${corps}</div><div class="ds-pied"><span>${dsEsc(DS_PIED)}</span></div><div class="ds-num"><span>Page ${n} / ${total}</span></div></section>`;
   }
-export const EMPREINTE_SOURCE = "bddb4fb840533846cfdeb7b63807dbeca02f796b39a1315f610d7cc93df788b3";
+export const EMPREINTE_SOURCE = "0d0b8c92a21218ba3ff2b6c7ac7af28f4b66e14b7e6364b630c8a11ab53c3808";
 export { DS_GC, DS_VALIDITE_JOURS, composerDevisGC, dsDevisHtml, dsPrix };
-export const EMPREINTE = "27ede3788c20";
+export const EMPREINTE = "51a0e3aebdc3";

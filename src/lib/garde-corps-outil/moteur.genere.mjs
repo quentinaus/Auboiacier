@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Moteur garde-corps : norme NF P01-012, géométrie, débit, dessins. SANS coûts.
-// Source : l'outil de plans (plans-atelier.html), sha256 bddb4fb840533846cfdeb7b63807dbeca02f796b39a1315f610d7cc93df788b3
+// Source : l'outil de plans (plans-atelier.html), sha256 0d0b8c92a21218ba3ff2b6c7ac7af28f4b66e14b7e6364b630c8a11ab53c3808
 /* eslint-disable */
 const NOMS = { mikado: "Table Mikado", croix: "Table Croix", mikadoExt: "Table Mikado extérieur", resine: "Table Résine Époxy Mikado", gardeCorps: "Garde-corps Rosace à croix", escalier: "Escalier droit à limon central", ptBattant: "Portail battant", ptCoulissant: "Portail coulissant", ptPliant: "Portail pliant", ptPortillon: "Portillon" };
 const SPHERE = 110;
@@ -156,7 +156,7 @@ const effortsPoints = (P, yH, ys) => {
     const n = ys.length, m = ys.reduce((a, y) => a + y, 0) / n, I = ys.reduce((a, y) => a + (y - m) ** 2, 0);
     return ys.map((y) => Math.abs(P / n + (I > 0 ? P * (yH - m) * (y - m) / I : 0)));
   };
-function fixationMurGC({ mur, t, s, LmF, y0, yH, P, eF, eMur }) {
+function fixationMurGC({ mur, t, s, LmF, y0, yH, P, eF, eMur, jour }) {
     const NOMS_MUR = { beton: "béton", brique: "brique pleine", "brique-creuse": "brique creuse", parpaing: "parpaing", "beton-cellulaire": "béton cellulaire", tuffeau: "pierre tendre (tuffeau)", "pierre-dure": "pierre dure", moellons: "moellons", placo: "placo", enduit: "mur inconnu (enduit)" };
     const nomMur = NOMS_MUR[mur] || mur;
     const MONTAGE_CLIENT = { tige: "des tiges scellées dans le mur à travers le cadre", platine: "de petites platines soudées au cadre et des tiges scellées dans le mur", platines: "de petites platines soudées au cadre et des tiges scellées dans le mur", traversant: "des tiges qui traversent le mur, avec une plaque côté intérieur" };
@@ -170,6 +170,16 @@ function fixationMurGC({ mur, t, s, LmF, y0, yH, P, eF, eMur }) {
       : `Votre mur (${nomMur}) demande une fixation à étudier : nous vous faisons un devis.${CONSEIL_CLIENT[mur] ? " " + CONSEIL_CLIENT[mur] : ""}`;
     const kg = (kN) => Math.round(kN * 101.97);
     const haut = y0 + LmF - eF, bas = y0 + eF;
+    const basMin = 25 - (jour || 0);
+    const PROLONGEE = (m, surNu) => ({ ...m, pts: undefined, siCourt: true,
+      jeux: () => { const j = []; for (let yb = Math.min(bas, haut - 130); yb >= basMin; yb -= 5) j.push([yb, haut - 65, haut]); return j; },
+      habiller: (ys) => {
+        const Lp = Math.round(haut - ys[0] + 30), sous = Math.max(0, Math.round(15 - ys[0]));
+        return { nom: `une platine 50 × 6 par montant, soudée sur toute sa hauteur et prolongée de ${sous} mm sous le cadre (barre basse : le montant est trop court pour deux platines), 3 tiges M10 : 2 en haut, l'une au-dessus de l'autre (65 mm), 1 en bas`,
+          trou: `platine 50 × 6 × ${Lp} mm soudée derrière chaque montant de rive, prolongée de ${sous} mm sous le cadre (à 10 mm au moins de l'appui), 3 trous Ø 12, posée sur ${surNu}`,
+          platines: 2, plat: [50, 6, Lp],
+          plaques: [{ qte: 2, L: Lp, W: 50, E: 6, d: 12, trous: [[25, 15], [25, Math.round(haut - 65 - ys[0] + 15)], [25, Lp - 15]], role: `une par montant, prolongée de ${sous} mm sous le cadre (3 tiges)` }] };
+      } });
     const TIGE = (d, l) => ({ cle: d === 8 ? "fxT8" : "fxT10", nom: `Tige filetée M${d} inox A4, coupée à ${l} mm` });
     const ECROU = (d) => ({ cle: d === 8 ? "fxE8" : "fxE10", nom: `Écrou borgne et rondelle M${d} inox A4` });
     const RESINE = { cle: "fxRes", nom: "Résine de scellement fischer FIS V Plus 360 S (cartouche)" };
@@ -244,6 +254,7 @@ function fixationMurGC({ mur, t, s, LmF, y0, yH, P, eF, eMur }) {
           achats: [[TIGE(10, 120), 6], [ECROU(10), 6], [RESINE, 1]] },
       ],
     };
+    for (const [k, surNu] of [["brique", "la brique nue"], ["enduit", "le mur nu"], ["tuffeau", "la pierre nue"]]) MONTAGES[k].push(PROLONGEE(MONTAGES[k][0], surNu));
     const ETUDE = {
       placo: "le placo est à l'intérieur, le garde-corps se fixe dehors : indiquer le mur extérieur (béton, brique, pierre…)",
     };
@@ -260,22 +271,27 @@ function fixationMurGC({ mur, t, s, LmF, y0, yH, P, eF, eMur }) {
       else for (let c = m.cMin; c <= Math.min(cUtile, m.cMax ?? m.cMin); c += 5) cs.push(c);
       if (!cs.length) { refus = `le tableau est trop peu profond (${Math.round(cUtile + DOS)} mm de la façade à la fenêtre) : la tige doit être à ${m.cMin} mm au moins de l'arête du mur nu et à ${DOS} mm au moins de la fenêtre, soit ${m.cMin + DOS} mm`; continue; }
       if (s < m.sMin) { refus = `un carré de ${m.sMin} au moins pour le trou de la tige`; continue; }
-      const ys = m.pts();
-      if (!ys) { refus = `le montant de rive est trop court (${Math.round(LmF)} mm) pour écarter les fixations`; continue; }
-      const V = m.paire ? (([vb, vh]) => [vb, vh, vh])(effortsPoints(P, yH, [ys[0], ys[ys.length - 1]])) : effortsPoints(P, yH, ys);
+      if (m.siCourt && haut - 65 >= bas + 30) continue;
+      const jeux = m.jeux ? m.jeux() : [m.pts()].filter(Boolean);
+      if (!jeux.length) { refus = `le montant de rive est trop court (${Math.round(LmF)} mm) pour écarter les fixations`; continue; }
       let essai = null;
-      for (const cE of cs) {
-        const rdE = rdA(m, cE, ys), pts = ys.map((y, i) => ({ y, V: V[i], rd: rdE ? rdE[i] : null }));
-        essai = { c: cE, rd: rdE, points: pts, trop: rdE ? pts.find((p) => p.V > p.rd) : null };
+      for (const ys of jeux) {
+        const V = m.paire ? (([vb, vh]) => [vb, vh, vh])(effortsPoints(P, yH, [ys[0], ys[ys.length - 1]])) : effortsPoints(P, yH, ys);
+        for (const cE of cs) {
+          const rdE = rdA(m, cE, ys), pts = ys.map((y, i) => ({ y, V: V[i], rd: rdE ? rdE[i] : null }));
+          essai = { ys, c: cE, rd: rdE, points: pts, trop: rdE ? pts.find((p) => p.V > p.rd) : null };
+          if (!essai.trop) break;
+        }
         if (!essai.trop) break;
       }
-      const { c, rd, points, trop } = essai;
+      const { ys, c, rd, points, trop } = essai;
       if (trop && m.statut !== "indicatif") { refus = `la fixation la plus chargée reprendrait ${kg(trop.V)} kg pour ${kg(trop.rd)} kg admis, tiges à ${c} mm de l'arête`; continue; }
+      const h = m.habiller ? { ...m, ...m.habiller(ys) } : m;
       const pire = points.reduce((a, p) => (p.V > a.V ? p : a), points[0]);
       const charge = rd ? `fixation la plus chargée : ${kg(pire.V)} kg pour ${kg(pire.rd)} kg admis` : `fixation la plus chargée : ${kg(pire.V)} kg, à prouver par essais`;
-      const texte = `${m.statut === "valide" ? "validé par le calcul" : m.statut === "indicatif" ? "prix indicatif" : "sous réserve d'essais"} — ${m.nom} ; tiges à ${c} mm de l'arête du mur nu ; ${charge}${trop ? " : il faudra sans doute des pattes ou un autre montage" : ""} (${m.nature}). ${m.trou}. Tout en inox A4.`;
-      return { mur, nomMur, mode: m.mode, statut: m.statut, texte, texteClient: client(m.statut, m.mode), nomMontage: m.nom, trou: m.trou, points, plat: m.plat || null, platines: m.platines, plaques: m.plaques || [], c, t,
-        achats: m.achats.map(([a, q]) => ({ cle: a.cle, nom: a.nom, qte: q })) };
+      const texte = `${m.statut === "valide" ? "validé par le calcul" : m.statut === "indicatif" ? "prix indicatif" : "sous réserve d'essais"} — ${h.nom} ; tiges à ${c} mm de l'arête du mur nu ; ${charge}${trop ? " : il faudra sans doute des pattes ou un autre montage" : ""} (${m.nature}). ${h.trou}. Tout en inox A4.`;
+      return { mur, nomMur, mode: m.mode, statut: m.statut, texte, texteClient: client(m.statut, m.mode), nomMontage: h.nom, trou: h.trou, points, plat: h.plat || null, platines: h.platines, plaques: h.plaques || [], c, t,
+        prolongee: !!m.habiller, achats: m.achats.map(([a, q]) => ({ cle: a.cle, nom: a.nom, qte: q })) };
     }
     const SOLUTIONS = {
       "brique-creuse": "si un poteau ou un encadrement en béton borde la fenêtre (fréquent en construction récente), la fixation se fait dedans (choisir « Béton ») ; sinon pattes scellées dans un appui en béton, ou visite",
@@ -750,7 +766,7 @@ function calculerGC(v) {
       const LmF = v.ass === "onglet" ? g.Hc : g.Hc - 2 * s, pos = percages(LmF, v.nF, v.eF);
       const dF = pos[pos.length - 1] - pos[0], aF = g.Hr - ((v.ass === "onglet" ? 0 : s) + pos[pos.length - 1]);
       if (v.mur) {
-        const F = fixationMurGC({ mur: v.mur, t: v.tMur, s, LmF, y0: v.ass === "onglet" ? 0 : s, yH: g.Hr, P: Math.max(RA, RC), eF: v.eF, eMur: v.eMur });
+        const F = fixationMurGC({ mur: v.mur, t: v.tMur, s, LmF, y0: v.ass === "onglet" ? 0 : s, yH: g.Hr, P: Math.max(RA, RC), eF: v.eF, eMur: v.eMur, jour: v.jour });
         R.fixation = F;
         const msg = `Fixation dans le mur (${F.nomMur}) : ${F.texte}`;
         if (F.statut === "etude") R.alertes.push(msg);
@@ -845,10 +861,11 @@ function calculerGC(v) {
     C.push({ t: "poly", piece: "Montants de rive", cls: "t-acier-plein", pts: rect(-ep / 2 - s / 2, y0, -ep / 2 + s / 2, y0 + g.Hc) });
     if (R.fixation && R.fixation.statut !== "etude" && R.fixation.points.length) {
       const fxC = R.fixation, avecPlatine = fxC.mode !== "tige", xFront = -ep / 2 + s / 2;
+      if (fxC.prolongee) { const ysP = fxC.points.map((p) => p.y); C.unshift({ t: "poly", piece: "Platines de fixation", cls: "t-acier-plein", pts: rect(-ep / 2 - 60, y0 + Math.min(...ysP) - 15, xFront, y0 + Math.max(...ysP) + 15) }); }
       for (const pt of fxC.points) {
         const yW = y0 + pt.y, xT = avecPlatine ? -ep / 2 - 35 : -ep / 2;
         const sansPlatineEnBas = fxC.mur === "beton" && pt === fxC.points[0];
-        if (avecPlatine && !sansPlatineEnBas) C.push({ t: "poly", piece: "Platines de fixation", cls: "t-acier-plein", pts: rect(xT - 25, yW - 22, xFront, yW + 22) });
+        if (avecPlatine && !sansPlatineEnBas && !fxC.prolongee) C.push({ t: "poly", piece: "Platines de fixation", cls: "t-acier-plein", pts: rect(xT - 25, yW - 22, xFront, yW + 22) });
         C.push({ t: "cercle", cls: "t-trou-plan", c: [sansPlatineEnBas ? -ep / 2 : xT, yW], r: fxC.mode === "tige" || fxC.mur === "beton" || fxC.mur === "parpaing" ? 4.5 : 6 });
       }
       const ptH = fxC.points[fxC.points.length - 1];
@@ -2127,6 +2144,6 @@ function mtGrilleAppui(G, cS) {
 }
 export const DEFAUTS_GC = Object.freeze({"prixVente":0,"km":30,"debitAr":8,"minSoud":1.2,"rnP":14,"rnJ":1,"nF":2,"dF":6.5,"fF":13,"eF":25,"tMur":150,"eMur":450,"epMc":8,"L":2000,"l":1000,"H":750,"e":45,"a":80,"ep":3,"t":3,"pL":75,"pl":60,"pX":80,"rX":250,"tS":300,"tW":120,"pR":60,"bR":300,"lame":150,"latte":120,"jeu":8,"trait":3,"B":1180,"A":650,"Hs":0,"Hf":0,"s":16,"mc":40,"j":1,"jour":90,"nP":1,"nb":0,"rD":100,"Xo":0,"Hm":2600,"recul":0,"Wm":900,"lh":150,"lw":100,"le":5,"em":50,"nez":0,"hs":80,"tp":8,"plx":200,"ply":150,"tpp":10,"epl":200,"ptP":3500,"ptH":1600,"ptFleche":150,"ptHSoub":500,"ptPente":0,"ass":"droit","mur":"","etage":true,"rosace":true,"traverse":false,"mcType":"bois","sbMode":"auto","seuls":false,"decor":"aucun","decorForme":"C","decorBouts":"bouton","decorLiaison":"colliers","decorBarreaux":"carre","decorFriseBasse":"aucune","decorDore":"0","renfort":"sans","patte":0,"essence":"chene","remise":"retrait","essenceT":"chene","teinte":"noir","rainure":true,"ptMat":"alu","ptForme":"droit","ptSoub":"aucun","ptRemp":"plein","ptVantaux":"2","ptRep":"egal","ptGuidage":"rail","ptSens":"gauche","ptPoteaux":"existants","ptPointes":false,"ptLisse":false,"ptMoteur":false,"jourAuto":true,"jourSaisi":90});
 export const BORNES_GC = Object.freeze({ B: Object.freeze({"min":300,"max":3000}), A: Object.freeze({"min":0,"max":1200}), Hf: Object.freeze({"min":0,"max":3000}) });
-export const EMPREINTE_SOURCE = "bddb4fb840533846cfdeb7b63807dbeca02f796b39a1315f610d7cc93df788b3";
+export const EMPREINTE_SOURCE = "0d0b8c92a21218ba3ff2b6c7ac7af28f4b66e14b7e6364b630c8a11ab53c3808";
 export { ALLEGE_LIBRE, BARRE_APPUI, CIBLE_MARGE, DECOR_NOMS, DS_ESSENCES, HAUT_ETAGE, LIMITE_ACIER, MARGE_BOULE, MINI_GC, MINI_SEULS, MT_AVEC, MT_CHOIX, MT_NOMS, RENFORT, ROSACE_R, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, coupeMainCourante, decorActif, decrireVariante, fmt, geomGC, mmTxt, mtAlleger, planA3Pur, svgDe, variantesConformes };
-export const EMPREINTE = "9319ff36a93a";
+export const EMPREINTE = "63d30039e6f7";

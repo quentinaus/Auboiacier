@@ -12,7 +12,7 @@ import { calculerGC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
 import { configurationGC } from "../src/lib/garde-corps-outil/site.ts";
 import { chiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
 
-type Fixation = { statut: string; mode: string; texte: string; points: { V: number; rd: number | null }[]; plaques: { qte: number }[] };
+type Fixation = { statut: string; mode: string; texte: string; points: { y: number; V: number; rd: number | null }[]; plaques: { qte: number }[] };
 const config = (l: number, a: number) => {
   const c = configurationGC({ largeurMm: l, allegeMm: a, enEtage: true, fenetreMm: 0 }, "chene");
   assert.ok(c?.ok, `${l} × ${a}`);
@@ -84,6 +84,26 @@ test("la profondeur du tableau place les tiges : le plus près de la façade qui
   assert.equal(cDe(avecMur(1200, 400, "beton", 115).F), 40);
   // Ancrage traversant : les tiges à 80 mm de l'arête, quelle que soit la profondeur.
   assert.equal(cDe(avecMur(1200, 400, "pierre-dure", 60).F), 80);
+});
+
+test("barre d'appui très basse : une platine prolongée sous le cadre écarte les tiges (brique, enduit ; tuffeau avec un tableau assez profond)", () => {
+  // 100 × 80 : le montant de rive est trop court pour deux platines.
+  const brique = avecMur(1000, 800, "brique");
+  assert.equal(brique.F?.statut, "valide");
+  assert.ok((brique.F as unknown as { prolongee: boolean }).prolongee);
+  assert.equal(brique.F!.points.length, 3);
+  assert.ok(brique.F!.points[0].y < 0, "la tige du bas est sous le cadre");
+  assert.ok(brique.F!.points[0].y >= 25 - (brique.v as { jour: number }).jour, "à 10 mm au moins de l'appui");
+  assert.ok(brique.F!.points.every((p) => p.rd !== null && p.V <= p.rd));
+  assert.deepEqual(brique.F!.plaques.map((pl) => pl.qte), [2], "une platine par montant");
+  assert.ok(brique.R.debit.some((d: { nom: string; coupes: string }) => d.nom === "Platines de fixation" && /prolongée/.test(d.coupes)));
+  assert.equal(avecMur(1000, 800, "enduit").F?.statut, "indicatif");
+  // Tuffeau : les 2 tiges du haut comptent pour une ; avec 20 cm de tableau (tiges jusqu'à 10 cm de l'arête), ça tient.
+  assert.equal(avecMur(1000, 800, "tuffeau", 200).F?.statut, "valide");
+  // Le parpaing veut 200 mm entre ses chevilles (deux rangs de blocs) : toujours sur étude, avec les solutions.
+  assert.equal(avecMur(1000, 800, "parpaing").F?.statut, "etude");
+  // Un montant assez long garde ses deux platines d'avant.
+  assert.ok(!(avecMur(1200, 400, "brique").F as unknown as { prolongee: boolean }).prolongee);
 });
 
 test("placo : jamais de cheville dans la plaque ; on demande le mur extérieur (sur étude, avec la raison)", () => {
