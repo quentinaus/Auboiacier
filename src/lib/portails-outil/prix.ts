@@ -7,7 +7,7 @@
  * de prise de cotes et pose comprises jusqu'à 45 km de Saumur (la visite payée en ligne est déduite de la commande).
  */
 import { ChiffragePortailIndisponible, chiffragePortail } from "./chiffrage.ts";
-import { configDepart, planPortail, STYLES_PORTAIL, versEntrees, type ConfigPortail, type SlugPortail } from "../portails.ts";
+import { appliquerStyle, configDepart, planPortail, DECORS_PORTAIL, MOTEURS_PORTAIL, STYLES_PORTAIL, versEntrees, type ConfigPortail, type SlugPortail, type StylePortail } from "../portails.ts";
 
 export { ChiffragePortailIndisponible };
 
@@ -41,4 +41,28 @@ export function prixDepartPortail(slug: SlugPortail): number | null {
     if (e instanceof ChiffragePortailIndisponible) return null;
     throw e;
   }
+}
+
+/**
+ * Les prix voisins d'une configuration, en UNE fois (le bandeau des styles, la fenêtre Décor, la fenêtre Moteur) :
+ * - styles : chaque style aux cotes et options du client, SANS moteur (« Prix posé à vos cotes, sans moteur ») ;
+ * - decors : le portail du client avec chaque formule de décor (le décor impose l'acier et les barreaux) ;
+ * - moteurs : sans moteur, et avec chaque moteur Somfy (null s'il ne convient pas à ce portail).
+ * Un prix null = « à étudier » ou refusé par l'outil. Toujours des prix de vente, jamais un coût.
+ */
+export type VariantesPortail = {
+  base: ReponsePrixPortail;
+  styles: Record<StylePortail, number | null>;
+  decors: Record<(typeof DECORS_PORTAIL)[number], number | null>;
+  moteurs: Record<"aucun" | Exclude<(typeof MOTEURS_PORTAIL)[number], "conseille">, number | null>;
+};
+export function prixVariantesPortail(slug: SlugPortail, cfg: ConfigPortail): VariantesPortail {
+  const p = (c: ConfigPortail) => { const r = prixPortail(slug, c); return r.ok ? r.prix : null; };
+  const styles = Object.fromEntries(STYLES_PORTAIL.map((st) => [st, p({ ...appliquerStyle(cfg, st), couleur: cfg.couleur, moteur: false })])) as VariantesPortail["styles"];
+  const decors = Object.fromEntries(DECORS_PORTAIL.map((d) => [d, d === "aucun" ? p({ ...cfg, decor: "aucun" }) : p({ ...cfg, decor: d, mat: "acier", remp: "barreaux" })])) as VariantesPortail["decors"];
+  const moteurs = {
+    aucun: p({ ...cfg, moteur: false }),
+    ...Object.fromEntries((["ixengo", "axovia", "elixo"] as const).map((m) => [m, p({ ...cfg, moteur: true, moteurModele: m })])),
+  } as VariantesPortail["moteurs"];
+  return { base: prixPortail(slug, cfg), styles, decors, moteurs };
 }

@@ -1,0 +1,297 @@
+/* ================================================================== *
+ *  Le configurateur des portails (lot 10) : la maquette validée par Quentin le 07/10/2026, en vrai.
+ *  Tout est rangé sous .cpt (aucune règle ne sort de l'écran des portails). Les classes partagées du site
+ *  (globals.css : .carte-verre, .btn-verre, .fond-configuration, .curseur-cote, .tuile-modele, .porte-facilite)
+ *  sont reprises telles quelles ; les pilules utilisent les marqueurs que le verre convertit
+ *  ([role="radiogroup"].rounded-full, border-[#9a8d80]).
+ * ================================================================== */
+
+.cpt {
+  --encre: #2b2320;
+  --encre-verre: #1d1d1f;
+  --brun: #6f6357;
+  --brun-fonce: #5c5140;
+  --filet: rgba(43, 35, 32, 0.1);
+  --mini: 40px;
+  color: var(--encre);
+}
+.cpt button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; text-align: inherit; }
+.cpt svg { display: block; }
+
+/* ---------- La tête de page (fil d'Ariane, titre, guide) ---------- */
+.cpt-tete { max-width: 1480px; margin: 0 auto; padding: 14px 16px 4px; }
+@media (min-width: 1024px) { .cpt-tete { padding: 14px 24px 0; } }
+.cpt-fil { display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; color: var(--brun); }
+.cpt-fil a { color: var(--brun); text-decoration: none; }
+.cpt-fil a:hover { color: var(--encre); }
+.cpt-h1 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; margin-top: 4px; }
+.cpt-h1 h1 { font-size: 30px; line-height: 1.1; color: var(--encre); }
+@media (min-width: 768px) { .cpt-h1 h1 { font-size: 34px; } }
+.cpt-guide-lien { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brun-fonce); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(92, 81, 64, 0.45); }
+
+/* ---------- La section et sa plaque ---------- */
+.cpt-section { max-width: 1480px; margin: 0 auto; padding: 10px 12px 16px; display: flex; flex-direction: column; }
+@media (min-width: 768px) { .cpt-section { padding: 12px 24px 16px; } }
+@media (min-width: 1024px) { .cpt-section { height: calc(100dvh - 2rem); min-height: 620px; padding: 12px 24px; } }
+.cpt-plaque { flex: 1; min-height: 0; padding: 14px; }
+@media (min-width: 768px) { .cpt-plaque { padding: 22px; } }
+.cpt-aide-bas { flex: none; margin-top: 12px; padding-left: 4px; font-size: 12px; line-height: 17px; color: #726757; }
+.cpt-aide-bas a { color: #2b2320; text-decoration: underline; text-underline-offset: 4px; }
+
+/* La grille : téléphone (une colonne qui défile, en attendant le lot 11), tablette (deux), ordinateur (trois). */
+.cpt-grille { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+/* Tablette debout (maquette l-md) : le bloc tient l'écran ; le croquis et ses styles en haut, les deux cartes dessous,
+   chacune défile en elle-même ; la barre d'achat reste collée en bas de la sienne. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .cpt-section { height: calc(100dvh - 2rem); min-height: 760px; }
+  .cpt-grille { height: 100%; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto minmax(0, 1.15fr); column-gap: 16px; }
+  .cpt-titre-config { grid-column: 1 / -1; grid-row: 1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
+  .cpt-croquis { grid-column: 1 / -1; grid-row: 2; height: auto; min-height: 0; }
+  .cpt-modeles { grid-column: 1 / -1; grid-row: 3; }
+  .cpt-cotes { grid-column: 1; grid-row: 4; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .cpt-achat { grid-column: 2; grid-row: 4; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; }
+  .cpt-haut-achat { margin-bottom: 0; }
+  .cpt-fenetre { grid-column: 1; grid-row: 4; z-index: 40; min-height: 0; }
+}
+@media (min-width: 1024px) {
+  .cpt-grille { height: 100%; grid-template-columns: 280px minmax(0, 1fr) 288px; grid-template-rows: auto minmax(0, 1fr) auto; column-gap: 16px; row-gap: 12px; }
+  .cpt-titre-config { grid-column: 1 / -1; display: grid; grid-template-columns: 280px minmax(0, 1fr) 288px; column-gap: 16px; align-items: center; min-height: 40px; }
+  .cpt-titre-config .cpt-emplacement-matieres { grid-column: 2 / span 2; }
+  .cpt-cotes { grid-column: 1; grid-row: 2 / span 2; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .cpt-croquis { grid-column: 2; grid-row: 2; position: relative; min-height: 0; }
+  .cpt-modeles { grid-column: 2; grid-row: 3; min-width: 0; }
+  .cpt-achat { grid-column: 3; grid-row: 2 / span 2; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+  .cpt-fenetre { grid-column: 1; grid-row: 2 / span 2; z-index: 40; min-height: 0; }
+}
+@media (min-width: 1280px) {
+  .cpt-grille, .cpt-titre-config { grid-template-columns: 300px minmax(0, 1fr) 300px; column-gap: 20px; }
+  .cpt-titre-config .cpt-emplacement-matieres { grid-column: 2; }
+}
+@media (min-width: 1280px) and (min-height: 901px) {
+  .cpt-cotes { grid-row: 2; }
+  .cpt-modeles { grid-column: 1 / span 2; }
+  .cpt-fenetre { grid-row: 2; }
+}
+
+/* ---------- Rangée 1 : titre, couleur, matière ---------- */
+.cpt-titre-gauche { display: flex; align-items: baseline; gap: 14px; white-space: nowrap; }
+.cpt-titre-gauche h2 { font-size: 28px; line-height: 1; color: var(--encre); }
+.cpt-emplacement-matieres { display: flex; justify-content: center; min-width: 0; }
+.cpt-matieres { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 16px; border-radius: 16px; background: rgba(255, 255, 255, 0.55); padding: 6px 12px; }
+@media (min-width: 1024px) { .cpt-matieres { flex-wrap: nowrap; } }
+.cpt-mat-groupe { display: flex; align-items: center; gap: 6px; }
+.cpt-mat-titre { font-size: 13px; font-weight: 600; letter-spacing: -0.005em; color: rgba(60, 60, 67, 0.78); }
+.cpt-plaquettes { display: flex; gap: 4px; }
+.cpt-plaquette-btn { border-radius: 5px; padding: 3px; }
+.cpt-plaquette-btn[aria-pressed="true"] { background: #fff; box-shadow: 0 0 0 2px #1d1d1f; }
+.cpt-plaquette { display: block; width: 22px; aspect-ratio: 4 / 5; border-radius: 1px; box-shadow: inset 0 0 0 1px rgba(43, 35, 32, 0.38); }
+.cpt-mat-nom { font-size: 12px; color: var(--encre); white-space: nowrap; }
+
+/* ---------- Les pilules (PiluleSegmentee) ---------- */
+.cpt-pilule { display: grid; margin-top: 6px; padding: 2px; border-radius: 999px; border: 1px solid #9a8d80; background: #fff; }
+.cpt-pilule [role="radio"] { display: inline-flex; align-items: center; justify-content: center; gap: 4px; border-radius: 999px; padding: 6px; font-size: 12px; font-weight: 500; line-height: 1.15; color: var(--brun); white-space: nowrap; text-align: center; }
+.cpt-pilule [role="radio"][aria-checked="true"] { background: #2b2320; color: #fff; }
+.cpt-pilule [role="radio"][aria-disabled="true"] { opacity: 0.4; cursor: not-allowed; }
+.cpt-pilule-picto [role="radio"] { flex-direction: column; gap: 1px; padding-top: 4px; padding-bottom: 4px; font-size: 11.5px; }
+.cpt-pilule-picto svg { width: 18px; height: 13px; }
+.cpt-mat-groupe .cpt-pilule { margin-top: 0; width: 112px; grid-template-columns: 1fr 1fr; }
+.cpt-libelle { display: block; margin-top: 10px; }
+.cpt-raison { margin-top: 4px; font-size: 11px; line-height: 1.35; color: var(--brun); }
+.cpt-carte-titre { font-size: 15px; font-weight: 600; color: var(--encre-verre); letter-spacing: -0.016em; }
+.cpt-filet { height: 1px; background: var(--filet); margin: 11px 0 1px; }
+
+/* ---------- Colonne 1 : les mesures et l'ouverture ---------- */
+.cpt-cotes { border-radius: 26px; padding: 16px 20px 12px; }
+@media (min-width: 1024px) and (max-width: 1279px) { .cpt-cotes { padding: 16px 16px 12px; } }
+.cpt-consigne { font-size: 11.5px; line-height: 1.4; color: var(--brun); }
+.cpt-cote { padding: 0.22rem 0; }
+.cpt-cote-titre { display: flex; align-items: center; gap: 8px; font-size: 13.5px; line-height: 1.35; color: var(--encre); }
+.cpt-cote-titre > svg { width: 18px; height: 18px; flex: none; }
+.cpt-cote-titre .cpt-ct-nom { flex: 1; min-width: 0; }
+.cpt-info { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 999px; border: 1px solid #8f8275; font: italic 600 11px/1 Georgia, "Times New Roman", serif; color: var(--brun); flex: none; }
+.cpt-a-corriger { display: inline-block; margin-left: 8px; border-radius: 999px; background: #fbeeda; padding: 2px 8px; vertical-align: middle; font-size: 11px; font-weight: 500; color: #7a4510; }
+.cpt-cote-rang { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
+.cpt-cote-rang .curseur-cote { flex: 1; min-width: 0; height: 20px; }
+.cpt-pastille { display: flex; align-items: center; gap: 4px; height: 36px; width: 6.75rem; flex: none; border-radius: 999px; border: 1px solid #9a8d80; background: #fff; padding: 0 12px; }
+.cpt-pastille.hors { outline: 2px solid #c98a3a; }
+.cpt-pastille input { width: 100%; min-width: 0; border: 0; outline: none; background: transparent; text-align: right; font-size: 15px; font-variant-numeric: tabular-nums; color: var(--encre-verre); }
+.cpt-pastille span { font-size: 12px; color: var(--brun); }
+.cpt-cote-aide { margin-top: 3px; padding-left: 26px; font-size: 11px; line-height: 1.35; color: var(--brun); }
+.cpt-legende-option { margin-top: 8px; font-size: 11px; line-height: 1.4; color: var(--brun); }
+.cpt-intitule { margin-top: 10px; }
+@media (min-width: 1024px) { .cpt-cotes > .cpt-titre-mesures:first-child { display: none; } }
+
+/* ---------- Colonne 2 : le croquis de l'outil ---------- */
+.cpt-croquis { position: relative; height: 300px; }
+@media (min-width: 1024px) { .cpt-croquis { height: auto; } }
+.cpt-croquis-dessin { position: absolute; inset: 26px 0 0 0; }
+.cpt-croquis-dessin > svg { width: 100%; height: 100%; }
+.cpt-croquis.avec-alerte .cpt-croquis-dessin { bottom: 84px; }
+.cpt-badge-place { position: absolute; z-index: 3; top: 8px; right: 8px; display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.92); padding: 4px 10px 4px 6px; font-size: 11px; font-weight: 600; line-height: 1.2; color: #2b2320; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); white-space: nowrap; pointer-events: none; }
+.cpt-badge-place .cpt-rond { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 999px; background: #2b2320; color: #fff; flex: none; }
+.cpt-badge-place .cpt-rond svg { width: 11px; height: 11px; }
+.cpt-medaillon { position: absolute; z-index: 3; right: 6px; bottom: 6px; width: 196px; border-radius: 16px; padding: 4px 6px; background: rgba(255, 255, 255, 0.72); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.9), 0 6px 18px -10px rgba(43, 35, 32, 0.35); }
+@media (max-width: 1279px) { .cpt-medaillon { width: 168px; } }
+@media (max-width: 767px) { .cpt-medaillon { display: none; } }
+.cpt-med-dessin { position: relative; width: 100%; }
+.cpt-med-dessin > svg { width: 100%; height: auto; }
+.cpt-medaillon :is(.t-texte, .t-libre, .t-cote, .t-fleche) { display: none; }
+.cpt-med-mot { position: absolute; left: 50%; translate: -50% -50%; font-size: 11px; font-weight: 500; line-height: 1; color: var(--brun-fonce); white-space: nowrap; }
+.cpt-croquis-legende { position: absolute; z-index: 2; left: 2px; bottom: 6px; font-size: 11px; color: var(--brun); }
+.cpt-croquis-alerte { position: absolute; z-index: 4; left: 0; right: 214px; bottom: 6px; border-radius: 12px; background: #fbeeda; padding: 8px 12px; font-size: 12.5px; line-height: 1.4; color: #7a4510; box-shadow: 0 6px 18px -12px rgba(43, 35, 32, 0.4); }
+@media (max-width: 1279px) { .cpt-croquis-alerte { right: 180px; } }
+@media (max-width: 767px) { .cpt-croquis-alerte { right: 0; } }
+.cpt-croquis-alerte b { font-weight: 600; }
+.cpt-croquis-alerte a { font-weight: 600; color: #7a4510; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+/* Les cotes du dessin au style du site (choix de Quentin du 07/10/2026) : couleur et police seulement. */
+.cpt .rendu .t-texte { fill: #2b2320; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; font-weight: 600; paint-order: stroke fill; stroke: #ffffff; stroke-width: 0.42em; stroke-linejoin: round; }
+.cpt .rendu .t-cote { stroke: #8f8377; }
+.cpt .rendu .t-fleche { fill: #8f8377; }
+
+/* ---------- Rangée 3 : le bandeau des styles ---------- */
+.cpt-modeles { border-radius: 22px; padding: 8px 16px; }
+.cpt-modeles-tete { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+.cpt-modeles-tete strong { font-size: 14px; font-weight: 600; line-height: 1.25; color: #2b2320; }
+.cpt-modeles-note { margin-left: auto; font-size: 11.5px; color: var(--brun); }
+.cpt-modeles-detail { min-height: 1.1rem; font-size: 12px; line-height: 1.375; color: #2b2320; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.cpt-modeles-detail b { font-weight: 600; }
+.cpt-modeles-detail span { color: var(--brun); }
+.cpt-rangee { position: relative; }
+.cpt-tuiles { display: flex; gap: 6px; margin: 6px -4px 0; padding: 2px 4px 4px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: thin; }
+.cpt .tuile-modele { position: relative; display: flex; flex-direction: column; text-align: left; }
+.cpt .tuile-modele > * { flex: none; }
+.cpt-tuiles .tuile-modele { width: 104px; flex: 1 0 104px; max-width: 190px; padding: 10px 6px 6px; scroll-snap-align: start; }
+.cpt-dessin { display: block; width: 100%; height: var(--mini); min-height: 0; overflow: hidden; }
+.cpt-dessin svg { width: 100%; height: 100%; }
+.cpt-t-nom { margin-top: 4px; font-size: 11px; font-weight: 600; line-height: 1.25; color: #2b2320; }
+.cpt-t-prix { font-size: 11px; font-weight: 500; line-height: 1.25; color: #2b2320; font-variant-numeric: tabular-nums; }
+.cpt-rangee.perimee .cpt-tuiles { opacity: 0.6; }
+
+/* ---------- Colonne 3 : aspect, décor, moteur, achat ---------- */
+.cpt-achat { border-radius: 26px; padding: 16px 20px 0; }
+@media (min-width: 1024px) and (max-width: 1279px) { .cpt-achat { padding: 11.2px 16px 0; } }
+.cpt-haut-achat { margin-bottom: auto; }
+.cpt-r-nom { font-size: 15px; font-weight: 600; line-height: 1.3; color: var(--encre-verre); letter-spacing: -0.016em; }
+.cpt-r-ligne { margin-top: 2px; font-size: 12px; line-height: 1.4; color: var(--brun); }
+.cpt-ligne-libre { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
+.cpt-ligne-libre .cpt-libelle { margin-top: 0; }
+.cpt-ligne-libre .cpt-raison { display: block; margin-top: 1px; }
+.cpt-ligne-libre .cpt-pilule { margin-top: 0; width: 112px; grid-template-columns: 1fr 1fr; flex: none; }
+.cpt-lignes-choix { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.cpt-ligne-choix { display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) 12px; column-gap: 11px; align-items: center; width: 100%; border-radius: 14px; padding: 5px 10px 5px 5px; background: rgba(255, 255, 255, 0.72); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0 0 1px rgba(43, 35, 32, 0.07), 0 1px 2px rgba(43, 35, 32, 0.06); }
+.cpt-ligne-choix[aria-expanded="true"] { background: #fff; box-shadow: 0 0 0 2px #1d1d1f, 0 8px 16px -10px rgba(43, 35, 32, 0.4); }
+.cpt-lc-picto { width: 3.4rem; height: 3.4rem; border-radius: 8px; background: #fbf8f4; display: grid; place-items: center; overflow: hidden; }
+.cpt-lc-picto svg { width: 100%; height: 100%; }
+.cpt-lc-picto.vide { background: transparent; box-shadow: inset 0 0 0 1.5px rgba(43, 35, 32, 0.16); }
+.cpt-lc-picto.vide svg { width: 18px; height: 18px; }
+.cpt-lc-texte { min-width: 0; }
+.cpt-lc-tete { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 11.5px; line-height: 1.3; color: var(--brun); }
+.cpt-lc-ecart { font-size: 12px; font-weight: 500; color: var(--encre); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cpt-lc-ajouter { font-size: 12px; font-weight: 500; color: var(--brun-fonce); }
+.cpt-lc-valeur { display: block; font-size: 13px; font-weight: 600; line-height: 1.3; color: var(--encre-verre); }
+.cpt-lc-detail { display: block; font-size: 11.5px; line-height: 1.3; color: var(--brun); }
+.cpt-chevron-bas { width: 12px; height: 12px; flex: none; color: #2b2320; transition: transform 0.2s; }
+[aria-expanded="true"] > .cpt-chevron-bas { transform: rotate(90deg); }
+.cpt-chevron-droite { width: 7px; height: 11px; color: rgba(60, 60, 67, 0.45); flex: none; }
+
+/* La barre d'achat collée en bas de la colonne. */
+.cpt-barre-achat { position: sticky; bottom: 0; z-index: 20; margin: 8px -20px 0; padding: 9.6px 20px 12px; border-top: 1px solid #e5ddd3; background: #f8f6f2; border-radius: 0 0 26px 26px; box-shadow: 0 -10px 18px -14px rgba(43, 35, 32, 0.35); }
+@media (min-width: 1024px) and (max-width: 1279px) { .cpt-barre-achat { margin: 4px -16px 0; padding-left: 16px; padding-right: 16px; } }
+.cpt-prix-ligne { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.cpt-prix { font-size: 20px; font-weight: 500; line-height: 1.25; font-variant-numeric: tabular-nums; color: var(--encre-verre); }
+.cpt-prix.perime { color: #b4aa9f; }
+.cpt-prix-etiquette { font-size: 11.5px; color: var(--brun); }
+.cpt-prix-note { margin-top: 2px; font-size: 11px; line-height: 1.4; color: var(--brun); }
+.cpt .cpt-cta { display: block; width: 100%; margin-top: 10px; border-radius: 999px; padding: 11.2px 20px; text-align: center; color: #fff; }
+.cpt-btn-note { margin-top: 4px; text-align: center; font-size: 11px; line-height: 1.35; color: var(--brun); }
+.cpt-motif { margin-top: 4px; text-align: center; font-size: 11px; line-height: 1.35; color: #9a5b3f; }
+.cpt-liens { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 12px; margin-top: 8px; font-size: 12px; font-weight: 500; }
+.cpt-liens > * { display: inline-flex; align-items: center; gap: 4px; color: #2b2320; text-decoration: underline; text-underline-offset: 4px; }
+.cpt-liens .grise { color: #6f6357; text-decoration: none; opacity: 0.7; cursor: not-allowed; }
+
+/* ---------- Les fenêtres flottantes (sur la colonne des mesures) ---------- */
+.cpt-fenetre { overflow-y: auto; overscroll-behavior: contain; border-radius: 26px; padding: 14px 14px 0; background: #ffffff !important; border: 1px solid #e5ddd3 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; box-shadow: 0 24px 60px -20px rgba(43, 35, 32, 0.45) !important; }
+@media (max-width: 767px) { .cpt-fenetre { position: fixed; z-index: 80; left: 8px; right: 8px; bottom: 8px; max-height: 78svh; } }
+.cpt-f-tete { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.cpt-f-titre { font-size: 17px; font-weight: 600; line-height: 1.25; color: var(--encre-verre); letter-spacing: -0.02em; }
+.cpt-f-sous { margin-top: 2px; font-size: 12px; line-height: 1.4; color: var(--brun); }
+.cpt-fermer { width: 28px; height: 28px; border-radius: 999px; background: rgba(118, 118, 128, 0.12) !important; display: grid; place-items: center; flex: none; }
+.cpt-f-info { margin-top: 10px; border-radius: 12px; background: rgba(118, 118, 128, 0.12); padding: 8px 10px; font-size: 12px; line-height: 1.4; color: #2b2320; }
+.cpt-f-info b { font-weight: 600; }
+.cpt-formules { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.cpt-formule { padding: 8px 8px 7px; }
+.cpt-formule .cpt-dessin { height: 62px; }
+.cpt-f-nom { margin-top: 4px; font-size: 12.5px; font-weight: 600; line-height: 1.25; color: var(--encre-verre); }
+.cpt-f-ligne { margin-top: 1px; font-size: 11px; line-height: 1.3; color: var(--brun); }
+.cpt-f-ecart { margin-top: 3px; font-size: 11px; font-weight: 500; line-height: 1.25; color: #2b2320; font-variant-numeric: tabular-nums; }
+.cpt-sur-mesure { grid-column: 1 / -1; display: grid !important; grid-template-columns: 3.4rem minmax(0, 1fr); column-gap: 10px; align-items: center; padding: 8px 10px 8px 8px; }
+.cpt-vide-dessin { display: grid; place-items: center; width: 3.4rem; height: 3.4rem; border-radius: 8px; border: 1.5px dashed rgba(43, 35, 32, 0.25); color: var(--brun); }
+.cpt-vide-dessin svg { width: 20px; height: 20px; }
+.cpt-f-pied { position: sticky; bottom: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 12px -14px 0; padding: 10px 14px 14px; background: #ffffff; border-top: 1px solid #efe9e1; font-size: 11.5px; line-height: 1.35; color: var(--brun); }
+.cpt .cpt-f-pied .btn-verre { width: auto; margin: 0; padding: 7px 16px; font-size: 13px; font-weight: 600; color: #fff; border-radius: 999px; flex: none; }
+.cpt-moteurs { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.cpt-moteur { display: grid !important; grid-template-columns: 3.4rem minmax(0, 1fr); column-gap: 12px; align-items: center; width: 100%; border-radius: 12px; padding: 8px 10px !important; background: #f6f1ea !important; box-shadow: 0 0 0 1px #e5ddd3; }
+.cpt-moteur[aria-checked="true"] { background: #fff !important; box-shadow: 0 0 0 2px #1d1d1f; }
+.cpt-moteur[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; }
+.cpt-m-nom { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; line-height: 1.25; color: var(--encre-verre); }
+.cpt-m-prix { margin-left: auto; font-size: 12px; font-weight: 500; color: var(--encre); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.cpt-conseille { font-size: 10.5px; font-weight: 600; color: #1f5a2e; background: #e3efe4; border-radius: 999px; padding: 2px 7px; letter-spacing: 0; white-space: nowrap; }
+.cpt-m-detail { display: block; margin-top: 2px; font-size: 11.5px; line-height: 1.35; color: var(--brun-fonce); }
+.cpt-moteur .porte-facilite { margin: 5px 0 0; gap: 7px; font-size: 11.5px; }
+.cpt-moteur .porte-jauge i { width: 4px; height: 10px; }
+.cpt-coche-rond { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 999px; background: #1d1d1f; color: #fff; flex: none; }
+.cpt-f-note { margin-top: 6px; font-size: 11px; line-height: 1.4; color: var(--brun); }
+
+/* ---------- Détails, plan : fenêtres posées sur la page ---------- */
+.cpt-voile-fond { position: fixed; inset: 0; z-index: 70; background: rgba(29, 29, 31, 0.28); }
+.cpt-details { position: fixed; z-index: 71; right: max(16px, calc((100vw - 1480px) / 2 + 40px)); bottom: 96px; width: min(360px, calc(100vw - 32px)); max-height: min(78svh, 600px); overflow-y: auto; border-radius: 16px; border: 1px solid #e5ddd3; background: #fff; padding: 16px; box-shadow: 0 24px 60px -20px rgba(43, 35, 32, 0.45); }
+.cpt-d-titre { font-size: 15px; font-weight: 600; color: var(--encre-verre); letter-spacing: -0.016em; }
+.cpt-d-liste { display: grid; grid-template-columns: 78px minmax(0, 1fr); gap: 5px 10px; margin-top: 10px; font-size: 12.5px; line-height: 1.4; }
+.cpt-d-liste dt { color: var(--brun); }
+.cpt-d-liste dd { color: var(--encre); margin: 0; }
+.cpt-d-sous { margin-top: 14px; font-size: 13px; font-weight: 600; color: var(--encre-verre); }
+.cpt-coches { margin: 6px 0 0; padding: 0; list-style: none; font-size: 12.5px; line-height: 1.45; color: var(--encre); }
+.cpt-coches li { display: flex; align-items: flex-start; gap: 8px; }
+.cpt-coches li + li { margin-top: 4px; }
+.cpt-coches svg { width: 12px; height: 12px; margin-top: 3px; color: #2f7d46; flex: none; }
+.cpt-coches.non svg { color: #9a5b3f; }
+.cpt-d-fabrique { display: flex; align-items: center; gap: 8px; margin-top: 14px; border-top: 1px solid #efe9e1; padding-top: 12px; font-size: 12.5px; font-weight: 600; color: var(--encre); }
+.cpt-d-fabrique svg { width: 18px; height: 18px; flex: none; }
+.cpt-plan { position: fixed; z-index: 71; inset: 4svh max(16px, 4vw); overflow-y: auto; border-radius: 20px; background: #fff; padding: 18px 20px; box-shadow: 0 24px 60px -20px rgba(43, 35, 32, 0.45); }
+.cpt-plan-vues { display: grid; gap: 14px; margin-top: 10px; }
+@media (min-width: 1024px) { .cpt-plan-vues { grid-template-columns: 1.4fr 1fr; } .cpt-plan-vues > :first-child { grid-row: span 2; } }
+.cpt-plan-vues figure { margin: 0; border-radius: 14px; background: #faf8f5; padding: 10px; }
+.cpt-plan-vues figcaption { font-size: 12px; font-weight: 600; color: var(--brun-fonce); margin-bottom: 4px; }
+.cpt-plan-vues svg { width: 100%; height: auto; max-height: 60svh; }
+.cpt-guide { position: fixed; z-index: 71; left: 50%; top: 50%; translate: -50% -50%; width: min(440px, calc(100vw - 32px)); border-radius: 20px; background: #fff; padding: 18px; box-shadow: 0 24px 60px -20px rgba(43, 35, 32, 0.45); }
+
+/* ---------- Les règles de hauteur (comme le garde-corps) ---------- */
+@media (min-width: 1024px) and (max-height: 900px) {
+  .cpt { --mini: 30px; }
+  .cpt-achat .cpt-aide-option { display: none; }
+}
+@media (min-width: 1024px) and (max-height: 780px) {
+  .cpt-cotes .cpt-titre-mesures { display: none; }
+  .cpt-achat .cpt-libelle, .cpt-achat .cpt-ligne-libre { margin-top: 7px; }
+  .cpt-achat .cpt-filet { margin: 9px 0 0; }
+  :is(.cpt-achat, .cpt-cotes) .cpt-pilule [role="radio"] { padding-top: 0.2rem; padding-bottom: 0.2rem; }
+}
+@media (min-width: 1024px) and (max-height: 740px) {
+  .cpt-achat { padding-top: 0.6rem; }
+  .cpt-barre-achat { margin-top: 0.25rem; padding-top: 0.4rem; padding-bottom: 0.5rem; }
+  .cpt .cpt-cta { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+  .cpt-achat .cpt-ligne-choix { grid-template-columns: 3rem minmax(0, 1fr) 12px; padding: 4px 10px 4px 4px; }
+  .cpt-achat .cpt-lc-picto { width: 3rem; height: 3rem; }
+}
+
+/* Téléphone (en attendant le parcours question par question du lot 11) : le dessin d'abord, puis les styles, les mesures
+   et l'achat, à la suite. */
+@media (max-width: 767px) {
+  .cpt-titre-config { order: 0; display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+  .cpt-titre-gauche h2 { font-size: 22px; }
+  .cpt-croquis { order: 1; height: clamp(200px, 34svh, 300px); }
+  .cpt-modeles { order: 2; }
+  .cpt-cotes { order: 3; }
+  .cpt-achat { order: 4; }
+}
+@media (max-width: 767px) { .cpt-croquis-legende { display: none; } }
