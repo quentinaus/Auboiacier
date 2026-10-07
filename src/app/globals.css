@@ -194,7 +194,7 @@ textarea:focus-visible,
   }
 }
 /* L'ACCUEIL, SANS PILULES (Quentin, 07/10/2026 : « j'aime pas les boutons en forme de pilule, ça fait trop IA ») : angles droits,
-   et sur la photo du premier écran, un trait blanc fin — le même que celui qui sépare et entoure les trois photos. Seulement
+   et sur la photo du premier écran, un trait blanc fin — le même que celui qui sépare les trois photos. Seulement
    l'accueil : les autres pages gardent leurs boutons. */
 .accueil-droit .btn-plein,
 .accueil-droit .btn-clair,
