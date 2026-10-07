@@ -152,7 +152,7 @@ textarea:focus-visible,
   align-items: center;
   justify-content: center;
   gap: 0.4em;
-  border-radius: 999px;
+  border-radius: 10px;
   padding: 0.78rem 1.45rem;
   font-size: 15px;
   font-weight: 500;
@@ -747,12 +747,12 @@ textarea:focus-visible,
 }
 .curseur-cote::-webkit-slider-runnable-track {
   height: 6px;
-  border-radius: 999px;
+  border-radius: 10px;
   background: rgba(43, 35, 32, 0.14);
 }
 .curseur-cote::-moz-range-track {
   height: 6px;
-  border-radius: 999px;
+  border-radius: 10px;
   background: rgba(43, 35, 32, 0.14);
 }
 .curseur-cote::-webkit-slider-thumb {
@@ -760,7 +760,7 @@ textarea:focus-visible,
   margin-top: -7px;
   height: 20px;
   width: 20px;
-  border-radius: 999px;
+  border-radius: 10px;
   border: 2px solid #fff;
   background: #2b2320;
   box-shadow: 0 1px 3px rgba(43, 35, 32, 0.45);
@@ -768,7 +768,7 @@ textarea:focus-visible,
 .curseur-cote::-moz-range-thumb {
   height: 20px;
   width: 20px;
-  border-radius: 999px;
+  border-radius: 10px;
   border: 2px solid #fff;
   background: #2b2320;
   box-shadow: 0 1px 3px rgba(43, 35, 32, 0.45);
@@ -1339,7 +1339,7 @@ textarea:focus-visible,
   width: 6px;
   height: 6px;
   margin-left: -3px;
-  border-radius: 999px;
+  border-radius: 10px;
   background: #ffffff;
 }
 @media (min-width: 768px) {
@@ -1584,7 +1584,7 @@ textarea:focus-visible,
 /* ---------- Barre des matières (Acier · Main courante · Rosace) : capsule de verre ---------- */
 #configuration:has(.fond-gc) .titre-config [class~="bg-white/55"] {
   border: 1px solid transparent;
-  border-radius: 999px !important;
+  border-radius: 10px !important;
   padding: 6px 8px 6px 20px !important;
   column-gap: 22px !important;
   background:
@@ -1613,7 +1613,7 @@ textarea:focus-visible,
   box-shadow: 0 0 0 2px var(--lg-select), 0 4px 10px -4px rgba(0,0,0,.35) !important;
 }
 #configuration:has(.fond-gc) .titre-config button:has(.coupe-mc) {
-  border-radius: 999px !important;
+  border-radius: 10px !important;
   padding: 4px 12px 4px 6px !important;
   gap: 8px !important;
   background: var(--lg-thumb) !important;
@@ -1673,7 +1673,7 @@ textarea:focus-visible,
 #configuration:has(.fond-gc) .carte-verre select[class~="border-[#9a8d80]"]:not(dialog *),
 #configuration:has(.fond-gc) .carte-verre select[class~="rounded-full"]:not(dialog *) {
   border-color: transparent !important;
-  border-radius: 999px !important;
+  border-radius: 10px !important;
   background-color: var(--lg-field) !important;
   box-shadow: inset 0 1px 2px var(--lg-track-shade), inset 0 0 0 1px var(--lg-track-rim) !important;
 }
@@ -1718,7 +1718,7 @@ textarea:focus-visible,
 #configuration:has(.fond-gc) .carte-modeles :is(a, button)[class~="rounded-full"]:not([aria-label^="Modèles"]),
 #configuration:has(.fond-gc) .carte-verre .barre-achat div[class~="border-[#9a8d80]"] {
   border: 0 !important;
-  border-radius: 999px !important;
+  border-radius: 10px !important;
   background: var(--lg-chip) !important;
   box-shadow: inset 0 1px 0 var(--lg-top-line), inset 0 0 0 1px var(--lg-chip-rim), 0 2px 6px -3px var(--lg-thumb-shadow) !important;
   color: var(--lg-ink) !important;
@@ -1873,4 +1873,25 @@ textarea:focus-visible,
   box-shadow: inset 0 1px 0 var(--lg-top-line), 0 0 0 .5px var(--lg-hair), 0 3px 10px -2px var(--lg-thumb-shadow) !important;
 }
 #configuration:has(.fond-gc) .entete-tel :is(h3, span[class~="tabular-nums"]) { color: var(--lg-ink) !important; }
+
+/* ==========================================================================
+   Plus de boutons en pilule (Quentin, 07/10/2026 : « ça fait trop IA et pas élégant ») : des coins légèrement
+   arrondis, partout, configurateur compris. Les vrais ronds (icônes et pastilles de taille fixe) restent ronds.
+   ========================================================================== */
+:is(
+    [class~="rounded-full"]:not([class*="h-"][class*="w-"]):not([class*="size-"]):not([class*="aspect-square"]),
+    .btn-plein, .btn-clair, .btn-contour, .btn-verre, .aplat-tag, .aplat-btn, .aplat-et
+  ):not(svg *) {
+  border-radius: 10px !important;
+}
+#configuration:has(.fond-gc) [class~="rounded-full"]:not([class*="h-"][class*="w-"]):not([class*="size-"]):not([class*="aspect-square"]):not(svg *) {
+  border-radius: 10px !important;
+}
+/* Dans un groupe de choix, l'élément choisi s'arrondit un peu moins que son cadre : les coins se suivent. */
+:is([class~="rounded-full"]:not([class*="h-"][class*="w-"])) > :is(button, label, span)[class~="rounded-full"]:not([class*="h-"][class*="w-"]) {
+  border-radius: 7px !important;
+}
+#configuration:has(.fond-gc) [class~="rounded-full"]:not([class*="h-"][class*="w-"]) > :is(button, label, span)[class~="rounded-full"]:not([class*="h-"][class*="w-"]) {
+  border-radius: 7px !important;
+}
 
