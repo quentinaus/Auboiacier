@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 5ede27bec1d29bd59a5a8647.
+// Source : l'outil de plans (plans-atelier.html), sha256 8c6f3c2992681e4c07411b93.
 /* eslint-disable */
 
 
@@ -1033,8 +1033,8 @@ function mtGrilleAppui(G, cS) {
 //   ptStyle (facultatif) : "plein" | "barreaux" | "lamesChene" | "rosace" | "volutes" remplit les blocs non donnés.
 //   ptDecor (lot 3, 07/10/2026) : "aucun" | une formule de PT_DECOR_FORMULES ("classique", "frise", "medaillon",
 //     "couronnement", "coeurs", "surMesure") | "perso" (ptDecorChoix : 1 ou 2 placements motifs.js, tableau ou JSON) ;
-//     finitions ptBouts "droit" | "effile" | "bouton", ptLiaison "soudure" | "colliers", ptBarreauxDeco "carre" | "torsade" |
-//     "bagues", ptMiroir (vantail droit en miroir, oui par défaut). Le décor vient de la bibliothèque de styles
+//     finitions ptBouts "droit" | "effile" | "bouton", ptBarreauxDeco "carre" | "torsade" | "bagues" (liaison toujours
+//     soudée : pas de colliers, décision de Quentin du 07/10/2026), ptMiroir (vantail droit en miroir, oui par défaut). Le décor vient de la bibliothèque de styles
 //     (modules/motifs.js, chargée AVANT ce module), en mode catalogue : la référence achetée exacte est dessinée et l'écart
 //     des barreaux est réglé sur elle. Un décor impose l'acier. ptRemp "volutes" (ancien) se lit comme la formule « frise ».
 //
@@ -1308,7 +1308,9 @@ function ptEntrees(v, modele) {
   if (c.remp === "volutes") { c.remp = "barreaux"; if (c.decor === "aucun") c.decor = "frise"; }
   c.decorChoix = c.decor === "perso" ? ptDecorPerso(v.ptDecorChoix) : c.decor !== "aucun" ? PT_DECOR_FORMULES[c.decor].choix.map((x) => ({ ...x })) : [];
   if (c.decor === "perso" && !c.decorChoix.length) c.decor = "aucun";
-  c.decorFin = { bouts: ptChoix(v.ptBouts, ["droit", "effile", "bouton"], "effile"), liaison: ptChoix(v.ptLiaison, ["soudure", "colliers"], "colliers"), barreaux: ptChoix(v.ptBarreauxDeco, ["carre", "torsade", "bagues"], "carre") };
+  // Liaison TOUJOURS soudée : décision de Quentin du 07/10/2026 (« je sais pas faire tout ce qui est collier… c'est
+  // uniquement soudure, on propose pas ») : aucun collier, ni dessiné, ni acheté, ni proposé.
+  c.decorFin = { bouts: ptChoix(v.ptBouts, ["droit", "effile", "bouton"], "effile"), liaison: "soudure", barreaux: ptChoix(v.ptBarreauxDeco, ["carre", "torsade", "bagues"], "carre") };
   c.decorMiroir = ptBool(v.ptMiroir, true);
   c.decorNotes = [];
   if (c.decor !== "aucun") {
@@ -1560,7 +1562,7 @@ function ptFusion(a, b) {
 function ptDecorZone(c, z, F, pieces, q) {
   const RG = PT_ATELIER, M = c.M, d = M.densite;
   const pointes = c.pointes && z.dessus;
-  const choix = z.decor.map((ch) => ({ ...c.decorFin, ...ch, catalogue: true, pointes: pointes ? "lance" : "aucune" }));
+  const choix = z.decor.map((ch) => ({ ...c.decorFin, ...ch, liaison: "soudure", catalogue: true, pointes: pointes ? "lance" : "aucune" }));
   const mz = { x0: z.x0, x1: z.x1, y0: z.y0, haut: z.haut, barreau: M.barreau.b, vide: RG.decor.vide, pointes: pointes ? M.cadre.b : 0, miroir: !!z.miroir && c.decorMiroir, catalogue: true };
   if (choix.some((ch) => ch.assemblage === "cimier")) mz.cimier = { y: z.hautExt, h: RG.decor.cimier };
   const Fm = [], pm = [], qm = {};
@@ -2456,4 +2458,4 @@ function ptVueCote(c, C, haut, xa, pil, prP, massif, yV) {
 
 
 export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, MT_AVEC, MT_NOMS };
-export const EMPREINTE = "94e2748ae4d1";
+export const EMPREINTE = "846681042134";

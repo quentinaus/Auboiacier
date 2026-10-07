@@ -1,6 +1,6 @@
 {
- "source": "5ede27bec1d29bd59a5a8647",
- "moteur": "2c7938b7d074",
+ "source": "8c6f3c2992681e4c07411b93",
+ "moteur": "a3ba1cf8adc9",
  "cas": [
   {
    "modele": "ptBattant",
@@ -257,9 +257,9 @@
    "v": {
     "ptStyle": "volutes"
    },
-   "prix": 5090,
+   "prix": 4720,
    "alertes": 0,
-   "poids": 182
+   "poids": 179
   },
   {
    "modele": "ptBattant",
@@ -267,9 +267,9 @@
     "ptStyle": "volutes",
     "ptMoteur": true
    },
-   "prix": 6230,
+   "prix": 5860,
    "alertes": 0,
-   "poids": 182
+   "poids": 179
   },
   {
    "modele": "ptBattant",
@@ -277,9 +277,9 @@
     "ptStyle": "volutes",
     "ptPoteaux": "alu"
    },
-   "prix": 6150,
+   "prix": 5780,
    "alertes": 0,
-   "poids": 182
+   "poids": 179
   },
   {
    "modele": "ptBattant",
@@ -287,9 +287,9 @@
     "ptStyle": "volutes",
     "ptGuidage": "auto"
    },
-   "prix": 5090,
+   "prix": 4720,
    "alertes": 0,
-   "poids": 182
+   "poids": 179
   },
   {
    "modele": "ptBattant",
@@ -298,9 +298,9 @@
     "ptP": 4200,
     "ptH": 1800
    },
-   "prix": 6040,
+   "prix": 5580,
    "alertes": 0,
-   "poids": 245
+   "poids": 241
   },
   {
    "modele": "ptCoulissant",
@@ -557,9 +557,9 @@
    "v": {
     "ptStyle": "volutes"
    },
-   "prix": 5570,
+   "prix": 5150,
    "alertes": 0,
-   "poids": 195
+   "poids": 191
   },
   {
    "modele": "ptCoulissant",
@@ -567,9 +567,9 @@
     "ptStyle": "volutes",
     "ptMoteur": true
    },
-   "prix": 6450,
+   "prix": 6030,
    "alertes": 0,
-   "poids": 195
+   "poids": 191
   },
   {
    "modele": "ptCoulissant",
@@ -577,9 +577,9 @@
     "ptStyle": "volutes",
     "ptPoteaux": "alu"
    },
-   "prix": 6630,
+   "prix": 6210,
    "alertes": 0,
-   "poids": 195
+   "poids": 191
   },
   {
    "modele": "ptCoulissant",
@@ -587,9 +587,9 @@
     "ptStyle": "volutes",
     "ptGuidage": "auto"
    },
-   "prix": 6680,
+   "prix": 6260,
    "alertes": 0,
-   "poids": 195
+   "poids": 191
   },
   {
    "modele": "ptCoulissant",
@@ -598,9 +598,9 @@
     "ptP": 4200,
     "ptH": 1800
    },
-   "prix": 6380,
+   "prix": 5890,
    "alertes": 0,
-   "poids": 253
+   "poids": 248
   },
   {
    "modele": "ptPliant",
@@ -857,9 +857,9 @@
    "v": {
     "ptStyle": "volutes"
    },
-   "prix": 5980,
+   "prix": 5660,
    "alertes": 0,
-   "poids": 187
+   "poids": 184
   },
   {
    "modele": "ptPliant",
@@ -867,9 +867,9 @@
     "ptStyle": "volutes",
     "ptMoteur": true
    },
-   "prix": 7730,
+   "prix": 7400,
    "alertes": 0,
-   "poids": 187
+   "poids": 184
   },
   {
    "modele": "ptPliant",
@@ -877,9 +877,9 @@
     "ptStyle": "volutes",
     "ptPoteaux": "alu"
    },
-   "prix": 7040,
+   "prix": 6710,
    "alertes": 0,
-   "poids": 187
+   "poids": 184
   },
   {
    "modele": "ptPliant",
@@ -887,9 +887,9 @@
     "ptStyle": "volutes",
     "ptGuidage": "auto"
    },
-   "prix": 5980,
+   "prix": 5660,
    "alertes": 0,
-   "poids": 187
+   "poids": 184
   },
   {
    "modele": "ptPliant",
@@ -898,9 +898,9 @@
     "ptP": 4200,
     "ptH": 1800
    },
-   "prix": 6710,
+   "prix": 6300,
    "alertes": 0,
-   "poids": 244
+   "poids": 240
   },
   {
    "modele": "ptPortillon",
@@ -1178,9 +1178,9 @@
     "ptStyle": "volutes",
     "ptP": 1000
    },
-   "prix": 2390,
+   "prix": 2290,
    "alertes": 0,
-   "poids": 56
+   "poids": 55
   },
   {
    "modele": "ptPortillon",
@@ -1189,9 +1189,9 @@
     "ptP": 1000,
     "ptMoteur": true
    },
-   "prix": 2390,
+   "prix": 2290,
    "alertes": 0,
-   "poids": 56
+   "poids": 55
   },
   {
    "modele": "ptPortillon",
@@ -1200,9 +1200,9 @@
     "ptP": 1000,
     "ptPoteaux": "alu"
    },
-   "prix": 3270,
+   "prix": 3170,
    "alertes": 0,
-   "poids": 56
+   "poids": 55
   },
   {
    "modele": "ptPortillon",
@@ -1211,9 +1211,9 @@
     "ptP": 1000,
     "ptGuidage": "auto"
    },
-   "prix": 2390,
+   "prix": 2290,
    "alertes": 0,
-   "poids": 56
+   "poids": 55
   },
   {
    "modele": "ptPortillon",
@@ -1222,9 +1222,9 @@
     "ptP": 1200,
     "ptH": 1800
    },
-   "prix": 2580,
+   "prix": 2460,
    "alertes": 0,
-   "poids": 72
+   "poids": 71
   },
   {
    "modele": "ptBattant",
@@ -1232,9 +1232,9 @@
     "ptStyle": "barreaux",
     "ptDecor": "classique"
    },
-   "prix": 3810,
+   "prix": 3660,
    "alertes": 0,
-   "poids": 135
+   "poids": 134
   },
   {
    "modele": "ptBattant",
@@ -1242,9 +1242,9 @@
     "ptStyle": "barreaux",
     "ptDecor": "frise"
    },
-   "prix": 4180,
+   "prix": 3770,
    "alertes": 0,
-   "poids": 137
+   "poids": 133
   },
   {
    "modele": "ptBattant",
@@ -1252,7 +1252,7 @@
     "ptStyle": "barreaux",
     "ptDecor": "medaillon"
    },
-   "prix": 3350,
+   "prix": 3330,
    "alertes": 0,
    "poids": 117
   },
@@ -1272,9 +1272,9 @@
     "ptStyle": "barreaux",
     "ptDecor": "coeurs"
    },
-   "prix": 3370,
+   "prix": 3300,
    "alertes": 0,
-   "poids": 95
+   "poids": 94
   },
   {
    "modele": "ptBattant",
@@ -1293,7 +1293,7 @@
     "ptDecor": "classique",
     "ptP": 1000
    },
-   "prix": 1980,
+   "prix": 1940,
    "alertes": 0,
    "poids": 42
   },
@@ -1304,9 +1304,9 @@
     "ptDecor": "frise",
     "ptP": 1000
    },
-   "prix": 2070,
+   "prix": 1950,
    "alertes": 0,
-   "poids": 40
+   "poids": 39
   },
   {
    "modele": "ptPortillon",
@@ -1315,7 +1315,7 @@
     "ptDecor": "medaillon",
     "ptP": 1000
    },
-   "prix": 1870,
+   "prix": 1860,
    "alertes": 0,
    "poids": 36
   },
@@ -1337,7 +1337,7 @@
     "ptDecor": "coeurs",
     "ptP": 1000
    },
-   "prix": 1870,
+   "prix": 1850,
    "alertes": 0,
    "poids": 32
   },
