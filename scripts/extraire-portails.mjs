@@ -5,13 +5,18 @@
 //
 // L'outil n'entre jamais dans le dépôt : il contient les coûts de l'atelier. Ce script COPIE, tels quels, les deux blocs
 // que l'outil a collés depuis plans/modules/ (entre leurs repères), et écrit :
-//   src/lib/portails-outil/moteur.genere.mjs      plans-portails.js : la géométrie, le débit, les dessins, les contrôles ;
-//                                                 AUCUN prix (refus si un nom de tarif ou un prix d'achat y apparaît) ;
-//   src/lib/portails-outil/chiffrage.chiffre.mjs  chiffrage-portails.js + les réglages et SEULS les tarifs qu'il utilise,
+//   src/lib/portails-outil/moteur.genere.mjs      motifs.js (le décor, lot 3) + plans-portails.js : la géométrie, le débit,
+//                                                 les dessins, les contrôles ; AUCUN prix (refus si un nom de tarif ou un
+//                                                 prix d'achat y apparaît). motifs.js y entre SANS commentaires, et son
+//                                                 catalogue des volutes du commerce ANONYMISÉ : ni référence, ni fournisseur,
+//                                                 ni clé de prix (chaque référence devient « c1 », « c2 »…) ;
+//   src/lib/portails-outil/chiffrage.chiffre.mjs  chiffrage-motifs.js + chiffrage-portails.js + les réglages, SEULS les
+//                                                 tarifs utilisés, et la table « c1 » → clé de prix du catalogue,
 //                                                 CHIFFRÉS avec la clé du serveur (le dépôt GitHub est public) ;
 //   tests/reference/portails-outil.json           ce que l'outil répond sur une série de portails : prix de vente
 //                                                 seulement, jamais un coût.
 import { createHash } from "node:crypto";
+import * as acorn from "acorn";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -44,6 +49,48 @@ function entre(debut, fin) {
 const plans = entre(/\/\* ---------- Portails \(plans\/modules\/plans-portails\.js, collé tel quel le \d\d\/\d\d\/\d{4}\) ---------- \*\/\n/, "\n  /* ---------- fin du module des portails ---------- */");
 const chiffrage = entre(/\/\* ---------- Chiffrage des portails \(plans\/modules\/chiffrage-portails\.js, collé tel quel le \d\d\/\d\d\/\d{4}\) ---------- \*\/\n/, "/* ---------- fin du chiffrage des portails ---------- */");
 const tarifs = entre("/* ---- TARIFS GÉNÉRÉS DEPUIS LE TABLEUR (début)", "/* ---- TARIFS GÉNÉRÉS DEPUIS LE TABLEUR (fin)");
+const motifsBrut = entre(/\/\* ---- MODULE motifs\.js \(début\)[^\n]*\n/, "/* ---- MODULE motifs.js (fin)");
+const chiffrageMotifs = entre(/\/\* ---- MODULE chiffrage-motifs\.js \(début\)[^\n]*\n/, "/* ---- MODULE chiffrage-motifs.js (fin)");
+
+// ---------- 0. motifs.js pour le code public : sans commentaires, catalogue anonymisé ----------
+// Les commentaires retirés comme pour le garde-corps (acorn) : seul sur sa ligne, la ligne part ; en fin de ligne, lui et
+// les espaces d'avant ; au milieu du code, une espace. Rien d'autre ne bouge (les gabarits `…` gardent leurs espaces).
+function sansCommentaires(js) {
+  const c = [];
+  acorn.parse(js, { ecmaVersion: "latest", sourceType: "script", onComment: (bloc, t, s, e) => c.push([s, e, bloc]) });
+  let out = "", i = 0;
+  for (const [s, e, bloc] of c) {
+    if (s < i) continue;
+    const ls = js.lastIndexOf("\n", s - 1) + 1, f = js.indexOf("\n", e), le = f === -1 ? js.length : f;
+    const seulAvant = ls >= i && js.slice(ls, s).trim() === "", seulApres = js.slice(e, le).trim() === "";
+    if (seulAvant && seulApres) { out += js.slice(i, ls); i = Math.min(le + 1, js.length); }
+    else if (seulApres) { out += js.slice(i, s).replace(/[ \t]+$/, ""); i = e; }
+    else { out += js.slice(i, s) + (bloc ? " " : ""); i = e; }
+  }
+  return out + js.slice(i);
+}
+// Le catalogue : chaque référence du commerce (fournisseur + référence) devient un code anonyme « cN » ; la clé de prix
+// et la note partent. La table code → clé de prix ne voyage que dans le chiffrage chiffré (PTC_CLES_CATALOGUE).
+const clesCatalogue = {}, codes = new Map(), refsRetirees = new Set(), fournisseurs = new Set();
+const motifs = sansCommentaires(motifsBrut)
+  .replace(/const MT_CATALOGUE = \[([\s\S]*?)\n\];/, (tout, corps) => "const MT_CATALOGUE = [" + corps.split("\n").map((l) => {
+    if (!/^\s*\{ forme:/.test(l)) return l;
+    const ref = (l.match(/ref: "([^"]*)"/) || [])[1], fo = (l.match(/fournisseur: "([^"]*)"/) || [])[1], prix = (l.match(/prixCle: "([^"]*)"/) || [])[1];
+    if (!ref || !fo || !prix) arret(`MT_CATALOGUE : ligne sans référence, fournisseur ou clé de prix : ${l.trim().slice(0, 80)}`);
+    const k = `${fo} ${ref}`;
+    if (!codes.has(k)) codes.set(k, `c${codes.size + 1}`);
+    const id = codes.get(k);
+    if (clesCatalogue[id] && clesCatalogue[id] !== prix) arret(`MT_CATALOGUE : la référence ${k} a deux clés de prix`);
+    clesCatalogue[id] = prix; refsRetirees.add(ref); fournisseurs.add(fo);
+    return l.replace(/ref: "[^"]*"/, `ref: "${id}"`).replace(/fournisseur: "[^"]*"/, 'fournisseur: ""').replace(/,\s*prixCle: "[^"]*"/, "").replace(/,\s*note: "(?:[^"\\]|\\.)*"/, "");
+  }).join("\n") + "\n];")
+  .replace(/const MT_FOURNISSEURS = \{[^\n]*\};/, "const MT_FOURNISSEURS = {};")
+  // Le champ de la clé de prix recopié sur les pièces et les commandes : sans objet dans le code public (toujours vide).
+  .replace(/,\s*prixCle: e\.prixCle/g, "");
+if (!codes.size) arret("motifs.js : catalogue des volutes (MT_CATALOGUE) introuvable");
+for (const x of [/prixCle/, /€/, ...[...fournisseurs].map((f) => new RegExp(`"${f}"`)), ...[...refsRetirees].map((r) => new RegExp(`"${r.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`))]) {
+  if (x.test(motifs)) arret(`motifs.js public : « ${x.source} » est encore là (référence, fournisseur ou prix)`);
+}
 // Le dessin SVG de l'outil (bornes, coteGeom, svgDe) : le même rendu que les plans, sans passer par le moteur du garde-corps.
 const dessin = entre("  /* ---------- Dessin SVG ---------- */\n", "  function dessiner(svg, prims, petit = false) {");
 if (!/function svgDe\(/.test(dessin) || /document|window/.test(dessin)) arret("le dessin SVG de l'outil a changé de forme");
@@ -52,13 +99,13 @@ if (!/function svgDe\(/.test(dessin) || /document|window/.test(dessin)) arret("l
 for (const interdit of [/\bTARIFS_ACHATS\b/, /\bREGLAGES\b/, /\bprixPaye\b/, /\bht:/, /\bheure_atelier\b/, /\bchiffrerPortail\b/]) {
   if (interdit.test(plans)) arret(`le moteur des portails contient « ${interdit.source} » : il ne doit porter aucun prix`);
 }
-for (const n of ["calculerPortail", "ptEntrees", "PT_STYLES", "PT_MODELES", "PT_ATELIER", "PT_MATIERES"]) {
+for (const n of ["calculerPortail", "ptEntrees", "PT_STYLES", "PT_MODELES", "PT_ATELIER", "PT_MATIERES", "PT_DECOR_FORMULES"]) {
   if (!new RegExp(`^(?:const|function) ${n}\\b`, "m").test(plans)) arret(`${n} absent du moteur`);
 }
 const enTete = (quoi) => `// FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.\n// ${quoi}\n// Source : l'outil de plans (plans-atelier.html), sha256 ${sha(html).slice(0, 24)}.\n`;
-const moteur = enTete("Le moteur des PORTAILS (plans/modules/plans-portails.js, tel que collé dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.")
-  + "/* eslint-disable */\n" + plans + "\n" + dessin
-  + `\nexport { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES };\nexport const EMPREINTE = ${JSON.stringify(empreinte(plans))};\n`;
+const moteur = enTete("Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.")
+  + "/* eslint-disable */\n" + motifs + "\n" + plans + "\n" + dessin
+  + `\nexport { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, MT_AVEC, MT_NOMS };\nexport const EMPREINTE = ${JSON.stringify(empreinte(motifs + plans))};\n`;
 const moteurTypes = `// FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : types du moteur des portails (moteur.genere.mjs).
 export type Primitive = { t: string; [k: string]: unknown };
 export type ResultatPortail = {
@@ -69,7 +116,8 @@ export type ResultatPortail = {
   poids: number; kg: number; grandeCote: number;
   dims: { P: number; H: number; type: string; vantaux: number[]; gs: number; hautMax: number };
   quant: Record<string, unknown>;
-  config: Record<string, unknown> & { type: string; mat: string; remp: string };
+  config: Record<string, unknown> & { type: string; mat: string; remp: string; decor: string };
+  decor: { formule: string; nom: string; refus: { quoi: string; raison: string }[]; cimierH: number } | null;
 };
 export declare function calculerPortail(v: Record<string, unknown>, modele: string): ResultatPortail;
 export declare function ptEntrees(v: Record<string, unknown>, modele: string): Record<string, unknown>;
@@ -78,11 +126,14 @@ export declare const PT_MODELES: Readonly<Record<string, { type: string; nom: st
 export declare function svgDe(prims: readonly unknown[], petit?: boolean | string): { vb: number[]; fs: number; html: string };
 export declare const PT_ATELIER: Readonly<Record<string, unknown> & { bornes: { P: Record<string, [number, number]>; H: [number, number]; fleche: [number, number] } }>;
 export declare const PT_MATIERES: Readonly<Record<string, unknown>>;
+export declare const PT_DECOR_FORMULES: Readonly<Record<string, { nom: string; ligne: string; choix: Record<string, string>[] }>>;
+export declare const MT_AVEC: Readonly<Record<string, string[]>>;
+export declare const MT_NOMS: Readonly<Record<string, string>>;
 export declare const EMPREINTE: string;
 `;
 
 // ---------- 2. Le chiffrage, chiffré : seulement les tarifs qu'il utilise ----------
-const cles = new Set([...chiffrage.matchAll(/"([a-z0-9_]+)"/g)].map((m) => m[1]).concat(["heure_atelier"]));
+const cles = new Set([...(chiffrageMotifs + chiffrage).matchAll(/"([a-z0-9_]+)"/g), ...chiffrageMotifs.matchAll(/^\s{2}([a-z0-9_]+): \{ ht:/gm)].map((m) => m[1]).concat(["heure_atelier"], Object.values(clesCatalogue)));
 const lignesTarifs = tarifs.split("\n");
 const debutT = lignesTarifs.findIndex((l) => l.startsWith("const TARIFS_ACHATS = {"));
 const finT = lignesTarifs.findIndex((l, i) => i > debutT && l === "};");
@@ -92,7 +143,7 @@ const debutR = lignesTarifs.findIndex((l) => l.startsWith("const REGLAGES = {"))
 const finR = lignesTarifs.findIndex((l, i) => i > debutR && l === "};");
 const reglages = lignesTarifs.slice(debutR, finR + 1).join("\n");
 // Un tarif manquant se voit au calcul de la référence (étape 3) : « tarif inconnu dans Prix des achats ».
-const clair = `${reglages}\nconst TARIFS_ACHATS = {\n${gardees.join("\n")}\n};\n${chiffrage}`;
+const clair = `${reglages}\nconst TARIFS_ACHATS = {\n${gardees.join("\n")}\n};\nconst PTC_CLES_CATALOGUE = ${JSON.stringify(clesCatalogue)};\n${chiffrageMotifs}\n${chiffrage}`;
 const cle = lireCle(RACINE);
 if (!cle) arret("clé du chiffrage absente (.env.chiffrage.local ou CHIFFRAGE_GARDE_CORPS_CLE)");
 const paquet = chiffrer(clair, cle);
@@ -102,15 +153,18 @@ const chiffre = enTete("Le CHIFFRAGE des portails (coûts, fournisseurs, heure, 
 const chiffreTypes = "// FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : types du chiffrage chiffré.\nexport declare const CHIFFRE: string;\nexport declare const EMPREINTE_CLAIR: string;\nexport declare const EMPREINTE_SOURCE: string;\n";
 
 // ---------- 3. La référence : ce que l'outil répond (prix de vente seulement) ----------
-const evalMoteur = new Function(`"use strict";\n${plans}\nreturn { calculerPortail };`)();
-const evalChiffrage = new Function(`"use strict";\n${clair}\nreturn { chiffrerPortail };`)();
+const evalMoteur = new Function(`"use strict";\n${motifs}\n${plans}\nreturn { calculerPortail };`)();
+const evalChiffrage = new Function(`"use strict";\n${clair}\nreturn { chiffrerPortail, PTC_CLES_CATALOGUE };`)();
 const CAS = [];
 for (const modele of ["ptBattant", "ptCoulissant", "ptPliant", "ptPortillon"]) for (const ptStyle of ["plein", "lisse", "barreaux", "lamesChene", "rosace", "volutes"])
   for (const opts of [{}, { ptMoteur: true }, { ptPoteaux: "alu" }, { ptGuidage: "auto" }, { ptP: modele === "ptPortillon" ? 1200 : 4200, ptH: 1800 }])
     CAS.push({ modele, v: { ptStyle, ...(modele === "ptPortillon" ? { ptP: 1000 } : {}), ...opts } });
+// Les décors (lot 3) : chaque formule sur le battant et le portillon, avec le catalogue anonymisé du site.
+for (const modele of ["ptBattant", "ptPortillon"]) for (const ptDecor of ["classique", "frise", "medaillon", "couronnement", "coeurs", "surMesure"])
+  CAS.push({ modele, v: { ptStyle: "barreaux", ptDecor, ...(modele === "ptPortillon" ? { ptP: 1000 } : {}) } });
 const reference = CAS.map(({ modele, v }) => {
   const R = evalMoteur.calculerPortail(v, modele);
-  const C = evalChiffrage.chiffrerPortail(R, v);
+  const C = evalChiffrage.chiffrerPortail(R, v, undefined, { clesCatalogue: evalChiffrage.PTC_CLES_CATALOGUE });
   return { modele, v, prix: C.conseille, alertes: R.alertes.length, poids: Math.round(R.poids) };
 });
 const refTexte = JSON.stringify({ source: sha(html).slice(0, 24), moteur: empreinte(plans), cas: reference }, null, 1) + "\n";

@@ -8,7 +8,8 @@ export type ResultatPortail = {
   poids: number; kg: number; grandeCote: number;
   dims: { P: number; H: number; type: string; vantaux: number[]; gs: number; hautMax: number };
   quant: Record<string, unknown>;
-  config: Record<string, unknown> & { type: string; mat: string; remp: string };
+  config: Record<string, unknown> & { type: string; mat: string; remp: string; decor: string };
+  decor: { formule: string; nom: string; refus: { quoi: string; raison: string }[]; cimierH: number } | null;
 };
 export declare function calculerPortail(v: Record<string, unknown>, modele: string): ResultatPortail;
 export declare function ptEntrees(v: Record<string, unknown>, modele: string): Record<string, unknown>;
@@ -17,4 +18,7 @@ export declare const PT_MODELES: Readonly<Record<string, { type: string; nom: st
 export declare function svgDe(prims: readonly unknown[], petit?: boolean | string): { vb: number[]; fs: number; html: string };
 export declare const PT_ATELIER: Readonly<Record<string, unknown> & { bornes: { P: Record<string, [number, number]>; H: [number, number]; fleche: [number, number] } }>;
 export declare const PT_MATIERES: Readonly<Record<string, unknown>>;
+export declare const PT_DECOR_FORMULES: Readonly<Record<string, { nom: string; ligne: string; choix: Record<string, string>[] }>>;
+export declare const MT_AVEC: Readonly<Record<string, string[]>>;
+export declare const MT_NOMS: Readonly<Record<string, string>>;
 export declare const EMPREINTE: string;

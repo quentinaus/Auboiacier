@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  appliquerStyle, configDepart, guidePortail, lireConfig, planPortail, styleDe, versParams, SLUGS_PORTAIL, STYLES_PORTAIL,
+  appliquerStyle, configDepart, guidePortail, lireConfig, planPortail, styleDe, versParams, DECORS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL,
   type ConfigPortail, type SlugPortail,
 } from "../src/lib/portails.ts";
 import { prixDepartPortail, prixPortail } from "../src/lib/portails-outil/prix.ts";
@@ -27,6 +27,7 @@ function configDe(slug: SlugPortail, v: Record<string, unknown>): ConfigPortail 
   if (v.ptMoteur) cfg = { ...cfg, moteur: true };
   if (v.ptPoteaux) cfg = { ...cfg, poteaux: v.ptPoteaux as ConfigPortail["poteaux"] };
   if (v.ptGuidage) cfg = { ...cfg, guidage: v.ptGuidage as ConfigPortail["guidage"] };
+  if (v.ptDecor) cfg = { ...cfg, decor: v.ptDecor as ConfigPortail["decor"], mat: "acier" };
   return cfg;
 }
 
@@ -71,9 +72,10 @@ test("la configuration se relit à l'identique, et tout choix inconnu ou toute c
 test("un style remplit les blocs ; changer un bloc donne « composé »", () => {
   const cfg = appliquerStyle(configDepart("portail-battant"), "volutes");
   assert.equal(cfg.mat, "acier");
-  assert.equal(cfg.remp, "volutes");
+  assert.equal(cfg.remp, "barreaux");
+  assert.equal(cfg.decor, "frise", "le style Volutes = barreaux + la formule de décor « frise » (lot 3)");
   assert.equal(styleDe(cfg), "volutes");
-  assert.equal(styleDe({ ...cfg, remp: "barreaux" }), null);
+  assert.equal(styleDe({ ...cfg, decor: "medaillon" }), null);
 });
 
 test("le guide des trois questions mène au bon modèle", () => {
@@ -82,6 +84,20 @@ test("le guide des trois questions mène au bon modèle", () => {
   assert.deepEqual(guidePortail({ derriere: false, cote: true, sol: true }), { slug: "portail-coulissant", guidage: "rail" });
   assert.deepEqual(guidePortail({ derriere: false, cote: true, sol: false }), { slug: "portail-coulissant", guidage: "auto" });
   assert.equal(guidePortail({}), null);
+});
+
+test("décors (lot 3) : chaque formule se dessine et se chiffre sur le site, avec le catalogue anonymisé", () => {
+  for (const slug of ["portail-battant", "portillon"] as SlugPortail[]) for (const d of DECORS_PORTAIL) {
+    if (d === "aucun") continue;
+    const cfg = { ...configDepart(slug, "barreaux"), decor: d, mat: "acier" as const };
+    const R = planPortail(slug, cfg);
+    const r = prixPortail(slug, cfg);
+    if (d === "surMesure") { assert.equal(r.ok, false, `${slug} : sur mesure = à étudier`); continue; }
+    assert.equal(R.alertes.length, 0, `${slug} ${d} : ${R.alertes.join(" ")}`);
+    const base = prixPortail(slug, configDepart(slug, "barreaux"));
+    assert.ok(r.ok && base.ok && r.prix > base.prix, `${slug} ${d} : plus cher que les barreaux seuls`);
+    assert.equal(lireConfig(versParams(slug, cfg))?.cfg.decor, d, `${slug} ${d} : se relit`);
+  }
 });
 
 test("le dessin vient de l'outil : vue de face, de dessus et de côté pour chaque modèle et chaque style", () => {
@@ -98,7 +114,7 @@ test("aucun coût en clair dans ce que le dépôt publie (moteur, référence, f
     readFileSync(new URL("./reference/portails-outil.json", import.meta.url), "utf8"),
     readFileSync(new URL("../src/lib/portails.ts", import.meta.url), "utf8"),
   ].join("\n");
-  for (const interdit of ["TARIFS_ACHATS", "heure_atelier", "prixPaye", "fraisFixes", "kit_moteur", "gonds_portail_reglables", "plancher\":"]) {
+  for (const interdit of ["TARIFS_ACHATS", "heure_atelier", "prixPaye", "fraisFixes", "kit_moteur", "gonds_portail_reglables", "plancher\":", "prixCle", "volute_cat_", "coeur_cat_", "La Mine de Fer", "Ferronnerie en ligne", "Déco Fer Forgé", "SF11051", "02.204", "MTC_PRIX"]) {
     assert.ok(!publics.includes(interdit), `« ${interdit} » ne doit jamais être publié`);
   }
   const chiffre = readFileSync(new URL("../src/lib/portails-outil/chiffrage.chiffre.mjs", import.meta.url), "utf8");

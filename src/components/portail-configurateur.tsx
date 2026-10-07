@@ -16,7 +16,7 @@ import Link from "next/link";
 import { svgDe } from "@/lib/portails-outil/moteur.genere.mjs";
 import {
   appliquerStyle, bornesPortail, configDepart, guidePortail, planPortail, resumeConfig, styleDe, versParams,
-  COULEURS_PORTAIL, STYLES_PORTAIL, TEXTES_PORTAIL, type ConfigPortail, type Langue, type SlugPortail,
+  COULEURS_PORTAIL, DECORS_PORTAIL, STYLES_PORTAIL, TEXTES_PORTAIL, type ConfigPortail, type Langue, type SlugPortail,
 } from "@/lib/portails";
 import { STYLE_RENDU_PORTAIL, TEINTES_PORTAIL } from "@/lib/portails-rendu";
 import { prixAffiche } from "@/lib/ui";
@@ -195,11 +195,13 @@ export function PortailConfigurateur({
       <Pilules titre={t.titres.mat} valeur={cfg.mat} options={(["alu", "acier"] as const).map((v) => ({ v, label: t.mat[v] }))} onChange={(mat) => maj({ mat })} />
       <Pilules titre={t.titres.forme} valeur={cfg.forme} options={(["droit", "chapeau", "creux", "biais"] as const).map((v) => ({ v, label: t.forme[v] }))} onChange={(forme) => maj({ forme, ...(forme !== "droit" ? { lisse: false } : {}) })} />
       {cfg.forme !== "droit" && <Cote label={t.fleche} valeur={cfg.fleche} bornes={b.fleche} onChange={(fleche) => maj({ fleche })} />}
-      <Pilules titre={t.titres.remp} valeur={cfg.remp} options={(["plein", "panneau", "lames", "lamesAlu", "barreaux", "croix", "volutes"] as const).filter((v) => !(cfg.mat === "acier" && (v === "panneau" || v === "lamesAlu"))).map((v) => ({ v, label: t.remp[v] }))} onChange={(remp) => maj({ remp, ...(remp === "barreaux" || remp === "volutes" ? {} : { pointes: false }) })} />
+      <Pilules titre={t.titres.remp} valeur={cfg.remp} options={(["plein", "panneau", "lames", "lamesAlu", "barreaux", "croix"] as const).filter((v) => !(cfg.mat === "acier" && (v === "panneau" || v === "lamesAlu"))).map((v) => ({ v, label: t.remp[v] }))} onChange={(remp) => maj({ remp, ...(remp === "barreaux" || remp === "volutes" ? {} : { pointes: false }) })} />
+      {/* Le décor (lot 3) : une formule en fer forgé ; il impose l'acier et se pose entre des barreaux (le moteur le fait). */}
+      <Pilules titre={t.titres.decor} valeur={cfg.decor} options={DECORS_PORTAIL.map((v) => ({ v, label: t.decor[v] }))} onChange={(decor) => maj(decor === "aucun" ? { decor } : { decor, mat: "acier", remp: "barreaux" })} />
       <Pilules titre={t.titres.soub} valeur={cfg.soub} options={(["aucun", "plein", "panneau", "lames", "barreaux"] as const).filter((v) => !(cfg.mat === "acier" && v === "panneau")).map((v) => ({ v, label: t.soub[v] }))} onChange={(soub) => maj({ soub })} />
       {cfg.soub !== "aucun" && <Cote label={t.hSoub} valeur={cfg.hSoub} bornes={b.hSoub} onChange={(hSoub) => maj({ hSoub })} />}
       <div className="flex flex-wrap gap-2">
-        {(cfg.remp === "barreaux" || cfg.remp === "volutes") && (
+        {cfg.remp === "barreaux" && (
           <button type="button" aria-pressed={cfg.pointes} onClick={() => maj({ pointes: !cfg.pointes })} className={`rounded-full border px-3 py-1.5 text-[12px] ${cfg.pointes ? "border-[#2b2320] bg-[#2b2320] text-white" : "border-[#d8cfc4] text-[#5c5140]"}`}>{t.pointes}</button>
         )}
         {cfg.forme === "droit" && (

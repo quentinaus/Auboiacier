@@ -1,6 +1,6 @@
 {
- "source": "f61a9d328b3317148819f5ad",
- "moteur": "fa4b600c9dde",
+ "source": "d7137f93b6f2b50b39255eec",
+ "moteur": "7446143e4bb2",
  "cas": [
   {
    "modele": "ptBattant",
@@ -257,9 +257,9 @@
    "v": {
     "ptStyle": "volutes"
    },
-   "prix": 4530,
+   "prix": 5470,
    "alertes": 0,
-   "poids": 150
+   "poids": 182
   },
   {
    "modele": "ptBattant",
@@ -267,9 +267,9 @@
     "ptStyle": "volutes",
     "ptMoteur": true
    },
-   "prix": 5670,
+   "prix": 6600,
    "alertes": 0,
-   "poids": 150
+   "poids": 182
   },
   {
    "modele": "ptBattant",
@@ -277,9 +277,9 @@
     "ptStyle": "volutes",
     "ptPoteaux": "alu"
    },
-   "prix": 5580,
+   "prix": 6520,
    "alertes": 0,
-   "poids": 150
+   "poids": 182
   },
   {
    "modele": "ptBattant",
@@ -287,9 +287,9 @@
     "ptStyle": "volutes",
     "ptGuidage": "auto"
    },
-   "prix": 4530,
+   "prix": 5470,
    "alertes": 0,
-   "poids": 150
+   "poids": 182
   },
   {
    "modele": "ptBattant",
@@ -298,9 +298,9 @@
     "ptP": 4200,
     "ptH": 1800
    },
-   "prix": 5210,
+   "prix": 6480,
    "alertes": 0,
-   "poids": 196
+   "poids": 245
   },
   {
    "modele": "ptCoulissant",
@@ -557,9 +557,9 @@
    "v": {
     "ptStyle": "volutes"
    },
-   "prix": 4990,
+   "prix": 5980,
    "alertes": 0,
-   "poids": 161
+   "poids": 195
   },
   {
    "modele": "ptCoulissant",
@@ -567,9 +567,9 @@
     "ptStyle": "volutes",
     "ptMoteur": true
    },
-   "prix": 5870,
+   "prix": 6860,
    "alertes": 0,
-   "poids": 161
+   "poids": 195
   },
   {
    "modele": "ptCoulissant",
@@ -577,9 +577,9 @@
     "ptStyle": "volutes",
     "ptPoteaux": "alu"
    },
-   "prix": 6050,
+   "prix": 7040,
    "alertes": 0,
-   "poids": 161
+   "poids": 195
   },
   {
    "modele": "ptCoulissant",
@@ -587,9 +587,9 @@
     "ptStyle": "volutes",
     "ptGuidage": "auto"
    },
-   "prix": 6100,
+   "prix": 7100,
    "alertes": 0,
-   "poids": 161
+   "poids": 195
   },
   {
    "modele": "ptCoulissant",
@@ -598,9 +598,9 @@
     "ptP": 4200,
     "ptH": 1800
    },
-   "prix": 5650,
+   "prix": 6870,
    "alertes": 0,
-   "poids": 208
+   "poids": 253
   },
   {
    "modele": "ptPliant",
@@ -857,9 +857,9 @@
    "v": {
     "ptStyle": "volutes"
    },
-   "prix": 5440,
+   "prix": 6330,
    "alertes": 0,
-   "poids": 156
+   "poids": 187
   },
   {
    "modele": "ptPliant",
@@ -867,9 +867,9 @@
     "ptStyle": "volutes",
     "ptMoteur": true
    },
-   "prix": 7190,
+   "prix": 8080,
    "alertes": 0,
-   "poids": 156
+   "poids": 187
   },
   {
    "modele": "ptPliant",
@@ -877,9 +877,9 @@
     "ptStyle": "volutes",
     "ptPoteaux": "alu"
    },
-   "prix": 6500,
+   "prix": 7390,
    "alertes": 0,
-   "poids": 156
+   "poids": 187
   },
   {
    "modele": "ptPliant",
@@ -887,9 +887,9 @@
     "ptStyle": "volutes",
     "ptGuidage": "auto"
    },
-   "prix": 5440,
+   "prix": 6330,
    "alertes": 0,
-   "poids": 156
+   "poids": 187
   },
   {
    "modele": "ptPliant",
@@ -898,9 +898,9 @@
     "ptP": 4200,
     "ptH": 1800
    },
-   "prix": 6130,
+   "prix": 7140,
    "alertes": 0,
-   "poids": 207
+   "poids": 244
   },
   {
    "modele": "ptPortillon",
@@ -1178,9 +1178,9 @@
     "ptStyle": "volutes",
     "ptP": 1000
    },
-   "prix": 2190,
+   "prix": 2490,
    "alertes": 0,
-   "poids": 45
+   "poids": 56
   },
   {
    "modele": "ptPortillon",
@@ -1189,9 +1189,9 @@
     "ptP": 1000,
     "ptMoteur": true
    },
-   "prix": 2190,
+   "prix": 2490,
    "alertes": 0,
-   "poids": 45
+   "poids": 56
   },
   {
    "modele": "ptPortillon",
@@ -1200,9 +1200,9 @@
     "ptP": 1000,
     "ptPoteaux": "alu"
    },
-   "prix": 3070,
+   "prix": 3370,
    "alertes": 0,
-   "poids": 45
+   "poids": 56
   },
   {
    "modele": "ptPortillon",
@@ -1211,9 +1211,9 @@
     "ptP": 1000,
     "ptGuidage": "auto"
    },
-   "prix": 2190,
+   "prix": 2490,
    "alertes": 0,
-   "poids": 45
+   "poids": 56
   },
   {
    "modele": "ptPortillon",
@@ -1222,9 +1222,135 @@
     "ptP": 1200,
     "ptH": 1800
    },
-   "prix": 2370,
+   "prix": 2700,
    "alertes": 0,
-   "poids": 59
+   "poids": 72
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "classique"
+   },
+   "prix": 4120,
+   "alertes": 0,
+   "poids": 135
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "frise"
+   },
+   "prix": 4570,
+   "alertes": 0,
+   "poids": 137
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "medaillon"
+   },
+   "prix": 3410,
+   "alertes": 0,
+   "poids": 117
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "couronnement"
+   },
+   "prix": 3680,
+   "alertes": 0,
+   "poids": 133
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "coeurs"
+   },
+   "prix": 3870,
+   "alertes": 0,
+   "poids": 95
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "surMesure"
+   },
+   "prix": 3220,
+   "alertes": 1,
+   "poids": 117
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "classique",
+    "ptP": 1000
+   },
+   "prix": 2070,
+   "alertes": 0,
+   "poids": 42
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "frise",
+    "ptP": 1000
+   },
+   "prix": 2180,
+   "alertes": 0,
+   "poids": 40
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "medaillon",
+    "ptP": 1000
+   },
+   "prix": 1900,
+   "alertes": 0,
+   "poids": 36
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "couronnement",
+    "ptP": 1000
+   },
+   "prix": 1940,
+   "alertes": 0,
+   "poids": 40
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "coeurs",
+    "ptP": 1000
+   },
+   "prix": 1990,
+   "alertes": 0,
+   "poids": 32
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "surMesure",
+    "ptP": 1000
+   },
+   "prix": 1800,
+   "alertes": 1,
+   "poids": 36
   }
  ]
 }

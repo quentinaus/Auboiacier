@@ -27,6 +27,9 @@ const FORMES = ["droit", "chapeau", "creux", "biais"] as const;
 const SOUBS = ["aucun", "plein", "panneau", "lames", "barreaux"] as const;
 const REMPS = ["plein", "panneau", "lames", "lamesAlu", "barreaux", "croix", "volutes"] as const;
 const POTEAUX = ["existants", "acier", "alu"] as const;
+// Les décors (lot 3, 07/10/2026) : les formules PT_DECOR_FORMULES de l'outil (motifs.js, références du commerce). Un décor
+// impose l'acier ; « Sur mesure » se chiffre sur devis (le moteur rend une alerte : « à étudier »).
+export const DECORS_PORTAIL = ["aucun", "classique", "frise", "medaillon", "couronnement", "coeurs", "surMesure"] as const;
 export const COULEURS_PORTAIL = ["anthracite", "noir", "blanc", "vert", "rouille"] as const;
 
 export type ConfigPortail = {
@@ -38,6 +41,7 @@ export type ConfigPortail = {
   soub: (typeof SOUBS)[number];
   hSoub: number;
   remp: (typeof REMPS)[number];
+  decor: (typeof DECORS_PORTAIL)[number];
   pointes: boolean;
   lisse: boolean;
   vantaux: 1 | 2;
@@ -61,7 +65,7 @@ export function bornesPortail(slug: SlugPortail) {
 export function configDepart(slug: SlugPortail, style: StylePortail = "plein"): ConfigPortail {
   const base: ConfigPortail = {
     P: slug === "portillon" ? 1000 : 3500, H: 1600, mat: "alu", forme: "droit", fleche: 150, soub: "aucun", hSoub: 500,
-    remp: "plein", pointes: false, lisse: false, vantaux: 2, rep: "egal", guidage: "rail", sens: "gauche",
+    remp: "plein", decor: "aucun", pointes: false, lisse: false, vantaux: 2, rep: "egal", guidage: "rail", sens: "gauche",
     poteaux: "existants", moteur: false, pente: 0, couleur: "anthracite",
   };
   return appliquerStyle(base, style);
@@ -77,6 +81,7 @@ export function appliquerStyle(cfg: ConfigPortail, style: StylePortail): ConfigP
     forme: s.ptForme as ConfigPortail["forme"],
     soub: s.ptSoub as ConfigPortail["soub"],
     remp: s.ptRemp as ConfigPortail["remp"],
+    decor: ((s.ptDecor as ConfigPortail["decor"] | undefined) ?? "aucun"),
     pointes: Boolean(s.ptPointes),
     lisse: Boolean(s.ptLisse),
     ...(typeof s.ptHSoub === "number" ? { hSoub: s.ptHSoub } : {}),
@@ -90,7 +95,7 @@ export function styleDe(cfg: ConfigPortail): StylePortail | null {
   return (
     STYLES_PORTAIL.find((st) => {
       const s = PT_STYLES[st] as Record<string, unknown>;
-      return s.ptMat === cfg.mat && s.ptForme === cfg.forme && s.ptSoub === cfg.soub && s.ptRemp === cfg.remp && Boolean(s.ptPointes) === cfg.pointes && Boolean(s.ptLisse) === cfg.lisse;
+      return s.ptMat === cfg.mat && s.ptForme === cfg.forme && s.ptSoub === cfg.soub && s.ptRemp === cfg.remp && ((s.ptDecor as string | undefined) ?? "aucun") === cfg.decor && Boolean(s.ptPointes) === cfg.pointes && Boolean(s.ptLisse) === cfg.lisse;
     }) ?? null
   );
 }
@@ -99,7 +104,7 @@ export function styleDe(cfg: ConfigPortail): StylePortail | null {
 export function versEntrees(cfg: ConfigPortail): Record<string, unknown> {
   return {
     ptP: cfg.P, ptH: cfg.H, ptMat: cfg.mat, ptForme: cfg.forme, ptFleche: cfg.fleche, ptSoub: cfg.soub, ptHSoub: cfg.hSoub,
-    ptRemp: cfg.remp, ptPointes: cfg.pointes, ptLisse: cfg.lisse, ptVantaux: String(cfg.vantaux), ptRep: cfg.rep,
+    ptRemp: cfg.remp, ptDecor: cfg.decor, ptPointes: cfg.pointes, ptLisse: cfg.lisse, ptVantaux: String(cfg.vantaux), ptRep: cfg.rep,
     ptGuidage: cfg.guidage, ptSens: cfg.sens, ptPoteaux: cfg.poteaux, ptMoteur: cfg.moteur, ptPente: cfg.pente,
   };
 }
@@ -109,7 +114,7 @@ export function planPortail(slug: SlugPortail, cfg: ConfigPortail): ResultatPort
   return calculerPortail(versEntrees(cfg), SLUGS_PORTAIL[slug]);
 }
 
-const PARAMS: (keyof ConfigPortail)[] = ["P", "H", "mat", "forme", "fleche", "soub", "hSoub", "remp", "pointes", "lisse", "vantaux", "rep", "guidage", "sens", "poteaux", "moteur", "pente", "couleur"];
+const PARAMS: (keyof ConfigPortail)[] = ["P", "H", "mat", "forme", "fleche", "soub", "hSoub", "remp", "decor", "pointes", "lisse", "vantaux", "rep", "guidage", "sens", "poteaux", "moteur", "pente", "couleur"];
 
 /** La configuration en paramètres d'adresse (pour /api/prix-portail). */
 export function versParams(slug: SlugPortail, cfg: ConfigPortail): URLSearchParams {
@@ -141,7 +146,7 @@ export function lireConfig(params: URLSearchParams): { slug: SlugPortail; cfg: C
   const cfg = {
     P: nombre("P", b.P), H: nombre("H", b.H), mat: choix("mat", ["alu", "acier"] as const), forme: choix("forme", FORMES),
     fleche: nombre("fleche", [0, 400]), soub: choix("soub", SOUBS), hSoub: nombre("hSoub", [0, 2000]), remp: choix("remp", REMPS),
-    pointes: bool("pointes"), lisse: bool("lisse"), vantaux: params.get("vantaux") === "1" ? 1 : params.get("vantaux") === "2" ? 2 : null,
+    decor: choix("decor", DECORS_PORTAIL), pointes: bool("pointes"), lisse: bool("lisse"), vantaux: params.get("vantaux") === "1" ? 1 : params.get("vantaux") === "2" ? 2 : null,
     rep: choix("rep", ["egal", "tiers"] as const), guidage: choix("guidage", ["rail", "auto"] as const), sens: choix("sens", ["gauche", "droite"] as const),
     poteaux: choix("poteaux", POTEAUX), moteur: bool("moteur"), pente: nombre("pente", b.pente), couleur: choix("couleur", COULEURS_PORTAIL),
   };
@@ -179,6 +184,7 @@ export const TEXTES_PORTAIL = {
     forme: { droit: "Droit", chapeau: "Chapeau de gendarme", creux: "En creux", biais: "En biais" },
     soub: { aucun: "Aucun", plein: "Plein", panneau: "Panneau lisse", lames: "Lames chêne", barreaux: "Barreaux" },
     remp: { plein: "Lames pleines", panneau: "Panneau lisse", lames: "Lames chêne", lamesAlu: "Lames ajourées", barreaux: "Barreaux", croix: "Croix et rosaces", volutes: "Volutes" },
+    decor: { aucun: "Aucun", classique: "Classique", frise: "Frise", medaillon: "Médaillon", couronnement: "Couronnement", coeurs: "Cœurs", surMesure: "Sur mesure" },
     poteaux: { existants: "Mes piliers", acier: "Poteaux acier", alu: "Poteaux alu" },
     couleur: { anthracite: "Gris anthracite", noir: "Noir", blanc: "Blanc", vert: "Vert sapin", rouille: "Rouille" },
     vantaux: { 1: "1 vantail", 2: "2 vantaux" },
@@ -188,7 +194,7 @@ export const TEXTES_PORTAIL = {
     sensPortillon: { gauche: "Gonds à gauche", droite: "Gonds à droite" },
     onglets: { cotes: "Cotes", style: "Style", compo: "Composition", pose: "Pose" },
     passage: "Passage entre piliers", hauteur: "Hauteur", fleche: "Flèche du haut", hSoub: "Hauteur du soubassement", pente: "Le sol monte derrière de",
-    titres: { mat: "Matière", forme: "Forme du haut", soub: "Soubassement", remp: "Remplissage", options: "Finitions", couleur: "Couleur",
+    titres: { mat: "Matière", forme: "Forme du haut", soub: "Soubassement", remp: "Remplissage", decor: "Décor", options: "Finitions", couleur: "Couleur",
       vantaux: "Vantaux", rep: "Répartition", guidage: "Guidage", sens: "Il s'ouvre", poteaux: "Fixation", moteur: "Moteur" },
     pointes: "Pointes de lance", lisseChene: "Lisse en chêne", moteurOui: "Motorisé", moteurNon: "Manuel",
     prix: "Prix posé", prixNote: "Visite et pose comprises jusqu'à 45 km de Saumur ; au-delà, la route s'ajoute au devis.",
@@ -212,6 +218,7 @@ export const TEXTES_PORTAIL = {
     forme: { droit: "Straight", chapeau: "Arched", creux: "Dipped", biais: "Sloped" },
     soub: { aucun: "None", plein: "Solid", panneau: "Flat panel", lames: "Oak slats", barreaux: "Bars" },
     remp: { plein: "Solid slats", panneau: "Flat panel", lames: "Oak slats", lamesAlu: "Open slats", barreaux: "Bars", croix: "Crosses and rosettes", volutes: "Scrolls" },
+    decor: { aucun: "None", classique: "Classic", frise: "Frieze", medaillon: "Medallion", couronnement: "Crest", coeurs: "Hearts", surMesure: "Bespoke" },
     poteaux: { existants: "My pillars", acier: "Steel posts", alu: "Aluminium posts" },
     couleur: { anthracite: "Anthracite grey", noir: "Black", blanc: "White", vert: "Fir green", rouille: "Rust" },
     vantaux: { 1: "1 leaf", 2: "2 leaves" },
@@ -221,7 +228,7 @@ export const TEXTES_PORTAIL = {
     sensPortillon: { gauche: "Hinges on the left", droite: "Hinges on the right" },
     onglets: { cotes: "Size", style: "Style", compo: "Design", pose: "Fitting" },
     passage: "Opening between pillars", hauteur: "Height", fleche: "Rise of the top", hSoub: "Lower panel height", pente: "Ground rises behind by",
-    titres: { mat: "Material", forme: "Top shape", soub: "Lower panel", remp: "Infill", options: "Finishes", couleur: "Colour",
+    titres: { mat: "Material", forme: "Top shape", soub: "Lower panel", remp: "Infill", decor: "Decoration", options: "Finishes", couleur: "Colour",
       vantaux: "Leaves", rep: "Split", guidage: "Guiding", sens: "Opens", poteaux: "Fixing", moteur: "Motor" },
     pointes: "Spear tips", lisseChene: "Oak top rail", moteurOui: "Motorised", moteurNon: "Manual",
     prix: "Fitted price", prixNote: "Survey visit and fitting included within 45 km of Saumur; beyond that, travel is added to the quote.",
@@ -244,7 +251,7 @@ export function resumeConfig(slug: SlugPortail, cfg: ConfigPortail, locale: Lang
   const lignes = [
     `${t.passage} : ${cfg.P} mm · ${t.hauteur} : ${cfg.H} mm`,
     `${t.onglets.style} : ${st ? t.styles[st] : t.compose} · ${t.mat[cfg.mat]} · ${t.couleur[cfg.couleur]}`,
-    `${t.titres.forme} : ${t.forme[cfg.forme]}${cfg.forme !== "droit" ? ` (${cfg.fleche} mm)` : ""} · ${t.titres.remp} : ${t.remp[cfg.remp]}${cfg.soub !== "aucun" ? ` · ${t.titres.soub} : ${t.soub[cfg.soub]} (${cfg.hSoub} mm)` : ""}`,
+    `${t.titres.forme} : ${t.forme[cfg.forme]}${cfg.forme !== "droit" ? ` (${cfg.fleche} mm)` : ""} · ${t.titres.remp} : ${t.remp[cfg.remp]}${cfg.soub !== "aucun" ? ` · ${t.titres.soub} : ${t.soub[cfg.soub]} (${cfg.hSoub} mm)` : ""}${cfg.decor !== "aucun" ? ` · ${t.titres.decor} : ${t.decor[cfg.decor]}` : ""}`,
   ];
   if (slug === "portail-battant") lignes.push(`${t.titres.vantaux} : ${t.vantaux[cfg.vantaux]}${cfg.vantaux === 2 ? ` (${t.rep[cfg.rep]})` : ""}`);
   if (slug === "portail-coulissant") lignes.push(`${t.titres.guidage} : ${t.guidage[cfg.guidage]} · ${t.titres.sens} : ${t.sens[cfg.sens]}`);

@@ -1,7 +1,993 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
-// Le moteur des PORTAILS (plans/modules/plans-portails.js, tel que collé dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 f61a9d328b3317148819f5ad.
+// Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
+// Source : l'outil de plans (plans-atelier.html), sha256 d7137f93b6f2b50b39255eec.
 /* eslint-disable */
+
+
+const MT_ATELIER = {
+  barreau: 16,
+  vide: 105,
+  videGrille: 128,
+  volute: { b: 16, e: 6 },
+  epVue: 7,
+  collier: { h: 13, b: 12, e: 4 },
+  lisseFrise: { b: 30, e: 8 },
+  frise: 170,
+  friseBasse: 80,
+  voluteMax: 230,
+  pointe: { depasse: 110, h: 75 },
+  achatMax: 700,
+  densite: 7.85,
+  barreauDecor: 150,
+  jeuCatalogue: 2,
+  reprise: 0.1,
+  plat12Max: 250,
+  cimier: [150, 300],
+  coinMax: 0.3,
+  jeuBande: 3,
+  videEscalade: 95,
+  petiteHauteur: 220,
+  jeuVoisin: 5,
+};
+
+const MT_CHOIX = {
+  assemblage: ["barreaux", "entre", "frise", "anneaux", "hauteur", "coeurs", "medaillon", "applique", "coins", "cimier", "appliquePlein"],
+  forme: ["C", "S", "J", "coeur", "doubleC", "poste", "anneau"],
+  bouts: ["droit", "effile", "bouton"],
+  liaison: ["soudure", "colliers"],
+  barreaux: ["carre", "torsade", "bagues"],
+  friseBasse: ["aucune", "postes"],
+  pointes: ["aucune", "lance"],
+  pos: ["haut", "milieu", "bas"],
+  rythme: ["tous", "unSurDeux", "alterne"],
+};
+const MT_CHOIX_GC = ["entre", "frise", "anneaux", "hauteur", "coeurs", "medaillon", "applique"];
+const MT_PORTAIL_SEUL = ["coins", "cimier", "appliquePlein"];
+const MT_AVEC = {
+  barreaux: [],
+  entre: ["C", "S", "J"],
+  frise: ["S", "C", "poste"],
+  anneaux: ["anneau"],
+  hauteur: ["C", "S"],
+  coeurs: ["coeur"],
+  medaillon: ["coeur", "doubleC", "J"],
+  applique: ["doubleC", "coeur", "C"],
+  coins: ["C", "J"],
+  cimier: ["C", "S", "doubleC"],
+  appliquePlein: ["doubleC", "coeur", "C"],
+};
+const MT_SYMETRIQUES = ["coeur", "doubleC", "anneau", "lyre", "ovale"];
+const MT_NOMS = { C: "Volute en C", S: "Volute en S", J: "Crosse", coeur: "Cœur", doubleC: "Double C", poste: "Poste", lyre: "Lyre", Scouche: "Volute en S", ovale: "Ovale (deux C affrontés)", anneau: "Anneau" };
+const MT_NOMS_PLACEMENT = { barreaux: "barreaux droits", entre: "entre les barreaux", frise: "frise sous la traverse haute", anneaux: "frise d'anneaux", hauteur: "grille sur toute la hauteur", coeurs: "cœurs", medaillon: "médaillon", applique: "motifs en applique", coins: "coins du haut", cimier: "couronnement", appliquePlein: "motif sur le soubassement plein" };
+const MT_NOMS_POS = { haut: "en haut", milieu: "au milieu", bas: "en bas" };
+
+
+const MT_CATALOGUE = [
+  { forme: "C", ref: "c1", fournisseur: "", h: 115, l: 95, section: "12×6", params: { r0: 46, L1: 10, T: 1.9 } },
+  { forme: "C", ref: "c2", fournisseur: "", h: 110, l: 60, section: "12×6", params: { r0: 34, L1: 110, T: 1.4 } },
+  { forme: "C", ref: "c3", fournisseur: "", h: 190, l: 95, section: "12×6", params: { r0: 42, L1: 130, T: 1.4, Rb: 800 } },
+  { forme: "C", ref: "c4", fournisseur: "", h: 190, l: 120, section: "16×8", params: { r0: 34, L1: 40, T: 1.4 } },
+  { forme: "C", ref: "c5", fournisseur: "", h: 235, l: 120, section: "16×8", params: { r0: 46, L1: 110, T: 1.2, Rb: 800 } },
+  { forme: "C", ref: "c6", fournisseur: "", h: 470, l: 120, section: "16×8", params: { r0: 28, L1: 80, Ld: 150, Rb: 1000, T: 1.6 } },
+  { forme: "S", ref: "c7", fournisseur: "", h: 150, l: 70, section: "12×6", params: { r0: 42, Lb: 60, T: 1.9 } },
+  { forme: "S", ref: "c8", fournisseur: "", h: 190, l: 75, section: "12×6", params: { r0: 42, Lb: 270, T: 1.6, e: 22 } },
+  { forme: "S", ref: "c9", fournisseur: "", h: 205, l: 72, section: "12×6", params: { r0: 36, Lb: 330, T: 2.5 } },
+  { forme: "S", ref: "c10", fournisseur: "", h: 270, l: 110, section: "12×6", params: { r0: 48, Lb: 100, T: 1.9 } },
+  { forme: "S", ref: "c11", fournisseur: "", h: 350, l: 110, section: "12×6", params: { r0: 36, Lb: 270, T: 1.6, e: 22 } },
+  { forme: "S", ref: "c12", fournisseur: "", h: 185, l: 155, section: "16×8", params: { r0: 42, Lb: 60, T: 1.1, e: 30 } },
+  { forme: "S", ref: "c13", fournisseur: "", h: 195, l: 165, section: "16×8", params: { r0: 36, Lb: 60, T: 1.6, e: 30 } },
+  { forme: "coeur", ref: "c14", fournisseur: "", h: 95, l: 95, section: "12×6", params: { ouv: 1, L1: 40, R1: 80 }, nbAchat: 1 },
+  { forme: "coeur", ref: "c15", fournisseur: "", h: 135, l: 165, section: "12×6", params: { ouv: 0.85, L1: 170, R1: 200 }, nbAchat: 1 },
+  { forme: "coeur", ref: "c16", fournisseur: "", h: 385, l: 230, section: "12×6", params: { ouv: 0.6, L1: 170, R1: 120 }, nbAchat: 1 },
+  { forme: "coeur", ref: "c17", fournisseur: "", h: 440, l: 225, section: "12×6", params: { ouv: 0.45, L1: 100, R1: 200 }, nbAchat: 1 },
+  { forme: "doubleC", ref: "c1", fournisseur: "", h: 115, l: 198, section: "12×6", params: { r0: 46, L1: 10, T: 1.9, jeu: 6.68 }, nbAchat: 2 },
+  { forme: "doubleC", ref: "c3", fournisseur: "", h: 190, l: 198, section: "12×6", params: { r0: 42, L1: 130, T: 1.4, Rb: 800, jeu: 8.25 }, nbAchat: 2 },
+  { forme: "doubleC", ref: "c4", fournisseur: "", h: 190, l: 248, section: "16×8", params: { r0: 34, L1: 40, T: 1.4, jeu: 4.26 }, nbAchat: 2 },
+  { forme: "doubleC", ref: "c5", fournisseur: "", h: 235, l: 248, section: "16×8", params: { r0: 46, L1: 110, T: 1.2, Rb: 800, jeu: 6.46 }, nbAchat: 2 },
+  { forme: "doubleC", ref: "c6", fournisseur: "", h: 470, l: 248, section: "16×8", params: { r0: 28, L1: 80, Ld: 150, Rb: 1000, T: 1.6, jeu: 4.63 }, nbAchat: 2 },
+  { forme: "lyre", ref: "c18", fournisseur: "", h: 200, l: 100, section: "16×8", params: { Ls: 225 }, nbAchat: 1 },
+  { forme: "anneau", ref: "c19", fournisseur: "", h: 100, l: 100, section: "12×6", params: {} },
+  { forme: "poste", ref: "c20", fournisseur: "", h: 100, l: 1080, section: "12×6", params: {}, parMetre: true },
+];
+const MT_FOURNISSEURS = {};
+const MT_SECTIONS = { "12×6": { b: 12, e: 6 }, "16×8": { b: 16, e: 8 } };
+
+
+const MT_INCOMPAT = [
+  { a: "hauteur", b: "coeurs", raison: "La grille de volutes et les cœurs demandent chacun leurs propres barreaux : un seul des deux." },
+  { a: "hauteur", b: "frise", raison: "La grille de volutes occupe déjà toute la hauteur du panneau : pas de place pour une frise." },
+  { a: "hauteur", b: "anneaux", raison: "La grille de volutes occupe déjà toute la hauteur du panneau : pas de place pour une frise d'anneaux." },
+  { a: "hauteur", b: "entre", raison: "La grille de volutes remplit déjà chaque vide, sur toute la hauteur." },
+  { a: "hauteur", b: "medaillon", raison: "Le médaillon tomberait sur la grille de volutes." },
+  { a: "hauteur", b: "applique", raison: "Les motifs en applique tomberaient sur la grille de volutes." },
+  { a: "hauteur", b: "coins", raison: "La grille de volutes occupe déjà les coins du panneau." },
+  { a: "coeurs", b: "frise", raison: "Les cœurs retirent un barreau sur deux, la frise les garde tous : un seul des deux." },
+  { a: "coeurs", b: "anneaux", raison: "Les cœurs retirent un barreau sur deux, la frise d'anneaux les garde tous : un seul des deux." },
+  { a: "coeurs", b: "entre", raison: "Les cœurs remplissent déjà les grands vides." },
+  { a: "coeurs", b: "medaillon", raison: "Le médaillon tomberait sur les cœurs, au milieu du panneau." },
+  { a: "coeurs", b: "applique", raison: "Les motifs en applique tomberaient sur les cœurs." },
+  { a: "frise", b: "anneaux", raison: "Deux frises sous la traverse haute : une seule à la fois." },
+  { a: "frise", b: "entre:haut", raison: "Les volutes en tête des vides prennent la place de la frise : mettez-les au milieu ou en bas." },
+  { a: "anneaux", b: "entre:haut", raison: "Les volutes en tête des vides prennent la place des anneaux : mettez-les au milieu ou en bas." },
+  { a: "medaillon", b: "entre:milieu", raison: "Le médaillon est au milieu du panneau, à la place des volutes du milieu." },
+  { a: "medaillon", b: "applique", raison: "Les motifs en applique et le médaillon se superposent au milieu du panneau." },
+  { a: "applique", b: "entre:milieu", raison: "Les motifs en applique tombent sur les volutes du milieu." },
+  { a: "entre:haut", b: "coins", raison: "Les volutes des coins tombent sur les volutes en tête des vides." },
+];
+const MT_RANG = { hauteur: 0, coeurs: 1, frise: 2, anneaux: 3, entre: 4, medaillon: 5, applique: 6, coins: 7, cimier: 8, appliquePlein: 9, barreaux: 10 };
+
+
+function mtSpireL(r0, r1, T) { return 2 * Math.PI * T * (r0 - r1) / Math.log(r0 / r1); }
+function mtTracer(segs, a0 = 0, n = 700) {
+  const Lt = segs.reduce((t, g) => t + g.L, 0), ds = Lt / n;
+  const kAt = (s) => {
+    for (const g of segs) {
+      if (s <= g.L || g === segs[segs.length - 1]) {
+        const t = Math.min(1, s / g.L);
+        return g.ra != null ? g.s / (g.ra + (g.rb - g.ra) * t) : g.ka + (g.kb - g.ka) * t;
+      }
+      s -= g.L;
+    }
+    return 0;
+  };
+  let x = 0, y = 0, a = a0; const pts = [[0, 0]];
+  for (let i = 0; i < n; i++) {
+    const k = kAt((i + 0.5) * ds), am = a + k * ds / 2;
+    x += Math.cos(am) * ds; y += Math.sin(am) * ds; a += k * ds; pts.push([x, y]);
+  }
+  return pts;
+}
+const mtSpire = (r0, r1, T, s, sortante) => ({ L: mtSpireL(r0, r1, T), ra: sortante ? r1 : r0, rb: sortante ? r0 : r1, s });
+const mtLin = (L, ka, kb) => ({ L, ka, kb });
+const mtTourner = (traits, ang) => { const c = Math.cos(ang), s = Math.sin(ang); return traits.map((t) => t.map(([x, y]) => [x * c - y * s, x * s + y * c])); };
+const mtMiroir = (traits) => traits.map((t) => t.map(([x, y]) => [-x, y]));
+const mtDecaler = (traits, dx, dy) => traits.map((t) => t.map(([x, y]) => [x + dx, y + dy]));
+const mtBoite = (traits) => { const a = traits.flat(); return { x0: Math.min(...a.map((p) => p[0])), x1: Math.max(...a.map((p) => p[0])), y0: Math.min(...a.map((p) => p[1])), y1: Math.max(...a.map((p) => p[1])) }; };
+const mtRedresser = (traits) => { const t = traits[0], p = t[0], q = t[t.length - 1]; return mtTourner(traits, Math.PI / 2 - Math.atan2(q[1] - p[1], q[0] - p[0])); };
+const mtLongueur = (t) => t.reduce((s, p, i) => (i ? s + Math.hypot(p[0] - t[i - 1][0], p[1] - t[i - 1][1]) : 0), 0);
+
+const MT_FORMES = {
+  C: (p = {}) => { const r0 = p.r0 || 34, e = p.e || 13, T = p.T || 1.6, L1 = p.L1 || 70, kb = 1 / (p.Rb || 260);
+    return mtRedresser([mtTracer([mtSpire(r0, e, T, 1, true), mtLin(L1, 1 / r0, kb), ...(p.Ld ? [mtLin(p.Ld, kb, kb)] : []), mtLin(L1, kb, 1 / r0), mtSpire(r0, e, T, 1, false)])]); },
+  S: (p = {}) => { const r0 = p.r0 || 42, e = p.e || 14, T = p.T || 1.6;
+    return mtRedresser([mtTracer([mtSpire(r0, e, T, 1, true), mtLin(p.Lb || 120, 1 / r0, -1 / r0), mtSpire(r0, e, T, -1, false)])]); },
+  J: (p = {}) => { const r0 = p.r0 || 36, e = p.e || 11, T = p.T || 1.8;
+    return mtTourner([mtTracer([mtLin(p.Ls || 170, 0, 0), mtLin(60, 0, 1 / r0), mtSpire(r0, e, T, 1, false)])], -Math.PI / 2); },
+  coeur: (p = {}) => { const r0 = p.r0 || 40, e = p.e || 11, T = p.T || 1.75, L1 = p.L1 || 170, k1 = 1 / (p.R1 || 120);
+    const demi = [mtTracer([mtLin(L1, 0, k1), mtLin(25, k1, 1 / r0), mtSpire(r0, e, T, 1, false)], -Math.PI / 2 - (p.ouv || 0.72))];
+    return [...demi, ...mtMiroir(demi)]; },
+  doubleC: (p = {}) => { const c = MT_FORMES.C(p), b = mtBoite(c), jeu = p.jeu ?? 8;
+    const gauche = mtDecaler(c, -b.x1 - jeu / 2, 0); return [...gauche, ...mtMiroir(gauche)]; },
+  lyre: (p = {}) => { const j = MT_FORMES.J({ Ls: p.Ls || 40 }), b = mtBoite(j), d = mtDecaler(j, -b.x0 + 2, 0); return [...d, ...mtMiroir(d)]; },
+  Scouche: (p = {}) => mtTourner(MT_FORMES.S(p), Math.PI / 2),
+  ovale: (p = {}) => { const c = MT_FORMES.C(p), b = mtBoite(c), d = mtDecaler(c, -b.x0 + (p.jeu ?? 6) / 2, 0); return [...mtMiroir(d), ...d]; },
+  anneau: () => [Array.from({ length: 73 }, (_, i) => [50 * Math.cos(i * Math.PI / 36), 50 * Math.sin(i * Math.PI / 36)])],
+  poste: (p = {}) => { const r0 = p.r0 || 28, e = p.e || 10, T = p.T || 1.6;
+    return [mtTracer([mtLin(p.L0 || 12, 0, 0), mtLin(p.L1 || 45, 0, -1 / 40), mtLin(p.L2 || 45, -1 / 40, 1 / r0), mtSpire(r0, e, T, 1, false)])]; },
+};
+const mtForme = (k) => MT_FORMES[k]();
+const mtFormeRef = (e) => MT_FORMES[e.forme](e.params || {});
+
+
+function mtCaser(traits, x, yb, w, h, ancre = "centre", miroir = false) {
+  const b = mtBoite(traits), sc = Math.min(w / (b.x1 - b.x0), h / (b.y1 - b.y0));
+  const bw = (b.x1 - b.x0) * sc, bh = (b.y1 - b.y0) * sc;
+  const ox = x + (w - bw) / 2, haut = ancre === "haut" ? yb + h : ancre === "bas" ? yb + bh : yb + (h + bh) / 2;
+  return traits.map((t) => t.map(([px, py]) => [miroir ? ox + bw - (px - b.x0) * sc : ox + (px - b.x0) * sc, haut - (py - b.y0) * sc]));
+}
+function mtAlleger(t, tol = 0.5, stable = false) {
+  if (t.length < 3) return t;
+  if (Math.hypot(t[0][0] - t[t.length - 1][0], t[0][1] - t[t.length - 1][1]) < 1e-6 && t.length > 4) { const m = t.length >> 1; return mtAlleger(t.slice(0, m + 1), tol, stable).concat(mtAlleger(t.slice(m), tol, stable).slice(1)); }
+  const garder = new Uint8Array(t.length); garder[0] = garder[t.length - 1] = 1; const pile = [[0, t.length - 1]], ex = stable ? 1e-9 : 0;
+  while (pile.length) {
+    const [a, b] = pile.pop(), [ax, ay] = t[a], [bx, by] = t[b], L = Math.hypot(bx - ax, by - ay) || 1; let dm = 0, im = -1;
+    for (let i = a + 1; i < b; i++) { const d = Math.abs((bx - ax) * (ay - t[i][1]) - (ax - t[i][0]) * (by - ay)) / L; if (d > dm + ex) { dm = d; im = i; } }
+    if (dm > tol) { garder[im] = 1; pile.push([a, im], [im, b]); }
+  }
+  return t.filter((_, i) => garder[i]);
+}
+function mtOeil(t, debut) {
+  const n = t.length, k = Math.max(4, Math.round(n * 0.12)), seg = debut ? t.slice(0, k) : t.slice(n - k);
+  let tour = 0;
+  for (let i = 2; i < seg.length; i++) {
+    let d = Math.atan2(seg[i][1] - seg[i - 1][1], seg[i][0] - seg[i - 1][0]) - Math.atan2(seg[i - 1][1] - seg[i - 2][1], seg[i - 1][0] - seg[i - 2][0]);
+    while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI; tour += d;
+  }
+  return Math.abs(tour) > 0.9;
+}
+function mtRuban(t, ep, bouts) {
+  const n = t.length, L = [0];
+  for (let i = 1; i < n; i++) L.push(L[i - 1] + Math.hypot(t[i][0] - t[i - 1][0], t[i][1] - t[i - 1][1]));
+  const Lt = L[n - 1], oeilD = bouts !== "droit" && mtOeil(t, true), oeilF = bouts !== "droit" && mtOeil(t, false), lc = Math.min(Lt * 0.18, ep * 9);
+  const lisse = (x) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
+  const demi = (s) => { let w = 1; if (oeilD) w = Math.min(w, 0.5 + 0.5 * lisse(s / lc)); if (oeilF) w = Math.min(w, 0.5 + 0.5 * lisse((Lt - s) / lc)); return ep * w / 2; };
+  const G = [], D = [];
+  for (let i = 0; i < n; i++) {
+    const p = t[Math.max(0, i - 1)], q = t[Math.min(n - 1, i + 1)], dx = q[0] - p[0], dy = q[1] - p[1], l = Math.hypot(dx, dy) || 1, h = demi(L[i]);
+    G.push([t[i][0] - dy / l * h, t[i][1] + dx / l * h]); D.push([t[i][0] + dy / l * h, t[i][1] - dx / l * h]);
+  }
+  const boutons = [];
+  if (bouts === "bouton") { if (oeilD) boutons.push(t[0]); if (oeilF) boutons.push(t[n - 1]); }
+  return { pts: G.concat(D.reverse()), boutons, forges: (oeilD ? 1 : 0) + (oeilF ? 1 : 0), long: Lt };
+}
+
+
+function mtFleche(f, a, b) {
+  const fa = f(a), fb = f(b); let m = 0;
+  for (let k = 1; k < 16; k++) m = Math.max(m, Math.abs(f(a + (b - a) * k / 16) - fa - (fb - fa) * k / 16));
+  return m;
+}
+const mtCourbe = (z) => mtFleche(z.haut, z.x0, z.x1) > 0.5;
+function mtHauteurMin(z) { let m = Infinity; for (let k = 0; k <= 20; k++) { const x = z.x0 + (z.x1 - z.x0) * k / 20; m = Math.min(m, z.haut(x) - z.bas(x)); } return m; }
+function mtEcart(m, f, sens) { let e = Infinity; for (const t of m) for (const [x, y] of t) e = Math.min(e, sens * (y - f(x))); return e; }
+const mtContreHaut = (m, haut, jeu) => mtDecaler(m, 0, mtEcart(m, haut, -1) - jeu);
+function mtDansBande(m, dessous, dessus, jeuB, jeuH = 0, kMin = 0.5) {
+  const poser = (t) => mtDecaler(t, 0, jeuB - mtEcart(t, dessous, 1));
+  const r = poser(m);
+  if (!dessus || mtEcart(r, dessus, -1) >= jeuH) return r;
+  const b = mtBoite(m), cx = (b.x0 + b.x1) / 2;
+  const reduire = (k) => poser(m.map((t) => t.map(([x, y]) => [cx + (x - cx) * k, b.y0 + (y - b.y0) * k])));
+  let lo = Math.min(1, kMin), hi = 1;
+  for (let i = 0; i < 30; i++) { const k = (lo + hi) / 2; if (mtEcart(reduire(k), dessus, -1) >= jeuH) lo = k; else hi = k; }
+  return reduire(lo);
+}
+
+
+const mtSectionVoulue = (assemblage, dim) => (["medaillon", "coins", "cimier"].includes(assemblage) || dim > MT_ATELIER.plat12Max ? "16×8" : "12×6");
+const mtNoteRef = (e, s, assemblage, taille, viser) => Math.abs(taille - viser) / Math.max(1, viser) + (mtSectionVoulue(assemblage, Math.max(e.h, e.l) * s) === e.section ? 0 : 0.15);
+function mtRef(forme, assemblage, lim) {
+  const R = MT_ATELIER.reprise; let best = null;
+  for (const e of MT_CATALOGUE) {
+    if (e.forme !== forme || e.parMetre) continue;
+    const sMax = Math.min(1 + R, (lim.hMax || Infinity) / e.h, (lim.lMax || Infinity) / e.l);
+    if (sMax < 1 - R) continue;
+    const s0 = lim.viserL ? lim.viserL / e.l : lim.viser ? lim.viser / e.h : 1, s = Math.max(1 - R, Math.min(sMax, s0));
+    const note = lim.viserL ? mtNoteRef(e, s, assemblage, e.l * s, lim.viserL) : mtNoteRef(e, s, assemblage, e.h * s, lim.viser || e.h);
+    if (!best || note < best.note - 1e-9) best = { e, s, note };
+  }
+  return best;
+}
+function mtRefVides(forme, assemblage, W, B, hMax, viser = hMax, pair = false) {
+  const R = MT_ATELIER.reprise, J = MT_ATELIER.jeuCatalogue; let best = null;
+  for (const e of MT_CATALOGUE) {
+    if (e.forme !== forme || e.parMetre) continue;
+    const n0 = Math.round((W + B) / (e.l + J + B));
+    for (const n of (pair ? [n0 - 2, n0 - 1, n0, n0 + 1, n0 + 2].filter((x) => x % 2 === 0) : [n0, n0 - 1, n0 + 1])) {
+      if (n < 1) continue;
+      const v = (W - (n - 1) * B) / n, s = (v - J) / e.l;
+      if (Math.abs(s - 1) > R + 1e-9 || e.h * s > hMax + 1e-6) continue;
+      const note = mtNoteRef(e, s, assemblage, e.h * s, viser) + Math.abs(s - 1) * 0.01;
+      if (!best || note < best.note - 1e-9) best = { e, s, v, note };
+    }
+  }
+  return best;
+}
+function mtRefDuVide(forme, assemblage, v, hMax, viser = hMax) {
+  const R = MT_ATELIER.reprise, J = MT_ATELIER.jeuCatalogue; let best = null;
+  for (const e of MT_CATALOGUE) {
+    if (e.forme !== forme || e.parMetre) continue;
+    const s = (v - J) / e.l;
+    if (Math.abs(s - 1) > R + 1e-9 || e.h * s > hMax + 1e-6) continue;
+    const note = mtNoteRef(e, s, assemblage, e.h * s, viser);
+    if (!best || note < best.note - 1e-9) best = { e, s, note };
+  }
+  return best;
+}
+const mtRefPoste = () => MT_CATALOGUE.find((e) => e.forme === "poste");
+function mtRefus(q, quoi, raison) { if (!(q.refus || []).some((r) => r.raison === raison)) q.refus = (q.refus || []).concat({ quoi, raison }); }
+const mtSansRef = (forme, assemblage) => `${MT_NOMS[forme] || forme} : aucune référence du catalogue ne va ${assemblage === "entre" ? "entre ces barreaux" : "à cette place"} (reprise au gabarit de ±10 % au plus). Choisissez une autre forme.`;
+
+
+const mtSym = (i, n) => (n ? Math.min(i, n - 1 - i) : i);
+const mtDroite = (i, n) => (n ? i > (n - 1) / 2 : false);
+const mtSens = (i, n, alterne = true) => (n ? (alterne && mtSym(i, n) % 2 === 1) !== mtDroite(i, n) : alterne && i % 2 === 1);
+const mtPetite = (z, ch) => !ch.catalogue && !z.lib && mtHauteurMin(z) < MT_ATELIER.petiteHauteur;
+const mtCouchee = (k) => mtTourner(mtForme(k), Math.PI / 2);
+function mtBande(z, ch, F, pieces, q, debout) {
+  const lu = mtLuAxe(z), hB = mtHauteurMin(z) - 8, forme = (k) => { const d = mtForme(k), b = mtBoite(d), w = hB * (b.x1 - b.x0) / (b.y1 - b.y0); return debout && w + 2 >= 60 ? d : mtCouchee(k); };
+  const f = forme(ch.forme), bb = mtBoite(f), vmax = Math.min(z.vide || MT_ATELIER.vide, hB * (bb.x1 - bb.x0) / (bb.y1 - bb.y0) + 2);
+  const lib = mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch, vmax, undefined, undefined, lu), nL = lu ? lib.length : 0;
+  lib.forEach(([a, c], i) => {
+    if (mtSaute(ch, i, nL)) return;
+    const fo = mtFormeN(ch, i, nL), { yb, yh } = mtCase(z.bas, z.haut, a, c);
+    const m = mtCaser(fo === ch.forme ? f : forme(fo), a + 1, yb + 4, c - a - 2, yh - yb - 8, "centre", mtSens(i, nL));
+    if (mtVolute(m, fo, F, pieces, q, ch)) mtLiens(m, "gd", a, c, F, pieces, q, ch, z.barreau, z);
+  });
+}
+const mtLuAxe = (z) => { const W = z.x1 - z.x0; return Math.abs(z.haut(z.x1) - z.haut(z.x0)) <= 0.05 * W && Math.abs(z.bas(z.x1) - z.bas(z.x0)) <= 0.05 * W; };
+const mtSaute = (ch, i, n) => ch.rythme === "unSurDeux" && mtSym(i, n) % 2 === 1;
+const mtFormeN = (ch, i, n) => (ch.rythme === "alterne" && mtSym(i, n) % 2 === 1 && ch.forme2 ? ch.forme2 : ch.forme);
+const mtFormeAxe = (forme) => (MT_SYMETRIQUES.includes(forme) ? forme : "doubleC");
+
+
+const mtKgM = (b, e) => b * e / 1e6 * MT_ATELIER.densite * 1000;
+function mtPoly(F, pts, piece, role, cls = "t-acier-plein") { F.push({ t: "poly", pts, cls, piece, role }); }
+function mtBarreau(z, x, F, pieces, q, ch, y0, y1) {
+  const b = z.barreau || MT_ATELIER.barreau, P = MT_ATELIER.pointe, bas = y0 || z.bas, lance = !y1 && ch.pointes === "lance" && z.pointes;
+  const haut = lance ? (xx) => z.haut(xx) + z.pointes + P.depasse : y1 || z.haut;
+  const pts = [[x, bas(x)], [x + b, bas(x + b)], [x + b, haut(x + b)], [x, haut(x)]];
+  mtPoly(F, pts, "Barreaux", "fer");
+  if (lance) {
+    const xm = x + b / 2, yt = haut(xm);
+    mtPoly(F, [[xm - b * 0.55, yt], [xm - b * 1.3, yt + 20], [xm, yt + P.h], [xm + b * 1.3, yt + 20], [xm + b * 0.55, yt]], "Pointes de lance", ch.dore ? "or" : "fer");
+    mtPoly(F, [[x - 3, yt - 14], [x + b + 3, yt - 14], [x + b + 3, yt - 4], [x - 3, yt - 4]], "Pointes de lance", ch.dore ? "or" : "collier");
+    q.pointes = (q.pointes || 0) + 1;
+  }
+  const L = Math.max(haut(x), haut(x + b)) - Math.min(bas(x), bas(x + b));
+  if (ch.barreaux === "bagues" && L > MT_ATELIER.barreauDecor) {
+    for (const t of [1 / 3, 2 / 3]) { const y = bas(x + b / 2) + t * (haut(x + b / 2) - bas(x + b / 2)); mtPoly(F, [[x - 4, y - 7], [x + b + 4, y - 7], [x + b + 4, y + 7], [x - 4, y + 7]], "Bagues", ch.dore ? "or" : "collier"); }
+    q.bagues = (q.bagues || 0) + 2;
+  }
+  if (ch.barreaux === "torsade" && L > MT_ATELIER.barreauDecor) {
+    const ya = Math.min(bas(x), bas(x + b)) + 0.2 * L, yb = ya + 0.6 * L;
+    for (let y = ya; y < yb - b; y += b * 0.95) F.push({ t: "poly", ouvert: true, pts: [[x + 1, y], [x + b - 1, y + b * 0.55]], cls: "t-acier", role: "vrille" });
+    q.torsades = (q.torsades || 0) + 1;
+  }
+  const tors = ch.barreaux === "torsade" && L > MT_ATELIER.barreauDecor;
+  pieces.push({ nom: tors ? "Barreau torsadé" : "Barreau", mat: tors ? `Carré ${b} torsadé (acheté)` : `Carré plein ${b}`, long: L, kgM: mtKgM(b, b), peri: 4 * b, coupes: Math.abs(bas(x) - bas(x + b)) > 1 ? "Coupes d'onglet à la pente" : "Coupes droites", note: tors ? "Acheté torsadé (60 % de la longueur)" : "", groupe: "Remplissage" });
+  q.soudures = (q.soudures || 0) + 2;
+}
+function mtCompteBarreaux(z, a, b, vmax) {
+  vmax = Math.min(vmax || z.vide || MT_ATELIER.vide, z.videMax || Infinity);
+  if (z.norme && z.norme.escalade && vmax <= 110) vmax = Math.min(vmax, MT_ATELIER.videEscalade);
+  const B = z.barreau || MT_ATELIER.barreau;
+  return Math.max(0, Math.ceil((b - a - vmax) / (B + vmax)));
+}
+function mtBarreaux(z, a, b, F, pieces, q, ch, vmax, y0, y1, pair = false) {
+  if (z.lib) return z.lib;
+  const B = z.barreau || MT_ATELIER.barreau, n0 = mtCompteBarreaux(z, a, b, vmax), n = pair && n0 % 2 === 0 ? n0 + 1 : n0, v = (b - a - n * B) / (n + 1);
+  for (let i = 0; i < n; i++) mtBarreau(z, a + v + i * (v + B), F, pieces, q, ch, y0, y1);
+  q.vide = Math.max(q.vide || 0, v);
+  return Array.from({ length: n + 1 }, (_, i) => [a + i * (v + B), a + i * (v + B) + v]);
+}
+function mtVolute(traits, forme, F, pieces, q, ch, devant = false, cat = null) {
+  if (ch.catalogue) {
+    const b0 = mtBoite(traits), d0 = Math.max(b0.x1 - b0.x0, b0.y1 - b0.y0), nom = MT_NOMS[forme] || "Volute";
+    if (d0 > MT_ATELIER.achatMax) { mtRefus(q, nom, `${nom} de ${Math.round(d0)} mm : au-delà de ${MT_ATELIER.achatMax} mm, aucune pièce du catalogue, et pas de pièce forgée sur un portail.`); return false; }
+  }
+  const S = cat ? MT_SECTIONS[cat.e.section] : null;
+  const ep = S ? S.e + 1 : MT_ATELIER.epVue, V = S || MT_ATELIER.volute;
+  let longueur = 0;
+  for (const t0 of traits) {
+    const t = mtAlleger(t0, 0.3, ch.stable === true), r = mtRuban(t, ep, ch.bouts || "bouton");
+    if (devant) F.push({ t: "poly", pts: t, ouvert: true, cls: "t-acier", role: "detour" });
+    F.push({ t: "poly", pts: r.pts, cls: "t-acier-plein", piece: MT_NOMS[forme] || "Volutes", role: "fer", axe: t });
+    for (const c of r.boutons) F.push({ t: "cercle", c, r: ep * 0.62, cls: "t-acier-plein", piece: "Boutons forgés", role: ch.dore ? "or" : "fer" });
+    q.bouts = (q.bouts || 0) + r.forges;
+    longueur += r.long;
+  }
+  const bt = mtBoite(traits), dim = Math.max(bt.x1 - bt.x0, bt.y1 - bt.y0);
+  const fab = ch.catalogue ? "achat" : ch.fab === "forge" || dim > MT_ATELIER.achatMax ? "forge" : "achat";
+  pieces.push({ nom: MT_NOMS[forme] || "Volute", mat: `Fer plat ${V.b} × ${V.e}`, long: longueur, kgM: mtKgM(V.b, V.e), peri: 2 * (V.b + V.e), coupes: fab === "achat" ? "Achetée, reprise au gabarit" : "Forgée au gabarit", note: ch.bouts === "droit" ? "Bouts coupés droits" : ch.bouts === "effile" ? "Bouts effilés à la forge" : "Bouts effilés et boutonnés", groupe: "Décor", forme, fab, dim: Math.round(dim) });
+  if (cat) {
+    const e = cat.e, p = pieces[pieces.length - 1], cle = `${e.fournisseur} ${e.ref}`;
+    Object.assign(p, { ref: e.ref, fournisseur: e.fournisseur, section: e.section, h: e.h, l: e.l, reprise: Math.round((cat.s - 1) * 1000) / 10, nbAchat: e.nbAchat || 1 });
+    if (e.parMetre) p.parMetre = true;
+    p.coupes = Math.abs(cat.s - 1) < 0.005 ? "Achetée, posée telle quelle" : `Achetée, reprise au gabarit (${cat.s > 1 ? "+" : ""}${String(p.reprise).replace(".", ",")} %)`;
+    q.commandes = q.commandes || {};
+    const c = q.commandes[cle] || (q.commandes[cle] = { ref: e.ref, fournisseur: e.fournisseur, forme: e.forme, h: e.h, l: e.l, section: e.section, qte: 0 });
+    c.qte += e.nbAchat || 1;
+  }
+  q.fab = q.fab || { achat: 0, forge: 0 }; q.fab[fab]++;
+  q.volutes = q.volutes || {}; q.volutes[forme] = (q.volutes[forme] || 0) + 1;
+  q.longueurVolutes = (q.longueurVolutes || 0) + longueur;
+  return true;
+}
+function mtLien(F, pieces, q, ch, r, soude = false) {
+  q.liens = q.liens || [];
+  if (q.liens.some((l) => Math.abs(l[0] - r[0]) < 3 && Math.abs(l[1] - r[1]) < 12)) return;
+  q.liens.push(r);
+  if (ch.liaison !== "colliers" || soude) { q.soudures = (q.soudures || 0) + 1; return; }
+  const [x, y, w, h] = r, C = MT_ATELIER.collier;
+  mtPoly(F, [[x, y], [x + w, y], [x + w, y + h], [x, y + h]], "Colliers", ch.dore ? "or" : "collier");
+  pieces.push({ nom: "Collier", mat: `Fer plat ${C.b} × ${C.e}`, long: 2 * (Math.max(w, h) + 20) + 2 * MT_ATELIER.volute.b, kgM: mtKgM(C.b, C.e), peri: 2 * (C.b + C.e), coupes: "Coupe droite, serré à chaud", note: "", groupe: "Décor" });
+  q.colliers = (q.colliers || 0) + 1;
+}
+function mtLiens(m, cotes, a, c, F, pieces, q, ch, B = MT_ATELIER.barreau, z = null) {
+  const pts = m.flat(), H = MT_ATELIER.collier.h, e = MT_ATELIER.epVue + 4;
+  const g = pts.reduce((r, p) => (p[0] < r[0] ? p : r)), d = pts.reduce((r, p) => (p[0] > r[0] ? p : r));
+  const h = pts.reduce((r, p) => (p[1] > r[1] ? p : r)), b = pts.reduce((r, p) => (p[1] < r[1] ? p : r));
+  if (cotes.includes("g")) mtLien(F, pieces, q, ch, [a - B - e, g[1] - H / 2, B + 2 * e, H], !!z && Math.abs(a - z.x0) < 0.5);
+  if (cotes.includes("d")) mtLien(F, pieces, q, ch, [c - e, d[1] - H / 2, B + 2 * e, H], !!z && Math.abs(c - z.x1) < 0.5);
+  if (cotes.includes("h")) mtLien(F, pieces, q, ch, [h[0] - H / 2, h[1] - e, H, e + 20]);
+  if (cotes.includes("b")) mtLien(F, pieces, q, ch, [b[0] - H / 2, b[1] - 20, H, e + 20]);
+}
+function mtLisse(z, yDessus, F, pieces, ch, nom) {
+  const L = MT_ATELIER.lisseFrise, fl = mtFleche(yDessus, z.x0, z.x1);
+  if (fl <= 0.5) {
+    mtPoly(F, [[z.x0, yDessus(z.x0) - L.b], [z.x1, yDessus(z.x1) - L.b], [z.x1, yDessus(z.x1)], [z.x0, yDessus(z.x0)]], nom, "fer");
+    pieces.push({ nom, mat: `Fer plat ${L.b} × ${L.e}`, long: Math.hypot(z.x1 - z.x0, yDessus(z.x1) - yDessus(z.x0)), kgM: mtKgM(L.b, L.e), peri: 2 * (L.b + L.e), coupes: "Percée pour les barreaux", note: "", groupe: "Remplissage" });
+    return;
+  }
+  const n = Math.max(8, Math.ceil((z.x1 - z.x0) / 20)), xs = Array.from({ length: n + 1 }, (_, i) => z.x0 + (z.x1 - z.x0) * i / n);
+  mtPoly(F, [...xs.map((x) => [x, yDessus(x) - L.b]), ...xs.slice().reverse().map((x) => [x, yDessus(x)])], nom, "fer");
+  pieces.push({ nom, mat: `Fer plat ${L.b} × ${L.e}`, long: mtLongueur(xs.map((x) => [x, yDessus(x) - L.b / 2])), kgM: mtKgM(L.b, L.e), peri: 2 * (L.b + L.e), coupes: `Cintrée (flèche ${Math.round(fl)} mm), percée pour les barreaux`, note: "Cintrée chez le même cintreur que la traverse haute", groupe: "Remplissage", cintree: true });
+}
+const mtCase = (bas, haut, a, c) => ({ yb: Math.max(bas(a), bas(c)), yh: Math.min(haut(a), haut(c)) });
+
+
+const MT_ASSEMBLAGES = {
+  barreaux: (z, ch, F, pieces, q) => { mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch); },
+  entre: (z, ch, F, pieces, q) => {
+    if (mtPetite(z, ch)) return mtBande(z, ch, F, pieces, q, false);
+    const B = z.barreau || MT_ATELIER.barreau;
+    const lu = mtLuAxe(z), cat = ch.catalogue && !z.lib ? mtRefVides(ch.forme, "entre", z.x1 - z.x0, B, Math.min(MT_ATELIER.voluteMax, mtHauteurMin(z) - 8), undefined, lu) : null;
+    const lib = mtBarreaux(cat ? { ...z, videMax: 0 } : z, z.x0, z.x1, F, pieces, q, ch, cat ? cat.v * (1 + 1e-6) : undefined, undefined, undefined, lu);
+    if (ch.catalogue && !z.lib && !cat) { mtRefus(q, MT_NOMS[ch.forme], mtSansRef(ch.forme, "entre")); return; }
+    const courbe = mtCourbe(z), nL = lu ? lib.length : 0;
+    lib.forEach(([a, c], i) => {
+      if (mtSaute(ch, i, nL)) return;
+      const forme = mtFormeN(ch, i, nL), { yb, yh } = mtCase(z.bas, z.haut, a, c);
+      let h = Math.min(MT_ATELIER.voluteMax, yh - yb - 8), traits, k = null;
+      if (h < 60 || c - a < 40) return;
+      if (ch.catalogue) {
+        k = cat && forme === ch.forme ? cat : mtRefDuVide(forme, "entre", c - a, h);
+        if (!k) { mtRefus(q, MT_NOMS[forme], mtSansRef(forme, "entre")); return; }
+        traits = mtFormeRef(k.e); h = k.e.h * k.s;
+      } else traits = mtForme(forme);
+      const y = ch.pos === "bas" ? yb + 4 : ch.pos === "milieu" ? (yb + yh - h) / 2 : yh - 4 - h;
+      const sens = mtSens(i, nL);
+      let m = mtCaser(traits, a + 1, y, c - a - 2, h, ch.pos === "bas" ? "bas" : ch.pos === "milieu" ? "centre" : "haut", sens);
+      const crosse = forme === "J" && !k;
+      if (crosse) { const bm = mtBoite(m); m = mtDecaler(m, sens ? c - 1 - bm.x1 : a + 1 - bm.x0, 0); }
+      if (courbe && ch.pos === "haut") m = mtContreHaut(m, z.haut, 4);
+      if (mtVolute(m, forme, F, pieces, q, ch, false, k)) mtLiens(m, crosse ? (sens ? "d" : "g") : "gd", a, c, F, pieces, q, ch, z.barreau, z);
+    });
+  },
+  frise: (z, ch, F, pieces, q) => {
+    if (ch.forme === "poste" && Math.abs((z.haut(z.x1) - z.haut(z.x0)) / (z.x1 - z.x0)) > 0.05) {
+      ch = { ...ch, forme: "S" }; q.notes = (q.notes || []).concat("Frise de postes impossible sur une rampe : frise de S à la place.");
+    }
+    const lance = ch.pointes === "lance" && z.pointes, courbe = mtCourbe(z), B = z.barreau || MT_ATELIER.barreau, R = MT_ATELIER.reprise, J = MT_ATELIER.jeuBande;
+    if (lance && ch.forme !== "poste") {
+      const hF = MT_ATELIER.frise;
+      const lu = mtLuAxe(z), cat = ch.catalogue ? mtRefVides(ch.forme, "frise", z.x1 - z.x0, B, hF - 6, undefined, lu) : null;
+      const lib = mtBarreaux(cat ? { ...z, videMax: 0 } : z, z.x0, z.x1, F, pieces, q, ch, cat ? cat.v * (1 + 1e-6) : undefined, undefined, undefined, lu);
+      if (ch.catalogue && !cat) { mtRefus(q, MT_NOMS[ch.forme], mtSansRef(ch.forme, "frise")); return; }
+      const yL = (x) => z.haut(x) - hF, nL = lu ? lib.length : 0;
+      mtLisse(z, yL, F, pieces, ch, "Lisse de frise");
+      lib.forEach(([a, c], i) => {
+        if (mtSaute(ch, i, nL)) return;
+        const forme = mtFormeN(ch, i, nL), { yb, yh } = mtCase(yL, z.haut, a, c);
+        let k = null, m;
+        if (ch.catalogue) {
+          k = forme === ch.forme ? cat : mtRefDuVide(forme, "frise", c - a, hF - 6);
+          if (!k) { mtRefus(q, MT_NOMS[forme], mtSansRef(forme, "frise")); return; }
+          m = mtCaser(mtFormeRef(k.e), a + 1, yb + 3, c - a - 2, k.e.h * k.s, "centre", mtDroite(i, nL));
+        } else m = mtCaser(mtForme(forme), a + 1, yb + 3, c - a - 2, yh - yb - 6, "centre", mtDroite(i, nL));
+        if (courbe || k) m = mtDansBande(m, yL, z.haut, J, J, k ? (1 - R) / k.s : 0.5);
+        if (mtVolute(m, forme, F, pieces, q, ch, false, k)) mtLiens(m, "gd", a, c, F, pieces, q, ch, z.barreau, z);
+      });
+      return;
+    }
+    const L = MT_ATELIER.lisseFrise, hz = Math.min(z.haut(z.x0) - z.bas(z.x0), z.haut(z.x1) - z.bas(z.x1));
+    const refP = ch.forme === "poste" && ch.catalogue ? mtRefPoste() : null;
+    const hF = Math.min(ch.forme === "poste" ? (refP ? refP.h : MT_ATELIER.friseBasse) : MT_ATELIER.frise, hz), plein = hF >= hz - 60;
+    const dessusLisse = (x) => (plein ? z.bas(x) : z.haut(x) - hF);
+    const lanceP = lance && ch.forme === "poste";
+    if (lanceP) mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch);
+    if (!plein) mtLisse(z, dessusLisse, F, pieces, ch, "Lisse de frise");
+    const hU = Math.min(z.haut(z.x0) - dessusLisse(z.x0), z.haut(z.x1) - dessusLisse(z.x1)) - 6;
+    let cat = refP ? { e: refP, s: 1 } : null;
+    if (ch.catalogue && ch.forme !== "poste") {
+      cat = mtRef(ch.forme, "frise", { hMax: hU, viser: hU });
+      if (!cat) {
+        mtRefus(q, MT_NOMS[ch.forme], mtSansRef(ch.forme, "frise"));
+        if (!plein && !lanceP) mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch, 0, z.bas, (x) => dessusLisse(x) - L.b);
+        return;
+      }
+    }
+    const catV = cat && !refP, f = catV ? mtFormeRef(cat.e) : mtForme(ch.forme), bb = mtBoite(f), hV = catV ? cat.e.h * cat.s : hU;
+    const W = z.x1 - z.x0, axe = (z.x0 + z.x1) / 2, poste = ch.forme === "poste";
+    const larg = Math.min(hV * (bb.x1 - bb.x0) / (bb.y1 - bb.y0), poste ? W / 2 : Infinity), pas0 = poste ? larg * 0.74 : larg * 1.25;
+    const mP = Math.max(1, Math.round((W / 2 - larg + pas0) / pas0)), pP = mP > 1 ? (W / 2 - larg) / (mP - 1) : 0;
+    const lu = mtLuAxe(z), n1 = Math.max(1, Math.round(W / pas0)), n = poste ? 2 * mP : lu ? n1 + (n1 % 2) : n1, nA = lu ? n : 0, bAxe = poste || !lu ? 0 : B, pas = (W - bAxe) / n;
+    if (bAxe) mtBarreau(z, axe - B / 2, F, pieces, q, ch, dessusLisse, z.haut);
+    for (let i = 0; i < n; i++) {
+      const r = poste ? i >> 1 : i, gauche = poste && i % 2 === 1;
+      if (poste ? ch.rythme === "unSurDeux" && r % 2 === 1 : mtSaute(ch, i, nA)) continue;
+      const forme = poste ? (ch.rythme === "alterne" && r % 2 === 1 && ch.forme2 ? ch.forme2 : ch.forme) : mtFormeN(ch, i, nA);
+      let k = cat, fi = f;
+      if (forme !== ch.forme) {
+        if (ch.catalogue) { k = mtRef(forme, "frise", { hMax: hU, viser: hU }); if (!k) { mtRefus(q, MT_NOMS[forme], mtSansRef(forme, "frise")); continue; } fi = mtFormeRef(k.e); }
+        else fi = mtForme(forme);
+      }
+      const kV = k && k.e.forme !== "poste";
+      const a = poste ? (gauche ? axe - r * pP - larg : axe + r * pP) : z.x0 + i * pas + (mtDroite(i, nA) ? bAxe : 0), c = poste ? a + larg : a + pas;
+      const { yb, yh } = mtCase(dessusLisse, z.haut, a, c);
+      let m = mtCaser(fi, a + 2, yb + 3, c - a - 4, kV ? k.e.h * k.s : yh - yb - 6, poste ? "bas" : "centre", poste ? gauche : mtDroite(i, nA));
+      if (courbe) m = ch.forme === "poste" ? mtDansBande(m, dessusLisse, null, J) : mtDansBande(m, dessusLisse, z.haut, J, J, kV ? (1 - R) / k.s : 0.5);
+      if (mtVolute(m, forme, F, pieces, q, ch, lanceP, k)) mtLiens(m, ch.forme === "poste" ? "b" : "hb", a, c, F, pieces, q, ch, z.barreau, z);
+    }
+    if (!plein && !lanceP) mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch, 0, z.bas, (x) => dessusLisse(x) - L.b);
+  },
+  hauteur: (z, ch, F, pieces, q) => {
+    if (mtPetite(z, ch)) return mtBande(z, ch, F, pieces, q, true);
+    const B = z.barreau || MT_ATELIER.barreau, esc = z.norme && z.norme.escalade;
+    const lu = mtLuAxe(z), cat = ch.catalogue && !esc ? mtRefVides(ch.forme, "hauteur", z.x1 - z.x0, B, mtHauteurMin(z) - 4, MT_ATELIER.voluteMax, lu) : null;
+    const f = mtForme(ch.forme), bb = mtBoite(f), r = (bb.y1 - bb.y0) / (bb.x1 - bb.x0);
+    let vG = esc ? 0 : z.videGrille || MT_ATELIER.videGrille, nVoulu = 0;
+    if (lu && !esc && !cat && !ch.catalogue && !z.lib) {
+      const W = z.x1 - z.x0, H = mtHauteurMin(z), n0 = mtCompteBarreaux(z, z.x0, z.x1, vG), nb = n0 % 2 === 0 ? n0 + 1 : n0, v0 = (W - nb * B) / (nb + 1), h1 = (v0 - 2) * r;
+      const n = Math.max(1, Math.round(H / h1));
+      if (H / n < h1 - 0.5) { vG = (H / n - 2) / r + 2; nVoulu = n; }
+    }
+    const lib = mtBarreaux(cat ? { ...z, videMax: 0 } : z, z.x0, z.x1, F, pieces, q, ch, cat ? cat.v * (1 + 1e-6) : vG, undefined, undefined, lu);
+    if (ch.catalogue && !cat) { mtRefus(q, MT_NOMS[ch.forme], mtSansRef(ch.forme, "hauteur")); return; }
+    const nL = lu ? lib.length : 0;
+    lib.forEach(([a, c], i) => {
+      if (mtSaute(ch, i, nL)) return;
+      const cs = mtCase(z.bas, z.haut, a, c), yh = cs.yh, h1 = (c - a - 2) * (bb.y1 - bb.y0) / (bb.x1 - bb.x0);
+      const yb = z.norme && z.norme.escalade ? Math.max(cs.yb, Math.max(z.norme.sol(a), z.norme.sol(c)) + 600) : cs.yb;
+      if (cat) {
+        const k2 = ch.rythme === "alterne" && ch.forme2 !== ch.forme ? mtRefDuVide(ch.forme2, "hauteur", c - a, yh - yb) : null;
+        if (ch.rythme === "alterne" && !k2) mtRefus(q, MT_NOMS[ch.forme2], mtSansRef(ch.forme2, "hauteur"));
+        const hs = Math.max(cat.e.h * cat.s, k2 ? k2.e.h * k2.s : 0), n = Math.floor((yh - yb) / (hs + 2)), ph = n ? (yh - yb) / n : 0;
+        for (let j = 0; j < n; j++) {
+          const deux = k2 && mtFormeN(ch, mtSym(i, nL) + j) !== ch.forme, kk = deux ? k2 : cat, fo = deux ? ch.forme2 : ch.forme, hk = kk.e.h * kk.s;
+          const m = mtCaser(mtFormeRef(kk.e), a + 1, yb + j * ph + (ph - hk) / 2, c - a - 2, hk, "centre", mtSens(i, nL) !== (j % 2 === 1));
+          if (mtVolute(m, fo, F, pieces, q, ch, false, kk)) mtLiens(m, "gd", a, c, F, pieces, q, ch, z.barreau, z);
+        }
+        return;
+      }
+      if (yh - yb < h1 * 0.6) return;
+      const n = nVoulu || Math.max(1, Math.round((yh - yb) / h1)), ph = (yh - yb) / n;
+      for (let k = 0; k < n; k++) {
+        const forme = mtFormeN(ch, mtSym(i, nL) + k);
+        const m = mtCaser(forme === ch.forme ? f : mtForme(forme), a + 1, yb + k * ph + 1, c - a - 2, ph - 2, "centre", mtSens(i, nL) !== (k % 2 === 1));
+        if (mtVolute(m, forme, F, pieces, q, ch)) mtLiens(m, "gd", a, c, F, pieces, q, ch, z.barreau, z);
+      }
+    });
+  },
+  anneaux: (z, ch, F, pieces, q) => {
+    if (mtPetite(z, ch)) {
+      const lib = mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch, Math.min(z.vide || MT_ATELIER.vide, mtHauteurMin(z)), undefined, undefined, mtLuAxe(z));
+      lib.forEach(([a, c], i) => {
+        if (mtSaute(ch, i, lib.length)) return;
+        const { yb, yh } = mtCase(z.bas, z.haut, a, c), m = mtCaser(mtForme("anneau"), a + 1, yb + 1, c - a - 2, yh - yb - 2);
+        if (mtVolute(m, "anneau", F, pieces, q, ch)) mtLiens(m, "gdhb", a, c, F, pieces, q, ch, z.barreau, z);
+      });
+      return;
+    }
+    const B = z.barreau || MT_ATELIER.barreau, cat = ch.catalogue ? mtRefVides("anneau", "anneaux", z.x1 - z.x0, B, Infinity, 100) : null;
+    const lib = mtBarreaux(cat ? { ...z, videMax: 0 } : z, z.x0, z.x1, F, pieces, q, ch, cat ? cat.v * (1 + 1e-6) : undefined), v = lib[0][1] - lib[0][0], L = MT_ATELIER.lisseFrise;
+    if (ch.catalogue && !cat) { mtRefus(q, MT_NOMS.anneau, mtSansRef("anneau", "anneaux")); return; }
+    const lu = mtLuAxe(z), pente = (z.haut(z.x1) - z.haut(z.x0)) / (z.x1 - z.x0), rampe = !lu && !cat && !z.lib;
+    const yL = rampe ? (x) => z.haut(x) - (v + 2) * Math.hypot(1, pente) : (x) => z.haut(x) - v - 2, courbe = mtCourbe(z);
+    mtLisse(z, yL, F, pieces, ch, "Lisse de frise");
+    lib.forEach(([a, c], i) => {
+      if (mtSaute(ch, i, lib.length)) return;
+      const { yb, yh } = mtCase(yL, z.haut, a, c);
+      let m = mtCaser(mtForme("anneau"), a + 1, yb + 1, c - a - 2, cat ? cat.e.h * cat.s : rampe ? c - a - 2 : yh - yb - 2);
+      if (courbe || cat || rampe) m = mtDansBande(m, yL, z.haut, 1, 1, cat ? (1 - MT_ATELIER.reprise) / cat.s : 0.5);
+      if (mtVolute(m, "anneau", F, pieces, q, ch, false, cat)) mtLiens(m, rampe ? "gd" : "gdhb", a, c, F, pieces, q, ch, z.barreau, z);
+    });
+    void L;
+  },
+  coeurs: (z, ch, F, pieces, q) => {
+    const B = z.barreau || MT_ATELIER.barreau, v0 = z.vide || MT_ATELIER.vide;
+    if (!ch.variante) {
+      const hz = ch.catalogue ? mtHauteurMin(z) - 10 : 0;
+      const cat = ch.catalogue ? mtRefVides("coeur", "coeurs", z.x1 - z.x0, B, hz, Math.min(hz, 1.4 * (2 * v0 + B))) : null;
+      if (ch.catalogue && !cat) { mtRefus(q, MT_NOMS.coeur, mtSansRef("coeur", "coeurs")); mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch); return; }
+      const fC = mtBoite(mtForme("coeur")), wC = (mtHauteurMin(z) - 10) * (fC.x1 - fC.x0) / (fC.y1 - fC.y0) + 2;
+      mtBarreaux(cat ? { ...z, videMax: 0 } : z, z.x0, z.x1, F, pieces, q, ch, cat ? cat.v * (1 + 1e-6) : Math.min(2 * v0 + B, wC)).forEach(([a, c], i, L) => {
+        if (mtSaute(ch, i, L.length)) return;
+        const cs = mtCase(z.bas, z.haut, a, c), hh = cat ? cat.e.h * cat.s : Math.min(cs.yh - cs.yb - 10, 1.4 * (c - a));
+        const m = mtCaser(cat ? mtFormeRef(cat.e) : mtForme("coeur"), a + 1, cs.yb + (cs.yh - cs.yb - hh) / 2, c - a - 2, hh);
+        if (mtVolute(m, "coeur", F, pieces, q, ch, false, cat)) mtLiens(m, "gd", a, c, F, pieces, q, ch, z.barreau, z);
+      });
+      return;
+    }
+    const lu = mtLuAxe(z), lib = mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch, undefined, undefined, undefined, lu), xs = lib.slice(0, -1).map(([, c]) => c), v = lib[0][1] - lib[0][0];
+    const Hc = MT_ATELIER.collier.h, n = xs.length, jeu = 5 + MT_ATELIER.epVue * 0.62 + 1, w = 2 * v + B - 2 * jeu, iAxe = lu ? (n - 1) / 2 : 0;
+    xs.forEach((x, i) => {
+      if ((i - iAxe) % 2) return;
+      const cs = mtCase(z.bas, z.haut, x - v, x + B + v), hh = Math.min(cs.yh - cs.yb - 10, 1.4 * w);
+      const m = mtCaser(mtForme("coeur"), x + B / 2 - w / 2, cs.yb + (cs.yh - cs.yb - hh) / 2, w, hh), bm = mtBoite(m);
+      mtVolute(m, "coeur", F, pieces, q, ch, true);
+      mtLien(F, pieces, q, ch, [x - 4, bm.y0 + 2, B + 8, Hc]); mtLien(F, pieces, q, ch, [x - 4, bm.y1 - (bm.y1 - bm.y0) * 0.18 - Hc / 2, B + 8, Hc]);
+    });
+  },
+  medaillon: (z, ch, F, pieces, q) => {
+    const B = z.barreau || MT_ATELIER.barreau, cx = (z.x0 + z.x1) / 2, forme = ch.forme === "J" ? "lyre" : ch.forme;
+    const { yb, yh } = mtCase(z.bas, z.haut, cx - 200, cx + 200), H = yh - yb;
+    const k = ch.catalogue ? mtRef(forme, "medaillon", { hMax: H - 20, lMax: (z.x1 - z.x0) * 0.6, viser: Math.min(0.46 * H, H - 20, 520) }) : null;
+    if (ch.catalogue && !k) { mtRefus(q, MT_NOMS[forme], mtSansRef(forme, "medaillon")); mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch); return; }
+    const f = k ? mtFormeRef(k.e) : mtForme(forme), bb = mtBoite(f);
+    let w = Math.min(Math.min(0.46 * H, H - 20, 520) * (bb.x1 - bb.x0) / (bb.y1 - bb.y0), (z.x1 - z.x0) * 0.6), hh = w * (bb.y1 - bb.y0) / (bb.x1 - bb.x0);
+    if (k) { hh = k.e.h * k.s; w = hh * (bb.x1 - bb.x0) / (bb.y1 - bb.y0); }
+    const y = yb + (H - hh) * 0.62, e = MT_ATELIER.epVue + 4, Hc = MT_ATELIER.collier.h;
+    if (z.norme || z.lib) {
+      if (mtPetite(z, ch)) {
+        const lib = mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch, undefined, undefined, undefined, true), v = lib[0][1] - lib[0][0];
+        const asp = (bb.y1 - bb.y0) / (bb.x1 - bb.x0), jeu = MT_ATELIER.jeuVoisin + MT_ATELIER.epVue * 0.62 + 1;
+        const wP = Math.min((H - 12) / asp, 2 * v + B - 2 * jeu), hP = wP * asp, m = mtCaser(f, cx - wP / 2, yb + (H - hP) / 2, wP, hP), bm = mtBoite(m);
+        if (!mtVolute(m, forme, F, pieces, q, ch, true)) return;
+        mtLien(F, pieces, q, ch, [cx - B / 2 - 4, bm.y0 + 2, B + 8, Hc]);
+        if (bm.y1 - bm.y0 > 40) mtLien(F, pieces, q, ch, [cx - B / 2 - 4, bm.y1 - Hc - 2, B + 8, Hc]);
+        return;
+      }
+      const lib = mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch), xs = lib.slice(0, -1).map(([, c]) => c), pas = lib.length > 1 ? lib[1][0] - lib[0][0] : z.x1 - z.x0;
+      const asp = (bb.y1 - bb.y0) / (bb.x1 - bb.x0), wN = k ? w : Math.min(Math.max(w, 2 * pas + 8), (z.x1 - z.x0) * 0.8, (H - 20) / asp), hN = wN * asp, yN = yb + (H - hN) * 0.62;
+      const m = mtCaser(f, cx - wN / 2, yN, wN, hN), bm = mtBoite(m);
+      if (!mtVolute(m, forme, F, pieces, q, ch, true, k)) return;
+      xs.filter((x) => x + B > bm.x0 + 4 && x < bm.x1 - 4).forEach((x) => {
+        const pts = m.flat().filter(([px]) => px > x - 2 && px < x + B + 2);
+        if (!pts.length) return;
+        const ys = pts.map((p) => p[1]); mtLien(F, pieces, q, ch, [x - 4, Math.min(...ys) - 2, B + 8, Hc]); if (Math.max(...ys) - Math.min(...ys) > 60) mtLien(F, pieces, q, ch, [x - 4, Math.max(...ys) - Hc + 2, B + 8, Hc]);
+      });
+      return;
+    }
+    mtBarreau(z, cx - B / 2, F, pieces, q, ch);
+    mtBarreaux(z, z.x0, cx - w / 2 - 4, F, pieces, q, ch); mtBarreaux(z, cx + w / 2 + 4, z.x1, F, pieces, q, ch);
+    const m = mtCaser(f, cx - w / 2, y, w, hh);
+    if (!mtVolute(m, forme, F, pieces, q, ch, false, k)) return;
+    const bm = mtBoite(m);
+    mtLien(F, pieces, q, ch, [cx - B / 2 - e, bm.y0 + 2, B + 2 * e, Hc]);
+    mtLien(F, pieces, q, ch, [cx - B / 2 - e, bm.y1 - (bm.y1 - bm.y0) * 0.16 - Hc / 2, B + 2 * e, Hc]);
+  },
+  applique: (z, ch, F, pieces, q) => {
+    const petite = mtPetite(z, ch), B = z.barreau || MT_ATELIER.barreau, deux = !petite && !z.lib && mtCompteBarreaux(z, z.x0, z.x1) === 2;
+    const lib = mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch, undefined, undefined, undefined, deux), xs = lib.slice(0, -1).map(([, c]) => c);
+    if (!xs.length) return;
+    const v = lib[0][1] - lib[0][0], f = mtForme(ch.forme), bb = mtBoite(f), pas = petite ? 1 : 3, debut = petite ? 0 : [0, 1, 2].find((d) => (2 * d) % pas === (xs.length - 1) % pas), axe = (z.x0 + z.x1) / 2;
+    const nM = Math.floor((xs.length - 1 - debut) / pas) + 1, lu = mtLuAxe(z);
+    xs.forEach((x, i) => {
+      if ((i - debut) % pas) return;
+      const j = (i - debut) / pas, centre = lu && Math.abs(x + B / 2 - axe) < 0.5;
+      if (mtSaute(ch, j, nM)) return;
+      const forme = centre ? mtFormeAxe(mtFormeN(ch, j, nM)) : mtFormeN(ch, j, nM), { yb, yh } = mtCase(z.bas, z.haut, x - v, x + B + v);
+      let fi = forme === ch.forme ? f : mtForme(forme), k = null;
+      const bi = forme === ch.forme ? bb : mtBoite(fi);
+      let w = petite ? 2 * v + B - 2 * (MT_ATELIER.jeuVoisin + MT_ATELIER.epVue * 0.62 + 1) : 2 * v + B * 1.6, h = Math.min(w * (bi.y1 - bi.y0) / (bi.x1 - bi.x0), yh - yb - (petite ? 12 : 16));
+      if (petite) w = Math.min(w, h * (bi.x1 - bi.x0) / (bi.y1 - bi.y0));
+      if (ch.catalogue) {
+        k = mtRef(forme, "applique", { hMax: yh - yb - 16, viserL: w });
+        if (!k) { mtRefus(q, MT_NOMS[forme], mtSansRef(forme, "applique")); return; }
+        fi = mtFormeRef(k.e); w = k.e.l * k.s; h = k.e.h * k.s;
+      }
+      const yc = petite ? (yb + yh) / 2 : Math.min(yb + (yh - yb) * 0.62, yh - h / 2 - 8);
+      const m = mtCaser(fi, x + B / 2 - w / 2, yc - h / 2, w, h, "centre", lu && !MT_SYMETRIQUES.includes(forme) && x + B / 2 > axe + 0.5);
+      if (!mtVolute(m, forme, F, pieces, q, ch, true, k)) return;
+      mtLien(F, pieces, q, ch, [x - 4, yc - 7, B + 8, 14]);
+    });
+  },
+  coins: (z, ch, F, pieces, q) => {
+    const B = z.barreau || MT_ATELIER.barreau, lib = mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch), xs = lib.slice(0, -1).map(([, c]) => c);
+    const t = MT_ATELIER.coinMax * Math.min(z.x1 - z.x0, mtHauteurMin(z)), Hc = MT_ATELIER.collier.h;
+    const k = ch.catalogue ? mtRef(ch.forme, "coins", { hMax: t, lMax: t, viser: t }) : null;
+    if (ch.catalogue && !k) { mtRefus(q, MT_NOMS[ch.forme], mtSansRef(ch.forme, "coins")); return; }
+    const f = k ? mtFormeRef(k.e) : mtForme(ch.forme), bb = mtBoite(f), sc = Math.min(t / (bb.x1 - bb.x0), t / (bb.y1 - bb.y0));
+    const hC = k ? k.e.h * k.s : (bb.y1 - bb.y0) * sc, wC = hC * (bb.x1 - bb.x0) / (bb.y1 - bb.y0);
+    for (const droite of [false, true]) {
+      const m = mtContreHaut(mtCaser(f, droite ? z.x1 - 2 - wC : z.x0 + 2, z.bas(z.x0), wC, hC, "bas", droite), z.haut, 2);
+      if (!mtVolute(m, ch.forme, F, pieces, q, ch, true, k)) continue;
+      q.soudures = (q.soudures || 0) + 2;
+      const bm = mtBoite(m);
+      xs.filter((x) => x + B > bm.x0 + 4 && x < bm.x1 - 4).forEach((x) => {
+        const pts = m.flat().filter(([px]) => px > x - 2 && px < x + B + 2);
+        if (pts.length) mtLien(F, pieces, q, ch, [x - 4, Math.min(...pts.map((p) => p[1])) - 2, B + 8, Hc]);
+      });
+    }
+  },
+  cimier: (z, ch, F, pieces, q) => {
+    mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch);
+    const C = z.cimier;
+    if (!C || C.y == null) { mtRefus(q, "Couronnement", "Couronnement : la zone ne dit pas où est le dessus de la traverse haute (z.cimier)."); return; }
+    const yC = typeof C.y === "function" ? C.y : () => C.y, [hMin, hMax] = MT_ATELIER.cimier, hC = Math.max(hMin, Math.min(hMax, C.h || 220));
+    if (C.h && C.h !== hC) q.notes = (q.notes || []).concat(`Couronnement ramené à ${hC} mm (de ${hMin} à ${hMax} mm).`);
+    const motif = (fo) => {
+      if (!ch.catalogue) { const f = mtForme(fo), b = mtBoite(f); return { f, h: hC, w: hC * (b.x1 - b.x0) / (b.y1 - b.y0), k: null }; }
+      const k = mtRef(fo, "cimier", { hMax, viser: hC });
+      if (!k) { mtRefus(q, MT_NOMS[fo], mtSansRef(fo, "cimier")); return null; }
+      const f = mtFormeRef(k.e), b = mtBoite(f), h = k.e.h * k.s;
+      return { f, h, w: h * (b.x1 - b.x0) / (b.y1 - b.y0), k };
+    };
+    const M1 = motif(ch.forme);
+    if (!M1) return;
+    const M2 = ch.rythme === "alterne" && ch.forme2 !== ch.forme ? motif(ch.forme2) || M1 : M1;
+    const W = z.x1 - z.x0, cx = (z.x0 + z.x1) / 2, wm = Math.max(M1.w, M2.w), g = 0.25 * wm;
+    const symetrique = MT_SYMETRIQUES.includes(ch.forme) && (M2 === M1 || MT_SYMETRIQUES.includes(ch.forme2));
+    let n = Math.max(1, Math.floor((W + g) / (wm + g))); if (symetrique ? n % 2 === 0 : n % 2 === 1 && n > 1) n--;
+    const x0 = cx - (n * wm + (n - 1) * g) / 2;
+    let hMaxi = 0, nPose = 0;
+    for (let i = 0; i < n; i++) {
+      if (mtSaute(ch, i, n)) continue;
+      const deux = mtFormeN(ch, i, n) !== ch.forme && M2 !== M1, Mi = deux ? M2 : M1, fo = deux ? ch.forme2 : ch.forme;
+      const m0 = mtCaser(Mi.f, x0 + i * (wm + g) + (wm - Mi.w) / 2, 0, Mi.w, Mi.h, "bas", mtDroite(i, n));
+      const m = mtDecaler(m0, 0, -mtEcart(m0, yC, 1));
+      if (!mtVolute(m, fo, F, pieces, q, ch, false, Mi.k)) continue;
+      q.soudures = (q.soudures || 0) + 2; nPose++;
+      hMaxi = Math.max(hMaxi, -mtEcart(m, yC, -1));
+    }
+    if (nPose) q.cimier = { h: Math.round(hMaxi), n: nPose };
+  },
+  appliquePlein: (z, ch, F, pieces, q) => {
+    if (!z.plein) mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch);
+    const P = z.plein ? z : z.soub;
+    if (!P) { mtRefus(q, "Soubassement", "Motif sur le soubassement : la zone n'a pas de soubassement plein (z.soub)."); return; }
+    const bas = typeof P.bas === "function" ? P.bas : () => P.y0, haut = typeof P.haut === "function" ? P.haut : () => P.haut;
+    const W = P.x1 - P.x0, cx = (P.x0 + P.x1) / 2, { yb, yh } = mtCase(bas, haut, P.x0, P.x1), Hs = yh - yb;
+    const motif = (fo) => {
+      const k = ch.catalogue ? mtRef(fo, "appliquePlein", { hMax: 0.8 * Hs, lMax: 0.45 * W, viser: 0.7 * Hs }) : null;
+      if (ch.catalogue && !k) { mtRefus(q, MT_NOMS[fo], mtSansRef(fo, "appliquePlein")); return null; }
+      const f = k ? mtFormeRef(k.e) : mtForme(fo), b = mtBoite(f), asp = (b.y1 - b.y0) / (b.x1 - b.x0);
+      const h = k ? k.e.h * k.s : Math.min(0.7 * Hs, 0.45 * W * asp);
+      return { f, h, w: h / asp, k };
+    };
+    const M1 = motif(ch.forme);
+    if (!M1) return;
+    const M2 = ch.rythme === "alterne" && ch.forme2 !== ch.forme ? motif(ch.forme2) || M1 : M1;
+    const xs = W >= 3.6 * Math.max(M1.w, M2.w) ? [P.x0 + W / 6, cx, P.x1 - W / 6] : [cx];
+    xs.forEach((x, i) => {
+      if (mtSaute(ch, i, xs.length)) return;
+      const deux = mtFormeN(ch, i, xs.length) !== ch.forme && M2 !== M1, fo0 = deux ? ch.forme2 : ch.forme;
+      const surAxe = Math.abs(x - cx) < 0.5 && !MT_SYMETRIQUES.includes(fo0), fo = surAxe ? mtFormeAxe(fo0) : fo0, Mi = surAxe ? motif(fo) || (deux ? M2 : M1) : deux ? M2 : M1;
+      const m = mtCaser(Mi.f, x - Mi.w / 2, (yb + yh - Mi.h) / 2, Mi.w, Mi.h, "centre", mtDroite(i, xs.length));
+      if (mtVolute(m, fo, F, pieces, q, ch, true, Mi.k)) q.soudures = (q.soudures || 0) + 4;
+    });
+  },
+};
+
+
+const MT_SOCLE = ["hauteur", "coeurs"];
+const MT_VARIANTES = { coeurs: 2 };
+
+function mtChoix(c = {}) {
+  const pick = (k, def) => (MT_CHOIX[k].includes(c[k]) ? c[k] : def);
+  const assemblage = pick("assemblage", "entre"), avec = MT_AVEC[assemblage];
+  const forme = avec.length ? (avec.includes(c.forme) ? c.forme : avec[0]) : null;
+  const ch = { assemblage, forme, bouts: pick("bouts", "bouton"), liaison: pick("liaison", "colliers"), barreaux: pick("barreaux", "carre"), friseBasse: pick("friseBasse", "aucune"), pointes: pick("pointes", "aucune"), dore: c.dore === true, fab: c.fab === "forge" ? "forge" : "achat" };
+  ch.pos = pick("pos", "haut"); ch.rythme = pick("rythme", "tous");
+  ch.forme2 = avec.length ? (avec.includes(c.forme2) && c.forme2 !== forme ? c.forme2 : avec.find((f) => f !== forme) || forme) : null;
+  ch.catalogue = c.catalogue === true;
+  return ch;
+}
+function mtRemplir(z0, choix, F, pieces, q) { return mtRemplirZone(z0, choix, F, pieces, q).ch; }
+function mtRemplirZone(z0, choix, F, pieces, q) {
+  if (z0.miroir) return mtEnMiroir(z0, F, q, (z) => mtRemplirZone(z, choix, F, pieces, q));
+  const ch = mtChoix(choix), Z = { ...z0, bas: typeof z0.bas === "function" ? z0.bas : () => z0.y0 };
+  if (Z.catalogue === true) ch.catalogue = true;
+  if (Z.norme && MT_PORTAIL_SEUL.includes(ch.assemblage)) {
+    const r = `Décor « ${MT_NOMS_PLACEMENT[ch.assemblage]} » réservé aux portails : barreaux droits à la place.`;
+    mtRefus(q, MT_NOMS_PLACEMENT[ch.assemblage], r); q.notes = (q.notes || []).concat(r);
+    ch.assemblage = "barreaux"; ch.forme = null; ch.forme2 = null;
+  }
+  if (ch.assemblage === "cimier" && ch.pointes === "lance" && Z.pointes) {
+    mtRefus(q, "Pointes de lance", "Pointes de lance retirées : le couronnement prend leur place au-dessus de la traverse haute.");
+    ch.pointes = "aucune";
+  }
+  let z = Z;
+  if (ch.friseBasse === "postes" && Z.norme && Z.norme.escalade) {
+    ch.friseBasse = "aucune"; q.notes = (q.notes || []).concat("Frise basse retirée : au ras du sol, les vagues feraient des marches (norme NF P01-012).");
+  }
+  if (ch.friseBasse === "postes") {
+    const refP = ch.catalogue ? mtRefPoste() : null, hB = refP ? refP.h : MT_ATELIER.friseBasse, L = MT_ATELIER.lisseFrise.b, dessus = (x) => Z.bas(x) + hB + L;
+    if (Math.min(Z.haut(Z.x0) - dessus(Z.x0), Z.haut(Z.x1) - dessus(Z.x1)) > 150) {
+      MT_ASSEMBLAGES.frise({ x0: Z.x0, x1: Z.x1, bas: Z.bas, haut: (x) => Z.bas(x) + hB }, { ...ch, forme: "poste", pointes: "aucune", rythme: "tous", stable: !Z.norme }, F, pieces, q);
+      mtLisse(Z, dessus, F, pieces, ch, "Lisse de frise basse");
+      z = { ...Z, bas: dessus };
+    }
+  }
+  if (Z.norme && Z.norme.escalade && MT_SOCLE.includes(ch.assemblage)) {
+    const sol = Z.norme.sol || (() => 0), Lb = MT_ATELIER.lisseFrise.b, bas0 = z.bas, dessus = (x) => Math.max(bas0(x) + 150, sol(x) + 620 + Lb);
+    if (Math.min(Z.haut(Z.x0) - dessus(Z.x0), Z.haut(Z.x1) - dessus(Z.x1)) >= 220) {
+      mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch, 0, bas0, (x) => dessus(x) - Lb);
+      mtLisse(z, dessus, F, pieces, ch, "Lisse du socle");
+      z = { ...z, bas: dessus };
+    }
+  }
+  const n0 = F.length, p0 = pieces.length, q0 = JSON.stringify(q);
+  for (let variante = 0; ; variante++) {
+    MT_ASSEMBLAGES[ch.assemblage](z, { ...ch, variante, stable: !Z.norme }, F, pieces, q);
+    delete q.liens;
+    if (!Z.norme || Z.norme.controle === false) break;
+    const r = mtControleVides(F, Z, Z.norme.sol || (() => 0), Z.norme.pas || 2);
+    const marge = Z.norme.marge || 0;
+    const res = { ok: r.dBas < 110 - marge && r.dMax < 180 - marge && !r.appui, dBas: r.dBas, dMax: r.dMax, ou: r.ou, appui: r.appui, variante, marge };
+    if (res.ok || variante + 1 >= (MT_VARIANTES[ch.assemblage] || 1)) { q.norme = (q.norme || []).concat(res); break; }
+    F.length = n0; pieces.length = p0; for (const k of Object.keys(q)) delete q[k]; Object.assign(q, JSON.parse(q0));
+  }
+  return { ch, z };
+}
+
+function mtEnMiroir(z0, F, q, dessiner) {
+  const S = z0.x0 + z0.x1, sym = (f) => (typeof f === "function" ? (x) => f(S - x) : f), px = ([x, y]) => [S - x, y];
+  const z = { ...z0, miroir: false, bas: sym(z0.bas), haut: sym(z0.haut) };
+  if (z0.norme) z.norme = { ...z0.norme, sol: sym(z0.norme.sol) };
+  if (z0.cimier) z.cimier = { ...z0.cimier, y: sym(z0.cimier.y) };
+  if (z0.soub) z.soub = { ...z0.soub, x0: S - z0.soub.x1, x1: S - z0.soub.x0, bas: sym(z0.soub.bas), haut: sym(z0.soub.haut) };
+  const n0 = F.length, nn = (q.norme || []).length, r = dessiner(z);
+  for (let i = n0; i < F.length; i++) {
+    const p = { ...F[i] };
+    if (p.pts) p.pts = p.pts.map(px);
+    if (p.axe) p.axe = p.axe.map(px);
+    if (p.c) p.c = px(p.c);
+    F[i] = p;
+  }
+  for (const r2 of (q.norme || []).slice(nn)) { if (r2.ou) r2.ou = px(r2.ou); if (r2.appui) r2.appui = px(r2.appui); }
+  return r;
+}
+
+
+const mtCleP = (ch) => (ch.assemblage === "entre" ? `entre:${ch.pos}` : ch.assemblage);
+const mtVa = (cle, motif) => cle === motif || cle.startsWith(motif + ":");
+const mtNomChoix = (ch) => MT_NOMS_PLACEMENT[ch.assemblage] + (ch.assemblage === "entre" ? `, ${MT_NOMS_POS[ch.pos]}` : "");
+function mtIncompat(c1, c2) {
+  const a = mtCleP(mtChoix(c1)), b = mtCleP(mtChoix(c2));
+  if (a === "barreaux" || b === "barreaux") return "";
+  if (a === b) return `Le même placement deux fois (${mtNomChoix(mtChoix(c1))}) : choisissez-en un autre.`;
+  const r = MT_INCOMPAT.find((x) => (mtVa(a, x.a) && mtVa(b, x.b)) || (mtVa(b, x.a) && mtVa(a, x.b)));
+  return r ? r.raison : "";
+}
+function mtHautLibre(z, ch, lib) {
+  const L = MT_ATELIER.lisseFrise.b;
+  if (ch.assemblage === "frise") {
+    const poste = ch.forme === "poste" && Math.abs((z.haut(z.x1) - z.haut(z.x0)) / (z.x1 - z.x0)) <= 0.05;
+    if (ch.pointes === "lance" && z.pointes && !poste) return (x) => z.haut(x) - MT_ATELIER.frise - L;
+    const hz = Math.min(z.haut(z.x0) - z.bas(z.x0), z.haut(z.x1) - z.bas(z.x1));
+    const hF = Math.min(poste ? (ch.catalogue ? mtRefPoste().h : MT_ATELIER.friseBasse) : MT_ATELIER.frise, hz);
+    return hF >= hz - 60 ? null : (x) => z.haut(x) - hF - L;
+  }
+  if (ch.assemblage === "anneaux") { const v = lib[0][1] - lib[0][0]; return (x) => z.haut(x) - v - 2 - L; }
+  return z.haut;
+}
+function mtBoitesDecor(F, i0, i1) {
+  const r = [];
+  for (let i = i0; i < i1; i++) {
+    const p = F[i];
+    if (p.role !== "fer" || !p.axe) continue;
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    for (const [x, y] of p.pts) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    r.push({ x0, x1, y0, y1 });
+  }
+  return r;
+}
+const mtChevauche = (A, B, tol = 0.5) => A.some((a) => B.some((b) => Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0) > tol && Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0) > tol));
+function mtRemplirPlusieurs(z0, liste, F, pieces, q) {
+  if (z0.miroir) return mtEnMiroir(z0, F, q, (z) => mtRemplirPlusieurs(z, liste, F, pieces, q));
+  let L = (Array.isArray(liste) ? liste : [liste]).filter(Boolean);
+  if (L.length > 2) { mtRefus(q, "Placements", `${L.length} placements demandés : deux au plus, les deux premiers sont gardés.`); L = L.slice(0, 2); }
+  if (L.length === 2) { const a = mtChoix(L[0]).assemblage, b = mtChoix(L[1]).assemblage; if (b === "barreaux") L = [L[0]]; else if (a === "barreaux") L = [L[1]]; }
+  if (L.length < 2) return [mtRemplir(z0, L[0] || {}, F, pieces, q)];
+  const c0 = mtChoix(L[0]), c1 = mtChoix(L[1]), raison = mtIncompat(c0, c1);
+  if (raison) { mtRefus(q, mtNomChoix(c1), raison); return [mtRemplir(z0, L[0], F, pieces, q)]; }
+  const iB = MT_RANG[c0.assemblage] <= MT_RANG[c1.assemblage] ? 0 : 1, cB = { ...L[iB] }, chS = mtChoix(L[1 - iB]);
+  if (L.some((x) => x.friseBasse === "postes")) cB.friseBasse = "postes";
+  if (L.some((x) => x.pointes === "lance")) cB.pointes = "lance";
+  if (L.some((x) => x.catalogue === true)) cB.catalogue = true;
+  if (chS.assemblage === "cimier" && cB.pointes === "lance" && z0.pointes) {
+    mtRefus(q, "Pointes de lance", "Pointes de lance retirées : le couronnement prend leur place au-dessus de la traverse haute.");
+    cB.pointes = "aucune";
+  }
+  const n0 = F.length, { ch: chB, z } = mtRemplirZone(z0, cB, F, pieces, q);
+  if (z0.norme && MT_PORTAIL_SEUL.includes(chS.assemblage)) { mtRefus(q, mtNomChoix(chS), `Décor « ${mtNomChoix(chS)} » réservé aux portails.`); return [chB]; }
+  const n1 = F.length, p1 = pieces.length, q1 = JSON.stringify(q), B = z.barreau || MT_ATELIER.barreau;
+  const xs = [...new Set(F.slice(n0, n1).filter((p) => p.piece === "Barreaux" && p.t === "poly" && p.role === "fer").map((p) => Math.round(Math.min(...p.pts.map((pt) => pt[0])) * 1000) / 1000))].sort((a, b) => a - b);
+  const lib = xs.length ? [[z.x0, xs[0]], ...xs.slice(1).map((x, i) => [xs[i] + B, x]), [xs[xs.length - 1] + B, z.x1]] : [[z.x0, z.x1]];
+  const haut = mtHautLibre(z, chB, lib);
+  if (!haut) { mtRefus(q, mtNomChoix(chS), `Pas de place pour « ${mtNomChoix(chS)} » : la frise prend toute la hauteur du panneau.`); return [chB]; }
+  Object.assign(chS, { catalogue: chS.catalogue || chB.catalogue, friseBasse: "aucune", pointes: chB.pointes });
+  MT_ASSEMBLAGES[chS.assemblage]({ ...z, haut, lib }, { ...chS, variante: 0, stable: !z0.norme }, F, pieces, q);
+  delete q.liens;
+  if (mtChevauche(mtBoitesDecor(F, n0, n1), mtBoitesDecor(F, n1, F.length))) {
+    F.length = n1; pieces.length = p1; for (const k of Object.keys(q)) delete q[k]; Object.assign(q, JSON.parse(q1));
+    mtRefus(q, mtNomChoix(chS), `« ${mtNomChoix(chS)} » et « ${mtNomChoix(chB)} » se chevauchent à ces cotes : le second placement est retiré.`);
+    return [chB];
+  }
+  if (z0.norme && z0.norme.controle !== false) {
+    const Z = { ...z0, bas: typeof z0.bas === "function" ? z0.bas : () => z0.y0 }, r = mtControleVides(F, Z, Z.norme.sol || (() => 0), Z.norme.pas || 2), marge = Z.norme.marge || 0;
+    q.norme = (q.norme || []).concat({ ok: r.dBas < 110 - marge && r.dMax < 180 - marge && !r.appui, dBas: r.dBas, dMax: r.dMax, ou: r.ou, appui: r.appui, variante: 0, marge, plusieurs: true });
+  }
+  return [chB, chS];
+}
+
+
+function mtEdt1(f, d, n, v, z) {
+  let k = 0; v[0] = 0; z[0] = -Infinity; z[1] = Infinity;
+  for (let q = 1; q < n; q++) {
+    const fq = f[q] + q * q;
+    let s = (fq - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
+    while (s <= z[k]) { k--; s = (fq - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]); }
+    k++; v[k] = q; z[k] = s; z[k + 1] = Infinity;
+  }
+  k = 0; for (let q = 0; q < n; q++) { while (z[k + 1] < q) k++; const e = q - v[k]; d[q] = e * e + f[v[k]]; }
+}
+function mtControleVides(F, z, sol = () => 0, pas = 2) {
+  const bas = typeof z.bas === "function" ? z.bas : () => z.y0;
+  let a = Infinity, b = -Infinity;
+  for (let k = 0; k <= 20; k++) { const x = z.x0 + (z.x1 - z.x0) * k / 20; a = Math.min(a, bas(x)); b = Math.max(b, z.haut(x)); }
+  const G = { x0: z.x0, y0: a, pas, nx: Math.ceil((z.x1 - z.x0) / pas) + 1, ny: Math.ceil((b - a) / pas) + 1 };
+  G.plein = new Uint8Array(G.nx * G.ny);
+  const cB = new Float64Array(G.nx), cH = new Float64Array(G.nx), cS = new Float64Array(G.nx);
+  for (let i = 0; i < G.nx; i++) { const x = G.x0 + i * pas; cB[i] = bas(x); cH[i] = z.haut(x); cS[i] = sol(x); }
+  mtGrilleCadre(G, cB, cH);
+  for (const p of F) {
+    if (p.role === "vrille" || p.role === "detour" || p.role === "marche") continue;
+    if (p.t === "cercle") mtGrilleTrait(G, [p.c, p.c], p.r);
+    else if (p.axe) mtGrilleTrait(G, p.axe, MT_ATELIER.volute.e / 2);
+    else if (p.t === "poly" && !p.ouvert) mtGrillePoly(G, p.pts);
+  }
+  const D = mtGrilleDistance(G), r = mtGrilleMax(G, D, cS);
+  r.appui = z.norme && z.norme.escalade ? mtGrilleAppui(G, cS) : null;
+  return r;
+}
+function mtGrilleCadre(G, cB, cH) {
+  const { nx, ny, plein, y0, pas } = G;
+  for (let j = 0, o = 0; j < ny; j++, o += nx) {
+    const y = y0 + j * pas;
+    for (let i = 0; i < nx; i++) if (i === 0 || i === nx - 1 || y <= cB[i] || y >= cH[i]) plein[o + i] = 1;
+  }
+}
+function mtGrillePoly(G, pts) {
+  const { nx, ny, plein, x0, y0, pas } = G, n = pts.length;
+  let ya = Infinity, yb = -Infinity; for (let k = 0; k < n; k++) { ya = Math.min(ya, pts[k][1]); yb = Math.max(yb, pts[k][1]); }
+  const j0 = Math.max(0, Math.floor((ya - y0) / pas)), j1 = Math.min(ny - 1, Math.ceil((yb - y0) / pas)), xs = [];
+  for (let j = j0; j <= j1; j++) {
+    const y = y0 + j * pas; xs.length = 0;
+    for (let k = 0; k < n; k++) { const p = pts[k], q = pts[(k + 1) % n]; if ((p[1] <= y && q[1] > y) || (q[1] <= y && p[1] > y)) xs.push(p[0] + (y - p[1]) / (q[1] - p[1]) * (q[0] - p[0])); }
+    xs.sort((u, v) => u - v);
+    for (let k = 0; k + 1 < xs.length; k += 2) { const ia = Math.max(0, Math.ceil((xs[k] - x0) / pas)), ib = Math.min(nx - 1, Math.floor((xs[k + 1] - x0) / pas)); for (let i = ia; i <= ib; i++) plein[j * nx + i] = 1; }
+  }
+}
+function mtGrilleTrait(G, pts, r) {
+  const { nx, ny, plein, x0, y0, pas } = G, r2 = r * r;
+  for (let k = 0; k + 1 < pts.length || k === 0; k++) {
+    const A = pts[k], Bp = pts[Math.min(k + 1, pts.length - 1)], ax = A[0], ay = A[1], dx = Bp[0] - ax, dy = Bp[1] - ay, L2 = dx * dx + dy * dy || 1;
+    const ia = Math.max(0, Math.floor((Math.min(ax, Bp[0]) - r - x0) / pas)), ib = Math.min(nx - 1, Math.ceil((Math.max(ax, Bp[0]) + r - x0) / pas));
+    const ja = Math.max(0, Math.floor((Math.min(ay, Bp[1]) - r - y0) / pas)), jb = Math.min(ny - 1, Math.ceil((Math.max(ay, Bp[1]) + r - y0) / pas));
+    for (let j = ja; j <= jb; j++) {
+      const py = y0 + j * pas;
+      for (let i = ia; i <= ib; i++) {
+        const px = x0 + i * pas; let t = ((px - ax) * dx + (py - ay) * dy) / L2; t = t < 0 ? 0 : t > 1 ? 1 : t;
+        const ex = px - ax - t * dx, ey = py - ay - t * dy; if (ex * ex + ey * ey <= r2) plein[j * nx + i] = 1;
+      }
+    }
+    if (pts.length < 2) break;
+  }
+}
+function mtGrilleDistance(G) {
+  const { nx, ny, plein } = G, INF = 1e12, D = new Float64Array(nx * ny), m = Math.max(nx, ny);
+  const fb = new Float64Array(m), db = new Float64Array(m), vb = new Int32Array(m), zb = new Float64Array(m + 1);
+  for (let i = 0; i < nx; i++) { for (let j = 0; j < ny; j++) fb[j] = plein[j * nx + i] ? 0 : INF; mtEdt1(fb, db, ny, vb, zb); for (let j = 0; j < ny; j++) D[j * nx + i] = db[j]; }
+  for (let j = 0, o = 0; j < ny; j++, o += nx) { for (let i = 0; i < nx; i++) fb[i] = D[o + i]; mtEdt1(fb, db, nx, vb, zb); for (let i = 0; i < nx; i++) D[o + i] = db[i]; }
+  return D;
+}
+function mtGrilleMax(G, D, cS) {
+  const { nx, ny, x0, y0, pas } = G;
+  let dMax = 0, dBas = 0, ou = null;
+  for (let j = 0, o = 0; j < ny; j++, o += nx) {
+    const y = y0 + j * pas;
+    for (let i = 0; i < nx; i++) {
+      const r2 = D[o + i]; if (!r2) continue;
+      const r = Math.sqrt(r2) * pas, d = 2 * r - pas;
+      if (d > dMax) dMax = d;
+      if (d > dBas && y - r - cS[i] < 800) { dBas = d; ou = [x0 + i * pas, y]; }
+    }
+  }
+  return { dMax, dBas, ou };
+}
+function mtGrilleAppui(G, cS) {
+  const { nx, ny, plein, x0, y0, pas } = G, Gc = new Int32Array(nx * ny), Dc = new Int32Array(nx * ny);
+  for (let j = 0, o = 0; j < ny; j++, o += nx) {
+    for (let i = 0; i < nx; i++) Gc[o + i] = plein[o + i] ? 0 : (i ? Gc[o + i - 1] : 0) + 1;
+    for (let i = nx - 1; i >= 0; i--) Dc[o + i] = plein[o + i] ? 0 : (i < nx - 1 ? Dc[o + i + 1] : 0) + 1;
+  }
+  const k55 = Math.ceil(6 * 1.43 / pas) + 1, nl = Math.round(50 / pas), d3 = Math.max(1, Math.round(6 / pas));
+  const portant = (i, j) => { for (let k = 1; k <= k55; k++) if (j - k >= 0 && plein[(j - k) * nx + i]) return true; return false; };
+  for (let j = 1; j < ny - nl; j++) for (let i = d3; i < nx - d3; i++) {
+    if (plein[j * nx + i] || !plein[(j - 1) * nx + i]) continue;
+    const hS = y0 + j * pas - cS[i]; if (hS < 100 || hS > 600) continue;
+    if (!portant(i - d3, j) || !portant(i + d3, j)) continue;
+    let tient = true;
+    for (let r = 1; r <= nl && tient; r++) { const dw = 50 * (1 - Math.abs(r * pas - 25) / 25) / pas, c = (j + r) * nx + i; if (Gc[c] - 1 < dw || Dc[c] - 1 < dw) tient = false; }
+    if (tient) return [x0 + i * pas, y0 + j * pas];
+  }
+  return null;
+}
+
+
 // Plans de fabrication des portails : battant (1 ou 2 vantaux), coulissant (sur rail ou autoportant), pliant, portillon.
 // Étude du 06/10/2026 avec Quentin : https://claude.ai/artifact/RvJQFroNvsu5kDhivWKu5r
 //   - 4 modèles pour couvrir toutes les entrées (place derrière → battant ; place sur le côté → coulissant ; ni l'un ni
@@ -45,6 +1031,12 @@
 //   ptPoteaux "existants" | "acier" | "alu", ptMoteur (true/false), ptPente (mm de montée côté propriété, battant),
 //   ptCouleur (texte, sans effet sur le plan), trait (scie, 3).
 //   ptStyle (facultatif) : "plein" | "barreaux" | "lamesChene" | "rosace" | "volutes" remplit les blocs non donnés.
+//   ptDecor (lot 3, 07/10/2026) : "aucun" | une formule de PT_DECOR_FORMULES ("classique", "frise", "medaillon",
+//     "couronnement", "coeurs", "surMesure") | "perso" (ptDecorChoix : 1 ou 2 placements motifs.js, tableau ou JSON) ;
+//     finitions ptBouts "droit" | "effile" | "bouton", ptLiaison "soudure" | "colliers", ptBarreauxDeco "carre" | "torsade" |
+//     "bagues", ptMiroir (vantail droit en miroir, oui par défaut). Le décor vient de la bibliothèque de styles
+//     (modules/motifs.js, chargée AVANT ce module), en mode catalogue : la référence achetée exacte est dessinée et l'écart
+//     des barreaux est réglé sur elle. Un décor impose l'acier. ptRemp "volutes" (ancien) se lit comme la formule « frise ».
 //
 // Entrées de la VISITE (outil seulement, toutes facultatives). AUCUNE valeur par défaut : une entrée absente reste
 // null (« non relevée »), produit une note, et le moteur ne suppose rien à sa place.
@@ -112,6 +1104,9 @@ const PT_ATELIER = {
   panneauMax: 1800,          // au-delà, un montant intermédiaire coupe le vantail en panneaux
   panneauMaxLames: 1300,     // lames de chêne : appui tous les 1,30 m au plus
   videMax: 110,              // vide entre barreaux : habitude du garde-corps (boule de 110), pas une norme du portail
+  // Décor (motifs.js) : vide visé entre barreaux hors référence (comme le garde-corps : 105, sous la boule de 110) ;
+  // hauteur du couronnement au-dessus de la traverse haute (motifs.js la ramène entre 150 et 300).
+  decor: { vide: 105, cimier: 200 },
   lameChene: { h: 120, ep: 27, jour: 15 },
   lameAlu: { h: 100, ep: 20, jour: 20 },          // lames alu ajourées
   croixCellule: 850,         // largeur visée d'une case à croix (comme le garde-corps)
@@ -214,8 +1209,33 @@ const PT_STYLES = {
   barreaux: { nom: "Barreaux", ptMat: "alu", ptForme: "droit", ptSoub: "aucun", ptRemp: "barreaux", ptPointes: false, ptLisse: false },
   lamesChene: { nom: "Lames chêne", ptMat: "alu", ptForme: "droit", ptSoub: "aucun", ptRemp: "lames", ptPointes: false, ptLisse: false },
   rosace: { nom: "Rosace", ptMat: "acier", ptForme: "droit", ptSoub: "plein", ptHSoub: 600, ptRemp: "croix", ptPointes: false, ptLisse: true },
-  volutes: { nom: "Volutes", ptMat: "acier", ptForme: "chapeau", ptFleche: 200, ptSoub: "plein", ptHSoub: 550, ptRemp: "volutes", ptPointes: true, ptLisse: false },
+  // Volutes : barreaux + la formule de décor « frise » (lot 3 : le décor vient de motifs.js, références du catalogue).
+  volutes: { nom: "Volutes", ptMat: "acier", ptForme: "chapeau", ptFleche: 200, ptSoub: "plein", ptHSoub: 550, ptRemp: "barreaux", ptDecor: "frise", ptPointes: true, ptLisse: false },
 };
+
+// Les formules de décor (cahier §1.5, décision de Quentin du 06/10/2026 : « 6 décors dessinés + Personnaliser ») : chacune
+// est une liste de placements motifs.js (2 au plus). « Sur mesure » n'est pas dessiné : prix sur devis.
+const PT_DECOR_FORMULES = {
+  classique: { nom: "Classique", ligne: "Volutes en C entre les barreaux, en haut", choix: [{ assemblage: "entre", forme: "C", pos: "haut" }] },
+  frise: { nom: "Frise", ligne: "Frise de volutes en S sous la traverse haute", choix: [{ assemblage: "frise", forme: "S" }] },
+  medaillon: { nom: "Médaillon", ligne: "Un double C au centre de chaque vantail", choix: [{ assemblage: "medaillon", forme: "doubleC" }] },
+  couronnement: { nom: "Couronnement", ligne: "Volutes en S et en C au-dessus de la traverse haute", choix: [{ assemblage: "cimier", forme: "S", rythme: "alterne", forme2: "C" }] },
+  coeurs: { nom: "Cœurs", ligne: "Un cœur entre les barreaux", choix: [{ assemblage: "coeurs", forme: "coeur" }] },
+  surMesure: { nom: "Sur mesure", ligne: "Votre motif d'après une photo : dessiné par nous, prix sur devis", choix: [] },
+};
+// Les choix d'un placement « Personnaliser » (motifs.js : MT_CHOIX et MT_AVEC) ; « barreaux » seul n'est pas un décor.
+function ptDecorPerso(x) {
+  let L = x;
+  if (typeof L === "string") { try { L = JSON.parse(L); } catch (e) { L = null; } }
+  if (!Array.isArray(L)) return [];
+  const ok = (val, liste, def) => (liste.includes(val) ? val : def);
+  return L.filter((ch) => ch && MT_CHOIX.assemblage.includes(ch.assemblage) && ch.assemblage !== "barreaux").slice(0, 2).map((ch) => {
+    const formes = MT_AVEC[ch.assemblage] || [];
+    const r = { assemblage: ch.assemblage, forme: ok(ch.forme, formes, formes[0]), pos: ok(ch.pos, MT_CHOIX.pos, "haut"), rythme: ok(ch.rythme, MT_CHOIX.rythme, "tous") };
+    if (r.rythme === "alterne") r.forme2 = ok(ch.forme2, formes, formes[1] || formes[0]);
+    return r;
+  });
+}
 
 const PT_MODELES = {
   ptBattant: { type: "battant", nom: "Portail battant" },
@@ -282,7 +1302,24 @@ function ptEntrees(v, modele) {
   c.soub = ptChoix(pick("ptSoub", "aucun"), ["aucun", "plein", "panneau", "lames", "barreaux"], "aucun");
   c.hSoub = Math.round(ptNombre(pick("ptHSoub", 500), 500));
   c.remp = ptChoix(pick("ptRemp", "plein"), ["plein", "panneau", "lames", "lamesAlu", "barreaux", "croix", "volutes"], "plein");
+  // Le décor (lot 3) : une formule, ou « perso » (1 ou 2 placements). L'ancien remplissage « volutes » = la formule « frise ».
+  const dec = pick("ptDecor", "aucun");
+  c.decor = PT_DECOR_FORMULES[dec] || dec === "perso" ? dec : "aucun";
+  if (c.remp === "volutes") { c.remp = "barreaux"; if (c.decor === "aucun") c.decor = "frise"; }
+  c.decorChoix = c.decor === "perso" ? ptDecorPerso(v.ptDecorChoix) : c.decor !== "aucun" ? PT_DECOR_FORMULES[c.decor].choix.map((x) => ({ ...x })) : [];
+  if (c.decor === "perso" && !c.decorChoix.length) c.decor = "aucun";
+  c.decorFin = { bouts: ptChoix(v.ptBouts, ["droit", "effile", "bouton"], "effile"), liaison: ptChoix(v.ptLiaison, ["soudure", "colliers"], "colliers"), barreaux: ptChoix(v.ptBarreauxDeco, ["carre", "torsade", "bagues"], "carre") };
+  c.decorMiroir = ptBool(v.ptMiroir, true);
+  c.decorNotes = [];
+  if (c.decor !== "aucun") {
+    // Le décor est en fer forgé : il impose l'acier, et il prend la place du remplissage du haut (barreaux + motifs).
+    if (c.mat !== "acier") c.decorNotes.push("Le décor en fer forgé impose l'acier : le portail passe en acier.");
+    c.mat = "acier"; c.M = PT_MATIERES.acier;
+    if (c.remp !== "barreaux") c.decorNotes.push("Le décor se pose entre des barreaux : le remplissage du haut devient « barreaux ».");
+    c.remp = "barreaux";
+  }
   c.pointes = ptBool(pick("ptPointes", false), false) && ["barreaux", "volutes"].includes(c.remp);
+  if (c.pointes && c.decorChoix.some((x) => x.assemblage === "cimier")) { c.pointes = false; c.decorNotes.push("Pas de pointes de lance sous un couronnement : retirées."); }
   c.lisse = ptBool(pick("ptLisse", false), false);
   c.poteaux = ptChoix(v.ptPoteaux, ["existants", "acier", "alu"], "existants");
   c.moteur = ptBool(v.ptMoteur, false);
@@ -407,23 +1444,12 @@ function ptPiece(pieces, nom, pr, long, densite, coupes, note, groupe = "Cadre")
   pieces.push({ nom, mat: pr.nom, long, kgM: ptKgM(pr, densite), peri: ptPerimetre(pr), coupes, note: note || "", groupe });
 }
 
-// La volute en S : deux spirales qui s'opposent, dans un rectangle w × h (acier : volute du commerce ; alu : plat cintré).
-function ptVoluteS(x0, y0, w, h) {
-  const R = Math.min(0.3 * w, 0.24 * h), c1 = [x0 + 0.32 * w, y0 + 0.27 * h], cx = x0 + w / 2, cy = y0 + h / 2;
-  const A = [];
-  for (let i = 0; i <= 28; i++) {
-    const t = i / 28, phi = Math.PI / 2 - 2.4 * Math.PI * (1 - t), r = R * (0.14 + 0.86 * t);
-    A.push([c1[0] + r * Math.cos(phi), c1[1] + r * Math.sin(phi)]);
-  }
-  const B = A.map(([x, y]) => [2 * cx - x, 2 * cy - y]).reverse();
-  return A.concat(B);
-}
-
 // Le nom d'une pièce de remplissage : « Barreau du haut », « Barreau » (zone sans nom : jamais d'espace en trop).
 const ptNomZ = (base, z, suite) => [base, z.nomZone].filter(Boolean).join(" ") + (suite ? `, ${suite}` : "");
 
 // Remplit une zone { x0, x1, y0, haut(x) } avec un remplissage. Rend les primitives et ajoute les pièces.
 function ptRemplir(c, z, remp, F, pieces, q, ctx) {
+  if (z.decor) return ptDecorZone(c, z, F, pieces, q);
   const RG = PT_ATELIER, M = c.M, d = M.densite, w = z.x1 - z.x0;
   const hautMin = Math.min(z.haut(z.x0), z.haut(z.x1), z.haut((z.x0 + z.x1) / 2));
   const contour = () => [[z.x0, z.y0], [z.x1, z.y0], ...ptCourbe(z.haut, z.x1, z.x0, 16)];
@@ -468,13 +1494,11 @@ function ptRemplir(c, z, remp, F, pieces, q, ctx) {
     }
     return;
   }
-  if (remp === "barreaux" || remp === "volutes") {
+  if (remp === "barreaux") {
     const pr = M.barreau, n = Math.max(1, Math.ceil((w - RG.videMax) / (pr.b + RG.videMax))), pas = (w - n * pr.b) / (n + 1);
     const pointes = c.pointes && z.dessus;
-    const xs = [];
     for (let i = 0; i < n; i++) {
       const xa = z.x0 + pas + i * (pas + pr.b), xb = xa + pr.b, xm = (xa + xb) / 2;
-      xs.push([xa, xb]);
       const yTop = pointes ? z.hautExt(xm) + RG.pointe.depasse : z.haut(xm);
       F.push({ t: "poly", piece: "Barreaux", cls: "t-acier-plein", pts: [[xa, z.y0], [xb, z.y0], [xb, yTop], [xa, yTop]] });
       if (pointes) F.push({ t: "poly", piece: "Pointes de lance", cls: "t-acier-plein", pts: [[xa - 8, yTop], [xb + 8, yTop], [xm, yTop + RG.pointe.h]] });
@@ -483,24 +1507,6 @@ function ptRemplir(c, z, remp, F, pieces, q, ctx) {
     }
     if (pointes) q.achats.pointes = (q.achats.pointes || 0) + n;
     q.vide = Math.max(q.vide || 0, pas);
-    if (remp === "volutes") {
-      // Frise de volutes en S sous la traverse haute, une dans chaque case.
-      const hf = RG.frise, yb = z.friseY != null ? z.friseY : hautMin - hf - 10;
-      const bords = [[z.x0, z.x0 + pas], ...xs.map(([, xb], i) => [xb, i + 1 < xs.length ? xs[i + 1][0] : z.x1])];
-      let nv = 0;
-      bords.forEach(([a, b], i) => {
-        if (b - a < 60 || yb < z.y0 + 100) return;
-        // Côté droit (vu de la rue) : la volute est retournée, pour que le portail soit le miroir exact de gauche à droite.
-        const pts = ptVoluteS(a + 3, yb + 4, b - a - 6, hf - 4).map(([x, y]) => [z.miroir ? a + b - x : x, y]);
-        F.push({ t: "poly", piece: "Volutes", cls: "t-acier t-volute", ouvert: true, pts });
-        // Acier : volute du commerce (« tout commandé », décision de Quentin du 06/10/2026). Alu : plat cintré à l'atelier.
-        if (c.mat === "acier") ptPiece(pieces, "Volute en S", { nom: "Volute en S achetée (fer forgé 12 × 6)", b: 12, e: 6, plein: true }, ptLongueur(pts), d, "Achetée, à souder", "Pièce de ferronnerie du commerce, soudée aux barreaux", "Décor");
-        else ptPiece(pieces, "Volute en S", M.volute, ptLongueur(pts), d, "Cintrée au gabarit", "Soudée aux barreaux", "Décor");
-        nv++; q.soudures += 2;
-      });
-      q.volutes = (q.volutes || 0) + nv;
-      if (yb >= z.y0 + 100) F.push({ t: "poly", piece: "Traverse de frise", cls: "t-acier-plein", pts: ptRect(z.x0, yb - 20, z.x1, yb) }), ptPiece(pieces, "Traverse de frise (plat)", { nom: c.mat === "acier" ? "Fer plat 30 × 8" : "Plat alu 30 × 8", b: 30, e: 8, plein: true }, w, d, "Coupes droites, percée pour les barreaux", "", "Décor");
-    }
     return;
   }
   if (remp === "croix") {
@@ -524,6 +1530,58 @@ function ptRemplir(c, z, remp, F, pieces, q, ctx) {
       q.rosaces = (q.rosaces || 0) + 1; q.soudures += 8;
     }
   }
+}
+
+/* ---------- Le décor : la bibliothèque de styles (modules/motifs.js) dans la zone du haut ---------- */
+
+// Additionne les compteurs de motifs.js d'une zone à ceux du portail (nombres, listes, et tables de commandes par clé).
+function ptFusion(a, b) {
+  for (const [k, x] of Object.entries(b || {})) {
+    if (k === "vide") a.vide = Math.max(a.vide || 0, x);
+    else if (typeof x === "number") a[k] = (a[k] || 0) + x;
+    else if (Array.isArray(x)) a[k] = (a[k] || []).concat(x);
+    else if (x && typeof x === "object") {
+      a[k] = a[k] || {};
+      for (const [kk, y] of Object.entries(x)) {
+        if (typeof y === "number") a[k][kk] = (a[k][kk] || 0) + y;
+        else if (y && typeof y === "object") a[k][kk] = a[k][kk] ? { ...a[k][kk], qte: (a[k][kk].qte || 0) + (y.qte || 0) } : { ...y };
+        else a[k][kk] = y;
+      }
+    }
+  }
+  return a;
+}
+
+// Une zone du haut reçoit un ou deux placements de motifs.js, en mode catalogue (la référence achetée exacte, l'écart des
+// barreaux réglé sur elle). motifs.js dessine les barreaux ET le décor. Ses barreaux droits redeviennent les barreaux du
+// portail (même carré, chiffrés au mètre) ; le reste (volutes, colliers, lisses de frise, barreaux torsadés, bagues) est
+// marqué decor: true : chiffré par chiffrage-motifs.js, compté dans le poids, la peinture et la galvanisation, jamais dans
+// les mètres de profilés. q.decor garde les pièces, les compteurs et les refus de tout le portail.
+function ptDecorZone(c, z, F, pieces, q) {
+  const RG = PT_ATELIER, M = c.M, d = M.densite;
+  const pointes = c.pointes && z.dessus;
+  const choix = z.decor.map((ch) => ({ ...c.decorFin, ...ch, catalogue: true, pointes: pointes ? "lance" : "aucune" }));
+  const mz = { x0: z.x0, x1: z.x1, y0: z.y0, haut: z.haut, barreau: M.barreau.b, vide: RG.decor.vide, pointes: pointes ? M.cadre.b : 0, miroir: !!z.miroir && c.decorMiroir, catalogue: true };
+  if (choix.some((ch) => ch.assemblage === "cimier")) mz.cimier = { y: z.hautExt, h: RG.decor.cimier };
+  const Fm = [], pm = [], qm = {};
+  if (choix.length > 1) mtRemplirPlusieurs(mz, choix, Fm, pm, qm); else mtRemplir(mz, choix[0], Fm, pm, qm);
+  for (const p of Fm) if (p.role !== "detour") F.push(p);
+  const D = q.decor || (q.decor = { pieces: [], q: {}, ch: choix.filter((x) => x.assemblage !== "barreaux"), refus: [], cimierH: 0 });
+  let nBarreaux = 0;
+  for (const p of pm) {
+    if (p.mat === "Carré plein 16") { ptPiece(pieces, ptNomZ("Barreau", z), M.barreau, p.long, d, p.coupes, p.note, "Remplissage"); nBarreaux++; continue; }
+    // Une pièce achetée porte sa référence (outil) ; sur le site, le catalogue public n'a que la taille.
+    const mat = p.fab === "achat" && p.h ? `Achetée${p.ref ? `, réf. ${p.ref}` : ""} (${ptMm(p.h)} × ${ptMm(p.l)}, plat ${p.section})` : p.mat;
+    const dp = { ...p, mat, decor: true };
+    pieces.push(dp); D.pieces.push(dp);
+  }
+  q.soudures += nBarreaux * (pointes ? 3 : 2);
+  if (qm.pointes) q.achats.pointes = (q.achats.pointes || 0) + qm.pointes;
+  if (qm.vide) q.vide = Math.max(q.vide || 0, qm.vide);
+  const { refus, cimier, norme, soudures, ...reste } = qm;
+  ptFusion(D.q, reste);
+  for (const r of refus || []) if (!D.refus.some((x) => x.quoi === r.quoi && x.raison === r.raison)) D.refus.push(r);
+  if (cimier && cimier.h) D.cimierH = Math.max(D.cimierH, cimier.h);
 }
 
 function ptDessinerVantail(c, V, haut, F, pieces, q, Vn) {
@@ -551,13 +1609,22 @@ function ptDessinerVantail(c, V, haut, F, pieces, q, Vn) {
   q.soudures += 4;
   // Panneaux : montants intermédiaires si le vantail est long.
   const maxP = (c.remp === "lames" || c.soub === "lames") ? RG.panneauMaxLames : RG.panneauMax;
-  const nP = Math.max(1, Math.ceil((xi1 - xi0) / maxP)), mi = M.inter.b;
+  let nP = Math.max(1, Math.ceil((xi1 - xi0) / maxP));
+  // Médaillon : un nombre impair de panneaux, pour que le motif soit sur l'axe du vantail (dans le panneau du milieu).
+  const medaillon = c.decorChoix.some((x) => x.assemblage === "medaillon");
+  if (medaillon && nP % 2 === 0) nP++;
+  const mi = M.inter.b;
   const wP = (xi1 - xi0 - (nP - 1) * mi) / nP;
   const ySoub = c.soub !== "aucun" ? gs + c.hSoub : null;
-  // Frise de volutes à la même hauteur sur tout le vantail (sous le point le plus bas du haut).
-  const friseY = Math.min(...ptCourbe(hautCadre, xi0, xi1, 12).map((p) => p[1])) - RG.frise - 10;
+  const avecDecor = c.decorChoix.length > 0 && typeof mtRemplir === "function";
   for (let k = 0; k < nP; k++) {
     const a = xi0 + k * (wP + mi), b = a + wP;
+    // Le médaillon va dans le panneau du milieu ; les autres panneaux gardent les autres placements, ou des barreaux.
+    let decor = null;
+    if (avecDecor) {
+      decor = c.decorChoix.filter((x) => x.assemblage !== "medaillon" || k === (nP - 1) / 2);
+      if (!decor.length) decor = [{ assemblage: "barreaux" }];
+    }
     if (k > 0) {
       F.push({ t: "poly", piece: "Montants intermédiaires", cls: "t-acier-plein", pts: [[a - mi, gs + bB], [a, gs + bB], [a, hautCadre(a)], [a - mi, hautCadre(a - mi)]] });
       ptPiece(pieces, "Montant intermédiaire", M.inter, hautCadre(a - mi / 2) - gs - bB, d, courbe ? "Haut coupé à la forme" : "Coupes droites", "", "Cadre");
@@ -570,9 +1637,9 @@ function ptDessinerVantail(c, V, haut, F, pieces, q, Vn) {
       ptPiece(pieces, "Traverse intermédiaire", M.inter, b - a, d, "Coupes droites", "", "Cadre");
       q.soudures += 2;
       ptRemplir(c, { x0: a, x1: b, y0, haut: () => ySoub, plat: true, nomZone: "du soubassement", hautExt: () => ySoub, miroir }, c.soub, F, pieces, q);
-      ptRemplir(c, { x0: a, x1: b, y0: ySoub + ti, haut: hautCadre, nomZone: "du haut", dessus: true, hautExt: haut, friseY, miroir }, c.remp, F, pieces, q);
+      ptRemplir(c, { x0: a, x1: b, y0: ySoub + ti, haut: hautCadre, nomZone: "du haut", dessus: true, hautExt: haut, miroir, decor }, c.remp, F, pieces, q);
     } else {
-      ptRemplir(c, { x0: a, x1: b, y0, haut: hautCadre, nomZone: "", dessus: true, hautExt: haut, friseY, miroir }, c.remp, F, pieces, q);
+      ptRemplir(c, { x0: a, x1: b, y0, haut: hautCadre, nomZone: "", dessus: true, hautExt: haut, miroir, decor }, c.remp, F, pieces, q);
     }
   }
   // Lisse en chêne posée sur la traverse haute (haut droit seulement) : de bout en bout du vantail, SANS débord au bout
@@ -1028,7 +2095,7 @@ function calculerPortail(v, modele) {
   }
 
   // --- Galvaniseur, laqueur, remorque : chaque pièce doit y entrer ---
-  const ePiece = Math.max(M.cadre.e, M.fort.e), dessus = c.pointes ? RG.pointe.depasse + RG.pointe.h : 0;
+  const ePiece = Math.max(M.cadre.e, M.fort.e), dessus = Math.max(c.pointes ? RG.pointe.depasse + RG.pointe.h : 0, q.decor ? q.decor.cimierH : 0);
   const aFinir = V.map((vt) => ({
     nom: vt.coulissant && queue ? "Portail coulissant avec sa queue et sa poutre" : vt.nom,
     dims: [Math.round(vt.x1 - vt.x0 + (vt.coulissant ? queue : 0)), Math.round(Math.max(...ptCourbe(haut, vt.x0, vt.x1, 12).map(([, y]) => y)) - c.gs + dessus), ePiece],
@@ -1138,6 +2205,7 @@ function calculerPortail(v, modele) {
   const ordre = ["Poteaux", "Cadre", "Remplissage", "Décor", "Guidage"];
   R.debit = [...groupes.values()].sort((a, b) => ordre.indexOf(a.groupe) - ordre.indexOf(b.groupe)).map((g) => ({
     nom: g.nom, qte: g.qte, mat: g.mat, long: g.tole ? 0 : Math.round(g.long), coupes: g.tole ? `${ptMm(g.long)} × ${ptMm(g.larg)} mm, ${g.coupes.toLowerCase()}` : g.coupes, note: g.note, groupe: g.groupe,
+    ...(g.decor ? { decor: true } : {}),
   }));
   const ACHATS_NOMS = { gonds: "Gonds réglables", serrure: "Serrure + cylindre", poignees: "Paire de poignées", arrets: "Arrêts de vantail", buteeCentrale: "Butée centrale", sabotsButee: "Sabots de butée", buteeFermeture: "Butée de fermeture", verrou: "Verrou du vantail fixe", charnieresPli: "Charnières de pli", roulettesBout: "Roulettes de bout", guidesSol: "Guides au sol", roues: "Roues à gorge", guideHaut: "Guide haut à rouleaux", butees: "Butées (réception, fin de course)", kitAutoportant: "Kit autoportant", pointes: "Pointes de lance", cremaillereM: "Crémaillère (mètres)" };
   const rgl = R.jeux.reglage;
@@ -1160,8 +2228,10 @@ function calculerPortail(v, modele) {
   // --- Quantités pour le chiffrage (aucun prix ici) ---
   const metres = {};
   let laqueM2 = 0, kg = 0, toleM2 = 0, panneauM2 = 0;
+  let decorKg = 0, decorM2 = 0;
   for (const p of pieces) {
     const lm = p.long / 1000;
+    if (p.decor) { const k = (p.kgM || 0) * lm, m2 = lm * (p.peri || 0) / 1000; decorKg += k; decorM2 += m2; kg += k; laqueM2 += m2; continue; }
     if (p.panneau) { panneauM2 += p.aire; kg += p.kg; continue; }
     if (p.tole) { toleM2 += p.aire; laqueM2 += 2 * p.aire; kg += p.kg; metres[p.mat] = (metres[p.mat] || 0); continue; }
     metres[p.mat] = (metres[p.mat] || 0) + lm;
@@ -1181,10 +2251,12 @@ function calculerPortail(v, modele) {
     butee: aButee ? { h: B.h, sabots: sabots ? 2 : 0, basSabot: sabots ? basSabot : null } : null,
     plots: plots ? { n: c.nbV, l: RG.plotArret.l, p: RG.plotArret.p, h: RG.plotArret.h, aBout: RG.plotArret.aBout } : null,
     finition: { pieces: aFinir, trop: [...tropVus.values()].map((t) => ({ noms: t.noms, ou: t.ou, dims: t.dims, releve: t.releve })) },
+    // Le décor (motifs.js) : ses pièces et ses compteurs, pour chiffrage-motifs.js (aucun prix ici).
+    decor: q.decor ? { pieces: q.decor.pieces, q: q.decor.q, ch: q.decor.ch, fin: c.decorFin, kg: decorKg, m2: decorM2, cimierH: q.decor.cimierH } : null,
   };
   R.poids = kgPortail;
   R.kg = Math.round(kg);
-  R.dims = { P: c.P, H: c.H, type: c.type, vantaux: largeurs.map(Math.round), gs: c.gs, hautMax: Math.round(Math.max(...ptCourbe(haut, xa, xb).map(([, y]) => y))) };
+  R.dims = { P: c.P, H: c.H, type: c.type, vantaux: largeurs.map(Math.round), gs: c.gs, hautMax: Math.round(Math.max(...ptCourbe(haut, xa, xb).map(([, y]) => y)) + (q.decor ? q.decor.cimierH : 0)) };
   R.grandeCote = Math.round(Math.max(...largeurs));
   R.config = c;
 
@@ -1192,6 +2264,17 @@ function calculerPortail(v, modele) {
   const nomType = c.type === "battant" ? `Battant ${c.nbV} ${c.nbV > 1 ? "vantaux" : "vantail"}${c.nbV === 2 && c.rep === "tiers" ? ` inégaux, grand à ${c.sens === "droite" ? "droite" : "gauche"}` : ""}` : c.type === "coulissant" ? `Coulissant ${c.guidage === "rail" ? "sur rail" : "autoportant"}` : c.type === "pliant" ? "Pliant (2 × 2 panneaux)" : "Portillon";
   R.resume.unshift(["Modèle", nomType], ["Matière", `${M.nom} · ${M.finition.toLowerCase()}`], ["Vantaux", largeurs.map(ptMm).join(" + ") + " mm"]);
   R.resume.push(["Poids du portail", `≈ ${ptKg(kgPortail)} kg`]);
+  if (c.decor !== "aucun") {
+    const Fo = PT_DECOR_FORMULES[c.decor];
+    const nomD = Fo ? `${Fo.nom} : ${Fo.ligne.charAt(0).toLowerCase()}${Fo.ligne.slice(1)}` : c.decorChoix.map((x) => `${(MT_NOMS[x.forme] || x.forme)} · ${MT_NOMS_PLACEMENT[x.assemblage] || x.assemblage}${x.assemblage === "entre" ? ` ${MT_NOMS_POS[x.pos] || ""}` : ""}`).join(" + ");
+    R.decor = { formule: c.decor, nom: nomD, choix: c.decorChoix, refus: q.decor ? q.decor.refus : [], cimierH: q.decor ? q.decor.cimierH : 0 };
+    R.resume.push(["Décor", nomD]);
+    for (const n of c.decorNotes) R.notes.push(n);
+    if (c.decor === "surMesure") R.alertes.push("Décor sur mesure : il se dessine d'après la photo du client, puis se chiffre sur devis.");
+    else if (typeof mtRemplir !== "function") R.alertes.push("Décor : la bibliothèque de styles (motifs.js) n'est pas chargée : décor non dessiné.");
+    for (const r of R.decor.refus) R.alertes.push(`Décor : ${r.quoi} refusé. ${r.raison}`);
+    if (q.decor && q.decor.q.commandes) R.notes.push(`Décor : pièces du commerce, référence exacte dessinée (écart des barreaux réglé sur elle) : ${Object.values(q.decor.q.commandes).map((k) => `${k.qte} × ${MT_NOMS[k.forme] || k.forme} ${ptMm(k.h)} × ${ptMm(k.l)}`).join(", ")}.`);
+  } else R.decor = null;
   if (q.vide) R.resume.push(["Vide entre barreaux", `${ptMm(q.vide)} mm`]);
   if (!R.alertes.length) R.oks.push("Toutes les cotes sont dans les limites de l'atelier.");
   return R;
@@ -1372,5 +2455,5 @@ function ptVueCote(c, C, haut, xa, pil, prP, massif, yV) {
   }
 
 
-export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES };
-export const EMPREINTE = "fa4b600c9dde";
+export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, MT_AVEC, MT_NOMS };
+export const EMPREINTE = "8993cc324626";

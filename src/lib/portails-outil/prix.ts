@@ -3,8 +3,8 @@
  * l'importe par src/lib/prix-portail.server.ts (« server-only ») ; les tests et site.ts l'importent directement.
  *
  * Le prix est le « prix conseillé » de l'outil (chiffrage-portails.js) : le prix plancher de l'atelier (son heure à
- * 50 €) arrondi à la dizaine, × 1,17 pour les volutes (« juste sous le marché », Quentin, 06/10/2026). Visite de prise
- * de cotes et pose comprises jusqu'à 45 km de Saumur.
+ * 50 €) arrondi à la dizaine, × 1,17 pour un décor en fer forgé (« juste sous le marché », Quentin, 06/10/2026). Visite
+ * de prise de cotes et pose comprises jusqu'à 45 km de Saumur (la visite payée en ligne est déduite de la commande).
  */
 import { ChiffragePortailIndisponible, chiffragePortail } from "./chiffrage.ts";
 import { configDepart, planPortail, STYLES_PORTAIL, versEntrees, type ConfigPortail, type SlugPortail } from "../portails.ts";
@@ -19,7 +19,8 @@ export type ReponsePrixPortail =
 export function prixPortail(slug: SlugPortail, cfg: ConfigPortail): ReponsePrixPortail {
   const R = planPortail(slug, cfg);
   if (R.alertes.length) return { ok: false, alertes: R.alertes };
-  const C = chiffragePortail().chiffrerPortail(R, versEntrees(cfg));
+  const ch = chiffragePortail();
+  const C = ch.chiffrerPortail(R, versEntrees(cfg), undefined, { clesCatalogue: ch.PTC_CLES_CATALOGUE });
   return { ok: true, prix: C.conseille, avertissements: R.avertissements, resume: R.resume };
 }
 
