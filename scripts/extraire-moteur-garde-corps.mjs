@@ -757,7 +757,9 @@ function comparerAvecOutil(M, D, CH) {
     }
     siteDecors.push({ entree: e, alertes, renfort, choix });
   }
-  if (siteDecors.filter((r) => r.choix).length < 4 || siteDecors.every((r) => r.choix)) ecarts.push("relevés décor : il faut des décors vendus et au moins un refusé");
+  // Depuis le 07/10/2026, chaque décor a une variante aux normes sur toute fenêtre que le site vend (balayage de
+  // plans/tests/motifs.test.mjs) : un relevé refusé n'est plus exigé, mais les décors vendus le sont.
+  if (siteDecors.filter((r) => r.choix).length < 4) ecarts.push("relevés décor : il faut au moins 4 décors vendus");
 
   if (ecarts.length) throw new Error("L'OUTIL ET LE CODE EXTRAIT DIFFÈRENT :\n" + ecarts.join("\n"));
   console.log(`\nOutil et code extrait identiques : ${cas.length} cas généraux (${cas.filter((c) => c.lire).length} relus par lire()), ${site.length} relevés du site × ${ORDRE_CARRES.length} carrés × ${CROIX_MAX} croix, ${siteDecors.length} relevés avec un décor, ${variantes} recherches de variantes (${Date.now() - t0} ms).`);
