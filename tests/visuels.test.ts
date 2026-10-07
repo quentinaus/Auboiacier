@@ -195,6 +195,8 @@ const IMG_PERMISES = [
   // Les vignettes des décors à volutes (Garde-corps forgé à volutes) : dessinées par l'outil de plans (SVG).
   join("src", "components", "choix-decor-gc.tsx"),
   join("src", "app", "[lang]", "artisanat", "verification-garde-corps", "page.tsx"),
+  // L'aperçu de la photo que le CLIENT vient de choisir (blob:, dans son navigateur) : jamais une image du site.
+  join("src", "components", "photo-tableau.tsx"),
 ];
 
 test("aucune image écrite à la main : ni <img src=\"/images/…\">, ni url(/images/…) hors des pastilles de rosaces", () => {

@@ -11,6 +11,7 @@ import { SchemaFenetre, type CoteFenetre } from "./schema-fenetre";
 import { matiereMur } from "@/lib/murs-gc";
 import { PlanApercu } from "./plan-apercu";
 import { ChargementModeles } from "./chargement-modeles";
+import { PhotoTableau } from "./photo-tableau";
 import {
   BORNES_RELEVE_GC,
   ECART_MURS_GC_MM,
@@ -30,7 +31,7 @@ import {
 } from "@/lib/garde-corps";
 import type { Deplacement } from "@/lib/deplacement";
 import { prixAffiche } from "@/lib/ui";
-import { BORNES_MUR_GC, champsMurGC, idDecorGC, idModeleGC, lireDecorGC, lireModeleGC, nomDecorAnglaisGC, type MurFixationGC } from "@/lib/garde-corps";
+import { BORNES_MUR_GC, NOMS_MUR_FIXATION_GC, champsMurGC, idDecorGC, idModeleGC, lireDecorGC, lireModeleGC, nomDecorAnglaisGC, type MurFixationGC } from "@/lib/garde-corps";
 import { ChoixDecorGC, type PrixDecorsGC } from "./choix-decor-gc";
 import type { AssemblageDecorGC } from "@/lib/garde-corps-decors.genere";
 
@@ -76,6 +77,8 @@ export type CotesGardeCorps = {
   tMur?: string;
   /** L'épaisseur du mur, en mm : seulement pour la pierre dure et les moellons (ancrage traversant), facultative. */
   eMur?: string;
+  /** La photo du tableau est partie à l'atelier (photo-tableau.tsx) : le bouton le dit. Rien n'est gardé de la photo. */
+  photoTableau?: "envoyee";
 };
 
 export const COTES_GARDE_CORPS_VIDES: CotesGardeCorps = {
@@ -96,6 +99,12 @@ const mm = (valeur: string) => {
   // « 1 180 » (avec l'espace, comme le site écrit lui-même ses nombres) et « 1180 mm » se lisent aussi.
   const nombre = Number(valeur.replace(/[\s\u00a0\u202f]/g, "").replace(/mm$/i, "").replace(",", "."));
   return valeur.trim() !== "" && Number.isFinite(nombre) && nombre >= 0 ? Math.round(nombre) : NaN;
+};
+
+/** Une cote du mur telle que tapée, relue en millimètres pour le message de l'atelier (vide si illisible). */
+const saisieMur = (valeur?: string) => {
+  const n = mm(valeur ?? "");
+  return Number.isFinite(n) ? `${n} mm` : "";
 };
 
 /** Les trois pierres que l'outil distingue pour la fixation : la pierre tendre de la région, la pierre dure, les moellons. */
@@ -421,12 +430,13 @@ export function noteGardeCorps(cotes: CotesGardeCorps, t: Dictionary["artisanat"
   );
 }
 
+/** Les cotes qui se tapent (et ont un curseur) : celles de la fenêtre, et celles du mur pour la fixation. */
+type CoteSaisieGC = "largeur" | "largeurHaut" | "allege" | "fenetre" | "tMur" | "eMur";
+
 /**
  * Devant chaque case, le pictogramme de sa cote, dessiné comme sur un plan : une largeur entre deux murs,
  * une hauteur depuis le sol, une hauteur de fenêtre. Il remplace les pastilles ①②③ (« pas pro », 05/10).
  */
-/** Les cotes qui se tapent (et ont un curseur) : celles de la fenêtre, et celles du mur pour la fixation. */
-type CoteSaisieGC = "largeur" | "largeurHaut" | "allege" | "fenetre" | "tMur" | "eMur";
 
 function IconeCote({ cote }: { cote: CoteSaisieGC }) {
   return (
@@ -1278,6 +1288,25 @@ export function ReleveGardeCorps({
   const infoEpaisseur = fr
     ? "De la façade jusqu'au mur intérieur, à côté de la fenêtre. Facultatif : sans elle, nous comptons 450 mm, l'épaisseur courante des murs en pierre."
     : "From the façade to the inside wall, beside the window. Optional: without it, we count 450 mm, the usual thickness of stone walls.";
+  /** La photo du tableau (Quentin, 07/10 : « bouton photo sur le site ») : elle part à l'atelier avec le relevé, en clair. */
+  const resumePhoto = [
+    noteGardeCorps(cotes, t),
+    `Mur : ${murChoisi ? NOMS_MUR_FIXATION_GC[murChoisi].fr : cotes.mur || "non précisé"}`,
+    `Profondeur du tableau : ${saisieMur(cotes.tMur) || "non précisée"}`,
+    murAvecEpaisseurGC(murChoisi) && cotes.eMur ? `Épaisseur du mur : ${saisieMur(cotes.eMur)}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+  const photoTableau = (grand: boolean) => (
+    <PhotoTableau
+      locale={locale}
+      resume={resumePhoto}
+      codePostal={cotes.codePostal}
+      envoyee={cotes.photoTableau === "envoyee"}
+      onEnvoyee={() => onChange({ ...cotes, photoTableau: "envoyee" })}
+      grand={grand}
+    />
+  );
   /** Les trois pierres, en pilules (ordinateur) ou en gros boutons (téléphone). */
   const choixPierre = (gros: boolean) =>
     estPierre && (
@@ -1551,6 +1580,7 @@ export function ReleveGardeCorps({
           placeholder: "150",
         })}
         {murAvecEpaisseurGC(murChoisi) && ligne("eMur", { label: libelleEpaisseur, info: infoEpaisseur, placeholder: "450", facultatif: true })}
+        <div className="mt-3 flex justify-center">{photoTableau(true)}</div>
       </div>
     ) : null;
 
@@ -1840,6 +1870,7 @@ export function ReleveGardeCorps({
                 les tiges, et l'épaisseur pour la pierre dure et les moellons. */}
             {choixPierre(false)}
             {cotes.mur !== "" && ligne("tMur", { label: libelleTableau, info: infoTableau, placeholder: "150" })}
+            {cotes.mur !== "" && <div className="pb-1">{photoTableau(false)}</div>}
             {murAvecEpaisseurGC(murChoisi) && ligne("eMur", { label: libelleEpaisseur, info: infoEpaisseur, placeholder: "450", facultatif: true })}
           </div>
             </>

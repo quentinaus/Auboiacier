@@ -135,6 +135,11 @@ export async function POST(request: Request) {
   const locale = String(form.get("locale") ?? "") === "en" ? "en" : "fr";
   /** Le formulaire de la page Rendez-vous, ou celui de la page Contact. */
   const rendezVous = String(form.get("formulaire") ?? "") === "rendez-vous";
+  /**
+   * La photo du tableau d'un garde-corps (photo-tableau.tsx, décision de Quentin du 07/10/2026) : une photo, et le relevé
+   * du client en message. Mêmes contrôles ; seuls l'objet et l'accusé changent.
+   */
+  const photoTableau = String(form.get("formulaire") ?? "") === "photo-tableau";
   // D'où vient le prospect : sa réponse au menu (facultative) et le lien
   // marqué par lequel il est arrivé, revérifiés ici — seules les valeurs
   // connues passent (src/lib/provenance.ts).
@@ -151,6 +156,9 @@ export async function POST(request: Request) {
   }
 
   const files = form.getAll("files").filter((f): f is File => f instanceof File && f.size > 0);
+  if (photoTableau && files.length === 0) {
+    return NextResponse.json({ error: "invalid" }, { status: 400 });
+  }
   if (fichiersTropLourds(files)) {
     return NextResponse.json({ error: "too_big" }, { status: 413 });
   }
@@ -183,6 +191,7 @@ export async function POST(request: Request) {
     project && `Type de projet : ${project}`,
     creneau && `Créneau souhaité : ${creneau}`,
     rendezVous && "Formulaire : page Rendez-vous",
+    photoTableau && "Formulaire : photo du tableau (garde-corps de fenêtre)",
     // Pour répondre dans la langue du prospect sans avoir à la deviner.
     `Langue : ${locale.toUpperCase()}`,
     ...lignesOrigine(connu, provenance),
@@ -195,7 +204,7 @@ export async function POST(request: Request) {
     // Le nom du visiteur ne doit pas pouvoir maquiller l'objet en « URGENT —
     // Stripe : votre compte va être suspendu » : il n'y entre que trié, et le
     // type de projet (texte libre lui aussi) reste dans le corps du message.
-    subject: `Demande de devis — ${nomPourObjet(name)}`,
+    subject: photoTableau ? `Photo du tableau (garde-corps) — ${nomPourObjet(name)}` : `Demande de devis — ${nomPourObjet(name)}`,
     text: lines.join("\n"),
     // Répondre à cet e-mail écrit directement au prospect.
     replyTo: email,
@@ -207,7 +216,8 @@ export async function POST(request: Request) {
   }
   // Une demande de plus au compteur, une fois la réponse partie : sans un
   // mot de ce que le prospect a écrit (src/lib/compteurs.ts).
-  after(() => compter(rendezVous ? "demande_rendez_vous" : "demande_devis", etiquettesOrigine(connu, provenance), request));
+  // Une photo de tableau n'est pas une demande de devis : elle ne compte pas parmi elles.
+  if (!photoTableau) after(() => compter(rendezVous ? "demande_rendez_vous" : "demande_devis", etiquettesOrigine(connu, provenance), request));
 
   // Accusé de réception au prospect, dans SA langue. On l'attend : sur Vercel,
   // la fonction peut être arrêtée dès qu'elle a répondu, et un envoi lancé sans
@@ -219,8 +229,11 @@ export async function POST(request: Request) {
   // d'envoyer « Bonjour Gagnez 500 € sur arnaque.tld » à un inconnu, depuis
   // notre domaine.
   if (tropDAccuses(email.toLowerCase(), Date.now())) return NextResponse.json({ ok: true });
-  const accuse =
-    locale === "en"
+  const accuse = photoTableau
+    ? locale === "en"
+      ? { subject: "Your reveal photo — Auboiacier", text: ["Hello,", "", "We have received the photo of your reveal. We will write to you if the fixing needs a change.", "", "Auboiacier — wood, steel & light"] }
+      : { subject: "La photo de votre tableau — Auboiacier", text: ["Bonjour,", "", "Nous avons bien reçu la photo de votre tableau. Nous vous écrivons si la fixation demande un changement.", "", "Auboiacier — bois, acier & lumière"] }
+    : locale === "en"
       ? {
           subject: "Your quote request — Auboiacier",
           text: [
