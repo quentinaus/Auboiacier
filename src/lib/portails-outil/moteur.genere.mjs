@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 d7137f93b6f2b50b39255eec.
+// Source : l'outil de plans (plans-atelier.html), sha256 5ede27bec1d29bd59a5a8647.
 /* eslint-disable */
 
 
@@ -1869,7 +1869,7 @@ function calculerPortail(v, modele) {
     else if (hHaut < 300) R.alertes.push(`Soubassement trop haut : il reste ${ptMm(Math.max(0, hHaut))} mm pour le remplissage du haut (300 au moins).`);
   }
   if (c.lisse && c.forme !== "droit") R.alertes.push("La lisse en chêne se pose sur un haut droit seulement : choisis « droit » ou retire la lisse.");
-  if (c.mat === "alu" && (c.remp === "croix" || c.remp === "volutes")) R.avertissements.push(`${c.remp === "croix" ? "Rosaces" : "Volutes"} en alu : pièces à trouver chez un fournisseur, rendu moins « fer forgé ». À confirmer.`);
+  if (c.mat === "alu" && c.remp === "croix") R.avertissements.push("Rosaces en alu : pièces à trouver chez un fournisseur, rendu moins « fer forgé ». À confirmer.");
   if (c.mat === "acier" && (c.remp === "panneau" || c.soub === "panneau")) R.notes.push("En acier, le panneau lisse est une tôle pleine : c'est le remplissage « plein ».");
   if (c.mat === "acier" && c.remp === "lamesAlu") R.alertes.push("Lames alu sur un cadre acier : pas de mélange (corrosion). Choisis le cadre alu ou un autre remplissage.");
   if (c.pointes && c.mat === "alu") R.avertissements.push("Pointes de lance en alu : à trouver chez un fournisseur. À confirmer.");
@@ -2456,4 +2456,4 @@ function ptVueCote(c, C, haut, xa, pil, prP, massif, yV) {
 
 
 export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, MT_AVEC, MT_NOMS };
-export const EMPREINTE = "8993cc324626";
+export const EMPREINTE = "94e2748ae4d1";

@@ -167,6 +167,16 @@ const reference = CAS.map(({ modele, v }) => {
   const C = evalChiffrage.chiffrerPortail(R, v, undefined, { clesCatalogue: evalChiffrage.PTC_CLES_CATALOGUE });
   return { modele, v, prix: C.conseille, alertes: R.alertes.length, poids: Math.round(R.poids) };
 });
+// Parité : le site (motifs.js public, catalogue anonymisé, clés rendues par le chiffrage) doit donner le MÊME prix que
+// l'outil complet (motifs.js tel quel, références et clés de prix), portail par portail. Sinon on n'écrit rien.
+const evalComplet = new Function(`"use strict";\n${motifsBrut}\n${plans}\nreturn { calculerPortail };`)();
+const ecartsParite = CAS.map(({ modele, v }, i) => {
+  const R = evalComplet.calculerPortail(v, modele);
+  const prixOutil = R.alertes.length ? null : evalChiffrage.chiffrerPortail(R, v).conseille;
+  const site = reference[i];
+  return site.alertes ? (R.alertes.length ? null : `${modele} ${JSON.stringify(v)} : refusé sur le site, pas dans l'outil`) : prixOutil === site.prix ? null : `${modele} ${JSON.stringify(v)} : outil ${prixOutil} €, site ${site.prix} €`;
+}).filter(Boolean);
+if (ecartsParite.length) arret(`le site ne donne pas le prix de l'outil :\n${ecartsParite.slice(0, 10).join("\n")}`);
 const refTexte = JSON.stringify({ source: sha(html).slice(0, 24), moteur: empreinte(plans), cas: reference }, null, 1) + "\n";
 
 // ---------- 4. Écrire, ou seulement comparer ----------
