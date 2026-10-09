@@ -89,7 +89,7 @@ export default async function AProposPage({
                 alt={dict.hub.altAtelier}
                 fill
                 priority
-                sizes="(max-width: 1200px) 100vw, 1152px"
+                sizes="(max-width: 1680px) 100vw, 1680px"
                 className="object-cover object-[40%_center]"
               />
             </div>
