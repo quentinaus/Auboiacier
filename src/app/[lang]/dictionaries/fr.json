@@ -225,10 +225,10 @@
     "altSculptureTorse": "Torse en acier de récupération soudé à la main, réalisé par Quentin avant l'ouverture de l'atelier (vidéo)",
     "altVerrierePose": "Pose d'une verrière en acier noir, vue d'ensemble, réalisée par Quentin avant l'ouverture de l'atelier",
     "altVerrierePoseDetail": "Pose d'une verrière en acier noir à carreaux, au-dessus d'un muret de pierre, réalisée par Quentin avant l'ouverture de l'atelier",
-    "altPlafondCaissonLed": "Un plafond lumineux en fabrication : les rubans LED posés au fond du caisson, avant la toile.",
-    "altPlafondProfiles": "Les profilés aluminium du cadre, coupés et numérotés à l'atelier.",
-    "altPlafondToileAllumee": "La toile tendue allumée dans son cadre noir, en fin de fabrication.",
-    "altEscalierAtelier": "Un escalier en fabrication : marches en bois massif sur limon acier, à l'atelier."
+    "altPlafondCaissonLed": "Un plafond lumineux en fabrication, réalisé par Quentin avant l'ouverture de l'atelier : les rubans LED au fond du caisson, avant la toile.",
+    "altPlafondProfiles": "Les profilés aluminium d'un cadre de plafond lumineux, coupés et numérotés, réalisés par Quentin avant l'ouverture de l'atelier.",
+    "altPlafondToileAllumee": "La toile tendue allumée dans son cadre noir, réalisée par Quentin avant l'ouverture de l'atelier.",
+    "altEscalierAtelier": "Un escalier en fabrication, marches en bois massif sur limon acier, réalisé par Quentin avant l'ouverture de l'atelier."
   },
   "artisanat": {
     "title": "La collection",
@@ -1782,7 +1782,7 @@
       }
     ],
     "fabricationTitre": "En fabrication",
-    "fabricationTexte": "Le caisson, les rubans LED, le cadre en aluminium : des plafonds lumineux fabriqués par Quentin avant l'ouverture de l'atelier."
+    "fabricationTexte": "Le caisson, les rubans LED, le cadre en aluminium : des plafonds lumineux réalisés par Quentin avant l'ouverture de l'atelier."
   },
   "essences": {
     "note": "Rangées de la moins chère à la plus chère, d'après les prix de l'atelier.",

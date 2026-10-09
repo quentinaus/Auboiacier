@@ -225,10 +225,10 @@
     "altSculptureTorse": "Hand-welded salvaged-steel torso, made by Quentin before the workshop opened (video)",
     "altVerrierePose": "Black steel partition being fitted, overall view, made by Quentin before the workshop opened",
     "altVerrierePoseDetail": "Black steel gridded partition being fitted above a low stone wall, made by Quentin before the workshop opened",
-    "altPlafondCaissonLed": "A light ceiling being made: LED strips laid in the box, before the fabric.",
-    "altPlafondProfiles": "The aluminium frame profiles, cut and numbered in the workshop.",
-    "altPlafondToileAllumee": "The stretched fabric lit in its black frame, at the end of the build.",
-    "altEscalierAtelier": "A staircase being made: solid wood treads on a steel stringer, in the workshop."
+    "altPlafondCaissonLed": "A light ceiling being made, made by Quentin before the workshop opened: LED strips in the box, before the fabric.",
+    "altPlafondProfiles": "The aluminium profiles of a light ceiling frame, cut and numbered, made by Quentin before the workshop opened.",
+    "altPlafondToileAllumee": "The stretched fabric lit in its black frame, made by Quentin before the workshop opened.",
+    "altEscalierAtelier": "A staircase being made, solid wood treads on a steel stringer, made by Quentin before the workshop opened."
   },
   "artisanat": {
     "title": "The collection",

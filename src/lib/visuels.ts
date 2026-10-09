@@ -27,7 +27,6 @@ export const VRAIES_PHOTOS: readonly string[] = [
   // Quentin au travail (confirmé par lui le 06/10/2026) : un portrait, pas une pièce d'Auboiacier.
   "/images/atelier-soudeur.jpg",
   // Ses plafonds lumineux et un escalier en fabrication (photos et vidéos de Quentin, « mes propres pièces », 09/10/2026).
-  "/images/atelier/plafond-caisson-led.jpg",
   "/images/atelier/plafond-caisson-led-poster.jpg",
   "/images/atelier/plafond-profiles-alu.jpg",
   "/images/atelier/plafond-toile-allumee.jpg",

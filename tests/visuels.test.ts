@@ -2,7 +2,7 @@
  * Les images du site : honnêtes sur ce qu'elles montrent.
  *
  * L'atelier n'a pas encore de chantier client (commandes ouvertes le 7 décembre 2026). Les images des pièces sont
- * des visuels faits par ordinateur, sauf quatre vraies photos. Décision de Quentin (06/10/2026) : chaque visuel porte
+ * des visuels faits par ordinateur, sauf quelques vraies photos. Décision de Quentin (06/10/2026) : chaque visuel porte
  * la mention discrète « Image d'illustration » (« Illustration » en anglais), les vraies photos ne la portent pas,
  * et aucune phrase ne fait croire à des chantiers ou des clients passés (code de la consommation, art. L121-2).
  *
@@ -57,10 +57,15 @@ const TRAVAUX_AVANT_ATELIER = [
   "/images/torse-acier-poster.jpg",
   "/images/verriere-pose-chantier-2.jpg",
   "/images/verriere-pose-chantier-4.jpg",
+  // Ses plafonds lumineux et un escalier en fabrication (« mes propres pièces », 09/10/2026).
+  "/images/atelier/plafond-caisson-led-poster.jpg",
+  "/images/atelier/plafond-profiles-alu.jpg",
+  "/images/atelier/plafond-toile-allumee.jpg",
+  "/images/atelier/escalier-atelier-poster.jpg",
 ];
 /** Quentin au travail, qui meule un châssis : son texte alternatif le nomme. */
 const PORTRAIT_QUENTIN = "/images/atelier-soudeur.jpg";
-/** Les quatre vraies photos que Quentin a désignées. */
+/** Les vraies photos que Quentin a désignées. */
 const ATTENDUES = [...TRAVAUX_AVANT_ATELIER, PORTRAIT_QUENTIN];
 
 /** Ce qui n'est pas une photo de pièce : textures du croquis, images de partage, pictogrammes, deux paysages. */
@@ -72,7 +77,7 @@ const PAS_DES_PIECES = (src: string) =>
   src === "/images/saumur.jpg" ||
   src === "/images/vignes-coucher-soleil.jpg";
 
-test("quatre vraies photos, et seulement elles : elles existent et ne portent pas la mention", () => {
+test("les vraies photos, et seulement elles : elles existent et ne portent pas la mention", () => {
   assert.deepEqual([...VRAIES_PHOTOS].sort(), [...ATTENDUES].sort());
   for (const src of ATTENDUES) {
     assert.ok(existsSync(join(RACINE, "public", src)), `${src} introuvable dans public`);
@@ -384,10 +389,17 @@ test("les vraies photos : le travail de Quentin avant l'ouverture de l'atelier, 
     assert.match(d.sculptures.torseVideoAlt, avant, "Sculptures : description de la vidéo du torse");
   }
   // Les travaux d'avant l'atelier ne s'affichent que sur Projets et visuels, la zone d'intervention (avec une commune,
-  // jamais un visuel) et, pour le torse, la page Sculptures : un nouvel endroit doit dire, lui aussi, d'où ils viennent.
+  // jamais un visuel), pour le torse la page Sculptures, et les plafonds en fabrication sur la page des plafonds : un
+  // nouvel endroit doit dire, lui aussi, d'où ils viennent.
   const code = fichiers("src").filter((f) => /\.tsx?$/.test(f) && f !== join("src", "lib", "visuels.ts"));
   const endroits = code.filter((f) => TRAVAUX_AVANT_ATELIER.some((src) => lire(f).includes(src)));
-  assert.deepEqual(endroits.sort(), [join("src", "app", "[lang]", "artisanat", "sculptures", "page.tsx"), join("src", "lib", "chantiers.ts")].sort());
+  assert.deepEqual(
+    endroits.sort(),
+    [join("src", "app", "[lang]", "artisanat", "sculptures", "page.tsx"), join("src", "app", "[lang]", "toiles-tendues", "page.tsx"), join("src", "lib", "chantiers.ts")].sort(),
+  );
+  // Les plafonds lumineux montrent leurs plafonds en fabrication (09/10/2026) : le bloc dit d'où ils viennent.
+  assert.match(fr.lumiere.fabricationTexte, /réalisés par Quentin avant l'ouverture de l'atelier/);
+  assert.match(en.lumiere.fabricationTexte, /made by Quentin before the workshop opened/);
 });
 
 test("la photo de Quentin au travail : seulement sur l'accueil, le devis, le contact et À propos, avec un texte qui le nomme", () => {
