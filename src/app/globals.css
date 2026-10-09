@@ -1325,27 +1325,6 @@ textarea:focus-visible,
     opacity: 0;
   }
 }
-/* Le mètre ruban du croquis du garde-corps (schema-fenetre.tsx, MetreRuban) : le ruban glisse hors du boîtier, le
-   crochet en tête, puis reste posé sur la cote. Il attend dans son boîtier tant que le croquis n'a pas été vu, ou que
-   l'écran « Qui prend les mesures ? » le couvre ; il repart à chaque nouvelle question (Quentin, 09/10/2026 : « le faire
-   se dérouler, un très léger motion design »). */
-.metre-sort {
-  transform-box: fill-box;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .metre-sort {
-    animation: metre-sort 1s cubic-bezier(0.22, 0.75, 0.25, 1) 0.45s both;
-  }
-  .metre:not([data-vu]) .metre-sort,
-  .fond-configuration:has(> .porte-slot > .porte-qui:is([data-etat="choix"], [data-etat="ouverture"])) .metre-sort {
-    animation-play-state: paused;
-  }
-}
-@keyframes metre-sort {
-  from {
-    transform: translateX(-100%);
-  }
-}
 
 /* Les coupes de main courante dessinées par l'outil de plans (classes « t-… » de l'outil) : les couleurs sont celles du client. */
 .coupe-mc .t-acier-plein { fill: var(--acier); stroke: rgba(43, 35, 32, 0.8); stroke-width: 1.1; stroke-linejoin: round; }

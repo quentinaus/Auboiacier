@@ -31,7 +31,7 @@
  * jamais la fenêtre ni ses cotes.
  */
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef } from "react";
 import { BARRE_APPUI_MM, JOUR_GC_MM, MAIN_COURANTE_MM, formeGC, type DecorTraitGC, type TrousGC } from "@/lib/garde-corps";
 import type { MatiereMur } from "@/lib/murs-gc";
 
@@ -448,27 +448,51 @@ function Cote({
  * le boîtier au départ, le ruban jaune gradué (petits et grands traits, pour qu'on le reconnaisse ; pas à l'échelle), qui
  * sort du boîtier, et le crochet au bout, qui se pose contre le mur.
  *
- * Le ruban glisse hors du boîtier (globals.css, .metre-sort), en CSS : une animation <animate> ajoutée après le chargement
- * se croyait déjà finie, et elle se jouait de toute façon sous l'écran « Qui prend les mesures ? » (Quentin : « je ne vois
- * pas l'animation »). Il attend donc dans son boîtier que le croquis soit à l'écran, et repart à chaque nouvelle question.
+ * Le ruban glisse hors du boîtier, le crochet en tête (Web Animations, en pixels : Safari ignorait la version CSS en %).
+ * Une animation <animate> ajoutée après le chargement se croyait déjà finie, et elle se jouait de toute façon sous l'écran
+ * « Qui prend les mesures ? » (Quentin : « je ne vois pas l'animation »). Le ruban attend donc dans son boîtier que le
+ * croquis soit à l'écran et découvert, et repart à chaque nouvelle question.
  */
 export function MetreRuban({ de, a }: { de: [number, number]; a: [number, number] }) {
   const id = `metre${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const metre = useRef<SVGGElement>(null);
-  const [vu, setVu] = useState(false);
+  const sort = useRef<SVGGElement>(null);
+  const L = Math.hypot(a[0] - de[0], a[1] - de[1]);
+  const duree = Math.round(Math.min(1500, 600 + L * 2.5));
   useEffect(() => {
     const el = metre.current;
-    if (!el) return;
+    const ruban = sort.current;
+    if (!el || !ruban || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const rentre = `translateX(${-r(L + 4)}px)`;
+    ruban.style.transform = rentre;
+    let visible = false;
+    let anim: Animation | null = null;
+    const couvert = () => Boolean(el.closest(".fond-configuration")?.querySelector('.porte-qui:is([data-etat="choix"], [data-etat="ouverture"])'));
+    const essayer = () => {
+      if (anim || !visible || couvert()) return;
+      ruban.style.transform = "";
+      anim = ruban.animate([{ transform: rentre }, { transform: "translateX(0px)" }], {
+        duration: duree,
+        delay: 450,
+        easing: "cubic-bezier(0.22, 0.75, 0.25, 1)",
+        fill: "backwards",
+      });
+      window.clearInterval(veille);
+      io.disconnect();
+    };
     const io = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) {
-        setVu(true);
-        io.disconnect();
-      }
+      visible = e.isIntersecting;
+      essayer();
     });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-  const L = Math.hypot(a[0] - de[0], a[1] - de[1]);
+    io.observe(el.ownerSVGElement ?? el);
+    const veille = window.setInterval(essayer, 250);
+    return () => {
+      io.disconnect();
+      window.clearInterval(veille);
+      anim?.cancel();
+      ruban.style.transform = "";
+    };
+  }, [L, duree]);
   if (L < 4) return null;
   const larg = 7;
   // Dessiné à plat, le long de l'axe x (le boîtier à l'origine), puis tourné dans le sens de la cote.
@@ -489,7 +513,7 @@ export function MetreRuban({ de, a }: { de: [number, number]; a: [number, number
   const crochet = `M${p(L - 1, -larg / 2 - 1)} L${p(L + 2.2, -larg / 2 - 1)} L${p(L + 2.2, larg / 2 + 1.5)}`;
   const angle = (Math.atan2(a[1] - de[1], a[0] - de[0]) * 180) / Math.PI;
   return (
-    <g ref={metre} className="metre" data-vu={vu ? "" : undefined} pointerEvents="none" transform={`translate(${r(de[0])} ${r(de[1])}) rotate(${r(angle)})`}>
+    <g ref={metre} pointerEvents="none" transform={`translate(${r(de[0])} ${r(de[1])}) rotate(${r(angle)})`}>
       <defs>
         {/* La bouche du boîtier : le ruban n'existe qu'en dehors. */}
         <clipPath id={id}>
@@ -497,7 +521,7 @@ export function MetreRuban({ de, a }: { de: [number, number]; a: [number, number
         </clipPath>
       </defs>
       <g clipPath={`url(#${id})`}>
-        <g className="metre-sort" style={{ animationDuration: `${Math.min(1.5, 0.6 + L / 400).toFixed(2)}s` }}>
+        <g ref={sort}>
           <path d={ruban} fill="#f6c51b" stroke="#b58a07" strokeWidth={0.5} />
           <path d={reflet} stroke="#fde68a" strokeWidth={1} />
           <path d={traits.join(" ")} stroke="#2b2320" strokeWidth={0.45} />
