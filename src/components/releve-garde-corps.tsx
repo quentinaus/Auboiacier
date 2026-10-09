@@ -1746,7 +1746,16 @@ export function ReleveGardeCorps({
         {choixPierre(true)}
         {messageTel}
         {/* La pierre choisie : son aide remplace celle du mur. */}
-        {!estPierre && <p className="info-question mt-3 text-[12.5px] leading-snug text-[#5c5140]">{t.gcMurInfo}</p>}
+        {!estPierre && (
+          <p className="info-question mt-3 text-[12.5px] leading-snug text-[#5c5140]">
+            {/* Sur ordinateur, la phrase courte : la colonne n'a pas la place de la longue sous les huit murs. */}
+            {question
+              ? t.gcMurInfo
+              : fr
+                ? "Il décide de la fixation, calculée pour votre mur. En cas de doute, choisissez « Je ne sais pas » : le prix sera indicatif."
+                : "It decides the fixing, worked out for your wall. If unsure, choose “I don't know”: the price will be indicative."}
+          </p>
+        )}
       </div>
     ) : n === 7 ? (
       <div>
@@ -2081,7 +2090,9 @@ export function ReleveGardeCorps({
               <>
           {/* Grand écran : les boutons barreaux et traverse sont ici, à côté du prix ; la rangée des modèles est sur le croquis. */}
           {controlesFamille && (
-            <div className="hidden lg:block">
+            <div className="raccourcis-modele hidden lg:block">
+              {/* Les réglages Barreaux et Traverse : des raccourcis (la rangée des modèles a tous les dessins). Sur un écran
+                  peu haut, ils cèdent la place au résultat (globals.css, .raccourcis-modele). */}
               <p className="titre-options mb-2 text-[15px] font-semibold text-[#2b2320]">{fr ? "Composez votre garde-corps" : "Design your railing"}</p>
               {controlesFamille}
             </div>
@@ -2228,7 +2239,7 @@ export function ReleveGardeCorps({
                   </p>
                   {/* La fixation dans le mur : adaptée (et fournie), ou prix indicatif tant que le mur n'est pas confirmé. */}
                   {reponse?.ok && reponse.fixation && (
-                    <p className={`mt-0.5 text-[12.5px] leading-snug ${reponse.fixation.statut === "indicatif" ? "font-medium text-[#7a4510]" : "text-[#5c5140]"}`}>
+                    <p className={`mt-0.5 text-[11.5px] leading-snug ${reponse.fixation.statut === "indicatif" ? "font-medium text-[#7a4510]" : "text-[#5c5140]"}`}>
                       {reponse.fixation.texte}
                     </p>
                   )}

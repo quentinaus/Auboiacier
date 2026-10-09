@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from "react";
+import { createContext, useEffect, useEffectEvent, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { serif } from "@/lib/fonts";
 import { FilmAplat } from "./motion-aplat";
 import { PRIX_OFFRE_CENTS } from "@/lib/deplacement";
@@ -46,6 +46,7 @@ function placeDe(carte: Element, racine: Element): Rect {
 export function PorteQuiMesure({
   locale,
   titre,
+  entete,
   notes,
   depuis,
   onChoisir,
@@ -54,6 +55,8 @@ export function PorteQuiMesure({
   locale: "fr" | "en";
   /** « Configuration » : le même titre, à la même place, que celui du configurateur. */
   titre: string;
+  /** Le garde-corps (09/10/2026) : le haut de la fiche (nom, prix, normes, photos) à la place du titre. */
+  entete?: ReactNode;
   /** Ce qu'implique « je mesure », et son étiquette (les mots du dictionnaire). */
   notes: { moi: string; tagMoi: string };
   /** Le mode d'où l'on revient (« Changer ») : sa carte se reforme à partir du bloc entier. */
@@ -255,7 +258,7 @@ export function PorteQuiMesure({
   return (
     <div ref={racine} className="porte-qui" data-etat={phase} data-vu={vu ? "" : undefined} data-retour={depuis ? "" : undefined}>
       <div className="porte-contenu flex min-h-0 flex-1 flex-col">
-        <h2 className={`${serif.className} text-lg leading-none text-[#2b2320] md:text-[28px]`}>{titre}</h2>
+        {entete ?? <h2 className={`${serif.className} text-lg leading-none text-[#2b2320] md:text-[28px]`}>{titre}</h2>}
         <div className="porte-entete mt-2 text-center md:mt-1">
           <p className={`${serif.className} text-[24px] leading-tight text-[#2b2320] md:text-[clamp(28px,2.6vw,38px)]`}>
             {fr ? "Qui prend les mesures ?" : "Who takes the measurements?"}

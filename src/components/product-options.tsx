@@ -583,6 +583,7 @@ export function ProductOptions({
   resultatSlot,
   achatSlot,
   porteSlot,
+  enteteFiche,
   etapesTelephone,
   compteOuvert = false,
   ouverture,
@@ -637,6 +638,8 @@ export function ProductOptions({
   bandeauSlot?: HTMLDivElement | null;
   /** Garde-corps : la plaque « Configuration », où poser d'abord la question « Qui prend les mesures ? ». */
   porteSlot?: HTMLDivElement | null;
+  /** Le garde-corps : le haut de la fiche, posé sur l'écran « Qui prend les mesures ? » (entete-fiche-gc.tsx). */
+  enteteFiche?: ReactNode;
   /**
    * Garde-corps sur téléphone : le parcours de product-view.tsx, UNE QUESTION À LA FOIS (etapes-telephone.tsx), puis le
    * modèle, les finitions et le prix. L'étape affichée, les emplacements (en-tête, boutons, modèle, finitions), et de
@@ -3022,9 +3025,16 @@ export function ProductOptions({
           <PorteQuiMesure
             locale={locale}
             titre={t.configurationTitle}
+            entete={enteteFiche}
             notes={{ moi: t.gcQuiMoiNote, tagMoi: t.gcQuiMoiTag }}
             depuis={porte.depuis}
-            onChoisir={(qui) => setCotesGardeCorps((cotes) => ({ ...cotes, qui }))}
+            onChoisir={(qui) => {
+              setCotesGardeCorps((cotes) => ({ ...cotes, qui }));
+              // Sur ordinateur, la fiche s'ouvre sur l'écran de choix, sous l'en-tête du site : le configurateur, plus haut,
+              // se cale en haut de l'écran (globals.css, #configuration.fiche-gc).
+              if (window.matchMedia("(min-width: 48rem)").matches)
+                requestAnimationFrame(() => document.getElementById("configuration")?.scrollIntoView({ block: "start", behavior: "smooth" }));
+            }}
             onFin={() => setPorte(null)}
           />,
           porteSlot,

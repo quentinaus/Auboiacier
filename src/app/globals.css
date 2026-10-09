@@ -920,6 +920,13 @@ textarea:focus-visible,
     --mini-gc: 30px;
   }
 }
+/* Moins de 780 px : les raccourcis Barreaux / Traverse de la colonne d'achat cèdent la place au résultat et à la fixation
+   (09/10/2026) : la rangée des modèles, sous le croquis, a tous les dessins. */
+@media (min-width: 64rem) and (max-height: 780px) {
+  .colonne-achat .raccourcis-modele {
+    display: none;
+  }
+}
 /* Moins de 780 px : on retire aussi la ligne « fenêtre large » (elle reste dans la bulle de la norme) et le titre de la livraison. */
 @media (min-width: 64rem) and (max-height: 780px) {
   .colonne-achat .info-renfort,
@@ -1090,6 +1097,25 @@ textarea:focus-visible,
    de l'écran à toutes les tailles (« tout en bloc ») : l'écran de choix se pose dessus, sans rien pousser. */
 .fond-configuration:has(> .porte-slot > .porte-qui:is([data-etat="choix"], [data-etat="ouverture"])) > :not(.porte-slot) {
   visibility: hidden;
+}
+/* La fiche du garde-corps s'ouvre sur l'écran de choix, sous l'en-tête du site (product-view.tsx, 09/10/2026). Une fois le
+   choix fait, le configurateur reprend la hauteur qu'il avait (l'écran moins une marge) : la fiche le cale alors en haut. */
+@media (min-width: 48rem) {
+  #configuration.fiche-gc:not(:has(.porte-qui:is([data-etat="choix"], [data-etat="ouverture"]))) {
+    height: calc(100dvh - 3.5rem);
+  }
+}
+@media (min-width: 64rem) {
+  #configuration.fiche-gc:not(:has(.porte-qui:is([data-etat="choix"], [data-etat="ouverture"]))) {
+    height: calc(100dvh - 2rem);
+  }
+}
+/* Téléphone peu haut : la ligne « notice et visserie » des cartes cède la place aux films (le haut de la fiche est
+   maintenant dans le bloc, 09/10/2026). Elle reste écrite sur ordinateur et sur les grands téléphones. */
+@media (max-width: 47.999rem) and (max-height: 860px) {
+  .porte-qui .porte-petit {
+    display: none;
+  }
 }
 .porte-qui {
   position: absolute;

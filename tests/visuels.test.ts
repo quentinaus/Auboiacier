@@ -169,9 +169,9 @@ test("aucune image ne s'affiche sans passer par Visuel (qui pose la mention)", (
       if (!/\blocale=/.test(m[1])) fautes.push(`${f} : <Visuel> sans locale`);
     }
     // Une vignette ne porte pas la mention : seulement dans la galerie, la barre d'achat et le panier, où la grande
-    // image (ou la fiche) est juste à côté.
+    // image (ou la fiche) est juste à côté. La galerie du garde-corps vit dans la fenêtre « Photos » de son en-tête.
     if (/<Visuel\b[^>]*\bvignette\b/.test(code)) {
-      const permis = ["product-view.tsx", "product-options.tsx", "cart-view.tsx"].map((n) => join("src", "components", n));
+      const permis = ["product-view.tsx", "product-options.tsx", "cart-view.tsx", "entete-fiche-gc.tsx"].map((n) => join("src", "components", n));
       if (!permis.includes(f)) fautes.push(`${f} : vignette sans mention hors de la galerie, de la barre d'achat ou du panier`);
     }
     // Une mention retirée de l'image doit être posée à la main dans le même fichier.

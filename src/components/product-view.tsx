@@ -11,6 +11,7 @@ import Link from "next/link";
 import { serif } from "@/lib/fonts";
 import { amenerAlEcran, hoverZoom, prixAffiche } from "@/lib/ui";
 import { PhotoPlafondMesuree } from "./photo-plafond-anime";
+import { EnTeteFicheGC } from "./entete-fiche-gc";
 
 /**
  * Les flèches de la galerie ne portent pas de texte : seul un lecteur d'écran
@@ -336,6 +337,22 @@ export function ProductView({
   // données Google (src/lib/donnees-google.ts) — Google ne reçoit que ce qui
   // s'affiche ici. « À partir de » d'un côté, prix d'appel du garde-corps de l'autre.
   const prixFiche = prixAfficheFiche(product, prixAppel);
+  /**
+   * Le garde-corps (Quentin, 09/10/2026 : « cette page ne va pas, pas belle, pas intuitive ; la fusionner avec celle des deux
+   * motion design ») : plus de grande photo ni de bouton « Configurer » en haut. La page s'ouvre sur « Qui prend les
+   * mesures ? », sous le nom, le prix d'appel, « aux normes » et les photos (entete-fiche-gc.tsx).
+   */
+  const ficheGC = pleinePage && troisColonnes;
+  const enteteGC = (titre: boolean) => (
+    <EnTeteFicheGC
+      nom={product.name}
+      locale={locale}
+      prix={prixFiche?.sorte === "appel" ? { montant: prixAffiche(prixFiche.prix, locale), largeurCm: prixFiche.largeurMm / 10 } : null}
+      images={product.images}
+      titre={titre}
+      filAriane={titre ? undefined : filAriane}
+    />
+  );
   const prixDepart = prixFiche?.sorte === "a-partir-de" ? prixFiche.prix : null;
   const aide = (
     <p className={pleinePage ? "mt-3 text-xs text-[#726757]" : "mt-6 border-t border-[#e5ddd3] pt-6 text-sm text-[#726757]"}>
@@ -374,6 +391,7 @@ export function ProductView({
         achatSlot={achatSlot}
         bandeauSlot={bandeauSlot}
         porteSlot={porteSlot}
+        enteteFiche={ficheGC ? enteteGC(false) : undefined}
         etapesTelephone={troisColonnes ? etapesTelephone : undefined}
       />
       {!pleinePage && aide}
@@ -386,6 +404,7 @@ export function ProductView({
        à gauche et reste en place ; la colonne de droite, étroite, défile avec
        les choix. Sur téléphone, la photo prend d'abord tout l'écran, puis les
        options suivent. */}
+    {!ficheGC && (
     <div
       className={`grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(380px,36%)] lg:grid-cols-[minmax(0,1fr)_460px] ${
         /* Les tables, sur grand écran : la colonne des choix s'élargit et
@@ -677,6 +696,7 @@ export function ProductView({
         )}
       </div>
     </div>
+    )}
 
     {/* Le configurateur en pleine page, sous la photo — comme la section
         « Configuration » d'un site de découpe de bois : à gauche une carte
@@ -691,7 +711,11 @@ export function ProductView({
       <section
         ref={blocRef}
         id="configuration"
-        className={`mx-auto flex h-[100svh] min-h-[520px] scroll-mt-0 flex-col px-3 pb-2 pt-3 md:h-[calc(100dvh-3.5rem)] md:min-h-[560px] md:scroll-mt-14 md:px-10 md:py-4 ${troisColonnes ? "max-w-[1480px] lg:h-[calc(100dvh-2rem)] lg:scroll-mt-4 lg:px-6 lg:py-3" : "max-w-7xl"}`}
+        // Garde-corps : la page s'ouvre sur ce bloc ; sur ordinateur, sous l'en-tête du site (69 px), il en prend la hauteur qui
+        // reste. Sur téléphone, le bloc se cale en haut de l'écran (l'en-tête défile) : il garde tout l'écran.
+        className={`mx-auto flex min-h-[520px] scroll-mt-0 ${ficheGC ? "fiche-gc" : ""} flex-col px-3 pb-2 pt-3 md:min-h-[560px] md:scroll-mt-14 md:px-10 md:py-4 ${
+          ficheGC ? "h-[100svh] md:h-[calc(100dvh-69px)]" : "h-[100svh] md:h-[calc(100dvh-3.5rem)]"
+        } ${troisColonnes ? `max-w-[1480px] lg:scroll-mt-4 lg:px-6 lg:py-3 ${ficheGC ? "" : "lg:h-[calc(100dvh-2rem)]"}` : "max-w-7xl"}`}
       >
         {/* Sur ordinateur, tout tient dans la hauteur de l'écran, titre compris : le titre
             est dans la plaque, la carte et le croquis se partagent la hauteur qui reste. */}
@@ -717,9 +741,13 @@ export function ProductView({
           {/* Le titre, et — sur grand écran, au garde-corps — la ligne des matières (couleur, bois, rosace) à sa droite, au-dessus
               du croquis mais PAS dessus (demande de Quentin : « remonte-la, il y a de la place »). */}
           <div className={troisColonnes ? "titre-config md:col-span-2 md:flex md:items-center md:justify-between md:gap-4 lg:col-span-3 lg:grid lg:grid-cols-[262px_minmax(0,1fr)_272px] lg:items-center lg:gap-x-4 xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:gap-x-5" : "lg:col-span-2"}>
-            <div>
-              <h2 className={`${serif.className} text-lg leading-none text-[#2b2320] md:text-[28px]`}>{t.configurationTitle}</h2>
-            </div>
+            {ficheGC ? (
+              enteteGC(true)
+            ) : (
+              <div>
+                <h2 className={`${serif.className} text-lg leading-none text-[#2b2320] md:text-[28px]`}>{t.configurationTitle}</h2>
+              </div>
+            )}
             {/* Entre 1024 et 1280 px, la colonne du milieu est trop étroite pour la ligne des matières : elle prend aussi la
                 place au-dessus de la colonne d'achat (sinon elle passait sur le titre). */}
             {troisColonnes && <div ref={setMatieresCentreSlot} className="hidden md:flex md:justify-end lg:col-span-2 lg:justify-center xl:col-span-1" />}
@@ -793,8 +821,18 @@ export function ProductView({
             </div>
           )}
         </div>
-        {/* Sous la plaque, en petit : une question ? */}
-        <div className="mt-3 px-1">{aide}</div>
+        {/* Sous la plaque, en petit : une question ? (Le garde-corps Rosace renvoie aussi vers le garde-corps forgé.) */}
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-1 px-1">
+          {aide}
+          {ficheGC && product.releve === "garde-corps-fenetre" && !product.decorsGC && (
+            <p className="text-[13px] text-[#6f6357]">
+              {locale === "fr" ? "Envie de volutes\u00a0? " : "Fancy scrollwork? "}
+              <Link href={`/${locale}/artisanat/${SLUG_GC_FORGE}`} className="font-medium text-[#2b2320] underline underline-offset-4">
+                {locale === "fr" ? "Voir le garde-corps forgé" : "See the wrought scroll railing"}
+              </Link>
+            </p>
+          )}
+        </div>
       </section>
     )}
     </>
