@@ -37,7 +37,9 @@ export type FilmAplat = "atelier" | "je-mesure";
  * cette petite image aussi au début des motion design »). Le logo tient environ 2 s, puis le film reprend à son début ;
  * l'image d'attente (<film>-<taille>-debut.jpg, scripts/rendre-films-aplat.mjs) est cette même image : aucun saut.
  */
-export const DEBUT_LOGO: Record<FilmAplat, number> = { atelier: 25.0, "je-mesure": 34.2 };
+// Juste avant la fin du logo (Quentin, 09/10/2026 : « le logo reste beaucoup trop longtemps ») : il se voit moins d'une
+// seconde, puis le film reprend.
+export const DEBUT_LOGO: Record<FilmAplat, number> = { atelier: 26.2, "je-mesure": 35.4 };
 
 /**
  * Un seul film à la fois dans un même groupe (les deux cartes de « Qui prend les mesures ? ») : deux vidéos qui tournent
@@ -99,6 +101,13 @@ export function FilmAplat({
       return;
     }
     v.poster = `/videos/aplat/${film}-${taille}-debut.jpg`;
+    // Sur iPhone, une vidéo ne part toute seule que si elle est muette jusque dans son HTML (React ne pose que la
+    // propriété) et lue dans la page (Quentin, 09/10/2026 : « sur téléphone, on ne voit pas le motion design »).
+    v.muted = true;
+    v.defaultMuted = true;
+    v.setAttribute("muted", "");
+    v.setAttribute("playsinline", "");
+    v.setAttribute("webkit-playsinline", "");
     v.src = `/videos/aplat/${film}-${taille}.mp4`;
     // Le film part de l'écran AUBOIACIER (une seule fois : ensuite, la boucle fait le reste).
     const auLogo = () => {
@@ -138,10 +147,21 @@ export function FilmAplat({
         return;
       }
       if (visible && actif) {
-        v.play().catch(() => {}); // économie d'énergie de l'iPhone : l'affiche reste, c'est tout
+        // Refusée (économie d'énergie de l'iPhone) : elle repartira au premier toucher de l'écran.
+        v.play().catch(() => attendreUnGeste());
       } else {
         v.pause();
       }
+    };
+    let geste = false;
+    const relancer = () => {
+      geste = false;
+      decider();
+    };
+    const attendreUnGeste = () => {
+      if (geste) return;
+      geste = true;
+      for (const n of ["touchend", "click", "keydown"] as const) document.addEventListener(n, relancer, { once: true, passive: true });
     };
     const surLecture = () => {
       cancelAnimationFrame(image);
@@ -212,6 +232,7 @@ export function FilmAplat({
       cancelAnimationFrame(image);
       v.removeEventListener("playing", surLecture);
       v.removeEventListener("timeupdate", surTemps);
+      for (const n of ["touchend", "click", "keydown"] as const) document.removeEventListener(n, relancer);
       declencheur?.removeEventListener("pointerenter", surSurvol);
       declencheur?.removeEventListener("focusin", surSurvol);
       quitterGroupe();

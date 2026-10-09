@@ -125,7 +125,7 @@ html,body{margin:0;background:#f5ecdf;overflow:hidden}
         // Les deux images fixes, depuis le premier Chrome.
         if (k === 0) {
           // L'image d'attente : l'écran AUBOIACIER complet, d'où chaque film démarre (DEBUT_LOGO, motion-aplat.tsx).
-          writeFileSync(join(sortie, `${nom}-${taille}-debut.png`), await image(cdp, { atelier: 25000, "je-mesure": 34200 }[nom]));
+          writeFileSync(join(sortie, `${nom}-${taille}-debut.png`), await image(cdp, { atelier: 26200, "je-mesure": 35400 }[nom]));
           writeFileSync(join(sortie, `${nom}-${taille}-fin.png`), await image(cdp, film.fin * 1000));
         }
         await fermer();
