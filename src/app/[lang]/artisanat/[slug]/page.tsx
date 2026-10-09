@@ -164,6 +164,7 @@ export default async function ProductPage({
   // Ailleurs, on reste dans le même univers : une lumière ne renvoie pas vers
   // une table.
   const ouvrage = product.famille === "garde-corps" || product.famille === "escalier";
+  const qualite = (t.qualiteFamille as unknown as Record<string, { t: string; d: string }[] | undefined>)[product.famille];
   const memeUnivers = products.filter(
     (p) => p.slug !== product.slug && p.category === product.category
   );
@@ -375,6 +376,19 @@ export default async function ProductPage({
           </h2>
           <p className="mx-auto mt-6 max-w-2xl text-[17px] leading-[1.5] text-white/85 md:text-[19px]">{t.craftBandBody}</p>
         </Apparition>
+        {qualite ? (
+          <Apparition className="mx-auto mt-14 max-w-5xl">
+            <h3 className="text-center text-[12px] font-semibold uppercase tracking-[0.2em] text-white/60">{t.qualiteFamille.intro}</h3>
+            <ul className="mt-8 grid gap-x-12 gap-y-8 text-left sm:grid-cols-2">
+              {qualite.map((point) => (
+                <li key={point.t}>
+                  <h4 className={`${serif.className} text-[1.35rem] leading-[1.15] tracking-[-0.01em]`}>{point.t}</h4>
+                  <p className="mt-2 text-[15.5px] leading-[1.55] text-white/80">{point.d}</p>
+                </li>
+              ))}
+            </ul>
+          </Apparition>
+        ) : null}
       </section>
 
       {/* 4. Livraison */}

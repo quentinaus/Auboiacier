@@ -553,7 +553,154 @@
     "faqPoseToileQ": "Comment se pose un plafond lumineux ?",
     "faqPoseToileA": "Le cadre aluminium se fixe au plafond existant ou se suspend par câbles, puis la toile se clipse dans sa gorge. Sans gros œuvre : quelques perçages au plafond, et une découpe du faux plafond pour un modèle encastré. L'atelier peut venir le poser ; la fiche donne le prix selon votre code postal.",
     "faqToileQ": "Comment entretenir la toile ?",
-    "faqToileA": "La toile se retire et se remet sans outil, ce qui permet de la dépoussiérer. Le cadre en aluminium laqué se nettoie au chiffon doux."
+    "faqToileA": "La toile se retire et se remet sans outil, ce qui permet de la dépoussiérer. Le cadre en aluminium laqué se nettoie au chiffon doux.",
+    "qualiteFamille": {
+      "intro": "Ce qui fait la qualité de cette pièce",
+      "table-interieur": [
+        {
+          "t": "Un piétement soudé à l'atelier",
+          "d": "Les tubes d'acier sont soudés au TIG, meulés puis peints : un piétement solide, qui ne se desserre pas avec les années."
+        },
+        {
+          "t": "Des matières choisies à la main",
+          "d": "Bois massif (chêne, noyer, hêtre ou pin), poncé puis huilé à l'atelier : il garde son toucher et se patine avec le temps. La table Résine reçoit un plateau de résine coulée."
+        },
+        {
+          "t": "Faite pour durer, et se réparer",
+          "d": "Un plateau massif se reponce, un piétement soudé se repeint : une pièce faite ainsi se répare au lieu de se remplacer."
+        },
+        {
+          "t": "À vos dimensions, à la commande",
+          "d": "Pas de stock ni de série : l'essence du bois, la teinte de l'acier et le format sont les vôtres. La table arrive démontée, prête à visser."
+        }
+      ],
+      "table-exterieur": [
+        {
+          "t": "Un bois traité pour dehors",
+          "d": "Le chêne massif est traité en classe 4 et huilé pour l'extérieur. Les lattes espacées laissent la pluie s'écouler, le bois sèche vite."
+        },
+        {
+          "t": "Un acier peint pour rester dehors",
+          "d": "Le piétement soudé d'une seule pièce reçoit une peinture d'extérieur qui tient à la pluie, au sel et aux UV sans s'écailler."
+        },
+        {
+          "t": "Un entretien simple",
+          "d": "Une huile par an. Ou laissez le bois griser, si vous préférez la patine."
+        },
+        {
+          "t": "À vos dimensions, à la commande",
+          "d": "Dessinée pour votre terrasse, fabriquée à Saumur, livrée partout en France ou posée par l'atelier."
+        }
+      ],
+      "chaise": [
+        {
+          "t": "Un piétement en acier soudé",
+          "d": "Rond plein d'acier soudé au TIG, finition peinte mate : fin à l'œil, solide dans le temps."
+        },
+        {
+          "t": "Une assise garnie avec soin",
+          "d": "Mousse haute densité, velours d'ameublement, quinze coloris : confortable dès le premier repas."
+        },
+        {
+          "t": "Livrée prête à monter",
+          "d": "Dossier et pieds arrivent démontés, avec la visserie, la clé de montage et la notice."
+        },
+        {
+          "t": "Fabriquée à Saumur, à la commande",
+          "d": "Chaque chaise est montée à l'atelier : comptez 4 semaines."
+        }
+      ],
+      "chaise-exterieur": [
+        {
+          "t": "Un acier peint pour l'extérieur",
+          "d": "La peinture tient à la pluie et au sel sans s'écailler : le fauteuil passe l'hiver dehors."
+        },
+        {
+          "t": "Soudé d'une seule pièce",
+          "d": "Accoudoirs et dossier sont soudés d'une pièce : aucun boulon à resserrer au fil des saisons."
+        },
+        {
+          "t": "Des coussins qui sèchent vite",
+          "d": "Mousse à cellules ouvertes et tissu d'extérieur déperlant : l'eau s'évacue, la housse se retire pour le lavage."
+        },
+        {
+          "t": "Fabriqué à Saumur, à la commande",
+          "d": "Une fabrication à l'unité, en environ 4 semaines."
+        }
+      ],
+      "escalier": [
+        {
+          "t": "Un limon cintré d'une seule pièce",
+          "d": "Un tube d'acier de forte section, cintré puis soudé au TIG à l'atelier : une seule ligne, sans raccord apparent."
+        },
+        {
+          "t": "Des marches en bois massif",
+          "d": "Pin, hêtre, chêne ou noyer, huilés à l'atelier, fixés sur des platines cachées sous la marche."
+        },
+        {
+          "t": "Un garde-corps aux normes",
+          "d": "Câbles inox tendus et main courante en bois cintré, conformes aux normes de sécurité françaises (NF P01-012)."
+        },
+        {
+          "t": "Mesuré chez vous, posé par l'atelier",
+          "d": "Prise de cotes à domicile, fabrication sur mesure, pose comprise jusqu'à 45 km de Saumur."
+        }
+      ],
+      "garde-corps": [
+        {
+          "t": "Un acier plein, soudé et peint à l'atelier",
+          "d": "Cadre, croisillons ou volutes : tout est soudé au TIG, meulé puis peint à l'atelier, avec une main courante en bois massif ou en acier."
+        },
+        {
+          "t": "Calculé pour votre fenêtre",
+          "d": "Hauteur et espaces entre les barres sont calculés d'après vos mesures (Code de la construction, NF P01-012). Nous ne vendons jamais un garde-corps qui ne les respecte pas."
+        },
+        {
+          "t": "Une fixation adaptée à votre mur",
+          "d": "Béton, brique, pierre… la fixation est choisie selon votre mur et fournie, tout en inox."
+        },
+        {
+          "t": "Livré prêt à poser",
+          "d": "Avec sa visserie et son guide d'installation. Si une cote nous étonne, nous vous appelons avant de couper."
+        }
+      ],
+      "plafond": [
+        {
+          "t": "Une lumière sans point chaud",
+          "d": "La toile tendue diffuse la lumière sur toute sa surface : pas de spot visible, pas d'ombre dure."
+        },
+        {
+          "t": "Un cadre en aluminium laqué",
+          "d": "Profilé coupé en onglet et laqué : la teinte ne jaunit pas et ne s'écaille pas."
+        },
+        {
+          "t": "Une toile qui se retire sans outil",
+          "d": "Elle se clipse dans une gorge périphérique : nettoyage et entretien simples."
+        },
+        {
+          "t": "Fabriqué à vos dimensions",
+          "d": "Au centimètre près, jusqu'à 400 × 300 cm, en applique, suspendu ou encastré."
+        }
+      ],
+      "portail": [
+        {
+          "t": "Soudé au TIG, thermolaqué",
+          "d": "Alu soudé au TIG et thermolaqué, ou acier galvanisé à chaud puis thermolaqué : fait pour rester dehors."
+        },
+        {
+          "t": "Composé et vérifié",
+          "d": "Forme, remplissage, matière, couleur : vous composez, le dessin suit à l'échelle. Ce qui ne se fabrique pas est refusé, avec la raison."
+        },
+        {
+          "t": "Une visite avant fabrication",
+          "d": "L'atelier vient relever les cotes. Visite et pose comprises jusqu'à 45 km de Saumur."
+        },
+        {
+          "t": "Motorisation posée par nos soins",
+          "d": "En option : moteur, cellules, feu et réglage des efforts, installés et réglés par l'atelier."
+        }
+      ]
+    }
   },
   "devis": {
     "title": "Demander un devis",

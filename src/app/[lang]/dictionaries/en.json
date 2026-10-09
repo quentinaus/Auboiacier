@@ -553,7 +553,154 @@
     "faqPoseToileQ": "How is a light ceiling fitted?",
     "faqPoseToileA": "The aluminium frame fixes to the existing ceiling or hangs on cables, then the fabric clips into its groove. No building work: a few holes drilled in the ceiling, and a cut-out in the false ceiling for a recessed model. The workshop can come and fit it; the product page gives the price for your postcode.",
     "faqToileQ": "How do I look after the fabric?",
-    "faqToileA": "The fabric comes out and goes back in without a tool, so it can be dusted. The lacquered aluminium frame wipes clean with a soft cloth."
+    "faqToileA": "The fabric comes out and goes back in without a tool, so it can be dusted. The lacquered aluminium frame wipes clean with a soft cloth.",
+    "qualiteFamille": {
+      "intro": "What makes this piece well made",
+      "table-interieur": [
+        {
+          "t": "A base welded in the workshop",
+          "d": "The steel tubes are TIG-welded, ground then painted: a solid base that does not loosen over the years."
+        },
+        {
+          "t": "Materials chosen by hand",
+          "d": "Solid wood (oak, walnut, beech or pine), sanded then oiled in the workshop: it keeps its feel and gains a patina over time. The Resin table has a poured-resin top."
+        },
+        {
+          "t": "Made to last, and to be repaired",
+          "d": "A solid top can be sanded again and a welded base repainted: a piece made this way is repaired rather than replaced."
+        },
+        {
+          "t": "Your dimensions, made to order",
+          "d": "No stock, no production runs: the wood, the steel colour and the size are yours. The table arrives unassembled, ready to screw together."
+        }
+      ],
+      "table-exterieur": [
+        {
+          "t": "Wood treated for outdoors",
+          "d": "Solid oak, class 4 treated and oiled for outdoor use. The spaced slats let the rain run off and the wood dries quickly."
+        },
+        {
+          "t": "Steel painted to stay outside",
+          "d": "The one-piece welded base has an outdoor paint that stands up to rain, salt and UV without flaking."
+        },
+        {
+          "t": "Simple upkeep",
+          "d": "One coat of oil a year. Or let the wood go grey, if you prefer the patina."
+        },
+        {
+          "t": "Your dimensions, made to order",
+          "d": "Drawn for your terrace, made in Saumur, delivered across France or fitted by the workshop."
+        }
+      ],
+      "chaise": [
+        {
+          "t": "A welded steel frame",
+          "d": "Solid steel rod, TIG-welded, matt painted finish: slim to look at, solid over time."
+        },
+        {
+          "t": "A carefully upholstered seat",
+          "d": "High-density foam, upholstery velvet, fifteen colours: comfortable from the first meal."
+        },
+        {
+          "t": "Delivered ready to assemble",
+          "d": "Backrest and legs arrive unassembled, with the hardware, the allen key and the instructions."
+        },
+        {
+          "t": "Made in Saumur, to order",
+          "d": "Each chair is assembled in the workshop: allow 4 weeks."
+        }
+      ],
+      "chaise-exterieur": [
+        {
+          "t": "Steel painted for outdoors",
+          "d": "The paint stands up to rain and salt without flaking: the armchair can stay out all winter."
+        },
+        {
+          "t": "Welded in one piece",
+          "d": "Armrests and backrest are welded in one piece: no bolt to retighten over the seasons."
+        },
+        {
+          "t": "Cushions that dry fast",
+          "d": "Open-cell foam and water-repellent outdoor fabric: water drains away, and the cover comes off for washing."
+        },
+        {
+          "t": "Made in Saumur, to order",
+          "d": "Built one at a time, in about 4 weeks."
+        }
+      ],
+      "escalier": [
+        {
+          "t": "A one-piece curved stringer",
+          "d": "A heavy steel tube, curved then TIG-welded in the workshop: a single line, with no visible joint."
+        },
+        {
+          "t": "Solid wood treads",
+          "d": "Pine, beech, oak or walnut, oiled in the workshop, fixed on plates hidden under the tread."
+        },
+        {
+          "t": "A railing that meets the standard",
+          "d": "Tensioned stainless cables and a curved wooden handrail, in line with French safety standards (NF P01-012)."
+        },
+        {
+          "t": "Measured at your home, fitted by the workshop",
+          "d": "Home measuring visit, made-to-measure fabrication, fitting included within 45 km of Saumur."
+        }
+      ],
+      "garde-corps": [
+        {
+          "t": "Solid steel, welded and painted in the workshop",
+          "d": "Frame, crosses or scrolls: everything is TIG-welded, ground then painted in the workshop, with a solid wood or steel handrail."
+        },
+        {
+          "t": "Calculated for your window",
+          "d": "Height and gaps between the bars are worked out from your measurements (French building code, NF P01-012). We never sell a railing that does not meet them."
+        },
+        {
+          "t": "A fixing suited to your wall",
+          "d": "Concrete, brick, stone... the fixing is chosen for your wall and supplied, all in stainless steel."
+        },
+        {
+          "t": "Delivered ready to fit",
+          "d": "With its fixings and an installation guide. If a measurement surprises us, we call you before cutting."
+        }
+      ],
+      "plafond": [
+        {
+          "t": "Light with no hot spot",
+          "d": "The stretched fabric spreads the light over its whole surface: no visible spot, no harsh shadow."
+        },
+        {
+          "t": "A lacquered aluminium frame",
+          "d": "Mitred profile, lacquered: the colour does not yellow or flake."
+        },
+        {
+          "t": "A fabric that comes off without tools",
+          "d": "It clips into a groove all around: cleaning and upkeep are simple."
+        },
+        {
+          "t": "Made to your dimensions",
+          "d": "To the centimetre, up to 400 × 300 cm, surface-mounted, suspended or recessed."
+        }
+      ],
+      "portail": [
+        {
+          "t": "TIG-welded, powder-coated",
+          "d": "TIG-welded aluminium, powder-coated, or hot-dip galvanised steel then powder-coated: made to stay outside."
+        },
+        {
+          "t": "Composed and checked",
+          "d": "Shape, infill, material, colour: you compose, the drawing follows to scale. What cannot be made is refused, with the reason."
+        },
+        {
+          "t": "A visit before fabrication",
+          "d": "The workshop comes to measure. Visit and fitting included within 45 km of Saumur."
+        },
+        {
+          "t": "Motor fitted by us",
+          "d": "Optional: motor, photocells, warning light and force adjustment, installed and set by the workshop."
+        }
+      ]
+    }
   },
   "devis": {
     "title": "Request a quote",
