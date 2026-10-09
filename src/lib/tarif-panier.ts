@@ -31,6 +31,7 @@ import {
 } from "./deplacement.ts";
 import { libelleCreneau, lireCreneau, type Creneau } from "./creneau.ts";
 import { finitionsDecorGC, lireDecorGC, NOM_GC_DECOR, type ReleveGC } from "./garde-corps.ts";
+import { eligibleGarantieCotes, prixGarantieCotes } from "./garantie-cotes.ts";
 
 /* ------------------------------------------------------------------ *
  *  Le tarif d'un panier
@@ -85,6 +86,13 @@ export type PieceTarifee = {
   precisions: string;
   /** L'épaisseur demandée d'une pièce sur mesure (plateau, caisson), pour son poids. */
   epaisseurMm?: number;
+  /**
+   * La Garantie cotes (garantie-cotes.ts) : son prix pour UNE pièce, en euros,
+   * si la pièce peut la recevoir (sinon null) — le panier l'affiche à côté de
+   * la case —, et si le client l'a cochée.
+   */
+  garantiePrix: number | null;
+  garantie: boolean;
 };
 
 /** Comment la commande part : une seule façon par commande. */
@@ -97,7 +105,7 @@ export type VisiteTarifee = { index: number; codePostal: string; creneau: Crenea
 
 /** Ce qui empêche de payer, pour toute la commande. */
 export type ProblemeTarif =
-  /** Une ligne illisible, ou deux façons de livrer. */
+  /** Une ligne illisible, deux façons de livrer, ou une Garantie cotes sur ce qui ne peut pas la recevoir. */
   | "invalid"
   /** Le code postal de la livraison, de la pose ou de la visite n'est pas valable. */
   | "code_postal"
@@ -197,7 +205,14 @@ export async function tarifer(
     if (!brute || typeof brute !== "object") return probleme("invalid");
     const line = brute as Record<string, unknown>;
 
+    // La Garantie cotes : un oui ou un non, rien d'autre. Un montant, un texte,
+    // un nombre (« garantieCotes: 1 ») : la requête est forgée, elle est refusée.
+    if (line.garantieCotes !== undefined && line.garantieCotes !== null && typeof line.garantieCotes !== "boolean") return probleme("invalid");
+    const garantieDemandee = line.garantieCotes === true;
+
     if (line.slug === LIVRAISON || line.slug === POSE || line.slug === RETRAIT) {
+      // Une livraison ne se garantit pas.
+      if (garantieDemandee) return probleme("invalid");
       if (modeLu) return probleme("invalid");
       const mode: ModeLivraison = line.slug === LIVRAISON ? "transporteur" : line.slug === POSE ? "pose" : "retrait";
       const codePostal = mode === "retrait" ? "" : texteBorne(mode === "pose" ? line.poseCp : line.livraisonCp, 10).replace(/\s+/g, "");
@@ -206,6 +221,7 @@ export async function tarifer(
     }
 
     if (line.slug === PRISE_DE_COTES) {
+      if (garantieDemandee) return probleme("invalid");
       if (visiteLue) return probleme("rdv");
       const creneau = lireCreneau(texteBorne(line.rdv, 30));
       if (!creneau) return probleme("rdv");
@@ -250,6 +266,10 @@ export async function tarifer(
       continue;
     }
     const { nom, options } = optionsTraduites(resolu.line, locale);
+    // La Garantie cotes : seulement sur une pièce dont le client donne les cotes (garantie-cotes.ts) ; son prix vient
+    // du prix unitaire de la ligne, calculé ci-dessus — jamais d'un montant reçu.
+    const eligible = eligibleGarantieCotes(resolu.line.product);
+    if (garantieDemandee && !eligible) return probleme("invalid");
     tarif.pieces.push({
       index,
       line: resolu.line,
@@ -258,6 +278,8 @@ export async function tarifer(
       options,
       precisions: texteBorne(line.note, MAX_PRECISIONS),
       epaisseurMm: resolu.line.size.id === SUR_MESURE ? coteMm(line.epaisseurMm) : undefined,
+      garantiePrix: eligible ? prixGarantieCotes(resolu.line.unitPrice) : null,
+      garantie: garantieDemandee,
     });
   }
 
@@ -315,6 +337,7 @@ export async function tarifer(
 
   const cents =
     tarif.pieces.reduce((t, p) => t + Math.round(p.line.unitPrice * 100) * p.quantite, 0) +
+    tarif.pieces.reduce((t, p) => t + (p.garantie && p.garantiePrix !== null ? p.garantiePrix * 100 * p.quantite : 0), 0) +
     tarif.remise * 100 +
     (tarif.mode && tarif.mode.mode !== "retrait" ? tarif.mode.deplacement.montantCents : 0) +
     (tarif.visite ? tarif.visite.deplacement.montantCents : 0);
@@ -339,6 +362,10 @@ export type LigneAffichee = {
   image?: string;
   /** Un garde-corps : la hauteur retenue par l'outil. Le panier la renvoie avec la commande. */
   hauteurMm?: number;
+  /** Une pièce qui peut recevoir la Garantie cotes : son prix pour une pièce, en euros (calculé ici, jamais dans le navigateur). */
+  garantiePrix?: number;
+  /** La Garantie cotes est cochée sur cette pièce (elle est comptée dans le total). */
+  garantie?: boolean;
 };
 
 export type TarifAffiche = {
@@ -362,6 +389,7 @@ export function tarifAffiche(t: Tarif, locale: "fr" | "en"): TarifAffiche {
     unitaire: p.line.unitPrice,
     image: p.line.image,
     hauteurMm: p.line.gc?.hauteurMm,
+    ...(p.garantiePrix !== null ? { garantiePrix: p.garantiePrix, garantie: p.garantie } : {}),
   }));
   if (t.visite) {
     lignes.push({

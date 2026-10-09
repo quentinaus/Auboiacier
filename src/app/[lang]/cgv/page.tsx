@@ -50,7 +50,8 @@ export default async function CgvPage({ params }: PageProps<"/[lang]/cgv">) {
 
         <div className="mt-12 flex flex-col gap-10">
           {t.sections.map((section, i) => (
-            <section key={section.title}>
+            // Une ancre sur l'article que d'autres pages citent (le panier : « #garantie-cotes »).
+            <section key={section.title} id={"id" in section ? section.id : undefined} className="scroll-mt-24">
               <h2 className={`${serif.className} text-xl text-[#2b2320]`}>{section.title}</h2>
               {/* Les articles du dictionnaire contiennent des retours à la
                   ligne : whitespace-pre-line les respecte. */}
@@ -75,6 +76,17 @@ export default async function CgvPage({ params }: PageProps<"/[lang]/cgv">) {
                 >
                   {t.privacyCta}
                 </Link>
+              )}
+
+              {/* Garantie cotes : les coordonnées postales et téléphoniques du garant (art. L217-22), lues sur la fiche de
+                  l'entreprise — rien ne s'affiche de ce qui n'est pas encore rempli. */}
+              {"id" in section && section.id === "garantie-cotes" && (
+                <p className="mt-3 leading-relaxed text-[#4a4038]">
+                  <span className="text-[#726757]">{t.garantLabel} : </span>
+                  {["Auboiacier", ENTREPRISE.raisonSociale, ENTREPRISE.adresse, ENTREPRISE.telephone, "auboiacier@gmail.com"]
+                    .filter(Boolean)
+                    .join(" — ")}
+                </p>
               )}
 
               {/* Médiateur : sous l'article « Médiation », une fois rempli. */}

@@ -15,6 +15,7 @@ import { CALCUL_GC, ChiffrageIndisponible } from "@/lib/prix-garde-corps.server"
 import { libellePiece, tarifer, type Tarif } from "@/lib/tarif-panier";
 import { nomsStripe } from "@/lib/libelle-stripe";
 import { semainesCommande } from "@/lib/avis";
+import { libelleGarantieCotes } from "@/lib/garantie-cotes";
 
 export const runtime = "nodejs";
 /** Un départ en paiement ne doit jamais rester suspendu plus d'une demi-minute. */
@@ -149,7 +150,21 @@ export async function POST(request: Request) {
       },
       quantity: piece.quantite,
     });
+    // La Garantie cotes cochée sur cette pièce : sa ligne à elle, juste en dessous, au prix calculé par tarifer
+    // (garantie-cotes.ts) — le navigateur n'a envoyé qu'un oui.
+    if (piece.garantie && piece.garantiePrix !== null) {
+      items.push({
+        price_data: {
+          currency: "eur",
+          unit_amount: piece.garantiePrix * 100,
+          product_data: { name: libelleGarantieCotes(piece.nom, locale) },
+        },
+        quantity: piece.quantite,
+      });
+    }
   }
+  /** Le nombre de pièces garanties : le bon de commande le dit en tête. */
+  const piecesGaranties = tarif.pieces.reduce((n, p) => n + (p.garantie && p.garantiePrix !== null ? p.quantite : 0), 0);
 
   // La prise de cotes à domicile : le créneau doit être encore libre à l'instant où l'on paie.
   const visite = tarif.visite;
@@ -334,6 +349,8 @@ export async function POST(request: Request) {
         // demande d'avis (src/lib/avis.ts) part dix jours après la livraison
         // estimée, et c'est d'ici qu'elle la connaît.
         ...(tarif.pieces.length ? { fabrication_semaines: String(semainesCommande(tarif.pieces.map((p) => p.line.product))) } : {}),
+        // La Garantie cotes : combien de pièces en ont une (chacune a aussi sa ligne).
+        ...(piecesGaranties > 0 ? { garantie_cotes: String(piecesGaranties) } : {}),
         // La remise sur plusieurs garde-corps, en euros : elle se lit aussi sur le bon de réduction.
         ...(tarif.remise < 0 ? { remise_gc: String(-tarif.remise) } : {}),
         // L'origine du client (connu, utm_…, annonce_google) : le bon de

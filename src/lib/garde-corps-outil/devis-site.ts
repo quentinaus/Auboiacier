@@ -163,7 +163,7 @@ export function composerDevisGardeCorps(entree: EntreeDevisGC): ResultatDevis {
     conditions: conditionsDuDevis(base, config, livraison, locale),
     lienFiche: `${entree.origine}/${locale}/artisanat/${slug}`,
   };
-  return { ok: true, devis };
+  return { ok: true, devis, prixPiece: line.unitPrice };
 }
 
 /**

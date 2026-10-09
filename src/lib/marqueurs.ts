@@ -14,6 +14,7 @@ import {
 } from "./products.ts";
 import { prixAffiche } from "./ui.ts";
 import { delaiFabrication } from "./vitrine.ts";
+import { GARANTIE_COTES_MAX, GARANTIE_COTES_MIN, GARANTIE_COTES_POURCENT } from "./garantie-cotes.ts";
 
 /**
  * Les chiffres que les textes du site citent, mais qui appartiennent au code.
@@ -59,7 +60,7 @@ import { delaiFabrication } from "./vitrine.ts";
 
 /** La forme de tous les marqueurs qui appartiennent au code. */
 const MOTIF_MARQUEUR =
-  /\{(?:prixVisite|rayonVisite|prixTables|livraisonMax|plateauLongueurMax|plateauLargeurMax|prixAppelGC|largeurAppelGC|(?:prix|delai):[a-z0-9-]+)\}/g;
+  /\{(?:prixVisite|rayonVisite|prixTables|livraisonMax|plateauLongueurMax|plateauLargeurMax|prixAppelGC|largeurAppelGC|garantiePct|garantieMin|garantieMax|(?:prix|delai):[a-z0-9-]+)\}/g;
 
 /** Les familles dont le plus bas prix fait « {prixTables} ». */
 const FAMILLES_TABLES: readonly Famille[] = ["table-interieur", "table-exterieur"];
@@ -86,6 +87,10 @@ export function valeursMarqueurs(locale: Locale): Record<string, string> {
     "{livraisonMax}": prixAffiche(LIVRAISON_MAX_CENTS / 100, locale),
     "{plateauLongueurMax}": nombre(PLATEAU_MAX_LONGUEUR_MM / 10, locale),
     "{plateauLargeurMax}": nombre(PLATEAU_MAX_LARGEUR_MM / 10, locale),
+    // La Garantie cotes (garantie-cotes.ts) : CGV, FAQ et panier citent ces chiffres-là, jamais des chiffres tapés.
+    "{garantiePct}": locale === "en" ? `${GARANTIE_COTES_POURCENT}%` : `${GARANTIE_COTES_POURCENT}\u00a0%`,
+    "{garantieMin}": prixAffiche(GARANTIE_COTES_MIN, locale),
+    "{garantieMax}": prixAffiche(GARANTIE_COTES_MAX, locale),
   };
 
   const prixTables: number[] = [];

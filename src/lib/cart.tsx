@@ -68,6 +68,12 @@ export type CartItem = {
   rdv?: string;
   /** Ce que le client précise (type de mur, pièce voulue…), transmis tel quel à l'atelier. */
   note?: string;
+  /**
+   * La Garantie cotes, cochée au panier (garantie-cotes.ts) : un oui, jamais un
+   * prix. Elle ne change pas l'identifiant de la ligne : on la coche sur la
+   * pièce déjà au panier. Décochée par défaut (art. L121-17 du code de la consommation).
+   */
+  garantieCotes?: boolean;
   quantity: number;
   /** Copie d'affichage, jamais contractuelle. Ne jamais l'envoyer à une API. */
   name: string;
@@ -242,11 +248,23 @@ export function useCart() {
     write(getSnapshot().filter((item) => item.id !== id));
   }, []);
 
+  /** Cocher ou décocher la Garantie cotes d'une pièce du panier. */
+  const setGarantie = useCallback((id: string, garantie: boolean) => {
+    write(
+      getSnapshot().map((item) => {
+        if (item.id !== id) return item;
+        const { garantieCotes: _ancienne, ...reste } = item;
+        void _ancienne;
+        return garantie ? { ...reste, garantieCotes: true } : reste;
+      })
+    );
+  }, []);
+
   const clear = useCallback(() => write([]), []);
 
   return useMemo(() => {
     const count = items.reduce((sum, item) => sum + item.quantity, 0);
     const total = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
-    return { items, count, total, ready, add, setQuantity, remove, clear };
-  }, [items, ready, add, setQuantity, remove, clear]);
+    return { items, count, total, ready, add, setQuantity, setGarantie, remove, clear };
+  }, [items, ready, add, setQuantity, setGarantie, remove, clear]);
 }

@@ -1124,7 +1124,11 @@
     "prevenirErreur": "Sending failed. Please try again, or",
     "prevenirNote": "Your email is only used to tell you when we open and to give you priority. We delete it afterwards.",
     "prevenirDevis": "A question about your project?",
-    "prevenirDevisLien": "Request a quote"
+    "prevenirDevisLien": "Request a quote",
+    "garantieAjouter": "Add the Measurement guarantee (+{prix})",
+    "garantieTexte": "If your measurements were wrong, the workshop alters or remakes the piece to the right size.",
+    "garantieLien": "What it covers",
+    "garantieRecap": "Measurement guarantee"
   },
   "commande": {
     "title": "Order",
@@ -1189,6 +1193,11 @@
       {
         "title": "12. Governing law",
         "body": "These terms are governed by French law. They are accepted by ticking the box in the cart, before payment. In the event of a dispute, an amicable solution is sought first (article 11); failing that, the French courts have jurisdiction."
+      },
+      {
+        "id": "garantie-cotes",
+        "title": "13. Commercial guarantee contract “Measurement guarantee” (option)",
+        "body": "The Measurement guarantee is a paid option, offered in the cart on pieces whose measurements or size you give yourself: railings, gates and side gates, backlit ceilings, tables. It is never added automatically: you tick it piece by piece, before paying.\n\nWhy it exists. A piece made to your measurements carries no right of withdrawal (article L221-28 3° of the French Consumer Code, see article 7). If your measurements were wrong, the piece would not fit, without being defective. The Measurement guarantee covers that risk.\n\nWhat it covers. For each guaranteed piece: one single alteration or remake of the piece, to the corrected measurements you give us.\n\nHow it works:\n– you write to us (e-mail to auboiacier@gmail.com, or post) within 15 days of delivery or collection of the piece, giving your new measurements;\n– the piece has not been fitted, drilled, cut or damaged; you send it back in its packaging, or bring it back to the workshop in Saumur;\n– sending the piece back to the workshop is at your expense;\n– shipping the corrected piece back to you is free, within mainland France, by the same delivery method as the order;\n– the new measurements stay within the limits shown on the piece's page;\n– if the piece at the new measurements costs more, only the price difference is due; if it costs less, nothing is refunded;\n– the corrected piece follows the normal production time shown on its page, from receipt of the piece and the new measurements.\n\nWhat it does not cover (exclusions): a change of mind about the model, the wood, the colour or the finish; damage caused by fitting, or by transport when the piece is sent back; pieces sold on quotation whose measurements the workshop took itself (staircase, glazed partition, sculpture…); one-size pieces (chair, armchair).\n\nPrice: {garantiePct} of the price of the piece (options included), rounded up to the next euro, at least {garantieMin} and at most {garantieMax} per piece. The exact price is shown next to the box in the cart, then on a separate line of the order and the invoice.\n\nDuration: 15 days from delivery (or collection from the workshop) of the piece.\n\nTerritory: mainland France.\n\nGuarantor: Auboiacier, metalwork workshop in Saumur (Maine-et-Loire, France) — identity, address and identifiers in article 1 and in the legal notice; e-mail: auboiacier@gmail.com.\n\nYour legal rights remain in full. The Measurement guarantee applies without prejudice to the consumer's right to benefit from the legal warranty of conformity, under the conditions set out in articles L217-3 et seq. of the French Consumer Code, and from the warranty against hidden defects, under the conditions set out in articles 1641 to 1649 of the French Civil Code. It applies in addition to the rights you enjoy under the legal warranty of conformity, for the whole of its duration, and does not replace them: it covers a mistake in your measurements, which the legal warranties do not cover; a defect in the piece is always covered, free of charge, by the legal warranties (article 8). The official box on the legal warranty of conformity and hidden defects, reproduced at the end of these terms, forms part of this contract."
       }
     ],
     "privacyCta": "Read the privacy policy",
@@ -1196,7 +1205,8 @@
     "garantieIntro": "The text below is the wording required by French law. It is reproduced as it stands, unchanged.",
     "garantieBody": "The consumer has two years from delivery of the goods to obtain the benefit of the legal warranty of conformity should a lack of conformity appear. During that period, the consumer need only establish that the lack of conformity exists, not the date on which it appeared.\n\nThe legal warranty of conformity entitles the consumer to repair or replacement of the goods within thirty days of the request, free of charge and without major inconvenience.\n\nIf the goods are repaired under the legal warranty of conformity, the consumer benefits from a six-month extension of the original warranty.\n\nIf the consumer asks for the goods to be repaired but the seller insists on replacement, the legal warranty of conformity is renewed for two years from the date of replacement.\n\nThe consumer may obtain a reduction in the purchase price and keep the goods, or end the contract and be refunded in full against return of the goods, if:\n1. The trader refuses to repair or replace the goods;\n2. The repair or replacement takes place after a period of thirty days;\n3. The repair or replacement causes major inconvenience to the consumer, in particular where the consumer definitively bears the cost of taking back or removing the non-conforming goods, or bears the cost of installing the repaired or replacement goods;\n4. The lack of conformity persists despite the seller's unsuccessful attempt to bring the goods into conformity.\n\nThe consumer is also entitled to a reduction in the price of the goods or to rescission of the contract where the lack of conformity is so serious that an immediate price reduction or rescission is justified. The consumer is then not required to ask for repair or replacement first.\n\nThe consumer is not entitled to rescission of the sale where the lack of conformity is minor.\n\nAny period during which the goods are unavailable for repair or replacement suspends the remaining warranty period until the repaired goods are delivered.\n\nThe rights set out above arise from articles L. 217-1 to L. 217-32 of the French Consumer Code.\n\nA seller who obstructs in bad faith the operation of the legal warranty of conformity incurs a civil fine of up to 300,000 euros, which may be raised to 10% of average annual turnover (article L. 241-5 of the French Consumer Code).\n\nThe consumer also benefits from the legal warranty against hidden defects under articles 1641 to 1649 of the French Civil Code, for two years from the discovery of the defect. That warranty gives a right to a price reduction if the goods are kept, or to a full refund against return of the goods.",
     "mediateurLabel": "Consumer mediator our workshop is registered with",
-    "tvaLabel": "VAT treatment"
+    "tvaLabel": "VAT treatment",
+    "garantLabel": "Guarantor's details"
   },
   "mentionsLegales": {
     "title": "Legal notice",
@@ -1540,6 +1550,11 @@
         "a": "Our pieces are made to your dimensions and your finishes: French law excludes the fourteen-day right of withdrawal for goods of that kind, so we cannot take them back once production has started. The statutory warranty of conformity and the warranty against hidden defects do apply in full, however: if the piece does not match what was agreed, or has a hidden defect, we repair it, replace it or refund it. The detail is in our terms of sale."
       },
       {
+        "id": "erreur-cotes",
+        "q": "What if my measurements are wrong?",
+        "a": "Two options. In the cart, you can add the Measurement guarantee to each piece you measure yourself (railing, gate, backlit ceiling, table): {garantiePct} of its price, from {garantieMin} to {garantieMax} per piece. If your measurements were wrong, write to us within 15 days of delivery: the workshop alters or remakes the piece once, to the right size. For no risk at all, the workshop comes and measures at your home, from {prixVisite}. Full details are in article 13 of the terms of sale."
+      },
+      {
         "q": "How is a backlit stretch ceiling fitted?",
         "a": "The light ceiling hangs on cables attached to four rings screwed into its frame. Your ceiling needs four fixing points strong enough to carry its weight. Up to 230 × 210 cm (Ø 210 cm for the Halo), it ships by carrier; beyond that, it is delivered and fitted at your place by the workshop."
       },
@@ -1570,7 +1585,8 @@
     "ctaBody": "Ask it through the form: we reply within 48 hours.",
     "ctaLabel": "Ask your question",
     "zoneLink": "See where we work",
-    "rdvLink": "Home measuring visit"
+    "rdvLink": "Home measuring visit",
+    "garantieLien": "Terms of the Measurement guarantee"
   },
   "rdv": {
     "eyebrow": "On-site measuring",

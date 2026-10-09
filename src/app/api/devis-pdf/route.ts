@@ -11,6 +11,8 @@ import { budgetCalculGC } from "@/lib/budget-calcul-gc";
 import { EMAIL_VALIDE, MAX_TEXTE } from "@/lib/devis-regles";
 import { siteOrigin } from "@/lib/stripe";
 import { isLocale } from "@/lib/i18n";
+import { eligibleGarantieCotes, prixGarantieCotes } from "@/lib/garantie-cotes";
+import { prixAffiche } from "@/lib/ui";
 
 export const runtime = "nodejs";
 /** Géocodage, photo, police, rendu : jamais plus de vingt secondes. */
@@ -159,6 +161,15 @@ export async function GET(request: Request) {
     resultat = await devisCatalogue(p, product, locale, mode, cp, client, siteOrigin());
   }
   if (!resultat.ok) return NextResponse.json({ error: resultat.reason }, { status: 400 });
+  // La Garantie cotes ne se coche qu'au panier : le devis dit seulement qu'elle existe, et son prix pour cette pièce.
+  if (resultat.devis.nature === "devis" && resultat.prixPiece !== undefined && eligibleGarantieCotes(product)) {
+    const prix = prixAffiche(prixGarantieCotes(resultat.prixPiece), locale);
+    resultat.devis.conditions.push(
+      locale === "en"
+        ? `Measurement guarantee available in the cart: +${prix} per piece — one alteration or remake if your measurements were wrong (terms of sale, article 13).`
+        : `Garantie cotes disponible au panier : +${prix} par pièce — une modification ou une refabrication si vos cotes étaient fausses (CGV, article 13).`
+    );
+  }
   const reponse = await pdfDuDevis(resultat.devis, locale);
   // Un devis PDF de plus au compteur : la famille de la pièce, rien d'autre —
   // surtout pas le nom ni l'e-mail que porte l'adresse de ce lien.

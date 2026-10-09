@@ -113,6 +113,7 @@ export function ligneDeJournal(
     // La remise de plusieurs garde-corps, et le retrait à l'atelier, s'il y a lieu.
     ...(session.total_details?.amount_discount ? { remise: euros(session.total_details.amount_discount) } : {}),
     ...(session.metadata?.retrait === "1" ? { retraitAtelier: true } : {}),
+    ...(session.metadata?.garantie_cotes ? { garantieCotes: session.metadata.garantie_cotes } : {}),
     // Juste de quoi reconnaître la commande. Le nom, le téléphone et la rue
     // ne descendent PAS dans les journaux : ce sont des données personnelles,
     // les journaux Vercel se conservent, se lisent par toute l'équipe du
@@ -154,6 +155,10 @@ export async function notifyOwner(
       : "",
     // Le retrait à l'atelier : pas de colis à préparer pour un transporteur.
     session.metadata?.retrait === "1" ? "RETRAIT À L'ATELIER : le client vient chercher sa commande à Saumur — l'appeler quand elle est prête." : "",
+    // La Garantie cotes : une modification ou une refabrication par pièce garantie, 15 jours après la livraison (CGV, art. 13).
+    session.metadata?.garantie_cotes
+      ? `GARANTIE COTES : ${session.metadata.garantie_cotes} pièce(s) garantie(s) — voir les lignes « Garantie cotes » ci-dessous (CGV, article 13).`
+      : "",
     "",
     formatLines(lines, "fr", session),
     "",

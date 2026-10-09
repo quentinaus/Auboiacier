@@ -271,10 +271,11 @@ test("ce qui part vers le navigateur : des noms, des prix de vente, la hauteur r
   assert.equal(t.probleme, null);
   const affiche = tarifAffiche(t, "en");
   assert.deepEqual(Object.keys(affiche).sort(), ["lignes", "probleme", "refusees", "remise", "total"]);
-  const champs = new Set(["index", "type", "nom", "options", "quantite", "unitaire", "image", "hauteurMm"]);
+  // garantiePrix et garantie : la Garantie cotes, un prix de VENTE calculé sur le serveur (garantie-cotes.ts) et la case cochée.
+  const champs = new Set(["index", "type", "nom", "options", "quantite", "unitaire", "image", "hauteurMm", "garantiePrix", "garantie"]);
   for (const l of affiche.lignes) {
     for (const cle of Object.keys(l)) assert.ok(champs.has(cle), `champ inattendu vers le navigateur : ${cle}`);
-    for (const valeur of Object.values(l)) assert.ok(["string", "number", "undefined"].includes(typeof valeur));
+    for (const [cle, valeur] of Object.entries(l)) assert.ok(["string", "number", "undefined"].includes(typeof valeur) || (cle === "garantie" && typeof valeur === "boolean"));
   }
   const gc = affiche.lignes.find((l) => l.type === "piece" && l.hauteurMm !== undefined)!;
   assert.equal(gc.hauteurMm, cfg().hauteurMm);

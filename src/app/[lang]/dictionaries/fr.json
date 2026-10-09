@@ -1124,7 +1124,11 @@
     "prevenirErreur": "L'envoi n'a pas marché. Réessayez, ou",
     "prevenirNote": "Votre e-mail sert seulement à vous prévenir de l'ouverture et à vous donner la priorité. Nous l'effaçons ensuite.",
     "prevenirDevis": "Une question sur votre projet ?",
-    "prevenirDevisLien": "Demander un devis"
+    "prevenirDevisLien": "Demander un devis",
+    "garantieAjouter": "Ajouter la Garantie cotes (+{prix})",
+    "garantieTexte": "Si vos cotes étaient fausses, l'atelier modifie ou refait la pièce à la bonne cote.",
+    "garantieLien": "Ce qu'elle couvre",
+    "garantieRecap": "Garantie cotes"
   },
   "commande": {
     "title": "Commande",
@@ -1189,6 +1193,11 @@
       {
         "title": "12. Droit applicable",
         "body": "Les présentes conditions sont soumises au droit français. Elles sont acceptées en cochant la case prévue dans le panier, avant le paiement. En cas de litige, une solution amiable est recherchée en priorité (article 11) ; à défaut, les tribunaux français sont compétents."
+      },
+      {
+        "id": "garantie-cotes",
+        "title": "13. Contrat de garantie commerciale « Garantie cotes » (option)",
+        "body": "La Garantie cotes est une option payante, proposée au panier sur les pièces dont vous donnez vous-même les cotes ou la taille : garde-corps, portails et portillons, plafonds lumineux, tables. Elle n'est jamais ajoutée d'office : vous la cochez pièce par pièce, avant de payer.\n\nPourquoi elle existe. Une pièce fabriquée à vos cotes n'ouvre pas droit à la rétractation (article L221-28 3° du code de la consommation, voir l'article 7). Si vos cotes étaient fausses, la pièce ne vous irait pas, sans pour autant être défectueuse. La Garantie cotes couvre ce risque-là.\n\nCe qu'elle couvre. Pour chaque pièce garantie : une seule modification ou refabrication de la pièce, aux cotes corrigées que vous nous donnez.\n\nConditions de mise en œuvre :\n– vous nous écrivez (e-mail à auboiacier@gmail.com, ou courrier) dans les 15 jours qui suivent la livraison ou le retrait de la pièce, en donnant vos nouvelles cotes ;\n– la pièce n'a été ni posée, ni percée, ni coupée, ni abîmée ; vous la renvoyez dans son emballage, ou vous la rapportez à l'atelier, à Saumur ;\n– le renvoi de la pièce à l'atelier est à votre charge ;\n– la réexpédition de la pièce corrigée vous est offerte, en France métropolitaine, par le même mode de livraison que la commande ;\n– les nouvelles cotes restent dans les limites indiquées sur la fiche de la pièce ;\n– si la pièce aux nouvelles cotes coûte plus cher, seule la différence de prix est due ; si elle coûte moins cher, rien n'est remboursé ;\n– la pièce corrigée suit le délai de fabrication normal indiqué sur sa fiche, à compter de la réception de la pièce et des nouvelles cotes.\n\nCe qu'elle ne couvre pas (exclusions) : un changement d'avis sur le modèle, l'essence, la teinte ou la finition ; les dégâts dus à une pose, ou au transport du renvoi ; les pièces vendues sur devis dont l'atelier a pris les cotes lui-même (escalier, verrière, sculpture…) ; les pièces de taille unique (chaise, fauteuil).\n\nPrix : {garantiePct} du prix de la pièce (options comprises), arrondi à l'euro supérieur, au minimum {garantieMin} et au maximum {garantieMax} par pièce. Le prix exact s'affiche à côté de la case, dans le panier, puis sur une ligne distincte de la commande et de la facture.\n\nDurée : 15 jours à compter de la livraison (ou du retrait à l'atelier) de la pièce.\n\nTerritoire : France métropolitaine.\n\nGarant : Auboiacier, atelier de métallerie à Saumur (Maine-et-Loire) — identité, adresse et identifiants à l'article 1 et dans les mentions légales ; e-mail : auboiacier@gmail.com.\n\nVos garanties légales restent entières. La Garantie cotes s'applique sans préjudice du droit pour le consommateur de bénéficier de la garantie légale de conformité, dans les conditions prévues aux articles L217-3 et suivants du code de la consommation, et de celle relative aux vices cachés, dans les conditions prévues aux articles 1641 à 1649 du code civil. Elle s'applique en sus des droits dont vous bénéficiez au titre de la garantie légale de conformité, pendant toute la durée de celle-ci, sans les remplacer : elle couvre une erreur dans vos cotes, que les garanties légales ne couvrent pas ; un défaut de la pièce relève toujours, gratuitement, des garanties légales (article 8). L'encadré officiel sur la garantie légale de conformité et les vices cachés, reproduit à la fin de ces conditions, fait partie de ce contrat."
       }
     ],
     "privacyCta": "Lire la politique de confidentialité",
@@ -1196,7 +1205,8 @@
     "garantieIntro": "Le texte ci-dessous est celui imposé par la loi française. Il est reproduit tel quel, sans rien y changer.",
     "garantieBody": "Le consommateur dispose d'un délai de deux ans à compter de la délivrance du bien pour obtenir la mise en œuvre de la garantie légale de conformité en cas d'apparition d'un défaut de conformité. Durant ce délai, le consommateur n'est tenu d'établir que l'existence du défaut de conformité et non la date d'apparition de celui-ci.\n\nLa garantie légale de conformité donne au consommateur droit à la réparation ou au remplacement du bien dans un délai de trente jours suivant sa demande, sans frais et sans inconvénient majeur pour lui.\n\nSi le bien est réparé dans le cadre de la garantie légale de conformité, le consommateur bénéficie d'une extension de six mois de la garantie initiale.\n\nSi le consommateur demande la réparation du bien, mais que le vendeur impose le remplacement, la garantie légale de conformité est renouvelée pour une période de deux ans à compter de la date de remplacement du bien.\n\nLe consommateur peut obtenir une réduction du prix d'achat en conservant le bien ou mettre fin au contrat en se faisant rembourser intégralement contre restitution du bien, si :\n1° Le professionnel refuse de réparer ou de remplacer le bien ;\n2° La réparation ou le remplacement du bien intervient après un délai de trente jours ;\n3° La réparation ou le remplacement du bien occasionne un inconvénient majeur pour le consommateur, notamment lorsque le consommateur supporte définitivement les frais de reprise ou d'enlèvement du bien non conforme, ou s'il supporte les frais d'installation du bien réparé ou de remplacement ;\n4° La non-conformité du bien persiste en dépit de la tentative de mise en conformité du vendeur restée infructueuse.\n\nLe consommateur a également droit à une réduction du prix du bien ou à la résolution du contrat lorsque le défaut de conformité est si grave qu'il justifie que la réduction du prix ou la résolution du contrat soit immédiate. Le consommateur n'est alors pas tenu de demander la réparation ou le remplacement du bien au préalable.\n\nLe consommateur n'a pas droit à la résolution de la vente si le défaut de conformité est mineur.\n\nToute période d'immobilisation du bien en vue de sa réparation ou de son remplacement suspend la garantie qui restait à courir jusqu'à la délivrance du bien remis en état.\n\nLes droits mentionnés ci-dessus résultent de l'application des articles L. 217-1 à L. 217-32 du code de la consommation.\n\nLe vendeur qui fait obstacle de mauvaise foi à la mise en œuvre de la garantie légale de conformité encourt une amende civile d'un montant maximal de 300 000 euros, qui peut être porté jusqu'à 10 % du chiffre d'affaires moyen annuel (article L. 241-5 du code de la consommation).\n\nLe consommateur bénéficie également de la garantie légale des vices cachés en application des articles 1641 à 1649 du code civil, pendant une durée de deux ans à compter de la découverte du défaut. Cette garantie donne droit à une réduction de prix si le bien est conservé ou à un remboursement intégral contre restitution du bien.",
     "mediateurLabel": "Médiateur de la consommation auquel l'atelier adhère",
-    "tvaLabel": "Régime de TVA"
+    "tvaLabel": "Régime de TVA",
+    "garantLabel": "Coordonnées du garant"
   },
   "mentionsLegales": {
     "title": "Mentions légales",
@@ -1540,6 +1550,11 @@
         "a": "Nos pièces sont fabriquées à vos dimensions et à vos finitions : la loi exclut le droit de rétractation de quatorze jours pour ce type de bien, nous ne pouvons donc pas les reprendre une fois la fabrication lancée. En revanche, la garantie légale de conformité et la garantie des vices cachés s'appliquent pleinement : si la pièce ne correspond pas à ce qui était convenu ou présente un défaut caché, nous la réparons, la remplaçons ou la remboursons. Le détail est dans les conditions générales de vente."
       },
       {
+        "id": "erreur-cotes",
+        "q": "Et si je me trompe dans mes cotes ?",
+        "a": "Deux solutions. Au panier, vous pouvez ajouter la Garantie cotes à chaque pièce que vous mesurez vous-même (garde-corps, portail, plafond lumineux, table) : {garantiePct} de son prix, de {garantieMin} à {garantieMax} par pièce. Si vos cotes étaient fausses, vous nous écrivez dans les 15 jours après la livraison : l'atelier modifie ou refait la pièce une fois, à la bonne cote. Pour n'avoir aucun risque, l'atelier vient prendre les cotes chez vous, dès {prixVisite}. Le détail est à l'article 13 des conditions générales de vente."
+      },
+      {
         "q": "Comment se pose un plafond lumineux ?",
         "a": "Le plafond lumineux se suspend par des câbles accrochés à quatre anneaux vissés dans son cadre. Il faut au plafond quatre points d'accroche capables de porter son poids. Jusqu'à 230 × 210 cm (Ø 210 cm pour le Halo), il part par transporteur ; au-delà, il est livré et posé chez vous par l'atelier."
       },
@@ -1570,7 +1585,8 @@
     "ctaBody": "Posez-la par le formulaire : nous répondons sous 48 h.",
     "ctaLabel": "Poser ma question",
     "zoneLink": "Voir la zone d'intervention",
-    "rdvLink": "Prise de cotes à domicile"
+    "rdvLink": "Prise de cotes à domicile",
+    "garantieLien": "Les conditions de la Garantie cotes"
   },
   "rdv": {
     "eyebrow": "Prise de cotes à domicile",

@@ -60,6 +60,8 @@ function ligneEnvoyee(item: CartItem) {
     livraisonCp: item.livraisonCp,
     rdv: item.rdv,
     note: item.note,
+    // La Garantie cotes : un oui, jamais un prix (le serveur la chiffre et refuse un montant).
+    garantieCotes: item.garantieCotes === true ? true : undefined,
   };
 }
 
@@ -79,7 +81,7 @@ export function CartView({
   /** Les commandes sont-elles ouvertes ? Non tant que l'entreprise n'a pas son numéro. */
   ouvert: boolean;
 }) {
-  const { items, ready, setQuantity, remove } = useCart();
+  const { items, ready, setQuantity, setGarantie, remove } = useCart();
   // Ces intitulés-là ne sont lus que par les lecteurs d'écran : ils ne sont pas
   // dans les dictionnaires, on les écrit ici dans les deux langues.
   const fr = locale === "fr";
@@ -172,6 +174,10 @@ export function CartView({
       retrait?: boolean;
       /** La hauteur d'un garde-corps, telle que le serveur l'a calculée et que le client la voit. */
       hauteurMm?: number;
+      /** La Garantie cotes : son prix pour une pièce (du serveur), si la pièce peut la recevoir. */
+      garantiePrix?: number;
+      /** Cochée sur cette pièce. */
+      garantie?: boolean;
     }[] = [];
     const stale: string[] = [];
     if (donnees) {
@@ -191,6 +197,8 @@ export function CartView({
           livraison: ligne.type === "livraison",
           retrait: ligne.type === "retrait",
           hauteurMm: ligne.hauteurMm,
+          garantiePrix: ligne.garantiePrix,
+          garantie: ligne.garantie === true,
         });
       }
     } else {
@@ -221,6 +229,8 @@ export function CartView({
   const remise = donnees?.remise ?? 0;
   const total = donnees?.total ?? 0;
   const totalPieces = lines.filter((l) => !l.visite).reduce((sum, line) => sum + (line.unitPrice ?? 0) * line.quantity, 0);
+  /** La Garantie cotes des pièces cochées, telle que le serveur l'a chiffrée (comprise dans son total). */
+  const totalGarantie = lines.reduce((sum, l) => sum + (l.garantie && l.garantiePrix !== undefined ? l.garantiePrix * l.quantity : 0), 0);
   const lignePose = lines.find((l) => l.pose);
   const ligneLivraison = lines.find((l) => l.livraison);
   const ligneRetrait = lines.find((l) => l.retrait);
@@ -449,6 +459,44 @@ export function CartView({
                   </button>
                   )}
                 </div>
+
+                {/* La Garantie cotes : décochée d'avance (art. L121-17 du code de la consommation), son prix vient du
+                    serveur. Avant l'ouverture des commandes, elle se coche quand même et reste dans le panier. */}
+                {!line.visite && line.garantiePrix !== undefined && (
+                  <div className="mt-4 text-[15px] leading-[1.5] text-[#4a4038]">
+                    <label className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        checked={items.find((item) => item.id === line.id)?.garantieCotes === true}
+                        onChange={(event) => {
+                          setGarantie(line.id, event.target.checked);
+                          setAnnonce(
+                            event.target.checked
+                              ? fr ? `Garantie cotes ajoutée — ${line.name}` : `Measurement guarantee added — ${line.name}`
+                              : fr ? `Garantie cotes retirée — ${line.name}` : `Measurement guarantee removed — ${line.name}`
+                          );
+                        }}
+                        className="mt-1 h-4 w-4 shrink-0 accent-[#2b2320]"
+                      />
+                      <span>
+                        <span className="font-medium text-[#2b2320]">
+                          {t.garantieAjouter.replace(
+                            "{prix}",
+                            line.quantity > 1
+                              ? `${prixAffiche(line.garantiePrix, locale)} × ${line.quantity}`
+                              : prixAffiche(line.garantiePrix, locale)
+                          )}
+                        </span>
+                        <span className="mt-0.5 block text-[14px] text-[#6f6357]">
+                          {t.garantieTexte}{" "}
+                          <Link href={`/${locale}/cgv#garantie-cotes`} className="underline underline-offset-4 hover:text-black">
+                            {t.garantieLien}
+                          </Link>
+                        </span>
+                      </span>
+                    </label>
+                  </div>
+                )}
               </div>
             </li>
   );
@@ -503,6 +551,12 @@ export function CartView({
                 <div className="flex justify-between gap-4">
                   <dt className="text-[#5c5140]">{t.lot}</dt>
                   <dd className="tabular-nums text-[#2b2320]">{prixAffiche(remise, locale)}</dd>
+                </div>
+              )}
+              {totalGarantie > 0 && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-[#5c5140]">{t.garantieRecap}</dt>
+                  <dd className="tabular-nums text-[#2b2320]">{prixAffiche(totalGarantie, locale)}</dd>
                 </div>
               )}
               {/* Livraison par transporteur : son prix ; avec une pose : comprise
@@ -673,7 +727,7 @@ export function CartView({
                 contactEmail={contactEmail}
                 lignes={lines.map(
                   (line) =>
-                    `${line.name}${line.options ? ` (${line.options})` : ""} × ${line.quantity}${line.unitPrice === null ? "" : ` — ${prixAffiche(line.unitPrice * line.quantity, locale)}`}`,
+                    `${line.name}${line.options ? ` (${line.options})` : ""} × ${line.quantity}${line.unitPrice === null ? "" : ` — ${prixAffiche(line.unitPrice * line.quantity, locale)}`}${line.garantie && line.garantiePrix !== undefined ? ` + ${t.garantieRecap} ${prixAffiche(line.garantiePrix * line.quantity, locale)}` : ""}`,
                 )}
               />
             </div>

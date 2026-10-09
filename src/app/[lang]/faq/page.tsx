@@ -87,6 +87,12 @@ export default async function FaqPage({ params }: PageProps<"/[lang]/faq">) {
                     {dict.liens.normesGc}
                   </Link>
                 )}
+                {/* Une erreur dans ses cotes : la Garantie cotes, article 13 des CGV. */}
+                {"id" in item && item.id === "erreur-cotes" && (
+                  <Link href={`/${locale}/cgv#garantie-cotes`} className="lien-fleche mt-4 py-1 text-[#2b2320]">
+                    {t.garantieLien}
+                  </Link>
+                )}
               </Apparition>
             </section>
           ))}

@@ -197,7 +197,14 @@ export type Devis = {
   acceptation?: Acceptation;
 };
 
-export type ResultatDevis = { ok: true; devis: Devis } | { ok: false; reason: string };
+export type ResultatDevis =
+  | {
+      ok: true;
+      devis: Devis;
+      /** Le prix unitaire de la pièce chiffrée (une pièce achetable) : la route du devis en tire la Garantie cotes disponible. */
+      prixPiece?: number;
+    }
+  | { ok: false; reason: string };
 
 /* ------------------------------------------------------------------ *
  *  Textes du devis, dans les deux langues
@@ -964,6 +971,7 @@ export function composerDevis(entree: EntreeDevis): ResultatDevis {
   const photo = photoConfiguration(product, selection);
   return {
     ok: true,
+    ...(estimation ? {} : { prixPiece: ligne.unitPrice }),
     devis: {
       nature: estimation ? "estimation" : "devis",
       numero: numeroDevis({ ...entree, quantity }),
