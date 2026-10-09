@@ -3,6 +3,7 @@ import { compteConfigure } from "@/lib/compte-jetons";
 import { commandesOuvertes } from "@/lib/entreprise";
 import { textesOuverture } from "@/lib/ouverture";
 import Link from "next/link";
+import { FAMILLES_AVEC_PAGE } from "@/lib/categories-collection";
 import { Visuel } from "@/components/visuel";
 import { photosDesSections } from "@/lib/photos-sections";
 import { notFound } from "next/navigation";
@@ -544,7 +545,7 @@ export default async function ProductPage({
               ))}
             </div>
             <Link
-              href={`/${locale}/artisanat`}
+              href={FAMILLES_AVEC_PAGE.includes(product.famille) ? `/${locale}/artisanat/famille/${product.famille}` : `/${locale}/artisanat`}
               className="mt-12 inline-block py-1 text-[16px] font-medium text-[#2b2320] hover:underline hover:underline-offset-4 md:text-[17px]"
             >
               {t.backToCatalogue}

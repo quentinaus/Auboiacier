@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import Link from "next/link";
+import { CarteCategorie } from "@/components/carte-categorie";
+import { categoriesCollection } from "@/lib/categories-collection";
 import { Visuel, MentionIllustration } from "@/components/visuel";
 import type { Locale } from "@/lib/i18n";
 import { isLocale, defaultLocale } from "@/lib/i18n";
@@ -103,60 +105,6 @@ function HeroPanel({
   );
 }
 
-/** Tuile de catégorie : photo portrait qui grandit au survol, titre dessous. */
-function CategoryTile({
-  href,
-  src,
-  alt,
-  label,
-  objectPosition,
-  entiere = false,
-  clip,
-  clipBox,
-  locale,
-}: {
-  locale: Locale;
-  href: string;
-  src: string;
-  alt: string;
-  label: string;
-  objectPosition?: string;
-  /** La photo en entier sur fond blanc, sans recadrage : pour une pièce détourée. */
-  entiere?: boolean;
-  /** Contour de la dalle lumineuse : la photo s'anime alors dedans. */
-  clip?: string;
-  clipBox?: { left: string; top: string; width: string; height: string };
-}) {
-  return (
-    <Link href={href} className="flex flex-col items-center gap-3">
-      <div className={`relative aspect-[4/5] w-full overflow-hidden ${entiere ? "bg-white" : ""} ${hoverZoom}`}>
-        {clip && clipBox ? (
-          <PhotoPlafondAnime
-            src={src}
-            alt={alt}
-            box={clipBox}
-            clip={clip}
-            sizes="(max-width: 768px) 50vw, 280px"
-            entiere={entiere}
-            locale={locale}
-          />
-        ) : (
-          <Visuel
-            locale={locale}
-            src={src}
-            alt={alt}
-            fill
-            sizes="(max-width: 768px) 50vw, 280px"
-            style={{ objectPosition }}
-            className={entiere ? "object-contain" : "object-cover"}
-          />
-        )}
-      </div>
-      <span className={`${serif.className} text-[15px] text-[#2b2320] md:text-base`}>{label}</span>
-    </Link>
-  );
-}
-
 export async function generateMetadata({
   params,
 }: PageProps<"/[lang]">): Promise<Metadata> {
@@ -180,81 +128,8 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
   /** Le texte du bas, avec {prixVisite} et {rayonVisite} remplacés par les valeurs à jour. */
   const seoBlocs = remplacerMarqueurs(t.seoBlocs, locale);
 
-  const categories = [
-    {
-      href: `/${locale}/artisanat#table-interieur`,
-      // La photo détourée, rognée au plus près : la table prend toute la largeur.
-      src: "/images/accueil/table-mikado-laiton.jpg",
-      alt: t.altTables,
-      label: t.catTables,
-      entiere: true,
-    },
-    {
-      href: `/${locale}/artisanat#table-exterieur`,
-      src: "/images/table-exterieur-lattes.jpg",
-      alt: t.altTablesExt,
-      label: t.catTablesExt,
-    },
-    {
-      href: `/${locale}/artisanat#chaise-exterieur`,
-      // Recadrage 3/4 du fauteuil, centré : la photo d'origine est en paysage.
-      src: "/images/chaise-exterieur-tuile.jpg",
-      alt: t.altChaisesExt,
-      label: t.catChaisesExt,
-    },
-    {
-      href: `/${locale}/artisanat/sculptures`,
-      src: "/images/sculpture-cheval-v2.jpg",
-      alt: t.altSculptures,
-      label: t.catSculptures,
-      objectPosition: "50% 40%",
-    },
-    {
-      href: `/${locale}/artisanat#escalier`,
-      src: "/images/escalier/limon-droit.jpg",
-      alt: t.altEscaliers,
-      label: t.catEscaliers,
-      objectPosition: "88% 50%",
-    },
-    {
-      href: `/${locale}/artisanat#garde-corps`,
-      // La pièce détourée, en entier, plutôt que la photo de pose.
-      src: "/images/accueil/garde-corps-fenetre.jpg",
-      alt: t.altGardeCorps,
-      label: t.catGardeCorps,
-      entiere: true,
-    },
-    {
-      href: `/${locale}/artisanat/verrieres`,
-      src: "/images/verriere-interieure.jpg",
-      alt: t.altVerrieres,
-      label: t.catVerrieres,
-      objectPosition: "50% 45%",
-    },
-    {
-      // Le plafond rectangulaire, seul sur fond blanc.
-      href: `/${locale}/artisanat/plafond-lumineux-lucarne`,
-      src: "/images/lumiere/panneau-dessous-carre.jpg",
-      alt: t.altLucarne,
-      label: t.catLucarne,
-      entiere: true,
-      // La toile relevée sur la photo (carrée, montrée entière dans la
-      // vignette 4/5 : un bandeau blanc de 10 % en haut et en bas, d'où les
-      // pourcentages verticaux ramenés à 80 %) : le dégradé s'anime dedans.
-      clipBox: { left: "11.9%", top: "33.3%", width: "80.3%", height: "37%" },
-      clip: "polygon(66.6% 0%, 100% 47.4%, 34.2% 100%, 0% 66.9%)",
-    },
-    {
-      // Le plafond rond, seul sur fond blanc.
-      href: `/${locale}/artisanat/plafond-lumineux-halo`,
-      src: "/images/lumiere/rond-dessous-carre.jpg",
-      alt: t.altHalo,
-      label: t.catHalo,
-      entiere: true,
-      clipBox: { left: "16.4%", top: "36.7%", width: "67.5%", height: "27.1%" },
-      clip: "ellipse(50% 50% at 50% 50%)",
-    },
-  ];
+  /** Les catégories en situation seulement, même cadrage (demande de Quentin, 09/10/2026 : « pas épuré, fait IA »). */
+  const categories = categoriesCollection(locale, t).filter((c) => c.enSituation);
 
   /** Le garde-corps en haut de l'accueil, avec son prix d'appel calculé par l'outil (étude marketing, 06/10). */
   const ficheGC = getProduct("garde-corps");
@@ -413,8 +288,8 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
         )}
         <div className="mt-8 flex flex-col items-center justify-center gap-x-8 gap-y-3 sm:flex-row sm:flex-wrap">
           {[
-            { href: `/${locale}/artisanat#table-interieur`, label: t.configTable },
-            ...(appelGC ? [] : [{ href: `/${locale}/artisanat#garde-corps`, label: t.configGardeCorps }]),
+            { href: `/${locale}/artisanat/tables`, label: t.configTable },
+            ...(appelGC ? [] : [{ href: `/${locale}/artisanat/garde-corps#configuration`, label: t.configGardeCorps }]),
             { href: `/${locale}/toiles-tendues`, label: t.configPlafond },
           ].map((porte) => (
             <Link key={porte.href} href={porte.href} className="lien-fleche text-[#2b2320]">
@@ -430,18 +305,20 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           <h2 className={`${serif.className} text-center text-[2.1rem] leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.7rem] md:text-[3.2rem]`}>
             {t.categoriesTitle}
           </h2>
-          {/* Quatre par rangée, plus petites ; la dernière rangée se centre. */}
-          <div className="mt-10 flex flex-wrap justify-center gap-4 sm:gap-6 md:mt-14">
-            {/* Les tuiles d'une même rangée arrivent l'une après l'autre. */}
+          {/* Trois par rangée sur ordinateur, deux sur téléphone : six photos en situation, même cadrage. */}
+          <ul className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:mt-14 md:grid-cols-3 md:gap-y-14">
             {categories.map((c, i) => (
-              <Apparition
-                key={c.href + c.label}
-                retard={(i % 4) * 110}
-                className="basis-[calc(50%-0.5rem)] md:basis-[calc(25%-1.125rem)]"
-              >
-                <CategoryTile {...c} locale={locale} />
-              </Apparition>
+              <li key={c.id}>
+                <Apparition retard={(i % 3) * 110}>
+                  <CarteCategorie categorie={c} locale={locale} sizes="(max-width: 768px) 50vw, 360px" />
+                </Apparition>
+              </li>
             ))}
+          </ul>
+          <div className="mt-12 text-center md:mt-14">
+            <Link href={`/${locale}/artisanat`} className="lien-fleche text-[#2b2320]">
+              {locale === "fr" ? "Toute la collection" : "The full collection"}
+            </Link>
           </div>
         </div>
       </section>

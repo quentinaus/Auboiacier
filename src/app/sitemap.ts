@@ -19,6 +19,9 @@ const PAGES: { chemin: string; priorite: number; frequence: "weekly" | "monthly"
   { chemin: "/realisations", priorite: 0.8, frequence: "monthly" },
   { chemin: "/artisanat/sculptures", priorite: 0.7, frequence: "monthly" },
   { chemin: "/artisanat/verrieres", priorite: 0.7, frequence: "monthly" },
+  // Les familles à plusieurs modèles : leur page (Collection refaite le 09/10/2026).
+  { chemin: "/artisanat/famille/garde-corps", priorite: 0.8, frequence: "weekly" },
+  { chemin: "/artisanat/famille/portail", priorite: 0.7, frequence: "weekly" },
   // Comment l'outil vérifie un garde-corps : les règles, et un exemple réel (étude marketing, 06/10).
   { chemin: "/artisanat/verification-garde-corps", priorite: 0.6, frequence: "monthly" },
   { chemin: "/devis", priorite: 0.9, frequence: "monthly" },
