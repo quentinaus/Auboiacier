@@ -373,3 +373,8 @@
 .cpt-tel-feuilles { position: relative; z-index: 90; background: none !important; }
 .cpt-tel-feuilles .cpt-fenetre { position: fixed; z-index: 90; left: 8px; right: 8px; bottom: 8px; max-height: 78svh; }
 .cpt-tel-feuilles .tuile-modele { padding: 8px 8px 7px; }
+
+/* La vue de dessus animée (portail/vue-ouverture.tsx) : dans le médaillon, et dans l'étape Ouverture du téléphone. */
+.cpt-med-dessin > .vo { display: block; width: 100%; height: auto; max-height: 150px; }
+.cpt-tel-ouverture { position: relative; margin-top: 12px; border-radius: 14px; background: rgba(255, 255, 255, 0.55); padding: 14px 6px; }
+.cpt-tel-ouverture > .vo { display: block; width: 100%; height: 150px; }

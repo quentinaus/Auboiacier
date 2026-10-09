@@ -18,6 +18,7 @@ import {
   type ChoixDecor, type ConfigPortail, type Langue, type SlugPortail, type StylePortail,
 } from "@/lib/portails";
 import { STYLE_RENDU_PORTAIL, TEINTES_PORTAIL } from "@/lib/portails-rendu";
+import { VueOuverture } from "./portail/vue-ouverture";
 import { prixAffiche } from "@/lib/ui";
 import { serif } from "@/lib/fonts";
 
@@ -383,6 +384,9 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
   // Ce que le plan dit (le moteur de l'outil écrit en français ; les chiffres, eux, s'écrivent dans les deux langues).
   const placeTxt = (R.resume.find(([k]) => k === "Place derrière" || k === "Place le long de la clôture") ?? [])[1];
   const placeCle = R.resume.some(([k]) => k === "Place le long de la clôture") ? t.placeCote : t.placeDerriere;
+  // La vue de dessus animée (le portail s'ouvre et se ferme) : les cotes du plan, la place à laisser libre de l'outil.
+  const placeMm = placeTxt ? Number(String(placeTxt).replace(/\D/g, "")) || null : null;
+  const vueOuverture = <VueOuverture type={R.dims.type as "battant"} P={cfg.P} vantaux={R.dims.vantaux} sens={cfg.sens} guidage={cfg.guidage} place={placeMm} couleur={cfg.couleur} label={t.vueDessus} />;
   const moteurs = (R as unknown as { moteurs?: InfosMoteurs }).moteurs;
   const moteurChoisi: CleMoteur = cfg.moteur ? (moteurs?.choisi?.cle ?? "aucun") : "aucun";
   const nomMoteur = (k: CleMoteur) => (k === "aucun" ? t.sansMoteur : (moteurs?.permis.find((m) => m.cle === k)?.nom ?? moteurs?.refus.find((m) => m.cle === k)?.nom ?? k));
@@ -760,6 +764,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
         <Pilule aria={coulissant ? t.sens : t.sensPortillon} valeur={cfg.sens} onChange={(sens) => maj({ sens })}
           options={(["gauche", "droite"] as const).map((s) => ({ v: s, label: coulissant ? tp.sens[s] : tp.sensPortillon[s] }))} />
       </>)}
+      <div className="cpt-tel-ouverture">{vueOuverture}<span className="cpt-med-mot" style={{ top: "9%" }}>{t.chezVous}</span><span className="cpt-med-mot" style={{ top: "93%" }}>{t.rue}</span></div>
       <p className="cpt-legende-option">{t.legendeOuverture}</p>
       {conseil}
     </>);
@@ -937,7 +942,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
               {placeTxt && <span className="cpt-badge-place"><span className="cpt-rond"><PictoPlace /></span>{placeCle} {placeTxt}</span>}
               <div className="cpt-medaillon" role="img" aria-label={t.vueDessus}>
                 <div className="cpt-med-dessin">
-                  <Vue prims={R.vues.dessus as Prims} couleur={cfg.couleur} petit label={t.vueDessus} />
+                  {vueOuverture}
                   <span className="cpt-med-mot" style={{ top: "10%" }}>{t.chezVous}</span>
                   <span className="cpt-med-mot" style={{ top: "92%" }}>{t.rue}</span>
                 </div>
