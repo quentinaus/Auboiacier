@@ -244,7 +244,10 @@ test("la mention se lit sur n'importe quelle image : contraste d'au moins 4,5:1,
   const lireTon = (classes: string) => {
     const couleur = (nom: string) =>
       nom === "white" ? [255, 255, 255] : nom === "black" ? [0, 0, 0] : (nom.match(/^\[#([0-9a-f]{6})\]$/i)?.[1].match(/../g) ?? []).map((h) => parseInt(h, 16));
-    const fond = classes.match(/\bbg-(white|black|\[#[0-9a-f]{6}\])(?:\/(\d+))?(?:\s|$)/i);
+    // Le fond qui touche les lettres : un voile (bg-…), ou le halo de trois ombres empilées autour des lettres
+    // ([text-shadow:0_0_2px_#fff,…]) : leur cœur, sous le contour des lettres, est couvrant (compté à 90 %).
+    const halo = classes.match(/\[text-shadow:0_0_\d+px_#(fff|000)(?:,0_0_\d+px_#\1){2,}\]/i);
+    const fond = halo ? [halo[0], halo[1] === "fff" ? "white" : "black", "90"] : classes.match(/\bbg-(white|black|\[#[0-9a-f]{6}\])(?:\/(\d+))?(?:\s|$)/i);
     const texte = classes.match(/\btext-(white|black|\[#[0-9a-f]{6}\])(?:\/(\d+))?(?:\s|$)/i);
     assert.ok(fond && texte, `classes illisibles par le test : ${classes}`);
     return {

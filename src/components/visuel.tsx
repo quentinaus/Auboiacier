@@ -14,13 +14,14 @@ const COINS: Record<CoinMention, string> = {
 };
 
 /**
- * Les deux tons de la mention. Chacun se lit sur n'importe quelle image, du blanc au noir : le voile est assez
- * couvrant pour que le texte garde un contraste d'au moins 4,5:1 (calculé par tests/visuels.test.ts, qui lit ces deux
- * lignes). Le clair sur un fond de studio, le sombre sur une pièce dans l'ombre (voir VISUELS_SOMBRES).
+ * Les deux tons de la mention : le texte seul, sans bulle (Quentin, 09/10/2026 : « enlève la bulle, mets seulement le
+ * texte »). Un halo serré autour des lettres (trois ombres empilées) garde un contraste d'au moins 4,5:1 sur n'importe
+ * quelle image, du blanc au noir (calculé par tests/visuels.test.ts, qui lit ces deux lignes). Le clair sur un fond de
+ * studio, le sombre sur une pièce dans l'ombre (voir VISUELS_SOMBRES).
  */
 export const TONS_MENTION = {
-  clair: "bg-white/85 text-[#5c5140]",
-  sombre: "bg-black/55 text-white",
+  clair: "text-[#2b2320] [text-shadow:0_0_2px_#fff,0_0_4px_#fff,0_0_7px_#fff]",
+  sombre: "text-white [text-shadow:0_0_2px_#000,0_0_4px_#000,0_0_7px_#000]",
 } as const;
 
 /**
@@ -54,7 +55,7 @@ export function MentionIllustration({
       data-mention-illustration={src}
       className={[
         // Plus discrète (Quentin, 06/10/2026 : « un tout petit peu plus petit »), toujours lisible.
-        "pointer-events-none absolute z-[3] select-none whitespace-nowrap rounded-full px-[5px] py-0 text-[8px] leading-[12px] tracking-[0.02em] md:text-[9px] md:leading-[13px]",
+        "pointer-events-none absolute z-[3] select-none whitespace-nowrap text-[9px] leading-[12px] tracking-[0.02em] md:text-[10px] md:leading-[13px]",
         TONS_MENTION[ton ?? tonMention(src)],
         COINS[coin],
         className,
