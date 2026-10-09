@@ -7,7 +7,7 @@ import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { InfoBulle } from "./info-bulle";
 import { QuiMesure, VisiteAtelier } from "./prise-de-cotes";
 import { SereniteAtelier } from "./serenite-atelier";
-import { SchemaFenetre, type CoteFenetre } from "./schema-fenetre";
+import { MetreRuban, SchemaFenetre, type CoteFenetre } from "./schema-fenetre";
 import { matiereMur } from "@/lib/murs-gc";
 import { PlanApercu } from "./plan-apercu";
 import { ChargementModeles } from "./chargement-modeles";
@@ -486,15 +486,8 @@ function DessinTableau({ fr }: { fr: boolean }) {
       {/* La fenêtre, au fond du tableau. */}
       <rect x="76" y="26" width="88" height="9" fill="#ffffff" stroke="#4d433a" strokeWidth="1" />
       <line x1="120" y1="26" x2="120" y2="35" stroke="#4d433a" strokeWidth="1" />
-      {/* Le mètre : de l'angle du mur, côté rue, jusqu'au cadre. */}
-      <g>
-        <path d="M70 96 L70 35" stroke="#f2c230" strokeWidth="6" pathLength={1} strokeDasharray="1" strokeDashoffset={0}>
-          <animate attributeName="stroke-dashoffset" from="1" to="0" dur="0.8s" fill="freeze" />
-        </path>
-        <path d="M70 96 L70 35" stroke="#3a2f1c" strokeWidth="4" strokeDasharray="0.7 3.3" opacity="0.75" />
-        <rect x="63.5" y="94" width="13" height="13" rx="3" fill="#2b2320" />
-        <circle cx="70" cy="100.5" r="3" fill="#f2c230" />
-      </g>
+      {/* Le mètre : de l'angle du mur, côté rue, jusqu'au cadre (le même mètre que sur le croquis de face). */}
+      <MetreRuban de={[70, 98]} a={[70, 35]} />
       <path d="M86 96 L86 35" stroke="#2b2320" strokeWidth="1" />
       <path d="M83 98 L89 94 M83 37 L89 33" stroke="#2b2320" strokeWidth="1.4" strokeLinecap="round" />
       <rect x="92" y="57" width="64" height="16" rx="8" fill="#2b2320" />
@@ -1664,7 +1657,7 @@ export function ReleveGardeCorps({
                   : "Without the render, if you can see it. The fixing goes into this depth: we place it for the best hold. We will also ask you for a photo of the reveal with a tape measure.";
   const contenuQuestion = (n: number) =>
     n === 1 ? (
-      // L'en-tête dit OÙ mesurer (et le croquis le montre en bleu) ; sous la case, COMMENT.
+      // L'en-tête dit OÙ mesurer (et le croquis le montre avec le mètre) ; sous la case, COMMENT.
       grandeSaisie("largeur", { label: libelleLargeurBas, info: t.gcLargeurInfo, placeholder: "1180" })
     ) : n === 2 ? (
       <div className="pt-1">

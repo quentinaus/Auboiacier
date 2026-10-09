@@ -29,8 +29,8 @@ export const ETAPES_GC = [
     courtEn: "Width",
     questionFr: "Quelle largeur en bas, d'un mur à l'autre\u00a0?",
     questionEn: "How wide at the bottom, wall to wall?",
-    aideFr: "Posez le mètre juste au-dessus de l'appui de fenêtre (la ligne bleue sur le dessin). La cote exacte, en millimètres.",
-    aideEn: "Put the tape just above the window sill (the blue line on the drawing). The exact size, in millimetres.",
+    aideFr: "Posez le mètre juste au-dessus de l'appui de fenêtre (le mètre jaune sur le dessin). La cote exacte, en millimètres.",
+    aideEn: "Put the tape just above the window sill (the yellow tape on the drawing). The exact size, in millimetres.",
   },
   {
     courtFr: "Murs",
