@@ -1447,11 +1447,11 @@ textarea:focus-visible,
    07/10/2026 sur trois maquettes : « améliore vraiment tout le style de cette page… un truc à la Apple avec un beau
    Liquid Glass ») : derrière le bloc, de grandes taches de couleur douces ; les cartes en verre dépoli au liseré
    lumineux ; les choix et les modèles en pastilles de verre ; plus de petites capitales espacées.
-   Réservé au garde-corps (:has(.fond-gc)) : les tables et les plafonds gardent leur style.
+   Étendu aux tables et aux plafonds lumineux (Quentin, 09/10/2026 : « le verre sur les tables et les plafonds »).
    ========================================================================== */
 /* La couche floue du décor déborde de 200 px pour ne pas montrer de bord net : sans cette coupe, la page entière
    s'élargissait (défilement de côté sur téléphone). « clip » ne crée pas de zone de défilement : le bas collé reste collé. */
-#configuration:has(.fond-gc) {
+#configuration {
   overflow-x: clip;
 }
 /* ===========================================================================
@@ -1459,7 +1459,7 @@ textarea:focus-visible,
    Derrière le bloc : grandes taches de couleur douces (or chaud, pierre, bleu acier)
    sur fond clair, façon fond d'écran macOS. Même verre clair que la direction 1.
 =========================================================================== */
-#configuration:has(.fond-gc) .fond-configuration {
+#configuration .fond-configuration {
   --lg-ink: #1d1d1f;
   --lg-ink-2: rgba(29, 29, 31, .62);
   --lg-ink-3: rgba(29, 29, 31, .38);
@@ -1527,7 +1527,7 @@ textarea:focus-visible,
 }
 /* Plus calme (Quentin, 07/10/2026 : « soit pas assez Liquid Glass, soit trop de couleurs ») : un fond pierre et papier,
    un seul halo doré très doux, une ombre de pierre en bas à droite ; plus de bleu. Le verre ressort mieux. */
-#configuration:has(.fond-gc) .fond-configuration::before {
+#configuration .fond-configuration::before {
   background:
     radial-gradient(38% 42% at 28% 30%, rgba(222, 186, 132, .55), rgba(222, 186, 132, 0) 100%),
     radial-gradient(40% 40% at 78% 78%, rgba(196, 184, 166, .55), rgba(196, 184, 166, 0) 100%),
@@ -1538,10 +1538,10 @@ textarea:focus-visible,
 /* ---------------------------------------------------------------------------
    SOCLE LIQUID GLASS commun aux 3 directions (bloc « Configuration » garde-corps)
    Toutes les teintes viennent des variables --lg-* posées par chaque direction.
-   Portée : #configuration:has(.fond-gc) .fond-configuration uniquement ; les <dialog> sont exclus.
+   Portée : #configuration .fond-configuration uniquement ; les <dialog> sont exclus.
 --------------------------------------------------------------------------- */
 
-#configuration:has(.fond-gc) .fond-configuration {
+#configuration .fond-configuration {
   isolation: isolate;
   border-radius: 36px !important;
   box-shadow: var(--lg-stage-shadow) !important;
@@ -1549,7 +1549,7 @@ textarea:focus-visible,
 /* Couche 1 : le décor (photo / dégradé / sombre), posé par chaque direction.
    Agrandi de 200 px puis flouté, et recoupé net au bord du bloc (clip-path) :
    pas de halo transparent sur les bords, pas d'overflow:hidden sur le bloc. */
-#configuration:has(.fond-gc) .fond-configuration::before {
+#configuration .fond-configuration::before {
   content: "";
   position: absolute;
   inset: -200px;
@@ -1559,7 +1559,7 @@ textarea:focus-visible,
   clip-path: inset(200px round 36px);
 }
 /* Couche 2 : voile de lumière par-dessus le décor + liseré du bloc */
-#configuration:has(.fond-gc) .fond-configuration::after {
+#configuration .fond-configuration::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -1571,13 +1571,13 @@ textarea:focus-visible,
 }
 
 /* ---------- Titre ---------- */
-#configuration:has(.fond-gc) .titre-config h2 {
+#configuration .titre-config h2 {
   color: var(--lg-ink) !important;
   letter-spacing: -0.01em;
 }
 
 /* ---------- Cartes : vrai verre (remplissage + liseré lumineux en dégradé) ---------- */
-#configuration:has(.fond-gc) .fond-configuration .carte-verre:not(dialog *) {
+#configuration .fond-configuration .carte-verre:not(dialog *) {
   border: 1px solid transparent !important;
   border-radius: var(--lg-radius) !important;
   background:
@@ -1593,10 +1593,10 @@ textarea:focus-visible,
   color: var(--lg-ink);
   scrollbar-color: var(--lg-hair-strong) transparent;
 }
-#configuration:has(.fond-gc) .bandeau-gc .carte-modeles { border-radius: calc(var(--lg-radius) - 2px) !important; }
+#configuration .bandeau-gc .carte-modeles { border-radius: calc(var(--lg-radius) - 2px) !important; }
 
 /* ---------- Petites étiquettes : plus de capitales espacées ---------- */
-#configuration:has(.fond-gc) .fond-configuration [class~="uppercase"]:not(.btn-verre):not(dialog *) {
+#configuration .fond-configuration [class~="uppercase"]:not(.btn-verre):not(dialog *) {
   text-transform: none !important;
   letter-spacing: -0.01em !important;
   font-size: 13px !important;
@@ -1606,7 +1606,7 @@ textarea:focus-visible,
 }
 
 /* ---------- Barre des matières (Acier · Main courante · Rosace) : capsule de verre ---------- */
-#configuration:has(.fond-gc) .titre-config [class~="bg-white/55"] {
+#configuration .titre-config [class~="bg-white/55"] {
   border: 1px solid transparent;
   border-radius: 10px !important;
   padding: 6px 8px 6px 20px !important;
@@ -1619,24 +1619,24 @@ textarea:focus-visible,
   box-shadow: inset 0 1px 0 var(--lg-top-line), inset 0 0 16px var(--lg-inner-glow), var(--lg-shadow-sm);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
 }
-#configuration:has(.fond-gc) .titre-config [class~="bg-white/55"] > div { gap: 10px !important; }
-#configuration:has(.fond-gc) .titre-config [role="group"] { gap: 6px !important; }
-#configuration:has(.fond-gc) .titre-config [role="group"] button {
+#configuration .titre-config [class~="bg-white/55"] > div { gap: 10px !important; }
+#configuration .titre-config [role="group"] { gap: 6px !important; }
+#configuration .titre-config [role="group"] button {
   border-radius: 10px !important;
   padding: 3px !important;
   background: transparent !important;
   --tw-ring-color: transparent !important;
   box-shadow: none !important;
 }
-#configuration:has(.fond-gc) .titre-config [role="group"] button span {
+#configuration .titre-config [role="group"] button span {
   border-radius: 7px !important;
   box-shadow: inset 0 0 0 1px var(--lg-swatch-edge), inset 0 1px 0 rgba(255,255,255,.35);
 }
-#configuration:has(.fond-gc) .titre-config [role="group"] button[class~="ring-2"] {
+#configuration .titre-config [role="group"] button[class~="ring-2"] {
   background: var(--lg-thumb) !important;
   box-shadow: 0 0 0 2px var(--lg-select), 0 4px 10px -4px rgba(0,0,0,.35) !important;
 }
-#configuration:has(.fond-gc) .titre-config button:has(.coupe-mc) {
+#configuration .titre-config button:has(.coupe-mc) {
   border-radius: 10px !important;
   padding: 4px 12px 4px 6px !important;
   gap: 8px !important;
@@ -1644,21 +1644,21 @@ textarea:focus-visible,
   --tw-ring-color: transparent !important;
   box-shadow: inset 0 1px 0 var(--lg-top-line), 0 0 0 .5px var(--lg-hair), 0 3px 10px -4px rgba(0,0,0,.22) !important;
 }
-#configuration:has(.fond-gc) .titre-config button:has(.coupe-mc) span { font-size: 13px !important; font-weight: 600 !important; color: var(--lg-ink) !important; }
-#configuration:has(.fond-gc) .titre-config button:has(.coupe-mc) svg:last-child { color: var(--lg-ink-2) !important; }
+#configuration .titre-config button:has(.coupe-mc) span { font-size: 13px !important; font-weight: 600 !important; color: var(--lg-ink) !important; }
+#configuration .titre-config button:has(.coupe-mc) svg:last-child { color: var(--lg-ink-2) !important; }
 
 /* ---------- Croquis central : cadre net, ombre douce (le dessin n'est pas touché) ---------- */
-#configuration:has(.fond-gc) .croquis-config [class~="aspect-[3/4]"] {
+#configuration .croquis-config [class~="aspect-[3/4]"] {
   border-radius: 28px !important;
   box-shadow: 0 0 0 1px var(--lg-sketch-rim), 0 0 0 6px var(--lg-sketch-mat), 0 0 0 7px var(--lg-sketch-rim2), var(--lg-sketch-shadow);
 }
 @media (max-width: 47.999rem) {
-  #configuration:has(.fond-gc) .croquis-config [class~="aspect-[3/4]"] {
+  #configuration .croquis-config [class~="aspect-[3/4]"] {
     border-radius: 24px !important;
     box-shadow: 0 0 0 1px var(--lg-sketch-rim), 0 0 0 4px var(--lg-sketch-mat), var(--lg-sketch-shadow);
   }
 }
-#configuration:has(.fond-gc) .croquis-config [class~="bg-white/92"] {
+#configuration .croquis-config [class~="bg-white/92"] {
   background: rgba(255,255,255,.82) !important;
   -webkit-backdrop-filter: blur(12px) saturate(180%);
   backdrop-filter: blur(12px) saturate(180%);
@@ -1667,15 +1667,15 @@ textarea:focus-visible,
 }
 
 /* ---------- Commandes segmentées (Barreaux, Traverse, Livraison, Étage) ---------- */
-#configuration:has(.fond-gc) .carte-verre [role="radiogroup"][class~="rounded-full"]:not(dialog *),
-#configuration:has(.fond-gc) .carte-verre .grid[class~="rounded-full"]:has(> button[aria-pressed]) {
+#configuration .carte-verre [role="radiogroup"][class~="rounded-full"]:not(dialog *),
+#configuration .carte-verre .grid[class~="rounded-full"]:has(> button[aria-pressed]) {
   padding: 3px !important;
   border-color: transparent !important;
   background: var(--lg-track) !important;
   box-shadow: inset 0 1px 2px var(--lg-track-shade), inset 0 0 0 1px var(--lg-track-rim) !important;
 }
-#configuration:has(.fond-gc) .carte-verre [role="radiogroup"][class~="rounded-full"] [role="radio"],
-#configuration:has(.fond-gc) .carte-verre .grid[class~="rounded-full"] > button[aria-pressed] {
+#configuration .carte-verre [role="radiogroup"][class~="rounded-full"] [role="radio"],
+#configuration .carte-verre .grid[class~="rounded-full"] > button[aria-pressed] {
   font-size: 12.5px !important;
   font-weight: 500 !important;
   letter-spacing: -0.01em;
@@ -1684,8 +1684,8 @@ textarea:focus-visible,
   background: transparent !important;
   transition: background-color .25s, box-shadow .25s, color .25s;
 }
-#configuration:has(.fond-gc) .carte-verre [role="radiogroup"][class~="rounded-full"] [role="radio"][aria-checked="true"],
-#configuration:has(.fond-gc) .carte-verre .grid[class~="rounded-full"] > button[aria-pressed="true"] {
+#configuration .carte-verre [role="radiogroup"][class~="rounded-full"] [role="radio"][aria-checked="true"],
+#configuration .carte-verre .grid[class~="rounded-full"] > button[aria-pressed="true"] {
   color: var(--lg-ink) !important;
   font-weight: 600 !important;
   background: var(--lg-thumb-grad) !important;
@@ -1693,30 +1693,30 @@ textarea:focus-visible,
 }
 
 /* ---------- Champs de saisie : capsules creusées dans le verre ---------- */
-#configuration:has(.fond-gc) .carte-verre span[class~="border-[#9a8d80]"]:not(dialog *),
-#configuration:has(.fond-gc) .carte-verre select[class~="border-[#9a8d80]"]:not(dialog *),
-#configuration:has(.fond-gc) .carte-verre select[class~="rounded-full"]:not(dialog *) {
+#configuration .carte-verre span[class~="border-[#9a8d80]"]:not(dialog *),
+#configuration .carte-verre select[class~="border-[#9a8d80]"]:not(dialog *),
+#configuration .carte-verre select[class~="rounded-full"]:not(dialog *) {
   border-color: transparent !important;
   border-radius: 10px !important;
   background-color: var(--lg-field) !important;
   box-shadow: inset 0 1px 2px var(--lg-track-shade), inset 0 0 0 1px var(--lg-track-rim) !important;
 }
-#configuration:has(.fond-gc) .carte-verre span[class~="h-14"][class~="border-[#9a8d80]"] { border-radius: 20px !important; }
-#configuration:has(.fond-gc) .carte-verre span[class~="border-[#9a8d80]"]:focus-within:not(dialog *) {
+#configuration .carte-verre span[class~="h-14"][class~="border-[#9a8d80]"] { border-radius: 20px !important; }
+#configuration .carte-verre span[class~="border-[#9a8d80]"]:focus-within:not(dialog *) {
   background-color: var(--lg-field-focus) !important;
   box-shadow: 0 0 0 3px var(--lg-focus), inset 0 1px 2px var(--lg-track-shade) !important;
 }
-#configuration:has(.fond-gc) .carte-verre :is(input[type="text"], input:not([type])):not(dialog *) { background: transparent !important; box-shadow: none !important; color: var(--lg-ink) !important; }
-#configuration:has(.fond-gc) .carte-verre input::placeholder { color: var(--lg-ink-3) !important; }
-#configuration:has(.fond-gc) .carte-verre select:not(dialog *) { color: var(--lg-ink) !important; }
+#configuration .carte-verre :is(input[type="text"], input:not([type])):not(dialog *) { background: transparent !important; box-shadow: none !important; color: var(--lg-ink) !important; }
+#configuration .carte-verre input::placeholder { color: var(--lg-ink-3) !important; }
+#configuration .carte-verre select:not(dialog *) { color: var(--lg-ink) !important; }
 
 /* Curseurs */
-#configuration:has(.fond-gc) .carte-verre .curseur-cote::-webkit-slider-runnable-track {
+#configuration .carte-verre .curseur-cote::-webkit-slider-runnable-track {
   background: var(--lg-slider-track) !important;
   box-shadow: inset 0 1px 1px var(--lg-track-shade), inset 0 0 0 .5px var(--lg-track-rim);
   height: 6px;
 }
-#configuration:has(.fond-gc) .carte-verre .curseur-cote::-webkit-slider-thumb {
+#configuration .carte-verre .curseur-cote::-webkit-slider-thumb {
   background: var(--lg-knob) !important;
   border: 0 !important;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 0 0 .5px rgba(0,0,0,.08), 0 3px 8px rgba(0,0,0,.18), 0 1px 1px rgba(0,0,0,.12) !important;
@@ -1725,22 +1725,22 @@ textarea:focus-visible,
 }
 
 /* Petits boutons « i » */
-#configuration:has(.fond-gc) .carte-verre button[aria-label="Explication"]:not(dialog *) {
+#configuration .carte-verre button[aria-label="Explication"]:not(dialog *) {
   border-color: var(--lg-hair-strong) !important;
   background: var(--lg-chip) !important;
   color: var(--lg-ink-2) !important;
 }
 
 /* Séparateurs */
-#configuration:has(.fond-gc) .carte-verre :is([class~="divide-[#e5ddd3]"]) > :not(:last-child),
-#configuration:has(.fond-gc) .carte-verre :is([class~="border-[#e5ddd3]"], [class~="border-t"]):not(dialog *) {
+#configuration .carte-verre :is([class~="divide-[#e5ddd3]"]) > :not(:last-child),
+#configuration .carte-verre :is([class~="border-[#e5ddd3]"], [class~="border-t"]):not(dialog *) {
   border-color: var(--lg-hair) !important;
 }
 
 /* Puces secondaires : « Voir le plan », « Prix croissant », « Personnaliser sur photo », quantité */
-#configuration:has(.fond-gc) .carte-verre button[class~="border-[#9a8d80]"]:not(dialog *),
-#configuration:has(.fond-gc) .carte-modeles :is(a, button)[class~="rounded-full"]:not([aria-label^="Modèles"]),
-#configuration:has(.fond-gc) .carte-verre .barre-achat div[class~="border-[#9a8d80]"] {
+#configuration .carte-verre button[class~="border-[#9a8d80]"]:not(dialog *),
+#configuration .carte-modeles :is(a, button)[class~="rounded-full"]:not([aria-label^="Modèles"]),
+#configuration .carte-verre .barre-achat div[class~="border-[#9a8d80]"] {
   border: 0 !important;
   border-radius: 10px !important;
   background: var(--lg-chip) !important;
@@ -1749,12 +1749,12 @@ textarea:focus-visible,
   font-size: 13px !important;
   font-weight: 500 !important;
 }
-#configuration:has(.fond-gc) .carte-modeles :is(a, button)[class~="rounded-full"]:not([aria-label^="Modèles"]) { padding: 5px 12px !important; font-size: 12.5px !important; }
-#configuration:has(.fond-gc) .carte-verre .barre-achat div[class~="border-[#9a8d80]"] button { color: var(--lg-ink) !important; }
-#configuration:has(.fond-gc) .carte-verre .barre-achat div[class~="border-[#9a8d80]"] span { color: var(--lg-ink) !important; font-size: 15px !important; font-weight: 600; }
+#configuration .carte-modeles :is(a, button)[class~="rounded-full"]:not([aria-label^="Modèles"]) { padding: 5px 12px !important; font-size: 12.5px !important; }
+#configuration .carte-verre .barre-achat div[class~="border-[#9a8d80]"] button { color: var(--lg-ink) !important; }
+#configuration .carte-verre .barre-achat div[class~="border-[#9a8d80]"] span { color: var(--lg-ink) !important; font-size: 15px !important; font-weight: 600; }
 
 /* Flèches du carrousel : petites bulles de verre */
-#configuration:has(.fond-gc) .carte-modeles button[aria-label^="Modèles"] {
+#configuration .carte-modeles button[aria-label^="Modèles"] {
   width: 28px !important; height: 28px !important;
   background: var(--lg-thumb) !important;
   color: var(--lg-ink) !important;
@@ -1765,54 +1765,55 @@ textarea:focus-visible,
 }
 
 /* ---------- Tuiles des modèles : petites plaques de verre ---------- */
-#configuration:has(.fond-gc) .tuile-modele {
+#configuration .tuile-modele {
   border-radius: 18px !important;
   background: var(--lg-tile) !important;
   box-shadow: inset 0 1px 0 var(--lg-top-line), inset 0 0 0 1px var(--lg-tile-rim), 0 6px 14px -10px var(--lg-thumb-shadow) !important;
   padding-left: 8px !important; padding-right: 8px !important;
 }
-#configuration:has(.fond-gc) .tuile-modele:hover:not([aria-disabled="true"]) { background: var(--lg-tile-hover) !important; }
-#configuration:has(.fond-gc) .tuile-modele[aria-pressed="true"] {
+#configuration .tuile-modele:hover:not([aria-disabled="true"]) { background: var(--lg-tile-hover) !important; }
+#configuration .tuile-modele[aria-pressed="true"] {
   background: var(--lg-tile-on) !important;
   box-shadow: 0 0 0 2px var(--lg-select), inset 0 1px 0 var(--lg-top-line), 0 12px 22px -12px var(--lg-thumb-shadow) !important;
 }
-#configuration:has(.fond-gc) .carte-modeles [role="group"] {
+#configuration .carte-modeles [role="group"] {
   padding: 5px 14px 6px !important; scroll-padding-inline: 14px; gap: 8px !important;
 }
-#configuration:has(.fond-gc) .carte-modeles button[aria-label="Modèles précédents"] { left: -12px !important; }
-#configuration:has(.fond-gc) .carte-modeles button[aria-label="Modèles suivants"] { right: -12px !important; }
+#configuration .carte-modeles button[aria-label="Modèles précédents"] { left: -12px !important; }
+#configuration .carte-modeles button[aria-label="Modèles suivants"] { right: -12px !important; }
 
 /* ---------- Carte d'achat ---------- */
 /* Plateau du bas (prix + bouton + liens) : verre un peu plus dense, collé en bas de la carte.
    Il reste « sticky » : quand la carte défile (téléphone), le contenu passe dessous, flouté. */
-#configuration:has(.fond-gc) .carte-verre .barre-achat:not(dialog *),
-#configuration:has(.fond-gc) .carte-verre .barre-achat + div:not(dialog *) {
-  background: var(--lg-tray) !important;
+#configuration .carte-verre .barre-achat:not(dialog *),
+#configuration .carte-verre .barre-achat + div:not(dialog *) {
+  /* Presque plein (Quentin, 09/10/2026) : sinon les lignes qui défilent dessous se lisaient à travers le prix. */
+  background: var(--lg-tray-solid) !important;
   -webkit-backdrop-filter: blur(24px) saturate(160%);
   backdrop-filter: blur(24px) saturate(160%);
   box-shadow: none !important;
   border-radius: 0 !important;
 }
-#configuration:has(.fond-gc) .carte-verre .barre-achat:not(dialog *) { border-top: 1px solid var(--lg-hair) !important; }
-#configuration:has(.fond-gc) .carte-verre .barre-achat + div:not(dialog *) { margin-inline: -24px; padding-inline: 24px; }
+#configuration .carte-verre .barre-achat:not(dialog *) { border-top: 1px solid var(--lg-hair) !important; }
+#configuration .carte-verre .barre-achat + div:not(dialog *) { margin-inline: -24px; padding-inline: 24px; }
 /* Téléphone : la carte défile sous le plateau → plateau plein + petit fondu au-dessus */
 @media (max-width: 47.999rem) {
-  #configuration:has(.fond-gc) .carte-verre .barre-achat:not(dialog *),
-  #configuration:has(.fond-gc) .carte-verre .barre-achat + div:not(dialog *) { background: var(--lg-tray-solid) !important; }
-  #configuration:has(.fond-gc) .carte-verre .barre-achat:not(dialog *)::before {
+  #configuration .carte-verre .barre-achat:not(dialog *),
+  #configuration .carte-verre .barre-achat + div:not(dialog *) { background: var(--lg-tray-solid) !important; }
+  #configuration .carte-verre .barre-achat:not(dialog *)::before {
     display: block !important; content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 1.25rem;
     background: linear-gradient(to bottom, transparent, var(--lg-tray-solid)); pointer-events: none;
   }
 }
-#configuration:has(.fond-gc) .carte-verre .barre-achat::before { display: none; }
-#configuration:has(.fond-gc) .colonne-achat .barre-achat p[class~="tabular-nums"][class~="text-lg"] {
+#configuration .carte-verre .barre-achat::before { display: none; }
+#configuration .colonne-achat .barre-achat p[class~="tabular-nums"][class~="text-lg"] {
   font-size: 24px !important; font-weight: 600 !important; letter-spacing: -0.02em; color: var(--lg-ink) !important;
 }
-#configuration:has(.fond-gc) .colonne-achat .titre-options { font-size: 17px !important; letter-spacing: -0.02em; color: var(--lg-ink) !important; }
+#configuration .colonne-achat .titre-options { font-size: 17px !important; letter-spacing: -0.02em; color: var(--lg-ink) !important; }
 
 /* Bouton principal : capsule pleine, reflet en haut */
-#configuration:has(.fond-gc) .fond-configuration .carte-verre .btn-verre:not(dialog *),
-#configuration:has(.fond-gc) .nav-tel button[class~="bg-[#1d1d1f]"] {
+#configuration .fond-configuration .carte-verre .btn-verre:not(dialog *),
+#configuration .nav-tel button[class~="bg-[#1d1d1f]"] {
   border: 0 !important;
   background: var(--lg-cta) !important;
   color: var(--lg-cta-ink) !important;
@@ -1824,39 +1825,39 @@ textarea:focus-visible,
 }
 
 /* Liens du bas (Détails · Devis PDF · Mettre de côté) : liens sobres, sans soulignement */
-#configuration:has(.fond-gc) .colonne-achat .barre-achat + div button:not(dialog *) {
+#configuration .colonne-achat .barre-achat + div button:not(dialog *) {
   text-decoration: none !important;
   font-size: 13px !important;
   color: var(--lg-link) !important;
 }
 
 /* ---------- Téléphone : en-tête de question ---------- */
-#configuration:has(.fond-gc) .entete-tel h3 { color: var(--lg-ink) !important; letter-spacing: -0.02em; }
-#configuration:has(.fond-gc) .entete-tel .aide-question { color: var(--lg-ink-2) !important; }
-#configuration:has(.fond-gc) .entete-tel [aria-hidden="true"] > span { height: 5px !important; }
-#configuration:has(.fond-gc) .entete-tel [aria-hidden="true"] > span[class~="bg-[#2b2320]"] { background: var(--lg-progress) !important; }
-#configuration:has(.fond-gc) .entete-tel [aria-hidden="true"] > span[class~="bg-[#2b2320]/15"] { background: var(--lg-progress-off) !important; }
+#configuration .entete-tel h3 { color: var(--lg-ink) !important; letter-spacing: -0.02em; }
+#configuration .entete-tel .aide-question { color: var(--lg-ink-2) !important; }
+#configuration .entete-tel [aria-hidden="true"] > span { height: 5px !important; }
+#configuration .entete-tel [aria-hidden="true"] > span[class~="bg-[#2b2320]"] { background: var(--lg-progress) !important; }
+#configuration .entete-tel [aria-hidden="true"] > span[class~="bg-[#2b2320]/15"] { background: var(--lg-progress-off) !important; }
 
 /* ---------- Petits ajustements de mise au propre ---------- */
 /* Les deux champs « Largeur » alignés sur la même ligne, même si une étiquette passe sur 2 lignes */
-#configuration:has(.fond-gc) .colonne-cotes .grid[class~="grid-cols-2"] > label { display: flex !important; flex-direction: column; justify-content: flex-end; }
+#configuration .colonne-cotes .grid[class~="grid-cols-2"] > label { display: flex !important; flex-direction: column; justify-content: flex-end; }
 /* Unité « mm » sur la ligne de base du nombre */
-#configuration:has(.fond-gc) .carte-verre span[class~="border-[#9a8d80]"] > span:last-child { transform: translateY(1.5px); }
+#configuration .carte-verre span[class~="border-[#9a8d80]"] > span:last-child { transform: translateY(1.5px); }
 
 /* ---------- Téléphone : cases de choix (type de mur…) et boutons de navigation ---------- */
-#configuration:has(.fond-gc) .carte-verre button[aria-pressed][class~="rounded-2xl"]:not(dialog *) {
+#configuration .carte-verre button[aria-pressed][class~="rounded-2xl"]:not(dialog *) {
   border-color: transparent !important;
   border-radius: 18px !important;
   background: var(--lg-chip) !important;
   color: var(--lg-ink) !important;
   box-shadow: inset 0 1px 0 var(--lg-top-line), inset 0 0 0 1px var(--lg-chip-rim), 0 4px 12px -8px var(--lg-thumb-shadow) !important;
 }
-#configuration:has(.fond-gc) .carte-verre button[aria-pressed="true"][class~="rounded-2xl"]:not(dialog *) {
+#configuration .carte-verre button[aria-pressed="true"][class~="rounded-2xl"]:not(dialog *) {
   background: var(--lg-thumb-grad) !important;
   font-weight: 600 !important;
   box-shadow: 0 0 0 2px var(--lg-select), inset 0 1px 0 var(--lg-top-line), 0 8px 18px -10px var(--lg-thumb-shadow) !important;
 }
-#configuration:has(.fond-gc) .nav-tel button[class~="bg-white/70"] {
+#configuration .nav-tel button[class~="bg-white/70"] {
   border: 1px solid transparent;
   background:
     linear-gradient(180deg, var(--lg-fill-top), var(--lg-fill-bot)) padding-box,
@@ -1868,7 +1869,7 @@ textarea:focus-visible,
   color: var(--lg-ink) !important;
   font-size: 15px !important;
 }
-#configuration:has(.fond-gc) .nav-tel button[class*="bg-[#1d1d1f]"] {
+#configuration .nav-tel button[class*="bg-[#1d1d1f]"] {
   border: 0 !important;
   background: var(--lg-cta) !important;
   color: var(--lg-cta-ink) !important;
@@ -1876,11 +1877,11 @@ textarea:focus-visible,
   font-weight: 600 !important;
   box-shadow: inset 0 1px 0 var(--lg-cta-hi), inset 0 -1px 0 rgba(0,0,0,.25), 0 14px 26px -14px var(--lg-cta-shadow) !important;
 }
-#configuration:has(.fond-gc) .nav-tel button[class~="bg-[#1d1d1f]/45"] { opacity: .5; box-shadow: none !important; }
-#configuration:has(.fond-gc) .carte-verre .retour-modele { color: var(--lg-link) !important; text-decoration: none !important; font-size: 14px !important; }
+#configuration .nav-tel button[class~="bg-[#1d1d1f]/45"] { opacity: .5; box-shadow: none !important; }
+#configuration .carte-verre .retour-modele { color: var(--lg-link) !important; text-decoration: none !important; font-size: 14px !important; }
 
 /* Téléphone, dernière étape : onglets Mesures · Finitions · Modèle · Prix en capsule de verre */
-#configuration:has(.fond-gc) .entete-tel nav ol {
+#configuration .entete-tel nav ol {
   border: 1px solid transparent;
   padding: 3px !important;
   background:
@@ -1890,13 +1891,13 @@ textarea:focus-visible,
   backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
   box-shadow: inset 0 1px 0 var(--lg-top-line), var(--lg-shadow-sm);
 }
-#configuration:has(.fond-gc) .entete-tel nav button { color: var(--lg-ink-2) !important; font-size: 13px !important; }
-#configuration:has(.fond-gc) .entete-tel nav button[aria-current="step"] {
+#configuration .entete-tel nav button { color: var(--lg-ink-2) !important; font-size: 13px !important; }
+#configuration .entete-tel nav button[aria-current="step"] {
   background: var(--lg-thumb-grad) !important;
   color: var(--lg-ink) !important;
   box-shadow: inset 0 1px 0 var(--lg-top-line), 0 0 0 .5px var(--lg-hair), 0 3px 10px -2px var(--lg-thumb-shadow) !important;
 }
-#configuration:has(.fond-gc) .entete-tel :is(h3, span[class~="tabular-nums"]) { color: var(--lg-ink) !important; }
+#configuration .entete-tel :is(h3, span[class~="tabular-nums"]) { color: var(--lg-ink) !important; }
 
 /* ==========================================================================
    Plus de boutons en pilule (Quentin, 07/10/2026 : « ça fait trop IA et pas élégant ») : des coins légèrement
@@ -1908,14 +1909,14 @@ textarea:focus-visible,
   ):not(svg *) {
   border-radius: 10px !important;
 }
-#configuration:has(.fond-gc) [class~="rounded-full"]:not([class*="h-"][class*="w-"]):not([class*="size-"]):not([class*="aspect-square"]):not(svg *) {
+#configuration [class~="rounded-full"]:not([class*="h-"][class*="w-"]):not([class*="size-"]):not([class*="aspect-square"]):not(svg *) {
   border-radius: 10px !important;
 }
 /* Dans un groupe de choix, l'élément choisi s'arrondit un peu moins que son cadre : les coins se suivent. */
 :is([class~="rounded-full"]:not([class*="h-"][class*="w-"])) > :is(button, label, span)[class~="rounded-full"]:not([class*="h-"][class*="w-"]) {
   border-radius: 7px !important;
 }
-#configuration:has(.fond-gc) [class~="rounded-full"]:not([class*="h-"][class*="w-"]) > :is(button, label, span)[class~="rounded-full"]:not([class*="h-"][class*="w-"]) {
+#configuration [class~="rounded-full"]:not([class*="h-"][class*="w-"]) > :is(button, label, span)[class~="rounded-full"]:not([class*="h-"][class*="w-"]) {
   border-radius: 7px !important;
 }
 
