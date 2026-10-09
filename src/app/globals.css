@@ -860,9 +860,20 @@ textarea:focus-visible,
   .fond-gc:not([data-parcours="1"]) .colonne-cotes [id="cotes"] > div > p:not([role]):not(.aide-question) {
     display: none;
   }
-  /* Ordinateur et tablette, une question à la fois : l'explication longue passe dans la bulle « i » de la question. */
+  /* Ordinateur et tablette, une question à la fois (09/10/2026) : l'explication est écrite, plus de bulle ; la case et le
+     curseur se font plus petits que sur téléphone pour que tout tienne dans la colonne. */
   .fond-gc:not([data-parcours="1"]) .colonne-cotes .info-question {
-    display: none;
+    margin-top: 0.45rem;
+    font-size: 11.5px;
+  }
+  .fond-gc:not([data-parcours="1"]) .colonne-cotes .case-question {
+    height: 2.75rem;
+  }
+  .fond-gc:not([data-parcours="1"]) .colonne-cotes .case-question input {
+    font-size: 20px;
+  }
+  .fond-gc:not([data-parcours="1"]) .colonne-cotes .curseur-question {
+    margin-top: 0.5rem;
   }
   .colonne-achat #livraison label,
   .colonne-achat #livraison span {

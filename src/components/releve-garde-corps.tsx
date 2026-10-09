@@ -465,6 +465,45 @@ function IconeCote({ cote }: { cote: CoteSaisieGC }) {
 }
 
 /**
+ * La profondeur du tableau, vue de dessus (Quentin, 09/10/2026 : « un dessin par question ») : le mur coupé, la fenêtre au fond,
+ * et le mètre ruban posé de l'angle de la façade jusqu'au cadre. Le croquis de face ne peut pas montrer cette mesure.
+ */
+function DessinTableau({ fr }: { fr: boolean }) {
+  return (
+    <svg viewBox="0 0 240 118" className="mx-auto block h-auto w-full" role="img" aria-label={fr ? "Vue de dessus : mesurez de l'angle du mur, dehors, jusqu'au cadre de la fenêtre." : "Top view: measure from the corner of the wall, outside, to the window frame."}>
+      <defs>
+        <pattern id="hachures-tableau" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <rect width="6" height="6" fill="#e9e1d4" />
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#cfc3b2" strokeWidth="2" />
+        </pattern>
+      </defs>
+      {/* Dedans, en haut ; dehors (la rue), en bas. */}
+      <text x="120" y="11" textAnchor="middle" fontSize="9" fill="#6f6357">{fr ? "Dedans" : "Inside"}</text>
+      <text x="120" y="114" textAnchor="middle" fontSize="9" fill="#6f6357">{fr ? "Dehors (la rue)" : "Outside (the street)"}</text>
+      {/* Les deux murs, coupés, et l'ouverture entre eux. */}
+      <rect x="14" y="18" width="62" height="78" fill="url(#hachures-tableau)" stroke="#8f8377" strokeWidth="1" />
+      <rect x="164" y="18" width="62" height="78" fill="url(#hachures-tableau)" stroke="#8f8377" strokeWidth="1" />
+      {/* La fenêtre, au fond du tableau. */}
+      <rect x="76" y="26" width="88" height="9" fill="#ffffff" stroke="#4d433a" strokeWidth="1" />
+      <line x1="120" y1="26" x2="120" y2="35" stroke="#4d433a" strokeWidth="1" />
+      {/* Le mètre : de l'angle du mur, côté rue, jusqu'au cadre. */}
+      <g>
+        <path d="M70 96 L70 35" stroke="#f2c230" strokeWidth="6" pathLength={1} strokeDasharray="1" strokeDashoffset={0}>
+          <animate attributeName="stroke-dashoffset" from="1" to="0" dur="0.8s" fill="freeze" />
+        </path>
+        <path d="M70 96 L70 35" stroke="#3a2f1c" strokeWidth="4" strokeDasharray="0.7 3.3" opacity="0.75" />
+        <rect x="63.5" y="94" width="13" height="13" rx="3" fill="#2b2320" />
+        <circle cx="70" cy="100.5" r="3" fill="#f2c230" />
+      </g>
+      <path d="M86 96 L86 35" stroke="#2b2320" strokeWidth="1" />
+      <path d="M83 98 L89 94 M83 37 L89 33" stroke="#2b2320" strokeWidth="1.4" strokeLinecap="round" />
+      <rect x="92" y="57" width="64" height="16" rx="8" fill="#2b2320" />
+      <text x="124" y="68.5" textAnchor="middle" fontSize="9.5" fontWeight="600" fill="#ffffff">{fr ? "la profondeur" : "the depth"}</text>
+    </svg>
+  );
+}
+
+/**
  * Le relevé d'un garde-corps de fenêtre.
  *
  * D'abord la question qui décide de tout : qui mesure ? Si c'est l'atelier,
@@ -625,6 +664,9 @@ export function ReleveGardeCorps({
     document.querySelector<HTMLElement>(".colonne-cotes [data-question-champ]")?.focus({ preventScroll: true });
   }, [question, questionPc]);
   /** La cote dont parle la question posée (téléphone) : le croquis la montre, même sans le doigt dans la case. */
+  /** Sur ordinateur aussi, la question en cours montre sa cote sur le croquis (avec le mètre), même sans le doigt dans la case. */
+  const coteQuestionPc: CoteFenetre | null =
+    questionAffichee === 1 ? "largeur" : questionAffichee === 2 && cotes.mursInegaux ? "largeurHaut" : questionAffichee === 3 ? "allege" : questionAffichee === 4 ? "fenetre" : null;
   const coteQuestion: CoteFenetre | null =
     question === 1 ? "largeur" : question === 2 && cotes.mursInegaux ? "largeurHaut" : question === 3 ? "allege" : question === 4 ? "fenetre" : null;
   // La même case sert d'une question de mesure à l'autre (le clavier reste ouvert) : ni « focus » ni « blur » ne
@@ -1368,10 +1410,7 @@ export function ReleveGardeCorps({
   const choixPierre = (gros: boolean) =>
     estPierre && (
       <div id={`${idChamps}-pierre`} className={gros ? "mt-3" : "mt-2"}>
-        <p className={`flex items-center gap-2 ${gros ? "mb-2 text-[14px]" : "mb-1.5 text-[12.5px]"} text-[#2b2320]`}>
-          {fr ? "Quelle pierre ?" : "Which stone?"}
-          <InfoBulle texte={infoPierre} label={t.gcInfoLabel} />
-        </p>
+        <p className={`${gros ? "mb-2 text-[14px]" : "mb-1.5 text-[12.5px]"} font-medium text-[#2b2320]`}>{fr ? "Quelle pierre ?" : "Which stone?"}</p>
         <div className={gros ? "grid grid-cols-3 gap-2" : `grid grid-cols-3 rounded-full border bg-white p-0.5 ${murChoisi ? "border-[#9a8d80]" : "border-[#c98a3a]"}`}>
           {PIERRES_GC.map((pierre) =>
             gros ? (
@@ -1400,6 +1439,8 @@ export function ReleveGardeCorps({
             ),
           )}
         </div>
+        {/* L'aide écrite sous les pierres, plus de bulle « i » (Quentin, 09/10/2026). */}
+        <p className="mt-1.5 text-[11.5px] leading-snug text-[#5c5140]">{infoPierre}</p>
       </div>
     );
 
@@ -1521,13 +1562,13 @@ export function ReleveGardeCorps({
       {messageAffiche ?? ""}
     </p>
   );
-  const grandeSaisie = (cote: CoteSaisieGC, props: { label: string; info: string; placeholder: string }) => (
+  const grandeSaisie = (cote: CoteSaisieGC, props: { label: string; info: string; placeholder: string; sansInfo?: boolean }) => (
     <div className="pt-1">
       <label htmlFor={`${idChamps}-${cote}`} className="sr-only">
         {props.label}
       </label>
       <div className="mx-auto flex w-full max-w-[20rem] items-center gap-2">
-      <span className="flex h-14 min-w-0 flex-1 items-center gap-2 rounded-2xl border border-[#9a8d80] bg-white px-4 transition-[border-color,box-shadow] focus-within:border-[#2b2320] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
+      <span className="case-question flex h-14 min-w-0 flex-1 items-center gap-2 rounded-2xl border border-[#9a8d80] bg-white px-4 transition-[border-color,box-shadow] focus-within:border-[#2b2320] focus-within:shadow-[0_0_0_3px_rgba(109,44,44,0.14)]">
         <input
           id={`${idChamps}-${cote}`}
           data-question-champ
@@ -1563,7 +1604,8 @@ export function ReleveGardeCorps({
       </button>
       </div>
       {messageTel}
-      {cote === "largeurHaut" && ecartMurs && <div className="text-center">{ecartMurs}</div>}
+      {/* Sur ordinateur, la phrase courte de l'écart : la colonne n'a pas la place de la longue. */}
+      {cote === "largeurHaut" && ecartMurs && <div className="text-center">{question ? ecartMurs : ecartMursCourt || ecartMurs}</div>}
       <input
         type="range"
         aria-label={props.label}
@@ -1577,9 +1619,10 @@ export function ReleveGardeCorps({
         }}
         onFocus={() => setCoteActive(coteCroquis(cote))}
         onBlur={() => setCoteActive(null)}
-        className={`curseur-cote mt-4 block h-6 w-full cursor-pointer ${saisie(cote).trim() === "" ? "curseur-vide" : ""}`}
+        className={`curseur-cote curseur-question mt-4 block h-6 w-full cursor-pointer ${saisie(cote).trim() === "" ? "curseur-vide" : ""}`}
       />
-      <p className="info-question mt-3 text-[12.5px] leading-snug text-[#5c5140]">{props.info}</p>
+      {/* Murs de travers : le message de l'écart dit déjà l'essentiel (la place manquait sur ordinateur). */}
+      {!(cote === "largeurHaut" && ecartMurs) && !props.sansInfo && <p className="info-question mt-3 text-[12.5px] leading-snug text-[#5c5140]">{props.info}</p>}
     </div>
   );
   /** Un gros bouton de réponse (étage, mur) : touché, il est choisi ; la fiche passe d'elle-même à la question suivante. */
@@ -1590,7 +1633,7 @@ export function ReleveGardeCorps({
       data-question-champ={premier ? "" : undefined}
       aria-pressed={actifBouton}
       onClick={onClick}
-      className={`border font-medium leading-tight transition-colors ${question ? "rounded-2xl px-3 py-3.5 text-[15px]" : "rounded-xl px-2.5 py-2 text-[13.5px]"} ${
+      className={`border font-medium leading-tight transition-colors ${question ? "rounded-2xl px-3 py-3.5 text-[15px]" : "rounded-xl px-2.5 py-1.5 text-[13.5px]"} ${
         actifBouton ? "border-[#2b2320] bg-[#2b2320] text-white" : "border-[#d8cec2] bg-white text-[#2b2320] active:bg-[#f3eee8]"
       }`}
     >
@@ -1625,7 +1668,8 @@ export function ReleveGardeCorps({
       grandeSaisie("largeur", { label: libelleLargeurBas, info: t.gcLargeurInfo, placeholder: "1180" })
     ) : n === 2 ? (
       <div className="pt-1">
-        <div className="grid gap-2">
+        {/* Sur ordinateur, côte à côte : la colonne garde sa place pour la mesure de plus. */}
+        <div className={`grid gap-2 ${question ? "" : "grid-cols-2"}`}>
           {grosBouton(
             !cotes.mursInegaux,
             () => {
@@ -1683,6 +1727,15 @@ export function ReleveGardeCorps({
       </div>
     ) : n === 6 ? (
       <div id="mur-gc" className="scroll-mt-28 pt-1">
+        {/* Sur ordinateur, la pierre choisie : la liste se replie sur elle, pour laisser la place aux trois pierres. */}
+        {!question && estPierre ? (
+          <div className="flex items-center gap-3">
+            {grosBouton(true, () => undefined, cotes.mur, true)}
+            <button type="button" onClick={() => choisirMur("")} className="text-[12.5px] font-medium text-[#5c5140] underline underline-offset-4">
+              {fr ? "Changer de mur" : "Change wall"}
+            </button>
+          </div>
+        ) : (
         <div className="grid grid-cols-2 gap-2">
           {t.gcMurOptions.map((option, i) =>
             grosBouton(
@@ -1696,14 +1749,17 @@ export function ReleveGardeCorps({
             ),
           )}
         </div>
+        )}
         {choixPierre(true)}
         {messageTel}
-        <p className="info-question mt-3 text-[12.5px] leading-snug text-[#5c5140]">{t.gcMurInfo}</p>
+        {/* La pierre choisie : son aide remplace celle du mur. */}
+        {!estPierre && <p className="info-question mt-3 text-[12.5px] leading-snug text-[#5c5140]">{t.gcMurInfo}</p>}
       </div>
     ) : n === 7 ? (
       <div>
-        {/* L'en-tête dit déjà où mesurer : sous la case, le reste. */}
-        {grandeSaisie("tMur", { label: libelleTableau, info: infoQuestion(7), placeholder: "150" })}
+        {/* L'en-tête dit déjà où mesurer, et le grand dessin le montre (vue de dessus) : sous la case, le reste. */}
+        {/* Sur ordinateur, avec l'épaisseur du mur en plus (pierre dure, moellons), l'explication cède la place. */}
+        {grandeSaisie("tMur", { label: libelleTableau, info: infoQuestion(7), placeholder: "150", sansInfo: !question && murAvecEpaisseurGC(murChoisi) })}
         {murAvecEpaisseurGC(murChoisi) && ligne("eMur", { label: libelleEpaisseur, info: infoEpaisseur, placeholder: "450", facultatif: true })}
         <div className="mt-3 flex justify-center">{photoTableau(true)}</div>
       </div>
@@ -1730,10 +1786,8 @@ export function ReleveGardeCorps({
             ))}
           </span>
         </div>
-        <div className="mt-2 flex items-start justify-between gap-2">
-          <h3 className="text-[16px] font-semibold leading-tight text-[#1d1d1f]">{fr ? etape.questionFr : etape.questionEn}</h3>
-          <InfoBulle texte={infoQuestion(n)} label={t.gcInfoLabel} />
-        </div>
+        {/* L'explication est écrite sous la réponse, comme sur téléphone : plus de bulle « i » à ouvrir (Quentin, 09/10/2026). */}
+        <h3 className="mt-2 text-[16px] font-semibold leading-tight text-[#1d1d1f]">{fr ? etape.questionFr : etape.questionEn}</h3>
         <p className="aide-question mt-0.5 text-[12.5px] leading-snug text-[#5c5140]">{fr ? etape.aideFr : etape.aideEn}</p>
         <div className="mt-2">{contenuQuestion(n)}</div>
         <div className="mt-3 flex items-center gap-2">
@@ -1872,7 +1926,13 @@ export function ReleveGardeCorps({
       {cotes.qui === "moi" && (
         <>
           {(() => {
-          const croquis = (
+          // Question 7 (la profondeur du tableau) : le grand dessin passe en vue de dessus, la seule qui montre cette mesure.
+          const vueTableau = (question ?? (questionAffichee === "resume" ? 0 : questionAffichee)) === 7;
+          const croquis = vueTableau ? (
+            <div className="absolute inset-0 flex items-center justify-center bg-[#f4efe7] p-3">
+              <DessinTableau fr={fr} />
+            </div>
+          ) : (
             <SchemaFenetre
               className="absolute inset-0 h-full w-full"
               // Les deux largeurs, chacune sur sa barre : en bas au ras de l'appui, en haut sur la main courante.
@@ -1896,7 +1956,7 @@ export function ReleveGardeCorps({
               apercu={commence && !dessin?.ok && !apercuModele}
               remplissage={surVerre ? "verre" : decorChoisi ? "decor" : "croix"}
               decor={decorChoisi && dessin?.ok && dessin.decor ? dessin.decor : null}
-              actif={question ? coteQuestion : coteActive}
+              actif={question ? coteQuestion : (coteActive ?? coteQuestionPc)}
               onChoisir={allerA}
               locale={locale}
               labels={{

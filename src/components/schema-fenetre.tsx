@@ -404,6 +404,20 @@ function Cote({
       }}
       style={{ cursor: "pointer" }}
     >
+      {/* La mesure demandée : un mètre ruban se déroule le long de la cote, son boîtier au départ (Quentin, 09/10/2026 :
+          « un dessin par question », pour qu'un client qui n'a jamais mesuré voie où poser le mètre). */}
+      {actif && (
+        <g key={`metre-${cote}`} pointerEvents="none">
+          <path d={`M${r(de[0])} ${r(de[1])} L${r(a[0])} ${r(a[1])}`} stroke="#f2c230" strokeWidth={6} pathLength={1} strokeDasharray="1" strokeDashoffset={0}>
+            <animate attributeName="stroke-dashoffset" from="1" to="0" dur="0.8s" fill="freeze" />
+          </path>
+          <path d={`M${r(de[0])} ${r(de[1])} L${r(a[0])} ${r(a[1])}`} stroke="#3a2f1c" strokeWidth={4} strokeDasharray="0.7 3.3" opacity={0}>
+            <animate attributeName="opacity" from="0" to="0.75" begin="0.7s" dur="0.3s" fill="freeze" />
+          </path>
+          <rect x={r(de[0] - 6.5)} y={r(de[1] - 6.5)} width={13} height={13} rx={3} fill="#2b2320" />
+          <circle cx={r(de[0])} cy={r(de[1])} r={3} fill="#f2c230" />
+        </g>
+      )}
       <path d={`M${r(de[0])} ${r(de[1])} L${r(a[0])} ${r(a[1])}`} stroke={couleur} strokeWidth={epaisseur} />
       {/* Le trait prolongé jusqu'à l'étiquette posée au-delà du bout. */}
       {dehors && <path d={`M${r(a[0])} ${r(a[1])} L${cx} ${cy}`} stroke={couleur} strokeWidth={0.6} strokeOpacity={0.7} />}
