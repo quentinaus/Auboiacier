@@ -345,3 +345,31 @@
 
 /* Les fenêtres restent pleines (blanc) : la carte de verre du site a changé de fond (09/10/2026) et les rendait transparentes. */
 #configuration .fond-configuration .carte-verre.cpt-fenetre { background: #ffffff !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+/* ---------- Téléphone (lot 11) : une question à la fois sous le croquis ; le prix et « Suivant » en bas ---------- */
+.cpt-tel .cpt-plaque { padding: 12px 12px 96px; }
+.cpt-tel .cpt-tel-croquis { position: relative; height: clamp(150px, 30svh, 240px); border-radius: 18px; background: rgba(255, 255, 255, 0.4); }
+.cpt-tel .cpt-tel-croquis svg { width: 100%; height: 100%; }
+.cpt-tel .cpt-tel-croquis .cpt-badge-place { position: absolute; right: 8px; top: 8px; font-size: 11px; }
+.cpt-tel-progres { margin: 12px 4px 8px; }
+.cpt-tel-progres h2 { font-size: 22px; line-height: 1.15; color: var(--encre, #2b2320); }
+.cpt-tel-progres span { display: block; margin-top: 2px; font-size: 12px; color: var(--brun, #6f6357); }
+.cpt-tel-barre { margin-top: 6px; height: 3px; border-radius: 3px; background: rgba(43, 35, 32, 0.12); overflow: hidden; }
+.cpt-tel-barre i { display: block; height: 100%; background: #2b2320; border-radius: 3px; transition: width 0.25s ease; }
+.cpt-tel-carte { border-radius: 22px; padding: 14px 14px 16px; }
+.cpt-tel-carte .cpt-pilule [role="radio"] { padding-top: 10px; padding-bottom: 10px; font-size: 14px; }
+.cpt-tel-styles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cpt-tel-styles .tuile-modele { padding: 8px 6px 6px; }
+.cpt-tel-styles .cpt-dessin { height: 64px; }
+.cpt-tel-styles.perimee { opacity: 0.6; }
+.cpt-tel-conseil { display: block; margin-top: 12px; font-size: 13px; color: var(--brun, #6f6357); text-decoration: underline; text-underline-offset: 4px; }
+.cpt-tel .cpt-plaquettes { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px; }
+.cpt-tel-nav { position: sticky; z-index: 60; margin: -84px 8px 0; bottom: calc(8px + env(safe-area-inset-bottom)); display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 8px; border-radius: 22px; background: rgba(255, 255, 255, 0.94); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: 0 10px 30px -12px rgba(43, 35, 32, 0.45), 0 0 0 1px rgba(43, 35, 32, 0.06); }
+.cpt-tel-retour { padding: 10px 12px; font-size: 14px; color: #2b2320; border-radius: 14px; }
+.cpt-tel-retour:disabled { opacity: 0.35; }
+.cpt-tel-prix { text-align: center; font-size: 18px; font-weight: 500; font-variant-numeric: tabular-nums; color: #2b2320; }
+.cpt-tel-prix.perime { color: #b4aa9f; }
+.cpt .cpt-tel-suivant { background: #2b2320 !important; width: auto; margin: 0; padding: 11px 18px; border-radius: 999px; font-size: 15px; font-weight: 600; color: #fff; }
+.cpt-tel-feuilles { position: relative; z-index: 90; background: none !important; }
+.cpt-tel-feuilles .cpt-fenetre { position: fixed; z-index: 90; left: 8px; right: 8px; bottom: 8px; max-height: 78svh; }
+.cpt-tel-feuilles .tuile-modele { padding: 8px 8px 7px; }

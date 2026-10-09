@@ -9,7 +9,7 @@
  * (/api/prix-portail?variantes=1 : le portail, ses styles, ses décors et ses moteurs en une demande) : jamais un coût ici.
  */
 import "./portail/configurateur-portail.css";
-import { useDeferredValue, useEffect, useId, useMemo, useState, type ReactNode } from "react";
+import { useDeferredValue, useEffect, useId, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import Link from "next/link";
 import { svgDe, PT_DECOR_FORMULES } from "@/lib/portails-outil/moteur.genere.mjs";
 import {
@@ -81,6 +81,7 @@ const TXT = {
     portillonLargeur: "Passage du portillon", portillonInfo: "Mesurez au plus étroit, entre ses deux piliers.", portillonGonds: "Les gonds",
     portillonSeul: (p: string) => `${p} s'il est commandé seul`, piedPortillon: "Prix posé avec le portail.",
     vuePortillon: "Le portillon assorti, vu de la rue",
+    etape: (n: number, total: number) => `Étape ${n} sur ${total}`, retour: "Retour", suivant: "Suivant", ctaCourt: "Ma visite", conseilAtelier: "Garder le conseil de l'atelier", eCouleur: "Couleur et matière",
     dont: "Dont", dontMoteur: "moteur", dontDecor: "décor", dontPortillon: "portillon",
     moulures: "Moulures", moulureDetail: "Un médaillon par vantail, vissé par derrière", moulureBasPlein: "Il faut un bas plein",
   },
@@ -128,6 +129,7 @@ const TXT = {
     portillonLargeur: "Pedestrian gate opening", portillonInfo: "Measure at the narrowest point, between its two pillars.", portillonGonds: "Hinges",
     portillonSeul: (p: string) => `${p} if ordered on its own`, piedPortillon: "Fitted price, with the gate.",
     vuePortillon: "The matching pedestrian gate, from the street",
+    etape: (n: number, total: number) => `Step ${n} of ${total}`, retour: "Back", suivant: "Next", ctaCourt: "Book visit", conseilAtelier: "Keep the workshop's advice", eCouleur: "Colour and material",
     dont: "Including", dontMoteur: "motor", dontDecor: "decoration", dontPortillon: "pedestrian gate",
     moulures: "Mouldings", moulureDetail: "One medallion per leaf, screwed from behind", moulureBasPlein: "Needs a solid lower panel",
   },
@@ -280,6 +282,9 @@ function zonesDecor(slug: SlugPortail, cfg: ConfigPortail): { cle: string; boite
   return sortie;
 }
 
+const MEDIA_TEL = "(max-width: 767px)";
+const abonnerTelephone = (f: () => void) => { const m = window.matchMedia(MEDIA_TEL); m.addEventListener("change", f); return () => m.removeEventListener("change", f); };
+
 type InfosMoteurs = {
   permis: { cle: CleMoteur; nom: string; principe: string; contenu: string; garantie: number; facilite: number }[];
   refus: { cle: CleMoteur | null; nom: string; raison: string }[];
@@ -301,6 +306,9 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
   // La fenêtre Décor : les formules, ou « Personnaliser » (2 emplacements au plus) ; l'emplacement en cours de réglage.
   const [modeDecor, setModeDecor] = useState<"formules" | "perso">("formules");
   const [empl, setEmpl] = useState(0);
+  // Téléphone (lot 11) : moins de 768 px de large ; l'étape en cours du parcours.
+  const tel = useSyncExternalStore(abonnerTelephone, () => window.matchMedia(MEDIA_TEL).matches, () => false);
+  const [etape, setEtape] = useState(0);
   const maj = (p: Partial<ConfigPortail>) => setCfg((c) => ({ ...c, ...p }));
   const style = styleDe(cfg);
   const fr = locale === "fr";
@@ -450,6 +458,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
   const battant = slug === "portail-battant", coulissant = slug === "portail-coulissant", portillon = slug === "portillon";
   const vantauxTxt = R.dims.vantaux.length > 1 ? `${R.dims.vantaux.length} ${t.vantauxDe} ${R.dims.vantaux.map(nf).join(" + ")} mm` : `1 ${t.vantail} ${nf(R.dims.vantaux[0])} mm`;
   const tropLarge = battant && cfg.P > b.P[1];
+  const etapesTel = ["mesures", ...(coulissant ? [] : ["sol"]), "ouverture", "fixation", "style", "aspect", "couleur", "decor", ...(portillon ? [] : ["moteur", "portillon"]), "prix"];
   const ecartDecor = V && cfg.decor !== "aucun" && V.decors[cfg.decor] != null && V.decors.aucun != null ? (V.decors[cfg.decor] as number) - (V.decors.aucun as number) : null;
   const ecartPortillon = cfg.portillon && !portillon && V?.base.ok ? (V.base.portillon ?? null) : null;
   const ecartMoteur = V && cfg.moteur && V.moteurs[moteurChoisi] != null && V.moteurs.aucun != null ? (V.moteurs[moteurChoisi] as number) - (V.moteurs.aucun as number) : null;
@@ -463,139 +472,9 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
   ];
   const reponseGuide = guidePortail(guide);
 
-  return (
-    <div className="cpt">
-      <div className="cpt-tete">
-        {filAriane && (
-          <nav aria-label={filAriane.label} className="cpt-fil">
-            {filAriane.etapes.map((e) => (<span key={e.href}><Link href={e.href}>{e.nom}</Link> /</span>))}
-            <span aria-current="page">{nom}</span>
-          </nav>
-        )}
-        <div className="cpt-h1">
-          <h1 className={serif.className}>{nom}</h1>
-          <button type="button" className="cpt-guide-lien" onClick={() => setFenetre("guide")} aria-haspopup="dialog">{tp.guideTitre}</button>
-        </div>
-      </div>
-
-      <section id="configuration" className="cpt-section" aria-labelledby={idTitre}>
-        <div className="fond-configuration cpt-plaque">
-          <div className="cpt-grille">
-            {/* Rangée 1 : le titre, la couleur et la matière. */}
-            <div className="cpt-titre-config">
-              <div className="cpt-titre-gauche"><h2 id={idTitre} className={serif.className}>{t.configuration}</h2></div>
-              <div className="cpt-emplacement-matieres">
-                <div className="cpt-matieres">
-                  <div className="cpt-mat-groupe"><span className="cpt-mat-titre">{t.couleur}</span>
-                    <div className="cpt-plaquettes" role="group" aria-label={t.couleur}>
-                      {COULEURS_PORTAIL.map((c) => (
-                        <button key={c} type="button" className="cpt-plaquette-btn" aria-pressed={cfg.couleur === c} aria-label={tp.couleur[c]} title={tp.couleur[c]} onClick={() => maj({ couleur: c })}>
-                          <span className="cpt-plaquette" style={{ background: TEINTES_PORTAIL[c][0] }} />
-                        </button>
-                      ))}
-                    </div>
-                    <span className="cpt-mat-nom">{tp.couleur[cfg.couleur]}</span>
-                  </div>
-                  <div className="cpt-mat-groupe"><span className="cpt-mat-titre">{t.matiere}</span>
-                    <Pilule aria={t.matiere} valeur={cfg.mat} onChange={(mat) => maj({ mat })} desactive={cfg.decor !== "aucun" ? ["alu"] : []}
-                      options={[{ v: "alu", label: tp.mat.alu, titre: cfg.decor !== "aucun" ? t.fDecorAcier : undefined }, { v: "acier", label: tp.mat.acier }]} />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Colonne 1 : les mesures et l'ouverture. */}
-            <div className="carte-verre cpt-cotes">
-              <h3 className="cpt-carte-titre cpt-titre-mesures">{t.vosMesures}</h3>
-              <p className="cpt-consigne">{t.consigne}</p>
-              <LigneCote picto="passage" titre={t.passage} info={t.infoPassage} valeur={cfg.P} bornes={b.P} onChange={(P) => maj({ P })} aCorriger={t.aCorriger} />
-              <LigneCote picto="hauteur" titre={t.hauteur} info={t.infoHauteur} valeur={cfg.H} bornes={b.H} onChange={(H) => maj({ H })} aCorriger={t.aCorriger} />
-              {!coulissant && <LigneCote picto="pente" titre={t.pente} info={t.infoPente} valeur={cfg.pente} bornes={b.pente} onChange={(pente) => maj({ pente })} aide={t.penteAide} aCorriger={t.aCorriger} />}
-              <div className="cpt-filet" />
-              <h3 className="cpt-carte-titre cpt-titre-mesures cpt-intitule">{t.ouverture}</h3>
-              {battant && (<>
-                <span className="cpt-libelle uppercase">{t.vantaux}</span>
-                <Pilule aria={t.vantaux} valeur={cfg.vantaux} onChange={(vantaux) => maj({ vantaux })} options={[{ v: 1, label: tp.vantaux[1] }, { v: 2, label: tp.vantaux[2] }]} />
-                {cfg.vantaux === 2 && (<>
-                  <span className="cpt-libelle uppercase">{t.repartition}</span>
-                  <Pilule aria={t.repartition} valeur={cfg.rep} onChange={(rep) => maj({ rep })} options={[{ v: "egal", label: tp.rep.egal }, { v: "tiers", label: tp.rep.tiers }]} />
-                </>)}
-              </>)}
-              {coulissant && (<>
-                <span className="cpt-libelle uppercase">{t.guidage}</span>
-                <Pilule aria={t.guidage} valeur={cfg.guidage} onChange={(guidage) => maj({ guidage })} options={[{ v: "rail", label: tp.guidage.rail }, { v: "auto", label: tp.guidage.auto }]} />
-              </>)}
-              {(coulissant || portillon || (battant && cfg.vantaux === 1)) && (<>
-                <span className="cpt-libelle uppercase">{coulissant ? t.sens : t.sensPortillon}</span>
-                <Pilule aria={coulissant ? t.sens : t.sensPortillon} valeur={cfg.sens} onChange={(sens) => maj({ sens })}
-                  options={(["gauche", "droite"] as const).map((s) => ({ v: s, label: coulissant ? tp.sens[s] : tp.sensPortillon[s] }))} />
-              </>)}
-              <span className="cpt-libelle uppercase">{t.fixation}</span>
-              <Pilule aria={t.fixation} valeur={cfg.poteaux} onChange={(poteaux) => maj({ poteaux })} options={(["existants", "alu", "acier"] as const).map((p) => ({ v: p, label: tp.poteaux[p] }))} />
-              <p className="cpt-legende-option">{t.legendeOuverture}</p>
-            </div>
-
-            {/* Colonne 2 : le croquis de l'outil, la place derrière, la vue de dessus. */}
-            <div className={`cpt-croquis ${alerte ? "avec-alerte" : ""}`}>
-              <div className={`cpt-croquis-dessin ${fenetre === "decor" ? "avec-zones" : ""}`}>
-                <Vue prims={R.vues.face as Prims} couleur={cfg.couleur} label={`${nom}, ${t.vuRue}`} zones={fenetre === "decor" ? zonesPrims : undefined} onZone={fenetre === "decor" ? toucherZone : undefined} />
-              </div>
-              {placeTxt && <span className="cpt-badge-place"><span className="cpt-rond"><PictoPlace /></span>{placeCle} {placeTxt}</span>}
-              <div className="cpt-medaillon" role="img" aria-label={t.vueDessus}>
-                <div className="cpt-med-dessin">
-                  <Vue prims={R.vues.dessus as Prims} couleur={cfg.couleur} petit label={t.vueDessus} />
-                  <span className="cpt-med-mot" style={{ top: "10%" }}>{t.chezVous}</span>
-                  <span className="cpt-med-mot" style={{ top: "92%" }}>{t.rue}</span>
-                </div>
-              </div>
-              {alerte
-                ? <div className="cpt-croquis-alerte" role="status"><b>{alerte}</b>{tropLarge && <> <Link href={`/${locale}/artisanat/portail-coulissant`}>{t.voirCoulissant}</Link></>}</div>
-                : <p className="cpt-croquis-legende">{fenetre === "decor" ? t.zonesAide : t.vuRue}</p>}
-            </div>
-
-            {/* Rangée 3 : le bandeau des styles, avec leur prix aux cotes du client. */}
-            <div className="carte-verre cpt-modeles">
-              <div className="cpt-modeles-tete"><strong>{t.votreStyle}</strong><span className="cpt-modeles-note">{t.stylesNote}</span></div>
-              <p className="cpt-modeles-detail" aria-live="polite">
-                <b>{style ? `${tp.styles[style]} : ${tp.stylesNote[style]}` : t.compose}</b>
-                {style && V?.styles[style] != null && <span> — {euros(V.styles[style] as number)}</span>}
-              </p>
-              <div className={`cpt-rangee ${perime ? "perimee" : ""}`}>
-                <div className="cpt-tuiles" role="group" aria-label={t.votreStyle}>
-                  {vignettes.map(({ st, prims }) => {
-                    const p = V?.styles[st] ?? null;
-                    return (
-                      <button key={st} type="button" className="tuile-modele" aria-pressed={style === st} onClick={() => setCfg((c) => appliquerStyle(c, st))}
-                        aria-label={`${tp.styles[st]}${p != null ? `, ${t.des} ${euros(p)}` : ""}`}>
-                        <span className="cpt-dessin"><Vue prims={prims} couleur={cfg.couleur} sansCotes label={tp.styles[st]} /></span>
-                        <span className="cpt-t-nom">{tp.styles[st]}</span>
-                        <span className="cpt-t-prix">{p != null ? `${t.des} ${euros(p)}` : "—"}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* Colonne 3 : l'aspect, le décor, le moteur, puis la barre d'achat. */}
-            <div className="carte-verre cpt-achat">
-              <div className="cpt-haut-achat">
-                <p className="cpt-r-nom">{nom} · {nf(cfg.P)} × {nf(cfg.H)} mm</p>
-                <p className="cpt-r-ligne">{vantauxTxt} · ≈ {nf(R.poids)} kg<span className="cpt-r-fab"> · {t.fabrique}</span></p>
-                <div className="cpt-filet" />
-                <h3 className="cpt-carte-titre cpt-aide-option">{t.aspect}</h3>
-                <span className="cpt-libelle uppercase">{t.formeHaut}</span>
-                <Pilule aria={t.formeHaut} picto valeur={cfg.forme} onChange={(forme) => maj({ forme, ...(forme !== "droit" ? { lisse: false } : {}) })}
-                  options={(["droit", "chapeau", "creux", "biais"] as const).map((k) => ({ v: k, label: t.formes[k], icone: <PictoForme k={k} /> }))} />
-                <span className="cpt-libelle uppercase">{t.basPortail}</span>
-                <Pilule aria={t.basPortail} valeur={cfg.soub} onChange={(soub) => maj({ soub })} options={(["aucun", "plein", "lames", "barreaux"] as const).map((s) => ({ v: s, label: t.soubCourt[s], titre: tp.soub[s] }))} />
-                <div className="cpt-ligne-libre">
-                  <span><span className="cpt-libelle uppercase">{t.lisse}</span>{cfg.forme !== "droit" && <span className="cpt-raison">{t.lisseRaison}</span>}</span>
-                  <Pilule aria={t.lisse} valeur={cfg.lisse ? "avec" : "sans"} onChange={(x) => maj({ lisse: x === "avec" })} desactive={cfg.forme !== "droit" ? ["avec"] : []}
-                    options={[{ v: "sans", label: t.sans }, { v: "avec", label: t.avec }]} />
-                </div>
-                <div className="cpt-lignes-choix">
-                  <button type="button" className="cpt-ligne-choix" aria-expanded={fenetre === "decor"} aria-haspopup="dialog" onClick={() => setFenetre((f) => (f === "decor" ? null : "decor"))}>
+  // Les lignes et liens de la colonne d'achat, partagés avec le parcours du téléphone.
+  const ligneDecor = (
+    <button type="button" className="cpt-ligne-choix" aria-expanded={fenetre === "decor"} aria-haspopup="dialog" onClick={() => setFenetre((f) => (f === "decor" ? null : "decor"))}>
                     <span className={`cpt-lc-picto ${cfg.decor !== "aucun" ? "" : "vide"}`}>{cfg.decor !== "aucun" ? <Vue prims={R.vues.face as Prims} couleur={cfg.couleur} sansCotes label={decorNom} /> : <PictoPlus />}</span>
                     <span className="cpt-lc-texte">
                       <span className="cpt-lc-tete"><span>{t.decor}</span>{cfg.decor !== "aucun" ? (ecartDecor != null && <span className="cpt-lc-ecart">{ecart(ecartDecor)}</span>) : <span className="cpt-lc-ajouter">{t.decorAjouter}</span>}</span>
@@ -604,7 +483,8 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
                     </span>
                     <ChevronBas />
                   </button>
-                  {!portillon && (
+  );
+  const ligneMoteur = !portillon && (
                     <button type="button" className="cpt-ligne-choix" aria-expanded={fenetre === "moteur"} aria-haspopup="dialog" onClick={() => setFenetre((f) => (f === "moteur" ? null : "moteur"))}>
                       <span className="cpt-lc-picto">{PICTO_MOTEUR[moteurChoisi]}</span>
                       <span className="cpt-lc-texte">
@@ -614,8 +494,8 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
                       </span>
                       <ChevronBas />
                     </button>
-                  )}
-                  {!portillon && (
+                  );
+  const lignePortillon = !portillon && (
                     <button type="button" className="cpt-ligne-choix" aria-expanded={fenetre === "portillon"} aria-haspopup="dialog" onClick={() => setFenetre((f) => (f === "portillon" ? null : "portillon"))}>
                       <span className={`cpt-lc-picto ${cfg.portillon ? "" : "vide"}`}>{cfg.portillon && portillonPrims ? <Vue prims={portillonPrims} couleur={cfg.couleur} sansCotes label={t.vuePortillon} /> : <PictoPlus />}</span>
                       <span className="cpt-lc-texte">
@@ -625,31 +505,22 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
                       </span>
                       <ChevronBas />
                     </button>
-                  )}
-                </div>
-              </div>
-              <div className="cpt-barre-achat">
-                <div className="cpt-prix-ligne">
-                  <span className={`cpt-prix ${perime ? "perime" : ""}`} aria-live="polite">{alerte ? t.aEtudier : prixBase != null ? euros(prixBase) : reponse?.etat.etat === "indispo" && !perime ? t.indispo : t.calcul}</span>
-                  <span className="cpt-prix-etiquette">{t.prixPose}</span>
-                </div>
-                {/* Ce que le prix comprend en plus du portail, sur une ligne : « Dont moteur + … · décor + … · portillon + … ». */}
-                {(ecartMoteur != null || ecartDecor != null || ecartPortillon != null) && (
+                  );
+  const notePrix = (ecartMoteur != null || ecartDecor != null || ecartPortillon != null) && (
                   <p className="cpt-prix-note">{t.dont} {[ecartMoteur != null && `${t.dontMoteur} ${ecart(ecartMoteur)}`, ecartDecor != null && `${t.dontDecor} ${ecart(ecartDecor)}`, ecartPortillon != null && `${t.dontPortillon} ${ecart(ecartPortillon)}`].filter(Boolean).join(" · ")}</p>
-                )}
-                <p className="cpt-prix-note cpt-note-pose">{t.poseComprise}</p>
-                <Link href={lienVisite} className="btn-verre cpt-cta">{t.cta}</Link>
-                <p className="cpt-btn-note">{t.visite}</p>
-                <div className="cpt-liens">
+                );
+  const liensAchat = (
+    <div className="cpt-liens">
                   <button type="button" onClick={() => setFenetre("plan")} aria-haspopup="dialog">{t.voirPlan}</button>
                   {/* L'estimation PDF (lot 9) : celle de l'outil, composée sur le serveur ; le devis à signer suit la visite. */}
                   {alerte || prixBase == null ? <span className="grise" aria-disabled="true" title={t.devisRaison}>{t.devis}</span>
                     : <a href={`/api/devis-pdf?${cle}&lang=${locale}`} target="_blank" rel="noopener" title={t.devisRaison}>{t.devis}</a>}
                   <button type="button" aria-expanded={fenetre === "details"} aria-haspopup="dialog" onClick={() => setFenetre((f) => (f === "details" ? null : "details"))}>{t.details}<ChevronBas /></button>
                 </div>
-              </div>
-            </div>
+  );
 
+  // Les fenêtres (décor, portillon, moteur) et les superpositions (détails, plan, guide) : les mêmes sur ordinateur et sur téléphone.
+  const fenetres = (<>
             {/* La fenêtre Décor : sur la colonne des mesures, le croquis reste visible et suit chaque choix ; ses zones se touchent. */}
             {fenetre === "decor" && (
               <div className="carte-verre cpt-fenetre" role="dialog" aria-label={t.decor}>
@@ -789,11 +660,8 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
                 <Pied phrase={t.piedMoteur} termine={t.termine} onClose={fermer} />
               </div>
             )}
-          </div>
-        </div>
-        <p className="cpt-aide-bas">{t.question} <Link href={`/${locale}/contact`}>{t.contact}</Link></p>
-      </section>
-
+  </>);
+  const superpositions = (<>
       {fenetre === "details" && (<>
         <div className="cpt-voile-fond" onClick={() => setFenetre(null)} aria-hidden="true" />
         <div className="cpt-details" role="dialog" aria-label={t.details}>
@@ -856,6 +724,296 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
           )}
         </div>
       </>)}
+  </>);
+
+  // Téléphone (lot 11) : une question à la fois sous le croquis ; en bas, le prix et « Retour / Suivant ».
+  if (tel) {
+    const cleEtape = etapesTel[Math.min(etape, etapesTel.length - 1)];
+    const k = etapesTel.indexOf(cleEtape);
+    const suivant = () => { setEtape(Math.min(k + 1, etapesTel.length - 1)); window.scrollTo({ top: 0 }); };
+    const conseil = <button type="button" className="cpt-tel-conseil" onClick={suivant}>{t.conseilAtelier}</button>;
+    const titres: Record<string, string> = { mesures: t.vosMesures, sol: t.pente, ouverture: t.ouverture, fixation: t.fixation, style: t.votreStyle, aspect: t.aspect, couleur: t.eCouleur, decor: t.decor, moteur: t.moteur, portillon: t.portillon, prix: t.prixPose };
+    let contenu: ReactNode = null;
+    if (cleEtape === "mesures") contenu = (<>
+      <p className="cpt-consigne">{t.consigne}</p>
+      <LigneCote picto="passage" titre={t.passage} info={t.infoPassage} valeur={cfg.P} bornes={b.P} onChange={(P) => maj({ P })} aCorriger={t.aCorriger} />
+      <LigneCote picto="hauteur" titre={t.hauteur} info={t.infoHauteur} valeur={cfg.H} bornes={b.H} onChange={(H) => maj({ H })} aCorriger={t.aCorriger} />
+    </>);
+    else if (cleEtape === "sol") contenu = (<>
+      <LigneCote picto="pente" titre={t.pente} info={t.infoPente} valeur={cfg.pente} bornes={b.pente} onChange={(pente) => maj({ pente })} aide={t.penteAide} aCorriger={t.aCorriger} />
+    </>);
+    else if (cleEtape === "ouverture") contenu = (<>
+      {battant && (<>
+        <span className="cpt-libelle uppercase">{t.vantaux}</span>
+        <Pilule aria={t.vantaux} valeur={cfg.vantaux} onChange={(vantaux) => maj({ vantaux })} options={[{ v: 1, label: tp.vantaux[1] }, { v: 2, label: tp.vantaux[2] }]} />
+        {cfg.vantaux === 2 && (<>
+          <span className="cpt-libelle uppercase">{t.repartition}</span>
+          <Pilule aria={t.repartition} valeur={cfg.rep} onChange={(rep) => maj({ rep })} options={[{ v: "egal", label: tp.rep.egal }, { v: "tiers", label: tp.rep.tiers }]} />
+        </>)}
+      </>)}
+      {coulissant && (<>
+        <span className="cpt-libelle uppercase">{t.guidage}</span>
+        <Pilule aria={t.guidage} valeur={cfg.guidage} onChange={(guidage) => maj({ guidage })} options={[{ v: "rail", label: tp.guidage.rail }, { v: "auto", label: tp.guidage.auto }]} />
+      </>)}
+      {(coulissant || portillon || (battant && cfg.vantaux === 1)) && (<>
+        <span className="cpt-libelle uppercase">{coulissant ? t.sens : t.sensPortillon}</span>
+        <Pilule aria={coulissant ? t.sens : t.sensPortillon} valeur={cfg.sens} onChange={(sens) => maj({ sens })}
+          options={(["gauche", "droite"] as const).map((s) => ({ v: s, label: coulissant ? tp.sens[s] : tp.sensPortillon[s] }))} />
+      </>)}
+      <p className="cpt-legende-option">{t.legendeOuverture}</p>
+      {conseil}
+    </>);
+    else if (cleEtape === "fixation") contenu = (<>
+      <Pilule aria={t.fixation} valeur={cfg.poteaux} onChange={(poteaux) => maj({ poteaux })} options={(["existants", "alu", "acier"] as const).map((p) => ({ v: p, label: tp.poteaux[p] }))} />
+      <p className="cpt-legende-option">{t.legendeOuverture}</p>
+      {conseil}
+    </>);
+    else if (cleEtape === "style") contenu = (
+      <div className={`cpt-tel-styles ${perime ? "perimee" : ""}`} role="group" aria-label={t.votreStyle}>
+        {vignettes.map(({ st, prims }) => {
+          const p = V?.styles[st] ?? null;
+          return (
+            <button key={st} type="button" className="tuile-modele" aria-pressed={style === st} onClick={() => setCfg((c) => appliquerStyle(c, st))}>
+              <span className="cpt-dessin"><Vue prims={prims} couleur={cfg.couleur} sansCotes label={tp.styles[st]} /></span>
+              <span className="cpt-t-nom">{tp.styles[st]}</span>
+              <span className="cpt-t-prix">{p != null ? `${t.des} ${euros(p)}` : "—"}</span>
+            </button>
+          );
+        })}
+      </div>
+    );
+    else if (cleEtape === "aspect") contenu = (<>
+      <span className="cpt-libelle uppercase">{t.formeHaut}</span>
+      <Pilule aria={t.formeHaut} picto valeur={cfg.forme} onChange={(forme) => maj({ forme, ...(forme !== "droit" ? { lisse: false } : {}) })}
+        options={(["droit", "chapeau", "creux", "biais"] as const).map((x) => ({ v: x, label: t.formes[x], icone: <PictoForme k={x} /> }))} />
+      <span className="cpt-libelle uppercase">{t.basPortail}</span>
+      <Pilule aria={t.basPortail} valeur={cfg.soub} onChange={(soub) => maj({ soub })} options={(["aucun", "plein", "lames", "barreaux"] as const).map((s) => ({ v: s, label: t.soubCourt[s], titre: tp.soub[s] }))} />
+      <div className="cpt-ligne-libre">
+        <span><span className="cpt-libelle uppercase">{t.lisse}</span>{cfg.forme !== "droit" && <span className="cpt-raison">{t.lisseRaison}</span>}</span>
+        <Pilule aria={t.lisse} valeur={cfg.lisse ? "avec" : "sans"} onChange={(x) => maj({ lisse: x === "avec" })} desactive={cfg.forme !== "droit" ? ["avec"] : []} options={[{ v: "sans", label: t.sans }, { v: "avec", label: t.avec }]} />
+      </div>
+      {conseil}
+    </>);
+    else if (cleEtape === "couleur") contenu = (<>
+      <span className="cpt-libelle uppercase">{t.couleur}</span>
+      <div className="cpt-plaquettes" role="group" aria-label={t.couleur}>
+        {COULEURS_PORTAIL.map((c) => (
+          <button key={c} type="button" className="cpt-plaquette-btn" aria-pressed={cfg.couleur === c} aria-label={tp.couleur[c]} title={tp.couleur[c]} onClick={() => maj({ couleur: c })}>
+            <span className="cpt-plaquette" style={{ background: TEINTES_PORTAIL[c][0] }} />
+          </button>
+        ))}
+        <span className="cpt-mat-nom">{tp.couleur[cfg.couleur]}</span>
+      </div>
+      <span className="cpt-libelle uppercase">{t.matiere}</span>
+      <Pilule aria={t.matiere} valeur={cfg.mat} onChange={(mat) => maj({ mat })} desactive={cfg.decor !== "aucun" ? ["alu"] : []}
+        options={[{ v: "alu", label: tp.mat.alu, titre: cfg.decor !== "aucun" ? t.fDecorAcier : undefined }, { v: "acier", label: tp.mat.acier }]} />
+    </>);
+    else if (cleEtape === "decor") contenu = (<>{ligneDecor}{conseil}</>);
+    else if (cleEtape === "moteur") contenu = (<>{ligneMoteur}<p className="cpt-f-note">{t.courant}</p>{conseil}</>);
+    else if (cleEtape === "portillon") contenu = (<>{lignePortillon}{conseil}</>);
+    else if (cleEtape === "prix") contenu = (<>
+      <p className="cpt-r-nom">{nom} · {nf(cfg.P)} × {nf(cfg.H)} mm</p>
+      <p className="cpt-r-ligne">{vantauxTxt} · ≈ {nf(R.poids)} kg · {t.fabrique}</p>
+      {notePrix}
+      <p className="cpt-prix-note">{t.poseComprise}</p>
+      <Link href={lienVisite} className="btn-verre cpt-cta">{t.cta}</Link>
+      <p className="cpt-btn-note">{t.visite}</p>
+      {liensAchat}
+    </>);
+    return (
+      <div className="cpt cpt-tel">
+        <div className="cpt-tete">
+          <div className="cpt-h1">
+            <h1 className={serif.className}>{nom}</h1>
+            <button type="button" className="cpt-guide-lien" onClick={() => setFenetre("guide")} aria-haspopup="dialog">{tp.guideTitre}</button>
+          </div>
+        </div>
+        <section id="configuration" className="cpt-section" aria-labelledby={idTitre}>
+          <div className="fond-configuration cpt-plaque">
+            <div className={`cpt-tel-croquis ${fenetre === "decor" ? "avec-zones" : ""}`}>
+              <Vue prims={R.vues.face as Prims} couleur={cfg.couleur} label={`${nom}, ${t.vuRue}`} zones={fenetre === "decor" ? zonesPrims : undefined} onZone={fenetre === "decor" ? toucherZone : undefined} />
+              {placeTxt && <span className="cpt-badge-place"><span className="cpt-rond"><PictoPlace /></span>{placeCle} {placeTxt}</span>}
+            </div>
+            {alerte && <div className="cpt-croquis-alerte" role="status"><b>{alerte}</b>{tropLarge && <> <Link href={`/${locale}/artisanat/portail-coulissant`}>{t.voirCoulissant}</Link></>}</div>}
+            <div className="cpt-tel-progres">
+              <h2 id={idTitre} className={serif.className}>{titres[cleEtape]}</h2>
+              <span>{t.etape(k + 1, etapesTel.length)}</span>
+              <div className="cpt-tel-barre" aria-hidden="true"><i style={{ width: `${((k + 1) / etapesTel.length) * 100}%` }} /></div>
+            </div>
+            <div className="carte-verre cpt-tel-carte">{contenu}</div>
+          </div>
+          {!(fenetre === "decor" || fenetre === "moteur" || fenetre === "portillon") && <nav className="cpt-tel-nav" aria-label={t.configuration}>
+          <button type="button" className="cpt-tel-retour" disabled={k === 0} onClick={() => setEtape(Math.max(0, k - 1))}>{t.retour}</button>
+          <span className={`cpt-tel-prix ${perime ? "perime" : ""}`} aria-live="polite">{alerte ? t.aEtudier : prixBase != null ? euros(prixBase) : t.calcul}</span>
+          {k < etapesTel.length - 1
+            ? <button type="button" className="btn-verre cpt-tel-suivant" onClick={suivant}>{t.suivant}</button>
+            : <Link href={lienVisite} className="btn-verre cpt-tel-suivant">{t.ctaCourt}</Link>}
+          </nav>}
+        </section>
+        {/* Les fenêtres hors de la plaque : sur téléphone, ce sont des feuilles posées en bas de l'écran, au-dessus de tout. */}
+        <div className="fond-configuration cpt-tel-feuilles">{fenetres}</div>
+        {superpositions}
+      </div>
+    );
+  }
+
+  return (
+    <div className="cpt">
+      <div className="cpt-tete">
+        {filAriane && (
+          <nav aria-label={filAriane.label} className="cpt-fil">
+            {filAriane.etapes.map((e) => (<span key={e.href}><Link href={e.href}>{e.nom}</Link> /</span>))}
+            <span aria-current="page">{nom}</span>
+          </nav>
+        )}
+        <div className="cpt-h1">
+          <h1 className={serif.className}>{nom}</h1>
+          <button type="button" className="cpt-guide-lien" onClick={() => setFenetre("guide")} aria-haspopup="dialog">{tp.guideTitre}</button>
+        </div>
+      </div>
+
+      <section id="configuration" className="cpt-section" aria-labelledby={idTitre}>
+        <div className="fond-configuration cpt-plaque">
+          <div className="cpt-grille">
+            {/* Rangée 1 : le titre, la couleur et la matière. */}
+            <div className="cpt-titre-config">
+              <div className="cpt-titre-gauche"><h2 id={idTitre} className={serif.className}>{t.configuration}</h2></div>
+              <div className="cpt-emplacement-matieres">
+                <div className="cpt-matieres">
+                  <div className="cpt-mat-groupe"><span className="cpt-mat-titre">{t.couleur}</span>
+                    <div className="cpt-plaquettes" role="group" aria-label={t.couleur}>
+                      {COULEURS_PORTAIL.map((c) => (
+                        <button key={c} type="button" className="cpt-plaquette-btn" aria-pressed={cfg.couleur === c} aria-label={tp.couleur[c]} title={tp.couleur[c]} onClick={() => maj({ couleur: c })}>
+                          <span className="cpt-plaquette" style={{ background: TEINTES_PORTAIL[c][0] }} />
+                        </button>
+                      ))}
+                    </div>
+                    <span className="cpt-mat-nom">{tp.couleur[cfg.couleur]}</span>
+                  </div>
+                  <div className="cpt-mat-groupe"><span className="cpt-mat-titre">{t.matiere}</span>
+                    <Pilule aria={t.matiere} valeur={cfg.mat} onChange={(mat) => maj({ mat })} desactive={cfg.decor !== "aucun" ? ["alu"] : []}
+                      options={[{ v: "alu", label: tp.mat.alu, titre: cfg.decor !== "aucun" ? t.fDecorAcier : undefined }, { v: "acier", label: tp.mat.acier }]} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Colonne 1 : les mesures et l'ouverture. */}
+            <div className="carte-verre cpt-cotes">
+              <h3 className="cpt-carte-titre cpt-titre-mesures">{t.vosMesures}</h3>
+              <p className="cpt-consigne">{t.consigne}</p>
+              <LigneCote picto="passage" titre={t.passage} info={t.infoPassage} valeur={cfg.P} bornes={b.P} onChange={(P) => maj({ P })} aCorriger={t.aCorriger} />
+              <LigneCote picto="hauteur" titre={t.hauteur} info={t.infoHauteur} valeur={cfg.H} bornes={b.H} onChange={(H) => maj({ H })} aCorriger={t.aCorriger} />
+              {!coulissant && <LigneCote picto="pente" titre={t.pente} info={t.infoPente} valeur={cfg.pente} bornes={b.pente} onChange={(pente) => maj({ pente })} aide={t.penteAide} aCorriger={t.aCorriger} />}
+              <div className="cpt-filet" />
+              <h3 className="cpt-carte-titre cpt-titre-mesures cpt-intitule">{t.ouverture}</h3>
+              {battant && (<>
+                <span className="cpt-libelle uppercase">{t.vantaux}</span>
+                <Pilule aria={t.vantaux} valeur={cfg.vantaux} onChange={(vantaux) => maj({ vantaux })} options={[{ v: 1, label: tp.vantaux[1] }, { v: 2, label: tp.vantaux[2] }]} />
+                {cfg.vantaux === 2 && (<>
+                  <span className="cpt-libelle uppercase">{t.repartition}</span>
+                  <Pilule aria={t.repartition} valeur={cfg.rep} onChange={(rep) => maj({ rep })} options={[{ v: "egal", label: tp.rep.egal }, { v: "tiers", label: tp.rep.tiers }]} />
+                </>)}
+              </>)}
+              {coulissant && (<>
+                <span className="cpt-libelle uppercase">{t.guidage}</span>
+                <Pilule aria={t.guidage} valeur={cfg.guidage} onChange={(guidage) => maj({ guidage })} options={[{ v: "rail", label: tp.guidage.rail }, { v: "auto", label: tp.guidage.auto }]} />
+              </>)}
+              {(coulissant || portillon || (battant && cfg.vantaux === 1)) && (<>
+                <span className="cpt-libelle uppercase">{coulissant ? t.sens : t.sensPortillon}</span>
+                <Pilule aria={coulissant ? t.sens : t.sensPortillon} valeur={cfg.sens} onChange={(sens) => maj({ sens })}
+                  options={(["gauche", "droite"] as const).map((s) => ({ v: s, label: coulissant ? tp.sens[s] : tp.sensPortillon[s] }))} />
+              </>)}
+              <span className="cpt-libelle uppercase">{t.fixation}</span>
+              <Pilule aria={t.fixation} valeur={cfg.poteaux} onChange={(poteaux) => maj({ poteaux })} options={(["existants", "alu", "acier"] as const).map((p) => ({ v: p, label: tp.poteaux[p] }))} />
+              <p className="cpt-legende-option">{t.legendeOuverture}</p>
+            </div>
+
+            {/* Colonne 2 : le croquis de l'outil, la place derrière, la vue de dessus. */}
+            <div className={`cpt-croquis ${alerte ? "avec-alerte" : ""}`}>
+              <div className={`cpt-croquis-dessin ${fenetre === "decor" ? "avec-zones" : ""}`}>
+                <Vue prims={R.vues.face as Prims} couleur={cfg.couleur} label={`${nom}, ${t.vuRue}`} zones={fenetre === "decor" ? zonesPrims : undefined} onZone={fenetre === "decor" ? toucherZone : undefined} />
+              </div>
+              {placeTxt && <span className="cpt-badge-place"><span className="cpt-rond"><PictoPlace /></span>{placeCle} {placeTxt}</span>}
+              <div className="cpt-medaillon" role="img" aria-label={t.vueDessus}>
+                <div className="cpt-med-dessin">
+                  <Vue prims={R.vues.dessus as Prims} couleur={cfg.couleur} petit label={t.vueDessus} />
+                  <span className="cpt-med-mot" style={{ top: "10%" }}>{t.chezVous}</span>
+                  <span className="cpt-med-mot" style={{ top: "92%" }}>{t.rue}</span>
+                </div>
+              </div>
+              {alerte
+                ? <div className="cpt-croquis-alerte" role="status"><b>{alerte}</b>{tropLarge && <> <Link href={`/${locale}/artisanat/portail-coulissant`}>{t.voirCoulissant}</Link></>}</div>
+                : <p className="cpt-croquis-legende">{fenetre === "decor" ? t.zonesAide : t.vuRue}</p>}
+            </div>
+
+            {/* Rangée 3 : le bandeau des styles, avec leur prix aux cotes du client. */}
+            <div className="carte-verre cpt-modeles">
+              <div className="cpt-modeles-tete"><strong>{t.votreStyle}</strong><span className="cpt-modeles-note">{t.stylesNote}</span></div>
+              <p className="cpt-modeles-detail" aria-live="polite">
+                <b>{style ? `${tp.styles[style]} : ${tp.stylesNote[style]}` : t.compose}</b>
+                {style && V?.styles[style] != null && <span> — {euros(V.styles[style] as number)}</span>}
+              </p>
+              <div className={`cpt-rangee ${perime ? "perimee" : ""}`}>
+                <div className="cpt-tuiles" role="group" aria-label={t.votreStyle}>
+                  {vignettes.map(({ st, prims }) => {
+                    const p = V?.styles[st] ?? null;
+                    return (
+                      <button key={st} type="button" className="tuile-modele" aria-pressed={style === st} onClick={() => setCfg((c) => appliquerStyle(c, st))}
+                        aria-label={`${tp.styles[st]}${p != null ? `, ${t.des} ${euros(p)}` : ""}`}>
+                        <span className="cpt-dessin"><Vue prims={prims} couleur={cfg.couleur} sansCotes label={tp.styles[st]} /></span>
+                        <span className="cpt-t-nom">{tp.styles[st]}</span>
+                        <span className="cpt-t-prix">{p != null ? `${t.des} ${euros(p)}` : "—"}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Colonne 3 : l'aspect, le décor, le moteur, puis la barre d'achat. */}
+            <div className="carte-verre cpt-achat">
+              <div className="cpt-haut-achat">
+                <p className="cpt-r-nom">{nom} · {nf(cfg.P)} × {nf(cfg.H)} mm</p>
+                <p className="cpt-r-ligne">{vantauxTxt} · ≈ {nf(R.poids)} kg<span className="cpt-r-fab"> · {t.fabrique}</span></p>
+                <div className="cpt-filet" />
+                <h3 className="cpt-carte-titre cpt-aide-option">{t.aspect}</h3>
+                <span className="cpt-libelle uppercase">{t.formeHaut}</span>
+                <Pilule aria={t.formeHaut} picto valeur={cfg.forme} onChange={(forme) => maj({ forme, ...(forme !== "droit" ? { lisse: false } : {}) })}
+                  options={(["droit", "chapeau", "creux", "biais"] as const).map((k) => ({ v: k, label: t.formes[k], icone: <PictoForme k={k} /> }))} />
+                <span className="cpt-libelle uppercase">{t.basPortail}</span>
+                <Pilule aria={t.basPortail} valeur={cfg.soub} onChange={(soub) => maj({ soub })} options={(["aucun", "plein", "lames", "barreaux"] as const).map((s) => ({ v: s, label: t.soubCourt[s], titre: tp.soub[s] }))} />
+                <div className="cpt-ligne-libre">
+                  <span><span className="cpt-libelle uppercase">{t.lisse}</span>{cfg.forme !== "droit" && <span className="cpt-raison">{t.lisseRaison}</span>}</span>
+                  <Pilule aria={t.lisse} valeur={cfg.lisse ? "avec" : "sans"} onChange={(x) => maj({ lisse: x === "avec" })} desactive={cfg.forme !== "droit" ? ["avec"] : []}
+                    options={[{ v: "sans", label: t.sans }, { v: "avec", label: t.avec }]} />
+                </div>
+                <div className="cpt-lignes-choix">
+                  {ligneDecor}
+                  {ligneMoteur}
+                  {lignePortillon}
+                </div>
+              </div>
+              <div className="cpt-barre-achat">
+                <div className="cpt-prix-ligne">
+                  <span className={`cpt-prix ${perime ? "perime" : ""}`} aria-live="polite">{alerte ? t.aEtudier : prixBase != null ? euros(prixBase) : reponse?.etat.etat === "indispo" && !perime ? t.indispo : t.calcul}</span>
+                  <span className="cpt-prix-etiquette">{t.prixPose}</span>
+                </div>
+                {notePrix}
+                <p className="cpt-prix-note cpt-note-pose">{t.poseComprise}</p>
+                <Link href={lienVisite} className="btn-verre cpt-cta">{t.cta}</Link>
+                <p className="cpt-btn-note">{t.visite}</p>
+                {liensAchat}
+              </div>
+            </div>
+
+            {fenetres}
+          </div>
+        </div>
+        <p className="cpt-aide-bas">{t.question} <Link href={`/${locale}/contact`}>{t.contact}</Link></p>
+      </section>
+
+      {superpositions}
     </div>
   );
 }
