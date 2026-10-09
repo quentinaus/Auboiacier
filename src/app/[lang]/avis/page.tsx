@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
 import { ATELIER, lienAvisGoogle, lienLaisserAvis, metadataPage } from "@/lib/seo";
-import { ArtisanatHeader } from "@/components/artisanat-header";
+import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
 
@@ -48,7 +48,7 @@ export default async function AvisPage({ params }: PageProps<"/[lang]/avis">) {
 
   return (
     <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
-      <ArtisanatHeader locale={locale} dict={dict} />
+      <GlobalHeader locale={locale} dict={dict} />
       <main id="contenu">
         {/* Façon Apple (Quentin, 06/10/2026) : une carte papier sans liseré, le grand titre, un seul bouton plein. La
             carte monte sans attendre le JavaScript : c'est tout le premier écran. */}

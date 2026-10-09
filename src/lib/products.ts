@@ -1551,6 +1551,12 @@ const catalogue: Product[] = [
         title: "Ce qui est compris",
         body: "La prise de cotes chez vous, déduite de la commande ; le plan ; le limon en tube d'acier, coupé et soudé à l'atelier avec les supports et les platines des marches ; les marches en bois massif de 5 cm ; la pose jusqu'à 45 km de Saumur (au-delà, la route s'ajoute au devis). Le garde-corps du côté du vide et sa main courante en bois sont dessinés et chiffrés au devis, selon le remplissage choisi, d'après la norme NF P01-012 (2024).",
       },
+      {
+        // Une vraie photo (09/10/2026) : un escalier fabriqué par Quentin avant l'ouverture de l'atelier.
+        title: "À l'atelier",
+        body: "Des marches en bois massif posées sur leur limon d'acier, à l'atelier : un escalier réalisé par Quentin avant l'ouverture de l'atelier. Chaque marche est ajustée, chaque soudure reprise, avant que l'escalier ne parte chez vous.",
+        image: "/images/atelier/escalier-atelier-poster.jpg",
+      },
     ],
     specs: [
       { label: "Limon", value: "Tube d'acier de forte section, supports et platines soudés, soudure TIG ; finition peinte mate, ou acier brut verni" },
@@ -1595,6 +1601,10 @@ const catalogue: Product[] = [
         {
           title: "What is included",
           body: "The measuring visit at your home, deducted from the order; the drawing; the stringer, a steel tube cut and welded in the workshop with the supports and plates for the treads; the 5 cm solid wood treads; fitting within 45 km of Saumur (beyond that, travel is added to the quote). The balustrade on the open side and its timber handrail are drawn and priced with the quote, depending on the infill you choose, to the French standard NF P01-012 (2024).",
+        },
+        {
+          title: "In the workshop",
+          body: "Solid wood treads set on their steel stringer, in the workshop: a staircase made by Quentin before the workshop opened. Each tread is fitted and each weld finished before the staircase leaves for your home.",
         },
       ],
       specs: [
@@ -2550,6 +2560,12 @@ const catalogue: Product[] = [
         // Une pose réelle, encastrée, la toile en couleur.
         image: "/images/lumiere/lucarne-rgb.jpg",
       },
+      {
+        // Une vraie photo (09/10/2026) : un plafond lumineux fabriqué par Quentin avant l'ouverture de l'atelier.
+        title: "En fabrication",
+        body: "Les rubans LED alignés au fond du caisson, avant la pose de la toile : un plafond lumineux réalisé par Quentin avant l'ouverture de l'atelier. L'écartement des rubans est calculé pour une lumière égale, sans point chaud.",
+        image: "/images/atelier/plafond-caisson-led.jpg",
+      },
     ],
     specs: [
       { label: "Toile", value: "Membrane translucide tendue, blanc diffusant" },
@@ -2599,6 +2615,10 @@ const catalogue: Product[] = [
         {
           title: "Hung on cables",
           body: "The Lucarne hangs from the ceiling on four rings screwed into its frame and stainless or steel cables, supplied. The LEDs are 24 V strips; the power supplies, connected to the 230 V mains, and the control box are included in the price.",
+        },
+        {
+          title: "In the making",
+          body: "The LED strips lined up in the back of the box, before the fabric goes on: a light ceiling made by Quentin before the workshop opened. The spacing of the strips is calculated for even light, with no hot spot.",
         },
       ],
       specs: [

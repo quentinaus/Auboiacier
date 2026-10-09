@@ -58,6 +58,7 @@ const TRAVAUX_AVANT_ATELIER = [
   "/images/verriere-pose-chantier-2.jpg",
   "/images/verriere-pose-chantier-4.jpg",
   // Ses plafonds lumineux et un escalier en fabrication (« mes propres pièces », 09/10/2026).
+  "/images/atelier/plafond-caisson-led.jpg",
   "/images/atelier/plafond-caisson-led-poster.jpg",
   "/images/atelier/plafond-profiles-alu.jpg",
   "/images/atelier/plafond-toile-allumee.jpg",
@@ -127,7 +128,8 @@ test("le catalogue : chaque image d'une fiche (vues, teintes, essences, coloris)
     }
     for (const photo of p.photosDescriptif ?? []) ajouter(photo.src);
     for (const f of p.fabrics ?? []) ajouter(f.image);
-    for (const s of p.sections ?? []) ajouter((s as { image?: string }).image);
+    // Un bloc peut montrer une vraie photo d'atelier (escalier, plafond : 09/10/2026), vérifiée plus bas avec son texte.
+    for (const s of p.sections ?? []) if (!TRAVAUX_AVANT_ATELIER.includes((s as { image?: string }).image ?? "")) ajouter((s as { image?: string }).image);
   }
   assert.ok(sources.size > 50, "les images du catalogue n'ont pas été lues");
   for (const src of sources) {
@@ -395,8 +397,21 @@ test("les vraies photos : le travail de Quentin avant l'ouverture de l'atelier, 
   const endroits = code.filter((f) => TRAVAUX_AVANT_ATELIER.some((src) => lire(f).includes(src)));
   assert.deepEqual(
     endroits.sort(),
-    [join("src", "app", "[lang]", "artisanat", "sculptures", "page.tsx"), join("src", "app", "[lang]", "toiles-tendues", "page.tsx"), join("src", "lib", "chantiers.ts")].sort(),
+    [
+      join("src", "app", "[lang]", "artisanat", "sculptures", "page.tsx"),
+      join("src", "app", "[lang]", "toiles-tendues", "page.tsx"),
+      join("src", "lib", "chantiers.ts"),
+      join("src", "lib", "products.ts"),
+    ].sort(),
   );
+  // Les fiches (escalier, plafond) montrent une vraie photo dans un bloc : son texte, en français et en anglais, le dit.
+  for (const p of products) {
+    p.sections.forEach((section, i) => {
+      if (!section.image || !TRAVAUX_AVANT_ATELIER.includes(section.image)) return;
+      assert.match(section.body, /réalisée?s? par Quentin avant l'ouverture de l'atelier/, `${p.slug} : bloc « ${section.title} »`);
+      assert.match(p.en?.sections?.[i]?.body ?? "", /made by Quentin before the workshop opened/, `${p.slug} : bloc anglais n° ${i}`);
+    });
+  }
   // Les plafonds lumineux montrent leurs plafonds en fabrication (09/10/2026) : le bloc dit d'où ils viennent.
   assert.match(fr.lumiere.fabricationTexte, /réalisés par Quentin avant l'ouverture de l'atelier/);
   assert.match(en.lumiere.fabricationTexte, /made by Quentin before the workshop opened/);

@@ -50,8 +50,12 @@ for (const locale of ["fr", "en"] as const) {
 test("les cas de la relecture : l'escalier et la table de jardin ne répètent plus leurs photos", () => {
   const escalier = products.find((p) => p.slug === "escalier-limon-central")!;
   const choixEscalier = photosDesSections(escalier.sections, photosDeFiche(escalier));
-  // Deux photos pour quatre sections : deux sections en photo, les deux autres en texte seul.
-  assert.equal(choixEscalier.filter(Boolean).length, Math.min(escalier.sections.length, photosDeFiche(escalier).length));
+  // Les sections sans photo à elles piochent dans la galerie sans répéter ; celle qui a sa photo d'atelier (09/10/2026) la garde.
+  const avecPropre = escalier.sections.filter((s) => s.image).length;
+  assert.equal(
+    choixEscalier.filter(Boolean).length,
+    avecPropre + Math.min(escalier.sections.length - avecPropre, photosDeFiche(escalier).length),
+  );
   const jardin = products.find((p) => p.slug === "table-mikado-exterieur")!;
   const choixJardin = photosDesSections(jardin.sections, photosDeFiche(jardin));
   const vues = choixJardin.flatMap((c) => (c === null ? [] : ["propre" in c ? c.propre : c.photo.src]));

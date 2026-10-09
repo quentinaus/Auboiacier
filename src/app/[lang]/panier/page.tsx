@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
 import { metadataPage } from "@/lib/seo";
-import { ArtisanatHeader } from "@/components/artisanat-header";
+import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CartView } from "@/components/cart-view";
 import { serif } from "@/lib/fonts";
@@ -32,7 +32,7 @@ export default async function PanierPage({ params }: PageProps<"/[lang]/panier">
 
   return (
     <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
-      <ArtisanatHeader locale={locale} dict={dict} />
+      <GlobalHeader locale={locale} dict={dict} />
       <main id="contenu">
 
       {/* Façon Apple (Quentin, 06/10/2026) : un grand titre et de l'air ; le panier lui-même n'apparaît pas au

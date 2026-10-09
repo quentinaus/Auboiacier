@@ -51,7 +51,7 @@ export function GlobalHeader({
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-4">
         <Link
           href={`/${locale}`}
-          className={`font-display min-w-0 truncate text-[15px] tracking-[0.3em] ${overlay ? "text-white drop-shadow" : "text-[#1d1d1f]"}`}
+          className={`font-display shrink-0 whitespace-nowrap text-[15px] tracking-[0.3em] ${overlay ? "text-white drop-shadow" : "text-[#1d1d1f]"}`}
         >
           {dict.meta.siteName.toUpperCase()}
         </Link>
@@ -61,7 +61,7 @@ export function GlobalHeader({
             et ombre portée : c'est le maximum possible sur une image. */}
         <nav
           aria-label={dict.nav.mainMenu}
-          className={`hidden items-center gap-6 text-sm md:flex ${
+          className={`hidden items-center gap-6 whitespace-nowrap text-sm lg:flex xl:gap-7 ${
             overlay ? "text-white drop-shadow-md" : "text-gray-700"
           }`}
         >
@@ -69,7 +69,7 @@ export function GlobalHeader({
             <Link
               key={link.href}
               href={link.href}
-              className={`${link.grandEcran ? "hidden lg:inline" : ""} ${overlay ? "hover:text-white" : "hover:text-gray-900"}`}
+              className={`${link.grandEcran ? "hidden xl:inline" : ""} ${overlay ? "hover:text-white" : "hover:text-gray-900"}`}
             >
               {link.label}
             </Link>
@@ -91,6 +91,8 @@ export function GlobalHeader({
             // Le garde-corps du menu de grand écran est déjà dans liensEnPlus : pas deux fois dans le panneau.
             links={[...links.filter((l) => !l.grandEcran), ...liensEnPlus]}
             variant={overlay ? "dark" : "light"}
+            // Sous 1024 px, les liens ne tiennent plus sur une ligne : le menu les prend (09/10/2026, barre élégante).
+            seuil="lg"
           />
         </div>
       </div>

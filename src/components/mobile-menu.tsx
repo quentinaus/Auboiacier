@@ -19,12 +19,15 @@ export function MenuMobile({
   locale,
   links,
   variant = "light",
+  seuil = "md",
 }: {
   locale: Locale;
   /** Les mêmes liens que la barre du haut, dans le même ordre. */
   links: { href: string; label: string }[];
   /** « dark » quand la barre est posée sur une photo plein écran. */
   variant?: "light" | "dark";
+  /** La largeur à partir de laquelle les liens tiennent dans la barre et ce menu se cache. */
+  seuil?: "md" | "lg";
 }) {
   const [ouvert, setOuvert] = useState(false);
   const boutonRef = useRef<HTMLButtonElement>(null);
@@ -102,7 +105,7 @@ export function MenuMobile({
   }, [ouvert, fermer]);
 
   return (
-    <div className="md:hidden">
+    <div className={seuil === "lg" ? "lg:hidden" : "md:hidden"}>
       <button
         ref={boutonRef}
         type="button"

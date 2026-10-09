@@ -3,7 +3,7 @@ import Link from "next/link";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../../dictionaries";
 import { metadataPage } from "@/lib/seo";
-import { ArtisanatHeader } from "@/components/artisanat-header";
+import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CartClear } from "@/components/cart-clear";
 import { clientConnecte } from "@/lib/compte";
@@ -78,7 +78,7 @@ export default async function MerciPage({
 
   return (
     <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
-      <ArtisanatHeader locale={locale} dict={dict} />
+      <GlobalHeader locale={locale} dict={dict} />
       <main id="contenu">
 
       {/* Façon Apple (Quentin, 06/10/2026) : plus de carte bordée ni de capitales espacées ; un grand titre, le

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { CarteCategorie } from "@/components/carte-categorie";
-import { categoriesCollection } from "@/lib/categories-collection";
+import { categoriesCollection, piecesDeFamille } from "@/lib/categories-collection";
 import { Visuel, MentionIllustration } from "@/components/visuel";
 import type { Locale } from "@/lib/i18n";
 import { isLocale, defaultLocale } from "@/lib/i18n";
@@ -16,10 +16,9 @@ import { PhotoPlafondAnime } from "@/components/photo-plafond-anime";
 import { hoverZoom } from "@/lib/ui";
 import { Apparition } from "@/components/apparition";
 import { IndiceDefiler } from "@/components/indice-defiler";
-import { getProduct } from "@/lib/products";
-import { prixAppelGC } from "@/lib/prix-garde-corps.server";
+import { getProduct, type Famille } from "@/lib/products";
+import { prixAppelGC, prixDepart } from "@/lib/prix-garde-corps.server";
 import { prixAffiche } from "@/lib/ui";
-import { GardeCorpsEnAplats } from "@/components/chargement-modeles";
 
 /** Panneau cliquable : image plein cadre, titre centré, bouton. Pleine
  *  largeur sur téléphone, une moitié d'écran à partir de la tablette. */
@@ -134,6 +133,18 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
   /** Le garde-corps en haut de l'accueil, avec son prix d'appel calculé par l'outil (étude marketing, 06/10). */
   const ficheGC = getProduct("garde-corps");
   const appelGC = ficheGC ? prixAppelGC(ficheGC) : null;
+  /** Le plus petit prix de départ d'une ou plusieurs familles (null : sur devis). */
+  const departDe = (familles: Famille[]) => {
+    const prix = familles.flatMap(piecesDeFamille).map(prixDepart).filter((p): p is number => p !== null);
+    return prix.length ? Math.min(...prix) : null;
+  };
+  const des = (prix: number | null) => (prix === null ? "" : `${locale === "fr" ? "dès" : "from"} ${prixAffiche(prix, locale)}`);
+  /** Les trois pièces qui se configurent en ligne, chacune avec son prix de départ. */
+  const portesConfig = [
+    { href: `/${locale}/artisanat/garde-corps#configuration`, label: t.catGardeCorps, prix: des(appelGC ? appelGC.prix : departDe(["garde-corps"])) },
+    { href: `/${locale}/artisanat/tables`, label: t.catTables, prix: des(departDe(["table-interieur"])) },
+    { href: `/${locale}/toiles-tendues`, label: t.catPlafonds, prix: des(departDe(["plafond"])) },
+  ];
 
   /** Vrais témoignages clients — à remplir, rien d'inventé ici. */
   const testimonials: { quote: string; author: string }[] = [];
@@ -244,59 +255,38 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
         );
       })()}
 
-      {/* 2. Configurer sa pièce, en un seul bloc (Quentin, 07/10/2026 : « l'accueil a trop d'info, simplifie ») : le titre,
-          puis le garde-corps en avant — le plus demandé, avec son prix d'appel calculé par l'outil —, puis les autres
-          familles qui se configurent. Sans prix du garde-corps (outil indisponible), seulement le titre et les liens. */}
-      <section className="border-t border-[#e5ddd3] bg-[#f5f1ea] px-6 py-16 md:py-24">
-        <Apparition className="mx-auto max-w-3xl text-center">
-          <p className="surtitre">{t.configLabel}</p>
-          <h2 className={`${serif.className} mt-3 text-[2.1rem] leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.7rem] md:text-[3.5rem]`}>
-            {t.configTitle}
-          </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-[17px] leading-[1.5] text-[#5c5140] md:text-[19px]">{t.configText}</p>
-        </Apparition>
-        {appelGC && (
-          <div className="mx-auto mt-10 flex max-w-4xl flex-col items-center gap-5 rounded-[26px] border border-[#e5ddd3] bg-white px-5 py-6 text-center shadow-[0_22px_50px_-36px_rgba(43,35,32,0.5)] md:mt-12 md:flex-row md:gap-8 md:px-8 md:text-left">
-            {/* Le dessin d'un garde-corps de la fiche (deux croix, rosaces, main courante en chêne) : pas une photo. */}
-            {/* Le garde-corps en aplats des films du site, qui se fabrique sous les yeux quand le bandeau arrive (Quentin,
-                06/10/2026 : reprendre le motion design déjà fait) : cadre, croix, soudure, rosaces, main courante en chêne. */}
-            <Apparition className="w-44 shrink-0 rounded-2xl bg-[#f7f4ef] px-4 pb-3 pt-4 md:w-52">
-              <GardeCorpsEnAplats uneFois className="h-auto w-full" />
-            </Apparition>
-            <div className="min-w-0 flex-1 text-center md:text-left">
-              <p className="surtitre">
-                {locale === "fr" ? "Sur mesure, aux normes" : "Made to measure, to standard"}
-              </p>
-              <p className={`${serif.className} mt-1 text-[1.75rem] leading-[1.08] tracking-[-0.01em] text-[#2b2320] md:text-[2.1rem]`}>
-                {locale === "fr" ? "Garde-corps de fenêtre" : "Window railings"}
-              </p>
-              <p className="mt-2 text-[15px] leading-snug text-[#4a4038] md:text-[17px]">
-                {locale === "fr" ? "Dès " : "From "}
-                <span className="font-semibold text-[#2b2320]">{prixAffiche(appelGC.prix, locale)}</span>
-                {locale === "fr"
-                  ? ` pour une fenêtre de ${appelGC.largeurMm / 10}\u00a0cm de large. Votre prix exact, à vos mesures, tout de suite.`
-                  : ` for a window ${appelGC.largeurMm / 10} cm wide. Your exact price, to your measurements, straight away.`}
-              </p>
-            </div>
-            <Link
-              href={`/${locale}/artisanat/garde-corps#configuration`}
-              className="btn-plein shrink-0"
-            >
-              {locale === "fr" ? "Calculer mon prix" : "Get my price"}
-            </Link>
+      {/* 2. Configurer sa pièce (refait le 09/10/2026, Quentin : « prend trop de place, pas élégant ») : une bande basse et
+          typographique — à gauche le titre, à droite trois lignes fines, chacune avec son prix de départ. Plus de grande
+          carte ni d'animation. */}
+      <section className="border-t border-[#e5ddd3] bg-[#f5f1ea] px-6 py-12 md:py-16">
+        <Apparition className="mx-auto grid max-w-6xl items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14">
+          <div>
+            <p className="surtitre">{t.configLabel}</p>
+            <h2 className={`${serif.className} mt-2 text-balance text-[1.7rem] leading-[1.1] tracking-[-0.016em] text-[#2b2320] md:text-[2.2rem]`}>
+              {t.configTitle}
+            </h2>
+            <p className="mt-3 max-w-md text-[15px] leading-[1.5] text-[#6f6357] md:text-[16px]">
+              {locale === "fr"
+                ? "Vos cotes, votre prix tout de suite, votre devis en PDF : sans compte, sans engagement."
+                : "Your measurements, your price straight away, your quote as a PDF: no account, no commitment."}
+            </p>
           </div>
-        )}
-        <div className="mt-8 flex flex-col items-center justify-center gap-x-8 gap-y-3 sm:flex-row sm:flex-wrap">
-          {[
-            { href: `/${locale}/artisanat/tables`, label: t.configTable },
-            ...(appelGC ? [] : [{ href: `/${locale}/artisanat/garde-corps#configuration`, label: t.configGardeCorps }]),
-            { href: `/${locale}/toiles-tendues`, label: t.configPlafond },
-          ].map((porte) => (
-            <Link key={porte.href} href={porte.href} className="lien-fleche text-[#2b2320]">
-              {porte.label}
-            </Link>
-          ))}
-        </div>
+          <ul className="divide-y divide-[#e0d7cb] border-y border-[#e0d7cb]">
+            {portesConfig.map((porte) => (
+              <li key={porte.href}>
+                <Link href={porte.href} className="group flex items-baseline justify-between gap-4 py-4 md:py-5">
+                  <span className={`${serif.className} text-[1.2rem] leading-[1.2] text-[#2b2320] md:text-[1.4rem]`}>{porte.label}</span>
+                  <span className="flex shrink-0 items-baseline gap-3 text-[14px] text-[#6f6357] md:text-[15px]">
+                    {porte.prix}
+                    <span aria-hidden="true" className="text-[#2b2320] transition-transform duration-300 group-hover:translate-x-1">
+                      →
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Apparition>
       </section>
 
       {/* 3. Les catégories */}
