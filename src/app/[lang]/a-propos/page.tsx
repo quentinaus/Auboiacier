@@ -133,6 +133,7 @@ export default async function AProposPage({
             
             <p className={`${texte} mt-6`}>{t.homme}</p>
             <p className={`${texte} mt-4`}>{t.parcours}</p>
+            <p className="mt-8 border-t border-[#e8e1d6] pt-4 text-[14px] leading-[1.5] text-[#6f6357]">{t.signature}</p>
           </Apparition>
         </section>
 

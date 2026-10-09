@@ -976,8 +976,9 @@
       "soudure": "Soudure et réparations"
     },
     "hommeTitre": "Qui fabrique votre pièce",
-        "homme": "Je m'appelle Quentin Aumercier, métallier de formation (CAP et Brevet professionnel). J'ai appris le métier en France, puis passé deux ans en Australie dans la fabrication de plafonds lumineux, avant d'ouvrir Auboiacier à Saumur. Chaque pièce qui sort de l'atelier est dessinée à vos cotes, soudée et finie à la main. Je travaille l'acier et le bois massif, et je prends le temps qu'il faut sur chaque soudure, chaque assemblage, chaque finition : c'est ce soin qui fait une pièce de qualité, qui tombe juste chez vous et qui est faite pour durer.",
-    "parcours": "Je prends vos cotes, je fabrique votre pièce et je reste votre seul interlocuteur jusqu'à la livraison. Et vous connaissez le prix avant de commander : un vrai savoir-faire, à un prix clair et juste.",
+        "homme": "Avant d'ouvrir Auboiacier à Saumur, j'ai passé plusieurs années à souder et à fabriquer dans différents ateliers, en France puis en Australie, sur des pièces et des chantiers très différents, jusqu'aux plafonds lumineux. Chaque atelier m'a appris une autre façon de travailler, et j'en ai gardé le meilleur. Aujourd'hui, chaque pièce qui sort de mon atelier est dessinée à vos cotes, soudée et finie à la main, en acier et en bois massif. Je prends le temps qu'il faut sur chaque soudure et chaque finition : c'est ce soin qui fait une pièce de qualité, faite pour durer.",
+    "parcours": "Je prends vos cotes, je fabrique votre pièce et je reste votre seul interlocuteur jusqu'à la livraison, avec un prix clair, annoncé avant de commander.",
+    "signature": "Quentin Aumercier, métallier · CAP et BP Métallier",
     "finTitre": "Parlons de votre pièce.",
     "ctaDevis": "Calculer mon prix",
     "ctaContact": "Nous écrire"
