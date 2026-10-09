@@ -49,10 +49,56 @@ test("béton : 4 platines 40 × 5 au bout des lisses, 8 tiges M8 scellées (10/1
   assert.ok(chiffrage().chiffrerGC(R, v).conseille > chiffrage().chiffrerGC(c.R, c.v).conseille, "la résine et l'inox se paient");
 });
 
-test("béton : tableau trop peu profond pour la tige (40 mm de l'arête, 75 de la fenêtre) → sur étude, et l'outil dit pourquoi", () => {
-  const { R, F } = avecMur(1200, 400, "beton", 100);
+test("béton : tableau trop peu profond pour la tige (40 mm de l'arête, 75 de la fenêtre) → la patte en façade (10/10/2026) ; sous 60 mm, sur étude, et l'outil dit pourquoi", () => {
+  // Jusqu'au 10/10/2026, un tableau de 100 mm était « sur étude ». Depuis la patte en façade (Quentin : « on garde », +100 €),
+  // les platines qui ne tiennent pas dans le tableau laissent la place à une équerre chevillée sur la façade.
+  const cent = avecMur(1200, 400, "beton", 100);
+  assert.equal(cent.F?.statut, "valide");
+  assert.equal(cent.F?.mode, "facade");
+  // Un tableau de 50 mm : même l'aile de la patte en façade (45 mm au moins) n'y entre pas.
+  const { R, F } = avecMur(1200, 400, "beton", 50);
   assert.equal(F?.statut, "etude");
+  assert.match(F!.texte, /trop peu profond/);
+  assert.match(F!.texte, /même pour une patte en façade/);
   assert.ok(R.alertes.some((a: string) => /Fixation dans le mur \(béton\).*arête/.test(a)));
+});
+
+test("patte en façade (Quentin, 10/10/2026) : quand les platines ne tiennent pas dans le tableau, une équerre chevillée sur la façade, chiffrée, dessinée et dite au client", () => {
+  // Béton, tableau de 60 mm : aile 40 × 5 de 45 dans le tableau, plaque de tôle 5 mm de 145 de large sur la façade, 2 chevilles
+  // l'une au-dessus de l'autre par plaque (traction, effet de levier 1,8 : EN 1993-1-8), les mêmes tiges M8 et la même résine.
+  const { c, v, R, F } = avecMur(1200, 400, "beton", 60);
+  assert.equal(F?.statut, "valide");
+  assert.equal(F?.mode, "facade");
+  assert.equal((F as unknown as { platines: number }).platines, 4, "4 pattes");
+  assert.equal((F as unknown as { c: number }).c, 30, "la lisse à 30 mm de la façade (aile de 45 − 15)");
+  assert.ok(F!.points.every((p) => p.rd !== null && p.V <= p.rd), "chaque cheville sous sa résistance en traction");
+  assert.deepEqual(R.alertes, []);
+  assert.ok(R.debit.some((d: { nom: string; mat: string }) => d.nom === "Platines de fixation" && /^Tôle acier 145 × 5$/.test(d.mat)), "la tôle des plaques au débit");
+  assert.ok(R.debit.some((d: { nom: string; mat: string; long: number }) => d.nom === "Platines de fixation" && d.mat === "Plat acier 40 × 5" && d.long === 45), "les ailes au débit");
+  assert.ok(R.debit.some((d: { nom: string }) => /^Tige filetée M8 inox/.test(d.nom)));
+  // Le client sait que les plaques se voient de la rue, peintes dans la teinte du garde-corps.
+  const client = (F as unknown as { texteClient: string }).texteClient;
+  assert.match(client, /4 pattes en équerre .* 8 chevilles scellées/);
+  assert.match(client, /les plaques se voient de l'extérieur, dans la teinte du garde-corps/);
+  assert.ok(R.notes.some((n: string) => /Patte en façade/.test(n)), "la note d'atelier");
+  // Plus cher que les platines dans un tableau profond (tôle, 15 min par patte au lieu de 9) : +40 € ici (grand cadre en
+  // carré 18), +100 € sur le 1 180 × 585 de la fiche (tests/garde-corps-mur-site.test.ts).
+  const profond = avecMur(1200, 400, "beton", 150);
+  assert.equal(profond.F?.mode, "platines");
+  const ecart = chiffrage().chiffrerGC(R, v).conseille - chiffrage().chiffrerGC(profond.R, profond.v).conseille;
+  assert.ok(ecart > 0 && ecart <= 150, `+${ecart} € pour la façade`);
+  assert.ok(chiffrage().chiffrerGC(R, v).conseille > chiffrage().chiffrerGC(c.R, c.v).conseille);
+  // La façade n'est essayée qu'après les platines : un tableau profond garde ses platines (même prix qu'avant la façade).
+  assert.equal(avecMur(1200, 400, "brique", 150).F?.mode, "platines");
+  // Brique creuse : la patte en façade tient sur une petite fenêtre, à titre indicatif (classe de brique à confirmer sur photo).
+  const creuse = avecMur(500, 0, "brique-creuse");
+  assert.equal(creuse.F?.statut, "indicatif");
+  assert.equal(creuse.F?.mode, "facade");
+  assert.match((creuse.F as unknown as { texteClient: string }).texteClient, /^Prix indicatif : nous confirmerons la fixation avec la photo de votre mur\. Prévu : /);
+  // Parpaing, cadre bas : la façade ne suffit pas non plus (traction dans un bloc creux) ; l'outil dit les deux raisons.
+  const parpaing = avecMur(1000, 800, "parpaing");
+  assert.equal(parpaing.F?.statut, "etude");
+  assert.match(parpaing.F!.texte, /en façade aussi, la cheville la plus chargée reprendrait/);
 });
 
 test("brique pleine : platines à 2 tiges M10, validée par un calcul prudent sans essai (décision de Quentin, 07/10/2026)", () => {
@@ -78,9 +124,11 @@ test("pierre dure : ancrage traversant (plaque inox à l'intérieur), validé pa
 test("la profondeur du tableau place les tiges : le plus près de la façade qui tient, à 75 mm au moins de la fenêtre", () => {
   const cDe = (F: Fixation | undefined) => (F as unknown as { c: number }).c;
   // Tuffeau : 75 mm de l'arête au moins, et rien ne se gagne au-delà de 100 (le tiers d'une pierre de 30 cm).
+  // (75 + 75 = 150 mm de tableau au moins pour les platines ; en dessous, depuis le 10/10/2026, la patte en façade prend le relais.)
   const court = avecMur(1200, 400, "tuffeau", 140);
-  assert.equal(court.F?.statut, "etude", "75 + 75 = 150 mm de tableau au moins");
-  assert.match(court.F!.texte, /trop peu profond/);
+  assert.equal(court.F?.statut, "valide");
+  assert.equal(court.F?.mode, "facade");
+  assert.equal(cDe(court.F), 50, "la lisse à 50 mm de la façade (aile de 65 − 15)");
   const profond = avecMur(1200, 400, "tuffeau", 400);
   assert.equal(profond.F?.statut, "valide");
   assert.ok(cDe(profond.F) >= 75 && cDe(profond.F) <= 100);
@@ -120,7 +168,7 @@ test("placo : jamais de cheville dans la plaque ; on demande le mur extérieur (
 test("brique creuse et parpaing trop faibles : sur étude, avec les solutions (poteau béton, pattes dans l'appui, visite)", () => {
   for (const mur of ["brique-creuse", "parpaing"]) {
     const { F } = avecMur(1200, 400, mur);
-    if (F?.statut === "etude") assert.match(F.texte, /poteau ou un encadrement en béton/, mur);
+    if (F?.statut === "etude") assert.match(F.texte, /poteau ou un (?:encadrement|chaînage) en béton/, mur);
   }
 });
 

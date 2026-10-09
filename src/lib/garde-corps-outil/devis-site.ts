@@ -527,6 +527,8 @@ const MONTAGES_EN: Readonly<Record<string, string>> = {
   platine: "small plates welded to the frame and rods bonded into the wall",
   platines: "small plates welded to the frame and rods bonded into the wall",
   traversant: "rods through the wall, with a plate on the inside",
+  // Patte en façade (10/10/2026) : la plaque se voit de la rue, le devis le dit comme l'outil en français (texteClient).
+  facade: "angle brackets welded to the frame, each with a painted steel plate fixed on the front wall beside the window (the plates are visible from outside, in the colour of the railing)",
 };
 
 /**
@@ -538,7 +540,9 @@ function fixationAnglaise(config: ConfigGC): string | null {
   const F = config.R.fixation as { mur?: unknown; mode?: unknown; statut?: unknown } | undefined;
   if (!F || F.statut === "etude" || !estMurFixationGC(F.mur)) return null;
   // Le même texte que l'outil écrit pour le client (texteClient, fixationMurGC), en anglais.
-  if (F.statut === "indicatif") return "Indicative price: we will confirm the fixing with a photo of your window reveal.";
+  if (F.statut === "indicatif") return F.mode === "facade"
+    ? `Indicative price: we will confirm the fixing with a photo of your wall. Planned: ${MONTAGES_EN.facade}.`
+    : "Indicative price: we will confirm the fixing with a photo of your window reveal.";
   const montage = typeof F.mode === "string" && Object.hasOwn(MONTAGES_EN, F.mode) ? MONTAGES_EN[F.mode] : "rods bonded into the wall";
   return `Fixing suited to your wall (${NOMS_MUR_FIXATION_GC[F.mur].en}): ${montage}, all stainless steel, supplied.`;
 }

@@ -166,7 +166,8 @@ test("réponse : une fixation mal formée n'est jamais devinée ; une réponse s
  *  (c) LE PRIX : la route = le panier = la commande = le devis PDF
  * ------------------------------------------------------------------ */
 
-const RELEVES_PRIX: ReleveGC[] = [releve(), releve({ largeurMm: 1800, allegeMm: 300 }), releve({ largeurMm: 1000, allegeMm: 650, fenetreMm: 1400 })];
+// (Le dernier relevé, tableau de 60 mm, prend la patte en façade du 10/10/2026 : béton et brique « validé », enduit « indicatif ».)
+const RELEVES_PRIX: ReleveGC[] = [releve(), releve({ largeurMm: 1800, allegeMm: 300 }), releve({ largeurMm: 1000, allegeMm: 650, fenetreMm: 1400 }), releve({ largeurMm: 1180, allegeMm: 585, tMurMm: 60 })];
 const MURS_PRIX: MurFixationGC[] = ["beton", "brique", "enduit"];
 
 /** La ligne du panier pour ce relevé, telle que la fiche l'ajoute (cart.tsx, cart-view.tsx). */
@@ -226,7 +227,9 @@ test("prix : la fixation dans le mur se paie (résine, inox, platines, temps) �
     // Le même dessin, sans mur : le prix d'avant.
     const options = { woodId: "chene", metalId: "noir", fabricId: "fleur", remplissageId: "croix" };
     const avec = ligneGC({ ...base, mur, modele: modeleAfficheGC(route) }, options);
-    const sans = ligneGC({ ...base, modele: modeleAfficheGC(route) }, options);
+    // (Sans mur, les cotes du mur ne se donnent pas : un relevé « une cote sans mur » est hors des bornes.)
+    const { tMurMm: _t, eMurMm: _e, ...sansCotes } = base;
+    const sans = ligneGC({ ...sansCotes, modele: modeleAfficheGC(route) }, options);
     assert.ok(avec.ok && sans.ok);
     assert.ok(avec.line.unitPrice > sans.line.unitPrice, `${JSON.stringify(base)} ${mur} : ${avec.line.unitPrice} € contre ${sans.line.unitPrice} € sans mur`);
     // Les platines pèsent : le colis aussi (la livraison se calcule sur ce poids, au panier comme au devis).
@@ -324,15 +327,17 @@ test("temps : un mur « sur étude » quelle que soit la poussée (placo, tablea
   chiffrageOuEchec();
   // Les relevés de la relecture (07/10/2026) : la route prenait 7 à 8 s (1 à 3 s sans mur), un panier de 19 fenêtres en placo 11 à 18 s
   // (0,1 s sans mur) — le fil du serveur bloqué pour tous les visiteurs. Des relevés jamais vus ici (rien en mémoire).
-  for (const [largeurMm, allegeMm, mur, raison] of [
-    [801, 781, "placo", /placo est à l'intérieur/],
-    [1003, 751, "placo", /placo est à l'intérieur/],
-    [805, 779, "beton-cellulaire", /fixation à étudier/],
-    [807, 777, "brique-creuse", /poteau en béton/],
-    [809, 775, "parpaing", /poteau en béton/],
+  // (Depuis la patte en façade, 10/10/2026, le béton cellulaire 805 × 779 et la brique creuse 807 × 777 se vendent : la façade
+  // est essayée par l'outil lui-même, dans fixationMurGC, avant toute patte. Restent sans remède : le placo, le parpaing à
+  // cadre bas, un tableau de 50 mm où même l'aile de la patte en façade n'entre pas.)
+  for (const [largeurMm, allegeMm, mur, raison, tMurMm] of [
+    [801, 781, "placo", /placo est à l'intérieur/, undefined],
+    [1003, 751, "placo", /placo est à l'intérieur/, undefined],
+    [809, 775, "parpaing", /poteau en béton/, undefined],
+    [1200, 400, "beton", /fixation à étudier/, 50],
   ] as const) {
     const debut = performance.now();
-    const r = reponsePrixGC(requete({ largeurMm, allegeMm, mur }));
+    const r = reponsePrixGC(requete({ largeurMm, allegeMm, mur, ...(tMurMm ? { tMurMm } : {}) }));
     const ms = performance.now() - debut;
     assert.ok(r && !r.ok && r.alertes.includes("fixation"), `${largeurMm} × ${allegeMm}, ${mur}`);
     assert.equal(r.fixation?.statut, "etude");
@@ -356,8 +361,8 @@ test("pattes : un mur que seule la poussée met « sur étude » garde ses patte
   // refus, mais la tige du premier montage (40 mm de l'arête) passe une fois soulagée par les pattes.
   // Depuis la fixation par platines au bout des lisses (10/10/2026), le béton tient sans patte jusqu'à 2 400 × 720 (tableau de
   // 120 mm compris : tiges à 40 mm de l'arête, deux par platine) ; les cas sont ceux du balayage du 10/10/2026.
+  // (La brique creuse 500 × 0, qui prenait 2 pattes, se vend sans patte depuis la patte en façade du 10/10/2026 : prix indicatif.)
   for (const [r, essence, attendu] of [
-    [releve({ largeurMm: 500, allegeMm: 0, mur: "brique-creuse" }), "chene", { croix: 3, carre: 16, patte: 2 }],
     [releve({ largeurMm: 1180, allegeMm: 650, mur: "parpaing" }), "chene", { croix: 3, carre: 16, patte: 2 }],
     [releve({ largeurMm: 1500, allegeMm: 700, mur: "tuffeau" }), "chene", { croix: 3, carre: 16, patte: 2 }],
     [releve({ largeurMm: 2200, allegeMm: 700, mur: "brique", tMurMm: 135 }), "chene", { croix: 5, carre: 18, patte: 2 }],   // tiges à 60 mm de l'arête
@@ -373,6 +378,30 @@ test("pattes : un mur que seule la poussée met « sur étude » garde ses patte
     const sansPatte = calculerGC({ ...c.v, patte: 0 }).fixation as { statut: string; texte: string };
     assert.equal(sansPatte.statut, "etude", JSON.stringify(r));
   }
+});
+
+test("patte en façade (Quentin, 10/10/2026) : 1 180 × 585 dans un tableau de 60 mm en béton se vend, +100 € sur les platines, et la route dit au client que les plaques se voient", () => {
+  chiffrageOuEchec();
+  const facade = reponsePrixGC(requete({ largeurMm: 1180, allegeMm: 585, mur: "beton", tMurMm: 60 }));
+  const platines = reponsePrixGC(requete({ largeurMm: 1180, allegeMm: 585, mur: "beton", tMurMm: 150 }));
+  const sansMur = reponsePrixGC(requete({ largeurMm: 1180, allegeMm: 585 }));
+  assert.ok(facade?.ok && platines?.ok && sansMur?.ok);
+  assert.equal(facade.fixation?.statut, "valide");
+  assert.match(facade.fixation!.texte, /^Fixation adaptée à votre mur \(béton\) : 4 pattes en équerre .*\(les plaques se voient de l'extérieur, dans la teinte du garde-corps\), tout en inox, fournie\.$/);
+  assert.ok(facade.fixation!.texte.length <= TEXTE_FIXATION_GC_MAX);
+  assert.equal(platines.fixation?.statut, "valide");
+  assert.match(platines.fixation!.texte, /petites platines/);
+  const ecart = facade.prix - platines.prix;
+  assert.ok(ecart >= 30 && ecart <= 110, `façade ${facade.prix} €, platines ${platines.prix} € : +${ecart} €`);
+  assert.ok(platines.prix > sansMur.prix, "les tiges inox et la résine se paient");
+  // Mur inconnu (enduit), tableau de 60 : la façade à titre indicatif, et le client sait ce qui est prévu.
+  const enduit = reponsePrixGC(requete({ largeurMm: 1180, allegeMm: 585, mur: "enduit", tMurMm: 60 }));
+  assert.ok(enduit?.ok);
+  assert.equal(enduit.fixation?.statut, "indicatif");
+  assert.match(enduit.fixation!.texte, /^Prix indicatif : nous confirmerons la fixation avec la photo de votre mur\. Prévu : 4 pattes en équerre/);
+  // Le devis PDF en anglais dit la même fixation.
+  const d = devis(releve({ largeurMm: 1180, allegeMm: 585, mur: "beton", tMurMm: 60 }), { locale: "en" });
+  assert.ok(JSON.stringify(d).includes("plates are visible from outside"), "le devis anglais décrit la patte en façade");
 });
 
 /* ------------------------------------------------------------------ *
@@ -398,10 +427,15 @@ test("mémoire : le même relevé dans deux murs (ou à deux cotes du mur) ne pa
   assert.equal((beton.R.fixation as { mur: string }).mur, "beton");
   assert.equal((brique.R.fixation as { mur: string }).mur, "brique");
   assert.equal(sans1.R.fixation, undefined);
-  // La profondeur du tableau : 135 mm, la tige tient ; 100 mm, plus de place pour elle (étude) — deux résultats distincts.
-  const pres = configurerGC({ ...e, mur: "beton", tMurMm: 100 });
+  // La profondeur du tableau : 135 mm, la tige tient ; 100 mm, la patte en façade (10/10/2026) ; 50 mm, plus rien (étude) —
+  // trois résultats distincts.
+  const pres = configurerGC({ ...e, mur: "beton", tMurMm: 50 });
   assert.ok(!pres.ok && pres.alertes.includes("fixation"));
-  assert.ok(configurerGC({ ...e, mur: "beton", tMurMm: 135 }).ok);
+  const facade = configurerGC({ ...e, mur: "beton", tMurMm: 100 }), profond = configurerGC({ ...e, mur: "beton", tMurMm: 135 });
+  assert.ok(facade.ok && profond.ok);
+  assert.equal((facade.R.fixation as { mode: string }).mode, "facade");
+  assert.equal((profond.R.fixation as { mode: string }).mode, "platines");
+  assert.notEqual(prixGC(facade), prixGC(profond), "la façade a son prix");
   // L'épaisseur du mur : la longueur des tiges traversantes change (le débit).
   const mince = configurerGC({ ...e, mur: "moellons", eMurMm: 300 });
   const epais = configurerGC({ ...e, mur: "moellons", eMurMm: 700 });

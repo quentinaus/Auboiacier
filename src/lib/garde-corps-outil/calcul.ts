@@ -177,6 +177,9 @@ function fenetreTropBasse(cleReleve: string, entree: EntreeSiteGC, seuls = false
  * montant de rive trop court pour écarter les fixations. Le refus « la fixation la plus chargée reprendrait… » n'y est pas :
  * il dépend de la poussée, une patte peut le lever. Un texte que l'outil écrirait autrement n'est reconnu par aucun : les
  * pattes sont alors essayées, comme avant (plus lent, jamais faux).
+ * La patte en façade (10/10/2026) n'est pas un remède du site : l'outil l'essaie lui-même, dans fixationMurGC, dès que les
+ * platines ne tiennent pas dans le tableau et avant toute patte ; un refus qui subsiste porte les deux raisons (« … ; en façade
+ * aussi, … ») et commence toujours par celle du tableau, que ces motifs reconnaissent.
  */
 const REFUS_SANS_POUSSEE: readonly RegExp[] = [
   /^sur étude — le placo est à l'intérieur/,

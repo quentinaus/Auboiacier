@@ -1,10 +1,10 @@
 {
  "à lire": "Généré par scripts/extraire-moteur-garde-corps.mjs à partir de l'outil de plans (chargé tel quel dans node:vm). Aucun coût : des prix de vente, des poids, des hauteurs et des empreintes (sha256 tronqué) des réponses complètes. Ne pas modifier à la main.",
- "outil": "4df9f77df04cf93f92e2886b83c5a61772ca1b58314b23788b5a69a4548f777d",
+ "outil": "84379972b68e323896701a15851e9469b6a07a6d1659ce2034e1eb195508634a",
  "empreintes": {
-  "moteur": "f67831b67cc2",
-  "devis": "f5da70d03e11",
-  "chiffrage": "41ee7df3f391"
+  "moteur": "fa64b79c5e69",
+  "devis": "bf7b88d5ef64",
+  "chiffrage": "fddaca486049"
  },
  "defauts": "d150ecda8ed03a01",
  "date": "2026-09-29T10:00:00.000Z",
@@ -1962,7 +1962,7 @@
     "decorForme": "anneau",
     "seuls": true
    },
-   "R": "d58dd083d44c87a7",
+   "R": "af0b589156b4b2cd",
    "hauteurGC": 285,
    "kg": 15.101853900106413,
    "alertes": 0,
@@ -1973,11 +1973,11 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-53ARC",
+    "numero": "D-20260929-7T2NB",
     "total": 630,
     "lignes": 5,
-    "donnees": "0b4aeeb0c2e9a23f",
-    "html": "f9d3aaf767aa950f"
+    "donnees": "4f9d529a715118a7",
+    "html": "47dd7ff0794f456c"
    }
   },
   {
@@ -2334,7 +2334,7 @@
     "decorBarreaux": "bagues",
     "seuls": true
    },
-   "R": "5085521d4d3317ff",
+   "R": "ea5b71df661e22d8",
    "hauteurGC": 285,
    "kg": 20.69924795416606,
    "alertes": 2,
@@ -2345,11 +2345,11 @@
     "empreinte": "df00c5f8cdfc332f"
    },
    "devis": {
-    "numero": "D-20260929-GAB6M",
+    "numero": "D-20260929-VHIY4",
     "total": 930,
     "lignes": 5,
-    "donnees": "86e8047469ddee89",
-    "html": "e05a38c385e83ec5"
+    "donnees": "98d9424b9b3fb86d",
+    "html": "ae7fccdc70e4ab47"
    }
   },
   {
@@ -10092,7 +10092,7 @@
     "carre": 18,
     "renfort": false,
     "panneaux": 1,
-    "R": "1fb81bf96b5f90e8",
+    "R": "f2e4146206df3ea4",
     "hauteurGC": 435,
     "kg": 27.85132721691545,
     "prix": 710,
@@ -10212,7 +10212,7 @@
     "carre": 16,
     "renfort": false,
     "panneaux": 1,
-    "R": "47b61623d12344a6",
+    "R": "7bc5b1477b43f9c9",
     "hauteurGC": 135,
     "kg": 8.776207958371394,
     "prix": 590,

@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Devis garde-corps au format du site (composerDevisGC, dsDevisHtml). SANS coûts : le prix est une entrée.
-// Source : l'outil de plans (plans-atelier.html), sha256 4df9f77df04cf93f92e2886b83c5a61772ca1b58314b23788b5a69a4548f777d
+// Source : l'outil de plans (plans-atelier.html), sha256 84379972b68e323896701a15851e9469b6a07a6d1659ce2034e1eb195508634a
 /* eslint-disable */
 import { DS_ESSENCES } from "./moteur.genere.mjs";
 function kgColisGC(R) { return Math.max(8, Math.round((R && R.kg) || 0)); }
@@ -127,7 +127,7 @@ function dsPhotoConvient(R, v, rp, avecMc) {
   }
 function dsSchemaGC(R, v, avecMc = true) {
     const face = (R.vues && R.vues.face) || [];
-    const pieces = face.filter((p) => p.piece && (p.t === "poly" || p.t === "cercle"));
+    const pieces = face.filter((p) => p.piece && (p.t === "poly" || p.t === "cercle") && p.cls !== "t-cache");
     if (!pieces.length || !(R.hauteurGC > 0)) return "";
     const B2 = v.B / 2, A = Math.max(0, v.A || 0), y0 = A + (v.jour || 0), haut = y0 + R.hauteurGC;
     const wM = 110, hMur = haut + 160, CASE = 140, TXT = 6.3;
@@ -352,6 +352,6 @@ function dsDevisHtml(devis) {
 function dsPageHtml(corps, n, total) {
     return `<section class="ds-page"><div class="ds-corps">${corps}</div><div class="ds-pied"><span>${dsEsc(DS_PIED)}</span></div><div class="ds-num"><span>Page ${n} / ${total}</span></div></section>`;
   }
-export const EMPREINTE_SOURCE = "4df9f77df04cf93f92e2886b83c5a61772ca1b58314b23788b5a69a4548f777d";
+export const EMPREINTE_SOURCE = "84379972b68e323896701a15851e9469b6a07a6d1659ce2034e1eb195508634a";
 export { DS_GC, DS_VALIDITE_JOURS, composerDevisGC, dsDevisHtml, dsPrix };
-export const EMPREINTE = "f5da70d03e11";
+export const EMPREINTE = "bf7b88d5ef64";
