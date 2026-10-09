@@ -22,7 +22,7 @@ export function GlobalHeader({
     { href: `/${locale}/artisanat`, label: dict.hub.craftLabel },
     // Le produit le plus demandé, dans le menu (étude marketing, 06/10) : sur grand écran seulement, la barre d'une
     // tablette n'a pas la place d'un lien de plus (le panneau du téléphone et de la tablette l'a déjà).
-    { href: `/${locale}/artisanat/garde-corps`, label: locale === "fr" ? "Garde-corps" : "Railings", grandEcran: true },
+    { href: `/${locale}/artisanat/famille/garde-corps`, label: locale === "fr" ? "Garde-corps" : "Railings", grandEcran: true },
     { href: `/${locale}/realisations`, label: dict.nav.realisations },
     { href: `/${locale}/devis`, label: dict.nav.devis },
     { href: `/${locale}/a-propos`, label: dict.nav.apropos },
@@ -34,7 +34,7 @@ export function GlobalHeader({
    */
   const liensEnPlus = [
     { href: `/${locale}/artisanat/tables`, label: dict.liens.tables },
-    { href: `/${locale}/artisanat/garde-corps`, label: dict.liens.gardeCorps },
+    { href: `/${locale}/artisanat/famille/garde-corps`, label: dict.liens.gardeCorps },
     { href: `/${locale}/bois-massif`, label: dict.liens.bois },
     { href: `/${locale}/zone-intervention`, label: dict.nav.zone },
     { href: `/${locale}/faq`, label: dict.nav.faq },

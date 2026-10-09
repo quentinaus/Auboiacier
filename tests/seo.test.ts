@@ -350,8 +350,12 @@ test("pied de page : chaque lien mène à une page du site qui existe", () => {
   for (const chemin of chemins) {
     const sansAncre = chemin.replace(/#.*$/, "");
     const fiche = sansAncre.match(/^\/artisanat\/([a-z0-9-]+)$/)?.[1];
+    // Les pages de famille (garde-corps, portail) sont une route dynamique : src/app/[lang]/artisanat/famille/[famille].
+    const famille = sansAncre.match(/^\/artisanat\/famille\/([a-z0-9-]+)$/)?.[1];
     assert.ok(
-      existsSync(new URL(`../src/app/[lang]${sansAncre}`, import.meta.url)) || (fiche && products.some((p) => p.slug === fiche)),
+      existsSync(new URL(`../src/app/[lang]${sansAncre}`, import.meta.url)) ||
+        (fiche && products.some((p) => p.slug === fiche)) ||
+        (famille && existsSync(new URL("../src/app/[lang]/artisanat/famille/[famille]/page.tsx", import.meta.url)) && products.some((p) => p.famille === famille)),
       `le pied de page renvoie vers ${chemin}, qui n'existe pas`
     );
   }

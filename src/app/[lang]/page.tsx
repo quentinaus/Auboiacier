@@ -141,7 +141,8 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
   const des = (prix: number | null) => (prix === null ? "" : `${locale === "fr" ? "dès" : "from"} ${prixAffiche(prix, locale)}`);
   /** Les trois pièces qui se configurent en ligne, chacune avec son prix de départ. */
   const portesConfig = [
-    { href: `/${locale}/artisanat/garde-corps#configuration`, label: t.catGardeCorps, prix: des(appelGC ? appelGC.prix : departDe(["garde-corps"])) },
+    // Quentin (10/10/2026) : d'abord le choix entre les deux garde-corps (sans décor, ou forgé à volutes), pas un modèle d'office.
+    { href: `/${locale}/artisanat/famille/garde-corps`, label: t.catGardeCorps, prix: des(appelGC ? appelGC.prix : departDe(["garde-corps"])) },
     { href: `/${locale}/artisanat/tables`, label: t.catTables, prix: des(departDe(["table-interieur"])) },
     { href: `/${locale}/toiles-tendues`, label: t.catPlafonds, prix: des(departDe(["plafond"])) },
   ];
