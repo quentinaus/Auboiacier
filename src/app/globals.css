@@ -1117,6 +1117,21 @@ textarea:focus-visible,
     display: none;
   }
 }
+/* Fiche du garde-corps : l'en-tête (nom, prix, normes, photos) remplace la ligne « Qui prend les mesures ? » (formule
+   validée par Quentin : le nom, puis les deux cartes). Sur téléphone, chaque film se pose en vignette, à la largeur que la
+   hauteur de l'écran permet, dans ses proportions : les deux cartes et leurs boutons tiennent sur l'écran. */
+#configuration.fiche-gc .porte-qui .porte-entete {
+  display: none;
+}
+@media (max-width: 47.999rem) {
+  #configuration.fiche-gc .porte-qui .porte-carte > .aplat-card-scene {
+    width: clamp(36%, calc((100svh - 508px) * 0.9), 92%);
+    align-self: center;
+    margin-top: 10px;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+}
 .porte-qui {
   position: absolute;
   inset: 0;
