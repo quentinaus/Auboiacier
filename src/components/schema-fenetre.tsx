@@ -451,14 +451,15 @@ function Cote({
  * Le ruban glisse hors du boîtier, le crochet en tête (Web Animations, en pixels : Safari ignorait la version CSS en %).
  * Une animation <animate> ajoutée après le chargement se croyait déjà finie, et elle se jouait de toute façon sous l'écran
  * « Qui prend les mesures ? » (Quentin : « je ne vois pas l'animation »). Le ruban attend donc dans son boîtier que le
- * mètre soit entièrement à l'écran (hors du bas de l'écran) et découvert, et repart à chaque nouvelle question.
+ * croquis soit à plus de moitié à l'écran et découvert, et repart à chaque nouvelle question.
  */
 export function MetreRuban({ de, a }: { de: [number, number]; a: [number, number] }) {
   const id = `metre${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const metre = useRef<SVGGElement>(null);
   const sort = useRef<SVGGElement>(null);
   const L = Math.hypot(a[0] - de[0], a[1] - de[1]);
-  const duree = Math.round(Math.min(1500, 600 + L * 2.5));
+  // Lent, pour qu'on le voie sortir (Quentin : « je veux voir l'animation »).
+  const duree = Math.round(Math.min(2400, 1400 + L * 3));
   useEffect(() => {
     const el = metre.current;
     const ruban = sort.current;
@@ -467,29 +468,30 @@ export function MetreRuban({ de, a }: { de: [number, number]; a: [number, number
     ruban.style.transform = rentre;
     let visible = false;
     let anim: Animation | null = null;
-    const couvert = () => Boolean(el.closest(".fond-configuration")?.querySelector('.porte-qui:is([data-etat="choix"], [data-etat="ouverture"])'));
+    const couvert = () => Boolean(el.closest(".fond-configuration")?.querySelector(".porte-qui"));
     const essayer = () => {
       if (anim || !visible || couvert()) return;
       ruban.style.transform = "";
       anim = ruban.animate([{ transform: rentre }, { transform: "translateX(0px)" }], {
         duration: duree,
-        delay: 450,
+        delay: 300,
         easing: "cubic-bezier(0.22, 0.75, 0.25, 1)",
         fill: "backwards",
       });
       window.clearInterval(veille);
       io.disconnect();
     };
-    // Le mètre lui-même, en entier, et pas tout en bas de l'écran (Quentin : « quand on arrive la première fois, il est
-    // déjà déroulé ») : le croquis qui pointait sous la photo suffisait à lancer le déroulé avant qu'on y arrive.
+    // Le croquis à plus de moitié à l'écran (Quentin : « quand on arrive la première fois, il est déjà déroulé ») : le
+    // croquis qui pointait sous la photo suffisait à lancer le déroulé avant qu'on y arrive. Pas le mètre lui-même : rentré,
+    // son ruban sort du croquis, et il ne passait jamais pour visible (« le mètre n'est pas déroulé »).
     const io = new IntersectionObserver(
       ([e]) => {
-        visible = e.isIntersecting && e.intersectionRatio > 0.98;
+        visible = e.isIntersecting && e.intersectionRatio >= 0.6;
         essayer();
       },
-      { threshold: [0, 1], rootMargin: "0px 0px -20% 0px" },
+      { threshold: [0, 0.6, 1] },
     );
-    io.observe(el);
+    io.observe(el.ownerSVGElement ?? el);
     const veille = window.setInterval(essayer, 250);
     return () => {
       io.disconnect();
