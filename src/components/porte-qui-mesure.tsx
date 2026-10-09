@@ -22,7 +22,14 @@ type Phase = "choix" | "ouverture" | "revele" | "retour";
 
 type Rect = { top: number; left: number; width: number; height: number };
 
-const px = (r: Rect) => ({ top: `${r.top}px`, left: `${r.left}px`, width: `${r.width}px`, height: `${r.height}px` });
+/**
+ * Le voile garde toujours la taille du bloc ; pour qu'il ait la place d'une carte, on le réduit (transform) au lieu de
+ * changer sa taille. Ainsi la carte graphique le déplace seule, sans que la page soit redessinée à chaque image : changer
+ * top, left, width et height à chaque image saccadait, surtout dans Safari (Quentin, 09/10/2026 : « l'ouverture est
+ * saccadée »).
+ */
+const vers = (r: Rect, bloc: Element) =>
+  `translate(${r.left}px, ${r.top}px) scale(${r.width / Math.max(1, bloc.clientWidth)}, ${r.height / Math.max(1, bloc.clientHeight)})`;
 const moinsDeMouvement = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 /** La même courbe partout : un départ franc, une arrivée qui se pose. */
 const COURBE = "cubic-bezier(0.7, 0, 0.2, 1)";
@@ -106,6 +113,8 @@ export function PorteQuiMesure({
       return;
     }
     depart.current = placeDe(carte, racine.current);
+    // Les films s'arrêtent sous le voile : la puce vidéo n'a plus que l'ouverture à montrer.
+    racine.current.querySelectorAll("video").forEach((v) => v.pause());
     setChoisi(qui);
     setPhase("ouverture");
   }
@@ -114,19 +123,16 @@ export function PorteQuiMesure({
      (useLayoutEffect) : on ne voit jamais le voile plein avant son départ. */
   useLayoutEffect(() => {
     const v = voile.current;
-    if (phase !== "ouverture" || !v || !depart.current) return;
-    const a = v.animate(
-      [
-        { ...px(depart.current), borderRadius: "24px" },
-        { top: "0px", left: "0px", width: "100%", height: "100%", borderRadius: "32px" },
-      ],
-      { duration: 720, easing: COURBE },
-    );
+    const el = racine.current;
+    if (phase !== "ouverture" || !v || !el || !depart.current) return;
+    const a = v.animate([{ transform: vers(depart.current, el) }, { transform: "none" }], { duration: 720, easing: COURBE });
     a.onfinish = () => setPhase("revele");
     return () => a.cancel();
   }, [phase]);
 
-  /* Le voile s'efface sur le configurateur, dont les panneaux montent l'un après l'autre. */
+  /* Le voile, posé sur tout le bloc, se fond dans le configurateur. Les panneaux ne bougent plus dessous : leur verre
+     dépoli, recalculé à chaque image pendant qu'ils montaient, faisait sauter des images. Le fondu attend deux images,
+     le temps que le configurateur, qui vient d'apparaître sous le voile, soit dessiné une première fois. */
   useEffect(() => {
     const v = voile.current;
     const plaque = racine.current?.closest(".fond-configuration");
@@ -134,26 +140,23 @@ export function PorteQuiMesure({
     // Sur téléphone, le bloc s'allonge d'un coup : on garde son haut à l'écran.
     const section = plaque.closest("section");
     if (section && section.getBoundingClientRect().top < -4) section.scrollIntoView({ behavior: "smooth", block: "start" });
-    // Les montées vont au bout même si l'écran de choix disparaît avant elles : elles appartiennent aux panneaux.
-    [...plaque.children]
-      .filter((e) => !e.classList.contains("porte-slot"))
-      .forEach((e, i) =>
-        e.animate([{ opacity: 0, transform: "translateY(18px) scale(0.985)" }, { opacity: 1, transform: "none" }], {
-          duration: 760,
-          delay: 140 + i * 70,
-          easing: "cubic-bezier(0.2, 0.8, 0.2, 1)",
-          fill: "backwards",
-        }),
-      );
-    const a = v.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 620, delay: 60, easing: "ease-out", fill: "forwards" });
-    a.onfinish = () => {
-      // Au clavier, on reste dans le bloc : sur « Changer », juste en haut du configurateur.
-      if (racine.current?.contains(document.activeElement)) {
-        plaque.querySelector<HTMLElement>("[data-revenir-choix]")?.focus({ preventScroll: true });
-      }
-      fin();
+    let a: Animation | null = null;
+    let image = requestAnimationFrame(() => {
+      image = requestAnimationFrame(() => {
+        a = v.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 700, easing: "cubic-bezier(0.4, 0, 0.2, 1)", fill: "forwards" });
+        a.onfinish = () => {
+          // Au clavier, on reste dans le bloc : sur « Changer », juste en haut du configurateur.
+          if (racine.current?.contains(document.activeElement)) {
+            plaque.querySelector<HTMLElement>("[data-revenir-choix]")?.focus({ preventScroll: true });
+          }
+          fin();
+        };
+      });
+    });
+    return () => {
+      cancelAnimationFrame(image);
+      a?.cancel();
     };
-    return () => a.cancel();
   }, [phase]);
 
   /* Retour depuis « Changer » : le voile de la photo couvre le configurateur… */
@@ -178,12 +181,12 @@ export function PorteQuiMesure({
     if (section && section.getBoundingClientRect().top < -4) section.scrollIntoView({ behavior: "smooth", block: "start" });
     const carte = el.querySelector<HTMLElement>(`[data-carte="${choisi}"]`);
     if (!carte) return;
-    const arrivee = placeDe(carte, el);
+    const arrivee = vers(placeDe(carte, el), el);
     const a = v.animate(
       [
-        { top: "0px", left: "0px", width: `${el.clientWidth}px`, height: `${el.clientHeight}px`, borderRadius: "32px", opacity: 1 },
-        { ...px(arrivee), borderRadius: "24px", opacity: 1, offset: 0.82 },
-        { ...px(arrivee), borderRadius: "24px", opacity: 0 },
+        { transform: "none", opacity: 1 },
+        { transform: arrivee, opacity: 1, offset: 0.82 },
+        { transform: arrivee, opacity: 0 },
       ],
       { duration: 760, easing: COURBE },
     );

@@ -1182,6 +1182,9 @@ textarea:focus-visible,
 }
 .porte-qui:is([data-etat="ouverture"], [data-etat="revele"], [data-etat="retour"]) .porte-voile {
   opacity: 1;
+  /* Réduit à la place de la carte (porte-qui-mesure.tsx, vers), depuis son coin haut gauche ; sur son propre calque. */
+  transform-origin: 0 0;
+  will-change: transform, opacity;
 }
 /* Les cartes sont celles de la maquette en aplats (aplat-card) ; en plus, une ombre et un léger soulèvement au survol. */
 .porte-carte {
