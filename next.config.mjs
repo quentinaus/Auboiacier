@@ -50,6 +50,12 @@ const nextConfig = {
       // Les fichiers à imprimer (la carte des avis glissée dans les colis) sont
       // en ligne pour l'atelier, pas pour les résultats de recherche.
       { source: "/imprimer/:fichier*", headers: [{ key: "X-Robots-Tag", value: "noindex" }] },
+      // Les photos et les vidéos : gardées un jour par le navigateur, puis revérifiées en arrière-plan (diagnostic du 09/10/2026 :
+      // elles étaient redemandées à chaque visite). Une photo remplacée change de nom (-vN), sinon l'ancienne resterait un jour.
+      {
+        source: "/:dossier(images|videos)/:fichier*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+      },
     ];
   },
   async redirects() {

@@ -235,6 +235,8 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           subtitle={t.lightingSubtitle}
           objectPosition="50% 26%"
           cta={t.lightingCta}
+          // Sur téléphone, c'est la plus grande image du premier écran (diagnostic du 09/10/2026) : pas de chargement différé.
+          priority
         />
         <HeroPanel
           locale={locale}

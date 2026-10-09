@@ -45,7 +45,12 @@ export async function GET(request: Request) {
     // client en fait souvent plusieurs. Le navigateur garde la réponse dix minutes :
     // les mêmes cotes redemandées ne sont pas recomptées.
     after(() => compter("prix_calcule", { famille: "garde-corps", resultat: reponse.ok ? "prix" : "a-etudier" }, request));
-    return NextResponse.json(reponse, { headers: { "cache-control": "private, max-age=600" } });
+    // Le CDN garde la réponse un jour (les prix ne changent qu'au déploiement, qui vide le CDN) : les mêmes cotes ne relancent
+    // plus le calcul, d'un client à l'autre (diagnostic du 09/10/2026 : 0,4 à 0,6 s par clic). Elle ne dépend que de
+    // l'adresse (cotes et options), jamais du visiteur. Le compteur ne voit plus que les calculs vraiment faits.
+    return NextResponse.json(reponse, {
+      headers: { "cache-control": "public, max-age=600, s-maxage=86400, stale-while-revalidate=604800" },
+    });
   } catch (erreur) {
     if (erreur instanceof ChiffrageIndisponible) {
       // Clé absente ou fausse sur ce serveur : aucun prix plutôt qu'un prix faux.

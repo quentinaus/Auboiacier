@@ -164,7 +164,8 @@ export default async function ToilesTenduesPage({
             className={`mt-10 grid gap-x-8 gap-y-14 sm:grid-cols-2 md:mt-12 ${luminaires.length > 2 ? "lg:grid-cols-3" : ""}`}
           >
             {luminaires.map((product, index) => (
-              <Apparition key={product.slug} retard={(index % 4) * 110}>
+              // Animation CSS : la carte (l'image principale de la page) s'affiche sans attendre le JavaScript (diagnostic du 09/10/2026).
+              <div key={product.slug} className="entree-monte" style={{ "--retard": `${200 + (index % 4) * 110}ms` } as CSSProperties}>
                 <Link
                   href={`/${locale}/artisanat/${product.slug}`}
                   className="group flex flex-col gap-5"
@@ -226,7 +227,7 @@ export default async function ToilesTenduesPage({
                     </div>
                   </div>
                 </Link>
-              </Apparition>
+              </div>
             ))}
           </div>
         </div>

@@ -37,8 +37,18 @@ export function VideoBoucle({
   useEffect(() => {
     const v = video.current;
     if (!v || moinsDAnimations()) return;
+    // Elle ne se charge et ne joue que près de l'écran, et se met en pause quand elle en sort (diagnostic du 09/10/2026 :
+    // la page des plafonds téléchargeait 2 à 4 Mo de vidéo dès l'ouverture, avant même qu'on la voie).
     // Le navigateur peut refuser le lancement automatique (économie d'énergie) : la photo reste, le bouton « lire » aussi.
-    v.play().catch(() => {});
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) v.play().catch(() => {});
+        else v.pause();
+      },
+      { rootMargin: "200px 0px" },
+    );
+    obs.observe(v);
+    return () => obs.disconnect();
   }, []);
 
   const basculer = () => {
@@ -57,7 +67,7 @@ export function VideoBoucle({
         muted
         loop
         playsInline
-        preload="metadata"
+        preload="none"
         // Si la photo d'ouverture est un visuel, la description le dit aussi aux lecteurs d'écran (« … (image d'illustration) »).
         aria-label={altAvecMention(description, poster, locale)}
         onPlay={() => setEnLecture(true)}
