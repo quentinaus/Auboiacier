@@ -58,8 +58,8 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
       {/* 1. Le titre et la phrase. */}
       {/* Compact et sur toute la largeur (09/10/2026, Quentin : « ça prend trop de place ») : le titre à gauche, la
           phrase à droite sur grand écran, l'un sous l'autre sinon. */}
-      <section className="bg-[#f5f1ea] px-6 pb-2 pt-9 md:pt-12">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 xl:flex-row xl:items-end xl:justify-between xl:gap-16">
+      <section className="bg-[#f5f1ea] pb-2 pt-9 md:pt-12">
+        <div className="mx-auto flex max-w-6xl flex-col px-6 gap-3 xl:flex-row xl:items-end xl:justify-between xl:gap-16">
           <h1
             className={`${serif.className} entree-monte text-[2rem] text-balance leading-[1.06] tracking-[-0.02em] text-[#2b2320] sm:text-[2.4rem] md:text-[2.8rem]`}
             style={entree(80)}
@@ -74,8 +74,8 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
 
       {/* 2. Les catégories sur toute la largeur : deux par rangée sur téléphone, trois sur tablette, cinq dès 1280 px
           (neuf catégories : 5 + 4, aucune carte seule). Les dernières se centrent. */}
-      <section className="bg-[#f5f1ea] px-6 pb-16 pt-7 md:pb-24 md:pt-9">
-        <ul className="mx-auto flex max-w-6xl flex-wrap justify-center gap-x-4 gap-y-9 sm:gap-x-6 md:gap-y-12 xl:gap-x-5 xl:gap-y-11">
+      <section className="bg-[#f5f1ea] pb-16 pt-7 md:pb-24 md:pt-9">
+        <ul className="mx-auto flex max-w-6xl flex-wrap px-6 justify-center gap-x-4 gap-y-9 sm:gap-x-6 md:gap-y-12 xl:gap-x-5 xl:gap-y-11">
           {categories.map((c, i) => (
             <li key={c.id} className="basis-[calc(50%-0.5rem)] sm:basis-[calc(50%-0.75rem)] md:basis-[calc(33.333%-1rem)] xl:basis-[calc(20%-1rem)]">
               <Arrivee premierEcran={i < 5} retard={(i % 5) * 90}>
