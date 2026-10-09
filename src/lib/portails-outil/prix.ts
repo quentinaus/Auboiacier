@@ -65,6 +65,8 @@ export type VariantesPortail = {
   moteurs: Record<"aucun" | Exclude<(typeof MOTEURS_PORTAIL)[number], "conseille">, number | null>;
   // Le portillon assorti : son prix posé avec le portail, et commandé seul (pour comparer) ; null sur la fiche du portillon.
   portillon: { avec: number | null; seul: number | null } | null;
+  // Les moulures : le prix avec et sans (null quand le bas n'est pas plein).
+  moulure: { avec: number | null; sans: number | null };
 };
 export function prixVariantesPortail(slug: SlugPortail, cfg: ConfigPortail): VariantesPortail {
   const p = (c: ConfigPortail) => { const r = prixPortail(slug, c); return r.ok ? r.prix : null; };
@@ -80,5 +82,7 @@ export function prixVariantesPortail(slug: SlugPortail, cfg: ConfigPortail): Var
     avec: avecP?.ok && sansP?.ok ? avecP.prix - sansP.prix : null,
     seul: (() => { const r = prixPortail("portillon", q); return r.ok ? r.prix : null; })(),
   };
-  return { base: prixPortail(slug, cfg), styles, decors, moteurs, portillon };
+  const basPlein = cfg.soub === "plein" || cfg.soub === "panneau";
+  const moulure = { avec: basPlein ? p({ ...cfg, moulure: true }) : null, sans: p({ ...cfg, moulure: false }) };
+  return { base: prixPortail(slug, cfg), styles, decors, moteurs, portillon, moulure };
 }

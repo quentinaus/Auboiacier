@@ -37,6 +37,7 @@ function configDe(slug: SlugPortail, v: Record<string, unknown>): ConfigPortail 
   if (v.ptBouts) cfg = { ...cfg, bouts: v.ptBouts as ConfigPortail["bouts"] };
   if (v.ptBarreauxDeco) cfg = { ...cfg, barreauxDeco: v.ptBarreauxDeco as ConfigPortail["barreauxDeco"] };
   if (v.ptPointes) cfg = { ...cfg, pointes: true };
+  if (v.ptMoulure) cfg = { ...cfg, moulure: true };
   return cfg;
 }
 

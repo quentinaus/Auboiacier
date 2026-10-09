@@ -177,6 +177,8 @@ CAS.push(
   { modele: "ptCoulissant", v: { ptStyle: "barreaux", ptMat: "acier", ptDecor: "perso", ptDecorChoix: perso([{ assemblage: "coeurs", forme: "coeur", rythme: "unSurDeux" }]), ptBouts: "bouton", ptBarreauxDeco: "torsade", ptPointes: true } },
   { modele: "ptPortillon", v: { ptStyle: "barreaux", ptMat: "acier", ptP: 1000, ptDecor: "perso", ptDecorChoix: perso([{ assemblage: "frise", forme: "C", rythme: "alterne", forme2: "S" }]) } },
 );
+// Les moulures (09/10/2026) : un médaillon par vantail sur le bas plein, fonte sur l'acier, alu sur l'alu.
+CAS.push({ modele: "ptBattant", v: { ptStyle: "rosace", ptMoulure: true } }, { modele: "ptBattant", v: { ptStyle: "barreaux", ptSoub: "plein", ptHSoub: 500, ptMoulure: true } }, { modele: "ptPortillon", v: { ptStyle: "rosace", ptP: 1000, ptMoulure: true } });
 // Le portillon assorti (lot 10) : chiffré en complément du portail (o.complement : visite, route et frais fixes une fois).
 for (const ptStyle of ["plein", "lamesChene", "rosace", "volutes"]) CAS.push({ modele: "ptPortillon", v: { ptStyle, ptP: 1000 }, o: { complement: true } });
 const reference = CAS.map(({ modele, v, o }) => {

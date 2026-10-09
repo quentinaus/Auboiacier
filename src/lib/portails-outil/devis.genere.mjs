@@ -91,6 +91,7 @@ function composerDevisPortail({ R, v, postes, portillon = null, infos = {}, natu
     c.soub && c.soub !== "aucun" ? { label: "Soubassement", value: `${DP_REMP[c.soub] || dpPrem(c.soub)}, ${dsMm(c.hSoub)} mm` } : null,
     { label: "Remplissage", value: DP_REMP[c.remp] || dpPrem(c.remp) },
     decorPieces ? { label: "Décor", value: "Fer forgé, soudé à l'atelier" } : null,
+    R.quant && R.quant.moulure ? { label: "Moulures", value: `${R.quant.moulure.nom}, une par vantail, vissée par derrière (rien ne se voit de la rue)` } : null,
     { label: "Matière et finition", value: acier ? `Acier galvanisé à chaud puis thermolaqué, ${couleur}` : `Alu soudé TIG, thermolaqué ${couleur}` },
     { label: "Fixation", value: c.poteaux === "existants" ? "Sur vos piliers, gonds réglables (matière vérifiée à la visite)" : `Poteaux ${c.poteaux} sur massifs (béton par votre maçon, d'après notre plan)` },
     { label: "Moteur", value: M ? `${M.nom}, garantie ${M.garantie || 5} ans` : "Ouverture à la main" },

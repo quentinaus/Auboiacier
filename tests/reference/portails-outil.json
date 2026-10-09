@@ -1,6 +1,6 @@
 {
- "source": "33375be6637947c59163829a",
- "moteur": "3d90eae87239",
+ "source": "ba50ece2bb37d2925686cf48",
+ "moteur": "19014a8e7c4a",
  "cas": [
   {
    "modele": "ptBattant",
@@ -1426,6 +1426,39 @@
    "prix": 1920,
    "alertes": 0,
    "poids": 38
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptMoulure": true
+   },
+   "prix": 3060,
+   "alertes": 0,
+   "poids": 110
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptSoub": "plein",
+    "ptHSoub": 500,
+    "ptMoulure": true
+   },
+   "prix": 3270,
+   "alertes": 0,
+   "poids": 44
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "rosace",
+    "ptP": 1000,
+    "ptMoulure": true
+   },
+   "prix": 1670,
+   "alertes": 0,
+   "poids": 34
   },
   {
    "modele": "ptPortillon",

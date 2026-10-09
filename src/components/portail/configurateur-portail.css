@@ -342,3 +342,6 @@
   .cpt-achat .cpt-lc-picto { width: 2.6rem; height: 2.6rem; }
   .cpt-achat .cpt-pilule-picto [role="radio"] { flex-direction: row; gap: 4px; padding-top: 0.3rem; padding-bottom: 0.3rem; }
 }
+
+/* Les fenêtres restent pleines (blanc) : la carte de verre du site a changé de fond (09/10/2026) et les rendait transparentes. */
+#configuration .fond-configuration .carte-verre.cpt-fenetre { background: #ffffff !important; -webkit-backdrop-filter: none; backdrop-filter: none; }

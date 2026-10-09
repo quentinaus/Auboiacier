@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 33375be6637947c59163829a.
+// Source : l'outil de plans (plans-atelier.html), sha256 ba50ece2bb37d2925686cf48.
 /* eslint-disable */
 
 
@@ -1259,6 +1259,15 @@ function ptDecorPerso(x) {
   });
 }
 
+// Les moulures (09/10/2026, décision de Quentin) : un médaillon ovale du commerce, au centre du bas plein de chaque vantail,
+// VISSÉ PAR DERRIÈRE (trous taraudés M5-M6 du motif, vis inox depuis la propriété : rien ne se voit de la rue ; jamais de
+// collier). Fonte zinguée sur l'acier, alu moulé sur l'alu. Le plus grand qui tient est choisi (60 % de la largeur du
+// vantail, 70 % de la hauteur du bas). Ici les tailles seulement : les prix sont dans le chiffrage (privé).
+const PT_MOULURES = {
+  acier: [{ id: "f400", l: 400, h: 200, nom: "Médaillon ovale en fonte zinguée 400 × 200" }, { id: "f250", l: 250, h: 100, nom: "Médaillon ovale en fonte zinguée 250 × 100" }],
+  alu: [{ id: "a400", l: 400, h: 200, nom: "Médaillon ovale en alu moulé 400 × 200" }, { id: "a340", l: 340, h: 170, nom: "Médaillon ovale en alu moulé 340 × 170" }],
+};
+
 const PT_MODELES = {
   ptBattant: { type: "battant", nom: "Portail battant" },
   ptCoulissant: { type: "coulissant", nom: "Portail coulissant" },
@@ -1345,6 +1354,9 @@ function ptEntrees(v, modele) {
   c.pointes = ptBool(pick("ptPointes", false), false) && ["barreaux", "volutes"].includes(c.remp);
   if (c.pointes && c.decorChoix.some((x) => x.assemblage === "cimier")) { c.pointes = false; c.decorNotes.push("Pas de pointes de lance sous un couronnement : retirées."); }
   c.lisse = ptBool(pick("ptLisse", false), false);
+  // Les moulures : seulement sur un bas plein (tôle ou panneau).
+  c.mouluresDemandees = ptBool(v.ptMoulure, false);
+  c.moulure = c.mouluresDemandees && (c.soub === "plein" || c.soub === "panneau");
   c.poteaux = ptChoix(v.ptPoteaux, ["existants", "acier", "alu"], "existants");
   c.moteur = ptBool(v.ptMoteur, false);
   c.moteurModele = PT_MOTEURS.some((m) => m.cle === v.ptMoteurModele) ? v.ptMoteurModele : null;
@@ -1669,6 +1681,20 @@ function ptDessinerVantail(c, V, haut, F, pieces, q, Vn) {
     } else {
       ptRemplir(c, { x0: a, x1: b, y0, haut: hautCadre, nomZone: "", dessus: true, hautExt: haut, miroir, decor }, c.remp, F, pieces, q);
     }
+  }
+  // La moulure : au centre du bas plein du vantail (le plus grand modèle qui tient), vissée par derrière.
+  if (c.moulure && ySoub) {
+    const w = xi1 - xi0, hS = ySoub - (gs + bB);
+    const m = PT_MOULURES[c.mat === "acier" ? "acier" : "alu"].find((x) => x.l <= 0.6 * w && x.h <= 0.7 * hS);
+    if (m) {
+      const cx = (xi0 + xi1) / 2, cy = gs + bB + hS / 2;
+      const ell = (rx, ry) => Array.from({ length: 28 }, (_, i) => [cx + rx * Math.cos((i / 28) * 2 * Math.PI), cy + ry * Math.sin((i / 28) * 2 * Math.PI)]);
+      F.push({ t: "poly", piece: "Moulure", cls: "t-acier-plein", pts: ell(m.l / 2, m.h / 2) });
+      F.push({ t: "poly", piece: "Moulure", cls: "t-acier", pts: ell(m.l * 0.36, m.h * 0.32) });
+      F.push({ t: "cercle", piece: "Moulure", cls: "t-acier-plein", c: [cx, cy], r: m.h * 0.17 });
+      q.achats.moulures = (q.achats.moulures || 0) + 1;
+      q.moulure = m;
+    } else q.mouluresRefus = true;
   }
   // Lisse en chêne posée sur la traverse haute (haut droit seulement) : de bout en bout du vantail, SANS débord au bout
   // (elle mangerait les jeux) ; elle déborde seulement devant et derrière (vue de côté).
@@ -2137,6 +2163,7 @@ function calculerPortail(v, modele) {
   if (c.lisse && c.forme !== "droit") R.alertes.push("La lisse en chêne se pose sur un haut droit seulement : choisis « droit » ou retire la lisse.");
   if (c.mat === "alu" && c.remp === "croix") R.avertissements.push("Rosaces en alu : pièces à trouver chez un fournisseur, rendu moins « fer forgé ». À confirmer.");
   if (c.mat === "acier" && (c.remp === "panneau" || c.soub === "panneau")) R.notes.push("En acier, le panneau lisse est une tôle pleine : c'est le remplissage « plein ».");
+  if (c.mouluresDemandees && !c.moulure) R.avertissements.push("Moulures : il faut un bas plein (tôle ou panneau) pour les poser.");
   if (c.mat === "acier" && c.remp === "lamesAlu") R.alertes.push("Lames alu sur un cadre acier : pas de mélange (corrosion). Choisis le cadre alu ou un autre remplissage.");
   if (c.pointes && c.mat === "alu") R.avertissements.push("Pointes de lance en alu : à trouver chez un fournisseur. À confirmer.");
   if (aGonds && (G.axeNu < G.plageNu[0] || G.axeNu > G.plageNu[1] || G.axeNu <= RG.jeuGonds)) R.alertes.push(`Axe des gonds à ${ptMm(G.axeNu)} mm du nu du pilier : il doit être dans la plage du gond (${G.plageNu[0]} à ${G.plageNu[1]} mm) et au-delà du jeu de ${RG.jeuGonds}.`);
@@ -2190,6 +2217,7 @@ function calculerPortail(v, modele) {
     const kg = pieces.slice(p0).reduce((s, p) => s + (p.kg != null ? p.kg : p.kgM * p.long / 1000), 0);
     parVantail.push({ nom: vt.nom, l: vt.x1 - vt.x0, kg });
   }
+  if (c.moulure && q.mouluresRefus) R.avertissements.push(`Moulures : le bas plein est trop petit pour un médaillon (${c.mat === "acier" ? "250 × 100" : "340 × 170"} au moins) : agrandissez le bas, ou à étudier à la visite.`);
   const largeurs = V.map((x) => x.x1 - x.x0);
   const vMax = Math.max(...largeurs);
   if (c.type === "battant") {
@@ -2486,7 +2514,7 @@ function calculerPortail(v, modele) {
     nom: g.nom, qte: g.qte, mat: g.mat, long: g.tole ? 0 : Math.round(g.long), coupes: g.tole ? `${ptMm(g.long)} × ${ptMm(g.larg)} mm, ${g.coupes.toLowerCase()}` : g.coupes, note: g.note, groupe: g.groupe,
     ...(g.decor ? { decor: true } : {}),
   }));
-  const ACHATS_NOMS = { gonds: "Gonds réglables", serrure: "Serrure + cylindre", poignees: "Paire de poignées", arrets: "Arrêts de vantail", buteeCentrale: "Butée centrale", sabotsButee: "Sabots de butée", buteeFermeture: "Butée de fermeture", verrou: "Verrou du vantail fixe", charnieresPli: "Charnières de pli", roulettesBout: "Roulettes de bout", guidesSol: "Guides au sol", roues: "Roues à gorge", guideHaut: "Guide haut à rouleaux", butees: "Butées (réception, fin de course)", kitAutoportant: "Kit autoportant", pointes: "Pointes de lance", cremaillereM: "Crémaillère (mètres)" };
+  const ACHATS_NOMS = { moulures: "Moulures en applique", gonds: "Gonds réglables", serrure: "Serrure + cylindre", poignees: "Paire de poignées", arrets: "Arrêts de vantail", buteeCentrale: "Butée centrale", sabotsButee: "Sabots de butée", buteeFermeture: "Butée de fermeture", verrou: "Verrou du vantail fixe", charnieresPli: "Charnières de pli", roulettesBout: "Roulettes de bout", guidesSol: "Guides au sol", roues: "Roues à gorge", guideHaut: "Guide haut à rouleaux", butees: "Butées (réception, fin de course)", kitAutoportant: "Kit autoportant", pointes: "Pointes de lance", cremaillereM: "Crémaillère (mètres)" };
   const rgl = R.jeux.reglage;
   const ACHATS_DETAIL = {
     gonds: () => [gond ? `${gond.ref}${gond.releve ? "" : " (référence à relever)"}` : "Gond sur étude", `Gond haut axe vers le bas (anti-dégondage), ${G.jeuVertical[0]} à ${G.jeuVertical[1]} mm de jeu ; axe à ${G.axeNu} mm du nu${rgl ? `, réglé sur chantier entre ${rgl.axeMin} et ${rgl.axeMax}` : ""}`],
@@ -2494,6 +2522,7 @@ function calculerPortail(v, modele) {
     buteeCentrale: () => ["Quincaillerie", `Basse : ${B.h} mm au-dessus du sol fini (référence à relever)`],
     sabotsButee: () => ["Quincaillerie", `Un sous la traverse basse de chaque ${c.type === "pliant" ? "panneau côté centre" : "vantail"}, au droit de la butée (bas à ${basSabot} mm du sol ; un par vantail)`],
     buteeFermeture: () => ["Quincaillerie", "Sur le pilier côté serrure, côté rue : arrête le vantail fermé (ou gâche à butée) ; référence à relever"],
+    moulures: () => [q.moulure ? q.moulure.nom : "Moulure", "Au centre du bas plein, vissée par derrière (vis inox depuis la propriété)"],
     arrets: () => ["Quincaillerie", `Sur plots de béton ${RG.plotArret.l} × ${RG.plotArret.p} × ${RG.plotArret.h}, à ${RG.plotArret.aBout} mm du bout du vantail`],
   };
   for (const [k, n] of Object.entries(A)) {
@@ -2521,7 +2550,7 @@ function calculerPortail(v, modele) {
   }
   const kgPortail = parVantail.reduce((s, x) => s + x.kg, 0);
   R.quant = {
-    type: c.type, modele: c.modele, mat: c.mat, metres, toleM2, panneauM2, laqueM2, soudures: q.soudures, achats: A, rosaces: q.rosaces, volutes: q.volutes,
+    type: c.type, modele: c.modele, mat: c.mat, metres, toleM2, panneauM2, laqueM2, soudures: q.soudures, achats: A, rosaces: q.rosaces, volutes: q.volutes, moulure: q.moulure || null,
     vantaux: parVantail, queue, longueurPortail: coul ? Lg : null, massifQueue: q.massifQueue || 0, chariots: q.chariots || null, poteaux: c.poteaux, moteur: c.moteur,
     moteurModele: c.moteur && R.moteurs && R.moteurs.choisi ? R.moteurs.choisi.cle : null,
     cintrage: c.forme === "chapeau" || c.forme === "creux", lisse: c.lisse && c.forme === "droit", pointes: c.pointes,
@@ -2931,4 +2960,4 @@ function ptPlanA3(R, v, infos = {}, feuille = "1", dessiner) {
 
 
 export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, PT_MOTEURS, MT_AVEC, MT_NOMS };
-export const EMPREINTE = "27152a114c96";
+export const EMPREINTE = "d2ab3d3fdd46";

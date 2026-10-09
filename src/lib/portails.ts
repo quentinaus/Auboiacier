@@ -64,6 +64,8 @@ export type ConfigPortail = {
   barreauxDeco: (typeof BARREAUX_DECOR)[number];
   pointes: boolean;
   lisse: boolean;
+  // Les moulures (09/10/2026) : un médaillon par vantail sur le bas plein, vissé par derrière.
+  moulure: boolean;
   vantaux: 1 | 2;
   rep: "egal" | "tiers";
   guidage: "rail" | "auto";
@@ -90,7 +92,7 @@ export function bornesPortail(slug: SlugPortail) {
 export function configDepart(slug: SlugPortail, style: StylePortail = "plein"): ConfigPortail {
   const base: ConfigPortail = {
     P: slug === "portillon" ? 1000 : 3500, H: 1600, mat: "alu", forme: "droit", fleche: 150, soub: "aucun", hSoub: 500,
-    remp: "plein", decor: "aucun", decorChoix: [], bouts: "effile", barreauxDeco: "carre", pointes: false, lisse: false, vantaux: 2, rep: "egal",
+    remp: "plein", decor: "aucun", decorChoix: [], bouts: "effile", barreauxDeco: "carre", pointes: false, lisse: false, moulure: false, vantaux: 2, rep: "egal",
     guidage: "rail", sens: "gauche", poteaux: "existants", moteur: false, moteurModele: "conseille", pente: 0, couleur: "anthracite",
     portillon: false, portillonP: 1000, portillonSens: "gauche",
   };
@@ -135,6 +137,7 @@ export function versEntrees(cfg: ConfigPortail): Record<string, unknown> {
     ptP: cfg.P, ptH: cfg.H, ptMat: cfg.mat, ptForme: cfg.forme, ptFleche: cfg.fleche, ptSoub: cfg.soub, ptHSoub: cfg.hSoub,
     ptRemp: cfg.remp, ptDecor: decor, ptPointes: cfg.pointes, ptLisse: cfg.lisse, ptVantaux: String(cfg.vantaux), ptRep: cfg.rep,
     ptGuidage: cfg.guidage, ptSens: cfg.sens, ptPoteaux: cfg.poteaux, ptMoteur: cfg.moteur, ptPente: cfg.pente,
+    ...(cfg.moulure ? { ptMoulure: true } : {}),
     ...(cfg.moteurModele !== "conseille" ? { ptMoteurModele: cfg.moteurModele } : {}),
     ...(decor === "perso" ? { ptDecorChoix: JSON.stringify(cfg.decorChoix) } : {}),
     ...(decor !== "aucun" ? { ptBouts: cfg.bouts, ptBarreauxDeco: cfg.barreauxDeco } : {}),
@@ -151,7 +154,7 @@ export function planPortail(slug: SlugPortail, cfg: ConfigPortail): ResultatPort
   return calculerPortail(versEntrees(cfg), SLUGS_PORTAIL[slug]);
 }
 
-const PARAMS: (keyof ConfigPortail)[] = ["P", "H", "mat", "forme", "fleche", "soub", "hSoub", "remp", "decor", "bouts", "barreauxDeco", "pointes", "lisse", "vantaux", "rep", "guidage", "sens", "poteaux", "moteur", "moteurModele", "pente", "couleur", "portillon", "portillonP", "portillonSens"];
+const PARAMS: (keyof ConfigPortail)[] = ["P", "H", "mat", "forme", "fleche", "soub", "hSoub", "remp", "decor", "bouts", "barreauxDeco", "pointes", "lisse", "moulure", "vantaux", "rep", "guidage", "sens", "poteaux", "moteur", "moteurModele", "pente", "couleur", "portillon", "portillonP", "portillonSens"];
 
 /** La configuration en paramètres d'adresse (pour /api/prix-portail). */
 export function versParams(slug: SlugPortail, cfg: ConfigPortail): URLSearchParams {
@@ -207,7 +210,7 @@ export function lireConfig(params: URLSearchParams): { slug: SlugPortail; cfg: C
     P: nombre("P", b.P), H: nombre("H", b.H), mat: choix("mat", ["alu", "acier"] as const), forme: choix("forme", FORMES),
     fleche: nombre("fleche", [0, 400]), soub: choix("soub", SOUBS), hSoub: nombre("hSoub", [0, 2000]), remp: choix("remp", REMPS),
     decor: choix("decor", DECORS_PORTAIL), bouts: choix("bouts", BOUTS_DECOR), barreauxDeco: choix("barreauxDeco", BARREAUX_DECOR),
-    pointes: bool("pointes"), lisse: bool("lisse"), vantaux: params.get("vantaux") === "1" ? 1 : params.get("vantaux") === "2" ? 2 : null,
+    pointes: bool("pointes"), lisse: bool("lisse"), moulure: bool("moulure"), vantaux: params.get("vantaux") === "1" ? 1 : params.get("vantaux") === "2" ? 2 : null,
     rep: choix("rep", ["egal", "tiers"] as const), guidage: choix("guidage", ["rail", "auto"] as const), sens: choix("sens", ["gauche", "droite"] as const),
     poteaux: choix("poteaux", POTEAUX), moteur: bool("moteur"), moteurModele: choix("moteurModele", MOTEURS_PORTAIL), pente: nombre("pente", b.pente), couleur: choix("couleur", COULEURS_PORTAIL),
     // Le portillon assorti : seulement à côté d'un portail, à la largeur d'un portillon.
@@ -257,6 +260,7 @@ export const TEXTES_PORTAIL = {
     bouts: { droit: "Droits", effile: "Effilés", bouton: "À bouton" },
     barreauxDeco: { carre: "Carrés", torsade: "Torsadés", bagues: "À bagues" },
     portillon: "Portillon assorti",
+    moulures: "Moulures : un médaillon par vantail, sur le bas plein",
     poteaux: { existants: "Mes piliers", acier: "Poteaux acier", alu: "Poteaux alu" },
     couleur: { anthracite: "Gris anthracite", noir: "Noir", blanc: "Blanc", vert: "Vert sapin", rouille: "Rouille" },
     vantaux: { 1: "1 vantail", 2: "2 vantaux" },
@@ -298,6 +302,7 @@ export const TEXTES_PORTAIL = {
     bouts: { droit: "Straight", effile: "Tapered", bouton: "Knob" },
     barreauxDeco: { carre: "Square", torsade: "Twisted", bagues: "Ringed" },
     portillon: "Matching pedestrian gate",
+    moulures: "Mouldings: one medallion per leaf, on the solid lower panel",
     poteaux: { existants: "My pillars", acier: "Steel posts", alu: "Aluminium posts" },
     couleur: { anthracite: "Anthracite grey", noir: "Black", blanc: "White", vert: "Fir green", rouille: "Rust" },
     vantaux: { 1: "1 leaf", 2: "2 leaves" },
@@ -334,6 +339,7 @@ export function resumeConfig(slug: SlugPortail, cfg: ConfigPortail, locale: Lang
   ];
   if (slug === "portail-battant") lignes.push(`${t.titres.vantaux} : ${t.vantaux[cfg.vantaux]}${cfg.vantaux === 2 ? ` (${t.rep[cfg.rep]})` : ""}`);
   if (slug === "portail-coulissant") lignes.push(`${t.titres.guidage} : ${t.guidage[cfg.guidage]} · ${t.titres.sens} : ${t.sens[cfg.sens]}`);
+  if (cfg.moulure) lignes.push(t.moulures);
   lignes.push(`${t.titres.poteaux} : ${t.poteaux[cfg.poteaux]} · ${t.titres.moteur} : ${cfg.moteur ? t.moteurOui : t.moteurNon}${cfg.pointes ? ` · ${t.pointes}` : ""}${cfg.lisse ? ` · ${t.lisseChene}` : ""}`);
   if (cfg.portillon && slug !== "portillon") lignes.push(`${t.portillon} : ${cfg.portillonP} × ${cfg.H} mm · ${t.sensPortillon[cfg.portillonSens]}`);
   if (prix !== null) lignes.push(`${t.prix} : ${prix} €`);

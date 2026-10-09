@@ -30,6 +30,7 @@ type Variantes = {
   decors: Record<Decor, number | null>;
   moteurs: Record<CleMoteur, number | null>;
   portillon: { avec: number | null; seul: number | null } | null;
+  moulure: { avec: number | null; sans: number | null };
 };
 type EtatPrix = { etat: "ok"; v: Variantes } | { etat: "indispo" };
 type Fenetre = null | "decor" | "moteur" | "portillon" | "details" | "plan" | "guide";
@@ -81,6 +82,7 @@ const TXT = {
     portillonSeul: (p: string) => `${p} s'il est commandé seul`, piedPortillon: "Prix posé avec le portail.",
     vuePortillon: "Le portillon assorti, vu de la rue",
     dont: "Dont", dontMoteur: "moteur", dontDecor: "décor", dontPortillon: "portillon",
+    moulures: "Moulures", moulureDetail: "Un médaillon par vantail, vissé par derrière", moulureBasPlein: "Il faut un bas plein",
   },
   en: {
     configuration: "Configuration", couleur: "Colour", matiere: "Material",
@@ -127,6 +129,7 @@ const TXT = {
     portillonSeul: (p: string) => `${p} if ordered on its own`, piedPortillon: "Fitted price, with the gate.",
     vuePortillon: "The matching pedestrian gate, from the street",
     dont: "Including", dontMoteur: "motor", dontDecor: "decoration", dontPortillon: "pedestrian gate",
+    moulures: "Mouldings", moulureDetail: "One medallion per leaf, screwed from behind", moulureBasPlein: "Needs a solid lower panel",
   },
 } as const;
 
@@ -654,6 +657,13 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
                 <div style={{ marginTop: 10 }}>
                   <Pilule aria={t.decor} valeur={modeDecor} onChange={(m) => (m === "perso" ? passerPerso() : setModeDecor("formules"))}
                     options={[{ v: "formules", label: t.formules }, { v: "perso", label: t.personnaliser }]} />
+                </div>
+                {/* Les moulures : un médaillon par vantail sur le bas plein, vissé par derrière ; en alu comme en acier. */}
+                <div className="cpt-ligne-libre" style={{ marginTop: 10 }}>
+                  <span><span className="cpt-libelle uppercase">{t.moulures}</span>
+                    <span className="cpt-raison">{cfg.soub === "plein" || cfg.soub === "panneau" ? (V?.moulure.avec != null && V.moulure.sans != null ? `${t.moulureDetail} · ${ecart(V.moulure.avec - V.moulure.sans)}` : t.moulureDetail) : t.moulureBasPlein}</span></span>
+                  <Pilule aria={t.moulures} valeur={cfg.moulure ? "avec" : "sans"} onChange={(x) => maj({ moulure: x === "avec" })} desactive={cfg.soub === "plein" || cfg.soub === "panneau" ? [] : ["avec"]}
+                    options={[{ v: "sans", label: t.sans }, { v: "avec", label: t.avec }]} />
                 </div>
                 {modeDecor === "formules" ? (<>
                   <p className="cpt-f-info">{t.fDecorInfo} <b>{t.fDecorAcier}</b></p>
