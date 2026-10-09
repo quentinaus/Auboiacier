@@ -52,6 +52,11 @@ export default async function TablesPage({ params }: PageProps<"/[lang]/artisana
   const locale = isLocale(lang) ? lang : defaultLocale;
   const dict = await getDictionary(locale);
   const t = dict.tables;
+  /** « Pourquoi ce prix » des tables : le texte des fiches (dict.artisanat.pourquoiPrix). */
+  const pourquoi = {
+    titre: dict.artisanat.pourquoiPrix.titre,
+    ...(dict.artisanat.pourquoiPrix["table-interieur"] as { intro: string; points: { t: string; d: string }[] }),
+  };
   const e = dict.essences;
 
   const tables = products
@@ -194,6 +199,23 @@ export default async function TablesPage({ params }: PageProps<"/[lang]/artisana
             })}
           </div>
         </div>
+      </section>
+
+      {/* 2 bis. Pourquoi ce prix, juste sous les prix (Quentin, 09/10/2026 : « expliquer qu'on est sur du bois de qualité,
+          artisan français, sinon le client ne comprend pas pourquoi c'est cher »). Les mêmes textes que les fiches. */}
+      <section className="bg-[#fbf9f6] px-6 py-14 md:py-20">
+        <Apparition className="mx-auto max-w-5xl">
+          <h2 className={titreSection}>{pourquoi.titre}</h2>
+          <p className="mt-5 max-w-2xl text-[17px] leading-[1.55] text-[#4a4038]">{pourquoi.intro}</p>
+          <ul className="mt-10 grid gap-x-12 gap-y-8 sm:grid-cols-2">
+            {pourquoi.points.map((point) => (
+              <li key={point.t}>
+                <h3 className={`${serif.className} text-[1.3rem] leading-[1.15] tracking-[-0.01em] text-[#2b2320]`}>{point.t}</h3>
+                <p className="mt-2 text-[15.5px] leading-[1.6] text-[#4a4038]">{point.d}</p>
+              </li>
+            ))}
+          </ul>
+        </Apparition>
       </section>
 
       {/* 3. Les essences, rangées par prix d'après les écarts du catalogue. */}
