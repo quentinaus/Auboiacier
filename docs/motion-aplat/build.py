@@ -832,7 +832,9 @@ def fin_card(p, sc, D, f0):
     o = ['<g%s><defs><radialGradient id="%s-finbg" cx="360" cy="190" r="470" gradientUnits="userSpaceOnUse">'
          '<stop offset=".45" stop-color="%s"/><stop offset="1" stop-color="#f3ece1"/></radialGradient>'
          '<clipPath id="%s-fincl"><rect x="0" y="180" width="720" height="%s"/></clipPath></defs>' % (cls(pre + '-veil'), p, PAPER, p, FIN_BASE + 2 - 180)]
-    o.append(R(-10, -10, 740, 420, 'url(#%s-finbg)' % p))
+    # Le papier couvre aussi le décor qui déborde de chaque côté (vidéo du téléphone, plus large que la scène : Quentin,
+    # 09/10/2026, « le logo ne prend pas tout le cadre »).
+    o.append(R(-1100, -10, 2920, 420, 'url(#%s-finbg)' % p))
     o.append('<g class="aplat-fin-z"><g%s>' % cls(pre + '-ct'))
     # emblème : sceau à double cercle d'acier ; dedans, le garde-corps de l'atelier en miniature — deux panneaux en fer plat,
     # croix de Saint-André soudées d'angle à angle, rosaces de fonderie — et sa main courante, seule touche dorée

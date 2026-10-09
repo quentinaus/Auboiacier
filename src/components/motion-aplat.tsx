@@ -60,6 +60,12 @@ function passerLaMain(nom: string, m: Membre) {
   choisirDansGroupe(nom, g.membres[(g.membres.indexOf(m) + 1) % g.membres.length]);
 }
 
+/**
+ * La vitesse de lecture (Quentin, 09/10/2026 : « les vidéos trop longues ; quelqu'un qui ne me connaît pas ne regardera
+ * pas si c'est lent ») : une fois et demie plus vite. Le temps de la vidéo reste celui du film : les étiquettes suivent.
+ */
+const VITESSE = 1.5;
+
 /** Sous cette largeur, la version « petit » du film (ses petits textes y sont agrandis, comme sur la page). */
 const LARGEUR_PETIT = 520;
 
@@ -109,6 +115,8 @@ export function FilmAplat({
     v.setAttribute("playsinline", "");
     v.setAttribute("webkit-playsinline", "");
     v.src = `/videos/aplat/${film}-${taille}.mp4`;
+    v.defaultPlaybackRate = VITESSE;
+    v.playbackRate = VITESSE;
     // Le film part de l'écran AUBOIACIER (une seule fois : ensuite, la boucle fait le reste).
     const auLogo = () => {
       v.currentTime = DEBUT_LOGO[film];
@@ -122,8 +130,25 @@ export function FilmAplat({
     const bloquee = () => attendrePorte && Boolean(el.closest(".fond-configuration")?.querySelector(".porte-qui"));
     let visible = false;
     let image = 0;
-    // Dans un groupe, seul le film actif joue ; le premier inscrit commence.
-    let actif = !groupe;
+    // Dans un groupe, seul le film actif joue ; le premier inscrit commence. Sans souris (téléphone, tablette), on ne
+    // peut pas survoler : les films tournent tous, le second un peu après le premier (Quentin, 09/10/2026 : « il n'y a
+    // que la vidéo d'en haut qui tourne »).
+    const survol = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const enGroupe = groupe && survol ? groupe : undefined;
+    let actif = !enGroupe;
+    let decalage = 0;
+    if (groupe && !survol) {
+      const g = groupes.get(groupe) ?? { membres: [], actif: null };
+      if (g.membres.length) {
+        actif = false;
+        decalage = window.setTimeout(() => {
+          actif = true;
+          decider();
+        }, 2500 * g.membres.length);
+      }
+      g.membres.push({ activer: () => {}, desactiver: () => {} });
+      groupes.set(groupe, g);
+    }
     let aBoucle = false;
     let dernier = 0;
 
@@ -175,9 +200,9 @@ export function FilmAplat({
     const surTemps = () => {
       if (v.currentTime < dernier - 1) aBoucle = true;
       dernier = v.currentTime;
-      if (groupe && aBoucle && v.currentTime >= DEBUT_LOGO[film]) {
+      if (enGroupe && aBoucle && v.currentTime >= DEBUT_LOGO[film]) {
         aBoucle = false;
-        passerLaMain(groupe, membre);
+        passerLaMain(enGroupe, membre);
       }
     };
     const membre: Membre = {
@@ -196,11 +221,11 @@ export function FilmAplat({
     };
     let quitterGroupe = () => {};
     let declencheur: Element | null = null;
-    const surSurvol = () => groupe && choisirDansGroupe(groupe, membre);
-    if (groupe) {
-      const g = groupes.get(groupe) ?? { membres: [], actif: null };
+    const surSurvol = () => enGroupe && choisirDansGroupe(enGroupe, membre);
+    if (enGroupe) {
+      const g = groupes.get(enGroupe) ?? { membres: [], actif: null };
       g.membres.push(membre);
-      groupes.set(groupe, g);
+      groupes.set(enGroupe, g);
       if (!g.actif) {
         g.actif = membre;
         actif = true;
@@ -211,7 +236,7 @@ export function FilmAplat({
       quitterGroupe = () => {
         g.membres = g.membres.filter((x) => x !== membre);
         if (g.actif === membre) g.actif = g.membres[0] ?? null;
-        if (!g.membres.length) groupes.delete(groupe);
+        if (!g.membres.length) groupes.delete(enGroupe);
       };
     }
     v.addEventListener("timeupdate", surTemps);
@@ -236,6 +261,8 @@ export function FilmAplat({
       declencheur?.removeEventListener("pointerenter", surSurvol);
       declencheur?.removeEventListener("focusin", surSurvol);
       quitterGroupe();
+      window.clearTimeout(decalage);
+      if (groupe && !survol) groupes.delete(groupe);
       v.removeEventListener("pause", surPause);
       v.removeEventListener("seeked", caler);
       v.pause();

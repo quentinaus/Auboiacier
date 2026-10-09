@@ -1162,6 +1162,19 @@ textarea:focus-visible,
   aspect-ratio: 720 / 400;
   border-radius: 0;
 }
+/* Les étiquettes d'étape des films, plus grandes et plus franches (Quentin, 09/10/2026 : les films vont plus vite, « qu'on
+   voie bien les étapes ») ; le numéro, doré, ressort. */
+.porte-scene .aplat-et {
+  font-size: 13px !important;
+  font-weight: 600;
+  padding: 0.45em 0.85em 0.5em 0.75em !important;
+  box-shadow: 0 6px 18px -8px rgba(43, 35, 32, 0.45);
+}
+@media (min-width: 768px) {
+  .porte-scene .aplat-et {
+    font-size: 15px !important;
+  }
+}
 /* Côte à côte, les deux cartes ont la même hauteur : le texte de la plus courte prend la place qui reste. */
 .porte-carte .porte-texte {
   flex-grow: 1;
