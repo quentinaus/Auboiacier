@@ -267,7 +267,7 @@ export function PorteQuiMesure({
         {/* Les deux cartes de la maquette en aplats (docs/motion-aplat), validées par Quentin : la scène animée en
             haut, dans ses proportions, le texte dessous. Les cartes ne prennent que leur hauteur et se centrent dans le
             bloc ; si la hauteur manque (téléphone bas), c'est la scène qui se resserre, jamais le texte. */}
-        <div className="mx-auto mt-3 flex min-h-0 w-full max-w-[1120px] flex-1 flex-col justify-center gap-3 md:mt-5 md:grid md:grid-cols-2 md:content-center md:items-stretch md:gap-5">
+        <div className="porte-grille mx-auto mt-3 flex min-h-0 w-full flex-1 flex-col justify-center gap-3 md:mt-5 md:grid md:grid-cols-2 md:content-center md:items-stretch md:gap-5">
           {cartes.map((c) => (
             <button
               key={c.id}

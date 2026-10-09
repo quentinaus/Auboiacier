@@ -1169,9 +1169,50 @@ textarea:focus-visible,
 }
 /* Les deux cartes montrent chacune un film (720 × 400), bord à bord : celui de l'atelier, et celui de « Je mesure et pose
    moi-même » (de la mesure à la pose par le client). Même format, les deux cartes s'alignent. */
+/* Côte à côte (tablette et plus), les cartes s'élargissent tant que l'écran a la hauteur de leurs films entiers. */
+.porte-grille {
+  max-width: 1120px;
+}
+@media (min-width: 48rem) {
+  .porte-grille {
+    max-width: min(1240px, calc((100svh - 440px) * 3.6 + 20px));
+  }
+}
 .porte-scene.porte-scene-film {
+  flex: none;
   aspect-ratio: 720 / 400;
   border-radius: 0;
+}
+/* L'écran de choix épuré, à toutes les tailles (Quentin, 09/10/2026 : « refais, que les deux motion design tiennent sur
+   la même page, propre et compréhensible ») : le film en entier, dessous le titre, la ligne de facilité de pose et le
+   bouton. La pastille et les phrases partent (elles restent dites après le choix) ; le film ne se resserre plus. */
+.porte-texte .aplat-tag,
+.porte-texte .aplat-card-text,
+.porte-texte .porte-petit {
+  display: none !important;
+}
+.porte-scene {
+  background: #f5ecdf;
+}
+.porte-texte.aplat-card-body {
+  padding: 12px 18px 16px;
+}
+.porte-texte .aplat-card-title {
+  margin: 0 0 8px;
+  font-size: 22px;
+  line-height: 1.12;
+}
+.porte-carte .porte-facilite {
+  margin-bottom: 12px;
+}
+@media (min-width: 768px) {
+  .porte-texte.aplat-card-body {
+    padding: 18px 26px 24px;
+  }
+  .porte-texte .aplat-card-title {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
 }
 /* Les étiquettes d'étape des films, plus grandes et plus franches (Quentin, 09/10/2026 : les films vont plus vite, « qu'on
    voie bien les étapes ») ; le numéro, doré, ressort. */
@@ -1194,13 +1235,6 @@ textarea:focus-visible,
 .porte-texte .porte-fort {
   font-weight: 650;
   color: #2b2320;
-}
-/* Ce que le client reçoit pour poser, en petit, sous la phrase de la carte. */
-.porte-texte .porte-petit {
-  margin: -10px 0 12px;
-  font-size: 13.5px;
-  line-height: 1.45;
-  color: #6f6357;
 }
 /* La facilité de pose : une jauge de dix traits et sa phrase ; en regard sur les deux cartes. */
 .porte-facilite {
@@ -1237,49 +1271,28 @@ textarea:focus-visible,
 .porte-carte:hover .porte-action svg {
   translate: 3px 0;
 }
-/* Téléphone : les deux cartes tiennent l'une sous l'autre dans l'écran ; le texte se resserre, la scène prend le reste. */
+/* Téléphone : les deux cartes tiennent l'une sous l'autre dans l'écran, chaque film en entier ; le texte se resserre. */
 @media (max-width: 47.999rem) {
   .porte-texte.aplat-card-body {
-    padding: 11px 16px 13px;
-  }
-  .porte-texte .aplat-tag {
-    font-size: 11.5px;
-    padding: 3px 9px;
+    padding: 10px 16px 13px;
   }
   .porte-texte .aplat-card-title {
-    font-size: 22px;
-    margin: 6px 0 3px;
-  }
-  .porte-texte .aplat-card-text {
-    font-size: 13px;
-    line-height: 1.4;
-    margin-bottom: 9px;
-  }
-  /* La pastille répète le titre : sur téléphone, sa place va au film (Quentin veut des films lisibles). */
-  .porte-texte .aplat-tag {
-    display: none;
-  }
-  .porte-texte .aplat-card-title {
-    margin-top: 0;
-  }
-  .porte-texte .porte-petit {
-    margin: -6px 0 7px;
-    font-size: 12px;
-    line-height: 1.35;
+    font-size: 21px;
+    margin: 0 0 6px;
   }
   .porte-facilite {
     gap: 7px;
-    margin-bottom: 9px;
-    font-size: 12px;
+    margin-bottom: 10px;
+    font-size: 12.5px;
   }
   .porte-jauge i {
     width: 4px;
     height: 10px;
   }
   .porte-texte .aplat-btn {
-    height: 34px;
-    font-size: 13px;
-    padding: 0 15px;
+    height: 38px;
+    font-size: 13.5px;
+    padding: 0 16px;
   }
 }
 @media (prefers-reduced-motion: no-preference) {

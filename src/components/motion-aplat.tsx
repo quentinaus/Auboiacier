@@ -42,23 +42,11 @@ export type FilmAplat = "atelier" | "je-mesure";
 export const DEBUT_LOGO: Record<FilmAplat, number> = { atelier: 26.2, "je-mesure": 35.4 };
 
 /**
- * Un seul film à la fois dans un même groupe (les deux cartes de « Qui prend les mesures ? ») : deux vidéos qui tournent
- * côte à côte, on ne sait plus où regarder (Quentin, 07/10/2026). Celui qu'on survole joue ; sinon chacun joue un tour
- * complet (du logo au logo), puis passe la main ; l'autre attend, immobile, sur l'écran AUBOIACIER.
+ * Les films d'un même groupe (les deux cartes de « Qui prend les mesures ? ») tournent tous, sans rien survoler (Quentin,
+ * 09/10/2026 : « pour le client, ce n'est pas intuitif que la souris lance le film ») ; chacun part un peu après le
+ * précédent, pour qu'ils ne commencent pas pareil. Pour chaque groupe, l'instant du dernier départ prévu.
  */
-type Membre = { activer: () => void; desactiver: () => void };
-const groupes = new Map<string, { membres: Membre[]; actif: Membre | null }>();
-function choisirDansGroupe(nom: string, m: Membre) {
-  const g = groupes.get(nom);
-  if (!g || g.actif === m) return;
-  g.actif = m;
-  for (const x of g.membres) (x === m ? x.activer : x.desactiver)();
-}
-function passerLaMain(nom: string, m: Membre) {
-  const g = groupes.get(nom);
-  if (!g || g.actif !== m || g.membres.length < 2) return;
-  choisirDansGroupe(nom, g.membres[(g.membres.indexOf(m) + 1) % g.membres.length]);
-}
+const groupes = new Map<string, number>();
 
 /**
  * La vitesse de lecture (Quentin, 09/10/2026 : « les vidéos trop longues ; quelqu'un qui ne me connaît pas ne regardera
@@ -87,7 +75,7 @@ export function FilmAplat({
   children?: ReactNode;
   portee?: RefObject<HTMLElement | null>;
   attendrePorte?: boolean;
-  /** Le nom d'un groupe de films dont un seul joue à la fois. */
+  /** Le nom d'un groupe de films qui démarrent décalés. */
   groupe?: string;
 }) {
   const habillage = useScenesAplat();
@@ -103,7 +91,7 @@ export function FilmAplat({
     // Moins d'animations demandées : l'image finale (le garde-corps posé), sans vidéo.
     if (moinsDeMouvement) {
       v.poster = `/videos/aplat/${film}-${taille}-fin.jpg`;
-      v.style.objectFit = taille === "petit" ? "cover" : "contain";
+      v.style.objectFit = "contain";
       return;
     }
     v.poster = `/videos/aplat/${film}-${taille}-debut.jpg`;
@@ -122,35 +110,30 @@ export function FilmAplat({
       v.currentTime = DEBUT_LOGO[film];
     };
     v.addEventListener("loadedmetadata", auLogo, { once: true });
-    // La version du téléphone est plus large que la scène (le décor continue) : elle remplit le cadre, les côtés en trop
-    // sont coupés. Celle de l'ordinateur a les proportions de la scène : elle s'y loge entière.
-    v.style.objectFit = taille === "petit" ? "cover" : "contain";
+    // Les deux versions ont les proportions de la scène : le film se voit en entier (Quentin, 09/10/2026).
+    v.style.objectFit = "contain";
 
     const zone = () => portee?.current ?? el;
     const bloquee = () => attendrePorte && Boolean(el.closest(".fond-configuration")?.querySelector(".porte-qui"));
     let visible = false;
     let image = 0;
-    // Dans un groupe, seul le film actif joue ; le premier inscrit commence. Sans souris (téléphone, tablette), on ne
-    // peut pas survoler : les films tournent tous, le second un peu après le premier (Quentin, 09/10/2026 : « il n'y a
-    // que la vidéo d'en haut qui tourne »).
-    const survol = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-    const enGroupe = groupe && survol ? groupe : undefined;
-    let actif = !enGroupe;
+    // Dans un groupe, un film qui arrive à l'écran part au moins 2,5 s après le départ du précédent.
+    let actif = !groupe;
     let decalage = 0;
-    if (groupe && !survol) {
-      const g = groupes.get(groupe) ?? { membres: [], actif: null };
-      if (g.membres.length) {
-        actif = false;
-        decalage = window.setTimeout(() => {
-          actif = true;
-          decider();
-        }, 2500 * g.membres.length);
+    const premierDepart = () => {
+      if (actif || decalage || !groupe) return;
+      const maintenant = performance.now();
+      const attente = Math.max(0, (groupes.get(groupe) ?? -Infinity) + 2500 - maintenant);
+      groupes.set(groupe, maintenant + attente);
+      if (!attente) {
+        actif = true;
+        return;
       }
-      g.membres.push({ activer: () => {}, desactiver: () => {} });
-      groupes.set(groupe, g);
-    }
-    let aBoucle = false;
-    let dernier = 0;
+      decalage = window.setTimeout(() => {
+        actif = true;
+        decider();
+      }, attente);
+    };
 
     // Les étiquettes et légendes à l'instant exact de la vidéo.
     const caler = () => {
@@ -171,6 +154,7 @@ export function FilmAplat({
         caler();
         return;
       }
+      if (visible) premierDepart();
       if (visible && actif) {
         // Refusée (économie d'énergie de l'iPhone) : elle repartira au premier toucher de l'écran.
         v.play().catch(() => attendreUnGeste());
@@ -196,50 +180,6 @@ export function FilmAplat({
       cancelAnimationFrame(image);
       caler();
     };
-    // Un tour complet joué (retour au logo après la fin du film) : le film passe la main au suivant du groupe.
-    const surTemps = () => {
-      if (v.currentTime < dernier - 1) aBoucle = true;
-      dernier = v.currentTime;
-      if (enGroupe && aBoucle && v.currentTime >= DEBUT_LOGO[film]) {
-        aBoucle = false;
-        passerLaMain(enGroupe, membre);
-      }
-    };
-    const membre: Membre = {
-      activer: () => {
-        actif = true;
-        aBoucle = false;
-        dernier = v.currentTime;
-        decider();
-      },
-      desactiver: () => {
-        actif = false;
-        v.pause();
-        if (v.readyState >= 1) v.currentTime = DEBUT_LOGO[film];
-        caler();
-      },
-    };
-    let quitterGroupe = () => {};
-    let declencheur: Element | null = null;
-    const surSurvol = () => enGroupe && choisirDansGroupe(enGroupe, membre);
-    if (enGroupe) {
-      const g = groupes.get(enGroupe) ?? { membres: [], actif: null };
-      g.membres.push(membre);
-      groupes.set(enGroupe, g);
-      if (!g.actif) {
-        g.actif = membre;
-        actif = true;
-      }
-      declencheur = el.closest("[data-carte]") ?? el;
-      declencheur.addEventListener("pointerenter", surSurvol);
-      declencheur.addEventListener("focusin", surSurvol);
-      quitterGroupe = () => {
-        g.membres = g.membres.filter((x) => x !== membre);
-        if (g.actif === membre) g.actif = g.membres[0] ?? null;
-        if (!g.membres.length) groupes.delete(enGroupe);
-      };
-    }
-    v.addEventListener("timeupdate", surTemps);
     v.addEventListener("playing", surLecture);
     v.addEventListener("pause", surPause);
     v.addEventListener("seeked", caler);
@@ -256,13 +196,8 @@ export function FilmAplat({
       window.clearInterval(veille);
       cancelAnimationFrame(image);
       v.removeEventListener("playing", surLecture);
-      v.removeEventListener("timeupdate", surTemps);
       for (const n of ["touchend", "click", "keydown"] as const) document.removeEventListener(n, relancer);
-      declencheur?.removeEventListener("pointerenter", surSurvol);
-      declencheur?.removeEventListener("focusin", surSurvol);
-      quitterGroupe();
       window.clearTimeout(decalage);
-      if (groupe && !survol) groupes.delete(groupe);
       v.removeEventListener("pause", surPause);
       v.removeEventListener("seeked", caler);
       v.pause();

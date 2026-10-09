@@ -9,7 +9,7 @@
 //
 // Chaque film est rendu deux fois, à 60 images par seconde, avec Chrome sans écran (gelé à chaque instant) :
 //   - « grand » : 1440 × 800 (la scène à 720 px de large, écran Retina) — cartes et panneau sur ordinateur ;
-//   - « petit » : 1536 × 480 (plus large que la scène, petits textes agrandis) — cartes du téléphone.
+//   - « petit » : 1458 × 810 (petits textes agrandis) — téléphone.
 // Puis ffmpeg (H.264, lisible partout, démarrage rapide) écrit public/videos/aplat/<film>-<taille>.mp4, avec deux images
 // fixes : la première (affiche, en attendant la vidéo) et l'image finale (pour les visiteurs qui ont demandé moins
 // d'animations : le garde-corps posé).
@@ -38,10 +38,9 @@ const FILMS = {
   atelier: { svg: SVG_FILM, conteneur: "aplat-film", ...horloge("aplat-etC0", /\.aplat-panel \*[^{]*\{animation-delay:(-[0-9.]+)s/) },
   "je-mesure": { svg: SVG_JE_MESURE, conteneur: "aplat-card-scene aplat-scB", ...horloge("aplat-etB0", /\.aplat-scB \*\{animation-delay:(-[0-9.]+)s/) },
 };
-// « petit » est plus large que la scène (3,2 pour 1) : sur le téléphone, la carte est très allongée ; le décor continue de
-// chaque côté (le dessin déborde de son cadre), et la vidéo remplit la carte sans bandes vides. Moins de 520 px de large :
-// les petits textes de la scène y sont agrandis, comme sur la page. Rendue à 3 pixels par point, pour rester nette.
-const TAILLES = { grand: { w: 720, h: 400, dsf: 2 }, petit: { w: 512, h: 160, dsf: 3 } };
+// « petit » : les proportions de la scène (les cartes montrent le film entier : Quentin, 09/10/2026), moins de 520 px de
+// large, donc les petits textes de la scène y sont agrandis comme sur la page ; rendue à 3 pixels par point, bien nette.
+const TAILLES = { grand: { w: 720, h: 400, dsf: 2 }, petit: { w: 486, h: 270, dsf: 3 } };
 
 const attendre = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -108,7 +107,10 @@ for (const nom of choix) {
     const page = join(dossier, "film.html");
     writeFileSync(
       page,
+      // La police des titres du site (globals.css) : sans elle, Georgia, plus large, faisait déborder le titre du devis.
       `<!doctype html><meta charset="utf-8"><style>${CSS_APLAT}
+@font-face{font-family:"Auboiacier Display";src:local("Hoefler Text")}
+@font-face{font-family:"Auboiacier Display";src:local("Palatino");unicode-range:U+00A0}
 html,body{margin:0;background:#f5ecdf;overflow:hidden}
 .cadre{width:${w}px;height:${h}px;overflow:hidden;border-radius:0!important}
 .cadre svg{display:block;width:100%;height:100%;overflow:visible}</style>
