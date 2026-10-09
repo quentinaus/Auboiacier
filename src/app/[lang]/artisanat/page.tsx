@@ -56,32 +56,36 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
   return (
     <div>
       {/* 1. Le titre et la phrase. */}
-      <section className="bg-[#f5f1ea] px-6 pb-4 pt-14 md:pt-20">
-        <div className="mx-auto max-w-6xl">
+      {/* Compact et sur toute la largeur (09/10/2026, Quentin : « ça prend trop de place ») : le titre à gauche, la
+          phrase à droite sur grand écran, l'un sous l'autre sinon. */}
+      <section className="bg-[#f5f1ea] px-6 pb-2 pt-9 md:pt-12 lg:px-10">
+        <div className="mx-auto flex max-w-[1600px] flex-col gap-3 xl:flex-row xl:items-end xl:justify-between xl:gap-16">
           <h1
-            className={`${serif.className} entree-monte max-w-4xl text-[2.3rem] text-balance leading-[1.04] tracking-[-0.02em] text-[#2b2320] sm:text-[3rem] md:text-[3.5rem]`}
+            className={`${serif.className} entree-monte text-[2rem] text-balance leading-[1.06] tracking-[-0.02em] text-[#2b2320] sm:text-[2.4rem] md:text-[2.8rem]`}
             style={entree(80)}
           >
             {t.h1}
           </h1>
-          <p className="entree-monte mt-5 max-w-2xl text-[17px] leading-[1.5] text-[#5c5140] md:text-[19px]" style={entree(200)}>
+          <p className="entree-monte max-w-xl text-[15px] leading-[1.55] text-[#5c5140] md:text-[16px] xl:pb-2" style={entree(200)}>
             {t.subtitle}
           </p>
         </div>
       </section>
 
-      {/* 2. Les catégories : trois par rangée sur ordinateur, deux sur téléphone (la dernière se centre). */}
-      <section className="bg-[#f5f1ea] px-6 pb-20 pt-10 md:pb-28 md:pt-14">
-        <ul className="mx-auto flex max-w-6xl flex-wrap justify-center gap-x-4 gap-y-10 sm:gap-x-6 md:gap-y-14">
+      {/* 2. Les catégories sur toute la largeur : deux par rangée sur téléphone, trois sur tablette, cinq dès 1280 px
+          (neuf catégories : 5 + 4, aucune carte seule). Les dernières se centrent. */}
+      <section className="bg-[#f5f1ea] px-6 pb-16 pt-7 md:pb-24 md:pt-9 lg:px-10">
+        <ul className="mx-auto flex max-w-[1600px] flex-wrap justify-center gap-x-4 gap-y-9 sm:gap-x-6 md:gap-y-12 xl:gap-x-5 xl:gap-y-11">
           {categories.map((c, i) => (
-            <li key={c.id} className="basis-[calc(50%-0.5rem)] sm:basis-[calc(50%-0.75rem)] md:basis-[calc(33.333%-1rem)]">
-              <Arrivee premierEcran={i < 3} retard={(i % 3) * 110}>
+            <li key={c.id} className="basis-[calc(50%-0.5rem)] sm:basis-[calc(50%-0.75rem)] md:basis-[calc(33.333%-1rem)] xl:basis-[calc(20%-1rem)]">
+              <Arrivee premierEcran={i < 5} retard={(i % 5) * 90}>
                 <CarteCategorie
                   categorie={c}
                   detail={detailCategorie(c, locale, t)}
                   locale={locale}
-                  priority={i < 3}
-                  sizes="(max-width: 768px) 50vw, 370px"
+                  priority={i < 5}
+                  dense
+                  sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 20vw"
                 />
               </Arrivee>
             </li>

@@ -15,12 +15,15 @@ export function CarteCategorie({
   detail,
   locale,
   priority = false,
+  dense = false,
   sizes = "(max-width: 768px) 50vw, 360px",
 }: {
   categorie: Categorie;
   detail?: string;
   locale: Locale;
   priority?: boolean;
+  /** Cinq cartes de front (page Collection sur grand écran) : titre et ligne un peu plus petits. */
+  dense?: boolean;
   sizes?: string;
 }) {
   const { image } = categorie;
@@ -38,10 +41,10 @@ export function CarteCategorie({
           className="object-cover"
         />
       </div>
-      <h3 className={`${serif.className} mt-4 text-[1.2rem] leading-[1.15] tracking-[-0.01em] text-[#2b2320] md:text-[1.45rem]`}>
+      <h3 className={`${serif.className} mt-4 text-[1.2rem] leading-[1.15] tracking-[-0.01em] text-[#2b2320] md:text-[1.45rem] ${dense ? "xl:text-[1.25rem]" : ""}`}>
         {categorie.titre}
       </h3>
-      {detail && <p className="mt-1 text-[14px] leading-[1.4] text-[#6f6357] md:text-[15px]">{detail}</p>}
+      {detail && <p className={`mt-1 text-[14px] leading-[1.4] text-[#6f6357] md:text-[15px] ${dense ? "xl:text-[14px]" : ""}`}>{detail}</p>}
     </Link>
   );
 }
