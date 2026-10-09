@@ -584,6 +584,7 @@ export function ProductOptions({
   achatSlot,
   porteSlot,
   enteteFiche,
+  photoFiche,
   etapesTelephone,
   compteOuvert = false,
   ouverture,
@@ -640,6 +641,8 @@ export function ProductOptions({
   porteSlot?: HTMLDivElement | null;
   /** Le garde-corps : le haut de la fiche, posé sur l'écran « Qui prend les mesures ? » (entete-fiche-gc.tsx). */
   enteteFiche?: ReactNode;
+  /** Le garde-corps : la grande photo, à côté des deux films sur ordinateur. */
+  photoFiche?: ReactNode;
   /**
    * Garde-corps sur téléphone : le parcours de product-view.tsx, UNE QUESTION À LA FOIS (etapes-telephone.tsx), puis le
    * modèle, les finitions et le prix. L'étape affichée, les emplacements (en-tête, boutons, modèle, finitions), et de
@@ -3026,13 +3029,14 @@ export function ProductOptions({
             locale={locale}
             titre={t.configurationTitle}
             entete={enteteFiche}
+            photo={photoFiche}
             notes={{ moi: t.gcQuiMoiNote, tagMoi: t.gcQuiMoiTag }}
             depuis={porte.depuis}
             onChoisir={(qui) => {
               setCotesGardeCorps((cotes) => ({ ...cotes, qui }));
-              // Sur ordinateur, la fiche s'ouvre sur l'écran de choix, sous l'en-tête du site : le configurateur, plus haut,
-              // se cale en haut de l'écran (globals.css, #configuration.fiche-gc).
-              if (window.matchMedia("(min-width: 48rem)").matches)
+              // La fiche s'ouvre sur l'écran de choix, sous l'en-tête du site (et, sur téléphone, sous la photo) : le
+              // configurateur se cale en haut de l'écran (globals.css, #configuration.fiche-gc).
+              if (photoFiche)
                 requestAnimationFrame(() => document.getElementById("configuration")?.scrollIntoView({ block: "start", behavior: "smooth" }));
             }}
             onFin={() => setPorte(null)}

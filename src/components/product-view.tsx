@@ -11,7 +11,7 @@ import Link from "next/link";
 import { serif } from "@/lib/fonts";
 import { amenerAlEcran, hoverZoom, prixAffiche } from "@/lib/ui";
 import { PhotoPlafondMesuree } from "./photo-plafond-anime";
-import { EnTeteFicheGC } from "./entete-fiche-gc";
+import { EnTeteFicheGC, PhotoFicheGC } from "./entete-fiche-gc";
 
 /**
  * Les flèches de la galerie ne portent pas de texte : seul un lecteur d'écran
@@ -339,8 +339,9 @@ export function ProductView({
   const prixFiche = prixAfficheFiche(product, prixAppel);
   /**
    * Le garde-corps (Quentin, 09/10/2026 : « cette page ne va pas, pas belle, pas intuitive ; la fusionner avec celle des deux
-   * motion design ») : plus de grande photo ni de bouton « Configurer » en haut. La page s'ouvre sur « Qui prend les
-   * mesures ? », sous le nom, le prix d'appel, « aux normes » et les photos (entete-fiche-gc.tsx).
+   * motion design ») : plus de bouton « Configurer » entre la photo et les films. Sur ordinateur, la grande photo et
+   * « Qui prend les mesures ? » côte à côte, sous le nom, le prix d'appel et « aux normes » (entete-fiche-gc.tsx) ; sur
+   * téléphone, le nom et la photo d'abord, les deux films dessous.
    */
   const ficheGC = pleinePage && troisColonnes;
   const enteteGC = (titre: boolean) => (
@@ -348,7 +349,6 @@ export function ProductView({
       nom={product.name}
       locale={locale}
       prix={prixFiche?.sorte === "appel" ? { montant: prixAffiche(prixFiche.prix, locale), largeurCm: prixFiche.largeurMm / 10 } : null}
-      images={product.images}
       titre={titre}
       filAriane={titre ? undefined : filAriane}
     />
@@ -392,6 +392,7 @@ export function ProductView({
         bandeauSlot={bandeauSlot}
         porteSlot={porteSlot}
         enteteFiche={ficheGC ? enteteGC(false) : undefined}
+        photoFiche={ficheGC ? <PhotoFicheGC images={product.images} locale={locale} className="h-full w-full" /> : undefined}
         etapesTelephone={troisColonnes ? etapesTelephone : undefined}
       />
       {!pleinePage && aide}
@@ -696,6 +697,15 @@ export function ProductView({
         )}
       </div>
     </div>
+    )}
+
+    {/* Garde-corps, sur téléphone : le nom, le prix et la grande photo, avant les deux films (sur ordinateur, ils sont
+        dans l'écran de choix, côte à côte). */}
+    {ficheGC && (
+      <div className="px-3 pt-3 md:hidden">
+        {enteteGC(false)}
+        <PhotoFicheGC images={product.images} locale={locale} className="mt-3 aspect-[4/3] w-full" />
+      </div>
     )}
 
     {/* Le configurateur en pleine page, sous la photo — comme la section

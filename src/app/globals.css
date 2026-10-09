@@ -1110,22 +1110,19 @@ textarea:focus-visible,
     height: calc(100dvh - 2rem);
   }
 }
-/* Téléphone peu haut : la ligne « notice et visserie » des cartes cède la place aux films (le haut de la fiche est
-   maintenant dans le bloc, 09/10/2026). Elle reste écrite sur ordinateur et sur les grands téléphones. */
-@media (max-width: 47.999rem) and (max-height: 860px) {
-  .porte-qui .porte-petit {
+/* Fiche du garde-corps (la photo à côté des films, ou au-dessus sur téléphone) : sur les écrans peu hauts, la phrase sous
+   « Qui prend les mesures ? » et la ligne « notice et visserie » cèdent la place aux films et à leurs boutons. */
+@media (max-height: 860px) {
+  #configuration.fiche-gc .porte-qui .porte-petit,
+  #configuration.fiche-gc .porte-qui .porte-entete > p + p {
     display: none;
   }
 }
-/* Fiche du garde-corps : l'en-tête (nom, prix, normes, photos) remplace la ligne « Qui prend les mesures ? » (formule
-   validée par Quentin : le nom, puis les deux cartes). Sur téléphone, chaque film se pose en vignette, à la largeur que la
-   hauteur de l'écran permet, dans ses proportions : les deux cartes et leurs boutons tiennent sur l'écran. */
-#configuration.fiche-gc .porte-qui .porte-entete {
-  display: none;
-}
+/* Téléphone, fiche du garde-corps : chaque film garde ses proportions et se resserre seulement si l'écran est trop bas pour
+   les deux cartes et leurs boutons. */
 @media (max-width: 47.999rem) {
   #configuration.fiche-gc .porte-qui .porte-carte > .aplat-card-scene {
-    width: clamp(36%, calc((100svh - 508px) * 0.9), 92%);
+    width: clamp(40%, calc((100svh - 500px) * 0.9), 92%);
     align-self: center;
     margin-top: 10px;
     border-radius: 14px;

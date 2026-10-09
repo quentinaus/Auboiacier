@@ -47,6 +47,7 @@ export function PorteQuiMesure({
   locale,
   titre,
   entete,
+  photo,
   notes,
   depuis,
   onChoisir,
@@ -57,6 +58,8 @@ export function PorteQuiMesure({
   titre: string;
   /** Le garde-corps (09/10/2026) : le haut de la fiche (nom, prix, normes, photos) à la place du titre. */
   entete?: ReactNode;
+  /** Le garde-corps : la grande photo, à gauche des deux films sur ordinateur (sur téléphone, elle est au-dessus du bloc). */
+  photo?: ReactNode;
   /** Ce qu'implique « je mesure », et son étiquette (les mots du dictionnaire). */
   notes: { moi: string; tagMoi: string };
   /** Le mode d'où l'on revient (« Changer ») : sa carte se reforme à partir du bloc entier. */
@@ -258,7 +261,14 @@ export function PorteQuiMesure({
   return (
     <div ref={racine} className="porte-qui" data-etat={phase} data-vu={vu ? "" : undefined} data-retour={depuis ? "" : undefined}>
       <div className="porte-contenu flex min-h-0 flex-1 flex-col">
-        {entete ?? <h2 className={`${serif.className} text-lg leading-none text-[#2b2320] md:text-[28px]`}>{titre}</h2>}
+        {entete ? (
+          <div className={photo ? "hidden md:block" : undefined}>{entete}</div>
+        ) : (
+          <h2 className={`${serif.className} text-lg leading-none text-[#2b2320] md:text-[28px]`}>{titre}</h2>
+        )}
+        <div className={photo ? "porte-corps mt-1 flex min-h-0 flex-1 flex-col md:mt-4 md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:gap-5" : "contents"}>
+        {photo && <div className="porte-photo hidden min-h-0 md:block">{photo}</div>}
+        <div className={photo ? "flex min-h-0 flex-1 flex-col" : "contents"}>
         <div className="porte-entete mt-2 text-center md:mt-1">
           <p className={`${serif.className} text-[24px] leading-tight text-[#2b2320] md:text-[clamp(28px,2.6vw,38px)]`}>
             {fr ? "Qui prend les mesures ?" : "Who takes the measurements?"}
@@ -310,6 +320,8 @@ export function PorteQuiMesure({
               </span>
             </button>
           ))}
+        </div>
+        </div>
         </div>
       </div>
       {/* Le voile : le papier de la carte choisie, qui s'agrandit jusqu'à couvrir le bloc (ou s'y replie). */}
