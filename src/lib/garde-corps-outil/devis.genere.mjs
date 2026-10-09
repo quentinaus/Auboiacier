@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Devis garde-corps au format du site (composerDevisGC, dsDevisHtml). SANS coûts : le prix est une entrée.
-// Source : l'outil de plans (plans-atelier.html), sha256 a81d98d0a366b8f5875cd2b69b29e0e4ea415a91c5df2d90caaff8621ff01c98
+// Source : l'outil de plans (plans-atelier.html), sha256 4df9f77df04cf93f92e2886b83c5a61772ca1b58314b23788b5a69a4548f777d
 /* eslint-disable */
 import { DS_ESSENCES } from "./moteur.genere.mjs";
 function kgColisGC(R) { return Math.max(8, Math.round((R && R.kg) || 0)); }
@@ -184,6 +184,7 @@ function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto", tva = nu
     const rp = dsRemplissageGC(R, v);
     const nom = rp.nom;
     const nVis = vis ? vis.qte : 2 * v.nF;
+    const nPlatinesD = R.debit.filter((d) => d.nom === "Platines de fixation").reduce((t, d) => t + d.qte, 0);
     const H = Math.round(R.hauteurGC), L = Math.round(v.B);
     const haut = (v.A || 0) + (v.jour || 0) + R.hauteurGC;
     const essence = DS_ESSENCES[v.essence] || DS_ESSENCES.chene;
@@ -224,9 +225,9 @@ function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto", tva = nu
       rp.rosaces ? { label: "Rosace", value: DS_GC.rosace } : null,
       { label: "Structure", value: `Acier plein ${dsMm(v.s)}\u00a0×\u00a0${dsMm(v.s)}\u00a0mm${renfortTxt}, soudure TIG, finition peinte — teinte de l'acier ${teinte}` },
       mc ? { label: "Main courante", value: mc.carac } : null,
-      { label: "Pose", value: R.fixation && R.fixation.statut !== "etude"
+      { label: "Pose", value: R.fixation
         ? `Encastré dans le tableau de la fenêtre, ${remise === "pose" ? "posé par l'atelier" : "fixations fournies"} — ${R.fixation.texteClient}`
-        : `Encastré dans le tableau de la fenêtre, ${remise === "pose" ? "posé par l'atelier" : "fixations fournies"} — ${nVis}\u00a0vis à tête fraisée et chevilles` },
+        : `Encastré dans le tableau de la fenêtre, ${remise === "pose" ? "posé par l'atelier" : "fixations fournies"} — ${nPlatinesD ? `${nPlatinesD}\u00a0petites platines soudées au bout des barres du haut et du bas du cadre, plaquées contre le mur, ` : ""}${nVis}\u00a0vis à tête fraisée et chevilles` },
       normes ? { label: "Normes", value: normes } : null,
       { label: "Cotes relevées", value: releve },
     ].filter(Boolean);
@@ -314,10 +315,10 @@ function dsDevisHtml(devis) {
     const blocs = [];
     blocs.push(`<div class="ds-bloc ds-entete">
       <div class="ds-marque-bloc"><div class="ds-marque">AUBOIACIER</div><div class="ds-marque-sous ds-kp">${e(devis.emetteur.lignes[0])}</div></div>
-      <div class="ds-titres"><div class="ds-titre">Devis</div>${devis.piece.nom ? `<div class="ds-titre-piece">${e(devis.piece.nom)}</div>` : ""}
+      <div class="ds-titres"><div class="ds-titre">${e(devis.titreDoc || "Devis")}</div>${devis.piece.nom ? `<div class="ds-titre-piece">${e(devis.piece.nom)}</div>` : ""}
         <div class="ds-meta"><span class="ds-meta-l">N°</span><span class="ds-meta-v">${e(devis.numero)}</span></div>
         <div class="ds-meta"><span class="ds-meta-l">Date</span><span class="ds-meta-v">${e(devis.date)}</span></div>
-        <div class="ds-meta"><span class="ds-meta-l">Valable jusqu'au</span><span class="ds-meta-v">${e(devis.validite)}</span></div></div>
+        ${devis.validite === null ? "" : `<div class="ds-meta"><span class="ds-meta-l">Valable jusqu'au</span><span class="ds-meta-v">${e(devis.validite)}</span></div>`}</div>
     </div>`);
     blocs.push(`<div class="ds-bloc ds-filet"></div>`);
     blocs.push(`<div class="ds-bloc ds-colonnes">
@@ -340,15 +341,17 @@ function dsDevisHtml(devis) {
         + `<div class="ds-c-qte ds-chiffre">${e(l.quantite)}</div><div class="ds-c-pu ds-chiffre">${dsPrix(l.unitaire)}</div><div class="ds-c-tot ds-chiffre">${dsPrix(l.total)}</div></div>`);
     }
     blocs.push(`<div class="ds-bloc ds-totaux"><div class="ds-total-l">Total</div><div class="ds-total-v">${dsPrix(devis.total)}</div></div>`);
-    blocs.push(`<div class="ds-bloc ds-encart"><div class="ds-encart-t ds-kp">Délai de fabrication : ${e(devis.delai)}, à compter du paiement.</div></div>`);
+    if (devis.acompte) blocs.push(`<div class="ds-bloc ds-encart ds-acompte"><div class="ds-encart-t ds-kp"><b>${e(devis.acompte.texte)}</b></div></div>`);
+    blocs.push(`<div class="ds-bloc ds-encart"><div class="ds-encart-t ds-kp">${devis.delaiTexte ? `Délai : ${e(devis.delaiTexte)}.` : `Délai de fabrication : ${e(devis.delai)}, à compter du paiement.`}</div></div>`);
+    for (const enc of devis.encarts || []) blocs.push(`<div class="ds-bloc ds-conditions"><div class="ds-etiquette">${e(enc.titre)}</div>${enc.lignes.map((t) => `<div class="ds-cond"><div class="ds-puce">—</div><div class="ds-cond-t ds-kp">${e(t)}</div></div>`).join("")}</div>`);
     blocs.push(`<div class="ds-bloc ds-conditions"><div class="ds-etiquette">Conditions</div>${devis.conditions.map((t) => `<div class="ds-cond"><div class="ds-puce">—</div><div class="ds-cond-t ds-kp">${e(t)}</div></div>`).join("")}</div>`);
-    blocs.push(`<div class="ds-bloc ds-accord"><div class="ds-accord-boite"><div class="ds-accord-titre">Bon pour accord</div><div class="ds-accord-texte ds-kp">Date et signature, précédées de « Bon pour accord »</div></div>`
+    if (devis.accord !== false) blocs.push(`<div class="ds-bloc ds-accord"><div class="ds-accord-boite"><div class="ds-accord-titre">Bon pour accord</div><div class="ds-accord-texte ds-kp">Date et signature, précédées de « Bon pour accord »</div></div>`
       + `<div class="ds-commander">${devis.lienFiche ? `<div class="ds-gris">Pour commander en ligne, aux conditions de ce devis :</div><div class="ds-lien">${e(devis.lienFiche.replace(/^https?:\/\//, ""))}</div>` : ""}</div></div>`);
     return `<div class="ds-feuilles">${dsPageHtml(blocs.join(""), 1, 1)}</div>`;
   }
 function dsPageHtml(corps, n, total) {
     return `<section class="ds-page"><div class="ds-corps">${corps}</div><div class="ds-pied"><span>${dsEsc(DS_PIED)}</span></div><div class="ds-num"><span>Page ${n} / ${total}</span></div></section>`;
   }
-export const EMPREINTE_SOURCE = "a81d98d0a366b8f5875cd2b69b29e0e4ea415a91c5df2d90caaff8621ff01c98";
+export const EMPREINTE_SOURCE = "4df9f77df04cf93f92e2886b83c5a61772ca1b58314b23788b5a69a4548f777d";
 export { DS_GC, DS_VALIDITE_JOURS, composerDevisGC, dsDevisHtml, dsPrix };
-export const EMPREINTE = "3509829fcb9a";
+export const EMPREINTE = "f5da70d03e11";

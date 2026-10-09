@@ -25,6 +25,8 @@ import {
   Z_SPHERE_GC_MM,
   ESSENCES_GC,
   JOUR_GC_MM,
+  PLATINE_FIXATION_GC_MM,
+  RECUL_FIXATION_GC_MM,
   JOUR_MINI_GC_MM,
   MARGE_BOULE_GC_MM,
   MAINS_COURANTES_GC,
@@ -40,7 +42,7 @@ import {
   releveDansLesBornes,
   type ReleveGC,
 } from "../src/lib/garde-corps.ts";
-import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, CIBLE_MARGE, DEFAUTS_GC, HAUT_ETAGE, MARGE_BOULE, MINI_GC, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, geomGC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
+import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, CIBLE_MARGE, DEFAUTS_GC, FIX_GC, HAUT_ETAGE, MARGE_BOULE, MINI_GC, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, geomGC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
 import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
 import { prixCommandeGC, prixGC, type ConfigGC } from "../src/lib/garde-corps-outil/calcul.ts";
 import {
@@ -75,6 +77,8 @@ test("les constantes du site sont celles de l'outil de plans", () => {
   assert.equal(MINI_GC_MM, MINI_GC, "le plus petit garde-corps à croix");
   assert.equal(MARGE_BOULE_GC_MM, MARGE_BOULE, "la marge de sécurité sur la boule de la norme");
   assert.equal(BARRE_APPUI_MM, BARRE_APPUI, "l'épaisseur d'une barre d'appui");
+  assert.equal(RECUL_FIXATION_GC_MM, FIX_GC.recul, "le recul du cadre dans le tableau (platines au bout des lisses, 10/10/2026)");
+  assert.deepEqual({ ...PLATINE_FIXATION_GC_MM }, { l: FIX_GC.l, e: FIX_GC.e, h: FIX_GC.h }, "la platine de fixation");
   // Les chiffres de la norme que cite la page /garde-corps-fenetre-normes.
   assert.equal(HAUTEUR_LOI_GC_MM, HAUT_ETAGE, "la hauteur de la loi, au haut de la main courante");
   assert.equal(SPHERE_GC_MM, SPHERE, "la boule de la norme sous 800 mm");
@@ -223,8 +227,9 @@ test("les croix ne sont plus limitées à 450 mm : l'outil en met autant qu'il f
   const ligne = ligneGC(releve({ allegeMm: 0 }), { woodId: "chene", ...MODELE });
   assert.ok(ligne.ok, "vendu en croix, sans passer par le verre");
   assert.ok(ligne.line.optionsLabel.includes(`${haut.croix} croix`), ligne.line.optionsLabel);
-  // Le modèle de la photo (1 180 mm, allège 650) : 4 croix pour la norme, pas 2.
-  assert.equal(config().croix, 4);
+  // Le modèle de la photo (1 180 mm, allège 650) : 3 croix pour la norme, pas 2 (4 avant la fixation par platines au bout des
+  // lisses, 10/10/2026 : le cadre s'arrête à 90 mm de chaque tableau, les croix se partagent 1 000 mm au lieu de 1 180).
+  assert.equal(config().croix, 3);
 });
 
 test("le prix du site est le prix de l'outil, plus les suppléments des options du site", () => {
@@ -320,15 +325,28 @@ test("plusieurs garde-corps : une remise, jamais sous le plancher, et une seule 
   chiffrageOuEchec();
   const c = config();
   assert.equal(prixCommandeGC([{ config: c, quantite: 1 }]).remise, 0);
-  for (const quantite of [2, 3, 10]) {
-    const r = prixCommandeGC([{ config: c, quantite }]);
-    assert.ok(r.remise < 0, `${quantite} garde-corps : une vraie remise (frais fixes comptés une fois)`);
-    assert.equal(Math.abs(r.remise) % 10, 0, "une remise en dizaines d'euros");
-    assert.equal(r.prix, quantite * prixGC(c) + r.remise);
+  // Depuis le prix d'appel du 05/10/2026, les frais fixes par commande sont à 0 € : à plusieurs, l'atelier n'économise que
+  // les frais fixes de Stripe (0,25 €) et l'arrondi à la dizaine de TOUTE la commande (au lieu de pièce par pièce). La remise
+  // est donc nulle ou en dizaines d'euros, selon où tombe le plancher : depuis la fixation par platines au bout des lisses
+  // (10/10/2026), 1 180 × 650 se vend 440 € pour un plancher à 1,82 € dessous, et 2 ou 3 pièces retombent sur la même dizaine ;
+  // sur le modèle de la photo (1 180 × 585), 2, 3 et 10 pièces ont une remise. Une vraie remise à coup sûr demande des frais
+  // fixes par commande (REGLAGES.fraisFixes > 0).
+  const { REGLAGES } = chargerChiffrage().ok ? (chargerChiffrage() as { ok: true; chiffrage: { REGLAGES: { fraisFixes: number } } }).chiffrage : { REGLAGES: { fraisFixes: 0 } };
+  let unePieceAuMoins = 0;
+  for (const cfg of [c, config({ allegeMm: 585 })]) {
+    for (const quantite of [2, 3, 10]) {
+      const r = prixCommandeGC([{ config: cfg, quantite }]);
+      assert.ok(r.remise <= 0, `${quantite} garde-corps : jamais plus cher qu'à l'unité`);
+      if (REGLAGES.fraisFixes > 0) assert.ok(r.remise < 0, `${quantite} garde-corps : une vraie remise (frais fixes comptés une fois)`);
+      assert.equal(Math.abs(r.remise) % 10, 0, "une remise en dizaines d'euros");
+      assert.equal(r.prix, quantite * prixGC(cfg) + r.remise);
+      if (r.remise < 0) unePieceAuMoins++;
+    }
   }
+  assert.ok(unePieceAuMoins >= 3, "l'arrondi de toute la commande donne une remise sur le modèle de la photo (2, 3 et 10 pièces)");
   // À des cotes différentes aussi, et la route donne la même pour la quantité demandée.
   const autre = config({ largeurMm: 800, allegeMm: 720 }, "pin");
-  assert.ok(prixCommandeGC([{ config: c, quantite: 1 }, { config: autre, quantite: 1 }]).remise < 0);
+  assert.ok(prixCommandeGC([{ config: c, quantite: 1 }, { config: autre, quantite: 1 }]).remise <= 0);
   const route = reponsePrixGC({ releve: releve(), essence: "chene", quantite: 3 });
   // (La route montre, sans choix, le moins cher à croix : sa remise est celle de CE dessin.)
   assert.ok(route?.ok && route.remise === prixCommandeGC([{ config: config({ modele: modeleAfficheGC(route) }), quantite: 3 }]).remise);
@@ -392,8 +410,9 @@ test("la fiche démarre sur le chêne de la photo, et appelle le bois « main co
   // Le pin et le chêne n'ont pas le même prix : démarrer sur le mauvais montrait un prix qui n'était pas celui de la photo.
   chiffrageOuEchec();
   // (Sur un grand garde-corps : sur un petit, l'écart de bois disparaît dans l'arrondi à la dizaine. Depuis le prix
-  // d'appel du 05/10/2026 — plus de frais d'atelier —, 800 × 300 tombe à la même dizaine : on prend 1 200 × 300.)
-  const grand = releve({ largeurMm: 1200, allegeMm: 300 });
+  // d'appel du 05/10/2026 — plus de frais d'atelier —, 800 × 300 tombe à la même dizaine ; depuis la fixation par
+  // platines au bout des lisses (10/10/2026 : cadre plus étroit, 5 croix au lieu de 6), 1 200 × 300 aussi : on prend 1 800 × 300.)
+  const grand = releve({ largeurMm: 1800, allegeMm: 300 });
   const chene = reponsePrixGC({ releve: grand, essence: "chene", quantite: 1 });
   // (Le même dessin pour les deux bois : seul le bois change.)
   const pin = reponsePrixGC({ releve: chene?.ok ? { ...grand, modele: modeleAfficheGC(chene) } : grand, essence: "pin", quantite: 1 });

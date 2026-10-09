@@ -32,13 +32,19 @@ test("sans mur : la fixation d'avant (vis Ø 6 et chevilles), au même prix", ()
   assert.ok(R.debit.some((d: { nom: string }) => /^Vis ou goujons/.test(d.nom)));
 });
 
-test("béton : une tige M8 à travers le montant quand elle suffit ; validé ; ses pièces au débit et au prix", () => {
+test("béton : 4 platines 40 × 5 au bout des lisses, 8 tiges M8 scellées (10/10/2026) ; validé ; ses pièces au débit et au prix", () => {
+  // Avant le 10/10/2026 : une tige M8 à travers le montant. Depuis la fixation par platines au bout des lisses (décision de
+  // Quentin), tous les murs à tiges ont les mêmes platines (une pièce : plat 40 × 5 × 120, 2 trous à 75 mm), le béton compte ses
+  // deux tiges pour 1,6 (casse du bord commune, EN 1992-4).
   const { c, v, R, F } = avecMur(1200, 400, "beton");
   assert.equal(F?.statut, "valide");
-  assert.equal(F?.mode, "tige");
+  assert.equal(F?.mode, "platines");
+  assert.equal((F as unknown as { platines: number }).platines, 4, "4 platines");
+  assert.equal(F.points.length, 4, "4 hauteurs de tiges par côté");
   assert.ok(F.points.every((p) => p.rd !== null && p.V <= p.rd), "chaque point sous sa résistance");
   assert.deepEqual(R.alertes, []);
   assert.ok(R.debit.some((d: { nom: string }) => /^Tige filetée M8 inox/.test(d.nom)));
+  assert.ok(R.debit.some((d: { nom: string; mat: string }) => d.nom === "Platines de fixation" && d.mat === "Plat acier 40 × 5"), "les platines au débit");
   assert.ok(!R.debit.some((d: { nom: string }) => /^Vis ou goujons/.test(d.nom)), "plus de vis Ø 6");
   assert.ok(chiffrage().chiffrerGC(R, v).conseille > chiffrage().chiffrerGC(c.R, c.v).conseille, "la résine et l'inox se paient");
 });
@@ -86,24 +92,25 @@ test("la profondeur du tableau place les tiges : le plus près de la façade qui
   assert.equal(cDe(avecMur(1200, 400, "pierre-dure", 60).F), 80);
 });
 
-test("barre d'appui très basse : une platine prolongée sous le cadre écarte les tiges (brique, enduit ; tuffeau avec un tableau assez profond)", () => {
-  // 100 × 80 : le montant de rive est trop court pour deux platines.
+test("barre d'appui très basse : une seule platine par côté, sur toute la hauteur du cadre (brique, enduit ; tuffeau avec un tableau assez profond)", () => {
+  // 100 × 80 : le cadre (135 mm) est trop bas pour deux platines par côté écartées de 10 mm. Depuis le 10/10/2026 (platines au
+  // bout des lisses), une seule platine par côté, du bas de la platine basse au dessus de la lisse haute, 2 ou 3 tiges ; elle
+  // remplace l'ancienne « platine prolongée » sous le cadre.
   const brique = avecMur(1000, 800, "brique");
   assert.equal(brique.F?.statut, "valide");
-  assert.ok((brique.F as unknown as { prolongee: boolean }).prolongee);
-  assert.equal(brique.F!.points.length, 3);
-  assert.ok(brique.F!.points[0].y < 0, "la tige du bas est sous le cadre");
-  assert.ok(brique.F!.points[0].y >= 25 - (brique.v as { jour: number }).jour, "à 10 mm au moins de l'appui");
+  assert.deepEqual(brique.F!.plaques.map((pl) => pl.qte), [2], "une platine par côté");
+  assert.equal((brique.F as unknown as { platines: number }).platines, 2);
+  assert.ok(brique.F!.points.length >= 2 && brique.F!.points.length <= 3, "2 ou 3 tiges par côté");
   assert.ok(brique.F!.points.every((p) => p.rd !== null && p.V <= p.rd));
-  assert.deepEqual(brique.F!.plaques.map((pl) => pl.qte), [2], "une platine par montant");
-  assert.ok(brique.R.debit.some((d: { nom: string; coupes: string }) => d.nom === "Platines de fixation" && /prolongée/.test(d.coupes)));
+  assert.ok(brique.R.notes.some((n: string) => /une seule platine par côté/.test(n)), "l'outil le dit");
+  assert.ok(brique.R.debit.some((d: { nom: string; mat: string }) => d.nom === "Platines de fixation" && d.mat === "Plat acier 40 × 5"));
   assert.equal(avecMur(1000, 800, "enduit").F?.statut, "indicatif");
-  // Tuffeau : les 2 tiges du haut comptent pour une ; avec 20 cm de tableau (tiges jusqu'à 10 cm de l'arête), ça tient.
+  // Tuffeau : les 2 tiges d'une platine comptent pour deux (décision de Quentin, 09/10) ; avec 20 cm de tableau, ça tient.
   assert.equal(avecMur(1000, 800, "tuffeau", 200).F?.statut, "valide");
   // Le parpaing veut 200 mm entre ses chevilles (deux rangs de blocs) : toujours sur étude, avec les solutions.
   assert.equal(avecMur(1000, 800, "parpaing").F?.statut, "etude");
-  // Un montant assez long garde ses deux platines d'avant.
-  assert.ok(!(avecMur(1200, 400, "brique").F as unknown as { prolongee: boolean }).prolongee);
+  // Un cadre assez haut garde ses deux platines par côté (4 en tout).
+  assert.equal((avecMur(1200, 400, "brique").F as unknown as { platines: number }).platines, 4);
 });
 
 test("placo : jamais de cheville dans la plaque ; on demande le mur extérieur (sur étude, avec la raison)", () => {

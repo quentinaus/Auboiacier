@@ -37,6 +37,7 @@ import {
   releveDansLesBornes,
   type ChoixDecorGC,
   type ReleveGC,
+  RECUL_FIXATION_GC_MM,
 } from "../src/lib/garde-corps.ts";
 import { lireReleveGcMemo, memoVersReleve, releveVersMemo } from "../src/lib/config-memo.ts";
 import { composerFavori, encoderFavori } from "../src/lib/favoris.ts";
@@ -448,7 +449,8 @@ test("les traits du décor : en mm depuis le coin du cadre, bornés, relus à l'
       }
     }
     assert.ok(nombres > 50 && nombres <= DECOR_NOMBRES_MAX, `${a}, ${l} : ${nombres} nombres`);
-    assert.equal(d.cadreMm.l, l - 1, "le cadre (jeu de 1 mm)");
+    // Le cadre : en retrait de 90 mm dans chaque tableau depuis la fixation par platines au bout des lisses (10/10/2026).
+    assert.equal(d.cadreMm.l, l - 2 * RECUL_FIXATION_GC_MM, "le cadre, entre les montants de rive");
     const relu = lireReponsePrixGC(JSON.parse(J(r)));
     assert.ok(relu && relu.ok);
     assert.deepEqual(relu.decor, d);

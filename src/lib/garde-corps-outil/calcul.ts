@@ -183,6 +183,9 @@ const REFUS_SANS_POUSSEE: readonly RegExp[] = [
   /^sur étude — le tableau est trop peu profond/,
   /^sur étude — un carré de \d+ au moins/,
   /^sur étude — le montant de rive est trop court/,
+  // Depuis la fixation par platines au bout des lisses (10/10/2026) : un cadre trop bas pour écarter les deux chevilles d'un côté
+  // (parpaing, brique creuse, béton cellulaire : une cheville par platine, un rang entre les deux) — la géométrie, pas la poussée.
+  /^sur étude — le cadre est trop bas/,
 ];
 /** Par relevé et par cadre : la fixation dans le mur est-elle « sur étude » quelle que soit la poussée ? (murSansRemede) */
 const sansRemede = new Map<string, boolean>();

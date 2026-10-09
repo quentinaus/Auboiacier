@@ -59,6 +59,9 @@ const A = analyser(html);
 const RACINES = {
   moteur: ["geomGC", "calculerGC", "variantesConformes", "decrireVariante", "HAUT_ETAGE", "ALLEGE_LIBRE", "MINI_GC", "MINI_SEULS", "BARRE_APPUI", "SPHERE",
     "SPHERE_HAUT", "Z_SPHERE", "Z_ESCALADE", "CIBLE_MARGE", "LIMITE_ACIER", "ROSACE_R", "RENFORT", "fmt", "mmTxt", "planA3Pur", "DS_ESSENCES", "coupeMainCourante", "svgDe", "MARGE_BOULE",
+    // La fixation par platines au bout des lisses (10/10/2026) : le recul du cadre dans le tableau (90 mm), la platine 40 × 5 × 120.
+    // Le croquis du site (schema-fenetre.tsx) dessine le cadre en retrait d'autant.
+    "FIX_GC",
     // Le décor à volutes (bibliothèque de styles, 06/10/2026) : ses noms, les formes permises par assemblage, les choix de la
     // bibliothèque ; mtAlleger (la fonction de l'outil qui allège un trait) sert aux vignettes des décors.
     "DECOR_NOMS", "MT_AVEC", "MT_NOMS", "MT_CHOIX", "decorActif", "mtAlleger"],
@@ -199,7 +202,10 @@ const lireSrc = decl("lire").texte, champsSrc = decl("CHAMPS").texte;
 if (!/^function lire\(\)/.test(lireSrc)) arret("lire() a changé de forme dans l'outil");
 // lire() utilise quelques constantes de l'outil (le jour automatique) : on les lui donne telles qu'elles sont déclarées.
 const constantesDeLire = ["MINI_GC", "MINI_SEULS", "JOUR_MINI", "HAUT_ETAGE", "CIBLE_MARGE"].map((n) => decl(n).texte).join("\n");
-const DEFAUTS_GC = new Function("$", `${constantesDeLire};\n${champsSrc};\n${lireSrc};\nreturn lire();`)((id) => {
+// Depuis le 07/10/2026, lire() ajoute aussi les champs « es… » de l'onglet Escaliers (lireEscalier, module plans-escalier.js) :
+// ils ne font pas partie des valeurs de départ du garde-corps, on lui rend un objet vide.
+const sansEscalier = "function lireEscalier() { return {}; }";
+const DEFAUTS_GC = new Function("$", `${constantesDeLire};\n${sansEscalier};\n${champsSrc};\n${lireSrc};\nreturn lire();`)((id) => {
   if (!champs[id]) throw new Error("champ absent de la page de l'outil : " + id);
   return champs[id];
 });
@@ -312,6 +318,8 @@ export declare const HAUT_ETAGE: number;
 export declare const LIMITE_ACIER: number;
 export declare const MINI_GC: number;
 export declare const MARGE_BOULE: number;
+/** La fixation par platines au bout des lisses (10/10/2026) : recul du cadre depuis le tableau, platine (l × e × h), bord, entraxe des trous… en mm. */
+export declare const FIX_GC: Readonly<{ recul: number; l: number; e: number; h: number; bord: number; entraxe: number; rondelle: number; appui: number; ecart: number }>;
 export declare const MINI_SEULS: number;
 export declare const RENFORT: Readonly<{ l: number; e: number; bois: Readonly<{ l: number; h: number }>; LcMax: number; pasVis: number; visD: number; visL: number }>;
 export declare const ROSACE_R: number;
@@ -497,7 +505,14 @@ function comparerAvecOutil(M, D, CH) {
   const lancer = preparerOutil(html);
   const t0 = Date.now();
   const depart = lancer(null);
-  const defautsOutil = JSON.parse(J(depart.P.lire()));
+  // Les champs « es… » de l'onglet Escaliers (lireEscalier, module plans-escalier.js collé le 07/10/2026) sont relus par lire()
+  // de l'outil : ils ne concernent pas le garde-corps, on les retire avant chaque comparaison avec le code extrait.
+  const lireSansEscalier = (P) => {
+    const v = JSON.parse(J(P.lire()));
+    for (const k of Object.keys(P.lireEscalier ? P.lireEscalier() : {})) delete v[k];
+    return v;
+  };
+  const defautsOutil = lireSansEscalier(depart.P);
   if (J(trie(defautsOutil)) !== J(trie(DEFAUTS_GC))) throw new Error("DEFAUTS_GC diffère de lire() de l'outil chargé");
   const O = depart.O;
   const dateOutil = depart.dateOutil(DATE);
@@ -612,7 +627,7 @@ function comparerAvecOutil(M, D, CH) {
     let vO = vE, Olocal = O, dateLocale = dateOutil, charge = null;
     if (c.lire) {                     // l'outil relit ces valeurs comme si elles étaient gardées dans le navigateur
       charge = lancer(vE);
-      vO = JSON.parse(J(charge.P.lire()));
+      vO = lireSansEscalier(charge.P);
       Olocal = charge.O;
       dateLocale = charge.dateOutil(DATE);
       if (J(trie(vO)) !== J(trie(vE))) ecarts.push(`${c.nom} : lire()`);

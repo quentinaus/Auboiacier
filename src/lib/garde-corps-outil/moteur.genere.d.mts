@@ -46,6 +46,8 @@ export declare const HAUT_ETAGE: number;
 export declare const LIMITE_ACIER: number;
 export declare const MINI_GC: number;
 export declare const MARGE_BOULE: number;
+/** La fixation par platines au bout des lisses (10/10/2026) : recul du cadre depuis le tableau, platine (l × e × h), bord, entraxe des trous… en mm. */
+export declare const FIX_GC: Readonly<{ recul: number; l: number; e: number; h: number; bord: number; entraxe: number; rondelle: number; appui: number; ecart: number }>;
 export declare const MINI_SEULS: number;
 export declare const RENFORT: Readonly<{ l: number; e: number; bois: Readonly<{ l: number; h: number }>; LcMax: number; pasVis: number; visD: number; visL: number }>;
 export declare const ROSACE_R: number;

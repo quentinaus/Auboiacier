@@ -32,7 +32,7 @@
  */
 
 import { useEffect, useId, useRef } from "react";
-import { BARRE_APPUI_MM, JOUR_GC_MM, MAIN_COURANTE_MM, formeGC, type DecorTraitGC, type TrousGC } from "@/lib/garde-corps";
+import { BARRE_APPUI_MM, JOUR_GC_MM, MAIN_COURANTE_MM, PLATINE_FIXATION_GC_MM, RECUL_FIXATION_GC_MM, formeGC, type DecorTraitGC, type TrousGC } from "@/lib/garde-corps";
 import type { MatiereMur } from "@/lib/murs-gc";
 
 const ENCRE = "#2b2320";
@@ -776,37 +776,66 @@ export function SchemaFenetre({
 
   const legende = fr ? "Croquis coté, vu depuis la pièce : " : "Dimensioned sketch, seen from the room: ";
 
+  // La fixation par platines au bout des lisses (10/10/2026, FIX_GC de l'outil) : le cadre (ses montants de rive) est en retrait
+  // de 90 mm dans chaque tableau ; les lisses filent jusqu'aux platines, plaquées contre le tableau. Le décor et les ronds de
+  // l'outil sont en mm depuis le coin du CADRE : ils se posent entre les montants, pas d'un tableau à l'autre. (Le garde-corps en
+  // verre n'est pas chiffré par l'outil : son croquis garde le cadre d'un tableau à l'autre.)
+  const recul = mode === "garde-corps" && remplissage !== "verre" ? Math.min(r(RECUL_FIXATION_GC_MM * e), r((D - G - 4) / 5)) : 0;
+  const cG = G + 2 + recul, cD = D - 2 - recul, cL = cD - cG;
+  const platineE = Math.max(1.2, r(PLATINE_FIXATION_GC_MM.e * e * 10) / 10), platineH = Math.max(3, r(PLATINE_FIXATION_GC_MM.h * e));
+
   const gardeCorps = mode === "garde-corps" && (
     <g filter={acierClair ? `url(#${ids("contour")})` : undefined}>
       {remplissage === "verre" && (
         /* Le verre feuilleté : un panneau clair, un reflet, aucun vide. */
         <g>
-          <rect x={G + 2} y={cadreHaut} width={D - G - 4} height={cadreBas - cadreHaut} fill="#bfd3dd" opacity={0.75} />
+          <rect x={cG} y={cadreHaut} width={cL} height={cadreBas - cadreHaut} fill="#bfd3dd" opacity={0.75} />
           <line x1={G + 8} y1={cadreBas - 2} x2={r(G + 8 + (cadreBas - cadreHaut) * 0.9)} y2={cadreHaut + 2} stroke="#ffffff" strokeWidth={2} opacity={0.7} />
         </g>
       )}
-      <rect x={G + 2} y={cadreHaut} width={D - G - 4} height={cadreBas - cadreHaut} fill="none" stroke={acier} strokeWidth={r(barre * 1.4)} />
+      <rect x={cG} y={cadreHaut} width={cL} height={cadreBas - cadreHaut} fill="none" stroke={acier} strokeWidth={r(barre * 1.4)} />
+      {recul > 0 && (
+        /* La fixation par platines au bout des lisses (10/10/2026) : les lisses haute et basse filent jusqu'aux tableaux, une
+           platine 40 × 5 × 120 soudée à chaque bout, plaquée contre le tableau (en haut sous la lisse, en bas centrée sur elle ;
+           une seule par côté sur toute la hauteur quand le cadre est trop bas pour deux). */
+        <g>
+          <line x1={G + 2} y1={cadreHaut} x2={D - 2} y2={cadreHaut} stroke={acier} strokeWidth={r(barre * 1.4)} />
+          <line x1={G + 2} y1={cadreBas} x2={D - 2} y2={cadreBas} stroke={acier} strokeWidth={r(barre * 1.4)} />
+          {[G + 2, D - 2 - platineE].map((x, k) => {
+            const yHaut = r(cadreHaut - barre * 0.7);
+            const unique = cadreBas + platineH / 2 - yHaut < 2 * platineH + barre;
+            return unique ? (
+              <rect key={`pl${k}`} x={x} y={yHaut} width={platineE} height={r(cadreBas + platineH / 2 - yHaut)} fill={acier} />
+            ) : (
+              <g key={`pl${k}`}>
+                <rect x={x} y={yHaut} width={platineE} height={platineH} fill={acier} />
+                <rect x={x} y={r(cadreBas - platineH / 2)} width={platineE} height={platineH} fill={acier} />
+              </g>
+            );
+          })}
+        </g>
+      )}
       {soubassement > 0 && (
         /* Les barreaux droits du bas, sous une lisse : rien à quoi grimper sous 600 mm du sol. */
         <g stroke={acier} strokeWidth={barre}>
-          <line x1={G + 2} y1={basCroix} x2={D - 2} y2={basCroix} strokeWidth={r(barre * 1.2)} />
+          <line x1={cG} y1={basCroix} x2={cD} y2={basCroix} strokeWidth={r(barre * 1.2)} />
           {Array.from({ length: barreaux }, (_, i) => {
-            const x = r(G + 2 + ((D - G - 4) * (i + 1)) / (barreaux + 1));
+            const x = r(cG + ((cL) * (i + 1)) / (barreaux + 1));
             return <line key={i} x1={x} y1={basCroix} x2={x} y2={cadreBas} />;
           })}
         </g>
       )}
       {remplissage === "decor" && decor && (() => {
         /* Le décor de l'outil, posé dans le cadre du croquis (même repère que les ronds de la norme). */
-        const sx = (D - G - 4) / decor.cadreMm.l,
+        const sx = (cL) / decor.cadreMm.l,
           sy = (cadreBas - cadreHaut) / decor.cadreMm.h;
-        const pt = ([x, y]: readonly [number, number]) => `${r(G + 2 + x * sx)},${r(cadreBas - y * sy)}`;
+        const pt = ([x, y]: readonly [number, number]) => `${r(cG + x * sx)},${r(cadreBas - y * sy)}`;
         const or = "#b8893f";
         return (
           <g>
             {decor.traits.map((tr, i) =>
               tr.t === "cercle" ? (
-                <ellipse key={i} cx={r(G + 2 + tr.c[0] * sx)} cy={r(cadreBas - tr.c[1] * sy)} rx={Math.max(0.4, tr.r * sx)} ry={Math.max(0.4, tr.r * sy)} fill={tr.role === "or" ? or : acier} />
+                <ellipse key={i} cx={r(cG + tr.c[0] * sx)} cy={r(cadreBas - tr.c[1] * sy)} rx={Math.max(0.4, tr.r * sx)} ry={Math.max(0.4, tr.r * sy)} fill={tr.role === "or" ? or : acier} />
               ) : tr.role === "vrille" ? (
                 <polyline key={i} points={tr.pts.map(pt).join(" ")} fill="none" stroke="#ffffff" strokeOpacity={0.55} strokeWidth={0.35} />
               ) : (
@@ -820,7 +849,7 @@ export function SchemaFenetre({
         /* En attendant le dessin de l'outil : les barreaux du cadre, en filigrane. */
         <g stroke={acier} strokeWidth={barre} opacity={0.25}>
           {Array.from({ length: Math.max(2, Math.round(L / 116)) }, (_, i) => {
-            const x = r(G + 2 + ((D - G - 4) * (i + 1)) / (Math.max(2, Math.round(L / 116)) + 1));
+            const x = r(cG + ((cL) * (i + 1)) / (Math.max(2, Math.round(L / 116)) + 1));
             return <line key={i} x1={x} y1={cadreHaut} x2={x} y2={cadreBas} />;
           })}
         </g>
@@ -829,7 +858,7 @@ export function SchemaFenetre({
         /* Des barreaux verticaux, du haut au bas du cadre : rien à quoi poser le pied. */
         <g stroke={acier} strokeWidth={barre}>
           {Array.from({ length: barreauxSeuls }, (_, i) => {
-            const x = r(G + 2 + ((D - G - 4) * (i + 1)) / (barreauxSeuls + 1));
+            const x = r(cG + ((cL) * (i + 1)) / (barreauxSeuls + 1));
             return <line key={i} x1={x} y1={cadreHaut} x2={x} y2={cadreBas} />;
           })}
         </g>
@@ -837,8 +866,8 @@ export function SchemaFenetre({
       {remplissage === "croix" &&
         !seuls &&
         Array.from({ length: panneaux }, (_, i) => {
-          const x0 = r(G + 2 + ((D - G - 4) * i) / panneaux);
-          const x1 = r(G + 2 + ((D - G - 4) * (i + 1)) / panneaux);
+          const x0 = r(cG + ((cL) * i) / panneaux);
+          const x1 = r(cG + ((cL) * (i + 1)) / panneaux);
           return (
             <g key={i} opacity={apercu ? 0.22 : 1}>
               {i > 0 && <line x1={x0} y1={cadreHaut} x2={x0} y2={basCroix} stroke={acier} strokeWidth={barre} />}
@@ -864,18 +893,18 @@ export function SchemaFenetre({
       {trous &&
         remplissage === "croix" &&
         trous.ronds.map((c, i) => {
-          const sx = (D - G - 4) / trous.cadreMm.l,
+          const sx = (cL) / trous.cadreMm.l,
             sy = (cadreBas - cadreHaut) / trous.cadreMm.h;
           const couleur = c.ok ? "#2f7d46" : "#b3261e";
           return (
-            <ellipse key={`rond${i}`} cx={r(G + 2 + c.x * sx)} cy={r(cadreBas - c.y * sy)} rx={r((c.d / 2) * sx)} ry={r((c.d / 2) * sy)} fill={couleur} fillOpacity={0.3} stroke={couleur} strokeWidth={1.6} />
+            <ellipse key={`rond${i}`} cx={r(cG + c.x * sx)} cy={r(cadreBas - c.y * sy)} rx={r((c.d / 2) * sx)} ry={r((c.d / 2) * sy)} fill={couleur} fillOpacity={0.3} stroke={couleur} strokeWidth={1.6} />
           );
         })}
       <MainCourante x={G - 2} y={hautGardeCorpsY} largeur={D - G + 4} hauteur={mainCouranteH} type={typeMainCourante} acier={acier} bois={bois} />
       {platH > 0 && <rect x={G} y={r(hautGardeCorpsY + mainCouranteH - platH)} width={D - G} height={platH} fill={acier} />}
       {/* Les pattes : du bas du cadre jusqu'à l'appui, où elles sont scellées. */}
       {Array.from({ length: pattes }, (_, j) => (
-        <rect key={`patte${j}`} x={r(G + ((D - G) * (j + 1)) / (pattes + 1) - Math.max(1, barre / 2))} y={basGardeCorpsY} width={Math.max(2, barre)} height={Math.max(2, appuiY - basGardeCorpsY + 2)} fill={acier} />
+        <rect key={`patte${j}`} x={r(cG + (cL * (j + 1)) / (pattes + 1) - Math.max(1, barre / 2))} y={basGardeCorpsY} width={Math.max(2, barre)} height={Math.max(2, appuiY - basGardeCorpsY + 2)} fill={acier} />
       ))}
     </g>
   );

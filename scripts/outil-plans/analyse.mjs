@@ -33,13 +33,19 @@ export const GLOBAUX_PERMIS = new Set([
   "Float64Array", "Int32Array", "Uint8Array",
 ]);
 
-/** Le seul <script> de la page : son texte, et la ligne où il commence dans le HTML. */
+/**
+ * Le <script> du moteur : le premier script JavaScript de la page (sans src, sans type étranger), son texte, et la ligne
+ * où il commence dans le HTML. Depuis le 09/10/2026 l'outil porte un second script (id="sectionsReglages" : les réglages
+ * en sections repliables, écran seulement, « aucun calcul ici ») : il est ignoré, comme tout script qui suivrait le moteur.
+ */
 export function extraireScript(html) {
-  const debuts = [...html.matchAll(/<script\b[^>]*>/g)];
-  if (debuts.length !== 1) throw new Error(`l'outil devait contenir 1 <script>, il en contient ${debuts.length}`);
+  const debuts = [...html.matchAll(/<script\b([^>]*)>/g)].filter((m) => !/\bsrc=/.test(m[1]) && !/\btype="(?!(?:text\/javascript|module)")/.test(m[1]));
+  if (debuts.length < 1) throw new Error("l'outil devait contenir au moins 1 <script> JavaScript, il n'en contient aucun");
   const d = debuts[0].index + debuts[0][0].length;
   const f = html.indexOf("</script>", d);
-  return { js: html.slice(d, f), ligne0: html.slice(0, d).split("\n").length };
+  const js = html.slice(d, f);
+  if (!/window\.__plans\s*=/.test(js)) throw new Error("le premier <script> de l'outil n'est pas celui du moteur (window.__plans introuvable)");
+  return { js, ligne0: html.slice(0, d).split("\n").length };
 }
 
 // ---------- Portées ----------

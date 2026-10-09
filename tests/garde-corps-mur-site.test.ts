@@ -354,12 +354,13 @@ test("pattes : un mur que seule la poussée met « sur étude » garde ses patte
   // Ce que la recherche complète trouvait avant le contrôle (balayage du 07/10/2026) : le contrôle ne doit rien enlever.
   // Béton, tableau de 120 mm : la platine n'y tient pas (60 mm de l'arête + 75 de la fenêtre) et l'outil n'écrit que son
   // refus, mais la tige du premier montage (40 mm de l'arête) passe une fois soulagée par les pattes.
+  // Depuis la fixation par platines au bout des lisses (10/10/2026), le béton tient sans patte jusqu'à 2 400 × 720 (tableau de
+  // 120 mm compris : tiges à 40 mm de l'arête, deux par platine) ; les cas sont ceux du balayage du 10/10/2026.
   for (const [r, essence, attendu] of [
-    [releve({ largeurMm: 2200, allegeMm: 700, mur: "beton", tMurMm: 120 }), "chene-plat", { croix: 5, carre: 18, patte: 2 }],
-    [releve({ largeurMm: 500, allegeMm: 0, mur: "brique-creuse" }), "chene", { croix: 5, carre: 16, patte: 2 }],
-    [releve({ largeurMm: 801, allegeMm: 0, mur: "parpaing" }), "chene", { croix: 4, carre: 18, patte: 3 }],
-    [releve({ largeurMm: 1000, allegeMm: 700, mur: "tuffeau" }), "chene", { croix: 2, carre: 18, patte: 1 }],
-    [releve({ largeurMm: 1500, allegeMm: 700, mur: "brique", tMurMm: 135 }), "chene", { croix: 3, carre: 16, patte: 2 }],   // tiges à 60 mm de l'arête
+    [releve({ largeurMm: 500, allegeMm: 0, mur: "brique-creuse" }), "chene", { croix: 3, carre: 16, patte: 2 }],
+    [releve({ largeurMm: 1180, allegeMm: 650, mur: "parpaing" }), "chene", { croix: 3, carre: 16, patte: 2 }],
+    [releve({ largeurMm: 1500, allegeMm: 700, mur: "tuffeau" }), "chene", { croix: 3, carre: 16, patte: 2 }],
+    [releve({ largeurMm: 2200, allegeMm: 700, mur: "brique", tMurMm: 135 }), "chene", { croix: 5, carre: 18, patte: 2 }],   // tiges à 60 mm de l'arête
   ] as const) {
     const c = configurerGC({ ...r, essence });
     assert.ok(c.ok, `${JSON.stringify(r)} : plus de garde-corps`);
@@ -390,7 +391,9 @@ test("mémoire : le même relevé dans deux murs (ou à deux cotes du mur) ne pa
   assert.equal(sans1, sans2, "sans mur : le même résultat qu'avant les murs");
   assert.equal(sans1.entree.mur, undefined);
   assert.equal(beton.entree.mur, "beton");
-  assert.notEqual(prixGC(beton), prixGC(brique));
+  // (Béton et brique se vendent au même prix depuis la fixation par platines au bout des lisses, 10/10/2026 : mêmes platines,
+  // tiges M8 d'un côté, M10 de l'autre. Ce sont leurs fixations qui diffèrent, pas leurs prix.)
+  assert.notEqual(JSON.stringify(beton.R.fixation), JSON.stringify(brique.R.fixation));
   assert.notEqual(prixGC(beton), prixGC(sans1));
   assert.equal((beton.R.fixation as { mur: string }).mur, "beton");
   assert.equal((brique.R.fixation as { mur: string }).mur, "brique");

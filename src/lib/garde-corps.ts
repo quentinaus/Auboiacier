@@ -74,6 +74,14 @@ export const TOLERANCE_MURS_GC_MM = 2;
 /** Le jour laissé entre l'appui et le bas du cadre, par défaut dans l'outil (DEFAUTS_GC.jour). */
 export const JOUR_GC_MM = 90;
 
+/**
+ * La fixation par platines au bout des lisses (Quentin, 10/10/2026 ; FIX_GC du moteur) : le cadre (ses montants de rive) est en
+ * retrait de 90 mm dans chaque tableau, les lisses haute et basse filent jusqu'aux platines (plat 40 × 5 × 120, 2 trous),
+ * plaquées contre le tableau. Le croquis du site dessine le cadre en retrait d'autant.
+ */
+export const RECUL_FIXATION_GC_MM = 90;
+export const PLATINE_FIXATION_GC_MM = { l: 40, e: 5, h: 120 } as const;
+
 /** En étage, à partir de cette allège, la loi n'impose plus de protection (ALLEGE_LIBRE du moteur). */
 export const ALLEGE_SANS_OBLIGATION_MM = 900;
 

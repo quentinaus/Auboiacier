@@ -282,7 +282,9 @@ test("ce qui part vers le navigateur : des noms, des prix de vente, la hauteur r
   }
   const gc = affiche.lignes.find((l) => l.type === "piece" && l.hauteurMm !== undefined)!;
   assert.equal(gc.hauteurMm, cfg().hauteurMm);
-  assert.match(gc.options, /Custom — 1,180 × 285 mm, 4 crosses/);
+  // (3 croix depuis la fixation par platines au bout des lisses, 10/10/2026 : le cadre s'arrête à 90 mm des tableaux, 1 000 mm
+  // de croix au lieu de 1 180 ; avant, 4.)
+  assert.match(gc.options, /Custom — 1,180 × 285 mm, 3 crosses/);
   assert.equal(gc.nom, "Rosette Window Railing");
   assert.equal(affiche.total, t.total);
   assert.equal(

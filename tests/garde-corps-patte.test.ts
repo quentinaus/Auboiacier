@@ -4,6 +4,9 @@
  * de 40 × 10 soudée sous le montant du milieu et scellée dans l'appui. Jamais quand on peut s'en passer.
  * Depuis les perçages ramenés de 40 à 25 mm du bord, le 1 775 × 665 se vend SANS patte : la fenêtre du test est désormais
  * 1 500 × 720 (2 pattes, dans l'outil comme sur le site, vérifié le 07/10/2026).
+ * Depuis la fixation par platines au bout des lisses (10/10/2026 : 4 vis par côté dans les platines), aucune fenêtre du site ne
+ * demande de patte SANS mur donné ; c'est le mur qui les demande (tuffeau, brique, parpaing, brique creuse). La fenêtre du test
+ * est 1 500 × 720 en tuffeau (2 pattes, vérifié le 10/10/2026).
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -13,7 +16,7 @@ import { configurationGC, ligneGC, planApercuGC, reponsePrixGC, type RequetePrix
 import { composerDevisGardeCorps } from "../src/lib/garde-corps-outil/devis-site.ts";
 import { lireReponsePrixGC, modeleAfficheGC } from "../src/lib/garde-corps.ts";
 
-const releve = { largeurMm: 1500, allegeMm: 720, enEtage: true, fenetreMm: 2400 };
+const releve = { largeurMm: 1500, allegeMm: 720, enEtage: true, fenetreMm: 2400, mur: "tuffeau" as const };
 
 test("1 500 × 720 : vendu avec la patte du milieu, aux normes, et la patte est dans le débit", () => {
   const c = configurationGC(releve, "chene");

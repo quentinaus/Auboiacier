@@ -29,6 +29,7 @@ import {
   type ReleveGC,
   type ReponsePrixGC,
   type TrousGC,
+  RECUL_FIXATION_GC_MM,
 } from "@/lib/garde-corps";
 import type { Deplacement } from "@/lib/deplacement";
 import { prixAffiche } from "@/lib/ui";
@@ -2423,25 +2424,32 @@ export function MiniGardeCorps({ largeurMm, hauteurMm, hMaxMm, soubassementMm, c
   const L = largeurMm, H = Math.max(hMaxMm, hauteurMm);
   const y0 = H - hauteurMm, haut = y0 + 40, bas = H;
   const lisse = soubassementMm > 0 ? bas - soubassementMm : bas;
-  const pas = L / croix;
-  const nb = Math.max(2, Math.round(L / 110));
+  // La fixation par platines au bout des lisses (10/10/2026) : le cadre est en retrait de 90 mm dans chaque tableau (ce que
+  // disent les ronds de l'outil quand ils sont là), les lisses filent d'un tableau à l'autre.
+  const rec = trous ? Math.max(0, (L - trous.cadreMm.l) / 2) : Math.min(RECUL_FIXATION_GC_MM, L / 5);
+  const Lc = L - 2 * rec;
+  const pas = Lc / croix;
+  const nb = Math.max(2, Math.round(Lc / 110));
   const trait = { vectorEffect: "non-scaling-stroke" as const };
   // Les ronds de l'outil sont en mm depuis le coin bas-gauche du CADRE : on les pose dans le cadre de ce dessin.
-  const sx = trous ? L / trous.cadreMm.l : 1, sy = trous ? (bas - haut) / trous.cadreMm.h : 1;
+  const sx = trous ? Lc / trous.cadreMm.l : 1, sy = trous ? (bas - haut) / trous.cadreMm.h : 1;
   return (
     <svg viewBox={`${-L * 0.02} ${-H * 0.03} ${L * 1.04} ${H * 1.06}`} preserveAspectRatio="xMidYMax meet" aria-hidden className="block w-full" style={{ height: `var(--mini-gc, ${hauteurPx}px)` }} fill="none" stroke="#2b2320" strokeWidth="1.5" strokeLinecap="round">
       <rect x={-L * 0.01} y={y0} width={L * 1.02} height="40" fill="#c9a36b" stroke="none" />
-      <rect x="0" y={haut} width={L} height={bas - haut} {...trait} />
-      {soubassementMm > 0 && <line x1="0" y1={lisse} x2={L} y2={lisse} {...trait} />}
+      <rect x={rec} y={haut} width={Lc} height={bas - haut} {...trait} />
+      {/* Les lisses haute et basse jusqu'aux tableaux, où leurs platines sont fixées. */}
+      {rec > 0 && <line x1="0" y1={haut} x2={L} y2={haut} {...trait} />}
+      {rec > 0 && <line x1="0" y1={bas} x2={L} y2={bas} {...trait} />}
+      {soubassementMm > 0 && <line x1={rec} y1={lisse} x2={rec + Lc} y2={lisse} {...trait} />}
       {/* La traverse au milieu des croix : un trait horizontal, d'un montant à l'autre. */}
-      {traverse && !seuls && <line x1="0" y1={(haut + lisse) / 2} x2={L} y2={(haut + lisse) / 2} strokeWidth="1" {...trait} />}
+      {traverse && !seuls && <line x1={rec} y1={(haut + lisse) / 2} x2={rec + Lc} y2={(haut + lisse) / 2} strokeWidth="1" {...trait} />}
       {seuls &&
         Array.from({ length: nb - 1 }, (_, i) => {
-          const x = ((i + 1) * L) / nb;
+          const x = rec + ((i + 1) * Lc) / nb;
           return <line key={`s${i}`} x1={x} y1={haut} x2={x} y2={bas} strokeWidth="0.9" {...trait} />;
         })}
       {!seuls && Array.from({ length: croix }, (_, i) => {
-        const x0 = i * pas, x1 = x0 + pas;
+        const x0 = rec + i * pas, x1 = x0 + pas;
         return (
           <g key={i}>
             {i > 0 && <line x1={x0} y1={haut} x2={x0} y2={lisse} {...trait} />}
@@ -2453,14 +2461,14 @@ export function MiniGardeCorps({ largeurMm, hauteurMm, hMaxMm, soubassementMm, c
       })}
       {soubassementMm > 0 &&
         Array.from({ length: nb - 1 }, (_, i) => {
-          const x = ((i + 1) * L) / nb;
+          const x = rec + ((i + 1) * Lc) / nb;
           return <line key={`b${i}`} x1={x} y1={lisse} x2={x} y2={bas} strokeWidth="0.9" {...trait} />;
         })}
       {/* Le rond rouge : le vide trop grand. Les ronds verts : les vides qui respectent la norme. */}
       {trous?.ronds.map((r, i) => (
         <ellipse
           key={`r${i}`}
-          cx={r.x * sx}
+          cx={rec + r.x * sx}
           cy={bas - r.y * sy}
           rx={(r.d / 2) * sx}
           ry={(r.d / 2) * sy}

@@ -187,7 +187,10 @@ test("options que l'outil ne chiffre pas encore : leur supplément rejoint son p
 
 test("plusieurs pièces : la quantité sur chaque poste, et la remise sur sa ligne (frais fixes une fois)", () => {
   chiffrageOuEchec();
-  const releve = { largeurMm: 1180, allegeMm: 650, enEtage: true, fenetreMm: 1400 };
+  // Le modèle de la photo (1 180 × 585). À 1 180 × 650, depuis la fixation par platines au bout des lisses (10/10/2026), trois
+  // pièces retombent sur la même dizaine qu'à l'unité (440 € pour un plancher 1,82 € dessous, sans frais fixes par commande) :
+  // pas de remise à montrer sur le devis.
+  const releve = { largeurMm: 1180, allegeMm: 585, enEtage: true, fenetreMm: 1400 };
   const c = configurationGC(releve, "chene") as ConfigGC;
   const un = devisOk(entree(releve));
   const trois = devisOk(entree(releve, { quantite: 3 }));
