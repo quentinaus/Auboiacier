@@ -83,6 +83,8 @@ type CasesReleveGc = {
   largeur: string;
   /** La largeur en haut (murs pas parallèles) : facultative ici, une saisie plus ancienne ne l'a pas. */
   largeurHaut?: string;
+  /** Les murs ne sont pas droits : seulement alors la largeur du haut compte (releve-garde-corps.tsx). */
+  mursInegaux?: boolean;
   allege: string;
   fenetre: string;
   mur: string;
@@ -144,7 +146,7 @@ export function releveVersMemo(cases: CasesReleveGc, t: MotsReleveGc): ReleveGcM
   const etage = t.gcEtageOptions.indexOf(cases.etage);
   return {
     gcLargeurMm: mm(cases.largeur),
-    gcLargeurHautMm: cases.largeurHaut === undefined ? undefined : mm(cases.largeurHaut),
+    gcLargeurHautMm: cases.mursInegaux && cases.largeurHaut !== undefined ? mm(cases.largeurHaut) : undefined,
     gcAllegeMm: mm(cases.allege),
     gcFenetreMm: mm(cases.fenetre),
     gcEnEtage: etage === 0 ? true : etage === 1 ? false : undefined,
@@ -168,7 +170,11 @@ export function releveVersMemo(cases: CasesReleveGc, t: MotsReleveGc): ReleveGcM
 export function memoVersReleve(memo: ReleveGcMemo, t: MotsReleveGc): Partial<CasesReleveGc> {
   const cases: Partial<CasesReleveGc> = {};
   if (memo.gcLargeurMm !== undefined) cases.largeur = String(memo.gcLargeurMm);
-  if (memo.gcLargeurHautMm !== undefined) cases.largeurHaut = String(memo.gcLargeurHautMm);
+  if (memo.gcLargeurHautMm !== undefined) {
+    cases.largeurHaut = String(memo.gcLargeurHautMm);
+    // Une largeur du haut identique à celle du bas (mémoire plus ancienne) : des murs droits.
+    cases.mursInegaux = memo.gcLargeurHautMm !== memo.gcLargeurMm;
+  }
   if (memo.gcAllegeMm !== undefined) cases.allege = String(memo.gcAllegeMm);
   if (memo.gcFenetreMm !== undefined) cases.fenetre = String(memo.gcFenetreMm);
   const etage = memo.gcEnEtage === undefined ? undefined : t.gcEtageOptions[memo.gcEnEtage ? 0 : 1];

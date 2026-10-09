@@ -52,6 +52,12 @@ export type CotesGardeCorps = {
    * s'encastrerait pas, ou avec trop de jeu). L'atelier fabrique à la plus petite des deux.
    */
   largeurHaut: string;
+  /**
+   * Les murs ne sont pas droits (la largeur change du bas en haut) : seulement alors on demande la largeur à 1 m du sol
+   * (Quentin, 09/10/2026 : « le code pour savoir si les murs sont parallèles induit en erreur, peut-être en option »).
+   * Absent ou faux : une seule largeur, celle du bas ; l'atelier voit le reste à la visite.
+   */
+  mursInegaux?: boolean;
   /** Du sol au bas de la fenêtre. C'est d'elle qu'on déduit la hauteur du garde-corps. */
   allege: string;
   /** De l'appui au haut de l'ouverture : le garde-corps doit tenir dedans. */
@@ -140,9 +146,12 @@ export type LectureReleve =
  * pas dit, on suppose l'étage : c'est le cas où la loi s'applique, mieux vaut
  * la montrer que la taire. Les bornes sont celles de l'outil de plans.
  */
+/** La largeur du haut telle que le calcul la lit : celle que le client a tapée si ses murs sont de travers, sinon la largeur du bas. */
+export const largeurHautSaisie = (cotes: CotesGardeCorps) => (cotes.mursInegaux ? cotes.largeurHaut : cotes.largeur);
+
 export function lireReleve(cotes: CotesGardeCorps, t: Dictionary["artisanat"]): LectureReleve {
   const largeurBasMm = mm(cotes.largeur);
-  const largeurHautMm = mm(cotes.largeurHaut);
+  const largeurHautMm = mm(largeurHautSaisie(cotes));
   // Murs pas parallèles : l'atelier fabrique à la plus petite des deux largeurs (le prix, le plan et le devis aussi).
   const largeurMm = Math.min(largeurBasMm, largeurHautMm);
   const allegeMm = mm(cotes.allege);
@@ -211,7 +220,7 @@ export function texteManqueGC(lecture: LectureReleve | null | undefined, locale:
  */
 export function largeursGC(cotes: CotesGardeCorps): { basMm: number; hautMm: number; ecartMm: number; retenueMm: number } | null {
   const basMm = mm(cotes.largeur);
-  const hautMm = mm(cotes.largeurHaut);
+  const hautMm = mm(largeurHautSaisie(cotes));
   if (!Number.isFinite(basMm) || basMm <= 0 || !Number.isFinite(hautMm) || hautMm <= 0) return null;
   return { basMm, hautMm, ecartMm: Math.abs(basMm - hautMm), retenueMm: Math.min(basMm, hautMm) };
 }
@@ -273,6 +282,8 @@ export function etatQuestionGC(
       return rien;
     }
     case 2: {
+      // Murs droits (la réponse par défaut) : rien à mesurer de plus.
+      if (!cotes.mursInegaux) return rien;
       const v = mm(cotes.largeurHaut);
       if (!Number.isFinite(v) || v <= 0)
         return {
@@ -615,7 +626,7 @@ export function ReleveGardeCorps({
   }, [question, questionPc]);
   /** La cote dont parle la question posée (téléphone) : le croquis la montre, même sans le doigt dans la case. */
   const coteQuestion: CoteFenetre | null =
-    question === 1 ? "largeur" : question === 2 ? "largeurHaut" : question === 3 ? "allege" : question === 4 ? "fenetre" : null;
+    question === 1 ? "largeur" : question === 2 && cotes.mursInegaux ? "largeurHaut" : question === 3 ? "allege" : question === 4 ? "fenetre" : null;
   // La même case sert d'une question de mesure à l'autre (le clavier reste ouvert) : ni « focus » ni « blur » ne
   // préviennent du changement. La cote éclairée repart donc de zéro à chaque question.
   const [questionVue, setQuestionVue] = useState(question);
@@ -1595,8 +1606,8 @@ export function ReleveGardeCorps({
       ? t.gcLargeurInfo
       : n === 2
         ? fr
-          ? "Mesurez de la même façon, d'un mur à l'autre dans l'ouverture, mais à 1 m du sol. Cote brute : ne retirez rien."
-          : "Measure the same way, wall to wall inside the opening, but 1 m from the floor. Raw size: deduct nothing."
+          ? "Dans les maisons anciennes, les murs ne sont pas toujours droits. Si la fenêtre vous paraît plus large en haut qu'en bas (ou l'inverse), répondez « Non » : nous vous demanderons une mesure de plus. Si vous ne savez pas, répondez « Oui » : l'atelier vérifie à la visite."
+          : "In older houses the walls are not always straight. If the window looks wider at the top than at the bottom (or the other way round), answer “No”: we will ask for one more measurement. If you do not know, answer “Yes”: the workshop checks on the visit."
         : n === 3
           ? t.gcAllegeInfo
           : n === 4
@@ -1613,7 +1624,41 @@ export function ReleveGardeCorps({
       // L'en-tête dit OÙ mesurer (et le croquis le montre en bleu) ; sous la case, COMMENT.
       grandeSaisie("largeur", { label: libelleLargeurBas, info: t.gcLargeurInfo, placeholder: "1180" })
     ) : n === 2 ? (
-      grandeSaisie("largeurHaut", { label: libelleLargeurHaut, info: infoQuestion(2), placeholder: "1180" })
+      <div className="pt-1">
+        <div className="grid gap-2">
+          {grosBouton(
+            !cotes.mursInegaux,
+            () => {
+              figerQuestion();
+              onChange({ ...cotes, mursInegaux: false });
+            },
+            fr ? "Oui, ils sont droits" : "Yes, they are straight",
+            true,
+          )}
+          {grosBouton(
+            Boolean(cotes.mursInegaux),
+            () => {
+              figerQuestion();
+              onChange({ ...cotes, mursInegaux: true });
+            },
+            fr ? "Non, la fenêtre change de largeur" : "No, the window changes width",
+            false,
+          )}
+        </div>
+        {cotes.mursInegaux && (
+          <div className="mt-3">
+            {grandeSaisie("largeurHaut", {
+              label: libelleLargeurHaut,
+              info: fr
+                ? "Mesurez 1 m depuis le sol, faites un trait au crayon, puis la largeur à cette hauteur. Cote brute : ne retirez rien."
+                : "Measure 1 m up from the floor, make a pencil mark, then the width at that height. Raw size: deduct nothing.",
+              placeholder: "1180",
+            })}
+          </div>
+        )}
+        {messageTel}
+        {!cotes.mursInegaux && <p className="info-question mt-3 text-[12.5px] leading-snug text-[#5c5140]">{infoQuestion(2)}</p>}
+      </div>
     ) : n === 3 ? (
       grandeSaisie("allege", { label: t.gcAllegeCourt, info: t.gcAllegeInfo, placeholder: String(CURSEURS.allege.depart) })
     ) : n === 4 ? (
@@ -1712,7 +1757,11 @@ export function ReleveGardeCorps({
   const nomMur = murChoisi ? NOMS_MUR_FIXATION_GC[murChoisi][fr ? "fr" : "en"] : cotes.mur;
   const lignesResume: { n: number; label: string; valeur: string }[] = [
     { n: 1, label: fr ? "Largeur au ras de l'appui" : "Width at the sill", valeur: enMmAffiche(cotes.largeur) },
-    { n: 2, label: libelleLargeurHaut, valeur: enMmAffiche(cotes.largeurHaut) },
+    {
+      n: 2,
+      label: fr ? "Vos murs" : "Your walls",
+      valeur: cotes.mursInegaux ? `${fr ? "pas droits" : "not straight"} · ${enMmAffiche(cotes.largeurHaut)}` : fr ? "droits" : "straight",
+    },
     { n: 3, label: t.gcAllegeCourt, valeur: enMmAffiche(cotes.allege) },
     { n: 4, label: t.gcFenetreCourt, valeur: enMmAffiche(cotes.fenetre) || (fr ? "non donnée" : "not given") },
     { n: 5, label: t.gcEtage, valeur: fr && cotes.etage === "Au rez-de-chaussée" ? "Rez-de-chaussée" : cotes.etage },
@@ -1828,7 +1877,8 @@ export function ReleveGardeCorps({
               className="absolute inset-0 h-full w-full"
               // Les deux largeurs, chacune sur sa barre : en bas au ras de l'appui, en haut sur la main courante.
               largeurMm={Number.isFinite(mm(cotes.largeur)) && mm(cotes.largeur) > 0 ? mm(cotes.largeur) : undefined}
-              largeurHautMm={Number.isFinite(mm(cotes.largeurHaut)) && mm(cotes.largeurHaut) > 0 ? mm(cotes.largeurHaut) : undefined}
+              largeurHautMm={cotes.mursInegaux && Number.isFinite(mm(cotes.largeurHaut)) && mm(cotes.largeurHaut) > 0 ? mm(cotes.largeurHaut) : undefined}
+              sansLargeurHaut={!cotes.mursInegaux}
               allegeMm={Number.isFinite(mm(cotes.allege)) ? mm(cotes.allege) : undefined}
               hauteurFenetreMm={Number.isFinite(mm(cotes.fenetre)) && mm(cotes.fenetre) > 0 ? mm(cotes.fenetre) : undefined}
               croix={apercuModele ? apercuModele.croix : dessin?.ok ? dessin.croix : undefined}

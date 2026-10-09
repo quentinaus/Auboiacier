@@ -460,6 +460,7 @@ function Rosace({ cx, cy, taille = 6.5, acier }: { cx: number; cy: number; taill
 export function SchemaFenetre({
   largeurMm,
   largeurHautMm,
+  sansLargeurHaut,
   allegeMm,
   hauteurFenetreMm,
   croix,
@@ -511,6 +512,8 @@ export function SchemaFenetre({
    * d'en bas, au ras de l'appui. Le dessin est à la plus petite des deux.
    */
   largeurHautMm?: number;
+  /** Murs droits : une seule largeur, celle du bas ; la cote « à 1 m » n'est pas dessinée. */
+  sansLargeurHaut?: boolean;
   allegeMm?: number;
   /** De l'appui au haut de l'ouverture. */
   hauteurFenetreMm?: number;
@@ -913,17 +916,19 @@ export function SchemaFenetre({
           </>
         )}
       </g>
-      <Cote
-        cote="largeurHaut"
-        de={[bordG(yLargeurHaut), yLargeurHaut]}
-        a={[bordD(yLargeurHaut), yLargeurHaut]}
-        texte={largeurHautMm !== undefined ? enMm(largeurHautMm, locale) : noms.largeurHaut}
-        vide={largeurHautMm === undefined}
-        actif={actif === "largeurHaut"}
-        label={labels.largeurHaut ?? labels.largeur}
-        ombre={ids("ombre")}
-        onChoisir={onChoisir}
-      />
+      {!sansLargeurHaut && (
+        <Cote
+          cote="largeurHaut"
+          de={[bordG(yLargeurHaut), yLargeurHaut]}
+          a={[bordD(yLargeurHaut), yLargeurHaut]}
+          texte={largeurHautMm !== undefined ? enMm(largeurHautMm, locale) : noms.largeurHaut}
+          vide={largeurHautMm === undefined}
+          actif={actif === "largeurHaut"}
+          label={labels.largeurHaut ?? labels.largeur}
+          ombre={ids("ombre")}
+          onChoisir={onChoisir}
+        />
+      )}
       <Cote
         cote="largeur"
         de={[bordG(yLargeurBas), yLargeurBas]}

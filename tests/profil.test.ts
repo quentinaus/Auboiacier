@@ -210,7 +210,7 @@ test("le retour de la création de compte rend le relevé, sans cocher l'étage 
 });
 
 test("la largeur en haut (murs pas parallèles) se met de côté et revient avec le reste", () => {
-  memoriserConfig({ ...OPTIONS_GC, ...releveVersMemo({ ...FENETRE, largeurHaut: "1172" }, fr.artisanat) });
+  memoriserConfig({ ...OPTIONS_GC, ...releveVersMemo({ ...FENETRE, largeurHaut: "1172", mursInegaux: true }, fr.artisanat) });
   const releve = memoVersReleve(reprendreConfig("garde-corps")!, fr.artisanat);
   assert.equal(releve.largeur, FENETRE.largeur);
   assert.equal(releve.largeurHaut, "1172");

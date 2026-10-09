@@ -1904,7 +1904,7 @@ export function ProductOptions({
     // dans le geste du client : c'est ce qui permet au téléphone d'ouvrir le clavier).
     if (enEtapes) {
       flushSync(() => {
-        setCotesGardeCorps({ ...cotesGardeCorps, largeur: "", largeurHaut: "", allege: "", fenetre: "", etage: "", modele: "", decor: forgeGC ? cotesGardeCorps.decor : "" });
+        setCotesGardeCorps({ ...cotesGardeCorps, largeur: "", largeurHaut: "", mursInegaux: false, allege: "", fenetre: "", etage: "", modele: "", decor: forgeGC ? cotesGardeCorps.decor : "" });
         setQuantity(1);
         setAjoutee(null);
         etapesTelephone?.aller(1);
@@ -1914,7 +1914,7 @@ export function ProductOptions({
     }
     // L'étage et le modèle aussi : ils dépendent de la fenêtre, et rien ne doit être choisi d'avance (décision du 03/10) —
     // le modèle d'avant validait le panier tout seul.
-    setCotesGardeCorps({ ...cotesGardeCorps, largeur: "", largeurHaut: "", allege: "", fenetre: "", etage: "", modele: "", decor: forgeGC ? cotesGardeCorps.decor : "" });
+    setCotesGardeCorps({ ...cotesGardeCorps, largeur: "", largeurHaut: "", mursInegaux: false, allege: "", fenetre: "", etage: "", modele: "", decor: forgeGC ? cotesGardeCorps.decor : "" });
     setQuantity(1);
     setAjoutee(null);
     const premiere = releveRef.current?.querySelector<HTMLInputElement>("input[inputmode=decimal]");

@@ -33,12 +33,12 @@ export const ETAPES_GC = [
     aideEn: "Put the tape just above the window sill (the blue line on the drawing). The exact size, in millimetres.",
   },
   {
-    courtFr: "À 1 m",
-    courtEn: "At 1 m",
-    questionFr: "Et la largeur à 1\u00a0m du sol\u00a0?",
-    questionEn: "And the width 1 m from the floor?",
-    aideFr: "Mesurez 1\u00a0m depuis le sol, faites un trait au crayon, puis la largeur à cette hauteur (la ligne bleue). Pas besoin de savoir où sera le garde-corps\u00a0: nous le calculons.",
-    aideEn: "Measure 1 m up from the floor, make a pencil mark, then the width at that height (the blue line). No need to know where the railing will go: we work it out.",
+    courtFr: "Murs",
+    courtEn: "Walls",
+    questionFr: "Vos murs sont-ils bien droits\u00a0?",
+    questionEn: "Are your walls straight?",
+    aideFr: "Dans une maison ancienne, ce n'est pas toujours le cas. En cas de doute, répondez «\u00a0Oui\u00a0».",
+    aideEn: "In an older house this is not always so. If in doubt, answer “Yes”.",
   },
   {
     courtFr: "Hauteur",
