@@ -958,37 +958,30 @@
   },
   "apropos": {
     "title": "À propos",
-    "h1": "Quentin Aumercier",
-    "ligne": "Soudeur-métallier à Saumur",
-    "qui": "Quentin est titulaire du CAP Métallier et du BP Métallier, et soude depuis plus de cinq ans au TIG, au MAG et à l'électrode. Il a passé deux ans en Australie chez un fabricant de plafonds lumineux en toile tendue. Il ouvre aujourd'hui son atelier à Saumur et prend les commandes à partir du {ouverture}.",
-    "fabriqueTitre": "Ce qu'il fabrique",
+    "surtitre": "L'atelier Auboiacier",
+    "h1": "L'acier et le bois massif, façonnés pour durer.",
+    "intro": "Auboiacier est un atelier de métallerie qui ouvre à Saumur. Chaque pièce y est fabriquée sur mesure, à la commande.",
+    "faconTitre": "Notre façon de travailler",
+    "facon": "Chaque pièce sort de l'atelier de Saumur, fabriquée à vos cotes. L'acier y est soudé, le bois massif mis à format et huilé, les finitions faites à la main. Une pièce que l'atelier connaît par cœur, et qu'il pourra reprendre dans des années.",
+    "prixTitre": "Le prix, avant tout",
+    "prix": "Le prix est clair, et vous le connaissez avant de commander : en ligne pour la plupart des pièces, sur devis pour les autres. Un prix juste, pour que le travail bien fait reste accessible.",
+    "fabriqueTitre": "Ce que fabrique l'atelier",
     "fabrique": {
-      "gcFenetre": "Garde-corps de fenêtre",
-      "gcBalcon": "Garde-corps de balcon et de terrasse",
-      "escalier": "Escaliers à limon central",
+      "gardeCorps": "Garde-corps",
+      "escaliers": "Escaliers",
       "verrieres": "Verrières",
-      "tables": "Tables bois massif et acier",
+      "tables": "Tables",
       "plafonds": "Plafonds lumineux",
       "sculptures": "Sculptures",
       "soudure": "Soudure et réparations"
     },
-    "aimeTitre": "Ce qu'il aime",
-    "aime": [
-      "La soudure sous toutes ses formes, fine ou grosse, du moment qu'elle est bien finie.",
-      "Marier l'acier et le bois massif.",
-      "Partir de vos cotes pour une pièce qui tombe juste.",
-      "Les pièces uniques."
-    ],
-    "aimeSurtout": "Et surtout, fabriquer des pièces vraies, qui durent, et que l'on pourra reprendre dans très longtemps si besoin, plutôt que des produits jetables vendus cher.",
-    "butTitre": "Le but",
-    "but": [
-      "Vivre de son propre atelier.",
-      "Un prix clair, affiché avant de commander.",
-      "Des pièces qui durent.",
-      "Faire revivre le métier, à un prix juste et plus accessible."
-    ],
+    "hommeTitre": "L'homme derrière l'atelier",
+    "hommeNom": "Quentin Aumercier, soudeur-métallier.",
+    "homme": "Il aime toute sorte de soudure, fine comme grosse, du moment qu'elle est bien finie, et le mariage de l'acier et du bois massif. Son but : vivre de son propre atelier, et redonner au métier sa juste place.",
+    "parcours": "CAP et BP Métallier · deux ans chez un fabricant de plafonds lumineux en toile tendue, en Australie.",
+    "finTitre": "Parlons de votre pièce.",
     "ctaDevis": "Calculer mon prix",
-    "ctaContact": "Écrire à Quentin"
+    "ctaContact": "Nous écrire"
   },
   "contact": {
     "title": "Contact",
@@ -1384,8 +1377,8 @@
       "description": "Verrières d'intérieur en acier fin, relevé de cotes sur place et pose comprise. Cuisine, séparation de pièce, mezzanine — fabriquées à Saumur (49)."
     },
     "apropos": {
-      "title": "Quentin Aumercier, soudeur-métallier",
-      "description": "Quentin Aumercier, soudeur-métallier (CAP et BP Métallier), ouvre son atelier à Saumur : garde-corps, escaliers, verrières, tables acier et bois massif."
+      "title": "L'atelier Auboiacier, métallier à Saumur",
+      "description": "Auboiacier, atelier de métallerie qui ouvre à Saumur : garde-corps, escaliers, verrières, tables acier et bois massif, sur mesure et à la commande."
     },
     "contact": {
       "title": "Contact & devis gratuit",
