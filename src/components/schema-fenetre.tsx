@@ -451,7 +451,7 @@ function Cote({
  * Le ruban glisse hors du boîtier, le crochet en tête (Web Animations, en pixels : Safari ignorait la version CSS en %).
  * Une animation <animate> ajoutée après le chargement se croyait déjà finie, et elle se jouait de toute façon sous l'écran
  * « Qui prend les mesures ? » (Quentin : « je ne vois pas l'animation »). Le ruban attend donc dans son boîtier que le
- * croquis soit à l'écran et découvert, et repart à chaque nouvelle question.
+ * mètre soit entièrement à l'écran (hors du bas de l'écran) et découvert, et repart à chaque nouvelle question.
  */
 export function MetreRuban({ de, a }: { de: [number, number]; a: [number, number] }) {
   const id = `metre${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
@@ -480,11 +480,16 @@ export function MetreRuban({ de, a }: { de: [number, number]; a: [number, number
       window.clearInterval(veille);
       io.disconnect();
     };
-    const io = new IntersectionObserver(([e]) => {
-      visible = e.isIntersecting;
-      essayer();
-    });
-    io.observe(el.ownerSVGElement ?? el);
+    // Le mètre lui-même, en entier, et pas tout en bas de l'écran (Quentin : « quand on arrive la première fois, il est
+    // déjà déroulé ») : le croquis qui pointait sous la photo suffisait à lancer le déroulé avant qu'on y arrive.
+    const io = new IntersectionObserver(
+      ([e]) => {
+        visible = e.isIntersecting && e.intersectionRatio > 0.98;
+        essayer();
+      },
+      { threshold: [0, 1], rootMargin: "0px 0px -20% 0px" },
+    );
+    io.observe(el);
     const veille = window.setInterval(essayer, 250);
     return () => {
       io.disconnect();
