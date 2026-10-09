@@ -292,17 +292,18 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
       </section>
 
       {/* 3. Les catégories */}
-      <section className="bg-[#f5f1ea] px-6 pb-16 pt-10 md:pb-24">
-        <div className="mx-auto max-w-6xl">
+      <section className="bg-[#f5f1ea] pb-16 pt-10 md:pb-24">
+        <div className="mx-auto max-w-6xl px-6">
           <h2 className={`${serif.className} text-center text-[2.1rem] leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.7rem] md:text-[3.2rem]`}>
             {t.categoriesTitle}
           </h2>
-          {/* Trois par rangée sur ordinateur, deux sur téléphone : six photos en situation, même cadrage. */}
-          <ul className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:mt-14 md:grid-cols-3 md:gap-y-14">
+          {/* Quatre par rangée dès 1280 px (Quentin, 09/10/2026 : « moins gros, on affiche plus »), trois sur tablette, deux
+              sur téléphone : six photos en situation, même cadrage ; la dernière rangée se centre. */}
+          <ul className="mt-10 flex flex-wrap justify-center gap-x-4 gap-y-10 sm:gap-x-6 md:mt-14 md:gap-y-14">
             {categories.map((c, i) => (
-              <li key={c.id}>
-                <Apparition retard={(i % 3) * 110}>
-                  <CarteCategorie categorie={c} locale={locale} sizes="(max-width: 768px) 50vw, min(33vw, 560px)" />
+              <li key={c.id} className="basis-[calc(50%-0.5rem)] sm:basis-[calc(50%-0.75rem)] md:basis-[calc(33.333%-1rem)] xl:basis-[calc(25%-1.125rem)]">
+                <Apparition retard={(i % 4) * 110}>
+                  <CarteCategorie categorie={c} locale={locale} sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, min(25vw, 420px)" />
                 </Apparition>
               </li>
             ))}
