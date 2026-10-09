@@ -40,7 +40,7 @@ export type Categorie = {
   /** Les familles de pièces qu'elle regroupe (pour le nombre de modèles et le prix de départ). */
   familles: Famille[];
   image: { src: string; alt: string; position?: string; studio?: boolean };
-  /** Une vraie photo en situation (l'accueil ne montre que celles-là). */
+  /** Sur l'accueil (six cartes) : une photo en situation, ou le dessin des portails avec sa mention. */
   enSituation: boolean;
 };
 
@@ -123,7 +123,8 @@ export function categoriesCollection(locale: Locale, t: TextesCategories): Categ
         position: "50% 60%",
         studio: true,
       },
-      enSituation: false,
+      // Sur l'accueil, à la place des sculptures (Quentin, 10/10/2026) : la 6e carte, avec sa mention « Image d'illustration ».
+      enSituation: true,
     },
     {
       id: "table-exterieur",
@@ -147,7 +148,8 @@ export function categoriesCollection(locale: Locale, t: TextesCategories): Categ
       href: `/${locale}/artisanat/sculptures`,
       familles: [],
       image: { src: "/images/sculpture-cheval-v2.jpg", alt: t.altSculptures, position: "50% 40%" },
-      enSituation: true,
+      // Retirée de l'accueil au profit des portails (Quentin, 10/10/2026) ; reste dans la collection.
+      enSituation: false,
     },
   ];
 }
