@@ -309,7 +309,7 @@ export default async function ToilesTenduesPage({
                       alt={locale === "en" ? photo.altEn : photo.alt}
                       box={photo.clipBox}
                       clip={photo.clip}
-                      sizes="(max-width: 768px) 100vw, 380px"
+                      sizes="(max-width: 768px) 100vw, min(33vw, 560px)"
                     />
                   ) : (
                     <Visuel
@@ -317,7 +317,7 @@ export default async function ToilesTenduesPage({
                       src={photo.src}
                       alt={locale === "en" ? photo.altEn : photo.alt}
                       fill
-                      sizes="(max-width: 768px) 100vw, 380px"
+                      sizes="(max-width: 768px) 100vw, min(33vw, 560px)"
                       className="object-cover"
                     />
                   )}
@@ -360,7 +360,7 @@ export default async function ToilesTenduesPage({
             ].map((photo, i) => (
               <Apparition key={photo.src} retard={(i + 1) * 110}>
                 <div className="relative aspect-[4/5] overflow-hidden rounded-[22px]">
-                  <Visuel locale={locale} src={photo.src} alt={photo.alt} fill sizes="(max-width: 768px) 100vw, 380px" className="object-cover" />
+                  <Visuel locale={locale} src={photo.src} alt={photo.alt} fill sizes="(max-width: 768px) 100vw, min(33vw, 560px)" className="object-cover" />
                 </div>
               </Apparition>
             ))}

@@ -138,7 +138,7 @@ export default async function VerrieresPage({
                 src="/images/verriere-croisillon.jpg"
                 alt={t.panelAlt}
                 fill
-                sizes="(max-width: 1200px) 100vw, 1152px"
+                sizes="(max-width: 1680px) 100vw, 1680px"
                 className="object-cover"
               />
             </div>

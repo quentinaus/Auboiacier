@@ -157,7 +157,7 @@ export default async function GuideEscalierPage({ params }: PageProps<"/[lang]/e
                 src={g.imageHero.src}
                 alt={g.imageHero.alt}
                 fill
-                sizes="(max-width: 1200px) 100vw, 1152px"
+                sizes="(max-width: 1680px) 100vw, 1680px"
                 className="object-cover"
                 style={g.imageHero.position ? { objectPosition: g.imageHero.position } : undefined}
                 priority

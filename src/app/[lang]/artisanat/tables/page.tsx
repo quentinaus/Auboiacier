@@ -137,7 +137,7 @@ export default async function TablesPage({ params }: PageProps<"/[lang]/artisana
             <h2 className={titreSection}>{titreModeles}</h2>
             <p className="mt-5 text-[16px] leading-[1.55] text-[#5c5140] md:text-[17px]">{t.modelesNote}</p>
           </Apparition>
-          <div className="mt-10 grid gap-x-8 gap-y-14 sm:grid-cols-2 md:mt-14 lg:grid-cols-3">
+          <div className="mt-10 grid gap-x-8 gap-y-14 sm:grid-cols-2 md:mt-14 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {tables.map((product, index) => {
               const depart = prixDepart(product);
               const image = product.images[0];

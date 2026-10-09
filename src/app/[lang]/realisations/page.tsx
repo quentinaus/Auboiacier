@@ -102,7 +102,7 @@ export default async function RealisationsPage({
             src={photo.src}
             alt={legende}
             fill
-            sizes="(max-width: 768px) 100vw, 560px"
+            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, min(33vw, 560px)"
             className="object-cover"
           />
         </div>
@@ -177,7 +177,7 @@ export default async function RealisationsPage({
       {vraies.length > 0 && (
         <section className="mt-12 md:mt-16">
           <h2 className="surtitre">{t.chantierTitle}</h2>
-          <div className="mt-6 grid gap-x-8 gap-y-12 md:mt-8 md:grid-cols-2 md:gap-y-16">{vraies.map(carte)}</div>
+          <div className="mt-6 grid gap-x-8 gap-y-12 md:mt-8 md:grid-cols-2 md:gap-y-16 xl:grid-cols-3 min-[1800px]:grid-cols-4">{vraies.map(carte)}</div>
         </section>
       )}
 
@@ -185,7 +185,7 @@ export default async function RealisationsPage({
         <section className="mt-16 md:mt-24">
           <h2 className="surtitre">{t.visuelsTitle}</h2>
           <p className="mt-3 max-w-2xl text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.visuelsNote}</p>
-          <div className="mt-8 grid gap-x-8 gap-y-12 md:mt-10 md:grid-cols-2 md:gap-y-16">{visuels.map(carte)}</div>
+          <div className="mt-8 grid gap-x-8 gap-y-12 md:mt-10 md:grid-cols-2 md:gap-y-16 xl:grid-cols-3 min-[1800px]:grid-cols-4">{visuels.map(carte)}</div>
         </section>
       )}
 

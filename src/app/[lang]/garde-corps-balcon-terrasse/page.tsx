@@ -222,7 +222,7 @@ export default async function GardeCorpsBalconTerrassePage({
                     src={IMAGE_MATIERES}
                     alt={t.matieresAlt}
                     fill
-                    sizes="(max-width: 768px) 100vw, 560px"
+                    sizes="(max-width: 768px) 100vw, min(50vw, 840px)"
                     className="object-cover"
                   />
                 </div>

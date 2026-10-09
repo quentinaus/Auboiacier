@@ -302,7 +302,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
             {categories.map((c, i) => (
               <li key={c.id}>
                 <Apparition retard={(i % 3) * 110}>
-                  <CarteCategorie categorie={c} locale={locale} sizes="(max-width: 768px) 50vw, 360px" />
+                  <CarteCategorie categorie={c} locale={locale} sizes="(max-width: 768px) 50vw, min(33vw, 560px)" />
                 </Apparition>
               </li>
             ))}

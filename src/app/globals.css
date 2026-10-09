@@ -12,6 +12,13 @@
   --color-foreground: var(--foreground);
 }
 
+/* La largeur des pages, définie une seule fois pour tout le site (09/10/2026, Quentin : « pourquoi tu n'utilises pas toute
+   la page ? »). « max-w-6xl » valait 1152 px : c'est maintenant 1680 px (menu, pied de page et pages alignés). Les blocs
+   de texte gardent leur propre largeur étroite : une ligne de lecture ne s'allonge pas. */
+@theme {
+  --container-6xl: 105rem;
+}
+
 
 body {
   background: var(--background);

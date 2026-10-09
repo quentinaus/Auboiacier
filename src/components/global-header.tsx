@@ -50,7 +50,7 @@ export function GlobalHeader({
     >
       {/* Toute la largeur de l'écran (09/10/2026, Quentin : « le menu est serré, pourquoi tu n'utilises pas toute la page »).
           Dès 1024 px : trois zones, le menu au centre de l'écran, jamais collé au logo. */}
-      <div className="mx-auto flex max-w-[1680px] items-center justify-between gap-3 px-6 py-4 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:px-6 lg:py-5 xl:px-10">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-4 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:py-5">
         <Link
           href={`/${locale}`}
           className={`font-display shrink-0 whitespace-nowrap text-[15px] tracking-[0.3em] lg:justify-self-start ${overlay ? "text-white drop-shadow" : "text-[#1d1d1f]"}`}

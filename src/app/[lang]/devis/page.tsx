@@ -168,7 +168,7 @@ export default async function DevisPage({ params }: PageProps<"/[lang]/devis">) 
                   </Link>
                 )}
               </Apparition>
-              <div className="mt-7 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 md:mt-9">
+              <div className="mt-7 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:mt-9">
                 {famille.pieces.map((product, i) => {
                   const image = product.images[0];
                   // Le garde-corps : le prix d'appel de sa fiche (« dès 300 € pour une fenêtre de 100 cm »).

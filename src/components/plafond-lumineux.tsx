@@ -55,7 +55,7 @@ export function PlafondLumineux({
         /* Pas de « priority » : cette image est au milieu de la page, sous le
            titre et sous toute la grille du catalogue. Elle passait devant les
            vraies premières photos dans la file d'attente du navigateur. */
-        sizes="(max-width: 768px) 100vw, 560px"
+        sizes="(max-width: 768px) 100vw, min(50vw, 840px)"
         className="pointer-events-none object-contain"
       />
     </div>

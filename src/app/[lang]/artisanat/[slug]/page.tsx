@@ -184,7 +184,8 @@ export default async function ProductPage({
         },
       ].slice(0, 3)
     : (memeUnivers.length > 0 ? memeUnivers : products.filter((p) => p.slug !== product.slug))
-        .slice(0, 3)
+        // Quatre sur grand écran (une rangée pleine), trois en dessous : la grille se règle sur le nombre de cartes.
+        .slice(0, 4)
         .map(carteFiche);
   /** La lumière a sa propre boutique : le fil d'Ariane y ramène. */
   const boutique =
@@ -361,7 +362,7 @@ export default async function ProductPage({
                       src={src}
                       alt={photo ? photo.alt : section.title}
                       fill
-                      sizes="(max-width: 768px) 100vw, 560px"
+                      sizes="(max-width: 768px) 100vw, min(50vw, 840px)"
                       className={photo?.fit === "contain" ? "object-contain p-4" : "object-cover"}
                     />
                     {photo?.glow && <MembraneAnimee box={membraneEn43(photo.glow.box)} clip={photo.glow.clip} />}
@@ -506,7 +507,7 @@ export default async function ProductPage({
             <Apparition>
               <h2 className={titreSection}>{t.relatedTitle}</h2>
             </Apparition>
-            <div className="mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 md:mt-14 lg:grid-cols-3">
+            <div className={`mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 md:mt-14 lg:grid-cols-3 ${related.length > 3 ? "xl:grid-cols-4" : ""}`}>
               {related.map((carte, i) => (
                 <Apparition key={carte.href} retard={(i % 4) * 110}>
                   <Link href={carte.href} className="group flex flex-col gap-5">
