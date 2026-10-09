@@ -9,7 +9,7 @@
  * autoportant, pliant, portillon), un portail composé par blocs (forme du haut, soubassement, remplissage, options),
  * six styles tout faits, surtout de l'alu, l'acier pour la Rosace et les Volutes.
  */
-import { calculerPortail, PT_ATELIER, PT_STYLES, type ResultatPortail } from "./portails-outil/moteur.genere.mjs";
+import { calculerPortail, MT_AVEC, PT_ATELIER, PT_STYLES, type ResultatPortail } from "./portails-outil/moteur.genere.mjs";
 
 export const SLUGS_PORTAIL = {
   "portail-battant": "ptBattant",
@@ -29,7 +29,21 @@ const REMPS = ["plein", "panneau", "lames", "lamesAlu", "barreaux", "croix", "vo
 const POTEAUX = ["existants", "acier", "alu"] as const;
 // Les décors (lot 3, 07/10/2026) : les formules PT_DECOR_FORMULES de l'outil (motifs.js, références du commerce). Un décor
 // impose l'acier ; « Sur mesure » se chiffre sur devis (le moteur rend une alerte : « à étudier »).
-export const DECORS_PORTAIL = ["aucun", "classique", "frise", "medaillon", "couronnement", "coeurs", "surMesure"] as const;
+// « perso » (lot 10, 09/10/2026) : « Personnaliser », 2 emplacements au plus (decorChoix, lu par ptDecorPerso de l'outil).
+export const DECORS_PORTAIL = ["aucun", "classique", "frise", "medaillon", "couronnement", "coeurs", "surMesure", "perso"] as const;
+// Les emplacements proposés par « Personnaliser » (motifs.js : MT_CHOIX.assemblage, sans « barreaux » qui n'est pas un décor).
+export const EMPLACEMENTS_DECOR = ["entre", "frise", "anneaux", "hauteur", "coeurs", "medaillon", "applique", "coins", "cimier", "appliquePlein"] as const;
+export type EmplacementDecor = (typeof EMPLACEMENTS_DECOR)[number];
+export const POS_DECOR = ["haut", "milieu", "bas"] as const;
+export const RYTHMES_DECOR = ["tous", "unSurDeux", "alterne"] as const;
+/** Un emplacement de « Personnaliser » : où, quelle forme, à quelle hauteur (entre les barreaux), à quel rythme. */
+export type ChoixDecor = { assemblage: EmplacementDecor; forme: string; pos?: (typeof POS_DECOR)[number]; rythme?: (typeof RYTHMES_DECOR)[number]; forme2?: string };
+/** Les formes qu'un emplacement accepte (MT_AVEC de motifs.js). */
+export const formesDe = (a: EmplacementDecor): string[] => [...((MT_AVEC as Record<string, string[]>)[a] ?? [])];
+/** Un motif soudé sur le bas ne va que sur un soubassement plein (tôle ou panneau). */
+export const emplacementPermis = (a: EmplacementDecor, cfg: Pick<ConfigPortail, "soub">) => a !== "appliquePlein" || cfg.soub === "plein" || cfg.soub === "panneau";
+export const BOUTS_DECOR = ["droit", "effile", "bouton"] as const;
+export const BARREAUX_DECOR = ["carre", "torsade", "bagues"] as const;
 // Le moteur (lot 4, « Somfy partout ») : « conseille » laisse l'outil choisir (PT_MOTEURS : le plus facile à poser qui
 // convient à ce portail) ; sinon le client choisit Ixengo (vérins), Axovia (bras) ou Elixo (coulissant).
 export const MOTEURS_PORTAIL = ["conseille", "ixengo", "axovia", "elixo"] as const;
@@ -45,6 +59,9 @@ export type ConfigPortail = {
   hSoub: number;
   remp: (typeof REMPS)[number];
   decor: (typeof DECORS_PORTAIL)[number];
+  decorChoix: ChoixDecor[];
+  bouts: (typeof BOUTS_DECOR)[number];
+  barreauxDeco: (typeof BARREAUX_DECOR)[number];
   pointes: boolean;
   lisse: boolean;
   vantaux: 1 | 2;
@@ -56,6 +73,10 @@ export type ConfigPortail = {
   moteurModele: (typeof MOTEURS_PORTAIL)[number];
   pente: number;
   couleur: (typeof COULEURS_PORTAIL)[number];
+  // Le portillon assorti (lot 10) : même style, même hauteur, posé avec le portail (visite et route comptées une fois).
+  portillon: boolean;
+  portillonP: number;
+  portillonSens: "gauche" | "droite";
 };
 
 /** Les bornes de l'atelier (celles de l'outil : PT_ATELIER.bornes). */
@@ -69,8 +90,9 @@ export function bornesPortail(slug: SlugPortail) {
 export function configDepart(slug: SlugPortail, style: StylePortail = "plein"): ConfigPortail {
   const base: ConfigPortail = {
     P: slug === "portillon" ? 1000 : 3500, H: 1600, mat: "alu", forme: "droit", fleche: 150, soub: "aucun", hSoub: 500,
-    remp: "plein", decor: "aucun", pointes: false, lisse: false, vantaux: 2, rep: "egal", guidage: "rail", sens: "gauche",
-    poteaux: "existants", moteur: false, moteurModele: "conseille", pente: 0, couleur: "anthracite",
+    remp: "plein", decor: "aucun", decorChoix: [], bouts: "effile", barreauxDeco: "carre", pointes: false, lisse: false, vantaux: 2, rep: "egal",
+    guidage: "rail", sens: "gauche", poteaux: "existants", moteur: false, moteurModele: "conseille", pente: 0, couleur: "anthracite",
+    portillon: false, portillonP: 1000, portillonSens: "gauche",
   };
   return appliquerStyle(base, style);
 }
@@ -86,6 +108,7 @@ export function appliquerStyle(cfg: ConfigPortail, style: StylePortail): ConfigP
     soub: s.ptSoub as ConfigPortail["soub"],
     remp: s.ptRemp as ConfigPortail["remp"],
     decor: ((s.ptDecor as ConfigPortail["decor"] | undefined) ?? "aucun"),
+    decorChoix: [],
     pointes: Boolean(s.ptPointes),
     lisse: Boolean(s.ptLisse),
     ...(typeof s.ptHSoub === "number" ? { hSoub: s.ptHSoub } : {}),
@@ -106,12 +129,21 @@ export function styleDe(cfg: ConfigPortail): StylePortail | null {
 
 /** Les entrées du moteur de l'outil (mêmes noms que les champs de l'outil). */
 export function versEntrees(cfg: ConfigPortail): Record<string, unknown> {
+  // « Personnaliser » sans emplacement = pas de décor.
+  const decor = cfg.decor === "perso" && !cfg.decorChoix.length ? "aucun" : cfg.decor;
   return {
     ptP: cfg.P, ptH: cfg.H, ptMat: cfg.mat, ptForme: cfg.forme, ptFleche: cfg.fleche, ptSoub: cfg.soub, ptHSoub: cfg.hSoub,
-    ptRemp: cfg.remp, ptDecor: cfg.decor, ptPointes: cfg.pointes, ptLisse: cfg.lisse, ptVantaux: String(cfg.vantaux), ptRep: cfg.rep,
+    ptRemp: cfg.remp, ptDecor: decor, ptPointes: cfg.pointes, ptLisse: cfg.lisse, ptVantaux: String(cfg.vantaux), ptRep: cfg.rep,
     ptGuidage: cfg.guidage, ptSens: cfg.sens, ptPoteaux: cfg.poteaux, ptMoteur: cfg.moteur, ptPente: cfg.pente,
     ...(cfg.moteurModele !== "conseille" ? { ptMoteurModele: cfg.moteurModele } : {}),
+    ...(decor === "perso" ? { ptDecorChoix: JSON.stringify(cfg.decorChoix) } : {}),
+    ...(decor !== "aucun" ? { ptBouts: cfg.bouts, ptBarreauxDeco: cfg.barreauxDeco } : {}),
   };
+}
+
+/** Le portillon assorti d'un portail : même composition, même hauteur, sa largeur et ses gonds ; jamais de moteur. */
+export function configPortillonAssorti(cfg: ConfigPortail): ConfigPortail {
+  return { ...cfg, P: cfg.portillonP, sens: cfg.portillonSens, vantaux: 1, moteur: false, portillon: false };
 }
 
 /** Le plan de l'outil pour cette configuration (vues, débit, contrôles). */
@@ -119,7 +151,7 @@ export function planPortail(slug: SlugPortail, cfg: ConfigPortail): ResultatPort
   return calculerPortail(versEntrees(cfg), SLUGS_PORTAIL[slug]);
 }
 
-const PARAMS: (keyof ConfigPortail)[] = ["P", "H", "mat", "forme", "fleche", "soub", "hSoub", "remp", "decor", "pointes", "lisse", "vantaux", "rep", "guidage", "sens", "poteaux", "moteur", "moteurModele", "pente", "couleur"];
+const PARAMS: (keyof ConfigPortail)[] = ["P", "H", "mat", "forme", "fleche", "soub", "hSoub", "remp", "decor", "bouts", "barreauxDeco", "pointes", "lisse", "vantaux", "rep", "guidage", "sens", "poteaux", "moteur", "moteurModele", "pente", "couleur", "portillon", "portillonP", "portillonSens"];
 
 /** La configuration en paramètres d'adresse (pour /api/prix-portail). */
 export function versParams(slug: SlugPortail, cfg: ConfigPortail): URLSearchParams {
@@ -128,7 +160,30 @@ export function versParams(slug: SlugPortail, cfg: ConfigPortail): URLSearchPara
     const v = cfg[k];
     p.set(k, typeof v === "boolean" ? (v ? "1" : "0") : String(v));
   }
+  if (cfg.decor === "perso") p.set("decorChoix", JSON.stringify(cfg.decorChoix));
   return p;
+}
+
+/** Relit les emplacements de « Personnaliser » : 1 ou 2, chacun permis par motifs.js ; sinon null (jamais deviné). */
+export function lireDecorChoix(texte: string | null): ChoixDecor[] | null {
+  let L: unknown;
+  try { L = JSON.parse(texte ?? ""); } catch { return null; }
+  if (!Array.isArray(L) || L.length < 1 || L.length > 2) return null;
+  const sortie: ChoixDecor[] = [];
+  for (const x of L) {
+    if (!x || typeof x !== "object") return null;
+    const o = x as Record<string, unknown>;
+    if (Object.keys(o).some((k) => !["assemblage", "forme", "pos", "rythme", "forme2"].includes(k))) return null;
+    const a = o.assemblage as EmplacementDecor;
+    if (!EMPLACEMENTS_DECOR.includes(a)) return null;
+    const formes = formesDe(a);
+    if (typeof o.forme !== "string" || !formes.includes(o.forme)) return null;
+    if (o.pos !== undefined && !POS_DECOR.includes(o.pos as never)) return null;
+    if (o.rythme !== undefined && !RYTHMES_DECOR.includes(o.rythme as never)) return null;
+    if (o.forme2 !== undefined && (typeof o.forme2 !== "string" || !formes.includes(o.forme2))) return null;
+    sortie.push(o as ChoixDecor);
+  }
+  return sortie;
 }
 
 /**
@@ -151,9 +206,14 @@ export function lireConfig(params: URLSearchParams): { slug: SlugPortail; cfg: C
   const cfg = {
     P: nombre("P", b.P), H: nombre("H", b.H), mat: choix("mat", ["alu", "acier"] as const), forme: choix("forme", FORMES),
     fleche: nombre("fleche", [0, 400]), soub: choix("soub", SOUBS), hSoub: nombre("hSoub", [0, 2000]), remp: choix("remp", REMPS),
-    decor: choix("decor", DECORS_PORTAIL), pointes: bool("pointes"), lisse: bool("lisse"), vantaux: params.get("vantaux") === "1" ? 1 : params.get("vantaux") === "2" ? 2 : null,
+    decor: choix("decor", DECORS_PORTAIL), bouts: choix("bouts", BOUTS_DECOR), barreauxDeco: choix("barreauxDeco", BARREAUX_DECOR),
+    pointes: bool("pointes"), lisse: bool("lisse"), vantaux: params.get("vantaux") === "1" ? 1 : params.get("vantaux") === "2" ? 2 : null,
     rep: choix("rep", ["egal", "tiers"] as const), guidage: choix("guidage", ["rail", "auto"] as const), sens: choix("sens", ["gauche", "droite"] as const),
     poteaux: choix("poteaux", POTEAUX), moteur: bool("moteur"), moteurModele: choix("moteurModele", MOTEURS_PORTAIL), pente: nombre("pente", b.pente), couleur: choix("couleur", COULEURS_PORTAIL),
+    // Le portillon assorti : seulement à côté d'un portail, à la largeur d'un portillon.
+    portillon: slug === "portillon" ? (params.get("portillon") === "1" ? null : false) : bool("portillon"),
+    portillonP: nombre("portillonP", bornesPortail("portillon").P), portillonSens: choix("portillonSens", ["gauche", "droite"] as const),
+    decorChoix: params.get("decor") === "perso" ? lireDecorChoix(params.get("decorChoix")) : params.has("decorChoix") ? null : [],
   };
   if (Object.values(cfg).some((x) => x === null)) return null;
   return { slug, cfg: cfg as ConfigPortail };
@@ -189,7 +249,14 @@ export const TEXTES_PORTAIL = {
     forme: { droit: "Droit", chapeau: "Chapeau de gendarme", creux: "En creux", biais: "En biais" },
     soub: { aucun: "Aucun", plein: "Plein", panneau: "Panneau lisse", lames: "Lames chêne", barreaux: "Barreaux" },
     remp: { plein: "Lames pleines", panneau: "Panneau lisse", lames: "Lames chêne", lamesAlu: "Lames ajourées", barreaux: "Barreaux", croix: "Croix et rosaces", volutes: "Volutes" },
-    decor: { aucun: "Aucun", classique: "Classique", frise: "Frise", medaillon: "Médaillon", couronnement: "Couronnement", coeurs: "Cœurs", surMesure: "Sur mesure" },
+    decor: { aucun: "Aucun", classique: "Classique", frise: "Frise", medaillon: "Médaillon", couronnement: "Couronnement", coeurs: "Cœurs", surMesure: "Sur mesure", perso: "Personnalisé" },
+    emplacements: { entre: "Entre les barreaux", frise: "Frise sous la traverse", anneaux: "Frise d'anneaux", hauteur: "Sur toute la hauteur", coeurs: "Cœurs", medaillon: "Médaillon", applique: "Motifs en applique", coins: "Coins du haut", cimier: "Couronnement", appliquePlein: "Motif sur le bas plein" },
+    formesDecor: { C: "Volute en C", S: "Volute en S", J: "Crosse", coeur: "Cœur", doubleC: "Double C", poste: "Postes", anneau: "Anneau" } as Record<string, string>,
+    posDecor: { haut: "En haut", milieu: "Au milieu", bas: "En bas" },
+    rythmes: { tous: "Chaque vide", unSurDeux: "Un sur deux", alterne: "Deux formes" },
+    bouts: { droit: "Droits", effile: "Effilés", bouton: "À bouton" },
+    barreauxDeco: { carre: "Carrés", torsade: "Torsadés", bagues: "À bagues" },
+    portillon: "Portillon assorti",
     poteaux: { existants: "Mes piliers", acier: "Poteaux acier", alu: "Poteaux alu" },
     couleur: { anthracite: "Gris anthracite", noir: "Noir", blanc: "Blanc", vert: "Vert sapin", rouille: "Rouille" },
     vantaux: { 1: "1 vantail", 2: "2 vantaux" },
@@ -223,7 +290,14 @@ export const TEXTES_PORTAIL = {
     forme: { droit: "Straight", chapeau: "Arched", creux: "Dipped", biais: "Sloped" },
     soub: { aucun: "None", plein: "Solid", panneau: "Flat panel", lames: "Oak slats", barreaux: "Bars" },
     remp: { plein: "Solid slats", panneau: "Flat panel", lames: "Oak slats", lamesAlu: "Open slats", barreaux: "Bars", croix: "Crosses and rosettes", volutes: "Scrolls" },
-    decor: { aucun: "None", classique: "Classic", frise: "Frieze", medaillon: "Medallion", couronnement: "Crest", coeurs: "Hearts", surMesure: "Bespoke" },
+    decor: { aucun: "None", classique: "Classic", frise: "Frieze", medaillon: "Medallion", couronnement: "Crest", coeurs: "Hearts", surMesure: "Bespoke", perso: "Custom" },
+    emplacements: { entre: "Between the bars", frise: "Frieze under the top rail", anneaux: "Ring frieze", hauteur: "Full height", coeurs: "Hearts", medaillon: "Medallion", applique: "Applied motifs", coins: "Top corners", cimier: "Crest", appliquePlein: "Motif on the solid lower panel" },
+    formesDecor: { C: "C scroll", S: "S scroll", J: "Crook", coeur: "Heart", doubleC: "Double C", poste: "Running scrolls", anneau: "Ring" } as Record<string, string>,
+    posDecor: { haut: "Top", milieu: "Middle", bas: "Bottom" },
+    rythmes: { tous: "Every gap", unSurDeux: "Every other", alterne: "Two shapes" },
+    bouts: { droit: "Straight", effile: "Tapered", bouton: "Knob" },
+    barreauxDeco: { carre: "Square", torsade: "Twisted", bagues: "Ringed" },
+    portillon: "Matching pedestrian gate",
     poteaux: { existants: "My pillars", acier: "Steel posts", alu: "Aluminium posts" },
     couleur: { anthracite: "Anthracite grey", noir: "Black", blanc: "White", vert: "Fir green", rouille: "Rust" },
     vantaux: { 1: "1 leaf", 2: "2 leaves" },
@@ -256,11 +330,22 @@ export function resumeConfig(slug: SlugPortail, cfg: ConfigPortail, locale: Lang
   const lignes = [
     `${t.passage} : ${cfg.P} mm · ${t.hauteur} : ${cfg.H} mm`,
     `${t.onglets.style} : ${st ? t.styles[st] : t.compose} · ${t.mat[cfg.mat]} · ${t.couleur[cfg.couleur]}`,
-    `${t.titres.forme} : ${t.forme[cfg.forme]}${cfg.forme !== "droit" ? ` (${cfg.fleche} mm)` : ""} · ${t.titres.remp} : ${t.remp[cfg.remp]}${cfg.soub !== "aucun" ? ` · ${t.titres.soub} : ${t.soub[cfg.soub]} (${cfg.hSoub} mm)` : ""}${cfg.decor !== "aucun" ? ` · ${t.titres.decor} : ${t.decor[cfg.decor]}` : ""}`,
+    `${t.titres.forme} : ${t.forme[cfg.forme]}${cfg.forme !== "droit" ? ` (${cfg.fleche} mm)` : ""} · ${t.titres.remp} : ${t.remp[cfg.remp]}${cfg.soub !== "aucun" ? ` · ${t.titres.soub} : ${t.soub[cfg.soub]} (${cfg.hSoub} mm)` : ""}${cfg.decor !== "aucun" ? ` · ${t.titres.decor} : ${decrireDecor(cfg, locale)}` : ""}`,
   ];
   if (slug === "portail-battant") lignes.push(`${t.titres.vantaux} : ${t.vantaux[cfg.vantaux]}${cfg.vantaux === 2 ? ` (${t.rep[cfg.rep]})` : ""}`);
   if (slug === "portail-coulissant") lignes.push(`${t.titres.guidage} : ${t.guidage[cfg.guidage]} · ${t.titres.sens} : ${t.sens[cfg.sens]}`);
   lignes.push(`${t.titres.poteaux} : ${t.poteaux[cfg.poteaux]} · ${t.titres.moteur} : ${cfg.moteur ? t.moteurOui : t.moteurNon}${cfg.pointes ? ` · ${t.pointes}` : ""}${cfg.lisse ? ` · ${t.lisseChene}` : ""}`);
+  if (cfg.portillon && slug !== "portillon") lignes.push(`${t.portillon} : ${cfg.portillonP} × ${cfg.H} mm · ${t.sensPortillon[cfg.portillonSens]}`);
   if (prix !== null) lignes.push(`${t.prix} : ${prix} €`);
   return lignes;
+}
+
+/** Le décor en mots : la formule, ou les emplacements de « Personnaliser », avec les finitions. */
+export function decrireDecor(cfg: ConfigPortail, locale: Langue): string {
+  const t = TEXTES_PORTAIL[locale];
+  if (cfg.decor === "aucun") return t.decor.aucun;
+  const fins = `${t.titres.options.toLowerCase()} : ${locale === "fr" ? "bouts" : "ends"} ${t.bouts[cfg.bouts].toLowerCase()}, ${locale === "fr" ? "barreaux" : "bars"} ${t.barreauxDeco[cfg.barreauxDeco].toLowerCase()}`;
+  if (cfg.decor !== "perso") return cfg.decor === "surMesure" ? t.decor.surMesure : `${t.decor[cfg.decor]} (${fins})`;
+  const un = (c: ChoixDecor) => `${t.formesDecor[c.forme] ?? c.forme}${c.rythme === "alterne" && c.forme2 ? ` / ${t.formesDecor[c.forme2] ?? c.forme2}` : ""}, ${t.emplacements[c.assemblage].toLowerCase()}${c.assemblage === "entre" && c.pos ? ` ${t.posDecor[c.pos].toLowerCase()}` : ""}${c.rythme === "unSurDeux" ? ` (${t.rythmes.unSurDeux.toLowerCase()})` : ""}`;
+  return `${t.decor.perso} : ${cfg.decorChoix.map(un).join(" + ")} (${fins})`;
 }

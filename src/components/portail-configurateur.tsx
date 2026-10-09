@@ -13,8 +13,9 @@ import { useDeferredValue, useEffect, useId, useMemo, useState, type ReactNode }
 import Link from "next/link";
 import { svgDe, PT_DECOR_FORMULES } from "@/lib/portails-outil/moteur.genere.mjs";
 import {
-  appliquerStyle, bornesPortail, configDepart, guidePortail, planPortail, resumeConfig, styleDe, versParams,
-  COULEURS_PORTAIL, DECORS_PORTAIL, STYLES_PORTAIL, TEXTES_PORTAIL, type ConfigPortail, type Langue, type SlugPortail, type StylePortail,
+  appliquerStyle, bornesPortail, configDepart, configPortillonAssorti, emplacementPermis, formesDe, guidePortail, planPortail, resumeConfig, styleDe, versParams,
+  BARREAUX_DECOR, BOUTS_DECOR, COULEURS_PORTAIL, DECORS_PORTAIL, EMPLACEMENTS_DECOR, POS_DECOR, STYLES_PORTAIL, TEXTES_PORTAIL,
+  type ChoixDecor, type ConfigPortail, type Langue, type SlugPortail, type StylePortail,
 } from "@/lib/portails";
 import { STYLE_RENDU_PORTAIL, TEINTES_PORTAIL } from "@/lib/portails-rendu";
 import { prixAffiche } from "@/lib/ui";
@@ -24,13 +25,14 @@ type Prims = { t: string; [k: string]: unknown }[];
 type Decor = ConfigPortail["decor"];
 type CleMoteur = "aucun" | "ixengo" | "axovia" | "elixo";
 type Variantes = {
-  base: { ok: true; prix: number; avertissements: string[] } | { ok: false; alertes: string[] };
+  base: { ok: true; prix: number; portillon: number | null; avertissements: string[] } | { ok: false; alertes: string[] };
   styles: Record<StylePortail, number | null>;
   decors: Record<Decor, number | null>;
   moteurs: Record<CleMoteur, number | null>;
+  portillon: { avec: number | null; seul: number | null } | null;
 };
 type EtatPrix = { etat: "ok"; v: Variantes } | { etat: "indispo" };
-type Fenetre = null | "decor" | "moteur" | "details" | "plan" | "guide";
+type Fenetre = null | "decor" | "moteur" | "portillon" | "details" | "plan" | "guide";
 
 /* ---------- Les textes de l'écran (français, anglais) ---------- */
 const TXT = {
@@ -46,7 +48,7 @@ const TXT = {
     votreStyle: "Votre style", stylesNote: "Prix posé à vos cotes, sans moteur", compose: "Composé à votre goût", des: "dès",
     aspect: "Aspect", formeHaut: "Forme du haut", basPortail: "Bas du portail", lisse: "Lisse en chêne", lisseRaison: "Haut droit seulement",
     decor: "Décor", decorAucun: "Aucun", decorAjouter: "Ajouter", decorDetail: "Volutes, frise, cœurs", moteur: "Moteur", sansMoteur: "Sans moteur",
-    prixPose: "Prix posé", poseComprise: "Pose comprise jusqu'à 45 km de Saumur", moteurCompris: "Moteur compris", decorCompris: "Décor compris",
+    prixPose: "Prix posé", poseComprise: "Pose comprise jusqu'à 45 km de Saumur",
     cta: "Demander ma visite", visite: "Visite à partir de 19,99 €, déduite si vous commandez", calcul: "Calcul…", indispo: "Prix indisponible pour le moment",
     aEtudier: "À étudier à la visite", voirPlan: "Voir le plan", devis: "Devis PDF", devisRaison: "Le devis détaillé suit la visite.", details: "Détails",
     fabrique: "fabriqué en 6 à 8 semaines", vantail: "vantail de", vantauxDe: "vantaux de",
@@ -69,6 +71,16 @@ const TXT = {
     formes: { droit: "Droit", chapeau: "Chapeau", creux: "Creux", biais: "Biais" }, sans: "Sans", avec: "Avec",
     soubCourt: { aucun: "Aucun", plein: "Plein", lames: "Lames", barreaux: "Barreaux" }, moteurMainCourt: "Ouverture à la main, moteur possible plus tard",
     matiereAlu: "Cadre alu thermolaqué", matiereAcier: "Acier galvanisé et thermolaqué",
+    formules: "Formules", personnaliser: "Personnaliser", perso: "Personnalisé", emplacement: "Emplacement", ajouterEmplacement: "Ajouter un 2e emplacement",
+    retirer: "Retirer", ou: "Où", forme: "Forme", hauteurDecor: "Hauteur", rythme: "Rythme", formeAlternee: "Seconde forme", finitions: "Finitions",
+    bouts: "Bouts des volutes", barreauxDeco: "Barreaux", pointes: "Pointes", lance: "Lance", basPleinRequis: "Il faut un bas plein (tôle ou panneau).", dejaPris: "Déjà choisi pour l'autre emplacement.",
+    zonesAide: "Touchez une zone du dessin pour y placer un décor.", piedPerso: "Deux emplacements au plus. Le dessin suit chaque choix.",
+    portillon: "Portillon assorti", portillonAucun: "Aucun", portillonAjouter: "Ajouter", portillonDetail: "Même style, posé avec le portail",
+    portillonSous: "Même style et même hauteur que votre portail, posé le même jour : une seule visite, un seul voyage.",
+    portillonLargeur: "Passage du portillon", portillonInfo: "Mesurez au plus étroit, entre ses deux piliers.", portillonGonds: "Les gonds",
+    portillonSeul: (p: string) => `${p} s'il est commandé seul`, piedPortillon: "Prix posé avec le portail.",
+    vuePortillon: "Le portillon assorti, vu de la rue",
+    dont: "Dont", dontMoteur: "moteur", dontDecor: "décor", dontPortillon: "portillon",
   },
   en: {
     configuration: "Configuration", couleur: "Colour", matiere: "Material",
@@ -82,7 +94,7 @@ const TXT = {
     votreStyle: "Your style", stylesNote: "Fitted price at your size, without motor", compose: "Made to your taste", des: "from",
     aspect: "Look", formeHaut: "Top shape", basPortail: "Lower panel", lisse: "Oak top rail", lisseRaison: "Straight top only",
     decor: "Decoration", decorAucun: "None", decorAjouter: "Add", decorDetail: "Scrolls, frieze, hearts", moteur: "Motor", sansMoteur: "No motor",
-    prixPose: "Fitted price", poseComprise: "Fitting included within 45 km of Saumur", moteurCompris: "Motor included", decorCompris: "Decoration included",
+    prixPose: "Fitted price", poseComprise: "Fitting included within 45 km of Saumur",
     cta: "Book my survey visit", visite: "Survey visit from €19.99, deducted if you order", calcul: "Calculating…", indispo: "Price unavailable for now",
     aEtudier: "To be studied at the visit", voirPlan: "See the plan", devis: "PDF quote", devisRaison: "The detailed quote follows the visit.", details: "Details",
     fabrique: "made in 6 to 8 weeks", vantail: "leaf of", vantauxDe: "leaves of",
@@ -105,6 +117,16 @@ const TXT = {
     formes: { droit: "Straight", chapeau: "Arched", creux: "Dipped", biais: "Sloped" }, sans: "No", avec: "Yes",
     soubCourt: { aucun: "None", plein: "Solid", lames: "Slats", barreaux: "Bars" }, moteurMainCourt: "Opens by hand, motor possible later",
     matiereAlu: "Powder-coated aluminium frame", matiereAcier: "Galvanised, powder-coated steel",
+    formules: "Designs", personnaliser: "Customise", perso: "Custom", emplacement: "Position", ajouterEmplacement: "Add a 2nd position",
+    retirer: "Remove", ou: "Where", forme: "Shape", hauteurDecor: "Height", rythme: "Rhythm", formeAlternee: "Second shape", finitions: "Finishes",
+    bouts: "Scroll ends", barreauxDeco: "Bars", pointes: "Tips", lance: "Spear", basPleinRequis: "Needs a solid lower panel (sheet or panel).", dejaPris: "Already chosen for the other position.",
+    zonesAide: "Tap an area of the drawing to place a decoration there.", piedPerso: "Two positions at most. The drawing follows every choice.",
+    portillon: "Matching pedestrian gate", portillonAucun: "None", portillonAjouter: "Add", portillonDetail: "Same style, fitted with the gate",
+    portillonSous: "Same style and height as your gate, fitted the same day: one survey visit, one trip.",
+    portillonLargeur: "Pedestrian gate opening", portillonInfo: "Measure at the narrowest point, between its two pillars.", portillonGonds: "Hinges",
+    portillonSeul: (p: string) => `${p} if ordered on its own`, piedPortillon: "Fitted price, with the gate.",
+    vuePortillon: "The matching pedestrian gate, from the street",
+    dont: "Including", dontMoteur: "motor", dontDecor: "decoration", dontPortillon: "pedestrian gate",
   },
 } as const;
 
@@ -128,15 +150,19 @@ const PICTO_MOTEUR: Record<CleMoteur, ReactNode> = {
 };
 
 /** Une vue de l'outil en SVG (svgDe), habillée de la couleur choisie ; sans cotes pour les vignettes. */
-function Vue({ prims, couleur, petit = false, sansCotes = false, label, className }: { prims: Prims; couleur: ConfigPortail["couleur"]; petit?: boolean; sansCotes?: boolean; label: string; className?: string }) {
+function Vue({ prims, couleur, petit = false, sansCotes = false, label, className, zones, onZone }: { prims: Prims; couleur: ConfigPortail["couleur"]; petit?: boolean; sansCotes?: boolean; label: string; className?: string; zones?: Prims; onZone?: (cle: string) => void }) {
   const r = useMemo(() => svgDe(sansCotes ? prims.filter((p) => p.t !== "cote" && p.t !== "texte") : prims, petit), [prims, petit, sansCotes]);
+  // Les zones du décor (fenêtre Décor ouverte) : dessinées dans le même repère, sans changer le cadre du dessin.
+  const htmlZones = useMemo(() => (zones?.length ? svgDe(zones, petit).html : ""), [zones, petit]);
   // Sans cotes, la marge que svgDe garde pour leurs chiffres ne sert à rien : on serre le cadre sur le dessin.
   const m = sansCotes ? r.fs * 8.5 * 0.9 : 0;
   const vb = [r.vb[0] + m, r.vb[1] + m, r.vb[2] - 2 * m, r.vb[3] - 2 * m];
   return (
-    <svg role="img" aria-label={label} viewBox={vb.map((x) => x.toFixed(1)).join(" ")} className={`rendu ${className ?? ""}`} preserveAspectRatio="xMidYMid meet">
+    <svg role="img" aria-label={label} viewBox={vb.map((x) => x.toFixed(1)).join(" ")} className={`rendu ${className ?? ""}`} preserveAspectRatio="xMidYMid meet"
+      onClick={onZone ? (e) => { const z = (e.target as Element).closest?.("[data-piece^='zone:']"); if (z) onZone(String(z.getAttribute("data-piece")).slice(5)); } : undefined}>
       <style>{STYLE_RENDU_PORTAIL(couleur)}</style>
       <g dangerouslySetInnerHTML={{ __html: r.html }} />
+      {htmlZones && <g className="cpt-zones" dangerouslySetInnerHTML={{ __html: htmlZones }} />}
     </svg>
   );
 }
@@ -193,6 +219,64 @@ const Fermer = ({ label, onClose }: { label: string; onClose: () => void }) => (
 /** Le pied d'une fenêtre : une phrase et « Terminé ». */
 const Pied = ({ phrase, termine, onClose }: { phrase: string; termine: string; onClose: () => void }) => (<div className="cpt-f-pied"><span>{phrase}</span><button type="button" className="btn-verre" onClick={onClose}>{termine}</button></div>);
 
+/* ---------- Le décor « Personnaliser » et ses zones sur le croquis ---------- */
+const FORMULES = PT_DECOR_FORMULES as Record<string, { nom: string; ligne: string; choix: Record<string, string>[] }>;
+
+/** Un emplacement rendu valable : une forme qu'il accepte, la hauteur pour « entre les barreaux », un rythme possible. */
+function normaliser(c: ChoixDecor): ChoixDecor {
+  const formes = formesDe(c.assemblage);
+  const forme = formes.includes(c.forme) ? c.forme : formes[0];
+  const r: ChoixDecor = { assemblage: c.assemblage, forme };
+  if (c.assemblage === "entre") r.pos = c.pos ?? "haut";
+  if (c.rythme === "unSurDeux") r.rythme = "unSurDeux";
+  if (c.rythme === "alterne" && formes.length > 1) {
+    r.rythme = "alterne";
+    r.forme2 = c.forme2 && formes.includes(c.forme2) && c.forme2 !== forme ? c.forme2 : formes.find((f) => f !== forme);
+  }
+  return r;
+}
+
+/** Les emplacements du décor choisi : ceux de « Personnaliser », ou ceux de la formule (point de départ des retouches). */
+function choixDe(cfg: ConfigPortail): ChoixDecor[] {
+  if (cfg.decor === "perso") return cfg.decorChoix;
+  if (cfg.decor === "aucun" || cfg.decor === "surMesure") return [];
+  return (FORMULES[cfg.decor]?.choix ?? []).map((x) => normaliser(x as unknown as ChoixDecor));
+}
+
+/** Les zones du croquis où l'on touche pour placer un décor ; chacune est la place qu'y prend un décor dessiné par l'outil. */
+const ZONES_DECOR: { cle: string; choix: ChoixDecor }[] = [
+  { cle: "cimier", choix: { assemblage: "cimier", forme: "C" } },
+  { cle: "haut", choix: { assemblage: "entre", forme: "C", pos: "haut" } },
+  { cle: "milieu", choix: { assemblage: "medaillon", forme: "doubleC" } },
+  { cle: "bas", choix: { assemblage: "entre", forme: "C", pos: "bas" } },
+  { cle: "plein", choix: { assemblage: "appliquePlein", forme: "doubleC" } },
+];
+const memeZone = (a: ChoixDecor, b: ChoixDecor) => a.assemblage === b.assemblage && (a.assemblage !== "entre" || (a.pos ?? "haut") === (b.pos ?? "haut"));
+
+function zonesDecor(slug: SlugPortail, cfg: ConfigPortail): { cle: string; boites: number[][] }[] {
+  const base: ConfigPortail = { ...cfg, mat: "acier", remp: "barreaux", moteur: false, portillon: false };
+  const deja = new Set((planPortail(slug, { ...base, decor: "aucun", decorChoix: [] }).vues.face as Prims).map((p) => JSON.stringify(p)));
+  const sortie: { cle: string; boites: number[][] }[] = [];
+  for (const z of ZONES_DECOR) {
+    if (!emplacementPermis(z.choix.assemblage, base)) continue;
+    const R = planPortail(slug, { ...base, decor: "perso", decorChoix: [z.choix] });
+    if (R.alertes.length) continue;
+    const boites = (R.vues.face as Prims)
+      .filter((p) => p.t === "poly" && !deja.has(JSON.stringify(p)) && !(Array.isArray(p.piece) ? p.piece : [p.piece]).includes("Barreaux"))
+      .map((p) => { const pts = p.pts as [number, number][]; const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]); return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]; })
+      .sort((a, b) => a[0] - b[0]);
+    // Une zone par vantail (ou panneau) : deux groupes de pièces séparés de plus de 120 mm sont deux zones.
+    const groupes: number[][] = [];
+    for (const b of boites) {
+      const g = groupes[groupes.length - 1];
+      if (g && b[0] - g[2] < 120) { g[0] = Math.min(g[0], b[0]); g[1] = Math.min(g[1], b[1]); g[2] = Math.max(g[2], b[2]); g[3] = Math.max(g[3], b[3]); }
+      else groupes.push([...b]);
+    }
+    if (groupes.length) sortie.push({ cle: z.cle, boites: groupes });
+  }
+  return sortie;
+}
+
 type InfosMoteurs = {
   permis: { cle: CleMoteur; nom: string; principe: string; contenu: string; garantie: number; facilite: number }[];
   refus: { cle: CleMoteur | null; nom: string; raison: string }[];
@@ -207,10 +291,13 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
   filAriane?: { label: string; etapes: { nom: string; href: string }[] };
 }) {
   const t = TXT[locale], tp = TEXTES_PORTAIL[locale];
-  const b = bornesPortail(slug);
+  const b = bornesPortail(slug), bP = bornesPortail("portillon");
   const [cfg, setCfg] = useState<ConfigPortail>(() => configDepart(slug, slug === "portail-battant" ? "lamesChene" : slug === "portillon" ? "rosace" : "plein"));
   const [fenetre, setFenetre] = useState<Fenetre>(null);
   const [guide, setGuide] = useState<{ derriere?: boolean; cote?: boolean; sol?: boolean }>({});
+  // La fenêtre Décor : les formules, ou « Personnaliser » (2 emplacements au plus) ; l'emplacement en cours de réglage.
+  const [modeDecor, setModeDecor] = useState<"formules" | "perso">("formules");
+  const [empl, setEmpl] = useState(0);
   const maj = (p: Partial<ConfigPortail>) => setCfg((c) => ({ ...c, ...p }));
   const style = styleDe(cfg);
   const fr = locale === "fr";
@@ -229,8 +316,33 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
   );
   const decorsDessines = useMemo(() => {
     if (fenetre !== "decor") return [];
-    return DECORS_PORTAIL.filter((d) => d !== "aucun" && d !== "surMesure").map((d) => ({ d, prims: planPortail(slug, { ...cfgLente, decor: d, mat: "acier", remp: "barreaux", moteur: false }).vues.face as Prims }));
+    return DECORS_PORTAIL.filter((d) => d !== "aucun" && d !== "surMesure" && d !== "perso").map((d) => ({ d, prims: planPortail(slug, { ...cfgLente, decor: d, mat: "acier", remp: "barreaux", moteur: false }).vues.face as Prims }));
   }, [fenetre, slug, cfgLente]);
+
+  // « Personnaliser » : la tuile de chaque emplacement possible, dessinée avec l'autre emplacement, ou grisée avec sa raison.
+  const tuilesOu = useMemo(() => {
+    if (fenetre !== "decor" || modeDecor !== "perso") return [];
+    const L = choixDe(cfgLente), cur = L[empl] ?? L[0] ?? { assemblage: "entre" as const, forme: "C", pos: "haut" as const }, autre = L.length > 1 ? L[1 - Math.min(empl, 1)] : undefined;
+    const base: ConfigPortail = { ...cfgLente, mat: "acier", remp: "barreaux", moteur: false, portillon: false };
+    return EMPLACEMENTS_DECOR.map((a) => {
+      const ch = normaliser({ ...cur, assemblage: a });
+      const combo = autre ? (empl === 0 ? [ch, autre] : [autre, ch]) : [ch];
+      const R = planPortail(slug, { ...base, decor: "perso", decorChoix: combo });
+      const raison = !emplacementPermis(a, base) ? t.basPleinRequis : autre && autre.assemblage === a ? t.dejaPris : (R.alertes[0] ?? null);
+      return { a, prims: R.vues.face as Prims, raison };
+    });
+  }, [fenetre, modeDecor, empl, slug, cfgLente, t]);
+  // Les zones du croquis (fenêtre Décor ouverte) : la place de chaque décor, calculée par l'outil à ces cotes.
+  const zones = useMemo(
+    () => (fenetre === "decor" ? zonesDecor(slug, cfgLente) : []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [fenetre, slug, cfgLente.P, cfgLente.H, cfgLente.forme, cfgLente.fleche, cfgLente.soub, cfgLente.hSoub, cfgLente.vantaux, cfgLente.rep, cfgLente.guidage, cfgLente.sens, cfgLente.poteaux, cfgLente.pente],
+  );
+  // Le portillon assorti, dessiné par l'outil (même composition, sa largeur, ses gonds).
+  const portillonPrims = useMemo(
+    () => (slug !== "portillon" && (cfgLente.portillon || fenetre === "portillon") ? (planPortail("portillon", configPortillonAssorti(cfgLente)).vues.face as Prims) : null),
+    [slug, cfgLente, fenetre],
+  );
 
   // Les prix : demandés au serveur une fois la frappe posée (le portail, ses styles, ses décors et ses moteurs d'un coup).
   const cle = versParams(slug, cfg).toString();
@@ -263,8 +375,56 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
   const moteurs = (R as unknown as { moteurs?: InfosMoteurs }).moteurs;
   const moteurChoisi: CleMoteur = cfg.moteur ? (moteurs?.choisi?.cle ?? "aucun") : "aucun";
   const nomMoteur = (k: CleMoteur) => (k === "aucun" ? t.sansMoteur : (moteurs?.permis.find((m) => m.cle === k)?.nom ?? moteurs?.refus.find((m) => m.cle === k)?.nom ?? k));
-  const formules = PT_DECOR_FORMULES as Record<string, { nom: string; ligne: string }>;
-  const formule = cfg.decor !== "aucun" ? formules[cfg.decor] : null;
+  const formules = FORMULES;
+  const formule = cfg.decor !== "aucun" && cfg.decor !== "perso" ? formules[cfg.decor] : null;
+  // Le décor en une ligne : la formule, ou les emplacements de « Personnaliser ».
+  const choixDecor = useMemo(() => choixDe(cfg), [cfg]);
+  const enMots = (c: ChoixDecor) => `${tp.formesDecor[c.forme] ?? c.forme} · ${tp.emplacements[c.assemblage].toLowerCase()}${c.assemblage === "entre" && c.pos ? ` ${tp.posDecor[c.pos].toLowerCase()}` : ""}`;
+  const decorNom = cfg.decor === "perso" ? t.perso : formule ? formule.nom : t.decorAucun;
+  const decorLigne = cfg.decor === "perso" ? cfg.decorChoix.map(enMots).join(" + ") : formule ? formule.ligne : t.decorDetail;
+
+  // « Personnaliser » : chaque changement passe le décor en « perso », en acier et à barreaux (motifs.js les exige).
+  const poserChoix = (L: ChoixDecor[]) => maj(L.length ? { decor: "perso", decorChoix: L.map(normaliser), mat: "acier", remp: "barreaux" } : { decor: "aucun", decorChoix: [] });
+  const changerEmpl = (i: number, p: Partial<ChoixDecor>) => {
+    const L = [...choixDecor];
+    const k = Math.min(i, L.length);
+    L[k] = { ...(L[k] ?? { assemblage: "entre", forme: "C", pos: "haut" }), ...p } as ChoixDecor;
+    poserChoix(L);
+    setEmpl(k);
+  };
+  const passerPerso = () => {
+    setModeDecor("perso");
+    setEmpl(0);
+    if (!choixDecor.length) poserChoix([{ assemblage: "entre", forme: "C", pos: "haut" }]);
+  };
+  const ajouterEmpl = () => {
+    if (choixDecor.length !== 1) return;
+    poserChoix([...choixDecor, choixDecor[0].assemblage === "cimier" ? { assemblage: "entre", forme: "C", pos: "haut" } : { assemblage: "cimier", forme: "C" }]);
+    setEmpl(1);
+  };
+  const retirerEmpl = (i: number) => { poserChoix(choixDecor.filter((_, k) => k !== i)); setEmpl(0); };
+  // Une zone touchée sur le croquis : elle devient l'emplacement en cours (ou on y va, s'il y est déjà).
+  const toucherZone = (cle: string) => {
+    const z = ZONES_DECOR.find((x) => x.cle === cle);
+    if (!z) return;
+    setModeDecor("perso");
+    const i = choixDecor.findIndex((c) => memeZone(c, z.choix));
+    if (i >= 0) { setEmpl(i); return; }
+    if (!choixDecor.length) { poserChoix([z.choix]); setEmpl(0); return; }
+    const cur = choixDecor[Math.min(empl, choixDecor.length - 1)];
+    changerEmpl(Math.min(empl, choixDecor.length - 1), { ...z.choix, forme: formesDe(z.choix.assemblage).includes(cur.forme) ? cur.forme : z.choix.forme, rythme: undefined, forme2: undefined, pos: z.choix.pos });
+  };
+  const zonesPrims = useMemo<Prims>(() => {
+    const aire = (b: number[]) => (b[2] - b[0]) * (b[3] - b[1]);
+    return zones
+      .flatMap((z) => z.boites.map((b) => ({ cle: z.cle, b })))
+      .sort((x, y) => aire(y.b) - aire(x.b))
+      .map(({ cle, b }) => {
+        const actif = choixDecor.some((c) => memeZone(c, ZONES_DECOR.find((x) => x.cle === cle)!.choix));
+        const m = 25;
+        return { t: "poly", cls: `zone-decor${actif ? " zone-active" : ""}`, piece: `zone:${cle}`, pts: [[b[0] - m, b[1] - m], [b[2] + m, b[1] - m], [b[2] + m, b[3] + m], [b[0] - m, b[3] + m]] };
+      });
+  }, [zones, choixDecor]);
 
   const lienVisite = useMemo(() => {
     const q = new URLSearchParams({
@@ -288,6 +448,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
   const vantauxTxt = R.dims.vantaux.length > 1 ? `${R.dims.vantaux.length} ${t.vantauxDe} ${R.dims.vantaux.map(nf).join(" + ")} mm` : `1 ${t.vantail} ${nf(R.dims.vantaux[0])} mm`;
   const tropLarge = battant && cfg.P > b.P[1];
   const ecartDecor = V && cfg.decor !== "aucun" && V.decors[cfg.decor] != null && V.decors.aucun != null ? (V.decors[cfg.decor] as number) - (V.decors.aucun as number) : null;
+  const ecartPortillon = cfg.portillon && !portillon && V?.base.ok ? (V.base.portillon ?? null) : null;
   const ecartMoteur = V && cfg.moteur && V.moteurs[moteurChoisi] != null && V.moteurs.aucun != null ? (V.moteurs[moteurChoisi] as number) - (V.moteurs.aucun as number) : null;
 
   const fermer = () => setFenetre(null);
@@ -373,7 +534,9 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
 
             {/* Colonne 2 : le croquis de l'outil, la place derrière, la vue de dessus. */}
             <div className={`cpt-croquis ${alerte ? "avec-alerte" : ""}`}>
-              <div className="cpt-croquis-dessin"><Vue prims={R.vues.face as Prims} couleur={cfg.couleur} label={`${nom}, ${t.vuRue}`} /></div>
+              <div className={`cpt-croquis-dessin ${fenetre === "decor" ? "avec-zones" : ""}`}>
+                <Vue prims={R.vues.face as Prims} couleur={cfg.couleur} label={`${nom}, ${t.vuRue}`} zones={fenetre === "decor" ? zonesPrims : undefined} onZone={fenetre === "decor" ? toucherZone : undefined} />
+              </div>
               {placeTxt && <span className="cpt-badge-place"><span className="cpt-rond"><PictoPlace /></span>{placeCle} {placeTxt}</span>}
               <div className="cpt-medaillon" role="img" aria-label={t.vueDessus}>
                 <div className="cpt-med-dessin">
@@ -384,7 +547,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
               </div>
               {alerte
                 ? <div className="cpt-croquis-alerte" role="status"><b>{alerte}</b>{tropLarge && <> <Link href={`/${locale}/artisanat/portail-coulissant`}>{t.voirCoulissant}</Link></>}</div>
-                : <p className="cpt-croquis-legende">{t.vuRue}</p>}
+                : <p className="cpt-croquis-legende">{fenetre === "decor" ? t.zonesAide : t.vuRue}</p>}
             </div>
 
             {/* Rangée 3 : le bandeau des styles, avec leur prix aux cotes du client. */}
@@ -415,7 +578,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
             <div className="carte-verre cpt-achat">
               <div className="cpt-haut-achat">
                 <p className="cpt-r-nom">{nom} · {nf(cfg.P)} × {nf(cfg.H)} mm</p>
-                <p className="cpt-r-ligne">{vantauxTxt} · ≈ {nf(R.poids)} kg · {t.fabrique}</p>
+                <p className="cpt-r-ligne">{vantauxTxt} · ≈ {nf(R.poids)} kg<span className="cpt-r-fab"> · {t.fabrique}</span></p>
                 <div className="cpt-filet" />
                 <h3 className="cpt-carte-titre cpt-aide-option">{t.aspect}</h3>
                 <span className="cpt-libelle uppercase">{t.formeHaut}</span>
@@ -430,11 +593,11 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
                 </div>
                 <div className="cpt-lignes-choix">
                   <button type="button" className="cpt-ligne-choix" aria-expanded={fenetre === "decor"} aria-haspopup="dialog" onClick={() => setFenetre((f) => (f === "decor" ? null : "decor"))}>
-                    <span className={`cpt-lc-picto ${formule ? "" : "vide"}`}>{formule ? <Vue prims={R.vues.face as Prims} couleur={cfg.couleur} sansCotes label={formule.nom} /> : <PictoPlus />}</span>
+                    <span className={`cpt-lc-picto ${cfg.decor !== "aucun" ? "" : "vide"}`}>{cfg.decor !== "aucun" ? <Vue prims={R.vues.face as Prims} couleur={cfg.couleur} sansCotes label={decorNom} /> : <PictoPlus />}</span>
                     <span className="cpt-lc-texte">
-                      <span className="cpt-lc-tete"><span>{t.decor}</span>{formule ? (ecartDecor != null && <span className="cpt-lc-ecart">{ecart(ecartDecor)}</span>) : <span className="cpt-lc-ajouter">{t.decorAjouter}</span>}</span>
-                      <span className="cpt-lc-valeur">{formule ? formule.nom : t.decorAucun}</span>
-                      <span className="cpt-lc-detail">{formule ? formule.ligne : t.decorDetail}</span>
+                      <span className="cpt-lc-tete"><span>{t.decor}</span>{cfg.decor !== "aucun" ? (ecartDecor != null && <span className="cpt-lc-ecart">{ecart(ecartDecor)}</span>) : <span className="cpt-lc-ajouter">{t.decorAjouter}</span>}</span>
+                      <span className="cpt-lc-valeur">{decorNom}</span>
+                      <span className="cpt-lc-detail">{decorLigne}</span>
                     </span>
                     <ChevronBas />
                   </button>
@@ -449,6 +612,17 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
                       <ChevronBas />
                     </button>
                   )}
+                  {!portillon && (
+                    <button type="button" className="cpt-ligne-choix" aria-expanded={fenetre === "portillon"} aria-haspopup="dialog" onClick={() => setFenetre((f) => (f === "portillon" ? null : "portillon"))}>
+                      <span className={`cpt-lc-picto ${cfg.portillon ? "" : "vide"}`}>{cfg.portillon && portillonPrims ? <Vue prims={portillonPrims} couleur={cfg.couleur} sansCotes label={t.vuePortillon} /> : <PictoPlus />}</span>
+                      <span className="cpt-lc-texte">
+                        <span className="cpt-lc-tete"><span>{t.portillon}</span>{cfg.portillon ? (ecartPortillon != null && <span className="cpt-lc-ecart">{ecart(ecartPortillon)}</span>) : <span className="cpt-lc-ajouter">{t.portillonAjouter}</span>}</span>
+                        <span className="cpt-lc-valeur">{cfg.portillon ? `${nf(cfg.portillonP)} × ${nf(cfg.H)} mm` : t.portillonAucun}</span>
+                        <span className="cpt-lc-detail">{t.portillonDetail}</span>
+                      </span>
+                      <ChevronBas />
+                    </button>
+                  )}
                 </div>
               </div>
               <div className="cpt-barre-achat">
@@ -456,9 +630,11 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
                   <span className={`cpt-prix ${perime ? "perime" : ""}`} aria-live="polite">{alerte ? t.aEtudier : prixBase != null ? euros(prixBase) : reponse?.etat.etat === "indispo" && !perime ? t.indispo : t.calcul}</span>
                   <span className="cpt-prix-etiquette">{t.prixPose}</span>
                 </div>
-                {ecartMoteur != null && <p className="cpt-prix-note">{t.moteurCompris} : {ecart(ecartMoteur)}</p>}
-                {ecartDecor != null && <p className="cpt-prix-note">{t.decorCompris} : {ecart(ecartDecor)}</p>}
-                <p className="cpt-prix-note">{t.poseComprise}</p>
+                {/* Ce que le prix comprend en plus du portail, sur une ligne : « Dont moteur + … · décor + … · portillon + … ». */}
+                {(ecartMoteur != null || ecartDecor != null || ecartPortillon != null) && (
+                  <p className="cpt-prix-note">{t.dont} {[ecartMoteur != null && `${t.dontMoteur} ${ecart(ecartMoteur)}`, ecartDecor != null && `${t.dontDecor} ${ecart(ecartDecor)}`, ecartPortillon != null && `${t.dontPortillon} ${ecart(ecartPortillon)}`].filter(Boolean).join(" · ")}</p>
+                )}
+                <p className="cpt-prix-note cpt-note-pose">{t.poseComprise}</p>
                 <Link href={lienVisite} className="btn-verre cpt-cta">{t.cta}</Link>
                 <p className="cpt-btn-note">{t.visite}</p>
                 <div className="cpt-liens">
@@ -469,32 +645,110 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
               </div>
             </div>
 
-            {/* La fenêtre Décor : sur la colonne des mesures, le croquis reste visible et suit chaque choix. */}
+            {/* La fenêtre Décor : sur la colonne des mesures, le croquis reste visible et suit chaque choix ; ses zones se touchent. */}
             {fenetre === "decor" && (
               <div className="carte-verre cpt-fenetre" role="dialog" aria-label={t.decor}>
                 <div className="cpt-f-tete"><div><p className="cpt-f-titre">{t.decor}</p><p className="cpt-f-sous">{t.fDecorSous}</p></div><Fermer label={t.fermer} onClose={fermer} /></div>
-                <p className="cpt-f-info">{t.fDecorInfo} <b>{t.fDecorAcier}</b></p>
-                <div className="cpt-formules">
-                  <button type="button" className="tuile-modele cpt-formule" aria-pressed={cfg.decor === "aucun"} onClick={() => maj({ decor: "aucun" })}>
-                    <span className="cpt-dessin" style={{ height: 62 }}><Vue prims={vignettes.find((x) => x.st === (style ?? "barreaux"))?.prims ?? (R.vues.face as Prims)} couleur={cfg.couleur} sansCotes label={t.sansDecor} /></span>
-                    <span className="cpt-f-nom">{t.sansDecor}</span>
-                  </button>
-                  {decorsDessines.map(({ d, prims }) => {
-                    const f = formules[d], p = V?.decors[d], base = V?.decors.aucun;
-                    return (
-                      <button key={d} type="button" className="tuile-modele cpt-formule" aria-pressed={cfg.decor === d} onClick={() => maj({ decor: d, mat: "acier", remp: "barreaux" })}>
-                        <span className="cpt-dessin"><Vue prims={prims} couleur={cfg.couleur} sansCotes label={f.nom} /></span>
-                        <span className="cpt-f-nom">{f.nom}</span><span className="cpt-f-ligne">{f.ligne}</span>
-                        {p != null && base != null && <span className="cpt-f-ecart">{ecart(p - base)}</span>}
-                      </button>
-                    );
-                  })}
-                  <button type="button" className="tuile-modele cpt-sur-mesure" aria-pressed={cfg.decor === "surMesure"} onClick={() => maj({ decor: "surMesure", mat: "acier", remp: "barreaux" })}>
-                    <span className="cpt-vide-dessin"><PictoPhoto /></span>
-                    <span><span className="cpt-f-nom" style={{ display: "block" }}>{t.surMesure}</span><span className="cpt-f-ligne" style={{ display: "block" }}>{t.surMesureLigne}</span></span>
-                  </button>
+                <div style={{ marginTop: 10 }}>
+                  <Pilule aria={t.decor} valeur={modeDecor} onChange={(m) => (m === "perso" ? passerPerso() : setModeDecor("formules"))}
+                    options={[{ v: "formules", label: t.formules }, { v: "perso", label: t.personnaliser }]} />
                 </div>
-                <Pied phrase={t.pied} termine={t.termine} onClose={fermer} />
+                {modeDecor === "formules" ? (<>
+                  <p className="cpt-f-info">{t.fDecorInfo} <b>{t.fDecorAcier}</b></p>
+                  <div className="cpt-formules">
+                    <button type="button" className="tuile-modele cpt-formule" aria-pressed={cfg.decor === "aucun"} onClick={() => maj({ decor: "aucun", decorChoix: [] })}>
+                      <span className="cpt-dessin" style={{ height: 62 }}><Vue prims={vignettes.find((x) => x.st === (style ?? "barreaux"))?.prims ?? (R.vues.face as Prims)} couleur={cfg.couleur} sansCotes label={t.sansDecor} /></span>
+                      <span className="cpt-f-nom">{t.sansDecor}</span>
+                    </button>
+                    {decorsDessines.map(({ d, prims }) => {
+                      const f = formules[d], p = V?.decors[d], base = V?.decors.aucun;
+                      return (
+                        <button key={d} type="button" className="tuile-modele cpt-formule" aria-pressed={cfg.decor === d} onClick={() => maj({ decor: d, decorChoix: [], mat: "acier", remp: "barreaux" })}>
+                          <span className="cpt-dessin"><Vue prims={prims} couleur={cfg.couleur} sansCotes label={f.nom} /></span>
+                          <span className="cpt-f-nom">{f.nom}</span><span className="cpt-f-ligne">{f.ligne}</span>
+                          {p != null && base != null && <span className="cpt-f-ecart">{ecart(p - base)}</span>}
+                        </button>
+                      );
+                    })}
+                    <button type="button" className="tuile-modele cpt-sur-mesure" aria-pressed={cfg.decor === "perso"} onClick={passerPerso}>
+                      <span className="cpt-vide-dessin"><PictoPlus /></span>
+                      <span><span className="cpt-f-nom" style={{ display: "block" }}>{t.personnaliser}</span><span className="cpt-f-ligne" style={{ display: "block" }}>{t.piedPerso}</span></span>
+                    </button>
+                    <button type="button" className="tuile-modele cpt-sur-mesure" aria-pressed={cfg.decor === "surMesure"} onClick={() => maj({ decor: "surMesure", decorChoix: [], mat: "acier", remp: "barreaux" })}>
+                      <span className="cpt-vide-dessin"><PictoPhoto /></span>
+                      <span><span className="cpt-f-nom" style={{ display: "block" }}>{t.surMesure}</span><span className="cpt-f-ligne" style={{ display: "block" }}>{t.surMesureLigne}</span></span>
+                    </button>
+                  </div>
+                  <Pied phrase={t.pied} termine={t.termine} onClose={fermer} />
+                </>) : (() => {
+                  const k = Math.min(empl, Math.max(0, choixDecor.length - 1)), cur = choixDecor[k];
+                  const formes = cur ? formesDe(cur.assemblage) : [];
+                  const ecartPerso = cfg.decor === "perso" && V?.decors.perso != null && V.decors.aucun != null ? V.decors.perso - V.decors.aucun : null;
+                  return (<>
+                    <div className="cpt-empls" role="tablist" aria-label={t.emplacement}>
+                      {choixDecor.map((c, i) => (
+                        <span key={i} className="cpt-empl">
+                          <button type="button" role="tab" aria-selected={i === k} onClick={() => setEmpl(i)}>{i + 1} · {tp.emplacements[c.assemblage]}</button>
+                          {choixDecor.length > 1 && <button type="button" className="cpt-empl-retirer" aria-label={`${t.retirer} ${i + 1}`} onClick={() => retirerEmpl(i)}><Croix /></button>}
+                        </span>
+                      ))}
+                      {choixDecor.length === 1 && <button type="button" className="cpt-empl-ajouter" onClick={ajouterEmpl}><PictoPlus />{t.ajouterEmplacement}</button>}
+                      {ecartPerso != null && <span className="cpt-empl-ecart">{ecart(ecartPerso)}</span>}
+                    </div>
+                    <span className="cpt-libelle uppercase">{t.ou}</span>
+                    <div className="cpt-ou" role="radiogroup" aria-label={t.ou}>
+                      {tuilesOu.map(({ a, prims, raison }) => (
+                        <button key={a} type="button" role="radio" className="tuile-modele cpt-ou-tuile" aria-checked={cur?.assemblage === a} aria-disabled={raison ? true : undefined} title={raison ?? undefined}
+                          onClick={() => { if (!raison) changerEmpl(k, { assemblage: a }); }}>
+                          <span className="cpt-dessin"><Vue prims={prims} couleur={cfg.couleur} sansCotes label={tp.emplacements[a]} /></span>
+                          <span className="cpt-ou-nom">{tp.emplacements[a]}</span>
+                        </button>
+                      ))}
+                    </div>
+                    {cur && (<>
+                      {cur.assemblage === "entre" && (<>
+                        <span className="cpt-libelle uppercase">{t.hauteurDecor}</span>
+                        <Pilule aria={t.hauteurDecor} valeur={cur.pos ?? "haut"} onChange={(pos) => changerEmpl(k, { pos })} options={POS_DECOR.map((x) => ({ v: x, label: tp.posDecor[x] }))} />
+                      </>)}
+                      <span className="cpt-libelle uppercase">{t.forme}</span>
+                      <Pilule aria={t.forme} valeur={cur.forme} onChange={(forme) => changerEmpl(k, { forme })} options={formes.map((f) => ({ v: f, label: tp.formesDecor[f] ?? f }))} />
+                      <span className="cpt-libelle uppercase">{t.rythme}</span>
+                      <Pilule aria={t.rythme} valeur={cur.rythme ?? "tous"} onChange={(rythme) => changerEmpl(k, { rythme })} desactive={formes.length > 1 ? [] : ["alterne"]}
+                        options={(["tous", "unSurDeux", "alterne"] as const).map((x) => ({ v: x, label: tp.rythmes[x] }))} />
+                      {cur.rythme === "alterne" && formes.length > 1 && (<>
+                        <span className="cpt-libelle uppercase">{t.formeAlternee}</span>
+                        <Pilule aria={t.formeAlternee} valeur={cur.forme2 ?? ""} onChange={(forme2) => changerEmpl(k, { forme2 })} desactive={[cur.forme]} options={formes.map((f) => ({ v: f, label: tp.formesDecor[f] ?? f }))} />
+                      </>)}
+                    </>)}
+                    <div className="cpt-filet" />
+                    <h3 className="cpt-carte-titre">{t.finitions}</h3>
+                    <span className="cpt-libelle uppercase">{t.bouts}</span>
+                    <Pilule aria={t.bouts} valeur={cfg.bouts} onChange={(bouts) => maj({ bouts })} options={BOUTS_DECOR.map((x) => ({ v: x, label: tp.bouts[x] }))} />
+                    <span className="cpt-libelle uppercase">{t.barreauxDeco}</span>
+                    <Pilule aria={t.barreauxDeco} valeur={cfg.barreauxDeco} onChange={(barreauxDeco) => maj({ barreauxDeco })} options={BARREAUX_DECOR.map((x) => ({ v: x, label: tp.barreauxDeco[x] }))} />
+                    <span className="cpt-libelle uppercase">{t.pointes}</span>
+                    <Pilule aria={t.pointes} valeur={cfg.pointes ? "lance" : "sans"} onChange={(x) => maj({ pointes: x === "lance" })} options={[{ v: "sans", label: t.sans }, { v: "lance", label: t.lance }]} />
+                    <Pied phrase={t.piedPerso} termine={t.termine} onClose={fermer} />
+                  </>);
+                })()}
+              </div>
+            )}
+
+            {/* La fenêtre Portillon assorti : même style, sa largeur et ses gonds ; posé avec le portail. */}
+            {fenetre === "portillon" && !portillon && (
+              <div className="carte-verre cpt-fenetre" role="dialog" aria-label={t.portillon}>
+                <div className="cpt-f-tete"><div><p className="cpt-f-titre">{t.portillon}</p><p className="cpt-f-sous">{t.portillonSous}</p></div><Fermer label={t.fermer} onClose={fermer} /></div>
+                <div style={{ marginTop: 10 }}>
+                  <Pilule aria={t.portillon} valeur={cfg.portillon ? "oui" : "non"} onChange={(x) => maj({ portillon: x === "oui" })} options={[{ v: "non", label: t.portillonAucun }, { v: "oui", label: t.portillonAjouter }]} />
+                </div>
+                {cfg.portillon && (<>
+                  <LigneCote picto="passage" titre={t.portillonLargeur} info={t.portillonInfo} valeur={cfg.portillonP} bornes={bP.P} onChange={(portillonP) => maj({ portillonP })} aCorriger={t.aCorriger} />
+                  <span className="cpt-libelle uppercase">{t.portillonGonds}</span>
+                  <Pilule aria={t.portillonGonds} valeur={cfg.portillonSens} onChange={(portillonSens) => maj({ portillonSens })} options={(["gauche", "droite"] as const).map((x) => ({ v: x, label: tp.sensPortillon[x] }))} />
+                  {portillonPrims && <div className="cpt-portillon-dessin"><Vue prims={portillonPrims} couleur={cfg.couleur} petit label={t.vuePortillon} /></div>}
+                  {V?.portillon?.avec != null && <p className="cpt-f-info"><b>{ecart(V.portillon.avec)}</b>{V.portillon.seul != null ? ` · ${t.portillonSeul(euros(V.portillon.seul))}` : ""}</p>}
+                </>)}
+                <Pied phrase={t.piedPortillon} termine={t.termine} onClose={fermer} />
               </div>
             )}
 
@@ -535,9 +789,10 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
           <dl className="cpt-d-liste">
             <dt>{t.dDimensions}</dt><dd>{t.passage} {nf(cfg.P)} mm, {t.hauteur.toLowerCase()} {nf(cfg.H)} mm</dd>
             <dt>{t.dVantaux}</dt><dd>{vantauxTxt}</dd>
-            <dt>{t.dMatiere}</dt><dd>{cfg.mat === "alu" ? t.matiereAlu : t.matiereAcier}, {tp.couleur[cfg.couleur].toLowerCase()}{formule ? ` · ${formule.nom}` : ""}</dd>
+            <dt>{t.dMatiere}</dt><dd>{cfg.mat === "alu" ? t.matiereAlu : t.matiereAcier}, {tp.couleur[cfg.couleur].toLowerCase()}{cfg.decor !== "aucun" ? ` · ${decorNom}` : ""}</dd>
             <dt>{t.dPoids}</dt><dd>≈ {nf(R.poids)} kg</dd>
             {!portillon && <><dt>{t.dMoteur}</dt><dd>{nomMoteur(moteurChoisi)}</dd></>}
+            {!portillon && cfg.portillon && <><dt>{t.portillon}</dt><dd>{nf(cfg.portillonP)} × {nf(cfg.H)} mm, {tp.sensPortillon[cfg.portillonSens].toLowerCase()}</dd></>}
             <dt>{t.dDelai}</dt><dd>{t.dDelaiTxt}</dd>
           </dl>
           <p className="cpt-d-sous">{t.dCompris}</p>
@@ -558,6 +813,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
             <figure><figcaption>{t.vueFace}</figcaption><Vue prims={R.vues.face as Prims} couleur={cfg.couleur} label={t.vueFace} /></figure>
             <figure><figcaption>{t.vueDessus}</figcaption><Vue prims={R.vues.dessus as Prims} couleur={cfg.couleur} label={t.vueDessus} /></figure>
             <figure><figcaption>{t.vueCote}</figcaption><Vue prims={R.vues.cote as Prims} couleur={cfg.couleur} label={t.vueCote} /></figure>
+            {cfg.portillon && portillonPrims && <figure><figcaption>{t.vuePortillon}</figcaption><Vue prims={portillonPrims} couleur={cfg.couleur} label={t.vuePortillon} /></figure>}
           </div>
         </div>
       </>)}

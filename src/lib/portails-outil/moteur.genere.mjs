@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 d33f25ca5c8380d33380d925.
+// Source : l'outil de plans (plans-atelier.html), sha256 720e58fe44e922bd8de2fb1f.
 /* eslint-disable */
 
 
@@ -1588,6 +1588,7 @@ function ptDecorZone(c, z, F, pieces, q) {
   const choix = z.decor.map((ch) => ({ ...c.decorFin, ...ch, liaison: "soudure", catalogue: true, pointes: pointes ? "lance" : "aucune" }));
   const mz = { x0: z.x0, x1: z.x1, y0: z.y0, haut: z.haut, barreau: M.barreau.b, vide: RG.decor.vide, pointes: pointes ? M.cadre.b : 0, miroir: !!z.miroir && c.decorMiroir, catalogue: true };
   if (choix.some((ch) => ch.assemblage === "cimier")) mz.cimier = { y: z.hautExt, h: RG.decor.cimier };
+  if (z.soub) mz.soub = z.soub;
   const Fm = [], pm = [], qm = {};
   if (choix.length > 1) mtRemplirPlusieurs(mz, choix, Fm, pm, qm); else mtRemplir(mz, choix[0], Fm, pm, qm);
   for (const p of Fm) if (p.role !== "detour") F.push(p);
@@ -1662,7 +1663,9 @@ function ptDessinerVantail(c, V, haut, F, pieces, q, Vn) {
       ptPiece(pieces, "Traverse intermédiaire", M.inter, b - a, d, "Coupes droites", "", "Cadre");
       q.soudures += 2;
       ptRemplir(c, { x0: a, x1: b, y0, haut: () => ySoub, plat: true, nomZone: "du soubassement", hautExt: () => ySoub, miroir }, c.soub, F, pieces, q);
-      ptRemplir(c, { x0: a, x1: b, y0: ySoub + ti, haut: hautCadre, nomZone: "du haut", dessus: true, hautExt: haut, miroir, decor }, c.remp, F, pieces, q);
+      // Un soubassement plein (tôle ou panneau) peut porter un motif soudé (placement « appliquePlein » de motifs.js : z.soub).
+      const soubPlein = c.soub === "plein" || c.soub === "panneau" ? { soub: { x0: a, x1: b, y0, haut: ySoub } } : {};
+      ptRemplir(c, { x0: a, x1: b, y0: ySoub + ti, haut: hautCadre, nomZone: "du haut", dessus: true, hautExt: haut, miroir, decor, ...soubPlein }, c.remp, F, pieces, q);
     } else {
       ptRemplir(c, { x0: a, x1: b, y0, haut: hautCadre, nomZone: "", dessus: true, hautExt: haut, miroir, decor }, c.remp, F, pieces, q);
     }
@@ -2737,4 +2740,4 @@ function ptVueCote(c, C, haut, xa, pil, prP, massif, yV) {
 
 
 export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, PT_MOTEURS, MT_AVEC, MT_NOMS };
-export const EMPREINTE = "c4d2bd4bed78";
+export const EMPREINTE = "266e9946f10d";

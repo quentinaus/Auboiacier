@@ -1,6 +1,6 @@
 {
- "source": "d33f25ca5c8380d33380d925",
- "moteur": "4aabacadf9dd",
+ "source": "720e58fe44e922bd8de2fb1f",
+ "moteur": "ad41b50e543e",
  "cas": [
   {
    "modele": "ptBattant",
@@ -1372,6 +1372,112 @@
    "prix": 1800,
    "alertes": 1,
    "poids": 36
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMat": "acier",
+    "ptDecor": "perso",
+    "ptDecorChoix": "[{\"assemblage\":\"entre\",\"forme\":\"S\",\"pos\":\"milieu\"},{\"assemblage\":\"cimier\",\"forme\":\"C\"}]"
+   },
+   "prix": 4350,
+   "alertes": 0,
+   "poids": 167
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMat": "acier",
+    "ptSoub": "plein",
+    "ptHSoub": 600,
+    "ptDecor": "perso",
+    "ptDecorChoix": "[{\"assemblage\":\"appliquePlein\",\"forme\":\"doubleC\"}]"
+   },
+   "prix": 4060,
+   "alertes": 0,
+   "poids": 140
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMat": "acier",
+    "ptDecor": "perso",
+    "ptDecorChoix": "[{\"assemblage\":\"coeurs\",\"forme\":\"coeur\",\"rythme\":\"unSurDeux\"}]",
+    "ptBouts": "bouton",
+    "ptBarreauxDeco": "torsade",
+    "ptPointes": true
+   },
+   "prix": 3660,
+   "alertes": 0,
+   "poids": 90
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMat": "acier",
+    "ptP": 1000,
+    "ptDecor": "perso",
+    "ptDecorChoix": "[{\"assemblage\":\"frise\",\"forme\":\"C\",\"rythme\":\"alterne\",\"forme2\":\"S\"}]"
+   },
+   "prix": 1920,
+   "alertes": 0,
+   "poids": 38
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "plein",
+    "ptP": 1000
+   },
+   "o": {
+    "complement": true
+   },
+   "prix": 1120,
+   "alertes": 0,
+   "poids": 18
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptP": 1000
+   },
+   "o": {
+    "complement": true
+   },
+   "prix": 1150,
+   "alertes": 0,
+   "poids": 26
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "rosace",
+    "ptP": 1000
+   },
+   "o": {
+    "complement": true
+   },
+   "prix": 1060,
+   "alertes": 0,
+   "poids": 34
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "volutes",
+    "ptP": 1000
+   },
+   "o": {
+    "complement": true
+   },
+   "prix": 1660,
+   "alertes": 0,
+   "poids": 55
   }
  ]
 }

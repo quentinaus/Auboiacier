@@ -167,17 +167,27 @@ CAS.push({ modele: "ptBattant", v: { ptStyle: "plein", ptMoteur: true, ptMoteurM
 // Les décors (lot 3) : chaque formule sur le battant et le portillon, avec le catalogue anonymisé du site.
 for (const modele of ["ptBattant", "ptPortillon"]) for (const ptDecor of ["classique", "frise", "medaillon", "couronnement", "coeurs", "surMesure"])
   CAS.push({ modele, v: { ptStyle: "barreaux", ptDecor, ...(modele === "ptPortillon" ? { ptP: 1000 } : {}) } });
-const reference = CAS.map(({ modele, v }) => {
+// « Personnaliser » (lot 10) : deux emplacements, un motif soudé sur le bas plein, les finitions (bouts, barreaux, pointes).
+const perso = (L) => JSON.stringify(L);
+CAS.push(
+  { modele: "ptBattant", v: { ptStyle: "barreaux", ptMat: "acier", ptDecor: "perso", ptDecorChoix: perso([{ assemblage: "entre", forme: "S", pos: "milieu" }, { assemblage: "cimier", forme: "C" }]) } },
+  { modele: "ptBattant", v: { ptStyle: "barreaux", ptMat: "acier", ptSoub: "plein", ptHSoub: 600, ptDecor: "perso", ptDecorChoix: perso([{ assemblage: "appliquePlein", forme: "doubleC" }]) } },
+  { modele: "ptCoulissant", v: { ptStyle: "barreaux", ptMat: "acier", ptDecor: "perso", ptDecorChoix: perso([{ assemblage: "coeurs", forme: "coeur", rythme: "unSurDeux" }]), ptBouts: "bouton", ptBarreauxDeco: "torsade", ptPointes: true } },
+  { modele: "ptPortillon", v: { ptStyle: "barreaux", ptMat: "acier", ptP: 1000, ptDecor: "perso", ptDecorChoix: perso([{ assemblage: "frise", forme: "C", rythme: "alterne", forme2: "S" }]) } },
+);
+// Le portillon assorti (lot 10) : chiffré en complément du portail (o.complement : visite, route et frais fixes une fois).
+for (const ptStyle of ["plein", "lamesChene", "rosace", "volutes"]) CAS.push({ modele: "ptPortillon", v: { ptStyle, ptP: 1000 }, o: { complement: true } });
+const reference = CAS.map(({ modele, v, o }) => {
   const R = evalMoteur.calculerPortail(v, modele);
-  const C = evalChiffrage.chiffrerPortail(R, v, undefined, { clesCatalogue: evalChiffrage.PTC_CLES_CATALOGUE });
-  return { modele, v, prix: C.conseille, alertes: R.alertes.length, poids: Math.round(R.poids) };
+  const C = evalChiffrage.chiffrerPortail(R, v, undefined, { ...o, clesCatalogue: evalChiffrage.PTC_CLES_CATALOGUE });
+  return { modele, v, ...(o ? { o } : {}), prix: C.conseille, alertes: R.alertes.length, poids: Math.round(R.poids) };
 });
 // Parité : le site (motifs.js public, catalogue anonymisé, clés rendues par le chiffrage) doit donner le MÊME prix que
 // l'outil complet (motifs.js tel quel, références et clés de prix), portail par portail. Sinon on n'écrit rien.
 const evalComplet = new Function(`"use strict";\n${motifsBrut}\n${plans}\nreturn { calculerPortail };`)();
-const ecartsParite = CAS.map(({ modele, v }, i) => {
+const ecartsParite = CAS.map(({ modele, v, o }, i) => {
   const R = evalComplet.calculerPortail(v, modele);
-  const prixOutil = R.alertes.length ? null : evalChiffrage.chiffrerPortail(R, v).conseille;
+  const prixOutil = R.alertes.length ? null : evalChiffrage.chiffrerPortail(R, v, undefined, o).conseille;
   const site = reference[i];
   return site.alertes ? (R.alertes.length ? null : `${modele} ${JSON.stringify(v)} : refusé sur le site, pas dans l'outil`) : prixOutil === site.prix ? null : `${modele} ${JSON.stringify(v)} : outil ${prixOutil} €, site ${site.prix} €`;
 }).filter(Boolean);

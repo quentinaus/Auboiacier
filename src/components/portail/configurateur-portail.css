@@ -93,7 +93,7 @@
 .cpt-pilule [role="radio"][aria-checked="true"] { background: #2b2320; color: #fff; }
 .cpt-pilule [role="radio"][aria-disabled="true"] { opacity: 0.4; cursor: not-allowed; }
 .cpt-pilule-picto [role="radio"] { flex-direction: column; gap: 1px; padding-top: 4px; padding-bottom: 4px; font-size: 11.5px; }
-.cpt-pilule-picto svg { width: 18px; height: 13px; }
+.cpt-pilule-picto svg { width: 18px; height: 13px; flex: none; }
 .cpt-mat-groupe .cpt-pilule { margin-top: 0; width: 112px; grid-template-columns: 1fr 1fr; }
 .cpt-libelle { display: block; margin-top: 10px; }
 .cpt-raison { margin-top: 4px; font-size: 11px; line-height: 1.35; color: var(--brun); }
@@ -295,3 +295,50 @@
   .cpt-achat { order: 4; }
 }
 @media (max-width: 767px) { .cpt-croquis-legende { display: none; } }
+
+/* ---------- « Personnaliser » le décor (lot 10, 09/10/2026) ---------- */
+.cpt-empls { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; }
+.cpt-empl { display: inline-flex; align-items: center; border-radius: 999px; background: rgba(118, 118, 128, 0.12); }
+.cpt-empl > button[role="tab"] { padding: 5px 10px; font-size: 12px; font-weight: 500; color: var(--brun); border-radius: 999px; }
+.cpt-empl > button[aria-selected="true"] { background: #2b2320; color: #fff; }
+.cpt-empl-retirer { display: inline-grid; place-items: center; width: 22px; height: 22px; margin-right: 2px; border-radius: 999px; color: var(--brun); }
+.cpt-empl-retirer:hover { background: rgba(43, 35, 32, 0.08); }
+.cpt-empl-ajouter { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px 4px 6px; font-size: 12px; color: var(--brun); border-radius: 999px; border: 1px dashed #b8a993; }
+.cpt-empl-ajouter svg { width: 14px; height: 14px; }
+.cpt-empl-ecart { margin-left: auto; font-size: 12px; font-weight: 600; color: #2b2320; font-variant-numeric: tabular-nums; }
+.cpt-ou { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 6px; }
+.cpt-ou-tuile { display: flex !important; flex-direction: column; align-items: stretch; padding: 5px 5px 4px; }
+.cpt-ou-tuile .cpt-dessin { height: 40px; }
+.cpt-ou-tuile[aria-checked="true"] { box-shadow: 0 0 0 2px #2b2320 !important; }
+.cpt-ou-tuile[aria-disabled="true"] { opacity: 0.38; cursor: not-allowed; }
+.cpt-ou-nom { margin-top: 3px; font-size: 10.5px; font-weight: 500; line-height: 1.2; color: var(--encre-verre); text-align: center; }
+.cpt-portillon-dessin { height: 150px; margin-top: 10px; border-radius: 14px; background: #f7f4ef; }
+.cpt-portillon-dessin svg { width: 100%; height: 100%; }
+
+/* Les zones du croquis, fenêtre Décor ouverte : elles s'éclairent au survol et se choisissent d'un clic ou d'un toucher. */
+.cpt .cpt-zones .zone-decor { fill: rgba(154, 91, 63, 0); stroke: rgba(154, 91, 63, 0.35); stroke-width: 1px; stroke-dasharray: 5 4; vector-effect: non-scaling-stroke; cursor: pointer; pointer-events: all; transition: fill 0.15s ease, stroke 0.15s ease; }
+.cpt .cpt-zones .zone-decor:hover { fill: rgba(154, 91, 63, 0.12); stroke: rgba(154, 91, 63, 0.9); }
+.cpt .cpt-zones .zone-active { fill: rgba(154, 91, 63, 0.07); stroke: rgba(154, 91, 63, 0.75); stroke-dasharray: none; }
+@media (prefers-reduced-motion: reduce) { .cpt .cpt-zones .zone-decor { transition: none; } }
+
+/* La colonne d'achat ne défile jamais (lot 10) : le détail des lignes Décor, Moteur et Portillon tient sur une ligne, et
+   disparaît quand l'écran est bas ; les vignettes se resserrent. */
+@media (min-width: 768px) { .cpt-achat .cpt-lc-detail { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } }
+@media (min-width: 1024px) and (max-height: 820px) {
+  .cpt-achat .cpt-lc-detail { display: none; }
+  .cpt-achat .cpt-lignes-choix { gap: 6px; margin-top: 8px; }
+  .cpt-achat .cpt-ligne-choix { grid-template-columns: 2.6rem minmax(0, 1fr) 12px; padding: 3px 10px 3px 3px; }
+  .cpt-achat .cpt-lc-picto { width: 2.6rem; height: 2.6rem; }
+  /* Le délai et la pose comprise restent dans « Détails » ; les pictos de la forme du haut passent à côté du mot. */
+  .cpt-achat .cpt-r-fab, .cpt-achat .cpt-note-pose { display: none; }
+  .cpt-achat .cpt-pilule-picto [role="radio"] { flex-direction: row; gap: 4px; padding-top: 0.3rem; padding-bottom: 0.3rem; }
+}
+
+/* Tablette debout : même resserrement de la colonne d'achat, pour que Décor, Moteur et Portillon se voient sans défiler. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .cpt-achat .cpt-aide-option, .cpt-achat .cpt-r-fab, .cpt-achat .cpt-lc-detail { display: none; }
+  .cpt-achat .cpt-lignes-choix { gap: 6px; margin-top: 8px; }
+  .cpt-achat .cpt-ligne-choix { grid-template-columns: 2.6rem minmax(0, 1fr) 12px; padding: 3px 10px 3px 3px; }
+  .cpt-achat .cpt-lc-picto { width: 2.6rem; height: 2.6rem; }
+  .cpt-achat .cpt-pilule-picto [role="radio"] { flex-direction: row; gap: 4px; padding-top: 0.3rem; padding-bottom: 0.3rem; }
+}

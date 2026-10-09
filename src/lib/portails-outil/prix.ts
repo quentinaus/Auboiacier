@@ -7,12 +7,13 @@
  * de prise de cotes et pose comprises jusqu'à 45 km de Saumur (la visite payée en ligne est déduite de la commande).
  */
 import { ChiffragePortailIndisponible, chiffragePortail } from "./chiffrage.ts";
-import { appliquerStyle, configDepart, planPortail, DECORS_PORTAIL, MOTEURS_PORTAIL, STYLES_PORTAIL, versEntrees, type ConfigPortail, type SlugPortail, type StylePortail } from "../portails.ts";
+import { appliquerStyle, configDepart, configPortillonAssorti, planPortail, DECORS_PORTAIL, MOTEURS_PORTAIL, STYLES_PORTAIL, versEntrees, type ConfigPortail, type SlugPortail, type StylePortail } from "../portails.ts";
 
 export { ChiffragePortailIndisponible };
 
 export type ReponsePrixPortail =
-  | { ok: true; prix: number; avertissements: string[]; resume: [string, string][] }
+  // prix : le portail, plus son portillon assorti s'il est demandé (portillon : sa part, posée avec le portail).
+  | { ok: true; prix: number; portillon: number | null; avertissements: string[]; resume: [string, string][] }
   | { ok: false; alertes: string[] };
 
 /** Le prix d'un portail configuré, ou ce qui bloque (les mêmes phrases que l'outil). */
@@ -21,7 +22,14 @@ export function prixPortail(slug: SlugPortail, cfg: ConfigPortail): ReponsePrixP
   if (R.alertes.length) return { ok: false, alertes: R.alertes };
   const ch = chiffragePortail();
   const C = ch.chiffrerPortail(R, versEntrees(cfg), undefined, { clesCatalogue: ch.PTC_CLES_CATALOGUE });
-  return { ok: true, prix: C.conseille, avertissements: R.avertissements, resume: R.resume };
+  // Le portillon assorti (cahier des charges §4.6) : même style, chiffré en complément (une seule visite, un seul voyage).
+  let portillon: number | null = null;
+  if (cfg.portillon && slug !== "portillon") {
+    const q = configPortillonAssorti(cfg), Rq = planPortail("portillon", q);
+    if (Rq.alertes.length) return { ok: false, alertes: Rq.alertes.map((a) => `Portillon assorti : ${a}`) };
+    portillon = ch.chiffrerPortail(Rq, versEntrees(q), undefined, { clesCatalogue: ch.PTC_CLES_CATALOGUE, complement: true }).conseille;
+  }
+  return { ok: true, prix: C.conseille + (portillon ?? 0), portillon, avertissements: R.avertissements, resume: R.resume };
 }
 
 const departs = new Map<SlugPortail, number | null>();
@@ -55,6 +63,8 @@ export type VariantesPortail = {
   styles: Record<StylePortail, number | null>;
   decors: Record<(typeof DECORS_PORTAIL)[number], number | null>;
   moteurs: Record<"aucun" | Exclude<(typeof MOTEURS_PORTAIL)[number], "conseille">, number | null>;
+  // Le portillon assorti : son prix posé avec le portail, et commandé seul (pour comparer) ; null sur la fiche du portillon.
+  portillon: { avec: number | null; seul: number | null } | null;
 };
 export function prixVariantesPortail(slug: SlugPortail, cfg: ConfigPortail): VariantesPortail {
   const p = (c: ConfigPortail) => { const r = prixPortail(slug, c); return r.ok ? r.prix : null; };
@@ -64,5 +74,11 @@ export function prixVariantesPortail(slug: SlugPortail, cfg: ConfigPortail): Var
     aucun: p({ ...cfg, moteur: false }),
     ...Object.fromEntries((["ixengo", "axovia", "elixo"] as const).map((m) => [m, p({ ...cfg, moteur: true, moteurModele: m })])),
   } as VariantesPortail["moteurs"];
-  return { base: prixPortail(slug, cfg), styles, decors, moteurs };
+  const q = configPortillonAssorti(cfg);
+  const avecP = slug === "portillon" ? null : prixPortail(slug, { ...cfg, portillon: true }), sansP = slug === "portillon" ? null : prixPortail(slug, { ...cfg, portillon: false });
+  const portillon = slug === "portillon" ? null : {
+    avec: avecP?.ok && sansP?.ok ? avecP.prix - sansP.prix : null,
+    seul: (() => { const r = prixPortail("portillon", q); return r.ok ? r.prix : null; })(),
+  };
+  return { base: prixPortail(slug, cfg), styles, decors, moteurs, portillon };
 }

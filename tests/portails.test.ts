@@ -2,10 +2,10 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  appliquerStyle, configDepart, guidePortail, lireConfig, planPortail, styleDe, versParams, DECORS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL,
-  type ConfigPortail, type SlugPortail,
+  appliquerStyle, configDepart, decrireDecor, guidePortail, lireConfig, lireDecorChoix, planPortail, styleDe, versParams, DECORS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL,
+  type ChoixDecor, type ConfigPortail, type SlugPortail,
 } from "../src/lib/portails.ts";
-import { prixDepartPortail, prixPortail } from "../src/lib/portails-outil/prix.ts";
+import { prixDepartPortail, prixPortail, prixVariantesPortail } from "../src/lib/portails-outil/prix.ts";
 import { getProduct } from "../src/lib/products.ts";
 
 /**
@@ -15,7 +15,7 @@ import { getProduct } from "../src/lib/products.ts";
  */
 
 const REF = JSON.parse(readFileSync(new URL("./reference/portails-outil.json", import.meta.url), "utf8")) as {
-  cas: { modele: string; v: Record<string, unknown>; prix: number; alertes: number }[];
+  cas: { modele: string; v: Record<string, unknown>; o?: { complement?: boolean }; prix: number; alertes: number }[];
 };
 const SLUG_DE = Object.fromEntries(Object.entries(SLUGS_PORTAIL).map(([s, m]) => [m, s])) as Record<string, SlugPortail>;
 
@@ -28,7 +28,14 @@ function configDe(slug: SlugPortail, v: Record<string, unknown>): ConfigPortail 
   if (v.ptMoteurModele) cfg = { ...cfg, moteurModele: v.ptMoteurModele as ConfigPortail["moteurModele"] };
   if (v.ptPoteaux) cfg = { ...cfg, poteaux: v.ptPoteaux as ConfigPortail["poteaux"] };
   if (v.ptGuidage) cfg = { ...cfg, guidage: v.ptGuidage as ConfigPortail["guidage"] };
+  if (v.ptMat) cfg = { ...cfg, mat: v.ptMat as ConfigPortail["mat"] };
+  if (v.ptSoub) cfg = { ...cfg, soub: v.ptSoub as ConfigPortail["soub"] };
+  if (v.ptHSoub) cfg = { ...cfg, hSoub: Number(v.ptHSoub) };
   if (v.ptDecor) cfg = { ...cfg, decor: v.ptDecor as ConfigPortail["decor"], mat: "acier" };
+  if (v.ptDecorChoix) cfg = { ...cfg, decorChoix: JSON.parse(String(v.ptDecorChoix)) as ChoixDecor[] };
+  if (v.ptBouts) cfg = { ...cfg, bouts: v.ptBouts as ConfigPortail["bouts"] };
+  if (v.ptBarreauxDeco) cfg = { ...cfg, barreauxDeco: v.ptBarreauxDeco as ConfigPortail["barreauxDeco"] };
+  if (v.ptPointes) cfg = { ...cfg, pointes: true };
   return cfg;
 }
 
@@ -36,6 +43,13 @@ test("les prix du site sont ceux de l'outil de plans, portail par portail (120 c
   assert.ok(REF.cas.length >= 100);
   for (const c of REF.cas) {
     const slug = SLUG_DE[c.modele];
+    if (c.o?.complement) {
+      // Le portillon assorti : sa part dans le prix d'un battant du même style (une seule visite, un seul voyage).
+      const avec = prixPortail("portail-battant", { ...configDe("portail-battant", { ptStyle: c.v.ptStyle }), portillon: true, portillonP: Number(c.v.ptP) });
+      assert.ok(avec.ok, `portillon assorti ${JSON.stringify(c.v)}`);
+      if (avec.ok) assert.equal(avec.portillon, c.prix, `portillon assorti ${JSON.stringify(c.v)}`);
+      continue;
+    }
     const r = prixPortail(slug, configDe(slug, c.v));
     if (c.alertes) { assert.equal(r.ok, false, `${c.modele} ${JSON.stringify(c.v)} : à étudier dans l'outil`); continue; }
     assert.ok(r.ok, `${c.modele} ${JSON.stringify(c.v)} : refusé sur le site`);
@@ -89,7 +103,7 @@ test("le guide des trois questions mène au bon modèle", () => {
 
 test("décors (lot 3) : chaque formule se dessine et se chiffre sur le site, avec le catalogue anonymisé", () => {
   for (const slug of ["portail-battant", "portillon"] as SlugPortail[]) for (const d of DECORS_PORTAIL) {
-    if (d === "aucun") continue;
+    if (d === "aucun" || d === "perso") continue;
     const cfg = { ...configDepart(slug, "barreaux"), decor: d, mat: "acier" as const };
     const R = planPortail(slug, cfg);
     const r = prixPortail(slug, cfg);
@@ -99,6 +113,43 @@ test("décors (lot 3) : chaque formule se dessine et se chiffre sur le site, ave
     assert.ok(r.ok && base.ok && r.prix > base.prix, `${slug} ${d} : plus cher que les barreaux seuls`);
     assert.equal(lireConfig(versParams(slug, cfg))?.cfg.decor, d, `${slug} ${d} : se relit`);
   }
+});
+
+test("« Personnaliser » (lot 10) : 1 ou 2 emplacements permis par motifs.js, relus à l'identique ; tout le reste est refusé", () => {
+  const choix: ChoixDecor[] = [{ assemblage: "entre", forme: "S", pos: "milieu" }, { assemblage: "cimier", forme: "C" }];
+  const cfg: ConfigPortail = { ...configDepart("portail-battant", "barreaux"), mat: "acier", decor: "perso", decorChoix: choix, bouts: "bouton", barreauxDeco: "torsade" };
+  assert.deepEqual(lireConfig(versParams("portail-battant", cfg)), { slug: "portail-battant", cfg });
+  const r = prixPortail("portail-battant", cfg), base = prixPortail("portail-battant", { ...cfg, decor: "aucun", decorChoix: [] });
+  assert.ok(r.ok && base.ok && r.prix > base.prix, "le décor personnalisé se chiffre, plus cher que sans décor");
+  assert.match(decrireDecor(cfg, "fr"), /Volute en S, entre les barreaux au milieu \+ Volute en C, couronnement/);
+  for (const faux of ["", "[]", "{}", JSON.stringify([...choix, choix[0]]), JSON.stringify([{ assemblage: "barreaux", forme: "C" }]), JSON.stringify([{ assemblage: "coeurs", forme: "S" }]),
+    JSON.stringify([{ assemblage: "entre", forme: "C", pos: "dessus" }]), JSON.stringify([{ assemblage: "entre", forme: "C", liaison: "colliers" }])]) {
+    assert.equal(lireDecorChoix(faux), null, `refusé : ${faux}`);
+  }
+  // Des emplacements sans décor « perso » : refusés (jamais devinés).
+  const q = versParams("portail-battant", cfg);
+  q.set("decor", "frise");
+  assert.equal(lireConfig(q), null);
+});
+
+test("portillon assorti (lot 10) : posé avec le portail, moins cher que seul, relu à l'identique", () => {
+  const cfg: ConfigPortail = { ...configDepart("portail-battant", "lamesChene"), portillon: true, portillonP: 1100, portillonSens: "droite" };
+  assert.deepEqual(lireConfig(versParams("portail-battant", cfg)), { slug: "portail-battant", cfg });
+  const V = prixVariantesPortail("portail-battant", cfg);
+  assert.ok(V.base.ok && V.portillon?.avec && V.portillon.seul, "les deux prix du portillon");
+  if (V.base.ok && V.portillon?.avec && V.portillon.seul) {
+    assert.equal(V.base.portillon, V.portillon.avec);
+    assert.ok(V.portillon.avec < V.portillon.seul - 200, `assorti ${V.portillon.avec} € < seul ${V.portillon.seul} €`);
+    const sans = prixPortail("portail-battant", { ...cfg, portillon: false });
+    assert.ok(sans.ok && V.base.prix === sans.prix + V.portillon.avec, "le prix posé = portail + portillon");
+  }
+  // Pas de portillon assorti sur la fiche du portillon, ni hors de ses bornes.
+  const p = versParams("portillon", configDepart("portillon"));
+  p.set("portillon", "1");
+  assert.equal(lireConfig(p), null);
+  const q = versParams("portail-battant", cfg);
+  q.set("portillonP", "3000");
+  assert.equal(lireConfig(q), null);
 });
 
 test("le dessin vient de l'outil : vue de face, de dessus et de côté pour chaque modèle et chaque style", () => {
