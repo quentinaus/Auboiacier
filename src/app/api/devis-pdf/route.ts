@@ -5,6 +5,8 @@ import { SUR_MESURE, getProduct, poidsColisKg, prixParOutil } from "@/lib/produc
 import { calculerLivraison, calculerPose, localiser } from "@/lib/deplacement";
 import { composerDevis, type Devis, type LivraisonDevis, type ResultatDevis } from "@/lib/devis";
 import { ChiffrageIndisponible, composerDevisGardeCorps, type LivraisonDevisGC } from "@/lib/prix-garde-corps.server";
+import { ChiffragePortailIndisponible, composerEstimationPortail } from "@/lib/prix-portail.server";
+import { lireConfig } from "@/lib/portails";
 import { rendreDevisPdf } from "@/lib/devis-pdf";
 import { creerLimite } from "@/lib/limite-debit";
 import { budgetCalculGC } from "@/lib/budget-calcul-gc";
@@ -87,7 +89,17 @@ export async function GET(request: Request) {
   const cp = (p.get("cp") ?? "").replace(/\s+/g, "");
 
   let resultat: ResultatDevis;
-  if (prixParOutil(product)) {
+  if (product.famille === "portail") {
+    // Le portail (lot 9) : l'estimation de l'outil, avant la visite ; la configuration est relue comme /api/prix-portail.
+    const lu = lireConfig(p);
+    if (!lu || lu.slug !== product.slug) return NextResponse.json({ error: "invalid" }, { status: 400 });
+    try {
+      resultat = composerEstimationPortail({ slug: lu.slug, cfg: lu.cfg, client, date: new Date() });
+    } catch (erreur) {
+      if (erreur instanceof ChiffragePortailIndisponible) return NextResponse.json({ error: "indisponible" }, { status: 503 });
+      throw erreur;
+    }
+  } else if (prixParOutil(product)) {
     // Le garde-corps : le relevé, et une façon de le recevoir (transporteur, pose ou retrait).
     const mm = (cle: string) => {
       const t = p.get(cle);

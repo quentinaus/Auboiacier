@@ -6,3 +6,4 @@ import "server-only";
  * son prix à /api/prix-portail, qui ne rend qu'un prix de vente.
  */
 export { ChiffragePortailIndisponible, prixDepartPortail, prixPortail, prixVariantesPortail, type ReponsePrixPortail, type VariantesPortail } from "./portails-outil/prix.ts";
+export { composerEstimationPortail } from "./portails-outil/devis-site.ts";

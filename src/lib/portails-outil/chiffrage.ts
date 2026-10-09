@@ -21,6 +21,8 @@ type ChiffragePortail = {
   PTC_KM_REF: number;
   /** Le catalogue public des volutes est anonymisé (« c1 », « c2 »…) : sa table code → clé de prix est ici, chiffrée. */
   PTC_CLES_CATALOGUE: Record<string, string>;
+  /** Les postes du devis (lot 8) : des prix de vente seulement, dont la somme fait le prix. plans(v) rend le plan d'une variante. */
+  ptcPostesDevis: (R: unknown, v: unknown, T: unknown, options: { km?: number; clesCatalogue?: Record<string, string> }, plans: (v: Record<string, unknown>) => unknown) => { total: number; postes: { cle: string; montant: number }[] };
 };
 
 /** Le prix ne peut pas être calculé : clé absente ou fausse. La route répond 503, jamais un prix inventé. */
@@ -52,7 +54,7 @@ export function chiffragePortail(dossier?: string): ChiffragePortail {
     throw new ChiffragePortailIndisponible("cle-invalide");
   }
   if (empreinte(corps) !== EMPREINTE_CLAIR) throw new ChiffragePortailIndisponible("cle-invalide");
-  const fabrique = new Function(`"use strict";\n${corps}\nreturn { chiffrerPortail, PTC_KM_REF, PTC_CLES_CATALOGUE };`) as () => ChiffragePortail;
+  const fabrique = new Function(`"use strict";\n${corps}\nreturn { chiffrerPortail, PTC_KM_REF, PTC_CLES_CATALOGUE, ptcPostesDevis };`) as () => ChiffragePortail;
   charge = Object.freeze(fabrique());
   return charge;
 }

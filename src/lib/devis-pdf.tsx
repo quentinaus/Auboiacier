@@ -609,14 +609,17 @@ function DocumentDevis({ devis }: { devis: Devis }) {
                 <Text style={styles.accordTexte}>{t.signature}</Text>
               </View>
             ) : null}
-            <View style={styles.commander}>
-              <Text style={styles.ligneGrise}>
-                {devis.acceptation ? t.suivi : t.commander}
-              </Text>
-              <Text style={styles.lien}>
-                {devis.lienFiche.replace(/^https?:\/\//, "")}
-              </Text>
-            </View>
+            {/* Sans lien (un portail : la visite d'abord, pas de commande en ligne), pas de « Pour commander en ligne ». */}
+            {devis.lienFiche ? (
+              <View style={styles.commander}>
+                <Text style={styles.ligneGrise}>
+                  {devis.acceptation ? t.suivi : t.commander}
+                </Text>
+                <Text style={styles.lien}>
+                  {devis.lienFiche.replace(/^https?:\/\//, "")}
+                </Text>
+              </View>
+            ) : null}
           </View>
         </View>
 

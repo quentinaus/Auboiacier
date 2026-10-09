@@ -50,7 +50,7 @@ const TXT = {
     decor: "Décor", decorAucun: "Aucun", decorAjouter: "Ajouter", decorDetail: "Volutes, frise, cœurs", moteur: "Moteur", sansMoteur: "Sans moteur",
     prixPose: "Prix posé", poseComprise: "Pose comprise jusqu'à 45 km de Saumur",
     cta: "Demander ma visite", visite: "Visite à partir de 19,99 €, déduite si vous commandez", calcul: "Calcul…", indispo: "Prix indisponible pour le moment",
-    aEtudier: "À étudier à la visite", voirPlan: "Voir le plan", devis: "Devis PDF", devisRaison: "Le devis détaillé suit la visite.", details: "Détails",
+    aEtudier: "À étudier à la visite", voirPlan: "Voir le plan", devis: "Estimation PDF", devisRaison: "Le devis à signer suit la visite.", details: "Détails",
     fabrique: "fabriqué en 6 à 8 semaines", vantail: "vantail de", vantauxDe: "vantaux de",
     fDecorSous: "Des volutes en fer forgé, soudées à l'atelier, posées par nous.", fDecorInfo: "Les volutes sont en fer forgé :", fDecorAcier: "votre portail passe en acier.",
     surMesure: "Sur mesure", surMesureLigne: "Votre motif : une photo, nous le dessinons. Prix sur devis.", sansDecor: "Sans décor",
@@ -96,7 +96,7 @@ const TXT = {
     decor: "Decoration", decorAucun: "None", decorAjouter: "Add", decorDetail: "Scrolls, frieze, hearts", moteur: "Motor", sansMoteur: "No motor",
     prixPose: "Fitted price", poseComprise: "Fitting included within 45 km of Saumur",
     cta: "Book my survey visit", visite: "Survey visit from €19.99, deducted if you order", calcul: "Calculating…", indispo: "Price unavailable for now",
-    aEtudier: "To be studied at the visit", voirPlan: "See the plan", devis: "PDF quote", devisRaison: "The detailed quote follows the visit.", details: "Details",
+    aEtudier: "To be studied at the visit", voirPlan: "See the plan", devis: "PDF estimate", devisRaison: "The quote to sign follows the visit.", details: "Details",
     fabrique: "made in 6 to 8 weeks", vantail: "leaf of", vantauxDe: "leaves of",
     fDecorSous: "Wrought-iron scrolls, welded in our workshop, fitted by us.", fDecorInfo: "The scrolls are wrought iron:", fDecorAcier: "your gate becomes steel.",
     surMesure: "Bespoke", surMesureLigne: "Your own motif: send a photo, we draw it. Price on quotation.", sansDecor: "No decoration",
@@ -639,7 +639,9 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
                 <p className="cpt-btn-note">{t.visite}</p>
                 <div className="cpt-liens">
                   <button type="button" onClick={() => setFenetre("plan")} aria-haspopup="dialog">{t.voirPlan}</button>
-                  <span className="grise" aria-disabled="true" title={t.devisRaison}>{t.devis}</span>
+                  {/* L'estimation PDF (lot 9) : celle de l'outil, composée sur le serveur ; le devis à signer suit la visite. */}
+                  {alerte || prixBase == null ? <span className="grise" aria-disabled="true" title={t.devisRaison}>{t.devis}</span>
+                    : <a href={`/api/devis-pdf?${cle}&lang=${locale}`} target="_blank" rel="noopener" title={t.devisRaison}>{t.devis}</a>}
                   <button type="button" aria-expanded={fenetre === "details"} aria-haspopup="dialog" onClick={() => setFenetre((f) => (f === "details" ? null : "details"))}>{t.details}<ChevronBas /></button>
                 </div>
               </div>

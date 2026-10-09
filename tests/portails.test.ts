@@ -6,6 +6,7 @@ import {
   type ChoixDecor, type ConfigPortail, type SlugPortail,
 } from "../src/lib/portails.ts";
 import { prixDepartPortail, prixPortail, prixVariantesPortail } from "../src/lib/portails-outil/prix.ts";
+import { composerEstimationPortail } from "../src/lib/portails-outil/devis-site.ts";
 import { getProduct } from "../src/lib/products.ts";
 
 /**
@@ -150,6 +151,26 @@ test("portillon assorti (lot 10) : posé avec le portail, moins cher que seul, r
   const q = versParams("portail-battant", cfg);
   q.set("portillonP", "3000");
   assert.equal(lireConfig(q), null);
+});
+
+test("estimation PDF (lot 9) : le devis de l'outil, son total est le prix affiché, sans aucun coût", () => {
+  for (const [slug, cfg] of [
+    ["portail-battant", { ...configDepart("portail-battant", "lamesChene"), moteur: true, portillon: true }],
+    ["portail-battant", configDepart("portail-battant", "volutes")],
+    ["portail-coulissant", { ...configDepart("portail-coulissant", "plein"), moteur: true }],
+    ["portillon", configDepart("portillon", "rosace")],
+  ] as [SlugPortail, ConfigPortail][]) {
+    const r = composerEstimationPortail({ slug, cfg, client: { nom: "Essai" }, date: new Date(2026, 9, 9) });
+    const p = prixPortail(slug, cfg);
+    assert.ok(r.ok && p.ok, slug);
+    if (!r.ok || !p.ok) continue;
+    assert.equal(r.devis.nature, "estimation");
+    assert.equal(r.devis.total, p.prix, `${slug} : total = prix de la fiche`);
+    assert.equal(r.devis.lignes.filter((l) => !l.titre).reduce((s, l) => s + l.total, 0), r.devis.total, `${slug} : somme des lignes`);
+    assert.equal(r.devis.lienFiche, "", "pas de commande en ligne");
+    const texte = JSON.stringify(r.devis);
+    for (const interdit of ["plancher", "fraisFixes", "heure_atelier", "Bon pour accord", "acompte"]) assert.ok(!texte.includes(interdit), `${slug} : « ${interdit} »`);
+  }
 });
 
 test("le dessin vient de l'outil : vue de face, de dessus et de côté pour chaque modèle et chaque style", () => {

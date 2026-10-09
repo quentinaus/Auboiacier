@@ -49,6 +49,8 @@ function entre(debut, fin) {
 const plans = entre(/\/\* ---------- Portails \(plans\/modules\/plans-portails\.js, collé tel quel le \d\d\/\d\d\/\d{4}\) ---------- \*\/\n/, "\n  /* ---------- fin du module des portails ---------- */");
 const chiffrage = entre(/\/\* ---------- Chiffrage des portails \(plans\/modules\/chiffrage-portails\.js, collé tel quel le \d\d\/\d\d\/\d{4}\) ---------- \*\/\n/, "/* ---------- fin du chiffrage des portails ---------- */");
 const tarifs = entre("/* ---- TARIFS GÉNÉRÉS DEPUIS LE TABLEUR (début)", "/* ---- TARIFS GÉNÉRÉS DEPUIS LE TABLEUR (fin)");
+// Le devis du portail (lot 8, modules/devis-portails.js) : public, aucun coût (les montants arrivent en prix de vente).
+const devisPortail = entre("  /* ---------- Devis du portail (plans/modules/devis-portails.js, collé tel quel) ---------- */\n", "  /* ---------- fin du devis du portail ---------- */");
 const motifsBrut = entre(/\/\* ---- MODULE motifs\.js \(début\)[^\n]*\n/, "/* ---- MODULE motifs.js (fin)");
 const chiffrageMotifs = entre(/\/\* ---- MODULE chiffrage-motifs\.js \(début\)[^\n]*\n/, "/* ---- MODULE chiffrage-motifs.js (fin)");
 
@@ -157,7 +159,7 @@ const chiffreTypes = "// FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : t
 
 // ---------- 3. La référence : ce que l'outil répond (prix de vente seulement) ----------
 const evalMoteur = new Function(`"use strict";\n${motifs}\n${plans}\nreturn { calculerPortail };`)();
-const evalChiffrage = new Function(`"use strict";\n${clair}\nreturn { chiffrerPortail, PTC_CLES_CATALOGUE };`)();
+const evalChiffrage = new Function(`"use strict";\n${clair}\nreturn { chiffrerPortail, PTC_CLES_CATALOGUE, ptcPostesDevis };`)();
 const CAS = [];
 for (const modele of ["ptBattant", "ptCoulissant", "ptPliant", "ptPortillon"]) for (const ptStyle of ["plein", "lisse", "barreaux", "lamesChene", "rosace", "volutes"])
   for (const opts of [{}, { ptMoteur: true }, { ptPoteaux: "alu" }, { ptGuidage: "auto" }, { ptP: modele === "ptPortillon" ? 1200 : 4200, ptH: 1800 }])
@@ -195,7 +197,14 @@ if (ecartsParite.length) arret(`le site ne donne pas le prix de l'outil :\n${eca
 const refTexte = JSON.stringify({ source: sha(html).slice(0, 24), moteur: empreinte(plans), cas: reference }, null, 1) + "\n";
 
 // ---------- 4. Écrire, ou seulement comparer ----------
+// Le devis : le module tel quel, dans une fabrique qui reçoit les petits outils du devis (dsDate, dsPrix… : ceux du site).
+const DS_NOMS = ["dsEsc", "dsNb", "dsMm", "dsPrix", "dsDate", "dsDateLisible", "dsDateCompacte", "dsPlusJours", "dsEmpreinte", "dsLieu", "dsDevisHtml", "DS_EMETTEUR", "DS_VALIDITE_JOURS", "PT_MODELES"];
+const devisGenere = "// FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs depuis l'outil de plans (modules/devis-portails.js) : ne pas modifier.\n"
+  + `export function fabriqueDevisPortail(ds) {\n  const { ${DS_NOMS.join(", ")} } = ds;\n${devisPortail}\n  return { composerDevisPortail };\n}\n`;
+const devisTypes = "// FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : types du devis du portail.\nexport declare function fabriqueDevisPortail(ds: Record<string, unknown>): { composerDevisPortail: (p: Record<string, unknown>) => { ok: true; devis: Record<string, any> } | { ok: false; raison: string } };\n";
+if (/fraisFixes|heure_atelier|TARIFS_ACHATS|REGLAGES\./.test(devisPortail)) arret("le devis du portail contient un mot du chiffrage");
 const fichiers = [
+  [join(DOSSIER, "devis.genere.mjs"), devisGenere], [join(DOSSIER, "devis.genere.d.mts"), devisTypes],
   [join(DOSSIER, "moteur.genere.mjs"), moteur], [join(DOSSIER, "moteur.genere.d.mts"), moteurTypes],
   [join(DOSSIER, "chiffrage.chiffre.mjs"), chiffre], [join(DOSSIER, "chiffrage.chiffre.d.mts"), chiffreTypes],
   [REFERENCE, refTexte],
