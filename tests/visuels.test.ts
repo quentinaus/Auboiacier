@@ -446,10 +446,11 @@ test("la photo de Quentin au travail : seulement sur l'accueil, le devis, le con
     assert.ok([...d.seo.realisations.description].length <= 155, `${nom} : description de la page trop longue`);
   }
   // À propos : l'atelier ouvre (commandes le 7 décembre 2026), il n'a pas « ouvert ».
-  assert.match(fr.apropos.histoireBody, /De retour en Anjou, il ouvre l'atelier à Saumur/);
-  assert.match(en.apropos.histoireBody, /Back in Anjou, he is opening the workshop in Saumur/);
-  assert.doesNotMatch(fr.apropos.histoireBody, /il a ouvert l'atelier/);
-  assert.doesNotMatch(en.apropos.histoireBody, /he opened the workshop/);
+  // La date n'est pas tapée : la page remplace {ouverture} par DATE_OUVERTURE_COMMANDES (src/lib/ouverture.ts).
+  assert.match(fr.apropos.qui, /Il ouvre aujourd'hui son atelier à Saumur et prend les commandes à partir du \{ouverture\}/);
+  assert.match(en.apropos.qui, /He is now opening his own workshop in Saumur, taking orders from \{ouverture\}/);
+  assert.doesNotMatch(fr.apropos.qui, /a ouvert|installé|décembre/);
+  assert.doesNotMatch(en.apropos.qui, /opened|December/);
 });
 
 test("les légendes des visuels ne disent pas « posé » ; un visuel est une image, pas une photo", () => {

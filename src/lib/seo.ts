@@ -822,12 +822,12 @@ const SAVOIR_FAIRE_QUENTIN: Record<Locale, string[]> = {
 };
 
 /**
- * Son parcours en une phrase. L'employeur australien n'est jamais nommé
+ * Son parcours, le même que la page À propos. L'employeur australien n'est jamais nommé
  * (Quentin, 07/10/2026) ; la durée, deux ans, est la sienne.
  */
 const PARCOURS_QUENTIN: Record<Locale, string> = {
-  fr: "Soudeur-métallier, titulaire du CAP Métallier et du BP Métallier. Deux ans en Australie chez un fabricant de plafonds lumineux en toile tendue, puis l'atelier Auboiacier, à Saumur.",
-  en: "Welder-metalworker, holder of the French CAP Métallier and BP Métallier diplomas. Two years in Australia with a maker of backlit stretch-fabric ceilings, then the Auboiacier workshop in Saumur, France.",
+  fr: "Soudeur-métallier, titulaire du CAP Métallier et du BP Métallier, plus de cinq ans de soudure au TIG, au MAG et à l'électrode. Deux ans en Australie chez un fabricant de plafonds lumineux en toile tendue, puis son propre atelier, Auboiacier, qui ouvre à Saumur.",
+  en: "Welder-metalworker, holder of the French CAP Métallier and BP Métallier diplomas, with more than five years of TIG, MIG/MAG and stick welding. Two years in Australia with a maker of backlit stretch-fabric ceilings, then his own workshop, Auboiacier, opening in Saumur, France.",
 };
 
 /**

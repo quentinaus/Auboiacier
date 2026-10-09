@@ -958,30 +958,37 @@
   },
   "apropos": {
     "title": "About",
-    "histoireTitle": "Our story",
-    "histoireBody": "Auboiacier is a metalwork workshop in Saumur, in the Loire Valley. It is run by Quentin Aumercier, a welder and metalworker trained on building sites and in workshops, in France and then in Australia, where he spent several years with a maker of backlit stretch ceilings. He brought back a method: measure right, weld clean, finish without compromise. Back in Anjou, he is opening the workshop in Saumur to make tables, staircases, railings and light ceilings — one piece at a time, to order, for customers who know what they want.",
-    "savoirFaireTitle": "Our craft",
-    "savoirFaireBody": [
-      "The steel is cut, TIG-welded and ground in the workshop; the solid wood is cut to size, sanded and oiled there; the aluminium boxes of the light ceilings are welded and fitted to the millimetre there. Some parts are bought ready-made, then fitted in the workshop: for example the rosettes, the stretched fabric and the LED lighting.",
-      "What that means for you: dimensions held to the millimetre, full welds that stand up to a close look, finishes that age well. And a piece we know by heart — if it needs attention in ten years, we know exactly how it was made."
+    "h1": "Quentin Aumercier",
+    "ligne": "Welder-metalworker in Saumur",
+    "qui": "Quentin holds the French CAP and BP Métallier diplomas in metalwork, and has been welding for more than five years: TIG, MIG/MAG and stick. He spent two years in Australia with a maker of backlit stretch-fabric ceilings. He is now opening his own workshop in Saumur, taking orders from {ouverture}.",
+    "fabriqueTitre": "What he makes",
+    "fabrique": {
+      "gcFenetre": "Window railings",
+      "gcBalcon": "Balcony and terrace railings",
+      "escalier": "Central-stringer staircases",
+      "verrieres": "Steel internal windows",
+      "tables": "Solid wood and steel tables",
+      "plafonds": "Light ceilings",
+      "sculptures": "Sculptures",
+      "soudure": "Welding and repairs"
+    },
+    "aimeTitre": "What he enjoys",
+    "aime": [
+      "Welding of every kind, fine or heavy, as long as it is well finished.",
+      "Bringing steel and solid wood together.",
+      "Starting from your measurements for a piece that fits exactly.",
+      "One-off pieces."
     ],
-    "valeursTitle": "Our values",
-    "valeurs": [
-      {
-        "title": "Custom first",
-        "body": "Every piece is made for you, to order: a size from the collection or your own measurements."
-      },
-      {
-        "title": "Honest materials",
-        "body": "Solid wood, steel welded in the workshop, visible welds: nothing veneered, nothing hidden."
-      },
-      {
-        "title": "Work we stand behind",
-        "body": "Made and fitted by the same hands, covered by the statutory warranty, and repairable long after."
-      }
+    "aimeSurtout": "Above all, making honest pieces that last, and that can still be worked on many years from now if needed, rather than throwaway products sold at a high price.",
+    "butTitre": "The aim",
+    "but": [
+      "Making a living from his own workshop.",
+      "A clear price, shown before you order.",
+      "Pieces that last.",
+      "Bringing the trade back to life, at a fair and more affordable price."
     ],
-    "photoAlt": "Saumur castle and the riverfront at sunset, reflected in the Loire",
-    "h1": "The Auboiacier metalwork workshop in Saumur"
+    "ctaDevis": "Get my price",
+    "ctaContact": "Write to Quentin"
   },
   "contact": {
     "title": "Contact",
@@ -1377,8 +1384,8 @@
       "description": "Crittall-style internal steel partitions, surveyed on site and fitted. Room dividers, kitchens, mezzanines — handmade in Saumur, Loire Valley."
     },
     "apropos": {
-      "title": "Quentin Aumercier's workshop",
-      "description": "One workshop, two materials: TIG-welded steel and solid timber oiled by hand. No production runs — every piece is built to order."
+      "title": "Quentin Aumercier, welder-metalworker",
+      "description": "Quentin Aumercier, welder-metalworker (CAP and BP Métallier), is opening his workshop in Saumur: railings, staircases, steel windows and tables."
     },
     "contact": {
       "title": "Contact & free quote — Auboiacier, Saumur, France",
