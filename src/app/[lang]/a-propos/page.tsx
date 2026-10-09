@@ -130,11 +130,8 @@ export default async function AProposPage({
         <section className="px-6 py-16 md:py-28">
           <Apparition className="mx-auto max-w-3xl">
             <h2 className={titreSection}>{t.hommeTitre}</h2>
-            <p className={`${serif.className} mt-6 text-[1.35rem] leading-[1.3] text-[#2b2320] md:text-[1.6rem]`}>
-              {/* « soudeur-métallier » ne se coupe jamais sur son trait d'union. */}
-              {t.hommeNom.split(", ")[0]}, <span className="whitespace-nowrap">{t.hommeNom.split(", ")[1]}</span>
-            </p>
-            <p className={`${texte} mt-4`}>{t.homme}</p>
+            
+            <p className={`${texte} mt-6`}>{t.homme}</p>
             <p className={`${texte} mt-4`}>{t.parcours}</p>
           </Apparition>
         </section>

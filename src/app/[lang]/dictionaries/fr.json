@@ -976,9 +976,8 @@
       "soudure": "Soudure et réparations"
     },
     "hommeTitre": "Qui fabrique votre pièce",
-    "hommeNom": "Quentin Aumercier, soudeur-métallier",
-    "homme": "Quentin Aumercier dirige l'atelier et réalise chaque pièce de ses mains, de la prise de cotes à l'ultime finition. Métallier diplômé (CAP et Brevet professionnel), il a exercé en France puis en Australie, où il s'est consacré deux années durant aux plafonds lumineux en toile tendue, avant de fonder Auboiacier à Saumur.",
-    "parcours": "Sa conviction : un ouvrage d'acier et de bois massif, juste dans ses proportions et irréprochable dans ses finitions, se transmet d'une génération à l'autre. C'est l'ambition de l'atelier : des pièces durables, un prix annoncé avec clarté avant toute commande, et un savoir-faire remis à l'honneur.",
+        "homme": "Auboiacier est un atelier à taille humaine, fondé à Saumur par Quentin Aumercier, métallier (CAP et Brevet professionnel), formé en France puis en Australie. La personne qui prend vos cotes est celle qui fabrique votre pièce.",
+    "parcours": "Nous fabriquons des ouvrages d'acier et de bois massif faits pour durer, à un prix annoncé clairement avant toute commande.",
     "finTitre": "Parlons de votre pièce.",
     "ctaDevis": "Calculer mon prix",
     "ctaContact": "Nous écrire"
