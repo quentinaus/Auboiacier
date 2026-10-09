@@ -130,6 +130,7 @@ for (const locale of ["fr", "en"] as const) {
  * origine, ni forêt gérée sans la fiche du fournisseur). « Style fer forgé » et « wrought-iron style » sont permis :
  * l'acier plein en a l'allure, rien n'est forgé.
  */
+const FER_FORGE = /(?<!style |façon )fer forgé|wrought[- ]iron(?![- ]style)/i;
 const MOTS_INTERDITS_FICHES = [
   /premium/i,
   /\blux/i,
@@ -141,7 +142,7 @@ const MOTS_INTERDITS_FICHES = [
   /artisan d'art|maître artisan|ferronnier d'art|master craftsman|blacksmith/i,
   /\bIA\b|\bAI\b|\b3D\b|\bCGI\b|généré|generated/,
   /forgée? à la main|hand-?forged/i,
-  /(?<!style |façon )fer forgé|wrought[- ]iron(?![- ]style)/i,
+  FER_FORGE,
   /ébéniste|menuisier|forgeron/i,
   /barrisol|clipso|crittall/i,
   /premier choix|first-grade|chêne français|French oak|forêts? gérées?|sustainabl|\bPEFC\b|\bFSC\b/i,
@@ -164,6 +165,9 @@ test("fiches : aucun mot interdit dans les titres, descriptions, accroches, sect
       for (const [champ, texte] of textes) {
         if (!texte) continue;
         for (const motif of MOTS_INTERDITS_FICHES) {
+          // Le Garde-corps forgé à volutes (decorsGC, décision de Quentin du 07/10/2026) : ses volutes sont des pièces du
+          // commerce en fer forgé, achetées puis soudées à l'atelier ; « fer forgé » y est vrai. Jamais « forgé à la main ».
+          if (motif === FER_FORGE && p.decorsGC) continue;
           assert.doesNotMatch(texte, motif, `${p.slug} (${locale}, ${champ}) : « ${texte} »`);
         }
         // « custom » est américain ou australien : en anglais britannique, « bespoke », « made to measure ».

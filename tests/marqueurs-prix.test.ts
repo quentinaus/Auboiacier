@@ -38,7 +38,8 @@ import { delaiFabrication } from "../src/lib/vitrine.ts";
 const LOCALES = ["fr", "en"] as const;
 const DICTIONNAIRES = { fr: frBrut, en: enBrut } as const;
 const tables = products.filter((p) => p.famille === "table-interieur" || p.famille === "table-exterieur");
-const gc = products.find(prixParOutil)!;
+// Le garde-corps de fenêtre Rosace : ses marqueurs sont ceux des textes (le forgé à volutes a son prix sur sa fiche).
+const gc = products.find((p) => prixParOutil(p) && !p.decorsGC)!;
 const outil = (locale: "fr" | "en") => valeursMarqueursOutil(locale, { prixDepart, prixAppelGC });
 
 for (const locale of LOCALES) {
@@ -48,6 +49,12 @@ for (const locale of LOCALES) {
     for (const p of products) {
       if (prixParOutil(p)) {
         assert.equal(valeurs[`{prix:${p.slug}}`], undefined, `${p.slug} : son prix vient de l'outil, sur le serveur`);
+        continue;
+      }
+      // Les portails : leur « à partir de » vient de l'outil des portails, sur le serveur (prix-portail.server.ts) ; aucun texte
+      // ne le cite par un marqueur.
+      if (p.famille === "portail") {
+        assert.equal(valeurs[`{prix:${p.slug}}`], undefined, `${p.slug} : son prix vient de l'outil des portails, sur le serveur`);
         continue;
       }
       // prixDepart (la porte du serveur) = priceFrom hors garde-corps : la même valeur.
@@ -123,7 +130,10 @@ test("le dictionnaire laisse passer les seuls marqueurs du garde-corps, pour la 
   const dict = remplacerMarqueurs({ t: `Dès {prixAppelGC} pour {largeurAppelGC} cm, {prix:${gc.slug}}` }, "fr");
   assert.doesNotThrow(() => verifierMarqueurs(dict, "test", { serveurPermis: true }));
   assert.throws(() => verifierMarqueurs(dict, "test"), MarqueurSansValeur);
-  assert.deepEqual([...marqueursDuServeur()].sort(), ["{largeurAppelGC}", "{prixAppelGC}", `{prix:${gc.slug}}`].sort());
+  // Chaque garde-corps chiffré par l'outil (Rosace et forgé à volutes) a son « à partir de » sur le serveur.
+  const departs = products.filter(prixParOutil).map((p) => `{prix:${p.slug}}`);
+  assert.ok(departs.includes(`{prix:${gc.slug}}`));
+  assert.deepEqual([...marqueursDuServeur()].sort(), ["{largeurAppelGC}", "{prixAppelGC}", ...departs].sort());
 });
 
 test("getDictionary refuse un marqueur sans valeur (le build échoue)", () => {

@@ -627,7 +627,7 @@ const SECTION_PLATEAU_EN = {
  * Rendue comme un tableau d'une pièce pour s'étaler dans le catalogue.
  */
 function portail(p: {
-  slug: string; name: string; tagline: string; seoMots: string; seoTitre: string; seoDescription: string;
+  slug: string; name: string; tagline: string; seoMots: string; seoTitre: string; seoDescription: string; h1Ligne: string;
   images: { src: string; alt: string }[]; sections: ProductSection[]; specs: ProductSpec[]; en: ProductEn;
 }): Product[] {
   return [{
@@ -1620,6 +1620,7 @@ const catalogue: Product[] = [
     seoMots: "portail battant",
     seoTitre: "Portail battant alu ou acier sur mesure",
     seoDescription: "Portail battant sur mesure en alu ou acier : lames, panneau, barreaux, chêne, rosaces ou volutes. Fabriqué et posé depuis Saumur.",
+    h1Ligne: "Portail battant sur mesure, en alu ou en acier",
     images: [
       { src: "/images/portails/portail-battant-lamesChene.jpg", alt: "Dessin d'un portail battant à deux vantaux, cadre alu gris anthracite et lames de chêne horizontales, entre deux piliers" },
       { src: "/images/portails/portail-battant-volutes.jpg", alt: "Dessin d'un portail battant en acier noir, haut en chapeau de gendarme, barreaux à pointes de lance et frise de volutes, soubassement plein" },
@@ -1641,6 +1642,7 @@ const catalogue: Product[] = [
       seoMots: "swing gate",
       seoTitre: "Aluminium or steel swing gate",
       seoDescription: "Made-to-measure swing gate in aluminium or steel: slats, panel, bars, oak, rosettes or scrolls. Made and fitted from Saumur, France.",
+      h1Ligne: "Made-to-measure swing gate, in aluminium or steel",
       images: [
         "Drawing of a two-leaf swing gate, anthracite aluminium frame with horizontal oak slats, between two pillars",
         "Drawing of a black steel swing gate with an arched top, spear-tipped bars and a frieze of scrolls, solid lower panel",
@@ -1665,6 +1667,7 @@ const catalogue: Product[] = [
     seoMots: "portail coulissant",
     seoTitre: "Portail coulissant alu sur mesure",
     seoDescription: "Portail coulissant sur mesure, sur rail ou sans rail au sol, en alu ou en acier. Fabriqué et posé depuis Saumur.",
+    h1Ligne: "Portail coulissant sur mesure, en alu ou en acier",
     images: [{ src: "/images/portails/portail-coulissant-plein.jpg", alt: "Dessin d'un portail coulissant alu gris anthracite à lames pleines, entre deux piliers" }],
     sections: [
       { title: "Quand il n'y a pas de place derrière", body: "Le portail glisse derrière la clôture. Il faut le long de celle-ci la longueur du portail, le passage plus 15 cm. Rien ne s'ouvre vers la maison et le vent ne le pousse pas." },
@@ -1683,6 +1686,7 @@ const catalogue: Product[] = [
       seoMots: "sliding gate",
       seoTitre: "Aluminium sliding gate, made to measure",
       seoDescription: "Made-to-measure sliding gate, on a rail or with no ground rail, in aluminium or steel. Made and fitted from Saumur, France.",
+      h1Ligne: "Made-to-measure sliding gate, in aluminium or steel",
       images: ["Drawing of an anthracite aluminium sliding gate with solid slats, between two pillars"],
       sections: [
         { title: "When there is no room behind", body: "The gate slides behind the fence. Along it you need the length of the gate, the opening plus 15 cm. Nothing opens towards the house and the wind does not push it." },
@@ -1704,6 +1708,7 @@ const catalogue: Product[] = [
     seoMots: "portail pliant",
     seoTitre: "Portail pliant sur mesure",
     seoDescription: "Portail pliant sur mesure, alu ou acier, pour les cours sans place derrière ni sur le côté. Fabriqué et posé depuis Saumur.",
+    h1Ligne: "Portail pliant sur mesure, en alu ou en acier",
     images: [{ src: "/images/portails/portail-pliant-barreaux.jpg", alt: "Dessin d'un portail pliant à quatre panneaux, barreaux alu gris anthracite, entre deux piliers" }],
     sections: [
       { title: "Ni place derrière, ni sur le côté", body: "Chaque vantail se plie en deux en s'ouvrant : il ne faut derrière qu'un quart du passage, 90 cm pour 3,50 m. La réponse pour les cours fermées, les maisons de ville et les allées courtes." },
@@ -1721,6 +1726,7 @@ const catalogue: Product[] = [
       seoMots: "folding gate",
       seoTitre: "Made-to-measure folding gate",
       seoDescription: "Made-to-measure folding gate in aluminium or steel, for courtyards with no room behind or alongside. Made and fitted from Saumur.",
+      h1Ligne: "Made-to-measure folding gate, in aluminium or steel",
       images: ["Drawing of a four-panel folding gate with anthracite aluminium bars, between two pillars"],
       sections: [
         { title: "No room behind, none on the side", body: "Each leaf folds in two as it opens: you only need a quarter of the opening behind, 90 cm for 3.50 m. The answer for enclosed courtyards, town houses and short drives." },
@@ -1741,6 +1747,7 @@ const catalogue: Product[] = [
     seoMots: "portillon",
     seoTitre: "Portillon alu ou acier sur mesure",
     seoDescription: "Portillon sur mesure en alu ou acier, assorti à votre portail. Fabriqué et posé depuis Saumur.",
+    h1Ligne: "Portillon sur mesure en alu ou en acier, assorti au portail",
     images: [{ src: "/images/portails/portillon-rosace.jpg", alt: "Dessin d'un portillon en acier noir, croix et rosace, soubassement plein et lisse en chêne, entre deux piliers" }],
     sections: [
       { title: "Assorti au portail", body: "Le même cadre, le même remplissage et la même couleur que votre portail. Posé en même temps, il partage la visite et le voyage : son prix baisse d'autant sur le devis." },
@@ -1756,6 +1763,7 @@ const catalogue: Product[] = [
       seoMots: "pedestrian gate",
       seoTitre: "Aluminium or steel pedestrian gate",
       seoDescription: "Made-to-measure pedestrian gate in aluminium or steel, matching your gate. Made and fitted from Saumur, France.",
+      h1Ligne: "Made-to-measure pedestrian gate in aluminium or steel, matching your gate",
       images: ["Drawing of a black steel pedestrian gate with a cross and rosette, solid lower panel and oak top rail, between two pillars"],
       sections: [
         { title: "Matching the gate", body: "The same frame, infill and colour as your gate. Fitted at the same time, it shares the survey visit and the trip: its price drops accordingly on the quote." },
@@ -2015,6 +2023,7 @@ const catalogue: Product[] = [
     ],
     seoDescription:
       "Garde-corps de fenêtre à volutes de ferronnerie, sur mesure à Saumur, aux normes de sécurité françaises.",
+    h1Ligne: "Garde-corps de fenêtre à volutes de ferronnerie, sur mesure",
     releve: "garde-corps-fenetre",
     category: "interieur",
     // Le même relevé, le même outil et le même panier que le garde-corps Rosace (voir sa fiche, plus haut) : seul le
@@ -2091,7 +2100,7 @@ const catalogue: Product[] = [
     en: {
       name: "Wrought Scroll Window Railing",
       seoMots: "wrought iron window railing",
-      seoTitre: "Custom wrought scroll window railing, Saumur",
+      seoTitre: "Bespoke wrought scroll window railing, Saumur",
       motsCles: [
         "custom wrought iron window railing",
         "scrollwork window railing France",
@@ -2101,6 +2110,7 @@ const catalogue: Product[] = [
       ],
       seoDescription:
         "Window railing with ironwork scrolls, made to measure in Saumur to French safety standards.",
+      h1Ligne: "Bespoke window railing with ironwork scrolls",
       tagline: "Solid steel window railing with ironwork scrolls: the design of old balconies, drawn to your measurements and checked against the standard.",
       images: [
         "Wrought window railing, front view: C-scrolls between the bars, black-painted steel, oak handrail, between two tufa stone reveals",

@@ -39,7 +39,7 @@ import { delaiFabrication } from "./vitrine.ts";
  * | {plateauLongueurMax} | plus long plateau d'un seul tenant, cm   | PLATEAU_MAX_LONGUEUR_MM (products.ts)      |
  * | {plateauLargeurMax}  | plus large plateau, cm                   | PLATEAU_MAX_LARGEUR_MM (products.ts)       |
  * | {prix:garde-corps}   | serveur seulement                        | prixDepart (prix-garde-corps.server.ts)    |
- * | {prixAppelGC}        | serveur seulement                        | prixAppelGC (prix-garde-corps.server.ts)   |
+ * | {prixAppelGC}        | serveur seulement (garde-corps Rosace)   | prixAppelGC (prix-garde-corps.server.ts)   |
  * | {largeurAppelGC}     | serveur seulement, cm                    | prixAppelGC (prix-garde-corps.server.ts)   |
  *
  * Les prix sont écrits par prixAffiche, à la mode de la langue (euro après
@@ -123,7 +123,9 @@ export function valeursMarqueursOutil(locale: Locale, calculs: CalculsOutil): Re
     if (!prixParOutil(product)) continue;
     const depart = calculs.prixDepart(product);
     if (depart !== null) valeurs[`{prix:${product.slug}}`] = prixAffiche(depart, locale);
-    const appel = calculs.prixAppelGC(product);
+    // Le prix d'appel des textes (« dès {prixAppelGC} pour une fenêtre de {largeurAppelGC} cm ») est celui du garde-corps
+    // de fenêtre Rosace ; le Garde-corps forgé à volutes (decorsGC) a le sien, sur sa fiche seulement.
+    const appel = product.decorsGC ? null : calculs.prixAppelGC(product);
     if (appel) {
       valeurs["{prixAppelGC}"] = prixAffiche(appel.prix, locale);
       valeurs["{largeurAppelGC}"] = nombre(appel.largeurMm / 10, locale);
