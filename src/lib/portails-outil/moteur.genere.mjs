@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 720e58fe44e922bd8de2fb1f.
+// Source : l'outil de plans (plans-atelier.html), sha256 00f207d0052533812c876322.
 /* eslint-disable */
 
 
@@ -2659,6 +2659,197 @@ function ptVueCote(c, C, haut, xa, pil, prP, massif, yV) {
   C.push({ t: "texte", p: [xl1, 0], txt: "propriété", pos: "sous", decal: 0.2 });
   C.push({ t: "texte", p: [(xl0 + xl1) / 2, 0], txt: `Coupe près du ${prP ? "poteau" : "pilier"} gauche (gauche et droite vus de la rue)`, pos: "sous", decal: 2.4, convention: true });
 }
+
+/* ---------- Plans A3 du portail (lot 6, 09/10/2026) : trois feuilles, comme on les imprime ----------
+ * ptFeuillesA3(R) : les feuilles à imprimer — "1" Fabrication (et "1bis" quand la liste de débit dépasse 28 lignes),
+ *   "2" Pose et maçonnerie (le plan que le client donne à son maçon), "3" Motorisation et électricité.
+ * ptPlanA3(R, v, infos, feuille, dessiner) : la feuille en SVG A3 paysage (420 × 297 mm). « dessiner » est svgDe de l'outil
+ *   (primitives → { vb, html }) : le module reste sans DOM. infos = { client, chantier, date "JJ/MM/AAAA", numero }.
+ * ptNumeroPlan(R, date, feuille) : PT-AAMMJJ-PxH-F1 (cahier des charges §4).
+ * Gauche et droite : toujours VUS DE LA RUE ; chaque feuille porte le petit plan RUE / PROPRIÉTÉ. */
+const PT_A3 = { W: 420, H: 297, m: 8, lignesF1: 28 };
+const PT_FEUILLES = { "1": "Fabrication", "1bis": "Fabrication (suite de la liste)", "2": "Pose et maçonnerie", "3": "Motorisation et électricité" };
+const PT_A3_STYLE = [
+  ".t-acier-plein,.t-rond{fill:#e9e4dc;stroke:#2b2320;stroke-width:1;vector-effect:non-scaling-stroke}",
+  ".t-acier{fill:none;stroke:#2b2320;stroke-width:1;vector-effect:non-scaling-stroke}.t-acier.t-volute{stroke:#2b2320;stroke-width:10;fill:none;stroke-linecap:round;vector-effect:none}",
+  ".t-bois{fill:#f3e6d4;stroke:#8a6237;stroke-width:1;vector-effect:non-scaling-stroke}",
+  ".t-mur{fill:#f1ede6;stroke:#9a8f84;stroke-width:1;vector-effect:non-scaling-stroke}.t-mur.t-pilier{fill:#e6ddcf}.t-mur.t-panneau{fill:#d9d4cc}",
+  ".t-cache{fill:none;stroke:#7d7368;stroke-width:0.8;stroke-dasharray:5 4;vector-effect:non-scaling-stroke}",
+  ".t-sol{stroke:#9a8f84;stroke-width:1;vector-effect:non-scaling-stroke}",
+  ".t-cote{fill:none;stroke:#1f4e79;stroke-width:0.7;vector-effect:non-scaling-stroke}.t-texte{fill:#1f4e79;font-family:Helvetica,Arial,sans-serif}.t-fleche{fill:#1f4e79}",
+  ".t-libre{fill:#5c5140;font-family:Helvetica,Arial,sans-serif}.t-point{fill:#1f4e79}",
+  ".t-bon{fill:rgba(63,107,58,0.10);stroke:#3f6b3a;stroke-width:1;stroke-dasharray:5 3;vector-effect:non-scaling-stroke}",
+  ".t-cote.ko{stroke:#b3261e}.t-texte.ko{fill:#b3261e;font-weight:700}.t-texte.bon{fill:#3f6b3a;font-weight:700}",
+  ".a3-t{font-family:Helvetica,Arial,sans-serif;fill:#2b2320}.a3-g{font-weight:700}.a3-l{stroke:#2b2320;fill:none}.a3-f{fill:#f7f4ef;stroke:#2b2320}",
+].join("");
+
+function ptNumeroPlan(R, date, feuille) {
+  const d = date instanceof Date ? date : new Date();
+  const z = (n) => String(n).padStart(2, "0");
+  const c = R && R.config ? R.config : { P: 0, H: 0 };
+  return `PT-${z(d.getFullYear() % 100)}${z(d.getMonth() + 1)}${z(d.getDate())}-${Math.round(c.P)}x${Math.round(c.H)}${feuille ? `-F${feuille}` : ""}`;
+}
+
+function ptFeuillesA3(R) {
+  const n = ptLignesDebitA3(R).length;
+  return n > PT_A3.lignesF1 ? ["1", "1bis", "2", "3"] : ["1", "2", "3"];
+}
+
+// La liste de débit en lignes imprimables (une ligne par pièce, groupées par matière).
+function ptLignesDebitA3(R) {
+  const L = [];
+  const mats = [...new Set(R.debit.map((d) => d.mat))];
+  for (const mat of mats) {
+    L.push({ titre: mat });
+    for (const d of R.debit.filter((x) => x.mat === mat)) L.push({ txt: `${d.qte} × ${d.long ? `${ptMm(d.long)} mm` : "—"}  ${d.nom}${d.coupes && d.coupes !== "Coupes droites" ? ` · ${d.coupes}` : ""}` });
+  }
+  return L;
+}
+
+// Un texte coupé en lignes d'au plus n signes (les mots ne sont jamais coupés).
+function ptCouper(t, n) {
+  const sortie = [];
+  let l = "";
+  for (const mot of String(t).split(/\s+/)) {
+    if (l && (l + " " + mot).length > n) { sortie.push(l); l = mot; } else l = l ? `${l} ${mot}` : mot;
+  }
+  if (l) sortie.push(l);
+  return sortie;
+}
+
+function ptPlanA3(R, v, infos = {}, feuille = "1", dessiner) {
+  const { W, H, m } = PT_A3;
+  const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const c = R.config, f = String(feuille);
+  const out = [];
+  const texte = (x, y, t, taille = 2.6, extra = "") => out.push(`<text class="a3-t${extra.includes("g") ? " a3-g" : ""}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${taille}"${extra.includes("m") ? ' text-anchor="middle"' : extra.includes("e") ? ' text-anchor="end"' : ""}>${esc(t)}</text>`);
+  const cadre = (x, y, w, h, fond = false) => out.push(`<rect class="${fond ? "a3-f" : "a3-l"}" x="${x}" y="${y}" width="${w}" height="${h}" stroke-width="0.3"/>`);
+  // Un bloc de lignes de texte (titre gras, puis puces), coupé à la largeur ; rend la hauteur utilisée.
+  const bloc = (x, y, w, titre, lignes, taille = 2.3, maxH = 999) => {
+    let yy = y + 4;
+    texte(x + 2, yy, titre, 2.8, "g");
+    yy += 4;
+    const n = Math.max(20, Math.floor((w - 6) / (taille * 0.5)));
+    for (const l of lignes) {
+      const morceaux = ptCouper(l, n);
+      for (let i = 0; i < morceaux.length; i++) {
+        if (yy > y + maxH - 2) { texte(x + 2, yy, "…", taille); return yy - y + 2; }
+        texte(x + 2, yy, `${i === 0 ? "• " : "  "}${morceaux[i]}`, taille);
+        yy += taille * 1.35;
+      }
+    }
+    return yy - y + 1;
+  };
+  // Une vue de l'outil posée dans un cadre de la feuille (même dessin que l'écran, cotes en mm).
+  const vue = (prims, x, y, w, h, titre, sous) => {
+    texte(x, y + 3.5, titre, 3, "g");
+    if (sous) texte(x, y + 7, sous, 2.2);
+    if (!prims || !prims.length || typeof dessiner !== "function") return;
+    const r = dessiner(prims, false);
+    const top = y + (sous ? 9 : 6);
+    out.push(`<svg x="${x}" y="${top}" width="${w}" height="${h - (top - y)}" viewBox="${r.vb.map((n) => n.toFixed(1)).join(" ")}" preserveAspectRatio="xMidYMid meet">${r.html}</svg>`);
+  };
+
+  // Le cadre, le titre, le cartouche, le petit plan RUE / PROPRIÉTÉ.
+  out.push(`<rect x="${m}" y="${m}" width="${W - 2 * m}" height="${H - 2 * m}" fill="#fff" stroke="#2b2320" stroke-width="0.5"/>`);
+  const nomModele = (PT_MODELES[c.modele] || { nom: "Portail" }).nom;
+  texte(m + 4, m + 8, `${nomModele} ${ptMm(c.P)} × ${ptMm(c.H)} mm — Feuille ${f === "1bis" ? "1 bis" : f} : ${PT_FEUILLES[f] || ""}`, 4.2, "g");
+  const cw = 104, ch = 34, cx = W - m - cw, cy = H - m - ch;
+  cadre(cx, cy, cw, ch, true);
+  texte(cx + 3, cy + 6, "AUBOIACIER", 4.6, "g");
+  texte(cx + 3, cy + 9.5, "Métallerie · fait main à Saumur", 2);
+  // Le numéro du plan : PT-AAMMJJ-PxH-F1, du jour de la feuille (infos.date « JJ/MM/AAAA » si elle est donnée).
+  const jma = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(infos.date || ""));
+  const num = ptNumeroPlan(R, jma ? new Date(+jma[3], +jma[2] - 1, +jma[1]) : new Date(), f);
+  [["Client", infos.client || "—"], ["Chantier", infos.chantier || "—"], ["Date", infos.date || "—"], ["N° de plan", num], ["Cotes", "en mm · gauche et droite vus de la rue"]].forEach(([k, val], i) => {
+    texte(cx + 3, cy + 14 + i * 4.1, `${k} :`, 2.2, "g");
+    texte(cx + 24, cy + 14 + i * 4.1, val, 2.2);
+  });
+  // Petit plan RUE / PROPRIÉTÉ (en haut à droite) : la convention de toutes les feuilles.
+  const px = W - m - 52, py = m + 3;
+  cadre(px, py, 48, 18, true);
+  texte(px + 24, py + 5, "PROPRIÉTÉ", 2.4, "gm");
+  out.push(`<line x1="${px + 6}" y1="${py + 9}" x2="${px + 42}" y2="${py + 9}" stroke="#2b2320" stroke-width="0.8"/>`);
+  out.push(`<rect x="${px + 4}" y="${py + 7.5}" width="3" height="3" fill="#e6ddcf" stroke="#2b2320" stroke-width="0.2"/><rect x="${px + 41}" y="${py + 7.5}" width="3" height="3" fill="#e6ddcf" stroke="#2b2320" stroke-width="0.2"/>`);
+  texte(px + 6, py + 13.5, "G", 2.4, "g"); texte(px + 42, py + 13.5, "D", 2.4, "ge");
+  texte(px + 24, py + 16.5, "RUE (vous êtes ici)", 2.2, "m");
+
+  const zoneY = m + 13, zoneB = cy - 3;
+  if (f === "1" || f === "1bis") {
+    const lignes = ptLignesDebitA3(R);
+    // La coupure entre la feuille 1 et la 1 bis : jamais un titre de matière seul en bas de la feuille 1.
+    let coupe = Math.min(lignes.length, PT_A3.lignesF1);
+    if (coupe < lignes.length && lignes[coupe - 1].titre) coupe--;
+    const debut = f === "1" ? 0 : coupe, fin = f === "1" ? coupe : lignes.length;
+    const lx = W - m - 112;
+    if (f === "1") {
+      vue(R.vues.face, m + 4, zoneY, lx - m - 12, 128, "VUE DE FACE", "vue de la rue · cotes en mm");
+      vue(R.vues.cote, m + 4, zoneY + 132, 70, zoneB - zoneY - 132, "COUPE", "");
+      vue(R.vues.dessus, m + 80, zoneY + 132, lx - m - 88, zoneB - zoneY - 132, "VUE DE DESSUS", "ouverture côté propriété");
+    }
+    // La liste de débit (à droite), puis la fabrication.
+    // La liste commence sous le petit plan RUE / PROPRIÉTÉ.
+    const ly = zoneY + 11, hListe = f === "1" ? 140 : zoneB - ly;
+    cadre(lx, ly, 108, hListe);
+    texte(lx + 2, ly + 4.5, `LISTE DE DÉBIT${f === "1bis" ? " (suite)" : ""}`, 2.8, "g");
+    let yy = ly + 9;
+    const court = (t, n) => (t.length > n ? `${t.slice(0, n - 1)}…` : t);
+    for (const l of lignes.slice(debut, fin)) {
+      if (l.titre) { texte(lx + 2, yy + 0.5, court(l.titre, 62), 2.4, "g"); yy += 4.4; } else { texte(lx + 4, yy, court(l.txt, 72), 2.2); yy += 3.3; }
+    }
+    if (f === "1" && lignes.length > PT_A3.lignesF1) texte(lx + 2, ly + hListe - 2, `Suite sur la feuille 1 bis (${lignes.length - coupe} lignes)`, 2.2, "g");
+    if (f === "1") {
+      const J = R.jeux || {};
+      const acier = c.mat === "acier", chene = R.debit.some((d) => /chêne/i.test(d.mat));
+      const fab = [
+        `Jeux : ${J.gonds ? `${J.gonds} mm côté gonds, ` : ""}${J.centre ? `${J.centre} mm au centre, ` : ""}${J.serrure ? `${J.serrure} mm côté serrure` : ""}`.replace(/, $/, ""),
+        acier ? "Traitement : galvanisation à chaud puis thermolaquage (duplex) ; préparation du zinc exigée du laqueur, garantie écrite." : "Traitement : thermolaquage de l'alu (préparation et garantie écrites par le laqueur).",
+        chene ? "Chêne : visserie inox A4, saturateur ; entretien annuel décrit dans la notice (sans lui, pas de garantie sur le bois)." : null,
+        acier ? "Trous d'évent et d'écoulement avant la galvanisation (tubes fermés interdits)." : null,
+        `Poids ≈ ${ptMm(R.poids)} kg${R.decor ? " · décor soudé, aucun collier" : ""}.`,
+      ].filter(Boolean);
+      bloc(lx, ly + hListe + 2, 108, "FABRICATION", fab, 2.2, zoneB - ly - hListe - 2);
+    }
+  } else if (f === "2") {
+    const P = R.pose || { ouvrages: [], prerequis: [], controle: [], notes: [] };
+    const gw = 236;
+    vue(R.vues.pose, m + 4, zoneY, gw, 112, "PLAN DE POSE (VUE DE DESSUS)", "ce que fait votre maçon, ce que nous faisons");
+    vue(R.vues.poseCoupe, m + 4, zoneY + 114, gw / 2 - 2, zoneB - zoneY - 114, "COUPE DE MAÇONNERIE", "");
+    vue(R.vues.poseElev, m + 4 + gw / 2, zoneY + 114, gw / 2, zoneB - zoneY - 114, "ÉLÉVATION", "");
+    // À droite : les ouvrages (qui fait quoi, cotes, délais), puis l'encart « À préparer avant la pose ».
+    const rx = m + gw + 10, rw = W - m - rx - 2;
+    let yy = zoneY + 22;
+    const ouvr = P.ouvrages.map((o) => `${o.rep}. ${o.nom}${o.qte ? ` (${o.qte})` : ""} — ${o.quiFait}${o.cotes ? ` : ${o.cotes}` : ""}${o.delai ? ` · ${o.delai}` : ""}`);
+    yy += bloc(rx, yy, rw, "OUVRAGES : QUI FAIT QUOI", ouvr, 2.1, 70);
+    yy += bloc(rx, yy, rw, "À PRÉPARER AVANT LA POSE", P.prerequis, 2.1, 48);
+    yy += bloc(rx, yy, rw, "NOUS CONTRÔLONS LES SUPPORTS", ["Cotes à ± 10 mm, niveau et aplomb des massifs et des piliers", ...P.controle.slice(0, 3)], 2.1, 32);
+    const rest = cy - 3 - yy - 30;
+    if (rest > 12) yy += bloc(rx, yy, rw, "À SAVOIR", P.notes.filter((n) => /DT-DICT|7 jours|béton/i.test(n)), 2.1, rest);
+    // Le PV de réception (signé avec ou sans réserves, le solde est dû à la réception).
+    const vy = cy - 30, vx = m + gw + 10;
+    cadre(vx, vy, W - m - vx - 2, 27);
+    texte(vx + 2, vy + 4.5, "PROCÈS-VERBAL DE RÉCEPTION", 2.8, "g");
+    texte(vx + 2, vy + 9, "Le ___ / ___ / ______ , le portail est reçu :  ☐ sans réserve   ☐ avec les réserves suivantes :", 2.1);
+    out.push(`<line x1="${vx + 2}" y1="${vy + 14}" x2="${W - m - 4}" y2="${vy + 14}" stroke="#9a8f84" stroke-width="0.2"/>`);
+    texte(vx + 2, vy + 19, "Le client (signature)", 2.1);
+    texte(vx + (W - m - vx) / 2, vy + 19, "Auboiacier (signature)", 2.1);
+    texte(vx + 2, vy + 25, "Le solde est dû à la réception.", 2, "g");
+  } else if (f === "3") {
+    const P = R.pose || { reservations: [], electricite: [], essais: [] };
+    const M = R.moteurs && R.moteurs.choisi ? R.moteurs.choisi : null;
+    const gw = 236;
+    vue(R.vues.face, m + 4, zoneY, gw, 100, "VUE DE FACE", "vue de la rue");
+    vue(R.vues.pose && R.vues.pose.length ? R.vues.pose : R.vues.dessus, m + 4, zoneY + 104, gw, zoneB - zoneY - 104, "VUE DE DESSUS", "moteurs, armoire et gaines (côté du courant)");
+    const rx = m + gw + 10, rw = W - m - rx - 2;
+    let yy = zoneY + 22;
+    const tete = M ? [`${M.nom}${M.ref ? ` (${M.ref})` : ""}`, M.contenu || "", `Garantie ${M.garantie || "—"} ans`] : ["Sans moteur : ouverture à la main. Les attentes (gaine, fourreau) peuvent être posées pour un moteur plus tard."];
+    yy += bloc(rx, yy, rw, "MOTORISATION", tete.filter(Boolean), 2.2, 34);
+    if (P.reservations && P.reservations.length) yy += bloc(rx, yy, rw, "RÉSERVATIONS ET GAINES", P.reservations.map((r) => `${r.nom} — ${r.quiFait}${r.detail ? ` : ${r.detail}` : ""}`), 2.1, 60);
+    if (M && P.electricite && P.electricite.length) yy += bloc(rx, yy, rw, "ÉLECTRICITÉ", P.electricite, 2.1, 56);
+    if (M && P.essais && P.essais.length) bloc(rx, yy, rw, "ESSAIS À LA MISE EN SERVICE", P.essais, 2.1, cy - 3 - yy);
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${H}mm" viewBox="0 0 ${W} ${H}"><style>${PT_A3_STYLE}</style>${out.join("")}</svg>`;
+}
   function bornes(prims) {
     let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
     const add = ([x, y]) => { x1 = Math.min(x1, x); x2 = Math.max(x2, x); y1 = Math.min(y1, y); y2 = Math.max(y2, y); };
@@ -2740,4 +2931,4 @@ function ptVueCote(c, C, haut, xa, pil, prP, massif, yV) {
 
 
 export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, PT_MOTEURS, MT_AVEC, MT_NOMS };
-export const EMPREINTE = "266e9946f10d";
+export const EMPREINTE = "27152a114c96";
