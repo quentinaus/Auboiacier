@@ -2,8 +2,8 @@
  * LES IMAGES DU SITE : VRAIES PHOTOS OU IMAGES D'ILLUSTRATION.
  *
  * L'atelier n'a pas encore de chantier client à montrer (commandes ouvertes le 7 décembre 2026). Les images des
- * pièces sont donc des visuels faits par ordinateur. Quatre vraies photos font exception : la vidéo du torse (sa
- * photo d'ouverture) et deux photos de la pose d'une verrière — du travail de Quentin réalisé AVANT l'ouverture de
+ * pièces sont donc des visuels faits par ordinateur. Quelques vraies photos font exception : la vidéo du torse (sa
+ * photo d'ouverture), deux photos de la pose d'une verrière, des plafonds lumineux et un escalier en fabrication — du travail de Quentin réalisé AVANT l'ouverture de
  * l'atelier (chez un ancien employeur ou à titre personnel) : la page « Projets et visuels » le dit, et ne les
  * présente jamais comme des chantiers d'Auboiacier ; et Quentin au travail, qui meule un châssis (atelier-soudeur) —
  * un portrait de lui, ni une pièce ni un chantier d'Auboiacier : son texte alternatif le nomme. Décision de Quentin, 06/10/2026 : chaque visuel porte,
@@ -26,6 +26,12 @@ export const VRAIES_PHOTOS: readonly string[] = [
   "/images/verriere-pose-chantier-4.jpg",
   // Quentin au travail (confirmé par lui le 06/10/2026) : un portrait, pas une pièce d'Auboiacier.
   "/images/atelier-soudeur.jpg",
+  // Ses plafonds lumineux et un escalier en fabrication (photos et vidéos de Quentin, « mes propres pièces », 09/10/2026).
+  "/images/atelier/plafond-caisson-led.jpg",
+  "/images/atelier/plafond-caisson-led-poster.jpg",
+  "/images/atelier/plafond-profiles-alu.jpg",
+  "/images/atelier/plafond-toile-allumee.jpg",
+  "/images/atelier/escalier-atelier-poster.jpg",
 ];
 
 /**

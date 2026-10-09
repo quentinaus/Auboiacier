@@ -30,7 +30,11 @@ export type CleLegende =
   | "altSculptureCheval"
   | "altSculptureTorse"
   | "altVerrierePose"
-  | "altVerrierePoseDetail";
+  | "altVerrierePoseDetail"
+  | "altPlafondCaissonLed"
+  | "altPlafondProfiles"
+  | "altPlafondToileAllumee"
+  | "altEscalierAtelier";
 
 /**
  * Images publiées. Chacune porte sa famille et la clé de sa légende dans le
@@ -84,6 +88,12 @@ export const photos: {
     famille: "escalier",
     lien: "escalier-limon-central",
   },
+  // Un escalier en fabrication (vraie vidéo de Quentin, avant l'ouverture de l'atelier).
+  { src: "/images/atelier/escalier-atelier-poster.jpg", video: "/videos/escalier-atelier.mp4", alt: "altEscalierAtelier", famille: "escalier", lien: "escalier-limon-central" },
+  // Des plafonds lumineux en fabrication (vraies photos et vidéo de Quentin, avant l'ouverture de l'atelier).
+  { src: "/images/atelier/plafond-caisson-led-poster.jpg", video: "/videos/plafond-caisson-led.mp4", alt: "altPlafondCaissonLed", famille: "plafond", lien: "plafond-lumineux-lucarne" },
+  { src: "/images/atelier/plafond-profiles-alu.jpg", alt: "altPlafondProfiles", famille: "plafond", lien: "plafond-lumineux-lucarne", portrait: true },
+  { src: "/images/atelier/plafond-toile-allumee.jpg", alt: "altPlafondToileAllumee", famille: "plafond", lien: "plafond-lumineux-lucarne", portrait: true },
   {
     src: "/images/salle-plafond-mikado.jpg",
     alt: "altSalle",

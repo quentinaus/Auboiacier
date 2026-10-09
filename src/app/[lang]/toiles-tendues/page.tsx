@@ -16,6 +16,7 @@ import { FaqVisible } from "@/components/faq-visible";
 import { delaiFabrication, remplir } from "@/lib/vitrine";
 import { questionsPlafonds } from "@/lib/faq-balisees";
 import { Apparition } from "@/components/apparition";
+import { VideoBoucle } from "@/components/video-boucle";
 
 /**
  * Les titres en grand : la ponctuation haute (« ? », « : »…) et l'unité d'une
@@ -332,8 +333,42 @@ export default async function ToilesTenduesPage({
         </div>
       </section>
 
-      {/* Ce que ça change */}
+      {/* En fabrication : de vraies photos et une vidéo de plafonds fabriqués par Quentin, avant l'ouverture de l'atelier
+          (09/10/2026). Jamais présentés comme des chantiers d'Auboiacier : le texte le dit. */}
       <section className="bg-[#f5f1ea] py-16 md:py-28">
+        <div className="mx-auto max-w-6xl px-6">
+          <Apparition className="max-w-2xl">
+            <h2 className={titreSection}>{dict.lumiere.fabricationTitre}</h2>
+            <p className="mt-5 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{dict.lumiere.fabricationTexte}</p>
+          </Apparition>
+          <div className="mt-10 grid gap-5 md:mt-14 md:grid-cols-3">
+            <Apparition>
+              <VideoBoucle
+                locale={locale}
+                src="/videos/plafond-caisson-led.mp4"
+                poster="/images/atelier/plafond-caisson-led-poster.jpg"
+                description={dict.realisations.altPlafondCaissonLed}
+                libellePause={dict.sculptures.videoPause}
+                libelleLecture={dict.sculptures.videoPlay}
+                className="aspect-[4/5] w-full rounded-[22px] bg-[#e5ddd3]"
+              />
+            </Apparition>
+            {[
+              { src: "/images/atelier/plafond-profiles-alu.jpg", alt: dict.realisations.altPlafondProfiles },
+              { src: "/images/atelier/plafond-toile-allumee.jpg", alt: dict.realisations.altPlafondToileAllumee },
+            ].map((photo, i) => (
+              <Apparition key={photo.src} retard={(i + 1) * 110}>
+                <div className="relative aspect-[4/5] overflow-hidden rounded-[22px]">
+                  <Visuel locale={locale} src={photo.src} alt={photo.alt} fill sizes="(max-width: 768px) 100vw, 380px" className="object-cover" />
+                </div>
+              </Apparition>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Ce que ça change */}
+      <section className="bg-[#ffffff] py-16 md:py-28">
         <div className="mx-auto grid max-w-6xl gap-12 px-6 md:grid-cols-3 md:gap-8 lg:gap-10">
           {t.pourquoi.map((item, index) => (
             <Apparition key={item.title} retard={(index % 4) * 110}>
@@ -348,7 +383,7 @@ export default async function ToilesTenduesPage({
       {/* Questions fréquentes, affichées ET balisées depuis la même liste. Le
           composant garde son dessin ; la page agrandit seulement son titre et
           ses textes, comme les autres sections. */}
-      <section className="bg-[#ffffff] py-16 md:py-28">
+      <section className="bg-[#f5f1ea] py-16 md:py-28">
         <Apparition className="mx-auto max-w-6xl px-6">
           <FaqVisible
             titre={tl.faqTitle}
