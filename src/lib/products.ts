@@ -899,7 +899,7 @@ const catalogue: Product[] = [
       { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, finition peinte mate" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "Partout en France, par transporteur, 90 € au maximum ; ou livrée et posée par l'atelier" },
+      { label: "Livraison", value: "Partout en France métropolitaine, par transporteur, 90 € au maximum ; ou livrée et posée par l'atelier" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -1064,10 +1064,10 @@ const catalogue: Product[] = [
     ],
     specs: [
       { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 28, 36 ou 45 mm (45 mm au catalogue), finition huile-cire" },
-      { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, finition peinte mate" },
+      { label: "Piétement", value: "Deux X en tube d'acier 80 × 80 mm, paroi 3 mm, chacun soudé d'une seule pièce et vissé sous le plateau par une platine en T encastrée, finition peinte mate" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "Partout en France, par transporteur, 90 € au maximum ; ou livrée et posée par l'atelier" },
+      { label: "Livraison", value: "Partout en France métropolitaine, par transporteur, 90 € au maximum ; ou livrée et posée par l'atelier" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -1108,7 +1108,7 @@ const catalogue: Product[] = [
       ],
       specs: [
         { label: "Top", value: "Solid pine, beech, oak or walnut, 28, 36 or 45 mm thick (45 mm for catalogue sizes), hardwax oil finish" },
-        { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, matt painted finish" },
+        { label: "Base", value: "Two X frames in 80 × 80 mm steel tube, 3 mm wall, each welded in one piece and screwed under the top through a recessed T-plate, matt painted finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
         { label: "Delivery", value: "Anywhere in mainland France by carrier, €90 at most; or delivered and fitted by the workshop" },
@@ -1128,11 +1128,11 @@ const catalogue: Product[] = [
     category: "interieur",
     orderMode: "cart",
     name: "Table Brindille",
-    tagline: "Un bouquet de tiges d'acier cintrées une à une, sous un plateau qui semble flotter.",
+    tagline: "Un bouquet de tiges d'acier droites, sous un plateau qui semble flotter.",
     images: [
       {
         src: "/images/table-brindille.jpg",
-        alt: "Table Brindille : plateau en chêne massif sur un bouquet de tiges d'acier cintrées, vue de face",
+        alt: "Table Brindille : plateau en chêne massif sur un bouquet de tiges d'acier, vue de face",
         bg: "#ffffff",
         fit: "contain",
       },
@@ -1199,10 +1199,10 @@ const catalogue: Product[] = [
     ],
     specs: [
       { label: "Plateau", value: "Pin, hêtre, chêne ou noyer massif, épaisseur 28, 36 ou 45 mm (45 mm au catalogue), finition huile-cire" },
-      { label: "Piétement", value: "Tiges d'acier soudées une à une, finition peinte mate" },
+      { label: "Piétement", value: "Tiges droites en acier rond plein (Ø 12 à 16 mm selon la taille), soudées une à une, finition peinte mate" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "Partout en France, par transporteur, 90 € au maximum ; ou livrée et posée par l'atelier" },
+      { label: "Livraison", value: "Partout en France métropolitaine, par transporteur, 90 € au maximum ; ou livrée et posée par l'atelier" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -1212,9 +1212,9 @@ const catalogue: Product[] = [
       seoDescription:
         "Bespoke designer dining table, handmade in Saumur, France: straight steel rods welded one by one, under a solid top that seems to float.",
       h1Ligne: "Designer table in solid wood, steel rods welded one by one",
-      tagline: "A bunch of steel rods bent one by one, under a top that seems to float.",
+      tagline: "A bunch of straight steel rods under a top that seems to float.",
       images: [
-        "Brindille table: solid oak top on a bunch of bent steel rods, front view",
+        "Brindille table: solid oak top on a bunch of steel rods, front view",
         "Brindille table in a living room, under a backlit stretch-fabric light ceiling",
       ],
       sizes: {
@@ -1241,7 +1241,7 @@ const catalogue: Product[] = [
       ],
       specs: [
         { label: "Top", value: "Solid pine, beech, oak or walnut, 28, 36 or 45 mm thick (45 mm for catalogue sizes), hardwax oil finish" },
-        { label: "Base", value: "Steel rods welded one by one, matt painted finish" },
+        { label: "Base", value: "Straight solid round steel rods (12 to 16 mm diameter depending on size), welded one by one, matt painted finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
         { label: "Delivery", value: "Anywhere in mainland France by carrier, €90 at most; or delivered and fitted by the workshop" },
@@ -1428,12 +1428,12 @@ const catalogue: Product[] = [
       },
     ],
     specs: [
-      { label: "Plateau", value: "Chêne massif, traversé d'une rivière de résine époxy coulée à l'atelier" },
+      { label: "Plateau", value: "Chêne massif de récupération, traversé d'une rivière de résine époxy coulée à l'atelier" },
       { label: "Résine", value: "Quatre teintes : rouge, or nacré, turquoise, bleu et paillettes d'or" },
       { label: "Piétement", value: "Piétement Mikado : tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, peint mat — six teintes au choix" },
       { label: "Dimensions", value: "6 à 14 places, de 150 × 90 à 350 × 110 cm (H 75 cm), ou sur mesure jusqu'à 450 × 125 cm" },
       { label: "Fabrication", value: "Sur commande — délai confirmé avec le devis" },
-      { label: "Livraison", value: "Partout en France, par transporteur, 90 € au maximum ; ou livrée et posée par l'atelier" },
+      { label: "Livraison", value: "Partout en France métropolitaine, par transporteur, 90 € au maximum ; ou livrée et posée par l'atelier" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -1474,7 +1474,7 @@ const catalogue: Product[] = [
         },
       ],
       specs: [
-        { label: "Top", value: "Solid oak with a river of epoxy resin poured in the workshop" },
+        { label: "Top", value: "Reclaimed solid oak with a river of epoxy resin poured in the workshop" },
         { label: "Resin", value: "Four colours: red, pearl gold, turquoise, blue with gold flakes" },
         { label: "Base", value: "Mikado base: 80 × 80 mm steel tube, 3 mm wall, welded in one piece, matt paint — six colours to choose from" },
         { label: "Dimensions", value: "Seats 6 to 14, from 150 × 90 to 350 × 110 cm (H 75 cm), or made to measure up to 450 × 125 cm" },
@@ -1533,11 +1533,11 @@ const catalogue: Product[] = [
     sections: [
       {
         title: "Une seule ligne, du sol à l'étage",
-        body: "Le limon central est cintré d'une pièce, puis soudé à l'atelier. L'escalier ne montre aucun raccord : une seule courbe porte les marches en porte-à-faux. C'est la pièce la plus exigeante que nous fabriquions.",
+        body: "Le limon central est un tube d'acier de forte section, coupé et soudé à l'atelier. Sous chaque marche, un support coupé dans le même tube est soudé au limon, avec une platine sur laquelle la marche se pose : les marches débordent de chaque côté du limon. C'est la pièce la plus exigeante que nous fabriquions.",
       },
       {
         title: "Des marches qui semblent flotter",
-        body: "Chaque marche en bois massif de 50 mm est fixée sur des platines cachées sous la marche. Le garde-corps à câbles inox et la main courante en bois cintré laissent passer la lumière.",
+        body: "Chaque marche en bois massif de 50 mm est fixée sur des platines cachées sous la marche. Le garde-corps de l'image est un exemple : le vôtre, avec sa main courante en bois, est dessiné au devis, selon la norme.",
       },
       {
         // Le guide de l'escalier garde « Droit, quart tournant ou demi-tournant » et les prix par forme : la fiche y renvoie.
@@ -1553,11 +1553,11 @@ const catalogue: Product[] = [
       },
     ],
     specs: [
-      { label: "Limon", value: "Tube d'acier de forte section, cintré, soudure TIG, finition peinte mate" },
+      { label: "Limon", value: "Tube d'acier de forte section, supports et platines soudés, soudure TIG ; finition peinte mate, ou acier brut verni" },
       { label: "Marches", value: "Pin, hêtre, chêne ou noyer massif au choix, épaisseur 50 mm, finition huile-cire" },
-      { label: "Garde-corps", value: "Câbles inox tendus, main courante bois cintré" },
+      { label: "Garde-corps", value: "Main courante en bois ; remplissage du garde-corps choisi au devis" },
       { label: "Hauteur", value: "Sur mesure, adaptée à votre trémie (prise de cotes à domicile)" },
-      { label: "Normes", value: "Garde-corps aux normes de sécurité françaises (NF P01-012)" },
+      { label: "Normes", value: "Garde-corps dessiné selon la norme NF P01-012 (2024) : modèle et écartement fixés au devis" },
       { label: "Fabrication", value: "Sur commande — comptez 10 à 12 semaines" },
       { label: "Pose", value: "Comprise jusqu'à 45 km de Saumur, par nos soins, en 1 à 2 jours ; au-delà, la route s'ajoute au devis" },
     ],
@@ -1582,11 +1582,11 @@ const catalogue: Product[] = [
       sections: [
         {
           title: "One single line, from floor to landing",
-          body: "The central stringer is curved in one piece, then welded in the workshop. The staircase shows no joint: a single curve carries the cantilevered treads. It is the most demanding piece we make.",
+          body: "The central stringer is a heavy-section steel tube, cut and welded in the workshop. Under each tread, a support cut from the same tube is welded to the stringer, with a plate the tread sits on: the treads overhang on both sides of the stringer. It is the most demanding piece we make.",
         },
         {
           title: "Treads that seem to float",
-          body: "Each 50 mm solid wood tread is fixed on plates hidden under the tread. The stainless steel cable balustrade and the curved timber handrail let the light through.",
+          body: "Each 50 mm solid wood tread is fixed on plates hidden under the tread. The balustrade in the image is an example: yours, with its wooden handrail, is drawn up in the quote, following the standard.",
         },
         {
           title: "Three shapes, to suit your stairwell",
@@ -1598,11 +1598,11 @@ const catalogue: Product[] = [
         },
       ],
       specs: [
-        { label: "Stringer", value: "Heavy-section steel tube, bent, TIG welded, matt painted finish" },
+        { label: "Stringer", value: "Heavy-section steel tube, welded supports and plates, TIG welded; matt painted finish, or varnished raw steel" },
         { label: "Treads", value: "Pine, beech, oak or walnut to choose from, 50 mm thick, oil-wax finish" },
-        { label: "Balustrade", value: "Tensioned stainless steel cables, bent timber handrail" },
+        { label: "Balustrade", value: "Wooden handrail; balustrade infill chosen in the quote" },
         { label: "Height", value: "Made to measure, fitted to your stairwell opening (measuring visit at your home)" },
-        { label: "Standards", value: "Balustrade to French safety standards (NF P01-012)" },
+        { label: "Standards", value: "Balustrade designed to standard NF P01-012 (2024): design and spacing set in the quote" },
         { label: "Lead time", value: "Made to order — allow 10 to 12 weeks" },
         { label: "Fitting", value: "Included within 45 km of Saumur, by us, in one or two days; beyond that, travel is added to the quote" },
       ],
@@ -1818,7 +1818,7 @@ const catalogue: Product[] = [
     orderMode: "cart",
     priseDeCotes: true,
     name: "Garde-corps de fenêtre Rosace",
-    tagline: "Garde-corps artisanal sur mesure, en acier plein : croix de Saint-André à rosaces de fonderie, ou barreaux verticaux ; main courante en bois ou en acier. Fabriqué au millimètre, encastré dans votre fenêtre.",
+    tagline: "Garde-corps artisanal sur mesure, en acier plein : croix de Saint-André à rosaces, ou barreaux verticaux ; main courante en bois ou en acier. Fabriqué au millimètre, encastré dans votre fenêtre.",
     images: [
       {
         src: "/images/garde-corps/fenetre.jpg",
@@ -1922,8 +1922,8 @@ const catalogue: Product[] = [
     ],
     sections: [
       {
-        title: "Un cadre en acier plein, une rosace de fonderie",
-        body: "Le cadre et les croisillons sont en acier plein, soudés puis peints à l'atelier. Au croisement, une rosace de fonderie, comme sur les balcons anciens de Saumur. Quatre modèles sont proposés, en aluminium moulé, en fonte ou en acier ; vous choisissez le vôtre à la commande.",
+        title: "Un cadre en acier plein, une rosace au choix",
+        body: "Le cadre et les croisillons sont en acier plein, soudés à l'atelier, puis peints ou vernis. Au croisement, une rosace, comme sur les balcons anciens de Saumur. Trois modèles sont proposés, en aluminium moulé, en fonte ou en acier — ou pas de rosace du tout ; vous choisissez le vôtre à la commande.",
       },
       {
         title: "Une main courante en bois ou en acier",
@@ -1935,12 +1935,12 @@ const catalogue: Product[] = [
       },
       {
         title: "Une hauteur calculée selon la règle",
-        body: "En étage, une fenêtre dont l'appui est à moins de 90 cm du sol doit être protégée : c'est le Code de la construction. Le haut de la main courante est toujours au même endroit : à 1 m du sol au moins (nous visons 1 025 mm). C'est le garde-corps qui grandit ou rapetisse selon votre fenêtre. Nous faisons le calcul à partir de vos mesures, et nous vous proposons les modèles dont aucun vide n'est trop grand.",
+        body: "En étage, dans un logement neuf, une fenêtre dont l'appui est à moins de 90 cm du sol doit être protégée : c'est le Code de la construction. Dans une maison ancienne, ce n'est pas une obligation ; nous appliquons pourtant la même règle partout. Le haut de la main courante est toujours au même endroit : à 1 m du sol au moins (nous visons 1 025 mm). C'est le garde-corps qui grandit ou rapetisse selon votre fenêtre. Nous faisons le calcul à partir de vos mesures, et nous vous proposons les modèles dont aucun vide n'est trop grand.",
       },
     ],
     specs: [
-      { label: "Structure", value: "Acier plein, soudure TIG, finition peinte" },
-      { label: "Motif", value: "Croix de Saint-André à rosaces de fonderie, ou barreaux verticaux" },
+      { label: "Structure", value: "Acier plein, soudure TIG, finition peinte — ou acier brut sous vernis incolore" },
+      { label: "Motif", value: "Croix de Saint-André à rosaces, ou barreaux verticaux" },
       { label: "Main courante", value: "Au choix : bois massif (pin, hêtre, chêne ou noyer) rainuré de 40 × 40 mm ou de 60 × 45 mm sur fer plat de 60 × 10 mm, finition huile-cire ; ou acier peint, fer plat de 40 × 8 mm ou profilé de 40 × 10 mm" },
       { label: "Pose", value: "Encastré dans le tableau de la fenêtre, fixations fournies — vous mesurez, nous fabriquons" },
       // Le prix de la visite vient de src/lib/deplacement.ts : jamais recopié ici.
@@ -1968,7 +1968,7 @@ const catalogue: Product[] = [
       // « Juliet balcony » est dans le title : la ligne du titre le dit aussi (la même fiche fait la porte-fenêtre,
       // guide des normes, « porteFenetreBody »).
       h1Ligne: "Bespoke window and Juliet balcony railing, wrought-iron style solid steel",
-      tagline: "Handmade custom window railing in solid steel: Saint Andrew's crosses with cast rosettes, or vertical bars; wood or steel handrail. Made to the millimetre, fitted into your window.",
+      tagline: "Handmade custom window railing in solid steel: Saint Andrew's crosses with rosettes, or vertical bars; wood or steel handrail. Made to the millimetre, fitted into your window.",
       images: [
         "Window railing seen head-on: painted black steel frame with a Saint Andrew's cross, two cast rosettes, oak handrail",
         "The same railing in the reveal, seen from the room: the whole window, the sill and the daylight under the frame",
@@ -1977,8 +1977,8 @@ const catalogue: Product[] = [
       sizes: {},
       sections: [
         {
-          title: "A solid steel frame, a cast rosette",
-          body: "The frame and the braces are solid steel, welded then painted in the workshop. Where the bars cross sits a cast rosette, as on the old balconies of Saumur. Four models are offered, in cast aluminium, cast iron or steel; you choose yours with the order.",
+          title: "A solid steel frame, a rosette of your choice",
+          body: "The frame and the braces are solid steel, welded in the workshop, then painted or varnished. Where the bars cross sits a rosette, as on the old balconies of Saumur. Three models are offered, in cast aluminium, cast iron or steel — or no rosette at all; you choose yours with the order.",
         },
         {
           title: "A wood or steel handrail",
@@ -1990,12 +1990,12 @@ const catalogue: Product[] = [
         },
         {
           title: "A height set by the rule",
-          body: "Upstairs, a window whose sill is less than 90 cm from the floor must be guarded: that is the French building code. The top of the handrail is always in the same place: at least 1 m from the floor (we aim for 1,025 mm). It is the railing that grows or shrinks with your window. We do the sum from your measurements, and we show you the models in which no gap is too wide.",
+          body: "Upstairs, in a new home, a window whose sill is less than 90 cm from the floor must be guarded: that is the French building code. In an older house it is not compulsory; we still apply the same rule everywhere. The top of the handrail is always in the same place: at least 1 m from the floor (we aim for 1,025 mm). It is the railing that grows or shrinks with your window. We do the sum from your measurements, and we show you the models in which no gap is too wide.",
         },
       ],
       specs: [
-        { label: "Frame", value: "Solid steel, TIG welded, painted finish" },
-        { label: "Pattern", value: "Saint Andrew's crosses with cast rosettes, or vertical bars" },
+        { label: "Frame", value: "Solid steel, TIG welded, painted finish — or raw steel under clear varnish" },
+        { label: "Pattern", value: "Saint Andrew's crosses with rosettes, or vertical bars" },
         { label: "Handrail", value: "Your choice: solid wood (pine, beech, oak or walnut), grooved 40 × 40 mm or 60 × 45 mm on a 60 × 10 mm flat bar, oil-wax finish; or painted steel, 40 × 8 mm flat bar or 40 × 10 mm profile" },
         { label: "Fitting", value: "Fits into the window reveal, fixings supplied — you measure, we build" },
         { label: "Survey", value: `By you, with a tape — or by the workshop, from ${prixAffiche(PRIX_OFFRE_CENTS / 100, "en")} within ${RAYON_OFFRE_KM} km of Saumur, deducted from the order` },
@@ -2084,11 +2084,11 @@ const catalogue: Product[] = [
       },
       {
         title: "Une hauteur calculée selon la règle",
-        body: "En étage, une fenêtre dont l'appui est à moins de 90 cm du sol doit être protégée : c'est le Code de la construction. Le haut de la main courante est toujours au même endroit : à 1 m du sol au moins (nous visons 1 025 mm). C'est le garde-corps qui grandit ou rapetisse selon votre fenêtre. Nous faisons le calcul à partir de vos mesures, et nous vous proposons les modèles dont aucun vide n'est trop grand.",
+        body: "En étage, dans un logement neuf, une fenêtre dont l'appui est à moins de 90 cm du sol doit être protégée : c'est le Code de la construction. Dans une maison ancienne, ce n'est pas une obligation ; nous appliquons pourtant la même règle partout. Le haut de la main courante est toujours au même endroit : à 1 m du sol au moins (nous visons 1 025 mm). C'est le garde-corps qui grandit ou rapetisse selon votre fenêtre. Nous faisons le calcul à partir de vos mesures, et nous vous proposons les modèles dont aucun vide n'est trop grand.",
       },
     ],
     specs: [
-      { label: "Structure", value: "Acier plein, soudure TIG, finition peinte" },
+      { label: "Structure", value: "Acier plein, soudure TIG, finition peinte — ou acier brut sous vernis incolore" },
       { label: "Décor", value: "Volutes de ferronnerie en acier, soudées : sept décors au choix, et leurs finitions" },
       { label: "Main courante", value: "Au choix : bois massif (pin, hêtre, chêne ou noyer) rainuré de 40 × 40 mm ou de 60 × 45 mm sur fer plat de 60 × 10 mm, finition huile-cire ; ou acier peint, fer plat de 40 × 8 mm ou profilé de 40 × 10 mm" },
       { label: "Pose", value: "Encastré dans le tableau de la fenêtre, fixations fournies — vous mesurez, nous fabriquons" },
@@ -2137,11 +2137,11 @@ const catalogue: Product[] = [
         },
         {
           title: "A height set by the rule",
-          body: "Upstairs, a window whose sill is less than 90 cm from the floor must be guarded: that is the French building code. The top of the handrail is always in the same place: at least 1 m from the floor (we aim for 1,025 mm). It is the railing that grows or shrinks with your window. We do the sum from your measurements, and we show you the models in which no gap is too wide.",
+          body: "Upstairs, in a new home, a window whose sill is less than 90 cm from the floor must be guarded: that is the French building code. In an older house it is not compulsory; we still apply the same rule everywhere. The top of the handrail is always in the same place: at least 1 m from the floor (we aim for 1,025 mm). It is the railing that grows or shrinks with your window. We do the sum from your measurements, and we show you the models in which no gap is too wide.",
         },
       ],
       specs: [
-        { label: "Frame", value: "Solid steel, TIG welded, painted finish" },
+        { label: "Frame", value: "Solid steel, TIG welded, painted finish — or raw steel under clear varnish" },
         { label: "Design", value: "Steel ironwork scrolls, welded: seven designs to choose from, with their finishes" },
         { label: "Handrail", value: "Your choice: solid wood (pine, beech, oak or walnut), grooved 40 × 40 mm or 60 × 45 mm on a 60 × 10 mm flat bar, oil-wax finish; or painted steel, 40 × 8 mm flat bar or 40 × 10 mm profile" },
         { label: "Fitting", value: "Fits into the window reveal, fixings supplied — you measure, we build" },
@@ -2261,7 +2261,7 @@ const catalogue: Product[] = [
     category: "exterieur",
     orderMode: "cart",
     name: "Table Mikado Extérieur",
-    tagline: "Plateau à lattes en chêne traité, piétement Mikado peint pour l'extérieur — faite pour rester dehors.",
+    tagline: "Plateau à lattes de chêne massif, piétement Mikado protégé pour l'extérieur — faite pour rester dehors.",
     images: [
       {
         src: "/images/table-exterieur-lattes.jpg",
@@ -2320,7 +2320,7 @@ const catalogue: Product[] = [
       },
       {
         title: "Le même piétement, traité pour dehors",
-        body: "C'est le piétement Mikado de la table d'intérieur, protégé par une peinture pour l'extérieur. La couche tient à la pluie, au sel et aux UV sans s'écailler.",
+        body: "C'est le piétement Mikado de la table d'intérieur. Contre la rouille, il reçoit à l'atelier une couche de galvanisation à froid, puis une laque dans la teinte de votre choix.",
       },
       {
         // Ni « classe 4 » ni fréquence d'entretien ici : à confirmer par Quentin (la ligne Entretien reste celle des caractéristiques).
@@ -2333,12 +2333,12 @@ const catalogue: Product[] = [
       },
     ],
     specs: [
-      { label: "Plateau", value: "Chêne massif traité classe 4, lattes espacées, finition huile extérieure" },
-      { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, finition peinte pour l'extérieur" },
+      { label: "Plateau", value: "Lames de terrasse en chêne massif, espacées, vissées sur des traverses en aluminium, finition huile extérieure" },
+      { label: "Piétement", value: "Tube d'acier 80 × 80 mm, paroi 3 mm, soudé d'une seule pièce, finition galvanisation à froid puis laque" },
       { label: "Capacité", value: "6 à 14 places selon le format" },
       { label: "Entretien", value: "Une huile par an ; laisser griser si l'on préfère la patine" },
       { label: "Fabrication", value: "Sur commande — comptez 6 à 8 semaines" },
-      { label: "Livraison", value: "Partout en France, par transporteur, 90 € au maximum ; ou livrée et posée par l'atelier" },
+      { label: "Livraison", value: "Partout en France métropolitaine, par transporteur, 90 € au maximum ; ou livrée et posée par l'atelier" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -2349,7 +2349,7 @@ const catalogue: Product[] = [
       seoDescription:
         "Bespoke oak garden table, handmade in Saumur, France: solid oak slats on a painted welded-steel Mikado base, made to stay outside.",
       h1Ligne: "Oak and steel garden table, made to stay outside",
-      tagline: "Slatted treated-oak top, Mikado base painted for outdoors — made to stay outside.",
+      tagline: "Slatted solid oak top, Mikado base protected for outdoors — made to stay outside.",
       images: [
         "Mikado garden table: oak slats on a steel base, angle view",
       ],
@@ -2367,7 +2367,7 @@ const catalogue: Product[] = [
         },
         {
           title: "The same base, treated for outdoors",
-          body: "It is the Mikado base of the indoor table, protected by an outdoor paint finish. The coat stands up to rain, salt and sunlight without flaking.",
+          body: "It is the Mikado base of the indoor table. Against rust, it gets a cold-galvanising coat in the workshop, then a lacquer in the colour you choose.",
         },
         {
           title: "Outside, all year round",
@@ -2379,8 +2379,8 @@ const catalogue: Product[] = [
         },
       ],
       specs: [
-        { label: "Top", value: "Class 4 treated solid oak, spaced slats, outdoor oil finish" },
-        { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, outdoor painted finish" },
+        { label: "Top", value: "Solid oak decking boards, spaced, screwed onto aluminium cross-bars, outdoor oil finish" },
+        { label: "Base", value: "80 × 80 mm steel tube, 3 mm wall, welded in one piece, cold-galvanised then lacquered finish" },
         { label: "Seats", value: "6 to 14 depending on size" },
         { label: "Care", value: "One coat of oil a year; leave it to silver if you prefer the patina" },
         { label: "Lead time", value: "Made to order — allow 6 to 8 weeks" },
@@ -2541,23 +2541,23 @@ const catalogue: Product[] = [
         body: "Suspendue au plafond, la Lucarne se lit comme une fausse fenêtre lumineuse : une surface d'où tombe une lumière égale. Au-dessus d'un îlot ou d'une table, elle donne une lumière douce et diffuse, sans ombre dure.",
       },
       {
-        title: "Un cadre en aluminium laqué",
-        body: "Le cadre est assemblé en profilé d'aluminium, coupé en onglet et laqué. La teinte ne jaunit pas et ne s'écaille pas. La toile se clipse dans une gorge périphérique ; elle se retire et se remet sans outil pour le nettoyage.",
+        title: "Un caisson en aluminium soudé",
+        body: "Le caisson est une ossature en tube d'aluminium de 25 × 25 mm, soudée à l'atelier. Tout le tour est habillé d'une tôle d'aluminium de 2,5 mm, peinte à l'atelier dans la couleur choisie. Le fond est un panneau composite aluminium de 5 mm. La toile est tenue tout autour par un profilé qui la pince.",
       },
       {
-        title: "En applique, suspendu ou encastré",
-        body: "La Lucarne se pose en applique au plafond, se suspend par câbles ou s'encastre dans un faux plafond. L'alimentation 220 V est fournie ; la variation est possible sur demande, et une application permet de régler la teinte — blanc, couleur ou animation lumineuse.",
+        title: "Suspendu par câbles",
+        body: "La Lucarne se suspend au plafond par quatre anneaux vissés dans son cadre et des câbles en inox ou en acier, fournis. Les LED sont des rubans 24 V ; les alimentations, branchées sur le 230 V, et le boîtier de commande sont compris dans le prix.",
         // Une pose réelle, encastrée, la toile en couleur.
         image: "/images/lumiere/lucarne-rgb.jpg",
       },
     ],
     specs: [
       { label: "Toile", value: "Membrane translucide tendue, blanc diffusant" },
-      { label: "Cadre", value: "Profilé aluminium laqué, coupe d'onglet, caisson de 180 à 600 mm" },
-      { label: "Éclairage", value: "LED 220 V, blanc 3000 K ou 4000 K ou couleur réglable par application, variation en option" },
+      { label: "Cadre", value: "Ossature en tube d'aluminium 25 × 25 × 3 mm soudée, tour en tôle d'aluminium 2,5 mm peinte, fond composite aluminium 5 mm — caisson de 180 à 600 mm de profondeur" },
+      { label: "Éclairage", value: "Rubans LED 24 V, une ligne tous les 8 cm ; alimentations (secteur 230 V) et boîtier de commande compris" },
       { label: "Fabrication", value: "Sur commande — comptez 3 à 5 semaines" },
-      { label: "Dimensions", value: "Jusqu'à 400 × 300 cm, au centimètre près. D'un seul tenant jusqu'à 230 × 210 cm ; au-delà, en modules assemblés et posés chez vous par l'atelier." },
-      { label: "Pose", value: "En applique, suspendu par câbles ou encastré" },
+      { label: "Dimensions", value: "Jusqu'à 400 × 300 cm, au centimètre près. Livré par transporteur jusqu'à 230 × 210 cm ; au-delà, livré et posé chez vous par l'atelier. Plus large que 250 cm, il est fait de modules assemblés chez vous, sous une seule toile." },
+      { label: "Pose", value: "Suspendu par câbles, sur quatre anneaux vissés dans le cadre ; anneaux et câbles fournis" },
     ],
     // Traduction anglaise de la fiche.
     en: {
@@ -2593,21 +2593,21 @@ const catalogue: Product[] = [
           body: "Hung from the ceiling, the Lucarne reads like a window of light: a surface with an even light falling from it. Above a kitchen island or a table, it gives a soft, diffused light, with no hard shadows.",
         },
         {
-          title: "A lacquered aluminium frame",
-          body: "The frame is built from aluminium profile, mitred and lacquered. The colour neither yellows nor flakes. The fabric clips into a groove all around; it comes out and goes back without a tool for cleaning.",
+          title: "A welded aluminium box",
+          body: "The box is a frame of 25 × 25 mm aluminium tube, welded in the workshop. It is clad all round in 2.5 mm aluminium sheet, painted in the workshop in the colour you choose. The back is a 5 mm aluminium composite panel. The fabric is held all round by a profile that grips it.",
         },
         {
-          title: "Surface-mounted, suspended or recessed",
-          body: "The Lucarne is surface-mounted on the ceiling, hung on cables or recessed into a false ceiling. The 220 V supply comes with it; dimming is available on request, and an app lets you set the tone — white, solid colour or a light animation.",
+          title: "Hung on cables",
+          body: "The Lucarne hangs from the ceiling on four rings screwed into its frame and stainless or steel cables, supplied. The LEDs are 24 V strips; the power supplies, connected to the 230 V mains, and the control box are included in the price.",
         },
       ],
       specs: [
         { label: "Fabric", value: "Stretched translucent membrane, diffusing white" },
-        { label: "Frame", value: "Lacquered aluminium profile, mitred corners, box 180 to 600 mm deep" },
-        { label: "Lighting", value: "220 V LED, 3000 K or 4000 K white, or colour set from an app, dimming optional" },
+        { label: "Frame", value: "Welded 25 × 25 × 3 mm aluminium tube frame, painted 2.5 mm aluminium sheet all round, 5 mm aluminium composite back — box 180 to 600 mm deep" },
+        { label: "Lighting", value: "24 V LED strips, one line every 8 cm; power supplies (230 V mains) and control box included" },
         { label: "Lead time", value: "Made to order — allow 3 to 5 weeks" },
-        { label: "Sizes", value: "Up to 400 × 300 cm, to the centimetre. In one piece up to 230 × 210 cm; beyond that, in modules assembled and fitted at your place by the workshop." },
-        { label: "Fitting", value: "Surface-mounted, hung on cables or recessed" },
+        { label: "Sizes", value: "Up to 400 × 300 cm, to the centimetre. Delivered by carrier up to 230 × 210 cm; beyond that, delivered and fitted at your place by the workshop. Wider than 250 cm, it is made of modules assembled at your place, under a single fabric." },
+        { label: "Fitting", value: "Hung on cables from four rings screwed into the frame; rings and cables supplied" },
       ],
     },
   },
@@ -2692,15 +2692,15 @@ const catalogue: Product[] = [
     sections: [
       {
         title: "Un disque de lumière pleine",
-        body: "Jusqu'à Ø 210 cm, le cercle est roulé d'une seule pièce : pas d'angle, pas de raccord visible sur le pourtour. La toile s'y tend en une seule surface et diffuse la même lumière du centre jusqu'au bord.",
+        body: "Le cercle est cintré à l'atelier : pas d'angle sur le pourtour. La toile s'y tend en une seule surface et diffuse la même lumière du centre jusqu'au bord.",
       },
       {
-        title: "Le même cadre, roulé",
-        body: "Le profilé d'aluminium est cintré puis laqué. La teinte ne jaunit pas et ne s'écaille pas. La toile se clipse dans la gorge périphérique et se retire sans outil.",
+        title: "Le même caisson, cintré",
+        body: "Les deux cercles du caisson sont en tube d'aluminium de 25 × 25 mm, cintrés et soudés à l'atelier. Le tour est une bande de tôle d'aluminium de 2,5 mm, roulée et peinte. Comme sur la Lucarne, la toile est tenue tout autour par un profilé qui la pince.",
       },
       {
-        title: "Un grand disque éclaire toute une salle",
-        body: "Au-delà de 1,50 m de diamètre, le disque ne complète plus l'éclairage : il le remplace. Un seul suffit pour une salle de réunion, un plateau de bureaux ou une grande pièce à vivre, sans autre spot. La lumière diffuse ne porte pas d'ombre dure sur les visages.",
+        title: "Un grand disque, une lumière douce",
+        body: "Au-dessus d'une grande table ou au milieu d'une pièce, le disque donne une lumière diffuse, sans ombre dure sur les visages.",
         image: "/images/lumiere/salle-ronde.jpg",
       },
       {
@@ -2710,9 +2710,9 @@ const catalogue: Product[] = [
     ],
     specs: [
       { label: "Toile", value: "Membrane translucide tendue, blanc diffusant" },
-      { label: "Cadre", value: "Profilé aluminium cintré et laqué, caisson de 180 à 600 mm" },
-      { label: "Éclairage", value: "LED 220 V, blanc 3000 K ou 4000 K, variation en option" },
-      { label: "Diamètre", value: "Jusqu'à 400 cm, au centimètre près. D'un seul tenant jusqu'à 210 cm ; au-delà, en modules assemblés et posés chez vous par l'atelier." },
+      { label: "Cadre", value: "Ossature en tube d'aluminium 25 × 25 × 3 mm cintré et soudé, tour en tôle d'aluminium 2,5 mm roulée et peinte, fond composite aluminium 5 mm — caisson de 180 à 600 mm de profondeur" },
+      { label: "Éclairage", value: "Rubans LED 24 V, une ligne tous les 8 cm ; alimentations (secteur 230 V) et boîtier de commande compris" },
+      { label: "Diamètre", value: "Jusqu'à 400 cm, au centimètre près. Livré par transporteur jusqu'à Ø 210 cm ; au-delà, livré et posé chez vous par l'atelier." },
       { label: "Fabrication", value: "Sur commande — comptez 3 à 5 semaines" },
     ],
     // Traduction anglaise de la fiche.
@@ -2742,15 +2742,15 @@ const catalogue: Product[] = [
       sections: [
         {
           title: "A full disc of light",
-          body: "Up to Ø 210 cm, the circle is rolled in one piece: no corner, no joint showing anywhere on the rim. The fabric is stretched across it as a single surface and gives the same light from the centre out to the edge.",
+          body: "The circle is bent in the workshop: no corner anywhere on the rim. The fabric is stretched across it as a single surface and gives the same light from the centre out to the edge.",
         },
         {
-          title: "The same frame, rolled",
-          body: "The aluminium profile is curved, then lacquered. The colour neither yellows nor flakes. The fabric clips into the groove all around and comes out without a tool.",
+          title: "The same box, curved",
+          body: "The two rings of the box are 25 × 25 mm aluminium tube, bent and welded in the workshop. The rim is a band of 2.5 mm aluminium sheet, rolled and painted. As on the Lucarne, the fabric is held all round by a profile that grips it.",
         },
         {
-          title: "One large disc lights a whole room",
-          body: "Past 1.50 m across, the disc no longer adds to the lighting: it replaces it. One is enough for a meeting room, an open-plan office or a large living room, with no other spotlight. The diffused light casts no hard shadow on faces.",
+          title: "A large disc, a soft light",
+          body: "Above a large table or in the middle of a room, the disc gives a diffused light, with no hard shadow on faces.",
         },
         {
           title: "A large round ceiling light, from Ø 90 to Ø 400 cm",
@@ -2759,9 +2759,9 @@ const catalogue: Product[] = [
       ],
       specs: [
         { label: "Fabric", value: "Stretched translucent membrane, diffusing white" },
-        { label: "Frame", value: "Curved and lacquered aluminium profile, box 180 to 600 mm deep" },
-        { label: "Lighting", value: "220 V LED, 3000 K or 4000 K white, dimming optional" },
-        { label: "Diameter", value: "Up to 400 cm, to the centimetre. In one piece up to 210 cm; beyond that, in modules assembled and fitted at your place by the workshop." },
+        { label: "Frame", value: "Bent and welded 25 × 25 × 3 mm aluminium tube frame, rolled and painted 2.5 mm aluminium sheet rim, 5 mm aluminium composite back — box 180 to 600 mm deep" },
+        { label: "Lighting", value: "24 V LED strips, one line every 8 cm; power supplies (230 V mains) and control box included" },
+        { label: "Diameter", value: "Up to 400 cm, to the centimetre. Delivered by carrier up to Ø 210 cm; beyond that, delivered and fitted at your place by the workshop." },
         { label: "Lead time", value: "Made to order — allow 3 to 5 weeks" },
       ],
     },

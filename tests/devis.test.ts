@@ -114,9 +114,9 @@ test("plafond lumineux sur mesure : surface, puissance et profondeur du caisson"
   );
   assert.ok(resultat.ok);
   const p = postes(resultat.devis);
-  assert.match(p[0].designation, /^Cadre aluminium laqué blanc — 250 × 140 cm, coupe d'onglet, caisson de 200 mm/);
+  assert.match(p[0].designation, /^Caisson en tube d'aluminium soudé, tour en tôle peinte blanc — 250 × 140 cm, profondeur 200 mm/);
   assert.match(p[1].designation, /^Toile tendue blanc diffusant — 3,5 m²/);
-  assert.match(p[2].designation, /^Éclairage LED 220 V — 230 W/);
+  assert.match(p[2].designation, /^Éclairage par rubans LED 24 V — alimentation et boîtier de commande compris/);
   assert.equal(p.reduce((somme, l) => somme + l.unitaire, 0), resultat.devis.total);
   const c = Object.fromEntries(resultat.devis.piece.caracteristiques.map((x) => [x.label, x.value]));
   assert.equal(c["Surface lumineuse"], "3,5 m²");

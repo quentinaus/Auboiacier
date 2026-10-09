@@ -122,8 +122,8 @@ export default async function VerificationGardeCorpsPage({ params }: PageProps<"
       titre: fr ? "La hauteur" : "Height",
       source: fr ? "Code de la construction, art. R134-59" : "French Building Code, art. R134-59",
       texte: fr
-        ? "En étage, une fenêtre dont l'appui est à moins de 90 cm du sol doit être protégée. Le haut de la main courante est à 1 m du sol au moins : nous visons 1 025 mm. C'est le garde-corps qui s'adapte à votre fenêtre."
-        : "Upstairs, a window whose sill is less than 90 cm from the floor must be protected. The top of the handrail is at least 1 m from the floor: we aim for 1,025 mm. The railing adapts to your window.",
+        ? "En étage, dans un logement neuf, une fenêtre dont l'appui est à moins de 90 cm du sol doit être protégée. Dans une maison ancienne, ce n'est pas obligatoire : nous appliquons quand même cette règle. Le haut de la main courante est à 1 m du sol au moins : nous visons 1 025 mm. C'est le garde-corps qui s'adapte à votre fenêtre."
+        : "Upstairs, in a new home, a window whose sill is less than 90 cm from the floor must be protected. In an older house it is not compulsory: we still apply the same rule. The top of the handrail is at least 1 m from the floor: we aim for 1,025 mm. The railing adapts to your window.",
     },
     {
       cle: "vides",
@@ -221,7 +221,7 @@ export default async function VerificationGardeCorpsPage({ params }: PageProps<"
             </ol>
           </nav>
           <p className="mt-6 text-[11px] font-medium uppercase tracking-[0.3em] text-[#6f6357]">
-            {fr ? "Aux normes de sécurité françaises" : "To French safety standards"}
+            {fr ? "Hauteur et vides calculés pour votre fenêtre" : "Height and gaps worked out for your window"}
           </p>
           <h1 className={`${serif.className} mt-3 text-[2rem] leading-[1.1] text-[#2b2320] md:text-[3rem]`}>
             {fr ? "Comment on vérifie votre garde-corps" : "How we check your railing"}

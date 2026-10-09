@@ -41,10 +41,10 @@
     "lightingCta": "See the ceilings",
     "craftLabel": "Steel & wood furniture",
     "craftTitle": "Steel & wood furniture",
-    "craftSubtitle": "Tables, chairs, railings, staircases: welded in the workshop, to your measurements. Firm price, delivery anywhere in France.",
+    "craftSubtitle": "Tables, chairs, railings, staircases: welded in the workshop, to your measurements. Firm price, delivery anywhere in mainland France.",
     "craftCta": "See the collection",
     "bandTitle": "Nothing is held in stock",
-    "bandSubtitle": "The steel is cut and welded to order, and the boards are picked one by one for your piece.",
+    "bandSubtitle": "The steel is cut and welded to order, and the wood is cut to your sizes for your piece.",
     "categoriesTitle": "What we make",
     "catTables": "Indoor tables",
     "catChaises": "Indoor chairs",
@@ -57,7 +57,7 @@
     "catPlafonds": "Backlit stretch ceilings",
     "catLed": "LED lighting",
     "editorialTitle": "A simple line, a piece that lasts",
-    "editorialBody1": "Auboiacier is a metalwork workshop. Steel is cut, welded, ground, then painted here. Solid wood comes to sit on it — table tops, stair treads, shelves — glued, sanded and oiled in the same place.",
+    "editorialBody1": "Auboiacier is a metalwork workshop. Steel is cut, welded, ground, then painted here. Solid wood comes to sit on it — table tops, stair treads, shelves — cut to size, sanded and oiled in the same place.",
     "editorialBody2": "No production runs: every piece is made to order, to the dimensions of your home, and can be sanded or repainted rather than replaced.",
     "editorialCta": "See the workshop",
     "testimonialsTitle": "Client reviews",
@@ -87,7 +87,7 @@
     "altPlafonds": "Backlit stretch ceiling above a dining table",
     "altVerrieres": "Black steel interior partition between a living room and a kitchen",
     "seoTitle": "Custom craft metalwork in Saumur and the Loire Valley",
-    "seoP1": "Auboiacier is a metalwork studio in Saumur (49400), Maine-et-Loire, France. The metalworker-welder hand-makes window railings, staircases, steel workshop partitions, solid oak tables on steel bases, chairs, backlit stretched-fabric ceilings and reclaimed-steel sculptures. Every piece is drawn to your measurements and welded to order: nothing is kept in stock.",
+    "seoP1": "Auboiacier is a metalwork studio opening in Saumur (49400), Maine-et-Loire, France. The metalworker-welder hand-makes window railings, staircases, steel workshop partitions, solid oak tables on steel bases, chairs, backlit stretched-fabric ceilings and reclaimed-steel sculptures. Every piece is drawn to your measurements and welded to order: nothing is kept in stock.",
     "seoP2": "The price appears within a minute: enter your measurements in the online configurator, choose the material and finish, then download your PDF quote, with no account and no commitment. We measure and fit in Saumur, Angers, Cholet, Tours, Chinon and up to 200 km from the workshop; collection pieces are delivered across mainland France.",
     "seoLinksTitle": "What we make to measure",
     "seoLinks": [
@@ -121,7 +121,7 @@
         {
           "h3": "What the workshop makes",
           "paragraphes": [
-            "The workshop makes window railings in solid steel, with St Andrew's crosses, cast rosettes and a handrail in wood or steel, in the spirit of old balconies; steel spine staircases, built on a heavy steel tube and fitted with solid wood treads; steel internal windows, measured at your home and welded in the workshop; solid wood tables on welded steel bases; backlit stretch-fabric ceiling lights; and sculptures in reclaimed steel, welded piece by piece.",
+            "The workshop makes window railings in solid steel, with St Andrew's crosses, rosettes and a handrail in wood or steel, in the spirit of old balconies; steel spine staircases, built on a heavy steel tube and fitted with solid wood treads; steel internal windows, measured at your home and welded in the workshop; solid wood tables on welded steel bases; backlit stretch-fabric ceiling lights; and sculptures in reclaimed steel, welded piece by piece.",
             "Every piece is bespoke: drawn to your dimensions, then made in Saumur, to order, with no stock and no production runs. You choose the wood, the colour of the steel and the finish."
           ]
         },
@@ -151,7 +151,7 @@
   },
   "home": {
     "heroTitle": "Backlit stretch-fabric ceilings, made to measure in Saumur",
-    "heroSubtitle": "Mitred aluminium frame, stretched fabric, integrated LED lighting. Every ceiling is made in the workshop to the dimensions of your room.",
+    "heroSubtitle": "Welded aluminium box, stretched fabric, integrated LED lighting. Every ceiling is made in the workshop to the dimensions of your room.",
     "heroCtaPrimary": "Request a quote",
     "heroCtaSecondary": "See more pictures",
     "realisationsTitle": "In situ",
@@ -167,14 +167,14 @@
       },
       {
         "title": "No building work",
-        "body": "The aluminium frame fixes to the existing ceiling or hangs on cables, then the fabric clips into its groove."
+        "body": "The box hangs below your ceiling on cables, attached to four rings screwed into its frame."
       }
     ],
     "pourquoiTitle": "Why Auboiacier",
     "pourquoi": [
       {
-        "title": "Cut and assembled in our workshop",
-        "body": "Every frame is mitred in the workshop, then fitted to the dimensions of your room."
+        "title": "Welded and assembled in our workshop",
+        "body": "Every box is welded in the workshop from aluminium tube, to the dimensions of your room."
       },
       {
         "title": "One point of contact",
@@ -182,16 +182,16 @@
       },
       {
         "title": "Your dimensions, to the centimetre",
-        "body": "Rectangle or disc, dimensions to the centimetre, 3000 K or 4000 K white: the ceiling is designed for your room."
+        "body": "Rectangle or disc, dimensions to the centimetre: the ceiling is designed for your room."
       }
     ],
     "ctaTitle": "A project to quote",
     "ctaSubtitle": "Describe your room: we measure up, we quote, we fit.",
     "ctaButton": "Describe my project",
     "catalogueLumiere": "{n} shapes, prices shown",
-    "catalogueLumiereNote": "Backlit stretched fabric, lacquered aluminium frame, from 60 cm to a whole ceiling.",
+    "catalogueLumiereNote": "Backlit stretched fabric, aluminium box, up to 400 × 300 cm (Ø 400 cm).",
     "surMesureTitle": "Beyond 230 × 210 cm",
-    "surMesureBody": "Past that size, or Ø 210 cm for the Halo, a light ceiling is made of modules that the workshop assembles and fits at your place, within 200 km of Saumur. Up to 400 × 300 cm (Ø 400 cm), the product page gives the price. Larger still, the workshop measures up at your home, then quotes.",
+    "surMesureBody": "Past that size, or Ø 210 cm for the Halo, a light ceiling no longer ships by carrier: the workshop delivers and fits it at your place, within 200 km of Saumur. Up to 400 × 300 cm (Ø 400 cm), the product page gives the price. Larger still, the workshop measures up at your home, then quotes.",
     "altPlafondDemo": "Backlit stretched-fabric ceiling on an aluminium frame"
   },
   "realisations": {
@@ -228,7 +228,7 @@
   },
   "artisanat": {
     "title": "The collection",
-    "subtitle": "Wood and steel furniture, drawn and welded in the workshop in Saumur, France. Nothing in stock: the steel is cut when you order. Firm prices, delivery anywhere in France.",
+    "subtitle": "Wood and steel furniture, drawn and welded in the workshop in Saumur, France. Nothing in stock: the steel is cut when you order. Firm prices, delivery anywhere in mainland France.",
     "catalogueTitle": "The collection",
     "breadcrumbShop": "The collection",
     "breadcrumbCategory": "Furniture",
@@ -262,7 +262,7 @@
     "altBandeauLumiere": "Corner of a backlit stretch ceiling: the lacquered aluminium frame and the stretched fabric",
     "madeInFrance": "Made in France, in Saumur",
     "craftBandTitle": "French craftsmanship",
-    "craftBandBody": "Every piece leaves our own workshop: the wood is picked board by board, the steel is TIG-welded then painted, and final assembly is done by hand. No production runs: your piece is made for you, to order.",
+    "craftBandBody": "Every piece leaves our own workshop: the metal is cut and TIG-welded there, and final assembly is done by hand. No production runs: your piece is made for you, to order.",
     "descriptifTitle": "The piece in detail",
     "sectionFaq": "Frequently asked questions",
     "faqDeliveryQ": "What are the lead and delivery times?",
@@ -275,8 +275,8 @@
     "moreInfo": "See the details",
     "helpTitle": "A question about this piece?",
     "helpCta": "Get in touch",
-    "deliveryTitle": "Delivery anywhere in France, fitting optional",
-    "deliveryBody": "We deliver anywhere in mainland France by carrier: the price depends on your town, the weight and the size, and appears on the product page as soon as you enter your postcode. The piece travels protected, and we agree a precise time slot with you. The piece arrives ready, with its notes. If you would rather the workshop delivered and fitted it itself, choose that on the product page: the price depends on the distance from Saumur, and it all happens in a single trip.",
+    "deliveryTitle": "Delivery across mainland France, fitting optional",
+    "deliveryBody": "We deliver anywhere in mainland France by carrier: the price depends on your town, the weight and the size, and appears on the product page as soon as you enter your postcode. The piece travels protected, and we agree a precise time slot with you. The piece arrives with its notes; a table arrives dismantled, ready to screw together (top, base, hardware). If you would rather the workshop delivered and fitted it itself, choose that on the product page: the price depends on the distance from Saumur, and it all happens in a single trip.",
     "delaiTitle": "Lead time",
     "delaiBody": "Nothing is kept in stock: your piece is made for you, to order. Its lead time is shown above, on the “Lead time” line, and confirmed when you order.",
     "delaiCta": "Order",
@@ -331,15 +331,15 @@
     "poseObligatoire": "This piece is too large for a carrier: it is delivered and fitted by the workshop.",
     "livraisonTitle": "Delivery or collection",
     "poseSeul": "Delivery by carrier",
-    "poseSeulInfo": "Anywhere in mainland France, €90 at most, whatever your town. The table arrives flat-packed: top, base welded in one piece, screws and fitting instructions.",
+    "poseSeulInfo": "Anywhere in mainland France, €90 at most, whatever your town. The table arrives dismantled: top, welded base, screws and fitting instructions.",
     "poseAtelier": "The workshop delivers and fits",
     "poseAtelierInfo": "We deliver and install the piece at your home, in a single trip. Price depends on the distance from Saumur.",
     "poseCodePostal": "Delivery postcode",
     "poseAttente": "Enter your postcode to see the price.",
     "poseCalcul": "Calculating…",
     "posePrix": "{commune} — {prix}: delivery and fitting at home, charged once for the whole order.",
-    "poseLoin": "{commune} is outside mainland France: we do not fit overseas. Delivery alone remains included.",
-    "poseHors": "We only fit in mainland France. Delivery alone remains included.",
+    "poseLoin": "{commune} is outside mainland France: we do not deliver or fit there.",
+    "poseHors": "We only deliver and fit in mainland France.",
     "poseInvalide": "This does not look like a French postcode.",
     "poseErreur": "We cannot price the fitting right now. Please try again in a moment.",
     "poseResume": "Delivery and fitting at home",
@@ -388,13 +388,13 @@
       "Upstairs",
       "Ground floor"
     ],
-    "gcEtageInfo": "Upstairs, a window whose sill is less than 90 cm from the floor must be guarded: that is the law. On the ground floor it sets nothing, but we apply the same height. The top of the handrail is always in the same place: at least 1 m from the floor (we aim for 1,025 mm). The height of the railing adapts to your window.",
+    "gcEtageInfo": "Upstairs, in a new home, a window whose sill is less than 90 cm from the floor must be guarded: that is the law. In an older house it is not compulsory, and on the ground floor the law sets nothing: we still apply the same height everywhere. The top of the handrail is always in the same place: at least 1 m from the floor (we aim for 1,025 mm). The height of the railing adapts to your window.",
     "gcLargeur": "Window width, wall to wall",
     "gcLargeurAide": "Inside the opening, from one wall to the other, just above the sill.",
     "gcLargeurInfo": "Open the window and measure from wall to wall inside the opening, where the railing will fit. Raw size: do not take anything off, we allow for the fitting clearance.",
     "gcAllege": "Height from the floor to the bottom of the window",
     "gcAllegeAide": "From the floorboards or tiles up to the top of the sill.",
-    "gcAllegeInfo": "Standing in the room, measure from the finished floor (boards or tiles laid) up to the top of the window sill, the ledge you rest your hands on. That height, the sill height, gives us the height of the railing.",
+    "gcAllegeInfo": "Standing in the room, measure from the finished floor (boards or tiles laid) up to the top of the sill where the railing will sit: in the thickness of the wall, window open, at its lowest point. If this sill is lower than the inside ledge, it is the one that counts. That height, the sill height, gives us the height of the railing.",
     "gcMur": "Wall type",
     "gcConsigne": "Exact sizes, to the millimetre: the workshop works out the railing.",
     "gcFacultatif": "(optional)",
@@ -552,9 +552,9 @@
     "h1": "Made-to-measure pieces in steel and solid wood",
     "avisGoogle": "See our Google profile",
     "faqPoseToileQ": "How is a light ceiling fitted?",
-    "faqPoseToileA": "The aluminium frame fixes to the existing ceiling or hangs on cables, then the fabric clips into its groove. No building work: a few holes drilled in the ceiling, and a cut-out in the false ceiling for a recessed model. The workshop can come and fit it; the product page gives the price for your postcode.",
+    "faqPoseToileA": "The light ceiling hangs on cables attached to four rings screwed into its frame. Your ceiling needs four fixing points strong enough to carry its weight. The workshop can come and fit it; the product page gives the price for your postcode.",
     "faqToileQ": "How do I look after the fabric?",
-    "faqToileA": "The fabric comes out and goes back in without a tool, so it can be dusted. The lacquered aluminium frame wipes clean with a soft cloth.",
+    "faqToileA": "Clean the fabric in place with a soft, dry cloth. The painted aluminium rim also wipes clean with a soft cloth.",
     "qualiteFamille": {
       "intro": "What makes this piece well made",
       "table-interieur": [
@@ -577,12 +577,12 @@
       ],
       "table-exterieur": [
         {
-          "t": "Wood treated for outdoors",
-          "d": "Solid oak, class 4 treated and oiled for outdoor use. The spaced slats let the rain run off and the wood dries quickly."
+          "t": "Solid oak for outdoors",
+          "d": "Solid oak decking boards, oiled for outdoor use. The spaced slats let the rain run off and the wood dries quickly."
         },
         {
-          "t": "Steel painted to stay outside",
-          "d": "The one-piece welded base has an outdoor paint that stands up to rain, salt and UV without flaking."
+          "t": "Steel protected to stay outside",
+          "d": "The one-piece welded base gets a cold-galvanising coat in the workshop, then a lacquer: protection against rust."
         },
         {
           "t": "Simple upkeep",
@@ -590,7 +590,7 @@
         },
         {
           "t": "Your dimensions, made to order",
-          "d": "Drawn for your terrace, made in Saumur, delivered across France or fitted by the workshop."
+          "d": "Drawn for your terrace, made in Saumur, delivered across mainland France or fitted by the workshop."
         }
       ],
       "chaise": [
@@ -631,16 +631,16 @@
       ],
       "escalier": [
         {
-          "t": "A one-piece curved stringer",
-          "d": "A heavy steel tube, curved then TIG-welded in the workshop: a single line, with no visible joint."
+          "t": "A steel tube stringer",
+          "d": "A heavy steel tube, cut and TIG-welded in the workshop, with a support and a plate under each tread."
         },
         {
           "t": "Solid wood treads",
           "d": "Pine, beech, oak or walnut, oiled in the workshop, fixed on plates hidden under the tread."
         },
         {
-          "t": "A railing that meets the standard",
-          "d": "Tensioned stainless cables and a curved wooden handrail, in line with French safety standards (NF P01-012)."
+          "t": "A railing drawn to the standard",
+          "d": "A wooden handrail; the railing infill is chosen in the quote, to standard NF P01-012 (2024)."
         },
         {
           "t": "Measured at your home, fitted by the workshop",
@@ -654,7 +654,7 @@
         },
         {
           "t": "Calculated for your window",
-          "d": "Height and gaps between the bars are worked out from your measurements (French building code, NF P01-012). We never sell a railing that does not meet them."
+          "d": "Height and gaps between the bars are worked out from your measurements (French building code, NF P01-012)."
         },
         {
           "t": "A fixing suited to your wall",
@@ -671,16 +671,16 @@
           "d": "The stretched fabric spreads the light over its whole surface: no visible spot, no harsh shadow."
         },
         {
-          "t": "A lacquered aluminium frame",
-          "d": "Mitred profile, lacquered: the colour does not yellow or flake."
+          "t": "A welded aluminium box",
+          "d": "A frame of aluminium tube welded in the workshop, clad in aluminium sheet painted in the colour you choose."
         },
         {
-          "t": "A fabric that comes off without tools",
-          "d": "It clips into a groove all around: cleaning and upkeep are simple."
+          "t": "A fabric held all round",
+          "d": "A profile grips it all round the box: it is cleaned in place, with a soft cloth."
         },
         {
           "t": "Made to your dimensions",
-          "d": "To the centimetre, up to 400 × 300 cm, surface-mounted, suspended or recessed."
+          "d": "To the centimetre, up to 400 × 300 cm, hung on cables."
         }
       ],
       "portail": [
@@ -709,11 +709,11 @@
         "points": [
           {
             "t": "Quality solid wood",
-            "d": "Our reference top is first-choice French oak from sustainably managed forests: wide boards in one piece, chosen and assembled by hand. Solid wood costs more than a panel, and lasts far longer."
+            "d": "Our reference top is solid oak, made to your size, sanded then oiled by hand. Solid wood costs more than a panel, and lasts far longer."
           },
           {
             "t": "Steel welded by hand",
-            "d": "The base is welded in one piece, ground then painted. That is workshop time, and it is what makes it solid and permanent: no screws that work loose."
+            "d": "The base is welded in the workshop, ground then painted. That is workshop time, and it is what makes it solid: no screws that work loose."
           },
           {
             "t": "Time, with no production line or middleman",
@@ -729,12 +729,12 @@
         "intro": "A cheap garden table gets replaced every two or three years. This one is made to stay outside, and to last.",
         "points": [
           {
-            "t": "Solid oak treated for outdoors",
-            "d": "Class 4 treated oak, oiled for outdoor use, in spaced slats that let water run off. A noble material, chosen to stand up to rain."
+            "t": "Solid oak for outdoors",
+            "d": "Solid oak decking boards, oiled for outdoor use, in spaced slats that let water run off. A noble material, chosen to stay outside."
           },
           {
-            "t": "Welded steel, painted for outdoors",
-            "d": "The base is hand-welded in one piece, then protected by an outdoor paint that stands up to rain, salt and UV."
+            "t": "Welded steel, protected against rust",
+            "d": "The base is hand-welded in one piece, then given a cold-galvanising coat and a lacquer against rust."
           },
           {
             "t": "Made in Saumur, to order",
@@ -793,11 +793,11 @@
         "points": [
           {
             "t": "A heavy steel stringer",
-            "d": "A steel tube curved in one piece and TIG-welded in the workshop: a single line, with no joint, carrying the treads."
+            "d": "A steel tube cut and TIG-welded in the workshop, with a support and a plate under each tread: it carries the treads on both sides."
           },
           {
             "t": "Solid wood, steel, safety",
-            "d": "Solid wood treads, and a railing that meets French safety standards (NF P01-012): a staircase is calculated, never improvised."
+            "d": "Solid wood treads, and a railing drawn to standard NF P01-012 (2024): a staircase is calculated, never improvised."
           },
           {
             "t": "Measured at your home, made for you",
@@ -818,7 +818,7 @@
           },
           {
             "t": "Safety calculated, not estimated",
-            "d": "Height and gaps between the bars are calculated from your measurements, to the French building code and the NF P01-012 standard. We never sell a railing that does not meet them."
+            "d": "Height and gaps between the bars are calculated from your measurements, to the French building code and the NF P01-012 standard."
           },
           {
             "t": "A fixing designed for your wall",
@@ -834,12 +834,12 @@
         "intro": "A light ceiling is seen every day. Ours is made for your room, to the centimetre.",
         "points": [
           {
-            "t": "A welded, lacquered aluminium frame",
-            "d": "A mitred profile, lacquered, that does not yellow or flake."
+            "t": "A welded aluminium box",
+            "d": "A frame of aluminium tube welded in the workshop, clad in painted aluminium sheet."
           },
           {
-            "t": "A stretched fabric that comes off without tools",
-            "d": "It spreads the light with no hot spot, and comes off for cleaning."
+            "t": "A stretched fabric that spreads the light",
+            "d": "A profile grips it all round the box; it spreads the light with no hot spot."
           },
           {
             "t": "Made to your dimensions",
@@ -938,7 +938,7 @@
         "texte": "One pair of hands, from cutting to fitting."
       },
       {
-        "titre": "Delivery anywhere in France, fitting optional",
+        "titre": "Delivery across mainland France, fitting optional",
         "texte": "Mainland France, priced by your town."
       },
       {
@@ -957,14 +957,14 @@
     "histoireBody": "Auboiacier is a metalwork workshop in Saumur, in the Loire Valley. It is run by Quentin Aumercier, a welder and metalworker trained on building sites and in workshops, in France and then in Australia, where he spent several years with a maker of backlit stretch ceilings. He brought back a method: measure right, weld clean, finish without compromise. Back in Anjou, he is opening the workshop in Saumur to make tables, staircases, railings and light ceilings — one piece at a time, to order, for customers who know what they want.",
     "savoirFaireTitle": "Our craft",
     "savoirFaireBody": [
-      "Everything is made here, in Saumur. The steel is cut, TIG-welded and ground in the workshop; the solid wood is cut, glued, sanded and oiled on the same bench; the aluminium frames of the light ceilings are mitred and fitted to the millimetre. Nothing is subcontracted.",
+      "The steel is cut, TIG-welded and ground in the workshop; the solid wood is cut to size, sanded and oiled there; the aluminium boxes of the light ceilings are welded and fitted to the millimetre there. Some parts are bought ready-made, then fitted in the workshop: for example the rosettes, the stretched fabric and the LED lighting.",
       "What that means for you: dimensions held to the millimetre, full welds that stand up to a close look, finishes that age well. And a piece we know by heart — if it needs attention in ten years, we know exactly how it was made."
     ],
     "valeursTitle": "Our values",
     "valeurs": [
       {
         "title": "Custom first",
-        "body": "Every piece starts from your space and your use — never from a catalogue."
+        "body": "Every piece is made for you, to order: a size from the collection or your own measurements."
       },
       {
         "title": "Honest materials",
@@ -985,7 +985,7 @@
     "points": [
       "Reply within 48 h",
       "Free, no-obligation estimate",
-      "Workshop in Saumur, delivery and installation across France"
+      "Workshop in Saumur, delivery and installation across mainland France"
     ],
     "detailsTitle": "Details",
     "email": "auboiacier@gmail.com",
@@ -1346,7 +1346,7 @@
       "title": "Custom railings and steel furniture",
       "description": "Window railings, staircases, steel partitions and solid oak tables on welded steel bases, handmade in Saumur, Loire Valley. Prices shown, PDF quote."
     },
-    "produitSuffixe": "Handmade in Saumur, France. Shipped nationwide.",
+    "produitSuffixe": "Handmade in Saumur. Shipped in mainland France.",
     "lumiere": {
       "title": "Custom backlit stretch-fabric ceilings",
       "description": "Backlit stretch-fabric ceiling light, rectangle or disc, made in Saumur. Ships up to 230 × 210 cm (Ø 210 cm); larger sizes fitted by the workshop."
@@ -1361,7 +1361,7 @@
     },
     "apropos": {
       "title": "Quentin Aumercier's workshop",
-      "description": "One workshop, two materials: TIG-welded steel and solid timber chosen board by board. No production runs — every piece is built to order."
+      "description": "One workshop, two materials: TIG-welded steel and solid timber oiled by hand. No production runs — every piece is built to order."
     },
     "contact": {
       "title": "Contact & free quote — Auboiacier, Saumur, France",
@@ -1373,7 +1373,7 @@
     },
     "devis": {
       "title": "Instant quote, priced in one minute",
-      "description": "Enter your dimensions and see the price in one minute: steel and wood tables, window railings, light ceilings. Delivery anywhere in France."
+      "description": "Enter your dimensions and see the price in one minute: steel and wood tables, window railings, light ceilings. Delivery anywhere in mainland France."
     },
     "panier": {
       "title": "Your cart",
@@ -1433,7 +1433,7 @@
     },
     "tables": {
       "title": "Custom solid wood and steel tables",
-      "description": "Made-to-measure dining tables: solid oak, walnut, beech or pine top on a welded steel base. Made in Saumur, France, priced online, delivered France-wide."
+      "description": "Made-to-measure dining tables: solid oak, walnut, beech or pine top on a welded steel base. Made in Saumur, priced online, delivered in mainland France."
     },
     "bois": {
       "title": "Solid wood and steel made to order, Saumur",
@@ -1484,7 +1484,7 @@
     "sections": [
       {
         "title": "Anywhere in mainland France",
-        "body": "Pieces from the collection are delivered anywhere in mainland France by carrier, priced by your town: they travel protected, and we agree a time slot with you. The one exception: a light ceiling larger than 230 × 210 cm, made of modules, is fitted by the workshop, so only within 200 km of Saumur. Beyond 200 km, the workshop does not travel, either to measure or to fit: a window railing is then made to measurements you take yourself, and shipped."
+        "body": "Pieces from the collection are delivered anywhere in mainland France by carrier, priced by your town: they travel protected, and we agree a time slot with you. The one exception: a light ceiling larger than 230 × 210 cm (Ø 210 cm for the Halo), too big for a carrier, is delivered and fitted by the workshop, so only within 200 km of Saumur. Beyond 200 km, the workshop does not travel, either to measure or to fit: a window railing is then made to measurements you take yourself, and shipped."
       },
       {
         "title": "How a project runs",
@@ -1520,7 +1520,7 @@
       },
       {
         "q": "How does delivery work?",
-        "a": "We deliver anywhere in mainland France by carrier: the price depends on your town, the weight and the size, and appears on the product page as soon as you enter your postcode. Your piece travels protected, and we agree a precise time slot with you. The piece arrives ready, with its notes. If you would rather the workshop delivered and fitted it itself, choose that on the product page: the price depends on the distance from Saumur, and it all happens in a single trip."
+        "a": "We deliver anywhere in mainland France by carrier: the price depends on your town, the weight and the size, and appears on the product page as soon as you enter your postcode. Your piece travels protected, and we agree a precise time slot with you. The piece arrives with its notes; a table arrives dismantled, ready to screw together (top, base, hardware). If you would rather the workshop delivered and fitted it itself, choose that on the product page: the price depends on the distance from Saumur, and it all happens in a single trip."
       },
       {
         "q": "Where do you work?",
@@ -1541,7 +1541,7 @@
       },
       {
         "q": "How is a backlit stretch ceiling fitted?",
-        "a": "The aluminium frame fixes to the existing ceiling or hangs on cables, then the fabric clips into its groove. No building work: a few holes drilled in the ceiling, and a cut-out in the false ceiling for a recessed model. In one piece, a ceiling goes up to 230 × 210 cm (Ø 210 cm for the Halo); beyond that, it is made of modules assembled and fitted at your place by the workshop."
+        "a": "The light ceiling hangs on cables attached to four rings screwed into its frame. Your ceiling needs four fixing points strong enough to carry its weight. Up to 230 × 210 cm (Ø 210 cm for the Halo), it ships by carrier; beyond that, it is delivered and fitted at your place by the workshop."
       },
       {
         "q": "Are quotes free?",
@@ -1735,20 +1735,20 @@
     "choixCadre": "Our light ceilings are aluminium boxes, complete with their fabric and LEDs, fixed below your existing ceiling. You choose the shape and the size, to the centimetre.",
     "choixTendu": "A wall-to-wall stretch ceiling is something else: a fabric membrane stretched all round the room, on profiles fixed to the walls, and fitted by a specialist installer.",
     "choixPrix": "The price shown here is for the whole piece, at its size. The per-square-metre prices you find in guides are for wall-to-wall installation: they do not compare directly.",
-    "poseTitle": "Surface-mounted, suspended or recessed",
-    "poseBody": "The Lucarne is surface-mounted on the ceiling, hung on cables or recessed into a false ceiling. The Halo fixes to the ceiling or hangs. The 220 V supply comes with it; dimming is optional.",
+    "poseTitle": "Hung on cables",
+    "poseBody": "The Lucarne and the Halo hang from the ceiling on stainless or steel cables, supplied, attached to four rings screwed into their frame. The LEDs are 24 V strips; the power supplies, connected to the 230 V mains, and the control box are included.",
     "lumiereTitle": "The light",
-    "lumiereBody": "Warm white 3000 K or neutral white 4000 K. The fabric spreads the light over its whole surface: no hot spot, no hard shadow. On the Lucarne, an app can also set the colour.",
+    "lumiereBody": "The fabric spreads the light of the LED strips over its whole surface: no hot spot, no hard shadow.",
     "piecesTitle": "Which rooms",
-    "piecesBody": "Above a dining table, in a large living room, a meeting room or an open-plan office. Past 1.50 m across, a single Halo can light the whole room.",
+    "piecesBody": "Above a dining table or in a large living room.",
     "fabricationTitle": "Making, delivery, fitting",
-    "fabricationBody": "Every ceiling is made to order: allow {delai}. The fabric clips into a groove all round the frame. In one piece, up to 230 × 210 cm (Ø 210 cm for the Halo), a ceiling ships anywhere in mainland France. Within 200 km of Saumur, the workshop can also come and fit it: the product page gives the fitting price for your postcode.",
+    "fabricationBody": "Every ceiling is made to order: allow {delai}. The fabric is held all round the box by a profile that grips it. Up to 230 × 210 cm (Ø 210 cm for the Halo), a ceiling ships by carrier anywhere in mainland France. Within 200 km of Saumur, the workshop can also come and fit it: the product page gives the fitting price for your postcode.",
     "zoneLink": "See where we work",
     "faqTitle": "Frequently asked questions",
     "faq": [
       {
         "q": "What sizes?",
-        "a": "Rectangles up to 400 × 300 cm, discs up to Ø 400 cm, to the centimetre. Beyond 230 × 210 cm (Ø 210 cm for the Halo), the ceiling is made of modules fitted by the workshop, within 200 km of Saumur. Catalogue sizes have their price shown; for your own size, the product page works out the price at once."
+        "a": "Rectangles up to 400 × 300 cm, discs up to Ø 400 cm, to the centimetre. Beyond 230 × 210 cm (Ø 210 cm for the Halo), the ceiling no longer ships by carrier: it is delivered and fitted by the workshop, within 200 km of Saumur. Catalogue sizes have their price shown; for your own size, the product page works out the price at once."
       },
       {
         "q": "Which white should I choose?",
@@ -1796,7 +1796,7 @@
     "configurer": "Configure",
     "essencesTitle": "The top: four timbers",
     "pietementTitle": "The base: steel welded in the workshop",
-    "pietementBody": "Three designs. Mikado: 80 × 80 mm steel tubes crossed under the top. Croix: a steel X at each end, leaving all the room for legs. Brindille: a bunch of rods bent one by one. The Mikado base also carries the river table and the garden table. Every base is welded in the workshop, then painted in the colour you choose.",
+    "pietementBody": "Three designs. Mikado: 80 × 80 mm steel tubes crossed under the top. Croix: a steel X at each end, leaving all the room for legs. Brindille: a bunch of straight steel rods, welded one by one. The Mikado base also carries the river table and the garden table. Every base is welded in the workshop, then painted in the colour you choose.",
     "teintesTitle": "Base colours",
     "dimensionsTitle": "Your dimensions",
     "dimensionsBody": "Length and width are up to you, to the centimetre, from {min} cm. The largest one-piece top is {longueur} × {largeur} cm. As a guide, allow about 60 cm of table per guest.",
@@ -1810,7 +1810,7 @@
     "faqEntretienQ": "How do I care for an oiled top?",
     "faqEntretienA": "Wipe up spills straight away with a soft, barely damp cloth, and put hot dishes on a trivet. When the wood looks dry, a coat of hardwax oil restores its protection; a scratch sands out lightly, on that spot alone.",
     "faqDehorsQ": "Can a wooden table stay outdoors?",
-    "faqDehorsA": "Yes, that is what the Mikado Outdoor table is for: a top of solid oak slats, spaced so rain runs off, finished with an outdoor oil, on a base painted for outdoor use. Allow one coat of oil a year, or let the wood go grey if you like the patina.",
+    "faqDehorsA": "Yes, that is what the Mikado Outdoor table is for: a top of solid oak slats, spaced so rain runs off, finished with an outdoor oil, on a cold-galvanised, lacquered base. Allow one coat of oil a year, or let the wood go grey if you like the patina.",
     "faqHorsQ": "Can I have a timber or a shape outside the catalogue?",
     "faqHorsA": "Yes, on quotation. Tell us the shape or the timber you want: we adapt the model and price it.",
     "ctaTitle": "A table outside the catalogue?",
@@ -1848,7 +1848,7 @@
     "hauteurTitle": "How high? It is the handrail that counts",
     "hauteurBody": "The rule does not set the height of the railing itself, but that of the top of its handrail: at least {loi} above the finished floor of the room, with no tolerance (French building code, article R134-59). The workshop aims for {cible}, to keep a margin. So the top of the handrail is always in the same place, and it is the railing that grows or shrinks with the bottom of the window: its height is {cible}, minus the sill height, minus the gap left under the frame.",
     "jourBody": "The gap under the frame is the space left between the sill and the bottom of the frame, because a sill is never perfectly flat. The workshop leaves {jour}; when the sill is high and space is short, it reduces it, never below {jourMini}. This gap always stays smaller than {sphere}, the standard's ball.",
-    "allegeBody": "The sill height is measured standing in the room: from the finished floor, with the boards or tiles laid, to the top of the sill, the ledge you rest your hands on.",
+    "allegeBody": "The sill height is measured standing in the room: from the finished floor, with the boards or tiles laid, to the top of the sill where the railing will sit (in the thickness of the wall, window open, at its lowest point). If this sill is lower than the inside ledge, it is the one that counts.",
     "croquisLegende": "The configurator's sketch, for a window {largeur} wide whose sill is {allege} from the floor: a railing {hauteur} high, set {jourEx} above the sill, the top of its handrail {mainCourante} from the floor.",
     "croquisCote": "Top of the handrail, from the floor",
     "videsTitle": "Gaps between the bars (NF P01-012)",

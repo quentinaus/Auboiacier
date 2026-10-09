@@ -41,10 +41,10 @@
     "lightingCta": "Voir les plafonds",
     "craftLabel": "Mobilier acier & bois",
     "craftTitle": "Mobilier acier & bois",
-    "craftSubtitle": "Tables, chaises, garde-corps, escaliers : soudés à l'atelier, à vos cotes. Prix ferme, livraison partout en France.",
+    "craftSubtitle": "Tables, chaises, garde-corps, escaliers : soudés à l'atelier, à vos cotes. Prix ferme, livraison partout en France métropolitaine.",
     "craftCta": "Voir la collection",
     "bandTitle": "Rien n'est en stock",
-    "bandSubtitle": "L'acier est coupé et soudé à la commande, et le bois est choisi à la planche pour votre pièce.",
+    "bandSubtitle": "L'acier est coupé et soudé à la commande, et le bois est mis à vos cotes pour votre pièce.",
     "categoriesTitle": "Ce que nous fabriquons",
     "catTables": "Tables d'intérieur",
     "catChaises": "Chaises d'intérieur",
@@ -57,7 +57,7 @@
     "catPlafonds": "Plafonds lumineux",
     "catLed": "Éclairage LED",
     "editorialTitle": "Un dessin simple, une pièce qui dure",
-    "editorialBody1": "Auboiacier est un atelier de métallerie. L'acier y est coupé, soudé, meulé, puis peint. Le bois massif vient s'y poser — plateaux de table, marches d'escalier, tablettes — collé, poncé et huilé ici même.",
+    "editorialBody1": "Auboiacier est un atelier de métallerie. L'acier y est coupé, soudé, meulé, puis peint. Le bois massif vient s'y poser — plateaux de table, marches d'escalier, tablettes — mis à format, poncé et huilé ici même.",
     "editorialBody2": "Aucune série : chaque pièce est fabriquée à la commande, aux dimensions de votre intérieur, et se reponce ou se repeint plutôt que de se remplacer.",
     "editorialCta": "Voir l'atelier",
     "testimonialsTitle": "Avis clients",
@@ -87,7 +87,7 @@
     "altPlafonds": "Plafond lumineux au-dessus d'une table à manger",
     "altVerrieres": "Verrière d'intérieur en acier noir séparant un salon d'une cuisine",
     "seoTitle": "Métallerie artisanale sur mesure à Saumur et en Anjou",
-    "seoP1": "Auboiacier est un atelier de métallerie installé à Saumur (49400), en Maine-et-Loire. Le métallier-soudeur y fabrique à la main des garde-corps de fenêtre, des escaliers, des verrières d'atelier, des tables en chêne massif sur piétement acier, des chaises, des plafonds lumineux à toile tendue et des sculptures en acier de récupération. Chaque pièce est dessinée à vos cotes et soudée à la commande : rien n'est en stock.",
+    "seoP1": "Auboiacier est un atelier de métallerie qui ouvre à Saumur (49400), en Maine-et-Loire. Le métallier-soudeur y fabrique à la main des garde-corps de fenêtre, des escaliers, des verrières d'atelier, des tables en chêne massif sur piétement acier, des chaises, des plafonds lumineux à toile tendue et des sculptures en acier de récupération. Chaque pièce est dessinée à vos cotes et soudée à la commande : rien n'est en stock.",
     "seoP2": "Le prix s'affiche en une minute : entrez vos cotes dans le configurateur en ligne, choisissez la matière et la finition, puis téléchargez votre devis en PDF, sans compte ni engagement. Nous venons relever les cotes et poser à Saumur, Angers, Cholet, Tours, Chinon et jusqu'à 200 km de l'atelier ; les pièces de la collection sont livrées partout en France métropolitaine.",
     "seoLinksTitle": "Nos fabrications sur mesure",
     "seoLinks": [
@@ -121,7 +121,7 @@
         {
           "h3": "Ce que fabrique l'atelier",
           "paragraphes": [
-            "L'atelier fabrique des garde-corps de fenêtre en acier plein, à croix de Saint-André et rosaces de fonderie, avec une main courante en bois ou en acier, dans l'esprit des balcons anciens ; des escaliers à limon central, bâtis sur un tube d'acier de forte section et portant des marches en bois massif ; des verrières d'atelier en acier fin, mesurées chez vous puis soudées à l'atelier ; des tables en bois massif sur piétement d'acier soudé ; des plafonds lumineux en toile tendue ; et des sculptures en acier de récupération, soudées une à une.",
+            "L'atelier fabrique des garde-corps de fenêtre en acier plein, à croix de Saint-André et rosaces, avec une main courante en bois ou en acier, dans l'esprit des balcons anciens ; des escaliers à limon central, bâtis sur un tube d'acier de forte section et portant des marches en bois massif ; des verrières d'atelier en acier fin, mesurées chez vous puis soudées à l'atelier ; des tables en bois massif sur piétement d'acier soudé ; des plafonds lumineux en toile tendue ; et des sculptures en acier de récupération, soudées une à une.",
             "Tout est fait sur mesure : chaque pièce est dessinée à vos cotes, puis fabriquée à Saumur, à la commande, sans stock ni série. Vous choisissez l'essence du bois, la teinte de l'acier et la finition."
           ]
         },
@@ -151,7 +151,7 @@
   },
   "home": {
     "heroTitle": "Plafonds lumineux en toile tendue, fabriqués sur mesure à Saumur",
-    "heroSubtitle": "Cadre aluminium coupé en onglet, toile tendue, éclairage LED intégré. Chaque plafond est fabriqué à l'atelier aux dimensions de votre pièce.",
+    "heroSubtitle": "Caisson en aluminium soudé, toile tendue, éclairage LED intégré. Chaque plafond est fabriqué à l'atelier aux dimensions de votre pièce.",
     "heroCtaPrimary": "Demander un devis",
     "heroCtaSecondary": "Voir d'autres images",
     "realisationsTitle": "Mises en situation",
@@ -167,14 +167,14 @@
       },
       {
         "title": "Une pose sans gros œuvre",
-        "body": "Le cadre aluminium se fixe au plafond existant ou se suspend par câbles, puis la toile se clipse dans sa gorge."
+        "body": "Le caisson se suspend sous votre plafond par des câbles, accrochés à quatre anneaux vissés dans son cadre."
       }
     ],
     "pourquoiTitle": "Pourquoi Auboiacier",
     "pourquoi": [
       {
-        "title": "Coupé et assemblé à l'atelier",
-        "body": "Chaque cadre est coupé en onglet à l'atelier, puis ajusté aux dimensions de votre pièce."
+        "title": "Soudé et assemblé à l'atelier",
+        "body": "Chaque caisson est soudé à l'atelier, en tube d'aluminium, aux dimensions de votre pièce."
       },
       {
         "title": "Un seul interlocuteur",
@@ -182,16 +182,16 @@
       },
       {
         "title": "Vos dimensions, au centimètre",
-        "body": "Rectangle ou disque, dimensions au centimètre, blanc 3000 K ou 4000 K : le plafond est dessiné pour votre pièce."
+        "body": "Rectangle ou disque, dimensions au centimètre : le plafond est dessiné pour votre pièce."
       }
     ],
     "ctaTitle": "Un projet à chiffrer",
     "ctaSubtitle": "Décrivez votre pièce : nous relevons les cotes, nous chiffrons, nous posons.",
     "ctaButton": "Décrire mon projet",
     "catalogueLumiere": "{n} formes, prix affichés",
-    "catalogueLumiereNote": "Toile tendue rétroéclairée, cadre aluminium laqué, de 60 cm au plafond entier.",
+    "catalogueLumiereNote": "Toile tendue rétroéclairée, caisson en aluminium, jusqu'à 400 × 300 cm (Ø 400 cm).",
     "surMesureTitle": "Au-delà de 230 × 210 cm",
-    "surMesureBody": "Passé cette taille, ou Ø 210 cm pour le Halo, un plafond lumineux est fait de modules que l'atelier assemble et pose chez vous, jusqu'à 200 km de Saumur. Jusqu'à 400 × 300 cm (Ø 400 cm), la fiche donne le prix. Plus grand encore, l'atelier relève les cotes chez vous, puis chiffre.",
+    "surMesureBody": "Passé cette taille, ou Ø 210 cm pour le Halo, un plafond lumineux ne part plus par transporteur : l'atelier le livre et le pose chez vous, jusqu'à 200 km de Saumur. Jusqu'à 400 × 300 cm (Ø 400 cm), la fiche donne le prix. Plus grand encore, l'atelier relève les cotes chez vous, puis chiffre.",
     "altPlafondDemo": "Plafond lumineux à cadre aluminium, toile tendue rétroéclairée"
   },
   "realisations": {
@@ -228,7 +228,7 @@
   },
   "artisanat": {
     "title": "La collection",
-    "subtitle": "Mobilier bois et acier, dessiné et soudé à l'atelier, à Saumur. Rien en stock : l'acier est coupé quand vous commandez. Prix fermes, livraison partout en France.",
+    "subtitle": "Mobilier bois et acier, dessiné et soudé à l'atelier, à Saumur. Rien en stock : l'acier est coupé quand vous commandez. Prix fermes, livraison partout en France métropolitaine.",
     "catalogueTitle": "La collection",
     "breadcrumbShop": "La collection",
     "breadcrumbCategory": "Mobilier",
@@ -262,7 +262,7 @@
     "altBandeauLumiere": "Angle d'un plafond lumineux : le cadre aluminium laqué et la toile tendue",
     "madeInFrance": "Fabriqué en France, à Saumur",
     "craftBandTitle": "Artisanat français",
-    "craftBandBody": "Chaque pièce sort de notre atelier : le bois est choisi planche par planche, l'acier est soudé TIG puis peint, et le montage final se fait à la main. Pas de série : votre pièce est fabriquée pour vous, à la commande.",
+    "craftBandBody": "Chaque pièce sort de notre atelier : le métal y est coupé et soudé au TIG, et le montage final se fait à la main. Pas de série : votre pièce est fabriquée pour vous, à la commande.",
     "descriptifTitle": "La pièce en détail",
     "sectionFaq": "Questions fréquentes",
     "faqDeliveryQ": "Quels sont les délais de fabrication et de livraison ?",
@@ -275,8 +275,8 @@
     "moreInfo": "Voir la fiche",
     "helpTitle": "Une question sur cette pièce ?",
     "helpCta": "Nous contacter",
-    "deliveryTitle": "Livraison partout en France, pose en option",
-    "deliveryBody": "Nous livrons partout en France métropolitaine, par transporteur : le prix dépend de votre ville, du poids et des dimensions, et s'affiche sur la fiche dès votre code postal. La pièce voyage protégée, et nous convenons d'un créneau précis avec vous. La pièce arrive prête, avec sa notice. Si vous préférez que l'atelier vienne la livrer et la poser lui-même, choisissez-le sur la fiche : le prix dépend de la distance depuis Saumur, et tout se fait sur un seul trajet.",
+    "deliveryTitle": "Livraison en France métropolitaine, pose en option",
+    "deliveryBody": "Nous livrons partout en France métropolitaine, par transporteur : le prix dépend de votre ville, du poids et des dimensions, et s'affiche sur la fiche dès votre code postal. La pièce voyage protégée, et nous convenons d'un créneau précis avec vous. La pièce arrive avec sa notice ; une table arrive démontée, prête à visser (plateau, piétement, visserie). Si vous préférez que l'atelier vienne la livrer et la poser lui-même, choisissez-le sur la fiche : le prix dépend de la distance depuis Saumur, et tout se fait sur un seul trajet.",
     "delaiTitle": "Délai de fabrication",
     "delaiBody": "Rien n'est en stock : votre pièce est fabriquée pour vous, à la commande. Son délai figure ci-dessus, à la ligne « Fabrication ». Il vous est confirmé à la commande.",
     "delaiCta": "Commander",
@@ -331,15 +331,15 @@
     "poseObligatoire": "Cette pièce est trop encombrante pour un transporteur : elle est livrée et posée par l'atelier.",
     "livraisonTitle": "Livraison ou retrait",
     "poseSeul": "Livraison par transporteur",
-    "poseSeulInfo": "Partout en France métropolitaine, 90 € au maximum, quelle que soit votre ville. La table arrive démontée : plateau, piétement soudé d'une pièce, visserie et notice de montage.",
+    "poseSeulInfo": "Partout en France métropolitaine, 90 € au maximum, quelle que soit votre ville. La table arrive démontée : plateau, piétement soudé, visserie et notice de montage.",
     "poseAtelier": "L'atelier livre et pose",
     "poseAtelierInfo": "Nous venons livrer et installer la pièce chez vous, sur un seul trajet. Prix selon la distance depuis Saumur.",
     "poseCodePostal": "Code postal de livraison",
     "poseAttente": "Entrez votre code postal pour connaître le prix.",
     "poseCalcul": "Calcul en cours…",
     "posePrix": "{commune} — {prix} : livraison et pose à domicile, comptées une fois pour toute la commande.",
-    "poseLoin": "{commune} est hors de France métropolitaine : nous ne posons pas outre-mer. La livraison seule reste comprise.",
-    "poseHors": "Nous ne posons qu'en France métropolitaine. La livraison seule reste comprise.",
+    "poseLoin": "{commune} est hors de France métropolitaine : nous n'y livrons pas et nous n'y posons pas.",
+    "poseHors": "Nous ne livrons et ne posons qu'en France métropolitaine.",
     "poseInvalide": "Ce code postal ne ressemble pas à un code postal français.",
     "poseErreur": "Impossible de calculer la pose pour l'instant. Réessayez dans un instant.",
     "poseResume": "Livraison et pose à domicile",
@@ -388,13 +388,13 @@
       "En étage",
       "Au rez-de-chaussée"
     ],
-    "gcEtageInfo": "En étage, une fenêtre dont l'appui est à moins de 90 cm du sol doit être protégée : c'est la loi. Au rez-de-chaussée, elle n'impose rien, mais nous appliquons la même hauteur. Le haut de la main courante est toujours au même endroit : à 1 m du sol au moins (nous visons 1 025 mm). La hauteur du garde-corps s'adapte à votre fenêtre.",
+    "gcEtageInfo": "En étage, dans un logement neuf, une fenêtre dont l'appui est à moins de 90 cm du sol doit être protégée : c'est la loi. Dans une maison ancienne, ce n'est pas une obligation, et au rez-de-chaussée la loi n'impose rien : nous appliquons pourtant partout la même hauteur. Le haut de la main courante est toujours au même endroit : à 1 m du sol au moins (nous visons 1 025 mm). La hauteur du garde-corps s'adapte à votre fenêtre.",
     "gcLargeur": "Largeur de la fenêtre, entre les murs",
     "gcLargeurAide": "Dans l'ouverture, d'un mur à l'autre, juste au-dessus de l'appui.",
     "gcLargeurInfo": "Ouvrez la fenêtre et mesurez d'un mur à l'autre, dans l'ouverture, là où le garde-corps va s'encastrer. Cote brute : ne retirez rien, nous prenons le jeu de pose.",
     "gcAllege": "Hauteur du sol au bas de la fenêtre",
     "gcAllegeAide": "Du parquet ou du carrelage jusqu'au-dessus de l'appui.",
-    "gcAllegeInfo": "Debout dans la pièce, mesurez du sol fini (parquet ou carrelage posé) jusqu'au-dessus de l'appui de fenêtre, la tablette sur laquelle on pose les mains. Cette hauteur, l'allège, nous donne la hauteur du garde-corps.",
+    "gcAllegeInfo": "Debout dans la pièce, mesurez du sol fini (parquet ou carrelage posé) jusqu'au-dessus de l'appui, là où le garde-corps sera posé : dans l'épaisseur du mur, fenêtre ouverte, à son point le plus bas. Si cet appui est plus bas que la tablette intérieure, c'est lui qui compte. Cette hauteur, l'allège, nous donne la hauteur du garde-corps.",
     "gcMur": "Type de mur",
     "gcConsigne": "Cotes exactes au millimètre : l'atelier calcule le garde-corps.",
     "gcFacultatif": "(facultatif)",
@@ -517,14 +517,14 @@
     "livraisonLourd": "Pièce lourde ou encombrante : l'atelier peut aussi la livrer et la poser en un seul passage — voir « L'atelier livre et pose ».",
     "livraisonResume": "Livraison par transporteur",
     "livraisonHors": "Nous ne livrons qu'en France métropolitaine.",
-    "inclusLivraisonTable": "Livraison partout en France (90 € au maximum), pose par l'atelier, ou retrait gratuit à l'atelier.",
+    "inclusLivraisonTable": "Livraison partout en France métropolitaine (90 € au maximum), pose par l'atelier, ou retrait gratuit à l'atelier.",
     "customTooBigTable": "Au-delà du plus grand plateau d'un seul tenant (450 × 125 cm) : choisissez une autre dimension.",
     "poseSeulInfoPiece": "Partout en France métropolitaine, 90 € au maximum, quelle que soit votre ville. La pièce arrive prête à poser, avec sa notice.",
     "devisPdf": "Voir mon devis (PDF)",
     "estimationPdf": "Voir mon estimation (PDF)",
     "catalogueLabel": "Format du catalogue",
     "customOrCustom": "Ou à vos cotes",
-    "poseSeulCourt": "Partout en France, 90 € au maximum.",
+    "poseSeulCourt": "Partout en France métropolitaine, 90 € au maximum.",
     "poseAtelierCourt": "Un seul trajet depuis Saumur, à partir de 100 €.",
     "poseRetrait": "Retrait à l'atelier",
     "poseRetraitCourt": "Gratuit, à Saumur, sur rendez-vous.",
@@ -552,9 +552,9 @@
     "h1": "Pièces sur mesure en acier et bois massif",
     "avisGoogle": "Voir la fiche Google",
     "faqPoseToileQ": "Comment se pose un plafond lumineux ?",
-    "faqPoseToileA": "Le cadre aluminium se fixe au plafond existant ou se suspend par câbles, puis la toile se clipse dans sa gorge. Sans gros œuvre : quelques perçages au plafond, et une découpe du faux plafond pour un modèle encastré. L'atelier peut venir le poser ; la fiche donne le prix selon votre code postal.",
+    "faqPoseToileA": "Le plafond lumineux se suspend par des câbles accrochés à quatre anneaux vissés dans son cadre. Il faut au plafond quatre points d'accroche capables de porter son poids. L'atelier peut venir le poser ; la fiche donne le prix selon votre code postal.",
     "faqToileQ": "Comment entretenir la toile ?",
-    "faqToileA": "La toile se retire et se remet sans outil, ce qui permet de la dépoussiérer. Le cadre en aluminium laqué se nettoie au chiffon doux.",
+    "faqToileA": "La toile s'entretient en place, avec un chiffon doux et sec. Le tour en aluminium peint se nettoie aussi au chiffon doux.",
     "qualiteFamille": {
       "intro": "Ce qui fait la qualité de cette pièce",
       "table-interieur": [
@@ -577,12 +577,12 @@
       ],
       "table-exterieur": [
         {
-          "t": "Un bois traité pour dehors",
-          "d": "Le chêne massif est traité en classe 4 et huilé pour l'extérieur. Les lattes espacées laissent la pluie s'écouler, le bois sèche vite."
+          "t": "Un chêne massif pour dehors",
+          "d": "Des lames de terrasse en chêne massif, huilées pour l'extérieur. Les lattes espacées laissent la pluie s'écouler, le bois sèche vite."
         },
         {
-          "t": "Un acier peint pour rester dehors",
-          "d": "Le piétement soudé d'une seule pièce reçoit une peinture d'extérieur qui tient à la pluie, au sel et aux UV sans s'écailler."
+          "t": "Un acier protégé pour rester dehors",
+          "d": "Le piétement soudé d'une seule pièce reçoit à l'atelier une galvanisation à froid, puis une laque : une protection contre la rouille."
         },
         {
           "t": "Un entretien simple",
@@ -590,7 +590,7 @@
         },
         {
           "t": "À vos dimensions, à la commande",
-          "d": "Dessinée pour votre terrasse, fabriquée à Saumur, livrée partout en France ou posée par l'atelier."
+          "d": "Dessinée pour votre terrasse, fabriquée à Saumur, livrée en France métropolitaine ou posée par l'atelier."
         }
       ],
       "chaise": [
@@ -631,16 +631,16 @@
       ],
       "escalier": [
         {
-          "t": "Un limon cintré d'une seule pièce",
-          "d": "Un tube d'acier de forte section, cintré puis soudé au TIG à l'atelier : une seule ligne, sans raccord apparent."
+          "t": "Un limon en tube d'acier",
+          "d": "Un tube d'acier de forte section, coupé et soudé au TIG à l'atelier, avec un support et une platine sous chaque marche."
         },
         {
           "t": "Des marches en bois massif",
           "d": "Pin, hêtre, chêne ou noyer, huilés à l'atelier, fixés sur des platines cachées sous la marche."
         },
         {
-          "t": "Un garde-corps aux normes",
-          "d": "Câbles inox tendus et main courante en bois cintré, conformes aux normes de sécurité françaises (NF P01-012)."
+          "t": "Un garde-corps dessiné selon la norme",
+          "d": "Main courante en bois ; le remplissage du garde-corps est choisi au devis, selon la norme NF P01-012 (2024)."
         },
         {
           "t": "Mesuré chez vous, posé par l'atelier",
@@ -654,7 +654,7 @@
         },
         {
           "t": "Calculé pour votre fenêtre",
-          "d": "Hauteur et espaces entre les barres sont calculés d'après vos mesures (Code de la construction, NF P01-012). Nous ne vendons jamais un garde-corps qui ne les respecte pas."
+          "d": "Hauteur et espaces entre les barres sont calculés d'après vos mesures (Code de la construction, NF P01-012)."
         },
         {
           "t": "Une fixation adaptée à votre mur",
@@ -671,16 +671,16 @@
           "d": "La toile tendue diffuse la lumière sur toute sa surface : pas de spot visible, pas d'ombre dure."
         },
         {
-          "t": "Un cadre en aluminium laqué",
-          "d": "Profilé coupé en onglet et laqué : la teinte ne jaunit pas et ne s'écaille pas."
+          "t": "Un caisson en aluminium soudé",
+          "d": "Une ossature en tube d'aluminium soudée à l'atelier, habillée d'une tôle d'aluminium peinte dans la couleur choisie."
         },
         {
-          "t": "Une toile qui se retire sans outil",
-          "d": "Elle se clipse dans une gorge périphérique : nettoyage et entretien simples."
+          "t": "Une toile tenue tout autour",
+          "d": "Un profilé la pince tout autour du caisson : elle se nettoie en place, au chiffon doux."
         },
         {
           "t": "Fabriqué à vos dimensions",
-          "d": "Au centimètre près, jusqu'à 400 × 300 cm, en applique, suspendu ou encastré."
+          "d": "Au centimètre près, jusqu'à 400 × 300 cm, suspendu par câbles."
         }
       ],
       "portail": [
@@ -709,11 +709,11 @@
         "points": [
           {
             "t": "Du bois massif de qualité",
-            "d": "Notre plateau de référence est en chêne français de premier choix, issu de forêts gérées durablement : de larges lames d'une seule pièce, choisies et assemblées à la main. Le bois massif coûte plus cher qu'un panneau, et il dure bien plus longtemps."
+            "d": "Notre plateau de référence est en chêne massif, fait à vos cotes, poncé puis huilé à la main. Le bois massif coûte plus cher qu'un panneau, et il dure bien plus longtemps."
           },
           {
             "t": "De l'acier soudé à la main",
-            "d": "Le piétement est soudé d'une seule pièce, meulé puis peint. C'est du temps d'atelier, et c'est ce qui le rend solide et indémontable : pas de vis qui prennent du jeu."
+            "d": "Le piétement est soudé à l'atelier, meulé puis peint. C'est du temps d'atelier, et c'est ce qui le rend solide : pas de vis qui prennent du jeu."
           },
           {
             "t": "Du temps, sans série ni intermédiaire",
@@ -729,12 +729,12 @@
         "intro": "Une table de jardin bon marché se remplace tous les deux ou trois ans. Celle-ci est faite pour rester dehors, et pour durer.",
         "points": [
           {
-            "t": "Un chêne massif traité pour dehors",
-            "d": "Chêne traité en classe 4, huilé pour l'extérieur, en lattes espacées qui laissent l'eau s'écouler. C'est une matière noble, choisie pour tenir à la pluie."
+            "t": "Un chêne massif pour dehors",
+            "d": "Des lames de terrasse en chêne massif, huilées pour l'extérieur, en lattes espacées qui laissent l'eau s'écouler. C'est une matière noble, choisie pour tenir dehors."
           },
           {
-            "t": "Un acier soudé, peint pour l'extérieur",
-            "d": "Le piétement est soudé à la main d'une seule pièce, puis protégé par une peinture d'extérieur qui tient à la pluie, au sel et aux UV."
+            "t": "Un acier soudé, protégé contre la rouille",
+            "d": "Le piétement est soudé à la main d'une seule pièce, puis reçoit une galvanisation à froid et une laque contre la rouille."
           },
           {
             "t": "Fabriquée à Saumur, à la commande",
@@ -793,11 +793,11 @@
         "points": [
           {
             "t": "Un limon en acier de forte section",
-            "d": "Un tube d'acier cintré d'une seule pièce, soudé au TIG à l'atelier : une seule ligne, sans raccord, qui porte les marches."
+            "d": "Un tube d'acier coupé et soudé au TIG à l'atelier, avec un support et une platine sous chaque marche : il porte les marches de chaque côté."
           },
           {
             "t": "Du bois massif, de l'acier, de la sécurité",
-            "d": "Des marches en bois massif, et un garde-corps conforme aux normes de sécurité françaises (NF P01-012) : un escalier se calcule, il ne s'improvise pas."
+            "d": "Des marches en bois massif, et un garde-corps dessiné selon la norme NF P01-012 (2024) : un escalier se calcule, il ne s'improvise pas."
           },
           {
             "t": "Mesuré chez vous, fabriqué pour vous",
@@ -818,7 +818,7 @@
           },
           {
             "t": "Une sécurité calculée, pas estimée",
-            "d": "Hauteur et espaces entre les barres sont calculés d'après vos mesures, selon le Code de la construction et la norme NF P01-012. Nous ne vendons jamais un garde-corps qui ne les respecte pas."
+            "d": "Hauteur et espaces entre les barres sont calculés d'après vos mesures, selon le Code de la construction et la norme NF P01-012."
           },
           {
             "t": "Une fixation pensée pour votre mur",
@@ -834,12 +834,12 @@
         "intro": "Un plafond lumineux se voit tous les jours. Le nôtre est fait pour votre pièce, au centimètre près.",
         "points": [
           {
-            "t": "Un cadre en aluminium soudé et laqué",
-            "d": "Un profilé coupé en onglet et laqué, qui ne jaunit pas et ne s'écaille pas."
+            "t": "Un caisson en aluminium soudé",
+            "d": "Une ossature en tube d'aluminium soudée à l'atelier, habillée d'une tôle d'aluminium peinte."
           },
           {
-            "t": "Une toile tendue qui se retire sans outil",
-            "d": "Elle diffuse la lumière sans point chaud, et se retire pour le nettoyage."
+            "t": "Une toile tendue qui diffuse la lumière",
+            "d": "Un profilé la pince tout autour du caisson ; elle diffuse la lumière sans point chaud."
           },
           {
             "t": "Fait à vos dimensions",
@@ -938,7 +938,7 @@
         "texte": "Une seule main, de la coupe à la pose."
       },
       {
-        "titre": "Livraison partout en France, pose en option",
+        "titre": "Livraison en France métropolitaine, pose en option",
         "texte": "France métropolitaine, prix selon votre ville."
       },
       {
@@ -954,17 +954,17 @@
   "apropos": {
     "title": "À propos",
     "histoireTitle": "Notre histoire",
-    "histoireBody": "Auboiacier est un atelier de métallerie installé à Saumur, en Maine-et-Loire. À sa tête, Quentin Aumercier, soudeur-métallier formé sur les chantiers et dans les ateliers, en France puis en Australie, où il a travaillé plusieurs années chez un fabricant de plafonds lumineux. Il en a rapporté une méthode : mesurer juste, souder propre, finir sans compromis. De retour en Anjou, il ouvre l'atelier à Saumur pour fabriquer des tables, des escaliers, des garde-corps et des plafonds lumineux — pièce par pièce, à la commande, pour des clients qui savent ce qu'ils veulent.",
+    "histoireBody": "Auboiacier est un atelier de métallerie à Saumur, en Maine-et-Loire. À sa tête, Quentin Aumercier, soudeur-métallier formé sur les chantiers et dans les ateliers, en France puis en Australie, où il a travaillé plusieurs années chez un fabricant de plafonds lumineux. Il en a rapporté une méthode : mesurer juste, souder propre, finir sans compromis. De retour en Anjou, il ouvre l'atelier à Saumur pour fabriquer des tables, des escaliers, des garde-corps et des plafonds lumineux — pièce par pièce, à la commande, pour des clients qui savent ce qu'ils veulent.",
     "savoirFaireTitle": "Notre savoir-faire",
     "savoirFaireBody": [
-      "Tout est fabriqué ici, à Saumur. L'acier est coupé, soudé au TIG et meulé à l'atelier ; le bois massif est débité, collé, poncé et huilé sur le même établi ; les cadres aluminium des plafonds lumineux sont coupés en onglet et ajustés au millimètre. Rien n'est sous-traité.",
+      "L'acier est coupé, soudé au TIG et meulé à l'atelier ; le bois massif y est mis à format, poncé et huilé ; les caissons en aluminium des plafonds lumineux y sont soudés et ajustés au millimètre. Certains éléments sont achetés tout faits, puis montés à l'atelier : par exemple les rosaces, la toile tendue et l'éclairage LED.",
       "Ce que cela change pour vous : des cotes tenues au millimètre, des soudures pleines que l'on peut regarder de près, des finitions qui vieillissent bien. Et une pièce que nous connaissons par cœur — s'il faut la reprendre dans dix ans, nous savons exactement comment elle est faite."
     ],
     "valeursTitle": "Nos valeurs",
     "valeurs": [
       {
         "title": "Le sur-mesure d'abord",
-        "body": "Chaque pièce part de votre espace et de votre usage — jamais d'un catalogue."
+        "body": "Chaque pièce est fabriquée pour vous, à la commande : un format de la collection ou vos propres cotes."
       },
       {
         "title": "La matière honnête",
@@ -985,7 +985,7 @@
     "points": [
       "Réponse sous 48 h",
       "Estimation gratuite, sans engagement",
-      "Atelier à Saumur, livraison et pose partout en France"
+      "Atelier à Saumur, livraison et pose partout en France métropolitaine"
     ],
     "detailsTitle": "Coordonnées",
     "email": "auboiacier@gmail.com",
@@ -1344,9 +1344,9 @@
     },
     "artisanat": {
       "title": "Garde-corps et mobilier sur mesure",
-      "description": "Garde-corps de fenêtre, escaliers, verrières et tables en chêne massif sur acier, faits main à Saumur. Prix affichés, devis PDF, livraison France entière."
+      "description": "Garde-corps de fenêtre, escaliers, verrières, tables en chêne massif sur acier, faits main à Saumur. Prix affichés, devis PDF, livraison en métropole."
     },
-    "produitSuffixe": "Fabriqué à Saumur (49), livraison France entière.",
+    "produitSuffixe": "Fabriqué à Saumur (49), livré en métropole.",
     "lumiere": {
       "title": "Plafond lumineux toile tendue sur mesure",
       "description": "Plafond lumineux en toile tendue, rectangle ou disque, fabriqué à Saumur. Livré jusqu'à 230 × 210 cm (Ø 210 cm) ; au-delà, posé par l'atelier."
@@ -1361,7 +1361,7 @@
     },
     "apropos": {
       "title": "L'atelier de Quentin Aumercier",
-      "description": "Un atelier, deux matières : l'acier soudé TIG et le bois massif choisi à la planche. Chaque pièce est fabriquée à la commande à Saumur (49)."
+      "description": "Un atelier, deux matières : l'acier soudé TIG et le bois massif huilé à la main. Chaque pièce est fabriquée à la commande à Saumur (49)."
     },
     "contact": {
       "title": "Contact & devis gratuit",
@@ -1373,7 +1373,7 @@
     },
     "devis": {
       "title": "Devis instantané, prix en une minute",
-      "description": "Entrez vos cotes, le prix s'affiche en une minute : tables acier et bois massif, garde-corps de fenêtre, plafonds lumineux. Livraison partout en France."
+      "description": "Entrez vos cotes, le prix s'affiche en une minute : tables acier et bois massif, garde-corps de fenêtre, plafonds lumineux. Livraison partout en métropole."
     },
     "panier": {
       "title": "Votre panier",
@@ -1433,7 +1433,7 @@
     },
     "tables": {
       "title": "Tables sur mesure bois massif et acier",
-      "description": "Tables à manger sur mesure : plateau en chêne, noyer, hêtre ou pin massif, piétement en acier soudé. Fabriquées à Saumur, prix affiché, livrées en France."
+      "description": "Tables à manger sur mesure : plateau en chêne, noyer, hêtre ou pin massif, piétement acier soudé. Fabriquées à Saumur, prix affiché, livrées en métropole."
     },
     "bois": {
       "title": "Bois massif et métal sur mesure à Saumur",
@@ -1484,7 +1484,7 @@
     "sections": [
       {
         "title": "Partout en France métropolitaine",
-        "body": "Les pièces de la collection sont livrées dans toute la France métropolitaine, par transporteur, au prix de votre ville : elles voyagent protégées, et nous convenons d'un créneau avec vous. Seule exception : un plafond lumineux de plus de 230 × 210 cm, fait de modules, est posé par l'atelier, donc jusqu'à 200 km de Saumur seulement. Au-delà de 200 km, l'atelier ne se déplace ni pour relever les cotes ni pour poser : un garde-corps se fabrique alors sur les cotes que vous prenez vous-même, puis il est expédié."
+        "body": "Les pièces de la collection sont livrées dans toute la France métropolitaine, par transporteur, au prix de votre ville : elles voyagent protégées, et nous convenons d'un créneau avec vous. Seule exception : un plafond lumineux de plus de 230 × 210 cm (Ø 210 cm pour le Halo), trop grand pour un transporteur, est livré et posé par l'atelier, donc jusqu'à 200 km de Saumur seulement. Au-delà de 200 km, l'atelier ne se déplace ni pour relever les cotes ni pour poser : un garde-corps se fabrique alors sur les cotes que vous prenez vous-même, puis il est expédié."
       },
       {
         "title": "Comment se passe un chantier",
@@ -1520,7 +1520,7 @@
       },
       {
         "q": "Comment se passe la livraison ?",
-        "a": "Nous livrons partout en France métropolitaine, par transporteur : le prix dépend de votre ville, du poids et des dimensions, et s'affiche sur la fiche dès votre code postal. Votre pièce voyage protégée, et nous convenons d'un créneau précis avec vous. La pièce arrive prête, avec sa notice. Si vous préférez que l'atelier vienne la livrer et la poser lui-même, choisissez-le sur la fiche : le prix dépend de la distance depuis Saumur, et tout se fait sur un seul trajet."
+        "a": "Nous livrons partout en France métropolitaine, par transporteur : le prix dépend de votre ville, du poids et des dimensions, et s'affiche sur la fiche dès votre code postal. Votre pièce voyage protégée, et nous convenons d'un créneau précis avec vous. La pièce arrive avec sa notice ; une table arrive démontée, prête à visser (plateau, piétement, visserie). Si vous préférez que l'atelier vienne la livrer et la poser lui-même, choisissez-le sur la fiche : le prix dépend de la distance depuis Saumur, et tout se fait sur un seul trajet."
       },
       {
         "q": "Où intervenez-vous ?",
@@ -1541,7 +1541,7 @@
       },
       {
         "q": "Comment se pose un plafond lumineux ?",
-        "a": "Le cadre aluminium se fixe au plafond existant ou se suspend par câbles, puis la toile se clipse dans sa gorge. Sans gros œuvre : quelques perçages au plafond, et une découpe du faux plafond pour un modèle encastré. D'un seul tenant, un plafond va jusqu'à 230 × 210 cm (Ø 210 cm pour le Halo) ; au-delà, il est fait de modules assemblés et posés chez vous par l'atelier."
+        "a": "Le plafond lumineux se suspend par des câbles accrochés à quatre anneaux vissés dans son cadre. Il faut au plafond quatre points d'accroche capables de porter son poids. Jusqu'à 230 × 210 cm (Ø 210 cm pour le Halo), il part par transporteur ; au-delà, il est livré et posé chez vous par l'atelier."
       },
       {
         "q": "Les devis sont-ils gratuits ?",
@@ -1735,20 +1735,20 @@
     "choixCadre": "Nos plafonds lumineux sont des caissons en aluminium, avec leur toile et leurs LED, fixés sous votre plafond existant. Vous choisissez la forme et les cotes, au centimètre.",
     "choixTendu": "Un plafond tendu mur à mur, c'est autre chose : une toile tendue tout autour de la pièce, sur des profilés fixés aux murs, et posée par un poseur spécialisé.",
     "choixPrix": "Le prix affiché ici est celui de la pièce entière, à ses cotes. Les prix au mètre carré que donnent les guides parlent de la pose mur à mur : ils ne se comparent pas directement.",
-    "poseTitle": "En applique, suspendu ou encastré",
-    "poseBody": "La Lucarne se pose en applique au plafond, se suspend par câbles ou s'encastre dans un faux plafond. Le Halo se pose au plafond ou se suspend. L'alimentation 220 V est fournie ; la variation est en option.",
+    "poseTitle": "Suspendu par câbles",
+    "poseBody": "La Lucarne et le Halo se suspendent au plafond par des câbles en inox ou en acier, fournis, accrochés à quatre anneaux vissés dans leur cadre. Les LED sont des rubans 24 V ; les alimentations, branchées sur le 230 V, et le boîtier de commande sont compris.",
     "lumiereTitle": "La lumière",
-    "lumiereBody": "Blanc chaud 3000 K ou blanc neutre 4000 K. La toile diffuse la lumière sur toute sa surface : pas de point chaud, pas d'ombre dure. Sur la Lucarne, une application permet aussi de régler la couleur.",
+    "lumiereBody": "La toile diffuse la lumière des rubans LED sur toute sa surface : pas de point chaud, pas d'ombre dure.",
     "piecesTitle": "Pour quelles pièces",
-    "piecesBody": "Au-dessus d'une table de salle à manger, dans une grande pièce à vivre, une salle de réunion ou un plateau de bureaux. Au-delà de 1,50 m de diamètre, un seul Halo peut éclairer toute la pièce.",
+    "piecesBody": "Au-dessus d'une table de salle à manger ou dans une grande pièce à vivre.",
     "fabricationTitle": "Fabrication, livraison, pose",
-    "fabricationBody": "Chaque plafond est fabriqué à la commande : comptez {delai}. La toile se clipse dans une gorge tout autour du cadre. D'un seul tenant, jusqu'à 230 × 210 cm (Ø 210 cm pour le Halo), un plafond se livre partout en France métropolitaine. Jusqu'à 200 km de Saumur, l'atelier peut aussi venir le poser : la fiche donne le prix de la pose selon votre code postal.",
+    "fabricationBody": "Chaque plafond est fabriqué à la commande : comptez {delai}. La toile est tenue tout autour du caisson par un profilé qui la pince. Jusqu'à 230 × 210 cm (Ø 210 cm pour le Halo), un plafond part par transporteur partout en France métropolitaine. Jusqu'à 200 km de Saumur, l'atelier peut aussi venir le poser : la fiche donne le prix de la pose selon votre code postal.",
     "zoneLink": "Voir la zone d'intervention",
     "faqTitle": "Questions fréquentes",
     "faq": [
       {
         "q": "Quelles tailles ?",
-        "a": "Rectangle jusqu'à 400 × 300 cm, disque jusqu'à Ø 400 cm, au centimètre près. Au-delà de 230 × 210 cm (Ø 210 cm pour le Halo), le plafond est fait de modules posés par l'atelier, dans un rayon de 200 km autour de Saumur. Les tailles du catalogue ont leur prix affiché ; pour vos cotes, la fiche calcule le prix aussitôt."
+        "a": "Rectangle jusqu'à 400 × 300 cm, disque jusqu'à Ø 400 cm, au centimètre près. Au-delà de 230 × 210 cm (Ø 210 cm pour le Halo), le plafond ne part plus par transporteur : il est livré et posé par l'atelier, dans un rayon de 200 km autour de Saumur. Les tailles du catalogue ont leur prix affiché ; pour vos cotes, la fiche calcule le prix aussitôt."
       },
       {
         "q": "Quel blanc choisir ?",
@@ -1796,7 +1796,7 @@
     "configurer": "Configurer",
     "essencesTitle": "Le plateau : quatre essences",
     "pietementTitle": "Le piétement : acier soudé à l'atelier",
-    "pietementBody": "Trois dessins. Mikado : des tubes d'acier de 80 × 80 mm croisés sous le plateau. Croix : un X d'acier à chaque bout, et toute la place pour les jambes. Brindille : un bouquet de tiges cintrées une à une. Le piétement Mikado porte aussi la table rivière et la table de jardin. Chaque piétement est soudé à l'atelier, puis peint dans la teinte de votre choix.",
+    "pietementBody": "Trois dessins. Mikado : des tubes d'acier de 80 × 80 mm croisés sous le plateau. Croix : un X d'acier à chaque bout, et toute la place pour les jambes. Brindille : un bouquet de tiges d'acier droites, soudées une à une. Le piétement Mikado porte aussi la table rivière et la table de jardin. Chaque piétement est soudé à l'atelier, puis peint dans la teinte de votre choix.",
     "teintesTitle": "Les teintes du piétement",
     "dimensionsTitle": "Vos dimensions",
     "dimensionsBody": "Longueur et largeur sont libres, au centimètre près, à partir de {min} cm. Le plus grand plateau d'un seul tenant mesure {longueur} × {largeur} cm. Pour choisir, comptez environ 60 cm de plateau par convive.",
@@ -1810,7 +1810,7 @@
     "faqEntretienQ": "Comment entretenir un plateau huilé ?",
     "faqEntretienA": "Essuyez les liquides sans attendre, avec un chiffon doux à peine humide, et posez les plats chauds sur un dessous-de-plat. Quand le bois paraît sec, une couche d'huile-cire lui rend sa protection ; une rayure se rattrape d'un ponçage léger, sur la zone touchée seulement.",
     "faqDehorsQ": "Une table en bois peut-elle rester dehors ?",
-    "faqDehorsA": "Oui, la table Mikado Extérieur est faite pour ça : un plateau en lattes de chêne massif, espacées pour que la pluie s'écoule, fini à l'huile pour l'extérieur, sur un piétement peint pour l'extérieur. Comptez une couche d'huile par an, ou laissez le bois griser si vous aimez la patine.",
+    "faqDehorsA": "Oui, la table Mikado Extérieur est faite pour ça : un plateau en lattes de chêne massif, espacées pour que la pluie s'écoule, fini à l'huile pour l'extérieur, sur un piétement galvanisé à froid puis laqué. Comptez une couche d'huile par an, ou laissez le bois griser si vous aimez la patine.",
     "faqHorsQ": "Peut-on avoir une essence ou une forme hors catalogue ?",
     "faqHorsA": "Oui, sur devis. Décrivez-nous la forme ou l'essence voulue : nous adaptons le modèle et nous chiffrons.",
     "ctaTitle": "Une table hors catalogue ?",
@@ -1848,7 +1848,7 @@
     "hauteurTitle": "Quelle hauteur ? Celle de la main courante",
     "hauteurBody": "La règle ne fixe pas la hauteur du garde-corps lui-même, mais celle du haut de sa main courante : {loi} au moins au-dessus du sol fini de la pièce, sans tolérance (Code de la construction, article R134-59). L'atelier vise {cible}, pour garder une marge. Le haut de la main courante est donc toujours au même endroit, et c'est le garde-corps qui grandit ou rapetisse avec le bas de la fenêtre : sa hauteur vaut {cible}, moins la hauteur de l'appui, moins le jour laissé sous le cadre.",
     "jourBody": "Le jour est l'espace laissé entre l'appui et le bas du cadre, car un appui n'est jamais parfaitement plan. L'atelier laisse {jour} ; quand l'appui est haut et que la place manque, il le réduit, jamais sous {jourMini}. Ce jour reste toujours plus petit que {sphere}, la boule de la norme.",
-    "allegeBody": "La hauteur de l'appui, qu'on appelle aussi l'allège, se mesure debout dans la pièce : du sol fini, parquet ou carrelage posé, jusqu'au-dessus de l'appui, là où l'on pose les mains.",
+    "allegeBody": "La hauteur de l'appui, qu'on appelle aussi l'allège, se mesure debout dans la pièce : du sol fini, parquet ou carrelage posé, jusqu'au-dessus de l'appui, là où le garde-corps sera posé (dans l'épaisseur du mur, fenêtre ouverte, à son point le plus bas). Si cet appui est plus bas que la tablette intérieure, c'est lui qui compte.",
     "croquisLegende": "Le croquis du configurateur, pour une fenêtre de {largeur} de large dont l'appui est à {allege} du sol : un garde-corps de {hauteur}, posé {jourEx} au-dessus de l'appui, le haut de sa main courante à {mainCourante} du sol.",
     "croquisCote": "Haut de la main courante, depuis le sol",
     "videsTitle": "Les vides entre les barres (NF P01-012)",

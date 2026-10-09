@@ -229,8 +229,8 @@ test("les tailles de plafond citées dans les textes sont celles du catalogue et
   const rectLivrable = `${TRANSPORT_MAX_GRANDE_COTE_MM / 10} × ${TRANSPORT_MAX_PETITE_COTE_MM / 10} cm`;
   const disqueLivrable = `Ø ${TRANSPORT_MAX_PETITE_COTE_MM / 10} cm`;
   // Les fiches disent la même chose que le code.
-  assert.ok(JSON.stringify(lucarne.specs).includes(`D'un seul tenant jusqu'à ${rectLivrable}`));
-  assert.ok(JSON.stringify(halo.specs).includes(`D'un seul tenant jusqu'à ${TRANSPORT_MAX_PETITE_COTE_MM / 10} cm`));
+  assert.ok(JSON.stringify(lucarne.specs).includes(`Livré par transporteur jusqu'à ${rectLivrable}`));
+  assert.ok(JSON.stringify(halo.specs).includes(`Livré par transporteur jusqu'à Ø ${TRANSPORT_MAX_PETITE_COTE_MM / 10} cm`));
   for (const dict of [fr, en]) {
     // Les textes qui citent le plus grand plafond disent aussi jusqu'où il part
     // d'un seul tenant (le bloc « Au-delà de 230 × 210 cm » : titre et texte).
