@@ -700,6 +700,177 @@
           "d": "Optional: motor, photocells, warning light and force adjustment, installed and set by the workshop."
         }
       ]
+    },
+    "pourquoiPrix": {
+      "titre": "Why this price",
+      "table-interieur": {
+        "intro": "A big-box table is mass-produced, often from reconstituted wood panels. Ours is made by hand, in Saumur, for you: here is what you are paying for.",
+        "points": [
+          {
+            "t": "Quality solid wood",
+            "d": "Our reference top is first-choice French oak from sustainably managed forests: wide boards in one piece, chosen and assembled by hand. Solid wood costs more than a panel, and lasts far longer."
+          },
+          {
+            "t": "Steel welded by hand",
+            "d": "The base is welded in one piece, ground then painted. That is workshop time, and it is what makes it solid and permanent: no screws that work loose."
+          },
+          {
+            "t": "Time, with no production line or middleman",
+            "d": "Each table is made to order, piece by piece, in Saumur. The price is that of the work and the materials: nothing for stock, a brand or a retailer."
+          },
+          {
+            "t": "A purchase for decades",
+            "d": "The top can be sanded again, the base repainted: the table is repaired rather than replaced. Over time it costs less than a table you keep buying again."
+          }
+        ]
+      },
+      "table-exterieur": {
+        "intro": "A cheap garden table gets replaced every two or three years. This one is made to stay outside, and to last.",
+        "points": [
+          {
+            "t": "Solid oak treated for outdoors",
+            "d": "Class 4 treated oak, oiled for outdoor use, in spaced slats that let water run off. A noble material, chosen to stand up to rain."
+          },
+          {
+            "t": "Welded steel, painted for outdoors",
+            "d": "The base is hand-welded in one piece, then protected by an outdoor paint that stands up to rain, salt and UV."
+          },
+          {
+            "t": "Made in Saumur, to order",
+            "d": "No stock, no production runs: a table made for your terrace. The price is that of the work and the materials."
+          },
+          {
+            "t": "One coat of oil a year",
+            "d": "No replacing, no complicated sanding: one coat of oil a year, or the grey patina if you prefer it."
+          }
+        ]
+      },
+      "chaise": {
+        "intro": "A standard chair is made by the thousand. Ours is assembled by hand, one at a time.",
+        "points": [
+          {
+            "t": "A solid steel frame",
+            "d": "Solid steel rod, TIG-welded, ground then painted matt: slim to look at, solid over time."
+          },
+          {
+            "t": "A carefully upholstered seat",
+            "d": "High-density foam and upholstery velvet, in fifteen colours: a seat that stays firm and good-looking."
+          },
+          {
+            "t": "Time, with no production line",
+            "d": "Each chair is assembled to order, in Saumur. The price is that of the work and the materials."
+          },
+          {
+            "t": "Ready to assemble, made to last",
+            "d": "Backrest and legs arrive unassembled with their hardware: you put it together in a few minutes."
+          }
+        ]
+      },
+      "chaise-exterieur": {
+        "intro": "A cheap garden armchair warps and rusts within a few seasons. This one spends the winter outside.",
+        "points": [
+          {
+            "t": "Steel welded in one piece",
+            "d": "Armrests and backrest are welded in one piece: no bolt to retighten, nothing that works loose."
+          },
+          {
+            "t": "Outdoor paint",
+            "d": "It stands up to rain and salt without flaking: the frame does not rust in the first season."
+          },
+          {
+            "t": "Cushions that dry fast",
+            "d": "Open-cell foam, water-repellent outdoor fabric, washable cover."
+          },
+          {
+            "t": "Made to order",
+            "d": "Built one at a time in Saumur: the price is that of the work and the materials."
+          }
+        ]
+      },
+      "escalier": {
+        "intro": "A staircase is the most demanding part of a house: it carries weight, it must be safe, and it is on show. It is the hardest thing we make.",
+        "points": [
+          {
+            "t": "A heavy steel stringer",
+            "d": "A steel tube curved in one piece and TIG-welded in the workshop: a single line, with no joint, carrying the treads."
+          },
+          {
+            "t": "Solid wood, steel, safety",
+            "d": "Solid wood treads, and a railing that meets French safety standards (NF P01-012): a staircase is calculated, never improvised."
+          },
+          {
+            "t": "Measured at your home, made for you",
+            "d": "Each staircase is drawn for your stairwell after a home measuring visit: no standard staircase fits your house this way."
+          },
+          {
+            "t": "Fitted by the workshop",
+            "d": "Fitting is included within 45 km of Saumur: the price is that of a staircase delivered and installed, with no nasty surprise."
+          }
+        ]
+      },
+      "garde-corps": {
+        "intro": "A railing protects people. Ours is calculated for your window, made to your dimensions, and supplied ready to fit.",
+        "points": [
+          {
+            "t": "Solid steel, hand-welded",
+            "d": "No hollow sections or glued parts: a solid steel frame, TIG-welded, ground then painted in the workshop."
+          },
+          {
+            "t": "Safety calculated, not estimated",
+            "d": "Height and gaps between the bars are calculated from your measurements, to the French building code and the NF P01-012 standard. We never sell a railing that does not meet them."
+          },
+          {
+            "t": "A fixing designed for your wall",
+            "d": "Concrete, brick, stone: the fixing is chosen for your wall, in stainless steel, and supplied with the hardware and the installation guide."
+          },
+          {
+            "t": "Made to the millimetre, no middleman",
+            "d": "Each railing is made to order, in Saumur. The price is that of the work and the materials."
+          }
+        ]
+      },
+      "plafond": {
+        "intro": "A light ceiling is seen every day. Ours is made for your room, to the centimetre.",
+        "points": [
+          {
+            "t": "A welded, lacquered aluminium frame",
+            "d": "A mitred profile, lacquered, that does not yellow or flake."
+          },
+          {
+            "t": "A stretched fabric that comes off without tools",
+            "d": "It spreads the light with no hot spot, and comes off for cleaning."
+          },
+          {
+            "t": "Made to your dimensions",
+            "d": "To the centimetre, up to 400 × 300 cm: no standard size to put up with."
+          },
+          {
+            "t": "Made to order, in Saumur",
+            "d": "The price is that of the work and the materials, not of stock or a retailer."
+          }
+        ]
+      },
+      "portail": {
+        "intro": "A gate is seen from the street and used every day, for decades. Ours is welded, powder-coated and made for your entrance.",
+        "points": [
+          {
+            "t": "A material made for outdoors",
+            "d": "TIG-welded, powder-coated aluminium, or hot-dip galvanised steel then powder-coated: two protections that last."
+          },
+          {
+            "t": "Composed to your taste, checked",
+            "d": "Shape, infill, colour: you compose, the drawing follows to scale, and what cannot be made is refused, with the reason."
+          },
+          {
+            "t": "A visit before fabrication",
+            "d": "The workshop comes to measure: the gate is made for your opening, not to a standard size."
+          },
+          {
+            "t": "Fitted and set by the workshop",
+            "d": "Visit and fitting included within 45 km of Saumur; motor, photocells and force adjustment optional, fitted by us."
+          }
+        ]
+      }
     }
   },
   "devis": {

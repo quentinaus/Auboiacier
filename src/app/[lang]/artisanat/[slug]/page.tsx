@@ -165,6 +165,7 @@ export default async function ProductPage({
   // une table.
   const ouvrage = product.famille === "garde-corps" || product.famille === "escalier";
   const qualite = (t.qualiteFamille as unknown as Record<string, { t: string; d: string }[] | undefined>)[product.famille];
+  const pourquoi = (t.pourquoiPrix as unknown as Record<string, { intro: string; points: { t: string; d: string }[] } | string | undefined>)[product.famille] as { intro: string; points: { t: string; d: string }[] } | undefined;
   const memeUnivers = products.filter(
     (p) => p.slug !== product.slug && p.category === product.category
   );
@@ -390,6 +391,26 @@ export default async function ProductPage({
           </Apparition>
         ) : null}
       </section>
+
+      {/* 3 bis. Pourquoi ce prix : la valeur expliquée au client */}
+      {pourquoi ? (
+        <section className="bg-[#fbf9f6] px-6 py-16 md:py-24">
+          <Apparition className="mx-auto max-w-5xl">
+            <h2 className={`${serif.className} text-balance text-center text-[2rem] leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.5rem]`}>
+              {sansVeuve(t.pourquoiPrix.titre)}
+            </h2>
+            <p className="mx-auto mt-6 max-w-2xl text-center text-[17px] leading-[1.55] text-[#4a4038]">{pourquoi.intro}</p>
+            <ul className="mt-12 grid gap-x-12 gap-y-9 sm:grid-cols-2">
+              {pourquoi.points.map((point) => (
+                <li key={point.t}>
+                  <h3 className={`${serif.className} text-[1.35rem] leading-[1.15] tracking-[-0.01em] text-[#2b2320]`}>{point.t}</h3>
+                  <p className="mt-2 text-[15.5px] leading-[1.6] text-[#4a4038]">{point.d}</p>
+                </li>
+              ))}
+            </ul>
+          </Apparition>
+        </section>
+      ) : null}
 
       {/* 4. Livraison */}
       <section className="bg-[#f5f1ea] px-6 py-16 md:py-28">

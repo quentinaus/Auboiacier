@@ -700,6 +700,177 @@
           "d": "En option : moteur, cellules, feu et réglage des efforts, installés et réglés par l'atelier."
         }
       ]
+    },
+    "pourquoiPrix": {
+      "titre": "Pourquoi ce prix",
+      "table-interieur": {
+        "intro": "Une table de grande surface est fabriquée en série, souvent en panneaux de bois reconstitué. La nôtre est fabriquée à la main, à Saumur, pour vous : voici ce que vous payez.",
+        "points": [
+          {
+            "t": "Du bois massif de qualité",
+            "d": "Notre plateau de référence est en chêne français de premier choix, issu de forêts gérées durablement : de larges lames d'une seule pièce, choisies et assemblées à la main. Le bois massif coûte plus cher qu'un panneau, et il dure bien plus longtemps."
+          },
+          {
+            "t": "De l'acier soudé à la main",
+            "d": "Le piétement est soudé d'une seule pièce, meulé puis peint. C'est du temps d'atelier, et c'est ce qui le rend solide et indémontable : pas de vis qui prennent du jeu."
+          },
+          {
+            "t": "Du temps, sans série ni intermédiaire",
+            "d": "Chaque table est fabriquée à la commande, pièce par pièce, à Saumur. Le prix est celui du travail et des matières : rien pour un stock, une marque ou un revendeur."
+          },
+          {
+            "t": "Un achat pour des décennies",
+            "d": "Le plateau se reponce, le piétement se repeint : la table se répare au lieu de se remplacer. Sur la durée, elle coûte moins cher qu'une table que l'on rachète."
+          }
+        ]
+      },
+      "table-exterieur": {
+        "intro": "Une table de jardin bon marché se remplace tous les deux ou trois ans. Celle-ci est faite pour rester dehors, et pour durer.",
+        "points": [
+          {
+            "t": "Un chêne massif traité pour dehors",
+            "d": "Chêne traité en classe 4, huilé pour l'extérieur, en lattes espacées qui laissent l'eau s'écouler. C'est une matière noble, choisie pour tenir à la pluie."
+          },
+          {
+            "t": "Un acier soudé, peint pour l'extérieur",
+            "d": "Le piétement est soudé à la main d'une seule pièce, puis protégé par une peinture d'extérieur qui tient à la pluie, au sel et aux UV."
+          },
+          {
+            "t": "Fabriquée à Saumur, à la commande",
+            "d": "Pas de stock, pas de série : une table faite pour votre terrasse. Le prix est celui du travail et des matières."
+          },
+          {
+            "t": "Un entretien d'une huile par an",
+            "d": "Pas de remplacement, pas de ponçage compliqué : une huile par an, ou la patine grise si vous la préférez."
+          }
+        ]
+      },
+      "chaise": {
+        "intro": "Une chaise de série se fabrique par milliers. La nôtre est montée à la main, une par une.",
+        "points": [
+          {
+            "t": "Un piétement en acier plein",
+            "d": "Du rond plein d'acier soudé au TIG, meulé puis peint mat : fin à l'œil, solide dans le temps."
+          },
+          {
+            "t": "Une assise garnie avec soin",
+            "d": "Mousse haute densité et velours d'ameublement, en quinze coloris : une assise qui reste ferme et belle."
+          },
+          {
+            "t": "Du temps, sans série",
+            "d": "Chaque chaise est assemblée à la commande, à Saumur. Le prix est celui du travail et des matières."
+          },
+          {
+            "t": "Prête à monter, faite pour durer",
+            "d": "Dossier et pieds arrivent démontés, avec leur visserie : vous la montez en quelques minutes."
+          }
+        ]
+      },
+      "chaise-exterieur": {
+        "intro": "Un fauteuil de jardin bon marché se déforme et rouille en quelques saisons. Celui-ci passe l'hiver dehors.",
+        "points": [
+          {
+            "t": "Un acier soudé d'une pièce",
+            "d": "Accoudoirs et dossier sont soudés d'une pièce : aucun boulon à resserrer, rien qui prenne du jeu."
+          },
+          {
+            "t": "Une peinture d'extérieur",
+            "d": "Elle tient à la pluie et au sel sans s'écailler : la structure ne rouille pas à la première saison."
+          },
+          {
+            "t": "Des coussins qui sèchent vite",
+            "d": "Mousse à cellules ouvertes, tissu d'extérieur déperlant, housse lavable."
+          },
+          {
+            "t": "Fabriqué à la commande",
+            "d": "Une fabrication à l'unité, à Saumur : le prix est celui du travail et des matières."
+          }
+        ]
+      },
+      "escalier": {
+        "intro": "Un escalier est la pièce la plus exigeante d'une maison : il porte, il doit être sûr, et il se voit. C'est ce que nous fabriquons de plus difficile.",
+        "points": [
+          {
+            "t": "Un limon en acier de forte section",
+            "d": "Un tube d'acier cintré d'une seule pièce, soudé au TIG à l'atelier : une seule ligne, sans raccord, qui porte les marches."
+          },
+          {
+            "t": "Du bois massif, de l'acier, de la sécurité",
+            "d": "Des marches en bois massif, et un garde-corps conforme aux normes de sécurité françaises (NF P01-012) : un escalier se calcule, il ne s'improvise pas."
+          },
+          {
+            "t": "Mesuré chez vous, fabriqué pour vous",
+            "d": "Chaque escalier est dessiné à votre trémie, après une prise de cotes à domicile : aucun escalier de série ne s'adapte ainsi à votre maison."
+          },
+          {
+            "t": "Posé par l'atelier",
+            "d": "La pose est comprise jusqu'à 45 km de Saumur : le prix est celui d'un escalier livré et installé, sans mauvaise surprise."
+          }
+        ]
+      },
+      "garde-corps": {
+        "intro": "Un garde-corps protège des personnes. Le nôtre est calculé pour votre fenêtre, fabriqué à vos cotes, et fourni prêt à poser.",
+        "points": [
+          {
+            "t": "Un acier plein, soudé à la main",
+            "d": "Pas de profilés creux ni de pièces collées : un cadre en acier plein, soudé au TIG, meulé puis peint à l'atelier."
+          },
+          {
+            "t": "Une sécurité calculée, pas estimée",
+            "d": "Hauteur et espaces entre les barres sont calculés d'après vos mesures, selon le Code de la construction et la norme NF P01-012. Nous ne vendons jamais un garde-corps qui ne les respecte pas."
+          },
+          {
+            "t": "Une fixation pensée pour votre mur",
+            "d": "Béton, brique, pierre : la fixation est choisie selon votre mur, en inox, et fournie avec la visserie et le guide d'installation."
+          },
+          {
+            "t": "Fabriqué au millimètre, sans intermédiaire",
+            "d": "Chaque garde-corps est fabriqué à la commande, à Saumur. Le prix est celui du travail et des matières."
+          }
+        ]
+      },
+      "plafond": {
+        "intro": "Un plafond lumineux se voit tous les jours. Le nôtre est fait pour votre pièce, au centimètre près.",
+        "points": [
+          {
+            "t": "Un cadre en aluminium soudé et laqué",
+            "d": "Un profilé coupé en onglet et laqué, qui ne jaunit pas et ne s'écaille pas."
+          },
+          {
+            "t": "Une toile tendue qui se retire sans outil",
+            "d": "Elle diffuse la lumière sans point chaud, et se retire pour le nettoyage."
+          },
+          {
+            "t": "Fait à vos dimensions",
+            "d": "Au centimètre près, jusqu'à 400 × 300 cm : aucun format standard à subir."
+          },
+          {
+            "t": "Fabriqué à la commande, à Saumur",
+            "d": "Le prix est celui du travail et des matières, pas d'un stock ni d'un revendeur."
+          }
+        ]
+      },
+      "portail": {
+        "intro": "Un portail se voit de la rue et sert tous les jours, pendant des décennies. Le nôtre est soudé, thermolaqué et fabriqué pour votre entrée.",
+        "points": [
+          {
+            "t": "Une matière faite pour dehors",
+            "d": "De l'aluminium soudé au TIG et thermolaqué, ou de l'acier galvanisé à chaud puis thermolaqué : deux protections qui tiennent dans le temps."
+          },
+          {
+            "t": "Composé à votre goût, vérifié",
+            "d": "Forme, remplissage, couleur : vous composez, le dessin suit à l'échelle, et ce qui ne se fabrique pas est refusé, avec la raison."
+          },
+          {
+            "t": "Une visite avant fabrication",
+            "d": "L'atelier vient relever les cotes : le portail est fabriqué à votre passage, pas à une taille standard."
+          },
+          {
+            "t": "Posé et réglé par l'atelier",
+            "d": "Visite et pose comprises jusqu'à 45 km de Saumur ; moteur, cellules et réglage des efforts en option, posés par nos soins."
+          }
+        ]
+      }
     }
   },
   "devis": {
