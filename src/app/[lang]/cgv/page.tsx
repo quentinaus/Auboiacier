@@ -7,6 +7,7 @@ import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
 import { ENTREPRISE } from "@/lib/entreprise";
+import { coordonneesGarant } from "@/lib/garantie-cotes-contrat";
 
 /* La mention de TVA et le médiateur de la consommation se remplissent,
  * comme tout ce qui identifie l'entreprise, dans src/lib/entreprise.ts.
@@ -83,9 +84,7 @@ export default async function CgvPage({ params }: PageProps<"/[lang]/cgv">) {
               {"id" in section && section.id === "garantie-cotes" && (
                 <p className="mt-3 leading-relaxed text-[#4a4038]">
                   <span className="text-[#726757]">{t.garantLabel} : </span>
-                  {["Auboiacier", ENTREPRISE.raisonSociale, ENTREPRISE.adresse, ENTREPRISE.telephone, "auboiacier@gmail.com"]
-                    .filter(Boolean)
-                    .join(" — ")}
+                  {coordonneesGarant()}
                 </p>
               )}
 

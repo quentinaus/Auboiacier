@@ -153,6 +153,23 @@ export function CartView({
   const tarifCourant = tarif && tarif.requete === requete ? tarif : null;
   const donnees = tarifCourant?.etat === "ok" ? tarifCourant.data : null;
 
+  /**
+   * Le dernier prix de la Garantie cotes reçu du serveur, par ligne du panier.
+   * Cocher la case change la requête : le temps que le nouveau tarif arrive,
+   * la case reste affichée à ce prix-là (sinon elle disparaissait, et le
+   * focus du clavier ou du lecteur d'écran avec elle).
+   */
+  const [garantiesConnues, setGarantiesConnues] = useState<{ source: TarifAffiche | null; prix: Record<string, number> }>({ source: null, prix: {} });
+  if (donnees && garantiesConnues.source !== donnees) {
+    // Mis à jour pendant le rendu, à chaque nouveau tarif (donnees n'existe que pour le panier tel qu'il est).
+    const prix: Record<string, number> = {};
+    for (const ligne of donnees.lignes) {
+      const item = items[ligne.index];
+      if (item && ligne.garantiePrix !== undefined) prix[item.id] = ligne.garantiePrix;
+    }
+    setGarantiesConnues({ source: donnees, prix });
+  }
+
   // Ce que le panier affiche : les montants du serveur. Tant qu'ils ne sont
   // pas arrivés, les lignes s'affichent avec leur nom, sans prix.
   const { lines, stale } = useMemo(() => {
@@ -202,7 +219,10 @@ export function CartView({
         });
       }
     } else {
+      // Avec une prise de cotes à domicile ou une pose, le serveur ne propose pas la Garantie cotes.
+      const sansGarantie = items.some((item) => item.slug === PRISE_DE_COTES || item.slug === POSE);
       for (const item of items) {
+        const visite = [LIVRAISON, POSE, PRISE_DE_COTES, RETRAIT].includes(item.slug);
         lines.push({
           id: item.id,
           quantity: item.quantity,
@@ -210,14 +230,24 @@ export function CartView({
           options: item.optionsLabel,
           unitPrice: null,
           image: item.image,
-          visite: [LIVRAISON, POSE, PRISE_DE_COTES, RETRAIT].includes(item.slug),
+          visite,
+          garantiePrix: visite || sansGarantie ? undefined : garantiesConnues.prix[item.id],
+          garantie: item.garantieCotes === true,
         });
       }
     }
     // Les pièces d'abord, la livraison et la visite en dernier : elles
     // accompagnent la commande, elles ne la font pas.
     return { lines: [...lines.filter((l) => !l.visite), ...lines.filter((l) => l.visite)], stale };
-  }, [items, donnees]);
+  }, [items, donnees, garantiesConnues.prix]);
+
+  // Une Garantie cotes que le serveur ne peut pas vendre (la commande a une prise de cotes à domicile ou une pose, ou la
+  // pièce ne la reçoit plus) : la case est décochée, le panier continue.
+  useEffect(() => {
+    if (!donnees) return;
+    for (const i of donnees.garantiesRefusees ?? []) if (items[i]) setGarantie(items[i].id, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [donnees, setGarantie]);
 
   // Une ligne que le serveur refuse (une pièce qui ne se vend plus telle
   // quelle, une livraison sans pièce) est retirée : le panier se répare seul.
@@ -230,7 +260,7 @@ export function CartView({
   const total = donnees?.total ?? 0;
   const totalPieces = lines.filter((l) => !l.visite).reduce((sum, line) => sum + (line.unitPrice ?? 0) * line.quantity, 0);
   /** La Garantie cotes des pièces cochées, telle que le serveur l'a chiffrée (comprise dans son total). */
-  const totalGarantie = lines.reduce((sum, l) => sum + (l.garantie && l.garantiePrix !== undefined ? l.garantiePrix * l.quantity : 0), 0);
+  const totalGarantie = !prixConnus ? 0 : lines.reduce((sum, l) => sum + (l.garantie && l.garantiePrix !== undefined ? l.garantiePrix * l.quantity : 0), 0);
   const lignePose = lines.find((l) => l.pose);
   const ligneLivraison = lines.find((l) => l.livraison);
   const ligneRetrait = lines.find((l) => l.retrait);
@@ -588,6 +618,12 @@ export function CartView({
                 <dd className="text-[1.75rem] font-medium tracking-[-0.01em] tabular-nums text-[#2b2320]">{prixConnus ? prixAffiche(total, locale) : "…"}</dd>
               </div>
             </dl>
+            {/* Pas de Garantie cotes avec une prise de cotes à domicile ou une pose par l'atelier (CGV, article 13). */}
+            {donnees?.garantieExclue && (
+              <p className="mt-3 text-[14px] leading-[1.5] text-[#6f6357]">
+                {donnees.garantieExclue === "visite" ? t.garantieExclueVisite : t.garantieExcluePose}
+              </p>
+            )}
             {/* En attendant le serveur : les prix arrivent, rien ne se paie encore. */}
             {!prixConnus && !tarifCourant && <p className="mt-3 text-[14px] text-[#6f6357]">{t.tarifCalcul}</p>}
             <p className="mt-3 text-[14px] leading-[1.5] text-[#6f6357]">{t.shippingNote}</p>

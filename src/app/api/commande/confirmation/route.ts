@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { composerConfirmation, lienConfirmationOuvert } from "@/lib/confirmation";
 import { rendreDevisPdf } from "@/lib/devis-pdf";
+import { contratDeLaCommande } from "@/lib/order-email";
 import { creerLimite } from "@/lib/limite-debit";
 import { getStripe, isStripeConfigured, siteOrigin } from "@/lib/stripe";
 
@@ -72,6 +73,8 @@ export async function GET(request: Request) {
     session,
     lignes: lignes.data,
     origine: siteOrigin(),
+    // La Garantie cotes achetée : son contrat en fin de document, comme dans la confirmation envoyée par e-mail.
+    contratGarantie: await contratDeLaCommande(session),
   });
   const pdf = await rendreDevisPdf(devis);
 

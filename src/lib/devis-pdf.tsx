@@ -294,6 +294,9 @@ const styles = StyleSheet.create({
     lineHeight: "13pt",
   },
   conditions: { marginTop: 18 },
+  annexeSuite: { marginTop: 18 },
+  annexeTitre: { fontFamily: "Helvetica-Bold", fontSize: 10, lineHeight: "14pt", marginBottom: 6 },
+  annexeTexte: { fontSize: 8, lineHeight: "11.5pt", marginBottom: 5 },
   condition: { flexDirection: "row", gap: 6, marginBottom: 2.5 },
   puce: { width: 6, color: GRIS, fontSize: 7.5, lineHeight: "11.5pt" },
   conditionTexte: { flex: 1, fontSize: 7.5, color: GRIS, lineHeight: "11.5pt" },
@@ -616,6 +619,18 @@ function DocumentDevis({ devis }: { devis: Devis }) {
             </View>
           </View>
         </View>
+
+        {/* Les textes reproduits en entier (le contrat de la Garantie cotes, art. L217-22) : chacun à partir d'une nouvelle page. */}
+        {devis.annexes?.map((annexe, rang) => (
+          <View key={annexe.titre} break={rang === 0} style={rang === 0 ? undefined : styles.annexeSuite}>
+            <Text style={styles.annexeTitre}>{annexe.titre}</Text>
+            {annexe.texte.split(/\n{2,}/).map((paragraphe, i) => (
+              <Text key={i} style={styles.annexeTexte}>
+                {paragraphe}
+              </Text>
+            ))}
+          </View>
+        ))}
 
         <Text style={styles.pied} fixed>
           {t.pied}

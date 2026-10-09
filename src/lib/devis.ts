@@ -195,6 +195,12 @@ export type Devis = {
   lienFiche: string;
   /** Présent seulement sur une confirmation : la commande a été payée. */
   acceptation?: Acceptation;
+  /**
+   * Les textes reproduits en entier après le tableau, sur leurs propres pages :
+   * le contrat de la Garantie cotes quand la commande la comprend
+   * (garantie-cotes-contrat.ts, art. L217-22 : remis sur support durable).
+   */
+  annexes?: { titre: string; texte: string }[];
 };
 
 export type ResultatDevis =

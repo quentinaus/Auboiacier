@@ -40,7 +40,7 @@ export async function POST(request: Request) {
   if (budgetCalculGC.epuise(request, Date.now())) return NextResponse.json({ error: "too_many" }, { status: 429 });
   const debut = performance.now();
   try {
-    const tarif = await tarifer(body.lines, { locale, gc: CALCUL_GC });
+    const tarif = await tarifer(body.lines, { locale, gc: CALCUL_GC, garantieSouple: true });
     budgetCalculGC.depenser(request, performance.now() - debut, Date.now());
     return NextResponse.json(tarifAffiche(tarif, locale), { headers: { "cache-control": "private, no-store" } });
   } catch (erreur) {

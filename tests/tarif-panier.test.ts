@@ -270,7 +270,10 @@ test("ce qui part vers le navigateur : des noms, des prix de vente, la hauteur r
   const t = await tarif([garde({}, 2), table(), { slug: LIVRAISON, livraisonCp: "44000" }], "en");
   assert.equal(t.probleme, null);
   const affiche = tarifAffiche(t, "en");
-  assert.deepEqual(Object.keys(affiche).sort(), ["lignes", "probleme", "refusees", "remise", "total"]);
+  // garantiesRefusees et garantieExclue : des index et une raison (« visite », « pose »), jamais un montant.
+  assert.deepEqual(Object.keys(affiche).sort(), ["garantieExclue", "garantiesRefusees", "lignes", "probleme", "refusees", "remise", "total"]);
+  assert.ok(affiche.garantiesRefusees.every((i) => Number.isInteger(i)));
+  assert.ok(affiche.garantieExclue === null || ["visite", "pose"].includes(affiche.garantieExclue));
   // garantiePrix et garantie : la Garantie cotes, un prix de VENTE calculé sur le serveur (garantie-cotes.ts) et la case cochée.
   const champs = new Set(["index", "type", "nom", "options", "quantite", "unitaire", "image", "hauteurMm", "garantiePrix", "garantie"]);
   for (const l of affiche.lignes) {

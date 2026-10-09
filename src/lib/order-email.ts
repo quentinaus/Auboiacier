@@ -5,9 +5,12 @@ import { composerConfirmation } from "./confirmation";
 import { rendreDevisPdf } from "./devis-pdf";
 import { ownerEmail, sendEmail } from "./email";
 import { libelleEntier } from "./libelle-stripe";
+import { euros, formatLines } from "./lignes-commande";
 import { libelleStatut, phraseStatut, type Statut } from "./statut-commande";
 import { lignesOrigine, origineDesMetadonnees } from "./provenance";
 import { siteOrigin } from "./stripe";
+import { getDictionary } from "../app/[lang]/dictionaries";
+import { contratEnTexte, contratGarantieCotes, type PartieContrat } from "./garantie-cotes-contrat";
 
 /**
  * Bons de commande.
@@ -23,16 +26,6 @@ const LEAD_TIME = {
   en: "the lead time shown on your piece's page (3 to 12 weeks)",
 };
 
-/** Phrase de repli quand Stripe ne nous rend pas le détail des lignes. */
-const DETAIL_MANQUANT = {
-  fr: "(détail indisponible — voir le tableau de bord Stripe)",
-  en: "(details unavailable — see the Stripe dashboard)",
-};
-
-function euros(cents: number | null | undefined) {
-  return `${((cents ?? 0) / 100).toLocaleString("fr-FR")} €`;
-}
-
 function formatAddress(address: Stripe.Address | null | undefined) {
   if (!address) return "—";
   return [
@@ -45,40 +38,6 @@ function formatAddress(address: Stripe.Address | null | undefined) {
     .join("\n");
 }
 
-/**
- * Les lignes viennent de listLineItems : la liste est complète, alors que
- * l'expansion de la session s'arrête aux dix premières.
- * Le nom porte déjà les options choisies (voir /api/commande).
- *
- * ATTENTION : ce nom est celui envoyé à Stripe au moment du paiement, et il est
- * écrit en français, même pour un acheteur anglais. C'est voulu pour le bon de
- * commande de l'atelier ; pour l'e-mail de l'acheteur, il faudrait que
- * /api/commande envoie aussi le nom anglais (productLocalise) dans les
- * métadonnées de la session.
- */
-function formatLines(lines: Stripe.LineItem[], locale: "fr" | "en" = "fr", session?: Stripe.Checkout.Session) {
-  if (lines.length === 0) return DETAIL_MANQUANT[locale];
-  // Chaque ligne à son prix avant remise ; la remise a sa ligne, comme sur la facture.
-  const texte = lines.map((item, rang) => {
-    const quantity = item.quantity ?? 1;
-    // Le libellé ENTIER : Stripe ne garde que 250 signes du nom (libelle-stripe.ts).
-    return `• ${libelleEntier(item.description, rang, session?.metadata)}\n  ${quantity} × ${euros(
-      item.price?.unit_amount
-    )} = ${euros(item.amount_subtotal ?? item.amount_total)}`;
-  });
-  const remise = session?.total_details?.amount_discount ?? 0;
-  if (remise > 0) {
-    texte.push(
-      locale === "en"
-        ? `• Several-railings discount (same order)\n  −${euros(remise)}`
-        : `• Remise plusieurs garde-corps (même commande)\n  −${euros(remise)}`
-    );
-  }
-  if (session?.metadata?.retrait === "1") {
-    texte.push(locale === "en" ? "• Collection from the workshop in Saumur, by appointment\n  0 €" : "• Retrait à l'atelier, à Saumur, sur rendez-vous\n  0 €");
-  }
-  return texte.join("\n");
-}
 
 /**
  * Filet de sécurité : la commande entière écrite dans les journaux du serveur,
@@ -196,15 +155,29 @@ export async function notifyOwner(
  * confirmation de commande — c'est l'e-mail qui compte, la pièce jointe est
  * un plus.
  */
+/**
+ * Le contrat de la Garantie cotes d'une commande qui la comprend (métadonnée
+ * garantie_cotes), dans la langue du client : l'article 13 des CGV, le
+ * garant et l'encadré légal, tels qu'ils sont aujourd'hui. Sans garantie :
+ * rien. L'e-mail de confirmation et la confirmation PDF le reproduisent en
+ * entier (support durable, art. L217-22 du code de la consommation).
+ */
+export async function contratDeLaCommande(session: Stripe.Checkout.Session): Promise<PartieContrat[] | undefined> {
+  if (!session.metadata?.garantie_cotes) return undefined;
+  const locale = session.metadata?.locale === "en" ? "en" : "fr";
+  return contratGarantieCotes((await getDictionary(locale)).cgv);
+}
+
 async function confirmationJointe(
   session: Stripe.Checkout.Session,
   lines: Stripe.LineItem[],
   locale: "fr" | "en",
-  ref: string
+  ref: string,
+  contratGarantie: PartieContrat[] | undefined
 ) {
   try {
     const pdf = await rendreDevisPdf(
-      composerConfirmation({ session, lignes: lines, origine: siteOrigin() })
+      composerConfirmation({ session, lignes: lines, origine: siteOrigin(), contratGarantie })
     );
     return [
       {
@@ -228,6 +201,19 @@ export async function notifyCustomer(
 
   const ref = session.metadata?.order_ref ?? session.id;
   const locale = session.metadata?.locale === "en" ? "en" : "fr";
+  // La Garantie cotes achetée : son contrat en entier, dans le corps du message ET dans le PDF joint.
+  const contratGarantie = await contratDeLaCommande(session);
+  const contrat = contratGarantie
+    ? [
+        "",
+        "",
+        locale === "en"
+          ? "Your Measurement guarantee contract, reproduced in full below (keep this e-mail):"
+          : "Votre contrat de Garantie cotes, reproduit en entier ci-dessous (conservez cet e-mail) :",
+        "",
+        contratEnTexte(contratGarantie),
+      ].join("\n")
+    : "";
 
   const text =
     locale === "en"
@@ -243,7 +229,7 @@ export async function notifyCustomer(
           "Your invoice is sent separately by our payment provider.",
           "",
           "Auboiacier — wood, steel & light",
-        ].join("\n")
+        ].join("\n") + contrat
       : [
           `Merci pour votre commande (${ref}).`,
           "",
@@ -256,14 +242,14 @@ export async function notifyCustomer(
           "Votre facture vous est envoyée séparément par notre prestataire de paiement.",
           "",
           "Auboiacier — bois, acier & lumière",
-        ].join("\n");
+        ].join("\n") + contrat;
 
   return sendEmail({
     to: email,
     subject: locale === "en" ? `Your Auboiacier order ${ref}` : `Votre commande Auboiacier ${ref}`,
     text,
     replyTo: ownerEmail(),
-    attachments: await confirmationJointe(session, lines, locale, ref),
+    attachments: await confirmationJointe(session, lines, locale, ref, contratGarantie),
   });
 }
 

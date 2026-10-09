@@ -120,6 +120,15 @@ export type Tarif = {
   pieces: PieceTarifee[];
   /** Les lignes qui ne se vendent plus telles quelles (à retirer du panier). */
   refusees: { index: number; raison: ResolveFailure | "orphelin" }[];
+  /**
+   * Les pièces dont la Garantie cotes, cochée, ne peut pas être vendue (pièce
+   * non éligible, prise de cotes à domicile ou pose par l'atelier dans la
+   * commande) : leur place dans la liste reçue. /api/commande refuse alors la
+   * commande ; le panier (garantieSouple) décoche la case et continue.
+   */
+  garantiesRefusees: number[];
+  /** Pourquoi aucune Garantie cotes n'est proposée dans cette commande : l'atelier mesure, ou il pose. */
+  garantieExclue: "visite" | "pose" | null;
   /** La remise sur plusieurs garde-corps, en euros (0 ou négative). */
   remise: number;
   mode: ModeTarife | null;
@@ -184,11 +193,21 @@ function optionsTraduites(line: ResolvedLine, locale: "fr" | "en"): { nom: strin
  */
 export async function tarifer(
   lignes: unknown,
-  contexte: { locale: "fr" | "en"; gc: CalculGC; localiser?: (codePostal: string) => Promise<ResultatLieu> }
+  contexte: {
+    locale: "fr" | "en";
+    gc: CalculGC;
+    localiser?: (codePostal: string) => Promise<ResultatLieu>;
+    /**
+     * Le panier seulement (/api/panier/tarif) : une Garantie cotes qui ne peut
+     * pas être vendue est signalée (garantiesRefusees) au lieu de bloquer tout
+     * le panier — le panier la décoche. /api/commande garde le refus strict.
+     */
+    garantieSouple?: boolean;
+  }
 ): Promise<Tarif> {
   const { locale, gc } = contexte;
   const situer = contexte.localiser ?? localiser;
-  const tarif: Tarif = { pieces: [], refusees: [], remise: 0, mode: null, visite: null, probleme: null, total: 0 };
+  const tarif: Tarif = { pieces: [], refusees: [], garantiesRefusees: [], garantieExclue: null, remise: 0, mode: null, visite: null, probleme: null, total: 0 };
   const probleme = (p: ProblemeTarif) => {
     tarif.probleme ??= p;
     return tarif;
@@ -269,7 +288,7 @@ export async function tarifer(
     // La Garantie cotes : seulement sur une pièce dont le client donne les cotes (garantie-cotes.ts) ; son prix vient
     // du prix unitaire de la ligne, calculé ci-dessus — jamais d'un montant reçu.
     const eligible = eligibleGarantieCotes(resolu.line.product);
-    if (garantieDemandee && !eligible) return probleme("invalid");
+    if (garantieDemandee && !eligible) tarif.garantiesRefusees.push(index);
     tarif.pieces.push({
       index,
       line: resolu.line,
@@ -279,9 +298,23 @@ export async function tarifer(
       precisions: texteBorne(line.note, MAX_PRECISIONS),
       epaisseurMm: resolu.line.size.id === SUR_MESURE ? coteMm(line.epaisseurMm) : undefined,
       garantiePrix: eligible ? prixGarantieCotes(resolu.line.unitPrice) : null,
-      garantie: garantieDemandee,
+      garantie: garantieDemandee && eligible,
     });
   }
+
+  // La Garantie cotes ne se vend pas quand elle ne couvrirait rien : l'atelier prend les cotes lui-même (prise de cotes
+  // à domicile), ou il pose la pièce et la mesure sur place (pose par l'atelier ; CGV, article 13).
+  // (garantieExclue n'est dit que s'il y a une pièce qui, sans cela, aurait pu la recevoir : le panier l'explique.)
+  const exclue = visiteLue ? "visite" : modeLu?.mode === "pose" ? "pose" : null;
+  if (exclue && tarif.pieces.some((piece) => piece.garantiePrix !== null)) {
+    tarif.garantieExclue = exclue;
+    for (const piece of tarif.pieces) {
+      if (piece.garantie) tarif.garantiesRefusees.push(piece.index);
+      piece.garantie = false;
+      piece.garantiePrix = null;
+    }
+  }
+  if (tarif.garantiesRefusees.length > 0 && !contexte.garantieSouple) return probleme("invalid");
 
   // Plusieurs garde-corps : les frais fixes de l'atelier comptés une fois.
   const gardesCorps = tarif.pieces.filter((p) => p.line.gc);
@@ -375,6 +408,10 @@ export type TarifAffiche = {
   total: number;
   /** Les lignes à retirer du panier : elles ne se vendent plus telles quelles. */
   refusees: number[];
+  /** Les lignes dont la Garantie cotes cochée ne peut pas être vendue : le panier la décoche. */
+  garantiesRefusees: number[];
+  /** Aucune Garantie cotes proposée : la commande a une prise de cotes à domicile, ou la pose par l'atelier. */
+  garantieExclue: "visite" | "pose" | null;
   probleme: ProblemeTarif | null;
 };
 
@@ -414,5 +451,13 @@ export function tarifAffiche(t: Tarif, locale: "fr" | "en"): TarifAffiche {
       unitaire: m.deplacement.montantCents / 100,
     });
   }
-  return { lignes, remise: t.remise, total: t.total, refusees: t.refusees.map((r) => r.index), probleme: t.probleme };
+  return {
+    lignes,
+    remise: t.remise,
+    total: t.total,
+    refusees: t.refusees.map((r) => r.index),
+    garantiesRefusees: t.garantiesRefusees,
+    garantieExclue: t.garantieExclue,
+    probleme: t.probleme,
+  };
 }
