@@ -117,11 +117,11 @@ export function categoriesCollection(locale: Locale, t: TextesCategories): Categ
       titre: t.catPortails,
       href: lienFamille(locale, "portail"),
       familles: ["portail"],
+      // Le dessin du moteur mis en scène (scripts/dessin-portail-accueil.mjs), en attendant une vraie photo de portail posé.
       image: {
-        src: "/images/portails/portail-battant-volutes.jpg",
-        alt: altDeFiche(locale, "portail-battant", "portail-battant-volutes.jpg", t.catPortails),
-        position: "50% 60%",
-        studio: true,
+        src: "/images/portails/portail-accueil.jpg",
+        alt: locale === "fr" ? "Dessin d'un portail battant en acier noir à volutes et pointes, entre deux piliers, devant une haie" : "Drawing of a black steel swing gate with scrolls and spear tips, between two pillars, in front of a hedge",
+        position: "50% 50%",
       },
       // Sur l'accueil, à la place des sculptures (Quentin, 10/10/2026) : la 6e carte, avec sa mention « Image d'illustration ».
       enSituation: true,
