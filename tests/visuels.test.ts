@@ -382,13 +382,16 @@ test("les vraies photos : le travail de Quentin avant l'ouverture de l'atelier, 
     [fr, /réalisée?s? par Quentin avant l'ouverture de l'atelier/],
     [en, /made by Quentin before the workshop opened/],
   ] as const) {
+    // Une seule fois par page, pas sous chaque photo (Quentin, 09/10/2026 : « si tu dois le dire sur chacune de mes pièces,
+    // on n'a pas fini : c'est mon entreprise »). Le sous-titre de la page et le titre de la section le disent au-dessus
+    // de la galerie ; une légende n'a plus à le répéter.
     assert.match(d.realisations.subtitle, avant, "sous-titre de la page");
     for (const p of photos.filter((photo) => estVraiePhoto(photo.src))) {
-      assert.match(d.realisations[p.alt], avant, `légende de ${p.src}`);
+      assert.ok(d.realisations[p.alt]?.trim(), `légende de ${p.src} : vide`);
+      assert.doesNotMatch(d.realisations[p.alt], /chantier d'Auboiacier|Auboiacier job/i, `légende de ${p.src} : jamais présentée comme un chantier d'Auboiacier`);
     }
-    // La page Sculptures montre aussi le torse : sa légende et la description de la vidéo le disent.
+    // La page Sculptures montre aussi le torse : le texte sous la vidéo le dit, une fois.
     assert.match(d.sculptures.torseBody, avant, "Sculptures : légende du torse");
-    assert.match(d.sculptures.torseVideoAlt, avant, "Sculptures : description de la vidéo du torse");
   }
   // Les travaux d'avant l'atelier ne s'affichent que sur Projets et visuels, la zone d'intervention (avec une commune,
   // jamais un visuel), pour le torse la page Sculptures, et les plafonds en fabrication sur la page des plafonds : un

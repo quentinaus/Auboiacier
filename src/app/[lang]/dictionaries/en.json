@@ -222,14 +222,14 @@
     "altVerriereSalon": "Workshop-style glass partition separating a living room from a kitchen",
     "altVerriereCroisillon": "Detail of a partition's lower panel, steel cross-bracing",
     "altSculptureCheval": "Rearing steel horse sculpture, in front of a stone farmhouse",
-    "altSculptureTorse": "Hand-welded salvaged-steel torso, made by Quentin before the workshop opened (video)",
-    "altVerrierePose": "Black steel partition being fitted, overall view, made by Quentin before the workshop opened",
-    "altVerrierePoseDetail": "Black steel gridded partition being fitted above a low stone wall, made by Quentin before the workshop opened",
-    "altPlafondCaissonLed": "A light ceiling being made, made by Quentin before the workshop opened: LED strips in the box, before the fabric.",
-    "altPlafondProfiles": "The aluminium profiles of a light ceiling frame, cut and numbered, made by Quentin before the workshop opened.",
-    "altPlafondToileAllumee": "The stretched fabric lit in its black frame, made by Quentin before the workshop opened.",
-    "altEscalierAtelier": "A staircase being made, solid wood treads on a steel stringer, made by Quentin before the workshop opened.",
-    "altPlafondCaissonPhoto": "The box of a light ceiling, made by Quentin before the workshop opened: the LED strips wired, ready for the fabric."
+    "altSculptureTorse": "Hand-welded salvaged-steel torso (video)",
+    "altVerrierePose": "Black steel partition being fitted, overall view",
+    "altVerrierePoseDetail": "Black steel gridded partition being fitted above a low stone wall",
+    "altPlafondCaissonLed": "A light ceiling being made: LED strips in the box, before the fabric.",
+    "altPlafondProfiles": "The aluminium profiles of a light ceiling frame, cut and numbered.",
+    "altPlafondToileAllumee": "The stretched fabric lit in its black frame.",
+    "altEscalierAtelier": "A staircase being made, solid wood treads on a steel stringer.",
+    "altPlafondCaissonPhoto": "The box of a light ceiling: the LED strips wired, ready for the fabric."
   },
   "artisanat": {
     "title": "The collection",
@@ -1055,7 +1055,7 @@
     "photoAlt": "Rearing horse sculpture in reclaimed steel, welded by hand, in front of a stone house",
     "torseTitle": "A torso made of salvaged parts",
     "torseBody": "Chains, hinges, plates, bolts: every piece is welded by hand, one by one, until the curves of a body appear. This torso was made by Quentin before the workshop opened.",
-    "torseVideoAlt": "Video: a torso of salvaged steel, welded by hand, made by Quentin before the workshop opened, filmed from all around in the evening light",
+    "torseVideoAlt": "Video: a torso of salvaged steel, welded by hand, filmed from all around in the evening light",
     "videoPause": "Pause the video",
     "videoPlay": "Play the video"
   },
