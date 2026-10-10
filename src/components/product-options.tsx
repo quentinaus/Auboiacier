@@ -3278,7 +3278,9 @@ export function ProductOptions({
                   monté, seulement caché : s'il apparaissait et disparaissait, il se retrouvait SOUS la barre d'achat. */}
               {/* L'enveloppe reste TOUJOURS dans le portail, cachée quand il n'y a pas de livraison : retirée puis remise (aller-retour
                   par « L'atelier vient mesurer »), React la replaçait APRÈS la barre d'achat, dans la colonne d'achat. */}
-              {versColonneAchat(
+              {/* Les plafonds lumineux : la livraison suit le récapitulatif en haut de la colonne (sinon elle restait collée au
+                  prix, en bas, et la carte montrait un grand vide entre les deux — portail : les options sous le récapitulatif). */}
+              {(lumiereBloc && resultatSlot ? (noeud: ReactNode) => createPortal(noeud, resultatSlot) : versColonneAchat)(
                 <div className={`mt-2 border-t border-[#e5ddd3] pt-2.5 ${!livraison || (reponseGC && !reponseGC.ok && reponseGC.raison !== "a-etudier") ? "hidden" : ""}`} id="sous-menu-livraison">
                   {livraison && (
                     <>
