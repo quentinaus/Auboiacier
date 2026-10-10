@@ -75,7 +75,7 @@ export function SchemaGuide({ question, locale, label }: { question: 0 | 1 | 2; 
             <path d="M206 140 q28 -8 56 0 t56 5 t56 -4 t26 3" fill="none" stroke="#b5a690" strokeWidth="2.2" />
             <rect x="222" y="66" width="104" height="52" fill="#d9d4cc" stroke={ENCRE} strokeWidth="1.8" />
             <rect x="326" y="80" width="68" height="24" fill="none" stroke={ENCRE} strokeWidth="1.8" strokeDasharray="5 3" />
-            <text x="360" y="96" fontSize="11" fill={GRIS} textAnchor="middle">{t.contrepoids}</text>
+            <text x="360" y="96" fontSize={locale === "en" ? 9 : 11} fill={GRIS} textAnchor="middle">{t.contrepoids}</text>
             <rect x="240" y="118" width="9" height="16" fill="#6b6459" />
             <rect x="290" y="118" width="9" height="16" fill="#6b6459" />
             <text x="214" y="164" fontSize="13" fill={GRIS}>{t.sansRail}</text>

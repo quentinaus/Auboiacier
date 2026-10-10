@@ -939,10 +939,12 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
             if (!visible) return null;
             return (
               <div key={cleQ} style={{ marginTop: 12 }}>
-                <p className="cpt-f-sous" style={{ color: "#2b2320", fontSize: 13 }}>{q}</p>
+                <p className="cpt-f-sous" style={{ color: "#2b2320", fontSize: 13, fontWeight: 600 }}>{q}</p>
+                <p className="cpt-f-sous" style={{ fontSize: 12.5, marginTop: 2 }}>{tp.guideCtx[i]}</p>
+                <p className="cpt-f-sous" style={{ fontSize: 12.5, marginTop: 4, color: "#2b2320" }}><b>{tp.guideVerifTitre}.</b> {tp.guideVerif[i]}</p>
                 <Pilule aria={q} valeur={guide[cleQ] === undefined ? "" : guide[cleQ] ? "oui" : "non"}
                   onChange={(x) => setGuide((g) => ({ ...g, [cleQ]: x === "oui", ...(i === 0 ? { cote: undefined, sol: undefined } : i === 1 ? { sol: undefined } : {}) }))}
-                  options={[{ v: "oui", label: tp.oui }, { v: "non", label: tp.non }]} />
+                  options={[{ v: "oui", label: tp.guideOui[i] }, { v: "non", label: tp.guideNon[i] }]} />
               </div>
             );
           })}
