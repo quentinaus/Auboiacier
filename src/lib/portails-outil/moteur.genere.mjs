@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 9a642bf42019c0c6bb65a931.
+// Source : l'outil de plans (plans-atelier.html), sha256 9c70dc4a46621564f6bdafd9.
 /* eslint-disable */
 
 
@@ -1166,7 +1166,7 @@ const PT_ATELIER = {
     H: [800, 2200],
     fleche: [0, 400],
   },
-  vantailMax: { alu: 2500, acier: 2200 },        // largeur d'un vantail battant
+  vantailMax: { alu: 2500, acier: 2500 },        // largeur d'un vantail battant (acier relevé de 2 200 à 2 500 le 10/10/2026, décision de Quentin : un battant acier de 5 000 mm se commande ; l'étude du moteur ne trouve aucun autre blocage)
   flecheMaxRatio: 0.25,
 };
 
@@ -3040,4 +3040,4 @@ function ptPlanA3(R, v, infos = {}, feuille = "1", dessiner) {
 
 
 export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, PT_MOTEURS, MT_AVEC, MT_NOMS };
-export const EMPREINTE = "257be63fbfa7";
+export const EMPREINTE = "f3e568bafe95";
