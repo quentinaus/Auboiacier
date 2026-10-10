@@ -210,6 +210,15 @@ export default async function ProductPage({
           },
         ]
       : []),
+    // Les portails : la page « portail sur mesure à Saumur » (choisir le type, alu ou acier, pose, délai), 10/10/2026.
+    ...(product.famille === "portail"
+      ? [
+          {
+            href: `/${locale}/portail-sur-mesure-saumur`,
+            label: locale === "fr" ? "Portail sur mesure à Saumur : bien choisir" : "Bespoke gates in Saumur: how to choose",
+          },
+        ]
+      : []),
     // L'escalier : ses prix par forme et par essence, et ses normes, sur le guide (référencement, 07/10/2026).
     ...(product.famille === "escalier"
       ? [

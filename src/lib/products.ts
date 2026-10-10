@@ -1811,7 +1811,7 @@ const catalogue: Product[] = [
     // détaille hauteur (art. R134-59) et espaces (NF P01-012) — ni marque NF,
     // ni « solidité » tant que la fixation n'est pas décidée.
     seoDescription:
-      "Garde-corps de fenêtre en acier plein, style fer forgé, fait main à Saumur ; hauteur et vides calculés.",
+      "Garde-corps de fenêtre sur mesure en acier plein, fait main à Saumur ; hauteur et vides calculés.",
     h1Ligne: "Garde-corps de fenêtre sur mesure, acier plein style fer forgé",
     releve: "garde-corps-fenetre",
     category: "interieur",
@@ -1975,7 +1975,7 @@ const catalogue: Product[] = [
         "NF P01-012 window guard custom",
       ],
       seoDescription:
-        "Solid steel window railing, wrought-iron style, handmade in Saumur, France; height and gaps worked out to French rules.",
+        "Bespoke solid steel window railing, handmade in Saumur, France; height and gaps worked out to French rules.",
       // « Juliet balcony » est dans le title : la ligne du titre le dit aussi (la même fiche fait la porte-fenêtre,
       // guide des normes, « porteFenetreBody »).
       h1Ligne: "Bespoke window and Juliet balcony railing, wrought-iron style solid steel",

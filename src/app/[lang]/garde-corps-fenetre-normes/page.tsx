@@ -572,6 +572,13 @@ export default async function NormesGardeCorpsPage({
               <Link href={`/${locale}/escalier-limon-central-prix-normes`} className={lien}>
                 {dict.liens.guideEscalier}
               </Link>
+              {/* Le balcon et la terrasse : leur page, pour que les trois pages garde-corps se renvoient l'une à l'autre. */}
+              <Link href={`/${locale}/garde-corps-balcon-terrasse`} className={lien}>
+                {dict.liens.balconTerrasse}
+              </Link>
+              <Link href={`/${locale}/artisanat/famille/garde-corps`} className={lien}>
+                {dict.hub.catGardeCorps}
+              </Link>
             </div>
           </section>
 
