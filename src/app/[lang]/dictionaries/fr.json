@@ -144,6 +144,24 @@
           ]
         },
         {
+          "h3": "Combien coûte un travail de métallerie à Saumur ?",
+          "paragraphes": [
+            "Cela dépend de la pièce. Pour une table, un garde-corps de fenêtre ou un plafond lumineux, le prix s'affiche dans le configurateur, à vos cotes, avec un devis PDF sans compte et sans engagement. Un escalier, une verrière ou une sculpture se chiffrent après la prise de cotes."
+          ]
+        },
+        {
+          "h3": "L'atelier est-il à Saumur ?",
+          "paragraphes": [
+            "Oui, l'atelier est à Saumur (49400). L'acier y est coupé, soudé et peint ; le bois y est poncé et huilé. Chaque pièce est fabriquée à la commande, sans stock."
+          ]
+        },
+        {
+          "h3": "Travaillez-vous le bois comme l'acier ?",
+          "paragraphes": [
+            "Oui. Les plateaux de table, les marches d'escalier et les mains courantes sont en bois massif : pin, hêtre, chêne ou noyer. Le bois est travaillé avec une expérience en ébénisterie, du choix des planches à la finition à l'huile."
+          ]
+        },
+        {
           "h3": "Où nous intervenons",
           "paragraphes": [
             "Depuis Saumur, l'atelier se déplace en Anjou comme en Touraine pour relever les cotes : à Saumur et dans les communes voisines, Montreuil-Bellay, Doué-en-Anjou ou Fontevraud-l'Abbaye, puis à Angers, à Tours ou à Chinon, et jusqu'à 200 km de l'atelier, en Maine-et-Loire, en Indre-et-Loire, dans les Deux-Sèvres et dans la Vienne. Les pièces de la collection sont livrées par transporteur dans toute la France métropolitaine ; une table arrive démontée, prête à visser. La pose par l'atelier, si vous la souhaitez, est chiffrée au devis. Pour une métallerie à Saumur ou ailleurs dans le Val de Loire, écrivez-nous avec votre commune et votre projet."
@@ -1426,7 +1444,7 @@
   "seo": {
     "hub": {
       "title": "Métallerie Saumur : acier et bois sur mesure",
-      "description": "Atelier de métallerie artisanale à Saumur (49) : garde-corps, escaliers, verrières, tables et plafonds lumineux sur mesure. Prix instantané, devis PDF."
+      "description": "Atelier de métallerie à Saumur (49) : garde-corps, escaliers, verrières, tables et plafonds lumineux sur mesure. Prix instantané, devis PDF."
     },
     "artisanat": {
       "title": "Mobilier acier et bois massif sur mesure",
@@ -1434,8 +1452,8 @@
     },
     "produitSuffixe": "Fabriqué à Saumur (49), livré en métropole.",
     "lumiere": {
-      "title": "Plafond lumineux toile tendue sur mesure",
-      "description": "Plafond lumineux en toile tendue, rectangle ou disque, fait main à Saumur. Livré jusqu'à 230 × 210 cm (Ø 210 cm) ; au-delà, posé par l'atelier."
+      "title": "Toile tendue lumineuse sur mesure",
+      "description": "Toile tendue lumineuse sur mesure : plafond rectangle ou disque, fait main à Saumur. Livré jusqu'à 230 × 210 cm (Ø 210 cm) ; au-delà, posé."
     },
     "sculptures": {
       "title": "Sculpture en acier de récupération soudé",
@@ -1482,7 +1500,7 @@
       "description": "Règles d'utilisation du site Auboiacier : accès, propriété intellectuelle, responsabilité, liens."
     },
     "zone": {
-      "title": "Métallier en Maine-et-Loire et Touraine",
+      "title": "Métallier à Saumur : Anjou, Touraine, 200 km",
       "description": "Atelier à Saumur (49) : prise de cotes chez vous dès {prixVisite} jusqu'à {rayonVisite} km, visite jusqu'à 200 km. Garde-corps, escaliers, verrières, tables, plafonds."
     },
     "faq": {
@@ -1584,6 +1602,8 @@
     "ctaLabel": "Nous écrire",
     "faqLink": "Voir les questions fréquentes",
     "communesNote": "Et, plus loin, partout jusqu'à {rayonMax} km de l'atelier pour la prise de cotes.",
+    "metalleriesTitle": "Métallerie à Saumur : ce que l'atelier fait sur place",
+    "metalleriesBody": "Tout part de l'atelier de Saumur (49400). L'acier y est coupé, soudé à la main et peint ; le bois massif y est mis à vos cotes, poncé et huilé, avec une expérience en ébénisterie. Si vous cherchez une métallerie à Saumur pour un garde-corps, une table, un escalier, une verrière ou un plafond lumineux, vous parlez à l'atelier qui fabrique la pièce.",
     "localTitle": "Maisons de tuffeau et secteurs protégés",
     "localBody": "Autour de Saumur, beaucoup de maisons anciennes sont en tuffeau. Pour un garde-corps de fenêtre, la fixation se choisit selon votre mur : l'atelier le regarde avant de fabriquer. Dans le centre de Saumur et les secteurs protégés, une modification de façade, comme un garde-corps neuf, peut demander une déclaration préalable en mairie : renseignez-vous avant de commander.",
     "guidesTitre": "À lire avant la visite :"
@@ -1857,7 +1877,25 @@
       {
         "q": "Quel délai ?",
         "a": "Comptez {delai} de fabrication, puis la livraison ou la pose. Le délai exact vous est confirmé à la commande."
+      },
+      {
+        "q": "Peut-on changer la couleur de la lumière ?",
+        "a": "Oui. Le plafond s'allume en blanc chaud au quotidien, ou en couleurs pour une ambiance : la teinte et l'intensité se règlent depuis votre téléphone."
+      },
+      {
+        "q": "Quelle profondeur pour le caisson ?",
+        "a": "Le caisson se fait de 18 à 60 cm de profondeur, 18 cm par défaut. Plus il est profond, plus la bande d'aluminium du pourtour est grande : la fiche en tient compte dans le prix."
+      },
+      {
+        "q": "Combien coûte une toile tendue lumineuse ?",
+        "a": "Le prix est affiché pour chaque taille du catalogue, sur cette page et sur les fiches Lucarne et Halo : caisson, toile, éclairage, alimentations et boîtier de commande compris. Pour vos cotes, la fiche calcule le prix au centimètre."
       }
+    ],
+    "toileTitle": "Une toile tendue lumineuse, comment ça marche ?",
+    "toileCorps": [
+      "Une toile tendue lumineuse est une membrane blanche et translucide, tendue sur un caisson en aluminium. Derrière elle, des rubans LED l'éclairent : la toile répartit leur lumière sur toute sa surface, comme un puits de lumière.",
+      "Les rubans sont en 24 V, alignés au fond du caisson, une ligne tous les 8 cm. Les alimentations, branchées sur le 230 V, et le boîtier de commande sont compris. Le caisson se fait de 18 à 60 cm de profondeur.",
+      "Chaque plafond est fabriqué à Saumur, à la commande, aux cotes de votre pièce : un rectangle, la Lucarne, ou un disque, le Halo. Il se suspend sous le plafond existant par des câbles."
     ],
     "fabricationTitre": "En fabrication",
     "fabricationTexte": "Le caisson, les rubans LED, le cadre en aluminium : des plafonds lumineux réalisés par Quentin avant l'ouverture de l'atelier.",
@@ -1915,6 +1953,8 @@
     "faqEntretienA": "Essuyez les liquides sans attendre, avec un chiffon doux à peine humide, et posez les plats chauds sur un dessous-de-plat. Quand le bois paraît sec, une couche d'huile-cire lui rend sa protection ; une rayure se rattrape d'un ponçage léger, sur la zone touchée seulement.",
     "faqDehorsQ": "Une table en bois peut-elle rester dehors ?",
     "faqDehorsA": "Oui, la table Mikado Extérieur est faite pour ça : un plateau en lattes de chêne massif, espacées pour que la pluie s'écoule, fini à l'huile pour l'extérieur, sur un piétement galvanisé à froid puis laqué. Comptez une couche d'huile par an, ou laissez le bois griser si vous aimez la patine.",
+    "faqMikadoQ": "Qu'est-ce qu'une table Mikado ?",
+    "faqMikadoA": "C'est une table dont le piétement est fait de tubes d'acier qui se croisent, comme les bâtonnets du jeu de mikado. Ici, les tubes de 80 × 80 mm sont soudés ensemble à l'atelier sous un plateau en bois massif. La table Mikado existe en intérieur, de 6 à 14 places, et en version jardin, à plateau de lattes de chêne.",
     "faqHorsQ": "Peut-on avoir une essence ou une forme hors catalogue ?",
     "faqHorsA": "Oui, sur devis. Décrivez-nous la forme ou l'essence voulue : nous adaptons le modèle et nous chiffrons.",
     "ctaTitle": "Une table hors catalogue ?",

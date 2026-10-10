@@ -654,7 +654,7 @@ const catalogue: Product[] = [
     boisAuM2: true,
     famille: "table-interieur",
     seoMots: "table acier & chêne",
-    seoTitre: "Table bois massif pied Mikado acier",
+    seoTitre: "Table Mikado, bois massif et pied acier",
     // La recherche en tête (« table pied Mikado ») : les trois tables d'intérieur ne commencent plus pareil.
     seoDescription:
       "Table pied Mikado sur mesure, faite main à Saumur : tubes d'acier 80 mm croisés sous un plateau massif, pin, hêtre, chêne ou noyer.",
@@ -893,6 +893,10 @@ const catalogue: Product[] = [
         title: "Fabriquée pour vous, à Saumur",
         body: "Rien n'est en stock : chaque Mikado est fabriquée à la commande. Les tubes sont coupés, assemblés et soudés à la main à l'atelier, les soudures meulées, puis le piétement est peint dans la teinte choisie, parmi six. Le plateau est poncé et huilé à la main.",
       },
+      {
+        title: "Qu'est-ce qu'une table Mikado ?",
+        body: "Le nom vient du jeu de bâtonnets : les tubes d'acier du piétement se croisent sous le plateau en bois massif, tous soudés à l'atelier. Vous choisissez l'essence du bois (pin, hêtre, chêne ou noyer), l'épaisseur du plateau (28, 36 ou 45 mm) et la teinte du piétement, parmi six. Pour le jardin, la Table Mikado Extérieur reprend le même piétement sous un plateau à lattes de chêne.",
+      },
       SECTION_PLATEAU,
     ],
     specs: [
@@ -939,6 +943,10 @@ const catalogue: Product[] = [
         {
           title: "Made for you, in Saumur",
           body: "Nothing sits in stock: every Mikado is made to order. The tubes are cut, fitted and welded by hand in the workshop, the welds ground smooth, then the base is painted in the colour you chose, out of six. The top is sanded and oiled by hand.",
+        },
+        {
+          title: "What is a Mikado table?",
+          body: "The name comes from the game of pick-up sticks: the steel tubes of the base cross under the solid wood top, all welded in the workshop. You choose the wood (pine, beech, oak or walnut), the thickness of the top (28, 36 or 45 mm) and the colour of the base, out of six. For the garden, the Mikado Outdoor table has the same base under an oak slat top.",
         },
         SECTION_PLATEAU_EN,
       ],
@@ -2270,7 +2278,7 @@ const catalogue: Product[] = [
     boisAuM2: true,
     famille: "table-exterieur",
     seoMots: "table de jardin",
-    seoTitre: "Table de jardin bois et acier sur mesure",
+    seoTitre: "Table de jardin Mikado, chêne et acier",
     // Même raison que le garde-corps : accroche + prix + suffixe dépassait.
     seoDescription:
       "Table de jardin sur mesure, faite main à Saumur : lattes de chêne massif, piétement Mikado en acier peint, faite pour rester dehors.",
@@ -2480,7 +2488,7 @@ const catalogue: Product[] = [
     seoTitre: "Plafonnier rectangulaire en toile tendue",
     // « plafond lumineux cuisine » reste à /toiles-tendues : la fiche vise le plafonnier.
     seoDescription:
-      "Plafonnier rectangulaire en toile tendue rétroéclairée, fait main à Saumur : effet puits de lumière. Livré jusqu'à 230 × 210 cm.",
+      "Plafond lumineux rectangulaire en toile tendue rétroéclairée, fait main à Saumur : effet puits de lumière. Livré jusqu'à 230 × 210 cm.",
     h1Ligne: "Plafonnier rectangulaire en toile tendue rétroéclairée",
     // Les photos de la fiche sont carrées : déclinaison 1200 × 630 pour les réseaux.
     imagePartage: "/images/partage/lucarne.jpg",
@@ -2492,7 +2500,7 @@ const catalogue: Product[] = [
     images: [
       {
         src: "/images/lumiere/panneau-dessous-carre.jpg",
-        alt: "Lucarne : plafonnier rectangulaire en toile tendue, cadre aluminium noir, vu de dessous",
+        alt: "Lucarne : plafond lumineux rectangulaire en toile tendue, cadre aluminium noir, vu de dessous",
         bg: "#ffffff",
         fit: "cover",
         // Membrane relevée sur la photo : sa lumière est réellement animée.
@@ -2568,6 +2576,10 @@ const catalogue: Product[] = [
         image: "/images/lumiere/lucarne-rgb.jpg",
       },
       {
+        title: "Une toile tendue lumineuse, pour quelles pièces ?",
+        body: "Au-dessus d'une table de salle à manger, d'un îlot de cuisine ou dans une grande pièce à vivre, la Lucarne est un plafond lumineux en toile tendue, de 120 × 60 cm à 400 × 300 cm, au centimètre. Elle s'allume en blanc chaud ou en couleurs, depuis votre téléphone. Pour une forme ronde, voyez le Halo ; pour le principe et les prix de toutes les tailles, la page des plafonds lumineux.",
+      },
+      {
         // Une vraie photo (09/10/2026) : un plafond lumineux fabriqué par Quentin avant l'ouverture de l'atelier.
         title: "En fabrication",
         body: "Les rubans LED alignés au fond du caisson, avant la pose de la toile : un plafond lumineux réalisé par Quentin avant l'ouverture de l'atelier. L'écartement des rubans est calculé pour une lumière égale, sans point chaud.",
@@ -2592,7 +2604,7 @@ const catalogue: Product[] = [
       h1Ligne: "Rectangular backlit stretch-fabric ceiling light",
       tagline: "Backlit stretched fabric, lacquered aluminium frame.",
       images: [
-        "Lucarne: rectangular stretch-fabric ceiling light, black aluminium frame, seen from below",
+        "Lucarne: rectangular backlit stretch-fabric ceiling light, black aluminium frame, seen from below",
         "Lucarne: backlit stretch-fabric ceiling light above a dining table",
       ],
       sizes: {
@@ -2624,6 +2636,10 @@ const catalogue: Product[] = [
           body: "The Lucarne hangs from the ceiling on four rings screwed into its frame and stainless or steel cables, supplied. The LEDs are 24 V strips; the power supplies, connected to the 230 V mains, and the control box are included in the price.",
         },
         {
+          title: "A backlit stretch-fabric ceiling, for which rooms?",
+          body: "Above a dining table, a kitchen island or in a large living room, the Lucarne is a backlit stretch-fabric ceiling light, from 120 × 60 cm to 400 × 300 cm, to the centimetre. It lights up in warm white or in colours, set from your phone. For a round shape, see the Halo; for how it works and the prices of every size, see the light ceilings page.",
+        },
+        {
           title: "In the making",
           body: "The LED strips lined up in the back of the box, before the fabric goes on: a light ceiling made by Quentin before the workshop opened. The spacing of the strips is calculated for even light, with no hot spot.",
         },
@@ -2645,7 +2661,7 @@ const catalogue: Product[] = [
     seoMots: "plafond lumineux rond",
     seoTitre: "Grand plafonnier rond en toile tendue",
     seoDescription:
-      "Grand plafonnier rond en toile tendue rétroéclairée, fait main à Saumur, de Ø 90 à Ø 400 cm. Livré jusqu'à Ø 210 cm, posé au-delà.",
+      "Grand plafond lumineux rond en toile tendue, fait main à Saumur, de Ø 90 à Ø 400 cm. Livré jusqu'à Ø 210 cm, posé au-delà.",
     h1Ligne: "Grand plafonnier rond en toile tendue rétroéclairée",
     // Photos carrées, là aussi : déclinaison 1200 × 630 pour les réseaux.
     imagePartage: "/images/partage/halo.jpg",
@@ -2657,7 +2673,7 @@ const catalogue: Product[] = [
     images: [
       {
         src: "/images/lumiere/rond-dessous-carre.jpg",
-        alt: "Halo : grand plafonnier rond en toile tendue, cadre aluminium noir",
+        alt: "Halo : grand plafond lumineux rond en toile tendue, cadre aluminium noir",
         bg: "#ffffff",
         fit: "cover",
         // Membrane relevée sur la photo : sa lumière est réellement animée.
@@ -2731,6 +2747,10 @@ const catalogue: Product[] = [
         image: "/images/lumiere/salle-ronde.jpg",
       },
       {
+        title: "Halo ou Lucarne : le disque ou le rectangle ?",
+        body: "Le Halo est une toile tendue lumineuse ronde ; la Lucarne est un rectangle. Même toile, même caisson en aluminium, mêmes rubans LED : seule la forme change. Le cercle demande de cintrer le profilé, ce qui se retrouve dans le prix, calculé sur la fiche pour chaque diamètre.",
+      },
+      {
         title: "Un grand plafonnier rond, de Ø 90 à Ø 400 cm",
         body: "Au-dessus d'une grande table, un Halo de Ø 120 ou 150 cm donne une lumière diffuse, sans ombre dure sur les visages. Il se suspend au plafond par quatre anneaux vissés dans son cadre et des câbles en inox ou en acier, fournis, et se fabrique au centimètre jusqu'à 400 cm de diamètre. Jusqu'à Ø 210 cm, il part par transporteur ; au-delà, l'atelier le livre et le pose chez vous. Les LED sont des rubans 24 V ; les alimentations, branchées sur le 230 V, et le boîtier de commande sont compris dans le prix.",
       },
@@ -2752,7 +2772,7 @@ const catalogue: Product[] = [
       h1Ligne: "Large round backlit stretch-fabric ceiling light",
       tagline: "A circle of backlit stretched fabric, lacquered aluminium frame.",
       images: [
-        "Halo: large round stretch-fabric ceiling light, black aluminium frame",
+        "Halo: large round backlit stretch-fabric ceiling light, black aluminium frame",
         "Halo lit up: large round backlit stretch-fabric ceiling light",
         "Close-up of the curved aluminium frame and the lit stretched fabric",
       ],
@@ -2778,6 +2798,10 @@ const catalogue: Product[] = [
         {
           title: "A large disc, a soft light",
           body: "Above a large table or in the middle of a room, the disc gives a diffused light, with no hard shadow on faces.",
+        },
+        {
+          title: "Halo or Lucarne: disc or rectangle?",
+          body: "The Halo is a round backlit stretch-fabric ceiling light; the Lucarne is a rectangle. Same fabric, same aluminium box, same LED strips: only the shape changes. The circle means bending the profile, which shows in the price, worked out on the product page for every diameter.",
         },
         {
           title: "A large round ceiling light, from Ø 90 to Ø 400 cm",

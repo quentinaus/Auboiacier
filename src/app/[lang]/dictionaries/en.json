@@ -82,8 +82,8 @@
     "altSculptures": "Rearing horse welded by hand from reclaimed steel",
     "altEscaliers": "Staircase with a central steel spine and oak treads",
     "altGardeCorps": "Black steel window railing with cast rosettes and an oak handrail",
-    "altLucarne": "Lucarne: rectangular backlit stretch ceiling, black aluminium frame, seen from below",
-    "altHalo": "Halo: round backlit stretch ceiling, black aluminium frame, seen from below",
+    "altLucarne": "Lucarne: rectangular backlit stretch-fabric ceiling light, black aluminium frame, seen from below",
+    "altHalo": "Halo: round backlit stretch-fabric ceiling light, black aluminium frame, seen from below",
     "altPlafonds": "Backlit stretch ceiling above a dining table",
     "altVerrieres": "Black steel interior partition between a living room and a kitchen",
     "seoTitle": "Custom craft metalwork in Saumur and the Loire Valley",
@@ -141,6 +141,24 @@
           "paragraphes": [
             "The price is shown before any appointment. For a window railing, a table or a light ceiling, you enter your measurements in the online configurator: the price appears at once, worked out for your dimensions, and you download a PDF quote with no account and no commitment. For a railing, the configurator works out the height and the gaps between the bars from your window.",
             "A staircase, a steel internal window or a sculpture is priced by quote, and the workshop comes to measure at your home, by appointment: a home measuring visit costs {prixVisite} within {rayonVisite} km of Saumur, and more beyond that, depending on distance. You can also book it for a window railing if you would rather not measure yourself. Every piece is made to order, and the lead time is confirmed to you in writing when you place the order."
+          ]
+        },
+        {
+          "h3": "How much does metalwork cost in Saumur?",
+          "paragraphes": [
+            "It depends on the piece. For a table, a window railing or a backlit ceiling, the price appears in the configurator, at your sizes, with a PDF quote that needs no account and no commitment. A staircase, a steel partition or a sculpture is priced after the workshop has taken the measurements."
+          ]
+        },
+        {
+          "h3": "Is the workshop in Saumur?",
+          "paragraphes": [
+            "Yes, the workshop is in Saumur (49400). The steel is cut, welded and painted there; the wood is sanded and oiled there. Every piece is made to order, with no stock."
+          ]
+        },
+        {
+          "h3": "Do you work wood as well as steel?",
+          "paragraphes": [
+            "Yes. Table tops, stair treads and handrails are solid wood: pine, beech, oak or walnut. The wood is worked with a background in cabinetmaking, from choosing the boards to the oil finish."
           ]
         },
         {
@@ -1426,7 +1444,7 @@
   "seo": {
     "hub": {
       "title": "Metalworks Saumur: steel and wood made to order",
-      "description": "Craft metalwork studio in Saumur, France: custom window railings, staircases, steel partitions, tables and backlit ceilings. Instant price, PDF quote."
+      "description": "Metalwork studio in Saumur, France: custom window railings, staircases, steel partitions, tables and backlit ceilings. Instant price, PDF quote."
     },
     "artisanat": {
       "title": "Bespoke steel and solid wood furniture",
@@ -1434,8 +1452,8 @@
     },
     "produitSuffixe": "Handmade in Saumur. Shipped in mainland France.",
     "lumiere": {
-      "title": "Bespoke stretch-fabric ceiling lights",
-      "description": "Backlit stretch-fabric ceiling light, rectangle or disc, handmade in Saumur. Ships up to 230 × 210 cm (Ø 210 cm); larger sizes fitted by the workshop."
+      "title": "Backlit stretch-fabric ceiling light",
+      "description": "Backlit stretch ceiling made to measure, rectangle or disc, handmade in Saumur. Ships up to 230 × 210 cm (Ø 210 cm); larger sizes fitted by the workshop."
     },
     "sculptures": {
       "title": "Welded steel sculptures, one of a kind",
@@ -1482,7 +1500,7 @@
       "description": "Rules for using the Auboiacier website: access, intellectual property, liability, links."
     },
     "zone": {
-      "title": "Metalworker in the Loire Valley, France",
+      "title": "Metalworker in Saumur: Anjou, Touraine, 200 km",
       "description": "Workshop in Saumur, Maine-et-Loire: home measuring from {prixVisite} within {rayonVisite} km, visits up to 200 km away. Railings, staircases, steel windows, tables."
     },
     "faq": {
@@ -1584,6 +1602,8 @@
     "ctaLabel": "Get in touch",
     "faqLink": "See the frequently asked questions",
     "communesNote": "And further out, anywhere within {rayonMax} km of the workshop for a measuring visit.",
+    "metalleriesTitle": "Metalwork in Saumur: what the workshop does on site",
+    "metalleriesBody": "Everything starts in the Saumur workshop (49400). The steel is cut, welded by hand and painted there; the solid wood is cut to your sizes, sanded and oiled, with a background in cabinetmaking. If you are looking for a metalworker in Saumur for a railing, a table, a staircase, a steel partition or a backlit ceiling, you deal with the workshop that makes the piece.",
     "localTitle": "Tufa-stone houses and protected areas",
     "localBody": "Around Saumur, many older houses are built of tuffeau, the local white tufa stone. For a window railing, the fixing is chosen to suit your wall: the workshop looks at it before making anything. In central Saumur and other protected areas, changing a façade, such as adding a new railing, may need a prior declaration at the town hall: check before you order.",
     "guidesTitre": "Worth reading before the visit:"
@@ -1857,7 +1877,25 @@
       {
         "q": "How long does it take?",
         "a": "Allow {delai} for making, then delivery or fitting. The exact lead time is confirmed when you order."
+      },
+      {
+        "q": "Can the colour of the light be changed?",
+        "a": "Yes. The ceiling lights up in warm white day to day, or in colours for a mood: the shade and the brightness are set from your phone."
+      },
+      {
+        "q": "How deep is the box?",
+        "a": "The box is made 18 to 60 cm deep, 18 cm by default. The deeper it is, the larger the aluminium band around the edge: the product page includes it in the price."
+      },
+      {
+        "q": "How much does a backlit stretch-fabric ceiling cost?",
+        "a": "The price is shown for every catalogue size, on this page and on the Lucarne and Halo pages: box, fabric, lighting, power supplies and control box included. For your own dimensions, the product page works out the price to the centimetre."
       }
+    ],
+    "toileTitle": "How does a backlit stretch-fabric ceiling work?",
+    "toileCorps": [
+      "A backlit stretch-fabric ceiling is a white, translucent membrane stretched over an aluminium box. LED strips behind it light it up: the fabric spreads their light over its whole surface, like a skylight.",
+      "The strips are 24 V, lined up at the back of the box, one line every 8 cm. The power supplies, plugged into the 230 V mains, and the control box are included. The box is made 18 to 60 cm deep.",
+      "Every ceiling is made in Saumur, to order, to the size of your room: a rectangle, the Lucarne, or a disc, the Halo. It hangs below the existing ceiling on cables."
     ],
     "fabricationTitre": "In the making",
     "fabricationTexte": "The box, the LED strips, the aluminium frame: light ceilings made by Quentin before the workshop opened.",
@@ -1915,6 +1953,8 @@
     "faqEntretienA": "Wipe up spills straight away with a soft, barely damp cloth, and put hot dishes on a trivet. When the wood looks dry, a coat of hardwax oil restores its protection; a scratch sands out lightly, on that spot alone.",
     "faqDehorsQ": "Can a wooden table stay outdoors?",
     "faqDehorsA": "Yes, that is what the Mikado Outdoor table is for: a top of solid oak slats, spaced so rain runs off, finished with an outdoor oil, on a cold-galvanised, lacquered base. Allow one coat of oil a year, or let the wood go grey if you like the patina.",
+    "faqMikadoQ": "What is a Mikado table?",
+    "faqMikadoA": "It is a table whose base is made of steel tubes that cross each other, like the sticks in the game of pick-up sticks (mikado in French). Here the 80 × 80 mm tubes are welded together in the workshop under a solid wood top. The Mikado table comes indoors, for 6 to 14 seats, and as a garden version with an oak slat top.",
     "faqHorsQ": "Can I have a timber or a shape outside the catalogue?",
     "faqHorsA": "Yes, on quotation. Tell us the shape or the timber you want: we adapt the model and price it.",
     "ctaTitle": "A table outside the catalogue?",
