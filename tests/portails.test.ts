@@ -133,6 +133,17 @@ test("Volutes : chaque forme du haut et chaque bas ont un prix, jamais « À ét
     }
 });
 
+test("Cœurs : les panneaux de 600 ont un prix, jamais « À étudier » (Quentin, 10/10/2026)", () => {
+  // Panneau de 600 : 5 cœurs de 95 à +10,7 % ou 6 à −10,9 %, aucune pièce dans les ±10 % : la reprise la plus faible au
+  // gabarit, ±12 % au plus (motifs.js, MT_ATELIER.repriseSecours). Portillon de 780, pliant de 2 500 et 3 000, petit
+  // vantail du battant 1/3 – 2/3 de 2 260.
+  for (const [slug, P, rep] of [["portillon", 780, "egal"], ["portail-pliant", 2500, "egal"], ["portail-pliant", 3000, "egal"], ["portail-battant", 2260, "tiers"]] as [SlugPortail, number, "egal" | "tiers"][])
+    for (const H of [1000, 2000]) for (const forme of ["droit", "chapeau"] as const) {
+      const r = prixPortail(slug, { ...configDepart(slug, "barreaux"), decor: "coeurs", mat: "acier", pointes: true, P, H, rep, forme });
+      assert.ok(r.ok, `${slug} ${P} × ${H} ${rep} ${forme} : ${r.ok ? "" : r.alertes.join(" ")}`);
+    }
+});
+
 test("« Personnaliser » (lot 10) : 1 ou 2 emplacements permis par motifs.js, relus à l'identique ; tout le reste est refusé", () => {
   const choix: ChoixDecor[] = [{ assemblage: "entre", forme: "S", pos: "milieu" }, { assemblage: "cimier", forme: "C" }];
   const cfg: ConfigPortail = { ...configDepart("portail-battant", "barreaux"), mat: "acier", decor: "perso", decorChoix: choix, bouts: "bouton", barreauxDeco: "torsade" };

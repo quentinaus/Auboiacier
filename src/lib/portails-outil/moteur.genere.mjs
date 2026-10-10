@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 896f0891a0f80c24759f3b31.
+// Source : l'outil de plans (plans-atelier.html), sha256 9a642bf42019c0c6bb65a931.
 /* eslint-disable */
 
 
@@ -21,6 +21,7 @@ const MT_ATELIER = {
   barreauDecor: 150,
   jeuCatalogue: 2,
   reprise: 0.1,
+  repriseSecours: 0.12,
   plat12Max: 250,
   cimier: [150, 300],
   coinMax: 0.3,
@@ -248,8 +249,8 @@ function mtRef(forme, assemblage, lim) {
   }
   return best;
 }
-function mtRefVides(forme, assemblage, W, B, hMax, viser = hMax, pair = false, filtre = null) {
-  const R = MT_ATELIER.reprise, J = MT_ATELIER.jeuCatalogue; let best = null;
+function mtRefVides(forme, assemblage, W, B, hMax, viser = hMax, pair = false, filtre = null, R = MT_ATELIER.reprise) {
+  const J = MT_ATELIER.jeuCatalogue; let best = null;
   for (const e of MT_CATALOGUE) {
     if (e.forme !== forme || e.parMetre || (filtre && !filtre(e))) continue;
     const n0 = Math.round((W + B) / (e.l + J + B));
@@ -583,7 +584,11 @@ const MT_ASSEMBLAGES = {
     const B = z.barreau || MT_ATELIER.barreau, v0 = z.vide || MT_ATELIER.vide;
     if (!ch.variante) {
       const hz = ch.catalogue ? mtHauteurMin(z) - 10 : 0;
-      const cat = ch.catalogue ? mtRefVides("coeur", "coeurs", z.x1 - z.x0, B, hz, Math.min(hz, 1.4 * (2 * v0 + B))) : null;
+      const viserC = Math.min(hz, 1.4 * (2 * v0 + B));
+      let cat = ch.catalogue ? mtRefVides("coeur", "coeurs", z.x1 - z.x0, B, hz, viserC) : null;
+      for (let R = MT_ATELIER.reprise + 0.0025; ch.catalogue && !cat && R <= MT_ATELIER.repriseSecours + 1e-9; R += 0.0025) {
+        cat = mtRefVides("coeur", "coeurs", z.x1 - z.x0, B, hz, viserC, false, null, R);
+      }
       if (ch.catalogue && !cat) { mtRefus(q, MT_NOMS.coeur, mtSansRef("coeur", "coeurs")); mtBarreaux(z, z.x0, z.x1, F, pieces, q, ch); return; }
       const fC = mtBoite(mtForme("coeur")), wC = (mtHauteurMin(z) - 10) * (fC.x1 - fC.x0) / (fC.y1 - fC.y0) + 2;
       mtBarreaux(cat ? { ...z, videMax: 0 } : z, z.x0, z.x1, F, pieces, q, ch, cat ? cat.v * (1 + 1e-6) : Math.min(2 * v0 + B, wC)).forEach(([a, c], i, L) => {
@@ -3035,4 +3040,4 @@ function ptPlanA3(R, v, infos = {}, feuille = "1", dessiner) {
 
 
 export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, PT_MOTEURS, MT_AVEC, MT_NOMS };
-export const EMPREINTE = "72bfbd929f8b";
+export const EMPREINTE = "257be63fbfa7";
