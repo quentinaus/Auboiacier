@@ -269,7 +269,7 @@ export function PorteQuiMesure({
         ) : (
           <h2 className={`${serif.className} text-lg leading-none text-[#2b2320] md:text-[28px]`}>{titre}</h2>
         )}
-        <div className={photo ? "porte-corps mt-1 flex min-h-0 flex-1 flex-col md:mt-4 md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:gap-5" : "contents"}>
+        <div className={photo ? "porte-corps mt-1 flex min-h-0 flex-1 flex-col md:mt-4 md:grid md:grid-cols-[minmax(0,0.62fr)_minmax(0,1.38fr)] md:gap-4" : "contents"}>
         {photo && <div className="porte-photo hidden min-h-0 md:block">{photo}</div>}
         <div className={photo ? "flex min-h-0 flex-1 flex-col" : "contents"}>
         <div className="porte-entete mt-2 text-center md:mt-1">
