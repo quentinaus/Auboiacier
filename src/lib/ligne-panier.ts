@@ -34,6 +34,8 @@ export function lineId(line: CartLine): string {
     // La largeur à 1 m du sol (murs pas parallèles) : une autre largeur en haut, une autre pièce, une autre ligne. Absente
     // (murs droits), l'identifiant ne change pas.
     ...(line.allegeMm !== undefined && line.largeurHautMm !== undefined ? [`lh${line.largeurHautMm}`] : []),
+    // Un portail : une autre configuration, une autre ligne. Absent des autres pièces.
+    ...(line.portail ? [line.portail] : []),
   ]
     .map((part) => part ?? "-")
     .join("|");

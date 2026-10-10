@@ -1,6 +1,7 @@
 // Chemins relatifs, pas l'alias « @/ » : les tests (node --test) chargent ce
 // fichier directement, sans le compilateur de Next.
 import {
+  getProduct,
   livrableParTransporteur,
   poidsColisKg,
   productLocalise,
@@ -32,6 +33,13 @@ import {
 import { libelleCreneau, lireCreneau, type Creneau } from "./creneau.ts";
 import { finitionsDecorGC, lireDecorGC, NOM_GC_DECOR, type ReleveGC } from "./garde-corps.ts";
 import { eligibleGarantieCotes, prixGarantieCotes } from "./garantie-cotes.ts";
+import { acomptePortail, ACOMPTE_PORTAIL_PCT, estSlugPortail, lireConfigPanier, resumeConfig, type ConfigPortail, type SlugPortail } from "./portails.ts";
+
+/**
+ * Ce que le calcul d'un portail rend (ReponsePrixPortail, src/lib/portails-outil/prix.ts), redit ici pour que ce fichier
+ * n'importe jamais le calcul : seul le serveur le fournit (contexte.portail), par src/lib/prix-portail.server.ts.
+ */
+export type PrixPortail = { ok: true; prix: number } | { ok: false; alertes: string[] };
 
 /* ------------------------------------------------------------------ *
  *  Le tarif d'un panier
@@ -93,6 +101,12 @@ export type PieceTarifee = {
    */
   garantiePrix: number | null;
   garantie: boolean;
+  /**
+   * Un portail (Quentin, 10/10/2026) : le client paie en ligne l'acompte (unitPrice, ACOMPTE_PORTAIL_PCT % du prix posé) ;
+   * le prix posé et le solde à la réception partent sur la ligne Stripe, au panier et à l'atelier, avec la configuration
+   * (versParamsPanier) à coller dans l'outil de plans.
+   */
+  portail?: { config: string; prixPose: number; solde: number };
 };
 
 /** Comment la commande part : une seule façon par commande. */
@@ -114,7 +128,9 @@ export type ProblemeTarif =
   /** Une pièce trop encombrante pour un transporteur. */
   | "pose_obligatoire"
   /** Des pièces, mais aucune façon de les recevoir choisie. */
-  | "mode_livraison";
+  | "mode_livraison"
+  /** Un portail sans sa visite de prise de cotes (Quentin, 10/10/2026 : la visite se paie à part, déduite du solde). */
+  | "visite_portail";
 
 export type Tarif = {
   pieces: PieceTarifee[];
@@ -133,6 +149,11 @@ export type Tarif = {
   remise: number;
   mode: ModeTarife | null;
   visite: VisiteTarifee | null;
+  /**
+   * Les portails : le solde à régler à la réception, pour toute la commande — prix posé moins l'acompte payé ici, moins
+   * la visite de prise de cotes payée ici (Quentin, 10/10/2026 : « payée à part, déduite du solde »). null sans portail.
+   */
+  soldePortail: number | null;
   probleme: ProblemeTarif | null;
   /** Ce que le client paiera, en euros : la somme de tout ce qui précède. */
   total: number;
@@ -203,11 +224,16 @@ export async function tarifer(
      * le panier — le panier la décoche. /api/commande garde le refus strict.
      */
     garantieSouple?: boolean;
+    /**
+     * Le prix d'un portail par l'outil de plans (src/lib/prix-portail.server.ts) : fourni par le serveur seulement.
+     * Absent, tout portail est refusé (prix_serveur) — jamais un prix inventé.
+     */
+    portail?: (slug: SlugPortail, cfg: ConfigPortail) => PrixPortail;
   }
 ): Promise<Tarif> {
   const { locale, gc } = contexte;
   const situer = contexte.localiser ?? localiser;
-  const tarif: Tarif = { pieces: [], refusees: [], garantiesRefusees: [], garantieExclue: null, remise: 0, mode: null, visite: null, probleme: null, total: 0 };
+  const tarif: Tarif = { pieces: [], refusees: [], garantiesRefusees: [], garantieExclue: null, remise: 0, mode: null, visite: null, soldePortail: null, probleme: null, total: 0 };
   const probleme = (p: ProblemeTarif) => {
     tarif.probleme ??= p;
     return tarif;
@@ -250,6 +276,50 @@ export async function tarifer(
 
     const quantite = Number(line.quantity);
     if (!Number.isInteger(quantite) || quantite < 1 || quantite > MAX_QUANTITE) return probleme("invalid");
+
+    // Un portail (Quentin, 10/10/2026 : « je veux qu'on puisse les commander ») : la ligne porte sa configuration en
+    // texte (versParamsPanier, src/lib/portails.ts) ; l'outil de plans la relit et la rechiffre ici, et le client paie en
+    // ligne l'acompte de ACOMPTE_PORTAIL_PCT % et sa visite de prise de cotes (ligne PRISE_DE_COTES, payée à part et
+    // déduite du solde — pas de Garantie cotes : l'atelier mesure lui-même) ; le solde se règle à la réception du portail
+    // posé. Pas de livraison à choisir : la pose est comprise.
+    const slugLu = String(line.slug ?? "");
+    if (line.portail !== undefined || estSlugPortail(slugLu)) {
+      const refus = (raison: ResolveFailure) => tarif.refusees.push({ index, raison });
+      const product = getProduct(slugLu);
+      if (!product || !estSlugPortail(slugLu)) { refus("unknown_slug"); continue; }
+      if (product.orderMode !== "cart") { refus("not_orderable"); continue; }
+      const cfg = lireConfigPanier(slugLu, line.portail);
+      if (!cfg) { refus("unknown_size"); continue; }
+      if (!contexte.portail) { refus("prix_serveur"); continue; }
+      const rep = contexte.portail(slugLu, cfg);
+      if (!rep.ok) { refus("a_etudier"); continue; }
+      const acompte = acomptePortail(rep.prix), solde = rep.prix - acompte;
+      const euros = (n: number) => (locale === "fr" ? `${new Intl.NumberFormat("fr-FR").format(n)} €` : `€${new Intl.NumberFormat("en-GB").format(n)}`);
+      const acompteTxt = locale === "fr"
+        ? `Acompte de ${ACOMPTE_PORTAIL_PCT} % (prix posé ${euros(rep.prix)}, solde ${euros(solde)} à la réception)`
+        : `${ACOMPTE_PORTAIL_PCT}% deposit (fitted price ${euros(rep.prix)}, balance ${euros(solde)} on handover)`;
+      const resume = resumeConfig(slugLu, cfg, locale, null);
+      if (garantieDemandee) tarif.garantiesRefusees.push(index);
+      tarif.pieces.push({
+        index,
+        line: {
+          product,
+          size: { id: SUR_MESURE, label: `${cfg.P} × ${cfg.H} mm`, price: rep.prix, dimsMm: [cfg.P, cfg.H] },
+          unitPrice: acompte,
+          optionsLabel: resume.join(" · "),
+          image: product.images[0]?.src,
+        },
+        quantite,
+        nom: productLocalise(product, locale).name,
+        options: [...resume, acompteTxt].join(" · "),
+        precisions: texteBorne(line.note, MAX_PRECISIONS),
+        garantiePrix: null,
+        garantie: false,
+        portail: { config: String(line.portail), prixPose: rep.prix, solde },
+      });
+      continue;
+    }
+
     const resolu = resolveSelection(
       {
         slug: String(line.slug ?? ""),
@@ -370,6 +440,15 @@ export async function tarifer(
 
   if (aChoisir.length > 0 && !tarif.mode && tarif.refusees.length === 0) return probleme("mode_livraison");
 
+  // Les portails : la visite de prise de cotes se paie avec l'acompte (une seule visite pour la commande), et elle est
+  // déduite du solde à la réception. Sans visite, un portail ne se paie pas.
+  const portails = tarif.pieces.filter((p) => p.portail);
+  if (portails.length > 0) {
+    if (!tarif.visite) return probleme("visite_portail");
+    const solde = portails.reduce((t, p) => t + p.portail!.solde * p.quantite, 0) - tarif.visite.deplacement.montantCents / 100;
+    tarif.soldePortail = Math.max(0, Math.round(solde * 100) / 100);
+  }
+
   const cents =
     tarif.pieces.reduce((t, p) => t + Math.round(p.line.unitPrice * 100) * p.quantite, 0) +
     tarif.pieces.reduce((t, p) => t + (p.garantie && p.garantiePrix !== null ? p.garantiePrix * 100 * p.quantite : 0), 0) +
@@ -401,6 +480,8 @@ export type LigneAffichee = {
   garantiePrix?: number;
   /** La Garantie cotes est cochée sur cette pièce (elle est comptée dans le total). */
   garantie?: boolean;
+  /** Un portail : le solde à régler à la réception, en euros (l'unitaire est l'acompte payé en ligne). */
+  solde?: number;
 };
 
 export type TarifAffiche = {
@@ -414,6 +495,8 @@ export type TarifAffiche = {
   garantiesRefusees: number[];
   /** Aucune Garantie cotes proposée : la commande a une prise de cotes à domicile, ou la pose par l'atelier. */
   garantieExclue: "visite" | "pose" | null;
+  /** Les portails : le solde de la commande à la réception (acompte et visite déduits), en euros ; null sans portail. */
+  soldePortail: number | null;
   probleme: ProblemeTarif | null;
 };
 
@@ -429,6 +512,7 @@ export function tarifAffiche(t: Tarif, locale: "fr" | "en"): TarifAffiche {
     image: p.line.image,
     hauteurMm: p.line.gc?.hauteurMm,
     ...(p.garantiePrix !== null ? { garantiePrix: p.garantiePrix, garantie: p.garantie } : {}),
+    ...(p.portail ? { solde: p.portail.solde } : {}),
   }));
   if (t.visite) {
     lignes.push({
@@ -460,6 +544,7 @@ export function tarifAffiche(t: Tarif, locale: "fr" | "en"): TarifAffiche {
     refusees: t.refusees.map((r) => r.index),
     garantiesRefusees: t.garantiesRefusees,
     garantieExclue: t.garantieExclue,
+    soldePortail: t.soldePortail,
     probleme: t.probleme,
   };
 }

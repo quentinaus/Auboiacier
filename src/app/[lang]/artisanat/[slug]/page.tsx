@@ -316,6 +316,8 @@ export default async function ProductPage({
             slug={product.slug}
             locale={locale}
             nom={product.name}
+            image={product.images[0]?.src}
+            tVisite={t}
             filAriane={{ label: dict.nav.breadcrumb, etapes: [{ nom: dict.nav.home, href: `/${locale}` }, { nom: categorie, href: boutique }] }}
           />
         ) : (

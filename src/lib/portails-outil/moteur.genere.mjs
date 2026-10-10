@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 25056081fa7692ee96ddfc86.
+// Source : l'outil de plans (plans-atelier.html), sha256 847243e149428a0ed3c6544c.
 /* eslint-disable */
 
 
@@ -202,8 +202,9 @@ function mtRuban(t, ep, bouts) {
   const lisse = (x) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
   const demi = (s) => { let w = 1; if (oeilD) w = Math.min(w, 0.5 + 0.5 * lisse(s / lc)); if (oeilF) w = Math.min(w, 0.5 + 0.5 * lisse((Lt - s) / lc)); return ep * w / 2; };
   const G = [], D = [];
+  const ferme = n > 3 && Math.hypot(t[0][0] - t[n - 1][0], t[0][1] - t[n - 1][1]) < 1e-6;
   for (let i = 0; i < n; i++) {
-    const p = t[Math.max(0, i - 1)], q = t[Math.min(n - 1, i + 1)], dx = q[0] - p[0], dy = q[1] - p[1], l = Math.hypot(dx, dy) || 1, h = demi(L[i]);
+    const p = t[i === 0 && ferme ? n - 2 : Math.max(0, i - 1)], q = t[i === n - 1 && ferme ? 1 : Math.min(n - 1, i + 1)], dx = q[0] - p[0], dy = q[1] - p[1], l = Math.hypot(dx, dy) || 1, h = demi(L[i]);
     G.push([t[i][0] - dy / l * h, t[i][1] + dx / l * h]); D.push([t[i][0] + dy / l * h, t[i][1] - dx / l * h]);
   }
   const boutons = [];
@@ -1124,8 +1125,9 @@ const PT_ATELIER = {
   massif: { marge: 150, prof: 600, cage: "10 × 10", drainage: 5, semelleCommune: true },
   platinePoteau: { cote: 200, ep: 10, tiges: 4, d: 16 },
   // Pièces qui vont chez le galvaniseur (acier), chez le laqueur (tout) et sur la remorque.
-  //   transportMax : décision de Quentin du 07/10/2026 (« pièces jusqu'à 6 m ») : au-delà, alerte « en deux parties, sur
-  //   étude ». cuveGalva (longueur × largeur × profondeur) et fourLaquage (longueur × hauteur) : valeurs courantes, À
+  //   transportMax : décision de Quentin du 07/10/2026 (« pièces jusqu'à 6 m ») : les bornes des passages sont choisies pour
+  //   qu'aucun vantail ne dépasse (coulissant : 5 900 + 2 × 40 de débord = 5 980 mm) ; l'alerte reste un filet, sans jamais
+  //   dire « sur étude » (Quentin, 10/10/2026 : c'est l'atelier qui trouve la solution, jamais le client). cuveGalva (longueur × largeur × profondeur) et fourLaquage (longueur × hauteur) : valeurs courantes, À
   //   CONFIRMER chez le galvaniseur et le laqueur (releve: false) : au-delà, seulement un avertissement (rien n'est bloqué
   //   sur une valeur non relevée).
   finition: { cuveGalva: { L: 6000, l: 1500, h: 2500, releve: false }, fourLaquage: { L: 7000, h: 2200, releve: false }, transportMax: 6000, transportReleve: true },
@@ -1135,7 +1137,11 @@ const PT_ATELIER = {
     // de 4 000 à 10 000 mm de passage et presque tous ceux d'ici sortiraient du tableau FAC. Bornes gardées en passage
     // total jusqu'à la relecture de la notice FAC (le cahier ne tranche pas) : d'ici là, tout pliant porte l'avertissement
     // « à confirmer » (pas de pliant en ligne avant cette relecture).
-    P: { battant: [2000, 5000], coulissant: [2000, 6000], pliant: [2400, 5000], portillon: [700, 1400] },
+    // Coulissant : 5 840 mm au plus, pour que le vantail (passage + 100 mm derrière le poteau guide + 60 mm dans la réception)
+    // tienne dans la remorque de 6 m d'un seul tenant (Quentin, 10/10/2026 : à 5 950, le site disait « en deux parties, sur
+    // étude » — jamais ça). Sans rail (autoportant), la queue de contrepoids compte aussi : 4 000 mm au plus (le site le dit sur la fiche).
+    P: { battant: [2000, 5000], coulissant: [2000, 5840], pliant: [2400, 5000], portillon: [700, 1400] },
+    PAutoportant: [2000, 4000],
     H: [800, 2200],
     fleche: [0, 400],
   },
@@ -2406,7 +2412,7 @@ function calculerPortail(v, modele) {
   // Limite relevée (la remorque, décision de Quentin) : alerte. Valeur courante à confirmer (cuve, four) : avertissement.
   for (const t of tropVus.values()) {
     const quoi = `${t.noms.join(" et ")} de ${ptMm(t.dims[0])} × ${ptMm(t.dims[1])} mm : plus grand que ${t.ou} (${t.lim}`;
-    if (t.releve) R.alertes.push(`${quoi}). En deux parties, sur étude.`);
+    if (t.releve) R.alertes.push(`${quoi}) : ${t.ou === "la remorque" ? `réduire le passage${c.type === "coulissant" && c.guidage === "auto" ? ` (4 000 mm au plus sans rail) ou choisir le rail` : ""}.` : "réduire la cote."}`);
     else R.avertissements.push(`${quoi}, valeur courante à confirmer). À vérifier avant le devis : en deux parties si la vraie cote est plus petite.`);
   }
 
@@ -2960,4 +2966,4 @@ function ptPlanA3(R, v, infos = {}, feuille = "1", dessiner) {
 
 
 export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, PT_MOTEURS, MT_AVEC, MT_NOMS };
-export const EMPREINTE = "d2ab3d3fdd46";
+export const EMPREINTE = "77ff0e193ca8";

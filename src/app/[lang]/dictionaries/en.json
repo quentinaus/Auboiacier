@@ -1165,6 +1165,7 @@
     "cityNote": "So we know where the piece is going and can plan delivery. The full address comes next, at payment.",
     "cityRequired": "Please tell us your town before paying.",
     "badPostcode": "The measuring-visit postcode is not valid, or the slot is no longer free: remove the line and start again from the product page.",
+    "visitePortail": "A gate is ordered together with its survey visit: open the gate's page again and choose your slot.",
     "lot": "Several-railings discount",
     "recap": "Summary",
     "pieces": "Pieces",
@@ -1194,6 +1195,9 @@
     "garantieTexte": "If your measurements were wrong, the workshop alters or remakes the piece once, to the right size (request within 15 days, piece not fitted, return shipping at your expense).",
     "garantieLien": "What it covers",
     "garantieRecap": "Measurement guarantee",
+    "deliveryPortail": "Fitting included",
+    "soldePortail": "Gate balance, on handover (visit deducted)",
+    "soldeNote": "For a gate, you pay the 40% deposit and the survey visit today; the visit is deducted from the balance, which is paid when the fitted gate is handed over.",
     "garantieExclueVisite": "Measurement guarantee: not offered with the home measuring visit, since the workshop measures itself.",
     "garantieExcluePose": "Measurement guarantee: not offered with fitting by the workshop."
   },

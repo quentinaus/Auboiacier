@@ -30,7 +30,8 @@ test("chaque prix du catalogue est un entier d'euros, strictement positif", () =
     // garde-corps). Seule une pièce sur devis a le droit de n'en afficher aucun.
     if (product.orderMode === "cart") {
       assert.ok(
-        product.sizes.length > 0 || product.surMesure?.departMm || prixParOutil(product),
+        // (Un portail : l'outil des portails, src/lib/portails-outil/prix.ts — tests/portails.test.ts.)
+        product.sizes.length > 0 || product.surMesure?.departMm || prixParOutil(product) || product.famille === "portail",
         `${product.slug} : aucune taille ni cotes de départ`
       );
     }

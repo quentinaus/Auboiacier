@@ -22,6 +22,8 @@ import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
 import { prixCommandeGC, prixGC, type ConfigGC } from "../src/lib/garde-corps-outil/calcul.ts";
 import { LIVRAISON, POSE, PRISE_DE_COTES, RETRAIT, tarifLivraison, tarifPose, type ResultatLieu } from "../src/lib/deplacement.ts";
 import { getProduct, libelleGardeCorps, productLocalise } from "../src/lib/products.ts";
+import { configDepart, versParamsPanier } from "../src/lib/portails.ts";
+import type { ReponsePrixPortail } from "../src/lib/portails-outil/prix.ts";
 
 const aKm = (distanceKm: number) => async (): Promise<ResultatLieu> => ({ ok: true, lieu: { distanceKm, commune: "Nantes", precision: "adresse" } });
 const tarif = (lignes: unknown, locale: "fr" | "en" = "fr", km = 118.4) => tarifer(lignes, { locale, gc: CALCUL_GC, localiser: aKm(km) });
@@ -271,11 +273,14 @@ test("ce qui part vers le navigateur : des noms, des prix de vente, la hauteur r
   assert.equal(t.probleme, null);
   const affiche = tarifAffiche(t, "en");
   // garantiesRefusees et garantieExclue : des index et une raison (« visite », « pose »), jamais un montant.
-  assert.deepEqual(Object.keys(affiche).sort(), ["garantieExclue", "garantiesRefusees", "lignes", "probleme", "refusees", "remise", "total"]);
+  // soldePortail : le solde d'un portail à la réception (un prix de vente), null sans portail.
+  assert.deepEqual(Object.keys(affiche).sort(), ["garantieExclue", "garantiesRefusees", "lignes", "probleme", "refusees", "remise", "soldePortail", "total"]);
+  assert.equal(affiche.soldePortail, null);
   assert.ok(affiche.garantiesRefusees.every((i) => Number.isInteger(i)));
   assert.ok(affiche.garantieExclue === null || ["visite", "pose"].includes(affiche.garantieExclue));
   // garantiePrix et garantie : la Garantie cotes, un prix de VENTE calculé sur le serveur (garantie-cotes.ts) et la case cochée.
-  const champs = new Set(["index", "type", "nom", "options", "quantite", "unitaire", "image", "hauteurMm", "garantiePrix", "garantie"]);
+  // solde : un portail, le solde à la réception (un prix de vente, l'acompte étant l'unitaire).
+  const champs = new Set(["index", "type", "nom", "options", "quantite", "unitaire", "image", "hauteurMm", "garantiePrix", "garantie", "solde"]);
   for (const l of affiche.lignes) {
     for (const cle of Object.keys(l)) assert.ok(champs.has(cle), `champ inattendu vers le navigateur : ${cle}`);
     for (const [cle, valeur] of Object.entries(l)) assert.ok(["string", "number", "undefined"].includes(typeof valeur) || (cle === "garantie" && typeof valeur === "boolean"));
@@ -291,4 +296,63 @@ test("ce qui part vers le navigateur : des noms, des prix de vente, la hauteur r
     affiche.total,
     Math.round((affiche.lignes.reduce((a, l) => a + l.unitaire * l.quantite, 0) + affiche.remise) * 100) / 100
   );
+});
+
+test("un portail (10/10/2026) : la configuration relue par l'outil, l'acompte de 40 % et la visite encaissés, le solde à la réception (visite déduite) ; rien à livrer, pas de Garantie cotes", async () => {
+  const battant = getProduct("portail-battant")!;
+  const config = versParamsPanier("portail-battant", configDepart("portail-battant"));
+  // L'outil, remplacé par un prix fixe : ce test tient sans la clé du chiffrage.
+  const outil = (): ReponsePrixPortail => ({ ok: true, prix: 5370, portillon: null, avertissements: [], resume: [] });
+  const ctx = { locale: "fr" as const, gc: CALCUL_GC, localiser: aKm(10) };
+  // La visite de prise de cotes (Quentin, 10/10 : payée à part, déduite du solde) : une ligne PRISE_DE_COTES avec le portail.
+  const visite = { slug: PRISE_DE_COTES, priseDeCotesCp: "49400", rdv: "2026-10-12|matin", note: "Portail battant" };
+  const sansVisite = await tarifer([{ slug: battant.slug, portail: config, quantity: 1 }], { ...ctx, portail: outil });
+  assert.equal(sansVisite.probleme, "visite_portail", "un portail sans sa visite ne se paie pas");
+  const t = await tarifer([{ slug: battant.slug, portail: config, quantity: 1, garantieCotes: true, unitPrice: 1 }, visite], { ...ctx, portail: outil, garantieSouple: true });
+  assert.equal(t.probleme, null);
+  assert.ok(t.visite && t.visite.deplacement.montantCents > 0);
+  const prixVisite = t.visite!.deplacement.montantCents / 100;
+  assert.deepEqual(t.refusees, []);
+  assert.equal(t.pieces.length, 1);
+  const p = t.pieces[0];
+  // 40 % de 5 370 € : 2 148 € aujourd'hui, 3 222 € à la réception ; le « unitPrice: 1 » envoyé n'est jamais lu.
+  assert.equal(p.line.unitPrice, 2148);
+  assert.deepEqual(p.portail, { config, prixPose: 5370, solde: 3222 });
+  assert.equal(p.line.product.slug, "portail-battant");
+  assert.deepEqual(p.line.size.dimsMm, [3500, 1600]);
+  // La visite est comprise : pas de Garantie cotes, et la case cochée est décochée (garantieSouple) ou refusée.
+  assert.equal(p.garantiePrix, null);
+  assert.equal(p.garantie, false);
+  assert.deepEqual(t.garantiesRefusees, [0]);
+  assert.equal((await tarifer([{ slug: battant.slug, portail: config, quantity: 1, garantieCotes: true }, visite], { ...ctx, portail: outil })).probleme, "invalid");
+  // Ce que Stripe et l'atelier lisent : le modèle, la configuration en mots, l'acompte et le solde.
+  assert.match(libellePiece(p), /^Portail battant — Passage entre piliers : 3500 mm · Hauteur : 1600 mm · /);
+  assert.match(p.options, /Acompte de 40 % \(prix posé 5\u202f370 €, solde 3\u202f222 € à la réception\)$/);
+  // Rien à livrer : la pose est comprise ; aujourd'hui, l'acompte et la visite ; le solde, visite déduite.
+  assert.equal(t.mode, null);
+  assert.equal(t.total, 2148 + prixVisite);
+  assert.equal(t.soldePortail, 3222 - prixVisite);
+  const affiche = tarifAffiche(t, "fr");
+  assert.equal(affiche.lignes[0].unitaire, 2148);
+  assert.equal(affiche.lignes[0].solde, 3222);
+  assert.equal(affiche.lignes[0].image, battant.images[0].src);
+  assert.equal(affiche.soldePortail, 3222 - prixVisite);
+  assert.equal(affiche.lignes.find((l) => l.type === "visite")?.unitaire, prixVisite);
+  // En anglais : le même acompte, dit dans la langue du client ; deux portails, une seule visite déduite.
+  const en = await tarifer([{ slug: battant.slug, portail: config, quantity: 2 }, visite], { ...ctx, locale: "en", portail: outil });
+  assert.match(en.pieces[0].options, /40% deposit \(fitted price €5,370, balance €3,222 on handover\)$/);
+  assert.equal(en.total, 4296 + prixVisite);
+  assert.equal(en.soldePortail, 6444 - prixVisite);
+  // Sans l'outil sur ce serveur : refusé, jamais un prix inventé. Une configuration illisible, un portail à étudier : refusés.
+  assert.deepEqual((await tarifer([{ slug: battant.slug, portail: config, quantity: 1 }, visite], ctx)).refusees, [{ index: 0, raison: "prix_serveur" }]);
+  assert.deepEqual((await tarifer([{ slug: battant.slug, portail: "P=99999", quantity: 1 }], { ...ctx, portail: outil })).refusees, [{ index: 0, raison: "unknown_size" }]);
+  assert.deepEqual((await tarifer([{ slug: battant.slug, portail: `${config}&slug=portillon`, quantity: 1 }], { ...ctx, portail: outil })).refusees, [{ index: 0, raison: "unknown_size" }]);
+  assert.deepEqual((await tarifer([{ slug: battant.slug, quantity: 1 }], { ...ctx, portail: outil })).refusees, [{ index: 0, raison: "unknown_size" }]);
+  assert.deepEqual((await tarifer([{ slug: battant.slug, portail: config, quantity: 1 }], { ...ctx, portail: () => ({ ok: false, alertes: ["à étudier"] }) })).refusees, [{ index: 0, raison: "a_etudier" }]);
+  // Une table avec un portail : la table demande toujours sa livraison, le portail non.
+  const mixte = await tarifer([{ slug: battant.slug, portail: config, quantity: 1 }, visite, table()], { ...ctx, portail: outil });
+  assert.equal(mixte.probleme, "mode_livraison");
+  const livre = await tarifer([{ slug: battant.slug, portail: config, quantity: 1 }, visite, table(), { slug: RETRAIT }], { ...ctx, portail: outil });
+  assert.equal(livre.probleme, null);
+  assert.equal(livre.total, 2148 + prixVisite + mikado.sizes[0].price);
 });

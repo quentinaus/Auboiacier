@@ -10,11 +10,17 @@
  */
 import "./portail/configurateur-portail.css";
 import { useDeferredValue, useEffect, useId, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useCart } from "@/lib/cart";
+import { libellePriseDeCotes, PRISE_DE_COTES } from "@/lib/deplacement";
+import { libelleCreneau, lireCreneau } from "@/lib/creneau";
+import { VisiteAtelier, type Visite } from "./prise-de-cotes";
+import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { svgDe, PT_DECOR_FORMULES } from "@/lib/portails-outil/moteur.genere.mjs";
 import {
-  appliquerStyle, bornesPortail, configDepart, configPortillonAssorti, emplacementPermis, formesDe, guidePortail, planPortail, resumeConfig, styleDe, versParams,
-  BARREAUX_DECOR, BOUTS_DECOR, COULEURS_PORTAIL, DECORS_PORTAIL, EMPLACEMENTS_DECOR, POS_DECOR, STYLES_PORTAIL, TEXTES_PORTAIL,
+  acomptePortail, appliquerStyle, bornesPortail, configDepart, configPortillonAssorti, emplacementPermis, formesDe, guidePortail, planPortail, resumeConfig, styleDe, versParams, versParamsPanier,
+  ACOMPTE_PORTAIL_PCT, BARREAUX_DECOR, BOUTS_DECOR, COULEURS_PORTAIL, DECORS_PORTAIL, EMPLACEMENTS_DECOR, POS_DECOR, STYLES_PORTAIL, TEXTES_PORTAIL,
   type ChoixDecor, type ConfigPortail, type Langue, type SlugPortail, type StylePortail,
 } from "@/lib/portails";
 import { STYLE_RENDU_PORTAIL, TEINTES_PORTAIL } from "@/lib/portails-rendu";
@@ -34,7 +40,7 @@ type Variantes = {
   moulure: { avec: number | null; sans: number | null };
 };
 type EtatPrix = { etat: "ok"; v: Variantes } | { etat: "indispo" };
-type Fenetre = null | "decor" | "moteur" | "portillon" | "details" | "plan" | "guide";
+type Fenetre = null | "decor" | "moteur" | "portillon" | "details" | "plan" | "guide" | "visite";
 
 /* ---------- Les textes de l'écran (français, anglais) ---------- */
 const TXT = {
@@ -42,6 +48,7 @@ const TXT = {
     configuration: "Configuration", couleur: "Couleur", matiere: "Matière",
     vosMesures: "Vos mesures", consigne: "Au plus étroit, d'un pilier à l'autre.", passage: "Passage entre piliers", hauteur: "Hauteur",
     pente: "Pente du sol derrière", penteAide: "Sur la longueur d'un vantail, 0 si le sol est plat.", aCorriger: "à corriger",
+    infoPassageAuto: "Sans rail, le portail emmène un contrepoids derrière lui : 4 000 mm de passage au plus. Mesurez au plus étroit, entre les deux piliers.",
     infoPassage: "Mesurez au plus étroit, entre les deux piliers, en haut et en bas.", infoHauteur: "La hauteur du portail, sans les pointes.",
     infoPente: "Mesurée côté propriété, là où s'ouvrent les vantaux.", ouverture: "Ouverture", vantaux: "Vantaux", repartition: "Répartition",
     guidage: "Guidage", sens: "Il se range", sensPortillon: "Les gonds", fixation: "Fixation",
@@ -84,6 +91,12 @@ const TXT = {
     vuePortillon: "Le portillon assorti, vu de la rue",
     etape: (n: number, total: number) => `Étape ${n} sur ${total}`, retour: "Retour", suivant: "Suivant", ctaCourt: "Ma visite", conseilAtelier: "Garder le conseil de l'atelier", eCouleur: "Couleur et matière",
     triCroissant: "Prix croissant", triDecroissant: "Prix décroissant", triTitre: "Inverser l'ordre des prix", triAria: (v: string) => `Trier par prix : ${v === "croissant" ? "croissant" : "décroissant"} (toucher pour inverser)`,
+    commander: `Commander — acompte de ${ACOMPTE_PORTAIL_PCT} %`, commanderCourt: "Commander",
+    acompte: (a: string) => `${a} d'acompte aujourd'hui, plus la visite de prise de cotes selon votre commune (déduite du solde) · le solde à la réception du portail posé.`,
+    visiteTitre: "Votre visite de prise de cotes", visiteSous: "Nous venons mesurer vos piliers et votre sol avant de fabriquer. La visite se paie avec l'acompte, et elle est déduite du solde.",
+    visiteCp: "Code postal du portail", visiteOu: "Où se trouve le portail ?",
+    vAcompte: `Acompte de ${ACOMPTE_PORTAIL_PCT} %`, vVisite: "Visite de prise de cotes", vAujourdhui: "À payer aujourd'hui", vSolde: "Solde à la réception, visite déduite",
+    vAjouter: "Ajouter au panier", vNote: "Le paiement se fait au panier. Le solde se règle à la réception du portail posé.",
     dont: "Dont", dontMoteur: "moteur", dontDecor: "décor", dontPortillon: "portillon",
     moulures: "Moulures", moulureDetail: "Un médaillon par vantail, vissé par derrière", moulureBasPlein: "Il faut un bas plein",
   },
@@ -91,6 +104,7 @@ const TXT = {
     configuration: "Configuration", couleur: "Colour", matiere: "Material",
     vosMesures: "Your measurements", consigne: "At the narrowest point, pillar to pillar.", passage: "Opening between pillars", hauteur: "Height",
     pente: "Ground slope behind", penteAide: "Over the length of one leaf, 0 if the ground is flat.", aCorriger: "to fix",
+    infoPassageAuto: "Without a rail, the gate carries a counterweight behind it: 4,000 mm opening at most. Measure at the narrowest point between the two pillars.",
     infoPassage: "Measure at the narrowest point between the two pillars, top and bottom.", infoHauteur: "The height of the gate, without spear tips.",
     infoPente: "Measured on the property side, where the leaves open.", ouverture: "Opening", vantaux: "Leaves", repartition: "Split",
     guidage: "Guiding", sens: "Slides to the", sensPortillon: "Hinges", fixation: "Fixing",
@@ -133,6 +147,12 @@ const TXT = {
     vuePortillon: "The matching pedestrian gate, from the street",
     etape: (n: number, total: number) => `Step ${n} of ${total}`, retour: "Back", suivant: "Next", ctaCourt: "Book visit", conseilAtelier: "Keep the workshop's advice", eCouleur: "Colour and material",
     triCroissant: "Price: low to high", triDecroissant: "Price: high to low", triTitre: "Reverse the price order", triAria: (v: string) => `Sort by price: ${v === "croissant" ? "low to high" : "high to low"} (tap to reverse)`,
+    commander: `Order — ${ACOMPTE_PORTAIL_PCT}% deposit`, commanderCourt: "Order",
+    acompte: (a: string) => `${a} deposit today, plus the survey visit priced by your postcode (deducted from the balance) · the balance when the fitted gate is handed over.`,
+    visiteTitre: "Your survey visit", visiteSous: "We come and measure your pillars and your ground before making the gate. The visit is paid with the deposit, and deducted from the balance.",
+    visiteCp: "Postcode of the gate", visiteOu: "Where is the gate?",
+    vAcompte: `${ACOMPTE_PORTAIL_PCT}% deposit`, vVisite: "Survey visit", vAujourdhui: "To pay today", vSolde: "Balance on handover, visit deducted",
+    vAjouter: "Add to basket", vNote: "Payment is made in the basket. The balance is paid when the fitted gate is handed over.",
     dont: "Including", dontMoteur: "motor", dontDecor: "decoration", dontPortillon: "pedestrian gate",
     moulures: "Mouldings", moulureDetail: "One medallion per leaf, screwed from behind", moulureBasPlein: "Needs a solid lower panel",
   },
@@ -295,15 +315,21 @@ type InfosMoteurs = {
   choisi: { cle: CleMoteur } | null;
 };
 
-export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
+export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVisite }: {
+  /** L'image de la fiche, pour la carte du panier. */
+  image?: string;
+  /** Les mots du dictionnaire pour la visite de prise de cotes (code postal, créneau), partagés avec le garde-corps. */
+  tVisite: Dictionary["artisanat"];
   slug: SlugPortail;
   locale: Langue;
   nom: string;
   filAriane?: { label: string; etapes: { nom: string; href: string }[] };
 }) {
   const t = TXT[locale], tp = TEXTES_PORTAIL[locale];
-  const b = bornesPortail(slug), bP = bornesPortail("portillon");
+  const bP = bornesPortail("portillon");
   const [cfg, setCfg] = useState<ConfigPortail>(() => configDepart(slug, slug === "portail-battant" ? "lamesChene" : slug === "portillon" ? "rosace" : "plein"));
+  // Les bornes du passage : celles du coulissant dépendent du guidage (sans rail, la queue de contrepoids compte : 4 000 mm au plus).
+  const b = bornesPortail(slug, cfg.guidage);
   const [fenetre, setFenetre] = useState<Fenetre>(null);
   const [guide, setGuide] = useState<{ derriere?: boolean; cote?: boolean; sol?: boolean }>({});
   // La fenêtre Décor : les formules, ou « Personnaliser » (2 emplacements au plus) ; l'emplacement en cours de réglage.
@@ -327,7 +353,12 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
   }, []);
   // Le bandeau des styles : prix croissant ou décroissant (Quentin, 10/10/2026 : « comme les garde-corps »).
   const [tri, setTri] = useState<"croissant" | "decroissant">("croissant");
-  const maj = (p: Partial<ConfigPortail>) => setCfg((c) => ({ ...c, ...p }));
+  const maj = (p: Partial<ConfigPortail>) => setCfg((c) => {
+    const n = { ...c, ...p };
+    // Le passage reste dans les bornes du guidage choisi (sans rail : 4 000 mm au plus).
+    const max = bornesPortail(slug, n.guidage).P[1];
+    return n.P > max ? { ...n, P: max } : n;
+  });
   const style = styleDe(cfg);
   const fr = locale === "fr";
   const nf = (n: number) => new Intl.NumberFormat(fr ? "fr-FR" : "en-GB").format(Math.round(n));
@@ -482,6 +513,37 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
   }, [fenetre]);
 
   const idTitre = useId();
+  // La commande en ligne (Quentin, 10/10/2026 : « je veux qu'on puisse les commander ») : la ligne du panier porte la
+  // configuration en texte ; le serveur la relit, la rechiffre avec l'outil et n'encaisse que l'acompte (le portillon
+  // assorti est dans la configuration, donc dans la même ligne). Le prix affiché ici n'est jamais envoyé.
+  const panier = useCart();
+  const router = useRouter();
+  // La visite de prise de cotes se paie avec l'acompte et elle est déduite du solde (Quentin, 10/10) : « Commander »
+  // ouvre la fenêtre de la visite (code postal → prix du déplacement par le serveur, créneau de l'agenda), puis le portail
+  // et sa visite partent ensemble au panier.
+  const [visite, setVisite] = useState<Visite>({ qui: "atelier", codePostal: "", deplacement: null, rdv: "" });
+  const acompte = prixBase != null ? acomptePortail(prixBase) : 0;
+  const prixVisite = visite.deplacement ? visite.deplacement.montantCents / 100 : null;
+  const creneauVisite = lireCreneau(visite.rdv);
+  const visitePrete = prixBase != null && !alerte && prixVisite !== null && creneauVisite !== null;
+  const commander = () => { if (prixBase != null && !alerte) setFenetre("visite"); };
+  const ajouterAuPanier = () => {
+    if (!visitePrete || prixBase == null || prixVisite === null || !creneauVisite) return;
+    const cp = visite.codePostal.replace(/\s+/g, "");
+    panier.add({
+      slug, portail: versParamsPanier(slug, cfg), image,
+      name: `${nom} · ${nf(cfg.P)} × ${nf(cfg.H)} mm`, optionsLabel: resumeConfig(slug, cfg, locale, null).slice(1).join(" · "),
+      unitPrice: acompte,
+    }, 1);
+    panier.add({
+      slug: PRISE_DE_COTES, priseDeCotesCp: cp, rdv: visite.rdv,
+      // Ce que le client a en tête, pour que l'atelier arrive avec la bonne idée.
+      note: `${nom} ${nf(cfg.P)} × ${nf(cfg.H)} mm · ${style ? tp.styles[style] : t.compose}`.slice(0, 160),
+      name: libellePriseDeCotes(cp, locale), optionsLabel: libelleCreneau(creneauVisite, locale), unitPrice: prixVisite,
+    }, 1);
+    router.push(`/${locale}/panier`);
+  };
+  const acompteTxt = prixBase != null && !alerte ? t.acompte(euros(acompte)) : null;
   const battant = slug === "portail-battant", coulissant = slug === "portail-coulissant", portillon = slug === "portillon";
   const vantauxTxt = R.dims.vantaux.length > 1 ? `${R.dims.vantaux.length} ${t.vantauxDe} ${R.dims.vantaux.map(nf).join(" + ")} mm` : `1 ${t.vantail} ${nf(R.dims.vantaux[0])} mm`;
   const tropLarge = battant && cfg.P > b.P[1];
@@ -538,6 +600,8 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
                 );
   const liensAchat = (
     <div className="cpt-liens">
+                  {/* La visite seule reste possible : le devis signé suit la visite, sans rien payer en ligne. */}
+                  <Link href={lienVisite}>{t.cta}</Link>
                   <button type="button" onClick={() => setFenetre("plan")} aria-haspopup="dialog">{t.voirPlan}</button>
                   {/* L'estimation PDF (lot 9) : celle de l'outil, composée sur le serveur ; le devis à signer suit la visite. */}
                   {alerte || prixBase == null ? <span className="grise" aria-disabled="true" title={t.devisRaison}>{t.devis}</span>
@@ -689,6 +753,25 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
             )}
   </>);
   const superpositions = (<>
+      {fenetre === "visite" && prixBase != null && (<>
+        <div className="cpt-voile-fond" onClick={() => setFenetre(null)} aria-hidden="true" />
+        <div className="cpt-visite" role="dialog" aria-label={t.visiteTitre}>
+          <div className="cpt-f-tete"><div><p className="cpt-f-titre">{t.visiteTitre}</p><p className="cpt-f-sous">{t.visiteSous}</p></div><Fermer label={t.fermer} onClose={fermer} /></div>
+          <VisiteAtelier cotes={visite} onChange={setVisite} t={tVisite} locale={locale} labelCodePostal={t.visiteCp} question={t.visiteOu} />
+          {/* Le récapitulatif et le bouton restent visibles en bas de la fenêtre, même quand le calendrier la fait défiler. */}
+          <div className="cpt-visite-pied">
+            <dl className="cpt-d-liste cpt-visite-recap">
+              <dt>{t.vAcompte}</dt><dd>{euros(acompte)}</dd>
+              <dt>{t.vVisite}</dt><dd>{prixVisite !== null ? euros(prixVisite) : "…"}</dd>
+              <dt>{t.vAujourdhui}</dt><dd><b>{prixVisite !== null ? euros(acompte + prixVisite) : "…"}</b></dd>
+              <dt>{t.vSolde}</dt><dd>{euros(Math.max(0, prixBase - acompte - (prixVisite ?? 0)))}</dd>
+            </dl>
+            <button type="button" className="btn-verre cpt-cta" onClick={ajouterAuPanier} disabled={!visitePrete}>{t.vAjouter}</button>
+            <p className="cpt-btn-note">{t.vNote}</p>
+          </div>
+        </div>
+      </>)}
+
       {fenetre === "details" && (<>
         <div className="cpt-voile-fond" onClick={() => setFenetre(null)} aria-hidden="true" />
         <div className="cpt-details" role="dialog" aria-label={t.details}>
@@ -763,7 +846,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
     let contenu: ReactNode = null;
     if (cleEtape === "mesures") contenu = (<>
       <p className="cpt-consigne">{t.consigne}</p>
-      <LigneCote picto="passage" titre={t.passage} info={t.infoPassage} valeur={cfg.P} bornes={b.P} onChange={(P) => maj({ P })} aCorriger={t.aCorriger} />
+      <LigneCote picto="passage" titre={t.passage} info={coulissant && cfg.guidage === "auto" ? t.infoPassageAuto : t.infoPassage} valeur={cfg.P} bornes={b.P} onChange={(P) => maj({ P })} aCorriger={t.aCorriger} />
       <LigneCote picto="hauteur" titre={t.hauteur} info={t.infoHauteur} valeur={cfg.H} bornes={b.H} onChange={(H) => maj({ H })} aCorriger={t.aCorriger} />
     </>);
     else if (cleEtape === "sol") contenu = (<>
@@ -844,8 +927,8 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
       <p className="cpt-r-ligne">{vantauxTxt} · ≈ {nf(R.poids)} kg · {t.fabrique}</p>
       {notePrix}
       <p className="cpt-prix-note">{t.poseComprise}</p>
-      <Link href={lienVisite} className="btn-verre cpt-cta">{t.cta}</Link>
-      <p className="cpt-btn-note">{t.visite}</p>
+      <button type="button" className="btn-verre cpt-cta" onClick={commander} disabled={prixBase == null || !!alerte}>{t.commander}</button>
+      <p className="cpt-btn-note">{acompteTxt ?? t.visite}</p>
       {liensAchat}
     </>);
     return (
@@ -870,12 +953,12 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
             </div>
             <div className="carte-verre cpt-tel-carte">{contenu}</div>
           </div>
-          {!(fenetre === "decor" || fenetre === "moteur" || fenetre === "portillon") && <nav className="cpt-tel-nav" aria-label={t.configuration}>
+          {!(fenetre === "decor" || fenetre === "moteur" || fenetre === "portillon" || fenetre === "visite") && <nav className="cpt-tel-nav" aria-label={t.configuration}>
           <button type="button" className="cpt-tel-retour" disabled={k === 0} onClick={() => setEtape(Math.max(0, k - 1))}>{t.retour}</button>
           <span className={`cpt-tel-prix ${perime ? "perime" : ""}`} aria-live="polite">{alerte ? t.aEtudier : prixBase != null ? euros(prixBase) : t.calcul}</span>
           {k < etapesTel.length - 1
             ? <button type="button" className="btn-verre cpt-tel-suivant" onClick={suivant}>{t.suivant}</button>
-            : <Link href={lienVisite} className="btn-verre cpt-tel-suivant">{t.ctaCourt}</Link>}
+            : <button type="button" className="btn-verre cpt-tel-suivant" onClick={commander} disabled={prixBase == null || !!alerte}>{t.commanderCourt}</button>}
           </nav>}
         </section>
         {/* Les fenêtres hors de la plaque : sur téléphone, ce sont des feuilles posées en bas de l'écran, au-dessus de tout. */}
@@ -930,7 +1013,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
             <div className="carte-verre cpt-cotes">
               <h3 className="cpt-carte-titre cpt-titre-mesures">{t.vosMesures}</h3>
               <p className="cpt-consigne">{t.consigne}</p>
-              <LigneCote picto="passage" titre={t.passage} info={t.infoPassage} valeur={cfg.P} bornes={b.P} onChange={(P) => maj({ P })} aCorriger={t.aCorriger} />
+              <LigneCote picto="passage" titre={t.passage} info={coulissant && cfg.guidage === "auto" ? t.infoPassageAuto : t.infoPassage} valeur={cfg.P} bornes={b.P} onChange={(P) => maj({ P })} aCorriger={t.aCorriger} />
               <LigneCote picto="hauteur" titre={t.hauteur} info={t.infoHauteur} valeur={cfg.H} bornes={b.H} onChange={(H) => maj({ H })} aCorriger={t.aCorriger} />
               {!coulissant && <LigneCote picto="pente" titre={t.pente} info={t.infoPente} valeur={cfg.pente} bornes={b.pente} onChange={(pente) => maj({ pente })} aide={t.penteAide} aCorriger={t.aCorriger} />}
               <div className="cpt-filet" />
@@ -1034,8 +1117,8 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
                 </div>
                 {notePrix}
                 <p className="cpt-prix-note cpt-note-pose">{t.poseComprise}</p>
-                <Link href={lienVisite} className="btn-verre cpt-cta">{t.cta}</Link>
-                <p className="cpt-btn-note">{t.visite}</p>
+                <button type="button" className="btn-verre cpt-cta" onClick={commander} disabled={prixBase == null || !!alerte}>{t.commander}</button>
+                <p className="cpt-btn-note">{acompteTxt ?? t.visite}</p>
                 {liensAchat}
               </div>
             </div>

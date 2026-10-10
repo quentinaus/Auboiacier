@@ -1165,6 +1165,7 @@
     "cityNote": "Pour savoir où va la pièce et organiser la livraison. L'adresse complète se donne juste après, au paiement.",
     "cityRequired": "Merci d'indiquer votre ville avant de payer.",
     "badPostcode": "Le code postal de la prise de cotes n'est pas valable, ou le créneau n'est plus libre : retirez la ligne et recommencez depuis la fiche.",
+    "visitePortail": "Un portail se commande avec sa visite de prise de cotes : rouvrez la fiche du portail et choisissez votre créneau.",
     "lot": "Remise plusieurs garde-corps",
     "recap": "Récapitulatif",
     "pieces": "Pièces",
@@ -1194,6 +1195,9 @@
     "garantieTexte": "Si vos cotes étaient fausses, l'atelier modifie ou refait la pièce une fois, à la bonne cote (demande sous 15 jours, pièce non posée, renvoi à votre charge).",
     "garantieLien": "Ce qu'elle couvre",
     "garantieRecap": "Garantie cotes",
+    "deliveryPortail": "Pose comprise",
+    "soldePortail": "Solde du portail, à la réception (visite déduite)",
+    "soldeNote": "Pour un portail, vous payez aujourd'hui l'acompte de 40 % et la visite de prise de cotes ; la visite est déduite du solde, qui se règle à la réception du portail posé.",
     "garantieExclueVisite": "Garantie cotes : non proposée avec la prise de cotes à domicile, puisque l'atelier mesure lui-même.",
     "garantieExcluePose": "Garantie cotes : non proposée avec la pose par l'atelier."
   },
