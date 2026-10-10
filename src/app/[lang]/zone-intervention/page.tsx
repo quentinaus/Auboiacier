@@ -4,7 +4,9 @@ import Link from "next/link";
 import { Visuel } from "@/components/visuel";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
-import { metadataPage, jsonLdFilAriane, scriptJsonLd, ATELIER } from "@/lib/seo";
+import { metadataPage, jsonLdFilAriane, scriptJsonLd, COMMUNES_AFFICHEES, DEPARTEMENTS_DESSERVIS } from "@/lib/seo";
+import { RAYON_MAX_KM } from "@/lib/deplacement";
+import { remplir } from "@/lib/vitrine";
 import { photos } from "@/lib/chantiers";
 import { estVraiePhoto } from "@/lib/visuels";
 import { GlobalHeader } from "@/components/global-header";
@@ -204,6 +206,22 @@ export default async function ZonePage({ params }: PageProps<"/[lang]/zone-inter
             <Link href={`/${locale}/rendez-vous`} className="lien-fleche mt-4 py-2 text-[#2b2320]">
               {t.rdvLink}
             </Link>
+            {/* Les deux guides à lire avant la visite (référencement, lot L9). */}
+            <nav aria-label={t.guidesTitre} className="mt-2 flex flex-wrap items-center gap-x-8 gap-y-1">
+              <span className="py-2 text-[16px] text-[#5c5140]">{t.guidesTitre}</span>
+              <Link href={`/${locale}/garde-corps-fenetre-normes`} className="lien-fleche py-2 text-[#2b2320]">
+                {dict.liens.normesGc}
+              </Link>
+              <Link href={`/${locale}/escalier-limon-central-prix-normes`} className="lien-fleche py-2 text-[#2b2320]">
+                {dict.liens.guideEscalier}
+              </Link>
+            </nav>
+          </Apparition>
+
+          {/* Le terrain : maisons de tuffeau et secteurs protégés autour de Saumur. */}
+          <Apparition>
+            <h2 className={sousTitre}>{t.localTitle}</h2>
+            <p className={`mt-4 ${texte}`}>{t.localBody}</p>
           </Apparition>
 
           {t.sections.map((section) => (
@@ -224,8 +242,17 @@ export default async function ZonePage({ params }: PageProps<"/[lang]/zone-inter
         <div className="mx-auto max-w-4xl">
           <Apparition>
             <h2 className={`${titreSection} text-center`}>{t.communesTitle}</h2>
+            {/* Les quatre départements, puis les communes à moins de 50 km de l'atelier (COMMUNES_AFFICHEES) : une longue
+                liste de villes lointaines ressemblait à du bourrage. Le reste de la zone tient en une phrase. */}
             <ul className="mt-10 flex flex-wrap justify-center gap-2.5 md:mt-12">
-              {ATELIER.zones.map((commune) => (
+              {DEPARTEMENTS_DESSERVIS.map((departement) => (
+                <li key={departement.numero} className="rounded-full bg-[#2b2320] px-[1.1rem] py-2.5 text-[15px] text-white">
+                  {departement.nom} ({departement.numero})
+                </li>
+              ))}
+            </ul>
+            <ul className="mt-4 flex flex-wrap justify-center gap-2.5">
+              {COMMUNES_AFFICHEES.map((commune) => (
                 <li
                   key={commune}
                   className="rounded-full bg-white px-[1.1rem] py-2.5 text-[15px] text-[#4a4038]"
@@ -234,6 +261,7 @@ export default async function ZonePage({ params }: PageProps<"/[lang]/zone-inter
                 </li>
               ))}
             </ul>
+            <p className={`mx-auto mt-6 max-w-2xl text-center ${texte}`}>{remplir(t.communesNote, { rayonMax: String(RAYON_MAX_KM) })}</p>
           </Apparition>
 
           {questionMetallier && (

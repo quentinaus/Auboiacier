@@ -8,6 +8,8 @@ import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
 import { Apparition } from "@/components/apparition";
+import { getProduct, productLocalise } from "@/lib/products";
+import { essencesParPrix, remplir } from "@/lib/vitrine";
 
 /**
  * Le bois massif à l'atelier : ce que la page des tables ne dit pas. Les
@@ -40,11 +42,19 @@ export default async function BoisMassifPage({ params }: PageProps<"/[lang]/bois
   const questionEntretien = dict.faq.items.find((item) => item.id === "entretien-bois-acier");
   const lienEntretien = questionEntretien ? `/${locale}/faq#${questionEntretien.id}` : `/${locale}/faq`;
 
+  // « Quel bois choisir ? » : l'ordre des prix est celui des écarts de la table de référence, jamais recopié.
+  const reference = getProduct("table-mikado");
+  const essences = reference ? essencesParPrix(productLocalise(reference, locale)).map((w) => w.label.toLowerCase()) : [];
+  const ordre = essences.length > 1 ? `${essences.slice(0, -1).join(", ")} ${locale === "fr" ? "puis" : "then"} ${essences[essences.length - 1]}` : essences.join("");
+
   /** Un usage du bois, ce qu'il faut en savoir, et la page où le configurer. */
   const blocs = [
     { titre: t.marchesTitle, texte: t.marchesBody, lien: { href: `/${locale}/artisanat/escalier-limon-central`, label: t.marchesLien } },
     { titre: t.mainCouranteTitle, texte: t.mainCouranteBody, lien: { href: `/${locale}/artisanat/garde-corps`, label: t.mainCouranteLien } },
     { titre: t.plateauxTitle, texte: t.plateauxBody, lien: { href: `/${locale}/artisanat/tables`, label: dict.liens.toutesTables } },
+    ...(ordre
+      ? [{ titre: t.choisirTitle, texte: remplir(t.choisirBody, { ordre }), lien: { href: `/${locale}/artisanat/tables`, label: dict.liens.toutesTables } }]
+      : []),
     { titre: t.huileTitle, texte: t.huileBody, lien: { href: lienEntretien, label: t.huileLien } },
     { titre: t.bougeTitle, texte: t.bougeBody, lien: null },
   ];

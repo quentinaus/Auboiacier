@@ -11,6 +11,8 @@ import {
   productLocalise,
   PLATEAU_MAX_LARGEUR_MM,
   PLATEAU_MAX_LONGUEUR_MM,
+  computeUnitPrice,
+  type Product,
 } from "@/lib/products";
 import { prixDepart } from "@/lib/prix-garde-corps.server";
 import { delaiFabrication, essencesParPrix, remplir } from "@/lib/vitrine";
@@ -31,6 +33,37 @@ import { Apparition } from "@/components/apparition";
 
 /** La table de référence : ses essences, ses teintes et ses tailles servent d'exemple. */
 const REFERENCE = "table-mikado";
+
+/** Le tableau des prix : trois piétements, quatre formats, le bois le moins cher et le chêne (plan de référencement, 1.3). */
+const TABLEAU_MODELES = ["table-mikado", "table-croix", "table-brindille"] as const;
+const TABLEAU_FORMATS = ["p6", "p8", "p10", "p12"] as const;
+const TABLEAU_BOIS = ["pin", "chene"] as const;
+
+/**
+ * Les prix d'une table aux formats du catalogue, calculés par le moteur des fiches (computeUnitPrice, celui du panier),
+ * dans la teinte de piétement la moins chère. Une case sans prix (format ou bois absent) reste vide : rien d'inventé.
+ */
+function prixFormats(product: Product) {
+  const teinte = product.metals.reduce<Product["metals"][number] | undefined>(
+    (a, b) => (!a || (b.priceDelta ?? 0) < (a.priceDelta ?? 0) ? b : a),
+    undefined,
+  );
+  const bois = TABLEAU_BOIS.map((id) => product.woods.find((w) => w.id === id)).filter((w) => w !== undefined);
+  const lignes = TABLEAU_FORMATS.flatMap((id) => {
+    const taille = product.sizes.find((s) => s.id === id);
+    if (!taille) return [];
+    const [places, cotes] = taille.label.split(" — ");
+    return [
+      {
+        id,
+        places,
+        cotes: cotes?.replace(/ × H \d+ cm$/, " cm") ?? "",
+        prix: bois.map((w) => computeUnitPrice(product, { sizeId: id, woodId: w.id, metalId: teinte?.id })),
+      },
+    ];
+  });
+  return { bois, lignes };
+}
 
 export async function generateMetadata({
   params,
@@ -73,6 +106,15 @@ export default async function TablesPage({ params }: PageProps<"/[lang]/artisana
     .join(locale === "fr" ? " ; " : "; ");
 
   const titreModeles = remplir(t.modelesTitle, { n: String(tables.length) });
+  const tableau = TABLEAU_MODELES.map((slug) => getProduct(slug))
+    .filter((p) => p !== undefined)
+    .map((p) => ({ product: productLocalise(p, locale), ...prixFormats(productLocalise(p, locale)) }));
+  /** Les épaisseurs de plateau proposées, lues dans le barème de la fiche (28, 36 ou 45 mm). */
+  const choixEpaisseur = reference.surMesure?.epaisseur?.choixMm ?? [];
+  const epaisseurs =
+    choixEpaisseur.length > 1
+      ? `${choixEpaisseur.slice(0, -1).join(", ")} ${locale === "fr" ? "ou" : "or"} ${choixEpaisseur[choixEpaisseur.length - 1]}`
+      : choixEpaisseur.join("");
 
   // Balisées pour Google : chacune ne l'est que sur cette page (src/lib/faq-balisees.ts).
   const questions = questionsTables(dict, formats);
@@ -218,6 +260,55 @@ export default async function TablesPage({ params }: PageProps<"/[lang]/artisana
         </Apparition>
       </section>
 
+      {/* 2 ter. Combien coûte une table : le prix de chaque format, en pin et en chêne, calculé par le moteur des fiches
+          (référencement, lot L7). Une carte par piétement : lisible sur téléphone sans défilement de côté. */}
+      <section className="bg-[#ffffff] px-6 py-14 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <Apparition className="max-w-3xl">
+            <h2 className={titreSection}>{t.prixTitle.replace(/ ([?!:;])/g, "\u00a0$1")}</h2>
+            <p className="mt-5 text-[16px] leading-[1.55] text-[#5c5140] md:text-[17px]">{t.prixIntro}</p>
+          </Apparition>
+          <div className="mt-10 grid gap-5 md:mt-12 lg:grid-cols-3">
+            {tableau.map(({ product, bois, lignes }, i) => (
+              <Apparition key={product.slug} retard={(i % 3) * 110} className="h-full rounded-[22px] bg-[#f5f1ea] px-6 py-7">
+                <h3 className={`${serif.className} text-[1.4rem] leading-[1.12] tracking-[-0.01em] text-[#2b2320]`}>
+                  <Link href={`/${locale}/artisanat/${product.slug}`} className="hover:underline">
+                    {product.name}
+                  </Link>
+                </h3>
+                <table className="mt-5 w-full text-[15px] tabular-nums">
+                  <thead>
+                    <tr className="text-left text-[13px] text-[#6f6357]">
+                      <th scope="col" className="pb-2 font-semibold">{t.prixPlaces}</th>
+                      {bois.map((w) => (
+                        <th key={w.id} scope="col" className="pb-2 text-right font-semibold">
+                          {w.label}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lignes.map((ligne) => (
+                      <tr key={ligne.id} className="border-t border-[#e5ddd3]">
+                        <th scope="row" className="py-2.5 pr-2 text-left font-normal text-[#2b2320]">
+                          {ligne.places}
+                          <span className="block text-[13px] text-[#6f6357]">{ligne.cotes}</span>
+                        </th>
+                        {ligne.prix.map((prix, j) => (
+                          <td key={j} className="py-2.5 text-right text-[#2b2320]">
+                            {prix === null ? "" : prixAffiche(prix, locale)}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Apparition>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* 3. Les essences, rangées par prix d'après les écarts du catalogue. */}
       <section className="bg-[#ffffff] px-6 py-16 md:py-28">
         <div className="mx-auto max-w-6xl">
@@ -278,6 +369,16 @@ export default async function TablesPage({ params }: PageProps<"/[lang]/artisana
                 </li>
               ))}
             </ul>
+          </Apparition>
+        </div>
+      </section>
+
+      {/* 4 bis. Ce qui fait une table haut de gamme : les faits, lus dans la fiche (épaisseurs) — jamais un adjectif seul. */}
+      <section className="bg-[#ffffff] px-6 pt-16 md:pt-28">
+        <div className="mx-auto max-w-6xl">
+          <Apparition className="max-w-3xl">
+            <h2 className={titreSection}>{t.hautTitle}</h2>
+            <p className={`mt-6 ${texte}`}>{remplir(t.hautBody, { epaisseurs })}</p>
           </Apparition>
         </div>
       </section>

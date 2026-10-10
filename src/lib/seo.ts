@@ -977,6 +977,41 @@ export function jsonLdService({
 }
 
 /**
+ * Une vraie vidéo de la page (le torse en acier de récupération, page Sculptures) : Google peut la montrer dans ses
+ * résultats vidéo. `dateMiseEnLigne` : le jour où le fichier est arrivé sur le site (git log --diff-filter=A), jamais
+ * une date inventée ; `dureeIso` au format ISO 8601 (« PT8.5S »), si elle est connue.
+ */
+export function jsonLdVideo({
+  nom,
+  description,
+  miniature,
+  fichier,
+  dateMiseEnLigne,
+  dureeIso,
+}: {
+  nom: string;
+  description: string;
+  miniature: string;
+  fichier: string;
+  /** AAAA-MM-JJ */
+  dateMiseEnLigne: string;
+  dureeIso?: string;
+}) {
+  if (!DATE_ISO.test(dateMiseEnLigne)) throw new Error(`jsonLdVideo : date « ${dateMiseEnLigne} » à écrire AAAA-MM-JJ`);
+  return {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    name: nom,
+    description,
+    thumbnailUrl: [absolu(miniature)],
+    contentUrl: absolu(fichier),
+    uploadDate: dateMiseEnLigne,
+    ...(dureeIso ? { duration: dureeIso } : {}),
+    publisher: { "@id": ID_ATELIER, name: ATELIER.nom },
+  };
+}
+
+/**
  * Foire aux questions.
  * Google peut afficher ces questions-réponses directement sous le lien du
  * site. À brancher sur une page qui pose VRAIMENT ces questions à l'écran :

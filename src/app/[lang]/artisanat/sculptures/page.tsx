@@ -4,12 +4,20 @@ import Link from "next/link";
 import { Visuel } from "@/components/visuel";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../../dictionaries";
-import { metadataPage, jsonLdFilAriane, scriptJsonLd } from "@/lib/seo";
+import { metadataPage, jsonLdFilAriane, jsonLdService, jsonLdVideo, scriptJsonLd } from "@/lib/seo";
 import { serif } from "@/lib/fonts";
 import { ProductTail } from "@/components/product-tail";
 import { VideoBoucle } from "@/components/video-boucle";
 import { Apparition } from "@/components/apparition";
 
+
+/** La vidéo du torse : le jour où elle est arrivée sur le site (commit 5ed372f) et sa durée (ffprobe : 8,5 s). */
+const VIDEO_TORSE = {
+  fichier: "/videos/torse-acier.mp4",
+  miniature: "/images/torse-acier-poster.jpg",
+  dateMiseEnLigne: "2026-10-05",
+  dureeIso: "PT8.5S",
+} as const;
 
 export async function generateMetadata({
   params,
@@ -53,6 +61,24 @@ export default async function SculpturesPage({
           ])
         )}
       />
+      {/* Le service (sur devis, sans prix) et la vraie vidéo du torse, pour les moteurs (référencement, lot L7). */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={scriptJsonLd(
+          jsonLdService({
+            locale,
+            nom: t.serviceNom,
+            chemin: "/artisanat/sculptures",
+            description: dict.seo.sculptures.description,
+          })
+        )}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={scriptJsonLd(
+          jsonLdVideo({ nom: t.torseTitle, description: t.torseVideoAlt, ...VIDEO_TORSE })
+        )}
+      />
       </div>
 
       {/* Le même gabarit que les fiches : la photo pleine hauteur à gauche,
@@ -88,7 +114,7 @@ export default async function SculpturesPage({
             className={`${serif.className} entree-monte mt-8 text-[2.4rem] text-balance leading-[1.03] tracking-[-0.02em] text-[#2b2320] sm:text-[3rem]`}
             style={entree(100)}
           >
-            {t.title}
+            {t.h1}
           </h1>
           <p className="entree-monte mt-4 text-[17px] leading-[1.45] text-[#5c5140] md:mt-5 lg:text-[19px]" style={entree(240)}>
             {t.tagline}
@@ -99,13 +125,28 @@ export default async function SculpturesPage({
             <p className="mt-4 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.body}</p>
           </div>
 
+          {/* Comment se passe une commande, et les matières (référencement, lot L7). */}
+          <Apparition className="mt-10 border-t border-[#e8e1d8] pt-8">
+            <h2 className={`${serif.className} text-[1.4rem] leading-[1.12] tracking-[-0.01em] text-[#2b2320] md:text-[1.6rem]`}>{t.commandeTitle}</h2>
+            <ol className="mt-4 space-y-2.5 text-[16px] leading-[1.55] text-[#4a4038]">
+              {t.commandeEtapes.map((etape, i) => (
+                <li key={etape} className="flex gap-3">
+                  <span className="w-4 shrink-0 font-semibold text-[#6f6357]">{i + 1}</span>
+                  <span>{etape}</span>
+                </li>
+              ))}
+            </ol>
+            <h2 className={`${serif.className} mt-8 text-[1.4rem] leading-[1.12] tracking-[-0.01em] text-[#2b2320] md:text-[1.6rem]`}>{t.matieresTitle}</h2>
+            <p className="mt-3 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.matieresBody}</p>
+          </Apparition>
+
           {/* Le torse, en vidéo : un tour complet, sans son, en boucle (elle se met en pause d'un clic). */}
           <Apparition className="mt-10 border-t border-[#e8e1d8] pt-8">
             <span className="surtitre block text-center">{t.torseTitle}</span>
             <VideoBoucle
               locale={locale}
-              src="/videos/torse-acier.mp4"
-              poster="/images/torse-acier-poster.jpg"
+              src={VIDEO_TORSE.fichier}
+              poster={VIDEO_TORSE.miniature}
               description={t.torseVideoAlt}
               libellePause={t.videoPause}
               libelleLecture={t.videoPlay}

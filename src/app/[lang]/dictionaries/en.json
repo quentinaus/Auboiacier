@@ -91,17 +91,21 @@
     "seoP2": "The price appears within a minute: enter your measurements in the online configurator, choose the material and finish, then download your PDF quote, with no account and no commitment. We measure and fit in Saumur, Angers, Cholet, Tours, Chinon and up to 200 km from the workshop; collection pieces are delivered across mainland France.",
     "seoLinksTitle": "What we make to measure",
     "seoLinks": [
-      "Custom window railings",
+      "Bespoke window railings",
       "Window railings: height and rules",
+      "How we check a window railing",
+      "Balcony and terrace railings",
       "Steel and solid wood staircase",
-      "Steel workshop partition",
-      "Custom wood and steel tables",
+      "Steel spine staircase: prices and rules",
+      "Steel internal windows",
+      "Bespoke wood and steel tables",
       "Solid wood in our workshop",
-      "Backlit stretched-fabric ceiling",
+      "Backlit stretch-fabric ceiling lights",
       "Reclaimed-steel sculptures",
+      "Welding and repairs",
       "Instant PDF quote",
       "Home measuring visit",
-      "Where we work: Saumur, Angers, Cholet, Tours"
+      "Where we work around Saumur"
     ],
     "configLabel": "Online configurator",
     "configTitle": "Configure your piece, the price appears",
@@ -150,7 +154,7 @@
     "altPlafondSitu": "Stretch-fabric light ceiling above a table, in a dining room"
   },
   "home": {
-    "heroTitle": "Backlit stretch-fabric ceilings, made to measure in Saumur",
+    "heroTitle": "Backlit stretch-fabric ceiling lights, handmade to measure in Saumur",
     "heroSubtitle": "Welded aluminium box, stretched fabric, integrated LED lighting. Every ceiling is made in the workshop to the dimensions of your room.",
     "heroCtaPrimary": "Request a quote",
     "heroCtaSecondary": "See more pictures",
@@ -229,7 +233,8 @@
     "altPlafondProfiles": "The aluminium profiles of a light ceiling frame, cut and numbered.",
     "altPlafondToileAllumee": "The stretched fabric lit in its black frame.",
     "altEscalierAtelier": "A staircase being made, solid wood treads on a steel stringer.",
-    "altPlafondCaissonPhoto": "The box of a light ceiling: the LED strips wired, ready for the fabric."
+    "altPlafondCaissonPhoto": "The box of a light ceiling: the LED strips wired, ready for the fabric.",
+    "aproposLien": "Quentin's story"
   },
   "artisanat": {
     "title": "The collection",
@@ -550,7 +555,7 @@
     "gcAllegeCourt": "Floor to bottom of window",
     "gcFenetreCourt": "Bottom to top of the window",
     "raisonCotesGardeCorps": "Enter the width and the height below the window to add to your cart.",
-    "h1": "Made-to-measure pieces in steel and solid wood",
+    "h1": "Bespoke pieces in steel and solid wood, handmade in Saumur",
     "avisGoogle": "See our Google profile",
     "faqPoseToileQ": "How is a light ceiling fitted?",
     "faqPoseToileA": "The light ceiling hangs on cables attached to four rings screwed into its frame. Your ceiling needs four fixing points strong enough to carry its weight. The workshop can come and fit it; the product page gives the price for your postcode.",
@@ -568,8 +573,8 @@
           "d": "Solid wood (oak, walnut, beech or pine), sanded then oiled in the workshop: it keeps its feel and gains a patina over time. The Resin table has a poured-resin top."
         },
         {
-          "t": "Made to last, and to be repaired",
-          "d": "A solid top can be sanded again and a welded base repainted: a piece made this way is repaired rather than replaced."
+          "t": "Made to last",
+          "d": "A solid wood top on a welded steel base: a table made to last for decades, one you keep rather than replace."
         },
         {
           "t": "Your dimensions, made to order",
@@ -722,7 +727,7 @@
           },
           {
             "t": "A purchase for decades",
-            "d": "The top can be sanded again, the base repainted: the table is repaired rather than replaced. Over time it costs less than a table you keep buying again."
+            "d": "Solid wood and welded steel: a table you keep rather than replace. Over time it costs less than a table you keep buying again."
           }
         ]
       },
@@ -873,7 +878,30 @@
           }
         ]
       }
-    }
+    },
+    "etapesTitre": "How your piece is made",
+    "etapes": [
+      {
+        "t": "Your measurements",
+        "d": "Enter them online, or the workshop comes to measure at your home."
+      },
+      {
+        "t": "Price and drawing",
+        "d": "Shown at once; the PDF quote downloads with no account."
+      },
+      {
+        "t": "Your go-ahead",
+        "d": "Your order starts the making."
+      },
+      {
+        "t": "Made in Saumur",
+        "d": "The steel is cut, hand-welded, ground and painted; the solid wood is sanded and oiled."
+      },
+      {
+        "t": "At your home",
+        "d": "Delivery across mainland France, delivery and fitting by the workshop, or collection in Saumur."
+      }
+    ]
   },
   "devis": {
     "title": "Request a quote",
@@ -1043,17 +1071,28 @@
   "sculptures": {
     "title": "Sculptures",
     "tagline": "One-off pieces in reclaimed steel, welded by hand.",
-    "intro": "A rearing horse is made from hundreds of steel offcuts — spanners, chains, bolts, sheet metal — welded one by one until the animal's movement appears. It is not a production item: it is an artwork.",
+    "intro": "A subject, a size, a place: each sculpture grows from steel offcuts — spanners, chains, bolts, sheet metal — welded one by one. The rearing horse in the picture is an idea for a subject: a piece the workshop can make to order.",
     "body": "Every sculpture is designed with you: the subject, the size, the materials, the base and the place it will stand. The work is done by hand in the workshop and takes several weeks depending on the piece. They live outdoors in the rain just as well as in a hallway.",
     "priceTitle": "Price",
     "priceBody": "On request — each piece being unique, the price depends on the subject, its size and the time it takes to build.",
     "cta": "Talk about your project",
     "photoAlt": "Rearing horse sculpture in reclaimed steel, welded by hand, in front of a stone house",
     "torseTitle": "A torso made of salvaged parts",
-    "torseBody": "Chains, hinges, plates, bolts: every piece is welded by hand, one by one, until the curves of a body appear. This torso was made by Quentin before the workshop opened.",
+    "torseBody": "Chains, hinges, plates, bolts: every piece is welded by hand, one by one, until the curves of a body appear. This torso was made by Quentin before the workshop opened. It is a personal piece and is not for sale.",
     "torseVideoAlt": "Video: a torso of salvaged steel, welded by hand, filmed from all around in the evening light",
     "videoPause": "Pause the video",
-    "videoPlay": "Play the video"
+    "videoPlay": "Play the video",
+    "h1": "Sculptures in reclaimed steel, welded by hand",
+    "commandeTitle": "How a commission works",
+    "commandeEtapes": [
+      "You describe the subject, the size and the place: indoors, outdoors, on a base or on a wall.",
+      "Quentin sends you a sketch and a price.",
+      "The sculpture is welded by hand in the workshop, piece by piece: allow several weeks depending on its size.",
+      "Delivery, or collection in Saumur."
+    ],
+    "matieresTitle": "The materials",
+    "matieresBody": "Spanners, chains, bolts, hinges, sheet metal: pieces of steel that have already had a life, sorted then welded one by one. Every sculpture is one of a kind: it is never made the same way twice.",
+    "serviceNom": "Commissioned steel sculpture"
   },
   "verrieres": {
     "title": "Interior steel partitions",
@@ -1070,7 +1109,32 @@
     "panelTitle": "Solid panels where they earn their place",
     "panelBody": "Lower down, glass can give way to steel sheet stiffened by a cross brace: the bottom of the door takes the knocks, and the partition gains character.",
     "panelAlt": "Lower panel of a steel partition in black sheet steel with a cross brace",
-    "atelierTitle": "Made-to-measure steel partitions"
+    "atelierTitle": "Divide without closing off",
+    "h1": "Steel internal windows, made to measure",
+    "usagesTitle": "Which room is it for?",
+    "usages": [
+      {
+        "t": "Open kitchen",
+        "d": "The glazing stops smells and noise, not the light."
+      },
+      {
+        "t": "Living room or bedroom",
+        "d": "You gain a room without losing the daylight."
+      },
+      {
+        "t": "Home office",
+        "d": "You shut yourself away while keeping an eye on the rest of the house."
+      },
+      {
+        "t": "Hallway or corridor",
+        "d": "Daylight passes from one room to the next."
+      }
+    ],
+    "cotesTitle": "The measuring visit",
+    "cotesBody": "The workshop comes to measure at your home — {prixVisite} within {rayonVisite} km of Saumur, deducted from your order if you go ahead — then sends you the quote and the drawing.",
+    "cotesLien": "Book a measuring visit",
+    "photosTexte": "Two internal windows made by Quentin before the workshop opened.",
+    "serviceNom": "Bespoke steel internal window"
   },
   "panier": {
     "title": "Your cart",
@@ -1356,21 +1420,21 @@
       "description": "Craft metalwork studio in Saumur, France: custom window railings, staircases, steel partitions, tables and backlit ceilings. Instant price, PDF quote."
     },
     "artisanat": {
-      "title": "Custom railings and steel furniture",
-      "description": "Window railings, staircases, steel partitions and solid oak tables on welded steel bases, handmade in Saumur, Loire Valley. Prices shown, PDF quote."
+      "title": "Bespoke steel and solid wood furniture",
+      "description": "Tables, staircases, railings and steel internal windows in welded steel and solid wood, handmade in Saumur, France. Tables from {prixTables}, priced online."
     },
     "produitSuffixe": "Handmade in Saumur. Shipped in mainland France.",
     "lumiere": {
-      "title": "Custom backlit stretch-fabric ceilings",
-      "description": "Backlit stretch-fabric ceiling light, rectangle or disc, made in Saumur. Ships up to 230 × 210 cm (Ø 210 cm); larger sizes fitted by the workshop."
+      "title": "Bespoke stretch-fabric ceiling lights",
+      "description": "Backlit stretch-fabric ceiling light, rectangle or disc, handmade in Saumur. Ships up to 230 × 210 cm (Ø 210 cm); larger sizes fitted by the workshop."
     },
     "sculptures": {
-      "title": "One-off reclaimed steel sculptures",
-      "description": "Sculptures welded by hand from reclaimed steel, designed with you: subject, size, base and setting. Workshop in Saumur, France."
+      "title": "Welded steel sculptures, one of a kind",
+      "description": "Sculptures welded by hand from reclaimed steel in Saumur, France: one-off commissions designed with you — subject, size, base, indoors or out."
     },
     "verrieres": {
-      "title": "Steel partitions & internal glazing — Saumur",
-      "description": "Crittall-style internal steel partitions, surveyed on site and fitted. Room dividers, kitchens, mezzanines — handmade in Saumur, Loire Valley."
+      "title": "Steel internal windows, made to measure",
+      "description": "Steel internal windows and glazed partitions, measured at your home and hand-welded in Saumur, France: kitchens, room dividers, offices. Price on quote."
     },
     "apropos": {
       "title": "Auboiacier metalwork workshop, Saumur",
@@ -1410,7 +1474,7 @@
     },
     "zone": {
       "title": "Metalworker in the Loire Valley, France",
-      "description": "Metalwork studio in Saumur, France: railings, stairs, steel partitions, steel and wood tables, light ceilings. Measuring and fitting within 200 km."
+      "description": "Workshop in Saumur, Maine-et-Loire: home measuring from {prixVisite} within {rayonVisite} km, visits up to 200 km away. Railings, staircases, steel windows, tables."
     },
     "faq": {
       "title": "FAQ — lead times, prices, delivery",
@@ -1445,12 +1509,12 @@
       "description": "Open your Auboiacier customer account with Google or a link sent by e-mail, with no password."
     },
     "tables": {
-      "title": "Custom solid wood and steel tables",
-      "description": "Made-to-measure dining tables: solid oak, walnut, beech or pine top on a welded steel base. Made in Saumur, priced online, delivered in mainland France."
+      "title": "Bespoke solid wood and steel tables",
+      "description": "Bespoke dining tables, handmade in Saumur, France: solid wood top 28 to 45 mm thick on a welded steel base. From {prixTables}, priced online to your size."
     },
     "bois": {
-      "title": "Solid wood and steel made to order, Saumur",
-      "description": "Stair treads, railing handrails, table tops: solid pine, beech, oak or walnut, paired with steel in our Saumur workshop (Maine-et-Loire, France)."
+      "title": "Solid wood table tops and stair treads, Saumur",
+      "description": "Table tops, stair treads, handrails: solid pine, beech, oak or walnut, cut to your size, sanded and oiled by hand in our workshop in Saumur, France."
     },
     "normesGc": {
       "title": "Window railing height: the French rule",
@@ -1509,7 +1573,11 @@
     "ctaTitle": "Your town is not on the list?",
     "ctaBody": "Write to us anyway, with your town and your project: we reply within 48 hours.",
     "ctaLabel": "Get in touch",
-    "faqLink": "See the frequently asked questions"
+    "faqLink": "See the frequently asked questions",
+    "communesNote": "And further out, anywhere within {rayonMax} km of the workshop for a measuring visit.",
+    "localTitle": "Tufa-stone houses and protected areas",
+    "localBody": "Around Saumur, many older houses are built of tuffeau, the local white tufa stone. For a window railing, the fixing is chosen to suit your wall: the workshop looks at it before making anything. In central Saumur and other protected areas, changing a façade, such as adding a new railing, may need a prior declaration at the town hall: check before you order.",
+    "guidesTitre": "Worth reading before the visit:"
   },
   "faq": {
     "title": "Frequently asked questions",
@@ -1747,7 +1815,11 @@
     "toutesTables": "All tables",
     "plafonds": "All about light ceilings",
     "titre": "See also",
-    "normesGc": "Railing height and rules"
+    "normesGc": "Railing height and rules",
+    "verificationGc": "How we check a window railing",
+    "guideEscalier": "Steel spine staircase: prices and rules",
+    "balconTerrasse": "Balcony and terrace railings",
+    "soudure": "Welding and repairs"
   },
   "lumiere": {
     "choixTitle": "A light panel or a wall-to-wall stretch ceiling?",
@@ -1770,8 +1842,8 @@
         "a": "Rectangles up to 400 × 300 cm, discs up to Ø 400 cm, to the centimetre. Beyond 230 × 210 cm (Ø 210 cm for the Halo), the ceiling no longer ships by carrier: it is delivered and fitted by the workshop, within 200 km of Saumur. Catalogue sizes have their price shown; for your own size, the product page works out the price at once."
       },
       {
-        "q": "Which white should I choose?",
-        "a": "3000 K is a warm white, close to a classic bulb: the softest for a dining room. 4000 K is a neutral white, closer to daylight: often preferred in an office or a kitchen."
+        "q": "What light does the fabric give?",
+        "a": "An even light over its whole surface: the fabric diffuses the LED strips behind it, one line every 8 cm, with no bright spot and no hard shadow."
       },
       {
         "q": "How long does it take?",
@@ -1779,7 +1851,9 @@
       }
     ],
     "fabricationTitre": "In the making",
-    "fabricationTexte": "The box, the LED strips, the aluminium frame: light ceilings made by Quentin before the workshop opened."
+    "fabricationTexte": "The box, the LED strips, the aluminium frame: light ceilings made by Quentin before the workshop opened.",
+    "prixTitle": "What a light ceiling costs, size by size",
+    "prixIntro": "A light ceiling is judged by its light: even from edge to edge, with no bright spot. The prices below are for the whole piece — box, fabric, lighting, power supplies and controller included — in the least expensive frame colour. Between two sizes, the product page works out the price to the centimetre."
   },
   "essences": {
     "note": "Listed from the least to the most expensive, going by the workshop's prices.",
@@ -1809,7 +1883,7 @@
   },
   "tables": {
     "title": "Tables",
-    "h1": "Custom tables in solid wood and steel, made in Saumur",
+    "h1": "Bespoke tables in solid wood and steel, handmade in Saumur",
     "intro": "The top is solid wood. The base is steel, cut and TIG-welded in the workshop, then painted. You give the length and width to the centimetre, and every product page works out the price at once.",
     "modelesTitle": "{n} models, prices shown",
     "modelesNote": "The “from” price is for the smallest size, in the least expensive wood and colour. On the product page, the price follows your configuration.",
@@ -1822,7 +1896,7 @@
     "dimensionsTitle": "Your dimensions",
     "dimensionsBody": "Length and width are up to you, to the centimetre, from {min} cm. The largest one-piece top is {longueur} × {largeur} cm. As a guide, allow about 60 cm of table per guest.",
     "fabricationTitle": "Made in Saumur",
-    "fabricationBody": "Nothing is kept in stock. When you order, the steel is cut, welded and ground in the workshop, then painted. The tops of the Mikado, Croix and Brindille tables are finished with hardwax oil; the Mikado Outdoor table gets an outdoor oil, and the river table pairs oak with a pour of epoxy resin. Allow {delai} for making on most models; the exact lead time is on each product page or confirmed with the quote. We deliver anywhere in mainland France by carrier. Within 200 km of Saumur, the workshop can also deliver and fit the table, priced by the distance; or you can collect it from the workshop.",
+    "fabricationBody": "Nothing is kept in stock. When you order, the steel is cut, welded and ground in the workshop, then painted. The tops of the Mikado, Croix and Brindille tables are finished with hardwax oil; the Mikado Outdoor table gets an outdoor oil, and the river table pairs oak with a pour of epoxy resin. Allow {delai} for making on most models; the exact lead time is on each product page or confirmed with the quote. We deliver anywhere in mainland France by carrier. The workshop can also deliver and fit the table at your home, priced by the distance from Saumur on the product page; or you can collect it from the workshop.",
     "faqTitle": "Frequently asked questions",
     "faqTailleQ": "What size for 6, 8 or 10 people?",
     "faqTailleA": "Allow about 60 cm of table per guest. Catalogue sizes: {formats}. Between two sizes, enter your dimensions: the product page works out the price.",
@@ -1837,7 +1911,12 @@
     "ctaTitle": "A table outside the catalogue?",
     "ctaBody": "A particular shape, timber or size: describe your project and we will reply with a price.",
     "ctaDevis": "Request a quote",
-    "ctaContact": "Write to us"
+    "ctaContact": "Write to us",
+    "prixTitle": "How much does a bespoke solid wood table cost?",
+    "prixIntro": "The prices on each product page, from the same calculator: welded base painted in the least expensive colour, solid wood top with a hardwax oil finish. Between two sizes, enter your own on the product page and the price follows to the centimetre. Delivery is extra, {livraisonMax} at most in mainland France.",
+    "prixPlaces": "Size",
+    "hautTitle": "What makes a high-end table",
+    "hautBody": "It shows in what photos don't: the thickness of the top, the section of the steel, the welds. Ours has a solid wood top {epaisseurs} mm thick. The base is welded in the workshop: 80 × 80 mm steel tubes with a 3 mm wall on the Mikado and the Croix; straight steel rods welded one by one on the Brindille. The hardwax oil finish can be touched up where it is marked, without stripping the whole top."
   },
   "bois": {
     "title": "Solid wood",
@@ -1857,7 +1936,9 @@
     "bougeTitle": "Solid wood moves",
     "bougeBody": "Solid wood follows the humidity of the air: it swells slightly when the air is damp and shrinks back when it is dry. Avoid placing a table against a radiator, or in full sun behind a large window.",
     "atelierTitle": "A wood and metal workshop in Saumur",
-    "atelierBody": "The Saumur workshop draws every piece, welds the steel and works the solid wood with cabinetmaking know-how, from choosing the boards to the finish, before bringing the two together. You keep one point of contact, from the measuring visit to the fitting."
+    "atelierBody": "The Saumur workshop draws every piece, welds the steel and works the solid wood with cabinetmaking know-how, from choosing the boards to the finish, before bringing the two together. You keep one point of contact, from the measuring visit to the fitting.",
+    "choisirTitle": "Which wood should I choose?",
+    "choisirBody": "From the least to the most expensive: {ordre}. Oak, hard and golden, is the workshop's reference. Walnut, brown, is the darkest. Beech, pale, has a fine, tight grain. Pine, softer, marks more quickly. The exact price of each wood shows on the product page, at your size."
   },
   "normesGc": {
     "title": "Railing height and rules",
@@ -1915,6 +1996,7 @@
     "ctaTitle": "Your window, to your measurements",
     "ctaBody": "Enter your measurements on the product page: the height, the design and the price show straight away, with a plan preview and a free PDF quote. If you prefer, the workshop comes to measure at your home.",
     "ctaCalculer": "Work out my railing",
-    "ctaRdv": "Home measuring visit"
+    "ctaRdv": "Home measuring visit",
+    "signature": "Guide written by the Auboiacier workshop in Saumur, based on article R134-59 of the French Building Code and standard NF P01-012. Updated {date}."
   }
 }

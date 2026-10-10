@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { CSSProperties, ReactNode } from "react";
 import { BandeauDetail } from "@/components/bandeau-detail";
+import { EtapesFabrication } from "@/components/etapes-fabrication";
 import { CarteCategorie } from "@/components/carte-categorie";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
@@ -93,7 +94,10 @@ export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artis
         </ul>
       </section>
 
-      {/* 3. Bandeau atelier : panneau sombre et photo, le même dessin partout. */}
+      {/* 3. Comment votre pièce est faite : les cinq étapes, de vos cotes à la livraison (référencement, lot L7). */}
+      <EtapesFabrication titre={t.etapesTitre} etapes={t.etapes} />
+
+      {/* 4. Bandeau atelier : panneau sombre et photo, le même dessin partout. */}
       <BandeauDetail
         titre={t.craftBandTitle}
         corps={t.craftBandBody}

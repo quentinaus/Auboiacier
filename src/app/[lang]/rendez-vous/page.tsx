@@ -109,9 +109,18 @@ export default async function RendezVousPage({ params }: PageProps<"/[lang]/rend
               </h2>
               <p className="mt-5 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.piecesSubtitle}</p>
               {/* Jusqu'où l'atelier se déplace : la page de la zone le dit. */}
-              <Link href={`/${locale}/zone-intervention`} className="lien-fleche mt-4 py-2 text-[#2b2320]">
-                {t.zoneLink}
-              </Link>
+              <div className="mt-4 flex flex-wrap gap-x-8">
+                <Link href={`/${locale}/zone-intervention`} className="lien-fleche py-2 text-[#2b2320]">
+                  {t.zoneLink}
+                </Link>
+                {/* Ce que l'on mesure chez vous, et pourquoi : les deux guides (référencement, lot L9). */}
+                <Link href={`/${locale}/garde-corps-fenetre-normes`} className="lien-fleche py-2 text-[#2b2320]">
+                  {dict.liens.normesGc}
+                </Link>
+                <Link href={`/${locale}/escalier-limon-central-prix-normes`} className="lien-fleche py-2 text-[#2b2320]">
+                  {dict.liens.guideEscalier}
+                </Link>
+              </div>
             </Apparition>
             <div className="mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 md:mt-14">
               {pieces.map((product, i) => {

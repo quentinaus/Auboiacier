@@ -21,8 +21,8 @@ import {
   descriptionTient,
   jsonLdProduit,
   jsonLdFilAriane,
+  materiauFamille,
   scriptJsonLd,
-  ATELIER,
 } from "@/lib/seo";
 import { serif } from "@/lib/fonts";
 import { hoverZoom, hoverZoomSubtle, prixAffiche } from "@/lib/ui";
@@ -112,12 +112,6 @@ export async function generateMetadata({
     // Une photo carrée se ferait rogner d'un tiers dans un aperçu de partage :
     // les fiches concernées ont leur déclinaison 1200 × 630.
     image: product.imagePartage ?? product.images[0]?.src,
-    motsCles: [
-      `${product.name} ${ATELIER.ville}`,
-      locale === "fr" ? `${product.name} sur mesure` : `made-to-measure ${product.name}`,
-      `${product.name} ${ATELIER.departement}`,
-      ...(product.motsCles ?? []),
-    ],
   });
 }
 
@@ -203,6 +197,10 @@ export default async function ProductPage({
     ...(product.famille === "garde-corps"
       ? [{ href: `/${locale}/garde-corps-fenetre-normes`, label: dict.liens.normesGc }]
       : []),
+    // Comment l'outil vérifie chaque dessin pour la fenêtre (référencement, lot L9).
+    ...(product.famille === "garde-corps"
+      ? [{ href: `/${locale}/artisanat/verification-garde-corps`, label: dict.liens.verificationGc }]
+      : []),
     // Les garde-corps de balcon et de terrasse, sur devis : leur page (référencement, 07/10/2026).
     ...(product.famille === "garde-corps"
       ? [
@@ -280,7 +278,11 @@ export default async function ProductPage({
               locale,
               chemin: `/artisanat/${product.slug}`,
               nom: product.name,
-              description: `${product.tagline} ${product.sections[0]?.body ?? ""}`.trim(),
+              // La description Google de la fiche (seoDescription), plutôt que le premier bloc : il disait « chêne
+              // massif » quand le prix bas est en pin (référencement, 3.5).
+              description: product.seoDescription ?? `${product.tagline} ${product.sections[0]?.body ?? ""}`.trim(),
+              sku: product.slug,
+              materiau: materiauFamille(product.famille, locale),
               images: product.images.map((img) => img.src),
               fourchette,
               disponibilite,

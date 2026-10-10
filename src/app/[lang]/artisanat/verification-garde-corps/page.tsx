@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../../dictionaries";
-import { metadataPage, jsonLdFilAriane, scriptJsonLd } from "@/lib/seo";
+import { metadataPage, jsonLdArticle, jsonLdFilAriane, scriptJsonLd } from "@/lib/seo";
 import { serif } from "@/lib/fonts";
 import { FENETRE_APPEL_GC, planApercuGC, reponsePrixGC } from "@/lib/prix-garde-corps.server";
 import type { ModeleGC } from "@/lib/garde-corps";
@@ -19,17 +19,39 @@ import { MiniGardeCorps } from "@/components/releve-garde-corps";
 
 const CHEMIN = "/artisanat/verification-garde-corps";
 
+/** Les deux dates de la page : celles qu'elle affiche et que Google lit (Article). AAAA-MM-JJ. */
+const DATE_PUBLICATION = "2026-10-06";
+const DATE_MODIFICATION = "2026-10-10";
+
+/**
+ * Titre, description et H1 (plan de référencement, 1.8) : pas de « solidité » ni de « 4 contrôles » tant que la
+ * fixation renforcée n'est pas décidée — seulement ce que l'outil teste vraiment (hauteur, vides, partie basse).
+ */
+const TEXTES = {
+  fr: {
+    title: "Garde-corps de fenêtre : nos contrôles",
+    description:
+      "Avant d'afficher un prix, l'outil dessine votre garde-corps de fenêtre et teste chaque modèle : hauteur, vides de 110 mm, partie basse. Un exemple réel.",
+    h1: "Comment on vérifie votre garde-corps de fenêtre",
+    signature: "Page écrite par l'atelier Auboiacier, à Saumur. Mise à jour le {date}.",
+  },
+  en: {
+    title: "Window railing safety: our checks",
+    description:
+      "Before showing a price, our tool draws your window railing and tests every design: height, gaps under 110 mm, lower part. A real example inside.",
+    h1: "How we check your window railing",
+    signature: "Page written by the Auboiacier workshop in Saumur. Updated {date}.",
+  },
+} as const;
+
 export async function generateMetadata({ params }: PageProps<"/[lang]/artisanat/verification-garde-corps">): Promise<Metadata> {
   const { lang } = await params;
   const locale = isLocale(lang) ? lang : defaultLocale;
-  const fr = locale === "fr";
   return metadataPage({
     locale,
     chemin: CHEMIN,
-    title: fr ? "Comment on vérifie votre garde-corps" : "How we check your railing",
-    description: fr
-      ? "Avant de vous donner un prix, notre outil dessine votre garde-corps à vos mesures et teste chaque modèle : hauteur (art. R134-59), vides (NF P01-012), partie basse, solidité."
-      : "Before giving you a price, our tool draws your railing to your measurements and tests every design: height (art. R134-59), gaps (NF P01-012), lower part, strength.",
+    title: TEXTES[locale].title,
+    description: TEXTES[locale].description,
   });
 }
 
@@ -146,8 +168,8 @@ export default async function VerificationGardeCorpsPage({ params }: PageProps<"
       titre: fr ? "La solidité" : "Strength",
       source: fr ? "Calcul de l'atelier" : "Workshop calculation",
       texte: fr
-        ? "Sur une grande largeur, la main courante est raidie par un fer plat d'acier, et l'effort sur les fixations dans le mur est vérifié."
-        : "Over a wide span, the handrail is stiffened by a steel flat bar, and the load on the wall fixings is checked.",
+        ? "Sur une grande largeur, la main courante est raidie par un fer plat d'acier. L'outil calcule l'effort que reprennent les fixations dans le mur ; le choix de la fixation dépend de votre mur."
+        : "Over a wide span, the handrail is stiffened by a steel flat bar. The tool works out the load the wall fixings take; the choice of fixing depends on your wall.",
     },
   ];
 
@@ -188,6 +210,19 @@ export default async function VerificationGardeCorpsPage({ params }: PageProps<"
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={scriptJsonLd(
+          jsonLdArticle({
+            locale,
+            chemin: CHEMIN,
+            titre: TEXTES[locale].h1,
+            description: TEXTES[locale].description,
+            datePublication: DATE_PUBLICATION,
+            dateModification: DATE_MODIFICATION,
+          }),
+        )}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={scriptJsonLd(
           jsonLdFilAriane(locale, [
             { nom: dict.nav.home, chemin: "" },
             { nom: dict.artisanat.breadcrumbShop, chemin: "/artisanat" },
@@ -224,13 +259,22 @@ export default async function VerificationGardeCorpsPage({ params }: PageProps<"
             {fr ? "Hauteur et vides calculés pour votre fenêtre" : "Height and gaps worked out for your window"}
           </p>
           <h1 className={`${serif.className} mt-3 text-[2rem] leading-[1.1] text-[#2b2320] md:text-[3rem]`}>
-            {fr ? "Comment on vérifie votre garde-corps" : "How we check your railing"}
+            {TEXTES[locale].h1}
           </h1>
           <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-[#4a4038] md:text-[17px]">
             {fr
               ? "Avant de vous donner un prix, notre outil de calcul dessine votre garde-corps à vos mesures, puis teste chaque modèle pour votre fenêtre. Vous ne voyez que ceux qui respectent les règles de sécurité : un modèle qui ne passe pas n'est jamais vendu."
               : "Before giving you a price, our calculation tool draws your railing to your measurements, then tests every design for your window. You only see those that meet the safety rules: a design that fails is never sold."}
           </p>
+          {/* La règle elle-même et la fiche, dès le haut de la page (référencement, lot L8). */}
+          <div className="mt-5 flex flex-wrap gap-x-8 gap-y-1">
+            <Link href={`/${locale}/garde-corps-fenetre-normes`} className="lien-fleche py-1 text-[#2b2320]">
+              {dict.liens.normesGc}
+            </Link>
+            <Link href={`/${locale}/artisanat/garde-corps`} className="lien-fleche py-1 text-[#2b2320]">
+              {dict.liens.gardeCorps}
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -320,6 +364,19 @@ export default async function VerificationGardeCorpsPage({ params }: PageProps<"
             {fr ? "Calculer mon prix" : "Get my price"}
           </Link>
         </section>
+
+        {/* Qui a écrit la page, et quand : l'atelier, tant que Quentin ne l'a pas relue (C9). */}
+        <p className="mt-10 text-[14px] leading-[1.6] text-[#6f6357]">
+          {TEXTES[locale].signature.replace(
+            "{date}",
+            new Date(DATE_MODIFICATION).toLocaleDateString(fr ? "fr-FR" : "en-GB", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+              timeZone: "UTC",
+            }),
+          )}
+        </p>
       </div>
     </>
   );
