@@ -114,6 +114,10 @@ export async function notifyOwner(
       : "",
     // Le retrait à l'atelier : pas de colis à préparer pour un transporteur.
     session.metadata?.retrait === "1" ? "RETRAIT À L'ATELIER : le client vient chercher sa commande à Saumur — l'appeler quand elle est prête." : "",
+    // Un portail : seul l'acompte est encaissé ; la visite de prise de cotes est à prendre, le solde se paie à la réception.
+    session.metadata?.portail_solde
+      ? `PORTAIL : acompte encaissé — SOLDE À LA RÉCEPTION : ${session.metadata.portail_solde} €. Appeler le client pour la visite de prise de cotes (comprise). Configuration à coller dans l'outil : ${Object.entries(session.metadata).filter(([k]) => k.startsWith("portail_cfg_")).map(([, v]) => v).join(" ; ")}`
+      : "",
     // La Garantie cotes : une modification ou une refabrication par pièce garantie, 15 jours après la livraison (CGV, art. 13).
     session.metadata?.garantie_cotes
       ? `GARANTIE COTES : ${session.metadata.garantie_cotes} pièce(s) garantie(s) — voir les lignes « Garantie cotes » ci-dessous (CGV, article 13).`
@@ -226,6 +230,7 @@ export async function notifyCustomer(
                 "",
           "Your order confirmation is attached to this e-mail.",
           `Your piece is made to order in our workshop: allow ${LEAD_TIME.en}. ${session.metadata?.retrait === "1" ? "We will call you when it is ready, to arrange a day to collect it from the workshop in Saumur." : "We will contact you to arrange delivery."}`,
+          ...(session.metadata?.portail_solde ? [`For your gate, you have paid the deposit: we will call you to arrange the survey visit (included), and the balance of €${session.metadata.portail_solde} is paid when the fitted gate is handed over.`] : []),
           "Your invoice is sent separately by our payment provider.",
           "",
           "Auboiacier — wood, steel & light",
@@ -239,6 +244,7 @@ export async function notifyCustomer(
                 "",
           "Votre confirmation de commande est jointe à cet e-mail.",
           `Votre pièce est fabriquée à la commande dans notre atelier : comptez ${LEAD_TIME.fr}. ${session.metadata?.retrait === "1" ? "Nous vous appelons dès qu'elle est prête, pour convenir du jour où vous venez la chercher à l'atelier, à Saumur." : "Nous vous contactons pour convenir de la livraison."}`,
+          ...(session.metadata?.portail_solde ? [`Pour votre portail, vous avez réglé l'acompte : nous vous appelons pour la visite de prise de cotes (comprise), et le solde de ${session.metadata.portail_solde} € se règle à la réception du portail posé.`] : []),
           "Votre facture vous est envoyée séparément par notre prestataire de paiement.",
           "",
           "Auboiacier — bois, acier & lumière",

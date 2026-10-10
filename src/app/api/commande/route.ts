@@ -12,8 +12,9 @@ import { PRISE_DE_COTES, libelleLivraison, libellePose, libellePriseDeCotes } fr
 import { cleCreneau, creneauValide, libelleCreneau } from "@/lib/agenda";
 import { clientConnecte } from "@/lib/compte";
 import { CALCUL_GC, ChiffrageIndisponible } from "@/lib/prix-garde-corps.server";
+import { ChiffragePortailIndisponible, prixPortail } from "@/lib/prix-portail.server";
 import { libellePiece, tarifer, type Tarif } from "@/lib/tarif-panier";
-import { nomsStripe } from "@/lib/libelle-stripe";
+import { MAX_METADONNEE_STRIPE, nomsStripe } from "@/lib/libelle-stripe";
 import { semainesCommande } from "@/lib/avis";
 import { libelleGarantieCotes } from "@/lib/garantie-cotes";
 
@@ -102,10 +103,10 @@ export async function POST(request: Request) {
   }
   const debut = performance.now();
   try {
-    tarif = await tarifer(body.lines, { locale, gc: CALCUL_GC });
+    tarif = await tarifer(body.lines, { locale, gc: CALCUL_GC, portail: prixPortail });
     budgetCalculGC.depenser(request, performance.now() - debut, Date.now());
   } catch (erreur) {
-    if (erreur instanceof ChiffrageIndisponible) {
+    if (erreur instanceof ChiffrageIndisponible || erreur instanceof ChiffragePortailIndisponible) {
       // Pas de clé du chiffrage sur ce serveur : pas de garde-corps vendu à un prix inventé.
       console.error(`[commande] ${erreur.message} : définir CHIFFRAGE_GARDE_CORPS_CLE.`);
       return NextResponse.json({ error: "unavailable" }, { status: 503 });
@@ -165,6 +166,9 @@ export async function POST(request: Request) {
   }
   /** Le nombre de pièces garanties : le bon de commande le dit en tête. */
   const piecesGaranties = tarif.pieces.reduce((n, p) => n + (p.garantie && p.garantiePrix !== null ? p.quantite : 0), 0);
+  // Les portails : seul l'acompte est encaissé ici ; le solde se règle à la réception (bon de commande, e-mails).
+  const soldePortails = tarif.pieces.reduce((n, p) => n + (p.portail ? p.portail.solde * p.quantite : 0), 0);
+  const portails = tarif.pieces.filter((p) => p.portail);
 
   // La prise de cotes à domicile : le créneau doit être encore libre à l'instant où l'on paie.
   const visite = tarif.visite;
@@ -351,6 +355,9 @@ export async function POST(request: Request) {
         ...(tarif.pieces.length ? { fabrication_semaines: String(semainesCommande(tarif.pieces.map((p) => p.line.product))) } : {}),
         // La Garantie cotes : combien de pièces en ont une (chacune a aussi sa ligne).
         ...(piecesGaranties > 0 ? { garantie_cotes: String(piecesGaranties) } : {}),
+        // Un portail : le solde à la réception, et sa configuration (à coller dans l'outil de plans) — une clé par portail.
+        ...(soldePortails > 0 ? { portail_solde: String(soldePortails) } : {}),
+        ...Object.fromEntries(portails.map((p, i) => [`portail_cfg_${i}`, `${p.line.product.slug}?${p.portail!.config}`.slice(0, MAX_METADONNEE_STRIPE)])),
         // La remise sur plusieurs garde-corps, en euros : elle se lit aussi sur le bon de réduction.
         ...(tarif.remise < 0 ? { remise_gc: String(-tarif.remise) } : {}),
         // L'origine du client (connu, utm_…, annonce_google) : le bon de

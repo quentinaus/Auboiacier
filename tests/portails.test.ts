@@ -2,12 +2,15 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  appliquerStyle, configDepart, decrireDecor, guidePortail, lireConfig, lireDecorChoix, planPortail, styleDe, versParams, DECORS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL,
+  acomptePortail, appliquerStyle, configDepart, decrireDecor, guidePortail, lireConfig, lireConfigPanier, lireDecorChoix, planPortail, styleDe, versParams, versParamsPanier,
+  ACOMPTE_PORTAIL_PCT, DECORS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL,
   type ChoixDecor, type ConfigPortail, type SlugPortail,
 } from "../src/lib/portails.ts";
 import { prixDepartModeles, prixDepartPortail, prixPortail, prixVariantesPortail } from "../src/lib/portails-outil/prix.ts";
 import { composerEstimationPortail } from "../src/lib/portails-outil/devis-site.ts";
 import { getProduct } from "../src/lib/products.ts";
+import { tarifer } from "../src/lib/tarif-panier.ts";
+import { CALCUL_GC } from "../src/lib/garde-corps-outil/site.ts";
 
 /**
  * Les portails sur le site (étude du 06/10/2026) : le dessin vient du moteur de l'outil de plans (extrait tel quel), le
@@ -64,7 +67,8 @@ test("les 4 fiches existent, et leur « à partir de » est le style le moins ch
     const fiche = getProduct(slug);
     assert.ok(fiche, slug);
     assert.equal(fiche?.famille, "portail");
-    assert.equal(fiche?.orderMode, "quote");
+    // Commande en ligne depuis le 10/10/2026 (acompte de 40 % au panier).
+    assert.equal(fiche?.orderMode, "cart");
     const depart = prixDepartPortail(slug);
     const prix = STYLES_PORTAIL.map((st) => prixPortail(slug, configDepart(slug, st))).filter((r) => r.ok).map((r) => (r as { prix: number }).prix);
     assert.equal(depart, Math.min(...prix), slug);
@@ -206,4 +210,27 @@ test("aucun coût en clair dans ce que le dépôt publie (moteur, référence, f
   }
   const chiffre = readFileSync(new URL("../src/lib/portails-outil/chiffrage.chiffre.mjs", import.meta.url), "utf8");
   for (const interdit of ["TARIFS_ACHATS", "heure_atelier", "Locinox", "Nice"]) assert.ok(!chiffre.includes(interdit), `chiffrage chiffré : ${interdit}`);
+});
+
+test("commande en ligne (10/10/2026) : l'acompte de 40 % du prix de la fiche, la configuration du panier relue à l'identique, le solde à la réception", async () => {
+  assert.equal(ACOMPTE_PORTAIL_PCT, 40);
+  assert.equal(acomptePortail(5370), 2148);
+  for (const slug of Object.keys(SLUGS_PORTAIL) as SlugPortail[]) {
+    const cfg: ConfigPortail = { ...configDepart(slug), moulure: slug === "portail-battant", moteur: slug === "portail-battant", portillon: slug === "portail-coulissant" };
+    const texte = versParamsPanier(slug, cfg);
+    assert.ok(!texte.includes("slug="), "le modèle est le slug de la ligne, pas un paramètre");
+    assert.deepEqual(lireConfigPanier(slug, texte), lireConfig(versParams(slug, cfg))!.cfg);
+    assert.equal(lireConfigPanier(slug, `${texte}&slug=${slug}`), null);
+    assert.equal(lireConfigPanier(slug, 42), null);
+    assert.equal(lireConfigPanier("portail-ovni", texte), null);
+    const rep = prixPortail(slug, cfg);
+    assert.ok(rep.ok, `${slug} se chiffre`);
+    const t = await tarifer([{ slug, portail: texte, quantity: 1 }], { locale: "fr", gc: CALCUL_GC, portail: prixPortail });
+    assert.deepEqual(t.refusees, []);
+    assert.equal(t.pieces[0].line.unitPrice, acomptePortail(rep.prix));
+    assert.equal(t.pieces[0].portail!.prixPose, rep.prix);
+    assert.equal(t.pieces[0].line.unitPrice + t.pieces[0].portail!.solde, rep.prix);
+    assert.equal(t.total, acomptePortail(rep.prix));
+    assert.equal(getProduct(slug)!.orderMode, "cart");
+  }
 });

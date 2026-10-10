@@ -10,11 +10,13 @@
  */
 import "./portail/configurateur-portail.css";
 import { useDeferredValue, useEffect, useId, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useCart } from "@/lib/cart";
 import { svgDe, PT_DECOR_FORMULES } from "@/lib/portails-outil/moteur.genere.mjs";
 import {
-  appliquerStyle, bornesPortail, configDepart, configPortillonAssorti, emplacementPermis, formesDe, guidePortail, planPortail, resumeConfig, styleDe, versParams,
-  BARREAUX_DECOR, BOUTS_DECOR, COULEURS_PORTAIL, DECORS_PORTAIL, EMPLACEMENTS_DECOR, POS_DECOR, STYLES_PORTAIL, TEXTES_PORTAIL,
+  acomptePortail, appliquerStyle, bornesPortail, configDepart, configPortillonAssorti, emplacementPermis, formesDe, guidePortail, planPortail, resumeConfig, styleDe, versParams, versParamsPanier,
+  ACOMPTE_PORTAIL_PCT, BARREAUX_DECOR, BOUTS_DECOR, COULEURS_PORTAIL, DECORS_PORTAIL, EMPLACEMENTS_DECOR, POS_DECOR, STYLES_PORTAIL, TEXTES_PORTAIL,
   type ChoixDecor, type ConfigPortail, type Langue, type SlugPortail, type StylePortail,
 } from "@/lib/portails";
 import { STYLE_RENDU_PORTAIL, TEINTES_PORTAIL } from "@/lib/portails-rendu";
@@ -84,6 +86,8 @@ const TXT = {
     vuePortillon: "Le portillon assorti, vu de la rue",
     etape: (n: number, total: number) => `Étape ${n} sur ${total}`, retour: "Retour", suivant: "Suivant", ctaCourt: "Ma visite", conseilAtelier: "Garder le conseil de l'atelier", eCouleur: "Couleur et matière",
     triCroissant: "Prix croissant", triDecroissant: "Prix décroissant", triTitre: "Inverser l'ordre des prix", triAria: (v: string) => `Trier par prix : ${v === "croissant" ? "croissant" : "décroissant"} (toucher pour inverser)`,
+    commander: `Commander — acompte de ${ACOMPTE_PORTAIL_PCT} %`, commanderCourt: "Commander",
+    acompte: (a: string, s: string) => `${a} aujourd'hui · visite de prise de cotes comprise · solde ${s} à la réception du portail posé.`,
     dont: "Dont", dontMoteur: "moteur", dontDecor: "décor", dontPortillon: "portillon",
     moulures: "Moulures", moulureDetail: "Un médaillon par vantail, vissé par derrière", moulureBasPlein: "Il faut un bas plein",
   },
@@ -133,6 +137,8 @@ const TXT = {
     vuePortillon: "The matching pedestrian gate, from the street",
     etape: (n: number, total: number) => `Step ${n} of ${total}`, retour: "Back", suivant: "Next", ctaCourt: "Book visit", conseilAtelier: "Keep the workshop's advice", eCouleur: "Colour and material",
     triCroissant: "Price: low to high", triDecroissant: "Price: high to low", triTitre: "Reverse the price order", triAria: (v: string) => `Sort by price: ${v === "croissant" ? "low to high" : "high to low"} (tap to reverse)`,
+    commander: `Order — ${ACOMPTE_PORTAIL_PCT}% deposit`, commanderCourt: "Order",
+    acompte: (a: string, s: string) => `${a} today · survey visit included · balance ${s} when the fitted gate is handed over.`,
     dont: "Including", dontMoteur: "motor", dontDecor: "decoration", dontPortillon: "pedestrian gate",
     moulures: "Mouldings", moulureDetail: "One medallion per leaf, screwed from behind", moulureBasPlein: "Needs a solid lower panel",
   },
@@ -295,7 +301,9 @@ type InfosMoteurs = {
   choisi: { cle: CleMoteur } | null;
 };
 
-export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
+export function PortailConfigurateur({ slug, locale, nom, filAriane, image }: {
+  /** L'image de la fiche, pour la carte du panier. */
+  image?: string;
   slug: SlugPortail;
   locale: Langue;
   nom: string;
@@ -482,6 +490,21 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
   }, [fenetre]);
 
   const idTitre = useId();
+  // La commande en ligne (Quentin, 10/10/2026 : « je veux qu'on puisse les commander ») : la ligne du panier porte la
+  // configuration en texte ; le serveur la relit, la rechiffre avec l'outil et n'encaisse que l'acompte (le portillon
+  // assorti est dans la configuration, donc dans la même ligne). Le prix affiché ici n'est jamais envoyé.
+  const panier = useCart();
+  const router = useRouter();
+  const commander = () => {
+    if (prixBase == null || alerte) return;
+    panier.add({
+      slug, portail: versParamsPanier(slug, cfg), image,
+      name: `${nom} · ${nf(cfg.P)} × ${nf(cfg.H)} mm`, optionsLabel: resumeConfig(slug, cfg, locale, null).slice(1).join(" · "),
+      unitPrice: acomptePortail(prixBase),
+    }, 1);
+    router.push(`/${locale}/panier`);
+  };
+  const acompteTxt = prixBase != null && !alerte ? t.acompte(euros(acomptePortail(prixBase)), euros(prixBase - acomptePortail(prixBase))) : null;
   const battant = slug === "portail-battant", coulissant = slug === "portail-coulissant", portillon = slug === "portillon";
   const vantauxTxt = R.dims.vantaux.length > 1 ? `${R.dims.vantaux.length} ${t.vantauxDe} ${R.dims.vantaux.map(nf).join(" + ")} mm` : `1 ${t.vantail} ${nf(R.dims.vantaux[0])} mm`;
   const tropLarge = battant && cfg.P > b.P[1];
@@ -538,6 +561,8 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
                 );
   const liensAchat = (
     <div className="cpt-liens">
+                  {/* La visite seule reste possible : le devis signé suit la visite, sans rien payer en ligne. */}
+                  <Link href={lienVisite}>{t.cta}</Link>
                   <button type="button" onClick={() => setFenetre("plan")} aria-haspopup="dialog">{t.voirPlan}</button>
                   {/* L'estimation PDF (lot 9) : celle de l'outil, composée sur le serveur ; le devis à signer suit la visite. */}
                   {alerte || prixBase == null ? <span className="grise" aria-disabled="true" title={t.devisRaison}>{t.devis}</span>
@@ -844,8 +869,8 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
       <p className="cpt-r-ligne">{vantauxTxt} · ≈ {nf(R.poids)} kg · {t.fabrique}</p>
       {notePrix}
       <p className="cpt-prix-note">{t.poseComprise}</p>
-      <Link href={lienVisite} className="btn-verre cpt-cta">{t.cta}</Link>
-      <p className="cpt-btn-note">{t.visite}</p>
+      <button type="button" className="btn-verre cpt-cta" onClick={commander} disabled={prixBase == null || !!alerte}>{t.commander}</button>
+      <p className="cpt-btn-note">{acompteTxt ?? t.visite}</p>
       {liensAchat}
     </>);
     return (
@@ -875,7 +900,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
           <span className={`cpt-tel-prix ${perime ? "perime" : ""}`} aria-live="polite">{alerte ? t.aEtudier : prixBase != null ? euros(prixBase) : t.calcul}</span>
           {k < etapesTel.length - 1
             ? <button type="button" className="btn-verre cpt-tel-suivant" onClick={suivant}>{t.suivant}</button>
-            : <Link href={lienVisite} className="btn-verre cpt-tel-suivant">{t.ctaCourt}</Link>}
+            : <button type="button" className="btn-verre cpt-tel-suivant" onClick={commander} disabled={prixBase == null || !!alerte}>{t.commanderCourt}</button>}
           </nav>}
         </section>
         {/* Les fenêtres hors de la plaque : sur téléphone, ce sont des feuilles posées en bas de l'écran, au-dessus de tout. */}
@@ -1034,8 +1059,8 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
                 </div>
                 {notePrix}
                 <p className="cpt-prix-note cpt-note-pose">{t.poseComprise}</p>
-                <Link href={lienVisite} className="btn-verre cpt-cta">{t.cta}</Link>
-                <p className="cpt-btn-note">{t.visite}</p>
+                <button type="button" className="btn-verre cpt-cta" onClick={commander} disabled={prixBase == null || !!alerte}>{t.commander}</button>
+                <p className="cpt-btn-note">{acompteTxt ?? t.visite}</p>
                 {liensAchat}
               </div>
             </div>

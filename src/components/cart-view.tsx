@@ -54,6 +54,8 @@ function ligneEnvoyee(item: CartItem) {
     metalId: item.metalId,
     fabricId: item.fabricId,
     remplissageId: item.remplissageId,
+    // Un portail : sa configuration en texte, relue et chiffrée par le serveur (jamais un prix).
+    portail: item.portail,
     quantity: item.quantity,
     priseDeCotesCp: item.priseDeCotesCp,
     poseCp: item.poseCp,
@@ -195,6 +197,8 @@ export function CartView({
       garantiePrix?: number;
       /** Cochée sur cette pièce. */
       garantie?: boolean;
+      /** Un portail : le solde à régler à la réception (le prix de la ligne est l'acompte). */
+      solde?: number;
     }[] = [];
     const stale: string[] = [];
     if (donnees) {
@@ -216,6 +220,7 @@ export function CartView({
           hauteurMm: ligne.hauteurMm,
           garantiePrix: ligne.garantiePrix,
           garantie: ligne.garantie === true,
+          solde: ligne.solde,
         });
       }
     } else {
@@ -261,10 +266,14 @@ export function CartView({
   const totalPieces = lines.filter((l) => !l.visite).reduce((sum, line) => sum + (line.unitPrice ?? 0) * line.quantity, 0);
   /** La Garantie cotes des pièces cochées, telle que le serveur l'a chiffrée (comprise dans son total). */
   const totalGarantie = !prixConnus ? 0 : lines.reduce((sum, l) => sum + (l.garantie && l.garantiePrix !== undefined ? l.garantiePrix * l.quantity : 0), 0);
+  /** Les portails : le solde à la réception, en plus de l'acompte payé ici (jamais compté dans le total). */
+  const totalSolde = lines.reduce((sum, l) => sum + (l.solde ?? 0) * l.quantity, 0);
   const lignePose = lines.find((l) => l.pose);
   const ligneLivraison = lines.find((l) => l.livraison);
   const ligneRetrait = lines.find((l) => l.retrait);
   const piecesAuPanier = lines.some((l) => !l.visite);
+  /** Rien que des portails : la pose est comprise dans leur prix, il n'y a rien à livrer. */
+  const queDesPortails = piecesAuPanier && lines.filter((l) => !l.visite).every((l) => l.solde !== undefined);
   /** Une prise de cotes à domicile dans le panier (le service, pas une livraison). */
   const visiteAuPanier = items.some((item) => item.slug === PRISE_DE_COTES);
   /** Ce qui empêche de payer, dit par le serveur (une livraison à choisir, un code postal…). */
@@ -603,7 +612,9 @@ export function CartView({
                         ? t.deliveryWithPose
                         : ligneRetrait
                           ? t.retrait
-                          : "—"}
+                          : queDesPortails
+                            ? t.deliveryPortail
+                            : "—"}
                   </dd>
                 </div>
               )}
@@ -617,7 +628,14 @@ export function CartView({
                 <dt className="text-[17px] font-semibold text-[#2b2320]">{t.total}</dt>
                 <dd className="text-[1.75rem] font-medium tracking-[-0.01em] tabular-nums text-[#2b2320]">{prixConnus ? prixAffiche(total, locale) : "…"}</dd>
               </div>
+              {totalSolde > 0 && (
+                <div className="flex justify-between gap-4 text-[15px]">
+                  <dt className="text-[#5c5140]">{t.soldePortail}</dt>
+                  <dd className="tabular-nums text-[#2b2320]">{prixAffiche(totalSolde, locale)}</dd>
+                </div>
+              )}
             </dl>
+            {totalSolde > 0 && <p className="mt-3 text-[14px] leading-[1.5] text-[#6f6357]">{t.soldeNote}</p>}
             {/* Pas de Garantie cotes avec une prise de cotes à domicile ou une pose par l'atelier (CGV, article 13). */}
             {donnees?.garantieExclue && (
               <p className="mt-3 text-[14px] leading-[1.5] text-[#6f6357]">

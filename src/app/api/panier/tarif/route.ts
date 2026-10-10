@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { CALCUL_GC, ChiffrageIndisponible } from "@/lib/prix-garde-corps.server";
+import { ChiffragePortailIndisponible, prixPortail } from "@/lib/prix-portail.server";
 import { tarifAffiche, tarifer } from "@/lib/tarif-panier";
 import { creerLimite } from "@/lib/limite-debit";
 import { budgetCalculGC } from "@/lib/budget-calcul-gc";
@@ -40,11 +41,11 @@ export async function POST(request: Request) {
   if (budgetCalculGC.epuise(request, Date.now())) return NextResponse.json({ error: "too_many" }, { status: 429 });
   const debut = performance.now();
   try {
-    const tarif = await tarifer(body.lines, { locale, gc: CALCUL_GC, garantieSouple: true });
+    const tarif = await tarifer(body.lines, { locale, gc: CALCUL_GC, garantieSouple: true, portail: prixPortail });
     budgetCalculGC.depenser(request, performance.now() - debut, Date.now());
     return NextResponse.json(tarifAffiche(tarif, locale), { headers: { "cache-control": "private, no-store" } });
   } catch (erreur) {
-    if (erreur instanceof ChiffrageIndisponible) {
+    if (erreur instanceof ChiffrageIndisponible || erreur instanceof ChiffragePortailIndisponible) {
       console.error(`[panier] ${erreur.message} : définir CHIFFRAGE_GARDE_CORPS_CLE (Vercel > Settings > Environment Variables).`);
       return NextResponse.json({ error: "indisponible" }, { status: 503 });
     }

@@ -1,6 +1,7 @@
 // Chemins relatifs, pas l'alias « @/ » : les tests (node --test) chargent ce
 // fichier directement, sans le compilateur de Next.
 import {
+  getProduct,
   livrableParTransporteur,
   poidsColisKg,
   productLocalise,
@@ -32,6 +33,13 @@ import {
 import { libelleCreneau, lireCreneau, type Creneau } from "./creneau.ts";
 import { finitionsDecorGC, lireDecorGC, NOM_GC_DECOR, type ReleveGC } from "./garde-corps.ts";
 import { eligibleGarantieCotes, prixGarantieCotes } from "./garantie-cotes.ts";
+import { acomptePortail, ACOMPTE_PORTAIL_PCT, estSlugPortail, lireConfigPanier, resumeConfig, type ConfigPortail, type SlugPortail } from "./portails.ts";
+
+/**
+ * Ce que le calcul d'un portail rend (ReponsePrixPortail, src/lib/portails-outil/prix.ts), redit ici pour que ce fichier
+ * n'importe jamais le calcul : seul le serveur le fournit (contexte.portail), par src/lib/prix-portail.server.ts.
+ */
+export type PrixPortail = { ok: true; prix: number } | { ok: false; alertes: string[] };
 
 /* ------------------------------------------------------------------ *
  *  Le tarif d'un panier
@@ -93,6 +101,12 @@ export type PieceTarifee = {
    */
   garantiePrix: number | null;
   garantie: boolean;
+  /**
+   * Un portail (Quentin, 10/10/2026) : le client paie en ligne l'acompte (unitPrice, ACOMPTE_PORTAIL_PCT % du prix posé) ;
+   * le prix posé et le solde à la réception partent sur la ligne Stripe, au panier et à l'atelier, avec la configuration
+   * (versParamsPanier) à coller dans l'outil de plans.
+   */
+  portail?: { config: string; prixPose: number; solde: number };
 };
 
 /** Comment la commande part : une seule façon par commande. */
@@ -203,6 +217,11 @@ export async function tarifer(
      * le panier — le panier la décoche. /api/commande garde le refus strict.
      */
     garantieSouple?: boolean;
+    /**
+     * Le prix d'un portail par l'outil de plans (src/lib/prix-portail.server.ts) : fourni par le serveur seulement.
+     * Absent, tout portail est refusé (prix_serveur) — jamais un prix inventé.
+     */
+    portail?: (slug: SlugPortail, cfg: ConfigPortail) => PrixPortail;
   }
 ): Promise<Tarif> {
   const { locale, gc } = contexte;
@@ -250,6 +269,49 @@ export async function tarifer(
 
     const quantite = Number(line.quantity);
     if (!Number.isInteger(quantite) || quantite < 1 || quantite > MAX_QUANTITE) return probleme("invalid");
+
+    // Un portail (Quentin, 10/10/2026 : « je veux qu'on puisse les commander ») : la ligne porte sa configuration en
+    // texte (versParamsPanier, src/lib/portails.ts) ; l'outil de plans la relit et la rechiffre ici, et le client paie en
+    // ligne l'acompte de ACOMPTE_PORTAIL_PCT %. La visite de prise de cotes est comprise dans le prix (pas de Garantie
+    // cotes : l'atelier mesure lui-même), le solde se règle à la réception du portail posé. Pas de livraison à choisir.
+    const slugLu = String(line.slug ?? "");
+    if (line.portail !== undefined || estSlugPortail(slugLu)) {
+      const refus = (raison: ResolveFailure) => tarif.refusees.push({ index, raison });
+      const product = getProduct(slugLu);
+      if (!product || !estSlugPortail(slugLu)) { refus("unknown_slug"); continue; }
+      if (product.orderMode !== "cart") { refus("not_orderable"); continue; }
+      const cfg = lireConfigPanier(slugLu, line.portail);
+      if (!cfg) { refus("unknown_size"); continue; }
+      if (!contexte.portail) { refus("prix_serveur"); continue; }
+      const rep = contexte.portail(slugLu, cfg);
+      if (!rep.ok) { refus("a_etudier"); continue; }
+      const acompte = acomptePortail(rep.prix), solde = rep.prix - acompte;
+      const euros = (n: number) => (locale === "fr" ? `${new Intl.NumberFormat("fr-FR").format(n)} €` : `€${new Intl.NumberFormat("en-GB").format(n)}`);
+      const acompteTxt = locale === "fr"
+        ? `Acompte de ${ACOMPTE_PORTAIL_PCT} % (prix posé ${euros(rep.prix)}, solde ${euros(solde)} à la réception)`
+        : `${ACOMPTE_PORTAIL_PCT}% deposit (fitted price ${euros(rep.prix)}, balance ${euros(solde)} on handover)`;
+      const resume = resumeConfig(slugLu, cfg, locale, null);
+      if (garantieDemandee) tarif.garantiesRefusees.push(index);
+      tarif.pieces.push({
+        index,
+        line: {
+          product,
+          size: { id: SUR_MESURE, label: `${cfg.P} × ${cfg.H} mm`, price: rep.prix, dimsMm: [cfg.P, cfg.H] },
+          unitPrice: acompte,
+          optionsLabel: resume.join(" · "),
+          image: product.images[0]?.src,
+        },
+        quantite,
+        nom: productLocalise(product, locale).name,
+        options: [...resume, acompteTxt].join(" · "),
+        precisions: texteBorne(line.note, MAX_PRECISIONS),
+        garantiePrix: null,
+        garantie: false,
+        portail: { config: String(line.portail), prixPose: rep.prix, solde },
+      });
+      continue;
+    }
+
     const resolu = resolveSelection(
       {
         slug: String(line.slug ?? ""),
@@ -399,6 +461,8 @@ export type LigneAffichee = {
   garantiePrix?: number;
   /** La Garantie cotes est cochée sur cette pièce (elle est comptée dans le total). */
   garantie?: boolean;
+  /** Un portail : le solde à régler à la réception, en euros (l'unitaire est l'acompte payé en ligne). */
+  solde?: number;
 };
 
 export type TarifAffiche = {
@@ -427,6 +491,7 @@ export function tarifAffiche(t: Tarif, locale: "fr" | "en"): TarifAffiche {
     image: p.line.image,
     hauteurMm: p.line.gc?.hauteurMm,
     ...(p.garantiePrix !== null ? { garantiePrix: p.garantiePrix, garantie: p.garantie } : {}),
+    ...(p.portail ? { solde: p.portail.solde } : {}),
   }));
   if (t.visite) {
     lignes.push({

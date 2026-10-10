@@ -74,6 +74,11 @@ export type CartItem = {
    * pièce déjà au panier. Décochée par défaut (art. L121-17 du code de la consommation).
    */
   garantieCotes?: boolean;
+  /**
+   * Un portail : sa configuration en texte (versParamsPanier, src/lib/portails.ts). Le serveur la relit et recalcule le
+   * prix avec l'outil de plans ; le client paie un acompte (ACOMPTE_PORTAIL_PCT), le solde à la réception.
+   */
+  portail?: string;
   quantity: number;
   /** Copie d'affichage, jamais contractuelle. Ne jamais l'envoyer à une API. */
   name: string;
@@ -113,6 +118,8 @@ function lineId(line: CartLine) {
     ...(line.decorGc ? [line.decorGc] : []),
     // Le mur des tableaux : un autre mur, une autre fixation, une autre ligne. Sans mur, l'identifiant ne change pas.
     ...(line.allegeMm !== undefined && line.murGc ? [line.murGc, line.tMurMm ?? "", line.eMurMm ?? ""] : []),
+    // Un portail : une autre configuration, une autre ligne. Absent des autres pièces.
+    ...(line.portail ? [line.portail] : []),
   ]
     .map((part) => part ?? "-")
     .join("|");

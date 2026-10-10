@@ -190,6 +190,30 @@ export function lireDecorChoix(texte: string | null): ChoixDecor[] | null {
 }
 
 /**
+ * La commande en ligne d'un portail (Quentin, 10/10/2026) : le client paie un ACOMPTE de 40 % au panier, la visite de prise
+ * de cotes est comprise, le solde est dû à la réception. 40 % couvre les achats engagés avant la pose (moteur, matière,
+ * galvanisation, laquage) ; l'outil prévient si ce n'est pas le cas sur un portail.
+ */
+export const ACOMPTE_PORTAIL_PCT = 40;
+/** L'acompte en euros entiers, pour un prix posé donné. */
+export const acomptePortail = (prix: number) => Math.round((prix * ACOMPTE_PORTAIL_PCT) / 100);
+/** La configuration en texte, sans le modèle (la ligne du panier) ; relue par lireConfigPanier, jamais un prix. */
+export function versParamsPanier(slug: SlugPortail, cfg: ConfigPortail): string {
+  const p = versParams(slug, cfg);
+  p.delete("slug");
+  return p.toString();
+}
+/** Relit la ligne d'un panier : le modèle de la fiche et la configuration en texte ; null si quoi que ce soit cloche. */
+export function lireConfigPanier(slug: string, texte: unknown): ConfigPortail | null {
+  if (!estSlugPortail(slug) || typeof texte !== "string" || texte.length > 600) return null;
+  const p = new URLSearchParams(texte);
+  if (p.has("slug")) return null;
+  p.set("slug", slug);
+  const lu = lireConfig(p);
+  return lu && lu.slug === slug ? lu.cfg : null;
+}
+
+/**
  * Relit une configuration venue du navigateur. Tout est vérifié : un choix inconnu ou une cote hors des bornes de
  * l'atelier rend null (le serveur répond 400), jamais une valeur devinée.
  */
