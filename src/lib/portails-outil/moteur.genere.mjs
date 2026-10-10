@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 847243e149428a0ed3c6544c.
+// Source : l'outil de plans (plans-atelier.html), sha256 cc9ba271bc4ba6827c40defa.
 /* eslint-disable */
 
 
@@ -248,10 +248,10 @@ function mtRef(forme, assemblage, lim) {
   }
   return best;
 }
-function mtRefVides(forme, assemblage, W, B, hMax, viser = hMax, pair = false) {
+function mtRefVides(forme, assemblage, W, B, hMax, viser = hMax, pair = false, filtre = null) {
   const R = MT_ATELIER.reprise, J = MT_ATELIER.jeuCatalogue; let best = null;
   for (const e of MT_CATALOGUE) {
-    if (e.forme !== forme || e.parMetre) continue;
+    if (e.forme !== forme || e.parMetre || (filtre && !filtre(e))) continue;
     const n0 = Math.round((W + B) / (e.l + J + B));
     for (const n of (pair ? [n0 - 2, n0 - 1, n0, n0 + 1, n0 + 2].filter((x) => x % 2 === 0) : [n0, n0 - 1, n0 + 1])) {
       if (n < 1) continue;
@@ -273,6 +273,14 @@ function mtRefDuVide(forme, assemblage, v, hMax, viser = hMax) {
     if (!best || note < best.note - 1e-9) best = { e, s, note };
   }
   return best;
+}
+function mtRefVidesLu(z, forme, assemblage, W, B, hMax, viser, q, filtre = null) {
+  const lu = mtLuAxe(z), cat = mtRefVides(forme, assemblage, W, B, hMax, viser, lu, filtre);
+  if (cat || !lu) return { cat, lu };
+  const file = mtRefVides(forme, assemblage, W, B, hMax, viser, false, filtre);
+  if (!file) return { cat: null, lu };
+  q.notes = (q.notes || []).concat(`${MT_NOMS[forme] || forme} : aucun nombre pair de vides ne tombe juste avec la pièce du catalogue (±10 %) : posées en file, dans le même sens.`);
+  return { cat: file, lu: false };
 }
 const mtRefPoste = () => MT_CATALOGUE.find((e) => e.forme === "poste");
 function mtRefus(q, quoi, raison) { if (!(q.refus || []).some((r) => r.raison === raison)) q.refus = (q.refus || []).concat({ quoi, raison }); }
@@ -410,7 +418,7 @@ const MT_ASSEMBLAGES = {
   entre: (z, ch, F, pieces, q) => {
     if (mtPetite(z, ch)) return mtBande(z, ch, F, pieces, q, false);
     const B = z.barreau || MT_ATELIER.barreau;
-    const lu = mtLuAxe(z), cat = ch.catalogue && !z.lib ? mtRefVides(ch.forme, "entre", z.x1 - z.x0, B, Math.min(MT_ATELIER.voluteMax, mtHauteurMin(z) - 8), undefined, lu) : null;
+    const { cat, lu } = ch.catalogue && !z.lib ? mtRefVidesLu(z, ch.forme, "entre", z.x1 - z.x0, B, Math.min(MT_ATELIER.voluteMax, mtHauteurMin(z) - 8), undefined, q) : { cat: null, lu: mtLuAxe(z) };
     const lib = mtBarreaux(cat ? { ...z, videMax: 0 } : z, z.x0, z.x1, F, pieces, q, ch, cat ? cat.v * (1 + 1e-6) : undefined, undefined, undefined, lu);
     if (ch.catalogue && !z.lib && !cat) { mtRefus(q, MT_NOMS[ch.forme], mtSansRef(ch.forme, "entre")); return; }
     const courbe = mtCourbe(z), nL = lu ? lib.length : 0;
@@ -439,8 +447,16 @@ const MT_ASSEMBLAGES = {
     }
     const lance = ch.pointes === "lance" && z.pointes, courbe = mtCourbe(z), B = z.barreau || MT_ATELIER.barreau, R = MT_ATELIER.reprise, J = MT_ATELIER.jeuBande;
     if (lance && ch.forme !== "poste") {
-      const hF = MT_ATELIER.frise;
-      const lu = mtLuAxe(z), cat = ch.catalogue ? mtRefVides(ch.forme, "frise", z.x1 - z.x0, B, hF - 6, undefined, lu) : null;
+      let hF = MT_ATELIER.frise;
+      let { cat, lu } = ch.catalogue ? mtRefVidesLu(z, ch.forme, "frise", z.x1 - z.x0, B, hF - 6, undefined, q) : { cat: null, lu: mtLuAxe(z) };
+      const e0 = ch.catalogue && !cat ? mtRef(ch.forme, "frise", { hMax: hF - 6, viser: hF - 6 }) : null;
+      if (e0) {
+        const r2 = mtRefVidesLu(z, ch.forme, "frise", z.x1 - z.x0, B, MT_ATELIER.voluteMax, hF - 6, q, (e) => e.section === e0.e.section);
+        if (r2.cat) {
+          ({ cat, lu } = r2); hF = Math.ceil(cat.e.h * cat.s) + 6;
+          q.notes = (q.notes || []).concat(`Frise portée à ${hF} mm : la pièce de ${MT_ATELIER.frise} mm ne tombe pas juste dans ce panneau.`);
+        }
+      }
       const lib = mtBarreaux(cat ? { ...z, videMax: 0 } : z, z.x0, z.x1, F, pieces, q, ch, cat ? cat.v * (1 + 1e-6) : undefined, undefined, undefined, lu);
       if (ch.catalogue && !cat) { mtRefus(q, MT_NOMS[ch.forme], mtSansRef(ch.forme, "frise")); return; }
       const yL = (x) => z.haut(x) - hF, nL = lu ? lib.length : 0;
@@ -503,7 +519,7 @@ const MT_ASSEMBLAGES = {
   hauteur: (z, ch, F, pieces, q) => {
     if (mtPetite(z, ch)) return mtBande(z, ch, F, pieces, q, true);
     const B = z.barreau || MT_ATELIER.barreau, esc = z.norme && z.norme.escalade;
-    const lu = mtLuAxe(z), cat = ch.catalogue && !esc ? mtRefVides(ch.forme, "hauteur", z.x1 - z.x0, B, mtHauteurMin(z) - 4, MT_ATELIER.voluteMax, lu) : null;
+    const { cat, lu } = ch.catalogue && !esc ? mtRefVidesLu(z, ch.forme, "hauteur", z.x1 - z.x0, B, mtHauteurMin(z) - 4, MT_ATELIER.voluteMax, q) : { cat: null, lu: mtLuAxe(z) };
     const f = mtForme(ch.forme), bb = mtBoite(f), r = (bb.y1 - bb.y0) / (bb.x1 - bb.x0);
     let vG = esc ? 0 : z.videGrille || MT_ATELIER.videGrille, nVoulu = 0;
     if (lu && !esc && !cat && !ch.catalogue && !z.lib) {
@@ -2966,4 +2982,4 @@ function ptPlanA3(R, v, infos = {}, feuille = "1", dessiner) {
 
 
 export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, PT_MOTEURS, MT_AVEC, MT_NOMS };
-export const EMPREINTE = "77ff0e193ca8";
+export const EMPREINTE = "2ab08a9f505f";

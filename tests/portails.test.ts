@@ -122,6 +122,17 @@ test("décors (lot 3) : chaque formule se dessine et se chiffre sur le site, ave
   }
 });
 
+test("Volutes : chaque forme du haut et chaque bas ont un prix, jamais « À étudier » (Quentin, 10/10/2026)", () => {
+  // 3 500 × 1 800, haut droit, bas en lames : aucun nombre pair de vides ne prenait la S du catalogue (±10 %) et le
+  // décor était refusé. Les volutes se posent alors en file (motifs.js, mtRefVidesLu) : le portail a un prix.
+  // Pliant de 2 440 : panneaux de 460, ni 5 ni 6 S de 150 × 70 dans les ±10 % : S de 190 × 75, frise un peu plus haute.
+  for (const [slug, P, H] of [["portail-battant", 3500, 1800], ["portail-battant", 3500, 1600], ["portail-battant", 2400, 1200], ["portail-pliant", 2440, 1800], ["portillon", 1000, 1800]] as [SlugPortail, number, number][])
+    for (const forme of ["droit", "chapeau", "creux", "biais"] as const) for (const soub of ["aucun", "plein", "lames", "barreaux"] as const) {
+      const r = prixPortail(slug, { ...appliquerStyle(configDepart(slug), "volutes"), P, H, forme, soub });
+      assert.ok(r.ok, `${slug} ${P} × ${H} ${forme} ${soub} : ${r.ok ? "" : r.alertes.join(" ")}`);
+    }
+});
+
 test("« Personnaliser » (lot 10) : 1 ou 2 emplacements permis par motifs.js, relus à l'identique ; tout le reste est refusé", () => {
   const choix: ChoixDecor[] = [{ assemblage: "entre", forme: "S", pos: "milieu" }, { assemblage: "cimier", forme: "C" }];
   const cfg: ConfigPortail = { ...configDepart("portail-battant", "barreaux"), mat: "acier", decor: "perso", decorChoix: choix, bouts: "bouton", barreauxDeco: "torsade" };

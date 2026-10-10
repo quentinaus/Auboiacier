@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Moteur garde-corps : norme NF P01-012, géométrie, débit, dessins. SANS coûts.
-// Source : l'outil de plans (plans-atelier.html), sha256 51b2608a78266473d405fc5cd2bb50cf76beb2117ad642221c37a9186da8ad9b
+// Source : l'outil de plans (plans-atelier.html), sha256 cc9ba271bc4ba6827c40defaea1cc55f245b8bb9137ad0130f40aaeb613f9c02
 /* eslint-disable */
 const NOMS = { mikado: "Table Mikado", croix: "Table Croix", mikadoExt: "Table Mikado extérieur", resine: "Table Résine Époxy Mikado", gardeCorps: "Garde-corps Rosace à croix", escalier: "Escalier droit à limon central", ptBattant: "Portail battant", ptCoulissant: "Portail coulissant", ptPliant: "Portail pliant", ptPortillon: "Portillon" };
 const SPHERE = 110;
@@ -2001,10 +2001,10 @@ function mtRef(forme, assemblage, lim) {
   }
   return best;
 }
-function mtRefVides(forme, assemblage, W, B, hMax, viser = hMax, pair = false) {
+function mtRefVides(forme, assemblage, W, B, hMax, viser = hMax, pair = false, filtre = null) {
   const R = MT_ATELIER.reprise, J = MT_ATELIER.jeuCatalogue; let best = null;
   for (const e of MT_CATALOGUE) {
-    if (e.forme !== forme || e.parMetre) continue;
+    if (e.forme !== forme || e.parMetre || (filtre && !filtre(e))) continue;
     const n0 = Math.round((W + B) / (e.l + J + B));
     for (const n of (pair ? [n0 - 2, n0 - 1, n0, n0 + 1, n0 + 2].filter((x) => x % 2 === 0) : [n0, n0 - 1, n0 + 1])) {
       if (n < 1) continue;
@@ -2026,6 +2026,14 @@ function mtRefDuVide(forme, assemblage, v, hMax, viser = hMax) {
     if (!best || note < best.note - 1e-9) best = { e, s, note };
   }
   return best;
+}
+function mtRefVidesLu(z, forme, assemblage, W, B, hMax, viser, q, filtre = null) {
+  const lu = mtLuAxe(z), cat = mtRefVides(forme, assemblage, W, B, hMax, viser, lu, filtre);
+  if (cat || !lu) return { cat, lu };
+  const file = mtRefVides(forme, assemblage, W, B, hMax, viser, false, filtre);
+  if (!file) return { cat: null, lu };
+  q.notes = (q.notes || []).concat(`${MT_NOMS[forme] || forme} : aucun nombre pair de vides ne tombe juste avec la pièce du catalogue (±10 %) : posées en file, dans le même sens.`);
+  return { cat: file, lu: false };
 }
 const mtRefPoste = () => MT_CATALOGUE.find((e) => e.forme === "poste");
 function mtRefus(q, quoi, raison) { if (!(q.refus || []).some((r) => r.raison === raison)) q.refus = (q.refus || []).concat({ quoi, raison }); }
@@ -2157,7 +2165,7 @@ const MT_ASSEMBLAGES = {
   entre: (z, ch, F, pieces, q) => {
     if (mtPetite(z, ch)) return mtBande(z, ch, F, pieces, q, false);
     const B = z.barreau || MT_ATELIER.barreau;
-    const lu = mtLuAxe(z), cat = ch.catalogue && !z.lib ? mtRefVides(ch.forme, "entre", z.x1 - z.x0, B, Math.min(MT_ATELIER.voluteMax, mtHauteurMin(z) - 8), undefined, lu) : null;
+    const { cat, lu } = ch.catalogue && !z.lib ? mtRefVidesLu(z, ch.forme, "entre", z.x1 - z.x0, B, Math.min(MT_ATELIER.voluteMax, mtHauteurMin(z) - 8), undefined, q) : { cat: null, lu: mtLuAxe(z) };
     const lib = mtBarreaux(cat ? { ...z, videMax: 0 } : z, z.x0, z.x1, F, pieces, q, ch, cat ? cat.v * (1 + 1e-6) : undefined, undefined, undefined, lu);
     if (ch.catalogue && !z.lib && !cat) { mtRefus(q, MT_NOMS[ch.forme], mtSansRef(ch.forme, "entre")); return; }
     const courbe = mtCourbe(z), nL = lu ? lib.length : 0;
@@ -2186,8 +2194,16 @@ const MT_ASSEMBLAGES = {
     }
     const lance = ch.pointes === "lance" && z.pointes, courbe = mtCourbe(z), B = z.barreau || MT_ATELIER.barreau, R = MT_ATELIER.reprise, J = MT_ATELIER.jeuBande;
     if (lance && ch.forme !== "poste") {
-      const hF = MT_ATELIER.frise;
-      const lu = mtLuAxe(z), cat = ch.catalogue ? mtRefVides(ch.forme, "frise", z.x1 - z.x0, B, hF - 6, undefined, lu) : null;
+      let hF = MT_ATELIER.frise;
+      let { cat, lu } = ch.catalogue ? mtRefVidesLu(z, ch.forme, "frise", z.x1 - z.x0, B, hF - 6, undefined, q) : { cat: null, lu: mtLuAxe(z) };
+      const e0 = ch.catalogue && !cat ? mtRef(ch.forme, "frise", { hMax: hF - 6, viser: hF - 6 }) : null;
+      if (e0) {
+        const r2 = mtRefVidesLu(z, ch.forme, "frise", z.x1 - z.x0, B, MT_ATELIER.voluteMax, hF - 6, q, (e) => e.section === e0.e.section);
+        if (r2.cat) {
+          ({ cat, lu } = r2); hF = Math.ceil(cat.e.h * cat.s) + 6;
+          q.notes = (q.notes || []).concat(`Frise portée à ${hF} mm : la pièce de ${MT_ATELIER.frise} mm ne tombe pas juste dans ce panneau.`);
+        }
+      }
       const lib = mtBarreaux(cat ? { ...z, videMax: 0 } : z, z.x0, z.x1, F, pieces, q, ch, cat ? cat.v * (1 + 1e-6) : undefined, undefined, undefined, lu);
       if (ch.catalogue && !cat) { mtRefus(q, MT_NOMS[ch.forme], mtSansRef(ch.forme, "frise")); return; }
       const yL = (x) => z.haut(x) - hF, nL = lu ? lib.length : 0;
@@ -2250,7 +2266,7 @@ const MT_ASSEMBLAGES = {
   hauteur: (z, ch, F, pieces, q) => {
     if (mtPetite(z, ch)) return mtBande(z, ch, F, pieces, q, true);
     const B = z.barreau || MT_ATELIER.barreau, esc = z.norme && z.norme.escalade;
-    const lu = mtLuAxe(z), cat = ch.catalogue && !esc ? mtRefVides(ch.forme, "hauteur", z.x1 - z.x0, B, mtHauteurMin(z) - 4, MT_ATELIER.voluteMax, lu) : null;
+    const { cat, lu } = ch.catalogue && !esc ? mtRefVidesLu(z, ch.forme, "hauteur", z.x1 - z.x0, B, mtHauteurMin(z) - 4, MT_ATELIER.voluteMax, q) : { cat: null, lu: mtLuAxe(z) };
     const f = mtForme(ch.forme), bb = mtBoite(f), r = (bb.y1 - bb.y0) / (bb.x1 - bb.x0);
     let vG = esc ? 0 : z.videGrille || MT_ATELIER.videGrille, nVoulu = 0;
     if (lu && !esc && !cat && !ch.catalogue && !z.lib) {
@@ -2655,6 +2671,6 @@ function mtGrilleAppui(G, cS) {
 }
 export const DEFAUTS_GC = Object.freeze({"prixVente":0,"km":30,"debitAr":8,"minSoud":1.2,"rnP":14,"rnJ":1,"nF":2,"dF":6.5,"fF":13,"eF":25,"Bh":0,"tMur":150,"eMur":450,"epMc":8,"L":2000,"l":1000,"H":750,"e":45,"a":80,"ep":3,"t":3,"pL":75,"pl":60,"pX":80,"rX":250,"tS":300,"tW":120,"pR":60,"bR":300,"lame":150,"latte":120,"jeu":8,"trait":3,"B":1180,"A":650,"Hs":0,"Hf":0,"s":16,"mc":40,"j":1,"jour":90,"nP":1,"nb":0,"rD":100,"Xo":0,"Hm":2600,"recul":0,"Wm":900,"lh":150,"lw":100,"le":5,"em":50,"nez":0,"hs":80,"tp":8,"plx":200,"ply":150,"tpp":10,"epl":200,"ptP":3500,"ptH":1600,"ptFleche":150,"ptHSoub":500,"ptPente":0,"ass":"droit","mur":"","etage":true,"rosace":true,"traverse":false,"mcType":"bois","sbMode":"auto","seuls":false,"decor":"aucun","decorForme":"C","decorBouts":"bouton","decorBarreaux":"carre","decorFriseBasse":"aucune","decorDore":"0","renfort":"sans","patte":0,"essence":"chene","remise":"retrait","essenceT":"chene","teinte":"noir","rainure":true,"ptMat":"alu","ptForme":"droit","ptSoub":"aucun","ptRemp":"plein","ptVantaux":"2","ptRep":"egal","ptGuidage":"rail","ptSens":"gauche","ptPoteaux":"existants","ptDecor":"aucun","ptBouts":"effile","ptBarreauxDeco":"carre","ptPointes":false,"ptLisse":false,"ptMoteur":false,"ptMoulure":false,"ptClairHaut":"","ptClairMilieu":"","ptClairBas":"","ptSupport":"","ptPilierEtat":"","ptPilierL":"","ptAplombG":"","ptAplombD":"","ptDenivele":"","ptGondBord":"","ptRecoin":"","ptVent":"","ptSeuil":"","ptCloture":"","ptAcces":"","ptCourant":"","ptReseaux":"","ptMoteurModele":"","jourAuto":true,"jourSaisi":90});
 export const BORNES_GC = Object.freeze({ B: Object.freeze({"min":300,"max":3000}), A: Object.freeze({"min":0,"max":1200}), Hf: Object.freeze({"min":0,"max":3000}) });
-export const EMPREINTE_SOURCE = "51b2608a78266473d405fc5cd2bb50cf76beb2117ad642221c37a9186da8ad9b";
+export const EMPREINTE_SOURCE = "cc9ba271bc4ba6827c40defaea1cc55f245b8bb9137ad0130f40aaeb613f9c02";
 export { ALLEGE_LIBRE, BARRE_APPUI, CIBLE_MARGE, DECOR_NOMS, DS_ESSENCES, FIX_GC, HAUT_ETAGE, LIMITE_ACIER, MARGE_BOULE, MINI_GC, MINI_SEULS, MT_AVEC, MT_CHOIX, MT_NOMS, RENFORT, ROSACE_R, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, coupeMainCourante, decorActif, decrireVariante, fmt, geomGC, largeurMurGC, mmTxt, mtAlleger, planA3Pur, svgDe, variantesConformes };
-export const EMPREINTE = "16d4a33454fc";
+export const EMPREINTE = "00e4563eebea";
