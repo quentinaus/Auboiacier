@@ -99,7 +99,17 @@ const TXT = {
     vAcompte: `Acompte de ${ACOMPTE_PORTAIL_PCT} %`, vVisite: "Visite de prise de cotes", vAujourdhui: "À payer aujourd'hui", vSolde: "Solde à la réception, visite déduite",
     vAjouter: "Ajouter au panier", vNote: "Le paiement se fait au panier. Le solde se règle à la réception du portail posé.",
     // La façon de recevoir le portail (Quentin, 10/10/2026) : posé par l'atelier, livré par transporteur (debout, sur palette) ou retiré à l'atelier.
-    reception: "Réception", recPose: "Posé", recTransporteur: "Transporteur", recRetrait: "Retrait",
+    reception: "Réception", recPose: "Posé", recTransporteur: "Livré", recRetrait: "Retrait",
+    // La question qui ouvre la fenêtre de commande (Quentin, 10/10/2026 : « je l'ai acheté pour le poser moi-même, ça me demande une visite ») :
+    // qui pose le portail ? L'atelier (visite de prise de cotes), ou le client lui-même (livré par transporteur, ou retiré à l'atelier : pas de visite).
+    recQuestion: "Qui pose votre portail ?",
+    recCarte: {
+      pose: { titre: "L'atelier le pose", detail: "Visite de prise de cotes, fabrication, livraison et pose." },
+      transporteur: { titre: "Je le pose moi-même, livré chez moi", detail: "Livré par transporteur, sur palette. Pas de visite ni de moteur." },
+      retrait: { titre: "Je le pose moi-même, retrait à l'atelier", detail: "À Saumur, sur rendez-vous, gratuit. Pas de visite ni de moteur." },
+    },
+    recLienPose: "Je pose moi-même : livraison ou retrait",
+    recLien: { pose: "", transporteur: "Livré, sans pose · changer", retrait: "Retrait à l'atelier, sans pose · changer" },
     recNote: {
       pose: (p: string) => `Posé par l'atelier : ${p}, visite et pose comprises.`,
       transporteur: (p: string) => `Livré debout, sur palette, sans pose : ${p} + la livraison selon votre commune et la taille du portail.`,
@@ -172,7 +182,15 @@ const TXT = {
     visiteCp: "Postcode of the gate", visiteOu: "Where is the gate?",
     vAcompte: `${ACOMPTE_PORTAIL_PCT}% deposit`, vVisite: "Survey visit", vAujourdhui: "To pay today", vSolde: "Balance on handover, visit deducted",
     vAjouter: "Add to basket", vNote: "Payment is made in the basket. The balance is paid when the fitted gate is handed over.",
-    reception: "Reception", recPose: "Fitted", recTransporteur: "Carrier", recRetrait: "Collect",
+    reception: "Reception", recPose: "Fitted", recTransporteur: "Delivered", recRetrait: "Collect",
+    recQuestion: "Who fits your gate?",
+    recCarte: {
+      pose: { titre: "The workshop fits it", detail: "Survey visit, making, delivery and fitting." },
+      transporteur: { titre: "I fit it myself, delivered to me", detail: "Delivered by carrier, on a pallet. No visit, no motor." },
+      retrait: { titre: "I fit it myself, collected at the workshop", detail: "In Saumur, by appointment, free. No visit, no motor." },
+    },
+    recLienPose: "I fit it myself: delivery or collection",
+    recLien: { pose: "", transporteur: "Delivered, no fitting · change", retrait: "Collected at the workshop, no fitting · change" },
     recNote: {
       pose: (p: string) => `Fitted by the workshop: ${p}, survey visit and fitting included.`,
       transporteur: (p: string) => `Delivered upright on a pallet, no fitting: ${p} + delivery according to your town and the size of the gate.`,
@@ -689,6 +707,9 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
       <p className="cpt-prix-note">{t.recNoteCourte[cfg.reception]}</p>
     </div>
   );
+  const ligneReceptionLien = (
+    <button type="button" className="cpt-reception-lien" onClick={() => setFenetre("visite")}>{cfg.reception === "pose" ? t.recLienPose : t.recLien[cfg.reception]}</button>
+  );
   const ligneMoteur = !portillon && (
                     <button type="button" className="cpt-ligne-choix" disabled={cfg.reception !== "pose"} aria-expanded={fenetre === "moteur"} aria-haspopup="dialog" onClick={() => setFenetre((f) => (f === "moteur" ? null : "moteur"))}>
                       <span className="cpt-lc-picto">{PICTO_MOTEUR[moteurChoisi]}</span>
@@ -873,9 +894,19 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
         <div className="cpt-voile-fond" onClick={() => setFenetre(null)} aria-hidden="true" />
         <div className="cpt-visite" role="dialog" aria-label={t.cmdTitre}>
           <div className="cpt-f-tete"><div>
-            <p className="cpt-f-titre">{recep === "pose" ? t.visiteTitre : recep === "transporteur" ? t.livTitre : t.retTitre}</p>
-            <p className="cpt-f-sous">{recep === "pose" ? t.visiteSous : recep === "transporteur" ? t.livSous : t.retSous}</p>
+            <p className="cpt-f-titre">{t.cmdTitre}</p>
+            <p className="cpt-f-sous">{t.recQuestion}</p>
           </div><Fermer label={t.fermer} onClose={fermer} /></div>
+          <div className="cpt-rec-choix" role="radiogroup" aria-label={t.recQuestion}>
+            {(["pose", "transporteur", "retrait"] as const).map((r) => (
+              <button key={r} type="button" role="radio" aria-checked={recep === r} className="cpt-rec-carte" onClick={() => maj({ reception: r })}>
+                <span className="cpt-rec-texte"><span className="cpt-rec-titre">{t.recCarte[r].titre}</span><span className="cpt-rec-detail">{t.recCarte[r].detail}</span></span>
+                <span className="cpt-rec-prix">{V?.reception?.[r] != null ? euros(V.reception[r] as number) : ""}</span>
+              </button>
+            ))}
+          </div>
+          <p className="cpt-rec-mode">{recep === "pose" ? t.visiteTitre : recep === "transporteur" ? t.livTitre : t.retTitre}</p>
+          <p className="cpt-f-sous">{recep === "pose" ? t.visiteSous : recep === "transporteur" ? t.livSous : t.retSous}</p>
           {recep === "pose" && <VisiteAtelier cotes={visite} onChange={setVisite} t={tVisite} locale={locale} labelCodePostal={t.visiteCp} question={t.visiteOu} />}
           {recep === "transporteur" && <LivraisonPortail etat={livraison} onChange={setLivraison} requete={requeteLivraison} t={t} locale={locale} euros={euros} />}
           {/* Le récapitulatif et le bouton restent visibles en bas de la fenêtre, même quand le calendrier la fait défiler. */}
@@ -1235,7 +1266,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
                 </div>
               </div>
               <div className="cpt-barre-achat">
-                {ligneReception}
+                {ligneReception}{ligneReceptionLien}
                 <div className="cpt-prix-ligne">
                   <span className={`cpt-prix ${perime ? "perime" : ""}`} aria-live="polite">{alerte ? t.aEtudier : prixBase != null ? euros(prixBase) : reponse?.etat.etat === "indispo" && !perime ? t.indispo : t.calcul}</span>
                   <span className="cpt-prix-etiquette">{cfg.reception === "pose" ? t.prixPose : t.prixSansPose}</span>
