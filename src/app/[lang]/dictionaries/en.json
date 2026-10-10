@@ -344,7 +344,7 @@
     "poseAttente": "Enter your postcode to see the price.",
     "poseCalcul": "Calculating…",
     "posePrix": "{commune} — {prix}: delivery and fitting at home, charged once for the whole order.",
-    "poseLoin": "{commune} is outside mainland France: we do not deliver or fit there.",
+    "poseLoin": "{commune} is {km} km from Saumur: the workshop fits within 200 km. Beyond that, choose delivery by carrier, or write to us for a piece that cannot travel.",
     "poseHors": "We only deliver and fit in mainland France.",
     "poseInvalide": "This does not look like a French postcode.",
     "poseErreur": "We cannot price the fitting right now. Please try again in a moment.",

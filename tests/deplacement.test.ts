@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 
 import {
   POSE_MAX_CENTS,
+  deplacementPour,
   tarifPose,
   tarifDeplacement,
   calculerDeplacement,
@@ -77,3 +78,12 @@ test("la pose ne dépasse jamais son plafond, même à l'autre bout de la France
   assert.ok(tarifPose(112).montantCents > tarifPose(30).montantCents);
 });
 
+
+test("la pose s'arrête à 200 km de Saumur (décision de Quentin, 10/10/2026)", () => {
+  const lieu = (distanceKm: number) => ({ distanceKm, commune: "Test", precision: "adresse" as const });
+  assert.equal(deplacementPour(lieu(199), tarifPose, RAYON_MAX_KM).ok, true);
+  const loin = deplacementPour(lieu(201), tarifPose, RAYON_MAX_KM);
+  assert.equal(loin.ok, false);
+  if (!loin.ok) assert.equal(loin.reason, "trop_loin");
+  assert.equal(RAYON_MAX_KM, 200);
+});

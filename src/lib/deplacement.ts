@@ -355,12 +355,12 @@ export async function calculerDeplacement(codePostal: string): Promise<ResultatD
 }
 
 /**
- * Même trajet, autre motif : la pose. Le prix suit le barème de la pose, et
- * l'atelier va partout en France métropolitaine : pas de rayon, le prix
- * grandit simplement avec la route.
+ * Même trajet, autre motif : la pose. Le prix suit le barème de la pose,
+ * jusqu'à RAYON_MAX_KM (200 km) de Saumur : au-delà, l'atelier ne pose pas,
+ * la pièce part par transporteur (décision de Quentin, 10/10/2026).
  */
 export async function calculerPose(codePostal: string): Promise<ResultatDeplacement> {
-  return calculer(codePostal, tarifPose, Infinity);
+  return calculer(codePostal, tarifPose, RAYON_MAX_KM);
 }
 
 /** Un code postal situé : sa distance EXACTE à Saumur (à vol d'oiseau), sa commune. */

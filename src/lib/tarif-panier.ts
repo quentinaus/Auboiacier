@@ -410,7 +410,8 @@ export async function tarifer(
     const situe = await situer(modeLu.codePostal);
     if (!situe.ok) return probleme("code_postal");
     if (modeLu.mode === "pose") {
-      const pose = deplacementPour(situe.lieu, tarifPose);
+      // Pas de pose au-delà de 200 km de Saumur (décision de Quentin, 10/10/2026).
+      const pose = deplacementPour(situe.lieu, tarifPose, RAYON_MAX_KM);
       if (!pose.ok) return probleme("code_postal");
       tarif.mode = { index: modeLu.index, mode: "pose", codePostal: modeLu.codePostal, deplacement: pose.deplacement };
     } else {

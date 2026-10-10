@@ -344,7 +344,7 @@
     "poseAttente": "Entrez votre code postal pour connaître le prix.",
     "poseCalcul": "Calcul en cours…",
     "posePrix": "{commune} — {prix} : livraison et pose à domicile, comptées une fois pour toute la commande.",
-    "poseLoin": "{commune} est hors de France métropolitaine : nous n'y livrons pas et nous n'y posons pas.",
+    "poseLoin": "{commune} est à {km} km de Saumur : l'atelier pose jusqu'à 200 km. Au-delà, choisissez la livraison par transporteur, ou écrivez-nous pour une pièce qui ne peut pas voyager.",
     "poseHors": "Nous ne livrons et ne posons qu'en France métropolitaine.",
     "poseInvalide": "Ce code postal ne ressemble pas à un code postal français.",
     "poseErreur": "Impossible de calculer la pose pour l'instant. Réessayez dans un instant.",
