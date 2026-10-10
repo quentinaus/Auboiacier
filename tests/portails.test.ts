@@ -201,6 +201,40 @@ test("estimation PDF (lot 9) : le devis de l'outil, son total est le prix affich
   }
 });
 
+test("estimation PDF en anglais (10/10/2026) : mêmes lignes et mêmes montants que le français, aucune phrase française, aucun coût", () => {
+  const FRANCAIS = /[éèêëàâçùûôîï]|\b(le|la|les|des|du|une|et|pour|avec|sans|votre|vos|nous|vous|est|sont|chez)\b/i;
+  let compares = 0;
+  for (const [slug, base] of [
+    ["portail-battant", { ...configDepart("portail-battant", "lamesChene"), moteur: true, portillon: true }],
+    ["portail-battant", configDepart("portail-battant", "volutes")],
+    ["portail-coulissant", { ...configDepart("portail-coulissant", "plein"), moteur: true }],
+    ["portail-pliant", configDepart("portail-pliant", "barreaux")],
+    ["portillon", configDepart("portillon", "rosace")],
+  ] as [SlugPortail, ConfigPortail][]) {
+    for (const reception of ["pose", "transporteur", "retrait"] as const) {
+      const cfg: ConfigPortail = { ...base, reception, ...(reception !== "pose" ? { moteur: false } : {}) };
+      const entree = { slug, cfg, client: { nom: "Essai" }, date: new Date(2026, 9, 9), livraison: reception === "transporteur" ? 190 : null };
+      const f = composerEstimationPortail(entree), e = composerEstimationPortail({ ...entree, locale: "en" });
+      assert.ok(f.ok && e.ok, `${slug} ${reception}`);
+      if (!f.ok || !e.ok) continue;
+      compares++;
+      assert.equal(e.devis.locale, "en");
+      assert.equal(e.devis.total, f.devis.total, `${slug} ${reception} : même total`);
+      assert.deepEqual(e.devis.lignes.map((l) => [l.quantite, l.unitaire, l.total]), f.devis.lignes.map((l) => [l.quantite, l.unitaire, l.total]), `${slug} ${reception} : mêmes montants`);
+      assert.equal(e.devis.conditions.length, f.devis.conditions.length, `${slug} ${reception} : mêmes conditions`);
+      assert.equal(e.devis.delai, "6 to 8 weeks");
+      const { emetteur, client, ...corps } = e.devis;
+      void emetteur; void client;
+      const texte = JSON.stringify(corps);
+      const reste = texte.match(new RegExp(FRANCAIS.source, "gi"));
+      assert.ok(!reste, `${slug} ${reception} : du français dans l'anglais : ${reste?.slice(0, 6).join(" | ")}`);
+      assert.match(texte, /auboiacier\.fr\/en\/cgv/);
+      for (const interdit of ["plancher", "fraisFixes", "heure_atelier", "Bon pour accord", "deposit"]) assert.ok(!texte.includes(interdit), `${slug} ${reception} : « ${interdit} »`);
+    }
+  }
+  assert.equal(compares, 15);
+});
+
 test("la page des portails (10/10/2026) : le « dès » des 4 modèles aux cotes du client, null hors des bornes", () => {
   const d = prixDepartModeles(3500, 1600);
   assert.deepEqual(Object.keys(d).sort(), ["portail-battant", "portail-coulissant", "portail-pliant", "portillon"]);
