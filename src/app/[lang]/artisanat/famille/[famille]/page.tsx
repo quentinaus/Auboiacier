@@ -9,6 +9,8 @@ import { Apparition } from "@/components/apparition";
 import { CarteProduit } from "@/components/carte-produit";
 import { productLocalise, type Famille } from "@/lib/products";
 import { FAMILLES_AVEC_PAGE, piecesDeFamille } from "@/lib/categories-collection";
+import { PortailsGuide } from "@/components/portail/portails-guide";
+import type { SlugPortail } from "@/lib/portails";
 
 /**
  * LA PAGE D'UNE FAMILLE (09/10/2026) : les modèles d'une catégorie qui en a plusieurs et pas de page à elle
@@ -80,6 +82,14 @@ export default async function FamillePage({ params }: PageProps<"/[lang]/artisan
           </h1>
           <p className="mt-5 max-w-2xl text-[17px] leading-[1.5] text-[#5c5140] md:text-[19px]">{x.phrase}</p>
 
+          {/* Les portails (Quentin, 10/10/2026) : d'abord les trois questions, les mesures, puis les modèles à ses cotes, triés par prix. */}
+          {famille === "portail" ? (
+            <div className="mt-10 md:mt-12">
+              <PortailsGuide locale={locale}
+                noms={Object.fromEntries(pieces.map((p) => [p.slug, p.name])) as Record<SlugPortail, string>}
+                taglines={Object.fromEntries(pieces.map((p) => [p.slug, p.tagline])) as Record<SlugPortail, string>} />
+            </div>
+          ) : (
           <ul className="mt-12 grid gap-x-8 gap-y-14 sm:grid-cols-2 md:mt-14">
             {pieces.map((product, i) => (
               <li key={product.slug}>
@@ -89,6 +99,7 @@ export default async function FamillePage({ params }: PageProps<"/[lang]/artisan
               </li>
             ))}
           </ul>
+          )}
         </div>
       </section>
     </div>

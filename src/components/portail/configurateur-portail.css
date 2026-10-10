@@ -378,3 +378,37 @@
 .cpt-med-dessin > .vo { display: block; width: 100%; height: auto; max-height: 150px; }
 .cpt-tel-ouverture { position: relative; margin-top: 12px; border-radius: 14px; background: rgba(255, 255, 255, 0.55); padding: 14px 6px; }
 .cpt-tel-ouverture > .vo { display: block; width: 100%; height: 150px; }
+
+/* Le bouton de tri par prix (comme le garde-corps), dans l'en-tête du bandeau des styles. */
+.cpt-modeles-tete { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.cpt-modeles-tete .cpt-modeles-note { margin-left: auto; }
+.cpt-tri { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; background: rgba(43, 35, 32, 0.07); padding: 3px 9px; font-size: 11px; font-weight: 500; line-height: 1.2; color: #2b2320; }
+.cpt-tri svg { width: 11px; height: 11px; }
+.cpt-tri:hover { background: rgba(255, 255, 255, 0.85); }
+
+/* ---------- La page des portails (portails-guide.tsx) : questions, mesures, modèles triés ---------- */
+.pg { display: grid; gap: 16px; }
+.pg-carte { border-radius: 22px; padding: 18px 20px 20px; }
+.pg h2 { font-size: 24px; line-height: 1.1; color: var(--encre, #2b2320); }
+.pg-sous { margin-top: 4px; font-size: 13.5px; line-height: 1.45; color: var(--brun, #6f6357); }
+.pg-question { display: grid; grid-template-columns: minmax(0, 1fr) 160px; gap: 12px; align-items: center; margin-top: 12px; }
+.pg-question p { font-size: 14.5px; line-height: 1.4; color: var(--encre-verre, #2b2320); }
+.pg-question .cpt-pilule { margin-top: 0; }
+@media (max-width: 560px) { .pg-question { grid-template-columns: minmax(0, 1fr); } .pg-question .cpt-pilule { width: 160px; } }
+.pg-conseil { margin-top: 12px; }
+.pg-cotes { display: grid; gap: 4px 28px; }
+@media (min-width: 768px) { .pg-cotes { grid-template-columns: 1fr 1fr; } }
+.pg-modeles { margin-top: 8px; }
+.pg-modeles-tete { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.pg-grille { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); transition: opacity 0.2s; }
+.pg-grille.perimee { opacity: 0.7; }
+.pg-modele { position: relative; border-radius: 22px; padding: 14px 16px 16px; display: flex; flex-direction: column; }
+.pg-modele.conseille { box-shadow: 0 0 0 2px #2b2320, 0 12px 30px -18px rgba(43, 35, 32, 0.45) !important; }
+.pg-badge { position: absolute; top: 12px; left: 16px; z-index: 2; border-radius: 999px; background: #2b2320; color: #fff; font-size: 11px; font-weight: 600; padding: 3px 9px; }
+.pg-dessin { height: 120px; margin-top: 8px; display: grid; place-items: center; }
+.pg-dessin svg { width: 100%; height: 100%; }
+.pg-vide { font-size: 12px; color: var(--brun, #6f6357); }
+.pg-modele h3 { margin-top: 10px; font-size: 20px; line-height: 1.15; color: var(--encre, #2b2320); }
+.pg-tagline { margin-top: 4px; font-size: 12.5px; line-height: 1.4; color: var(--brun, #6f6357); flex: 1; }
+.pg-prix { margin-top: 10px; font-size: 17px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--encre-verre, #2b2320); }
+.pg .pg-cta { display: block; width: 100%; margin-top: 10px; border-radius: 999px; padding: 9px 14px; text-align: center; font-size: 13.5px; font-weight: 600; color: #fff; }

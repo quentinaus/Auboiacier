@@ -7,7 +7,7 @@
  * de prise de cotes et pose comprises jusqu'à 45 km de Saumur (la visite payée en ligne est déduite de la commande).
  */
 import { ChiffragePortailIndisponible, chiffragePortail } from "./chiffrage.ts";
-import { appliquerStyle, configDepart, configPortillonAssorti, planPortail, DECORS_PORTAIL, MOTEURS_PORTAIL, STYLES_PORTAIL, versEntrees, type ConfigPortail, type SlugPortail, type StylePortail } from "../portails.ts";
+import { appliquerStyle, bornesPortail, configDepart, configPortillonAssorti, planPortail, DECORS_PORTAIL, MOTEURS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL, versEntrees, type ConfigPortail, type SlugPortail, type StylePortail } from "../portails.ts";
 
 export { ChiffragePortailIndisponible };
 
@@ -85,4 +85,21 @@ export function prixVariantesPortail(slug: SlugPortail, cfg: ConfigPortail): Var
   const basPlein = cfg.soub === "plein" || cfg.soub === "panneau";
   const moulure = { avec: basPlein ? p({ ...cfg, moulure: true }) : null, sans: p({ ...cfg, moulure: false }) };
   return { base: prixPortail(slug, cfg), styles, decors, moteurs, portillon, moulure };
+}
+
+/**
+ * Le « dès » de chaque modèle AUX COTES DU CLIENT (la page des portails, 10/10/2026) : le style le moins cher, sans moteur,
+ * à son passage et sa hauteur. null quand la cote sort des bornes du modèle (le portillon garde sa largeur courante : les
+ * cotes données sont celles du portail). Des prix de vente seulement.
+ */
+export function prixDepartModeles(P: number, H: number): Record<SlugPortail, number | null> {
+  const sortie = {} as Record<SlugPortail, number | null>;
+  for (const slug of Object.keys(SLUGS_PORTAIL) as SlugPortail[]) {
+    const b = bornesPortail(slug);
+    const p = slug === "portillon" ? configDepart(slug).P : P;
+    if (p < b.P[0] || p > b.P[1] || H < b.H[0] || H > b.H[1]) { sortie[slug] = null; continue; }
+    const prix = STYLES_PORTAIL.map((st) => prixPortail(slug, { ...configDepart(slug, st), P: p, H })).filter((r) => r.ok).map((r) => (r as { prix: number }).prix);
+    sortie[slug] = prix.length ? Math.min(...prix) : null;
+  }
+  return sortie;
 }

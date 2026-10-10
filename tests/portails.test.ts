@@ -5,7 +5,7 @@ import {
   appliquerStyle, configDepart, decrireDecor, guidePortail, lireConfig, lireDecorChoix, planPortail, styleDe, versParams, DECORS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL,
   type ChoixDecor, type ConfigPortail, type SlugPortail,
 } from "../src/lib/portails.ts";
-import { prixDepartPortail, prixPortail, prixVariantesPortail } from "../src/lib/portails-outil/prix.ts";
+import { prixDepartModeles, prixDepartPortail, prixPortail, prixVariantesPortail } from "../src/lib/portails-outil/prix.ts";
 import { composerEstimationPortail } from "../src/lib/portails-outil/devis-site.ts";
 import { getProduct } from "../src/lib/products.ts";
 
@@ -172,6 +172,19 @@ test("estimation PDF (lot 9) : le devis de l'outil, son total est le prix affich
     const texte = JSON.stringify(r.devis);
     for (const interdit of ["plancher", "fraisFixes", "heure_atelier", "Bon pour accord", "acompte"]) assert.ok(!texte.includes(interdit), `${slug} : « ${interdit} »`);
   }
+});
+
+test("la page des portails (10/10/2026) : le « dès » des 4 modèles aux cotes du client, null hors des bornes", () => {
+  const d = prixDepartModeles(3500, 1600);
+  assert.deepEqual(Object.keys(d).sort(), ["portail-battant", "portail-coulissant", "portail-pliant", "portillon"]);
+  for (const slug of Object.keys(SLUGS_PORTAIL) as SlugPortail[]) {
+    const attendu = Math.min(...STYLES_PORTAIL.map((st) => prixPortail(slug, configDepart(slug, st))).filter((r) => r.ok).map((r) => (r as { prix: number }).prix));
+    assert.equal(d[slug], attendu, `${slug} : le style le moins cher à la cote courante`);
+  }
+  const large = prixDepartModeles(5500, 1600);
+  assert.equal(large["portail-battant"], null, "battant trop large : à étudier");
+  assert.ok((large["portail-coulissant"] ?? 0) > 0, "le coulissant va jusqu'à 6 m");
+  assert.ok((prixDepartModeles(2600, 1600)["portail-battant"] ?? 0) < (d["portail-battant"] ?? 0), "plus étroit, moins cher");
 });
 
 test("le dessin vient de l'outil : vue de face, de dessus et de côté pour chaque modèle et chaque style", () => {

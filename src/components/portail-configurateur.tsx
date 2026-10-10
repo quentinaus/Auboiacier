@@ -83,6 +83,7 @@ const TXT = {
     portillonSeul: (p: string) => `${p} s'il est commandé seul`, piedPortillon: "Prix posé avec le portail.",
     vuePortillon: "Le portillon assorti, vu de la rue",
     etape: (n: number, total: number) => `Étape ${n} sur ${total}`, retour: "Retour", suivant: "Suivant", ctaCourt: "Ma visite", conseilAtelier: "Garder le conseil de l'atelier", eCouleur: "Couleur et matière",
+    triCroissant: "Prix croissant", triDecroissant: "Prix décroissant", triTitre: "Inverser l'ordre des prix", triAria: (v: string) => `Trier par prix : ${v === "croissant" ? "croissant" : "décroissant"} (toucher pour inverser)`,
     dont: "Dont", dontMoteur: "moteur", dontDecor: "décor", dontPortillon: "portillon",
     moulures: "Moulures", moulureDetail: "Un médaillon par vantail, vissé par derrière", moulureBasPlein: "Il faut un bas plein",
   },
@@ -131,6 +132,7 @@ const TXT = {
     portillonSeul: (p: string) => `${p} if ordered on its own`, piedPortillon: "Fitted price, with the gate.",
     vuePortillon: "The matching pedestrian gate, from the street",
     etape: (n: number, total: number) => `Step ${n} of ${total}`, retour: "Back", suivant: "Next", ctaCourt: "Book visit", conseilAtelier: "Keep the workshop's advice", eCouleur: "Colour and material",
+    triCroissant: "Price: low to high", triDecroissant: "Price: high to low", triTitre: "Reverse the price order", triAria: (v: string) => `Sort by price: ${v === "croissant" ? "low to high" : "high to low"} (tap to reverse)`,
     dont: "Including", dontMoteur: "motor", dontDecor: "decoration", dontPortillon: "pedestrian gate",
     moulures: "Mouldings", moulureDetail: "One medallion per leaf, screwed from behind", moulureBasPlein: "Needs a solid lower panel",
   },
@@ -156,7 +158,7 @@ const PICTO_MOTEUR: Record<CleMoteur, ReactNode> = {
 };
 
 /** Une vue de l'outil en SVG (svgDe), habillée de la couleur choisie ; sans cotes pour les vignettes. */
-function Vue({ prims, couleur, petit = false, sansCotes = false, label, className, zones, onZone }: { prims: Prims; couleur: ConfigPortail["couleur"]; petit?: boolean; sansCotes?: boolean; label: string; className?: string; zones?: Prims; onZone?: (cle: string) => void }) {
+export function Vue({ prims, couleur, petit = false, sansCotes = false, label, className, zones, onZone }: { prims: Prims; couleur: ConfigPortail["couleur"]; petit?: boolean; sansCotes?: boolean; label: string; className?: string; zones?: Prims; onZone?: (cle: string) => void }) {
   const r = useMemo(() => svgDe(sansCotes ? prims.filter((p) => p.t !== "cote" && p.t !== "texte") : prims, petit), [prims, petit, sansCotes]);
   // Les zones du décor (fenêtre Décor ouverte) : dessinées dans le même repère, sans changer le cadre du dessin.
   const htmlZones = useMemo(() => (zones?.length ? svgDe(zones, petit).html : ""), [zones, petit]);
@@ -174,7 +176,7 @@ function Vue({ prims, couleur, petit = false, sansCotes = false, label, classNam
 }
 
 /** La pilule segmentée (marqueurs du verre : role=radiogroup, rounded-full, border-[#9a8d80]). */
-function Pilule<T extends string | number>({ aria, valeur, options, onChange, picto = false, desactive = [] }: { aria: string; valeur: T | ""; options: { v: T; label: string; icone?: ReactNode; titre?: string }[]; onChange: (v: T) => void; picto?: boolean; desactive?: T[] }) {
+export function Pilule<T extends string | number>({ aria, valeur, options, onChange, picto = false, desactive = [] }: { aria: string; valeur: T | ""; options: { v: T; label: string; icone?: ReactNode; titre?: string }[]; onChange: (v: T) => void; picto?: boolean; desactive?: T[] }) {
   return (
     <div role="radiogroup" aria-label={aria} className={`cpt-pilule rounded-full border-[#9a8d80] bg-white ${picto ? "cpt-pilule-picto" : ""}`} style={{ gridTemplateColumns: `repeat(${options.length},minmax(0,1fr))` }}>
       {options.map((o) => {
@@ -191,7 +193,7 @@ function Pilule<T extends string | number>({ aria, valeur, options, onChange, pi
 }
 
 /** Une cote : curseur et case, bornés par l'atelier. Une cote hors bornes est dite « à corriger », jamais corrigée en douce. */
-function LigneCote({ picto, titre, info, valeur, bornes, onChange, aide, aCorriger }: { picto: keyof typeof PICTO_COTE; titre: string; info: string; valeur: number; bornes: [number, number]; onChange: (n: number) => void; aide?: string; aCorriger: string }) {
+export function LigneCote({ picto, titre, info, valeur, bornes, onChange, aide, aCorriger }: { picto: keyof typeof PICTO_COTE; titre: string; info: string; valeur: number; bornes: [number, number]; onChange: (n: number) => void; aide?: string; aCorriger: string }) {
   const [texte, setTexte] = useState(String(valeur));
   // La case suit le curseur : quand la cote change d'ailleurs, le texte reprend sa valeur (pendant le rendu, sans effet).
   const [vue, setVue] = useState(valeur);
@@ -310,6 +312,21 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
   // Téléphone (lot 11) : moins de 768 px de large ; l'étape en cours du parcours.
   const tel = useSyncExternalStore(abonnerTelephone, () => window.matchMedia(MEDIA_TEL).matches, () => false);
   const [etape, setEtape] = useState(0);
+  // La page des portails envoie les cotes et le guidage dans l'adresse (?P=3500&H=1600&guidage=auto) : repris au premier affichage.
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    const P = Number(q.get("P")), H = Number(q.get("H")), guidage = q.get("guidage");
+    const maj2: Partial<ConfigPortail> = {};
+    if (Number.isFinite(P) && P >= b.P[0] && P <= b.P[1] && q.has("P")) maj2.P = Math.round(P);
+    if (Number.isFinite(H) && H >= b.H[0] && H <= b.H[1] && q.has("H")) maj2.H = Math.round(H);
+    if (slug === "portail-coulissant" && (guidage === "rail" || guidage === "auto")) maj2.guidage = guidage;
+    if (!Object.keys(maj2).length) return;
+    const id = requestAnimationFrame(() => setCfg((c) => ({ ...c, ...maj2 })));   // après le premier affichage : pas d'écart avec le serveur
+    return () => cancelAnimationFrame(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // Le bandeau des styles : prix croissant ou décroissant (Quentin, 10/10/2026 : « comme les garde-corps »).
+  const [tri, setTri] = useState<"croissant" | "decroissant">("croissant");
   const maj = (p: Partial<ConfigPortail>) => setCfg((c) => ({ ...c, ...p }));
   const style = styleDe(cfg);
   const fr = locale === "fr";
@@ -378,6 +395,12 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
   const vFrais = reponse?.etat.etat === "ok" ? reponse.etat.v : null;
   const perime = reponse?.cle !== cle;
   const V = vFrais ?? dernier;
+  // Le bandeau trié par prix (un prix inconnu reste à la fin) ; sans prix encore, l'ordre de l'atelier.
+  const vignettesTriees = useMemo(() => {
+    if (!V) return vignettes;
+    const sens = tri === "croissant" ? 1 : -1;
+    return [...vignettes].sort((a, b2) => { const pa = V.styles[a.st], pb = V.styles[b2.st]; if (pa == null || pb == null) return pa == null ? 1 : -1; return (pa - pb) * sens; });
+  }, [vignettes, V, tri]);
   const alerte = R.alertes[0] ?? (V && !V.base.ok && !perime ? V.base.alertes[0] : null);
   const prixBase = V && V.base.ok ? V.base.prix : null;
 
@@ -775,7 +798,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
     </>);
     else if (cleEtape === "style") contenu = (
       <div className={`cpt-tel-styles ${perime ? "perimee" : ""}`} role="group" aria-label={t.votreStyle}>
-        {vignettes.map(({ st, prims }) => {
+        {vignettesTriees.map(({ st, prims }) => {
           const p = V?.styles[st] ?? null;
           return (
             <button key={st} type="button" className="tuile-modele" aria-pressed={style === st} onClick={() => setCfg((c) => appliquerStyle(c, st))}>
@@ -954,14 +977,19 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane }: {
 
             {/* Rangée 3 : le bandeau des styles, avec leur prix aux cotes du client. */}
             <div className="carte-verre cpt-modeles">
-              <div className="cpt-modeles-tete"><strong>{t.votreStyle}</strong><span className="cpt-modeles-note">{t.stylesNote}</span></div>
+              <div className="cpt-modeles-tete"><strong>{t.votreStyle}</strong><span className="cpt-modeles-note">{t.stylesNote}</span>
+                <button type="button" className="cpt-tri" onClick={() => setTri((v) => (v === "croissant" ? "decroissant" : "croissant"))} aria-label={t.triAria(tri)} title={t.triTitre}>
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={tri === "croissant" ? "M10 16V4M10 4l-4 4M10 4l4 4" : "M10 4v12M10 16l-4-4M10 16l4-4"} /></svg>
+                  {tri === "croissant" ? t.triCroissant : t.triDecroissant}
+                </button>
+              </div>
               <p className="cpt-modeles-detail" aria-live="polite">
                 <b>{style ? `${tp.styles[style]} : ${tp.stylesNote[style]}` : t.compose}</b>
                 {style && V?.styles[style] != null && <span> — {euros(V.styles[style] as number)}</span>}
               </p>
               <div className={`cpt-rangee ${perime ? "perimee" : ""}`}>
                 <div className="cpt-tuiles" role="group" aria-label={t.votreStyle}>
-                  {vignettes.map(({ st, prims }) => {
+                  {vignettesTriees.map(({ st, prims }) => {
                     const p = V?.styles[st] ?? null;
                     return (
                       <button key={st} type="button" className="tuile-modele" aria-pressed={style === st} onClick={() => setCfg((c) => appliquerStyle(c, st))}
