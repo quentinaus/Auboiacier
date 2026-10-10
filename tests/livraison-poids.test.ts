@@ -117,6 +117,11 @@ test("plusieurs garde-corps : la livraison de la commande est exactement celle d
   for (const km of [0, 42.7, 380]) {
     for (const [slug, mode] of [[LIVRAISON, "transporteur"], ["pose-a-domicile", "pose"]] as const) {
       const t = await tarifer([...lignes, { slug, livraisonCp: "44000", poseCp: "44000" }], { locale: "fr", gc: CALCUL_GC, localiser: aKm(km) });
+      // Pas de pose au-delà de 200 km de Saumur (décision de Quentin, 10/10/2026).
+      if (mode === "pose" && km > 200) {
+        assert.equal(t.probleme, "code_postal", `pas de pose à ${km} km`);
+        continue;
+      }
       assert.equal(t.probleme, null);
       assert.ok(t.mode && t.mode.mode === mode);
       const outil = livraisonGC(
