@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { compteConfigure } from "@/lib/compte-jetons";
 import { commandesOuvertes } from "@/lib/entreprise";
-import { textesOuverture } from "@/lib/ouverture";
 import Link from "next/link";
 import { FAMILLES_AVEC_PAGE } from "@/lib/categories-collection";
 import { Visuel } from "@/components/visuel";
@@ -321,8 +320,6 @@ export default async function ProductPage({
         <ProductView
           compteOuvert={compteConfigure()}
           prixAppel={prixAppel}
-          // Avant l'ouverture des commandes : s'inscrire à la place de payer.
-          ouverture={commandesOuvertes() ? undefined : { t: textesOuverture(dict.panier), contactEmail: dict.contact.email }}
           product={product}
           t={t}
           locale={locale}

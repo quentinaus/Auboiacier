@@ -53,14 +53,9 @@ import { PorteQuiMesure, RevenirAuChoix, type QuiPrendLesCotes } from "./porte-q
 import { MAX_TEXTE, EMAIL_MOTIF } from "@/lib/devis-regles";
 import { POSE_INITIALE, PoseDomicile, livraisonPrete, montantLivraison, type ChoixPose } from "./pose-domicile";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
-import { InscriptionOuverture } from "./inscription-ouverture";
 import { EnteteEtapes, NavEtape, NB_ETAPES_GC, QUESTIONS_GC, ETAPE_MODELE_GC, MEDIA_TELEPHONE_GC } from "./etapes-telephone";
-import type { TextesOuverture } from "@/lib/ouverture";
 
 const ACCENT = "#2b2320";
-
-/** Avant l'ouverture des commandes : les textes de l'inscription, et l'adresse à écrire si l'envoi échoue. */
-export type Ouverture = { t: TextesOuverture; contactEmail: string };
 
 const VOIR_PANIER = {
   fr: "Voir mon panier",
@@ -587,16 +582,9 @@ export function ProductOptions({
   photoFiche,
   etapesTelephone,
   compteOuvert = false,
-  ouverture,
 }: {
   /** L'espace client est-il ouvert ? On ne propose pas de créer un compte qui n'existe pas encore. */
   compteOuvert?: boolean;
-  /**
-   * Les commandes ne sont pas encore ouvertes (src/lib/entreprise.ts) : le
-   * bouton du panier devient « Être prévenu en priorité ». La configuration va
-   * au panier comme d'habitude, puis une fenêtre demande l'e-mail.
-   */
-  ouverture?: Ouverture;
   product: Product;
   t: Dictionary["artisanat"];
   locale: "fr" | "en";
@@ -858,10 +846,6 @@ export function ProductOptions({
   const releveRef = useRef<HTMLDivElement>(null);
   /** La fenêtre qui demande nom et adresse avant d'ouvrir le devis PDF. */
   const devisDialogRef = useRef<HTMLDialogElement>(null);
-  /** La fenêtre d'inscription avant l'ouverture des commandes, et sa clé : un formulaire neuf à chaque ouverture. */
-  const ouvertureDialogRef = useRef<HTMLDialogElement>(null);
-  const [ouvertureCle, setOuvertureCle] = useState(0);
-  const idOuvertureTitre = useId();
   const [boutonVisible, setBoutonVisible] = useState(true);
   /** La configuration mise de côté, et l'enregistrement en cours. */
   const [misDeCote, setMisDeCote] = useState<string | null>(null);
@@ -2062,60 +2046,8 @@ export function ProductOptions({
           )}
         </form>
       </dialog>
-      {/* Avant l'ouverture des commandes : la configuration est déjà au
-          panier, le client laisse son e-mail pour passer en priorité. */}
-      {ouverture && (
-        <dialog
-          ref={ouvertureDialogRef}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) ouvertureDialogRef.current?.close();
-          }}
-          aria-labelledby={idOuvertureTitre}
-          className="m-auto w-[min(26rem,calc(100vw-2rem))] rounded-2xl border border-[#e5ddd3] bg-white p-6 backdrop:bg-[#2b2320]/50"
-        >
-          <p id={idOuvertureTitre} className="text-lg font-medium leading-snug text-[#2b2320]">
-            {ouverture.t.prevenirTitre}
-          </p>
-          <p className="mt-2 text-[13px] font-medium text-[#2a6b3a]">✓ {t.ouvertureGardee}</p>
-          <p className="mt-2 text-[13px] leading-relaxed text-[#4a4038]">{ouverture.t.prevenirTexte}</p>
-          <InscriptionOuverture
-            key={ouvertureCle}
-            t={ouverture.t}
-            locale={locale}
-            contactEmail={ouverture.contactEmail}
-            emailInitial={coordonnees.email}
-            autoFocus
-            lignes={panier.map(
-              (item) =>
-                `${item.name}${item.optionsLabel ? ` (${item.optionsLabel})` : ""} × ${item.quantity}${item.unitPrice > 0 ? ` — ${prixAffiche(item.unitPrice * item.quantity, locale)}` : ""}`,
-            )}
-          />
-          <div className="mt-5 flex items-center justify-between gap-4 border-t border-[#e5ddd3] pt-4">
-            <button
-              type="button"
-              onClick={() => ouvertureDialogRef.current?.close()}
-              className="text-[11px] font-medium uppercase tracking-[0.15em] text-[#6f6357] hover:text-[#2b2320]"
-            >
-              {t.ouvertureFermer}
-            </button>
-            <Link
-              href={`/${locale}/panier`}
-              className="text-[13px] font-medium text-[#2b2320] underline underline-offset-4 hover:text-[#6d2c2c]"
-            >
-              {VOIR_PANIER[locale]}
-            </Link>
-          </div>
-        </dialog>
-      )}
     </div>
   );
-
-  /** Avant l'ouverture des commandes : la pièce va au panier, puis l'inscription s'ouvre. */
-  function sInscrire() {
-    addToCart();
-    setOuvertureCle((cle) => cle + 1);
-    ouvertureDialogRef.current?.showModal();
-  }
 
   function addToCart() {
     // Pas de cotes, pas de pièce : le bouton est grisé, ceci n'est qu'un filet.
@@ -3335,7 +3267,7 @@ export function ProductOptions({
             <button
               ref={boutonPanierRef}
               type="button"
-              onClick={ouverture ? sInscrire : addToCart}
+              onClick={addToCart}
               disabled={
                 total === null ||
                 (modeVisite && !visitePrete) || murAChoisir || modeleAChoisir ||
@@ -3344,7 +3276,7 @@ export function ProductOptions({
               }
               className={`btn-verre w-full rounded-full px-5 text-[11px] font-medium uppercase tracking-[0.14em] text-white ${nouvelleMiseEnPage ? "py-2.5 md:py-3.5" : "py-3.5"}`}
             >
-              {ouverture ? t.ouvertureBouton : t.addToCart}
+              {t.addToCart}
             </button>
           </div>
           {/* Pourquoi le bouton est grisé : un lien vers l'endroit à compléter,
@@ -3522,12 +3454,11 @@ export function ProductOptions({
           </div>
           <button
             type="button"
-            onClick={ouverture ? sInscrire : addToCart}
+            onClick={addToCart}
             disabled={total === null || (modeVisite && !visitePrete) || murAChoisir || modeleAChoisir || (!modeVisite && product.poseOption && !livraisonPrete(pose))}
             className="btn-verre ml-auto shrink-0 rounded-full px-5 py-3 text-xs font-medium uppercase tracking-[0.12em] text-white"
           >
-            {/* La version courte : la longue ne laissait plus de place au prix. */}
-            {ouverture ? t.ouvertureBoutonCourt : t.addToCart}
+            {t.addToCart}
           </button>
         </div>
       )}

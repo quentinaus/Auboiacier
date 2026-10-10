@@ -388,6 +388,48 @@ textarea:focus-visible,
   .fond-gc[data-parcours="1"] .panneau-etape.etape-10 .barre-achat a[href="#livraison"] {
     display: none;
   }
+  /* Les trois façons de recevoir la pièce (« Livré par transporteur », « Livrée et posée », « Retrait à l'atelier ») tiennent
+     AU-DESSUS de la barre d'achat, sans défiler : la barre collée en bas en cachait deux (10/10/2026). Le petit titre
+     « Livraison, pose ou retrait » s'efface (l'en-tête dit déjà « Choisissez la livraison ») et la barre se resserre. */
+  .fond-gc[data-parcours="1"] .panneau-etape.etape-10 #sous-menu-livraison > span {
+    display: none;
+  }
+  .fond-gc[data-parcours="1"] .panneau-etape.etape-10 #sous-menu-livraison > div {
+    margin-top: 0;
+  }
+  .fond-gc[data-parcours="1"] .panneau-etape.etape-10 .barre-achat {
+    margin-top: 0.5rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.55rem;
+  }
+  .fond-gc[data-parcours="1"] .panneau-etape.etape-10 .barre-achat > div {
+    gap: 0.25rem;
+  }
+  /* Le bouton « Ajouter au panier » : le même dessin que « Suivant → » sous les questions (en toutes lettres, pas en
+     petites capitales espacées — Quentin, 10/10/2026 : « le bouton est moche »). */
+  .fond-gc[data-parcours="1"] .panneau-etape.etape-10 .barre-achat .btn-verre {
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  /* « ← Retour : Modèle » redit l'onglet « Modèle » juste au-dessus : sans lui, les trois lignes tiennent au-dessus de la
+     barre même sur un petit téléphone (iPhone SE, 667 px de haut). */
+  .fond-gc[data-parcours="1"] .panneau-etape.etape-10 .retour-modele {
+    display: none;
+  }
+  .fond-gc[data-parcours="1"] .panneau-etape.etape-10 #sous-menu-livraison {
+    margin-top: 0;
+    border-top: 0;
+    padding-top: 0.25rem;
+  }
+  /* À l'étape « Prix », le croquis cède quelques centimètres : la case du code postal, les trois lignes et la barre d'achat
+     tiennent dessous sans défiler. */
+  .fond-gc[data-parcours="1"][data-etape="10"] .schema-configuration > div {
+    --h: clamp(150px, calc(100svh - 590px), 28svh);
+  }
   .fond-gc[data-parcours="1"]:not([data-en-place]) > .panneau-etape {
     overflow-y: hidden !important;
   }
