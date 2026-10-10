@@ -252,7 +252,7 @@ export function PoseDomicile({
 
   if (pilule) {
     const nomPilule = (mode: ModeLivraison) =>
-      mode === "transporteur" ? t.livraisonCourt : mode === "pose" ? t.poseCourt : locale === "fr" ? "Retrait" : "Pick-up";
+      mode === "transporteur" ? t.livraisonCourt : mode === "pose" ? t.poseCourt : locale === "fr" ? "Retrait à l'atelier" : "Collect at the workshop";
     return (
       <div className="scroll-mt-28" id="livraison">
         <span id={idGroupe} className="sr-only">
@@ -295,12 +295,10 @@ export function PoseDomicile({
             )}
           </div>
         )}
-        <div
-          role="radiogroup"
-          aria-labelledby={idGroupe}
-          className="grid rounded-full border border-[#9a8d80] bg-white p-0.5"
-          style={{ gridTemplateColumns: `repeat(${modes.length}, minmax(0, 1fr))` }}
-        >
+        {/* Les façons de recevoir la pièce, l'une sous l'autre, chacune en toutes lettres sur une seule ligne (Quentin,
+            10/10/2026 : « Transporteur ne tient pas en un seul mot, et juste transporteur, ça veut rien dire » ; « retrait,
+            je précise bien à l'atelier »). */}
+        <div role="radiogroup" aria-labelledby={idGroupe} className="grid rounded-2xl border border-[#9a8d80] bg-white p-0.5">
           {modes.map((mode) => {
             const actif = choix.mode === mode;
             return (
@@ -314,12 +312,12 @@ export function PoseDomicile({
                   // Le mode déjà choisi : rien à refaire (le prix calculé ne doit pas être effacé sans être redemandé).
                   if (!actif) onChange({ ...choix, mode, deplacement: null });
                 }}
-                /* Trois cases de même largeur, le mot le plus long (« Transporteur ») doit tenir dans la sienne sans en
-                   sortir (Quentin, 10/10/2026 : « ce transporteur sort carrément de la ligne ») : petite police serrée,
-                   retour à la ligne permis, texte centré sur toute la hauteur. */
-                className={`flex min-w-0 items-center justify-center rounded-full px-1 py-1.5 text-center text-[11.5px] font-medium leading-tight tracking-[-0.01em] [overflow-wrap:anywhere] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${actif ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"}`}
+                className={`flex min-w-0 items-center gap-2 rounded-xl px-2.5 py-[3px] text-left text-[12.5px] font-medium leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${actif ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"}`}
               >
-                {nomPilule(mode)}
+                <span aria-hidden className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border ${actif ? "border-white" : "border-[#9a8d80]"}`}>
+                  <span className={`h-1.5 w-1.5 rounded-full bg-white ${actif ? "opacity-100" : "opacity-0"}`} />
+                </span>
+                <span className="truncate">{nomPilule(mode)}</span>
               </button>
             );
           })}
