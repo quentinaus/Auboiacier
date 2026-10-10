@@ -128,7 +128,7 @@
         {
           "h3": "Une fabrication soignée, jusqu'à la finition",
           "paragraphes": [
-            "L'acier est coupé, soudé à la main et meulé pour une surface nette, puis peint dans la teinte de votre choix. Le bois massif, chêne, noyer, hêtre ou pin, est poncé et huilé à l'atelier avant de venir se fixer sur l'acier. Un plateau massif se reponce, un piétement soudé se repeint : une pièce faite ainsi se répare au lieu de se remplacer.",
+            "L'acier est coupé, soudé à la main et meulé pour une surface nette, puis peint dans la teinte de votre choix. Le bois massif, chêne, noyer, hêtre ou pin, est poncé et huilé à l'atelier avant de venir se fixer sur l'acier. L'atelier travaille le bois avec la même exigence que l'acier, fort d'une expérience en ébénisterie, du choix des planches à la finition.",
             "Les garde-corps de fenêtre sont calculés pour respecter le Code de la construction et la norme NF P01-012 : hauteur de protection, espaces entre les barres, tenue aux efforts. La fixation est choisie selon votre mur (béton, brique, pierre…) et fournie en inox ; le garde-corps vous arrive prêt à poser, avec sa visserie et son guide d'installation. Les plafonds lumineux suivent la même exigence : un caisson d'aluminium soudé à l'atelier, une toile tendue, un éclairage LED intégré, aux dimensions de votre pièce."
           ]
         },
@@ -976,7 +976,7 @@
       "soudure": "Soudure et réparations"
     },
     "hommeTitre": "Quentin Aumercier fabrique vos pièces.",
-        "homme": "Métallier-soudeur, j'ai exercé en France puis en Australie, sur des ouvrages de toutes tailles, avant de fonder Auboiacier à Saumur. Garde-corps, escaliers, verrières, mobilier, plafonds lumineux : chaque ouvrage est conçu à vos cotes, soudé et fini avec la même exigence, en acier et en bois massif, pour durer.",
+        "homme": "Métallier-soudeur, j'ai exercé en France puis en Australie, sur des ouvrages de toutes tailles, avant de fonder Auboiacier à Saumur. Garde-corps, escaliers, verrières, mobilier, plafonds lumineux : chaque ouvrage est conçu à vos cotes, soudé et fini avec la même exigence, en acier et en bois massif, pour durer. J'ai aussi exercé en ébénisterie : je travaille le bois massif avec la même exigence que l'acier, du choix des planches à la finition.",
     "parcours": "Vous avez un seul interlocuteur, de la prise de cotes à la livraison, et un prix annoncé clairement avant toute commande.",
     "signature": "CAP et BP Métallier",
     "finTitre": "Parlons de votre pièce.",
@@ -1861,7 +1861,7 @@
     "bougeTitle": "Le bois massif bouge",
     "bougeBody": "Le bois massif suit l'humidité de l'air : il gonfle un peu quand l'air est humide, et se resserre quand il est sec. Évitez de placer une table contre un radiateur, ou en plein soleil derrière une baie vitrée.",
     "atelierTitle": "Un atelier bois et métal à Saumur",
-    "atelierBody": "L'atelier de Saumur dessine chaque pièce, soude l'acier et assemble le bois et le métal. Vous gardez un seul interlocuteur, de la prise de cotes à la pose."
+    "atelierBody": "L'atelier de Saumur dessine chaque pièce, soude l'acier et travaille le bois massif avec un savoir-faire d'ébénisterie, du choix des planches à la finition, avant d'assembler les deux. Vous gardez un seul interlocuteur, de la prise de cotes à la pose."
   },
   "normesGc": {
     "title": "Hauteur et normes du garde-corps",
