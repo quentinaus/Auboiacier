@@ -1,10 +1,10 @@
 {
  "à lire": "Généré par scripts/extraire-moteur-garde-corps.mjs à partir de l'outil de plans (chargé tel quel dans node:vm). Aucun coût : des prix de vente, des poids, des hauteurs et des empreintes (sha256 tronqué) des réponses complètes. Ne pas modifier à la main.",
- "outil": "cc9ba271bc4ba6827c40defaea1cc55f245b8bb9137ad0130f40aaeb613f9c02",
+ "outil": "b872cc19f60ac98c9d62d4d2d9db0dce63bdaad4ca57511290a1068ac9ff7489",
  "empreintes": {
-  "moteur": "00e4563eebea",
-  "devis": "d825a71916de",
-  "chiffrage": "018d6593a3f7"
+  "moteur": "76e210cfcbfa",
+  "devis": "e76d7078799d",
+  "chiffrage": "4080991d325c"
  },
  "defauts": "933bbd1f49e4fc93",
  "date": "2026-09-29T10:00:00.000Z",
@@ -658,15 +658,15 @@
    "prix": 360,
    "chiffrage": "41cebcd6e7849fcc",
    "remise": {
-    "prix": 522,
-    "empreinte": "1a9d30f9bb1095e4"
+    "prix": 54,
+    "empreinte": "4847360a6f6379c8"
    },
    "devis": {
-    "numero": "D-20260929-Q7J5I",
-    "total": 882,
+    "numero": "D-20260929-GD58P",
+    "total": 414,
     "lignes": 6,
-    "donnees": "fad9ea39e2d23ad9",
-    "html": "87ca6a32a68ef467"
+    "donnees": "3b09765a7e8de885",
+    "html": "c0b81d388f6a4951"
    }
   },
   {
@@ -691,15 +691,15 @@
    "prix": 760,
    "chiffrage": "e0aba253c0aa0824",
    "remise": {
-    "prix": 620,
-    "empreinte": "7bf070b020ef0f4e"
+    "prix": 90,
+    "empreinte": "0ea89201081a66ac"
    },
    "devis": {
-    "numero": "D-20260929-APP5U",
-    "total": 1380,
+    "numero": "D-20260929-ON1BB",
+    "total": 850,
     "lignes": 6,
-    "donnees": "0e27f8011d0bb9b3",
-    "html": "5cb3bda0affaa07f"
+    "donnees": "2178ccced515991c",
+    "html": "2ee812898e6c1b83"
    }
   },
   {
@@ -916,15 +916,15 @@
    "prix": 700,
    "chiffrage": "dd8515e3c67a6fa8",
    "remise": {
-    "prix": 783,
-    "empreinte": "db2bc0d9ff78a4f0"
+    "prix": 81,
+    "empreinte": "ff0cf0f25318047d"
    },
    "devis": {
-    "numero": "D-20260929-2CWNH",
-    "total": 1483,
+    "numero": "D-20260929-3GLWR",
+    "total": 781,
     "lignes": 6,
-    "donnees": "1f4e3c930a99f3ce",
-    "html": "b2a9649829370843"
+    "donnees": "7b2e35ff31c0cc4b",
+    "html": "edbcec96353a3e6f"
    }
   },
   {
@@ -949,15 +949,15 @@
    "prix": 600,
    "chiffrage": "df8229271bac38f4",
    "remise": {
-    "prix": 628,
-    "empreinte": "64567c408b719847"
+    "prix": 81,
+    "empreinte": "3a782bfbbd8f9aed"
    },
    "devis": {
-    "numero": "D-20260929-F4SSK",
-    "total": 1228,
+    "numero": "D-20260929-C0K78",
+    "total": 681,
     "lignes": 6,
-    "donnees": "729d05ead479ec24",
-    "html": "406f84b181e51cf9"
+    "donnees": "0cd1c19b1ec07557",
+    "html": "bd8952f6836512ed"
    }
   },
   {

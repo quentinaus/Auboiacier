@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Moteur garde-corps : norme NF P01-012, géométrie, débit, dessins. SANS coûts.
-// Source : l'outil de plans (plans-atelier.html), sha256 cc9ba271bc4ba6827c40defaea1cc55f245b8bb9137ad0130f40aaeb613f9c02
+// Source : l'outil de plans (plans-atelier.html), sha256 b872cc19f60ac98c9d62d4d2d9db0dce63bdaad4ca57511290a1068ac9ff7489
 /* eslint-disable */
 const NOMS = { mikado: "Table Mikado", croix: "Table Croix", mikadoExt: "Table Mikado extérieur", resine: "Table Résine Époxy Mikado", gardeCorps: "Garde-corps Rosace à croix", escalier: "Escalier droit à limon central", ptBattant: "Portail battant", ptCoulissant: "Portail coulissant", ptPliant: "Portail pliant", ptPortillon: "Portillon" };
 const SPHERE = 110;
@@ -2671,6 +2671,6 @@ function mtGrilleAppui(G, cS) {
 }
 export const DEFAUTS_GC = Object.freeze({"prixVente":0,"km":30,"debitAr":8,"minSoud":1.2,"rnP":14,"rnJ":1,"nF":2,"dF":6.5,"fF":13,"eF":25,"Bh":0,"tMur":150,"eMur":450,"epMc":8,"L":2000,"l":1000,"H":750,"e":45,"a":80,"ep":3,"t":3,"pL":75,"pl":60,"pX":80,"rX":250,"tS":300,"tW":120,"pR":60,"bR":300,"lame":150,"latte":120,"jeu":8,"trait":3,"B":1180,"A":650,"Hs":0,"Hf":0,"s":16,"mc":40,"j":1,"jour":90,"nP":1,"nb":0,"rD":100,"Xo":0,"Hm":2600,"recul":0,"Wm":900,"lh":150,"lw":100,"le":5,"em":50,"nez":0,"hs":80,"tp":8,"plx":200,"ply":150,"tpp":10,"epl":200,"ptP":3500,"ptH":1600,"ptFleche":150,"ptHSoub":500,"ptPente":0,"ass":"droit","mur":"","etage":true,"rosace":true,"traverse":false,"mcType":"bois","sbMode":"auto","seuls":false,"decor":"aucun","decorForme":"C","decorBouts":"bouton","decorBarreaux":"carre","decorFriseBasse":"aucune","decorDore":"0","renfort":"sans","patte":0,"essence":"chene","remise":"retrait","essenceT":"chene","teinte":"noir","rainure":true,"ptMat":"alu","ptForme":"droit","ptSoub":"aucun","ptRemp":"plein","ptVantaux":"2","ptRep":"egal","ptGuidage":"rail","ptSens":"gauche","ptPoteaux":"existants","ptDecor":"aucun","ptBouts":"effile","ptBarreauxDeco":"carre","ptPointes":false,"ptLisse":false,"ptMoteur":false,"ptMoulure":false,"ptClairHaut":"","ptClairMilieu":"","ptClairBas":"","ptSupport":"","ptPilierEtat":"","ptPilierL":"","ptAplombG":"","ptAplombD":"","ptDenivele":"","ptGondBord":"","ptRecoin":"","ptVent":"","ptSeuil":"","ptCloture":"","ptAcces":"","ptCourant":"","ptReseaux":"","ptMoteurModele":"","jourAuto":true,"jourSaisi":90});
 export const BORNES_GC = Object.freeze({ B: Object.freeze({"min":300,"max":3000}), A: Object.freeze({"min":0,"max":1200}), Hf: Object.freeze({"min":0,"max":3000}) });
-export const EMPREINTE_SOURCE = "cc9ba271bc4ba6827c40defaea1cc55f245b8bb9137ad0130f40aaeb613f9c02";
+export const EMPREINTE_SOURCE = "b872cc19f60ac98c9d62d4d2d9db0dce63bdaad4ca57511290a1068ac9ff7489";
 export { ALLEGE_LIBRE, BARRE_APPUI, CIBLE_MARGE, DECOR_NOMS, DS_ESSENCES, FIX_GC, HAUT_ETAGE, LIMITE_ACIER, MARGE_BOULE, MINI_GC, MINI_SEULS, MT_AVEC, MT_CHOIX, MT_NOMS, RENFORT, ROSACE_R, SPHERE, SPHERE_HAUT, Z_ESCALADE, Z_SPHERE, calculerGC, coupeMainCourante, decorActif, decrireVariante, fmt, geomGC, largeurMurGC, mmTxt, mtAlleger, planA3Pur, svgDe, variantesConformes };
-export const EMPREINTE = "00e4563eebea";
+export const EMPREINTE = "76e210cfcbfa";

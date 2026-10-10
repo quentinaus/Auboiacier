@@ -356,7 +356,9 @@ test("livraison : l'outil compte comme le site (deplacement.ts), retrait à l'at
     const km = Math.round(hasard() * 900 * 10) / 10, kg = Math.round(hasard() * 80 * 100) / 100;
     const B = 300 + Math.round(hasard() * 2700), hauteurGC = 200 + Math.round(hasard() * 1000);
     assert.equal(remiseGC({ kg, hauteurGC }, { B, remise: "transporteur", km }).prix * 100, tarifLivraison(km, kg, Math.max(B, hauteurGC)).montantCents, `transporteur ${km} km ${kg} kg`);
-    assert.equal(remiseGC({ kg, hauteurGC }, { B, remise: "pose", km }).prix * 100, tarifPose(km).montantCents, `pose ${km} km`);
+    // Pas de pose au-delà de 200 km (décision de Quentin, 10/10/2026) : l'outil retombe sur le transporteur, le site refuse la pose.
+    const attendu = km > 200 ? tarifLivraison(km, kg, Math.max(B, hauteurGC)).montantCents : tarifPose(km).montantCents;
+    assert.equal(remiseGC({ kg, hauteurGC }, { B, remise: "pose", km }).prix * 100, attendu, `pose ${km} km`);
     assert.equal(remiseGC({ kg, hauteurGC }, { B, remise: "retrait", km }).prix, 0);
   }
 });

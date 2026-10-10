@@ -75,6 +75,8 @@ test("les mêmes lignes et le même total que le devis de l'outil, pour la même
       if (!c?.ok) continue;
       for (const km of [7.3, 118.46, 612]) {
         for (const livraison of livraisons(km)) {
+          // Pas de pose au-delà de 200 km : le site la refuse avant le devis (calculerPose), rien à comparer.
+          if (livraison.mode === "pose" && km > 200) continue;
           const site = devisOk(entree(releve, { options: { woodId: essence, ...MODELE }, livraison }));
           // L'outil, avec ses propres entrées : sa configuration, son prix, SA livraison (remiseGC).
           const v = { ...c.v, remise: livraison.mode, km: livraison.mode === "retrait" ? 0 : km };
