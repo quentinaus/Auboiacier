@@ -4,7 +4,9 @@ import Link from "next/link";
 import { Visuel } from "@/components/visuel";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../../dictionaries";
-import { metadataPage, jsonLdFilAriane, scriptJsonLd } from "@/lib/seo";
+import { metadataPage, jsonLdFilAriane, jsonLdService, scriptJsonLd } from "@/lib/seo";
+import { photos } from "@/lib/chantiers";
+import { estVraiePhoto } from "@/lib/visuels";
 import { serif } from "@/lib/fonts";
 import { hoverZoomSubtle } from "@/lib/ui";
 import { ProductTail } from "@/components/product-tail";
@@ -36,6 +38,8 @@ export default async function VerrieresPage({
   const t = dict.verrieres;
   /** Le titre, la phrase puis le texte arrivent l'un après l'autre (animation CSS, sans attendre le script). */
   const entree = (ms: number) => ({ "--retard": `${ms}ms` }) as CSSProperties;
+  // Les vraies photos de verrières (src/lib/chantiers.ts) : le travail de Quentin avant l'ouverture de l'atelier.
+  const vraiesPhotos = photos.filter((photo) => photo.famille === "verriere" && !photo.video && estVraiePhoto(photo.src));
 
   return (
     <>
@@ -50,6 +54,18 @@ export default async function VerrieresPage({
             { nom: dict.artisanat.breadcrumbShop, chemin: "/artisanat" },
             { nom: t.title, chemin: "/artisanat/verrieres" },
           ])
+        )}
+      />
+      {/* Le service, sur devis : aucun prix annoncé (référencement, lot L7). */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={scriptJsonLd(
+          jsonLdService({
+            locale,
+            nom: t.serviceNom,
+            chemin: "/artisanat/verrieres",
+            description: dict.seo.verrieres.description,
+          })
         )}
       />
       </div>
@@ -87,7 +103,7 @@ export default async function VerrieresPage({
             className={`${serif.className} entree-monte mt-8 text-[2.4rem] text-balance leading-[1.03] tracking-[-0.02em] text-[#2b2320] sm:text-[3rem]`}
             style={entree(100)}
           >
-            {t.title}
+            {t.h1}
           </h1>
           <p className="entree-monte mt-4 text-[17px] leading-[1.45] text-[#5c5140] md:mt-5 lg:text-[19px]" style={entree(240)}>
             {t.tagline}
@@ -99,6 +115,26 @@ export default async function VerrieresPage({
             </h2>
             <p className="mt-4 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.intro}</p>
             <p className="mt-4 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.body}</p>
+
+            {/* Pour quelle pièce : un usage par ligne (référencement, lot L7). */}
+            <h2 className={`${serif.className} mt-10 text-balance text-[1.4rem] leading-[1.12] tracking-[-0.01em] text-[#2b2320] md:text-[1.7rem]`}>
+              {t.usagesTitle.replace(/ ([?!:;])/g, "\u00a0$1")}
+            </h2>
+            <ul className="mt-4 space-y-3">
+              {t.usages.map((usage) => (
+                <li key={usage.t} className="text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">
+                  <h3 className="inline font-semibold text-[#2b2320]">{usage.t}</h3> — {usage.d}
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-10 border-t border-[#e8e1d8] pt-8">
+              <span className="surtitre block">{t.cotesTitle}</span>
+              <p className="mt-3 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.cotesBody}</p>
+              <Link href={`/${locale}/rendez-vous`} className="lien-fleche mt-4 text-[#2b2320]">
+                {t.cotesLien}
+              </Link>
+            </div>
 
             <div className="mt-10 border-t border-[#e8e1d8] pt-8">
               <span className="surtitre block">{t.priceTitle}</span>
@@ -151,6 +187,39 @@ export default async function VerrieresPage({
           </Apparition>
         </div>
       </section>
+
+      {/* En photo : deux verrières réalisées par Quentin avant l'ouverture de l'atelier — de vraies photos, pas des visuels. */}
+      {vraiesPhotos.length > 0 && (
+        <section className="px-6 pt-16 md:pt-28">
+          <div className="mx-auto max-w-6xl">
+            <Apparition className="max-w-3xl">
+              <h2 className={`${serif.className} text-[2rem] text-balance leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.5rem] md:text-[3rem]`}>
+                {dict.realisations.chantierTitle}
+              </h2>
+              <p className="mt-5 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.photosTexte}</p>
+            </Apparition>
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 md:mt-12">
+              {vraiesPhotos.map((photo, i) => (
+                <Apparition key={photo.src} retard={(i % 2) * 110}>
+                  <figure className="flex flex-col gap-3">
+                    <div className="relative aspect-[4/5] overflow-hidden rounded-[22px]">
+                      <Visuel
+                        locale={locale}
+                        src={photo.src}
+                        alt={dict.realisations[photo.alt]}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 50vw"
+                        className="object-cover"
+                      />
+                    </div>
+                    <figcaption className="text-[15px] leading-[1.45] text-[#5c5140]">{dict.realisations[photo.alt]}</figcaption>
+                  </figure>
+                </Apparition>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <ProductTail dict={dict} locale={locale} />
     </>

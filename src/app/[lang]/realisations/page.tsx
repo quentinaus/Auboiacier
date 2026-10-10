@@ -64,6 +64,9 @@ export default async function RealisationsPage({
 
   /** Une image et sa légende ; la légende mène à la fiche de la pièce. Deux par rangée : celle de droite arrive un peu
       après celle de gauche. */
+  // Les deux premières images de la page arrivent en priorité : elles font le premier écran (vitesse d'affichage,
+  // référencement T2 — toutes étaient chargées en différé).
+  const premieres = (vraies.length > 0 ? vraies : visuels).slice(0, 2).map((p) => p.src);
   const carte = (photo: (typeof photos)[number], i: number) => {
     const legende = t[photo.alt];
     const retard = (i % 2) * 110;
@@ -103,6 +106,7 @@ export default async function RealisationsPage({
             alt={legende}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, min(33vw, 560px)"
+            priority={premieres.includes(photo.src)}
             className="object-cover"
           />
         </div>
@@ -178,6 +182,9 @@ export default async function RealisationsPage({
         <section className="mt-12 md:mt-16">
           <h2 className="surtitre">{t.chantierTitle}</h2>
           <div className="mt-6 grid gap-x-8 gap-y-12 md:mt-8 md:grid-cols-2 md:gap-y-16 xl:grid-cols-3 min-[1800px]:grid-cols-4">{vraies.map(carte)}</div>
+          <Link href={`/${locale}/a-propos`} className="lien-fleche mt-8 text-[#2b2320]">
+            {t.aproposLien}
+          </Link>
         </section>
       )}
 

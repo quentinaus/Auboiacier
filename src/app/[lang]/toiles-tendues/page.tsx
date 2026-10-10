@@ -7,7 +7,7 @@ import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
 import { metadataPage, jsonLdFilAriane, jsonLdListe, scriptJsonLd } from "@/lib/seo";
 import { PlafondLumineux } from "@/components/plafond-lumineux";
-import { products, priceFrom, productLocalise } from "@/lib/products";
+import { products, priceFrom, productLocalise, computeUnitPrice } from "@/lib/products";
 import { MaterialBubble } from "@/components/material-bubble";
 import { serif } from "@/lib/fonts";
 import { hoverZoom, prixAffiche } from "@/lib/ui";
@@ -93,6 +93,22 @@ export default async function ToilesTenduesPage({
   // Les questions affichées en bas de page, et balisées pour Google depuis la
   // même liste — balisées sur cette page seulement (src/lib/faq-balisees.ts).
   const questions = questionsPlafonds(dict, delai);
+
+  // Le prix de chaque taille du catalogue, calculé par le moteur des fiches (celui du panier), dans la teinte de cadre la
+  // moins chère : la pièce entière, rien d'écrit à la main (référencement, lot L7).
+  const prixParTaille = luminaires.map((product) => {
+    const teinte = product.metals.reduce<(typeof product.metals)[number] | undefined>(
+      (a, b) => (!a || (b.priceDelta ?? 0) < (a.priceDelta ?? 0) ? b : a),
+      undefined,
+    );
+    return {
+      product,
+      tailles: product.sizes.flatMap((taille) => {
+        const prix = computeUnitPrice(product, { sizeId: taille.id, metalId: teinte?.id });
+        return prix === null ? [] : [{ id: taille.id, cotes: taille.label.split(" — ")[0], prix }];
+      }),
+    };
+  });
 
   // « {n} formes, prix affichés » : le nombre de modèles vient du catalogue.
   const titreCatalogue = remplir(t.catalogueLumiere, { n: String(luminaires.length) });
@@ -245,6 +261,35 @@ export default async function ToilesTenduesPage({
             {[tl.choixCadre, tl.choixTendu, tl.choixPrix].map((paragraphe, i) => (
               <Apparition key={paragraphe} retard={(i % 4) * 110}>
                 <p className={texte}>{paragraphe}</p>
+              </Apparition>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Ce que coûte un plafond lumineux, taille par taille : les prix des fiches, une carte par forme. */}
+      <section className="bg-[#ffffff] pb-16 md:pb-28">
+        <div className="mx-auto max-w-6xl px-6">
+          <Apparition className="max-w-3xl">
+            <h2 className={titreSection}>{sansVeuve(tl.prixTitle)}</h2>
+            <p className={`mt-5 ${texte}`}>{tl.prixIntro}</p>
+          </Apparition>
+          <div className="mt-10 grid gap-5 md:mt-12 md:grid-cols-2">
+            {prixParTaille.map(({ product, tailles }, i) => (
+              <Apparition key={product.slug} retard={(i % 2) * 110} className="h-full rounded-[22px] bg-[#f5f1ea] px-6 py-7">
+                <h3 className={titreBloc}>
+                  <Link href={`/${locale}/artisanat/${product.slug}`} className="hover:underline">
+                    {product.name}
+                  </Link>
+                </h3>
+                <ul className="mt-4 text-[15px] tabular-nums">
+                  {tailles.map((taille) => (
+                    <li key={taille.id} className="flex items-baseline justify-between gap-4 border-t border-[#e5ddd3] py-2.5">
+                      <span className="text-[#2b2320]">{sansVeuve(taille.cotes)}</span>
+                      <span className="text-[#2b2320]">{prixAffiche(taille.prix, locale)}</span>
+                    </li>
+                  ))}
+                </ul>
               </Apparition>
             ))}
           </div>

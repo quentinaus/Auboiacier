@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
-import { metadataPage, jsonLdFilAriane, scriptJsonLd } from "@/lib/seo";
+import { metadataPage, jsonLdArticle, jsonLdFilAriane, scriptJsonLd } from "@/lib/seo";
 import { getProduct, productLocalise } from "@/lib/products";
 import {
   ChiffrageIndisponible,
@@ -50,9 +50,15 @@ import { OuvrirCotesGC } from "@/components/ouvrir-cotes-gc";
  * clé du chiffrage, la forme vient de l'outil et la cellule du prix renvoie à
  * la fiche : rien n'est inventé.
  *
- * Données structurées : le fil d'Ariane seul (visible plus bas). Ni FAQ
- * balisée (src/lib/faq-balisees.ts), ni produit : il reste sur la fiche.
+ * Données structurées : le fil d'Ariane (visible plus bas) et l'Article du
+ * guide, signé par l'atelier tant que Quentin n'a pas relu le texte (plan de
+ * référencement, C9). Ni FAQ balisée (src/lib/faq-balisees.ts), ni produit :
+ * il reste sur la fiche.
  */
+
+/** Les deux dates du guide : celles que la page affiche et que Google lit (Article). AAAA-MM-JJ. */
+const DATE_PUBLICATION = "2026-10-06";
+const DATE_MODIFICATION = "2026-10-10";
 
 /** La fenêtre des exemples : 1 000 mm de large, en étage, aux options de départ de la fiche. À AJUSTER par Quentin. */
 const LARGEUR_EXEMPLE_MM = 1000;
@@ -263,6 +269,20 @@ export default async function NormesGardeCorpsPage({
           ])
         )}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={scriptJsonLd(
+          jsonLdArticle({
+            locale,
+            chemin: "/garde-corps-fenetre-normes",
+            titre: t.h1,
+            description: dict.seo.normesGc.description,
+            datePublication: DATE_PUBLICATION,
+            dateModification: DATE_MODIFICATION,
+            image: "/images/garde-corps/fenetre-pose.jpg",
+          })
+        )}
+      />
       <GlobalHeader locale={locale} dict={dict} />
       <main id="contenu">
         <div className="mx-auto max-w-3xl px-6 pb-16 pt-10 md:pt-14">
@@ -279,9 +299,14 @@ export default async function NormesGardeCorpsPage({
             {t.h1}
           </h1>
           <p className="mt-4 leading-relaxed text-[#5c5140]">{t.intro}</p>
-          <Link href={fiche} className={`mt-3 ${lien}`}>
-            {t.introLien}
-          </Link>
+          <div className="mt-3 flex flex-wrap gap-x-8">
+            <Link href={fiche} className={lien}>
+              {t.introLien}
+            </Link>
+            <Link href={`/${locale}/artisanat/verification-garde-corps`} className={lien}>
+              {dict.liens.verificationGc}
+            </Link>
+          </div>
 
           <div className="mt-12 divide-y divide-[#e8e1d8] border-t border-[#e8e1d8]">
             {/* 1. L'obligation. */}
@@ -543,8 +568,24 @@ export default async function NormesGardeCorpsPage({
               <Link href={`/${locale}/zone-intervention`} className={lien}>
                 {dict.liens.zonePose}
               </Link>
+              {/* Le garde-corps d'un escalier : ses règles sont sur le guide de l'escalier (référencement, lot L9). */}
+              <Link href={`/${locale}/escalier-limon-central-prix-normes`} className={lien}>
+                {dict.liens.guideEscalier}
+              </Link>
             </div>
           </section>
+
+          {/* Qui a écrit le guide, et quand : l'atelier, tant que Quentin ne l'a pas relu (C9). */}
+          <p className="mt-10 text-[14px] leading-[1.6] text-[#6f6357]">
+            {remplir(t.signature, {
+              date: new Date(DATE_MODIFICATION).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-GB", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+                timeZone: "UTC",
+              }),
+            })}
+          </p>
         </div>
       </main>
       <SiteFooter locale={locale} dict={dict} tone="light" />
