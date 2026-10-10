@@ -102,7 +102,7 @@ export async function GET(request: Request) {
       if (l.ok) livraison = l.deplacement.montantCents / 100;
     }
     try {
-      resultat = composerEstimationPortail({ slug: lu.slug, cfg: lu.cfg, client, date: new Date(), livraison });
+      resultat = composerEstimationPortail({ slug: lu.slug, cfg: lu.cfg, client, date: new Date(), livraison, locale });
     } catch (erreur) {
       if (erreur instanceof ChiffragePortailIndisponible) return NextResponse.json({ error: "indisponible" }, { status: 503 });
       throw erreur;

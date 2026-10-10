@@ -24,36 +24,30 @@ const ORDRE: SlugPortail[] = ["portail-battant", "portail-coulissant", "portail-
 
 const TXT = {
   fr: {
-    guide: "Quel portail chez vous ?", guideSous: "Deux ou trois questions sur votre entrée, sans mesurer : le site vous dit quel type de portail lui convient. Les mesures viennent après, sur la fiche.",
-    vocab: "Un vantail est la partie du portail qui bouge. Le passage est la largeur libre entre vos deux piliers.",
-    notes: [
-      "Un portail battant s'ouvre comme une porte : chaque vantail tourne autour de ses gonds, vers l'intérieur. Il faut un sol à peu près plat, sans marche, et une place libre égale à la moitié du passage : 1,75 m derrière chaque vantail pour un passage de 3,50 m, sans voiture, arbre ni mur dans le quart de cercle.",
-      "Un portail coulissant glisse le long de la clôture, comme une porte de placard. Il faut une longueur libre, d'un seul côté, au moins égale à la largeur du passage (3,50 m pour un passage de 3,50 m), sans arbre ni mur devant. Sinon, ce sera un portail pliant.",
-      "Sur un sol dur et plat, le portail roule sur un rail fixé au sol. Si le sol est meuble, en pente ou avec une marche, on prend le coulissant sans rail (autoportant) : il tient avec un contrepoids derrière lui, soit environ une fois et demie plus de longueur libre.",
-    ] as const,
-    oui: "Oui, il y a la place", non: "Non, pas la place", ouiSol: "Oui, dur et plat", nonSol: "Non, ou je ne suis pas sûr",
+    sep: "\u00a0: ",
+    guide: "Quel type de portail convient à votre entrée ?",
+    guideSous: "Le type de portail se choisit d'abord selon la place disponible autour de l'entrée, avant le style ou le matériau. Répondez à ces questions sans rien mesurer : le site vous indique le type adapté. Vos mesures se règlent ensuite sur la fiche du modèle.",
+    vocab: [["Vantail", "la partie mobile du portail."], ["Passage", "la largeur libre entre vos deux piliers, par où passent la voiture et les piétons."]] as const,
     schema: ["Schéma : deux vantaux ouverts vers la propriété", "Schéma : le portail glisse le long de la clôture", "Schéma : sol dur avec rail, ou sol meuble sans rail"],
-    conseil: "Le bon type chez vous :", conseilNote: { "portail-battant": "la place pour tourner est libre derrière.", "portail-coulissant": "pas de place pour tourner, mais la longueur de clôture est libre.", "portail-pliant": "ni la place pour tourner, ni la longueur pour glisser : chaque vantail se plie en deux et prend peu de place.", portillon: "" },
+    suite: "Il est signalé « Conseillé pour vous » parmi les modèles ci-dessous. Vos mesures et votre style se règlent ensuite sur sa fiche.",
     rail: "sur rail", auto: "sans rail, autoportant",
-    modeles: "Les modèles", modelesSous: "Prix posé, dans le style le moins cher, sans moteur, à la cote courante (3,50 × 1,60 m ; portillon 1,00 m). Vos mesures et vos choix se règlent sur la fiche.",
+    modeles: "Les modèles", modelesSous: "« Dès » : le prix d'un portail posé par l'atelier, dans le style le moins cher, sans moteur, pour un passage de 3,50 m et 1,60 m de haut (portillon : 1,00 m). Vos mesures, votre style, et la pose, la livraison ou le retrait à l'atelier se choisissent sur la fiche.",
     des: "dès", aEtudier: "À étudier à la visite", conseille: "Conseillé pour vous", ouvrir: "Composer ce portail", portillonNote: "Pour les piétons, seul ou assorti au portail.",
+    place: "Place nécessaire :", placeLigne: { "portail-battant": "la moitié du passage, derrière chaque pilier.", "portail-coulissant": "d'un côté, une longueur de clôture égale au passage (environ une fois et demie sans rail).", "portail-pliant": "très peu, ni derrière le portail ni sur le côté.", portillon: "" },
     triCroissant: "Prix croissant", triDecroissant: "Prix décroissant", triTitre: "Inverser l'ordre des prix",
     vuRue: "Vu depuis la rue",
   },
   en: {
-    guide: "Which gate for your entrance?", guideSous: "Two or three questions about your entrance, no measuring: the site tells you which type of gate suits it. Measurements come next, on the model page.",
-    vocab: "A leaf is the part of the gate that moves. The opening is the clear width between your two pillars.",
-    notes: [
-      "A swing gate opens like a door: each leaf turns on its hinges, inward. You need roughly level ground, no step, and free room equal to half the opening: 1.75 m behind each leaf for a 3.50 m opening, with no car, tree or wall in the quarter circle.",
-      "A sliding gate glides along the fence, like a wardrobe door. You need a free length, on one side only, at least equal to the opening (3.50 m for a 3.50 m opening), with no tree or wall in front. Otherwise it will be a folding gate.",
-      "On hard, level ground the gate rolls on a rail fixed to the ground. If the ground is soft, sloping or has a step, take the sliding gate without rail (cantilever): it holds with a counterweight behind it, about one and a half times more free length.",
-    ] as const,
-    oui: "Yes, there is room", non: "No, not enough room", ouiSol: "Yes, hard and level", nonSol: "No, or I am not sure",
+    sep: ": ",
+    guide: "Which type of gate suits your entrance?",
+    guideSous: "The type of gate is chosen first according to the space available around the entrance, before style or material. Answer these questions without measuring anything: the site tells you the suitable type. Your measurements are set next, on the model page.",
+    vocab: [["Leaf", "the moving part of the gate."], ["Opening", "the clear width between your two pillars, where cars and pedestrians go through."]] as const,
     schema: ["Diagram: two leaves open into the property", "Diagram: the gate slides along the fence", "Diagram: hard ground with a rail, or soft ground without a rail"],
-    conseil: "The right type for you:", conseilNote: { "portail-battant": "there is room to swing behind.", "portail-coulissant": "no room to swing, but the length of fence is free.", "portail-pliant": "neither room to swing nor length to slide: each leaf folds in two and takes little space.", portillon: "" },
+    suite: "It is marked “Recommended for you” among the models below. Your measurements and style are then set on its page.",
     rail: "on a rail", auto: "no rail, cantilever",
-    modeles: "The models", modelesSous: "Fitted price, in the least expensive style, without motor, at the usual size (3.50 × 1.60 m; pedestrian gate 1.00 m). Your measurements and choices are set on the model page.",
+    modeles: "The models", modelesSous: "“From” is the price of a gate fitted by the workshop, in the least expensive style, without motor, for a 3.50 m opening and 1.60 m height (pedestrian gate: 1.00 m). Your measurements, your style, and fitting, delivery or collection at the workshop are chosen on the model page.",
     des: "from", aEtudier: "To be studied at the visit", conseille: "Recommended for you", ouvrir: "Compose this gate", portillonNote: "For pedestrians, alone or matching the gate.",
+    place: "Room needed:", placeLigne: { "portail-battant": "half the opening, behind each pillar.", "portail-coulissant": "on one side, a length of fence at least equal to the opening (about one and a half times without a rail).", "portail-pliant": "very little, neither behind the gate nor at the side.", portillon: "" },
     triCroissant: "Price: low to high", triDecroissant: "Price: high to low", triTitre: "Reverse the price order",
     vuRue: "Seen from the street",
   },
@@ -92,7 +86,7 @@ export function PortailsGuide({ locale, noms, taglines, departs }: {
       <section className="carte-verre pg-carte" aria-labelledby="pg-guide">
         <h2 id="pg-guide" className={serif.className}>{t.guide}</h2>
         <p className="pg-sous">{t.guideSous}</p>
-        <p className="pg-vocab">{t.vocab}</p>
+        <p className="pg-vocab">{t.vocab.map(([terme, definition], i) => (<span key={terme}>{i > 0 ? " " : ""}<b>{terme}</b>{t.sep}{definition}</span>))}</p>
         {tp.guideQ.map((q, i) => {
           const cleQ = (["derriere", "cote", "sol"] as const)[i];
           const visible = i === 0 || (i === 1 && guide.derriere === false) || (i === 2 && guide.derriere === false && guide.cote === true);
@@ -102,16 +96,20 @@ export function PortailsGuide({ locale, noms, taglines, departs }: {
               <SchemaGuide question={i as 0 | 1 | 2} locale={locale} label={t.schema[i]} />
               <div className="pg-q-texte">
                 <p className="pg-q-titre">{q}</p>
-                <p className="pg-q-note">{t.notes[i]}</p>
+                <p className="pg-q-note">{tp.guideCtx[i]}</p>
+                <p className="pg-q-verif"><b>{tp.guideVerifTitre}.</b> {tp.guideVerif[i]}</p>
                 <Pilule aria={q} valeur={guide[cleQ] === undefined ? "" : guide[cleQ] ? "oui" : "non"}
                   onChange={(x) => setGuide((g) => ({ ...g, [cleQ]: x === "oui", ...(i === 0 ? { cote: undefined, sol: undefined } : i === 1 ? { sol: undefined } : {}) }))}
-                  options={[{ v: "oui", label: i === 2 ? t.ouiSol : t.oui }, { v: "non", label: i === 2 ? t.nonSol : t.non }]} />
+                  options={[{ v: "oui", label: tp.guideOui[i] }, { v: "non", label: tp.guideNon[i] }]} />
               </div>
             </div>
           );
         })}
         {reponse && (
-          <p className="cpt-f-info pg-conseil">{t.conseil} <b>{noms[reponse.slug]}{reponse.guidage ? ` (${reponse.guidage === "rail" ? t.rail : t.auto})` : ""}</b> — {t.conseilNote[reponse.slug]}</p>
+          <div className="cpt-f-info pg-conseil">
+            <p>{tp.guideConseil} <b>{noms[reponse.slug]}{reponse.guidage ? ` (${reponse.guidage === "rail" ? t.rail : t.auto})` : ""}</b> : {tp.guideRaison[reponse.slug === "portail-battant" ? "battant" : reponse.slug === "portail-pliant" ? "pliant" : reponse.guidage === "auto" ? "auto" : "rail"]}</p>
+            <p className="pg-conseil-suite">{t.suite}</p>
+          </div>
         )}
       </section>
 
@@ -133,6 +131,7 @@ export function PortailsGuide({ locale, noms, taglines, departs }: {
                 <div className="pg-dessin"><Vue prims={dessins[slug]} couleur={slug === "portillon" ? "noir" : "anthracite"} sansCotes label={`${noms[slug]}, ${t.vuRue}`} /></div>
                 <h3 className={serif.className}>{noms[slug]}</h3>
                 <p className="pg-tagline">{slug === "portillon" ? t.portillonNote : taglines[slug]}</p>
+                <p className="pg-place">{t.placeLigne[slug] ? <><b>{t.place}</b> {t.placeLigne[slug]}</> : null}</p>
                 <p className="pg-prix">{p === null ? t.aEtudier : `${t.des} ${euros(p)}`}</p>
                 <Link href={lien(slug)} className="btn-verre pg-cta">{t.ouvrir}</Link>
               </li>
