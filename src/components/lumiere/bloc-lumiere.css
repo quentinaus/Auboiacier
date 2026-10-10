@@ -1,0 +1,100 @@
+/* ================================================================== *
+ *  Le bloc « Configuration » des plafonds lumineux (lumiere-bloc.tsx), au gabarit du portail (Quentin, 10/10/2026).
+ *  Tout est rangé sous .lum-* et .fond-lumiere : rien ne sort des fiches Lucarne et Halo. Les classes partagées du
+ *  site (globals.css : .carte-verre, .btn-verre, .fond-configuration, .curseur-cote, .tuile-modele, .colonne-cotes,
+ *  .colonne-achat) sont reprises telles quelles, comme au portail (configurateur-portail.css).
+ * ================================================================== */
+
+.fond-lumiere {
+  --encre: #2b2320;
+  --encre-verre: #1d1d1f;
+  --brun: #6f6357;
+  --filet: rgba(43, 35, 32, 0.1);
+}
+
+/* ---------- La grille : tablette (croquis en haut, formes, deux cartes), ordinateur (trois colonnes) ---------- */
+/* Les colonnes et rangées sont écrites dans product-view.tsx (classes Tailwind, comme le garde-corps) ; ici seulement ce
+   que Tailwind n'écrit pas bien : le croquis qui remplit sa colonne sans jamais la faire défiler. */
+@media (min-width: 48rem) {
+  .fond-lumiere .croquis-config { display: flex; flex-direction: column; justify-content: center; min-height: 0; }
+  .fond-lumiere .schema-configuration { display: flex; flex: 1 1 auto; min-height: 0; flex-direction: column; justify-content: center; container-type: size; }
+  .fond-lumiere .schema-configuration > svg { width: auto; max-width: 100%; height: auto; max-height: 100cqh; margin: 0 auto; }
+}
+/* Tablette debout : le croquis garde une hauteur raisonnable au-dessus des formes et des deux cartes ; la ligne surface /
+   puissance / délai du récapitulatif reste dans « Détails » (comme au portail), pour que le prix, le bouton et ses liens
+   se voient sans faire défiler la carte d'achat. */
+@media (min-width: 48rem) and (max-width: 63.999rem) {
+  .fond-lumiere .croquis-config { height: clamp(160px, 25svh, 260px); }
+  .fond-lumiere .lum-r-ligne { display: none; }
+}
+/* La consigne sous « Vos mesures » : une règle du garde-corps (globals.css) cache les paragraphes de la carte des cotes
+   dès la tablette ; ici elle reste, comme au portail. */
+@media (min-width: 48rem) {
+  .fond-lumiere.fond-gc:not([data-parcours="1"]) .colonne-cotes [id="cotes"] > div > p.lum-consigne { display: block; }
+}
+/* Téléphone : comme aujourd'hui (le croquis puis la carte, qui défile en elle-même) — rien de plus ici. */
+
+/* ---------- Rangée 1 : « Couleur du cadre » et ses plaquettes (comme la rangée couleur / matière du portail) ---------- */
+.lum-matieres { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 16px; border-radius: 16px; background: rgba(255, 255, 255, 0.55); padding: 6px 12px; }
+.lum-mat-groupe { display: flex; align-items: center; gap: 6px; }
+.lum-mat-titre { font-size: 13px; font-weight: 600; letter-spacing: -0.005em; color: rgba(60, 60, 67, 0.78); white-space: nowrap; }
+.lum-plaquettes { display: flex; gap: 4px; }
+.lum-plaquette-btn { border-radius: 5px; padding: 3px; background: none; border: 0; cursor: pointer; transition: box-shadow 0.15s; }
+.lum-plaquette-btn[aria-pressed="true"] { background: #fff; box-shadow: 0 0 0 2px #1d1d1f; }
+.lum-plaquette-btn:not([aria-pressed="true"]):hover { background: rgba(255, 255, 255, 0.7); box-shadow: 0 0 0 1px rgba(43, 35, 32, 0.3); }
+.lum-plaquette-btn:focus-visible { outline: 2px solid #2b2320; outline-offset: 2px; }
+.lum-mat-nom { font-size: 12px; color: var(--encre, #2b2320); white-space: nowrap; }
+
+/* ---------- Colonne 1 : « Vos mesures » ---------- */
+.lum-titre-mesures { font-size: 15px; font-weight: 600; color: var(--encre-verre, #1d1d1f); letter-spacing: -0.016em; }
+.lum-entete-mesures { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.lum-consigne { margin-top: 2px; font-size: 11.5px; line-height: 1.4; color: var(--brun, #6f6357); }
+.lum-cotes { margin-top: 6px; }
+.lum-cote { padding: 0.3rem 0; }
+.lum-cote-titre { display: flex; align-items: center; gap: 8px; font-size: 13.5px; line-height: 1.35; color: var(--encre, #2b2320); }
+.lum-cote-titre > svg { width: 18px; height: 18px; flex: none; }
+.lum-ct-nom { flex: 1; min-width: 0; cursor: pointer; }
+.lum-info { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 999px; border: 1px solid #8f8275; font: italic 600 11px/1 Georgia, "Times New Roman", serif; color: var(--brun, #6f6357); flex: none; cursor: help; }
+.lum-cote-rang { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
+.lum-cote-rang .curseur-cote { flex: 1; min-width: 0; height: 20px; }
+.lum-pastille { display: flex; align-items: center; gap: 4px; height: 36px; width: 6.75rem; flex: none; border-radius: 999px; border: 1px solid #9a8d80; background: #fff; padding: 0 12px; }
+.lum-pastille input { width: 100%; min-width: 0; border: 0; outline: none; background: transparent; text-align: right; font-size: 15px; font-variant-numeric: tabular-nums; color: var(--encre-verre, #1d1d1f); }
+.lum-pastille input::placeholder { color: #a39889; font-size: 12px; }
+.lum-pastille > span { font-size: 12px; color: var(--brun, #6f6357); }
+/* L'unité (mm / cm / m) : la même pilule segmentée que partout, en plus petit, à droite du titre. */
+.lum-unite { display: flex; border-radius: 999px; border: 1px solid #9a8d80; background: #fff; padding: 2px; }
+.lum-unite button { border-radius: 999px; padding: 4px 9px; font-size: 11px; font-weight: 500; color: var(--brun, #6f6357); background: none; border: 0; cursor: pointer; }
+.lum-unite button[aria-checked="true"] { background: #2b2320; color: #fff; }
+.lum-filet { height: 1px; background: var(--filet, rgba(43, 35, 32, 0.1)); margin: 10px 0 2px; }
+
+/* ---------- Rangée 3 : le bandeau « Votre forme » (deux tuiles) ---------- */
+.lum-formes { border-radius: 22px; padding: 8px 16px 10px; }
+.lum-formes-carte { padding: 10px 0 0; }
+.lum-formes-tete { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.lum-formes-tete strong { font-size: 14px; font-weight: 600; line-height: 1.25; color: #2b2320; }
+.lum-formes-note { margin-left: auto; font-size: 11.5px; color: var(--brun, #6f6357); }
+.lum-tuiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 6px; max-width: 420px; }
+.lum-formes-carte .lum-tuiles { max-width: none; }
+.lum-tuile { display: flex !important; flex-direction: column; align-items: stretch; text-align: left; padding: 8px 8px 7px; text-decoration: none; color: inherit; cursor: pointer; }
+.lum-tuile[aria-pressed="true"] { cursor: default; }
+.lum-dessin { display: block; width: 100%; height: var(--lum-mini, 46px); }
+.lum-dessin-svg { display: block; width: 100%; height: 100%; }
+.lum-t-nom { margin-top: 4px; font-size: 11.5px; font-weight: 600; line-height: 1.25; color: #2b2320; }
+.lum-t-sous { font-weight: 500; color: var(--brun, #6f6357); }
+.lum-t-prix { font-size: 11.5px; font-weight: 500; line-height: 1.25; color: #2b2320; font-variant-numeric: tabular-nums; }
+
+/* ---------- Colonne 3 : le récapitulatif en tête de la colonne d'achat ---------- */
+.lum-r-nom { font-size: 15px; font-weight: 600; line-height: 1.3; color: var(--encre-verre, #1d1d1f); letter-spacing: -0.016em; }
+.lum-r-ligne { margin-top: 2px; font-size: 12px; line-height: 1.4; color: var(--brun, #6f6357); }
+.lum-recap + * { margin-top: 10px; }
+/* Le lien vers la fiche technique, avec « Devis PDF » et « Détails » sous le bouton. */
+.lum-lien-fiche { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; color: #2b2320; text-decoration: underline; text-underline-offset: 4px; }
+.lum-lien-fiche:hover { color: #6d2c2c; }
+
+/* ---------- Les règles de hauteur (comme le portail et le garde-corps) : rien ne défile sur ordinateur ---------- */
+@media (min-width: 64rem) and (max-height: 900px) { .fond-lumiere { --lum-mini: 36px; } }
+@media (min-width: 64rem) and (max-height: 780px) {
+  .fond-lumiere .lum-cote { padding: 0.2rem 0; }
+  .fond-lumiere .lum-formes { padding-top: 6px; padding-bottom: 6px; }
+  .fond-lumiere .lum-r-ligne { display: none; }
+}

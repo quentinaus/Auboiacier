@@ -329,7 +329,16 @@ export function ProductView({
   /** Le configurateur en pleine page sous la photo (tables d'intérieur), ou la colonne étroite classique. */
   const pleinePage = aLeConfigurateurPleinePage(product);
   const estTable = product.famille === "table-interieur" || product.famille === "table-exterieur";
-  const troisColonnes = product.releve === "garde-corps-fenetre";
+  const gardeCorps = product.releve === "garde-corps-fenetre";
+  /**
+   * Les plafonds lumineux (Lucarne, Halo) : le bloc « Configuration » au gabarit du portail (Quentin, 10/10/2026 — il
+   * n'aimait pas « le petit tableau de configuration »). La mise en page trois colonnes du garde-corps est reprise, avec
+   * sa propre grille : à gauche « Vos mesures », au centre le croquis et le bandeau « Votre forme », à droite le
+   * récapitulatif, la livraison et l'achat ; la rangée du titre porte les plaquettes de couleur. ProductOptions y dépose
+   * ses morceaux par portails (lumiere-bloc.tsx) : le panier, la pose, le code postal et le prélancement ne bougent pas.
+   */
+  const blocLumiere = pleinePage && product.category === "lumiere";
+  const troisColonnes = gardeCorps || blocLumiere;
   // Le prix du haut de la fiche : le même calcul que la description et les
   // données Google (src/lib/donnees-google.ts) — Google ne reçoit que ce qui
   // s'affiche ici. « À partir de » d'un côté, prix d'appel du garde-corps de l'autre.
@@ -340,7 +349,7 @@ export function ProductView({
    * « Qui prend les mesures ? » côte à côte, sous le nom, le prix d'appel et « aux normes » (entete-fiche-gc.tsx) ; sur
    * téléphone, le nom et la photo d'abord, les deux films dessous.
    */
-  const ficheGC = pleinePage && troisColonnes;
+  const ficheGC = pleinePage && gardeCorps;
   const enteteGC = (titre: boolean) => (
     <EnTeteFicheGC
       nom={product.name}
@@ -389,7 +398,7 @@ export function ProductView({
         porteSlot={porteSlot}
         enteteFiche={ficheGC ? enteteGC(false) : undefined}
         photoFiche={ficheGC ? <PhotoFicheGC images={product.images} locale={locale} className="h-full w-full" /> : undefined}
-        etapesTelephone={troisColonnes ? etapesTelephone : undefined}
+        etapesTelephone={gardeCorps ? etapesTelephone : undefined}
       />
       {!pleinePage && aide}
     </>
@@ -647,7 +656,8 @@ export function ProductView({
             {/* Les matières d'abord : c'est ce qu'on vient voir, et la photo
                 suit chaque choix — elles restent donc juste sous le titre.
                 `ProductOptions` les dépose ici par portail (voir matieresSlot). */}
-            <div ref={setMatieresSlot} className={troisColonnes ? "lg:hidden" : undefined} />
+            {/* (Les plafonds lumineux : dès la tablette, la couleur du cadre est dans la rangée du titre du bloc.) */}
+            <div ref={setMatieresSlot} className={blocLumiere ? "md:hidden" : troisColonnes ? "lg:hidden" : undefined} />
             {/* L'accroche et le prix de départ suivent, avant le chemin vers
                 le configurateur. */}
             <p className="mt-8 border-t border-[#e5ddd3] pt-7 text-[15px] leading-relaxed text-[#4a4038]">
@@ -736,14 +746,18 @@ export function ProductView({
                mesures et la colonne d'achat côte à côte ; sur grand écran, TROIS colonnes — les cotes, le croquis et les
                modèles, puis le résultat, la livraison et le panier. Tout tient sur un écran, titre compris. (Les classes
                des tables ne s'appliquent pas ici : deux grilles dans la même plaque se contredisaient.) */
-            troisColonnes
+            blocLumiere
+              ? /* Les plafonds lumineux : tablette, le titre, le croquis, le bandeau des formes, puis les deux cartes côte à côte ;
+                   ordinateur, les trois colonnes du portail (les cartes prennent toute la hauteur, rien ne défile). */
+                "fond-gc fond-lumiere md:grid md:items-stretch md:grid-cols-2 md:grid-rows-[auto_auto_auto_minmax(0,1fr)] md:gap-x-4 md:gap-y-3 lg:grid-cols-[262px_minmax(0,1fr)_272px] lg:grid-rows-[auto_minmax(0,1fr)_auto] lg:items-stretch lg:gap-x-4 lg:gap-y-3 xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:gap-x-5"
+              : troisColonnes
               ? "fond-gc md:grid md:items-stretch md:grid-cols-2 md:grid-rows-[auto_auto_minmax(0,1fr)] md:gap-x-4 md:gap-y-3 lg:grid-cols-[262px_minmax(0,1fr)_272px] lg:grid-rows-[auto_minmax(0,1fr)_auto] lg:items-start lg:gap-x-4 lg:gap-y-3 xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:gap-x-5"
               : "md:gap-4 lg:grid lg:items-stretch lg:grid-cols-[minmax(0,372px)_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)] lg:gap-x-14 lg:gap-y-4"
           }`}
         >
           {/* Garde-corps : la question « Qui prend les mesures ? » couvre d'abord toute la plaque (porte-qui-mesure.tsx).
               `contents` : l'emplacement ne prend aucune place dans la grille. */}
-          {troisColonnes && <div ref={setPorteSlot} className="porte-slot contents" />}
+          {gardeCorps && <div ref={setPorteSlot} className="porte-slot contents" />}
           {/* Le titre, et — sur grand écran, au garde-corps — la ligne des matières (couleur, bois, rosace) à sa droite, au-dessus
               du croquis mais PAS dessus (demande de Quentin : « remonte-la, il y a de la place »). */}
           <div className={troisColonnes ? "titre-config md:col-span-2 md:flex md:items-center md:justify-between md:gap-4 lg:col-span-3 lg:grid lg:grid-cols-[262px_minmax(0,1fr)_272px] lg:items-center lg:gap-x-4 xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:gap-x-5" : "lg:col-span-2"}>
@@ -774,7 +788,14 @@ export function ProductView({
             onBlur={(e) => {
               if ((e.target as HTMLElement).matches("input[inputmode]")) setChampFocus(false);
             }}
-            className={`carte-verre order-2 min-h-0 flex-1 overflow-y-auto overflow-x-clip overscroll-contain rounded-[26px] px-5 pb-0 pt-4 md:overflow-x-hidden md:px-6 md:pt-5 ${blocEnPlace ? "" : "max-md:overflow-y-hidden"} ${troisColonnes ? "colonne-cotes panneau-etape etape-1 etape-2 etape-3 etape-4 etape-5 etape-6 etape-7 max-md:order-3 max-md:pb-3 md:order-none md:flex-none md:col-start-1 md:row-start-3 lg:col-start-1 lg:row-start-2 lg:max-h-full lg:px-4 lg:pb-3 lg:pt-4 xl:px-5" : "lg:order-none lg:flex-none"}`}>
+            className={`carte-verre order-2 min-h-0 flex-1 overflow-y-auto overflow-x-clip overscroll-contain rounded-[26px] px-5 pb-0 pt-4 md:overflow-x-hidden md:px-6 md:pt-5 ${blocEnPlace ? "" : "max-md:overflow-y-hidden"} ${
+              blocLumiere
+                ? /* Les plafonds lumineux : la carte des mesures prend toute la hauteur des colonnes (comme au portail). */
+                  "colonne-cotes md:order-none md:flex-none md:col-start-1 md:row-start-4 lg:col-start-1 lg:row-start-2 lg:row-span-2 lg:px-4 lg:pb-3 lg:pt-4 xl:px-5"
+                : troisColonnes
+                  ? "colonne-cotes panneau-etape etape-1 etape-2 etape-3 etape-4 etape-5 etape-6 etape-7 max-md:order-3 max-md:pb-3 md:order-none md:flex-none md:col-start-1 md:row-start-3 lg:col-start-1 lg:row-start-2 lg:max-h-full lg:px-4 lg:pb-3 lg:pt-4 xl:px-5"
+                  : "lg:order-none lg:flex-none"
+            }`}>
             {options}
           </div>
           {/* Le croquis : au-dessus de la carte sur téléphone (il ne rétrécit jamais : c'est la carte qui défile), à côté et en
@@ -783,7 +804,7 @@ export function ProductView({
             className={`croquis-config order-1 shrink-0 ${
               /* Le croquis d'une table ou d'un plafond remplit la hauteur du bloc, au milieu. Le garde-corps a son
                  catalogue de modèles sous le croquis : il défile dans sa colonne sous 1024 px, et tient entier au-dessus. */
-              product.releve === "garde-corps-fenetre"
+              troisColonnes
                 ? "md:order-none md:col-span-2 md:row-start-2 md:min-h-0 lg:col-span-1 lg:col-start-2 lg:row-start-2 lg:flex lg:min-h-0 lg:flex-col lg:self-stretch lg:overflow-hidden"
                 : "lg:order-none lg:flex lg:min-h-0 lg:items-center lg:justify-center"
             }`}
@@ -793,12 +814,12 @@ export function ProductView({
           {/* Téléphone, une question à la fois : la question (ou l'étape) et, à la fin, le prix — rendus par la fiche ; puis les
               étapes « Modèle » et « Finitions » (la rangée des modèles et la ligne des matières de l'ordinateur). */}
           {troisColonnes && parcoursTel && <div ref={setEnteteTelSlot} className="entete-tel order-2 shrink-0 md:hidden" />}
-          {troisColonnes && (
+          {gardeCorps && (
             <div className="panneau-etape etape-9 hidden min-h-0 flex-1 overflow-y-auto overscroll-contain max-md:order-3 md:hidden">
               <div ref={setModeleTelSlot} />
             </div>
           )}
-          {troisColonnes && (
+          {gardeCorps && (
             <div className="carte-verre panneau-etape etape-8 hidden min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[26px] px-5 py-4 max-md:order-3 md:hidden">
               <div ref={setFinitionsTelSlot} />
             </div>
@@ -808,12 +829,28 @@ export function ProductView({
           {troisColonnes && parcoursTel && <div ref={setNavTelSlot} className="nav-tel order-4 shrink-0 empty:hidden md:hidden" />}
           {/* Le bandeau des modèles : en bas du bloc, sous les cotes et le croquis, sur toute leur longueur. Placé AVANT la colonne
               d'achat dans le DOM (la grille le range en bas) : au clavier, on choisit le modèle avant d'arriver au bouton du panier. */}
-          {troisColonnes && <div ref={setBandeauSlot} className="bandeau-gc hidden lg:col-span-2 lg:col-start-1 lg:row-start-3 lg:block" />}
+          {/* Les plafonds lumineux : le bandeau « Votre forme » (deux tuiles) sous le croquis, dès la tablette. */}
+          {troisColonnes && (
+            <div
+              ref={setBandeauSlot}
+              className={
+                blocLumiere
+                  ? "bandeau-lum hidden md:col-span-2 md:row-start-3 md:block lg:col-span-1 lg:col-start-2 lg:row-start-3"
+                  : "bandeau-gc hidden lg:col-span-2 lg:col-start-1 lg:row-start-3 lg:block"
+              }
+            />
+          )}
           {/* La troisième colonne du garde-corps (grand écran) : `ProductOptions` y dépose le résultat,
               puis la livraison et la barre d'achat. Vide et cachée en dessous de 1024 px : tout reste
               alors dans la première carte. */}
           {troisColonnes && (
-            <div className="carte-verre colonne-achat panneau-etape etape-10 hidden min-h-0 overflow-x-clip rounded-[26px] px-4 pb-0 pt-4 max-md:order-3 max-md:flex-1 max-md:overflow-y-auto max-md:overscroll-contain md:col-start-2 md:row-start-3 md:flex md:min-h-0 md:max-h-full md:flex-col md:self-stretch md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain lg:col-start-3 lg:row-span-2 lg:row-start-2 xl:px-5">
+            <div
+              className={
+                blocLumiere
+                  ? "carte-verre colonne-achat hidden min-h-0 overflow-x-clip rounded-[26px] px-4 pb-0 pt-4 md:col-start-2 md:row-start-4 md:flex md:min-h-0 md:max-h-full md:flex-col md:self-stretch md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain lg:col-start-3 lg:row-span-2 lg:row-start-2 xl:px-5"
+                  : "carte-verre colonne-achat panneau-etape etape-10 hidden min-h-0 overflow-x-clip rounded-[26px] px-4 pb-0 pt-4 max-md:order-3 max-md:flex-1 max-md:overflow-y-auto max-md:overscroll-contain md:col-start-2 md:row-start-3 md:flex md:min-h-0 md:max-h-full md:flex-col md:self-stretch md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain lg:col-start-3 lg:row-span-2 lg:row-start-2 xl:px-5"
+              }
+            >
               {parcoursTel && (
                 <button type="button" onClick={() => allerEtapeTel(ETAPE_MODELE_GC)} className="retour-modele mb-2 self-start text-[13px] font-medium text-[#5c5140] underline underline-offset-4 md:hidden">
                   {locale === "fr" ? "← Retour : Modèle" : "← Back: Model"}

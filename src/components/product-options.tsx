@@ -54,6 +54,8 @@ import { MAX_TEXTE, EMAIL_MOTIF } from "@/lib/devis-regles";
 import { POSE_INITIALE, PoseDomicile, livraisonPrete, montantLivraison, type ChoixPose } from "./pose-domicile";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 import { EnteteEtapes, NavEtape, NB_ETAPES_GC, QUESTIONS_GC, ETAPE_MODELE_GC, MEDIA_TELEPHONE_GC } from "./etapes-telephone";
+import { BandeauFormes, LigneCoteLumiere, PlaquettesCadre, RecapLumiere, TXT_LUMIERE } from "./lumiere-bloc";
+import { dureeFabrication, formeVoisineLumiere, puissanceEstimeeW, SLUG_HALO, SLUG_LUCARNE } from "@/lib/lumiere";
 
 const ACCENT = "#2b2320";
 
@@ -1139,6 +1141,14 @@ export function ProductOptions({
    * la commande et le devis : le prix affiché est le prix encaissé.
    */
   const estGC = prixParOutil(product);
+  /**
+   * Les plafonds lumineux (Lucarne, Halo) : le bloc « Configuration » au gabarit du portail (Quentin, 10/10/2026 : « le même
+   * bloc que celui du portail, sans les mêmes options »). La même mise en page trois colonnes que le garde-corps
+   * (product-view.tsx) : les cotes à gauche, le croquis et les deux formes au centre, le récapitulatif, la livraison et
+   * l'achat à droite. Toute la logique d'achat reste celle de cette fiche ; seuls les morceaux changent de place
+   * (lumiere-bloc.tsx). Rien ne change sous 768 px : le croquis puis la carte, comme avant.
+   */
+  const lumiereBloc = product.category === "lumiere" && nouvelleMiseEnPage;
   /** Garde-corps sur grand écran : la livraison et la barre d'achat vont dans la troisième colonne. */
   /**
    * Le parcours en étapes du téléphone (garde-corps, « je mesure moi-même ») : les colonnes de l'ordinateur deviennent des
@@ -1218,7 +1228,7 @@ export function ProductOptions({
     // Un temps pour voir le choix s'allumer (et le mur se dessiner sur le croquis) avant de changer d'écran.
     passageAuto.current = window.setTimeout(() => allerEtape?.(prochaine), 380);
   };
-  const colonneAchat = estGC && nouvelleMiseEnPage && (ecranMoyen || parcoursTel) ? (achatSlot ?? null) : null;
+  const colonneAchat = (estGC || lumiereBloc) && nouvelleMiseEnPage && (ecranMoyen || parcoursTel) ? (achatSlot ?? null) : null;
   const versColonneAchat = (noeud: ReactNode) => (colonneAchat ? createPortal(noeud, colonneAchat) : noeud);
   const lectureReleve = estGC ? lireReleve(cotesGardeCorps, t) : null;
   const releveGC = lectureReleve?.etat === "ok" ? lectureReleve.releve : null;
@@ -1887,7 +1897,7 @@ export function ProductOptions({
    * bouton d'achat).
    */
   /* Le garde-corps sur grand écran : le devis PDF et « Mettre de côté » sont deux petits liens sur UNE ligne (la colonne d'achat ne défile pas). */
-  const liensSerres = Boolean(colonneAchat && estGC);
+  const liensSerres = Boolean(colonneAchat && (estGC || lumiereBloc));
   /** Une autre fenêtre : on vide les cotes, on garde le bois et l'acier, et le curseur revient dans la première case. */
   const autreFenetre = () => {
     // Téléphone, une question à la fois : retour à la première question, le doigt dans sa case (rendu tout de suite,
@@ -1913,6 +1923,10 @@ export function ProductOptions({
   };
   const lienDevis = (
     <div className={liensSerres ? "mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1" : "mt-3"}>
+      {/* Les plafonds lumineux : le chemin vers la fiche technique, plus bas dans la page (toile, cadre, éclairage, pose). */}
+      {lumiereBloc && liensSerres && (
+        <a href="#descriptif" className="lum-lien-fiche">{TXT_LUMIERE[locale].ficheTechnique}</a>
+      )}
       {/* Le lien « Détails » (poids, ce que comprend le prix) : la fenêtre flottante y est posée (detailsSlot). */}
       {liensSerres && <div ref={setDetailsSlot} />}
       {chiffrable && (
@@ -2210,6 +2224,47 @@ export function ProductOptions({
     </>
   );
 
+  /**
+   * Les plafonds lumineux : les deux formes aux cotes du client (bandeau « Votre forme ») et la ligne du récapitulatif de
+   * la colonne d'achat. Le prix de l'autre forme vient de la même formule publique que le sien (src/lib/lumiere.ts) ; la
+   * puissance est au prorata des tailles du catalogue (≈ 65 W/m²) ; le délai est celui écrit sur la fiche.
+   */
+  const tl = TXT_LUMIERE[locale];
+  const formesLumiere = (() => {
+    if (!lumiereBloc || !bareme) return null;
+    const cotesFinies = Number.isFinite(largeurMm) && Number.isFinite(hauteurMm) && Number.isFinite(epaisseurMm);
+    const voisine = cotesFinies ? formeVoisineLumiere(product, { largeurMm, hauteurMm, epaisseurMm }, metalId) : null;
+    const prixIci = devis?.ok ? (prixSurMesure ?? devis.prix) : null;
+    const hrefIci = `/${locale}/artisanat/${product.slug}`;
+    const hrefVoisin = `/${locale}/artisanat/${voisine?.produit.slug ?? (rond ? SLUG_LUCARNE : SLUG_HALO)}`;
+    return {
+      courante: (rond ? "rond" : "rect") as "rond" | "rect",
+      lucarne: rond
+        ? { href: hrefVoisin, prix: voisine?.prix ?? null, largeurMm: voisine?.largeurMm, hauteurMm: voisine?.hauteurMm }
+        : { href: hrefIci, prix: prixIci, largeurMm: cotesFinies ? largeurMm : undefined, hauteurMm: cotesFinies ? hauteurMm : undefined },
+      halo: rond ? { href: hrefIci, prix: prixIci } : { href: hrefVoisin, prix: voisine?.prix ?? null },
+      teinte: metal?.swatch,
+    };
+  })();
+  const recapLumiere = lumiereBloc
+    ? {
+        cotes:
+          saisieFaite && Number.isFinite(largeurMm) && (rond || Number.isFinite(hauteurMm))
+            ? rond
+              ? `Ø ${chiffre(largeurMm)} ${unite}`
+              : `${chiffre(largeurMm)} × ${chiffre(hauteurMm)} ${unite}`
+            : null,
+        ligne:
+          [
+            devis?.ok ? `${tl.surface} ${surfaceAffichee(devis.surface, locale)}` : null,
+            devis?.ok ? `≈ ${puissanceEstimeeW(devis.surface)} W` : null,
+            dureeFabrication(delai, locale),
+          ]
+            .filter(Boolean)
+            .join(" · ") || null,
+      }
+    : null;
+
   return (
     /* pb-24 sur téléphone : la barre d'achat fixe ne doit pas recouvrir la fin
        de la colonne. */
@@ -2295,6 +2350,10 @@ export function ProductOptions({
           />,
           schemaSlot
         )}
+      {/* Les plafonds lumineux, tablette et plus : le bandeau « Votre forme » sous le croquis, et le récapitulatif en tête de la
+          colonne d'achat (product-view.tsx). Sur téléphone, les formes restent dans la carte, sous les cotes. */}
+      {formesLumiere && ecranMoyen && bandeauSlot && createPortal(<BandeauFormes locale={locale} {...formesLumiere} />, bandeauSlot)}
+      {recapLumiere && colonneAchat && resultatSlot && createPortal(<RecapLumiere nom={product.name} cotes={recapLumiere.cotes} ligne={recapLumiere.ligne} />, resultatSlot)}
 
       {/* Sur téléphone, le choix des matières vient en premier — c'est ce que
           le client vient chercher — le prix de départ suit derrière. Sur
@@ -2419,6 +2478,13 @@ export function ProductOptions({
           );
           if (nouvelleMiseEnPage) {
             if (estGC && ecranMoyen && !parcoursTel && matieresCentreSlot) return createPortal(matieresCompactes, matieresCentreSlot);
+            // Les plafonds lumineux, tablette et plus : « Couleur du cadre » et ses plaquettes dans la rangée du titre, comme la
+            // rangée couleur / matière du portail. Sur téléphone, elles restent à côté de la photo (matieresSlot), comme avant.
+            if (lumiereBloc && ecranMoyen && matieresCentreSlot && product.metals.length > 0)
+              return createPortal(
+                <PlaquettesCadre titre={product.metalLabel ? product.metalLabel[locale] : t.metalLabel} options={product.metals} choisi={metalId} onChoisir={setMetalId} />,
+                matieresCentreSlot,
+              );
             // Sur téléphone, le garde-corps garde ses matières DANS le bloc, dans la partie « Modèle » de la carte (après les
             // mesures, comme l'ordinateur les met au-dessus du croquis) : elles changent le croquis, qui reste visible.
             // (Le choix complet, écrit en clair : la ligne compacte ouvre une fenêtre de 440 px, coupée sur un téléphone.)
@@ -2484,6 +2550,72 @@ export function ProductOptions({
         >
           {bareme && !product.releve && (
             <div>
+              {lumiereBloc ? (
+                /* Les plafonds lumineux : « Vos mesures » comme au portail — picto, nom, « i », puis le curseur et la pastille
+                   côte à côte (lumiere-bloc.tsx). Les mêmes cases (mêmes id) : le croquis y amène toujours le curseur. */
+                <>
+                  <div className="lum-entete-mesures">
+                    <h3 className="lum-titre-mesures" id={`${idTailles}-ou`}>{tl.vosMesures}</h3>
+                    <div role="radiogroup" aria-label={t.customUnit} className="lum-unite">
+                      {(["mm", "cm", "m"] as const).map((u) => (
+                        <button key={u} type="button" role="radio" aria-checked={unite === u} onClick={() => changerUnite(u)}>{u}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="lum-consigne">{tl.consigne}</p>
+                  <div className="lum-cotes">
+                    <LigneCoteLumiere
+                      id={`${idTailles}-principale`}
+                      picto={rond ? "diametre" : "longueur"}
+                      titre={labelPrincipale}
+                      info={rond ? tl.infoDiametre : tl.infoLongueur}
+                      valeur={largeurSaisie}
+                      onChange={setLargeurSaisie}
+                      unite={unite}
+                      bornes={`${chiffre(bareme.minMm)} – ${chiffre(bareme.maxLargeurMm)}`}
+                      curseur={{ minMm: bareme.minMm, maxMm: bareme.maxLargeurMm, valeurMm: largeurMm, onChangeMm: (mm) => setLargeurSaisie(chiffreBrut(mm)) }}
+                      onFocus={() => setCoteActive("principale")}
+                      onBlur={() => setCoteActive(null)}
+                      erreurId={devis && !devis.ok && !devis.reason.startsWith("epaisseur") ? `${idTailles}-erreur` : undefined}
+                    />
+                    {!rond && (
+                      <LigneCoteLumiere
+                        id={`${idTailles}-secondaire`}
+                        picto="largeur"
+                        titre={labelSecondaire}
+                        info={tl.infoLargeur}
+                        valeur={hauteurSaisie}
+                        onChange={setHauteurSaisie}
+                        unite={unite}
+                        bornes={`${chiffre(bareme.minMm)} – ${chiffre(bareme.maxHauteurMm)}`}
+                        curseur={{ minMm: bareme.minMm, maxMm: bareme.maxHauteurMm, valeurMm: hauteurMm, onChangeMm: (mm) => setHauteurSaisie(chiffreBrut(mm)) }}
+                        onFocus={() => setCoteActive("secondaire")}
+                        onBlur={() => setCoteActive(null)}
+                        erreurId={devis && !devis.ok && !devis.reason.startsWith("epaisseur") ? `${idTailles}-erreur` : undefined}
+                      />
+                    )}
+                    {/* L'épaisseur du caisson : toujours en millimètres (une cote d'atelier) ; ses bornes suivent les cotes
+                        (un caisson ne peut pas être plus profond que sa toile n'est étroite, voir epaisseurMaxMm). */}
+                    <LigneCoteLumiere
+                      id={`${idTailles}-epaisseur`}
+                      picto="epaisseur"
+                      titre={t.customThickness}
+                      info={tl.infoEpaisseur}
+                      valeur={epaisseurSaisie}
+                      onChange={setEpaisseurSaisie}
+                      unite="mm"
+                      bornes={`${epaisseurMini} – ${epaisseurMaxi}`}
+                      curseur={{ minMm: epaisseurMini, maxMm: Math.max(epaisseurMaxi, epaisseurMini), valeurMm: epaisseurMm, onChangeMm: (mm) => setEpaisseurSaisie(String(mm)) }}
+                      onFocus={() => setCoteActive("epaisseur")}
+                      onBlur={() => setCoteActive(null)}
+                      erreurId={devis && !devis.ok && (devis.reason.startsWith("epaisseur") || devis.reason === "caisson_trop_profond") ? `${idTailles}-erreur` : undefined}
+                    />
+                  </div>
+                  {/* Téléphone : les deux formes sous les cotes (tablette et plus : dans le bandeau sous le croquis). */}
+                  {formesLumiere && !ecranMoyen && <BandeauFormes locale={locale} {...formesLumiere} enCarte />}
+                </>
+              ) : (
+                <>
               {/* Le titre, et l'unité de saisie en face : rien d'autre à lire. */}
               <div className="flex items-center justify-between gap-4">
                 <span
@@ -2758,6 +2890,8 @@ export function ProductOptions({
                   </div>
                 )}
               </div>
+                </>
+              )}
 
               {/* Le refus doit s'entendre, pas seulement se voir : sans
                       role="alert" un lecteur d'écran ne disait rien et le client
@@ -3032,7 +3166,7 @@ export function ProductOptions({
                 choix={poseObligatoire && pose.mode === "transporteur" ? { ...pose, mode: "pose" } : pose}
                 onChange={setPose}
                 compact={nouvelleMiseEnPage}
-                pilule={Boolean(colonneAchat && estGC)}
+                pilule={Boolean(colonneAchat && (estGC || lumiereBloc))}
                 demontee={Boolean(product.boisAuM2)}
                 livraisonSeule={Boolean(product.livraisonSeule)}
                 poseSeule={poseObligatoire}
@@ -3122,7 +3256,8 @@ export function ProductOptions({
         );
         /* Le garde-corps sur grand écran : la colonne d'achat ne défile pas. Les détails (poids, ce que comprend le prix) vont dans
            une fenêtre flottante ; la livraison reste là, en pilules, au-dessus de la barre d'achat. */
-        if (colonneAchat && estGC) {
+        // (Les plafonds lumineux, dans leur colonne d'achat : la même chose — la livraison en pilules, les détails en fenêtre.)
+        if (colonneAchat && (estGC || lumiereBloc)) {
           return (
             <>
               {detailsSlot &&
