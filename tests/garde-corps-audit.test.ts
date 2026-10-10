@@ -167,6 +167,8 @@ test("murs pas parallèles : les deux largeurs mesurées arrivent à l'atelier d
   assert.match(note, /^En étage · largeur au ras de l'appui 1180 mm, à 1 m du sol 1172 mm · /);
   // Une seule largeur connue (une ligne plus ancienne) : rien n'est inventé.
   assert.doesNotMatch(noteReleveGC({ etage: "En étage", mur: "", allegeMm: 650, fenetreMm: 0, jourMm: 0, largeurBasMm: 1180 }, mots), /largeur/);
+  // Deux largeurs égales (murs droits) : rien à dire, la note reste celle d'avant.
+  assert.doesNotMatch(noteReleveGC({ etage: "En étage", mur: "", allegeMm: 650, fenetreMm: 0, jourMm: 0, largeurBasMm: 1180, largeurHautMm: 1180 }, mots), /largeur/);
 });
 
 test("le plan d'aperçu reste possible aux deux bouts des fenêtres étroites et larges", () => {

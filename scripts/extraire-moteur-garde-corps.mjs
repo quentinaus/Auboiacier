@@ -58,7 +58,7 @@ const A = analyser(html);
 // ---------- 1. Ce qu'on prend : des racines, puis tout ce qu'elles utilisent ----------
 const RACINES = {
   moteur: ["geomGC", "calculerGC", "variantesConformes", "decrireVariante", "HAUT_ETAGE", "ALLEGE_LIBRE", "MINI_GC", "MINI_SEULS", "BARRE_APPUI", "SPHERE",
-    "SPHERE_HAUT", "Z_SPHERE", "Z_ESCALADE", "CIBLE_MARGE", "LIMITE_ACIER", "ROSACE_R", "RENFORT", "fmt", "mmTxt", "planA3Pur", "DS_ESSENCES", "coupeMainCourante", "svgDe", "MARGE_BOULE",
+    "SPHERE_HAUT", "Z_SPHERE", "Z_ESCALADE", "CIBLE_MARGE", "LIMITE_ACIER", "ROSACE_R", "RENFORT", "fmt", "mmTxt", "largeurMurGC", "planA3Pur", "DS_ESSENCES", "coupeMainCourante", "svgDe", "MARGE_BOULE",
     // La fixation par platines au bout des lisses (10/10/2026) : le recul du cadre dans le tableau (90 mm), la platine 40 × 5 × 120.
     // Le croquis du site (schema-fenetre.tsx) dessine le cadre en retrait d'autant.
     "FIX_GC",
@@ -272,7 +272,7 @@ const texteChiffre = scelle(
 const TYPES = {
   "moteur.genere.d.mts": `// FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : types du moteur (moteur.genere.mjs).
 export type ValeursGC = {
-  B: number; A: number; Hs: number; Hf: number; Xo: number; jour: number; j: number; s: number; nP: number; nb: number;
+  B: number; /** Largeur entre les murs à 1 m du sol (0 = la même qu'en bas : murs parallèles). */ Bh?: number; A: number; Hs: number; Hf: number; Xo: number; jour: number; j: number; s: number; nP: number; nb: number;
   sbMode: string; ass: string; rosace: boolean; etage: boolean; mc: number; epMc: number; mcType: string; essence: string;
   rainure: boolean; rnP: number; rnJ: number; dF: number; fF: number; eF: number; nF: number; trait: number;
   debitAr: number; minSoud: number; remise: string; km: number; prixVente: number; traverse: boolean; renfort: string; seuls?: boolean; patte?: number; rD: number; jourAuto?: boolean; jourSaisi?: number; _rapide?: boolean;
@@ -291,6 +291,8 @@ export type ResultatGC = {
   kg?: number;
   metres?: number;
   hauteurGC?: number;
+  /** Le vide entre le montant de rive et le tableau (mm) : au plus étroit, au plus large, la boule de la norme, la tolérance, et les barreaux de rive ajoutés (par côté). */
+  videRive?: { nominal: number; max: number; limite: number; tolerance: number; barreauxRive: number };
   /** La main courante retenue : largeur, hauteur, profondeur de rainure ; et le plat de renfort s'il y en a un. */
   mc?: { l: number; h: number; chev: number; renfort: { l: number; e: number; vis: number } | null };
   /** Avec un décor à volutes : son nom (« Frise de volutes en S ») et ses finitions, tels que le devis les écrit. */
@@ -298,7 +300,7 @@ export type ResultatGC = {
   decorFinitions?: string;
   [autre: string]: unknown;
 };
-export type GeomGC = { Lc: number; cible: number; manque: number; appui: "barre" | "rien" | null; hNorme: number; Hr: number; Hc: number; h: number; w: number; sb: number; ok: boolean; dMax: number; limite: number; [autre: string]: unknown };
+export type GeomGC = { Lc: number; Lt: number; Ltb: number; Ltm: number; wb: number; wh: number; wm: number; penche: boolean; pente: number; theta: number; ecart: number; cible: number; manque: number; appui: "barre" | "rien" | null; hNorme: number; Hr: number; Hc: number; h: number; w: number; sb: number; ok: boolean; dMax: number; limite: number; [autre: string]: unknown };
 export type VarianteGC = { w: ValeursGC; R: ResultatGC; change: number; score: number };
 export declare const DEFAUTS_GC: Readonly<ValeursGC>;
 export declare const BORNES_GC: Readonly<Record<"B" | "A" | "Hf", Readonly<{ min: number; max: number }>>>;
@@ -308,6 +310,8 @@ export declare function variantesConformes(v: ValeursGC): VarianteGC[];
 export declare function decrireVariante(v: ValeursGC, c: { w: ValeursGC }): string[];
 export declare function fmt(x: number, d?: number): string;
 export declare function mmTxt(x: number): string;
+/** Tableaux non parallèles (10/10/2026) : la largeur entre les murs à la hauteur z du sol (B en bas, Bh à 1 m ; Bh = 0 : parallèles). */
+export declare function largeurMurGC(v: Pick<ValeursGC, "B" | "A" | "Bh">, z: number): number;
 export declare function coupeMainCourante(v: ValeursGC): unknown[];
 export declare function svgDe(prims: readonly unknown[], petit?: boolean | string): { vb: number[]; fs: number; html: string };
 export declare function planA3Pur(R: ResultatGC, v: ValeursGC, infos: { apercu?: boolean; date?: string; client?: string; chantier?: string; numero?: string }, modele: string): string;
@@ -615,6 +619,21 @@ function comparerAvecOutil(M, D, CH) {
     { nom: "décor, noyer, pose à 40 km", valeurs: { B: 1300, A: 600, decor: "medaillon", decorForme: "doubleC", essence: "noyer", remise: "pose", km: 40 }, chantier: "49000 Angers" },
     { nom: "décor, main courante d'acier plat", valeurs: { B: 1100, A: 650, decor: "entre", decorForme: "C", mcType: "acier", seuls: true }, lire: true },
     { nom: "décor, bois sur fer plat, fenêtre large", valeurs: { B: 2100, A: 650, decor: "applique", decorForme: "doubleC", renfort: "plat", seuls: true } },
+  );
+  // Tableaux non parallèles (10/10/2026), ajoutés APRÈS tous les autres cas (le tirage au hasard ne change pas) : « Bh », la largeur
+  // mesurée à 1 m du sol ; le cadre reste droit, les lisses, la main courante et le plat de renfort suivent les murs.
+  cas.push(
+    { nom: "murs penchés, 1180 en bas / 1120 à 1 m", valeurs: { B: 1180, Bh: 1120 }, lire: true },
+    { nom: "murs penchés, 1000 en bas / 1040 à 1 m (plus large en haut)", valeurs: { B: 1000, Bh: 1040 } },
+    { nom: "murs penchés, 2000 / 1950, renfort", valeurs: { B: 2000, Bh: 1950, A: 650, nP: 5, renfort: "plat" }, lire: true },
+    { nom: "murs penchés, grand écart 1000 / 1200 à 300 du sol : barreaux de rive", valeurs: { B: 1000, Bh: 1200, A: 300 } },
+    { nom: "murs penchés, grand écart 1000 / 1200, allège 650 : pas de barreaux de rive", valeurs: { B: 1000, Bh: 1200, A: 650 } },
+    { nom: "murs penchés, écart énorme 1000 / 1800 (à étudier)", valeurs: { B: 1000, Bh: 1800, A: 300 } },
+    { nom: "murs penchés, pierre dure (ancrage traversant)", valeurs: { B: 1180, Bh: 1120, mur: "pierre-dure" } },
+    { nom: "murs penchés, béton, tableau de 60 (patte en façade)", valeurs: { B: 1180, Bh: 1250, A: 585, mur: "beton", tMur: 60 } },
+    { nom: "murs penchés, barreaux seuls, acier plat", valeurs: { B: 1300, Bh: 1230, A: 400, seuls: true, mcType: "acier" } },
+    // Le devis et le détail C du plan disent les DEUX largeurs / les DEUX reculs ; allège 880 : la largeur se lit à 1 030 du sol (A + 150).
+    { nom: "murs penchés, allège 880 : largeur lue à 1 030 du sol", valeurs: { B: 1180, Bh: 1120, A: 880, Hs: 300 }, lire: true },
   );
   let variantes = 0;
   const casRef = [];

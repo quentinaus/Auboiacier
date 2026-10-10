@@ -44,10 +44,13 @@ function colisDemande(params: URLSearchParams): { kg: number; plusGrandeCoteMm: 
       return t !== null && /^\d{1,5}$/.test(t) ? Number(t) : undefined;
     };
     const largeurMm = mm("l");
+    // La largeur à 1 m du sol (murs pas parallèles) : le colis prend la plus grande des deux.
+    const largeurHautMm = mm("lh");
     const allegeMm = mm("allege");
     const etage = params.get("etage");
     const woodId = identifiant(params.get("wood"));
     if (largeurMm === undefined || allegeMm === undefined || (etage !== "1" && etage !== "0") || !woodId) return null;
+    if (params.get("lh") !== null && largeurHautMm === undefined) return null;
     // Le décor à volutes pèse le poids de ses volutes : illisible, pas de colis (jamais le poids d'un autre garde-corps).
     const decorBrut = params.get("decor");
     const decor = decorBrut === null ? null : lireDecorGC(decorBrut);
@@ -55,12 +58,12 @@ function colisDemande(params: URLSearchParams): { kg: number; plusGrandeCoteMm: 
     const mur = lireMurParametresGC(params);
     if (mur === null) return null;
     const ligne = ligneGC(
-      { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm: mm("fenetre") ?? 0, ...(decor ? { decor: idDecorGC(decor) } : lireModeleGC(params.get("modele")) ? { modele: params.get("modele")! } : {}), ...mur },
+      { largeurMm, ...(largeurHautMm !== undefined ? { largeurHautMm } : {}), allegeMm, enEtage: etage === "1", fenetreMm: mm("fenetre") ?? 0, ...(decor ? { decor: idDecorGC(decor) } : lireModeleGC(params.get("modele")) ? { modele: params.get("modele")! } : {}), ...mur },
       { woodId, metalId: identifiant(params.get("metal")) ?? produit.metals[0]?.id, fabricId: identifiant(params.get("fabric")) ?? produit.fabrics?.[0]?.id, remplissageId: identifiant(params.get("remplissage")) ?? produit.remplissages?.[0]?.id }
     );
     if (!ligne.ok || !ligne.line.gc) return null;
     const [L, H] = ligne.line.size.dimsMm!;
-    return { kg: ligne.line.gc.kg * quantite, plusGrandeCoteMm: Math.max(L, H) };
+    return { kg: ligne.line.gc.kg * quantite, plusGrandeCoteMm: Math.max(L, H, ligne.line.gc.releve.largeurHautMm ?? 0) };
   }
   return {
     kg:

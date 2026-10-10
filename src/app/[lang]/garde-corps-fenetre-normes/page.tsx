@@ -13,7 +13,6 @@ import {
 } from "@/lib/prix-garde-corps.server";
 import {
   ALLEGE_SANS_OBLIGATION_MM,
-  ECART_MURS_GC_MM,
   HAUTEUR_LOI_GC_MM,
   JOUR_GC_MM,
   JOUR_MINI_GC_MM,
@@ -191,7 +190,6 @@ export default async function NormesGardeCorpsPage({
     escalade: mm(Z_ESCALADE_GC_MM),
     mainSeule: mm(seuils.mainSeuleMm),
     rien: mm(seuils.rienMm),
-    ecart: mm(ECART_MURS_GC_MM),
     largeur: mm(LARGEUR_EXEMPLE_MM),
     rayonMax: `${RAYON_MAX_KM} km`,
     bois: bois.label,

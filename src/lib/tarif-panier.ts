@@ -259,6 +259,8 @@ export async function tarifer(
         fabricId: identifiant(line.fabricId),
         remplissageId: identifiant(line.remplissageId),
         largeurMm: coteMm(line.largeurMm),
+        // La largeur à 1 m du sol (murs pas parallèles) : absente, des murs droits ; illisible, refusée (NaN), jamais prise pour « absente ».
+        largeurHautMm: line.largeurHautMm === undefined || line.largeurHautMm === null ? undefined : (coteMm(line.largeurHautMm) ?? Number.NaN),
         hauteurMm: coteMm(line.hauteurMm),
         epaisseurMm: coteMm(line.epaisseurMm),
         allegeMm: hauteurMm(line.allegeMm),

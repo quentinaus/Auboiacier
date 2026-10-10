@@ -2044,6 +2044,11 @@ const catalogue: Product[] = [
     tagline: "Garde-corps de fenêtre en acier plein, à volutes de ferronnerie : le décor des balcons anciens, dessiné à vos cotes et vérifié selon la norme.",
     images: [
       {
+        // La photo choisie par Quentin (10/10/2026) : volutes en C et en S entre les barreaux, platines sur l'appui en pierre.
+        src: "/images/garde-corps/forge/volutes-balcon.jpg",
+        alt: "Garde-corps forgé à volutes en C et en S entre des barreaux carrés, acier peint noir, main courante en chêne, fixé sur l'appui en pierre d'une fenêtre en tuffeau",
+      },
+      {
         src: "/images/garde-corps/forge/entre-c.jpg",
         alt: "Garde-corps forgé vu de face : volutes en C entre les barreaux, acier peint noir, main courante en chêne, entre deux tableaux en tuffeau",
         // Le fond de la pierre : la marge autour du dessin prolonge le mur.
@@ -2123,6 +2128,7 @@ const catalogue: Product[] = [
       h1Ligne: "Bespoke window railing with ironwork scrolls",
       tagline: "Solid steel window railing with ironwork scrolls: the design of old balconies, drawn to your measurements and checked against the standard.",
       images: [
+        "Wrought railing with C- and S-scrolls between square bars, black-painted steel, oak handrail, fixed on the stone sill of a tufa window",
         "Wrought window railing, front view: C-scrolls between the bars, black-painted steel, oak handrail, between two tufa stone reveals",
         "Wrought railing with a Directoire-style ring frieze, gilded highlights, black-painted steel and oak handrail",
         "Wrought railing with scrolled hearts, black-painted steel, oak handrail, in a tufa stone window opening",
@@ -3013,6 +3019,8 @@ export type Selection = {
   largeurMm?: number;
   hauteurMm?: number;
   epaisseurMm?: number;
+  /** Garde-corps : la largeur à 1 m du sol quand les murs ne sont pas parallèles (ReleveGC.largeurHautMm). Absente : des murs droits. */
+  largeurHautMm?: number;
   /**
    * Le relevé d'un garde-corps de fenêtre (avec largeurMm) : l'allège, l'étage
    * et la hauteur de la fenêtre. C'est avec eux que le serveur recalcule la
@@ -3612,10 +3620,12 @@ export function libelleGardeCorps(
   hauteurMm: number,
   croix: number | null,
   locale: Locale = "fr",
-  modele: { soubassement?: boolean; carre?: number; traverse?: boolean; renfort?: boolean; seuls?: boolean; patte?: number; decor?: string; fixation?: { mur: MurFixationGC; mode?: string; statut?: StatutFixationGC } } = {}
+  modele: { soubassement?: boolean; carre?: number; traverse?: boolean; renfort?: boolean; seuls?: boolean; patte?: number; decor?: string; fixation?: { mur: MurFixationGC; mode?: string; statut?: StatutFixationGC }; largeurHautMm?: number } = {}
 ) {
   const langue = locale === "en" ? "en-GB" : "fr-FR";
-  const cotes = `${largeurMm.toLocaleString(langue)} × ${hauteurMm.toLocaleString(langue)} mm`;
+  // Murs pas parallèles : les deux largeurs, en bas puis à 1 m du sol (« 1 180 / 1 172 × 350 mm ») ; égales ou absente, une seule.
+  const largeurs = modele.largeurHautMm !== undefined && modele.largeurHautMm !== largeurMm ? `${largeurMm.toLocaleString(langue)} / ${modele.largeurHautMm.toLocaleString(langue)}` : largeurMm.toLocaleString(langue);
+  const cotes = `${largeurs} × ${hauteurMm.toLocaleString(langue)} mm`;
   const prefixe = locale === "en" ? "Custom" : "Sur mesure";
   const renfort = (modele.renfort ? (locale === "en" ? ", reinforced top rail" : ", lisse haute renforcée") : "")
     + (!modele.patte ? "" : modele.patte > 1
@@ -3643,11 +3653,14 @@ export function libelleGardeCorps(
 function resoudreReleve(product: Product, selection: Selection, prixReleve?: PrixReleve): ResolveResult {
   if (selection.sizeId !== undefined && selection.sizeId !== SUR_MESURE) return { ok: false, reason: "unknown_size" };
   const largeurMm = mmEntier(selection.largeurMm);
+  // La largeur à 1 m du sol (murs pas parallèles) : absente, des murs droits ; illisible, refusée — jamais prise pour « absente ».
+  const largeurHautMm = selection.largeurHautMm === undefined ? undefined : mmEntier(selection.largeurHautMm);
   const allegeMm = mmEntier(selection.allegeMm);
   const fenetreMm = selection.fenetreMm === undefined ? 0 : mmEntier(selection.fenetreMm);
   if (largeurMm === undefined || allegeMm === undefined || fenetreMm === undefined || typeof selection.enEtage !== "boolean") {
     return { ok: false, reason: "unknown_size" };
   }
+  if (selection.largeurHautMm !== undefined && largeurHautMm === undefined) return { ok: false, reason: "unknown_size" };
 
   const wood = pickOption(product.woods, selection.woodId);
   if (!wood.ok || !wood.value) return { ok: false, reason: "unknown_wood" };
@@ -3673,6 +3686,8 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
   if (!murDansLesBornes(mur)) return { ok: false, reason: "unknown_size" };
   const releve: ReleveGC = {
     largeurMm, allegeMm, enEtage: selection.enEtage, fenetreMm,
+    // Les deux largeurs, quand elles diffèrent : le libellé les écrit, l'outil coupe chaque traverse à la sienne.
+    ...(largeurHautMm !== undefined && largeurHautMm !== largeurMm ? { largeurHautMm } : {}),
     // Sous un panneau de verre il n'y a plus de croix : le dessin choisi ne compte pas. (Sinon une requête
     // forgée obtenait le verre au prix du dessin le moins cher — 680 € au lieu de 860 € sur une fenêtre de 1 180.)
     // Avec un décor non plus : c'est le décor qui remplit le cadre.
@@ -3706,7 +3721,7 @@ function resoudreReleve(product: Product, selection: Selection, prixReleve?: Pri
 
   const size: ProductSize = {
     id: SUR_MESURE,
-    label: libelleGardeCorps(largeurMm, r.hauteurMm, verre ? null : r.croix, selection.locale, { soubassement: r.soubassement, carre: r.carre, traverse: r.traverse, renfort: r.renfort, seuls: r.seuls, patte: r.patte, decor: decorLibelle, fixation: r.fixation }),
+    label: libelleGardeCorps(largeurMm, r.hauteurMm, verre ? null : r.croix, selection.locale, { soubassement: r.soubassement, carre: r.carre, traverse: r.traverse, renfort: r.renfort, seuls: r.seuls, patte: r.patte, decor: decorLibelle, fixation: r.fixation, largeurHautMm: releve.largeurHautMm }),
     price: r.prix,
     dimsMm: [largeurMm, r.hauteurMm],
   };

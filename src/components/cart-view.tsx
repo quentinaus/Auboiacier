@@ -39,6 +39,8 @@ function ligneEnvoyee(item: CartItem) {
     slug: item.slug,
     sizeId: item.sizeId,
     largeurMm: item.largeurMm,
+    // Murs pas parallèles : la largeur à 1 m du sol part avec la largeur du bas (le serveur recalcule le prix avec les deux).
+    largeurHautMm: item.largeurHautMm,
     hauteurMm: gardeCorps ? undefined : item.hauteurMm,
     epaisseurMm: item.epaisseurMm,
     allegeMm: item.allegeMm,

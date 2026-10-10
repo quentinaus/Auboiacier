@@ -783,6 +783,10 @@ export function SchemaFenetre({
   const recul = mode === "garde-corps" && remplissage !== "verre" ? Math.min(r(RECUL_FIXATION_GC_MM * e), r((D - G - 4) / 5)) : 0;
   const cG = G + 2 + recul, cD = D - 2 - recul, cL = cD - cG;
   const platineE = Math.max(1.2, r(PLATINE_FIXATION_GC_MM.e * e * 10) / 10), platineH = Math.max(3, r(PLATINE_FIXATION_GC_MM.h * e));
+  /* Murs pas parallèles (Quentin, 10/10/2026 : « qu'on voie bien que le garde-corps suit les murs », montants de rive
+     DROITS) : le cadre reste rectangulaire, à 90 mm du tableau au niveau de la lisse la plus étroite (cG, cD, calculés sur la
+     plus petite largeur). Seules les lisses haute et basse, la main courante et les platines filent jusqu'à leur tableau,
+     chacune à la largeur de son niveau (bordG, bordD). */
 
   const gardeCorps = mode === "garde-corps" && (
     <g filter={acierClair ? `url(#${ids("contour")})` : undefined}>
@@ -799,17 +803,21 @@ export function SchemaFenetre({
            platine 40 × 5 × 120 soudée à chaque bout, plaquée contre le tableau (en haut sous la lisse, en bas centrée sur elle ;
            une seule par côté sur toute la hauteur quand le cadre est trop bas pour deux). */
         <g>
-          <line x1={G + 2} y1={cadreHaut} x2={D - 2} y2={cadreHaut} stroke={acier} strokeWidth={r(barre * 1.4)} />
-          <line x1={G + 2} y1={cadreBas} x2={D - 2} y2={cadreBas} stroke={acier} strokeWidth={r(barre * 1.4)} />
-          {[G + 2, D - 2 - platineE].map((x, k) => {
+          <line x1={bordG(cadreHaut) + 2} y1={cadreHaut} x2={bordD(cadreHaut) - 2} y2={cadreHaut} stroke={acier} strokeWidth={r(barre * 1.4)} />
+          <line x1={bordG(cadreBas) + 2} y1={cadreBas} x2={bordD(cadreBas) - 2} y2={cadreBas} stroke={acier} strokeWidth={r(barre * 1.4)} />
+          {[(y: number) => bordG(y) + 2, (y: number) => bordD(y) - 2 - platineE].map((x, k) => {
             const yHaut = r(cadreHaut - barre * 0.7);
             const unique = cadreBas + platineH / 2 - yHaut < 2 * platineH + barre;
+            /* La platine, plaquée sur le tableau : elle suit sa pente. */
+            const platine = (y1: number, y2: number, cle: string) => (
+              <polygon key={cle} points={`${r(x(y1))},${y1} ${r(x(y1) + platineE)},${y1} ${r(x(y2) + platineE)},${y2} ${r(x(y2))},${y2}`} fill={acier} />
+            );
             return unique ? (
-              <rect key={`pl${k}`} x={x} y={yHaut} width={platineE} height={r(cadreBas + platineH / 2 - yHaut)} fill={acier} />
+              platine(yHaut, r(cadreBas + platineH / 2), `pl${k}`)
             ) : (
               <g key={`pl${k}`}>
-                <rect x={x} y={yHaut} width={platineE} height={platineH} fill={acier} />
-                <rect x={x} y={r(cadreBas - platineH / 2)} width={platineE} height={platineH} fill={acier} />
+                {platine(yHaut, r(yHaut + platineH), `h`)}
+                {platine(r(cadreBas - platineH / 2), r(cadreBas + platineH / 2), `b`)}
               </g>
             );
           })}
@@ -900,8 +908,8 @@ export function SchemaFenetre({
             <ellipse key={`rond${i}`} cx={r(cG + c.x * sx)} cy={r(cadreBas - c.y * sy)} rx={r((c.d / 2) * sx)} ry={r((c.d / 2) * sy)} fill={couleur} fillOpacity={0.3} stroke={couleur} strokeWidth={1.6} />
           );
         })}
-      <MainCourante x={G - 2} y={hautGardeCorpsY} largeur={D - G + 4} hauteur={mainCouranteH} type={typeMainCourante} acier={acier} bois={bois} />
-      {platH > 0 && <rect x={G} y={r(hautGardeCorpsY + mainCouranteH - platH)} width={D - G} height={platH} fill={acier} />}
+      <MainCourante x={bordG(hautGardeCorpsY) - 2} y={hautGardeCorpsY} largeur={bordD(hautGardeCorpsY) - bordG(hautGardeCorpsY) + 4} hauteur={mainCouranteH} type={typeMainCourante} acier={acier} bois={bois} />
+      {platH > 0 && <rect x={bordG(hautGardeCorpsY)} y={r(hautGardeCorpsY + mainCouranteH - platH)} width={bordD(hautGardeCorpsY) - bordG(hautGardeCorpsY)} height={platH} fill={acier} />}
       {/* Les pattes : du bas du cadre jusqu'à l'appui, où elles sont scellées. */}
       {Array.from({ length: pattes }, (_, j) => (
         <rect key={`patte${j}`} x={r(cG + (cL * (j + 1)) / (pattes + 1) - Math.max(1, barre / 2))} y={basGardeCorpsY} width={Math.max(2, barre)} height={Math.max(2, appuiY - basGardeCorpsY + 2)} fill={acier} />

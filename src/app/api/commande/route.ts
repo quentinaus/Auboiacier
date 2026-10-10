@@ -135,7 +135,15 @@ export async function POST(request: Request) {
     quantity: number;
   }[] = [];
 
+  /**
+   * Murs pas parallèles (Quentin, 10/10/2026) : les deux largeurs de chaque garde-corps, en bas puis à 1 m du sol, telles que le
+   * client les a relevées, par rang de ligne (« 0:1180/1172;3:2000/1980 ») — une seule clé, lisible par l'atelier à côté du
+   * libellé, qui les porte aussi (« 1 180 / 1 172 × 350 mm »). Rien pour une fenêtre droite.
+   */
+  const largeursGC: string[] = [];
   for (const piece of tarif.pieces) {
+    const releveGC = piece.line.gc?.releve;
+    if (releveGC?.largeurHautMm !== undefined && releveGC.largeurHautMm !== releveGC.largeurMm) largeursGC.push(`${items.length}:${releveGC.largeurMm}/${releveGC.largeurHautMm}`);
     items.push({
       price_data: {
         currency: "eur",
@@ -336,6 +344,8 @@ export async function POST(request: Request) {
       metadata: {
         // Le libellé entier des lignes dont le nom a été coupé (au plus une clé par ligne).
         ...entiers,
+        // Les deux largeurs des garde-corps aux murs pas parallèles, par rang de ligne (voir largeursGC plus haut).
+        ...(largeursGC.length ? { gc_largeurs: largeursGC.join(";").slice(0, 500) } : {}),
         order_ref: orderRef,
         locale,
         ville,

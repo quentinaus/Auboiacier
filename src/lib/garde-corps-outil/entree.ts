@@ -67,6 +67,9 @@ export function valeursGC<D extends object>(defauts: D, e: EntreeSiteGC, s: numb
   return {
     ...defauts,
     B: e.largeurMm,
+    // La largeur à 1 m du sol (murs pas parallèles, Quentin 10/10/2026) : le cadre suit les murs, chaque traverse coupée à la
+    // largeur de son niveau. Murs parallèles : la même que B. (Le moteur ne la lit pas encore ; il l'ignore d'ici là.)
+    Bh: e.largeurHautMm ?? e.largeurMm,
     A: e.allegeMm,
     etage: e.enEtage,
     Hf: e.fenetreMm,

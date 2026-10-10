@@ -47,8 +47,8 @@ export function OuvrirCotesGC({
         memoriserConfig({
           slug,
           woodId,
+          // Des murs droits : une seule largeur (la largeur du haut ne revient que si elle diffère).
           gcLargeurMm: largeurMm,
-          gcLargeurHautMm: largeurMm,
           gcAllegeMm: allegeMm,
           gcEnEtage: enEtage,
         })

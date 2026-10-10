@@ -411,9 +411,11 @@ test("adresse de /api/prix-garde-corps : seuls des millimètres entiers dans les
     "l=1180&allege=650&etage=1&wood=chene&qty=0",         // quantité de 1 à 10
     "l=1180&allege=650&etage=1&wood=chene&qty=11",
     "l=1180&allege=650&etage=1&wood=chene&metal=NOIR!",   // un identifiant d'option, rien d'autre
+    `l=1180&lh=${BORNES_GC.B.min - 1}&allege=650&etage=1&wood=chene`,   // la largeur à 1 m du sol : mêmes bornes que « l »
+    `l=1180&lh=${BORNES_GC.B.max + 1}&allege=650&etage=1&wood=chene`,
   ]) assert.equal(ok(q), null, q);
-  // (« mur », « c », « ep » : le mur des tableaux, facultatif — tests/garde-corps-mur-site.test.ts.)
-  assert.deepEqual([...PARAMETRES_PRIX_GC].sort(), ["allege", "decor", "decors", "ep", "etage", "fabric", "fenetre", "l", "metal", "modele", "mur", "qty", "remplissage", "t", "wood"]);
+  // (« lh » : la largeur à 1 m du sol, facultative — tests/garde-corps-murs-inegaux.test.ts ; « mur », « t », « ep » : le mur des tableaux, facultatif — tests/garde-corps-mur-site.test.ts.)
+  assert.deepEqual([...PARAMETRES_PRIX_GC].sort(), ["allege", "decor", "decors", "ep", "etage", "fabric", "fenetre", "l", "lh", "metal", "modele", "mur", "qty", "remplissage", "t", "wood"]);
 });
 
 test("un relevé hors des bornes de l'outil n'est jamais calculé", () => {

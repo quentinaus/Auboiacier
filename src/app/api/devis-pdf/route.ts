@@ -106,11 +106,13 @@ export async function GET(request: Request) {
       return t !== null && /^\d{1,5}$/.test(t) ? Number(t) : undefined;
     };
     const largeurMm = mm("l");
+    // La largeur à 1 m du sol (murs pas parallèles) : facultative ; illisible, refusée, jamais prise pour « absente ».
+    const largeurHautMm = mm("lh");
     const allegeMm = mm("allege");
     const fenetreMm = mm("fenetre") ?? 0;
     const etage = p.get("etage");
     const woodId = identifiant(p.get("wood"));
-    if (largeurMm === undefined || allegeMm === undefined || (etage !== "1" && etage !== "0") || !woodId) {
+    if (largeurMm === undefined || allegeMm === undefined || (etage !== "1" && etage !== "0") || !woodId || (p.get("lh") !== null && largeurHautMm === undefined)) {
       return NextResponse.json({ error: "unknown_size" }, { status: 400 });
     }
     // Comme /api/prix-garde-corps : une option absente est celle du modèle
@@ -152,7 +154,7 @@ export async function GET(request: Request) {
     const debut = performance.now();
     try {
       resultat = composerDevisGardeCorps({
-        releve: { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm, ...(decor ? { decor: idDecorGC(decor) } : modele ? { modele } : {}), ...mur },
+        releve: { largeurMm, ...(largeurHautMm !== undefined ? { largeurHautMm } : {}), allegeMm, enEtage: etage === "1", fenetreMm, ...(decor ? { decor: idDecorGC(decor) } : modele ? { modele } : {}), ...mur },
         options: { woodId, metalId, fabricId, remplissageId },
         quantite: entier(p.get("qty"), 10) ?? 1,
         livraison,

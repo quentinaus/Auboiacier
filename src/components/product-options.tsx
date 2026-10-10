@@ -1321,8 +1321,8 @@ export function ProductOptions({
             configGC.hauteurMm,
             remplissage?.sansCroix ? null : configGC.croix,
             locale,
-            // Le même libellé que celui du serveur (panier, commande) : la traverse, les barreaux, le carré.
-            { soubassement: configGC.soubassementMm > 0, carre: configGC.carre, traverse: configGC.traverse, renfort: configGC.renfort, seuls: configGC.seuls },
+            // Le même libellé que celui du serveur (panier, commande) : la traverse, les barreaux, le carré, les deux largeurs.
+            { soubassement: configGC.soubassementMm > 0, carre: configGC.carre, traverse: configGC.traverse, renfort: configGC.renfort, seuls: configGC.seuls, largeurHautMm: releveGC.largeurHautMm },
           ),
         }
       : null
@@ -1588,6 +1588,8 @@ export function ProductOptions({
     if (estGC) {
       if (!configGC || !releveGC) return null;
       q.set("l", String(releveGC.largeurMm));
+      // Murs pas parallèles : la largeur à 1 m du sol aussi — le colis prend la plus grande des deux.
+      if (releveGC.largeurHautMm !== undefined) q.set("lh", String(releveGC.largeurHautMm));
       q.set("allege", String(releveGC.allegeMm));
       q.set("etage", releveGC.enEtage ? "1" : "0");
       q.set("fenetre", String(releveGC.fenetreMm));
@@ -1626,6 +1628,8 @@ export function ProductOptions({
       // Le garde-corps : le relevé. Le serveur en tire la forme et le prix (l'outil de plans).
       if (!releveGC) return null;
       p.set("l", String(releveGC.largeurMm));
+      // Murs pas parallèles : la largeur à 1 m du sol part sur le devis comme au panier.
+      if (releveGC.largeurHautMm !== undefined) p.set("lh", String(releveGC.largeurHautMm));
       p.set("allege", String(releveGC.allegeMm));
       p.set("etage", releveGC.enEtage ? "1" : "0");
       p.set("fenetre", String(releveGC.fenetreMm));
@@ -1806,9 +1810,13 @@ export function ProductOptions({
     const config = configActuelle();
     // Deux fenêtres aux mêmes options font deux favoris : la largeur, en tête
     // du résumé, permet de les distinguer dans la liste.
-    // La largeur retenue : la plus petite des deux mesurées (murs pas parallèles), celle du prix.
+    // La largeur : celle du bas, puis celle à 1 m du sol quand les murs ne sont pas parallèles (« 1180 / 1120 »).
     const largeurRetenue =
-      config.gcLargeurMm === undefined ? undefined : Math.min(config.gcLargeurMm, config.gcLargeurHautMm ?? config.gcLargeurMm);
+      config.gcLargeurMm === undefined
+        ? undefined
+        : config.gcLargeurHautMm !== undefined && config.gcLargeurHautMm !== config.gcLargeurMm
+          ? `${config.gcLargeurMm} / ${config.gcLargeurHautMm}`
+          : String(config.gcLargeurMm);
     const fenetre =
       largeurRetenue === undefined
         ? null
@@ -2064,7 +2072,7 @@ export function ProductOptions({
             product.name,
             wood?.label,
             metal?.label,
-            // Murs pas parallèles : la visite a souvent été conseillée pour ça ; Quentin arrive en sachant ce qui a été relevé.
+            // Murs pas parallèles : Quentin arrive en sachant ce que le client a déjà relevé.
             largeursDifferentes &&
               (locale === "fr"
                 ? `largeur relevée ${largeursDifferentes.basMm} mm au ras de l'appui, ${largeursDifferentes.hautMm} mm à 1 m du sol`
@@ -2091,7 +2099,7 @@ export function ProductOptions({
         // Le relevé du garde-corps : c'est avec lui que le serveur recalcule la
         // forme et le prix (la hauteur ci-dessus n'en est qu'une copie).
         ...(estGC && releveGC
-          ? { allegeMm: releveGC.allegeMm, enEtage: releveGC.enEtage, fenetreMm: releveGC.fenetreMm, modeleGc: releveGC.decor ? undefined : releveGC.modele, ...(releveGC.decor ? { decorGc: releveGC.decor } : {}), murGc: releveGC.mur, tMurMm: releveGC.tMurMm, eMurMm: releveGC.eMurMm }
+          ? { largeurHautMm: releveGC.largeurHautMm, allegeMm: releveGC.allegeMm, enEtage: releveGC.enEtage, fenetreMm: releveGC.fenetreMm, modeleGc: releveGC.decor ? undefined : releveGC.modele, ...(releveGC.decor ? { decorGc: releveGC.decor } : {}), murGc: releveGC.mur, tMurMm: releveGC.tMurMm, eMurMm: releveGC.eMurMm }
           : {}),
         // Et la note pour l'atelier (étage, mur, allège, fenêtre).
         note:

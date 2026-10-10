@@ -487,7 +487,13 @@ function caracteristiquesAnglaises(base: DevisGC, config: ConfigGC, line: Resolv
     .filter(Boolean)
     .join(" · ");
   const lignes: (Caracteristique | null)[] = [
-    { label: "Width between reveals", value: `${nb(v.B)} mm` },
+    // Murs pas parallèles : les deux largeurs, comme le devis français (dsLargeurGC de l'outil : « à 1 m du sol » ou la hauteur exacte).
+    {
+      label: "Width between reveals",
+      value: (v.Bh ?? 0) > 0 && v.Bh !== v.B
+        ? `${nb(v.B)} mm at the bottom, ${nb(v.Bh ?? 0)} mm at ${Math.max(1000, v.A + 150) === 1000 ? "1 m" : `${nb(Math.max(1000, v.A + 150))} mm`} above the floor`
+        : `${nb(v.B)} mm`,
+    },
     { label: "Railing height", value: `${nb(config.hauteurMm)} mm` },
     { label: "Infill", value: remplissage.charAt(0).toUpperCase() + remplissage.slice(1) },
     verre || t.seuls || sansRosace || dec ? null : { label: "Rosette", value: rosace },

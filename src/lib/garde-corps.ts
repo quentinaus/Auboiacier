@@ -65,11 +65,14 @@ export const BORNES_RELEVE_GC = {
 
 /**
  * Murs pas parallèles (décision de Quentin, 05/10) : le client mesure la largeur en bas (à l'appui) et en haut (à 1 m
- * du sol) ; l'atelier fabrique à la plus petite. Au-delà de cet écart, le site conseille la visite de l'atelier.
+ * du sol). Décision du 10/10/2026 : plus de renvoi vers l'atelier — le garde-corps suit les murs (cadre en trapèze : chaque
+ * traverse coupée à la largeur de son niveau), c'est l'outil qui calcule, et les deux largeurs sont des données du relevé
+ * (ReleveGC.largeurMm en bas, largeurHautMm en haut) jusqu'à la commande.
  */
-export const ECART_MURS_GC_MM = 10;
 /** Jusqu'à cet écart, rien à dire : avec l'enduit, un mur bouge toujours d'un millimètre ou deux (Quentin, 06/10). */
 export const TOLERANCE_MURS_GC_MM = 2;
+/** Au-delà de cet écart entre les deux largeurs, le site demande de vérifier (une faute de frappe, le plus souvent) : un avertissement, jamais un refus. */
+export const ECART_MURS_SUSPECT_GC_MM = 150;
 
 /** Le jour laissé entre l'appui et le bas du cadre, par défaut dans l'outil (DEFAUTS_GC.jour). */
 export const JOUR_GC_MM = 90;
@@ -281,8 +284,13 @@ export function ajouterMurParametresGC(p: URLSearchParams, r: MurReleveGC): URLS
 
 /** Ce que le client relève à sa fenêtre, en millimètres entiers. */
 export type ReleveGC = MurReleveGC & {
-  /** Largeur entre les tableaux (B dans l'outil). */
+  /** Largeur entre les tableaux, EN BAS, au ras de l'appui (B dans l'outil). */
   largeurMm: number;
+  /**
+   * La largeur à 1 m du sol, quand les murs ne sont pas parallèles (Bh dans l'outil) ; absente ou égale à largeurMm : des
+   * murs parallèles. Le garde-corps suit les murs : chaque traverse est coupée à la largeur de son niveau (Quentin, 10/10/2026).
+   */
+  largeurHautMm?: number;
   /** Du sol fini au-dessus de l'appui (A dans l'outil). */
   allegeMm: number;
   /** En étage (true) ou au rez-de-chaussée (false). */
@@ -709,6 +717,7 @@ export function releveDansLesBornes(r: ReleveGC): boolean {
   const dans = (n: number, b: { min: number; max: number }) => Number.isInteger(n) && n >= b.min && n <= b.max;
   return (
     dans(r.largeurMm, BORNES_RELEVE_GC.largeurMm) &&
+    (r.largeurHautMm === undefined || dans(r.largeurHautMm, BORNES_RELEVE_GC.largeurMm)) &&
     dans(r.allegeMm, BORNES_RELEVE_GC.allegeMm) &&
     dans(r.fenetreMm, BORNES_RELEVE_GC.fenetreMm) &&
     typeof r.enEtage === "boolean" &&
@@ -718,7 +727,7 @@ export function releveDansLesBornes(r: ReleveGC): boolean {
   );
 }
 
-/** L'adresse de la route pour ce relevé et ces options : ?l=1180&allege=650&etage=1&fenetre=1400&wood=chene… */
+/** L'adresse de la route pour ce relevé et ces options : ?l=1180&lh=1172&allege=650&etage=1&fenetre=1400&wood=chene… */
 export function parametresPrixGC(r: ReleveGC, o: OptionsGC): URLSearchParams {
   const p = new URLSearchParams({
     l: String(r.largeurMm),
@@ -727,6 +736,8 @@ export function parametresPrixGC(r: ReleveGC, o: OptionsGC): URLSearchParams {
     fenetre: String(r.fenetreMm),
     wood: o.woodId,
   });
+  // La largeur à 1 m du sol (murs pas parallèles), telle quelle : la route la relit avec les mêmes bornes.
+  if (r.largeurHautMm !== undefined) p.set("lh", String(r.largeurHautMm));
   if (o.metalId) p.set("metal", o.metalId);
   if (o.fabricId) p.set("fabric", o.fabricId);
   if (o.remplissageId) p.set("remplissage", o.remplissageId);
@@ -917,7 +928,7 @@ export function noteReleveGC(
     allegeMm: number;
     fenetreMm: number;
     jourMm: number;
-    /** Les deux largeurs mesurées (murs pas parallèles) : l'atelier fabrique à la plus petite, et les connaît pour la pose. */
+    /** Les deux largeurs mesurées (murs pas parallèles) : écrites seulement si elles diffèrent — l'atelier coupe chaque traverse à la sienne. */
     largeurBasMm?: number;
     largeurHautMm?: number;
   },
@@ -927,6 +938,7 @@ export function noteReleveGC(
   const largeurs =
     Number.isFinite(r.largeurBasMm) &&
     Number.isFinite(r.largeurHautMm) &&
+    r.largeurBasMm !== r.largeurHautMm &&
     (langue === "fr" ? `largeur au ras de l'appui ${r.largeurBasMm} mm, à 1 m du sol ${r.largeurHautMm} mm` : `width at the sill ${r.largeurBasMm} mm, 1 m up ${r.largeurHautMm} mm`);
   return [
     r.etage,

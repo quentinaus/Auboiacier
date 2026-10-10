@@ -37,8 +37,8 @@ export const ETAPES_GC = [
     courtEn: "Walls",
     questionFr: "Vos murs sont-ils bien droits\u00a0?",
     questionEn: "Are your walls straight?",
-    aideFr: "Dans une maison ancienne, ce n'est pas toujours le cas. En cas de doute, répondez «\u00a0Oui\u00a0».",
-    aideEn: "In an older house this is not always so. If in doubt, answer “Yes”.",
+    aideFr: "Dans une maison ancienne, ce n'est pas toujours le cas. Si vous ne savez pas, mesurez les deux\u00a0: en bas au ras de l'appui, et à 1\u00a0m du sol.",
+    aideEn: "In an older house this is not always so. If you do not know, measure both: at the bottom, at the sill, and 1 m from the floor.",
   },
   {
     courtFr: "Hauteur",

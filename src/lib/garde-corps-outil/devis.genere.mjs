@@ -1,8 +1,8 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : NE PAS MODIFIER À LA MAIN.
 // Devis garde-corps au format du site (composerDevisGC, dsDevisHtml). SANS coûts : le prix est une entrée.
-// Source : l'outil de plans (plans-atelier.html), sha256 84379972b68e323896701a15851e9469b6a07a6d1659ce2034e1eb195508634a
+// Source : l'outil de plans (plans-atelier.html), sha256 51b2608a78266473d405fc5cd2bb50cf76beb2117ad642221c37a9186da8ad9b
 /* eslint-disable */
-import { DS_ESSENCES } from "./moteur.genere.mjs";
+import { DS_ESSENCES, largeurMurGC } from "./moteur.genere.mjs";
 function kgColisGC(R) { return Math.max(8, Math.round((R && R.kg) || 0)); }
 const DS_VALIDITE_JOURS = 30;
 const DS_EMETTEUR = {
@@ -74,7 +74,7 @@ function dsRemplissageGC(R, v) {
     const lignes = (re) => (R.debit || []).filter((d) => re.test(d.nom));
     const qte = (re) => lignes(re).reduce((a, d) => a + (Number(d.qte) || 0), 0);
     const bas = qte(/^Barreaux du soubassement/);
-    const barreaux = lignes(/^Barreaux/).filter((d) => !/soubassement/i.test(d.nom));
+    const barreaux = lignes(/^Barreaux/).filter((d) => !/soubassement|^Barreaux de rive/i.test(d.nom));
     const nBarreaux = barreaux.reduce((a, d) => a + (Number(d.qte) || 0), 0);
     let n = qte(/^Diagonale entière/);
     const modele = !n && nBarreaux ? "barreaux" : "croix";
@@ -131,9 +131,10 @@ function dsSchemaGC(R, v, avecMc = true) {
     if (!pieces.length || !(R.hauteurGC > 0)) return "";
     const B2 = v.B / 2, A = Math.max(0, v.A || 0), y0 = A + (v.jour || 0), haut = y0 + R.hauteurGC;
     const wM = 110, hMur = haut + 160, CASE = 140, TXT = 6.3;
+    const penche = v.Bh > 0 && v.Bh !== v.B, murX = (z) => (penche ? largeurMurGC(v, z) : v.B) / 2, B2x = penche ? Math.max(B2, murX(hMur)) : B2;
     const long = (t, f) => String(t).length * 0.56 * f;
     const cotes = (f) => {
-      const xR1 = B2 + wM + 1.45 * f, xR2 = xR1 + 1.45 * f, xL = -B2 - wM - 1.45 * f, yH = hMur + 0.9 * f;
+      const xR1 = B2x + wM + 1.45 * f, xR2 = xR1 + 1.45 * f, xL = -B2x - wM - 1.45 * f, yH = hMur + 0.9 * f;
       return { xR1, xR2, xL, yH, x1: xL - 1.15 * f, x2: xR2 + 0.35 * f, y1: -0.5 * f, y2: yH + 1.15 * f };
     };
     let f = 90, c = cotes(f), u = 1;
@@ -142,8 +143,8 @@ function dsSchemaGC(R, v, avecMc = true) {
     const Y = (y) => (-y).toFixed(1), X = (x) => x.toFixed(1);
     const trait = (w) => (w * u).toFixed(2);
     let s = "";
-    s += `<polygon points="${[[-B2 - wM, 0], [B2 + wM, 0], [B2 + wM, hMur], [B2, hMur], [B2, A], [-B2, A], [-B2, hMur], [-B2 - wM, hMur]].map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}" fill="#efebe5" stroke="#cfc7bb" stroke-width="${trait(0.4)}"/>`;
-    s += `<line x1="${X(-B2 - wM - 0.6 * f)}" y1="0" x2="${X(B2 + wM + 0.6 * f)}" y2="0" stroke="#9a8f84" stroke-width="${trait(0.6)}"/>`;
+    s += `<polygon points="${[[-B2x - wM, 0], [B2x + wM, 0], [B2x + wM, hMur], [murX(hMur), hMur], [B2, A], [-B2, A], [-murX(hMur), hMur], [-B2x - wM, hMur]].map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}" fill="#efebe5" stroke="#cfc7bb" stroke-width="${trait(0.4)}"/>`;
+    s += `<line x1="${X(-B2x - wM - 0.6 * f)}" y1="0" x2="${X(B2x + wM + 0.6 * f)}" y2="0" stroke="#9a8f84" stroke-width="${trait(0.6)}"/>`;
     const COUL = { "t-acier-plein": ["#2b2320", "#2b2320"], "t-bois": ["#c9a46e", "#8a6238"], "t-rond": ["#7d736a", "#2b2320"] };
     for (const p of pieces) {
       const [fond, bord] = COUL[p.cls] || COUL["t-acier-plein"];
@@ -161,16 +162,23 @@ function dsSchemaGC(R, v, avecMc = true) {
       return o + texte(x - 0.35 * f, yt, t, true);
     };
     const xg = Math.max(...pieces.filter((p) => p.t === "poly").flatMap((p) => p.pts.map((q) => q[0])));
-    s += `<line x1="${X(-B2)}" y1="${Y(hMur + 0.15 * f)}" x2="${X(-B2)}" y2="${Y(c.yH + tick)}" ${gris}/><line x1="${X(B2)}" y1="${Y(hMur + 0.15 * f)}" x2="${X(B2)}" y2="${Y(c.yH + tick)}" ${gris}/>`;
-    s += `<line x1="${X(-B2)}" y1="${Y(c.yH)}" x2="${X(B2)}" y2="${Y(c.yH)}" ${gris}/>`;
-    for (const x of [-B2, B2]) s += `<line x1="${X(x - tick)}" y1="${Y(c.yH - tick)}" x2="${X(x + tick)}" y2="${Y(c.yH + tick)}" ${gris}/>`;
-    s += texte(0, c.yH + 0.35 * f, dsMm(v.B));
+    const Bt = murX(hMur);
+    s += `<line x1="${X(-Bt)}" y1="${Y(hMur + 0.15 * f)}" x2="${X(-Bt)}" y2="${Y(c.yH + tick)}" ${gris}/><line x1="${X(Bt)}" y1="${Y(hMur + 0.15 * f)}" x2="${X(Bt)}" y2="${Y(c.yH + tick)}" ${gris}/>`;
+    s += `<line x1="${X(-Bt)}" y1="${Y(c.yH)}" x2="${X(Bt)}" y2="${Y(c.yH)}" ${gris}/>`;
+    for (const x of [-Bt, Bt]) s += `<line x1="${X(x - tick)}" y1="${Y(c.yH - tick)}" x2="${X(x + tick)}" y2="${Y(c.yH + tick)}" ${gris}/>`;
+    const ltS = dsLargeurGC(v);
+    s += texte(0, c.yH + 0.35 * f, ltS ? `${ltS.bas} en bas, ${ltS.haut} à ${ltS.hauteur} du sol` : dsMm(v.B));
     s += verticale(c.xR1, y0, haut, xg + 0.2 * f, xg + 0.2 * f, dsMm(R.hauteurGC));
-    s += verticale(c.xR2, 0, haut, B2 + wM + 0.2 * f, c.xR1 + tick, `${dsMm(haut)} du sol`);
-    if (A > 0) s += verticale(c.xL, 0, A, -B2 - wM - 0.2 * f, -B2 - wM - 0.2 * f, dsMm(A));
+    s += verticale(c.xR2, 0, haut, B2x + wM + 0.2 * f, c.xR1 + tick, `${dsMm(haut)} du sol`);
+    if (A > 0) s += verticale(c.xL, 0, A, -B2x - wM - 0.2 * f, -B2x - wM - 0.2 * f, dsMm(A));
     const vb = [c.x1, -c.y2, c.x2 - c.x1, c.y2 - c.y1].map((x) => x.toFixed(1)).join(" ");
-    const titre = `Schéma du garde-corps vu de l'intérieur : ${dsMm(v.B)} mm entre tableaux, ${dsMm(R.hauteurGC)} mm de haut, ${avecMc ? "main courante" : "haut du garde-corps"} à ${dsMm(haut)} mm du sol`;
+    const titre = `Schéma du garde-corps vu de l'intérieur : ${ltS ? `${ltS.bas} mm entre tableaux en bas, ${ltS.haut} mm à ${ltS.hauteur} du sol` : `${dsMm(v.B)} mm entre tableaux`}, ${dsMm(R.hauteurGC)} mm de haut, ${avecMc ? "main courante" : "haut du garde-corps"} à ${dsMm(haut)} mm du sol`;
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${dsEsc(titre)}">${s}</svg>`;
+  }
+function dsLargeurGC(v) {
+    if (!(v.Bh > 0 && v.Bh !== v.B)) return null;
+    const hM = Math.max(1000, (v.A || 0) + 150);
+    return { bas: dsMm(v.B), haut: dsMm(v.Bh), hauteur: hM === 1000 ? "1\u00a0m" : `${dsMm(hM)}\u00a0mm` };
   }
 function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto", tva = null }) {
     if (!R || !(R.hauteurGC > 0) || !R.debit || !R.debit.length) {
@@ -185,7 +193,7 @@ function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto", tva = nu
     const nom = rp.nom;
     const nVis = vis ? vis.qte : 2 * v.nF;
     const nPlatinesD = R.debit.filter((d) => d.nom === "Platines de fixation").reduce((t, d) => t + d.qte, 0);
-    const H = Math.round(R.hauteurGC), L = Math.round(v.B);
+    const H = Math.round(R.hauteurGC), L = Math.round(v.B), lt = dsLargeurGC(v);
     const haut = (v.A || 0) + (v.jour || 0) + R.hauteurGC;
     const essence = DS_ESSENCES[v.essence] || DS_ESSENCES.chene;
     const teinte = DS_GC.teinte;
@@ -219,7 +227,7 @@ function composerDevisGC({ R, v, prix, rem, infos = {}, image = "auto", tva = nu
       `${mc ? "main courante" : "haut du garde-corps"} à ${dsMm(haut)}\u00a0mm du sol`,
     ].filter(Boolean).join(" · ");
     const caracteristiques = [
-      { label: "Largeur entre tableaux", value: `${dsMm(L)}\u00a0mm` },
+      { label: "Largeur entre tableaux", value: lt ? `${lt.bas}\u00a0mm en bas, ${lt.haut}\u00a0mm à ${lt.hauteur} du sol` : `${dsMm(L)}\u00a0mm` },
       { label: "Hauteur du garde-corps", value: `${dsMm(H)}\u00a0mm` },
       { label: "Remplissage", value: dsMaj(rp.texte) },
       rp.rosaces ? { label: "Rosace", value: DS_GC.rosace } : null,
@@ -352,6 +360,6 @@ function dsDevisHtml(devis) {
 function dsPageHtml(corps, n, total) {
     return `<section class="ds-page"><div class="ds-corps">${corps}</div><div class="ds-pied"><span>${dsEsc(DS_PIED)}</span></div><div class="ds-num"><span>Page ${n} / ${total}</span></div></section>`;
   }
-export const EMPREINTE_SOURCE = "84379972b68e323896701a15851e9469b6a07a6d1659ce2034e1eb195508634a";
+export const EMPREINTE_SOURCE = "51b2608a78266473d405fc5cd2bb50cf76beb2117ad642221c37a9186da8ad9b";
 export { DS_GC, DS_VALIDITE_JOURS, composerDevisGC, dsDevisHtml, dsPrix };
-export const EMPREINTE = "bf7b88d5ef64";
+export const EMPREINTE = "61616692e1b4";

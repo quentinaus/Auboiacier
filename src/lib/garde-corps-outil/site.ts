@@ -37,6 +37,8 @@ const estEssence = (x: string): x is MainCouranteGC => (MAINS_COURANTES_GC as re
 function entreeGC(releve: ReleveGC, essence: MainCouranteGC, rosaceMm?: number): EntreeSiteGC {
   return {
     largeurMm: releve.largeurMm, allegeMm: releve.allegeMm, enEtage: releve.enEtage, fenetreMm: releve.fenetreMm, essence,
+    // La largeur à 1 m du sol (murs pas parallèles) : l'outil coupe chaque traverse à la largeur de son niveau (Bh).
+    ...(releve.largeurHautMm !== undefined ? { largeurHautMm: releve.largeurHautMm } : {}),
     ...(rosaceMm !== undefined ? { rosaceMm } : {}),
     ...(releve.modele !== undefined ? { modele: releve.modele } : {}),
     ...(releve.decor !== undefined ? { decor: releve.decor } : {}),
@@ -136,6 +138,7 @@ export function ligneGC(
       slug,
       sizeId: SUR_MESURE,
       largeurMm: releve.largeurMm,
+      largeurHautMm: releve.largeurHautMm,
       allegeMm: releve.allegeMm,
       enEtage: releve.enEtage,
       fenetreMm: releve.fenetreMm,
@@ -160,11 +163,11 @@ export function ligneGC(
  * ------------------------------------------------------------------ */
 
 /**
- * Les paramètres acceptés par /api/prix-garde-corps. Tout autre paramètre = refus. « decor » : le décor à volutes choisi
- * (idDecorGC) ; « decors=1 » : demander aussi le prix de chaque assemblage de décor (PrixDecorGC) ; « mur », « c », « ep » : le
- * mur des tableaux et ses cotes (facultatifs).
+ * Les paramètres acceptés par /api/prix-garde-corps. Tout autre paramètre = refus. « lh » : la largeur à 1 m du sol (murs pas
+ * parallèles, facultative) ; « decor » : le décor à volutes choisi (idDecorGC) ; « decors=1 » : demander aussi le prix de chaque
+ * assemblage de décor (PrixDecorGC) ; « mur », « t », « ep » : le mur des tableaux et ses cotes (facultatifs).
  */
-export const PARAMETRES_PRIX_GC = ["l", "allege", "etage", "fenetre", "wood", "metal", "fabric", "remplissage", "qty", "modele", "decor", "decors", "mur", "t", "ep"] as const;
+export const PARAMETRES_PRIX_GC = ["l", "lh", "allege", "etage", "fenetre", "wood", "metal", "fabric", "remplissage", "qty", "modele", "decor", "decors", "mur", "t", "ep"] as const;
 
 export type RequetePrixGC = {
   releve: ReleveGC;
@@ -178,12 +181,13 @@ export type RequetePrixGC = {
 };
 
 /**
- * Lit le relevé dans l'adresse (?l=1180&allege=650&etage=1&fenetre=1400&wood=chene&metal=noir&fabric=fleur&remplissage=croix&qty=2).
+ * Lit le relevé dans l'adresse (?l=1180&lh=1172&allege=650&etage=1&fenetre=1400&wood=chene&metal=noir&fabric=fleur&remplissage=croix&qty=2).
  * Refuse tout ce qui n'est pas exactement attendu : entiers de millimètres
  * dans les bornes de l'outil, étage 1 ou 0, un bois connu, des identifiants
  * d'option courts, une quantité de 1 à 10, aucun paramètre inconnu ou en
  * double. « fenetre » peut manquer (0 = inconnue) ; les options aussi (celles
- * du modèle). Le mur des tableaux aussi (&mur=beton&t=180&ep=450) : un mur de
+ * du modèle). « lh », la largeur à 1 m du sol, peut manquer (murs parallèles) ;
+ * donnée, elle a les mêmes bornes que « l ». Le mur des tableaux aussi (&mur=beton&t=180&ep=450) : un mur de
  * la liste de l'outil, des cotes entières dans leurs bornes, jamais une cote
  * sans mur.
  */
@@ -203,6 +207,7 @@ export function lireRequetePrixGC(params: URLSearchParams): RequetePrixGC | null
     return t === null ? undefined : /^[a-z0-9-]{1,40}$/.test(t) ? t : null;
   };
   const largeurMm = mm("l", BORNES_RELEVE_GC.largeurMm);
+  const largeurHautMm = params.get("lh") === null ? undefined : mm("lh", BORNES_RELEVE_GC.largeurMm);
   const allegeMm = mm("allege", BORNES_RELEVE_GC.allegeMm);
   const fenetreMm = mm("fenetre", BORNES_RELEVE_GC.fenetreMm, 0);
   const quantite = mm("qty", { min: 1, max: 10 }, 1);
@@ -211,7 +216,7 @@ export function lireRequetePrixGC(params: URLSearchParams): RequetePrixGC | null
   const metalId = option("metal");
   const fabricId = option("fabric");
   const remplissageId = option("remplissage");
-  if (largeurMm === null || allegeMm === null || fenetreMm === null || quantite === null) return null;
+  if (largeurMm === null || largeurHautMm === null || allegeMm === null || fenetreMm === null || quantite === null) return null;
   if (etage !== "1" && etage !== "0") return null;
   if (!essence || !estEssence(essence)) return null;
   if (metalId === null || fabricId === null || remplissageId === null) return null;
@@ -228,7 +233,7 @@ export function lireRequetePrixGC(params: URLSearchParams): RequetePrixGC | null
   const mur = lireMurParametresGC(params);
   if (mur === null) return null;
   return {
-    releve: { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm, ...(choixDecor ? { decor: idDecorGC(choixDecor) } : modele ? { modele } : {}), ...mur },
+    releve: { largeurMm, ...(largeurHautMm !== undefined ? { largeurHautMm } : {}), allegeMm, enEtage: etage === "1", fenetreMm, ...(choixDecor ? { decor: idDecorGC(choixDecor) } : modele ? { modele } : {}), ...mur },
     essence, metalId, fabricId, remplissageId, quantite,
     ...(decors === "1" ? { decors: true } : {}),
   };

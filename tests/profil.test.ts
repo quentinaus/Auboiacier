@@ -214,6 +214,17 @@ test("la largeur en haut (murs pas parallèles) se met de côté et revient avec
   const releve = memoVersReleve(reprendreConfig("garde-corps")!, fr.artisanat);
   assert.equal(releve.largeur, FENETRE.largeur);
   assert.equal(releve.largeurHaut, "1172");
+  assert.equal(releve.mursInegaux, true);
+  // Des murs droits : une seule largeur, rien pour le haut — et jamais la largeur du bas recopiée en haut.
+  const droit = releveVersMemo({ ...FENETRE, largeurHaut: "1172", mursInegaux: false }, fr.artisanat);
+  assert.equal(droit.gcLargeurHautMm, undefined);
+  assert.equal(droit.gcLargeurMm, 1180);
+  // Une mémoire plus ancienne qui a gardé deux largeurs égales : des murs droits.
+  memoriserConfig({ ...OPTIONS_GC, gcLargeurMm: 1180, gcLargeurHautMm: 1180 });
+  assert.equal(memoVersReleve(reprendreConfig("garde-corps")!, fr.artisanat).mursInegaux, false);
+  // Une largeur du haut hors bornes est écartée.
+  memoriserConfig({ ...OPTIONS_GC, gcLargeurMm: 1180, gcLargeurHautMm: 99_999 });
+  assert.equal(reprendreConfig("garde-corps")!.gcLargeurHautMm, undefined);
 });
 
 test("une mémoire trafiquée ne remet ni cote hors bornes ni modèle inventé", () => {

@@ -103,7 +103,8 @@ export function entreeValide(e: EntreeSiteGC): boolean {
  * fixation change le prix, le débit, et parfois la forme : des pattes, ou « à étudier »).
  */
 function cleDuReleve(e: EntreeSiteGC, essence: string, avecDecor: readonly string[] = []): string {
-  return JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, essence, e.rosaceMm ?? 100, e.mur ?? "", e.tMurMm ?? null, e.eMurMm ?? null, ...avecDecor]);
+  // La largeur à 1 m du sol (murs pas parallèles) fait partie du relevé : deux fenêtres qui n'en diffèrent que par elle ne partagent pas leur mémoire.
+  return JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, essence, e.rosaceMm ?? 100, e.mur ?? "", e.tMurMm ?? null, e.eMurMm ?? null, e.largeurHautMm ?? e.largeurMm, ...avecDecor]);
 }
 
 // Le calcul prend quelques millisecondes à quelques dizaines : on garde les derniers relevés.
@@ -214,7 +215,7 @@ function murSansRemede(cleReleve: string, entree: EntreeSiteGC, s: number, r: bo
   const cle = `${cleReleve}|${s}|${r ? 1 : 0}|${seuls ? 1 : 0}`;
   const connu = sansRemede.get(cle);
   if (connu !== undefined) return connu;
-  const v = valeursGC(DEFAUTS_GC, { ...entree, largeurMm: BORNES_GC.B.min }, s, 1, false, false, r, seuls) as ValeursGC;
+  const v = valeursGC(DEFAUTS_GC, { ...entree, largeurMm: BORNES_GC.B.min, largeurHautMm: undefined }, s, 1, false, false, r, seuls) as ValeursGC;
   const F = calculerGC({ ...v, _rapide: true }).fixation as { statut?: unknown; texte?: unknown } | undefined;
   const texte = typeof F?.texte === "string" ? F.texte : "";
   const oui = F?.statut === "etude" && REFUS_SANS_POUSSEE.some((re) => re.test(texte));
@@ -330,7 +331,7 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   // même (la hauteur d'un cadre à croix, le cadre des barreaux seuls). Ils se partagent donc cette mémoire — un test le vérifie
   // sur une grille de fenêtres : le premier décor calculé écarte les carrés pour les six autres (la liste des prix des décors).
   // (Le mur des tableaux et ses cotes y entrent : la fixation dépend du mur.)
-  const cleCarres = decor ? JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, essenceCalcul, "décor", e.mur ?? "", e.tMurMm ?? null, e.eMurMm ?? null]) : cleCalcul;
+  const cleCarres = decor ? JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, essenceCalcul, "décor", e.mur ?? "", e.tMurMm ?? null, e.eMurMm ?? null, e.largeurHautMm ?? e.largeurMm]) : cleCalcul;
   // La mémoire est rangée par DESSIN (pas par identifiant) : « 16-4 » et « 18-4 » sont la même demande.
   const cle = `${cleReleve}|${choisi ? `${choisi.croix}|${choisi.barreauxBas ? 1 : 0}|${choisi.traverse ? 1 : 0}|${choisi.seuls ? 1 : 0}` : ""}`;
   const deja = memoire.get(cle);
@@ -341,6 +342,8 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   }
   const entree: EntreeSiteGC = Object.freeze({
     largeurMm: e.largeurMm, allegeMm: e.allegeMm, enEtage: e.enEtage, fenetreMm: e.fenetreMm, essence: e.essence,
+    // Murs pas parallèles : la largeur à 1 m du sol suit jusqu'au moteur (sans elle, tout se calculait à la largeur du bas).
+    ...(e.largeurHautMm !== undefined ? { largeurHautMm: e.largeurHautMm } : {}),
     ...(e.rosaceMm !== undefined ? { rosaceMm: e.rosaceMm } : {}),
     ...(e.modele !== undefined && !idDecor ? { modele: e.modele } : {}),
     ...(idDecor ? { decor: idDecor } : {}),

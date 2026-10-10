@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useSyncExternalStore, type ReactNode } from "react";
+import { lineId } from "./ligne-panier";
 
 /**
  * Panier côté navigateur.
@@ -28,6 +29,11 @@ export type CartItem = {
   largeurMm?: number;
   hauteurMm?: number;
   epaisseurMm?: number;
+  /**
+   * Garde-corps : la largeur à 1 m du sol quand les murs ne sont pas parallèles (largeurMm est celle du bas, au ras de
+   * l'appui). Absente : des murs droits. Le serveur la revérifie avec le reste du relevé (ReleveGC.largeurHautMm).
+   */
+  largeurHautMm?: number;
   /**
    * Le relevé d'un garde-corps de fenêtre (avec largeurMm) : c'est avec lui que
    * le serveur recalcule sa forme et son prix (l'outil de plans). hauteurMm
@@ -89,34 +95,6 @@ const STORAGE_KEY = "auboiacier-panier-v1";
 const MAX_QUANTITY = 10;
 const MAX_LINES = 20;
 
-function lineId(line: CartLine) {
-  return [
-    line.slug,
-    line.sizeId,
-    line.woodId,
-    line.metalId,
-    line.fabricId,
-    line.remplissageId,
-    line.largeurMm,
-    line.hauteurMm,
-    line.epaisseurMm,
-    line.priseDeCotesCp,
-    line.poseCp,
-    line.livraisonCp,
-    line.livraisonSlug,
-    line.rdv,
-    line.note,
-    // Le relevé d'un garde-corps : une autre fenêtre, une autre ligne. Absent
-    // des autres pièces, dont l'identifiant ne change donc pas.
-    ...(line.allegeMm !== undefined ? [line.allegeMm, line.enEtage ? "etage" : "rdc", line.fenetreMm, line.modeleGc ?? ""] : []),
-    // Le décor à volutes, SEULEMENT s'il y en a un : les identifiants des lignes déjà au panier ne changent pas.
-    ...(line.decorGc ? [line.decorGc] : []),
-    // Le mur des tableaux : un autre mur, une autre fixation, une autre ligne. Sans mur, l'identifiant ne change pas.
-    ...(line.allegeMm !== undefined && line.murGc ? [line.murGc, line.tMurMm ?? "", line.eMurMm ?? ""] : []),
-  ]
-    .map((part) => part ?? "-")
-    .join("|");
-}
 
 function parse(raw: string | null): CartItem[] {
   if (!raw) return [];

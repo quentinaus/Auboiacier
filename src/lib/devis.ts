@@ -483,6 +483,8 @@ export function numeroDevis(entree: {
     ...(s.decorGc ? [s.decorGc] : []),
     // Le mur des tableaux : une autre fixation, un autre prix, un autre devis. Sans mur, le numéro ne change pas.
     ...(s.allegeMm !== undefined && s.murGc ? [s.murGc, s.tMurMm, s.eMurMm] : []),
+    // La largeur à 1 m du sol (murs pas parallèles) : une autre largeur en haut, un autre devis. Absente, le numéro ne change pas.
+    ...(s.allegeMm !== undefined && s.largeurHautMm !== undefined ? [`lh${s.largeurHautMm}`] : []),
   ]
     .map((v) => v ?? "-")
     .join("|");
