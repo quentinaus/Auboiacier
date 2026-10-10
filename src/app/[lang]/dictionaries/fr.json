@@ -1131,7 +1131,7 @@
       }
     ],
     "cotesTitle": "La prise de cotes",
-    "cotesBody": "L'atelier vient mesurer chez vous — {prixVisite} jusqu'à {rayonVisite} km de Saumur, déduits de la commande si vous commandez ensuite — puis vous envoie le devis et le plan.",
+    "cotesBody": "L'atelier vient mesurer chez vous — {prixVisite} jusqu'à {rayonVisite} km de Saumur — puis vous envoie le devis et le plan.",
     "cotesLien": "Réserver une prise de cotes",
     "photosTexte": "Deux verrières réalisées par Quentin avant l'ouverture de l'atelier.",
     "serviceNom": "Verrière d'atelier sur mesure"
