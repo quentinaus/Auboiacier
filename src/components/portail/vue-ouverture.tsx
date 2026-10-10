@@ -45,10 +45,10 @@ export function VueOuverture({ type, P, vantaux, sens, guidage, place, couleur, 
   const Lv = vantaux[0] ?? P / 2;
   const placeMm = place ?? (coul ? Lv : Math.max(...vantaux) + 80);
   // Le cadre : assez haut pour le portail ouvert, assez large pour le coulissant rangé le long de la clôture.
-  const haut = coul ? 700 : type === "pliant" ? (vantaux[0] ?? P / 4) + 420 : placeMm + 320;
+  const haut = coul ? 1150 : type === "pliant" ? (vantaux[0] ?? P / 4) + 420 : placeMm + 320;
   const gauche = coul && sens === "gauche" ? -placeMm - 200 : -PILIER - 500;
   const droite = coul && sens === "droite" ? P + placeMm + 200 : P + PILIER + 500;
-  const bas = coul ? 260 : 420;
+  const bas = coul ? 360 : 420;
   const vb = `${f(gauche)} ${f(-haut)} ${f(droite - gauche)} ${f(haut + bas)}`;
 
   // Les pièces fixes : la rue, les murets, les piliers, la place à laisser libre (en vert, comme l'outil).
@@ -56,7 +56,7 @@ export function VueOuverture({ type, P, vantaux, sens, guidage, place, couleur, 
     if (coul) {
       const x0 = sens === "gauche" ? -placeMm : P, x1 = sens === "gauche" ? 0 : P + placeMm;
       // Le coulissant est très large : la bande de la place libre est épaissie pour rester lisible dans le médaillon.
-      return <rect x={f(x0)} y={f(-300)} width={f(x1 - x0)} height={f(280)} className="vo-zone" />;
+      return <rect x={f(x0)} y={f(-900)} width={f(x1 - x0)} height={f(880)} className="vo-zone" />;
     }
     const r = placeMm, quart = (hx: number, versDroite: boolean) =>
       `M${f(hx)} 0 L${f(hx + (versDroite ? r : -r))} 0 A${f(r)} ${f(r)} 0 0 ${versDroite ? 0 : 1} ${f(hx)} ${f(-r)} Z`;
@@ -101,8 +101,8 @@ export function VueOuverture({ type, P, vantaux, sens, guidage, place, couleur, 
     mobilesDef.push({
       rendu: (
         <g key={0} ref={(el) => { mobiles.current[0] = el; }}>
-          <rect x={f(-debord)} y={f(-200)} width={f(Lv)} height={f(80)} fill={c} stroke={d} strokeWidth="6" />
-          {queue > 0 && <rect x={f(sens === "gauche" ? -debord - queue : P + debord)} y={f(-180)} width={f(queue)} height={f(40)} fill="none" stroke={d} strokeWidth="10" />}
+          <rect x={f(-debord)} y={f(-560)} width={f(Lv)} height={f(200)} fill={c} stroke={d} strokeWidth="6" />
+          {queue > 0 && <rect x={f(sens === "gauche" ? -debord - queue : P + debord)} y={f(-510)} width={f(queue)} height={f(100)} fill="none" stroke={d} strokeWidth="12" />}
         </g>
       ),
       placer: (g, e) => g.setAttribute("transform", `translate(${f(dx * e)} 0)`),
