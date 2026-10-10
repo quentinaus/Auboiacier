@@ -368,7 +368,7 @@ export async function POST(request: Request) {
         // La Garantie cotes : combien de pièces en ont une (chacune a aussi sa ligne).
         ...(piecesGaranties > 0 ? { garantie_cotes: String(piecesGaranties) } : {}),
         // Un portail : le solde à la réception, et sa configuration (à coller dans l'outil de plans) — une clé par portail.
-        ...(tarif.soldePortail !== null ? { portail_solde: String(tarif.soldePortail) } : {}),
+        ...(tarif.soldePortail !== null ? { portail_solde: String(tarif.soldePortail), portail_reception: tarif.receptionsPortail.join(",") } : {}),
         ...Object.fromEntries(portails.map((p, i) => [`portail_cfg_${i}`, `${p.line.product.slug}?${p.portail!.config}`.slice(0, MAX_METADONNEE_STRIPE)])),
         // La remise sur plusieurs garde-corps, en euros : elle se lit aussi sur le bon de réduction.
         ...(tarif.remise < 0 ? { remise_gc: String(-tarif.remise) } : {}),

@@ -6,7 +6,8 @@ import { calculerLivraison, calculerPose, localiser } from "@/lib/deplacement";
 import { composerDevis, type Devis, type LivraisonDevis, type ResultatDevis } from "@/lib/devis";
 import { ChiffrageIndisponible, composerDevisGardeCorps, type LivraisonDevisGC } from "@/lib/prix-garde-corps.server";
 import { ChiffragePortailIndisponible, composerEstimationPortail } from "@/lib/prix-portail.server";
-import { lireConfig } from "@/lib/portails";
+import { lireConfig, planPortail } from "@/lib/portails";
+import { calculerLivraisonPortail } from "@/lib/deplacement";
 import { rendreDevisPdf } from "@/lib/devis-pdf";
 import { creerLimite } from "@/lib/limite-debit";
 import { budgetCalculGC } from "@/lib/budget-calcul-gc";
@@ -93,8 +94,15 @@ export async function GET(request: Request) {
     // Le portail (lot 9) : l'estimation de l'outil, avant la visite ; la configuration est relue comme /api/prix-portail.
     const lu = lireConfig(p);
     if (!lu || lu.slug !== product.slug) return NextResponse.json({ error: "invalid" }, { status: 400 });
+    // Livré par transporteur : si le code postal est donné, la livraison (d'après le colis du plan) devient une ligne de l'estimation.
+    let livraison: number | null = null;
+    const cpLivraison = (p.get("cp") ?? "").trim();
+    if (lu.cfg.reception === "transporteur" && /^\d{5}$/.test(cpLivraison)) {
+      const l = await calculerLivraisonPortail(cpLivraison, planPortail(lu.slug, lu.cfg).colis);
+      if (l.ok) livraison = l.deplacement.montantCents / 100;
+    }
     try {
-      resultat = composerEstimationPortail({ slug: lu.slug, cfg: lu.cfg, client, date: new Date() });
+      resultat = composerEstimationPortail({ slug: lu.slug, cfg: lu.cfg, client, date: new Date(), livraison });
     } catch (erreur) {
       if (erreur instanceof ChiffragePortailIndisponible) return NextResponse.json({ error: "indisponible" }, { status: 503 });
       throw erreur;

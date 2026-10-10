@@ -22,7 +22,8 @@ import { chargerChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
 import { prixCommandeGC, prixGC, type ConfigGC } from "../src/lib/garde-corps-outil/calcul.ts";
 import { LIVRAISON, POSE, PRISE_DE_COTES, RETRAIT, tarifLivraison, tarifPose, type ResultatLieu } from "../src/lib/deplacement.ts";
 import { getProduct, libelleGardeCorps, productLocalise } from "../src/lib/products.ts";
-import { configDepart, versParamsPanier } from "../src/lib/portails.ts";
+import { configDepart, planPortail, versParamsPanier } from "../src/lib/portails.ts";
+import { livrablePortailParTransporteur, tarifLivraisonPortail } from "../src/lib/deplacement.ts";
 import type { ReponsePrixPortail } from "../src/lib/portails-outil/prix.ts";
 
 const aKm = (distanceKm: number) => async (): Promise<ResultatLieu> => ({ ok: true, lieu: { distanceKm, commune: "Nantes", precision: "adresse" } });
@@ -274,13 +275,14 @@ test("ce qui part vers le navigateur : des noms, des prix de vente, la hauteur r
   const affiche = tarifAffiche(t, "en");
   // garantiesRefusees et garantieExclue : des index et une raison (« visite », « pose »), jamais un montant.
   // soldePortail : le solde d'un portail à la réception (un prix de vente), null sans portail.
-  assert.deepEqual(Object.keys(affiche).sort(), ["garantieExclue", "garantiesRefusees", "lignes", "probleme", "refusees", "remise", "soldePortail", "total"]);
+  assert.deepEqual(Object.keys(affiche).sort(), ["garantieExclue", "garantiesRefusees", "lignes", "probleme", "receptionsPortail", "refusees", "remise", "soldePortail", "total"]);
   assert.equal(affiche.soldePortail, null);
+  assert.deepEqual(affiche.receptionsPortail, []);
   assert.ok(affiche.garantiesRefusees.every((i) => Number.isInteger(i)));
   assert.ok(affiche.garantieExclue === null || ["visite", "pose"].includes(affiche.garantieExclue));
   // garantiePrix et garantie : la Garantie cotes, un prix de VENTE calculé sur le serveur (garantie-cotes.ts) et la case cochée.
   // solde : un portail, le solde à la réception (un prix de vente, l'acompte étant l'unitaire).
-  const champs = new Set(["index", "type", "nom", "options", "quantite", "unitaire", "image", "hauteurMm", "garantiePrix", "garantie", "solde"]);
+  const champs = new Set(["index", "type", "nom", "options", "quantite", "unitaire", "image", "hauteurMm", "garantiePrix", "garantie", "solde", "reception"]);
   for (const l of affiche.lignes) {
     for (const cle of Object.keys(l)) assert.ok(champs.has(cle), `champ inattendu vers le navigateur : ${cle}`);
     for (const [cle, valeur] of Object.entries(l)) assert.ok(["string", "number", "undefined"].includes(typeof valeur) || (cle === "garantie" && typeof valeur === "boolean"));
@@ -317,7 +319,8 @@ test("un portail (10/10/2026) : la configuration relue par l'outil, l'acompte de
   const p = t.pieces[0];
   // 40 % de 5 370 € : 2 148 € aujourd'hui, 3 222 € à la réception ; le « unitPrice: 1 » envoyé n'est jamais lu.
   assert.equal(p.line.unitPrice, 2148);
-  assert.deepEqual(p.portail, { config, prixPose: 5370, solde: 3222 });
+  assert.deepEqual({ ...p.portail, colis: undefined }, { config, prixPose: 5370, solde: 3222, reception: "pose", colis: undefined });
+  assert.ok(p.portail!.colis.kg > 0 && p.portail!.colis.kgTaxable >= p.portail!.colis.kg, "le colis vient du plan");
   assert.equal(p.line.product.slug, "portail-battant");
   assert.deepEqual(p.line.size.dimsMm, [3500, 1600]);
   // La visite est comprise : pas de Garantie cotes, et la case cochée est décochée (garantieSouple) ou refusée.
@@ -355,4 +358,75 @@ test("un portail (10/10/2026) : la configuration relue par l'outil, l'acompte de
   const livre = await tarifer([{ slug: battant.slug, portail: config, quantity: 1 }, visite, table(), { slug: RETRAIT }], { ...ctx, portail: outil });
   assert.equal(livre.probleme, null);
   assert.equal(livre.total, 2148 + prixVisite + mikado.sizes[0].price);
+});
+
+test("un portail sans pose (10/10/2026) : transporteur ou retrait, la livraison d'après le colis du plan, ni visite ni pose, pas de moteur", async () => {
+  const battant = getProduct("portail-battant")!;
+  const outil = (_slug: string, cfg: { reception: string }): ReponsePrixPortail => ({ ok: true, prix: cfg.reception === "pose" ? 5370 : 4300, portillon: null, avertissements: [], resume: [] });
+  const cfgPar = (reception: "pose" | "transporteur" | "retrait") => versParamsPanier("portail-battant", { ...configDepart("portail-battant"), reception });
+  const ctx = { locale: "fr" as const, gc: CALCUL_GC, localiser: aKm(100), portail: outil };
+  const colis = planPortail("portail-battant", { ...configDepart("portail-battant"), reception: "transporteur" }).colis;
+  // Par transporteur : un portail, sa ligne de livraison ; pas de visite. Aujourd'hui : l'acompte (40 % de 4 300 €) et la livraison.
+  const livraison = { slug: LIVRAISON, livraisonCp: "75001" };
+  const t = await tarifer([{ slug: battant.slug, portail: cfgPar("transporteur"), quantity: 1 }, livraison], ctx);
+  assert.equal(t.probleme, null);
+  assert.equal(t.pieces[0].line.unitPrice, 1720);
+  assert.equal(t.pieces[0].portail?.reception, "transporteur");
+  assert.equal(t.visite, null);
+  assert.equal(t.mode?.mode, "transporteur");
+  const prixLivraison = t.mode!.mode === "transporteur" ? t.mode.deplacement.montantCents / 100 : 0;
+  assert.equal(prixLivraison, tarifLivraisonPortail(100, colis).montantCents / 100, "la livraison est celle du tarif des portails, d'après le colis du plan");
+  assert.ok(prixLivraison > 90, "pas de plafond à 90 € comme pour une table");
+  assert.equal(t.total, 1720 + prixLivraison);
+  assert.equal(t.soldePortail, 2580);
+  assert.deepEqual(t.receptionsPortail, ["transporteur"]);
+  assert.match(t.pieces[0].options, /prix sans pose 4[\s\u202f\u00a0]300 €, solde 2[\s\u202f\u00a0]580 € avant l'expédition\)$/);
+  // Retrait à l'atelier : une ligne RETRAIT, rien à livrer, rien d'autre que l'acompte.
+  const r = await tarifer([{ slug: battant.slug, portail: cfgPar("retrait"), quantity: 1 }, { slug: RETRAIT }], ctx);
+  assert.equal(r.probleme, null);
+  assert.equal(r.total, 1720);
+  assert.equal(r.soldePortail, 2580);
+  assert.deepEqual(r.receptionsPortail, ["retrait"]);
+  assert.match(r.pieces[0].options, /solde 2[\s\u202f\u00a0]580 € au retrait\)$/);
+  // Sans sa façon de recevoir, un portail sans pose ne se paie pas ; avec une autre, non plus (une seule livraison par commande).
+  assert.equal((await tarifer([{ slug: battant.slug, portail: cfgPar("transporteur"), quantity: 1 }], ctx)).probleme, "mode_livraison");
+  assert.equal((await tarifer([{ slug: battant.slug, portail: cfgPar("transporteur"), quantity: 1 }, { slug: RETRAIT }], ctx)).probleme, "invalid");
+  assert.equal((await tarifer([{ slug: battant.slug, portail: cfgPar("retrait"), quantity: 1 }, livraison], ctx)).probleme, "invalid");
+  // Un portail sans pose n'a pas besoin de visite, et la visite d'un autre ne lui est pas déduite.
+  const avecVisite = await tarifer([{ slug: battant.slug, portail: cfgPar("retrait"), quantity: 1 }, { slug: RETRAIT }, { slug: PRISE_DE_COTES, priseDeCotesCp: "49400", rdv: "2026-10-12|matin" }], ctx);
+  assert.equal(avecVisite.soldePortail, 2580);
+  // Posé et retiré dans la même commande : deux soldes, dits tous les deux.
+  const mixte = await tarifer([{ slug: battant.slug, portail: cfgPar("pose"), quantity: 1 }, { slug: battant.slug, portail: cfgPar("retrait"), quantity: 1 }, { slug: RETRAIT }, { slug: PRISE_DE_COTES, priseDeCotesCp: "49400", rdv: "2026-10-12|matin" }], ctx);
+  assert.equal(mixte.probleme, null);
+  assert.deepEqual([...mixte.receptionsPortail].sort(), ["pose", "retrait"]);
+  // Le moteur ne se vend pas sans la pose : la ligne est refusée (jamais corrigée en silence).
+  const moteur = versParamsPanier("portail-battant", { ...configDepart("portail-battant"), reception: "transporteur", moteur: true });
+  // (La livraison restée seule, sans portail à livrer, est refusée aussi : « orphelin », elle ne se paie pas.)
+  assert.deepEqual((await tarifer([{ slug: battant.slug, portail: moteur, quantity: 1 }, livraison], ctx)).refusees, [{ index: 0, raison: "unknown_size" }, { index: 1, raison: "orphelin" }]);
+  // Le prix que le navigateur envoie n'est jamais lu : la façon de recevoir change le prix posé en prix sans pose, et c'est tout.
+  assert.equal(livrablePortailParTransporteur(colis), true);
+});
+
+test("la livraison d'un portail (10/10/2026) : messagerie d'après le poids taxable, affrètement au-delà de 3 m, jamais plafonnée", () => {
+  // Un battant (deux vantaux de 1,70 m debout sur une palette) : 745 kg taxables, pièce la plus longue 1,70 m, 1,65 m de haut.
+  const battant = { kg: 61, kgTaxable: 745, longueurMaxMm: 1702, hauteurMaxMm: 1650 };
+  const prix = (km: number, c = battant) => tarifLivraisonPortail(km, c).montantCents / 100;
+  // (65 + route × (0,06 + 0,0006 × 745)) × 1,10 + 40, au minimum 90 € avant gazole et hayon ; route = vol d'oiseau × 1,25.
+  assert.equal(prix(100), Math.ceil(Math.max(90, 65 + 125 * (0.06 + 0.0006 * 745)) * 1.1 + 40));
+  assert.equal(prix(300), Math.ceil(Math.max(90, 65 + 375 * (0.06 + 0.0006 * 745)) * 1.1 + 40));
+  assert.ok(prix(300) > prix(100) && prix(600) > prix(300), "plus loin, plus cher");
+  assert.ok(prix(300) > 90, "la livraison d'un portail n'est pas plafonnée à 90 €");
+  // Plus lourd ou plus encombrant, plus cher.
+  assert.ok(prix(300, { ...battant, kgTaxable: 1708 }) > prix(300));
+  // Un portillon (une palette de 0,94 m : 411 kg taxables) coûte moins qu'un battant.
+  assert.ok(prix(300, { kg: 34, kgTaxable: 411, longueurMaxMm: 940, hauteurMaxMm: 1650 }) < prix(300));
+  // Au-delà de 3 m (un coulissant de 3,66 m), la messagerie refuse : affrètement, 1,5 € du km aller et retour, 450 € au moins.
+  const coulissant = { kg: 83, kgTaxable: 2914, longueurMaxMm: 3660, hauteurMaxMm: 1695 };
+  assert.equal(prix(100, coulissant), 450);
+  assert.equal(prix(300, coulissant), Math.ceil(2 * 375 * 1.5));
+  // Plus de 2,05 m de haut (avec sa palette, plus de 2,20 m) : affrètement aussi, même court.
+  assert.equal(prix(100, { ...battant, hauteurMaxMm: 2200 }), 450);
+  // Un portail de plus de 6 m ne part pas par transporteur.
+  assert.equal(livrablePortailParTransporteur({ ...coulissant, longueurMaxMm: 6001 }), false);
+  assert.equal(livrablePortailParTransporteur({ ...coulissant, longueurMaxMm: 5960 }), true);
 });

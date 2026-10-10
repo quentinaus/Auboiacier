@@ -41,13 +41,13 @@ function outilsDevis() {
   };
 }
 
-export function composerEstimationPortail(entree: { slug: SlugPortail; cfg: ConfigPortail; client: { nom?: string; email?: string }; date: Date }): ResultatDevis {
+export function composerEstimationPortail(entree: { slug: SlugPortail; cfg: ConfigPortail; client: { nom?: string; email?: string }; date: Date; /** La livraison par transporteur, en euros, si elle est connue (une ligne de l'estimation). */ livraison?: number | null }): ResultatDevis {
   const { slug, cfg } = entree;
   const R = planPortail(slug, cfg);
   if (R.alertes.length) return { ok: false, reason: "a_etudier" };
   const ch = chiffragePortail();
   const modele = SLUGS_PORTAIL[slug];
-  const o = { clesCatalogue: ch.PTC_CLES_CATALOGUE };
+  const o = { clesCatalogue: ch.PTC_CLES_CATALOGUE, reception: cfg.reception };
   const P = ch.ptcPostesDevis(R, versEntrees(cfg), undefined, o, (vv) => calculerPortail(vv, modele));
   let portillon: { R: unknown; montant: number } | null = null;
   if (cfg.portillon && slug !== "portillon") {
@@ -56,7 +56,7 @@ export function composerEstimationPortail(entree: { slug: SlugPortail; cfg: Conf
     portillon = { R: Rq, montant: ch.chiffrerPortail(Rq, versEntrees(q), undefined, { ...o, complement: true }).conseille };
   }
   const { composerDevisPortail } = fabriqueDevisPortail(outilsDevis());
-  const r = composerDevisPortail({ R, v: versEntrees(cfg), postes: P.postes, portillon, infos: { client: entree.client.nom, email: entree.client.email, date: entree.date }, nature: "estimation" });
+  const r = composerDevisPortail({ R, v: versEntrees(cfg), postes: P.postes, portillon, infos: { client: entree.client.nom, email: entree.client.email, date: entree.date }, nature: "estimation", reception: cfg.reception, livraison: entree.livraison ?? null });
   if (!r.ok) return { ok: false, reason: "a_etudier" };
   const d = r.devis;
   const encarts: string[] = (d.encarts as { titre: string; lignes: string[] }[]).flatMap((e) => e.lignes.map((l) => `${e.titre} : ${l.charAt(0).toLowerCase()}${l.slice(1)}`));

@@ -92,6 +92,38 @@ export function ligneDeJournal(
 }
 
 /** Bon de commande à l'atelier. C'est l'e-mail qui ne doit jamais se perdre. */
+/** Les façons de recevoir les portails d'une commande, lues dans ses métadonnées (« pose », « transporteur », « retrait »). */
+function receptionsPortail(meta: Stripe.Metadata | null | undefined): string[] {
+  return (meta?.portail_reception ?? "pose").split(",").filter((r) => ["pose", "transporteur", "retrait"].includes(r));
+}
+
+/** Ce que l'atelier doit savoir d'un portail commandé, selon sa réception (acompte encaissé, solde, visite ou expédition). */
+function ligneAtelierPortail(meta: Stripe.Metadata): string {
+  const quoi: Record<string, string> = {
+    pose: "posé par l'atelier : la visite de prise de cotes est payée (son créneau est dans la ligne « Prise de cotes » ci-dessous) et déduite du solde, dû à la réception",
+    transporteur: "SANS POSE, par transporteur : le portail part DEBOUT, calé sur palette ; la livraison payée est dans les lignes ci-dessous ; solde à encaisser AVANT l'expédition",
+    retrait: "SANS POSE, retrait à l'atelier : solde à encaisser au retrait",
+  };
+  const parts = receptionsPortail(meta).map((r) => quoi[r]).join(" ; ");
+  return `PORTAIL : acompte encaissé — ${parts}. SOLDE TOTAL : ${meta.portail_solde} €. Configuration à coller dans l'outil : ${Object.entries(meta).filter(([k]) => k.startsWith("portail_cfg_")).map(([, v]) => v).join(" ; ")}`;
+}
+
+/** La phrase du portail dans l'e-mail du client, selon sa réception. */
+function phrasePortailClient(meta: Stripe.Metadata, locale: "fr" | "en"): string {
+  const solde = meta.portail_solde;
+  const r = receptionsPortail(meta);
+  if (locale === "en") {
+    if (r.includes("pose")) return `For your gate, you have paid the deposit and the survey visit (booked at the slot above, and deducted from the balance): the balance of €${solde} is paid when the fitted gate is handed over.`;
+    return r.includes("transporteur")
+      ? `For your gate, you have paid the deposit: we will tell you as soon as it is ready; the balance of €${solde} is paid before shipping, then the gate leaves by carrier, upright on a pallet. The fitting is not included.`
+      : `For your gate, you have paid the deposit: we will tell you as soon as it is ready; the balance of €${solde} is paid when you collect it at the workshop in Saumur. The fitting is not included.`;
+  }
+  if (r.includes("pose")) return `Pour votre portail, vous avez réglé l'acompte et la visite de prise de cotes (au créneau indiqué plus haut, et déduite du solde) : le solde de ${solde} € se règle à la réception du portail posé.`;
+  return r.includes("transporteur")
+    ? `Pour votre portail, vous avez réglé l'acompte : nous vous prévenons dès qu'il est prêt ; le solde de ${solde} € se règle avant l'expédition, puis le portail part par transporteur, debout sur palette. La pose n'est pas comprise.`
+    : `Pour votre portail, vous avez réglé l'acompte : nous vous prévenons dès qu'il est prêt ; le solde de ${solde} € se règle au retrait à l'atelier, à Saumur. La pose n'est pas comprise.`;
+}
+
 export async function notifyOwner(
   session: Stripe.Checkout.Session,
   lines: Stripe.LineItem[]
@@ -114,10 +146,8 @@ export async function notifyOwner(
       : "",
     // Le retrait à l'atelier : pas de colis à préparer pour un transporteur.
     session.metadata?.retrait === "1" ? "RETRAIT À L'ATELIER : le client vient chercher sa commande à Saumur — l'appeler quand elle est prête." : "",
-    // Un portail : seul l'acompte est encaissé ; la visite de prise de cotes est à prendre, le solde se paie à la réception.
-    session.metadata?.portail_solde
-      ? `PORTAIL : acompte et visite encaissés — SOLDE À LA RÉCEPTION : ${session.metadata.portail_solde} € (visite déduite). La visite de prise de cotes est payée : son créneau est dans la ligne « Prise de cotes » ci-dessous. Configuration à coller dans l'outil : ${Object.entries(session.metadata).filter(([k]) => k.startsWith("portail_cfg_")).map(([, v]) => v).join(" ; ")}`
-      : "",
+    // Un portail : l'acompte est encaissé (et la visite, s'il est posé par l'atelier) ; le solde suit sa façon d'être reçu.
+    session.metadata?.portail_solde ? ligneAtelierPortail(session.metadata) : "",
     // La Garantie cotes : une modification ou une refabrication par pièce garantie, 15 jours après la livraison (CGV, art. 13).
     session.metadata?.garantie_cotes
       ? `GARANTIE COTES : ${session.metadata.garantie_cotes} pièce(s) garantie(s) — voir les lignes « Garantie cotes » ci-dessous (CGV, article 13).`
@@ -230,7 +260,7 @@ export async function notifyCustomer(
                 "",
           "Your order confirmation is attached to this e-mail.",
           `Your piece is made to order in our workshop: allow ${LEAD_TIME.en}. ${session.metadata?.retrait === "1" ? "We will call you when it is ready, to arrange a day to collect it from the workshop in Saumur." : "We will contact you to arrange delivery."}`,
-          ...(session.metadata?.portail_solde ? [`For your gate, you have paid the deposit and the survey visit (booked at the slot above, and deducted from the balance): the balance of €${session.metadata.portail_solde} is paid when the fitted gate is handed over.`] : []),
+          ...(session.metadata?.portail_solde ? [phrasePortailClient(session.metadata, "en")] : []),
           "Your invoice is sent separately by our payment provider.",
           "",
           "Auboiacier — wood, steel & light",
@@ -244,7 +274,7 @@ export async function notifyCustomer(
                 "",
           "Votre confirmation de commande est jointe à cet e-mail.",
           `Votre pièce est fabriquée à la commande dans notre atelier : comptez ${LEAD_TIME.fr}. ${session.metadata?.retrait === "1" ? "Nous vous appelons dès qu'elle est prête, pour convenir du jour où vous venez la chercher à l'atelier, à Saumur." : "Nous vous contactons pour convenir de la livraison."}`,
-          ...(session.metadata?.portail_solde ? [`Pour votre portail, vous avez réglé l'acompte et la visite de prise de cotes (au créneau indiqué plus haut, et déduite du solde) : le solde de ${session.metadata.portail_solde} € se règle à la réception du portail posé.`] : []),
+          ...(session.metadata?.portail_solde ? [phrasePortailClient(session.metadata, "fr")] : []),
           "Votre facture vous est envoyée séparément par notre prestataire de paiement.",
           "",
           "Auboiacier — bois, acier & lumière",

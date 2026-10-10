@@ -49,7 +49,17 @@ export const BARREAUX_DECOR = ["carre", "torsade", "bagues"] as const;
 export const MOTEURS_PORTAIL = ["conseille", "ixengo", "axovia", "elixo"] as const;
 export const COULEURS_PORTAIL = ["anthracite", "noir", "blanc", "vert", "rouille"] as const;
 
+/**
+ * Comment le client reçoit son portail (Quentin, 10/10/2026) : « pose » (l'atelier livre et pose, visite de prise de cotes
+ * payée avec l'acompte), « transporteur » (livré sur palette, sans pose, la livraison selon le colis) ou « retrait » (le client
+ * vient le chercher à l'atelier, sans pose). Sans pose, pas de motorisation : l'atelier la pose lui-même (conformité CE).
+ */
+export const RECEPTIONS_PORTAIL = ["pose", "transporteur", "retrait"] as const;
+export type ReceptionPortail = (typeof RECEPTIONS_PORTAIL)[number];
+
 export type ConfigPortail = {
+  /** La façon de recevoir le portail ; « pose » par défaut. */
+  reception: ReceptionPortail;
   P: number;
   H: number;
   mat: "alu" | "acier";
@@ -93,6 +103,7 @@ export function bornesPortail(slug: SlugPortail, guidage?: "rail" | "auto") {
 /** La configuration de départ d'une fiche : la cote courante, dans un style. */
 export function configDepart(slug: SlugPortail, style: StylePortail = "plein"): ConfigPortail {
   const base: ConfigPortail = {
+    reception: "pose",
     P: slug === "portillon" ? 1000 : 3500, H: 1600, mat: "alu", forme: "droit", fleche: 150, soub: "aucun", hSoub: 500,
     remp: "plein", decor: "aucun", decorChoix: [], bouts: "effile", barreauxDeco: "carre", pointes: false, lisse: false, moulure: false, vantaux: 2, rep: "egal",
     guidage: "rail", sens: "gauche", poteaux: "existants", moteur: false, moteurModele: "conseille", pente: 0, couleur: "anthracite",
@@ -156,7 +167,7 @@ export function planPortail(slug: SlugPortail, cfg: ConfigPortail): ResultatPort
   return calculerPortail(versEntrees(cfg), SLUGS_PORTAIL[slug]);
 }
 
-const PARAMS: (keyof ConfigPortail)[] = ["P", "H", "mat", "forme", "fleche", "soub", "hSoub", "remp", "decor", "bouts", "barreauxDeco", "pointes", "lisse", "moulure", "vantaux", "rep", "guidage", "sens", "poteaux", "moteur", "moteurModele", "pente", "couleur", "portillon", "portillonP", "portillonSens"];
+const PARAMS: (keyof ConfigPortail)[] = ["reception", "P", "H", "mat", "forme", "fleche", "soub", "hSoub", "remp", "decor", "bouts", "barreauxDeco", "pointes", "lisse", "moulure", "vantaux", "rep", "guidage", "sens", "poteaux", "moteur", "moteurModele", "pente", "couleur", "portillon", "portillonP", "portillonSens"];
 
 /** La configuration en paramètres d'adresse (pour /api/prix-portail). */
 export function versParams(slug: SlugPortail, cfg: ConfigPortail): URLSearchParams {
@@ -207,7 +218,7 @@ export function versParamsPanier(slug: SlugPortail, cfg: ConfigPortail): string 
 }
 /** Relit la ligne d'un panier : le modèle de la fiche et la configuration en texte ; null si quoi que ce soit cloche. */
 export function lireConfigPanier(slug: string, texte: unknown): ConfigPortail | null {
-  if (!estSlugPortail(slug) || typeof texte !== "string" || texte.length > 600) return null;
+  if (!estSlugPortail(slug) || typeof texte !== "string" || texte.length > 800) return null;
   const p = new URLSearchParams(texte);
   if (p.has("slug")) return null;
   p.set("slug", slug);
@@ -233,6 +244,8 @@ export function lireConfig(params: URLSearchParams): { slug: SlugPortail; cfg: C
   };
   const bool = (k: string) => (params.get(k) === "1" ? true : params.get(k) === "0" ? false : null);
   const cfg = {
+    // Absent (un ancien panier, une ancienne adresse) : « pose », comme avant.
+    reception: params.has("reception") ? choix("reception", RECEPTIONS_PORTAIL) : ("pose" as ReceptionPortail),
     P: nombre("P", b.P), H: nombre("H", b.H), mat: choix("mat", ["alu", "acier"] as const), forme: choix("forme", FORMES),
     fleche: nombre("fleche", [0, 400]), soub: choix("soub", SOUBS), hSoub: nombre("hSoub", [0, 2000]), remp: choix("remp", REMPS),
     decor: choix("decor", DECORS_PORTAIL), bouts: choix("bouts", BOUTS_DECOR), barreauxDeco: choix("barreauxDeco", BARREAUX_DECOR),
@@ -245,6 +258,8 @@ export function lireConfig(params: URLSearchParams): { slug: SlugPortail; cfg: C
     decorChoix: params.get("decor") === "perso" ? lireDecorChoix(params.get("decorChoix")) : params.has("decorChoix") ? null : [],
   };
   if (Object.values(cfg).some((x) => x === null)) return null;
+  // Sans pose, pas de moteur : l'atelier le pose lui-même (la conformité CE de l'ensemble est de sa responsabilité).
+  if (cfg.reception !== "pose" && cfg.moteur) return null;
   return { slug, cfg: cfg as ConfigPortail };
 }
 

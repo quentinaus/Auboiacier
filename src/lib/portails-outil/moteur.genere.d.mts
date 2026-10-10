@@ -6,6 +6,8 @@ export type ResultatPortail = {
   alertes: string[]; avertissements: string[]; oks: string[]; notes: string[];
   resume: [string, string][];
   poids: number; kg: number; grandeCote: number;
+  /** Le colis d'un portail livré par transporteur : chaque pièce debout (la livraison selon son poids et sa plus grande dimension). */
+  colis: { pieces: { nom: string; longueurMm: number; hauteurMm: number; kg: number }[]; palettes: { longueurMm: number; hauteurMm: number; kg: number; kgTaxable: number; pieces: number }[]; kg: number; kgTaxable: number; longueurMaxMm: number; hauteurMaxMm: number; plusGrandeCoteMm: number };
   dims: { P: number; H: number; type: string; vantaux: number[]; gs: number; hautMax: number };
   quant: Record<string, unknown>;
   config: Record<string, unknown> & { type: string; mat: string; remp: string; decor: string };

@@ -13,7 +13,7 @@ import { useDeferredValue, useEffect, useId, useMemo, useState, useSyncExternalS
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/lib/cart";
-import { libellePriseDeCotes, PRISE_DE_COTES } from "@/lib/deplacement";
+import { libellePriseDeCotes, LIVRAISON, PRISE_DE_COTES, POSE, RETRAIT, type Deplacement } from "@/lib/deplacement";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
 import { VisiteAtelier, type Visite } from "./prise-de-cotes";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
@@ -21,7 +21,7 @@ import { svgDe, PT_DECOR_FORMULES } from "@/lib/portails-outil/moteur.genere.mjs
 import {
   acomptePortail, appliquerStyle, bornesPortail, configDepart, configPortillonAssorti, emplacementPermis, formesDe, guidePortail, planPortail, resumeConfig, styleDe, versParams, versParamsPanier,
   ACOMPTE_PORTAIL_PCT, BARREAUX_DECOR, BOUTS_DECOR, COULEURS_PORTAIL, DECORS_PORTAIL, EMPLACEMENTS_DECOR, POS_DECOR, STYLES_PORTAIL, TEXTES_PORTAIL,
-  type ChoixDecor, type ConfigPortail, type Langue, type SlugPortail, type StylePortail,
+  type ChoixDecor, type ConfigPortail, type Langue, type ReceptionPortail, type SlugPortail, type StylePortail,
 } from "@/lib/portails";
 import { STYLE_RENDU_PORTAIL, TEINTES_PORTAIL } from "@/lib/portails-rendu";
 import { VueOuverture } from "./portail/vue-ouverture";
@@ -38,6 +38,7 @@ type Variantes = {
   moteurs: Record<CleMoteur, number | null>;
   portillon: { avec: number | null; seul: number | null } | null;
   moulure: { avec: number | null; sans: number | null };
+  reception: Record<ReceptionPortail, number | null>;
 };
 type EtatPrix = { etat: "ok"; v: Variantes } | { etat: "indispo" };
 type Fenetre = null | "decor" | "moteur" | "portillon" | "details" | "plan" | "guide" | "visite";
@@ -54,7 +55,7 @@ const TXT = {
     guidage: "Guidage", sens: "Il se range", sensPortillon: "Les gonds", fixation: "Fixation",
     legendeOuverture: "Toujours ouvert côté propriété. Nous vérifions vos piliers à la visite.",
     vuRue: "Vu depuis la rue · cotes en mm", placeDerriere: "Place derrière", placeCote: "Place le long de la clôture", chezVous: "Chez vous", rue: "Rue",
-    votreStyle: "Votre style", stylesNote: "Prix posé à vos cotes, sans moteur", compose: "Composé à votre goût", des: "dès",
+    votreStyle: "Votre style", stylesNote: "Prix posé à vos cotes, sans moteur", stylesNoteSansPose: "Prix sans pose à vos cotes", compose: "Composé à votre goût", des: "dès",
     aspect: "Aspect", formeHaut: "Forme du haut", basPortail: "Bas du portail", lisse: "Lisse en chêne", lisseRaison: "Haut droit seulement",
     decor: "Décor", decorAucun: "Aucun", decorAjouter: "Ajouter", decorDetail: "Volutes, frise, cœurs", moteur: "Moteur", sansMoteur: "Sans moteur",
     prixPose: "Prix posé", poseComprise: "Pose comprise jusqu'à 45 km de Saumur",
@@ -97,6 +98,24 @@ const TXT = {
     visiteCp: "Code postal du portail", visiteOu: "Où se trouve le portail ?",
     vAcompte: `Acompte de ${ACOMPTE_PORTAIL_PCT} %`, vVisite: "Visite de prise de cotes", vAujourdhui: "À payer aujourd'hui", vSolde: "Solde à la réception, visite déduite",
     vAjouter: "Ajouter au panier", vNote: "Le paiement se fait au panier. Le solde se règle à la réception du portail posé.",
+    // La façon de recevoir le portail (Quentin, 10/10/2026) : posé par l'atelier, livré par transporteur (debout, sur palette) ou retiré à l'atelier.
+    reception: "Réception", recPose: "Posé", recTransporteur: "Transporteur", recRetrait: "Retrait",
+    recNote: {
+      pose: (p: string) => `Posé par l'atelier : ${p}, visite et pose comprises.`,
+      transporteur: (p: string) => `Livré debout, sur palette, sans pose : ${p} + la livraison selon votre commune et la taille du portail.`,
+      retrait: (p: string) => `Retiré à l'atelier, à Saumur, sans pose : ${p}.`,
+    },
+    recNoteCourte: { pose: "visite et pose comprises", transporteur: "sans pose · livraison selon votre commune", retrait: "sans pose · à l'atelier, à Saumur" },
+    moteurSeulementPose: "Motorisation : posée par l'atelier seulement (la conformité CE de l'ensemble est de notre responsabilité).",
+    prixSansPose: "Prix sans pose", sansPoseNote: "Sans pose : le portail part debout sur palette, ou vous venez le retirer à l'atelier.",
+    acompteTransporteur: (a: string) => `${a} d'acompte aujourd'hui, plus la livraison selon votre commune · le solde avant l'expédition.`,
+    acompteRetrait: (a: string) => `${a} d'acompte aujourd'hui · le solde au retrait à l'atelier.`,
+    cmdTitre: "Votre commande", livTitre: "Livraison par transporteur", livSous: "Le portail voyage debout, calé sur une palette faite à l'atelier. Le prix de la livraison suit sa taille, son poids et la distance.",
+    livCp: "Code postal de livraison", livOu: "Où livrer le portail ?", livColis: (kg: string, l: string) => `Colis : environ ${kg} kg, pièce la plus longue ${l} mm, debout sur palette.`,
+    retTitre: "Retrait à l'atelier", retSous: "Vous venez chercher le portail à l'atelier, à Saumur, sur rendez-vous : gratuit. Nous vous appelons dès qu'il est prêt.",
+    vLivraison: "Livraison par transporteur", vSoldeExpedition: "Solde avant l'expédition", vSoldeRetrait: "Solde au retrait à l'atelier",
+    vNoteTransporteur: "Le paiement se fait au panier. Le solde se règle avant l'expédition ; la pose n'est pas comprise.",
+    vNoteRetrait: "Le paiement se fait au panier. Le solde se règle au retrait ; la pose n'est pas comprise.",
     dont: "Dont", dontMoteur: "moteur", dontDecor: "décor", dontPortillon: "portillon",
     moulures: "Moulures", moulureDetail: "Un médaillon par vantail, vissé par derrière", moulureBasPlein: "Il faut un bas plein",
   },
@@ -110,7 +129,7 @@ const TXT = {
     guidage: "Guiding", sens: "Slides to the", sensPortillon: "Hinges", fixation: "Fixing",
     legendeOuverture: "Always opens onto your property. We check your pillars at the survey visit.",
     vuRue: "Seen from the street · dimensions in mm", placeDerriere: "Space behind", placeCote: "Space along the fence", chezVous: "Your side", rue: "Street",
-    votreStyle: "Your style", stylesNote: "Fitted price at your size, without motor", compose: "Made to your taste", des: "from",
+    votreStyle: "Your style", stylesNote: "Fitted price at your size, without motor", stylesNoteSansPose: "Price without fitting at your size", compose: "Made to your taste", des: "from",
     aspect: "Look", formeHaut: "Top shape", basPortail: "Lower panel", lisse: "Oak top rail", lisseRaison: "Straight top only",
     decor: "Decoration", decorAucun: "None", decorAjouter: "Add", decorDetail: "Scrolls, frieze, hearts", moteur: "Motor", sansMoteur: "No motor",
     prixPose: "Fitted price", poseComprise: "Fitting included within 45 km of Saumur",
@@ -153,6 +172,23 @@ const TXT = {
     visiteCp: "Postcode of the gate", visiteOu: "Where is the gate?",
     vAcompte: `${ACOMPTE_PORTAIL_PCT}% deposit`, vVisite: "Survey visit", vAujourdhui: "To pay today", vSolde: "Balance on handover, visit deducted",
     vAjouter: "Add to basket", vNote: "Payment is made in the basket. The balance is paid when the fitted gate is handed over.",
+    reception: "Reception", recPose: "Fitted", recTransporteur: "Carrier", recRetrait: "Collect",
+    recNote: {
+      pose: (p: string) => `Fitted by the workshop: ${p}, survey visit and fitting included.`,
+      transporteur: (p: string) => `Delivered upright on a pallet, no fitting: ${p} + delivery according to your town and the size of the gate.`,
+      retrait: (p: string) => `Collected at the workshop in Saumur, no fitting: ${p}.`,
+    },
+    recNoteCourte: { pose: "survey visit and fitting included", transporteur: "no fitting · delivery by your town", retrait: "no fitting · at the workshop in Saumur" },
+    moteurSeulementPose: "Motor: fitted by the workshop only (the CE compliance of the whole is our responsibility).",
+    prixSansPose: "Price without fitting", sansPoseNote: "Without fitting: the gate leaves upright on a pallet, or you collect it at the workshop.",
+    acompteTransporteur: (a: string) => `${a} deposit today, plus delivery according to your town · the balance before shipping.`,
+    acompteRetrait: (a: string) => `${a} deposit today · the balance when you collect it at the workshop.`,
+    cmdTitre: "Your order", livTitre: "Delivery by carrier", livSous: "The gate travels upright, wedged on a pallet made at the workshop. The delivery price follows its size, its weight and the distance.",
+    livCp: "Delivery postcode", livOu: "Where should we deliver the gate?", livColis: (kg: string, l: string) => `Parcel: about ${kg} kg, longest piece ${l} mm, upright on a pallet.`,
+    retTitre: "Collection at the workshop", retSous: "You collect the gate at the workshop in Saumur, by appointment: free. We call you as soon as it is ready.",
+    vLivraison: "Delivery by carrier", vSoldeExpedition: "Balance before shipping", vSoldeRetrait: "Balance on collection",
+    vNoteTransporteur: "Payment is made in the basket. The balance is paid before shipping; fitting is not included.",
+    vNoteRetrait: "Payment is made in the basket. The balance is paid on collection; fitting is not included.",
     dont: "Including", dontMoteur: "motor", dontDecor: "decoration", dontPortillon: "pedestrian gate",
     moulures: "Mouldings", moulureDetail: "One medallion per leaf, screwed from behind", moulureBasPlein: "Needs a solid lower panel",
   },
@@ -315,6 +351,59 @@ type InfosMoteurs = {
   choisi: { cle: CleMoteur } | null;
 };
 
+/** La livraison par transporteur d'un portail : son code postal, et le prix que le SERVEUR calcule d'après le colis du plan (jamais un poids envoyé). */
+type EtatLivraison = { codePostal: string; deplacement: (Deplacement & { kg?: number; plusGrandeCoteMm?: number }) | null };
+function LivraisonPortail({ etat, onChange, requete, t, locale, euros }: {
+  etat: EtatLivraison; onChange: (e: EtatLivraison) => void; requete: string; locale: Langue; euros: (n: number) => string;
+  t: { livCp: string; livOu: string; livColis: (kg: string, l: string) => string };
+}) {
+  const [reponse, setReponse] = useState<{ cp: string; etat: "calcul" | "ok" | "erreur" | "invalide" | "hors" | "long" } | null>(null);
+  const codePostal = etat.codePostal.replace(/\s+/g, "");
+  const complet = /^\d{5}$/.test(codePostal);
+  useEffect(() => {
+    if (!complet) return;
+    let annule = false;
+    const minuteur = setTimeout(() => {
+      setReponse({ cp: codePostal, etat: "calcul" });
+      fetch(`/api/deplacement?cp=${codePostal}&pour=livraison&${requete}`)
+        .then(async (r) => {
+          const json = await r.json().catch(() => ({}));
+          if (annule) return;
+          if (r.ok) { setReponse({ cp: codePostal, etat: "ok" }); onChange({ codePostal: etat.codePostal, deplacement: json as Deplacement }); }
+          else {
+            setReponse({ cp: codePostal, etat: json.error === "hors_metropole" ? "hors" : json.error === "code_postal_invalide" ? "invalide" : json.error === "trop_long" ? "long" : "erreur" });
+            onChange({ codePostal: etat.codePostal, deplacement: null });
+          }
+        })
+        .catch(() => { if (!annule) setReponse({ cp: codePostal, etat: "erreur" }); });
+    }, 350);
+    return () => { annule = true; clearTimeout(minuteur); };
+    // Seuls le code postal et le portail (la requête) déclenchent le calcul.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [codePostal, complet, requete]);
+  const etatAffiche = !complet ? (codePostal ? "invalide" : "attente") : reponse?.cp === codePostal ? reponse.etat : "calcul";
+  const d = etat.deplacement;
+  const fr = locale === "fr";
+  return (
+    <div className="cpt-livraison">
+      <label className="cpt-livraison-q" htmlFor="cpt-liv-cp">{t.livOu}</label>
+      <input id="cpt-liv-cp" className="cpt-livraison-cp" inputMode="numeric" autoComplete="postal-code" maxLength={5} placeholder="49400" aria-label={t.livCp}
+        value={etat.codePostal} onChange={(e) => onChange({ codePostal: e.target.value.replace(/\D/g, "").slice(0, 5), deplacement: null })} />
+      {etatAffiche === "calcul" && <p className="cpt-livraison-note">{fr ? "Calcul du prix…" : "Calculating the price…"}</p>}
+      {etatAffiche === "invalide" && <p className="cpt-livraison-note">{fr ? "Entrez les 5 chiffres du code postal." : "Enter the 5-digit postcode."}</p>}
+      {etatAffiche === "hors" && <p className="cpt-livraison-alerte">{fr ? "Nous livrons en France métropolitaine." : "We deliver within mainland France."}</p>}
+      {etatAffiche === "long" && <p className="cpt-livraison-alerte">{fr ? "Ce portail est trop long pour un transporteur : choisissez le retrait à l'atelier ou la pose." : "This gate is too long for a carrier: choose collection at the workshop or fitting."}</p>}
+      {etatAffiche === "erreur" && <p className="cpt-livraison-alerte">{fr ? "Le prix de la livraison n'a pas pu être calculé. Réessayez dans un instant." : "The delivery price could not be calculated. Please try again in a moment."}</p>}
+      {etatAffiche === "ok" && d && (
+        <div className="cpt-livraison-prix">
+          <b>{d.commune}</b><span>{euros(d.montantCents / 100)}</span>
+          {d.kg !== undefined && d.plusGrandeCoteMm !== undefined && <small>{t.livColis(String(d.kg), String(d.plusGrandeCoteMm))}</small>}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVisite }: {
   /** L'image de la fiche, pour la carte du panier. */
   image?: string;
@@ -355,6 +444,8 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
   const [tri, setTri] = useState<"croissant" | "decroissant">("croissant");
   const maj = (p: Partial<ConfigPortail>) => setCfg((c) => {
     const n = { ...c, ...p };
+    // Sans pose (transporteur, retrait), pas de moteur : l'atelier le pose lui-même.
+    if (n.reception !== "pose") n.moteur = false;
     // Le passage reste dans les bornes du guidage choisi (sans rail : 4 000 mm au plus).
     const max = bornesPortail(slug, n.guidage).P[1];
     return n.P > max ? { ...n, P: max } : n;
@@ -518,32 +609,49 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
   // assorti est dans la configuration, donc dans la même ligne). Le prix affiché ici n'est jamais envoyé.
   const panier = useCart();
   const router = useRouter();
-  // La visite de prise de cotes se paie avec l'acompte et elle est déduite du solde (Quentin, 10/10) : « Commander »
-  // ouvre la fenêtre de la visite (code postal → prix du déplacement par le serveur, créneau de l'agenda), puis le portail
-  // et sa visite partent ensemble au panier.
+  // « Commander » ouvre la fenêtre de la commande, selon la façon de recevoir le portail (cfg.reception) :
+  //   - posé par l'atelier : la visite de prise de cotes se paie avec l'acompte et se déduit du solde (code postal → déplacement, créneau) ;
+  //   - transporteur : le code postal → la livraison, calculée par le serveur d'après le colis (debout, sur palette) ;
+  //   - retrait : rien à choisir, le portail se retire à l'atelier.
+  // Le portail et sa ligne de réception partent ensemble au panier.
   const [visite, setVisite] = useState<Visite>({ qui: "atelier", codePostal: "", deplacement: null, rdv: "" });
+  const [livraison, setLivraison] = useState<EtatLivraison>({ codePostal: "", deplacement: null });
+  const recep = cfg.reception;
   const acompte = prixBase != null ? acomptePortail(prixBase) : 0;
   const prixVisite = visite.deplacement ? visite.deplacement.montantCents / 100 : null;
+  const prixLivraison = livraison.deplacement ? livraison.deplacement.montantCents / 100 : null;
   const creneauVisite = lireCreneau(visite.rdv);
-  const visitePrete = prixBase != null && !alerte && prixVisite !== null && creneauVisite !== null;
+  const commandePrete = prixBase != null && !alerte && (recep === "pose" ? prixVisite !== null && creneauVisite !== null : recep === "transporteur" ? prixLivraison !== null : true);
+  // Ce que le client paie aujourd'hui, et ce qui reste (la visite payée se déduit du solde d'un portail posé).
+  const supplement = recep === "pose" ? prixVisite : recep === "transporteur" ? prixLivraison : 0;
+  const soldeCommande = prixBase != null ? Math.max(0, prixBase - acompte - (recep === "pose" ? (prixVisite ?? 0) : 0)) : 0;
+  const requeteLivraison = `${new URLSearchParams({ slug, cfg: versParamsPanier(slug, cfg) }).toString()}`;
   const commander = () => { if (prixBase != null && !alerte) setFenetre("visite"); };
   const ajouterAuPanier = () => {
-    if (!visitePrete || prixBase == null || prixVisite === null || !creneauVisite) return;
-    const cp = visite.codePostal.replace(/\s+/g, "");
+    if (!commandePrete || prixBase == null) return;
+    // Une seule façon de recevoir par commande : les lignes de livraison, de pose et de retrait déjà au panier s'effacent.
+    panier.items.filter((l) => l.slug === POSE || l.slug === LIVRAISON || l.slug === RETRAIT).forEach((l) => panier.remove(l.id));
     panier.add({
       slug, portail: versParamsPanier(slug, cfg), image,
       name: `${nom} · ${nf(cfg.P)} × ${nf(cfg.H)} mm`, optionsLabel: resumeConfig(slug, cfg, locale, null).slice(1).join(" · "),
       unitPrice: acompte,
     }, 1);
-    panier.add({
-      slug: PRISE_DE_COTES, priseDeCotesCp: cp, rdv: visite.rdv,
-      // Ce que le client a en tête, pour que l'atelier arrive avec la bonne idée.
-      note: `${nom} ${nf(cfg.P)} × ${nf(cfg.H)} mm · ${style ? tp.styles[style] : t.compose}`.slice(0, 160),
-      name: libellePriseDeCotes(cp, locale), optionsLabel: libelleCreneau(creneauVisite, locale), unitPrice: prixVisite,
-    }, 1);
+    if (recep === "pose" && prixVisite !== null && creneauVisite) {
+      const cp = visite.codePostal.replace(/\s+/g, "");
+      panier.add({
+        slug: PRISE_DE_COTES, priseDeCotesCp: cp, rdv: visite.rdv,
+        // Ce que le client a en tête, pour que l'atelier arrive avec la bonne idée.
+        note: `${nom} ${nf(cfg.P)} × ${nf(cfg.H)} mm · ${style ? tp.styles[style] : t.compose}`.slice(0, 160),
+        name: libellePriseDeCotes(cp, locale), optionsLabel: libelleCreneau(creneauVisite, locale), unitPrice: prixVisite,
+      }, 1);
+    } else if (recep === "transporteur" && prixLivraison !== null && livraison.deplacement) {
+      panier.add({ slug: LIVRAISON, livraisonCp: livraison.codePostal.replace(/\s+/g, ""), name: tVisite.livraisonResume, optionsLabel: livraison.deplacement.commune, unitPrice: prixLivraison }, 1);
+    } else if (recep === "retrait") {
+      panier.add({ slug: RETRAIT, name: tVisite.retraitResume, optionsLabel: "", unitPrice: 0 }, 1);
+    }
     router.push(`/${locale}/panier`);
   };
-  const acompteTxt = prixBase != null && !alerte ? t.acompte(euros(acompte)) : null;
+  const acompteTxt = prixBase != null && !alerte ? (recep === "transporteur" ? t.acompteTransporteur(euros(acompte)) : recep === "retrait" ? t.acompteRetrait(euros(acompte)) : t.acompte(euros(acompte))) : null;
   const battant = slug === "portail-battant", coulissant = slug === "portail-coulissant", portillon = slug === "portillon";
   const vantauxTxt = R.dims.vantaux.length > 1 ? `${R.dims.vantaux.length} ${t.vantauxDe} ${R.dims.vantaux.map(nf).join(" + ")} mm` : `1 ${t.vantail} ${nf(R.dims.vantaux[0])} mm`;
   const tropLarge = battant && cfg.P > b.P[1];
@@ -573,13 +681,21 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
                     <ChevronBas />
                   </button>
   );
+  // La façon de recevoir le portail : posé par l'atelier, livré par transporteur (sans pose), retiré à l'atelier (sans pose).
+  const ligneReception = (
+    <div className="cpt-reception">
+      <Pilule aria={t.reception} valeur={cfg.reception} onChange={(r) => maj({ reception: r })}
+        options={[{ v: "pose" as const, label: t.recPose, titre: t.recNote.pose(euros(V?.reception?.pose ?? 0)) }, { v: "transporteur" as const, label: t.recTransporteur, titre: t.recNote.transporteur(euros(V?.reception?.transporteur ?? 0)) }, { v: "retrait" as const, label: t.recRetrait, titre: t.recNote.retrait(euros(V?.reception?.retrait ?? 0)) }]} />
+      <p className="cpt-prix-note">{t.recNoteCourte[cfg.reception]}</p>
+    </div>
+  );
   const ligneMoteur = !portillon && (
-                    <button type="button" className="cpt-ligne-choix" aria-expanded={fenetre === "moteur"} aria-haspopup="dialog" onClick={() => setFenetre((f) => (f === "moteur" ? null : "moteur"))}>
+                    <button type="button" className="cpt-ligne-choix" disabled={cfg.reception !== "pose"} aria-expanded={fenetre === "moteur"} aria-haspopup="dialog" onClick={() => setFenetre((f) => (f === "moteur" ? null : "moteur"))}>
                       <span className="cpt-lc-picto">{PICTO_MOTEUR[moteurChoisi]}</span>
                       <span className="cpt-lc-texte">
                         <span className="cpt-lc-tete"><span>{t.moteur}</span>{ecartMoteur != null && <span className="cpt-lc-ecart">{ecart(ecartMoteur)}</span>}</span>
                         <span className="cpt-lc-valeur">{nomMoteur(moteurChoisi)}</span>
-                        <span className="cpt-lc-detail">{cfg.moteur ? (moteurs?.permis.find((m) => m.cle === moteurChoisi)?.principe ?? "") : t.moteurMainCourt}</span>
+                        <span className="cpt-lc-detail">{cfg.reception !== "pose" ? t.moteurSeulementPose : cfg.moteur ? (moteurs?.permis.find((m) => m.cle === moteurChoisi)?.principe ?? "") : t.moteurMainCourt}</span>
                       </span>
                       <ChevronBas />
                     </button>
@@ -605,7 +721,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
                   <button type="button" onClick={() => setFenetre("plan")} aria-haspopup="dialog">{t.voirPlan}</button>
                   {/* L'estimation PDF (lot 9) : celle de l'outil, composée sur le serveur ; le devis à signer suit la visite. */}
                   {alerte || prixBase == null ? <span className="grise" aria-disabled="true" title={t.devisRaison}>{t.devis}</span>
-                    : <a href={`/api/devis-pdf?${cle}&lang=${locale}`} target="_blank" rel="noopener" title={t.devisRaison}>{t.devis}</a>}
+                    : <a href={`/api/devis-pdf?${cle}&lang=${locale}${recep === "transporteur" && /^\d{5}$/.test(livraison.codePostal) ? `&cp=${livraison.codePostal}` : ""}`} target="_blank" rel="noopener" title={t.devisRaison}>{t.devis}</a>}
                   <button type="button" aria-expanded={fenetre === "details"} aria-haspopup="dialog" onClick={() => setFenetre((f) => (f === "details" ? null : "details"))}>{t.details}<ChevronBas /></button>
                 </div>
   );
@@ -755,19 +871,24 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
   const superpositions = (<>
       {fenetre === "visite" && prixBase != null && (<>
         <div className="cpt-voile-fond" onClick={() => setFenetre(null)} aria-hidden="true" />
-        <div className="cpt-visite" role="dialog" aria-label={t.visiteTitre}>
-          <div className="cpt-f-tete"><div><p className="cpt-f-titre">{t.visiteTitre}</p><p className="cpt-f-sous">{t.visiteSous}</p></div><Fermer label={t.fermer} onClose={fermer} /></div>
-          <VisiteAtelier cotes={visite} onChange={setVisite} t={tVisite} locale={locale} labelCodePostal={t.visiteCp} question={t.visiteOu} />
+        <div className="cpt-visite" role="dialog" aria-label={t.cmdTitre}>
+          <div className="cpt-f-tete"><div>
+            <p className="cpt-f-titre">{recep === "pose" ? t.visiteTitre : recep === "transporteur" ? t.livTitre : t.retTitre}</p>
+            <p className="cpt-f-sous">{recep === "pose" ? t.visiteSous : recep === "transporteur" ? t.livSous : t.retSous}</p>
+          </div><Fermer label={t.fermer} onClose={fermer} /></div>
+          {recep === "pose" && <VisiteAtelier cotes={visite} onChange={setVisite} t={tVisite} locale={locale} labelCodePostal={t.visiteCp} question={t.visiteOu} />}
+          {recep === "transporteur" && <LivraisonPortail etat={livraison} onChange={setLivraison} requete={requeteLivraison} t={t} locale={locale} euros={euros} />}
           {/* Le récapitulatif et le bouton restent visibles en bas de la fenêtre, même quand le calendrier la fait défiler. */}
           <div className="cpt-visite-pied">
             <dl className="cpt-d-liste cpt-visite-recap">
               <dt>{t.vAcompte}</dt><dd>{euros(acompte)}</dd>
-              <dt>{t.vVisite}</dt><dd>{prixVisite !== null ? euros(prixVisite) : "…"}</dd>
-              <dt>{t.vAujourdhui}</dt><dd><b>{prixVisite !== null ? euros(acompte + prixVisite) : "…"}</b></dd>
-              <dt>{t.vSolde}</dt><dd>{euros(Math.max(0, prixBase - acompte - (prixVisite ?? 0)))}</dd>
+              {recep === "pose" && <><dt>{t.vVisite}</dt><dd>{prixVisite !== null ? euros(prixVisite) : "…"}</dd></>}
+              {recep === "transporteur" && <><dt>{t.vLivraison}</dt><dd>{prixLivraison !== null ? euros(prixLivraison) : "…"}</dd></>}
+              <dt>{t.vAujourdhui}</dt><dd><b>{supplement !== null ? euros(acompte + supplement) : "…"}</b></dd>
+              <dt>{recep === "pose" ? t.vSolde : recep === "transporteur" ? t.vSoldeExpedition : t.vSoldeRetrait}</dt><dd>{euros(soldeCommande)}</dd>
             </dl>
-            <button type="button" className="btn-verre cpt-cta" onClick={ajouterAuPanier} disabled={!visitePrete}>{t.vAjouter}</button>
-            <p className="cpt-btn-note">{t.vNote}</p>
+            <button type="button" className="btn-verre cpt-cta" onClick={ajouterAuPanier} disabled={!commandePrete}>{t.vAjouter}</button>
+            <p className="cpt-btn-note">{recep === "pose" ? t.vNote : recep === "transporteur" ? t.vNoteTransporteur : t.vNoteRetrait}</p>
           </div>
         </div>
       </>)}
@@ -842,7 +963,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
     const k = etapesTel.indexOf(cleEtape);
     const suivant = () => { setEtape(Math.min(k + 1, etapesTel.length - 1)); window.scrollTo({ top: 0 }); };
     const conseil = <button type="button" className="cpt-tel-conseil" onClick={suivant}>{t.conseilAtelier}</button>;
-    const titres: Record<string, string> = { mesures: t.vosMesures, sol: t.pente, ouverture: t.ouverture, fixation: t.fixation, style: t.votreStyle, aspect: t.aspect, couleur: t.eCouleur, decor: t.decor, moteur: t.moteur, portillon: t.portillon, prix: t.prixPose };
+    const titres: Record<string, string> = { mesures: t.vosMesures, sol: t.pente, ouverture: t.ouverture, fixation: t.fixation, style: t.votreStyle, aspect: t.aspect, couleur: t.eCouleur, decor: t.decor, moteur: t.moteur, portillon: t.portillon, prix: cfg.reception === "pose" ? t.prixPose : t.prixSansPose };
     let contenu: ReactNode = null;
     if (cleEtape === "mesures") contenu = (<>
       <p className="cpt-consigne">{t.consigne}</p>
@@ -923,10 +1044,11 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
     else if (cleEtape === "moteur") contenu = (<>{ligneMoteur}<p className="cpt-f-note">{t.courant}</p>{conseil}</>);
     else if (cleEtape === "portillon") contenu = (<>{lignePortillon}{conseil}</>);
     else if (cleEtape === "prix") contenu = (<>
+      {ligneReception}
       <p className="cpt-r-nom">{nom} · {nf(cfg.P)} × {nf(cfg.H)} mm</p>
       <p className="cpt-r-ligne">{vantauxTxt} · ≈ {nf(R.poids)} kg · {t.fabrique}</p>
       {notePrix}
-      <p className="cpt-prix-note">{t.poseComprise}</p>
+      <p className="cpt-prix-note">{cfg.reception === "pose" ? t.poseComprise : t.sansPoseNote}</p>
       <button type="button" className="btn-verre cpt-cta" onClick={commander} disabled={prixBase == null || !!alerte}>{t.commander}</button>
       <p className="cpt-btn-note">{acompteTxt ?? t.visite}</p>
       {liensAchat}
@@ -1060,7 +1182,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
 
             {/* Rangée 3 : le bandeau des styles, avec leur prix aux cotes du client. */}
             <div className="carte-verre cpt-modeles">
-              <div className="cpt-modeles-tete"><strong>{t.votreStyle}</strong><span className="cpt-modeles-note">{t.stylesNote}</span>
+              <div className="cpt-modeles-tete"><strong>{t.votreStyle}</strong><span className="cpt-modeles-note">{cfg.reception === "pose" ? t.stylesNote : t.stylesNoteSansPose}</span>
                 <button type="button" className="cpt-tri" onClick={() => setTri((v) => (v === "croissant" ? "decroissant" : "croissant"))} aria-label={t.triAria(tri)} title={t.triTitre}>
                   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={tri === "croissant" ? "M10 16V4M10 4l-4 4M10 4l4 4" : "M10 4v12M10 16l-4-4M10 16l4-4"} /></svg>
                   {tri === "croissant" ? t.triCroissant : t.triDecroissant}
@@ -1111,12 +1233,13 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
                 </div>
               </div>
               <div className="cpt-barre-achat">
+                {ligneReception}
                 <div className="cpt-prix-ligne">
                   <span className={`cpt-prix ${perime ? "perime" : ""}`} aria-live="polite">{alerte ? t.aEtudier : prixBase != null ? euros(prixBase) : reponse?.etat.etat === "indispo" && !perime ? t.indispo : t.calcul}</span>
-                  <span className="cpt-prix-etiquette">{t.prixPose}</span>
+                  <span className="cpt-prix-etiquette">{cfg.reception === "pose" ? t.prixPose : t.prixSansPose}</span>
                 </div>
                 {notePrix}
-                <p className="cpt-prix-note cpt-note-pose">{t.poseComprise}</p>
+                {cfg.reception === "pose" && <p className="cpt-prix-note cpt-note-pose">{t.poseComprise}</p>}
                 <button type="button" className="btn-verre cpt-cta" onClick={commander} disabled={prixBase == null || !!alerte}>{t.commander}</button>
                 <p className="cpt-btn-note">{acompteTxt ?? t.visite}</p>
                 {liensAchat}

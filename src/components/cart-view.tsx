@@ -271,6 +271,8 @@ export function CartView({
   const totalGarantie = !prixConnus ? 0 : lines.reduce((sum, l) => sum + (l.garantie && l.garantiePrix !== undefined ? l.garantiePrix * l.quantity : 0), 0);
   /** Les portails : le solde à la réception, dit par le serveur (acompte et visite payés ici déduits ; jamais dans le total). */
   const totalSolde = donnees?.soldePortail ?? 0;
+  /** Quand le solde des portails est dû : à la réception (posé), avant l'expédition (transporteur), au retrait (retrait). */
+  const receptionsPortail = donnees?.receptionsPortail ?? [];
   const lignePose = lines.find((l) => l.pose);
   const ligneLivraison = lines.find((l) => l.livraison);
   const ligneRetrait = lines.find((l) => l.retrait);
@@ -639,12 +641,18 @@ export function CartView({
               </div>
               {totalSolde > 0 && (
                 <div className="flex justify-between gap-4 text-[15px]">
-                  <dt className="text-[#5c5140]">{t.soldePortail}</dt>
+                  <dt className="text-[#5c5140]">{receptionsPortail.length > 1 ? t.soldePortailMixte : receptionsPortail[0] === "transporteur" ? t.soldePortailTransporteur : receptionsPortail[0] === "retrait" ? t.soldePortailRetrait : t.soldePortail}</dt>
                   <dd className="tabular-nums text-[#2b2320]">{prixAffiche(totalSolde, locale)}</dd>
                 </div>
               )}
             </dl>
-            {totalSolde > 0 && <p className="mt-3 text-[14px] leading-[1.5] text-[#6f6357]">{t.soldeNote}</p>}
+            {totalSolde > 0 && (
+              <div className="mt-3 space-y-2 text-[14px] leading-[1.5] text-[#6f6357]">
+                {receptionsPortail.includes("pose") && <p>{t.soldeNote}</p>}
+                {receptionsPortail.includes("transporteur") && <p>{t.soldeNoteTransporteur}</p>}
+                {receptionsPortail.includes("retrait") && <p>{t.soldeNoteRetrait}</p>}
+              </div>
+            )}
             {/* Pas de Garantie cotes avec une prise de cotes à domicile ou une pose par l'atelier (CGV, article 13). */}
             {donnees?.garantieExclue && (
               <p className="mt-3 text-[14px] leading-[1.5] text-[#6f6357]">

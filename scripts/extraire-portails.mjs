@@ -116,6 +116,8 @@ export type ResultatPortail = {
   alertes: string[]; avertissements: string[]; oks: string[]; notes: string[];
   resume: [string, string][];
   poids: number; kg: number; grandeCote: number;
+  /** Le colis d'un portail livré par transporteur : chaque pièce debout (la livraison selon son poids et sa plus grande dimension). */
+  colis: { pieces: { nom: string; longueurMm: number; hauteurMm: number; kg: number }[]; palettes: { longueurMm: number; hauteurMm: number; kg: number; kgTaxable: number; pieces: number }[]; kg: number; kgTaxable: number; longueurMaxMm: number; hauteurMaxMm: number; plusGrandeCoteMm: number };
   dims: { P: number; H: number; type: string; vantaux: number[]; gs: number; hautMax: number };
   quant: Record<string, unknown>;
   config: Record<string, unknown> & { type: string; mat: string; remp: string; decor: string };
@@ -181,6 +183,9 @@ CAS.push(
 CAS.push({ modele: "ptBattant", v: { ptStyle: "rosace", ptMoulure: true } }, { modele: "ptBattant", v: { ptStyle: "barreaux", ptSoub: "plein", ptHSoub: 500, ptMoulure: true } }, { modele: "ptPortillon", v: { ptStyle: "rosace", ptP: 1000, ptMoulure: true } });
 // Le portillon assorti (lot 10) : chiffré en complément du portail (o.complement : visite, route et frais fixes une fois).
 for (const ptStyle of ["plein", "lamesChene", "rosace", "volutes"]) CAS.push({ modele: "ptPortillon", v: { ptStyle, ptP: 1000 }, o: { complement: true } });
+// La façon de recevoir (10/10/2026) : sans pose, par transporteur ou retiré à l'atelier (jamais de moteur).
+for (const reception of ["retrait", "transporteur"]) for (const modele of ["ptBattant", "ptCoulissant", "ptPliant", "ptPortillon"]) for (const ptStyle of ["plein", "lamesChene", "barreaux", "rosace", "volutes"])
+  CAS.push({ modele, v: { ptStyle, ...(modele === "ptPortillon" ? { ptP: 1000 } : {}) }, o: { reception } });
 const reference = CAS.map(({ modele, v, o }) => {
   const R = evalMoteur.calculerPortail(v, modele);
   const C = evalChiffrage.chiffrerPortail(R, v, undefined, { ...o, clesCatalogue: evalChiffrage.PTC_CLES_CATALOGUE });

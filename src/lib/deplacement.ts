@@ -226,6 +226,69 @@ export function tarifLivraison(distanceKm: number, kg: number, plusGrandeCoteMm 
   };
 }
 
+/* ------------------------------------------------------------------ *
+ *  La livraison d'un PORTAIL (Quentin, 10/10/2026)
+ *  Un portail voyage DEBOUT, calé sur sa palette (« on le met droit dans le camion, on gagne de la place ») : ce qui compte
+ *  pour le transporteur, c'est son poids et sa plus grande dimension (la longueur de sa plus longue pièce), pas sa surface à
+ *  plat. Le colis vient du plan de l'outil (ptColis, plans-portails.js). Pas de plafond à 90 € comme pour une table : le prix
+ *  suit la taille, le poids et l'encombrement, jusqu'au bout.
+ * ------------------------------------------------------------------ */
+
+/** Le colis d'un portail, tel que l'outil de plans le décrit (ptColis) : seuls les champs que la livraison lit. */
+export type ColisPortail = {
+  /** Le poids réel de tout ce qui part, en kg. */
+  kg: number;
+  /** Le poids TAXABLE : pour chaque palette, le plus grand du poids réel et du mètre plancher (un vantail debout est non gerbable). */
+  kgTaxable: number;
+  /** La plus longue pièce, et la plus haute, debout (mm). */
+  longueurMaxMm: number;
+  hauteurMaxMm: number;
+};
+
+/**
+ * LE TARIF DE LIVRAISON D'UN PORTAIL (Quentin, 10/10/2026 : « adapte le prix à la livraison en fonction de la taille, du poids, de
+ * l'encombrement »). Chiffres relevés le 10/10/2026 (rapport joint au suivi des demandes) ; confiance faible à moyenne (±35 %) :
+ * AUCUNE grille publique des transporteurs (Geodis, Heppner, Schenker…), seulement une grille de transporteur (Flexatrans), une place
+ * de marché (Hapia), des guides de comparateurs et les conditions de DSV et de Schenker. À valider par trois devis réels (Saumur →
+ * Paris, Lyon, Lille ou Marseille) : tout se règle ICI, dans cette seule table.
+ *   - Messagerie palette (toute pièce de 3 m ou moins, 2,20 m de haut avec sa palette) : forfait + route × (a + b × poids taxable),
+ *     minimum 90 €, gazole +10 %, hayon et rendez-vous +40 € (livraison chez un particulier). Poids taxable : règle DSV (la place
+ *     au sol : longueur × profondeur ÷ 2,4 m × 1 750 kg), calculée dans le plan (ptColis).
+ *   - Au-delà (3 m, ou plus de 2,05 m de haut) : la messagerie refuse la pièce ; c'est un affrètement (véhicule et chauffeur) :
+ *     1,5 € du km, aller et retour, 450 € au moins.
+ * Un portail voyage DEBOUT : jamais couché (ça ne ferait qu'agrandir son encombrement).
+ */
+export const LIVRAISON_PORTAIL = {
+  messagerie: { forfaitEuros: 65, parKmEuros: 0.06, parKmParKgEuros: 0.0006, minimumEuros: 90, longueurMaxMm: 3000, hauteurMaxMm: 2050 },
+  gazole: 0.1,
+  hayonRendezVousEuros: 40,
+  affretement: { eurosParKm: 1.5, allerRetour: 2, minimumEuros: 450, longueurMaxMm: 6000 },
+} as const;
+
+/** Un portail part-il par transporteur (messagerie ou affrètement) ? Sa plus longue pièce, debout, tient dans un véhicule de 6 m. */
+export function livrablePortailParTransporteur(colis: ColisPortail): boolean {
+  return colis.longueurMaxMm <= LIVRAISON_PORTAIL.affretement.longueurMaxMm;
+}
+
+/** Le colis passe-t-il en messagerie ? Sinon, affrètement. */
+export function portailEnMessagerie(colis: ColisPortail): boolean {
+  return colis.longueurMaxMm <= LIVRAISON_PORTAIL.messagerie.longueurMaxMm && colis.hauteurMaxMm <= LIVRAISON_PORTAIL.messagerie.hauteurMaxMm;
+}
+
+export function tarifLivraisonPortail(distanceKm: number, colis: ColisPortail): Omit<Deplacement, "commune" | "precision"> {
+  const route = distanceKm * COEF_ROUTE;
+  const L = LIVRAISON_PORTAIL;
+  const euros = portailEnMessagerie(colis)
+    ? Math.max(L.messagerie.minimumEuros, L.messagerie.forfaitEuros + route * (L.messagerie.parKmEuros + L.messagerie.parKmParKgEuros * colis.kgTaxable)) * (1 + L.gazole) + L.hayonRendezVousEuros
+    : Math.max(L.affretement.minimumEuros, L.affretement.allerRetour * route * L.affretement.eurosParKm);
+  return { montantCents: Math.ceil(euros) * 100, distanceKm: Math.round(distanceKm), routeAllerRetourKm: Math.round(route * 2), heures: 0, offre: false };
+}
+
+/** Livraison d'un portail par transporteur : partout en France métropolitaine, d'après son colis. */
+export async function calculerLivraisonPortail(codePostal: string, colis: ColisPortail): Promise<ResultatDeplacement> {
+  return calculer(codePostal, (km) => tarifLivraisonPortail(km, colis), Infinity);
+}
+
 /** Livraison par transporteur : partout en France métropolitaine. */
 export async function calculerLivraison(codePostal: string, kg: number, plusGrandeCoteMm = 0): Promise<ResultatDeplacement> {
   return calculer(codePostal, (km) => tarifLivraison(km, kg, plusGrandeCoteMm), Infinity);

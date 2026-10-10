@@ -7,7 +7,7 @@
  * de prise de cotes et pose comprises jusqu'à 45 km de Saumur (la visite payée en ligne est déduite de la commande).
  */
 import { ChiffragePortailIndisponible, chiffragePortail } from "./chiffrage.ts";
-import { appliquerStyle, bornesPortail, configDepart, configPortillonAssorti, planPortail, DECORS_PORTAIL, MOTEURS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL, versEntrees, type ConfigPortail, type SlugPortail, type StylePortail } from "../portails.ts";
+import { appliquerStyle, bornesPortail, configDepart, configPortillonAssorti, planPortail, DECORS_PORTAIL, MOTEURS_PORTAIL, RECEPTIONS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL, versEntrees, type ConfigPortail, type ReceptionPortail, type SlugPortail, type StylePortail } from "../portails.ts";
 
 export { ChiffragePortailIndisponible };
 
@@ -21,13 +21,17 @@ export function prixPortail(slug: SlugPortail, cfg: ConfigPortail): ReponsePrixP
   const R = planPortail(slug, cfg);
   if (R.alertes.length) return { ok: false, alertes: R.alertes };
   const ch = chiffragePortail();
-  const C = ch.chiffrerPortail(R, versEntrees(cfg), undefined, { clesCatalogue: ch.PTC_CLES_CATALOGUE });
+  // La façon de recevoir (cfg.reception) : « pose » = le prix posé ; sans pose, ni visite, ni route, ni pose, mais l'emballage.
+  // Un portail motorisé ne se vend pas sans la pose (l'outil le refuse : la conformité CE de l'ensemble est celle de l'atelier).
+  const reception = cfg.reception;
+  if (reception !== "pose" && cfg.moteur) return { ok: false, alertes: ["Motorisation : posée par l'atelier seulement."] };
+  const C = ch.chiffrerPortail(R, versEntrees(cfg), undefined, { clesCatalogue: ch.PTC_CLES_CATALOGUE, reception });
   // Le portillon assorti (cahier des charges §4.6) : même style, chiffré en complément (une seule visite, un seul voyage).
   let portillon: number | null = null;
   if (cfg.portillon && slug !== "portillon") {
     const q = configPortillonAssorti(cfg), Rq = planPortail("portillon", q);
     if (Rq.alertes.length) return { ok: false, alertes: Rq.alertes.map((a) => `Portillon assorti : ${a}`) };
-    portillon = ch.chiffrerPortail(Rq, versEntrees(q), undefined, { clesCatalogue: ch.PTC_CLES_CATALOGUE, complement: true }).conseille;
+    portillon = ch.chiffrerPortail(Rq, versEntrees(q), undefined, { clesCatalogue: ch.PTC_CLES_CATALOGUE, complement: true, reception }).conseille;
   }
   return { ok: true, prix: C.conseille + (portillon ?? 0), portillon, avertissements: R.avertissements, resume: R.resume };
 }
@@ -67,6 +71,8 @@ export type VariantesPortail = {
   portillon: { avec: number | null; seul: number | null } | null;
   // Les moulures : le prix avec et sans (null quand le bas n'est pas plein).
   moulure: { avec: number | null; sans: number | null };
+  // La façon de recevoir (10/10/2026) : le prix de la configuration posée, livrée par transporteur, au retrait. Sans pose, pas de moteur : null avec moteur.
+  reception: Record<ReceptionPortail, number | null>;
 };
 export function prixVariantesPortail(slug: SlugPortail, cfg: ConfigPortail): VariantesPortail {
   const p = (c: ConfigPortail) => { const r = prixPortail(slug, c); return r.ok ? r.prix : null; };
@@ -84,7 +90,8 @@ export function prixVariantesPortail(slug: SlugPortail, cfg: ConfigPortail): Var
   };
   const basPlein = cfg.soub === "plein" || cfg.soub === "panneau";
   const moulure = { avec: basPlein ? p({ ...cfg, moulure: true }) : null, sans: p({ ...cfg, moulure: false }) };
-  return { base: prixPortail(slug, cfg), styles, decors, moteurs, portillon, moulure };
+  const reception = Object.fromEntries(RECEPTIONS_PORTAIL.map((r) => [r, p({ ...cfg, reception: r })])) as VariantesPortail["reception"];
+  return { base: prixPortail(slug, cfg), styles, decors, moteurs, portillon, moulure, reception };
 }
 
 /**

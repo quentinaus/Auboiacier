@@ -1,6 +1,7 @@
 import { idDecorGC, lireDecorGC, lireModeleGC, lireMurParametresGC } from "@/lib/garde-corps";
 import { NextResponse } from "next/server";
-import { calculerDeplacement, calculerLivraison, calculerPose } from "@/lib/deplacement";
+import { calculerDeplacement, calculerLivraison, calculerLivraisonPortail, calculerPose, livrablePortailParTransporteur, type ColisPortail } from "@/lib/deplacement";
+import { estSlugPortail, lireConfigPanier, planPortail } from "@/lib/portails";
 import { getProduct, poidsColisKg, prixParOutil } from "@/lib/products";
 import { creerLimite } from "@/lib/limite-debit";
 import { budgetCalculGC } from "@/lib/budget-calcul-gc";
@@ -28,8 +29,19 @@ function identifiant(valeur: string | null): string | undefined {
  * celui du panier et de la commande (src/lib/tarif-panier.ts). null : un
  * garde-corps sans prix (à étudier, ou un relevé illisible).
  */
-function colisDemande(params: URLSearchParams): { kg: number; plusGrandeCoteMm: number } | null {
+type ColisDemande = { kg: number; plusGrandeCoteMm: number; portail?: ColisPortail };
+function colisDemande(params: URLSearchParams): ColisDemande | null {
   const produit = getProduct(params.get("slug") ?? "");
+  // Un portail (10/10/2026) : son colis vient du plan de l'outil (debout, calé), d'après sa configuration en texte (cfg), jamais d'un poids envoyé.
+  if (produit && estSlugPortail(produit.slug)) {
+    const cfg = lireConfigPanier(produit.slug, params.get("cfg"));
+    if (!cfg) return null;
+    const qty = Number(params.get("qty"));
+    const quantite = Number.isInteger(qty) && qty >= 1 && qty <= 10 ? qty : 1;
+    const colis = planPortail(produit.slug, cfg).colis;
+    const portail: ColisPortail = { kg: colis.kg * quantite, kgTaxable: colis.kgTaxable * quantite, longueurMaxMm: colis.longueurMaxMm, hauteurMaxMm: colis.hauteurMaxMm };
+    return { kg: portail.kg, plusGrandeCoteMm: colis.plusGrandeCoteMm, portail };
+  }
   const entier = (cle: string) => {
     const n = Number(params.get(cle));
     return Number.isFinite(n) && n > 0 && n <= 10000 ? Math.round(n) : undefined;
@@ -93,7 +105,7 @@ export async function GET(request: Request) {
   // Même route pour la prise de cotes, la pose et la livraison : seul le
   // barème change. La livraison a besoin des cotes du colis (en mm).
   const pour = params.get("pour");
-  let colis: { kg: number; plusGrandeCoteMm: number } | null = null;
+  let colis: ColisDemande | null = null;
   if (pour === "livraison") {
     // Peser un garde-corps, c'est le calculer : même budget de temps que la
     // fiche et le panier. Sans lui, cette porte (120 demandes par dix minutes)
@@ -111,12 +123,16 @@ export async function GET(request: Request) {
       throw erreur;
     }
     if (!colis) return NextResponse.json({ error: "colis" }, { status: 400 });
+    // Un portail trop long pour un transporteur : le retrait à l'atelier ou la pose.
+    if (colis.portail && !livrablePortailParTransporteur(colis.portail)) return NextResponse.json({ error: "trop_long", plusGrandeCoteMm: colis.plusGrandeCoteMm }, { status: 400 });
   }
   const resultat =
     pour === "pose"
       ? await calculerPose(cp.slice(0, 10))
       : colis
-        ? await calculerLivraison(cp.slice(0, 10), colis.kg, colis.plusGrandeCoteMm)
+        ? colis.portail
+          ? await calculerLivraisonPortail(cp.slice(0, 10), colis.portail)
+          : await calculerLivraison(cp.slice(0, 10), colis.kg, colis.plusGrandeCoteMm)
         : await calculerDeplacement(cp.slice(0, 10));
   if (!resultat.ok) {
     // « Trop loin » dit aussi où, et à combien : le client comprend le refus.
@@ -128,7 +144,7 @@ export async function GET(request: Request) {
   return NextResponse.json(
     // Le poids estimé, à dire au client — seulement pour la livraison seule :
     // la pose ne facture pas au colis.
-    colis ? { ...resultat.deplacement, kg: Math.round(colis.kg) } : resultat.deplacement,
+    colis ? { ...resultat.deplacement, kg: Math.round(colis.kg), ...(colis.portail ? { plusGrandeCoteMm: colis.plusGrandeCoteMm, kgTaxable: Math.round(colis.portail.kgTaxable) } : {}) } : resultat.deplacement,
     { headers: { "cache-control": "private, max-age=600" } }
   );
 }

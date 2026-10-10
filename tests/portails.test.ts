@@ -20,7 +20,7 @@ import { PRISE_DE_COTES, type ResultatLieu } from "../src/lib/deplacement.ts";
  */
 
 const REF = JSON.parse(readFileSync(new URL("./reference/portails-outil.json", import.meta.url), "utf8")) as {
-  cas: { modele: string; v: Record<string, unknown>; o?: { complement?: boolean }; prix: number; alertes: number }[];
+  cas: { modele: string; v: Record<string, unknown>; o?: { complement?: boolean; reception?: "pose" | "transporteur" | "retrait" }; prix: number; alertes: number }[];
 };
 const SLUG_DE = Object.fromEntries(Object.entries(SLUGS_PORTAIL).map(([s, m]) => [m, s])) as Record<string, SlugPortail>;
 
@@ -56,7 +56,7 @@ test("les prix du site sont ceux de l'outil de plans, portail par portail (120 c
       if (avec.ok) assert.equal(avec.portillon, c.prix, `portillon assorti ${JSON.stringify(c.v)}`);
       continue;
     }
-    const r = prixPortail(slug, configDe(slug, c.v));
+    const r = prixPortail(slug, { ...configDe(slug, c.v), ...(c.o?.reception ? { reception: c.o.reception } : {}) });
     if (c.alertes) { assert.equal(r.ok, false, `${c.modele} ${JSON.stringify(c.v)} : à étudier dans l'outil`); continue; }
     assert.ok(r.ok, `${c.modele} ${JSON.stringify(c.v)} : refusé sur le site`);
     if (r.ok) assert.equal(r.prix, c.prix, `${c.modele} ${JSON.stringify(c.v)}`);
@@ -278,4 +278,39 @@ test("les mots du client (10/10/2026) : les quatre portails se commandent avec l
     assert.match(f.noteDevis!.fr, /visite de prise de cotes/);
     assert.doesNotMatch(f.noteDevis!.fr, /sur étude/);
   }
+});
+
+test("la façon de recevoir un portail (10/10/2026) : « pose » par défaut, relue à l'identique, jamais de moteur sans pose ; le colis vient du plan, debout", () => {
+  for (const slug of Object.keys(SLUGS_PORTAIL) as SlugPortail[]) {
+    for (const reception of ["pose", "transporteur", "retrait"] as const) {
+      const cfg: ConfigPortail = { ...configDepart(slug), reception };
+      assert.deepEqual(lireConfigPanier(slug, versParamsPanier(slug, cfg)), cfg, `${slug} ${reception} : relu à l'identique`);
+      assert.deepEqual(lireConfig(versParams(slug, cfg))!.cfg, cfg);
+      const R = planPortail(slug, cfg);
+      assert.equal(R.alertes.length, 0);
+      const colis = R.colis;
+      assert.ok(colis.kg > 0 && colis.kg === colis.pieces.reduce((s, p) => s + p.kg, 0), `${slug} : le poids du colis est la somme de ses pièces`);
+      assert.ok(colis.kgTaxable >= colis.kg, `${slug} : le poids taxable n'est jamais sous le poids réel`);
+      assert.ok(colis.palettes.length >= 1 && colis.palettes.every((pl) => pl.pieces >= 1 && pl.kgTaxable >= pl.kg));
+      assert.ok(colis.longueurMaxMm > 0 && colis.hauteurMaxMm > 0 && colis.plusGrandeCoteMm === Math.max(...colis.pieces.map((p) => Math.max(p.longueurMm, p.hauteurMm))));
+    }
+  }
+  // Sans pose : un prix plus bas que posé, et le même tarif que l'outil (185 cas de la référence).
+  for (const slug of Object.keys(SLUGS_PORTAIL) as SlugPortail[]) {
+    const posee = prixPortail(slug, configDepart(slug)), sans = prixPortail(slug, { ...configDepart(slug), reception: "retrait" });
+    assert.ok(posee.ok && sans.ok && sans.prix < posee.prix, `${slug} : sans pose moins cher que posé`);
+  }
+  // Une adresse ou un panier d'avant (sans « reception ») se lit comme posé ; une valeur inconnue est refusée ; sans pose, pas de moteur.
+  const p = versParams("portail-battant", configDepart("portail-battant"));
+  p.delete("reception");
+  assert.equal(lireConfig(p)!.cfg.reception, "pose");
+  p.set("reception", "drone");
+  assert.equal(lireConfig(p), null);
+  assert.equal(lireConfig(versParams("portail-battant", { ...configDepart("portail-battant"), reception: "retrait", moteur: true })), null);
+  assert.equal(prixPortail("portail-battant", { ...configDepart("portail-battant"), reception: "retrait", moteur: true }).ok, false);
+  // Le coulissant sur rail : le rail part en tronçons de 3 m ; un autoportant emmène sa queue (5,26 m) : affrètement.
+  const rail = planPortail("portail-coulissant", configDepart("portail-coulissant")).colis;
+  assert.ok(rail.pieces.filter((x) => /^Rail/.test(x.nom)).every((x) => x.longueurMm <= 3000));
+  const auto = planPortail("portail-coulissant", { ...configDepart("portail-coulissant"), guidage: "auto" }).colis;
+  assert.ok(auto.longueurMaxMm > 5000);
 });

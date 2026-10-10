@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 cc9ba271bc4ba6827c40defa.
+// Source : l'outil de plans (plans-atelier.html), sha256 896f0891a0f80c24759f3b31.
 /* eslint-disable */
 
 
@@ -1934,6 +1934,56 @@ const PT_PLEIN = { plein: 1, panneau: 1, lames: 0.9, lamesAlu: 0.8, croix: 0.3, 
  *  coulissant). Conseillé (sans prix) : le plus facile à poser, puis la plus longue garantie ; le chiffrage départage par
  *  le prix (cahier §6.2). Aucune cote inventée : ce que la visite n'a pas relevé reste une note « à relever ».
  */
+/**
+ * Le colis d'un portail livré par transporteur (Quentin, 10/10/2026 : « on le met droit dans le camion, on gagne de la place »).
+ * Chaque pièce voyage DEBOUT, calée sur sa palette : ce qui compte pour le transporteur, c'est son poids et sa plus grande
+ * dimension, pas sa surface à plat. Rien n'est deviné : les dimensions et les poids sont ceux du plan ; l'emballage (palette,
+ * calage, cerclage) se chiffre dans chiffrage-portails.js, la livraison se facture sur le site selon ce colis.
+ *   pieces : [{ nom, longueurMm, hauteurMm, kg }] : les vantaux ou panneaux (avec sa queue et sa poutre pour un autoportant) et les poteaux
+ *   kg : le poids de tout ce qui part ; plusGrandeCoteMm : la plus grande dimension d'une pièce debout (longueur ou hauteur).
+ */
+function ptColis(R) {
+  const c = R.config, Q = R.quant, H = R.dims.hautMax, kgTotal = Math.round(R.kg);
+  const queue = c.type === "coulissant" ? (Q.queue || 0) : 0;
+  const pieces = Q.vantaux.map((vt) => ({ nom: vt.nom, longueurMm: Math.round(vt.l + queue), hauteurMm: H, kg: Math.round(vt.kg) }));
+  // Les poteaux s'ils sont fournis, le rail d'un coulissant sur rail (en tronçons de 3 m, à joindre sur place : à valider avec le
+  // fournisseur du rail), puis la quincaillerie : tout ce qui part, au poids du plan.
+  const nPot = R.debit.filter((d) => d.nom === "Poteau").reduce((s, d) => s + d.qte, 0), kgPot = Math.round(Q.kgParNom["Poteau"] || 0);
+  for (const d of R.debit.filter((x) => x.nom === "Poteau")) for (let i = 0; i < d.qte; i++) pieces.push({ nom: "Poteau", longueurMm: Math.round(d.long), hauteurMm: 0, kg: Math.round(kgPot / Math.max(1, nPot)) });
+  const rail = R.debit.find((d) => d.groupe === "Guidage" && /^Rail/.test(d.nom));
+  if (rail) {
+    const n = Math.ceil(rail.long / PT_COLIS.tronconRailMm), kgRail = Math.round(Q.kgParNom[rail.nom] || 0);
+    for (let i = 0; i < n; i++) pieces.push({ nom: `Rail à sceller (tronçon ${i + 1} sur ${n})`, longueurMm: Math.min(PT_COLIS.tronconRailMm, Math.round(rail.long - i * PT_COLIS.tronconRailMm)), hauteurMm: 0, kg: Math.round(kgRail / n) });
+  }
+  const reste = kgTotal - pieces.reduce((s, p) => s + p.kg, 0);
+  if (reste > 0) pieces.push({ nom: "Quincaillerie et accessoires", longueurMm: 0, hauteurMm: 0, kg: reste });
+  const kg = pieces.reduce((s, p) => s + p.kg, 0);
+
+  // Les palettes (fabriquées à l'atelier : Quentin les construit lui-même) : les vantaux ou panneaux debout, DEUX par palette au plus
+  // (côte à côte, de la longueur du plus long) ; une dernière pour les poteaux et le rail en tronçons ; la quincaillerie voyage dans un
+  // carton avec les vantaux. Le poids TAXABLE d'une palette est le plus grand du poids réel et du mètre plancher : un vantail debout est
+  // « non gerbable », le transporteur le taxe sur la place qu'il prend au sol (longueur × profondeur ÷ 2,4 m × 1 750 kg).
+  const grandes = pieces.filter((p) => p.hauteurMm > 0).sort((x, y) => y.longueurMm - x.longueurMm);
+  const autres = pieces.filter((p) => !(p.hauteurMm > 0) && p.longueurMm > 0), quinc = pieces.filter((p) => p.longueurMm === 0).reduce((s, p) => s + p.kg, 0);
+  const palettes = [];
+  for (let i = 0; i < grandes.length; i += PT_COLIS.vantauxParPalette) {
+    const lot = grandes.slice(i, i + PT_COLIS.vantauxParPalette);
+    palettes.push({ longueurMm: Math.max(...lot.map((p) => p.longueurMm)), hauteurMm: Math.max(...lot.map((p) => p.hauteurMm)), kg: lot.reduce((s, p) => s + p.kg, 0), pieces: lot.length });
+  }
+  if (autres.length) palettes.push({ longueurMm: Math.max(1200, ...autres.map((p) => Math.min(p.longueurMm, PT_COLIS.tronconRailMm))), hauteurMm: 0, kg: autres.reduce((s, p) => s + p.kg, 0), pieces: autres.length });
+  if (palettes.length && quinc) palettes[0].kg += quinc;
+  for (const pl of palettes) pl.kgTaxable = Math.round(Math.max(pl.kg, (pl.longueurMm / 1000) * PT_COLIS.profondeurPaletteM * PT_COLIS.kgParMetrePlancher));
+  return {
+    pieces, palettes, kg,
+    kgTaxable: palettes.reduce((s, pl) => s + pl.kgTaxable, 0),
+    longueurMaxMm: Math.max(...pieces.map((p) => p.longueurMm)), hauteurMaxMm: Math.max(...pieces.map((p) => p.hauteurMm)),
+    plusGrandeCoteMm: Math.max(...pieces.map((p) => Math.max(p.longueurMm, p.hauteurMm))),
+  };
+}
+// Un rail à sceller part en tronçons de 3 m (un transporteur n'en prend pas de plus longs sans affrètement) ; une palette porte deux
+// vantaux ou panneaux au plus ; profondeur de la palette (un vantail debout, calé) 0,6 m ; mètre plancher : 1 750 kg pour 2,4 m² (règle DSV).
+const PT_COLIS = { tronconRailMm: 3000, vantauxParPalette: 2, profondeurPaletteM: 0.6, kgParMetrePlancher: 1750 / 2.4 };
+
 function ptMotorisation(c, V, R, ctx) {
   const Vi = c.visite, out = { permis: [], refus: [], conseille: null, choisi: null, barrePalpeuse: false, notes: [] };
   if (c.type === "portillon") return out;
@@ -2561,19 +2611,21 @@ function calculerPortail(v, modele) {
   const metres = {};
   let laqueM2 = 0, kg = 0, toleM2 = 0, panneauM2 = 0;
   let decorKg = 0, decorM2 = 0;
+  const kgParNom = {};   // le poids de chaque sorte de pièce (pour le colis : poteaux, rail…)
+  const pese = (nom, k) => { kg += k; kgParNom[nom] = (kgParNom[nom] || 0) + k; };
   for (const p of pieces) {
     const lm = p.long / 1000;
-    if (p.decor) { const k = (p.kgM || 0) * lm, m2 = lm * (p.peri || 0) / 1000; decorKg += k; decorM2 += m2; kg += k; laqueM2 += m2; continue; }
-    if (p.panneau) { panneauM2 += p.aire; kg += p.kg; continue; }
-    if (p.tole) { toleM2 += p.aire; laqueM2 += 2 * p.aire; kg += p.kg; metres[p.mat] = (metres[p.mat] || 0); continue; }
+    if (p.decor) { const k = (p.kgM || 0) * lm, m2 = lm * (p.peri || 0) / 1000; decorKg += k; decorM2 += m2; pese(p.nom, k); laqueM2 += m2; continue; }
+    if (p.panneau) { panneauM2 += p.aire; pese(p.nom, p.kg); continue; }
+    if (p.tole) { toleM2 += p.aire; laqueM2 += 2 * p.aire; pese(p.nom, p.kg); metres[p.mat] = (metres[p.mat] || 0); continue; }
     metres[p.mat] = (metres[p.mat] || 0) + lm;
     if (p.groupe !== "Guidage" && !p.mat.startsWith("Lame chêne") && !p.mat.startsWith("Chêne")) laqueM2 += lm * p.peri / 1000;
-    kg += p.kgM * lm;
+    pese(p.nom, p.kgM * lm);
   }
   const kgPortail = parVantail.reduce((s, x) => s + x.kg, 0);
   R.quant = {
     type: c.type, modele: c.modele, mat: c.mat, metres, toleM2, panneauM2, laqueM2, soudures: q.soudures, achats: A, rosaces: q.rosaces, volutes: q.volutes, moulure: q.moulure || null,
-    vantaux: parVantail, queue, longueurPortail: coul ? Lg : null, massifQueue: q.massifQueue || 0, chariots: q.chariots || null, poteaux: c.poteaux, moteur: c.moteur,
+    vantaux: parVantail, kgParNom, queue, longueurPortail: coul ? Lg : null, massifQueue: q.massifQueue || 0, chariots: q.chariots || null, poteaux: c.poteaux, moteur: c.moteur,
     moteurModele: c.moteur && R.moteurs && R.moteurs.choisi ? R.moteurs.choisi.cle : null,
     cintrage: c.forme === "chapeau" || c.forme === "creux", lisse: c.lisse && c.forme === "droit", pointes: c.pointes,
     // Ce que le moteur a choisi dans ses tables (aucun prix) :
@@ -2592,6 +2644,7 @@ function calculerPortail(v, modele) {
   R.dims = { P: c.P, H: c.H, type: c.type, vantaux: largeurs.map(Math.round), gs: c.gs, hautMax: Math.round(Math.max(...ptCourbe(haut, xa, xb).map(([, y]) => y)) + (q.decor ? q.decor.cimierH : 0)) };
   R.grandeCote = Math.round(Math.max(...largeurs));
   R.config = c;
+  R.colis = ptColis(R);
   // La pose (lot 4) : les ouvrages, réservations, électricité, essais, et les vues de pose (après R.quant).
   ptPose(c, V, R, { kgV: parVantail, geos, pil, yG });
 
@@ -2982,4 +3035,4 @@ function ptPlanA3(R, v, infos = {}, feuille = "1", dessiner) {
 
 
 export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, PT_MOTEURS, MT_AVEC, MT_NOMS };
-export const EMPREINTE = "2ab08a9f505f";
+export const EMPREINTE = "72bfbd929f8b";

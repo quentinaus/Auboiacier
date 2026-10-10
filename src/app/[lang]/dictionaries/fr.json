@@ -1198,6 +1198,11 @@
     "deliveryPortail": "Pose comprise",
     "soldePortail": "Solde du portail, à la réception (visite déduite)",
     "soldeNote": "Pour un portail, vous payez aujourd'hui l'acompte de 40 % et la visite de prise de cotes ; la visite est déduite du solde, qui se règle à la réception du portail posé.",
+    "soldePortailTransporteur": "Solde du portail, avant l'expédition",
+    "soldePortailRetrait": "Solde du portail, au retrait",
+    "soldePortailMixte": "Solde des portails",
+    "soldeNoteTransporteur": "Pour un portail livré par transporteur, vous payez aujourd'hui l'acompte de 40 % et la livraison ; le solde se règle avant l'expédition. La pose n'est pas comprise.",
+    "soldeNoteRetrait": "Pour un portail retiré à l'atelier, vous payez aujourd'hui l'acompte de 40 % ; le solde se règle au retrait, à Saumur. La pose n'est pas comprise.",
     "garantieExclueVisite": "Garantie cotes : non proposée avec la prise de cotes à domicile, puisque l'atelier mesure lui-même.",
     "garantieExcluePose": "Garantie cotes : non proposée avec la pose par l'atelier."
   },
