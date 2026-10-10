@@ -1231,7 +1231,7 @@
       },
       {
         "title": "4. Commande et paiement",
-        "body": "Les pièces du catalogue se règlent par carte bancaire au moment de la commande, en une fois : la totalité du prix est encaissée à la commande, et la facture est envoyée automatiquement. Le paiement est traité par notre prestataire Stripe ; aucune donnée bancaire n'est enregistrée par Auboiacier. Pour les réalisations sur mesure faisant l'objet d'un devis, les modalités de paiement sont précisées sur ce devis."
+        "body": "Les pièces du catalogue se règlent par carte bancaire au moment de la commande, en une fois : la totalité du prix est encaissée à la commande, et la facture est envoyée automatiquement. Le paiement est traité par notre prestataire Stripe ; aucune donnée bancaire n'est enregistrée par Auboiacier. Pour les réalisations sur mesure faisant l'objet d'un devis, les modalités de paiement sont précisées sur ce devis. Pour un portail commandé en ligne, vous réglez à la commande un acompte de 40 % du prix du portail et la visite de prise de cotes ; le prix de la visite est déduit du solde. Le solde est réglé à la réception du portail posé, et la pose a lieu au plus tard 10 semaines après le paiement de l'acompte."
       },
       {
         "title": "5. Délais de fabrication",

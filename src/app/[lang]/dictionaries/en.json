@@ -1231,7 +1231,7 @@
       },
       {
         "title": "4. Ordering and payment",
-        "body": "Catalogue pieces are paid by card at the time of the order, in full: the whole price is charged when ordering, and the invoice is sent automatically. Payment is handled by our provider Stripe; no card data is stored by Auboiacier. For bespoke work quoted individually, the payment terms are set out on that quote."
+        "body": "Catalogue pieces are paid by card at the time of the order, in full: the whole price is charged when ordering, and the invoice is sent automatically. Payment is handled by our provider Stripe; no card data is stored by Auboiacier. For bespoke work quoted individually, the payment terms are set out on that quote. For a gate ordered online, you pay a 40% deposit on the price of the gate and the measuring visit when you order; the price of the visit is deducted from the balance. The balance is paid when the fitted gate is handed over, and fitting takes place no later than 10 weeks after the deposit is paid."
       },
       {
         "title": "5. Production times",

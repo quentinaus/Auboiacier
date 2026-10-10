@@ -30,7 +30,6 @@ export const GARANTIE_COTES_MAX = 99;
  */
 const FAMILLES_GARANTIES: ReadonlySet<Famille> = new Set<Famille>([
   "garde-corps",
-  "portail",
   "plafond",
   "table-interieur",
   "table-exterieur",
