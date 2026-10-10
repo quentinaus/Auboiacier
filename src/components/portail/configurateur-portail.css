@@ -528,7 +528,7 @@
 .pg-res-dessin { display: grid; place-items: center; height: 200px; padding: 12px; border-radius: 16px; background: rgba(255, 255, 255, 0.94); }
 .pg-res-dessin svg { width: 100%; height: 100%; }
 .pg-res-kicker { font-size: 12.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 247, 238, 0.7); }
-.pg-res-nom { margin-top: 4px; font-size: 44px; line-height: 1.02; letter-spacing: -0.015em; color: #fff; }
+.pg-res-nom { margin-top: 4px; font-size: 44px; line-height: 1.02; letter-spacing: -0.01em; color: #fff; }
 .pg-res-variante { display: inline-block; margin-top: 8px; padding: 3px 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.14); font-size: 14px; font-weight: 600; }
 .pg-res-raison { margin-top: 12px; font-size: 16px; line-height: 1.45; color: rgba(255, 247, 238, 0.9); }
 .pg-res-prix { margin-top: 10px; font-size: 18px; font-weight: 600; color: #fff; font-variant-numeric: tabular-nums; }
