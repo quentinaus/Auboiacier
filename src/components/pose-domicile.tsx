@@ -314,7 +314,10 @@ export function PoseDomicile({
                   // Le mode déjà choisi : rien à refaire (le prix calculé ne doit pas être effacé sans être redemandé).
                   if (!actif) onChange({ ...choix, mode, deplacement: null });
                 }}
-                className={`rounded-full px-1.5 py-1.5 text-[12px] font-medium leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${actif ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"}`}
+                /* Trois cases de même largeur, le mot le plus long (« Transporteur ») doit tenir dans la sienne sans en
+                   sortir (Quentin, 10/10/2026 : « ce transporteur sort carrément de la ligne ») : petite police serrée,
+                   retour à la ligne permis, texte centré sur toute la hauteur. */
+                className={`flex min-w-0 items-center justify-center rounded-full px-1 py-1.5 text-center text-[11.5px] font-medium leading-tight tracking-[-0.01em] [overflow-wrap:anywhere] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${actif ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"}`}
               >
                 {nomPilule(mode)}
               </button>
