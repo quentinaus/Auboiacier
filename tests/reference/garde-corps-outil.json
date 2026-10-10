@@ -1,9 +1,9 @@
 {
  "à lire": "Généré par scripts/extraire-moteur-garde-corps.mjs à partir de l'outil de plans (chargé tel quel dans node:vm). Aucun coût : des prix de vente, des poids, des hauteurs et des empreintes (sha256 tronqué) des réponses complètes. Ne pas modifier à la main.",
- "outil": "9a642bf42019c0c6bb65a931f95ec0a9d12d4c121a227f5129d25b7ae24be68a",
+ "outil": "bd87f01e0e090ecd2be09a7dd4bd3c036e7b887940d87e1c46dd3de8a8838e9e",
  "empreintes": {
-  "moteur": "cf207adfda8c",
-  "devis": "fb1b7d1e24b9",
+  "moteur": "33a4a83a44a6",
+  "devis": "29bf1044dc29",
   "chiffrage": "4080991d325c"
  },
  "defauts": "933bbd1f49e4fc93",
@@ -1804,7 +1804,7 @@
     "decorForme": "C",
     "seuls": true
    },
-   "R": "6ee10dbe9fd6fb8e",
+   "R": "198e06375d2a7d47",
    "hauteurGC": 285,
    "kg": 16.678485994362894,
    "alertes": 0,
@@ -1830,7 +1830,7 @@
     "decor": "entre",
     "decorForme": "S"
    },
-   "R": "c9df0edd35f496a9",
+   "R": "66c80cb3b2cffe3d",
    "hauteurGC": 285,
    "kg": 15.38101545998322,
    "alertes": 0,
@@ -1856,7 +1856,7 @@
     "decor": "entre",
     "decorForme": "J"
    },
-   "R": "8159471b184d60af",
+   "R": "0b1f37fa2b14eead",
    "hauteurGC": 285,
    "kg": 15.0746716731895,
    "alertes": 0,
@@ -1883,7 +1883,7 @@
     "decorForme": "S",
     "seuls": true
    },
-   "R": "47016cc7c7d290cd",
+   "R": "917a76e81853d528",
    "hauteurGC": 285,
    "kg": 11.64956920600983,
    "alertes": 0,
@@ -1909,7 +1909,7 @@
     "decor": "frise",
     "decorForme": "C"
    },
-   "R": "219a4c607df11047",
+   "R": "e5ee9454e91c965e",
    "hauteurGC": 285,
    "kg": 12.748929247259188,
    "alertes": 0,
@@ -1935,7 +1935,7 @@
     "decor": "frise",
     "decorForme": "poste"
    },
-   "R": "4901928872451a6b",
+   "R": "e57932d2ecde0fe9",
    "hauteurGC": 285,
    "kg": 13.355716114102965,
    "alertes": 0,
@@ -1962,7 +1962,7 @@
     "decorForme": "anneau",
     "seuls": true
    },
-   "R": "5cb81b551e5198b9",
+   "R": "3e21a3385799e910",
    "hauteurGC": 285,
    "kg": 15.101853900106413,
    "alertes": 0,
@@ -1988,7 +1988,7 @@
     "decor": "hauteur",
     "decorForme": "C"
    },
-   "R": "210b18becf300359",
+   "R": "131e28c9e68f21a9",
    "hauteurGC": 285,
    "kg": 15.987611735088047,
    "alertes": 0,
@@ -2014,7 +2014,7 @@
     "decor": "hauteur",
     "decorForme": "S"
    },
-   "R": "d092281348d34463",
+   "R": "0763698394bdfb1d",
    "hauteurGC": 285,
    "kg": 14.629768016044538,
    "alertes": 0,
@@ -2041,7 +2041,7 @@
     "decorForme": "coeur",
     "seuls": true
    },
-   "R": "1e7018f988488381",
+   "R": "f2eedc081521ef6a",
    "hauteurGC": 285,
    "kg": 13.724587391083482,
    "alertes": 0,
@@ -2067,7 +2067,7 @@
     "decor": "medaillon",
     "decorForme": "coeur"
    },
-   "R": "469d3a435142a398",
+   "R": "bfe6c8965d2fab77",
    "hauteurGC": 285,
    "kg": 12.041510440087862,
    "alertes": 0,
@@ -2093,7 +2093,7 @@
     "decor": "medaillon",
     "decorForme": "doubleC"
    },
-   "R": "2ace3f92667e9f22",
+   "R": "00a86277cf1ba7e0",
    "hauteurGC": 285,
    "kg": 12.640153172924617,
    "alertes": 0,
@@ -2120,7 +2120,7 @@
     "decorForme": "J",
     "seuls": true
    },
-   "R": "e27d4f918d85be60",
+   "R": "7ec2c2b73efde3cb",
    "hauteurGC": 285,
    "kg": 12.130486026721021,
    "alertes": 0,
@@ -2146,7 +2146,7 @@
     "decor": "applique",
     "decorForme": "doubleC"
    },
-   "R": "091cc2841bcf7a91",
+   "R": "8aca4c2dcd0d7fcc",
    "hauteurGC": 285,
    "kg": 13.779712454152122,
    "alertes": 0,
@@ -2172,7 +2172,7 @@
     "decor": "applique",
     "decorForme": "coeur"
    },
-   "R": "bf19f27084b7dde3",
+   "R": "5bc3bd396885c5ab",
    "hauteurGC": 285,
    "kg": 12.776109695412513,
    "alertes": 0,
@@ -2199,7 +2199,7 @@
     "decorForme": "C",
     "seuls": true
    },
-   "R": "ffd9bb64ea121f0b",
+   "R": "1a396317f0382db6",
    "hauteurGC": 285,
    "kg": 12.800682981155754,
    "alertes": 0,
@@ -2226,7 +2226,7 @@
     "decorForme": "S",
     "decorBouts": "effile"
    },
-   "R": "a997d819186758cb",
+   "R": "da25da438afe027c",
    "hauteurGC": 285,
    "kg": 12.900522947747422,
    "alertes": 0,
@@ -2253,7 +2253,7 @@
     "decorForme": "C",
     "decorBouts": "droit"
    },
-   "R": "05fffe85945b96f0",
+   "R": "6f2124a6c0a1f8a4",
    "hauteurGC": 235,
    "kg": 14.909227241274813,
    "alertes": 1,
@@ -2279,7 +2279,7 @@
     "decor": "entre",
     "decorForme": "J"
    },
-   "R": "697c82fb2871ed87",
+   "R": "630210dcbeb5fdd5",
    "hauteurGC": 285,
    "kg": 12.066502138551598,
    "alertes": 0,
@@ -2306,7 +2306,7 @@
     "decorForme": "coeur",
     "decorBarreaux": "torsade"
    },
-   "R": "479e12bb0a661b2e",
+   "R": "cba7f4839c1f8c0a",
    "hauteurGC": 435,
    "kg": 15.321821752227242,
    "alertes": 0,
@@ -2334,7 +2334,7 @@
     "decorBarreaux": "bagues",
     "seuls": true
    },
-   "R": "5e796d27964b2e89",
+   "R": "c6f7a6e13aa5dd67",
    "hauteurGC": 285,
    "kg": 20.69924795416606,
    "alertes": 2,
@@ -2361,7 +2361,7 @@
     "decorForme": "C",
     "decorFriseBasse": "postes"
    },
-   "R": "3a58d65660156705",
+   "R": "27ffe1e059e90d1f",
    "hauteurGC": 285,
    "kg": 12.800682981155754,
    "alertes": 0,
@@ -2388,7 +2388,7 @@
     "decorForme": "S",
     "decorFriseBasse": "postes"
    },
-   "R": "92ca16e09fce4142",
+   "R": "75e74d3511cc5df6",
    "hauteurGC": 635,
    "kg": 20.78733308858873,
    "alertes": 0,
@@ -2418,7 +2418,7 @@
     "km": 120
    },
    "chantier": "37000 Tours",
-   "R": "49e10d3da35cd52a",
+   "R": "07d08ff351ee9dfc",
    "hauteurGC": 285,
    "kg": 11.64956920600983,
    "alertes": 0,
@@ -2445,7 +2445,7 @@
     "decorForme": "coeur",
     "seuls": true
    },
-   "R": "589490cd5924a6da",
+   "R": "a7804966ae5cbe3f",
    "hauteurGC": 635,
    "kg": 23.814230247890738,
    "alertes": 0,
@@ -2471,7 +2471,7 @@
     "decor": "hauteur",
     "decorForme": "S"
    },
-   "R": "0f0400e8e0e88f57",
+   "R": "874e1b7c47a24b5a",
    "hauteurGC": 635,
    "kg": 27.559560519966443,
    "alertes": 0,
@@ -2498,7 +2498,7 @@
     "decorForme": "C",
     "seuls": true
    },
-   "R": "a1f200c53bf85ea2",
+   "R": "02fe0c136bdfb122",
    "hauteurGC": 535,
    "kg": 54.494583732083576,
    "alertes": 2,
@@ -2527,7 +2527,7 @@
     "decor": "frise",
     "decorForme": "S"
    },
-   "R": "a0b3af01751bb895",
+   "R": "1483e19dc9be4f85",
    "hauteurGC": 200,
    "kg": 11.180862330521268,
    "alertes": 0,
@@ -2557,7 +2557,7 @@
     "km": 40
    },
    "chantier": "49000 Angers",
-   "R": "7aa9443d9c93030f",
+   "R": "6822b19b67deacd9",
    "hauteurGC": 335,
    "kg": 14.830661266097906,
    "alertes": 1,
@@ -2585,7 +2585,7 @@
     "mcType": "acier",
     "seuls": true
    },
-   "R": "95a79632ef891f74",
+   "R": "ae2f18985dfa5526",
    "hauteurGC": 285,
    "kg": 16.944312558588823,
    "alertes": 0,
@@ -2613,7 +2613,7 @@
     "renfort": "plat",
     "seuls": true
    },
-   "R": "768a31de2aa89808",
+   "R": "a9e7596e57b287de",
    "hauteurGC": 285,
    "kg": 47.42544600243497,
    "alertes": 1,
@@ -10152,7 +10152,7 @@
     "carre": 16,
     "renfort": false,
     "panneaux": 1,
-    "R": "6ee10dbe9fd6fb8e",
+    "R": "198e06375d2a7d47",
     "hauteurGC": 285,
     "kg": 16.678485994362894,
     "prix": 610,
@@ -10187,7 +10187,7 @@
     "carre": 16,
     "renfort": false,
     "panneaux": 1,
-    "R": "8a50d6da4edb6838",
+    "R": "c5c528cd97281b72",
     "hauteurGC": 635,
     "kg": 19.46139464604574,
     "prix": 530,
@@ -10229,7 +10229,7 @@
     "carre": 16,
     "renfort": true,
     "panneaux": 1,
-    "R": "6bbd4d342e171924",
+    "R": "a27c3d8c09fc4909",
     "hauteurGC": 285,
     "kg": 23.965904939655623,
     "prix": 810,
@@ -10262,7 +10262,7 @@
     "carre": 16,
     "renfort": false,
     "panneaux": 1,
-    "R": "e408ef415ad1ba3c",
+    "R": "7b4014ced5fa2289",
     "hauteurGC": 200,
     "kg": 7.619052730341931,
     "prix": 350,
@@ -10307,7 +10307,7 @@
     "carre": 16,
     "renfort": true,
     "panneaux": 2,
-    "R": "dddc3bf976b4cab8",
+    "R": "f1185ad4e4390951",
     "hauteurGC": 535,
     "kg": 65.59255333208358,
     "prix": 1860,
@@ -10347,7 +10347,7 @@
     "carre": 18,
     "renfort": false,
     "panneaux": 1,
-    "R": "472c3cbf43e99508",
+    "R": "2d71bc81c58c16c9",
     "hauteurGC": 435,
     "kg": 27.85132721691545,
     "prix": 710,
@@ -10382,7 +10382,7 @@
     "carre": 16,
     "renfort": false,
     "panneaux": 1,
-    "R": "5ffca3db6ba0baac",
+    "R": "bed71d41d17cb1d8",
     "hauteurGC": 285,
     "kg": 34.04566235887366,
     "prix": 1200,
@@ -10428,7 +10428,7 @@
     "carre": 16,
     "renfort": true,
     "panneaux": 2,
-    "R": "72db2a5e830033d7",
+    "R": "56ac8c7307933729",
     "hauteurGC": 535,
     "kg": 51.309518321471835,
     "prix": 1360,
@@ -10467,7 +10467,7 @@
     "carre": 16,
     "renfort": false,
     "panneaux": 1,
-    "R": "aee6add8607163e8",
+    "R": "4ee7c38a3a411677",
     "hauteurGC": 135,
     "kg": 8.776207958371394,
     "prix": 590,
