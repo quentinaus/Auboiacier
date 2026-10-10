@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { ChiffragePortailIndisponible, prixPortail, prixVariantesPortail } from "@/lib/prix-portail.server";
+import { ChiffragePortailIndisponible, prixDepartModeles, prixPortail, prixVariantesPortail } from "@/lib/prix-portail.server";
+import { bornesPortail } from "@/lib/portails";
 import { lireConfig } from "@/lib/portails";
 import { creerLimite } from "@/lib/limite-debit";
 
@@ -20,6 +21,17 @@ let indisponibleSignale = false;
 export async function GET(request: Request) {
   if (tropDeDemandes(request, Date.now())) return NextResponse.json({ error: "too_many" }, { status: 429 });
   const params = new URL(request.url).searchParams;
+  // La page des portails (10/10/2026) : le « dès » des 4 modèles aux cotes du client, ?modeles=1&P=3500&H=1600.
+  if (params.get("modeles") === "1") {
+    const P = Number(params.get("P")), H = Number(params.get("H")), bH = bornesPortail("portail-battant").H;
+    if (!Number.isFinite(P) || !Number.isFinite(H) || P < 500 || P > 8000 || H < bH[0] || H > bH[1]) return NextResponse.json({ error: "invalid" }, { status: 400 });
+    try {
+      return NextResponse.json(prixDepartModeles(Math.round(P), Math.round(H)), { headers: { "cache-control": "private, max-age=600" } });
+    } catch (erreur) {
+      if (erreur instanceof ChiffragePortailIndisponible) return NextResponse.json({ error: "indisponible" }, { status: 503 });
+      throw erreur;
+    }
+  }
   const variantes = params.get("variantes") === "1";
   params.delete("variantes");
   const lu = lireConfig(params);
