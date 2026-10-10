@@ -375,6 +375,19 @@ textarea:focus-visible,
     display: flex !important;
     flex-direction: column;
   }
+  /* À l'étape « Prix » sur téléphone, la livraison et sa case « code postal » viennent en premier, juste sous le prix :
+     la case était cachée sous la barre d'achat, dans une zone à faire défiler (Quentin, 10/10/2026 : « je ne vois pas
+     l'endroit pour l'adresse, je dois aller dans le sous-menu »). Le reste (conforme, fixation, plan) suit la barre. */
+  .fond-gc[data-parcours="1"] .panneau-etape.etape-10 > .mb-auto {
+    order: 10;
+    margin-top: 1rem;
+    margin-bottom: 0;
+  }
+  /* La case du code postal est juste au-dessus : le lien « Indiquez votre code postal… » de la barre ne sert plus et prenait
+     la place qui la cachait. */
+  .fond-gc[data-parcours="1"] .panneau-etape.etape-10 .barre-achat a[href="#livraison"] {
+    display: none;
+  }
   .fond-gc[data-parcours="1"]:not([data-en-place]) > .panneau-etape {
     overflow-y: hidden !important;
   }

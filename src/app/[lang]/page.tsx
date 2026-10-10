@@ -139,12 +139,14 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
     return prix.length ? Math.min(...prix) : null;
   };
   const des = (prix: number | null) => (prix === null ? "" : `${locale === "fr" ? "dès" : "from"} ${prixAffiche(prix, locale)}`);
-  /** Les trois pièces qui se configurent en ligne, chacune avec son prix de départ. */
+  /** Les quatre pièces qui se configurent en ligne, chacune avec son prix de départ. */
   const portesConfig = [
     // Quentin (10/10/2026) : d'abord le choix entre les deux garde-corps (sans décor, ou forgé à volutes), pas un modèle d'office.
     { href: `/${locale}/artisanat/famille/garde-corps`, label: t.catGardeCorps, prix: des(appelGC ? appelGC.prix : departDe(["garde-corps"])) },
     { href: `/${locale}/artisanat/tables`, label: t.catTables, prix: des(departDe(["table-interieur"])) },
     { href: `/${locale}/toiles-tendues`, label: t.catPlafonds, prix: des(departDe(["plafond"])) },
+    // Quentin (10/10/2026) : « ajoute portails ici aussi ».
+    { href: `/${locale}/artisanat/famille/portail`, label: t.catPortails, prix: des(departDe(["portail"])) },
   ];
 
   /** Vrais témoignages clients — à remplir, rien d'inventé ici. */
