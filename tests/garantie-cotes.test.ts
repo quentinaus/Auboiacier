@@ -61,7 +61,7 @@ test("prix : 8 % de la pièce, arrondi à l'euro supérieur, entre 29 et 99 € 
 
 test("pièces éligibles : celles dont le client donne les cotes et qui s'achètent au panier", () => {
   const eligibles = products.filter(eligibleGarantieCotes).map((p) => p.famille);
-  for (const famille of eligibles) assert.ok(["garde-corps", "portail", "plafond", "table-interieur", "table-exterieur"].includes(famille), famille);
+  for (const famille of eligibles) assert.ok(["garde-corps", "plafond", "table-interieur", "table-exterieur"].includes(famille), famille);
   for (const slug of ["garde-corps", "garde-corps-forge-volutes", "table-mikado", "table-resine-mikado", "table-mikado-exterieur", "plafond-lumineux-halo", "plafond-lumineux-lucarne"]) {
     assert.ok(eligibleGarantieCotes(getProduct(slug)!), slug);
   }
@@ -69,7 +69,7 @@ test("pièces éligibles : celles dont le client donne les cotes et qui s'achèt
   for (const slug of ["escalier-limon-central", "fauteuil-terrasse"]) assert.ok(!eligibleGarantieCotes(getProduct(slug)!), slug);
   // Aucune pièce sur devis, quelle que soit sa famille (les portails le sont aujourd'hui).
   for (const p of products.filter((p) => p.orderMode === "quote")) assert.ok(!eligibleGarantieCotes(p), p.slug);
-  assert.ok(eligibleGarantieCotes({ famille: "portail", orderMode: "cart" }), "un portail vendu au panier pourra la recevoir");
+  assert.ok(!eligibleGarantieCotes({ famille: "portail", orderMode: "cart" }), "un portail : l'atelier mesure lui-même à la visite, pas de Garantie cotes");
 });
 
 test("le serveur la chiffre : décochée, rien ; cochée, son prix dans le total ; affichée au panier", async () => {
