@@ -161,7 +161,8 @@ export default async function ToilesTenduesPage({
           </Apparition>
 
           <div
-            className={`mt-10 grid gap-x-8 gap-y-14 sm:grid-cols-2 md:mt-12 ${luminaires.length > 2 ? "lg:grid-cols-3" : ""}`}
+            // Mêmes colonnes que les tables : des cartes de 270 à 360 px, jamais deux demi-pages (« trop zoomé », Quentin, 10/10/2026).
+            className="mt-10 grid gap-x-8 gap-y-14 sm:grid-cols-2 md:mt-12 lg:grid-cols-3 xl:grid-cols-4"
           >
             {luminaires.map((product, index) => (
               // Animation CSS : la carte (l'image principale de la page) s'affiche sans attendre le JavaScript (diagnostic du 09/10/2026).
