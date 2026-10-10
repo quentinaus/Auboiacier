@@ -637,8 +637,8 @@ function portail(p: {
     // Commande en ligne (Quentin, 10/10/2026) : un acompte de 40 % au panier, la visite comprise, le solde à la réception.
     orderMode: "cart",
     noteDevis: {
-      fr: "Acompte de 40 % à la commande ; nous venons mesurer chez vous ; le solde à la réception du portail posé.",
-      en: "40% deposit when ordering; we come and measure at your home; the balance when the fitted gate is handed over.",
+      fr: "Acompte de 40 % et visite de prise de cotes à la commande (la visite est déduite du solde) ; le solde à la réception du portail posé.",
+      en: "40% deposit and survey visit when ordering (the visit is deducted from the balance); the balance when the fitted gate is handed over.",
     },
     images: p.images.map((img) => ({ ...img, bg: "#f4f1ec", fit: "contain" as const })),
     sizes: [],

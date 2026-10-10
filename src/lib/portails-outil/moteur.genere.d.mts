@@ -18,7 +18,7 @@ export declare function ptEntrees(v: Record<string, unknown>, modele: string): R
 export declare const PT_STYLES: Readonly<Record<string, Record<string, unknown> & { nom: string }>>;
 export declare const PT_MODELES: Readonly<Record<string, { type: string; nom: string }>>;
 export declare function svgDe(prims: readonly unknown[], petit?: boolean | string): { vb: number[]; fs: number; html: string };
-export declare const PT_ATELIER: Readonly<Record<string, unknown> & { bornes: { P: Record<string, [number, number]>; H: [number, number]; fleche: [number, number] } }>;
+export declare const PT_ATELIER: Readonly<Record<string, unknown> & { bornes: { P: Record<string, [number, number]>; PAutoportant: [number, number]; H: [number, number]; fleche: [number, number] } }>;
 export declare const PT_MATIERES: Readonly<Record<string, unknown>>;
 export declare const PT_DECOR_FORMULES: Readonly<Record<string, { nom: string; ligne: string; choix: Record<string, string>[] }>>;
 export declare const MT_AVEC: Readonly<Record<string, string[]>>;

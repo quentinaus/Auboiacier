@@ -10,6 +10,7 @@ import { CarteProduit } from "@/components/carte-produit";
 import { productLocalise, type Famille } from "@/lib/products";
 import { FAMILLES_AVEC_PAGE, piecesDeFamille } from "@/lib/categories-collection";
 import { PortailsGuide } from "@/components/portail/portails-guide";
+import { prixDepartPortail } from "@/lib/prix-portail.server";
 import type { SlugPortail } from "@/lib/portails";
 
 /**
@@ -61,6 +62,11 @@ export async function generateMetadata({
   return metadataPage({ locale, chemin: `/artisanat/famille/${famille}`, title: x.titre, description: x.seo });
 }
 
+/** Le « dès » d'un modèle ; null si le chiffrage n'est pas disponible sur ce serveur (la carte dit « À étudier à la visite »). */
+function departPortail(slug: SlugPortail): number | null {
+  try { return prixDepartPortail(slug); } catch { return null; }
+}
+
 export default async function FamillePage({ params }: PageProps<"/[lang]/artisanat/famille/[famille]">) {
   const { lang, famille } = await params;
   const locale = isLocale(lang) ? lang : defaultLocale;
@@ -82,12 +88,14 @@ export default async function FamillePage({ params }: PageProps<"/[lang]/artisan
           </h1>
           <p className="mt-5 max-w-2xl text-[17px] leading-[1.5] text-[#5c5140] md:text-[19px]">{x.phrase}</p>
 
-          {/* Les portails (Quentin, 10/10/2026) : d'abord les trois questions, les mesures, puis les modèles à ses cotes, triés par prix. */}
+          {/* Les portails (Quentin, 10/10/2026) : d'abord les trois questions, puis les modèles avec leur « dès », triés par prix ;
+              pas de mesures ici, elles se saisissent sur la fiche (Quentin, 10/10). Le « dès » est calculé par le serveur. */}
           {famille === "portail" ? (
             <div className="mt-10 md:mt-12">
               <PortailsGuide locale={locale}
                 noms={Object.fromEntries(pieces.map((p) => [p.slug, p.name])) as Record<SlugPortail, string>}
-                taglines={Object.fromEntries(pieces.map((p) => [p.slug, p.tagline])) as Record<SlugPortail, string>} />
+                taglines={Object.fromEntries(pieces.map((p) => [p.slug, p.tagline])) as Record<SlugPortail, string>}
+                departs={Object.fromEntries(pieces.map((p) => [p.slug, departPortail(p.slug as SlugPortail)])) as Record<SlugPortail, number | null>} />
             </div>
           ) : (
           <ul className="mt-12 grid gap-x-8 gap-y-14 sm:grid-cols-2 md:mt-14">

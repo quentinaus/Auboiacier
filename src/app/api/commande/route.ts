@@ -166,8 +166,7 @@ export async function POST(request: Request) {
   }
   /** Le nombre de pièces garanties : le bon de commande le dit en tête. */
   const piecesGaranties = tarif.pieces.reduce((n, p) => n + (p.garantie && p.garantiePrix !== null ? p.quantite : 0), 0);
-  // Les portails : seul l'acompte est encaissé ici ; le solde se règle à la réception (bon de commande, e-mails).
-  const soldePortails = tarif.pieces.reduce((n, p) => n + (p.portail ? p.portail.solde * p.quantite : 0), 0);
+  // Les portails : l'acompte et la visite sont encaissés ici ; le solde (visite déduite) se règle à la réception.
   const portails = tarif.pieces.filter((p) => p.portail);
 
   // La prise de cotes à domicile : le créneau doit être encore libre à l'instant où l'on paie.
@@ -328,7 +327,10 @@ export async function POST(request: Request) {
           order_ref: orderRef,
           ...(visite
             ? {
+                // Le type « prise de cotes » prend le créneau dans l'agenda (agenda.ts). Une visite seule ne se fabrique pas ;
+                // avec un portail (sa visite, payée avec l'acompte), la commande se fabrique : avec_commande la distingue.
                 type: PRISE_DE_COTES,
+                ...(tarif.pieces.length > 0 ? { avec_commande: "1" } : {}),
                 rdv: cleCreneau(visite.creneau),
                 cp: visite.codePostal,
                 commune: visite.deplacement.commune,
@@ -356,7 +358,7 @@ export async function POST(request: Request) {
         // La Garantie cotes : combien de pièces en ont une (chacune a aussi sa ligne).
         ...(piecesGaranties > 0 ? { garantie_cotes: String(piecesGaranties) } : {}),
         // Un portail : le solde à la réception, et sa configuration (à coller dans l'outil de plans) — une clé par portail.
-        ...(soldePortails > 0 ? { portail_solde: String(soldePortails) } : {}),
+        ...(tarif.soldePortail !== null ? { portail_solde: String(tarif.soldePortail) } : {}),
         ...Object.fromEntries(portails.map((p, i) => [`portail_cfg_${i}`, `${p.line.product.slug}?${p.portail!.config}`.slice(0, MAX_METADONNEE_STRIPE)])),
         // La remise sur plusieurs garde-corps, en euros : elle se lit aussi sur le bon de réduction.
         ...(tarif.remise < 0 ? { remise_gc: String(-tarif.remise) } : {}),

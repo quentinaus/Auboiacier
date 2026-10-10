@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  acomptePortail, appliquerStyle, configDepart, decrireDecor, guidePortail, lireConfig, lireConfigPanier, lireDecorChoix, planPortail, styleDe, versParams, versParamsPanier,
+  acomptePortail, appliquerStyle, bornesPortail, configDepart, decrireDecor, guidePortail, lireConfig, lireConfigPanier, lireDecorChoix, planPortail, styleDe, versParams, versParamsPanier,
   ACOMPTE_PORTAIL_PCT, DECORS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL,
   type ChoixDecor, type ConfigPortail, type SlugPortail,
 } from "../src/lib/portails.ts";
@@ -11,6 +11,7 @@ import { composerEstimationPortail } from "../src/lib/portails-outil/devis-site.
 import { getProduct } from "../src/lib/products.ts";
 import { tarifer } from "../src/lib/tarif-panier.ts";
 import { CALCUL_GC } from "../src/lib/garde-corps-outil/site.ts";
+import { PRISE_DE_COTES, type ResultatLieu } from "../src/lib/deplacement.ts";
 
 /**
  * Les portails sur le site (étude du 06/10/2026) : le dessin vient du moteur de l'outil de plans (extrait tel quel), le
@@ -225,12 +226,45 @@ test("commande en ligne (10/10/2026) : l'acompte de 40 % du prix de la fiche, la
     assert.equal(lireConfigPanier("portail-ovni", texte), null);
     const rep = prixPortail(slug, cfg);
     assert.ok(rep.ok, `${slug} se chiffre`);
-    const t = await tarifer([{ slug, portail: texte, quantity: 1 }], { locale: "fr", gc: CALCUL_GC, portail: prixPortail });
+    // La visite de prise de cotes part avec le portail (payée à part, déduite du solde) ; Saumur même : 10 km.
+    const localiser = async (): Promise<ResultatLieu> => ({ ok: true, lieu: { distanceKm: 10, commune: "Saumur", precision: "adresse" } });
+    const visite = { slug: PRISE_DE_COTES, priseDeCotesCp: "49400", rdv: "2026-10-12|matin" };
+    const t = await tarifer([{ slug, portail: texte, quantity: 1 }, visite], { locale: "fr", gc: CALCUL_GC, portail: prixPortail, localiser });
     assert.deepEqual(t.refusees, []);
+    assert.equal(t.probleme, null);
     assert.equal(t.pieces[0].line.unitPrice, acomptePortail(rep.prix));
     assert.equal(t.pieces[0].portail!.prixPose, rep.prix);
     assert.equal(t.pieces[0].line.unitPrice + t.pieces[0].portail!.solde, rep.prix);
-    assert.equal(t.total, acomptePortail(rep.prix));
+    const prixVisite = t.visite!.deplacement.montantCents / 100;
+    assert.equal(t.total, acomptePortail(rep.prix) + prixVisite);
+    assert.equal(t.soldePortail, rep.prix - acomptePortail(rep.prix) - prixVisite);
     assert.equal(getProduct(slug)!.orderMode, "cart");
+  }
+});
+
+test("coulissant (10/10/2026) : 5 840 mm au plus sur rail, 4 000 mm sans rail — jamais « sur étude » pour une cote que la fiche laisse saisir", () => {
+  assert.deepEqual(bornesPortail("portail-coulissant").P, [2000, 5840]);
+  assert.deepEqual(bornesPortail("portail-coulissant", "rail").P, [2000, 5840]);
+  assert.deepEqual(bornesPortail("portail-coulissant", "auto").P, [2000, 4000]);
+  assert.deepEqual(bornesPortail("portail-battant", "auto").P, bornesPortail("portail-battant").P);
+  for (const [guidage, P] of [["rail", 5840], ["rail", 5000], ["auto", 4000], ["auto", 2000]] as const) {
+    const cfg: ConfigPortail = { ...configDepart("portail-coulissant"), guidage, P };
+    const R = planPortail("portail-coulissant", cfg);
+    assert.deepEqual(R.alertes, [], `${guidage} ${P} : aucune alerte`);
+    assert.ok(prixPortail("portail-coulissant", cfg).ok, `${guidage} ${P} : un prix`);
+    assert.ok(lireConfig(versParams("portail-coulissant", cfg)), `${guidage} ${P} : relu`);
+  }
+  // Au-delà : refusé à la lecture (le serveur répond 400), et le moteur le dit sans « sur étude ».
+  const trop: ConfigPortail = { ...configDepart("portail-coulissant"), guidage: "auto", P: 4100 };
+  assert.equal(lireConfig(versParams("portail-coulissant", trop)), null);
+  assert.equal(lireConfig(versParams("portail-coulissant", { ...configDepart("portail-coulissant"), P: 5950 })), null);
+  for (const cfg of [trop, { ...configDepart("portail-coulissant"), P: 5950 }]) assert.ok(planPortail("portail-coulissant", cfg).alertes.length > 0 && planPortail("portail-coulissant", cfg).alertes.every((a) => !/sur étude/.test(a)));
+});
+
+test("les mots du client (10/10/2026) : les quatre portails se commandent avec leur visite de prise de cotes, jamais « sur étude »", () => {
+  for (const slug of Object.keys(SLUGS_PORTAIL) as SlugPortail[]) {
+    const f = getProduct(slug)!;
+    assert.match(f.noteDevis!.fr, /visite de prise de cotes/);
+    assert.doesNotMatch(f.noteDevis!.fr, /sur étude/);
   }
 });

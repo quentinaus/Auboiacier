@@ -1,6 +1,6 @@
 {
- "source": "25056081fa7692ee96ddfc86",
- "moteur": "19014a8e7c4a",
+ "source": "847243e149428a0ed3c6544c",
+ "moteur": "68b63c6bb0df",
  "cas": [
   {
    "modele": "ptBattant",
@@ -257,7 +257,7 @@
    "v": {
     "ptStyle": "volutes"
    },
-   "prix": 4800,
+   "prix": 5020,
    "alertes": 0,
    "poids": 179
   },
@@ -267,7 +267,7 @@
     "ptStyle": "volutes",
     "ptMoteur": true
    },
-   "prix": 6570,
+   "prix": 6780,
    "alertes": 0,
    "poids": 179
   },
@@ -277,7 +277,7 @@
     "ptStyle": "volutes",
     "ptPoteaux": "alu"
    },
-   "prix": 5340,
+   "prix": 5550,
    "alertes": 0,
    "poids": 179
   },
@@ -287,7 +287,7 @@
     "ptStyle": "volutes",
     "ptGuidage": "auto"
    },
-   "prix": 4800,
+   "prix": 5020,
    "alertes": 0,
    "poids": 179
   },
@@ -298,7 +298,7 @@
     "ptP": 4200,
     "ptH": 1800
    },
-   "prix": 5680,
+   "prix": 5930,
    "alertes": 0,
    "poids": 241
   },
@@ -557,7 +557,7 @@
    "v": {
     "ptStyle": "volutes"
    },
-   "prix": 5200,
+   "prix": 5390,
    "alertes": 0,
    "poids": 191
   },
@@ -567,7 +567,7 @@
     "ptStyle": "volutes",
     "ptMoteur": true
    },
-   "prix": 6980,
+   "prix": 7170,
    "alertes": 0,
    "poids": 191
   },
@@ -577,7 +577,7 @@
     "ptStyle": "volutes",
     "ptPoteaux": "alu"
    },
-   "prix": 5740,
+   "prix": 5940,
    "alertes": 0,
    "poids": 191
   },
@@ -587,7 +587,7 @@
     "ptStyle": "volutes",
     "ptGuidage": "auto"
    },
-   "prix": 5660,
+   "prix": 5850,
    "alertes": 0,
    "poids": 191
   },
@@ -598,7 +598,7 @@
     "ptP": 4200,
     "ptH": 1800
    },
-   "prix": 5960,
+   "prix": 6180,
    "alertes": 0,
    "poids": 248
   },
@@ -857,7 +857,7 @@
    "v": {
     "ptStyle": "volutes"
    },
-   "prix": 5730,
+   "prix": 6010,
    "alertes": 0,
    "poids": 184
   },
@@ -867,7 +867,7 @@
     "ptStyle": "volutes",
     "ptMoteur": true
    },
-   "prix": 5730,
+   "prix": 6010,
    "alertes": 1,
    "poids": 184
   },
@@ -877,7 +877,7 @@
     "ptStyle": "volutes",
     "ptPoteaux": "alu"
    },
-   "prix": 6270,
+   "prix": 6550,
    "alertes": 0,
    "poids": 184
   },
@@ -887,7 +887,7 @@
     "ptStyle": "volutes",
     "ptGuidage": "auto"
    },
-   "prix": 5730,
+   "prix": 6010,
    "alertes": 0,
    "poids": 184
   },
@@ -898,7 +898,7 @@
     "ptP": 4200,
     "ptH": 1800
    },
-   "prix": 6390,
+   "prix": 6700,
    "alertes": 0,
    "poids": 240
   },
@@ -1178,7 +1178,7 @@
     "ptStyle": "volutes",
     "ptP": 1000
    },
-   "prix": 2310,
+   "prix": 2390,
    "alertes": 0,
    "poids": 55
   },
@@ -1189,7 +1189,7 @@
     "ptP": 1000,
     "ptMoteur": true
    },
-   "prix": 2310,
+   "prix": 2390,
    "alertes": 0,
    "poids": 55
   },
@@ -1200,7 +1200,7 @@
     "ptP": 1000,
     "ptPoteaux": "alu"
    },
-   "prix": 2710,
+   "prix": 2790,
    "alertes": 0,
    "poids": 55
   },
@@ -1211,7 +1211,7 @@
     "ptP": 1000,
     "ptGuidage": "auto"
    },
-   "prix": 2310,
+   "prix": 2390,
    "alertes": 0,
    "poids": 55
   },
@@ -1222,7 +1222,7 @@
     "ptP": 1200,
     "ptH": 1800
    },
-   "prix": 2480,
+   "prix": 2570,
    "alertes": 0,
    "poids": 71
   },
@@ -1508,7 +1508,7 @@
    "o": {
     "complement": true
    },
-   "prix": 1660,
+   "prix": 1740,
    "alertes": 0,
    "poids": 55
   }

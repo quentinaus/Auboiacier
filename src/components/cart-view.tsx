@@ -23,6 +23,7 @@ type Status =
   | "too_many"
   | "code_postal"
   | "mode_livraison"
+  | "visite_portail"
   | "changed"
   | "error";
 
@@ -266,8 +267,8 @@ export function CartView({
   const totalPieces = lines.filter((l) => !l.visite).reduce((sum, line) => sum + (line.unitPrice ?? 0) * line.quantity, 0);
   /** La Garantie cotes des pièces cochées, telle que le serveur l'a chiffrée (comprise dans son total). */
   const totalGarantie = !prixConnus ? 0 : lines.reduce((sum, l) => sum + (l.garantie && l.garantiePrix !== undefined ? l.garantiePrix * l.quantity : 0), 0);
-  /** Les portails : le solde à la réception, en plus de l'acompte payé ici (jamais compté dans le total). */
-  const totalSolde = lines.reduce((sum, l) => sum + (l.solde ?? 0) * l.quantity, 0);
+  /** Les portails : le solde à la réception, dit par le serveur (acompte et visite payés ici déduits ; jamais dans le total). */
+  const totalSolde = donnees?.soldePortail ?? 0;
   const lignePose = lines.find((l) => l.pose);
   const ligneLivraison = lines.find((l) => l.livraison);
   const ligneRetrait = lines.find((l) => l.retrait);
@@ -335,6 +336,8 @@ export function CartView({
               ? "code_postal"
               : error === "mode_livraison"
                 ? "mode_livraison"
+                : error === "visite_portail"
+                  ? "visite_portail"
                 : error === "changed"
                   ? "changed"
                   : "error"
@@ -378,6 +381,8 @@ export function CartView({
             ? t.badPostcode
             : status === "mode_livraison"
               ? t.modeManquant
+            : status === "visite_portail"
+              ? t.visitePortail
               : status === "changed"
                 ? t.prixChange
                 : status === "error"
@@ -387,6 +392,8 @@ export function CartView({
                     ? t.tarifIndisponible
                     : probleme === "mode_livraison"
                       ? t.modeManquant
+                      : probleme === "visite_portail"
+                        ? t.visitePortail
                       : probleme === "code_postal" || probleme === "rdv"
                         ? t.badPostcode
                         : probleme

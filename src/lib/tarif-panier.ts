@@ -128,7 +128,9 @@ export type ProblemeTarif =
   /** Une pièce trop encombrante pour un transporteur. */
   | "pose_obligatoire"
   /** Des pièces, mais aucune façon de les recevoir choisie. */
-  | "mode_livraison";
+  | "mode_livraison"
+  /** Un portail sans sa visite de prise de cotes (Quentin, 10/10/2026 : la visite se paie à part, déduite du solde). */
+  | "visite_portail";
 
 export type Tarif = {
   pieces: PieceTarifee[];
@@ -147,6 +149,11 @@ export type Tarif = {
   remise: number;
   mode: ModeTarife | null;
   visite: VisiteTarifee | null;
+  /**
+   * Les portails : le solde à régler à la réception, pour toute la commande — prix posé moins l'acompte payé ici, moins
+   * la visite de prise de cotes payée ici (Quentin, 10/10/2026 : « payée à part, déduite du solde »). null sans portail.
+   */
+  soldePortail: number | null;
   probleme: ProblemeTarif | null;
   /** Ce que le client paiera, en euros : la somme de tout ce qui précède. */
   total: number;
@@ -226,7 +233,7 @@ export async function tarifer(
 ): Promise<Tarif> {
   const { locale, gc } = contexte;
   const situer = contexte.localiser ?? localiser;
-  const tarif: Tarif = { pieces: [], refusees: [], garantiesRefusees: [], garantieExclue: null, remise: 0, mode: null, visite: null, probleme: null, total: 0 };
+  const tarif: Tarif = { pieces: [], refusees: [], garantiesRefusees: [], garantieExclue: null, remise: 0, mode: null, visite: null, soldePortail: null, probleme: null, total: 0 };
   const probleme = (p: ProblemeTarif) => {
     tarif.probleme ??= p;
     return tarif;
@@ -272,8 +279,9 @@ export async function tarifer(
 
     // Un portail (Quentin, 10/10/2026 : « je veux qu'on puisse les commander ») : la ligne porte sa configuration en
     // texte (versParamsPanier, src/lib/portails.ts) ; l'outil de plans la relit et la rechiffre ici, et le client paie en
-    // ligne l'acompte de ACOMPTE_PORTAIL_PCT %. La visite de prise de cotes est comprise dans le prix (pas de Garantie
-    // cotes : l'atelier mesure lui-même), le solde se règle à la réception du portail posé. Pas de livraison à choisir.
+    // ligne l'acompte de ACOMPTE_PORTAIL_PCT % et sa visite de prise de cotes (ligne PRISE_DE_COTES, payée à part et
+    // déduite du solde — pas de Garantie cotes : l'atelier mesure lui-même) ; le solde se règle à la réception du portail
+    // posé. Pas de livraison à choisir : la pose est comprise.
     const slugLu = String(line.slug ?? "");
     if (line.portail !== undefined || estSlugPortail(slugLu)) {
       const refus = (raison: ResolveFailure) => tarif.refusees.push({ index, raison });
@@ -430,6 +438,15 @@ export async function tarifer(
 
   if (aChoisir.length > 0 && !tarif.mode && tarif.refusees.length === 0) return probleme("mode_livraison");
 
+  // Les portails : la visite de prise de cotes se paie avec l'acompte (une seule visite pour la commande), et elle est
+  // déduite du solde à la réception. Sans visite, un portail ne se paie pas.
+  const portails = tarif.pieces.filter((p) => p.portail);
+  if (portails.length > 0) {
+    if (!tarif.visite) return probleme("visite_portail");
+    const solde = portails.reduce((t, p) => t + p.portail!.solde * p.quantite, 0) - tarif.visite.deplacement.montantCents / 100;
+    tarif.soldePortail = Math.max(0, Math.round(solde * 100) / 100);
+  }
+
   const cents =
     tarif.pieces.reduce((t, p) => t + Math.round(p.line.unitPrice * 100) * p.quantite, 0) +
     tarif.pieces.reduce((t, p) => t + (p.garantie && p.garantiePrix !== null ? p.garantiePrix * 100 * p.quantite : 0), 0) +
@@ -476,6 +493,8 @@ export type TarifAffiche = {
   garantiesRefusees: number[];
   /** Aucune Garantie cotes proposée : la commande a une prise de cotes à domicile, ou la pose par l'atelier. */
   garantieExclue: "visite" | "pose" | null;
+  /** Les portails : le solde de la commande à la réception (acompte et visite déduits), en euros ; null sans portail. */
+  soldePortail: number | null;
   probleme: ProblemeTarif | null;
 };
 
@@ -523,6 +542,7 @@ export function tarifAffiche(t: Tarif, locale: "fr" | "en"): TarifAffiche {
     refusees: t.refusees.map((r) => r.index),
     garantiesRefusees: t.garantiesRefusees,
     garantieExclue: t.garantieExclue,
+    soldePortail: t.soldePortail,
     probleme: t.probleme,
   };
 }

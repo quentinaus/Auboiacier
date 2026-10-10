@@ -82,9 +82,11 @@ export type ConfigPortail = {
 };
 
 /** Les bornes de l'atelier (celles de l'outil : PT_ATELIER.bornes). */
-export function bornesPortail(slug: SlugPortail) {
+export function bornesPortail(slug: SlugPortail, guidage?: "rail" | "auto") {
   const type = SLUGS_PORTAIL[slug].slice(2).toLowerCase();
-  const P = PT_ATELIER.bornes.P[type] as [number, number];
+  // Un coulissant sans rail (autoportant) emmène sa queue de contrepoids : 4 000 mm au plus, pour tenir dans la remorque d'un
+  // seul tenant ; sur rail, 5 840 mm au plus (le vantail de 6 000 mm). Jamais « sur étude » (Quentin, 10/10/2026).
+  const P = (type === "coulissant" && guidage === "auto" ? PT_ATELIER.bornes.PAutoportant : PT_ATELIER.bornes.P[type]) as [number, number];
   return { P, H: PT_ATELIER.bornes.H, fleche: [50, 400] as [number, number], hSoub: [250, 1400] as [number, number], pente: [0, 300] as [number, number] };
 }
 
@@ -220,7 +222,7 @@ export function lireConfigPanier(slug: string, texte: unknown): ConfigPortail | 
 export function lireConfig(params: URLSearchParams): { slug: SlugPortail; cfg: ConfigPortail } | null {
   const slug = params.get("slug") ?? "";
   if (!estSlugPortail(slug)) return null;
-  const b = bornesPortail(slug);
+  const b = bornesPortail(slug, params.get("guidage") === "auto" ? "auto" : "rail");
   const nombre = (k: string, [min, max]: [number, number]) => {
     const n = Number(params.get(k));
     return Number.isFinite(n) && n >= min && n <= max ? Math.round(n) : null;
@@ -302,7 +304,7 @@ export const TEXTES_PORTAIL = {
     cta: "Demander ma visite", ctaNote: "Nous venons mesurer, vous recevez le devis détaillé.",
     vueFace: "Vue de face, depuis la rue", vueDessus: "Vue de dessus : en vert, la place à laisser libre", illustration: "Dessin d'illustration, cotes en mm",
     guideTitre: "Quel portail chez vous ?", guideCourt: "Quel modèle ?",
-    guideQ: ["Derrière le portail, la place d'un vantail est-elle libre, sur un sol plat ?", "Le long de la clôture, la longueur du passage est-elle libre ?", "À cet endroit, le sol est-il dur et plat ?"],
+    guideQ: ["Quand il s'ouvre, le portail peut-il tourner vers l'intérieur de votre propriété ?", "Le portail peut-il glisser le long de la clôture, à côté de l'entrée ?", "Le sol devant l'entrée est-il dur et plat (béton, pavés, enrobé) ?"],
     oui: "Oui", non: "Non", guideVers: "Le bon modèle :", ouvrirModele: "Voir ce modèle",
     modeles: { "portail-battant": "Battant", "portail-coulissant": "Coulissant", "portail-pliant": "Pliant", portillon: "Portillon" },
     placeDerriere: "Place derrière", placeCote: "Place le long de la clôture", poids: "Poids du portail", etudierEn: "",
@@ -344,7 +346,7 @@ export const TEXTES_PORTAIL = {
     cta: "Book my survey visit", ctaNote: "We come and measure, you receive the detailed quote.",
     vueFace: "Front view, from the street", vueDessus: "Top view: in green, the space to keep clear", illustration: "Illustrative drawing, dimensions in mm",
     guideTitre: "Which gate for your entrance?", guideCourt: "Which model?",
-    guideQ: ["Behind the gate, is there room for one leaf to swing, on flat ground?", "Along the fence, is the length of the opening free?", "There, is the ground hard and level?"],
+    guideQ: ["When it opens, can the gate swing inward, into your property?", "Can the gate slide along the fence, next to the entrance?", "Is the ground at the entrance hard and level (concrete, paving, tarmac)?"],
     oui: "Yes", non: "No", guideVers: "The right model:", ouvrirModele: "See this model",
     modeles: { "portail-battant": "Swing", "portail-coulissant": "Sliding", "portail-pliant": "Folding", portillon: "Pedestrian gate" },
     placeDerriere: "Space behind", placeCote: "Space along the fence", poids: "Weight",
