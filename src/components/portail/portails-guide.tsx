@@ -31,7 +31,7 @@ const TXT = {
     rail: "sur rail", auto: "sans rail, autoportant",
     modeles: "Les modèles", modelesSous: "« Dès » : le prix d'un portail posé par l'atelier, dans le style le moins cher, sans moteur, pour un passage de 3,50 m et 1,60 m de haut (portillon : 1,00 m). Vos mesures, votre style, et la pose, la livraison ou le retrait à l'atelier se choisissent sur la fiche.",
     des: "dès", aEtudier: "À étudier à la visite", conseille: "Conseillé pour vous", ouvrir: "Composer ce portail", portillonNote: "Pour les piétons, seul ou assorti au portail.",
-    voirPrix: (p: string) => `Dès ${p} posé`, composer: "Composer ce portail",
+    voirPrix: (p: string) => `Dès ${p} posé`, sansPose: (p: string) => `Sans pose, retrait\u00a0: dès ${p}`, composer: "Composer ce portail",
     place: "Place nécessaire :", placeLigne: { "portail-battant": "la moitié du passage, derrière chaque pilier.", "portail-coulissant": "d'un côté, une longueur de clôture égale au passage (environ une fois et demie sans rail).", "portail-pliant": "très peu, ni derrière le portail ni sur le côté.", portillon: "" },
     triCroissant: "Prix croissant", triDecroissant: "Prix décroissant", triTitre: "Inverser l'ordre des prix",
     vuRue: "Vu depuis la rue", reponses: "Vos réponses",
@@ -43,7 +43,7 @@ const TXT = {
     rail: "on a rail", auto: "no rail, cantilever",
     modeles: "The models", modelesSous: "“From” is the price of a gate fitted by the workshop, in the least expensive style, without motor, for a 3.50 m opening and 1.60 m height (pedestrian gate: 1.00 m). Your measurements, your style, and fitting, delivery or collection at the workshop are chosen on the model page.",
     des: "from", aEtudier: "To be studied at the visit", conseille: "Recommended for you", ouvrir: "Compose this gate", portillonNote: "For pedestrians, alone or matching the gate.",
-    voirPrix: (p: string) => `From ${p} fitted`, composer: "Compose this gate",
+    voirPrix: (p: string) => `From ${p} fitted`, sansPose: (p: string) => `No fitting, collected: from ${p}`, composer: "Compose this gate",
     place: "Room needed:", placeLigne: { "portail-battant": "half the opening, behind each pillar.", "portail-coulissant": "on one side, a length of fence equal to the opening (about one and a half times without a rail).", "portail-pliant": "very little, neither behind the gate nor at the side.", portillon: "" },
     triCroissant: "Price: low to high", triDecroissant: "Price: high to low", triTitre: "Reverse the price order",
     vuRue: "Seen from the street", reponses: "Your answers",
@@ -68,12 +68,14 @@ function repondues(g: Reponses): (0 | 1 | 2)[] {
   return l;
 }
 
-export function PortailsGuide({ locale, noms, taglines, departs }: {
+export function PortailsGuide({ locale, noms, taglines, departs, departsSansPose }: {
   locale: Langue;
   noms: Record<SlugPortail, string>;
   taglines: Record<SlugPortail, string>;
   /** Le « dès » de chaque modèle (prixDepartPortail, calculé par le serveur) ; null quand le serveur ne peut pas le donner. */
   departs: Record<SlugPortail, number | null>;
+  /** Le même « dès » sans pose (livré ou retiré à l'atelier) : le prix à comparer avec celui d'un fabricant qui ne pose pas. */
+  departsSansPose: Record<SlugPortail, number | null>;
 }) {
   const t = TXT[locale], tp = TEXTES_PORTAIL[locale];
   const [guide, setGuide] = useState<Reponses>({});
@@ -157,7 +159,7 @@ export function PortailsGuide({ locale, noms, taglines, departs }: {
               <p className={`pg-res-nom ${serif.className}`}>{noms[reponse.slug]}</p>
               {reponse.guidage && <p className="pg-res-variante">{reponse.guidage === "rail" ? t.rail : t.auto}</p>}
               <p className="pg-res-raison">{raison}</p>
-              {prixConseille != null && <p className="pg-res-prix">{t.voirPrix(euros(prixConseille))}</p>}
+              {prixConseille != null && <p className="pg-res-prix">{t.voirPrix(euros(prixConseille))}{departsSansPose[reponse.slug] != null && <span className="pg-res-prix-sans"> · {t.sansPose(euros(departsSansPose[reponse.slug] as number))}</span>}</p>}
               <div className="pg-res-actions">
                 <Link href={lien(reponse.slug)} className="pg-res-cta">{t.composer}</Link>
                 <button type="button" className="pg-res-refaire" onClick={() => setGuide({})}>{tp.guideRefaire}</button>
@@ -187,6 +189,7 @@ export function PortailsGuide({ locale, noms, taglines, departs }: {
                 <p className="pg-tagline">{slug === "portillon" ? t.portillonNote : taglines[slug]}</p>
                 <p className="pg-place">{t.placeLigne[slug] ? <><b>{t.place}</b> {t.placeLigne[slug]}</> : null}</p>
                 <p className="pg-prix">{p === null ? t.aEtudier : `${t.des} ${euros(p)}`}</p>
+                {p !== null && departsSansPose[slug] != null && <p className="pg-prix-sans">{t.sansPose(euros(departsSansPose[slug] as number))}</p>}
                 <Link href={lien(slug)} className="btn-verre pg-cta">{t.ouvrir}</Link>
               </li>
             );

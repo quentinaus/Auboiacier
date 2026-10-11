@@ -79,8 +79,8 @@ export async function generateMetadata({
 }
 
 /** Le « dès » d'un modèle ; null si le chiffrage n'est pas disponible sur ce serveur (la carte dit « À étudier à la visite »). */
-function departPortail(slug: SlugPortail): number | null {
-  try { return prixDepartPortail(slug); } catch { return null; }
+function departPortail(slug: SlugPortail, reception: "pose" | "retrait" = "pose"): number | null {
+  try { return prixDepartPortail(slug, reception); } catch { return null; }
 }
 
 export default async function FamillePage({ params }: PageProps<"/[lang]/artisanat/famille/[famille]">) {
@@ -111,7 +111,8 @@ export default async function FamillePage({ params }: PageProps<"/[lang]/artisan
               <PortailsGuide locale={locale}
                 noms={Object.fromEntries(pieces.map((p) => [p.slug, p.name])) as Record<SlugPortail, string>}
                 taglines={Object.fromEntries(pieces.map((p) => [p.slug, p.tagline])) as Record<SlugPortail, string>}
-                departs={Object.fromEntries(pieces.map((p) => [p.slug, departPortail(p.slug as SlugPortail)])) as Record<SlugPortail, number | null>} />
+                departs={Object.fromEntries(pieces.map((p) => [p.slug, departPortail(p.slug as SlugPortail)])) as Record<SlugPortail, number | null>}
+                departsSansPose={Object.fromEntries(pieces.map((p) => [p.slug, departPortail(p.slug as SlugPortail, "retrait")])) as Record<SlugPortail, number | null>} />
             </div>
           ) : (
           <ul className="mt-12 grid gap-x-8 gap-y-14 sm:grid-cols-2 md:mt-14">
