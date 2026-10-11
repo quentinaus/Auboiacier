@@ -301,12 +301,13 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
             {t.categoriesTitle}
           </h2>
           {/* Quatre par rangée dès 1280 px (Quentin, 09/10/2026 : « moins gros, on affiche plus »), trois sur tablette, deux
-              sur téléphone : six photos en situation, même cadrage ; la dernière rangée se centre. */}
+              sur téléphone : six photos en situation, même cadrage ; la dernière rangée se centre. Dès 1536 px, les six
+              tiennent sur une seule rangée (Quentin, 11/10/2026, écran de 2000 px : « vraiment trop gros », cartes de 406 px). */}
           <ul className="mt-10 flex flex-wrap justify-center gap-x-4 gap-y-10 sm:gap-x-6 md:mt-14 md:gap-y-14">
             {categories.map((c, i) => (
-              <li key={c.id} className="basis-[calc(50%-0.5rem)] sm:basis-[calc(50%-0.75rem)] md:basis-[calc(33.333%-1rem)] xl:basis-[calc(25%-1.125rem)]">
+              <li key={c.id} className="basis-[calc(50%-0.5rem)] sm:basis-[calc(50%-0.75rem)] md:basis-[calc(33.333%-1rem)] xl:basis-[calc(25%-1.125rem)] 2xl:basis-[calc(16.666%-1.25rem)]">
                 <Apparition retard={(i % 4) * 110}>
-                  <CarteCategorie categorie={c} locale={locale} sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, min(25vw, 420px)" />
+                  <CarteCategorie categorie={c} locale={locale} serre sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, (max-width: 1536px) 25vw, 17vw" />
                 </Apparition>
               </li>
             ))}
