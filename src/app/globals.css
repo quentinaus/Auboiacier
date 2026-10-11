@@ -792,3 +792,30 @@ textarea:focus-visible,
   inset: -15% 0;
   will-change: transform;
 }
+
+/* Une table, tablette (768 à 1279 px) : la carte des cotes et la barre d'achat tiennent dans la hauteur de l'écran, sans défiler.
+   Un peu moins d'air entre les cotes — rien n'est retiré. */
+@media (min-width: 48rem) and (max-width: 79.99rem) {
+  .fond-table .colonne-cotes .py-3 {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+  }
+  .fond-table .colonne-cotes .py-2\.5 {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+}
+@media (min-width: 48rem) and (max-width: 79.99rem) and (max-height: 820px) {
+  .fond-table .colonne-cotes {
+    padding-top: 0.75rem;
+  }
+  .fond-table .colonne-cotes .barre-achat {
+    margin-top: 0.25rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.7rem;
+  }
+  .fond-table .colonne-cotes .barre-achat .btn-verre {
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+  }
+}

@@ -214,7 +214,36 @@ export function ProductView({
   /** Le configurateur en pleine page sous la photo (tables d'intérieur), ou la colonne étroite classique. */
   const pleinePage = aLeConfigurateurPleinePage(product);
   const estTable = product.famille === "table-interieur" || product.famille === "table-exterieur";
-  const troisColonnes = product.releve === "garde-corps-fenetre";
+  const garde = product.releve === "garde-corps-fenetre";
+  /** Une table sur mesure : mêmes trois colonnes que le garde-corps (cotes, croquis, résultat et livraison). */
+  const tableTroisCol = pleinePage && estTable && Boolean(product.surMesure);
+  const troisColonnes = garde || tableTroisCol;
+  /** Le bouton « Configurer ma table » : tout en haut de la colonne, visible sans défiler. */
+  const libelleConfigurer =
+    product.famille === "table-interieur" || product.famille === "table-exterieur"
+      ? t.configurerTable
+      : product.famille === "chaise"
+        ? t.configurerChaise
+        : product.famille === "chaise-exterieur"
+          ? t.configurerFauteuil
+          : product.famille === "escalier"
+            ? t.configurerEscalier
+            : product.famille === "garde-corps"
+              ? t.configurerGardeCorps
+              : product.famille === "plafond"
+                ? t.configurerPlafond
+                : t.configurationCta;
+  const boutonConfigurer = (
+    <a
+      href={pleinePage ? "#configuration" : "#options-piece"}
+      className="btn-verre mt-4 inline-flex items-center gap-2 rounded-full px-7 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-white md:mt-5"
+    >
+      {libelleConfigurer}
+      <svg viewBox="0 0 20 20" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
+        <path d="M5 8l5 5 5-5" />
+      </svg>
+    </a>
+  );
   const prixDepart = product.releve ? null : priceFrom(product);
   const aide = (
     <p className={pleinePage ? "mt-3 text-xs text-[#726757]" : "mt-6 border-t border-[#e5ddd3] pt-6 text-sm text-[#726757]"}>
@@ -468,13 +497,14 @@ export function ProductView({
         >
           {t.moreInfo}
         </a>
+        <div>{boutonConfigurer}</div>
 
         {pleinePage ? (
           /* À côté de la photo, rien que l'essentiel : l'accroche, le prix de
              départ, et le chemin vers le configurateur, plus bas. */
           <div className="mt-5 md:mt-8">
             {/* Le garde-corps respecte les normes françaises : on le dit tout de suite, sous l'accroche (demande de Quentin). */}
-            {product.releve === "garde-corps-fenetre" && (
+            {garde && (
               <div className="mb-5 flex items-start gap-3 rounded-2xl bg-[#e8f0e6] px-4 py-3 text-[#1f4a2a]">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="mt-0.5 h-5 w-5 shrink-0">
                   <path d="M12 3l7.5 3v5.5c0 4.6-3.1 8.2-7.5 9.5-4.4-1.3-7.5-4.9-7.5-9.5V6L12 3z" />
@@ -489,7 +519,7 @@ export function ProductView({
             {/* Les matières d'abord : c'est ce qu'on vient voir, et la photo
                 suit chaque choix — elles restent donc juste sous le titre.
                 `ProductOptions` les dépose ici par portail (voir matieresSlot). */}
-            <div ref={setMatieresSlot} className={troisColonnes ? "xl:hidden" : undefined} />
+            <div ref={setMatieresSlot} className={garde ? "xl:hidden" : undefined} />
             {/* L'accroche et le prix de départ suivent, avant le chemin vers
                 le configurateur. */}
             <p className="mt-8 border-t border-[#e5ddd3] pt-7 text-[15px] leading-relaxed text-[#4a4038]">
@@ -501,15 +531,9 @@ export function ProductView({
               </p>
             )}
             <p className="mt-1 text-xs leading-snug text-[#7a6f64]">{t.prixAttenteCotes}</p>
-            <a
-              href="#configuration"
-              className="btn-verre mt-6 inline-block rounded-full px-7 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
-            >
-              {t.configurationCta}
-            </a>
           </div>
         ) : (
-          <div className="mt-2 md:mt-5">{options}</div>
+          <div id="options-piece" className="mt-2 scroll-mt-4 md:mt-5">{options}</div>
         )}
       </div>
     </div>
@@ -535,16 +559,20 @@ export function ProductView({
         {/* Sur ordinateur, tout tient dans la hauteur de l'écran, titre compris : le titre
             est dans la plaque, la carte et le croquis se partagent la hauteur qui reste. */}
         <div
-          className={`fond-configuration flex flex-col gap-4 md:grid md:min-h-0 md:flex-1 md:grid-cols-[minmax(0,372px)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)] md:items-stretch md:gap-x-10 md:gap-y-4 lg:gap-x-14 ${troisColonnes ? "xl:items-start " : ""}${
+          className={`fond-configuration flex flex-col gap-4 md:grid md:min-h-0 md:flex-1 md:grid-cols-[minmax(0,372px)_minmax(0,1fr)] ${tableTroisCol ? "md:grid-rows-[auto_minmax(0,1fr)_auto]" : "md:grid-rows-[auto_minmax(0,1fr)]"} md:items-stretch md:gap-x-10 md:gap-y-4 lg:gap-x-14 ${troisColonnes ? "xl:items-start " : ""}${
             /* Le garde-corps, sur grand écran : TROIS colonnes — les cotes, le croquis et les modèles,
                puis le résultat, la livraison et le panier. Tout tient sur un écran, titre compris,
                sans faire défiler ni la page ni une carte. */
-            troisColonnes ? "fond-gc xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:grid-rows-[auto_minmax(0,1fr)_auto] xl:gap-x-5 xl:gap-y-3" : ""
+            garde
+              ? "fond-gc xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:grid-rows-[auto_minmax(0,1fr)_auto] xl:gap-x-5 xl:gap-y-3"
+              : tableTroisCol
+                ? "fond-gc fond-table xl:grid-cols-[330px_minmax(0,1fr)_310px] xl:grid-rows-[auto_minmax(0,1fr)] xl:gap-x-5 xl:gap-y-3"
+                : ""
           }`}
         >
           {/* Le titre, et — sur grand écran, au garde-corps — la ligne des matières (couleur, bois, rosace) à sa droite, au-dessus
               du croquis mais PAS dessus (demande de Quentin : « remonte-la, il y a de la place »). */}
-          <div className={troisColonnes ? "md:col-span-2 xl:col-span-3 xl:grid xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:items-center xl:gap-x-5" : "md:col-span-2"}>
+          <div className={garde ? "md:col-span-2 xl:col-span-3 xl:grid xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:items-center xl:gap-x-5" : tableTroisCol ? "md:col-span-2 xl:col-span-3 xl:grid xl:grid-cols-[330px_minmax(0,1fr)_310px] xl:items-center xl:gap-x-5" : "md:col-span-2"}>
             <h2 className={`${serif.className} text-xl text-[#2b2320] md:text-[28px] md:leading-none`}>{t.configurationTitle}</h2>
             {troisColonnes && <div ref={setMatieresCentreSlot} className="hidden xl:flex xl:justify-center" />}
           </div>
@@ -557,7 +585,7 @@ export function ProductView({
               la barre d'achat doit rester collée au bas de l'écran. */}
           {/* Sur ordinateur, la carte tient dans la hauteur du bloc ; si ses choix sont plus hauts que l'écran, ELLE défile
               (la molette ne fait jamais défiler la page à travers elle), et la barre d'achat reste collée en bas. */}
-          <div className={`carte-verre overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 md:min-h-0 md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain md:px-6 md:pt-5 ${troisColonnes ? "colonne-cotes xl:col-start-1 xl:row-start-2 xl:max-h-full xl:px-5 xl:pb-3 xl:pt-4" : ""}`}>
+          <div className={`carte-verre overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 md:min-h-0 md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain md:px-6 md:pt-5 ${troisColonnes ? "colonne-cotes xl:col-start-1 xl:row-start-2 xl:max-h-full xl:px-5 xl:pb-3 xl:pt-4" : ""}${tableTroisCol ? " md:row-span-2 xl:row-span-1" : ""}`}>
             {options}
           </div>
           {/* Le croquis : au-dessus de la carte sur téléphone, à côté et en grand sur ordinateur. */}
@@ -565,21 +593,23 @@ export function ProductView({
             className={`order-first md:order-none ${
               /* Le croquis d'une table ou d'un plafond remplit la hauteur du bloc, au milieu. Le garde-corps a son
                  catalogue de modèles sous le croquis : il défile dans sa colonne sous 1280 px, et tient entier au-dessus. */
-              product.releve === "garde-corps-fenetre"
+              garde
                 ? "md:min-h-0 md:overflow-y-auto xl:col-start-2 xl:row-start-2 xl:flex xl:min-h-0 xl:flex-col xl:self-stretch xl:overflow-hidden"
-                : "md:flex md:min-h-0 md:items-center md:justify-center"
+                : tableTroisCol
+                  ? "md:col-start-2 md:row-start-2 md:flex md:min-h-0 md:items-center md:justify-center xl:self-stretch"
+                  : "md:flex md:min-h-0 md:items-center md:justify-center"
             }`}
           >
-            <div ref={setSchemaSlot} className={`schema-configuration mx-auto w-full ${troisColonnes ? "xl:flex xl:min-h-0 xl:flex-1 xl:flex-col xl:[container-type:size]" : ""}`} />
+            <div ref={setSchemaSlot} className={`schema-configuration mx-auto w-full ${garde ? "xl:flex xl:min-h-0 xl:flex-1 xl:flex-col xl:[container-type:size]" : tableTroisCol ? "md:h-full" : ""}`} />
           </div>
           {/* Le bandeau des modèles : en bas du bloc, sous les cotes et le croquis, sur toute leur longueur. Placé AVANT la colonne
               d'achat dans le DOM (la grille le range en bas) : au clavier, on choisit le modèle avant d'arriver au bouton du panier. */}
-          {troisColonnes && <div ref={setBandeauSlot} className="bandeau-gc hidden xl:col-span-2 xl:col-start-1 xl:row-start-3 xl:block" />}
+          {garde && <div ref={setBandeauSlot} className="bandeau-gc hidden xl:col-span-2 xl:col-start-1 xl:row-start-3 xl:block" />}
           {/* La troisième colonne du garde-corps (grand écran) : `ProductOptions` y dépose le résultat,
               puis la livraison et la barre d'achat. Vide et cachée en dessous de 1280 px : tout reste
               alors dans la première carte. */}
           {troisColonnes && (
-            <div className="carte-verre colonne-achat hidden overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 xl:col-start-3 xl:row-span-2 xl:row-start-2 xl:flex xl:max-h-full xl:flex-col xl:self-stretch xl:overflow-y-auto xl:overflow-x-hidden xl:overscroll-contain">
+            <div className={`carte-verre colonne-achat overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 ${garde ? "hidden xl:col-start-3 xl:row-start-2 xl:row-span-2 xl:flex" : "hidden md:flex md:flex-col md:pb-4 md:col-start-2 md:row-start-3 xl:col-start-3 xl:row-start-2 xl:pb-0"} xl:max-h-full xl:flex-col xl:self-stretch xl:overflow-y-auto xl:overflow-x-hidden xl:overscroll-contain`}>
               <div ref={setResultatSlot} />
               {/* L'achat est collé au bas de la colonne : tout le reste (options, résultat, livraison) se range au-dessus, sans défiler. */}
               <div ref={setAchatSlot} className="mt-auto" />

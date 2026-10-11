@@ -65,6 +65,7 @@ export function PoseDomicile({
   infoSeul,
   compact = false,
   pilule = false,
+  ligneAttente = false,
   t,
   locale,
 }: {
@@ -96,6 +97,11 @@ export function PoseDomicile({
    * table), le code postal sur une ligne, le prix dessous. La colonne d'achat ne défile pas (demande de Quentin).
    */
   pilule?: boolean;
+  /**
+   * Une table : la phrase « entrez votre code postal » reste écrite tant qu'il manque, et le champ ressort — le client ne doit pas
+   * se demander pourquoi « Ajouter au panier » est grisé.
+   */
+  ligneAttente?: boolean;
   t: Dictionary["artisanat"];
   locale: "fr" | "en";
 }) {
@@ -290,10 +296,10 @@ export function PoseDomicile({
         ) : (
           <div className="mt-2">
             <label htmlFor={idCp} className="flex items-center justify-between gap-3">
-              <span className="text-[13px] text-[#2b2320]">{locale === "fr" ? "Code postal" : "Postcode"}</span>
+              <span className="text-[13px] font-medium text-[#2b2320]">{ligneAttente ? t.poseCodePostal : locale === "fr" ? "Code postal" : "Postcode"}</span>
               <span
                 className={`flex h-9 w-[6.5rem] shrink-0 items-center rounded-full border bg-white px-3 transition-colors focus-within:border-[#2b2320] ${
-                  invalide ? "border-[#b4533a]" : "border-[#9a8d80]"
+                  invalide ? "border-[#b4533a]" : ligneAttente && etat === "attente" ? "border-[#2b2320]" : "border-[#9a8d80]"
                 }`}
               >
                 <input
@@ -311,7 +317,7 @@ export function PoseDomicile({
               </span>
             </label>
             {/* Tant que le code postal n'est pas tapé, le champ suffit (le bouton d'achat dit quoi faire) : une ligne de moins. */}
-            <p id={`${idCp}-etat`} role="status" aria-live="polite" className={`text-[11.5px] leading-snug ${etat === "attente" ? "sr-only" : "mt-1.5"} ${etat === "ok" ? "text-[#2b2320]" : "text-[#6f6357]"}`}>
+            <p id={`${idCp}-etat`} role="status" aria-live="polite" className={`text-[11.5px] leading-snug ${etat === "attente" && !ligneAttente ? "sr-only" : "mt-1.5"} ${etat === "ok" ? "text-[#2b2320]" : "text-[#6f6357]"}`}>
               {texteAvecGras(message)}
             </p>
             {/* Une pièce lourde ou encombrante coûte cher en simple colis : on le dit tout de suite, aussi en pilule. */}

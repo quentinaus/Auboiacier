@@ -130,7 +130,7 @@ function Cote({
   /** Où pose la pastille. */
   pastille: Point;
   /** Où s'écrit la valeur : sur la ligne, à droite de la pastille, ou dessous. */
-  valeurA: "droite" | "dessous";
+  valeurA: "droite" | "dessous" | "dessus";
   /** Les pointes à l'extérieur, pour une cote trop courte pour les loger. */
   exterieur?: boolean;
   /** Dessin nu et plus lisible : pastilles plus grandes, traits plus francs. */
@@ -158,7 +158,13 @@ function Cote({
     ? [pointe(de, angle), pointe(a, angle + Math.PI)]
     : [pointe(de, angle + Math.PI), pointe(a, angle)];
 
-  const [vx, vy] = valeurA === "droite" ? [pastille[0] + 16, pastille[1] + 4] : [pastille[0], pastille[1] + 24];
+  const [vx, vy] = compact
+    ? valeurA === "droite"
+      ? [pastille[0] + rayon + 5, pastille[1] + 5]
+      : valeurA === "dessus"
+        ? [pastille[0], pastille[1] - rayon - 7]
+        : [pastille[0], pastille[1] + rayon + 15]
+    : valeurA === "droite" ? [pastille[0] + 16, pastille[1] + 4] : valeurA === "dessus" ? [pastille[0], pastille[1] - 17] : [pastille[0], pastille[1] + 24];
 
   return (
     <g
@@ -220,7 +226,7 @@ function Cote({
           x={vx}
           y={vy}
           textAnchor={valeurA === "droite" ? "start" : "middle"}
-          fontSize={11}
+          fontSize={compact ? 13 : 11}
           fontWeight={600}
           fill={actif ? ACCENT : ENCRE}
           stroke="#ffffff"
@@ -244,7 +250,7 @@ function veine(y: number, amplitude: number, decalage: number) {
   return d;
 }
 
-export function SchemaCotes({
+function SchemaPlateau({
   forme,
   matiere = "bois",
   labels,
@@ -567,6 +573,346 @@ export function SchemaCotes({
           })}
         </>
       )}
+    </svg>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ *  La TABLE entière : plateau et piétement, aux matières choisies.
+ *  Même vue (isométrie), mêmes cotes numérotées que le plateau nu, mais le
+ *  croquis montre ce qu'on achète — le dessin du piétement suit le modèle
+ *  (Mikado, Croix, Brindille), les teintes suivent le bois et l'acier choisis.
+ *  Les cotes sont posées sur les bords du fond (et le chant à gauche) : rien
+ *  ne passe devant le piétement.
+ * ------------------------------------------------------------------ */
+
+export type ModelePietement = "mikado" | "croix" | "brindille" | "droit";
+
+export type PietementTable = {
+  modele: ModelePietement;
+  /** La teinte de l'acier (pastille du nuancier). */
+  acier?: string;
+  /** Le bois du plateau : sa teinte, et s'il s'agit du chêne (le plateau garde alors sa photo). */
+  bois?: { id?: string; teinte?: string };
+  /** Plateau à lattes (table d'extérieur). */
+  lattes?: boolean;
+};
+
+type ProprietesSchema = {
+  forme: "rect" | "rond";
+  matiere?: "bois" | "lumiere";
+  labels: { principale: string; secondaire?: string; epaisseur: string };
+  valeurs?: { principale?: string; secondaire?: string; epaisseur?: string };
+  actif: CoteActive;
+  onChoisir?: (cote: CoteSchema) => void;
+  locale?: "fr" | "en";
+  compact?: boolean;
+  proportions?: { principale?: number; secondaire?: number; epaisseur?: number };
+  /** Les matières et le modèle : le croquis dessine alors la table entière (plateau rectangulaire seulement). */
+  pietement?: PietementTable;
+};
+
+export function SchemaCotes(props: ProprietesSchema) {
+  if (props.pietement && props.forme === "rect" && props.matiere !== "lumiere") {
+    return <SchemaTable {...props} pietement={props.pietement} />;
+  }
+  return <SchemaPlateau {...props} />;
+}
+
+const hex = (c: string): [number, number, number] | null => {
+  const m = /^#([0-9a-f]{6})$/i.exec(c.trim());
+  if (!m) return null;
+  const n = parseInt(m[1], 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+};
+/** Mélange une teinte avec du blanc (t > 0) ou du noir (t < 0). */
+function teinte(c: string | undefined, t: number, repli = "#c19a5e"): string {
+  const rgb = hex(c ?? "") ?? hex(repli)!;
+  const cible = t >= 0 ? 255 : 0;
+  const k = Math.abs(t);
+  return `rgb(${rgb.map((v) => Math.round(v + (cible - v) * k)).join(",")})`;
+}
+
+/** Vue plus basse que l'isométrie (13° au lieu de 30°) : on voit mieux le piétement sous le plateau. */
+const IT: Point = [Math.cos(Math.PI / 14), Math.sin(Math.PI / 14)];
+const BOX_L = 460;
+const BOX_H = 352;
+
+function SchemaTable({
+  labels,
+  valeurs,
+  actif,
+  onChoisir,
+  locale = "fr",
+  proportions,
+  pietement,
+}: ProprietesSchema & { pietement: PietementTable }) {
+  const [survol, setSurvol] = useState<CoteSchema | null>(null);
+  const ordre: CoteSchema[] = ["principale", "secondaire", "epaisseur"];
+  const n = (c: CoteSchema) => ordre.indexOf(c) + 1;
+  const etat = (c: CoteSchema): Etat => (actif === c ? "actif" : survol === c ? "survol" : "repos");
+
+  const Lmm = proportions?.principale && proportions.principale > 0 ? proportions.principale : 2000;
+  const Wmm = proportions?.secondaire && proportions.secondaire > 0 ? proportions.secondaire : 1000;
+  const Tmm = proportions?.epaisseur && proportions.epaisseur > 0 ? proportions.epaisseur : 35;
+  const ratio = clamp(Lmm / Wmm, 0.6, 3.6);
+  const somme = ratio + 1;
+  const ep = clamp(Math.round(8 + (Tmm / 45) * 9), 9, 19);
+  const MG = 82; // marge gauche et droite : le chant coté à gauche, la largeur cotée à droite
+  const HAUT = 42; // la cote de la longueur, au-dessus du fond
+  const utileL = BOX_L - 2 * MG;
+  const utileH = BOX_H - HAUT - 14;
+  /* Le piétement fait 0,75 fois la largeur dessinée (75 cm de haut pour 1 m de large) : il dépasse sous le plateau. */
+  const k = Math.min(utileL / (IT[0] * somme), (utileH - ep) / (IT[1] * somme + 0.75));
+  const lPx = ratio * k;
+  const wPx = k;
+  const largeur = IT[0] * (lPx + wPx);
+  const hauteur = IT[1] * (lPx + wPx) + ep;
+  const gauche = (BOX_L - largeur) / 2;
+  const haut = HAUT + (utileH - hauteur - 0.75 * wPx) / 2;
+  const D: Point = [gauche + IT[0] * wPx, haut + IT[1] * (lPx + wPx)];
+  const C: Point = [D[0] + IT[0] * lPx, D[1] - IT[1] * lPx];
+  const A: Point = [D[0] - IT[0] * wPx, D[1] - IT[1] * wPx];
+  const B: Point = [C[0] - IT[0] * wPx, C[1] - IT[1] * wPx];
+  const bas = (pt: Point): Point => [pt[0], pt[1] + ep];
+  const u: Point = [IT[0], -IT[1]];
+  const v: Point = [IT[0], IT[1]];
+  const dep = (pt: Point, d: Point, m: number): Point => [pt[0] + d[0] * m, pt[1] + d[1] * m];
+  const milieu = (p1: Point, p2: Point): Point => [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
+
+  /** La hauteur du piétement à l'écran : proportionnelle à la largeur dessinée, bornée. */
+  const H = Math.round(wPx * 0.75);
+  /** Un point sous le plateau : x le long de la longueur (0 devant-gauche → 1 bout droit), y le long de la largeur (0 devant → 1 fond), z vers le sol (0 = sous le plateau, 1 = sol). */
+  const P = (x: number, y: number, z: number): Point => {
+    const b = bas(D);
+    return [b[0] + (C[0] - D[0]) * x + (A[0] - D[0]) * y, b[1] + (C[1] - D[1]) * x + (A[1] - D[1]) * y + H * z];
+  };
+
+  const acier = pietement.acier && hex(pietement.acier) ? pietement.acier : "#2a2724";
+  const aclair = teinte(acier, 0.38);
+  const afonce = teinte(acier, -0.45);
+  const teinteBois = pietement.bois?.teinte && hex(pietement.bois.teinte) ? pietement.bois.teinte : "#c19a5e";
+  /* Le plateau prend la teinte du bois CHOISI (celle de la pastille), pas une photo : le croquis et le nuancier disent la même chose. */
+  const photoChene = false;
+  const dessusBois = [teinte(teinteBois, 0.28), teinte(teinteBois, 0.1), teinte(teinteBois, -0.06)];
+  const chantBois = teinte(teinteBois, -0.2);
+  const boutBois = teinte(teinteBois, -0.3);
+
+  type Tube = { de: Point; a: Point; e: number };
+  const tube = (de: Point, a: Point, e = 6.5): Tube => ({ de, a, e });
+  const eq = H / 70; // l'épaisseur des tubes suit la hauteur dessinée
+  let groupes: { cle: number; tubes: Tube[] }[] = [];
+  const m = pietement.modele;
+  if (m === "croix") {
+    groupes = [0.13, 0.87].map((x) => ({
+      cle: x,
+      tubes: [tube(P(x, 0.3, 0), P(x, 0.84, 1), 7.5 * eq), tube(P(x, 0.7, 0), P(x, 0.16, 1), 7.5 * eq)],
+    }));
+  } else if (m === "brindille") {
+    groupes = [0.2, 0.8].map((x) => ({
+      cle: x,
+      tubes: [0, 1, 2, 3, 4].flatMap((i) => [
+        tube(P(x + (i - 2) * 0.012, 0.3 + i * 0.1, 0), P(x + (i - 2) * 0.03, 0.9 - i * 0.2 + (i % 2) * 0.04, 1), 2.6 * eq),
+      ]),
+    }));
+  } else if (m === "mikado") {
+    groupes = [
+      {
+        cle: 0.5,
+        tubes: [
+          tube(P(0.18, 0.46, 0), P(0.86, 0.6, 1), 7 * eq),
+          tube(P(0.82, 0.54, 0), P(0.14, 0.4, 1), 7 * eq),
+          tube(P(0.48, 0.5, 0), P(0.44, 0.1, 1), 6 * eq),
+          tube(P(0.52, 0.5, 0), P(0.56, 0.9, 1), 6 * eq),
+        ],
+      },
+    ];
+  } else {
+    groupes = [
+      [0.1, 0.12],
+      [0.9, 0.12],
+      [0.1, 0.88],
+      [0.9, 0.88],
+    ].map(([x, y]) => ({ cle: x + y, tubes: [tube(P(x, y, 0), P(x, y, 1), 6 * eq)] }));
+  }
+  // Du fond vers le devant : ce qui est près du spectateur se dessine par-dessus.
+  const ligne = (t: Tube, i: number) => {
+    const d = `M${p(t.de)} L${p(t.a)}`;
+    return (
+      <g key={i} strokeLinecap="butt" fill="none">
+        <path d={d} stroke={ENCRE} strokeOpacity={0.4} strokeWidth={t.e + 1.6} />
+        <path d={d} stroke={acier} strokeWidth={t.e} />
+        <path d={d} stroke={aclair} strokeOpacity={0.55} strokeWidth={Math.max(0.8, t.e * 0.28)} transform="translate(-0.9 -0.6)" />
+        <path d={`M${p(t.a)} L${p([t.a[0] + (t.de[0] - t.a[0]) * 0.08, t.a[1] + (t.de[1] - t.a[1]) * 0.08])}`} stroke={afonce} strokeWidth={t.e + 0.6} />
+      </g>
+    );
+  };
+
+  /** Les lattes d'un plateau d'extérieur : des joints le long de la longueur. */
+  const nLattes = pietement.lattes ? clamp(Math.round(Wmm / 95), 5, 12) : 0;
+  const face = `${p(A)} ${p(B)} ${p(C)} ${p(D)}`;
+  const ptDessus = (x: number, y: number): Point => [D[0] + (C[0] - D[0]) * x + (A[0] - D[0]) * y, D[1] + (C[1] - D[1]) * x + (A[1] - D[1]) * y];
+
+  const cote = (
+    c: CoteSchema,
+    props: Omit<Parameters<typeof Cote>[0], "n" | "etat" | "label" | "valeur" | "onChoisir" | "onSurvol">
+  ) => (
+    <Cote
+      compact
+      n={n(c)}
+      etat={etat(c)}
+      label={c === "principale" ? labels.principale : c === "secondaire" ? (labels.secondaire ?? "") : labels.epaisseur}
+      valeur={valeurs?.[c]}
+      onChoisir={onChoisir ? () => onChoisir(c) : undefined}
+      onSurvol={(dedans) => setSurvol((s) => (dedans ? c : s === c ? null : s))}
+      {...props}
+    />
+  );
+  const arete = (c: CoteSchema, d: string) =>
+    actif === c ? <path d={d} fill="none" stroke={ACCENT} strokeWidth={2.2} strokeLinecap="round" /> : null;
+
+  const legende =
+    locale === "en"
+      ? `Dimensioned sketch of the table: ${labels.principale}, ${labels.secondaire}, ${labels.epaisseur}`
+      : `Croquis coté de la table : ${labels.principale}, ${labels.secondaire}, ${labels.epaisseur}`;
+
+  return (
+    <svg viewBox={`0 0 ${BOX_L} ${BOX_H}`} role="group" aria-label={legende} className="mx-auto h-auto w-full select-none md:h-full md:max-h-full" fontFamily="inherit">
+      <defs>
+        <linearGradient id="tb-dessus" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor={dessusBois[0]} />
+          <stop offset="0.5" stopColor={dessusBois[1]} />
+          <stop offset="1" stopColor={dessusBois[2]} />
+        </linearGradient>
+        <linearGradient id="tb-jour" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" stopOpacity="0.18" />
+          <stop offset="0.55" stopColor="#ffffff" stopOpacity="0.03" />
+          <stop offset="1" stopColor="#2a2116" stopOpacity="0.08" />
+        </linearGradient>
+        <radialGradient id="tb-sol" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#2a2116" stopOpacity="0.22" />
+          <stop offset="1" stopColor="#2a2116" stopOpacity="0" />
+        </radialGradient>
+        <clipPath id="tb-face">
+          <polygon points={face} />
+        </clipPath>
+      </defs>
+
+      {/* L'ombre au sol : une tache douce sous tout le piétement. */}
+      <ellipse
+        cx={(P(0.5, 0.5, 1)[0] + P(0.5, 0.5, 0)[0]) / 2}
+        cy={P(0.5, 0.5, 1)[1] + 2}
+        rx={largeur * 0.56}
+        ry={Math.max(16, (hauteur - ep) * 0.5)}
+        fill="url(#tb-sol)"
+      />
+
+      {/* Le piétement, du fond vers le devant. */}
+      {[...groupes].sort((g1, g2) => g2.cle - g1.cle).flatMap((g) => g.tubes.map((t, i) => ligne(t, g.cle * 1000 + i)))}
+
+      {/* Le plateau : chants, puis dessus, aux teintes du bois choisi. */}
+      <polygon points={`${p(D)} ${p(C)} ${p(bas(C))} ${p(bas(D))}`} fill={chantBois} />
+      <polygon points={`${p(A)} ${p(D)} ${p(bas(D))} ${p(bas(A))}`} fill={boutBois} />
+      <polygon points={face} fill="url(#tb-dessus)" />
+      {photoChene && !pietement.lattes && (
+        <>
+          <image
+            href="/images/schema/chene-dessus.jpg"
+            width={1200}
+            height={360}
+            preserveAspectRatio="none"
+            transform={`matrix(${r5((C[0] - D[0]) / 1200)} ${r5((C[1] - D[1]) / 1200)} ${r5((A[0] - D[0]) / 360)} ${r5((A[1] - D[1]) / 360)} ${r5(D[0])} ${r5(D[1])})`}
+          />
+          <image
+            href="/images/schema/chene-chant.jpg"
+            width={1200}
+            height={64}
+            preserveAspectRatio="none"
+            transform={`matrix(${r5((C[0] - D[0]) / 1200)} ${r5((C[1] - D[1]) / 1200)} 0 ${r5(ep / 64)} ${r5(D[0])} ${r5(D[1])})`}
+          />
+          <image
+            href="/images/schema/chene-bout.jpg"
+            width={480}
+            height={64}
+            preserveAspectRatio="none"
+            transform={`matrix(${r5((D[0] - A[0]) / 480)} ${r5((D[1] - A[1]) / 480)} 0 ${r5(ep / 64)} ${r5(A[0])} ${r5(A[1])})`}
+          />
+          <polygon points={`${p(D)} ${p(C)} ${p(bas(C))} ${p(bas(D))}`} fill="#4a2f12" opacity={0.36} />
+          <polygon points={`${p(A)} ${p(D)} ${p(bas(D))} ${p(bas(A))}`} fill="#4a2f12" opacity={0.2} />
+        </>
+      )}
+      {!photoChene && !pietement.lattes && (
+        <g clipPath="url(#tb-face)" fill="none" stroke={teinte(teinteBois, -0.32)} strokeWidth={0.8}>
+          {Array.from({ length: 9 }, (_, i) => {
+            const y = (i + 0.5) / 9;
+            const a = ptDessus(0, y);
+            const b = ptDessus(1, y);
+            return <path key={i} d={`M${p(a)} L${p(b)}`} opacity={0.16 + (i % 3) * 0.06} />;
+          })}
+        </g>
+      )}
+      {nLattes > 0 && (
+        <g stroke={teinte(teinteBois, -0.5)} strokeLinecap="round">
+          {Array.from({ length: nLattes - 1 }, (_, i) => {
+            const y = (i + 1) / nLattes;
+            const a = ptDessus(0, y);
+            const b = ptDessus(1, y);
+            const h = [a[0], a[1] + ep];
+            return (
+              <g key={i}>
+                <path d={`M${p(a)} L${p(b)}`} strokeWidth={2.4} opacity={0.6} />
+                <path d={`M${p(a)} L${p(h as Point)}`} strokeWidth={1.4} opacity={0.5} />
+              </g>
+            );
+          })}
+        </g>
+      )}
+      <polygon points={face} fill="url(#tb-jour)" />
+      <path d={`M${p(A)} L${p(D)} L${p(C)}`} fill="none" stroke="#ffffff" strokeWidth={0.9} opacity={0.5} strokeLinejoin="round" />
+      <g fill="none" stroke={ENCRE} strokeWidth={1.1} opacity={0.6} strokeLinejoin="round">
+        <polygon points={face} />
+        <path d={`M${p(A)} L${p(bas(A))} L${p(bas(D))} L${p(bas(C))} L${p(C)} M${p(D)} L${p(bas(D))}`} />
+      </g>
+      {arete("principale", `M${p(A)} L${p(B)}`)}
+      {arete("secondaire", `M${p(B)} L${p(C)}`)}
+      {arete("epaisseur", `M${p(A)} L${p(bas(A))}`)}
+
+      {/* ① La longueur, au fond à gauche. */}
+      {cote("principale", {
+        de: dep(A, v, -28),
+        a: dep(B, v, -28),
+        attaches: [
+          [dep(A, v, -4), dep(A, v, -34)],
+          [dep(B, v, -4), dep(B, v, -34)],
+        ],
+        pastille: milieu(dep(A, v, -28), dep(B, v, -28)),
+        valeurA: "dessus",
+      })}
+
+      {/* ② La largeur, au fond à droite. */}
+      {cote("secondaire", {
+        de: dep(B, u, 28),
+        a: dep(C, u, 28),
+        attaches: [
+          [dep(B, u, 4), dep(B, u, 34)],
+          [dep(C, u, 4), dep(C, u, 34)],
+        ],
+        pastille: milieu(dep(B, u, 28), dep(C, u, 28)),
+        valeurA: "droite",
+      })}
+
+      {/* ③ L'épaisseur du plateau, à gauche. */}
+      {cote("epaisseur", {
+        de: [A[0] - 32, A[1]],
+        a: [A[0] - 32, A[1] + ep],
+        attaches: [
+          [[A[0] - 4, A[1]], [A[0] - 38, A[1]]],
+          [[A[0] - 4, A[1] + ep], [A[0] - 38, A[1] + ep]],
+        ],
+        pastille: [A[0] - 54, A[1] + ep / 2],
+        valeurA: "dessous",
+        exterieur: true,
+      })}
     </svg>
   );
 }

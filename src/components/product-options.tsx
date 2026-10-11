@@ -40,7 +40,7 @@ import {
 } from "./releve-garde-corps";
 import { LIVRAISON, POSE, PRISE_DE_COTES, RETRAIT } from "@/lib/deplacement";
 import { diametreRosaceGC } from "@/lib/garde-corps";
-import { memoVersReleve, memoriserConfig, releveVersMemo, reprendreConfig, type ConfigMemo } from "@/lib/config-memo";
+import { lireCodePostalRetenu, memoVersReleve, memoriserConfig, releveVersMemo, reprendreConfig, retenirCodePostal, type ConfigMemo } from "@/lib/config-memo";
 import { livrableParTransporteur } from "@/lib/products";
 import { VisiteAtelier } from "./prise-de-cotes";
 import { MAX_TEXTE, EMAIL_MOTIF } from "@/lib/devis-regles";
@@ -770,6 +770,21 @@ export function ProductOptions({
     const releve = memoVersReleve(memo, t);
     if (Object.keys(releve).length > 0) setCotesGardeCorps((cotes) => ({ ...cotes, ...releve }));
   }, [product.slug, formatsDevis, setWoodId, setMetalId, setFabricId, t]);
+  /**
+   * Le code postal déjà saisi sur une autre fiche : on le remet, il ne se retape pas.
+   * Après le montage (le serveur ne connaît pas le stockage du navigateur), et sans
+   * jamais écraser un code déjà là (celui d'un retour de connexion, par exemple).
+   */
+  useEffect(() => {
+    if (!product.poseOption) return;
+    const retenu = lireCodePostalRetenu();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- relecture d'un stockage externe au montage
+    if (retenu) setPose((p) => (p.codePostal ? p : { ...p, codePostal: retenu }));
+  }, [product.poseOption]);
+  /** Un code postal que le serveur de livraison a accepté : on le retient pour les prochaines fiches. */
+  useEffect(() => {
+    if (pose.deplacement && pose.mode !== "retrait") retenirCodePostal(pose.codePostal);
+  }, [pose.deplacement, pose.mode, pose.codePostal]);
   /** Les coordonnées facultatives du client, pour un devis PDF nominatif. */
   const [coordonnees, setCoordonnees] = useState({ nom: "", email: "" });
   /**
@@ -805,6 +820,16 @@ export function ProductOptions({
     () => window.matchMedia("(min-width: 80rem)").matches,
     () => false
   );
+  /** Tablette et plus (768 px, comme « md: » de Tailwind) : la livraison d'une table passe dans la carte sous le croquis. */
+  const ecranMoyen = useSyncExternalStore(
+    (prevenir) => {
+      const mq = window.matchMedia("(min-width: 48rem)");
+      mq.addEventListener("change", prevenir);
+      return () => mq.removeEventListener("change", prevenir);
+    },
+    () => window.matchMedia("(min-width: 48rem)").matches,
+    () => false
+  );
   /** Garde-corps : l'emplacement, dans le cadre du résultat (à côté de la carte), du poids, des détails et de ce que comprend le prix. */
   const [detailsSlot, setDetailsSlot] = useState<HTMLDivElement | null>(null);
 
@@ -820,10 +845,17 @@ export function ProductOptions({
    * Et on pose le curseur dans la case : c'est elle qu'on est venu remplir.
    * Sur téléphone, le clavier s'ouvre dans la foulée.
    */
-  function allerAuChampManquant(ancre: string) {
+  function allerAuChampManquant(ancre: string, coteVisee?: CoteSchema) {
     if (ancre === "#livraison") ouvrirMenu("livraison", true);
     requestAnimationFrame(() =>
       requestAnimationFrame(() => {
+        // Une cote précise (celle qui manque) : on pose le curseur dans SA case, pas dans la première.
+        const case_ = coteVisee ? document.getElementById(`${idTailles}-${coteVisee}`) : null;
+        if (case_) {
+          amenerAlEcran(case_, { block: "center" });
+          case_.focus({ preventScroll: true });
+          return;
+        }
         const cible = document.querySelector(ancre);
         if (!cible) return;
         // « center » plutôt que « start » : la carte défile à l'intérieur
@@ -856,6 +888,8 @@ export function ProductOptions({
   const table = plan && product.category !== "lumiere";
   /** Le configurateur en pleine page : voir `aLeConfigurateurPleinePage`. */
   const nouvelleMiseEnPage = aLeConfigurateurPleinePage(product);
+  /** Une table (pas un plafond) dans la page de configuration : trois colonnes sur grand écran, livraison toujours visible. */
+  const tableConf = nouvelleMiseEnPage && table;
   /** Une table se mesure en longueur × largeur, un panneau en largeur × hauteur. */
   const labelPrincipale = rond
     ? t.customDiameter
@@ -1015,7 +1049,8 @@ export function ProductOptions({
    */
   const estGC = prixParOutil(product);
   /** Garde-corps sur grand écran : la livraison et la barre d'achat vont dans la troisième colonne. */
-  const colonneAchat = estGC && nouvelleMiseEnPage && grandEcran ? (achatSlot ?? null) : null;
+  /* Une table, grand écran : le résultat, la livraison et la barre d'achat sont dans la troisième colonne. */
+  const colonneAchat = (tableConf || estGC) && nouvelleMiseEnPage && grandEcran ? (achatSlot ?? null) : null;
   const versColonneAchat = (noeud: ReactNode) => (colonneAchat ? createPortal(noeud, colonneAchat) : noeud);
   const lectureReleve = estGC ? lireReleve(cotesGardeCorps, t) : null;
   const releveGC = lectureReleve?.etat === "ok" ? lectureReleve.releve : null;
@@ -1457,7 +1492,16 @@ export function ProductOptions({
   const modeleAChoisir = estGC && !modeVisite && Boolean(configGC) && !cotesGardeCorps.modele;
   /** Le type de mur est obligatoire (décision de Quentin, 05/10) : il décide des chevilles et de la fixation fournies. */
   const murAChoisir = estGC && !modeVisite && Boolean(configGC) && !cotesGardeCorps.mur;
-  const raisonIndisponible: { message: string; ancre: string } | null = modeVisite
+  /** Les cotes pas encore tapées (l'épaisseur a toujours une valeur) : la phrase sous le bouton grisé les nomme. */
+  const coteManquante = (() => {
+    if (!bareme || product.releve) return null;
+    const manques: { champ: CoteSchema; texte: string }[] = [];
+    if (largeurSaisie === "") manques.push({ champ: "principale", texte: rond ? t.manqueDiametre : plan ? t.manqueLongueur : t.manqueLargeur });
+    if (!rond && hauteurSaisie === "") manques.push({ champ: "secondaire", texte: plan ? t.manqueLargeur : t.manqueHauteur });
+    if (manques.length === 0) return null;
+    return { champ: manques[0].champ, texte: manques.map((m) => m.texte).join(` ${t.manqueEt} `) };
+  })();
+  const raisonIndisponible: { message: string; ancre: string; champ?: CoteSchema } | null = modeVisite
     ? !visitePrete
       ? { message: t.raisonVisiteIncomplete, ancre: "#cotes" }
       : null
@@ -1472,7 +1516,14 @@ export function ProductOptions({
         raisonDevisTexte
         ? { message: raisonDevisTexte, ancre: "#cotes" }
         : bareme && !product.releve
-          ? { message: t.raisonCotesManquantes, ancre: "#cotes" }
+          ? coteManquante
+            ? {
+                // Ce qui manque, dit précisément : « la longueur », « la largeur »…
+                message: t.raisonManqueCote.replace("{cote}", coteManquante.texte),
+                ancre: "#cotes",
+                champ: coteManquante.champ,
+              }
+            : { message: t.raisonCotesManquantes, ancre: "#cotes" }
           : // Le garde-corps de fenêtre relève ses propres cotes (largeur,
             // allège, hauteur de la fenêtre), puis attend l'outil de plans.
             estGC
@@ -1647,7 +1698,7 @@ export function ProductOptions({
    * bouton d'achat).
    */
   /* Le garde-corps sur grand écran : le devis PDF et « Mettre de côté » sont deux petits liens sur UNE ligne (la colonne d'achat ne défile pas). */
-  const liensSerres = Boolean(colonneAchat && estGC);
+  const liensSerres = Boolean(colonneAchat);
   /** Une autre fenêtre : on vide les cotes, on garde le bois et l'acier, et le curseur revient dans la première case. */
   const autreFenetre = () => {
     // L'étage et le modèle aussi : ils dépendent de la fenêtre, et rien ne doit être choisi d'avance (décision du 03/10) —
@@ -1962,11 +2013,29 @@ export function ProductOptions({
         !product.releve &&
         schemaSlot &&
         createPortal(
+          <div className={table ? "cadre-croquis md:flex md:h-full md:items-center md:justify-center rounded-[26px] border border-white/80 bg-white/45 px-2 py-3 shadow-[0_24px_60px_-34px_rgba(43,35,32,0.4)] md:px-4 md:py-5" : undefined}>
           <SchemaCotes
             forme={bareme.forme}
             locale={locale}
             /* Un plateau de bois, ou la toile tendue d'un caisson lumineux. */
             matiere={table ? "bois" : "lumiere"}
+            /* Une table : le croquis montre la table entière, au modèle de piétement et aux teintes choisies. */
+            pietement={
+              table
+                ? {
+                    modele: product.slug.includes("croix")
+                      ? "croix"
+                      : product.slug.includes("brindille")
+                        ? "brindille"
+                        : product.slug.includes("mikado")
+                          ? "mikado"
+                          : "droit",
+                    acier: metal?.swatch,
+                    bois: { id: wood?.id, teinte: wood?.swatch },
+                    lattes: product.famille === "table-exterieur",
+                  }
+                : undefined
+            }
             actif={coteActive}
             onChoisir={allerA}
             proportions={{
@@ -1988,7 +2057,8 @@ export function ProductOptions({
                   : undefined,
               epaisseur: Number.isFinite(epaisseurMm) ? enUnite(epaisseurMm, "mm") : undefined,
             }}
-          />,
+          />
+          </div>,
           schemaSlot
         )}
 
@@ -2098,17 +2168,25 @@ export function ProductOptions({
           );
           const matieresCompactes = (
             <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 rounded-2xl bg-white/55 px-3 py-1.5 xl:shrink-0 xl:flex-nowrap">
-              {product.metals.length > 0 && ligneMatieres(locale === "fr" ? "Acier" : "Steel", product.metals, metalId, setMetalId, false)}
+              {product.metals.length > 0 && ligneMatieres(tableConf ? (locale === "fr" ? "Pieds" : "Legs") : locale === "fr" ? "Acier" : "Steel", product.metals, metalId, setMetalId, false)}
               {product.woods.length > 0 &&
                 (estGC
                   ? <MainCouranteMenu {...choixMainCourante} />
-                  : ligneMatieres(locale === "fr" ? "Main courante" : "Handrail", woodsAffiches, woodId, setWoodId, orderable && product.woods.some((bois) => bois.priceDelta)))}
+                  : ligneMatieres(tableConf ? (locale === "fr" ? "Plateau" : "Top") : locale === "fr" ? "Main courante" : "Handrail", woodsAffiches, woodId, setWoodId, orderable && product.woods.some((bois) => bois.priceDelta)))}
               {product.fabrics && product.fabrics.length > 0 && product.fabricLabel && !sansRosace && !sansRosaceGC &&
                 ligneMatieres(locale === "fr" ? "Rosace" : "Rosette", product.fabrics, fabricId, setFabricId, product.fabrics.some((rosace) => rosace.priceDelta))}
             </div>
           );
           if (nouvelleMiseEnPage) {
             if (estGC && grandEcran && matieresCentreSlot) return createPortal(matieresCompactes, matieresCentreSlot);
+            /* Une table, sur grand écran : la barre compacte au-dessus du croquis (qui prend ces teintes) ET les grandes pastilles à côté de la photo. */
+            if (tableConf && grandEcran)
+              return (
+                <>
+                  {matieresCentreSlot && createPortal(matieresCompactes, matieresCentreSlot)}
+                  {matieresSlot && createPortal(matieres, matieresSlot)}
+                </>
+              );
             return matieresSlot ? createPortal(matieres, matieresSlot) : null;
           }
           return (
@@ -2689,7 +2767,8 @@ export function ProductOptions({
                 choix={poseObligatoire && pose.mode === "transporteur" ? { ...pose, mode: "pose" } : pose}
                 onChange={setPose}
                 compact={nouvelleMiseEnPage}
-                pilule={Boolean(colonneAchat && estGC)}
+                pilule={Boolean(colonneAchat && estGC) || tableConf}
+                ligneAttente={tableConf}
                 demontee={Boolean(product.boisAuM2)}
                 livraisonSeule={Boolean(product.livraisonSeule)}
                 poseSeule={poseObligatoire}
@@ -2739,7 +2818,7 @@ export function ProductOptions({
         );
         const sousMenus = (
           <div className="mt-2">
-            {livraison && (
+            {livraison && !tableConf && (
                 <SousMenu
                   id="sous-menu-livraison"
                 titre={product.livraisonSeule ? t.livraisonTitle : t.poseTitle}
@@ -2777,6 +2856,59 @@ export function ProductOptions({
             })()}
           </div>
         );
+        /* Une table : la livraison (pilules, code postal) est TOUJOURS visible, jamais dans un sous-menu — le client ne comprenait
+           pas pourquoi « Ajouter au panier » restait grisé sans avoir ouvert « Livraison, pose ou retrait ». Sur grand écran elle est
+           dans la troisième colonne, sous le récapitulatif de la pièce ; en dessous, dans la carte, au-dessus de la barre d'achat. */
+        if (tableConf) {
+          const blocLivraison = livraison ? (
+            <div className="border-[#e5ddd3] pt-1 md:pt-0 xl:mt-2 xl:border-t xl:pt-2.5" id="sous-menu-livraison">
+              <span className="block text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{product.livraisonSeule ? t.livraisonTitle : t.poseTitle}</span>
+              <div className="mt-2">{livraison}</div>
+            </div>
+          ) : null;
+          if (colonneAchat) {
+            return (
+              <>
+                {resultatSlot &&
+                  createPortal(
+                    <div className="recap-table hidden pb-2 xl:block">
+                      <p className="mt-1 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{t.recapTitre}</p>
+                      <div className="mt-2">{detailsDl}</div>
+                      <div className="mt-2 flex justify-end">
+                        <PopoverDetails titre={t.sousMenuInclus} libelle={t.sousMenuInclus}>
+                          {listeInclus}
+                        </PopoverDetails>
+                      </div>
+                    </div>,
+                    resultatSlot
+                  )}
+                {versColonneAchat(blocLivraison)}
+              </>
+            );
+          }
+          /* Tablette : la livraison et les sous-menus sont dans la carte sous le croquis (la barre d'achat reste sous les cotes) ;
+             téléphone : tout se suit dans la carte, la livraison AVANT le bouton. */
+          if (ecranMoyen && achatSlot)
+            return createPortal(
+              <>
+                {blocLivraison}
+                <div className="mt-2 flex justify-end border-t border-[#e5ddd3] pt-2">
+                  <PopoverDetails titre={t.sousMenuDetails} libelle={t.sousMenuDetails}>
+                    {detailsDl}
+                    <p className="mt-3 border-t border-[#e5ddd3] pt-3 text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{t.sousMenuInclus}</p>
+                    <div className="mt-2">{listeInclus}</div>
+                  </PopoverDetails>
+                </div>
+              </>,
+              achatSlot
+            );
+          return (
+            <>
+              {blocLivraison}
+              {sousMenus}
+            </>
+          );
+        }
         /* Le garde-corps sur grand écran : la colonne d'achat ne défile pas. Les détails (poids, ce que comprend le prix) vont dans
            une fenêtre flottante ; la livraison reste là, en pilules, au-dessus de la barre d'achat. */
         if (colonneAchat && estGC) {
@@ -2943,7 +3075,7 @@ export function ProductOptions({
                   // On reprend la main sur le saut d'ancre du navigateur :
                   // voir allerAuChampManquant.
                   e.preventDefault();
-                  allerAuChampManquant(raisonIndisponible.ancre);
+                  allerAuChampManquant(raisonIndisponible.ancre, raisonIndisponible.champ);
                 }}
                 className="underline decoration-dotted underline-offset-2 hover:text-[#2b2320]"
               >
