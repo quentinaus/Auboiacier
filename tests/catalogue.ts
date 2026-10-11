@@ -26,7 +26,9 @@ export type Options = Omit<Selection, "slug">;
  * son prix vient de l'outil de plans, sur le serveur seulement — ses règles
  * sont vérifiées à part (prix-garde-corps.test.ts, garde-corps.test.ts).
  */
-export const achetables = products.filter((p) => p.orderMode === "cart" && !prixParOutil(p));
+// Les portails (10/10/2026) se commandent au panier, mais leur prix vient de l'outil de plans, jamais du catalogue
+// (tailles et options) : ils ont leurs propres tests (tests/portails.test.ts, tests/tarif-panier.test.ts).
+export const achetables = products.filter((p) => p.orderMode === "cart" && !prixParOutil(p) && p.famille !== "portail");
 
 /** Les produits chiffrés par l'outil de plans (le garde-corps de fenêtre). */
 export const parLOutil = products.filter((p) => p.orderMode === "cart" && prixParOutil(p));

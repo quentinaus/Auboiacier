@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { composerConfirmation } from "@/lib/confirmation";
+import { composerConfirmation, lienConfirmationOuvert } from "@/lib/confirmation";
 import { rendreDevisPdf } from "@/lib/devis-pdf";
+import { contratDeLaCommande } from "@/lib/order-email";
 import { creerLimite } from "@/lib/limite-debit";
 import { getStripe, isStripeConfigured, siteOrigin } from "@/lib/stripe";
 
@@ -57,6 +58,10 @@ export async function GET(request: Request) {
   if (session.payment_status !== "paid") {
     return NextResponse.json({ error: "not_paid" }, { status: 404 });
   }
+  // Passé trente jours, le lien ne montre plus les coordonnées du client.
+  if (!lienConfirmationOuvert(session.created, Math.floor(Date.now() / 1000))) {
+    return NextResponse.json({ error: "expired" }, { status: 404 });
+  }
 
   // L'expansion s'arrête aux dix premières lignes : on demande la liste
   // complète, sinon une commande de plus de dix pièces sortirait tronquée.
@@ -68,6 +73,8 @@ export async function GET(request: Request) {
     session,
     lignes: lignes.data,
     origine: siteOrigin(),
+    // La Garantie cotes achetée : son contrat en fin de document, comme dans la confirmation envoyée par e-mail.
+    contratGarantie: await contratDeLaCommande(session),
   });
   const pdf = await rendreDevisPdf(devis);
 

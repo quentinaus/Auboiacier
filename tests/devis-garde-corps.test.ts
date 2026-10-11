@@ -75,6 +75,8 @@ test("les mêmes lignes et le même total que le devis de l'outil, pour la même
       if (!c?.ok) continue;
       for (const km of [7.3, 118.46, 612]) {
         for (const livraison of livraisons(km)) {
+          // Pas de pose au-delà de 200 km : le site la refuse avant le devis (calculerPose), rien à comparer.
+          if (livraison.mode === "pose" && km > 200) continue;
           const site = devisOk(entree(releve, { options: { woodId: essence, ...MODELE }, livraison }));
           // L'outil, avec ses propres entrées : sa configuration, son prix, SA livraison (remiseGC).
           const v = { ...c.v, remise: livraison.mode, km: livraison.mode === "retrait" ? 0 : km };
@@ -187,7 +189,10 @@ test("options que l'outil ne chiffre pas encore : leur supplément rejoint son p
 
 test("plusieurs pièces : la quantité sur chaque poste, et la remise sur sa ligne (frais fixes une fois)", () => {
   chiffrageOuEchec();
-  const releve = { largeurMm: 1180, allegeMm: 650, enEtage: true, fenetreMm: 1400 };
+  // Le modèle de la photo (1 180 × 585). À 1 180 × 650, depuis la fixation par platines au bout des lisses (10/10/2026), trois
+  // pièces retombent sur la même dizaine qu'à l'unité (440 € pour un plancher 1,82 € dessous, sans frais fixes par commande) :
+  // pas de remise à montrer sur le devis.
+  const releve = { largeurMm: 1180, allegeMm: 585, enEtage: true, fenetreMm: 1400 };
   const c = configurationGC(releve, "chene") as ConfigGC;
   const un = devisOk(entree(releve));
   const trois = devisOk(entree(releve, { quantite: 3 }));

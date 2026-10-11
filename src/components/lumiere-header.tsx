@@ -11,6 +11,7 @@ export function LumiereHeader({ locale, dict }: { locale: Locale; dict: Dictiona
   const links = [
     { href: `/${locale}/toiles-tendues`, label: dict.hub.lightingLabel },
     { href: `/${locale}/artisanat`, label: dict.hub.craftLabel },
+    { href: `/${locale}/zone-intervention`, label: dict.nav.zone },
     { href: `/${locale}/a-propos`, label: dict.nav.apropos },
     { href: `/${locale}/contact`, label: dict.nav.contact },
   ];
@@ -20,7 +21,7 @@ export function LumiereHeader({ locale, dict }: { locale: Locale; dict: Dictiona
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-4">
         <Link
           href={`/${locale}`}
-          className="min-w-0 truncate font-mono text-xs tracking-widest text-[#7f7058] hover:text-[#2a2116]"
+          className="font-display min-w-0 truncate text-[14px] tracking-[0.26em] text-[#5c5140] hover:text-[#2b2320]"
         >
           ← {dict.nav.backToHub}
         </Link>

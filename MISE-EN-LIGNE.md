@@ -72,20 +72,12 @@ Vercel (l'hébergement) est le troisième, gratuit lui aussi pour démarrer.
     puis reprendre la clé `sk_live_` et **recréer le webhook en mode réel**
     (le `whsec_` est différent).
 11. **Remplir les textes légaux** : les pages Conditions générales de vente et
-    Mentions légales existent mais attendent la raison sociale, le statut, le
-    SIRET, l'adresse, le téléphone et le régime de TVA.
-12. **Remplir le bas des factures** (obligatoire avant la première vente
-    réelle). Stripe édite la facture du client, mais une facture française doit
-    porter les mentions de l'entreprise. Elles se collent dans Vercel, comme les
-    clés, dans ces cinq variables :
-    - `FACTURE_RAISON_SOCIALE` — nom et statut (ex. « Auboiacier — EI Quentin Aumercier »)
-    - `FACTURE_ADRESSE` — l'adresse du siège, sur une ligne
-    - `FACTURE_SIRET` — SIRET, code APE, chambre de métiers
-    - `FACTURE_TVA` — soit « TVA non applicable, art. 293 B du CGI », soit le numéro de TVA
-    - `FACTURE_ASSURANCE` — l'assurance décennale (dès qu'il y a de la pose)
-
-    Tant qu'elles sont vides, le bas de facture reste vide : le site n'invente
-    rien sur un document comptable. Il n'y a rien à écrire dans le code.
+    Mentions légales existent et attendent la fiche `src/lib/entreprise.ts`
+    (voir plus bas).
+12. **Le bas des factures** se remplit tout seul depuis `src/lib/entreprise.ts`
+    (raison sociale, adresse, SIRET, immatriculation, TVA, assurance). Les
+    variables `FACTURE_…` de Vercel restent possibles, mais seulement pour
+    imprimer autre chose que la fiche : vides, c'est la fiche qui sert.
 13. **Faire connaître l'atelier à Google** (facultatif, mais c'est ce qui fait
     apparaître le téléphone, les horaires et les avis dans les résultats) :
     créer la fiche Google de l'atelier (Google Business Profile), puis remplir
@@ -101,15 +93,14 @@ Le code est prêt et se tait tant que ces valeurs sont vides : rien ne s'affiche
 
 **Sans ça, on ne peut pas vendre**
 
-- [ ] Identité de l'entreprise : raison sociale, statut, SIRET, adresse du
-      siège, numéro de TVA → `src/lib/entreprise.ts`. Elle s'affiche sur les
-      mentions légales ET sur la politique de confidentialité : sans elle, le
-      « responsable du traitement » n'est pas identifiable (RGPD).
-- [ ] Régime de TVA → `TVA_MENTION` en haut de `src/app/[lang]/cgv/page.tsx`
-      (franchise en base : « TVA non applicable, article 293 B du CGI » ;
-      sinon : « Prix TTC, TVA 20 % incluse — n° TVA FR… »).
-- [ ] Médiateur de la consommation : l'adhésion est obligatoire pour vendre en
-      ligne à des particuliers → `MEDIATEUR`, même fichier.
+- [ ] LA fiche de l'entreprise, `src/lib/entreprise.ts` : raison sociale,
+      statut, adresse, SIRET, immatriculation, TVA (et sa mention en phrase
+      pour les CGV, en français et en anglais), assurance décennale,
+      téléphone, médiateur de la consommation. Elle alimente les mentions
+      légales, la politique de confidentialité, les CGV, les devis et les
+      factures. GARDE-FOU : les ventes ne s'ouvrent que quand toutes ses
+      lignes obligatoires sont remplies (`champsManquants`) — le SIRET seul
+      ne suffit pas.
 - [ ] Le domaine `auboiacier.fr` vérifié chez Resend, et `DEVIS_FROM_EMAIL`
       réglé dessus (voir plus haut : sans ça le site refuse d'encaisser).
 - [ ] Les cinq variables obligatoires dans Vercel.
@@ -166,6 +157,11 @@ régler avant la mise en ligne, ou à retirer du texte (voir les remarques).
       rendez-vous apparaît ensuite tout seul sur ton téléphone. La clé voyage
       dans l'adresse : si tu as partagé le lien par erreur, change-la dans
       Vercel et réabonne ton calendrier.
+- [ ] `AGENDA_ICS_CLE` dans Vercel : une DEUXIÈME clé, fabriquée pareil
+      (`openssl rand -base64 30`), qui n'ouvre que le flux calendrier. Une fois
+      posée, la page de l'agenda donne l'adresse du flux avec cette clé-là :
+      réabonne ton calendrier avec elle. Ainsi l'adresse confiée à Google ou à
+      Apple ne permet plus d'ouvrir l'atelier ni de changer une commande.
 - [ ] `AGENDA_INDISPONIBLE` (facultatif) : les jours où tu ne veux pas de
       visite, séparés par des virgules (`2026-09-20, 2026-09-21`). Le site ne
       propose jamais le samedi, le dimanche, ni les trois prochains jours.
@@ -182,8 +178,86 @@ régler avant la mise en ligne, ou à retirer du texte (voir les remarques).
       horaires s'affichent alors tout seuls en bas de page et sur la page
       Contact, et partent à Google : les trois doivent être écrits pareil
       partout, c'est ce que Google compare.
+      Avec l'adresse de la fiche, l'accueil et le bas des fiches disent
+      « Les avis de nos clients sont publiés sur notre fiche Google » et
+      montrent le lien « Lire les avis sur Google » ; sans elle, ni phrase
+      ni lien. À renseigner une fois la fiche créée.
 - [ ] L'adresse de l'atelier dans `ATELIER.rue` (`src/lib/seo.ts`) si elle est
       publique.
+
+**Pour que tes clients donnent leur avis sur Google**
+
+Le site demande son avis à chaque client, **une seule fois**, par un court
+mail signé Quentin, environ 10 jours après la livraison. Et une carte à
+glisser dans les colis est prête (voir plus bas). Tout passe par une adresse
+courte : `auboiacier.fr/avis`. Il te reste deux réglages, dans Vercel > le
+projet > Settings > Environment Variables, puis un redéploiement
+(Deployments > … > Redeploy) :
+
+- [ ] `NEXT_PUBLIC_ATELIER_GOOGLE_AVIS` : le lien « laisser un avis » de ta
+      fiche Google. Pour le trouver : ouvre ta fiche Google, clique sur
+      « Demander des avis », puis copie le lien. Il ressemble à
+      `https://g.page/r/XXXXXXXX/review`. Colle-le tel quel, puis redéploie.
+      Tant qu'il est vide : `auboiacier.fr/avis` affiche une petite page
+      « Merci ! » (avec un bouton vers ta fiche si `NEXT_PUBLIC_ATELIER_GOOGLE`
+      est rempli), et **aucun mail d'avis ne part**. Rien ne se perd : les
+      commandes attendent, et les mails partent le lendemain du réglage.
+- [ ] `CRON_SECRET` : un mot de passe que Vercel présente tout seul quand il
+      réveille le site chaque matin. Fabrique-le dans le Terminal avec
+      `openssl rand -hex 32` et colle le résultat. Tu n'as rien d'autre à en
+      faire. Sans lui, le réveil est refusé et aucun mail d'avis ne part.
+
+Comment ça marche, sans que tu aies rien à faire :
+
+- Chaque matin entre 9 h et 11 h, le site regarde les commandes payées des
+  4 derniers mois (chez Stripe) et envoie le mail à celles qui sont prêtes.
+- « Prête » = date du paiement + délai de fabrication le plus long de la
+  commande (celui écrit sur la fiche, 8 semaines si la fiche n'en donne pas)
+  + 10 jours. Le retrait à l'atelier et la pose comptent comme une livraison.
+- Si tu coches « Livrée » (ou « Posée », « Retirée ») sur ton écran de
+  commandes : 10 jours après. « Expédiée » : pas avant 17 jours après.
+  « Prête à poser » ou « Prête à retirer » : le mail attend que tu coches
+  « Posée » ou « Retirée » — pense à le faire le jour même. « En
+  fabrication » : le mail attend.
+- **Une commande en retard ? Laisse-la sur « En fabrication » tant qu'elle
+  n'est pas partie** (ou posée, ou retirée). Sinon le mail part à la date
+  prévue, avant la pièce.
+- Jamais de mail pour une commande annulée ou remboursée en totalité, ni
+  pour une prise de cotes seule. Une commande remboursée en partie, ou en
+  litige, reçoit le mail comme les autres : Google interdit de ne demander
+  l'avis qu'aux clients contents.
+- Un client qui a commandé deux fois ne reçoit qu'un seul mail, même s'il
+  recommande des années plus tard : le site le note aussi sur sa fiche
+  client chez Stripe.
+- Un client t'a dit qu'il ne veut pas de ce mail : Stripe > Clients > ce
+  client > Métadonnées > Modifier, ajoute `avis_demande_le` avec la valeur
+  `non`. C'est fini pour lui, pour toutes ses commandes, même futures. (S'il
+  a plusieurs fiches à la même adresse, une seule suffit. Sur son paiement,
+  ça marche aussi : le site recopie le « non » sur sa fiche le lendemain.)
+- Le site préfère ne pas envoyer plutôt qu'envoyer deux fois. Si Resend ne
+  répond pas clairement, le mail est peut-être parti : il ne repart pas, et
+  les Logs le disent (« peut-être partie(s) ») — regarde dans Resend >
+  Emails. Si rien ne part et que quelque chose a échoué, la ligne du cron
+  passe en rouge dans Settings > Cron Jobs.
+- Pour vérifier : Vercel > Settings > Cron Jobs > « Run » lance le passage
+  tout de suite. Le résultat se lit dans Logs, en cherchant `[avis]`.
+
+La carte des colis (« Merci ! Votre avis compte », un QR code et l'adresse
+écrite en clair), dans `public/imprimer/` :
+
+- `carte-avis-4-par-a4.pdf` : 4 cartes sur une feuille A4, pour ton
+  imprimante. Imprimer en « taille réelle » (100 %), puis couper sur les
+  pointillés. Un papier épais (200 g ou plus) fait une vraie carte.
+- `carte-avis-a6.pdf` ou `carte-avis.svg` : une carte au format A6
+  (10,5 × 14,8 cm), à envoyer à un imprimeur.
+- Elles sont aussi en ligne : `https://auboiacier.fr/imprimer/carte-avis-4-par-a4.pdf`.
+- Avant d'en imprimer cent, scanne une carte avec ton téléphone.
+
+Les règles, pour garder tes avis (Google peut tous les effacer, et la loi
+punit les faux avis) : jamais de cadeau, de remise ou de tirage au sort en
+échange d'un avis ; jamais « mettez-nous 5 étoiles » ; demander à tous les
+clients, pas seulement aux contents ; jamais d'avis écrit par toi ou par tes
+proches.
 
 **Trois décisions de métier**
 
@@ -200,6 +274,93 @@ régler avant la mise en ligne, ou à retirer du texte (voir les remarques).
       table d'intérieur.
 - [ ] Les avis clients : la page d'accueil a la place prête et n'affiche rien
       tant qu'il n'y a pas de vrais retours. On n'en écrit pas.
+
+## Lire les compteurs
+
+Le site compte tout seul ce qui t'aide à décider. Il ne sait rien des
+clients : ni nom, ni e-mail, ni adresse IP. Juste des nombres.
+
+**Ce qui est compté**
+
+- `prix_calcule` : un prix de garde-corps calculé. Attention, c'est un
+  nombre de **calculs**, pas de visiteurs : chaque fois qu'un client change
+  une cote ou une option, le prix est recalculé et compté. Un seul client qui
+  essaie trois largeurs et deux mains courantes fait 5 ou 6 calculs. Pour
+  savoir combien de personnes, regarde plutôt `devis_pdf`, les demandes et
+  les inscriptions. Les tables, elles, se chiffrent dans le téléphone du
+  client : elles ne sont pas comptées ici.
+- `devis_pdf` : un devis PDF ouvert, avec la famille de la pièce (table,
+  plafond, garde-corps…).
+- `demande_devis` : un formulaire de devis envoyé (page Contact).
+- `demande_rendez_vous` : un formulaire envoyé depuis la page Rendez-vous.
+- `inscription_prevenir` : une inscription « Me prévenir à l'ouverture ».
+- `depart_paiement` : un client parti payer chez Stripe (il peut encore
+  renoncer).
+- `commande_payee` : une commande payée. Celle-ci n'est que dans les
+  **Logs** (pas dans Analytics) : c'est Stripe qui prévient le site, pas le
+  client, et Vercel jetterait l'événement comme venant d'un robot. Pour
+  compter les commandes, Stripe > Paiements fait foi (voir plus bas).
+
+Les demandes, inscriptions et commandes portent deux petites étiquettes :
+`connu` (la réponse au menu « Comment nous avez-vous connu ? », ou
+`sans-reponse`) et `canal` (le lien d'arrivée : `google-ads`, `instagram`,
+`facebook`… ou `aucun`).
+
+**Les totaux du mois ou de l'année**
+
+Vercel > ton projet > **Analytics** > descendre jusqu'au cadre **Events**.
+Clique sur un nom (par exemple `demande_devis`) : tu vois le total, puis le
+détail par étiquette (`connu`, `canal`). La période se choisit en haut
+(7 jours, 30 jours, 12 mois). Tous les compteurs y sont, sauf
+`commande_payee` (Stripe).
+
+Vercel ne reçoit rien qui désigne quelqu'un : ni adresse IP, ni cookie, ni
+adresse de page, et du navigateur seulement sa famille (Chrome, Safari,
+Firefox, Edge ou autre), sans version ni appareil. Les robots (Google,
+outils automatiques) ne sont pas envoyés : ils ne restent que dans les Logs.
+
+Attention : ce cadre « Events » n'existe qu'avec l'offre **Pro** de Vercel
+(20 $ par mois). Elle est de toute façon obligatoire pour un site qui vend :
+l'offre gratuite (Hobby) est réservée à un usage personnel, non commercial.
+En Hobby, les totaux ne s'additionnent pas ; il ne reste que les lignes du
+journal ci-dessous.
+
+**Voir un compteur à l'instant (pour vérifier que ça marche)**
+
+Vercel > ton projet > **Logs**, chercher `COMPTEUR`. Une ligne par
+événement, par exemple :
+`COMPTEUR {"compteur":"devis_pdf","famille":"table-interieur"}`.
+Ces lignes ne restent qu'une heure (Hobby) ou un jour (Pro) : elles servent à
+vérifier, pas à additionner.
+
+**À faire une fois, après la mise en ligne**
+
+- [ ] Sur le site en ligne, calcule un prix de garde-corps. Dans la minute,
+      une ligne `COMPTEUR {"compteur":"prix_calcule"…}` apparaît dans Logs.
+      Dans l'heure, `prix_calcule` apparaît dans Analytics > Events (en Pro,
+      avec Analytics activé). Si la ligne est dans Logs mais que rien
+      n'arrive dans Events au bout d'une journée : le dire à Claude.
+
+**Les chiffres qui font foi**
+
+- Les commandes et l'argent : Stripe > Paiements. Toujours juste, même si un
+  compteur se perd.
+- Les demandes et les inscriptions : Gmail, chercher l'objet
+  `Demande de devis` ou `Me prévenir à l'ouverture`. Chaque e-mail dit aussi
+  « Nous a connus par : … » et, s'il y en a un, le lien suivi. Chaque bon de
+  commande a un bloc ORIGINE.
+
+**Savoir ce que rapporte une publication**
+
+Mets un lien marqué au lieu du lien simple. Exemple pour Instagram :
+`https://auboiacier.fr/fr/artisanat/garde-corps?utm_source=instagram&utm_medium=social&utm_campaign=garde-corps-octobre`
+
+Le site lit ces trois mots à l'arrivée et les joint à la demande ou à la
+commande du visiteur. Rien n'est enregistré sur son téléphone : s'il recharge
+la page, le marqueur est perdu, c'est voulu (pas de cookie, donc pas de
+bandeau). Pour Google Ads, rien à faire : Google ajoute tout seul son
+marqueur, et le site note « Arrivé par une annonce Google » (sans jamais
+garder le numéro de clic de Google).
 
 ## Si quelque chose ne marche plus
 

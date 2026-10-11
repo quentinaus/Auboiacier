@@ -1,135 +1,18 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { Visuel } from "@/components/visuel";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
 import { metadataPage } from "@/lib/seo";
 import { serif } from "@/lib/fonts";
 import { hoverZoom } from "@/lib/ui";
 import { VideoBoucle } from "@/components/video-boucle";
-
-/** Les familles publiées, telles qu'elles s'écrivent dans l'adresse. */
-type Famille = "table" | "garde-corps" | "escalier" | "plafond" | "verriere" | "sculpture";
-
-/** Les clés de légende, une par photo — chacune existe dans les deux dictionnaires. */
-type CleLegende =
-  | "altTableMikado"
-  | "altGardeCorpsInterieur"
-  | "altGardeCorpsRue"
-  | "altEscalierSalle"
-  | "altEscalierMarche"
-  | "altSalle"
-  | "altPlafondBeton"
-  | "altLucarneCouleur"
-  | "altHaloSalle"
-  | "altReunion"
-  | "altVerriereSalon"
-  | "altVerriereCroisillon"
-  | "altSculptureCheval"
-  | "altSculptureTorse"
-  | "altVerrierePose"
-  | "altVerrierePoseDetail";
-
-/**
- * Chantiers publiés. Chacun porte sa famille et la clé de sa légende dans le
- * dictionnaire : la légende change donc de langue avec le reste du site.
- * `lien`, quand il existe, mène à la fiche de la pièce posée — pour qu'un
- * visiteur convaincu par une photo puisse configurer la sienne tout de
- * suite.
- * Pour ajouter un chantier : une ligne ici, et la légende dans les deux
- * dictionnaires (realisations.altXxx), en français et en anglais.
- */
-const photos: { src: string; alt: CleLegende; famille: Famille; lien?: string; video?: string; portrait?: boolean }[] = [
-  {
-    src: "/images/mikado/ambiance.jpg",
-    alt: "altTableMikado",
-    famille: "table",
-    lien: "table-mikado",
-  },
-  {
-    src: "/images/garde-corps/fenetre-pose.jpg",
-    alt: "altGardeCorpsInterieur",
-    famille: "garde-corps",
-    lien: "garde-corps",
-  },
-  {
-    src: "/images/garde-corps/fenetre-rue.jpg",
-    alt: "altGardeCorpsRue",
-    famille: "garde-corps",
-    lien: "garde-corps",
-  },
-  {
-    src: "/images/escalier/limon-droit.jpg",
-    alt: "altEscalierSalle",
-    famille: "escalier",
-    lien: "escalier-limon-central",
-  },
-  {
-    src: "/images/escalier/marche-detail.jpg",
-    alt: "altEscalierMarche",
-    famille: "escalier",
-    lien: "escalier-limon-central",
-  },
-  {
-    src: "/images/salle-plafond-mikado.jpg",
-    alt: "altSalle",
-    famille: "plafond",
-    lien: "plafond-lumineux-lucarne",
-  },
-  {
-    src: "/images/salle-plafond-tuile.jpg",
-    alt: "altPlafondBeton",
-    famille: "plafond",
-    lien: "plafond-lumineux-lucarne",
-  },
-  {
-    src: "/images/lumiere/lucarne-rgb.jpg",
-    alt: "altLucarneCouleur",
-    famille: "plafond",
-    lien: "plafond-lumineux-lucarne",
-  },
-  {
-    src: "/images/lumiere/rond-allume.jpg",
-    alt: "altHaloSalle",
-    famille: "plafond",
-    lien: "plafond-lumineux-halo",
-  },
-  {
-    src: "/images/lumiere/salle-ronde.jpg",
-    alt: "altReunion",
-    famille: "plafond",
-    lien: "plafond-lumineux-halo",
-  },
-  {
-    src: "/images/verriere-interieure.jpg",
-    alt: "altVerriereSalon",
-    famille: "verriere",
-    lien: "verrieres",
-  },
-  {
-    src: "/images/verriere-croisillon.jpg",
-    alt: "altVerriereCroisillon",
-    famille: "verriere",
-    lien: "verrieres",
-  },
-  // La pose d'une verrière sur chantier (photos de l'atelier, en portrait) : le travail tel qu'il se fait.
-  { src: "/images/verriere-pose-chantier-2.jpg", alt: "altVerrierePoseDetail", famille: "verriere", lien: "verrieres", portrait: true },
-  { src: "/images/verriere-pose-chantier-4.jpg", alt: "altVerrierePose", famille: "verriere", lien: "verrieres", portrait: true },
-  {
-    src: "/images/sculpture-cheval-v2.jpg",
-    alt: "altSculptureCheval",
-    famille: "sculpture",
-    lien: "sculptures",
-  },
-  {
-    // Une vidéo en boucle : `src` est sa photo d'ouverture.
-    src: "/images/torse-acier-poster.jpg",
-    video: "/videos/torse-acier.mp4",
-    alt: "altSculptureTorse",
-    famille: "sculpture",
-    lien: "sculptures",
-  },
-];
+import { GlobalHeader } from "@/components/global-header";
+import { SiteFooter } from "@/components/site-footer";
+import { Apparition } from "@/components/apparition";
+import { photos, type Famille } from "@/lib/chantiers";
+import { estVraiePhoto } from "@/lib/visuels";
 
 export async function generateMetadata({
   params,
@@ -172,13 +55,100 @@ export default async function RealisationsPage({
   ];
 
   const visibles = filtre ? photos.filter((p) => p.famille === filtre) : photos;
+  /* L'adresse reste /realisations, mais la page dit ce qu'elle montre (décision de Quentin, 06/10/2026) : d'abord les
+     vraies photos — le travail de Quentin, réalisé avant l'ouverture de l'atelier, jamais présenté comme un chantier
+     d'Auboiacier ; puis les modèles en images, chacun marqué « Image
+     d'illustration ». Aucun visuel n'est présenté comme un chantier. La liste des vraies photos : src/lib/visuels.ts. */
+  const vraies = visibles.filter((p) => estVraiePhoto(p.src));
+  const visuels = visibles.filter((p) => !estVraiePhoto(p.src));
 
+  /** Une image et sa légende ; la légende mène à la fiche de la pièce. Deux par rangée : celle de droite arrive un peu
+      après celle de gauche. */
+  // Les deux premières images de la page arrivent en priorité : elles font le premier écran (vitesse d'affichage,
+  // référencement T2 — toutes étaient chargées en différé).
+  const premieres = (vraies.length > 0 ? vraies : visuels).slice(0, 2).map((p) => p.src);
+  const carte = (photo: (typeof photos)[number], i: number) => {
+    const legende = t[photo.alt];
+    const retard = (i % 2) * 110;
+    // Une vidéo n'est pas dans un lien (elle a son bouton pause) : c'est sa légende qui mène à la fiche.
+    if (photo.video) {
+      return (
+        <Apparition key={photo.src} retard={retard}>
+          <figure className="flex flex-col gap-4">
+            <VideoBoucle
+              locale={locale}
+              src={photo.video}
+              poster={photo.src}
+              description={legende}
+              libellePause={dict.sculptures.videoPause}
+              libelleLecture={dict.sculptures.videoPlay}
+              className="aspect-[4/5] w-full rounded-[22px] bg-[#e5ddd3] md:rounded-[26px]"
+            />
+            <figcaption className="text-[15px] leading-[1.45] text-[#5c5140] md:text-[16px]">
+              {photo.lien ? (
+                <Link href={`/${locale}/artisanat/${photo.lien}`} className="underline decoration-[#2b2320]/30 underline-offset-4 hover:text-[#2b2320] hover:decoration-[#2b2320]">
+                  {legende}
+                </Link>
+              ) : (
+                legende
+              )}
+            </figcaption>
+          </figure>
+        </Apparition>
+      );
+    }
+    const figure = (
+      <>
+        <div className={`relative ${photo.portrait ? "aspect-[4/5]" : "aspect-[16/10]"} overflow-hidden rounded-[22px] md:rounded-[26px] ${hoverZoom}`}>
+          <Visuel
+            locale={locale}
+            src={photo.src}
+            alt={legende}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, min(33vw, 560px)"
+            priority={premieres.includes(photo.src)}
+            className="object-cover"
+          />
+        </div>
+        <figcaption className="text-[15px] leading-[1.45] text-[#5c5140] md:text-[16px]">{legende}</figcaption>
+      </>
+    );
+    return (
+      <Apparition key={photo.src} retard={retard}>
+        <figure className="flex flex-col gap-4">
+          {photo.lien ? (
+            <Link href={`/${locale}/artisanat/${photo.lien}`} className="flex flex-col gap-4">
+              {figure}
+            </Link>
+          ) : (
+            figure
+          )}
+        </figure>
+      </Apparition>
+    );
+  };
+
+  // Le menu du site et le pied de page, comme sur les autres pages : sans eux, on ne pouvait plus revenir en arrière
+  // depuis cette page (Quentin, 05/10/2026).
   return (
-    <div className="mx-auto max-w-6xl px-6 py-16">
-      <h1 className={`${serif.className} text-3xl text-[#2b2320] md:text-4xl`}>{t.title}</h1>
-      <p className="mt-2 max-w-xl text-[#5c5140]">{t.subtitle}</p>
+    <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
+    <GlobalHeader locale={locale} dict={dict} />
+    <main id="contenu">
+    <div className="mx-auto max-w-6xl px-6 pb-16 pt-14 md:pb-28 md:pt-24">
+      {/* Le haut de page, façon Apple (Quentin, 06/10/2026) : grand titre, chapô, puis les pastilles de familles. Il monte
+          sans attendre le JavaScript (pas d'<Apparition> au premier écran). */}
+      <div className="entree-monte max-w-3xl" style={{ "--retard": "120ms" } as CSSProperties}>
+        <h1 className={`${serif.className} text-[2.4rem] font-normal leading-[1.03] tracking-[-0.02em] text-[#2b2320] sm:text-[3rem] md:text-[3.8rem]`}>
+          {t.title}
+        </h1>
+        <p className="mt-5 max-w-2xl text-[17px] leading-[1.45] text-[#5c5140] md:mt-6 md:text-[21px]">{t.subtitle}</p>
+      </div>
 
-      <nav className="mt-8 flex flex-wrap gap-3 text-sm" aria-label={t.title}>
+      <nav
+        className="entree-monte mt-9 flex flex-wrap gap-2.5 text-[15px] md:mt-12"
+        style={{ "--retard": "280ms" } as CSSProperties}
+        aria-label={t.title}
+      >
         {filtres.map((choix) => {
           const actif = filtre === choix.valeur;
           return (
@@ -194,8 +164,8 @@ export default async function RealisationsPage({
               aria-current={actif ? "page" : undefined}
               className={
                 actif
-                  ? "rounded-full bg-[#2b2320] px-4 py-2 text-white"
-                  : "rounded-full border border-[#e5ddd3] px-4 py-2 text-[#5c5140] transition-colors hover:border-black hover:text-[#2b2320]"
+                  ? "rounded-full bg-[#1d1d1f] px-4 py-2 font-medium text-white"
+                  : "rounded-full border border-[#e5ddd3] px-4 py-2 text-[#4a4038] transition-colors hover:border-[#1d1d1f] hover:text-[#1d1d1f]"
               }
             >
               {choix.label}
@@ -204,66 +174,32 @@ export default async function RealisationsPage({
         })}
       </nav>
 
-      {visibles.length > 0 ? (
-        <div className="mt-10 grid gap-8 md:grid-cols-2">
-          {visibles.map((photo) => {
-            const legende = t[photo.alt];
-            // Une vidéo n'est pas dans un lien (elle a son bouton pause) : c'est sa légende qui mène à la fiche.
-            if (photo.video) {
-              return (
-                <figure key={photo.src} className="flex flex-col gap-3">
-                  <VideoBoucle
-                    src={photo.video}
-                    poster={photo.src}
-                    description={legende}
-                    libellePause={dict.sculptures.videoPause}
-                    libelleLecture={dict.sculptures.videoPlay}
-                    className="aspect-[4/5] w-full rounded-xl bg-[#e5ddd3]"
-                  />
-                  <figcaption className="text-sm text-[#726757]">
-                    {photo.lien ? (
-                      <Link href={`/${locale}/artisanat/${photo.lien}`} className="underline underline-offset-4 hover:text-[#2b2320]">
-                        {legende}
-                      </Link>
-                    ) : (
-                      legende
-                    )}
-                  </figcaption>
-                </figure>
-              );
-            }
-            const figure = (
-              <>
-                <div className={`relative ${photo.portrait ? "aspect-[4/5]" : "aspect-[16/10]"} overflow-hidden rounded-xl ${hoverZoom}`}>
-                  <Image
-                    src={photo.src}
-                    alt={legende}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 560px"
-                    className="object-cover"
-                  />
-                </div>
-                <figcaption className="text-sm text-[#726757]">{legende}</figcaption>
-              </>
-            );
-            return (
-              <figure key={photo.src} className="flex flex-col gap-3">
-                {photo.lien ? (
-                  <Link href={`/${locale}/artisanat/${photo.lien}`} className="flex flex-col gap-3">
-                    {figure}
-                  </Link>
-                ) : (
-                  figure
-                )}
-              </figure>
-            );
-          })}
-        </div>
-      ) : (
-        <p className="mt-10 leading-relaxed text-[#5c5140]">{t.filterEmpty}</p>
+      {visibles.length === 0 && (
+        <p className="mt-12 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.filterEmpty}</p>
       )}
 
-      <p className="mt-10 text-sm text-[#6f6357]">{t.moreSoon}</p>
+      {vraies.length > 0 && (
+        <section className="mt-12 md:mt-16">
+          <h2 className="surtitre">{t.chantierTitle}</h2>
+          <div className="mt-6 grid gap-x-8 gap-y-12 md:mt-8 md:grid-cols-2 md:gap-y-16 xl:grid-cols-3 min-[1800px]:grid-cols-4">{vraies.map(carte)}</div>
+          <Link href={`/${locale}/a-propos`} className="lien-fleche mt-8 text-[#2b2320]">
+            {t.aproposLien}
+          </Link>
+        </section>
+      )}
+
+      {visuels.length > 0 && (
+        <section className="mt-16 md:mt-24">
+          <h2 className="surtitre">{t.visuelsTitle}</h2>
+          <p className="mt-3 max-w-2xl text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.visuelsNote}</p>
+          <div className="mt-8 grid gap-x-8 gap-y-12 md:mt-10 md:grid-cols-2 md:gap-y-16 xl:grid-cols-3 min-[1800px]:grid-cols-4">{visuels.map(carte)}</div>
+        </section>
+      )}
+
+      <p className="mt-14 text-center text-[15px] text-[#6f6357] md:mt-20">{t.moreSoon}</p>
+    </div>
+    </main>
+    <SiteFooter locale={locale} dict={dict} tone="light" />
     </div>
   );
 }

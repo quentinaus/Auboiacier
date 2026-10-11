@@ -1,4 +1,7 @@
 import "server-only";
+import { posterResend, type ResultatEnvoi } from "./envoi-resend.ts";
+
+export type { ResultatEnvoi };
 
 /**
  * Envoi d'e-mails via Resend.
@@ -13,8 +16,20 @@ export type EmailInput = {
   to: string;
   subject: string;
   text: string;
+  /**
+   * Une version mise en page, en plus du texte (la demande d'avis, pour son
+   * bouton). Le texte reste toujours là : c'est lui que lisent les
+   * messageries qui n'affichent pas le HTML.
+   */
+  html?: string;
   replyTo?: string;
   attachments?: EmailAttachment[];
+  /**
+   * L'en-tête Idempotency-Key de Resend : avec la même clé, le même message
+   * ne part qu'une fois en 24 heures, même demandé deux fois (le réessai
+   * ci-dessous, ou deux passages du cron d'avis en même temps).
+   */
+  idempotencyKey?: string;
 };
 
 /**
@@ -51,45 +66,43 @@ function fromEmail() {
   return from;
 }
 
-export async function sendEmail(input: EmailInput): Promise<boolean> {
+/**
+ * Envoie, et dit ce qu'il en est : "envoye", "refuse" (rien n'est parti) ou
+ * "incertain" (pas de réponse claire, le message a peut-être été envoyé).
+ * La demande d'avis en a besoin : elle ne renvoie jamais un message
+ * « incertain ». Ne lève jamais d'exception.
+ */
+export async function envoyerEmail(input: EmailInput): Promise<ResultatEnvoi> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    console.error("[email] RESEND_API_KEY absente — e-mail non envoyé :", input.subject);
-    return false;
+    // Pas l'objet : il peut porter le nom d'un client, et les journaux ne
+    // doivent contenir aucune donnée personnelle qui n'y soit pas nécessaire.
+    console.error("[email] RESEND_API_KEY absente — e-mail non envoyé.");
+    return "refuse";
+  }
+  let from: string;
+  try {
+    from = fromEmail();
+  } catch {
+    console.error("[email] DEVIS_FROM_EMAIL absente — e-mail non envoyé.");
+    return "refuse";
   }
 
-  const payload = {
-    from: fromEmail(),
-    to: [input.to],
-    reply_to: input.replyTo,
-    subject: input.subject,
-    text: input.text,
-    attachments: input.attachments?.length ? input.attachments : undefined,
-  };
+  return posterResend({
+    apiKey,
+    payload: {
+      from,
+      to: [input.to],
+      reply_to: input.replyTo,
+      subject: input.subject,
+      text: input.text,
+      html: input.html,
+      attachments: input.attachments?.length ? input.attachments : undefined,
+    },
+    cleUnique: input.idempotencyKey,
+  });
+}
 
-  // Un seul réessai : Resend peut renvoyer un 429 ou un 5xx passager.
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      const response = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(10_000),
-      });
-
-      if (response.ok) return true;
-
-      const detail = await response.text().catch(() => "");
-      console.error(`[email] Resend ${response.status} :`, detail.slice(0, 500));
-      // 4xx autre que 429 : inutile de réessayer, la requête est mauvaise.
-      if (response.status !== 429 && response.status < 500) return false;
-    } catch (error) {
-      console.error("[email] échec réseau :", error);
-    }
-  }
-
-  return false;
+export async function sendEmail(input: EmailInput): Promise<boolean> {
+  return (await envoyerEmail(input)) === "envoye";
 }

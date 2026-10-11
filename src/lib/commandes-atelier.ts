@@ -107,9 +107,9 @@ export async function commandesPayees(frais = false): Promise<CommandeAtelier[]>
 
   const payees = sessions.filter((session) => {
     if (session.payment_status !== "paid") return false;
-    // Les prises de cotes ont leur propre écran : elles ne se fabriquent pas.
+    // Les prises de cotes ont leur propre écran : elles ne se fabriquent pas (sauf la visite payée avec un portail : la commande se fabrique).
     const paiement = paiementDe(session);
-    return paiement?.metadata?.type !== PRISE_DE_COTES;
+    return paiement?.metadata?.type !== PRISE_DE_COTES || paiement?.metadata?.avec_commande === "1";
   });
 
   const commandes = await Promise.all(

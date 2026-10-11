@@ -1,4 +1,4 @@
-import { ArtisanatHeader } from "@/components/artisanat-header";
+import { GlobalHeader } from "@/components/global-header";
 import { CompteCadre } from "@/components/compte-cadre";
 import { CompteMenu } from "@/components/compte-menu";
 import { SiteFooter } from "@/components/site-footer";
@@ -24,7 +24,7 @@ export default async function CompteLayout({
 
   return (
     <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
-      <ArtisanatHeader locale={locale} dict={dict} />
+      <GlobalHeader locale={locale} dict={dict} />
       <main id="contenu">
         <CompteCadre
           sansMenu={[`/${locale}/compte/connexion`]}

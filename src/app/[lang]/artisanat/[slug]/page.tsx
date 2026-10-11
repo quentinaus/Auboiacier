@@ -1,31 +1,32 @@
 import type { Metadata } from "next";
 import { compteConfigure } from "@/lib/compte-jetons";
+import { commandesOuvertes } from "@/lib/entreprise";
 import Link from "next/link";
-import Image from "next/image";
+import { FAMILLES_AVEC_PAGE } from "@/lib/categories-collection";
+import { Visuel } from "@/components/visuel";
+import { photosDesSections } from "@/lib/photos-sections";
 import { notFound } from "next/navigation";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../../dictionaries";
-import {
-  devisSurMesure,
-  epaisseurMaxMm,
-  getProduct,
-  products,
-  prixParOutil,
-  productLocalise,
-} from "@/lib/products";
-import { fourchetteGC, prixDepart } from "@/lib/prix-garde-corps.server";
+import { getProduct, products, prixParOutil, productLocalise } from "@/lib/products";
+import { disponibiliteGoogle, fourchetteGoogle, prixAfficheFiche, textePrixDescription } from "@/lib/donnees-google";
+import { fourchetteGC, prixAppelGC, prixDepart } from "@/lib/prix-garde-corps.server";
 import { ProductView } from "@/components/product-view";
+import { PortailConfigurateur } from "@/components/portail-configurateur";
+import { estSlugPortail } from "@/lib/portails";
 import { ProductTail } from "@/components/product-tail";
 import { MembraneAnimee } from "@/components/photo-plafond-anime";
 import {
   metadataPage,
+  descriptionTient,
   jsonLdProduit,
   jsonLdFilAriane,
+  materiauFamille,
   scriptJsonLd,
-  ATELIER,
 } from "@/lib/seo";
 import { serif } from "@/lib/fonts";
 import { hoverZoom, hoverZoomSubtle, prixAffiche } from "@/lib/ui";
+import { Apparition } from "@/components/apparition";
 
 /**
  * Le bandeau « Livraison » d'une pièce qui n'a encore aucun prix (sur devis,
@@ -37,6 +38,17 @@ const LIVRAISON_SUR_DEVIS = {
   fr: "Nous livrons partout en France métropolitaine, par transporteur, 90 € au maximum. Si vous préférez, l'atelier vient livrer et poser la pièce lui-même, sur un seul trajet depuis Saumur. Le prix de la livraison ou de la pose est écrit sur votre devis.",
   en: "We deliver anywhere in mainland France by carrier, €90 at most. If you prefer, the workshop delivers and fits the piece itself, in a single trip from Saumur. The delivery or fitting price is written on your quote.",
 } as const;
+
+/**
+ * Les titres en grand : la ponctuation haute (« ? », « : »…) et l'unité d'une
+ * cote ne partent jamais seules à la ligne (« 230 × 210 cm », « mur à mur ? »).
+ * Le texte ne change pas, seules ces espaces deviennent insécables.
+ */
+const sansVeuve = (texte: string) =>
+  texte
+    .replace(/ ([?!:;»])/g, "\u00a0$1")
+    .replace(/(\d) ([×x]) (\d)/g, "$1\u00a0$2\u00a0$3")
+    .replace(/(\d) (cm|mm|m|km|€|K)(?![\p{L}])/gu, "$1\u00a0$2");
 
 /**
  * Les photos à membrane sont carrées ; les blocs éditoriaux les affichent dans
@@ -70,23 +82,11 @@ export async function generateMetadata({
 
   // Le prix écrit de la même façon dans le résultat de recherche et sur la
   // page : Google affichait « From €2 870 » là où la page disait « 2 870 € ».
-  // Le garde-corps : celui de l'outil de plans, calculé sur le serveur.
-  const depart = prixDepart(product);
-  const depuis =
-    depart === null
-      ? // « Pose comprise » ne vaut que pour une pièce que l'atelier vient
-        // mesurer chez le client avant de la poser (priseDeCotes). Une table
-        // sur devis se livre, la pose y reste en option.
-        product.priseDeCotes
-        ? locale === "fr"
-          ? "Sur devis, pose comprise."
-          : "Price on request, fitting included."
-        : locale === "fr"
-          ? "Sur devis."
-          : "Price on request."
-      : locale === "fr"
-        ? `À partir de ${prixAffiche(depart, locale)}.`
-        : `From ${prixAffiche(depart, locale)}.`;
+  // Et seulement le prix que la fiche affiche (prixAfficheFiche, le même que
+  // ProductView et le JSON-LD), avec ses mots : le garde-corps donne son prix
+  // d'appel, calculé par l'outil sur le serveur ; l'escalier, sans prix sur
+  // sa fiche, « Sur devis, pose comprise. ».
+  const prixFiche = prixAfficheFiche(product, prixAppelGC(product));
   // Le titre porte la pièce, la matière et la ville : c'est ce que les gens
   // tapent. Surtout pas l'accroche commerciale, trop longue pour les soixante
   // signes que Google affiche — elle se faisait couper en plein milieu, et le
@@ -96,10 +96,13 @@ export async function generateMetadata({
     (product.seoMots ? `${product.name} — ${product.seoMots}` : `${product.name} — ${product.tagline}`);
   // Une fiche dont l'accroche est trop longue pour tenir avec le prix et le
   // suffixe donne sa propre description (voir Product.seoDescription) ; le
-  // prix, lui, vient toujours du catalogue.
-  const description = product.seoDescription
-    ? `${product.seoDescription} ${depuis}`
-    : `${product.tagline} ${depuis} ${dict.seo.produitSuffixe}`;
+  // prix, lui, vient toujours du catalogue. Si la phrase de la fiche ne tient
+  // pas dans les 155 signes de Google (il la couperait, prix compris), sa
+  // forme courte : même prix, moins de mots.
+  const assembler = (depuis: string) =>
+    product.seoDescription ? `${product.seoDescription} ${depuis}` : `${product.tagline} ${depuis} ${dict.seo.produitSuffixe}`;
+  const complete = assembler(textePrixDescription(product, prixFiche, locale));
+  const description = descriptionTient(complete) ? complete : assembler(textePrixDescription(product, prixFiche, locale, true));
 
   return metadataPage({
     locale,
@@ -109,12 +112,6 @@ export async function generateMetadata({
     // Une photo carrée se ferait rogner d'un tiers dans un aperçu de partage :
     // les fiches concernées ont leur déclinaison 1200 × 630.
     image: product.imagePartage ?? product.images[0]?.src,
-    motsCles: [
-      `${product.name} ${ATELIER.ville}`,
-      locale === "fr" ? `${product.name} sur mesure` : `made-to-measure ${product.name}`,
-      `${product.name} ${ATELIER.departement}`,
-      ...(product.motsCles ?? []),
-    ],
   });
 }
 
@@ -132,16 +129,57 @@ export default async function ProductPage({
   // accroche, blocs descriptifs, caractéristiques, tailles et matières.
   const product = productLocalise(fiche, locale);
 
-  // On reste dans le même univers : une lumière ne renvoie pas vers une table.
+  /** Une carte de « Autres pièces de l'atelier » : une fiche, ou une page (les verrières). */
+  type Carte = {
+    href: string;
+    nom: string;
+    image?: { src: string; alt: string; bg?: string; fit?: "cover" | "contain"; position?: string };
+    prix: string;
+  };
+  const carteFiche = (p: (typeof products)[number]): Carte => {
+    const fichePlus = productLocalise(p, locale);
+    const depart = prixDepart(fichePlus);
+    // Le garde-corps : le même prix d'appel que sa fiche (« dès 300 € pour une fenêtre de 100 cm »).
+    const appel = prixAppelGC(fichePlus);
+    return {
+      href: `/${locale}/artisanat/${fichePlus.slug}`,
+      nom: fichePlus.name,
+      image: fichePlus.images[0],
+      prix: appel
+        ? locale === "fr"
+          ? `Dès ${prixAffiche(appel.prix, locale)} pour une fenêtre de ${appel.largeurMm / 10}\u00a0cm`
+          : `From ${prixAffiche(appel.prix, locale)} for a ${appel.largeurMm / 10} cm window`
+        : depart === null
+          ? t.onQuote
+          : `${t.from} ${prixAffiche(depart, locale)}`,
+    };
+  };
+  // Le garde-corps et l'escalier renvoient l'un vers l'autre, puis vers les
+  // verrières : trois ouvrages du bâtiment, mesurés et posés par l'atelier.
+  // Ailleurs, on reste dans le même univers : une lumière ne renvoie pas vers
+  // une table.
+  const ouvrage = product.famille === "garde-corps" || product.famille === "escalier";
+  const qualite = (t.qualiteFamille as unknown as Record<string, { t: string; d: string }[] | undefined>)[product.famille];
+  const pourquoi = (t.pourquoiPrix as unknown as Record<string, { intro: string; points: { t: string; d: string }[] } | string | undefined>)[product.famille] as { intro: string; points: { t: string; d: string }[] } | undefined;
   const memeUnivers = products.filter(
     (p) => p.slug !== product.slug && p.category === product.category
   );
-  const related = (memeUnivers.length > 0
-    ? memeUnivers
-    : products.filter((p) => p.slug !== product.slug)
-  )
-    .slice(0, 3)
-    .map((p) => productLocalise(p, locale));
+  const related: Carte[] = ouvrage
+    ? [
+        ...products
+          .filter((p) => p.slug !== product.slug && (p.famille === "garde-corps" || p.famille === "escalier"))
+          .map(carteFiche),
+        {
+          href: `/${locale}/artisanat/verrieres`,
+          nom: dict.verrieres.title,
+          image: { src: "/images/verriere-interieure.jpg", alt: dict.verrieres.photoAlt, fit: "cover" as const, position: "50% 45%" },
+          prix: t.onQuote,
+        },
+      ].slice(0, 3)
+    : (memeUnivers.length > 0 ? memeUnivers : products.filter((p) => p.slug !== product.slug))
+        // Quatre sur grand écran (une rangée pleine), trois en dessous : la grille se règle sur le nombre de cartes.
+        .slice(0, 4)
+        .map(carteFiche);
   /** La lumière a sa propre boutique : le fil d'Ariane y ramène. */
   const boutique =
     product.category === "lumiere" ? `/${locale}/toiles-tendues` : `/${locale}/artisanat`;
@@ -149,7 +187,68 @@ export default async function ProductPage({
   // même page dans tout le site, sinon Google voit deux fils d'Ariane différents.
   const categorie =
     product.category === "lumiere" ? dict.hub.lightingLabel : t.breadcrumbShop;
+  // Les tables ont leur page : Accueil > La collection > Tables > le modèle.
+  const estTable = product.famille === "table-interieur" || product.famille === "table-exterieur";
+
+  /** « À voir aussi » : les pages qui complètent cette fiche. */
+  const liensUtiles: { href: string; label: string }[] = [
+    ...(estTable ? [{ href: `/${locale}/artisanat/tables`, label: dict.liens.toutesTables }] : []),
+    // Le garde-corps de fenêtre : la règle (hauteur, vides) et des exemples calculés, sur leur propre page.
+    ...(product.famille === "garde-corps"
+      ? [{ href: `/${locale}/garde-corps-fenetre-normes`, label: dict.liens.normesGc }]
+      : []),
+    // Comment l'outil vérifie chaque dessin pour la fenêtre (référencement, lot L9).
+    ...(product.famille === "garde-corps"
+      ? [{ href: `/${locale}/artisanat/verification-garde-corps`, label: dict.liens.verificationGc }]
+      : []),
+    // Les garde-corps de balcon et de terrasse, sur devis : leur page (référencement, 07/10/2026).
+    ...(product.famille === "garde-corps"
+      ? [
+          {
+            href: `/${locale}/garde-corps-balcon-terrasse`,
+            label: locale === "fr" ? "Garde-corps de balcon et de terrasse" : "Balcony and terrace railings",
+          },
+        ]
+      : []),
+    // Les portails : la page « portail sur mesure à Saumur » (choisir le type, alu ou acier, pose, délai), 10/10/2026.
+    ...(product.famille === "portail"
+      ? [
+          {
+            href: `/${locale}/portail-sur-mesure-saumur`,
+            label: locale === "fr" ? "Portail sur mesure à Saumur : bien choisir" : "Bespoke gates in Saumur: how to choose",
+          },
+        ]
+      : []),
+    // L'escalier : ses prix par forme et par essence, et ses normes, sur le guide (référencement, 07/10/2026).
+    ...(product.famille === "escalier"
+      ? [
+          {
+            href: `/${locale}/escalier-limon-central-prix-normes`,
+            label: locale === "fr" ? "Escalier à limon central : prix et normes" : "Steel spine staircase: prices and rules",
+          },
+        ]
+      : []),
+    // Les deux tables Mikado se renvoient l'une à l'autre (référencement, 10/10/2026).
+    ...(product.slug === "table-mikado"
+      ? [{ href: `/${locale}/artisanat/table-mikado-exterieur`, label: locale === "fr" ? "Table Mikado Extérieur, pour le jardin" : "Mikado Outdoor table, for the garden" }]
+      : []),
+    ...(product.slug === "table-mikado-exterieur"
+      ? [{ href: `/${locale}/artisanat/table-mikado`, label: locale === "fr" ? "Table Mikado, pour l'intérieur" : "Mikado table, for indoors" }]
+      : []),
+    ...(estTable || ouvrage ? [{ href: `/${locale}/bois-massif`, label: dict.liens.boisLong }] : []),
+    ...(product.category === "lumiere"
+      ? [
+          { href: `/${locale}/toiles-tendues`, label: dict.liens.plafonds },
+          { href: `/${locale}/toiles-tendues#plafond-tendu`, label: dict.liens.plafondTendu },
+        ]
+      : []),
+    ...(ouvrage || product.category === "lumiere"
+      ? [{ href: `/${locale}/zone-intervention`, label: dict.liens.zonePose }]
+      : []),
+  ];
   const hasImages = product.images.length > 0;
+  /** Le titre d'une section sous la fiche, le même dessin que sur l'accueil. */
+  const titreSection = `${serif.className} text-balance text-[2rem] leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.5rem] md:text-[3rem]`;
 
   /** Images des blocs éditoriaux : on pioche dans les coloris pour ne pas répéter la même photo. */
   const sectionImages: {
@@ -166,67 +265,50 @@ export default async function ProductPage({
       .filter((f) => f.image && !product.images.some((img) => img.src === f.image))
       .map((f) => ({ src: f.image as string, alt: `${product.name} — ${f.label}` })),
   ];
+  /** La photo de chaque section : aucune ne revient deux fois (src/lib/photos-sections.ts). */
+  const photosSections = photosDesSections(product.sections, sectionImages);
 
   /** Achetable en ligne : le bas de page renvoie alors au bouton d'achat. */
   const achetable = product.orderMode === "cart";
 
   /**
-   * La fourchette annoncée à Google doit couvrir ce qu'on vend réellement :
-   * les tailles du catalogue, mais aussi le choix de l'essence et le sur-mesure.
-   * Elle disait 2 310 – 5 190 € pour une table qui part à 950 € en sur-mesure
-   * et monte à près de 14 000 € en noyer épais.
+   * Ce que Google reçoit (src/lib/donnees-google.ts) : le prix que la fiche
+   * affiche (prixAfficheFiche, le même calcul que ProductView), sinon aucune
+   * offre — et alors aucun bloc Product, que Google jugerait non valide. La
+   * disponibilité n'est envoyée que lorsque le panier encaisse. Le garde-corps
+   * a le haut de sa fourchette, calculé par l'outil.
    */
-  const ecartsBois = product.woods.map((bois) => bois.priceDelta ?? 0);
-  const boisMin = ecartsBois.length ? Math.min(...ecartsBois) : 0;
-  const boisMax = ecartsBois.length ? Math.max(...ecartsBois) : 0;
-  const bareme = product.surMesure;
-  const devisMin = bareme
-    ? devisSurMesure(product, bareme.minMm, bareme.minMm)
-    : null;
-  const devisMax = bareme
-    ? devisSurMesure(
-        product,
-        bareme.maxLargeurMm,
-        bareme.maxHauteurMm,
-        epaisseurMaxMm(bareme, bareme.maxLargeurMm, bareme.maxHauteurMm)
-      )
-    : null;
+  const prixAppel = prixAppelGC(product);
+  const fourchette = fourchetteGoogle(product, prixAfficheFiche(product, prixAppel), prixParOutil(product) ? fourchetteGC(product.slug) : null);
+  const disponibilite = disponibiliteGoogle({ achetable, ouvert: commandesOuvertes() });
+  /** Une pièce sans aucun prix au catalogue (bandeau « Livraison » plus bas). */
   const prixDepartFiche = prixDepart(product);
-  const prixMin = Math.min(
-    prixDepartFiche ?? Number.POSITIVE_INFINITY,
-    devisMin?.ok ? devisMin.prix + boisMin : Number.POSITIVE_INFINITY
-  );
-  const prixMax = Math.max(
-    product.sizes.length ? Math.max(...product.sizes.map((taille) => taille.price)) + boisMax : 0,
-    devisMax?.ok ? devisMax.prix + boisMax : 0
-  );
-  // Une pièce sur devis sans prix d'appel n'annonce aucune fourchette à
-  // Google : mieux vaut pas d'offre qu'une offre inventée. Le garde-corps a
-  // la sienne, calculée par l'outil de plans.
-  const fourchette = prixParOutil(product)
-    ? (fourchetteGC() ?? undefined)
-    : Number.isFinite(prixMin) && prixMax > 0
-      ? { prixMin, prixMax }
-      : undefined;
 
   return (
     <div>
       {/* Fiche produit et fil d'Ariane pour les moteurs : c'est ce qui fait
-          apparaître le prix et le fil de navigation dans les résultats. */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={scriptJsonLd(
-          jsonLdProduit({
-            locale,
-            chemin: `/artisanat/${product.slug}`,
-            nom: product.name,
-            description: `${product.tagline} ${product.sections[0]?.body ?? ""}`.trim(),
-            images: product.images.map((img) => img.src),
-            fourchette,
-            achetable: product.orderMode === "cart",
-          })
-        )}
-      />
+          apparaître le prix et le fil de navigation dans les résultats. Pas de
+          prix affiché sur la fiche : pas de bloc Product, le fil seulement. */}
+      {fourchette && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={scriptJsonLd(
+            jsonLdProduit({
+              locale,
+              chemin: `/artisanat/${product.slug}`,
+              nom: product.name,
+              // La description Google de la fiche (seoDescription), plutôt que le premier bloc : il disait « chêne
+              // massif » quand le prix bas est en pin (référencement, 3.5).
+              description: product.seoDescription ?? `${product.tagline} ${product.sections[0]?.body ?? ""}`.trim(),
+              sku: product.slug,
+              materiau: materiauFamille(product.famille, locale),
+              images: product.images.map((img) => img.src),
+              fourchette,
+              disponibilite,
+            })
+          )}
+        />
+      )}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={scriptJsonLd(
@@ -238,6 +320,7 @@ export default async function ProductPage({
               nom: categorie,
               chemin: product.category === "lumiere" ? "/toiles-tendues" : "/artisanat",
             },
+            ...(estTable ? [{ nom: dict.tables.title, chemin: "/artisanat/tables" }] : []),
             { nom: product.name, chemin: `/artisanat/${product.slug}` },
           ])
         )}
@@ -246,8 +329,20 @@ export default async function ProductPage({
       {/* 1. Fiche : galerie pleine hauteur + colonne d'options, bord à bord.
           Ancre « acheter » : c'est ici que remonte le bouton du bas de page. */}
       <div id="acheter" className="scroll-mt-0">
+        {product.famille === "portail" && estSlugPortail(product.slug) ? (
+          // Les portails : le client compose son portail par blocs, dessin de l'outil, prix du serveur.
+          <PortailConfigurateur
+            slug={product.slug}
+            locale={locale}
+            nom={product.name}
+            image={product.images[0]?.src}
+            tVisite={t}
+            filAriane={{ label: dict.nav.breadcrumb, etapes: [{ nom: dict.nav.home, href: `/${locale}` }, { nom: categorie, href: boutique }] }}
+          />
+        ) : (
         <ProductView
           compteOuvert={compteConfigure()}
+          prixAppel={prixAppel}
           product={product}
           t={t}
           locale={locale}
@@ -256,163 +351,223 @@ export default async function ProductPage({
             etapes: [
               { nom: dict.nav.home, href: `/${locale}` },
               { nom: categorie, href: boutique },
+              ...(estTable ? [{ nom: dict.tables.title, href: `/${locale}/artisanat/tables` }] : []),
             ],
           }}
         />
+        )}
       </div>
 
-      <div className="mx-auto max-w-6xl px-6 py-6 md:py-8">
+      {/* Sous la fiche, façon Apple (Quentin, 06/10/2026 : « plus premium, moins IA ») : de grands titres, des textes
+          lisibles, des sections qui respirent, blanc et papier en alternance comme sur l'accueil. */}
+      <div className="mx-auto max-w-6xl px-6 py-16 md:py-28">
         {/* 2. Blocs éditoriaux */}
-        <div className="mt-16 flex flex-col gap-16 md:mt-24 md:gap-24">
-          {product.sections.map((section, i) =>
-            hasImages ? (
-              <div key={section.title} className="grid items-center gap-10 md:grid-cols-2 md:gap-16">
-                <div className={i % 2 === 1 ? "md:order-2" : ""}>
+        <div className="flex flex-col gap-20 md:gap-32">
+          {product.sections.map((section, i) => {
+            // Une photo par section, jamais deux fois la même sur la fiche ; sans photo libre, la carte texte seul.
+            const choix = hasImages ? photosSections[i] : null;
+            const photo = choix && "photo" in choix ? choix.photo : null;
+            const src = choix ? ("propre" in choix ? choix.propre : choix.photo.src) : null;
+            return src ? (
+              <div key={section.title} className="grid items-center gap-10 md:grid-cols-2 md:gap-16 lg:gap-20">
+                <Apparition className={i % 2 === 1 ? "md:order-2" : ""}>
                   {/* Une photo de studio (fond uni) se montre entière dans le
                       cadre ; une photo d'ambiance le remplit. */}
                   <div
-                    className={`relative aspect-[4/3] overflow-hidden rounded-xl ${hoverZoomSubtle}`}
-                    style={{ backgroundColor: section.image ? "#ffffff" : (sectionImages[(i + 1) % sectionImages.length].bg ?? "#ffffff") }}
+                    className={`relative aspect-[4/3] overflow-hidden rounded-[24px] ${hoverZoomSubtle}`}
+                    style={{ backgroundColor: photo ? (photo.bg ?? "#ffffff") : "#ffffff" }}
                   >
-                    <Image
-                      src={section.image ?? sectionImages[(i + 1) % sectionImages.length].src}
-                      alt={section.image ? section.title : sectionImages[(i + 1) % sectionImages.length].alt}
+                    <Visuel
+                      locale={locale}
+                      src={src}
+                      alt={photo ? photo.alt : section.title}
                       fill
-                      sizes="(max-width: 768px) 100vw, 560px"
-                      className={
-                        !section.image && sectionImages[(i + 1) % sectionImages.length].fit === "contain"
-                          ? "object-contain p-4"
-                          : "object-cover"
-                      }
+                      sizes="(max-width: 768px) 100vw, min(50vw, 840px)"
+                      className={photo?.fit === "contain" ? "object-contain p-4" : "object-cover"}
                     />
-                    {(() => {
-                      if (section.image) return null;
-                      const glow = sectionImages[(i + 1) % sectionImages.length].glow;
-                      if (!glow) return null;
-                      return <MembraneAnimee box={membraneEn43(glow.box)} clip={glow.clip} />;
-                    })()}
+                    {photo?.glow && <MembraneAnimee box={membraneEn43(photo.glow.box)} clip={photo.glow.clip} />}
                   </div>
-                </div>
-                <div>
-                  <h2 className={`${serif.className} text-2xl text-[#2b2320]`}>{section.title}</h2>
-                  <p className="mt-4 leading-relaxed text-[#4a4038]">{section.body}</p>
-                </div>
+                </Apparition>
+                <Apparition retard={110}>
+                  <h2 className={`${serif.className} text-balance text-[2rem] leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.5rem] md:text-[2.1rem] lg:text-[2.5rem]`}>
+                    {sansVeuve(section.title)}
+                  </h2>
+                  <p className="mt-5 text-[16px] leading-[1.55] text-[#4a4038] md:mt-6 md:text-[17px]">{section.body}</p>
+                </Apparition>
               </div>
             ) : (
-              <div key={section.title} className="rounded-2xl bg-[#f5f1ea] px-8 py-14 md:px-16">
+              <Apparition key={section.title} className="rounded-[28px] bg-[#f5f1ea] px-6 py-14 sm:px-10 md:px-16 md:py-20">
                 <div className="mx-auto max-w-2xl text-center">
-                  <h2 className={`${serif.className} text-2xl text-[#2b2320]`}>{section.title}</h2>
-                  <p className="mt-4 leading-relaxed text-[#4a4038]">{section.body}</p>
+                  <h2 className={titreSection}>{sansVeuve(section.title)}</h2>
+                  <p className="mt-6 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{section.body}</p>
                 </div>
-              </div>
-            )
-          )}
+              </Apparition>
+            );
+          })}
         </div>
       </div>
 
       {/* 3. Artisanat français */}
-      <section className="mt-24 bg-[#2b2320] px-6 py-20 text-white">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className={`${serif.className} text-3xl`}>{t.craftBandTitle}</h2>
-          <p className="mt-5 leading-relaxed text-white/85">{t.craftBandBody}</p>
-        </div>
+      <section className="bg-[#2b2320] px-6 py-16 text-white md:py-28">
+        <Apparition className="mx-auto max-w-3xl text-center">
+          <h2 className={`${serif.className} text-balance text-[2rem] leading-[1.05] tracking-[-0.018em] sm:text-[2.5rem] md:text-[3rem]`}>
+            {sansVeuve(t.craftBandTitle)}
+          </h2>
+          <p className="mx-auto mt-6 max-w-2xl text-[17px] leading-[1.5] text-white/85 md:text-[19px]">{t.craftBandBody}</p>
+        </Apparition>
+        {qualite ? (
+          <Apparition className="mx-auto mt-14 max-w-5xl">
+            <h3 className="text-center text-[12px] font-semibold uppercase tracking-[0.2em] text-white/60">{t.qualiteFamille.intro}</h3>
+            <ul className="mt-8 grid gap-x-12 gap-y-8 text-left sm:grid-cols-2">
+              {qualite.map((point) => (
+                <li key={point.t}>
+                  <h4 className={`${serif.className} text-[1.35rem] leading-[1.15] tracking-[-0.01em]`}>{point.t}</h4>
+                  <p className="mt-2 text-[15.5px] leading-[1.55] text-white/80">{point.d}</p>
+                </li>
+              ))}
+            </ul>
+          </Apparition>
+        ) : null}
       </section>
 
+      {/* 3 bis. Pourquoi ce prix : la valeur expliquée au client */}
+      {pourquoi ? (
+        <section className="bg-[#fbf9f6] px-6 py-16 md:py-24">
+          <Apparition className="mx-auto max-w-5xl">
+            <h2 className={`${serif.className} text-balance text-center text-[2rem] leading-[1.05] tracking-[-0.018em] text-[#2b2320] sm:text-[2.5rem]`}>
+              {sansVeuve(t.pourquoiPrix.titre)}
+            </h2>
+            <p className="mx-auto mt-6 max-w-2xl text-center text-[17px] leading-[1.55] text-[#4a4038]">{pourquoi.intro}</p>
+            <ul className="mt-12 grid gap-x-12 gap-y-9 sm:grid-cols-2">
+              {pourquoi.points.map((point) => (
+                <li key={point.t}>
+                  <h3 className={`${serif.className} text-[1.35rem] leading-[1.15] tracking-[-0.01em] text-[#2b2320]`}>{point.t}</h3>
+                  <p className="mt-2 text-[15.5px] leading-[1.6] text-[#4a4038]">{point.d}</p>
+                </li>
+              ))}
+            </ul>
+          </Apparition>
+        </section>
+      ) : null}
+
       {/* 4. Livraison */}
-      <section className="bg-[#f5f1ea] px-6 py-20">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className={`${serif.className} text-2xl text-[#2b2320] md:text-3xl`}>
-            {t.deliveryTitle}
-          </h2>
-          <p className="mt-5 leading-relaxed text-[#4a4038]">
+      <section className="bg-[#f5f1ea] px-6 py-16 md:py-28">
+        <Apparition className="mx-auto max-w-3xl text-center">
+          <h2 className={titreSection}>{sansVeuve(t.deliveryTitle)}</h2>
+          <p className="mx-auto mt-6 max-w-2xl text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">
             {prixDepartFiche === null && !product.priseDeCotes
               ? LIVRAISON_SUR_DEVIS[locale]
               : t.deliveryBody}
           </p>
-        </div>
+        </Apparition>
       </section>
 
       <div className="mx-auto max-w-6xl px-6">
-        {/* 5. Descriptif */}
-        <section id="descriptif" className="scroll-mt-24 pt-20">
-          <h2 className={`${serif.className} text-xl text-[#2b2320]`}>{t.descriptifTitle}</h2>
-          <dl className="mt-6 max-w-2xl divide-y divide-[#e8e1d8] border-t border-[#e8e1d8]">
-            {product.specs.map((spec) => (
-              <div key={spec.label} className="grid gap-1 py-4 sm:grid-cols-[11rem_1fr]">
-                <dt className="text-sm text-[#726757]">{spec.label}</dt>
-                <dd className="text-sm leading-relaxed text-[#2b2320]">{spec.value}</dd>
-              </div>
-            ))}
-          </dl>
+        {/* 5. Descriptif : sur grand écran, le titre et les pages utiles à gauche, les caractéristiques à droite. */}
+        <section
+          id="descriptif"
+          className="grid scroll-mt-24 gap-8 py-16 md:py-28 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:grid-rows-[auto_1fr] lg:gap-x-16 lg:gap-y-8"
+        >
+          <Apparition className="lg:col-start-1 lg:row-start-1">
+            <h2 className={titreSection}>{t.descriptifTitle}</h2>
+          </Apparition>
+          <Apparition retard={110} className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+            <dl className="divide-y divide-[#e8e1d8] border-y border-[#e8e1d8]">
+              {product.specs.map((spec) => (
+                <div key={spec.label} className="grid gap-1 py-5 sm:grid-cols-[11rem_1fr] sm:gap-6">
+                  <dt className="text-[15px] text-[#6f6357] md:text-[16px]">{spec.label}</dt>
+                  <dd className="text-[16px] leading-[1.55] text-[#2b2320] md:text-[17px]">{spec.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </Apparition>
+          {liensUtiles.length > 0 && (
+            <nav
+              aria-label={dict.liens.titre}
+              className="flex flex-wrap gap-x-8 gap-y-2 lg:col-start-1 lg:row-start-2 lg:flex-col lg:items-start lg:self-start"
+            >
+              {liensUtiles.map((l) => (
+                <Link key={l.href} href={l.href} className="lien-fleche py-1 text-[#2b2320]">
+                  {l.label}
+                </Link>
+              ))}
+            </nav>
+          )}
         </section>
 
         {/* 6. Délai */}
-        <section className="mt-20 border-t border-[#e8e1d8] pt-16 text-center">
-          <h2 className={`${serif.className} text-2xl text-[#2b2320]`}>{t.delaiTitle}</h2>
-          <p className="mx-auto mt-4 max-w-2xl leading-relaxed text-[#4a4038]">{t.delaiBody}</p>
-          {/* Le bouton doit tenir sa promesse : une pièce du catalogue remonte
-              au choix des dimensions et au bouton d'achat ; une pièce qui ne se
-              vend que sur devis mène au formulaire de contact. */}
-          <Link
-            href={achetable ? "#acheter" : `/${locale}/contact?produit=${product.slug}`}
-            className="btn-verre mt-8 inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
-          >
-            {achetable ? t.delaiCta : t.delaiCtaDevis}
-          </Link>
+        <section className="border-t border-[#e8e1d8] pt-16 text-center md:pt-28">
+          <Apparition className="mx-auto max-w-3xl">
+            <h2 className={titreSection}>{sansVeuve(t.delaiTitle)}</h2>
+            <p className="mx-auto mt-6 max-w-2xl text-[17px] leading-[1.5] text-[#4a4038] md:text-[19px]">{t.delaiBody}</p>
+            {/* Le bouton doit tenir sa promesse : une pièce du catalogue remonte
+                au choix des dimensions et au bouton d'achat ; une pièce qui ne se
+                vend que sur devis mène au formulaire de contact. */}
+            <Link
+              href={achetable ? "#acheter" : `/${locale}/contact?produit=${product.slug}`}
+              className="btn-plein mt-10"
+            >
+              {achetable ? t.delaiCta : t.delaiCtaDevis}
+            </Link>
+          </Apparition>
         </section>
-
       </div>
 
-      <ProductTail dict={dict} locale={locale} testimonial={product.testimonial} />
+      <ProductTail
+        dict={dict}
+        locale={locale}
+        testimonial={product.testimonial}
+        lumiere={product.category === "lumiere"}
+      />
 
       <div className="mx-auto max-w-6xl px-6">
         {/* 11. Vous aimerez aussi */}
         {related.length > 0 && (
-          <div className="border-t border-[#e8e1d8] py-16 pb-24">
-            <h2 className={`${serif.className} text-xl text-[#2b2320]`}>{t.relatedTitle}</h2>
-            <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {related.map((p) => (
-                <Link
-                  key={p.slug}
-                  href={`/${locale}/artisanat/${p.slug}`}
-                  className="group flex flex-col gap-3"
-                >
-                  <div
-                    className={`relative aspect-[4/3] overflow-hidden rounded-xl ${hoverZoom}`}
-                    style={{ backgroundColor: p.images[0]?.bg ?? "#ffffff" }}
-                  >
-                    {p.images[0] ? (
-                      <Image
-                        src={p.images[0].src}
-                        alt={p.images[0].alt}
-                        fill
-                        sizes="(max-width: 640px) 100vw, 33vw"
-                        className={
-                          p.images[0].fit === "contain" ? "object-contain p-4" : "object-cover"
-                        }
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-[#f1ece4] p-6">
-                        <span className={`${serif.className} text-center text-2xl text-[#726757]`}>
-                          {p.name}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <h3 className={`${serif.className} text-lg text-[#2b2320]`}>{p.name}</h3>
-                    <p className="mt-1 text-sm text-[#726757]">
-                      {prixDepart(p) === null
-                        ? t.onQuote
-                        : `${t.from} ${prixAffiche(prixDepart(p) as number, locale)}`}
-                    </p>
-                  </div>
-                </Link>
+          <div className="border-t border-[#e8e1d8] py-16 md:py-28">
+            <Apparition>
+              <h2 className={titreSection}>{t.relatedTitle}</h2>
+            </Apparition>
+            <div className={`mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 md:mt-14 lg:grid-cols-3 ${related.length > 3 ? "xl:grid-cols-4" : ""}`}>
+              {related.map((carte, i) => (
+                <Apparition key={carte.href} retard={(i % 4) * 110}>
+                  <Link href={carte.href} className="group flex flex-col gap-5">
+                    <div
+                      className={`relative aspect-[4/3] overflow-hidden rounded-[22px] ${hoverZoom}`}
+                      style={{ backgroundColor: carte.image?.bg ?? "#ffffff" }}
+                    >
+                      {carte.image ? (
+                        <Visuel
+                          locale={locale}
+                          src={carte.image.src}
+                          alt={carte.image.alt}
+                          fill
+                          sizes="(max-width: 640px) 100vw, 33vw"
+                          style={carte.image.position ? { objectPosition: carte.image.position } : undefined}
+                          className={
+                            carte.image.fit === "contain" ? "object-contain p-4" : "object-cover"
+                          }
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-[#f1ece4] p-6">
+                          <span className={`${serif.className} text-center text-2xl text-[#5c5140]`}>
+                            {carte.nom}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h3 className={`${serif.className} text-[1.4rem] leading-[1.12] tracking-[-0.01em] text-[#2b2320] md:text-[1.7rem]`}>
+                        {carte.nom}
+                      </h3>
+                      <p className="mt-2 text-[16px] text-[#5c5140] md:text-[17px]">{carte.prix}</p>
+                    </div>
+                  </Link>
+                </Apparition>
               ))}
             </div>
             <Link
-              href={`/${locale}/artisanat`}
-              className="mt-10 inline-block text-sm text-[#726757] hover:text-[#2b2320]"
+              href={FAMILLES_AVEC_PAGE.includes(product.famille) ? `/${locale}/artisanat/famille/${product.famille}` : `/${locale}/artisanat`}
+              className="mt-12 inline-block py-1 text-[16px] font-medium text-[#2b2320] hover:underline hover:underline-offset-4 md:text-[17px]"
             >
               {t.backToCatalogue}
             </Link>

@@ -1,6 +1,6 @@
 // Chemins relatifs, pas l'alias « @/ » : les tests (node --test) chargent ce
 // fichier directement, sans le compilateur de Next.
-import { BORNES_RELEVE_GC, lireModeleGC } from "./garde-corps.ts";
+import { BORNES_MUR_GC, BORNES_RELEVE_GC, estMurFixationGC, lireDecorGC, lireModeleGC, type MurFixationGC } from "./garde-corps.ts";
 import { MATIERES_MUR } from "./murs-gc.ts";
 
 /**
@@ -50,6 +50,8 @@ export type ConfigMemo = {
    * de l'atelier (BORNES_RELEVE_GC).
    */
   gcLargeurMm?: number;
+  /** La largeur mesurée en haut, vers 1 m du sol (gcLargeurMm : celle d'en bas). Absente d'une mémoire plus ancienne. */
+  gcLargeurHautMm?: number;
   gcAllegeMm?: number;
   gcFenetreMm?: number;
   /** true : en étage ; false : au rez-de-chaussée. Absent : le client ne l'a pas dit, et on ne le dit jamais à sa place. */
@@ -58,22 +60,41 @@ export type ConfigMemo = {
   gcMur?: string;
   /** Le modèle choisi (« 16-5-b »), tel que lireModeleGC le reconnaît. */
   gcModele?: string;
+  /** Le décor à volutes choisi (« frise.S.bouton.soudure.carre.aucune.0 »), tel que lireDecorGC le reconnaît. */
+  gcDecor?: string;
+  /**
+   * Le mur des tableaux POUR LA FIXATION (un code de MURS_FIXATION_GC : « beton », « tuffeau »…) et ses cotes en mm — la
+   * fixation entre dans le prix. Distinct de gcMur, la matière que le croquis dessine. Les cotes ne vont jamais sans le mur.
+   */
+  gcMurFixation?: MurFixationGC;
+  gcTMurMm?: number;
+  gcEMurMm?: number;
 };
 
 /** Les champs du relevé du garde-corps dans la mémoire. */
 export type ReleveGcMemo = Pick<
   ConfigMemo,
-  "gcLargeurMm" | "gcAllegeMm" | "gcFenetreMm" | "gcEnEtage" | "gcMur" | "gcModele"
+  "gcLargeurMm" | "gcLargeurHautMm" | "gcAllegeMm" | "gcFenetreMm" | "gcEnEtage" | "gcMur" | "gcModele" | "gcDecor" | "gcMurFixation" | "gcTMurMm" | "gcEMurMm"
 >;
 
 /** Les cases du relevé, telles que le client les tape (CotesGardeCorps, releve-garde-corps.tsx). */
 type CasesReleveGc = {
   etage: string;
   largeur: string;
+  /** La largeur en haut (murs pas parallèles) : facultative ici, une saisie plus ancienne ne l'a pas. */
+  largeurHaut?: string;
+  /** Les murs ne sont pas droits : seulement alors la largeur du haut compte (releve-garde-corps.tsx). */
+  mursInegaux?: boolean;
   allege: string;
   fenetre: string;
   mur: string;
   modele?: string;
+  /** Le décor à volutes (idDecorGC) : facultatif, une saisie plus ancienne ne l'a pas. */
+  decor?: string;
+  /** Le mur pour la fixation (un code de MURS_FIXATION_GC), et ses cotes telles que tapées : facultatifs. */
+  murFixation?: string;
+  tMur?: string;
+  eMur?: string;
 };
 
 /** Les mots du dictionnaire dont la mémoire a besoin. Le premier de gcEtageOptions est « en étage » (voir lireReleve). */
@@ -97,11 +118,17 @@ export function lireReleveGcMemo(o: Record<string, unknown>): ReleveGcMemo {
     typeof v === "number" && Number.isInteger(v) && v >= borne.min && v <= borne.max ? v : undefined;
   return {
     gcLargeurMm: mm(o.gcLargeurMm, BORNES_RELEVE_GC.largeurMm),
+    gcLargeurHautMm: mm(o.gcLargeurHautMm, BORNES_RELEVE_GC.largeurMm),
     gcAllegeMm: mm(o.gcAllegeMm, BORNES_RELEVE_GC.allegeMm),
     gcFenetreMm: mm(o.gcFenetreMm, BORNES_RELEVE_GC.fenetreMm),
     gcEnEtage: typeof o.gcEnEtage === "boolean" ? o.gcEnEtage : undefined,
     gcMur: texte(o.gcMur) || undefined,
     gcModele: typeof o.gcModele === "string" && lireModeleGC(o.gcModele) ? o.gcModele : undefined,
+    gcDecor: typeof o.gcDecor === "string" && lireDecorGC(o.gcDecor) ? o.gcDecor : undefined,
+    // Le mur de la fixation : un code de la liste de l'outil ; ses cotes, dans leurs bornes, et seulement avec lui.
+    gcMurFixation: estMurFixationGC(o.gcMurFixation) ? o.gcMurFixation : undefined,
+    gcTMurMm: estMurFixationGC(o.gcMurFixation) ? mm(o.gcTMurMm, BORNES_MUR_GC.tMurMm) : undefined,
+    gcEMurMm: estMurFixationGC(o.gcMurFixation) ? mm(o.gcEMurMm, BORNES_MUR_GC.eMurMm) : undefined,
   };
 }
 
@@ -112,18 +139,24 @@ export function lireReleveGcMemo(o: Record<string, unknown>): ReleveGcMemo {
  */
 export function releveVersMemo(cases: CasesReleveGc, t: MotsReleveGc): ReleveGcMemo {
   const mm = (saisie: string) => {
-    const nombre = Number(saisie.replace(",", "."));
+    // Comme le formulaire (lireReleve) : « 1 180 » et « 1172 mm » se lisent aussi.
+    const nombre = Number(saisie.replace(/[\s\u00a0\u202f]/g, "").replace(/mm$/i, "").replace(",", "."));
     return saisie.trim() !== "" && Number.isFinite(nombre) && nombre >= 0 ? Math.round(nombre) : undefined;
   };
   const etage = t.gcEtageOptions.indexOf(cases.etage);
   return {
     gcLargeurMm: mm(cases.largeur),
+    gcLargeurHautMm: cases.mursInegaux && cases.largeurHaut !== undefined ? mm(cases.largeurHaut) : undefined,
     gcAllegeMm: mm(cases.allege),
     gcFenetreMm: mm(cases.fenetre),
     gcEnEtage: etage === 0 ? true : etage === 1 ? false : undefined,
     // La matière, pas le mot de la liste : il change avec la langue. Un mot inconnu de la liste est gardé tel quel.
     gcMur: cases.mur ? (MATIERES_MUR[t.gcMurOptions.indexOf(cases.mur)] ?? cases.mur) : undefined,
     gcModele: cases.modele || undefined,
+    gcDecor: cases.decor && lireDecorGC(cases.decor) ? cases.decor : undefined,
+    gcMurFixation: estMurFixationGC(cases.murFixation) ? cases.murFixation : undefined,
+    gcTMurMm: estMurFixationGC(cases.murFixation) && cases.tMur !== undefined ? mm(cases.tMur) : undefined,
+    gcEMurMm: estMurFixationGC(cases.murFixation) && cases.eMur !== undefined ? mm(cases.eMur) : undefined,
   };
 }
 
@@ -137,6 +170,11 @@ export function releveVersMemo(cases: CasesReleveGc, t: MotsReleveGc): ReleveGcM
 export function memoVersReleve(memo: ReleveGcMemo, t: MotsReleveGc): Partial<CasesReleveGc> {
   const cases: Partial<CasesReleveGc> = {};
   if (memo.gcLargeurMm !== undefined) cases.largeur = String(memo.gcLargeurMm);
+  if (memo.gcLargeurHautMm !== undefined) {
+    cases.largeurHaut = String(memo.gcLargeurHautMm);
+    // Une largeur du haut identique à celle du bas (mémoire plus ancienne) : des murs droits.
+    cases.mursInegaux = memo.gcLargeurHautMm !== memo.gcLargeurMm;
+  }
   if (memo.gcAllegeMm !== undefined) cases.allege = String(memo.gcAllegeMm);
   if (memo.gcFenetreMm !== undefined) cases.fenetre = String(memo.gcFenetreMm);
   const etage = memo.gcEnEtage === undefined ? undefined : t.gcEtageOptions[memo.gcEnEtage ? 0 : 1];
@@ -148,6 +186,12 @@ export function memoVersReleve(memo: ReleveGcMemo, t: MotsReleveGc): Partial<Cas
     if (mot !== undefined) cases.mur = mot;
   }
   if (memo.gcModele !== undefined) cases.modele = memo.gcModele;
+  if (memo.gcDecor !== undefined) cases.decor = memo.gcDecor;
+  if (memo.gcMurFixation !== undefined) {
+    cases.murFixation = memo.gcMurFixation;
+    if (memo.gcTMurMm !== undefined) cases.tMur = String(memo.gcTMurMm);
+    if (memo.gcEMurMm !== undefined) cases.eMur = String(memo.gcEMurMm);
+  }
   return cases;
 }
 

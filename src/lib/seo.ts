@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 // Extension écrite en toutes lettres : c'est ce qui permet aux tests
 // (node --test, sans outil de construction) d'importer ce fichier tel quel.
 import { locales, type Locale } from "./i18n.ts";
+import type { DisponibiliteGoogle, FourchetteGoogle } from "./donnees-google.ts";
+import { PRIX_OFFRE_CENTS, RAYON_MAX_KM, RAYON_OFFRE_KM } from "./deplacement.ts";
+import { ENTREPRISE, siretValide } from "./entreprise.ts";
+import type { Famille } from "./products.ts";
 
 /**
  * Tout ce qui sert au référencement est rassemblé ici : adresse de l'atelier,
@@ -68,21 +72,61 @@ export const ATELIER = {
 } as const;
 
 /**
- * Coordonnées publiques que seul Quentin peut donner. Elles restent vides tant
- * qu'il n'a pas rempli les variables dans Vercel (voir .env.example) : tout ce
- * qui est vide est simplement omis, jamais inventé.
+ * Les quatre départements autour de l'atelier : ceux de la page « zone
+ * d'intervention » et de la zone annoncée à Google (jsonLdAtelier).
+ */
+export const DEPARTEMENTS_DESSERVIS = [
+  { nom: "Maine-et-Loire", numero: "49" },
+  { nom: "Indre-et-Loire", numero: "37" },
+  { nom: "Deux-Sèvres", numero: "79" },
+  { nom: "Vienne", numero: "86" },
+] as const;
+
+/**
+ * Les communes que la page « zone d'intervention » affiche : seulement
+ * celles à moins de 50 km de l'atelier, à vol d'oiseau (la mesure de
+ * src/lib/deplacement.ts), de la plus proche à la plus loin. Une longue
+ * liste de villes lointaines (de Nantes au Mans) ressemblait à du bourrage ;
+ * le reste de la zone se dit en une phrase (« et jusqu'à … km de
+ * l'atelier », RAYON_MAX_KM). Distances arrondies, centre de la commune.
+ */
+export const COMMUNES_AFFICHEES = [
+  "Saumur",
+  "Montsoreau", // 11 km
+  "Fontevraud-l'Abbaye", // 13 km
+  "Longué-Jumelles", // 13 km
+  "Gennes", // 15 km
+  "Les Rosiers-sur-Loire", // 15 km
+  "Montreuil-Bellay", // 16 km
+  "Doué-en-Anjou", // 17 km
+  "Bourgueil", // 19 km
+  "Beaufort-en-Anjou", // 23 km
+  "Chinon", // 26 km
+  "Loudun", // 30 km
+  "Baugé-en-Anjou", // 31 km
+  "Thouars", // 33 km
+  "Langeais", // 37 km
+  "Azay-le-Rideau", // 41 km
+  "Angers", // 43 km
+] as const;
+
+/**
+ * Coordonnées publiques de l'atelier. Le téléphone et les horaires sont ceux
+ * de la fiche Google de Quentin (capture du 05/10/2026) : le site doit dire
+ * exactement la même chose que la fiche. Une variable remplie dans Vercel
+ * (voir .env.example) les remplace ; ce qui reste vide est omis, jamais inventé.
  * Le préfixe NEXT_PUBLIC_ est volontaire — ce sont des informations publiques,
  * et elles peuvent ainsi être affichées aussi bien dans les pages que dans les
  * données envoyées à Google.
  */
 export const CONTACT_PUBLIC = {
   /** Format international, sans espaces : +33612345678. */
-  telephone: process.env.NEXT_PUBLIC_ATELIER_TELEPHONE ?? "",
+  telephone: process.env.NEXT_PUBLIC_ATELIER_TELEPHONE || "+33782372379",
   /**
    * Horaires au format compris par Google, séparés par des points-virgules :
    * « Mo-Fr 08:00-18:00; Sa 09:00-12:00 ».
    */
-  horaires: process.env.NEXT_PUBLIC_ATELIER_HORAIRES ?? "",
+  horaires: process.env.NEXT_PUBLIC_ATELIER_HORAIRES || "Mo-Fr 07:00-17:00; Sa 09:00-16:00",
   facebook: process.env.NEXT_PUBLIC_ATELIER_FACEBOOK ?? "",
   instagram: process.env.NEXT_PUBLIC_ATELIER_INSTAGRAM ?? "",
   /** Adresse de la fiche Google de l'atelier (Google Business Profile). */
@@ -114,6 +158,39 @@ export function horairesLisibles(locale: Locale): string {
     .join(" · ");
 }
 
+/**
+ * L'adresse de la fiche Google de l'atelier (NEXT_PUBLIC_ATELIER_GOOGLE), où
+ * se lisent les avis des clients — ou null tant qu'elle n'est pas renseignée.
+ * Sans fiche, le site n'en parle pas du tout : ni « nos avis sont sur
+ * Google », ni lien, ni recherche Google Maps de repli (elle ne menait à
+ * aucune fiche). Le site ne recopie ni la note ni les avis.
+ */
+export function lienAvisGoogle(): string | null {
+  return CONTACT_PUBLIC.google.trim() || null;
+}
+
+/**
+ * Le lien « laisser un avis » de la fiche Google, celui qui ouvre directement
+ * la fenêtre des étoiles (https://g.page/r/…/review). Google le donne dans la
+ * fiche : « Demander des avis ». C'est la destination de l'adresse courte
+ * https://auboiacier.fr/avis — celle de la carte glissée dans les colis et du
+ * mail envoyé après la livraison (src/lib/avis.ts).
+ *
+ * La variable NEXT_PUBLIC_ATELIER_GOOGLE_AVIS de Vercel l'emporte ; à défaut,
+ * cette constante, vide tant que Quentin n'a pas le lien. Vide : /avis montre
+ * une page de remerciement, et aucun mail de demande d'avis ne part.
+ */
+export const AVIS_GOOGLE_REPLI = "";
+
+/**
+ * Le lien d'avis, ou null. Une adresse complète en https, sinon rien : une
+ * faute de frappe ne doit pas envoyer les clients sur une page d'erreur.
+ */
+export function lienLaisserAvis(): string | null {
+  const lien = (process.env.NEXT_PUBLIC_ATELIER_GOOGLE_AVIS || AVIS_GOOGLE_REPLI).trim();
+  return /^https:\/\/[^\s"'<>]+$/i.test(lien) ? lien : null;
+}
+
 /** Le téléphone tel qu'on le compose : +33612345678 → 06 12 34 56 78. */
 export function telephoneLisible(): string {
   const brut = CONTACT_PUBLIC.telephone.replace(/\s+/g, "");
@@ -122,78 +199,11 @@ export function telephoneLisible(): string {
   return /^0\d{9}$/.test(national) ? national.replace(/(\d{2})(?=\d)/g, "$1 ").trim() : brut;
 }
 
-/** Mots-clés de fond, repris sur toutes les pages. */
-const MOTS_CLES: Record<Locale, string[]> = {
-  fr: [
-    "métallerie Saumur",
-    "métallerie artisanale Saumur",
-    "métallier Angers",
-    "métallier Cholet",
-    "métallier Tours",
-    "artisan métallier Anjou",
-    "atelier de métallerie Val de Loire",
-    "garde-corps sur mesure",
-    "garde-corps artisanal sur mesure",
-    "garde-corps de fenêtre sur mesure",
-    "garde-corps fenêtre Saumur",
-    "garde-corps acier Maine-et-Loire",
-    "garde-corps croix de Saint-André",
-    "garde-corps rosace fonte",
-    "garde-corps prix instantané",
-    "garde-corps devis PDF",
-    "garde-corps norme NF P01-012",
-    "main courante chêne acier sur mesure",
-    "devis instantané en ligne",
-    "prix en ligne sur mesure",
-    "devis PDF gratuit sans compte",
-    "fabrication française artisanale",
-    "soudure TIG acier sur mesure",
-    "prise de cotes à domicile Anjou",
-    "pose garde-corps Saumur",
-    "escalier limon central acier chêne",
-    "verrière d'intérieur acier Anjou",
-    "table Mikado acier chêne",
-    "chaise velours piétement acier",
-    "plafond tendu lumineux LED sur mesure",
-    "métallier Saumur",
-    "ferronnier Maine-et-Loire",
-    "table sur mesure Saumur",
-    "table bois et acier sur mesure",
-    "mobilier sur mesure Maine-et-Loire 49",
-    "métallier soudeur Pays de la Loire",
-    "escalier acier sur mesure Saumur",
-    "verrière atelier sur mesure 49",
-    "plafond lumineux tendu",
-    "toile tendue rétroéclairée",
-    "sculpture métal sur mesure",
-    "mobilier haut de gamme fabriqué en France",
-    "table chêne massif piètement acier",
-    "artisanat français sur mesure",
-    "bon rapport qualité prix mobilier sur mesure",
-    "table de salle à manger design prix atelier",
-  ],
-  en: [
-    "custom window railing France",
-    "handmade window railing Saumur",
-    "bespoke steel railing Loire Valley",
-    "metalworks Saumur",
-    "craft metalworker Anjou",
-    "instant online price bespoke steel",
-    "free PDF quote no account",
-    "made in France handmade steel",
-    "TIG welded steel made to measure",
-    "custom steel and oak furniture France",
-    "bespoke dining table Loire Valley",
-    "metalworker Saumur France",
-    "handmade furniture Maine-et-Loire",
-    "stretched fabric light ceiling",
-    "backlit ceiling panel custom",
-    "steel staircase bespoke France",
-    "crittall style steel partition",
-    "luxury handmade furniture made in France",
-    "workshop direct prices bespoke furniture",
-  ],
-};
+/*
+ * Plus de liste de mots-clés « de fond » répétée sur toutes les pages : Google
+ * ne lit pas la balise keywords, et Bing prend une longue liste identique
+ * partout pour du bourrage. Chaque page ne déclare que les siens (motsCles).
+ */
 
 /**
  * Image de partage par défaut (Facebook, WhatsApp, LinkedIn…).
@@ -202,6 +212,12 @@ const MOTS_CLES: Record<Locale, string[]> = {
  * se retrouveraient rognées n'importe comment.
  */
 const IMAGE_PARTAGE = "/images/partage-auboiacier.jpg";
+
+/** Le logo de l'atelier pour Google : carré, 512 × 512, dans public/. */
+const LOGO = "/icon-512.png";
+
+/** Celui qui a ouvert l'atelier (page À propos). */
+const FONDATEUR = "Quentin Aumercier";
 
 /**
  * Dimensions réelles, uniquement pour les images dont on est sûr.
@@ -322,9 +338,39 @@ export function titreSeo(titre: string) {
 const LONGUEUR_DESCRIPTION = 155;
 
 /**
+ * Abréviations dont le point ne finit pas la phrase : « hauteur (art. R134-59) »
+ * était coupé en « hauteur (art. » (page vérification, 06/10/2026).
+ */
+const ABREVIATIONS = new Set(["art", "al", "env", "n°", "no", "cf", "ex", "p", "réf", "ref"]);
+
+/** Le mot qui finit ce texte, sans la ponctuation qui l'ouvre ni le point qui le ferme, en minuscules. */
+function dernierMot(texte: string): string {
+  const mot = texte.trimEnd().split(" ").pop() ?? "";
+  return mot.replace(/^[(«"“[]+/, "").replace(/\.$/, "").toLowerCase();
+}
+
+/**
+ * La dernière vraie fin de phrase qui tient dans `limite` signes : un point
+ * suivi d'une espace puis d'une majuscule, et pas le point d'une abréviation
+ * (« art. », « env. »…) ni d'une initiale. -1 s'il n'y en a pas.
+ */
+function derniereFinDePhrase(texte: string, limite: number): number {
+  let fin = -1;
+  for (const m of texte.matchAll(/\.(?= \p{Lu})/gu)) {
+    const i = m.index ?? 0;
+    if (i + 1 > limite) break;
+    const mot = dernierMot(texte.slice(0, i));
+    if (ABREVIATIONS.has(mot) || /^\p{L}$/u.test(mot)) continue;
+    fin = i;
+  }
+  return fin;
+}
+
+/**
  * Coupe une description trop longue sur une fin de phrase, sinon sur un mot,
  * sans jamais dépasser 155 signes. Une description qui tient est rendue telle
- * quelle, espaces normalisés.
+ * quelle, espaces normalisés. Une fin de phrase, c'est un point suivi d'une
+ * majuscule, jamais celui de « art. », « n° » ou « env. ».
  */
 export function descriptionSeo(texte: string) {
   const propre = texte.replace(/\s+/g, " ").trim();
@@ -332,11 +378,21 @@ export function descriptionSeo(texte: string) {
   const debut = propre.slice(0, LONGUEUR_DESCRIPTION);
   // Une phrase entière vaut mieux qu'une phrase tronquée, à condition de ne
   // pas jeter plus de la moitié du texte.
-  const phrase = Math.max(debut.lastIndexOf(". "), debut.lastIndexOf(" — "), debut.lastIndexOf("; "));
+  const phrase = Math.max(derniereFinDePhrase(propre, LONGUEUR_DESCRIPTION), debut.lastIndexOf(" — "), debut.lastIndexOf("; "));
   if (phrase > LONGUEUR_DESCRIPTION / 2) return propre.slice(0, phrase + 1).trim();
-  // Sinon sur le dernier mot entier (ou brut, s'il n'y a aucun espace).
+  // Sinon sur le dernier mot entier (ou brut, s'il n'y a aucun espace), sans
+  // finir sur une abréviation ni sur une parenthèse ouverte.
   const mot = debut.lastIndexOf(" ");
-  return debut.slice(0, mot > 0 ? mot : LONGUEUR_DESCRIPTION - 1).replace(/[\s,;:—–-]+$/, "") + "…";
+  let court = debut.slice(0, mot > 0 ? mot : LONGUEUR_DESCRIPTION - 1).replace(/[\s,;:—–(-]+$/, "");
+  while (court.includes(" ") && ABREVIATIONS.has(dernierMot(court))) {
+    court = court.slice(0, court.lastIndexOf(" ")).replace(/[\s,;:—–(-]+$/, "");
+  }
+  return court + "…";
+}
+
+/** La description tient-elle entière dans ce que Google affiche (descriptionSeo n'y coupe rien) ? */
+export function descriptionTient(texte: string): boolean {
+  return descriptionSeo(texte) === texte.replace(/\s+/g, " ").trim();
 }
 
 function absolu(chemin: string) {
@@ -353,6 +409,9 @@ export function alternatesPour(locale: Locale, chemin: string) {
   languages["x-default"] = `${SITE_URL}/fr${chemin}`;
   return { canonical: `${SITE_URL}/${locale}${chemin}`, languages };
 }
+
+/** La langue au format des réseaux sociaux (Open Graph). */
+const LOCALE_OG: Record<Locale, string> = { fr: "fr_FR", en: "en_GB" };
 
 /** Fabrique les balises d'une page : titre, description, partage, canonique. */
 export function metadataPage({
@@ -382,7 +441,7 @@ export function metadataPage({
   return {
     title: { absolute: titre },
     description: desc,
-    keywords: [...motsCles, ...MOTS_CLES[locale]],
+    ...(motsCles.length > 0 ? { keywords: motsCles } : {}),
     alternates: alternatesPour(locale, chemin),
     robots: noIndex
       ? { index: false, follow: true }
@@ -390,7 +449,10 @@ export function metadataPage({
     openGraph: {
       type: "website",
       siteName: ATELIER.nom,
-      locale: locale === "fr" ? "fr_FR" : "en_GB",
+      locale: LOCALE_OG[locale],
+      // L'autre langue de la même page (og:locale:alternate). Sans effet sur
+      // Google : seuls Facebook et ses cousins le lisent.
+      alternateLocale: locales.filter((l) => l !== locale).map((l) => LOCALE_OG[l]),
       url,
       title: titre,
       description: desc,
@@ -413,6 +475,79 @@ export function metadataPage({
  *  directement dans les résultats de recherche.
  * ------------------------------------------------------------------ */
 
+/** L'atelier et Quentin, tels que les blocs de données se citent l'un l'autre. */
+const ID_ATELIER = `${SITE_URL}/#atelier`;
+const ID_QUENTIN = `${SITE_URL}/#quentin`;
+
+/** Un disque autour de l'atelier, rayon en km (Google le lit en mètres). */
+function cercleAutourAtelier(rayonKm: number) {
+  return {
+    "@type": "GeoCircle",
+    geoMidpoint: { "@type": "GeoCoordinates", latitude: ATELIER.latitude, longitude: ATELIER.longitude },
+    geoRadius: rayonKm * 1000,
+  };
+}
+
+/**
+ * La zone desservie : jusqu'où l'atelier se déplace (RAYON_MAX_KM,
+ * src/lib/deplacement.ts), et les quatre départements de la page zone. Plus
+ * de liste de 27 villes de Nantes au Mans : Google la prenait pour ce
+ * qu'elle était, une liste.
+ */
+function zoneDesservie() {
+  return [
+    cercleAutourAtelier(RAYON_MAX_KM),
+    ...DEPARTEMENTS_DESSERVIS.map((d) => ({
+      "@type": "AdministrativeArea",
+      name: d.nom,
+      // « Vienne » est aussi le nom français de Wien : on dit de quel pays.
+      containedInPlace: { "@type": "Country", name: "France" },
+    })),
+  ];
+}
+
+/** Ce que l'atelier fait, en une phrase (« chaises » retiré : pièce retirée de la vente le 06/10/2026). */
+const DESCRIPTION_ATELIER: Record<Locale, string> = {
+  fr: "Atelier de métallerie artisanale à Saumur (Maine-et-Loire) : garde-corps de fenêtre, de balcon et de terrasse, escaliers à limon central, verrières, tables en bois massif sur piétement acier, plafonds lumineux en toile tendue et sculptures, fabriqués à la main, sur mesure. Soudure et réparations à façon.",
+  en: "Metalwork workshop in Saumur, Loire Valley, France: window, balcony and terrace railings, steel spine staircases, steel internal windows, solid wood tables on steel bases, backlit stretch-fabric ceiling lights and sculptures, handmade to measure. Welding and metal repairs to order.",
+};
+
+/** Les métiers de l'atelier (knowsAbout). Garde-corps de balcon, rampes et soudure à façon : oui de Quentin, 07/10/2026. */
+const METIERS_ATELIER: Record<Locale, string[]> = {
+  fr: [
+    "Métallerie",
+    "Soudure TIG",
+    "Soudure MAG",
+    "Garde-corps de fenêtre",
+    "Garde-corps de balcon et de terrasse",
+    "Rampe d'escalier",
+    "Escalier à limon central",
+    "Verrière d'atelier",
+    "Mobilier acier et bois massif",
+    "Plafond lumineux en toile tendue",
+    "Soudure et réparation à façon",
+  ],
+  en: [
+    "Metalwork",
+    "TIG welding",
+    "MIG/MAG welding",
+    "Window railings",
+    "Balcony and terrace railings",
+    "Stair railings",
+    "Steel spine staircases",
+    "Steel internal windows",
+    "Steel and solid wood furniture",
+    "Backlit stretch-fabric ceiling lights",
+    "Welding and metal repairs",
+  ],
+};
+
+/** Le n° de TVA intracommunautaire, s'il y en a un (pas « non applicable, art. 293 B »). */
+function tvaIntracommunautaire(): string | null {
+  const tva = ENTREPRISE.tva.replace(/\s/g, "").toUpperCase();
+  return /^FR[0-9A-Z]{2}\d{9}$/.test(tva) ? tva : null;
+}
+
 export function jsonLdAtelier(locale: Locale) {
   const horaires = CONTACT_PUBLIC.horaires
     .split(";")
@@ -421,20 +556,31 @@ export function jsonLdAtelier(locale: Locale) {
   const reseaux = [CONTACT_PUBLIC.facebook, CONTACT_PUBLIC.instagram, CONTACT_PUBLIC.google].filter(
     Boolean
   );
+  const raisonSociale = ENTREPRISE.raisonSociale.trim();
+  const tva = tvaIntracommunautaire();
 
   return {
     "@context": "https://schema.org",
-    "@type": ["LocalBusiness", "HomeAndConstructionBusiness", "Store"],
-    "@id": `${SITE_URL}/#atelier`,
+    // Pas de « Store » : aucune boutique ouverte au public, aucune adresse publiée.
+    "@type": ["LocalBusiness", "HomeAndConstructionBusiness"],
+    "@id": ID_ATELIER,
     name: ATELIER.nom,
-    legalName: ATELIER.legal,
+    alternateName: ATELIER.legal,
+    // Le nom déposé, le SIRET et la TVA viennent de la fiche de l'entreprise
+    // (src/lib/entreprise.ts) : rien tant qu'ils ne sont pas remplis.
+    ...(raisonSociale ? { legalName: raisonSociale } : {}),
+    ...(siretValide(ENTREPRISE.siret)
+      ? { identifier: { "@type": "PropertyValue", propertyID: "SIRET", value: ENTREPRISE.siret.replace(/\s/g, "") } }
+      : {}),
+    ...(tva ? { vatID: tva } : {}),
     url: `${SITE_URL}/${locale}`,
     email: ATELIER.email,
     image: absolu(IMAGE_PARTAGE),
-    description:
-      locale === "fr"
-        ? "Atelier de métallerie artisanale à Saumur (Maine-et-Loire) : garde-corps de fenêtre sur mesure, tables, chaises, escaliers, verrières, sculptures et plafonds lumineux à toile tendue, en acier et bois massif, fabriqués à la main sur mesure."
-        : "Craft metalwork studio in Saumur, Loire Valley, France: custom window railings, bespoke tables, chairs, staircases, steel partitions, sculptures and backlit stretched-fabric ceilings in steel and solid wood, all handmade to order.",
+    // Le logo carré de l'atelier (512 × 512), celui de l'écran d'accueil du téléphone.
+    logo: absolu(LOGO),
+    // Le fondateur : le même bloc que la page À propos (jsonLdPersonne), par son identifiant.
+    founder: { "@type": "Person", "@id": ID_QUENTIN, name: FONDATEUR },
+    description: DESCRIPTION_ATELIER[locale],
     address: {
       "@type": "PostalAddress",
       // Renseignée dans ATELIER.rue le jour où l'adresse de l'atelier est
@@ -450,7 +596,8 @@ export function jsonLdAtelier(locale: Locale) {
       latitude: ATELIER.latitude,
       longitude: ATELIER.longitude,
     },
-    areaServed: ATELIER.zones.map((zone) => ({ "@type": "Place", name: zone })),
+    areaServed: zoneDesservie(),
+    knowsAbout: METIERS_ATELIER[locale],
     // Ce qui suit n'apparaît que si la variable correspondante est remplie :
     // une fiche à moitié vide vaut mieux qu'une fiche qui raconte n'importe quoi.
     ...(CONTACT_PUBLIC.telephone ? { telephone: CONTACT_PUBLIC.telephone } : {}),
@@ -460,6 +607,7 @@ export function jsonLdAtelier(locale: Locale) {
     priceRange: "€€–€€€",
     currenciesAccepted: "EUR",
     knowsLanguage: ["fr", "en"],
+    // Jamais de note ni d'avis sur l'atelier : seulement de vrais avis, sur une pièce livrée.
     makesOffer: OFFRES[locale].map((nom) => ({
       "@type": "Offer",
       itemOffered: { "@type": "Service", name: nom },
@@ -482,15 +630,24 @@ const OFFRES: Record<Locale, string[]> = {
     "Verrière d'atelier",
     "Sculpture métal",
     "Plafond lumineux à toile tendue",
+    // Ajoutés le 07/10/2026 (Quentin veut aussi les vendre).
+    "Garde-corps de balcon et de terrasse sur mesure",
+    "Rampe d'escalier sur mesure",
+    "Soudure et réparation à façon",
   ],
   en: [
-    "Custom window railing",
+    // Les mêmes mots que les titles anglais : « bespoke » plutôt que « custom », « steel internal windows »,
+    // « stretch-fabric ceiling light » (relecture du 07/10/2026).
+    "Bespoke window railing",
     "Bespoke wood and steel table",
     "Upholstered chairs and armchairs",
     "Bespoke steel staircase",
-    "Interior steel partition",
+    "Steel internal windows",
     "Metal sculpture",
-    "Backlit stretched-fabric ceiling",
+    "Backlit stretch-fabric ceiling light",
+    "Bespoke balcony and terrace railings",
+    "Bespoke stair railings",
+    "Welding and metal repairs",
   ],
 };
 
@@ -525,6 +682,29 @@ export function jsonLdFilAriane(locale: Locale, etapes: { nom: string; chemin: s
   };
 }
 
+/**
+ * Une liste de pages (les modèles d'une famille) : Google comprend que la
+ * page les présente, et peut les relier entre elles.
+ */
+export function jsonLdListe(locale: Locale, nom: string, elements: { nom: string; chemin: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: nom,
+    itemListElement: elements.map((element, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: element.nom,
+      url: `${SITE_URL}/${locale}${element.chemin}`,
+    })),
+  };
+}
+
+/**
+ * Le bloc Product d'une fiche, avec son offre. Seulement pour une fiche qui
+ * affiche un prix : sans offre (ni avis, ni note), Google le signale comme
+ * élément non valide — la page n'en émet alors aucun (src/lib/donnees-google.ts).
+ */
 export function jsonLdProduit({
   locale,
   chemin,
@@ -532,47 +712,302 @@ export function jsonLdProduit({
   description,
   images,
   fourchette,
-  achetable,
+  disponibilite,
+  sku,
+  materiau,
 }: {
   locale: Locale;
   chemin: string;
   nom: string;
   description: string;
   images: string[];
-  /** Absente pour une pièce sur devis sans prix : on n'annonce alors aucune offre. */
-  fourchette?: { prixMin: number; prixMax: number };
-  achetable: boolean;
+  /** Son bas est le prix affiché par la fiche (fourchetteGoogle). */
+  fourchette: FourchetteGoogle;
+  /** InStock quand le panier encaisse, null avant : aucune disponibilité envoyée (disponibiliteGoogle). */
+  disponibilite: DisponibiliteGoogle;
+  /** La référence de la pièce : son slug. Facultatif. */
+  sku?: string;
+  /** Ses matières, en une ligne (materiauFamille). Facultatif. */
+  materiau?: string;
 }) {
   return {
     "@context": "https://schema.org",
     "@type": "Product",
     name: nom,
     description,
+    ...(sku ? { sku } : {}),
+    ...(materiau ? { material: materiau } : {}),
     image: images.map(absolu),
     brand: { "@type": "Brand", name: ATELIER.nom },
     manufacturer: { "@id": `${SITE_URL}/#atelier` },
     countryOfOrigin: "FR",
     url: `${SITE_URL}/${locale}${chemin}`,
-    ...(fourchette
+    offers: {
+      "@type": "AggregateOffer",
+      priceCurrency: "EUR",
+      lowPrice: fourchette.prixMin,
+      highPrice: fourchette.prixMax,
+      offerCount: 1,
+      // Seulement une valeur de la liste de Google (MadeToOrder n'en fait
+      // pas partie) : InStock quand le panier encaisse — le délai de
+      // fabrication est dit dans la page et dans l'e-mail de confirmation.
+      // Avant l'ouverture, aucune : rien ne se commande encore.
+      ...(disponibilite ? { availability: `https://schema.org/${disponibilite}` } : {}),
+      seller: { "@id": `${SITE_URL}/#atelier` },
+      areaServed: "FR",
+    },
+  };
+}
+
+/**
+ * Les matières d'une pièce, par famille, pour le bloc Product (material).
+ * Rien pour les chaises (session Chaises) ; une pièce qui a une matière en
+ * plus (la résine de la table rivière) passe sa propre ligne.
+ */
+const MATIERES_FAMILLE: Partial<Record<Famille, Record<Locale, string>>> = {
+  "table-interieur": { fr: "Acier ; bois massif", en: "Steel; solid wood" },
+  "table-exterieur": { fr: "Acier ; bois massif", en: "Steel; solid wood" },
+  escalier: { fr: "Acier ; bois massif", en: "Steel; solid wood" },
+  "garde-corps": { fr: "Acier ; bois massif ou acier (main courante)", en: "Steel; solid wood or steel (handrail)" },
+  plafond: { fr: "Aluminium ; textile tendu ; LED", en: "Aluminium; stretch fabric; LED" },
+};
+
+export function materiauFamille(famille: Famille, locale: Locale): string | undefined {
+  return MATIERES_FAMILLE[famille]?.[locale];
+}
+
+/* ------------------------------------------------------------------ *
+ *  Quentin (page À propos)
+ * ------------------------------------------------------------------ */
+
+/** Ses diplômes, intitulés exacts (Quentin, 07/10/2026). */
+const DIPLOMES: { nom: string; categorie: Record<Locale, string> }[] = [
+  {
+    nom: "CAP Métallier",
+    categorie: {
+      fr: "Certificat d'aptitude professionnelle (CAP)",
+      en: "Certificat d'aptitude professionnelle (CAP), French vocational diploma",
+    },
+  },
+  {
+    nom: "BP Métallier",
+    categorie: {
+      fr: "Brevet professionnel (BP)",
+      en: "Brevet professionnel (BP), French professional diploma",
+    },
+  },
+];
+
+/**
+ * Ce que Quentin sait faire. L'aluminium : « bon soudeur alu, TIG si besoin »
+ * (Quentin, 06/10/2026).
+ */
+const SAVOIR_FAIRE_QUENTIN: Record<Locale, string[]> = {
+  fr: [
+    "Soudure TIG",
+    "Soudure MAG",
+    "Soudure à l'électrode",
+    "Soudure de l'aluminium",
+    "Métallerie",
+    "Plafonds lumineux en toile tendue",
+  ],
+  en: [
+    "TIG welding",
+    "MIG/MAG welding",
+    "Stick welding",
+    "Aluminium welding",
+    "Metalwork",
+    "Backlit stretch-fabric ceilings",
+  ],
+};
+
+/**
+ * Son parcours, le même que la page À propos. L'employeur australien n'est jamais nommé
+ * (Quentin, 07/10/2026) ; la durée, deux ans, est la sienne.
+ */
+const PARCOURS_QUENTIN: Record<Locale, string> = {
+  fr: "Soudeur-métallier, titulaire du CAP Métallier et du BP Métallier, plus de cinq ans de soudure au TIG, au MAG et à l'électrode. Deux ans en Australie chez un fabricant de plafonds lumineux en toile tendue, puis son propre atelier, Auboiacier, qui ouvre à Saumur.",
+  en: "Welder-metalworker, holder of the French CAP Métallier and BP Métallier diplomas, with more than five years of TIG, MIG/MAG and stick welding. Two years in Australia with a maker of backlit stretch-fabric ceilings, then his own workshop, Auboiacier, opening in Saumur, France.",
+};
+
+/**
+ * Quentin Aumercier, celui qui fabrique : publié sur /a-propos, cité par
+ * l'atelier (founder) et par les guides qu'il a relus (jsonLdArticle), par
+ * son identifiant. Le jour de l'immatriculation (qualité d'artisan), le
+ * titre deviendra « Artisan métallier » — pas avant (loi 96-603, art. 21).
+ *
+ * `image` : la vraie photo de Quentin au travail, passée par la page À propos
+ * (tests/visuels.test.ts n'autorise cette photo que sur quatre pages), puis
+ * son portrait au retour.
+ */
+export function jsonLdPersonne(locale: Locale, { image }: { image?: string } = {}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": ID_QUENTIN,
+    name: FONDATEUR,
+    givenName: "Quentin",
+    familyName: "Aumercier",
+    jobTitle: locale === "fr" ? "Soudeur-métallier" : "Welder-metalworker",
+    description: PARCOURS_QUENTIN[locale],
+    worksFor: { "@id": ID_ATELIER, name: ATELIER.nom },
+    url: `${SITE_URL}/${locale}/a-propos`,
+    ...(image ? { image: absolu(image) } : {}),
+    hasCredential: DIPLOMES.map((diplome) => ({
+      "@type": "EducationalOccupationalCredential",
+      name: diplome.nom,
+      credentialCategory: diplome.categorie[locale],
+    })),
+    knowsAbout: SAVOIR_FAIRE_QUENTIN[locale],
+    knowsLanguage: ["fr", "en"],
+  };
+}
+
+/* ------------------------------------------------------------------ *
+ *  Guides (Article) et services (Service)
+ * ------------------------------------------------------------------ */
+
+/** Une date au format AAAA-MM-JJ (avec l'heure, si on veut). */
+const DATE_ISO = /^\d{4}-\d{2}-\d{2}(T[\d:.]+(Z|[+-]\d{2}:\d{2})?)?$/;
+
+/**
+ * Un guide (normes du garde-corps, vérification, escalier) : Google sait qui
+ * l'a écrit et quand. `auteur` : « quentin » SEULEMENT si Quentin a lu et
+ * validé le texte — une signature d'auteur est une affirmation ; sinon c'est
+ * l'atelier, comme la signature visible de la page. Les deux dates sont des
+ * constantes réelles de la page, les mêmes que celles qu'elle affiche.
+ */
+export function jsonLdArticle({
+  locale,
+  chemin,
+  titre,
+  description,
+  datePublication,
+  dateModification,
+  image = IMAGE_PARTAGE,
+  auteur = "atelier",
+}: {
+  locale: Locale;
+  chemin: string;
+  /** Le H1 de la page. */
+  titre: string;
+  description: string;
+  /** AAAA-MM-JJ */
+  datePublication: string;
+  /** AAAA-MM-JJ, jamais avant la publication. */
+  dateModification: string;
+  image?: string;
+  auteur?: "atelier" | "quentin";
+}) {
+  for (const date of [datePublication, dateModification]) {
+    if (!DATE_ISO.test(date)) throw new Error(`jsonLdArticle (${chemin}) : date « ${date} » à écrire AAAA-MM-JJ`);
+  }
+  if (dateModification < datePublication) {
+    throw new Error(`jsonLdArticle (${chemin}) : modifié le ${dateModification}, avant sa publication le ${datePublication}`);
+  }
+  const url = `${SITE_URL}/${locale}${chemin}`;
+  const atelier = { "@type": "Organization", "@id": ID_ATELIER, name: ATELIER.nom, url: `${SITE_URL}/${locale}` };
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: titre,
+    description,
+    author:
+      auteur === "quentin"
+        ? { "@type": "Person", "@id": ID_QUENTIN, name: FONDATEUR, url: `${SITE_URL}/${locale}/a-propos` }
+        : atelier,
+    publisher: { ...atelier, logo: { "@type": "ImageObject", url: absolu(LOGO) } },
+    datePublished: datePublication,
+    dateModified: dateModification,
+    inLanguage: locale,
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    url,
+    image: [absolu(image)],
+  };
+}
+
+/** L'offre de la prise de cotes à domicile : son prix et son rayon, ceux de src/lib/deplacement.ts. */
+export const OFFRE_PRISE_DE_COTES = { prix: PRIX_OFFRE_CENTS / 100, rayonKm: RAYON_OFFRE_KM } as const;
+
+/**
+ * Un service de l'atelier, pour une page qui le présente : verrière d'atelier
+ * (sur devis), sculpture sur commande, prise de cotes à domicile
+ * (offre = OFFRE_PRISE_DE_COTES). Sans `offre`, aucun prix n'est annoncé :
+ * jamais un chiffre écrit à la main.
+ */
+export function jsonLdService({
+  locale,
+  nom,
+  type,
+  chemin,
+  description,
+  offre,
+}: {
+  locale: Locale;
+  nom: string;
+  /** La catégorie du service (serviceType), si elle dit autre chose que le nom. */
+  type?: string;
+  chemin: string;
+  description?: string;
+  /** Un prix ferme, valable dans un rayon autour de l'atelier. */
+  offre?: { prix: number; rayonKm: number };
+}) {
+  const url = `${SITE_URL}/${locale}${chemin}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: nom,
+    ...(type ? { serviceType: type } : {}),
+    ...(description ? { description } : {}),
+    provider: { "@id": ID_ATELIER, name: ATELIER.nom },
+    areaServed: cercleAutourAtelier(RAYON_MAX_KM),
+    url,
+    ...(offre
       ? {
           offers: {
-            "@type": "AggregateOffer",
+            "@type": "Offer",
+            price: offre.prix,
             priceCurrency: "EUR",
-            lowPrice: fourchette.prixMin,
-            highPrice: fourchette.prixMax,
-            offerCount: 1,
-            // Google n'affiche le prix qu'avec une disponibilité de sa liste :
-            // MadeToOrder n'en fait pas partie, la fiche passait donc à la
-            // trappe. « InStock » = commandable tout de suite (le délai de
-            // fabrication est dit dans la page et dans l'e-mail de confirmation).
-            availability: achetable
-              ? "https://schema.org/InStock"
-              : "https://schema.org/PreOrder",
-            seller: { "@id": `${SITE_URL}/#atelier` },
-            areaServed: "FR",
+            eligibleRegion: cercleAutourAtelier(offre.rayonKm),
+            url,
           },
         }
       : {}),
+  };
+}
+
+/**
+ * Une vraie vidéo de la page (le torse en acier de récupération, page Sculptures) : Google peut la montrer dans ses
+ * résultats vidéo. `dateMiseEnLigne` : le jour où le fichier est arrivé sur le site (git log --diff-filter=A), jamais
+ * une date inventée ; `dureeIso` au format ISO 8601 (« PT8.5S »), si elle est connue.
+ */
+export function jsonLdVideo({
+  nom,
+  description,
+  miniature,
+  fichier,
+  dateMiseEnLigne,
+  dureeIso,
+}: {
+  nom: string;
+  description: string;
+  miniature: string;
+  fichier: string;
+  /** AAAA-MM-JJ */
+  dateMiseEnLigne: string;
+  dureeIso?: string;
+}) {
+  if (!DATE_ISO.test(dateMiseEnLigne)) throw new Error(`jsonLdVideo : date « ${dateMiseEnLigne} » à écrire AAAA-MM-JJ`);
+  return {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    name: nom,
+    description,
+    thumbnailUrl: [absolu(miniature)],
+    contentUrl: absolu(fichier),
+    uploadDate: dateMiseEnLigne,
+    ...(dureeIso ? { duration: dureeIso } : {}),
+    publisher: { "@id": ID_ATELIER, name: ATELIER.nom },
   };
 }
 

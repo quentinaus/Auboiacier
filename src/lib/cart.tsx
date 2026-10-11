@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useSyncExternalStore, type ReactNode } from "react";
+import { lineId } from "./ligne-panier";
 
 /**
  * Panier côté navigateur.
@@ -29,6 +30,11 @@ export type CartItem = {
   hauteurMm?: number;
   epaisseurMm?: number;
   /**
+   * Garde-corps : la largeur à 1 m du sol quand les murs ne sont pas parallèles (largeurMm est celle du bas, au ras de
+   * l'appui). Absente : des murs droits. Le serveur la revérifie avec le reste du relevé (ReleveGC.largeurHautMm).
+   */
+  largeurHautMm?: number;
+  /**
    * Le relevé d'un garde-corps de fenêtre (avec largeurMm) : c'est avec lui que
    * le serveur recalcule sa forme et son prix (l'outil de plans). hauteurMm
    * n'en est qu'une copie, pour l'affichage.
@@ -38,6 +44,15 @@ export type CartItem = {
   fenetreMm?: number;
   /** Garde-corps : le modèle choisi (« 16-3 »), voir ReleveGC.modele. */
   modeleGc?: string;
+  /** Garde-corps : le décor à volutes choisi (« frise.S.bouton.soudure.carre.aucune.0 »), voir ReleveGC.decor. */
+  decorGc?: string;
+  /**
+   * Garde-corps : le mur des tableaux (« beton », MURS_FIXATION_GC) et ses cotes en mm (profondeur du tableau,
+   * de l'arête à la fenêtre ; épaisseur du mur). Le serveur y choisit la fixation, qui entre dans le prix. Absent : la fixation d'avant.
+   */
+  murGc?: string;
+  tMurMm?: number;
+  eMurMm?: number;
   /**
    * Une ligne « prise de cotes à domicile » (slug PRISE_DE_COTES) : le code
    * postal du client décide du prix, le créneau vient de l'agenda. Les deux
@@ -59,6 +74,17 @@ export type CartItem = {
   rdv?: string;
   /** Ce que le client précise (type de mur, pièce voulue…), transmis tel quel à l'atelier. */
   note?: string;
+  /**
+   * La Garantie cotes, cochée au panier (garantie-cotes.ts) : un oui, jamais un
+   * prix. Elle ne change pas l'identifiant de la ligne : on la coche sur la
+   * pièce déjà au panier. Décochée par défaut (art. L121-17 du code de la consommation).
+   */
+  garantieCotes?: boolean;
+  /**
+   * Un portail : sa configuration en texte (versParamsPanier, src/lib/portails.ts). Le serveur la relit et recalcule le
+   * prix avec l'outil de plans ; le client paie un acompte (ACOMPTE_PORTAIL_PCT), le solde à la réception.
+   */
+  portail?: string;
   quantity: number;
   /** Copie d'affichage, jamais contractuelle. Ne jamais l'envoyer à une API. */
   name: string;
@@ -74,30 +100,6 @@ const STORAGE_KEY = "auboiacier-panier-v1";
 const MAX_QUANTITY = 10;
 const MAX_LINES = 20;
 
-function lineId(line: CartLine) {
-  return [
-    line.slug,
-    line.sizeId,
-    line.woodId,
-    line.metalId,
-    line.fabricId,
-    line.remplissageId,
-    line.largeurMm,
-    line.hauteurMm,
-    line.epaisseurMm,
-    line.priseDeCotesCp,
-    line.poseCp,
-    line.livraisonCp,
-    line.livraisonSlug,
-    line.rdv,
-    line.note,
-    // Le relevé d'un garde-corps : une autre fenêtre, une autre ligne. Absent
-    // des autres pièces, dont l'identifiant ne change donc pas.
-    ...(line.allegeMm !== undefined ? [line.allegeMm, line.enEtage ? "etage" : "rdc", line.fenetreMm, line.modeleGc ?? ""] : []),
-  ]
-    .map((part) => part ?? "-")
-    .join("|");
-}
 
 function parse(raw: string | null): CartItem[] {
   if (!raw) return [];
@@ -229,11 +231,23 @@ export function useCart() {
     write(getSnapshot().filter((item) => item.id !== id));
   }, []);
 
+  /** Cocher ou décocher la Garantie cotes d'une pièce du panier. */
+  const setGarantie = useCallback((id: string, garantie: boolean) => {
+    write(
+      getSnapshot().map((item) => {
+        if (item.id !== id) return item;
+        const { garantieCotes: _ancienne, ...reste } = item;
+        void _ancienne;
+        return garantie ? { ...reste, garantieCotes: true } : reste;
+      })
+    );
+  }, []);
+
   const clear = useCallback(() => write([]), []);
 
   return useMemo(() => {
     const count = items.reduce((sum, item) => sum + item.quantity, 0);
     const total = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
-    return { items, count, total, ready, add, setQuantity, remove, clear };
-  }, [items, ready, add, setQuantity, remove, clear]);
+    return { items, count, total, ready, add, setQuantity, setGarantie, remove, clear };
+  }, [items, ready, add, setQuantity, setGarantie, remove, clear]);
 }

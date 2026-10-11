@@ -5,7 +5,7 @@
   },
   "nav": {
     "home": "Accueil",
-    "realisations": "Réalisations",
+    "realisations": "Projets et visuels",
     "produits": "La collection",
     "devis": "Devis instantané",
     "apropos": "À propos",
@@ -41,27 +41,29 @@
     "lightingCta": "Voir les plafonds",
     "craftLabel": "Mobilier acier & bois",
     "craftTitle": "Mobilier acier & bois",
-    "craftSubtitle": "Tables, chaises, garde-corps, escaliers : soudés à l'atelier, à vos cotes. Prix ferme, livraison partout en France.",
+    "craftSubtitle": "Tables, chaises, garde-corps, escaliers : soudés à l'atelier, à vos cotes. Prix ferme, livraison partout en France métropolitaine.",
     "craftCta": "Voir la collection",
     "bandTitle": "Rien n'est en stock",
-    "bandSubtitle": "L'acier est coupé et soudé à la commande, et le bois est choisi à la planche pour votre pièce.",
+    "bandSubtitle": "L'acier est coupé et soudé à la commande, et le bois est mis à vos cotes pour votre pièce.",
     "categoriesTitle": "Ce que nous fabriquons",
     "catTables": "Tables d'intérieur",
     "catChaises": "Chaises d'intérieur",
     "catChaisesExt": "Chaises d'extérieur",
     "catEscaliers": "Escaliers",
+    "catPortails": "Portails",
     "catGardeCorps": "Garde-corps de fenêtre",
     "catLucarne": "Lucarne, plafond rectangulaire",
     "catHalo": "Halo, plafond rond",
     "catPlafonds": "Plafonds lumineux",
     "catLed": "Éclairage LED",
     "editorialTitle": "Un dessin simple, une pièce qui dure",
-    "editorialBody1": "Auboiacier est un atelier de métallerie. L'acier y est coupé, soudé, meulé, puis peint. Le bois massif vient s'y poser — plateaux de table, marches d'escalier, tablettes — collé, poncé et huilé ici même.",
+    "editorialBody1": "Auboiacier est un atelier de métallerie. L'acier y est coupé, soudé, meulé, puis peint. Le bois massif vient s'y poser — plateaux de table, marches d'escalier, tablettes — mis à format, poncé et huilé ici même.",
     "editorialBody2": "Aucune série : chaque pièce est fabriquée à la commande, aux dimensions de votre intérieur, et se reponce ou se repeint plutôt que de se remplacer.",
     "editorialCta": "Voir l'atelier",
-    "testimonialsTitle": "Ce qu'en disent nos clients",
-    "testimonialsNote": "Les premiers chantiers arrivent : les avis clients seront publiés ici.",
-    "testimonialsCta": "Voir les réalisations",
+    "testimonialsTitle": "Avis clients",
+    "testimonialsNote": "Les avis des premiers clients seront publiés ici, dès les premières pièces livrées.",
+    "testimonialsNoteGoogle": "Retrouvez l'atelier sur sa fiche Google.",
+    "testimonialsCta": "Voir les projets et visuels",
     "missionTitle": "Ce que nous cherchons à faire",
     "missionBody": "Fabriquer des pièces d'acier et de bois massif que l'on puisse reponcer et repeindre dans trente ans, au lieu de les remplacer.",
     "missionCta": "Demander un devis",
@@ -71,7 +73,7 @@
     "altHeroLumiere": "Plafond lumineux au-dessus d'une table à manger",
     "altHeroMobilier": "Table Mikado en noyer et chaises en velours vert dans une salle à manger aux murs de pierre",
     "altDetailMarche": "Marche en chêne massif vissée sur son limon acier",
-    "altAtelier": "Meulage d'un châssis acier à l'atelier, gerbe d'étincelles",
+    "altAtelier": "Quentin meule un châssis en acier, gerbe d'étincelles",
     "altVignes": "Vignes en coteaux au coucher du soleil",
     "altTables": "Détail du plateau chêne et du piétement acier de la table Mikado",
     "altTablesExt": "Table d'extérieur Mikado, plateau à lattes de chêne",
@@ -85,23 +87,96 @@
     "altPlafonds": "Plafond lumineux au-dessus d'une table à manger",
     "altVerrieres": "Verrière d'intérieur en acier noir séparant un salon d'une cuisine",
     "seoTitle": "Métallerie artisanale sur mesure à Saumur et en Anjou",
-    "seoP1": "Auboiacier est un atelier de métallerie installé à Saumur (49400), en Maine-et-Loire. Le métallier-soudeur y fabrique à la main des garde-corps de fenêtre, des escaliers, des verrières d'atelier, des tables en chêne massif sur piétement acier, des chaises, des plafonds lumineux à toile tendue et des sculptures en acier de récupération. Chaque pièce est dessinée à vos cotes et soudée à la commande : rien n'est en stock.",
+    "seoP1": "Auboiacier est un atelier de métallerie qui ouvre à Saumur (49400), en Maine-et-Loire. Le métallier-soudeur y fabrique à la main des garde-corps de fenêtre, des escaliers, des verrières d'atelier, des tables en chêne massif sur piétement acier, des chaises, des plafonds lumineux à toile tendue et des sculptures en acier de récupération. Chaque pièce est dessinée à vos cotes et soudée à la commande : rien n'est en stock.",
     "seoP2": "Le prix s'affiche en une minute : entrez vos cotes dans le configurateur en ligne, choisissez la matière et la finition, puis téléchargez votre devis en PDF, sans compte ni engagement. Nous venons relever les cotes et poser à Saumur, Angers, Cholet, Tours, Chinon et jusqu'à 200 km de l'atelier ; les pièces de la collection sont livrées partout en France métropolitaine.",
     "seoLinksTitle": "Nos fabrications sur mesure",
-    "seoLinks": ["Garde-corps de fenêtre sur mesure", "Escalier acier et chêne", "Verrière d'atelier en acier", "Table bois et acier", "Plafond lumineux à toile tendue", "Sculptures en acier de récupération", "Devis instantané en PDF", "Prise de cotes à domicile", "Zone d'intervention : Saumur, Angers, Cholet, Tours"],
+    "seoLinks": [
+      "Garde-corps sur mesure, avec ou sans volutes",
+      "Garde-corps de fenêtre : hauteur et normes",
+      "Comment on vérifie un garde-corps",
+      "Garde-corps de balcon et de terrasse",
+      "Escalier acier et bois massif",
+      "Escalier à limon central : prix et normes",
+      "Verrière d'atelier en acier",
+      "Tables sur mesure bois et acier",
+      "Le bois massif à l'atelier",
+      "Plafond lumineux à toile tendue",
+      "Sculptures en acier de récupération",
+      "Soudure et réparations",
+      "Devis instantané en PDF",
+      "Prise de cotes à domicile",
+      "Zone d'intervention autour de Saumur"
+    ],
     "configLabel": "Configurateur en ligne",
     "configTitle": "Configurez votre pièce, le prix s'affiche",
     "configText": "Table, garde-corps de fenêtre, plafond lumineux : entrez vos cotes, choisissez l'essence, la teinte, la livraison. Le prix se calcule sous vos yeux et votre devis se télécharge en PDF — sans compte, sans engagement.",
     "configTable": "Configurer une table",
     "configGardeCorps": "Configurer un garde-corps",
-    "configPlafond": "Configurer un plafond lumineux"
+    "configPlafond": "Configurer un plafond lumineux",
+    "avisGoogle": "Voir la fiche Google",
+    "seoBlocs": {
+      "titre": "Métallerie sur mesure à Saumur et en Anjou",
+      "blocs": [
+        {
+          "paragraphes": [
+            "Auboiacier est un atelier de métallerie et de ferronnerie qui ouvre à Saumur, en Maine-et-Loire. Nous dessinons et fabriquons sur mesure, en acier, en bois massif et en inox : garde-corps de fenêtre, escaliers, verrières d'atelier, tables, plafonds lumineux et sculptures, pour les maisons, les appartements et les ateliers de Saumur, d'Anjou et du Val de Loire. Si vous cherchez un métallier à Saumur, vous avez affaire directement à l'atelier qui dessine et soude votre pièce, sans intermédiaire."
+          ]
+        },
+        {
+          "h3": "Ce que fabrique l'atelier",
+          "paragraphes": [
+            "L'atelier fabrique des garde-corps de fenêtre en acier plein, à croix de Saint-André et rosaces, avec une main courante en bois ou en acier, dans l'esprit des balcons anciens ; des escaliers à limon central, bâtis sur un tube d'acier de forte section et portant des marches en bois massif ; des verrières d'atelier en acier fin, mesurées chez vous puis soudées à l'atelier ; des tables en bois massif sur piétement d'acier soudé ; des plafonds lumineux en toile tendue ; et des sculptures en acier de récupération, soudées une à une.",
+            "Tout est fait sur mesure : chaque pièce est dessinée à vos cotes, puis fabriquée à Saumur, à la commande, sans stock ni série. Vous choisissez l'essence du bois, la teinte de l'acier et la finition."
+          ]
+        },
+        {
+          "h3": "Une fabrication soignée, jusqu'à la finition",
+          "paragraphes": [
+            "L'acier est coupé, soudé à la main et meulé pour une surface nette, puis peint dans la teinte de votre choix. Le bois massif, chêne, noyer, hêtre ou pin, est poncé et huilé à l'atelier avant de venir se fixer sur l'acier. L'atelier travaille le bois avec la même exigence que l'acier, fort d'une expérience en ébénisterie, du choix des planches à la finition.",
+            "Les garde-corps de fenêtre sont calculés pour respecter le Code de la construction et la norme NF P01-012 : hauteur de protection, espaces entre les barres, tenue aux efforts. La fixation est choisie selon votre mur (béton, brique, pierre…) et fournie en inox ; le garde-corps vous arrive prêt à poser, avec sa visserie et son guide d'installation. Les plafonds lumineux suivent la même exigence : un caisson d'aluminium soudé à l'atelier, une toile tendue, un éclairage LED intégré, aux dimensions de votre pièce."
+          ]
+        },
+        {
+          "h3": "Comment ça se passe",
+          "paragraphes": [
+            "Le prix est affiché avant tout rendez-vous. Pour un garde-corps de fenêtre, une table ou un plafond lumineux, vous entrez vos cotes dans le configurateur : le prix apparaît aussitôt, à vos dimensions, et vous téléchargez un devis PDF sans compte et sans engagement. Pour le garde-corps, le configurateur calcule la hauteur et les espaces entre les barres d'après votre fenêtre.",
+            "Un escalier, une verrière ou une sculpture se chiffrent au devis, et l'atelier vient relever les cotes chez vous, sur rendez-vous : la prise de cotes à domicile coûte {prixVisite} jusqu'à {rayonVisite} km de Saumur, davantage au-delà selon la distance. Vous pouvez aussi la demander pour un garde-corps si vous préférez ne pas mesurer vous-même. Chaque pièce est fabriquée sur commande, et le délai vous est confirmé par écrit au moment de commander."
+          ]
+        },
+        {
+          "h3": "Combien coûte un travail de métallerie à Saumur ?",
+          "paragraphes": [
+            "Cela dépend de la pièce. Pour une table, un garde-corps de fenêtre ou un plafond lumineux, le prix s'affiche dans le configurateur, à vos cotes, avec un devis PDF sans compte et sans engagement. Un escalier, une verrière ou une sculpture se chiffrent après la prise de cotes."
+          ]
+        },
+        {
+          "h3": "L'atelier est-il à Saumur ?",
+          "paragraphes": [
+            "Oui, l'atelier est à Saumur (49400). L'acier y est coupé, soudé et peint ; le bois y est poncé et huilé. Chaque pièce est fabriquée à la commande, sans stock."
+          ]
+        },
+        {
+          "h3": "Travaillez-vous le bois comme l'acier ?",
+          "paragraphes": [
+            "Oui. Les plateaux de table, les marches d'escalier et les mains courantes sont en bois massif : pin, hêtre, chêne ou noyer. Le bois est travaillé avec une expérience en ébénisterie, du choix des planches à la finition à l'huile."
+          ]
+        },
+        {
+          "h3": "Où nous intervenons",
+          "paragraphes": [
+            "Depuis Saumur, l'atelier se déplace en Anjou comme en Touraine pour relever les cotes : à Saumur et dans les communes voisines, Montreuil-Bellay, Doué-en-Anjou ou Fontevraud-l'Abbaye, puis à Angers, à Tours ou à Chinon, et jusqu'à 200 km de l'atelier, en Maine-et-Loire, en Indre-et-Loire, dans les Deux-Sèvres et dans la Vienne. Les pièces de la collection sont livrées par transporteur dans toute la France métropolitaine ; une table arrive démontée, prête à visser. La pose par l'atelier, si vous la souhaitez, est chiffrée au devis. Pour une métallerie à Saumur ou ailleurs dans le Val de Loire, écrivez-nous avec votre commune et votre projet."
+          ]
+        }
+      ]
+    },
+    "altPlafondSitu": "Plafond lumineux à toile tendue au-dessus d'une table, dans une salle à manger"
   },
   "home": {
-    "heroTitle": "Votre plafond, une pièce sur mesure",
-    "heroSubtitle": "Cadre aluminium coupé en onglet, toile tendue, éclairage LED intégré. Chaque plafond est fabriqué à l'atelier aux dimensions de votre pièce.",
+    "heroTitle": "Plafonds lumineux en toile tendue, faits main sur mesure à Saumur",
+    "heroSubtitle": "Caisson en aluminium soudé, toile tendue, éclairage LED intégré. Chaque plafond est fabriqué à l'atelier aux dimensions de votre pièce.",
     "heroCtaPrimary": "Demander un devis",
-    "heroCtaSecondary": "Voir les réalisations",
-    "realisationsTitle": "Réalisations récentes",
+    "heroCtaSecondary": "Voir d'autres images",
+    "realisationsTitle": "Mises en situation",
     "gammesTitle": "Ce qu'un plafond lumineux change",
     "gammes": [
       {
@@ -113,15 +188,15 @@
         "body": "Blanc chaud au quotidien, couleurs pour une ambiance : l'intensité et la teinte se règlent depuis votre téléphone."
       },
       {
-        "title": "Une pose propre et rapide",
-        "body": "Le cadre aluminium se fixe au plafond existant, la toile se tend en une journée. Pas de gros œuvre, pas de poussière."
+        "title": "Une pose sans gros œuvre",
+        "body": "Le caisson se suspend sous votre plafond par des câbles, accrochés à quatre anneaux vissés dans son cadre."
       }
     ],
     "pourquoiTitle": "Pourquoi Auboiacier",
     "pourquoi": [
       {
-        "title": "Coupé et assemblé à l'atelier",
-        "body": "Chaque cadre est coupé en onglet à l'atelier, puis ajusté aux dimensions de votre pièce."
+        "title": "Soudé et assemblé à l'atelier",
+        "body": "Chaque caisson est soudé à l'atelier, en tube d'aluminium, aux dimensions de votre pièce."
       },
       {
         "title": "Un seul interlocuteur",
@@ -129,21 +204,24 @@
       },
       {
         "title": "Vos dimensions, au centimètre",
-        "body": "Rectangle ou disque, dimensions au centimètre, blanc 3000 K ou 4000 K : le plafond est dessiné pour votre pièce."
+        "body": "Rectangle ou disque, dimensions au centimètre : le plafond est dessiné pour votre pièce."
       }
     ],
     "ctaTitle": "Un projet à chiffrer",
     "ctaSubtitle": "Décrivez votre pièce : nous relevons les cotes, nous chiffrons, nous posons.",
     "ctaButton": "Décrire mon projet",
-    "catalogueLumiere": "Plafonds lumineux",
-    "catalogueLumiereNote": "Toile tendue rétroéclairée, cadre aluminium laqué, de 60 cm au plafond entier.",
-    "surMesureTitle": "Au-delà de 400 × 300 cm",
-    "surMesureBody": "Le plus grand panneau d'un seul tenant fait 400 × 300 cm. Au-delà, nous assemblons plusieurs caissons jointifs pour couvrir un plafond entier : l'atelier relève les cotes chez vous, puis chiffre.",
+    "catalogueLumiere": "{n} formes, prix affichés",
+    "catalogueLumiereNote": "Toile tendue rétroéclairée, caisson en aluminium, jusqu'à 400 × 300 cm (Ø 400 cm).",
+    "surMesureTitle": "Au-delà de 230 × 210 cm",
+    "surMesureBody": "Passé cette taille, ou Ø 210 cm pour le Halo, un plafond lumineux ne part plus par transporteur : l'atelier le livre et le pose chez vous, jusqu'à 200 km de Saumur. Jusqu'à 400 × 300 cm (Ø 400 cm), la fiche donne le prix. Plus grand encore, l'atelier relève les cotes chez vous, puis chiffre.",
     "altPlafondDemo": "Plafond lumineux à cadre aluminium, toile tendue rétroéclairée"
   },
   "realisations": {
-    "title": "Réalisations",
-    "subtitle": "Tables, garde-corps, escaliers, verrières et plafonds lumineux, posés chez des particuliers et des professionnels.",
+    "title": "Projets et visuels",
+    "subtitle": "Les modèles de l'atelier en images — tables, garde-corps, escaliers, verrières, plafonds lumineux, sculptures — et, en photo, des travaux réalisés par Quentin avant l'ouverture de l'atelier.",
+    "chantierTitle": "En photo : le travail de Quentin",
+    "visuelsTitle": "Les modèles en images",
+    "visuelsNote": "Des images d'illustration, qui présentent nos modèles : la pièce fabriquée à vos cotes peut différer légèrement.",
     "filterAll": "Tout",
     "filterTable": "Tables",
     "filterGardeCorps": "Garde-corps",
@@ -151,28 +229,34 @@
     "filterPlafond": "Plafonds lumineux",
     "filterVerriere": "Verrières",
     "filterSculpture": "Sculptures",
-    "moreSoon": "D'autres chantiers seront ajoutés au fil des poses.",
-    "filterEmpty": "Aucun chantier de cette famille n'est encore publié.",
+    "moreSoon": "Les photos des chantiers de l'atelier seront ajoutées ici au fil des poses.",
+    "filterEmpty": "Rien n'est encore publié dans cette famille.",
     "altTableMikado": "Table Mikado en noyer et chaises en velours vert, dans une salle à manger aux murs de pierre",
-    "altGardeCorpsInterieur": "Garde-corps de fenêtre posé en tableau, vu depuis la pièce",
-    "altGardeCorpsRue": "Le même garde-corps vu de la rue, posé sur un appui en tuffeau",
+    "altGardeCorpsInterieur": "Garde-corps de fenêtre en tableau, vu depuis la pièce",
+    "altGardeCorpsRue": "Le même garde-corps vu de la rue, sur un appui en tuffeau",
     "altEscalierSalle": "Escalier à limon central, dans une pièce aux murs chaulés",
-    "altEscalierMarche": "Détail d'une marche : chêne massif posé sur son limon en acier",
+    "altEscalierMarche": "Détail d'une marche : chêne massif sur son limon en acier",
     "altSalle": "Plafond lumineux tendu au-dessus d'une table à manger",
     "altPlafondBeton": "Plafond lumineux carré au-dessus d'une table à manger, mur en béton brut",
     "altLucarneCouleur": "Lucarne encastrée, toile tendue éclairée en dégradé rose et bleu",
-    "altHaloSalle": "Halo, plafond lumineux rond, posé dans une pièce à vivre",
+    "altHaloSalle": "Halo, plafond lumineux rond",
     "altReunion": "Grand plafond lumineux rond au-dessus d'une salle de réunion",
     "altVerriereSalon": "Verrière d'atelier séparant un salon d'une cuisine",
     "altVerriereCroisillon": "Détail du bas d'une verrière, panneau en acier à croisillon",
     "altSculptureCheval": "Cheval cabré en acier, devant une longère en pierre",
-    "altSculptureTorse": "Torse en acier de récupération soudé à la main, en vidéo",
-    "altVerrierePose": "Pose d'une verrière en acier noir, vue d'ensemble : le chantier en cours",
-    "altVerrierePoseDetail": "Pose d'une verrière en acier noir à carreaux, au-dessus d'un muret de pierre : le chantier en cours"
+    "altSculptureTorse": "Torse en acier de récupération soudé à la main (vidéo)",
+    "altVerrierePose": "Pose d'une verrière en acier noir, vue d'ensemble",
+    "altVerrierePoseDetail": "Pose d'une verrière en acier noir à carreaux, au-dessus d'un muret de pierre",
+    "altPlafondCaissonLed": "Un plafond lumineux en fabrication : les rubans LED au fond du caisson, avant la toile.",
+    "altPlafondProfiles": "Les profilés aluminium d'un cadre de plafond lumineux, coupés et numérotés.",
+    "altPlafondToileAllumee": "La toile tendue allumée dans son cadre noir.",
+    "altEscalierAtelier": "Un escalier en fabrication, marches en bois massif sur limon acier.",
+    "altPlafondCaissonPhoto": "Le caisson d'un plafond lumineux : les rubans LED câblés, prêts à recevoir la toile.",
+    "aproposLien": "Le parcours de Quentin"
   },
   "artisanat": {
     "title": "La collection",
-    "subtitle": "Mobilier bois et acier, dessiné et soudé à l'atelier, à Saumur. Rien en stock : l'acier est coupé quand vous commandez. Prix fermes, livraison partout en France.",
+    "subtitle": "Mobilier bois et acier, dessiné et soudé à l'atelier, à Saumur. Rien en stock : l'acier est coupé quand vous commandez. Prix fermes, livraison partout en France métropolitaine.",
     "catalogueTitle": "La collection",
     "breadcrumbShop": "La collection",
     "breadcrumbCategory": "Mobilier",
@@ -205,7 +289,7 @@
     "sousMenuInclus": "Ce que comprend le prix",
     "poidsEstime": "Poids estimé du colis",
     "livraisonAChoisir": "Code postal à saisir",
-    "livraisonCourt": "Transporteur",
+    "livraisonCourt": "Livré par transporteur",
     "poseCourt": "Livrée et posée",
     "detailDimensions": "Dimensions",
     "detailSurface": "Surface du plateau",
@@ -215,7 +299,7 @@
     "altBandeauLumiere": "Angle d'un plafond lumineux : le cadre aluminium laqué et la toile tendue",
     "madeInFrance": "Fabriqué en France, à Saumur",
     "craftBandTitle": "Artisanat français",
-    "craftBandBody": "Chaque pièce sort de notre atelier : le bois est choisi planche par planche, l'acier est soudé TIG puis peint, et le montage final se fait à la main. Pas de série : votre pièce est fabriquée pour vous, à la commande.",
+    "craftBandBody": "Chaque pièce sort de notre atelier : le métal y est coupé et soudé au TIG, et le montage final se fait à la main. Pas de série : votre pièce est fabriquée pour vous, à la commande.",
     "descriptifTitle": "La pièce en détail",
     "sectionFaq": "Questions fréquentes",
     "faqDeliveryQ": "Quels sont les délais de fabrication et de livraison ?",
@@ -228,14 +312,15 @@
     "moreInfo": "Voir la fiche",
     "helpTitle": "Une question sur cette pièce ?",
     "helpCta": "Nous contacter",
-    "deliveryTitle": "Livraison partout en France, pose en option",
-    "deliveryBody": "Nous livrons partout en France métropolitaine, par transporteur : le prix dépend de votre ville, du poids et des dimensions, et s'affiche sur la fiche dès votre code postal. La pièce voyage protégée, et nous convenons d'un créneau précis avec vous. La pièce arrive prête, avec sa notice. Si vous préférez que l'atelier vienne la livrer et la poser lui-même, choisissez-le sur la fiche : le prix dépend de la distance depuis Saumur, et tout se fait sur un seul trajet.",
+    "deliveryTitle": "Livraison en France métropolitaine, pose en option",
+    "deliveryBody": "Nous livrons partout en France métropolitaine, par transporteur : le prix dépend de votre ville, du poids et des dimensions, et s'affiche sur la fiche dès votre code postal. La pièce voyage protégée, et nous convenons d'un créneau précis avec vous. La pièce arrive avec sa notice ; une table arrive démontée, prête à visser (plateau, piétement, visserie). Si vous préférez que l'atelier vienne la livrer et la poser lui-même, choisissez-le sur la fiche : le prix dépend de la distance depuis Saumur, et tout se fait sur un seul trajet.",
     "delaiTitle": "Délai de fabrication",
     "delaiBody": "Rien n'est en stock : votre pièce est fabriquée pour vous, à la commande. Son délai figure ci-dessus, à la ligne « Fabrication ». Il vous est confirmé à la commande.",
     "delaiCta": "Commander",
-    "avisTitle": "Ce qu'en disent nos clients",
-    "avisNote": "Les premiers chantiers arrivent : les avis clients seront publiés ici.",
-    "avisCta": "Voir les réalisations",
+    "avisTitle": "Avis clients",
+    "avisNote": "Les avis des premiers clients seront publiés ici, dès les premières pièces livrées.",
+    "avisNoteGoogle": "Retrouvez l'atelier sur sa fiche Google.",
+    "avisCta": "Voir les projets et visuels",
     "contactTitle": "Parlez-nous de votre projet",
     "contactBody": "Une dimension particulière, une essence précise, une teinte hors nuancier ? Écrivez-nous : nous adaptons le modèle et nous chiffrons.",
     "contactCta": "Nous contacter",
@@ -264,7 +349,7 @@
     "customMin": "Minimum",
     "customArea": "Surface",
     "customTooSmall": "En dessous du minimum fabricable.",
-    "customTooBig": "Au-delà du maximum d'un seul tenant : écrivez-nous, nous assemblons plusieurs caissons.",
+    "customTooBig": "Au-delà de la plus grande taille proposée : écrivez-nous, nous assemblons plusieurs caissons et nous chiffrons.",
     "customInvalid": "Entrez des cotes en chiffres.",
     "customLength": "Longueur",
     "customHelpPlan": "Vos cotes en centimètres — ou en millimètres si vous préférez, l'unité se change à côté. Le plateau est chiffré au m², le piétement compris.",
@@ -283,15 +368,15 @@
     "poseObligatoire": "Cette pièce est trop encombrante pour un transporteur : elle est livrée et posée par l'atelier.",
     "livraisonTitle": "Livraison ou retrait",
     "poseSeul": "Livraison par transporteur",
-    "poseSeulInfo": "Partout en France métropolitaine, 90 € au maximum, quelle que soit votre ville. La table arrive démontée : plateau, piétement soudé d'une pièce, visserie et notice de montage.",
+    "poseSeulInfo": "Partout en France métropolitaine, 90 € au maximum, quelle que soit votre ville. La table arrive démontée : plateau, piétement soudé, visserie et notice de montage.",
     "poseAtelier": "L'atelier livre et pose",
     "poseAtelierInfo": "Nous venons livrer et installer la pièce chez vous, sur un seul trajet. Prix selon la distance depuis Saumur.",
     "poseCodePostal": "Code postal de livraison",
     "poseAttente": "Entrez votre code postal pour connaître le prix.",
     "poseCalcul": "Calcul en cours…",
     "posePrix": "{commune} — {prix} : livraison et pose à domicile, comptées une fois pour toute la commande.",
-    "poseLoin": "{commune} est hors de France métropolitaine : nous ne posons pas outre-mer. La livraison seule reste comprise.",
-    "poseHors": "Nous ne posons qu'en France métropolitaine. La livraison seule reste comprise.",
+    "poseLoin": "{commune} est à {km} km de Saumur : l'atelier pose jusqu'à 200 km. Au-delà, choisissez la livraison par transporteur, ou écrivez-nous pour une pièce qui ne peut pas voyager.",
+    "poseHors": "Nous ne livrons et ne posons qu'en France métropolitaine.",
     "poseInvalide": "Ce code postal ne ressemble pas à un code postal français.",
     "poseErreur": "Impossible de calculer la pose pour l'instant. Réessayez dans un instant.",
     "poseResume": "Livraison et pose à domicile",
@@ -333,22 +418,22 @@
     "releveCalcul": "Calcul indicatif",
     "releveReculLong": "Vous avez plus de recul qu'il n'en faut : nous pouvons adoucir la pente, ou récupérer de la place au sol.",
     "gcTitle": "Vos mesures",
-    "gcIntro": "Deux mesures au mètre : nous calculons la hauteur du garde-corps pour respecter la loi, et nous le fabriquons au millimètre pour qu'il s'encastre dans votre fenêtre. Donnez les cotes brutes, sans rien retirer.",
+    "gcIntro": "Trois mesures au mètre : nous calculons la hauteur du garde-corps pour respecter la loi, et nous le fabriquons au millimètre pour qu'il s'encastre dans votre fenêtre. Donnez les cotes brutes, sans rien retirer.",
     "gcInfoLabel": "Explication",
     "gcEtage": "Où est la fenêtre",
     "gcEtageOptions": [
       "En étage",
       "Au rez-de-chaussée"
     ],
-    "gcEtageInfo": "En étage, une fenêtre dont l'appui est à moins de 90 cm du sol doit être protégée : c'est la loi. Au rez-de-chaussée, elle n'impose rien, mais nous appliquons la même hauteur. Le haut de la main courante est toujours au même endroit : à 1 m du sol au moins (nous visons 1 025 mm). La hauteur du garde-corps s'adapte à votre fenêtre.",
+    "gcEtageInfo": "En étage, dans un logement neuf, une fenêtre dont l'appui est à moins de 90 cm du sol doit être protégée : c'est la loi. Dans une maison ancienne, ce n'est pas une obligation, et au rez-de-chaussée la loi n'impose rien : nous appliquons pourtant partout la même hauteur. Le haut de la main courante est toujours au même endroit : à 1 m du sol au moins (nous visons 1 025 mm). La hauteur du garde-corps s'adapte à votre fenêtre.",
     "gcLargeur": "Largeur de la fenêtre, entre les murs",
-    "gcLargeurAide": "Dans l'ouverture, d'un mur à l'autre. Mesurez en haut et en bas, notez la plus petite.",
+    "gcLargeurAide": "Dans l'ouverture, d'un mur à l'autre, juste au-dessus de l'appui.",
     "gcLargeurInfo": "Ouvrez la fenêtre et mesurez d'un mur à l'autre, dans l'ouverture, là où le garde-corps va s'encastrer. Cote brute : ne retirez rien, nous prenons le jeu de pose.",
     "gcAllege": "Hauteur du sol au bas de la fenêtre",
     "gcAllegeAide": "Du parquet ou du carrelage jusqu'au-dessus de l'appui.",
-    "gcAllegeInfo": "Debout dans la pièce, mesurez du sol fini (parquet ou carrelage posé) jusqu'au-dessus de l'appui de fenêtre, la tablette sur laquelle on pose les mains. Cette hauteur, l'allège, nous donne la hauteur du garde-corps.",
+    "gcAllegeInfo": "Debout dans la pièce, mesurez du sol fini (parquet ou carrelage posé) jusqu'au-dessus de l'appui, là où le garde-corps sera posé : dans l'épaisseur du mur, fenêtre ouverte, à son point le plus bas. Si cet appui est plus bas que la tablette intérieure, c'est lui qui compte. Cette hauteur, l'allège, nous donne la hauteur du garde-corps.",
     "gcMur": "Type de mur",
-    "gcConsigne": "Cotes exactes de l'ouverture, en millimètres, sans rien retirer : l'atelier prend le jeu de pose.",
+    "gcConsigne": "Cotes exactes au millimètre : l'atelier calcule le garde-corps.",
     "gcFacultatif": "(facultatif)",
     "gcMainCourante": "Main courante à {m} mm du sol. Garde-corps posé {j} mm au-dessus du bas de la fenêtre.",
     "gcMurOptions": [
@@ -361,15 +446,15 @@
       "Placo sur ossature",
       "Je ne sais pas"
     ],
-    "gcMurInfo": "La matière dans laquelle nous fixons le garde-corps, de chaque côté de la fenêtre. Cela décide des chevilles et des vis que nous fournissons. En cas de doute, choisissez « Je ne sais pas » : nous vous demanderons une photo.",
+    "gcMurInfo": "La matière dans laquelle nous fixons le garde-corps, de chaque côté de la fenêtre. Elle décide de la fixation, calculée pour votre mur et fournie. En cas de doute, choisissez « Je ne sais pas » : le prix sera indicatif, et nous confirmerons la fixation avec une photo de votre tableau.",
     "gcQui": "Qui prend les cotes",
-    "gcQuiInfo": "L'atelier vient chez vous mesurer avant de fabriquer — 19,99 € jusqu'à 30 km autour de Saumur, puis les kilomètres et le temps de route, jusqu'à 200 km. Ou vous mesurez vous-même, au mètre : deux mesures, sans frais.",
+    "gcQuiInfo": "L'atelier vient chez vous mesurer avant de fabriquer — {prixVisite} jusqu'à {rayonVisite} km autour de Saumur, puis les kilomètres et le temps de route, jusqu'à 200 km. Ou vous mesurez vous-même, au mètre : trois mesures, sans frais.",
     "gcQuiMoi": "Je mesure moi-même",
-    "gcQuiMoiNote": "Gratuit. Deux mesures au mètre en suivant le croquis, et le prix s'affiche tout de suite.",
+    "gcQuiMoiNote": "Gratuit. Trois mesures au mètre en suivant le croquis, et le prix s'affiche tout de suite.",
     "gcQuiAtelier": "L'atelier vient mesurer",
-    "gcQuiAtelierNote": "Dès 19,99 €. Nous venons chez vous, jusqu'à 200 km de Saumur, et nous vous envoyons le prix exact du garde-corps.",
+    "gcQuiAtelierNote": "Dès {prixVisite}. Nous venons chez vous, jusqu'à 200 km de Saumur, et nous vous envoyons le prix exact du garde-corps.",
     "gcCodePostal": "Code postal de la fenêtre",
-    "gcCodePostalInfo": "Il décide du déplacement : 19,99 € jusqu'à 30 km autour de Saumur, puis les kilomètres et le temps de route. Au-delà de 200 km, nous ne nous déplaçons pas. Compté une seule fois, même pour plusieurs fenêtres.",
+    "gcCodePostalInfo": "Il décide du déplacement : {prixVisite} jusqu'à {rayonVisite} km autour de Saumur, puis les kilomètres et le temps de route. Au-delà de 200 km, nous ne nous déplaçons pas. Compté une seule fois, même pour plusieurs fenêtres.",
     "gcVisiteOfferte": "Déplacement offert — {dep}",
     "gcVisiteForfait": "Déplacement : {prix}, déduit si vous commandez",
     "gcVisiteAttente": "Entrez votre code postal pour connaître le déplacement.",
@@ -405,18 +490,18 @@
     "gcVisiteTropLoin": "{commune} est à {km} km de Saumur : nous ne nous déplaçons pas au-delà de 200 km. Mesurez vous-même en suivant le croquis — nous fabriquons et expédions à vos cotes.",
     "gcPieceApresVisite": "Prix exact envoyé après la visite, pose comprise",
     "gcVisiteLigne": "Prise de cotes à domicile : {prix}",
-    "gcVisiteLigneDepart": "Prise de cotes à domicile : à partir de 19,99 €",
+    "gcVisiteLigneDepart": "Prise de cotes à domicile : à partir de {prixVisite}",
     "gcCalcule": "Hauteur calculée par l'atelier — Code de la construction, art. R134-59 : la main courante est à {m} mm du sol. Espaces entre les barres : norme NF P01-012.",
     "gcMurFacultatif": "Facultatif — dans quoi se fixe le garde-corps",
     "gcConforme": "Conforme aux normes françaises : hauteur et espaces entre les barres",
     "gcPrixInclus": "Fabrication au millimètre, fixations et notice de pose comprises.",
-    "gcPrixAttente": "Le prix s'affiche dès vos deux mesures.",
+    "gcPrixAttente": "Le prix s'affiche dès vos trois mesures.",
     "prixAttenteCotes": "Configurez-la : cotes, matières, teinte — le prix s'affiche, le devis se télécharge.",
     "sizeChoose": "Choisir un format du catalogue",
     "gcPrixCompris": "bois et acier compris",
-    "gcLot": "Plusieurs fenêtres ? Les frais fixes de l'atelier ne se paient qu'une fois : une remise s'applique dès le deuxième garde-corps, même avec des cotes différentes.",
+    "gcLot": "Plusieurs fenêtres ? Ajoutez un garde-corps pour chacune, chacun à ses cotes, dans la même commande.",
     "gcLotAutre": "Ajouter un garde-corps",
-    "gcLotDeja": "Déjà au panier : {n} garde-corps. La remise se calcule au panier, sur tous les garde-corps.",
+    "gcLotDeja": "Déjà au panier : {n} garde-corps.",
     "inclusLivraisonPose": "Livraison en France métropolitaine comprise, fixations et notice de pose fournies — rien ne s'ajoute au paiement.",
     "gcHorsBareme": "Au-delà de {l} mm de large, nous le fabriquons aussi — en plusieurs parties, sur devis. Écrivez-nous avec vos cotes : réponse sous 48 h.",
     "gcHorsBaremeCourt": "Plus de {l} mm de large : sur devis",
@@ -457,10 +542,10 @@
     "gcPromesseCourt": "Prix immédiat",
     "gcCotesExactesSouligne": "au millimètre près",
     "releveQuiMoiNote": "Gratuit. Vos cotes au mètre en suivant les cases, et nous vous envoyons un devis.",
-    "releveQuiAtelierNote": "Dès 19,99 €. Nous venons chez vous, jusqu'à 200 km de Saumur, et vous recevez un devis, pose comprise.",
+    "releveQuiAtelierNote": "Dès {prixVisite}. Nous venons chez vous, jusqu'à 200 km de Saumur, et vous recevez un devis, pose comprise.",
     "releveQuiMoiTag": "Gratuit",
     "releveCodePostal": "Code postal du chantier",
-    "releveVisiteIntro": "L'escalier se fait uniquement sur devis : l'atelier vient prendre les cotes chez vous, et vous recevez un devis, pose comprise. Le déplacement est déduit de la commande.",
+    "releveVisiteIntro": "L'escalier se fait uniquement sur devis : l'atelier vient prendre les cotes chez vous, et vous recevez un devis, pose comprise jusqu'à 45 km de Saumur (au-delà, la route s'ajoute au devis). Le déplacement est déduit de la commande.",
     "customTableHeight": "Hauteur finie",
     "customTableHeightEdit": "Modifier",
     "customTableHeightAide": "Conseillé : 75 cm — du sol au dessus du plateau.",
@@ -469,14 +554,14 @@
     "livraisonLourd": "Pièce lourde ou encombrante : l'atelier peut aussi la livrer et la poser en un seul passage — voir « L'atelier livre et pose ».",
     "livraisonResume": "Livraison par transporteur",
     "livraisonHors": "Nous ne livrons qu'en France métropolitaine.",
-    "inclusLivraisonTable": "Livraison partout en France (90 € au maximum), pose par l'atelier, ou retrait gratuit à l'atelier.",
+    "inclusLivraisonTable": "Livraison partout en France métropolitaine (90 € au maximum), pose par l'atelier, ou retrait gratuit à l'atelier.",
     "customTooBigTable": "Au-delà du plus grand plateau d'un seul tenant (450 × 125 cm) : choisissez une autre dimension.",
     "poseSeulInfoPiece": "Partout en France métropolitaine, 90 € au maximum, quelle que soit votre ville. La pièce arrive prête à poser, avec sa notice.",
     "devisPdf": "Voir mon devis (PDF)",
     "estimationPdf": "Voir mon estimation (PDF)",
     "catalogueLabel": "Format du catalogue",
     "customOrCustom": "Ou à vos cotes",
-    "poseSeulCourt": "Partout en France, 90 € au maximum.",
+    "poseSeulCourt": "Partout en France métropolitaine, 90 € au maximum.",
     "poseAtelierCourt": "Un seul trajet depuis Saumur, à partir de 100 €.",
     "poseRetrait": "Retrait à l'atelier",
     "poseRetraitCourt": "Gratuit, à Saumur, sur rendez-vous.",
@@ -485,7 +570,7 @@
     "retraitResume": "Retrait à l'atelier",
     "livraisonAttentePiece": "Le prix de la livraison s'affiche dès que la pièce a le sien.",
     "configurable": "Se configure en ligne",
-    "apercuPhoto": "Voir la photo de ma configuration",
+    "apercuPhoto": "Voir l'image de ma configuration",
     "coordonneesTitle": "Vos coordonnées",
     "coordonneesNote": "Pour un devis à votre nom.",
     "coordonneesCompte": "ou créez votre compte",
@@ -500,7 +585,354 @@
     "gcLargeurCourt": "Largeur, d'un mur à l'autre",
     "gcAllegeCourt": "Du sol au bas de la fenêtre",
     "gcFenetreCourt": "Du bas au haut de la fenêtre",
-    "raisonCotesGardeCorps": "Indiquez la largeur et la hauteur sous la fenêtre pour ajouter au panier."
+    "raisonCotesGardeCorps": "Indiquez la largeur et la hauteur sous la fenêtre pour ajouter au panier.",
+    "h1": "Pièces sur mesure en acier et bois massif, faites main à Saumur",
+    "avisGoogle": "Voir la fiche Google",
+    "faqPoseToileQ": "Comment se pose un plafond lumineux ?",
+    "faqPoseToileA": "Le plafond lumineux se suspend par des câbles accrochés à quatre anneaux vissés dans son cadre. Il faut au plafond quatre points d'accroche capables de porter son poids. L'atelier peut venir le poser ; la fiche donne le prix selon votre code postal.",
+    "faqToileQ": "Comment entretenir la toile ?",
+    "faqToileA": "La toile s'entretient en place, avec un chiffon doux et sec. Le tour en aluminium peint se nettoie aussi au chiffon doux.",
+    "qualiteFamille": {
+      "intro": "Ce qui fait la qualité de cette pièce",
+      "table-interieur": [
+        {
+          "t": "Un piétement soudé à l'atelier",
+          "d": "Les tubes d'acier sont soudés au TIG, meulés puis peints : un piétement solide, qui ne se desserre pas avec les années."
+        },
+        {
+          "t": "Des matières choisies à la main",
+          "d": "Bois massif (chêne, noyer, hêtre ou pin), poncé puis huilé à l'atelier : il garde son toucher et se patine avec le temps. La table Résine reçoit un plateau de résine coulée."
+        },
+        {
+          "t": "Faite pour durer",
+          "d": "Un plateau en bois massif, un piétement en acier soudé : une table faite pour traverser les décennies, que l'on garde au lieu de la remplacer."
+        },
+        {
+          "t": "À vos dimensions, à la commande",
+          "d": "Pas de stock ni de série : l'essence du bois, la teinte de l'acier et le format sont les vôtres. La table arrive démontée, prête à visser."
+        }
+      ],
+      "table-exterieur": [
+        {
+          "t": "Un chêne massif pour dehors",
+          "d": "Des lames de terrasse en chêne massif, huilées pour l'extérieur. Les lattes espacées laissent la pluie s'écouler, le bois sèche vite."
+        },
+        {
+          "t": "Un acier protégé pour rester dehors",
+          "d": "Le piétement soudé d'une seule pièce reçoit à l'atelier une galvanisation à froid, puis une laque : une protection contre la rouille."
+        },
+        {
+          "t": "Un entretien simple",
+          "d": "Une huile par an. Ou laissez le bois griser, si vous préférez la patine."
+        },
+        {
+          "t": "À vos dimensions, à la commande",
+          "d": "Dessinée pour votre terrasse, fabriquée à Saumur, livrée en France métropolitaine ou posée par l'atelier."
+        }
+      ],
+      "chaise": [
+        {
+          "t": "Un piétement en acier soudé",
+          "d": "Rond plein d'acier soudé au TIG, finition peinte mate : fin à l'œil, solide dans le temps."
+        },
+        {
+          "t": "Une assise garnie avec soin",
+          "d": "Mousse haute densité, velours d'ameublement, quinze coloris : confortable dès le premier repas."
+        },
+        {
+          "t": "Livrée prête à monter",
+          "d": "Dossier et pieds arrivent démontés, avec la visserie, la clé de montage et la notice."
+        },
+        {
+          "t": "Fabriquée à Saumur, à la commande",
+          "d": "Chaque chaise est montée à l'atelier : comptez 4 semaines."
+        }
+      ],
+      "chaise-exterieur": [
+        {
+          "t": "Un acier peint pour l'extérieur",
+          "d": "La peinture tient à la pluie et au sel sans s'écailler : le fauteuil passe l'hiver dehors."
+        },
+        {
+          "t": "Soudé d'une seule pièce",
+          "d": "Accoudoirs et dossier sont soudés d'une pièce : aucun boulon à resserrer au fil des saisons."
+        },
+        {
+          "t": "Des coussins qui sèchent vite",
+          "d": "Mousse à cellules ouvertes et tissu d'extérieur déperlant : l'eau s'évacue, la housse se retire pour le lavage."
+        },
+        {
+          "t": "Fabriqué à Saumur, à la commande",
+          "d": "Une fabrication à l'unité, en environ 4 semaines."
+        }
+      ],
+      "escalier": [
+        {
+          "t": "Un limon en tube d'acier",
+          "d": "Un tube d'acier de forte section, coupé et soudé au TIG à l'atelier, avec un support et une platine sous chaque marche."
+        },
+        {
+          "t": "Des marches en bois massif",
+          "d": "Pin, hêtre, chêne ou noyer, huilés à l'atelier, fixés sur des platines cachées sous la marche."
+        },
+        {
+          "t": "Un garde-corps dessiné selon la norme",
+          "d": "Main courante en bois ; le remplissage du garde-corps est choisi au devis, selon la norme NF P01-012 (2024)."
+        },
+        {
+          "t": "Mesuré chez vous, posé par l'atelier",
+          "d": "Prise de cotes à domicile, fabrication sur mesure, pose comprise jusqu'à 45 km de Saumur."
+        }
+      ],
+      "garde-corps": [
+        {
+          "t": "Un acier plein, soudé et peint à l'atelier",
+          "d": "Cadre, croisillons ou volutes : tout est soudé au TIG, meulé puis peint à l'atelier, avec une main courante en bois massif ou en acier."
+        },
+        {
+          "t": "Calculé pour votre fenêtre",
+          "d": "Hauteur et espaces entre les barres sont calculés d'après vos mesures (Code de la construction, NF P01-012)."
+        },
+        {
+          "t": "Une fixation adaptée à votre mur",
+          "d": "Béton, brique, pierre… la fixation est choisie selon votre mur et fournie, tout en inox."
+        },
+        {
+          "t": "Livré prêt à poser",
+          "d": "Avec sa visserie et son guide d'installation. Si une cote nous étonne, nous vous appelons avant de couper."
+        }
+      ],
+      "plafond": [
+        {
+          "t": "Une lumière sans point chaud",
+          "d": "La toile tendue diffuse la lumière sur toute sa surface : pas de spot visible, pas d'ombre dure."
+        },
+        {
+          "t": "Un caisson en aluminium soudé",
+          "d": "Une ossature en tube d'aluminium soudée à l'atelier, habillée d'une tôle d'aluminium peinte dans la couleur choisie."
+        },
+        {
+          "t": "Une toile tenue tout autour",
+          "d": "Un profilé la pince tout autour du caisson : elle se nettoie en place, au chiffon doux."
+        },
+        {
+          "t": "Fabriqué à vos dimensions",
+          "d": "Au centimètre près, jusqu'à 400 × 300 cm, suspendu par câbles."
+        }
+      ],
+      "portail": [
+        {
+          "t": "Soudé au TIG, thermolaqué",
+          "d": "Alu soudé au TIG et thermolaqué, ou acier galvanisé à chaud puis thermolaqué : fait pour rester dehors."
+        },
+        {
+          "t": "Composé et vérifié",
+          "d": "Forme, remplissage, matière, couleur : vous composez, le dessin suit à l'échelle. Ce qui ne se fabrique pas est refusé, avec la raison."
+        },
+        {
+          "t": "Une visite avant fabrication",
+          "d": "L'atelier vient relever les cotes. Visite et pose comprises jusqu'à 45 km de Saumur."
+        },
+        {
+          "t": "Motorisation posée par nos soins",
+          "d": "En option : moteur, cellules, feu et réglage des efforts, installés et réglés par l'atelier."
+        }
+      ]
+    },
+    "pourquoiPrix": {
+      "titre": "Pourquoi ce prix",
+      "table-interieur": {
+        "intro": "Une table de grande surface est fabriquée en série, souvent en panneaux de bois reconstitué. La nôtre est fabriquée à la main, à Saumur, pour vous : voici ce que vous payez.",
+        "points": [
+          {
+            "t": "Du bois massif de qualité",
+            "d": "Notre plateau de référence est en chêne massif, fait à vos cotes, poncé puis huilé à la main. Le bois massif coûte plus cher qu'un panneau, et il dure bien plus longtemps."
+          },
+          {
+            "t": "De l'acier soudé à la main",
+            "d": "Le piétement est soudé à l'atelier, meulé puis peint. C'est du temps d'atelier, et c'est ce qui le rend solide : pas de vis qui prennent du jeu."
+          },
+          {
+            "t": "Du temps, sans série ni intermédiaire",
+            "d": "Chaque table est fabriquée à la commande, pièce par pièce, à Saumur. Le prix est celui du travail et des matières : rien pour un stock, une marque ou un revendeur."
+          },
+          {
+            "t": "Un achat pour des décennies",
+            "d": "Bois massif et acier soudé : une table que l'on garde au lieu de la remplacer. Sur la durée, elle coûte moins cher qu'une table que l'on rachète."
+          }
+        ]
+      },
+      "table-exterieur": {
+        "intro": "Une table de jardin bon marché se remplace tous les deux ou trois ans. Celle-ci est faite pour rester dehors, et pour durer.",
+        "points": [
+          {
+            "t": "Un chêne massif pour dehors",
+            "d": "Des lames de terrasse en chêne massif, huilées pour l'extérieur, en lattes espacées qui laissent l'eau s'écouler. C'est une matière noble, choisie pour tenir dehors."
+          },
+          {
+            "t": "Un acier soudé, protégé contre la rouille",
+            "d": "Le piétement est soudé à la main d'une seule pièce, puis reçoit une galvanisation à froid et une laque contre la rouille."
+          },
+          {
+            "t": "Fabriquée à Saumur, à la commande",
+            "d": "Pas de stock, pas de série : une table faite pour votre terrasse. Le prix est celui du travail et des matières."
+          },
+          {
+            "t": "Un entretien d'une huile par an",
+            "d": "Pas de remplacement, pas de ponçage compliqué : une huile par an, ou la patine grise si vous la préférez."
+          }
+        ]
+      },
+      "chaise": {
+        "intro": "Une chaise de série se fabrique par milliers. La nôtre est montée à la main, une par une.",
+        "points": [
+          {
+            "t": "Un piétement en acier plein",
+            "d": "Du rond plein d'acier soudé au TIG, meulé puis peint mat : fin à l'œil, solide dans le temps."
+          },
+          {
+            "t": "Une assise garnie avec soin",
+            "d": "Mousse haute densité et velours d'ameublement, en quinze coloris : une assise qui reste ferme et belle."
+          },
+          {
+            "t": "Du temps, sans série",
+            "d": "Chaque chaise est assemblée à la commande, à Saumur. Le prix est celui du travail et des matières."
+          },
+          {
+            "t": "Prête à monter, faite pour durer",
+            "d": "Dossier et pieds arrivent démontés, avec leur visserie : vous la montez en quelques minutes."
+          }
+        ]
+      },
+      "chaise-exterieur": {
+        "intro": "Un fauteuil de jardin bon marché se déforme et rouille en quelques saisons. Celui-ci passe l'hiver dehors.",
+        "points": [
+          {
+            "t": "Un acier soudé d'une pièce",
+            "d": "Accoudoirs et dossier sont soudés d'une pièce : aucun boulon à resserrer, rien qui prenne du jeu."
+          },
+          {
+            "t": "Une peinture d'extérieur",
+            "d": "Elle tient à la pluie et au sel sans s'écailler : la structure ne rouille pas à la première saison."
+          },
+          {
+            "t": "Des coussins qui sèchent vite",
+            "d": "Mousse à cellules ouvertes, tissu d'extérieur déperlant, housse lavable."
+          },
+          {
+            "t": "Fabriqué à la commande",
+            "d": "Une fabrication à l'unité, à Saumur : le prix est celui du travail et des matières."
+          }
+        ]
+      },
+      "escalier": {
+        "intro": "Un escalier est la pièce la plus exigeante d'une maison : il porte, il doit être sûr, et il se voit. C'est ce que nous fabriquons de plus difficile.",
+        "points": [
+          {
+            "t": "Un limon en acier de forte section",
+            "d": "Un tube d'acier coupé et soudé au TIG à l'atelier, avec un support et une platine sous chaque marche : il porte les marches de chaque côté."
+          },
+          {
+            "t": "Du bois massif, de l'acier, de la sécurité",
+            "d": "Des marches en bois massif, et un garde-corps dessiné selon la norme NF P01-012 (2024) : un escalier se calcule, il ne s'improvise pas."
+          },
+          {
+            "t": "Mesuré chez vous, fabriqué pour vous",
+            "d": "Chaque escalier est dessiné à votre trémie, après une prise de cotes à domicile : aucun escalier de série ne s'adapte ainsi à votre maison."
+          },
+          {
+            "t": "Posé par l'atelier",
+            "d": "La pose est comprise jusqu'à 45 km de Saumur : le prix est celui d'un escalier livré et installé, sans mauvaise surprise."
+          }
+        ]
+      },
+      "garde-corps": {
+        "intro": "Un garde-corps protège des personnes. Le nôtre est calculé pour votre fenêtre, fabriqué à vos cotes, et fourni prêt à poser.",
+        "points": [
+          {
+            "t": "Un acier plein, soudé à la main",
+            "d": "Pas de profilés creux ni de pièces collées : un cadre en acier plein, soudé au TIG, meulé puis peint à l'atelier."
+          },
+          {
+            "t": "Une sécurité calculée, pas estimée",
+            "d": "Hauteur et espaces entre les barres sont calculés d'après vos mesures, selon le Code de la construction et la norme NF P01-012."
+          },
+          {
+            "t": "Une fixation pensée pour votre mur",
+            "d": "Béton, brique, pierre : la fixation est choisie selon votre mur, en inox, et fournie avec la visserie et le guide d'installation."
+          },
+          {
+            "t": "Fabriqué au millimètre, sans intermédiaire",
+            "d": "Chaque garde-corps est fabriqué à la commande, à Saumur. Le prix est celui du travail et des matières."
+          }
+        ]
+      },
+      "plafond": {
+        "intro": "Un plafond lumineux se voit tous les jours. Le nôtre est fait pour votre pièce, au centimètre près.",
+        "points": [
+          {
+            "t": "Un caisson en aluminium soudé",
+            "d": "Une ossature en tube d'aluminium soudée à l'atelier, habillée d'une tôle d'aluminium peinte."
+          },
+          {
+            "t": "Une toile tendue qui diffuse la lumière",
+            "d": "Un profilé la pince tout autour du caisson ; elle diffuse la lumière sans point chaud."
+          },
+          {
+            "t": "Fait à vos dimensions",
+            "d": "Au centimètre près, jusqu'à 400 × 300 cm : aucun format standard à subir."
+          },
+          {
+            "t": "Fabriqué à la commande, à Saumur",
+            "d": "Le prix est celui du travail et des matières, pas d'un stock ni d'un revendeur."
+          }
+        ]
+      },
+      "portail": {
+        "intro": "Un portail se voit de la rue et sert tous les jours, pendant des décennies. Le nôtre est soudé, thermolaqué et fabriqué pour votre entrée.",
+        "points": [
+          {
+            "t": "Une matière faite pour dehors",
+            "d": "De l'aluminium soudé au TIG et thermolaqué, ou de l'acier galvanisé à chaud puis thermolaqué : deux protections qui tiennent dans le temps."
+          },
+          {
+            "t": "Composé à votre goût, vérifié",
+            "d": "Forme, remplissage, couleur : vous composez, le dessin suit à l'échelle, et ce qui ne se fabrique pas est refusé, avec la raison."
+          },
+          {
+            "t": "Une visite avant fabrication",
+            "d": "L'atelier vient relever les cotes : le portail est fabriqué à votre passage, pas à une taille standard."
+          },
+          {
+            "t": "Posé et réglé par l'atelier",
+            "d": "Visite et pose comprises jusqu'à 45 km de Saumur ; moteur, cellules et réglage des efforts en option, posés par nos soins."
+          }
+        ]
+      }
+    },
+    "etapesTitre": "Comment votre pièce est faite",
+    "etapes": [
+      {
+        "t": "Vos cotes",
+        "d": "Vous les entrez en ligne, ou l'atelier vient les prendre chez vous."
+      },
+      {
+        "t": "Le prix et le plan",
+        "d": "Affichés tout de suite ; le devis PDF se télécharge sans compte."
+      },
+      {
+        "t": "Votre accord",
+        "d": "La commande lance la fabrication."
+      },
+      {
+        "t": "La fabrication à Saumur",
+        "d": "L'acier est coupé, soudé à la main, meulé puis peint ; le bois massif est poncé et huilé."
+      },
+      {
+        "t": "Chez vous",
+        "d": "Livraison en France métropolitaine, livraison et pose par l'atelier, ou retrait à Saumur."
+      }
+    ]
   },
   "devis": {
     "title": "Demander un devis",
@@ -520,7 +952,7 @@
       },
       {
         "titre": "Entrez vos cotes",
-        "texte": "En centimètres ou en millimètres, guidé par un croquis coté. Deux mesures suffisent pour un garde-corps."
+        "texte": "En centimètres ou en millimètres, guidé par un croquis coté. Trois mesures suffisent pour un garde-corps."
       },
       {
         "titre": "Le prix s'affiche",
@@ -540,7 +972,7 @@
     },
     "saisie": {
       "table": "Longueur et largeur du plateau, épaisseur 28, 36 ou 45 mm",
-      "gardeCorps": "Deux mesures de la fenêtre, prises au mètre",
+      "gardeCorps": "Trois mesures de la fenêtre, prises au mètre",
       "plafondRect": "Longueur et largeur du caisson, au centimètre",
       "plafondRond": "Diamètre du caisson, au centimètre"
     },
@@ -566,7 +998,7 @@
         "texte": "Une seule main, de la coupe à la pose."
       },
       {
-        "titre": "Livraison partout en France, pose en option",
+        "titre": "Livraison en France métropolitaine, pose en option",
         "texte": "France métropolitaine, prix selon votre ville."
       },
       {
@@ -581,29 +1013,30 @@
   },
   "apropos": {
     "title": "À propos",
-    "histoireTitle": "Notre histoire",
-    "histoireBody": "Auboiacier est un atelier de métallerie installé à Saumur, en Maine-et-Loire. À sa tête, Quentin Aumercier, soudeur-métallier formé sur les chantiers et dans les ateliers, en France puis en Australie, où il a travaillé plusieurs années chez un fabricant de plafonds lumineux. Il en a rapporté une méthode : mesurer juste, souder propre, finir sans compromis. De retour en Anjou, il a ouvert l'atelier pour fabriquer des tables, des escaliers, des garde-corps et des plafonds lumineux — pièce par pièce, à la commande, pour des clients qui savent ce qu'ils veulent.",
-    "savoirFaireTitle": "Notre savoir-faire",
-    "savoirFaireBody": [
-      "Tout est fabriqué ici, à Saumur. L'acier est coupé, soudé au TIG et meulé à l'atelier ; le bois massif est débité, collé, poncé et huilé sur le même établi ; les cadres aluminium des plafonds lumineux sont coupés en onglet et ajustés au millimètre. Rien n'est sous-traité, rien n'est importé.",
-      "Ce que cela change pour vous : des cotes tenues au millimètre, des soudures pleines que l'on peut regarder de près, des finitions qui vieillissent bien. Et une pièce que nous connaissons par cœur — s'il faut la reprendre dans dix ans, nous savons exactement comment elle est faite."
-    ],
-    "valeursTitle": "Nos valeurs",
-    "valeurs": [
-      {
-        "title": "Le sur-mesure d'abord",
-        "body": "Chaque pièce part de votre espace et de votre usage — jamais d'un catalogue."
-      },
-      {
-        "title": "La matière honnête",
-        "body": "Bois massif, acier soudé à l'atelier, soudures assumées : rien n'est plaqué, rien n'est caché."
-      },
-      {
-        "title": "Le travail garanti",
-        "body": "Fabriqué et posé par la même main, couvert par la garantie légale, et réparable bien après."
-      }
-    ],
-    "photoAlt": "Le château et les quais de Saumur au coucher du soleil, reflétés dans la Loire"
+    "surtitre": "L'atelier Auboiacier",
+    "h1": "L'acier et le bois massif, façonnés pour durer.",
+    "intro": "Auboiacier est un atelier de métallerie qui ouvre à Saumur. Chaque pièce y est fabriquée sur mesure, à la commande.",
+    "faconTitre": "Notre façon de travailler",
+    "facon": "Chaque pièce naît à l'atelier de Saumur, à vos cotes. L'acier y est découpé et soudé, le bois massif mis à format et huilé, chaque finition soignée à la main jusqu'au dernier détail. Une fabrication pensée pour traverser les années.",
+    "prixTitre": "Le prix, avant tout",
+    "prix": "Le prix est clair, et vous le connaissez avant de commander : en ligne pour la plupart des pièces, sur devis pour les autres. Un prix juste, pour que le travail bien fait reste accessible.",
+    "fabriqueTitre": "Ce que fabrique l'atelier",
+    "fabrique": {
+      "gardeCorps": "Garde-corps",
+      "escaliers": "Escaliers",
+      "verrieres": "Verrières",
+      "tables": "Tables",
+      "plafonds": "Plafonds lumineux",
+      "sculptures": "Sculptures",
+      "soudure": "Soudure et réparations"
+    },
+    "hommeTitre": "Quentin Aumercier fabrique vos pièces.",
+        "homme": "Métallier-soudeur, j'ai exercé en France puis en Australie, sur des ouvrages de toutes tailles, avant de fonder Auboiacier à Saumur. Garde-corps, escaliers, verrières, mobilier, plafonds lumineux : chaque ouvrage est conçu à vos cotes, soudé et fini avec la même exigence, en acier et en bois massif, pour durer. J'ai aussi exercé en ébénisterie : je travaille le bois massif avec la même exigence que l'acier, du choix des planches à la finition.",
+    "parcours": "Vous avez un seul interlocuteur, de la prise de cotes à la livraison, et un prix annoncé clairement avant toute commande.",
+    "signature": "CAP et BP Métallier",
+    "finTitre": "Parlons de votre pièce.",
+    "ctaDevis": "Calculer mon prix",
+    "ctaContact": "Nous écrire"
   },
   "contact": {
     "title": "Contact",
@@ -612,7 +1045,7 @@
     "points": [
       "Réponse sous 48 h",
       "Estimation gratuite, sans engagement",
-      "Atelier à Saumur, livraison et pose partout en France"
+      "Atelier à Saumur, livraison et pose partout en France métropolitaine"
     ],
     "detailsTitle": "Coordonnées",
     "email": "auboiacier@gmail.com",
@@ -650,7 +1083,7 @@
       "required": "Merci de remplir le nom, l'e-mail, la ville et le message.",
       "notConfigured": "L'envoi automatique n'est pas encore activé. Écrivez-nous par e-mail en attendant.",
       "tooBig": "Pièces jointes trop lourdes : 10 fichiers au plus, 4 Mo en tout (un PDF n'est pas réduit).",
-      "privacy": "Vos informations servent uniquement à répondre à votre demande, et sont conservées trois ans au plus.",
+      "privacy": "Vos informations servent uniquement à répondre à votre demande, et sont conservées trois ans au plus. Pour les photos, évitez celles où l'on reconnaît des personnes.",
       "privacyLink": "Politique de confidentialité",
       "sendFailed": "L'envoi automatique a échoué. Vous pouvez nous écrire directement :",
       "sendFailedCta": "Ouvrir ma messagerie",
@@ -669,17 +1102,28 @@
   "sculptures": {
     "title": "Sculptures",
     "tagline": "Pièces uniques en acier de récupération, soudées à la main.",
-    "intro": "Le cheval cabré est né de centaines de chutes d'acier — clés, chaînes, boulons, tôles — soudées une à une jusqu'à retrouver le mouvement d'un animal vivant. Ce n'est pas un produit de série : c'est une œuvre.",
+    "intro": "Un sujet, une taille, une place : chaque sculpture naît de chutes d'acier — clés, chaînes, boulons, tôles — soudées une à une. Le cheval cabré de l'image est une idée de sujet : un modèle que l'atelier peut réaliser sur commande.",
     "body": "Chaque sculpture est pensée avec vous : le sujet, la taille, la matière, le socle et l'endroit où elle sera posée. Le travail se fait à l'atelier, à la main, et demande plusieurs semaines selon la pièce. Elles vivent aussi bien dehors, sous la pluie, que dans une entrée.",
     "priceTitle": "Prix",
     "priceBody": "Sur devis — chaque pièce étant unique, le prix dépend du sujet, des dimensions et du temps de fabrication.",
     "cta": "Parler de votre projet",
     "photoAlt": "Cheval cabré en acier de récupération soudé à la main, devant une longère en pierre",
     "torseTitle": "Un torse en pièces de récupération",
-    "torseBody": "Chaînes, charnières, tôles, boulons : chaque pièce est soudée à la main, une à une, jusqu'à dessiner les courbes d'un corps.",
+    "torseBody": "Chaînes, charnières, tôles, boulons : chaque pièce est soudée à la main, une à une, jusqu'à dessiner les courbes d'un corps. Ce torse a été réalisé par Quentin avant l'ouverture de l'atelier. C'est un essai personnel : il n'est pas à vendre.",
     "torseVideoAlt": "Vidéo : un torse en acier de récupération soudé à la main, filmé en tournant autour, dans la lumière du soir",
     "videoPause": "Mettre la vidéo en pause",
-    "videoPlay": "Lire la vidéo"
+    "videoPlay": "Lire la vidéo",
+    "h1": "Sculptures en acier de récupération, soudées à la main",
+    "commandeTitle": "Comment se passe une commande",
+    "commandeEtapes": [
+      "Vous décrivez le sujet, la taille et la place : dedans, dehors, sur un socle ou au mur.",
+      "Quentin vous propose un croquis et un prix.",
+      "La sculpture est soudée à la main à l'atelier, pièce par pièce : comptez plusieurs semaines selon la taille.",
+      "Livraison, ou retrait à Saumur."
+    ],
+    "matieresTitle": "Les matières",
+    "matieresBody": "Clés, chaînes, boulons, charnières, tôles : des pièces d'acier qui ont déjà servi, triées puis soudées une à une. Chaque sculpture est une pièce unique : elle ne se refait jamais à l'identique.",
+    "serviceNom": "Sculpture en acier sur commande"
   },
   "verrieres": {
     "title": "Verrières d'intérieur",
@@ -695,7 +1139,33 @@
     "detailAlt": "Poignée en laiton massif sur le montant acier d'une verrière",
     "panelTitle": "Des panneaux pleins quand il faut",
     "panelBody": "En partie basse, le verre peut céder la place à de la tôle d'acier raidie par une croix de Saint-André : le bas de porte encaisse les chocs et les coups de pied, et la verrière gagne en caractère.",
-    "panelAlt": "Panneau bas d'une verrière en tôle d'acier noire avec croix de Saint-André"
+    "panelAlt": "Panneau bas d'une verrière en tôle d'acier noire avec croix de Saint-André",
+    "atelierTitle": "Séparer sans fermer",
+    "h1": "Verrières d'atelier en acier, sur mesure",
+    "usagesTitle": "Pour quelle pièce ?",
+    "usages": [
+      {
+        "t": "Cuisine ouverte",
+        "d": "La verrière arrête les odeurs et le bruit, pas la lumière."
+      },
+      {
+        "t": "Salon ou chambre",
+        "d": "On gagne une pièce sans perdre le jour."
+      },
+      {
+        "t": "Bureau à la maison",
+        "d": "On s'isole en gardant un œil sur le reste de la maison."
+      },
+      {
+        "t": "Entrée ou couloir",
+        "d": "La lumière du jour passe d'une pièce à l'autre."
+      }
+    ],
+    "cotesTitle": "La prise de cotes",
+    "cotesBody": "L'atelier vient mesurer chez vous — {prixVisite} jusqu'à {rayonVisite} km de Saumur — puis vous envoie le devis et le plan.",
+    "cotesLien": "Réserver une prise de cotes",
+    "photosTexte": "Deux verrières réalisées par Quentin avant l'ouverture de l'atelier.",
+    "serviceNom": "Verrière d'atelier sur mesure"
   },
   "panier": {
     "title": "Votre panier",
@@ -708,10 +1178,12 @@
     "cgvAccept": "J'ai lu et j'accepte les",
     "cgvLink": "conditions générales de vente",
     "cgvRequired": "Merci d'accepter les conditions générales de vente.",
+    "avantDelaiAccept": "Je demande que la visite de prise de cotes ait lieu avant la fin du délai de rétractation de 14 jours, et je reconnais perdre ce droit une fois la visite effectuée.",
+    "avantDelaiRequired": "Pour réserver la visite, merci de cocher la case ci-dessus.",
     "checkout": "Payer ma commande",
     "redirecting": "Ouverture du paiement sécurisé…",
     "securedBy": "Paiement sécurisé par carte bancaire. Vos coordonnées bancaires ne transitent jamais par notre site.",
-    "privacyNote": "Vos coordonnées et votre adresse sont saisies sur la page de Stripe et servent uniquement à la commande.",
+    "privacyNote": "Vos coordonnées et votre adresse sont saisies sur la page de Stripe et servent à la commande et à son suivi (dont une seule demande d'avis après la livraison).",
     "privacyLink": "Politique de confidentialité",
     "removedLine": "Une pièce n'est plus disponible dans cette configuration : elle a été retirée du panier.",
     "unavailable": "Une pièce du panier n'est plus commandable en ligne. Retirez-la ou demandez un devis.",
@@ -724,10 +1196,11 @@
     "cityNote": "Pour savoir où va la pièce et organiser la livraison. L'adresse complète se donne juste après, au paiement.",
     "cityRequired": "Merci d'indiquer votre ville avant de payer.",
     "badPostcode": "Le code postal de la prise de cotes n'est pas valable, ou le créneau n'est plus libre : retirez la ligne et recommencez depuis la fiche.",
+    "visitePortail": "Un portail se commande avec sa visite de prise de cotes : rouvrez la fiche du portail et choisissez votre créneau.",
     "lot": "Remise plusieurs garde-corps",
     "recap": "Récapitulatif",
     "pieces": "Pièces",
-    "remiseNote": "Plusieurs garde-corps : les frais fixes de l'atelier ne comptent qu'une fois",
+    "remiseNote": "Plusieurs garde-corps dans la même commande",
     "retrait": "Retrait à l'atelier, gratuit",
     "modeManquant": "Choisissez comment recevoir vos pièces (livraison, pose ou retrait à l'atelier) : rouvrez la fiche de la pièce.",
     "tarifCalcul": "Calcul des prix…",
@@ -737,18 +1210,32 @@
     "deliveryIncluded": "Comprise",
     "poseLine": "Pose à domicile",
     "deliveryWithPose": "Dans la pose",
-    "prevenirTitre": "L'atelier ouvre fin novembre 2026",
-    "prevenirTexte": "Auboiacier est en cours de création. Les commandes ouvrent fin novembre 2026. Laissez votre e-mail : nous vous écrivons dès l'ouverture, avec votre panier. Aucun paiement avant.",
+    "prevenirTitre": "Commandes en ligne : ouverture le lundi 7 décembre 2026",
+    "prevenirTexte": "D'ici là, rien à payer. Laissez votre e-mail : nous vous écrivons ce jour-là avec votre panier, et votre commande passe en priorité dans le planning de l'atelier.",
     "prevenirEmail": "Votre e-mail",
     "prevenirEmailPh": "vous@exemple.fr",
     "prevenirBouton": "Me prévenir à l'ouverture",
     "prevenirEnvoi": "Envoi…",
-    "prevenirOk": "C'est noté. Nous vous écrivons dès l'ouverture des commandes.",
+    "prevenirOk": "C'est noté : nous vous écrivons le lundi 7 décembre, et votre commande passera en priorité dans le planning de l'atelier.",
     "prevenirInvalide": "Vérifiez votre adresse e-mail.",
     "prevenirErreur": "L'envoi n'a pas marché. Réessayez, ou",
-    "prevenirNote": "Votre e-mail sert seulement à vous prévenir de l'ouverture. Nous l'effaçons ensuite.",
+    "prevenirNote": "Votre e-mail sert seulement à vous prévenir de l'ouverture et à vous donner la priorité. Nous l'effaçons ensuite.",
     "prevenirDevis": "Une question sur votre projet ?",
-    "prevenirDevisLien": "Demander un devis"
+    "prevenirDevisLien": "Demander un devis",
+    "garantieAjouter": "Ajouter la Garantie cotes (+{prix})",
+    "garantieTexte": "Si vos cotes étaient fausses, l'atelier modifie ou refait la pièce une fois, à la bonne cote (demande sous 15 jours, pièce non posée, renvoi à votre charge).",
+    "garantieLien": "Ce qu'elle couvre",
+    "garantieRecap": "Garantie cotes",
+    "deliveryPortail": "Pose comprise",
+    "soldePortail": "Solde du portail, à la réception (visite déduite)",
+    "soldeNote": "Pour un portail, vous payez aujourd'hui l'acompte de 40 % et la visite de prise de cotes ; la visite est déduite du solde, qui se règle à la réception du portail posé.",
+    "soldePortailTransporteur": "Solde du portail, avant l'expédition",
+    "soldePortailRetrait": "Solde du portail, au retrait",
+    "soldePortailMixte": "Solde des portails",
+    "soldeNoteTransporteur": "Pour un portail livré par transporteur, vous payez aujourd'hui l'acompte de 40 % et la livraison ; le solde se règle avant l'expédition. La pose n'est pas comprise.",
+    "soldeNoteRetrait": "Pour un portail retiré à l'atelier, vous payez aujourd'hui l'acompte de 40 % ; le solde se règle au retrait, à Saumur. La pose n'est pas comprise.",
+    "garantieExclueVisite": "Garantie cotes : non proposée avec la prise de cotes à domicile, puisque l'atelier mesure lui-même.",
+    "garantieExcluePose": "Garantie cotes : non proposée avec la pose par l'atelier."
   },
   "commande": {
     "title": "Commande",
@@ -780,7 +1267,7 @@
       },
       {
         "title": "4. Commande et paiement",
-        "body": "Les pièces du catalogue se règlent par carte bancaire au moment de la commande, en une fois : la totalité du prix est encaissée à la commande, et la facture est envoyée automatiquement. Le paiement est traité par notre prestataire Stripe ; aucune donnée bancaire n'est enregistrée par Auboiacier. Pour les réalisations sur mesure faisant l'objet d'un devis, les modalités de paiement sont précisées sur ce devis."
+        "body": "Les pièces du catalogue se règlent par carte bancaire au moment de la commande, en une fois : la totalité du prix est encaissée à la commande, et la facture est envoyée automatiquement. Le paiement est traité par notre prestataire Stripe ; aucune donnée bancaire n'est enregistrée par Auboiacier. Pour les réalisations sur mesure faisant l'objet d'un devis, les modalités de paiement sont précisées sur ce devis. Pour un portail commandé en ligne, vous réglez à la commande un acompte de 40 % du prix du portail. Posé par l'atelier : vous réglez aussi la visite de prise de cotes, dont le prix est déduit du solde ; le solde est réglé à la réception du portail posé, et la pose a lieu au plus tard 10 semaines après le paiement de l'acompte. Livré par transporteur : la livraison s'ajoute au prix ; elle est calculée selon la taille, le poids et l'encombrement du portail, qui voyage debout, emballé et calé sur une palette ; le solde est réglé avant l'expédition. Retiré à l'atelier, à Saumur : le solde est réglé au retrait. Sans la pose, l'installation n'est pas comprise et aucun moteur n'est proposé : la motorisation n'est vendue que posée par l'atelier, pour garantir la conformité CE de l'ensemble."
       },
       {
         "title": "5. Délais de fabrication",
@@ -792,7 +1279,7 @@
       },
       {
         "title": "7. Droit de rétractation",
-        "body": "Conformément à l'article L221-28 3° du code de la consommation, le droit de rétractation de quatorze jours ne s'applique pas aux biens confectionnés selon les spécifications du consommateur ou nettement personnalisés. Nos pièces étant fabriquées à la commande avec des dimensions, essences et finitions choisies par le client, elles entrent dans cette exception et ne sont ni reprises ni échangées, sauf accord exprès de notre part.\n\nSi une pièce vous était vendue sans personnalisation ni fabrication à vos cotes, le délai de rétractation de quatorze jours s'appliquerait normalement : un e-mail suffirait, et le remboursement serait fait dans les conditions de l'article 9."
+        "body": "Conformément à l'article L221-28 3° du code de la consommation, le droit de rétractation de quatorze jours ne s'applique pas aux biens confectionnés selon les spécifications du consommateur ou nettement personnalisés. Nos pièces étant fabriquées à la commande avec des dimensions, essences et finitions choisies par le client, elles entrent dans cette exception et ne sont ni reprises ni échangées, sauf accord exprès de notre part.\n\nSi une pièce vous était vendue sans personnalisation ni fabrication à vos cotes, le délai de rétractation de quatorze jours s'appliquerait normalement : un e-mail suffirait, et le remboursement serait fait dans les conditions de l'article 9.\n\nLa visite de prise de cotes réservée en ligne est un service : vous disposez de quatorze jours à compter de la commande pour vous rétracter. Comme la visite a généralement lieu avant la fin de ce délai, nous vous demandons, au moment de commander, de le demander expressément en cochant une case. Si vous vous rétractez avant la visite, elle vous est remboursée en totalité. Une fois la visite effectuée, vous ne pouvez plus vous rétracter (article L221-28 1° du code de la consommation).\n\nPour exercer votre droit de rétractation, un e-mail à auboiacier@gmail.com suffit. Vous pouvez aussi utiliser le modèle ci-dessous (article R221-1) :\n\n« À l'attention d'Auboiacier, auboiacier@gmail.com : je vous notifie par la présente ma rétractation du contrat portant sur la vente du bien / la prestation de service ci-dessous : [référence de la commande]. Commandé le [date] / reçu le [date]. Nom du consommateur : [nom]. Adresse du consommateur : [adresse]. Date : [date]. Signature (uniquement en cas de notification sur papier). »"
       },
       {
         "title": "8. Garanties",
@@ -808,11 +1295,16 @@
       },
       {
         "title": "11. Médiation de la consommation",
-        "body": "Avant tout, écrivez-nous : la plupart des désaccords se règlent en quelques échanges. Si notre réponse ne vous convient pas, vous pouvez faire appel gratuitement à un médiateur de la consommation. Les coordonnées du médiateur auquel l'atelier adhère vous sont communiquées avec notre réponse écrite et figurent sur nos factures. Vous pouvez également déposer votre litige sur la plateforme européenne de règlement en ligne des litiges : ec.europa.eu/consumers/odr."
+        "body": "Avant tout, écrivez-nous : la plupart des désaccords se règlent en quelques échanges. Si notre réponse ne vous convient pas, vous pouvez faire appel gratuitement à un médiateur de la consommation. Le médiateur auquel l'atelier adhère est indiqué ci-dessous, avec son site et son adresse ; ses coordonnées figurent aussi sur nos factures. Vous pouvez le saisir dans un délai d'un an à compter de votre réclamation écrite auprès de nous."
       },
       {
         "title": "12. Droit applicable",
         "body": "Les présentes conditions sont soumises au droit français. Elles sont acceptées en cochant la case prévue dans le panier, avant le paiement. En cas de litige, une solution amiable est recherchée en priorité (article 11) ; à défaut, les tribunaux français sont compétents."
+      },
+      {
+        "id": "garantie-cotes",
+        "title": "13. Contrat de garantie commerciale « Garantie cotes » (option)",
+        "body": "La Garantie cotes est une option payante, proposée au panier sur les pièces vendues en ligne dont vous donnez vous-même les cotes ou la taille (garde-corps, plafonds lumineux, tables). Elle n'est jamais ajoutée d'office : vous la cochez pièce par pièce, avant de payer. Elle n'est pas proposée quand la commande comprend la prise de cotes à domicile (l'atelier mesure lui-même) ou la pose par l'atelier.\n\nPourquoi elle existe. Une pièce fabriquée à vos cotes n'ouvre pas droit à la rétractation (article L221-28 3° du code de la consommation, voir l'article 7). Si vos cotes étaient fausses, la pièce ne vous irait pas, sans pour autant être défectueuse. La Garantie cotes couvre ce risque-là.\n\nCe qu'elle couvre. Pour chaque pièce garantie : une seule modification ou refabrication de la pièce, aux cotes corrigées que vous nous donnez.\n\nConditions de mise en œuvre :\n– vous nous écrivez (e-mail à auboiacier@gmail.com, ou courrier) dans les 15 jours qui suivent la livraison ou le retrait de la pièce, en donnant vos nouvelles cotes ;\n– la pièce n'a été ni posée, ni percée, ni coupée, ni abîmée ; vous la renvoyez dans son emballage, ou vous la rapportez à l'atelier, à Saumur ;\n– le renvoi de la pièce à l'atelier est à votre charge ;\n– la réexpédition de la pièce corrigée vous est offerte, en France métropolitaine, par le même mode de livraison que la commande ;\n– les nouvelles cotes restent dans les limites indiquées sur la fiche de la pièce ;\n– si la pièce aux nouvelles cotes coûte plus cher, seule la différence de prix est due ; si elle coûte moins cher, rien n'est remboursé ;\n– la pièce corrigée suit le délai de fabrication normal indiqué sur sa fiche, à compter de la réception de la pièce et des nouvelles cotes.\n\nCe qu'elle ne couvre pas (exclusions) : un changement d'avis sur le modèle, l'essence, la teinte ou la finition ; les dégâts dus à une pose, ou au transport du renvoi ; les pièces vendues sur devis dont l'atelier a pris les cotes lui-même (escalier, verrière, sculpture…) ; les pièces de taille unique (chaise, fauteuil).\n\nPrix : {garantiePct} du prix de la pièce (options comprises), arrondi à l'euro supérieur, au minimum {garantieMin} et au maximum {garantieMax} par pièce. Le prix exact s'affiche à côté de la case, dans le panier, puis sur une ligne distincte de la commande et de la facture.\n\nDurée : 15 jours à compter de la livraison (ou du retrait à l'atelier) de la pièce.\n\nTerritoire : France métropolitaine.\n\nGarant : Auboiacier, atelier de métallerie à Saumur (Maine-et-Loire) — identité, adresse et identifiants dans les mentions légales et ci-dessous ; e-mail : auboiacier@gmail.com.\n\nVos garanties légales restent entières. La Garantie cotes s'applique sans préjudice du droit pour le consommateur de bénéficier de la garantie légale de conformité, dans les conditions prévues aux articles L217-3 et suivants du code de la consommation, et de celle relative aux vices cachés, dans les conditions prévues aux articles 1641 à 1649 du code civil. Elle s'applique en sus des droits dont vous bénéficiez au titre de la garantie légale de conformité, pendant toute la durée de celle-ci, sans les remplacer : elle couvre une erreur dans vos cotes, que les garanties légales ne couvrent pas ; un défaut de la pièce relève toujours, gratuitement, des garanties légales (article 8). L'encadré officiel sur la garantie légale de conformité et les vices cachés, reproduit à la fin de ces conditions, fait partie de ce contrat."
       }
     ],
     "privacyCta": "Lire la politique de confidentialité",
@@ -820,14 +1312,15 @@
     "garantieIntro": "Le texte ci-dessous est celui imposé par la loi française. Il est reproduit tel quel, sans rien y changer.",
     "garantieBody": "Le consommateur dispose d'un délai de deux ans à compter de la délivrance du bien pour obtenir la mise en œuvre de la garantie légale de conformité en cas d'apparition d'un défaut de conformité. Durant ce délai, le consommateur n'est tenu d'établir que l'existence du défaut de conformité et non la date d'apparition de celui-ci.\n\nLa garantie légale de conformité donne au consommateur droit à la réparation ou au remplacement du bien dans un délai de trente jours suivant sa demande, sans frais et sans inconvénient majeur pour lui.\n\nSi le bien est réparé dans le cadre de la garantie légale de conformité, le consommateur bénéficie d'une extension de six mois de la garantie initiale.\n\nSi le consommateur demande la réparation du bien, mais que le vendeur impose le remplacement, la garantie légale de conformité est renouvelée pour une période de deux ans à compter de la date de remplacement du bien.\n\nLe consommateur peut obtenir une réduction du prix d'achat en conservant le bien ou mettre fin au contrat en se faisant rembourser intégralement contre restitution du bien, si :\n1° Le professionnel refuse de réparer ou de remplacer le bien ;\n2° La réparation ou le remplacement du bien intervient après un délai de trente jours ;\n3° La réparation ou le remplacement du bien occasionne un inconvénient majeur pour le consommateur, notamment lorsque le consommateur supporte définitivement les frais de reprise ou d'enlèvement du bien non conforme, ou s'il supporte les frais d'installation du bien réparé ou de remplacement ;\n4° La non-conformité du bien persiste en dépit de la tentative de mise en conformité du vendeur restée infructueuse.\n\nLe consommateur a également droit à une réduction du prix du bien ou à la résolution du contrat lorsque le défaut de conformité est si grave qu'il justifie que la réduction du prix ou la résolution du contrat soit immédiate. Le consommateur n'est alors pas tenu de demander la réparation ou le remplacement du bien au préalable.\n\nLe consommateur n'a pas droit à la résolution de la vente si le défaut de conformité est mineur.\n\nToute période d'immobilisation du bien en vue de sa réparation ou de son remplacement suspend la garantie qui restait à courir jusqu'à la délivrance du bien remis en état.\n\nLes droits mentionnés ci-dessus résultent de l'application des articles L. 217-1 à L. 217-32 du code de la consommation.\n\nLe vendeur qui fait obstacle de mauvaise foi à la mise en œuvre de la garantie légale de conformité encourt une amende civile d'un montant maximal de 300 000 euros, qui peut être porté jusqu'à 10 % du chiffre d'affaires moyen annuel (article L. 241-5 du code de la consommation).\n\nLe consommateur bénéficie également de la garantie légale des vices cachés en application des articles 1641 à 1649 du code civil, pendant une durée de deux ans à compter de la découverte du défaut. Cette garantie donne droit à une réduction de prix si le bien est conservé ou à un remboursement intégral contre restitution du bien.",
     "mediateurLabel": "Médiateur de la consommation auquel l'atelier adhère",
-    "tvaLabel": "Régime de TVA"
+    "tvaLabel": "Régime de TVA",
+    "garantLabel": "Coordonnées du garant"
   },
   "mentionsLegales": {
     "title": "Mentions légales",
     "sections": [
       {
         "title": "Éditeur du site",
-        "body": "Auboiacier — atelier de métallerie, à Saumur (Maine-et-Loire). Contact : auboiacier@gmail.com."
+        "body": "Quentin Aumercier, sous le nom commercial Auboiacier — atelier de métallerie, à Saumur (Maine-et-Loire). Contact : auboiacier@gmail.com."
       },
       {
         "title": "Directeur de la publication",
@@ -835,7 +1328,7 @@
       },
       {
         "title": "Hébergeur",
-        "body": "Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, États-Unis — vercel.com."
+        "body": "Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis — téléphone : +1 559 288 7060 — vercel.com. Les fonctions du site s'exécutent à Paris (région cdg1)."
       },
       {
         "title": "Paiement et e-mails",
@@ -843,11 +1336,15 @@
       },
       {
         "title": "Propriété intellectuelle",
-        "body": "Les textes, photographies et créations présentés sur ce site sont la propriété d'Auboiacier. Toute reproduction sans autorisation est interdite."
+        "body": "Les textes, images et créations présentés sur ce site sont la propriété d'Auboiacier. Toute reproduction sans autorisation est interdite."
       },
       {
         "title": "Données personnelles",
-        "body": "Les données transmises par les formulaires ou lors d'une commande servent uniquement à répondre à votre demande et à traiter votre commande. Vous disposez de droits d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité : écrivez à auboiacier@gmail.com. Le détail — données recueillies, prestataires, durées, transferts, cookies, recours auprès de la CNIL — figure dans la politique de confidentialité."
+        "body": "Les données transmises par les formulaires ou lors d'une commande servent à répondre à votre demande, à traiter votre commande et à son suivi (dont une seule demande d'avis après la livraison). Vous disposez de droits d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité : écrivez à auboiacier@gmail.com. Le détail — données recueillies, prestataires, durées, transferts, cookies, recours auprès de la CNIL — figure dans la politique de confidentialité."
+      },
+      {
+        "title": "Images d'illustration",
+        "body": "Les images marquées « Image d'illustration » présentent nos modèles ; la pièce fabriquée à vos cotes peut différer légèrement (proportions, teinte du bois, finition)."
       }
     ],
     "privacyCta": "Lire la politique de confidentialité",
@@ -857,13 +1354,14 @@
     "labelStatut": "Statut juridique",
     "labelAdresse": "Adresse du siège",
     "labelSiret": "SIRET",
+    "labelImmatriculation": "Immatriculation",
     "labelTva": "Numéro de TVA",
     "labelTelephone": "Téléphone"
   },
   "confidentialite": {
     "title": "Politique de confidentialité",
-    "intro": "Cette page explique quelles informations le site auboiacier.fr recueille sur vous, pourquoi, qui les reçoit, combien de temps nous les gardons et comment exercer vos droits. Elle s'applique aux demandes de devis et de contact, aux demandes de rendez-vous et aux commandes passées en ligne.",
-    "updated": "Dernière mise à jour : septembre 2026.",
+    "intro": "Cette page explique quelles informations le site auboiacier.fr recueille sur vous, pourquoi, qui les reçoit, combien de temps nous les gardons et comment exercer vos droits. Elle s'applique aux demandes de devis et de contact, aux demandes de rendez-vous, aux commandes passées en ligne et à l'espace client.",
+    "updated": "Dernière mise à jour : octobre 2026.",
     "sections": [
       {
         "title": "1. Qui est responsable de vos données",
@@ -871,23 +1369,23 @@
       },
       {
         "title": "2. Les données que nous recueillons, selon ce que vous faites",
-        "body": "Vous consultez le site sans rien remplir : nous ne recueillons aucune donnée personnelle. Votre panier est mémorisé dans votre navigateur uniquement (article 8). Les journaux techniques de l'hébergeur enregistrent votre adresse IP et le type de navigateur, quelques jours au plus, pour faire fonctionner et protéger le site.\n\nVous demandez un devis ou nous contactez : nom, adresse e-mail, téléphone (facultatif), ville, type de projet, votre message, et les photos ou plans que vous joignez (JPG, PNG ou PDF). La langue dans laquelle vous consultiez le site est transmise avec la demande, pour vous répondre dans cette langue.\n\nVous demandez un rendez-vous de prise de cotes : les mêmes informations, plus la demi-journée souhaitée. Si vous réservez et payez la visite en ligne, votre code postal sert à calculer le prix du déplacement, et la réservation est traitée comme une commande.\n\nVous commandez en ligne : la ville de livraison (demandée dans le panier), le détail de la commande (pièces, options, cotes, précisions que vous ajoutez), puis, sur la page de paiement de Stripe : nom, e-mail, téléphone, adresse de livraison et coordonnées bancaires. Vos coordonnées bancaires sont saisies chez Stripe et ne transitent jamais par notre site.\n\nNous ne recueillons rien d'autre : pas de compte client, pas de mot de passe, pas de profil, pas de données sensibles. Merci de ne pas en inscrire dans le champ libre de vos messages."
+        "body": "Vous consultez le site sans rien remplir : nous ne recueillons aucune donnée personnelle. Votre panier est mémorisé dans votre navigateur uniquement (article 8). Les journaux techniques de l'hébergeur enregistrent votre adresse IP et le type de navigateur, quelques jours au plus, pour faire fonctionner et protéger le site.\n\nVous demandez un devis ou nous contactez : nom, adresse e-mail, téléphone (facultatif), ville, type de projet, votre message, et les photos ou plans que vous joignez (JPG, PNG ou PDF). La langue dans laquelle vous consultiez le site est transmise avec la demande, pour vous répondre dans cette langue.\n\nVous demandez un rendez-vous de prise de cotes : les mêmes informations, plus la demi-journée souhaitée. Si vous réservez et payez la visite en ligne, votre code postal sert à calculer le prix du déplacement, et la réservation est traitée comme une commande.\n\nVous commandez en ligne : la ville de livraison (demandée dans le panier), le détail de la commande (pièces, options, cotes, précisions que vous ajoutez), puis, sur la page de paiement de Stripe : nom, e-mail, téléphone, adresse de livraison et coordonnées bancaires. Vos coordonnées bancaires sont saisies chez Stripe et ne transitent jamais par notre site.\n\nVous demandez à être prévenu de l'ouverture des commandes : votre adresse e-mail et le contenu de votre panier.\n\nAvec une demande, une inscription ou une commande, deux informations peuvent aussi partir : votre réponse au menu « Comment nous avez-vous connu ? » (facultatif) et, si vous êtes arrivé sur le site par un lien de campagne (une publication Instagram, une annonce Google…), la source, le support et le nom de cette campagne, lus dans l'adresse de la page d'arrivée (paramètres « utm »). D'une annonce Google, nous ne gardons que le fait que vous en venez, jamais son identifiant de clic. Cette provenance n'est jamais enregistrée sur votre appareil : elle reste dans la page ouverte et disparaît si vous la rechargez.\n\nVous ouvrez un espace client (facultatif) : votre adresse e-mail, vérifiée par un lien de connexion ou par Google. Si vous choisissez « Continuer avec Google », Google nous transmet votre adresse e-mail et votre nom, rien d'autre. Dans votre espace, vous pouvez enregistrer vos coordonnées (nom, téléphone, adresse de livraison) pour ne pas les ressaisir, et mettre de côté des pièces avec leurs options et leurs cotes (favoris). Ces informations sont conservées dans la fiche client de Stripe liée à votre adresse e-mail. Il n'y a pas de mot de passe.\n\nNous ne recueillons rien d'autre, et aucune donnée sensible. Merci de ne pas en inscrire dans le champ libre de vos messages, et d'éviter les photos où l'on reconnaît des personnes."
       },
       {
         "title": "3. Pourquoi, et sur quelle base",
-        "body": "Répondre à votre demande de devis, de contact ou de rendez-vous, vous prévenir de l'ouverture des commandes si vous l'avez demandé (votre e-mail est effacé ensuite), et vous envoyer un accusé de réception : mesures prises à votre demande avant un éventuel contrat (article 6.1.b du RGPD).\n\nTraiter votre commande, encaisser le paiement, organiser la fabrication, la livraison ou la visite, vous envoyer la confirmation et la facture, assurer les garanties et le service après-vente : exécution du contrat (article 6.1.b).\n\nConserver les factures et les pièces comptables : obligation légale (article 6.1.c ; code de commerce).\n\nProtéger le site contre les abus (limitation du nombre d'envois par adresse IP, champ anti-robot, journaux techniques) et mesurer sa fréquentation sans identifier personne : intérêt légitime (article 6.1.f), sans effet sur vos droits et libertés.\n\nNous ne faisons aucune prospection : pas de lettre d'information, pas de relance publicitaire, pas de revente ni de partage de vos données à des fins de marketing. Si nous proposions un jour une lettre d'information, elle reposerait sur votre consentement, libre et révocable à tout moment."
+        "body": "Répondre à votre demande de devis, de contact ou de rendez-vous, vous prévenir de l'ouverture des commandes et vous donner la priorité de fabrication si vous l'avez demandé (votre e-mail est effacé ensuite), et vous envoyer un accusé de réception : mesures prises à votre demande avant un éventuel contrat (article 6.1.b du RGPD).\n\nVous ouvrir et tenir votre espace client (connexion, coordonnées, favoris, suivi de vos commandes) : service que vous nous demandez (article 6.1.b).\n\nTraiter votre commande, encaisser le paiement, organiser la fabrication, la livraison ou la visite, vous envoyer la confirmation et la facture, assurer les garanties et le service après-vente : exécution du contrat (article 6.1.b).\n\nVous demander votre avis, une seule fois : un e-mail environ dix jours après la livraison, qui vous invite, si vous le souhaitez, à donner votre avis sur la fiche Google de l'atelier, sans relance ni contrepartie : intérêt légitime à suivre la relation avec nos clients (article 6.1.f). Un simple e-mail suffit pour ne pas le recevoir.\n\nConserver les factures et les pièces comptables : obligation légale (article 6.1.c ; code de commerce).\n\nProtéger le site contre les abus (limitation du nombre d'envois par adresse IP, champ anti-robot, journaux techniques) et mesurer sa fréquentation sans identifier personne : intérêt légitime (article 6.1.f), sans effet sur vos droits et libertés.\n\nSavoir comment nos clients nous découvrent (votre réponse au menu « Comment nous avez-vous connu ? », la campagne par laquelle vous êtes arrivé) et compter, sans identifier personne, les prix calculés, les devis, les inscriptions et les commandes, pour décider où faire connaître l'atelier : intérêt légitime (article 6.1.f). Le menu est facultatif ; vous pouvez aussi vous opposer à l'usage de la campagne en nous écrivant.\n\nNous ne faisons aucune prospection : pas de lettre d'information, pas de relance publicitaire, pas de revente ni de partage de vos données à des fins de marketing. Si nous proposions un jour une lettre d'information, elle reposerait sur votre consentement, libre et révocable à tout moment."
       },
       {
         "title": "4. Qui reçoit vos données",
-        "body": "Vos données sont lues par l'artisan lui-même, et traitées par les prestataires ci-dessous, qui agissent pour notre compte, sur nos instructions et uniquement pour les usages indiqués :\n\n— Stripe Payments Europe, Ltd. (Dublin, Irlande) : page de paiement, encaissement, facture, remboursement, conservation des coordonnées et de l'adresse de livraison liées à la commande. Stripe traite aussi certaines données pour son propre compte (lutte contre la fraude, obligations réglementaires), selon sa propre politique de confidentialité : stripe.com/fr/privacy.\n\n— Resend, Inc. (États-Unis) : acheminement de nos e-mails (accusé de réception, confirmation de commande, bon de commande à l'atelier). Le message transite chez Resend le temps d'être remis.\n\n— Vercel Inc. (États-Unis) : hébergement du site et exécution des formulaires. Vercel voit l'adresse IP et les journaux techniques ; si l'envoi d'un bon de commande à l'atelier échoue, la référence, l'e-mail et le code postal de la commande sont inscrits dans ses journaux, quelques jours, pour que la commande ne se perde pas.\n\n— Google (Gmail, Google Ireland Ltd.) : notre boîte e-mail, où arrivent vos demandes et les bons de commande.\n\n— Base Adresse Nationale (service public, api-adresse.data.gouv.fr) : uniquement votre code postal, envoyé par notre serveur, pour calculer la distance d'une prise de cotes. Aucune autre information ne l'accompagne.\n\nNous ne vendons, ne louons et ne cédons vos données à personne. Elles peuvent être communiquées à une autorité si la loi nous l'impose."
+        "body": "Vos données sont lues par l'artisan lui-même, et traitées par les prestataires ci-dessous, qui agissent pour notre compte, sur nos instructions et uniquement pour les usages indiqués :\n\n— Stripe Payments Europe, Ltd. (Dublin, Irlande) : page de paiement, encaissement, facture, remboursement, conservation des coordonnées et de l'adresse de livraison liées à la commande, et de la fiche de votre espace client (coordonnées enregistrées, favoris). Stripe traite aussi certaines données pour son propre compte (lutte contre la fraude, obligations réglementaires), selon sa propre politique de confidentialité : stripe.com/fr/privacy.\n\n— Resend, Inc. (États-Unis) : acheminement de nos e-mails (accusé de réception, lien de connexion, confirmation de commande, bon de commande à l'atelier, demande d'avis après la livraison). Resend garde une copie des messages envoyés quelques jours, pour en suivre la remise, puis les efface.\n\n— Vercel Inc. (États-Unis) : hébergement du site et exécution des formulaires. Vercel voit l'adresse IP et les journaux techniques ; si l'envoi d'un bon de commande à l'atelier échoue, la référence, l'e-mail et le code postal de la commande sont inscrits dans ses journaux, quelques jours, pour que la commande ne se perde pas.\n\n— Google (Gmail, Google Ireland Ltd.) : notre boîte e-mail, où arrivent vos demandes et les bons de commande.\n\n— Google Ireland Ltd., si vous choisissez « Continuer avec Google » : Google vérifie votre identité et nous transmet votre adresse e-mail et votre nom. Pour cette connexion, Google agit selon sa propre politique de confidentialité : policies.google.com/privacy.\n\n— Apple Distribution International Ltd. (Cork, Irlande) : le calendrier de l'artisan (iCloud), où s'affichent les rendez-vous de prise de cotes payés, avec le nom, l'adresse et le téléphone du client.\n\n— Base Adresse Nationale (service public, api-adresse.data.gouv.fr) : uniquement votre code postal, envoyé par notre serveur, pour calculer la distance d'une prise de cotes. Aucune autre information ne l'accompagne.\n\nNous ne vendons, ne louons et ne cédons vos données à personne. Elles peuvent être communiquées à une autorité si la loi nous l'impose."
       },
       {
         "title": "5. Transferts hors de l'Union européenne",
-        "body": "Stripe Payments Europe est établie en Irlande ; elle peut transmettre des données à sa maison mère Stripe, Inc. (États-Unis) dans le cadre des règles d'entreprise contraignantes de Stripe, approuvées par les autorités européennes, et de clauses contractuelles types.\n\nResend et Vercel sont des sociétés américaines : les données qu'elles traitent peuvent être hébergées ou consultées aux États-Unis. Ces transferts sont encadrés par des accords de traitement des données incluant les clauses contractuelles types adoptées par la Commission européenne et, pour les prestataires qui y sont certifiés, par le cadre de protection des données UE–États-Unis (Data Privacy Framework). Lorsque le prestataire le permet, nous choisissons une exécution en Europe (fonctions du site à Paris, envoi des e-mails depuis l'Irlande).\n\nGoogle Ireland peut transférer des données vers Google LLC (États-Unis) sous les mêmes garanties.\n\nVous pouvez obtenir copie des garanties applicables en écrivant à auboiacier@gmail.com."
+        "body": "Stripe Payments Europe est établie en Irlande ; elle peut transmettre des données à sa maison mère Stripe, Inc. (États-Unis), certifiée au cadre de protection des données UE–États-Unis (Data Privacy Framework), et sous clauses contractuelles types.\n\nResend et Vercel sont des sociétés américaines : les données qu'elles traitent peuvent être hébergées ou consultées aux États-Unis. Ces transferts sont encadrés par des accords de traitement des données incluant les clauses contractuelles types adoptées par la Commission européenne et, pour les prestataires qui y sont certifiés, par le cadre de protection des données UE–États-Unis (Data Privacy Framework). Lorsque le prestataire le permet, nous choisissons une exécution en Europe (fonctions du site à Paris, envoi des e-mails depuis l'Irlande).\n\nGoogle Ireland et Apple Distribution International peuvent transférer des données vers leurs maisons mères américaines (Google LLC, Apple Inc.) sous les mêmes garanties.\n\nVous pouvez obtenir copie des garanties applicables en écrivant à auboiacier@gmail.com."
       },
       {
         "title": "6. Combien de temps nous les gardons",
-        "body": "Demande de devis, de contact ou de rendez-vous sans commande : trois ans après notre dernier échange, puis suppression. Les photos et plans joints suivent la même règle.\n\nCommande et rendez-vous payé : les données de la commande et de la facture sont conservées dix ans à compter de la clôture de l'exercice, comme l'exige la loi comptable (article L123-22 du code de commerce). Pendant la garantie légale (deux ans après la livraison), elles servent aussi au service après-vente.\n\nJournaux techniques et compteurs anti-abus : de dix minutes à quelques jours, chez l'hébergeur.\n\nPanier : dans votre navigateur uniquement, jusqu'à ce que vous le vidiez, que la commande soit payée, ou que vous effaciez les données du site dans votre navigateur.\n\nStripe conserve de son côté ce que ses propres obligations légales lui imposent (voir sa politique de confidentialité)."
+        "body": "Demande de devis, de contact ou de rendez-vous sans commande : trois ans après notre dernier échange, puis suppression. Les photos et plans joints suivent la même règle.\n\nCommande et rendez-vous payé : les données de la commande et de la facture sont conservées dix ans à compter de la clôture de l'exercice, comme l'exige la loi comptable (article L123-22 du code de commerce). Pendant la garantie légale (deux ans après la livraison), elles servent aussi au service après-vente.\n\nDemande « me prévenir à l'ouverture » : jusqu'à l'ouverture des commandes, puis effacement au plus tard un mois après.\n\nEspace client : vos coordonnées enregistrées et vos favoris restent tant que vous gardez votre espace. Vous pouvez les modifier depuis l'espace, et le supprimer vous-même à tout moment (« Supprimer mon espace », dans « Vos informations ») : la fiche est alors effacée, sauf ce qui est lié à une commande, que la loi nous oblige à garder. Sans commande ni activité pendant trois ans, nous le supprimons.\n\nJournaux techniques et compteurs anti-abus : de dix minutes à quelques jours, chez l'hébergeur.\n\nPanier : dans votre navigateur uniquement, jusqu'à ce que vous le vidiez, que la commande soit payée, ou que vous effaciez les données du site dans votre navigateur.\n\nStripe conserve de son côté ce que ses propres obligations légales lui imposent (voir sa politique de confidentialité)."
       },
       {
         "title": "7. Vos droits",
@@ -895,7 +1393,7 @@
       },
       {
         "title": "8. Cookies et stockage dans votre navigateur",
-        "body": "Tant que vous n'ouvrez pas d'espace client, ce site ne dépose aucun cookie. Il n'embarque aucun traceur publicitaire, aucun bouton de réseau social, aucune vidéo ni carte de service tiers.\n\nSi vous ouvrez un espace client, le site dépose un cookie, « auboiacier_compte », qui vous garde connecté. Il contient votre adresse e-mail vérifiée et une date d'expiration, signées par le site ; rien d'autre, aucun identifiant publicitaire, et aucun profil. Il est strictement nécessaire au service que vous demandez — sans lui, vous seriez déconnecté à chaque page — et il est donc dispensé de consentement (article 82 de la loi Informatique et Libertés). Il vaut trente jours et s'efface dès que vous vous déconnectez, ou lorsque vous effacez les données du site dans votre navigateur. Pendant la connexion elle-même, un second cookie (« auboiacier_passage ») vit dix minutes : il sert uniquement à vérifier que c'est bien vous qui avez lancé la connexion, et disparaît aussitôt après.\n\nIl utilise par ailleurs un seul espace de stockage local de votre navigateur (« auboiacier-panier-v1 ») pour mémoriser le contenu de votre panier d'une page à l'autre. Cette mémoire est elle aussi strictement nécessaire au service que vous demandez : elle est dispensée de consentement. Elle reste sur votre appareil, ne nous est pas transmise telle quelle, et vous pouvez l'effacer en vidant le panier ou les données du site dans votre navigateur.\n\nMesure d'audience : ce site utilise Vercel Web Analytics pour compter les visites et les pages consultées. Cet outil ne dépose aucun cookie et ne lit rien sur votre appareil. Il n'identifie pas les visiteurs : votre adresse IP et le nom de votre navigateur servent uniquement à fabriquer une empreinte anonyme, renouvelée chaque jour, et ne sont pas conservés. Les données collectées (page vue, pays, type d'appareil, navigateur, site d'origine) sont traitées pour notre compte par Vercel Inc., qui héberge le site, sur la base de notre intérêt légitime à connaître la fréquentation du site (article 6.1.f du RGPD) et ne sont pas croisées avec d'autres données. Aucun consentement n'est requis pour cette mesure ; vous pouvez la bloquer avec un bloqueur de contenu, sans effet sur le fonctionnement du site.\n\nLa page de paiement est celle de Stripe (checkout.stripe.com) : Stripe y dépose ses propres cookies, nécessaires au paiement et à la lutte contre la fraude, régis par sa politique de cookies (stripe.com/fr/legal/cookies-policy)."
+        "body": "Tant que vous n'ouvrez pas d'espace client, ce site ne dépose aucun cookie. Il n'embarque aucun traceur publicitaire, aucun bouton de réseau social, aucune vidéo ni carte de service tiers.\n\nSi vous ouvrez un espace client, le site dépose un cookie, « auboiacier_compte », qui vous garde connecté. Il contient votre adresse e-mail vérifiée, une date d'expiration et, si vous vous êtes connecté avec Google, le nom transmis par Google, le tout signé par le site ; rien d'autre, et aucun identifiant publicitaire. Il est strictement nécessaire au service que vous demandez — sans lui, vous seriez déconnecté à chaque page — et il est donc dispensé de consentement (article 82 de la loi Informatique et Libertés). Il vaut trente jours et s'efface dès que vous vous déconnectez, ou lorsque vous effacez les données du site dans votre navigateur. Pendant la connexion elle-même, un second cookie (« auboiacier_passage ») vit dix minutes : il sert uniquement à vérifier que c'est bien vous qui avez lancé la connexion, et disparaît aussitôt après.\n\nIl utilise par ailleurs un espace de stockage local de votre navigateur (« auboiacier-panier-v1 ») pour mémoriser le contenu de votre panier d'une page à l'autre. Et si vous quittez une fiche produit pour vous connecter, la pièce en cours de configuration (options, cotes, code postal) est mise de côté dans le stockage de session (« auboiacier-config-v1 »), effacé à la fermeture de l'onglet, pour la retrouver au retour. Ces mémoires sont elles aussi strictement nécessaires au service que vous demandez : elles sont dispensées de consentement. Elles restent sur votre appareil, ne nous sont pas transmises telles quelles, et vous pouvez l'effacer en vidant le panier ou les données du site dans votre navigateur.\n\nMesure d'audience : ce site utilise Vercel Web Analytics pour compter les visites et les pages consultées. Cet outil ne dépose aucun cookie et ne lit rien sur votre appareil. Il n'identifie pas les visiteurs : votre adresse IP et le nom de votre navigateur servent uniquement à fabriquer une empreinte anonyme, renouvelée chaque jour, et ne sont pas conservés. Les données collectées (page vue, pays, type d'appareil, navigateur, site d'origine) sont traitées pour notre compte par Vercel Inc., qui héberge le site, sur la base de notre intérêt légitime à connaître la fréquentation du site (article 6.1.f du RGPD) et ne sont pas croisées avec d'autres données. Aucun consentement n'est requis pour cette mesure ; vous pouvez la bloquer avec un bloqueur de contenu, sans effet sur le fonctionnement du site.\n\nCompteurs : le serveur du site compte aussi les prix calculés, les devis PDF, les demandes, les inscriptions et les commandes. Chaque compteur ne porte que le nom de l'action et, au plus, la famille de la pièce ou la provenance générale de la visite (par exemple « Instagram » ou « sans réponse ») : ni nom, ni e-mail, ni adresse IP, ni cookie. Il est envoyé à Vercel Web Analytics avec, pour seule indication sur votre appareil, la famille de votre navigateur (Chrome, Safari, Firefox, Edge ou autre), sans sa version ni votre système. Les commandes payées, elles, ne sont comptées que dans les journaux techniques du serveur.\n\nLa page de paiement est celle de Stripe (checkout.stripe.com) : Stripe y dépose ses propres cookies, nécessaires au paiement et à la lutte contre la fraude, régis par sa politique de cookies (stripe.com/fr/legal/cookies-policy)."
       },
       {
         "title": "9. Sécurité",
@@ -922,7 +1420,7 @@
       },
       {
         "title": "3. Prix, devis instantané et informations",
-        "body": "Les prix affichés par le devis instantané sont ceux auxquels la pièce peut être commandée en ligne, dans les conditions des CGV. Les fiches, photos et rendus d'options illustrent les pièces au mieux : le bois et l'acier étant des matières vivantes, les teintes et veinages réels varient légèrement. Une estimation donnée par e-mail à la suite du formulaire n'engage l'atelier qu'une fois transformée en devis écrit et accepté."
+        "body": "Les prix affichés par le devis instantané sont ceux auxquels la pièce peut être commandée en ligne, dans les conditions des CGV. Les fiches, images et rendus d'options illustrent les pièces au mieux : le bois et l'acier étant des matières vivantes, les teintes et veinages réels varient légèrement. Une estimation donnée par e-mail à la suite du formulaire n'engage l'atelier qu'une fois transformée en devis écrit et accepté."
       },
       {
         "title": "4. Propriété intellectuelle",
@@ -938,7 +1436,7 @@
       },
       {
         "title": "7. Liens",
-        "body": "Le site renvoie vers des services tiers : la page de paiement de Stripe, la CNIL, la plateforme européenne de règlement des litiges, nos pages sur les réseaux sociaux. Ces sites ont leurs propres conditions et politiques ; nous n'en contrôlons pas le contenu et n'en sommes pas responsables.\n\nVous pouvez créer un lien vers la page d'accueil ou une page du site, à condition de ne pas l'afficher dans un cadre, de ne pas laisser croire à un partenariat et de ne pas l'associer à un contenu illicite ou dénigrant. Nous pouvons demander le retrait d'un lien à tout moment."
+        "body": "Le site renvoie vers des services tiers : la page de paiement de Stripe, la CNIL, le médiateur de la consommation, nos pages sur les réseaux sociaux. Ces sites ont leurs propres conditions et politiques ; nous n'en contrôlons pas le contenu et n'en sommes pas responsables.\n\nVous pouvez créer un lien vers la page d'accueil ou une page du site, à condition de ne pas l'afficher dans un cadre, de ne pas laisser croire à un partenariat et de ne pas l'associer à un contenu illicite ou dénigrant. Nous pouvons demander le retrait d'un lien à tout moment."
       },
       {
         "title": "8. Données personnelles et cookies",
@@ -958,41 +1456,41 @@
   },
   "seo": {
     "hub": {
-      "title": "Métallerie Saumur — garde-corps sur mesure",
-      "description": "Atelier de métallerie artisanale à Saumur (49) : garde-corps, escaliers, verrières, tables et plafonds lumineux sur mesure. Prix instantané, devis PDF."
+      "title": "Métallerie Saumur : acier et bois sur mesure",
+      "description": "Atelier de métallerie à Saumur (49) : garde-corps, escaliers, verrières, tables et plafonds lumineux sur mesure. Prix instantané, devis PDF."
     },
     "artisanat": {
-      "title": "Garde-corps et mobilier sur mesure",
-      "description": "Garde-corps de fenêtre, escaliers, verrières et tables en chêne massif sur acier, faits main à Saumur. Prix affichés, devis PDF, livraison France entière."
+      "title": "Mobilier acier et bois massif sur mesure",
+      "description": "Tables, escaliers, garde-corps et verrières en acier soudé et bois massif, faits main à Saumur. Tables dès {prixTables}, prix affichés, devis PDF."
     },
-    "produitSuffixe": "Fabriqué à Saumur (49), livraison France entière.",
+    "produitSuffixe": "Fabriqué à Saumur (49), livré en métropole.",
     "lumiere": {
-      "title": "Plafonds lumineux à toile tendue LED",
-      "description": "Plafonds lumineux à toile tendue rétroéclairée, cadre aluminium : rectangles jusqu'à 400 × 300 cm, disques jusqu'à Ø 400 cm. Fabriqués à Saumur (49)."
+      "title": "Toile tendue lumineuse sur mesure",
+      "description": "Toile tendue lumineuse sur mesure : plafond rectangle ou disque, fait main à Saumur. Livré jusqu'à 230 × 210 cm (Ø 210 cm) ; au-delà, posé."
     },
     "sculptures": {
-      "title": "Sculptures en acier, pièces uniques",
-      "description": "Sculptures soudées à la main en acier de récupération, pièces uniques pensées avec vous : sujet, taille, socle, emplacement. Atelier à Saumur (49)."
+      "title": "Sculpture en acier de récupération soudé",
+      "description": "Sculptures en acier de récupération, soudées à la main à Saumur : pièces uniques sur commande, pensées avec vous — sujet, taille, socle, dedans ou dehors."
     },
     "verrieres": {
       "title": "Verrières d'atelier en acier sur mesure",
-      "description": "Verrières d'intérieur en acier fin, relevé de cotes sur place et pose comprise. Cuisine, séparation de pièce, mezzanine — fabriquées à Saumur (49)."
+      "description": "Verrière d'atelier en acier, mesurée chez vous et soudée à la main à Saumur : cuisine, séparation, bureau. Porte pivotante ou coulissante. Prix sur devis."
     },
     "apropos": {
-      "title": "L'atelier Auboiacier — métallier-soudeur à Saumur (49)",
-      "description": "Un atelier, deux matières : l'acier soudé TIG et le bois massif choisi à la planche. Chaque pièce est fabriquée à la commande à Saumur (49)."
+      "title": "L'atelier Auboiacier, métallier à Saumur",
+      "description": "Auboiacier, atelier de métallerie qui ouvre à Saumur : garde-corps, escaliers, verrières, tables acier et bois massif, sur mesure et à la commande."
     },
     "contact": {
       "title": "Contact & devis gratuit",
       "description": "Table, escalier, verrière ou plafond lumineux : décrivez votre projet, estimation sous 48 h par e-mail. Atelier à Saumur (49), prise de cotes à domicile."
     },
     "realisations": {
-      "title": "Réalisations récentes de l'atelier",
-      "description": "Tables, garde-corps, escaliers, verrières et plafonds lumineux posés chez des particuliers et des professionnels, depuis l'atelier de Saumur (49)."
+      "title": "Projets et visuels de l'atelier",
+      "description": "Les modèles de l'atelier de Saumur (49) en images — tables, garde-corps, escaliers, verrières, plafonds lumineux — et le travail de Quentin en photo."
     },
     "devis": {
       "title": "Devis instantané, prix en une minute",
-      "description": "Entrez vos cotes, le prix s'affiche en une minute : tables acier et bois massif, garde-corps de fenêtre, plafonds lumineux. Livraison partout en France."
+      "description": "Entrez vos cotes, le prix s'affiche en une minute : tables acier et bois massif, garde-corps de fenêtre, plafonds lumineux. Livraison partout en métropole."
     },
     "panier": {
       "title": "Votre panier",
@@ -1015,8 +1513,8 @@
       "description": "Règles d'utilisation du site Auboiacier : accès, propriété intellectuelle, responsabilité, liens."
     },
     "zone": {
-      "title": "Métallier Saumur et Maine-et-Loire",
-      "description": "Métallier à Saumur : prise de cotes, pose et livraison à Angers, Cholet, Tours, Chinon, Doué-en-Anjou, jusqu'à 200 km de l'atelier (49, 37, 79, 86)."
+      "title": "Métallier à Saumur : Anjou, Touraine, 200 km",
+      "description": "Atelier à Saumur (49) : prise de cotes chez vous dès {prixVisite} jusqu'à {rayonVisite} km, visite jusqu'à 200 km. Garde-corps, escaliers, verrières, tables, plafonds."
     },
     "faq": {
       "title": "Questions fréquentes : délais, prix",
@@ -1026,8 +1524,12 @@
       "title": "Merci pour votre commande",
       "description": "Confirmation de votre commande à l'atelier Auboiacier."
     },
+    "avis": {
+      "title": "Votre avis",
+      "description": "Merci de donner votre avis sur votre pièce Auboiacier : l'adresse courte qui mène à la fiche Google de l'atelier, à Saumur."
+    },
     "rdv": {
-      "title": "Prise de cotes à domicile, dès 19,99 €",
+      "title": "Prise de cotes à domicile, dès {prixVisite}",
       "description": "L'atelier vient mesurer chez vous, jusqu'à 200 km de Saumur : garde-corps de fenêtre, escalier, verrière. Créneau en ligne, prix exact ensuite."
     },
     "merciDevis": {
@@ -1045,23 +1547,61 @@
     "compteConnexion": {
       "title": "Se connecter",
       "description": "Ouvrez votre espace client Auboiacier avec Google ou un lien reçu par e-mail, sans mot de passe."
+    },
+    "tables": {
+      "title": "Tables sur mesure bois massif et acier",
+      "description": "Tables haut de gamme sur mesure, faites main à Saumur : plateau en bois massif de 28 à 45 mm, piétement en acier soudé. Dès {prixTables}, prix à vos cotes."
+    },
+    "bois": {
+      "title": "Plateaux et marches en bois massif, Saumur",
+      "description": "Plateaux de table, marches d'escalier, mains courantes : pin, hêtre, chêne ou noyer massif, mis à vos cotes, poncés et huilés à la main à Saumur."
+    },
+    "normesGc": {
+      "title": "Garde-corps fenêtre : hauteur et normes",
+      "description": "Garde-corps de fenêtre sur mesure à Saumur : en étage, un appui à moins de 90 cm du sol se protège, main courante à 1 m au moins, vides limités."
     }
   },
   "zone": {
     "title": "Zone d'intervention",
-    "subtitle": "L'atelier est à Saumur, en Maine-et-Loire. Les livraisons partent de là, et nous en partons pour relever les cotes et poser.",
+    "h1": "Métallier en Maine-et-Loire et en Touraine, depuis Saumur",
+    "subtitle": "L'atelier Auboiacier est à Saumur, en Maine-et-Loire. On y travaille l'acier et le bois massif, et on y fabrique des plafonds lumineux en toile tendue. Vous gardez un seul interlocuteur, de la prise de cotes à la pose.",
+    "metiersTitle": "Ce que l'atelier fabrique et pose",
+    "metiers": {
+      "gardeCorps": {
+        "titre": "Garde-corps de fenêtre",
+        "texte": "En acier plein, fabriqué à vos cotes, avec son prix affiché en ligne."
+      },
+      "escalier": {
+        "titre": "Escalier à limon central",
+        "texte": "Droit, quart tournant ou demi-tournant, marches en bois massif, mesuré et posé par l'atelier."
+      },
+      "verrieres": {
+        "titre": "Verrières d'intérieur",
+        "texte": "Mesurées chez vous, soudées à l'atelier, puis posées."
+      },
+      "tables": {
+        "titre": "Tables",
+        "texte": "Plateau en bois massif sur piétement en acier soudé, au centimètre près."
+      },
+      "plafonds": {
+        "titre": "Plafonds lumineux",
+        "texte": "Toile tendue rétroéclairée sur cadre aluminium, rectangle ou disque."
+      },
+      "sculptures": {
+        "titre": "Sculptures",
+        "texte": "Pièces uniques en acier, pensées avec vous."
+      }
+    },
+    "autourTitle": "Autour de Saumur",
+    "autourBody": "À Saumur et dans les communes voisines, l'atelier vient relever les cotes chez vous, puis poser la pièce. Si un réglage s'impose après la pose, nous revenons le faire.",
+    "realisationsTitle": "Réalisations près de chez vous",
+    "voisinsTitle": "Jusqu'à 200 km de l'atelier",
+    "voisinsBody": "Plus loin, à Angers, à Tours ou dans les départements voisins, l'atelier se déplace jusqu'à 200 km de Saumur pour relever les cotes et poser. Le déplacement est chiffré dans le devis : vous savez à l'avance ce qu'il coûte. La prise de cotes à domicile coûte {prixVisite} jusqu'à {rayonVisite} km de Saumur ; au-delà, son prix dépend de la distance.",
+    "rdvLink": "Réserver une prise de cotes",
     "sections": [
       {
-        "title": "Autour de Saumur",
-        "body": "Saumur et les communes voisines — Doué-en-Anjou, Longué-Jumelles, Montreuil-Bellay, Bourgueil, Chinon — sont à moins d'une heure de route de l'atelier. C'est notre terrain de tous les jours : nous venons relever les cotes chez vous, nous posons, et nous repassons sans difficulté si un réglage s'impose."
-      },
-      {
-        "title": "Le Maine-et-Loire et les départements voisins",
-        "body": "Angers, Cholet, Tours, et plus largement le Maine-et-Loire (49), l'Indre-et-Loire (37), les Deux-Sèvres (79) et la Vienne (86) : nous nous y déplaçons couramment. Le déplacement est chiffré dans le devis : vous savez à l'avance ce qu'il coûte."
-      },
-      {
         "title": "Partout en France métropolitaine",
-        "body": "Les pièces de la collection sont livrées dans toute la France métropolitaine, par transporteur, au prix de votre ville : elles voyagent protégées, et nous convenons d'un créneau avec vous. Pour une pose plus loin (plafond lumineux, verrière, escalier), écrivez-nous : nous regardons le chantier et le temps de route, et nous vous répondons franchement."
+        "body": "Les pièces de la collection sont livrées dans toute la France métropolitaine, par transporteur, au prix de votre ville : elles voyagent protégées, et nous convenons d'un créneau avec vous. Seule exception : un plafond lumineux de plus de 230 × 210 cm (Ø 210 cm pour le Halo), trop grand pour un transporteur, est livré et posé par l'atelier, donc jusqu'à 200 km de Saumur seulement. Au-delà de 200 km, l'atelier ne se déplace ni pour relever les cotes ni pour poser : un garde-corps se fabrique alors sur les cotes que vous prenez vous-même, puis il est expédié."
       },
       {
         "title": "Comment se passe un chantier",
@@ -1069,10 +1609,17 @@
       }
     ],
     "communesTitle": "Communes et départements desservis",
+    "faqQuestionLink": "Lire la réponse dans les questions fréquentes",
     "ctaTitle": "Votre commune n'est pas dans la liste ?",
     "ctaBody": "Écrivez-nous quand même, avec votre commune et votre projet : nous vous répondons sous 48 h.",
     "ctaLabel": "Nous écrire",
-    "faqLink": "Voir les questions fréquentes"
+    "faqLink": "Voir les questions fréquentes",
+    "communesNote": "Et, plus loin, partout jusqu'à {rayonMax} km de l'atelier pour la prise de cotes.",
+    "metalleriesTitle": "Métallerie à Saumur : ce que l'atelier fait sur place",
+    "metalleriesBody": "Tout part de l'atelier de Saumur (49400). L'acier y est coupé, soudé à la main et peint ; le bois massif y est mis à vos cotes, poncé et huilé, avec une expérience en ébénisterie. Si vous cherchez une métallerie à Saumur pour un garde-corps, une table, un escalier, une verrière ou un plafond lumineux, vous parlez à l'atelier qui fabrique la pièce.",
+    "localTitle": "Maisons de tuffeau et secteurs protégés",
+    "localBody": "Autour de Saumur, beaucoup de maisons anciennes sont en tuffeau. Pour un garde-corps de fenêtre, la fixation se choisit selon votre mur : l'atelier le regarde avant de fabriquer. Dans le centre de Saumur et les secteurs protégés, une modification de façade, comme un garde-corps neuf, peut demander une déclaration préalable en mairie : renseignez-vous avant de commander.",
+    "guidesTitre": "À lire avant la visite :"
   },
   "faq": {
     "title": "Questions fréquentes",
@@ -1096,13 +1643,14 @@
       },
       {
         "q": "Comment se passe la livraison ?",
-        "a": "Nous livrons partout en France métropolitaine, par transporteur : le prix dépend de votre ville, du poids et des dimensions, et s'affiche sur la fiche dès votre code postal. Votre pièce voyage protégée, et nous convenons d'un créneau précis avec vous. La pièce arrive prête, avec sa notice. Si vous préférez que l'atelier vienne la livrer et la poser lui-même, choisissez-le sur la fiche : le prix dépend de la distance depuis Saumur, et tout se fait sur un seul trajet."
+        "a": "Nous livrons partout en France métropolitaine, par transporteur : le prix dépend de votre ville, du poids et des dimensions, et s'affiche sur la fiche dès votre code postal. Votre pièce voyage protégée, et nous convenons d'un créneau précis avec vous. La pièce arrive avec sa notice ; une table arrive démontée, prête à visser (plateau, piétement, visserie). Si vous préférez que l'atelier vienne la livrer et la poser lui-même, choisissez-le sur la fiche : le prix dépend de la distance depuis Saumur, et tout se fait sur un seul trajet."
       },
       {
         "q": "Où intervenez-vous ?",
-        "a": "L'atelier est à Saumur, en Maine-et-Loire. Nous nous déplaçons couramment en Maine-et-Loire, Indre-et-Loire, Deux-Sèvres et Vienne pour relever les cotes et poser, et nous livrons le mobilier dans toute la France métropolitaine. Le détail est sur la page Zone d'intervention."
+        "a": "L'atelier est à Saumur, en Maine-et-Loire. Nous nous déplaçons jusqu'à 200 km de l'atelier — Maine-et-Loire, Indre-et-Loire, Deux-Sèvres, Vienne — pour relever les cotes et poser, et nous livrons le mobilier dans toute la France métropolitaine. Le détail est sur la page Zone d'intervention."
       },
       {
+        "id": "entretien-bois-acier",
         "q": "Comment entretenir une pièce bois & acier ?",
         "a": "Un chiffon doux et sec au quotidien. Pour le bois huilé, une réapplication d'huile-cire une fois par an suffit ; une rayure se rattrape d'un ponçage léger. L'acier peint se nettoie à l'éponge humide, sans produit abrasif."
       },
@@ -1115,14 +1663,20 @@
         "a": "Nos pièces sont fabriquées à vos dimensions et à vos finitions : la loi exclut le droit de rétractation de quatorze jours pour ce type de bien, nous ne pouvons donc pas les reprendre une fois la fabrication lancée. En revanche, la garantie légale de conformité et la garantie des vices cachés s'appliquent pleinement : si la pièce ne correspond pas à ce qui était convenu ou présente un défaut caché, nous la réparons, la remplaçons ou la remboursons. Le détail est dans les conditions générales de vente."
       },
       {
+        "id": "erreur-cotes",
+        "q": "Et si je me trompe dans mes cotes ?",
+        "a": "Deux solutions. Au panier, vous pouvez ajouter la Garantie cotes à chaque pièce que vous mesurez vous-même (garde-corps, plafond lumineux, table), sauf avec la pose par l'atelier : {garantiePct} de son prix, de {garantieMin} à {garantieMax} par pièce. Si vos cotes étaient fausses, vous nous écrivez dans les 15 jours après la livraison : l'atelier modifie ou refait la pièce une fois, à la bonne cote. Pour n'avoir aucun risque, l'atelier vient prendre les cotes chez vous, dès {prixVisite}. Le détail est à l'article 13 des conditions générales de vente."
+      },
+      {
         "q": "Comment se pose un plafond lumineux ?",
-        "a": "Le cadre aluminium se fixe au plafond existant, puis la toile se tend : pas de gros œuvre, pas de poussière, et la pose prend en général une journée. Le plus grand panneau d'un seul tenant fait 400 × 300 cm ; au-delà, nous assemblons plusieurs caissons jointifs pour couvrir un plafond entier."
+        "a": "Le plafond lumineux se suspend par des câbles accrochés à quatre anneaux vissés dans son cadre. Il faut au plafond quatre points d'accroche capables de porter son poids. Jusqu'à 230 × 210 cm (Ø 210 cm pour le Halo), il part par transporteur ; au-delà, il est livré et posé chez vous par l'atelier."
       },
       {
         "q": "Les devis sont-ils gratuits ?",
         "a": "Oui, et sans engagement. Décrivez votre projet par le formulaire de contact : vous recevez une réponse sous 48 h et une estimation écrite."
       },
       {
+        "id": "metallier-saumur",
         "q": "Où trouver un métallier à Saumur et en Anjou ?",
         "a": "Auboiacier est un atelier de métallerie à Saumur (49400), en Maine-et-Loire. Nous fabriquons garde-corps, escaliers, verrières, tables bois et acier, plafonds lumineux et sculptures sur mesure, et nous nous déplaçons pour la prise de cotes et la pose à Saumur, Angers, Cholet, Tours, Chinon et jusqu'à 200 km de l'atelier."
       },
@@ -1131,6 +1685,7 @@
         "a": "Oui : le configurateur en ligne calcule le prix de votre garde-corps, de votre table ou de votre plafond lumineux sous vos yeux, à vos cotes. Vous téléchargez ensuite un devis PDF gratuit, sans compte et sans engagement."
       },
       {
+        "id": "calcul-garde-corps",
         "q": "Comment est calculé un garde-corps de fenêtre sur mesure ?",
         "a": "Vous entrez la largeur de la fenêtre et la hauteur du bas de fenêtre, en étage ou au rez-de-chaussée. L'atelier calcule le nombre de croix, la section de l'acier et les espaces entre les barres selon la norme NF P01-012 (une boule de 110 mm ne doit pas passer sous 800 mm du sol, 180 mm au-dessus, avec 3 mm de marge), puis affiche le prix."
       },
@@ -1143,12 +1698,13 @@
     "ctaBody": "Posez-la par le formulaire : nous répondons sous 48 h.",
     "ctaLabel": "Poser ma question",
     "zoneLink": "Voir la zone d'intervention",
-    "rdvLink": "Prise de cotes à domicile"
+    "rdvLink": "Prise de cotes à domicile",
+    "garantieLien": "Les conditions de la Garantie cotes"
   },
   "rdv": {
     "eyebrow": "Prise de cotes à domicile",
     "h1": "L'atelier vient mesurer chez vous",
-    "lead": "Dès 19,99 €, jusqu'à 200 km de Saumur. Vous choisissez le créneau, le métallier relève les cotes et vous envoie le prix exact de votre pièce.",
+    "lead": "Dès {prixVisite}, jusqu'à 200 km de Saumur. Vous choisissez le créneau, le métallier relève les cotes et vous envoie le prix exact de votre pièce.",
     "ctaPieces": "Choisir la pièce",
     "ctaPiecesNote": "Créneau réservé en ligne",
     "ctaAutre": "Demander un rendez-vous",
@@ -1176,13 +1732,23 @@
     "formSubtitle": "Verrière, sculpture, pièce hors catalogue : décrivez le projet, nous confirmons sous 24 à 72 h.",
     "prefill": "Rendez-vous pour une prise de cotes à domicile",
     "creneauLabel": "Votre créneau",
-    "creneauManque": "Choisissez le jour et la demi-journée qui vous arrangent : nous confirmons par e-mail."
+    "creneauManque": "Choisissez le jour et la demi-journée qui vous arrangent : nous confirmons par e-mail.",
+    "zoneLink": "Voir la zone d'intervention"
   },
   "merciDemande": {
     "title": "Merci, votre demande est bien partie",
     "texte": "Nous vous répondons entre 24 et 72 h, à l'adresse indiquée. Pensez à vérifier vos courriers indésirables.",
     "retour": "Retour à l'accueil",
     "devis": "Voir les pièces à devis instantané"
+  },
+  "avis": {
+    "titre": "Merci !",
+    "intro": "Merci de prendre un moment pour donner votre avis. Pour un petit atelier, chaque retour compte.",
+    "attente": "La page des avis n'est pas encore ouverte : cette même adresse y mènera bientôt.",
+    "fiche": "Votre avis se donne sur la fiche Google de l'atelier : ouvrez-la, puis choisissez « Écrire un avis ».",
+    "boutonFiche": "Ouvrir la fiche Google",
+    "question": "Une question sur votre commande ? Écrivez-nous :",
+    "retour": "Retour à l'accueil"
   },
   "introuvable": {
     "code": "Erreur 404",
@@ -1217,6 +1783,10 @@
     "erreurEnvoi": "L'envoi n'a pas abouti. Réessayez dans un instant.",
     "erreurConnexion": "La connexion n'a pas abouti. Réessayez.",
     "erreurLien": "Ce lien a expiré. Demandez-en un nouveau.",
+    "confirmerTitre": "Ouvrir votre espace",
+    "confirmerCorps": "Vous allez vous connecter avec l'adresse :",
+    "confirmerBouton": "Me connecter",
+    "confirmerPasMoi": "Ce n'est pas votre adresse ? Fermez simplement cette page : rien n'a été ouvert.",
     "commandeRetour": "Retour à vos commandes",
     "commandeDate": "Commandée le",
     "commandeMontant": "Montant payé",
@@ -1265,6 +1835,230 @@
     "infosErreur": "L'enregistrement n'a pas abouti. Réessayez dans un instant.",
     "infosErreurCodePostal": "Un code postal français, c'est cinq chiffres.",
     "infosErreurTelephone": "Ce numéro ne semble pas complet.",
-    "infosOu": "Vos coordonnées sont conservées chez Stripe, notre prestataire de paiement, avec vos commandes — et nulle part ailleurs."
+    "infosOu": "Vos coordonnées sont conservées chez Stripe, notre prestataire de paiement, avec vos commandes — et nulle part ailleurs.",
+    "noticeConnexion": "Votre adresse e-mail sert uniquement à vous connecter et à retrouver vos commandes. Avec Google, nous recevons aussi votre nom.",
+    "noticeInfos": "Ces coordonnées servent à pré-remplir vos prochaines commandes. Vous pouvez les modifier à tout moment.",
+    "noticeLien": "Politique de confidentialité",
+    "suppressionTitre": "Supprimer mon espace",
+    "suppressionExplication": "Vos coordonnées enregistrées et vos pièces mises de côté seront effacées, et vous serez déconnecté. Vos commandes et leurs factures restent conservées dix ans, comme la loi l'exige.",
+    "suppressionBouton": "Supprimer mon espace…",
+    "suppressionConfirmer": "Oui, tout effacer",
+    "suppressionAnnuler": "Annuler",
+    "suppressionEnCours": "Suppression…",
+    "suppressionErreur": "La suppression n'a pas abouti. Réessayez, ou écrivez-nous à auboiacier@gmail.com."
+  },
+  "liens": {
+    "tables": "Tables sur mesure",
+    "gardeCorps": "Garde-corps de fenêtre",
+    "bois": "Le bois massif",
+    "boisLong": "Le bois massif à l'atelier",
+    "zonePose": "Pose autour de Saumur",
+    "plafondTendu": "Comparer avec un plafond tendu",
+    "toutesTables": "Toutes les tables",
+    "plafonds": "Tout sur les plafonds lumineux",
+    "titre": "À voir aussi",
+    "normesGc": "Hauteur et normes du garde-corps",
+    "verificationGc": "Comment on vérifie un garde-corps",
+    "guideEscalier": "Escalier à limon central : prix et normes",
+    "balconTerrasse": "Garde-corps de balcon et de terrasse",
+    "soudure": "Soudure et réparations"
+  },
+  "lumiere": {
+    "choixTitle": "Cadre lumineux ou plafond tendu mur à mur ?",
+    "choixCadre": "Nos plafonds lumineux sont des caissons en aluminium, avec leur toile et leurs LED, fixés sous votre plafond existant. Vous choisissez la forme et les cotes, au centimètre.",
+    "choixTendu": "Un plafond tendu mur à mur, c'est autre chose : une toile tendue tout autour de la pièce, sur des profilés fixés aux murs, et posée par un poseur spécialisé.",
+    "choixPrix": "Le prix affiché ici est celui de la pièce entière, à ses cotes. Les prix au mètre carré que donnent les guides parlent de la pose mur à mur : ils ne se comparent pas directement.",
+    "poseTitle": "Suspendu par câbles",
+    "poseBody": "La Lucarne et le Halo se suspendent au plafond par des câbles en inox ou en acier, fournis, accrochés à quatre anneaux vissés dans leur cadre. Les LED sont des rubans 24 V ; les alimentations, branchées sur le 230 V, et le boîtier de commande sont compris.",
+    "lumiereTitle": "La lumière",
+    "lumiereBody": "La toile diffuse la lumière des rubans LED sur toute sa surface : pas de point chaud, pas d'ombre dure.",
+    "piecesTitle": "Pour quelles pièces",
+    "piecesBody": "Au-dessus d'une table de salle à manger ou dans une grande pièce à vivre.",
+    "fabricationTitle": "Fabrication, livraison, pose",
+    "fabricationBody": "Chaque plafond est fabriqué à la commande : comptez {delai}. La toile est tenue tout autour du caisson par un profilé qui la pince. Jusqu'à 230 × 210 cm (Ø 210 cm pour le Halo), un plafond part par transporteur partout en France métropolitaine. Jusqu'à 200 km de Saumur, l'atelier peut aussi venir le poser : la fiche donne le prix de la pose selon votre code postal.",
+    "zoneLink": "Voir la zone d'intervention",
+    "faqTitle": "Questions fréquentes",
+    "faq": [
+      {
+        "q": "Quelles tailles ?",
+        "a": "Rectangle jusqu'à 400 × 300 cm, disque jusqu'à Ø 400 cm, au centimètre près. Au-delà de 230 × 210 cm (Ø 210 cm pour le Halo), le plafond ne part plus par transporteur : il est livré et posé par l'atelier, dans un rayon de 200 km autour de Saumur. Les tailles du catalogue ont leur prix affiché ; pour vos cotes, la fiche calcule le prix aussitôt."
+      },
+      {
+        "q": "Quelle lumière donne la toile ?",
+        "a": "Une lumière égale sur toute sa surface : la toile diffuse les rubans LED placés derrière elle, une ligne tous les 8 cm, sans point brillant ni ombre dure."
+      },
+      {
+        "q": "Quel délai ?",
+        "a": "Comptez {delai} de fabrication, puis la livraison ou la pose. Le délai exact vous est confirmé à la commande."
+      },
+      {
+        "q": "Peut-on changer la couleur de la lumière ?",
+        "a": "Oui. Le plafond s'allume en blanc chaud au quotidien, ou en couleurs pour une ambiance : la teinte et l'intensité se règlent depuis votre téléphone."
+      },
+      {
+        "q": "Quelle profondeur pour le caisson ?",
+        "a": "Le caisson se fait de 18 à 60 cm de profondeur, 18 cm par défaut. Plus il est profond, plus la bande d'aluminium du pourtour est grande : la fiche en tient compte dans le prix."
+      },
+      {
+        "q": "Combien coûte une toile tendue lumineuse ?",
+        "a": "Le prix est affiché pour chaque taille du catalogue, sur cette page et sur les fiches Lucarne et Halo : caisson, toile, éclairage, alimentations et boîtier de commande compris. Pour vos cotes, la fiche calcule le prix au centimètre."
+      }
+    ],
+    "toileTitle": "Une toile tendue lumineuse, comment ça marche ?",
+    "toileCorps": [
+      "Une toile tendue lumineuse est une membrane blanche et translucide, tendue sur un caisson en aluminium. Derrière elle, des rubans LED l'éclairent : la toile répartit leur lumière sur toute sa surface, comme un puits de lumière.",
+      "Les rubans sont en 24 V, alignés au fond du caisson, une ligne tous les 8 cm. Les alimentations, branchées sur le 230 V, et le boîtier de commande sont compris. Le caisson se fait de 18 à 60 cm de profondeur.",
+      "Chaque plafond est fabriqué à Saumur, à la commande, aux cotes de votre pièce : un rectangle, la Lucarne, ou un disque, le Halo. Il se suspend sous le plafond existant par des câbles."
+    ],
+    "fabricationTitre": "En fabrication",
+    "fabricationTexte": "Le caisson, les rubans LED, le cadre en aluminium : des plafonds lumineux réalisés par Quentin avant l'ouverture de l'atelier.",
+    "prixTitle": "Ce que coûte un plafond lumineux, taille par taille",
+    "prixIntro": "Un plafond lumineux se juge à sa lumière : égale d'un bord à l'autre, sans point brillant. Le prix ci-dessous est celui de la pièce entière — caisson, toile, éclairage, alimentations et boîtier de commande compris — dans la teinte de cadre la moins chère. Entre deux tailles, la fiche calcule le prix au centimètre."
+  },
+  "essences": {
+    "note": "Rangées de la moins chère à la plus chère, d'après les prix de l'atelier.",
+    "teinte": "Teinte",
+    "durete": "Dureté",
+    "usage": "Usage",
+    "pin": {
+      "teinte": "Blond clair, qui prend une teinte miel avec le temps.",
+      "durete": "Tendre : il se marque plus vite, et se rattrape au ponçage.",
+      "usage": "Une table de tous les jours, au style simple."
+    },
+    "hetre": {
+      "teinte": "Clair, légèrement rosé, au veinage discret.",
+      "durete": "Dur, au grain fin et serré.",
+      "usage": "Une table lumineuse et sobre, qui sert beaucoup."
+    },
+    "chene": {
+      "teinte": "Blond doré, au veinage bien visible.",
+      "durete": "Dur et durable.",
+      "usage": "La référence de l'atelier : celle des images et des tailles du catalogue."
+    },
+    "noyer": {
+      "teinte": "Brun profond, au veinage riche.",
+      "durete": "Mi-dur.",
+      "usage": "Une pièce de caractère, plus sombre et plus chaude."
+    }
+  },
+  "tables": {
+    "title": "Tables",
+    "h1": "Tables sur mesure en bois massif et acier, faites main à Saumur",
+    "intro": "Le plateau est en bois massif. Le piétement est en acier, coupé et soudé au TIG à l'atelier, puis peint. Vous donnez la longueur et la largeur au centimètre, et chaque fiche calcule le prix tout de suite.",
+    "modelesTitle": "{n} modèles, prix affichés",
+    "modelesNote": "Le prix « à partir de » est celui de la plus petite taille, dans le bois et la teinte les moins chers. Sur la fiche, le prix suit votre configuration.",
+    "riviere": "Table rivière",
+    "configurer": "Configurer",
+    "essencesTitle": "Le plateau : quatre essences",
+    "pietementTitle": "Le piétement : acier soudé à l'atelier",
+    "pietementBody": "Trois dessins. Mikado : des tubes d'acier de 80 × 80 mm croisés sous le plateau. Croix : un X d'acier à chaque bout, et toute la place pour les jambes. Brindille : un bouquet de tiges d'acier droites, soudées une à une. Le piétement Mikado porte aussi la table rivière et la table de jardin. Chaque piétement est soudé à l'atelier, puis peint dans la teinte de votre choix.",
+    "teintesTitle": "Les teintes du piétement",
+    "dimensionsTitle": "Vos dimensions",
+    "dimensionsBody": "Longueur et largeur sont libres, au centimètre près, à partir de {min} cm. Le plus grand plateau d'un seul tenant mesure {longueur} × {largeur} cm. Pour choisir, comptez environ 60 cm de plateau par convive.",
+    "fabricationTitle": "Fabriquée à Saumur",
+    "fabricationBody": "Rien n'est en stock. À la commande, l'acier est coupé, soudé et meulé à l'atelier, puis peint. Les plateaux des tables Mikado, Croix et Brindille sont finis à l'huile-cire ; la table Mikado Extérieur reçoit une huile pour l'extérieur, et la table rivière associe le chêne à une coulée de résine époxy. Comptez {delai} de fabrication pour la plupart des modèles ; le délai exact est écrit sur chaque fiche ou confirmé avec le devis. Nous livrons partout en France métropolitaine par transporteur. L'atelier peut aussi livrer et poser la table chez vous, au prix de la distance depuis Saumur, calculé sur la fiche ; vous pouvez enfin venir la retirer à l'atelier.",
+    "faqTitle": "Questions fréquentes",
+    "faqTailleQ": "Quelle taille pour 6, 8 ou 10 personnes ?",
+    "faqTailleA": "Comptez environ 60 cm de plateau par convive. Les formats du catalogue : {formats}. Entre deux formats, entrez vos cotes : la fiche calcule le prix.",
+    "faqBoisQ": "Quel bois choisir ?",
+    "faqBoisA": "Le chêne est la référence de l'atelier : dur, blond, au veinage marqué. Le noyer est brun et plus sombre, au veinage riche. Le hêtre est clair, avec un grain fin et serré. Le pin est le plus tendre : il se marque plus vite, mais une marque se rattrape au ponçage. Sur les tables Mikado, Croix et Brindille, les quatre sont finis à l'huile-cire.",
+    "faqEntretienQ": "Comment entretenir un plateau huilé ?",
+    "faqEntretienA": "Essuyez les liquides sans attendre, avec un chiffon doux à peine humide, et posez les plats chauds sur un dessous-de-plat. Quand le bois paraît sec, une couche d'huile-cire lui rend sa protection ; une rayure se rattrape d'un ponçage léger, sur la zone touchée seulement.",
+    "faqDehorsQ": "Une table en bois peut-elle rester dehors ?",
+    "faqDehorsA": "Oui, la table Mikado Extérieur est faite pour ça : un plateau en lattes de chêne massif, espacées pour que la pluie s'écoule, fini à l'huile pour l'extérieur, sur un piétement galvanisé à froid puis laqué. Comptez une couche d'huile par an, ou laissez le bois griser si vous aimez la patine.",
+    "faqMikadoQ": "Qu'est-ce qu'une table Mikado ?",
+    "faqMikadoA": "C'est une table dont le piétement est fait de tubes d'acier qui se croisent, comme les bâtonnets du jeu de mikado. Ici, les tubes de 80 × 80 mm sont soudés ensemble à l'atelier sous un plateau en bois massif. La table Mikado existe en intérieur, de 6 à 14 places, et en version jardin, à plateau de lattes de chêne.",
+    "faqHorsQ": "Peut-on avoir une essence ou une forme hors catalogue ?",
+    "faqHorsA": "Oui, sur devis. Décrivez-nous la forme ou l'essence voulue : nous adaptons le modèle et nous chiffrons.",
+    "ctaTitle": "Une table hors catalogue ?",
+    "ctaBody": "Une forme, une essence ou une taille particulière : décrivez votre projet, nous vous répondons avec un prix.",
+    "ctaDevis": "Demander un devis",
+    "ctaContact": "Nous écrire",
+    "prixTitle": "Combien coûte une table en bois massif sur mesure ?",
+    "prixIntro": "Les prix des fiches, calculés par le même moteur : piétement soudé et peint dans la teinte la moins chère, plateau en bois massif fini à l'huile-cire. Entre deux formats, entrez vos cotes sur la fiche : le prix suit au centimètre. Livraison en plus, {livraisonMax} au maximum en France métropolitaine.",
+    "prixPlaces": "Format",
+    "hautTitle": "Ce qui fait une table haut de gamme",
+    "hautBody": "Elle se reconnaît à ce qu'on ne voit pas en photo : l'épaisseur du plateau, la section de l'acier, la soudure. Chez nous, le plateau est en bois massif de {epaisseurs} mm d'épaisseur. Le piétement est soudé à l'atelier : tubes d'acier de 80 × 80 mm, paroi 3 mm, sur la Mikado et la Croix ; tiges d'acier droites, soudées une à une, sur la Brindille. La finition à l'huile-cire se reprend à l'endroit d'une marque, sans décaper tout le plateau."
+  },
+  "bois": {
+    "title": "Bois massif",
+    "h1": "Le bois massif à l'atelier : marches, mains courantes et plateaux",
+    "intro": "À l'atelier, le bois massif va toujours avec l'acier : une marche sur un limon, une main courante sur un garde-corps, un plateau sur un piétement soudé. Quatre essences sont proposées : pin, hêtre, chêne et noyer.",
+    "marchesTitle": "Marches d'escalier",
+    "marchesBody": "Sur l'escalier à limon central, chaque marche est une pièce de bois massif de 50 mm d'épaisseur, en pin, hêtre, chêne ou noyer. Une marche s'use là où l'on pose le pied : le chêne et le hêtre, durs, se marquent moins vite que le noyer, mi-dur, et que le pin, plus tendre.",
+    "marchesLien": "L'escalier à limon central",
+    "mainCouranteTitle": "Mains courantes de garde-corps",
+    "mainCouranteBody": "Sur le garde-corps de fenêtre, la main courante peut être en bois massif, dans les mêmes quatre essences, finie à l'huile-cire. Elle se fait de deux façons : un carré de 40 × 40 mm, rainuré dessous pour s'emboîter sur la lisse haute ; ou une pièce de 60 × 45 mm posée sur un fer plat d'acier de 60 × 10 mm soudé sur la lisse haute, qui la raidit. C'est la partie que la main touche : le bois y est plus doux, et moins froid que l'acier. Elle existe aussi tout en acier.",
+    "mainCouranteLien": "Le garde-corps de fenêtre",
+    "plateauxTitle": "Plateaux de table",
+    "plateauxBody": "Les tables Mikado, Croix et Brindille ont un plateau en pin, hêtre, chêne ou noyer massif ; le chêne, premier choix, sans nœud ni aubier, est la référence de l'atelier. Plus une table est longue, plus son plateau doit être épais pour ne pas fléchir : la fiche vérifie que l'épaisseur choisie — 28, 36 ou 45 mm — convient à la longueur. La table Mikado Extérieur a un plateau en lattes de chêne espacées, et la table rivière une coulée de résine époxy dans le chêne.",
+    "huileTitle": "Pourquoi l'huile-cire",
+    "huileBody": "Les marches, les mains courantes en bois et les plateaux des tables Mikado, Croix et Brindille sont finis à l'huile-cire plutôt que vernis. L'huile pénètre dans le bois et la cire le protège en surface, sans former de film qui s'écaille. Le bois garde son toucher et se patine avec les années. Surtout, une marque se reprend sans décaper toute la surface : on ponce et on huile l'endroit abîmé, rien de plus. Un vernis rayé, lui, se reprend mal par endroits. La table Mikado Extérieur, elle, reçoit une huile pour l'extérieur.",
+    "huileLien": "L'entretien au quotidien",
+    "bougeTitle": "Le bois massif bouge",
+    "bougeBody": "Le bois massif suit l'humidité de l'air : il gonfle un peu quand l'air est humide, et se resserre quand il est sec. Évitez de placer une table contre un radiateur, ou en plein soleil derrière une baie vitrée.",
+    "atelierTitle": "Un atelier bois et métal à Saumur",
+    "atelierBody": "L'atelier de Saumur dessine chaque pièce, soude l'acier et travaille le bois massif avec un savoir-faire d'ébénisterie, du choix des planches à la finition, avant d'assembler les deux. Vous gardez un seul interlocuteur, de la prise de cotes à la pose.",
+    "choisirTitle": "Quel bois choisir ?",
+    "choisirBody": "Du moins cher au plus cher : {ordre}. Le chêne, dur et blond, est la référence de l'atelier. Le noyer, brun, est le plus sombre. Le hêtre, clair, a un grain fin et serré. Le pin, plus tendre, se marque plus vite. Le prix exact de chaque essence s'affiche sur la fiche, à vos cotes."
+  },
+  "normesGc": {
+    "title": "Hauteur et normes du garde-corps",
+    "h1": "Garde-corps de fenêtre : quelle hauteur, quelles normes, quel prix ?",
+    "intro": "Une fenêtre basse à l'étage, un appui à hauteur de genou dans une maison ancienne : avant de commander un garde-corps, il faut savoir s'il est obligatoire, à quelle hauteur poser sa main courante et quels vides il peut laisser. Voici la règle telle que l'atelier l'applique, puis des exemples chiffrés par le même calcul que la fiche du garde-corps.",
+    "introLien": "Voir le garde-corps de fenêtre",
+    "obligatoireTitle": "Quand un garde-corps est-il obligatoire ?",
+    "obligatoireBody": "En étage, une fenêtre dont l'appui est à moins de {seuil} du sol doit être protégée : c'est le Code de la construction qui l'impose, pour les logements neufs et les travaux soumis à ses règles. Dans une maison ancienne où l'on ne fait pas de tels travaux, ajouter un garde-corps n'est donc pas une obligation ; la règle reste pourtant la référence de sécurité, et l'atelier l'applique à tous ses garde-corps. À partir de {seuil}, elle ne demande plus de protection. Au rez-de-chaussée, elle n'en demande pas ; l'atelier y garde la même hauteur qu'en étage.",
+    "hauteurTitle": "Quelle hauteur ? Celle de la main courante",
+    "hauteurBody": "La règle ne fixe pas la hauteur du garde-corps lui-même, mais celle du haut de sa main courante : {loi} au moins au-dessus du sol fini de la pièce, sans tolérance (Code de la construction, article R134-59). L'atelier vise {cible}, pour garder une marge. Le haut de la main courante est donc toujours au même endroit, et c'est le garde-corps qui grandit ou rapetisse avec le bas de la fenêtre : sa hauteur vaut {cible}, moins la hauteur de l'appui, moins le jour laissé sous le cadre.",
+    "jourBody": "Le jour est l'espace laissé entre l'appui et le bas du cadre, car un appui n'est jamais parfaitement plan. L'atelier laisse {jour} ; quand l'appui est haut et que la place manque, il le réduit, jamais sous {jourMini}. Ce jour reste toujours plus petit que {sphere}, la boule de la norme.",
+    "allegeBody": "La hauteur de l'appui, qu'on appelle aussi l'allège, se mesure debout dans la pièce : du sol fini, parquet ou carrelage posé, jusqu'au-dessus de l'appui, là où le garde-corps sera posé (dans l'épaisseur du mur, fenêtre ouverte, à son point le plus bas). Si cet appui est plus bas que la tablette intérieure, c'est lui qui compte.",
+    "croquisLegende": "Le croquis du configurateur, pour une fenêtre de {largeur} de large dont l'appui est à {allege} du sol : un garde-corps de {hauteur}, posé {jourEx} au-dessus de l'appui, le haut de sa main courante à {mainCourante} du sol.",
+    "croquisCote": "Haut de la main courante, depuis le sol",
+    "videsTitle": "Les vides entre les barres (NF P01-012)",
+    "videsBody": "L'atelier contrôle les vides avec des boules, selon la norme NF P01-012 : dans un vide qui commence à moins de {zSphere} du sol, une boule de {sphere} ne doit pas passer ; dans un vide qui commence plus haut, une boule de {sphereHaut}. Il garde {marge} de marge : un garde-corps n'est vendu que si chacun de ses vides est plus petit que la boule, moins ces {marge}. Le calcul est refait pour chaque fenêtre, car le nombre de croix dépend de sa largeur.",
+    "escaladeBody": "Sous {escalade} du sol, l'atelier ne laisse rien sur quoi poser le pied : quand le cadre commence plus bas, des barreaux verticaux ferment sa partie basse, et les croix ne commencent qu'au-dessus.",
+    "rosaceBody": "La rosace compte aussi. Posée au croisement des barres, elle bouche le centre de la croix : une rosace plus petite, ou pas de rosace du tout, laisse un vide plus grand, et moins de dessins passent la règle. Pour chaque fenêtre, la fiche ne propose que les dessins qui la respectent. Un cadre à barreaux seuls n'a pas de croix, donc pas de rosace : elle n'y est ni à choisir ni à payer.",
+    "videsNote": "C'est ce que le site appelle « aux normes de sécurité françaises » : la hauteur et les vides, vérifiés fenêtre par fenêtre. Aucun garde-corps qui ne les respecte pas n'est vendu.",
+    "exemplesTitle": "Exemples calculés pour une fenêtre de {largeur} de large",
+    "exemplesIntro": "Une fenêtre en étage, de {largeur} de large, avec les options de départ de la fiche : main courante « {bois} », acier « {teinte} », rosace « {rosace} ». Pour chaque hauteur d'appui, voici ce que calcule l'atelier, avec le dessin que la fiche propose d'office ; d'autres dessins aux normes y sont au choix.",
+    "colAllege": "Appui à",
+    "colObligatoire": "Obligatoire en neuf",
+    "colHauteur": "Garde-corps",
+    "colJour": "Jour sous le cadre",
+    "colDessin": "Dessin",
+    "colPrix": "Prix",
+    "oui": "Oui",
+    "non": "Non",
+    "dessinCroixUne": "{n} croix",
+    "dessinCroix": "{n} croix",
+    "dessinTraverse": "traverse au milieu",
+    "dessinBarreauxBas": "barreaux en bas",
+    "dessinSeuls": "barreaux seuls",
+    "mainSeule": "Main courante seule",
+    "rien": "Rien à poser",
+    "surDevis": "Sur devis",
+    "prixFiche": "Prix sur la fiche",
+    "ouvrir": "Ouvrir avec ces cotes",
+    "ouvrirAria": "Ouvrir avec ces cotes : appui à {allege}",
+    "exemplesNote": "Prix d'une pièce, calculés par le même moteur que la fiche, fixations et notice de pose comprises. La livraison, la pose ou le retrait à l'atelier se choisissent ensuite sur la fiche.",
+    "porteFenetreTitle": "Porte-fenêtre : le balcon français",
+    "porteFenetreBody": "Devant une porte-fenêtre, le bas de l'ouverture est au niveau du sol, ou presque. Le garde-corps monte alors du bas de l'ouverture jusqu'à la main courante, et des barreaux verticaux ferment sa partie basse : c'est la première ligne du tableau. Il s'encastre entre les murs comme celui d'une fenêtre, et se commande de la même façon, sur la même fiche.",
+    "hauteTitle": "Fenêtre haute : une main courante seule, ou rien",
+    "hauteBody": "Quand l'appui est haut, il reste peu de place sous la main courante. À partir de {mainSeule} du sol, même le plus petit cadre de l'atelier, à barreaux, ne tient plus : l'atelier fabrique alors une main courante seule, posée à la même hauteur, sur devis. À partir de {rien}, l'appui arrive presque à la hauteur de la main courante : il n'y a rien à poser. Là où la règle s'applique, en étage, la protection reste obligatoire tant que l'appui est sous {seuil}.",
+    "mesurerTitle": "Mesurer soi-même, ou faire venir l'atelier",
+    "mesurerBody": "Les mesures se prennent au mètre, en millimètres. La largeur entre les murs, deux fois : au ras de l'appui, puis à un mètre du sol. Si elles diffèrent, le garde-corps suit vos murs : l'atelier coupe chaque traverse à la largeur de son niveau. Puis la hauteur de l'appui, depuis le sol fini. La hauteur de la fenêtre est facultative : elle sert à vérifier que le garde-corps tient dans l'ouverture. S'il ne tient pas, l'atelier le fait en applique, devant la fenêtre, sur devis.",
+    "visiteBody": "Si vous préférez, l'atelier vient prendre les cotes : {prixVisite} jusqu'à {rayonVisite} km de Saumur, puis les kilomètres et le temps de route, jusqu'à {rayonMax}. Ce montant est déduit de votre commande si vous commandez ensuite.",
+    "prixTitle": "Ce qui fait varier le prix",
+    "prixBody": "Le prix se calcule à vos cotes, sur la fiche, avant tout engagement. Il dépend de la largeur de la fenêtre, de la hauteur du garde-corps et du dessin qui passe la règle, puis de vos choix : la main courante, la rosace et, si vous le préférez aux croix, un panneau de verre. Sur la fiche : dès {depart} pour une fenêtre de {largeurAppel} de large.",
+    "mainsTitre": "Prix du garde-corps complet, selon la main courante (fenêtre de {largeur}, appui à {allege})",
+    "rosacesTitre": "Prix du garde-corps complet, selon la rosace (fenêtre de {largeur}, appui à {allege})",
+    "rosacesNote": "Avec une autre rosace, la fiche propose parfois un autre dessin, et le prix change avec lui : l'écart n'est donc pas le même d'une fenêtre à l'autre. La fiche le calcule à vos cotes.",
+    "lotBody": "Plusieurs fenêtres se commandent dans le même panier, chacune à ses cotes et à son prix.",
+    "ctaTitle": "Votre garde-corps de fenêtre sur mesure, fabriqué à Saumur",
+    "ctaBody": "Entrez vos mesures sur la fiche : la hauteur, le dessin et le prix s'affichent aussitôt, avec un aperçu du plan et un devis PDF gratuit. Si vous préférez, l'atelier vient mesurer chez vous.",
+    "ctaCalculer": "Calculer mon garde-corps",
+    "ctaRdv": "Prise de cotes à domicile",
+    "signature": "Guide écrit par l'atelier Auboiacier, à Saumur, d'après l'article R134-59 du Code de la construction et la norme NF P01-012. Mis à jour le {date}."
   }
 }

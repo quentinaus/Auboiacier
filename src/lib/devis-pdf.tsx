@@ -13,6 +13,7 @@ import {
 } from "@react-pdf/renderer";
 import type { Devis } from "@/lib/devis";
 import { prixAffiche } from "@/lib/ui";
+import { MENTION_ILLUSTRATION, porteMentionIllustration } from "@/lib/visuels";
 
 /* ------------------------------------------------------------------ *
  *  La mise en page du devis, en PDF
@@ -210,6 +211,9 @@ const styles = StyleSheet.create({
   section: { marginTop: 24 },
   piece: { flexDirection: "row", gap: 22, marginTop: 8 },
   photo: { width: 140, height: 140, objectFit: "contain" },
+  /* Sous la photo d'un visuel, la même mention discrète que sur le site (src/lib/visuels.ts). */
+  photoCadre: { width: 140 },
+  mentionPhoto: { marginTop: 3, fontSize: 6.5, color: GRIS, textAlign: "center" },
   pieceTexte: { flex: 1 },
   pieceNom: {
     fontFamily: "Crimson",
@@ -290,6 +294,9 @@ const styles = StyleSheet.create({
     lineHeight: "13pt",
   },
   conditions: { marginTop: 18 },
+  annexeSuite: { marginTop: 18 },
+  annexeTitre: { fontFamily: "Helvetica-Bold", fontSize: 10, lineHeight: "14pt", marginBottom: 6 },
+  annexeTexte: { fontSize: 8, lineHeight: "11.5pt", marginBottom: 5 },
   condition: { flexDirection: "row", gap: 6, marginBottom: 2.5 },
   puce: { width: 6, color: GRIS, fontSize: 7.5, lineHeight: "11.5pt" },
   conditionTexte: { flex: 1, fontSize: 7.5, color: GRIS, lineHeight: "11.5pt" },
@@ -463,8 +470,13 @@ function DocumentDevis({ devis }: { devis: Devis }) {
               <Text style={styles.etiquette}>{t.piece}</Text>
               <View style={styles.piece}>
                 {devis.piece.photo && (
-                  // eslint-disable-next-line jsx-a11y/alt-text -- l'Image de react-pdf n'a pas d'attribut alt
-                  <Image src={devis.piece.photo} style={styles.photo} />
+                  <View style={styles.photoCadre}>
+                    {/* eslint-disable-next-line jsx-a11y/alt-text -- l'Image de react-pdf n'a pas d'attribut alt */}
+                    <Image src={devis.piece.photo} style={styles.photo} />
+                    {porteMentionIllustration(devis.piece.photo) && (
+                      <Text style={styles.mentionPhoto}>{MENTION_ILLUSTRATION[devis.locale]}</Text>
+                    )}
+                  </View>
                 )}
                 <View style={styles.pieceTexte}>
                   <Text style={styles.pieceNom}>{devis.piece.nom}</Text>
@@ -597,16 +609,31 @@ function DocumentDevis({ devis }: { devis: Devis }) {
                 <Text style={styles.accordTexte}>{t.signature}</Text>
               </View>
             ) : null}
-            <View style={styles.commander}>
-              <Text style={styles.ligneGrise}>
-                {devis.acceptation ? t.suivi : t.commander}
-              </Text>
-              <Text style={styles.lien}>
-                {devis.lienFiche.replace(/^https?:\/\//, "")}
-              </Text>
-            </View>
+            {/* Sans lien (un portail : la visite d'abord, pas de commande en ligne), pas de « Pour commander en ligne ». */}
+            {devis.lienFiche ? (
+              <View style={styles.commander}>
+                <Text style={styles.ligneGrise}>
+                  {devis.acceptation ? t.suivi : t.commander}
+                </Text>
+                <Text style={styles.lien}>
+                  {devis.lienFiche.replace(/^https?:\/\//, "")}
+                </Text>
+              </View>
+            ) : null}
           </View>
         </View>
+
+        {/* Les textes reproduits en entier (le contrat de la Garantie cotes, art. L217-22) : chacun à partir d'une nouvelle page. */}
+        {devis.annexes?.map((annexe, rang) => (
+          <View key={annexe.titre} break={rang === 0} style={rang === 0 ? undefined : styles.annexeSuite}>
+            <Text style={styles.annexeTitre}>{annexe.titre}</Text>
+            {annexe.texte.split(/\n{2,}/).map((paragraphe, i) => (
+              <Text key={i} style={styles.annexeTexte}>
+                {paragraphe}
+              </Text>
+            ))}
+          </View>
+        ))}
 
         <Text style={styles.pied} fixed>
           {t.pied}

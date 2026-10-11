@@ -1,15 +1,28 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import Image from "next/image";
+import type { CSSProperties, ReactNode } from "react";
 import { BandeauDetail } from "@/components/bandeau-detail";
+import { EtapesFabrication } from "@/components/etapes-fabrication";
+import { CarteCategorie } from "@/components/carte-categorie";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
 import { metadataPage } from "@/lib/seo";
-import { products, prixParOutil, productLocalise, type Famille } from "@/lib/products";
-import { prixDepart } from "@/lib/prix-garde-corps.server";
 import { serif } from "@/lib/fonts";
-import { MaterialBubble } from "@/components/material-bubble";
-import { hoverZoom, prixAffiche } from "@/lib/ui";
+import { Apparition } from "@/components/apparition";
+import { categoriesCollection } from "@/lib/categories-collection";
+import { detailCategorie } from "@/lib/categories-collection.server";
+
+/** Une carte arrive en montant : tout de suite dans le premier écran (animation CSS, sans attendre le script), au
+ *  défilement ensuite (Apparition). */
+function Arrivee({ premierEcran, retard, children }: { premierEcran: boolean; retard: number; children: ReactNode }) {
+  if (premierEcran) {
+    return (
+      <div className="entree-monte h-full" style={{ "--retard": `${420 + retard}ms` } as CSSProperties}>
+        {children}
+      </div>
+    );
+  }
+  return <Apparition retard={retard}>{children}</Apparition>;
+}
 
 export async function generateMetadata({
   params,
@@ -28,230 +41,70 @@ export async function generateMetadata({
   });
 }
 
+/**
+ * LA COLLECTION (refaite le 09/10/2026, demande de Quentin : « mal organisée, pas belle, pas intuitive »).
+ * Un titre court, puis directement les catégories en grandes cartes, chacune avec sa photo en situation : un clic
+ * ouvre ses modèles (src/lib/categories-collection.ts). Plus de sommaire en pastilles ni de sections empilées.
+ */
 export default async function ArtisanatPage({ params }: PageProps<"/[lang]/artisanat">) {
   const { lang } = await params;
   const locale = isLocale(lang) ? lang : defaultLocale;
   const dict = await getDictionary(locale);
   const t = dict.artisanat;
-  const h = dict.hub;
-
-  /**
-   * Une section par métier, dans l'ordre de la maison : d'abord ce qui se
-   * commande en ligne au prix affiché, puis ce qui se dessine sur devis.
-   * Les verrières et les sculptures ont leur page à elles : elles ferment
-   * la liste avec une carte vers cette page.
-   */
-  const familles: {
-    id: Famille | "verrieres" | "sculptures";
-    titre: string;
-    note?: string;
-    page?: { href: string; src: string; alt: string; position?: string; titre: string };
-  }[] = [
-    { id: "table-interieur", titre: h.catTables },
-    // La table d'extérieur juste après ses cousines d'intérieur : un client
-    // qui parcourt les tables doit la croiser tout de suite, pas après
-    // l'escalier, les garde-corps et les verrières.
-    { id: "table-exterieur", titre: h.catTablesExt },
-    // Le garde-corps de fenêtre remonte ici (demande du 03/10) : c'est le produit d'appel.
-    { id: "garde-corps", titre: h.catGardeCorps, note: t.familleGardeCorpsNote },
-    { id: "chaise", titre: h.catChaises },
-    { id: "chaise-exterieur", titre: h.catChaisesExt },
-    { id: "escalier", titre: h.catEscaliers },
-    {
-      id: "verrieres",
-      titre: h.catVerrieres,
-      page: {
-        href: `/${locale}/artisanat/verrieres`,
-        src: "/images/verriere-interieure.jpg",
-        alt: dict.verrieres.photoAlt,
-        position: "50% 45%",
-        titre: dict.verrieres.title,
-      },
-    },
-    {
-      id: "sculptures",
-      titre: h.catSculptures,
-      page: {
-        href: `/${locale}/artisanat/sculptures`,
-        src: "/images/sculpture-cheval-v2.jpg",
-        alt: dict.sculptures.photoAlt,
-        position: "50% 35%",
-        titre: dict.sculptures.title,
-      },
-    },
-  ];
-  const sections = familles
-    .map((famille) => ({
-      ...famille,
-      // Les textes du catalogue (nom, description des photos, matières)
-      // passent dans la langue du visiteur.
-      pieces: products
-        .filter((product) => product.famille === famille.id && product.category !== "lumiere")
-        .map((product) => productLocalise(product, locale)),
-    }))
-    .filter((famille) => famille.pieces.length > 0 || famille.page);
+  const categories = categoriesCollection(locale, dict.hub);
+  const entree = (ms: number) => ({ "--retard": `${ms}ms` }) as CSSProperties;
 
   return (
     <div>
-      <div className="mx-auto max-w-6xl px-6 pb-24 pt-16">
-        <h1 className={`${serif.className} text-4xl text-[#2b2320] md:text-5xl`}>{t.title}</h1>
-        <p className="mt-4 max-w-xl leading-relaxed text-[#5c5140]">{t.subtitle}</p>
+      {/* 1. Le titre et la phrase. */}
+      {/* Compact et sur toute la largeur (09/10/2026, Quentin : « ça prend trop de place ») : le titre à gauche, la
+          phrase à droite sur grand écran, l'un sous l'autre sinon. */}
+      <section className="bg-[#f5f1ea] pb-2 pt-9 md:pt-12">
+        <div className="mx-auto flex max-w-6xl flex-col px-6 gap-3 xl:flex-row xl:items-end xl:justify-between xl:gap-16">
+          <h1
+            className={`${serif.className} entree-monte text-[2rem] text-balance leading-[1.06] tracking-[-0.02em] text-[#2b2320] sm:text-[2.4rem] md:text-[2.8rem]`}
+            style={entree(80)}
+          >
+            {t.h1}
+          </h1>
+          <p className="entree-monte max-w-xl text-[15px] leading-[1.55] text-[#5c5140] md:text-[16px] xl:pb-2" style={entree(200)}>
+            {t.subtitle}
+          </p>
+        </div>
+      </section>
 
-        {/* Le sommaire : une puce par section, pour sauter directement aux
-            garde-corps sans passer devant toutes les tables. */}
-        <nav aria-label={t.famillesNav} className="mt-8 flex flex-wrap gap-2">
-          {sections.map((famille) => (
-            <a
-              key={famille.id}
-              href={`#${famille.id}`}
-              className="rounded-full border border-[#e5ddd3] bg-white px-3.5 py-1.5 text-xs text-[#5c5140] transition-colors hover:border-black hover:text-black"
-            >
-              {famille.titre}
-            </a>
+      {/* 2. Les catégories sur toute la largeur : deux par rangée sur téléphone, trois sur tablette, cinq dès 1280 px
+          (neuf catégories : 5 + 4, aucune carte seule). Les dernières se centrent. */}
+      <section className="bg-[#f5f1ea] pb-16 pt-7 md:pb-24 md:pt-9">
+        <ul className="mx-auto flex max-w-6xl flex-wrap px-6 justify-center gap-x-4 gap-y-9 sm:gap-x-6 md:gap-y-12 xl:gap-x-5 xl:gap-y-11">
+          {categories.map((c, i) => (
+            <li key={c.id} className="basis-[calc(50%-0.5rem)] sm:basis-[calc(50%-0.75rem)] md:basis-[calc(33.333%-1rem)] xl:basis-[calc(20%-1rem)]">
+              <Arrivee premierEcran={i < 5} retard={(i % 5) * 90}>
+                <CarteCategorie
+                  categorie={c}
+                  detail={detailCategorie(c, locale, t)}
+                  locale={locale}
+                  priority={i < 5}
+                  dense
+                  sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 20vw"
+                />
+              </Arrivee>
+            </li>
           ))}
-        </nav>
+        </ul>
+      </section>
 
-        {sections.map((famille, rang) => {
-          const nombre = famille.pieces.length + (famille.page ? 1 : 0);
-          return (
-            <section key={famille.id} id={famille.id} className="mt-16 scroll-mt-24">
-              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <h2 className={`${serif.className} text-2xl text-[#2b2320]`}>{famille.titre}</h2>
-                <span className="text-xs text-[#726757]">
-                  {(nombre > 1 ? t.familleModelesPluriel : t.familleModeles).replace("{n}", String(nombre))}
-                </span>
-              </div>
-              {famille.note && <p className="mt-2 max-w-xl text-sm text-[#726757]">{famille.note}</p>}
+      {/* 3. Comment votre pièce est faite : les cinq étapes, de vos cotes à la livraison (référencement, lot L7). */}
+      <EtapesFabrication titre={t.etapesTitre} etapes={t.etapes} />
 
-              <div className="mt-6 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-                {famille.pieces.map((product, index) => {
-                  // Le « à partir de » : celui du catalogue, ou de l'outil de plans pour le garde-corps.
-                  const depart = prixDepart(product);
-                  return (
-                  <Link
-                    key={product.slug}
-                    href={`/${locale}/artisanat/${product.slug}`}
-                    className="group flex flex-col gap-4"
-                  >
-                    <div
-                      className={`relative aspect-[4/3] overflow-hidden rounded-xl ${hoverZoom}`}
-                      // Le cadre prend la teinte du fond de la photo : son contour ne se voit plus.
-                      style={{ backgroundColor: product.images[0]?.bg ?? "#ffffff" }}
-                    >
-                      {product.images[0] ? (
-                        <Image
-                          src={product.images[0].src}
-                          alt={product.images[0].alt}
-                          fill
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          // Les trois premières cartes de la première famille sont
-                          // dans le premier écran : préchargées, elles ne sont plus
-                          // demandées après la mise en page (c'est l'élément LCP).
-                          // Pas plus de trois : sur téléphone une seule est visible.
-                          priority={rang === 0 && index < 3}
-                          className={
-                            product.images[0].fit === "contain"
-                              ? "object-contain p-4"
-                              : "object-cover"
-                          }
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-[#f1ece4] p-6">
-                          <span
-                            className={`${serif.className} text-center text-3xl leading-tight text-[#726757]`}
-                          >
-                            {product.name}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <h3
-                        className={`${serif.className} text-lg text-[#2b2320] transition-colors duration-300 group-hover:text-black`}
-                      >
-                        {product.name}
-                      </h3>
-                      {/* Le chiffre que le client cherche : il avait exactement
-                          la taille et la couleur de la note grise du dessus. */}
-                      {depart === null ? (
-                        <p className="mt-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-[#726757]">
-                          {t.onQuote}
-                        </p>
-                      ) : (
-                        <p className="mt-1.5 flex items-baseline gap-2 text-[#726757]">
-                          <span className="text-[11px] font-medium uppercase tracking-[0.14em]">
-                            {t.from}
-                          </span>
-                          <span className="text-[15px] font-medium tabular-nums text-[#2b2320]">
-                            {prixAffiche(depart, locale)}
-                          </span>
-                        </p>
-                      )}
-                      {/* La pièce se configure en ligne : dit sur la carte, c'est ce qui la distingue. */}
-                      {(product.surMesure || prixParOutil(product)) && product.orderMode === "cart" && (
-                        <p className="mt-1 text-[11px] text-[#6f6357]">{t.configurable}</p>
-                      )}
-                      {/* Aperçu des matières disponibles, mêmes pastilles que la fiche produit. */}
-                      <div className="mt-3 flex items-center gap-1.5">
-                        {[...product.woods, ...product.metals, ...(product.fabrics ?? [])]
-                          .slice(0, 8)
-                          .map((material) => (
-                            <MaterialBubble
-                              key={`${material.id}-${material.label}`}
-                              material={material}
-                              taille="miniature"
-                              className="h-5 w-4"
-                            />
-                          ))}
-                      </div>
-                    </div>
-                  </Link>
-                  );
-                })}
-
-                {/* Les verrières et les sculptures se font sur devis, sur leur
-                    propre page : une carte vers cette page ferme la section. */}
-                {famille.page && (
-                  <Link href={famille.page.href} className="group flex flex-col gap-4">
-                    <div
-                      className={`relative aspect-[4/3] overflow-hidden rounded-xl bg-white ${hoverZoom}`}
-                    >
-                      <Image
-                        src={famille.page.src}
-                        alt={famille.page.alt}
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        style={{ objectPosition: famille.page.position }}
-                        className="object-cover"
-                      />
-                    </div>
-
-                    <div>
-                      <h3
-                        className={`${serif.className} text-lg text-[#2b2320] transition-colors duration-300 group-hover:text-black`}
-                      >
-                        {famille.page.titre}
-                      </h3>
-                      <p className="mt-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-[#726757]">
-                        {t.onQuote}
-                      </p>
-                    </div>
-                  </Link>
-                )}
-              </div>
-            </section>
-          );
-        })}
-      </div>
-
-      {/* Bandeau atelier : panneau sombre et photo, le même dessin partout. */}
+      {/* 4. Bandeau atelier : panneau sombre et photo, le même dessin partout. */}
       <BandeauDetail
         titre={t.craftBandTitle}
         corps={t.craftBandBody}
         cta={{ href: `/${locale}/contact`, label: dict.nav.contact }}
         mention={dict.artisanat.madeInFrance}
         photo={{ src: "/images/mikado/ambiance.jpg", alt: dict.hub.altHeroMobilier }}
+        locale={locale}
       />
     </div>
   );

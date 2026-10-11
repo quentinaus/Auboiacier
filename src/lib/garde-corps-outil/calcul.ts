@@ -10,7 +10,8 @@
  */
 import { ALLEGE_LIBRE, BARRE_APPUI, BORNES_GC, DEFAUTS_GC, MARGE_BOULE, calculerGC, geomGC, type ResultatGC, type ValeursGC } from "./moteur.genere.mjs";
 import { chiffrage } from "./chiffrage.ts";
-import { idModeleGC, lireMainCouranteGC, lireModeleGC, ROSACES_MM_GC, type RaisonSansPrixGC, type RondGC, type TrousGC } from "../garde-corps.ts";
+import { champsMurGC, decorParDefautGC, idDecorGC, idModeleGC, lireDecorGC, lireMainCouranteGC, lireModeleGC, murDansLesBornes, ROSACES_MM_GC, type ChoixDecorGC, type RaisonSansPrixGC, type RondGC, type TrousGC } from "../garde-corps.ts";
+import { DECORS_GC } from "../garde-corps-decors.genere.ts";
 import { CARRE_RENFORT, CARRES_RENFORT_SEULS, codeAlerte, CROIX_CATALOGUE, CROIX_MAX, MAINS_COURANTES_GC, ORDRE_CARRES, valeursGC, type CodeAlerteGC, type EntreeSiteGC } from "./entree.ts";
 
 export { ChiffrageIndisponible } from "./chiffrage.ts";
@@ -53,6 +54,11 @@ export type ConfigGC = Commun & {
   soubassement: boolean;
   /** Leur hauteur, du bas du cadre à la lisse qui les ferme (0 : aucun). */
   soubassementMm: number;
+  /**
+   * Le décor à volutes calculé (demande de Quentin, 06/10/2026) : l'outil le pose dans le cadre des barreaux seuls (seuls est
+   * alors vrai, une seule « croix ») et contrôle la norme sur son dessin. Absent : pas de décor.
+   */
+  decor?: ChoixDecorGC;
   kg: number;
   v: Readonly<ValeursGC>;
   R: Readonly<ResultatGC>;
@@ -84,8 +90,21 @@ export function entreeValide(e: EntreeSiteGC): boolean {
     typeof e.enEtage === "boolean" &&
     (MAINS_COURANTES_GC as readonly string[]).includes(e.essence) &&
     (e.rosaceMm === undefined || ROSACES_MM_GC.includes(e.rosaceMm)) &&
-    (e.modele === undefined || lireModeleGC(e.modele) !== null)
+    (e.modele === undefined || lireModeleGC(e.modele) !== null) &&
+    (e.decor === undefined || lireDecorGC(e.decor) !== null) &&
+    // Le mur des tableaux (facultatif) : un mur de la liste de l'outil, des cotes dans les bornes de ses champs.
+    murDansLesBornes(e)
   );
+}
+
+/**
+ * La clé d'un relevé pour les mémoires du calcul : ses cotes, la main courante (celle du client, ou celle du calcul), la
+ * rosace, et le MUR avec ses cotes — deux relevés qui ne diffèrent que par le mur ne partagent jamais un résultat (la
+ * fixation change le prix, le débit, et parfois la forme : des pattes, ou « à étudier »).
+ */
+function cleDuReleve(e: EntreeSiteGC, essence: string, avecDecor: readonly string[] = []): string {
+  // La largeur à 1 m du sol (murs pas parallèles) fait partie du relevé : deux fenêtres qui n'en diffèrent que par elle ne partagent pas leur mémoire.
+  return JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, essence, e.rosaceMm ?? 100, e.mur ?? "", e.tMurMm ?? null, e.eMurMm ?? null, e.largeurHautMm ?? e.largeurMm, ...avecDecor]);
 }
 
 // Le calcul prend quelques millisecondes à quelques dizaines : on garde les derniers relevés.
@@ -116,6 +135,18 @@ const CARRE_REFERENCE = ORDRE_CARRES[0];
 /** Les raisons qui écartent un carré entier : elles ne disent rien du dessin. */
 const duCarre = (codes: readonly CodeAlerteGC[]) => codes.includes("solidite") || codes.includes("fixation");
 /**
+ * Avec un décor à volutes, les seules alertes qui dépendent du DESSIN du décor : ses vides (« Trous ») et l'appui pour le pied
+ * (« Escalade »), contrôlés sur le dessin (normeDecorGC) ; « autre » par prudence. Toutes les autres (rigidité, fixation, charge
+ * verticale, hauteur, jour, fenêtre…) ne regardent que le cadre, le même pour tous les décors d'une fenêtre (un test le vérifie).
+ */
+const DU_DECOR: readonly CodeAlerteGC[] = ["trous", "escalade", "autre"];
+/**
+ * La SONDE du cadre : le plus léger des décors (le médaillon, quelques pièces), calculé d'abord avec le même cadre. Ce qu'il
+ * refuse au cadre, tout décor le refuse : le décor demandé (une grille, des cœurs sur un socle, dix fois plus long à contrôler)
+ * n'est dessiné que pour un cadre qui tient.
+ */
+const DECOR_SONDE = idDecorGC(decorParDefautGC(DECORS_GC.assemblages.some((a) => a.id === "medaillon") ? "medaillon" : DECORS_GC.assemblages[0].id));
+/**
  * Par relevé : la fenêtre est-elle trop basse pour ce garde-corps ? Cela ne dépend d'aucun dessin (la hauteur
  * est celle de la norme) : un seul essai le dit. Sans cette mémoire, une fenêtre trop basse faisait essayer
  * les 120 combinaisons de chaque ligne d'un panier — plusieurs secondes de calcul par requête forgée.
@@ -141,8 +172,63 @@ function fenetreTropBasse(cleReleve: string, entree: EntreeSiteGC, seuls = false
   return oui;
 }
 
-/** La clé d'un carré pour un relevé, sans ou avec le fer plat de renfort. */
-const cleCarre = (cleReleve: string, s: number, r: boolean, p = 0) => `${cleReleve}|${s}|${r ? 1 : 0}${p ? `|p${p}` : ""}`;
+/**
+ * Les refus de la fixation dans le mur qui ne dépendent pas de la poussée sur le garde-corps (fixationMurGC, dans l'outil) :
+ * le placo (le garde-corps se fixe dehors), la 1re fixation trop près de l'arête du mur, un carré trop fin pour la tige, un
+ * montant de rive trop court pour écarter les fixations. Le refus « la fixation la plus chargée reprendrait… » n'y est pas :
+ * il dépend de la poussée, une patte peut le lever. Un texte que l'outil écrirait autrement n'est reconnu par aucun : les
+ * pattes sont alors essayées, comme avant (plus lent, jamais faux).
+ * La patte en façade (10/10/2026) n'est pas un remède du site : l'outil l'essaie lui-même, dans fixationMurGC, dès que les
+ * platines ne tiennent pas dans le tableau et avant toute patte ; un refus qui subsiste porte les deux raisons (« … ; en façade
+ * aussi, … ») et commence toujours par celle du tableau, que ces motifs reconnaissent.
+ */
+const REFUS_SANS_POUSSEE: readonly RegExp[] = [
+  /^sur étude — le placo est à l'intérieur/,
+  /^sur étude — le tableau est trop peu profond/,
+  /^sur étude — un carré de \d+ au moins/,
+  /^sur étude — le montant de rive est trop court/,
+  // Depuis la fixation par platines au bout des lisses (10/10/2026) : un cadre trop bas pour écarter les deux chevilles d'un côté
+  // (parpaing, brique creuse, béton cellulaire : une cheville par platine, un rang entre les deux) — la géométrie, pas la poussée.
+  /^sur étude — le cadre est trop bas/,
+];
+/** Par relevé et par cadre : la fixation dans le mur est-elle « sur étude » quelle que soit la poussée ? (murSansRemede) */
+const sansRemede = new Map<string, boolean>();
+/** Ce que rend un essai avec des pattes quand le mur n'a pas de remède : l'alerte de la fixation, sans calcul. */
+const MUR_SANS_REMEDE: { codes: readonly CodeAlerteGC[]; R: null; v: null } = Object.freeze({ codes: FIXATION, R: null, v: null });
+
+/**
+ * Par relevé et par cadre (carré, fer plat de renfort, barreaux seuls) : la fixation dans le mur est-elle « sur étude » quelle
+ * que soit la poussée ? Alors aucune patte n'y peut rien — une patte ne fait que soulager les fixations des tableaux — et les
+ * essais avec des pattes ne sont pas calculés : ils rendraient cette alerte (MUR_SANS_REMEDE). Sans ce contrôle, un mur en placo
+ * (toujours sur étude) ou un cadre trop court pour écarter les fixations faisait calculer 1 à 4 pattes sur tous les dessins, pour
+ * rien : une seconde par configuration au lieu de 0,1 s, 4 à 8 s pour la route (au lieu de 0,4), 11 à 18 s pour un panier de
+ * 19 fenêtres (au lieu de 0,2).
+ * Le contrôle : le même cadre (même hauteur, même carré, même mur, mêmes cotes du mur) sur la plus petite largeur de l'outil,
+ * où la poussée est la plus faible (la largeur ne change ni la hauteur du cadre ni ses montants de rive : geomGC). S'il y est
+ * encore « sur étude », pour une raison qui ne dépend pas de la poussée (REFUS_SANS_POUSSEE), aucune patte ne le sauvera.
+ * (Le béton a deux montages, et l'outil n'écrit que le refus du dernier : à cette poussée, la tige du premier passe toujours,
+ * le contrôle ne conclut donc jamais à tort.) Gardé par relevé, comme la fenêtre trop basse : le catalogue et les prix de
+ * chaque main courante ne refont pas le contrôle.
+ */
+function murSansRemede(cleReleve: string, entree: EntreeSiteGC, s: number, r: boolean, seuls: boolean): boolean {
+  if (!entree.mur) return false;
+  const cle = `${cleReleve}|${s}|${r ? 1 : 0}|${seuls ? 1 : 0}`;
+  const connu = sansRemede.get(cle);
+  if (connu !== undefined) return connu;
+  const v = valeursGC(DEFAUTS_GC, { ...entree, largeurMm: BORNES_GC.B.min, largeurHautMm: undefined }, s, 1, false, false, r, seuls) as ValeursGC;
+  const F = calculerGC({ ...v, _rapide: true }).fixation as { statut?: unknown; texte?: unknown } | undefined;
+  const texte = typeof F?.texte === "string" ? F.texte : "";
+  const oui = F?.statut === "etude" && REFUS_SANS_POUSSEE.some((re) => re.test(texte));
+  garder(sansRemede, cle, oui, ESSAIS_MAX);
+  return oui;
+}
+
+/**
+ * La clé d'un carré pour un relevé, sans ou avec le fer plat de renfort. Avec un mur donné, les barreaux seuls ont la leur
+ * (« |s ») : la fixation dans le mur dépend de la longueur des montants de rive, et un cadre à barreaux seuls n'a pas la
+ * hauteur d'un cadre à croix quand le jour sous le cadre est réduit (bas de fenêtre haut). Sans mur, rien ne change.
+ */
+const cleCarre = (cleReleve: string, s: number, r: boolean, p = 0, famille = "") => `${cleReleve}|${s}|${r ? 1 : 0}${p ? `|p${p}` : ""}${famille}`;
 
 /**
  * La lisse haute est-elle trop souple dans TOUS les carrés de l'atelier (fenêtre large) ? C'est le seul cas où
@@ -150,7 +236,8 @@ const cleCarre = (cleReleve: string, s: number, r: boolean, p = 0) => `${cleRele
  * dépend pas du dessin, et un carré plus gros est toujours plus rigide.
  */
 function lisseTropSouple(cleReleve: string, p = 0): boolean {
-  return ecarte.get(cleCarre(cleReleve, Math.max(...ORDRE_CARRES), false, p))?.includes("solidite") === true;
+  const cle = cleCarre(cleReleve, Math.max(...ORDRE_CARRES), false, p);
+  return ecarte.get(cle)?.includes("solidite") === true || ecarte.get(`${cle}|s`)?.includes("solidite") === true;
 }
 
 /** L'essence qui représente un type de main courante pour la recherche (même section, même calcul) : « chene » ou « chene-plat ». */
@@ -159,29 +246,57 @@ function representantMainCourante(id: EntreeSiteGC["essence"]): EntreeSiteGC["es
   return m?.type === "bois-rainure" ? "chene" : m?.type === "bois-plat" ? "chene-plat" : id;
 }
 
-/** Un essai de l'outil (calcul rapide : mêmes alertes, sans chercher de solution à écrire dans leur texte). */
-function essayer(cleReleve: string, entree: EntreeSiteGC, s: number, n: number, b: boolean, t: boolean, r = false, seuls = false, p = 0): { codes: readonly CodeAlerteGC[]; R: ResultatGC | null; v: ValeursGC | null } {
+/**
+ * Un essai de l'outil (calcul rapide : mêmes alertes, sans chercher de solution à écrire dans leur texte). `cleCarres` : la clé
+ * des carrés écartés (par défaut celle du relevé) ; avec un décor, elle est commune à tous les décors de la fenêtre.
+ */
+function essayer(cleReleve: string, entree: EntreeSiteGC, s: number, n: number, b: boolean, t: boolean, r = false, seuls = false, p = 0, cleCarres = cleReleve): { codes: readonly CodeAlerteGC[]; R: ResultatGC | null; v: ValeursGC | null } {
   if (tropBasse.get(cleReleve)) return { codes: FENETRE, R: null, v: null };
-  const horsJeu = ecarte.get(cleCarre(cleReleve, s, r, p));
+  const famille = entree.mur && seuls ? "|s" : "";
+  const horsJeu = ecarte.get(cleCarre(cleCarres, s, r, p, famille));
   if (horsJeu) return { codes: horsJeu, R: null, v: null };
-  const cle = `${cleReleve}|${s}|${n}|${b ? 1 : 0}|${t ? 1 : 0}|${r ? 1 : 0}|${seuls ? 1 : 0}${p ? `|p${p}` : ""}`;
+  const suite = `|${s}|${n}|${b ? 1 : 0}|${t ? 1 : 0}|${r ? 1 : 0}|${seuls ? 1 : 0}${p ? `|p${p}` : ""}`;
+  const cle = `${cleReleve}${suite}`;
   const connus = essais.get(cle);
   if (connus?.length) return { codes: connus, R: null, v: null };
+  // Avec un décor : ce que le CADRE refuse vaut pour tous les décors de la fenêtre (même carré, même renfort, mêmes pattes). Le
+  // premier décor calculé le dit aux autres : la liste des prix des sept décors ne refait pas sept fois les mêmes essais.
+  const cleCadre = entree.decor !== undefined ? `cadre|${cleCarres}${suite}` : null;
+  const parLeCadre = cleCadre ? essais.get(cleCadre) : undefined;
+  if (parLeCadre?.length) return { codes: parLeCadre, R: null, v: null };
+  /** Ce que l'essai a donné, gardé en mémoire ; R et v seulement s'il passe. */
+  const conclure = (brut: readonly CodeAlerteGC[], R: ResultatGC | null, v: ValeursGC | null) => {
+    let codes = brut;
+    // Le cadre refuse : seules ses raisons sont dites (le décor n'y est pour rien), les mêmes que la mémoire ait servi ou non.
+    if (cleCadre) {
+      const duCadre = codes.filter((c) => !DU_DECOR.includes(c));
+      if (duCadre.length) {
+        codes = duCadre;
+        garder(essais, cleCadre, codes, ESSAIS_MAX);
+      }
+    }
+    // Le carré lui-même ne convient pas (pas assez rigide, ou la vis n'y tient pas) : c'est la raison qui compte
+    // pour ce carré, quel que soit le dessin.
+    // (Avec la patte, la rigidité et la fixation dépendent du DESSIN — où tombe le montant du milieu, s'il y en a un : une seule
+    // croix n'en a pas — : le carré n'est jamais écarté pour eux.)
+    if (duCarre(codes) && !p) {
+      codes = codes.includes("solidite") ? SOLIDITE : FIXATION;
+      garder(ecarte, cleCarre(cleCarres, s, r, p, famille), codes, ESSAIS_MAX);
+    }
+    garder(essais, cle, codes, ESSAIS_MAX);
+    // Sans alerte, le calcul rapide EST le calcul complet de l'outil (identiques au caractère près : un test le
+    // vérifie avec l'empreinte de la référence) : inutile de le refaire.
+    return { codes, R: codes.length ? null : R, v: codes.length ? null : v };
+  };
+  const alertesDe = (R: ResultatGC): CodeAlerteGC[] => [...new Set(R.alertes.map(codeAlerte))];
+  // Avec un décor : le cadre d'abord, avec la sonde. S'il refuse, le décor demandé n'est pas dessiné.
+  if (cleCadre && entree.decor !== DECOR_SONDE) {
+    const sonde = alertesDe(calculerGC({ ...(valeursGC(DEFAUTS_GC, { ...entree, decor: DECOR_SONDE }, s, n, b, t, r, seuls, p) as ValeursGC), _rapide: true }));
+    if (sonde.some((c) => !DU_DECOR.includes(c))) return conclure(sonde, null, null);
+  }
   const v = valeursGC(DEFAUTS_GC, entree, s, n, b, t, r, seuls, p) as ValeursGC;
   const R = calculerGC({ ...v, _rapide: true });
-  let codes: readonly CodeAlerteGC[] = [...new Set(R.alertes.map(codeAlerte))];
-  // Le carré lui-même ne convient pas (pas assez rigide, ou la vis n'y tient pas) : c'est la raison qui compte
-  // pour ce carré, quel que soit le dessin.
-  // (Avec la patte, la rigidité et la fixation dépendent du DESSIN — où tombe le montant du milieu, s'il y en a un : une seule
-  // croix n'en a pas — : le carré n'est jamais écarté pour eux.)
-  if (duCarre(codes) && !p) {
-    codes = codes.includes("solidite") ? SOLIDITE : FIXATION;
-    garder(ecarte, cleCarre(cleReleve, s, r, p), codes, ESSAIS_MAX);
-  }
-  garder(essais, cle, codes, ESSAIS_MAX);
-  // Sans alerte, le calcul rapide EST le calcul complet de l'outil (identiques au caractère près : un test le
-  // vérifie avec l'empreinte de la référence) : inutile de le refaire.
-  return { codes, R: codes.length ? null : R, v: codes.length ? null : v };
+  return conclure(alertesDe(R), R, v);
 }
 
 /**
@@ -194,17 +309,29 @@ function essayer(cleReleve: string, entree: EntreeSiteGC, s: number, n: number, 
  */
 export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   if (!entreeValide(e)) throw new RangeError("relevé de garde-corps hors des bornes de l'outil");
+  // LE DÉCOR À VOLUTES (06/10/2026) : il remplace les croix. L'outil le pose dans le cadre des barreaux seuls et contrôle la
+  // norme sur son dessin ; le modèle choisi est alors ignoré. Il n'est jamais choisi à la place du client.
+  const decor = e.decor === undefined ? null : lireDecorGC(e.decor);
+  const idDecor = decor ? idDecorGC(decor) : null;
   // Le modèle choisi par le client : ce DESSIN seul est essayé (croix, barreaux, traverse). S'il ne passe pas
   // la norme, rien n'est vendu. Le carré, lui, reste le choix de l'atelier (16 d'abord) : celui de
   // l'identifiant est indicatif — sinon le même dessin « sautait » quand une cote faisait changer de carré,
   // et un identifiant forgé pouvait obtenir un carré que l'atelier ne propose pas.
-  const choisi = lireModeleGC(e.modele);
-  const cleReleve = JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, e.essence, e.rosaceMm ?? 100]);
+  const choisi = decor ? null : lireModeleGC(e.modele);
+  // Toutes les mémoires dérivent de ces deux clés : le décor y entre (et seulement quand il y en a un : sans décor, les clés
+  // d'avant ne changent pas).
+  const avecDecor = idDecor ? [idDecor] : [];
+  const cleReleve = cleDuReleve(e, e.essence, avecDecor);
   // La RECHERCHE ne dépend que du type de main courante : pin, hêtre, chêne et noyer ont la même section et le même calcul (seuls le
   // nom et le prix du bois changent). Les essais sont donc partagés entre les essences d'un même type (« chene » pour le bois rainuré,
   // « chene-plat » pour le bois sur fer plat) : dix fois moins de calcul pour les prix de chaque main courante.
   const essenceCalcul = representantMainCourante(e.essence);
-  const cleCalcul = JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, essenceCalcul, e.rosaceMm ?? 100]);
+  const cleCalcul = cleDuReleve(e, essenceCalcul, avecDecor);
+  // Les carrés écartés (rigidité de la lisse haute, place des vis) ne dépendent que du cadre : tous les décors d'une fenêtre ont le
+  // même (la hauteur d'un cadre à croix, le cadre des barreaux seuls). Ils se partagent donc cette mémoire — un test le vérifie
+  // sur une grille de fenêtres : le premier décor calculé écarte les carrés pour les six autres (la liste des prix des décors).
+  // (Le mur des tableaux et ses cotes y entrent : la fixation dépend du mur.)
+  const cleCarres = decor ? JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, essenceCalcul, "décor", e.mur ?? "", e.tMurMm ?? null, e.eMurMm ?? null, e.largeurHautMm ?? e.largeurMm]) : cleCalcul;
   // La mémoire est rangée par DESSIN (pas par identifiant) : « 16-4 » et « 18-4 » sont la même demande.
   const cle = `${cleReleve}|${choisi ? `${choisi.croix}|${choisi.barreauxBas ? 1 : 0}|${choisi.traverse ? 1 : 0}|${choisi.seuls ? 1 : 0}` : ""}`;
   const deja = memoire.get(cle);
@@ -215,8 +342,13 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   }
   const entree: EntreeSiteGC = Object.freeze({
     largeurMm: e.largeurMm, allegeMm: e.allegeMm, enEtage: e.enEtage, fenetreMm: e.fenetreMm, essence: e.essence,
+    // Murs pas parallèles : la largeur à 1 m du sol suit jusqu'au moteur (sans elle, tout se calculait à la largeur du bas).
+    ...(e.largeurHautMm !== undefined ? { largeurHautMm: e.largeurHautMm } : {}),
     ...(e.rosaceMm !== undefined ? { rosaceMm: e.rosaceMm } : {}),
-    ...(e.modele !== undefined ? { modele: e.modele } : {}),
+    ...(e.modele !== undefined && !idDecor ? { modele: e.modele } : {}),
+    ...(idDecor ? { decor: idDecor } : {}),
+    // Le mur des tableaux et ses cotes, quand le client les a donnés.
+    ...champsMurGC(e),
   });
   const entreeCalcul: EntreeSiteGC = essenceCalcul === entree.essence ? entree : Object.freeze({ ...entree, essence: essenceCalcul });
   const carres: readonly number[] = ORDRE_CARRES;
@@ -224,19 +356,25 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
   // rien n'a passé, 7 à 12 croix — les fenêtres larges et basses que l'outil résout et que le site refusait.
   // Bas de fenêtre trop haut pour des croix mais pas pour un cadre à barreaux seuls (qui peut être plus bas) : c'est lui, et lui seul,
   // qu'on propose. « Jamais rien qui ne soit pas aux normes, mais toujours quelque chose » (Quentin, 05/10/2026).
+  // (Avec un décor, l'outil garde la hauteur d'un cadre à croix — 200 mm au moins — : le cadre bas des barreaux seuls n'existe pas.)
   const baseSeuls = valeursGC(DEFAUTS_GC, entree, 16, 1, false, false, false, true);
-  const soloSeuls = geomGC(valeursGC(DEFAUTS_GC, entree, 16, 1), 1).appui !== null && geomGC(baseSeuls, 1).appui === null;
-  const plages: readonly (readonly [nMin: number, nMax: number])[] = soloSeuls ? [[1, 1]] : choisi ? [[choisi.croix, choisi.croix]] : [[1, CROIX_CATALOGUE], [CROIX_CATALOGUE + 1, CROIX_MAX]];
+  const soloSeuls = !decor && geomGC(valeursGC(DEFAUTS_GC, entree, 16, 1), 1).appui !== null && geomGC(baseSeuls, 1).appui === null;
+  // Avec un décor : un seul dessin, le cadre des barreaux seuls rempli du décor (une « croix »).
+  // Avec un décor : 1 panneau, puis 2, puis 3 (des montants au milieu, quand la charge verticale refuse un seul panneau sur une
+  // fenêtre large : décision du 07/10/2026, « aucun décor à étudier »).
+  const plages: readonly (readonly [nMin: number, nMax: number])[] = soloSeuls ? [[1, 1]] : decor ? [[1, 3]] : choisi ? [[choisi.croix, choisi.croix]] : [[1, CROIX_CATALOGUE], [CROIX_CATALOGUE + 1, CROIX_MAX]];
   // Sans choix du client : les croix seules d'abord ; si rien ne passe, une traverse au milieu des croix (la
   // solution de l'outil : le même dessin, les vides coupés en deux) ; puis des barreaux droits en bas ; puis les deux.
-  const variantes: readonly (readonly [barreaux: boolean, traverse: boolean, seuls: boolean])[] = soloSeuls
+  const variantes: readonly (readonly [barreaux: boolean, traverse: boolean, seuls: boolean])[] = soloSeuls || decor
     ? [[false, false, true]]
     : choisi
     ? [[choisi.barreauxBas, choisi.traverse, choisi.seuls]]
     : [[false, false, false], [false, true, false], [true, false, false], [true, true, false]];
   // La hauteur, le jour et la main courante annoncés sont ceux du dessin vendu : un cadre à barreaux seuls (choisi, ou seul possible)
   // se juge sur son propre minimum (120 mm), comme la case « barreaux seuls » de l'outil — à 760 mm : jour 90 et cadre de 175, non 65 et 200.
-  const base = soloSeuls || choisi?.seuls ? baseSeuls : valeursGC(DEFAUTS_GC, entree, 16, 1);
+  // Avec un décor, le cadre des barreaux seuls a le même minimum (120 mm, geomGC) ; le jour automatique vise d'abord celui d'un cadre à
+  // croix (valeursGC, jourGC).
+  const base = soloSeuls || choisi?.seuls || decor ? baseSeuls : valeursGC(DEFAUTS_GC, entree, 16, 1);
   const g = geomGC(base, 1);
   const commun: Commun = {
     entree,
@@ -265,7 +403,7 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
     return resultat;
   }
   // La fenêtre s'arrête sous la main courante : aucun dessin n'y changera rien (en applique, sur devis).
-  if (fenetreTropBasse(cleCalcul, entreeCalcul, soloSeuls)) {
+  if (fenetreTropBasse(cleCalcul, entreeCalcul, soloSeuls || decor !== null)) {
     resultat = { ...commun, ok: false, conforme: false, raison: "fenetre-trop-basse", alertes: [...FENETRE] };
     Object.freeze(resultat);
     garder(memoire, cle, resultat, MEMOIRE_MAX);
@@ -303,7 +441,7 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
     }
   }
   recherche: for (const r of platVoulu ? [true] : [false, true]) {
-    if (r && !platVoulu && !lisseTropSouple(cleCalcul, patte)) break;
+    if (r && !platVoulu && !lisseTropSouple(cleCarres, patte)) break;
     // Avec le fer plat, la rigidité est réglée : seul compte ce qui bloque ENCORE (les essais qui suivent).
     if (r) blocages.length = 0;
     for (const [nMin, nMax] of plages) for (const [b, t, seuls] of variantes) {
@@ -312,14 +450,20 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
           // Les pattes ne changent ni les vides ni la hauteur : inutile d'essayer un dessin dont les vides sont déjà hors norme, un dessin
           // sans assez de montants pour les poser, ou un carré de 12 ou 14 (trop faible pour une patte). Le calcul complet reste fait
           // pour tout le reste (sinon une fenêtre impossible coûtait plus de 10 s de calcul).
+          // Avec des pattes, quand la fixation dans le mur est « sur étude » pour ce cadre quelle que soit la poussée (placo, montant trop
+          // court…) : l'essai ne peut que buter sur elle — on le sait sans rien calculer, pas même les vides du dessin (murSansRemede).
+          let murBloque = false;
           if (patte) {
             if (s < CARRE_RENFORT || (!seuls && n - 1 < patte)) continue;
             // La patte la plus chargée reprend au moins q L / (k + 1) : si, même ainsi, ce carré est trop faible, inutile de calculer.
             if ((0.9 * entree.largeurMm / 1000 / (patte + 1)) * 1000 * (commun.hauteurMm + commun.jourMm) / (s ** 3 / 6) > 235) continue;
-            const vg = valeursGC(DEFAUTS_GC, entreeCalcul, s, n, b, t, r, seuls) as ValeursGC;
-            if (!geomGC(vg, n).ok) continue;
+            murBloque = murSansRemede(cleCalcul, entreeCalcul, s, r, seuls);
+            if (!murBloque) {
+              const vg = valeursGC(DEFAUTS_GC, entreeCalcul, s, n, b, t, r, seuls) as ValeursGC;
+              if (!geomGC(vg, n).ok) continue;
+            }
           }
-          const essai = essayer(cleCalcul, entreeCalcul, s, n, b, t, r, seuls, patte);
+          const essai = murBloque ? MUR_SANS_REMEDE : essayer(cleCalcul, entreeCalcul, s, n, b, t, r, seuls, patte, cleCarres);
           if (!patte && (essai.codes.includes("solidite") || essai.codes.includes("fixation"))) butePatte = true;
           if (essai.R && essai.v) {
             let { R, v } = essai;
@@ -330,16 +474,18 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
               if (R.alertes.length) throw new Error("garde-corps : l'essence change le calcul de la norme");
             }
             if (!(R.hauteurGC! > 0) || !(R.kg! > 0)) throw new Error("garde-corps : calcul de l'outil incohérent");
+            if (decor && !R.decorNom) throw new Error("garde-corps : l'outil n'a pas posé le décor demandé");
             const soubassementMm = geomGC(v, n).sb;
             // Des barreaux en bas demandés mais que l'outil n'a pas pu dessiner (cadre trop bas) : ce n'est pas ce modèle.
             if (b && !seuls && !(soubassementMm > 0)) {
               if (choisi) blocages.push(["trop-petit"]);
               continue;
             }
-            resultat = { ...commun, ok: true, conforme: true, carre: s, croix: n, barreauxBas: b, traverse: t, seuls, renfort: r, patte, soubassement: soubassementMm > 0, soubassementMm, kg: R.kg!, v: gelerProfond(v), R: gelerProfond(R) };
+            resultat = { ...commun, ok: true, conforme: true, carre: s, croix: n, barreauxBas: b, traverse: t, seuls, renfort: r, patte, soubassement: soubassementMm > 0, soubassementMm, ...(decor ? { decor: Object.freeze({ ...decor }) } : {}), kg: R.kg!, v: gelerProfond(v), R: gelerProfond(R) };
             break recherche;
           }
-          if (choisi) blocages.push(essai.codes);
+          // (Un décor est un dessin choisi : ce qui le bloque se garde comme pour un modèle.)
+          if (choisi || decor) blocages.push(essai.codes);
           // Sans choix : ce qui bloque au carré de 16, croix seules (la section du modèle), avec le moins d'alertes.
           // Avec le renfort, c'est ce qui bloque ENCORE qui compte (la rigidité, elle, est réglée par le plat).
           else if (s === 16 && !b && !t && !seuls && (!auCarre16 || r !== auCarre16Renfort || essai.codes.length < auCarre16.length)) { auCarre16 = essai.codes; auCarre16Renfort = r; }
@@ -358,7 +504,7 @@ export function configurerGC(e: EntreeSiteGC): ConfigGC | ConfigAEtudierGC {
     // Pour un dessin choisi : la raison dans un carré qui convient s'il y en a un (« l'espace entre les barres
     // serait trop grand ») ; sinon ce qui écarte les carrés (la rigidité). Sans choix : ce qui bloque au carré de 16.
     const rigides = blocages.filter((c) => c.length > 0 && !duCarre(c)).sort((a, b) => a.length - b.length);
-    const alertes: CodeAlerteGC[] = [...(choisi ? (rigides[0] ?? blocages.find((c) => c.includes("solidite")) ?? blocages.find((c) => c.length > 0) ?? []) : (auCarre16 ?? []))];
+    const alertes: CodeAlerteGC[] = [...(choisi || decor ? (rigides[0] ?? blocages.find((c) => c.includes("solidite")) ?? blocages.find((c) => c.length > 0) ?? []) : (auCarre16 ?? []))];
     resultat = { ...commun, ok: false, conforme: false, raison: alertes.includes("fenetre") ? "fenetre-trop-basse" : "a-etudier", alertes };
   }
   Object.freeze(resultat);
@@ -411,15 +557,17 @@ function trousDuDessin(entree: EntreeSiteGC, n: number, b: boolean, t: boolean, 
  * « hors norme » — visible, jamais vendu.
  */
 export function catalogueGC(e: EntreeSiteGC): DessinGC[] {
-  const { modele: _ignore, ...sansChoix } = e;
+  // Le catalogue des modèles ne dépend ni du modèle choisi ni du décor : avec ou sans décor, les mêmes dessins, aux mêmes prix.
+  const { modele: _ignore, decor: _sansDecor, ...sansChoix } = e;
   void _ignore;
+  void _sansDecor;
   // Barre d'appui, ou rien à poser : aucun modèle à croix. Bas de fenêtre trop haut pour des croix mais pas pour un cadre à
   // barreaux seuls (plus bas) : ce cadre, et lui seul.
   const croixImpossibles = geomGC(valeursGC(DEFAUTS_GC, sansChoix, 16, 1), 1).appui !== null;
   if (croixImpossibles && geomGC(valeursGC(DEFAUTS_GC, sansChoix, 16, 1, false, false, false, true), 1).appui !== null) return [];
   // Un dessin = un nombre de croix, des barreaux en bas ou non (demandés, ou imposés par la norme), une traverse ou non.
   const dessins = new Map<string, DessinGC>();
-  const cleReleve = JSON.stringify([e.largeurMm, e.allegeMm, e.enEtage, e.fenetreMm, e.essence, e.rosaceMm ?? 100]);
+  const cleReleve = cleDuReleve(e, e.essence);
   // L'ordre du catalogue : les croix seules, puis avec une traverse au milieu, puis avec des barreaux en bas,
   // puis les deux — de 1 à 6 croix chaque fois (de 7 à 12 : seulement les modèles aux normes).
   // (Cinquième famille : les barreaux seuls — des barreaux verticaux et rien d'autre, un seul dessin.)

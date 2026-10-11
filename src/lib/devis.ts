@@ -85,7 +85,8 @@ type Poste =
   | "marches"
   | "gardeCorps"
   | "pose";
-type FamilleDevis = Exclude<Famille, "garde-corps">;
+// Les portails ne passent pas par ce devis : on demande la visite (formulaire de contact), le devis suit.
+type FamilleDevis = Exclude<Famille, "garde-corps" | "portail">;
 const POSTES: Record<FamilleDevis, { poste: Poste; part: number }[]> = {
   "table-interieur": [
     { poste: "plateau", part: 44 },
@@ -194,9 +195,22 @@ export type Devis = {
   lienFiche: string;
   /** Présent seulement sur une confirmation : la commande a été payée. */
   acceptation?: Acceptation;
+  /**
+   * Les textes reproduits en entier après le tableau, sur leurs propres pages :
+   * le contrat de la Garantie cotes quand la commande la comprend
+   * (garantie-cotes-contrat.ts, art. L217-22 : remis sur support durable).
+   */
+  annexes?: { titre: string; texte: string }[];
 };
 
-export type ResultatDevis = { ok: true; devis: Devis } | { ok: false; reason: string };
+export type ResultatDevis =
+  | {
+      ok: true;
+      devis: Devis;
+      /** Le prix unitaire de la pièce chiffrée (une pièce achetable) : la route du devis en tire la Garantie cotes disponible. */
+      prixPiece?: number;
+    }
+  | { ok: false; reason: string };
 
 /* ------------------------------------------------------------------ *
  *  Textes du devis, dans les deux langues
@@ -241,7 +255,7 @@ const TEXTES = {
     pieceLigne: "{nom} — {options}",
     postes: {
       plateau: "Plateau {essence} massif — {dims}, {ep} mm, débité, collé et poncé à l'atelier",
-      plateauExt: "Plateau à lattes en chêne traité classe 4 — {dims}, {ep} mm",
+      plateauExt: "Plateau à lattes de chêne massif — {dims}, {ep} mm",
       pietement: "Piétement acier — {spec}",
       peinture: "Finition peinte de l'acier — teinte {teinte}",
       finitionBrut: "Finition de l'acier — brut, vernis incolore de protection",
@@ -253,22 +267,22 @@ const TEXTES = {
       assise: "Assise garnie — mousse haute densité, velours {coloris}",
       coussins: "Coussins — mousse à cellules ouvertes, tissu déperlant, housses amovibles",
       emballage: "Emballage et protection pour le transport",
-      cadre: "Cadre aluminium laqué {teinte} — {dims}, coupe d'onglet, caisson de {ep} mm",
-      toile: "Toile tendue blanc diffusant — {m2} m², clipsée dans le cadre",
-      led: "Éclairage LED 220 V — {w} W, alimentation comprise",
+      cadre: "Caisson en tube d'aluminium soudé, tour en tôle peinte {teinte} — {dims}, profondeur {ep} mm",
+      toile: "Toile tendue blanc diffusant — {m2} m², tenue par un profilé qui la pince",
+      led: "Éclairage par rubans LED 24 V — alimentation et boîtier de commande compris",
       fixationsLumiere: "Fixations, câbles de suspension et emballage",
-      limon: "Limon central — tube d'acier de forte section, cintré, soudure TIG",
+      limon: "Limon central — tube d'acier de forte section, supports et platines soudés, soudure TIG",
       marches: "Marches {essence} massif 50 mm — {forme}, finition huile-cire",
-      gardeCorps: "Garde-corps — câbles inox tendus, main courante bois cintré",
-      pose: "Pose par l'atelier, en 1 à 2 jours, réglages compris",
+      gardeCorps: "Garde-corps — main courante bois, remplissage selon la NF P01-012 (2024)",
+      pose: "Pose par l'atelier, en 1 à 2 jours, réglages compris — jusqu'à 45 km de Saumur ; au-delà, la route s'ajoute",
     },
     transporteur: "Livraison par transporteur — {commune} ({cp})",
-    transporteurTable: "Livrée démontée : plateau, piétement soudé d'une pièce, visserie et notice de montage. Colis estimé à **{kg} kg**.",
+    transporteurTable: "Livrée démontée : plateau, piétement soudé, visserie et notice de montage. Colis estimé à **{kg} kg**.",
     transporteurPiece: "Livrée prête à poser, emballée à l'atelier. Colis estimé à **{kg} kg**.",
     transporteurNote: "Prix estimé selon la ville, le poids et les dimensions, à {km} km de Saumur.",
     poseLigne: "Livraison et pose par l'atelier — {commune} ({cp})",
     poseDetail: "Un seul déplacement depuis Saumur ({km} km) : livraison, montage et mise à niveau sur place, par nos soins.",
-    poseDetailLumiere: "Un seul déplacement depuis Saumur ({km} km) : livraison, fixation et raccordement du plafond lumineux, par nos soins.",
+    poseDetailLumiere: "Un seul déplacement depuis Saumur ({km} km) : livraison et fixation du plafond lumineux, par nos soins.",
     sansLivraison: "Livraison en France métropolitaine comprise, fixations et notice de pose fournies.",
     delaiInconnu: "Sur commande",
     emetteurLignes: ["Métallerie d'art — atelier à Saumur (49400), Maine-et-Loire", "auboiacier@gmail.com — auboiacier.fr"],
@@ -331,7 +345,7 @@ const TEXTES = {
     pieceLigne: "{nom} — {options}",
     postes: {
       plateau: "Solid {essence} top — {dims}, {ep} mm, cut, glued and sanded in the workshop",
-      plateauExt: "Slatted top in class-4 treated oak — {dims}, {ep} mm",
+      plateauExt: "Slatted solid oak top — {dims}, {ep} mm",
       pietement: "Steel base — {spec}",
       peinture: "Painted finish of the steel — {teinte}",
       finitionBrut: "Steel finish — raw, clear protective varnish",
@@ -343,22 +357,22 @@ const TEXTES = {
       assise: "Upholstered seat — high-density foam, {coloris} velvet",
       coussins: "Cushions — open-cell foam, water-repellent fabric, removable covers",
       emballage: "Packaging and protection for transport",
-      cadre: "Lacquered aluminium frame, {teinte} — {dims}, mitred corners, {ep} mm box",
-      toile: "Stretched white diffusing membrane — {m2} m², clipped into the frame",
-      led: "220 V LED lighting — {w} W, power supply included",
+      cadre: "Welded aluminium tube box, painted sheet rim in {teinte} — {dims}, {ep} mm deep",
+      toile: "Stretched white diffusing membrane — {m2} m², held by a gripping profile",
+      led: "24 V LED strip lighting — power supply and control box included",
       fixationsLumiere: "Fixings, suspension cables and packaging",
-      limon: "Central stringer — heavy-section steel tube, bent, TIG welded",
+      limon: "Central stringer — heavy-section steel tube, welded supports and plates, TIG welded",
       marches: "Solid {essence} treads, 50 mm — {forme}, hardwax-oil finish",
-      gardeCorps: "Balustrade — tensioned stainless cables, bent wooden handrail",
-      pose: "Installation by the workshop, 1 to 2 days, adjustments included",
+      gardeCorps: "Balustrade — wooden handrail, infill to standard NF P01-012 (2024)",
+      pose: "Installation by the workshop, 1 to 2 days, adjustments included — within 45 km of Saumur; beyond that, travel is added",
     },
     transporteur: "Carrier delivery — {commune} ({cp})",
-    transporteurTable: "Shipped dismantled: top, one-piece welded base, hardware and assembly notes. Parcel estimated at **{kg} kg**.",
+    transporteurTable: "Shipped dismantled: top, welded base, hardware and assembly notes. Parcel estimated at **{kg} kg**.",
     transporteurPiece: "Shipped ready to install, packed at the workshop. Parcel estimated at **{kg} kg**.",
     transporteurNote: "Price estimated from the town, weight and dimensions, {km} km from Saumur.",
     poseLigne: "Delivery and installation by the workshop — {commune} ({cp})",
     poseDetail: "A single trip from Saumur ({km} km): delivery, assembly and levelling on site, by us.",
-    poseDetailLumiere: "A single trip from Saumur ({km} km): delivery, fixing and wiring of the light ceiling, by us.",
+    poseDetailLumiere: "A single trip from Saumur ({km} km): delivery and fixing of the light ceiling, by us.",
     sansLivraison: "Delivery within mainland France included, fixings and fitting notes supplied.",
     delaiInconnu: "Made to order",
     emetteurLignes: ["Art metalwork — workshop in Saumur (49400), Maine-et-Loire, France", "auboiacier@gmail.com — auboiacier.fr"],
@@ -465,6 +479,12 @@ export function numeroDevis(entree: {
     // Le relevé d'un garde-corps : une autre fenêtre, un autre devis. Absent
     // pour les autres pièces, dont les numéros ne changent donc pas.
     ...(s.allegeMm !== undefined ? [s.allegeMm, s.enEtage ? "etage" : "rdc", s.fenetreMm, ...(s.modeleGc ? [s.modeleGc] : [])] : []),
+    // Le décor à volutes : un autre décor, un autre devis. Absent sans décor : les numéros d'avant ne changent pas.
+    ...(s.decorGc ? [s.decorGc] : []),
+    // Le mur des tableaux : une autre fixation, un autre prix, un autre devis. Sans mur, le numéro ne change pas.
+    ...(s.allegeMm !== undefined && s.murGc ? [s.murGc, s.tMurMm, s.eMurMm] : []),
+    // La largeur à 1 m du sol (murs pas parallèles) : une autre largeur en haut, un autre devis. Absente, le numéro ne change pas.
+    ...(s.allegeMm !== undefined && s.largeurHautMm !== undefined ? [`lh${s.largeurHautMm}`] : []),
   ]
     .map((v) => v ?? "-")
     .join("|");
@@ -679,6 +699,9 @@ function caracteristiques(p: Pieces, entree: EntreeDevis): Caracteristique[] {
       throw new Error("devis du garde-corps : composé par l'outil de plans, sur le serveur");
     case "escalier":
       return caracteristiquesEscalier(p, entree);
+    case "portail":
+      // Sur devis après la visite : la fiche envoie la configuration au formulaire de contact.
+      throw new Error("devis du portail : demandé après la visite de prise de cotes");
   }
 }
 
@@ -724,6 +747,7 @@ function postesDeLaPiece(
   const positif = (n: number) => Math.max(0, n);
   const base = unitPrice - positif(ecartBois) - positif(ecartMetal) - positif(ecartTissu);
 
+  if (product.famille === "portail") throw new Error("devis du portail : demandé après la visite de prise de cotes");
   const parts = POSTES[product.famille];
   const montants = parts.map(({ part }) => Math.round((base * part) / 100));
   montants[0] += base - montants.reduce((somme, m) => somme + m, 0);
@@ -829,6 +853,7 @@ export function emetteurDevis(locale: Locale) {
       ...TEXTES[locale].emetteurLignes,
       [ENTREPRISE.adresse, ENTREPRISE.statut].filter(Boolean).join(" — "),
       ENTREPRISE.siret ? `SIRET ${ENTREPRISE.siret}` : "",
+      ENTREPRISE.immatriculation,
       ENTREPRISE.tva ? `TVA ${ENTREPRISE.tva}` : "",
       ENTREPRISE.assurance,
       ENTREPRISE.telephone,
@@ -954,6 +979,7 @@ export function composerDevis(entree: EntreeDevis): ResultatDevis {
   const photo = photoConfiguration(product, selection);
   return {
     ok: true,
+    ...(estimation ? {} : { prixPiece: ligne.unitPrice }),
     devis: {
       nature: estimation ? "estimation" : "devis",
       numero: numeroDevis({ ...entree, quantity }),

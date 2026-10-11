@@ -5,6 +5,7 @@ import type Stripe from "stripe";
 import { emetteurDevis, type Acceptation, type Devis, type LigneDevis } from "./devis.ts";
 import type { Locale } from "./i18n.ts";
 import { libelleEntier } from "./libelle-stripe.ts";
+import type { PartieContrat } from "./garantie-cotes-contrat.ts";
 
 /**
  * La confirmation de commande : le document que l'acheteur reçoit APRÈS avoir
@@ -33,7 +34,7 @@ import { libelleEntier } from "./libelle-stripe.ts";
 const TEXTES = {
   fr: {
     remiseGc: "Remise plusieurs garde-corps",
-    remiseGcDetail: "Frais fixes de l'atelier comptés une seule fois",
+    remiseGcDetail: "Plusieurs garde-corps dans la même commande",
     remise: "Remise",
     retrait: "Retrait à l'atelier",
     retraitDetail: "À Saumur, sur rendez-vous",
@@ -45,10 +46,12 @@ const TEXTES = {
       "La facture vous est adressée séparément par notre prestataire de paiement.",
       "Ce document tient lieu d'accusé de réception de votre commande.",
     ],
+    garantie:
+      "Garantie cotes : le contrat de garantie commerciale (article 13 des conditions générales de vente) et l'encadré légal sont reproduits en entier en fin de document.",
   },
   en: {
     remiseGc: "Several-railings discount",
-    remiseGcDetail: "The workshop's fixed costs counted only once",
+    remiseGcDetail: "Several railings in the same order",
     remise: "Discount",
     retrait: "Collection from the workshop",
     retraitDetail: "In Saumur, by appointment",
@@ -60,6 +63,8 @@ const TEXTES = {
       "Your invoice is sent separately by our payment provider.",
       "This document serves as acknowledgement of your order.",
     ],
+    garantie:
+      "Measurement guarantee: the commercial guarantee contract (article 13 of the terms of sale) and the statutory notice are reproduced in full at the end of this document.",
   },
 } as const;
 
@@ -69,6 +74,12 @@ export type EntreeConfirmation = {
   lignes: Stripe.LineItem[];
   /** L'adresse du site, pour le lien de bas de page. */
   origine: string;
+  /**
+   * Le contrat de la Garantie cotes, tel qu'il est le jour de la commande
+   * (contratGarantieCotes) : reproduit en fin de document quand la commande
+   * comprend la garantie (métadonnée garantie_cotes). Art. L217-22.
+   */
+  contratGarantie?: PartieContrat[];
 };
 
 /** Le nombre de centimes de Stripe, en euros. */
@@ -125,6 +136,8 @@ export function empreinteConfirmation(
     client: contenu.client,
     lignes: contenu.lignes,
     total: contenu.total,
+    // Le contrat de la Garantie cotes fait partie du document scellé, quand il y est.
+    ...(contenu.annexes?.length ? { annexes: contenu.annexes } : {}),
     transaction,
   });
   const brute = createHash("sha256").update(canonique, "utf8").digest("hex").slice(0, 32);
@@ -132,7 +145,7 @@ export function empreinteConfirmation(
 }
 
 /** La confirmation de commande, prête à rendre en PDF. */
-export function composerConfirmation({ session, lignes, origine }: EntreeConfirmation): Devis {
+export function composerConfirmation({ session, lignes, origine, contratGarantie }: EntreeConfirmation): Devis {
   const locale: Locale = session.metadata?.locale === "en" ? "en" : "fr";
   const t = TEXTES[locale];
   const reference = session.metadata?.order_ref ?? session.id;
@@ -185,6 +198,9 @@ export function composerConfirmation({ session, lignes, origine }: EntreeConfirm
       ? lignesDevis[0].designation
       : "";
 
+  // La Garantie cotes achetée : son contrat complet voyage avec la confirmation (support durable, art. L217-22).
+  const annexes = session.metadata?.garantie_cotes && contratGarantie?.length ? contratGarantie : undefined;
+
   const contenu: Omit<Devis, "acceptation"> = {
     nature: "confirmation",
     numero: reference,
@@ -204,8 +220,9 @@ export function composerConfirmation({ session, lignes, origine }: EntreeConfirm
     lignes: lignesDevis,
     total: euros(session.amount_total),
     delai: t.delai,
-    conditions: retrait ? [...t.conditions, t.retraitCondition] : [...t.conditions],
+    conditions: [...t.conditions, ...(retrait ? [t.retraitCondition] : []), ...(annexes ? [t.garantie] : [])],
     lienFiche: `${origine}/${locale}/contact`,
+    ...(annexes ? { annexes } : {}),
   };
 
   const transaction =
@@ -220,4 +237,21 @@ export function composerConfirmation({ session, lignes, origine }: EntreeConfirm
   };
 
   return { ...contenu, acceptation };
+}
+
+/**
+ * Combien de temps le lien du PDF de confirmation reste ouvert : trente jours
+ * après la commande.
+ *
+ * Ce PDF porte le nom, l'adresse, le téléphone et l'e-mail du client, et son
+ * adresse ne demande rien d'autre que l'identifiant de la session de paiement.
+ * Celui-ci ne se devine pas, mais il traîne dans l'historique du navigateur
+ * (un ordinateur partagé, un lien transféré) : sans échéance, ces données
+ * restaient lisibles pour toujours. Le client garde son exemplaire (e-mail de
+ * confirmation, facture Stripe) et suit sa commande dans son espace.
+ */
+export const DUREE_LIEN_CONFIRMATION_S = 30 * 24 * 60 * 60;
+
+export function lienConfirmationOuvert(creeLeS: number, maintenantS: number): boolean {
+  return maintenantS - creeLeS <= DUREE_LIEN_CONFIRMATION_S;
 }

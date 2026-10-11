@@ -29,17 +29,19 @@ import { produit } from "./catalogue.ts";
 
 /** Les pièces sur devis qui n'ont ni taille chiffrée ni barème : aucun prix nulle part. */
 const sansPrix = products.filter(
-  (p) => p.orderMode === "quote" && p.sizes.length === 0 && !p.surMesure
+  // Les portails n'ont ni taille ni barème au catalogue, mais un prix : celui de l'outil de plans, calculé sur le
+  // serveur (src/lib/prix-portail.server.ts, tests/portails.test.ts), comme le garde-corps.
+  (p) => p.orderMode === "quote" && p.sizes.length === 0 && !p.surMesure && p.famille !== "portail"
 );
 
-test("la table résine est au catalogue, sur devis, sans aucun prix", () => {
+test("la table résine a ses prix (05/10/2026) : catalogue, en caisse, ses quatre teintes", () => {
   const table = produit("table-resine-mikado");
-  assert.equal(table.orderMode, "quote");
+  assert.equal(table.orderMode, "cart");
   assert.equal(table.famille, "table-interieur");
   assert.equal(table.category, "interieur");
-  assert.equal(priceFrom(table), null, "un prix « à partir de » a été inventé");
-  assert.ok(sansPrix.includes(table));
-  // Les quatre teintes de résine des photos.
+  assert.equal(priceFrom(table), 2160);
+  assert.ok(!sansPrix.includes(table));
+  assert.deepEqual(table.sizes.map((t) => t.price), [2160, 2540, 2770, 3170, 3670]);
   assert.deepEqual(
     (table.fabrics ?? []).map((f) => f.id),
     ["bleu-paillettes-or", "rouge", "or-nacre", "turquoise"]

@@ -1,14 +1,17 @@
 "use client";
 
-import { useRef, useState } from "react";
-import Image from "next/image";
-import { essenceDeReference, priceFrom, type Product } from "@/lib/products";
+import { useEffect, useRef, useState } from "react";
+import { Visuel } from "./visuel";
+import { essenceDeReference, SLUG_GC_FORGE, type Product } from "@/lib/products";
+import { prixAfficheFiche } from "@/lib/donnees-google";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
+import { ETAPE_MODELE_GC, MEDIA_TELEPHONE_GC } from "./etapes-telephone";
 import { ProductOptions, aLeConfigurateurPleinePage } from "./product-options";
 import Link from "next/link";
 import { serif } from "@/lib/fonts";
 import { amenerAlEcran, hoverZoom, prixAffiche } from "@/lib/ui";
 import { PhotoPlafondMesuree } from "./photo-plafond-anime";
+import { EnTeteFicheGC, PhotoFicheGC } from "./entete-fiche-gc";
 
 /**
  * Les flèches de la galerie ne portent pas de texte : seul un lecteur d'écran
@@ -30,8 +33,11 @@ export function ProductView({
   locale,
   filAriane,
   compteOuvert = false,
+  prixAppel,
 }: {
   product: Product;
+  /** Garde-corps : « dès X € pour une fenêtre de Y cm », calculé par l'outil sur le serveur (prixAppelGC). */
+  prixAppel?: { prix: number; largeurMm: number } | null;
   t: Dictionary["artisanat"];
   locale: "fr" | "en";
   /** L'espace client est-il ouvert ? On ne propose pas un compte qui n'existe pas encore. */
@@ -65,6 +71,31 @@ export function ProductView({
   /** La galerie a une vue qui change avec le coloris ET la teinte de pieds (table résine). */
   const aVueParColoris = product.images.some((img) => img.parColoris);
   const galleryRef = useRef<HTMLDivElement>(null);
+  /**
+   * Le bloc Configuration est-il entièrement à l'écran ? Sur téléphone, la carte des choix ne défile QU'ALORS : tant que
+   * le bloc arrive, un doigt posé sur la carte fait défiler la page, pas la carte. Sans cela, en descendant vers le bloc,
+   * on faisait défiler la carte à mi-chemin : le bloc restait à moitié à l'écran et les cotes remontaient, cachées
+   * (capture de Quentin sur son iPhone, 05/10).
+   */
+  const blocRef = useRef<HTMLElement>(null);
+  // Libre par défaut : si la mesure ne se faisait pas, la carte ne doit jamais rester bloquée.
+  const [blocEnPlace, setBlocEnPlace] = useState(true);
+  useEffect(() => {
+    const bloc = blocRef.current;
+    if (!bloc) return;
+    const mesurer = () => {
+      const r = bloc.getBoundingClientRect();
+      // Entièrement à l'écran, à 2 px près (sur iPhone, l'écran grandit quand la barre d'adresse se replie).
+      setBlocEnPlace(r.top > -2 && r.bottom < window.innerHeight + 2);
+    };
+    mesurer();
+    window.addEventListener("scroll", mesurer, { passive: true });
+    window.addEventListener("resize", mesurer);
+    return () => {
+      window.removeEventListener("scroll", mesurer);
+      window.removeEventListener("resize", mesurer);
+    };
+  }, []);
   const stripRef = useRef<HTMLDivElement>(null);
   /**
    * L'emplacement du grand croquis, en pleine largeur, sous la galerie et la
@@ -84,6 +115,90 @@ export function ProductView({
   const [achatSlot, setAchatSlot] = useState<HTMLDivElement | null>(null);
   /** Garde-corps, grand écran : le bandeau des modèles, en bas du bloc, sous les cotes et le croquis (visuels, un clic = le détail). */
   const [bandeauSlot, setBandeauSlot] = useState<HTMLDivElement | null>(null);
+  /** Garde-corps : la question « Qui prend les mesures ? », posée sur toute la plaque avant le configurateur. */
+  const [porteSlot, setPorteSlot] = useState<HTMLDivElement | null>(null);
+  /**
+   * Garde-corps sur téléphone : UNE QUESTION À LA FOIS (etapes-telephone.tsx), sous le croquis. Étapes 1 à 6 : les
+   * questions (largeur en bas et en haut, hauteur sous la fenêtre, hauteur de la fenêtre, étage, mur), dans la carte
+   * des mesures ; 7 les finitions ; 8 les modèles ; 9 le prix (la colonne d'achat). L'en-tête et les boutons sont rendus par la fiche
+   * (product-options.tsx), qui sait ce qui manque. `parcoursTel` : la fiche dit s'il s'applique (téléphone, « je mesure
+   * moi-même »).
+   */
+  const [etapeTel, setEtapeTel] = useState(1);
+  const [parcoursTel, setParcoursTel] = useState(false);
+  const [enteteTelSlot, setEnteteTelSlot] = useState<HTMLDivElement | null>(null);
+  const [navTelSlot, setNavTelSlot] = useState<HTMLDivElement | null>(null);
+  const [modeleTelSlot, setModeleTelSlot] = useState<HTMLDivElement | null>(null);
+  const [finitionsTelSlot, setFinitionsTelSlot] = useState<HTMLDivElement | null>(null);
+  /**
+   * Le clavier du téléphone est ouvert : le doigt est dans une case de mesure du bloc ET l'écran visible a rétréci
+   * (visualViewport ; sans lui, le doigt dans la case suffit). Le croquis se fait alors plus petit pour rester au-dessus du
+   * clavier, avec la case. Sur Android, fermer le clavier par « retour » laisse le doigt dans la case : seul l'écran
+   * visible le dit.
+   */
+  const [champFocus, setChampFocus] = useState(false);
+  const [ecranReduit, setEcranReduit] = useState<boolean | null>(null);
+  const clavier = champFocus && (ecranReduit ?? true);
+  /** Le doigt est-il dans une case de mesure du bloc ? */
+  const champActif = () => {
+    const el = document.activeElement;
+    return el instanceof HTMLElement && el.matches("input[inputmode]") && Boolean(blocRef.current?.contains(el));
+  };
+  /**
+   * Le bloc remis pile en haut de l'écran : en ouvrant le clavier, le téléphone fait glisser la page, et le croquis sortait.
+   * Seulement si le bloc est encore presque en place : un client parti relire la description n'y est pas ramené.
+   */
+  const recaler = () => {
+    const bloc = blocRef.current;
+    // Seulement pendant le parcours en questions du garde-corps (pas une table, pas la visite de l'atelier).
+    if (!bloc?.querySelector('.fond-gc[data-parcours="1"]') || !window.matchMedia(MEDIA_TELEPHONE_GC).matches) return;
+    const haut = bloc.getBoundingClientRect().top;
+    if (Math.abs(haut) > 2 && Math.abs(haut) < window.innerHeight * 0.4) window.scrollBy({ top: haut, behavior: "auto" });
+  };
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    let reduit = false;
+    const mesurer = () => {
+      const avant = reduit;
+      reduit = window.innerHeight - vv.height > 150;
+      setEcranReduit(reduit);
+      // Le clavier vient de se ranger : le bloc reprend sa place.
+      if (avant && !reduit) window.setTimeout(recaler, 60);
+    };
+    mesurer();
+    vv.addEventListener("resize", mesurer);
+    return () => vv.removeEventListener("resize", mesurer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  /** Changer d'étape. La case de mesure reste la même d'une mesure à l'autre : le doigt y reste ; vers l'étage ou le mur,
+   *  elle disparaît sans « blur » (le navigateur ne le signale pas). */
+  const allerEtapeTel = (etape: number) => {
+    setEtapeTel(etape);
+    requestAnimationFrame(() => setChampFocus(champActif()));
+  };
+  const etapesTelephone = {
+    actif: parcoursTel,
+    etape: etapeTel,
+    enteteSlot: enteteTelSlot,
+    navSlot: navTelSlot,
+    modeleSlot: modeleTelSlot,
+    finitionsSlot: finitionsTelSlot,
+    // Téléphone tourné (mise en page tablette) : plus de parcours, plus de clavier à suivre.
+    signaler: (actif: boolean) => {
+      setParcoursTel(actif);
+      if (!actif) setChampFocus(false);
+    },
+    aller: allerEtapeTel,
+  };
+  /* Une nouvelle étape s'ouvre en haut, pas là où la précédente avait défilé ; et le bloc reprend sa place. */
+  useEffect(() => {
+    blocRef.current?.querySelectorAll<HTMLElement>(".panneau-etape").forEach((p) => {
+      p.scrollTop = 0;
+    });
+    if (parcoursTel && !champActif()) recaler();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [etapeTel]);
 
   /* Sur téléphone la photo est au-dessus des options. On ne remonte plus à
      chaque teinte choisie — c'est la barre du bas qui montre le rendu
@@ -214,10 +329,18 @@ export function ProductView({
   /** Le configurateur en pleine page sous la photo (tables d'intérieur), ou la colonne étroite classique. */
   const pleinePage = aLeConfigurateurPleinePage(product);
   const estTable = product.famille === "table-interieur" || product.famille === "table-exterieur";
-  const garde = product.releve === "garde-corps-fenetre";
-  /** Une table sur mesure : mêmes trois colonnes que le garde-corps (cotes, croquis, résultat et livraison). */
-  const tableTroisCol = pleinePage && estTable && Boolean(product.surMesure);
-  const troisColonnes = garde || tableTroisCol;
+  const gardeCorps = product.releve === "garde-corps-fenetre";
+  /**
+   * Les plafonds lumineux (Lucarne, Halo) : le bloc « Configuration » au gabarit du portail (Quentin, 10/10/2026 — il
+   * n'aimait pas « le petit tableau de configuration »). La mise en page trois colonnes du garde-corps est reprise, avec
+   * sa propre grille : à gauche « Vos mesures », au centre le croquis et le bandeau « Votre forme », à droite le
+   * récapitulatif, la livraison et l'achat ; la rangée du titre porte les plaquettes de couleur. ProductOptions y dépose
+   * ses morceaux par portails (lumiere-bloc.tsx) : le panier, la pose, le code postal et le prélancement ne bougent pas.
+   */
+  const blocLumiere = pleinePage && product.category === "lumiere";
+  /** Une table sur mesure : les mêmes trois colonnes (cotes, croquis de la table entière, résultat et livraison), sans bandeau de modèles. */
+  const blocTable = pleinePage && estTable && Boolean(product.surMesure);
+  const troisColonnes = gardeCorps || blocLumiere || blocTable;
   /** Le bouton « Configurer ma table » : tout en haut de la colonne, visible sans défiler. */
   const libelleConfigurer =
     product.famille === "table-interieur" || product.famille === "table-exterieur"
@@ -244,7 +367,27 @@ export function ProductView({
       </svg>
     </a>
   );
-  const prixDepart = product.releve ? null : priceFrom(product);
+  // Le prix du haut de la fiche : le même calcul que la description et les
+  // données Google (src/lib/donnees-google.ts) — Google ne reçoit que ce qui
+  // s'affiche ici. « À partir de » d'un côté, prix d'appel du garde-corps de l'autre.
+  const prixFiche = prixAfficheFiche(product, prixAppel);
+  /**
+   * Le garde-corps (Quentin, 09/10/2026 : « cette page ne va pas, pas belle, pas intuitive ; la fusionner avec celle des deux
+   * motion design ») : plus de bouton « Configurer » entre la photo et les films. Sur ordinateur, la grande photo et
+   * « Qui prend les mesures ? » côte à côte, sous le nom, le prix d'appel et « aux normes » (entete-fiche-gc.tsx) ; sur
+   * téléphone, le nom et la photo d'abord, les deux films dessous.
+   */
+  const ficheGC = pleinePage && gardeCorps;
+  const enteteGC = (titre: boolean) => (
+    <EnTeteFicheGC
+      nom={product.name}
+      locale={locale}
+      prix={prixFiche?.sorte === "appel" ? { montant: prixAffiche(prixFiche.prix, locale), largeurCm: prixFiche.largeurMm / 10 } : null}
+      titre={titre}
+      filAriane={titre ? undefined : filAriane}
+    />
+  );
+  const prixDepart = prixFiche?.sorte === "a-partir-de" ? prixFiche.prix : null;
   const aide = (
     <p className={pleinePage ? "mt-3 text-xs text-[#726757]" : "mt-6 border-t border-[#e5ddd3] pt-6 text-sm text-[#726757]"}>
       {t.helpTitle}{" "}
@@ -280,6 +423,10 @@ export function ProductView({
         resultatSlot={resultatSlot}
         achatSlot={achatSlot}
         bandeauSlot={bandeauSlot}
+        porteSlot={porteSlot}
+        enteteFiche={ficheGC ? enteteGC(false) : undefined}
+        photoFiche={ficheGC ? <PhotoFicheGC images={product.images} locale={locale} className="h-full w-full" /> : undefined}
+        etapesTelephone={gardeCorps ? etapesTelephone : undefined}
       />
       {!pleinePage && aide}
     </>
@@ -291,6 +438,7 @@ export function ProductView({
        à gauche et reste en place ; la colonne de droite, étroite, défile avec
        les choix. Sur téléphone, la photo prend d'abord tout l'écran, puis les
        options suivent. */}
+    {!ficheGC && (
     <div
       className={`grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(380px,36%)] lg:grid-cols-[minmax(0,1fr)_460px] ${
         /* Les tables, sur grand écran : la colonne des choix s'élargit et
@@ -329,10 +477,15 @@ export function ProductView({
                 sizes="(max-width: 768px) 100vw, 66vw"
                 className="object-contain p-6 md:p-12"
                 priority
+                locale={locale}
+                coin="haut-droite"
               />
             </div>
           ) : mainImage ? (
-            <Image
+            /* La mention en haut à droite : en bas, la bande de vignettes ; sur les côtés, les flèches. */
+            <Visuel
+              locale={locale}
+              coin="haut-droite"
               key={mainSrc}
               src={mainSrc!}
               alt={mainImage.alt}
@@ -399,7 +552,7 @@ export function ProductView({
                     isCurrent ? "ring-2 ring-inset ring-[#2b2320]" : ""
                   }`}
                 >
-                  <Image src={f.image!} alt={f.label} fill sizes="120px" className="object-cover" />
+                  <Visuel locale={locale} vignette src={f.image!} alt={f.label} fill sizes="120px" className="object-cover" />
                 </button>
               );
             })}
@@ -417,7 +570,9 @@ export function ProductView({
                 }`}
                 style={{ backgroundColor: img.bg ?? "#ffffff" }}
               >
-                <Image
+                <Visuel
+                  locale={locale}
+                  vignette
                   src={img.src}
                   alt={img.alt}
                   fill
@@ -452,7 +607,9 @@ export function ProductView({
                   >
                     {/* Une photo de studio se montre entière, comme en grand :
                         recadrée au carré, une table longue perdait ses pieds. */}
-                    <Image
+                    <Visuel
+                      locale={locale}
+                      vignette
                       src={srcParColoris(img) ?? img.src}
                       alt={img.alt}
                       fill
@@ -476,16 +633,20 @@ export function ProductView({
           rapprochent — l'écran va aux choix, pas au titre. */}
       <div className={`px-6 pb-8 pt-2 md:px-8 md:py-10 lg:px-12 ${estTable ? "colonne-table" : ""}`}>
         {filAriane && (
-          <nav aria-label={filAriane.label} className="hidden flex-wrap justify-end text-[11px] text-[#7a6f64] md:flex">
+          // Toujours sur une seule ligne : le bloc de configuration doit tenir
+          // dans l'écran. Si la place manque (« Tables » ajouté au fil des
+          // tables), c'est le nom du modèle qui se raccourcit — il est écrit
+          // en entier juste dessous, dans le titre.
+          <nav aria-label={filAriane.label} className="hidden min-w-0 justify-end whitespace-nowrap text-[11px] text-[#7a6f64] md:flex">
             {filAriane.etapes.map((etape) => (
-              <span key={etape.href}>
+              <span key={etape.href} className="shrink-0">
                 <Link href={etape.href} className="hover:text-[#2b2320]">
                   {etape.nom}
                 </Link>
                 <span className="mx-1.5">/</span>
               </span>
             ))}
-            <span className="text-[#2b2320]">{product.name}</span>
+            <span className="min-w-0 truncate text-[#2b2320]">{product.name}</span>
           </nav>
         )}
         <h1 className={`${serif.className} text-2xl leading-tight text-[#2b2320] md:mt-6 md:text-[2rem]`}>{product.name}</h1>
@@ -504,7 +665,7 @@ export function ProductView({
              départ, et le chemin vers le configurateur, plus bas. */
           <div className="mt-5 md:mt-8">
             {/* Le garde-corps respecte les normes françaises : on le dit tout de suite, sous l'accroche (demande de Quentin). */}
-            {garde && (
+            {product.releve === "garde-corps-fenetre" && (
               <div className="mb-5 flex items-start gap-3 rounded-2xl bg-[#e8f0e6] px-4 py-3 text-[#1f4a2a]">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="mt-0.5 h-5 w-5 shrink-0">
                   <path d="M12 3l7.5 3v5.5c0 4.6-3.1 8.2-7.5 9.5-4.4-1.3-7.5-4.9-7.5-9.5V6L12 3z" />
@@ -512,14 +673,20 @@ export function ProductView({
                 </svg>
                 <div>
                   <p className="text-[14px] font-semibold leading-tight">{t.gcNormesTitre}</p>
-                  <p className="mt-1 text-[12.5px] leading-snug text-[#33583b]">{t.gcNormesDetail}</p>
+                  <p className="mt-1 text-[12.5px] leading-snug text-[#33583b]">
+                    {t.gcNormesDetail}{" "}
+                    <Link href={`/${locale}/artisanat/verification-garde-corps`} className="font-medium underline underline-offset-2">
+                      {locale === "fr" ? "Comment on vérifie" : "How we check"}
+                    </Link>
+                  </p>
                 </div>
               </div>
             )}
             {/* Les matières d'abord : c'est ce qu'on vient voir, et la photo
                 suit chaque choix — elles restent donc juste sous le titre.
                 `ProductOptions` les dépose ici par portail (voir matieresSlot). */}
-            <div ref={setMatieresSlot} className={troisColonnes ? "xl:hidden" : undefined} />
+            {/* (Les plafonds lumineux : dès la tablette, la couleur du cadre est dans la rangée du titre du bloc.) */}
+            <div ref={setMatieresSlot} className={blocLumiere || blocTable ? "md:hidden" : troisColonnes ? "lg:hidden" : undefined} />
             {/* L'accroche et le prix de départ suivent, avant le chemin vers
                 le configurateur. */}
             <p className="mt-8 border-t border-[#e5ddd3] pt-7 text-[15px] leading-relaxed text-[#4a4038]">
@@ -530,13 +697,45 @@ export function ProductView({
                 {t.from} <span className="text-[#2b2320]">{prixAffiche(prixDepart, locale)}</span>
               </p>
             )}
+            {/* Le garde-corps : un prix d'appel réaliste, avec la fenêtre qui va avec (étude marketing, 06/10). */}
+            {prixFiche?.sorte === "appel" && (
+              <p className="mt-4 text-[14px] tabular-nums text-[#4a4038]">
+                {locale === "fr" ? "Dès " : "From "}
+                <span className="font-semibold text-[#2b2320]">{prixAffiche(prixFiche.prix, locale)}</span>
+                {locale === "fr"
+                  ? ` pour une fenêtre de ${prixFiche.largeurMm / 10}\u00a0cm de large`
+                  : ` for a window ${prixFiche.largeurMm / 10} cm wide`}
+              </p>
+            )}
             <p className="mt-1 text-xs leading-snug text-[#7a6f64]">{t.prixAttenteCotes}</p>
+            {/* Le garde-corps Rosace renvoie vers le Garde-corps forgé à volutes, plus haut de gamme (Quentin, 07/10/2026). */}
+            {product.releve === "garde-corps-fenetre" && !product.decorsGC && (
+              <p className="mt-5 text-[13px] leading-snug text-[#6f6357]">
+                {locale === "fr" ? "Envie de volutes\u00a0? " : "Fancy scrollwork? "}
+                <Link
+                  href={`/${locale}/artisanat/${SLUG_GC_FORGE}`}
+                  className="font-medium text-[#2b2320] underline decoration-[#c9b9a6] underline-offset-4 transition-colors hover:decoration-[#2b2320]"
+                >
+                  {locale === "fr" ? "Voir le garde-corps forgé" : "See the wrought scroll railing"}
+                </Link>
+              </p>
+            )}
           </div>
         ) : (
           <div id="options-piece" className="mt-2 scroll-mt-4 md:mt-5">{options}</div>
         )}
       </div>
     </div>
+    )}
+
+    {/* Garde-corps, sur téléphone : le nom, le prix et la grande photo, avant les deux films (sur ordinateur, ils sont
+        dans l'écran de choix, côte à côte). */}
+    {ficheGC && (
+      <div className="px-3 pt-3 md:hidden">
+        {enteteGC(false)}
+        <PhotoFicheGC images={product.images} locale={locale} className="mt-3 aspect-[4/3] w-full" />
+      </div>
+    )}
 
     {/* Le configurateur en pleine page, sous la photo — comme la section
         « Configuration » d'un site de découpe de bois : à gauche une carte
@@ -544,37 +743,61 @@ export function ProductView({
         pendant qu'on descend dans la carte. `ProductOptions` y dépose le
         croquis par portail (voir schemaSlot). */}
     {pleinePage && (
-      /* Sur téléphone, la page défile normalement : la carte prend la hauteur
-         qu'il lui faut. Elle a d'abord été enfermée dans la hauteur de
-         l'écran, croquis compris, pour que tout tienne d'un coup d'œil — mais
-         il ne restait alors qu'un tiers d'écran pour la carte, et on ne
-         pouvait plus voir les trois cotes ensemble sans faire défiler un
-         menu à l'intérieur d'un autre. Deux défilements imbriqués sur un
-         téléphone : personne ne s'y retrouve. Sur ordinateur, où la place ne
-         manque pas, la carte reste à côté du croquis et défile seule. */
+      /* Partout, téléphone compris, le bloc tient dans UN écran (règle de Quentin, répétée le 05/10 : « tout en
+         bloc, sur iPhone, tablette et PC ») : en haut le croquis, toujours visible pendant qu'on change une cote ou
+         une matière ; dessous, la carte des choix, qui défile À L'INTÉRIEUR d'elle-même quand elle est plus haute
+         que l'écran — jamais la page. La barre d'achat reste collée au bas de la carte. */
       <section
+        ref={blocRef}
         id="configuration"
-        className={`mx-auto scroll-mt-14 px-5 pb-3 pt-4 md:flex md:h-[calc(100dvh-3.5rem)] md:min-h-[560px] md:flex-col md:px-10 md:py-4 ${troisColonnes ? "max-w-[1480px] xl:h-[calc(100dvh-2rem)] xl:scroll-mt-4 xl:px-6 xl:py-3" : "max-w-7xl"}`}
+        // Garde-corps : la page s'ouvre sur ce bloc ; sur ordinateur, sous l'en-tête du site (69 px), il en prend la hauteur qui
+        // reste. Sur téléphone, le bloc se cale en haut de l'écran (l'en-tête défile) : il garde tout l'écran.
+        className={`mx-auto flex min-h-[520px] scroll-mt-0 ${ficheGC ? "fiche-gc" : ""} flex-col px-3 pb-2 pt-3 md:min-h-[560px] md:scroll-mt-14 md:px-10 md:py-4 ${
+          ficheGC ? "h-[100svh] md:h-[calc(100dvh-69px)]" : "h-[100svh] md:h-[calc(100dvh-3.5rem)]"
+        } ${troisColonnes ? `max-w-[1480px] lg:scroll-mt-4 lg:px-6 lg:py-3 ${ficheGC ? "" : "lg:h-[calc(100dvh-2rem)]"}` : "max-w-7xl"}`}
       >
         {/* Sur ordinateur, tout tient dans la hauteur de l'écran, titre compris : le titre
             est dans la plaque, la carte et le croquis se partagent la hauteur qui reste. */}
         <div
-          className={`fond-configuration flex flex-col gap-4 md:grid md:min-h-0 md:flex-1 md:grid-cols-[minmax(0,372px)_minmax(0,1fr)] ${tableTroisCol ? "md:grid-rows-[auto_minmax(0,1fr)_auto]" : "md:grid-rows-[auto_minmax(0,1fr)]"} md:items-stretch md:gap-x-10 md:gap-y-4 lg:gap-x-14 ${troisColonnes ? "xl:items-start " : ""}${
-            /* Le garde-corps, sur grand écran : TROIS colonnes — les cotes, le croquis et les modèles,
-               puis le résultat, la livraison et le panier. Tout tient sur un écran, titre compris,
-               sans faire défiler ni la page ni une carte. */
-            garde
-              ? "fond-gc xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:grid-rows-[auto_minmax(0,1fr)_auto] xl:gap-x-5 xl:gap-y-3"
-              : tableTroisCol
-                ? "fond-gc fond-table xl:grid-cols-[330px_minmax(0,1fr)_310px] xl:grid-rows-[auto_minmax(0,1fr)] xl:gap-x-5 xl:gap-y-3"
-                : ""
+          data-parcours={troisColonnes && parcoursTel ? "1" : undefined}
+          data-etape={etapeTel}
+          data-clavier={troisColonnes && parcoursTel && clavier ? "1" : undefined}
+          // Le bloc entièrement à l'écran : les cartes des étapes peuvent défiler (globals.css).
+          data-en-place={blocEnPlace ? "1" : undefined}
+          className={`fond-configuration flex min-h-0 flex-1 flex-col gap-2.5 md:min-h-0 md:flex-1 ${
+            /* Le garde-corps : sur tablette, le croquis et ses modèles en haut, sur toute la largeur, puis la carte des
+               mesures et la colonne d'achat côte à côte ; sur grand écran, TROIS colonnes — les cotes, le croquis et les
+               modèles, puis le résultat, la livraison et le panier. Tout tient sur un écran, titre compris. (Les classes
+               des tables ne s'appliquent pas ici : deux grilles dans la même plaque se contredisaient.) */
+            blocTable
+              ? /* Les tables : comme les plafonds (même gabarit, mêmes emplacements), avec des colonnes un peu plus larges pour les cotes
+                   (épaisseur à choisir en trois boutons) et sans le bandeau des formes. */
+                "fond-gc fond-lumiere fond-table md:grid md:items-stretch md:grid-cols-2 md:grid-rows-[auto_auto_auto_minmax(0,1fr)] md:gap-x-4 md:gap-y-3 lg:grid-cols-[300px_minmax(0,1fr)_272px] lg:grid-rows-[auto_minmax(0,1fr)_auto] lg:items-stretch lg:gap-x-4 lg:gap-y-3 xl:grid-cols-[330px_minmax(0,1fr)_300px] xl:gap-x-5"
+              : blocLumiere
+              ? /* Les plafonds lumineux : tablette, le titre, le croquis, le bandeau des formes, puis les deux cartes côte à côte ;
+                   ordinateur, les trois colonnes du portail (les cartes prennent toute la hauteur, rien ne défile). */
+                "fond-gc fond-lumiere md:grid md:items-stretch md:grid-cols-2 md:grid-rows-[auto_auto_auto_minmax(0,1fr)] md:gap-x-4 md:gap-y-3 lg:grid-cols-[262px_minmax(0,1fr)_272px] lg:grid-rows-[auto_minmax(0,1fr)_auto] lg:items-stretch lg:gap-x-4 lg:gap-y-3 xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:gap-x-5"
+              : troisColonnes
+              ? "fond-gc md:grid md:items-stretch md:grid-cols-2 md:grid-rows-[auto_auto_minmax(0,1fr)] md:gap-x-4 md:gap-y-3 lg:grid-cols-[262px_minmax(0,1fr)_272px] lg:grid-rows-[auto_minmax(0,1fr)_auto] lg:items-start lg:gap-x-4 lg:gap-y-3 xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:gap-x-5"
+              : "md:gap-4 lg:grid lg:items-stretch lg:grid-cols-[minmax(0,372px)_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)] lg:gap-x-14 lg:gap-y-4"
           }`}
         >
+          {/* Garde-corps : la question « Qui prend les mesures ? » couvre d'abord toute la plaque (porte-qui-mesure.tsx).
+              `contents` : l'emplacement ne prend aucune place dans la grille. */}
+          {gardeCorps && <div ref={setPorteSlot} className="porte-slot contents" />}
           {/* Le titre, et — sur grand écran, au garde-corps — la ligne des matières (couleur, bois, rosace) à sa droite, au-dessus
               du croquis mais PAS dessus (demande de Quentin : « remonte-la, il y a de la place »). */}
-          <div className={garde ? "md:col-span-2 xl:col-span-3 xl:grid xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:items-center xl:gap-x-5" : tableTroisCol ? "md:col-span-2 xl:col-span-3 xl:grid xl:grid-cols-[330px_minmax(0,1fr)_310px] xl:items-center xl:gap-x-5" : "md:col-span-2"}>
-            <h2 className={`${serif.className} text-xl text-[#2b2320] md:text-[28px] md:leading-none`}>{t.configurationTitle}</h2>
-            {troisColonnes && <div ref={setMatieresCentreSlot} className="hidden xl:flex xl:justify-center" />}
+          <div className={troisColonnes ? `titre-config md:col-span-2 md:flex md:items-center md:justify-between md:gap-4 lg:col-span-3 lg:grid ${blocTable ? "lg:grid-cols-[300px_minmax(0,1fr)_272px] xl:grid-cols-[330px_minmax(0,1fr)_300px]" : "lg:grid-cols-[262px_minmax(0,1fr)_272px] xl:grid-cols-[290px_minmax(0,1fr)_300px]"} lg:items-center lg:gap-x-4 xl:gap-x-5` : "lg:col-span-2"}>
+            {ficheGC ? (
+              enteteGC(true)
+            ) : (
+              <div>
+                <h2 className={`${serif.className} text-lg leading-none text-[#2b2320] md:text-[28px]`}>{t.configurationTitle}</h2>
+              </div>
+            )}
+            {/* Entre 1024 et 1280 px, la colonne du milieu est trop étroite pour la ligne des matières : elle prend aussi la
+                place au-dessus de la colonne d'achat (sinon elle passait sur le titre). */}
+            {troisColonnes && <div ref={setMatieresCentreSlot} className="hidden md:flex md:justify-end lg:col-span-2 lg:justify-center xl:col-span-1" />}
           </div>
           {/* Pas de marge en bas : c'est la barre d'achat, collée au bord
               inférieur, qui porte la sienne — sinon le contenu qui défile
@@ -585,39 +808,101 @@ export function ProductView({
               la barre d'achat doit rester collée au bas de l'écran. */}
           {/* Sur ordinateur, la carte tient dans la hauteur du bloc ; si ses choix sont plus hauts que l'écran, ELLE défile
               (la molette ne fait jamais défiler la page à travers elle), et la barre d'achat reste collée en bas. */}
-          <div className={`carte-verre overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 md:min-h-0 md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain md:px-6 md:pt-5 ${troisColonnes ? "colonne-cotes xl:col-start-1 xl:row-start-2 xl:max-h-full xl:px-5 xl:pb-3 xl:pt-4" : ""}${tableTroisCol ? " md:row-span-2 xl:row-span-1" : ""}`}>
+          <div
+            onFocus={(e) => {
+              if (parcoursTel && (e.target as HTMLElement).matches("input[inputmode]")) setChampFocus(true);
+            }}
+            onBlur={(e) => {
+              if ((e.target as HTMLElement).matches("input[inputmode]")) setChampFocus(false);
+            }}
+            className={`carte-verre order-2 min-h-0 flex-1 overflow-y-auto overflow-x-clip overscroll-contain rounded-[26px] px-5 pb-0 pt-4 md:overflow-x-hidden md:px-6 md:pt-5 ${blocEnPlace ? "" : "max-md:overflow-y-hidden"} ${
+              blocLumiere || blocTable
+                ? /* Les plafonds lumineux : la carte des mesures prend toute la hauteur des colonnes (comme au portail). */
+                  "colonne-cotes md:order-none md:flex-none md:col-start-1 md:row-start-4 lg:col-start-1 lg:row-start-2 lg:row-span-2 lg:px-4 lg:pb-3 lg:pt-4 xl:px-5"
+                : troisColonnes
+                  ? "colonne-cotes panneau-etape etape-1 etape-2 etape-3 etape-4 etape-5 etape-6 etape-7 max-md:order-3 max-md:pb-3 md:order-none md:flex-none md:col-start-1 md:row-start-3 lg:col-start-1 lg:row-start-2 lg:max-h-full lg:px-4 lg:pb-3 lg:pt-4 xl:px-5"
+                  : "lg:order-none lg:flex-none"
+            }`}>
             {options}
           </div>
-          {/* Le croquis : au-dessus de la carte sur téléphone, à côté et en grand sur ordinateur. */}
+          {/* Le croquis : au-dessus de la carte sur téléphone (il ne rétrécit jamais : c'est la carte qui défile), à côté et en
+              grand sur ordinateur. */}
           <div
-            className={`order-first md:order-none ${
+            className={`croquis-config order-1 shrink-0 ${
               /* Le croquis d'une table ou d'un plafond remplit la hauteur du bloc, au milieu. Le garde-corps a son
-                 catalogue de modèles sous le croquis : il défile dans sa colonne sous 1280 px, et tient entier au-dessus. */
-              garde
-                ? "md:min-h-0 md:overflow-y-auto xl:col-start-2 xl:row-start-2 xl:flex xl:min-h-0 xl:flex-col xl:self-stretch xl:overflow-hidden"
-                : tableTroisCol
-                  ? "md:col-start-2 md:row-start-2 md:flex md:min-h-0 md:items-center md:justify-center xl:self-stretch"
-                  : "md:flex md:min-h-0 md:items-center md:justify-center"
+                 catalogue de modèles sous le croquis : il défile dans sa colonne sous 1024 px, et tient entier au-dessus. */
+              troisColonnes
+                ? "md:order-none md:col-span-2 md:row-start-2 md:min-h-0 lg:col-span-1 lg:col-start-2 lg:row-start-2 lg:flex lg:min-h-0 lg:flex-col lg:self-stretch lg:overflow-hidden"
+                : "lg:order-none lg:flex lg:min-h-0 lg:items-center lg:justify-center"
             }`}
           >
-            <div ref={setSchemaSlot} className={`schema-configuration mx-auto w-full ${garde ? "xl:flex xl:min-h-0 xl:flex-1 xl:flex-col xl:[container-type:size]" : tableTroisCol ? "md:h-full" : ""}`} />
+            <div ref={setSchemaSlot} className={`schema-configuration mx-auto w-full ${troisColonnes ? "lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:[container-type:size]" : ""}`} />
           </div>
+          {/* Téléphone, une question à la fois : la question (ou l'étape) et, à la fin, le prix — rendus par la fiche ; puis les
+              étapes « Modèle » et « Finitions » (la rangée des modèles et la ligne des matières de l'ordinateur). */}
+          {troisColonnes && parcoursTel && <div ref={setEnteteTelSlot} className="entete-tel order-2 shrink-0 md:hidden" />}
+          {gardeCorps && (
+            <div className="panneau-etape etape-9 hidden min-h-0 flex-1 overflow-y-auto overscroll-contain max-md:order-3 md:hidden">
+              <div ref={setModeleTelSlot} />
+            </div>
+          )}
+          {gardeCorps && (
+            <div className="carte-verre panneau-etape etape-8 hidden min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[26px] px-5 py-4 max-md:order-3 md:hidden">
+              <div ref={setFinitionsTelSlot} />
+            </div>
+          )}
+          {/* Sous la carte de l'étape, sur la plaque : « Retour » et « Suivant » (rendus par la fiche). Hors de la carte qui
+              défile, le bouton reste toujours visible (l'étape « Prix » a sa barre d'achat et son retour à elle). */}
+          {troisColonnes && parcoursTel && <div ref={setNavTelSlot} className="nav-tel order-4 shrink-0 empty:hidden md:hidden" />}
           {/* Le bandeau des modèles : en bas du bloc, sous les cotes et le croquis, sur toute leur longueur. Placé AVANT la colonne
               d'achat dans le DOM (la grille le range en bas) : au clavier, on choisit le modèle avant d'arriver au bouton du panier. */}
-          {garde && <div ref={setBandeauSlot} className="bandeau-gc hidden xl:col-span-2 xl:col-start-1 xl:row-start-3 xl:block" />}
+          {/* Les plafonds lumineux : le bandeau « Votre forme » (deux tuiles) sous le croquis, dès la tablette. */}
+          {(gardeCorps || blocLumiere) && (
+            <div
+              ref={setBandeauSlot}
+              className={
+                blocLumiere
+                  ? "bandeau-lum hidden md:col-span-2 md:row-start-3 md:block lg:col-span-1 lg:col-start-2 lg:row-start-3"
+                  : "bandeau-gc hidden lg:col-span-2 lg:col-start-1 lg:row-start-3 lg:block"
+              }
+            />
+          )}
           {/* La troisième colonne du garde-corps (grand écran) : `ProductOptions` y dépose le résultat,
-              puis la livraison et la barre d'achat. Vide et cachée en dessous de 1280 px : tout reste
+              puis la livraison et la barre d'achat. Vide et cachée en dessous de 1024 px : tout reste
               alors dans la première carte. */}
           {troisColonnes && (
-            <div className={`carte-verre colonne-achat overflow-x-clip rounded-[26px] px-5 pb-0 pt-4 ${garde ? "hidden xl:col-start-3 xl:row-start-2 xl:row-span-2 xl:flex" : "hidden md:flex md:flex-col md:pb-4 md:col-start-2 md:row-start-3 xl:col-start-3 xl:row-start-2 xl:pb-0"} xl:max-h-full xl:flex-col xl:self-stretch xl:overflow-y-auto xl:overflow-x-hidden xl:overscroll-contain`}>
-              <div ref={setResultatSlot} />
+            <div
+              className={
+                blocLumiere || blocTable
+                  ? "carte-verre colonne-achat hidden min-h-0 overflow-x-clip rounded-[26px] px-4 pb-0 pt-4 md:col-start-2 md:row-start-4 md:flex md:min-h-0 md:max-h-full md:flex-col md:self-stretch md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain lg:col-start-3 lg:row-span-2 lg:row-start-2 xl:px-5"
+                  : "carte-verre colonne-achat panneau-etape etape-10 hidden min-h-0 overflow-x-clip rounded-[26px] px-4 pb-0 pt-4 max-md:order-3 max-md:flex-1 max-md:overflow-y-auto max-md:overscroll-contain md:col-start-2 md:row-start-3 md:flex md:min-h-0 md:max-h-full md:flex-col md:self-stretch md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain lg:col-start-3 lg:row-span-2 lg:row-start-2 xl:px-5"
+              }
+            >
+              {parcoursTel && (
+                <button type="button" onClick={() => allerEtapeTel(ETAPE_MODELE_GC)} className="retour-modele mb-2 self-start text-[13px] font-medium text-[#5c5140] underline underline-offset-4 md:hidden">
+                  {locale === "fr" ? "← Retour : Modèle" : "← Back: Model"}
+                </button>
+              )}
+              <div ref={setResultatSlot} className="mb-auto" />
               {/* L'achat est collé au bas de la colonne : tout le reste (options, résultat, livraison) se range au-dessus, sans défiler. */}
-              <div ref={setAchatSlot} className="mt-auto" />
+              {/* Sans boîte (contents) : la livraison et la barre d'achat deviennent des éléments de la colonne. La barre (opaque,
+                  sticky bottom-0) se colle ainsi au bas de la colonne quand elle défile (tablette), et la livraison passe dessous. */}
+              <div ref={setAchatSlot} className="contents" />
             </div>
           )}
         </div>
-        {/* Sous la plaque, en petit : une question ? */}
-        <div className="mt-3 px-1">{aide}</div>
+        {/* Sous la plaque, en petit : une question ? (Le garde-corps Rosace renvoie aussi vers le garde-corps forgé.) */}
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-1 px-1">
+          {aide}
+          {ficheGC && product.releve === "garde-corps-fenetre" && !product.decorsGC && (
+            <p className="text-[13px] text-[#6f6357]">
+              {locale === "fr" ? "Envie de volutes\u00a0? " : "Fancy scrollwork? "}
+              <Link href={`/${locale}/artisanat/${SLUG_GC_FORGE}`} className="font-medium text-[#2b2320] underline underline-offset-4">
+                {locale === "fr" ? "Voir le garde-corps forgé" : "See the wrought scroll railing"}
+              </Link>
+            </p>
+          )}
+        </div>
       </section>
     )}
     </>

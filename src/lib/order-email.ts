@@ -5,8 +5,12 @@ import { composerConfirmation } from "./confirmation";
 import { rendreDevisPdf } from "./devis-pdf";
 import { ownerEmail, sendEmail } from "./email";
 import { libelleEntier } from "./libelle-stripe";
+import { euros, formatLines } from "./lignes-commande";
 import { libelleStatut, phraseStatut, type Statut } from "./statut-commande";
+import { lignesOrigine, origineDesMetadonnees } from "./provenance";
 import { siteOrigin } from "./stripe";
+import { getDictionary } from "../app/[lang]/dictionaries";
+import { contratEnTexte, contratGarantieCotes, type PartieContrat } from "./garantie-cotes-contrat";
 
 /**
  * Bons de commande.
@@ -22,16 +26,6 @@ const LEAD_TIME = {
   en: "the lead time shown on your piece's page (3 to 12 weeks)",
 };
 
-/** Phrase de repli quand Stripe ne nous rend pas le détail des lignes. */
-const DETAIL_MANQUANT = {
-  fr: "(détail indisponible — voir le tableau de bord Stripe)",
-  en: "(details unavailable — see the Stripe dashboard)",
-};
-
-function euros(cents: number | null | undefined) {
-  return `${((cents ?? 0) / 100).toLocaleString("fr-FR")} €`;
-}
-
 function formatAddress(address: Stripe.Address | null | undefined) {
   if (!address) return "—";
   return [
@@ -44,40 +38,6 @@ function formatAddress(address: Stripe.Address | null | undefined) {
     .join("\n");
 }
 
-/**
- * Les lignes viennent de listLineItems : la liste est complète, alors que
- * l'expansion de la session s'arrête aux dix premières.
- * Le nom porte déjà les options choisies (voir /api/commande).
- *
- * ATTENTION : ce nom est celui envoyé à Stripe au moment du paiement, et il est
- * écrit en français, même pour un acheteur anglais. C'est voulu pour le bon de
- * commande de l'atelier ; pour l'e-mail de l'acheteur, il faudrait que
- * /api/commande envoie aussi le nom anglais (productLocalise) dans les
- * métadonnées de la session.
- */
-function formatLines(lines: Stripe.LineItem[], locale: "fr" | "en" = "fr", session?: Stripe.Checkout.Session) {
-  if (lines.length === 0) return DETAIL_MANQUANT[locale];
-  // Chaque ligne à son prix avant remise ; la remise a sa ligne, comme sur la facture.
-  const texte = lines.map((item, rang) => {
-    const quantity = item.quantity ?? 1;
-    // Le libellé ENTIER : Stripe ne garde que 250 signes du nom (libelle-stripe.ts).
-    return `• ${libelleEntier(item.description, rang, session?.metadata)}\n  ${quantity} × ${euros(
-      item.price?.unit_amount
-    )} = ${euros(item.amount_subtotal ?? item.amount_total)}`;
-  });
-  const remise = session?.total_details?.amount_discount ?? 0;
-  if (remise > 0) {
-    texte.push(
-      locale === "en"
-        ? `• Several-railings discount (the workshop's fixed costs counted once)\n  −${euros(remise)}`
-        : `• Remise plusieurs garde-corps (frais fixes de l'atelier comptés une fois)\n  −${euros(remise)}`
-    );
-  }
-  if (session?.metadata?.retrait === "1") {
-    texte.push(locale === "en" ? "• Collection from the workshop in Saumur, by appointment\n  0 €" : "• Retrait à l'atelier, à Saumur, sur rendez-vous\n  0 €");
-  }
-  return texte.join("\n");
-}
 
 /**
  * Filet de sécurité : la commande entière écrite dans les journaux du serveur,
@@ -112,6 +72,7 @@ export function ligneDeJournal(
     // La remise de plusieurs garde-corps, et le retrait à l'atelier, s'il y a lieu.
     ...(session.total_details?.amount_discount ? { remise: euros(session.total_details.amount_discount) } : {}),
     ...(session.metadata?.retrait === "1" ? { retraitAtelier: true } : {}),
+    ...(session.metadata?.garantie_cotes ? { garantieCotes: session.metadata.garantie_cotes } : {}),
     // Juste de quoi reconnaître la commande. Le nom, le téléphone et la rue
     // ne descendent PAS dans les journaux : ce sont des données personnelles,
     // les journaux Vercel se conservent, se lisent par toute l'équipe du
@@ -131,6 +92,38 @@ export function ligneDeJournal(
 }
 
 /** Bon de commande à l'atelier. C'est l'e-mail qui ne doit jamais se perdre. */
+/** Les façons de recevoir les portails d'une commande, lues dans ses métadonnées (« pose », « transporteur », « retrait »). */
+function receptionsPortail(meta: Stripe.Metadata | null | undefined): string[] {
+  return (meta?.portail_reception ?? "pose").split(",").filter((r) => ["pose", "transporteur", "retrait"].includes(r));
+}
+
+/** Ce que l'atelier doit savoir d'un portail commandé, selon sa réception (acompte encaissé, solde, visite ou expédition). */
+function ligneAtelierPortail(meta: Stripe.Metadata): string {
+  const quoi: Record<string, string> = {
+    pose: "posé par l'atelier : la visite de prise de cotes est payée (son créneau est dans la ligne « Prise de cotes » ci-dessous) et déduite du solde, dû à la réception",
+    transporteur: "SANS POSE, par transporteur : le portail part DEBOUT, calé sur palette ; la livraison payée est dans les lignes ci-dessous ; solde à encaisser AVANT l'expédition",
+    retrait: "SANS POSE, retrait à l'atelier : solde à encaisser au retrait",
+  };
+  const parts = receptionsPortail(meta).map((r) => quoi[r]).join(" ; ");
+  return `PORTAIL : acompte encaissé — ${parts}. SOLDE TOTAL : ${meta.portail_solde} €. Configuration à coller dans l'outil : ${Object.entries(meta).filter(([k]) => k.startsWith("portail_cfg_")).map(([, v]) => v).join(" ; ")}`;
+}
+
+/** La phrase du portail dans l'e-mail du client, selon sa réception. */
+function phrasePortailClient(meta: Stripe.Metadata, locale: "fr" | "en"): string {
+  const solde = meta.portail_solde;
+  const r = receptionsPortail(meta);
+  if (locale === "en") {
+    if (r.includes("pose")) return `For your gate, you have paid the deposit and the survey visit (booked at the slot above, and deducted from the balance): the balance of €${solde} is paid when the fitted gate is handed over.`;
+    return r.includes("transporteur")
+      ? `For your gate, you have paid the deposit: we will tell you as soon as it is ready; the balance of €${solde} is paid before shipping, then the gate leaves by carrier, upright on a pallet. The fitting is not included.`
+      : `For your gate, you have paid the deposit: we will tell you as soon as it is ready; the balance of €${solde} is paid when you collect it at the workshop in Saumur. The fitting is not included.`;
+  }
+  if (r.includes("pose")) return `Pour votre portail, vous avez réglé l'acompte et la visite de prise de cotes (au créneau indiqué plus haut, et déduite du solde) : le solde de ${solde} € se règle à la réception du portail posé.`;
+  return r.includes("transporteur")
+    ? `Pour votre portail, vous avez réglé l'acompte : nous vous prévenons dès qu'il est prêt ; le solde de ${solde} € se règle avant l'expédition, puis le portail part par transporteur, debout sur palette. La pose n'est pas comprise.`
+    : `Pour votre portail, vous avez réglé l'acompte : nous vous prévenons dès qu'il est prêt ; le solde de ${solde} € se règle au retrait à l'atelier, à Saumur. La pose n'est pas comprise.`;
+}
+
 export async function notifyOwner(
   session: Stripe.Checkout.Session,
   lines: Stripe.LineItem[]
@@ -138,6 +131,9 @@ export async function notifyOwner(
   const ref = session.metadata?.order_ref ?? session.id;
   const customer = session.customer_details;
   const shipping = session.collected_information?.shipping_details ?? null;
+  // Comment le client nous a connus, et le lien marqué de son arrivée (métadonnées posées par /api/commande).
+  const { connu, provenance } = origineDesMetadonnees(session.metadata);
+  const origine = lignesOrigine(connu, provenance);
 
   const text = [
     `Nouvelle commande ${ref}`,
@@ -150,6 +146,12 @@ export async function notifyOwner(
       : "",
     // Le retrait à l'atelier : pas de colis à préparer pour un transporteur.
     session.metadata?.retrait === "1" ? "RETRAIT À L'ATELIER : le client vient chercher sa commande à Saumur — l'appeler quand elle est prête." : "",
+    // Un portail : l'acompte est encaissé (et la visite, s'il est posé par l'atelier) ; le solde suit sa façon d'être reçu.
+    session.metadata?.portail_solde ? ligneAtelierPortail(session.metadata) : "",
+    // La Garantie cotes : une modification ou une refabrication par pièce garantie, 15 jours après la livraison (CGV, art. 13).
+    session.metadata?.garantie_cotes
+      ? `GARANTIE COTES : ${session.metadata.garantie_cotes} pièce(s) garantie(s) — voir les lignes « Garantie cotes » ci-dessous (CGV, article 13).`
+      : "",
     "",
     formatLines(lines, "fr", session),
     "",
@@ -164,6 +166,7 @@ export async function notifyOwner(
     formatAddress(shipping?.address ?? customer?.address),
     accesLivraison(session) ? `Accès : ${accesLivraison(session)}` : "",
     "",
+    ...(origine.length ? ["ORIGINE", ...origine, ""] : []),
     `Paiement Stripe : ${session.id}`,
     "Facture et remboursement : tableau de bord Stripe > Paiements.",
   ].join("\n");
@@ -186,15 +189,29 @@ export async function notifyOwner(
  * confirmation de commande — c'est l'e-mail qui compte, la pièce jointe est
  * un plus.
  */
+/**
+ * Le contrat de la Garantie cotes d'une commande qui la comprend (métadonnée
+ * garantie_cotes), dans la langue du client : l'article 13 des CGV, le
+ * garant et l'encadré légal, tels qu'ils sont aujourd'hui. Sans garantie :
+ * rien. L'e-mail de confirmation et la confirmation PDF le reproduisent en
+ * entier (support durable, art. L217-22 du code de la consommation).
+ */
+export async function contratDeLaCommande(session: Stripe.Checkout.Session): Promise<PartieContrat[] | undefined> {
+  if (!session.metadata?.garantie_cotes) return undefined;
+  const locale = session.metadata?.locale === "en" ? "en" : "fr";
+  return contratGarantieCotes((await getDictionary(locale)).cgv);
+}
+
 async function confirmationJointe(
   session: Stripe.Checkout.Session,
   lines: Stripe.LineItem[],
   locale: "fr" | "en",
-  ref: string
+  ref: string,
+  contratGarantie: PartieContrat[] | undefined
 ) {
   try {
     const pdf = await rendreDevisPdf(
-      composerConfirmation({ session, lignes: lines, origine: siteOrigin() })
+      composerConfirmation({ session, lignes: lines, origine: siteOrigin(), contratGarantie })
     );
     return [
       {
@@ -218,6 +235,19 @@ export async function notifyCustomer(
 
   const ref = session.metadata?.order_ref ?? session.id;
   const locale = session.metadata?.locale === "en" ? "en" : "fr";
+  // La Garantie cotes achetée : son contrat en entier, dans le corps du message ET dans le PDF joint.
+  const contratGarantie = await contratDeLaCommande(session);
+  const contrat = contratGarantie
+    ? [
+        "",
+        "",
+        locale === "en"
+          ? "Your Measurement guarantee contract, reproduced in full below (keep this e-mail):"
+          : "Votre contrat de Garantie cotes, reproduit en entier ci-dessous (conservez cet e-mail) :",
+        "",
+        contratEnTexte(contratGarantie),
+      ].join("\n")
+    : "";
 
   const text =
     locale === "en"
@@ -230,10 +260,11 @@ export async function notifyCustomer(
                 "",
           "Your order confirmation is attached to this e-mail.",
           `Your piece is made to order in our workshop: allow ${LEAD_TIME.en}. ${session.metadata?.retrait === "1" ? "We will call you when it is ready, to arrange a day to collect it from the workshop in Saumur." : "We will contact you to arrange delivery."}`,
+          ...(session.metadata?.portail_solde ? [phrasePortailClient(session.metadata, "en")] : []),
           "Your invoice is sent separately by our payment provider.",
           "",
           "Auboiacier — wood, steel & light",
-        ].join("\n")
+        ].join("\n") + contrat
       : [
           `Merci pour votre commande (${ref}).`,
           "",
@@ -243,17 +274,18 @@ export async function notifyCustomer(
                 "",
           "Votre confirmation de commande est jointe à cet e-mail.",
           `Votre pièce est fabriquée à la commande dans notre atelier : comptez ${LEAD_TIME.fr}. ${session.metadata?.retrait === "1" ? "Nous vous appelons dès qu'elle est prête, pour convenir du jour où vous venez la chercher à l'atelier, à Saumur." : "Nous vous contactons pour convenir de la livraison."}`,
+          ...(session.metadata?.portail_solde ? [phrasePortailClient(session.metadata, "fr")] : []),
           "Votre facture vous est envoyée séparément par notre prestataire de paiement.",
           "",
           "Auboiacier — bois, acier & lumière",
-        ].join("\n");
+        ].join("\n") + contrat;
 
   return sendEmail({
     to: email,
     subject: locale === "en" ? `Your Auboiacier order ${ref}` : `Votre commande Auboiacier ${ref}`,
     text,
     replyTo: ownerEmail(),
-    attachments: await confirmationJointe(session, lines, locale, ref),
+    attachments: await confirmationJointe(session, lines, locale, ref, contratGarantie),
   });
 }
 

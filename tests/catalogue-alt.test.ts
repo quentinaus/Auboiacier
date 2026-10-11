@@ -45,3 +45,21 @@ test("aucune traduction d'alt n'est vide ni identique au français", () => {
     });
   }
 });
+
+test("une vue qui change de teinte de pieds, d'essence ou de coloris ne nomme ni la teinte, ni l'essence, ni le coloris", () => {
+  // La grande photo prend la teinte et l'essence choisies (variants, parBois, parColoris) mais garde son texte
+  // alternatif : un alt « pieds noir charbon » décrivait faux dès qu'on choisissait des pieds blancs.
+  const mot = (liste: string) => new RegExp(`(?<!\\p{L})(${liste})(?!\\p{L})`, "iu");
+  const TEINTES = mot("noire?s?|gris|chocolat|laiton|lin|blanc(he)?s?|black|grey|gray|chocolate|brass|linen|white");
+  const ESSENCES = mot("pin|hêtre|chêne|noyer|pine|beech|oak|walnut");
+  const COLORIS = mot("rouge|or nacré|turquoise|bleue?|red|pearl gold|blue");
+  for (const p of products) {
+    p.images.forEach((img, i) => {
+      for (const alt of [img.alt, p.en?.images?.[i] ?? ""]) {
+        if (img.variants) assert.doesNotMatch(alt, TEINTES, `${p.slug} photo ${i + 1} : « ${alt} » nomme une teinte de pieds`);
+        if (img.parBois) assert.doesNotMatch(alt, ESSENCES, `${p.slug} photo ${i + 1} : « ${alt} » nomme une essence`);
+        if (img.parColoris) assert.doesNotMatch(alt, COLORIS, `${p.slug} photo ${i + 1} : « ${alt} » nomme un coloris`);
+      }
+    });
+  }
+});

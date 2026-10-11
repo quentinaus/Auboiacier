@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { HEURES, cleAgendaValide, libelleCreneau, rendezVousPayes, type RendezVous } from "@/lib/agenda";
+import { HEURES, cleAgendaValide, cleFluxIcs, libelleCreneau, rendezVousPayes, type RendezVous } from "@/lib/agenda";
 import { SITE_URL } from "@/lib/seo";
 import { serif } from "@/lib/fonts";
 
@@ -75,7 +75,9 @@ export default async function AgendaPage({
   const aujourdhui = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Paris" }).format(new Date());
   const aVenir = rendezVous.filter((rdv) => rdv.creneau.date >= aujourdhui);
   const passes = rendezVous.filter((rdv) => rdv.creneau.date < aujourdhui).reverse();
-  const flux = `${SITE_URL}/api/agenda/ics?cle=${encodeURIComponent(cle)}`;
+  // Le flux a sa propre clé, qui ne sert qu'à lire (voir cleFluxIcs) : c'est
+  // elle, et non celle de cette page, qui part chez Google ou Apple.
+  const flux = `${SITE_URL}/api/agenda/ics?cle=${encodeURIComponent(cleFluxIcs() ?? cle)}`;
   const fluxWebcal = flux.replace(/^https?:\/\//, "webcal://");
 
   return (

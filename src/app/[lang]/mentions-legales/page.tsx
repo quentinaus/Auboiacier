@@ -40,6 +40,7 @@ export default async function MentionsLegalesPage({
     { label: t.labelStatut, value: ENTREPRISE.statut },
     { label: t.labelAdresse, value: ENTREPRISE.adresse },
     { label: t.labelSiret, value: ENTREPRISE.siret },
+    { label: t.labelImmatriculation, value: ENTREPRISE.immatriculation },
     { label: t.labelTva, value: ENTREPRISE.tva },
     { label: t.labelTelephone, value: ENTREPRISE.telephone },
   ].filter((ligne) => ligne.value !== "");

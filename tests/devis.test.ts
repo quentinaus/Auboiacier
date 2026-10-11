@@ -9,7 +9,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { composerDevis, numeroDevis, photoConfiguration, type EntreeDevis } from "../src/lib/devis.ts";
-import { SUR_MESURE, getProduct, resolveSelection } from "../src/lib/products.ts";
+import { PIECES_RETIREES, SUR_MESURE, getProduct, resolveSelection } from "../src/lib/products.ts";
 import { achetables, combinaisonsValides } from "./catalogue.ts";
 import type { Deplacement } from "../src/lib/deplacement.ts";
 
@@ -100,25 +100,12 @@ test("table sur mesure avec pose : la ligne de pose reprend le montant du géoco
   assert.ok(!devis.conditions.some((c) => /au pied du camion/i.test(c)));
 });
 
-test("chaise par transporteur : le colis pèse la chaise fois la quantité, pas de plateau", () => {
-  const resultat = composerDevis(
-    entree({
-      selection: { slug: "chaise-acier-bois", metalId: "noir", fabricId: "paon" },
-      quantity: 4,
-      livraison: { mode: "transporteur", codePostal: "69001", deplacement: { ...nantes, commune: "Lyon", montantCents: 9800, distanceKm: 430 } },
-    })
-  );
-  assert.ok(resultat.ok);
-  const { devis } = resultat;
-  const p = postes(devis);
-  assert.ok(p.every((l) => l.quantite === 4 && l.total === 4 * l.unitaire));
-  assert.equal(p.reduce((somme, l) => somme + l.total, 0), 4 * 145);
-  assert.match(p[1].designation, /^Assise garnie — mousse haute densité, velours Paon/);
-  const livraison = devis.lignes[devis.lignes.length - 1];
-  assert.match(livraison.details[0], /36 kg/); // 9 kg × 4
-  const l = labels(devis);
-  assert.ok(l.includes("Velours") && l.includes("Assise") && l.includes("Structure"));
-  assert.ok(!l.includes("Plateau") && !l.includes("Puissance"));
+test("la chaise d'intérieur, retirée de la vente, ne se chiffre plus ; le fauteuil reste", () => {
+  assert.ok(PIECES_RETIREES.has("chaise-acier-bois"));
+  assert.equal(getProduct("chaise-acier-bois"), undefined);
+  assert.ok(!composerDevis(entree({ selection: { slug: "chaise-acier-bois", metalId: "noir", fabricId: "paon" } })).ok);
+  assert.ok(!PIECES_RETIREES.has("fauteuil-terrasse"));
+  assert.ok(getProduct("fauteuil-terrasse"));
 });
 
 test("plafond lumineux sur mesure : surface, puissance et profondeur du caisson", () => {
@@ -127,9 +114,9 @@ test("plafond lumineux sur mesure : surface, puissance et profondeur du caisson"
   );
   assert.ok(resultat.ok);
   const p = postes(resultat.devis);
-  assert.match(p[0].designation, /^Cadre aluminium laqué blanc — 250 × 140 cm, coupe d'onglet, caisson de 200 mm/);
+  assert.match(p[0].designation, /^Caisson en tube d'aluminium soudé, tour en tôle peinte blanc — 250 × 140 cm, profondeur 200 mm/);
   assert.match(p[1].designation, /^Toile tendue blanc diffusant — 3,5 m²/);
-  assert.match(p[2].designation, /^Éclairage LED 220 V — 230 W/);
+  assert.match(p[2].designation, /^Éclairage par rubans LED 24 V — alimentation et boîtier de commande compris/);
   assert.equal(p.reduce((somme, l) => somme + l.unitaire, 0), resultat.devis.total);
   const c = Object.fromEntries(resultat.devis.piece.caracteristiques.map((x) => [x.label, x.value]));
   assert.equal(c["Surface lumineuse"], "3,5 m²");
@@ -169,11 +156,11 @@ test("escalier : une estimation, sans validité, avec sa réserve", () => {
   assert.ok(resultat.ok);
   const { devis } = resultat;
   assert.equal(devis.nature, "estimation");
-  assert.equal(devis.total, 8400);
+  assert.equal(devis.total, 6870);
   const p = postes(devis);
   assert.match(p[0].designation, /^Central stringer/);
   assert.match(p[1].designation, /^Solid oak treads, 50 mm — Quarter turn/);
-  assert.equal(p.reduce((somme, l) => somme + l.unitaire, 0), 8400);
+  assert.equal(p.reduce((somme, l) => somme + l.unitaire, 0), 6870);
   assert.ok(devis.conditions[0].includes("estimate"));
   const l = labels(devis);
   assert.ok(l.includes("Shape") && l.includes("Treads") && l.includes("Stringer"));
@@ -202,9 +189,6 @@ test("la photo du devis est celle de la configuration, et jamais un WebP", () =>
   const photo = photoConfiguration(mikado, { woodId: "noyer", metalId: "laiton" });
   assert.ok(photo && /noyer/.test(photo) && /laiton/.test(photo), photo);
   assert.match(photo!, /\.(jpe?g|png)$/i);
-  const chaise = getProduct("chaise-acier-bois")!;
-  const coloris = photoConfiguration(chaise, { fabricId: "paon" });
-  assert.ok(coloris === undefined || /\.(jpe?g|png)$/i.test(coloris));
 });
 
 test("en anglais, les options aussi sont en anglais", () => {

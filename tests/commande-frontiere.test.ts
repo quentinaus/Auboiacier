@@ -86,8 +86,11 @@ test("aucun prix venu du navigateur n'est lu : le tarif est le même, quoi qu'il
   for (const source of [COMMANDE, TARIF]) {
     // (« piece.line.unitPrice », lui, est le prix que tarifer a calculé.)
     assert.doesNotMatch(source, /(?<![\w.])(line|ligne|body)\.(unitPrice|price|amount|total|prix)\b/);
-    assert.match(source, /tarifer\(body\.lines, \{ locale, gc: CALCUL_GC \}\)/, "la route doit tarifer les lignes reçues avec le calcul du serveur");
+    // (Le panier ajoute garantieSouple : une Garantie cotes invendable y est décochée au lieu de bloquer le panier.)
+    // (Et portail : le calcul des portails, fourni par le serveur seulement — src/lib/prix-portail.server.ts.)
+    assert.match(source, /tarifer\(body\.lines, \{ locale, gc: CALCUL_GC(, garantieSouple: true)?, portail: prixPortail \}\)/, "la route doit tarifer les lignes reçues avec le calcul du serveur");
   }
+  assert.match(COMMANDE, /tarifer\(body\.lines, \{ locale, gc: CALCUL_GC, portail: prixPortail \}\)/, "le paiement garde le refus strict");
 });
 
 test("Stripe reçoit ce que tarifer a calculé : pièces, livraison, remise", () => {

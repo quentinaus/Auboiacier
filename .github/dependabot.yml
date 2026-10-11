@@ -1,0 +1,27 @@
+# Surveillance automatique des dépendances par GitHub.
+#
+# Le 05/10/2026, le site tournait avec une version de Next.js qui avait une
+# faille critique connue (exécution de code à distance par l'optimiseur
+# d'images AVIF), découverte seulement lors d'un audit. Ce fichier demande à
+# GitHub de proposer lui-même, chaque semaine, une mise à jour des paquets
+# npm. Les correctifs de sécurité arrivent tout de suite (alertes Dependabot,
+# à activer dans GitHub → Settings → Code security).
+#
+# Rien ne se publie tout seul : chaque mise à jour arrive en « pull request »,
+# que l'on vérifie (tests, construction) avant de la fusionner sur main.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: Europe/Paris
+    # Les petites mises à jour (correctifs, versions mineures) arrivent groupées
+    # en une seule proposition par semaine, pour ne pas noyer la boîte mail.
+    groups:
+      mises-a-jour-mineures:
+        update-types: [minor, patch]
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "Dépendances"

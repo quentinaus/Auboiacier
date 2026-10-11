@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useState } from "react";
-import Image from "next/image";
+import { Visuel } from "./visuel";
 import Link from "next/link";
 import { useCart, type CartItem } from "@/lib/cart";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
@@ -10,7 +10,10 @@ import { prixAffiche } from "@/lib/ui";
 import type { TarifAffiche } from "@/lib/tarif-panier";
 import { LIVRAISON, POSE, PRISE_DE_COTES, RETRAIT, libelleLivraison, libellePose, libellePriseDeCotes } from "@/lib/deplacement";
 import { libelleCreneau, lireCreneau } from "@/lib/creneau";
-import { EMAIL_VALIDE } from "@/lib/devis-regles";
+import { InscriptionOuverture } from "@/components/inscription-ouverture";
+import { ChoixConnu } from "@/components/choix-connu";
+import type { SourceConnu } from "@/lib/provenance";
+import { provenanceVisite } from "@/lib/provenance-visite";
 
 type Status =
   | "idle"
@@ -20,6 +23,7 @@ type Status =
   | "too_many"
   | "code_postal"
   | "mode_livraison"
+  | "visite_portail"
   | "changed"
   | "error";
 
@@ -36,30 +40,39 @@ function ligneEnvoyee(item: CartItem) {
     slug: item.slug,
     sizeId: item.sizeId,
     largeurMm: item.largeurMm,
+    // Murs pas parallèles : la largeur à 1 m du sol part avec la largeur du bas (le serveur recalcule le prix avec les deux).
+    largeurHautMm: item.largeurHautMm,
     hauteurMm: gardeCorps ? undefined : item.hauteurMm,
     epaisseurMm: item.epaisseurMm,
     allegeMm: item.allegeMm,
     enEtage: item.enEtage,
     fenetreMm: item.fenetreMm,
     modeleGc: item.modeleGc,
+    decorGc: item.decorGc,
+    // Le mur des tableaux : la fixation entre dans le prix, le serveur la recalcule.
+    murGc: item.murGc,
+    tMurMm: item.tMurMm,
+    eMurMm: item.eMurMm,
     woodId: item.woodId,
     metalId: item.metalId,
     fabricId: item.fabricId,
     remplissageId: item.remplissageId,
+    // Un portail : sa configuration en texte, relue et chiffrée par le serveur (jamais un prix).
+    portail: item.portail,
     quantity: item.quantity,
     priseDeCotesCp: item.priseDeCotesCp,
     poseCp: item.poseCp,
     livraisonCp: item.livraisonCp,
     rdv: item.rdv,
     note: item.note,
+    // La Garantie cotes : un oui, jamais un prix (le serveur la chiffre et refuse un montant).
+    garantieCotes: item.garantieCotes === true ? true : undefined,
   };
 }
 
 /** Longueur maximale de la ville : un nom de commune, pas un roman. */
 const VILLE_MAX = 80;
 
-/** Avant l'ouverture des commandes : l'e-mail du client, pour le prévenir. */
-type Prevenir = "idle" | "loading" | "ok" | "invalide" | "too_many" | "erreur";
 
 export function CartView({
   t,
@@ -73,13 +86,16 @@ export function CartView({
   /** Les commandes sont-elles ouvertes ? Non tant que l'entreprise n'a pas son numéro. */
   ouvert: boolean;
 }) {
-  const { items, ready, setQuantity, remove } = useCart();
+  const { items, ready, setQuantity, setGarantie, remove } = useCart();
   // Ces intitulés-là ne sont lus que par les lecteurs d'écran : ils ne sont pas
   // dans les dictionnaires, on les écrit ici dans les deux langues.
   const fr = locale === "fr";
   const [accepted, setAccepted] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [showCgvError, setShowCgvError] = useState(false);
+  /** La visite avant la fin du délai de rétractation : demande expresse du client (art. L221-25 du code de la consommation). */
+  const [avantDelai, setAvantDelai] = useState(false);
+  const [showAvantDelaiError, setShowAvantDelaiError] = useState(false);
   /**
    * La ville, demandée avant de payer. Stripe recueillera l'adresse complète
    * juste après ; celle-ci arrive plus tôt pour que Quentin sache tout de
@@ -87,6 +103,8 @@ export function CartView({
    * client abandonne la page de paiement.
    */
   const [ville, setVille] = useState("");
+  /** « Comment nous avez-vous connu ? » : facultatif, il part avec la commande (métadonnées Stripe). */
+  const [connu, setConnu] = useState<SourceConnu | null>(null);
   /** Payer 40 % aujourd'hui, le solde à la livraison ou à la pose. */
   const [showVilleError, setShowVilleError] = useState(false);
   const idVille = useId();
@@ -94,14 +112,7 @@ export function CartView({
   /** Ce qui vient de se passer dans le panier, dit à voix haute une seule fois. */
   const [annonce, setAnnonce] = useState("");
   const idCgvErreur = useId();
-  const [emailPrevenir, setEmailPrevenir] = useState("");
-  const [prevenirStatus, setPrevenirStatus] = useState<Prevenir>("idle");
-  /** Champ piège : invisible pour un humain, rempli par les robots. */
-  const [piege, setPiege] = useState("");
-  /** Depuis quand la page est ouverte : un robot poste en moins d'une seconde. */
-  const [ouvertDepuis] = useState(() => Date.now());
-  const idEmailPrevenir = useId();
-  const idPrevenirMessage = useId();
+  const idAvantDelaiErreur = useId();
 
   /**
    * Le tarif du panier : demandé au serveur (/api/panier/tarif), qui le
@@ -147,6 +158,23 @@ export function CartView({
   const tarifCourant = tarif && tarif.requete === requete ? tarif : null;
   const donnees = tarifCourant?.etat === "ok" ? tarifCourant.data : null;
 
+  /**
+   * Le dernier prix de la Garantie cotes reçu du serveur, par ligne du panier.
+   * Cocher la case change la requête : le temps que le nouveau tarif arrive,
+   * la case reste affichée à ce prix-là (sinon elle disparaissait, et le
+   * focus du clavier ou du lecteur d'écran avec elle).
+   */
+  const [garantiesConnues, setGarantiesConnues] = useState<{ source: TarifAffiche | null; prix: Record<string, number> }>({ source: null, prix: {} });
+  if (donnees && garantiesConnues.source !== donnees) {
+    // Mis à jour pendant le rendu, à chaque nouveau tarif (donnees n'existe que pour le panier tel qu'il est).
+    const prix: Record<string, number> = {};
+    for (const ligne of donnees.lignes) {
+      const item = items[ligne.index];
+      if (item && ligne.garantiePrix !== undefined) prix[item.id] = ligne.garantiePrix;
+    }
+    setGarantiesConnues({ source: donnees, prix });
+  }
+
   // Ce que le panier affiche : les montants du serveur. Tant qu'ils ne sont
   // pas arrivés, les lignes s'affichent avec leur nom, sans prix.
   const { lines, stale } = useMemo(() => {
@@ -168,6 +196,12 @@ export function CartView({
       retrait?: boolean;
       /** La hauteur d'un garde-corps, telle que le serveur l'a calculée et que le client la voit. */
       hauteurMm?: number;
+      /** La Garantie cotes : son prix pour une pièce (du serveur), si la pièce peut la recevoir. */
+      garantiePrix?: number;
+      /** Cochée sur cette pièce. */
+      garantie?: boolean;
+      /** Un portail : le solde à régler à la réception (le prix de la ligne est l'acompte). */
+      solde?: number;
     }[] = [];
     const stale: string[] = [];
     if (donnees) {
@@ -187,10 +221,16 @@ export function CartView({
           livraison: ligne.type === "livraison",
           retrait: ligne.type === "retrait",
           hauteurMm: ligne.hauteurMm,
+          garantiePrix: ligne.garantiePrix,
+          garantie: ligne.garantie === true,
+          solde: ligne.solde,
         });
       }
     } else {
+      // Avec une prise de cotes à domicile ou une pose, le serveur ne propose pas la Garantie cotes.
+      const sansGarantie = items.some((item) => item.slug === PRISE_DE_COTES || item.slug === POSE);
       for (const item of items) {
+        const visite = [LIVRAISON, POSE, PRISE_DE_COTES, RETRAIT].includes(item.slug);
         lines.push({
           id: item.id,
           quantity: item.quantity,
@@ -198,14 +238,24 @@ export function CartView({
           options: item.optionsLabel,
           unitPrice: null,
           image: item.image,
-          visite: [LIVRAISON, POSE, PRISE_DE_COTES, RETRAIT].includes(item.slug),
+          visite,
+          garantiePrix: visite || sansGarantie ? undefined : garantiesConnues.prix[item.id],
+          garantie: item.garantieCotes === true,
         });
       }
     }
     // Les pièces d'abord, la livraison et la visite en dernier : elles
     // accompagnent la commande, elles ne la font pas.
     return { lines: [...lines.filter((l) => !l.visite), ...lines.filter((l) => l.visite)], stale };
-  }, [items, donnees]);
+  }, [items, donnees, garantiesConnues.prix]);
+
+  // Une Garantie cotes que le serveur ne peut pas vendre (la commande a une prise de cotes à domicile ou une pose, ou la
+  // pièce ne la reçoit plus) : la case est décochée, le panier continue.
+  useEffect(() => {
+    if (!donnees) return;
+    for (const i of donnees.garantiesRefusees ?? []) if (items[i]) setGarantie(items[i].id, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [donnees, setGarantie]);
 
   // Une ligne que le serveur refuse (une pièce qui ne se vend plus telle
   // quelle, une livraison sans pièce) est retirée : le panier se répare seul.
@@ -217,44 +267,22 @@ export function CartView({
   const remise = donnees?.remise ?? 0;
   const total = donnees?.total ?? 0;
   const totalPieces = lines.filter((l) => !l.visite).reduce((sum, line) => sum + (line.unitPrice ?? 0) * line.quantity, 0);
+  /** La Garantie cotes des pièces cochées, telle que le serveur l'a chiffrée (comprise dans son total). */
+  const totalGarantie = !prixConnus ? 0 : lines.reduce((sum, l) => sum + (l.garantie && l.garantiePrix !== undefined ? l.garantiePrix * l.quantity : 0), 0);
+  /** Les portails : le solde à la réception, dit par le serveur (acompte et visite payés ici déduits ; jamais dans le total). */
+  const totalSolde = donnees?.soldePortail ?? 0;
+  /** Quand le solde des portails est dû : à la réception (posé), avant l'expédition (transporteur), au retrait (retrait). */
+  const receptionsPortail = donnees?.receptionsPortail ?? [];
   const lignePose = lines.find((l) => l.pose);
   const ligneLivraison = lines.find((l) => l.livraison);
   const ligneRetrait = lines.find((l) => l.retrait);
   const piecesAuPanier = lines.some((l) => !l.visite);
+  /** Rien que des portails : la pose est comprise dans leur prix, il n'y a rien à livrer. */
+  const queDesPortails = piecesAuPanier && lines.filter((l) => !l.visite).every((l) => l.solde !== undefined);
+  /** Une prise de cotes à domicile dans le panier (le service, pas une livraison). */
+  const visiteAuPanier = items.some((item) => item.slug === PRISE_DE_COTES);
   /** Ce qui empêche de payer, dit par le serveur (une livraison à choisir, un code postal…). */
   const probleme = donnees?.probleme ?? null;
-
-  async function prevenir() {
-    const email = emailPrevenir.trim();
-    if (!EMAIL_VALIDE.test(email)) {
-      setPrevenirStatus("invalide");
-      return;
-    }
-    setPrevenirStatus("loading");
-    try {
-      const response = await fetch("/api/prevenir", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          locale,
-          website: piege,
-          dureeMs: Date.now() - ouvertDepuis,
-          panier: lines.map(
-            (line) =>
-              `${line.name}${line.options ? ` (${line.options})` : ""} × ${line.quantity}${line.unitPrice === null ? "" : ` — ${prixAffiche(line.unitPrice * line.quantity, locale)}`}`
-          ),
-        }),
-      });
-      if (response.ok) {
-        setPrevenirStatus("ok");
-        return;
-      }
-      setPrevenirStatus(response.status === 429 ? "too_many" : response.status === 400 ? "invalide" : "erreur");
-    } catch {
-      setPrevenirStatus("erreur");
-    }
-  }
 
   async function checkout() {
     if (!ville.trim()) {
@@ -263,6 +291,10 @@ export function CartView({
     }
     if (!accepted) {
       setShowCgvError(true);
+      return;
+    }
+    if (visiteAuPanier && !avantDelai) {
+      setShowAvantDelaiError(true);
       return;
     }
     if (!prixConnus || probleme) return;
@@ -274,7 +306,11 @@ export function CartView({
         body: JSON.stringify({
           locale,
           cgvAccepted: true,
+          ...(visiteAuPanier ? { visiteAvantDelai: true } : {}),
           ville: ville.trim().slice(0, VILLE_MAX),
+          connu,
+          // Le lien marqué de l'arrivée sur le site, gardé en mémoire pendant la visite.
+          provenance: provenanceVisite(),
           // Les mêmes lignes que pour le tarif affiché ; un garde-corps y joint
           // la hauteur que le client a vue : si elle a changé, le serveur refuse.
           lines: items.map((item) => {
@@ -304,6 +340,8 @@ export function CartView({
               ? "code_postal"
               : error === "mode_livraison"
                 ? "mode_livraison"
+                : error === "visite_portail"
+                  ? "visite_portail"
                 : error === "changed"
                   ? "changed"
                   : "error"
@@ -311,6 +349,7 @@ export function CartView({
       // Un prix ou une hauteur a changé : le panier redemande son tarif, le client le revoit.
       if (error === "changed" || error === "unavailable") setVersion((v) => v + 1);
       if (error === "cgv") setShowCgvError(true);
+      if (error === "avant_delai") setShowAvantDelaiError(true);
       if (error === "ville") setShowVilleError(true);
     } catch {
       setStatus("error");
@@ -323,11 +362,11 @@ export function CartView({
 
   if (lines.length === 0) {
     return (
-      <div className="rounded-2xl border border-[#e8e1d8] bg-white p-10 text-center">
-        <p className="text-[#5c5140]">{t.empty}</p>
+      <div className="rounded-[28px] bg-[#f5f1ea] px-6 py-14 text-center md:py-20">
+        <p className="text-[17px] leading-[1.45] text-[#4a4038] md:text-[21px]">{t.empty}</p>
         <Link
           href={`/${locale}/artisanat`}
-          className="btn-verre mt-6 inline-block rounded-full px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
+          className="btn-plein mt-8"
         >
           {t.backToShop}
         </Link>
@@ -346,6 +385,8 @@ export function CartView({
             ? t.badPostcode
             : status === "mode_livraison"
               ? t.modeManquant
+            : status === "visite_portail"
+              ? t.visitePortail
               : status === "changed"
                 ? t.prixChange
                 : status === "error"
@@ -355,6 +396,8 @@ export function CartView({
                     ? t.tarifIndisponible
                     : probleme === "mode_livraison"
                       ? t.modeManquant
+                      : probleme === "visite_portail"
+                        ? t.visitePortail
                       : probleme === "code_postal" || probleme === "rdv"
                         ? t.badPostcode
                         : probleme
@@ -363,10 +406,10 @@ export function CartView({
 
   /** Une ligne du panier : la pièce ou le service, son prix, et de quoi la modifier. */
   const rangee = (line: (typeof lines)[number]) => (
-            <li key={line.id} className="flex gap-5 py-6">
-              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-[#f2f2f1]">
+            <li key={line.id} className="flex gap-4 py-7 sm:gap-6 md:py-8">
+              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[16px] bg-[#f2f2f1] sm:h-24 sm:w-24 md:h-28 md:w-28">
                 {line.image && (
-                  <Image src={line.image} alt={line.name} fill sizes="80px" className="object-cover" />
+                  <Visuel locale={locale} vignette src={line.image} alt={line.name} fill sizes="112px" className="object-cover" />
                 )}
                 {line.visite && (
                   /* Une visite : un calendrier ; une pose ou une livraison : la route ; un retrait : l'atelier. */
@@ -378,7 +421,7 @@ export function CartView({
                     strokeWidth="1.4"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="h-full w-full p-5"
+                    className="h-full w-full p-5 md:p-7"
                   >
                     {line.retrait ? (
                       <>
@@ -405,15 +448,15 @@ export function CartView({
               <div className="flex min-w-0 flex-1 flex-col">
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <h2 className={`${serif.className} text-lg leading-snug text-[#2b2320]`}>{line.name}</h2>
-                    {line.options && <p className="mt-1 text-sm text-[#726757]">{line.options}</p>}
+                    <h2 className={`${serif.className} text-[1.25rem] leading-[1.15] tracking-[-0.01em] text-[#2b2320] md:text-[1.45rem]`}>{line.name}</h2>
+                    {line.options && <p className="mt-1.5 text-[15px] leading-[1.45] text-[#5c5140]">{line.options}</p>}
                   </div>
-                  <p className="whitespace-nowrap font-medium tabular-nums text-[#2b2320]">
+                  <p className="whitespace-nowrap text-[17px] font-medium tabular-nums text-[#2b2320]">
                     {line.unitPrice !== null ? prixAffiche(line.unitPrice * line.quantity, locale) : "…"}
                   </p>
                 </div>
 
-                <div className="mt-3 flex items-center gap-4">
+                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
                   {!line.visite && (
                     <div className="flex items-center rounded-full border border-[#9a8d80]">
                       {/* Un lecteur d'écran entend « moins », « plus », « retirer » :
@@ -426,16 +469,16 @@ export function CartView({
                             setAnnonce(fr ? `${line.name} retiré du panier` : `${line.name} removed from the cart`);
                           }
                         }}
-                        className="px-3 py-1.5 text-[#5c5140] hover:text-[#2a2116]"
+                        className="px-3.5 py-2 text-[17px] leading-none text-[#5c5140] hover:text-[#2a2116]"
                         aria-label={fr ? `Diminuer la quantité — ${line.name}` : `Decrease quantity — ${line.name}`}
                       >
                         −
                       </button>
-                      <span className="min-w-6 text-center text-sm tabular-nums">{line.quantity}</span>
+                      <span className="min-w-6 text-center text-[15px] tabular-nums">{line.quantity}</span>
                       <button
                         type="button"
                         onClick={() => setQuantity(line.id, line.quantity + 1)}
-                        className="px-3 py-1.5 text-[#5c5140] hover:text-[#2a2116]"
+                        className="px-3.5 py-2 text-[17px] leading-none text-[#5c5140] hover:text-[#2a2116]"
                         aria-label={fr ? `Augmenter la quantité — ${line.name}` : `Increase quantity — ${line.name}`}
                       >
                         +
@@ -445,7 +488,7 @@ export function CartView({
 
                   {/* Le prix unitaire ne se répète que s'il y en a plusieurs. */}
                   {!line.visite && line.quantity > 1 && line.unitPrice !== null && (
-                    <span className="text-sm tabular-nums text-[#726757]">
+                    <span className="text-[15px] tabular-nums text-[#6f6357]">
                       {prixAffiche(line.unitPrice, locale)} × {line.quantity}
                     </span>
                   )}
@@ -460,12 +503,50 @@ export function CartView({
                       setAnnonce(fr ? `${line.name} retiré du panier` : `${line.name} removed from the cart`);
                     }}
                     aria-label={fr ? `${t.remove} ${line.name} du panier` : `${t.remove} ${line.name} from the cart`}
-                    className="ml-auto -my-1 py-1 text-xs text-[#726757] underline underline-offset-4 hover:text-black"
+                    className="ml-auto -my-1 py-1 text-[15px] text-[#5c5140] underline decoration-[#5c5140]/40 underline-offset-4 hover:text-black hover:decoration-black"
                   >
                     {t.remove}
                   </button>
                   )}
                 </div>
+
+                {/* La Garantie cotes : décochée d'avance (art. L121-17 du code de la consommation), son prix vient du
+                    serveur. Avant l'ouverture des commandes, elle se coche quand même et reste dans le panier. */}
+                {!line.visite && line.garantiePrix !== undefined && (
+                  <div className="mt-4 text-[15px] leading-[1.5] text-[#4a4038]">
+                    <label className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        checked={items.find((item) => item.id === line.id)?.garantieCotes === true}
+                        onChange={(event) => {
+                          setGarantie(line.id, event.target.checked);
+                          setAnnonce(
+                            event.target.checked
+                              ? fr ? `Garantie cotes ajoutée — ${line.name}` : `Measurement guarantee added — ${line.name}`
+                              : fr ? `Garantie cotes retirée — ${line.name}` : `Measurement guarantee removed — ${line.name}`
+                          );
+                        }}
+                        className="mt-1 h-4 w-4 shrink-0 accent-[#2b2320]"
+                      />
+                      <span>
+                        <span className="font-medium text-[#2b2320]">
+                          {t.garantieAjouter.replace(
+                            "{prix}",
+                            line.quantity > 1
+                              ? `${prixAffiche(line.garantiePrix, locale)} × ${line.quantity}`
+                              : prixAffiche(line.garantiePrix, locale)
+                          )}
+                        </span>
+                        <span className="mt-0.5 block text-[14px] text-[#6f6357]">
+                          {t.garantieTexte}{" "}
+                          <Link href={`/${locale}/cgv#garantie-cotes`} className="underline underline-offset-4 hover:text-black">
+                            {t.garantieLien}
+                          </Link>
+                        </span>
+                      </span>
+                    </label>
+                  </div>
+                )}
               </div>
             </li>
   );
@@ -473,32 +554,32 @@ export function CartView({
   return (
     <div>
       {stale.length > 0 && (
-        <p role="status" className="mb-6 rounded-xl border border-[#e8e1d8] px-5 py-4 text-sm text-[#2b2320]">
+        <p role="status" className="mb-8 rounded-[18px] bg-[#f5f1ea] px-5 py-4 text-[15px] leading-[1.5] text-[#2b2320] md:text-[16px]">
           {t.removedLine}
         </p>
       )}
 
       {/* Deux colonnes : les lignes à gauche, le récapitulatif et le paiement
           à droite, comme un comptoir. Sur téléphone, l'un sous l'autre. */}
-      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-16">
+      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-16">
         <ul className="divide-y divide-[#e8e1d8] border-t border-[#e8e1d8]">
           {[
             ...lines.filter((l) => !l.visite).map(rangee),
             // Plusieurs garde-corps : la remise, une ligne à elle, comme sur la page de paiement.
             remise < 0 ? (
-              <li key="remise" className="flex gap-5 py-6">
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-[#f2f2f1]" aria-hidden>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="#7a6f64" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="h-full w-full p-5">
+              <li key="remise" className="flex gap-4 py-7 sm:gap-6 md:py-8">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[16px] bg-[#f2f2f1] sm:h-24 sm:w-24 md:h-28 md:w-28" aria-hidden>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#7a6f64" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="h-full w-full p-5 md:p-7">
                     <path d="M3 12V4h8l10 10-8 8z" />
                     <circle cx="7.5" cy="8.5" r="1.4" />
                   </svg>
                 </div>
                 <div className="flex min-w-0 flex-1 items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <h2 className={`${serif.className} text-lg leading-snug text-[#2b2320]`}>{t.lot}</h2>
-                    <p className="mt-1 text-sm text-[#726757]">{t.remiseNote}</p>
+                    <h2 className={`${serif.className} text-[1.25rem] leading-[1.15] tracking-[-0.01em] text-[#2b2320] md:text-[1.45rem]`}>{t.lot}</h2>
+                    <p className="mt-1.5 text-[15px] leading-[1.45] text-[#5c5140]">{t.remiseNote}</p>
                   </div>
-                  <p className="whitespace-nowrap font-medium tabular-nums text-[#2b2320]">{prixAffiche(remise, locale)}</p>
+                  <p className="whitespace-nowrap text-[17px] font-medium tabular-nums text-[#2b2320]">{prixAffiche(remise, locale)}</p>
                 </div>
               </li>
             ) : null,
@@ -508,9 +589,10 @@ export function CartView({
 
         {/* Le récapitulatif, collé en haut quand la liste défile. */}
         <aside className="lg:sticky lg:top-8 lg:self-start">
-          <div className="rounded-2xl border border-[#e8e1d8] p-6">
-            <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{t.recap}</h2>
-            <dl className="mt-4 space-y-2.5 text-sm">
+          {/* Façon Apple (Quentin, 06/10/2026) : un panneau papier, un vrai titre, des montants lisibles. */}
+          <div className="rounded-[28px] bg-[#f5f1ea] p-6 md:p-8">
+            <h2 className={`${serif.className} text-[1.4rem] leading-[1.12] tracking-[-0.01em] text-[#2b2320] md:text-[1.7rem]`}>{t.recap}</h2>
+            <dl className="mt-5 space-y-3 text-[16px]">
               <div className="flex justify-between gap-4">
                 <dt className="text-[#5c5140]">{t.pieces}</dt>
                 <dd className="tabular-nums text-[#2b2320]">{prixConnus ? prixAffiche(totalPieces, locale) : "…"}</dd>
@@ -519,6 +601,12 @@ export function CartView({
                 <div className="flex justify-between gap-4">
                   <dt className="text-[#5c5140]">{t.lot}</dt>
                   <dd className="tabular-nums text-[#2b2320]">{prixAffiche(remise, locale)}</dd>
+                </div>
+              )}
+              {totalGarantie > 0 && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-[#5c5140]">{t.garantieRecap}</dt>
+                  <dd className="tabular-nums text-[#2b2320]">{prixAffiche(totalGarantie, locale)}</dd>
                 </div>
               )}
               {/* Livraison par transporteur : son prix ; avec une pose : comprise
@@ -535,7 +623,9 @@ export function CartView({
                         ? t.deliveryWithPose
                         : ligneRetrait
                           ? t.retrait
-                          : "—"}
+                          : queDesPortails
+                            ? t.deliveryPortail
+                            : "—"}
                   </dd>
                 </div>
               )}
@@ -545,21 +635,40 @@ export function CartView({
                   <dd className="tabular-nums text-[#2b2320]">{lignePose.unitPrice !== null ? prixAffiche(lignePose.unitPrice, locale) : "…"}</dd>
                 </div>
               )}
-              <div className="flex items-baseline justify-between gap-4 border-t border-[#e8e1d8] pt-3">
-                <dt className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6f6357]">{t.total}</dt>
-                <dd className="text-2xl font-medium tabular-nums text-[#2b2320]">{prixConnus ? prixAffiche(total, locale) : "…"}</dd>
+              <div className="flex items-baseline justify-between gap-4 border-t border-[#e0d7cb] pt-4">
+                <dt className="text-[17px] font-semibold text-[#2b2320]">{t.total}</dt>
+                <dd className="text-[1.75rem] font-medium tracking-[-0.01em] tabular-nums text-[#2b2320]">{prixConnus ? prixAffiche(total, locale) : "…"}</dd>
               </div>
+              {totalSolde > 0 && (
+                <div className="flex justify-between gap-4 text-[15px]">
+                  <dt className="text-[#5c5140]">{receptionsPortail.length > 1 ? t.soldePortailMixte : receptionsPortail[0] === "transporteur" ? t.soldePortailTransporteur : receptionsPortail[0] === "retrait" ? t.soldePortailRetrait : t.soldePortail}</dt>
+                  <dd className="tabular-nums text-[#2b2320]">{prixAffiche(totalSolde, locale)}</dd>
+                </div>
+              )}
             </dl>
+            {totalSolde > 0 && (
+              <div className="mt-3 space-y-2 text-[14px] leading-[1.5] text-[#6f6357]">
+                {receptionsPortail.includes("pose") && <p>{t.soldeNote}</p>}
+                {receptionsPortail.includes("transporteur") && <p>{t.soldeNoteTransporteur}</p>}
+                {receptionsPortail.includes("retrait") && <p>{t.soldeNoteRetrait}</p>}
+              </div>
+            )}
+            {/* Pas de Garantie cotes avec une prise de cotes à domicile ou une pose par l'atelier (CGV, article 13). */}
+            {donnees?.garantieExclue && (
+              <p className="mt-3 text-[14px] leading-[1.5] text-[#6f6357]">
+                {donnees.garantieExclue === "visite" ? t.garantieExclueVisite : t.garantieExcluePose}
+              </p>
+            )}
             {/* En attendant le serveur : les prix arrivent, rien ne se paie encore. */}
-            {!prixConnus && !tarifCourant && <p className="mt-3 text-xs text-[#726757]">{t.tarifCalcul}</p>}
-            <p className="mt-3 text-xs leading-relaxed text-[#726757]">{t.shippingNote}</p>
+            {!prixConnus && !tarifCourant && <p className="mt-3 text-[14px] text-[#6f6357]">{t.tarifCalcul}</p>}
+            <p className="mt-3 text-[14px] leading-[1.5] text-[#6f6357]">{t.shippingNote}</p>
 
             {ouvert ? (
               <>
             {/* La ville, avant tout le reste : c'est la première chose que Quentin
                 regarde en recevant une commande. */}
-            <div className="mt-6">
-              <label htmlFor={idVille} className="block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6f6357]">
+            <div className="mt-7">
+              <label htmlFor={idVille} className="block text-[15px] font-medium text-[#2b2320]">
                 {t.city}
               </label>
               <input
@@ -574,17 +683,26 @@ export function CartView({
                 placeholder={t.cityPh}
                 aria-invalid={showVilleError && !ville.trim()}
                 aria-describedby={showVilleError && !ville.trim() ? idVilleErreur : undefined}
-                className="mt-2 w-full rounded-full border border-[#9a8d80] bg-white px-4 py-2.5 text-sm text-[#2b2320] transition-colors placeholder:text-[#726757] focus:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
+                className="mt-2 w-full rounded-full border border-[#9a8d80] bg-white px-4 py-3 text-[16px] text-[#2b2320] transition-colors placeholder:text-[#6f6357] focus:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
               />
-              <p className="mt-2 text-xs leading-relaxed text-[#726757]">{t.cityNote}</p>
+              <p className="mt-2 text-[14px] leading-[1.5] text-[#6f6357]">{t.cityNote}</p>
               {showVilleError && !ville.trim() && (
-                <p id={idVilleErreur} role="alert" className="mt-2 text-sm text-[#2b2320]">
+                <p id={idVilleErreur} role="alert" className="mt-2 text-[15px] text-[#2b2320]">
                   {t.cityRequired}
                 </p>
               )}
             </div>
 
-            <label className="mt-4 flex items-start gap-3 text-sm text-[#4a4038]">
+            <ChoixConnu
+              locale={locale}
+              valeur={connu}
+              onChange={setConnu}
+              className="mt-5"
+              classeLibelle="block text-[14px] font-semibold text-[#5c5140]"
+              classeChamp="mt-2 w-full rounded-full border border-[#9a8d80] bg-white px-4 py-2.5 text-[15px] text-[#2b2320] transition-colors focus:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
+            />
+
+            <label className="mt-5 flex items-start gap-3 text-[15px] leading-[1.5] text-[#4a4038]">
               <input
                 type="checkbox"
                 checked={accepted}
@@ -605,13 +723,42 @@ export function CartView({
               </span>
             </label>
             {showCgvError && !accepted && (
-              <p id={idCgvErreur} role="alert" className="mt-2 text-sm text-[#2b2320]">
+              <p id={idCgvErreur} role="alert" className="mt-2 text-[15px] text-[#2b2320]">
                 {t.cgvRequired}
               </p>
             )}
 
+            {/* Une prise de cotes est un SERVICE : 14 jours de rétractation.
+                La visite tombe presque toujours dans ce délai ; la loi exige
+                alors que le client le demande expressément, case non cochée
+                d'avance. Sans elle, il pourrait se faire rembourser une
+                visite déjà faite. */}
+            {visiteAuPanier && (
+              <>
+                <label className="mt-5 flex items-start gap-3 text-[15px] leading-[1.5] text-[#4a4038]">
+                  <input
+                    type="checkbox"
+                    checked={avantDelai}
+                    onChange={(event) => {
+                      setAvantDelai(event.target.checked);
+                      if (event.target.checked) setShowAvantDelaiError(false);
+                    }}
+                    aria-invalid={showAvantDelaiError && !avantDelai}
+                    aria-describedby={showAvantDelaiError && !avantDelai ? idAvantDelaiErreur : undefined}
+                    className="mt-1 h-4 w-4 accent-[#2b2320]"
+                  />
+                  <span>{t.avantDelaiAccept}</span>
+                </label>
+                {showAvantDelaiError && !avantDelai && (
+                  <p id={idAvantDelaiErreur} role="alert" className="mt-2 text-[15px] text-[#2b2320]">
+                    {t.avantDelaiRequired}
+                  </p>
+                )}
+              </>
+            )}
+
             {problem && (
-              <p role="alert" className="mt-5 text-sm leading-relaxed text-[#2b2320]">
+              <p role="alert" className="mt-5 text-[15px] leading-[1.5] text-[#2b2320]">
                 {problem}{" "}
                 <a href={`mailto:${contactEmail}`} className="underline underline-offset-4">
                   {t.writeUs}
@@ -623,15 +770,15 @@ export function CartView({
               type="button"
               onClick={checkout}
               disabled={status === "loading" || !prixConnus || probleme !== null}
-              className="btn-verre mt-6 w-full rounded-full px-8 py-4 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
+              className="btn-plein mt-7 w-full disabled:cursor-not-allowed disabled:opacity-40"
             >
               {status === "loading" ? t.redirecting : t.checkout}
             </button>
-            <p className="mt-4 text-center text-xs leading-relaxed text-[#6f6357]">{t.securedBy}</p>
+            <p className="mt-4 text-center text-[14px] leading-[1.5] text-[#6f6357]">{t.securedBy}</p>
 
             {/* La politique s'informe, elle ne se consent pas : la base légale est
                 le contrat, donc un simple lien, pas une seconde case à cocher. */}
-            <p className="mt-2 text-center text-xs leading-relaxed text-[#6f6357]">
+            <p className="mt-2 text-center text-[14px] leading-[1.5] text-[#6f6357]">
               {t.privacyNote}{" "}
               <Link href={`/${locale}/confidentialite`} className="underline underline-offset-4 hover:text-black">
                 {t.privacyLink}
@@ -642,81 +789,20 @@ export function CartView({
               <>
             {/* Avant l'immatriculation, on n'encaisse pas : le client laisse son
                 e-mail et l'atelier le prévient le jour de l'ouverture. */}
-            <div className="mt-6 rounded-xl border border-[#e8e1d8] bg-[#faf8f5] p-5">
-              <p className="text-sm font-medium text-[#2b2320]">{t.prevenirTitre}</p>
-              <p className="mt-2 text-sm leading-relaxed text-[#4a4038]">{t.prevenirTexte}</p>
-              {prevenirStatus === "ok" ? (
-                <p role="status" className="mt-4 text-sm font-medium text-[#2b2320]">
-                  {t.prevenirOk}
-                </p>
-              ) : (
-                <form
-                  className="mt-4"
-                  noValidate
-                  onSubmit={(event) => {
-                    event.preventDefault();
-                    prevenir();
-                  }}
-                >
-                  <label htmlFor={idEmailPrevenir} className="block text-[11px] font-medium uppercase tracking-[0.16em] text-[#6f6357]">
-                    {t.prevenirEmail}
-                  </label>
-                  <input
-                    id={idEmailPrevenir}
-                    type="email"
-                    value={emailPrevenir}
-                    onChange={(event) => {
-                      setEmailPrevenir(event.target.value);
-                      if (prevenirStatus === "invalide") setPrevenirStatus("idle");
-                    }}
-                    autoComplete="email"
-                    maxLength={254}
-                    placeholder={t.prevenirEmailPh}
-                    aria-invalid={prevenirStatus === "invalide"}
-                    aria-describedby={prevenirStatus === "invalide" || prevenirStatus === "erreur" || prevenirStatus === "too_many" ? idPrevenirMessage : undefined}
-                    className="mt-2 w-full rounded-full border border-[#9a8d80] bg-white px-4 py-2.5 text-sm text-[#2b2320] transition-colors placeholder:text-[#726757] focus:border-[#2b2320] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320]"
-                  />
-                  {/* Le piège à robots : hors de l'écran, sauté au clavier. */}
-                  <input
-                    type="text"
-                    name="website"
-                    value={piege}
-                    onChange={(event) => setPiege(event.target.value)}
-                    tabIndex={-1}
-                    autoComplete="off"
-                    aria-hidden="true"
-                    className="absolute -left-[9999px] h-px w-px opacity-0"
-                  />
-                  {prevenirStatus === "invalide" && (
-                    <p id={idPrevenirMessage} role="alert" className="mt-2 text-sm text-[#2b2320]">
-                      {t.prevenirInvalide}
-                    </p>
-                  )}
-                  {(prevenirStatus === "erreur" || prevenirStatus === "too_many") && (
-                    <p id={idPrevenirMessage} role="alert" className="mt-2 text-sm leading-relaxed text-[#2b2320]">
-                      {prevenirStatus === "too_many" ? t.tooMany : t.prevenirErreur}{" "}
-                      <a href={`mailto:${contactEmail}`} className="underline underline-offset-4">
-                        {t.writeUs}
-                      </a>
-                    </p>
-                  )}
-                  <button
-                    type="submit"
-                    disabled={prevenirStatus === "loading"}
-                    className="btn-verre mt-4 w-full rounded-full px-8 py-4 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
-                  >
-                    {prevenirStatus === "loading" ? t.prevenirEnvoi : t.prevenirBouton}
-                  </button>
-                </form>
-              )}
-              <p className="mt-3 text-xs leading-relaxed text-[#6f6357]">
-                {t.prevenirNote}{" "}
-                <Link href={`/${locale}/confidentialite`} className="underline underline-offset-4 hover:text-black">
-                  {t.privacyLink}
-                </Link>
-              </p>
+            <div className="mt-7 rounded-[20px] bg-white p-5 md:p-6">
+              <p className="text-[17px] font-semibold leading-[1.35] tracking-[-0.01em] text-[#2b2320]">{t.prevenirTitre}</p>
+              <p className="mt-2 text-[15px] leading-[1.55] text-[#4a4038]">{t.prevenirTexte}</p>
+              <InscriptionOuverture
+                t={t}
+                locale={locale}
+                contactEmail={contactEmail}
+                lignes={lines.map(
+                  (line) =>
+                    `${line.name}${line.options ? ` (${line.options})` : ""} × ${line.quantity}${line.unitPrice === null ? "" : ` — ${prixAffiche(line.unitPrice * line.quantity, locale)}`}${line.garantie && line.garantiePrix !== undefined ? ` + ${t.garantieRecap} ${prixAffiche(line.garantiePrix * line.quantity, locale)}` : ""}`,
+                )}
+              />
             </div>
-            <p className="mt-4 text-center text-sm text-[#4a4038]">
+            <p className="mt-5 text-center text-[15px] leading-[1.5] text-[#4a4038]">
               {t.prevenirDevis}{" "}
               <Link href={`/${locale}/devis`} className="underline underline-offset-4 hover:text-black">
                 {t.prevenirDevisLien}

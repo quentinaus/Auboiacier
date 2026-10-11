@@ -95,7 +95,8 @@ export async function commandesDuClient(email: string): Promise<CommandeClient[]
         // Les prises de cotes ne sont pas des commandes de meuble : elles se
         // suivent dans l'agenda, pas dans « mes commandes ».
         const paiement = develop<Stripe.PaymentIntent>(session.payment_intent);
-        return paiement?.metadata?.type !== PRISE_DE_COTES;
+        // (Sauf la visite payée avec un portail : c'est une commande, avec son acompte.)
+        return paiement?.metadata?.type !== PRISE_DE_COTES || paiement?.metadata?.avec_commande === "1";
       })
       // Une même session ne peut pas revenir deux fois, mais deux clients
       // Stripe peuvent pointer la même — on s'en assure.

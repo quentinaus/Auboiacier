@@ -44,20 +44,41 @@ export function creerLimite({
   maximum: number;
   tailleMax?: number;
 }) {
+  const compter = creerLimiteParCle({ fenetreMs, maximum, tailleMax });
+  return function tropDeDemandes(request: Request, maintenant: number): boolean {
+    return compter(adresseAppelante(request), maintenant);
+  };
+}
+
+/**
+ * Le même compteur, mais sur une clé choisie par l'appelant au lieu de
+ * l'adresse IP. Sert à plafonner les e-mails envoyés à UNE adresse : la limite
+ * par IP ne suffit pas, quelqu'un qui dispose de quelques dizaines d'adresses
+ * pourrait sinon remplir la boîte d'un inconnu avec nos accusés de réception.
+ * Même réserve que plus haut : un compteur par instance, pas un rempart.
+ */
+export function creerLimiteParCle({
+  fenetreMs,
+  maximum,
+  tailleMax = 5000,
+}: {
+  fenetreMs: number;
+  maximum: number;
+  tailleMax?: number;
+}) {
   const passages = new Map<string, number[]>();
 
-  return function tropDeDemandes(request: Request, maintenant: number): boolean {
-    const ip = adresseAppelante(request);
-    const recents = (passages.get(ip) ?? []).filter((heure) => maintenant - heure < fenetreMs);
+  return function tropDeDemandes(cle: string, maintenant: number): boolean {
+    const recents = (passages.get(cle) ?? []).filter((heure) => maintenant - heure < fenetreMs);
     recents.push(maintenant);
-    passages.set(ip, recents);
+    passages.set(cle, recents);
 
     // Ménage ciblé. L'ancienne version vidait la table entière dès 500
     // entrées : 501 requêtes depuis 501 adresses différentes remettaient le
     // compteur de TOUT LE MONDE à zéro, et il n'y avait plus qu'à recommencer.
     if (passages.size > tailleMax) {
-      for (const [cle, heures] of passages) {
-        if (heures.every((heure) => maintenant - heure >= fenetreMs)) passages.delete(cle);
+      for (const [autre, heures] of passages) {
+        if (heures.every((heure) => maintenant - heure >= fenetreMs)) passages.delete(autre);
       }
     }
     return recents.length > maximum;

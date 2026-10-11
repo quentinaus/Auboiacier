@@ -1,6 +1,7 @@
 "use client";
 
-import Image from "next/image";
+import type { Locale } from "@/lib/i18n";
+import { Visuel } from "./visuel";
 import { HeroShaderBackground } from "./hero-shader-background";
 
 /**
@@ -15,8 +16,11 @@ const TOILE = "polygon(65.49% 16.54%, 92.27% 51.84%, 39.48% 90.81%, 11.78% 66.42
 export function PlafondLumineux({
   className = "",
   alt,
+  locale,
 }: {
   className?: string;
+  /** La langue de la page : celle de la mention « Image d'illustration ». */
+  locale: Locale;
   /** Décrit la photo dans la langue de la page : elle est lue par Google et par les lecteurs d'écran. */
   alt: string;
 }) {
@@ -41,14 +45,17 @@ export function PlafondLumineux({
       </div>
 
       {/* Le cadre acier, par-dessus. */}
-      <Image
+      {/* Posé sur la plaque noire de la page : la mention en version sombre. */}
+      <Visuel
+        locale={locale}
+        ton="sombre"
         src="/images/plafond-cadre.png"
         alt={alt}
         fill
         /* Pas de « priority » : cette image est au milieu de la page, sous le
            titre et sous toute la grille du catalogue. Elle passait devant les
            vraies premières photos dans la file d'attente du navigateur. */
-        sizes="(max-width: 768px) 100vw, 560px"
+        sizes="(max-width: 768px) 100vw, min(50vw, 840px)"
         className="pointer-events-none object-contain"
       />
     </div>

@@ -244,7 +244,7 @@ export function MainCouranteMenu(props: Props) {
   const t = MOTS[locale];
   const bouton = useRef<HTMLButtonElement>(null);
   const fenetre = useRef<HTMLDivElement>(null);
-  const [place, setPlace] = useState<{ left: number; top: number } | null>(null);
+  const [place, setPlace] = useState<{ left: number; top?: number; bottom?: number; largeur: number; hauteur: number } | null>(null);
   const idFenetre = useId();
   const actuelle = lireMainCouranteGC(choisi);
   const LARGEUR = 440;
@@ -252,8 +252,17 @@ export function MainCouranteMenu(props: Props) {
     if (place) return setPlace(null);
     const r = bouton.current?.getBoundingClientRect();
     if (!r) return;
-    const left = Math.min(Math.max(12, r.left + r.width / 2 - LARGEUR / 2), window.innerWidth - LARGEUR - 12);
-    setPlace({ left, top: r.bottom + 8 });
+    // Sur un téléphone, la fenêtre prend la largeur de l'écran (moins une marge), s'ouvre AU-DESSUS du bouton quand il est
+    // en bas de l'écran, et défile en elle-même : à 440 px fixes sous le bouton, elle sortait à gauche et en bas.
+    const largeur = Math.min(LARGEUR, window.innerWidth - 24);
+    const left = Math.max(12, Math.min(r.left + r.width / 2 - largeur / 2, window.innerWidth - largeur - 12));
+    const dessous = window.innerHeight - r.bottom - 20;
+    const dessus = r.top - 20;
+    setPlace(
+      dessous >= 320 || dessous >= dessus
+        ? { left, top: r.bottom + 8, largeur, hauteur: dessous }
+        : { left, bottom: window.innerHeight - r.top + 8, largeur, hauteur: dessus },
+    );
   };
   useEffect(() => {
     if (!place) return;
@@ -310,7 +319,7 @@ export function MainCouranteMenu(props: Props) {
             role="dialog"
             tabIndex={-1}
             aria-label={t.titre}
-            style={{ position: "fixed", left: place.left, top: place.top, width: LARGEUR }}
+            style={{ position: "fixed", left: place.left, top: place.top, bottom: place.bottom, width: place.largeur, maxHeight: place.hauteur }}
             className="z-[90] max-h-[calc(100vh-5rem)] overflow-y-auto rounded-2xl border border-[#e5ddd3] bg-white p-3.5 text-left shadow-[0_24px_60px_-20px_rgba(43,35,32,0.45)] outline-none"
           >
             <Choix

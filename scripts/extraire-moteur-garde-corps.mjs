@@ -14,12 +14,15 @@
 //   (et un .d.mts à côté de chacun, pour TypeScript)
 //   tests/reference/garde-corps-outil.json          ce que l'OUTIL LUI-MÊME répond (chargé tel quel dans node:vm, avec
 //                                                   un faux DOM) sur une série de cas : prix de vente et empreintes,
-//                                                   jamais un coût.
+//                                                   jamais un coût ;
+//   src/lib/garde-corps-coupes.genere.ts            les coupes de main courante dessinées par l'outil ;
+//   src/lib/garde-corps-decors.genere.ts            le décor à volutes : assemblages, formes permises, noms (sans coûts) ;
+//   public/garde-corps/decors/*.svg                 une vignette par décor, dessinée par l'outil (calculerGC, svgDe).
 // Avant d'écrire quoi que ce soit, il fait tourner l'outil et le code extrait côte à côte et refuse au
 // moindre écart.
 import { execFileSync } from "node:child_process";
 import { createHash, randomBytes } from "node:crypto";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -27,7 +30,7 @@ import { acorn, analyser, controlerModule, extraireScript, fermeture, GLOBAUX_PE
 import { preparerOutil } from "./outil-plans/charger-outil.mjs";
 import { chainesSecretes, DECLARATIONS_COUTS, secretsDans } from "./outil-plans/secrets.mjs";
 import { chiffrer, dechiffrer, DEPENDANCES_CHIFFRAGE, empreinte, evaluerChiffrage, FICHIER_CLE, lireCle, NOM_CLE } from "../src/lib/garde-corps-outil/coffre.ts";
-import { CARRE_RENFORT, codeAlerte, CROIX_MAX, ORDRE_CARRES, valeursGC } from "../src/lib/garde-corps-outil/entree.ts";
+import { CARRE_RENFORT, CARRES_RENFORT_SEULS, codeAlerte, CROIX_MAX, ORDRE_CARRES, valeursGC } from "../src/lib/garde-corps-outil/entree.ts";
 
 const args = process.argv.slice(2);
 const SOURCE = args.find((a) => !a.startsWith("--"));
@@ -43,6 +46,8 @@ const RACINE = fileURLToPath(new URL("..", import.meta.url));
 const DOSSIER = join(RACINE, "src/lib/garde-corps-outil");
 const NOMS = { moteur: "moteur.genere.mjs", devis: "devis.genere.mjs", chiffrage: "chiffrage.chiffre.mjs" };
 const REFERENCE = join(RACINE, "tests/reference/garde-corps-outil.json");
+/** Les vignettes des décors à volutes, publiques (le navigateur les affiche telles quelles). */
+const DOSSIER_VIGNETTES = join(RACINE, "public/garde-corps/decors");
 const sha = (t) => createHash("sha256").update(t).digest("hex");
 const court = (t) => sha(t).slice(0, 16);
 
@@ -53,10 +58,30 @@ const A = analyser(html);
 // ---------- 1. Ce qu'on prend : des racines, puis tout ce qu'elles utilisent ----------
 const RACINES = {
   moteur: ["geomGC", "calculerGC", "variantesConformes", "decrireVariante", "HAUT_ETAGE", "ALLEGE_LIBRE", "MINI_GC", "MINI_SEULS", "BARRE_APPUI", "SPHERE",
-    "SPHERE_HAUT", "Z_SPHERE", "Z_ESCALADE", "CIBLE_MARGE", "LIMITE_ACIER", "ROSACE_R", "RENFORT", "fmt", "mmTxt", "planA3Pur", "DS_ESSENCES", "coupeMainCourante", "svgDe", "MARGE_BOULE"],
+    "SPHERE_HAUT", "Z_SPHERE", "Z_ESCALADE", "CIBLE_MARGE", "LIMITE_ACIER", "ROSACE_R", "RENFORT", "fmt", "mmTxt", "largeurMurGC", "planA3Pur", "DS_ESSENCES", "coupeMainCourante", "svgDe", "MARGE_BOULE",
+    // La fixation par platines au bout des lisses (10/10/2026) : le recul du cadre dans le tableau (90 mm), la platine 40 × 5 × 120.
+    // Le croquis du site (schema-fenetre.tsx) dessine le cadre en retrait d'autant.
+    "FIX_GC",
+    // Le décor à volutes (bibliothèque de styles, 06/10/2026) : ses noms, les formes permises par assemblage, les choix de la
+    // bibliothèque ; mtAlleger (la fonction de l'outil qui allège un trait) sert aux vignettes des décors.
+    "DECOR_NOMS", "MT_AVEC", "MT_NOMS", "MT_CHOIX", "decorActif", "mtAlleger"],
   devis: ["composerDevisGC", "dsDevisHtml", "dsPrix", "DS_GC", "DS_VALIDITE_JOURS"],
   chiffrage: ["chiffrerGC", "remiseGC", "REGLAGES"],
 };
+/**
+ * Le contrat que l'écran du site attend (src/lib/garde-corps-decors.genere.ts, AssemblageDecorGC et FormeDecorGC) : un
+ * assemblage, une forme ou une finition de plus dans l'outil demande d'abord de mettre l'écran et lireDecorGC à jour.
+ */
+const CONTRAT_DECORS = {
+  assemblages: ["entre", "frise", "anneaux", "hauteur", "coeurs", "medaillon", "applique"],
+  formes: ["C", "S", "J", "coeur", "doubleC", "poste", "anneau"],
+  bouts: ["bouton", "effile", "droit"],
+  // La soudure seule (Quentin, 07/10/2026 : « uniquement soudure, on propose pas » les colliers).
+  liaisons: ["soudure"],
+  barreaux: ["carre", "torsade", "bagues"],
+  frisesBasses: ["aucune", "postes"],
+};
+
 const F = Object.fromEntries(Object.entries(RACINES).map(([k, r]) => [k, fermeture(A, r)]));
 const decl = (n) => A.haut.get(n);
 const refus = [];
@@ -138,7 +163,18 @@ function neutraliserCode(texte) {
   return { texte: out, retires: morceaux.length };
 }
 const moteurNeutre = neutraliserCode(corpsDe([...dansMoteur]));
-const corpsMoteur = moteurNeutre.texte;
+/**
+ * Le catalogue des volutes du commerce (MT_CATALOGUE : références, codes des fournisseurs, clés de prix) sert au mode
+ * catalogue des PORTAILS (ch.catalogue, z.catalogue). Le garde-corps du site ne l'a jamais (ses choix viennent de lireDecorGC) :
+ * le code public le reçoit vide, et rien du catalogue n'y entre. Le contrôle de parité (plus bas) refait les garde-corps à décor.
+ */
+function viderCatalogue(texte) {
+  if (!texte.includes("const MT_CATALOGUE = [")) return texte;
+  const vide = texte.replace(/const MT_CATALOGUE = \[[\s\S]*?\n\];/, "const MT_CATALOGUE = [];   // vidé dans le code public : le garde-corps du site n'a pas de mode catalogue");
+  if (vide === texte || /prixCle: "|ref: "/.test(vide)) arret("le catalogue des volutes (MT_CATALOGUE) n'a pas pu être retiré du moteur public");
+  return vide;
+}
+const corpsMoteur = viderCatalogue(moteurNeutre.texte);
 if (corpsMoteur.includes("€")) arret("le moteur contient encore un prix (« € ») hors d'une note d'achat entre parenthèses");
 const corpsDevis = corpsDe(propresDevis);
 const corpsChiffrage = corpsDe(propresChiffrage);
@@ -166,7 +202,10 @@ const lireSrc = decl("lire").texte, champsSrc = decl("CHAMPS").texte;
 if (!/^function lire\(\)/.test(lireSrc)) arret("lire() a changé de forme dans l'outil");
 // lire() utilise quelques constantes de l'outil (le jour automatique) : on les lui donne telles qu'elles sont déclarées.
 const constantesDeLire = ["MINI_GC", "MINI_SEULS", "JOUR_MINI", "HAUT_ETAGE", "CIBLE_MARGE"].map((n) => decl(n).texte).join("\n");
-const DEFAUTS_GC = new Function("$", `${constantesDeLire};\n${champsSrc};\n${lireSrc};\nreturn lire();`)((id) => {
+// Depuis le 07/10/2026, lire() ajoute aussi les champs « es… » de l'onglet Escaliers (lireEscalier, module plans-escalier.js) :
+// ils ne font pas partie des valeurs de départ du garde-corps, on lui rend un objet vide.
+const sansEscalier = "function lireEscalier() { return {}; }";
+const DEFAUTS_GC = new Function("$", `${constantesDeLire};\n${sansEscalier};\n${champsSrc};\n${lireSrc};\nreturn lire();`)((id) => {
   if (!champs[id]) throw new Error("champ absent de la page de l'outil : " + id);
   return champs[id];
 });
@@ -233,10 +272,12 @@ const texteChiffre = scelle(
 const TYPES = {
   "moteur.genere.d.mts": `// FICHIER GÉNÉRÉ par scripts/extraire-moteur-garde-corps.mjs : types du moteur (moteur.genere.mjs).
 export type ValeursGC = {
-  B: number; A: number; Hs: number; Hf: number; Xo: number; jour: number; j: number; s: number; nP: number; nb: number;
+  B: number; /** Largeur entre les murs à 1 m du sol (0 = la même qu'en bas : murs parallèles). */ Bh?: number; A: number; Hs: number; Hf: number; Xo: number; jour: number; j: number; s: number; nP: number; nb: number;
   sbMode: string; ass: string; rosace: boolean; etage: boolean; mc: number; epMc: number; mcType: string; essence: string;
   rainure: boolean; rnP: number; rnJ: number; dF: number; fF: number; eF: number; nF: number; trait: number;
   debitAr: number; minSoud: number; remise: string; km: number; prixVente: number; traverse: boolean; renfort: string; seuls?: boolean; patte?: number; rD: number; jourAuto?: boolean; jourSaisi?: number; _rapide?: boolean;
+  /** Le décor à volutes : "aucun" ou un assemblage (DECOR_NOMS), puis la forme et les finitions, en chaînes comme les champs de l'outil. */
+  decor?: string; decorForme?: string; decorBouts?: string; decorLiaison?: string; decorBarreaux?: string; decorFriseBasse?: string; decorDore?: string;
   [autre: string]: unknown;
 };
 export type LigneDebitGC = { nom: string; qte: number; mat: string; long: number; coupes: string; note: string; dessin?: unknown };
@@ -250,11 +291,16 @@ export type ResultatGC = {
   kg?: number;
   metres?: number;
   hauteurGC?: number;
+  /** Le vide entre le montant de rive et le tableau (mm) : au plus étroit, au plus large, la boule de la norme, la tolérance, et les barreaux de rive ajoutés (par côté). */
+  videRive?: { nominal: number; max: number; limite: number; tolerance: number; barreauxRive: number };
   /** La main courante retenue : largeur, hauteur, profondeur de rainure ; et le plat de renfort s'il y en a un. */
   mc?: { l: number; h: number; chev: number; renfort: { l: number; e: number; vis: number } | null };
+  /** Avec un décor à volutes : son nom (« Frise de volutes en S ») et ses finitions, tels que le devis les écrit. */
+  decorNom?: string;
+  decorFinitions?: string;
   [autre: string]: unknown;
 };
-export type GeomGC = { Lc: number; cible: number; manque: number; appui: "barre" | "rien" | null; hNorme: number; Hr: number; Hc: number; h: number; w: number; sb: number; ok: boolean; dMax: number; limite: number; [autre: string]: unknown };
+export type GeomGC = { Lc: number; Lt: number; Ltb: number; Ltm: number; wb: number; wh: number; wm: number; penche: boolean; pente: number; theta: number; ecart: number; cible: number; manque: number; appui: "barre" | "rien" | null; hNorme: number; Hr: number; Hc: number; h: number; w: number; sb: number; ok: boolean; dMax: number; limite: number; [autre: string]: unknown };
 export type VarianteGC = { w: ValeursGC; R: ResultatGC; change: number; score: number };
 export declare const DEFAUTS_GC: Readonly<ValeursGC>;
 export declare const BORNES_GC: Readonly<Record<"B" | "A" | "Hf", Readonly<{ min: number; max: number }>>>;
@@ -264,6 +310,8 @@ export declare function variantesConformes(v: ValeursGC): VarianteGC[];
 export declare function decrireVariante(v: ValeursGC, c: { w: ValeursGC }): string[];
 export declare function fmt(x: number, d?: number): string;
 export declare function mmTxt(x: number): string;
+/** Tableaux non parallèles (10/10/2026) : la largeur entre les murs à la hauteur z du sol (B en bas, Bh à 1 m ; Bh = 0 : parallèles). */
+export declare function largeurMurGC(v: Pick<ValeursGC, "B" | "A" | "Bh">, z: number): number;
 export declare function coupeMainCourante(v: ValeursGC): unknown[];
 export declare function svgDe(prims: readonly unknown[], petit?: boolean | string): { vb: number[]; fs: number; html: string };
 export declare function planA3Pur(R: ResultatGC, v: ValeursGC, infos: { apercu?: boolean; date?: string; client?: string; chantier?: string; numero?: string }, modele: string): string;
@@ -274,6 +322,8 @@ export declare const HAUT_ETAGE: number;
 export declare const LIMITE_ACIER: number;
 export declare const MINI_GC: number;
 export declare const MARGE_BOULE: number;
+/** La fixation par platines au bout des lisses (10/10/2026) : recul du cadre depuis le tableau, platine (l × e × h), bord, entraxe des trous… en mm. */
+export declare const FIX_GC: Readonly<{ recul: number; l: number; e: number; h: number; bord: number; entraxe: number; rondelle: number; appui: number; ecart: number }>;
 export declare const MINI_SEULS: number;
 export declare const RENFORT: Readonly<{ l: number; e: number; bois: Readonly<{ l: number; h: number }>; LcMax: number; pasVis: number; visD: number; visL: number }>;
 export declare const ROSACE_R: number;
@@ -281,6 +331,12 @@ export declare const SPHERE: number;
 export declare const SPHERE_HAUT: number;
 export declare const Z_ESCALADE: number;
 export declare const Z_SPHERE: number;
+export declare const DECOR_NOMS: Readonly<Record<string, string>>;
+export declare const MT_AVEC: Readonly<Record<string, readonly string[]>>;
+export declare const MT_NOMS: Readonly<Record<string, string>>;
+export declare const MT_CHOIX: Readonly<Record<string, readonly string[]>>;
+export declare function decorActif(v: Partial<ValeursGC> | null | undefined): boolean;
+export declare function mtAlleger(t: readonly (readonly [number, number])[], tol?: number): [number, number][];
 export declare const EMPREINTE: string;
 export declare const EMPREINTE_SOURCE: string;
 `,
@@ -359,6 +415,9 @@ console.log(`notes d'achat retirées du moteur : ${moteurNeutre.retires} ; chaî
 const temp = mkdtempSync(join(tmpdir(), "moteur-gc-"));
 let reference;
 let texteCoupes = "";
+let texteDecors = "";
+/** Les vignettes des décors : nom du fichier (« frise-S.svg ») → texte SVG. */
+let vignettes = {};
 try {
   writeFileSync(join(temp, NOMS.moteur), texteMoteur);
   writeFileSync(join(temp, NOMS.devis), texteDevis);
@@ -384,11 +443,19 @@ try {
   }
   texteCoupes = entete("Les quatre coupes de main courante du choix du site, dessinées par l'outil de plans (coupeMainCourante).") +
     `export const COUPES_MAIN_COURANTE_GC: Readonly<Record<"bois-rainure" | "bois-plat" | "acier-plat" | "acier-profile", Readonly<{ vb: readonly [number, number, number, number]; html: string }>>> = ${JSON.stringify(coupes, null, 1)};\n`;
+  // Le décor à volutes : les choix que le site propose (les noms de l'outil), et une vignette par décor dessinée par l'outil.
+  const decors = decorsDuSite(M);
+  texteDecors = texteDesDecors(decors);
+  vignettes = vignettesDecors(M, decors);
 } finally {
   rmSync(temp, { recursive: true, force: true });
 }
 const texteReference = JSON.stringify(reference, null, 1) + "\n";
 if (fuites(texteReference).length) arret("la référence des tests contient des chaînes de coûts");
+// Les fichiers publics du décor (la liste des choix, les vignettes) : aucune chaîne de coûts non plus.
+for (const [nom, texte] of [["garde-corps-decors.genere.ts", texteDecors], ...Object.entries(vignettes)]) {
+  if (fuites(texte).length) arret(`${nom} contient des chaînes de coûts`);
+}
 
 // ---------- 8. Écrire, ou vérifier ----------
 const aEcrire = [
@@ -397,10 +464,17 @@ const aEcrire = [
   [cheminChiffre, texteChiffre],
   ...Object.entries(TYPES).map(([n, t]) => [join(DOSSIER, n), t]),
   [join(RACINE, "src/lib/garde-corps-coupes.genere.ts"), texteCoupes],
+  [join(RACINE, "src/lib/garde-corps-decors.genere.ts"), texteDecors],
+  ...Object.entries(vignettes).map(([nom, t]) => [join(DOSSIER_VIGNETTES, nom), t]),
   [REFERENCE, texteReference],
 ];
+// Une vignette d'un décor que l'outil ne propose plus : à retirer (au moment d'écrire), un écart (à la vérification).
+const vignettesEnTrop = existsSync(DOSSIER_VIGNETTES) ? readdirSync(DOSSIER_VIGNETTES).filter((n) => n.endsWith(".svg") && !Object.hasOwn(vignettes, n)) : [];
 if (VERIFIER) {
-  const ecarts = aEcrire.filter(([f, t]) => !existsSync(f) || readFileSync(f, "utf8") !== t).map(([f]) => f.slice(RACINE.length));
+  const ecarts = [
+    ...aEcrire.filter(([f, t]) => !existsSync(f) || readFileSync(f, "utf8") !== t).map(([f]) => f.slice(RACINE.length)),
+    ...vignettesEnTrop.map((n) => join(DOSSIER_VIGNETTES, n).slice(RACINE.length) + " (en trop)"),
+  ];
   if (ecarts.length) arret(`ces fichiers ne sont pas ceux que donne l'outil :\n  ${ecarts.join("\n  ")}\nRelancer sans --verifier pour les régénérer.`);
   console.log("\nVÉRIFIÉ : les fichiers du dépôt sont exactement ceux que donne cet outil, et l'outil donne les mêmes réponses que le site.");
 } else {
@@ -417,6 +491,8 @@ if (VERIFIER) {
   }
   mkdirSync(DOSSIER, { recursive: true });
   mkdirSync(join(RACINE, "tests/reference"), { recursive: true });
+  mkdirSync(DOSSIER_VIGNETTES, { recursive: true });
+  for (const n of vignettesEnTrop) rmSync(join(DOSSIER_VIGNETTES, n));
   for (const [f, t] of aEcrire) writeFileSync(f, t);
   console.log(`\nÉCRIT : ${aEcrire.map(([f]) => f.slice(RACINE.length)).join(", ")}`);
 }
@@ -433,7 +509,14 @@ function comparerAvecOutil(M, D, CH) {
   const lancer = preparerOutil(html);
   const t0 = Date.now();
   const depart = lancer(null);
-  const defautsOutil = JSON.parse(J(depart.P.lire()));
+  // Les champs « es… » de l'onglet Escaliers (lireEscalier, module plans-escalier.js collé le 07/10/2026) sont relus par lire()
+  // de l'outil : ils ne concernent pas le garde-corps, on les retire avant chaque comparaison avec le code extrait.
+  const lireSansEscalier = (P) => {
+    const v = JSON.parse(J(P.lire()));
+    for (const k of Object.keys(P.lireEscalier ? P.lireEscalier() : {})) delete v[k];
+    return v;
+  };
+  const defautsOutil = lireSansEscalier(depart.P);
   if (J(trie(defautsOutil)) !== J(trie(DEFAUTS_GC))) throw new Error("DEFAUTS_GC diffère de lire() de l'outil chargé");
   const O = depart.O;
   const dateOutil = depart.dateOutil(DATE);
@@ -510,6 +593,48 @@ function comparerAvecOutil(M, D, CH) {
     { nom: "barreaux seuls, bas de fenêtre à 760 : jour 90", valeurs: { B: 1180, A: 760, seuls: true, jourAuto: true, jour: 90, jourSaisi: 90 }, lire: true },
     { nom: "barreaux seuls bas, bas de fenêtre à 840", valeurs: { B: 1180, A: 840, seuls: true, jourAuto: true, jour: 65, jourSaisi: 90 }, lire: true },
   );
+  // Le décor à volutes (bibliothèque de styles, 06/10/2026), ajouté APRÈS les autres cas : un cas par assemblage et par forme
+  // permise (finitions de départ ; un sur trois avec la case « barreaux seuls », comme le site), puis chaque finition, le pied
+  // qui grimpe (bas de fenêtre à 300 mm), un décor refusé par la norme, le jour automatique, et d'autres mains courantes.
+  {
+    let k = 0;
+    for (const a of Object.keys(M.DECOR_NOMS)) for (const f of M.MT_AVEC[a]) {
+      cas.push({ nom: `décor ${a}, ${f}`, valeurs: { B: 1180, A: 650, decor: a, decorForme: f, ...(k % 3 === 0 ? { seuls: true } : {}) }, lire: k % 2 === 0 });
+      k++;
+    }
+  }
+  cas.push(
+    { nom: "décor, bouts effilés", valeurs: { B: 1000, A: 650, decor: "entre", decorForme: "S", decorBouts: "effile" }, lire: true },
+    { nom: "décor, bouts coupés droits", valeurs: { B: 1400, A: 700, decor: "frise", decorForme: "C", decorBouts: "droit" } },
+    { nom: "décor, volutes en crosse (soudées, la seule liaison)", valeurs: { B: 900, A: 650, decor: "entre", decorForme: "J" }, lire: true },
+    { nom: "décor, barreaux torsadés", valeurs: { B: 1180, A: 500, decor: "medaillon", decorForme: "coeur", decorBarreaux: "torsade" }, lire: true },
+    { nom: "décor, barreaux à bagues", valeurs: { B: 1600, A: 650, decor: "anneaux", decorForme: "anneau", decorBarreaux: "bagues", seuls: true } },
+    { nom: "décor, frise basse de postes", valeurs: { B: 1180, A: 650, decor: "applique", decorForme: "C", decorFriseBasse: "postes" }, lire: true },
+    { nom: "décor, frise basse au ras du sol (retirée)", valeurs: { B: 1180, A: 300, decor: "frise", decorForme: "S", decorFriseBasse: "postes" } },
+    { nom: "décor doré, transporteur à 120 km", valeurs: { B: 1180, A: 650, decor: "frise", decorForme: "S", decorDore: "1", remise: "transporteur", km: 120 }, chantier: "37000 Tours", lire: true },
+    { nom: "décor, escalade : cœurs à 300", valeurs: { B: 1180, A: 300, decor: "coeurs", decorForme: "coeur", seuls: true }, lire: true },
+    { nom: "décor, escalade : grille de volutes à 300", valeurs: { B: 1180, A: 300, decor: "hauteur", decorForme: "S" } },
+    { nom: "décor refusé : grille de volutes, 2200 × 400", valeurs: { B: 2200, A: 400, decor: "hauteur", decorForme: "C", seuls: true } },
+    { nom: "décor, jour automatique à 760", valeurs: { B: 1180, A: 760, jourAuto: true, jour: 65, jourSaisi: 90, decor: "frise", decorForme: "S" }, lire: true },
+    { nom: "décor, noyer, pose à 40 km", valeurs: { B: 1300, A: 600, decor: "medaillon", decorForme: "doubleC", essence: "noyer", remise: "pose", km: 40 }, chantier: "49000 Angers" },
+    { nom: "décor, main courante d'acier plat", valeurs: { B: 1100, A: 650, decor: "entre", decorForme: "C", mcType: "acier", seuls: true }, lire: true },
+    { nom: "décor, bois sur fer plat, fenêtre large", valeurs: { B: 2100, A: 650, decor: "applique", decorForme: "doubleC", renfort: "plat", seuls: true } },
+  );
+  // Tableaux non parallèles (10/10/2026), ajoutés APRÈS tous les autres cas (le tirage au hasard ne change pas) : « Bh », la largeur
+  // mesurée à 1 m du sol ; le cadre reste droit, les lisses, la main courante et le plat de renfort suivent les murs.
+  cas.push(
+    { nom: "murs penchés, 1180 en bas / 1120 à 1 m", valeurs: { B: 1180, Bh: 1120 }, lire: true },
+    { nom: "murs penchés, 1000 en bas / 1040 à 1 m (plus large en haut)", valeurs: { B: 1000, Bh: 1040 } },
+    { nom: "murs penchés, 2000 / 1950, renfort", valeurs: { B: 2000, Bh: 1950, A: 650, nP: 5, renfort: "plat" }, lire: true },
+    { nom: "murs penchés, grand écart 1000 / 1200 à 300 du sol : barreaux de rive", valeurs: { B: 1000, Bh: 1200, A: 300 } },
+    { nom: "murs penchés, grand écart 1000 / 1200, allège 650 : pas de barreaux de rive", valeurs: { B: 1000, Bh: 1200, A: 650 } },
+    { nom: "murs penchés, écart énorme 1000 / 1800 (à étudier)", valeurs: { B: 1000, Bh: 1800, A: 300 } },
+    { nom: "murs penchés, pierre dure (ancrage traversant)", valeurs: { B: 1180, Bh: 1120, mur: "pierre-dure" } },
+    { nom: "murs penchés, béton, tableau de 60 (patte en façade)", valeurs: { B: 1180, Bh: 1250, A: 585, mur: "beton", tMur: 60 } },
+    { nom: "murs penchés, barreaux seuls, acier plat", valeurs: { B: 1300, Bh: 1230, A: 400, seuls: true, mcType: "acier" } },
+    // Le devis et le détail C du plan disent les DEUX largeurs / les DEUX reculs ; allège 880 : la largeur se lit à 1 030 du sol (A + 150).
+    { nom: "murs penchés, allège 880 : largeur lue à 1 030 du sol", valeurs: { B: 1180, Bh: 1120, A: 880, Hs: 300 }, lire: true },
+  );
   let variantes = 0;
   const casRef = [];
   for (const c of cas) {
@@ -521,7 +646,7 @@ function comparerAvecOutil(M, D, CH) {
     let vO = vE, Olocal = O, dateLocale = dateOutil, charge = null;
     if (c.lire) {                     // l'outil relit ces valeurs comme si elles étaient gardées dans le navigateur
       charge = lancer(vE);
-      vO = JSON.parse(J(charge.P.lire()));
+      vO = lireSansEscalier(charge.P);
       Olocal = charge.O;
       dateLocale = charge.dateOutil(DATE);
       if (J(trie(vO)) !== J(trie(vE))) ecarts.push(`${c.nom} : lire()`);
@@ -625,8 +750,61 @@ function comparerAvecOutil(M, D, CH) {
     }
     site.push(ref);
   }
+  // --- Relevés du site avec un décor : le calcul COMPLET de l'outil (c'est lui qui est vendu), carré par carré ---
+  // Le cadre d'un décor est celui des barreaux seuls (une seule « croix ») ; sans carré qui passe, le fer plat de renfort.
+  const relevesDecor = [
+    [1180, 650, true, 0, "chene", "entre.C.bouton.colliers.carre.aucune.0"],
+    [1000, 300, true, 0, "pin", "coeurs.coeur.effile.soudure.torsade.aucune.0"],
+    [1600, 650, true, 1500, "chene", "frise.S.bouton.colliers.bagues.postes.1"],
+    [900, 760, true, 0, "noyer", "medaillon.doubleC.droit.colliers.carre.aucune.0"],
+    [2200, 400, true, 0, "chene", "hauteur.C.bouton.colliers.carre.aucune.0"],
+    [1400, 500, false, 0, "acier", "anneaux.anneau.bouton.soudure.carre.aucune.0"],
+    [1800, 650, true, 0, "chene-plat", "applique.coeur.bouton.colliers.carre.aucune.1"],
+    // Fenêtre large (fer plat et panneaux) et bande basse sous une fenêtre haute (07/10/2026 : aucun décor « à étudier »).
+    [2400, 400, true, 0, "chene", "frise.S.bouton.colliers.carre.aucune.0"],
+    [1000, 800, true, 0, "chene", "anneaux.anneau.bouton.colliers.carre.aucune.0"],
+  ].map(([largeurMm, allegeMm, enEtage, fenetreMm, essence, decor]) => ({ largeurMm, allegeMm, enEtage, fenetreMm, essence, decor }));
+  const siteDecors = [];
+  for (const e of relevesDecor) {
+    const alertes = {};
+    let choix = null;
+    // n : le nombre de panneaux du décor (des montants au milieu), 1 à 3 comme le site (calcul.ts).
+    const essai = (s, renfort, n = 1) => {
+      const vO = valeursGC(defautsOutil, e, s, n, false, false, renfort, true), vE = valeursGC(DEFAUTS_GC, e, s, n, false, false, renfort, true);
+      const RObrut = O.calculerGC(vO), RE = M.calculerGC(vE);
+      if (J(neutraliserObjet(JSON.parse(J(RObrut)))) !== J(RE)) ecarts.push(`relevé décor ${J(e)} : calculerGC, carré ${s}${renfort ? ", renfort" : ""}`);
+      const codes = RE.alertes.map(codeAlerte);
+      // Une bande trop basse pour un décor (le fer plat la réduit encore) : l'outil le dit, sans poser de décor.
+      if (!RE.decorNom && !codes.includes("trop-petit")) ecarts.push(`relevé décor ${J(e)} : le décor n'est pas lu (valeursGC)`);
+      if (codes.includes("autre")) ecarts.push(`relevé décor ${J(e)} : une alerte de l'outil n'a pas de code (entree.ts)`);
+      return { codes, vO, vE, RObrut, RE };
+    };
+    const retenir = (s, renfort, x, n) => {
+      const CO = O.chiffrerGC(x.RObrut, x.vO), CE = CH.chiffrerGC(x.RE, x.vE);
+      if (J(CO) !== J(CE)) ecarts.push(`relevé décor ${J(e)} : chiffrerGC`);
+      return { carre: s, renfort, panneaux: n, R: court(J(x.RE)), hauteurGC: x.RE.hauteurGC, kg: x.RE.kg, prix: CE.conseille, nom: x.RE.decorNom };
+    };
+    // Dans chaque carré : 1 panneau (ses alertes sont gardées pour les tests), puis 2, puis 3 tant que rien n'est retenu.
+    const parCarre = (s, renfortOn, garde) => {
+      const x = essai(s, renfortOn, 1);
+      garde[s] = x.codes;
+      if (!choix && !x.codes.length) choix = retenir(s, renfortOn, x, 1);
+      for (let n = 2; n <= 3 && !choix; n++) {
+        const xn = essai(s, renfortOn, n);
+        if (!xn.codes.length) choix = retenir(s, renfortOn, xn, n);
+      }
+    };
+    for (const s of ORDRE_CARRES) parCarre(s, false, alertes);
+    const renfort = {};
+    for (const s of CARRES_RENFORT_SEULS) parCarre(s, true, renfort);
+    siteDecors.push({ entree: e, alertes, renfort, choix });
+  }
+  // Depuis le 07/10/2026, chaque décor a une variante aux normes sur toute fenêtre que le site vend (balayage de
+  // plans/tests/motifs.test.mjs) : un relevé refusé n'est plus exigé, mais les décors vendus le sont.
+  if (siteDecors.filter((r) => r.choix).length < 4) ecarts.push("relevés décor : il faut au moins 4 décors vendus");
+
   if (ecarts.length) throw new Error("L'OUTIL ET LE CODE EXTRAIT DIFFÈRENT :\n" + ecarts.join("\n"));
-  console.log(`\nOutil et code extrait identiques : ${cas.length} cas généraux (${cas.filter((c) => c.lire).length} relus par lire()), ${site.length} relevés du site × ${ORDRE_CARRES.length} carrés × ${CROIX_MAX} croix, ${variantes} recherches de variantes (${Date.now() - t0} ms).`);
+  console.log(`\nOutil et code extrait identiques : ${cas.length} cas généraux (${cas.filter((c) => c.lire).length} relus par lire()), ${site.length} relevés du site × ${ORDRE_CARRES.length} carrés × ${CROIX_MAX} croix, ${siteDecors.length} relevés avec un décor, ${variantes} recherches de variantes (${Date.now() - t0} ms).`);
   return {
     "à lire": "Généré par scripts/extraire-moteur-garde-corps.mjs à partir de l'outil de plans (chargé tel quel dans node:vm). Aucun coût : des prix de vente, des poids, des hauteurs et des empreintes (sha256 tronqué) des réponses complètes. Ne pas modifier à la main.",
     outil: empreinteSource,
@@ -635,5 +813,134 @@ function comparerAvecOutil(M, D, CH) {
     date: DATE,
     cas: casRef,
     site,
+    decors: siteDecors,
   };
+}
+
+// ======================================================================================================
+// Le décor à volutes (bibliothèque de styles de l'outil, 06/10/2026) : ce que le site propose, et ses vignettes.
+// ======================================================================================================
+
+/** Les boutons « Décor à volutes » de la page de l'outil (.choix[data-cible^="decor"]) : leur valeur et leur libellé. */
+function boutonsDecor(h) {
+  const texte = (t) => t.trim().replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  const groupes = {};
+  for (const m of h.matchAll(/<div class="choix" data-cible="(decor[A-Za-z]*)">([\s\S]*?)<\/div>/g)) {
+    groupes[m[1]] = [...m[2].matchAll(/<button\b[^>]*\bdata-v="([^"]*)"[^>]*>([^<]*)<\/button>/g)].map((b) => ({ id: b[1], nom: texte(b[2]) }));
+  }
+  return groupes;
+}
+
+/**
+ * Les choix du décor tels que le site les propose, pris dans l'outil : les assemblages et leur nom (DECOR_NOMS), les formes
+ * permises pour chacun (MT_AVEC : « anneaux » et « cœurs » n'en ont qu'une), le nom de chaque forme (MT_NOMS), et les
+ * finitions avec le libellé des boutons de l'outil. La première finition de chaque liste est celle de la page de l'outil.
+ */
+function decorsDuSite(M) {
+  const b = boutonsDecor(avantScript);
+  const ids = (l) => (l || []).map((x) => x.id);
+  const memes = (a, c) => a.length === c.length && [...a].sort().join() === [...c].sort().join();
+  const assemblages = Object.keys(M.DECOR_NOMS);
+  if (!memes(assemblages, CONTRAT_DECORS.assemblages)) arret(`l'outil propose les décors [${assemblages.join(", ")}] ; l'écran du site attend [${CONTRAT_DECORS.assemblages.join(", ")}] (CONTRAT_DECORS)`);
+  if (ids(b.decor).join() !== ["aucun", ...assemblages].join()) arret("les boutons « Décor à volutes » de l'outil ne sont plus « Sans décor » suivi des assemblages de DECOR_NOMS");
+  if (assemblages.some((a) => !M.MT_CHOIX.assemblage.includes(a))) arret("un décor de DECOR_NOMS n'est pas un assemblage de la bibliothèque (MT_CHOIX)");
+  const formes = {};
+  for (const a of assemblages) {
+    const f = M.MT_AVEC[a];
+    if (!Array.isArray(f) || !f.length || f.some((x) => !CONTRAT_DECORS.formes.includes(x) || !M.MT_CHOIX.forme.includes(x) || !M.MT_NOMS[x])) {
+      arret(`le décor « ${a} » permet les formes [${f}] : hors du contrat de l'écran (CONTRAT_DECORS)`);
+    }
+    formes[a] = [...f];
+  }
+  const nomsFormes = Object.fromEntries(CONTRAT_DECORS.formes.map((f) => [f, M.MT_NOMS[f]]));
+  const liste = (cible, cle, contrat, defaut) => {
+    const l = b[cible];
+    if (!l || !memes(ids(l), contrat) || l.some((x) => !M.MT_CHOIX[cle].includes(x.id) || !x.nom)) arret(`les boutons « ${cible} » de l'outil ne sont plus [${contrat.join(", ")}]`);
+    if (l[0].id !== defaut) arret(`« ${cible} » : la valeur de départ de l'outil (${defaut}) n'est plus le premier bouton`);
+    return l.map(({ id, nom }) => ({ id, nom }));
+  };
+  if (ids(b.decorDore).join() !== "0,1" || DEFAUTS_GC.decorDore !== "0") arret("les boutons « Rehauts dorés » de l'outil ne sont plus Non (0) / Oui (1)");
+  return {
+    assemblages: assemblages.map((id) => ({ id, nom: M.DECOR_NOMS[id] })),
+    formes,
+    nomsFormes,
+    bouts: liste("decorBouts", "bouts", CONTRAT_DECORS.bouts, DEFAUTS_GC.decorBouts),
+    // Plus de bouton « Liaison » dans l'outil : la soudure, seule liaison du module (MT_CHOIX.liaison).
+    liaisons: (() => {
+      if (b.decorLiaison) return liste("decorLiaison", "liaison", CONTRAT_DECORS.liaisons, DEFAUTS_GC.decorLiaison);
+      if (!memes(M.MT_CHOIX.liaison, CONTRAT_DECORS.liaisons)) arret(`la liaison du module n'est plus [${CONTRAT_DECORS.liaisons.join(", ")}]`);
+      return [{ id: "soudure", nom: "Soudées" }];
+    })(),
+    barreaux: liste("decorBarreaux", "barreaux", CONTRAT_DECORS.barreaux, DEFAUTS_GC.decorBarreaux),
+    frisesBasses: liste("decorFriseBasse", "friseBasse", CONTRAT_DECORS.frisesBasses, DEFAUTS_GC.decorFriseBasse),
+  };
+}
+
+/** Le fichier public src/lib/garde-corps-decors.genere.ts : le contrat de l'écran, rempli par l'outil. */
+function texteDesDecors(decors) {
+  const union = (l) => l.map((x) => JSON.stringify(x)).join(" | ");
+  return entete("Le décor à volutes du garde-corps : assemblages, formes permises (MT_AVEC), noms de l'outil (DECOR_NOMS, MT_NOMS, ses boutons). SANS coûts.") +
+    `export type AssemblageDecorGC = ${union(CONTRAT_DECORS.assemblages)};\n` +
+    `export type FormeDecorGC = ${union(CONTRAT_DECORS.formes)};\n` +
+    "function geler<T>(o: T): T {\n  if (o && typeof o === \"object\" && !Object.isFrozen(o)) {\n    for (const x of Object.values(o)) geler(x);\n    Object.freeze(o);\n  }\n  return o;\n}\n" +
+    "export const DECORS_GC: {\n" +
+    "  assemblages: readonly { id: AssemblageDecorGC; nom: string }[];\n" +
+    "  formes: Readonly<Record<AssemblageDecorGC, readonly FormeDecorGC[]>>;\n" +
+    "  nomsFormes: Readonly<Record<FormeDecorGC, string>>;\n" +
+    `  bouts: readonly { id: ${union(CONTRAT_DECORS.bouts)}; nom: string }[];\n` +
+    `  liaisons: readonly { id: ${union(CONTRAT_DECORS.liaisons)}; nom: string }[];\n` +
+    `  barreaux: readonly { id: ${union(CONTRAT_DECORS.barreaux)}; nom: string }[];\n` +
+    `  frisesBasses: readonly { id: ${union(CONTRAT_DECORS.frisesBasses)}; nom: string }[];\n` +
+    `} = geler(${JSON.stringify(decors, null, 1)});\n`;
+}
+
+/**
+ * Une vignette par décor (assemblage × forme permise), DESSINÉE PAR L'OUTIL : son calcul complet (calculerGC) pour la fenêtre
+ * d'appel (1 000 mm de large, bas de fenêtre à 650 mm, en étage), finitions de départ, carré de 16 ; on garde les traits du
+ * décor (ceux qui portent un rôle) et le cadre, rendus par svgDe, la fonction de dessin de l'outil. Les traits sont allégés
+ * par mtAlleger (la fonction de l'outil), le style est écrit dans le fichier (fond transparent), la boîte serrée au dessin.
+ */
+function vignettesDecors(M, decors) {
+  const ALLEGE = 0.8;   // mm : invisible à la taille d'une vignette (1 000 mm de fenêtre sur quelques centaines de pixels)
+  const CADRE = new Set(["Traverses du cadre", "Montants de rive"]);
+  const STYLE = {
+    cadre: 'fill="#2b2320"',
+    fer: 'fill="#2b2320"',
+    collier: 'fill="#2b2320"',
+    or: 'fill="#b8893f"',
+    vrille: 'fill="none" stroke="#d9cdbb" stroke-width="1.4" stroke-linecap="round"',
+  };
+  const e = { largeurMm: 1000, allegeMm: 650, enEtage: true, fenetreMm: 0, essence: "chene" };
+  const out = {};
+  for (const { id: a } of decors.assemblages) for (const f of decors.formes[a]) {
+    const v = {
+      ...valeursGC(DEFAUTS_GC, e, 16, 1, false, false, false, true),
+      decor: a, decorForme: f, decorBouts: decors.bouts[0].id, decorLiaison: decors.liaisons[0].id, decorBarreaux: decors.barreaux[0].id,
+      decorFriseBasse: decors.frisesBasses[0].id, decorDore: "0",
+    };
+    const R = M.calculerGC(v);
+    if (!R.decorNom) arret(`vignette ${a}-${f} : l'outil n'a pas dessiné de décor`);
+    const prims = [];
+    for (const p of R.vues.face) {
+      if (p.role) {
+        if (!Object.hasOwn(STYLE, p.role) || p.role === "cadre") arret(`vignette ${a}-${f} : rôle de trait inconnu « ${p.role} »`);
+        if (p.t === "poly") prims.push({ t: "poly", ouvert: p.ouvert === true, cls: p.role, pts: p.role === "vrille" ? p.pts : M.mtAlleger(p.pts, ALLEGE) });
+        else if (p.t === "cercle") prims.push({ t: "cercle", cls: p.role, c: p.c, r: p.r });
+        else arret(`vignette ${a}-${f} : trait « ${p.t} » inattendu`);
+      } else if (p.t === "poly" && CADRE.has(p.piece)) prims.push({ t: "poly", cls: "cadre", pts: p.pts });
+    }
+    let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
+    const ajoute = ([x, y], r = 0) => { x1 = Math.min(x1, x - r); x2 = Math.max(x2, x + r); y1 = Math.min(y1, y - r); y2 = Math.max(y2, y + r); };
+    for (const p of prims) if (p.pts) p.pts.forEach((q) => ajoute(q)); else ajoute(p.c, p.r);
+    const marge = 3;
+    const gauche = Math.floor(x1 - marge), haut = Math.floor(-(y2 + marge));
+    const vb = [gauche, haut, Math.ceil(x2 + marge) - gauche, Math.ceil(-(y1 - marge)) - haut];
+    const corps = M.svgDe(prims).html
+      // Au millimètre près (svgDe écrit le dixième) : une vignette n'en montre pas plus, et le fichier pèse moitié moins.
+      .replace(/-?\d+\.\d+/g, (n) => String(Math.round(Number(n)) || 0))
+      .replace(/ class="([a-z]+)"/g, (m, c) => { if (!Object.hasOwn(STYLE, c)) arret(`vignette ${a}-${f} : classe « ${c} »`); return " " + STYLE[c]; });
+    if (/data-|class=|cliquable/.test(corps)) arret(`vignette ${a}-${f} : attribut de l'outil resté dans le dessin`);
+    out[`${a}-${f}.svg`] = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb.join(" ")}"><!-- ${a}-${f} : dessiné par l'outil de plans (scripts/extraire-moteur-garde-corps.mjs), ne pas modifier à la main. -->${corps}</svg>\n`;
+  }
+  return out;
 }

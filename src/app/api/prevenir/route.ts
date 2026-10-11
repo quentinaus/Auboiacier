@@ -1,6 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { canNotifyOwner, ownerEmail, sendEmail } from "@/lib/email";
-import { creerLimite } from "@/lib/limite-debit";
+import { compter, etiquettesOrigine } from "@/lib/compteurs";
+import { lignesOrigine, lireConnu, nettoyerProvenance } from "@/lib/provenance";
+import { creerLimite, creerLimiteParCle } from "@/lib/limite-debit";
 import { origineEtrangere } from "@/lib/origine";
 import { EMAIL_VALIDE, MAX_TEXTE, envoiTropRapide } from "@/lib/devis-regles";
 
@@ -19,6 +21,9 @@ function borne(valeur: unknown, max: number) {
 /** 3 demandes par adresse IP et par dix minutes, comme le formulaire de devis. */
 const tropDeDemandes = creerLimite({ fenetreMs: 10 * 60 * 1000, maximum: 3 });
 
+/** Deux accusés par adresse et par jour : l'adresse tapée n'est pas vérifiée (voir /api/devis). */
+const tropDAccuses = creerLimiteParCle({ fenetreMs: 24 * 60 * 60 * 1000, maximum: 2 });
+
 /**
  * « Me prévenir à l'ouverture » : avant l'immatriculation, le panier ne peut
  * pas encaisser. Le client laisse son e-mail ; l'atelier le reçoit avec le
@@ -32,7 +37,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "too_many" }, { status: 429, headers: { "retry-after": "600" } });
   }
 
-  let body: { email?: unknown; locale?: unknown; website?: unknown; dureeMs?: unknown; panier?: unknown };
+  let body: {
+    email?: unknown;
+    locale?: unknown;
+    website?: unknown;
+    dureeMs?: unknown;
+    panier?: unknown;
+    connu?: unknown;
+    provenance?: unknown;
+  };
   try {
     body = await request.json();
   } catch {
@@ -52,6 +65,10 @@ export async function POST(request: Request) {
     .slice(0, MAX_LIGNES)
     .map((ligne) => borne(ligne, MAX_LIGNE))
     .filter(Boolean);
+  // Sa réponse à « Comment nous avez-vous connu ? » et le lien marqué de son
+  // arrivée, revérifiés : seules les valeurs connues passent.
+  const connu = lireConnu(body.connu);
+  const provenance = nettoyerProvenance(body.provenance);
 
   if (!canNotifyOwner()) {
     return NextResponse.json({ error: "not_configured" }, { status: 503 });
@@ -64,19 +81,23 @@ export async function POST(request: Request) {
     text: [
       `E-mail : ${email}`,
       `Langue : ${locale.toUpperCase()}`,
+      ...lignesOrigine(connu, provenance),
       "",
       "Son panier :",
       ...(panier.length ? panier.map((l) => `- ${l}`) : ["(vide)"]),
       "",
-      "À prévenir le jour de l'ouverture des commandes, puis à effacer (promis dans la politique de confidentialité).",
+      "À prévenir le jour de l'ouverture des commandes (au plus tard le lundi 7 décembre 2026), à passer en priorité dans le planning, puis à effacer (promis dans la politique de confidentialité).",
     ].join("\n"),
     replyTo: email,
   });
   if (!sent) {
     return NextResponse.json({ error: "send_failed" }, { status: 502 });
   }
+  // Un inscrit de plus au compteur, sans son adresse (src/lib/compteurs.ts).
+  after(() => compter("inscription_prevenir", etiquettesOrigine(connu, provenance), request));
 
   // Accusé de réception, attendu pour qu'il parte vraiment (voir /api/devis).
+  if (tropDAccuses(email.toLowerCase(), Date.now())) return NextResponse.json({ ok: true });
   await sendEmail({
     to: email,
     replyTo: ownerEmail(),
@@ -85,16 +106,18 @@ export async function POST(request: Request) {
       ? [
           "Hello,",
           "",
-          "Auboiacier is being set up. Orders open in late November 2026.",
-          "We will write to you as soon as we open. No payment before then.",
+          "Your sign-up is noted: online orders open on Monday 7 December 2026.",
+          "That day we will write to you with your cart, and your order gets priority in the workshop's schedule.",
+          "Nothing to pay until then.",
           "",
           "Auboiacier — wood, steel & light",
         ]
       : [
           "Bonjour,",
           "",
-          "Auboiacier est en cours de création. Les commandes ouvrent fin novembre 2026.",
-          "Nous vous écrivons dès l'ouverture. Aucun paiement avant.",
+          "Votre inscription est notée : les commandes en ligne ouvrent le lundi 7 décembre 2026.",
+          "Ce jour-là, nous vous écrivons avec votre panier, et votre commande passe en priorité dans le planning de l'atelier.",
+          "D'ici là, rien à payer.",
           "",
           "Auboiacier — bois, acier & lumière",
         ]

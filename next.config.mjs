@@ -45,10 +45,29 @@ const nextConfig = {
     minimumCacheTTL: 31536000,
   },
   async headers() {
-    return [{ source: "/:path*", headers: enTetesDeSecurite }];
+    return [
+      { source: "/:path*", headers: enTetesDeSecurite },
+      // Les fichiers à imprimer (la carte des avis glissée dans les colis) sont
+      // en ligne pour l'atelier, pas pour les résultats de recherche.
+      { source: "/imprimer/:fichier*", headers: [{ key: "X-Robots-Tag", value: "noindex" }] },
+      // Les photos et les vidéos : gardées un jour par le navigateur, puis revérifiées en arrière-plan (diagnostic du 09/10/2026 :
+      // elles étaient redemandées à chaque visite). Une photo remplacée change de nom (-vN), sinon l'ancienne resterait un jour.
+      {
+        source: "/:dossier(images|videos)/:fichier*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+      },
+    ];
   },
   async redirects() {
     return [
+      // La chaise d'intérieur est retirée de la vente (Quentin, 06/10/2026) :
+      // son ancienne adresse mène au catalogue plutôt qu'à une page
+      // introuvable. Temporaire (307) : elle reviendra une fois rechiffrée.
+      {
+        source: "/:lang(fr|en)/artisanat/:slug(chaise-acier-bois)",
+        destination: "/:lang/artisanat",
+        permanent: false,
+      },
       // Une seule adresse pour tout le site. Ces deux règles vivaient dans
       // vercel.json, où Next.js ne les appliquait jamais : www servait le site
       // en double, et Google voyait deux sites jumeaux. Ici elles partent bien.
@@ -56,6 +75,17 @@ const nextConfig = {
         source: "/:chemin*",
         has: [{ type: "host", value: "www.auboiacier.fr" }],
         destination: "https://auboiacier.fr/:chemin*",
+        permanent: true,
+      },
+      // L'adresse de Vercel, auboiacier.vercel.app, servait le site en double :
+      // elle renvoie au .fr. Ce nom exact seulement — les adresses de
+      // prévisualisation (auboiacier-git-….vercel.app) restent consultables.
+      // Sauf /api/… : un appel de service (le webhook de Stripe, par exemple)
+      // réglé sur cette adresse ne suit pas une redirection, il échouerait.
+      {
+        source: "/:chemin((?!api(?:/|$)).*)",
+        has: [{ type: "host", value: "auboiacier\\.vercel\\.app" }],
+        destination: "https://auboiacier.fr/:chemin",
         permanent: true,
       },
       // Le .eu, pris en même temps que le .fr, ne sert qu'à ramener ici.

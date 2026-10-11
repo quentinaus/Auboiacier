@@ -161,6 +161,16 @@ test("note de commande : les deux-points suivent la langue", () => {
   assert.match(fr, /type de mur : pierre/);
 });
 
+test("murs pas parallèles : les deux largeurs mesurées arrivent à l'atelier dans la note", () => {
+  const mots = { gcMur: "Type de mur", gcAllege: "Allège", gcFenetre: "Fenêtre", gcJourCourt: "posé à" };
+  const note = noteReleveGC({ etage: "En étage", mur: "Pierre", allegeMm: 650, fenetreMm: 0, jourMm: 90, largeurBasMm: 1180, largeurHautMm: 1172 }, mots);
+  assert.match(note, /^En étage · largeur au ras de l'appui 1180 mm, à 1 m du sol 1172 mm · /);
+  // Une seule largeur connue (une ligne plus ancienne) : rien n'est inventé.
+  assert.doesNotMatch(noteReleveGC({ etage: "En étage", mur: "", allegeMm: 650, fenetreMm: 0, jourMm: 0, largeurBasMm: 1180 }, mots), /largeur/);
+  // Deux largeurs égales (murs droits) : rien à dire, la note reste celle d'avant.
+  assert.doesNotMatch(noteReleveGC({ etage: "En étage", mur: "", allegeMm: 650, fenetreMm: 0, jourMm: 0, largeurBasMm: 1180, largeurHautMm: 1180 }, mots), /largeur/);
+});
+
 test("le plan d'aperçu reste possible aux deux bouts des fenêtres étroites et larges", () => {
   chiffrageOuEchec();
   for (const [l, a] of [[300, 786], [301, 100], [1180, 650]] as const) assert.ok(planApercuGC(q(l, a)), `${l} × ${a}`);

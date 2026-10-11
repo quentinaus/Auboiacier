@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 import { calculerGC } from "../src/lib/garde-corps-outil/moteur.genere.mjs";
 import { COUPES_MAIN_COURANTE_GC } from "../src/lib/garde-corps-coupes.genere.ts";
 import { configurationGC, ligneGC, planApercuGC, reponsePrixGC, type RequetePrixGC } from "../src/lib/garde-corps-outil/site.ts";
-import { MAINS_COURANTES_GC, idMainCouranteGC, lireMainCouranteGC, lirePlanApercuGC, lireReponsePrixGC } from "../src/lib/garde-corps.ts";
+import { MAINS_COURANTES_GC, idMainCouranteGC, lireMainCouranteGC, lirePlanApercuGC, lireReponsePrixGC, modeleAfficheGC } from "../src/lib/garde-corps.ts";
 
 const releve = (largeurMm: number, allegeMm = 650, fenetreMm = 0) => ({ largeurMm, allegeMm, enEtage: true, fenetreMm });
 const q = (largeurMm: number, allegeMm = 650, essence: RequetePrixGC["essence"] = "chene"): RequetePrixGC => ({ releve: releve(largeurMm, allegeMm), essence, fabricId: "fleur", quantite: 1 });
@@ -36,7 +36,9 @@ test("le prix de chaque main courante est celui du panier ; une qui ne convient 
     assert.deepEqual(lireReponsePrixGC(JSON.parse(JSON.stringify(r))), r, "la réponse se relit");
     for (const id of MAINS_COURANTES_GC) {
       const prix: number | undefined = r.mains[id];
-      const ligne = ligneGC(releve(l, a), { woodId: id, fabricId: "fleur" });
+      // Le dessin affiché (sans choix : le moins cher à croix) est gardé quand la main courante l'accepte, comme au panier.
+      const gardee: ReturnType<typeof ligneGC> | null = r.ok ? ligneGC({ ...releve(l, a), modele: modeleAfficheGC(r) }, { woodId: id, fabricId: "fleur" }) : null;
+      const ligne: ReturnType<typeof ligneGC> = gardee?.ok ? gardee : ligneGC(releve(l, a), { woodId: id, fabricId: "fleur" });
       if (prix === undefined) { absent++; continue; }
       propose++;
       assert.ok(ligne.ok, `${id} proposé pour ${l} × ${a} : il se commande`);

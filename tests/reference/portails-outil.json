@@ -1,0 +1,2006 @@
+{
+ "source": "bd87f01e0e090ecd2be09a7d",
+ "moteur": "0db9b668a186",
+ "cas": [
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "plein"
+   },
+   "prix": 3050,
+   "alertes": 0,
+   "poids": 61
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "plein",
+    "ptMoteur": true
+   },
+   "prix": 4560,
+   "alertes": 0,
+   "poids": 61
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "plein",
+    "ptPoteaux": "alu"
+   },
+   "prix": 3490,
+   "alertes": 0,
+   "poids": 61
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "plein",
+    "ptGuidage": "auto"
+   },
+   "prix": 3050,
+   "alertes": 0,
+   "poids": 61
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "plein",
+    "ptP": 4200,
+    "ptH": 1800
+   },
+   "prix": 3570,
+   "alertes": 0,
+   "poids": 80
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "lisse"
+   },
+   "prix": 2570,
+   "alertes": 0,
+   "poids": 51
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "lisse",
+    "ptMoteur": true
+   },
+   "prix": 4080,
+   "alertes": 0,
+   "poids": 51
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "lisse",
+    "ptPoteaux": "alu"
+   },
+   "prix": 3020,
+   "alertes": 0,
+   "poids": 51
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "lisse",
+    "ptGuidage": "auto"
+   },
+   "prix": 2570,
+   "alertes": 0,
+   "poids": 51
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "lisse",
+    "ptP": 4200,
+    "ptH": 1800
+   },
+   "prix": 2930,
+   "alertes": 0,
+   "poids": 73
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux"
+   },
+   "prix": 2880,
+   "alertes": 0,
+   "poids": 33
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMoteur": true
+   },
+   "prix": 4400,
+   "alertes": 0,
+   "poids": 33
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptPoteaux": "alu"
+   },
+   "prix": 3330,
+   "alertes": 0,
+   "poids": 33
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptGuidage": "auto"
+   },
+   "prix": 2880,
+   "alertes": 0,
+   "poids": 33
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptP": 4200,
+    "ptH": 1800
+   },
+   "prix": 3260,
+   "alertes": 0,
+   "poids": 46
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "lamesChene"
+   },
+   "prix": 3360,
+   "alertes": 0,
+   "poids": 95
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptMoteur": true
+   },
+   "prix": 4870,
+   "alertes": 0,
+   "poids": 95
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptPoteaux": "alu"
+   },
+   "prix": 3810,
+   "alertes": 0,
+   "poids": 95
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptGuidage": "auto"
+   },
+   "prix": 3360,
+   "alertes": 0,
+   "poids": 95
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptP": 4200,
+    "ptH": 1800
+   },
+   "prix": 3660,
+   "alertes": 0,
+   "poids": 124
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "rosace"
+   },
+   "prix": 2950,
+   "alertes": 0,
+   "poids": 110
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptMoteur": true
+   },
+   "prix": 4470,
+   "alertes": 0,
+   "poids": 110
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptPoteaux": "alu"
+   },
+   "prix": 3410,
+   "alertes": 0,
+   "poids": 110
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptGuidage": "auto"
+   },
+   "prix": 2950,
+   "alertes": 0,
+   "poids": 110
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptP": 4200,
+    "ptH": 1800
+   },
+   "prix": 3220,
+   "alertes": 0,
+   "poids": 135
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "volutes"
+   },
+   "prix": 5020,
+   "alertes": 0,
+   "poids": 179
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "volutes",
+    "ptMoteur": true
+   },
+   "prix": 6780,
+   "alertes": 0,
+   "poids": 179
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "volutes",
+    "ptPoteaux": "alu"
+   },
+   "prix": 5550,
+   "alertes": 0,
+   "poids": 179
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "volutes",
+    "ptGuidage": "auto"
+   },
+   "prix": 5020,
+   "alertes": 0,
+   "poids": 179
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "volutes",
+    "ptP": 4200,
+    "ptH": 1800
+   },
+   "prix": 5930,
+   "alertes": 0,
+   "poids": 241
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "plein"
+   },
+   "prix": 3230,
+   "alertes": 0,
+   "poids": 64
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "plein",
+    "ptMoteur": true
+   },
+   "prix": 4340,
+   "alertes": 0,
+   "poids": 64
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "plein",
+    "ptPoteaux": "alu"
+   },
+   "prix": 3680,
+   "alertes": 0,
+   "poids": 64
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "plein",
+    "ptGuidage": "auto"
+   },
+   "prix": 3630,
+   "alertes": 0,
+   "poids": 64
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "plein",
+    "ptP": 4200,
+    "ptH": 1800
+   },
+   "prix": 3690,
+   "alertes": 0,
+   "poids": 84
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "lisse"
+   },
+   "prix": 2700,
+   "alertes": 0,
+   "poids": 53
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "lisse",
+    "ptMoteur": true
+   },
+   "prix": 3810,
+   "alertes": 0,
+   "poids": 53
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "lisse",
+    "ptPoteaux": "alu"
+   },
+   "prix": 3150,
+   "alertes": 0,
+   "poids": 53
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "lisse",
+    "ptGuidage": "auto"
+   },
+   "prix": 3100,
+   "alertes": 0,
+   "poids": 53
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "lisse",
+    "ptP": 4200,
+    "ptH": 1800
+   },
+   "prix": 2980,
+   "alertes": 0,
+   "poids": 71
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "barreaux"
+   },
+   "prix": 3050,
+   "alertes": 0,
+   "poids": 33
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMoteur": true
+   },
+   "prix": 4570,
+   "alertes": 0,
+   "poids": 33
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptPoteaux": "alu"
+   },
+   "prix": 3500,
+   "alertes": 0,
+   "poids": 33
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptGuidage": "auto"
+   },
+   "prix": 3440,
+   "alertes": 0,
+   "poids": 33
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptP": 4200,
+    "ptH": 1800
+   },
+   "prix": 3410,
+   "alertes": 0,
+   "poids": 45
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "lamesChene"
+   },
+   "prix": 3360,
+   "alertes": 0,
+   "poids": 103
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptMoteur": true
+   },
+   "prix": 4470,
+   "alertes": 0,
+   "poids": 103
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptPoteaux": "alu"
+   },
+   "prix": 3810,
+   "alertes": 0,
+   "poids": 103
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptGuidage": "auto"
+   },
+   "prix": 3760,
+   "alertes": 0,
+   "poids": 103
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptP": 4200,
+    "ptH": 1800
+   },
+   "prix": 3860,
+   "alertes": 0,
+   "poids": 133
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "rosace"
+   },
+   "prix": 3150,
+   "alertes": 0,
+   "poids": 112
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptMoteur": true
+   },
+   "prix": 4680,
+   "alertes": 0,
+   "poids": 112
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptPoteaux": "alu"
+   },
+   "prix": 3620,
+   "alertes": 0,
+   "poids": 112
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptGuidage": "auto"
+   },
+   "prix": 3540,
+   "alertes": 0,
+   "poids": 112
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptP": 4200,
+    "ptH": 1800
+   },
+   "prix": 3580,
+   "alertes": 0,
+   "poids": 147
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "volutes"
+   },
+   "prix": 5390,
+   "alertes": 0,
+   "poids": 191
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "volutes",
+    "ptMoteur": true
+   },
+   "prix": 7170,
+   "alertes": 0,
+   "poids": 191
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "volutes",
+    "ptPoteaux": "alu"
+   },
+   "prix": 5940,
+   "alertes": 0,
+   "poids": 191
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "volutes",
+    "ptGuidage": "auto"
+   },
+   "prix": 5850,
+   "alertes": 0,
+   "poids": 191
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "volutes",
+    "ptP": 4200,
+    "ptH": 1800
+   },
+   "prix": 6180,
+   "alertes": 0,
+   "poids": 248
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "plein"
+   },
+   "prix": 4040,
+   "alertes": 0,
+   "poids": 63
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "plein",
+    "ptMoteur": true
+   },
+   "prix": 4040,
+   "alertes": 1,
+   "poids": 63
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "plein",
+    "ptPoteaux": "alu"
+   },
+   "prix": 4480,
+   "alertes": 0,
+   "poids": 63
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "plein",
+    "ptGuidage": "auto"
+   },
+   "prix": 4040,
+   "alertes": 0,
+   "poids": 63
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "plein",
+    "ptP": 4200,
+    "ptH": 1800
+   },
+   "prix": 4380,
+   "alertes": 0,
+   "poids": 82
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "lisse"
+   },
+   "prix": 3600,
+   "alertes": 0,
+   "poids": 60
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "lisse",
+    "ptMoteur": true
+   },
+   "prix": 3600,
+   "alertes": 1,
+   "poids": 60
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "lisse",
+    "ptPoteaux": "alu"
+   },
+   "prix": 4050,
+   "alertes": 0,
+   "poids": 60
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "lisse",
+    "ptGuidage": "auto"
+   },
+   "prix": 3600,
+   "alertes": 0,
+   "poids": 60
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "lisse",
+    "ptP": 4200,
+    "ptH": 1800
+   },
+   "prix": 3770,
+   "alertes": 0,
+   "poids": 75
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "barreaux"
+   },
+   "prix": 3760,
+   "alertes": 0,
+   "poids": 39
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMoteur": true
+   },
+   "prix": 3760,
+   "alertes": 1,
+   "poids": 39
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptPoteaux": "alu"
+   },
+   "prix": 4210,
+   "alertes": 0,
+   "poids": 39
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptGuidage": "auto"
+   },
+   "prix": 3760,
+   "alertes": 0,
+   "poids": 39
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptP": 4200,
+    "ptH": 1800
+   },
+   "prix": 4000,
+   "alertes": 0,
+   "poids": 48
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "lamesChene"
+   },
+   "prix": 4170,
+   "alertes": 0,
+   "poids": 93
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptMoteur": true
+   },
+   "prix": 4170,
+   "alertes": 1,
+   "poids": 93
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptPoteaux": "alu"
+   },
+   "prix": 4620,
+   "alertes": 0,
+   "poids": 93
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptGuidage": "auto"
+   },
+   "prix": 4170,
+   "alertes": 0,
+   "poids": 93
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptP": 4200,
+    "ptH": 1800
+   },
+   "prix": 4480,
+   "alertes": 0,
+   "poids": 122
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "rosace"
+   },
+   "prix": 3790,
+   "alertes": 0,
+   "poids": 121
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptMoteur": true
+   },
+   "prix": 3790,
+   "alertes": 1,
+   "poids": 121
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptPoteaux": "alu"
+   },
+   "prix": 4250,
+   "alertes": 0,
+   "poids": 121
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptGuidage": "auto"
+   },
+   "prix": 3790,
+   "alertes": 0,
+   "poids": 121
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptP": 4200,
+    "ptH": 1800
+   },
+   "prix": 3950,
+   "alertes": 0,
+   "poids": 145
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "volutes"
+   },
+   "prix": 6010,
+   "alertes": 0,
+   "poids": 184
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "volutes",
+    "ptMoteur": true
+   },
+   "prix": 6010,
+   "alertes": 1,
+   "poids": 184
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "volutes",
+    "ptPoteaux": "alu"
+   },
+   "prix": 6550,
+   "alertes": 0,
+   "poids": 184
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "volutes",
+    "ptGuidage": "auto"
+   },
+   "prix": 6010,
+   "alertes": 0,
+   "poids": 184
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "volutes",
+    "ptP": 4200,
+    "ptH": 1800
+   },
+   "prix": 6700,
+   "alertes": 0,
+   "poids": 240
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "plein",
+    "ptP": 1000
+   },
+   "prix": 1620,
+   "alertes": 0,
+   "poids": 18
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "plein",
+    "ptP": 1000,
+    "ptMoteur": true
+   },
+   "prix": 1620,
+   "alertes": 0,
+   "poids": 18
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "plein",
+    "ptP": 1000,
+    "ptPoteaux": "alu"
+   },
+   "prix": 1950,
+   "alertes": 0,
+   "poids": 18
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "plein",
+    "ptP": 1000,
+    "ptGuidage": "auto"
+   },
+   "prix": 1620,
+   "alertes": 0,
+   "poids": 18
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "plein",
+    "ptP": 1200,
+    "ptH": 1800
+   },
+   "prix": 1710,
+   "alertes": 0,
+   "poids": 23
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "lisse",
+    "ptP": 1000
+   },
+   "prix": 1490,
+   "alertes": 0,
+   "poids": 17
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "lisse",
+    "ptP": 1000,
+    "ptMoteur": true
+   },
+   "prix": 1490,
+   "alertes": 0,
+   "poids": 17
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "lisse",
+    "ptP": 1000,
+    "ptPoteaux": "alu"
+   },
+   "prix": 1830,
+   "alertes": 0,
+   "poids": 17
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "lisse",
+    "ptP": 1000,
+    "ptGuidage": "auto"
+   },
+   "prix": 1490,
+   "alertes": 0,
+   "poids": 17
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "lisse",
+    "ptP": 1200,
+    "ptH": 1800
+   },
+   "prix": 1540,
+   "alertes": 0,
+   "poids": 21
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptP": 1000
+   },
+   "prix": 1530,
+   "alertes": 0,
+   "poids": 10
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptP": 1000,
+    "ptMoteur": true
+   },
+   "prix": 1530,
+   "alertes": 0,
+   "poids": 10
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptP": 1000,
+    "ptPoteaux": "alu"
+   },
+   "prix": 1860,
+   "alertes": 0,
+   "poids": 10
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptP": 1000,
+    "ptGuidage": "auto"
+   },
+   "prix": 1530,
+   "alertes": 0,
+   "poids": 10
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptP": 1200,
+    "ptH": 1800
+   },
+   "prix": 1620,
+   "alertes": 0,
+   "poids": 14
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptP": 1000
+   },
+   "prix": 1650,
+   "alertes": 0,
+   "poids": 26
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptP": 1000,
+    "ptMoteur": true
+   },
+   "prix": 1650,
+   "alertes": 0,
+   "poids": 26
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptP": 1000,
+    "ptPoteaux": "alu"
+   },
+   "prix": 1980,
+   "alertes": 0,
+   "poids": 26
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptP": 1000,
+    "ptGuidage": "auto"
+   },
+   "prix": 1650,
+   "alertes": 0,
+   "poids": 26
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptP": 1200,
+    "ptH": 1800
+   },
+   "prix": 1730,
+   "alertes": 0,
+   "poids": 35
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "rosace",
+    "ptP": 1000
+   },
+   "prix": 1610,
+   "alertes": 0,
+   "poids": 34
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "rosace",
+    "ptP": 1000,
+    "ptMoteur": true
+   },
+   "prix": 1610,
+   "alertes": 0,
+   "poids": 34
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "rosace",
+    "ptP": 1000,
+    "ptPoteaux": "alu"
+   },
+   "prix": 1960,
+   "alertes": 0,
+   "poids": 34
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "rosace",
+    "ptP": 1000,
+    "ptGuidage": "auto"
+   },
+   "prix": 1610,
+   "alertes": 0,
+   "poids": 34
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "rosace",
+    "ptP": 1200,
+    "ptH": 1800
+   },
+   "prix": 1660,
+   "alertes": 0,
+   "poids": 41
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "volutes",
+    "ptP": 1000
+   },
+   "prix": 2390,
+   "alertes": 0,
+   "poids": 55
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "volutes",
+    "ptP": 1000,
+    "ptMoteur": true
+   },
+   "prix": 2390,
+   "alertes": 0,
+   "poids": 55
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "volutes",
+    "ptP": 1000,
+    "ptPoteaux": "alu"
+   },
+   "prix": 2790,
+   "alertes": 0,
+   "poids": 55
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "volutes",
+    "ptP": 1000,
+    "ptGuidage": "auto"
+   },
+   "prix": 2390,
+   "alertes": 0,
+   "poids": 55
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "volutes",
+    "ptP": 1200,
+    "ptH": 1800
+   },
+   "prix": 2570,
+   "alertes": 0,
+   "poids": 71
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "plein",
+    "ptMoteur": true,
+    "ptMoteurModele": "axovia"
+   },
+   "prix": 4730,
+   "alertes": 0,
+   "poids": 61
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMoteur": true
+   },
+   "prix": 4570,
+   "alertes": 0,
+   "poids": 33
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "classique"
+   },
+   "prix": 3660,
+   "alertes": 0,
+   "poids": 134
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "frise"
+   },
+   "prix": 3850,
+   "alertes": 0,
+   "poids": 133
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "medaillon"
+   },
+   "prix": 3330,
+   "alertes": 0,
+   "poids": 117
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "couronnement"
+   },
+   "prix": 3580,
+   "alertes": 0,
+   "poids": 133
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "coeurs"
+   },
+   "prix": 3300,
+   "alertes": 0,
+   "poids": 94
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "surMesure"
+   },
+   "prix": 3220,
+   "alertes": 1,
+   "poids": 117
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "classique",
+    "ptP": 1000
+   },
+   "prix": 1940,
+   "alertes": 0,
+   "poids": 42
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "frise",
+    "ptP": 1000
+   },
+   "prix": 1980,
+   "alertes": 0,
+   "poids": 39
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "medaillon",
+    "ptP": 1000
+   },
+   "prix": 1860,
+   "alertes": 0,
+   "poids": 36
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "couronnement",
+    "ptP": 1000
+   },
+   "prix": 1910,
+   "alertes": 0,
+   "poids": 40
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "coeurs",
+    "ptP": 1000
+   },
+   "prix": 1850,
+   "alertes": 0,
+   "poids": 32
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptDecor": "surMesure",
+    "ptP": 1000
+   },
+   "prix": 1800,
+   "alertes": 1,
+   "poids": 36
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMat": "acier",
+    "ptDecor": "perso",
+    "ptDecorChoix": "[{\"assemblage\":\"entre\",\"forme\":\"S\",\"pos\":\"milieu\"},{\"assemblage\":\"cimier\",\"forme\":\"C\"}]"
+   },
+   "prix": 4350,
+   "alertes": 0,
+   "poids": 167
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMat": "acier",
+    "ptSoub": "plein",
+    "ptHSoub": 600,
+    "ptDecor": "perso",
+    "ptDecorChoix": "[{\"assemblage\":\"appliquePlein\",\"forme\":\"doubleC\"}]"
+   },
+   "prix": 4060,
+   "alertes": 0,
+   "poids": 140
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMat": "acier",
+    "ptDecor": "perso",
+    "ptDecorChoix": "[{\"assemblage\":\"coeurs\",\"forme\":\"coeur\",\"rythme\":\"unSurDeux\"}]",
+    "ptBouts": "bouton",
+    "ptBarreauxDeco": "torsade",
+    "ptPointes": true
+   },
+   "prix": 3660,
+   "alertes": 0,
+   "poids": 90
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMat": "acier",
+    "ptP": 1000,
+    "ptDecor": "perso",
+    "ptDecorChoix": "[{\"assemblage\":\"frise\",\"forme\":\"C\",\"rythme\":\"alterne\",\"forme2\":\"S\"}]"
+   },
+   "prix": 1920,
+   "alertes": 0,
+   "poids": 38
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptMoulure": true
+   },
+   "prix": 3060,
+   "alertes": 0,
+   "poids": 110
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptSoub": "plein",
+    "ptHSoub": 500,
+    "ptMoulure": true
+   },
+   "prix": 3270,
+   "alertes": 0,
+   "poids": 44
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "rosace",
+    "ptP": 1000,
+    "ptMoulure": true
+   },
+   "prix": 1670,
+   "alertes": 0,
+   "poids": 34
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "plein",
+    "ptP": 1000
+   },
+   "o": {
+    "complement": true
+   },
+   "prix": 1120,
+   "alertes": 0,
+   "poids": 18
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptP": 1000
+   },
+   "o": {
+    "complement": true
+   },
+   "prix": 1150,
+   "alertes": 0,
+   "poids": 26
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "rosace",
+    "ptP": 1000
+   },
+   "o": {
+    "complement": true
+   },
+   "prix": 1060,
+   "alertes": 0,
+   "poids": 34
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "volutes",
+    "ptP": 1000
+   },
+   "o": {
+    "complement": true
+   },
+   "prix": 1740,
+   "alertes": 0,
+   "poids": 55
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "plein"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 2250,
+   "alertes": 0,
+   "poids": 61
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "lamesChene"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 2570,
+   "alertes": 0,
+   "poids": 95
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 2090,
+   "alertes": 0,
+   "poids": 33
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "rosace"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 2160,
+   "alertes": 0,
+   "poids": 110
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "volutes"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 4090,
+   "alertes": 0,
+   "poids": 179
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "plein"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 2280,
+   "alertes": 0,
+   "poids": 64
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "lamesChene"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 2410,
+   "alertes": 0,
+   "poids": 103
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "barreaux"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 2090,
+   "alertes": 0,
+   "poids": 33
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "rosace"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 2200,
+   "alertes": 0,
+   "poids": 112
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "volutes"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 4280,
+   "alertes": 0,
+   "poids": 191
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "plein"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 3170,
+   "alertes": 0,
+   "poids": 63
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "lamesChene"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 3300,
+   "alertes": 0,
+   "poids": 93
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "barreaux"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 2890,
+   "alertes": 0,
+   "poids": 39
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "rosace"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 2920,
+   "alertes": 0,
+   "poids": 121
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "volutes"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 4990,
+   "alertes": 0,
+   "poids": 184
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "plein",
+    "ptP": 1000
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 1120,
+   "alertes": 0,
+   "poids": 18
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptP": 1000
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 1150,
+   "alertes": 0,
+   "poids": 26
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptP": 1000
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 1030,
+   "alertes": 0,
+   "poids": 10
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "rosace",
+    "ptP": 1000
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 1120,
+   "alertes": 0,
+   "poids": 34
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "volutes",
+    "ptP": 1000
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 1810,
+   "alertes": 0,
+   "poids": 55
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "plein"
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 2320,
+   "alertes": 0,
+   "poids": 61
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "lamesChene"
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 2640,
+   "alertes": 0,
+   "poids": 95
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux"
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 2160,
+   "alertes": 0,
+   "poids": 33
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "rosace"
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 2230,
+   "alertes": 0,
+   "poids": 110
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "volutes"
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 4180,
+   "alertes": 0,
+   "poids": 179
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "plein"
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 2480,
+   "alertes": 0,
+   "poids": 64
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "lamesChene"
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 2610,
+   "alertes": 0,
+   "poids": 103
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "barreaux"
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 2300,
+   "alertes": 0,
+   "poids": 33
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "rosace"
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 2400,
+   "alertes": 0,
+   "poids": 112
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "volutes"
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 4520,
+   "alertes": 0,
+   "poids": 191
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "plein"
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 3320,
+   "alertes": 0,
+   "poids": 63
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "lamesChene"
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 3450,
+   "alertes": 0,
+   "poids": 93
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "barreaux"
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 3040,
+   "alertes": 0,
+   "poids": 39
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "rosace"
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 3070,
+   "alertes": 0,
+   "poids": 121
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "volutes"
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 5170,
+   "alertes": 0,
+   "poids": 184
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "plein",
+    "ptP": 1000
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 1160,
+   "alertes": 0,
+   "poids": 18
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "lamesChene",
+    "ptP": 1000
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 1180,
+   "alertes": 0,
+   "poids": 26
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptP": 1000
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 1060,
+   "alertes": 0,
+   "poids": 10
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "rosace",
+    "ptP": 1000
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 1150,
+   "alertes": 0,
+   "poids": 34
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "volutes",
+    "ptP": 1000
+   },
+   "o": {
+    "reception": "transporteur"
+   },
+   "prix": 1850,
+   "alertes": 0,
+   "poids": 55
+  }
+ ]
+}

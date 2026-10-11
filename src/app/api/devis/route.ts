@@ -1,6 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { canNotifyOwner, ownerEmail, sendEmail } from "@/lib/email";
-import { creerLimite } from "@/lib/limite-debit";
+import { compter, etiquettesOrigine } from "@/lib/compteurs";
+import { lignesOrigine, lireConnu, nettoyerProvenance } from "@/lib/provenance";
+import { creerLimite, creerLimiteParCle } from "@/lib/limite-debit";
 import { origineEtrangere } from "@/lib/origine";
 import { EMAIL_VALIDE, MAX_TEXTE, envoiTropRapide, fichiersTropLourds } from "@/lib/devis-regles";
 
@@ -68,6 +70,24 @@ function nomDeFichier(nom: string, extension: string) {
  */
 const tooManyRequests = creerLimite({ fenetreMs: 10 * 60 * 1000, maximum: 3 });
 
+/**
+ * L'accusé de réception part vers l'adresse TAPÉE dans le formulaire, qui
+ * n'est pas vérifiée : n'importe qui peut y mettre celle d'un inconnu. Trois
+ * accusés par adresse et par jour au plus ; au-delà, la demande arrive quand
+ * même à l'atelier, seul l'accusé est sauté.
+ */
+const tropDAccuses = creerLimiteParCle({ fenetreMs: 24 * 60 * 60 * 1000, maximum: 3 });
+
+/**
+ * Le nom tel qu'il entre dans l'OBJET du mail de l'atelier : des lettres, des
+ * espaces, des traits d'union et des apostrophes, 40 signes. Un nom n'a ni
+ * chiffres, ni deux-points, ni adresse web ; sans ce tri, le champ servait à
+ * écrire « URGENT Stripe : compte suspendu, appelez le 06… » en objet.
+ */
+function nomPourObjet(nom: string) {
+  return nom.replace(/[^\p{L} '’-]+/gu, " ").replace(/\s+/g, " ").trim().slice(0, 40) || "sans nom";
+}
+
 /** Réception d'une demande de devis : validation puis envoi par e-mail. */
 export async function POST(request: Request) {
   // Un site tiers ne doit pas pouvoir poster des demandes par le navigateur
@@ -113,12 +133,32 @@ export async function POST(request: Request) {
     false
   );
   const locale = String(form.get("locale") ?? "") === "en" ? "en" : "fr";
+  /** Le formulaire de la page Rendez-vous, ou celui de la page Contact. */
+  const rendezVous = String(form.get("formulaire") ?? "") === "rendez-vous";
+  /**
+   * La photo du tableau d'un garde-corps (photo-tableau.tsx, décision de Quentin du 07/10/2026) : une photo, et le relevé
+   * du client en message. Mêmes contrôles ; seuls l'objet et l'accusé changent.
+   */
+  const photoTableau = String(form.get("formulaire") ?? "") === "photo-tableau";
+  // D'où vient le prospect : sa réponse au menu (facultative) et le lien
+  // marqué par lequel il est arrivé, revérifiés ici — seules les valeurs
+  // connues passent (src/lib/provenance.ts).
+  const connu = lireConnu(form.get("connu"));
+  const provenance = nettoyerProvenance({
+    source: form.get("utm_source"),
+    support: form.get("utm_medium"),
+    campagne: form.get("utm_campaign"),
+    annonceGoogle: form.get("annonce_google") === "1",
+  });
 
   if (!name || !city || !message || !EMAIL_VALIDE.test(email)) {
     return NextResponse.json({ error: "invalid" }, { status: 400 });
   }
 
   const files = form.getAll("files").filter((f): f is File => f instanceof File && f.size > 0);
+  if (photoTableau && files.length === 0) {
+    return NextResponse.json({ error: "invalid" }, { status: 400 });
+  }
   if (fichiersTropLourds(files)) {
     return NextResponse.json({ error: "too_big" }, { status: 413 });
   }
@@ -150,17 +190,21 @@ export async function POST(request: Request) {
     `Ville : ${city}`,
     project && `Type de projet : ${project}`,
     creneau && `Créneau souhaité : ${creneau}`,
+    rendezVous && "Formulaire : page Rendez-vous",
+    photoTableau && "Formulaire : photo du tableau (garde-corps de fenêtre)",
     // Pour répondre dans la langue du prospect sans avoir à la deviner.
     `Langue : ${locale.toUpperCase()}`,
+    ...lignesOrigine(connu, provenance),
     "",
     message,
   ].filter(Boolean);
 
   const sent = await sendEmail({
     to: ownerEmail(),
-    // L'objet est figé : le nom du visiteur ne doit pas pouvoir le maquiller en
-    // « URGENT — Stripe : votre compte va être suspendu ».
-    subject: `Demande de devis — ${name.slice(0, 60)}${project ? ` (${project})` : ""}`,
+    // Le nom du visiteur ne doit pas pouvoir maquiller l'objet en « URGENT —
+    // Stripe : votre compte va être suspendu » : il n'y entre que trié, et le
+    // type de projet (texte libre lui aussi) reste dans le corps du message.
+    subject: photoTableau ? `Photo du tableau (garde-corps) — ${nomPourObjet(name)}` : `Demande de devis — ${nomPourObjet(name)}`,
     text: lines.join("\n"),
     // Répondre à cet e-mail écrit directement au prospect.
     replyTo: email,
@@ -170,17 +214,30 @@ export async function POST(request: Request) {
   if (!sent) {
     return NextResponse.json({ error: "send_failed" }, { status: 502 });
   }
+  // Une demande de plus au compteur, une fois la réponse partie : sans un
+  // mot de ce que le prospect a écrit (src/lib/compteurs.ts).
+  // Une photo de tableau n'est pas une demande de devis : elle ne compte pas parmi elles.
+  if (!photoTableau) after(() => compter(rendezVous ? "demande_rendez_vous" : "demande_devis", etiquettesOrigine(connu, provenance), request));
 
   // Accusé de réception au prospect, dans SA langue. On l'attend : sur Vercel,
   // la fonction peut être arrêtée dès qu'elle a répondu, et un envoi lancé sans
   // être attendu ne part parfois jamais — le prospect voit « demande envoyée »
   // et ne reçoit rien. Son échec, lui, ne remet toujours pas la demande en cause.
-  const accuse =
-    locale === "en"
+  //
+  // Il ne reprend AUCUN texte tapé par le visiteur, pas même son nom : il part
+  // vers une adresse que personne n'a vérifiée, et « Bonjour <nom> » permettait
+  // d'envoyer « Bonjour Gagnez 500 € sur arnaque.tld » à un inconnu, depuis
+  // notre domaine.
+  if (tropDAccuses(email.toLowerCase(), Date.now())) return NextResponse.json({ ok: true });
+  const accuse = photoTableau
+    ? locale === "en"
+      ? { subject: "Your reveal photo — Auboiacier", text: ["Hello,", "", "We have received the photo of your reveal. We will write to you if the fixing needs a change.", "", "Auboiacier — wood, steel & light"] }
+      : { subject: "La photo de votre tableau — Auboiacier", text: ["Bonjour,", "", "Nous avons bien reçu la photo de votre tableau. Nous vous écrivons si la fixation demande un changement.", "", "Auboiacier — bois, acier & lumière"] }
+    : locale === "en"
       ? {
           subject: "Your quote request — Auboiacier",
           text: [
-            `Hello ${name},`,
+            "Hello,",
             "",
             "We have received your request and will get back to you within 48 hours.",
             "",
@@ -190,7 +247,7 @@ export async function POST(request: Request) {
       : {
           subject: "Votre demande de devis — Auboiacier",
           text: [
-            `Bonjour ${name},`,
+            "Bonjour,",
             "",
             "Nous avons bien reçu votre demande et nous vous répondons sous 48 heures.",
             "",

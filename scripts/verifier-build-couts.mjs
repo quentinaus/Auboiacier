@@ -15,6 +15,8 @@ import { chainesSecretes, FONCTIONS_SERVEUR, secretsDans } from "./outil-plans/s
 import { texteDuChiffrage } from "../src/lib/garde-corps-outil/chiffrage.ts";
 import { lireCle } from "../src/lib/garde-corps-outil/coffre.ts";
 import { CHIFFRE } from "../src/lib/garde-corps-outil/chiffrage.chiffre.mjs";
+import { CHIFFRE as CHIFFRE_PORTAILS } from "../src/lib/portails-outil/chiffrage.chiffre.mjs";
+import { dechiffrer } from "../src/lib/garde-corps-outil/coffre.ts";
 
 const RACINE = fileURLToPath(new URL("..", import.meta.url));
 const NEXT = join(RACINE, ".next");
@@ -30,7 +32,25 @@ if (!corps) {
 const { valeurs, noms } = chainesSecretes(corps);
 const cle = lireCle(RACINE).toString("base64");
 const morceauxChiffre = CHIFFRE.split(".").slice(1).map((m) => m.slice(0, 32));
-const cherchees = [...valeurs, ...noms, ...FONCTIONS_SERVEUR, cle, ...morceauxChiffre];
+// Les portails (06/10/2026) : même coffre. Leurs tarifs (désignations, fournisseurs, sources) et les noms de leur chiffrage.
+const clairPortails = dechiffrer(CHIFFRE_PORTAILS, lireCle(RACINE));
+// Morceaux de sources qui sont des mots courants du site, pas des indices (« La Mine de Fer (en ligne) » → « en ligne »).
+const BANALS_PORTAILS = new Set(["en ligne", "à trouver", "sur devis", "Estimation", "estimation", "Chêne massif"]);
+const valeursPortails = new Set();
+// Seulement dans les tarifs (TARIFS_ACHATS) : ailleurs, « nom » est le nom public d'un modèle (« Portail battant »).
+const tarifsPortails = clairPortails.slice(clairPortails.indexOf("const TARIFS_ACHATS = {"), clairPortails.indexOf("\n};", clairPortails.indexOf("const TARIFS_ACHATS = {")));
+for (const m of tarifsPortails.matchAll(/(nom|src): "([^"]+)"/g)) {
+  // Une désignation se cherche entière ; une source se découpe (un fournisseur cité seul est un indice).
+  for (const x of m[1] === "nom" ? [m[2]] : [m[2], ...m[2].split(/[·,()]/).map((y) => y.trim())]) if (x.length >= 8 && /[A-Za-zÀ-ÿ]/.test(x) && !/^\d/.test(x) && !BANALS_PORTAILS.has(x)) valeursPortails.add(x);
+}
+// Le moteur des portails est public par construction (le plan liste ses matières : « Tôle acier 2 mm », « Guide haut à
+// rouleaux »…) et vérifié sans prix (tests/portails.test.ts) : ses mots ne sont pas des indices. Les fournisseurs et
+// les sources, eux, n'y sont jamais.
+const moteurPortails = readFileSync(join(RACINE, "src/lib/portails-outil/moteur.genere.mjs"), "utf8");
+for (const x of [...valeursPortails]) if (moteurPortails.includes(x)) valeursPortails.delete(x);
+const nomsPortails = ["chiffrerPortail", "recettePortail", "ptcCaisse", "PTC_TEMPS", "PTC_CLES", "PTC_PROFILS", "PTC_CONSEIL", "TARIFS_ACHATS"];
+const morceauxPortails = CHIFFRE_PORTAILS.split(".").slice(1).map((m) => m.slice(0, 32));
+const cherchees = [...valeurs, ...noms, ...FONCTIONS_SERVEUR, cle, ...morceauxChiffre, ...valeursPortails, ...nomsPortails, ...morceauxPortails];
 
 function fichiers(dossier, garder) {
   if (!existsSync(dossier)) return [];

@@ -1,0 +1,3 @@
+// FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : types du devis du portail.
+export type DevisPortailGenere = { nature: string; numero: string; date: string; validite: string | null; piece: { nom: string; accroche: string; caracteristiques: { label: string; value: string }[] }; lignes: { designation: string; details: string[]; quantite: number; unitaire: number; total: number; titre?: boolean }[]; total: number; delai: string; conditions: string[]; encarts: { titre: string; lignes: string[] }[]; acompte: { texte: string; montant: number; solde: number } | null };
+export declare function fabriqueDevisPortail(ds: Record<string, unknown>): { composerDevisPortail: (p: Record<string, unknown>) => { ok: true; devis: DevisPortailGenere } | { ok: false; raison: string } };

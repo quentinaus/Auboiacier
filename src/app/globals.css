@@ -12,6 +12,13 @@
   --color-foreground: var(--foreground);
 }
 
+/* La largeur des pages, définie une seule fois pour tout le site (09/10/2026, Quentin : « pourquoi tu n'utilises pas toute
+   la page ? »). « max-w-6xl » valait 1152 px : c'est maintenant 1680 px (menu, pied de page et pages alignés). Les blocs
+   de texte gardent leur propre largeur étroite : une ligne de lecture ne s'allonge pas. */
+@theme {
+  --container-6xl: 105rem;
+}
+
 
 body {
   background: var(--background);
@@ -132,6 +139,131 @@ textarea:focus-visible,
  *  (grisé) reste géré au cas par cas par chaque bouton : lui seul sait
  *  s'il doit aussi couper le flou et l'ombre.
  * ------------------------------------------------------------------ */
+/* Le style des boutons et des accroches, façon Apple (Quentin, 06/10/2026 : « plus premium, plus Apple, moins IA ») :
+   des phrases normales, sans petites capitales espacées ; un seul bouton plein par bloc, les autres en lien fléché. */
+.surtitre {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: #8a6233;
+}
+@media (min-width: 768px) {
+  .surtitre {
+    font-size: 15px;
+  }
+}
+.btn-plein,
+.btn-clair,
+.btn-contour {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  border-radius: 10px;
+  padding: 0.78rem 1.45rem;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@media (min-width: 768px) {
+  .btn-plein,
+  .btn-clair,
+  .btn-contour {
+    font-size: 17px;
+    padding: 0.85rem 1.6rem;
+  }
+}
+.btn-plein {
+  background: #1d1d1f;
+  color: #ffffff;
+}
+.btn-plein:hover {
+  background: #000000;
+}
+.btn-clair {
+  background: #ffffff;
+  color: #1d1d1f;
+}
+.btn-clair:hover {
+  background: #f2efe9;
+}
+/* Le premier écran de l'accueil sur téléphone : le texte est sous la photo, sur blanc ; le bouton blanc devient plein. */
+@media (max-width: 767px) {
+  .hero-accueil .btn-clair {
+    background: #1d1d1f;
+    color: #ffffff;
+  }
+}
+/* L'ACCUEIL, SANS PILULES (Quentin, 07/10/2026 : « j'aime pas les boutons en forme de pilule, ça fait trop IA ») : angles droits,
+   et sur la photo du premier écran, un trait blanc fin — le même que celui qui sépare les trois photos. Seulement
+   l'accueil : les autres pages gardent leurs boutons. */
+.accueil-droit .btn-plein,
+.accueil-droit .btn-clair,
+.accueil-droit .btn-contour {
+  border-radius: 0;
+}
+@media (min-width: 768px) {
+  .accueil-droit .hero-accueil .btn-clair {
+    background: transparent;
+    color: #ffffff;
+    border: 1px solid #ffffff;
+    padding: 0.8rem 1.9rem;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .accueil-droit .hero-accueil .btn-clair:hover {
+    background: #ffffff;
+    color: #1d1d1f;
+  }
+}
+.btn-contour {
+  border: 1px solid rgba(29, 29, 31, 0.28);
+  color: #1d1d1f;
+}
+.btn-contour:hover {
+  border-color: #1d1d1f;
+}
+:is(.btn-plein, .btn-clair, .btn-contour):active {
+  transform: scale(0.97);
+}
+/* Le lien fléché : le texte et un chevron qui avance au survol. */
+.lien-fleche {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+@media (min-width: 768px) {
+  .lien-fleche {
+    font-size: 17px;
+  }
+}
+.lien-fleche::after {
+  content: "\203A";
+  font-size: 1.25em;
+  line-height: 1;
+  transform: translateY(-0.04em);
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.lien-fleche:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+:is(.lien-fleche:hover, .group:hover .lien-fleche)::after {
+  transform: translate(0.18em, -0.04em);
+}
+
 .btn-verre {
   background: rgba(43, 35, 32, 0.76);
   backdrop-filter: blur(16px) saturate(1.5);
@@ -198,10 +330,232 @@ textarea:focus-visible,
     padding: 32px 36px;
   }
 }
-/* Le garde-corps en trois colonnes : la plaque est plus serrée pour donner sa place au GRAND croquis (demande de Quentin). */
-@media (min-width: 80rem) {
+/* Le garde-corps (tablette et plus) : la plaque est plus serrée pour donner sa place au GRAND croquis (demande de Quentin). */
+@media (min-width: 48rem) {
   .fond-configuration.fond-gc {
     padding: 22px 22px;
+  }
+}
+/* Tables et plafonds sur tablette en hauteur (768 à 1024 px) : le croquis est en haut, sur toute la largeur ; il garde
+   la place de la carte des choix dessous. */
+@media (min-width: 48rem) and (max-width: 63.999rem) {
+  .fond-configuration:not(.fond-gc) .schema-configuration svg {
+    max-height: 34svh;
+  }
+}
+/* Téléphone : en arrivant près du bloc Configuration, la page s'y cale d'elle-même (aimant doux, « proximity ») : le bloc
+   remplit alors exactement l'écran. Sans lui, la page s'arrêtait à mi-chemin (capture de Quentin, 05/10). */
+@media (max-width: 47.999rem) {
+  html:has(#configuration) {
+    scroll-snap-type: y proximity;
+  }
+  #configuration {
+    scroll-snap-align: start;
+  }
+}
+/* Téléphone, garde-corps : UNE QUESTION À LA FOIS (etapes-telephone.tsx, product-view.tsx). Une seule étape à l'écran
+   sous le croquis : 1 à 6 les questions (la carte des mesures n'y montre que la question posée), 7 les finitions,
+   8 les modèles, 9 la colonne du prix. La question est écrite en grand dans l'en-tête : les petits titres de la carte
+   s'effacent. */
+/* (Aussi le téléphone TOURNÉ : MEDIA_TELEPHONE_GC, etapes-telephone.tsx.) */
+@media (max-width: 47.999rem), (orientation: landscape) and (max-height: 31.25rem) and (max-width: 63.999rem) {
+  .fond-gc[data-parcours="1"] .panneau-etape {
+    display: none !important;
+  }
+  .fond-gc[data-parcours="1"][data-etape="1"] .panneau-etape.etape-1,
+  .fond-gc[data-parcours="1"][data-etape="2"] .panneau-etape.etape-2,
+  .fond-gc[data-parcours="1"][data-etape="3"] .panneau-etape.etape-3,
+  .fond-gc[data-parcours="1"][data-etape="4"] .panneau-etape.etape-4,
+  .fond-gc[data-parcours="1"][data-etape="5"] .panneau-etape.etape-5,
+  .fond-gc[data-parcours="1"][data-etape="6"] .panneau-etape.etape-6,
+  .fond-gc[data-parcours="1"][data-etape="7"] .panneau-etape.etape-7,
+  .fond-gc[data-parcours="1"][data-etape="8"] .panneau-etape.etape-8,
+  .fond-gc[data-parcours="1"][data-etape="9"] .panneau-etape.etape-9,
+  .fond-gc[data-parcours="1"][data-etape="10"] .panneau-etape.etape-10 {
+    display: flex !important;
+    flex-direction: column;
+  }
+  /* À l'étape « Prix » sur téléphone, la livraison et sa case « code postal » viennent en premier, juste sous le prix :
+     la case était cachée sous la barre d'achat, dans une zone à faire défiler (Quentin, 10/10/2026 : « je ne vois pas
+     l'endroit pour l'adresse, je dois aller dans le sous-menu »). Le reste (conforme, fixation, plan) suit la barre. */
+  .fond-gc[data-parcours="1"] .panneau-etape.etape-10 > .mb-auto {
+    order: 10;
+    margin-top: 1rem;
+    margin-bottom: 0;
+  }
+  /* La case du code postal est juste au-dessus : le lien « Indiquez votre code postal… » de la barre ne sert plus et prenait
+     la place qui la cachait. */
+  .fond-gc[data-parcours="1"] .panneau-etape.etape-10 .barre-achat a[href="#livraison"] {
+    display: none;
+  }
+  /* Les trois façons de recevoir la pièce (« Livré par transporteur », « Livrée et posée », « Retrait à l'atelier ») tiennent
+     AU-DESSUS de la barre d'achat, sans défiler : la barre collée en bas en cachait deux (10/10/2026). Le petit titre
+     « Livraison, pose ou retrait » s'efface (l'en-tête dit déjà « Choisissez la livraison ») et la barre se resserre. */
+  .fond-gc[data-parcours="1"] .panneau-etape.etape-10 #sous-menu-livraison > span {
+    display: none;
+  }
+  .fond-gc[data-parcours="1"] .panneau-etape.etape-10 #sous-menu-livraison > div {
+    margin-top: 0;
+  }
+  .fond-gc[data-parcours="1"] .panneau-etape.etape-10 .barre-achat {
+    margin-top: 0.5rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.55rem;
+  }
+  .fond-gc[data-parcours="1"] .panneau-etape.etape-10 .barre-achat > div {
+    gap: 0.25rem;
+  }
+  /* Le bouton « Ajouter au panier » : le même dessin que « Suivant → » sous les questions (en toutes lettres, pas en
+     petites capitales espacées — Quentin, 10/10/2026 : « le bouton est moche »). */
+  .fond-gc[data-parcours="1"] .panneau-etape.etape-10 .barre-achat .btn-verre {
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  /* « ← Retour : Modèle » redit l'onglet « Modèle » juste au-dessus : sans lui, les trois lignes tiennent au-dessus de la
+     barre même sur un petit téléphone (iPhone SE, 667 px de haut). */
+  .fond-gc[data-parcours="1"] .panneau-etape.etape-10 .retour-modele {
+    display: none;
+  }
+  .fond-gc[data-parcours="1"] .panneau-etape.etape-10 #sous-menu-livraison {
+    margin-top: 0;
+    border-top: 0;
+    padding-top: 0.25rem;
+  }
+  /* À l'étape « Prix », le croquis cède quelques centimètres : la case du code postal, les trois lignes et la barre d'achat
+     tiennent dessous sans défiler. */
+  .fond-gc[data-parcours="1"][data-etape="10"] .schema-configuration > div {
+    --h: clamp(150px, calc(100svh - 590px), 28svh);
+  }
+  .fond-gc[data-parcours="1"]:not([data-en-place]) > .panneau-etape {
+    overflow-y: hidden !important;
+  }
+  .fond-gc[data-parcours="1"] .colonne-cotes .titre-mesures,
+  .fond-gc[data-parcours="1"] .colonne-cotes .consigne-cotes,
+  .fond-gc[data-parcours="1"] .colonne-cotes .note-qui {
+    display: none !important;
+  }
+  /* Petits téléphones (iPhone SE…) : le croquis rétrécit avec la hauteur de l'écran, pour laisser à l'étape la place de
+     ses cases (34 % de la hauteur au plus, 150 px au moins). */
+  .fond-gc[data-parcours="1"] .schema-configuration > div {
+    --h: clamp(150px, calc(100svh - 540px), 34svh);
+  }
+  /* Le doigt dans une case : le clavier va couvrir le bas de l'écran. Le croquis se fait plus petit pour rester visible
+     au-dessus de lui, avec la case ; l'aide s'efface. */
+  .fond-gc[data-parcours="1"][data-clavier="1"] .schema-configuration > div {
+    --h: clamp(120px, 21svh, 180px);
+  }
+  .fond-gc[data-parcours="1"][data-clavier="1"] .aide-question,
+  .fond-gc[data-parcours="1"][data-clavier="1"] .qui-mesure-question {
+    display: none;
+  }
+  .fond-gc[data-parcours="1"][data-clavier="1"] .ok-clavier {
+    display: flex;
+  }
+  /* Étape « Modèle » : les modèles d'abord, les réglages Barreaux et Traverse (des raccourcis) ensuite. */
+  .fond-gc[data-parcours="1"] .etape-9 .carte-modeles {
+    display: flex;
+    flex-direction: column;
+  }
+  /* La consigne « Choisissez votre modèle » est déjà écrite en grand dans l'en-tête. */
+  .fond-gc[data-parcours="1"] .etape-9 .carte-modeles > .titre-catalogue {
+    display: none;
+  }
+  /* Pendant le calcul, la rangée des réglages ne porte qu'un petit titre « Votre modèle » : inutile sous l'en-tête. */
+  .fond-gc[data-parcours="1"] .etape-9 .carte-modeles > .controles-famille:not(:has(button)) {
+    display: none;
+  }
+  .fond-gc[data-parcours="1"] .etape-9 .carte-modeles > .controles-famille {
+    order: 1;
+    margin-top: 0.75rem;
+  }
+}
+/* Téléphone TOURNÉ (paysage, 500 px de haut au plus) : le même parcours en questions, en deux colonnes — le croquis à
+   gauche, sur toute la hauteur ; la question, sa carte et ses boutons à droite. Plus large que 48 rem, il recevait la
+   mise en page tablette, trop haute : les cartes étaient coupées (demande de Quentin). Les classes « md: » de Tailwind
+   valent ici : ces règles, hors couche, passent devant. */
+@media (orientation: landscape) and (max-height: 31.25rem) and (max-width: 63.999rem) {
+  /* (Pas tant que « Qui prend les mesures ? » couvre la plaque : ses deux cartes ont besoin de leur hauteur.) */
+  #configuration:has(.fond-gc[data-parcours="1"]):not(:has(.porte-qui)) {
+    height: 100svh;
+    min-height: 0;
+    padding: 6px 10px;
+    scroll-margin-top: 0;
+    scroll-snap-align: start;
+  }
+  #configuration:has(.fond-gc[data-parcours="1"]):not(:has(.porte-qui)) > .mt-3 {
+    display: none;
+  }
+  /* L'aimant du téléphone debout : en arrivant près du bloc, la page s'y cale. */
+  html:has(.fond-gc[data-parcours="1"]) {
+    scroll-snap-type: y proximity;
+  }
+  /* La colonne du prix est basse : la barre d'achat n'y reste pas collée, la livraison passe au-dessus d'elle. */
+  .fond-gc[data-parcours="1"] .colonne-achat .barre-achat {
+    position: static;
+  }
+  .fond-configuration.fond-gc[data-parcours="1"] {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    column-gap: 14px;
+    row-gap: 8px;
+    padding: 10px 14px;
+  }
+  /* Le titre « Configuration » cède sa place : la question, à droite, dit où l'on en est, et le croquis prend toute la
+     hauteur à gauche. */
+  .fond-gc[data-parcours="1"] > .titre-config {
+    display: none;
+  }
+  .fond-gc[data-parcours="1"] > .croquis-config {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .fond-gc[data-parcours="1"] .schema-configuration {
+    height: 100%;
+  }
+  .fond-gc[data-parcours="1"] .schema-configuration > div,
+  .fond-gc[data-parcours="1"][data-clavier="1"] .schema-configuration > div {
+    --h: calc(100svh - 34px);
+    width: auto;
+  }
+  .fond-gc[data-parcours="1"] .schema-configuration svg {
+    max-height: none;
+  }
+  .fond-gc[data-parcours="1"] > .entete-tel {
+    grid-column: 2;
+    grid-row: 1;
+    display: block;
+  }
+  .fond-gc[data-parcours="1"] > .panneau-etape {
+    grid-column: 2;
+    grid-row: 2;
+    min-height: 0;
+  }
+  .fond-gc[data-parcours="1"] > .panneau-etape:not(.etape-10) {
+    padding-bottom: 12px;
+  }
+  .fond-gc[data-parcours="1"] > .nav-tel {
+    grid-column: 2;
+    grid-row: 3;
+    display: block;
+  }
+  .fond-gc[data-parcours="1"] > .nav-tel:empty {
+    display: none;
+  }
+  /* La colonne du prix n'a pas de boutons dessous : elle prend aussi leur place. */
+  .fond-gc[data-parcours="1"] > .panneau-etape.etape-10 {
+    grid-row: 2 / span 2;
+  }
+  .fond-gc[data-parcours="1"] .retour-modele {
+    display: inline-block;
   }
 }
 /* Le croquis remplit sa colonne, sans jamais dépasser la hauteur de la plaque. */
@@ -479,12 +833,12 @@ textarea:focus-visible,
 }
 .curseur-cote::-webkit-slider-runnable-track {
   height: 6px;
-  border-radius: 999px;
+  border-radius: 10px;
   background: rgba(43, 35, 32, 0.14);
 }
 .curseur-cote::-moz-range-track {
   height: 6px;
-  border-radius: 999px;
+  border-radius: 10px;
   background: rgba(43, 35, 32, 0.14);
 }
 .curseur-cote::-webkit-slider-thumb {
@@ -492,7 +846,7 @@ textarea:focus-visible,
   margin-top: -7px;
   height: 20px;
   width: 20px;
-  border-radius: 999px;
+  border-radius: 10px;
   border: 2px solid #fff;
   background: #2b2320;
   box-shadow: 0 1px 3px rgba(43, 35, 32, 0.45);
@@ -500,7 +854,7 @@ textarea:focus-visible,
 .curseur-cote::-moz-range-thumb {
   height: 20px;
   width: 20px;
-  border-radius: 999px;
+  border-radius: 10px;
   border: 2px solid #fff;
   background: #2b2320;
   box-shadow: 0 1px 3px rgba(43, 35, 32, 0.45);
@@ -554,17 +908,34 @@ textarea:focus-visible,
 }
 
 /* ------------------------------------------------------------------ *
- *  Le garde-corps sur grand écran : trois colonnes qui tiennent sur UN écran,
- *  titre compris (product-view.tsx). On serre ce qui peut l'être, sans rien
- *  retirer : les mêmes blocs, avec moins d'air.
+ *  Le garde-corps sur tablette et grand écran : des colonnes qui tiennent sur
+ *  UN écran, titre compris (product-view.tsx). On serre ce qui peut l'être,
+ *  sans rien retirer : les mêmes blocs, avec moins d'air.
  * ------------------------------------------------------------------ */
-@media (min-width: 80rem) {
+@media (min-width: 48rem) {
+  /* La consigne « cotes exactes d'un mur à l'autre : l'atelier calcule celle du garde-corps » reste écrite, en petit
+     (Quentin, 05/10 : « bien préciser qu'il faut les cotes exactes »). */
   .colonne-cotes .consigne-cotes {
-    display: none; /* « sans rien retirer : l'atelier prend le jeu » est dit dans la bulle « i » de chaque cote */
+    font-size: 11.5px;
   }
   /* La phrase sous « qui mesure » : en trop dans la colonne serrée (le bouton dit déjà « prix immédiat »). */
-  .colonne-cotes [id="cotes"] > div > p:not([role]) {
+  .fond-gc:not([data-parcours="1"]) .colonne-cotes [id="cotes"] > div > p:not([role]):not(.aide-question) {
     display: none;
+  }
+  /* Ordinateur et tablette, une question à la fois (09/10/2026) : l'explication est écrite, plus de bulle ; la case et le
+     curseur se font plus petits que sur téléphone pour que tout tienne dans la colonne. */
+  .fond-gc:not([data-parcours="1"]) .colonne-cotes .info-question {
+    margin-top: 0.45rem;
+    font-size: 11.5px;
+  }
+  .fond-gc:not([data-parcours="1"]) .colonne-cotes .case-question {
+    height: 2.75rem;
+  }
+  .fond-gc:not([data-parcours="1"]) .colonne-cotes .case-question input {
+    font-size: 20px;
+  }
+  .fond-gc:not([data-parcours="1"]) .colonne-cotes .curseur-question {
+    margin-top: 0.5rem;
   }
   .colonne-achat #livraison label,
   .colonne-achat #livraison span {
@@ -600,7 +971,7 @@ textarea:focus-visible,
 
 /* Fenêtres de moins de 900 px de haut : la carte des mesures reprend toute la hauteur (le bandeau ne couvre plus que le milieu),
    et les visuels du bandeau rapetissent. */
-@media (min-width: 80rem) and (max-height: 900px) {
+@media (min-width: 64rem) and (max-height: 900px) {
   .colonne-cotes {
     grid-row: 2 / span 2;
   }
@@ -611,22 +982,29 @@ textarea:focus-visible,
     --mini-gc: 30px;
   }
 }
+/* Moins de 780 px : les raccourcis Barreaux / Traverse de la colonne d'achat cèdent la place au résultat et à la fixation
+   (09/10/2026) : la rangée des modèles, sous le croquis, a tous les dessins. */
+@media (min-width: 64rem) and (max-height: 780px) {
+  .colonne-achat .raccourcis-modele {
+    display: none;
+  }
+}
 /* Moins de 780 px : on retire aussi la ligne « fenêtre large » (elle reste dans la bulle de la norme) et le titre de la livraison. */
-@media (min-width: 80rem) and (max-height: 780px) {
+@media (min-width: 64rem) and (max-height: 780px) {
   .colonne-achat .info-renfort,
   .colonne-achat #sous-menu-livraison > span {
     display: none; /* la phrase « fenêtre large » passe dans la bulle de la norme (releve-garde-corps.tsx) */
   }
 }
 /* Moins de 780 px : la carte des mesures n'écrit plus ses deux titres (« Vos mesures », « Qui prend les cotes ») : les choix se lisent seuls. */
-@media (min-width: 80rem) and (max-height: 780px) {
+@media (min-width: 64rem) and (max-height: 780px) {
   .colonne-cotes .titre-mesures,
   .colonne-cotes .intitule-qui {
     display: none;
   }
 }
 /* Moins de 780 px : les pilules segmentées sont un peu moins hautes. */
-@media (min-width: 80rem) and (max-height: 780px) {
+@media (min-width: 64rem) and (max-height: 780px) {
   .colonne-achat [role="radiogroup"] button,
   .colonne-cotes [role="radiogroup"] button,
   .colonne-cotes .grid button {
@@ -638,7 +1016,7 @@ textarea:focus-visible,
   }
 }
 /* Moins de 740 px : encore un peu d'air en moins dans la colonne d'achat. */
-@media (min-width: 80rem) and (max-height: 740px) {
+@media (min-width: 64rem) and (max-height: 740px) {
   .colonne-achat {
     padding-top: 0.6rem;
   }
@@ -656,64 +1034,398 @@ textarea:focus-visible,
     padding-top: 0.2rem;
     padding-bottom: 0.2rem;
   }
+  .colonne-cotes .consigne-cotes {
+    margin-top: 0.3rem;
+  }
 }
 
-/* Fenêtres peu hautes : la colonne d'achat ne défile jamais, on retire les phrases d'aide sous les choix (elles restent dans leur bulle). */
-@media (min-width: 80rem) and (max-height: 900px) {
+/* Entre 1024 et 1280 px (tablette à l'horizontale, petit portable) : les colonnes sont plus étroites, donc plus hautes.
+   La carte des mesures prend toute la hauteur (le bandeau des modèles ne passe que sous le croquis), et la colonne
+   d'achat se resserre un peu : rien ne défile (demande de Quentin, 05/10). */
+@media (min-width: 64rem) and (max-width: 79.999rem) {
+  .colonne-cotes {
+    grid-row: 2 / span 2;
+  }
+  .bandeau-gc {
+    grid-column: 2;
+  }
+  .colonne-achat {
+    padding-top: 0.7rem;
+  }
+  .colonne-achat .barre-achat {
+    margin-top: 0.25rem;
+  }
   .colonne-achat .legende-option,
   .colonne-achat .titre-options {
     display: none;
   }
 }
 
-/* « L'atelier s'occupe de tout » (releve-garde-corps.tsx, Serenite) : un peu de mouvement, très doux. */
-.serenite-soleil {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: serenite-tourner 28s linear infinite;
-}
-.serenite-vapeur path {
-  animation: serenite-vapeur 3.2s ease-in-out infinite;
-}
-.serenite-vapeur path + path {
-  animation-delay: 1.1s;
-}
-.serenite-etape {
-  animation: serenite-arriver 0.55s ease both;
-}
-@keyframes serenite-tourner {
-  to {
-    transform: rotate(360deg);
+/* Téléphone tourné à l'horizontale (large, mais moins de 500 px de haut) : le bloc garde la hauteur de l'écran, sans la
+   hauteur minimale des tablettes qui le faisait déborder de 226 px ; le croquis reste en haut, les cartes défilent dedans. */
+@media (min-width: 48rem) and (max-height: 31.25rem) {
+  #configuration {
+    height: 100svh;
+    min-height: 0;
+    scroll-margin-top: 0;
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
+  }
+  .fond-configuration,
+  .fond-configuration.fond-gc {
+    padding: 10px 14px;
+    row-gap: 6px;
+  }
+  /* « Une question sur cette pièce ? » sous la plaque : la place manque, le lien Contact reste dans l'en-tête. */
+  #configuration > .fond-configuration + * {
+    display: none;
   }
 }
-@keyframes serenite-vapeur {
-  0% {
+
+/* Ordinateur : le petit titre « Vos mesures » n'apprend rien dans la colonne des cotes (les trois cotes le disent) ; sans lui,
+   la colonne tient même quand la bande des modèles, en dessous, s'agrandit pour décrire le modèle choisi. */
+@media (min-width: 64rem) {
+  .colonne-cotes .titre-mesures {
+    display: none;
+  }
+}
+/* Ordinateur peu haut (800 px et moins) : la colonne d'achat se resserre de quelques pixels — le détail du modèle choisi et
+   le bouton « Être prévenu en priorité » avec sa phrase la faisaient dépasser de 14 à 18 px. */
+@media (min-width: 64rem) and (max-height: 800px) {
+  /* Les quatre cotes à curseur (les deux largeurs ont chacune le leur, Quentin 07/10) : la case un peu moins haute et collée
+     à son intitulé, pour que la carte des mesures tienne sans défiler jusqu'à 720 px de haut. */
+  .colonne-cotes div:has(> .curseur-cote) {
+    margin-top: 0.15rem;
+  }
+  .colonne-cotes .curseur-cote + span {
+    height: 2rem;
+  }
+  .colonne-achat .barre-achat > div {
+    gap: 0.35rem;
+  }
+  .colonne-achat .barre-achat > p {
+    margin-top: 0.25rem;
+  }
+  .colonne-achat #sous-menu-livraison {
+    margin-top: 0.25rem;
+    padding-top: 0.4rem;
+  }
+}
+
+/* Fenêtres peu hautes : la colonne d'achat ne défile jamais, on retire les phrases d'aide sous les choix (elles restent dans leur bulle). */
+@media (min-width: 64rem) and (max-height: 900px) {
+  .colonne-achat .legende-option,
+  .colonne-achat .titre-options {
+    display: none;
+  }
+}
+
+/* « L'atelier vient mesurer » (serenite-atelier.tsx) : le film du parcours en aplats (ses styles et ses mouvements
+   arrivent avec la scène, motion-aplat.genere.ts). Ici, seulement sa place dans le bloc. */
+.parcours-aplat.aplat-panel {
+  margin: 0;
+  max-width: none;
+  container-type: inline-size;
+}
+/* La légende tient sur une ligne quelle que soit la largeur du panneau (dans la carte, sous 1024 px, il est étroit). */
+.parcours-aplat.aplat-panel .aplat-cap {
+  font-size: clamp(14px, 5.4cqi, 22px);
+}
+.parcours-aplat .aplat-film {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.parcours-aplat .aplat-film .scene-aplat-dessin > svg {
+  width: 100%;
+  height: 100%;
+}
+/* Un film hors de l'écran s'arrête, et repart d'où il en était, toutes ses pièces ensemble (motion-aplat.tsx,
+   useHorsEcran) : sur iPhone, les films qui tournaient sans être vus ralentissaient celui qu'on regarde. */
+[data-hors-ecran],
+[data-hors-ecran] * {
+  animation-play-state: paused !important;
+}
+/* Tant que l'écran « Qui prend les mesures ? » couvre la plaque, le film attend : il commence au premier chapitre. */
+.fond-configuration:has(.porte-qui) .parcours-aplat,
+.fond-configuration:has(.porte-qui) .parcours-aplat * {
+  animation-play-state: paused !important;
+}
+
+/* ------------------------------------------------------------------ *
+ *  « Qui prend les mesures ? » (porte-qui-mesure.tsx) : l'écran de choix
+ *  posé sur la plaque Configuration du garde-corps, avant le configurateur.
+ * ------------------------------------------------------------------ */
+/* Tant que les cartes sont là, ce qu'elles recouvrent est caché, et hors d'atteinte du clavier. La plaque a la hauteur
+   de l'écran à toutes les tailles (« tout en bloc ») : l'écran de choix se pose dessus, sans rien pousser. */
+.fond-configuration:has(> .porte-slot > .porte-qui:is([data-etat="choix"], [data-etat="ouverture"])) > :not(.porte-slot) {
+  visibility: hidden;
+}
+/* La fiche du garde-corps s'ouvre sur l'écran de choix, sous l'en-tête du site (product-view.tsx, 09/10/2026). Une fois le
+   choix fait, le configurateur reprend la hauteur qu'il avait (l'écran moins une marge) : la fiche le cale alors en haut. */
+@media (min-width: 48rem) {
+  #configuration.fiche-gc:not(:has(.porte-qui:is([data-etat="choix"], [data-etat="ouverture"]))) {
+    height: calc(100dvh - 3.5rem);
+  }
+}
+@media (min-width: 64rem) {
+  #configuration.fiche-gc:not(:has(.porte-qui:is([data-etat="choix"], [data-etat="ouverture"]))) {
+    height: calc(100dvh - 2rem);
+  }
+}
+/* Fiche du garde-corps (la photo à côté des films, ou au-dessus sur téléphone) : sur les écrans peu hauts, la phrase sous
+   « Qui prend les mesures ? » et la ligne « notice et visserie » cèdent la place aux films et à leurs boutons. */
+@media (max-height: 860px) {
+  #configuration.fiche-gc .porte-qui .porte-petit,
+  #configuration.fiche-gc .porte-qui .porte-entete > p + p {
+    display: none;
+  }
+}
+/* Téléphone, fiche du garde-corps : chaque film garde ses proportions et se resserre seulement si l'écran est trop bas pour
+   les deux cartes et leurs boutons. */
+@media (max-width: 47.999rem) {
+  #configuration.fiche-gc .porte-qui .porte-carte > .aplat-card-scene {
+    width: clamp(40%, calc((100svh - 500px) * 0.9), 92%);
+    align-self: center;
+    margin-top: 10px;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+}
+.porte-qui {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  /* Les marges de la plaque (globals.css, .fond-configuration) : le titre tombe à la place du vrai. */
+  padding: 14px;
+}
+@media (min-width: 48rem) {
+  .porte-qui {
+    padding: 22px;
+  }
+}
+@media (min-width: 48rem) and (max-height: 31.25rem) {
+  .porte-qui {
+    padding: 10px 14px;
+  }
+}
+/* Pendant que le configurateur apparaît ou disparaît, rien ne se clique sur l'écran de choix. */
+.porte-qui:is([data-etat="revele"], [data-etat="retour"]) {
+  pointer-events: none;
+}
+.porte-qui:is([data-etat="revele"], [data-etat="retour"]) .porte-contenu {
+  visibility: hidden;
+}
+.porte-qui[data-etat="ouverture"] {
+  pointer-events: none;
+}
+.porte-qui[data-etat="ouverture"] .porte-contenu {
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+/* Le voile : le papier de la carte choisie, qui gagne tout le bloc. Le JavaScript l'anime ; ici, sa place de repos. */
+.porte-voile {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 32px;
+  background: #fbf8f4;
+  box-shadow: 0 30px 70px -30px rgba(43, 35, 32, 0.45);
+  opacity: 0;
+  pointer-events: none;
+}
+.porte-qui:is([data-etat="ouverture"], [data-etat="revele"], [data-etat="retour"]) .porte-voile {
+  opacity: 1;
+  /* Réduit à la place de la carte (porte-qui-mesure.tsx, vers), depuis son coin haut gauche ; sur son propre calque. */
+  transform-origin: 0 0;
+  will-change: transform, opacity;
+}
+/* Les cartes sont celles de la maquette en aplats (aplat-card) ; en plus, une ombre et un léger soulèvement au survol. */
+.porte-carte {
+  cursor: pointer;
+  box-shadow:
+    0 24px 50px -30px rgba(43, 35, 32, 0.5),
+    0 6px 16px -10px rgba(43, 35, 32, 0.22);
+  transition:
+    translate 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.5s ease;
+}
+.porte-carte:hover {
+  translate: 0 -4px;
+  box-shadow:
+    0 36px 70px -32px rgba(43, 35, 32, 0.6),
+    0 10px 22px -12px rgba(43, 35, 32, 0.3);
+}
+/* La scène garde les proportions de la maquette (720 × 334) ; quand la hauteur manque, elle se resserre sans se
+   déformer (le dessin reste entier, centré dans son décor). */
+.porte-scene {
+  flex: 0 1 auto;
+  width: 100%;
+  min-height: 0;
+  aspect-ratio: 720 / 334;
+  overflow: hidden;
+}
+.porte-scene .scene-aplat-dessin > svg {
+  width: 100%;
+  height: 100%;
+}
+/* Les deux cartes montrent chacune un film (720 × 400), bord à bord : celui de l'atelier, et celui de « Je mesure et pose
+   moi-même » (de la mesure à la pose par le client). Même format, les deux cartes s'alignent. */
+/* Côte à côte (tablette et plus), les cartes s'élargissent tant que l'écran a la hauteur de leurs films entiers. */
+.porte-grille {
+  max-width: 1120px;
+}
+@media (min-width: 48rem) {
+  .porte-grille {
+    max-width: min(1240px, calc((100svh - 440px) * 3.6 + 20px));
+  }
+}
+.porte-scene.porte-scene-film {
+  flex: none;
+  aspect-ratio: 720 / 400;
+  border-radius: 0;
+}
+/* L'écran de choix épuré, à toutes les tailles (Quentin, 09/10/2026 : « refais, que les deux motion design tiennent sur
+   la même page, propre et compréhensible ») : le film en entier, dessous le titre, la ligne de facilité de pose et le
+   bouton. La pastille et les phrases partent (elles restent dites après le choix) ; le film ne se resserre plus. */
+.porte-texte .aplat-tag,
+.porte-texte .aplat-card-text,
+.porte-texte .porte-petit {
+  display: none !important;
+}
+.porte-scene {
+  background: #f5ecdf;
+}
+.porte-texte.aplat-card-body {
+  padding: 12px 18px 16px;
+}
+.porte-texte .aplat-card-title {
+  margin: 0 0 8px;
+  font-size: 22px;
+  line-height: 1.12;
+}
+.porte-carte .porte-facilite {
+  margin-bottom: 12px;
+}
+@media (min-width: 768px) {
+  .porte-texte.aplat-card-body {
+    padding: 18px 26px 24px;
+  }
+  .porte-texte .aplat-card-title {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+}
+/* Les étiquettes d'étape des films, plus grandes et plus franches (Quentin, 09/10/2026 : les films vont plus vite, « qu'on
+   voie bien les étapes ») ; le numéro, doré, ressort. */
+.porte-scene .aplat-et {
+  font-size: 13px !important;
+  font-weight: 600;
+  padding: 0.45em 0.85em 0.5em 0.75em !important;
+  box-shadow: 0 6px 18px -8px rgba(43, 35, 32, 0.45);
+}
+@media (min-width: 768px) {
+  .porte-scene .aplat-et {
+    font-size: 15px !important;
+  }
+}
+/* Côte à côte, les deux cartes ont la même hauteur : le texte de la plus courte prend la place qui reste. */
+.porte-carte .porte-texte {
+  flex-grow: 1;
+}
+/* « Je mesure et pose moi-même » : ce qui compte, en gras — l'atelier fabrique aux cotes exactes du client. */
+.porte-texte .porte-fort {
+  font-weight: 650;
+  color: #2b2320;
+}
+/* La facilité de pose : une jauge de dix traits et sa phrase ; en regard sur les deux cartes. */
+.porte-facilite {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  font-size: 13.5px;
+  line-height: 1.35;
+  color: #4a4038;
+}
+.porte-facilite strong {
+  font-weight: 650;
+  color: #2b2320;
+}
+.porte-jauge {
+  display: inline-flex;
+  flex: none;
+  gap: 2px;
+}
+.porte-jauge i {
+  display: block;
+  width: 5px;
+  height: 12px;
+  border-radius: 1.5px;
+  background: rgba(43, 35, 32, 0.14);
+}
+.porte-jauge i[data-plein] {
+  background: #b9874a;
+}
+.porte-action svg {
+  transition: translate 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.porte-carte:hover .porte-action svg {
+  translate: 3px 0;
+}
+/* Téléphone : les deux cartes tiennent l'une sous l'autre dans l'écran, chaque film en entier ; le texte se resserre. */
+@media (max-width: 47.999rem) {
+  .porte-texte.aplat-card-body {
+    padding: 10px 16px 13px;
+  }
+  .porte-texte .aplat-card-title {
+    font-size: 21px;
+    margin: 0 0 6px;
+  }
+  .porte-facilite {
+    gap: 7px;
+    margin-bottom: 10px;
+    font-size: 12.5px;
+  }
+  .porte-jauge i {
+    width: 4px;
+    height: 10px;
+  }
+  .porte-texte .aplat-btn {
+    height: 38px;
+    font-size: 13.5px;
+    padding: 0 16px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* L'arrivée : la question, puis les deux cartes. */
+  .porte-qui:not([data-vu]) :is(.porte-entete, .porte-carte) {
     opacity: 0;
-    transform: translateY(4px);
   }
-  40% {
-    opacity: 0.9;
+  .porte-qui[data-vu] .porte-entete {
+    animation: porte-monter 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   }
-  100% {
-    opacity: 0;
-    transform: translateY(-7px);
+  .porte-qui[data-vu] .porte-carte {
+    animation: porte-monter 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.12s both;
+  }
+  .porte-qui[data-vu] .porte-carte + .porte-carte {
+    animation-delay: 0.24s;
+  }
+  /* Au retour (« Changer »), pas de montée : le voile se replie déjà sur sa carte. */
+  .porte-qui[data-retour] :is(.porte-entete, .porte-carte) {
+    animation-name: porte-fondu;
   }
 }
-@keyframes serenite-arriver {
+@keyframes porte-monter {
   from {
     opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
+    transform: translateY(26px) scale(0.98);
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .serenite-soleil,
-  .serenite-vapeur path,
-  .serenite-etape {
-    animation: none;
+@keyframes porte-fondu {
+  from {
+    opacity: 0;
   }
 }
 
@@ -756,6 +1468,12 @@ textarea:focus-visible,
   .camera-lente {
     animation: camera-avance 22s cubic-bezier(0.25, 0.1, 0.25, 1) both;
   }
+  .camera-lente.camera-douce {
+    animation-name: camera-avance-douce;
+  }
+  .indice-bille {
+    animation: indice-bille 1.8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  }
 
   /* Le titre, la phrase puis le bouton arrivent l'un après l'autre
      (--retard posé sur chaque élément). */
@@ -765,6 +1483,77 @@ textarea:focus-visible,
   }
 }
 
+/* La flèche du premier écran de l'accueil (indice-defiler.tsx) : elle glisse vers le bas, et s'efface dès qu'on défile. */
+/* La souris du premier écran : contour blanc, bille qui descend puis s'efface, en boucle. */
+.indice-souris {
+  position: relative;
+  display: block;
+  width: 18px;
+  height: 30px;
+  border: 1.5px solid #ffffff;
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.12),
+    0 3px 10px rgba(0, 0, 0, 0.35);
+}
+.indice-bille {
+  position: absolute;
+  left: 50%;
+  top: 5px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 999px;
+  background: #ffffff;
+}
+/* Plus petite (Quentin, 07/10/2026 : « le logo de la souris, moins gros »). */
+@media (min-width: 768px) {
+  .indice-souris {
+    width: 20px;
+    height: 33px;
+    border-radius: 10px;
+  }
+  .indice-bille {
+    top: 6px;
+    width: 5px;
+    height: 5px;
+    margin-left: -2.5px;
+  }
+}
+@keyframes indice-bille {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(11px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+}
+.indice-defiler {
+  transition: opacity 0.4s ease;
+}
+.indice-defiler[data-parti] {
+  opacity: 0;
+  pointer-events: none;
+}
+/* Le premier écran de l'accueil : la photo est déjà agrandie pour remplir l'écran, la caméra n'avance presque pas
+   (Quentin, 06/10/2026 : « la photo est un tout petit peu trop grosse »). */
+@keyframes camera-avance-douce {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.02);
+  }
+}
 @keyframes camera-avance {
   from {
     transform: scale(1);
@@ -793,57 +1582,512 @@ textarea:focus-visible,
   will-change: transform;
 }
 
-/* Une table, tablette (768 à 1279 px) : la carte des cotes et la barre d'achat tiennent dans la hauteur de l'écran, sans défiler.
-   Un peu moins d'air entre les cotes — rien n'est retiré. */
-@media (min-width: 48rem) and (max-width: 79.99rem) {
-  .fond-table .colonne-cotes .py-3 {
-    padding-top: 0.4rem;
-    padding-bottom: 0.4rem;
-  }
-  .fond-table .colonne-cotes .py-2\.5 {
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
-  }
-}
-@media (min-width: 48rem) and (max-width: 79.99rem) and (max-height: 820px) {
-  .fond-table .colonne-cotes {
-    padding-top: 0.75rem;
-  }
-  .fond-table .colonne-cotes .barre-achat {
-    margin-top: 0.25rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.7rem;
-  }
-  .fond-table .colonne-cotes .barre-achat .btn-verre {
-    padding-top: 0.55rem;
-    padding-bottom: 0.55rem;
-  }
-}
-
-/* La colonne de résultat d'une table : ce que comprend le prix s'écrit en clair quand l'écran est assez haut, sinon un lien l'ouvre. */
-.inclus-inline {
-  display: none;
-}
-@media (min-height: 1000px) {
-  .inclus-inline {
-    display: block;
-  }
-  .inclus-popover {
-    display: none;
-  }
-}
+/* Une table : le récapitulatif de la colonne d'achat. */
 .recap-table dl {
-  gap: 0.6rem;
-  font-size: 13px;
+  gap: 0.5rem;
+  font-size: 12.5px;
 }
 @media (max-height: 800px) {
   .recap-table dl {
-    gap: 0.375rem;
+    gap: 0.3rem;
     font-size: 12px;
   }
 }
 @media (max-height: 760px) {
   .recap-table > p {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   Le configurateur du GARDE-CORPS en « Liquid Glass », direction « Dégradé lumineux » (choisie par Quentin le
+   07/10/2026 sur trois maquettes : « améliore vraiment tout le style de cette page… un truc à la Apple avec un beau
+   Liquid Glass ») : derrière le bloc, de grandes taches de couleur douces ; les cartes en verre dépoli au liseré
+   lumineux ; les choix et les modèles en pastilles de verre ; plus de petites capitales espacées.
+   Étendu aux tables et aux plafonds lumineux (Quentin, 09/10/2026 : « le verre sur les tables et les plafonds »).
+   ========================================================================== */
+/* La couche floue du décor déborde de 200 px pour ne pas montrer de bord net : sans cette coupe, la page entière
+   s'élargissait (défilement de côté sur téléphone). « clip » ne crée pas de zone de défilement : le bas collé reste collé. */
+#configuration {
+  overflow-x: clip;
+}
+/* ===========================================================================
+   DIRECTION 2 — « Dégradé lumineux »
+   Derrière le bloc : grandes taches de couleur douces (or chaud, pierre, bleu acier)
+   sur fond clair, façon fond d'écran macOS. Même verre clair que la direction 1.
+=========================================================================== */
+#configuration .fond-configuration {
+  --lg-ink: #1d1d1f;
+  --lg-ink-2: rgba(29, 29, 31, .62);
+  --lg-ink-3: rgba(29, 29, 31, .38);
+  --lg-link: #8a6233;
+  --lg-hair: rgba(29, 29, 31, .08);
+  --lg-hair-strong: rgba(29, 29, 31, .16);
+
+  --lg-radius: 30px;
+  --lg-blur: 34px;
+  --lg-sat: 175%;
+  --lg-fill-top: rgba(255, 255, 255, .54);
+  --lg-fill-bot: rgba(255, 255, 255, .38);
+  --lg-spec: rgba(255, 255, 255, .42);
+  --lg-rim-a: rgba(255, 255, 255, .98);
+  --lg-rim-b: rgba(255, 255, 255, .45);
+  --lg-rim-c: rgba(255, 255, 255, .22);
+  --lg-rim-d: rgba(255, 255, 255, .75);
+  --lg-top-line: rgba(255, 255, 255, .95);
+  --lg-inner-glow: rgba(255, 255, 255, .28);
+  --lg-shadow: 0 40px 80px -40px rgba(70, 52, 30, .42), 0 12px 30px -16px rgba(70, 52, 30, .20);
+  --lg-shadow-sm: 0 18px 36px -22px rgba(40, 26, 14, .5);
+
+  --lg-track: rgba(118, 100, 84, .10);
+  --lg-slider-track: rgba(60, 45, 35, .18);
+  --lg-track-shade: rgba(40, 26, 14, .10);
+  --lg-track-rim: rgba(255, 255, 255, .55);
+  --lg-thumb: rgba(255, 255, 255, .92);
+  --lg-thumb-grad: linear-gradient(180deg, #ffffff, rgba(255, 255, 255, .88));
+  --lg-thumb-shadow: rgba(40, 26, 14, .18);
+  --lg-field: rgba(255, 255, 255, .46);
+  --lg-field-focus: rgba(255, 255, 255, .9);
+  --lg-focus: rgba(173, 129, 72, .28);
+  --lg-knob: #ffffff;
+  --lg-chip: rgba(255, 255, 255, .52);
+  --lg-chip-rim: rgba(255, 255, 255, .6);
+  --lg-select: #1d1d1f;
+  --lg-swatch-edge: rgba(0, 0, 0, .12);
+
+  --lg-tile: linear-gradient(180deg, rgba(255, 255, 255, .62), rgba(255, 255, 255, .42));
+  --lg-tile-hover: rgba(255, 255, 255, .8);
+  --lg-tile-on: #ffffff;
+  --lg-tile-rim: rgba(255, 255, 255, .55);
+
+  --lg-tray: rgba(255, 255, 255, .50);
+  --lg-tray-solid: rgba(250, 247, 242, .97);
+  --lg-cta: linear-gradient(180deg, #2e2e30, #1d1d1f);
+  --lg-cta-ink: #ffffff;
+  --lg-cta-hi: rgba(255, 255, 255, .22);
+  --lg-cta-shadow: rgba(0, 0, 0, .6);
+
+  --lg-progress: #1d1d1f;
+  --lg-progress-off: rgba(255, 255, 255, .55);
+
+  --lg-sketch-rim: rgba(255, 255, 255, .9);
+  --lg-sketch-mat: rgba(255, 255, 255, .28);
+  --lg-sketch-rim2: rgba(255, 255, 255, .55);
+  --lg-sketch-shadow: 0 40px 70px -36px rgba(40, 26, 14, .6);
+
+  --lg-stage-shadow: 0 30px 80px -40px rgba(40, 26, 14, .45);
+  --lg-stage-rim: rgba(255, 255, 255, .6);
+  --lg-veil: linear-gradient(180deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, 0));
+  --lg-stage-filter: blur(44px) saturate(115%);
+
+  background: #f1ebe2 !important;
+}
+/* Plus calme (Quentin, 07/10/2026 : « soit pas assez Liquid Glass, soit trop de couleurs ») : un fond pierre et papier,
+   un seul halo doré très doux, une ombre de pierre en bas à droite ; plus de bleu. Le verre ressort mieux. */
+#configuration .fond-configuration::before {
+  background:
+    radial-gradient(38% 42% at 28% 30%, rgba(222, 186, 132, .55), rgba(222, 186, 132, 0) 100%),
+    radial-gradient(40% 40% at 78% 78%, rgba(196, 184, 166, .55), rgba(196, 184, 166, 0) 100%),
+    radial-gradient(26% 26% at 55% 40%, rgba(255, 250, 242, .9), rgba(255, 250, 242, 0) 100%),
+    linear-gradient(135deg, #f6f2ec, #ece6dd);
+}
+
+/* ---------------------------------------------------------------------------
+   SOCLE LIQUID GLASS commun aux 3 directions (bloc « Configuration » garde-corps)
+   Toutes les teintes viennent des variables --lg-* posées par chaque direction.
+   Portée : #configuration .fond-configuration uniquement ; les <dialog> sont exclus.
+--------------------------------------------------------------------------- */
+
+#configuration .fond-configuration {
+  isolation: isolate;
+  border-radius: 36px !important;
+  box-shadow: var(--lg-stage-shadow) !important;
+}
+/* Couche 1 : le décor (photo / dégradé / sombre), posé par chaque direction.
+   Agrandi de 200 px puis flouté, et recoupé net au bord du bloc (clip-path) :
+   pas de halo transparent sur les bords, pas d'overflow:hidden sur le bloc. */
+#configuration .fond-configuration::before {
+  content: "";
+  position: absolute;
+  inset: -200px;
+  z-index: -2;
+  pointer-events: none;
+  filter: var(--lg-stage-filter);
+  clip-path: inset(200px round 36px);
+}
+/* Couche 2 : voile de lumière par-dessus le décor + liseré du bloc */
+#configuration .fond-configuration::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: var(--lg-veil);
+  box-shadow: inset 0 0 0 1px var(--lg-stage-rim);
+}
+
+/* ---------- Titre ---------- */
+#configuration .titre-config h2 {
+  color: var(--lg-ink) !important;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Cartes : vrai verre (remplissage + liseré lumineux en dégradé) ---------- */
+#configuration .fond-configuration .carte-verre:not(dialog *) {
+  border: 1px solid transparent !important;
+  border-radius: var(--lg-radius) !important;
+  background:
+    radial-gradient(120% 55% at 0% 0%, var(--lg-spec), transparent 60%) padding-box,
+    linear-gradient(180deg, var(--lg-fill-top), var(--lg-fill-bot)) padding-box,
+    linear-gradient(155deg, var(--lg-rim-a), var(--lg-rim-b) 32%, var(--lg-rim-c) 62%, var(--lg-rim-d)) border-box !important;
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
+  box-shadow:
+    inset 0 1px 0 var(--lg-top-line),
+    inset 0 0 22px var(--lg-inner-glow),
+    var(--lg-shadow) !important;
+  color: var(--lg-ink);
+  scrollbar-color: var(--lg-hair-strong) transparent;
+}
+#configuration .bandeau-gc .carte-modeles { border-radius: calc(var(--lg-radius) - 2px) !important; }
+
+/* ---------- Petites étiquettes : plus de capitales espacées ---------- */
+#configuration .fond-configuration [class~="uppercase"]:not(.btn-verre):not(dialog *) {
+  text-transform: none !important;
+  letter-spacing: -0.01em !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--lg-ink-2) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ---------- Barre des matières (Acier · Main courante · Rosace) : capsule de verre ---------- */
+#configuration .titre-config [class~="bg-white/55"] {
+  border: 1px solid transparent;
+  border-radius: 10px !important;
+  padding: 6px 8px 6px 20px !important;
+  column-gap: 22px !important;
+  background:
+    linear-gradient(180deg, var(--lg-fill-top), var(--lg-fill-bot)) padding-box,
+    linear-gradient(155deg, var(--lg-rim-a), var(--lg-rim-b) 35%, var(--lg-rim-c) 65%, var(--lg-rim-d)) border-box !important;
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
+  box-shadow: inset 0 1px 0 var(--lg-top-line), inset 0 0 16px var(--lg-inner-glow), var(--lg-shadow-sm);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+}
+#configuration .titre-config [class~="bg-white/55"] > div { gap: 10px !important; }
+#configuration .titre-config [role="group"] { gap: 6px !important; }
+#configuration .titre-config [role="group"] button {
+  border-radius: 10px !important;
+  padding: 3px !important;
+  background: transparent !important;
+  --tw-ring-color: transparent !important;
+  box-shadow: none !important;
+}
+#configuration .titre-config [role="group"] button span {
+  border-radius: 7px !important;
+  box-shadow: inset 0 0 0 1px var(--lg-swatch-edge), inset 0 1px 0 rgba(255,255,255,.35);
+}
+#configuration .titre-config [role="group"] button[class~="ring-2"] {
+  background: var(--lg-thumb) !important;
+  box-shadow: 0 0 0 2px var(--lg-select), 0 4px 10px -4px rgba(0,0,0,.35) !important;
+}
+#configuration .titre-config button:has(.coupe-mc) {
+  border-radius: 10px !important;
+  padding: 4px 12px 4px 6px !important;
+  gap: 8px !important;
+  background: var(--lg-thumb) !important;
+  --tw-ring-color: transparent !important;
+  box-shadow: inset 0 1px 0 var(--lg-top-line), 0 0 0 .5px var(--lg-hair), 0 3px 10px -4px rgba(0,0,0,.22) !important;
+}
+#configuration .titre-config button:has(.coupe-mc) span { font-size: 13px !important; font-weight: 600 !important; color: var(--lg-ink) !important; }
+#configuration .titre-config button:has(.coupe-mc) svg:last-child { color: var(--lg-ink-2) !important; }
+
+/* ---------- Croquis central : cadre net, ombre douce (le dessin n'est pas touché) ---------- */
+#configuration .croquis-config [class~="aspect-[3/4]"] {
+  border-radius: 28px !important;
+  box-shadow: 0 0 0 1px var(--lg-sketch-rim), 0 0 0 6px var(--lg-sketch-mat), 0 0 0 7px var(--lg-sketch-rim2), var(--lg-sketch-shadow);
+}
+@media (max-width: 47.999rem) {
+  #configuration .croquis-config [class~="aspect-[3/4]"] {
+    border-radius: 24px !important;
+    box-shadow: 0 0 0 1px var(--lg-sketch-rim), 0 0 0 4px var(--lg-sketch-mat), var(--lg-sketch-shadow);
+  }
+}
+#configuration .croquis-config [class~="bg-white/92"] {
+  background: rgba(255,255,255,.82) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  backdrop-filter: blur(12px) saturate(180%);
+  box-shadow: inset 0 1px 0 #fff, 0 0 0 .5px rgba(0,0,0,.06), 0 4px 12px -4px rgba(0,0,0,.25) !important;
+  font-size: 12px !important;
+}
+
+/* ---------- Commandes segmentées (Barreaux, Traverse, Livraison, Étage) ---------- */
+#configuration .carte-verre [role="radiogroup"][class~="rounded-full"]:not(dialog *),
+#configuration .carte-verre .grid[class~="rounded-full"]:has(> button[aria-pressed]) {
+  padding: 3px !important;
+  border-color: transparent !important;
+  background: var(--lg-track) !important;
+  box-shadow: inset 0 1px 2px var(--lg-track-shade), inset 0 0 0 1px var(--lg-track-rim) !important;
+}
+#configuration .carte-verre [role="radiogroup"][class~="rounded-full"] [role="radio"],
+#configuration .carte-verre .grid[class~="rounded-full"] > button[aria-pressed] {
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em;
+  padding-left: 4px !important; padding-right: 4px !important;
+  color: var(--lg-ink-2) !important;
+  background: transparent !important;
+  transition: background-color .25s, box-shadow .25s, color .25s;
+}
+#configuration .carte-verre [role="radiogroup"][class~="rounded-full"] [role="radio"][aria-checked="true"],
+#configuration .carte-verre .grid[class~="rounded-full"] > button[aria-pressed="true"] {
+  color: var(--lg-ink) !important;
+  font-weight: 600 !important;
+  background: var(--lg-thumb-grad) !important;
+  box-shadow: inset 0 1px 0 var(--lg-top-line), 0 0 0 .5px var(--lg-hair), 0 3px 10px -2px var(--lg-thumb-shadow), 0 1px 2px var(--lg-thumb-shadow) !important;
+}
+
+/* ---------- Champs de saisie : capsules creusées dans le verre ---------- */
+#configuration .carte-verre span[class~="border-[#9a8d80]"]:not(dialog *),
+#configuration .carte-verre select[class~="border-[#9a8d80]"]:not(dialog *),
+#configuration .carte-verre select[class~="rounded-full"]:not(dialog *) {
+  border-color: transparent !important;
+  border-radius: 10px !important;
+  background-color: var(--lg-field) !important;
+  box-shadow: inset 0 1px 2px var(--lg-track-shade), inset 0 0 0 1px var(--lg-track-rim) !important;
+}
+#configuration .carte-verre span[class~="h-14"][class~="border-[#9a8d80]"] { border-radius: 20px !important; }
+#configuration .carte-verre span[class~="border-[#9a8d80]"]:focus-within:not(dialog *) {
+  background-color: var(--lg-field-focus) !important;
+  box-shadow: 0 0 0 3px var(--lg-focus), inset 0 1px 2px var(--lg-track-shade) !important;
+}
+#configuration .carte-verre :is(input[type="text"], input:not([type])):not(dialog *) { background: transparent !important; box-shadow: none !important; color: var(--lg-ink) !important; }
+#configuration .carte-verre input::placeholder { color: var(--lg-ink-3) !important; }
+#configuration .carte-verre select:not(dialog *) { color: var(--lg-ink) !important; }
+
+/* Curseurs */
+#configuration .carte-verre .curseur-cote::-webkit-slider-runnable-track {
+  background: var(--lg-slider-track) !important;
+  box-shadow: inset 0 1px 1px var(--lg-track-shade), inset 0 0 0 .5px var(--lg-track-rim);
+  height: 6px;
+}
+#configuration .carte-verre .curseur-cote::-webkit-slider-thumb {
+  background: var(--lg-knob) !important;
+  border: 0 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 0 0 .5px rgba(0,0,0,.08), 0 3px 8px rgba(0,0,0,.18), 0 1px 1px rgba(0,0,0,.12) !important;
+  width: 26px !important; height: 26px !important; margin-top: -10px !important;
+  opacity: 1 !important;
+}
+
+/* Petits boutons « i » */
+#configuration .carte-verre button[aria-label="Explication"]:not(dialog *) {
+  border-color: var(--lg-hair-strong) !important;
+  background: var(--lg-chip) !important;
+  color: var(--lg-ink-2) !important;
+}
+
+/* Séparateurs */
+#configuration .carte-verre :is([class~="divide-[#e5ddd3]"]) > :not(:last-child),
+#configuration .carte-verre :is([class~="border-[#e5ddd3]"], [class~="border-t"]):not(dialog *) {
+  border-color: var(--lg-hair) !important;
+}
+
+/* Puces secondaires : « Voir le plan », « Prix croissant », « Personnaliser sur photo », quantité */
+#configuration .carte-verre button[class~="border-[#9a8d80]"]:not(dialog *),
+#configuration .carte-modeles :is(a, button)[class~="rounded-full"]:not([aria-label^="Modèles"]),
+#configuration .carte-verre .barre-achat div[class~="border-[#9a8d80]"] {
+  border: 0 !important;
+  border-radius: 10px !important;
+  background: var(--lg-chip) !important;
+  box-shadow: inset 0 1px 0 var(--lg-top-line), inset 0 0 0 1px var(--lg-chip-rim), 0 2px 6px -3px var(--lg-thumb-shadow) !important;
+  color: var(--lg-ink) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+#configuration .carte-modeles :is(a, button)[class~="rounded-full"]:not([aria-label^="Modèles"]) { padding: 5px 12px !important; font-size: 12.5px !important; }
+#configuration .carte-verre .barre-achat div[class~="border-[#9a8d80]"] button { color: var(--lg-ink) !important; }
+#configuration .carte-verre .barre-achat div[class~="border-[#9a8d80]"] span { color: var(--lg-ink) !important; font-size: 15px !important; font-weight: 600; }
+
+/* Flèches du carrousel : petites bulles de verre */
+#configuration .carte-modeles button[aria-label^="Modèles"] {
+  width: 28px !important; height: 28px !important;
+  background: var(--lg-thumb) !important;
+  color: var(--lg-ink) !important;
+  --tw-ring-color: transparent !important;
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  backdrop-filter: blur(14px) saturate(180%);
+  box-shadow: inset 0 1px 0 var(--lg-top-line), 0 0 0 .5px var(--lg-hair), 0 6px 14px -6px rgba(0,0,0,.35) !important;
+}
+
+/* ---------- Tuiles des modèles : petites plaques de verre ---------- */
+#configuration .tuile-modele {
+  border-radius: 18px !important;
+  background: var(--lg-tile) !important;
+  box-shadow: inset 0 1px 0 var(--lg-top-line), inset 0 0 0 1px var(--lg-tile-rim), 0 6px 14px -10px var(--lg-thumb-shadow) !important;
+  padding-left: 8px !important; padding-right: 8px !important;
+}
+#configuration .tuile-modele:hover:not([aria-disabled="true"]) { background: var(--lg-tile-hover) !important; }
+#configuration .tuile-modele[aria-pressed="true"] {
+  background: var(--lg-tile-on) !important;
+  box-shadow: 0 0 0 2px var(--lg-select), inset 0 1px 0 var(--lg-top-line), 0 12px 22px -12px var(--lg-thumb-shadow) !important;
+}
+#configuration .carte-modeles [role="group"] {
+  padding: 5px 14px 6px !important; scroll-padding-inline: 14px; gap: 8px !important;
+}
+#configuration .carte-modeles button[aria-label="Modèles précédents"] { left: -12px !important; }
+#configuration .carte-modeles button[aria-label="Modèles suivants"] { right: -12px !important; }
+
+/* ---------- Carte d'achat ---------- */
+/* Plateau du bas (prix + bouton + liens) : verre un peu plus dense, collé en bas de la carte.
+   Il reste « sticky » : quand la carte défile (téléphone), le contenu passe dessous, flouté. */
+#configuration .carte-verre .barre-achat:not(dialog *),
+#configuration .carte-verre .barre-achat + div:not(dialog *) {
+  /* Presque plein (Quentin, 09/10/2026) : sinon les lignes qui défilent dessous se lisaient à travers le prix. */
+  background: var(--lg-tray-solid) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+#configuration .carte-verre .barre-achat:not(dialog *) { border-top: 1px solid var(--lg-hair) !important; }
+#configuration .carte-verre .barre-achat + div:not(dialog *) { margin-inline: -24px; padding-inline: 24px; }
+/* Téléphone : la carte défile sous le plateau → plateau plein + petit fondu au-dessus */
+@media (max-width: 47.999rem) {
+  #configuration .carte-verre .barre-achat:not(dialog *),
+  #configuration .carte-verre .barre-achat + div:not(dialog *) { background: var(--lg-tray-solid) !important; }
+  #configuration .carte-verre .barre-achat:not(dialog *)::before {
+    display: block !important; content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 1.25rem;
+    background: linear-gradient(to bottom, transparent, var(--lg-tray-solid)); pointer-events: none;
+  }
+}
+#configuration .carte-verre .barre-achat::before { display: none; }
+#configuration .colonne-achat .barre-achat p[class~="tabular-nums"][class~="text-lg"] {
+  font-size: 24px !important; font-weight: 600 !important; letter-spacing: -0.02em; color: var(--lg-ink) !important;
+}
+#configuration .colonne-achat .titre-options { font-size: 17px !important; letter-spacing: -0.02em; color: var(--lg-ink) !important; }
+
+/* Bouton principal : capsule pleine, reflet en haut */
+#configuration .fond-configuration .carte-verre .btn-verre:not(dialog *),
+#configuration .nav-tel button[class~="bg-[#1d1d1f]"] {
+  border: 0 !important;
+  background: var(--lg-cta) !important;
+  color: var(--lg-cta-ink) !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  text-transform: none !important;
+  box-shadow: inset 0 1px 0 var(--lg-cta-hi), inset 0 -1px 0 rgba(0,0,0,.25), 0 14px 26px -14px var(--lg-cta-shadow) !important;
+}
+
+/* Liens du bas (Détails · Devis PDF · Mettre de côté) : liens sobres, sans soulignement */
+#configuration .colonne-achat .barre-achat + div button:not(dialog *) {
+  text-decoration: none !important;
+  font-size: 13px !important;
+  color: var(--lg-link) !important;
+}
+
+/* ---------- Téléphone : en-tête de question ---------- */
+#configuration .entete-tel h3 { color: var(--lg-ink) !important; letter-spacing: -0.02em; }
+#configuration .entete-tel .aide-question { color: var(--lg-ink-2) !important; }
+#configuration .entete-tel [aria-hidden="true"] > span { height: 5px !important; }
+#configuration .entete-tel [aria-hidden="true"] > span[class~="bg-[#2b2320]"] { background: var(--lg-progress) !important; }
+#configuration .entete-tel [aria-hidden="true"] > span[class~="bg-[#2b2320]/15"] { background: var(--lg-progress-off) !important; }
+
+/* ---------- Petits ajustements de mise au propre ---------- */
+/* Les deux champs « Largeur » alignés sur la même ligne, même si une étiquette passe sur 2 lignes */
+#configuration .colonne-cotes .grid[class~="grid-cols-2"] > label { display: flex !important; flex-direction: column; justify-content: flex-end; }
+/* Unité « mm » sur la ligne de base du nombre */
+#configuration .carte-verre span[class~="border-[#9a8d80]"] > span:last-child { transform: translateY(1.5px); }
+
+/* ---------- Téléphone : cases de choix (type de mur…) et boutons de navigation ---------- */
+#configuration .carte-verre button[aria-pressed][class~="rounded-2xl"]:not(dialog *) {
+  border-color: transparent !important;
+  border-radius: 18px !important;
+  background: var(--lg-chip) !important;
+  color: var(--lg-ink) !important;
+  box-shadow: inset 0 1px 0 var(--lg-top-line), inset 0 0 0 1px var(--lg-chip-rim), 0 4px 12px -8px var(--lg-thumb-shadow) !important;
+}
+#configuration .carte-verre button[aria-pressed="true"][class~="rounded-2xl"]:not(dialog *) {
+  background: var(--lg-thumb-grad) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 0 0 2px var(--lg-select), inset 0 1px 0 var(--lg-top-line), 0 8px 18px -10px var(--lg-thumb-shadow) !important;
+}
+#configuration .nav-tel button[class~="bg-white/70"] {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(180deg, var(--lg-fill-top), var(--lg-fill-bot)) padding-box,
+    linear-gradient(155deg, var(--lg-rim-a), var(--lg-rim-b) 35%, var(--lg-rim-c) 65%, var(--lg-rim-d)) border-box !important;
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
+  --tw-ring-color: transparent !important;
+  box-shadow: inset 0 1px 0 var(--lg-top-line), var(--lg-shadow-sm) !important;
+  color: var(--lg-ink) !important;
+  font-size: 15px !important;
+}
+#configuration .nav-tel button[class*="bg-[#1d1d1f]"] {
+  border: 0 !important;
+  background: var(--lg-cta) !important;
+  color: var(--lg-cta-ink) !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  box-shadow: inset 0 1px 0 var(--lg-cta-hi), inset 0 -1px 0 rgba(0,0,0,.25), 0 14px 26px -14px var(--lg-cta-shadow) !important;
+}
+#configuration .nav-tel button[class~="bg-[#1d1d1f]/45"] { opacity: .5; box-shadow: none !important; }
+#configuration .carte-verre .retour-modele { color: var(--lg-link) !important; text-decoration: none !important; font-size: 14px !important; }
+
+/* Téléphone, dernière étape : onglets Mesures · Finitions · Modèle · Prix en capsule de verre */
+#configuration .entete-tel nav ol {
+  border: 1px solid transparent;
+  padding: 3px !important;
+  background:
+    linear-gradient(180deg, var(--lg-fill-top), var(--lg-fill-bot)) padding-box,
+    linear-gradient(155deg, var(--lg-rim-a), var(--lg-rim-b) 35%, var(--lg-rim-c) 65%, var(--lg-rim-d)) border-box !important;
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
+  box-shadow: inset 0 1px 0 var(--lg-top-line), var(--lg-shadow-sm);
+}
+#configuration .entete-tel nav button { color: var(--lg-ink-2) !important; font-size: 13px !important; }
+#configuration .entete-tel nav button[aria-current="step"] {
+  background: var(--lg-thumb-grad) !important;
+  color: var(--lg-ink) !important;
+  box-shadow: inset 0 1px 0 var(--lg-top-line), 0 0 0 .5px var(--lg-hair), 0 3px 10px -2px var(--lg-thumb-shadow) !important;
+}
+#configuration .entete-tel :is(h3, span[class~="tabular-nums"]) { color: var(--lg-ink) !important; }
+
+/* ==========================================================================
+   Plus de boutons en pilule (Quentin, 07/10/2026 : « ça fait trop IA et pas élégant ») : des coins légèrement
+   arrondis, partout, configurateur compris. Les vrais ronds (icônes et pastilles de taille fixe) restent ronds.
+   ========================================================================== */
+:is(
+    [class~="rounded-full"]:not([class*="h-"][class*="w-"]):not([class*="size-"]):not([class*="aspect-square"]),
+    .btn-plein, .btn-clair, .btn-contour, .btn-verre, .aplat-tag, .aplat-btn, .aplat-et
+  ):not(svg *) {
+  border-radius: 10px !important;
+}
+#configuration [class~="rounded-full"]:not([class*="h-"][class*="w-"]):not([class*="size-"]):not([class*="aspect-square"]):not(svg *) {
+  border-radius: 10px !important;
+}
+/* Dans un groupe de choix, l'élément choisi s'arrondit un peu moins que son cadre : les coins se suivent. */
+:is([class~="rounded-full"]:not([class*="h-"][class*="w-"])) > :is(button, label, span)[class~="rounded-full"]:not([class*="h-"][class*="w-"]) {
+  border-radius: 7px !important;
+}
+#configuration [class~="rounded-full"]:not([class*="h-"][class*="w-"]) > :is(button, label, span)[class~="rounded-full"]:not([class*="h-"][class*="w-"]) {
+  border-radius: 7px !important;
+}
+
+
+/* Une table, 1024 à 1279 px de large et pas très haut : la colonne d'achat ne défile pas — le récapitulatif cède sa place
+   (le poids, les dimensions et le délai restent dans « Détails »). */
+@media (min-width: 64rem) and (max-width: 79.99rem) and (max-height: 820px) {
+  .fond-table .recap-table {
+    display: none;
+  }
+  /* Le titre « Livraison, pose ou retrait » et la phrase d'attente cèdent aussi leur place : le champ « Votre code postal » et les trois
+     façons de recevoir la pièce se lisent seuls. */
+  .fond-table #sous-menu-livraison > span,
+  .fond-table #livraison [data-attente] {
     display: none;
   }
 }

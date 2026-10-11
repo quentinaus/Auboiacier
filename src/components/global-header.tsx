@@ -17,16 +17,25 @@ export function GlobalHeader({
   dict: Dictionary;
   overlay?: boolean;
 }) {
-  const links = [
+  const links: { href: string; label: string; grandEcran?: boolean }[] = [
     { href: `/${locale}/toiles-tendues`, label: dict.hub.lightingLabel },
     { href: `/${locale}/artisanat`, label: dict.hub.craftLabel },
+    // Le produit le plus demandé, dans le menu (étude marketing, 06/10) : sur grand écran seulement, la barre d'une
+    // tablette n'a pas la place d'un lien de plus (le panneau du téléphone et de la tablette l'a déjà).
+    { href: `/${locale}/artisanat/famille/garde-corps`, label: locale === "fr" ? "Garde-corps" : "Railings", grandEcran: true },
     { href: `/${locale}/realisations`, label: dict.nav.realisations },
     { href: `/${locale}/devis`, label: dict.nav.devis },
     { href: `/${locale}/a-propos`, label: dict.nav.apropos },
     { href: `/${locale}/contact`, label: dict.nav.contact },
   ];
-  /** Au téléphone, le panneau est la seule navigation : il en montre plus que la barre. */
+  /**
+   * Au téléphone, le panneau est la seule navigation : il en montre plus que
+   * la barre (qui n'a pas la place d'un lien de plus sur une tablette).
+   */
   const liensEnPlus = [
+    { href: `/${locale}/artisanat/tables`, label: dict.liens.tables },
+    { href: `/${locale}/artisanat/famille/garde-corps`, label: dict.liens.gardeCorps },
+    { href: `/${locale}/bois-massif`, label: dict.liens.bois },
     { href: `/${locale}/zone-intervention`, label: dict.nav.zone },
     { href: `/${locale}/faq`, label: dict.nav.faq },
   ];
@@ -39,10 +48,12 @@ export function GlobalHeader({
           : "border-b border-gray-200"
       }
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-4">
+      {/* Toute la largeur de l'écran (09/10/2026, Quentin : « le menu est serré, pourquoi tu n'utilises pas toute la page »).
+          Dès 1024 px : trois zones, le menu au centre de l'écran, jamais collé au logo. */}
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-4 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:py-5">
         <Link
           href={`/${locale}`}
-          className={`min-w-0 truncate font-mono text-sm tracking-widest ${overlay ? "text-white drop-shadow" : ""}`}
+          className={`font-display shrink-0 whitespace-nowrap text-[15px] tracking-[0.3em] lg:justify-self-start ${overlay ? "text-white drop-shadow" : "text-[#1d1d1f]"}`}
         >
           {dict.meta.siteName.toUpperCase()}
         </Link>
@@ -52,7 +63,7 @@ export function GlobalHeader({
             et ombre portée : c'est le maximum possible sur une image. */}
         <nav
           aria-label={dict.nav.mainMenu}
-          className={`hidden items-center gap-6 text-sm md:flex ${
+          className={`hidden items-center gap-6 whitespace-nowrap text-sm lg:flex xl:gap-7 xl:text-[15px] 2xl:gap-10 ${
             overlay ? "text-white drop-shadow-md" : "text-gray-700"
           }`}
         >
@@ -60,14 +71,14 @@ export function GlobalHeader({
             <Link
               key={link.href}
               href={link.href}
-              className={overlay ? "hover:text-white" : "hover:text-gray-900"}
+              className={`${link.grandEcran ? "hidden xl:inline" : ""} ${overlay ? "hover:text-white" : "hover:text-gray-900"}`}
             >
               {link.label}
             </Link>
           ))}
         </nav>
 
-        <div className="flex shrink-0 items-center gap-1 sm:gap-3">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-3 lg:justify-self-end">
           <CartButton locale={locale} label={dict.nav.cart} variant={overlay ? "dark" : "light"} />
           {compteConfigure() && (
             <CompteBouton locale={locale} label={dict.nav.compte} variant={overlay ? "dark" : "light"} />
@@ -79,8 +90,11 @@ export function GlobalHeader({
           </div>
           <MenuMobile
             locale={locale}
-            links={[...links, ...liensEnPlus]}
+            // Le garde-corps du menu de grand écran est déjà dans liensEnPlus : pas deux fois dans le panneau.
+            links={[...links.filter((l) => !l.grandEcran), ...liensEnPlus]}
             variant={overlay ? "dark" : "light"}
+            // Sous 1024 px, les liens ne tiennent plus sur une ligne : le menu les prend (09/10/2026, barre élégante).
+            seuil="lg"
           />
         </div>
       </div>

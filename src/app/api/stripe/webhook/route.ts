@@ -1,7 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import type Stripe from "stripe";
+import { compter, etiquettesOrigine } from "@/lib/compteurs";
+import { origineDesMetadonnees } from "@/lib/provenance";
 import { ligneDeJournal, notifyCustomer, notifyOwner } from "@/lib/order-email";
 import { getStripe } from "@/lib/stripe";
+import { autresVisitesDuCreneau, lireCreneau, libelleCreneau } from "@/lib/agenda";
+import { ownerEmail, sendEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 /** Un rejeu Stripe ne doit pas rester suspendu : au-delà, Stripe recommence. */
@@ -60,7 +64,7 @@ export async function POST(request: Request) {
   const precedente = enCours.get(sessionId);
   if (precedente) await precedente.catch(() => {});
 
-  const traitement = traiter(sessionId);
+  const traitement = traiter(sessionId, request);
   enCours.set(sessionId, traitement);
   try {
     return await traitement;
@@ -69,7 +73,7 @@ export async function POST(request: Request) {
   }
 }
 
-async function traiter(sessionId: string) {
+async function traiter(sessionId: string, request: Request) {
   try {
     const session = await getStripe().checkout.sessions.retrieve(sessionId);
 
@@ -98,6 +102,26 @@ async function traiter(sessionId: string) {
       atelierDejaPrevenu ? Promise.resolve(true) : notifyOwner(session, lineItems.data),
       clientDejaPrevenu ? Promise.resolve(true) : notifyCustomer(session, lineItems.data),
     ]);
+
+    // Une commande payée de plus au compteur : une seule fois, au premier
+    // bon de commande parti (un rejeu de Stripe ne la recompte pas). Elle n'y
+    // porte que son origine (réponse au menu, canal du lien), rien d'autre.
+    // Une ligne « COMPTEUR » dans les journaux seulement : la requête vient de
+    // Stripe, pas du client, et Vercel Analytics la jetterait comme robot
+    // (JOURNAL_SEULEMENT, src/lib/compteurs.ts). Stripe fait foi.
+    if (!atelierDejaPrevenu && atelierEnvoye) {
+      const { connu, provenance } = origineDesMetadonnees(session.metadata);
+      after(() => compter("commande_payee", etiquettesOrigine(connu, provenance), request));
+    }
+
+    // Une visite payée sur un créneau déjà vendu (rare : voir
+    // autresVisitesDuCreneau) : Quentin est prévenu tout de suite, pour
+    // appeler l'un des deux clients. Une seule fois, au premier passage.
+    if (!atelierDejaPrevenu && atelierEnvoye && session.metadata?.rdv) {
+      await signalerDoublon(session).catch((error) =>
+        console.error("[webhook] doublon de créneau non vérifié :", sessionId, error)
+      );
+    }
 
     // On note ce qui est parti, pour ne pas le renvoyer au rejeu suivant.
     if (atelierEnvoye !== atelierDejaPrevenu || clientEnvoye !== clientDejaPrevenu) {
@@ -131,4 +155,22 @@ async function traiter(sessionId: string) {
     console.error("[webhook] traitement impossible :", error);
     return NextResponse.json({ error: "error" }, { status: 500 });
   }
+}
+
+async function signalerDoublon(session: Stripe.Checkout.Session) {
+  const rdv = session.metadata?.rdv ?? "";
+  const autres = await autresVisitesDuCreneau(rdv, session.id);
+  if (!autres.length) return;
+  const creneau = lireCreneau(rdv);
+  const quand = creneau ? libelleCreneau(creneau, "fr") : rdv;
+  await sendEmail({
+    to: ownerEmail(),
+    subject: `Attention : deux prises de cotes le même créneau (${quand})`,
+    text: [
+      `La commande ${session.metadata?.order_ref ?? session.id} vient d'être payée pour une prise de cotes le ${quand}.`,
+      `Ce créneau était déjà payé par : ${autres.join(", ")}.`,
+      "",
+      "Appelez l'un des deux clients pour lui proposer une autre demi-journée (ou le rembourser depuis Stripe).",
+    ].join("\n"),
+  });
 }

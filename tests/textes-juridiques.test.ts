@@ -94,6 +94,30 @@ test("l'espace client apparaît dans la liste des destinataires", () => {
       /Google Ireland/,
       `article 4 (${dict.confidentialite.title}) ne cite pas Google`
     );
+    // « Google Ireland » y figurait déjà pour Gmail : le test passait alors que
+    // la connexion par Google n'était décrite nulle part. On exige le bouton.
+    assert.match(
+      dict.confidentialite.sections[3].body,
+      /Continuer avec Google|Continue with Google/,
+      `article 4 (${dict.confidentialite.title}) ne décrit pas la connexion par Google`
+    );
+    // Et l'article 2 ne doit plus jurer qu'il n'y a « pas de compte client ».
+    assert.doesNotMatch(dict.confidentialite.sections[1].body, /pas de compte client|no customer account/);
+  }
+});
+
+test("la politique cite la clé du stockage de session de la configuration", () => {
+  const memo = readFileSync(new URL("../src/lib/config-memo.ts", import.meta.url), "utf8");
+  const cle = memo.match(/CLE_CONFIG\s*=\s*"([^"]+)"/)?.[1];
+  assert.ok(cle, "CLE_CONFIG introuvable dans src/lib/config-memo.ts");
+  for (const dict of [fr, en]) {
+    assert.ok(dict.confidentialite.sections[7].body.includes(cle), `article 8 (${dict.confidentialite.title})`);
+  }
+});
+
+test("plus de renvoi à la plateforme européenne de litiges (fermée le 20/07/2025)", () => {
+  for (const dict of [fr, en]) {
+    assert.doesNotMatch(JSON.stringify(dict), /consumers\/odr|plateforme européenne de règlement|online dispute resolution platform/);
   }
 });
 

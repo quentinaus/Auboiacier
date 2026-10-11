@@ -1,8 +1,10 @@
-import { lireModeleGC } from "@/lib/garde-corps";
+import { idDecorGC, lireDecorGC, lireModeleGC, lireMurParametresGC } from "@/lib/garde-corps";
 import { NextResponse } from "next/server";
-import { calculerDeplacement, calculerLivraison, calculerPose } from "@/lib/deplacement";
+import { calculerDeplacement, calculerLivraison, calculerLivraisonPortail, calculerPose, livrablePortailParTransporteur, type ColisPortail } from "@/lib/deplacement";
+import { estSlugPortail, lireConfigPanier, planPortail } from "@/lib/portails";
 import { getProduct, poidsColisKg, prixParOutil } from "@/lib/products";
 import { creerLimite } from "@/lib/limite-debit";
+import { budgetCalculGC } from "@/lib/budget-calcul-gc";
 import { ChiffrageIndisponible, ligneGC } from "@/lib/prix-garde-corps.server";
 
 export const runtime = "nodejs";
@@ -22,12 +24,24 @@ function identifiant(valeur: string | null): string | undefined {
 /**
  * Le colis, d'après la pièce (slug), ses cotes et sa quantité : jamais
  * d'après un chiffre envoyé. Le garde-corps est pesé par l'outil de plans, à
- * partir de son relevé (l, allege, etage, fenetre) : c'est le même poids que
+ * partir de son relevé (l, allege, etage, fenetre ; mur, c, ep quand le mur
+ * des tableaux est donné : ses platines pèsent) : c'est le même poids que
  * celui du panier et de la commande (src/lib/tarif-panier.ts). null : un
  * garde-corps sans prix (à étudier, ou un relevé illisible).
  */
-function colisDemande(params: URLSearchParams): { kg: number; plusGrandeCoteMm: number } | null {
+type ColisDemande = { kg: number; plusGrandeCoteMm: number; portail?: ColisPortail };
+function colisDemande(params: URLSearchParams): ColisDemande | null {
   const produit = getProduct(params.get("slug") ?? "");
+  // Un portail (10/10/2026) : son colis vient du plan de l'outil (debout, calé), d'après sa configuration en texte (cfg), jamais d'un poids envoyé.
+  if (produit && estSlugPortail(produit.slug)) {
+    const cfg = lireConfigPanier(produit.slug, params.get("cfg"));
+    if (!cfg) return null;
+    const qty = Number(params.get("qty"));
+    const quantite = Number.isInteger(qty) && qty >= 1 && qty <= 10 ? qty : 1;
+    const colis = planPortail(produit.slug, cfg).colis;
+    const portail: ColisPortail = { kg: colis.kg * quantite, kgTaxable: colis.kgTaxable * quantite, longueurMaxMm: colis.longueurMaxMm, hauteurMaxMm: colis.hauteurMaxMm };
+    return { kg: portail.kg, plusGrandeCoteMm: colis.plusGrandeCoteMm, portail };
+  }
   const entier = (cle: string) => {
     const n = Number(params.get(cle));
     return Number.isFinite(n) && n > 0 && n <= 10000 ? Math.round(n) : undefined;
@@ -42,17 +56,26 @@ function colisDemande(params: URLSearchParams): { kg: number; plusGrandeCoteMm: 
       return t !== null && /^\d{1,5}$/.test(t) ? Number(t) : undefined;
     };
     const largeurMm = mm("l");
+    // La largeur à 1 m du sol (murs pas parallèles) : le colis prend la plus grande des deux.
+    const largeurHautMm = mm("lh");
     const allegeMm = mm("allege");
     const etage = params.get("etage");
     const woodId = identifiant(params.get("wood"));
     if (largeurMm === undefined || allegeMm === undefined || (etage !== "1" && etage !== "0") || !woodId) return null;
+    if (params.get("lh") !== null && largeurHautMm === undefined) return null;
+    // Le décor à volutes pèse le poids de ses volutes : illisible, pas de colis (jamais le poids d'un autre garde-corps).
+    const decorBrut = params.get("decor");
+    const decor = decorBrut === null ? null : lireDecorGC(decorBrut);
+    if (decorBrut !== null && !decor) return null;
+    const mur = lireMurParametresGC(params);
+    if (mur === null) return null;
     const ligne = ligneGC(
-      { largeurMm, allegeMm, enEtage: etage === "1", fenetreMm: mm("fenetre") ?? 0, ...(lireModeleGC(params.get("modele")) ? { modele: params.get("modele")! } : {}) },
+      { largeurMm, ...(largeurHautMm !== undefined ? { largeurHautMm } : {}), allegeMm, enEtage: etage === "1", fenetreMm: mm("fenetre") ?? 0, ...(decor ? { decor: idDecorGC(decor) } : lireModeleGC(params.get("modele")) ? { modele: params.get("modele")! } : {}), ...mur },
       { woodId, metalId: identifiant(params.get("metal")) ?? produit.metals[0]?.id, fabricId: identifiant(params.get("fabric")) ?? produit.fabrics?.[0]?.id, remplissageId: identifiant(params.get("remplissage")) ?? produit.remplissages?.[0]?.id }
     );
     if (!ligne.ok || !ligne.line.gc) return null;
     const [L, H] = ligne.line.size.dimsMm!;
-    return { kg: ligne.line.gc.kg * quantite, plusGrandeCoteMm: Math.max(L, H) };
+    return { kg: ligne.line.gc.kg * quantite, plusGrandeCoteMm: Math.max(L, H, ligne.line.gc.releve.largeurHautMm ?? 0) };
   }
   return {
     kg:
@@ -82,21 +105,34 @@ export async function GET(request: Request) {
   // Même route pour la prise de cotes, la pose et la livraison : seul le
   // barème change. La livraison a besoin des cotes du colis (en mm).
   const pour = params.get("pour");
-  let colis: { kg: number; plusGrandeCoteMm: number } | null = null;
+  let colis: ColisDemande | null = null;
   if (pour === "livraison") {
+    // Peser un garde-corps, c'est le calculer : même budget de temps que la
+    // fiche et le panier. Sans lui, cette porte (120 demandes par dix minutes)
+    // permettait d'occuper le serveur plusieurs minutes en changeant une cote
+    // à chaque appel.
+    if (budgetCalculGC.epuise(request, Date.now())) {
+      return NextResponse.json({ error: "too_many" }, { status: 429 });
+    }
+    const debut = performance.now();
     try {
       colis = colisDemande(params);
+      budgetCalculGC.depenser(request, performance.now() - debut, Date.now());
     } catch (erreur) {
       if (erreur instanceof ChiffrageIndisponible) return NextResponse.json({ error: "indisponible" }, { status: 503 });
       throw erreur;
     }
     if (!colis) return NextResponse.json({ error: "colis" }, { status: 400 });
+    // Un portail trop long pour un transporteur : le retrait à l'atelier ou la pose.
+    if (colis.portail && !livrablePortailParTransporteur(colis.portail)) return NextResponse.json({ error: "trop_long", plusGrandeCoteMm: colis.plusGrandeCoteMm }, { status: 400 });
   }
   const resultat =
     pour === "pose"
       ? await calculerPose(cp.slice(0, 10))
       : colis
-        ? await calculerLivraison(cp.slice(0, 10), colis.kg, colis.plusGrandeCoteMm)
+        ? colis.portail
+          ? await calculerLivraisonPortail(cp.slice(0, 10), colis.portail)
+          : await calculerLivraison(cp.slice(0, 10), colis.kg, colis.plusGrandeCoteMm)
         : await calculerDeplacement(cp.slice(0, 10));
   if (!resultat.ok) {
     // « Trop loin » dit aussi où, et à combien : le client comprend le refus.
@@ -108,7 +144,7 @@ export async function GET(request: Request) {
   return NextResponse.json(
     // Le poids estimé, à dire au client — seulement pour la livraison seule :
     // la pose ne facture pas au colis.
-    colis ? { ...resultat.deplacement, kg: Math.round(colis.kg) } : resultat.deplacement,
+    colis ? { ...resultat.deplacement, kg: Math.round(colis.kg), ...(colis.portail ? { plusGrandeCoteMm: colis.plusGrandeCoteMm, kgTaxable: Math.round(colis.portail.kgTaxable) } : {}) } : resultat.deplacement,
     { headers: { "cache-control": "private, max-age=600" } }
   );
 }

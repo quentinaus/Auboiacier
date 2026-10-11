@@ -258,18 +258,53 @@ export function PoseDomicile({
 
   if (pilule) {
     const nomPilule = (mode: ModeLivraison) =>
-      mode === "transporteur" ? t.livraisonCourt : mode === "pose" ? t.poseCourt : locale === "fr" ? "Retrait" : "Pick-up";
+      mode === "transporteur" ? t.livraisonCourt : mode === "pose" ? t.poseCourt : locale === "fr" ? "Retrait à l'atelier" : "Collect at the workshop";
     return (
       <div className="scroll-mt-28" id="livraison">
         <span id={idGroupe} className="sr-only">
           {livraisonSeule ? t.livraisonTitle : t.poseTitle}
         </span>
-        <div
-          role="radiogroup"
-          aria-labelledby={idGroupe}
-          className="grid rounded-full border border-[#9a8d80] bg-white p-0.5"
-          style={{ gridTemplateColumns: `repeat(${modes.length}, minmax(0, 1fr))` }}
-        >
+        {/* La case du code postal AVANT les trois façons de recevoir la pièce : sur téléphone, c'est elle qu'on cherchait
+            (Quentin, 10/10/2026), et elle doit se voir sans faire défiler. */}
+        {!retrait && (
+          <div className="mb-2">
+            {/* Une vraie case à remplir, visible (Quentin, 10/10/2026 : « je ne vois pas l'endroit pour l'adresse ») : elle prend
+                la largeur qui reste, bord marqué, « ex. 49400 » en exemple écrit à gauche. */}
+            <label htmlFor={idCp} className="flex items-center justify-between gap-3">
+              <span className="shrink-0 text-[13px] text-[#2b2320]">{locale === "fr" ? "Votre code postal" : "Your postcode"}</span>
+              <span
+                className={`flex h-10 min-w-[8rem] flex-1 items-center rounded-xl bg-white px-3 shadow-[inset_0_1px_2px_rgba(43,35,32,0.06)] transition-colors focus-within:border-[#2b2320] ${
+                  invalide ? "border-[1.5px] border-[#b4533a]" : choix.codePostal ? "border-[1.5px] border-[#2b2320]/40" : "border-[1.5px] border-[#2b2320]/60"
+                }`}
+              >
+                <input
+                  id={idCp}
+                  inputMode="numeric"
+                  autoComplete="postal-code"
+                  maxLength={6}
+                  value={choix.codePostal}
+                  onChange={(event) => onChange({ ...choix, codePostal: event.target.value, deplacement: null })}
+                  placeholder={locale === "fr" ? "ex. 49400" : "e.g. 49400"}
+                  aria-describedby={`${idCp}-etat`}
+                  aria-invalid={invalide}
+                  className="w-full min-w-0 bg-transparent text-[15px] tabular-nums text-[#2b2320] outline-none placeholder:text-[#726757]"
+                />
+              </span>
+            </label>
+            {/* Tant que le code postal n'est pas tapé, le champ suffit (le bouton d'achat dit quoi faire) : une ligne de moins. */}
+            <p id={`${idCp}-etat`} data-attente={etat === "attente" ? "1" : undefined} role="status" aria-live="polite" className={`text-[11.5px] leading-snug ${etat === "attente" && !ligneAttente ? "sr-only" : "mt-1.5"} ${etat === "ok" ? "text-[#2b2320]" : "text-[#6f6357]"}`}>
+              {texteAvecGras(message)}
+            </p>
+            {/* Une pièce lourde ou encombrante coûte cher en simple colis : on le dit tout de suite, aussi en pilule. */}
+            {etat === "ok" && choix.mode === "transporteur" && (dep?.kg ?? 0) > KG_SUGGERE_POSE && !livraisonSeule && (
+              <p className="mt-1 text-[11px] leading-snug text-[#9a5b3f]">{t.livraisonLourd}</p>
+            )}
+          </div>
+        )}
+        {/* Les façons de recevoir la pièce, l'une sous l'autre, chacune en toutes lettres sur une seule ligne (Quentin,
+            10/10/2026 : « Transporteur ne tient pas en un seul mot, et juste transporteur, ça veut rien dire » ; « retrait,
+            je précise bien à l'atelier »). */}
+        <div role="radiogroup" aria-labelledby={idGroupe} className="grid rounded-2xl border border-[#9a8d80] bg-white p-0.5">
           {modes.map((mode) => {
             const actif = choix.mode === mode;
             return (
@@ -283,49 +318,18 @@ export function PoseDomicile({
                   // Le mode déjà choisi : rien à refaire (le prix calculé ne doit pas être effacé sans être redemandé).
                   if (!actif) onChange({ ...choix, mode, deplacement: null });
                 }}
-                className={`rounded-full px-1.5 py-1.5 text-[12px] font-medium leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${actif ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"}`}
+                className={`flex min-w-0 items-center gap-2 rounded-xl px-2.5 py-[3px] text-left text-[12.5px] font-medium leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b2320] ${actif ? "bg-[#2b2320] text-white" : "text-[#6f6357] hover:text-[#2b2320]"}`}
               >
-                {nomPilule(mode)}
+                <span aria-hidden className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border ${actif ? "border-white" : "border-[#9a8d80]"}`}>
+                  <span className={`h-1.5 w-1.5 rounded-full bg-white ${actif ? "opacity-100" : "opacity-0"}`} />
+                </span>
+                <span className="truncate">{nomPilule(mode)}</span>
               </button>
             );
           })}
         </div>
         {poseSeule && !livraisonSeule && <p className="mt-1.5 text-[11px] leading-snug text-[#6f6357]">{t.poseObligatoire}</p>}
-        {retrait ? (
-          <p className="mt-1.5 text-[11.5px] leading-snug text-[#6f6357]">{t.poseRetraitInfo}</p>
-        ) : (
-          <div className="mt-2">
-            <label htmlFor={idCp} className="flex items-center justify-between gap-3">
-              <span className="text-[13px] font-medium text-[#2b2320]">{ligneAttente ? t.poseCodePostal : locale === "fr" ? "Code postal" : "Postcode"}</span>
-              <span
-                className={`flex h-9 w-[6.5rem] shrink-0 items-center rounded-full border bg-white px-3 transition-colors focus-within:border-[#2b2320] ${
-                  invalide ? "border-[#b4533a]" : ligneAttente && etat === "attente" ? "border-[#2b2320]" : "border-[#9a8d80]"
-                }`}
-              >
-                <input
-                  id={idCp}
-                  inputMode="numeric"
-                  autoComplete="postal-code"
-                  maxLength={6}
-                  value={choix.codePostal}
-                  onChange={(event) => onChange({ ...choix, codePostal: event.target.value, deplacement: null })}
-                  placeholder="49400"
-                  aria-describedby={`${idCp}-etat`}
-                  aria-invalid={invalide}
-                  className="w-full min-w-0 bg-transparent text-right text-[15px] tabular-nums text-[#2b2320] outline-none placeholder:text-[#726757]"
-                />
-              </span>
-            </label>
-            {/* Tant que le code postal n'est pas tapé, le champ suffit (le bouton d'achat dit quoi faire) : une ligne de moins. */}
-            <p id={`${idCp}-etat`} role="status" aria-live="polite" className={`text-[11.5px] leading-snug ${etat === "attente" && !ligneAttente ? "sr-only" : "mt-1.5"} ${etat === "ok" ? "text-[#2b2320]" : "text-[#6f6357]"}`}>
-              {texteAvecGras(message)}
-            </p>
-            {/* Une pièce lourde ou encombrante coûte cher en simple colis : on le dit tout de suite, aussi en pilule. */}
-            {etat === "ok" && choix.mode === "transporteur" && (dep?.kg ?? 0) > KG_SUGGERE_POSE && !livraisonSeule && (
-              <p className="mt-1 text-[11px] leading-snug text-[#9a5b3f]">{t.livraisonLourd}</p>
-            )}
-          </div>
-        )}
+        {retrait && <p className="mt-1.5 text-[11.5px] leading-snug text-[#6f6357]">{t.poseRetraitInfo}</p>}
       </div>
     );
   }
@@ -368,11 +372,13 @@ export function PoseDomicile({
 
       {!retrait && (
       <div className={compact ? "mt-3" : "mt-4"}>
-        <label htmlFor={idCp} className="flex items-center justify-between gap-4">
-          <span className="text-[15px] text-[#2b2320]">{t.poseCodePostal}</span>
+        {/* Une vraie case à remplir, pas une ligne « Code postal : 49400 » (Quentin, 10/10/2026 : « je ne vois pas
+            l'endroit pour l'adresse ») : la case prend toute la largeur qui reste, écrite à gauche, « ex. 49400 » en exemple. */}
+        <label htmlFor={idCp} className="flex items-center justify-between gap-3">
+          <span className="shrink-0 text-[15px] text-[#2b2320]">{t.poseCodePostal}</span>
           <span
-            className={`flex h-10 w-[8.5rem] shrink-0 items-center rounded-full border bg-white px-3.5 transition-colors focus-within:border-[#2b2320] ${
-              invalide ? "border-[#b4533a]" : "border-[#9a8d80]"
+            className={`flex h-10 min-w-[9rem] flex-1 items-center rounded-xl border-[1.5px] bg-white px-3.5 shadow-[inset_0_1px_2px_rgba(43,35,32,0.06)] transition-colors focus-within:border-[#2b2320] ${
+              invalide ? "border-[#b4533a]" : choix.codePostal ? "border-[#2b2320]/40" : "border-[#2b2320]/60"
             }`}
           >
             <input
@@ -382,10 +388,10 @@ export function PoseDomicile({
               maxLength={6}
               value={choix.codePostal}
               onChange={(event) => onChange({ ...choix, codePostal: event.target.value, deplacement: null })}
-              placeholder="49400"
+              placeholder={locale === "fr" ? "ex. 49400" : "e.g. 49400"}
               aria-describedby={`${idCp}-etat`}
               aria-invalid={invalide}
-              className="w-full min-w-0 bg-transparent text-right text-base tabular-nums text-[#2b2320] outline-none placeholder:text-[#726757]"
+              className="w-full min-w-0 bg-transparent text-base tabular-nums text-[#2b2320] outline-none placeholder:text-[#726757]"
             />
           </span>
         </label>

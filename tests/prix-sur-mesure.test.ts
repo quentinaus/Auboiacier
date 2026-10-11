@@ -434,7 +434,8 @@ test("un plateau de table ne se coupe qu'aux épaisseurs de l'atelier", () => {
   for (const product of tables) {
     const bareme = product.surMesure!;
     const choix = bareme.epaisseur.choixMm!;
-    assert.deepEqual(choix, [28, 36, 45], `${product.slug} : 28, 36 ou 45 mm, rien d'autre`);
+    // La table résine a un plateau coulé : 45 mm seulement (décision du 05/10/2026).
+    assert.deepEqual(choix, product.slug === "table-resine-mikado" ? [45] : [28, 36, 45], `${product.slug} : 28, 36 ou 45 mm, rien d'autre`);
     assert.ok(choix.includes(bareme.epaisseur.refMm), `${product.slug} : la référence doit être un des choix`);
     const { largeurMm, hauteurMm } = cotesHorsCatalogue(bareme, 0.5);
     for (const mm of choix) {
@@ -442,7 +443,7 @@ test("un plateau de table ne se coupe qu'aux épaisseurs de l'atelier", () => {
       const mini = epaisseurMiniMm(bareme, Math.max(largeurMm, hauteurMm));
       assert.equal(devis.ok, mm >= mini, `${product.slug} : ${mm} mm`);
     }
-    for (const mm of [30, 38, 40, 44]) {
+    for (const mm of [30, 38, 40, 44, ...(choix.length === 1 ? [28, 36] : [])]) {
       const devis = devisSurMesure(product, largeurMm, hauteurMm, mm);
       assert.ok(!devis.ok && devis.reason === "epaisseur_hors_bornes", `${product.slug} : ${mm} mm devrait être refusé`);
     }

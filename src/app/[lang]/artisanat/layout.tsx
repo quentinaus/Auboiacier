@@ -1,6 +1,6 @@
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../dictionaries";
-import { ArtisanatHeader } from "@/components/artisanat-header";
+import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 
 export default async function ArtisanatLayout({
@@ -13,7 +13,9 @@ export default async function ArtisanatLayout({
 
   return (
     <div className="min-h-screen bg-[#ffffff] text-[#2b2320]">
-      <ArtisanatHeader locale={locale} dict={dict} />
+      {/* La même barre que le reste du site (09/10/2026, Quentin : l'ancienne barre « ← Auboiacier | Mobilier acier & bois »
+          n'était pas belle quand on ouvre une pièce). */}
+      <GlobalHeader locale={locale} dict={dict} />
       <main id="contenu">
       {children}
       </main>

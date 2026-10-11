@@ -31,8 +31,8 @@
  * jamais la fenêtre ni ses cotes.
  */
 
-import { useId } from "react";
-import { BARRE_APPUI_MM, JOUR_GC_MM, MAIN_COURANTE_MM, formeGC, type TrousGC } from "@/lib/garde-corps";
+import { useEffect, useId, useRef } from "react";
+import { BARRE_APPUI_MM, JOUR_GC_MM, MAIN_COURANTE_MM, PLATINE_FIXATION_GC_MM, RECUL_FIXATION_GC_MM, formeGC, type DecorTraitGC, type TrousGC } from "@/lib/garde-corps";
 import type { MatiereMur } from "@/lib/murs-gc";
 
 const ENCRE = "#2b2320";
@@ -40,7 +40,8 @@ const ENCRE = "#2b2320";
 const ACIER_DEFAUT = "#2b2320";
 const BOIS_DEFAUT = "#d9b582";
 
-export type CoteFenetre = "largeur" | "allege" | "fenetre" | "hauteur";
+/** « largeur » : la largeur en bas, au ras de l'appui ; « largeurHaut » : la largeur à 1 m du sol. */
+export type CoteFenetre = "largeur" | "largeurHaut" | "allege" | "fenetre" | "hauteur";
 
 
 type Point = [number, number];
@@ -403,6 +404,9 @@ function Cote({
       }}
       style={{ cursor: "pointer" }}
     >
+      {/* La mesure demandée : un mètre ruban se déroule le long de la cote, son boîtier au départ (Quentin, 09/10/2026 :
+          « un dessin par question », pour qu'un client qui n'a jamais mesuré voie où poser le mètre). */}
+      {actif && <MetreRuban key={`metre-${cote}`} de={de} a={a} />}
       <path d={`M${r(de[0])} ${r(de[1])} L${r(a[0])} ${r(a[1])}`} stroke={couleur} strokeWidth={epaisseur} />
       {/* Le trait prolongé jusqu'à l'étiquette posée au-delà du bout. */}
       {dehors && <path d={`M${r(a[0])} ${r(a[1])} L${cx} ${cy}`} stroke={couleur} strokeWidth={0.6} strokeOpacity={0.7} />}
@@ -439,6 +443,110 @@ function Cote({
   );
 }
 
+/**
+ * Le mètre ruban posé sur la cote demandée (Quentin, 09/10/2026 : « voir le mètre se dérouler, et refaire son apparence ») :
+ * le boîtier au départ, le ruban jaune gradué (petits et grands traits, pour qu'on le reconnaisse ; pas à l'échelle), qui
+ * sort du boîtier, et le crochet au bout, qui se pose contre le mur.
+ *
+ * Le ruban glisse hors du boîtier, le crochet en tête (Web Animations, en pixels : Safari ignorait la version CSS en %).
+ * Une animation <animate> ajoutée après le chargement se croyait déjà finie, et elle se jouait de toute façon sous l'écran
+ * « Qui prend les mesures ? » (Quentin : « je ne vois pas l'animation »). Le ruban attend donc dans son boîtier que le
+ * croquis soit à plus de moitié à l'écran et découvert, et repart à chaque nouvelle question.
+ */
+export function MetreRuban({ de, a }: { de: [number, number]; a: [number, number] }) {
+  const id = `metre${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const metre = useRef<SVGGElement>(null);
+  const sort = useRef<SVGGElement>(null);
+  const L = Math.hypot(a[0] - de[0], a[1] - de[1]);
+  // Lent, pour qu'on le voie sortir (Quentin : « je veux voir l'animation »).
+  const duree = Math.round(Math.min(2400, 1400 + L * 3));
+  useEffect(() => {
+    const el = metre.current;
+    const ruban = sort.current;
+    if (!el || !ruban || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const rentre = `translateX(${-r(L + 4)}px)`;
+    ruban.style.transform = rentre;
+    let visible = false;
+    let anim: Animation | null = null;
+    const couvert = () => Boolean(el.closest(".fond-configuration")?.querySelector(".porte-qui"));
+    const essayer = () => {
+      if (anim || !visible || couvert()) return;
+      ruban.style.transform = "";
+      anim = ruban.animate([{ transform: rentre }, { transform: "translateX(0px)" }], {
+        duration: duree,
+        delay: 300,
+        easing: "cubic-bezier(0.22, 0.75, 0.25, 1)",
+        fill: "backwards",
+      });
+      window.clearInterval(veille);
+      io.disconnect();
+    };
+    // Le croquis à plus de moitié à l'écran (Quentin : « quand on arrive la première fois, il est déjà déroulé ») : le
+    // croquis qui pointait sous la photo suffisait à lancer le déroulé avant qu'on y arrive. Pas le mètre lui-même : rentré,
+    // son ruban sort du croquis, et il ne passait jamais pour visible (« le mètre n'est pas déroulé »).
+    const io = new IntersectionObserver(
+      ([e]) => {
+        visible = e.isIntersecting && e.intersectionRatio >= 0.6;
+        essayer();
+      },
+      { threshold: [0, 0.6, 1] },
+    );
+    io.observe(el.ownerSVGElement ?? el);
+    const veille = window.setInterval(essayer, 250);
+    return () => {
+      io.disconnect();
+      window.clearInterval(veille);
+      anim?.cancel();
+      ruban.style.transform = "";
+    };
+  }, [L, duree]);
+  if (L < 4) return null;
+  const larg = 7;
+  // Dessiné à plat, le long de l'axe x (le boîtier à l'origine), puis tourné dans le sens de la cote.
+  const p = (t: number, d: number): string => `${r(t)} ${r(d)}`;
+  const ruban = `M${p(0, -larg / 2)} L${p(L, -larg / 2)} L${p(L, larg / 2)} L${p(0, larg / 2)} Z`;
+  // Comme un vrai mètre (Quentin : « ça ressemble à un chemin de fer ») : les traits partent d'UN seul bord, de trois
+  // longueurs (le mm, le demi-cm, le cm), et un repère rouge tous les dix, comme les chiffres rouges d'un ruban.
+  const pas = 1.6;
+  const traits: string[] = [];
+  const rouges: string[] = [];
+  for (let i = 1; i * pas < L - 3; i++) {
+    const long = i % 10 === 0 ? 4.2 : i % 5 === 0 ? 2.6 : 1.4;
+    traits.push(`M${p(i * pas, -larg / 2)} L${p(i * pas, -larg / 2 + long)}`);
+    if (i % 10 === 0) rouges.push(`M${p(i * pas + 1.4, 0.6)} L${p(i * pas + 3.6, 0.6)}`);
+  }
+  const reflet = `M${p(0, larg / 2 - 1.1)} L${p(L, larg / 2 - 1.1)}`;
+  // Le crochet : un petit L au bout du ruban.
+  const crochet = `M${p(L - 1, -larg / 2 - 1)} L${p(L + 2.2, -larg / 2 - 1)} L${p(L + 2.2, larg / 2 + 1.5)}`;
+  const angle = (Math.atan2(a[1] - de[1], a[0] - de[0]) * 180) / Math.PI;
+  return (
+    <g ref={metre} pointerEvents="none" transform={`translate(${r(de[0])} ${r(de[1])}) rotate(${r(angle)})`}>
+      <defs>
+        {/* La bouche du boîtier : le ruban n'existe qu'en dehors. */}
+        <clipPath id={id}>
+          <rect x={0} y={-12} width={r(L + 6)} height={24} />
+        </clipPath>
+      </defs>
+      <g clipPath={`url(#${id})`}>
+        <g ref={sort}>
+          <path d={ruban} fill="#f6c51b" stroke="#b58a07" strokeWidth={0.5} />
+          <path d={reflet} stroke="#fde68a" strokeWidth={1} />
+          <path d={traits.join(" ")} stroke="#2b2320" strokeWidth={0.45} />
+          <path d={rouges.join(" ")} stroke="#c0392b" strokeWidth={1.6} />
+          <path d={crochet} fill="none" stroke="#6b6156" strokeWidth={1.4} strokeLinejoin="round" />
+        </g>
+      </g>
+      {/* Le boîtier : noir, une fenêtre claire et le bouton de blocage rouge, tourné dans le sens du ruban. */}
+      <g className="metre-boitier">
+        <rect x={-15} y={-9} width={17} height={17} rx={4} fill="#2b2320" />
+        <circle cx={-6.5} cy={-0.5} r={4.5} fill="#4a4038" />
+        <circle cx={-6.5} cy={-0.5} r={2} fill="#f6c51b" />
+        <rect x={-12} y={-11.5} width={6} height={3} rx={1.2} fill="#c0392b" />
+      </g>
+    </g>
+  );
+}
+
 /** Une rosace : la fleur au croisement des barres, dans la teinte de l'acier. */
 function Rosace({ cx, cy, taille = 6.5, acier }: { cx: number; cy: number; taille?: number; acier: string }) {
   const k = taille / 6.5;
@@ -458,6 +566,8 @@ function Rosace({ cx, cy, taille = 6.5, acier }: { cx: number; cy: number; taill
 
 export function SchemaFenetre({
   largeurMm,
+  largeurHautMm,
+  sansLargeurHaut,
   allegeMm,
   hauteurFenetreMm,
   croix,
@@ -479,6 +589,8 @@ export function SchemaFenetre({
   locale = "fr",
   className = "h-full w-full",
   remplissage = "croix",
+  decor = null,
+  coteMainCourante = false,
 }: {
   /** Le diamètre de la rosace choisie, pour la dessiner à l'échelle. */
   rosaceMm?: number;
@@ -488,10 +600,27 @@ export function SchemaFenetre({
    * fenêtre basse, passait pour LE garde-corps proposé — et il n'a pas l'air aux normes.
    */
   apercu?: boolean;
-  /** Les croix du modèle, ou un panneau de verre à leur place. */
-  remplissage?: "croix" | "verre";
+  /** Les croix du modèle, un panneau de verre à leur place, ou un décor à volutes (bibliothèque de styles). */
+  remplissage?: "croix" | "verre" | "decor";
+  /**
+   * Le décor à volutes tel que l'OUTIL DE PLANS le dessine (réponse du serveur) : ses barreaux, ses volutes, ses colliers,
+   * en mm depuis le coin bas-gauche du cadre. Le croquis les pose dans son cadre, sans rien redessiner.
+   */
+  decor?: { cadreMm: { l: number; h: number }; traits: readonly DecorTraitGC[] } | null;
+  /**
+   * La cote de droite donne le haut de la main courante, depuis le sol, au lieu de la hauteur de la fenêtre :
+   * pour la page des normes, qui explique la règle (la fiche, elle, y demande la hauteur de la fenêtre).
+   */
+  coteMainCourante?: boolean;
   /** Les cotes dessinées à l'échelle. Sans valeur, le croquis prend celles du modèle, et les étiquettes disent ce qu'il faut mesurer. */
   largeurMm?: number;
+  /**
+   * La largeur en haut, à 1 m du sol (murs pas parallèles, décision de Quentin, 05/10). `largeurMm` est alors celle
+   * d'en bas, au ras de l'appui. Le dessin est à la plus petite des deux.
+   */
+  largeurHautMm?: number;
+  /** Murs droits : une seule largeur, celle du bas ; la cote « à 1 m » n'est pas dessinée. */
+  sansLargeurHaut?: boolean;
   allegeMm?: number;
   /** De l'appui au haut de l'ouverture. */
   hauteurFenetreMm?: number;
@@ -518,9 +647,13 @@ export function SchemaFenetre({
   teinteBois?: string;
   labels: {
     largeur: string;
+    /** La largeur en haut (sinon, le libellé de la largeur). */
+    largeurHaut?: string;
     allege: string;
     fenetre: string;
     hauteur: string;
+    /** La cote du haut de la main courante (avec `coteMainCourante`). */
+    mainCourante?: string;
     metre: string;
     interieur: string;
     jour: string;
@@ -538,7 +671,11 @@ export function SchemaFenetre({
   // Les cotes, bornées à ce qui reste une fenêtre (une faute de frappe à
   // 20 000 mm écrasait tout le dessin) — mais proportionnelles entre elles.
   const borne = (mm: number, min: number, max: number) => Math.min(Math.max(mm, min), max);
-  const L = borne(largeurMm ?? MODELE.largeurMm, 200, 3000);
+  const L = borne(
+    largeurMm !== undefined && largeurHautMm !== undefined ? Math.min(largeurMm, largeurHautMm) : (largeurMm ?? largeurHautMm ?? MODELE.largeurMm),
+    200,
+    3000,
+  );
   const A = borne(allegeMm ?? ALLEGE_MODELE_MM, 0, 1500);
   // CE QU'ON DESSINE DANS LA FENÊTRE vient de la règle de l'outil (formeGC), calculée ici même : le croquis
   // suit le curseur EN DIRECT, sans attendre le serveur. Un garde-corps tant qu'il en faut au moins 200 mm ;
@@ -608,35 +745,120 @@ export function SchemaFenetre({
   const debord = Math.max(3, r(40 * e));
   const tablette = Math.max(2, r(35 * e));
 
-  /* Les cotes : la largeur au-dessus de la fenêtre, le bas de la fenêtre à gauche, sa hauteur à droite. */
+  /* Les cotes. Les deux largeurs, d'un mur à l'autre, à des repères que le client trouve SEUL (« il ne sait pas où sera
+     la main courante : c'est nous qui la calculons », Quentin, 06/10) : en bas au ras de l'appui, en haut à 1 m du sol.
+     Le bas de la fenêtre à gauche, sa hauteur à droite. */
   const fr = locale === "fr";
   const noms = fr
-    ? { largeur: "Largeur", allege: "Bas de fenêtre", fenetre: "Hauteur" }
-    : { largeur: "Width", allege: "Sill height", fenetre: "Height" };
-  const yLargeur = r(hautOuvertureY - 17);
+    ? { largeur: "En bas", largeurHaut: "À 1 m", allege: "Bas de fenêtre", fenetre: "Hauteur" }
+    : { largeur: "Bottom", largeurHaut: "At 1 m", allege: "Sill height", fenetre: "Height" };
+  /** En bas : juste au-dessus de l'appui. En haut : à 1 m du sol (toujours au-dessus de la ligne du bas). */
+  const yLargeurBas = r(appuiY - 5);
+  const yLargeurHaut = r(Math.min(solY - 1000 * e, yLargeurBas - 16));
+  /* Murs pas parallèles (Quentin, 07/10 : « on ne voit pas que ce n'est pas parallèle sur le plan, j'aimerais qu'on le
+     voie ») : l'ouverture se dessine en trapèze, chaque largeur à sa hauteur, et le garde-corps reste à la plus petite. Un
+     écart de quelques millimètres ne se verrait pas à l'échelle : il est agrandi (5 à 14 px de chaque côté). */
+  const ecartMm = largeurMm !== undefined && largeurHautMm !== undefined ? borne(largeurMm, 200, 3000) - borne(largeurHautMm, 200, 3000) : 0;
+  const ecartDessin = ecartMm === 0 ? 0 : Math.min(14, Math.max(5, (Math.abs(ecartMm) * e) / 2));
+  /** De combien le mur s'écarte du garde-corps, de chaque côté, à la hauteur y (droit entre les deux lignes de mesure). */
+  const surplus = (y: number) => {
+    if (ecartDessin === 0) return 0;
+    const t = (yLargeurBas - y) / Math.max(1, yLargeurBas - yLargeurHaut);
+    const bas = ecartMm > 0 ? ecartDessin : 0;
+    const haut = ecartMm < 0 ? ecartDessin : 0;
+    return Math.min(2 * ecartDessin, Math.max(0, bas + (haut - bas) * t));
+  };
+  const bordG = (y: number) => r(G - surplus(y));
+  const bordD = (y: number) => r(D + surplus(y));
   const xGauche = r(Math.max(14, G - debord - 15));
   const xDroite = r(Math.min(LARGEUR - 14, D + debord + 15));
   const rappel = { stroke: "#4d433a", strokeOpacity: 0.55, strokeWidth: 0.6 };
 
   const legende = fr ? "Croquis coté, vu depuis la pièce : " : "Dimensioned sketch, seen from the room: ";
 
+  // La fixation par platines au bout des lisses (10/10/2026, FIX_GC de l'outil) : le cadre (ses montants de rive) est en retrait
+  // de 90 mm dans chaque tableau ; les lisses filent jusqu'aux platines, plaquées contre le tableau. Le décor et les ronds de
+  // l'outil sont en mm depuis le coin du CADRE : ils se posent entre les montants, pas d'un tableau à l'autre. (Le garde-corps en
+  // verre n'est pas chiffré par l'outil : son croquis garde le cadre d'un tableau à l'autre.)
+  const recul = mode === "garde-corps" && remplissage !== "verre" ? Math.min(r(RECUL_FIXATION_GC_MM * e), r((D - G - 4) / 5)) : 0;
+  const cG = G + 2 + recul, cD = D - 2 - recul, cL = cD - cG;
+  const platineE = Math.max(1.2, r(PLATINE_FIXATION_GC_MM.e * e * 10) / 10), platineH = Math.max(3, r(PLATINE_FIXATION_GC_MM.h * e));
+  /* Murs pas parallèles (Quentin, 10/10/2026 : « qu'on voie bien que le garde-corps suit les murs », montants de rive
+     DROITS) : le cadre reste rectangulaire, à 90 mm du tableau au niveau de la lisse la plus étroite (cG, cD, calculés sur la
+     plus petite largeur). Seules les lisses haute et basse, la main courante et les platines filent jusqu'à leur tableau,
+     chacune à la largeur de son niveau (bordG, bordD). */
+
   const gardeCorps = mode === "garde-corps" && (
     <g filter={acierClair ? `url(#${ids("contour")})` : undefined}>
       {remplissage === "verre" && (
         /* Le verre feuilleté : un panneau clair, un reflet, aucun vide. */
         <g>
-          <rect x={G + 2} y={cadreHaut} width={D - G - 4} height={cadreBas - cadreHaut} fill="#bfd3dd" opacity={0.75} />
+          <rect x={cG} y={cadreHaut} width={cL} height={cadreBas - cadreHaut} fill="#bfd3dd" opacity={0.75} />
           <line x1={G + 8} y1={cadreBas - 2} x2={r(G + 8 + (cadreBas - cadreHaut) * 0.9)} y2={cadreHaut + 2} stroke="#ffffff" strokeWidth={2} opacity={0.7} />
         </g>
       )}
-      <rect x={G + 2} y={cadreHaut} width={D - G - 4} height={cadreBas - cadreHaut} fill="none" stroke={acier} strokeWidth={r(barre * 1.4)} />
+      <rect x={cG} y={cadreHaut} width={cL} height={cadreBas - cadreHaut} fill="none" stroke={acier} strokeWidth={r(barre * 1.4)} />
+      {recul > 0 && (
+        /* La fixation par platines au bout des lisses (10/10/2026) : les lisses haute et basse filent jusqu'aux tableaux, une
+           platine 40 × 5 × 120 soudée à chaque bout, plaquée contre le tableau (en haut sous la lisse, en bas centrée sur elle ;
+           une seule par côté sur toute la hauteur quand le cadre est trop bas pour deux). */
+        <g>
+          <line x1={bordG(cadreHaut) + 2} y1={cadreHaut} x2={bordD(cadreHaut) - 2} y2={cadreHaut} stroke={acier} strokeWidth={r(barre * 1.4)} />
+          <line x1={bordG(cadreBas) + 2} y1={cadreBas} x2={bordD(cadreBas) - 2} y2={cadreBas} stroke={acier} strokeWidth={r(barre * 1.4)} />
+          {[(y: number) => bordG(y) + 2, (y: number) => bordD(y) - 2 - platineE].map((x, k) => {
+            const yHaut = r(cadreHaut - barre * 0.7);
+            const unique = cadreBas + platineH / 2 - yHaut < 2 * platineH + barre;
+            /* La platine, plaquée sur le tableau : elle suit sa pente. */
+            const platine = (y1: number, y2: number, cle: string) => (
+              <polygon key={cle} points={`${r(x(y1))},${y1} ${r(x(y1) + platineE)},${y1} ${r(x(y2) + platineE)},${y2} ${r(x(y2))},${y2}`} fill={acier} />
+            );
+            return unique ? (
+              platine(yHaut, r(cadreBas + platineH / 2), `pl${k}`)
+            ) : (
+              <g key={`pl${k}`}>
+                {platine(yHaut, r(yHaut + platineH), `h`)}
+                {platine(r(cadreBas - platineH / 2), r(cadreBas + platineH / 2), `b`)}
+              </g>
+            );
+          })}
+        </g>
+      )}
       {soubassement > 0 && (
         /* Les barreaux droits du bas, sous une lisse : rien à quoi grimper sous 600 mm du sol. */
         <g stroke={acier} strokeWidth={barre}>
-          <line x1={G + 2} y1={basCroix} x2={D - 2} y2={basCroix} strokeWidth={r(barre * 1.2)} />
+          <line x1={cG} y1={basCroix} x2={cD} y2={basCroix} strokeWidth={r(barre * 1.2)} />
           {Array.from({ length: barreaux }, (_, i) => {
-            const x = r(G + 2 + ((D - G - 4) * (i + 1)) / (barreaux + 1));
+            const x = r(cG + ((cL) * (i + 1)) / (barreaux + 1));
             return <line key={i} x1={x} y1={basCroix} x2={x} y2={cadreBas} />;
+          })}
+        </g>
+      )}
+      {remplissage === "decor" && decor && (() => {
+        /* Le décor de l'outil, posé dans le cadre du croquis (même repère que les ronds de la norme). */
+        const sx = (cL) / decor.cadreMm.l,
+          sy = (cadreBas - cadreHaut) / decor.cadreMm.h;
+        const pt = ([x, y]: readonly [number, number]) => `${r(cG + x * sx)},${r(cadreBas - y * sy)}`;
+        const or = "#b8893f";
+        return (
+          <g>
+            {decor.traits.map((tr, i) =>
+              tr.t === "cercle" ? (
+                <ellipse key={i} cx={r(cG + tr.c[0] * sx)} cy={r(cadreBas - tr.c[1] * sy)} rx={Math.max(0.4, tr.r * sx)} ry={Math.max(0.4, tr.r * sy)} fill={tr.role === "or" ? or : acier} />
+              ) : tr.role === "vrille" ? (
+                <polyline key={i} points={tr.pts.map(pt).join(" ")} fill="none" stroke="#ffffff" strokeOpacity={0.55} strokeWidth={0.35} />
+              ) : (
+                <polygon key={i} points={tr.pts.map(pt).join(" ")} fill={tr.role === "or" ? or : acier} stroke={tr.role === "collier" ? "#ffffff" : "none"} strokeOpacity={0.5} strokeWidth={tr.role === "collier" ? 0.3 : 0} />
+              )
+            )}
+          </g>
+        );
+      })()}
+      {remplissage === "decor" && !decor && (
+        /* En attendant le dessin de l'outil : les barreaux du cadre, en filigrane. */
+        <g stroke={acier} strokeWidth={barre} opacity={0.25}>
+          {Array.from({ length: Math.max(2, Math.round(L / 116)) }, (_, i) => {
+            const x = r(cG + ((cL) * (i + 1)) / (Math.max(2, Math.round(L / 116)) + 1));
+            return <line key={i} x1={x} y1={cadreHaut} x2={x} y2={cadreBas} />;
           })}
         </g>
       )}
@@ -644,7 +866,7 @@ export function SchemaFenetre({
         /* Des barreaux verticaux, du haut au bas du cadre : rien à quoi poser le pied. */
         <g stroke={acier} strokeWidth={barre}>
           {Array.from({ length: barreauxSeuls }, (_, i) => {
-            const x = r(G + 2 + ((D - G - 4) * (i + 1)) / (barreauxSeuls + 1));
+            const x = r(cG + ((cL) * (i + 1)) / (barreauxSeuls + 1));
             return <line key={i} x1={x} y1={cadreHaut} x2={x} y2={cadreBas} />;
           })}
         </g>
@@ -652,8 +874,8 @@ export function SchemaFenetre({
       {remplissage === "croix" &&
         !seuls &&
         Array.from({ length: panneaux }, (_, i) => {
-          const x0 = r(G + 2 + ((D - G - 4) * i) / panneaux);
-          const x1 = r(G + 2 + ((D - G - 4) * (i + 1)) / panneaux);
+          const x0 = r(cG + ((cL) * i) / panneaux);
+          const x1 = r(cG + ((cL) * (i + 1)) / panneaux);
           return (
             <g key={i} opacity={apercu ? 0.22 : 1}>
               {i > 0 && <line x1={x0} y1={cadreHaut} x2={x0} y2={basCroix} stroke={acier} strokeWidth={barre} />}
@@ -679,18 +901,18 @@ export function SchemaFenetre({
       {trous &&
         remplissage === "croix" &&
         trous.ronds.map((c, i) => {
-          const sx = (D - G - 4) / trous.cadreMm.l,
+          const sx = (cL) / trous.cadreMm.l,
             sy = (cadreBas - cadreHaut) / trous.cadreMm.h;
           const couleur = c.ok ? "#2f7d46" : "#b3261e";
           return (
-            <ellipse key={`rond${i}`} cx={r(G + 2 + c.x * sx)} cy={r(cadreBas - c.y * sy)} rx={r((c.d / 2) * sx)} ry={r((c.d / 2) * sy)} fill={couleur} fillOpacity={0.3} stroke={couleur} strokeWidth={1.6} />
+            <ellipse key={`rond${i}`} cx={r(cG + c.x * sx)} cy={r(cadreBas - c.y * sy)} rx={r((c.d / 2) * sx)} ry={r((c.d / 2) * sy)} fill={couleur} fillOpacity={0.3} stroke={couleur} strokeWidth={1.6} />
           );
         })}
-      <MainCourante x={G - 2} y={hautGardeCorpsY} largeur={D - G + 4} hauteur={mainCouranteH} type={typeMainCourante} acier={acier} bois={bois} />
-      {platH > 0 && <rect x={G} y={r(hautGardeCorpsY + mainCouranteH - platH)} width={D - G} height={platH} fill={acier} />}
+      <MainCourante x={bordG(hautGardeCorpsY) - 2} y={hautGardeCorpsY} largeur={bordD(hautGardeCorpsY) - bordG(hautGardeCorpsY) + 4} hauteur={mainCouranteH} type={typeMainCourante} acier={acier} bois={bois} />
+      {platH > 0 && <rect x={bordG(hautGardeCorpsY)} y={r(hautGardeCorpsY + mainCouranteH - platH)} width={bordD(hautGardeCorpsY) - bordG(hautGardeCorpsY)} height={platH} fill={acier} />}
       {/* Les pattes : du bas du cadre jusqu'à l'appui, où elles sont scellées. */}
       {Array.from({ length: pattes }, (_, j) => (
-        <rect key={`patte${j}`} x={r(G + ((D - G) * (j + 1)) / (pattes + 1) - Math.max(1, barre / 2))} y={basGardeCorpsY} width={Math.max(2, barre)} height={Math.max(2, appuiY - basGardeCorpsY + 2)} fill={acier} />
+        <rect key={`patte${j}`} x={r(cG + (cL * (j + 1)) / (pattes + 1) - Math.max(1, barre / 2))} y={basGardeCorpsY} width={Math.max(2, barre)} height={Math.max(2, appuiY - basGardeCorpsY + 2)} fill={acier} />
       ))}
     </g>
   );
@@ -700,7 +922,7 @@ export function SchemaFenetre({
       viewBox={`0 0 ${LARGEUR} ${HAUTEUR}`}
       preserveAspectRatio="xMidYMid slice"
       role="img"
-      aria-label={`${legende}${labels.largeur}, ${labels.allege}, ${labels.fenetre}, ${labels.hauteur}. ${labels.interieur}`}
+      aria-label={`${legende}${labels.largeur}, ${labels.allege}, ${coteMainCourante && labels.mainCourante ? labels.mainCourante : labels.fenetre}, ${labels.hauteur}. ${labels.interieur}`}
       className={className}
     >
       <defs>
@@ -758,7 +980,17 @@ export function SchemaFenetre({
       <Mur matiere={mur} bas={solY} e={e} ids={ids} />
       <Parquet haut={solY} bas={HAUTEUR} e={e} ids={ids} lumiere={[G, D]} />
 
-      {/* L'ouverture : une ombre douce tout autour dit l'épaisseur du mur. */}
+      {/* L'ouverture : une ombre douce tout autour dit l'épaisseur du mur. Murs pas parallèles : l'ouverture en trapèze, le
+          tableau du mur visible entre la fenêtre et le mur penché. */}
+      {ecartDessin > 0 && (
+        <polygon
+          points={`${bordG(hautOuvertureY)},${hautOuvertureY} ${bordD(hautOuvertureY)},${hautOuvertureY} ${bordD(appuiY)},${appuiY} ${bordG(appuiY)},${appuiY}`}
+          fill="#d8cfc2"
+          stroke="#3a3129"
+          strokeOpacity={0.55}
+          strokeWidth={1}
+        />
+      )}
       <rect x={G - 1.2} y={hautOuvertureY - 1.2} width={r(D - G + 2.4)} height={r(appuiY - hautOuvertureY + 1.2)} fill="#1e1912" fillOpacity={0.1} />
       {/* La menuiserie : le dormant et les deux ouvrants, blancs. */}
       <rect x={G} y={hautOuvertureY} width={r(D - G)} height={r(appuiY - hautOuvertureY)} fill="#f7f5f1" />
@@ -806,18 +1038,36 @@ export function SchemaFenetre({
       {/* Une ombre douce sur les bords, comme une photo. */}
       <rect x={0} y={0} width={LARGEUR} height={HAUTEUR} fill={`url(#${ids("vignette")})`} pointerEvents="none" />
 
+      {/* La ligne où mesurer : c'est maintenant le mètre ruban de la cote qui la montre (MetreRuban, 09/10/2026). */}
       {/* Les lignes de rappel : du bord mesuré jusqu'au-delà de la cote. */}
       <g {...rappel}>
-        <line x1={G} x2={G} y1={r(hautOuvertureY - 3)} y2={r(yLargeur - 5)} />
-        <line x1={D} x2={D} y1={r(hautOuvertureY - 3)} y2={r(yLargeur - 5)} />
         <line x1={r(G - debord - 3)} x2={r(xGauche - 5)} y1={appuiY} y2={appuiY} />
-        <line x1={r(D + 3)} x2={r(xDroite + 5)} y1={hautOuvertureY} y2={hautOuvertureY} />
-        <line x1={r(D + debord + 3)} x2={r(xDroite + 5)} y1={appuiY} y2={appuiY} />
+        {coteMainCourante ? (
+          <line x1={r(D + 3)} x2={r(xDroite + 5)} y1={hautGardeCorpsY} y2={hautGardeCorpsY} />
+        ) : (
+          <>
+            <line x1={r(D + 3)} x2={r(xDroite + 5)} y1={hautOuvertureY} y2={hautOuvertureY} />
+            <line x1={r(D + debord + 3)} x2={r(xDroite + 5)} y1={appuiY} y2={appuiY} />
+          </>
+        )}
       </g>
+      {!sansLargeurHaut && (
+        <Cote
+          cote="largeurHaut"
+          de={[bordG(yLargeurHaut), yLargeurHaut]}
+          a={[bordD(yLargeurHaut), yLargeurHaut]}
+          texte={largeurHautMm !== undefined ? enMm(largeurHautMm, locale) : noms.largeurHaut}
+          vide={largeurHautMm === undefined}
+          actif={actif === "largeurHaut"}
+          label={labels.largeurHaut ?? labels.largeur}
+          ombre={ids("ombre")}
+          onChoisir={onChoisir}
+        />
+      )}
       <Cote
         cote="largeur"
-        de={[G, yLargeur]}
-        a={[D, yLargeur]}
+        de={[bordG(yLargeurBas), yLargeurBas]}
+        a={[bordD(yLargeurBas), yLargeurBas]}
         texte={largeurMm !== undefined ? enMm(largeurMm, locale) : noms.largeur}
         vide={largeurMm === undefined}
         actif={actif === "largeur"}
@@ -825,6 +1075,20 @@ export function SchemaFenetre({
         ombre={ids("ombre")}
         onChoisir={onChoisir}
       />
+      {actif === "largeurHaut" ? (
+        <Cote
+          cote="largeurHaut"
+          vertical
+          de={[xGauche, solY]}
+          a={[xGauche, yLargeurHaut]}
+          texte={fr ? "1 m" : "1 m"}
+          vide={false}
+          actif
+          label={fr ? "1 m depuis le sol" : "1 m from the floor"}
+          ombre={ids("ombre")}
+          onChoisir={onChoisir}
+        />
+      ) : (
       <Cote
         cote="allege"
         vertical
@@ -837,18 +1101,35 @@ export function SchemaFenetre({
         ombre={ids("ombre")}
         onChoisir={onChoisir}
       />
-      <Cote
-        cote="fenetre"
-        vertical
-        de={[xDroite, appuiY]}
-        a={[xDroite, hautOuvertureY]}
-        texte={hauteurFenetreMm !== undefined ? enMm(hauteurFenetreMm, locale) : noms.fenetre}
-        vide={hauteurFenetreMm === undefined}
-        actif={actif === "fenetre"}
-        label={labels.fenetre}
-        ombre={ids("ombre")}
-        onChoisir={onChoisir}
-      />
+      )}
+      {coteMainCourante ? (
+        /* Du sol au haut de la main courante : la hauteur que fixe la règle, calculée comme le reste du dessin. */
+        <Cote
+          cote="hauteur"
+          vertical
+          de={[xDroite, solY]}
+          a={[xDroite, hautGardeCorpsY]}
+          texte={enMm(MC, locale)}
+          vide={false}
+          actif={false}
+          label={labels.mainCourante ?? labels.hauteur}
+          ombre={ids("ombre")}
+          onChoisir={onChoisir}
+        />
+      ) : (
+        <Cote
+          cote="fenetre"
+          vertical
+          de={[xDroite, appuiY]}
+          a={[xDroite, hautOuvertureY]}
+          texte={hauteurFenetreMm !== undefined ? enMm(hauteurFenetreMm, locale) : noms.fenetre}
+          vide={hauteurFenetreMm === undefined}
+          actif={actif === "fenetre"}
+          label={labels.fenetre}
+          ombre={ids("ombre")}
+          onChoisir={onChoisir}
+        />
+      )}
     </svg>
   );
 }

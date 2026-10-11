@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 
 import { moinsDAnimations } from "@/lib/ui";
+import type { Locale } from "@/lib/i18n";
+import { MentionIllustration } from "./visuel";
+import { altAvecMention } from "@/lib/visuels";
 
 /**
  * UNE VIDÉO EN BOUCLE, SANS SON : elle se lance toute seule (le téléphone l'accepte parce qu'elle est muette), sauf si le visiteur a demandé
@@ -16,7 +19,10 @@ export function VideoBoucle({
   libellePause,
   libelleLecture,
   className = "",
+  locale,
 }: {
+  /** La langue de la page : si la photo d'ouverture est un visuel, la vidéo porte la mention « Image d'illustration ». */
+  locale: Locale;
   src: string;
   poster: string;
   /** Ce que montre la vidéo, pour les lecteurs d'écran. */
@@ -31,8 +37,18 @@ export function VideoBoucle({
   useEffect(() => {
     const v = video.current;
     if (!v || moinsDAnimations()) return;
+    // Elle ne se charge et ne joue que près de l'écran, et se met en pause quand elle en sort (diagnostic du 09/10/2026 :
+    // la page des plafonds téléchargeait 2 à 4 Mo de vidéo dès l'ouverture, avant même qu'on la voie).
     // Le navigateur peut refuser le lancement automatique (économie d'énergie) : la photo reste, le bouton « lire » aussi.
-    v.play().catch(() => {});
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) v.play().catch(() => {});
+        else v.pause();
+      },
+      { rootMargin: "200px 0px" },
+    );
+    obs.observe(v);
+    return () => obs.disconnect();
   }, []);
 
   const basculer = () => {
@@ -51,12 +67,15 @@ export function VideoBoucle({
         muted
         loop
         playsInline
-        preload="metadata"
-        aria-label={description}
+        preload="none"
+        // Si la photo d'ouverture est un visuel, la description le dit aussi aux lecteurs d'écran (« … (image d'illustration) »).
+        aria-label={altAvecMention(description, poster, locale)}
         onPlay={() => setEnLecture(true)}
         onPause={() => setEnLecture(false)}
         className="block h-full w-full object-cover"
       />
+      {/* En haut : le bouton pause occupe le coin du bas. Rien pour une vraie vidéo (le torse). */}
+      <MentionIllustration src={poster} locale={locale} coin="haut-droite" />
       <button
         type="button"
         onClick={basculer}

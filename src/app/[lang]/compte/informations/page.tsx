@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ProfilFormulaire } from "@/components/profil-formulaire";
+import { CompteSuppression } from "@/components/compte-suppression";
 import { sessionClient } from "@/lib/compte";
 import { serif } from "@/lib/fonts";
 import { defaultLocale, isLocale } from "@/lib/i18n";
@@ -69,6 +71,27 @@ export default async function InformationsPage({
           erreurCodePostal: t.infosErreurCodePostal,
           erreurTelephone: t.infosErreurTelephone,
           ou: t.infosOu,
+        }}
+      />
+      {/* Information au point de collecte (RGPD, art. 13). */}
+      <p className="mt-6 text-xs leading-relaxed text-[#726757]">
+        {t.noticeInfos}{" "}
+        <Link href={`/${locale}/confidentialite`} className="underline underline-offset-4 hover:text-[#2b2320]">
+          {t.noticeLien}
+        </Link>
+      </p>
+
+      {/* Le droit à l'effacement, sans avoir à nous écrire (RGPD, art. 17). */}
+      <CompteSuppression
+        locale={locale}
+        t={{
+          titre: t.suppressionTitre,
+          explication: t.suppressionExplication,
+          bouton: t.suppressionBouton,
+          confirmer: t.suppressionConfirmer,
+          annuler: t.suppressionAnnuler,
+          enCours: t.suppressionEnCours,
+          erreur: t.suppressionErreur,
         }}
       />
     </>
