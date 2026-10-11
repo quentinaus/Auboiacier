@@ -78,7 +78,7 @@ export type VariantesPortail = {
 };
 export function prixVariantesPortail(slug: SlugPortail, cfg: ConfigPortail): VariantesPortail {
   const p = (c: ConfigPortail) => { const r = prixPortail(slug, c); return r.ok ? r.prix : null; };
-  const styles = Object.fromEntries(STYLES_PORTAIL.map((st) => [st, p({ ...appliquerStyle(cfg, st), couleur: cfg.couleur, moteur: false })])) as VariantesPortail["styles"];
+  const styles = Object.fromEntries(STYLES_PORTAIL.map((st) => { const a = appliquerStyle(cfg, st); return [st, p({ ...a, couleur: a.mat !== "acier" && cfg.couleur === "galva" ? "anthracite" : cfg.couleur, moteur: false })]; })) as VariantesPortail["styles"];
   const decors = Object.fromEntries(DECORS_PORTAIL.map((d) => [d, d === "aucun" ? p({ ...cfg, decor: "aucun" }) : p({ ...cfg, decor: d, mat: "acier", remp: "barreaux" })])) as VariantesPortail["decors"];
   const moteurs = {
     aucun: p({ ...cfg, moteur: false }),

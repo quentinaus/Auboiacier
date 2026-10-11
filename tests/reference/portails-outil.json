@@ -1,6 +1,6 @@
 {
- "source": "bd87f01e0e090ecd2be09a7d",
- "moteur": "0db9b668a186",
+ "source": "6642668c7281ec10b4696906",
+ "moteur": "a2f663890604",
  "cas": [
   {
    "modele": "ptBattant",
@@ -1999,6 +1999,462 @@
     "reception": "transporteur"
    },
    "prix": 1850,
+   "alertes": 0,
+   "poids": 55
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "plein",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "pose"
+   },
+   "prix": 2420,
+   "alertes": 0,
+   "poids": 119
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "pose"
+   },
+   "prix": 2500,
+   "alertes": 0,
+   "poids": 117
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "pose"
+   },
+   "prix": 2630,
+   "alertes": 0,
+   "poids": 110
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "volutes",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "pose"
+   },
+   "prix": 4540,
+   "alertes": 0,
+   "poids": 179
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "plein",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "pose"
+   },
+   "prix": 2640,
+   "alertes": 0,
+   "poids": 124
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "pose"
+   },
+   "prix": 2770,
+   "alertes": 0,
+   "poids": 126
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "pose"
+   },
+   "prix": 2840,
+   "alertes": 0,
+   "poids": 112
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "volutes",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "pose"
+   },
+   "prix": 4920,
+   "alertes": 0,
+   "poids": 191
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "plein",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "pose"
+   },
+   "prix": 3190,
+   "alertes": 0,
+   "poids": 131
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "pose"
+   },
+   "prix": 3150,
+   "alertes": 0,
+   "poids": 123
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "pose"
+   },
+   "prix": 3420,
+   "alertes": 0,
+   "poids": 121
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "volutes",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "pose"
+   },
+   "prix": 5480,
+   "alertes": 0,
+   "poids": 184
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "plein",
+    "ptMat": "acier",
+    "ptFinition": "brut",
+    "ptP": 1000
+   },
+   "o": {
+    "reception": "pose"
+   },
+   "prix": 1410,
+   "alertes": 0,
+   "poids": 37
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMat": "acier",
+    "ptFinition": "brut",
+    "ptP": 1000
+   },
+   "o": {
+    "reception": "pose"
+   },
+   "prix": 1410,
+   "alertes": 0,
+   "poids": 36
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "rosace",
+    "ptMat": "acier",
+    "ptFinition": "brut",
+    "ptP": 1000
+   },
+   "o": {
+    "reception": "pose"
+   },
+   "prix": 1460,
+   "alertes": 0,
+   "poids": 34
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "volutes",
+    "ptMat": "acier",
+    "ptFinition": "brut",
+    "ptP": 1000
+   },
+   "o": {
+    "reception": "pose"
+   },
+   "prix": 2180,
+   "alertes": 0,
+   "poids": 55
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "plein",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 1630,
+   "alertes": 0,
+   "poids": 119
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 1710,
+   "alertes": 0,
+   "poids": 117
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 1840,
+   "alertes": 0,
+   "poids": 110
+  },
+  {
+   "modele": "ptBattant",
+   "v": {
+    "ptStyle": "volutes",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 3610,
+   "alertes": 0,
+   "poids": 179
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "plein",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 1690,
+   "alertes": 0,
+   "poids": 124
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 1820,
+   "alertes": 0,
+   "poids": 126
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 1880,
+   "alertes": 0,
+   "poids": 112
+  },
+  {
+   "modele": "ptCoulissant",
+   "v": {
+    "ptStyle": "volutes",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 3800,
+   "alertes": 0,
+   "poids": 191
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "plein",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 2310,
+   "alertes": 0,
+   "poids": 131
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 2270,
+   "alertes": 0,
+   "poids": 123
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "rosace",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 2540,
+   "alertes": 0,
+   "poids": 121
+  },
+  {
+   "modele": "ptPliant",
+   "v": {
+    "ptStyle": "volutes",
+    "ptMat": "acier",
+    "ptFinition": "brut"
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 4460,
+   "alertes": 0,
+   "poids": 184
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "plein",
+    "ptMat": "acier",
+    "ptFinition": "brut",
+    "ptP": 1000
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 910,
+   "alertes": 0,
+   "poids": 37
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "barreaux",
+    "ptMat": "acier",
+    "ptFinition": "brut",
+    "ptP": 1000
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 910,
+   "alertes": 0,
+   "poids": 36
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "rosace",
+    "ptMat": "acier",
+    "ptFinition": "brut",
+    "ptP": 1000
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 970,
+   "alertes": 0,
+   "poids": 34
+  },
+  {
+   "modele": "ptPortillon",
+   "v": {
+    "ptStyle": "volutes",
+    "ptMat": "acier",
+    "ptFinition": "brut",
+    "ptP": 1000
+   },
+   "o": {
+    "reception": "retrait"
+   },
+   "prix": 1600,
    "alertes": 0,
    "poids": 55
   }

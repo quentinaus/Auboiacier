@@ -2,9 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  acomptePortail, appliquerStyle, bornesPortail, configDepart, decrireDecor, guidePortail, lireConfig, lireConfigPanier, lireDecorChoix, planPortail, styleDe, versParams, versParamsPanier,
+  acomptePortail, appliquerStyle, bornesPortail, configDepart, decrireDecor, guidePortail, lireConfig, lireConfigPanier, lireDecorChoix, planPortail, styleDe, versEntrees, versParams, versParamsPanier,
   ACOMPTE_PORTAIL_PCT, DECORS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL,
-  type ChoixDecor, type ConfigPortail, type SlugPortail,
+  type ChoixDecor, type ConfigPortail, type SlugPortail, type StylePortail,
 } from "../src/lib/portails.ts";
 import { prixDepartModeles, prixDepartPortail, prixPortail, prixVariantesPortail } from "../src/lib/portails-outil/prix.ts";
 import { composerEstimationPortail } from "../src/lib/portails-outil/devis-site.ts";
@@ -42,6 +42,7 @@ function configDe(slug: SlugPortail, v: Record<string, unknown>): ConfigPortail 
   if (v.ptBarreauxDeco) cfg = { ...cfg, barreauxDeco: v.ptBarreauxDeco as ConfigPortail["barreauxDeco"] };
   if (v.ptPointes) cfg = { ...cfg, pointes: true };
   if (v.ptMoulure) cfg = { ...cfg, moulure: true };
+  if (v.ptFinition === "brut") cfg = { ...cfg, couleur: "galva" };
   return cfg;
 }
 
@@ -244,6 +245,34 @@ test("estimation PDF en anglais (10/10/2026) : mêmes lignes et mêmes montants 
     }
   }
   assert.equal(compares, 15);
+});
+
+test("galvanisé brut (11/10/2026) : une teinte « galva » en acier seulement, moins chère que laqué, relue à l'identique, devis sans peinture", () => {
+  for (const [slug, st] of [["portail-battant", "plein"], ["portail-battant", "barreaux"], ["portail-battant", "rosace"], ["portail-coulissant", "plein"], ["portail-pliant", "barreaux"]] as [SlugPortail, StylePortail][]) {
+    const laque: ConfigPortail = { ...configDe(slug, { ptStyle: st, ptMat: "acier" }), couleur: "noir" };
+    const brut: ConfigPortail = { ...laque, couleur: "galva" };
+    const pl = prixPortail(slug, laque), pb = prixPortail(slug, brut);
+    assert.ok(pl.ok && pb.ok, `${slug} ${st}`);
+    if (pl.ok && pb.ok) assert.ok(pb.prix < pl.prix, `${slug} ${st} : brut ${pb.prix} € moins cher que laqué ${pl.prix} €`);
+    assert.equal(versEntrees(brut).ptFinition, "brut");
+    assert.equal(versEntrees(laque).ptFinition, undefined);
+    const relue = lireConfig(new URLSearchParams({ slug, ...Object.fromEntries(versParams(slug, brut)) }));
+    assert.equal(relue?.cfg.couleur, "galva", `${slug} ${st} : la teinte se relit`);
+    const d = composerEstimationPortail({ slug, cfg: brut, client: { nom: "Essai" }, date: new Date(2026, 9, 11) });
+    assert.ok(d.ok, `${slug} ${st} : estimation`);
+    if (d.ok) {
+      const texte = JSON.stringify(d.devis);
+      assert.ok(/galvanisation à chaud, laissée brute/.test(texte), "finition dite");
+      assert.ok(!/thermolaqu|duplex|\bRAL\b/i.test(texte), `${slug} ${st} : aucune peinture annoncée`);
+    }
+  }
+  // en alu : refusé (on ne laisse pas l'alu brut) ; appliquer un style en alu remet une teinte laquée
+  const alu: ConfigPortail = { ...configDe("portail-battant", { ptStyle: "plein" }), couleur: "galva" };
+  assert.equal(lireConfig(new URLSearchParams({ slug: "portail-battant", ...Object.fromEntries(versParams("portail-battant", { ...alu, mat: "alu" })) })), null, "alu brut refusé");
+  const style = appliquerStyle({ ...configDe("portail-battant", { ptStyle: "rosace" }), couleur: "galva" }, "lisse");
+  assert.equal(style.mat, "alu");
+  assert.equal(style.couleur, "anthracite", "un style en alu redonne un gris laqué");
+  assert.equal(appliquerStyle({ ...configDe("portail-battant", { ptStyle: "rosace" }), couleur: "galva" }, "volutes").couleur, "galva", "un style en acier garde le brut");
 });
 
 test("la page des portails (10/10/2026) : le « dès » des 4 modèles aux cotes du client, null hors des bornes", () => {

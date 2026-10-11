@@ -37,12 +37,12 @@ const DP_COMPRIS = [
 const DP_COMPRIS_SANS_POSE = {
   transporteur: [
     "Le plan, la fabrication dans notre atelier à Saumur, la finition",
-    "L'emballage sur palette : le portail voyage debout, calé et protégé pour que le laquage ne soit pas rayé",
+    "L'emballage sur palette : le portail voyage debout, calé et protégé pour que la finition ne soit pas rayée",
     "La livraison par transporteur est facturée à part, d'après le poids et les dimensions du colis",
   ],
   retrait: [
     "Le plan, la fabrication dans notre atelier à Saumur, la finition",
-    "La protection du laquage pour le transport dans votre véhicule",
+    "La protection de la finition pour le transport dans votre véhicule",
     "Le retrait à l'atelier, à Saumur, sur rendez-vous : gratuit",
   ],
 };
@@ -75,12 +75,12 @@ const DP_EN = {
   comprisSansPose: {
     transporteur: [
       "The drawing, manufacturing in our Saumur workshop, the finish",
-      "Palletised packing: the gate travels upright, wedged and protected so that the lacquer is not scratched",
+      "Palletised packing: the gate travels upright, wedged and protected so that the finish is not scratched",
       "Carrier delivery is invoiced separately, according to the weight and dimensions of the parcel",
     ],
     retrait: [
       "The drawing, manufacturing in our Saumur workshop, the finish",
-      "Protection of the lacquer for transport in your vehicle",
+      "Protection of the finish for transport in your vehicle",
       "Collection at the workshop in Saumur, by appointment: free",
     ],
   },
@@ -122,7 +122,8 @@ function composerDevisPortail({ R, v, postes, portillon = null, infos = {}, natu
   const recep = sansPose ? reception : "pose";
   const nomModele = en ? (DP_EN.modeles[c.modele] || "Gate") : (typeof PT_MODELES !== "undefined" && PT_MODELES[c.modele] ? PT_MODELES[c.modele].nom : "Portail");
   const acier = c.mat === "acier";
-  const couleurs = en ? DP_EN.couleurs : DP_COULEURS, couleur = couleurs[c.couleur] || (acier ? couleurs.noir : couleurs.anthracite);
+  const brut = c.finition === "brut";   // galvanisé brut : pas de peinture, ni de teinte au choix (11/10/2026)
+  const couleurs = en ? DP_EN.couleurs : DP_COULEURS, couleur = brut ? L("galvanisé brut, gris zinc", "raw galvanised, zinc grey") : (couleurs[c.couleur] || (acier ? couleurs.noir : couleurs.anthracite));
   const nbV = R.dims.vantaux.length;
   const vantauxTxt = nbV > 1 ? L(`${nbV} vantaux de ${R.dims.vantaux.map(dsMm).join(" + ")} mm`, `${nbV} leaves of ${R.dims.vantaux.map(dsMm).join(" + ")} mm`) : L(`1 vantail de ${dsMm(R.dims.vantaux[0])} mm`, `1 leaf of ${dsMm(R.dims.vantaux[0])} mm`);
   const sensTxt = c.type === "coulissant" ? L(`il se range vers la ${c.sens === "droite" ? "droite" : "gauche"}, vu de la rue`, `it slides to the ${c.sens === "droite" ? "right" : "left"}, seen from the street`)
@@ -132,18 +133,18 @@ function composerDevisPortail({ R, v, postes, portillon = null, infos = {}, natu
   const montant = (cle) => { const p = postes.find((x) => x.cle === cle); return p ? Math.round(p.montant * 100) / 100 : 0; };
 
   // --- Les lignes, dans l'ordre du cahier des charges (§5.3) ; une ligne vide est omise ---
-  const titre = L(`${nomModele} ${nbV > 1 ? `${nbV} vantaux` : c.type === "coulissant" ? (c.guidage === "auto" ? "autoportant" : "sur rail") : "1 vantail"}, ${dsMm(c.P)} × ${dsMm(c.H)} mm, ${acier ? "acier galvanisé et thermolaqué" : "alu thermolaqué"} ${couleur}`,
-    `${nomModele} ${nbV > 1 ? `${nbV} leaves` : c.type === "coulissant" ? (c.guidage === "auto" ? "cantilever" : "on rail") : "1 leaf"}, ${dsMm(c.P)} × ${dsMm(c.H)} mm, ${acier ? "galvanised and powder-coated steel" : "powder-coated aluminium"}, ${couleur}`);
+  const titre = L(`${nomModele} ${nbV > 1 ? `${nbV} vantaux` : c.type === "coulissant" ? (c.guidage === "auto" ? "autoportant" : "sur rail") : "1 vantail"}, ${dsMm(c.P)} × ${dsMm(c.H)} mm, ${acier ? (brut ? "acier galvanisé à chaud" : "acier galvanisé et thermolaqué") : "alu thermolaqué"} ${couleur}`,
+    `${nomModele} ${nbV > 1 ? `${nbV} leaves` : c.type === "coulissant" ? (c.guidage === "auto" ? "cantilever" : "on rail") : "1 leaf"}, ${dsMm(c.P)} × ${dsMm(c.H)} mm, ${acier ? (brut ? "hot-dip galvanised steel" : "galvanised and powder-coated steel") : "powder-coated aluminium"}, ${couleur}`);
   const designations = {
     fabrication: { d: L(`Fabrication sur mesure à l'atelier : cadre, remplissage, ${acier ? "soudure MAG" : "soudure TIG de l'alu"}`, `Made-to-measure manufacturing in the workshop: frame, infill, ${acier ? "MAG welding" : "TIG welding of the aluminium"}`), x: [vantauxTxt, L(`Poids environ ${dsNb(Math.round(R.poids))} kg`, `Weight about ${dsNb(Math.round(R.poids))} kg`)] },
     decor: { d: L("Décor de ferronnerie, soudé à l'atelier (aucun collier)", "Ironwork decoration, welded in the workshop (no clamps)"), x: [decorPieces ? L(`${decorPieces} pièces de fer forgé du commerce, reprises au gabarit`, `${decorPieces} commercial wrought-iron pieces, reworked to the template`) : ""] },
-    finition: { d: acier ? L("Finition : galvanisation à chaud puis thermolaquage (duplex)", "Finish: hot-dip galvanising then powder coating (duplex)") : L("Finition : thermolaquage", "Finish: powder coating"), x: [L(`Teinte ${couleur}`, `Colour ${couleur}`)] },
+    finition: { d: acier ? (brut ? L("Finition : galvanisation à chaud, laissée brute (sans peinture)", "Finish: hot-dip galvanising, left raw (unpainted)") : L("Finition : galvanisation à chaud puis thermolaquage (duplex)", "Finish: hot-dip galvanising then powder coating (duplex)")) : L("Finition : thermolaquage", "Finish: powder coating"), x: [brut ? L("Teinte gris zinc, qui évolue avec le temps", "Zinc grey colour, which weathers over time") : L(`Teinte ${couleur}`, `Colour ${couleur}`)] },
     quincaillerie: { d: c.type === "coulissant" ? (c.guidage === "auto" ? L("Guidage autoportant et quincaillerie : chariots, guide, serrure, butées", "Cantilever guidance and hardware: carriages, guide, lock, stops") : L("Guidage et quincaillerie : rail, roues, guide, serrure, butées", "Guidance and hardware: rail, wheels, guide, lock, stops"))
       : L("Quincaillerie : gonds réglables adaptés au poids, serrure et cylindre, butée, arrêts", "Hardware: adjustable hinges suited to the weight, lock and cylinder, stop, catches"), x: [] },
     poteaux: { d: L(`Poteaux ${c.poteaux === "alu" ? "alu" : "acier"} (option), boulonnés sur les massifs de votre maçon`, `${c.poteaux === "alu" ? "Aluminium" : "Steel"} posts (option), bolted to your mason's footings`), x: [] },
     moteur: { d: M ? L(`Motorisation Somfy (option) : ${M.nom}${M.ref ? `, ${M.ref}` : ""}`, `Somfy motor (option): ${M.nom}${M.ref ? `, ${M.ref.replace("Pack Confort", "Comfort Pack").replace("réf.", "ref.")}` : ""}`) : L("Motorisation (option)", "Motor (option)"), x: [M && M.contenu ? (en ? (DP_EN.contenuMoteur[M.cle] || M.contenu) : M.contenu) : "", L("Mise en service : réglage des efforts, essais, déclaration CE, notice et registre d'entretien", "Commissioning: force adjustment, tests, CE declaration, manual and maintenance log")] },
     pose: { d: L("Visite de prise de cotes, plan, livraison et pose jusqu'à 45 km de Saumur", "Survey visit, drawing, delivery and fitting up to 45 km from Saumur"), x: [] },
-    emballage: { d: recep === "retrait" ? L("Protection du portail laqué pour le transport dans votre véhicule", "Protection of the lacquered gate for transport in your vehicle") : L("Emballage sur palette, calage et protection du laquage", "Palletised packing, wedging and lacquer protection"), x: recep === "transporteur" ? [L("Le portail voyage debout, calé", "The gate travels upright, wedged")] : [] },
+    emballage: { d: recep === "retrait" ? L("Protection du portail pour le transport dans votre véhicule", "Protection of the gate for transport in your vehicle") : L("Emballage sur palette, calage et protection de la finition", "Palletised packing, wedging and finish protection"), x: recep === "transporteur" ? [L("Le portail voyage debout, calé", "The gate travels upright, wedged")] : [] },
   };
   const lignes = [{ designation: titre, details: [], quantite: 1, unitaire: 0, total: 0, titre: true }];
   for (const cle of ["fabrication", "decor", "finition", "quincaillerie", "poteaux", "moteur"]) {
@@ -171,7 +172,7 @@ function composerDevisPortail({ R, v, postes, portillon = null, infos = {}, natu
     { label: L("Remplissage", "Infill"), value: (en ? DP_EN.remp : DP_REMP)[c.remp] || dpPrem(c.remp) },
     decorPieces ? { label: L("Décor", "Decoration"), value: L("Fer forgé, soudé à l'atelier", "Wrought iron, welded in the workshop") } : null,
     R.quant && R.quant.moulure ? { label: L("Moulures", "Mouldings"), value: L(`${R.quant.moulure.nom}, une par vantail, vissée par derrière (rien ne se voit de la rue)`, `${DP_EN.moulures[R.quant.moulure.id] || R.quant.moulure.nom}, one per leaf, screwed from behind (nothing shows from the street)`) } : null,
-    { label: L("Matière et finition", "Material and finish"), value: acier ? L(`Acier galvanisé à chaud puis thermolaqué, ${couleur}`, `Hot-dip galvanised steel then powder-coated, ${couleur}`) : L(`Alu soudé TIG, thermolaqué ${couleur}`, `TIG-welded aluminium, powder-coated ${couleur}`) },
+    { label: L("Matière et finition", "Material and finish"), value: acier ? (brut ? L("Acier galvanisé à chaud, laissé brut (sans peinture)", "Hot-dip galvanised steel, left raw (unpainted)") : L(`Acier galvanisé à chaud puis thermolaqué, ${couleur}`, `Hot-dip galvanised steel then powder-coated, ${couleur}`)) : L(`Alu soudé TIG, thermolaqué ${couleur}`, `TIG-welded aluminium, powder-coated ${couleur}`) },
     { label: L("Fixation", "Fixing"), value: c.poteaux === "existants" ? (sansPose ? L("Sur vos piliers, gonds réglables (matière à vérifier par vous ou votre poseur)", "On your pillars, adjustable hinges (material to be checked by you or your installer)") : L("Sur vos piliers, gonds réglables (matière vérifiée à la visite)", "On your pillars, adjustable hinges (material checked at the visit)")) : L(`Poteaux ${c.poteaux} sur massifs (béton par votre maçon, d'après notre plan)`, `${c.poteaux === "alu" ? "Aluminium" : "Steel"} posts on footings (concrete by your mason, from our drawing)`) },
     { label: L("Moteur", "Motor"), value: M ? L(`${M.nom}, garantie ${M.garantie || 5} ans`, `${M.nom}, ${M.garantie || 5}-year warranty`) : L("Ouverture à la main", "Manual opening") },
     sansPose ? { label: L("Réception", "Reception"), value: recep === "transporteur" ? L("Livré par transporteur, sur palette (sans pose)", "Delivered by carrier, on a pallet (no fitting)") : L("Retrait à l'atelier, à Saumur, sur rendez-vous (sans pose)", "Collected at the workshop in Saumur, by appointment (no fitting)") } : null,

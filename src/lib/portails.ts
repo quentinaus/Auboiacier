@@ -47,7 +47,8 @@ export const BARREAUX_DECOR = ["carre", "torsade", "bagues"] as const;
 // Le moteur (lot 4, « Somfy partout ») : « conseille » laisse l'outil choisir (PT_MOTEURS : le plus facile à poser qui
 // convient à ce portail) ; sinon le client choisit Ixengo (vérins), Axovia (bras) ou Elixo (coulissant).
 export const MOTEURS_PORTAIL = ["conseille", "ixengo", "axovia", "elixo"] as const;
-export const COULEURS_PORTAIL = ["anthracite", "noir", "blanc", "vert", "rouille"] as const;
+/** Les teintes du portail ; « galva » n'est pas une peinture : la galvanisation à chaud laissée brute (acier seulement, 11/10/2026). */
+export const COULEURS_PORTAIL = ["anthracite", "noir", "blanc", "vert", "rouille", "galva"] as const;
 
 /**
  * Comment le client reçoit son portail (Quentin, 10/10/2026) : « pose » (l'atelier livre et pose, visite de prise de cotes
@@ -128,7 +129,7 @@ export function appliquerStyle(cfg: ConfigPortail, style: StylePortail): ConfigP
     lisse: Boolean(s.ptLisse),
     ...(typeof s.ptHSoub === "number" ? { hSoub: s.ptHSoub } : {}),
     ...(typeof s.ptFleche === "number" ? { fleche: s.ptFleche } : {}),
-    couleur: s.ptMat === "acier" ? "noir" : cfg.couleur === "noir" && cfg.mat === "acier" ? "anthracite" : cfg.couleur,
+    couleur: s.ptMat === "acier" ? (cfg.couleur === "galva" ? "galva" : "noir") : cfg.couleur === "galva" ? "anthracite" : cfg.couleur === "noir" && cfg.mat === "acier" ? "anthracite" : cfg.couleur,
   };
 }
 
@@ -151,6 +152,7 @@ export function versEntrees(cfg: ConfigPortail): Record<string, unknown> {
     ptRemp: cfg.remp, ptDecor: decor, ptPointes: cfg.pointes, ptLisse: cfg.lisse, ptVantaux: String(cfg.vantaux), ptRep: cfg.rep,
     ptGuidage: cfg.guidage, ptSens: cfg.sens, ptPoteaux: cfg.poteaux, ptMoteur: cfg.moteur, ptPente: cfg.pente,
     ...(cfg.moulure ? { ptMoulure: true } : {}),
+    ...(cfg.couleur === "galva" ? { ptFinition: "brut" } : {}),
     ...(cfg.moteurModele !== "conseille" ? { ptMoteurModele: cfg.moteurModele } : {}),
     ...(decor === "perso" ? { ptDecorChoix: JSON.stringify(cfg.decorChoix) } : {}),
     ...(decor !== "aucun" ? { ptBouts: cfg.bouts, ptBarreauxDeco: cfg.barreauxDeco } : {}),
@@ -260,6 +262,8 @@ export function lireConfig(params: URLSearchParams): { slug: SlugPortail; cfg: C
   if (Object.values(cfg).some((x) => x === null)) return null;
   // Sans pose, pas de moteur : l'atelier le pose lui-même (la conformité CE de l'ensemble est de sa responsabilité).
   if (cfg.reception !== "pose" && cfg.moteur) return null;
+  // Le galvanisé brut n'existe qu'en acier (l'alu se lacque).
+  if (cfg.couleur === "galva" && cfg.mat !== "acier") return null;
   return { slug, cfg: cfg as ConfigPortail };
 }
 
@@ -303,7 +307,7 @@ export const TEXTES_PORTAIL = {
     portillon: "Portillon assorti",
     moulures: "Moulures : un médaillon par vantail, sur le bas plein",
     poteaux: { existants: "Mes piliers", acier: "Poteaux acier", alu: "Poteaux alu" },
-    couleur: { anthracite: "Gris anthracite", noir: "Noir", blanc: "Blanc", vert: "Vert sapin", rouille: "Rouille" },
+    couleur: { anthracite: "Gris anthracite", noir: "Noir", blanc: "Blanc", vert: "Vert sapin", rouille: "Rouille", galva: "Galvanisé brut" },
     vantaux: { 1: "1 vantail", 2: "2 vantaux" },
     rep: { egal: "Égaux", tiers: "1/3 – 2/3" },
     guidage: { rail: "Sur rail", auto: "Sans rail" },
@@ -373,7 +377,7 @@ export const TEXTES_PORTAIL = {
     portillon: "Matching pedestrian gate",
     moulures: "Mouldings: one medallion per leaf, on the solid lower panel",
     poteaux: { existants: "My pillars", acier: "Steel posts", alu: "Aluminium posts" },
-    couleur: { anthracite: "Anthracite grey", noir: "Black", blanc: "White", vert: "Fir green", rouille: "Rust" },
+    couleur: { anthracite: "Anthracite grey", noir: "Black", blanc: "White", vert: "Fir green", rouille: "Rust", galva: "Raw galvanised" },
     vantaux: { 1: "1 leaf", 2: "2 leaves" },
     rep: { egal: "Equal", tiers: "1/3 – 2/3" },
     guidage: { rail: "On a rail", auto: "No rail" },

@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 bd87f01e0e090ecd2be09a7d.
+// Source : l'outil de plans (plans-atelier.html), sha256 6642668c7281ec10b4696906.
 /* eslint-disable */
 
 
@@ -1061,6 +1061,7 @@ function mtGrilleAppui(G, cS) {
 //   ptPointes (barreaux qui dépassent, pointes de lance), ptLisse (lisse en chêne sur le dessus),
 //   ptPoteaux "existants" | "acier" | "alu", ptMoteur (true/false), ptMoteurModele (lot 4 : "ixengo" | "axovia" | "elixo" ;
 //     absent = le moteur conseillé par PT_MOTEURS), ptPente (mm de montée côté propriété, battant),
+//   ptFinition "laque" (par défaut) | "brut" (acier seulement : galvanisation à chaud sans peinture, 11/10/2026),
 //   ptCouleur (texte, sans effet sur le plan), trait (scie, 3).
 //   ptStyle (facultatif) : "plein" | "barreaux" | "lamesChene" | "rosace" | "volutes" remplit les blocs non donnés.
 //   ptDecor (lot 3, 07/10/2026) : "aucun" | une formule de PT_DECOR_FORMULES ("classique", "frise", "medaillon",
@@ -1399,7 +1400,11 @@ function ptEntrees(v, modele) {
   c.moteur = ptBool(v.ptMoteur, false);
   c.moteurModele = PT_MOTEURS.some((m) => m.cle === v.ptMoteurModele) ? v.ptMoteurModele : null;
   c.pente = Math.max(0, Math.round(ptNombre(v.ptPente, 0)));
-  c.couleur = v.ptCouleur || (c.mat === "alu" ? "Gris anthracite (RAL 7016)" : "Noir");
+  // La finition (Quentin, 11/10/2026) : « laque » (galvanisation à chaud puis thermolaquage) ou « brut » (galvanisation à chaud seule,
+  // sans peinture : l'acier reste gris zinc). Le brut n'existe qu'en acier ; l'alu se lacque toujours.
+  c.finitionDemandee = ptChoix(v.ptFinition, ["laque", "brut"], "laque");
+  c.finition = c.mat === "acier" ? c.finitionDemandee : "laque";
+  c.couleur = c.finition === "brut" ? "Galvanisé brut (gris zinc)" : (v.ptCouleur || (c.mat === "alu" ? "Gris anthracite (RAL 7016)" : "Noir"));
   c.trait = ptNombre(v.trait, 3);
   const cleGS = type === "coulissant" ? c.guidage : type;
   c.gsDonne = v.ptGS !== undefined && v.ptGS !== null && v.ptGS !== "";
@@ -2250,6 +2255,7 @@ function ptCalculerPortail(v, modele, refs) {
     else if (hHaut < 300) R.alertes.push(`Soubassement trop haut : il reste ${ptMm(Math.max(0, hHaut))} mm pour le remplissage du haut (300 au moins).`);
   }
   if (c.lisse && c.forme !== "droit") R.alertes.push("La lisse en chêne se pose sur un haut droit seulement : choisis « droit » ou retire la lisse.");
+  if (c.finitionDemandee === "brut" && c.mat !== "acier") R.alertes.push("Galvanisé brut : seulement en acier (l'alu se lacque).");
   if (c.mat === "alu" && c.remp === "croix") R.avertissements.push("Rosaces en alu : pièces à trouver chez un fournisseur, rendu moins « fer forgé ». À confirmer.");
   if (c.mat === "acier" && (c.remp === "panneau" || c.soub === "panneau")) R.notes.push("En acier, le panneau lisse est une tôle pleine : c'est le remplissage « plein ».");
   if (c.mouluresDemandees && !c.moulure) R.avertissements.push("Moulures : il faut un bas plein (tôle ou panneau) pour les poser.");
@@ -2945,7 +2951,7 @@ function ptPlanA3(R, v, infos = {}, feuille = "1", dessiner) {
       const acier = c.mat === "acier", chene = R.debit.some((d) => /chêne/i.test(d.mat));
       const fab = [
         `Jeux : ${J.gonds ? `${J.gonds} mm côté gonds, ` : ""}${J.centre ? `${J.centre} mm au centre, ` : ""}${J.serrure ? `${J.serrure} mm côté serrure` : ""}`.replace(/, $/, ""),
-        acier ? "Traitement : galvanisation à chaud puis thermolaquage (duplex) ; préparation du zinc exigée du laqueur, garantie écrite." : "Traitement : thermolaquage de l'alu (préparation et garantie écrites par le laqueur).",
+        acier ? (c.finition === "brut" ? "Traitement : galvanisation à chaud, laissée brute (sans peinture) ; la teinte grise évolue avec le temps." : "Traitement : galvanisation à chaud puis thermolaquage (duplex) ; préparation du zinc exigée du laqueur, garantie écrite.") : "Traitement : thermolaquage de l'alu (préparation et garantie écrites par le laqueur).",
         chene ? "Chêne : visserie inox A4, saturateur ; entretien annuel décrit dans la notice (sans lui, pas de garantie sur le bois)." : null,
         acier ? "Trous d'évent et d'écoulement avant la galvanisation (tubes fermés interdits)." : null,
         `Poids ≈ ${ptMm(R.poids)} kg${R.decor ? " · décor soudé, aucun collier" : ""}.`,
@@ -3073,4 +3079,4 @@ function ptPlanA3(R, v, infos = {}, feuille = "1", dessiner) {
 
 
 export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, PT_MOTEURS, MT_AVEC, MT_NOMS };
-export const EMPREINTE = "a268e22c1192";
+export const EMPREINTE = "952876537998";

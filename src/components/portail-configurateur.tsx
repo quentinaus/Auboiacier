@@ -80,7 +80,7 @@ const TXT = {
     question: "Une question sur cette pièce ?", contact: "Nous contacter", voirCoulissant: "Voir le portail coulissant",
     formes: { droit: "Droit", chapeau: "Chapeau", creux: "Creux", biais: "Biais" }, sans: "Sans", avec: "Avec",
     soubCourt: { aucun: "Aucun", plein: "Plein", lames: "Lames", barreaux: "Barreaux" }, moteurMainCourt: "Ouverture à la main, moteur possible plus tard",
-    matiereAlu: "Cadre alu thermolaqué", matiereAcier: "Acier galvanisé et thermolaqué",
+    matiereAlu: "Cadre alu thermolaqué", matiereAcier: "Acier galvanisé et thermolaqué", matiereAcierBrut: "Acier galvanisé à chaud, laissé brut (sans peinture, gris zinc)",
     formules: "Formules", personnaliser: "Personnaliser", perso: "Personnalisé", emplacement: "Emplacement", ajouterEmplacement: "Ajouter un 2e emplacement",
     retirer: "Retirer", ou: "Où", forme: "Forme", hauteurDecor: "Hauteur", rythme: "Rythme", formeAlternee: "Seconde forme", finitions: "Finitions",
     bouts: "Bouts des volutes", barreauxDeco: "Barreaux", pointes: "Pointes", lance: "Lance", basPleinRequis: "Il faut un bas plein (tôle ou panneau).", dejaPris: "Déjà choisi pour l'autre emplacement.",
@@ -164,7 +164,7 @@ const TXT = {
     question: "A question about this piece?", contact: "Contact us", voirCoulissant: "See the sliding gate",
     formes: { droit: "Straight", chapeau: "Arched", creux: "Dipped", biais: "Sloped" }, sans: "No", avec: "Yes",
     soubCourt: { aucun: "None", plein: "Solid", lames: "Slats", barreaux: "Bars" }, moteurMainCourt: "Opens by hand, motor possible later",
-    matiereAlu: "Powder-coated aluminium frame", matiereAcier: "Galvanised, powder-coated steel",
+    matiereAlu: "Powder-coated aluminium frame", matiereAcier: "Galvanised, powder-coated steel", matiereAcierBrut: "Hot-dip galvanised steel, left raw (unpainted, zinc grey)",
     formules: "Designs", personnaliser: "Customise", perso: "Custom", emplacement: "Position", ajouterEmplacement: "Add a 2nd position",
     retirer: "Remove", ou: "Where", forme: "Shape", hauteurDecor: "Height", rythme: "Rhythm", formeAlternee: "Second shape", finitions: "Finishes",
     bouts: "Scroll ends", barreauxDeco: "Bars", pointes: "Tips", lance: "Spear", basPleinRequis: "Needs a solid lower panel (sheet or panel).", dejaPris: "Already chosen for the other position.",
@@ -462,6 +462,8 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
   const [tri, setTri] = useState<"croissant" | "decroissant">("croissant");
   const maj = (p: Partial<ConfigPortail>) => setCfg((c) => {
     const n = { ...c, ...p };
+    // Le galvanisé brut n'existe qu'en acier : en alu, la teinte redevient un gris anthracite laqué.
+    if (n.mat !== "acier" && n.couleur === "galva") n.couleur = "anthracite";
     // Sans pose (transporteur, retrait), pas de moteur : l'atelier le pose lui-même.
     if (n.reception !== "pose") n.moteur = false;
     // Le passage reste dans les bornes du guidage choisi (sans rail : 4 000 mm au plus).
@@ -479,7 +481,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
   // Les vignettes des styles et des décors suivent la configuration sans bloquer la frappe (rendu différé).
   const cfgLente = useDeferredValue(cfg);
   const vignettes = useMemo(
-    () => STYLES_PORTAIL.map((st) => ({ st, prims: planPortail(slug, { ...appliquerStyle(cfgLente, st), couleur: cfgLente.couleur }).vues.face as Prims })),
+    () => STYLES_PORTAIL.map((st) => ({ st, prims: planPortail(slug, (() => { const a = appliquerStyle(cfgLente, st); return { ...a, couleur: a.mat !== "acier" && cfgLente.couleur === "galva" ? "anthracite" : cfgLente.couleur }; })()).vues.face as Prims })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [slug, cfgLente.P, cfgLente.H, cfgLente.vantaux, cfgLente.rep, cfgLente.guidage, cfgLente.sens, cfgLente.poteaux, cfgLente.couleur],
   );
@@ -931,7 +933,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
           <dl className="cpt-d-liste">
             <dt>{t.dDimensions}</dt><dd>{t.passage} {nf(cfg.P)} mm, {t.hauteur.toLowerCase()} {nf(cfg.H)} mm</dd>
             <dt>{t.dVantaux}</dt><dd>{vantauxTxt}</dd>
-            <dt>{t.dMatiere}</dt><dd>{cfg.mat === "alu" ? t.matiereAlu : t.matiereAcier}, {tp.couleur[cfg.couleur].toLowerCase()}{cfg.decor !== "aucun" ? ` · ${decorNom}` : ""}</dd>
+            <dt>{t.dMatiere}</dt><dd>{cfg.mat === "alu" ? `${t.matiereAlu}, ${tp.couleur[cfg.couleur].toLowerCase()}` : cfg.couleur === "galva" ? t.matiereAcierBrut : `${t.matiereAcier}, ${tp.couleur[cfg.couleur].toLowerCase()}`}{cfg.decor !== "aucun" ? ` · ${decorNom}` : ""}</dd>
             <dt>{t.dPoids}</dt><dd>≈ {nf(R.poids)} kg</dd>
             {!portillon && <><dt>{t.dMoteur}</dt><dd>{nomMoteur(moteurChoisi)}</dd></>}
             {!portillon && cfg.portillon && <><dt>{t.portillon}</dt><dd>{nf(cfg.portillonP)} × {nf(cfg.H)} mm, {tp.sensPortillon[cfg.portillonSens].toLowerCase()}</dd></>}
@@ -1061,7 +1063,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
     else if (cleEtape === "couleur") contenu = (<>
       <span className="cpt-libelle uppercase">{t.couleur}</span>
       <div className="cpt-plaquettes" role="group" aria-label={t.couleur}>
-        {COULEURS_PORTAIL.map((c) => (
+        {COULEURS_PORTAIL.filter((c) => c !== "galva" || cfg.mat === "acier").map((c) => (
           <button key={c} type="button" className="cpt-plaquette-btn" aria-pressed={cfg.couleur === c} aria-label={tp.couleur[c]} title={tp.couleur[c]} onClick={() => maj({ couleur: c })}>
             <span className="cpt-plaquette" style={{ background: TEINTES_PORTAIL[c][0] }} />
           </button>
@@ -1147,7 +1149,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
                 <div className="cpt-matieres">
                   <div className="cpt-mat-groupe"><span className="cpt-mat-titre">{t.couleur}</span>
                     <div className="cpt-plaquettes" role="group" aria-label={t.couleur}>
-                      {COULEURS_PORTAIL.map((c) => (
+                      {COULEURS_PORTAIL.filter((c) => c !== "galva" || cfg.mat === "acier").map((c) => (
                         <button key={c} type="button" className="cpt-plaquette-btn" aria-pressed={cfg.couleur === c} aria-label={tp.couleur[c]} title={tp.couleur[c]} onClick={() => maj({ couleur: c })}>
                           <span className="cpt-plaquette" style={{ background: TEINTES_PORTAIL[c][0] }} />
                         </button>

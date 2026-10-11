@@ -186,6 +186,9 @@ for (const ptStyle of ["plein", "lamesChene", "rosace", "volutes"]) CAS.push({ m
 // La façon de recevoir (10/10/2026) : sans pose, par transporteur ou retiré à l'atelier (jamais de moteur).
 for (const reception of ["retrait", "transporteur"]) for (const modele of ["ptBattant", "ptCoulissant", "ptPliant", "ptPortillon"]) for (const ptStyle of ["plein", "lamesChene", "barreaux", "rosace", "volutes"])
   CAS.push({ modele, v: { ptStyle, ...(modele === "ptPortillon" ? { ptP: 1000 } : {}) }, o: { reception } });
+// Galvanisé brut (11/10/2026) : sans peinture, un seul voyage ; seulement en acier.
+for (const reception of ["pose", "retrait"]) for (const modele of ["ptBattant", "ptCoulissant", "ptPliant", "ptPortillon"]) for (const ptStyle of ["plein", "barreaux", "rosace", "volutes"])
+  CAS.push({ modele, v: { ptStyle, ptMat: "acier", ptFinition: "brut", ...(modele === "ptPortillon" ? { ptP: 1000 } : {}) }, o: { reception } });
 const reference = CAS.map(({ modele, v, o }) => {
   const R = evalMoteur.calculerPortail(v, modele);
   const C = evalChiffrage.chiffrerPortail(R, v, undefined, { ...o, clesCatalogue: evalChiffrage.PTC_CLES_CATALOGUE });

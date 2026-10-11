@@ -13,6 +13,7 @@ export const TEINTES_PORTAIL: Record<Couleur, [string, string, string]> = {
   blanc: ["#efede8", "#f6f5f1", "#8f877c"],
   vert: ["#2b3d31", "#34493b", "#1a251e"],
   rouille: ["#74462c", "#7f5034", "#4c2c1a"],
+  galva: ["#a7acb1", "#b3b8bc", "#6c7277"],   // galvanisé brut : gris zinc
 };
 
 export function STYLE_RENDU_PORTAIL(couleur: Couleur): string {
