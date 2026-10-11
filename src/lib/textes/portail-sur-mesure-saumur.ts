@@ -138,10 +138,10 @@ const FR: TextesPortailSurMesure = {
     },
   ],
 
-  motoTitre: "Motorisation",
+  motoTitre: "Portail motorisé sur mesure",
   moto: [
-    "Un portail battant ou coulissant peut être motorisé à la commande. Les moteurs sont de la marque Somfy ; le kit comprend les télécommandes, les cellules, le feu et la batterie. Le configurateur conseille le moteur le plus facile à poser qui convient à votre portail, et vous pouvez en choisir un autre.",
-    "Sans moteur, le portail s'ouvre à la main. L'atelier pose les attentes : le moteur peut venir plus tard.",
+    "Un portail motorisé sur mesure se commande comme un autre : le moteur se choisit en même temps que le style, et le prix du portail motorisé se calcule avec lui. Un portail battant ou coulissant peut être motorisé à la commande. Les moteurs sont de la marque Somfy ; le kit comprend les télécommandes, les cellules, le feu et la batterie. Le configurateur conseille le moteur le plus facile à poser qui convient à votre portail, et vous pouvez en choisir un autre.",
+    "Un portail motorisé s'ouvre à la télécommande, avec ses cellules et son feu clignotant, sans sortir de la voiture. Sans moteur, le portail s'ouvre à la main. L'atelier pose les attentes : le moteur peut venir plus tard.",
     "Le moteur n'est vendu que posé par l'atelier, qui répond de la conformité CE de l'ensemble. Un portail livré ou retiré à l'atelier est donc sans moteur. Le courant jusqu'au pilier reste à votre électricien.",
   ],
 
@@ -315,10 +315,10 @@ const EN: TextesPortailSurMesure = {
     },
   ],
 
-  motoTitre: "Motor",
+  motoTitre: "Motorised bespoke gate",
   moto: [
-    "A swing or sliding gate can be motorised when you order. The motors are Somfy; the kit includes the remotes, the photocells, the light and the battery. The configurator recommends the motor that is easiest to fit and suits your gate, and you can choose another.",
-    "Without a motor, the gate opens by hand. We prepare the ground for it: the motor can come later.",
+    "A motorised bespoke gate is ordered like any other: the motor is chosen together with the style, and the price of the motorised gate is calculated with it. A swing or sliding gate can be motorised when you order. The motors are Somfy; the kit includes the remotes, the photocells, the light and the battery. The configurator recommends the motor that is easiest to fit and suits your gate, and you can choose another.",
+    "A motorised gate opens with a remote control, with its photocells and its flashing light, without leaving the car. Without a motor, the gate opens by hand. We prepare the ground for it: the motor can come later.",
     "The motor is only sold fitted by the workshop, which answers for the CE conformity of the whole. A gate that is delivered or collected from the workshop is therefore without motor. The power supply to the pillar is for your electrician.",
   ],
 
