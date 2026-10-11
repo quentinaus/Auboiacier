@@ -38,11 +38,11 @@
     "lightingLabel": "Plafonds lumineux",
     "lightingTitle": "Plafonds lumineux",
     "lightingSubtitle": "Cadre aluminium, toile tendue, LED intégrées. Prix affichés pour les tailles du catalogue, et le calculateur chiffre vos cotes au centimètre.",
-    "lightingCta": "Voir les plafonds",
+    "lightingCta": "Voir les toiles tendues lumineuses sur mesure",
     "craftLabel": "Mobilier acier & bois",
     "craftTitle": "Mobilier acier & bois",
     "craftSubtitle": "Tables, chaises, garde-corps, escaliers : soudés à l'atelier, à vos cotes. Prix ferme, livraison partout en France métropolitaine.",
-    "craftCta": "Voir la collection",
+    "craftCta": "Voir nos fabrications sur mesure en acier et bois",
     "bandTitle": "Rien n'est en stock",
     "bandSubtitle": "L'acier est coupé et soudé à la commande, et le bois est mis à vos cotes pour votre pièce.",
     "categoriesTitle": "Ce que nous fabriquons",
@@ -1600,7 +1600,7 @@
     "ctaTitle": "Votre commune n'est pas dans la liste ?",
     "ctaBody": "Écrivez-nous quand même, avec votre commune et votre projet : nous vous répondons sous 48 h.",
     "ctaLabel": "Nous écrire",
-    "faqLink": "Voir les questions fréquentes",
+    "faqLink": "Voir les questions fréquentes sur la métallerie sur mesure",
     "communesNote": "Et, plus loin, partout jusqu'à {rayonMax} km de l'atelier pour la prise de cotes.",
     "metalleriesTitle": "Métallerie à Saumur : ce que l'atelier fait sur place",
     "metalleriesBody": "Tout part de l'atelier de Saumur (49400). L'acier y est coupé, soudé à la main et peint ; le bois massif y est mis à vos cotes, poncé et huilé, avec une expérience en ébénisterie. Si vous cherchez une métallerie à Saumur pour un garde-corps, une table, un escalier, une verrière ou un plafond lumineux, vous parlez à l'atelier qui fabrique la pièce.",
@@ -1684,7 +1684,7 @@
     "ctaTitle": "Votre question n'est pas là ?",
     "ctaBody": "Posez-la par le formulaire : nous répondons sous 48 h.",
     "ctaLabel": "Poser ma question",
-    "zoneLink": "Voir la zone d'intervention",
+    "zoneLink": "Métallier à Saumur : voir la zone d'intervention",
     "rdvLink": "Prise de cotes à domicile",
     "garantieLien": "Les conditions de la Garantie cotes"
   },
@@ -1720,7 +1720,7 @@
     "prefill": "Rendez-vous pour une prise de cotes à domicile",
     "creneauLabel": "Votre créneau",
     "creneauManque": "Choisissez le jour et la demi-journée qui vous arrangent : nous confirmons par e-mail.",
-    "zoneLink": "Voir la zone d'intervention"
+    "zoneLink": "Métallier à Saumur : voir la zone d'intervention"
   },
   "merciDemande": {
     "title": "Merci, votre demande est bien partie",
@@ -1742,7 +1742,7 @@
     "title": "Cette page n'existe pas",
     "body": "L'adresse a peut-être changé, ou la pièce que vous cherchiez n'est plus au catalogue. Repartez de l'accueil, parcourez le mobilier ou demandez un devis.",
     "home": "Retour à l'accueil",
-    "craft": "Voir le mobilier",
+    "craft": "Voir nos fabrications sur mesure en acier et bois",
     "quote": "Demander un devis"
   },
   "compte": {
@@ -1863,7 +1863,7 @@
     "piecesBody": "Au-dessus d'une table de salle à manger ou dans une grande pièce à vivre.",
     "fabricationTitle": "Fabrication, livraison, pose",
     "fabricationBody": "Chaque plafond est fabriqué à la commande : comptez {delai}. La toile est tenue tout autour du caisson par un profilé qui la pince. Jusqu'à 230 × 210 cm (Ø 210 cm pour le Halo), un plafond part par transporteur partout en France métropolitaine. Jusqu'à 200 km de Saumur, l'atelier peut aussi venir le poser : la fiche donne le prix de la pose selon votre code postal.",
-    "zoneLink": "Voir la zone d'intervention",
+    "zoneLink": "Plafond lumineux à Saumur : voir la zone d'intervention",
     "faqTitle": "Questions fréquentes",
     "faq": [
       {
@@ -1993,7 +1993,7 @@
     "title": "Hauteur et normes du garde-corps",
     "h1": "Garde-corps de fenêtre : quelle hauteur, quelles normes, quel prix ?",
     "intro": "Une fenêtre basse à l'étage, un appui à hauteur de genou dans une maison ancienne : avant de commander un garde-corps, il faut savoir s'il est obligatoire, à quelle hauteur poser sa main courante et quels vides il peut laisser. Voici la règle telle que l'atelier l'applique, puis des exemples chiffrés par le même calcul que la fiche du garde-corps.",
-    "introLien": "Voir le garde-corps de fenêtre",
+    "introLien": "Voir le garde-corps de fenêtre sur mesure à Saumur",
     "obligatoireTitle": "Quand un garde-corps est-il obligatoire ?",
     "obligatoireBody": "En étage, une fenêtre dont l'appui est à moins de {seuil} du sol doit être protégée : c'est le Code de la construction qui l'impose, pour les logements neufs et les travaux soumis à ses règles. Dans une maison ancienne où l'on ne fait pas de tels travaux, ajouter un garde-corps n'est donc pas une obligation ; la règle reste pourtant la référence de sécurité, et l'atelier l'applique à tous ses garde-corps. À partir de {seuil}, elle ne demande plus de protection. Au rez-de-chaussée, elle n'en demande pas ; l'atelier y garde la même hauteur qu'en étage.",
     "hauteurTitle": "Quelle hauteur ? Celle de la main courante",

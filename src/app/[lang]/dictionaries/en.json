@@ -38,11 +38,11 @@
     "lightingLabel": "Backlit stretch ceilings",
     "lightingTitle": "Backlit stretch ceilings",
     "lightingSubtitle": "Aluminium frame, stretched fabric, integrated LEDs. Prices shown for catalogue sizes, and the calculator quotes your own measurements to the centimetre.",
-    "lightingCta": "See the ceilings",
+    "lightingCta": "See the made-to-measure illuminated stretch ceilings",
     "craftLabel": "Steel & wood furniture",
     "craftTitle": "Steel & wood furniture",
     "craftSubtitle": "Tables, chairs, railings, staircases: welded in the workshop, to your measurements. Firm price, delivery anywhere in mainland France.",
-    "craftCta": "See the collection",
+    "craftCta": "See our made-to-measure steel and wood pieces",
     "bandTitle": "Nothing is held in stock",
     "bandSubtitle": "The steel is cut and welded to order, and the wood is cut to your sizes for your piece.",
     "categoriesTitle": "What we make",
@@ -1600,7 +1600,7 @@
     "ctaTitle": "Your town is not on the list?",
     "ctaBody": "Write to us anyway, with your town and your project: we reply within 48 hours.",
     "ctaLabel": "Get in touch",
-    "faqLink": "See the frequently asked questions",
+    "faqLink": "See the frequently asked questions about bespoke metalwork",
     "communesNote": "And further out, anywhere within {rayonMax} km of the workshop for a measuring visit.",
     "metalleriesTitle": "Metalwork in Saumur: what the workshop does on site",
     "metalleriesBody": "Everything starts in the Saumur workshop (49400). The steel is cut, welded by hand and painted there; the solid wood is cut to your sizes, sanded and oiled, with a background in cabinetmaking. If you are looking for a metalworker in Saumur for a railing, a table, a staircase, a steel partition or a backlit ceiling, you deal with the workshop that makes the piece.",
@@ -1684,7 +1684,7 @@
     "ctaTitle": "Your question is not here?",
     "ctaBody": "Ask it through the form: we reply within 48 hours.",
     "ctaLabel": "Ask your question",
-    "zoneLink": "See where we work",
+    "zoneLink": "Metalworker in Saumur: see where we work",
     "rdvLink": "Home measuring visit",
     "garantieLien": "Terms of the Measurement guarantee"
   },
@@ -1720,7 +1720,7 @@
     "prefill": "Appointment for on-site measuring",
     "creneauLabel": "Your slot",
     "creneauManque": "Pick the day and half-day that suit you: we confirm by email.",
-    "zoneLink": "See where we work"
+    "zoneLink": "Metalworker in Saumur: see where we work"
   },
   "merciDemande": {
     "title": "Thank you, your request has been sent",
@@ -1742,7 +1742,7 @@
     "title": "This page does not exist",
     "body": "The address may have changed, or the piece you were looking for is no longer in the catalogue. Start again from the home page, browse the furniture or request a quote.",
     "home": "Back to home",
-    "craft": "Browse the furniture",
+    "craft": "Browse our made-to-measure steel and wood pieces",
     "quote": "Request a quote"
   },
   "compte": {
@@ -1863,7 +1863,7 @@
     "piecesBody": "Above a dining table or in a large living room.",
     "fabricationTitle": "Making, delivery, fitting",
     "fabricationBody": "Every ceiling is made to order: allow {delai}. The fabric is held all round the box by a profile that grips it. Up to 230 × 210 cm (Ø 210 cm for the Halo), a ceiling ships by carrier anywhere in mainland France. Within 200 km of Saumur, the workshop can also come and fit it: the product page gives the fitting price for your postcode.",
-    "zoneLink": "See where we work",
+    "zoneLink": "Illuminated ceiling in Saumur: see where we work",
     "faqTitle": "Frequently asked questions",
     "faq": [
       {
@@ -1993,7 +1993,7 @@
     "title": "Railing height and rules",
     "h1": "Window railings in France: height, rules and price",
     "intro": "A low upstairs window, a sill at knee height in an old house: before ordering a railing, you need to know whether it is required, how high its handrail must sit and what gaps it may leave. Here is the rule as the workshop applies it, followed by worked examples priced by the same calculation as the railing's product page.",
-    "introLien": "See the window railing",
+    "introLien": "See the made-to-measure window railing in Saumur",
     "obligatoireTitle": "When is a window railing required?",
     "obligatoireBody": "Upstairs, a window whose sill is less than {seuil} from the floor must be guarded: the French building code requires it in new homes and in building works subject to its rules. In an old house where no such works are planned, adding a railing is therefore not compulsory; the rule is still the safety reference, and the workshop applies it to all its railings. From {seuil} up, it no longer asks for any protection. On the ground floor it asks for none; the workshop keeps the same height there as upstairs.",
     "hauteurTitle": "How high? It is the handrail that counts",
