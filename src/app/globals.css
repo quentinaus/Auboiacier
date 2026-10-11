@@ -1980,6 +1980,12 @@ textarea:focus-visible,
   text-transform: none !important;
   box-shadow: inset 0 1px 0 var(--lg-cta-hi), inset 0 -1px 0 rgba(0,0,0,.25), 0 14px 26px -14px var(--lg-cta-shadow) !important;
 }
+/* Pas encore possible (cotes ou code postal manquants) : le bouton est gris, pas noir (Quentin, 11/10/2026). */
+#configuration .fond-configuration .carte-verre .btn-verre:not(dialog *):disabled {
+  background: rgba(118, 118, 128, 0.2) !important;
+  color: rgba(60, 60, 67, 0.55) !important;
+  box-shadow: none !important;
+}
 
 /* Liens du bas (Détails · Devis PDF · Mettre de côté) : liens sobres, sans soulignement */
 #configuration .colonne-achat .barre-achat + div button:not(dialog *) {
