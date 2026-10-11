@@ -7,7 +7,7 @@
  * de prise de cotes et pose comprises jusqu'à 45 km de Saumur (la visite payée en ligne est déduite de la commande).
  */
 import { ChiffragePortailIndisponible, chiffragePortail } from "./chiffrage.ts";
-import { appliquerStyle, bornesPortail, configDepart, configPortillonAssorti, planPortail, DECORS_PORTAIL, MOTEURS_PORTAIL, RECEPTIONS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL, versEntrees, type ConfigPortail, type ReceptionPortail, type SlugPortail, type StylePortail } from "../portails.ts";
+import { appliquerStyle, bornesPortail, configDepart, configPortillonAssorti, planPortail, DECORS_PORTAIL, DESSINS_TOLE, MOTEURS_PORTAIL, RECEPTIONS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL, versEntrees, type ConfigPortail, type DessinTole, type ReceptionPortail, type SlugPortail, type StylePortail } from "../portails.ts";
 
 export { ChiffragePortailIndisponible };
 
@@ -75,6 +75,8 @@ export type VariantesPortail = {
   moulure: { avec: number | null; sans: number | null };
   // La façon de recevoir (10/10/2026) : le prix de la configuration posée, livrée par transporteur, au retrait. Sans pose, pas de moteur : null avec moteur.
   reception: Record<ReceptionPortail, number | null>;
+  // La tôle découpée (11/10/2026) : le prix de chaque dessin, à la configuration courante (la découpe se paie au mètre et au perçage).
+  designs: Record<DessinTole, number | null>;
 };
 export function prixVariantesPortail(slug: SlugPortail, cfg: ConfigPortail): VariantesPortail {
   const p = (c: ConfigPortail) => { const r = prixPortail(slug, c); return r.ok ? r.prix : null; };
@@ -93,7 +95,9 @@ export function prixVariantesPortail(slug: SlugPortail, cfg: ConfigPortail): Var
   const basPlein = cfg.soub === "plein" || cfg.soub === "panneau";
   const moulure = { avec: basPlein ? p({ ...cfg, moulure: true }) : null, sans: p({ ...cfg, moulure: false }) };
   const reception = Object.fromEntries(RECEPTIONS_PORTAIL.map((r) => [r, p({ ...cfg, reception: r })])) as VariantesPortail["reception"];
-  return { base: prixPortail(slug, cfg), styles, decors, moteurs, portillon, moulure, reception };
+  // Seulement quand la tôle découpée est choisie : neuf prix de plus à calculer.
+  const designs = Object.fromEntries(DESSINS_TOLE.map((d) => [d, cfg.remp === "tole" ? p({ ...cfg, design: d }) : null])) as VariantesPortail["designs"];
+  return { base: prixPortail(slug, cfg), styles, decors, moteurs, portillon, moulure, reception, designs };
 }
 
 /**

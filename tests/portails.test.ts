@@ -43,6 +43,7 @@ function configDe(slug: SlugPortail, v: Record<string, unknown>): ConfigPortail 
   if (v.ptPointes) cfg = { ...cfg, pointes: true };
   if (v.ptMoulure) cfg = { ...cfg, moulure: true };
   if (v.ptFinition === "brut") cfg = { ...cfg, couleur: "galva" };
+  if (v.ptDesign) cfg = { ...cfg, design: v.ptDesign as ConfigPortail["design"] };
   return cfg;
 }
 
@@ -398,4 +399,50 @@ test("la façon de recevoir un portail (10/10/2026) : « pose » par défaut, re
   assert.ok(rail.pieces.filter((x) => /^Rail/.test(x.nom)).every((x) => x.longueurMm <= 3000));
   const auto = planPortail("portail-coulissant", { ...configDepart("portail-coulissant"), guidage: "auto" }).colis;
   assert.ok(auto.longueurMaxMm > 5000);
+});
+
+test("tôle découpée (11/10/2026) : un style, neuf dessins, des prix par dessin ; relue avec ses règles, jamais devinée", () => {
+  const cfg = configDepart("portail-battant", "tole");
+  assert.equal(cfg.remp, "tole");
+  assert.equal(cfg.mat, "acier");
+  assert.equal(cfg.design, "foret");
+  assert.equal(cfg.couleur, "anthracite");
+  assert.equal(styleDe(cfg), "tole");
+  assert.equal(versEntrees(cfg).ptDesign, "foret");
+  assert.equal(versEntrees(configDepart("portail-battant", "plein")).ptDesign, undefined);
+  // l'adresse : le dessin voyage, un ancien panier sans dessin reprend le dessin par défaut, un dessin inconnu est refusé
+  const p = versParams("portail-battant", { ...cfg, design: "loup" });
+  assert.equal(p.get("design"), "loup");
+  assert.equal(lireConfig(p)!.cfg.design, "loup");
+  p.delete("design");
+  assert.equal(lireConfig(p)!.cfg.design, "foret");
+  p.set("design", "licorne");
+  assert.equal(lireConfig(p), null);
+  // l'acier seulement, haut droit, ni bas plein ni décor : sinon refusé
+  assert.equal(lireConfig(versParams("portail-battant", { ...cfg, mat: "alu" })), null);
+  assert.equal(lireConfig(versParams("portail-battant", { ...cfg, forme: "chapeau" })), null);
+  assert.equal(lireConfig(versParams("portail-battant", { ...cfg, soub: "plein" })), null);
+  // le prix : posé, sans pose, brut ; chaque dessin se paie à sa découpe
+  const pose = prixPortail("portail-battant", cfg), retrait = prixPortail("portail-battant", { ...cfg, reception: "retrait" }), brut = prixPortail("portail-battant", { ...cfg, couleur: "galva" });
+  assert.ok(pose.ok && retrait.ok && brut.ok);
+  if (pose.ok && retrait.ok && brut.ok) { assert.ok(retrait.prix < pose.prix); assert.ok(brut.prix < pose.prix); }
+  const V = prixVariantesPortail("portail-battant", cfg);
+  for (const d of ["foret", "vagues", "soleil", "losanges", "feuillage", "lignes", "nid", "loup", "bulles"] as const) assert.ok(typeof V.designs[d] === "number", `prix du dessin ${d}`);
+  assert.ok(V.designs.lignes! > V.designs.foret! && V.designs.foret! > V.designs.losanges!, "plus de découpe, plus cher");
+  assert.equal(V.designs.foret, V.base.ok ? V.base.prix : null);
+  assert.equal(prixVariantesPortail("portail-battant", configDepart("portail-battant", "plein")).designs.foret, null, "hors tôle : aucun prix de dessin calculé");
+  // le dessin de l'outil : une montagne, des vides, rien d'incohérent
+  const R = planPortail("portail-battant", { ...cfg, design: "loup" });
+  assert.equal(R.alertes.length, 0);
+  assert.ok(R.vues.face.some((x) => (x as { cls?: string }).cls === "t-vide"), "des découpes dans la tôle");
+  // le devis (estimation) : le dessin, la matière et la découpe dits, en français et en anglais, sans promesse
+  for (const locale of ["fr", "en"] as const) for (const couleur of ["anthracite", "galva"] as const) {
+    const d = composerEstimationPortail({ slug: "portail-battant", cfg: { ...cfg, design: "loup", couleur }, client: { nom: "Essai" }, date: new Date(2026, 9, 11), locale });
+    assert.ok(d.ok, `devis ${locale} ${couleur}`);
+    if (!d.ok) continue;
+    const texte = JSON.stringify(d.devis);
+    assert.ok(locale === "fr" ? /Loup/.test(texte) && /prégalvanisé/.test(texte) && /découpée au laser/.test(texte) : /Wolf/.test(texte) && /pre-galvanised/.test(texte) && /laser-cut/.test(texte), `devis ${locale} ${couleur} : dessin et matière`);
+    assert.ok(!/garantie de teinte|inoxydable|stainless|rustproof|lifetime/i.test(texte), "aucune promesse");
+    if (couleur === "galva") assert.ok(!/thermolaqu|powder|duplex|\bRAL\b/i.test(texte), `devis ${locale} brut : aucune peinture annoncée`);
+  }
 });

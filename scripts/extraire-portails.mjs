@@ -46,6 +46,7 @@ function entre(debut, fin) {
   if (j < 0) arret(`repère de fin introuvable : ${fin.trim()}`);
   return html.slice(i + long, j);
 }
+const tole = entre(/\/\* ---------- Dessins en tôle découpée \(plans\/modules\/designs-tole\.js, collé tel quel le \d\d\/\d\d\/\d{4}\) ---------- \*\/\n/, "\n  /* ---------- fin du module des dessins en tôle découpée ---------- */");
 const plans = entre(/\/\* ---------- Portails \(plans\/modules\/plans-portails\.js, collé tel quel le \d\d\/\d\d\/\d{4}\) ---------- \*\/\n/, "\n  /* ---------- fin du module des portails ---------- */");
 const chiffrage = entre(/\/\* ---------- Chiffrage des portails \(plans\/modules\/chiffrage-portails\.js, collé tel quel le \d\d\/\d\d\/\d{4}\) ---------- \*\/\n/, "/* ---------- fin du chiffrage des portails ---------- */");
 const tarifs = entre("/* ---- TARIFS GÉNÉRÉS DEPUIS LE TABLEUR (début)", "/* ---- TARIFS GÉNÉRÉS DEPUIS LE TABLEUR (fin)");
@@ -99,15 +100,18 @@ if (!/function svgDe\(/.test(dessin) || /document|window/.test(dessin)) arret("l
 
 // ---------- 1. Le moteur public : aucun prix ----------
 for (const interdit of [/\bTARIFS_ACHATS\b/, /\bREGLAGES\b/, /\bprixPaye\b/, /\bht:/, /\bheure_atelier\b/, /\bchiffrerPortail\b/]) {
-  if (interdit.test(plans)) arret(`le moteur des portails contient « ${interdit.source} » : il ne doit porter aucun prix`);
+  if (interdit.test(plans) || interdit.test(tole)) arret(`le moteur des portails contient « ${interdit.source} » : il ne doit porter aucun prix`);
+}
+for (const n of ["tdcDessin", "tdcMetrage", "tdcDxf", "tdcAire", "TDC_DESSINS", "TDC_IDS"]) {
+  if (!new RegExp(`^(?:const|function) ${n}\\b`, "m").test(tole)) arret(`${n} absent des dessins en tôle découpée`);
 }
 for (const n of ["calculerPortail", "ptEntrees", "PT_STYLES", "PT_MODELES", "PT_ATELIER", "PT_MATIERES", "PT_DECOR_FORMULES", "PT_MOTEURS"]) {
   if (!new RegExp(`^(?:const|function) ${n}\\b`, "m").test(plans)) arret(`${n} absent du moteur`);
 }
 const enTete = (quoi) => `// FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.\n// ${quoi}\n// Source : l'outil de plans (plans-atelier.html), sha256 ${sha(html).slice(0, 24)}.\n`;
 const moteur = enTete("Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.")
-  + "/* eslint-disable */\n" + motifs + "\n" + plans + "\n" + dessin
-  + `\nexport { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, PT_MOTEURS, MT_AVEC, MT_NOMS };\nexport const EMPREINTE = ${JSON.stringify(empreinte(motifs + plans))};\n`;
+  + "/* eslint-disable */\n" + motifs + "\n" + tole + "\n" + plans + "\n" + dessin
+  + `\nexport { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, PT_MOTEURS, MT_AVEC, MT_NOMS };\nexport const EMPREINTE = ${JSON.stringify(empreinte(motifs + tole + plans))};\n`;
 const moteurTypes = `// FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : types du moteur des portails (moteur.genere.mjs).
 export type Primitive = { t: string; [k: string]: unknown };
 export type ResultatPortail = {
@@ -160,7 +164,7 @@ const chiffre = enTete("Le CHIFFRAGE des portails (coûts, fournisseurs, heure, 
 const chiffreTypes = "// FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : types du chiffrage chiffré.\nexport declare const CHIFFRE: string;\nexport declare const EMPREINTE_CLAIR: string;\nexport declare const EMPREINTE_SOURCE: string;\n";
 
 // ---------- 3. La référence : ce que l'outil répond (prix de vente seulement) ----------
-const evalMoteur = new Function(`"use strict";\n${motifs}\n${plans}\nreturn { calculerPortail };`)();
+const evalMoteur = new Function(`"use strict";\n${motifs}\n${tole}\n${plans}\nreturn { calculerPortail };`)();
 const evalChiffrage = new Function(`"use strict";\n${clair}\nreturn { chiffrerPortail, PTC_CLES_CATALOGUE, ptcPostesDevis };`)();
 const CAS = [];
 for (const modele of ["ptBattant", "ptCoulissant", "ptPliant", "ptPortillon"]) for (const ptStyle of ["plein", "lisse", "barreaux", "lamesChene", "rosace", "volutes"])
@@ -189,6 +193,13 @@ for (const reception of ["retrait", "transporteur"]) for (const modele of ["ptBa
 // Galvanisé brut (11/10/2026) : sans peinture, un seul voyage ; seulement en acier.
 for (const reception of ["pose", "retrait"]) for (const modele of ["ptBattant", "ptCoulissant", "ptPliant", "ptPortillon"]) for (const ptStyle of ["plein", "barreaux", "rosace", "volutes"])
   CAS.push({ modele, v: { ptStyle, ptMat: "acier", ptFinition: "brut", ...(modele === "ptPortillon" ? { ptP: 1000 } : {}) }, o: { reception } });
+// Tôle découpée (11/10/2026) : prégalvanisée de 3 mm, découpée au laser ; chaque dessin sur les quatre modèles, puis sans pose et brut.
+const DESSINS_TOLE = ["foret", "vagues", "soleil", "losanges", "feuillage", "lignes", "nid", "loup", "bulles"];
+for (const modele of ["ptBattant", "ptCoulissant", "ptPliant", "ptPortillon"]) for (const ptDesign of DESSINS_TOLE)
+  CAS.push({ modele, v: { ptStyle: "tole", ptDesign, ...(modele === "ptPortillon" ? { ptP: 1000 } : {}) } });
+for (const ptDesign of DESSINS_TOLE) for (const o of [{ reception: "retrait" }, { reception: "transporteur" }]) CAS.push({ modele: "ptBattant", v: { ptStyle: "tole", ptDesign }, o });
+for (const ptDesign of ["foret", "loup", "bulles"]) for (const reception of ["pose", "retrait"]) CAS.push({ modele: "ptBattant", v: { ptStyle: "tole", ptDesign, ptFinition: "brut" }, o: { reception } });
+CAS.push({ modele: "ptBattant", v: { ptStyle: "tole", ptDesign: "loup", ptP: 5000, ptH: 1800 } }, { modele: "ptBattant", v: { ptStyle: "tole", ptDesign: "soleil", ptPoteaux: "acier" } });
 const reference = CAS.map(({ modele, v, o }) => {
   const R = evalMoteur.calculerPortail(v, modele);
   const C = evalChiffrage.chiffrerPortail(R, v, undefined, { ...o, clesCatalogue: evalChiffrage.PTC_CLES_CATALOGUE });
@@ -196,7 +207,7 @@ const reference = CAS.map(({ modele, v, o }) => {
 });
 // Parité : le site (motifs.js public, catalogue anonymisé, clés rendues par le chiffrage) doit donner le MÊME prix que
 // l'outil complet (motifs.js tel quel, références et clés de prix), portail par portail. Sinon on n'écrit rien.
-const evalComplet = new Function(`"use strict";\n${motifsBrut}\n${plans}\nreturn { calculerPortail };`)();
+const evalComplet = new Function(`"use strict";\n${motifsBrut}\n${tole}\n${plans}\nreturn { calculerPortail };`)();
 const ecartsParite = CAS.map(({ modele, v, o }, i) => {
   const R = evalComplet.calculerPortail(v, modele);
   const prixOutil = R.alertes.length ? null : evalChiffrage.chiffrerPortail(R, v, undefined, o).conseille;
@@ -204,7 +215,7 @@ const ecartsParite = CAS.map(({ modele, v, o }, i) => {
   return site.alertes ? (R.alertes.length ? null : `${modele} ${JSON.stringify(v)} : refusé sur le site, pas dans l'outil`) : prixOutil === site.prix ? null : `${modele} ${JSON.stringify(v)} : outil ${prixOutil} €, site ${site.prix} €`;
 }).filter(Boolean);
 if (ecartsParite.length) arret(`le site ne donne pas le prix de l'outil :\n${ecartsParite.slice(0, 10).join("\n")}`);
-const refTexte = JSON.stringify({ source: sha(html).slice(0, 24), moteur: empreinte(plans), cas: reference }, null, 1) + "\n";
+const refTexte = JSON.stringify({ source: sha(html).slice(0, 24), moteur: empreinte(tole + plans), cas: reference }, null, 1) + "\n";
 
 // ---------- 4. Écrire, ou seulement comparer ----------
 // Le devis : le module tel quel, dans une fabrique qui reçoit les petits outils du devis (dsDate, dsPrix… : ceux du site).

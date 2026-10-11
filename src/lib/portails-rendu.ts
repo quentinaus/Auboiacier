@@ -22,6 +22,8 @@ export function STYLE_RENDU_PORTAIL(couleur: Couleur): string {
   return [
     `.t-acier-plein,.t-rond{fill:${c};stroke:${d};stroke-width:1;${ns}}`,
     `.t-mur.t-panneau{fill:${p};stroke:${d};stroke-width:1;${ns}}`,
+    `.t-mur.t-tole{fill:${p};stroke:${d};stroke-width:1;${ns}}`,
+    `.t-vide{fill:#ebe5da;stroke:none}`,
     `.t-acier{fill:none;stroke:${d};stroke-width:1.2;${ns}}`,
     `.t-acier.t-volute{stroke:${c};stroke-width:14;stroke-linecap:round;stroke-linejoin:round;vector-effect:none}`,
     `.t-acier.t-serrure{fill:#9a948c;stroke:none}`,

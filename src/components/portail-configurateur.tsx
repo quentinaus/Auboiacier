@@ -20,7 +20,7 @@ import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { svgDe, PT_DECOR_FORMULES } from "@/lib/portails-outil/moteur.genere.mjs";
 import {
   acomptePortail, appliquerStyle, bornesPortail, configDepart, configPortillonAssorti, emplacementPermis, formesDe, guidePortail, planPortail, resumeConfig, styleDe, versParams, versParamsPanier,
-  ACOMPTE_PORTAIL_PCT, BARREAUX_DECOR, BOUTS_DECOR, COULEURS_PORTAIL, DECORS_PORTAIL, EMPLACEMENTS_DECOR, POS_DECOR, STYLES_PORTAIL, TEXTES_PORTAIL,
+  ACOMPTE_PORTAIL_PCT, BARREAUX_DECOR, BOUTS_DECOR, COULEURS_PORTAIL, DECORS_PORTAIL, DESSINS_TOLE, EMPLACEMENTS_DECOR, POS_DECOR, STYLES_PORTAIL, TEXTES_PORTAIL,
   type ChoixDecor, type ConfigPortail, type Langue, type ReceptionPortail, type SlugPortail, type StylePortail,
 } from "@/lib/portails";
 import { STYLE_RENDU_PORTAIL, TEINTES_PORTAIL } from "@/lib/portails-rendu";
@@ -39,9 +39,10 @@ type Variantes = {
   portillon: { avec: number | null; seul: number | null } | null;
   moulure: { avec: number | null; sans: number | null };
   reception: Record<ReceptionPortail, number | null>;
+  designs?: Record<string, number | null>;
 };
 type EtatPrix = { etat: "ok"; v: Variantes } | { etat: "indispo" };
-type Fenetre = null | "decor" | "moteur" | "portillon" | "details" | "plan" | "guide" | "visite";
+type Fenetre = null | "decor" | "dessin" | "moteur" | "portillon" | "details" | "plan" | "guide" | "visite";
 
 /* ---------- Les textes de l'écran (français, anglais) ---------- */
 const TXT = {
@@ -55,7 +56,7 @@ const TXT = {
     guidage: "Guidage", sens: "Il se range", sensPortillon: "Les gonds", fixation: "Fixation",
     legendeOuverture: "Toujours ouvert côté propriété. Nous vérifions vos piliers à la visite.",
     vuRue: "Vu depuis la rue · cotes en mm", placeDerriere: "Place derrière", placeCote: "Place le long de la clôture", chezVous: "Chez vous", rue: "Rue",
-    votreStyle: "Votre style", stylesNote: "Prix posé à vos cotes, sans moteur", stylesNoteSansPose: "Prix sans pose à vos cotes", compose: "Composé à votre goût", des: "dès",
+    votreStyle: "Votre style", dessin: "Dessin de la tôle", dessinSous: "Chaque dessin est découpé au laser dans une tôle d'acier prégalvanisée de 3 mm, puis laqué à la couleur de votre choix.", dessinNote: "Le prix suit la longueur de découpe : un dessin sobre coûte moins qu'un dessin très détaillé.", dessinAcier: "Tôle découpée : acier seulement", matiereTole: "Acier prégalvanisé (cadre et tôle de 3 mm découpée au laser), thermolaqué", matiereToleBrut: "Acier prégalvanisé (cadre et tôle de 3 mm découpée au laser), laissé brut (sans peinture, gris zinc)", stylesNote: "Prix posé à vos cotes, sans moteur", stylesNoteSansPose: "Prix sans pose à vos cotes", compose: "Composé à votre goût", des: "dès",
     aspect: "Aspect", formeHaut: "Forme du haut", basPortail: "Bas du portail", lisse: "Lisse en chêne", lisseRaison: "Haut droit seulement",
     decor: "Décor", decorAucun: "Aucun", decorAjouter: "Ajouter", decorDetail: "Volutes, frise, cœurs", moteur: "Moteur", sansMoteur: "Sans moteur",
     prixPose: "Prix posé", poseComprise: "Pose comprise jusqu'à 45 km de Saumur",
@@ -139,7 +140,7 @@ const TXT = {
     guidage: "Guiding", sens: "Slides to the", sensPortillon: "Hinges", fixation: "Fixing",
     legendeOuverture: "Always opens onto your property. We check your pillars at the survey visit.",
     vuRue: "Seen from the street · dimensions in mm", placeDerriere: "Space behind", placeCote: "Space along the fence", chezVous: "Your side", rue: "Street",
-    votreStyle: "Your style", stylesNote: "Fitted price at your size, without motor", stylesNoteSansPose: "Price without fitting at your size", compose: "Made to your taste", des: "from",
+    votreStyle: "Your style", dessin: "Sheet design", dessinSous: "Each design is laser-cut into a 3 mm pre-galvanised steel sheet, then powder-coated in the colour of your choice.", dessinNote: "The price follows the cutting length: a simple design costs less than a very detailed one.", dessinAcier: "Cut sheet: steel only", matiereTole: "Pre-galvanised steel (frame and 3 mm laser-cut sheet), powder-coated", matiereToleBrut: "Pre-galvanised steel (frame and 3 mm laser-cut sheet), left raw (unpainted, zinc grey)", stylesNote: "Fitted price at your size, without motor", stylesNoteSansPose: "Price without fitting at your size", compose: "Made to your taste", des: "from",
     aspect: "Look", formeHaut: "Top shape", basPortail: "Lower panel", lisse: "Oak top rail", lisseRaison: "Straight top only",
     decor: "Decoration", decorAucun: "None", decorAjouter: "Add", decorDetail: "Scrolls, frieze, hearts", moteur: "Motor", sansMoteur: "No motor",
     prixPose: "Fitted price", poseComprise: "Fitting included within 45 km of Saumur",
@@ -463,6 +464,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
   const maj = (p: Partial<ConfigPortail>) => setCfg((c) => {
     const n = { ...c, ...p };
     // Le galvanisé brut n'existe qu'en acier : en alu, la teinte redevient un gris anthracite laqué.
+    if (n.remp === "tole") n.mat = "acier";   // la tôle découpée est prégalvanisée : acier seulement
     if (n.mat !== "acier" && n.couleur === "galva") n.couleur = "anthracite";
     // Sans pose (transporteur, retrait), pas de moteur : l'atelier le pose lui-même.
     if (n.reception !== "pose") n.moteur = false;
@@ -483,11 +485,17 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
   const vignettes = useMemo(
     () => STYLES_PORTAIL.map((st) => ({ st, prims: planPortail(slug, (() => { const a = appliquerStyle(cfgLente, st); return { ...a, couleur: a.mat !== "acier" && cfgLente.couleur === "galva" ? "anthracite" : cfgLente.couleur }; })()).vues.face as Prims })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [slug, cfgLente.P, cfgLente.H, cfgLente.vantaux, cfgLente.rep, cfgLente.guidage, cfgLente.sens, cfgLente.poteaux, cfgLente.couleur],
+    [slug, cfgLente.P, cfgLente.H, cfgLente.vantaux, cfgLente.rep, cfgLente.guidage, cfgLente.sens, cfgLente.poteaux, cfgLente.couleur, cfgLente.design],
   );
   const decorsDessines = useMemo(() => {
     if (fenetre !== "decor") return [];
     return DECORS_PORTAIL.filter((d) => d !== "aucun" && d !== "surMesure" && d !== "perso").map((d) => ({ d, prims: planPortail(slug, { ...cfgLente, decor: d, mat: "acier", remp: "barreaux", moteur: false }).vues.face as Prims }));
+  }, [fenetre, slug, cfgLente]);
+
+  // La fenêtre Dessin (tôle découpée) : chaque dessin sur ce portail, à la configuration courante.
+  const dessinsDessines = useMemo(() => {
+    if (fenetre !== "dessin") return [];
+    return DESSINS_TOLE.map((d) => ({ d, prims: planPortail(slug, { ...cfgLente, design: d, moteur: false }).vues.face as Prims }));
   }, [fenetre, slug, cfgLente]);
 
   // « Personnaliser » : la tuile de chaque emplacement possible, dessinée avec l'autre emplacement, ou grisée avec sa raison.
@@ -609,7 +617,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
   const lienVisite = useMemo(() => {
     const q = new URLSearchParams({
       produit: slug,
-      config: `${style ? tp.styles[style] : t.compose} · ${cfg.P} × ${cfg.H} mm`.slice(0, 200),
+      config: `${style ? tp.styles[style] : t.compose}${cfg.remp === "tole" ? ` · ${tp.dessins[cfg.design]}` : ""} · ${cfg.P} × ${cfg.H} mm`.slice(0, 200),
       releve: resumeConfig(slug, cfg, locale, prixBase).join("\n").slice(0, 2000),
     });
     return `/${locale}/contact?${q}`;
@@ -661,7 +669,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
       panier.add({
         slug: PRISE_DE_COTES, priseDeCotesCp: cp, rdv: visite.rdv,
         // Ce que le client a en tête, pour que l'atelier arrive avec la bonne idée.
-        note: `${nom} ${nf(cfg.P)} × ${nf(cfg.H)} mm · ${style ? tp.styles[style] : t.compose}`.slice(0, 160),
+        note: `${nom} ${nf(cfg.P)} × ${nf(cfg.H)} mm · ${style ? tp.styles[style] : t.compose}${cfg.remp === "tole" ? ` · ${tp.dessins[cfg.design]}` : ""}`.slice(0, 160),
         name: libellePriseDeCotes(cp, locale), optionsLabel: libelleCreneau(creneauVisite, locale), unitPrice: prixVisite,
       }, 1);
     } else if (recep === "transporteur" && prixLivraison !== null && livraison.deplacement) {
@@ -675,7 +683,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
   const battant = slug === "portail-battant", coulissant = slug === "portail-coulissant", portillon = slug === "portillon";
   const vantauxTxt = R.dims.vantaux.length > 1 ? `${R.dims.vantaux.length} ${t.vantauxDe} ${R.dims.vantaux.map(nf).join(" + ")} mm` : `1 ${t.vantail} ${nf(R.dims.vantaux[0])} mm`;
   const tropLarge = battant && cfg.P > b.P[1];
-  const etapesTel = ["mesures", ...(coulissant ? [] : ["sol"]), "ouverture", "fixation", "style", "aspect", "couleur", "decor", ...(portillon ? [] : ["moteur", "portillon"]), "prix"];
+  const etapesTel = ["mesures", ...(coulissant ? [] : ["sol"]), "ouverture", "fixation", "style", ...(cfg.remp === "tole" ? ["dessin"] : ["aspect"]), "couleur", ...(cfg.remp === "tole" ? [] : ["decor"]), ...(portillon ? [] : ["moteur", "portillon"]), "prix"];
   const ecartDecor = V && cfg.decor !== "aucun" && V.decors[cfg.decor] != null && V.decors.aucun != null ? (V.decors[cfg.decor] as number) - (V.decors.aucun as number) : null;
   const ecartPortillon = cfg.portillon && !portillon && V?.base.ok ? (V.base.portillon ?? null) : null;
   const ecartMoteur = V && cfg.moteur && V.moteurs[moteurChoisi] != null && V.moteurs.aucun != null ? (V.moteurs[moteurChoisi] as number) - (V.moteurs.aucun as number) : null;
@@ -700,6 +708,17 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
                     </span>
                     <ChevronBas />
                   </button>
+  );
+  const ligneDessin = (
+    <button type="button" className="cpt-ligne-choix" aria-expanded={fenetre === "dessin"} aria-haspopup="dialog" onClick={() => setFenetre((f) => (f === "dessin" ? null : "dessin"))}>
+      <span className="cpt-lc-picto"><Vue prims={R.vues.face as Prims} couleur={cfg.couleur} sansCotes label={tp.dessins[cfg.design]} /></span>
+      <span className="cpt-lc-texte">
+        <span className="cpt-lc-tete"><span>{t.dessin}</span></span>
+        <span className="cpt-lc-valeur">{tp.dessins[cfg.design]}</span>
+        <span className="cpt-lc-detail">{tp.dessinsNote[cfg.design]}</span>
+      </span>
+      <ChevronBas />
+    </button>
   );
   // La façon de recevoir le portail : posé par l'atelier, livré par transporteur (sans pose), retiré à l'atelier (sans pose).
   const ligneReception = (
@@ -848,6 +867,25 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
             )}
 
             {/* La fenêtre Portillon assorti : même style, sa largeur et ses gonds ; posé avec le portail. */}
+            {/* La fenêtre Dessin : les neuf dessins de la tôle découpée, chacun avec son prix sur ce portail. */}
+            {fenetre === "dessin" && cfg.remp === "tole" && (
+              <div className="carte-verre cpt-fenetre" role="dialog" aria-label={t.dessin}>
+                <div className="cpt-f-tete"><div><p className="cpt-f-titre">{t.dessin}</p><p className="cpt-f-sous">{t.dessinSous}</p></div><Fermer label={t.fermer} onClose={fermer} /></div>
+                <div className="cpt-formules" style={{ marginTop: 10 }}>
+                  {dessinsDessines.map(({ d, prims }) => {
+                    const p = V?.designs?.[d] ?? null;
+                    return (
+                      <button key={d} type="button" className="tuile-modele cpt-formule" aria-pressed={cfg.design === d} onClick={() => maj({ design: d })}>
+                        <span className="cpt-dessin"><Vue prims={prims} couleur={cfg.couleur} sansCotes label={tp.dessins[d]} /></span>
+                        <span className="cpt-f-nom">{tp.dessins[d]}</span>
+                        {p != null && <span className="cpt-f-ecart">{euros(p)}</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="cpt-f-note">{t.dessinNote}</p>
+              </div>
+            )}
             {fenetre === "portillon" && !portillon && (
               <div className="carte-verre cpt-fenetre" role="dialog" aria-label={t.portillon}>
                 <div className="cpt-f-tete"><div><p className="cpt-f-titre">{t.portillon}</p><p className="cpt-f-sous">{t.portillonSous}</p></div><Fermer label={t.fermer} onClose={fermer} /></div>
@@ -933,7 +971,8 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
           <dl className="cpt-d-liste">
             <dt>{t.dDimensions}</dt><dd>{t.passage} {nf(cfg.P)} mm, {t.hauteur.toLowerCase()} {nf(cfg.H)} mm</dd>
             <dt>{t.dVantaux}</dt><dd>{vantauxTxt}</dd>
-            <dt>{t.dMatiere}</dt><dd>{cfg.mat === "alu" ? `${t.matiereAlu}, ${tp.couleur[cfg.couleur].toLowerCase()}` : cfg.couleur === "galva" ? t.matiereAcierBrut : `${t.matiereAcier}, ${tp.couleur[cfg.couleur].toLowerCase()}`}{cfg.decor !== "aucun" ? ` · ${decorNom}` : ""}</dd>
+            {cfg.remp === "tole" && <><dt>{t.dessin}</dt><dd>{tp.dessins[cfg.design]}</dd></>}
+            <dt>{t.dMatiere}</dt><dd>{cfg.remp === "tole" ? (cfg.couleur === "galva" ? t.matiereToleBrut : `${t.matiereTole}, ${tp.couleur[cfg.couleur].toLowerCase()}`) : cfg.mat === "alu" ? `${t.matiereAlu}, ${tp.couleur[cfg.couleur].toLowerCase()}` : cfg.couleur === "galva" ? t.matiereAcierBrut : `${t.matiereAcier}, ${tp.couleur[cfg.couleur].toLowerCase()}`}{cfg.decor !== "aucun" ? ` · ${decorNom}` : ""}</dd>
             <dt>{t.dPoids}</dt><dd>≈ {nf(R.poids)} kg</dd>
             {!portillon && <><dt>{t.dMoteur}</dt><dd>{nomMoteur(moteurChoisi)}</dd></>}
             {!portillon && cfg.portillon && <><dt>{t.portillon}</dt><dd>{nf(cfg.portillonP)} × {nf(cfg.H)} mm, {tp.sensPortillon[cfg.portillonSens].toLowerCase()}</dd></>}
@@ -997,7 +1036,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
     const k = etapesTel.indexOf(cleEtape);
     const suivant = () => { setEtape(Math.min(k + 1, etapesTel.length - 1)); window.scrollTo({ top: 0 }); };
     const conseil = <button type="button" className="cpt-tel-conseil" onClick={suivant}>{t.conseilAtelier}</button>;
-    const titres: Record<string, string> = { mesures: t.vosMesures, sol: t.pente, ouverture: t.ouverture, fixation: t.fixation, style: t.votreStyle, aspect: t.aspect, couleur: t.eCouleur, decor: t.decor, moteur: t.moteur, portillon: t.portillon, prix: cfg.reception === "pose" ? t.prixPose : t.prixSansPose };
+    const titres: Record<string, string> = { mesures: t.vosMesures, sol: t.pente, ouverture: t.ouverture, fixation: t.fixation, style: t.votreStyle, dessin: t.dessin, aspect: t.aspect, couleur: t.eCouleur, decor: t.decor, moteur: t.moteur, portillon: t.portillon, prix: cfg.reception === "pose" ? t.prixPose : t.prixSansPose };
     let contenu: ReactNode = null;
     if (cleEtape === "mesures") contenu = (<>
       <p className="cpt-consigne">{t.consigne}</p>
@@ -1071,10 +1110,11 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
         <span className="cpt-mat-nom">{tp.couleur[cfg.couleur]}</span>
       </div>
       <span className="cpt-libelle uppercase">{t.matiere}</span>
-      <Pilule aria={t.matiere} valeur={cfg.mat} onChange={(mat) => maj({ mat })} desactive={cfg.decor !== "aucun" ? ["alu"] : []}
-        options={[{ v: "alu", label: tp.mat.alu, titre: cfg.decor !== "aucun" ? t.fDecorAcier : undefined }, { v: "acier", label: tp.mat.acier }]} />
+      <Pilule aria={t.matiere} valeur={cfg.mat} onChange={(mat) => maj({ mat })} desactive={cfg.decor !== "aucun" || cfg.remp === "tole" ? ["alu"] : []}
+        options={[{ v: "alu", label: tp.mat.alu, titre: cfg.remp === "tole" ? t.dessinAcier : cfg.decor !== "aucun" ? t.fDecorAcier : undefined }, { v: "acier", label: tp.mat.acier }]} />
     </>);
     else if (cleEtape === "decor") contenu = (<>{ligneDecor}{conseil}</>);
+    else if (cleEtape === "dessin") contenu = (<>{ligneDessin}<p className="cpt-f-note">{t.dessinNote}</p>{conseil}</>);
     else if (cleEtape === "moteur") contenu = (<>{ligneMoteur}<p className="cpt-f-note">{t.courant}</p>{conseil}</>);
     else if (cleEtape === "portillon") contenu = (<>{lignePortillon}{conseil}</>);
     else if (cleEtape === "prix") contenu = (<>
@@ -1158,8 +1198,8 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
                     <span className="cpt-mat-nom">{tp.couleur[cfg.couleur]}</span>
                   </div>
                   <div className="cpt-mat-groupe"><span className="cpt-mat-titre">{t.matiere}</span>
-                    <Pilule aria={t.matiere} valeur={cfg.mat} onChange={(mat) => maj({ mat })} desactive={cfg.decor !== "aucun" ? ["alu"] : []}
-                      options={[{ v: "alu", label: tp.mat.alu, titre: cfg.decor !== "aucun" ? t.fDecorAcier : undefined }, { v: "acier", label: tp.mat.acier }]} />
+                    <Pilule aria={t.matiere} valeur={cfg.mat} onChange={(mat) => maj({ mat })} desactive={cfg.decor !== "aucun" || cfg.remp === "tole" ? ["alu"] : []}
+                      options={[{ v: "alu", label: tp.mat.alu, titre: cfg.remp === "tole" ? t.dessinAcier : cfg.decor !== "aucun" ? t.fDecorAcier : undefined }, { v: "acier", label: tp.mat.acier }]} />
                   </div>
                 </div>
               </div>
@@ -1250,6 +1290,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
                 <p className="cpt-r-ligne">{vantauxTxt} · ≈ {nf(R.poids)} kg<span className="cpt-r-fab"> · {t.fabrique}</span></p>
                 <div className="cpt-filet" />
                 <h3 className="cpt-carte-titre cpt-aide-option">{t.aspect}</h3>
+                {cfg.remp !== "tole" && (<>
                 <span className="cpt-libelle uppercase">{t.formeHaut}</span>
                 <Pilule aria={t.formeHaut} picto valeur={cfg.forme} onChange={(forme) => maj({ forme, ...(forme !== "droit" ? { lisse: false } : {}) })}
                   options={(["droit", "chapeau", "creux", "biais"] as const).map((k) => ({ v: k, label: t.formes[k], icone: <PictoForme k={k} /> }))} />
@@ -1260,8 +1301,9 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
                   <Pilule aria={t.lisse} valeur={cfg.lisse ? "avec" : "sans"} onChange={(x) => maj({ lisse: x === "avec" })} desactive={cfg.forme !== "droit" ? ["avec"] : []}
                     options={[{ v: "sans", label: t.sans }, { v: "avec", label: t.avec }]} />
                 </div>
+                </>)}
                 <div className="cpt-lignes-choix">
-                  {ligneDecor}
+                  {cfg.remp === "tole" ? ligneDessin : ligneDecor}
                   {ligneMoteur}
                   {lignePortillon}
                 </div>

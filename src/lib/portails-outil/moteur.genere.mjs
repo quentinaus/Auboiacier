@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 6642668c7281ec10b4696906.
+// Source : l'outil de plans (plans-atelier.html), sha256 6bb2bf78908e597b97379c96.
 /* eslint-disable */
 
 
@@ -1019,6 +1019,479 @@ function mtGrilleAppui(G, cS) {
 }
 
 
+// Dessins des portails en TÔLE DÉCOUPÉE (Quentin, 11/10/2026) : un vantail est un cadre en tube dans lequel on soude une tôle d'acier
+// de 3 mm, galvanisée à chaud (puis laquée ou laissée brute). Le dessin est découpé (laser) dans la tôle : une liste de FORMES FERMÉES
+// (les vides), en mm, dans le repère de la tôle d'UN vantail (x vers la droite, y vers le HAUT, origine en bas à gauche).
+//
+// Un vantail a son dessin ; le second vantail d'un portail à deux vantaux est le MIROIR du premier (le portail fermé est symétrique,
+// le soleil levant se rejoint au milieu). Règles de fabrication, contrôlées par plans/tests/designs-tole.test.mjs :
+//   - aucun vide n'enferme de matière : la tôle reste d'UN SEUL morceau (pas d'îlot qui tomberait à la découpe) ;
+//   - au moins ~7 mm de tôle entre deux vides (pas de fil qui se déforme au laser ni à la galvanisation) ;
+//   - les vides restent dans la tôle ; un vide peut toucher le bord (le cadre en tube le ferme) : son bord n'est pas découpé.
+// Module SANS DOM, fonctions pures, AUCUN PRIX. Noms de premier niveau : « tdc » / « TDC_ ».
+//   tdcDessin(id, W, H, { paire, cote }) → { id, nom, formes }   (W × H : la tôle d'un vantail, mm ; cote : 0 gauche, 1 droite)
+//   tdcMetrage(formes, W, H) → { metres, percages }               (longueur à découper : le bord de la tôle n'est pas compté)
+
+const TDC_EPAISSEUR = 3;
+const TDC_MARGE = 60;             // mm de tôle gardés autour des motifs (sauf le soleil qui se rejoint au milieu)
+
+function tdcAlea(graine) {        // petit générateur reproductible (mulberry32) : le même dessin à chaque appel
+  let a = graine >>> 0;
+  return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+function tdcCercle(cx, cy, r, n = 40) { const f = []; for (let i = 0; i < n; i++) { const a = 2 * Math.PI * i / n; f.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); } return f; }
+function tdcFente(cx, y1, y2, l, n = 8) {           // fente verticale à bouts ronds, largeur l
+  const r = l / 2, f = [];
+  for (let i = 0; i <= n; i++) { const a = Math.PI + Math.PI * i / n; f.push([cx + r * Math.cos(a), y1 + r * Math.sin(a)]); }
+  for (let i = 0; i <= n; i++) { const a = Math.PI * i / n; f.push([cx + r * Math.cos(a), y2 + r * Math.sin(a)]); }
+  return f;
+}
+function tdcBande(haut, ep) { return haut.concat(haut.slice().reverse().map(([x, y]) => [x, y - ep])); }   // une courbe épaissie vers le bas
+function tdcSapin(cx, base, h, l) {                 // un sapin à trois étages et son tronc
+  const tr = Math.max(6, l * 0.08), ht = h * 0.1;
+  const g = [[cx - tr, base], [cx - tr, base + ht]], d = [[cx + tr, base + ht], [cx + tr, base]];
+  [[0.10, 1.00], [0.35, 0.78], [0.58, 0.52]].forEach(([b, w], k) => {
+    const yb = base + h * b + (k === 0 ? 0 : h * 0.02);
+    g.push([cx - l * w / 2, yb], [cx - l * w * 0.16, yb + h * 0.12]);
+    d.unshift([cx + l * w * 0.16, yb + h * 0.12], [cx + l * w / 2, yb]);
+  });
+  return g.concat([[cx, base + h]], d);
+}
+function tdcFeuille(cx, cy, l, w, ang) {            // une feuille pointue posée sur sa tige
+  // le pied de la feuille est large (11 mm, comme la tige) : aucun coin pointu de tôle entre la feuille et la tige ; il reste ENTIÈREMENT
+  // dans la tige (ses coins ne dépassent pas de l'autre côté), pour que la fusion avec la tige ne laisse aucune petite bosse
+  const p = [[0, 5.6]], c = Math.cos(ang), s = Math.sin(ang);
+  for (let i = 1; i <= 20; i++) { const t = i / 20; p.push([l * t, Math.max(6 * (1 - t * 3), w * Math.pow(Math.sin(Math.PI * t), 0.9))]); }
+  for (let i = 19; i >= 1; i--) { const t = i / 20; p.push([l * t, -Math.max(6 * (1 - t * 3), w * Math.pow(Math.sin(Math.PI * t), 0.9))]); }
+  p.push([0, -5.6]);
+  return p.map(([x, y]) => [cx + x * c - y * s, cy + x * s + y * c]);
+}
+
+/* Union de polygones qui se chevauchent : UN contour fermé, sans recouvrement (le laser ne doit découper qu'une fois chaque bord).
+   On coupe chaque bord aux points où il croise un autre polygone, on garde les morceaux qui ne sont dans aucun autre, puis on les enchaîne. */
+function tdcAntihoraire(p) { let a = 0; for (let i = 0; i < p.length; i++) { const u = p[i], v = p[(i + 1) % p.length]; a += u[0] * v[1] - v[0] * u[1]; } return a > 0 ? p : p.slice().reverse(); }
+function tdcFusion(polys) {                             // des polygones simples qui se chevauchent (une tige et ses feuilles) → UN seul contour, sans point en double
+  const P = polys.map(tdcAntihoraire), n = P.length;
+  const bb = P.map((p) => { let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity; for (const [x, y] of p) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; } return [x0, y0, x1, y1]; });
+  const coupes = P.map((p) => p.map(() => []));         // pour chaque bord de chaque polygone : les points où il en croise un autre, avec leur position sur le bord
+  const dans = (p, f) => {                              // les bords du polygone p qui touchent la fenêtre f
+    const r = [];
+    for (let k = 0, m = p.length; k < m; k++) {
+      const a = p[k], b = p[k + 1 < m ? k + 1 : 0];
+      if ((a[0] < f[0] && b[0] < f[0]) || (a[0] > f[2] && b[0] > f[2]) || (a[1] < f[1] && b[1] < f[1]) || (a[1] > f[3] && b[1] > f[3])) continue;
+      r.push(k);
+    }
+    return r;
+  };
+  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+    const f = [Math.max(bb[i][0], bb[j][0]), Math.max(bb[i][1], bb[j][1]), Math.min(bb[i][2], bb[j][2]), Math.min(bb[i][3], bb[j][3])];
+    if (f[0] > f[2] || f[1] > f[3]) continue;           // les deux polygones ne se touchent pas : rien à croiser
+    const A = P[i], B = P[j], ka = dans(A, f), kb = dans(B, f);
+    for (const ia of ka) {
+      const a0 = A[ia], a1 = A[(ia + 1) % A.length], rx = a1[0] - a0[0], ry = a1[1] - a0[1];
+      for (const ib of kb) {
+        const b0 = B[ib], b1 = B[(ib + 1) % B.length], sx = b1[0] - b0[0], sy = b1[1] - b0[1], den = rx * sy - ry * sx;
+        if (Math.abs(den) < 1e-12) continue;
+        const qx = b0[0] - a0[0], qy = b0[1] - a0[1], t = (qx * sy - qy * sx) / den, u = (qx * ry - qy * rx) / den;
+        if (t > 1e-9 && t < 1 - 1e-9 && u > 1e-9 && u < 1 - 1e-9) { const pt = [a0[0] + t * rx, a0[1] + t * ry]; coupes[i][ia].push([t, pt]); coupes[j][ib].push([u, pt]); }   // le même point pour les deux bords
+      }
+    }
+  }
+  const segs = [];
+  for (let i = 0; i < n; i++) P[i].forEach((p, k) => {
+    const pts = [p].concat(coupes[i][k].sort((u, v) => u[0] - v[0]).map((e) => e[1]), [P[i][(k + 1) % P[i].length]]);
+    for (let m = 0; m + 1 < pts.length; m++) {
+      const c = [(pts[m][0] + pts[m + 1][0]) / 2, (pts[m][1] + pts[m + 1][1]) / 2];
+      let dedans = false;
+      for (let q = 0; q < n && !dedans; q++) if (q !== i && c[0] >= bb[q][0] && c[0] <= bb[q][2] && c[1] >= bb[q][1] && c[1] <= bb[q][3] && tdcDedans(c, P[q])) dedans = true;
+      if (!dedans) segs.push([pts[m], pts[m + 1]]);     // ce morceau de bord est sur le contour extérieur de l'ensemble
+    }
+  });
+  const cle = (q) => q[0] + "," + q[1], depart = new Map(segs.map((sg) => [cle(sg[0]), sg])), vus = new Set();
+  let meilleur = null, aireMax = 0;
+  for (const s0 of segs) {
+    if (vus.has(s0)) continue;
+    const boucle = []; let sg = s0;
+    while (sg && !vus.has(sg)) { vus.add(sg); boucle.push(sg[0]); sg = depart.get(cle(sg[1])); }
+    let aire = 0; for (let i = 0; i < boucle.length; i++) { const u = boucle[i], v = boucle[(i + 1) % boucle.length]; aire += u[0] * v[1] - v[0] * u[1]; }
+    if (boucle.length >= 3 && aire > aireMax) { aireMax = aire; meilleur = boucle; }       // un trou serait tourné à l'envers : aire négative
+  }
+  const c = meilleur || P[0];
+  return c.filter((q, i) => { const r = c[(i + c.length - 1) % c.length]; return Math.hypot(q[0] - r[0], q[1] - r[1]) > 0.25; });      // pas de morceau de moins de 0,25 mm
+}
+
+/* ---------- Les montagnes et le loup « à facettes » (low-poly) ----------
+   Chaque facette est un vide (un triangle rétréci de 5,5 mm de chaque côté) : la tôle forme le quadrillage fin entre elles. Une face à
+   l'ombre est laissée pleine, une face éclairée est découpée : la montagne a du relief. La tôle reste d'un seul morceau : le quadrillage
+   rejoint la tôle autour du dessin. Le sommet est au joint des vantaux (les deux vantaux se rejoignent en une seule montagne). */
+function tdcDedans(p, poly) {
+  let c = false;
+  for (let i = 0, n = poly.length; i < n; i++) { const a = poly[i], b = poly[(i + 1) % n]; if ((a[1] > p[1]) !== (b[1] > p[1]) && p[0] < (b[0] - a[0]) * (p[1] - a[1]) / (b[1] - a[1]) + a[0]) c = !c; }
+  return c;
+}
+function tdcRepartir(pl, d) {                          // des points tous les d mm le long d'une polyligne, extrémités comprises
+  const out = [[pl[0][0], pl[0][1]]];
+  for (let i = 1; i < pl.length; i++) {
+    const [x0, y0] = pl[i - 1], [x1, y1] = pl[i], n = Math.max(1, Math.round(Math.hypot(x1 - x0, y1 - y0) / d));
+    for (let k = 1; k <= n; k++) out.push([x0 + (x1 - x0) * k / n, y0 + (y1 - y0) * k / n]);
+  }
+  return out;
+}
+function tdcDistance(p, poly) {                        // distance d'un point au contour fermé
+  let m = Infinity;
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i], b = poly[(i + 1) % poly.length], dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy || 1;
+    const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l2));
+    m = Math.min(m, Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy));
+  }
+  return m;
+}
+function tdcInterp(pl, x) {                            // l'ordonnée d'une polyligne dont x croît
+  if (x <= pl[0][0]) return pl[0][1];
+  for (let i = 1; i < pl.length; i++) if (x <= pl[i][0]) { const [x0, y0] = pl[i - 1], [x1, y1] = pl[i]; return y0 + (y1 - y0) * (x - x0) / ((x1 - x0) || 1); }
+  return pl[pl.length - 1][1];
+}
+function tdcDeplace(pl, alea, niveaux, amp, plafond) {  // déplacement du point milieu : un profil accidenté, le même à chaque appel
+  let p = pl;
+  for (let n = 0; n < niveaux; n++) {
+    const q = [p[0]];
+    for (let i = 1; i < p.length; i++) {
+      const [x0, y0] = p[i - 1], [x1, y1] = p[i], l = Math.hypot(x1 - x0, y1 - y0);
+      q.push([(x0 + x1) / 2, Math.min(plafond, (y0 + y1) / 2 + (alea() - 0.5) * 2 * amp * l)], p[i]);
+    }
+    p = q; amp *= 0.8;
+  }
+  return p;
+}
+function tdcDelaunay(pts) {                          // Bowyer-Watson : [[i, j, k]…] indices dans pts
+  const n = pts.length, M = 1e5, P = pts.concat([[-M, -M], [M, -M], [0, M]]);
+  const circ = (t) => { const [a, b, c] = t.map((i) => P[i]); const d = 2 * (a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1]));
+    if (Math.abs(d) < 1e-12) return [0, 0, 1e30];
+    const ux = ((a[0] * a[0] + a[1] * a[1]) * (b[1] - c[1]) + (b[0] * b[0] + b[1] * b[1]) * (c[1] - a[1]) + (c[0] * c[0] + c[1] * c[1]) * (a[1] - b[1])) / d;
+    const uy = ((a[0] * a[0] + a[1] * a[1]) * (c[0] - b[0]) + (b[0] * b[0] + b[1] * b[1]) * (a[0] - c[0]) + (c[0] * c[0] + c[1] * c[1]) * (b[0] - a[0])) / d;
+    return [ux, uy, (a[0] - ux) ** 2 + (a[1] - uy) ** 2]; };
+  let tri = [{ t: [n, n + 1, n + 2], c: circ([n, n + 1, n + 2]) }];
+  for (let i = 0; i < n; i++) {
+    const [px, py] = P[i], mauvais = [], aretes = new Map();
+    for (const T of tri) if ((px - T.c[0]) ** 2 + (py - T.c[1]) ** 2 < T.c[2] - 1e-9) mauvais.push(T);
+    for (const T of mauvais) for (const e of [[T.t[0], T.t[1]], [T.t[1], T.t[2]], [T.t[2], T.t[0]]]) { const k = e[0] < e[1] ? e[0] + "," + e[1] : e[1] + "," + e[0]; aretes.set(k, (aretes.get(k) || 0) + 1); }
+    tri = tri.filter((T) => !mauvais.includes(T));
+    for (const [k, v] of aretes) if (v === 1) { const [u, w] = k.split(",").map(Number); const t = [u, w, i]; tri.push({ t, c: circ(t) }); }
+  }
+  return tri.map((T) => T.t).filter((t) => Math.max(...t) < n);
+}
+function tdcDelaunayContraint(pts, aretes) {          // Delaunay où chaque arête demandée existe (sinon on coupe l'arête en deux et on recommence)
+  let ar = aretes.slice();
+  const cle = (a, b) => (a < b ? a + "," + b : b + "," + a);
+  for (let essai = 0; essai < 10; essai++) {
+    const tri = tdcDelaunay(pts), vu = new Set();
+    for (const t of tri) for (const [a, b] of [[t[0], t[1]], [t[1], t[2]], [t[2], t[0]]]) vu.add(cle(a, b));
+    const manque = ar.filter(([a, b]) => !vu.has(cle(a, b)));
+    if (!manque.length) return tri;
+    for (const [a, b] of manque) {
+      const k = pts.length; pts.push([(pts[a][0] + pts[b][0]) / 2, (pts[a][1] + pts[b][1]) / 2]);
+      ar = ar.filter(([u, v]) => !((u === a && v === b) || (u === b && v === a))); ar.push([a, k], [k, b]);
+    }
+  }
+  return tdcDelaunay(pts);
+}
+function tdcRetrecir(t, pts, d, mini) {                    // un triangle rétréci de d mm de chaque côté (homothétie autour de son centre inscrit)
+  const [a, b, c] = t.map((i) => pts[i]), la = Math.hypot(b[0] - c[0], b[1] - c[1]), lb = Math.hypot(a[0] - c[0], a[1] - c[1]), lc = Math.hypot(a[0] - b[0], a[1] - b[1]), s = la + lb + lc;
+  const ix = (la * a[0] + lb * b[0] + lc * c[0]) / s, iy = (la * a[1] + lb * b[1] + lc * c[1]) / s;
+  const aire = Math.abs((b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1])) / 2, r = 2 * aire / s;
+  if (r <= d + (mini || 3)) return null;
+  const k = (r - d) / r;
+  return [a, b, c].map(([x, y]) => [ix + (x - ix) * k, iy + (y - iy) * k]);
+}
+/** Les facettes d'un contour : poly (fermé), points fixes en plus, pleines (zones laissées en tôle), choisit(g, t) → true = vide ; retrait d (mm). */
+function tdcFacettesPoly(poly, plus, pleines, choisit, retrait, pas, espace) {
+  const boucle = tdcRepartir(poly.concat([poly[0]]), pas * (espace || 0.7)); boucle.pop();
+  const nb = boucle.length, pts = boucle.slice();
+  const garde = (p) => !pts.some((q) => Math.abs(q[0] - p[0]) < 1 && Math.abs(q[1] - p[1]) < 1);
+  for (const p of plus) if (garde(p)) pts.push(p);
+  const sortie = [];
+  for (const t of tdcDelaunay(pts)) {
+    const A = pts[t[0]], B = pts[t[1]], C = pts[t[2]], g = [(A[0] + B[0] + C[0]) / 3, (A[1] + B[1] + C[1]) / 3];
+    // le triangle entier doit être dans le contour (un contour creux : pas de triangle qui enjambe un creux)
+    const tests = [g].concat([A, B, C].map((v) => [g[0] + (v[0] - g[0]) * 0.9, g[1] + (v[1] - g[1]) * 0.9]), [[A, B], [B, C], [C, A]].map(([u, v]) => [g[0] + ((u[0] + v[0]) / 2 - g[0]) * 0.9, g[1] + ((u[1] + v[1]) / 2 - g[1]) * 0.9]));
+    if (tests.some((p) => !tdcDedans(p, poly))) continue;
+    if (pleines.some((z) => tests.some((p) => z(p)))) continue;
+    if (!choisit(g, t.some((i) => i < nb))) continue;
+    const r = tdcRetrecir(t, pts, retrait);
+    if (r) sortie.push(r);
+  }
+  return sortie;
+}
+/** Une moitié de montagne (de x = xa jusqu'au sommet sur l'axe, x = xs). Rend les facettes éclairées. */
+function tdcMontagne(o) {
+  const alea = o.alea, pas = o.pas || 150, haut = o.prof, pied = o.pied, [xs, ys] = haut[haut.length - 1];
+  const poly = haut.concat(pied.slice().reverse());
+  // des points à l'intérieur (grille décalée, un peu au hasard), à bonne distance du contour, pour des facettes régulières
+  const plus = [];
+  let y0 = Infinity, y1 = -Infinity, x0 = Infinity; for (const [x, y] of poly) { y0 = Math.min(y0, y); y1 = Math.max(y1, y); x0 = Math.min(x0, x); }
+  for (let y = y0 + pas * 0.5, j = 0; y < y1; y += pas * 0.87, j++) for (let x = x0 + pas * (j % 2 ? 0.5 : 0); x < xs; x += pas) {
+    const p = [x + (alea() - 0.5) * pas * 0.3, y + (alea() - 0.5) * pas * 0.25];
+    if (tdcDedans(p, poly) && tdcDistance(p, poly) > pas * 0.55) plus.push(p);
+  }
+  const aretes = o.aretes.map((a) => tdcRepartir(a, pas * 0.75));
+  for (const a of aretes) for (const p of a) if (tdcDedans(p, poly) && tdcDistance(p, poly) > pas * 0.2) plus.push(p);
+  for (const p of (o.fixes || [])) if (tdcDedans(p, poly)) plus.push(p);
+  const xAr = (a, y) => { for (let i = 1; i < a.length; i++) if (y >= a[i][1]) { const [xa, ya] = a[i - 1], [xb, yb] = a[i]; return xa + (xb - xa) * (ya - y) / ((ya - yb) || 1); } return a[a.length - 1][0]; };
+  const choisit = (g, surLeContour) => {
+    if (surLeContour || g[1] > o.neige(g[0])) return true;         // le contour et la neige : éclairés (la montagne se lit de loin)
+    let k = 0; for (const a of aretes) if (xAr(a, g[1]) < g[0]) k++;
+    return !o.ombre.includes(k);                                    // les faces à l'ombre restent en tôle
+  };
+  return tdcFacettesPoly(poly, plus, o.exclure ? [o.exclure] : [], choisit, 5.5, pas, 0.9);
+}
+
+// La tête de loup, une moitié (x depuis l'axe, y vers le haut ; 52 à 992 : environ 940 unités de haut). Une grimace : les oreilles couchées, les yeux en
+// fentes obliques qui brillent dans une orbite sombre, le museau plissé, la gueule ouverte sur quatre crocs.
+const TDC_LOUP = {
+  contour: [[0, 790], [95, 825], [150, 808], [285, 1010], [385, 785], [450, 735], [400, 670], [470, 590], [410, 520], [455, 430], [380, 375], [300, 350], [235, 310], [205, 235], [185, 155], [120, 92], [0, 55]],
+  orbite: [[0, 690], [90, 722], [185, 752], [270, 772], [262, 735], [240, 680], [170, 630], [92, 600], [0, 610]],
+  oeil: [[30, 648], [105, 672], [180, 704], [240, 738], [214, 706], [155, 676], [98, 652], [52, 636]],
+  nez: [[0, 410], [58, 416], [72, 375], [36, 338], [0, 330]],
+  bouche: [[0, 298], [75, 296], [150, 290], [185, 262], [168, 196], [105, 158], [0, 138]],
+  oreille: [[150, 808], [270, 800], [385, 785]],              // la base de l'oreille (une arête imposée) et sa nervure
+  nervure: [[285, 1010], [270, 800]],
+  axe: [[0, 750], [0, 540], [0, 470], [0, 95]],
+  fixes: [[90, 540], [200, 545], [310, 560], [350, 650], [130, 460], [250, 465], [360, 480], [170, 385], [300, 410], [190, 330], [90, 120], [150, 125]],
+  dents: [[[62, 287], [104, 284], [83, 205]], [[8, 288], [44, 287], [26, 252]], [[115, 173], [155, 197], [136, 250]], [[10, 152], [48, 155], [28, 188]]],
+};
+/** La demi-tête à l'échelle s : { facettes, vides (yeux, dents), halo (contour élargi, pour que la montagne s'arrête avant) } en repère local (x depuis l'axe, y). */
+function tdcLoupTete(s, marge) {
+  const L = TDC_LOUP, pts = [], cle = new Map(), aretes = [];
+  const P = (p) => { const k = p[0] + "," + p[1]; if (!cle.has(k)) { cle.set(k, pts.length); pts.push([p[0], p[1]]); } return cle.get(k); };
+  const chaine = (poly, ferme) => { for (let i = 0; i < poly.length - (ferme ? 0 : 1); i++) aretes.push([P(poly[i]), P(poly[(i + 1) % poly.length])]); };
+  chaine(L.contour, false); chaine(L.orbite, true); chaine(L.nez, true); chaine(L.bouche, true); chaine(L.oreille, false); chaine(L.nervure, false);
+  for (const p of L.axe.concat(L.fixes)) P(p);
+  for (const [x, y] of L.contour.concat(L.orbite, L.nez, L.bouche)) if (x === 0) P([x, y]);
+  const surAxe = pts.map((p, i) => [p, i]).filter(([p]) => p[0] === 0).sort((u, v) => u[0][1] - v[0][1]);
+  for (let i = 1; i < surAxe.length; i++) aretes.push([surAxe[i - 1][1], surAxe[i][1]]);
+  const poly = L.contour, sombres = [L.orbite, L.nez, L.bouche], facettes = [];
+  for (const t of tdcDelaunayContraint(pts, aretes)) {
+    const g = [(pts[t[0]][0] + pts[t[1]][0] + pts[t[2]][0]) / 3, (pts[t[0]][1] + pts[t[1]][1] + pts[t[2]][1]) / 3];
+    if (g[0] < 0.5 || !tdcDedans(g, poly) || sombres.some((z) => tdcDedans(g, z))) continue;
+    const r = tdcRetrecir(t, pts, 5.5 / s, 7 / s);
+    if (r) facettes.push(r);
+  }
+  const vides = [L.oeil].concat(L.dents);
+  // le halo : le contour décalé vers l'extérieur de marge/s
+  const n = poly.length, aire = poly.reduce((t, a, i) => t + (a[0] * poly[(i + 1) % n][1] - poly[(i + 1) % n][0] * a[1]), 0), sg = aire > 0 ? 1 : -1, d = marge / s;
+  const halo = poly.map((a, i) => {
+    const p = poly[(i + n - 1) % n], q = poly[(i + 1) % n], nr = (u, v) => { const l = Math.hypot(v[0] - u[0], v[1] - u[1]) || 1; return [sg * (v[1] - u[1]) / l, -sg * (v[0] - u[0]) / l]; };
+    const n1 = nr(p, a), n2 = nr(a, q), nx = n1[0] + n2[0], ny = n1[1] + n2[1], l = Math.hypot(nx, ny) || 1, k = Math.min(1.5, 2 / l);
+    return [a[0] + nx / l * d * k, a[1] + ny / l * d * k];
+  });
+  return { facettes, vides, halo };
+}
+
+function tdcDecale(f, d) {                                // le profil f relevé de d mm PERPENDICULAIREMENT à sa pente : l'écart de tôle reste d, même sur une pente raide
+  return (x) => { const m = (f(x + 14) - f(x - 14)) / 28; return f(x) + d * Math.sqrt(1 + m * m); };
+}
+function tdcIntervalles(poly) {                          // x → [bas, haut] de la forme (ou null) : où une verticale la traverse
+  return (x) => {
+    const ys = [];
+    for (let i = 0; i < poly.length; i++) { const a = poly[i], b = poly[(i + 1) % poly.length]; if ((a[0] <= x && b[0] > x) || (b[0] <= x && a[0] > x)) ys.push(a[1] + (x - a[0]) / (b[0] - a[0]) * (b[1] - a[1])); }
+    return ys.length >= 2 ? [Math.min(...ys), Math.max(...ys)] : null;
+  };
+}
+/** Une couche de montagne pleine, entre deux profils (haut(x), bas(x)), de xa à xb ; hc(x) = [bas, haut] de la tête à éviter (ou null).
+ *  La couche se coupe en morceaux autour de la tête (une marge de tôle) ; un morceau de moins de 34 mm d'épaisseur n'existe pas. */
+function tdcCouche(haut, bas, xa, xb, hc) {
+  const pas = 14, n = Math.ceil((xb - xa) / pas), xs = []; for (let i = 0; i <= n; i++) xs.push(Math.min(xb, xa + i * pas));
+  const mini = 34, marge = 36, sorties = [];
+  const suites = (lignes) => {
+    let cur = [];
+    const ferme = () => { if (cur.length >= 5) sorties.push(cur.map(([x, t]) => [x, t]).concat(cur.slice().reverse().map(([x, , b]) => [x, b]))); cur = []; };
+    for (const l of lignes) { if (l && l[1] - l[2] >= mini) cur.push(l); else ferme(); }
+    ferme();
+  };
+  // le morceau du dessous reprend toute la couche là où il n'y a pas de tête ; celui du dessus n'existe qu'au-dessus de la tête (un échantillon de recul : une coupure nette)
+  suites(xs.map((x) => { const h = hc && hc(x); return h ? [x, Math.min(haut(x), h[0] - marge), bas(x)] : [x, haut(x), bas(x)]; }));
+  if (hc) suites(xs.map((x, i) => { const h = hc(x); return h && i > 0 && hc(xs[i - 1]) ? [x, haut(x), Math.max(bas(x), h[1] + marge)] : null; }));
+  return sorties;
+}
+/** Un paysage de montagne dans un panneau de W × H : le sommet au joint des vantaux (ou au milieu d'un vantail seul), des collines, des sapins.
+ *  cfg : graine, collines [bas, haut] (fractions de H), arbres [petit, grand], sommet, pied (fractions de H), disque (la lune), etoiles, tete (le loup). */
+function tdcPaysage(W, H, o, cfg) {
+  const paire = !!(o && o.paire), seg = (o && o.segment) || { premier: true, dernier: true }, m = TDC_MARGE, sol = 70;
+  const bord = paire && seg.dernier, xs = bord ? W : W / 2, xa = m, w = xs - xa;
+  const alea = tdcAlea(cfg.graine), f = [];
+  const miroir = ([x, y]) => [2 * xs - x, y];
+  const complet = (pl) => (bord ? pl : pl.concat(pl.slice(0, -1).reverse().map(miroir)));   // un chemin de gauche à droite, jusqu'au bout du panneau
+  // 1. les collines : leur crête (le haut), puis les sapins (le bas : les sapins sont de la tôle qui monte dans le vide)
+  const c0 = H * cfg.collines[0], c1 = H * cfg.collines[1];
+  const crete = [[xa, c0 + (c1 - c0) * alea()]];
+  for (let x = xa; x < xs - 1;) { x = Math.min(xs, x + w * (0.10 + 0.10 * alea())); crete.push([x, c0 + (c1 - c0) * (crete.length % 2 ? 0.25 + 0.75 * alea() : 0.8 * alea())]); }
+  const minCrete = (a, b) => { let mn = Infinity; for (let k = 0; k <= 24; k++) mn = Math.min(mn, tdcInterp(crete, a + (b - a) * k / 24)); return mn; };
+  const arbres = []; let x = xa + 20;
+  while (x < xs - 60) {
+    let h = H * (cfg.arbres[0] + (cfg.arbres[1] - cfg.arbres[0]) * alea()), l = h * 0.52;
+    h = Math.min(h, minCrete(x, x + l) - sol - 45);
+    if (h < 90) { x += 40; continue; }
+    l = h * 0.52; if (x + l > xs - 30) break;
+    arbres.push([x + l / 2, h, l]); x += l * (1.0 + 0.45 * alea()) + 24;
+  }
+  const bas = [[xa, sol]]; for (const [cx, h, l] of arbres) for (const p of tdcSapin(cx, sol, h, l)) bas.push(p); bas.push([xs, sol]);
+  f.push(complet(crete).concat(complet(bas).slice().reverse()));
+  // 2. la montagne : le profil (de gauche à droite jusqu'au sommet), le pied (la crête des collines moins 28 mm)
+  const ys = H * cfg.sommet, yb = H * cfg.pied;
+  const clefs = [[0, 1], [0.09, 0.84], [0.17, 0.90], [0.29, 0.64], [0.40, 0.74], [0.53, 0.46], [0.66, 0.55], [0.80, 0.28], [0.91, 0.33], [1, 0.12]];
+  const prof = tdcDeplace(clefs.map(([u, v]) => [xs - u * w, yb + v * (ys - yb)]).reverse(), alea, 2, 0.12, ys - 12);
+  prof[prof.length - 1] = [xs, ys];
+  const pied = crete.map(([x, y]) => [x, tdcDecale((xx) => tdcInterp(crete, xx), 30)(x)]);
+  const arete = (u, dx) => [[xs, ys], [xs - w * u * 0.5 + dx * w, ys - (ys - yb) * 0.5], [xs - w * u, yb - 30]];
+  let exclure = null, tete = null;
+  if (cfg.tete && seg.dernier) {
+    const hautTete = H * 0.63, s = Math.min(hautTete / 960, (w - 30) / 480), y0 = H * 0.255 - 55 * s;
+    tete = tdcLoupTete(s, 42);
+    const placer = (p) => [xs - p[0] * s, y0 + p[1] * s];
+    const halo = tete.halo.map(placer).concat([[xs + 80, y0 + 55 * s - 42], [xs + 80, tete.halo[0][1] * s + y0]]);
+    exclure = (g) => tdcDedans(g, halo) || tdcDistance(g, halo) < 12;
+    for (const t of tete.facettes) { f.push(t.map(placer)); if (!bord) f.push(t.map(([x, y]) => [xs + x * s, y0 + y * s]).reverse()); }
+    for (const v of tete.vides) { f.push(v.map(placer)); if (!bord) f.push(v.map(([x, y]) => [xs + x * s, y0 + y * s]).reverse()); }
+    cfg._halo = halo;
+  }
+  let mont = [];
+  if (cfg.plats) {
+    const clefsB = [[0, 0.74], [0.12, 0.62], [0.22, 0.68], [0.36, 0.46], [0.5, 0.52], [0.62, 0.34], [0.78, 0.4], [0.9, 0.22], [1, 0.14]];
+    const profB = tdcDeplace(clefsB.map(([u, v]) => [xs - u * w, yb + v * (ys - yb)]).reverse(), alea, 2, 0.1, ys - 12);
+    const hautA = (x) => tdcInterp(prof, x), hautB = (x) => Math.min(tdcInterp(profB, x), hautA(x) - 100), piedF = (x) => tdcInterp(pied, x);
+    const hc = cfg._halo ? tdcIntervalles(cfg._halo) : null, xb = xs - (bord ? 0 : 6);
+    mont = tdcCouche(hautA, tdcDecale(hautB, 30), xa, xb, hc).concat(tdcCouche(hautB, piedF, xa, xb, hc));
+  } else mont = tdcMontagne({
+    alea, pas: cfg.pas || 150, prof, pied, aretes: [arete(0.18, 0.03), arete(0.42, -0.04), arete(0.72, 0.03)],
+    neige: (x) => ys - 0.40 * (ys - yb) + 35 * Math.sin(x / 40), ombre: [1], exclure,
+    fixes: exclure ? tdcRepartir(cfg._halo.concat([cfg._halo[0]]), 60) : [],
+  });
+  for (const t of mont) { f.push(t); if (!bord) f.push(t.map(miroir).reverse()); }
+  // 3. la lune : un disque derrière le sommet (une moitié au joint ; entière au milieu d'un vantail)
+  if (cfg.disque) {
+    const r = H * 0.07, cy = ys + r + 70, disque = [];
+    for (let i = 0; i <= 40; i++) { const a = (bord ? Math.PI / 2 : 0) + (bord ? Math.PI : 2 * Math.PI) * i / 40; disque.push([xs + r * Math.cos(a), cy + r * Math.sin(a)]); }
+    if (!bord) disque.pop();
+    f.push(disque);
+  }
+  // 4. des étoiles (losanges) dans le ciel, au-dessus de la montagne
+  const etoiles = [];
+  for (let k = 0, n = 0; k < 400 && n < (cfg.etoiles || 0); k++) {
+    const sx = xa + 40 + alea() * (w - 80), sy = H * 0.45 + alea() * (H * 0.50), r = 14 + alea() * 14;
+    if (sy < tdcInterp(prof, sx) + 90 || (cfg.disque && Math.hypot(sx - xs, sy - (ys + H * 0.07 + 70)) < H * 0.07 + 120)) continue;
+    if (cfg._halo && (tdcDedans([sx, sy], cfg._halo) || tdcDistance([sx, sy], cfg._halo) < 90)) continue;
+    if (etoiles.some(([ex, ey]) => Math.hypot(ex - sx, ey - sy) < 90)) continue;   // deux étoiles ne se touchent jamais
+    etoiles.push([sx, sy]);
+    const e = [[sx - r * 0.6, sy], [sx, sy + r], [sx + r * 0.6, sy], [sx, sy - r]];
+    f.push(e); if (!bord) f.push(e.map(miroir).reverse()); n++;
+  }
+  return f;
+}
+
+const TDC_DESSINS = {
+  foret: { nom: "Forêt et montagnes", faire(W, H, o) { return tdcPaysage(W, H, o, { graine: 7, collines: [0.26, 0.35], arbres: [0.10, 0.24], sommet: 0.74, pied: 0.40, disque: true, etoiles: 0, pas: 190 }); } },
+  vagues: { nom: "Vagues", faire(W, H) {
+    const f = [], n = 7, ep = 26, lam = Math.min(520, (W - 2 * TDC_MARGE) / 2.5), amp = 55;
+    for (let k = 0; k < n; k++) { const y0 = H * (0.14 + 0.72 * k / (n - 1)), ph = k * 0.9, h = []; for (let x = TDC_MARGE; x <= W - TDC_MARGE; x += 20) h.push([x, y0 + amp * Math.sin(2 * Math.PI * x / lam + ph)]); f.push(tdcBande(h, ep)); }
+    return f; } },
+  soleil: { nom: "Soleil levant", faire(W, H, o) {
+    if (o && o.paire && o.segment && !o.segment.dernier) return [];   // un quart de soleil, seulement dans le panneau du côté du joint
+    // portail à deux vantaux : un quart de soleil dans le coin bas du côté du joint (les deux vantaux se rejoignent en demi-soleil) ;
+    // un vantail seul : un demi-soleil au milieu. Les rayons s'arrêtent avant le bord.
+    const paire = !!(o && o.paire), cy = 70, cx = paire ? W : W / 2, f = [];
+    const r = Math.min(H * 0.20, paire ? W * 0.22 : W * 0.20), reach = (a) => { const lim = []; const c = Math.cos(a), s = Math.sin(a); if (Math.abs(c) > 1e-6) lim.push(((c > 0 ? W - TDC_MARGE : TDC_MARGE) - cx) / c); if (s > 1e-6) lim.push((H - TDC_MARGE - cy) / s); return Math.min(...lim.filter((v) => v > 0)); };
+    const a0 = paire ? Math.PI / 2 : 0, a1 = paire ? Math.PI : Math.PI;
+    const disque = []; for (let i = 0; i <= 30; i++) { const a = a0 + (a1 - a0) * i / 30; disque.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
+    f.push(disque.concat(paire ? [[cx, cy]] : []));
+    const n = paire ? 12 : 23;
+    for (let k = 0; k < n; k++) {
+      const a = a0 + (a1 - a0) * (k + 0.5) / n, da = (a1 - a0) / n * 0.28, r1 = r + 28, r2 = Math.min((k % 2 === 0 ? 0.92 : 0.70) * reach(a), H * 0.78);
+      if (r2 < r1 + 120) continue;
+      f.push([[cx + r1 * Math.cos(a - da), cy + r1 * Math.sin(a - da)], [cx + r2 * Math.cos(a), cy + r2 * Math.sin(a)], [cx + r1 * Math.cos(a + da), cy + r1 * Math.sin(a + da)]]);
+    }
+    return f; } },
+  losanges: { nom: "Losanges", faire(W, H) {
+    const f = [], colw = 190, ny = 6, nx = Math.max(1, Math.floor((W - 2 * TDC_MARGE) / colw)), x0 = (W - nx * colw) / 2 + colw / 2;
+    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+      const cx = x0 + i * colw + (j % 2 ? colw / 2 : 0), cy = H * (0.10 + 0.80 * j / (ny - 1)), s = 62 - 7 * j;
+      if (cx - s * 0.62 < TDC_MARGE || cx + s * 0.62 > W - TDC_MARGE) continue;
+      f.push([[cx - s * 0.62, cy], [cx, cy + s], [cx + s * 0.62, cy], [cx, cy - s]]);
+    }
+    return f; } },
+  feuillage: { nom: "Feuillage", faire(W, H) {
+    // des brins de feuilles : chaque brin tient dans sa colonne (tige qui ondule de 60 mm, feuilles de 120 mm au plus)
+    const f = [], colonne = 400, n = Math.max(1, Math.floor((W - 2 * TDC_MARGE) / colonne)), x0 = (W - n * colonne) / 2 + colonne / 2;
+    for (let k = 0; k < n; k++) {
+      const cx = x0 + k * colonne, courbe = (t) => [cx + 60 * Math.sin(t * 2.2 + k * 1.3), 90 + (H - 300) * t], pts = [];
+      for (let i = 0; i <= 40; i++) pts.push(courbe(i / 40));
+      const brin = [pts.map(([x, y]) => [x + 6, y]).concat(pts.slice().reverse().map(([x, y]) => [x - 6, y]))];
+      const paires = Math.max(3, Math.min(8, Math.floor((H - 300) / 120)));
+      for (let j = 1; j <= paires; j++) { const t = j / (paires + 1.5), [x, y] = courbe(t); for (const side of [-1, 1]) brin.push(tdcFeuille(x, y, 112 - 28 * t, 20, Math.PI / 2 - side * (0.95 - 0.25 * t))); }
+      f.push(tdcFusion(brin));         // la tige et ses feuilles = UN seul contour (un vide, un perçage) : aucune découpe en double au pied des feuilles
+    }
+    return f; } },
+  lignes: { nom: "Lignes", faire(W, H) {
+    const f = [], pas = 56, n = Math.max(2, Math.floor((W - 2 * TDC_MARGE - 30) / pas)), x0 = (W - (n - 1) * pas) / 2;
+    for (let k = 0; k < n; k++) { const l = H * (0.35 + 0.5 * Math.abs(Math.sin(k * 0.55 + 0.4))) * 0.9, cy = H * 0.5 + 50 * Math.sin(k * 0.9); f.push(tdcFente(x0 + k * pas, cy - l / 2, cy + l / 2, 22)); }
+    return f; } },
+  nid: { nom: "Nid d'abeille", faire(W, H) {
+    const f = [], pas = 118, rr = 44, ny = Math.floor((H - 2 * TDC_MARGE) / (pas * 0.866)) + 1, nx = Math.floor((W - 2 * TDC_MARGE) / pas), x0 = (W - nx * pas) / 2 + pas / 2;
+    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+      const cx = x0 + i * pas + (j % 2 ? pas / 2 : 0), cy = TDC_MARGE + 20 + j * pas * 0.866;
+      if (cx + rr > W - TDC_MARGE || cy + rr > H - TDC_MARGE) continue;
+      const r = rr * (0.45 + 0.55 * (cy / H)), p = [];
+      for (let m = 0; m < 6; m++) p.push([cx + r * Math.cos(Math.PI / 3 * m + Math.PI / 6), cy + r * Math.sin(Math.PI / 3 * m + Math.PI / 6)]);
+      f.push(p);
+    }
+    return f; } },
+  loup: { nom: "Loup", faire(W, H, o) { return tdcPaysage(W, H, o, { graine: 21, collines: [0.115, 0.19], arbres: [0.05, 0.10], sommet: 0.96, pied: 0.30, disque: false, etoiles: 6, tete: true, plats: true }); } },
+  bulles: { nom: "Bulles", faire(W, H) {
+    const a = tdcAlea(3), c = []; let essais = 0;
+    while (essais < 6000 && c.length < 40) {
+      essais++; const r = 18 + 70 * Math.pow(a(), 2.2), x = TDC_MARGE + r + a() * (W - 2 * TDC_MARGE - 2 * r), y = TDC_MARGE + r + a() * (H - 2 * TDC_MARGE - 2 * r);
+      if (c.every(([xx, yy, rr]) => Math.hypot(x - xx, y - yy) > r + rr + 30)) c.push([x, y, r]);
+    }
+    return c.map(([x, y, r]) => tdcCercle(x, y, r)); } },
+};
+const TDC_IDS = Object.keys(TDC_DESSINS);
+
+/** Le dessin d'un vantail de W × H mm (tôle visible). o.paire : portail à deux vantaux ; o.cote : 0 vantail gauche, 1 vantail droit (miroir) ;
+ *  o.segments : les panneaux de tôle du vantail, [[x0, x1]…] (un vantail large ou haut en compte plusieurs, séparés par un montant : une tôle
+ *  ne dépasse pas 1 500 mm dans un sens). Chaque panneau a son dessin, rien ne passe d'un panneau à l'autre. */
+function tdcDessin(id, W, H, o) {
+  const d = TDC_DESSINS[id];
+  if (!d) return null;
+  o = o || {};
+  const segs = o.segments && o.segments.length ? o.segments : [[0, W]];
+  const gen = o.cote === 1 ? segs.map(([a, b]) => [W - b, W - a]).reverse() : segs;     // en repère de génération (le joint des vantaux à droite)
+  let formes = [];
+  gen.forEach(([x0, x1], k) => {
+    const part = d.faire(x1 - x0, H, { ...o, segment: { k, n: gen.length, premier: k === 0, dernier: k === gen.length - 1 } });
+    for (const p of part) formes.push(p.map(([x, y]) => [x + x0, y]));
+  });
+  if (o.cote === 1) formes = formes.map((p) => p.map(([x, y]) => [W - x, y]).reverse());
+  return { id, nom: d.nom, formes };
+}
+/** Les bords d'un vide qui touchent le bord de la tôle ne sont pas découpés (le cadre les ferme). */
+function tdcSurLeBord(a, b, W, H) { const e = 0.5; return (a[0] < e && b[0] < e) || (a[0] > W - e && b[0] > W - e) || (a[1] < e && b[1] < e) || (a[1] > H - e && b[1] > H - e); }
+function tdcPerimetre(p, W, H) { let s = 0; for (let i = 0; i < p.length; i++) { const a = p[i], b = p[(i + 1) % p.length]; if (W && tdcSurLeBord(a, b, W, H)) continue; s += Math.hypot(b[0] - a[0], b[1] - a[1]); } return s; }
+/** La longueur de découpe (m) et le nombre de perçages (un par vide : le laser perce une fois par forme fermée). */
+function tdcMetrage(formes, W, H) { return { metres: formes.reduce((s, p) => s + tdcPerimetre(p, W, H), 0) / 1000, percages: formes.length }; }
+
+/** Le fichier de découpe (DXF, millimètres) d'une tôle : le contour de la tôle (calque TOLE, à ne pas découper) et les vides (calque DECOUPE).
+ *  Les mêmes formes que le dessin et le prix : ce qu'on chiffre est ce qu'on découpe. Format DXF R12 (lu par tous les logiciels de laser). */
+function tdcDxf(formes, W, H) {
+  const l = [];
+  const poly = (calque, pts) => { l.push("0", "POLYLINE", "8", calque, "66", "1", "70", "1"); for (const [x, y] of pts) l.push("0", "VERTEX", "8", calque, "10", x.toFixed(2), "20", y.toFixed(2)); l.push("0", "SEQEND", "8", calque); };
+  l.push("0", "SECTION", "2", "ENTITIES");
+  poly("TOLE", [[0, 0], [W, 0], [W, H], [0, H]]);
+  for (const p of formes) poly("DECOUPE", p);
+  l.push("0", "ENDSEC", "0", "EOF");
+  return l.join("\n") + "\n";
+}
+
+/** L'aire totale des vides (mm²) : la tôle qui part en chute ; le poids de la tôle découpée en dépend. */
+function tdcAire(formes) { let t = 0; for (const p of formes) { let a = 0; for (let i = 0; i < p.length; i++) { const u = p[i], v = p[(i + 1) % p.length]; a += u[0] * v[1] - v[0] * u[1]; } t += Math.abs(a) / 2; } return t; }
 // Plans de fabrication des portails : battant (1 ou 2 vantaux), coulissant (sur rail ou autoportant), pliant, portillon.
 // Étude du 06/10/2026 avec Quentin : https://claude.ai/artifact/RvJQFroNvsu5kDhivWKu5r
 //   - 4 modèles pour couvrir toutes les entrées (place derrière → battant ; place sur le côté → coulissant ; ni l'un ni
@@ -1261,6 +1734,14 @@ const PT_MATIERES = {
   },
 };
 const PT_CHENE = { nom: "Lame chêne 120 × 27", kgM: 0.12 * 0.027 * 700 };
+// Tôle découpée : le cadre est en tube PRÉGALVANISÉ (soudé avec la tôle, jamais plongé au bain), la tôle fait 3 mm. Une tôle de laser fait 1 500 mm
+// au plus dans un sens (1 480 en pratique) et 3 000 dans l'autre : un vantail plus haut que 1 480 mm de tôle se fait en panneaux étroits.
+const PT_TOLE = { epaisseur: 3, coteMax: 1480, longMax: 2900, kgM2: 23.55 };
+const PT_MATIERES_TOLE = {
+  ...PT_MATIERES.acier, nom: "Acier prégalvanisé", finition: "Tôle et tubes prégalvanisés, retouches à froid, thermolaquage",
+  cadre: { b: 60, e: 40, ep: 2, nom: "Tube acier galvanisé 60 × 40 × 2" }, fort: { b: 60, e: 60, ep: 3, nom: "Tube acier galvanisé 60 × 60 × 3" }, inter: { b: 40, e: 40, ep: 2, nom: "Tube acier galvanisé 40 × 40 × 2" },
+  plein: { type: "tole", ep: PT_TOLE.epaisseur, nom: "Tôle acier prégalvanisée 3 mm" },
+};
 
 // Les compositions toutes faites (« styles » de l'étude). Un bloc donné dans v passe avant le style.
 const PT_STYLES = {
@@ -1272,6 +1753,9 @@ const PT_STYLES = {
   rosace: { nom: "Rosace", ptMat: "acier", ptForme: "droit", ptSoub: "plein", ptHSoub: 600, ptRemp: "croix", ptPointes: false, ptLisse: true },
   // Volutes : barreaux + la formule de décor « frise » (lot 3 : le décor vient de motifs.js, références du catalogue).
   volutes: { nom: "Volutes", ptMat: "acier", ptForme: "chapeau", ptFleche: 200, ptSoub: "plein", ptHSoub: 550, ptRemp: "barreaux", ptDecor: "frise", ptPointes: true, ptLisse: false },
+  // Tôle découpée (Quentin, 11/10/2026) : une tôle d'acier prégalvanisée de 3 mm, découpée au laser (dessin au choix : modules/designs-tole.js),
+  // soudée dans un cadre en tube prégalvanisé, retouchée à froid aux soudures, puis thermolaquée. Haut droit, pas de soubassement.
+  tole: { nom: "Tôle découpée", ptMat: "acier", ptForme: "droit", ptSoub: "aucun", ptRemp: "tole", ptDesign: "foret", ptPointes: false, ptLisse: false },
 };
 
 // Les formules de décor (cahier §1.5, décision de Quentin du 06/10/2026 : « 6 décors dessinés + Personnaliser ») : chacune
@@ -1371,9 +1855,10 @@ function ptEntrees(v, modele) {
   c.fleche = c.forme === "droit" ? 0 : Math.round(ptNombre(pick("ptFleche", 150), 150));
   c.soub = ptChoix(pick("ptSoub", "aucun"), ["aucun", "plein", "panneau", "lames", "barreaux"], "aucun");
   c.hSoub = Math.round(ptNombre(pick("ptHSoub", 500), 500));
-  c.remp = ptChoix(pick("ptRemp", "plein"), ["plein", "panneau", "lames", "lamesAlu", "barreaux", "croix", "volutes"], "plein");
+  c.remp = ptChoix(pick("ptRemp", "plein"), ["plein", "panneau", "lames", "lamesAlu", "barreaux", "croix", "volutes", "tole"], "plein");
+  c.design = ptChoix(pick("ptDesign", "foret"), typeof TDC_IDS !== "undefined" ? TDC_IDS : ["foret"], "foret");
   // Le décor (lot 3) : une formule, ou « perso » (1 ou 2 placements). L'ancien remplissage « volutes » = la formule « frise ».
-  const dec = pick("ptDecor", "aucun");
+  const dec = c.remp === "tole" ? "aucun" : pick("ptDecor", "aucun");
   c.decor = PT_DECOR_FORMULES[dec] || dec === "perso" ? dec : "aucun";
   if (c.remp === "volutes") { c.remp = "barreaux"; if (c.decor === "aucun") c.decor = "frise"; }
   c.decorChoix = c.decor === "perso" ? ptDecorPerso(v.ptDecorChoix) : c.decor !== "aucun" ? PT_DECOR_FORMULES[c.decor].choix.map((x) => ({ ...x })) : [];
@@ -1390,6 +1875,7 @@ function ptEntrees(v, modele) {
     if (c.remp !== "barreaux") c.decorNotes.push("Le décor se pose entre des barreaux : le remplissage du haut devient « barreaux ».");
     c.remp = "barreaux";
   }
+  if (c.remp === "tole" && c.mat === "acier") c.M = PT_MATIERES_TOLE;   // le cadre en tube prégalvanisé, la tôle de 3 mm
   c.pointes = ptBool(pick("ptPointes", false), false) && ["barreaux", "volutes"].includes(c.remp);
   if (c.pointes && c.decorChoix.some((x) => x.assemblage === "cimier")) { c.pointes = false; c.decorNotes.push("Pas de pointes de lance sous un couronnement : retirées."); }
   c.lisse = ptBool(pick("ptLisse", false), false);
@@ -1542,6 +2028,16 @@ function ptRemplir(c, z, remp, F, pieces, q, ctx) {
     ptPiece(pieces, ptNomZ("Parclose", z), { nom: "Cornière alu 20 × 20 × 2", b: 20, e: 20, ep: 2 }, 2 * 2 * (w + h), d, "Coupes droites, vissée", "Deux côtés, tout autour", "Remplissage");
     return;
   }
+  if (remp === "tole" && z.tole) {
+    const h = z.haut(z.x0) - z.y0, aireBrute = w * h / 1e6, vides = z.tole.formes;
+    F.push({ t: "poly", piece: "Tôle découpée", cls: "t-mur t-tole", pts: contour() });
+    for (const p of vides) F.push({ t: "poly", piece: "Découpe laser", cls: "t-vide", pts: p });
+    const loc = vides.map((p) => p.map(([x, y]) => [x - z.x0, y - z.y0])), mt = tdcMetrage(loc, w, h), aireVide = tdcAire(vides) / 1e6;
+    pieces.push({ nom: ptNomZ("Tôle découpée", z), mat: M.plein.nom, long: w, larg: h, aire: aireBrute, kgM: 0, kg: (aireBrute - aireVide) * PT_TOLE.kgM2, peri: 0,
+      coupes: `Découpe laser : ${mt.metres.toFixed(1).replace(".", ",")} m de coupe, ${mt.percages} perçages`, note: `Dessin « ${TDC_DESSINS[z.tole.design].nom} », fichier DXF`, groupe: "Remplissage", tole: true, decoupe: { metres: mt.metres, percages: mt.percages, aireVide, dxf: tdcDxf(loc, w, h) } });
+    q.soudureM += 2 * (w + h) / 1000 * 0.25;   // la tôle est pointée au cadre : un quart du tour
+    return;
+  }
   if (remp === "plein" || remp === "panneau") {
     if (M.plein.type === "tole") {
       F.push({ t: "poly", piece: "Tôle de remplissage", cls: "t-mur t-panneau", pts: contour() });
@@ -1689,7 +2185,10 @@ function ptDessinerVantail(c, V, haut, F, pieces, q, Vn) {
   ptPiece(pieces, "Traverse haute", M.cadre, lh, d, c.forme === "chapeau" || c.forme === "creux" ? "Cintrée" : c.forme === "biais" ? "Coupes d'équerre sur la pente" : "Coupes droites, bouchons", c.forme === "chapeau" || c.forme === "creux" ? `Cintrage : flèche ${ptMm(c.fleche)} sur toute la largeur du portail` : "", "Cadre");
   q.soudures += 4;
   // Panneaux : montants intermédiaires si le vantail est long.
-  const maxP = (c.remp === "lames" || c.soub === "lames") ? RG.panneauMaxLames : RG.panneauMax;
+  // Tôle découpée : un panneau = une tôle de laser (1 480 mm au plus dans un sens) ; sinon les panneaux habituels.
+  const tole = c.remp === "tole" && c.forme === "droit" && c.soub === "aucun" && typeof tdcDessin === "function";
+  const hInt = hautCadre(xi0) - (gs + bB);
+  const maxP = tole ? (hInt > PT_TOLE.coteMax ? PT_TOLE.coteMax : PT_TOLE.longMax) : (c.remp === "lames" || c.soub === "lames") ? RG.panneauMaxLames : RG.panneauMax;
   let nP = Math.max(1, Math.ceil((xi1 - xi0) / maxP));
   // Médaillon : un nombre impair de panneaux, pour que le motif soit sur l'axe du vantail (dans le panneau du milieu).
   const medaillon = c.decorChoix.some((x) => x.assemblage === "medaillon");
@@ -1697,6 +2196,12 @@ function ptDessinerVantail(c, V, haut, F, pieces, q, Vn) {
   const mi = M.inter.b;
   const wP = (xi1 - xi0 - (nP - 1) * mi) / nP;
   const ySoub = c.soub !== "aucun" ? gs + c.hSoub : null;
+  // Le dessin de tout le vantail (un portail à deux vantaux : le second est le miroir du premier), rogné panneau par panneau.
+  let toleFormes = null;
+  if (tole) {
+    const segs = []; for (let k = 0; k < nP; k++) segs.push([k * (wP + mi), k * (wP + mi) + wP]);
+    toleFormes = tdcDessin(c.design, xi1 - xi0, hInt, { paire: c.type === "battant" && c.nbV === 2, cote: miroir ? 1 : 0, segments: segs }).formes;
+  }
   const avecDecor = c.decorChoix.length > 0 && typeof mtRemplir === "function";
   for (let k = 0; k < nP; k++) {
     const a = xi0 + k * (wP + mi), b = a + wP;
@@ -1712,6 +2217,7 @@ function ptDessinerVantail(c, V, haut, F, pieces, q, Vn) {
       q.soudures += 2;
     }
     const y0 = gs + bB;
+    const toleZ = tole ? { design: c.design, formes: toleFormes.filter((p) => { const xs = p.map(([x]) => x); return Math.min(...xs) >= a - xi0 - 0.5 && Math.max(...xs) <= b - xi0 + 0.5; }).map((p) => p.map(([x, y]) => [x + xi0, y + y0])) } : null;
     if (ySoub) {
       const ti = RG.traverseInter;
       F.push({ t: "poly", piece: "Traverse intermédiaire", cls: "t-acier-plein", pts: ptRect(a, ySoub, b, ySoub + ti) });
@@ -1722,7 +2228,7 @@ function ptDessinerVantail(c, V, haut, F, pieces, q, Vn) {
       const soubPlein = c.soub === "plein" || c.soub === "panneau" ? { soub: { x0: a, x1: b, y0, haut: ySoub } } : {};
       ptRemplir(c, { x0: a, x1: b, y0: ySoub + ti, haut: hautCadre, nomZone: "du haut", dessus: true, hautExt: haut, miroir, decor, ...soubPlein }, c.remp, F, pieces, q);
     } else {
-      ptRemplir(c, { x0: a, x1: b, y0, haut: hautCadre, nomZone: "", dessus: true, hautExt: haut, miroir, decor }, c.remp, F, pieces, q);
+      ptRemplir(c, { x0: a, x1: b, y0, haut: hautCadre, nomZone: "", dessus: true, hautExt: haut, miroir, decor, tole: toleZ }, c.remp, F, pieces, q);
     }
   }
   // La moulure : au centre du bas plein du vantail (le plus grand modèle qui tient), vissée par derrière.
@@ -2256,6 +2762,13 @@ function ptCalculerPortail(v, modele, refs) {
   }
   if (c.lisse && c.forme !== "droit") R.alertes.push("La lisse en chêne se pose sur un haut droit seulement : choisis « droit » ou retire la lisse.");
   if (c.finitionDemandee === "brut" && c.mat !== "acier") R.alertes.push("Galvanisé brut : seulement en acier (l'alu se lacque).");
+  if (c.remp === "tole") {
+    if (typeof tdcDessin !== "function") R.alertes.push("Tôle découpée : les dessins ne sont pas chargés.");
+    if (c.mat !== "acier") R.alertes.push("Tôle découpée : seulement en acier.");
+    if (c.forme !== "droit") R.alertes.push("Tôle découpée : haut droit seulement (la tôle est découpée au laser, pas cintrée).");
+    if (c.soub !== "aucun") R.alertes.push("Tôle découpée : pas de soubassement, la tôle remplit tout le vantail.");
+    if (c.lisse) R.alertes.push("Tôle découpée : pas de lisse en chêne.");
+  }
   if (c.mat === "alu" && c.remp === "croix") R.avertissements.push("Rosaces en alu : pièces à trouver chez un fournisseur, rendu moins « fer forgé ». À confirmer.");
   if (c.mat === "acier" && (c.remp === "panneau" || c.soub === "panneau")) R.notes.push("En acier, le panneau lisse est une tôle pleine : c'est le remplissage « plein ».");
   if (c.mouluresDemandees && !c.moulure) R.avertissements.push("Moulures : il faut un bas plein (tôle ou panneau) pour les poser.");
@@ -2632,7 +3145,8 @@ function ptCalculerPortail(v, modele, refs) {
 
   // --- Quantités pour le chiffrage (aucun prix ici) ---
   const metres = {};
-  let laqueM2 = 0, kg = 0, toleM2 = 0, panneauM2 = 0;
+  let laqueM2 = 0, kg = 0, toleM2 = 0, panneauM2 = 0, tole3M2 = 0, tole3Laque = 0, decM = 0, decP = 0, decN = 0;
+  const decoupes = [];   // les tôles découpées, une par panneau : leur fichier DXF part chez le découpeur laser
   let decorKg = 0, decorM2 = 0;
   const kgParNom = {};   // le poids de chaque sorte de pièce (pour le colis : poteaux, rail…)
   const pese = (nom, k) => { kg += k; kgParNom[nom] = (kgParNom[nom] || 0) + k; };
@@ -2640,6 +3154,7 @@ function ptCalculerPortail(v, modele, refs) {
     const lm = p.long / 1000;
     if (p.decor) { const k = (p.kgM || 0) * lm, m2 = lm * (p.peri || 0) / 1000; decorKg += k; decorM2 += m2; pese(p.nom, k); laqueM2 += m2; continue; }
     if (p.panneau) { panneauM2 += p.aire; pese(p.nom, p.kg); continue; }
+    if (p.tole && p.decoupe) { decoupes.push({ nom: p.nom, dxf: p.decoupe.dxf, long: p.long, haut: p.larg, metres: p.decoupe.metres, percages: p.decoupe.percages }); tole3M2 += p.aire; decM += p.decoupe.metres; decP += p.decoupe.percages; decN++; const lq = 2 * (p.aire - p.decoupe.aireVide) + p.decoupe.metres * 0.003; tole3Laque += lq; laqueM2 += lq; pese(p.nom, p.kg); continue; }
     if (p.tole) { toleM2 += p.aire; laqueM2 += 2 * p.aire; pese(p.nom, p.kg); metres[p.mat] = (metres[p.mat] || 0); continue; }
     metres[p.mat] = (metres[p.mat] || 0) + lm;
     if (p.groupe !== "Guidage" && !p.mat.startsWith("Lame chêne") && !p.mat.startsWith("Chêne")) laqueM2 += lm * p.peri / 1000;
@@ -2647,7 +3162,7 @@ function ptCalculerPortail(v, modele, refs) {
   }
   const kgPortail = parVantail.reduce((s, x) => s + x.kg, 0);
   R.quant = {
-    type: c.type, modele: c.modele, mat: c.mat, metres, toleM2, panneauM2, laqueM2, soudures: q.soudures, achats: A, rosaces: q.rosaces, volutes: q.volutes, moulure: q.moulure || null,
+    type: c.type, modele: c.modele, mat: c.mat, metres, toleM2, panneauM2, tole3M2, tole3Laque, decoupes, decoupe: decN ? { metres: decM, percages: decP, panneaux: decN, design: c.design } : null, laqueM2, soudures: q.soudures, achats: A, rosaces: q.rosaces, volutes: q.volutes, moulure: q.moulure || null,
     vantaux: parVantail, kgParNom, queue, longueurPortail: coul ? Lg : null, massifQueue: q.massifQueue || 0, chariots: q.chariots || null, poteaux: c.poteaux, moteur: c.moteur,
     moteurModele: c.moteur && R.moteurs && R.moteurs.choisi ? R.moteurs.choisi.cle : null,
     cintrage: c.forme === "chapeau" || c.forme === "creux", lisse: c.lisse && c.forme === "droit", pointes: c.pointes,
@@ -3079,4 +3594,4 @@ function ptPlanA3(R, v, infos = {}, feuille = "1", dessiner) {
 
 
 export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, PT_MOTEURS, MT_AVEC, MT_NOMS };
-export const EMPREINTE = "952876537998";
+export const EMPREINTE = "394361eaf4a1";

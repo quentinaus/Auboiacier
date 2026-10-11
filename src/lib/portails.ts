@@ -20,12 +20,15 @@ export const SLUGS_PORTAIL = {
 export type SlugPortail = keyof typeof SLUGS_PORTAIL;
 export const estSlugPortail = (s: string): s is SlugPortail => Object.prototype.hasOwnProperty.call(SLUGS_PORTAIL, s);
 
-export const STYLES_PORTAIL = ["plein", "lisse", "barreaux", "lamesChene", "rosace", "volutes"] as const;
+export const STYLES_PORTAIL = ["plein", "lisse", "barreaux", "lamesChene", "rosace", "volutes", "tole"] as const;
 export type StylePortail = (typeof STYLES_PORTAIL)[number];
 
 const FORMES = ["droit", "chapeau", "creux", "biais"] as const;
 const SOUBS = ["aucun", "plein", "panneau", "lames", "barreaux"] as const;
-const REMPS = ["plein", "panneau", "lames", "lamesAlu", "barreaux", "croix", "volutes"] as const;
+const REMPS = ["plein", "panneau", "lames", "lamesAlu", "barreaux", "croix", "volutes", "tole"] as const;
+/** Les dessins de la tôle découpée (11/10/2026) : ceux de modules/designs-tole.js (TDC_IDS), découpés au laser dans une tôle prégalvanisée de 3 mm. */
+export const DESSINS_TOLE = ["foret", "vagues", "soleil", "losanges", "feuillage", "lignes", "nid", "loup", "bulles"] as const;
+export type DessinTole = (typeof DESSINS_TOLE)[number];
 const POTEAUX = ["existants", "acier", "alu"] as const;
 // Les décors (lot 3, 07/10/2026) : les formules PT_DECOR_FORMULES de l'outil (motifs.js, références du commerce). Un décor
 // impose l'acier ; « Sur mesure » se chiffre sur devis (le moteur rend une alerte : « à étudier »).
@@ -86,6 +89,8 @@ export type ConfigPortail = {
   moteurModele: (typeof MOTEURS_PORTAIL)[number];
   pente: number;
   couleur: (typeof COULEURS_PORTAIL)[number];
+  /** Le dessin de la tôle découpée (sans effet pour les autres remplissages). */
+  design: DessinTole;
   // Le portillon assorti (lot 10) : même style, même hauteur, posé avec le portail (visite et route comptées une fois).
   portillon: boolean;
   portillonP: number;
@@ -107,7 +112,7 @@ export function configDepart(slug: SlugPortail, style: StylePortail = "plein"): 
     reception: "pose",
     P: slug === "portillon" ? 1000 : 3500, H: 1600, mat: "alu", forme: "droit", fleche: 150, soub: "aucun", hSoub: 500,
     remp: "plein", decor: "aucun", decorChoix: [], bouts: "effile", barreauxDeco: "carre", pointes: false, lisse: false, moulure: false, vantaux: 2, rep: "egal",
-    guidage: "rail", sens: "gauche", poteaux: "existants", moteur: false, moteurModele: "conseille", pente: 0, couleur: "anthracite",
+    guidage: "rail", sens: "gauche", poteaux: "existants", moteur: false, moteurModele: "conseille", pente: 0, couleur: "anthracite", design: "foret",
     portillon: false, portillonP: 1000, portillonSens: "gauche",
   };
   return appliquerStyle(base, style);
@@ -129,7 +134,7 @@ export function appliquerStyle(cfg: ConfigPortail, style: StylePortail): ConfigP
     lisse: Boolean(s.ptLisse),
     ...(typeof s.ptHSoub === "number" ? { hSoub: s.ptHSoub } : {}),
     ...(typeof s.ptFleche === "number" ? { fleche: s.ptFleche } : {}),
-    couleur: s.ptMat === "acier" ? (cfg.couleur === "galva" ? "galva" : "noir") : cfg.couleur === "galva" ? "anthracite" : cfg.couleur === "noir" && cfg.mat === "acier" ? "anthracite" : cfg.couleur,
+    couleur: s.ptMat === "acier" ? (cfg.couleur === "galva" ? "galva" : s.ptRemp === "tole" ? "anthracite" : "noir") : cfg.couleur === "galva" ? "anthracite" : cfg.couleur === "noir" && cfg.mat === "acier" ? "anthracite" : cfg.couleur,
   };
 }
 
@@ -153,6 +158,7 @@ export function versEntrees(cfg: ConfigPortail): Record<string, unknown> {
     ptGuidage: cfg.guidage, ptSens: cfg.sens, ptPoteaux: cfg.poteaux, ptMoteur: cfg.moteur, ptPente: cfg.pente,
     ...(cfg.moulure ? { ptMoulure: true } : {}),
     ...(cfg.couleur === "galva" ? { ptFinition: "brut" } : {}),
+    ...(cfg.remp === "tole" ? { ptDesign: cfg.design } : {}),
     ...(cfg.moteurModele !== "conseille" ? { ptMoteurModele: cfg.moteurModele } : {}),
     ...(decor === "perso" ? { ptDecorChoix: JSON.stringify(cfg.decorChoix) } : {}),
     ...(decor !== "aucun" ? { ptBouts: cfg.bouts, ptBarreauxDeco: cfg.barreauxDeco } : {}),
@@ -169,7 +175,7 @@ export function planPortail(slug: SlugPortail, cfg: ConfigPortail): ResultatPort
   return calculerPortail(versEntrees(cfg), SLUGS_PORTAIL[slug]);
 }
 
-const PARAMS: (keyof ConfigPortail)[] = ["reception", "P", "H", "mat", "forme", "fleche", "soub", "hSoub", "remp", "decor", "bouts", "barreauxDeco", "pointes", "lisse", "moulure", "vantaux", "rep", "guidage", "sens", "poteaux", "moteur", "moteurModele", "pente", "couleur", "portillon", "portillonP", "portillonSens"];
+const PARAMS: (keyof ConfigPortail)[] = ["reception", "P", "H", "mat", "forme", "fleche", "soub", "hSoub", "remp", "decor", "bouts", "barreauxDeco", "pointes", "lisse", "moulure", "vantaux", "rep", "guidage", "sens", "poteaux", "moteur", "moteurModele", "pente", "couleur", "design", "portillon", "portillonP", "portillonSens"];
 
 /** La configuration en paramètres d'adresse (pour /api/prix-portail). */
 export function versParams(slug: SlugPortail, cfg: ConfigPortail): URLSearchParams {
@@ -254,6 +260,8 @@ export function lireConfig(params: URLSearchParams): { slug: SlugPortail; cfg: C
     pointes: bool("pointes"), lisse: bool("lisse"), moulure: bool("moulure"), vantaux: params.get("vantaux") === "1" ? 1 : params.get("vantaux") === "2" ? 2 : null,
     rep: choix("rep", ["egal", "tiers"] as const), guidage: choix("guidage", ["rail", "auto"] as const), sens: choix("sens", ["gauche", "droite"] as const),
     poteaux: choix("poteaux", POTEAUX), moteur: bool("moteur"), moteurModele: choix("moteurModele", MOTEURS_PORTAIL), pente: nombre("pente", b.pente), couleur: choix("couleur", COULEURS_PORTAIL),
+    // Absent (un ancien panier) : le dessin par défaut, sans effet hors de la tôle découpée.
+    design: params.has("design") ? choix("design", DESSINS_TOLE) : ("foret" as DessinTole),
     // Le portillon assorti : seulement à côté d'un portail, à la largeur d'un portillon.
     portillon: slug === "portillon" ? (params.get("portillon") === "1" ? null : false) : bool("portillon"),
     portillonP: nombre("portillonP", bornesPortail("portillon").P), portillonSens: choix("portillonSens", ["gauche", "droite"] as const),
@@ -264,6 +272,8 @@ export function lireConfig(params: URLSearchParams): { slug: SlugPortail; cfg: C
   if (cfg.reception !== "pose" && cfg.moteur) return null;
   // Le galvanisé brut n'existe qu'en acier (l'alu se lacque).
   if (cfg.couleur === "galva" && cfg.mat !== "acier") return null;
+  // La tôle découpée : acier, haut droit, ni bas plein, ni décor, ni lisse (le moteur de l'outil la refuse sinon).
+  if (cfg.remp === "tole" && (cfg.mat !== "acier" || cfg.forme !== "droit" || cfg.soub !== "aucun" || cfg.decor !== "aucun" || cfg.lisse || cfg.pointes)) return null;
   return { slug, cfg: cfg as ConfigPortail };
 }
 
@@ -287,16 +297,19 @@ export function guidePortail(r: { derriere?: boolean; cote?: boolean; sol?: bool
 export type Langue = "fr" | "en";
 export const TEXTES_PORTAIL = {
   fr: {
-    styles: { plein: "Plein", lisse: "Lisse", barreaux: "Barreaux", lamesChene: "Lames chêne", rosace: "Rosace", volutes: "Volutes" },
+    styles: { plein: "Plein", lisse: "Lisse", barreaux: "Barreaux", lamesChene: "Lames chêne", rosace: "Rosace", volutes: "Volutes", tole: "Tôle découpée" },
     stylesNote: {
       plein: "Lames alu emboîtées, on ne voit pas à travers", lisse: "Panneau alu lisse, moderne", barreaux: "Barreaux serrés, ajouré",
-      lamesChene: "Cadre alu, lames de chêne", rosace: "Croix et rosaces, comme le garde-corps", volutes: "Acier, volutes en fer forgé et pointes",
+      lamesChene: "Cadre alu, lames de chêne", rosace: "Croix et rosaces, comme le garde-corps", volutes: "Acier, volutes en fer forgé et pointes", tole: "Tôle d'acier découpée au laser, un dessin dans la lumière",
     },
     compose: "Composé à votre goût",
     mat: { alu: "Alu", acier: "Acier" },
     forme: { droit: "Droit", chapeau: "Chapeau de gendarme", creux: "En creux", biais: "En biais" },
     soub: { aucun: "Aucun", plein: "Plein", panneau: "Panneau lisse", lames: "Lames chêne", barreaux: "Barreaux" },
-    remp: { plein: "Lames pleines", panneau: "Panneau lisse", lames: "Lames chêne", lamesAlu: "Lames ajourées", barreaux: "Barreaux", croix: "Croix et rosaces", volutes: "Volutes" },
+    remp: { plein: "Lames pleines", panneau: "Panneau lisse", lames: "Lames chêne", lamesAlu: "Lames ajourées", barreaux: "Barreaux", croix: "Croix et rosaces", volutes: "Volutes", tole: "Tôle découpée" },
+    dessinTitre: "Dessin de la tôle",
+    dessins: { foret: "Forêt et montagnes", vagues: "Vagues", soleil: "Soleil levant", losanges: "Losanges", feuillage: "Feuillage", lignes: "Lignes", nid: "Nid d'abeille", loup: "Loup", bulles: "Bulles" } as Record<DessinTole, string>,
+    dessinsNote: { foret: "Une montagne, la lune et les sapins", vagues: "Des vagues qui roulent", soleil: "Un soleil qui se lève au milieu", losanges: "Des losanges qui grandissent vers le bas", feuillage: "Des brins de feuilles", lignes: "Des lignes verticales", nid: "Un nid d'abeille qui s'ouvre vers le haut", loup: "Un loup qui montre les crocs devant deux montagnes", bulles: "Des bulles de toutes tailles" } as Record<DessinTole, string>,
     decor: { aucun: "Aucun", classique: "Classique", frise: "Frise", medaillon: "Médaillon", couronnement: "Couronnement", coeurs: "Cœurs", surMesure: "Sur mesure", perso: "Personnalisé" },
     emplacements: { entre: "Entre les barreaux", frise: "Frise sous la traverse", anneaux: "Frise d'anneaux", hauteur: "Sur toute la hauteur", coeurs: "Cœurs", medaillon: "Médaillon", applique: "Motifs en applique", coins: "Coins du haut", cimier: "Couronnement", appliquePlein: "Motif sur le bas plein" },
     formesDecor: { C: "Volute en C", S: "Volute en S", J: "Crosse", coeur: "Cœur", doubleC: "Double C", poste: "Postes", anneau: "Anneau" } as Record<string, string>,
@@ -357,16 +370,19 @@ export const TEXTES_PORTAIL = {
     placeDerriere: "Place derrière", placeCote: "Place le long de la clôture", poids: "Poids du portail", etudierEn: "",
   },
   en: {
-    styles: { plein: "Solid", lisse: "Flat", barreaux: "Bars", lamesChene: "Oak slats", rosace: "Rosette", volutes: "Scrolls" },
+    styles: { plein: "Solid", lisse: "Flat", barreaux: "Bars", lamesChene: "Oak slats", rosace: "Rosette", volutes: "Scrolls", tole: "Cut sheet" },
     stylesNote: {
       plein: "Interlocking aluminium slats, fully private", lisse: "Flat aluminium panel, modern", barreaux: "Close vertical bars",
-      lamesChene: "Aluminium frame, oak slats", rosace: "Crosses and rosettes, like the balustrade", volutes: "Steel, wrought-iron scrolls and spear tips",
+      lamesChene: "Aluminium frame, oak slats", rosace: "Crosses and rosettes, like the balustrade", volutes: "Steel, wrought-iron scrolls and spear tips", tole: "Laser-cut steel sheet, a design cut into the light",
     },
     compose: "Made to your taste",
     mat: { alu: "Aluminium", acier: "Steel" },
     forme: { droit: "Straight", chapeau: "Arched", creux: "Dipped", biais: "Sloped" },
     soub: { aucun: "None", plein: "Solid", panneau: "Flat panel", lames: "Oak slats", barreaux: "Bars" },
-    remp: { plein: "Solid slats", panneau: "Flat panel", lames: "Oak slats", lamesAlu: "Open slats", barreaux: "Bars", croix: "Crosses and rosettes", volutes: "Scrolls" },
+    remp: { plein: "Solid slats", panneau: "Flat panel", lames: "Oak slats", lamesAlu: "Open slats", barreaux: "Bars", croix: "Crosses and rosettes", volutes: "Scrolls", tole: "Cut sheet" },
+    dessinTitre: "Sheet design",
+    dessins: { foret: "Forest and mountains", vagues: "Waves", soleil: "Rising sun", losanges: "Diamonds", feuillage: "Foliage", lignes: "Lines", nid: "Honeycomb", loup: "Wolf", bulles: "Bubbles" } as Record<DessinTole, string>,
+    dessinsNote: { foret: "A mountain, the moon and the pines", vagues: "Rolling waves", soleil: "A sun rising in the middle", losanges: "Diamonds growing towards the bottom", feuillage: "Sprigs of leaves", lignes: "Vertical lines", nid: "A honeycomb opening towards the top", loup: "A snarling wolf in front of two mountains", bulles: "Bubbles of every size" } as Record<DessinTole, string>,
     decor: { aucun: "None", classique: "Classic", frise: "Frieze", medaillon: "Medallion", couronnement: "Crest", coeurs: "Hearts", surMesure: "Bespoke", perso: "Custom" },
     emplacements: { entre: "Between the bars", frise: "Frieze under the top rail", anneaux: "Ring frieze", hauteur: "Full height", coeurs: "Hearts", medaillon: "Medallion", applique: "Applied motifs", coins: "Top corners", cimier: "Crest", appliquePlein: "Motif on the solid lower panel" },
     formesDecor: { C: "C scroll", S: "S scroll", J: "Crook", coeur: "Heart", doubleC: "Double C", poste: "Running scrolls", anneau: "Ring" } as Record<string, string>,
@@ -435,6 +451,7 @@ export function resumeConfig(slug: SlugPortail, cfg: ConfigPortail, locale: Lang
     `${t.onglets.style} : ${st ? t.styles[st] : t.compose} · ${t.mat[cfg.mat]} · ${t.couleur[cfg.couleur]}`,
     `${t.titres.forme} : ${t.forme[cfg.forme]}${cfg.forme !== "droit" ? ` (${cfg.fleche} mm)` : ""} · ${t.titres.remp} : ${t.remp[cfg.remp]}${cfg.soub !== "aucun" ? ` · ${t.titres.soub} : ${t.soub[cfg.soub]} (${cfg.hSoub} mm)` : ""}${cfg.decor !== "aucun" ? ` · ${t.titres.decor} : ${decrireDecor(cfg, locale)}` : ""}`,
   ];
+  if (cfg.remp === "tole") lignes.push(`${t.dessinTitre} : ${t.dessins[cfg.design]}`);
   if (slug === "portail-battant") lignes.push(`${t.titres.vantaux} : ${t.vantaux[cfg.vantaux]}${cfg.vantaux === 2 ? ` (${t.rep[cfg.rep]})` : ""}`);
   if (slug === "portail-coulissant") lignes.push(`${t.titres.guidage} : ${t.guidage[cfg.guidage]} · ${t.titres.sens} : ${t.sens[cfg.sens]}`);
   if (cfg.moulure) lignes.push(t.moulures);
