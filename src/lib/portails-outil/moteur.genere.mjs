@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 c9472200d4f7d604e9aab91c.
+// Source : l'outil de plans (plans-atelier.html), sha256 5912e6fe5be3b49d471ae4dd.
 /* eslint-disable */
 
 
@@ -3207,7 +3207,8 @@ function ptCalculerPortail(v, modele, refs) {
 
   // --- Résumé ---
   const nomType = c.type === "battant" ? `Battant ${c.nbV} ${c.nbV > 1 ? "vantaux" : "vantail"}${c.nbV === 2 && c.rep === "tiers" ? ` inégaux, grand à ${c.sens === "droite" ? "droite" : "gauche"}` : ""}` : c.type === "coulissant" ? `Coulissant ${c.guidage === "rail" ? "sur rail" : "autoportant"}` : c.type === "pliant" ? "Pliant (2 × 2 panneaux)" : "Portillon";
-  R.resume.unshift(["Modèle", nomType], ["Matière", `${M.nom} · ${M.finition.toLowerCase()}`], ["Vantaux", largeurs.map(ptMm).join(" + ") + " mm"]);
+  const finitionDite = c.finition === "brut" ? (c.remp === "tole" ? "tôle et tubes prégalvanisés, retouches à froid, laissés bruts (sans peinture)" : "galvanisation à chaud, laissée brute (sans peinture)") : M.finition.toLowerCase();
+  R.resume.unshift(["Modèle", nomType], ["Matière", `${M.nom} · ${finitionDite}`], ["Vantaux", largeurs.map(ptMm).join(" + ") + " mm"]);
   R.resume.push(["Poids du portail", `≈ ${ptKg(kgPortail)} kg`]);
   if (c.decor !== "aucun") {
     const Fo = PT_DECOR_FORMULES[c.decor];
@@ -3485,9 +3486,10 @@ function ptPlanA3(R, v, infos = {}, feuille = "1", dessiner) {
       const acier = c.mat === "acier", chene = R.debit.some((d) => /chêne/i.test(d.mat));
       const fab = [
         `Jeux : ${J.gonds ? `${J.gonds} mm côté gonds, ` : ""}${J.centre ? `${J.centre} mm au centre, ` : ""}${J.serrure ? `${J.serrure} mm côté serrure` : ""}`.replace(/, $/, ""),
-        acier ? (c.finition === "brut" ? "Traitement : galvanisation à chaud, laissée brute (sans peinture) ; la teinte grise évolue avec le temps." : "Traitement : galvanisation à chaud puis thermolaquage (duplex) ; préparation du zinc exigée du laqueur, garantie écrite.") : "Traitement : thermolaquage de l'alu (préparation et garantie écrites par le laqueur).",
+        acier && c.remp === "tole" ? (c.finition === "brut" ? "Traitement : tôle et tubes prégalvanisés, soudures retouchées au zinc à froid, laissés bruts (sans peinture) ; la teinte grise évolue avec le temps." : "Traitement : tôle et tubes prégalvanisés, soudures retouchées au zinc à froid, puis thermolaquage ; préparation du zinc exigée du laqueur, garantie écrite.") : acier ? (c.finition === "brut" ? "Traitement : galvanisation à chaud, laissée brute (sans peinture) ; la teinte grise évolue avec le temps." : "Traitement : galvanisation à chaud puis thermolaquage (duplex) ; préparation du zinc exigée du laqueur, garantie écrite.") : "Traitement : thermolaquage de l'alu (préparation et garantie écrites par le laqueur).",
         chene ? "Chêne : visserie inox A4, saturateur ; entretien annuel décrit dans la notice (sans lui, pas de garantie sur le bois)." : null,
-        acier ? "Trous d'évent et d'écoulement avant la galvanisation (tubes fermés interdits)." : null,
+        c.remp === "tole" && R.quant.decoupe ? `Tôle découpée au laser (fichier DXF de l'outil) : ${R.quant.decoupe.metres.toFixed(1).replace(".", ",")} m de coupe, ${R.quant.decoupe.percages} perçages ; ébavurée, pointée dans le cadre.` : null,
+        acier && (c.remp !== "tole" || c.poteaux !== "existants") ? `Trous d'évent et d'écoulement avant la galvanisation (tubes fermés interdits)${c.remp === "tole" ? " : les poteaux seulement, le cadre et la tôle arrivent prégalvanisés" : ""}.` : null,
         `Poids ≈ ${ptMm(R.poids)} kg${R.decor ? " · décor soudé, aucun collier" : ""}.`,
       ].filter(Boolean);
       bloc(lx, ly + hListe + 2, 108, "FABRICATION", fab, 2.2, zoneB - ly - hListe - 2);
@@ -3613,4 +3615,4 @@ function ptPlanA3(R, v, infos = {}, feuille = "1", dessiner) {
 
 
 export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, PT_MOTEURS, MT_AVEC, MT_NOMS };
-export const EMPREINTE = "d9e3722e8bc8";
+export const EMPREINTE = "6f202f51bad3";
