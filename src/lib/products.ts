@@ -1798,9 +1798,11 @@ const catalogue: Product[] = [
     slug: "garde-corps",
     poseOption: true,
     famille: "garde-corps",
-    seoMots: "garde-corps sur mesure",
-    // Ce que tapent les gens : « garde-corps artisanal sur mesure », et la ville.
-    seoTitre: "Garde-corps de fenêtre sur mesure, Saumur",
+    seoMots: "garde-corps rosace",
+    // La requête générale (« garde-corps Saumur », « garde-corps sur mesure ») est celle de la PAGE FAMILLE
+    // (/artisanat/famille/garde-corps), qui propose les deux styles, avec ou sans volutes (Quentin, 11/10/2026 : « on tombe
+    // direct sur le garde-corps sans volute »). La fiche garde le titre de son style.
+    seoTitre: "Garde-corps Rosace : croix et rosaces",
     motsCles: [
       "garde-corps artisanal sur mesure",
       "garde-corps de fenêtre sur mesure Saumur",
@@ -1819,8 +1821,8 @@ const catalogue: Product[] = [
     // détaille hauteur (art. R134-59) et espaces (NF P01-012) — ni marque NF,
     // ni « solidité » tant que la fixation n'est pas décidée.
     seoDescription:
-      "Garde-corps de fenêtre sur mesure en acier plein, fait main à Saumur ; hauteur et vides calculés.",
-    h1Ligne: "Garde-corps de fenêtre sur mesure, acier plein style fer forgé",
+      "Garde-corps Rosace à croix et rosaces, acier plein, fait main à Saumur ; hauteur et vides calculés.",
+    h1Ligne: "Garde-corps de fenêtre Rosace : croix et rosaces en acier plein",
     releve: "garde-corps-fenetre",
     category: "interieur",
     // Se commande en ligne, aux cotes que le client relève lui-même : aucune

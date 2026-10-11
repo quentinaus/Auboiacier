@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "../../../dictionaries";
-import { metadataPage } from "@/lib/seo";
+import { metadataPage, jsonLdFilAriane, jsonLdListe, scriptJsonLd } from "@/lib/seo";
 import { serif } from "@/lib/fonts";
 import { Apparition } from "@/components/apparition";
 import { CarteProduit } from "@/components/carte-produit";
@@ -31,13 +31,15 @@ function textes(famille: Famille, locale: "fr" | "en", dict: Awaited<ReturnType<
   if (famille === "garde-corps") {
     return {
       titre: dict.hub.catGardeCorps,
-      // Le titre et le H1 disent « sur mesure » et la ville : ce que les gens tapent (référencement, 10/10/2026).
-      h1: locale === "fr" ? "Garde-corps de fenêtre sur mesure" : "Bespoke window railings",
-      titreSeo: locale === "fr" ? "Garde-corps de fenêtre sur mesure" : "Bespoke window railings, Saumur",
+      // C'est LA page que Google doit montrer pour « garde-corps Saumur » : elle propose les deux styles, avec ou sans volutes
+      // (Quentin, 11/10/2026 : « on tombe direct sur le garde-corps sans volute »). Le titre et le H1 disent « sur mesure » et la
+      // ville, ce que les gens tapent.
+      h1: locale === "fr" ? "Garde-corps de fenêtre sur mesure, avec ou sans volutes" : "Bespoke window railings, with or without scrolls",
+      titreSeo: locale === "fr" ? "Garde-corps à Saumur, avec ou sans volutes" : "Saumur window railings, with or without scrolls",
       phrase:
         (locale === "fr"
-          ? "Garde-corps de fenêtre sur mesure, soudés à l'atelier de métallerie, à Saumur. "
-          : "Bespoke window railings, welded in our metalwork workshop in Saumur. ") + dict.artisanat.familleGardeCorpsNote,
+          ? "Garde-corps de fenêtre sur mesure, soudés à l'atelier de métallerie, à Saumur. Deux styles : le modèle à croix et rosaces, sans volutes, ou le garde-corps forgé à volutes de ferronnerie. "
+          : "Bespoke window railings, welded in our metalwork workshop in Saumur. Two styles: the cross-and-rosette model, without scrolls, or the wrought railing with ironwork scrolls. ") + dict.artisanat.familleGardeCorpsNote,
       liens: [
         { href: `/${locale}/garde-corps-fenetre-normes`, label: dict.liens.normesGc },
         { href: `/${locale}/garde-corps-balcon-terrasse`, label: dict.liens.balconTerrasse },
@@ -45,8 +47,8 @@ function textes(famille: Famille, locale: "fr" | "en", dict: Awaited<ReturnType<
       ],
       seo:
         locale === "fr"
-          ? `Garde-corps de fenêtre sur mesure en acier plein, fabriqués à Saumur : ${n} modèles aux normes, prix affiché à vos mesures.`
-          : `Bespoke solid steel window railings made in Saumur: ${n} models to the French standard, price shown for your measurements.`,
+          ? "Garde-corps de fenêtre sur mesure à Saumur : à croix et rosaces, ou forgé à volutes. Acier plein, aux normes, prix affiché à vos mesures."
+          : "Bespoke window railings made in Saumur: cross and rosette, or wrought with scrolls. Solid steel, to the French standard, price shown for your measurements.",
     };
   }
   return {
@@ -94,11 +96,32 @@ export default async function FamillePage({ params }: PageProps<"/[lang]/artisan
 
   return (
     <div className="bg-[#f5f1ea]">
+      {/* Google : le fil d'Ariane (Accueil › La collection › cette page) et la liste des modèles présentés. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={scriptJsonLd([
+          jsonLdFilAriane(locale, [
+            { nom: dict.nav.home, chemin: "" },
+            { nom: locale === "fr" ? "La collection" : "The collection", chemin: "/artisanat" },
+            { nom: x.h1, chemin: `/artisanat/famille/${famille}` },
+          ]),
+          jsonLdListe(locale, x.h1, pieces.map((p) => ({ nom: p.name, chemin: `/artisanat/${p.slug}` }))),
+        ])}
+      />
       <section className="px-6 pb-20 pt-10 md:pb-28 md:pt-14">
         <div className="mx-auto max-w-5xl">
-          <Link href={`/${locale}/artisanat`} className="text-[15px] text-[#6f6357] hover:text-[#2b2320]">
-            {t.backToCatalogue}
-          </Link>
+          {/* Le fil d'Ariane, affiché comme il est balisé pour Google (Accueil › La collection › cette page). */}
+          <nav aria-label={dict.nav.breadcrumb} className="flex flex-wrap items-center gap-x-2 text-[15px] text-[#6f6357]">
+            <Link href={`/${locale}`} className="hover:text-[#2b2320]">
+              {dict.nav.home}
+            </Link>
+            <span aria-hidden>/</span>
+            <Link href={`/${locale}/artisanat`} className="hover:text-[#2b2320]">
+              {locale === "fr" ? "La collection" : "The collection"}
+            </Link>
+            <span aria-hidden>/</span>
+            <span className="text-[#2b2320]">{x.titre}</span>
+          </nav>
           <h1 className={`${serif.className} mt-6 text-[2.3rem] text-balance leading-[1.04] tracking-[-0.02em] text-[#2b2320] sm:text-[3rem] md:text-[3.5rem]`}>
             {x.h1}
           </h1>

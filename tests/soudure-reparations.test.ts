@@ -191,7 +191,10 @@ test("chaque pièce « à refaire à neuf » mène à une page ou une fiche qui 
   for (const piece of TEXTES_SOUDURE.fr.neuf) {
     const slug = piece.chemin.match(/^\/artisanat\/([a-z0-9-]+)$/)?.[1];
     const dossier = new URL(`../src/app/[lang]${piece.chemin}`, import.meta.url);
-    assert.ok(existsSync(dossier) || (slug && getProduct(slug)), `${piece.chemin} n'existe pas`);
+    // La page d'une famille (/artisanat/famille/garde-corps) est une route dynamique : un seul dossier [famille].
+    const famille = piece.chemin.match(/^\/artisanat\/famille\/([a-z0-9-]+)$/)?.[1];
+    const dossierFamille = new URL("../src/app/[lang]/artisanat/famille/[famille]", import.meta.url);
+    assert.ok(existsSync(dossier) || (slug && getProduct(slug)) || (famille && existsSync(dossierFamille)), `${piece.chemin} n'existe pas`);
   }
 });
 

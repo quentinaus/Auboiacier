@@ -196,7 +196,7 @@ export const TEXTES_SOUDURE: Record<Locale, TextesSoudure> = {
       {
         titre: "Garde-corps de fenêtre",
         texte: "En acier plein, fabriqué à vos cotes, avec son prix calculé en ligne.",
-        chemin: "/artisanat/garde-corps",
+        chemin: "/artisanat/famille/garde-corps",
       },
       {
         titre: "Garde-corps de balcon et de terrasse",
@@ -336,7 +336,7 @@ export const TEXTES_SOUDURE: Record<Locale, TextesSoudure> = {
       {
         titre: "Window railings",
         texte: "In solid steel, made to your measurements, priced online.",
-        chemin: "/artisanat/garde-corps",
+        chemin: "/artisanat/famille/garde-corps",
       },
       {
         titre: "Balcony and terrace railings",

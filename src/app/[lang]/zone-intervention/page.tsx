@@ -47,7 +47,7 @@ export default async function ZonePage({ params }: PageProps<"/[lang]/zone-inter
 
   /** Un métier, une ligne vraie, une page. */
   const metiers = [
-    { ...t.metiers.gardeCorps, href: `/${locale}/artisanat/garde-corps` },
+    { ...t.metiers.gardeCorps, href: `/${locale}/artisanat/famille/garde-corps` },
     { ...t.metiers.escalier, href: `/${locale}/artisanat/escalier-limon-central` },
     { ...t.metiers.verrieres, href: `/${locale}/artisanat/verrieres` },
     { ...t.metiers.tables, href: `/${locale}/artisanat/tables` },

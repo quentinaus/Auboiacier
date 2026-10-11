@@ -50,7 +50,7 @@ export default async function BoisMassifPage({ params }: PageProps<"/[lang]/bois
   /** Un usage du bois, ce qu'il faut en savoir, et la page où le configurer. */
   const blocs = [
     { titre: t.marchesTitle, texte: t.marchesBody, lien: { href: `/${locale}/artisanat/escalier-limon-central`, label: t.marchesLien } },
-    { titre: t.mainCouranteTitle, texte: t.mainCouranteBody, lien: { href: `/${locale}/artisanat/garde-corps`, label: t.mainCouranteLien } },
+    { titre: t.mainCouranteTitle, texte: t.mainCouranteBody, lien: { href: `/${locale}/artisanat/famille/garde-corps`, label: t.mainCouranteLien } },
     { titre: t.plateauxTitle, texte: t.plateauxBody, lien: { href: `/${locale}/artisanat/tables`, label: dict.liens.toutesTables } },
     ...(ordre
       ? [{ titre: t.choisirTitle, texte: remplir(t.choisirBody, { ordre }), lien: { href: `/${locale}/artisanat/tables`, label: dict.liens.toutesTables } }]
