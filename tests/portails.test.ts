@@ -144,6 +144,17 @@ test("Cœurs : les panneaux de 600 ont un prix, jamais « À étudier » (Quenti
     }
 });
 
+test("une seule taille de pièce par portail, sur tous les vantaux (Quentin, 10/10/2026)", () => {
+  // Avant : chaque panneau choisissait sa pièce (battant 1/3 – 2/3 : grands cœurs d'un côté, petits de l'autre ; haut
+  // chapeau : C de 190 × 95 sur les côtés, de 110 × 60 au milieu). plans-portails.js recalcule avec une pièce imposée.
+  for (const [slug, P, H, rep, forme, decor] of [["portail-battant", 2260, 2000, "tiers", "droit", "coeurs"], ["portail-battant", 2000, 1000, "tiers", "droit", "classique"], ["portail-battant", 4300, 1000, "egal", "chapeau", "classique"], ["portail-pliant", 2400, 1000, "egal", "chapeau", "medaillon"]] as [SlugPortail, number, number, "egal" | "tiers", "droit" | "chapeau", "coeurs" | "classique" | "medaillon"][]) {
+    const cfg = { ...configDepart(slug, "barreaux"), decor, mat: "acier" as const, pointes: true, P, H, rep, forme };
+    const note = planPortail(slug, cfg).notes.find((n) => n.startsWith("Décor : pièces du commerce")) ?? "";
+    assert.ok(note && !(note.split(" : ").pop() ?? "").includes(","), `${slug} ${P} × ${H} ${rep} ${forme} ${decor} : une seule pièce attendue — ${note}`);
+    assert.ok(prixPortail(slug, cfg).ok, `${slug} ${P} × ${H} ${decor} : a un prix`);
+  }
+});
+
 test("« Personnaliser » (lot 10) : 1 ou 2 emplacements permis par motifs.js, relus à l'identique ; tout le reste est refusé", () => {
   const choix: ChoixDecor[] = [{ assemblage: "entre", forme: "S", pos: "milieu" }, { assemblage: "cimier", forme: "C" }];
   const cfg: ConfigPortail = { ...configDepart("portail-battant", "barreaux"), mat: "acier", decor: "perso", decorChoix: choix, bouts: "bouton", barreauxDeco: "torsade" };

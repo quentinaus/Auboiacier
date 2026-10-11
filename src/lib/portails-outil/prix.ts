@@ -36,18 +36,20 @@ export function prixPortail(slug: SlugPortail, cfg: ConfigPortail): ReponsePrixP
   return { ok: true, prix: C.conseille + (portillon ?? 0), portillon, avertissements: R.avertissements, resume: R.resume };
 }
 
-const departs = new Map<SlugPortail, number | null>();
+const departs = new Map<string, number | null>();
 
 /**
  * Le « à partir de » d'une fiche : le style le moins cher, à la cote courante (3,50 × 1,60 m ; portillon 1,00 m),
- * posé. Un prix qu'un client obtient vraiment en ouvrant la fiche : jamais un chiffre qu'aucune configuration n'atteint.
+ * posé (ou, avec reception, livré ou retiré : sans pose, ni visite, ni route). Un prix qu'un client obtient vraiment en ouvrant la fiche :
+ * jamais un chiffre qu'aucune configuration n'atteint.
  */
-export function prixDepartPortail(slug: SlugPortail): number | null {
-  if (departs.has(slug)) return departs.get(slug) ?? null;
+export function prixDepartPortail(slug: SlugPortail, reception: ReceptionPortail = "pose"): number | null {
+  const cle = `${slug}|${reception}`;
+  if (departs.has(cle)) return departs.get(cle) ?? null;
   try {
-    const prix = STYLES_PORTAIL.map((st) => prixPortail(slug, configDepart(slug, st))).filter((r) => r.ok).map((r) => (r as { prix: number }).prix);
+    const prix = STYLES_PORTAIL.map((st) => prixPortail(slug, { ...configDepart(slug, st), reception })).filter((r) => r.ok).map((r) => (r as { prix: number }).prix);
     const valeur = prix.length ? Math.min(...prix) : null;
-    departs.set(slug, valeur);
+    departs.set(cle, valeur);
     return valeur;
   } catch (e) {
     if (e instanceof ChiffragePortailIndisponible) return null;

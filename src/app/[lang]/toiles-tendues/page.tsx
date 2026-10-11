@@ -254,6 +254,15 @@ export default async function ToilesTenduesPage({
           mur. Les fiches Lucarne et Halo renvoient à cette ancre. */}
       <section id="plafond-tendu" className="scroll-mt-24 bg-[#ffffff] py-16 md:py-28">
         <div className="mx-auto max-w-6xl px-6">
+          {/* Le principe d'une toile tendue lumineuse, en trois phrases courtes : ce que cherche celui qui tape ces mots. */}
+          <Apparition className="mb-16 md:mb-24">
+            <h2 className={`${titreSection} max-w-3xl`}>{sansVeuve(tl.toileTitle)}</h2>
+            <div className="mt-10 grid max-w-3xl gap-8 md:mt-14 lg:max-w-none lg:grid-cols-3 lg:gap-10">
+              {tl.toileCorps.map((paragraphe) => (
+                <p key={paragraphe} className={texte}>{paragraphe}</p>
+              ))}
+            </div>
+          </Apparition>
           <Apparition>
             <h2 className={`${titreSection} max-w-3xl`}>{sansVeuve(tl.choixTitle)}</h2>
           </Apparition>

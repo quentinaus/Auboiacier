@@ -390,25 +390,14 @@
 
 /* ---------- La page des portails (portails-guide.tsx) : questions, mesures, modèles triés ---------- */
 .pg { display: grid; gap: 16px; }
-.pg-carte { border-radius: 22px; padding: 18px 20px 20px; }
+.pg-carte { border-radius: 24px; padding: 22px 24px 24px; }
 .pg h2 { font-size: 24px; line-height: 1.1; color: var(--encre, #2b2320); }
 .pg-sous { margin-top: 4px; font-size: 13.5px; line-height: 1.45; color: var(--brun, #6f6357); }
-.pg-vocab { margin-top: 8px; font-size: 13.5px; line-height: 1.45; color: var(--encre-verre, #2b2320); background: rgba(43, 35, 32, 0.05); border-radius: 12px; padding: 8px 12px; }
-.pg-question { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 22px; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(43, 35, 32, 0.09); }
 .pg-schema { margin: 0; border-radius: 14px; background: #faf7f2; border: 1px solid rgba(43, 35, 32, 0.08); padding: 6px 8px 4px; }
 .pg-schema svg { display: block; width: 100%; height: auto; }
 .pg-schema-ill { text-align: right; font-size: 10.5px; color: var(--brun, #6f6357); }
-.pg-q-titre { font-size: 16px; font-weight: 600; line-height: 1.3; color: var(--encre-verre, #2b2320); }
-.pg-q-note { margin-top: 6px; font-size: 13.5px; line-height: 1.5; color: var(--brun, #6f6357); }
-.pg-q-texte .cpt-pilule { margin-top: 10px; }
-.pg-q-verif { margin-top: 8px; padding-left: 10px; border-left: 2px solid rgba(63, 107, 58, 0.45); font-size: 13.5px; line-height: 1.5; color: var(--encre-verre, #2b2320); }
-.pg-q-verif b { font-weight: 600; }
-.pg-conseil p + p { margin-top: 4px; }
-.pg-conseil-suite { font-size: 13px; color: var(--brun, #6f6357); }
 .pg-place { margin-top: 8px; font-size: 12.5px; line-height: 1.4; color: var(--encre-verre, #2b2320); flex: 1; }
 .pg-place b { font-weight: 600; }
-@media (max-width: 640px) { .pg-question { grid-template-columns: minmax(0, 1fr); gap: 10px; } }
-.pg-conseil { margin-top: 12px; }
 .pg-cotes { display: grid; gap: 4px 28px; }
 @media (min-width: 768px) { .pg-cotes { grid-template-columns: 1fr 1fr; } }
 .pg-modeles { margin-top: 8px; }
@@ -511,3 +500,63 @@
   .cpt-rec-choix { gap: 6px; }
   .cpt-visite .cpt-btn-note { display: none; }
 }
+
+/* ---------- La page des portails, refaite pour être intuitive (10/10/2026) : une question à la fois, de gros boutons, un grand résultat ---------- */
+.cpt .pg-titre { font-size: 30px; line-height: 1.1; color: var(--encre, #2b2320); }
+.pg-carte .pg-sous { font-size: 15px; }
+.pg-pastilles { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; padding: 0; }
+.cpt .pg-pastille { display: inline-flex; align-items: center; gap: 8px; padding: 5px 14px 5px 5px !important; border: 0; border-radius: 999px; background: rgba(43, 35, 32, 0.06) !important; font-size: 13.5px; color: var(--encre-verre, #2b2320); cursor: pointer; }
+.cpt .pg-pastille:hover { background: rgba(43, 35, 32, 0.12) !important; }
+.pg-pastille-signe { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 999px; color: #fff; font-size: 12px; font-weight: 700; flex: none; }
+.pg-pastille-signe.oui, .pg-rep.oui .pg-rep-signe { background: #3f6b3a; }
+.pg-pastille-signe.non, .pg-rep.non .pg-rep-signe { background: #9a5b3f; }
+.pg-q { margin-top: 18px; padding-top: 18px; border-top: 1px solid rgba(43, 35, 32, 0.09); }
+.pg-q-etape { font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brun, #6f6357); }
+.pg-q-corps { display: grid; grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: 26px; align-items: center; margin-top: 10px; }
+.pg-q-titre { font-size: 24px; font-weight: 600; line-height: 1.2; letter-spacing: -0.01em; color: var(--encre-verre, #2b2320); }
+.pg-q-aide { margin-top: 8px; font-size: 15px; line-height: 1.45; color: var(--brun, #6f6357); }
+.pg-reps { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+.cpt .pg-rep { display: flex !important; align-items: center; justify-content: center; gap: 10px; min-height: 62px; padding: 10px 14px !important; border: 0; border-radius: 18px; background: #fff !important; box-shadow: 0 0 0 1.5px rgba(43, 35, 32, 0.16), 0 8px 16px -12px rgba(43, 35, 32, 0.45); font-size: 16.5px; font-weight: 600; line-height: 1.2; text-align: center; color: var(--encre-verre, #2b2320); cursor: pointer; transition: transform 0.12s, box-shadow 0.12s; }
+.cpt .pg-rep:hover { transform: translateY(-1px); box-shadow: 0 0 0 2px #2b2320, 0 10px 18px -12px rgba(43, 35, 32, 0.5); }
+.pg-rep-signe { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 999px; color: #fff; font-size: 14px; font-weight: 700; flex: none; }
+.pg-plus { margin-top: 14px; font-size: 14px; color: var(--brun, #6f6357); }
+.pg-plus summary { display: inline-block; list-style: none; cursor: pointer; font-weight: 500; color: var(--encre-verre, #2b2320); text-decoration: underline; text-underline-offset: 4px; }
+.pg-plus summary::-webkit-details-marker { display: none; }
+.pg-plus p { margin-top: 8px; line-height: 1.5; }
+.pg-plus-verif { padding-left: 10px; border-left: 2px solid rgba(63, 107, 58, 0.45); color: var(--encre-verre, #2b2320); }
+.pg-resultat { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 28px; align-items: center; margin-top: 18px; padding: 24px 28px; border-radius: 22px; background: #231f1c; color: #fff7ee; }
+.pg-res-dessin { display: grid; place-items: center; height: 200px; padding: 12px; border-radius: 16px; background: rgba(255, 255, 255, 0.94); }
+.pg-res-dessin svg { width: 100%; height: 100%; }
+.pg-res-kicker { font-size: 12.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 247, 238, 0.7); }
+.pg-res-nom { margin-top: 4px; font-size: 44px; line-height: 1.02; letter-spacing: -0.01em; color: #fff; }
+.pg-res-variante { display: inline-block; margin-top: 8px; padding: 3px 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.14); font-size: 14px; font-weight: 600; }
+.pg-res-raison { margin-top: 12px; font-size: 16px; line-height: 1.45; color: rgba(255, 247, 238, 0.9); }
+.pg-res-prix { margin-top: 10px; font-size: 18px; font-weight: 600; color: #fff; font-variant-numeric: tabular-nums; }
+.pg-res-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 18px; }
+.cpt a.pg-res-cta { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 28px; border-radius: 999px; background: #fff; color: #231f1c; font-size: 16.5px; font-weight: 600; text-decoration: none; }
+.cpt .pg-res-refaire { padding: 0 !important; border: 0; background: none !important; color: rgba(255, 247, 238, 0.8); font-size: 14px; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+@media (max-width: 760px) {
+  .cpt .pg-titre { font-size: 25px; }
+  .pg-q-corps, .pg-resultat { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  /* Sur téléphone : la question et ses boutons d'abord à l'écran, le schéma entre les deux, l'aide en dernier. */
+  .pg-q-corps { display: flex; flex-direction: column; gap: 10px; }
+  .pg-q-droite { display: contents; }
+  .pg-q-titre { order: 1; }
+  .pg-q-aide { order: 2; margin-top: 0; }
+  .pg-schema { order: 3; }
+  .pg-schema svg { max-height: 150px; }
+  .pg-reps { order: 4; margin-top: 4px; }
+  .pg-plus { order: 5; margin-top: 4px; }
+  .pg-q-titre { font-size: 21px; }
+  .pg-res-nom { font-size: 36px; }
+  .pg-resultat { padding: 18px 18px 20px; }
+  .pg-res-dessin { height: 170px; }
+  .pg-reps { gap: 10px; }
+}
+
+/* La fenêtre « Quel portail chez vous ? » des fiches : le résultat ressort (carte sombre, nom du modèle en gros). */
+.cpt-guide .cpt-f-info { display: block; margin-top: 16px; padding: 14px 16px; border-radius: 16px; background: #231f1c; color: #fff7ee; font-size: 14px; line-height: 1.4; }
+.cpt-guide .cpt-f-info b { display: block; margin: 2px 0 6px; font-size: 22px; line-height: 1.15; color: #fff; }
+.cpt-guide .cpt-f-info a, .cpt-guide .cpt-f-info button { display: inline-block; margin-top: 4px; color: #fff; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+.pg-prix-sans { margin-top: 2px; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--brun, #6f6357); }
+.pg-res-prix-sans { font-weight: 500; color: rgba(255, 247, 238, 0.85); }

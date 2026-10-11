@@ -46,6 +46,7 @@ export function SiteFooter({
   const services = [
     { href: `/${locale}/soudure-reparations`, label: fr ? "Soudure et réparations" : "Welding and repairs" },
     { href: `/${locale}/garde-corps-balcon-terrasse`, label: fr ? "Garde-corps de balcon" : "Balcony railings" },
+    { href: `/${locale}/portail-sur-mesure-saumur`, label: fr ? "Portail sur mesure" : "Bespoke gates" },
     { href: `/${locale}/rendez-vous`, label: fr ? "Prise de cotes à domicile" : "On-site measuring" },
   ];
   const guides = [

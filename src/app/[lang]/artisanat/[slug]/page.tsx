@@ -210,6 +210,15 @@ export default async function ProductPage({
           },
         ]
       : []),
+    // Les portails : la page « portail sur mesure à Saumur » (choisir le type, alu ou acier, pose, délai), 10/10/2026.
+    ...(product.famille === "portail"
+      ? [
+          {
+            href: `/${locale}/portail-sur-mesure-saumur`,
+            label: locale === "fr" ? "Portail sur mesure à Saumur : bien choisir" : "Bespoke gates in Saumur: how to choose",
+          },
+        ]
+      : []),
     // L'escalier : ses prix par forme et par essence, et ses normes, sur le guide (référencement, 07/10/2026).
     ...(product.famille === "escalier"
       ? [
@@ -219,9 +228,19 @@ export default async function ProductPage({
           },
         ]
       : []),
+    // Les deux tables Mikado se renvoient l'une à l'autre (référencement, 10/10/2026).
+    ...(product.slug === "table-mikado"
+      ? [{ href: `/${locale}/artisanat/table-mikado-exterieur`, label: locale === "fr" ? "Table Mikado Extérieur, pour le jardin" : "Mikado Outdoor table, for the garden" }]
+      : []),
+    ...(product.slug === "table-mikado-exterieur"
+      ? [{ href: `/${locale}/artisanat/table-mikado`, label: locale === "fr" ? "Table Mikado, pour l'intérieur" : "Mikado table, for indoors" }]
+      : []),
     ...(estTable || ouvrage ? [{ href: `/${locale}/bois-massif`, label: dict.liens.boisLong }] : []),
     ...(product.category === "lumiere"
-      ? [{ href: `/${locale}/toiles-tendues#plafond-tendu`, label: dict.liens.plafondTendu }]
+      ? [
+          { href: `/${locale}/toiles-tendues`, label: dict.liens.plafonds },
+          { href: `/${locale}/toiles-tendues#plafond-tendu`, label: dict.liens.plafondTendu },
+        ]
       : []),
     ...(ouvrage || product.category === "lumiere"
       ? [{ href: `/${locale}/zone-intervention`, label: dict.liens.zonePose }]

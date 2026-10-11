@@ -35,6 +35,8 @@ const PAGES: { chemin: string; priorite: number; frequence: "weekly" | "monthly"
   { chemin: "/escalier-limon-central-prix-normes", priorite: 0.8, frequence: "monthly", modifie: DATE_MODIFICATION_GUIDE_ESCALIER },
   // Les garde-corps de balcon, de terrasse et les rampes d'escalier extérieur (oui de Quentin, 07/10/2026).
   { chemin: "/garde-corps-balcon-terrasse", priorite: 0.7, frequence: "monthly" },
+  // Le portail sur mesure à Saumur : la page d'atterrissage des quatre fiches portail (10/10/2026).
+  { chemin: "/portail-sur-mesure-saumur", priorite: 0.8, frequence: "monthly" },
   // La soudure et les réparations à façon, à Saumur (oui de Quentin, 07/10/2026).
   { chemin: "/soudure-reparations", priorite: 0.7, frequence: "monthly" },
   // Les deux pages écrites pour le référencement local : Google doit les voir vite.

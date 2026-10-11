@@ -33,6 +33,7 @@ export function questionsFaq(dict: Dict): QuestionReponse[] {
 export function questionsTables(dict: Dict, formats: string): QuestionReponse[] {
   const t = dict.tables;
   return [
+    { q: t.faqMikadoQ, a: t.faqMikadoA },
     { q: t.faqTailleQ, a: remplir(t.faqTailleA, { formats }) },
     { q: t.faqBoisQ, a: t.faqBoisA },
     { q: t.faqEntretienQ, a: t.faqEntretienA },
@@ -55,6 +56,8 @@ export function questionsPlafonds(dict: Dict, delai: string | null): QuestionRep
     tl.faq[1],
     { q: dict.artisanat.faqToileQ, a: dict.artisanat.faqToileA },
     ...(delai ? [{ q: tl.faq[2].q, a: remplir(tl.faq[2].a, { delai }) }] : []),
+    // Couleur de la lumière, profondeur du caisson, prix : les mots de ceux qui cherchent une toile tendue lumineuse.
+    ...tl.faq.slice(3),
   ];
 }
 
