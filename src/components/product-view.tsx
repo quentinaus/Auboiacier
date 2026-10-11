@@ -338,7 +338,35 @@ export function ProductView({
    * ses morceaux par portails (lumiere-bloc.tsx) : le panier, la pose, le code postal et le prélancement ne bougent pas.
    */
   const blocLumiere = pleinePage && product.category === "lumiere";
-  const troisColonnes = gardeCorps || blocLumiere;
+  /** Une table sur mesure : les mêmes trois colonnes (cotes, croquis de la table entière, résultat et livraison), sans bandeau de modèles. */
+  const blocTable = pleinePage && estTable && Boolean(product.surMesure);
+  const troisColonnes = gardeCorps || blocLumiere || blocTable;
+  /** Le bouton « Configurer ma table » : tout en haut de la colonne, visible sans défiler. */
+  const libelleConfigurer =
+    product.famille === "table-interieur" || product.famille === "table-exterieur"
+      ? t.configurerTable
+      : product.famille === "chaise"
+        ? t.configurerChaise
+        : product.famille === "chaise-exterieur"
+          ? t.configurerFauteuil
+          : product.famille === "escalier"
+            ? t.configurerEscalier
+            : product.famille === "garde-corps"
+              ? t.configurerGardeCorps
+              : product.famille === "plafond"
+                ? t.configurerPlafond
+                : t.configurationCta;
+  const boutonConfigurer = (
+    <a
+      href={pleinePage ? "#configuration" : "#options-piece"}
+      className="btn-verre mt-4 inline-flex items-center gap-2 rounded-full px-7 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-white md:mt-5"
+    >
+      {libelleConfigurer}
+      <svg viewBox="0 0 20 20" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
+        <path d="M5 8l5 5 5-5" />
+      </svg>
+    </a>
+  );
   // Le prix du haut de la fiche : le même calcul que la description et les
   // données Google (src/lib/donnees-google.ts) — Google ne reçoit que ce qui
   // s'affiche ici. « À partir de » d'un côté, prix d'appel du garde-corps de l'autre.
@@ -630,6 +658,7 @@ export function ProductView({
         >
           {t.moreInfo}
         </a>
+        <div>{boutonConfigurer}</div>
 
         {pleinePage ? (
           /* À côté de la photo, rien que l'essentiel : l'accroche, le prix de
@@ -657,7 +686,7 @@ export function ProductView({
                 suit chaque choix — elles restent donc juste sous le titre.
                 `ProductOptions` les dépose ici par portail (voir matieresSlot). */}
             {/* (Les plafonds lumineux : dès la tablette, la couleur du cadre est dans la rangée du titre du bloc.) */}
-            <div ref={setMatieresSlot} className={blocLumiere ? "md:hidden" : troisColonnes ? "lg:hidden" : undefined} />
+            <div ref={setMatieresSlot} className={blocLumiere || blocTable ? "md:hidden" : troisColonnes ? "lg:hidden" : undefined} />
             {/* L'accroche et le prix de départ suivent, avant le chemin vers
                 le configurateur. */}
             <p className="mt-8 border-t border-[#e5ddd3] pt-7 text-[15px] leading-relaxed text-[#4a4038]">
@@ -679,12 +708,6 @@ export function ProductView({
               </p>
             )}
             <p className="mt-1 text-xs leading-snug text-[#7a6f64]">{t.prixAttenteCotes}</p>
-            <a
-              href="#configuration"
-              className="btn-verre mt-6 inline-block rounded-full px-7 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-white"
-            >
-              {t.configurationCta}
-            </a>
             {/* Le garde-corps Rosace renvoie vers le Garde-corps forgé à volutes, plus haut de gamme (Quentin, 07/10/2026). */}
             {product.releve === "garde-corps-fenetre" && !product.decorsGC && (
               <p className="mt-5 text-[13px] leading-snug text-[#6f6357]">
@@ -699,7 +722,7 @@ export function ProductView({
             )}
           </div>
         ) : (
-          <div className="mt-2 md:mt-5">{options}</div>
+          <div id="options-piece" className="mt-2 scroll-mt-4 md:mt-5">{options}</div>
         )}
       </div>
     </div>
@@ -746,7 +769,11 @@ export function ProductView({
                mesures et la colonne d'achat côte à côte ; sur grand écran, TROIS colonnes — les cotes, le croquis et les
                modèles, puis le résultat, la livraison et le panier. Tout tient sur un écran, titre compris. (Les classes
                des tables ne s'appliquent pas ici : deux grilles dans la même plaque se contredisaient.) */
-            blocLumiere
+            blocTable
+              ? /* Les tables : comme les plafonds (même gabarit, mêmes emplacements), avec des colonnes un peu plus larges pour les cotes
+                   (épaisseur à choisir en trois boutons) et sans le bandeau des formes. */
+                "fond-gc fond-lumiere fond-table md:grid md:items-stretch md:grid-cols-2 md:grid-rows-[auto_auto_auto_minmax(0,1fr)] md:gap-x-4 md:gap-y-3 lg:grid-cols-[300px_minmax(0,1fr)_272px] lg:grid-rows-[auto_minmax(0,1fr)_auto] lg:items-stretch lg:gap-x-4 lg:gap-y-3 xl:grid-cols-[330px_minmax(0,1fr)_300px] xl:gap-x-5"
+              : blocLumiere
               ? /* Les plafonds lumineux : tablette, le titre, le croquis, le bandeau des formes, puis les deux cartes côte à côte ;
                    ordinateur, les trois colonnes du portail (les cartes prennent toute la hauteur, rien ne défile). */
                 "fond-gc fond-lumiere md:grid md:items-stretch md:grid-cols-2 md:grid-rows-[auto_auto_auto_minmax(0,1fr)] md:gap-x-4 md:gap-y-3 lg:grid-cols-[262px_minmax(0,1fr)_272px] lg:grid-rows-[auto_minmax(0,1fr)_auto] lg:items-stretch lg:gap-x-4 lg:gap-y-3 xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:gap-x-5"
@@ -760,7 +787,7 @@ export function ProductView({
           {gardeCorps && <div ref={setPorteSlot} className="porte-slot contents" />}
           {/* Le titre, et — sur grand écran, au garde-corps — la ligne des matières (couleur, bois, rosace) à sa droite, au-dessus
               du croquis mais PAS dessus (demande de Quentin : « remonte-la, il y a de la place »). */}
-          <div className={troisColonnes ? "titre-config md:col-span-2 md:flex md:items-center md:justify-between md:gap-4 lg:col-span-3 lg:grid lg:grid-cols-[262px_minmax(0,1fr)_272px] lg:items-center lg:gap-x-4 xl:grid-cols-[290px_minmax(0,1fr)_300px] xl:gap-x-5" : "lg:col-span-2"}>
+          <div className={troisColonnes ? `titre-config md:col-span-2 md:flex md:items-center md:justify-between md:gap-4 lg:col-span-3 lg:grid ${blocTable ? "lg:grid-cols-[300px_minmax(0,1fr)_272px] xl:grid-cols-[330px_minmax(0,1fr)_300px]" : "lg:grid-cols-[262px_minmax(0,1fr)_272px] xl:grid-cols-[290px_minmax(0,1fr)_300px]"} lg:items-center lg:gap-x-4 xl:gap-x-5` : "lg:col-span-2"}>
             {ficheGC ? (
               enteteGC(true)
             ) : (
@@ -789,7 +816,7 @@ export function ProductView({
               if ((e.target as HTMLElement).matches("input[inputmode]")) setChampFocus(false);
             }}
             className={`carte-verre order-2 min-h-0 flex-1 overflow-y-auto overflow-x-clip overscroll-contain rounded-[26px] px-5 pb-0 pt-4 md:overflow-x-hidden md:px-6 md:pt-5 ${blocEnPlace ? "" : "max-md:overflow-y-hidden"} ${
-              blocLumiere
+              blocLumiere || blocTable
                 ? /* Les plafonds lumineux : la carte des mesures prend toute la hauteur des colonnes (comme au portail). */
                   "colonne-cotes md:order-none md:flex-none md:col-start-1 md:row-start-4 lg:col-start-1 lg:row-start-2 lg:row-span-2 lg:px-4 lg:pb-3 lg:pt-4 xl:px-5"
                 : troisColonnes
@@ -830,7 +857,7 @@ export function ProductView({
           {/* Le bandeau des modèles : en bas du bloc, sous les cotes et le croquis, sur toute leur longueur. Placé AVANT la colonne
               d'achat dans le DOM (la grille le range en bas) : au clavier, on choisit le modèle avant d'arriver au bouton du panier. */}
           {/* Les plafonds lumineux : le bandeau « Votre forme » (deux tuiles) sous le croquis, dès la tablette. */}
-          {troisColonnes && (
+          {(gardeCorps || blocLumiere) && (
             <div
               ref={setBandeauSlot}
               className={
@@ -846,7 +873,7 @@ export function ProductView({
           {troisColonnes && (
             <div
               className={
-                blocLumiere
+                blocLumiere || blocTable
                   ? "carte-verre colonne-achat hidden min-h-0 overflow-x-clip rounded-[26px] px-4 pb-0 pt-4 md:col-start-2 md:row-start-4 md:flex md:min-h-0 md:max-h-full md:flex-col md:self-stretch md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain lg:col-start-3 lg:row-span-2 lg:row-start-2 xl:px-5"
                   : "carte-verre colonne-achat panneau-etape etape-10 hidden min-h-0 overflow-x-clip rounded-[26px] px-4 pb-0 pt-4 max-md:order-3 max-md:flex-1 max-md:overflow-y-auto max-md:overscroll-contain md:col-start-2 md:row-start-3 md:flex md:min-h-0 md:max-h-full md:flex-col md:self-stretch md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain lg:col-start-3 lg:row-span-2 lg:row-start-2 xl:px-5"
               }

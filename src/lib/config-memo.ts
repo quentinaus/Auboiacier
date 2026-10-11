@@ -257,3 +257,33 @@ export function reprendreConfig(slug: string): ConfigMemo | null {
     ...lireReleveGcMemo(o),
   };
 }
+
+/**
+ * Le code postal de livraison, retenu d'une fiche à l'autre.
+ *
+ * Il se retape à chaque pièce, sinon : le client qui regarde trois tables
+ * retapait trois fois le même code. On ne garde que cinq chiffres, accepté par
+ * le serveur de livraison, dans le navigateur (stockage local) : rien ne part
+ * ailleurs, et le client le retire en vidant son navigateur. Ne lève jamais :
+ * un stockage refusé (navigation privée) ne doit rien casser.
+ */
+const CLE_CODE_POSTAL = "auboiacier-code-postal-v1";
+
+export function lireCodePostalRetenu(): string | null {
+  try {
+    const cp = localStorage.getItem(CLE_CODE_POSTAL);
+    return cp && /^\d{5}$/.test(cp) ? cp : null;
+  } catch {
+    return null;
+  }
+}
+
+export function retenirCodePostal(codePostal: string): void {
+  const cp = codePostal.replace(/\s+/g, "");
+  if (!/^\d{5}$/.test(cp)) return;
+  try {
+    localStorage.setItem(CLE_CODE_POSTAL, cp);
+  } catch {
+    // Tant pis : il sera retapé.
+  }
+}

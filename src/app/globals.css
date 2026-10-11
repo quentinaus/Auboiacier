@@ -1582,6 +1582,23 @@ textarea:focus-visible,
   will-change: transform;
 }
 
+/* Une table : le récapitulatif de la colonne d'achat. */
+.recap-table dl {
+  gap: 0.5rem;
+  font-size: 12.5px;
+}
+@media (max-height: 800px) {
+  .recap-table dl {
+    gap: 0.3rem;
+    font-size: 12px;
+  }
+}
+@media (max-height: 760px) {
+  .recap-table > p {
+    display: none;
+  }
+}
+
 /* ==========================================================================
    Le configurateur du GARDE-CORPS en « Liquid Glass », direction « Dégradé lumineux » (choisie par Quentin le
    07/10/2026 sur trois maquettes : « améliore vraiment tout le style de cette page… un truc à la Apple avec un beau
@@ -2060,3 +2077,17 @@ textarea:focus-visible,
   border-radius: 7px !important;
 }
 
+
+/* Une table, 1024 à 1279 px de large et pas très haut : la colonne d'achat ne défile pas — le récapitulatif cède sa place
+   (le poids, les dimensions et le délai restent dans « Détails »). */
+@media (min-width: 64rem) and (max-width: 79.99rem) and (max-height: 820px) {
+  .fond-table .recap-table {
+    display: none;
+  }
+  /* Le titre « Livraison, pose ou retrait » et la phrase d'attente cèdent aussi leur place : le champ « Votre code postal » et les trois
+     façons de recevoir la pièce se lisent seuls. */
+  .fond-table #sous-menu-livraison > span,
+  .fond-table #livraison [data-attente] {
+    display: none;
+  }
+}
