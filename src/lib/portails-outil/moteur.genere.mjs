@@ -1,6 +1,6 @@
 // FICHIER GÉNÉRÉ par scripts/extraire-portails.mjs : NE PAS MODIFIER À LA MAIN.
 // Le moteur des PORTAILS (plans/modules/motifs.js sans commentaires ni catalogue nominatif, puis plans-portails.js, tels que collés dans l'outil) : géométrie, débit, dessins, contrôles. Aucun prix.
-// Source : l'outil de plans (plans-atelier.html), sha256 6bb2bf78908e597b97379c96.
+// Source : l'outil de plans (plans-atelier.html), sha256 c9472200d4f7d604e9aab91c.
 /* eslint-disable */
 
 
@@ -1163,6 +1163,162 @@ function tdcDeplace(pl, alea, niveaux, amp, plafond) {  // déplacement du point
   }
   return p;
 }
+/* ---------- Règles de fabrication des dessins (Quentin, 11/10/2026) ----------
+   La tôle reste une tôle : presque pleine, le dessin est fait de fentes fines et de petites formes. Deux règles tenues par le code ET par
+   les tests : (1) TDC_PONT : au moins 14 mm de tôle entre deux découpes (sinon la tôle n'est pas assez renforcée) ; (2) TDC_OUVERTURE : aucun
+   vide ne contient un cercle de plus de 100 mm (on ne doit pas pouvoir passer, comme la sphère de 11 cm d'un garde-corps). */
+const TDC_PONT = 14;
+const TDC_OUVERTURE = 100;
+
+/** Une fente effilée le long d'une courbe : o.w = largeur au plus large (mm), o.debut / o.fin = part de la largeur au départ et à l'arrivée
+ *  (0 = une pointe), o.lentille = pointue aux deux bouts. */
+function tdcTrait(pl, o) {
+  const p = tdcRepartir(pl, o.pas || 8), n = p.length, g = [], d = [];
+  for (let i = 0; i < n; i++) {
+    const t = n > 1 ? i / (n - 1) : 0;
+    let f = (o.debut === undefined ? 1 : o.debut) * (1 - t) + (o.fin === undefined ? 1 : o.fin) * t;
+    if (o.lentille) f *= Math.pow(Math.sin(Math.PI * t), 0.6);
+    const demi = o.w / 2 * f, a = p[Math.max(0, i - 1)], b = p[Math.min(n - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1;
+    let k = 1;
+    if (i > 0 && i < n - 1) {
+      const u = [p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]], v = [p[i + 1][0] - p[i][0], p[i + 1][1] - p[i][1]], lu = Math.hypot(u[0], u[1]) || 1, lv = Math.hypot(v[0], v[1]) || 1;
+      k = Math.min(1.8, 1 / Math.max(0.5, Math.sqrt((1 + (u[0] * v[0] + u[1] * v[1]) / (lu * lv)) / 2)));
+    }
+    g.push([p[i][0] - dy / l * demi * k, p[i][1] + dx / l * demi * k]); d.push([p[i][0] + dy / l * demi * k, p[i][1] - dx / l * demi * k]);
+  }
+  return g.concat(d.reverse());
+}
+function tdcDisque(cx, cy, r, a0, a1) {                    // un disque, ou un secteur de disque entre les angles a0 et a1
+  const n = 36, f = []; for (let i = 0; i <= n; i++) { const a = a0 + (a1 - a0) * i / n; f.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
+  return f;
+}
+
+/** Le plan d'une tôle de W × H mm : les découpes déjà posées et la place qu'il leur faut autour (14 mm de tôle). On n'ajoute une forme que
+ *  s'il reste cette place : le dessin respecte ainsi, tout seul, la règle des ponts. Grille de 4 mm. */
+function tdcPlan(W, H, droite) {
+  const c = 4, gw = Math.ceil(W / c) + 1, gh = Math.ceil(H / c) + 1, bloc = new Uint8Array(gw * gh), m = Math.ceil(TDC_PONT / c), formes = [];
+  const bornes = [TDC_MARGE, TDC_MARGE, droite === undefined ? W - TDC_MARGE : droite, H - TDC_MARGE];
+  for (let j = 0; j < gh; j++) for (let i = 0; i < gw; i++) { const x = i * c, y = j * c; if (x < bornes[0] || y < bornes[1] || x > bornes[2] || y > bornes[3]) bloc[j * gw + i] = 1; }
+  const cellules = (p) => {
+    const out = new Set(); let y0 = Infinity, y1 = -Infinity;
+    for (const [, y] of p) { y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+    for (let j = Math.max(0, Math.floor(y0 / c)); j <= Math.min(gh - 1, Math.floor(y1 / c)); j++) {
+      const y = (j + 0.5) * c, xs = [];
+      for (let i = 0; i < p.length; i++) { const a = p[i], b = p[(i + 1) % p.length]; if ((a[1] <= y && b[1] > y) || (b[1] <= y && a[1] > y)) xs.push(a[0] + (y - a[1]) / (b[1] - a[1]) * (b[0] - a[0])); }
+      xs.sort((u, v) => u - v);
+      for (let k = 0; k + 1 < xs.length; k += 2) for (let i = Math.max(0, Math.round(xs[k] / c)); i < Math.min(gw, Math.round(xs[k + 1] / c)); i++) out.add(j * gw + i);
+    }
+    // le contour compte aussi : une fente très fine ne doit pas passer entre les cellules
+    for (let i = 0; i < p.length; i++) {
+      const a = p[i], b = p[(i + 1) % p.length], n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / (c / 2)));
+      for (let k = 0; k <= n; k++) { const x = a[0] + (b[0] - a[0]) * k / n, y = a[1] + (b[1] - a[1]) * k / n, ii = Math.floor(x / c), jj = Math.floor(y / c); if (ii >= 0 && ii < gw && jj >= 0 && jj < gh) out.add(jj * gw + ii); }
+    }
+    return out;
+  };
+  const libre = (p) => { for (const k of cellules(p)) if (bloc[k]) return false; return true; };
+  const ajouter = (p, reserve) => {
+    if (!reserve) formes.push(p);
+    const marque = new Uint8Array(gw * gh), hor = new Uint8Array(gw * gh);
+    let i0 = gw, i1 = 0, j0 = gh, j1 = 0;
+    for (const k of cellules(p)) { marque[k] = 1; const i = k % gw, j = Math.floor(k / gw); i0 = Math.min(i0, i); i1 = Math.max(i1, i); j0 = Math.min(j0, j); j1 = Math.max(j1, j); }
+    for (let j = Math.max(0, j0 - m); j <= Math.min(gh - 1, j1 + m); j++) for (let i = Math.max(0, i0 - m); i <= Math.min(gw - 1, i1 + m); i++) {   // dilatation en deux passes
+      let v = 0; for (let d = -m; d <= m && !v; d++) if (i + d >= 0 && i + d < gw && marque[j * gw + i + d]) v = 1;
+      hor[j * gw + i] = v;
+    }
+    for (let j = Math.max(0, j0 - m); j <= Math.min(gh - 1, j1 + m); j++) for (let i = Math.max(0, i0 - m); i <= Math.min(gw - 1, i1 + m); i++) {
+      let v = 0; for (let d = -m; d <= m && !v; d++) if (j + d >= 0 && j + d < gh && hor[(j + d) * gw + i]) v = 1;
+      if (v) bloc[j * gw + i] = 1;
+    }
+  };
+  const essayer = (p) => { if (!p || p.length < 3 || !libre(p)) return false; ajouter(p); return true; };
+  // les tronçons d'une courbe où l'on peut tailler une fente de la largeur demandée (la courbe est coupée là où un autre dessin la gêne)
+  const tronconsLibres = (pl, demi, mini) => {
+    const fin = tdcRepartir(pl, 8), runs = []; let cur = [];
+    for (const q of fin) {
+      let ok = true; for (const [dx, dy] of [[0, 0], [demi, 0], [-demi, 0], [0, demi], [0, -demi]]) { const i = Math.floor((q[0] + dx) / c), j = Math.floor((q[1] + dy) / c); if (i < 0 || j < 0 || i >= gw || j >= gh || bloc[j * gw + i]) { ok = false; break; } }
+      if (ok) cur.push(q); else { if (cur.length) runs.push(cur); cur = []; }
+    }
+    if (cur.length) runs.push(cur);
+    return runs.filter((r) => r.length * 8 >= mini);
+  };
+  const reserver = (p) => ajouter(p, true);   // une zone où rien d'autre ne se dessine (la tête du loup)
+  return { formes, libre, ajouter, essayer, reserver, tronconsLibres };
+}
+
+/** Des sapins posés à la file : un vide par sapin (le tronc se confond avec la tôle du bas), du plus grand au plus petit, là où il reste de la place. */
+function tdcSapins(plan, alea, xa, xb, yBas, plafond, hMin, hMax, essais) {
+  for (let k = 0; k < essais; k++) {
+    const x = xa + 20 + alea() * (xb - xa - 40), base = yBas + alea() * 140, h0 = hMin + (hMax - hMin) * Math.pow(alea(), 0.7), h = Math.min(h0, plafond(x) - 36 - base);
+    if (h < hMin * 0.8) continue;
+    plan.essayer(tdcSapin(x, base, h, h * 0.52));
+  }
+}
+
+/** Un trait en tirets : des fentes de long mm, séparées par des ponts de tôle de pont mm (un contour fermé ne doit jamais couper la tôle en deux). */
+function tdcTirets(pl, long, pont, o) {
+  const p = tdcRepartir(pl, 6), sortie = []; let cur = [p[0]], dist = 0, dans = true;
+  for (let i = 1; i < p.length; i++) {
+    const d = Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]); dist += d;
+    if (dans) { cur.push(p[i]); if (dist >= long) { sortie.push(cur); cur = []; dans = false; dist = 0; } }
+    else if (dist >= pont) { cur = [p[i]]; dans = true; dist = 0; }
+  }
+  if (dans && cur.length > 4) sortie.push(cur);
+  return sortie.map((c) => tdcTrait(c, o));
+}
+
+/** Un paysage de montagnes en traits fins dans un panneau de W × H : la tôle reste pleine, les montagnes sont dessinées par des fentes (arêtes, neige,
+ *  hachures de l'ombre), les sapins par de petits vides. Le sommet est au joint des vantaux (ou au milieu d'un vantail seul). o.tete : le loup. */
+function tdcPaysage(W, H, o, cfg) {
+  const paire = !!(o && o.paire), seg = (o && o.segment) || { premier: true, dernier: true }, m = TDC_MARGE;
+  const bord = paire && seg.dernier, xs = bord ? W : W / 2, xa = m, xb = xs - 8, w = xb - xa;
+  const alea = tdcAlea(cfg.graine), plan = tdcPlan(W, H, xb), sol = 70;
+  let tete = null;
+  if (cfg.tete && seg.dernier) {
+    tete = tdcLoupTete(plan, xb, H, w);
+  }
+  // 1. la montagne : le profil (de gauche à droite jusqu'au sommet)
+  const ys = H * cfg.sommet, yb = H * cfg.pied;
+  const clefs = [[0, 1], [0.09, 0.84], [0.17, 0.90], [0.29, 0.64], [0.40, 0.74], [0.53, 0.46], [0.66, 0.55], [0.80, 0.28], [0.91, 0.33], [1, 0.12]];
+  const prof = tdcDeplace(clefs.map(([u, v]) => [xb - u * w, yb + v * (ys - yb)]).reverse(), alea, 2, 0.1, ys - 12);
+  prof[prof.length - 1] = [xb, ys];
+  const poser = (pl, o2, minL) => { for (const r of plan.tronconsLibres(pl, (o2.w || 8) / 2 + 8, minL || 40)) plan.essayer(tdcTrait(r, o2)); };
+  // les collines : leur crête, un trait
+  const c0 = H * cfg.collines[0], c1 = H * cfg.collines[1], crete = [[xa, c0 + (c1 - c0) * alea()]];
+  for (let x = xa; x < xb - 1;) { x = Math.min(xb, x + w * (0.10 + 0.10 * alea())); crete.push([x, c0 + (c1 - c0) * (crete.length % 2 ? 0.25 + 0.75 * alea() : 0.8 * alea())]); }
+  const yCrete = (x) => tdcInterp(crete, x);
+  // 2. l'ordre compte : ce qui se lit de loin d'abord (le sommet, les arêtes), les finesses ensuite, les sapins en dernier
+  poser(prof, { w: 14 }, 80);
+  const arete = (u, dx) => [[xb - 26, ys - 50], [xb - w * u * 0.5 + dx * w, ys - (ys - yb) * 0.5], [xb - w * u, yb + 40]];
+  const aretes = [arete(0.18, 0.03), arete(0.42, -0.04), arete(0.72, 0.03)];
+  aretes.forEach((a, i) => poser(a, { w: 11 - i * 2, debut: 1, fin: 0.35 }, 80));
+  // la neige : une ligne en dents de scie sous le sommet
+  const neigeY = ys - 0.30 * (ys - yb);
+  { let x0 = xb; for (let q = 0; q <= 200; q++) { const xx = xb - w * q / 200; if (tdcInterp(prof, xx) < neigeY + 60) break; x0 = xx; }
+    const zig = []; for (let xx = x0, k = 0; xx <= xb + 0.5; xx += 52, k++) zig.push([Math.min(xb - 6, xx), neigeY - (k % 2 ? 60 : 0)]);
+    poser(zig, { w: 9 }, 80); }
+  // la montagne du fond : un second profil, plus bas
+  const clefsB = [[0, 0.74], [0.12, 0.62], [0.22, 0.68], [0.36, 0.46], [0.5, 0.52], [0.62, 0.34], [0.78, 0.4], [0.9, 0.22], [1, 0.14]];
+  const profB = tdcDeplace(clefsB.map(([u, v]) => [xb - u * w, yb + v * (ys - yb)]).reverse(), alea, 2, 0.1, ys - 12);
+  poser(profB.map(([x, y]) => [x, Math.min(y, tdcInterp(prof, x) - 120)]), { w: 10 }, 80);
+  // les hachures de l'ombre : de courtes fentes parallèles aux arêtes, entre la 1re et la 2e arête
+  const xAr = (a, y) => { for (let i = 1; i < a.length; i++) if (y >= a[i][1]) { const [xa2, ya2] = a[i - 1], [xb2, yb2] = a[i]; return xa2 + (xb2 - xa2) * (ya2 - y) / ((ya2 - yb2) || 1); } return a[a.length - 1][0]; };
+  for (let y = ys - 120; y > yb + 30; y -= 66) for (let x = xa + 30; x < xb - 20; x += 40) {
+    const jx = x + (alea() - 0.5) * 16, jy = y + (alea() - 0.5) * 22;
+    if (jy > tdcInterp(prof, jx) - 60 || jy < yCrete(jx) + 50) continue;
+    const x1 = xAr(aretes[0], jy), x2 = xAr(aretes[1], jy), lo = Math.min(x1, x2), hi = Math.max(x1, x2);
+    if (jx < lo + 24 || jx > hi - 24) continue;
+    const dx = xAr(aretes[0], jy - 40) - x1, dir = Math.atan2(-40, dx), L = 70 + alea() * 50;
+    plan.essayer(tdcTrait([[jx, jy], [jx + Math.cos(dir) * L, jy + Math.sin(dir) * L]], { w: 7, debut: 1, fin: 0 }));
+  }
+  // 3. les collines (la crête, un trait) et la forêt dessous
+  poser(crete, { w: 11 }, 80);
+  tdcSapins(plan, alea, xa, xb, sol, yCrete, cfg.arbres[0] * H, cfg.arbres[1] * H, 1500);
+  tdcSapins(plan, alea, xa, xb, sol, yCrete, cfg.arbres[0] * H * 0.62, cfg.arbres[0] * H, 1500);   // puis les petits, dans les trous
+  // 4. le soleil ou la lune, au joint : un petit disque derrière le sommet (une moitié sur chaque vantail)
+  if (cfg.disque) { const r = 46; plan.essayer(tdcDisque(xb, ys + r + 60, r, Math.PI / 2, 3 * Math.PI / 2)); }
+  return bord ? plan.formes : plan.formes.concat(plan.formes.map((f) => f.map(([x, y]) => [2 * xs - x, y]).reverse()));
+}
+
 function tdcDelaunay(pts) {                          // Bowyer-Watson : [[i, j, k]…] indices dans pts
   const n = pts.length, M = 1e5, P = pts.concat([[-M, -M], [M, -M], [0, M]]);
   const circ = (t) => { const [a, b, c] = t.map((i) => P[i]); const d = 2 * (a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1]));
@@ -1195,221 +1351,84 @@ function tdcDelaunayContraint(pts, aretes) {          // Delaunay où chaque ar�
   }
   return tdcDelaunay(pts);
 }
-function tdcRetrecir(t, pts, d, mini) {                    // un triangle rétréci de d mm de chaque côté (homothétie autour de son centre inscrit)
-  const [a, b, c] = t.map((i) => pts[i]), la = Math.hypot(b[0] - c[0], b[1] - c[1]), lb = Math.hypot(a[0] - c[0], a[1] - c[1]), lc = Math.hypot(a[0] - b[0], a[1] - b[1]), s = la + lb + lc;
-  const ix = (la * a[0] + lb * b[0] + lc * c[0]) / s, iy = (la * a[1] + lb * b[1] + lc * c[1]) / s;
-  const aire = Math.abs((b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1])) / 2, r = 2 * aire / s;
-  if (r <= d + (mini || 3)) return null;
-  const k = (r - d) / r;
-  return [a, b, c].map(([x, y]) => [ix + (x - ix) * k, iy + (y - iy) * k]);
-}
-/** Les facettes d'un contour : poly (fermé), points fixes en plus, pleines (zones laissées en tôle), choisit(g, t) → true = vide ; retrait d (mm). */
-function tdcFacettesPoly(poly, plus, pleines, choisit, retrait, pas, espace) {
-  const boucle = tdcRepartir(poly.concat([poly[0]]), pas * (espace || 0.7)); boucle.pop();
-  const nb = boucle.length, pts = boucle.slice();
-  const garde = (p) => !pts.some((q) => Math.abs(q[0] - p[0]) < 1 && Math.abs(q[1] - p[1]) < 1);
-  for (const p of plus) if (garde(p)) pts.push(p);
-  const sortie = [];
-  for (const t of tdcDelaunay(pts)) {
-    const A = pts[t[0]], B = pts[t[1]], C = pts[t[2]], g = [(A[0] + B[0] + C[0]) / 3, (A[1] + B[1] + C[1]) / 3];
-    // le triangle entier doit être dans le contour (un contour creux : pas de triangle qui enjambe un creux)
-    const tests = [g].concat([A, B, C].map((v) => [g[0] + (v[0] - g[0]) * 0.9, g[1] + (v[1] - g[1]) * 0.9]), [[A, B], [B, C], [C, A]].map(([u, v]) => [g[0] + ((u[0] + v[0]) / 2 - g[0]) * 0.9, g[1] + ((u[1] + v[1]) / 2 - g[1]) * 0.9]));
-    if (tests.some((p) => !tdcDedans(p, poly))) continue;
-    if (pleines.some((z) => tests.some((p) => z(p)))) continue;
-    if (!choisit(g, t.some((i) => i < nb))) continue;
-    const r = tdcRetrecir(t, pts, retrait);
-    if (r) sortie.push(r);
-  }
-  return sortie;
-}
-/** Une moitié de montagne (de x = xa jusqu'au sommet sur l'axe, x = xs). Rend les facettes éclairées. */
-function tdcMontagne(o) {
-  const alea = o.alea, pas = o.pas || 150, haut = o.prof, pied = o.pied, [xs, ys] = haut[haut.length - 1];
-  const poly = haut.concat(pied.slice().reverse());
-  // des points à l'intérieur (grille décalée, un peu au hasard), à bonne distance du contour, pour des facettes régulières
-  const plus = [];
-  let y0 = Infinity, y1 = -Infinity, x0 = Infinity; for (const [x, y] of poly) { y0 = Math.min(y0, y); y1 = Math.max(y1, y); x0 = Math.min(x0, x); }
-  for (let y = y0 + pas * 0.5, j = 0; y < y1; y += pas * 0.87, j++) for (let x = x0 + pas * (j % 2 ? 0.5 : 0); x < xs; x += pas) {
-    const p = [x + (alea() - 0.5) * pas * 0.3, y + (alea() - 0.5) * pas * 0.25];
-    if (tdcDedans(p, poly) && tdcDistance(p, poly) > pas * 0.55) plus.push(p);
-  }
-  const aretes = o.aretes.map((a) => tdcRepartir(a, pas * 0.75));
-  for (const a of aretes) for (const p of a) if (tdcDedans(p, poly) && tdcDistance(p, poly) > pas * 0.2) plus.push(p);
-  for (const p of (o.fixes || [])) if (tdcDedans(p, poly)) plus.push(p);
-  const xAr = (a, y) => { for (let i = 1; i < a.length; i++) if (y >= a[i][1]) { const [xa, ya] = a[i - 1], [xb, yb] = a[i]; return xa + (xb - xa) * (ya - y) / ((ya - yb) || 1); } return a[a.length - 1][0]; };
-  const choisit = (g, surLeContour) => {
-    if (surLeContour || g[1] > o.neige(g[0])) return true;         // le contour et la neige : éclairés (la montagne se lit de loin)
-    let k = 0; for (const a of aretes) if (xAr(a, g[1]) < g[0]) k++;
-    return !o.ombre.includes(k);                                    // les faces à l'ombre restent en tôle
-  };
-  return tdcFacettesPoly(poly, plus, o.exclure ? [o.exclure] : [], choisit, 5.5, pas, 0.9);
-}
-
-// La tête de loup, une moitié (x depuis l'axe, y vers le haut ; 52 à 992 : environ 940 unités de haut). Une grimace : les oreilles couchées, les yeux en
-// fentes obliques qui brillent dans une orbite sombre, le museau plissé, la gueule ouverte sur quatre crocs.
+// La tête de loup, de face, qui montre les crocs, en pochoir : le MAILLAGE à facettes de la tête est dessiné par des fentes fines (les arêtes), la tôle des
+// facettes reste PLEINE ; chaque arête s'arrête à 18 mm des sommets, ce qui laisse un pont de tôle à chaque nœud. Les yeux, le nez et la gueule (dont
+// les dents sont de la tôle) sont découpés. Une moitié (x depuis l'axe, y vers le haut), l'autre vantail la reprend.
 const TDC_LOUP = {
   contour: [[0, 790], [95, 825], [150, 808], [285, 1010], [385, 785], [450, 735], [400, 670], [470, 590], [410, 520], [455, 430], [380, 375], [300, 350], [235, 310], [205, 235], [185, 155], [120, 92], [0, 55]],
   orbite: [[0, 690], [90, 722], [185, 752], [270, 772], [262, 735], [240, 680], [170, 630], [92, 600], [0, 610]],
-  oeil: [[30, 648], [105, 672], [180, 704], [240, 738], [214, 706], [155, 676], [98, 652], [52, 636]],
-  nez: [[0, 410], [58, 416], [72, 375], [36, 338], [0, 330]],
-  bouche: [[0, 298], [75, 296], [150, 290], [185, 262], [168, 196], [105, 158], [0, 138]],
-  oreille: [[150, 808], [270, 800], [385, 785]],              // la base de l'oreille (une arête imposée) et sa nervure
+  oeil: [[40, 630], [108, 668], [186, 710], [256, 756], [226, 706], [160, 668], [100, 640], [54, 622]],
+  nez: [[8, 420], [64, 428], [78, 378], [38, 336], [8, 330]],
+  // la gueule : en haut (de gauche à droite) l'incisive, le croc, la prémolaire ; en bas (de droite à gauche) la prémolaire, le croc, l'incisive. Les dents sont de la tôle.
+  gueule: [[8, 292], [20, 266], [32, 292], [58, 292], [76, 222], [94, 292], [132, 292], [144, 262], [156, 290], [192, 270], [186, 226], [176, 196], [161, 226], [146, 196], [132, 196], [116, 246], [100, 196], [50, 196], [35, 224], [20, 196], [8, 196]],
+  oreille: [[150, 808], [270, 800], [385, 785]],
   nervure: [[285, 1010], [270, 800]],
   axe: [[0, 750], [0, 540], [0, 470], [0, 95]],
-  fixes: [[90, 540], [200, 545], [310, 560], [350, 650], [130, 460], [250, 465], [360, 480], [170, 385], [300, 410], [190, 330], [90, 120], [150, 125]],
-  dents: [[[62, 287], [104, 284], [83, 205]], [[8, 288], [44, 287], [26, 252]], [[115, 173], [155, 197], [136, 250]], [[10, 152], [48, 155], [28, 188]]],
+  fixes: [[90, 540], [200, 545], [310, 560], [350, 650], [130, 460], [250, 465], [360, 480], [170, 385], [300, 410], [190, 330], [90, 120], [150, 125], [200, 840], [320, 870]],
 };
-/** La demi-tête à l'échelle s : { facettes, vides (yeux, dents), halo (contour élargi, pour que la montagne s'arrête avant) } en repère local (x depuis l'axe, y). */
-function tdcLoupTete(s, marge) {
-  const L = TDC_LOUP, pts = [], cle = new Map(), aretes = [];
-  const P = (p) => { const k = p[0] + "," + p[1]; if (!cle.has(k)) { cle.set(k, pts.length); pts.push([p[0], p[1]]); } return cle.get(k); };
-  const chaine = (poly, ferme) => { for (let i = 0; i < poly.length - (ferme ? 0 : 1); i++) aretes.push([P(poly[i]), P(poly[(i + 1) % poly.length])]); };
-  chaine(L.contour, false); chaine(L.orbite, true); chaine(L.nez, true); chaine(L.bouche, true); chaine(L.oreille, false); chaine(L.nervure, false);
-  for (const p of L.axe.concat(L.fixes)) P(p);
-  for (const [x, y] of L.contour.concat(L.orbite, L.nez, L.bouche)) if (x === 0) P([x, y]);
-  const surAxe = pts.map((p, i) => [p, i]).filter(([p]) => p[0] === 0).sort((u, v) => u[0][1] - v[0][1]);
+/** Place la tête du loup dans le plan (la moitié du côté de l'axe xb). */
+function tdcLoupTete(plan, xb, H, w) {
+  const L = TDC_LOUP, s = Math.min(H * 0.80 / 960, (w - 30) / 500, 1.3), y0 = H * 0.09 - 55 * s;   // (au plus 1,3 : le nez et la gueule restent sous 100 mm)
+  const P = ([x, y]) => [xb - 4 - x * s, y0 + y * s];
+  // 1. le regard : les yeux, le nez, la gueule
+  plan.essayer(L.oeil.map(P)); plan.essayer(L.nez.map(P)); plan.essayer(L.gueule.map(P));
+  // 2. le maillage : une fente par arête, qui s'arrête avant chaque sommet
+  const pts = [], cle = new Map(), aretes = [];
+  const I = (q) => { const k = q[0] + "," + q[1]; if (!cle.has(k)) { cle.set(k, pts.length); pts.push([q[0], q[1]]); } return cle.get(k); };
+  const chaine = (poly, ferme) => { for (let i = 0; i < poly.length - (ferme ? 0 : 1); i++) aretes.push([I(poly[i]), I(poly[(i + 1) % poly.length])]); };
+  chaine(L.contour, false); chaine(L.orbite, true); chaine(L.nez, true); chaine(L.gueule, true); chaine(L.oreille, false); chaine(L.nervure, false);
+  for (const q of L.axe.concat(L.fixes)) I(q);
+  for (const [x, y] of L.contour.concat(L.orbite, L.nez, L.gueule)) if (x < 9) I([x, y]);
+  const surAxe = pts.map((q, i) => [q, i]).filter(([q]) => q[0] === 0).sort((u, v) => u[0][1] - v[0][1]);
   for (let i = 1; i < surAxe.length; i++) aretes.push([surAxe[i - 1][1], surAxe[i][1]]);
-  const poly = L.contour, sombres = [L.orbite, L.nez, L.bouche], facettes = [];
+  const sombres = [L.orbite, L.nez, L.gueule], vus = new Set(), g = 15;
   for (const t of tdcDelaunayContraint(pts, aretes)) {
-    const g = [(pts[t[0]][0] + pts[t[1]][0] + pts[t[2]][0]) / 3, (pts[t[0]][1] + pts[t[1]][1] + pts[t[2]][1]) / 3];
-    if (g[0] < 0.5 || !tdcDedans(g, poly) || sombres.some((z) => tdcDedans(g, z))) continue;
-    const r = tdcRetrecir(t, pts, 5.5 / s, 7 / s);
-    if (r) facettes.push(r);
+    const c = [(pts[t[0]][0] + pts[t[1]][0] + pts[t[2]][0]) / 3, (pts[t[0]][1] + pts[t[1]][1] + pts[t[2]][1]) / 3];
+    if (c[0] < 0.5 || !tdcDedans(c, L.contour) || sombres.some((z) => tdcDedans(c, z))) continue;
+    for (const [i, j] of [[t[0], t[1]], [t[1], t[2]], [t[2], t[0]]]) {
+      const k = i < j ? i + "," + j : j + "," + i; if (vus.has(k)) continue; vus.add(k);
+      const A = pts[i], B = pts[j]; if (A[0] < 1 && B[0] < 1) continue;   // l'axe : l'autre vantail la dessine
+      const pa = P(A), pb = P(B), long = Math.hypot(pb[0] - pa[0], pb[1] - pa[1]);
+      if (long < 2 * g + 34) continue;
+      const u = [(pb[0] - pa[0]) / long, (pb[1] - pa[1]) / long];
+      plan.essayer(tdcTrait([[pa[0] + u[0] * g, pa[1] + u[1] * g], [pb[0] - u[0] * g, pb[1] - u[1] * g]], { w: 8, debut: 0.55, fin: 0.55 }));
+    }
   }
-  const vides = [L.oeil].concat(L.dents);
-  // le halo : le contour décalé vers l'extérieur de marge/s
-  const n = poly.length, aire = poly.reduce((t, a, i) => t + (a[0] * poly[(i + 1) % n][1] - poly[(i + 1) % n][0] * a[1]), 0), sg = aire > 0 ? 1 : -1, d = marge / s;
-  const halo = poly.map((a, i) => {
-    const p = poly[(i + n - 1) % n], q = poly[(i + 1) % n], nr = (u, v) => { const l = Math.hypot(v[0] - u[0], v[1] - u[1]) || 1; return [sg * (v[1] - u[1]) / l, -sg * (v[0] - u[0]) / l]; };
-    const n1 = nr(p, a), n2 = nr(a, q), nx = n1[0] + n2[0], ny = n1[1] + n2[1], l = Math.hypot(nx, ny) || 1, k = Math.min(1.5, 2 / l);
-    return [a[0] + nx / l * d * k, a[1] + ny / l * d * k];
-  });
-  return { facettes, vides, halo };
-}
-
-function tdcDecale(f, d) {                                // le profil f relevé de d mm PERPENDICULAIREMENT à sa pente : l'écart de tôle reste d, même sur une pente raide
-  return (x) => { const m = (f(x + 14) - f(x - 14)) / 28; return f(x) + d * Math.sqrt(1 + m * m); };
-}
-function tdcIntervalles(poly) {                          // x → [bas, haut] de la forme (ou null) : où une verticale la traverse
-  return (x) => {
-    const ys = [];
-    for (let i = 0; i < poly.length; i++) { const a = poly[i], b = poly[(i + 1) % poly.length]; if ((a[0] <= x && b[0] > x) || (b[0] <= x && a[0] > x)) ys.push(a[1] + (x - a[0]) / (b[0] - a[0]) * (b[1] - a[1])); }
-    return ys.length >= 2 ? [Math.min(...ys), Math.max(...ys)] : null;
-  };
-}
-/** Une couche de montagne pleine, entre deux profils (haut(x), bas(x)), de xa à xb ; hc(x) = [bas, haut] de la tête à éviter (ou null).
- *  La couche se coupe en morceaux autour de la tête (une marge de tôle) ; un morceau de moins de 34 mm d'épaisseur n'existe pas. */
-function tdcCouche(haut, bas, xa, xb, hc) {
-  const pas = 14, n = Math.ceil((xb - xa) / pas), xs = []; for (let i = 0; i <= n; i++) xs.push(Math.min(xb, xa + i * pas));
-  const mini = 34, marge = 36, sorties = [];
-  const suites = (lignes) => {
-    let cur = [];
-    const ferme = () => { if (cur.length >= 5) sorties.push(cur.map(([x, t]) => [x, t]).concat(cur.slice().reverse().map(([x, , b]) => [x, b]))); cur = []; };
-    for (const l of lignes) { if (l && l[1] - l[2] >= mini) cur.push(l); else ferme(); }
-    ferme();
-  };
-  // le morceau du dessous reprend toute la couche là où il n'y a pas de tête ; celui du dessus n'existe qu'au-dessus de la tête (un échantillon de recul : une coupure nette)
-  suites(xs.map((x) => { const h = hc && hc(x); return h ? [x, Math.min(haut(x), h[0] - marge), bas(x)] : [x, haut(x), bas(x)]; }));
-  if (hc) suites(xs.map((x, i) => { const h = hc(x); return h && i > 0 && hc(xs[i - 1]) ? [x, haut(x), Math.max(bas(x), h[1] + marge)] : null; }));
-  return sorties;
-}
-/** Un paysage de montagne dans un panneau de W × H : le sommet au joint des vantaux (ou au milieu d'un vantail seul), des collines, des sapins.
- *  cfg : graine, collines [bas, haut] (fractions de H), arbres [petit, grand], sommet, pied (fractions de H), disque (la lune), etoiles, tete (le loup). */
-function tdcPaysage(W, H, o, cfg) {
-  const paire = !!(o && o.paire), seg = (o && o.segment) || { premier: true, dernier: true }, m = TDC_MARGE, sol = 70;
-  const bord = paire && seg.dernier, xs = bord ? W : W / 2, xa = m, w = xs - xa;
-  const alea = tdcAlea(cfg.graine), f = [];
-  const miroir = ([x, y]) => [2 * xs - x, y];
-  const complet = (pl) => (bord ? pl : pl.concat(pl.slice(0, -1).reverse().map(miroir)));   // un chemin de gauche à droite, jusqu'au bout du panneau
-  // 1. les collines : leur crête (le haut), puis les sapins (le bas : les sapins sont de la tôle qui monte dans le vide)
-  const c0 = H * cfg.collines[0], c1 = H * cfg.collines[1];
-  const crete = [[xa, c0 + (c1 - c0) * alea()]];
-  for (let x = xa; x < xs - 1;) { x = Math.min(xs, x + w * (0.10 + 0.10 * alea())); crete.push([x, c0 + (c1 - c0) * (crete.length % 2 ? 0.25 + 0.75 * alea() : 0.8 * alea())]); }
-  const minCrete = (a, b) => { let mn = Infinity; for (let k = 0; k <= 24; k++) mn = Math.min(mn, tdcInterp(crete, a + (b - a) * k / 24)); return mn; };
-  const arbres = []; let x = xa + 20;
-  while (x < xs - 60) {
-    let h = H * (cfg.arbres[0] + (cfg.arbres[1] - cfg.arbres[0]) * alea()), l = h * 0.52;
-    h = Math.min(h, minCrete(x, x + l) - sol - 45);
-    if (h < 90) { x += 40; continue; }
-    l = h * 0.52; if (x + l > xs - 30) break;
-    arbres.push([x + l / 2, h, l]); x += l * (1.0 + 0.45 * alea()) + 24;
+  // le poil : de petites flammes qui partent du contour, vers l'extérieur (et vers le bas sur les joues)
+  const C = L.contour;
+  for (let i = 0; i + 1 < C.length; i++) {
+    const a = C[i], b = C[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1, nx = -dy / len, ny = dx / len;
+    for (let t = 10; t < len - 6; t += 30) {
+      const px = a[0] + dx / len * t, py = a[1] + dy / len * t, joue = py < 760 && py > 200, ux = nx + (joue ? 0.3 : 0), uy = ny - (joue ? 0.4 : 0), ul = Math.hypot(ux, uy) || 1, Ls = 70 + 60 * Math.abs(Math.sin(i * 5 + t * 0.7)), cx = ux / ul, cy = uy / ul;
+      const bx = px + nx * 24, by = py + ny * 24;
+      plan.essayer(tdcTrait([[bx, by], [bx + cx * Ls * 0.5 - cy * 8, by + cy * Ls * 0.5 + cx * 8], [bx + cx * Ls, by + cy * Ls]].map(P), { w: 15, debut: 1, fin: 0 }));
+    }
   }
-  const bas = [[xa, sol]]; for (const [cx, h, l] of arbres) for (const p of tdcSapin(cx, sol, h, l)) bas.push(p); bas.push([xs, sol]);
-  f.push(complet(crete).concat(complet(bas).slice().reverse()));
-  // 2. la montagne : le profil (de gauche à droite jusqu'au sommet), le pied (la crête des collines moins 28 mm)
-  const ys = H * cfg.sommet, yb = H * cfg.pied;
-  const clefs = [[0, 1], [0.09, 0.84], [0.17, 0.90], [0.29, 0.64], [0.40, 0.74], [0.53, 0.46], [0.66, 0.55], [0.80, 0.28], [0.91, 0.33], [1, 0.12]];
-  const prof = tdcDeplace(clefs.map(([u, v]) => [xs - u * w, yb + v * (ys - yb)]).reverse(), alea, 2, 0.12, ys - 12);
-  prof[prof.length - 1] = [xs, ys];
-  const pied = crete.map(([x, y]) => [x, tdcDecale((xx) => tdcInterp(crete, xx), 30)(x)]);
-  const arete = (u, dx) => [[xs, ys], [xs - w * u * 0.5 + dx * w, ys - (ys - yb) * 0.5], [xs - w * u, yb - 30]];
-  let exclure = null, tete = null;
-  if (cfg.tete && seg.dernier) {
-    const hautTete = H * 0.63, s = Math.min(hautTete / 960, (w - 30) / 480), y0 = H * 0.255 - 55 * s;
-    tete = tdcLoupTete(s, 42);
-    const placer = (p) => [xs - p[0] * s, y0 + p[1] * s];
-    const halo = tete.halo.map(placer).concat([[xs + 80, y0 + 55 * s - 42], [xs + 80, tete.halo[0][1] * s + y0]]);
-    exclure = (g) => tdcDedans(g, halo) || tdcDistance(g, halo) < 12;
-    for (const t of tete.facettes) { f.push(t.map(placer)); if (!bord) f.push(t.map(([x, y]) => [xs + x * s, y0 + y * s]).reverse()); }
-    for (const v of tete.vides) { f.push(v.map(placer)); if (!bord) f.push(v.map(([x, y]) => [xs + x * s, y0 + y * s]).reverse()); }
-    cfg._halo = halo;
-  }
-  let mont = [];
-  if (cfg.plats) {
-    const clefsB = [[0, 0.74], [0.12, 0.62], [0.22, 0.68], [0.36, 0.46], [0.5, 0.52], [0.62, 0.34], [0.78, 0.4], [0.9, 0.22], [1, 0.14]];
-    const profB = tdcDeplace(clefsB.map(([u, v]) => [xs - u * w, yb + v * (ys - yb)]).reverse(), alea, 2, 0.1, ys - 12);
-    const hautA = (x) => tdcInterp(prof, x), hautB = (x) => Math.min(tdcInterp(profB, x), hautA(x) - 100), piedF = (x) => tdcInterp(pied, x);
-    const hc = cfg._halo ? tdcIntervalles(cfg._halo) : null, xb = xs - (bord ? 0 : 6);
-    mont = tdcCouche(hautA, tdcDecale(hautB, 30), xa, xb, hc).concat(tdcCouche(hautB, piedF, xa, xb, hc));
-  } else mont = tdcMontagne({
-    alea, pas: cfg.pas || 150, prof, pied, aretes: [arete(0.18, 0.03), arete(0.42, -0.04), arete(0.72, 0.03)],
-    neige: (x) => ys - 0.40 * (ys - yb) + 35 * Math.sin(x / 40), ombre: [1], exclure,
-    fixes: exclure ? tdcRepartir(cfg._halo.concat([cfg._halo[0]]), 60) : [],
-  });
-  for (const t of mont) { f.push(t); if (!bord) f.push(t.map(miroir).reverse()); }
-  // 3. la lune : un disque derrière le sommet (une moitié au joint ; entière au milieu d'un vantail)
-  if (cfg.disque) {
-    const r = H * 0.07, cy = ys + r + 70, disque = [];
-    for (let i = 0; i <= 40; i++) { const a = (bord ? Math.PI / 2 : 0) + (bord ? Math.PI : 2 * Math.PI) * i / 40; disque.push([xs + r * Math.cos(a), cy + r * Math.sin(a)]); }
-    if (!bord) disque.pop();
-    f.push(disque);
-  }
-  // 4. des étoiles (losanges) dans le ciel, au-dessus de la montagne
-  const etoiles = [];
-  for (let k = 0, n = 0; k < 400 && n < (cfg.etoiles || 0); k++) {
-    const sx = xa + 40 + alea() * (w - 80), sy = H * 0.45 + alea() * (H * 0.50), r = 14 + alea() * 14;
-    if (sy < tdcInterp(prof, sx) + 90 || (cfg.disque && Math.hypot(sx - xs, sy - (ys + H * 0.07 + 70)) < H * 0.07 + 120)) continue;
-    if (cfg._halo && (tdcDedans([sx, sy], cfg._halo) || tdcDistance([sx, sy], cfg._halo) < 90)) continue;
-    if (etoiles.some(([ex, ey]) => Math.hypot(ex - sx, ey - sy) < 90)) continue;   // deux étoiles ne se touchent jamais
-    etoiles.push([sx, sy]);
-    const e = [[sx - r * 0.6, sy], [sx, sy + r], [sx + r * 0.6, sy], [sx, sy - r]];
-    f.push(e); if (!bord) f.push(e.map(miroir).reverse()); n++;
-  }
-  return f;
+  // 3. toute la tête est réservée : aucun trait de montagne n'y passe
+  plan.reserver(C.map(P));
 }
 
 const TDC_DESSINS = {
-  foret: { nom: "Forêt et montagnes", faire(W, H, o) { return tdcPaysage(W, H, o, { graine: 7, collines: [0.26, 0.35], arbres: [0.10, 0.24], sommet: 0.74, pied: 0.40, disque: true, etoiles: 0, pas: 190 }); } },
+  foret: { nom: "Forêt et montagnes", faire(W, H, o) { return tdcPaysage(W, H, o, { graine: 7, collines: [0.22, 0.30], arbres: [0.07, 0.15], sommet: 0.78, pied: 0.38, disque: true }); } },
   vagues: { nom: "Vagues", faire(W, H) {
     const f = [], n = 7, ep = 26, lam = Math.min(520, (W - 2 * TDC_MARGE) / 2.5), amp = 55;
     for (let k = 0; k < n; k++) { const y0 = H * (0.14 + 0.72 * k / (n - 1)), ph = k * 0.9, h = []; for (let x = TDC_MARGE; x <= W - TDC_MARGE; x += 20) h.push([x, y0 + amp * Math.sin(2 * Math.PI * x / lam + ph)]); f.push(tdcBande(h, ep)); }
     return f; } },
   soleil: { nom: "Soleil levant", faire(W, H, o) {
-    if (o && o.paire && o.segment && !o.segment.dernier) return [];   // un quart de soleil, seulement dans le panneau du côté du joint
-    // portail à deux vantaux : un quart de soleil dans le coin bas du côté du joint (les deux vantaux se rejoignent en demi-soleil) ;
-    // un vantail seul : un demi-soleil au milieu. Les rayons s'arrêtent avant le bord.
-    const paire = !!(o && o.paire), cy = 70, cx = paire ? W : W / 2, f = [];
-    const r = Math.min(H * 0.20, paire ? W * 0.22 : W * 0.20), reach = (a) => { const lim = []; const c = Math.cos(a), s = Math.sin(a); if (Math.abs(c) > 1e-6) lim.push(((c > 0 ? W - TDC_MARGE : TDC_MARGE) - cx) / c); if (s > 1e-6) lim.push((H - TDC_MARGE - cy) / s); return Math.min(...lim.filter((v) => v > 0)); };
-    const a0 = paire ? Math.PI / 2 : 0, a1 = paire ? Math.PI : Math.PI;
-    const disque = []; for (let i = 0; i <= 30; i++) { const a = a0 + (a1 - a0) * i / 30; disque.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
-    f.push(disque.concat(paire ? [[cx, cy]] : []));
-    const n = paire ? 12 : 23;
+    if (o && o.paire && o.segment && !o.segment.dernier) return [];   // le soleil n'est que dans le panneau du côté du joint
+    // un petit soleil au bas du joint (une moitié sur chaque vantail ; un vantail seul : au milieu), deux arcs, puis de longs rayons effilés qui s'écartent.
+    // Le soleil est un quart de disque de 48 mm de rayon : aucun vide ne contient un cercle de 100 mm.
+    const paire = !!(o && o.paire), cx = paire ? W : W / 2, xb = cx - 8, cy = 130, plan = tdcPlan(W, H, xb);
+    const reach = (a) => { const lim = []; const c = Math.cos(a), s2 = Math.sin(a); if (Math.abs(c) > 1e-6) lim.push((TDC_MARGE - cx) / c); if (s2 > 1e-6) lim.push((H - TDC_MARGE - cy) / s2); return Math.min(...lim.filter((v) => v > 0)); };
+    plan.essayer([[xb, cy]].concat(tdcDisque(xb, cy, 48, Math.PI / 2, Math.PI)));
+    for (const R of [104, 158]) plan.essayer(tdcTrait(tdcDisque(xb, cy, R, Math.PI / 2 + 0.1, Math.PI - 0.1), { w: 12 }));
+    const n = 9;
     for (let k = 0; k < n; k++) {
-      const a = a0 + (a1 - a0) * (k + 0.5) / n, da = (a1 - a0) / n * 0.28, r1 = r + 28, r2 = Math.min((k % 2 === 0 ? 0.92 : 0.70) * reach(a), H * 0.78);
-      if (r2 < r1 + 120) continue;
-      f.push([[cx + r1 * Math.cos(a - da), cy + r1 * Math.sin(a - da)], [cx + r2 * Math.cos(a), cy + r2 * Math.sin(a)], [cx + r1 * Math.cos(a + da), cy + r1 * Math.sin(a + da)]]);
+      const a = Math.PI / 2 + (Math.PI / 2) * (k + 0.5) / n, r1 = 215, r2 = Math.min((k % 2 === 0 ? 0.92 : 0.70) * reach(a), H * 0.80);
+      if (r2 < r1 + 150) continue;
+      plan.essayer(tdcTrait([[xb + r1 * Math.cos(a), cy + r1 * Math.sin(a)], [xb + r2 * Math.cos(a), cy + r2 * Math.sin(a)]], { w: 16, debut: 1, fin: 0 }));
     }
-    return f; } },
+    return paire ? plan.formes : plan.formes.concat(plan.formes.map((f) => f.map(([x, y]) => [2 * cx - x, y]).reverse())); } },
   losanges: { nom: "Losanges", faire(W, H) {
     const f = [], colw = 190, ny = 6, nx = Math.max(1, Math.floor((W - 2 * TDC_MARGE) / colw)), x0 = (W - nx * colw) / 2 + colw / 2;
     for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
@@ -1435,20 +1454,20 @@ const TDC_DESSINS = {
     for (let k = 0; k < n; k++) { const l = H * (0.35 + 0.5 * Math.abs(Math.sin(k * 0.55 + 0.4))) * 0.9, cy = H * 0.5 + 50 * Math.sin(k * 0.9); f.push(tdcFente(x0 + k * pas, cy - l / 2, cy + l / 2, 22)); }
     return f; } },
   nid: { nom: "Nid d'abeille", faire(W, H) {
-    const f = [], pas = 118, rr = 44, ny = Math.floor((H - 2 * TDC_MARGE) / (pas * 0.866)) + 1, nx = Math.floor((W - 2 * TDC_MARGE) / pas), x0 = (W - nx * pas) / 2 + pas / 2;
+    const f = [], pas = 118, rr = 40, ny = Math.floor((H - 2 * TDC_MARGE) / (pas * 0.866)) + 1, nx = Math.floor((W - 2 * TDC_MARGE) / pas), x0 = (W - nx * pas) / 2 + pas / 2;
     for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
       const cx = x0 + i * pas + (j % 2 ? pas / 2 : 0), cy = TDC_MARGE + 20 + j * pas * 0.866;
       if (cx + rr > W - TDC_MARGE || cy + rr > H - TDC_MARGE) continue;
-      const r = rr * (0.45 + 0.55 * (cy / H)), p = [];
+      const r = rr * (0.55 + 0.45 * (cy / H)), p = [];
       for (let m = 0; m < 6; m++) p.push([cx + r * Math.cos(Math.PI / 3 * m + Math.PI / 6), cy + r * Math.sin(Math.PI / 3 * m + Math.PI / 6)]);
       f.push(p);
     }
     return f; } },
-  loup: { nom: "Loup", faire(W, H, o) { return tdcPaysage(W, H, o, { graine: 21, collines: [0.115, 0.19], arbres: [0.05, 0.10], sommet: 0.96, pied: 0.30, disque: false, etoiles: 6, tete: true, plats: true }); } },
+  loup: { nom: "Loup", faire(W, H, o) { return tdcPaysage(W, H, o, { graine: 21, collines: [0.10, 0.17], arbres: [0.05, 0.10], sommet: 0.96, pied: 0.30, tete: true }); } },
   bulles: { nom: "Bulles", faire(W, H) {
     const a = tdcAlea(3), c = []; let essais = 0;
-    while (essais < 6000 && c.length < 40) {
-      essais++; const r = 18 + 70 * Math.pow(a(), 2.2), x = TDC_MARGE + r + a() * (W - 2 * TDC_MARGE - 2 * r), y = TDC_MARGE + r + a() * (H - 2 * TDC_MARGE - 2 * r);
+    while (essais < 8000 && c.length < 55) {
+      essais++; const r = 17 + 28 * Math.pow(a(), 1.6), x = TDC_MARGE + r + a() * (W - 2 * TDC_MARGE - 2 * r), y = TDC_MARGE + r + a() * (H - 2 * TDC_MARGE - 2 * r);
       if (c.every(([xx, yy, rr]) => Math.hypot(x - xx, y - yy) > r + rr + 30)) c.push([x, y, r]);
     }
     return c.map(([x, y, r]) => tdcCercle(x, y, r)); } },
@@ -3594,4 +3613,4 @@ function ptPlanA3(R, v, infos = {}, feuille = "1", dessiner) {
 
 
 export { calculerPortail, ptEntrees, svgDe, PT_STYLES, PT_MODELES, PT_ATELIER, PT_MATIERES, PT_DECOR_FORMULES, PT_MOTEURS, MT_AVEC, MT_NOMS };
-export const EMPREINTE = "394361eaf4a1";
+export const EMPREINTE = "d9e3722e8bc8";

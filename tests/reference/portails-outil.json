@@ -1,6 +1,6 @@
 {
- "source": "6bb2bf78908e597b97379c96",
- "moteur": "98ffe0a2184c",
+ "source": "c9472200d4f7d604e9aab91c",
+ "moteur": "b0343a2ec641",
  "cas": [
   {
    "modele": "ptBattant",
@@ -2464,9 +2464,9 @@
     "ptStyle": "tole",
     "ptDesign": "foret"
    },
-   "prix": 3380,
+   "prix": 3370,
    "alertes": 0,
-   "poids": 115
+   "poids": 149
   },
   {
    "modele": "ptBattant",
@@ -2484,9 +2484,9 @@
     "ptStyle": "tole",
     "ptDesign": "soleil"
    },
-   "prix": 3330,
+   "prix": 3290,
    "alertes": 0,
-   "poids": 148
+   "poids": 154
   },
   {
    "modele": "ptBattant",
@@ -2526,7 +2526,7 @@
    },
    "prix": 3410,
    "alertes": 0,
-   "poids": 138
+   "poids": 139
   },
   {
    "modele": "ptBattant",
@@ -2534,9 +2534,9 @@
     "ptStyle": "tole",
     "ptDesign": "loup"
    },
-   "prix": 3300,
+   "prix": 3410,
    "alertes": 0,
-   "poids": 105
+   "poids": 150
   },
   {
    "modele": "ptBattant",
@@ -2544,9 +2544,9 @@
     "ptStyle": "tole",
     "ptDesign": "bulles"
    },
-   "prix": 3270,
+   "prix": 3280,
    "alertes": 0,
-   "poids": 145
+   "poids": 149
   },
   {
    "modele": "ptCoulissant",
@@ -2554,9 +2554,9 @@
     "ptStyle": "tole",
     "ptDesign": "foret"
    },
-   "prix": 3680,
+   "prix": 3650,
    "alertes": 0,
-   "poids": 121
+   "poids": 157
   },
   {
    "modele": "ptCoulissant",
@@ -2574,9 +2574,9 @@
     "ptStyle": "tole",
     "ptDesign": "soleil"
    },
-   "prix": 3640,
+   "prix": 3590,
    "alertes": 0,
-   "poids": 150
+   "poids": 161
   },
   {
    "modele": "ptCoulissant",
@@ -2614,9 +2614,9 @@
     "ptStyle": "tole",
     "ptDesign": "nid"
    },
-   "prix": 3700,
+   "prix": 3690,
    "alertes": 0,
-   "poids": 144
+   "poids": 145
   },
   {
    "modele": "ptCoulissant",
@@ -2624,9 +2624,9 @@
     "ptStyle": "tole",
     "ptDesign": "loup"
    },
-   "prix": 3570,
+   "prix": 3720,
    "alertes": 0,
-   "poids": 109
+   "poids": 157
   },
   {
    "modele": "ptCoulissant",
@@ -2634,9 +2634,9 @@
     "ptStyle": "tole",
     "ptDesign": "bulles"
    },
-   "prix": 3530,
+   "prix": 3550,
    "alertes": 0,
-   "poids": 154
+   "poids": 158
   },
   {
    "modele": "ptPliant",
@@ -2644,9 +2644,9 @@
     "ptStyle": "tole",
     "ptDesign": "foret"
    },
-   "prix": 4300,
+   "prix": 4280,
    "alertes": 0,
-   "poids": 131
+   "poids": 157
   },
   {
    "modele": "ptPliant",
@@ -2664,9 +2664,9 @@
     "ptStyle": "tole",
     "ptDesign": "soleil"
    },
-   "prix": 4280,
+   "prix": 4220,
    "alertes": 0,
-   "poids": 157
+   "poids": 161
   },
   {
    "modele": "ptPliant",
@@ -2706,7 +2706,7 @@
    },
    "prix": 4260,
    "alertes": 0,
-   "poids": 150
+   "poids": 151
   },
   {
    "modele": "ptPliant",
@@ -2714,9 +2714,9 @@
     "ptStyle": "tole",
     "ptDesign": "loup"
    },
-   "prix": 4350,
+   "prix": 4360,
    "alertes": 0,
-   "poids": 138
+   "poids": 157
   },
   {
    "modele": "ptPliant",
@@ -2724,9 +2724,9 @@
     "ptStyle": "tole",
     "ptDesign": "bulles"
    },
-   "prix": 4200,
+   "prix": 4240,
    "alertes": 0,
-   "poids": 149
+   "poids": 152
   },
   {
    "modele": "ptPortillon",
@@ -2737,7 +2737,7 @@
    },
    "prix": 1810,
    "alertes": 0,
-   "poids": 37
+   "poids": 45
   },
   {
    "modele": "ptPortillon",
@@ -2757,9 +2757,9 @@
     "ptDesign": "soleil",
     "ptP": 1000
    },
-   "prix": 1810,
+   "prix": 1790,
    "alertes": 0,
-   "poids": 45
+   "poids": 46
   },
   {
    "modele": "ptPortillon",
@@ -2812,9 +2812,9 @@
     "ptDesign": "loup",
     "ptP": 1000
    },
-   "prix": 1830,
+   "prix": 1840,
    "alertes": 0,
-   "poids": 39
+   "poids": 45
   },
   {
    "modele": "ptPortillon",
@@ -2823,9 +2823,9 @@
     "ptDesign": "bulles",
     "ptP": 1000
    },
-   "prix": 1780,
+   "prix": 1790,
    "alertes": 0,
-   "poids": 43
+   "poids": 44
   },
   {
    "modele": "ptBattant",
@@ -2836,9 +2836,9 @@
    "o": {
     "reception": "retrait"
    },
-   "prix": 2590,
+   "prix": 2580,
    "alertes": 0,
-   "poids": 115
+   "poids": 149
   },
   {
    "modele": "ptBattant",
@@ -2849,9 +2849,9 @@
    "o": {
     "reception": "transporteur"
    },
-   "prix": 2660,
+   "prix": 2650,
    "alertes": 0,
-   "poids": 115
+   "poids": 149
   },
   {
    "modele": "ptBattant",
@@ -2888,9 +2888,9 @@
    "o": {
     "reception": "retrait"
    },
-   "prix": 2540,
+   "prix": 2500,
    "alertes": 0,
-   "poids": 148
+   "poids": 154
   },
   {
    "modele": "ptBattant",
@@ -2901,9 +2901,9 @@
    "o": {
     "reception": "transporteur"
    },
-   "prix": 2610,
+   "prix": 2570,
    "alertes": 0,
-   "poids": 148
+   "poids": 154
   },
   {
    "modele": "ptBattant",
@@ -2994,7 +2994,7 @@
    },
    "prix": 2620,
    "alertes": 0,
-   "poids": 138
+   "poids": 139
   },
   {
    "modele": "ptBattant",
@@ -3007,7 +3007,7 @@
    },
    "prix": 2690,
    "alertes": 0,
-   "poids": 138
+   "poids": 139
   },
   {
    "modele": "ptBattant",
@@ -3018,9 +3018,9 @@
    "o": {
     "reception": "retrait"
    },
-   "prix": 2510,
+   "prix": 2620,
    "alertes": 0,
-   "poids": 105
+   "poids": 150
   },
   {
    "modele": "ptBattant",
@@ -3031,9 +3031,9 @@
    "o": {
     "reception": "transporteur"
    },
-   "prix": 2580,
+   "prix": 2690,
    "alertes": 0,
-   "poids": 105
+   "poids": 150
   },
   {
    "modele": "ptBattant",
@@ -3044,9 +3044,9 @@
    "o": {
     "reception": "retrait"
    },
-   "prix": 2470,
+   "prix": 2490,
    "alertes": 0,
-   "poids": 145
+   "poids": 149
   },
   {
    "modele": "ptBattant",
@@ -3057,9 +3057,9 @@
    "o": {
     "reception": "transporteur"
    },
-   "prix": 2550,
+   "prix": 2560,
    "alertes": 0,
-   "poids": 145
+   "poids": 149
   },
   {
    "modele": "ptBattant",
@@ -3071,9 +3071,9 @@
    "o": {
     "reception": "pose"
    },
-   "prix": 3010,
+   "prix": 2920,
    "alertes": 0,
-   "poids": 115
+   "poids": 149
   },
   {
    "modele": "ptBattant",
@@ -3085,9 +3085,9 @@
    "o": {
     "reception": "retrait"
    },
-   "prix": 2220,
+   "prix": 2120,
    "alertes": 0,
-   "poids": 115
+   "poids": 149
   },
   {
    "modele": "ptBattant",
@@ -3101,7 +3101,7 @@
    },
    "prix": 2950,
    "alertes": 0,
-   "poids": 105
+   "poids": 150
   },
   {
    "modele": "ptBattant",
@@ -3115,7 +3115,7 @@
    },
    "prix": 2160,
    "alertes": 0,
-   "poids": 105
+   "poids": 150
   },
   {
    "modele": "ptBattant",
@@ -3127,9 +3127,9 @@
    "o": {
     "reception": "pose"
    },
-   "prix": 2820,
+   "prix": 2830,
    "alertes": 0,
-   "poids": 145
+   "poids": 149
   },
   {
    "modele": "ptBattant",
@@ -3141,9 +3141,9 @@
    "o": {
     "reception": "retrait"
    },
-   "prix": 2030,
+   "prix": 2040,
    "alertes": 0,
-   "poids": 145
+   "poids": 149
   },
   {
    "modele": "ptBattant",
@@ -3153,9 +3153,9 @@
     "ptP": 5000,
     "ptH": 1800
    },
-   "prix": 4190,
+   "prix": 4430,
    "alertes": 0,
-   "poids": 163
+   "poids": 236
   },
   {
    "modele": "ptBattant",
@@ -3164,9 +3164,9 @@
     "ptDesign": "soleil",
     "ptPoteaux": "acier"
    },
-   "prix": 3870,
+   "prix": 3830,
    "alertes": 0,
-   "poids": 148
+   "poids": 154
   }
  ]
 }
