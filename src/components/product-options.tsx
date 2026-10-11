@@ -2179,12 +2179,11 @@ export function ProductOptions({
           );
           if (nouvelleMiseEnPage) {
             if (estGC && grandEcran && matieresCentreSlot) return createPortal(matieresCompactes, matieresCentreSlot);
-            /* Une table, sur grand écran : la barre compacte au-dessus du croquis (qui prend ces teintes) ET les grandes pastilles à côté de la photo. */
+            /* Une table, sur grand écran : seulement la barre compacte au-dessus du croquis (qui prend ces teintes) ; en dessous de 1280 px, les grandes pastilles restent à côté de la photo. */
             if (tableConf && grandEcran)
               return (
                 <>
                   {matieresCentreSlot && createPortal(matieresCompactes, matieresCentreSlot)}
-                  {matieresSlot && createPortal(matieres, matieresSlot)}
                 </>
               );
             return matieresSlot ? createPortal(matieres, matieresSlot) : null;
@@ -2255,7 +2254,7 @@ export function ProductOptions({
                      tenir sur une ligne à côté du choix de l'unité. */
                   className={
                     nouvelleMiseEnPage
-                      ? "block whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]"
+                      ? "block min-w-0 text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]"
                       : GROUP_LABEL
                   }
                   id={`${idTailles}-ou`}
@@ -2266,7 +2265,7 @@ export function ProductOptions({
                   <div
                     role="radiogroup"
                     aria-label={t.customUnit}
-                    className={`flex rounded-full border border-[#9a8d80] bg-white p-0.5 ${nouvelleMiseEnPage ? "text-[10px] md:text-[11px]" : ""}`}
+                    className={`flex shrink-0 rounded-full border border-[#9a8d80] bg-white p-0.5 ${nouvelleMiseEnPage ? "text-[10px] md:text-[11px]" : ""}`}
                   >
                     {(["mm", "cm", "m"] as const).map((u) => (
                       <button
@@ -2874,7 +2873,12 @@ export function ProductOptions({
                     <div className="recap-table hidden pb-2 xl:block">
                       <p className="mt-1 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{t.recapTitre}</p>
                       <div className="mt-2">{detailsDl}</div>
-                      <div className="mt-2 flex justify-end">
+                      {/* Écran haut : ce que comprend le prix est écrit là (la colonne a la place) ; sinon, un lien qui l'ouvre. */}
+                      <div className="inclus-inline mt-3 border-t border-[#e5ddd3] pt-3">
+                        <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#6f6357]">{t.sousMenuInclus}</p>
+                        <div className="mt-2">{listeInclus}</div>
+                      </div>
+                      <div className="inclus-popover mt-2 flex justify-end">
                         <PopoverDetails titre={t.sousMenuInclus} libelle={t.sousMenuInclus}>
                           {listeInclus}
                         </PopoverDetails>

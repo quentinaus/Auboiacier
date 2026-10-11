@@ -819,3 +819,31 @@ textarea:focus-visible,
     padding-bottom: 0.55rem;
   }
 }
+
+/* La colonne de résultat d'une table : ce que comprend le prix s'écrit en clair quand l'écran est assez haut, sinon un lien l'ouvre. */
+.inclus-inline {
+  display: none;
+}
+@media (min-height: 1000px) {
+  .inclus-inline {
+    display: block;
+  }
+  .inclus-popover {
+    display: none;
+  }
+}
+.recap-table dl {
+  gap: 0.6rem;
+  font-size: 13px;
+}
+@media (max-height: 800px) {
+  .recap-table dl {
+    gap: 0.375rem;
+    font-size: 12px;
+  }
+}
+@media (max-height: 760px) {
+  .recap-table > p {
+    display: none;
+  }
+}

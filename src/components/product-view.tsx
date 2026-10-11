@@ -519,7 +519,7 @@ export function ProductView({
             {/* Les matières d'abord : c'est ce qu'on vient voir, et la photo
                 suit chaque choix — elles restent donc juste sous le titre.
                 `ProductOptions` les dépose ici par portail (voir matieresSlot). */}
-            <div ref={setMatieresSlot} className={garde ? "xl:hidden" : undefined} />
+            <div ref={setMatieresSlot} className={troisColonnes ? "xl:hidden" : undefined} />
             {/* L'accroche et le prix de départ suivent, avant le chemin vers
                 le configurateur. */}
             <p className="mt-8 border-t border-[#e5ddd3] pt-7 text-[15px] leading-relaxed text-[#4a4038]">

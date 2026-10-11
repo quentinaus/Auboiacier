@@ -771,13 +771,21 @@ function SchemaTable({
   const arete = (c: CoteSchema, d: string) =>
     actif === c ? <path d={d} fill="none" stroke={ACCENT} strokeWidth={2.2} strokeLinecap="round" /> : null;
 
+  /* Le cadre se resserre sur le dessin (cotes comprises) : la table occupe la place, pas les marges. */
+  const milBC = milieu(B, C);
+  const vbX = Math.floor(A[0] - 84);
+  const vbR = Math.ceil(Math.max(C[0] + 46, milBC[0] + 27 + 19 + 52));
+  const vbY = Math.floor(Math.min(A[1], B[1], C[1]) - 54);
+  const vbB = Math.ceil(P(0.5, 0.5, 1)[1] + Math.max(16, (hauteur - ep) * 0.5) + 6);
+  const vbL = vbR - vbX;
+  const vbH = vbB - vbY;
   const legende =
     locale === "en"
       ? `Dimensioned sketch of the table: ${labels.principale}, ${labels.secondaire}, ${labels.epaisseur}`
       : `Croquis coté de la table : ${labels.principale}, ${labels.secondaire}, ${labels.epaisseur}`;
 
   return (
-    <svg viewBox={`0 0 ${BOX_L} ${BOX_H}`} role="group" aria-label={legende} className="mx-auto h-auto w-full select-none md:h-full md:max-h-full" fontFamily="inherit">
+    <svg viewBox={`${vbX} ${vbY} ${vbL} ${vbH}`} role="group" aria-label={legende} className="mx-auto h-auto w-full select-none md:h-full md:max-h-full" fontFamily="inherit">
       <defs>
         <linearGradient id="tb-dessus" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor={dessusBois[0]} />
