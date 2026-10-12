@@ -1136,7 +1136,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
           </div>
         </div>
         <section id="configuration" className="cpt-section" aria-labelledby={idTitre}>
-          <div className="fond-configuration cpt-plaque">
+          <div className="fond-configuration config-pro cpt-plaque">
             <div className={`cpt-tel-croquis ${fenetre === "decor" ? "avec-zones" : ""}`}>
               <Vue prims={R.vues.face as Prims} couleur={cfg.couleur} label={`${nom}, ${t.vuRue}`} zones={fenetre === "decor" ? zonesPrims : undefined} onZone={fenetre === "decor" ? toucherZone : undefined} />
               {placeTxt && <span className="cpt-badge-place"><span className="cpt-rond"><PictoPlace /></span>{placeCle} {placeTxt}</span>}
@@ -1158,7 +1158,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
           </nav>}
         </section>
         {/* Les fenêtres hors de la plaque : sur téléphone, ce sont des feuilles posées en bas de l'écran, au-dessus de tout. */}
-        <div className="fond-configuration cpt-tel-feuilles">{fenetres}</div>
+        <div className="fond-configuration config-pro cpt-tel-feuilles">{fenetres}</div>
         {superpositions}
       </div>
     );
@@ -1180,7 +1180,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
       </div>
 
       <section id="configuration" className="cpt-section" aria-labelledby={idTitre}>
-        <div className="fond-configuration cpt-plaque">
+        <div className="fond-configuration config-pro cpt-plaque">
           <div className="cpt-grille">
             {/* Rangée 1 : le titre, la couleur et la matière. */}
             <div className="cpt-titre-config">

@@ -764,7 +764,7 @@ export function ProductView({
           data-clavier={troisColonnes && parcoursTel && clavier ? "1" : undefined}
           // Le bloc entièrement à l'écran : les cartes des étapes peuvent défiler (globals.css).
           data-en-place={blocEnPlace ? "1" : undefined}
-          className={`fond-configuration ${blocTable || blocLumiere ? "config-pro" : ""} flex min-h-0 flex-1 flex-col gap-2.5 md:min-h-0 md:flex-1 ${
+          className={`fond-configuration ${blocTable || blocLumiere || ficheGC ? "config-pro" : ""} flex min-h-0 flex-1 flex-col gap-2.5 md:min-h-0 md:flex-1 ${
             /* Le garde-corps : sur tablette, le croquis et ses modèles en haut, sur toute la largeur, puis la carte des
                mesures et la colonne d'achat côte à côte ; sur grand écran, TROIS colonnes — les cotes, le croquis et les
                modèles, puis le résultat, la livraison et le panier. Tout tient sur un écran, titre compris. (Les classes
