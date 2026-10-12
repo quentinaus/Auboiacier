@@ -10,25 +10,18 @@
  * six styles tout faits, surtout de l'alu, l'acier pour la Rosace et les Volutes.
  */
 import { calculerPortail, MT_AVEC, PT_ATELIER, PT_STYLES, type ResultatPortail } from "./portails-outil/moteur.genere.mjs";
+import { COULEURS_PORTAIL, DESSINS_TOLE, estSlugPortail, RECEPTIONS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL, type DessinTole, type Langue, type ReceptionPortail, type SlugPortail, type StylePortail } from "./portails-base.ts";
+import { TEXTES_PORTAIL } from "./portails-textes.ts";
 
-export const SLUGS_PORTAIL = {
-  "portail-battant": "ptBattant",
-  "portail-coulissant": "ptCoulissant",
-  "portail-pliant": "ptPliant",
-  portillon: "ptPortillon",
-} as const;
-export type SlugPortail = keyof typeof SLUGS_PORTAIL;
-export const estSlugPortail = (s: string): s is SlugPortail => Object.prototype.hasOwnProperty.call(SLUGS_PORTAIL, s);
+// Ce qui n'a pas besoin du moteur vit dans portails-base.ts (constantes, guide) et portails-textes.ts ; ré-exporté ici : l'API ne change pas.
+export { COULEURS_PORTAIL, DESSINS_TOLE, estSlugPortail, guidePortail, RECEPTIONS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL } from "./portails-base.ts";
+export type { DessinTole, Langue, ReceptionPortail, SlugPortail, StylePortail } from "./portails-base.ts";
+export { TEXTES_PORTAIL } from "./portails-textes.ts";
 
-export const STYLES_PORTAIL = ["plein", "lisse", "barreaux", "lamesChene", "rosace", "volutes", "tole"] as const;
-export type StylePortail = (typeof STYLES_PORTAIL)[number];
 
 const FORMES = ["droit", "chapeau", "creux", "biais"] as const;
 const SOUBS = ["aucun", "plein", "panneau", "lames", "barreaux"] as const;
 const REMPS = ["plein", "panneau", "lames", "lamesAlu", "barreaux", "croix", "volutes", "tole"] as const;
-/** Les dessins de la tôle découpée (11/10/2026) : ceux de modules/designs-tole.js (TDC_IDS), découpés au laser dans une tôle prégalvanisée de 3 mm. */
-export const DESSINS_TOLE = ["foret", "vagues", "soleil", "losanges", "feuillage", "lignes", "nid", "loup", "bulles"] as const;
-export type DessinTole = (typeof DESSINS_TOLE)[number];
 const POTEAUX = ["existants", "acier", "alu"] as const;
 // Les décors (lot 3, 07/10/2026) : les formules PT_DECOR_FORMULES de l'outil (motifs.js, références du commerce). Un décor
 // impose l'acier ; « Sur mesure » se chiffre sur devis (le moteur rend une alerte : « à étudier »).
@@ -50,16 +43,7 @@ export const BARREAUX_DECOR = ["carre", "torsade", "bagues"] as const;
 // Le moteur (lot 4, « Somfy partout ») : « conseille » laisse l'outil choisir (PT_MOTEURS : le plus facile à poser qui
 // convient à ce portail) ; sinon le client choisit Ixengo (vérins), Axovia (bras) ou Elixo (coulissant).
 export const MOTEURS_PORTAIL = ["conseille", "ixengo", "axovia", "elixo"] as const;
-/** Les teintes du portail ; « galva » n'est pas une peinture : la galvanisation à chaud laissée brute (acier seulement, 11/10/2026). */
-export const COULEURS_PORTAIL = ["anthracite", "noir", "blanc", "vert", "rouille", "galva"] as const;
 
-/**
- * Comment le client reçoit son portail (Quentin, 10/10/2026) : « pose » (l'atelier livre et pose, visite de prise de cotes
- * payée avec l'acompte), « transporteur » (livré sur palette, sans pose, la livraison selon le colis) ou « retrait » (le client
- * vient le chercher à l'atelier, sans pose). Sans pose, pas de motorisation : l'atelier la pose lui-même (conformité CE).
- */
-export const RECEPTIONS_PORTAIL = ["pose", "transporteur", "retrait"] as const;
-export type ReceptionPortail = (typeof RECEPTIONS_PORTAIL)[number];
 
 export type ConfigPortail = {
   /** La façon de recevoir le portail ; « pose » par défaut. */
@@ -146,6 +130,29 @@ export function styleDe(cfg: ConfigPortail): StylePortail | null {
       return s.ptMat === cfg.mat && s.ptForme === cfg.forme && s.ptSoub === cfg.soub && s.ptRemp === cfg.remp && ((s.ptDecor as string | undefined) ?? "aucun") === cfg.decor && Boolean(s.ptPointes) === cfg.pointes && Boolean(s.ptLisse) === cfg.lisse;
     }) ?? null
   );
+}
+
+/**
+ * Ce que la page des portails envoie à la fiche d'un modèle dans l'adresse (?style=tole&design=loup&mat=acier&couleur=noir&P=3500&H=1600&guidage=auto) :
+ * un style choisi sur la page s'ouvre déjà choisi sur la fiche. Tout est vérifié, une valeur inconnue est ignorée (jamais devinée) ;
+ * le galvanisé brut n'existe qu'en acier. Rend la configuration de départ, ou la même si l'adresse ne dit rien.
+ */
+export function configDepuisAdresse(slug: SlugPortail, cfg: ConfigPortail, q: URLSearchParams): ConfigPortail {
+  const b = bornesPortail(slug);
+  let n = cfg;
+  const style = q.get("style");
+  if (style && (STYLES_PORTAIL as readonly string[]).includes(style)) n = appliquerStyle(n, style as StylePortail);
+  // « mat=acier » après le style, avant la teinte : le galvanisé brut n'existe qu'en acier, y compris sur les styles qui sont en alu.
+  if (q.get("mat") === "acier") n = { ...n, mat: "acier" };
+  const design = q.get("design");
+  if (design && (DESSINS_TOLE as readonly string[]).includes(design)) n = { ...n, design: design as DessinTole };
+  const couleur = q.get("couleur");
+  if (couleur && (COULEURS_PORTAIL as readonly string[]).includes(couleur) && (couleur !== "galva" || n.mat === "acier")) n = { ...n, couleur: couleur as ConfigPortail["couleur"] };
+  const P = Number(q.get("P")), H = Number(q.get("H")), guidage = q.get("guidage");
+  if (q.has("P") && Number.isFinite(P) && P >= b.P[0] && P <= b.P[1]) n = { ...n, P: Math.round(P) };
+  if (q.has("H") && Number.isFinite(H) && H >= b.H[0] && H <= b.H[1]) n = { ...n, H: Math.round(H) };
+  if (slug === "portail-coulissant" && (guidage === "rail" || guidage === "auto")) n = { ...n, guidage };
+  return n;
 }
 
 /** Les entrées du moteur de l'outil (mêmes noms que les champs de l'outil). */
@@ -277,170 +284,6 @@ export function lireConfig(params: URLSearchParams): { slug: SlugPortail; cfg: C
   return { slug, cfg: cfg as ConfigPortail };
 }
 
-/**
- * Le guide « Quel portail chez vous ? » : trois questions, dans l'ordre (étude du 06/10/2026).
- * 1. Derrière, la place d'un vantail est-elle libre, sur un sol plat ou qui monte de moins de 5 cm ? → battant.
- * 2. Sinon : le long de la clôture, la longueur du passage + 15 cm est-elle libre ? Non → pliant.
- * 3. Oui : le sol y est-il dur et plat ? Oui → coulissant sur rail ; non → autoportant.
- */
-export function guidePortail(r: { derriere?: boolean; cote?: boolean; sol?: boolean }): { slug: SlugPortail; guidage?: "rail" | "auto" } | null {
-  if (r.derriere === true) return { slug: "portail-battant" };
-  if (r.derriere !== false) return null;
-  if (r.cote === false) return { slug: "portail-pliant" };
-  if (r.cote !== true) return null;
-  if (r.sol === undefined) return null;
-  return { slug: "portail-coulissant", guidage: r.sol ? "rail" : "auto" };
-}
-
-/* ---------- Les textes (français, anglais) ---------- */
-
-export type Langue = "fr" | "en";
-export const TEXTES_PORTAIL = {
-  fr: {
-    styles: { plein: "Plein", lisse: "Lisse", barreaux: "Barreaux", lamesChene: "Lames chêne", rosace: "Rosace", volutes: "Volutes", tole: "Tôle découpée" },
-    stylesNote: {
-      plein: "Lames alu emboîtées, on ne voit pas à travers", lisse: "Panneau alu lisse, moderne", barreaux: "Barreaux serrés, ajouré",
-      lamesChene: "Cadre alu, lames de chêne", rosace: "Croix et rosaces, comme le garde-corps", volutes: "Acier, volutes en fer forgé et pointes", tole: "Tôle d'acier découpée au laser, un dessin dans la lumière",
-    },
-    compose: "Composé à votre goût",
-    mat: { alu: "Alu", acier: "Acier" },
-    forme: { droit: "Droit", chapeau: "Chapeau de gendarme", creux: "En creux", biais: "En biais" },
-    soub: { aucun: "Aucun", plein: "Plein", panneau: "Panneau lisse", lames: "Lames chêne", barreaux: "Barreaux" },
-    remp: { plein: "Lames pleines", panneau: "Panneau lisse", lames: "Lames chêne", lamesAlu: "Lames ajourées", barreaux: "Barreaux", croix: "Croix et rosaces", volutes: "Volutes", tole: "Tôle découpée" },
-    dessinTitre: "Dessin de la tôle",
-    dessins: { foret: "Forêt et montagnes", vagues: "Vagues", soleil: "Soleil levant", losanges: "Losanges", feuillage: "Feuillage", lignes: "Lignes", nid: "Nid d'abeille", loup: "Loup", bulles: "Bulles" } as Record<DessinTole, string>,
-    dessinsNote: { foret: "Une montagne, la lune et les sapins", vagues: "Des vagues qui roulent", soleil: "Un soleil qui se lève au milieu", losanges: "Des losanges qui grandissent vers le bas", feuillage: "Des brins de feuilles", lignes: "Des lignes verticales", nid: "Un nid d'abeille qui s'ouvre vers le haut", loup: "Un loup qui montre les crocs devant deux montagnes", bulles: "Des bulles de toutes tailles" } as Record<DessinTole, string>,
-    decor: { aucun: "Aucun", classique: "Classique", frise: "Frise", medaillon: "Médaillon", couronnement: "Couronnement", coeurs: "Cœurs", surMesure: "Sur mesure", perso: "Personnalisé" },
-    emplacements: { entre: "Entre les barreaux", frise: "Frise sous la traverse", anneaux: "Frise d'anneaux", hauteur: "Sur toute la hauteur", coeurs: "Cœurs", medaillon: "Médaillon", applique: "Motifs en applique", coins: "Coins du haut", cimier: "Couronnement", appliquePlein: "Motif sur le bas plein" },
-    formesDecor: { C: "Volute en C", S: "Volute en S", J: "Crosse", coeur: "Cœur", doubleC: "Double C", poste: "Postes", anneau: "Anneau" } as Record<string, string>,
-    posDecor: { haut: "En haut", milieu: "Au milieu", bas: "En bas" },
-    rythmes: { tous: "Chaque vide", unSurDeux: "Un sur deux", alterne: "Deux formes" },
-    bouts: { droit: "Droits", effile: "Effilés", bouton: "À bouton" },
-    barreauxDeco: { carre: "Carrés", torsade: "Torsadés", bagues: "À bagues" },
-    portillon: "Portillon assorti",
-    moulures: "Moulures : un médaillon par vantail, sur le bas plein",
-    poteaux: { existants: "Mes piliers", acier: "Poteaux acier", alu: "Poteaux alu" },
-    couleur: { anthracite: "Gris anthracite", noir: "Noir", blanc: "Blanc", vert: "Vert sapin", rouille: "Rouille", galva: "Galvanisé brut" },
-    vantaux: { 1: "1 vantail", 2: "2 vantaux" },
-    rep: { egal: "Égaux", tiers: "1/3 – 2/3" },
-    guidage: { rail: "Sur rail", auto: "Sans rail" },
-    sens: { gauche: "Vers la gauche", droite: "Vers la droite" },
-    sensPortillon: { gauche: "Gonds à gauche", droite: "Gonds à droite" },
-    onglets: { cotes: "Cotes", style: "Style", compo: "Composition", pose: "Pose" },
-    passage: "Passage entre piliers", hauteur: "Hauteur", fleche: "Flèche du haut", hSoub: "Hauteur du soubassement", pente: "Le sol monte derrière de",
-    titres: { mat: "Matière", forme: "Forme du haut", soub: "Soubassement", remp: "Remplissage", decor: "Décor", options: "Finitions", couleur: "Couleur",
-      vantaux: "Vantaux", rep: "Répartition", guidage: "Guidage", sens: "Il s'ouvre", poteaux: "Fixation", moteur: "Moteur" },
-    pointes: "Pointes de lance", lisseChene: "Lisse en chêne", moteurOui: "Motorisé", moteurNon: "Manuel",
-    prix: "Prix posé", prixNote: "Visite et pose comprises jusqu'à 45 km de Saumur ; au-delà, la route s'ajoute au devis.",
-    prixCalcul: "Calcul…", aEtudier: "À étudier", indisponible: "Prix indisponible pour le moment",
-    cta: "Demander ma visite", ctaNote: "Nous venons mesurer, vous recevez le devis détaillé.",
-    vueFace: "Vue de face, depuis la rue", vueDessus: "Vue de dessus : en vert, la place à laisser libre", illustration: "Dessin d'illustration, cotes en mm",
-    guideTitre: "Quel portail chez vous ?", guideCourt: "Quel modèle ?",
-    // Les trois questions du choix du type (Quentin, 10/10/2026 : « plus de contexte et plus pro pour savoir quel type de portail est
-    // adaptable à la maison du client ») : la question, ce qu'est ce type de portail (guideCtx), ce qu'il faut vérifier chez soi (guideVerif).
-    guideQ: ["Pouvez-vous ouvrir le portail vers l'intérieur ?", "Y a-t-il de la place sur le côté pour le faire glisser ?", "Le sol est-il dur et plat ?"],
-    // Une ligne visible sous la question (le chiffre à vérifier), puis, repliés, ce qu'est ce type de portail et comment le vérifier.
-    guideAide: ["Il faut 1,75 m de libre derrière chaque pilier (pour un passage de 3,50 m).", "Il faut une longueur de clôture libre, d'un seul côté, au moins égale au passage.", "Béton, enrobé, pavés : oui. Gravier, terre, pelouse, pente : non."],
-    guidePuce: ["Ouverture vers l'intérieur", "Place sur le côté", "Sol dur et plat"],
-    guideAideLien: "Besoin d'aide pour vérifier ?",
-    guideVocab: "Le passage est la largeur libre entre vos deux piliers. Un vantail est la partie mobile du portail.",
-    guideCtx: [
-      "Un portail battant s'ouvre comme une porte : chaque vantail tourne autour de ses gonds, vers l'intérieur. C'est le type de portail le plus courant.",
-      "Un portail coulissant glisse le long de la clôture, comme une porte de placard : rien ne s'ouvre vers l'intérieur. C'est la solution quand la place manque derrière le portail.",
-      "Un portail coulissant roule sur un rail fixé dans le sol. Quand le sol ne s'y prête pas, on choisit le modèle sans rail, dit autoportant.",
-    ],
-    guideVerifTitre: "À vérifier",
-    guideVerif: [
-      "Derrière chaque pilier, un quart de cercle libre dont le rayon est la moitié du passage : 1,75 m pour un passage de 3,50 m, soit environ deux grands pas. Rien dans cette zone (voiture, arbre, mur, marche), et un sol à peu près plat.",
-      "D'un seul côté de l'entrée, une longueur au moins égale au passage (3,50 m pour un passage de 3,50 m), droite et dégagée : sans arbre, mur ni véhicule garé le long de la clôture. Sinon, c'est le portail pliant qui convient.",
-      "Béton, enrobé ou pavés : le sol est dur et le rail s'y fixe. Gravier, terre, pelouse, pente ou marche : le sol est meuble, et le portail autoportant tient grâce à un contrepoids derrière lui. Il demande alors environ une fois et demie le passage en longueur libre (environ 5 m pour 3,50 m) et son passage est limité à 4 m.",
-    ],
-    guideOui: ["Oui, j'ai la place", "Oui, c'est libre", "Oui, dur et plat"],
-    guideNon: ["Non, pas la place", "Non, pas assez", "Non, ou pas sûr"],
-    guideConseil: "Il vous faut",
-    guideRefaire: "Recommencer", guideModifier: "Modifier",
-    guideRaison: {
-      battant: "Vous avez la place de l'ouvrir vers l'intérieur : c'est le type le plus courant.",
-      rail: "Pas la place d'ouvrir vers l'intérieur, mais une clôture libre et un sol dur : il glisse sur un rail.",
-      auto: "Pas la place d'ouvrir vers l'intérieur, mais une clôture libre et un sol meuble : il glisse sans rail, tenu par un contrepoids.",
-      pliant: "Ni la place d'ouvrir vers l'intérieur, ni la longueur pour glisser : chaque vantail se plie en deux.",
-    },
-    oui: "Oui", non: "Non", guideVers: "Le bon modèle :", ouvrirModele: "Voir ce modèle",
-    modeles: { "portail-battant": "Battant", "portail-coulissant": "Coulissant", "portail-pliant": "Pliant", portillon: "Portillon" },
-    placeDerriere: "Place derrière", placeCote: "Place le long de la clôture", poids: "Poids du portail", etudierEn: "",
-  },
-  en: {
-    styles: { plein: "Solid", lisse: "Flat", barreaux: "Bars", lamesChene: "Oak slats", rosace: "Rosette", volutes: "Scrolls", tole: "Cut sheet" },
-    stylesNote: {
-      plein: "Interlocking aluminium slats, fully private", lisse: "Flat aluminium panel, modern", barreaux: "Close vertical bars",
-      lamesChene: "Aluminium frame, oak slats", rosace: "Crosses and rosettes, like the balustrade", volutes: "Steel, wrought-iron scrolls and spear tips", tole: "Laser-cut steel sheet, a design cut into the light",
-    },
-    compose: "Made to your taste",
-    mat: { alu: "Aluminium", acier: "Steel" },
-    forme: { droit: "Straight", chapeau: "Arched", creux: "Dipped", biais: "Sloped" },
-    soub: { aucun: "None", plein: "Solid", panneau: "Flat panel", lames: "Oak slats", barreaux: "Bars" },
-    remp: { plein: "Solid slats", panneau: "Flat panel", lames: "Oak slats", lamesAlu: "Open slats", barreaux: "Bars", croix: "Crosses and rosettes", volutes: "Scrolls", tole: "Cut sheet" },
-    dessinTitre: "Sheet design",
-    dessins: { foret: "Forest and mountains", vagues: "Waves", soleil: "Rising sun", losanges: "Diamonds", feuillage: "Foliage", lignes: "Lines", nid: "Honeycomb", loup: "Wolf", bulles: "Bubbles" } as Record<DessinTole, string>,
-    dessinsNote: { foret: "A mountain, the moon and the pines", vagues: "Rolling waves", soleil: "A sun rising in the middle", losanges: "Diamonds growing towards the bottom", feuillage: "Sprigs of leaves", lignes: "Vertical lines", nid: "A honeycomb opening towards the top", loup: "A snarling wolf in front of two mountains", bulles: "Bubbles of every size" } as Record<DessinTole, string>,
-    decor: { aucun: "None", classique: "Classic", frise: "Frieze", medaillon: "Medallion", couronnement: "Crest", coeurs: "Hearts", surMesure: "Bespoke", perso: "Custom" },
-    emplacements: { entre: "Between the bars", frise: "Frieze under the top rail", anneaux: "Ring frieze", hauteur: "Full height", coeurs: "Hearts", medaillon: "Medallion", applique: "Applied motifs", coins: "Top corners", cimier: "Crest", appliquePlein: "Motif on the solid lower panel" },
-    formesDecor: { C: "C scroll", S: "S scroll", J: "Crook", coeur: "Heart", doubleC: "Double C", poste: "Running scrolls", anneau: "Ring" } as Record<string, string>,
-    posDecor: { haut: "Top", milieu: "Middle", bas: "Bottom" },
-    rythmes: { tous: "Every gap", unSurDeux: "Every other", alterne: "Two shapes" },
-    bouts: { droit: "Straight", effile: "Tapered", bouton: "Knob" },
-    barreauxDeco: { carre: "Square", torsade: "Twisted", bagues: "Ringed" },
-    portillon: "Matching pedestrian gate",
-    moulures: "Mouldings: one medallion per leaf, on the solid lower panel",
-    poteaux: { existants: "My pillars", acier: "Steel posts", alu: "Aluminium posts" },
-    couleur: { anthracite: "Anthracite grey", noir: "Black", blanc: "White", vert: "Fir green", rouille: "Rust", galva: "Raw galvanised" },
-    vantaux: { 1: "1 leaf", 2: "2 leaves" },
-    rep: { egal: "Equal", tiers: "1/3 – 2/3" },
-    guidage: { rail: "On a rail", auto: "No rail" },
-    sens: { gauche: "To the left", droite: "To the right" },
-    sensPortillon: { gauche: "Hinges on the left", droite: "Hinges on the right" },
-    onglets: { cotes: "Size", style: "Style", compo: "Design", pose: "Fitting" },
-    passage: "Opening between pillars", hauteur: "Height", fleche: "Rise of the top", hSoub: "Lower panel height", pente: "Ground rises behind by",
-    titres: { mat: "Material", forme: "Top shape", soub: "Lower panel", remp: "Infill", decor: "Decoration", options: "Finishes", couleur: "Colour",
-      vantaux: "Leaves", rep: "Split", guidage: "Guiding", sens: "Opens", poteaux: "Fixing", moteur: "Motor" },
-    pointes: "Spear tips", lisseChene: "Oak top rail", moteurOui: "Motorised", moteurNon: "Manual",
-    prix: "Fitted price", prixNote: "Survey visit and fitting included within 45 km of Saumur; beyond that, travel is added to the quote.",
-    prixCalcul: "Calculating…", aEtudier: "To be studied", indisponible: "Price unavailable for now",
-    cta: "Book my survey visit", ctaNote: "We come and measure, you receive the detailed quote.",
-    vueFace: "Front view, from the street", vueDessus: "Top view: in green, the space to keep clear", illustration: "Illustrative drawing, dimensions in mm",
-    guideTitre: "Which gate for your entrance?", guideCourt: "Which model?",
-    guideQ: ["Can you open the gate inward?", "Is there room at the side for it to slide?", "Is the ground hard and level?"],
-    guideAide: ["You need 1.75 m free behind each pillar (for a 3.50 m opening).", "You need a free length of fence, on one side only, at least equal to the opening.", "Concrete, tarmac, paving: yes. Gravel, earth, grass, slope: no."],
-    guidePuce: ["Opens inward", "Room at the side", "Hard, level ground"],
-    guideAideLien: "Need help checking?",
-    guideVocab: "The opening is the clear width between your two pillars. A leaf is the moving part of the gate.",
-    guideCtx: [
-      "A swing gate opens like a door: each leaf turns on its hinges, inward. It is the most common type of gate.",
-      "A sliding gate glides along the fence, like a wardrobe door: nothing opens into the property. It is the solution when there is not enough room behind the gate.",
-      "A sliding gate rolls on a rail fixed into the ground. When the ground does not allow it, we use the model without a rail, called cantilever.",
-    ],
-    guideVerifTitre: "To check",
-    guideVerif: [
-      "Behind each pillar, a free quarter circle whose radius is half the opening: 1.75 m for a 3.50 m opening, about two long strides. Nothing in that area (car, tree, wall, step), and ground that is roughly level.",
-      "On one side of the entrance only, a length at least equal to the opening (3.50 m for a 3.50 m opening), straight and clear: no tree, wall or parked vehicle along the fence. Otherwise, the folding gate is the right type.",
-      "Concrete, tarmac or paving: the ground is hard and the rail is fixed to it. Gravel, earth, grass, a slope or a step: the ground is soft, and the cantilever gate holds with a counterweight behind it. It then needs about one and a half times the opening in free length (around 5 m for 3.50 m) and its opening is limited to 4 m.",
-    ],
-    guideOui: ["Yes, I have room", "Yes, it is free", "Yes, hard and level"],
-    guideNon: ["No, no room", "No, not enough", "No, or not sure"],
-    guideConseil: "You need",
-    guideRefaire: "Start over", guideModifier: "Change",
-    guideRaison: {
-      battant: "You have room to open it inward: it is the most common type.",
-      rail: "No room to open inward, but a free fence and hard ground: it slides on a rail.",
-      auto: "No room to open inward, but a free fence and soft ground: it slides without a rail, held by a counterweight.",
-      pliant: "No room to open inward and no length to slide: each leaf folds in two.",
-    },
-    oui: "Yes", non: "No", guideVers: "The right model:", ouvrirModele: "See this model",
-    modeles: { "portail-battant": "Swing", "portail-coulissant": "Sliding", "portail-pliant": "Folding", portillon: "Pedestrian gate" },
-    placeDerriere: "Space behind", placeCote: "Space along the fence", poids: "Weight",
-    etudierEn: "These dimensions are outside what the workshop makes as standard: book a survey visit and we will study it with you.",
-  },
-} as const;
 
 /** La configuration en mots (pour la demande de visite : elle arrive écrite dans le message). */
 export function resumeConfig(slug: SlugPortail, cfg: ConfigPortail, locale: Langue, prix: number | null): string[] {

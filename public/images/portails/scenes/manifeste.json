@@ -1,0 +1,543 @@
+{
+  "fichiers": [
+    {
+      "chemin": "vitrine/battant-plein-anthracite.svg",
+      "octets": 4028,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-plein-noir.svg",
+      "octets": 4028,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-plein-blanc.svg",
+      "octets": 4028,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-plein-vert.svg",
+      "octets": 4028,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-plein-rouille.svg",
+      "octets": 4028,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-plein-galva.svg",
+      "octets": 2861,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-lisse-anthracite.svg",
+      "octets": 2869,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-lisse-noir.svg",
+      "octets": 2869,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-lisse-blanc.svg",
+      "octets": 2869,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-lisse-vert.svg",
+      "octets": 2869,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-lisse-rouille.svg",
+      "octets": 2869,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-lisse-galva.svg",
+      "octets": 2861,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-barreaux-anthracite.svg",
+      "octets": 4586,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-barreaux-noir.svg",
+      "octets": 4586,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-barreaux-blanc.svg",
+      "octets": 4586,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-barreaux-vert.svg",
+      "octets": 4586,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-barreaux-rouille.svg",
+      "octets": 4586,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-barreaux-galva.svg",
+      "octets": 4758,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-lamesChene-anthracite.svg",
+      "octets": 6116,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-lamesChene-noir.svg",
+      "octets": 6116,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-lamesChene-blanc.svg",
+      "octets": 6116,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-lamesChene-vert.svg",
+      "octets": 6116,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-lamesChene-rouille.svg",
+      "octets": 6116,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-lamesChene-galva.svg",
+      "octets": 6088,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-rosace-anthracite.svg",
+      "octets": 4721,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-rosace-noir.svg",
+      "octets": 4721,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-rosace-blanc.svg",
+      "octets": 4721,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-rosace-vert.svg",
+      "octets": 4721,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-rosace-rouille.svg",
+      "octets": 4721,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-rosace-galva.svg",
+      "octets": 4721,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-volutes-anthracite.svg",
+      "octets": 95739,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-volutes-noir.svg",
+      "octets": 95739,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-volutes-blanc.svg",
+      "octets": 95739,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-volutes-vert.svg",
+      "octets": 95739,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-volutes-rouille.svg",
+      "octets": 95739,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-volutes-galva.svg",
+      "octets": 95739,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-tole-anthracite.svg",
+      "octets": 32925,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-tole-noir.svg",
+      "octets": 32925,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-tole-blanc.svg",
+      "octets": 32925,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-tole-vert.svg",
+      "octets": 32925,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-tole-rouille.svg",
+      "octets": 32925,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "vitrine/battant-tole-galva.svg",
+      "octets": 32925,
+      "viewBox": "0 0 1300 743",
+      "largeur": 1300,
+      "hauteur": 743
+    },
+    {
+      "chemin": "cartes/portail-battant-plein.svg",
+      "octets": 4015,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-battant-lisse.svg",
+      "octets": 2856,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-battant-barreaux.svg",
+      "octets": 4573,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-battant-lamesChene.svg",
+      "octets": 6103,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-battant-rosace.svg",
+      "octets": 4708,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-battant-volutes.svg",
+      "octets": 95726,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-battant-tole.svg",
+      "octets": 32912,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-coulissant-plein.svg",
+      "octets": 3040,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-coulissant-lisse.svg",
+      "octets": 1797,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-coulissant-barreaux.svg",
+      "octets": 3498,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-coulissant-lamesChene.svg",
+      "octets": 4183,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-coulissant-rosace.svg",
+      "octets": 3665,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-coulissant-volutes.svg",
+      "octets": 104416,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-coulissant-tole.svg",
+      "octets": 38664,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-pliant-plein.svg",
+      "octets": 6237,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-pliant-lisse.svg",
+      "octets": 3844,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-pliant-barreaux.svg",
+      "octets": 5185,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-pliant-lamesChene.svg",
+      "octets": 6763,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-pliant-rosace.svg",
+      "octets": 5940,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-pliant-volutes.svg",
+      "octets": 91316,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-pliant-tole.svg",
+      "octets": 44940,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portillon-plein.svg",
+      "octets": 2438,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portillon-lisse.svg",
+      "octets": 1872,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portillon-barreaux.svg",
+      "octets": 2133,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portillon-lamesChene.svg",
+      "octets": 2570,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portillon-rosace.svg",
+      "octets": 2414,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portillon-volutes.svg",
+      "octets": 36534,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portillon-tole.svg",
+      "octets": 12459,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-coulissant-plein-auto.svg",
+      "octets": 2710,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-coulissant-lisse-auto.svg",
+      "octets": 1467,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-coulissant-barreaux-auto.svg",
+      "octets": 3168,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-coulissant-lamesChene-auto.svg",
+      "octets": 3847,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-coulissant-rosace-auto.svg",
+      "octets": 3343,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-coulissant-volutes-auto.svg",
+      "octets": 104086,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    },
+    {
+      "chemin": "cartes/portail-coulissant-tole-auto.svg",
+      "octets": 38262,
+      "viewBox": "0 0 600 400",
+      "largeur": 600,
+      "hauteur": 400
+    }
+  ]
+}

@@ -9,6 +9,8 @@
 import { ChiffragePortailIndisponible, chiffragePortail } from "./chiffrage.ts";
 import { appliquerStyle, bornesPortail, configDepart, configPortillonAssorti, planPortail, DECORS_PORTAIL, DESSINS_TOLE, MOTEURS_PORTAIL, RECEPTIONS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL, versEntrees, type ConfigPortail, type DessinTole, type ReceptionPortail, type SlugPortail, type StylePortail } from "../portails.ts";
 
+import type { FinitionPage, PrixStyle } from "../portails-page.ts";
+
 export { ChiffragePortailIndisponible };
 
 export type ReponsePrixPortail =
@@ -115,4 +117,58 @@ export function prixDepartModeles(P: number, H: number): Record<SlugPortail, num
     sortie[slug] = prix.length ? Math.min(...prix) : null;
   }
   return sortie;
+}
+
+/**
+ * Les prix de chaque style d'un modèle, pour la page des portails (12/10/2026) : la vitrine (un prix par style et par finition)
+ * et les cartes (le style le moins cher). Les MÊMES fonctions que la fiche : aucun prix inventé ni écrit à la main.
+ * - pose : posé par l'atelier ; sansPose : à retirer à l'atelier (ni visite, ni route, ni pose) ; null = le moteur refuse ou le
+ *   chiffrage n'est pas disponible sur ce serveur ;
+ * - finition « brut » : acier galvanisé laissé brut (teinte « galva »), y compris pour les styles qui sont en alu laqué ;
+ * - plageTole : la tôle découpée a neuf dessins à neuf prix : pose/poseMax = le moins cher et le plus cher (poseMax est null
+ *   quand tous coûtent pareil, et pour tous les autres styles) ; sans l'option, pose = le dessin par défaut de la fiche.
+ */
+export type { FinitionPage, PrixStyle };
+const sansPrix = (): PrixStyle => ({ pose: null, sansPose: null, poseMax: null, sansPoseMax: null });
+const stylesMemo = new Map<string, Record<StylePortail, PrixStyle>>();
+
+export function prixStylesPortail(slug: SlugPortail, o: { finition?: FinitionPage; guidage?: "rail" | "auto"; plageTole?: boolean } = {}): Record<StylePortail, PrixStyle> {
+  const finition = o.finition ?? "laque", guidage = slug === "portail-coulissant" ? o.guidage : undefined, plage = Boolean(o.plageTole);
+  const cle = `${slug}|${finition}|${guidage ?? ""}|${plage ? 1 : 0}`;
+  const memo = stylesMemo.get(cle);
+  if (memo) return memo;
+  const base = (st: StylePortail): ConfigPortail => {
+    let c = configDepart(slug, st);
+    if (guidage) c = { ...c, guidage };
+    if (finition === "brut") c = { ...c, mat: "acier", couleur: "galva" };
+    return c;
+  };
+  const prix = (c: ConfigPortail, reception: ReceptionPortail): number | null => { const r = prixPortail(slug, { ...c, reception }); return r.ok ? r.prix : null; };
+  const sortie = {} as Record<StylePortail, PrixStyle>;
+  try {
+    for (const st of STYLES_PORTAIL) {
+      const c = base(st);
+      if (st === "tole" && plage) {
+        const pose = DESSINS_TOLE.map((d) => prix({ ...c, design: d }, "pose")).filter((x): x is number => x !== null);
+        const sans = DESSINS_TOLE.map((d) => prix({ ...c, design: d }, "retrait")).filter((x): x is number => x !== null);
+        const [a, b] = [Math.min(...pose), Math.max(...pose)], [e, f] = [Math.min(...sans), Math.max(...sans)];
+        sortie[st] = { pose: pose.length ? a : null, poseMax: pose.length && b > a ? b : null, sansPose: sans.length ? e : null, sansPoseMax: sans.length && f > e ? f : null };
+      } else {
+        sortie[st] = { pose: prix(c, "pose"), sansPose: prix(c, "retrait"), poseMax: null, sansPoseMax: null };
+      }
+    }
+  } catch (e) {
+    if (!(e instanceof ChiffragePortailIndisponible)) throw e;
+    for (const st of STYLES_PORTAIL) sortie[st] = sansPrix();
+  }
+  stylesMemo.set(cle, sortie);
+  return sortie;
+}
+
+/** Le style dont le prix posé est le « dès » du modèle (le moins cher ; à égalité le premier de STYLES_PORTAIL), ou null sans prix. */
+export function styleDepartPortail(slug: SlugPortail, o: { guidage?: "rail" | "auto" } = {}): StylePortail | null {
+  const px = prixStylesPortail(slug, { guidage: o.guidage });
+  let meilleur: StylePortail | null = null;
+  for (const st of STYLES_PORTAIL) { const p = px[st].pose; if (p !== null && (meilleur === null || p < (px[meilleur].pose as number))) meilleur = st; }
+  return meilleur;
 }

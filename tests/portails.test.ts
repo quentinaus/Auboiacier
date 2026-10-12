@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  acomptePortail, appliquerStyle, bornesPortail, configDepart, decrireDecor, guidePortail, lireConfig, lireConfigPanier, lireDecorChoix, planPortail, styleDe, versEntrees, versParams, versParamsPanier,
+  acomptePortail, appliquerStyle, bornesPortail, configDepart, configDepuisAdresse, decrireDecor, guidePortail, lireConfig, lireConfigPanier, lireDecorChoix, planPortail, styleDe, versEntrees, versParams, versParamsPanier,
   ACOMPTE_PORTAIL_PCT, DECORS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL,
   type ChoixDecor, type ConfigPortail, type SlugPortail, type StylePortail,
 } from "../src/lib/portails.ts";
@@ -445,4 +445,20 @@ test("tôle découpée (11/10/2026) : un style, neuf dessins, des prix par dessi
     assert.ok(!/garantie de teinte|inoxydable|stainless|rustproof|lifetime/i.test(texte), "aucune promesse");
     if (couleur === "galva") assert.ok(!/thermolaqu|powder|duplex|\bRAL\b/i.test(texte), `devis ${locale} brut : aucune peinture annoncée`);
   }
+});
+
+test("la page des portails envoie style, teinte, dessin et cotes à la fiche : repris s'ils sont permis, ignorés sinon", () => {
+  const base = configDepart("portail-battant");
+  const p = (x: string) => new URLSearchParams(x);
+  const a = configDepuisAdresse("portail-battant", base, p("style=tole&design=loup&couleur=noir&P=3200&H=1700"));
+  assert.equal(a.remp, "tole"); assert.equal(a.mat, "acier"); assert.equal(a.design, "loup"); assert.equal(a.couleur, "noir"); assert.equal(a.P, 3200); assert.equal(a.H, 1700);
+  // une valeur inconnue est ignorée, jamais devinée
+  const b = configDepuisAdresse("portail-battant", base, p("style=licorne&design=x&couleur=rose&P=99999&H=abc"));
+  assert.deepEqual(b, base);
+  // le galvanisé brut n'existe qu'en acier
+  assert.equal(configDepuisAdresse("portail-battant", base, p("style=lisse&couleur=galva")).couleur, base.couleur === "galva" ? "galva" : configDepuisAdresse("portail-battant", base, p("style=lisse")).couleur);
+  assert.equal(configDepuisAdresse("portail-battant", base, p("style=tole&couleur=galva")).couleur, "galva");
+  // le guidage ne vaut que pour le coulissant
+  assert.equal(configDepuisAdresse("portail-coulissant", configDepart("portail-coulissant"), p("guidage=auto")).guidage, "auto");
+  assert.equal(configDepuisAdresse("portail-battant", base, p("guidage=auto")).guidage, base.guidage);
 });

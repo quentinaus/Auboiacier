@@ -204,6 +204,10 @@ const IMG_PERMISES = [
   join("src", "app", "[lang]", "artisanat", "verification-garde-corps", "page.tsx"),
   // L'aperçu de la photo que le CLIENT vient de choisir (blob:, dans son navigateur) : jamais une image du site.
   join("src", "components", "photo-tableau.tsx"),
+  // La page des portails (12/10/2026) : des scènes SVG tirées du moteur de l'outil de plans, avec leur mention « Image d'illustration »
+  // posée à la main (le composant Visuel ne gère pas les .svg) ; deux couches d'image pour le fondu de la vitrine.
+  join("src", "components", "portail", "vitrine-portail.tsx"),
+  join("src", "components", "portail", "portails-modeles.tsx"),
 ];
 
 test("aucune image écrite à la main : ni <img src=\"/images/…\">, ni url(/images/…) hors des pastilles de rosaces", () => {

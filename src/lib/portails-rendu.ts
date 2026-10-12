@@ -3,7 +3,7 @@
  * couleur choisie, du chêne et de la pierre des piliers. Aucune géométrie ici : seulement des couleurs.
  * Les traits fins ne grossissent pas avec le zoom (vector-effect) ; les volutes, elles, gardent leur vraie épaisseur.
  */
-import type { COULEURS_PORTAIL } from "./portails";
+import type { COULEURS_PORTAIL } from "./portails-base.ts";
 
 type Couleur = (typeof COULEURS_PORTAIL)[number];
 /** [teinte du cadre, teinte des panneaux, trait] — RAL 7016, 9005, 9016, 6009, et une rouille. */

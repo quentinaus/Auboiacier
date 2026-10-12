@@ -5,5 +5,6 @@ import "server-only";
  * du navigateur l'importe : les coûts de l'atelier ne partent jamais dans le JavaScript public. Le navigateur demande
  * son prix à /api/prix-portail, qui ne rend qu'un prix de vente.
  */
-export { ChiffragePortailIndisponible, prixDepartModeles, prixDepartPortail, prixPortail, prixVariantesPortail, type ReponsePrixPortail, type VariantesPortail } from "./portails-outil/prix.ts";
+export { ChiffragePortailIndisponible, prixDepartModeles, prixDepartPortail, prixPortail, prixStylesPortail, prixVariantesPortail, styleDepartPortail, type FinitionPage, type PrixStyle, type ReponsePrixPortail, type VariantesPortail } from "./portails-outil/prix.ts";
 export { composerEstimationPortail } from "./portails-outil/devis-site.ts";
+export { donneesPagePortails } from "./portails-outil/donnees-page.ts";

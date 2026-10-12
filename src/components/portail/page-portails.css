@@ -1,0 +1,26 @@
+/*
+ * La page des portails (12/10/2026) : seulement ce que Tailwind exprime mal.
+ * --info est la colonne de droite de la page : la phrase sous le titre et la colonne du style, du prix et du bouton de la
+ * vitrine s'y alignent (même largeur, même écart). Elle est posée sur .pp-page, qui entoure la tête, la vitrine et les faits.
+ */
+.pp-page {
+  --info: clamp(340px, 28vw, 460px);
+  --info-ecart: clamp(40px, 4vw, 72px);
+}
+
+/* Tête : le titre, puis la phrase en dessous ; dès 1024 px, le titre à gauche et la phrase à droite, posée sur la colonne d'info. */
+.pp-tete {
+  display: grid;
+  row-gap: 14px;
+}
+@media (min-width: 1024px) {
+  .pp-tete {
+    grid-template-columns: minmax(0, 1fr) var(--info);
+    column-gap: var(--info-ecart);
+    align-items: end;
+  }
+  /* La ligne de la phrase repose sur la ligne de base du titre (le titre garde sous lui la place de ses descendantes). */
+  .pp-phrase {
+    padding-bottom: 10px;
+  }
+}

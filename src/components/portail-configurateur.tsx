@@ -19,7 +19,7 @@ import { VisiteAtelier, type Visite } from "./prise-de-cotes";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { svgDe, PT_DECOR_FORMULES } from "@/lib/portails-outil/moteur.genere.mjs";
 import {
-  acomptePortail, appliquerStyle, bornesPortail, configDepart, configPortillonAssorti, emplacementPermis, formesDe, guidePortail, planPortail, resumeConfig, styleDe, versParams, versParamsPanier,
+  acomptePortail, appliquerStyle, bornesPortail, configDepart, configDepuisAdresse, configPortillonAssorti, emplacementPermis, formesDe, guidePortail, planPortail, resumeConfig, styleDe, versParams, versParamsPanier,
   ACOMPTE_PORTAIL_PCT, BARREAUX_DECOR, BOUTS_DECOR, COULEURS_PORTAIL, DECORS_PORTAIL, DESSINS_TOLE, EMPLACEMENTS_DECOR, POS_DECOR, STYLES_PORTAIL, TEXTES_PORTAIL,
   type ChoixDecor, type ConfigPortail, type Langue, type ReceptionPortail, type SlugPortail, type StylePortail,
 } from "@/lib/portails";
@@ -446,16 +446,12 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
   // Téléphone (lot 11) : moins de 768 px de large ; l'étape en cours du parcours.
   const tel = useSyncExternalStore(abonnerTelephone, () => window.matchMedia(MEDIA_TEL).matches, () => false);
   const [etape, setEtape] = useState(0);
-  // La page des portails envoie les cotes et le guidage dans l'adresse (?P=3500&H=1600&guidage=auto) : repris au premier affichage.
+  // La page des portails envoie le style, la teinte, les cotes et le guidage dans l'adresse (?style=tole&couleur=noir&P=3500&H=1600&guidage=auto) :
+  // repris au premier affichage (voir configDepuisAdresse).
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
-    const P = Number(q.get("P")), H = Number(q.get("H")), guidage = q.get("guidage");
-    const maj2: Partial<ConfigPortail> = {};
-    if (Number.isFinite(P) && P >= b.P[0] && P <= b.P[1] && q.has("P")) maj2.P = Math.round(P);
-    if (Number.isFinite(H) && H >= b.H[0] && H <= b.H[1] && q.has("H")) maj2.H = Math.round(H);
-    if (slug === "portail-coulissant" && (guidage === "rail" || guidage === "auto")) maj2.guidage = guidage;
-    if (!Object.keys(maj2).length) return;
-    const id = requestAnimationFrame(() => setCfg((c) => ({ ...c, ...maj2 })));   // après le premier affichage : pas d'écart avec le serveur
+    if (!["style", "design", "mat", "couleur", "P", "H", "guidage"].some((k) => q.has(k))) return;
+    const id = requestAnimationFrame(() => setCfg((c) => configDepuisAdresse(slug, c, q)));   // après le premier affichage : pas d'écart avec le serveur
     return () => cancelAnimationFrame(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

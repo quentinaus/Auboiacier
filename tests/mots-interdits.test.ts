@@ -109,6 +109,13 @@ test("aucun mot de la liste « Jamais » dans les dictionnaires", () => {
   assert.deepEqual([...trouves("fr.json", fr, JAMAIS_FR), ...trouves("en.json", en, JAMAIS_EN)], []);
 });
 
+/** Les textes de la page des portails (12/10/2026) : français et anglais dans un même fichier, donc les deux listes le lisent en entier. */
+const pagePortails = readFileSync(join(RACINE, "src/lib/portails-page.ts"), "utf8");
+
+test("aucun mot de la liste « Jamais » dans les textes de la page des portails", () => {
+  assert.deepEqual([...trouves("portails-page.ts", pagePortails, JAMAIS_FR), ...trouves("portails-page.ts", pagePortails, JAMAIS_EN)], []);
+});
+
 test("aucun mot de la liste « Jamais » dans le catalogue", () => {
   assert.deepEqual(
     fiches.flatMap((fiche) => [...trouves(`${fiche.slug} (fr)`, fiche.fr, JAMAIS_FR), ...trouves(`${fiche.slug} (en)`, fiche.en, JAMAIS_EN)]),

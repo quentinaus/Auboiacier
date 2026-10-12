@@ -9,9 +9,9 @@ import { Apparition } from "@/components/apparition";
 import { CarteProduit } from "@/components/carte-produit";
 import { productLocalise, type Famille } from "@/lib/products";
 import { FAMILLES_AVEC_PAGE, piecesDeFamille } from "@/lib/categories-collection";
-import { PortailsGuide } from "@/components/portail/portails-guide";
-import { prixDepartPortail } from "@/lib/prix-portail.server";
-import type { SlugPortail } from "@/lib/portails";
+import { PagePortails } from "@/components/portail/page-portails";
+import { TXT as TXT_PORTAILS } from "@/lib/portails-page";
+import type { SlugPortail } from "@/lib/portails-base";
 
 /**
  * LA PAGE D'UNE FAMILLE (09/10/2026) : les modèles d'une catégorie qui en a plusieurs et pas de page à elle
@@ -56,10 +56,9 @@ function textes(famille: Famille, locale: "fr" | "en", dict: Awaited<ReturnType<
     titre: dict.hub.catPortails,
     h1: locale === "fr" ? "Portails sur mesure" : "Bespoke gates",
     titreSeo: locale === "fr" ? "Portail sur mesure, alu ou acier" : "Bespoke gates, aluminium or steel",
-    phrase:
-      locale === "fr"
-        ? "Portails sur mesure en alu ou en acier, fabriqués à Saumur. Battant, coulissant, pliant, ou le portillon assorti : composé à votre goût, soudé et thermolaqué, posé par l'atelier."
-        : "Bespoke aluminium or steel gates, made in Saumur. Swing, sliding, folding, or the matching side gate: composed to your taste, welded and powder-coated, fitted by the workshop.",
+    // La phrase d'ouverture de la page refaite (12/10/2026) : courte, à droite du titre ; les mots « alu », « acier », « Saumur »,
+    // « posé » y sont, les quatre modèles se lisent juste dessous.
+    phrase: TXT_PORTAILS[locale].phrase,
     liens: [
       { href: `/${locale}/portail-sur-mesure-saumur`, label: locale === "fr" ? "Portail sur mesure à Saumur : bien choisir" : "Bespoke gates in Saumur: how to choose" },
       { href: `/${locale}/metallier-saumur`, label: dict.liens.metallierSaumur },
@@ -80,11 +79,6 @@ export async function generateMetadata({
   const dict = await getDictionary(locale);
   const x = textes(famille, locale, dict);
   return metadataPage({ locale, chemin: `/artisanat/famille/${famille}`, title: x.titreSeo, description: x.seo });
-}
-
-/** Le « dès » d'un modèle ; null si le chiffrage n'est pas disponible sur ce serveur (la carte dit « À étudier à la visite »). */
-function departPortail(slug: SlugPortail, reception: "pose" | "retrait" = "pose"): number | null {
-  try { return prixDepartPortail(slug, reception); } catch { return null; }
 }
 
 export default async function FamillePage({ params }: PageProps<"/[lang]/artisanat/famille/[famille]">) {
@@ -110,6 +104,18 @@ export default async function FamillePage({ params }: PageProps<"/[lang]/artisan
           jsonLdListe(locale, x.h1, pieces.map((p) => ({ nom: p.name, chemin: `/artisanat/${p.slug}` }))),
         ])}
       />
+      {/* Les portails : la page refaite (Quentin, 12/10/2026). Le serveur calcule tous les prix ; pas de mesures ici, elles se
+          saisissent sur la fiche. Voir src/components/portail/page-portails.tsx. */}
+      {famille === "portail" ? (
+        <PagePortails
+          locale={locale}
+          fil={{ aria: dict.nav.breadcrumb, accueil: dict.nav.home, collection: locale === "fr" ? "La collection" : "The collection", courant: x.titre }}
+          h1={x.h1}
+          phrase={x.phrase}
+          noms={Object.fromEntries(pieces.map((p) => [p.slug, p.name])) as Record<SlugPortail, string>}
+          liens={x.liens}
+        />
+      ) : (
       <section className="px-6 pb-20 pt-10 md:pb-28 md:pt-14">
         <div className="mx-auto max-w-5xl">
           {/* Le fil d'Ariane, affiché comme il est balisé pour Google (Accueil › La collection › cette page). */}
@@ -129,17 +135,6 @@ export default async function FamillePage({ params }: PageProps<"/[lang]/artisan
           </h1>
           <p className="mt-5 max-w-2xl text-[17px] leading-[1.5] text-[#5c5140] md:text-[19px]">{x.phrase}</p>
 
-          {/* Les portails (Quentin, 10/10/2026) : d'abord les trois questions, puis les modèles avec leur « dès », triés par prix ;
-              pas de mesures ici, elles se saisissent sur la fiche (Quentin, 10/10). Le « dès » est calculé par le serveur. */}
-          {famille === "portail" ? (
-            <div className="mt-10 md:mt-12">
-              <PortailsGuide locale={locale}
-                noms={Object.fromEntries(pieces.map((p) => [p.slug, p.name])) as Record<SlugPortail, string>}
-                taglines={Object.fromEntries(pieces.map((p) => [p.slug, p.tagline])) as Record<SlugPortail, string>}
-                departs={Object.fromEntries(pieces.map((p) => [p.slug, departPortail(p.slug as SlugPortail)])) as Record<SlugPortail, number | null>}
-                departsSansPose={Object.fromEntries(pieces.map((p) => [p.slug, departPortail(p.slug as SlugPortail, "retrait")])) as Record<SlugPortail, number | null>} />
-            </div>
-          ) : (
           <ul className="mt-12 grid gap-x-8 gap-y-14 sm:grid-cols-2 md:mt-14">
             {pieces.map((product, i) => (
               <li key={product.slug}>
@@ -149,8 +144,7 @@ export default async function FamillePage({ params }: PageProps<"/[lang]/artisan
               </li>
             ))}
           </ul>
-          )}
-          {/* Les pages voisines : le guide des normes et le balcon pour les garde-corps, le guide du choix pour les portails. */}
+          {/* Les pages voisines : le guide des normes et le balcon pour les garde-corps. */}
           <ul className="mt-14 flex flex-wrap gap-x-8 gap-y-2 md:mt-16">
             {x.liens.map((lien) => (
               <li key={lien.href}>
@@ -162,6 +156,7 @@ export default async function FamillePage({ params }: PageProps<"/[lang]/artisan
           </ul>
         </div>
       </section>
+      )}
     </div>
   );
 }

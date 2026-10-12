@@ -1,0 +1,66 @@
+/* Les quatre modèles et le guide de la page des portails (12/10/2026). Mouvement : seulement opacity et transform, jamais
+   d'ombre ni de verre. Tout se calme sous « réduire les animations ». Couleurs du site (cahier des charges, 2.1). */
+
+/* La plaque d'une carte : fond de réserve identique au dessin final (ciel, puis sol), coins qui tiennent sous le zoom (Safari). */
+.pm-plaque { position: relative; isolation: isolate; overflow: hidden; border-radius: 12px; aspect-ratio: 3 / 2; background: linear-gradient(#fff 0 74%, #efe9df 74% 100%); }
+.pm-plaque img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.pm-dessin { transition: transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+.pm-mention { position: absolute; right: 8px; bottom: 6px; z-index: 1; font-size: 11px; line-height: 1.2; color: #5c5140; pointer-events: none; }
+.pm-fl { display: inline-block; margin-left: 0.3em; transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+/* « Conseillé chez vous » : un anneau (pseudo-élément) et une étiquette qui apparaissent en fondu, sans rien déplacer. */
+.pm-carte .pm-plaque::after { content: ""; position: absolute; inset: 0; z-index: 2; border: 2px solid #1d1d1f; border-radius: inherit; opacity: 0; transition: opacity 300ms ease; pointer-events: none; }
+.pm-etiq { position: absolute; left: 8px; top: 6px; z-index: 3; font-size: 14px; font-weight: 600; line-height: 1.2; color: #1d1d1f; opacity: 0; transition: opacity 300ms ease; pointer-events: none; }
+.pm-carte[data-conseille] .pm-plaque::after, .pm-carte[data-conseille] .pm-etiq { opacity: 1; }
+@media (min-width: 560px) {
+  .pm-plaque { border-radius: 18px; }
+  .pm-mention { right: 14px; bottom: 10px; }
+  .pm-etiq { left: 14px; top: 12px; }
+}
+@media (min-width: 768px) { .pm-mention { font-size: 12px; } }
+@media (hover: hover) {
+  .pm-carte:hover .pm-dessin { transform: scale(1.04); }
+  .pm-carte:hover .pm-fl { transform: translateX(0.22em); }
+}
+
+/* Le guide : titre à gauche, puis la figure et la question côte à côte (une colonne sur téléphone et tablette). */
+.pm-guide-grille, .pm-guide-corps { display: grid; gap: 20px; }
+.pm-guide-grille { gap: 24px; }
+@media (min-width: 1024px) {
+  .pm-guide-grille { grid-template-columns: minmax(240px, 0.62fr) minmax(0, 2fr); column-gap: clamp(40px, 5vw, 96px); align-items: start; }
+  .pm-guide-corps { grid-template-columns: minmax(0, 0.92fr) minmax(0, 1fr); column-gap: clamp(28px, 3vw, 56px); align-items: start; }
+}
+/* La figure garde la même place pour les trois schémas et pour le dessin du résultat : rien ne saute d'un état à l'autre. */
+.pm-fig { position: relative; isolation: isolate; overflow: hidden; width: 100%; max-width: 460px; border-radius: 14px; aspect-ratio: 3 / 2; background: #f5f1ea; display: flex; align-items: center; }
+@media (min-width: 1024px) { .pm-fig { max-width: none; } }
+.pm-fig-scene { background: linear-gradient(#fff 0 74%, #efe9df 74% 100%); }
+.pm-fig-scene img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.pg-schema { margin: 0; }
+.pm-fig .pg-schema { width: 100%; padding: 0; border: 0; border-radius: 0; background: none; }
+.pm-fig .pg-schema svg { display: block; width: 100%; height: auto; max-height: none; }
+.pm-fig .pg-schema-ill { position: absolute; right: 14px; bottom: 8px; font-size: 11px; line-height: 1.2; color: #5c5140; }
+@media (min-width: 768px) { .pm-fig .pg-schema-ill { font-size: 12px; } }
+
+/* Les deux réponses : deux boutons contour côte à côte (le contour et le survol sont ceux du site). */
+.pm-reps { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; max-width: 460px; }
+.pm-reps .btn-contour { min-height: 54px; padding: 0.7rem 1rem; font-size: 16px; text-align: center; }
+@media (hover: hover) { .pm-reps .btn-contour:hover { background: rgba(29, 29, 31, 0.05); } }
+.pm-aide { display: flex; align-items: center; width: fit-content; min-height: 44px; cursor: pointer; list-style: none; font-size: 16px; color: #2b2320; text-decoration: underline; text-underline-offset: 4px; }
+.pm-aide::-webkit-details-marker { display: none; }
+/* « Retour » : le lien fléché du site, inversé (la flèche à gauche, qui recule au survol). */
+.pm-guide button.pm-retour { flex-direction: row-reverse; }
+.pm-guide button.pm-retour::after { transform: translateY(-0.04em) scaleX(-1); }
+@media (hover: hover) { .pm-guide button.pm-retour:hover::after { transform: translateY(-0.04em) scaleX(-1) translateX(0.18em); } }
+
+/* Les sept états du guide, empilés dans la même case : la hauteur est celle du plus haut ; un seul est visible. */
+.pm-pile { display: grid; grid-template-columns: minmax(0, 1fr); }
+.pm-etat { grid-area: 1 / 1; position: relative; min-width: 0; visibility: hidden; opacity: 0; }
+.pm-etat.pm-actif { visibility: visible; opacity: 1; }
+
+/* Entre deux états du guide : un fondu d'opacité de 200 ms. */
+.pm-fondu, .pm-etat.pm-actif.pm-fondu { animation: pm-fondu 200ms ease both; }
+@keyframes pm-fondu { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .pm-fondu, .pm-etat.pm-actif.pm-fondu { animation: none; }
+  .pm-dessin, .pm-fl, .pm-etiq, .pm-carte .pm-plaque::after { transition: none; }
+}
