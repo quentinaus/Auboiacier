@@ -123,6 +123,9 @@ export default async function AProposPage({
                 </li>
               ))}
             </ul>
+            <Link href={`/${locale}/metallier-saumur`} className="lien-fleche mt-6 text-[16px] text-[#2b2320] md:text-[17px]">
+              {dict.liens.metallierSaumur}
+            </Link>
           </Apparition>
         </section>
 

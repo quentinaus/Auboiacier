@@ -91,6 +91,7 @@
     "seoP2": "Le prix s'affiche en une minute : entrez vos cotes dans le configurateur en ligne, choisissez la matière et la finition, puis téléchargez votre devis en PDF, sans compte ni engagement. Nous venons relever les cotes et poser à Saumur, Angers, Cholet, Tours, Chinon et jusqu'à 200 km de l'atelier ; les pièces de la collection sont livrées partout en France métropolitaine.",
     "seoLinksTitle": "Nos fabrications sur mesure",
     "seoLinks": [
+      "Métallier à Saumur : l'atelier de métallerie",
       "Garde-corps sur mesure, avec ou sans volutes",
       "Garde-corps de fenêtre : hauteur et normes",
       "Comment on vérifie un garde-corps",
@@ -1861,7 +1862,8 @@
     "verificationGc": "Comment on vérifie un garde-corps",
     "guideEscalier": "Escalier à limon central : prix et normes",
     "balconTerrasse": "Garde-corps de balcon et de terrasse",
-    "soudure": "Soudure et réparations"
+    "soudure": "Soudure et réparations",
+    "metallierSaumur": "Métallier à Saumur : l'atelier"
   },
   "lumiere": {
     "choixTitle": "Cadre lumineux ou plafond tendu mur à mur ?",

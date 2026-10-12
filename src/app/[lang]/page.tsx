@@ -289,6 +289,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           <h3 className="surtitre mt-9">{t.seoLinksTitle}</h3>
           <ul className="mt-4 grid gap-x-8 gap-y-2.5 text-[16px] sm:grid-cols-2">
             {[
+              "/metallier-saumur",
               "/artisanat/famille/garde-corps",
               "/garde-corps-fenetre-normes",
               "/artisanat/verification-garde-corps",

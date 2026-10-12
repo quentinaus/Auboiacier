@@ -44,6 +44,7 @@ export function SiteFooter({
   // sous « Guides » (relecture du 07/10/2026). Libellés écrits ici dans les deux langues, comme dans le menu du haut,
   // et assez courts (28 signes au plus) pour tenir sur une ligne dans une colonne de la tablette (768 px).
   const services = [
+    { href: `/${locale}/metallier-saumur`, label: fr ? "Métallier à Saumur" : "Metalworker in Saumur" },
     { href: `/${locale}/soudure-reparations`, label: fr ? "Soudure et réparations" : "Welding and repairs" },
     { href: `/${locale}/garde-corps-balcon-terrasse`, label: fr ? "Garde-corps de balcon" : "Balcony railings" },
     { href: `/${locale}/portail-sur-mesure-saumur`, label: fr ? "Portail sur mesure" : "Bespoke gates" },

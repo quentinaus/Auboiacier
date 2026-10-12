@@ -37,6 +37,7 @@ Quentin Aumercier est soudeur-métallier, titulaire du CAP Métallier et du BP M
 
 ## L'atelier
 
+- [Métallier à Saumur](https://auboiacier.fr/fr/metallier-saumur): l'atelier, ce qu'il fabrique, où il intervient, comment le joindre
 - [À propos](https://auboiacier.fr/fr/a-propos): Quentin Aumercier, son parcours
 - [Zone d'intervention](https://auboiacier.fr/fr/zone-intervention): Maine-et-Loire, Indre-et-Loire, Deux-Sèvres, Vienne
 - [Devis en ligne](https://auboiacier.fr/fr/devis): prix et devis PDF
@@ -50,6 +51,7 @@ Quentin Aumercier est soudeur-métallier, titulaire du CAP Métallier et du BP M
 - [Steel spine staircase: prices and rules](https://auboiacier.fr/en/escalier-limon-central-prix-normes): prices by shape and timber, French rules
 - [Balcony and terrace railings](https://auboiacier.fr/en/garde-corps-balcon-terrasse): bespoke, quoted per project
 - [Welding and repairs](https://auboiacier.fr/en/soudure-reparations): steel and aluminium, quoted per job
+- [Metalworker in Saumur](https://auboiacier.fr/en/metallier-saumur): the workshop, what it makes, where it works, how to reach it
 - [About Quentin Aumercier](https://auboiacier.fr/en/a-propos): welder-metalworker, French CAP and BP Métallier diplomas, two years in Australia with a maker of backlit stretch-fabric ceilings
 
 ## Optional

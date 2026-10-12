@@ -44,6 +44,7 @@ function textes(famille: Famille, locale: "fr" | "en", dict: Awaited<ReturnType<
         { href: `/${locale}/garde-corps-fenetre-normes`, label: dict.liens.normesGc },
         { href: `/${locale}/garde-corps-balcon-terrasse`, label: dict.liens.balconTerrasse },
         { href: `/${locale}/artisanat/verification-garde-corps`, label: dict.liens.verificationGc },
+        { href: `/${locale}/metallier-saumur`, label: dict.liens.metallierSaumur },
       ],
       seo:
         locale === "fr"
@@ -61,6 +62,7 @@ function textes(famille: Famille, locale: "fr" | "en", dict: Awaited<ReturnType<
         : "Bespoke aluminium or steel gates, made in Saumur. Swing, sliding, folding, or the matching side gate: composed to your taste, welded and powder-coated, fitted by the workshop.",
     liens: [
       { href: `/${locale}/portail-sur-mesure-saumur`, label: locale === "fr" ? "Portail sur mesure à Saumur : bien choisir" : "Bespoke gates in Saumur: how to choose" },
+      { href: `/${locale}/metallier-saumur`, label: dict.liens.metallierSaumur },
     ],
     seo:
       locale === "fr"

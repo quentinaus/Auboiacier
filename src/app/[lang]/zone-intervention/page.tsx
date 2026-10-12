@@ -229,6 +229,9 @@ export default async function ZonePage({ params }: PageProps<"/[lang]/zone-inter
             <h2 className={sousTitre}>{t.metalleriesTitle}</h2>
             <p className={`mt-4 ${texte}`}>{t.metalleriesBody}</p>
             <nav aria-label={t.metalleriesTitle} className="mt-3 flex flex-wrap items-center gap-x-8 gap-y-1">
+              <Link href={`/${locale}/metallier-saumur`} className="lien-fleche py-2 text-[#2b2320]">
+                {dict.liens.metallierSaumur}
+              </Link>
               <Link href={`/${locale}/artisanat/tables`} className="lien-fleche py-2 text-[#2b2320]">
                 {dict.liens.tables}
               </Link>

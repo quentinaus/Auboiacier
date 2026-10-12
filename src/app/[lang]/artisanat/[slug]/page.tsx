@@ -245,6 +245,8 @@ export default async function ProductPage({
     ...(ouvrage || product.category === "lumiere"
       ? [{ href: `/${locale}/zone-intervention`, label: dict.liens.zonePose }]
       : []),
+    // Le métallier de Saumur : la page de l'atelier (référencement « métallier Saumur », 12/10/2026).
+    { href: `/${locale}/metallier-saumur`, label: dict.liens.metallierSaumur },
   ];
   const hasImages = product.images.length > 0;
   /** Le titre d'une section sous la fiche, le même dessin que sur l'accueil. */
