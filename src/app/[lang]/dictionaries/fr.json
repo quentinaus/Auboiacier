@@ -96,14 +96,14 @@
       "Garde-corps de fenêtre : hauteur et normes",
       "Comment on vérifie un garde-corps",
       "Garde-corps de balcon et de terrasse",
-      "Escalier acier et bois massif",
+      "Escalier métallique sur mesure à Saumur",
       "Escalier à limon central : prix et normes",
-      "Verrière d'atelier en acier",
-      "Tables sur mesure bois et acier",
+      "Verrière d'atelier sur mesure à Saumur",
+      "Tables en bois massif et pied acier sur mesure",
       "Le bois massif à l'atelier",
       "Plafond lumineux à toile tendue",
       "Sculptures en acier de récupération",
-      "Soudure et réparations",
+      "Soudure sur mesure à Saumur",
       "Devis instantané en PDF",
       "Prise de cotes à domicile",
       "Zone d'intervention autour de Saumur"
@@ -1136,13 +1136,13 @@
     "priceTitle": "Prix",
     "priceBody": "Sur devis — le prix dépend des dimensions, du nombre de portes et de la finition. Comptez 4 à 8 semaines entre la prise de mesures et la pose.",
     "cta": "Demander un devis",
-    "photoAlt": "Verrière d'intérieur en acier noir séparant un salon d'une cuisine",
+    "photoAlt": "Verrière d'atelier sur mesure en acier noir, qui sépare un salon d'une cuisine",
     "detailAlt": "Poignée en laiton massif sur le montant acier d'une verrière",
     "panelTitle": "Des panneaux pleins quand il faut",
     "panelBody": "En partie basse, le verre peut céder la place à de la tôle d'acier raidie par une croix de Saint-André : le bas de porte encaisse les chocs et les coups de pied, et la verrière gagne en caractère.",
     "panelAlt": "Panneau bas d'une verrière en tôle d'acier noire avec croix de Saint-André",
     "atelierTitle": "Séparer sans fermer",
-    "h1": "Verrières d'atelier en acier, sur mesure",
+    "h1": "Verrière d'atelier sur mesure, en acier, à Saumur",
     "usagesTitle": "Pour quelle pièce ?",
     "usages": [
       {
@@ -1166,6 +1166,23 @@
     "cotesBody": "L'atelier vient mesurer chez vous — {prixVisite} jusqu'à {rayonVisite} km de Saumur — puis vous envoie le devis et le plan.",
     "cotesLien": "Réserver une prise de cotes",
     "photosTexte": "Deux verrières réalisées par Quentin avant l'ouverture de l'atelier.",
+    "saumurTitle": "Une verrière d'atelier sur mesure à Saumur : comment ça se passe ?",
+    "saumurBody": "Tout commence par une prise de cotes chez vous : l'atelier mesure l'ouverture, regarde le mur et le sol, puis dessine la verrière. Les montants en acier sont coupés et soudés à l'atelier de Saumur, puis peints en noir mat, en brut verni ou en blanc. Vous choisissez le nombre de traverses, le verre (clair, dépoli ou fumé) et la porte, pivotante ou coulissante.",
+    "faqTitle": "Vos questions sur la verrière d'atelier",
+    "faq": [
+      {
+        "q": "Combien coûte une verrière d'atelier sur mesure ?",
+        "a": "Le prix est établi sur devis : il dépend des dimensions, du nombre de portes et de la finition. Le devis et le plan suivent la prise de cotes chez vous."
+      },
+      {
+        "q": "Peut-on poser une verrière dans une maison ancienne ?",
+        "a": "Oui, la verrière est mesurée sur place et dessinée pour votre ouverture, murs et sol compris. Un mur qui n'est pas d'équerre se voit à la prise de cotes, avant la fabrication."
+      },
+      {
+        "q": "L'atelier se déplace-t-il hors de Saumur ?",
+        "a": "Oui, jusqu'à 200 km. La prise de cotes à domicile coûte {prixVisite} jusqu'à {rayonVisite} km de Saumur ; au-delà, son prix dépend de la distance."
+      }
+    ],
     "serviceNom": "Verrière d'atelier sur mesure"
   },
   "panier": {
@@ -1474,7 +1491,7 @@
       "description": "Sculptures en acier de récupération, soudées à la main à Saumur : pièces uniques sur commande, pensées avec vous — sujet, taille, socle, dedans ou dehors."
     },
     "verrieres": {
-      "title": "Verrières d'atelier en acier sur mesure",
+      "title": "Verrière d'atelier sur mesure à Saumur",
       "description": "Verrière d'atelier en acier, mesurée chez vous et soudée à la main à Saumur : cuisine, séparation, bureau. Porte pivotante ou coulissante. Prix sur devis."
     },
     "apropos": {
@@ -1514,8 +1531,8 @@
       "description": "Règles d'utilisation du site Auboiacier : accès, propriété intellectuelle, responsabilité, liens."
     },
     "zone": {
-      "title": "Métallier à Saumur : Anjou, Touraine, 200 km",
-      "description": "Atelier à Saumur (49) : prise de cotes chez vous dès {prixVisite} jusqu'à {rayonVisite} km, visite jusqu'à 200 km. Garde-corps, escaliers, verrières, tables, plafonds."
+      "title": "Métallier près d'Angers, Tours et Cholet",
+      "description": "Atelier de métallerie à Saumur : Angers à 44 km, Tours à 60 km, Cholet à 65 km. Prise de cotes chez vous dès {prixVisite}, visite jusqu'à 200 km."
     },
     "faq": {
       "title": "Questions fréquentes : délais, prix",
@@ -1551,7 +1568,7 @@
     },
     "tables": {
       "title": "Tables sur mesure bois massif et acier",
-      "description": "Tables haut de gamme sur mesure, faites main à Saumur : plateau en bois massif de 28 à 45 mm, piétement en acier soudé. Dès {prixTables}, prix à vos cotes."
+      "description": "Tables à manger sur mesure, faites main à Saumur : plateau en bois massif de 28 à 45 mm, pied en acier soudé. Dès {prixTables}, prix à vos cotes."
     },
     "bois": {
       "title": "Plateaux et marches en bois massif, Saumur",
@@ -1564,7 +1581,7 @@
   },
   "zone": {
     "title": "Zone d'intervention",
-    "h1": "Métallier en Maine-et-Loire et en Touraine, depuis Saumur",
+    "h1": "Métallier en Anjou et en Touraine, depuis Saumur",
     "subtitle": "L'atelier Auboiacier est à Saumur, en Maine-et-Loire. On y travaille l'acier et le bois massif, et on y fabrique des plafonds lumineux en toile tendue. Vous gardez un seul interlocuteur, de la prise de cotes à la pose.",
     "metiersTitle": "Ce que l'atelier fabrique et pose",
     "metiers": {
@@ -1616,6 +1633,33 @@
     "ctaLabel": "Nous écrire",
     "faqLink": "Voir les questions fréquentes sur la métallerie sur mesure",
     "communesNote": "Et, plus loin, partout jusqu'à {rayonMax} km de l'atelier pour la prise de cotes.",
+    "villesTitle": "Un métallier près d'Angers, de Tours, de Cholet, de Chinon ou de Doué-la-Fontaine ?",
+    "villesIntro": "L'atelier est à Saumur, et il se déplace. Voici les distances depuis l'atelier, à vol d'oiseau et arrondies : la route est un peu plus longue.",
+    "villes": [
+      {
+        "nom": "Doué-la-Fontaine",
+        "distance": "environ 17 km"
+      },
+      {
+        "nom": "Chinon",
+        "distance": "environ 26 km"
+      },
+      {
+        "nom": "Angers",
+        "distance": "environ 44 km"
+      },
+      {
+        "nom": "Tours",
+        "distance": "environ 60 km"
+      },
+      {
+        "nom": "Cholet",
+        "distance": "environ 65 km"
+      }
+    ],
+    "villesProche": "Doué-la-Fontaine et Chinon sont dans le rayon de la prise de cotes à {prixVisite} (jusqu'à {rayonVisite} km de Saumur) : l'atelier vient mesurer chez vous, puis fabrique la pièce à Saumur.",
+    "villesLoin": "Pour Angers, Tours et Cholet, l'atelier se déplace aussi, jusqu'à 200 km de Saumur : la prise de cotes à domicile se chiffre selon la distance, et le devis écrit dit le prix du déplacement pour la pose.",
+    "villesSans": "Sans attendre une visite, les pièces de la collection sont livrées par transporteur dans toute la France métropolitaine, ou retirées à l'atelier, à Saumur. Il n'y a pas d'agence à Angers, à Tours ni à Cholet : tout est fabriqué dans l'atelier de Saumur.",
     "metalleriesTitle": "Métallerie à Saumur : ce que l'atelier fait sur place",
     "metalleriesBody": "Tout part de l'atelier de Saumur (49400). L'acier y est coupé, soudé à la main et peint ; le bois massif y est mis à vos cotes, poncé et huilé, avec une expérience en ébénisterie. Si vous cherchez une métallerie à Saumur pour un garde-corps, une table, un escalier, une verrière ou un plafond lumineux, vous parlez à l'atelier qui fabrique la pièce.",
     "localTitle": "Maisons de tuffeau et secteurs protégés",
@@ -1862,7 +1906,7 @@
     "verificationGc": "Comment on vérifie un garde-corps",
     "guideEscalier": "Escalier à limon central : prix et normes",
     "balconTerrasse": "Garde-corps de balcon et de terrasse",
-    "soudure": "Soudure et réparations",
+    "soudure": "Soudure sur mesure à Saumur",
     "metallierSaumur": "Métallier à Saumur : l'atelier"
   },
   "lumiere": {
@@ -1979,6 +2023,27 @@
     "prixTitle": "Combien coûte une table en bois massif sur mesure ?",
     "prixIntro": "Les prix des fiches, calculés par le même moteur : piétement soudé et peint dans la teinte la moins chère, plateau en bois massif fini à l'huile-cire. Entre deux formats, entrez vos cotes sur la fiche : le prix suit au centimètre. Livraison en plus, {livraisonMax} au maximum en France métropolitaine.",
     "prixPlaces": "Format",
+    "saumurTitle": "Une table à manger en bois massif et pied acier, sur mesure à Saumur",
+    "saumurBody": "Chaque table est fabriquée à la commande dans l'atelier de Saumur. Le plateau en bois massif est mis à vos cotes ; le pied en acier est coupé, soudé et peint sur place. Vous choisissez l'essence du plateau, le dessin du pied et sa teinte, puis vous entrez la longueur et la largeur : le prix s'affiche aussitôt. Pour une forme ou une taille hors catalogue, décrivez-nous votre projet : nous chiffrons sur devis.",
+    "saumurLiensTitre": "Les quatre dessins de pied, chacun avec sa fiche",
+    "saumurLiens": [
+      {
+        "slug": "table-mikado",
+        "texte": "Table Mikado en bois massif, pied acier à tubes croisés"
+      },
+      {
+        "slug": "table-croix",
+        "texte": "Table à pied croisé en X, bois massif et acier"
+      },
+      {
+        "slug": "table-brindille",
+        "texte": "Table Brindille, bois massif et tiges d'acier soudées"
+      },
+      {
+        "slug": "table-resine-mikado",
+        "texte": "Table rivière en résine époxy et chêne massif"
+      }
+    ],
     "hautTitle": "Ce qui fait une table haut de gamme",
     "hautBody": "Elle se reconnaît à ce qu'on ne voit pas en photo : l'épaisseur du plateau, la section de l'acier, la soudure. Chez nous, le plateau est en bois massif de {epaisseurs} mm d'épaisseur. Le piétement est soudé à l'atelier : tubes d'acier de 80 × 80 mm, paroi 3 mm, sur la Mikado et la Croix ; tiges d'acier droites, soudées une à une, sur la Brindille. La finition à l'huile-cire se reprend à l'endroit d'une marque, sans décaper tout le plateau."
   },

@@ -102,19 +102,19 @@ const FR: TextesMetallierSaumur = {
     {
       titre: "Escalier à limon central",
       texte: "Droit, quart tournant ou demi-tournant, marches en bois massif, mesuré et posé par l'atelier.",
-      lien: "Escalier à limon central",
+      lien: "Escalier métallique sur mesure à Saumur",
       chemin: "/artisanat/escalier-limon-central",
     },
     {
       titre: "Verrières d'intérieur",
       texte: "Mesurées chez vous, soudées à l'atelier, puis posées.",
-      lien: "Verrière d'atelier en acier",
+      lien: "Verrière d'atelier sur mesure à Saumur",
       chemin: "/artisanat/verrieres",
     },
     {
       titre: "Tables en acier et bois massif",
       texte: "Plateau en bois massif sur piétement en acier soudé, au centimètre près.",
-      lien: "Tables sur mesure bois et acier",
+      lien: "Table bois massif et pied acier sur mesure",
       chemin: "/artisanat/tables",
     },
     {
@@ -126,7 +126,7 @@ const FR: TextesMetallierSaumur = {
     {
       titre: "Soudure sur mesure",
       texte: "Une pièce cassée, à refaire ou introuvable, en acier ou en aluminium : envoyez une photo, vous recevez un devis.",
-      lien: "Soudure et réparations à Saumur",
+      lien: "Soudure sur mesure à Saumur",
       chemin: "/soudure-reparations",
     },
   ],
@@ -271,19 +271,19 @@ const EN: TextesMetallierSaumur = {
     {
       titre: "Central stringer staircase",
       texte: "Straight, quarter turn or half turn, solid wood treads, measured and fitted by the workshop.",
-      lien: "Steel spine staircase",
+      lien: "Bespoke steel staircase in Saumur",
       chemin: "/artisanat/escalier-limon-central",
     },
     {
       titre: "Interior steel partitions",
       texte: "Measured at your home, welded in the workshop, then fitted.",
-      lien: "Steel internal windows",
+      lien: "Bespoke steel internal window in Saumur",
       chemin: "/artisanat/verrieres",
     },
     {
       titre: "Steel and solid wood tables",
       texte: "Solid wood top on a welded steel base, to the centimetre.",
-      lien: "Bespoke wood and steel tables",
+      lien: "Bespoke solid wood and steel dining table",
       chemin: "/artisanat/tables",
     },
     {
@@ -295,7 +295,7 @@ const EN: TextesMetallierSaumur = {
     {
       titre: "Welding to order",
       texte: "A broken part, one to remake or one you cannot find, in steel or aluminium: send a photo and you receive a quote.",
-      lien: "Welding and repairs in Saumur",
+      lien: "Welding to order in Saumur",
       chemin: "/soudure-reparations",
     },
   ],

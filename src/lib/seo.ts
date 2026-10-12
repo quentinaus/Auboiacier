@@ -508,7 +508,7 @@ function zoneDesservie() {
 
 /** Ce que l'atelier fait, en une phrase (« chaises » retiré : pièce retirée de la vente le 06/10/2026). */
 const DESCRIPTION_ATELIER: Record<Locale, string> = {
-  fr: "Atelier de métallerie artisanale à Saumur (Maine-et-Loire) : garde-corps de fenêtre, de balcon et de terrasse, escaliers à limon central, verrières, tables en bois massif sur piétement acier, plafonds lumineux en toile tendue et sculptures, fabriqués à la main, sur mesure. Soudure et réparations à façon.",
+  fr: "Atelier de métallerie à Saumur (Maine-et-Loire) : garde-corps de fenêtre, de balcon et de terrasse, escaliers à limon central, verrières, tables en bois massif sur piétement acier, plafonds lumineux en toile tendue et sculptures, fabriqués à la main, sur mesure. Soudure et réparations à façon.",
   en: "Metalwork workshop in Saumur, Loire Valley, France: window, balcony and terrace railings, steel spine staircases, steel internal windows, solid wood tables on steel bases, backlit stretch-fabric ceiling lights and sculptures, handmade to measure. Welding and metal repairs to order.",
 };
 

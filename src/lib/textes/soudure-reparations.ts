@@ -10,6 +10,10 @@ import { jourEnLettres } from "./garde-corps-balcon-terrasse.ts";
  * anglais. Quentin l'a confirmée le 07/10/2026 : il veut vendre aussi la
  * soudure à façon et les réparations.
  *
+ * Vague 5 du référencement (12/10/2026) : la valeur principale de la page est la
+ * « soudure sur mesure à Saumur » (pièces à façon d'abord) ; la réparation vient
+ * ensuite. Le titre garde « Soudeur à Saumur » en tête (tests/soudure-reparations.test.ts).
+ *
  * Recherches visées (suggestions Google relevées le 07/10/2026) : « soudeur
  * saumur », « soudure saumur », « entreprise soudure saumur », « réparation
  * soudure », « réparation portail métallique / fer / aluminium »,
@@ -95,25 +99,30 @@ export type TextesSoudure = {
 export const TEXTES_SOUDURE: Record<Locale, TextesSoudure> = {
   fr: {
     seo: {
-      title: "Soudeur à Saumur : soudure et réparation",
+      title: "Soudeur à Saumur : soudure sur mesure",
       description:
-        "Soudure et réparations à Saumur : portails, garde-corps, rampes, mobilier et pièces à façon en acier ou aluminium, TIG ou MAG. Devis gratuit sur photo.",
+        "Soudure sur mesure à Saumur : pièces à façon, portails, garde-corps et mobilier en acier ou aluminium, TIG, MAG ou électrode. Devis gratuit sur photo.",
     },
-    filAriane: "Soudure et réparations",
+    filAriane: "Soudure sur mesure",
     surtitre: "Acier et aluminium · TIG, MAG, électrode",
-    h1: "Soudure et réparations à Saumur",
+    h1: "Soudure sur mesure à Saumur",
     intro:
-      "Un gond arraché, un barreau cassé, un pied de chaise fendu, une pièce qu'on ne trouve plus : l'atelier Auboiacier, qui ouvre à Saumur, ressoude l'acier et l'aluminium, et fabrique à façon la pièce qu'il vous faut. Envoyez une photo, vous recevez un devis.",
+      "Un cadre, une platine, un support, une pièce à votre cote ou d'après un croquis : l'atelier Auboiacier, qui ouvre à Saumur, soude l'acier et l'aluminium sur mesure. Une pièce cassée ou qu'on ne trouve plus ? Il la ressoude ou la refait. Envoyez une photo, vous recevez un devis.",
     ouverture: "Les commandes ouvrent le {ouverture}. D'ici là, vous pouvez déjà envoyer vos demandes de devis.",
     ctaDevis: "Demander un devis",
     ctaDevisNote: "Avec une photo et les dimensions",
     ctaCotes: "Faire mesurer sur place",
     ctaCotesNote: "Prise de cotes dès {prixVisite}",
     prefillContact: "Soudure ou réparation",
-    travauxTitre: "Ce que l'atelier soude et répare",
+    travauxTitre: "Quelle soudure sur mesure à Saumur : ce que l'atelier fabrique et ressoude",
     travauxIntro:
-      "À l'intérieur comme au jardin, de la petite pièce au portail : si le métal peut se souder, nous regardons ce qui peut être fait.",
+      "À l'intérieur comme au jardin, de la petite pièce au portail : si le métal peut se souder, nous regardons ce qui peut être fait. Pièce neuve d'abord, remise en état ensuite.",
     travaux: [
+      {
+        titre: "Pièces faites à façon",
+        texte:
+          "Une équerre, une platine, un support, un cadre : fabriqués en acier ou en aluminium d'après vos cotes, un croquis, un plan ou la pièce à remplacer. Vous pouvez aussi fournir le métal : c'est la soudure à façon.",
+      },
       {
         titre: "Portails et portillons",
         texte:
@@ -128,11 +137,6 @@ export const TEXTES_SOUDURE: Record<Locale, TextesSoudure> = {
         titre: "Mobilier et objets en métal",
         texte:
           "Pied de table ou de chaise cassé, salon de jardin, étagère, support : l'atelier ressoude, et la finition (peinture) se chiffre au devis.",
-      },
-      {
-        titre: "Pièces faites à façon",
-        texte:
-          "Une équerre, une platine, un support, un cadre : fabriqués en acier d'après vos cotes, un croquis ou la pièce à remplacer. Vous pouvez aussi fournir le métal : c'est la soudure à façon.",
       },
     ],
     procedesTitre: "TIG, MAG ou électrode : le procédé qui convient à la pièce",
@@ -221,6 +225,10 @@ export const TEXTES_SOUDURE: Record<Locale, TextesSoudure> = {
         a: "L'acier et l'aluminium. Pour un autre métal, comme l'inox ou la fonte, envoyez une photo : nous vous disons franchement si la réparation est faisable. L'atelier ne fait ni la soudure à l'étain (électronique, bijoux), ni celle du plastique, ni celle du zinc des gouttières.",
       },
       {
+        q: "Peut-on faire souder une pièce sur mesure à Saumur ?",
+        a: "Oui. L'atelier de Saumur fabrique à façon des pièces en acier ou en aluminium : un cadre, un support, une platine, une pièce de mobilier. Envoyez vos cotes, un croquis ou une photo : le devis donne le prix, le délai et la finition, avant tout travail.",
+      },
+      {
         q: "Travaillez-vous pour les particuliers ?",
         a: "Oui, pour les particuliers comme pour les professionnels. Décrivez la pièce : le devis dit ce que coûte la réparation, avant tout travail.",
       },
@@ -233,32 +241,37 @@ export const TEXTES_SOUDURE: Record<Locale, TextesSoudure> = {
         a: "Sur un métal sain, une soudure bien faite tient. Sur un métal rongé par la rouille, elle ne tient pas mieux que ce qui l'entoure : nous vous le disons au devis, et nous vous proposons alors de refaire la pièce.",
       },
     ],
-    finTitre: "Une pièce à souder ou à réparer ?",
+    finTitre: "Une pièce à souder, sur mesure ou à remettre en état ?",
     finTexte: "Envoyez une photo et les dimensions : vous recevez un devis, gratuit et sans engagement.",
     finLienFaq: "Toutes les questions fréquentes",
     service: { nom: "Soudure et réparation à façon", type: "Soudure" },
   },
   en: {
     seo: {
-      title: "Welder in Saumur: welding and repairs",
+      title: "Welder in Saumur: welding to order",
       description:
-        "Welder in Saumur, France: repairs to gates, railings and metal furniture, parts welded to order in steel or aluminium, TIG or MIG/MAG. Free quote.",
+        "Welding to order in Saumur, France: parts made to your drawing, gates, railings and furniture in steel or aluminium, TIG or MIG/MAG. Free quote on a photo.",
     },
-    filAriane: "Welding and repairs",
+    filAriane: "Welding to order",
     surtitre: "Steel and aluminium · TIG, MIG/MAG, stick",
-    h1: "Welding and metal repairs in Saumur",
+    h1: "Welding to order in Saumur",
     intro:
-      "A hinge torn off, a broken bar, a cracked chair leg, a part you can no longer find: the Auboiacier workshop, opening in Saumur, re-welds steel and aluminium, and makes the part you need, to order. Send a photo and you get a quote.",
+      "A frame, a plate, a bracket, a part to your size or from a sketch: the Auboiacier workshop, opening in Saumur, welds steel and aluminium to order. A part that is broken or no longer made? It re-welds it or makes it again. Send a photo and you get a quote.",
     ouverture: "Orders open on {ouverture}. Until then, you can already send your quote requests.",
     ctaDevis: "Ask for a quote",
     ctaDevisNote: "With a photo and the dimensions",
     ctaCotes: "Have it measured on site",
     ctaCotesNote: "Site measurement from {prixVisite}",
     prefillContact: "Welding or repair",
-    travauxTitre: "What the workshop welds and repairs",
+    travauxTitre: "Welding to order in Saumur: what the workshop makes and re-welds",
     travauxIntro:
-      "Indoors or in the garden, from a small part to a gate: if the metal can be welded, we look at what can be done.",
+      "Indoors or in the garden, from a small part to a gate: if the metal can be welded, we look at what can be done. New parts first, repairs after.",
     travaux: [
+      {
+        titre: "Parts made to order",
+        texte:
+          "A bracket, a plate, a support, a frame: made in steel or aluminium from your measurements, a sketch, a drawing or the part to replace. You can also supply the metal and have it welded.",
+      },
       {
         titre: "Gates and side gates",
         texte: "A hinge torn off, a cracked frame, a broken or bent bar, a lock bracket to weld back on: in steel or aluminium.",
@@ -272,11 +285,6 @@ export const TEXTES_SOUDURE: Record<Locale, TextesSoudure> = {
         titre: "Metal furniture and objects",
         texte:
           "A broken table or chair leg, garden furniture, a shelf, a bracket: the workshop welds it back, and the finish (paint) is priced in the quote.",
-      },
-      {
-        titre: "Parts made to order",
-        texte:
-          "A bracket, a plate, a support, a frame: made in steel from your measurements, a sketch or the part to replace. You can also supply the metal and have it welded.",
       },
     ],
     procedesTitre: "TIG, MIG/MAG or stick: the process that suits the part",
@@ -361,6 +369,10 @@ export const TEXTES_SOUDURE: Record<Locale, TextesSoudure> = {
         a: "Steel and aluminium. For another metal, such as stainless steel or cast iron, send a photo: we will tell you honestly whether the repair can be done. The workshop does not do soldering (electronics, jewellery), plastic welding or zinc guttering.",
       },
       {
+        q: "Can I have a part welded to order in Saumur?",
+        a: "Yes. The Saumur workshop makes parts to order in steel or aluminium: a frame, a bracket, a plate, a piece of furniture. Send your measurements, a sketch or a photo: the quote gives the price, the lead time and the finish, before any work starts.",
+      },
+      {
         q: "Do you work for private customers?",
         a: "Yes, for private customers as well as for businesses. Describe the part: the quote tells you what the repair costs, before any work starts.",
       },
@@ -373,7 +385,7 @@ export const TEXTES_SOUDURE: Record<Locale, TextesSoudure> = {
         a: "On sound metal, a well-made weld holds. On metal eaten by rust, it holds no better than what surrounds it: we tell you so in the quote, and then offer to make the part again.",
       },
     ],
-    finTitre: "A part to weld or repair?",
+    finTitre: "A part to weld, to order or to put right?",
     finTexte: "Send a photo and the dimensions: you get a quote, free and with no obligation.",
     finLienFaq: "All frequently asked questions",
     service: { nom: "Welding and metal repairs", type: "Welding" },

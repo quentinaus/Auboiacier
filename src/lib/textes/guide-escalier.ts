@@ -284,6 +284,10 @@ export const TEXTES_GUIDE_ESCALIER: Record<Locale, TextesGuide> = {
           q: "Convient-il à une maison ancienne ?",
           a: "Oui, si le plancher et la trémie le permettent : c'est ce que la prise de cotes vérifie. Dans une maison existante, aucune loi n'impose les chiffres des logements neufs, mais l'atelier les applique quand même. Un mur hors d'équerre, un sol pas tout à fait de niveau, une poutre au bord de la trémie : c'est sur place qu'on les découvre, et le plan en tient compte.",
         },
+        {
+          q: "Fabriquez-vous des escaliers métalliques sur mesure à Saumur ?",
+          a: "Oui. L'atelier de Saumur fabrique des escaliers à limon central : le limon est un tube d'acier coupé et soudé à l'atelier, les marches sont en bois massif. Chaque escalier est dessiné à vos mesures après la prise de cotes chez vous, droit, quart tournant ou demi-tournant.",
+        },
       ],
     },
     fin: {
@@ -433,6 +437,10 @@ export const TEXTES_GUIDE_ESCALIER: Record<Locale, TextesGuide> = {
         {
           q: "Does it suit an old house?",
           a: "Yes, if the floor and the opening allow it: that is what the measuring visit checks. In an existing house, no law imposes the figures for new homes, but the workshop applies them anyway. A wall out of square, a floor not quite level, a beam at the edge of the opening: you find them on site, and the plan takes them into account.",
+        },
+        {
+          q: "Do you make bespoke steel staircases in Saumur?",
+          a: "Yes. The Saumur workshop makes steel spine staircases: the stringer is a steel tube cut and welded in the workshop, and the treads are solid wood. Each staircase is drawn to your measurements after the measuring visit at your home: straight, quarter turn or half turn.",
         },
       ],
     },

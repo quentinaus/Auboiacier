@@ -380,6 +380,23 @@ export default async function TablesPage({ params }: PageProps<"/[lang]/artisana
             <h2 className={titreSection}>{t.hautTitle}</h2>
             <p className={`mt-6 ${texte}`}>{remplir(t.hautBody, { epaisseurs })}</p>
           </Apparition>
+          {/* « Table à manger bois massif pied acier sur mesure à Saumur » : la fabrication en une réponse, et un lien par dessin de pied. */}
+          <Apparition className="mt-14 max-w-3xl md:mt-20">
+            <h2 className={titreSection}>{t.saumurTitle}</h2>
+            <p className={`mt-6 ${texte}`}>{t.saumurBody}</p>
+            <nav aria-label={t.saumurLiensTitre} className="mt-6">
+              <p className="surtitre">{t.saumurLiensTitre}</p>
+              <ul className="mt-3 flex flex-col items-start gap-y-1">
+                {t.saumurLiens.map((lien) => (
+                  <li key={lien.slug}>
+                    <Link href={`/${locale}/artisanat/${lien.slug}`} className="lien-fleche py-1.5 text-[#2b2320]">
+                      {lien.texte}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </Apparition>
         </div>
       </section>
 

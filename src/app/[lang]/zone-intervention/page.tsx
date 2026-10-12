@@ -16,12 +16,14 @@ import { hoverZoom } from "@/lib/ui";
 import { Apparition } from "@/components/apparition";
 
 /**
- * « Métallier en Maine-et-Loire et en Touraine » : la page de l'atelier et de
- * son terrain (« métallier Saumur » reste à l'accueil : plan de référencement,
- * 1.13, et relecture du 07/10/2026). Pas de
- * page par ville (Google les prend pour des pages satellites) : une seule
- * page, avec ce que l'atelier fait vraiment, où il se déplace, et les
- * chantiers qui portent une commune — la preuve locale.
+ * « Métallier en Anjou et en Touraine » : la page de l'atelier et de son
+ * terrain. « Métallier à Saumur » a désormais sa page (/metallier-saumur,
+ * 12/10/2026) ; celle-ci vise les recherches « métallier près d'Angers, de
+ * Tours, de Cholet, de Chinon, de Doué-la-Fontaine » (vague 5 du référencement,
+ * 12/10/2026). Pas de page par ville (Google les prend pour des pages
+ * satellites) : une seule page, avec les distances depuis Saumur, ce que
+ * l'atelier fait vraiment, où il se déplace, et les chantiers qui portent
+ * une commune — la preuve locale.
  */
 
 export async function generateMetadata({
@@ -147,7 +149,7 @@ export default async function ZonePage({ params }: PageProps<"/[lang]/zone-inter
               {locale === "fr" ? "Garde-corps de balcon et de terrasse" : "Balcony and terrace railings"}
             </Link>
             <Link href={`/${locale}/soudure-reparations`} className="lien-fleche py-2 text-[#2b2320]">
-              {locale === "fr" ? "Soudure et réparations" : "Welding and repairs"}
+              {dict.liens.soudure}
             </Link>
           </nav>
         </div>
@@ -214,6 +216,33 @@ export default async function ZonePage({ params }: PageProps<"/[lang]/zone-inter
               </Link>
               <Link href={`/${locale}/escalier-limon-central-prix-normes`} className="lien-fleche py-2 text-[#2b2320]">
                 {dict.liens.guideEscalier}
+              </Link>
+            </nav>
+          </Apparition>
+
+          {/* Les grandes villes proches : la distance depuis l'atelier et ce que l'atelier y fait (une seule page, aucune page par ville). */}
+          <Apparition>
+            <h2 className={sousTitre}>{t.villesTitle.replace(/ ([?!:;])/g, "\u00a0$1")}</h2>
+            <p className={`mt-4 ${texte}`}>{t.villesIntro}</p>
+            <ul className="mt-5 flex flex-wrap gap-2.5">
+              {t.villes.map((ville) => (
+                <li key={ville.nom} className="rounded-full bg-[#f5f1ea] px-[1.1rem] py-2.5 text-[15px] text-[#4a4038]">
+                  <span className="font-medium text-[#2b2320]">{ville.nom}</span> — {ville.distance}
+                </li>
+              ))}
+            </ul>
+            <p className={`mt-5 ${texte}`}>{t.villesProche}</p>
+            <p className={`mt-4 ${texte}`}>{t.villesLoin}</p>
+            <p className={`mt-4 ${texte}`}>{t.villesSans}</p>
+            <nav aria-label={t.villesTitle} className="mt-3 flex flex-wrap items-center gap-x-8 gap-y-1">
+              <Link href={`/${locale}/rendez-vous`} className="lien-fleche py-2 text-[#2b2320]">
+                {t.rdvLink}
+              </Link>
+              <Link href={`/${locale}/portail-sur-mesure-saumur`} className="lien-fleche py-2 text-[#2b2320]">
+                {locale === "fr" ? "Portail sur mesure à Saumur" : "Bespoke gates in Saumur"}
+              </Link>
+              <Link href={`/${locale}/artisanat/famille/garde-corps`} className="lien-fleche py-2 text-[#2b2320]">
+                {locale === "fr" ? "Garde-corps de fenêtre sur mesure à Saumur" : "Bespoke window railings in Saumur"}
               </Link>
             </nav>
           </Apparition>

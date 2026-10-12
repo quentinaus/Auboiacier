@@ -128,6 +128,31 @@ export default async function VerrieresPage({
               ))}
             </ul>
 
+            {/* « Verrière sur mesure à Saumur » : comment ça se passe, puis les questions (affichées, non balisées). */}
+            <h2 className={`${serif.className} mt-10 text-balance text-[1.4rem] leading-[1.12] tracking-[-0.01em] text-[#2b2320] md:text-[1.7rem]`}>
+              {t.saumurTitle.replace(/ ([?!:;])/g, "\u00a0$1")}
+            </h2>
+            <p className="mt-4 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.saumurBody}</p>
+            <h2 className={`${serif.className} mt-10 text-balance text-[1.4rem] leading-[1.12] tracking-[-0.01em] text-[#2b2320] md:text-[1.7rem]`}>
+              {t.faqTitle}
+            </h2>
+            <div className="mt-4 divide-y divide-[#e8e1d8] border-y border-[#e8e1d8]">
+              {t.faq.map((item) => (
+                <div key={item.q} className="py-5">
+                  <h3 className="font-semibold text-[#2b2320]">{item.q.replace(/ ([?!:;])/g, "\u00a0$1")}</h3>
+                  <p className="mt-2 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{item.a}</p>
+                </div>
+              ))}
+            </div>
+            <nav aria-label={t.faqTitle} className="mt-3 flex flex-wrap items-center gap-x-8 gap-y-1">
+              <Link href={`/${locale}/metallier-saumur`} className="lien-fleche py-2 text-[#2b2320]">
+                {dict.liens.metallierSaumur}
+              </Link>
+              <Link href={`/${locale}/artisanat/escalier-limon-central`} className="lien-fleche py-2 text-[#2b2320]">
+                {locale === "fr" ? "Escalier métallique sur mesure à Saumur" : "Bespoke steel staircase in Saumur"}
+              </Link>
+            </nav>
+
             <div className="mt-10 border-t border-[#e8e1d8] pt-8">
               <span className="surtitre block">{t.cotesTitle}</span>
               <p className="mt-3 text-[16px] leading-[1.55] text-[#4a4038] md:text-[17px]">{t.cotesBody}</p>

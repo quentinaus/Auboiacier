@@ -96,14 +96,14 @@
       "Window railings: height and rules",
       "How we check a window railing",
       "Balcony and terrace railings",
-      "Steel and solid wood staircase",
+      "Bespoke steel staircase in Saumur",
       "Steel spine staircase: prices and rules",
-      "Steel internal windows",
-      "Bespoke wood and steel tables",
+      "Bespoke steel internal window in Saumur",
+      "Bespoke solid wood and steel dining table",
       "Solid wood in our workshop",
       "Backlit stretch-fabric ceiling lights",
       "Reclaimed-steel sculptures",
-      "Welding and repairs",
+      "Welding to order in Saumur",
       "Instant PDF quote",
       "Home measuring visit",
       "Where we work around Saumur"
@@ -1136,13 +1136,13 @@
     "priceTitle": "Price",
     "priceBody": "On request — the price depends on size, number of doors and finish. Allow 4 to 8 weeks between measuring and fitting.",
     "cta": "Request a quote",
-    "photoAlt": "Black steel interior partition between a living room and a kitchen",
+    "photoAlt": "Bespoke black steel internal window separating a living room from a kitchen",
     "detailAlt": "Solid brass handle on the steel frame of a partition",
     "panelTitle": "Solid panels where they earn their place",
     "panelBody": "Lower down, glass can give way to steel sheet stiffened by a cross brace: the bottom of the door takes the knocks, and the partition gains character.",
     "panelAlt": "Lower panel of a steel partition in black sheet steel with a cross brace",
     "atelierTitle": "Divide without closing off",
-    "h1": "Steel internal windows, made to measure",
+    "h1": "Steel internal windows, made to measure in Saumur",
     "usagesTitle": "Which room is it for?",
     "usages": [
       {
@@ -1166,6 +1166,23 @@
     "cotesBody": "The workshop comes to measure at your home — {prixVisite} within {rayonVisite} km of Saumur — then sends you the quote and the drawing.",
     "cotesLien": "Book a measuring visit",
     "photosTexte": "Two internal windows made by Quentin before the workshop opened.",
+    "saumurTitle": "A bespoke steel workshop-style internal window in Saumur: how does it work?",
+    "saumurBody": "It all starts with a measuring visit at your home: the workshop measures the opening, looks at the wall and the floor, then draws the window. The steel frames are cut and welded in the Saumur workshop, then painted matt black, raw steel under varnish or white. You choose the number of glazing bars, the glass (clear, frosted or smoked) and the door, pivoting or sliding.",
+    "faqTitle": "Your questions about the steel internal window",
+    "faq": [
+      {
+        "q": "How much does a bespoke steel internal window cost?",
+        "a": "The price is set in a quote: it depends on the dimensions, the number of doors and the finish. The quote and the drawing follow the measuring visit at your home."
+      },
+      {
+        "q": "Can an internal window be fitted in an old house?",
+        "a": "Yes, the window is measured on site and drawn for your opening, walls and floor included. A wall that is out of square shows up at the measuring visit, before anything is made."
+      },
+      {
+        "q": "Does the workshop travel outside Saumur?",
+        "a": "Yes, up to 200 km. The measuring visit at your home costs {prixVisite} within {rayonVisite} km of Saumur; further away, its price depends on the distance."
+      }
+    ],
     "serviceNom": "Bespoke steel internal window"
   },
   "panier": {
@@ -1474,7 +1491,7 @@
       "description": "Sculptures welded by hand from reclaimed steel in Saumur, France: one-off commissions designed with you — subject, size, base, indoors or out."
     },
     "verrieres": {
-      "title": "Steel internal windows, made to measure",
+      "title": "Steel internal windows, made in Saumur",
       "description": "Steel internal windows and glazed partitions, measured at your home and hand-welded in Saumur, France: kitchens, room dividers, offices. Price on quote."
     },
     "apropos": {
@@ -1514,8 +1531,8 @@
       "description": "Rules for using the Auboiacier website: access, intellectual property, liability, links."
     },
     "zone": {
-      "title": "Metalworker in Saumur: Anjou, Touraine, 200 km",
-      "description": "Workshop in Saumur, Maine-et-Loire: home measuring from {prixVisite} within {rayonVisite} km, visits up to 200 km away. Railings, staircases, steel windows, tables."
+      "title": "Metalworker near Angers, Tours, Cholet",
+      "description": "Metalwork workshop in Saumur, France: Angers is 44 km away, Tours 60 km, Cholet 65 km. Home measuring from {prixVisite} within {rayonVisite} km, visits up to 200 km."
     },
     "faq": {
       "title": "FAQ — lead times, prices, delivery",
@@ -1564,7 +1581,7 @@
   },
   "zone": {
     "title": "Where we work",
-    "h1": "Metalworker in the Loire Valley, from Saumur",
+    "h1": "Metalworker in Anjou and Touraine, from Saumur",
     "subtitle": "The Auboiacier workshop is in Saumur, in the Maine-et-Loire, France. It works in steel and solid wood, and makes backlit stretch-fabric ceiling lights. You keep one point of contact, from the measuring visit to the fitting.",
     "metiersTitle": "What the workshop makes and fits",
     "metiers": {
@@ -1616,6 +1633,33 @@
     "ctaLabel": "Get in touch",
     "faqLink": "See the frequently asked questions about bespoke metalwork",
     "communesNote": "And further out, anywhere within {rayonMax} km of the workshop for a measuring visit.",
+    "villesTitle": "A metalworker near Angers, Tours, Cholet, Chinon or Doué-la-Fontaine?",
+    "villesIntro": "The workshop is in Saumur, and it travels. Here are the distances from the workshop, as the crow flies and rounded: the road is a little longer.",
+    "villes": [
+      {
+        "nom": "Doué-la-Fontaine",
+        "distance": "about 17 km"
+      },
+      {
+        "nom": "Chinon",
+        "distance": "about 26 km"
+      },
+      {
+        "nom": "Angers",
+        "distance": "about 44 km"
+      },
+      {
+        "nom": "Tours",
+        "distance": "about 60 km"
+      },
+      {
+        "nom": "Cholet",
+        "distance": "about 65 km"
+      }
+    ],
+    "villesProche": "Doué-la-Fontaine and Chinon are inside the measuring-visit radius at {prixVisite} (up to {rayonVisite} km from Saumur): the workshop comes to measure at your home, then makes the piece in Saumur.",
+    "villesLoin": "For Angers, Tours and Cholet, the workshop also travels, up to 200 km from Saumur: the measuring visit at your home is priced by distance, and the written quote gives the travel price for fitting.",
+    "villesSans": "If you would rather not wait for a visit, the pieces in the collection are delivered by carrier across mainland France, or collected from the workshop in Saumur. There is no branch in Angers, Tours or Cholet: everything is made in the Saumur workshop.",
     "metalleriesTitle": "Metalwork in Saumur: what the workshop does on site",
     "metalleriesBody": "Everything starts in the Saumur workshop (49400). The steel is cut, welded by hand and painted there; the solid wood is cut to your sizes, sanded and oiled, with a background in cabinetmaking. If you are looking for a metalworker in Saumur for a railing, a table, a staircase, a steel partition or a backlit ceiling, you deal with the workshop that makes the piece.",
     "localTitle": "Tufa-stone houses and protected areas",
@@ -1862,7 +1906,7 @@
     "verificationGc": "How we check a window railing",
     "guideEscalier": "Steel spine staircase: prices and rules",
     "balconTerrasse": "Balcony and terrace railings",
-    "soudure": "Welding and repairs",
+    "soudure": "Welding to order in Saumur",
     "metallierSaumur": "Metalworker in Saumur: the workshop"
   },
   "lumiere": {
@@ -1979,6 +2023,27 @@
     "prixTitle": "How much does a bespoke solid wood table cost?",
     "prixIntro": "The prices on each product page, from the same calculator: welded base painted in the least expensive colour, solid wood top with a hardwax oil finish. Between two sizes, enter your own on the product page and the price follows to the centimetre. Delivery is extra, {livraisonMax} at most in mainland France.",
     "prixPlaces": "Size",
+    "saumurTitle": "A solid wood dining table with a steel base, made to measure in Saumur",
+    "saumurBody": "Every table is made to order in the Saumur workshop. The solid wood top is cut to your size; the steel base is cut, welded and painted on site. You choose the timber of the top, the design of the base and its colour, then enter the length and width: the price appears straight away. For a shape or size outside the catalogue, describe your project and we quote it.",
+    "saumurLiensTitre": "The four base designs, each with its own page",
+    "saumurLiens": [
+      {
+        "slug": "table-mikado",
+        "texte": "Mikado table in solid wood, crossed steel tube base"
+      },
+      {
+        "slug": "table-croix",
+        "texte": "Cross leg table in solid wood and steel"
+      },
+      {
+        "slug": "table-brindille",
+        "texte": "Brindille table, solid wood and welded steel rods"
+      },
+      {
+        "slug": "table-resine-mikado",
+        "texte": "River table in epoxy resin and solid oak"
+      }
+    ],
     "hautTitle": "What makes a high-end table",
     "hautBody": "It shows in what photos don't: the thickness of the top, the section of the steel, the welds. Ours has a solid wood top {epaisseurs} mm thick. The base is welded in the workshop: 80 × 80 mm steel tubes with a 3 mm wall on the Mikado and the Croix; straight steel rods welded one by one on the Brindille. The hardwax oil finish can be touched up where it is marked, without stripping the whole top."
   },

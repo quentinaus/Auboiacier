@@ -1496,11 +1496,11 @@ const catalogue: Product[] = [
     slug: "escalier-limon-central",
     famille: "escalier",
     seoMots: "escalier acier",
-    seoTitre: "Escalier limon central acier et bois",
+    seoTitre: "Escalier métallique sur mesure à Saumur",
     // La fiche ajoute « Sur devis, pose comprise. » (textePrixDescription) : la pose n'est dite qu'une fois.
     seoDescription:
       "Escalier à limon central sur mesure : acier soudé à Saumur, marches en bois massif de 5 cm, droit, quart ou demi-tournant.",
-    h1Ligne: "Escalier sur mesure en acier, marches en bois massif",
+    h1Ligne: "Escalier métallique sur mesure, marches en bois massif",
     releve: "escalier",
     category: "interieur",
     // Sur devis, toujours — mais l'atelier peut venir prendre les cotes,
@@ -1512,7 +1512,7 @@ const catalogue: Product[] = [
     images: [
       {
         src: "/images/escalier/limon-droit.jpg",
-        alt: "Escalier droit à limon central acier, marches en chêne massif et garde-corps acier à lisses horizontales, dans une pièce aux murs chaulés",
+        alt: "Escalier métallique sur mesure à limon central, marches en chêne massif et garde-corps acier à lisses horizontales, dans une pièce aux murs chaulés",
         bg: "#e6e0d6",
         fit: "cover",
         // L'escalier est à droite de la photo : le recadrage le garde au centre.
@@ -1549,6 +1549,11 @@ const catalogue: Product[] = [
         body: "Chaque marche en bois massif de 50 mm est fixée sur des platines cachées sous la marche. Le garde-corps de l'image est un exemple : le vôtre, avec sa main courante en bois, est dessiné au devis, selon la norme.",
       },
       {
+        // Vague 5 du référencement (12/10/2026) : « escalier sur mesure Saumur », « escalier métallique ».
+        title: "Un escalier métallique sur mesure à Saumur : pour quelle pièce ?",
+        body: "Un escalier à limon central convient quand on veut garder la lumière et la vue : un seul tube d'acier porte les marches, et rien ne ferme l'espace dessous. Il se loge dans une maison ancienne comme dans une construction récente, à condition que le plancher et la trémie le permettent : c'est ce que vérifie la prise de cotes chez vous. L'escalier est dessiné à vos mesures et fabriqué à l'atelier de Saumur. Vous choisissez la forme, l'essence des marches et la couleur du limon.",
+      },
+      {
         // Le guide de l'escalier garde « Droit, quart tournant ou demi-tournant » et les prix par forme : la fiche y renvoie.
         title: "Trois formes, selon votre trémie",
         body: "L'escalier droit monte d'une seule volée ; le quart tournant tourne d'un quart de tour, en haut ou en bas, quand le recul manque ; le demi-tournant revient sur lui-même quand la place au sol est plus courte encore. La prise de cotes chez vous dit laquelle convient à votre trémie. Les prix de départ de chaque forme, et les normes d'un escalier, sont dans notre guide de l'escalier à limon central.",
@@ -1580,13 +1585,13 @@ const catalogue: Product[] = [
     en: {
       name: "Central Stringer Staircase",
       seoMots: "steel staircase",
-      seoTitre: "Steel spine staircase, solid wood treads",
+      seoTitre: "Bespoke steel staircase in Saumur",
       seoDescription:
         "Bespoke steel spine staircase: welded in Saumur, France, 5 cm solid wood treads, straight, quarter turn or half turn.",
       h1Ligne: "Bespoke steel staircase, solid wood treads",
       tagline: "Central steel stringer, solid wood treads, timber handrail.",
       images: [
-        "Straight staircase with a central steel stringer, solid oak treads and a steel balustrade with slim horizontal rails, in a limewashed room",
+        "Bespoke steel staircase with a central stringer, solid oak treads and a steel balustrade with slim horizontal rails, in a limewashed room",
         "Close-up of the first solid oak treads on the steel stringer, bolted floor plate",
       ],
       sizes: {
@@ -1602,6 +1607,10 @@ const catalogue: Product[] = [
         {
           title: "Treads that seem to float",
           body: "Each 50 mm solid wood tread is fixed on plates hidden under the tread. The balustrade in the image is an example: yours, with its wooden handrail, is drawn up in the quote, following the standard.",
+        },
+        {
+          title: "A bespoke steel staircase in Saumur: for which room?",
+          body: "A steel spine staircase suits a room where you want to keep the light and the view: a single steel tube carries the treads, and nothing closes off the space beneath. It fits an old house as well as a recent build, provided the floor and the stairwell opening allow it: that is what the measuring visit at your home checks. The staircase is drawn to your measurements and made in the Saumur workshop. You choose the shape, the timber of the treads and the colour of the stringer.",
         },
         {
           title: "Three shapes, to suit your stairwell",
@@ -1764,12 +1773,20 @@ const catalogue: Product[] = [
     name: "Portillon",
     tagline: "L'entrée des piétons, dans le style de votre portail.",
     seoMots: "portillon",
-    seoTitre: "Portillon alu ou acier sur mesure",
-    seoDescription: "Portillon sur mesure en alu ou acier, assorti à votre portail. Fabriqué et posé depuis Saumur.",
+    seoTitre: "Portillon sur mesure à Saumur, alu ou acier",
+    seoDescription: "Portillon de jardin sur mesure en alu ou acier, assorti à votre portail. Fabriqué et posé depuis Saumur.",
     h1Ligne: "Portillon sur mesure en alu ou en acier, assorti au portail",
     images: [{ src: "/images/portails/portillon-rosace.jpg", alt: "Dessin d'un portillon en acier noir, croix et rosace, soubassement plein et lisse en chêne, entre deux piliers" }],
     sections: [
       { title: "Assorti au portail", body: "Le même cadre, le même remplissage et la même couleur que votre portail. Posé en même temps, il partage la visite et le voyage : son prix baisse d'autant sur le devis." },
+      {
+        title: "Un portillon de jardin sur mesure : quelles cotes, quelle matière ?",
+        body: "Le portillon ferme l'entrée des piétons d'un jardin, d'une cour ou d'une maison, entre deux piliers. Il se commande seul ou avec un portail. Le passage va de 0,70 à 1,40 m et la hauteur de 0,80 à 2,20 m ; le cadre est en alu soudé au TIG puis thermolaqué, ou en acier galvanisé puis thermolaqué. Vous composez le style sur la fiche, comme pour un portail, et le dessin se met à jour.",
+      },
+      {
+        title: "Un portillon assorti au portail ou à la clôture : comment choisir ?",
+        body: "Pour qu'il aille avec votre portail de jardin, gardez le même style, la même hauteur et la même couleur. Si le portail reste à choisir, la page sur le portail sur mesure à Saumur explique comment décider entre battant, coulissant et pliant ; le portillon se commande ensuite dans le même style.",
+      },
     ],
     specs: [
       { label: "Matière", value: "Alu soudé TIG, thermolaqué ; ou acier galvanisé puis thermolaqué" },
@@ -1780,12 +1797,20 @@ const catalogue: Product[] = [
       name: "Pedestrian gate",
       tagline: "The way in on foot, in the style of your gate.",
       seoMots: "pedestrian gate",
-      seoTitre: "Aluminium or steel pedestrian gate",
-      seoDescription: "Made-to-measure pedestrian gate in aluminium or steel, matching your gate. Made and fitted from Saumur, France.",
+      seoTitre: "Garden gate in aluminium or steel, Saumur",
+      seoDescription: "Made-to-measure garden gate in aluminium or steel, matching your gate. Made and fitted from Saumur, France.",
       h1Ligne: "Made-to-measure pedestrian gate in aluminium or steel, matching your gate",
       images: ["Drawing of a black steel pedestrian gate with a cross and rosette, solid lower panel and oak top rail, between two pillars"],
       sections: [
         { title: "Matching the gate", body: "The same frame, infill and colour as your gate. Fitted at the same time, it shares the survey visit and the trip: its price drops accordingly on the quote." },
+        {
+          title: "A made-to-measure garden gate: which size, which material?",
+          body: "The pedestrian gate closes off the way in on foot to a garden, a courtyard or a house, between two pillars. You can order it on its own or with a gate. The opening runs from 0.70 to 1.40 m and the height from 0.80 to 2.20 m; the frame is TIG-welded aluminium, powder coated, or galvanised steel, powder coated. You compose the style on the page, as for a gate, and the drawing updates.",
+        },
+        {
+          title: "A pedestrian gate to match your gate or fence: how to choose?",
+          body: "To go with your garden gate, keep the same style, height and colour. If the gate is still to be chosen, the bespoke gates page explains how to decide between swing, sliding and folding; the pedestrian gate is then ordered in the same style.",
+        },
       ],
       specs: [
         { label: "Material", value: "TIG-welded aluminium, powder coated; or galvanised then powder-coated steel" },
@@ -2057,7 +2082,7 @@ const catalogue: Product[] = [
       {
         // La photo choisie par Quentin (10/10/2026) : volutes en C et en S entre les barreaux, platines sur l'appui en pierre.
         src: "/images/garde-corps/forge/volutes-balcon.jpg",
-        alt: "Garde-corps forgé à volutes en C et en S entre des barreaux carrés, acier peint noir, main courante en chêne, fixé sur l'appui en pierre d'une fenêtre en tuffeau",
+        alt: "Garde-corps de ferronnerie à volutes en C et en S entre des barreaux carrés, acier peint noir, main courante en chêne, fixé sur l'appui en pierre d'une fenêtre en tuffeau",
       },
       {
         src: "/images/garde-corps/forge/entre-c.jpg",
@@ -2095,6 +2120,15 @@ const catalogue: Product[] = [
       {
         title: "Un décor de ferronnerie, à vos cotes",
         body: "Volutes en C entre les barreaux, frise de S, anneaux du Directoire, cœurs, médaillon : sept décors inspirés des balcons anciens, dessinés pour votre fenêtre. Les volutes sont soudées à l'atelier sur un cadre en acier plein, puis peintes avec lui.",
+      },
+      {
+        // Vague 5 du référencement (12/10/2026) : « ferronnerie Saumur », « garde-corps forgé à volutes ». Les volutes sont soudées.
+        title: "Ferronnerie à Saumur : un garde-corps à volutes pour quelle fenêtre ?",
+        body: "Pour une maison de tuffeau, une demeure ancienne ou une façade de style haussmannien, ce garde-corps de ferronnerie reprend le décor des balcons anciens, en acier plein, à la mesure de votre fenêtre. Les volutes sont soudées à l'atelier de Saumur sur le cadre, puis peintes avec lui. Il se fixe dans le tableau de la fenêtre : la fixation se choisit selon votre mur, et l'atelier le regarde avant de fabriquer.",
+      },
+      {
+        title: "Faut-il une déclaration en mairie pour un garde-corps neuf ?",
+        body: "Dans le centre de Saumur et les secteurs protégés, une modification de façade, comme un garde-corps neuf, peut demander une déclaration préalable en mairie : renseignez-vous avant de commander.",
       },
       {
         title: "Les finitions",
@@ -2139,7 +2173,7 @@ const catalogue: Product[] = [
       h1Ligne: "Bespoke window railing with ironwork scrolls",
       tagline: "Solid steel window railing with ironwork scrolls: the design of old balconies, drawn to your measurements and checked against the standard.",
       images: [
-        "Wrought railing with C- and S-scrolls between square bars, black-painted steel, oak handrail, fixed on the stone sill of a tufa window",
+        "Ironwork window railing with C- and S-scrolls between square bars, black-painted steel, oak handrail, fixed on the stone sill of a tufa window",
         "Wrought window railing, front view: C-scrolls between the bars, black-painted steel, oak handrail, between two tufa stone reveals",
         "Wrought railing with a Directoire-style ring frieze, gilded highlights, black-painted steel and oak handrail",
         "Wrought railing with scrolled hearts, black-painted steel, oak handrail, in a tufa stone window opening",
@@ -2149,6 +2183,14 @@ const catalogue: Product[] = [
         {
           title: "Ironwork, made to your measurements",
           body: "C-scrolls between the bars, S-scroll frieze, Directoire rings, hearts, medallion: seven designs inspired by old balconies, drawn for your window. The scrolls are welded in the workshop onto a solid steel frame, then painted with it.",
+        },
+        {
+          title: "Ironwork in Saumur: a scroll railing for which window?",
+          body: "For a tufa-stone house, an old townhouse or a Haussmann-style façade, this ironwork railing takes up the design of old balconies, in solid steel, to the size of your window. The scrolls are welded in the Saumur workshop onto the frame, then painted with it. It fits into the window reveal: the fixing is chosen to suit your wall, and the workshop looks at it before making anything.",
+        },
+        {
+          title: "Do I need to declare a new railing at the town hall?",
+          body: "In the centre of Saumur and in protected areas, a change to a façade, such as a new railing, may need a prior declaration at the town hall: check before ordering.",
         },
         {
           title: "The finishes",

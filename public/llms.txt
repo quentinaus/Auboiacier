@@ -25,7 +25,7 @@ Quentin Aumercier est soudeur-métallier, titulaire du CAP Métallier et du BP M
 - [Plafonds lumineux en toile tendue](https://auboiacier.fr/fr/toiles-tendues): Lucarne (rectangle) et Halo (disque)
 - [Sculptures en acier soudé](https://auboiacier.fr/fr/artisanat/sculptures): sur commande
 - [Garde-corps de balcon et de terrasse](https://auboiacier.fr/fr/garde-corps-balcon-terrasse): balcons, terrasses, rampes d'escalier extérieur, sur devis
-- [Soudure et réparations](https://auboiacier.fr/fr/soudure-reparations): acier et aluminium, TIG, MAG, électrode, sur devis
+- [Soudure sur mesure à Saumur](https://auboiacier.fr/fr/soudure-reparations): pièces à façon et réparations, acier et aluminium, TIG, MAG, électrode, sur devis
 - [Le bois massif à l'atelier](https://auboiacier.fr/fr/bois-massif): plateaux, marches, mains courantes
 
 ## Guides
@@ -39,7 +39,7 @@ Quentin Aumercier est soudeur-métallier, titulaire du CAP Métallier et du BP M
 
 - [Métallier à Saumur](https://auboiacier.fr/fr/metallier-saumur): l'atelier, ce qu'il fabrique, où il intervient, comment le joindre
 - [À propos](https://auboiacier.fr/fr/a-propos): Quentin Aumercier, son parcours
-- [Zone d'intervention](https://auboiacier.fr/fr/zone-intervention): Maine-et-Loire, Indre-et-Loire, Deux-Sèvres, Vienne
+- [Métallier en Anjou et en Touraine](https://auboiacier.fr/fr/zone-intervention): distances depuis Saumur (Angers, Tours, Cholet, Chinon, Doué-la-Fontaine), Maine-et-Loire, Indre-et-Loire, Deux-Sèvres, Vienne
 - [Devis en ligne](https://auboiacier.fr/fr/devis): prix et devis PDF
 - [Prise de cotes à domicile](https://auboiacier.fr/fr/rendez-vous)
 - [Contact](https://auboiacier.fr/fr/contact)
@@ -50,7 +50,7 @@ Quentin Aumercier est soudeur-métallier, titulaire du CAP Métallier et du BP M
 - [The collection](https://auboiacier.fr/en/artisanat): bespoke steel and solid wood pieces, priced online or quoted per project
 - [Steel spine staircase: prices and rules](https://auboiacier.fr/en/escalier-limon-central-prix-normes): prices by shape and timber, French rules
 - [Balcony and terrace railings](https://auboiacier.fr/en/garde-corps-balcon-terrasse): bespoke, quoted per project
-- [Welding and repairs](https://auboiacier.fr/en/soudure-reparations): steel and aluminium, quoted per job
+- [Welding to order in Saumur](https://auboiacier.fr/en/soudure-reparations): parts made to order and repairs, steel and aluminium, quoted per job
 - [Metalworker in Saumur](https://auboiacier.fr/en/metallier-saumur): the workshop, what it makes, where it works, how to reach it
 - [About Quentin Aumercier](https://auboiacier.fr/en/a-propos): welder-metalworker, French CAP and BP Métallier diplomas, two years in Australia with a maker of backlit stretch-fabric ceilings
 
