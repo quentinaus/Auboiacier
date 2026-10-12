@@ -47,7 +47,7 @@ export function CarteCategorie({
       <h3 className={`${serif.className} mt-4 text-[1.2rem] leading-[1.15] tracking-[-0.01em] text-[#2b2320] md:text-[1.45rem] ${dense ? "xl:text-[1.25rem]" : ""} ${serre ? "2xl:text-[1.2rem]" : ""}`}>
         {categorie.titre}{"\u00a0"}
         {/* La flèche dit que toute la carte se touche (Quentin, 12/10/2026 : « on ne sait pas s'il faut cliquer sur le bouton ou la photo »). */}
-        <span aria-hidden="true" className="inline-block text-[#8a7d6f] transition-transform duration-300 group-hover:translate-x-1">→</span>
+        <span aria-hidden="true" className="inline-block text-[#6f6357] transition-transform duration-300 group-hover:translate-x-1">→</span>
       </h3>
       {detail && <p className={`mt-1 text-[14px] leading-[1.4] text-[#6f6357] md:text-[15px] ${dense ? "xl:text-[14px]" : ""}`}>{detail}</p>}
     </Link>
