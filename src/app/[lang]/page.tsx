@@ -271,23 +271,33 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
       {/* 5. Le texte que lisent les moteurs de recherche ET les visiteurs, tout en bas : ce que fait l'atelier, comment ça
           se passe, où il intervient (texte de la conversation Tarifs, 07/10/2026 : l'accueil doit garder assez de texte
           visible pour Google — rien de replié ni de caché). Puis les liens vers chaque fabrication. */}
-      <section className="border-t border-[#e5ddd3] bg-white px-6 py-16 md:py-24">
-        <Apparition className="mx-auto max-w-2xl">
-          <h2 className={`${serif.className} text-[1.9rem] leading-[1.08] tracking-[-0.016em] text-[#2b2320] sm:text-[2.3rem]`}>{seoBlocs.titre}</h2>
-          {seoBlocs.blocs.map((bloc, i) => (
-            <div key={i} className={i ? "mt-9" : "mt-5"}>
-              {"h3" in bloc && bloc.h3 && (
-                <h3 className={`${serif.className} text-[1.4rem] leading-[1.15] tracking-[-0.01em] text-[#2b2320] md:text-[1.6rem]`}>{bloc.h3}</h3>
-              )}
+      <section id="texte-atelier" className="border-t border-[#e5ddd3] bg-white px-6 py-16 md:py-24">
+        <Apparition className="mx-auto max-w-6xl">
+          <h2 className={`${serif.className} max-w-3xl text-[1.9rem] leading-[1.08] tracking-[-0.016em] text-[#2b2320] sm:text-[2.3rem] lg:text-[2.8rem]`}>{seoBlocs.titre}</h2>
+          {/* Le premier bloc (sans titre) est l'introduction : large, en tête. Les autres sont des rubriques en colonnes sur ordinateur. */}
+          {seoBlocs.blocs.filter((bloc) => !("h3" in bloc && bloc.h3)).map((bloc, i) => (
+            <div key={`intro-${i}`} className="mt-6 max-w-4xl">
               {bloc.paragraphes.map((paragraphe, j) => (
-                <p key={j} className={`${"h3" in bloc && bloc.h3 && j === 0 ? "mt-3" : j ? "mt-4" : ""} text-[16px] leading-[1.65] text-[#4a4038] md:text-[17px]`}>
+                <p key={j} className={`${j ? "mt-4" : ""} text-[17px] leading-[1.65] text-[#3a312a] md:text-[19px]`}>
                   {paragraphe}
                 </p>
               ))}
             </div>
           ))}
-          <h3 className="surtitre mt-9">{t.seoLinksTitle}</h3>
-          <ul className="mt-4 grid gap-x-8 gap-y-2.5 text-[16px] sm:grid-cols-2">
+          <div className="mt-12 grid gap-x-12 gap-y-10 md:grid-cols-2 lg:grid-cols-3">
+            {seoBlocs.blocs.filter((bloc) => "h3" in bloc && bloc.h3).map((bloc, i) => (
+              <div key={i} className="border-t border-[#2b2320]/20 pt-5">
+                <h3 className={`${serif.className} text-[1.35rem] leading-[1.15] tracking-[-0.01em] text-[#2b2320] md:text-[1.5rem]`}>{"h3" in bloc ? bloc.h3 : ""}</h3>
+                {bloc.paragraphes.map((paragraphe, j) => (
+                  <p key={j} className={`${j ? "mt-3" : "mt-3"} text-[15.5px] leading-[1.65] text-[#4a4038]`}>
+                    {paragraphe}
+                  </p>
+                ))}
+              </div>
+            ))}
+          </div>
+          <h3 className="surtitre mt-14 border-t border-[#2b2320]/20 pt-8">{t.seoLinksTitle}</h3>
+          <ul className="mt-5 grid gap-x-8 gap-y-3 text-[16px] sm:grid-cols-2 lg:grid-cols-3">
             {[
               "/metallier-saumur",
               "/artisanat/famille/garde-corps",
