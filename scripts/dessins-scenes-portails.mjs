@@ -42,6 +42,8 @@ export function decorDe(cfg, fenetre) {
 export const FENETRES = {
   vitrine: { L: 5200, H: 2971, haut: 2418, bas: 553, pxL: 1300, pxH: 743 },
   carte: { L: 6000, H: 4000, haut: 2960, bas: 1040, pxL: 600, pxH: 400 },
+  // Le visuel de la carte « Portails » de l'accueil et de la Collection (4:5, rendu en JPEG par scripts/dessin-portail-accueil.mjs).
+  accueil: { L: 4600, H: 5750, haut: 3565, bas: 2185, pxL: 1200, pxH: 1500 },
 };
 /** Une primitive utile garde au moins cette marge (mm) avec le bord de la fenêtre. */
 const MARGE_MM = 100;
