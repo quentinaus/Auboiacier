@@ -1165,6 +1165,8 @@ export function ProductOptions({
    * (lumiere-bloc.tsx). Rien ne change sous 768 px : le croquis puis la carte, comme avant.
    */
   const lumiereBloc = product.category === "lumiere" && nouvelleMiseEnPage;
+  /** Les tables et les plafonds sur mesure : la présentation « nette » (globals.css, .config-pro). */
+  const configPro = nouvelleMiseEnPage && Boolean(product.surMesure) && (product.category === "lumiere" || product.famille === "table-interieur" || product.famille === "table-exterieur");
   /**
    * Une table (pas un plafond) dans la page de configuration : le même gabarit trois colonnes (product-view.tsx), le croquis
    * de la table entière, la livraison toujours visible dans la colonne d'achat (pas dans un sous-menu : le client ne comprenait
@@ -3432,7 +3434,10 @@ export function ProductOptions({
                         : "Visit: — €"
                     : prixFinal !== null
                       ? prixAffiche(prixFinal, locale)
-                      : bareme || estGC
+                      : bareme && !estGC && prixDepart !== null
+                        ? // Tant que les cotes manquent, le prix de départ plutôt qu'un tiret (Quentin, 12/10/2026 : « pas très pro »).
+                          `${t.from} ${prixAffiche(prixDepart, locale)}`
+                        : bareme || estGC
                         ? "— €"
                         : prixDepart !== null
                           ? `${t.from} ${prixAffiche(prixDepart, locale)}`
@@ -3523,6 +3528,11 @@ export function ProductOptions({
               >
                 {raisonIndisponible.message}
               </a>
+            </p>
+          )}
+          {configPro && (
+            <p className="ligne-confiance">
+              {locale === "fr" ? "Fabriqué à Saumur · Prix ferme · Devis PDF gratuit" : "Made in Saumur · Fixed price · Free PDF quote"}
             </p>
           )}
         </div>
@@ -3665,7 +3675,9 @@ export function ProductOptions({
                   ? t.onQuote
                   : product.releve === "garde-corps-fenetre"
                     ? t.gcPromesseCourt
-                    : bareme
+                    : bareme && prixDepart !== null
+                      ? `${t.from} ${prixAffiche(prixDepart, locale)}`
+                      : bareme
                       ? "— €"
                       : prixDepart !== null
                         ? `${t.from} ${prixAffiche(prixDepart, locale)}`

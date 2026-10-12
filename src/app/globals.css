@@ -2097,3 +2097,116 @@ textarea:focus-visible,
     display: none;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ *  Le bloc Configuration « net » (tables et plafonds lumineux) — Quentin, 12/10/2026, sur son iPhone : « beau, j'aime le
+ *  style, mais pour quelqu'un qui dépense 2 000 € ça ne fait pas assez pro ». Même gabarit, mêmes teintes chaudes, mêmes
+ *  emplacements ; seule la matière change : plus de verre dépoli ni de halo, des cartes à fond uni aux bords qui se
+ *  voient, des coins moins ronds, des champs blancs bien lisibles, un bouton franc. Le système « Liquid Glass » ci-dessus
+ *  est piloté par des variables : on ne fait que leur donner d'autres valeurs (le garde-corps et les portails gardent
+ *  les leurs).
+ * ------------------------------------------------------------------ */
+#configuration .fond-configuration.config-pro {
+  --lg-radius: 16px;
+  --lg-blur: 0px;
+  --lg-sat: 100%;
+  --lg-fill-top: #ffffff;
+  --lg-fill-bot: #ffffff;
+  --lg-spec: rgba(255, 255, 255, 0);
+  --lg-rim-a: #ddd3c6;
+  --lg-rim-b: #ddd3c6;
+  --lg-rim-c: #ddd3c6;
+  --lg-rim-d: #ddd3c6;
+  --lg-top-line: rgba(255, 255, 255, 0);
+  --lg-inner-glow: rgba(255, 255, 255, 0);
+  --lg-shadow: 0 1px 2px rgba(43, 35, 32, 0.06), 0 10px 26px -18px rgba(43, 35, 32, 0.24);
+  --lg-shadow-sm: 0 1px 2px rgba(43, 35, 32, 0.08);
+  --lg-stage-shadow: none;
+  --lg-stage-rim: rgba(43, 35, 32, 0.1);
+  --lg-veil: none;
+  --lg-stage-filter: none;
+  --lg-ink-2: rgba(29, 29, 31, 0.8);
+  --lg-ink-3: rgba(29, 29, 31, 0.62);
+  --lg-field: #ffffff;
+  --lg-field-focus: #ffffff;
+  --lg-track: #ece5da;
+  --lg-slider-track: #cfc4b5;
+  --lg-track-shade: rgba(43, 35, 32, 0);
+  --lg-track-rim: rgba(255, 255, 255, 0);
+  --lg-thumb: #ffffff;
+  --lg-thumb-grad: #ffffff;
+  --lg-thumb-shadow: rgba(43, 35, 32, 0.3);
+  --lg-chip: #ffffff;
+  --lg-chip-rim: #d8cdbf;
+  --lg-tile: #ffffff;
+  --lg-tile-hover: #faf7f2;
+  --lg-tile-rim: #ddd3c6;
+  --lg-tray: #ffffff;
+  --lg-tray-solid: #ffffff;
+  --lg-cta: #2b2320;
+  --lg-cta-hi: rgba(255, 255, 255, 0);
+  --lg-cta-shadow: rgba(43, 35, 32, 0.3);
+  --lg-progress-off: #e4ddd2;
+  --lg-sketch-rim: #ddd3c6;
+  --lg-sketch-mat: #ffffff;
+  --lg-sketch-rim2: #ddd3c6;
+  --lg-sketch-shadow: 0 1px 2px rgba(43, 35, 32, 0.06);
+  --lg-stage-rim: rgba(43, 35, 32, 0.1);
+  border-radius: 22px !important;
+  background: #efe9df !important;
+}
+/* Plus de halo flou derrière le bloc : un fond uni. */
+#configuration .fond-configuration.config-pro::before {
+  display: none;
+}
+#configuration .fond-configuration.config-pro::after {
+  border-radius: inherit;
+}
+/* Un bouton grisé reste lisible : un bouton qui attend les cotes, pas un bouton cassé. */
+#configuration .fond-configuration.config-pro .carte-verre .btn-verre:not(dialog *):disabled {
+  opacity: 1;
+  background: #e4ddd2 !important;
+  border-color: #cfc5b7 !important;
+  color: #5c5140 !important;
+  box-shadow: none !important;
+}
+/* Le texte d'aide des cases (« 80 – 450 cm ») se lit. */
+#configuration .fond-configuration.config-pro input::placeholder {
+  color: #6f6357;
+  opacity: 1;
+}
+/* La ligne de confiance, sous le bouton. */
+.config-pro .ligne-confiance {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 11.5px;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  color: #5c5140;
+}
+/* Les cases de saisie (longueur, largeur, code postal) : blanches sur la carte blanche, donc cerclées d'un vrai trait. */
+#configuration .fond-configuration.config-pro .carte-verre [class~="border-[#9a8d80]"]:not([role="radiogroup"]):not([class~="h-4"]):not(input):not(dialog *) {
+  border-color: #a89b8b !important;
+  border-radius: 10px !important;
+}
+#configuration .fond-configuration.config-pro .carte-verre [class~="border-[#9a8d80]"]:not([role="radiogroup"]):not(dialog *):focus-within {
+  border-color: #2b2320 !important;
+  box-shadow: 0 0 0 2px rgba(43, 35, 32, 0.18) !important;
+}
+/* Le cadre du croquis : la même carte blanche, aux mêmes bords. */
+#configuration .fond-configuration.config-pro .cadre-croquis {
+  border-radius: 16px !important;
+  border: 1px solid #ddd3c6 !important;
+  background: #ffffff !important;
+  box-shadow: var(--lg-shadow) !important;
+}
+/* Le rail des curseurs : un trait qu'on voit. */
+#configuration .fond-configuration.config-pro input[type="range"]::-webkit-slider-runnable-track {
+  background: #cfc4b5 !important;
+}
+#configuration .fond-configuration.config-pro input[type="range"]::-moz-range-track {
+  background: #cfc4b5 !important;
+}
+#configuration .fond-configuration.config-pro input[type="range"]::-webkit-slider-thumb {
+  border: 1.5px solid #2b2320 !important;
+}
