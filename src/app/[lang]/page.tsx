@@ -4,7 +4,6 @@ import Link from "next/link";
 import { CarteCategorie } from "@/components/carte-categorie";
 import { categoriesCollection, piecesDeFamille } from "@/lib/categories-collection";
 import { Visuel, MentionIllustration } from "@/components/visuel";
-import type { Locale } from "@/lib/i18n";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { getDictionary } from "./dictionaries";
 import { remplacerMarqueurs } from "@/lib/marqueurs";
@@ -12,97 +11,11 @@ import { metadataPage, lienAvisGoogle } from "@/lib/seo";
 import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
-import { PhotoPlafondAnime } from "@/components/photo-plafond-anime";
-import { hoverZoom } from "@/lib/ui";
 import { Apparition } from "@/components/apparition";
 import { IndiceDefiler } from "@/components/indice-defiler";
 import { getProduct, type Famille } from "@/lib/products";
 import { prixAppelGC, prixDepart } from "@/lib/prix-garde-corps.server";
 import { prixAffiche } from "@/lib/ui";
-
-/** Panneau cliquable : image plein cadre, titre centré, bouton. Pleine
- *  largeur sur téléphone, une moitié d'écran à partir de la tablette. */
-function HeroPanel({
-  href,
-  src,
-  alt,
-  title,
-  subtitle,
-  cta,
-  objectPosition,
-  priority = false,
-  rang = 0,
-  locale,
-}: {
-  locale: Locale;
-  href: string;
-  src: string;
-  alt: string;
-  title: string;
-  /** Une phrase pour choisir : prix fermes d'un côté, sur mesure de l'autre. */
-  subtitle?: string;
-  cta: string;
-  objectPosition?: string;
-  priority?: boolean;
-  /** 0 pour le panneau de gauche, 1 pour celui de droite : le second
-   *  s'anime un peu après le premier. */
-  rang?: number;
-}) {
-  /** Titre, phrase puis bouton arrivent l'un après l'autre. */
-  const entree = (i: number) =>
-    ({ "--retard": `${250 + rang * 180 + i * 160}ms` }) as CSSProperties;
-  return (
-    <Link
-      href={href}
-      className="group relative flex min-h-[46vh] items-center justify-center overflow-hidden sm:min-h-[52vh] md:min-h-0"
-    >
-      {/* La caméra avance lentement (cadre) ; le survol agrandit la photo
-          elle-même : les deux mouvements ne se contrarient pas. */}
-      <div className="camera-lente absolute inset-0">
-        {/* La mention se pose plus bas, au-dessus du voile : ici, elle avancerait avec la caméra. */}
-        <Visuel
-          locale={locale}
-          mention={false}
-          src={src}
-          alt={alt}
-          fill
-          priority={priority}
-          sizes="(max-width: 768px) 100vw, 50vw"
-          style={{ objectPosition }}
-          className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
-        />
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/55 transition-opacity duration-500 group-hover:opacity-90" />
-      <MentionIllustration src={src} locale={locale} ton="sombre" />
-
-      <div className="relative z-10 flex flex-col items-center px-3 text-center sm:px-6">
-        {/* Ce n'est pas un titre de section mais l'intitulé d'un lien : en
-            faire un <h2> plaçait deux titres de niveau 2 AVANT le titre de la
-            page, et la structure se lisait à l'envers pour un lecteur d'écran
-            comme pour Google. */}
-        <p
-          style={entree(0)}
-          className={`entree-monte ${serif.className} max-w-md text-[2.2rem] font-normal leading-[1.04] tracking-[-0.016em] text-white drop-shadow-lg sm:text-[2.6rem] md:text-[clamp(2rem,min(3.4vw,6.4svh),3.4rem)]`}
-        >
-          {title}
-        </p>
-        {subtitle && (
-          <p style={entree(1)} className="entree-monte mt-4 max-w-sm text-[15px] leading-snug text-white/90 drop-shadow-md sm:mt-5 sm:max-w-md md:text-[17px]">
-            {subtitle}
-          </p>
-        )}
-        {/* En contour et non en plein : les deux tuiles sont côte à côte
-            dès md, deux boutons bordeaux se faisaient concurrence au premier
-            écran. Toute la tuile est le lien ; ce bouton n'est qu'une
-            invitation. Le seul plein bordeaux de l'accueil est « Demander un
-            devis », en bas de page : c'est lui qui convertit. */}
-        <span style={entree(2)} className="entree-monte lien-fleche mt-6 text-white md:mt-7">
-          {cta}
-        </span>
-      </div>
-    </Link>
-  );
-}
 
 export async function generateMetadata({
   params,
@@ -170,7 +83,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           // Sur téléphone (en hauteur), une photo en largeur ne remplit l'écran qu'en étant très zoomée (Quentin, 07/10 :
           // « la photo est très zoomée ») : elle garde ses proportions, en haut, et le texte passe dessous, sur blanc.
           <>
-          <section className="hero-accueil trio-accueil bg-white md:grid md:h-[100svh] md:min-h-[600px] md:grid-cols-2 md:grid-rows-[minmax(0,1.3fr)_minmax(0,1fr)] md:gap-px">
+          <section className="hero-accueil trio-accueil bg-white md:grid md:h-[100svh] md:min-h-[600px] md:grid-cols-1 md:grid-rows-1">
           <div className="relative md:col-span-2 md:flex md:items-center md:overflow-hidden">
             <div className="relative aspect-[3/2] overflow-hidden bg-[#1d1d1f] md:absolute md:inset-0 md:aspect-auto">
             <div className="camera-lente camera-douce absolute inset-0">
@@ -211,11 +124,11 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
                 )}
               </h1>
               <div className="entree-monte mt-8 flex flex-wrap items-center gap-x-6 gap-y-4 md:mt-[3.4svh]" style={{ "--retard": "620ms" } as CSSProperties}>
-                <Link href={`/${locale}/artisanat`} className="btn-clair">
-                  {t.craftCta}
+                <Link href="#configurer" className="btn-clair">
+                  {locale === "fr" ? "Configurer ma pièce" : "Configure my piece"}
                 </Link>
-                <Link href={`/${locale}/toiles-tendues`} className="lien-fleche text-[#1d1d1f] md:text-white">
-                  {t.lightingCta}
+                <Link href={`/${locale}/artisanat`} className="lien-fleche text-[#1d1d1f] md:text-white">
+                  {locale === "fr" ? "Toute la collection" : "The full collection"}
                 </Link>
               </div>
             </div>
@@ -225,34 +138,10 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
               <IndiceDefiler cible="suite" label={locale === "fr" ? "Voir la suite de la page" : "Scroll to see more"} mot={locale === "fr" ? "Découvrir" : "Discover"} />
             </div>
           </div>
-          {/* 1 ter. Les deux univers, dans le même cadre que la grande photo (Quentin, 07/10/2026 : « les trois photos en une
-              page », séparées d'un trait blanc fin ; pas de trait sur le pourtour de la page). Sur téléphone, les panneaux se superposent :
-              côte à côte, ils ne feraient que 180 px de large et le texte deviendrait illisible. */}
-          <div className="mt-px grid grid-cols-1 gap-px md:contents">
-        <HeroPanel
-          locale={locale}
-          href={`/${locale}/toiles-tendues`}
-          src="/images/salle-plafond-mikado.jpg"
-          alt={t.altHeroLumiere}
-          title={t.lightingTitle}
-          subtitle={t.lightingSubtitle}
-          objectPosition="50% 26%"
-          cta={t.lightingCta}
-          // Sur téléphone, c'est la plus grande image du premier écran (diagnostic du 09/10/2026) : pas de chargement différé.
-          priority
-        />
-        <HeroPanel
-          locale={locale}
-          href={`/${locale}/artisanat`}
-          src="/images/escalier/limon-droit.jpg"
-          alt={t.altEscaliers}
-          title={t.craftTitle}
-          subtitle={t.craftSubtitle}
-          cta={t.craftCta}
-          objectPosition="72% 50%"
-          rang={1}
-        />
-          </div>
+          {/* (Les deux grands panneaux « Plafonds lumineux » et « Mobilier acier & bois » qui suivaient la photo ont été retirés
+              le 12/10/2026 — Quentin, sur son téléphone : trois photos d'affilée, « ça charge », « on ne sait pas s'il faut cliquer
+              sur le bouton ou sur la photo ». Les deux univers restent dans le menu, dans la liste des prix juste dessous et dans
+              les cartes plus bas.) */}
           </section>
           {/* La fin du cadre : « Découvrir » descend jusqu'ici. */}
           <span id="suite" aria-hidden="true" className="block h-0 scroll-mt-0" />
@@ -263,7 +152,7 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
       {/* 2. Configurer sa pièce (refait le 09/10/2026, Quentin : « prend trop de place, pas élégant ») : une bande basse et
           typographique — à gauche le titre, à droite trois lignes fines, chacune avec son prix de départ. Plus de grande
           carte ni d'animation. */}
-      <section className="border-t border-[#e5ddd3] bg-[#f5f1ea] px-6 py-12 md:py-16">
+      <section id="configurer" className="scroll-mt-4 border-t border-[#e5ddd3] bg-[#f5f1ea] px-6 py-12 md:py-16">
         <Apparition className="mx-auto grid max-w-6xl items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14">
           <div>
             <p className="surtitre">{t.configLabel}</p>
