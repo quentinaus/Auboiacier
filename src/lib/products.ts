@@ -1698,13 +1698,13 @@ const catalogue: Product[] = [
     h1Ligne: "Portail coulissant sur mesure, en alu ou en acier",
     images: [{ src: "/images/portails/portail-coulissant-plein.jpg", alt: "Dessin d'un portail coulissant alu gris anthracite à lames pleines, entre deux piliers" }],
     sections: [
-      { title: "Quand il n'y a pas de place derrière", body: "Le portail glisse derrière la clôture. Il faut le long de celle-ci la longueur du portail, le passage plus 15 cm. Rien ne s'ouvre vers la maison et le vent ne le pousse pas." },
+      { title: "Quand il n'y a pas de place derrière", body: "Le portail glisse derrière la clôture. Il faut le long de celle-ci la longueur du portail, le passage plus 16 cm. Rien ne s'ouvre vers la maison et le vent ne le pousse pas." },
       { title: "Sur rail, ou autoportant", body: "Sur un sol dur et plat, il roule sur un rail. Sur du gravier, de la terre ou une pente, il devient autoportant : une queue d'environ la moitié du passage le porte sur deux chariots, et le passage reste libre de tout rail." },
     ],
     specs: [
       { label: "Matière", value: "Alu soudé TIG, thermolaqué ; ou acier galvanisé puis thermolaqué" },
       { label: "Passage", value: "De 2 à 6 m, hauteur de 0,80 à 2,20 m" },
-      { label: "Place à prévoir", value: "Sur rail : le passage + 15 cm le long de la clôture. Autoportant : environ 1,5 fois le passage" },
+      { label: "Place à prévoir", value: "Sur rail : le passage + 16 cm le long de la clôture. Autoportant : environ 1,5 fois le passage" },
       { label: "Options", value: "Moteur à crémaillère posé par nos soins, poteaux alu ou acier" },
       { label: "Pose", value: "Visite et pose comprises jusqu'à 45 km de Saumur ; au-delà, la route s'ajoute au devis" },
     ],
@@ -1717,13 +1717,13 @@ const catalogue: Product[] = [
       h1Ligne: "Made-to-measure sliding gate, in aluminium or steel",
       images: ["Drawing of an anthracite aluminium sliding gate with solid slats, between two pillars"],
       sections: [
-        { title: "When there is no room behind", body: "The gate slides behind the fence. Along it you need the length of the gate, the opening plus 15 cm. Nothing opens towards the house and the wind does not push it." },
+        { title: "When there is no room behind", body: "The gate slides behind the fence. Along it you need the length of the gate, the opening plus 16 cm. Nothing opens towards the house and the wind does not push it." },
         { title: "On a rail, or cantilevered", body: "On hard, level ground it runs on a rail. On gravel, soil or a slope it becomes cantilevered: a tail about half the opening carries it on two carriages, and the opening stays free of any rail." },
       ],
       specs: [
         { label: "Material", value: "TIG-welded aluminium, powder coated; or galvanised then powder-coated steel" },
         { label: "Opening", value: "From 2 to 6 m, 0.80 to 2.20 m high" },
-        { label: "Space needed", value: "On a rail: the opening plus 15 cm along the fence. Cantilever: about 1.5 times the opening" },
+        { label: "Space needed", value: "On a rail: the opening plus 16 cm along the fence. Cantilever: about 1.5 times the opening" },
         { label: "Options", value: "Rack motor fitted by us, aluminium or steel posts" },
         { label: "Fitting", value: "Survey visit and fitting included within 45 km of Saumur; beyond that, travel is added to the quote" },
       ],

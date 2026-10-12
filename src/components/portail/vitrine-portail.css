@@ -21,19 +21,24 @@
   .vit-plaque { grid-area: plaque; align-self: start; }
   .vit-haut { grid-area: haut; }
   .vit-bas { grid-area: bas; align-self: start; }
-  .vit-tuiles { grid-area: tuiles; align-self: start; margin-top: 12px; }
+  .vit-tuiles-bloc { grid-area: tuiles; align-self: start; margin-top: 12px; }
 }
+.vit-tuiles-bloc { min-width: 0; }
+/* Le texte de la vitrine ne laisse pas un mot seul en fin de phrase. */
+.vit { text-wrap: pretty; }
 
-/* La plaque : deux aplats (ciel, sol) identiques à ceux du dessin, pour qu'il n'y ait aucun saut avant son arrivée.
+/* La plaque : le dessin (1300 x 743) est rogné en haut, là où il n'y a que du ciel : la plaque montre 640 px de sa hauteur, ancrée
+   en bas (object-position). Deux aplats (ciel, sol) identiques à ceux du dessin rogné, pour qu'il n'y ait aucun saut avant son
+   arrivée : le sol est à (604,7 - (743 - 640)) / 640 = 78,39 % de la plaque (le test tests/scenes-portails.test.ts relit ces nombres).
    isolation : coins arrondis stables dans Safari pendant un zoom. */
 .vit-plaque {
   position: relative;
   isolation: isolate;
   overflow: hidden;
   min-width: 0;
-  aspect-ratio: 1300 / 743;
+  aspect-ratio: 1300 / 640;
   border-radius: 18px;
-  background: linear-gradient(#fff 0 81.39%, #efe9df 81.39% 100%);
+  background: linear-gradient(#fff 0 78.39%, #efe9df 78.39% 100%);
 }
 
 /* Deux couches : la nouvelle arrive PAR-DESSUS l'ancienne (280 ms), qui reste opaque dessous puis s'efface (même durée, en retard) :
@@ -44,6 +49,8 @@
   z-index: 1;
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  object-position: 50% 100%;
   opacity: 0;
   transition: opacity 0.28s ease 0.28s;
 }
@@ -68,18 +75,27 @@
   .vit-mention { font-size: 12px; }
 }
 
-/* Les vignettes : le dessin du style en anthracite. Le style choisi porte un anneau de 2 px. */
+/* Les vignettes : le dessin du style en anthracite, cadré comme la plaque (même rognage, même fond de réserve). Le style choisi
+   porte un anneau de 2 px ; au survol (souris), l'image grossit un peu : on devine qu'on peut cliquer. */
+.vit-tuile { cursor: pointer; }
 .vit-vig {
   position: relative;
   display: block;
   width: 100%;
-  aspect-ratio: 1300 / 743;
+  aspect-ratio: 1300 / 640;
   isolation: isolate;
   overflow: hidden;
   border-radius: 10px;
-  background: linear-gradient(#fff 0 81.39%, #efe9df 81.39% 100%);
+  background: linear-gradient(#fff 0 78.39%, #efe9df 78.39% 100%);
 }
-.vit-vig img { display: block; width: 100%; height: 100%; }
+.vit-vig img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 100%;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
 .vit-tuile[aria-checked="true"] .vit-vig {
   outline: 2px solid #1d1d1f;
   outline-offset: 2px;
@@ -88,8 +104,19 @@
   font-weight: 600;
   color: #1d1d1f;
 }
+/* Téléphone étroit : quatre vignettes par rangée font 62 px à 320 px, et « découpée » ou « Laser-cut » en gras en demandent 66 à 69.
+   Le nom déborde donc de 3 px de chaque côté, dans l'écart de 8 px entre deux vignettes (deux noms voisins ne se touchent jamais). */
+@media (max-width: 767px) {
+  .vit-nom { margin-inline: -3px; }
+}
+/* Sous 340 px (iPhone SE et plus petits) : écart de 6 px entre vignettes et noms qui débordent de 4 px, pour que « découpée » en gras tienne. */
+@media (max-width: 339px) {
+  .vit-tuiles { column-gap: 6px; }
+  .vit-nom { margin-inline: -4px; }
+}
 @media (hover: hover) {
   .vit-tuile:hover .vit-nom { color: #1d1d1f; }
+  .vit-tuile:hover .vit-vig img { transform: scale(1.05); }
 }
 
 /* Les pastilles de teinte : 44 px à toucher, un rond de 26 px, un anneau de 34 px pour la teinte choisie. */
@@ -99,6 +126,7 @@
   height: 44px;
   flex: none;
   border-radius: 9999px;
+  cursor: pointer;
 }
 .vit-rond {
   position: absolute;
@@ -108,7 +136,7 @@
   height: 26px;
   margin: -13px 0 0 -13px;
   border-radius: 50%;
-  box-shadow: inset 0 0 0 1px rgba(43, 35, 32, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(43, 35, 32, 0.5);   /* filet à 3 : 1 sur le fond, pour que le blanc se voie */
 }
 .vit-pastille::before {
   content: "";
@@ -147,18 +175,72 @@
   to { transform: scaleX(1); }
 }
 
-/* Le prix : la fourchette de la tôle se compose plus petit pour tenir sur une ligne ; la ligne garde la hauteur du montant seul. */
-.vit-a { min-height: calc(2rem * 1.15); }
-.vit-montant { font-size: 2rem; line-height: 1.15; }
-.vit-a[data-plage] .vit-montant { font-size: 1.6rem; }
+/* Les gabarits de réservation : un attribut, pas du texte. La case est invisible et cachée des lecteurs d'écran (aria-hidden) ;
+   le texte n'existe que pour la mise en page, donc il n'est écrit dans aucun nœud du HTML. */
+.vit-g::after { content: attr(data-g); }
+
+/* Le prix : la fourchette de la tôle se compose plus petit pour tenir sur une ligne ; la ligne garde la hauteur du montant seul.
+   Le mot « posé » reste à la même hauteur dans tous les états : une pastille de largeur nulle, à la taille du montant ordinaire,
+   fixe la ligne de base (sans elle, la ligne de base suit la taille du montant et « posé » saute de 6 à 8 px sur la tôle). */
+.vit { --vit-corps: 2rem; --vit-corps-plage: 1.6rem; }
 @media (min-width: 1024px) {
-  .vit-a { min-height: calc(2.4rem * 1.15); }
-  .vit-montant { font-size: 2.4rem; }
-  .vit-a[data-plage] .vit-montant { font-size: 1.9rem; }
+  .vit { --vit-corps: 2.4rem; --vit-corps-plage: 1.9rem; }
+}
+.vit-a { min-height: calc(var(--vit-corps) * 1.15); }
+.vit-montant { font-size: var(--vit-corps); line-height: 1.15; }
+.vit-a[data-plage] .vit-montant { font-size: var(--vit-corps-plage); }
+.vit-prix::before {
+  content: "\200b";
+  font-size: var(--vit-corps);
+  font-weight: 500;
+  line-height: 1.15;
+}
+.vit-prix > :last-child { margin-left: 0.45em; }
+
+/* Ordinateur portable (écran bas) : le premier écran montre le portail, ses styles (images et noms), le prix et le bouton, sans défiler.
+   La plaque perd 30 px de ciel (le dessin garde 20 px au-dessus des piliers : rien n'est coupé), le sol du fond de réserve suit
+   ((604,7 - (743 - 610)) / 610 = 77,33 %), et la colonne de droite resserre ses marges ; la tête de la page est resserrée dans
+   page-portails.css, avec le même seuil. Le seuil de hauteur (940 px) laisse le grand écran (1920 x 1080 et plus) tel quel : à cette hauteur tout tient sans resserrer. */
+@media (min-width: 1024px) and (max-height: 940px) {
+  .vit-plaque { aspect-ratio: 1300 / 610; background: linear-gradient(#fff 0 77.33%, #efe9df 77.33% 100%); }
+  .vit-tuiles-bloc { margin-top: 10px; }
+  .vit-lib-style { margin-bottom: 6px; }
+  /* La colonne de droite (nom, prix, teinte, bouton) perd une trentaine de pixels de marges : le bouton reste dans le premier écran,
+     en français comme en anglais, jusqu'à 1280 x 720. */
+  .vit-style { font-size: 2.2rem; }
+  .vit-prixbloc { margin-top: 12px; padding-top: 12px; }
+  .vit-lib-teinte { margin-top: 12px; }
+  .vit .vit-compose { margin-top: 14px; }
+}
+
+/* « Composer ce portail » : la fiche n'est pas préchargée ; pendant qu'elle vient (aria-busy posé par EtatLien), le bouton s'estompe
+   un peu, après 100 ms pour qu'une navigation rapide ne le fasse pas clignoter (opacity seulement). */
+.vit .vit-compose[aria-busy="true"] { animation: vit-estompe 0.2s ease 0.1s both; }
+@keyframes vit-estompe {
+  from { opacity: 1; }
+  to { opacity: 0.7; }
+}
+
+/* Contraste élevé (Windows) : la couleur de la teinte est l'information, elle reste ; un filet à la couleur du texte
+   les garde toutes visibles (l'ombre intérieure disparaît dans ce mode). */
+@media (forced-colors: active) {
+  .vit-rond {
+    forced-color-adjust: none;
+    box-shadow: none;
+    border: 1px solid CanvasText;
+  }
+}
+
+/* Sans JavaScript, les vignettes et les pastilles ne feraient rien : elles disparaissent ; la vitrine reste lisible (style, prix, bouton). */
+@media (scripting: none) {
+  .vit-tuiles-bloc,
+  .vit-pastilles { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .vit-img, .vit-pastille::before { transition: none; }
+  .vit-img, .vit-pastille::before, .vit-vig img { transition: none; }
+  .vit .vit-compose[aria-busy="true"] { animation: none; opacity: 0.7; }
+  .vit-tuile:hover .vit-vig img { transform: none; }
   .vit-tuile[aria-busy="true"] .vit-vig::after,
   .vit-pastille[aria-busy="true"]::after { animation: none; transform: none; }
 }

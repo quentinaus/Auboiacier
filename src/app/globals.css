@@ -255,6 +255,13 @@ textarea:focus-visible,
   transform: translateY(-0.04em);
   transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
+/* Le chevron est décoratif : avec un texte de remplacement vide il sort du nom accessible (les lecteurs d'écran lisaient
+   « guillemet simple fermant »). Sous @supports : un navigateur qui ne connaît pas cette écriture garde le chevron ci-dessus. */
+@supports (content: "a" / "b") {
+  .lien-fleche::after {
+    content: "\203A" / "";
+  }
+}
 .lien-fleche:hover {
   text-decoration: underline;
   text-underline-offset: 0.2em;

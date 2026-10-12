@@ -36,9 +36,8 @@ export function PagePortails({ locale, fil, h1, phrase, noms, liens }: Props) {
   const donnees = donneesPagePortails();
   const modeles: ModeleCarte[] = ORDRE_MODELES.map((slug) => ({ slug, nom: noms[slug] ?? slug, ...donnees.modeles[slug] }));
 
-  // En français, une espace insécable avant « ? ! : ; % » et après « : jamais un signe seul en début de ligne.
-  const f = (texte: string) => (locale === "fr" ? texte.replace(/ ([?!:;%»])/g, "\u00a0$1").replace(/« /g, "«\u00a0") : texte);
-  const etapes = x.etapes.liste.map((e) => ({ t: f(e.t), d: f(e.d) }));
+  // Les insécables (nombre + unité, « ? ! : ; % ») sont posées dans les textes eux-mêmes (TXT, typographie.ts) : rien à refaire ici.
+  const etapes = x.etapes.liste;
 
   // Le téléphone s'écrit dans la phrase : on la compose, puis on la coupe au numéro pour y poser le lien.
   // Les horaires passent sur leur ligne, par plages (« Lun–Ven 07:00–17:00 · Sam 09:00–16:00 ») : une plage ne se coupe jamais en deux lignes.
@@ -63,10 +62,11 @@ export function PagePortails({ locale, fil, h1, phrase, noms, liens }: Props) {
         </nav>
         <div className="pp-tete mt-4">
           <h1 className={`${serif.className} text-balance text-[2.3rem] leading-[1.04] tracking-[-0.02em] text-[#2b2320] sm:text-[3rem] md:text-[3.5rem]`}>{h1}</h1>
-          <p className="pp-phrase max-w-[30em] text-[17px] leading-[1.5] text-[#4a4038] lg:text-[18px]">{phrase}</p>
+          {/* text-balance : la phrase de tête se coupe en deux lignes égales (« l'atelier. » ne reste jamais seul à 1024 px). */}
+          <p className="pp-phrase max-w-[30em] text-balance text-[17px] leading-[1.5] text-[#4a4038] lg:text-[18px]">{phrase}</p>
         </div>
 
-        <div className="mt-5 lg:mt-8">
+        <div className="pp-vitrine mt-5 lg:mt-8">
           <VitrinePortail locale={locale} prix={donnees.vitrine} styleInitial={STYLE_VITRINE_DEPART} cote={donnees.coteVitrine} />
         </div>
 
@@ -75,10 +75,10 @@ export function PagePortails({ locale, fil, h1, phrase, noms, liens }: Props) {
           {x.faits.map((fait, i) => (
             <li
               key={fait.t}
-              className={`border-b border-[#e0d7cb] py-4 text-[15px] leading-[1.5] text-[#5c5140] last:border-b-0 min-[900px]:border-b-0 min-[900px]:pb-0 min-[900px]:pr-8 min-[900px]:pt-5 ${i > 0 ? "min-[900px]:border-l min-[900px]:border-[#e0d7cb] min-[900px]:pl-8" : ""}`}
+              className={`border-b border-[#e0d7cb] py-4 text-pretty text-[15px] leading-[1.5] text-[#5c5140] last:border-b-0 min-[900px]:border-b-0 min-[900px]:pb-0 min-[900px]:pr-8 min-[900px]:pt-5 ${i > 0 ? "min-[900px]:border-l min-[900px]:border-[#e0d7cb] min-[900px]:pl-8" : ""}`}
             >
               <span className="block font-semibold text-[#1d1d1f]">{fait.t}</span>
-              {f(fait.d)}
+              {fait.d}
             </li>
           ))}
         </ul>
@@ -87,16 +87,20 @@ export function PagePortails({ locale, fil, h1, phrase, noms, liens }: Props) {
       {/* Les quatre modèles (fond crème) puis le guide (bande blanche) : un seul îlot, qui garde les trois réponses. */}
       <PortailsModeles locale={locale} modeles={modeles} sansRail={donnees.sansRail} />
 
-      <EtapesFabrication titre={x.etapes.titre} etapes={etapes} colonnes={4} fond="creme" />
+      {/* [&_p]:text-pretty : les descriptions des étapes ne finissent plus sur un mot seul (« posé. », « pose. »). */}
+      <div className="[&_p]:text-pretty">
+        <EtapesFabrication titre={x.etapes.titre} etapes={etapes} colonnes={4} fond="creme" />
+      </div>
 
       {/* Contact et pages voisines. */}
       <section aria-labelledby="pp-contact" className="border-t border-[#e0d7cb] bg-[#ffffff] py-14 lg:py-20">
         <div className="mx-auto max-w-6xl px-6 min-[900px]:grid min-[900px]:grid-cols-2 min-[900px]:gap-x-12">
           <div>
             <h2 id="pp-contact" className={TITRE_BANDE}>{x.contact.h2}</h2>
-            <p className="mt-4 max-w-[34em] text-[16px] leading-[1.5] text-[#4a4038]">
+            <p className="mt-4 max-w-[34em] text-pretty text-[16px] leading-[1.5] text-[#4a4038]">
               {avantTel}
-              <a href={`tel:${CONTACT_PUBLIC.telephone}`} className={`whitespace-nowrap font-medium text-[#1d1d1f] underline decoration-[#1d1d1f]/40 underline-offset-4 hover:decoration-[#1d1d1f] ${focusVisible}`}>
+              {/* Le numéro se touche sur 48 px de haut (inline-block + remplissage de 12 px), sans bouger la ligne (marges négatives égales). */}
+              <a href={`tel:${CONTACT_PUBLIC.telephone}`} className={`-my-3 inline-block whitespace-nowrap py-3 font-medium text-[#1d1d1f] underline decoration-[#1d1d1f]/40 underline-offset-4 hover:decoration-[#1d1d1f] ${focusVisible}`}>
                 {telephone}
               </a>
               {point}

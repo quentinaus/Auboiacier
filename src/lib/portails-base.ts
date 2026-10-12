@@ -33,9 +33,18 @@ export const RECEPTIONS_PORTAIL = ["pose", "transporteur", "retrait"] as const;
 export type ReceptionPortail = (typeof RECEPTIONS_PORTAIL)[number];
 
 /**
+ * La commande en ligne d'un portail (Quentin, 10/10/2026) : le client paie un ACOMPTE de 40 % au panier, la visite de prise
+ * de cotes est comprise, le solde est dû à la réception. 40 % couvre les achats engagés avant la pose (moteur, matière,
+ * galvanisation, laquage) ; l'outil prévient si ce n'est pas le cas sur un portail. Défini ici (sans moteur) pour que les textes
+ * de la page des portails l'écrivent depuis la même valeur ; src/lib/portails.ts le ré-exporte.
+ */
+export const ACOMPTE_PORTAIL_PCT = 40;
+
+/**
  * Le guide « Quel portail chez vous ? » : trois questions, dans l'ordre (étude du 06/10/2026).
  * 1. Derrière, la place d'un vantail est-elle libre, sur un sol plat ou qui monte de moins de 5 cm ? → battant.
- * 2. Sinon : le long de la clôture, la longueur du passage + 15 cm est-elle libre ? Non → pliant.
+ * 2. Sinon : le long de la clôture, la longueur du passage + 16 cm est-elle libre ? Non → pliant (le moteur demande le passage + 160 mm :
+ *    « Place le long de la clôture », 3 660 mm pour 3 500).
  * 3. Oui : le sol y est-il dur et plat ? Oui → coulissant sur rail ; non → autoportant.
  */
 export function guidePortail(r: { derriere?: boolean; cote?: boolean; sol?: boolean }): { slug: SlugPortail; guidage?: "rail" | "auto" } | null {

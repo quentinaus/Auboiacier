@@ -3,13 +3,20 @@
  * navigateur les importe tels quels (la page des portails, 12/10/2026). src/lib/portails.ts les ré-exporte.
  */
 import type { DessinTole } from "./portails-base.ts";
+import { typographieLangues } from "./typographie.ts";
 
-export const TEXTES_PORTAIL = {
+/** Les textes tels qu'écrits, avec des espaces ordinaires ; TEXTES_PORTAIL (plus bas) y pose les insécables (typographie.ts). */
+const TEXTES_BRUTS = {
   fr: {
     styles: { plein: "Plein", lisse: "Lisse", barreaux: "Barreaux", lamesChene: "Lames chêne", rosace: "Rosace", volutes: "Volutes", tole: "Tôle découpée" },
     stylesNote: {
-      plein: "Lames alu emboîtées, on ne voit pas à travers", lisse: "Panneau alu lisse, moderne", barreaux: "Barreaux serrés, ajouré",
-      lamesChene: "Cadre alu, lames de chêne", rosace: "Croix et rosaces, comme le garde-corps", volutes: "Acier, volutes en fer forgé et pointes", tole: "Tôle d'acier découpée au laser, un dessin dans la lumière",
+      plein: "Lames alu emboîtées, on ne voit pas à travers", lisse: "Panneau alu lisse, moderne", barreaux: "Barreaux verticaux serrés",
+      lamesChene: "Cadre alu, lames de chêne", rosace: "Croix et rosaces, comme nos garde-corps", volutes: "Acier, volutes façon fer forgé et pointes de lance", tole: "Tôle d'acier découpée au laser : le dessin laisse passer la lumière",
+    },
+    // En galvanisé brut tout est en acier : la note d'un style d'alu ne dit plus « alu » (mêmes mots que la vitrine de la page des portails).
+    stylesNoteBrut: {
+      plein: "Lames pleines, on ne voit pas à travers", lisse: "Panneau lisse, moderne", barreaux: "Barreaux verticaux serrés",
+      lamesChene: "Cadre acier, lames de chêne", rosace: "Croix et rosaces, comme nos garde-corps", volutes: "Acier, volutes façon fer forgé et pointes de lance", tole: "Tôle d'acier découpée au laser : le dessin laisse passer la lumière",
     },
     compose: "Composé à votre goût",
     mat: { alu: "Alu", acier: "Acier" },
@@ -44,12 +51,12 @@ export const TEXTES_PORTAIL = {
     prixCalcul: "Calcul…", aEtudier: "À étudier", indisponible: "Prix indisponible pour le moment",
     cta: "Demander ma visite", ctaNote: "Nous venons mesurer, vous recevez le devis détaillé.",
     vueFace: "Vue de face, depuis la rue", vueDessus: "Vue de dessus : en vert, la place à laisser libre", illustration: "Dessin d'illustration, cotes en mm",
-    guideTitre: "Quel portail chez vous ?", guideCourt: "Quel modèle ?",
+    guideTitre: "Quel portail pour votre entrée ?", guideCourt: "Quel modèle ?",
     // Les trois questions du choix du type (Quentin, 10/10/2026 : « plus de contexte et plus pro pour savoir quel type de portail est
     // adaptable à la maison du client ») : la question, ce qu'est ce type de portail (guideCtx), ce qu'il faut vérifier chez soi (guideVerif).
     guideQ: ["Pouvez-vous ouvrir le portail vers l'intérieur ?", "Y a-t-il de la place sur le côté pour le faire glisser ?", "Le sol est-il dur et plat ?"],
     // Une ligne visible sous la question (le chiffre à vérifier), puis, repliés, ce qu'est ce type de portail et comment le vérifier.
-    guideAide: ["Il faut 1,75 m de libre derrière chaque pilier (pour un passage de 3,50 m).", "Il faut une longueur de clôture libre, d'un seul côté, au moins égale au passage.", "Béton, enrobé, pavés : oui. Gravier, terre, pelouse, pente : non."],
+    guideAide: ["Il faut 1,75 m de libre derrière chaque pilier (pour un passage de 3,50 m).", "Il faut une longueur de clôture libre, d'un seul côté : au moins le passage plus 16 cm (3,66 m pour un passage de 3,50 m).", "Béton, enrobé, pavés : oui. Gravier, terre, pelouse, pente : non."],
     guidePuce: ["Ouverture vers l'intérieur", "Place sur le côté", "Sol dur et plat"],
     guideAideLien: "Besoin d'aide pour vérifier ?",
     guideVocab: "Le passage est la largeur libre entre vos deux piliers. Un vantail est la partie mobile du portail.",
@@ -61,8 +68,8 @@ export const TEXTES_PORTAIL = {
     guideVerifTitre: "À vérifier",
     guideVerif: [
       "Derrière chaque pilier, un quart de cercle libre dont le rayon est la moitié du passage : 1,75 m pour un passage de 3,50 m, soit environ deux grands pas. Rien dans cette zone (voiture, arbre, mur, marche), et un sol à peu près plat.",
-      "D'un seul côté de l'entrée, une longueur au moins égale au passage (3,50 m pour un passage de 3,50 m), droite et dégagée : sans arbre, mur ni véhicule garé le long de la clôture. Sinon, c'est le portail pliant qui convient.",
-      "Béton, enrobé ou pavés : le sol est dur et le rail s'y fixe. Gravier, terre, pelouse, pente ou marche : le sol est meuble, et le portail autoportant tient grâce à un contrepoids derrière lui. Il demande alors environ une fois et demie le passage en longueur libre (environ 5 m pour 3,50 m) et son passage est limité à 4 m.",
+      "D'un seul côté de l'entrée, une longueur libre d'au moins le passage plus 16 cm (3,66 m pour un passage de 3,50 m), droite et dégagée : sans arbre, mur ni véhicule garé le long de la clôture. Sinon, c'est le portail pliant qui convient.",
+      "Béton, enrobé ou pavés : le sol est dur et le rail s'y fixe. Gravier, terre, pelouse, pente ou marche : le sol est meuble, et le portail autoportant tient grâce à un contrepoids derrière lui. Il demande alors environ une fois et demie le passage en longueur libre (environ 5,30 m pour 3,50 m) et son passage est limité à 4 m.",
     ],
     guideOui: ["Oui, j'ai la place", "Oui, c'est libre", "Oui, dur et plat"],
     guideNon: ["Non, pas la place", "Non, pas assez", "Non, ou pas sûr"],
@@ -79,16 +86,21 @@ export const TEXTES_PORTAIL = {
     placeDerriere: "Place derrière", placeCote: "Place le long de la clôture", poids: "Poids du portail", etudierEn: "",
   },
   en: {
-    styles: { plein: "Solid", lisse: "Flat", barreaux: "Bars", lamesChene: "Oak slats", rosace: "Rosette", volutes: "Scrolls", tole: "Cut sheet" },
+    styles: { plein: "Solid", lisse: "Flat", barreaux: "Bars", lamesChene: "Oak slats", rosace: "Rosette", volutes: "Scrolls", tole: "Laser-cut sheet" },
     stylesNote: {
       plein: "Interlocking aluminium slats, fully private", lisse: "Flat aluminium panel, modern", barreaux: "Close vertical bars",
-      lamesChene: "Aluminium frame, oak slats", rosace: "Crosses and rosettes, like the balustrade", volutes: "Steel, wrought-iron scrolls and spear tips", tole: "Laser-cut steel sheet, a design cut into the light",
+      lamesChene: "Aluminium frame, oak slats", rosace: "Crosses and rosettes, like our railings", volutes: "Steel, wrought-iron style scrolls and spear tips", tole: "Laser-cut steel sheet: the design lets the light through",
+    },
+    // Raw galvanised is all steel: the note of an aluminium style no longer says "aluminium" (same words as the showcase on the gates page).
+    stylesNoteBrut: {
+      plein: "Solid slats, fully private", lisse: "Flat panel, modern", barreaux: "Close vertical bars",
+      lamesChene: "Steel frame, oak slats", rosace: "Crosses and rosettes, like our railings", volutes: "Steel, wrought-iron style scrolls and spear tips", tole: "Laser-cut steel sheet: the design lets the light through",
     },
     compose: "Made to your taste",
     mat: { alu: "Aluminium", acier: "Steel" },
     forme: { droit: "Straight", chapeau: "Arched", creux: "Dipped", biais: "Sloped" },
     soub: { aucun: "None", plein: "Solid", panneau: "Flat panel", lames: "Oak slats", barreaux: "Bars" },
-    remp: { plein: "Solid slats", panneau: "Flat panel", lames: "Oak slats", lamesAlu: "Open slats", barreaux: "Bars", croix: "Crosses and rosettes", volutes: "Scrolls", tole: "Cut sheet" },
+    remp: { plein: "Solid slats", panneau: "Flat panel", lames: "Oak slats", lamesAlu: "Open slats", barreaux: "Bars", croix: "Crosses and rosettes", volutes: "Scrolls", tole: "Laser-cut sheet" },
     dessinTitre: "Sheet design",
     dessins: { foret: "Forest and mountains", vagues: "Waves", soleil: "Rising sun", losanges: "Diamonds", feuillage: "Foliage", lignes: "Lines", nid: "Honeycomb", loup: "Wolf", bulles: "Bubbles" } as Record<DessinTole, string>,
     dessinsNote: { foret: "A mountain, the moon and the pines", vagues: "Rolling waves", soleil: "A sun rising in the middle", losanges: "Diamonds growing towards the bottom", feuillage: "Sprigs of leaves", lignes: "Vertical lines", nid: "A honeycomb opening towards the top", loup: "A snarling wolf in front of two mountains", bulles: "Bubbles of every size" } as Record<DessinTole, string>,
@@ -119,20 +131,20 @@ export const TEXTES_PORTAIL = {
     vueFace: "Front view, from the street", vueDessus: "Top view: in green, the space to keep clear", illustration: "Illustrative drawing, dimensions in mm",
     guideTitre: "Which gate for your entrance?", guideCourt: "Which model?",
     guideQ: ["Can you open the gate inward?", "Is there room at the side for it to slide?", "Is the ground hard and level?"],
-    guideAide: ["You need 1.75 m free behind each pillar (for a 3.50 m opening).", "You need a free length of fence, on one side only, at least equal to the opening.", "Concrete, tarmac, paving: yes. Gravel, earth, grass, slope: no."],
+    guideAide: ["You need 1.75 m free behind each pillar (for a 3.50 m opening).", "You need a free length of fence on one side only: at least the opening plus 16 cm (3.66 m for a 3.50 m opening).", "Concrete, tarmac, paving: yes. Gravel, soil, grass, slope: no."],
     guidePuce: ["Opens inward", "Room at the side", "Hard, level ground"],
     guideAideLien: "Need help checking?",
     guideVocab: "The opening is the clear width between your two pillars. A leaf is the moving part of the gate.",
     guideCtx: [
       "A swing gate opens like a door: each leaf turns on its hinges, inward. It is the most common type of gate.",
       "A sliding gate glides along the fence, like a wardrobe door: nothing opens into the property. It is the solution when there is not enough room behind the gate.",
-      "A sliding gate rolls on a rail fixed into the ground. When the ground does not allow it, we use the model without a rail, called cantilever.",
+      "A sliding gate rolls on a rail fixed into the ground. When the ground does not allow it, we use the model without a rail, known as a cantilever gate.",
     ],
     guideVerifTitre: "To check",
     guideVerif: [
       "Behind each pillar, a free quarter circle whose radius is half the opening: 1.75 m for a 3.50 m opening, about two long strides. Nothing in that area (car, tree, wall, step), and ground that is roughly level.",
-      "On one side of the entrance only, a length at least equal to the opening (3.50 m for a 3.50 m opening), straight and clear: no tree, wall or parked vehicle along the fence. Otherwise, the folding gate is the right type.",
-      "Concrete, tarmac or paving: the ground is hard and the rail is fixed to it. Gravel, earth, grass, a slope or a step: the ground is soft, and the cantilever gate holds with a counterweight behind it. It then needs about one and a half times the opening in free length (around 5 m for 3.50 m) and its opening is limited to 4 m.",
+      "On one side of the entrance only, a free length of at least the opening plus 16 cm (3.66 m for a 3.50 m opening), straight and clear: no tree, wall or parked vehicle along the fence. Otherwise, the folding gate is the right type.",
+      "Concrete, tarmac or paving: the ground is hard and the rail is fixed to it. Gravel, soil, grass, a slope or a step: the ground is soft, and the cantilever gate holds with a counterweight behind it. It then needs about one and a half times the opening in free length (around 5.30 m for 3.50 m) and its opening is limited to 4 m.",
     ],
     guideOui: ["Yes, I have room", "Yes, it is free", "Yes, hard and level"],
     guideNon: ["No, no room", "No, not enough", "No, or not sure"],
@@ -150,3 +162,5 @@ export const TEXTES_PORTAIL = {
     etudierEn: "These dimensions are outside what the workshop makes as standard: book a survey visit and we will study it with you.",
   },
 } as const;
+
+export const TEXTES_PORTAIL = typographieLangues(TEXTES_BRUTS);

@@ -9,7 +9,7 @@
  * (/api/prix-portail?variantes=1 : le portail, ses styles, ses décors et ses moteurs en une demande) : jamais un coût ici.
  */
 import "./portail/configurateur-portail.css";
-import { useDeferredValue, useEffect, useId, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useDeferredValue, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/lib/cart";
@@ -19,11 +19,12 @@ import { VisiteAtelier, type Visite } from "./prise-de-cotes";
 import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { svgDe, PT_DECOR_FORMULES } from "@/lib/portails-outil/moteur.genere.mjs";
 import {
-  acomptePortail, appliquerStyle, bornesPortail, configDepart, configDepuisAdresse, configPortillonAssorti, emplacementPermis, formesDe, guidePortail, planPortail, resumeConfig, styleDe, versParams, versParamsPanier,
+  acomptePortail, appliquerStyle, bornesPortail, configDepart, configDepuisAdresse, configPortillonAssorti, emplacementPermis, formesDe, guidePortail, planPortail, resultatGuide, resumeConfig, styleDe, styleEstAlu, versParams, versParamsPanier,
   ACOMPTE_PORTAIL_PCT, BARREAUX_DECOR, BOUTS_DECOR, COULEURS_PORTAIL, DECORS_PORTAIL, DESSINS_TOLE, EMPLACEMENTS_DECOR, POS_DECOR, STYLES_PORTAIL, TEXTES_PORTAIL,
-  type ChoixDecor, type ConfigPortail, type Langue, type ReceptionPortail, type SlugPortail, type StylePortail,
+  type ChoixDecor, type ConfigPortail, type Langue, type LiensGuideFiche, type ReceptionPortail, type SlugPortail, type StylePortail,
 } from "@/lib/portails";
 import { STYLE_RENDU_PORTAIL, TEINTES_PORTAIL } from "@/lib/portails-rendu";
+import { adressePorteConfig, HOTE_ATTENTE, libererAttente } from "@/lib/portails-attente";
 import { VueOuverture } from "./portail/vue-ouverture";
 import { prixAffiche } from "@/lib/ui";
 import { serif } from "@/lib/fonts";
@@ -63,7 +64,7 @@ const TXT = {
     cta: "Demander ma visite", visite: "Visite à partir de 19,99 €, déduite si vous commandez", calcul: "Calcul…", indispo: "Prix indisponible pour le moment",
     aEtudier: "À étudier à la visite", voirPlan: "Voir le plan", devis: "Estimation PDF", devisRaison: "Le devis à signer suit la visite.", details: "Détails",
     fabrique: "fabriqué en 6 à 8 semaines", vantail: "vantail de", vantauxDe: "vantaux de",
-    fDecorSous: "Des volutes en fer forgé, soudées à l'atelier, posées par nous.", fDecorInfo: "Les volutes sont en fer forgé :", fDecorAcier: "votre portail passe en acier.",
+    fDecorSous: "Des volutes façon fer forgé, soudées à l'atelier, posées par nous.", fDecorInfo: "Les volutes sont façon fer forgé :", fDecorAcier: "votre portail passe en acier.",
     surMesure: "Sur mesure", surMesureLigne: "Votre motif : une photo, nous le dessinons. Prix sur devis.", sansDecor: "Sans décor",
     pied: "Le dessin suit chaque choix.", termine: "Terminé", fermer: "Fermer",
     fMoteurSous: "La jauge dit la facilité de pose. Somfy partout : une seule appli, les mêmes télécommandes.", conseille: "Conseillé",
@@ -147,7 +148,7 @@ const TXT = {
     cta: "Book my survey visit", visite: "Survey visit from €19.99, deducted if you order", calcul: "Calculating…", indispo: "Price unavailable for now",
     aEtudier: "To be studied at the visit", voirPlan: "See the plan", devis: "PDF estimate", devisRaison: "The quote to sign follows the visit.", details: "Details",
     fabrique: "made in 6 to 8 weeks", vantail: "leaf of", vantauxDe: "leaves of",
-    fDecorSous: "Wrought-iron scrolls, welded in our workshop, fitted by us.", fDecorInfo: "The scrolls are wrought iron:", fDecorAcier: "your gate becomes steel.",
+    fDecorSous: "Wrought-iron style scrolls, welded in our workshop, fitted by us.", fDecorInfo: "The scrolls are wrought-iron style:", fDecorAcier: "your gate becomes steel.",
     surMesure: "Bespoke", surMesureLigne: "Your own motif: send a photo, we draw it. Price on quotation.", sansDecor: "No decoration",
     pied: "The drawing follows every choice.", termine: "Done", fermer: "Close",
     fMoteurSous: "The gauge shows how easy it is to fit. Somfy throughout: one app, the same remotes.", conseille: "Recommended",
@@ -423,9 +424,11 @@ function LivraisonPortail({ etat, onChange, requete, t, locale, euros }: {
   );
 }
 
-export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVisite }: {
+export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVisite, liensGuide }: {
   /** L'image de la fiche, pour la carte du panier. */
   image?: string;
+  /** Les adresses du résultat du guide « Quel portail pour votre entrée ? » : le modèle conseillé, dans le style de son « dès » (calculées par le serveur, comme la page des portails). */
+  liensGuide: LiensGuideFiche;
   /** Les mots du dictionnaire pour la visite de prise de cotes (code postal, créneau), partagés avec le garde-corps. */
   tVisite: Dictionary["artisanat"];
   slug: SlugPortail;
@@ -447,12 +450,19 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
   const tel = useSyncExternalStore(abonnerTelephone, () => window.matchMedia(MEDIA_TEL).matches, () => false);
   const [etape, setEtape] = useState(0);
   // La page des portails envoie le style, la teinte, les cotes et le guidage dans l'adresse (?style=tole&couleur=noir&P=3500&H=1600&guidage=auto) :
-  // repris au premier affichage (voir configDepuisAdresse).
-  useEffect(() => {
-    const q = new URLSearchParams(window.location.search);
-    if (!["style", "design", "mat", "couleur", "P", "H", "guidage"].some((k) => q.has(k))) return;
-    const id = requestAnimationFrame(() => setCfg((c) => configDepuisAdresse(slug, c, q)));   // après le premier affichage : pas d'écart avec le serveur
-    return () => cancelAnimationFrame(id);
+  // repris au premier affichage (voir configDepuisAdresse). Appliqué avant que le navigateur dessine (useLayoutEffect, après l'hydratation : pas
+  // d'écart avec le serveur). Le serveur, lui, a écrit le style de départ : le script de AttenteConfiguration (lib/portails-attente.ts) garde la
+  // plaque cachée jusqu'ici, puis l'effet plus bas la montre en fondu une fois les dessins à jour.
+  const [adresseLue, setAdresseLue] = useState(false);
+  useLayoutEffect(() => {
+    const recherche = window.location.search;
+    if (!adressePorteConfig(recherche)) return;
+    const q = new URLSearchParams(recherche);
+    // L'adresse n'existe qu'au navigateur : on ne peut la lire ni au rendu ni sur le serveur. Appliquée ici, avant l'affichage (la règle de lint vise les effets
+    // qui tournent après l'affichage : celui-ci est un useLayoutEffect, le navigateur ne dessine rien entre les deux rendus).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCfg((c) => configDepuisAdresse(slug, c, q));
+    setAdresseLue(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   // Le bandeau des styles : prix croissant ou décroissant (Quentin, 10/10/2026 : « comme les garde-corps »).
@@ -478,6 +488,10 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
   const R = useMemo(() => planPortail(slug, cfg), [slug, cfg]);
   // Les vignettes des styles et des décors suivent la configuration sans bloquer la frappe (rendu différé).
   const cfgLente = useDeferredValue(cfg);
+  // L'adresse est appliquée et les vignettes des styles (rendu différé) ont rattrapé la configuration : la plaque réapparaît.
+  useEffect(() => {
+    if (adresseLue && cfgLente === cfg) libererAttente(document.getElementById(HOTE_ATTENTE));
+  }, [adresseLue, cfg, cfgLente]);
   const vignettes = useMemo(
     () => STYLES_PORTAIL.map((st) => ({ st, prims: planPortail(slug, (() => { const a = appliquerStyle(cfgLente, st); return { ...a, couleur: a.mat !== "acier" && cfgLente.couleur === "galva" ? "anthracite" : cfgLente.couleur }; })()).vues.face as Prims })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -547,6 +561,17 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
     const sens = tri === "croissant" ? 1 : -1;
     return [...vignettes].sort((a, b2) => { const pa = V.styles[a.st], pb = V.styles[b2.st]; if (pa == null || pb == null) return pa == null ? 1 : -1; return (pa - pb) * sens; });
   }, [vignettes, V, tri]);
+  // La bande des styles défile (sept tuiles) : quand elle se retrie par prix (les prix arrivent) ou quand le style change, la tuile choisie reste à l'écran.
+  // Sans cela, le défilement accroché suit la tuile qu'il retenait et laisse parfois la tuile choisie, la moins chère, à moitié sortie à gauche.
+  const tuilesRef = useRef<HTMLDivElement>(null);
+  const ordreStyles = vignettesTriees.map((v) => v.st).join();
+  useEffect(() => {
+    const r = tuilesRef.current, p = r?.querySelector<HTMLElement>('[aria-pressed="true"]');
+    if (!r || !p) return;
+    const a = p.getBoundingClientRect(), b = r.getBoundingClientRect();
+    if (a.left < b.left) r.scrollLeft += a.left - b.left;
+    else if (a.right > b.right) r.scrollLeft += a.right - b.right;
+  }, [ordreStyles, style]);
   const alerte = R.alertes[0] ?? (V && !V.base.ok && !perime ? V.base.alertes[0] : null);
   const prixBase = V && V.base.ok ? V.base.prix : null;
 
@@ -1006,9 +1031,9 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
             const visible = i === 0 || (i === 1 && guide.derriere === false) || (i === 2 && guide.derriere === false && guide.cote === true);
             if (!visible) return null;
             return (
-              <div key={cleQ} style={{ marginTop: 12 }}>
-                <p className="cpt-f-sous" style={{ color: "#2b2320", fontSize: 13, fontWeight: 600 }}>{q}</p>
-                <p className="cpt-f-sous" style={{ fontSize: 12.5, marginTop: 2 }}>{tp.guideAide[i]}</p>
+              <div key={cleQ} className="cpt-guide-q">
+                <p className="cpt-guide-question">{q}</p>
+                <p className="cpt-guide-aide">{tp.guideAide[i]}</p>
                 <Pilule aria={q} valeur={guide[cleQ] === undefined ? "" : guide[cleQ] ? "oui" : "non"}
                   onChange={(x) => setGuide((g) => ({ ...g, [cleQ]: x === "oui", ...(i === 0 ? { cote: undefined, sol: undefined } : i === 1 ? { sol: undefined } : {}) }))}
                   options={[{ v: "oui", label: tp.guideOui[i] }, { v: "non", label: tp.guideNon[i] }]} />
@@ -1019,7 +1044,7 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
             <p className="cpt-f-info">{tp.guideVers} <b>{tp.modeles[reponseGuide.slug]}{reponseGuide.guidage ? ` (${tp.guidage[reponseGuide.guidage]})` : ""}</b>{" "}
               {reponseGuide.slug === slug
                 ? (reponseGuide.guidage && reponseGuide.guidage !== cfg.guidage ? <button type="button" style={{ textDecoration: "underline" }} onClick={() => { maj({ guidage: reponseGuide.guidage }); setFenetre(null); }}>{tp.ouvrirModele}</button> : null)
-                : <Link style={{ textDecoration: "underline" }} href={`/${locale}/artisanat/${reponseGuide.slug}`}>{tp.ouvrirModele}</Link>}
+                : <Link style={{ textDecoration: "underline" }} href={liensGuide[resultatGuide(reponseGuide)]}>{tp.ouvrirModele}</Link>}
             </p>
           )}
         </div>
@@ -1259,11 +1284,11 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
                 </button>
               </div>
               <p className="cpt-modeles-detail" aria-live="polite">
-                <b>{style ? `${tp.styles[style]} : ${tp.stylesNote[style]}` : t.compose}</b>
-                {style && V?.styles[style] != null && <span> — {euros(V.styles[style] as number)}</span>}
+                <b>{style ? `${tp.styles[style]} : ${(cfg.couleur === "galva" ? tp.stylesNoteBrut : tp.stylesNote)[style]}` : t.compose}</b>
+                {style && V?.styles[style] != null && !(cfg.couleur === "galva" && styleEstAlu(style)) && <span> — {euros(V.styles[style] as number)}</span>}
               </p>
               <div className={`cpt-rangee ${perime ? "perimee" : ""}`}>
-                <div className="cpt-tuiles" role="group" aria-label={t.votreStyle}>
+                <div ref={tuilesRef} className="cpt-tuiles" role="group" aria-label={t.votreStyle}>
                   {vignettesTriees.map(({ st, prims }) => {
                     const p = V?.styles[st] ?? null;
                     return (

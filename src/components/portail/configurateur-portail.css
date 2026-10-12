@@ -27,7 +27,7 @@
 .cpt-h1 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; margin-top: 4px; }
 .cpt-h1 h1 { font-size: 30px; line-height: 1.1; color: var(--encre); }
 @media (min-width: 768px) { .cpt-h1 h1 { font-size: 34px; } }
-.cpt-guide-lien { font-size: 15px; color: var(--brun-fonce); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(92, 81, 64, 0.45); }
+.cpt .cpt-guide-lien { display: inline-flex; align-items: center; min-height: 44px; padding: 0; margin: -10px 0; font-size: 15px; color: var(--brun-fonce); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(92, 81, 64, 0.45); }   /* zone de toucher de 44 px, sans bouger le texte */
 
 /* ---------- La section et sa plaque ---------- */
 .cpt-section { max-width: 1480px; margin: 0 auto; padding: 10px 12px 16px; display: flex; flex-direction: column; }
@@ -474,7 +474,25 @@
   .cpt-visite .cpt-btn-note { display: none; }
 }
 
-/* La fenêtre « Quel portail chez vous ? » des fiches : le résultat ressort (carte sombre, nom du modèle en gros). */
+/* La fenêtre « Quel portail pour votre entrée ? » des fiches : le résultat ressort (carte sombre, nom du modèle en gros). */
 .cpt-guide .cpt-f-info { display: block; margin-top: 16px; padding: 14px 16px; border-radius: 16px; background: #231f1c; color: #fff7ee; font-size: 14px; line-height: 1.4; }
 .cpt-guide .cpt-f-info b { display: block; margin: 2px 0 6px; font-size: 22px; line-height: 1.15; color: #fff; }
-.cpt-guide .cpt-f-info a, .cpt-guide .cpt-f-info button { display: inline-block; margin-top: 4px; color: #fff; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+.cpt-guide .cpt-f-info a, .cpt-guide .cpt-f-info button { display: inline-flex; align-items: center; min-height: 44px; margin-top: 0; color: #fff; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+/* Dans la fenêtre du guide : aucun texte sous 14 px, aucune cible sous 44 px (la pastille de fermeture garde sa pastille de 28 px, sa zone de toucher grandit). */
+.cpt-guide .cpt-f-titre { font-size: 18px; }
+.cpt-guide-q { margin-top: 14px; }
+.cpt-guide-question { font-size: 15px; font-weight: 600; line-height: 1.3; color: #2b2320; }
+.cpt-guide-aide { margin-top: 2px; font-size: 14px; line-height: 1.4; color: var(--brun); }
+.cpt-guide .cpt-pilule { margin-top: 8px; }
+.cpt-guide .cpt-pilule [role="radio"] { min-height: 44px; padding: 8px 10px; font-size: 14px; white-space: normal; text-wrap: balance; }
+.cpt-guide .cpt-fermer { position: relative; width: 44px; height: 44px; margin: -8px -8px 0 0; background: transparent !important; }
+.cpt-guide .cpt-fermer::before { content: ""; position: absolute; inset: 8px; border-radius: 999px; background: rgba(118, 118, 128, 0.12); }
+.cpt-guide .cpt-fermer svg { position: relative; }
+
+/* L'arrivée avec une configuration dans l'adresse (?style=barreaux&couleur=vert#configuration) : le serveur a écrit le style de départ, la fiche
+   applique celui de l'adresse avant le premier affichage ; en attendant, la plaque garde sa place et reste invisible (opacity seulement : rien ne
+   bouge). L'attribut est posé sur #acheter par le script de lib/portails-attente.ts (jamais sans JavaScript, jamais sans paramètre dans l'adresse),
+   puis passe à « fondu » quand les dessins sont à jour. Un filet de sécurité de ce même script le retire au bout de 2,5 s. */
+#acheter[data-cfg-attente="attente"] .cpt-plaque, #acheter[data-cfg-attente="attente"] .cpt-tel-nav { opacity: 0; }
+#acheter[data-cfg-attente="fondu"] .cpt-plaque, #acheter[data-cfg-attente="fondu"] .cpt-tel-nav { opacity: 1; transition: opacity 0.22s ease-out; }
+@media (prefers-reduced-motion: reduce) { #acheter[data-cfg-attente="fondu"] .cpt-plaque, #acheter[data-cfg-attente="fondu"] .cpt-tel-nav { transition: none; } }

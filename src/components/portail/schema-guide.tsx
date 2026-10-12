@@ -3,13 +3,18 @@
  * termes… des petits schémas, des petits chiffres »). Vue de dessus (la rue en bas, la propriété en haut) comme le plan de
  * l'outil, sans animation : un seul regard dit ce que la question demande. La zone verte est la place à garder libre.
  * « Image d'illustration » : ce sont des schémas de principe, pas des plans.
- * Textes agrandis le 12/10/2026 (page refaite) : 15 unités pour les libellés, 18 pour les grands chiffres verts, soit au moins 12 px
- * à l'écran sur un téléphone de 390 px ; les gris sont ceux du texte secondaire du site (contraste 4,5:1 sur le sol du schéma).
+ * Textes agrandis le 12/10/2026 (page refaite), puis le 13/10 : 16 unités pour les libellés, 19 pour les grands chiffres verts, soit au moins
+ * 12 px à l'écran dès 300 px de large (la figure est à pleine largeur sous 350 px) ; 16 est le plus grand que « Sol meuble ou en pente »
+ * permet dans les 400 unités. Les gris sont ceux du texte secondaire du site (contraste 4,5:1 sur le sol du schéma).
+ * « 3,66 m libres au moins » : le passage plus 160 mm, ce que demande le moteur pour un passage de 3,50 m.
+ * Accessibilité (13/10) : le role="img" est sur le <svg>, pas sur la <figure> (HTML valide : une figure avec une légende n'a pas de rôle).
+ * Le nom accessible du dessin porte la mention d'illustration ; la légende visible la répète, donc elle est cachée aux lecteurs d'écran
+ * (aria-hidden) pour que la mention ne soit pas lue deux fois.
  */
 type Langue = "fr" | "en";
 const T = {
-  fr: { rue: "Rue", maison: "Votre propriété", demi: "1,75 m", longueur: "3,50 m libres au moins", passage: "passage de 3,50 m", rail: "rail fixé au sol", sansRail: "sans rail", sol: "Sol dur et plat", solMeuble: "Sol meuble ou en pente", contrepoids: "contrepoids", ill: "Image d'illustration" },
-  en: { rue: "Street", maison: "Your property", demi: "1.75 m", longueur: "3.50 m free at least", passage: "3.50 m opening", rail: "rail fixed to ground", sansRail: "no rail", sol: "Hard, level ground", solMeuble: "Soft or sloping ground", contrepoids: "counterweight", ill: "Illustration" },
+  fr: { rue: "Rue", maison: "Votre propriété", demi: "1,75 m", longueur: "3,66 m libres au moins", passage: "passage de 3,50 m", rail: "rail fixé au sol", sansRail: "sans rail", sol: "Sol dur et plat", solMeuble: "Sol meuble ou en pente", contrepoids: "contrepoids", ill: "Image d'illustration" },
+  en: { rue: "Street", maison: "Your property", demi: "1.75 m", longueur: "3.66 m free at least", passage: "3.50 m opening", rail: "rail fixed to ground", sansRail: "no rail", sol: "Hard, level ground", solMeuble: "Soft or sloping ground", contrepoids: "counterweight", ill: "Illustration" },
 } as const;
 
 const PIERRE = { fill: "#dcd2c3", stroke: "#b8a993", strokeWidth: 1.5 };
@@ -18,7 +23,7 @@ const ZONE = { fill: "rgba(63,107,58,0.13)", stroke: "#3f6b3a", strokeWidth: 1.5
 const ENCRE = "#2b2320";
 const GRIS = "#5c5140";
 /** Taille des libellés et des grands chiffres, en unités du viewBox (400 × 190). */
-const PETIT = 15, GRAND = 18;
+const PETIT = 16, GRAND = 19;
 
 /** Le décor commun : la rue, le texte « Votre propriété », les deux murs. Les piliers sont posés par chaque schéma. */
 function Decor({ t, xg, xd }: { t: Record<keyof (typeof T)["fr"], string>; xg: number; xd: number }) {
@@ -38,8 +43,8 @@ function Decor({ t, xg, xd }: { t: Record<keyof (typeof T)["fr"], string>; xg: n
 export function SchemaGuide({ question, locale, label }: { question: 0 | 1 | 2; locale: Langue; label: string }) {
   const t = T[locale];
   return (
-    <figure className="pg-schema" role="img" aria-label={label}>
-      <svg viewBox="0 0 400 190" preserveAspectRatio="xMidYMid meet">
+    <figure className="pg-schema">
+      <svg viewBox="0 0 400 190" preserveAspectRatio="xMidYMid meet" role="img" aria-label={`${label} (${t.ill.toLowerCase()})`}>
         {question === 0 && (
           <>
             <Decor t={t} xg={78} xd={308} />
@@ -60,7 +65,7 @@ export function SchemaGuide({ question, locale, label }: { question: 0 | 1 | 2; 
             <rect x="52" y="143" width="160" height="9" fill="none" stroke={GRIS} strokeWidth="1.3" strokeDasharray="5 4" />
             <rect x="228" y="106" width="166" height="42" {...ZONE} />
             <rect x="232" y="128" width="158" height="9" fill={ENCRE} rx="1" />
-            <text x="394" y="97" fontSize="16" fontWeight="700" fill="#3f6b3a" textAnchor="end">{t.longueur}</text>
+            <text x="394" y="97" fontSize="17" fontWeight="700" fill="#3f6b3a" textAnchor="end">{t.longueur}</text>
             <text x="132" y="178" fontSize={PETIT} fill={GRIS} textAnchor="middle">{t.passage}</text>
           </>
         )}
@@ -88,7 +93,7 @@ export function SchemaGuide({ question, locale, label }: { question: 0 | 1 | 2; 
           </>
         )}
       </svg>
-      <figcaption className="pg-schema-ill" data-mention="">{t.ill}</figcaption>
+      <figcaption className="pg-schema-ill" data-mention="" aria-hidden="true">{t.ill}</figcaption>
     </figure>
   );
 }

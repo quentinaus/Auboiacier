@@ -17,6 +17,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { products, SLUG_GC_FORGE } from "../src/lib/products.ts";
+import { textesBrutsPortailSurMesure } from "../src/lib/textes/portail-sur-mesure-saumur.ts";
 
 const RACINE = join(import.meta.dirname, "..");
 const fr = readFileSync(join(RACINE, "src/app/[lang]/dictionaries/fr.json"), "utf8");
@@ -109,11 +110,48 @@ test("aucun mot de la liste « Jamais » dans les dictionnaires", () => {
   assert.deepEqual([...trouves("fr.json", fr, JAMAIS_FR), ...trouves("en.json", en, JAMAIS_EN)], []);
 });
 
-/** Les textes de la page des portails (12/10/2026) : français et anglais dans un même fichier, donc les deux listes le lisent en entier. */
-const pagePortails = readFileSync(join(RACINE, "src/lib/portails-page.ts"), "utf8");
+/**
+ * Les textes de la page des portails (12/10/2026) et ceux du guide, des styles et des teintes (portails-textes.ts, 13/10/2026 : la
+ * note du style Volutes disait « fer forgé » sans que ce test lise ce fichier) : français puis anglais dans un même fichier
+ * (`  fr: {` … `  en: {`). La liste française lit ce qui précède `  en: {`, la liste anglaise la suite.
+ */
+function parLangue(nom: string, source: string): { fr: string; en: string } {
+  const i = source.search(/^ {2}en: \{$/m);
+  assert.ok(i > 0, `${nom} : le bloc « en: { » (deux espaces) est introuvable`);
+  return { fr: source.slice(0, i), en: source.slice(i) };
+}
+const FICHIERS_DEUX_LANGUES = ["src/lib/portails-page.ts", "src/lib/portails-textes.ts"] as const;
 
-test("aucun mot de la liste « Jamais » dans les textes de la page des portails", () => {
-  assert.deepEqual([...trouves("portails-page.ts", pagePortails, JAMAIS_FR), ...trouves("portails-page.ts", pagePortails, JAMAIS_EN)], []);
+test("aucun mot de la liste « Jamais » dans les textes de la page des portails et dans ceux de la fiche et du guide (français et anglais séparés)", () => {
+  const trouvees: string[] = [];
+  for (const chemin of FICHIERS_DEUX_LANGUES) {
+    const { fr: francais, en: anglais } = parLangue(chemin, readFileSync(join(RACINE, chemin), "utf8"));
+    trouvees.push(...trouves(`${chemin} (fr)`, francais, JAMAIS_FR), ...trouves(`${chemin} (en)`, anglais, JAMAIS_EN));
+  }
+  assert.deepEqual(trouvees, []);
+});
+
+test("« fer forgé » / « wrought iron » : seulement « façon » ou « style », dans les textes des portails (page, fiche, guide, page Saumur)", () => {
+  for (const chemin of FICHIERS_DEUX_LANGUES) {
+    const { fr: francais, en: anglais } = parLangue(chemin, readFileSync(join(RACINE, chemin), "utf8"));
+    assert.deepEqual(lignes(francais, FER_FORGE_SEUL), [], `${chemin} (fr)`);
+    assert.deepEqual(lignes(anglais, WROUGHT_IRON_SEUL), [], `${chemin} (en)`);
+  }
+  // La page « Portail sur mesure à Saumur » : ses textes bruts, une langue à la fois.
+  const texteSaumur = (locale: "fr" | "en") => JSON.stringify(textesBrutsPortailSurMesure(locale), null, 1);
+  assert.deepEqual([...trouves("portail-sur-mesure-saumur (fr)", texteSaumur("fr"), JAMAIS_FR), ...trouves("portail-sur-mesure-saumur (en)", texteSaumur("en"), JAMAIS_EN)], []);
+  assert.deepEqual(lignes(texteSaumur("fr"), FER_FORGE_SEUL), [], "portail-sur-mesure-saumur (fr)");
+  assert.deepEqual(lignes(texteSaumur("en"), WROUGHT_IRON_SEUL), [], "portail-sur-mesure-saumur (en)");
+});
+
+test("le test lit bien portails-textes.ts : il y trouverait « fer forgé » et « wrought-iron scrolls »", () => {
+  const { fr: francais, en: anglais } = parLangue("exemple", "const a = {\n  fr: {\n    n: \"volutes en fer forgé\",\n  },\n  en: {\n    n: \"wrought-iron scrolls\",\n  },\n};");
+  assert.equal(lignes(francais, FER_FORGE_SEUL).length, 1);
+  assert.equal(lignes(anglais, WROUGHT_IRON_SEUL).length, 1);
+  for (const chemin of FICHIERS_DEUX_LANGUES) {
+    const source = readFileSync(join(RACINE, chemin), "utf8");
+    assert.ok(/^ {2}fr: \{$/m.test(source) && /^ {2}en: \{$/m.test(source), `${chemin} : blocs fr et en`);
+  }
 });
 
 test("aucun mot de la liste « Jamais » dans le catalogue", () => {

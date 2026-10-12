@@ -25,8 +25,10 @@ export function EtapesFabrication({
   // Sur la bande crème, la page garde ses grands blocs à 64 / 96 px ; la bande blanche garde ses 56 / 80 px.
   const bande = fond === "creme" ? "bg-[#f5f1ea] py-16 lg:py-24" : "bg-[#ffffff] py-14 md:py-20";
   return (
-    <section className={`${bande} px-6`}>
-      <div className="mx-auto max-w-6xl">
+    // Le remplissage de 24 px est dans le conteneur (comme les autres sections du site : `mx-auto max-w-6xl px-6`), pas sur la
+    // section : au-delà de 1704 px la bande n'est plus décalée de 24 px vers la gauche. En dessous, le rendu est le même.
+    <section className={bande}>
+      <div className="mx-auto max-w-6xl px-6">
         <Apparition>
           <h2 className={`${serif.className} text-balance text-[1.8rem] leading-[1.08] tracking-[-0.018em] text-[#2b2320] sm:text-[2.2rem]`}>
             {titre}
@@ -36,7 +38,8 @@ export function EtapesFabrication({
           {etapes.map((etape, i) => (
             <li key={etape.t}>
               <Apparition retard={(i % colonnes) * 80} className="flex gap-4 lg:block">
-                <span className={`${serif.className} text-[1.6rem] leading-none text-[#6f6357] lg:block`}>{i + 1}</span>
+                {/* Largeur fixe : un chiffre de largeur variable décalait les quatre titres de 1 à 4 px (49, 51, 50, 53). */}
+                <span className={`${serif.className} w-[0.55em] shrink-0 text-[1.6rem] leading-none text-[#6f6357] lg:block lg:w-auto`}>{i + 1}</span>
                 <div className="lg:mt-3">
                   <h3 className="text-[16px] font-semibold leading-tight text-[#2b2320]">{etape.t}</h3>
                   <p className="mt-1.5 text-[15px] leading-[1.55] text-[#4a4038]">{etape.d}</p>

@@ -2,11 +2,15 @@
 // (planPortail(...).vues.face, passé par svgDe), habillé par STYLE_RENDU_PORTAIL, avec le ciel et le sol DANS le fichier.
 // Jamais redessinées : seules les cotes et les textes sont retirés, comme le fait la fiche. Chargées en <img>.
 //   npm run portails:scenes
-// À relancer après tout changement du moteur, des styles ou des teintes (puis changer VERSION_DESSINS).
+// À relancer après tout changement du moteur, des styles ou des teintes. Le script écrit lui-même la `version` des dessins
+// (une empreinte du contenu des 77 fichiers) dans manifeste.json et version.json : la page la lit, l'adresse des fichiers
+// change donc toute seule, et un test échoue si les fichiers ne sont plus ceux de la version écrite.
+// Rien n'est effacé ni écrit avant que les 77 scènes soient toutes fabriquées et dans leurs limites de poids.
 //
 // Vitrine : 7 styles x 6 teintes en portail battant, fenêtre 5 200 x 2 971 mm rendue en 1300 x 743.
 // Cartes  : 4 modèles x 7 styles en gris anthracite (+ le coulissant sans rail), fenêtre 6 000 x 4 000 mm rendue en 600 x 400.
-import { mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { gzipSync } from "node:zlib";
@@ -19,11 +23,21 @@ export const DOSSIER_SCENES = join(RACINE, "public/images/portails/scenes");
 
 export const CIEL = "#ffffff";
 export const SOL = "#efe9df";
+/** Teinte « Blanc » de la vitrine : un portail blanc sur un ciel blanc ne se voit pas ; le ciel et le sol y sont un cran plus chauds. */
+export const CIEL_BLANC = "#ebe6dc";
+export const SOL_BLANC = "#ddd6c9";
+
+/** Le ciel et le sol d'une scène : ceux de la page, sauf la teinte blanche de la vitrine. */
+export function decorDe(cfg, fenetre) {
+  return fenetre === "vitrine" && cfg.couleur === "blanc" ? { ciel: CIEL_BLANC, sol: SOL_BLANC } : { ciel: CIEL, sol: SOL };
+}
 
 /**
  * Les deux fenêtres, en millimètres du moteur (sol y = 0, la hauteur vers le haut) : la largeur et la hauteur de la
  * fenêtre, ce qu'elle montre au-dessus du sol et au-dessous, et sa taille en pixels. Le sol est à 81,39 % de la hauteur
- * sur la vitrine et à 74 % sur les cartes : c'est aussi le fond de réserve que la page pose avant le chargement.
+ * sur la vitrine et à 74 % sur les cartes : c'est aussi le fond de réserve que la page pose avant le chargement. La plaque de
+ * la vitrine rogne le haut du dessin (ciel vide : 640 px sur 743, ancrés en bas) : son sol y est à 78,39 %. Le test
+ * tests/scenes-portails.test.ts relit les CSS de la page et vérifie ces nombres contre ces fenêtres.
  */
 export const FENETRES = {
   vitrine: { L: 5200, H: 2971, haut: 2418, bas: 553, pxL: 1300, pxH: 743 },
@@ -140,11 +154,12 @@ export function fabriquerScene(slug, cfg, fenetre, { decimales = 1, eps = 0.05, 
   const html = alleger(svgDe(prims, false).html, decimales, eps);
   const tx = arrondi((F.L / 2 - cx) * echelle, 2);
   const viewBox = `0 0 ${F.pxL} ${F.pxH}`;
+  const decor = decorDe(cfg, fenetre);
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" width="${F.pxL}" height="${F.pxH}" viewBox="${viewBox}">` +
     `<style>${styleUtile(cfg.couleur, html)}</style>` +
-    `<rect width="${F.pxL}" height="${F.pxH}" fill="${CIEL}"/>` +
-    `<rect y="${solPx}" width="${F.pxL}" height="${arrondi(F.pxH - solPx)}" fill="${SOL}"/>` +
+    `<rect width="${F.pxL}" height="${F.pxH}" fill="${decor.ciel}"/>` +
+    `<rect y="${solPx}" width="${F.pxL}" height="${arrondi(F.pxH - solPx)}" fill="${decor.sol}"/>` +
     `<g transform="translate(${nombre(tx, 2)} ${solPx}) scale(${nombre(echelle, 3)})">${html}</g></svg>\n`;
   return { svg, viewBox, largeur: F.pxL, hauteur: F.pxH };
 }
@@ -199,24 +214,61 @@ export function fabriquer({ chemin, slug, cfg, fenetre }) {
   return r;
 }
 
+/**
+ * La version des dessins : une empreinte courte du contenu de tous les fichiers (chemin et octets, dans l'ordre des chemins).
+ * `fichiers` : { chemin: contenu }. Deux jeux de dessins identiques donnent la même version, au moindre octet changé elle change.
+ */
+export function empreinte(fichiers) {
+  const h = createHash("sha256");
+  for (const chemin of Object.keys(fichiers).sort()) h.update(`${chemin}\n${fichiers[chemin]}\n`);
+  return h.digest("hex").slice(0, 8);
+}
+
+/** Lit les scènes écrites dans le dossier (celles de listeScenes) : { chemin: contenu }. */
+export function lireScenes(dossier = DOSSIER_SCENES) {
+  const sortie = {};
+  for (const s of listeScenes()) sortie[s.chemin] = readFileSync(join(dossier, s.chemin), "utf8");
+  return sortie;
+}
+
+/** Écrit un fichier en entier ou pas du tout : d'abord à côté, puis posé à sa place (le dossier n'est jamais à moitié écrit). */
+function ecrireFichier(chemin, contenu) {
+  const tmp = `${chemin}.tmp-${process.pid}`;
+  writeFileSync(tmp, contenu);
+  renameSync(tmp, chemin);
+}
+
 function ecrire() {
-  for (const sous of ["vitrine", "cartes"]) {
-    mkdirSync(join(DOSSIER_SCENES, sous), { recursive: true });
-    for (const f of readdirSync(join(DOSSIER_SCENES, sous))) if (f.endsWith(".svg")) rmSync(join(DOSSIER_SCENES, sous, f));
-  }
-  const fichiers = [];
+  // 1. Tout fabriquer en mémoire. Si une scène échoue ou dépasse son poids, on s'arrête ici : le dossier n'a pas bougé.
+  const fabriquees = [];
+  let trop = 0;
   for (const s of listeScenes()) {
     const r = fabriquer(s);
-    writeFileSync(join(DOSSIER_SCENES, s.chemin), r.svg);
     const octets = Buffer.byteLength(r.svg), gzip = gzipSync(r.svg, { level: 9 }).length;
-    fichiers.push({ chemin: s.chemin, octets, viewBox: r.viewBox, largeur: r.largeur, hauteur: r.hauteur });
     const lim = limiteDe(s.chemin);
     const depasse = octets > lim.brut || (lim.gzip && gzip > lim.gzip);
+    if (depasse) trop++;
     console.log(`${depasse ? "TROP LOURD " : ""}${s.chemin.padEnd(52)} ${(octets / 1024).toFixed(1).padStart(6)} Ko  gzip ${(gzip / 1024).toFixed(1).padStart(5)} Ko  (${r.decimales} déc.${r.simplifie ? ", simplifié" : ""})`);
-    if (depasse) process.exitCode = 1;
+    fabriquees.push({ chemin: s.chemin, svg: r.svg, octets, viewBox: r.viewBox, largeur: r.largeur, hauteur: r.hauteur });
   }
-  writeFileSync(join(DOSSIER_SCENES, "manifeste.json"), JSON.stringify({ fichiers }, null, 2) + "\n");
-  console.log(`${fichiers.length} scènes écrites dans public/images/portails/scenes (manifeste.json compris).`);
+  if (trop) {
+    console.error(`${trop} scène(s) trop lourde(s) : rien n'a été écrit.`);
+    process.exitCode = 1;
+    return;
+  }
+  // 2. Écrire les 77 scènes (chacune d'un coup), puis retirer les anciens .svg qui ne sont plus dans la liste.
+  const voulus = new Set(fabriquees.map((f) => f.chemin));
+  for (const sous of ["vitrine", "cartes"]) mkdirSync(join(DOSSIER_SCENES, sous), { recursive: true });
+  for (const f of fabriquees) ecrireFichier(join(DOSSIER_SCENES, f.chemin), f.svg);
+  for (const sous of ["vitrine", "cartes"])
+    for (const nom of readdirSync(join(DOSSIER_SCENES, sous)))
+      if (nom.endsWith(".svg") && !voulus.has(`${sous}/${nom}`)) rmSync(join(DOSSIER_SCENES, sous, nom));
+  // 3. La version, puis le manifeste. version.json est le seul fichier que la page importe (le manifeste est trop lourd pour le navigateur).
+  const version = empreinte(Object.fromEntries(fabriquees.map((f) => [f.chemin, f.svg])));
+  const fichiers = fabriquees.map(({ chemin, octets, viewBox, largeur, hauteur }) => ({ chemin, octets, viewBox, largeur, hauteur }));
+  ecrireFichier(join(DOSSIER_SCENES, "manifeste.json"), JSON.stringify({ version, fichiers }, null, 2) + "\n");
+  ecrireFichier(join(DOSSIER_SCENES, "version.json"), JSON.stringify({ version }) + "\n");
+  console.log(`${fichiers.length} scènes écrites dans public/images/portails/scenes (manifeste.json et version.json compris), version ${version}.`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) ecrire();

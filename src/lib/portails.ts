@@ -10,11 +10,11 @@
  * six styles tout faits, surtout de l'alu, l'acier pour la Rosace et les Volutes.
  */
 import { calculerPortail, MT_AVEC, PT_ATELIER, PT_STYLES, type ResultatPortail } from "./portails-outil/moteur.genere.mjs";
-import { COULEURS_PORTAIL, DESSINS_TOLE, estSlugPortail, RECEPTIONS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL, type DessinTole, type Langue, type ReceptionPortail, type SlugPortail, type StylePortail } from "./portails-base.ts";
+import { ACOMPTE_PORTAIL_PCT, COULEURS_PORTAIL, DESSINS_TOLE, estSlugPortail, RECEPTIONS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL, type DessinTole, type Langue, type ReceptionPortail, type SlugPortail, type StylePortail } from "./portails-base.ts";
 import { TEXTES_PORTAIL } from "./portails-textes.ts";
 
 // Ce qui n'a pas besoin du moteur vit dans portails-base.ts (constantes, guide) et portails-textes.ts ; ré-exporté ici : l'API ne change pas.
-export { COULEURS_PORTAIL, DESSINS_TOLE, estSlugPortail, guidePortail, RECEPTIONS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL } from "./portails-base.ts";
+export { ACOMPTE_PORTAIL_PCT, COULEURS_PORTAIL, DESSINS_TOLE, estSlugPortail, guidePortail, RECEPTIONS_PORTAIL, SLUGS_PORTAIL, STYLES_PORTAIL } from "./portails-base.ts";
 export type { DessinTole, Langue, ReceptionPortail, SlugPortail, StylePortail } from "./portails-base.ts";
 export { TEXTES_PORTAIL } from "./portails-textes.ts";
 
@@ -122,14 +122,33 @@ export function appliquerStyle(cfg: ConfigPortail, style: StylePortail): ConfigP
   };
 }
 
-/** Le style dont la composition est exactement celle choisie, ou null (« composé »). */
+/**
+ * Le style dont la composition est exactement celle choisie, ou null (« composé »). Le galvanisé brut n'existe qu'en acier
+ * (configDepuisAdresse : mat=acier) : un style d'alu y est reconnu avec la matière « acier » (même composition, en acier brut),
+ * sinon la fiche ouverte depuis Plein, Lisse, Barreaux ou Lames chêne en galvanisé brut n'aurait aucun style choisi.
+ */
 export function styleDe(cfg: ConfigPortail): StylePortail | null {
   return (
     STYLES_PORTAIL.find((st) => {
       const s = PT_STYLES[st] as Record<string, unknown>;
-      return s.ptMat === cfg.mat && s.ptForme === cfg.forme && s.ptSoub === cfg.soub && s.ptRemp === cfg.remp && ((s.ptDecor as string | undefined) ?? "aucun") === cfg.decor && Boolean(s.ptPointes) === cfg.pointes && Boolean(s.ptLisse) === cfg.lisse;
+      const mat = cfg.couleur === "galva" && s.ptMat === "alu" ? "acier" : s.ptMat;
+      return mat === cfg.mat && s.ptForme === cfg.forme && s.ptSoub === cfg.soub && s.ptRemp === cfg.remp && ((s.ptDecor as string | undefined) ?? "aucun") === cfg.decor && Boolean(s.ptPointes) === cfg.pointes && Boolean(s.ptLisse) === cfg.lisse;
     }) ?? null
   );
+}
+
+/** Un style d'alu (le galvanisé brut n'existe qu'en acier : les tuiles de ces styles sont alors comptées en alu laqué). */
+export const styleEstAlu = (st: StylePortail): boolean => (PT_STYLES[st] as Record<string, unknown>).ptMat === "alu";
+
+/** Les quatre résultats du guide « Quel portail pour votre entrée ? » : un par parcours (les mêmes clés que EtatResultat de portails-guide.ts). */
+export type ResultatGuideFiche = "battant" | "pliant" | "rail" | "auto";
+/** L'adresse de la fiche du modèle conseillé pour chaque résultat (liensGuideFiche, portails-fiche.ts : construites par le serveur). */
+export type LiensGuideFiche = Record<ResultatGuideFiche, string>;
+/** Le résultat du guide (guidePortail) en clé : battant, pliant, coulissant sur rail ou sans rail. */
+export function resultatGuide(r: { slug: SlugPortail; guidage?: "rail" | "auto" }): ResultatGuideFiche {
+  if (r.slug === "portail-battant") return "battant";
+  if (r.slug === "portail-pliant") return "pliant";
+  return r.guidage === "auto" ? "auto" : "rail";
 }
 
 /**
@@ -217,13 +236,7 @@ export function lireDecorChoix(texte: string | null): ChoixDecor[] | null {
   return sortie;
 }
 
-/**
- * La commande en ligne d'un portail (Quentin, 10/10/2026) : le client paie un ACOMPTE de 40 % au panier, la visite de prise
- * de cotes est comprise, le solde est dû à la réception. 40 % couvre les achats engagés avant la pose (moteur, matière,
- * galvanisation, laquage) ; l'outil prévient si ce n'est pas le cas sur un portail.
- */
-export const ACOMPTE_PORTAIL_PCT = 40;
-/** L'acompte en euros entiers, pour un prix posé donné. */
+/** L'acompte en euros entiers, pour un prix posé donné (ACOMPTE_PORTAIL_PCT : portails-base.ts, la commande en ligne du 10/10/2026). */
 export const acomptePortail = (prix: number) => Math.round((prix * ACOMPTE_PORTAIL_PCT) / 100);
 /** La configuration en texte, sans le modèle (la ligne du panier) ; relue par lireConfigPanier, jamais un prix. */
 export function versParamsPanier(slug: SlugPortail, cfg: ConfigPortail): string {

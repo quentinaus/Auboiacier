@@ -17,6 +17,8 @@ import { descriptionSeo, descriptionTient, titreSeo } from "../src/lib/seo.ts";
 import { valeursMarqueurs } from "../src/lib/marqueurs.ts";
 import { RAYON_MAX_KM } from "../src/lib/deplacement.ts";
 import { ACOMPTE_PORTAIL_PCT } from "../src/lib/portails.ts";
+import { COULEURS_PORTAIL, STYLES_PORTAIL, type StylePortail } from "../src/lib/portails-base.ts";
+import { TEXTES_PORTAIL } from "../src/lib/portails-textes.ts";
 import {
   DELAI_PORTAIL,
   MODELES_PAGE_PORTAIL,
@@ -139,4 +141,45 @@ test("au plan du site, au pied de page, et les fiches portail et la page des por
   assert.ok(lire("components/site-footer.tsx").includes("/portail-sur-mesure-saumur"));
   assert.match(lire("app/[lang]/artisanat/[slug]/page.tsx"), /famille === "portail"[\s\S]{0,200}\/portail-sur-mesure-saumur/);
   assert.ok(lire("app/[lang]/artisanat/famille/[famille]/page.tsx").includes("/portail-sur-mesure-saumur"));
+});
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Les teintes et les styles de la page sont ceux du configurateur (13/10/2026 : la page disait « Cinq teintes » pour six listées et
+// « Six styles » pour sept) : le nombre annoncé, la liste écrite et COULEURS_PORTAIL / STYLES_PORTAIL ne se quittent plus.
+// ---------------------------------------------------------------------------------------------------------------------------------
+const MOTS_NOMBRES: Record<"fr" | "en", string[]> = {
+  fr: ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze", "douze"],
+  en: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"],
+};
+/** Comment la page nomme chaque style de départ (une entrée par style : un nouveau style de STYLES_PORTAIL fait échouer la compilation du test). */
+const NOM_STYLE_PAGE: Record<"fr" | "en", Record<StylePortail, RegExp>> = {
+  fr: { plein: /\bplein\b/, lisse: /\blisse\b/, barreaux: /\bbarreaux\b/, lamesChene: /lames de chêne/, rosace: /\brosace\b/, volutes: /\bvolutes\b/, tole: /tôle découpée/ },
+  en: { plein: /\bsolid\b/, lisse: /\bflat\b/, barreaux: /\bbars\b/, lamesChene: /oak slats/, rosace: /\brosette\b/, volutes: /\bscrolls\b/, tole: /laser-cut sheet/ },
+};
+
+for (const locale of LANGUES) {
+  test(`${locale} : « Six teintes », « Sept styles » : les nombres et les listes de la page sont ceux du configurateur`, () => {
+    const noms = COULEURS_PORTAIL.map((c) => TEXTES_PORTAIL[locale].couleur[c].toLowerCase());
+    const t = textesPortailSurMesure(locale, noms.join(", "));
+    const bloc = (titre: RegExp) => t.matiere.find((b) => titre.test(b.titre))!.texte;
+
+    // Les teintes : le nombre écrit en lettres est le nombre de teintes, et toutes sont listées.
+    const teintes = bloc(locale === "fr" ? /^Couleur$/ : /^Colour$/);
+    const nbTeintes = MOTS_NOMBRES[locale].indexOf(teintes.split(" ")[0].toLowerCase());
+    assert.equal(nbTeintes, COULEURS_PORTAIL.length, teintes);
+    for (const nom of noms) assert.ok(teintes.includes(nom), `${nom} : ${teintes}`);
+
+    // Les styles : le nombre écrit en lettres, les éléments de la liste et leurs noms.
+    const styles = bloc(/^Style$/);
+    const nbStyles = MOTS_NOMBRES[locale].indexOf(styles.split(" ")[0].toLowerCase());
+    assert.equal(nbStyles, STYLES_PORTAIL.length, styles);
+    const liste = styles.slice(styles.indexOf(":") + 1, styles.indexOf(". ")).split(/,\s*| et | and /).filter(Boolean);
+    assert.equal(liste.length, STYLES_PORTAIL.length, `la liste « ${liste.join(" | ")} »`);
+    for (const style of STYLES_PORTAIL) assert.match(styles, NOM_STYLE_PAGE[locale][style], `${style} : ${styles}`);
+  });
+}
+
+test("la page donne toutes les teintes du configurateur à ses textes (COULEURS_PORTAIL, pas une liste écrite à la main)", () => {
+  const page = lire("app/[lang]/portail-sur-mesure-saumur/page.tsx");
+  assert.match(page, /COULEURS_PORTAIL\.map\(/);
 });

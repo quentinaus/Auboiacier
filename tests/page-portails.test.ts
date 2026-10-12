@@ -8,7 +8,7 @@ import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { configDepart, configDepuisAdresse, STYLES_PORTAIL, type SlugPortail } from "../src/lib/portails.ts";
 import { COULEURS_PORTAIL } from "../src/lib/portails-base.ts";
-import { ORDRE_MODELES, TXT, finitionDe, lienFiche, matiereVitrine, paramsVitrine, prixPlage, srcCarte, srcVitrine, formatCote } from "../src/lib/portails-page.ts";
+import { ORDRE_MODELES, TXT, finitionDe, lienFiche, matiereVitrine, paramsVitrine, prixPlage, srcCarte, srcVitrine, formatCote, formatMetre } from "../src/lib/portails-page.ts";
 import { donneesPagePortails } from "../src/lib/portails-outil/donnees-page.ts";
 import { prixDepartPortail, prixPortail, prixStylesPortail, styleDepartPortail } from "../src/lib/portails-outil/prix.ts";
 
@@ -91,15 +91,18 @@ test("les adresses : ordre style, mat, couleur, guidage ; une valeur absente est
 });
 
 test("les dessins : une adresse par style et par teinte, une par carte, versionnée", () => {
-  assert.match(srcVitrine("lamesChene", "anthracite"), /^\/images\/portails\/scenes\/vitrine\/battant-lamesChene-anthracite\.svg\?v=\d+$/);
-  assert.match(srcCarte("portail-pliant", "lisse"), /^\/images\/portails\/scenes\/cartes\/portail-pliant-lisse\.svg\?v=\d+$/);
+  assert.match(srcVitrine("lamesChene", "anthracite"), /^\/images\/portails\/scenes\/vitrine\/battant-lamesChene-anthracite\.svg\?v=[0-9a-f]{8}$/);
+  assert.match(srcCarte("portail-pliant", "lisse"), /^\/images\/portails\/scenes\/cartes\/portail-pliant-lisse\.svg\?v=[0-9a-f]{8}$/);
   assert.match(srcCarte("portail-coulissant", "lisse", "auto"), /portail-coulissant-lisse-auto\.svg/);
   assert.doesNotMatch(srcCarte("portail-battant", "lisse", "auto"), /auto/, "le guidage ne concerne que le coulissant");
 });
 
 test("formats : cote en mètres, fourchette de prix", () => {
-  assert.equal(formatCote(3500, 1600, "fr"), "3,50 × 1,60 m");
-  assert.equal(formatCote(1000, 1600, "en"), "1.00 × 1.60 m");
+  // Une cote ne se coupe jamais en deux lignes : des espaces insécables (\xa0) entre le nombre, le signe et l'unité.
+  assert.equal(formatCote(3500, 1600, "fr"), "3,50\xa0×\xa01,60\xa0m");
+  assert.equal(formatCote(1000, 1600, "en"), "1.00\xa0×\xa01.60\xa0m");
+  assert.equal(formatMetre(3500, "fr"), "3,50\xa0m");
+  assert.equal(formatMetre(3500, "en"), "3.50\xa0m");
   const plage = prixPlage(2970, 3110, "fr");
   assert.equal(plage.plage, true);
   assert.equal(plage.texte.replace(/[\u00a0\u202f]/g, " "), "2 970 à 3 110 €");

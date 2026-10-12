@@ -10,6 +10,26 @@ import { prixStylesPortail, styleDepartPortail } from "./prix.ts";
 /** Style retenu quand un modèle n'a aucun prix (chiffrage indisponible) : le dessin existe, les prix sont null. */
 const STYLE_PAR_DEFAUT: StylePortail = "lisse";
 
+/** Vrai si la vitrine n'a aucun prix posé, ni en laqué ni en galvanisé brut : le chiffrage n'a pas pu se lancer (clé absente). */
+export const aucunPrixVitrine = (d: Pick<DonneesPagePortails, "vitrine">): boolean =>
+  (["laque", "brut"] as const).every((finition) => Object.values(d.vitrine[finition]).every((px) => px.pose === null));
+
+/**
+ * Un build sans la clé de chiffrage publiait en silence une page statique sans aucun prix (« Prix à vos mesures sur la fiche » partout,
+ * aucun « Posé dès »). Désormais : un avertissement net en développement et pendant les tests, et sur Vercel en production
+ * (VERCEL_ENV=production) une erreur claire, pour que le déploiement échoue plutôt que d'afficher une page sans prix.
+ */
+export function verifierPrixPage(
+  d: Pick<DonneesPagePortails, "vitrine">,
+  env: Record<string, string | undefined> = process.env,
+  avertir: (message: string) => void = (message) => console.warn(message),
+): void {
+  if (!aucunPrixVitrine(d)) return;
+  const message = "[page des portails] aucun prix n'a pu être calculé : la clé de chiffrage CHIFFRAGE_GARDE_CORPS_CLE est absente ou refusée. La page n'afficherait aucun prix (« Prix à vos mesures sur la fiche » partout).";
+  if (env.VERCEL_ENV === "production") throw new Error(`${message} Déploiement refusé : définissez la clé dans Vercel > Settings > Environment Variables (Production).`);
+  avertir(message);
+}
+
 export function donneesPagePortails(): DonneesPagePortails {
   const battant: SlugPortail = "portail-battant";
   const vitrine = {
@@ -26,5 +46,7 @@ export function donneesPagePortails(): DonneesPagePortails {
   const styleAuto = styleDepartPortail("portail-coulissant", { guidage: "auto" });
   const sansRail = styleAuto ? (() => { const px = prixStylesPortail("portail-coulissant", { guidage: "auto" })[styleAuto]; return { style: styleAuto, depart: px.pose, departSans: px.sansPose }; })() : null;
   const c = configDepart(battant);
-  return { vitrine, modeles, sansRail, coteVitrine: { P: c.P, H: c.H } };
+  const donnees: DonneesPagePortails = { vitrine, modeles, sansRail, coteVitrine: { P: c.P, H: c.H } };
+  verifierPrixPage(donnees);
+  return donnees;
 }

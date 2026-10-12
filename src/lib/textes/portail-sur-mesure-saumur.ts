@@ -4,6 +4,7 @@ import { RAYON_MAX_KM } from "../deplacement.ts";
 import type { Locale } from "../i18n.ts";
 import { remplacerMarqueurs, verifierMarqueurs } from "../marqueurs.ts";
 import { ACOMPTE_PORTAIL_PCT } from "../portails.ts";
+import { COULEURS_PORTAIL, STYLES_PORTAIL } from "../portails-base.ts";
 
 /**
  * LA PAGE « PORTAIL SUR MESURE À SAUMUR » (/fr et /en /portail-sur-mesure-saumur), 10/10/2026 :
@@ -125,16 +126,17 @@ const FR: TextesPortailSurMesure = {
     {
       titre: "Acier galvanisé, thermolaqué",
       texte:
-        "De l'acier galvanisé à chaud, puis thermolaqué. Il porte les styles à décor : la rosace, et les volutes en fer forgé soudées à l'atelier, qui imposent l'acier. Dès que vous ajoutez un décor, le portail passe en acier.",
+        "De l'acier galvanisé à chaud, puis thermolaqué. Il porte les styles à décor : la rosace, et les volutes façon fer forgé soudées à l'atelier, qui imposent l'acier. Dès que vous ajoutez un décor, le portail passe en acier.",
     },
     {
       titre: "Couleur",
-      texte: "Cinq teintes sont proposées : {couleurs}.",
+      // Le nombre vient de COULEURS_PORTAIL et de STYLES_PORTAIL ({nbTeintes}, {nbStyles}) : il ne dérive plus (test).
+      texte: "{nbTeintes} teintes sont proposées : {couleurs}.",
     },
     {
       titre: "Style",
       texte:
-        "Six styles de départ : plein, lisse, barreaux, lames de chêne, rosace et volutes. Vous les gardez tels quels, ou vous changez chaque bloc : forme du haut, soubassement, remplissage, décor. Ce qui ne se fabrique pas est refusé, avec la raison.",
+        "{nbStyles} styles de départ : plein, lisse, barreaux, lames de chêne, rosace, volutes et tôle découpée. Vous les gardez tels quels, ou vous changez chaque bloc : forme du haut, soubassement, remplissage, décor. Ce qui ne se fabrique pas est refusé, avec la raison.",
     },
   ],
 
@@ -297,21 +299,21 @@ const EN: TextesPortailSurMesure = {
     {
       titre: "Powder-coated aluminium",
       texte:
-        "An aluminium frame, TIG-welded in our workshop, then powder-coated. Aluminium is light and does not rust. It is the material of the solid, smooth, bars and oak slats styles.",
+        "An aluminium frame, TIG-welded in our workshop, then powder-coated. Aluminium is light and does not rust. It is the material of the solid, flat, bars and oak slats styles.",
     },
     {
       titre: "Galvanised, powder-coated steel",
       texte:
-        "Hot-dip galvanised steel, then powder-coated. It carries the decorative styles: the rosette, and the wrought-iron scrolls welded in our workshop, which require steel. As soon as you add a decoration, the gate becomes steel.",
+        "Hot-dip galvanised steel, then powder-coated. It carries the decorative styles: the rosette, and the wrought-iron style scrolls welded in our workshop, which require steel. As soon as you add a decoration, the gate becomes steel.",
     },
     {
       titre: "Colour",
-      texte: "Five colours are offered: {couleurs}.",
+      texte: "{nbTeintes} colours are offered: {couleurs}.",
     },
     {
       titre: "Style",
       texte:
-        "Six starting styles: solid, smooth, bars, oak slats, rosette and scrolls. Keep them as they are, or change each block: top shape, lower panel, infill, decoration. What cannot be made is refused, with the reason.",
+        "{nbStyles} starting styles: solid, flat, bars, oak slats, rosette, scrolls and laser-cut sheet. Keep them as they are, or change each block: top shape, lower panel, infill, decoration. What cannot be made is refused, with the reason.",
     },
   ],
 
@@ -378,7 +380,7 @@ const EN: TextesPortailSurMesure = {
     },
     {
       q: "Aluminium or steel gate: which to choose?",
-      r: "Aluminium is light and does not rust: it is the material of the solid, smooth, bars and oak slats styles. Galvanised, powder-coated steel carries the decorative styles, rosette or scrolls. Both are welded in our workshop.",
+      r: "Aluminium is light and does not rust: it is the material of the solid, flat, bars and oak slats styles. Galvanised, powder-coated steel carries the decorative styles, rosette or scrolls. Both are welded in our workshop.",
     },
     {
       q: "Can a bespoke gate be motorised?",
@@ -434,13 +436,25 @@ export function textesBrutsPortailSurMesure(locale: Locale): TextesPortailSurMes
   return TEXTES[locale];
 }
 
-/** Les valeurs des {marqueurs} propres à la page : le rayon de pose, l'acompte, le délai, les teintes. */
+/** Les nombres en toutes lettres (jusqu'à douze), pour « Six teintes » et « Sept styles » : écrits depuis les listes du configurateur. */
+const NOMBRES_EN_LETTRES: Record<Locale, readonly string[]> = {
+  fr: ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze", "douze"],
+  en: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"],
+};
+const enLettres = (locale: Locale, n: number): string => {
+  const mot = NOMBRES_EN_LETTRES[locale][n] ?? String(n);
+  return mot.charAt(0).toUpperCase() + mot.slice(1);
+};
+
+/** Les valeurs des {marqueurs} propres à la page : le rayon de pose, l'acompte, le délai, les teintes, le nombre de teintes et de styles. */
 export function valeursPortailSurMesure(locale: Locale, couleurs: string): Record<string, string> {
   return {
     rayonMax: String(RAYON_MAX_KM),
     acompte: String(ACOMPTE_PORTAIL_PCT),
     delai: DELAI_PORTAIL[locale],
     couleurs,
+    nbTeintes: enLettres(locale, COULEURS_PORTAIL.length),
+    nbStyles: enLettres(locale, STYLES_PORTAIL.length),
   };
 }
 

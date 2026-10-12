@@ -13,7 +13,10 @@ import { disponibiliteGoogle, fourchetteGoogle, prixAfficheFiche, textePrixDescr
 import { fourchetteGC, prixAppelGC, prixDepart } from "@/lib/prix-garde-corps.server";
 import { ProductView } from "@/components/product-view";
 import { PortailConfigurateur } from "@/components/portail-configurateur";
+import { AttenteConfiguration } from "@/components/portail/attente-configuration";
 import { estSlugPortail } from "@/lib/portails";
+import { liensGuideFiche, stylesDepart } from "@/lib/portails-fiche";
+import { styleDepartPortail } from "@/lib/prix-portail.server";
 import { ProductTail } from "@/components/product-tail";
 import { MembraneAnimee } from "@/components/photo-plafond-anime";
 import {
@@ -330,17 +333,23 @@ export default async function ProductPage({
 
       {/* 1. Fiche : galerie pleine hauteur + colonne d'options, bord à bord.
           Ancre « acheter » : c'est ici que remonte le bouton du bas de page. */}
-      <div id="acheter" className="scroll-mt-0">
+      <div id="acheter" className="scroll-mt-0" suppressHydrationWarning>
         {product.famille === "portail" && estSlugPortail(product.slug) ? (
           // Les portails : le client compose son portail par blocs, dessin de l'outil, prix du serveur.
+          <>
+          {/* Une adresse qui porte une configuration (?style=…&couleur=…) : la plaque reste cachée jusqu'à ce qu'elle soit appliquée (lib/portails-attente.ts ; #acheter porte suppressHydrationWarning pour l'attribut que ce script y pose). */}
+          <AttenteConfiguration />
           <PortailConfigurateur
             slug={product.slug}
             locale={locale}
             nom={product.name}
             image={product.images[0]?.src}
             tVisite={t}
+            // Le guide « Quel portail pour votre entrée ? » ouvre la fiche du modèle conseillé dans le style de son « dès » (comme la page des portails), calculé ici, côté serveur.
+            liensGuide={liensGuideFiche(locale, stylesDepart(styleDepartPortail))}
             filAriane={{ label: dict.nav.breadcrumb, etapes: [{ nom: dict.nav.home, href: `/${locale}` }, { nom: categorie, href: boutique }] }}
           />
+          </>
         ) : (
         <ProductView
           compteOuvert={compteConfigure()}
