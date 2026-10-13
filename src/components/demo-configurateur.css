@@ -1,0 +1,44 @@
+/* Le mini-configurateur de l'accueil (demo-configurateur.tsx). Opacité et transform seulement. */
+.dc { background: #fff; border: 1px solid #ddd3c6; border-radius: 16px; padding: 16px 18px 18px; box-shadow: 0 1px 2px rgba(43, 35, 32, 0.06), 0 14px 32px -22px rgba(43, 35, 32, 0.3); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; color: #2b2320; }
+.dc-exemple { font-size: 12.5px; font-weight: 600; letter-spacing: -0.005em; color: #5c5140; }
+.dc-scene { position: relative; margin: 2px auto 0; max-width: 400px; aspect-ratio: 400 / 240; }
+.dc-svg { display: block; width: 100%; height: 100%; }
+/* Chaque état occupe la même place ; un seul se voit à la fois. */
+.dc-scene .dc-etat { position: absolute; inset: 0; }
+.dc-valeur, .dc-montant { position: relative; display: block; text-align: right; }
+.dc-valeur .dc-etat, .dc-montant .dc-etat { position: absolute; right: 0; top: 0; white-space: nowrap; }
+.dc-valeur { min-width: 5rem; height: 1.25em; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.dc-montant { min-width: 7.5rem; height: 1.2em; font-size: 26px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.dc-rang { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+.dc-lib { font-size: 13px; color: #5c5140; }
+.dc-rang .dc-lib { width: 4.6rem; flex: none; }
+.dc { --dc-rail: 11rem; --dc-p0: calc(var(--dc-rail) * var(--dc-f0)); --dc-p1: calc(var(--dc-rail) * var(--dc-f1)); --dc-p2: calc(var(--dc-rail) * var(--dc-f2)); }
+@media (max-width: 479px) { .dc { --dc-rail: 6.5rem; } .dc-rang { gap: 8px; } .dc-rang .dc-lib { width: 4.2rem; } .dc-valeur { min-width: 4rem; } .dc-montant { min-width: 6.5rem; font-size: 24px; } }
+.dc-rail { position: relative; display: block; flex: none; width: var(--dc-rail); height: 4px; border-radius: 2px; background: #cfc4b5; margin-right: auto; }
+.dc-pouce { position: absolute; left: 0; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -2px; border-radius: 50%; background: #fff; border: 1.5px solid #2b2320; box-shadow: 0 1px 3px rgba(43, 35, 32, 0.3); transform: translateX(var(--dc-p0)); }
+.dc-prix { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ece5da; }
+.dc-prix .dc-lib { font-size: 14px; }
+.dc-cta { display: block; margin-top: 12px; padding: 12px 16px; border-radius: 12px; background: #2b2320; color: #fff; text-align: center; font-size: 15px; font-weight: 600; letter-spacing: -0.01em; transition: background-color 0.2s; }
+.dc-cta:hover { background: #1d1613; }
+
+/* La boucle : 10 s, trois états. Elle ne démarre que quand le bloc est vu (data-vu, posé par Apparition). */
+.dc .dc-etat, .dc .dc-pouce { animation-duration: 10s; animation-iteration-count: infinite; animation-timing-function: ease-in-out; animation-play-state: paused; }
+[data-vu] .dc .dc-etat, [data-vu] .dc .dc-pouce { animation-play-state: running; }
+.dc-a { animation-name: dc-a; }
+.dc-b { animation-name: dc-b; opacity: 0; }
+.dc-c { animation-name: dc-c; opacity: 0; }
+.dc .dc-pouce { animation-name: dc-pouce; }
+@keyframes dc-a { 0%, 28% { opacity: 1; } 32%, 92% { opacity: 0; } 98%, 100% { opacity: 1; } }
+@keyframes dc-b { 0%, 31% { opacity: 0; } 36%, 61% { opacity: 1; } 65%, 100% { opacity: 0; } }
+@keyframes dc-c { 0%, 64% { opacity: 0; } 69%, 90% { opacity: 1; } 94%, 100% { opacity: 0; } }
+@keyframes dc-pouce {
+  0%, 28% { transform: translateX(var(--dc-p0)); }
+  36%, 61% { transform: translateX(var(--dc-p1)); }
+  69%, 94% { transform: translateX(var(--dc-p2)); }
+  100% { transform: translateX(var(--dc-p0)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dc .dc-etat, .dc .dc-pouce { animation: none !important; }
+  .dc .dc-a { opacity: 1; }
+  .dc .dc-b, .dc .dc-c { opacity: 0; }
+}

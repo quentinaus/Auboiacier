@@ -13,7 +13,8 @@ import { SiteFooter } from "@/components/site-footer";
 import { serif } from "@/lib/fonts";
 import { Apparition } from "@/components/apparition";
 import { IndiceDefiler } from "@/components/indice-defiler";
-import { getProduct, type Famille } from "@/lib/products";
+import { computeUnitPrice, getProduct, SUR_MESURE, type Famille } from "@/lib/products";
+import { DemoConfigurateur, type EtatDemo } from "@/components/demo-configurateur";
 import { prixAppelGC, prixDepart } from "@/lib/prix-garde-corps.server";
 import { prixAffiche } from "@/lib/ui";
 
@@ -61,6 +62,27 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
     // Quentin (10/10/2026) : « ajoute portails ici aussi ».
     { href: `/${locale}/artisanat/famille/portail`, label: t.catPortails, prix: des(departDe(["portail"])) },
   ];
+
+  /** La démonstration de l'accueil : une table sur mesure à trois longueurs, aux prix du barème public de la fiche (jamais écrits ici). */
+  const ficheDemo = getProduct("table-mikado");
+  const demoLargeurCm = 90;
+  const demoEpaisseurMm = 45;
+  const demoEtats: EtatDemo[] = ficheDemo
+    ? [140, 240, 340]
+        .map((longueurCm) => ({
+          longueurCm,
+          prix: computeUnitPrice(ficheDemo, {
+            sizeId: SUR_MESURE,
+            largeurMm: longueurCm * 10,
+            hauteurMm: demoLargeurCm * 10,
+            epaisseurMm: demoEpaisseurMm,
+            woodId: ficheDemo.woods.find((w) => w.id.includes("chene"))?.id ?? ficheDemo.woods[0]?.id,
+            metalId: ficheDemo.metals[0]?.id,
+            locale,
+          }),
+        }))
+        .filter((e): e is EtatDemo => e.prix !== null)
+    : [];
 
   /** Vrais témoignages clients — à remplir, rien d'inventé ici. */
   const testimonials: { quote: string; author: string }[] = [];
@@ -153,8 +175,12 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
           typographique — à gauche le titre, à droite trois lignes fines, chacune avec son prix de départ. Plus de grande
           carte ni d'animation. */}
       <section id="configurer" className="scroll-mt-4 border-t border-[#e5ddd3] bg-[#f5f1ea] px-6 py-12 md:py-16">
-        <Apparition className="mx-auto grid max-w-6xl items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14">
-          <div>
+        {/* Refaite le 13/10/2026 (Quentin : « ça ne donne pas envie de configurer ») : à gauche le titre et les quatre pièces à
+            configurer, à droite un mini-configurateur qui bouge — la table se redessine à chaque longueur, le prix suit. Compact :
+            la bande garde la hauteur de l'ancienne (Quentin, 09/10 : « prend trop de place »). Sur téléphone : titre, démonstration,
+            puis les quatre pièces. */}
+        <Apparition className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)] gap-x-12 gap-y-7 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:items-center lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-x-16">
+          <div className="md:col-start-1 md:row-start-1 md:self-end">
             <p className="surtitre">{t.configLabel}</p>
             <h2 className={`${serif.className} mt-2 text-balance text-[1.7rem] leading-[1.1] tracking-[-0.016em] text-[#2b2320] md:text-[2.2rem]`}>
               {t.configTitle}
@@ -165,14 +191,19 @@ export default async function HubPage({ params }: PageProps<"/[lang]">) {
                 : "Your measurements, your price straight away, your quote as a PDF: no account, no commitment."}
             </p>
           </div>
-          <ul className="divide-y divide-[#e0d7cb] border-y border-[#e0d7cb]">
+          {demoEtats.length === 3 && (
+            <div className="md:col-start-2 md:row-span-2 md:row-start-1">
+              <DemoConfigurateur etats={demoEtats} largeurCm={demoLargeurCm} epaisseurMm={demoEpaisseurMm} lienTable={`/${locale}/artisanat/tables`} locale={locale} />
+            </div>
+          )}
+          <ul className="md:col-start-1 md:row-start-2 md:self-start">
             {portesConfig.map((porte) => (
-              <li key={porte.href}>
-                <Link href={porte.href} className="group flex items-baseline justify-between gap-4 py-4 md:py-5">
-                  <span className={`${serif.className} text-[1.2rem] leading-[1.2] text-[#2b2320] md:text-[1.4rem]`}>{porte.label}</span>
-                  <span className="flex shrink-0 items-baseline gap-3 text-[14px] text-[#6f6357] md:text-[15px]">
+              <li key={porte.href} className="border-t border-[#e0d7cb] last:border-b">
+                <Link href={porte.href} className="group flex items-center justify-between gap-4 py-3.5">
+                  <span className={`${serif.className} text-[1.2rem] leading-[1.2] text-[#2b2320] md:text-[1.35rem]`}>{porte.label}</span>
+                  <span className="flex shrink-0 items-center gap-3 text-[14px] text-[#5c5140] md:text-[15px]">
                     {porte.prix}
-                    <span aria-hidden="true" className="text-[#2b2320] transition-transform duration-300 group-hover:translate-x-1">
+                    <span aria-hidden="true" className="grid h-8 w-8 place-items-center rounded-full border border-[#cfc4b5] bg-white text-[#2b2320] transition-colors duration-300 group-hover:border-[#2b2320] group-hover:bg-[#2b2320] group-hover:text-white">
                       →
                     </span>
                   </span>
