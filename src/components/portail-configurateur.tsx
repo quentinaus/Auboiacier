@@ -8,6 +8,7 @@
  * Tous les dessins viennent du moteur de l'outil de plans (svgDe), jamais redessinés. Les prix viennent du serveur
  * (/api/prix-portail?variantes=1 : le portail, ses styles, ses décors et ses moteurs en une demande) : jamais un coût ici.
  */
+import { PrixCompose } from "@/components/prix-compose";
 import "./portail/configurateur-portail.css";
 import { useDeferredValue, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
@@ -1328,6 +1329,8 @@ export function PortailConfigurateur({ slug, locale, nom, filAriane, image, tVis
                   {ligneMoteur}
                   {lignePortillon}
                 </div>
+                {/* De quoi se compose le prix : trois lignes, sans chiffre, juste au-dessus du prix (Quentin, 15/10/2026). */}
+                <PrixCompose t={tVisite} famille="portail" dense className="mt-2 border-t border-[#e5ddd3] pt-2" />
               </div>
               <div className="cpt-barre-achat">
                 {ligneReception}{ligneReceptionLien}

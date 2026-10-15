@@ -12,6 +12,7 @@ import { serif } from "@/lib/fonts";
 import { amenerAlEcran, hoverZoom, prixAffiche } from "@/lib/ui";
 import { PhotoPlafondMesuree } from "./photo-plafond-anime";
 import { EnTeteFicheGC, PhotoFicheGC } from "./entete-fiche-gc";
+import { PrixCompose } from "./prix-compose";
 
 /**
  * Les flèches de la galerie ne portent pas de texte : seul un lecteur d'écran
@@ -385,6 +386,7 @@ export function ProductView({
       prix={prixFiche?.sorte === "appel" ? { montant: prixAffiche(prixFiche.prix, locale), largeurCm: prixFiche.largeurMm / 10 } : null}
       titre={titre}
       filAriane={titre ? undefined : filAriane}
+      composition={<PrixCompose t={t} famille={product.famille} compact className="md:max-w-[660px]" />}
     />
   );
   const prixDepart = prixFiche?.sorte === "a-partir-de" ? prixFiche.prix : null;
@@ -708,6 +710,8 @@ export function ProductView({
               </p>
             )}
             <p className="mt-1 text-xs leading-snug text-[#7a6f64]">{t.prixAttenteCotes}</p>
+            {/* De quoi se compose le prix : trois lignes, sans chiffre (Quentin, 15/10/2026). */}
+            <PrixCompose t={t} famille={product.famille} className="mt-5 border-t border-[#e5ddd3] pt-4" />
             {/* Le garde-corps Rosace renvoie vers le Garde-corps forgé à volutes, plus haut de gamme (Quentin, 07/10/2026). */}
             {product.releve === "garde-corps-fenetre" && !product.decorsGC && (
               <p className="mt-5 text-[13px] leading-snug text-[#6f6357]">

@@ -15,6 +15,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Visuel } from "./visuel";
 import { serif } from "@/lib/fonts";
+import type { ReactNode } from "react";
 import type { Product } from "@/lib/products";
 
 export function EnTeteFicheGC({
@@ -23,6 +24,7 @@ export function EnTeteFicheGC({
   prix,
   titre,
   filAriane,
+  composition,
 }: {
   nom: string;
   locale: "fr" | "en";
@@ -31,6 +33,8 @@ export function EnTeteFicheGC({
   /** true : le titre de la page (h1) ; false : le même texte, sans titre (l'écran de choix, posé par-dessus). */
   titre: boolean;
   filAriane?: { label: string; etapes: { nom: string; href: string }[] };
+  /** « De quoi se compose le prix » (prix-compose.tsx), sous le prix d'appel. */
+  composition?: ReactNode;
 }) {
   const fr = locale === "fr";
   const Nom = titre ? "h1" : "p";
@@ -75,7 +79,7 @@ export function EnTeteFicheGC({
           </Link>
         </span>
       </p>
-
+      {composition ? <div className="mt-2.5 md:mt-3">{composition}</div> : null}
     </div>
   );
 }

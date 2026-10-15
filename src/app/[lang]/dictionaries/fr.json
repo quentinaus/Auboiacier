@@ -911,6 +911,71 @@
         ]
       }
     },
+    "prixCompose": {
+      "titre": "De quoi se compose le prix",
+      "table-interieur": {
+        "lignes": [
+          "Plateau en bois massif, poncé et huilé à l'atelier.",
+          "Piétement en acier, soudé à la main, peint.",
+          "Dessinée et fabriquée à vos cotes, à Saumur."
+        ],
+        "bois": ""
+      },
+      "table-exterieur": {
+        "lignes": [
+          "Lattes en chêne massif, huilées pour l'extérieur.",
+          "Acier soudé à la main, galvanisé à froid, laqué.",
+          "Dessinée et fabriquée à vos cotes, à Saumur."
+        ],
+        "bois": ""
+      },
+      "chaise": {
+        "lignes": [
+          "Piétement en acier plein, soudé et peint mat.",
+          "Assise en mousse haute densité et velours.",
+          "Montée à la main, à Saumur."
+        ]
+      },
+      "chaise-exterieur": {
+        "lignes": [
+          "Acier soudé d'une pièce, peint pour l'extérieur.",
+          "Coussins déperlants, housses lavables.",
+          "Fabriqué à la commande, à Saumur."
+        ]
+      },
+      "escalier": {
+        "lignes": [
+          "Limon en acier, soudé au TIG à l'atelier.",
+          "Marches en bois massif, huilées.",
+          "Dessiné à votre trémie, fabriqué à Saumur."
+        ],
+        "bois": ""
+      },
+      "garde-corps": {
+        "lignes": [
+          "Acier plein, soudé à la main, meulé, peint.",
+          "Main courante en bois massif ou en acier.",
+          "Fixation en inox, choisie selon votre mur.",
+          "Dessiné et fabriqué à vos cotes, à Saumur."
+        ],
+        "bois": ""
+      },
+      "plafond": {
+        "lignes": [
+          "Caisson en aluminium, soudé à l'atelier.",
+          "Toile tendue qui diffuse la lumière.",
+          "Dessiné et fabriqué à vos dimensions, à Saumur."
+        ]
+      },
+      "portail": {
+        "lignes": [
+          "Alu ou acier, soudé à l'atelier.",
+          "Thermolaqué dans la couleur choisie.",
+          "Fabriqué à vos cotes, à Saumur."
+        ],
+        "bois": ""
+      }
+    },
     "etapesTitre": "Comment votre pièce est faite",
     "etapes": [
       {
