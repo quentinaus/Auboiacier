@@ -1,5 +1,6 @@
 "use client";
 
+import { PrixCompose } from "./prix-compose";
 import { Visuel } from "./visuel";
 import Link from "next/link";
 import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore, type ComponentProps, type ReactNode } from "react";
@@ -2608,6 +2609,9 @@ export function ProductOptions({
           {t.onQuote}
         </p>
       )}
+      {/* De quoi se compose le prix : sous le prix, sans chiffre (Quentin, 15/10/2026). Le configurateur en pleine page
+          l'écrit à côté de la photo (product-view.tsx). */}
+      {nouvelleMiseEnPage ? null : <PrixCompose t={t} famille={product.famille} className="mt-4 md:order-first" />}
 
       {/* DIMENSIONS — le format du catalogue d'abord, en un clic ; puis les
           cotes du client, qui prennent la main dès qu'elles sont valides. */}

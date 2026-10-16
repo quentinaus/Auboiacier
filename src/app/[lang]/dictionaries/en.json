@@ -911,6 +911,71 @@
         ]
       }
     },
+    "prixCompose": {
+      "titre": "What the price is made of",
+      "table-interieur": {
+        "lignes": [
+          "Solid wood top, sanded and oiled in the workshop.",
+          "Steel base, welded by hand and painted.",
+          "Designed and made to your size, in Saumur."
+        ],
+        "bois": "Our oak is grown in France and sawn in Touraine."
+      },
+      "table-exterieur": {
+        "lignes": [
+          "Solid oak slats, oiled for outdoor use.",
+          "Hand-welded steel, cold-galvanised, then lacquered.",
+          "Designed and made to your size, in Saumur."
+        ],
+        "bois": "Our oak is grown in France and sawn in Touraine."
+      },
+      "chaise": {
+        "lignes": [
+          "Solid steel base, welded and matt painted.",
+          "High-density foam seat, upholstered in velvet.",
+          "Assembled by hand, in Saumur."
+        ]
+      },
+      "chaise-exterieur": {
+        "lignes": [
+          "Steel welded in one piece, painted for outdoors.",
+          "Water-repellent cushions, washable covers.",
+          "Made to order, in Saumur."
+        ]
+      },
+      "escalier": {
+        "lignes": [
+          "Steel stringer, TIG-welded in the workshop.",
+          "Solid wood treads, oiled.",
+          "Designed to your stairwell, made in Saumur."
+        ],
+        "bois": "Our oak is grown in France and sawn in Touraine."
+      },
+      "garde-corps": {
+        "lignes": [
+          "Solid steel, welded by hand, ground, painted.",
+          "Handrail in solid wood or steel.",
+          "Stainless fixings, chosen for your wall.",
+          "Designed and made to your size, in Saumur."
+        ],
+        "bois": "Our oak is grown in France and sawn in Touraine."
+      },
+      "plafond": {
+        "lignes": [
+          "Aluminium box, welded in the workshop.",
+          "Stretched fabric that diffuses the light.",
+          "Designed and made to your size, in Saumur."
+        ]
+      },
+      "portail": {
+        "lignes": [
+          "Aluminium or steel, welded in-house.",
+          "Powder-coated in your chosen colour.",
+          "Made to your size, in Saumur."
+        ],
+        "bois": ""
+      }
+    },
     "etapesTitre": "How your piece is made",
     "etapes": [
       {
